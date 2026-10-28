@@ -112,8 +112,8 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-i | Sheet templates and passages | BA69, BA70, BA75, BA76, BA77, BA127 | done, #381 |
 | FA1-j | The sheet editor: pasting and saving | BA68, BA71, BA72, BA73, BA74 | done, #382 |
 | FA1-k | Greek search commands | BA44, BA45, BA48, BA49, BA50, BA116 | done, #383 |
-| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done |
-| FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | open |
+| FA1-l | /desk's LIT pane and layout | BA54, BA56, BA57, BA58, BA60, BA61 | done, #387 |
+| FA1-m | The tour, first use, and printing | BA33, BA34, BA35, BA36, BA37 | done |
 | FA1-n | Present mode and the sheet page | BA79, BA83, BA84, BA85, BA86 | open |
 | FA1-o | Announcements and focus for marks | BA18, BA21, BA22 | open |
 | FA1-p | Panels beside the Notebook | BA24, BA27, BA28 | open |
@@ -936,7 +936,7 @@ Browser check: interrupt the tour by reloading partway through.
     behind.
   - *Fix*: restore the three keys on `pagehide`, or call `end()` then. Let
     the tour open and expand the panel without saving it.
-  - Status: open.
+  - Status: **Fixed.** The tour opens and expands the Notebook on the page alone: `open`, `showTab` and the rail's `show` and `expand` take `remember: false`, which writes neither `lit-desk-panel` nor `lit-desk-min` (the tab already wasn't written), so a tour cut short by a reload, Back or a link leaves the next page as the reader had it. `end()` still puts the panel back on this page.
 - **BA34 (medium). Where the browser won't keep a notebook, the panel still
   says “Kept in this browser.”**
   - *What happens*: with `store: null` (IndexedDB refused or missing), My
@@ -954,7 +954,7 @@ Browser check: interrupt the tour by reloading partway through.
   - *Fix*: give first use, the tour (drop the marking steps) and the
     command context a `canKeep` flag. Also curl the straight apostrophes in
     `tab-mine.js:247`.
-  - Status: open.
+  - Status: **Fixed.** Where `store` is null, first use shows no card and makes no offer, and the foot keeps only its links (Take the tour, Help, Tell us what’s missing), so My Notes’ own line (apostrophes curled) stands alone. The tour takes `canKeep` and leaves out the steps marked `notebook` in `TOUR_STEPS` (all of “Marking the text,” and undo, the notebook page and where it’s kept). The shell stamps `data-desk-no-notebook` on <html>, the command context reads it as `keeps`, and “Print with my notes” isn’t offered then. Tested.
 - **BA35 (low; possible). Printing with notes or room cleans up only on
   `afterprint`.**
   - *What happens*: if no dialog opens (printing blocked by policy, or a
@@ -967,19 +967,19 @@ Browser check: interrupt the tour by reloading partway through.
   - *Fix*: add a fallback cleanup after `print()` returns (a
     `matchMedia("print")` change, or the next focus or pointer event), and
     one shared in-progress guard.
-  - Status: open.
+  - Status: **Fixed.** Both prints go through `printLook` (`desk/print-look.js`): one desk print at a time, the attribute and the build taken away on `afterprint`, or, once `print()` has returned without one, on the reader’s next focus, pointer or key event (Ctrl+P’s own keydown among them). Tested with a fake window.
 - **BA36 (low). Restarting the tour within a second lets the old timer
   remove its guard.** The 900 ms timer that removes `data-desk-tour`
   (`tour.js:575`) isn't kept or cleared by `start()` (471). Continue reading
   and a following ribbon then record the places the tour scrolls through.
   - *Fix*: keep the handle, and clear it in `start()`.
-  - Status: open.
+  - Status: **Fixed.** The timer removes `data-desk-tour` only when no tour is running, so one restarted within the second keeps its guard (the timer is set inside a frame, so a kept handle could be set after the restart).
 - **BA37 (low, data loss; likely). Starting the tour throws away a note
   being written.** “Take the tour” runs `closePanel()` first
   (`tour.js:465`), which removes the open note editor and its unsaved
   words.
   - *Fix*: don't start while an editor holds changed text, or ask first.
-  - Status: open.
+  - Status: **Fixed.** The note editor says whether it holds unsaved words or a marker (`changed` on its panel; `editorHolds` in note-editor.js). The tour doesn’t start then: the editor says “Save or cancel this note first, then take the tour.” and takes focus.
 
 ## FA1-n. Present mode and the sheet page
 

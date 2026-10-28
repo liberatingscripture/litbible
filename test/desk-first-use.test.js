@@ -246,6 +246,23 @@ test("a tour leaves out the steps that don't belong to the page's view", () => {
   assert.ok(!prose.includes("bookmark") && !prose.includes("ribbon"));
 });
 
+test("where the browser keeps no notebook, the tour leaves out marking the text and keeping it (BA34)", () => {
+  const all = new Set(TOUR_STEPS.map((s) => s.id));
+  for (const view of ["study", "read", "prose"]) {
+    const ids = planTour({ available: all, view, canKeep: false }).map((s) => s.id);
+    assert.ok(ids.length, view);
+    for (const s of TOUR_STEPS) {
+      if (s.notebook) assert.ok(!ids.includes(s.id), `${view}: ${s.id}`);
+    }
+    // No step is left from "Marking the text".
+    assert.ok(planTour({ available: all, view, canKeep: false }).every((s) => s.part !== 0), view);
+  }
+  const study = planTour({ available: all, view: "study", canKeep: false }).map((s) => s.id);
+  assert.deepEqual(study, ["panel", "verse", "greek", "greek-commands", "widths", "search"]);
+  // The default keeps them.
+  assert.ok(planTour({ available: all, view: "study" }).some((s) => s.id === "actions"));
+});
+
 test("the Greek search commands step follows the Greek step, in Study View only, and is offered as new", () => {
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const study = planTour({ available: all, view: "study" }).map((s) => s.id);

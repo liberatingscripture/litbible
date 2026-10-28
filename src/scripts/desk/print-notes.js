@@ -26,7 +26,8 @@
 //   4. stamps `data-desk-print="notes"` on <html>, waits for the fonts the
 //      page will print in, and calls window.print();
 //   5. on `afterprint` removes the asides, the highlights and the attribute,
-//      leaving the page as it was. It never writes a record.
+//      leaving the page as it was (or at the reader's next move, where no
+//      dialog opened; print-look.js, BA35). It never writes a record.
 //
 // The reader's screen switches ("My notes", "My highlights", Read View's own,
 // "Hide my notes") do not apply: the reader asked for notes on paper, and
@@ -49,8 +50,8 @@ import {
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { chapterBlocks, chapterTextFor, footnoteList, pageChapter, readBook, readChapterBlocks } from "./page.js";
+import { printLook } from "./print-look.js";
 
-const ATTR = "data-desk-print";
 const hlName = (color) => `desk-print-hl-${color}`;
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 
@@ -138,7 +139,6 @@ export async function printFonts(noteText = "") {
  */
 export function createPrintNotes({ store }) {
   if (!store) return null;
-  let undo = null; // what takes it all away, while a print is under way
 
   /** Whether this page can print with notes: a Study View chapter, or Read View. */
   const can = () => Boolean(surface()?.container);
@@ -294,29 +294,12 @@ export function createPrintNotes({ store }) {
 
   async function print() {
     const s = surface();
-    if (undo || !s?.container) return;
-    const root = document.documentElement;
-    let built = null;
-    let finished = false;
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-      window.removeEventListener("afterprint", finish);
-      root.removeAttribute(ATTR);
-      built?.undo();
-      undo = null;
-    };
-    undo = finish; // set first, so a second press while this is building does nothing
-    try {
-      built = await build(s);
-      window.addEventListener("afterprint", finish);
-      root.setAttribute(ATTR, "notes");
-      await printFonts(built.noteText);
-      window.print();
-    } catch (err) {
-      console.error("Study Desk: printing with notes didn't start", err);
-      finish();
-    }
+    if (!s?.container) return;
+    await printLook("notes", {
+      build: () => build(s),
+      ready: (built) => printFonts(built.noteText),
+      what: "printing with notes",
+    });
   }
 
   return { can, print };

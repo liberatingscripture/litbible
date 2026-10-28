@@ -74,8 +74,8 @@ import { keepReadingPlace } from "../keep-reading-place.js";
  * @param {(state: { floating: boolean, collapsed: boolean }) => void} onChange
  *   told whenever the notebook starts or stops floating, or collapses or
  *   expands, including when a placement does it (a window narrowed under it)
- * @returns {{ show: (opts?: { expand?: boolean }) => void, hide: () => void,
- *   collapse: () => void, expand: () => void,
+ * @returns {{ show: (opts?: { expand?: boolean, remember?: boolean }) => void, hide: () => void,
+ *   collapse: () => void, expand: (opts?: { remember?: boolean }) => void,
  *   state: () => { floating: boolean, collapsed: boolean } }}
  */
 export function createRail(panel, tab, onChange = () => {}) {
@@ -121,11 +121,17 @@ export function createRail(panel, tab, onChange = () => {}) {
   let floating = false;
   let collapsed = false;
   let opening = false;
+  // Whether that showing is remembered: the tour's isn't (BA33).
+  let openingKept = true;
   // The reader's own minimize, as opposed to collapsing because it floats.
   let minimized = true;
   try { minimized = startState((k) => localStorage.getItem(k)).minimized; } catch (_) {}
-  const keepMinimized = (on) => {
+  // `remember: false` changes this page alone: the tour expands the notebook
+  // to show it and writes nothing, so a tour cut short by a reload or a link
+  // leaves the next page as the reader had it (BA33).
+  const keepMinimized = (on, remember = true) => {
     minimized = on;
+    if (!remember) return;
     try { localStorage.setItem(MIN_KEY, on ? "1" : "0"); } catch (_) {}
   };
 
@@ -205,7 +211,7 @@ export function createRail(panel, tab, onChange = () => {}) {
     // they set the column (global.css) that everything else measures.
     const lay = widths?.layout() ?? null;
     let box;
-    if (opening) keepMinimized(false);
+    if (opening) keepMinimized(false, openingKept);
     // Minimized, the kept widths wait: the ordinary placement below puts the
     // tab at the edge and leaves the page alone.
     if (lay && !lay.over && !minimized) {
@@ -323,9 +329,10 @@ export function createRail(panel, tab, onChange = () => {}) {
   return {
     // `expand`: the reader asked to see it, so it opens expanded even in a
     // narrow window. Restoring it on a new page doesn't.
-    show({ expand = false } = {}) {
+    show({ expand = false, remember = true } = {}) {
       open = true;
       opening = expand;
+      openingKept = remember;
       // Asked to see it: measured as the expanded page it is about to be.
       if (expand) setExpanded(true);
       place();
@@ -341,10 +348,10 @@ export function createRail(panel, tab, onChange = () => {}) {
       place();
       onChange({ floating, collapsed });
     },
-    expand() {
+    expand({ remember = true } = {}) {
       if (!collapsed) return;
       collapsed = false;
-      keepMinimized(false);
+      keepMinimized(false, remember);
       setExpanded(true);
       place();
       onChange({ floating, collapsed });

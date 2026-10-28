@@ -299,12 +299,16 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // is expanded (global.css; BVJ, 2026-10-08), which reflows the text. The
   // rail owns that switch (data-desk-expanded, margin.js) and keeps the line
   // being read where it was, in both directions.
-  function open(from, { focus = true } = {}) {
+  // `remember: false` (the tour) opens it on this page alone, writing neither
+  // key, so a tour cut short leaves nothing behind (BA33).
+  function open(from, { focus = true, remember = true } = {}) {
     lastToggle = from ?? lastToggle;
     keepReadingPlace(() => root.setAttribute("data-desk-panel", "open"));
     panel.hidden = false;
-    rail.show({ expand: true });
-    try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
+    rail.show({ expand: true, remember });
+    if (remember) {
+      try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
+    }
     syncToggles();
     render();
     if (focus) panel.focus({ preventScroll: true });
@@ -576,13 +580,14 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   /**
    * Open the panel on a tab (the search box's commands, and the tour). With
    * `focus`, focus goes to the tab; the tour keeps it on its own card and
-   * passes `remember: false`, so the reader's last tab is kept. False where
-   * this page has no such tab.
+   * passes `remember: false`, so the reader's last tab is kept, and so is
+   * whether the Notebook was closed or minimized. False where this page has
+   * no such tab.
    */
   function showTab(id, { focus = true, remember = true } = {}) {
     if (!tabs.has(id)) return false;
-    if (panel.hidden) open(null, { focus: false });
-    else if (rail.state().collapsed) rail.expand();
+    if (panel.hidden) open(null, { focus: false, remember });
+    else if (rail.state().collapsed) rail.expand({ remember });
     selectTab(id, { focus, remember });
     return true;
   }
