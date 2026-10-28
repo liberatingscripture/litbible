@@ -505,7 +505,7 @@ function pickImage(path) {
 // --- Pictures to add, and notes for Claude ---------------------------------------
 // A note is something for Claude to do by hand. It can name a section and carry
 // pictures, which is how BDR adds a picture to a section: the apply step
-// converts it, and Claude lays it out from his words.
+// converts it, and Claude lays it out from BDR's words.
 
 function anchorName(anchor) {
   if (!anchor) return "The whole page";
