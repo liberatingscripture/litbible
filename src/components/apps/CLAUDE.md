@@ -107,8 +107,8 @@ templates hold no copy at all: **never write a word back into a component.**
   2026-10-28): its title is the page's only `<h1>`. The schema check refuses a
   hidden hero, and the board offers no Hide for it.
 - **Image `width`/`height` give the shape before the picture loads.** The ones
-  the refactor carried over are the original PNGs' sizes (1350×2760 for a file
-  that ships at 489×1000), which is the same shape; the Studio writes each new
+  the refactor carried over are the original PNGs' sizes (the hero's Android picture says 1187×2513 for
+  a file that ships at 472×1000), which is the same shape; the Studio writes each new
   picture's real size. The carousel's `frame` (603×1311) is a shade taller
   than its screenshots (489×1000), as it always was; the Studio fixes it the
   first time a request changes a carousel screenshot (`fitCarouselFrame`).
