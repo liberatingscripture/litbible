@@ -11,7 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { whatsNewForYou } from "../src/lib/desk-whats-new.mjs";
+import { whatsNewForYou, whatsNewLine } from "../src/lib/desk-whats-new.mjs";
 import {
   PUBLISH_LIMIT,
   hasVerseMarks,
@@ -20,7 +20,8 @@ import {
   markLinks,
   newestDate,
   presentWhatsNew,
-  seenDay,
+  seenMark,
+  seenValue,
 } from "../src/lib/desk-whats-new-view.mjs";
 
 const change = (description, type = "text_updated") => ({ type, description });
@@ -39,9 +40,26 @@ const FEED = [
 
 const note = (extra = {}) => ({ kind: "note", bookKey: "romans", chapter: 4, verse: 7, created: "2026-08-01T10:00:00Z", ...extra });
 
-test("seenDay accepts a day and nothing else", () => {
-  assert.equal(seenDay("2026-09-03"), "2026-09-03");
-  for (const bad of [null, undefined, "", "2026-9-3", "2026-09-03T10:00:00Z", 20260903, {}]) assert.equal(seenDay(bad), null);
+test("seenMark accepts a day, with or without a count, and nothing else", () => {
+  assert.deepEqual(seenMark("2026-09-03"), { day: "2026-09-03", count: null });
+  assert.deepEqual(seenMark("2026-09-03+4"), { day: "2026-09-03", count: 4 });
+  for (const bad of [null, undefined, "", "2026-9-3", "2026-09-03T10:00:00Z", "2026-09-03+", 20260903, {}]) {
+    assert.equal(seenMark(bad), null, String(bad));
+  }
+});
+
+test("seenValue is the newest date and how many changes that publish holds", () => {
+  assert.equal(seenValue(FEED), "2026-10-02+1");
+  assert.equal(seenValue([entry("2026-09-03", [change("a"), change("b"), change("c")])]), "2026-09-03+3");
+  assert.equal(seenValue([entry("2026-09-03", [])]), "2026-09-03+0");
+  assert.equal(seenValue([]), null);
+  assert.equal(seenValue(null), null);
+  assert.deepEqual(seenMark(seenValue(FEED)), { day: "2026-10-02", count: 1 }, "what is saved reads back");
+});
+
+test("seenValue counts the newest entry of a day that has two", () => {
+  const two = [entry("2026-09-03", [change("a"), change("b")]), entry("2026-09-03", [change("c")])];
+  assert.equal(seenValue(two), "2026-09-03+2");
 });
 
 test("newestDate is the feed's newest publish, whatever the order", () => {
@@ -77,6 +95,15 @@ test("markLinks names each mark with its verse link, once, grouped by place", ()
 });
 
 const luke = (kind, verse = 4) => ({ kind, bookKey: "luke", chapter: 24, verse });
+
+test("markLinks names a note on a footnote apart from a note on the verse (BA90)", () => {
+  const onFootnote = { kind: "note", footnote: "Some words.", n: "a", bookKey: "luke", chapter: 24, verse: 4 };
+  assert.deepEqual(markLinks([onFootnote]), [{ text: "your note on a footnote in Luke 24:4", href: "/luke-24/#v4" }]);
+  assert.deepEqual(markLinks([luke("note"), onFootnote]), [
+    { text: "your note on Luke 24:4", href: "/luke-24/#v4" },
+    { text: "your note on a footnote in Luke 24:4", href: "/luke-24/#v4" },
+  ]);
+});
 
 test("markLinks: one item, and nothing at all", () => {
   assert.deepEqual(markLinks([luke("note")]), [{ text: "your note on Luke 24:4", href: "/luke-24/#v4" }]);
@@ -140,6 +167,30 @@ test("presentWhatsNew: nothing is new on a first look, after-the-day publishes a
   const earlier = presentWhatsNew(found, "2026-08-15");
   assert.equal(earlier.fresh.length, 2);
   assert.ok(earlier.shown.every((e) => e.isNew === true));
+});
+
+test("presentWhatsNew: a change folded into the day already seen is new, and fresh holds only it (BA92)", () => {
+  const found = whatsNewForYou(FEED, [note()]);
+  // The newest 2026-09-03 publish holds changes 1 and 2 for the note; the reader saw it with two changes.
+  assert.deepEqual(found[0].changes.map((c) => c.index), [1, 2]);
+
+  const seen = presentWhatsNew(found, "2026-09-03+3");
+  assert.equal(seen.fresh.length, 0, "all three were seen");
+  assert.ok(seen.shown.every((e) => e.isNew === false));
+
+  const folded = presentWhatsNew(found, "2026-09-03+2");
+  assert.equal(folded.fresh.length, 1);
+  assert.equal(folded.fresh[0].id, found[0].id);
+  assert.deepEqual(folded.fresh[0].changes.map((c) => c.index), [2], "only the change past the count");
+  assert.equal(whatsNewLine(folded.fresh, { sinceVisit: true }), "One change since your last visit touches your verses");
+  assert.deepEqual(folded.shown.map((e) => e.isNew), [true, false], "the day's older entry is never new");
+  assert.equal(folded.shown[0].changes.length, 2, "shown keeps every change; only fresh is cut");
+});
+
+test("presentWhatsNew: a bare day has no count, so nothing on that day is new", () => {
+  const found = whatsNewForYou(FEED, [note()]);
+  assert.equal(presentWhatsNew(found, "2026-09-03").fresh.length, 0);
+  assert.equal(presentWhatsNew(found, seenMark("2026-09-03")).fresh.length, 0);
 });
 
 test("presentWhatsNew caps the publishes shown and counts the rest", () => {

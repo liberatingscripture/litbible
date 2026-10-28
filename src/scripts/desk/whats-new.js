@@ -24,9 +24,9 @@ import {
   hasVerseMarks,
   listSeparator,
   markLinks,
-  newestDate,
   presentWhatsNew,
-  seenDay,
+  seenMark,
+  seenValue,
 } from "../../lib/desk-whats-new-view.mjs";
 import { loadReleaseNotes } from "./release-feed.js";
 
@@ -40,9 +40,11 @@ function el(tag, className, text) {
   return e;
 }
 
+/** The saved "last looked" value as it is stored ("2026-10-26+3"), or null. */
 async function lastLooked(store) {
   try {
-    return seenDay(await store.getMeta?.(SEEN_KEY));
+    const value = await store.getMeta?.(SEEN_KEY);
+    return seenMark(value) ? value : null;
   } catch (_) {
     return null;
   }
@@ -83,6 +85,11 @@ function marksSentence(records) {
   return p;
 }
 
+/** Everything publishItem draws for a group, to tell whether a redraw would change it. */
+function publishSignature(group) {
+  return [group.id, group.label, group.isNew, group.changes.map(({ change, records }) => [change.description, markLinks(records)])];
+}
+
 function publishItem(group) {
   const article = el("article", `desk-wn__publish${group.isNew ? " desk-wn__publish--new" : ""}`);
   article.dataset.entry = group.id;
@@ -115,16 +122,20 @@ export function mountWhatsNew(box, { store }) {
   const status = el("p", "desk-wn__status");
   status.setAttribute("aria-live", "polite");
   const list = el("div", "desk-wn__list");
+  const again = el("button", "desk-wn__again", "Try again");
+  again.type = "button";
+  again.hidden = true;
   const more = el("button", "desk-wn__more");
   more.type = "button";
   more.hidden = true;
   box.setAttribute("aria-labelledby", title.id);
-  box.replaceChildren(title, status, list, more);
+  box.replaceChildren(title, status, again, list, more);
 
   let seen; // the day last looked, read once so "New" holds for the visit
   let limit = null;
   let marked = false; // the day moved on
   let seq = 0;
+  let drawn = null; // what the list last showed, so an unchanged redraw keeps focus (BA97)
 
   more.addEventListener("click", () => {
     limit = Infinity;
@@ -132,45 +143,81 @@ export function mountWhatsNew(box, { store }) {
     draw().then(() => list.children[first]?.querySelector("a")?.focus());
   });
 
-  async function draw() {
+  // Try again fetches the feed afresh (release-feed.js forgets a failure, BA88).
+  // Once a draw hides it, focus goes to the heading rather than the page.
+  let refocus = false;
+  again.addEventListener("click", () => {
+    refocus = true;
+    draw();
+  });
+  function landFocus() {
+    if (!refocus || !again.hidden) return;
+    refocus = false;
+    if (document.activeElement === again || document.activeElement === document.body) {
+      title.tabIndex = -1;
+      title.focus();
+    }
+  }
+
+  /** Say something in place of the list, with Try again when `retry`. */
+  function plain(text, { retry = false } = {}) {
+    drawn = null;
+    list.replaceChildren();
+    more.hidden = true;
+    again.hidden = !retry;
+    landFocus();
+    status.textContent = text;
+  }
+
+  function draw() {
     const mine = ++seq;
+    return paint(mine).catch(() => {
+      if (mine === seq) plain("Your notebook couldn’t be read just now.", { retry: true });
+    });
+  }
+
+  async function paint(mine) {
     const records = await store.all();
     if (seen === undefined) seen = await lastLooked(store);
     if (!hasVerseMarks(records)) {
-      if (mine !== seq) return;
-      list.replaceChildren();
-      more.hidden = true;
-      status.textContent = "Once you’ve marked a verse, changes to it show up here.";
+      if (mine === seq) plain("Once you’ve marked a verse, changes to it show up here.");
       return;
     }
     const entries = await loadReleaseNotes();
     if (mine !== seq) return;
     if (!entries) {
-      list.replaceChildren();
-      more.hidden = true;
-      status.textContent = "The release notes couldn’t be loaded just now. Try again in a moment.";
+      plain("The release notes couldn’t be loaded just now.", { retry: true });
       return;
     }
 
     const found = whatsNewForYou(entries, records);
     const { shown, hidden, fresh } = presentWhatsNew(found, seen, limit == null ? undefined : { limit });
     // A first look has no "since": it says what the notebook's verses have had.
-    status.textContent = !found.length
+    const text = !found.length
       ? "Nothing has changed in your verses."
       : seen === null
         ? whatsNewLine(found)
         : (whatsNewLine(fresh, { sinceVisit: true }) ?? "Nothing new since your last visit.");
-    list.replaceChildren(...shown.map(publishItem));
+    again.hidden = true;
+    landFocus();
+    if (status.textContent !== text) status.textContent = text;
+    // A change elsewhere in the notebook leaves this list as it was: rebuilding
+    // it anyway would drop the focus of a reader working through it.
+    const signature = JSON.stringify(shown.map(publishSignature));
+    if (signature !== drawn) {
+      drawn = signature;
+      list.replaceChildren(...shown.map(publishItem));
+    }
     more.hidden = hidden === 0;
     more.textContent = `Show ${hidden} more ${hidden === 1 ? "publish" : "publishes"}`;
 
     // Looking is what moves the day on, once, from a feed that was read.
     if (!marked) {
       marked = true;
-      const newest = newestDate(entries);
-      if (newest && newest !== seen && typeof store.setMeta === "function") {
+      const value = seenValue(entries);
+      if (value && value !== seen && typeof store.setMeta === "function") {
         try {
-          await store.setMeta(SEEN_KEY, newest);
+          await store.setMeta(SEEN_KEY, value);
         } catch (_) {
           // An unwritable meta only means "New" shows again next time.
         }

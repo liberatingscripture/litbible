@@ -6,14 +6,14 @@
 // tested: the day the reader last looked, which publishes are new to them,
 // how many show before "Show more" and how a mark is named in a sentence.
 //
-// "Last looked" is a day (YYYY-MM-DD) kept in the notebook's meta, and it is
-// the date of the newest publish in the feed at the time, never the device's
-// clock: a wrong clock can't hide news, and a publish that lands later the
-// same day as a look still counts as new. (One landing on the same day as
-// the newest publish already seen is the one case it can't tell apart.)
+// "Last looked" is kept in the notebook's meta as the date of the newest
+// publish in the feed at the time, never the device's clock, and how many
+// changes that publish held ("2026-10-26+3", seenValue): a wrong clock can't
+// hide news, a publish that lands later the same day as a look still counts
+// as new, and so does one the drafter folded into the day already seen (BA92).
 
-import { markVerses } from "./desk-whats-new.mjs";
-import { recordHref, recordReference } from "./desk-store-core.mjs";
+import { isNewChange, markVerses, seenMark } from "./desk-whats-new.mjs";
+import { recordHref, recordWhere } from "./desk-store-core.mjs";
 
 /** The notebook meta key holding the day the reader last looked. */
 export const SEEN_KEY = "whatsNewSeen";
@@ -21,10 +21,7 @@ export const SEEN_KEY = "whatsNewSeen";
 /** How many publishes the notebook page lists before "Show more". */
 export const PUBLISH_LIMIT = 10;
 
-/** A saved "last looked" day if it is one, else null (never seen, or a stray value). */
-export function seenDay(value) {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
-}
+export { seenMark };
 
 /** The date of the newest publish in the feed, or null for an empty one. */
 export function newestDate(entries) {
@@ -33,6 +30,18 @@ export function newestDate(entries) {
     if (typeof entry?.date === "string" && (newest === null || entry.date > newest)) newest = entry.date;
   }
   return newest;
+}
+
+/**
+ * What to save as "last looked" after a look at `entries`: the newest date
+ * and the number of changes its publish holds ("2026-10-26+3"), or null for an
+ * empty feed. Where a day has two entries, the newest (listed first) counts.
+ */
+export function seenValue(entries) {
+  const day = newestDate(entries);
+  if (!day) return null;
+  const entry = entries.find((e) => e?.date === day);
+  return `${day}+${Array.isArray(entry?.changes) ? entry.changes.length : 0}`;
 }
 
 /** Whether any record sits on a verse, so a change to verses could matter to it. */
@@ -61,7 +70,9 @@ export function joinList(items) {
  * The reader's marks named in a sentence, one entry for each place they sit,
  * with its link. Marks at one place share it: `{ text: "your note, highlight,
  * and bookmark on Luke 24:4", href: "/luke-24/#v4" }`, not the verse said
- * three times. Places and the kinds within a place keep the order first seen;
+ * three times. A note on a footnote is its own place, "your note on a footnote
+ * in Luke 24:4" (recordWhere), never merged with a note on the verse (BA90).
+ * Places and the kinds within a place keep the order first seen;
  * marks that read the same ("your highlight on Romans 4:7" twice) come out
  * once. Join the entries with `listSeparator`.
  */
@@ -69,7 +80,7 @@ export function markLinks(records) {
   const places = new Map();
   for (const r of records ?? []) {
     const name = r.kind === "place" ? (r.ribbon ? "ribbon" : "place") : (MARK_NAMES[r.kind] ?? "mark");
-    const where = recordReference(r);
+    const where = recordWhere(r);
     let place = places.get(where);
     if (!place) {
       place = { names: [], href: recordHref(r) };
@@ -83,17 +94,25 @@ export function markLinks(records) {
 /**
  * What the notebook page lists, from whatsNewForYou's answer.
  *
- * Each publish is marked `isNew` when it came after the day the reader last
- * looked; with no such day (a first look) nothing is new, since "since your
- * last visit" has nothing to be since. Only the first `limit` publishes are
- * in `shown`; `hidden` counts the rest.
+ * Each publish is marked `isNew` when it holds a change from after the reader
+ * last looked (isNewChange: a later day, or past the count on the day seen);
+ * with no "last looked" (a first look) nothing is new, since "since your last
+ * visit" has nothing to be since. Only the first `limit` publishes are in
+ * `shown`; `hidden` counts the rest.
  *
  * @param {object[]} found whatsNewForYou(...), newest first
- * @param {string | null} seen the day last looked
+ * @param {string | { day: string, count: number | null } | null} seen last looked
  * @returns {{ shown: object[], hidden: number, fresh: object[] }} `fresh` is
- *   every new publish, shown or not, for the line above the list
+ *   every new publish, shown or not, holding only its new changes, for the
+ *   line above the list
  */
 export function presentWhatsNew(found, seen, { limit = PUBLISH_LIMIT } = {}) {
-  const marked = (found ?? []).map((entry) => ({ ...entry, isNew: seen !== null && entry.date > seen }));
-  return { shown: marked.slice(0, limit), hidden: Math.max(0, marked.length - limit), fresh: marked.filter((e) => e.isNew) };
+  const mark = seenMark(seen);
+  const fresh = [];
+  const marked = (found ?? []).map((entry) => {
+    const changes = mark ? entry.changes.filter((c) => isNewChange(entry, c.index, mark)) : [];
+    if (changes.length) fresh.push({ ...entry, isNew: true, changes });
+    return { ...entry, isNew: changes.length > 0 };
+  });
+  return { shown: marked.slice(0, limit), hidden: Math.max(0, marked.length - limit), fresh };
 }

@@ -524,6 +524,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // Another tab's change, or this tab's own: either way the list is redrawn
   // from the database, so every tab shows the same notebook.
   store?.subscribe(() => render());
+  // My Notes' What's new line reads the notebook's meta, which the notebook
+  // page moves on when it is looked at, in any tab (BA96).
+  store?.onMeta?.(() => render());
 
   // Another tab opening or closing the panel doesn't move this one: each tab
   // keeps its own layout until the next page load.

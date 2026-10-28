@@ -423,6 +423,8 @@ export function noticeWords(notice, record, ref) {
 
 // "Luke 11:2, 20, 43–44, 47 — text updated": the chapter, then the verses.
 const DESCRIPTION = /^(.+?) (\d+):(.+?) — /;
+// "John 7 — updated": a chapter named with no verses (BA98).
+const CHAPTER_ONLY = /^(.+?) (\d+) — /;
 // One piece of that list: "47", "43–44", or a run into the next chapter ("53–8:11").
 const PIECE = /^(\d+)(?:\s*[–-]\s*(?:(\d+):)?(\d+))?$/;
 
@@ -450,13 +452,16 @@ function descriptionRanges(description, chapter) {
  * and "Romans 16:24 and 25–27 — …"), which the drafter writes for every
  * change; failing that the `v. N:` labels of the detail, and failing that
  * `location.verse`. The book and chapter are `location`'s, or, for the older
- * rows that have none, the description's own.
+ * rows that have none, the description's own. A `text_updated` row that names
+ * no verse at all ("John 7 — updated", which the drafter writes when it can't
+ * compare the chapter) is read as the whole chapter, so a mark there still
+ * hears of it (BA98).
  */
 export function changeVerses(change) {
   const bookKey = changeBook(change);
   const chapter = Number.isInteger(change?.location?.chapter)
     ? change.location.chapter
-    : Number(DESCRIPTION.exec(change?.description ?? "")?.[2]) || null;
+    : Number((DESCRIPTION.exec(change?.description ?? "") ?? CHAPTER_ONLY.exec(change?.description ?? ""))?.[2]) || null;
   if (!bookKey || !chapter) return null;
 
   let ranges = descriptionRanges(change.description, chapter);
@@ -468,15 +473,38 @@ export function changeVerses(change) {
     if (labelled.length) ranges = labelled;
   }
   if (!ranges && Number.isInteger(change.location?.verse)) ranges = [[change.location.verse, change.location.verse]];
+  if (!ranges && change.type === "text_updated") ranges = [[1, Infinity]];
   return ranges ? { bookKey, chapter, ranges } : null;
 }
 
-/** The day (YYYY-MM-DD) the record's text was taken, or null. */
+const PACIFIC_DAY = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Los_Angeles",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/**
+ * The day (YYYY-MM-DD) the record's text was taken, or null, as the release
+ * notes date it: in Pacific time (the drafter's `today`), never UTC (BA92). A
+ * content version names only its build's UTC day, which in Pacific time is
+ * that day or the one before, so it reads as the day before: a mark made on
+ * a page built on a Pacific evening then keeps that evening's publish, where
+ * the UTC day would leave it out. A timestamp is turned to its Pacific day.
+ */
 export function textDay(record) {
   const v = /^v(\d{4})(\d{2})(\d{2})\.[0-9a-f]+$/.exec(record?.contentVersion ?? "");
-  if (v) return `${v[1]}-${v[2]}-${v[3]}`;
+  if (v) {
+    const day = new Date(Date.UTC(Number(v[1]), Number(v[2]) - 1, Number(v[3]) - 1));
+    return day.toISOString().slice(0, 10);
+  }
   for (const t of [record?.verseCopyAsOf, record?.created]) {
-    if (typeof t === "string" && /^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0, 10);
+    if (typeof t !== "string" || !/^\d{4}-\d{2}-\d{2}/.test(t)) continue;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+    const ms = Date.parse(t);
+    if (Number.isNaN(ms)) return t.slice(0, 10);
+    const part = Object.fromEntries(PACIFIC_DAY.formatToParts(ms).map((p) => [p.type, p.value]));
+    return `${part.year}-${part.month}-${part.day}`;
   }
   return null;
 }

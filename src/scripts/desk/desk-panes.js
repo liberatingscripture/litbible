@@ -368,10 +368,12 @@ export function mountPane(kind, body, env, pane) {
     // only once it is there.
     queueMicrotask(() => tab.render());
     const unsubscribe = env.store?.subscribe(() => tab.render());
+    const offMeta = env.store?.onMeta?.(() => tab.render()); // What's new's line (BA96)
     return {
       setPassage: (p) => tab.follow(p),
       destroy: () => {
         unsubscribe?.();
+        offMeta?.();
         tab.destroy();
       },
     };

@@ -304,7 +304,8 @@ that section.
      before keeping a record whose text can't be ordered against the
      page's, and `/api/data/release-notes.json`, for the date
      (`releaseNoteFor` reads a `text_updated` change's verses from its
-     `description`), fetched only when a notice opens. A highlight carrying
+     `description`, and one naming no verse as the whole chapter, BA98),
+     fetched only when a notice opens. A highlight carrying
      a notice is never merged or trimmed (`placeHighlights`).
   13. **Phase 1d is the notebook around the marks** (built 2026-10-12).
      - **The notebook page**, `/notebook/` (`pages/notebook.astro`), and its
@@ -492,8 +493,20 @@ that section.
        release notes through the change notice's `changeVerses`, so the
        description wording rule 12 relies on is load-bearing here as well.
        The feed is fetched once per tab (`desk/release-feed.js`,
-       `sessionStorage['lit-desk-release-feed']`), "last looked" is the
-       notebook meta value `whatsNewSeen`; both are in /privacy's paragraph.
+       `sessionStorage['lit-desk-release-feed']`; a failed fetch is
+       forgotten, so the page's Try again fetches afresh, BA88), "last
+       looked" is the notebook meta value `whatsNewSeen`; both are in
+       /privacy's paragraph. **"Last looked" is a day and a count**
+       (`"2026-10-26+3"`, `seenValue`/`seenMark`), since the drafter folds a
+       second publish on one day into that day's entry, and the changes past
+       the count are new (BA92). **The feed's days are Pacific**, so
+       `textDay` (`desk-change.mjs`) reads a mark's timestamp as its Pacific
+       day and a content version's UTC day as the day before. A pinned
+       footnote or a note on a footnote hears only the footnote changes
+       (rule 23; BA90). Setting a meta value tells the other tabs with a
+       message of its own (`metaMessage`, heard through `store.onMeta`), so
+       My Notes' line moves on with the notebook page without every tab
+       redrawing its marks (BA96).
   17. **Phase 2a's Greek search commands** (built 2026-10-15; STUDY-DESK.md,
      "Order of work", 2a): searching by parsing (`*.aor.impv`, "genitives
      of πίστις") and by construction (`πίστις.gen, Ἰησοῦς/Χριστός.gen`),

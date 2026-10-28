@@ -37,12 +37,14 @@
 import {
   CHANNEL,
   changeMessage,
+  metaMessage,
   planDelete,
   planPurge,
   planSave,
   planUndo,
   planWrite,
   readChangeMessage,
+  readMetaMessage,
   touched,
 } from "../../lib/desk-store-core.mjs";
 import { isNoop, makeEntry } from "../../lib/desk-history.mjs";
@@ -106,6 +108,16 @@ export async function openStore({ ctx }) {
   const notify = (ids, origin) => {
     for (const fn of listeners) fn(ids, origin);
   };
+  const metaListeners = new Set();
+  const notifyMeta = (key, origin) => {
+    for (const fn of metaListeners) {
+      try {
+        fn(key, origin);
+      } catch (err) {
+        console.error("Study Desk: a meta listener failed", err);
+      }
+    }
+  };
 
   let channel = null;
   if (globalThis.BroadcastChannel) {
@@ -113,6 +125,8 @@ export async function openStore({ ctx }) {
     channel.onmessage = (e) => {
       const ids = readChangeMessage(e.data);
       if (ids) notify(ids, "other-tab");
+      const key = readMetaMessage(e.data);
+      if (key) notifyMeta(key, "other-tab");
     };
   }
 
@@ -126,10 +140,14 @@ export async function openStore({ ctx }) {
     return request(tx.objectStore(META).get(key));
   }
 
+  // Other tabs hear a meta change, so a line drawn from it (What's new's
+  // "since your last visit") doesn't outlive it there (BA96).
   async function setMeta(key, value) {
     const tx = db.transaction(META, "readwrite");
     tx.objectStore(META).put(value, key);
     await committed(tx);
+    channel?.postMessage(metaMessage(key));
+    notifyMeta(key, "this-tab");
   }
 
   let entrySeq = 0;
@@ -350,6 +368,12 @@ export async function openStore({ ctx }) {
     subscribe(fn) {
       listeners.add(fn);
       return () => listeners.delete(fn);
+    },
+
+    /** Called with (key, "this-tab" | "other-tab") after a meta value is set (BA96). */
+    onMeta(fn) {
+      metaListeners.add(fn);
+      return () => metaListeners.delete(fn);
     },
 
     /**
