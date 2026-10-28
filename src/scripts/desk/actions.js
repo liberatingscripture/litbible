@@ -39,13 +39,14 @@ import {
   planHighlight,
 } from "../../lib/desk-highlights.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
+import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openNoteEditor } from "./note-editor.js";
 import { openRibbonForm } from "./ribbon-form.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
-import { showUndo } from "./undo-bar.js";
+import { announce, showUndo } from "./undo-bar.js";
 
 export function initActions({ store, ctx, showVerse = null }) {
   if (!store) return;
@@ -144,6 +145,7 @@ export function initActions({ store, ctx, showVerse = null }) {
         existing = true;
         bookmark.textContent = "Bookmarked ✓";
         setTimeout(closePanel, 700);
+        announce(bookmarkedMessage(ref));
       } catch (err) {
         console.error("Study Desk: the bookmark couldn't be changed", err);
         busy = false;
@@ -177,7 +179,11 @@ export function initActions({ store, ctx, showVerse = null }) {
     // Opens beside what the menu was opened from: the verse number, or the
     // selection.
     const trigger = (d.kind === "selection" && d.range) || currentPanel()?.trigger || btn;
-    const restoreFocus = currentPanel()?.restoreFocus ?? null;
+    // A selection's panel has no button to return to, so focus goes back to
+    // the verse number the selection starts in once the note is saved or
+    // cancelled (BA21).
+    const restoreFocus =
+      currentPanel()?.restoreFocus ?? (d.kind === "selection" ? verseNumberOf(d.range, d.start) : null);
     openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus, text: textOf });
   }
 
@@ -308,6 +314,10 @@ export function initActions({ store, ctx, showVerse = null }) {
           showUndo(`Highlight removed from ${ref}.`, () => undoEntry(entry));
         } else if (entry && plan.summary.otherColors > 0) {
           showUndo(`${ref} highlighted ${COLOR_WORDS[color]}.`, () => undoEntry(entry));
+        } else if (entry && color) {
+          // A highlight touching no other colour has no bar to show, but
+          // making one is still announced (BA18).
+          announce(highlightedMessage(COLOR_WORDS[color], ref));
         }
         // The selection has done its job, and would hide the new colour.
         if (d.kind === "selection") window.getSelection()?.removeAllRanges();
@@ -319,6 +329,17 @@ export function initActions({ store, ctx, showVerse = null }) {
       closePanel();
     }
   }
+}
+
+/**
+ * The verse number of `verse` in the chapter text `range` starts in: Study
+ * View's, or the LIT pane's own (ids there carry the pane and chapter, hence
+ * the suffix match). Null when it isn't to be found.
+ */
+function verseNumberOf(range, verse) {
+  const at = range?.startContainer;
+  const box = (at instanceof Element ? at : at?.parentElement)?.closest(".chapter-paragraphs");
+  return box?.querySelector(`sup.vn[id$="v${verse}"]`) ?? null;
 }
 
 function button(label) {

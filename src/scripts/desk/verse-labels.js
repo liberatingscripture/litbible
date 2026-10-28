@@ -9,7 +9,8 @@
 // chapter-tools.js makes each verse number a button and gives it the plain
 // name "Verse 1". While the desk is on, this overrides that name with
 // "Verse 1, 1 note of mine", "Verse 1, highlighted yellow" or both, colours
-// first. The notes and highlights themselves sit outside the scripture's
+// first; a bookmarked verse is "Verse 28, bookmarked" (BA22), leading the
+// rest. The notes and highlights themselves sit outside the scripture's
 // reading order (audit C24), so someone reading the verse would never come
 // across them; the verse number, already the keyboard's way into each verse,
 // is where a screen reader hears that a verse has them, and the verse menu
@@ -24,13 +25,14 @@
 //
 // It adds no text to the scripture: the only thing it touches is an attribute.
 // Each kind counts only while the reader is showing it: notes while "My notes"
-// is on, highlights while "My highlights" is on (both are turned off by "Hide
-// my notes"). A verse goes back to the plain "Verse N" for whatever is hidden,
-// so nothing on the page mentions what the reader chose not to see.
+// is on, highlights while "My highlights" is on, bookmarks while "My bookmarks"
+// is on (all three are turned off by "Hide my notes"). A verse goes back to the
+// plain "Verse N" for whatever is hidden, so nothing on the page mentions what
+// the reader chose not to see.
 
 import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter } from "../../lib/desk-store-core.mjs";
-import { highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
+import { bookmarkedVerses, highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 import { watchLitRecords } from "./lit-records.js";
@@ -108,6 +110,7 @@ function noticeCounts(records) {
 function label(textBox, records) {
   const counts = getSetting("notes") === "on" ? noteCounts(records) : new Map();
   const colors = getSetting("highlights") === "on" ? highlightColors(records) : new Map();
+  const marked = getSetting("bookmarks") === "on" ? bookmarkedVerses(records) : new Set();
   const changed = noticeCounts(records);
   for (const sup of textBox.querySelectorAll("sup.vn")) {
     // chapter-tools.js makes it a button at init; one it hasn't reached yet
@@ -115,7 +118,7 @@ function label(textBox, records) {
     if (sup.getAttribute("role") !== "button") continue;
     const verse = parseInt(sup.textContent, 10);
     if (!Number.isFinite(verse)) continue;
-    const label = verseLabel(verse, counts.get(verse) ?? 0, colors.get(verse) ?? [], changed.get(verse) ?? 0);
+    const label = verseLabel(verse, counts.get(verse) ?? 0, colors.get(verse) ?? [], changed.get(verse) ?? 0, marked.has(verse));
     if (sup.getAttribute("aria-label") !== label) sup.setAttribute("aria-label", label);
   }
 }

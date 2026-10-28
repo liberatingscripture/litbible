@@ -31,6 +31,7 @@
 // the Notebook's lists name it anyway). Each opens the card. Nothing is
 // written until the reader chooses Keep or Delete there.
 
+import { onFootnote } from "../../lib/desk-records.mjs";
 import { recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import {
   CIRCLE,
@@ -95,12 +96,17 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   const hover = new Set(); // hovered or focused
   const flash = new Set(); // briefly marked after "go to"
   let popId = null;
+  let popBind = null; // points the open circle popover at its circle after a redraw
   let afterDraw = null; // focus to place once the next drawing is done
+  // Every note and highlight loaded this visit, by id, so one the notebook has
+  // since lost (deleted) can still say where it sat (BA21).
+  const known = new Map();
 
   /* ── Reading the notebook ─────────────────────────────────────────── */
 
   async function load() {
     ({ notes, bookmarks, highlights = [] } = await source.load(store));
+    for (const r of [...notes, ...highlights]) known.set(r.id, r);
     schedule();
   }
 
@@ -125,6 +131,17 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       : focused?.classList.contains("desk-flag")
         ? ".desk-flag"
         : ".desk-note__hit";
+    const nextId = focused ? nextNoteId(focused) : null;
+    // Put focus back where it was in the new drawing, or as focusGone says
+    // where there is no such control. The last note's deletion leaves nothing
+    // to draw, so this runs on that early exit too (BA21).
+    const refocus = () => {
+      if (!focusedId) return;
+      const id = CSS.escape(focusedId);
+      const back = aside.querySelector(`[data-id="${id}"]${focusSel}, [data-id="${id}"] ${focusSel}`);
+      if (back) back.focus({ preventScroll: true });
+      else focusGone(focusedId, nextId);
+    };
     aside.replaceChildren();
     const notesOn = getSetting("notes") === "on" && notes.length > 0;
     // A highlight whose wording has changed is flagged while highlights are
@@ -185,7 +202,12 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
     aside.hidden = mode === "none" && !aside.childElementCount;
     if (mode === "none") {
-      if (popId) closePanel();
+      if (popId) {
+        const gone = popId;
+        closePanel();
+        if (document.activeElement === document.body) focusGone(gone, null);
+      }
+      refocus();
       syncLit();
       return;
     }
@@ -314,16 +336,61 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       }
     }
 
-    if (focusedId) {
-      const id = CSS.escape(focusedId);
-      aside.querySelector(`[data-id="${id}"]${focusSel}, [data-id="${id}"] ${focusSel}`)?.focus({ preventScroll: true });
-    }
+    refocus();
+    if (popId) keepPopover();
     if (afterDraw) {
       const place = afterDraw;
       afterDraw = null;
       place();
     }
     syncLit();
+  }
+
+  /** The next note in the margin after the one holding `el`, by id, or null. */
+  function nextNoteId(el) {
+    for (let n = el.closest("[data-id]")?.nextElementSibling; n; n = n.nextElementSibling) {
+      if (n.matches(".desk-note, .desk-circle")) return n.dataset.id;
+    }
+    return null;
+  }
+
+  /**
+   * Focus was on a note's control and the drawing left no such control (the
+   * note was deleted, or is no longer drawn): it goes to the verse the note
+   * sat on, else the next note, so it never drops to the page (BA21). A note
+   * on a footnote or on a glossary entry or article has no verse number to go to.
+   */
+  function focusGone(id, nextId) {
+    const r = known.get(id);
+    const verse = r && Number.isInteger(r.verse) && !onFootnote(r) ? document.getElementById(`v${r.verse}`) : null;
+    const next = nextId
+      ? aside.querySelector(
+          `.desk-note[data-id="${CSS.escape(nextId)}"] .desk-note__hit, .desk-circle[data-id="${CSS.escape(nextId)}"]`,
+        )
+      : null;
+    (verse ?? next)?.focus({ preventScroll: true });
+  }
+
+  /**
+   * A redraw replaces every circle, so an open popover's circle is a new one:
+   * point the popover at it, which is where focus returns when it closes
+   * (BA21). Where the note is no longer a circle, the popover closes and focus
+   * goes to the note's words, or as `focusGone` says.
+   */
+  function keepPopover() {
+    const open = currentPanel();
+    if (open?.kind !== "desk-note") return;
+    const id = CSS.escape(popId);
+    const again = aside.querySelector(`.desk-circle[data-id="${id}"]`);
+    if (again && popBind) {
+      popBind(again);
+      return;
+    }
+    const gone = popId;
+    const hit = aside.querySelector(`.desk-note[data-id="${id}"] .desk-note__hit`);
+    open.restoreFocus = hit;
+    closePanel();
+    if (!hit) focusGone(gone, null);
   }
 
   function refOf(r) {
@@ -543,6 +610,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   function openPopover(record, circle) {
     const ref = whereOf(record);
+    // The circle the popover belongs to now: a redraw replaces it (keepPopover).
+    let anchor = circle;
     const pop = document.createElement("div");
     pop.setAttribute("role", "dialog");
     pop.setAttribute("aria-label", `My note on ${ref}`);
@@ -556,7 +625,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       </div>`;
     fillNoteWords(pop.querySelector(".desk-note-pop__text"), record.body);
     pop.querySelector(".desk-note-pop__edit").addEventListener("click", () => {
-      onEdit(record, circle, circle);
+      onEdit(record, anchor, anchor);
     });
     // Its wording has changed: "Wording changed · Review" opens the card in
     // place of this popover. Stopped here, so the click isn't taken for one
@@ -570,7 +639,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text">Wording changed<span class="sr-only">.</span><span aria-hidden="true"> · </span>Review<span class="sr-only"> my note on ${escapeHtml(ref)}</span></span>`;
       flag.addEventListener("click", (e) => {
         e.stopPropagation();
-        review(record, circle);
+        review(record, anchor);
       });
       pop.querySelector(".desk-note-pop__foot").before(flag);
     }
@@ -579,12 +648,13 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       restoreFocus: circle,
       onClose: () => {
         popId = null;
-        circle.setAttribute("aria-expanded", "false");
+        popBind = null;
+        anchor.setAttribute("aria-expanded", "false");
         syncLit();
       },
       extra: { kind: "desk-note" },
       place: (el) => {
-        const c = circle.getBoundingClientRect();
+        const c = anchor.getBoundingClientRect();
         const w = words?.getBoundingClientRect() ?? c;
         const { top } = popoverPlace({
           circleTop: c.top,
@@ -596,6 +666,13 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       },
     });
     popId = record.id;
+    popBind = (next) => {
+      anchor = next;
+      const shown = currentPanel();
+      shown.trigger = next;
+      shown.restoreFocus = next;
+      next.setAttribute("aria-expanded", "true");
+    };
     circle.setAttribute("aria-expanded", "true");
     syncLit();
     pop.focus({ preventScroll: true });

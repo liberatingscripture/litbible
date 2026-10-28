@@ -170,10 +170,22 @@ that section.
      nothing and removing takes every bookmark a copy may have brought
      (BA16).
      While the desk is on, each Study View verse number's accessible name
-     names the reader's highlights and counts their notes on it ("Verse 18,
-     highlighted yellow, 1 note of mine"; `desk/verse-labels.js`), the one
+     names the reader's bookmark and highlights and counts their notes on it
+     ("Verse 18, bookmarked, highlighted yellow, 1 note of mine";
+     `desk/verse-labels.js`, each kind only while its switch is on), the one
      place a screen reader meets them in reading order, since an attribute
      adds nothing to the scripture.
+     **Making a mark is announced** (BA18; `src/lib/desk-announce.mjs`):
+     a note saved, a bookmark added and a highlight that touches no other
+     color speak through `announce` in `undo-bar.js`, as deleting and undoing
+     speak through its notices. A new way of making a mark needs its sentence
+     there. **Focus never drops to the page after a margin redraw** (BA21):
+     `notes-margin.js` replaces every control on each draw, so it re-points an
+     open circle popover at the new circle (`keepPopover`) and, when focus was
+     on a control the drawing lacks, moves it to the verse number the note sat
+     on, else the next note (`focusGone`); and the note editor, which the
+     margin's hidden Edit button can't take focus back, lands it on the verse
+     number itself (`landFocus`).
      **Highlights are a tint only** (BVJ, 2026-10-09: no underline or
      other second cue, which met the term lens's underline), one CSS
      Custom Highlight per colour (`desk/highlights.js`; colours in
