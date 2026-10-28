@@ -255,7 +255,7 @@ function callout(co, c) {
     ? `<img src="${escapeHtml(c.img(co.image))}" alt="${escapeHtml(alt)}" ${edc(c, [...p, "image"], "callout__phone")} loading="lazy" decoding="async"${im(c, [...p, "image"], "Callout picture", "phone")}>`
     : c.editable ? `<button type="button" class="studio-drop" data-image="${escapeHtml(pathKey([...p, "image"]))}" data-label="Callout picture" data-slot="phone">Add a picture</button>` : "";
   const sel = c.editable ? ` data-callout="${escapeHtml(co.id)}" data-label="Callout"` : "";
-  return `<article class="callout callout--image-${co.imageSide}" style="--callout-accent: var(--season-${co.accent});"${sel}><div class="callout__copy"><h3 ${edc(c, [...p, "title"], "callout__title")}${ed(c, [...p, "title"], "Callout heading", "line")}>${escapeHtml(co.title)}</h3><div ${edc(c, [...p, "body"], "callout__body")}${ed(c, [...p, "body"], "Callout text", "paragraphs")}>${paragraphs(co.body)}</div></div><div class="callout__image">${img}</div></article>`;
+  return `<article class="callout callout--image-${co.imageSide}" style="--callout-accent: var(--season-${co.accent}); --callout-band: var(--band-${co.accent});"${sel}><div class="callout__copy"><h3 ${edc(c, [...p, "title"], "callout__title")}${ed(c, [...p, "title"], "Callout heading", "line")}>${escapeHtml(co.title)}</h3><div ${edc(c, [...p, "body"], "callout__body")}${ed(c, [...p, "body"], "Callout text", "paragraphs")}>${paragraphs(co.body)}</div></div><div class="callout__image">${img}</div></article>`;
 }
 
 function carousel(s, c) {
@@ -267,9 +267,8 @@ function carousel(s, c) {
   const chips = seasons
     .map((se, i) => {
       const on = i === active;
-      const style = on ? ` style="color: var(${se.colorVar}); border-color: var(${se.colorVar});"` : "";
-      const sel = c.editable ? ` data-season="${escapeHtml(se.id)}" data-label="Season"` : "";
-      return `<button class="church-year__chip${on ? " is-active" : ""}" role="listitem" data-index="${i}" data-accent-var="${escapeHtml(se.colorVar)}" aria-pressed="${on}"${style}${sel}><span class="church-year__dot" style="background-color: var(${se.colorVar});" aria-hidden="true"></span><span class="church-year__chip-label${mark(c, ["seasons", se.id, "name"])}">${escapeHtml(se.name)}</span></button>`;
+            const sel = c.editable ? ` data-season="${escapeHtml(se.id)}" data-label="Season"` : "";
+      return `<button class="church-year__chip${on ? " is-active" : ""}" role="listitem" data-index="${i}" data-accent-var="${escapeHtml(se.colorVar)}" aria-pressed="${on}"${sel}><span class="church-year__dot" style="background-color: var(${se.colorVar});" aria-hidden="true"></span><span class="church-year__chip-label${mark(c, ["seasons", se.id, "name"])}">${escapeHtml(se.name)}</span></button>`;
     })
     .join("");
   const frames = seasons
@@ -278,5 +277,5 @@ function carousel(s, c) {
       return `<div class="church-year__frame${i === active ? " is-active" : ""}" data-index="${i}" aria-label="${escapeHtml(`${cy.passage} with ${se.name} accent color`)}"><img src="${escapeHtml(c.img(se.image))}" alt="${escapeHtml(`LIT Bible showing ${cy.passage} with ${se.name} accent color`)}" ${edc(c, q, "church-year__phone")} loading="lazy" decoding="async" width="${cy.frame.width}" height="${cy.frame.height}"${im(c, q, `${se.name} screenshot`, "carousel")}></div>`;
     })
     .join("");
-  return `<div class="church-year" data-carousel style="--cy-accent: var(${seasons[active].colorVar});"><div class="church-year__copy"><h3 ${edc(c, [...p, "title"], "church-year__title")}${ed(c, [...p, "title"], "Carousel heading", "title")}>${inline(cy.title)}</h3><p ${edc(c, [...p, "text"], "church-year__body")}${ed(c, [...p, "text"], "Carousel text", "prose")}>${inline(cy.text)}</p><div class="church-year__chips" role="list">${chips}</div></div><div class="church-year__stage" role="group" aria-label="${escapeHtml(cy.stageLabel)}" style="aspect-ratio: ${cy.frame.width} / ${cy.frame.height};">${frames}</div></div>`;
+  return `<div class="church-year" data-carousel style="--cy-band: var(${seasons[active].colorVar.replace("--season-", "--band-")});"><div class="church-year__copy"><h3 ${edc(c, [...p, "title"], "church-year__title")}${ed(c, [...p, "title"], "Carousel heading", "title")}>${inline(cy.title)}</h3><p ${edc(c, [...p, "text"], "church-year__body")}${ed(c, [...p, "text"], "Carousel text", "prose")}>${inline(cy.text)}</p><div class="church-year__chips" role="list">${chips}</div></div><div class="church-year__stage" role="group" aria-label="${escapeHtml(cy.stageLabel)}" style="aspect-ratio: ${cy.frame.width} / ${cy.frame.height};">${frames}</div></div>`;
 }

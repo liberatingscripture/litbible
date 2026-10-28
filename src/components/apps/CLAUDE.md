@@ -87,10 +87,18 @@ templates hold no copy at all: **never write a word back into a component.**
   scoping attribute, which is why the components no longer style `em` inside
   copy; `apps.css`'s `.apps em` does it for the whole page.
 - **`band()` turns `background` into classes** (`band--soft`, or
-  `band--tint band--<season|green>`), drawn in `apps.css` the way the callout
-  cards mix their tint: 8% over the surface in light, 15% over `--bg-soft` in
-  dark. The about and humane sections are `soft`; their scoped CSS no longer
-  sets a background.
+  `band--tint band--<season|green>`), drawn in `apps.css` as a wash of the
+  season color: 8% over the surface in light, 15% over `--bg-soft` in dark.
+  The about and humane sections are `soft`; their scoped CSS no longer sets
+  a background.
+- **The season colors are the iOS app's** (`LiturgicalSeason.swift`; BDR,
+  2026-10-28), and **the callout and carousel cards are its Today card's
+  band** (`SeasonBand.swift`): `--band-*` in `apps.css`, the season's own
+  color in light and the app's deep "Glass" shade after dark, lettered
+  white, with `--band-shade` deepening the foot. A change to the app's
+  palette is a change here too. White on Easter's light gold measures 3.8
+  to 1, under the 4.5 body-text guideline, as it does in the app by BDR's
+  call; `prefers-contrast: more` swaps in the app's high-contrast amber.
 - **Kinds that can be copied** into a second section, and removed again, are
   `about`, `bigscreens` and `humane` (core.mjs's `RULES.duplicable`). The
   others only hide: `hero` and `examples` carry page-wide meaning, `reader`'s

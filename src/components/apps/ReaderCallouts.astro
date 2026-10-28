@@ -23,7 +23,7 @@ const callouts = (await getCollection('callouts')).sort(
         return (
           <article
             class={`callout callout--image-${side}`}
-            style={`--callout-accent: var(--season-${c.data.accent});`}
+            style={`--callout-accent: var(--season-${c.data.accent}); --callout-band: var(--band-${c.data.accent});`}
           >
             <div class="callout__copy">
               <h3 class="callout__title">{c.data.title}</h3>
@@ -67,16 +67,16 @@ const callouts = (await getCollection('callouts')).sort(
     gap: var(--space-7);
   }
 
+  /* Each card is its season's band, as the iOS Today card is (apps.css,
+     "Season bands"), lettered white in light and dark alike. */
   .callout {
-    /* Light: 8% accent over the near-white raised surface. */
-    --tint: 8%;
-    --tint-base: var(--surface-raised);
-
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-7);
     align-items: center;
-    background: color-mix(in srgb, var(--callout-accent, transparent) var(--tint), var(--tint-base));
+    background: linear-gradient(to bottom, transparent, rgb(0 0 0 / var(--band-shade))) var(--callout-band);
+    color: #fff;
+    --focus-ring: #fff;
     border-radius: var(--radius-lg);
     padding: var(--space-7) var(--space-6);
   }
@@ -88,33 +88,18 @@ const callouts = (await getCollection('callouts')).sort(
     }
     .callout--image-left .callout__image { order: -1; }
   }
-  /* Dark: brighter accents (via the --season-* tokens) + more tint over an
-     elevated surface, so the seasonal hue actually carries. Both theme
-     selectors, like every dark rule: the media query alone would give a reader
-     who forces light on a dark OS the dark tint under light-mode accents. */
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme="light"])) .callout {
-      --tint: 15%;
-      --tint-base: var(--bg-soft);
-    }
-  }
-  :global(:root[data-theme="dark"]) .callout {
-    --tint: 15%;
-    --tint-base: var(--bg-soft);
-  }
-
   .callout__title {
     font-family: var(--font-serif);
     font-size: var(--text-2xl);
     font-weight: 500;
     letter-spacing: var(--tracking-tight);
-    color: var(--callout-accent);
+    color: inherit;
     margin-bottom: var(--space-4);
   }
   .callout__body {
     font-size: var(--text-lg);
     line-height: var(--leading-loose);
-    color: var(--text);
+    color: inherit;
     max-width: 38ch;
   }
   .callout__body :global(em) {
