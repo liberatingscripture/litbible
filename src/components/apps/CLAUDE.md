@@ -114,9 +114,9 @@ templates hold no copy at all: **never write a word back into a component.**
 
 BDR's way of changing /apps: a board on claude.ai (**BDR's private
 artifact**, so only a session signed in to BDR's account can reach it; a
-session in BVJ's account can't) showing the real page,
-where he clicks anything to edit it (words, pictures, buttons, backgrounds,
-order, callouts) and sends the edits to Claude as numbered requests. Claude
+session in BVJ's account can't) that shows the real page. BDR clicks
+anything on it to edit it (words, pictures, buttons, backgrounds, order,
+callouts) and sends the edits to Claude as numbered requests. Claude
 applies a request with the `/apps-studio` skill
 (`.claude/skills/apps-studio/SKILL.md`, which carries the board's address and
 the step-by-step), opens the PR, and writes the PR and Cloudflare preview
@@ -126,7 +126,7 @@ the templates, and would publish without anyone applying this repo's rules.
 
 - **The board's data** is its artifact database: `studio/page` (the seed: the
   page model, the rules and each image's size, written by Claude from
-  `npm run studio:apps -- seed`), `studio/draft` (his unsent edits; Claude
+  `npm run studio:apps -- seed`), `studio/draft` (BDR's unsent edits; Claude
   never writes it), and `requests/rNNNN` (sent batches, whose `status`,
   `results`, `calls`, `pr`, `preview` and `log` Claude updates). Uploaded
   pictures are in its asset store; a change holds the asset id.
@@ -163,13 +163,14 @@ the templates, and would publish without anyone applying this repo's rules.
   original is never overwritten. A replaced picture's old file is deleted when
   nothing under `src/` names it. A run that fails its checks puts back every
   file it wrote before stopping (`undo.mjs`): a replaced file gets its old
-  bytes, a new one is removed, nothing else is touched. A raw iPhone or iPad screenshot can be
-  framed for him with the `frames` CLI (Apple devices only, his saved colors);
-  Android and foldable pictures arrive framed. The app icons are replaced in
-  place, so the home page, the Android banner and the share card follow.
+  bytes, a new one is removed, nothing else is touched. A raw iPhone or iPad
+  screenshot can be framed by the `frames` CLI (Apple devices only, with
+  BDR's saved colors); Android and foldable pictures arrive framed. The app
+  icons are replaced in place, so the home page, the Android banner and the
+  share card follow.
 - **A picture can be added to a section** (BDR, 2026-10-27; first use, an
   iPhone Duo in the hero and the showcase). On the board it's a note anchored
-  to the section that carries the upload and his words about where it goes;
+  to the section that carries the upload and BDR's words about where it goes;
   dropping a file onto a section starts one. The apply step converts it
   (`planPicture`: 1000px tall, or 1300px wide when landscape; framed on
   request, the `frames` CLI knowing the iPhone Duo's screens), once per
@@ -179,8 +180,8 @@ the templates, and would publish without anyone applying this repo's rules.
   `board/page.js`). Any picture object in a section is then an ordinary
   picture to the Studio: `slotFor` calls it a `picture`, and `sectionImages`
   finds it for `imagePaths` and the schema check, so no other rule changes.
-- **BDR's words are his.** Curly quotes are applied automatically (the
-  board does it as he types); a British spelling, a straight quote that
+- **The copy is BDR's.** Curly quotes are applied automatically (the
+  board does it during typing); a British spelling, a straight quote that
   survives, or a LIT quotation that doesn't match the chapter is asked about
   on the board as a call, never fixed silently.
 - **The first PR needs LSC to do three things once**, besides copying the
