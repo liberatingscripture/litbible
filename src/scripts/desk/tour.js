@@ -59,7 +59,7 @@ import { NOTE_GAP, NOTE_LINES, marginMode, noteWidth } from "../../lib/desk-note
 import { COMMAND_EVENT, getTourRaw, saveTourList } from "./first-use.js";
 import { glyph } from "./glyphs.js";
 import { closeGreekCommands, greekCommandsOpenFor, openGreekCommands } from "../greek-commands.js";
-import { setEditorPreview } from "./note-editor.js";
+import { editorHolds, setEditorPreview } from "./note-editor.js";
 import { pageChapter } from "./page.js";
 import { prosePage } from "./note-sources.js";
 
@@ -87,9 +87,13 @@ function viewOfPage() {
 /**
  * @param {{ panel: { el: HTMLElement, open: Function, close: Function,
  *   isOpen: () => boolean, showTab: (id: string, opts?: object) => boolean,
- *   showGreekWord: Function | null, snapshot: () => object, restore: (s: object) => void } }} options
+ *   showGreekWord: Function | null, snapshot: () => object, restore: (s: object) => void },
+ *   canKeep?: boolean }} options
+ *   `canKeep` is false where this browser keeps no notebook: the steps about
+ *   marking the text and keeping it are left out, since there they don't work
+ *   (BA34).
  */
-export function createTour({ panel }) {
+export function createTour({ panel, canKeep = true }) {
   let run = null;
   const view = viewOfPage();
 
@@ -462,8 +466,10 @@ export function createTour({ panel }) {
 
   function start({ only = null } = {}) {
     if (run) return;
+    // A note being written isn't thrown away for the tour (BA37).
+    if (editorHolds("Save or cancel this note first, then take the tour.")) return;
     closePanel(); // a verse menu or note card open over the text would sit under the tour
-    const steps = planTour({ available: available(), only, view });
+    const steps = planTour({ available: available(), only, view, canKeep });
     if (!steps.length) return;
 
     // Seen from the moment it starts, so ending early is the same as ending.
@@ -571,8 +577,11 @@ export function createTour({ panel }) {
       window.scrollTo({ left: scroll.x, top: scroll.y, behavior: "instant" });
       if (returnTo && returnTo.isConnected) returnTo.focus({ preventScroll: true });
       // Held past last-read.js's 500ms wait after a scroll, so the scroll
-      // back records nothing, not even a new time on the same verse.
-      setTimeout(() => document.documentElement.removeAttribute("data-desk-tour"), 900);
+      // back records nothing, not even a new time on the same verse. A tour
+      // started again meanwhile keeps it (BA36).
+      setTimeout(() => {
+        if (!run) document.documentElement.removeAttribute("data-desk-tour");
+      }, 900);
     });
   }
 

@@ -83,3 +83,10 @@ test("printing with notes, and with room to write, are offered on a chapter and 
   assert.equal(matchCommands("print", chapter)[0].href, null, "a command, not a link");
   assert.equal(matchCommands("print with room", chapter)[0].href, null);
 });
+
+test("where the browser keeps no notebook, printing with notes isn't offered, and with room to write still is (BA34)", () => {
+  const noNotebook = { ...chapter, keeps: false };
+  assert.deepEqual(ids("print", noNotebook), ["print-with-room"]);
+  assert.deepEqual(ids("print with my", noNotebook), []);
+  assert.deepEqual(ids("print", { ...chapter, keeps: true }), ["print-with-notes", "print-with-room"]);
+});

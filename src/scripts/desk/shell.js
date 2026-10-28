@@ -67,6 +67,9 @@ async function start() {
   } catch (err) {
     storeError = err;
   }
+  // Where this browser keeps no notebook, the search box's commands leave out
+  // what needs one (notebook-search.js, which the shell doesn't load; BA34).
+  if (!store) document.documentElement.setAttribute("data-desk-no-notebook", "");
   initNoteSettings();
   initUndo();
   // Ctrl+Z for the notebook: from here on, what this tab writes can be taken
@@ -148,7 +151,7 @@ async function start() {
   initGreekLink({ panel });
   initProseActions({ store, addNote });
   // The tour (D8): started by the reader, never by itself (tour.js).
-  createTour({ panel });
+  createTour({ panel, canKeep: Boolean(store) });
   if (store) createVerseLabels({ store });
   // Painted on a Study View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.

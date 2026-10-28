@@ -24,6 +24,11 @@
 //
 // The tour itself is tour.js. This only offers it, by sending the same
 // `lit:desk-command` event the search box's "tour" command sends.
+//
+// Where the browser keeps no notebook (`store` null: IndexedDB refused, as
+// some private windows do), none of this applies, so My Notes' own line
+// saying so stands alone: no question, no offer, and of the foot only its
+// links (BA34).
 
 import { liveRecords } from "../../lib/desk-store-core.mjs";
 import {
@@ -90,6 +95,7 @@ function link(href, text) {
  */
 export function createFirstUse({ store, reveal = () => {}, panelEl = () => null, panelShown = () => false }) {
   const safari = isDesktopSafari(navigator.userAgent);
+  const canKeep = Boolean(store);
 
   /* ── The card ─────────────────────────────────────────────────── */
 
@@ -175,7 +181,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
 
   /** Offer the tour if there is one to make and the Notebook is showing. */
   function maybeOffer() {
-    if (offer || !getHome() || !panelShown() || touring()) return;
+    if (offer || !canKeep || !getHome() || !panelShown() || touring()) return;
     const o = tourOffer(getTourRaw(), { today: today() });
     if (!o.kind) return;
     // Until it's answered, an offer shown counts as "remind me later," so
@@ -246,7 +252,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   });
 
   function drawCard() {
-    choice.hidden = Boolean(getHome());
+    choice.hidden = !canKeep || Boolean(getHome());
   }
 
   /** The reader's answer: kept, the card goes, and the tour is offered if it hasn't been. */
@@ -285,11 +291,15 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   tour.addEventListener("click", () => requestTour());
   links.append(tour, link(HELP_HREF, "Help"), link(CONTACT_HREF, "Tell us what’s missing"));
 
-  foot.append(remindLabel, kept, nag, safariLine, links);
+  // Without a notebook, only the links (`hidden` wouldn't do for the remind
+  // box: .desk-setting sets its display).
+  if (canKeep) foot.append(remindLabel, kept, nag, safariLine);
+  foot.append(links);
 
   let seq = 0;
   /** Bring the foot up to date: the choice, when a copy was last saved, whether the notebook holds anything. */
   async function refresh({ shown = false } = {}) {
+    if (!canKeep) return;
     const mine = ++seq;
     const home = getHome();
     remindBox.checked = wantsReminder(home);

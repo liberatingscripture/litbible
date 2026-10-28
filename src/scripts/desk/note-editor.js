@@ -18,7 +18,7 @@
 import { MARKERS, createRecord, currentMarker, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
 import { planEdit } from "../../lib/desk-store-core.mjs";
-import { closePanel, showPanel } from "../lit-panel.js";
+import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
@@ -32,6 +32,23 @@ let seq = 0;
 let preview = null;
 export function setEditorPreview(text) {
   preview = text ?? null;
+}
+
+/**
+ * Whether an open editor holds words or a marker not yet saved, which closing
+ * it would lose. If so, its error line says `message` and focus goes to its
+ * words, and the caller leaves it open (the tour does, BA37).
+ */
+export function editorHolds(message) {
+  const open = currentPanel();
+  if (open?.kind !== "note-editor" || !open.changed?.()) return false;
+  const error = open.el.querySelector(".desk-editor__error");
+  if (error) {
+    error.hidden = false;
+    error.textContent = message;
+  }
+  open.el.querySelector("textarea")?.focus({ preventScroll: true });
+  return true;
 }
 
 /**
@@ -228,7 +245,11 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   showPanel(trigger, panel, {
     restoreFocus,
     sheet: false,
-    extra: { kind: "note-editor", stay: true },
+    extra: {
+      kind: "note-editor",
+      stay: true,
+      changed: () => !example && (body.value !== (record?.body ?? "") || marker !== currentMarker(record?.marker ?? "note")),
+    },
   });
   body.focus({ preventScroll: true });
   return panel;

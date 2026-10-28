@@ -79,6 +79,9 @@ export const COMMANDS = Object.freeze([
     name: () => "Print with my notes",
     keywords: ["annotated", "paper", "pdf", "margin", "highlights"],
     needs: "print",
+    // Not where the browser keeps no notebook (`keeps: false`), which has no
+    // notes to print (BA34).
+    show: (ctx) => ctx.keeps !== false,
     hint: "On this page",
   },
   {
@@ -124,7 +127,8 @@ function offered(command, ctx) {
   if (command.needs === "study" && !ctx.study) return false;
   if (command.needs === "greek" && !(ctx.greek ?? ctx.study)) return false;
   // Printing (with notes, or with room to write) works on a Study View
-  // chapter and in Read View. Neither needs the notebook to be there.
+  // chapter and in Read View. With room to write needs no notebook; with my
+  // notes says so itself (`show`).
   if (command.needs === "print" && !(ctx.print ?? ctx.study)) return false;
   return command.show ? command.show(ctx) : true;
 }

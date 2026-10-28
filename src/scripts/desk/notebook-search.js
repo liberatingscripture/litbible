@@ -82,6 +82,8 @@ function commandContext() {
     study: Boolean(pageChapter()),
     greek: Boolean(greekChapter()),
     print: Boolean(pageChapter() || readBook()),
+    // The shell marks a browser that keeps no notebook (shell.js).
+    keeps: !document.documentElement.hasAttribute("data-desk-no-notebook"),
     panelOpen: document.documentElement.hasAttribute("data-desk-panel"),
     hidden: notesHidden(),
   };

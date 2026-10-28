@@ -244,7 +244,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       changed.hidden = true;
       empty.hidden = false;
       empty.textContent =
-        "This browser isn't letting the site keep a notebook. Private windows sometimes don't.";
+        "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t.";
       if (storeError) console.error("Study Desk: the notebook didn't open", storeError);
       return;
     }

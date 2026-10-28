@@ -118,6 +118,8 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  * that added it, so a later phase adds a step with a newer one and a reader
  * who has seen the tour is offered just that. `body` is what it says, with a
  * different wording for a view where the thing works differently.
+ * `notebook` marks a step about marking the text or keeping the notebook,
+ * left out where the browser keeps none (BA34).
  *
  * The walk-through (BVJ, 2026-10-13: "more thorough in walking through how to
  * use the features", with steps that act and leave nothing behind) replaced
@@ -129,6 +131,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study", "read", "prose"],
     since: "1d",
+    notebook: true,
     title: "Open the menu",
     body: {
       study:
@@ -142,6 +145,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study", "prose"],
     since: "1h",
+    notebook: true,
     title: "Write a note",
     body: {
       default:
@@ -153,6 +157,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study", "prose"],
     since: "1d",
+    notebook: true,
     title: "Your notes in the margin",
     body: {
       study:
@@ -166,6 +171,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study"],
     since: "1h",
+    notebook: true,
     title: "Highlight",
     body: {
       default:
@@ -177,6 +183,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study", "read"],
     since: "1h",
+    notebook: true,
     title: "Bookmark a verse",
     body: {
       study:
@@ -189,6 +196,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study", "read"],
     since: "1h",
+    notebook: true,
     title: "A ribbon for a reading",
     body: {
       default:
@@ -200,6 +208,7 @@ export const TOUR_STEPS = [
     part: 0,
     views: ["study"],
     since: "1h",
+    notebook: true,
     title: "Pin a footnote",
     body: {
       default:
@@ -268,6 +277,7 @@ export const TOUR_STEPS = [
     part: 2,
     views: ["study", "read", "prose"],
     since: "1h",
+    notebook: true,
     title: "Undo, and a clean page",
     body: {
       default:
@@ -290,6 +300,7 @@ export const TOUR_STEPS = [
     part: 2,
     views: ["study", "read", "prose"],
     since: "1h",
+    notebook: true,
     title: "The notebook page",
     body: {
       default:
@@ -301,6 +312,7 @@ export const TOUR_STEPS = [
     part: 2,
     views: ["study", "read", "prose"],
     since: "1d",
+    notebook: true,
     title: "Where it’s kept",
     body: {
       default:
@@ -406,11 +418,16 @@ export function tourOffer(raw, { today = null } = {}) {
  * page (`available`, a Set of ids), narrowed to `only` for a tour of what's
  * new. Each carries its number, so a card can say "Step 2 of 14", and its
  * part's name and where the next part starts (`nextPart`, an index, or null
- * in the last part), for "Skip this part".
+ * in the last part), for "Skip this part". With `canKeep` false (a browser
+ * that keeps no notebook) the `notebook` steps are left out.
  */
-export function planTour({ available, only = null, view = null }) {
+export function planTour({ available, only = null, view = null, canKeep = true }) {
   const steps = TOUR_STEPS.filter(
-    (s) => available.has(s.id) && (!only || only.includes(s.id)) && (!view || s.views.includes(view)),
+    (s) =>
+      available.has(s.id) &&
+      (!only || only.includes(s.id)) &&
+      (!view || s.views.includes(view)) &&
+      (canKeep || !s.notebook),
   );
   return steps.map((s, i) => {
     const next = steps.findIndex((t, j) => j > i && t.part !== s.part);

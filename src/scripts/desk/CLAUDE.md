@@ -336,10 +336,20 @@ that section.
        2026-10-13): they open real menus, the note editor (in an example
        mode that can't save), the panel's tabs and the search tray, and end
        by undoing all of it, putting the Notebook back with `panel.js`'s
-       `snapshot`/`restore` and the scroll where it was. While it runs,
+       `snapshot`/`restore` and the scroll where it was. **It opens and
+       expands the Notebook with `remember: false`** (`open`, `showTab`, the
+       rail's `show` and `expand`), which writes none of its keys, since a
+       tour cut short by a reload or a link never reaches `restore` (BA33).
+       While it runs,
        `data-desk-tour` on `<html>` makes `saveLastRead` record nothing. A
        new step that changes anything must undo it the same way (`later` in
-       `tour.js`), and must never write a record.
+       `tour.js`), and must never write a record. It won't start over a note
+       editor holding unsaved words (`editorHolds`, BA37).
+       **Where the browser keeps no notebook** (`store` null), first use
+       shows no card, makes no offer and keeps only the foot's links, the
+       tour leaves out the `notebook` steps of `TOUR_STEPS` (`canKeep`), and
+       the shell stamps `html[data-desk-no-notebook]`, which the search box's
+       command context reads as `keeps` (BA34).
      - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
        after the Zoom) on branches `claude/desk-1d-hidden` and
        `claude/desk-1d-search`; it is not in this tree, so nothing here
@@ -667,7 +677,10 @@ that section.
        `print-with-room`. `desk/print-room.js` only stamps
        `html[data-desk-print="room"]`, waits for the print fonts (reusing
        `print-notes.js`'s bounded `printFonts`), prints, and removes the
-       attribute on `afterprint`. It reads no notebook, so unlike M6 it is
+       attribute on `afterprint`. **Both prints go through `printLook`**
+       (`desk/print-look.js`): one at a time, and where no dialog opened
+       (so no `afterprint`), the reader's next focus, pointer or key event
+       takes the look away, so plain Ctrl+P never inherits it (BA35). It reads no notebook, so unlike M6 it is
        offered even where the browser keeps none. The look is a background on
        the scripture container (ruled lines and a left rule on the right 35%,
        text held in by padding), in `desk.css` beside M6's section, so the
