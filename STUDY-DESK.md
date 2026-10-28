@@ -121,7 +121,7 @@ are recorded so they aren't re-argued.
   reader stops on it (BA64); a fetched chapter keeps only its text, footnotes
   and Go deeper (BA65); and the Greek commands window on /desk sits beside
   its pane and closes with it (BA114).
-  FA1-s is done (#PR): each group of Greek search results credits its
+  FA1-s is done (#399): each group of Greek search results credits its
   sources in a line under it, with the Greek tab's names and links (BA46);
   the Greek's license note says the search index carries STEPBible's brief
   glosses for most lemmas (BA47); and a Greek search lists the reader's
@@ -6810,7 +6810,7 @@ The phases, in working order:
 | FA1-p | Panels beside the Notebook | done, #392: BA24, BA27, BA28 |
 | FA1-q | The gate and first paint | done, #396: BA25, BA26, BA29, BA30 |
 | FA1-r | /desk's smaller fixes | done, #398: BA31, BA62, BA63, BA64, BA65, BA114, BA115 |
-| FA1-s | Greek credits and the notebook search | done, #PR: BA40, BA46, BA47 |
+| FA1-s | Greek credits and the notebook search | done, #399: BA40, BA46, BA47 |
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 |
