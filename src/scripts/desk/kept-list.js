@@ -37,11 +37,14 @@ function el(tag, className, text) {
 }
 
 /**
- * @param {{ store: object, ctx: () => object, idPrefix?: string }} options
+ * @param {{ store: object, ctx: () => object, idPrefix?: string,
+ *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} options
+ *   `goHere`, given by a /desk pane, moves the LIT pane to a row's reference
+ *   (BA124); the notebook page keeps plain links.
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setQuery: (q: string) => void,
  *   focusCount: () => void }}
  */
-export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
+export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null }) {
   const root = el("div", "desk-kept");
   root.innerHTML = `
     <div class="desk-np__filters" role="search" aria-label="Filter my notebook">
@@ -165,6 +168,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
 
     const actions = {
       labels,
+      goHere,
       onEdit: (record, trigger) => {
         activeRow = { id: record.id, selector: ".desk-item__edit:not(.desk-item__labels)" };
         openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger });

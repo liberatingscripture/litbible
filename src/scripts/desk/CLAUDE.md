@@ -617,6 +617,13 @@ that section.
        foot), Greek `tab-greek.js`, and What I've kept `kept-list.js`, which
        the notebook page draws too. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
+       A record's reference in My Notes and What I've kept moves the LIT
+       pane there (`goToRecord`, passed as `goHere`; BA124), never leaving
+       /desk; the notebook page's list keeps plain links. The "Show in this
+       pane" menu is placed on the screen (`placeKindMenu`, `position:
+       fixed`), above its button where it doesn't fit below, since the
+       panes box scrolls and cut it off (BA122); any scroll or resize
+       closes it.
        **The three tabs each return a `destroy`** that takes off what they
        add to the window or the document, which the pane calls when it
        closes and when it builds a new tab for another chapter (BA31,
@@ -677,7 +684,15 @@ that section.
        pane as a view whose text holds many chapters (each names its own
        reference, link and notes), and one set of selection listeners serves
        every view, so two panes never answer one selection. A change to
-       either panel must keep Study View, Read View and the pane working. No
+       either panel must keep Study View, Read View and the pane working.
+       **A panel opened from a pane's text is pinned to the screen** where it
+       opens (BVJ, 2026-10-26; BA125): the pane's scroller carries
+       `data-panels-pin`, and `showPanel` (`lit-panel.js`) pins a panel whose
+       trigger is inside it, or one opened with `pinned` (the selection
+       panel, whose trigger is a rectangle), since a place in the document
+       wouldn't move with text scrolling in its own box. Its footnote letters
+       are `aria-haspopup="dialog"`, as Study View's, and a middle-click on
+       one is cancelled, so it never opens another /desk (BA126). No
        reader's notes or bookmarks beside the pane's text, by BVJ's choice
        (3g): My Notes is a following pane that scrolls its list so the
        records on the passage being read are in view (`follow` in
@@ -685,7 +700,14 @@ that section.
      - **The reader's marks reach the LIT pane through `page.js`** (3g): each
        pane registers its text (`addDeskText`), `deskChapterBoxes()` lists
        every chapter the panes show (twice when two panes show it), and
-       `chapterTextFor` reads the first; `desk/lit-records.js` keeps each
+       `chapterTextFor` reads the first. A pane says when it gains a chapter
+       or clears its text (`deskChaptersMoved`, the same `DESK_TEXTS_EVENT`),
+       and **a view that judges records against the text redraws when the
+       chapters shown change** (`onDeskChapters`; the My Notes and This verse
+       panes, BA121), since a record is judged only where a pane shows its
+       chapter; a new such view needs it too. `desk/lit-records.js`, which
+       watches every listed text, on the page or not (a pane is built off
+       the page), and lets go of one taken off the list (BA123), keeps each
        chapter's records for whatever draws on them (`highlights.js` and
        `verse-labels.js` have a /desk mode on it). Pins work per chapter
        (`pinButton(id, label, where)` in `pins.js`), reading a fetched

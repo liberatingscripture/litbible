@@ -4803,13 +4803,16 @@ html.desk-ws--moving * {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* Placed on the screen by desk-page.js (placeKindMenu), clear of the panes
+   box's scrolling, which cut it off below a bottom-row pane (BA122). */
 .desk-pane__menu {
-  position: absolute;
-  top: calc(100% - 2px);
-  left: 28px;
+  position: fixed;
   z-index: 20;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   min-width: 160px;
   padding: 4px;
   background: var(--surface-raised);

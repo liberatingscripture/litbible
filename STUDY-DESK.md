@@ -176,6 +176,15 @@ are recorded so they aren't re-argued.
   words (BA117); the empty choices box takes no room (BA119); and a
   passage naming a verse the Greek lacks opens at the nearest one before it
   (BA120).
+  FA1-aa is done (#407): My Notes and This verse panes flag a changed
+  wording as soon as a LIT pane shows the chapter (BA121); the “Show in
+  this pane” menu opens upward where a bottom-row pane has no room below
+  (BA122); a closed LIT pane's text is let go (BA123); a reference in a
+  “What I’ve kept” pane moves the LIT pane instead of leaving /desk
+  (BA124); a panel opened from a pane stays where it opened while the pane
+  scrolls, as BVJ chose (BA125); and a pane's footnote letters are
+  announced as opening a dialog, with a middle-click on one cancelled
+  (BA126).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6951,7 +6960,7 @@ The phases, in working order:
 | FA1-x | A note's references | done, #402: BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | done, #405: BA99 to BA108 |
 | FA1-z | The Greek tab | done, #406: BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
-| FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
+| FA1-aa | /desk's panes and the shared modules | done, #407: BA121 to BA126 |
 | FA1-ac | The copy pass | BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | new |

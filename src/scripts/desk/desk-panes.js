@@ -37,6 +37,7 @@ import { createPassageBar } from "./passage-bar.js";
 import { createSheetPane } from "./sheet-pane.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
+import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
 
 function make(tag, cls, text) {
@@ -167,12 +168,16 @@ function mountVerse(body, env, pane) {
   // It draws the chapter's notes, bookmarks and highlights, never a place, so a
   // ribbon following the reader doesn't redraw it (BA107).
   const unsubscribe = env.store?.subscribe(() => tab?.render(), { except: ["place"] });
+  // A record's wording is judged only where a LIT pane shows its chapter, so
+  // the tab is drawn again when the panes' chapters change (BA121).
+  const offChapters = onDeskChapters(() => tab?.render());
   queueMicrotask(() => show(pane.get()));
   return {
     setPassage: show,
     destroy: () => {
       seq++;
       unsubscribe?.();
+      offChapters();
       tab?.destroy();
     },
   };
@@ -313,11 +318,23 @@ function mountSheet(body, env, pane) {
   return { destroy: () => sheet.destroy() };
 }
 
+/**
+ * A record on a verse moves the LIT pane being read there (3g), which the
+ * following panes then follow: for My Notes' rows and What I've kept's
+ * (BA124), whose references would otherwise leave /desk.
+ */
+function goToRecord(env) {
+  return {
+    can: (r) => Boolean(r?.bookKey && r.chapter),
+    go: (r) => env.showPassage({ bookKey: r.bookKey, chapter: r.chapter, verse: r.verse ?? null }),
+  };
+}
+
 function mountKept(body, env, pane) {
   if (!env.store) {
     return message(body, "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t.");
   }
-  const list = createKeptList({ store: env.store, ctx: env.ctx, idPrefix: `deskKept${pane.id}` });
+  const list = createKeptList({ store: env.store, ctx: env.ctx, idPrefix: `deskKept${pane.id}`, goHere: goToRecord(env) });
   const wrap = make("div", "desk-np desk-np--pane");
   wrap.append(list.el);
   body.append(wrap);
@@ -357,12 +374,7 @@ export function mountPane(kind, body, env, pane) {
       visible: () => body.isConnected,
       onEdit: env.onEdit,
       ctx: env.ctx,
-      // A record on a verse moves the LIT pane being read there (3g), which
-      // this pane then follows.
-      goHere: {
-        can: (r) => Boolean(r?.bookKey && r.chapter),
-        go: (r) => env.showPassage({ bookKey: r.bookKey, chapter: r.chapter, verse: r.verse ?? null }),
-      },
+      goHere: goToRecord(env),
     });
     body.append(tab.el);
     // It follows the LIT pane (3g; BVJ, 2026-10-19): the records on the
@@ -373,11 +385,15 @@ export function mountPane(kind, body, env, pane) {
     queueMicrotask(() => tab.render());
     const unsubscribe = env.store?.subscribe(() => tab.render());
     const offMeta = env.store?.onMeta?.(() => tab.render()); // What's new's line (BA96)
+    // Its rows' wording is judged only where a LIT pane shows their chapter,
+    // so it is drawn again when the panes' chapters change (BA121).
+    const offChapters = onDeskChapters(() => tab.render());
     return {
       setPassage: (p) => tab.follow(p),
       destroy: () => {
         unsubscribe?.();
         offMeta?.();
+        offChapters();
         tab.destroy();
       },
     };

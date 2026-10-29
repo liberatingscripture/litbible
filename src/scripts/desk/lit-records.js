@@ -14,7 +14,7 @@
 // notebook once per chapter however many panes show it.
 
 import { forChapter } from "../../lib/desk-store-core.mjs";
-import { DESK_TEXTS_EVENT, deskChapterBoxes, deskTextsNow } from "./page.js";
+import { DESK_TEXTS_EVENT, deskChapterBoxes, deskTextsListed } from "./page.js";
 
 /**
  * @param {{ store: object, onChange: (entries: Array<{ box: Element,
@@ -66,11 +66,22 @@ export function watchLitRecords({ store, onChange }) {
 
   // Each pane's text is watched for chapters coming and going and for a
   // chapter's words being re-wrapped. Attributes aren't watched, so setting a
-  // verse number's name never sets this off again.
+  // verse number's name never sets this off again. The texts are the desk's
+  // list, not those on the page: a new pane is built off the page, and its
+  // chapters arrive after. A pane closed or switched to another kind is taken
+  // off the list and let go here, or its text and every chapter it loaded
+  // would stay in memory for the visit (BA123); an observer can't drop one
+  // target, so it starts over on the texts there are.
   const observer = new MutationObserver(schedule);
-  const watched = new Set();
+  let watched = new Set();
   function watchTexts() {
-    for (const c of deskTextsNow()) {
+    const now = new Set(deskTextsListed());
+    const gone = [...watched].some((c) => !now.has(c));
+    if (gone) {
+      observer.disconnect();
+      watched = new Set();
+    }
+    for (const c of now) {
       if (watched.has(c)) continue;
       watched.add(c);
       observer.observe(c, { childList: true, subtree: true, characterData: true });
