@@ -47,6 +47,16 @@ test("a ribbon name is tidied, cut, and checked against the others", () => {
   assert.equal(ribbonNameProblem("Morning reading", rs), null);
 });
 
+test("a ribbon name is cut by character, never through an emoji", () => {
+  const kept = cleanRibbonName("x".repeat(39) + "😀");
+  assert.ok(kept.isWellFormed(), "no lone surrogate");
+  assert.equal(kept, "x".repeat(39) + "😀", "the emoji fits, so it is kept whole");
+  const dropped = cleanRibbonName("x".repeat(40) + "😀");
+  assert.ok(dropped.isWellFormed(), "no lone surrogate");
+  assert.equal(dropped, "x".repeat(40), "the emoji past the limit is dropped whole");
+  assert.doesNotThrow(() => encodeURIComponent(dropped));
+});
+
 test("only a named place with ribbon: true is a ribbon, and ribbons are listed by name", () => {
   const a = ribbon("beta", "john", 1, 1);
   const b = ribbon("Alpha", "john", 1, 1);
@@ -205,4 +215,15 @@ test("a place another client kept is listed, unnamed and read-only", () => {
 
 test("nothing to show gives an empty list", () => {
   assert.deepEqual(placeItems({}), []);
+});
+
+test("an inherited property name is not a book", () => {
+  for (const bookKey of ["constructor", "toString", "__proto__"]) {
+    assert.equal(parseRibbonFlag(JSON.stringify({ id: "x", bookKey })), null, bookKey);
+    assert.equal(pageBookOf(`/${bookKey}-1/`), null, bookKey);
+    assert.equal(pageBookOf(`/${bookKey}-intro/`), null, bookKey);
+    assert.equal(pageBookOf(`/read/${bookKey}/`), null, bookKey);
+    assert.deepEqual(readPlacesFrom([[`lit_rm_resume_${bookKey}`, JSON.stringify({ anchor: "ch-1" })]]), [], bookKey);
+  }
+  assert.deepEqual(parseRibbonFlag('{"id":"x","bookKey":"romans"}'), { id: "x", bookKey: "romans" });
 });

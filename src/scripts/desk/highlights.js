@@ -84,7 +84,8 @@ export function createHighlights({ store }) {
 
   /* ── Keeping up with the page ────────────────────────────────────── */
 
-  store.subscribe(load);
+  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
+  store.subscribe(load, { except: ["place"] });
   document.addEventListener(SETTINGS_EVENT, schedule);
   new MutationObserver(schedule).observe(textBox, { childList: true, subtree: true, characterData: true });
   load();

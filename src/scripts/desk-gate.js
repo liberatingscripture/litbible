@@ -9,7 +9,23 @@
 
 import { readingSurface, standDown } from "./desk-frame.js";
 
-if (document.documentElement.dataset.desk === "on" && readingSurface()) {
+const shellHere = document.documentElement.dataset.desk === "on" && readingSurface();
+
+// A ribbon follows the reader only while every page the tab lands on is in
+// its book (STUDY-DESK.md C25). The shell drops the tab's flag on a page
+// outside the book, but the shell loads only on a reading surface, so every
+// other page (home, search, /notebook, /desk) drops it here (BA101). The key
+// is RIBBON_FLAG_KEY in src/lib/desk-places.mjs, which this file doesn't
+// import, to stay small.
+if (!shellHere) {
+  try {
+    window.sessionStorage.removeItem("lit-desk-ribbon");
+  } catch {
+    /* no session storage: no ribbon was following */
+  }
+}
+
+if (shellHere) {
   // Didn't load (offline, or an old page after a deploy): the page goes back
   // to what it is without the desk, rather than keeping the narrowed column
   // and Notebook buttons that do nothing (BA29). The shell does the same if

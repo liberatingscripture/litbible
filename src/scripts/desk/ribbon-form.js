@@ -9,8 +9,8 @@
 // Names are the reader's own words, set as text, never HTML. The rules (what
 // a name may be, how many) are src/lib/desk-places.mjs.
 
-import { createRecord, editRecord } from "../../lib/desk-records.mjs";
-import { RIBBON_NAME_MAX, canAddRibbon, cleanRibbonName, ribbonNameProblem, ribbonsOf } from "../../lib/desk-places.mjs";
+import { RIBBON_NAME_MAX, canAddRibbon, ribbonsOf } from "../../lib/desk-places.mjs";
+import { planRibbonCreate, planRibbonMove } from "../../lib/desk-ribbon-change.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
@@ -105,43 +105,55 @@ export async function openRibbonForm({ trigger, store, ctx, where, restoreFocus 
     if (first?.value === "new") first.checked = true;
   });
 
+  const saveButton = panel.querySelector(".desk-editor__save");
+
   async function save() {
+    // One save at a time: a second press while the first is writing would make
+    // a second ribbon of the same name.
+    if (saveButton.disabled) return;
+    saveButton.disabled = true;
     const now = new Date().toISOString();
     error.hidden = true;
+    const making = chosen() === "new";
+    const existing = making ? null : ribbons[Number(chosen())];
+    if (!making && !existing) {
+      saveButton.disabled = false;
+      return closePanel();
+    }
+    // The ribbon is read, the name and the limit checked, and the write made in
+    // one transaction (BA102): the form's own list of ribbons is from when it
+    // opened, and another tab or pane may have changed them since.
+    let outcome = null;
     try {
-      if (chosen() === "new") {
-        const problem = ribbonNameProblem(nameInput.value, ribbons);
-        if (problem) {
-          error.hidden = false;
-          error.textContent = problem;
-          nameInput.focus();
-          return;
-        }
-        const record = createRecord("place", { name: cleanRibbonName(nameInput.value), ribbon: true, ...place }, { now, ...ctx() });
-        await store.save(record);
-        const entry = store.lastEntry();
-        closePanel();
-        showUndo(`Ribbon “${record.name}” placed at ${ref}.`, () => undoEntry(entry));
-        return;
-      }
-      const existing = ribbons[Number(chosen())];
-      if (!existing) return closePanel();
-      const current = (await store.get(existing.id)) ?? existing;
-      if (current.bookKey === place.bookKey && current.chapter === place.chapter && current.verse === place.verse && (current.endVerse ?? current.verse) === place.verse) {
-        return closePanel();
-      }
-      await store.save(editRecord(current, place, { now, client: ctx().client }));
-      const entry = store.lastEntry();
-      closePanel();
-      showUndo(`Ribbon “${current.name}” moved to ${ref}.`, () => undoEntry(entry));
+      await store.change(async (reads) => {
+        outcome = making
+          ? await planRibbonCreate(reads, nameInput.value, place, { now, ...ctx() })
+          : await planRibbonMove(reads, existing.id, place, { now, client: ctx().client });
+        return outcome.plan;
+      });
     } catch (err) {
       console.error("Study Desk: the ribbon wasn't saved", err);
       error.hidden = false;
       error.textContent = "The ribbon couldn’t be saved in this browser.";
+      saveButton.disabled = false;
+      return;
     }
+    if (outcome?.problem) {
+      error.hidden = false;
+      error.textContent = outcome.problem;
+      saveButton.disabled = false;
+      if (making) nameInput.focus();
+      return;
+    }
+    // A ribbon already at this verse writes nothing.
+    if (!outcome?.plan) return closePanel();
+    const entry = store.lastEntry();
+    const name = outcome.record.name;
+    closePanel();
+    showUndo(`Ribbon “${name}” ${making ? "placed at" : "moved to"} ${ref}.`, () => undoEntry(entry));
   }
 
-  panel.querySelector(".desk-editor__save").addEventListener("click", save);
+  saveButton.addEventListener("click", save);
   panel.querySelector(".desk-editor__cancel").addEventListener("click", closePanel);
   panel.querySelector(".lit-panel__close").addEventListener("click", closePanel);
   nameInput?.addEventListener("keydown", (e) => {

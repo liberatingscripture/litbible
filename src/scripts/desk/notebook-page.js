@@ -390,7 +390,18 @@ async function start() {
   const asked = new URLSearchParams(window.location.search).get("q");
   if (asked) kept.setQuery(asked);
 
-  store.subscribe(() => render());
+  // A ribbon that follows the reader moves a place every few seconds, and
+  // nothing drawn here but the Places group (which keeps itself up to date)
+  // reads where a place is, so a notice about places alone isn't a reason to
+  // redraw the page under a reader who is typing or has a menu open (BA107).
+  // Two things here do count places, as items: "Delete everything"'s number
+  // and whether there is anything to delete. A new place changes those, so a
+  // place the last draw hadn't seen draws again; moving one doesn't, and
+  // deleting one arrives with its trash record, which isn't excepted.
+  store.subscribe(() => render(), { except: ["place"] });
+  store.subscribe((ids) => {
+    if (ids.some((id) => !latestRecords.some((r) => r?.id === id))) render();
+  }, { kinds: ["place"] });
   await render();
 
   // The page is drawn after the browser has looked for the address's #part

@@ -24,14 +24,27 @@ export function loadLastRead() {
   try {
     const r = JSON.parse(window.localStorage.getItem(KEY) || "null");
     if (!r || r.v !== 1) return null;
-    const chapters = BOOKS[r.book];
+    // Own keys only: `constructor` is not a book (BA103).
+    const chapters = typeof r.book === "string" && Object.hasOwn(BOOKS, r.book) ? BOOKS[r.book] : 0;
     if (!chapters || !Number.isInteger(r.chapter) || r.chapter < 1 || r.chapter > chapters) return null;
-    if (r.verse != null && !Number.isInteger(r.verse)) return null;
+    if (r.verse != null && !(Number.isInteger(r.verse) && r.verse >= 1)) return null;
     if (r.view !== "study" && r.view !== "read") return null;
     return r;
   } catch {
     return null;
   }
+}
+
+/**
+ * Where this page last said the reader was, or null before it has said so:
+ * what this page saved, never what another tab or an earlier page left in
+ * storage. A ribbon that follows the reader starts from this (BA99, BA100).
+ */
+let savedHere = null;
+
+/** @returns {{ book: string, chapter: number, verse: number | null, view: "study" | "read" } | null} */
+export function pageLastRead() {
+  return savedHere ? { ...savedHere } : null;
 }
 
 export function saveLastRead({ book, chapter, verse = null, view }) {
@@ -47,6 +60,7 @@ export function saveLastRead({ book, chapter, verse = null, view }) {
   } catch {
     /* storage unavailable: Continue reading just doesn't appear */
   }
+  savedHere = { book, chapter, verse: verse ?? null, view };
   // Tells the Study Desk where the reader is (a ribbon they opened a book
   // through follows them, src/lib/desk-places.mjs). Sent even when storage
   // failed, and heard by nothing unless the desk is on.
@@ -92,6 +106,21 @@ export function verseAtReadingLine(markers, idToVerse) {
 }
 
 /**
+ * The verse an address's `#vN` names, when this page has it, else null. A
+ * verse the page lacks (Matthew 17:21, which the LIT doesn't print, or
+ * `#v999`) is not where the reader is (BA104). `ids` are the verse markers'
+ * ids, `v41` or `v41b` (src/data/chapters/CLAUDE.md).
+ *
+ * @param {string} hash
+ * @param {string[]} ids
+ */
+export function verseInHash(hash, ids) {
+  const m = /^#v(\d+)/.exec(hash);
+  if (!m) return null;
+  return ids.some((id) => /^v(\d+)/.exec(id)?.[1] === m[1]) ? Number(m[1]) : null;
+}
+
+/**
  * Study View: record this chapter on arrival (at the verse in the address,
  * if any), then follow the reader down the page. `root` carries the book and
  * chapter as data attributes, and is only rendered on published chapters.
@@ -103,10 +132,7 @@ export function trackStudyView(root) {
 
   const markers = Array.from(root.querySelectorAll('sup.vn[id^="v"]'));
   const idToVerse = (id) => Number(id.slice(1)) || null;
-  const hashVerse = () => {
-    const m = /^#v(\d+)/.exec(window.location.hash);
-    return m ? Number(m[1]) : null;
-  };
+  const hashVerse = () => verseInHash(window.location.hash, markers.map((m) => m.id));
   const save = (verse) => saveLastRead({ book, chapter, verse, view: "study" });
 
   save(hashVerse());

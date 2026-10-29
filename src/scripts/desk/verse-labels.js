@@ -75,7 +75,8 @@ export function createVerseLabels({ store }) {
     apply();
   }
 
-  store.subscribe(refresh);
+  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
+  store.subscribe(refresh, { except: ["place"] });
   document.addEventListener(SETTINGS_EVENT, apply);
   refresh();
 

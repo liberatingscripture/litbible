@@ -164,7 +164,9 @@ function mountVerse(body, env, pane) {
     tab.render();
   }
 
-  const unsubscribe = env.store?.subscribe(() => tab?.render());
+  // It draws the chapter's notes, bookmarks and highlights, never a place, so a
+  // ribbon following the reader doesn't redraw it (BA107).
+  const unsubscribe = env.store?.subscribe(() => tab?.render(), { except: ["place"] });
   queueMicrotask(() => show(pane.get()));
   return {
     setPassage: show,
@@ -320,7 +322,9 @@ function mountKept(body, env, pane) {
   wrap.append(list.el);
   body.append(wrap);
   queueMicrotask(() => list.render());
-  const unsubscribe = env.store.subscribe(() => list.render());
+  // The list holds no places (listable leaves them out), so a ribbon following
+  // the reader doesn't redraw it under a reader typing in its search (BA107).
+  const unsubscribe = env.store.subscribe(() => list.render(), { except: ["place"] });
   return { destroy: () => unsubscribe() };
 }
 

@@ -36,13 +36,16 @@
 
 import {
   CHANNEL,
+  changeKinds,
   changeMessage,
+  listenerSet,
   metaMessage,
   planDelete,
   planPurge,
   planSave,
   planUndo,
   planWrite,
+  readChangeKinds,
   readChangeMessage,
   readMetaMessage,
   touched,
@@ -104,10 +107,10 @@ export async function openStore({ ctx }) {
   // DB_VERSION) waits for this one to let go.
   db.onversionchange = () => db.close();
 
-  const listeners = new Set();
-  const notify = (ids, origin) => {
-    for (const fn of listeners) fn(ids, origin);
-  };
+  // A listener may ask for only the kinds of record it draws (BA107), so a
+  // ribbon following the reader doesn't redraw a list of notes.
+  const listeners = listenerSet();
+  const notify = (ids, origin, kinds) => listeners.notify(ids, origin, kinds);
   const metaListeners = new Set();
   const notifyMeta = (key, origin) => {
     for (const fn of metaListeners) {
@@ -124,7 +127,7 @@ export async function openStore({ ctx }) {
     channel = new BroadcastChannel(CHANNEL);
     channel.onmessage = (e) => {
       const ids = readChangeMessage(e.data);
-      if (ids) notify(ids, "other-tab");
+      if (ids) notify(ids, "other-tab", readChangeKinds(e.data));
       const key = readMetaMessage(e.data);
       if (key) notifyMeta(key, "other-tab");
     };
@@ -196,7 +199,9 @@ export async function openStore({ ctx }) {
       } else plan = build;
       if (plan && (plan.put.length || plan.remove.length)) {
         ids = touched(plan);
-        was = record ? ids.map((id) => objects.get(id)) : [];
+        // The history needs them, and so do the listeners that draw only some
+        // kinds: a record that changes kind, or goes, is heard as what it was.
+        was = ids.map((id) => objects.get(id));
         for (const r of plan.put) objects.put(r);
         for (const id of plan.remove) objects.delete(id);
       }
@@ -210,9 +215,11 @@ export async function openStore({ ctx }) {
     }
     await done;
     if (!ids.length) return plan ?? null;
-    channel?.postMessage(changeMessage(ids));
+    const before = was.map((r) => r.result ?? null);
+    const kinds = changeKinds(plan, before);
+    channel?.postMessage(changeMessage(ids, kinds));
     if (record) {
-      const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, current(was[i].result ?? null)])), entryId());
+      const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, current(before[i])])), entryId());
       // A change that left the notebook as it found it isn't worth undoing,
       // and clears `latest` so a caller asking for its entry gets nothing
       // rather than the one before.
@@ -227,7 +234,7 @@ export async function openStore({ ctx }) {
         }
       }
     }
-    notify(ids, "this-tab");
+    notify(ids, "this-tab", kinds);
     return plan;
   }
 
@@ -240,7 +247,7 @@ export async function openStore({ ctx }) {
       if (await getMeta("persistAsked")) return;
       const granted = await navigator.storage.persist();
       await setMeta("persistAsked", { at: new Date().toISOString(), granted });
-      notify([], "this-tab");
+      notify([], "this-tab", null);
     } catch {
       /* not offered here; the notebook still works */
     }
@@ -309,7 +316,8 @@ export async function openStore({ ctx }) {
       for (const r of checked.put) objects.put(r);
       for (const id of checked.remove) objects.delete(id);
       tx.commit?.();
-      channel?.postMessage(changeMessage(touched(checked)));
+      // No read before it, so a removal's kind isn't known (changeKinds says so).
+      channel?.postMessage(changeMessage(touched(checked), changeKinds(checked)));
       return true;
     },
 
@@ -364,10 +372,19 @@ export async function openStore({ ctx }) {
       }
     },
 
-    /** Called with (ids, "this-tab" | "other-tab") after every change. */
-    subscribe(fn) {
-      listeners.add(fn);
-      return () => listeners.delete(fn);
+    /**
+     * Called with (ids, "this-tab" | "other-tab", kinds) after a change. With
+     * no `filter` that is every change. A view that draws only some kinds
+     * says which (BA107): `{ kinds: ["highlight"] }` hears a change that
+     * touches one, `{ except: ["place"] }` one that touches anything else.
+     * What a change touches includes what it replaced or removed, and a
+     * deleted record counts as its own kind as well as "trash", so a
+     * deletion reaches the view that drew the record. `kinds` is null when
+     * they couldn't be told (a tab running an older page), and that is heard
+     * by all. Returns the way to unsubscribe.
+     */
+    subscribe(fn, filter) {
+      return listeners.add(fn, filter);
     },
 
     /** Called with (key, "this-tab" | "other-tab") after a meta value is set (BA96). */

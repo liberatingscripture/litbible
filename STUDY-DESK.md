@@ -154,7 +154,19 @@ are recorded so they aren't re-argued.
   (BA94, whose set of short names awaits BVJ's confirmation); “Mentioned
   in your note on…” lists the notes in Bible order (BA93); and a note of
   40,000 spaces draws in about 2 ms, not 3.5 s (BA95).
-  Next: FA1-y (Ribbons and Continue reading).
+  FA1-y is done (#PRNUM): a ribbon that follows the reader moves only to
+  where the page it is on says the reader is, so opening a ribbon no longer
+  writes the reader's old place to it (BA99) and arriving in Read View no
+  longer takes another tab's place in the book (BA100); every page without
+  the Notebook drops the tab's flag, so a ribbon stops following once the
+  reader leaves its book by any page (BA101); renaming, moving, making and
+  following a ribbon read and write it in one transaction, so a ribbon
+  deleted elsewhere is reported and not brought back (BA102); a following
+  ribbon no longer redraws views that show no places (BA107); and the
+  smaller fixes: book names checked as the store's own (BA103), an address's
+  verse taken only when the page has it (BA104), one rename form at a time
+  (BA105), names cut by character (BA106), and a failed delete that says so
+  (BA108). E9 is still to come and will rebuild this code as Bookmarks.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5860,6 +5872,27 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-28 (FA1-y: ribbons and Continue reading; one question for BVJ)
+
+FA1-y fixed BA99 to BA108 (`STUDY-DESK-AUDIT-1.md`), against today's code;
+E9 (2026-10-22) will still rebuild it as Bookmarks. No decision was needed.
+One thing the browser check showed, for BVJ:
+
+- **Opening a ribbon moves it a verse or two on** (an open question; the
+  recommendation is to leave it to E9). A ribbon at Romans 8:30, opened,
+  puts 8:30 at the top of the window, and the page then reports the reader
+  at the last verse above its reading line, 30% of the way down (8:32 in a
+  short window). The ribbon follows that, as Continue reading does. This
+  was true before FA1-y, about four seconds later; BA99's fix only stops
+  the reader's *old* place being written. Should a ribbon opened and not
+  read stay where it was, E9's bookmarks that follow the reader are the
+  place to decide it.
+- **New sentences a reader can see**: “That ribbon has been deleted.”
+  (renaming or moving a ribbon removed meanwhile); “You already have six
+  ribbons. Move one of them here instead.” (the limit reached while a new
+  ribbon was being named); “The ribbon couldn’t be deleted in this
+  browser.” and “That item couldn’t be deleted in this browser.” (BA108).
+
 ### 2026-10-28 (FA1-x: a note's references; two calls for BVJ)
 
 FA1-x fixed BA89, BA93, BA94 and BA95 (`STUDY-DESK-AUDIT-1.md`). BA89 is
@@ -6889,7 +6922,7 @@ The phases, in working order:
 | FA1-t | Copy and docs | done, #400: BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | done, #402: BA89, BA93, BA94, BA95 |
-| FA1-y | Ribbons and Continue reading | BA99 to BA108 |
+| FA1-y | Ribbons and Continue reading | done, #PRNUM: BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
 | FA1-ac | The copy pass | BA134 to BA139 |

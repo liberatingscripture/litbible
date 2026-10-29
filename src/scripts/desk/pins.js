@@ -349,8 +349,9 @@ export function initPins({ store, ctx, desk = false }) {
     if (mine) row.after(mine);
   });
 
-  // This tab's own changes and other tabs' alike.
-  store.subscribe(() => refreshPins());
+  // This tab's own changes and other tabs' alike, but not a place: a ribbon
+  // following the reader writes one every few seconds (BA107).
+  store.subscribe(() => refreshPins(), { except: ["place"] });
   refreshPins();
 
   return { reveal: revealFootnote, canReveal: canRevealFootnote };
