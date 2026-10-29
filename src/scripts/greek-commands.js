@@ -27,7 +27,7 @@
 
 import { createFloatWindow } from "./float-window.js";
 import { COMMANDS, EXAMPLES, FILTERS } from "../lib/greek-query.mjs";
-import { builderQuery, insertAtCursor } from "../lib/greek-commands-ui.mjs";
+import { builderQuery, editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
 import { hasGreek } from "../lib/greek-search.mjs";
 import { dockWidth } from "./desk-frame.js";
 import { setPickedMode } from "./search-core.js";
@@ -124,6 +124,26 @@ function sentence(s) {
 }
 
 /**
+ * Make the field's text `value` as typing would (BA147): select what changed
+ * and insert over it with execCommand, which keeps the field's undo (setting
+ * `value` empties it) and fires `input` itself. Only in a field that has
+ * focus, since that is where execCommand types; false where it can't, and
+ * the caller sets the value as before.
+ */
+function typeInto(field, value) {
+  if (document.activeElement !== field || typeof document.execCommand !== "function") return false;
+  const { start, end, text } = editSpan(field.value, value);
+  let typed = false;
+  try {
+    field.setSelectionRange(start, end);
+    typed = document.execCommand("insertText", false, text);
+  } catch (_) {
+    typed = false;
+  }
+  return typed && field.value === value;
+}
+
+/**
  * Add `text` at the field's cursor; a mouse press keeps focus in the field.
  * `name` is what a screen reader hears it as (a command's meaning); without
  * one it hears the text itself, as the builder's query.
@@ -139,10 +159,13 @@ function insert(text, { byMouse = false, name = null } = {}) {
   const start = field.selectionStart ?? field.value.length;
   const end = field.selectionEnd ?? start;
   const { value, caret } = insertAtCursor(field.value, start, end, text);
-  field.value = value;
   if (byMouse) field.focus({ preventScroll: true });
+  // Pressed by keyboard inside the window, the field hasn't focus, and moving
+  // it there and back would be heard twice: the value is set as before.
+  const typed = typeInto(field, value);
+  if (!typed) field.value = value;
   try { field.setSelectionRange(caret, caret); } catch (_) {}
-  field.dispatchEvent(new Event("input", { bubbles: true }));
+  if (!typed) field.dispatchEvent(new Event("input", { bubbles: true }));
   announce(`Added: ${sentence(name ?? text.trim())}`);
 }
 
@@ -154,10 +177,11 @@ function runExample(query) {
     setPickedMode(typeSelect, "greek");
     typeSelect.dispatchEvent(new Event("change", { bubbles: true }));
   }
-  field.value = query;
   field.focus({ preventScroll: true });
+  const typed = typeInto(field, query);
+  if (!typed) field.value = query;
   try { field.setSelectionRange(query.length, query.length); } catch (_) {}
-  field.dispatchEvent(new Event("input", { bubbles: true }));
+  if (!typed) field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
 /* ── The window's contents ────────────────────────────────────────── */

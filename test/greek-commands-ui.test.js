@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 
 import {
   builderQuery,
+  editSpan,
   formsLine,
   insertAtCursor,
   parsingQuery,
@@ -150,4 +151,19 @@ test("a verse the chapter lacks, or a missing chapter, gives nothing", () => {
 test("the Greek is escaped as the caller says", () => {
   const odd = { paragraphs: [[[1, 1, "a<b", "", "", 0, "N-", "--------", 0]]] };
   assert.equal(verseGreek(odd, 1, [1], esc).html, "<mark>a&lt;b</mark>");
+});
+
+// ── Typing a command in, so undo keeps working (BA147) ──────────────────
+
+test("a command replaces only what changed, so undo takes back only that", () => {
+  assert.deepEqual(editSpan("πίστις", "πίστις.gen"), { start: 6, end: 6, text: ".gen" });
+  assert.deepEqual(editSpan("πίστις  Χριστός", "πίστις, Χριστός"), { start: 6, end: 7, text: "," }, "the space both share stays");
+  assert.deepEqual(editSpan("abc def", "& def"), { start: 0, end: 3, text: "&" });
+  assert.deepEqual(editSpan("", "*.aor.impv"), { start: 0, end: 0, text: "*.aor.impv" });
+  assert.deepEqual(editSpan("same", "same"), { start: 4, end: 4, text: "" });
+  assert.deepEqual(editSpan("aa", "aaa"), { start: 2, end: 2, text: "a" }, "a repeated letter is still one insertion");
+  for (const [a, b] of [["πίστις", "πίστις.gen"], ["x y", "x & y"], ["old query", "πίστις.gen"], ["ab", ""]]) {
+    const { start, end, text } = editSpan(a, b);
+    assert.equal(a.slice(0, start) + text + a.slice(end), b);
+  }
 });
