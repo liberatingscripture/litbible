@@ -307,3 +307,14 @@
   (a control, not a surface). LSC defines the same token (its PR #79). The
   mirrored `/apps` files never name the ring; they get it from each site's
   global `:focus-visible`, so a mirror copy needs no pin of its own.
+- **A text field's border is `--field-border`** (BA144, BVJ 2026-10-26):
+  `rgba(var(--ink-rgb), 0.58)`, the lowest alpha that clears WCAG's 3:1 for a
+  control's boundary on cream (3.1:1; 4.0:1 on the raised surface, 5.8:1 or
+  more in dark). A field whose fill matches its surface has no other edge, so
+  softer borders failed site-wide. Buttons, cards and dividers keep their own.
+  **It resolves on `:root`**, so a local `--ink-rgb` pin (the green header's
+  `__inner`, `/sheets`' paper and presenter) does not reach it: a field on a
+  pinned surface writes `rgba(var(--ink-rgb), 0.58)` itself. Still open: the
+  `/contact` and `/app-support` fields (`contact.css`, `.field`) have no border
+  at all, only a shadow, and their fill is 1.28:1 on cream; adding one is a
+  visible design change, left for BVJ.

@@ -65,7 +65,7 @@
   font-size: 0.95rem;
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  border: 1px solid var(--field-border);
   background: var(--surface-raised);
   color: var(--text);
   max-width: 100%;

@@ -86,7 +86,7 @@
   font-family: inherit;
   color: var(--text);
   background: var(--surface-input);
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-border);
   border-right: none;
   border-radius: 8px 0 0 8px;
   outline: none;
