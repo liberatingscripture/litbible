@@ -185,6 +185,13 @@ are recorded so they aren't re-argued.
   scrolls, as BVJ chose (BA125); and a pane's footnote letters are
   announced as opening a dialog, with a middle-click on one cancelled
   (BA126).
+  FA1-ac is done (#408): the desk's copy takes the Oxford comma (BA134)
+  and curly apostrophes (BA135); a note's opening puts the comma inside
+  the quote (BA136); the Greek commands window marks its quoted words
+  (BA137); and, as BVJ chose, the panel is “the Notebook” where a control
+  names it (BA138) and the margin's switch is “Notes in the margin”
+  (BA139). BA139's margin command doesn't exist: the look-alike “Show my
+  notes” is M1's hide-everything switch, and renaming it is BVJ's call.
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -6961,7 +6968,7 @@ The phases, in working order:
 | FA1-y | Ribbons and Continue reading | done, #405: BA99 to BA108 |
 | FA1-z | The Greek tab | done, #406: BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | done, #407: BA121 to BA126 |
-| FA1-ac | The copy pass | BA134 to BA139 |
+| FA1-ac | The copy pass | done, #408: BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | new |
 

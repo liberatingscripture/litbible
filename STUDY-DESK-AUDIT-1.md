@@ -126,7 +126,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | done, #405 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | done, #406 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | done, #407 |
-| FA1-ac | The copy pass | BA134 to BA139 | open |
+| FA1-ac | The copy pass | BA134 to BA139 | done, #408 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | open |
 | FA1-v | The follow-up audit: real devices | new findings | open |
 
@@ -2169,25 +2169,25 @@ and `sheets-page.css` in both themes.
     (“replaces, deletes or brings back”); `desk-first-use.mjs:135`
     (“…“Bookmark” and “Highlight.””), `:230`, `:241`, `:263`, `:285`.
   - *Fix*: the comma before “and” or “or” in each.
-  - Status: open.
+  - Status: **Fixed in #408** (FA1-ac). The comma is in each of the fourteen, except `desk-first-use.mjs:230`, which already had one; four more three-item lists were found nearby and fixed too (`help.astro`’s labels sentence, the tour’s widths and search steps, and `desk-export.mjs`’s comments). `describeAhead`’s tests follow.
 - **BA135 (low, copy). Two strings still have straight apostrophes.**
   - *Where*: `tab-mine.js:247` (“This browser isn't letting the site keep a
     notebook. Private windows sometimes don't.”), which is curly in the
     five other places it appears; `desk-merge.mjs:135` (“…doesn't say
     which record it deleted”), shown when a copy is opened
     (`export-import.js:199`). Not BA15's strings.
-  - Status: open.
+  - Status: **Fixed in #408** (FA1-ac). The merge’s trash-record message is curly; the `tab-mine.js` string was already curly on `main` (FA1-m, #388).
 - **BA136 (low, copy). A note's opening puts a comma outside the closing
   quote.** “My note on ‘…’, Romans 8:3:” should be “‘…,’ Romans 8:3:”
   (`desk-notes.mjs:185`, `noteOpening`). Check `noteOpening`'s tests, which
   will need the new form.
-  - Status: open.
+  - Status: **Fixed in #408** (FA1-ac). `noteOpening` gives “My note on ‘…,’ Romans 8:1:”; the comma takes the place of a period ending the quoted words, and a quote ending in ? or ! keeps its mark and takes no comma. Tested in `desk-notes`.
 - **BA137 (low, copy). The commands window's line about quotes can't be
   read.** It says “Quotes search for any, exact, and or or as a word”: the
   four commands aren't marked, so it reads as a garbled list
   (`greek-query.mjs:154`). *Fix*: “Quotes search for “any,” “exact,”
   “and,” or “or” as a word.”
-  - Status: open.
+  - Status: **Fixed in #408** (FA1-ac), as written.
 - **BA138 (low, copy; BVJ chose, 2026-10-26). The panel is “Notebook” in its heading and
   “the notebook” in its controls.**
   - *What happens*: the heading, the tab and the tour say “Notebook,” but
@@ -2204,7 +2204,7 @@ and `sheets-page.css` in both themes.
     the panel is named (“Close the Notebook”), and keep lowercase where
     the words mean what the reader has kept (“Save a copy of my
     notebook”), so the “my notebook” strings stay.
-  - Status: open.
+  - Status: **Fixed in #408** (FA1-ac), as BVJ chose: “the Notebook” in Minimize and Close, both resize handles, the Open and Close commands, the tabs’ “In the Notebook” hint, and the verse menu’s “Show in Notebook.” Left lowercase: the “my notebook” strings, the notebook page’s name, and the feature as a whole (the tour offer and the help page’s tour sentence). Desk rule 10 records the names.
 - **BA139 (low, copy; BVJ chose, 2026-10-26). “My Notes” and “My notes” name the same
   thing.**
   - *What happens*: the tab and the pane kind say “My Notes”
@@ -2221,7 +2221,7 @@ and `sheets-page.css` in both themes.
     be confused. This verse's subhead names the reader's notes on the
     verse, so it can stay in sentence case; make the tour's two sentences
     (`desk-first-use.mjs:183–184`) name the same place.
-  - Status: open.
+  - Status: **Fixed in #408** (FA1-ac), as BVJ chose, but for the command: the margin’s switch and region are “Notes in the margin,” and the tour’s bookmark sentence says “the Notebook lists every one” in both views (Read View has no tab row). **There is no margin command**: “Show my notes” / “Hide my notes” (`hide-notes`, H) is M1’s hide-everything switch, so it can’t become “notes in the margin,” and it still differs from “Show My Notes” only by case (it shows only while everything is hidden). Open for BVJ: rename M1 (its command, its box and the tour together, for example “Hide everything of mine”), or leave it.
 - **BA140 (medium, accessibility; computed). A segmented control's focus ring
   can't be seen on the chosen option.**
   - *What happens*: the chosen option of a `.desk-seg` (the Greek lexicon
