@@ -80,8 +80,14 @@ export function readChapterBlocks(chapter) {
 // one, so a chapter on /desk is a box, not the page.
 const deskTexts = new Set();
 
-/** Fired on document when a LIT pane's text comes or goes. */
+/**
+ * Fired on document when a LIT pane's text comes or goes, and when a chapter
+ * comes into a pane's text or the pane clears it to go elsewhere
+ * (`deskChaptersMoved`).
+ */
 export const DESK_TEXTS_EVENT = "lit:desk-texts";
+
+const told = () => document.dispatchEvent(new CustomEvent(DESK_TEXTS_EVENT));
 
 /**
  * Put a LIT pane's text (the element holding its chapters' sections) on the
@@ -89,15 +95,56 @@ export const DESK_TEXTS_EVENT = "lit:desk-texts";
  */
 export function addDeskText(container) {
   deskTexts.add(container);
-  document.dispatchEvent(new CustomEvent(DESK_TEXTS_EVENT));
+  told();
   return () => {
-    if (deskTexts.delete(container)) document.dispatchEvent(new CustomEvent(DESK_TEXTS_EVENT));
+    if (deskTexts.delete(container)) told();
   };
+}
+
+/** A LIT pane tells the desk its text gained a chapter or was cleared. */
+export function deskChaptersMoved() {
+  told();
 }
 
 /** The LIT panes' texts on the page now. */
 export function deskTextsNow() {
   return Array.from(deskTexts).filter((c) => c.isConnected);
+}
+
+/**
+ * Every LIT pane's text on the desk's list, on the page or not: a pane is
+ * built off the page, and every pane leaves it for a moment while the panes
+ * are redrawn, so what watches their texts goes by the list.
+ */
+export function deskTextsListed() {
+  return Array.from(deskTexts);
+}
+
+/**
+ * Call `fn` when the set of chapters the LIT panes show has changed, at most
+ * once a frame: for a view that judges records against the text only where a
+ * pane shows their chapter (chapterTextFor), and draws nothing else from the
+ * panes (BA121). Returns what stops it.
+ */
+export function onDeskChapters(fn) {
+  const shown = () => [...new Set(deskChapterBoxes().map((c) => `${c.bookKey} ${c.chapter}`))].sort().join("|");
+  let last = shown();
+  let frame = 0;
+  const check = () => {
+    frame = 0;
+    const now = shown();
+    if (now === last) return;
+    last = now;
+    fn();
+  };
+  const heard = () => {
+    if (!frame) frame = requestAnimationFrame(check);
+  };
+  document.addEventListener(DESK_TEXTS_EVENT, heard);
+  return () => {
+    document.removeEventListener(DESK_TEXTS_EVENT, heard);
+    if (frame) cancelAnimationFrame(frame);
+  };
 }
 
 /**

@@ -1,6 +1,7 @@
 // src/scripts/desk/record-rows.js
 //
-// One row of the notebook page's lists (notebook-page.js): the record's
+// One row of the notebook page's lists (notebook-page.js, and a What I've
+// kept pane on /desk, through kept-list.js): the record's
 // reference, linked to its verse, its kind, its words, its labels as small
 // chips, and its buttons: Edit (notes), Labels… and Delete (Unpin for a pinned
 // footnote). The same facts the panel's My Notes tab shows (tab-mine.js), set
@@ -55,10 +56,15 @@ const button = (className, text, label, onClick) => {
  * @param {{ labels: Map<string, object>,
  *   onEdit?: (record: object, trigger: Element) => void,
  *   onLabels: (record: object, trigger: Element) => void,
- *   onDelete: (record: object, li: Element) => void }} actions
+ *   onDelete: (record: object, li: Element) => void,
+ *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} actions
+ *   `goHere` is for a list in a /desk pane: a plain click on a reference it
+ *   can take moves the LIT pane there rather than leaving /desk (BA124), as
+ *   My Notes' does (tab-mine.js). A modified or middle click still follows
+ *   the link.
  * @returns {HTMLLIElement}
  */
-export function recordRow(record, { labels, onEdit = null, onLabels, onDelete }) {
+export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null }) {
   const r = record;
   const li = document.createElement("li");
   li.className = "desk-item desk-np-row";
@@ -73,6 +79,13 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete })
   head.className = "desk-item__ref";
   head.textContent = ref || kindName(r.kind);
   if (href) head.href = href;
+  if (href && goHere?.can(r)) {
+    head.addEventListener("click", (e) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      goHere.go(r);
+    });
+  }
   const kind = document.createElement("span");
   kind.className = "desk-item__kind";
   kind.textContent = nameOf(r);

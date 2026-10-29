@@ -89,8 +89,14 @@ export function isSmallScreen() {
  * overrides both layouts: it gets the attached panel and returns its
  * document-relative {left, top}. `sheet: false` keeps a small screen on the
  * floating layout, for a panel a mouse opened.
+ *
+ * A panel opened from text that scrolls inside its own box (a LIT pane on
+ * /desk, marked `[data-panels-pin]`) is pinned to the screen where it opens,
+ * as a dragged verse menu is, since its place in the document wouldn't move
+ * with that text anyway (BA125; BVJ, 2026-10-26). `pinned` asks for the same
+ * where the trigger is no element (a selection's rectangle).
  */
-export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true } = {}) {
+export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true, pinned = false } = {}) {
   closePanel();
   el.classList.add("lit-panel");
 
@@ -130,6 +136,13 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     );
     el.style.left = left + "px";
     el.style.top = top + "px";
+  }
+
+  const pin = pinned || (trigger instanceof Node && trigger.parentElement?.closest("[data-panels-pin]"));
+  if (pin && !el.classList.contains("lit-panel--sheet")) {
+    el.style.left = parseFloat(el.style.left) - window.scrollX + "px";
+    el.style.top = parseFloat(el.style.top) - window.scrollY + "px";
+    el.classList.add("lit-panel--pinned");
   }
 
   // Keep Tab cycling inside the panel while it's open (it's appended to the

@@ -57,7 +57,7 @@ import { footnotePanel } from "../panel-pieces.js";
 import "../ref-preview.js";
 import { attachTermLens } from "../term-lens.js";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
-import { addDeskText } from "./page.js";
+import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
 
 /** How far down the pane the reading line sits. */
@@ -94,6 +94,9 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     },
   });
   const scroller = make("div", "desk-lit__scroll");
+  // A panel opened from the text (the verse menu, the selection panel, a
+  // footnote, a key term) stays put on the screen as the pane scrolls (BA125).
+  scroller.dataset.panelsPin = "";
   scroller.tabIndex = 0;
   scroller.setAttribute("role", "region");
   scroller.setAttribute("aria-label", "The LIT text");
@@ -230,6 +233,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     prepareLitBlocks(blocks, litPrefix(paneId, u.bookKey, chapter));
     box.append(...blocks);
     tools.enableNumbers(box);
+    // A letter opens its note in a panel, as on Study View (BA126).
+    for (const fn of box.querySelectorAll(".fn-ref a")) fn.setAttribute("aria-haspopup", "dialog");
     section.append(h, box);
     if (source.termData) lenses.push(attachTermLens(box, source.termData));
     return section;
@@ -353,6 +358,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       }
       text.append(section);
       sections.set(i, section);
+      deskChaptersMoved();
       hi = i;
       fill();
       return;
@@ -373,6 +379,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       }
       hold(() => text.prepend(section));
       sections.set(i, section);
+      deskChaptersMoved();
       lo = i;
       if (!resized()) note();
       fill();
@@ -429,6 +436,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     sections.clear();
     for (const l of lenses.splice(0)) l?.destroy?.();
     text.replaceChildren(make("p", "desk-dp__status", `Loading ${passageLabel({ ...p, verse: null })}…`));
+    deskChaptersMoved();
     const section = await render(i);
     if (n !== seq) return;
     if (!section) {
@@ -437,6 +445,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     }
     text.replaceChildren(section);
     sections.set(i, section);
+    deskChaptersMoved();
     lo = hi = i;
     scrollTo(section, p);
     note();
@@ -510,6 +519,12 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     );
     showPanel(a, panel, { restoreFocus: a });
     panel.focus({ preventScroll: true });
+  });
+
+  // A middle-click would follow the letter's fragment into another /desk
+  // (BA126); its note opens only here.
+  scroller.addEventListener("auxclick", (e) => {
+    if (e.target.closest?.(".fn-ref a[data-fn]")) e.preventDefault();
   });
 
   const ro = new ResizeObserver(() => {

@@ -125,7 +125,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | done, #402 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | done, #405 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | done, #406 |
-| FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | open |
+| FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | done, #407 |
 | FA1-ac | The copy pass | BA134 to BA139 | open |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | open |
 | FA1-v | The follow-up audit: real devices | new findings | open |
@@ -1952,7 +1952,7 @@ other pane (see "What held up").
   - *Check*: a note whose quote no longer matches Romans 8; open /desk at
     John 3 and scroll the LIT pane into Romans 8: the row's flag appears
     without touching the notebook.
-  - Status: open.
+  - Status: **Fixed in #407** (FA1-aa). A LIT pane now says when it gains a chapter or clears its text (`deskChaptersMoved`, the same `DESK_TEXTS_EVENT`), since a chapter loaded by scrolling sent no event at all, so the fix as written wouldn't have met its own check; My Notes and This verse panes redraw through `onDeskChapters` (`page.js`) when the set of chapters shown changes, at most once a frame. Tested in `test/desk-panes-shared.test.js`.
 - **BA122 (medium; likely). A bottom-row pane's “Show in this pane” menu is
   cut off in a short window.**
   - *What happens*: the menu of seven kinds (about 250px) hangs from the
@@ -1969,7 +1969,7 @@ other pane (see "What held up").
     `document.body` as the Layout menu is.
   - *Check*: in the browser, “Three rows” at about 900px tall: the bottom
     pane's menu shows all seven kinds with no scrollbar on the panes box.
-  - Status: open.
+  - Status: **Fixed in #407** (FA1-aa). The menu is `position: fixed`, placed by `placeKindMenu` (`desk-page.js`): below its button where it fits in the window, above where only that fits, else on the roomier side, scrolling; a scroll or resize closes it. Checked in the browser: “Three rows” at 1280 × 880, the bottom pane's menu opens upward with all seven kinds, no scrollbar, and arrowing through it scrolls nothing.
 - **BA123 (low, memory; reproduced). A closed or switched LIT pane's text
   stays in memory for the visit.**
   - *What happens*: `watchLitRecords` adds each LIT pane's container to its
@@ -1980,7 +1980,7 @@ other pane (see "What held up").
   - *Where*: `lit-records.js:68–79`.
   - *Fix*: on `DESK_TEXTS_EVENT`, drop any container no longer in
     `deskTextsNow()`.
-  - Status: open.
+  - Status: **Fixed in #407** (FA1-aa), as written, and wider: `watchLitRecords` watched only texts on the page when the event came, and a new pane is built off the page, so a pane switched to the LIT never had its chapters watched. It now watches the desk's list (`deskTextsListed`) and starts over without a text taken off it. Tested in `test/desk-panes-shared.test.js`.
 - **BA124 (low; traced). A row's reference in a “What I’ve kept” pane leaves
   /desk.**
   - *What happens*: `recordRow` makes each reference a plain link to Study
@@ -1992,7 +1992,7 @@ other pane (see "What held up").
   - *Fix*: give `createKeptList` the optional `goHere` that `tab-mine.js`
     takes, and pass `env.showPassage` from `mountKept`. The /notebook page
     keeps its plain links.
-  - Status: open.
+  - Status: **Fixed in #407** (FA1-aa), as written (`goToRecord` in `desk-panes.js`, shared with My Notes). A modified or middle click still follows the link. Tested, and checked in the browser: the click stays on /desk and moves the LIT pane.
 - **BA125 (low; traced; BVJ chose pinning, 2026-10-26). A verse menu opened with the mouse in a
   pane stays put while the pane scrolls.**
   - *What happens*: in Study View a mouse-opened menu scrolls with the text
@@ -2006,7 +2006,7 @@ other pane (see "What held up").
     Weighed and not chosen: closing it when the pane scrolls.
   - *Check*: open a verse menu with the mouse in a LIT pane and wheel the
     pane: the menu stays where it opened, as a dragged one does.
-  - Status: open.
+  - Status: **Fixed in #407** (FA1-aa), as BVJ chose. The LIT pane's scroller carries `data-panels-pin`, and `showPanel` pins any panel opened from inside it (a footnote and a key term's card too), or one opened with `pinned` (the selection panel). Tested, and checked in the browser: the pane scrolled about 300px under a mouse-opened verse menu, which stayed put.
 - **BA126 (low, accessibility; traced). A pane's footnote letters aren't
   announced as opening a dialog, and a middle-click opens another /desk.**
   - *What happens*: Study View marks each `.fn-ref a` with
@@ -2016,7 +2016,7 @@ other pane (see "What held up").
   - *Where*: `lit-pane.js:162–168` (`render`), `428–440`; against
     `chapter-tools.js:884–885`.
   - *Fix*: set the attribute in `render`, and cancel `auxclick` on a letter.
-  - Status: open.
+  - Status: **Fixed in #407** (FA1-aa), as written. Checked in the browser: every letter in the pane carries `aria-haspopup="dialog"`, and an `auxclick` on one is cancelled.
 
 **BA31 is wider than written** (found here, left in FA1-r): a This verse
 pane builds a new `createVerseTab` on every chapter it follows

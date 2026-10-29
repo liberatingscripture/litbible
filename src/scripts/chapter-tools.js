@@ -1290,6 +1290,8 @@ function openSelectionPanel(view, share, { touch }) {
     preferAbove: true,
     place: touch ? placeBesideTouchSelection(share.rect) : placeClearOfSelection(share.rect),
     sheet: false,
+    // In a /desk LIT pane it stays where it opens while the pane scrolls (BA125).
+    pinned: Boolean(view.container.closest?.("[data-panels-pin]")),
     extra: { kind: "selection" },
   });
   makeDraggable(panel, header, { onStart: acting });

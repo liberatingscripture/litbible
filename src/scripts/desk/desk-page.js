@@ -605,10 +605,40 @@ async function start() {
       }
     });
     button.closest(".desk-pane__head").append(menuEl);
+    placeKindMenu(menuEl, button);
     button.setAttribute("aria-expanded", "true");
     kindMenu = { menuEl, button };
-    (items.find((it) => it.getAttribute("aria-checked") === "true") ?? items[0]).focus();
+    (items.find((it) => it.getAttribute("aria-checked") === "true") ?? items[0]).focus({ preventScroll: true });
   }
+
+  /**
+   * The menu is placed on the screen, not in its pane (BA122): the panes box
+   * scrolls, so a menu hanging below a bottom-row pane's header was cut off
+   * at its foot. It opens below the button where it fits in the window,
+   * above where only that fits, and otherwise on the roomier side,
+   * scrolling. Anything that scrolls or resizes under it closes it.
+   */
+  function placeKindMenu(menuEl, button) {
+    const r = button.getBoundingClientRect();
+    const gap = 2;
+    const edge = 8;
+    const height = menuEl.offsetHeight;
+    const below = window.innerHeight - r.bottom - gap - edge;
+    const above = r.top - gap - edge;
+    const down = height <= below || (height > above && below >= above);
+    if (height > (down ? below : above)) menuEl.style.maxHeight = `${Math.max(down ? below : above, 0)}px`;
+    menuEl.style.top = down ? `${r.bottom + gap}px` : `${Math.max(edge, r.top - gap - Math.min(height, above))}px`;
+    const left = Math.min(r.left, window.innerWidth - menuEl.offsetWidth - edge);
+    menuEl.style.left = `${Math.max(edge, left)}px`;
+  }
+
+  // A scroll anywhere but in the menu itself (the page, the panes box, a
+  // pane), or a new window size, would leave it beside nothing.
+  const kindMenuMoved = (e) => {
+    if (kindMenu && !(e.type === "scroll" && kindMenu.menuEl.contains(e.target))) closeKindMenu({ focus: false });
+  };
+  window.addEventListener("scroll", kindMenuMoved, { capture: true, passive: true });
+  window.addEventListener("resize", kindMenuMoved);
 
   document.addEventListener("pointerdown", (e) => {
     if (kindMenu && !kindMenu.menuEl.contains(e.target) && e.target !== kindMenu.button && !kindMenu.button.contains(e.target)) {
