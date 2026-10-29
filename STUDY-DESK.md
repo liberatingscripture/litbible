@@ -6978,7 +6978,8 @@ The phases, in working order:
 | FA1-aa | /desk's panes and the shared modules | done, #407: BA121 to BA126 |
 | FA1-ac | The copy pass | done, #408: BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | done, #409: BA140 to BA145 |
-| FA1-v | The follow-up audit: real devices | new |
+| FA1-v | The follow-up audit: real devices | Windows half done, 2026-10-28: BA146 to BA153; the Mac, VoiceOver, two screens and a touchscreen remain |
+| FA1-ae | What FA1-v found on Windows | BA146 to BA153 |
 
 FA1-f should land before the record format is frozen for the apps, and
 FA1-s before Greek search launches. FA1-v needs BVJ's own computers (or a
