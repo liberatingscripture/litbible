@@ -1505,7 +1505,7 @@ a.desk-item__highlight:hover {
   width: 100%;
   min-height: 88px;
   padding: 8px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-input, var(--surface-raised));
   color: var(--text);
@@ -2495,7 +2495,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   box-sizing: border-box;
   min-width: 0;
   padding: 6px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-input, var(--surface-raised));
   color: var(--text);
@@ -3086,7 +3086,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   flex: 1;
   min-width: 0;
   padding: 6px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-raised, transparent);
   color: var(--text);
@@ -3222,7 +3222,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 .desk-np input[type="text"],
 .desk-np select {
   padding: 7px 9px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-raised, transparent);
   color: var(--text);
@@ -4101,7 +4101,7 @@ html:has(.desk-greek__split--dragging) {
   min-width: 0;
   height: 28px;
   padding: 2px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-raised, transparent);
   color: var(--text);
@@ -4905,7 +4905,7 @@ html.desk-ws--moving * {
   flex: 1 1 8rem;
   min-width: 0;
   padding: 5px 9px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-raised, transparent);
   color: var(--text);
@@ -5651,7 +5651,7 @@ html.desk-ws--moving * {
   box-sizing: border-box;
   height: 28px;
   padding: 0 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border: 1px solid var(--field-border);
   border-radius: 6px;
   background: var(--surface-input, var(--surface-raised));
   color: var(--text);
@@ -6187,7 +6187,7 @@ html.desk-ws--moving * {
   width: 4em;
   font: inherit;
   padding: 2px 4px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--field-border);
   border-radius: 6px;
   background: var(--surface-input);
   color: var(--text);
@@ -6238,7 +6238,7 @@ html.desk-ws--moving * {
   min-width: 0;
   font: inherit;
   padding: 4px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-input);
   color: var(--text);

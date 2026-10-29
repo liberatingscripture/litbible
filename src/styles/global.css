@@ -149,6 +149,11 @@
   --border: #FAFAF8;
   --surface-raised: #FAFAF8;
   --surface-input: #FAFAF8;
+  /* A text field's border (BA144). 0.58 of ink is 3.1:1 on cream and 4.0:1 on
+     the raised surface; 3:1 is WCAG's bar for a control's boundary. It is
+     resolved on :root, so the dark blocks' --ink-rgb flips it (5.8:1 or more
+     on the dark surfaces) with no copy of its own. */
+  --field-border: rgba(var(--ink-rgb), 0.58);
 
   /* The Liberating Scripture Collective dove mark (components/LscMark.astro).
      It's an "inverted coin": the disc OPPOSES the surface, and the dove opposes
@@ -2164,7 +2169,7 @@ a.footer-cta > span {
   font-family: inherit;
   color: var(--text);
   background: var(--surface-input);
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-border);
   border-right: none;
   border-radius: 8px 0 0 8px;
   outline: none;
@@ -3357,7 +3362,7 @@ button.greek-cmd:hover {
   width: 100%;
   min-width: 0;
   padding: 5px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-raised);
   color: var(--text);
