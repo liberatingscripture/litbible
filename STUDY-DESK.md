@@ -192,7 +192,7 @@ are recorded so they aren't re-argued.
   names it (BA138) and the margin's switch is “Notes in the margin”
   (BA139). BA139's margin command doesn't exist: the look-alike “Show my
   notes” is M1's hide-everything switch, and renaming it is BVJ's call.
-  FA1-ad is done (#NNN): a segmented control's focus ring shows on the
+  FA1-ad is done (#409): a segmented control's focus ring shows on the
   chosen option (BA140); in Windows contrast themes the chosen state of
   seven kinds of control shows in a system color (BA141) and the
   highlight swatches keep their tint (BA142); three dimmed texts reach
@@ -6977,7 +6977,7 @@ The phases, in working order:
 | FA1-z | The Greek tab | done, #406: BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | done, #407: BA121 to BA126 |
 | FA1-ac | The copy pass | done, #408: BA134 to BA139 |
-| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | done, #NNN: BA140 to BA145 |
+| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | done, #409: BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | new |
 
 FA1-f should land before the record format is frozen for the apps, and
