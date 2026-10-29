@@ -127,7 +127,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | done, #406 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | done, #407 |
 | FA1-ac | The copy pass | BA134 to BA139 | done, #408 |
-| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | open |
+| FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | done, #NNN |
 | FA1-v | The follow-up audit: real devices | new findings | open |
 
 **Declined**
@@ -2234,7 +2234,7 @@ and `sheets-page.css` in both themes.
   - *Fix*: draw the ring outside the option (a positive offset), or add an
     inner ring in `--surface-raised` inside the outline.
   - *Check*: Tab into each, in both themes; a ring shows.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-ad). The ring stays inside the option (`.desk-seg` clips anything outside it), with a 2px band of `--surface-raised` inside the ring, so on the chosen option the ring is set off from the green fill in both themes.
 - **BA141 (medium, accessibility; traced). With forced colors (Windows
   contrast themes), the chosen state disappears from seven kinds of
   control.**
@@ -2253,7 +2253,7 @@ and `sheets-page.css` in both themes.
   - *Fix*: one `@media (forced-colors: active)` block giving each a cue that
     survives: an outline in `Highlight`, a thicker border, or weight.
   - *Check*: emulate forced colors in DevTools; each state is visible.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-ad), but for the leading pane. One `@media (forced-colors: active)` block after `desk.css`’s other forced-colors rules, and one in `sheets-page.css`: plain-text controls (a chosen segment, a chosen Greek word, the Notes toggle) take `Highlight` and `HighlightText`; boxes holding spans or an SVG (the Greek search’s choices, Layout’s arrangements, the editor’s marker) a 3px `Highlight` border, padding lessened to match; the panel tabs and footnote rows, whose transparent borders forced colors draws, give the unchosen ones `ButtonText` (on the bar’s own rule) or `Canvas` and the chosen one `Highlight`. Not outlines, which these controls’ focus rings use. The leading pane needs nothing: its “Leading” pill is text and survives. The rules were checked to parse in the browser; a pass with DevTools’ forced-colors emulation is still to do.
 - **BA142 (low, accessibility; traced). With forced colors, the four
   highlight swatches look alike.** Each is an “ab” sample tinted by
   background, and its color is named only in its aria-label, so a sighted
@@ -2261,7 +2261,7 @@ and `sheets-page.css` in both themes.
   `desk.css:1199–1240`; `actions.js:226`, `tab-mine.js:116, 332`,
   `kept-list.js:134`, `record-rows.js:37`. *Fix*: `forced-color-adjust:
   none` on the sample, or show the color's name.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-ad). `forced-color-adjust: none` on `.desk-swatch__sample` alone, so the tint stays (BVJ’s 2026-10-09 call: a highlight’s color is its tint and nothing else); the sample’s text inherits the swatch’s forced color.
 - **BA143 (low, accessibility; computed). Two dimmed texts fall below
   4.5:1 in the light theme.** An omitted term on a sheet is 3.64:1
   (`desk.css:6455`, opacity 0.55), and a revealed blank in the presenter's
@@ -2269,7 +2269,7 @@ and `sheets-page.css` in both themes.
   “needs a wider window” line is 3.15:1 but sits in a disabled control,
   which WCAG exempts; it is the only reason given, so lift it too. *Fix*:
   `rgba(var(--ink-rgb), 0.7)` or more.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-ad). The omitted term is at opacity 0.7 (5.8:1 on the raised surface, 5.2:1 on cream), the revealed blank at `rgba(var(--ink-rgb), 0.7)`, and the Layout menu’s “Needs a … window” line at 0.75 (6.9:1), above its dimmed button.
 - **BA144 (low, accessibility; computed; BVJ chose, 2026-10-26). Text fields' borders
   are 1.6 to 1.9:1 against the panel.** In light mode a field's fill
   matches the panel, so its 1px border is its only edge, below the 3:1
@@ -2279,7 +2279,7 @@ and `sheets-page.css` in both themes.
   bug. *Fix* (BVJ, 2026-10-26: Claude's recommendation): about
   `rgba(var(--ink-rgb), 0.55)` for field borders, site-wide, as its own
   commit in FA1-ad, checked against 3:1 in both themes.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-ad), as its own commit. One token, `--field-border` in `global.css`’s `:root`: `rgba(var(--ink-rgb), 0.58)`, since 0.55 reaches only 2.86:1 on cream; 0.58 is 3.1:1 on cream, 4.0:1 on the raised surface, and 5.8 to 6.6:1 in dark. Sixteen rules take it: nine in `desk.css` (the audit’s eight and the note editor’s body), the footer’s and the articles’ newsletter fields, the search bar’s box and its book and mode selects, the Greek search builder’s fields, the release notes’ filter and the unsubscribe field. Left for BVJ: the `/contact` and `/app-support` fields have no border, only a shadow, and their fill is 1.28:1 on cream. `src/styles/CLAUDE.md` records the token.
 - **BA145 (low; possible). Nothing hides the Notebook rail or the undo bar
   in print.**
   - *What happens*: the desk's print rules hide `.desk-notes`, the gutters,
@@ -2294,7 +2294,7 @@ and `sheets-page.css` in both themes.
   - *Fix*: hide both under `@media print`.
   - *Check*: print a chapter in a 900px window with the Notebook floating
     open, and again just after deleting a note.
-  - Status: open.
+  - Status: **Fixed in #NNN** (FA1-ad). One `@media print` rule beside the undo bar’s styles in `desk.css` hides `.desk-rail` and `.desk-undo__bar`.
 
 ### The phases FA1-u started
 
