@@ -1376,6 +1376,24 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   background: var(--white);
 }
 
+/* Forced colors (Windows contrast themes; BA149) drops backgrounds, which
+   are what draw the bars, and the button has no border, so it vanished.
+   The bars keep a background in the button's text color, and the button
+   gets the edge every other header button has. */
+@media (forced-colors: active) {
+  .site-header__menu-toggle {
+    border: 1px solid ButtonBorder;
+  }
+
+  .menu-icon::before,
+  .menu-icon::after,
+  html.menu-open .site-header__menu-toggle .menu-icon::before,
+  html.menu-open .site-header__menu-toggle .menu-icon::after {
+    forced-color-adjust: none;
+    background: ButtonText;
+  }
+}
+
 /* =========================================================
    Pre-collapse tuning
    (avoid overlap by tightening slightly)

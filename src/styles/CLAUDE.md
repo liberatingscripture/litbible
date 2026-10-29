@@ -318,3 +318,12 @@
   `/contact` and `/app-support` fields (`contact.css`, `.field`) have no border
   at all, only a shadow, and their fill is 1.28:1 on cream; adding one is a
   visible design change, left for BVJ.
+- **In forced colors (Windows contrast themes) a background draws nothing.**
+  An icon made of backgrounds, like the header's Menu bars, vanishes, and a
+  button with no border vanishes with it (BA149). Under
+  `@media (forced-colors: active)`, give such a mark
+  `forced-color-adjust: none` and a system color (`ButtonText`), and the
+  button a `ButtonBorder` edge. A label that sets the
+  `Highlight`/`HighlightText` pair itself needs `forced-color-adjust: none`
+  too, or Chrome paints its Canvas backplate behind the text (BA148).
+  Check with Chrome's forced-colors emulation in both themes.
