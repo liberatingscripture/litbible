@@ -154,7 +154,7 @@ are recorded so they aren't re-argued.
   (BA94, whose set of short names awaits BVJ's confirmation); “Mentioned
   in your note on…” lists the notes in Bible order (BA93); and a note of
   40,000 spaces draws in about 2 ms, not 3.5 s (BA95).
-  FA1-y is done (#PRNUM): a ribbon that follows the reader moves only to
+  FA1-y is done (#405): a ribbon that follows the reader moves only to
   where the page it is on says the reader is, so opening a ribbon no longer
   writes the reader's old place to it (BA99) and arriving in Read View no
   longer takes another tab's place in the book (BA100); every page without
@@ -6922,7 +6922,7 @@ The phases, in working order:
 | FA1-t | Copy and docs | done, #400: BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 |
 | FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | done, #402: BA89, BA93, BA94, BA95 |
-| FA1-y | Ribbons and Continue reading | done, #PRNUM: BA99 to BA108 |
+| FA1-y | Ribbons and Continue reading | done, #405: BA99 to BA108 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
 | FA1-ac | The copy pass | BA134 to BA139 |

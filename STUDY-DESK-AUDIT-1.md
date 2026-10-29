@@ -123,7 +123,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-t | Copy and docs | BA15, BA38, BA39, BA42, BA43, BA91, BA109, BA118 | done, #400 |
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | done, #401 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | done, #402 |
-| FA1-y | Ribbons and Continue reading | BA99 to BA108 | done, #PRNUM |
+| FA1-y | Ribbons and Continue reading | BA99 to BA108 | done, #405 |
 | FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | open |
 | FA1-ac | The copy pass | BA134 to BA139 | open |
@@ -1640,7 +1640,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: a `test/ribbon-follow.test.js` with stubbed storage: after
     `followRibbon` and 50 ms, the ribbon is still at its own verse.
   - *E9*: not moot while a bookmark can follow the reader this way.
-  - Status: **Fixed in #PRNUM** (FA1-y). `followRibbon(ribbon, href)` sets the flag and forgets where the reader was; it doesn't read the stored record. A link within the page moves the ribbon at the page's next report of where the reader is, after the jump, and a link to another page stops this page listening, so its pagehide save isn't written either. The follower starts from `pageLastRead()` (last-read.js): what this page saved, never what storage holds. Tested in `test/ribbon-follow.test.js` (stubbed storage, events and store), and in the browser: a ribbon at Romans 8:30 opened from 8:2 stayed at 8:30 until the page reported the jump.
+  - Status: **Fixed in #405** (FA1-y). `followRibbon(ribbon, href)` sets the flag and forgets where the reader was; it doesn't read the stored record. A link within the page moves the ribbon at the page's next report of where the reader is, after the jump, and a link to another page stops this page listening, so its pagehide save isn't written either. The follower starts from `pageLastRead()` (last-read.js): what this page saved, never what storage holds. Tested in `test/ribbon-follow.test.js` (stubbed storage, events and store), and in the browser: a ribbon at Romans 8:30 opened from 8:2 stayed at 8:30 until the page reported the jump.
 - **BA100 (medium; reproduced). Arriving in Read View moves a following ribbon
   to another tab's place in that book.**
   - *What happens*: `positionOnPage` accepts any Read View record for the
@@ -1659,7 +1659,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: a `positionOnPage` test with a Read View record for another
     chapter, plus the follower test above.
   - *E9*: as BA99.
-  - Status: **Fixed in #PRNUM** (FA1-y), with BA99: arriving, the follower reads `pageLastRead()`, this page's own save, so another tab's Read View place in the book, or an older visit's, is never taken. `positionOnPage` is unchanged. Tested in `test/ribbon-follow.test.js`.
+  - Status: **Fixed in #405** (FA1-y), with BA99: arriving, the follower reads `pageLastRead()`, this page's own save, so another tab's Read View place in the book, or an older visit's, is never taken. `positionOnPage` is unchanged. Tested in `test/ribbon-follow.test.js`.
 - **BA101 (medium; reproduced). A ribbon keeps following after the reader has
   left its book for a page without the Notebook.**
   - *What happens*: only `initRibbonFollow` clears the flag, and it runs in
@@ -1676,7 +1676,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: a test that loads the flag, a page without the shell, then a
     page in the book, and expects no write.
   - *E9*: moot only if the per-tab flag goes.
-  - Status: **Fixed in #PRNUM** (FA1-y). `desk-gate.js`, which every page runs, drops `lit-desk-ribbon` on any page where the shell won't load (the key is RIBBON_FLAG_KEY, written out so the gate stays small). `initRibbonFollow` drops it outside the book even when the notebook didn't open, and a page restored from the back-forward cache reads the flag again (`pageshow`), since the tab may have left the book meanwhile. Tested in `test/ribbon-follow.test.js`, and in the browser (the home page cleared it).
+  - Status: **Fixed in #405** (FA1-y). `desk-gate.js`, which every page runs, drops `lit-desk-ribbon` on any page where the shell won't load (the key is RIBBON_FLAG_KEY, written out so the gate stays small). `initRibbonFollow` drops it outside the book even when the notebook didn't open, and a page restored from the back-forward cache reads the flag again (`pageshow`), since the tab may have left the book meanwhile. Tested in `test/ribbon-follow.test.js`, and in the browser (the home page cleared it).
 - **BA102 (low; reproduced). Renaming, moving and following read a ribbon in
   one step and write it in another.**
   - *What happens*:
@@ -1698,7 +1698,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: tests with a fake store whose `get` waits, as in the
     reproduction.
   - *E9*: not moot; the same code becomes the bookmarks'.
-  - Status: **Fixed in #PRNUM** (FA1-y). All three are one `store.change` now. Rename, Move here and a new ribbon go through `src/lib/desk-ribbon-change.mjs` (`planRibbonRename`, `planRibbonMove`, `planRibbonCreate`, pure), which reads the ribbon in the transaction, writes nothing when it is gone, in the trash or no longer a ribbon (“That ribbon has been deleted.”), and checks the name and the six-ribbon limit against `all()`. Save is disabled while saving. The follower reads and writes its move in one `store.change` with `record: false`. Tested in `test/desk-ribbon-change.test.js` (a fake store whose reads wait) and `test/ribbon-follow.test.js` (a rename and a deletion landing between the follower's read and write), and in the browser (renaming a ribbon deleted meanwhile said so and brought nothing back).
+  - Status: **Fixed in #405** (FA1-y). All three are one `store.change` now. Rename, Move here and a new ribbon go through `src/lib/desk-ribbon-change.mjs` (`planRibbonRename`, `planRibbonMove`, `planRibbonCreate`, pure), which reads the ribbon in the transaction, writes nothing when it is gone, in the trash or no longer a ribbon (“That ribbon has been deleted.”), and checks the name and the six-ribbon limit against `all()`. Save is disabled while saving. The follower reads and writes its move in one `store.change` with `record: false`. Tested in `test/desk-ribbon-change.test.js` (a fake store whose reads wait) and `test/ribbon-follow.test.js` (a rename and a deletion landing between the follower's read and write), and in the browser (renaming a ribbon deleted meanwhile said so and brought nothing back).
 - **BA103 (low; reproduced). Stored book names like `constructor` pass as
   books.**
   - *What happens*: `loadLastRead` checks `BOOKS[r.book]`
@@ -1711,7 +1711,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
     `verse >= 1`.
   - *Check*: `loadLastRead` and `parseRibbonFlag` tests with those names.
   - *E9*: not moot.
-  - Status: **Fixed in #PRNUM** (FA1-y). `Object.hasOwn(BOOKS, …)` in `loadLastRead` and throughout `desk-places.mjs`, and `loadLastRead` requires a verse of 1 or more. Tested in `test/desk-places.test.js` (`constructor`, `toString` and `__proto__`).
+  - Status: **Fixed in #405** (FA1-y). `Object.hasOwn(BOOKS, …)` in `loadLastRead` and throughout `desk-places.mjs`, and `loadLastRead` requires a verse of 1 or more. Tested in `test/desk-places.test.js` (`constructor`, `toString` and `__proto__`).
 - **BA104 (low; traced). A verse in the address that isn't on the page is
   recorded as the reader's.**
   - *What happens*: `trackStudyView` saves `hashVerse()` without checking
@@ -1723,7 +1723,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
     otherwise `verseAtReadingLine`.
   - *Check*: a test with a marker list lacking the verse.
   - *E9*: not moot.
-  - Status: **Fixed in #PRNUM** (FA1-y). `verseInHash` (last-read.js) takes the address's `#vN` only when the page has a `vN` marker (`v41b` counts as 41); otherwise arrival records no verse, as a chapter opened at its top does.
+  - Status: **Fixed in #405** (FA1-y). `verseInHash` (last-read.js) takes the address's `#vN` only when the page has a `vN` marker (`v41b` counts as 41); otherwise arrival records no verse, as a chapter opened at its top does.
 - **BA105 (low, accessibility; traced). Two rename forms can be open at once,
   with one id.**
   - *What happens*: `startRename` doesn't check `editing`, and every form in
@@ -1735,7 +1735,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
     (or does nothing).
   - *Check*: a DOM test pressing Rename on two rows.
   - *E9*: moot if the list drops inline rename.
-  - Status: **Fixed in #PRNUM** (FA1-y). Rename on another row closes the open form first, as its Cancel would, putting that row back as it was without a redraw, so there is one form and one id. A late Cancel or save from the closed form does nothing. Checked in the browser: Rename on two rows left one form, focused.
+  - Status: **Fixed in #405** (FA1-y). Rename on another row closes the open form first, as its Cancel would, putting that row back as it was without a redraw, so there is one form and one id. A late Cancel or save from the closed form does nothing. Checked in the browser: Rename on two rows left one form, focused.
 - **BA106 (low; reproduced). A ribbon's name can be cut through an emoji.**
   - *What happens*: `cleanRibbonName` cuts at 40 UTF-16 units
     (`desk-places.mjs:44–50`), so an emoji at the end leaves half of it. The
@@ -1744,7 +1744,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Fix*: cut by code point (`Array.from(s).slice(0, 40).join("")`).
   - *Check*: `cleanRibbonName("x".repeat(39) + "😀").isWellFormed()`.
   - *E9*: not moot while names are capped.
-  - Status: **Fixed in #PRNUM** (FA1-y). `cleanRibbonName` cuts at 40 code points (`Array.from`). Tested in `test/desk-places.test.js`.
+  - Status: **Fixed in #405** (FA1-y). `cleanRibbonName` cuts at 40 code points (`Array.from`). Tested in `test/desk-places.test.js`.
 - **BA107 (low, performance; traced). A following ribbon redraws the notebook
   everywhere, and the Places group never unsubscribes.**
   - *What happens*: each move is a commit, which every view and every other
@@ -1761,7 +1761,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
     kinds through `subscribe`); give `placesSection` a `destroy`.
   - *Check*: trace, or count redraws in a stubbed store.
   - *E9*: the redraws are not moot; the leak is if the Places group goes.
-  - Status: **Fixed in #PRNUM** (FA1-y). The leak was already closed by BA31 in #398
+  - Status: **Fixed in #405** (FA1-y). The leak was already closed by BA31 in #398
     (`placesSection`'s `destroy`, called by My Notes' `destroy`). The redraws:
     `store.subscribe(fn, filter)` takes `{ kinds }` or `{ except }`, and each
     notice carries the kinds it touched (`changeKinds`, with what a record was
@@ -1775,7 +1775,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
     doing nothing and an unhandled rejection. Rename reports its error
     (`places.js:256–260`).
   - *Fix*: catch it and show a sentence, as rename does.
-  - Status: **Fixed in #PRNUM** (FA1-y). Both deletes catch the error, log it, and say “The ribbon couldn’t be deleted in this browser.” (the Places group) or “That item couldn’t be deleted in this browser.” (My Notes) in a `role="alert"` line, cleared on the next draw.
+  - Status: **Fixed in #405** (FA1-y). Both deletes catch the error, log it, and say “The ribbon couldn’t be deleted in this browser.” (the Places group) or “That item couldn’t be deleted in this browser.” (My Notes) in a `role="alert"` line, cleared on the next draw.
 - **BA109 (low, copy). The Places group's empty line reads as an instruction.**
   - *What happens*: “No places yet. Continue reading and your ribbons
     appear here.” (`notebook-page.js:161`) reads as “keep reading.” And the
