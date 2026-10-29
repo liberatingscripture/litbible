@@ -1224,8 +1224,9 @@ html[data-presenter] .sheets-page {
   padding-left: 1.4rem;
 }
 
+/* 0.7 keeps it at 4.5:1 or more on the light page (BA143). */
 .present-notes__blanks li.is-revealed {
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 .present-notes__line,
