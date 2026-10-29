@@ -134,7 +134,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-ac | The copy pass | BA134 to BA139 | done, #408 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | done, #409 |
 | FA1-v | The follow-up audit: real devices | new findings, BA146 onward | Windows half done (BA146 to BA153); Mac, VoiceOver, two screens and a touchscreen open |
-| FA1-ae | What FA1-v found on Windows | BA146 to BA153 | done, #PR |
+| FA1-ae | What FA1-v found on Windows | BA146 to BA153 | done, #411 |
 
 **Declined**
 
@@ -2464,7 +2464,7 @@ and a sheet's Leader only, page break and space modules on paper.
     as the asides are; keep the marks out of `[data-verse]` text reads.
   - *Check*: confirm with Firefox's own print dialog first (the pass used
     BiDi's print), then the PDF shows each colour.
-  - Status: fixed in FA1-ae (#PR). Firefox's print through `window.print()`
+  - Status: fixed in FA1-ae (#411). Firefox's print through `window.print()`
     couldn't be run under remote control (headless or not), so the check
     used BiDi's print, which showed no tint before the fix. Every browser now
     gets print-only `<mark>`s (`desk-print-mark--<colour>`, with
@@ -2484,7 +2484,7 @@ and a sheet's Leader only, page break and space modules on paper.
     same way.
   - *Check*: type, insert a command, Ctrl+Z removes the insertion and a
     second Ctrl+Z the typing; in Chrome and Firefox.
-  - Status: fixed in FA1-ae (#PR). `typeInto` replaces only the span that
+  - Status: fixed in FA1-ae (#411). `typeInto` replaces only the span that
     changed (`editSpan`, `greek-commands-ui.mjs`, tested) with
     `execCommand("insertText")`. Checked in Chrome and Firefox: type, insert
     a command by mouse, Ctrl+Z takes the insertion back and a second the
@@ -2502,7 +2502,7 @@ and a sheet's Leader only, page break and space modules on paper.
   - *Fix*: `forced-color-adjust: none` on that label, so the
     Highlight/HighlightText pair it sets is what paints.
   - *Check*: the emulation in both themes, and a real Windows contrast theme.
-  - Status: fixed in FA1-ae (#PR): `forced-color-adjust: none` on the chosen
+  - Status: fixed in FA1-ae (#411): `forced-color-adjust: none` on the chosen
     label (and no inset band on its focus ring). Checked in Chrome's
     emulation in both themes; a real Windows contrast theme is still BVJ's.
 - **BA149 (medium, a11y; seen in Chrome's forced-colors emulation). The
@@ -2517,7 +2517,7 @@ and a sheet's Leader only, page break and space modules on paper.
     `background: CanvasText` with `forced-color-adjust: none` (or draw them
     as borders), and the button a `ButtonBorder` edge as Aa has.
   - *Check*: the emulation in both themes, with the menu closed and open.
-  - Status: fixed in FA1-ae (#PR), site-wide in `global.css`: a `ButtonBorder`
+  - Status: fixed in FA1-ae (#411), site-wide in `global.css`: a `ButtonBorder`
     edge and `ButtonText` bars. Checked in Chrome's emulation in both
     themes, closed and open.
 - **BA150 (low, a11y; seen in Chrome). Focus rings are cut off at a pane's
@@ -2530,7 +2530,7 @@ and a sheet's Leader only, page break and space modules on paper.
   - *Fix*: `scroll-padding` with matching inner padding, or an inset ring
     (`outline-offset` negative) for controls that sit at a scroller's edge.
   - *Check*: Tab through a short /desk/ pane; every ring is whole.
-  - Status: fixed in FA1-ae (#PR): `scroll-padding-block: 8px` on every
+  - Status: fixed in FA1-ae (#411): `scroll-padding-block: 8px` on every
     scroller the desk draws, so Tab stops short of the edge. Measured by
     tabbing /desk/ at 1280 × 600 with My Notes, Sheet and Greek beside the
     LIT: no ring of a control in view is cut (before: verse numbers and
@@ -2545,7 +2545,7 @@ and a sheet's Leader only, page break and space modules on paper.
     with `orphans`/`widows` 2 or 3), and keep the notice with the text's last
     lines rather than whole.
   - *Check*: print Romans 8 both ways on Letter and A4 in both browsers.
-  - Status: fixed in FA1-ae (#PR). Firefox's gap was its grid: it moves a grid
+  - Status: fixed in FA1-ae (#411). Firefox's gap was its grid: it moves a grid
     row to the next page whole, so no break rule could help. "Print with my
     notes" now floats each block's notes right, the aside set before its
     block, and the text flows as in plain printing: Romans 8 is 4 pages in
@@ -2564,7 +2564,7 @@ and a sheet's Leader only, page break and space modules on paper.
     follows (`break-after: avoid`). What the page should print is BVJ's call;
     the recommendation is the list of what is kept, as read.
   - *Check*: print /notebook/ on Letter.
-  - Status: fixed in FA1-ae (#PR), as BVJ chose (2026-10-29): the list as
+  - Status: fixed in FA1-ae (#411), as BVJ chose (2026-10-29): the list as
     read. Printed on Letter in Chrome: What I've kept and Places, headings
     kept with their rows, no controls.
 - **BA153 (low; seen in Chrome). The desk's pages say the preview is off
@@ -2581,7 +2581,7 @@ and a sheet's Leader only, page break and space modules on paper.
     stamp and the note comes back.
   - *Check*: throttle the network; the page says it is loading, never that
     the preview is off, and with the preview off the note shows at once.
-  - Status: fixed in FA1-ae (#PR): "Loading the Study Desk…" shows instead of
+  - Status: fixed in FA1-ae (#411): "Loading the Study Desk…" shows instead of
     the note under `html[data-desk="on"]`, and the gate stands down if a
     page's module fails, bringing the note back. Checked at 150 kbps: /desk/
     and /sheets/ said they were loading, never that the preview was off;
