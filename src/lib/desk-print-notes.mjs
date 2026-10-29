@@ -123,3 +123,30 @@ export function planNotes(items) {
     }));
   return { rows, strays: strays.sort((a, b) => a.rank - b.rank).map((it) => it.id) };
 }
+
+/**
+ * The pieces of one text node a printed highlight tints (BA146): Firefox
+ * prints a copy of the page that leaves its Custom Highlights behind, so
+ * print-notes.js wraps each highlighted run in a print-only <mark> instead.
+ * Each piece is clipped to the node; empty ones go, and where two overlap
+ * (records from another device can), the one that starts first keeps the
+ * overlap, so no character is wrapped twice.
+ *
+ * @param {number} length the text node's length
+ * @param {{ start: number, end: number, color: string }[]} pieces
+ * @returns {{ start: number, end: number, color: string }[]} in text order
+ */
+export function markPieces(length, pieces) {
+  const out = [];
+  let reached = 0;
+  const sorted = pieces
+    .map((p) => ({ ...p, start: Math.max(0, p.start), end: Math.min(length, p.end) }))
+    .sort((a, b) => a.start - b.start || a.end - b.end);
+  for (const p of sorted) {
+    const start = Math.max(p.start, reached);
+    if (p.end <= start) continue;
+    out.push({ start, end: p.end, color: p.color });
+    reached = p.end;
+  }
+  return out;
+}

@@ -21,3 +21,60 @@
   max-width: calc(60 * var(--ch));
   line-height: 1.6;
 }
+
+/* Shown in place of the note while the desk's code loads, when the pre-paint
+   script has stamped the preview on (BA153). If the desk fails to load, the
+   gate's standDown() takes the stamp off and the note comes back. */
+.notebook-page__loading {
+  display: none;
+  margin: 0;
+  line-height: 1.6;
+}
+
+html[data-desk="on"] .notebook-page__loading {
+  display: block;
+}
+
+html[data-desk="on"] .notebook-page__off {
+  display: none;
+}
+
+/* On paper the page is the list of what the notebook keeps, as it reads on
+   screen (BA152; BVJ, 2026-10-29): the notes, highlights, bookmarks, pinned
+   footnotes and places, each under its heading. What only works on a screen
+   goes: the page's links to its sections, the search and filters, What's
+   new, Labels, the panel setting, Save a copy and Delete everything, and
+   every button, field and form in the lists. */
+@media print {
+  [data-notebook-page] :is(
+    .desk-np__intro,
+    .desk-np__jump,
+    .desk-np__filters,
+    .desk-np__error,
+    .desk-np-row__buttons,
+    .desk-places__actions,
+    .desk-places__problem,
+    #whats-new,
+    #labels,
+    #panel,
+    #backup,
+    #delete-everything,
+    button,
+    input,
+    select,
+    textarea,
+    form,
+    fieldset
+  ) {
+    display: none !important;
+  }
+
+  /* A heading stays with the first rows under it, and a row is never split. */
+  [data-notebook-page] :is(h2, h3, h4) {
+    break-after: avoid;
+  }
+
+  [data-notebook-page] .desk-item {
+    break-inside: avoid;
+  }
+}

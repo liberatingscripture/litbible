@@ -331,7 +331,13 @@ that section.
        default). `desk-gate.js` loads `desk/notebook-page.js` when
        `[data-notebook-page]` is present; the page isn't a reading surface,
        so it has no panel, and without the preview it shows only a short
-       note. Shared pieces: `desk/boot.js` (the stylesheet and context the
+       note. **/notebook/, /desk/ and /sheets/ hide that note under
+       `html[data-desk="on"]`** and show “Loading the Study Desk…” until
+       the desk's code replaces both (BA153); if that code fails to load,
+       the gate's `standDown()` takes the stamp off and the note is back.
+       /notebook/ prints as the list of what is kept (BVJ, 2026-10-29;
+       BA152): `notebook.css` hides its controls and every section but What
+       I've kept and Places. Shared pieces: `desk/boot.js` (the stylesheet and context the
        shell and the page both need), `record-rows.js`, `labels-ui.js`.
      - **Save and open a copy** (`src/lib/desk-export.mjs`, pure; format in
        STUDY-DESK-FORMAT.md, "The export file"): Markdown, Web Annotation
@@ -597,6 +603,11 @@ that section.
        finding its field gone closes it too (BA114). What it announces is
        meant to be heard: a command by its meaning (“Added: Within 3
        words.”), the builder's by the query it made (BA117).
+       **What it puts in a field is typed, not set** (BA147): `typeInto`
+       replaces only the changed span with `execCommand("insertText")`, so
+       Ctrl+Z still works; setting `value` empties the field's undo, and is
+       only the fallback (a command pressed by keyboard inside the window,
+       where the field hasn't focus).
        Its two keys, `localStorage['lit-greek-commands']` (opened once) and
        `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
        /privacy's paragraph.
@@ -805,13 +816,16 @@ that section.
        Read View (`desk/print-notes.js`, rules in
        `src/lib/desk-print-notes.mjs`). For that one print it sets
        `html[data-desk-print="notes"]`, inserts a print-only
-       `aside.desk-print-notes` after each block holding a note's first word
-       (`display: none` on screen, `aria-hidden`, no `[data-verse]` text, so
-       no reader of the page sees it), paints the highlights as their own
-       Custom Highlights (`desk-print-hl-*`, which Chrome prints), and undoes
-       all of it on `afterprint`. The grid that sets the notes beside the
-       text is in `desk.css`'s last section. Plain Ctrl+P never has the
-       attribute and prints as before.
+       `aside.desk-print-notes` just before each block holding a note's first
+       word (`display: none` on screen, `aria-hidden`, no `[data-verse]` text,
+       so no reader of the page sees it), wraps each highlighted run in a
+       print-only `mark.desk-print-mark--<colour>`, and undoes all of it on
+       `afterprint`, joining every split text node back into the original
+       node. **Not Custom Highlights**: Firefox prints a copy of the page that
+       leaves them behind (BA146). **Not a grid**: `desk.css` floats each
+       aside right beside its block, because Firefox moves a whole grid row
+       to the next page (BA151). Plain Ctrl+P never has the attribute and
+       prints as before.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        button right after it in the My Notes foot, and the command
        `print-with-room`. `desk/print-room.js` only stamps
