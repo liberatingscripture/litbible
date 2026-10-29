@@ -44,6 +44,24 @@ export function insertAtCursor(value, start, end, text) {
   return { value: before + added + after, caret: (before + added).length };
 }
 
+/**
+ * The smallest stretch of `before` to replace to make `after`: the field's
+ * commands put text in as typing would (BA147), so undo takes back only what
+ * changed. Characters common to both ends are left alone.
+ *
+ * @returns {{ start: number, end: number, text: string }} replace
+ *   before[start, end) with `text`
+ */
+export function editSpan(before, after) {
+  const a = String(before ?? "");
+  const b = String(after ?? "");
+  let start = 0;
+  while (start < a.length && start < b.length && a[start] === b[start]) start++;
+  let tail = 0;
+  while (tail < a.length - start && tail < b.length - start && a[a.length - 1 - tail] === b[b.length - 1 - tail]) tail++;
+  return { start, end: a.length - tail, text: b.slice(start, b.length - tail) };
+}
+
 /** The filter words in the order a query reads best: part of speech, tense, voice, mood, case, person, number, gender, degree. */
 const QUERY_AXES = ["pos", "tense", "voice", "mood", "case", "person", "number", "gender", "degree"];
 
