@@ -22,6 +22,9 @@ import "../styles/pages/notebook.css";
   <div class="notebook-page">
     <h1 class="notebook-page__title">Notebook</h1>
     <div data-notebook-page>
+      <!-- With the preview on, the page says it is loading rather than that the
+           preview is off, until the desk's code replaces both (BA153). -->
+      <p class="notebook-page__loading">Loading the Study Desk…</p>
       <!-- id="backup" here too, so /notebook/#backup (the help page, the
            search box's "Save a copy") lands on this note while the preview
            is off; notebook-page.js replaces it with the real section. -->

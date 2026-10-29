@@ -12,7 +12,8 @@
 //      finds each note's first word on the page, the way the margin does
 //      (placeRecord against the page's own anchor text), so a note lands
 //      beside the block that holds those words;
-//   2. adds one print-only <aside> after each block that has notes, and a
+//   2. adds one print-only <aside> before each block that has notes (the
+//      notes float beside it, level with its first line), and a
 //      closing list for any note with no block at all. A note on a footnote
 //      (M11) prints in the Footnotes list instead, in an <aside> at the end
 //      of its footnote's list item (found as a pin is); one whose footnote is
@@ -21,11 +22,14 @@
 //      everywhere but the printed page, so the screen never changes, and they
 //      hold no verse text (`[data-verse]`), so the anchor reader never meets
 //      them;
-//   3. paints the highlights as CSS Custom Highlights under names of their
-//      own (`desk-print-hl-<colour>`), which Chrome prints as a tint;
+//   3. wraps each highlighted run in a print-only <mark> (BA146). Custom
+//      Highlights would be lighter, but Firefox prints a copy of the page
+//      that leaves them behind; a mark is ordinary markup every browser
+//      prints. They add no text, so `[data-verse]` reads are unchanged, and
+//      each wrapped text node is put back whole, the same node, afterwards;
 //   4. stamps `data-desk-print="notes"` on <html>, waits for the fonts the
 //      page will print in, and calls window.print();
-//   5. on `afterprint` removes the asides, the highlights and the attribute,
+//   5. on `afterprint` removes the asides, the marks and the attribute,
 //      leaving the page as it was (or at the reader's next move, where no
 //      dialog opened; print-look.js, BA35). It never writes a record.
 //
@@ -47,13 +51,78 @@ import {
   printHeading,
   standing,
 } from "../../lib/desk-print-notes.mjs";
+import { markPieces } from "../../lib/desk-print-notes.mjs";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { chapterBlocks, chapterTextFor, footnoteList, pageChapter, readBook, readChapterBlocks } from "./page.js";
 import { printLook } from "./print-look.js";
 
-const hlName = (color) => `desk-print-hl-${color}`;
-const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
+/** The text nodes a range covers, each with the part of it inside the range. */
+function textPieces(range) {
+  const root = range.commonAncestorContainer;
+  const pieces = [];
+  const take = (node) => {
+    if (!range.intersectsNode(node)) return;
+    const start = node === range.startContainer ? range.startOffset : 0;
+    const end = node === range.endContainer ? range.endOffset : node.length;
+    // Whitespace between blocks would become a stray box in the print grid.
+    if (end > start && /\S/.test(node.data.slice(start, end))) pieces.push({ node, start, end });
+  };
+  if (root.nodeType === Node.TEXT_NODE) take(root);
+  else {
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) take(n);
+  }
+  return pieces;
+}
+
+/**
+ * Wraps each run in a print-only <mark> of its colour, and returns the undo,
+ * which unwraps them and joins every split node back into the original one,
+ * so anything holding that node (the anchor reader) finds it as it was.
+ *
+ * @param {Map<Text, { start: number, end: number, color: string }[]>} byNode
+ */
+function wrapMarks(byNode) {
+  const marks = [];
+  const joins = []; // [original node, the nodes split off it, in order]
+  for (const [node, wanted] of byNode) {
+    const pieces = markPieces(node.length, wanted);
+    if (!pieces.length) continue;
+    const split = [];
+    let rest = node;
+    let at = 0;
+    for (const p of pieces) {
+      let run = rest;
+      if (p.start > at) {
+        run = rest.splitText(p.start - at);
+        split.push(run);
+      }
+      rest = null;
+      if (p.end - p.start < run.length) {
+        rest = run.splitText(p.end - p.start);
+        split.push(rest);
+      }
+      const mark = document.createElement("mark");
+      mark.className = `desk-print-mark desk-print-mark--${p.color}`;
+      run.replaceWith(mark);
+      mark.append(run);
+      marks.push(mark);
+      if (!rest) break;
+      at = p.end;
+    }
+    joins.push([node, split]);
+  }
+  return () => {
+    for (const mark of marks) mark.replaceWith(...mark.childNodes);
+    for (const [node, split] of joins) {
+      for (const part of split) {
+        node.appendData(part.data);
+        part.remove();
+      }
+    }
+  };
+}
 
 /** Where this page's chapters are, or null: Study View's chapter, or the book in Read View. */
 export function surface() {
@@ -217,7 +286,7 @@ export function createPrintNotes({ store }) {
       onFootnotes.get(li).push({ record: r, how: standing(at.status) });
     }
 
-    // 2. The asides, each after its block.
+    // 2. The asides, each just before its block, where desk.css floats it.
     const added = [];
     for (const row of plan.rows) {
       const aside = document.createElement("aside");
@@ -225,7 +294,7 @@ export function createPrintNotes({ store }) {
       aside.setAttribute("aria-hidden", "true");
       aside.setAttribute("data-desk-print-extra", "");
       for (const id of row.ids) aside.append(noteElement(info.get(id).record, info.get(id).how));
-      allBlocks[row.block].after(aside);
+      allBlocks[row.block].before(aside);
       added.push(aside);
     }
     for (const [li, group] of onFootnotes) {
@@ -253,41 +322,39 @@ export function createPrintNotes({ store }) {
       added.push(strays);
     }
 
-    // 3. The highlights, one named Custom Highlight per colour.
-    const painted = [];
-    if (supportsHighlight) {
-      const byColor = new Map();
-      for (const r of marks) {
-        if (!COLORS.includes(r.color)) continue;
-        const c = chapterOf(r.chapter);
-        if (!c.text) continue;
-        try {
-          const at = placeRecord(c.text, r);
-          if (at.status === "lost" || at.start == null) continue;
-          const pts = offsetsToRange(c.text, at.start, at.end);
-          if (!pts) continue;
-          const range = document.createRange();
-          range.setStart(pts.startContainer, pts.startOffset);
-          range.setEnd(pts.endContainer, pts.endOffset);
-          if (range.collapsed) continue;
-          if (!byColor.has(r.color)) byColor.set(r.color, []);
-          byColor.get(r.color).push(range);
-        } catch (_) {
-          // One highlight that can't be placed mustn't take the others'.
+    // 3. The highlights, each run wrapped in a mark of its colour. Every
+    // range is found before any node is split, since splitting moves the
+    // offsets the anchor text maps to.
+    const byNode = new Map();
+    for (const r of marks) {
+      if (!COLORS.includes(r.color)) continue;
+      const c = chapterOf(r.chapter);
+      if (!c.text) continue;
+      try {
+        const at = placeRecord(c.text, r);
+        if (at.status === "lost" || at.start == null) continue;
+        const pts = offsetsToRange(c.text, at.start, at.end);
+        if (!pts) continue;
+        const range = document.createRange();
+        range.setStart(pts.startContainer, pts.startOffset);
+        range.setEnd(pts.endContainer, pts.endOffset);
+        if (range.collapsed) continue;
+        for (const { node, start, end } of textPieces(range)) {
+          if (!byNode.has(node)) byNode.set(node, []);
+          byNode.get(node).push({ start, end, color: r.color });
         }
-      }
-      for (const [color, ranges] of byColor) {
-        CSS.highlights.set(hlName(color), new Highlight(...ranges));
-        painted.push(color);
+      } catch (_) {
+        // One highlight that can't be placed mustn't take the others'.
       }
     }
+    const unmark = wrapMarks(byNode);
 
     const noteText = allNotes.map((r) => `${r.body ?? ""} ${recordReference(r)}`).join(" ");
     return {
       noteText,
       undo() {
         for (const el of added) el.remove();
-        for (const color of painted) CSS.highlights.delete(hlName(color));
+        unmark();
       },
     };
   }

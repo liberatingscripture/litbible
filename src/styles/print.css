@@ -181,6 +181,14 @@
     break-inside: avoid;
   }
 
+  /* The Study Desk's two prints (desk.css, data-desk-print) run longer, and
+     a notice held whole went to a page of its own after Romans 8's room to
+     write (BA151). There it may break, its paragraphs' orphans and widows
+     keeping at least three lines together. */
+  html[data-desk-print] .scripture-disclaimer {
+    break-inside: auto;
+  }
+
   .scripture-disclaimer__inner {
     width: auto !important;
     max-width: none !important;

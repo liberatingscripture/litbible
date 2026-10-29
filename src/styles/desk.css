@@ -5136,6 +5136,28 @@ html.desk-ws--moving * {
   outline-offset: -2px;
 }
 
+/* Tab scrolls a control just into view, flush with its scroller's edge,
+   where the box clips the 2px ring and its offset (BA150). Every scroller
+   the desk draws stops focus scrolling, and "nearest" scrolls, short of its
+   edges by more than a ring. */
+:is(
+  .desk-panel__body,
+  .desk-pane__body,
+  .desk-pane__menu,
+  .desk-ws__panes,
+  .desk-lit__scroll,
+  .desk-greek__scroller,
+  .desk-greek__details,
+  .desk-dp__content,
+  .desk-labels__list,
+  .desk-sheet,
+  .desk-sheet__from-list,
+  .desk-rich-menu,
+  .desk-gather__sheets
+) {
+  scroll-padding-block: 8px;
+}
+
 .desk-lit__text {
   max-width: var(--reading-width);
   margin: 0 auto;
@@ -5860,14 +5882,20 @@ html.desk-ws--moving * {
   }
 
   /* A chosen segment takes the selection's own pair; its focus ring then
-     needs the text color, since the default one would sit on Highlight. */
+     needs the text color, since the default one would sit on Highlight.
+     Chrome paints a Canvas backplate behind forced text, which hid the
+     HighlightText label on its Highlight fill (BA148), so the label opts out
+     of forcing: the pair is system colors already. Opting out also keeps
+     the focus ring's inset band, which belongs to the screen's colors. */
   .desk-seg__input:checked + .desk-seg__text {
+    forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
   }
 
   .desk-seg__input:checked:focus-visible + .desk-seg__text {
     outline-color: HighlightText;
+    box-shadow: none;
   }
 
   /* The editor's markers have a fixed 36px box, so the border can grow. */
@@ -6719,39 +6747,52 @@ p.desk-sheet__flag {
   display: none;
 }
 
+/* The highlights' print-only marks look like nothing on screen, for the
+   moment before the print dialog takes over. */
+mark.desk-print-mark {
+  background: none;
+  color: inherit;
+}
+
 @media print {
-  /* The page's text becomes two columns, the reader's notes on the right. The
-     block and its notes are one grid row, so a note stays beside its words
-     wherever the page breaks, which absolute positioning can't promise.
-     Plain printing never has the attribute, so it never meets any of this. */
+  /* The page's text keeps the left two thirds and the reader's notes float
+     in the right third, each <aside> set just before its block, so it starts
+     level with the block's first line; a note that runs long pushes the next
+     one down rather than over it. The text flows on as ever, so a paragraph
+     breaks across pages as it does in plain printing. (A grid row held each
+     block beside its notes until FA1-ae: Firefox moves a grid row to the next
+     page whole, which left a fifth of a page empty, BA151.) Plain printing
+     never has the attribute, so it never meets any of this. */
   html[data-desk-print="notes"] .chapter-paragraphs,
   html[data-desk-print="notes"] [data-rm-text] {
-    display: grid;
-    grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr);
-    column-gap: 16pt;
-    align-items: start;
+    display: flow-root;
   }
 
-  html[data-desk-print="notes"] .chapter-paragraphs > *,
-  html[data-desk-print="notes"] [data-rm-text] > * {
-    grid-column: 1;
-    min-width: 0;
+  html[data-desk-print="notes"] .chapter-paragraphs > :not(.desk-print-notes),
+  html[data-desk-print="notes"] [data-rm-text] > :not(.desk-print-notes) {
+    margin-right: 32% !important;
   }
 
   /* Read View's chapter headings and anchors, and the stubs for chapters
-     still being translated, span the page. */
-  html[data-desk-print="notes"] [data-rm-text] > .rm-chapter,
-  html[data-desk-print="notes"] [data-rm-text] > .rm-ch-anchor,
-  html[data-desk-print="notes"] [data-rm-text] > .rm-draft-stub,
-  html[data-desk-print="notes"] .desk-print-strays {
-    grid-column: 1 / -1;
+     still being translated, span the page, below any note still running. */
+  html[data-desk-print="notes"] [data-rm-text] > :is(.rm-chapter, .rm-ch-anchor, .rm-draft-stub) {
+    margin-right: 0 !important;
+    clear: right;
+  }
+
+  html[data-desk-print="notes"] .chapter-paragraphs > .desk-print-strays,
+  html[data-desk-print="notes"] [data-rm-text] > .desk-print-strays {
+    margin-right: 0 !important;
+    clear: both;
   }
 
   html[data-desk-print="notes"] .chapter-paragraphs > .desk-print-notes,
   html[data-desk-print="notes"] [data-rm-text] > .desk-print-notes {
-    grid-column: 2;
+    float: right;
+    clear: right;
+    width: 30%;
+    box-sizing: border-box;
     display: block;
-    align-self: start;
     padding: 0 0 0 9pt;
     border-left: 0.5pt solid #888;
     font-size: calc(9.5pt * var(--reading-scale, 1));
@@ -6863,23 +6904,30 @@ p.desk-sheet__flag {
   }
 
   /* The highlights, in the four colours' own tints (the light theme's, since
-     paper is white whatever the theme). They are Custom Highlights the
-     script paints under names of their own, which Chrome prints without the
-     "Background graphics" setting. */
-  html[data-desk-print="notes"] ::highlight(desk-print-hl-yellow) {
-    background-color: rgba(255, 210, 0, 0.42);
+     paper is white whatever the theme). They are print-only <mark>s the
+     script wraps round each run (BA146: Firefox doesn't print Custom
+     Highlights). print.css clears every background with !important, so these
+     need it too, and `print-color-adjust: exact` prints them without the
+     dialog's "Background graphics" box. */
+  html[data-desk-print="notes"] mark.desk-print-mark {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  html[data-desk-print="notes"] ::highlight(desk-print-hl-green) {
-    background-color: rgba(160, 210, 40, 0.42);
+  html[data-desk-print="notes"] mark.desk-print-mark--yellow {
+    background-color: rgba(255, 210, 0, 0.42) !important;
   }
 
-  html[data-desk-print="notes"] ::highlight(desk-print-hl-blue) {
-    background-color: rgba(70, 150, 255, 0.3);
+  html[data-desk-print="notes"] mark.desk-print-mark--green {
+    background-color: rgba(160, 210, 40, 0.42) !important;
   }
 
-  html[data-desk-print="notes"] ::highlight(desk-print-hl-pink) {
-    background-color: rgba(255, 95, 165, 0.28);
+  html[data-desk-print="notes"] mark.desk-print-mark--blue {
+    background-color: rgba(70, 150, 255, 0.3) !important;
+  }
+
+  html[data-desk-print="notes"] mark.desk-print-mark--pink {
+    background-color: rgba(255, 95, 165, 0.28) !important;
   }
 }
 

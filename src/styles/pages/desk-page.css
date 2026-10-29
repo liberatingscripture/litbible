@@ -23,3 +23,20 @@
   max-width: calc(60 * var(--ch));
   line-height: 1.6;
 }
+
+/* Shown in place of the note while the desk's code loads, when the pre-paint
+   script has stamped the preview on (BA153). If the desk fails to load, the
+   gate's standDown() takes the stamp off and the note comes back. */
+.desk-page__loading {
+  display: none;
+  margin: 0;
+  line-height: 1.6;
+}
+
+html[data-desk="on"] .desk-page__loading {
+  display: block;
+}
+
+html[data-desk="on"] .desk-page__off {
+  display: none;
+}

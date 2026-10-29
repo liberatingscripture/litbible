@@ -6,6 +6,7 @@ import {
   LOST_VERSE_NOTE,
   PRINT_QUOTE_WORDS,
   blockForVerse,
+  markPieces,
   planNotes,
   printHeading,
   standing,
@@ -104,4 +105,21 @@ test("a note on a footnote quotes the footnote's opening words in print", () => 
   const onFn = { kind: "note", footnote: "The Greek sarx means flesh, body, and the self in Paul.", body: "mine", marker: "note" };
   assert.equal(printHeading(onFn, "Romans 8:3").quote, "The Greek sarx means flesh, body, and the…");
   assert.equal(printHeading({ kind: "note", footnote: "The Greek sarx means flesh." }, "Romans 8:3").quote, "The Greek sarx means flesh.", "a short footnote is whole");
+});
+
+test("a printed highlight wraps each run once, in text order, inside its node (BA146)", () => {
+  assert.deepEqual(markPieces(10, [{ start: 4, end: 8, color: "pink" }, { start: 0, end: 2, color: "blue" }]), [
+    { start: 0, end: 2, color: "blue" },
+    { start: 4, end: 8, color: "pink" },
+  ]);
+  assert.deepEqual(markPieces(5, [{ start: -3, end: 99, color: "green" }]), [{ start: 0, end: 5, color: "green" }], "clipped to the node");
+  assert.deepEqual(markPieces(5, [{ start: 2, end: 2, color: "green" }]), [], "an empty run wraps nothing");
+  assert.deepEqual(
+    markPieces(10, [{ start: 0, end: 6, color: "yellow" }, { start: 3, end: 9, color: "pink" }]),
+    [{ start: 0, end: 6, color: "yellow" }, { start: 6, end: 9, color: "pink" }],
+    "an overlap goes to the run that starts first",
+  );
+  assert.deepEqual(markPieces(10, [{ start: 0, end: 9, color: "yellow" }, { start: 2, end: 5, color: "pink" }]), [
+    { start: 0, end: 9, color: "yellow" },
+  ]);
 });
