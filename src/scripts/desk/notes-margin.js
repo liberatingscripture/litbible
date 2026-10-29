@@ -719,7 +719,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   /* ── Keeping up with the page ────────────────────────────────────── */
 
-  store.subscribe(load);
+  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
+  store.subscribe(load, { except: ["place"] });
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

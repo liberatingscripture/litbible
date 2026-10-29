@@ -20,16 +20,8 @@
 //
 // A ribbon's name is the reader's own words: always text, never HTML.
 
-import { editRecord } from "../../lib/desk-records.mjs";
-import {
-  RIBBON_NAME_MAX,
-  cleanRibbonName,
-  pageBookOf,
-  placeItems,
-  readPlacesFrom,
-  ribbonNameProblem,
-  ribbonsOf,
-} from "../../lib/desk-places.mjs";
+import { RIBBON_NAME_MAX, pageBookOf, placeItems, readPlacesFrom, ribbonsOf } from "../../lib/desk-places.mjs";
+import { planRibbonRename } from "../../lib/desk-ribbon-change.mjs";
 import { webClient } from "../../lib/desk-store-core.mjs";
 import { loadLastRead } from "../last-read.js";
 import { undoEntry } from "./history.js";
@@ -88,11 +80,19 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
   const empty = document.createElement("p");
   empty.className = "desk-places__empty";
   empty.hidden = true;
-  section.append(title, list, empty);
+  // Why a Delete didn't happen (BA108), shown under the list like rename's.
+  const removeProblem = document.createElement("p");
+  removeProblem.className = "desk-places__problem";
+  removeProblem.setAttribute("role", "alert");
+  removeProblem.hidden = true;
+  section.append(title, list, removeProblem, empty);
 
   // A row being renamed must not be redrawn under the reader's typing.
   let editing = false;
   let stale = false;
+  // The rename form now open, if any (BA105): one at a time, so the form's id
+  // and its label are never shared by two inputs.
+  let openRename = null;
   let renderSeq = 0;
 
   // Where focus should land once the next draw finishes. A draw another one
@@ -124,6 +124,7 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
     });
     const ribbons = ribbonsOf(records);
     list.replaceChildren(...items.map((item) => rowFor(item, ribbons)));
+    removeProblem.hidden = true;
     section.hidden = items.length === 0 && !emptyText;
     empty.hidden = items.length > 0 || !emptyText;
     empty.textContent = items.length ? "" : (emptyText ?? "");
@@ -156,7 +157,7 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
       // so it moves with them. A modified click opens elsewhere and doesn't.
       head.addEventListener("click", (e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        if (ribbon) followRibbon(ribbon);
+        if (ribbon) followRibbon(ribbon, head.href);
       });
       if (store && ribbon) li.append(actionsFor(ribbon, li));
     }
@@ -185,7 +186,11 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
   /* ── Rename ──────────────────────────────────────────────────── */
 
   function startRename(ribbon, li) {
+    // Rename on another row closes the open form first, as its Cancel does.
+    openRename?.close();
     editing = true;
+    removeProblem.hidden = true;
+    const before = Array.from(li.childNodes);
     const id = `deskPlacesName${n}`;
     const form = document.createElement("form");
     form.className = "desk-places__rename-form";
@@ -218,7 +223,19 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
     input.focus();
     input.select();
 
+    const session = {
+      // The row as it was, buttons and all. Nothing is redrawn: the form that
+      // opens next takes over `editing`, and its finish does the one redraw.
+      close() {
+        openRename = null;
+        li.replaceChildren(...before);
+      },
+    };
+    openRename = session;
+
     const finish = async (focus) => {
+      if (openRename !== session) return;
+      openRename = null;
       editing = false;
       stale = false;
       await render({ focus });
@@ -234,29 +251,35 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
     });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      let records = [];
+      // One save at a time: a second press while the first is writing would be
+      // a second change over the same name.
+      if (save.disabled) return;
+      save.disabled = true;
+      problem.hidden = true;
+      // The record is read, the name and the ribbons checked, and the write
+      // made in one transaction (BA102): a ribbon deleted in another tab is
+      // reported, not brought back.
+      let outcome = null;
       try {
-        records = ribbonsOf(await store.all());
-      } catch (err) {
-        console.error("Study Desk: couldn't read the ribbons", err);
-      }
-      const bad = ribbonNameProblem(input.value, records, ribbon.id);
-      if (bad) {
-        problem.hidden = false;
-        problem.textContent = bad;
-        input.focus();
-        return;
-      }
-      const name = cleanRibbonName(input.value);
-      try {
-        const current = (await store.get(ribbon.id)) ?? ribbon;
-        if (current.name !== name) {
-          await store.save(editRecord(current, { name }, { now: new Date().toISOString(), client: stamp().client }));
-        }
+        await store.change(async (reads) => {
+          outcome = await planRibbonRename(reads, ribbon.id, input.value, {
+            now: new Date().toISOString(),
+            client: stamp().client,
+          });
+          return outcome.plan;
+        });
       } catch (err) {
         console.error("Study Desk: the ribbon wasn't renamed", err);
         problem.hidden = false;
         problem.textContent = "The ribbon couldn’t be renamed in this browser.";
+        save.disabled = false;
+        return;
+      }
+      if (outcome?.problem) {
+        problem.hidden = false;
+        problem.textContent = outcome.problem;
+        save.disabled = false;
+        input.focus();
         return;
       }
       finish(`[data-place="${CSS.escape(ribbon.id)}"] .desk-places__rename`);
@@ -268,7 +291,16 @@ export function placesSection({ store, ctx = null, emptyText = null }) {
   async function remove(ribbon, li) {
     const rows = Array.from(list.children);
     const index = rows.indexOf(li);
-    const trash = await store.remove(ribbon.id);
+    removeProblem.hidden = true;
+    let trash = null;
+    try {
+      trash = await store.remove(ribbon.id);
+    } catch (err) {
+      console.error("Study Desk: the ribbon wasn't deleted", err);
+      removeProblem.hidden = false;
+      removeProblem.textContent = "The ribbon couldn’t be deleted in this browser.";
+      return;
+    }
     if (!trash) return;
     // The change this made, read at once: the undo button, like Ctrl+Z,
     // takes back exactly this one (history.js).

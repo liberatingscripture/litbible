@@ -144,14 +144,101 @@ export function planPurge(records, now) {
 
 /* ── What tabs tell each other ───────────────────────────────────────── */
 
-export function changeMessage(ids) {
-  return { v: 1, ids: [...new Set(ids)] };
+/**
+ * What a write tells the other tabs: the ids it touched and, when known, the
+ * kinds of record those were (`changeKinds`), so a tab can skip a notice about
+ * records it doesn't draw (BA107). `kinds` null or absent means "unknown", and
+ * every listener then hears it.
+ */
+export function changeMessage(ids, kinds = null) {
+  const message = { v: 1, ids: [...new Set(ids)] };
+  if (Array.isArray(kinds)) message.kinds = [...kinds];
+  return message;
 }
 
 /** The ids a message names, or null for anything this code didn't send. */
 export function readChangeMessage(data) {
   if (data?.v !== 1 || !Array.isArray(data.ids)) return null;
   return data.ids.every((id) => typeof id === "string") ? data.ids : null;
+}
+
+/**
+ * The kinds a message names, or null when it names none: a message from a tab
+ * running an older copy of the page, whose listeners must hear it all.
+ */
+export function readChangeKinds(data) {
+  if (!Array.isArray(data?.kinds)) return null;
+  return data.kinds.every((k) => typeof k === "string") ? data.kinds : null;
+}
+
+/* ── Who needs to hear a change (BA107) ──────────────────────────────── */
+
+/**
+ * The kinds of record a write changes, for a listener that draws only some
+ * kinds: every kind it puts, and every kind it replaces or removes (`before`:
+ * the records as they stood in the same transaction, null where there was
+ * none), so a record that changes kind is heard as both. A trash record counts
+ * as itself and as what it holds, since a deletion is a note leaving the
+ * notes (and a restore the trash record leaving the trash), and a view that
+ * draws notes must hear both.
+ *
+ * Null when the kinds can't be told, which every listener then hears: a
+ * record with no kind, or a removal when `before` wasn't read.
+ *
+ * @param {{ put: object[], remove: string[] }} plan
+ * @param {(object | null)[] | undefined} before
+ * @returns {string[] | null}
+ */
+export function changeKinds(plan, before) {
+  if (plan.remove.length && !Array.isArray(before)) return null;
+  const kinds = new Set();
+  let known = true;
+  const add = (r) => {
+    if (typeof r?.kind !== "string") {
+      known = false;
+      return;
+    }
+    kinds.add(r.kind);
+    if (r.kind === "trash") {
+      for (const held of [r.deletedKind, r.record?.kind]) if (typeof held === "string") kinds.add(held);
+    }
+  };
+  for (const r of plan.put) add(r);
+  for (const r of before ?? []) if (r) add(r);
+  return known ? [...kinds].sort() : null;
+}
+
+/**
+ * Whether a listener hears a change. `filter` is what it subscribed with:
+ * `{ kinds }` hears a change touching any of those kinds, `{ except }` one
+ * touching any kind outside those, and none (or both empty) hears everything.
+ * A change of unknown kinds (`kinds` null) is heard by all.
+ */
+export function hearsChange(filter, kinds) {
+  if (!filter || !Array.isArray(kinds)) return true;
+  if (Array.isArray(filter.kinds) && !kinds.some((k) => filter.kinds.includes(k))) return false;
+  if (Array.isArray(filter.except) && !kinds.some((k) => !filter.except.includes(k))) return false;
+  return true;
+}
+
+/**
+ * The notebook's listeners: `add(fn, filter)` returns the way to remove it,
+ * and `notify(ids, origin, kinds)` calls each listener that hears the change
+ * as `fn(ids, origin, kinds)`. A listener that subscribes with no filter hears
+ * every change, as before.
+ */
+export function listenerSet() {
+  const entries = new Set();
+  return {
+    add(fn, filter) {
+      const entry = { fn, filter };
+      entries.add(entry);
+      return () => entries.delete(entry);
+    },
+    notify(ids, origin, kinds = null) {
+      for (const { fn, filter } of entries) if (hearsChange(filter, kinds)) fn(ids, origin, kinds);
+    },
+  };
 }
 
 /**

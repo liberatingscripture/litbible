@@ -32,7 +32,7 @@ export const RIBBON_FLAG_KEY = "lit-desk-ribbon";
 /** "A few per reader" (B1). Past this, a new ribbon asks to move an old one. */
 export const MAX_RIBBONS = 6;
 
-/** The longest name a ribbon takes, in characters. */
+/** The longest name a ribbon takes, in code points (an emoji counts once). */
 export const RIBBON_NAME_MAX = 40;
 
 /** A followed ribbon is written at most this often, and only when the verse changed. */
@@ -42,10 +42,13 @@ export const MOVE_EVERY_MS = 4000;
 
 /** A ribbon's name as it is kept: whitespace tidied, cut at RIBBON_NAME_MAX. */
 export function cleanRibbonName(raw) {
-  return String(raw ?? "")
+  const tidy = String(raw ?? "")
     .replace(/\s+/g, " ")
-    .trim()
+    .trim();
+  // Cut by code point, so an emoji at the limit is never split in two.
+  return Array.from(tidy)
     .slice(0, RIBBON_NAME_MAX)
+    .join("")
     .trim();
 }
 
@@ -85,11 +88,11 @@ export function canAddRibbon(ribbons) {
 export function pageBookOf(pathname) {
   const path = String(pathname ?? "");
   let m = /^\/read\/([a-z0-9]+)\/?$/.exec(path);
-  if (m && m[1] in BOOKS) return { bookKey: m[1], kind: "read" };
+  if (m && Object.hasOwn(BOOKS, m[1])) return { bookKey: m[1], kind: "read" };
   m = /^\/([a-z0-9]+)-intro\/?$/.exec(path);
-  if (m && m[1] in BOOKS) return { bookKey: m[1], kind: "intro" };
+  if (m && Object.hasOwn(BOOKS, m[1])) return { bookKey: m[1], kind: "intro" };
   m = /^\/([a-z0-9]+)-(\d+)\/?$/.exec(path);
-  if (m && m[1] in BOOKS) {
+  if (m && Object.hasOwn(BOOKS, m[1])) {
     const chapter = Number(m[2]);
     if (chapter >= 1 && chapter <= BOOKS[m[1]]) return { bookKey: m[1], kind: "chapter", chapter };
   }
@@ -100,7 +103,7 @@ export function pageBookOf(pathname) {
 export function parseRibbonFlag(raw) {
   try {
     const f = JSON.parse(raw ?? "null");
-    return typeof f?.id === "string" && f.id && f.bookKey in BOOKS ? { id: f.id, bookKey: f.bookKey } : null;
+    return typeof f?.id === "string" && f.id && Object.hasOwn(BOOKS, f.bookKey) ? { id: f.id, bookKey: f.bookKey } : null;
   } catch {
     return null;
   }
@@ -172,7 +175,7 @@ export function readPlacesFrom(entries) {
   const out = [];
   for (const [key, raw] of entries) {
     const m = /^lit_rm_resume_([a-z0-9]+)$/.exec(String(key));
-    if (!m || !(m[1] in BOOKS)) continue;
+    if (!m || !Object.hasOwn(BOOKS, m[1])) continue;
     try {
       const a = /^ch-(\d+)$/.exec(JSON.parse(raw)?.anchor ?? "");
       const chapter = a ? Number(a[1]) : 0;

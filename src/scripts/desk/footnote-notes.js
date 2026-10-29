@@ -302,8 +302,9 @@ export async function refreshFootnoteNotes() {
  */
 export function initFootnoteNotes({ store, ctx }) {
   env = { store, ctx };
-  // This tab's own changes and other tabs' alike.
-  store.subscribe(() => refreshFootnoteNotes());
+  // This tab's own changes and other tabs' alike, but not a place: a ribbon
+  // following the reader writes one every few seconds (BA107).
+  store.subscribe(() => refreshFootnoteNotes(), { except: ["place"] });
   refreshFootnoteNotes();
 }
 

@@ -292,6 +292,15 @@ that section.
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
      2026-10-09), never while hovered or focused; that is safe only because
      the same undo stays on Ctrl+Z, so don't remove one without the other.
+     **A listener may ask for only the kinds it draws** (BA107):
+     `store.subscribe(fn, { kinds })` or `{ except }`, so a ribbon that follows
+     the reader (a `place` written every few seconds) redraws nothing that
+     doesn't show places. A notice carries the kinds it touched, including what
+     a record was before and a trash record's held kind (`changeKinds`,
+     `hearsChange`, `listenerSet` in `desk-store-core.mjs`), and the
+     BroadcastChannel message carries them too; one without them (an older tab)
+     is heard by all. A view that draws places, or anything not yet checked,
+     subscribes with no filter.
   12. **A mark whose words moved says so** (the change notice, N3).
      `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
      a notice, from the format's statuses, comparing the marked words (or a
@@ -348,7 +357,19 @@ that section.
        rule**: following a ribbon's link sets `sessionStorage['lit-desk-ribbon']`,
        and while the reader stays in that book in that tab the ribbon
        follows them (written without an undo entry); a page outside the
-       book clears it.
+       book clears it, the shell's `initRibbonFollow` in a book and
+       `desk-gate.js` on every page without the shell (BA101). **A ribbon
+       moves only to where this page says the reader is**: `pageLastRead()`
+       and the `lit:last-read` event, never `lit_last_read` in storage, which
+       every tab shares and an earlier page left (BA99, BA100). Following a
+       link forgets where the reader was, and a link to another page stops
+       the page it leaves from moving the ribbon. The follower's move is
+       one `store.change` too. **Making, renaming and moving a ribbon read the
+       record and write it in one `store.change`** (`desk-ribbon-change.mjs`,
+       pure and unit-tested; BA102): a ribbon deleted meanwhile is reported,
+       not brought back, and the name and the six-ribbon limit are checked
+       against the records at the write. Only one rename form is open in a
+       Places group at a time (BA105).
      - **The interleaf (N7) was built and set aside** (BVJ, 2026-10-13: it
        repeats the margin and the panel, and breaks up the scripture). Its
        code is on `claude/desk-1d-hidden` (commit 1f27b2e); revert aacdc92

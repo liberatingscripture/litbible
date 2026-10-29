@@ -12,11 +12,14 @@ import {
   CHANNEL,
   bookmarksOn,
   byPlace,
+  changeKinds,
   changeMessage,
   currentSlug,
   forChapter,
   forProse,
+  hearsChange,
   kindName,
+  listenerSet,
   liveRecords,
   metaMessage,
   planBookmark,
@@ -27,6 +30,7 @@ import {
   planUnbookmark,
   planUndo,
   planWrite,
+  readChangeKinds,
   readChangeMessage,
   readMetaMessage,
   recordHref,
@@ -467,4 +471,108 @@ test("planUnbookmark has nothing to do when the verse holds no bookmark", () => 
   const other = bookmark({ bookKey: "romans", chapter: 8, verse: 4 });
   assert.equal(planUnbookmark([other, note(HERE)], HERE, base), null);
   assert.equal(planUnbookmark([], HERE, base), null);
+});
+
+/* ── Who hears a change (BA107) ──────────────────────────────────────── */
+
+const ribbon = (extra = {}) =>
+  createRecord(
+    "place",
+    { name: "Mine", ribbon: true, bookKey: "john", chapter: 3, verse: 16, ...extra },
+    { ...base, now: "2026-10-05T12:00:00.000Z", id: nextId() },
+  );
+
+test("changeKinds names the kinds a plan puts, replaces and removes", () => {
+  const r = ribbon();
+  const moved = { ...r, verse: 17 };
+  assert.deepEqual(changeKinds({ put: [moved], remove: [] }, [r]), ["place"]);
+  assert.deepEqual(changeKinds({ put: [moved], remove: [] }, [null]), ["place"], "a new record has no before");
+  const n = note(HERE);
+  assert.deepEqual(changeKinds({ put: [n, moved], remove: [] }, [null, r]), ["note", "place"]);
+});
+
+test("changeKinds counts a deletion as the kind it deleted as well as trash, and a kind change as both kinds", () => {
+  const n = note(HERE);
+  const plan = planDelete(n, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  assert.deepEqual(changeKinds(plan, [null, n]), ["note", "trash"]);
+  assert.deepEqual(changeKinds({ put: [plan.trash], remove: [] }, [null]), ["note", "trash"], "from the trash record alone");
+  // A restore puts the record back and removes the trash record.
+  assert.deepEqual(changeKinds(planUndo(plan.trash, base), [plan.trash]), ["note", "trash"]);
+  // The same id, a different kind now.
+  const was = ribbon();
+  const now = { ...n, id: was.id };
+  assert.deepEqual(changeKinds({ put: [now], remove: [] }, [was]), ["note", "place"]);
+});
+
+test("changeKinds is null when the kinds can't be told", () => {
+  assert.equal(changeKinds({ put: [{ id: "x" }], remove: [] }, [null]), null, "a record with no kind");
+  assert.equal(changeKinds({ put: [], remove: ["x"] }, undefined), null, "a removal nobody read first");
+  assert.deepEqual(changeKinds({ put: [ribbon()], remove: [] }, undefined), ["place"], "puts alone need no read");
+});
+
+test("a change message carries its kinds, and one without them reads as unknown", () => {
+  assert.deepEqual(changeMessage(["a"], ["place"]), { v: 1, ids: ["a"], kinds: ["place"] });
+  assert.deepEqual(changeMessage(["a"]), { v: 1, ids: ["a"] });
+  assert.deepEqual(changeMessage(["a"], null), { v: 1, ids: ["a"] });
+  assert.deepEqual(readChangeKinds(changeMessage(["a"], ["note", "trash"])), ["note", "trash"]);
+  assert.equal(readChangeKinds(changeMessage(["a"])), null, "an older tab's message");
+  assert.equal(readChangeKinds({ v: 1, ids: ["a"], kinds: [1] }), null);
+  assert.equal(readChangeKinds(metaMessage("k")), null);
+  assert.deepEqual(readChangeMessage(changeMessage(["a"], ["place"])), ["a"], "the ids read as before");
+});
+
+test("hearsChange: no filter hears everything, kinds and except narrow it, unknown kinds reach all", () => {
+  assert.equal(hearsChange(undefined, ["place"]), true);
+  assert.equal(hearsChange({}, ["place"]), true);
+  assert.equal(hearsChange({ kinds: ["note"] }, ["place"]), false);
+  assert.equal(hearsChange({ kinds: ["note"] }, ["place", "note"]), true);
+  assert.equal(hearsChange({ except: ["place"] }, ["place"]), false);
+  assert.equal(hearsChange({ except: ["place"] }, ["place", "note"]), true);
+  assert.equal(hearsChange({ except: ["place"] }, ["place", "trash"]), true, "a place's deletion");
+  assert.equal(hearsChange({ kinds: ["note"] }, null), true);
+  assert.equal(hearsChange({ except: ["place"] }, null), true);
+  assert.equal(hearsChange({ kinds: ["note"] }, []), false);
+  assert.equal(hearsChange({ kinds: ["note"], except: ["trash"] }, ["note", "trash"]), true);
+});
+
+test("listenerSet: a place-only change doesn't reach a listener that doesn't draw places; a note's deletion does", () => {
+  const heard = { all: [], notes: [], noPlaces: [] };
+  const set = listenerSet();
+  set.add((ids, origin, kinds) => heard.all.push([ids, origin, kinds]));
+  set.add((ids) => heard.notes.push(ids), { kinds: ["note"] });
+  const off = set.add((ids) => heard.noPlaces.push(ids), { except: ["place"] });
+
+  // A following ribbon moves.
+  const r = ribbon();
+  const move = { put: [{ ...r, verse: 17 }], remove: [] };
+  set.notify(touched(move), "this-tab", changeKinds(move, [r]));
+  assert.equal(heard.all.length, 1, "a listener with no filter hears it");
+  assert.deepEqual(heard.all[0], [[r.id], "this-tab", ["place"]]);
+  assert.deepEqual(heard.notes, []);
+  assert.deepEqual(heard.noPlaces, []);
+
+  // The same, arriving from another tab, then one from an older tab (no kinds).
+  set.notify([r.id], "other-tab", readChangeKinds(changeMessage([r.id], ["place"])));
+  assert.deepEqual(heard.notes, []);
+  set.notify([r.id], "other-tab", readChangeKinds(changeMessage([r.id])));
+  assert.deepEqual(heard.notes, [[r.id]], "unknown kinds reach every listener");
+  heard.notes.length = 0;
+  heard.noPlaces.length = 0;
+
+  // A note is deleted: its trash record goes in and it comes out.
+  const n = note(HERE);
+  const del = planDelete(n, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  set.notify(touched(del), "this-tab", changeKinds(del, [null, n]));
+  assert.deepEqual(heard.notes, [touched(del)]);
+  assert.deepEqual(heard.noPlaces, [touched(del)]);
+
+  // A ribbon's deletion reaches a listener that doesn't draw places, by its trash record.
+  const delRibbon = planDelete(r, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  set.notify(touched(delRibbon), "this-tab", changeKinds(delRibbon, [null, r]));
+  assert.equal(heard.noPlaces.length, 2);
+  assert.equal(heard.notes.length, 1, "a notes-only listener doesn't hear a ribbon's deletion");
+
+  off();
+  set.notify([n.id], "this-tab", ["note"]);
+  assert.equal(heard.noPlaces.length, 2, "an unsubscribed listener hears nothing more");
 });

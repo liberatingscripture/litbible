@@ -60,6 +60,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
       <div class="desk-np__field desk-mine__colors" role="group" aria-label="Show highlights of one color" data-np-colors hidden></div>
     </div>
     <p class="desk-np__count" aria-live="polite" data-np-count></p>
+    <p class="desk-np__error" role="alert" data-np-delete-error hidden></p>
     <div class="desk-np__lists" data-np-lists></div>`;
 
   const q = (sel) => root.querySelector(sel);
@@ -69,6 +70,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
   const labelField = q("[data-np-label-field]");
   const colorBox = q("[data-np-colors]");
   const countEl = q("[data-np-count]");
+  const deleteError = q("[data-np-delete-error]");
   const lists = q("[data-np-lists]");
 
   const filters = { query: "", kind: null, color: null, labelId: null };
@@ -86,6 +88,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
     drawControls(all, records);
     const shown = filterRecords(all, filters, labels);
     drawList(shown, all, labels);
+    deleteError.hidden = true;
     // A save that redrew the list took the button the open panel belongs to;
     // point the panel at its replacement, so closing it returns focus.
     const panel = currentPanel();
@@ -222,7 +225,16 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp" }) {
 
   async function removeRecord(r, li) {
     const index = Array.from(lists.querySelectorAll(".desk-item")).indexOf(li);
-    const trash = await store.remove(r.id);
+    deleteError.hidden = true;
+    let trash = null;
+    try {
+      trash = await store.remove(r.id);
+    } catch (err) {
+      console.error("Study Desk: the item wasn't deleted", err);
+      deleteError.hidden = false;
+      deleteError.textContent = "That item couldn’t be deleted in this browser.";
+      return;
+    }
     if (!trash) return;
     // Read before anything else can write: the bar's Undo, like Ctrl+Z, takes
     // back exactly this change (history.js).
