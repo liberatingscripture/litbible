@@ -108,7 +108,7 @@ async function start() {
     <section class="desk-np__section" id="places" data-np-places></section>
     <section class="desk-np__section" id="labels" aria-labelledby="deskNpLabelsTitle">
       <h2 class="desk-np__h2" id="deskNpLabelsTitle">Labels</h2>
-      <p>Labels are your own tags. Put them on a note, highlight or bookmark with its Labels… button, then filter by them above.</p>
+      <p>Labels are your own tags. Put them on a note, highlight, or bookmark with its Labels… button, then filter by them above.</p>
       <form class="desk-np__new-label" data-np-new-label>
         <label for="deskNpNewLabel">New label</label>
         <input type="text" id="deskNpNewLabel" maxlength="60" autocomplete="off" />
@@ -129,7 +129,7 @@ async function start() {
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
       <div class="desk-np__danger">
-        <p>Moves every note, highlight, bookmark, label and place in this browser to the trash. You can undo it right away. The trash keeps each one for 30 days, then only a marker that it was deleted.</p>
+        <p>Moves every note, highlight, bookmark, label, and place in this browser to the trash. You can undo it right away. The trash keeps each one for 30 days, then only a marker that it was deleted.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">

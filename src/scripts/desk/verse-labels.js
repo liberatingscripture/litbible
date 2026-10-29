@@ -24,7 +24,7 @@
 // it).
 //
 // It adds no text to the scripture: the only thing it touches is an attribute.
-// Each kind counts only while the reader is showing it: notes while "My notes"
+// Each kind counts only while the reader is showing it: notes while "Notes in the margin"
 // is on, highlights while "My highlights" is on, bookmarks while "My bookmarks"
 // is on (all three are turned off by "Hide my notes"). A verse goes back to the
 // plain "Verse N" for whatever is hidden, so nothing on the page mentions what
@@ -85,7 +85,7 @@ export function createVerseLabels({ store }) {
 
 /**
  * How many of the marks being shown carry a change notice, on each verse
- * they cover: notes while "My notes" is on, highlights while "My
+ * they cover: notes while "Notes in the margin" is on, highlights while "My
  * highlights" is. A lost mark isn't counted. A note on a footnote (M11) is
  * about the footnote, not the verse (noteCounts leaves it out too), so its
  * notice is not counted here either.
@@ -107,7 +107,7 @@ function noticeCounts(records) {
   return counts;
 }
 
-/** Set every verse number's name in `textBox` from its chapter's records and the "My notes" and "My highlights" switches. */
+/** Set every verse number's name in `textBox` from its chapter's records and the "Notes in the margin" and "My highlights" switches. */
 function label(textBox, records) {
   const counts = getSetting("notes") === "on" ? noteCounts(records) : new Map();
   const colors = getSetting("highlights") === "on" ? highlightColors(records) : new Map();

@@ -9,7 +9,7 @@
 // Other translations are deferred indefinitely (BVJ, 2026-10-11).
 //
 // Picking a verse: opening a verse's menu while the notebook is open moves
-// the tab to that verse, and "Show in notebook" in the verse menu or the
+// the tab to that verse, and "Show in Notebook" in the verse menu or the
 // selection panel (actions.js) opens the notebook here. Then it stays put
 // while the reader reads on. Before anything is picked it opens at the verse
 // in the address (#v16), or else at the verse being read.

@@ -164,7 +164,7 @@ that section.
      and the selection panel before placing them, with the panel, its verses
      and (for a selection) the selected `range`. Only
      `src/scripts/desk/actions.js` listens, adding "My Notebook" (Add a note,
-     Bookmark and "Show in notebook"; Bookmark only in Read View), so a
+     Bookmark and "Show in Notebook"; Bookmark only in Read View), so a
      reader's menus are unchanged. The Notebook's "This verse" tab
      (`desk/tab-verse.js`) listens too: a verse menu opened while the
      notebook is open moves the tab to that verse. Keep the event before `showPanel`, or the panel is measured
@@ -187,8 +187,8 @@ that section.
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
      script, since nothing of the desk paints before it loads. "Hide my
      notes" (M1, key H) is no setting of its own: it saves and turns off
-     "My notes", "My bookmarks" and both views' "My highlights", and puts
-     them back (`note-settings.js`). With "My notes" off, a footnote's
+     "Notes in the margin", "My bookmarks" and both views' "My highlights", and puts
+     them back (`note-settings.js`). With "Notes in the margin" off, a footnote's
      popover lists none of the reader's notes either (`desk.css`, BA17),
      while the Notebook's tabs and /desk's panes still do. Going to a note
      from the panel marks its words even then, and puts focus on the verse
@@ -251,6 +251,14 @@ that section.
      the last-read attributes), from the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) A page with one tab shows no tab
      row, and the panel's foot belongs to My Notes.
+     **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
+     Notebook," capitalized wherever a control or a sentence names the panel
+     ("Close the Notebook," "Show in Notebook"); lowercase "notebook" means
+     what the reader has kept ("Save a copy of my notebook," "Search my
+     notebook") or the feature as a whole. "My Notes" is the tab and the
+     /desk pane kind only; the margin's switch and its region are "Notes in
+     the margin," and This verse's subhead stays "My notes," naming the
+     reader's notes on that verse.
   11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
      history per page visit, 50 deep. The store records an entry for every
      write the reader makes (`apply` in `desk/store.js`, which reads the

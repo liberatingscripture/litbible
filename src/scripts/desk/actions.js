@@ -6,7 +6,7 @@
 //   - Study View: Add a note, and Bookmark (Remove bookmark when the verse
 //     has one). From the verse menu a note covers the whole verse or range;
 //     from a selection it quotes the selected words.
-//   - Study View also has "Show in notebook", which opens the Notebook panel
+//   - Study View also has "Show in Notebook", which opens the Notebook panel
 //     on "This verse" at the verse (N10), the first verse of a selection.
 //     Offering it in the selection panel too keeps the way in when verse
 //     numbers are hidden (audit C10).
@@ -87,11 +87,11 @@ export function initActions({ store, ctx, showVerse = null }) {
     if ((d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
-    // Show in notebook (Study View) and Ribbon here… (both views, B1).
+    // Show in Notebook (Study View) and Ribbon here… (both views, B1).
     const second = document.createElement("div");
     second.className = "lit-panel__row";
     if (d.view === "study" && showVerse) {
-      const show = button("Show in notebook");
+      const show = button("Show in Notebook");
       show.addEventListener("click", () => {
         d.acting?.();
         closePanel();

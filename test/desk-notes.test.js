@@ -160,9 +160,18 @@ test("short quotes stay whole; long ones keep ten words", () => {
 test("a note opens, for screen readers, with the words it hangs on", () => {
   assert.equal(
     noteOpening({ quote: { exact: "nothing is now a verdict" } }, "Romans 8:1"),
-    "My note on ‘nothing is now a verdict’, Romans 8:1: ",
+    "My note on ‘nothing is now a verdict,’ Romans 8:1: ",
   );
   assert.equal(noteOpening({}, "Romans 8:1–2"), "My note on Romans 8:1–2: ");
+});
+
+test("a note's opening puts the comma inside the closing quote, in place of a period (BA136)", () => {
+  assert.equal(noteOpening({ quote: { exact: "in Christ Jesus." } }, "Romans 8:1"), "My note on ‘in Christ Jesus,’ Romans 8:1: ");
+  assert.equal(noteOpening({ quote: { exact: "against us?" } }, "Romans 8:31"), "My note on ‘against us?’ Romans 8:31: ");
+  assert.equal(
+    noteOpening({ quote: { exact: "one two three four five six seven eight nine ten eleven" } }, "Romans 8:1"),
+    "My note on ‘one two three four five six seven eight nine ten…,’ Romans 8:1: ",
+  );
 });
 
 test("a note on a footnote opens by naming the footnote, not words of the verse", () => {

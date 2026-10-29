@@ -133,7 +133,7 @@ function problemWith(r) {
   if (typeof r.kind !== "string" || !r.kind) return "It has no kind.";
   if (!parses(r.modified)) return "Its modified time is missing or is not a time.";
   if (r.kind === "trash") {
-    if (typeof r.deletedId !== "string" || !r.deletedId) return "It is a trash record that doesn't say which record it deleted.";
+    if (typeof r.deletedId !== "string" || !r.deletedId) return "It is a trash record that doesn’t say which record it deleted.";
     if (r.deletedId === r.id) return "It is a trash record that names itself as the record it deleted.";
     if (!parses(r.deletedAt)) return "It is a trash record whose deletion time is missing or is not a time.";
   }
