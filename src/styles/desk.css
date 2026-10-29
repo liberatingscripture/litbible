@@ -5837,6 +5837,78 @@ html.desk-ws--moving * {
   }
 }
 
+/* The chosen state of seven controls, and the highlight swatches, in forced
+   colors (Windows contrast themes; BA141, BA142). Forced colors replaces
+   background, color and border colors with its own palette and drops
+   box-shadow, so each rule says "chosen" in a system color, and not with a
+   shadow. Fills are for plain text; boxes holding nested spans or an SVG get
+   a thicker Highlight border, with the padding lessened to match. Not an
+   outline: these controls' focus rings are outlines, and the chosen state
+   must survive focus. It comes after every rule it overrides. */
+@media (forced-colors: active) {
+  /* Forced colors draws the unchosen tab's transparent border too, so the
+     unchosen tab's is the bar's own 1px rule, and the chosen tab's a 2px
+     Highlight. */
+  .desk-panel__tabs [role="tab"] {
+    padding-bottom: 9px;
+    border-bottom: 1px solid ButtonText;
+  }
+
+  .desk-panel__tabs [role="tab"][aria-selected="true"] {
+    padding-bottom: 8px;
+    border-bottom: 2px solid Highlight;
+  }
+
+  /* A chosen segment takes the selection's own pair; its focus ring then
+     needs the text color, since the default one would sit on Highlight. */
+  .desk-seg__input:checked + .desk-seg__text {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .desk-seg__input:checked:focus-visible + .desk-seg__text {
+    outline-color: HighlightText;
+  }
+
+  /* The editor's markers have a fixed 36px box, so the border can grow. */
+  .desk-editor__marker:has(input:checked) {
+    border: 3px solid Highlight;
+  }
+
+  /* A chosen Greek word: its comment's second cue is a shadow, dropped here. */
+  .desk-greek__w.is-selected {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .desk-greek__choice[aria-pressed="true"] {
+    padding: 3px 8px;
+    border: 3px solid Highlight;
+  }
+
+  .desk-ws__shape[aria-pressed="true"] {
+    padding: 6px 4px;
+    border: 3px solid Highlight;
+  }
+
+  /* The Footnotes pane draws its 3px bar on every row (the transparent one
+     too), so only the current row's is in a color. */
+  .desk-fns__item {
+    border-left-color: Canvas;
+  }
+
+  .desk-fns__item--current {
+    border-left-color: Highlight;
+  }
+
+  /* A swatch's color is its sample's tint and nothing else (BVJ,
+     2026-10-09), so the sample keeps its tint; its text inherits the
+     swatch's forced color. */
+  .desk-swatch__sample {
+    forced-color-adjust: none;
+  }
+}
+
 /* ── The Sheet pane on /desk (3f; sheet-pane.js) ─────────────────────── */
 
 .desk-sheet {
