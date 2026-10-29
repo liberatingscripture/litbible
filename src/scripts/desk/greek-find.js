@@ -29,7 +29,7 @@ import {
   loadGreekIndex,
   searchGreekAuto,
 } from "../search-core.js";
-import { lemmaLine } from "../../lib/greek-search.mjs";
+import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, longEnoughForGreek, versesIn } from "../../lib/greek-search.mjs";
 import { EXAMPLES, countLine, describeGreekQuery, errorMessage, isCommandQuery } from "../../lib/greek-query.mjs";
 import { formsLine, replaceWord, verseGreek } from "../../lib/greek-commands-ui.mjs";
 import {
@@ -161,7 +161,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     input.value = query;
     input.focus({ preventScroll: true });
     input.setSelectionRange(query.length, query.length);
-    if (query.trim().length >= 2) run();
+    if (longEnoughForGreek(query)) run();
   }
 
   function close({ focus = "button" } = {}) {
@@ -210,7 +210,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     state = { lemmaId: null, exact: false, prefer: null };
     exactBox.checked = false;
     window.clearTimeout(timer);
-    if (input.value.trim().length < 2) {
+    if (!longEnoughForGreek(input.value)) {
       timer = window.setTimeout(run, 0);
       return;
     }
@@ -268,7 +268,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     window.clearTimeout(timer);
     const raw = input.value.trim();
     const my = ++seq;
-    if (raw.length < 2) {
+    if (!longEnoughForGreek(raw)) {
       if (showingResults()) say(HINT);
       return;
     }
@@ -418,6 +418,18 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
         return;
       }
       status.textContent = "This exact form doesn’t occur. Clear “Exact form only” to see every form.";
+      return;
+    }
+    if (sel?.lemma.normalize("NFC") === ARTICLE && !state.exact) {
+      // The article alone is in nearly every verse: it is studied beside a
+      // word, so the answer is a line and a search to try, not the list (BA110).
+      const next = make("button", "greek-cmd-link", ARTICLE_EXAMPLE);
+      next.type = "button";
+      next.lang = "grc";
+      next.addEventListener("click", () => runQuery(ARTICLE_EXAMPLE));
+      status.replaceChildren(`${articleLine(versesIn(res.hits))} `, next, ".");
+      pageLink.href = searchPageHref(raw);
+      pageLine.hidden = false;
       return;
     }
     status.textContent = `${res.total} time${res.total === 1 ? "" : "s"} in the New Testament${state.exact ? ", in this form" : ""}`;

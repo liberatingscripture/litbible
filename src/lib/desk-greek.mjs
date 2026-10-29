@@ -200,3 +200,37 @@ export function borrowedFor(borrowed, verse) {
   for (const b of borrowed ?? []) if (verse >= b[0] && verse <= b[1]) return b;
   return null;
 }
+
+/* ── Finding a verse or a note ───────────────────────────────────── */
+
+/**
+ * The apparatus verse whose note covers `verse`. SBL prints a note on a span
+ * of verses once, under the first ("22–23 …"), so a sign closing the span in
+ * a later verse finds its note at the nearest verse at or before it. `noteVerses`
+ * are the verses that have notes, in order. Null where none comes before.
+ */
+export function noteVerseFor(noteVerses, verse) {
+  let found = null;
+  for (const v of noteVerses ?? []) {
+    if (v > verse) break;
+    found = v;
+  }
+  return found;
+}
+
+/**
+ * The verse of `verses` to show for a passage that names `v`: `v` itself, else
+ * the nearest verse before it (Matthew 17:21, which neither text has, shows
+ * 17:20), else the nearest after. `verses` are a chapter's verses in order.
+ * Null for no verses or a `v` that is not a number.
+ */
+export function nearestVerse(verses, v) {
+  if (!Array.isArray(verses) || !verses.length || typeof v !== "number" || !Number.isFinite(v)) return null;
+  let before = null;
+  for (const x of verses) {
+    if (x === v) return x;
+    if (x < v) before = x;
+    else return before ?? x;
+  }
+  return before;
+}

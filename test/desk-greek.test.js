@@ -1,8 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
 import {
-  borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, lsjShard, moveFrom, orderSenses,
-  renderingsIn, splitSigns, stepShard, strongNumber, termsForLemma, ubsShard, verseGreek, versesOf,
+  borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, lsjShard, moveFrom, nearestVerse, noteVerseFor, orderSenses,
+  SIGNS, W, renderingsIn, splitSigns, stepShard, strongNumber, termsForLemma, ubsShard, verseGreek, versesOf,
 } from "../src/lib/desk-greek.mjs";
 
 // [verse, t, text, pre, post, lemma, pos, parse, sense]
@@ -123,4 +124,65 @@ test("a verse inside a borrowed passage names it", () => {
   assert.deepEqual(borrowedFor(borrowed, 53), [53, 53, "macula-sblgnt"]);
   assert.equal(borrowedFor(borrowed, 52), null);
   assert.equal(borrowedFor(undefined, 1), null);
+});
+
+/* ── A note on a span, and a verse the Greek lacks ─────────────── */
+
+const GREEK_TEXT = new URL("../public/greek/text/", import.meta.url);
+const chapters = readdirSync(GREEK_TEXT).filter((f) => f.endsWith(".json")).map((f) => ({
+  file: f,
+  data: JSON.parse(readFileSync(new URL(f, GREEK_TEXT), "utf8")),
+}));
+
+test("a verse's note is the nearest at or before it, or none", () => {
+  assert.equal(noteVerseFor([22, 25], 22), 22);
+  assert.equal(noteVerseFor([22, 25], 23), 22);
+  assert.equal(noteVerseFor([22, 25], 99), 25);
+  assert.equal(noteVerseFor([22, 25], 21), null);
+  assert.equal(noteVerseFor([], 3), null);
+  assert.equal(noteVerseFor(undefined, 3), null);
+});
+
+// Run with `exact` it is the lookup the tab used to make; it fails for eight verses.
+function unreached(lookup) {
+  const bad = [];
+  for (const { file, data } of chapters) {
+    const noteVerses = (data.apparatus ?? []).map((a) => a[0]);
+    const signed = new Set();
+    for (const words of data.paragraphs) {
+      for (const w of words) {
+        if ([w[W.pre], w[W.text], w[W.post]].some((t) => [...t].some((c) => SIGNS.includes(c)))) signed.add(w[W.verse]);
+      }
+    }
+    for (const verse of signed) if (lookup(noteVerses, verse) == null) bad.push(`${file.replace(".json", "")}:${verse}`);
+  }
+  return bad;
+}
+
+test("every verse with an apparatus sign reaches a note", () => {
+  assert.equal(chapters.length, 260);
+  assert.deepEqual(unreached(noteVerseFor), []);
+});
+
+test("the old exact-verse lookup left eight signs leading nowhere", () => {
+  const exact = (noteVerses, verse) => (noteVerses.includes(verse) ? verse : null);
+  assert.equal(unreached(exact).length, 8);
+});
+
+test("a passage's verse opens at that verse, else the nearest before, else after", () => {
+  assert.equal(nearestVerse([1, 2, 3], 2), 2);
+  assert.equal(nearestVerse([1, 2, 4], 3), 2);
+  assert.equal(nearestVerse([3, 4], 1), 3);
+  assert.equal(nearestVerse([1, 2, 3], 99), 3);
+  assert.equal(nearestVerse([], 1), null);
+  assert.equal(nearestVerse([1, 2], null), null);
+  assert.equal(nearestVerse([1, 2], "2"), null);
+  assert.equal(nearestVerse([1, 2], NaN), null);
+});
+
+test("Matthew 17:21, which neither text has, opens at 17:20", () => {
+  const mt = chapters.find((c) => c.file === "matthew-17.json").data;
+  const verses = versesOf(flattenWords(mt.paragraphs));
+  assert.equal(verses.includes(21), false);
+  assert.equal(nearestVerse(verses, 21), 20);
 });

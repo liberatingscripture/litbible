@@ -452,9 +452,15 @@ that section.
        tested; the handle is in `tab-greek.js`, sized by CSS flex ratios on
        `--desk-greek-split`). Shown only while a word is open; kept in
        `sessionStorage['lit-desk-greek-split']` for the visit, forgotten by
-       "Reset widths", and named in /privacy's paragraph. The parsing is put in words by
+       "Reset widths" (only its `kept: false` event, `forgetsSplit`, so the
+       line still moves where storage is blocked, BA113), and named in
+       /privacy's paragraph. The parsing is put in words by
        `src/lib/greek-parse.mjs` (shared with the phase 2 tool), and the
        SBLGNT's ⸀–⸅ signs draw from `public/fonts/text-critical-signs.otf`.
+       SBL keeps a note on a span of verses under its first verse, so a sign
+       finds its note at the nearest verse at or before its own
+       (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
+       (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120).
   15. **Phase 1h is searching the Greek** (built 2026-10-13; STUDY-DESK.md,
      "Order of work", 1h). Five things to know:
      - **It is ordinary site search, gated until launch.** Only while
@@ -497,7 +503,12 @@ that section.
        (`ref-preview.js`: a row for another chapter is a link with a
        `?greek=` parameter, which the preview ignores; one for the chapter
        on screen is a button naming its verse in `data-preview-href`, and
-       a tap on it jumps rather than previews).
+       a tap on it jumps rather than previews). **A Greek word searches at
+       any length there too** (ὦ, ἤ; BVJ, 2026-10-26, BA110): one test,
+       `longEnoughForGreek` in `greek-search.mjs`, decides it everywhere the
+       tab starts a search. A search that settles on the article (ὁ, not an
+       exact form) answers with a line and a search beside a word (“ὁ, θεός”)
+       instead of its list, a recommendation awaiting BVJ's confirmation.
   16. **Phase 2a's small pieces read, never write** (built 2026-10-15;
      STUDY-DESK.md, "Order of work", 2a): B3 and N4 add no kind of record,
      so each can be taken out cleanly (M10 was, the same day: BVJ shelved
@@ -575,7 +586,9 @@ that section.
        and from a Greek pane on /desk, which has no Notebook, it sits beside
        the pane and closes with the pane's search, which the tab's `destroy`
        closes when the pane closes or moves to another chapter. A click
-       finding its field gone closes it too (BA114).
+       finding its field gone closes it too (BA114). What it announces is
+       meant to be heard: a command by its meaning (“Added: Within 3
+       words.”), the builder's by the query it made (BA117).
        Its two keys, `localStorage['lit-greek-commands']` (opened once) and
        `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
        /privacy's paragraph.

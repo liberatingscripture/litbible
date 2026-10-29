@@ -124,7 +124,7 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-w | What's new for you | BA88, BA90, BA92, BA96, BA97, BA98 | done, #401 |
 | FA1-x | A note's references | BA89, BA93, BA94, BA95 | done, #402 |
 | FA1-y | Ribbons and Continue reading | BA99 to BA108 | done, #405 |
-| FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | open |
+| FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 | done, #PR |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | open |
 | FA1-ac | The copy pass | BA134 to BA139 | open |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | open |
@@ -1818,7 +1818,7 @@ small stub DOM, and the rest traced or run over the committed
     7,942 verses. To study it, search it beside a word: ὁ, θεός.”
   - *Check*: a unit test of that helper; in the browser, click ὦ's lemma
     in Galatians 3:1 and expect its 17.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z). `longEnoughForGreek` (`greek-search.mjs`) is the one test at all three places: Greek or a Strong's number at any length, anything else from two characters, so a lone Latin letter still gets the hint. Clicking ὦ's lemma in Galatians 3:1 finds its 17, and ἤ its 346. The recommendation is built too, for BVJ to confirm: a search for the article alone (any form, “Exact form only” off) answers “ὁ is in 6,966 of 7,942 verses. To study it, search it beside a word: ὁ, θεός.”, the last two words a button that runs that search; the counts are held to `public/greek/text/` by a test.
 - **BA111 (low; run over the data). A closing apparatus sign leads nowhere in
   eight verses.**
   - *What happens*: SBL keeps a note on a span of verses once, under its
@@ -1831,7 +1831,7 @@ small stub DOM, and the rest traced or run over the committed
     `desk-greek.mjs`).
   - *Check*: a test over all 260 files that every verse with a sign
     reaches a note; it fails today for those eight.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z). `noteVerseFor` (`desk-greek.mjs`) takes the nearest note at or before the verse; “Show the note” goes through the same `toApparatus`. A test over all 260 files reaches a note from every signed verse, and another holds that the old exact lookup missed exactly these eight. Checked in the browser at Matthew 1:8.
 - **BA112 (low, accessibility; traced). The split handle has no value until
   moved, and an old one after a reset.**
   - *What happens*: the handle is a focusable separator, which needs
@@ -1841,7 +1841,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Where*: `tab-greek.js:678–707`.
   - *Fix*: remove `aria-valuetext` with the value, and set both from the
     measured share on focus and after a reset.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z). One function writes `aria-valuenow` and `aria-valuetext` together; a reset removes both and writes them again from the measured share once the entry has sized itself, and focus writes the current share (the reader's, else the measured one).
 - **BA113 (low; run). With storage blocked, the split snaps back as soon as
   it moves.**
   - *What happens*: `setShare` keeps the share (the error swallowed) and
@@ -1851,7 +1851,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Where*: `tab-greek.js:691–696, 709–711`.
   - *Fix*: reset only when the event says `kept: false`.
   - *Check*: a test with a storage stub that throws.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z). `forgetsSplit` (`desk-greek-split.mjs`) resets only on `kept: false`, which only “Reset widths” sends. Tested with a storage stub that throws.
 - **BA114 (low; run in a stub DOM). On /desk, the commands window outlives
   its search field.**
   - *What happens*: from a Greek pane's search, nothing closes the window
@@ -1899,7 +1899,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Where*: `tab-greek.js:803–811`; `greek-commands.js:132, 219`.
   - *Fix*: announce the parsing in words only; “Added: Within 3 words.”;
     for the builder, the query it made.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z). A word is announced with its parsing in words only (“ἐστίν. Verb, present, …”), or “No parsing for this word.”; a command, by its meaning (“Added: Within 3 words.”); the builder, by the query it made (“Added: πίστις.gen.”).
 - **BA118 (low, copy). “Rendered here as …” has no Oxford comma.**
   - *What happens*: `joinAnd` writes “a, b and c”, and a test holds it so.
     No verse has three renderings of one term yet.
@@ -1913,7 +1913,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Where*: `desk.css:4130–4135`.
   - *Fix*: `.desk-greek__choices[hidden] { display: none; }`, as its
     neighbors have.
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z), as written; checked in the browser.
 - **BA120 (low; traced). A passage naming a verse the Greek lacks opens at
   verse 1, or doesn't move.**
   - *What happens*: on /desk a passage like Matthew 17:21 (a verse neither
@@ -1922,7 +1922,7 @@ small stub DOM, and the rest traced or run over the committed
   - *Where*: `tab-greek.js:484–487, 576`; `desk-passage.mjs:18–28`.
   - *Fix*: go to the nearest verse before it, else after it (a pure
     helper).
-  - Status: open.
+  - Status: **Fixed in #PR** (FA1-z). `nearestVerse` (`desk-greek.mjs`), used where the tab opens and in `goToVerse`; a test over the data holds Matthew 17:21 to 17:20.
 
 ### Area 4: /desk's use of the shared modules (done 2026-10-26)
 

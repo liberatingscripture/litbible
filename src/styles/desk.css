@@ -4142,6 +4142,10 @@ html:has(.desk-greek__split--dragging) {
   margin: 0 0 8px;
 }
 
+.desk-greek__choices[hidden] {
+  display: none;
+}
+
 .desk-greek__choice {
   padding: 5px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
