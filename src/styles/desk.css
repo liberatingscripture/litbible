@@ -329,6 +329,16 @@ a.desk-item__ref:hover {
   display: none;
 }
 
+/* Neither prints (BA145): the rail is appended to <body>, outside what
+   print.css hides, and in a narrow window the Notebook floats over the
+   text; the undo bar is fixed and stays up for ten seconds after a delete. */
+@media print {
+  .desk-rail,
+  .desk-undo__bar {
+    display: none !important;
+  }
+}
+
 .desk-undo__text {
   margin: 0 6px 0 0;
 }
@@ -542,9 +552,13 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   color: var(--surface-raised);
 }
 
+/* The ring sits inside the option (.desk-seg clips anything outside), so a
+   band of the raised surface inside it keeps it visible on the chosen
+   option, whose fill is the ring's own green (BA140). */
 .desk-seg__input:focus-visible + .desk-seg__text {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--surface-raised);
 }
 
 /* ── The My Notes tab's scope choice ─────────────────────────── */
@@ -4558,7 +4572,10 @@ html[data-desk-workspace] .desk-page__notice {
   fill: rgba(var(--ink-rgb), 0.24);
 }
 
+/* The only reason the arrangement can't be chosen, so it is lifted above
+   the dimmed button's own text, to 4.5:1 (BA143). */
 .desk-ws__shape-needs {
+  color: rgba(var(--ink-rgb), 0.75);
   font-size: 0.75rem;
 }
 
@@ -6490,8 +6507,9 @@ p.desk-sheet__flag {
   font-size: 0.8125rem;
 }
 
+/* Dimmed, but still 4.5:1 or more in both themes (BA143). */
 .desk-sheet__term.is-omitted {
-  opacity: 0.55;
+  opacity: 0.7;
 }
 
 .desk-sheet__term-choice {
