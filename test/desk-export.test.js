@@ -1002,23 +1002,23 @@ test("describeAhead says what happened to one record kept here, one added, and a
   assert.equal(describeAhead(undefined), null);
   assert.equal(
     describeAhead([{ record: rec, written: false }]),
-    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: yours is kept as it is.",
+    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: yours is kept as it is.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: true }]),
-    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: it was added with an earlier date.",
+    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: it was added with an earlier date.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: false }, { record: rec, written: false }]),
-    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: yours are kept as they are.",
+    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: yours are kept as they are.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: true }, { record: rec, written: true }]),
-    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: they were added with an earlier date.",
+    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: they were added with an earlier date.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: true }, { record: rec, written: false }]),
-    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes or brings back anything here: 1 added with an earlier date, and yours kept for the other.",
+    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: 1 added with an earlier date, and yours kept for the other.",
   );
 });
 

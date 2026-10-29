@@ -3,7 +3,7 @@
 // The reader's settings for their own notes, bookmarks and highlights
 // (STUDY-DESK.md, "Decisions", 2026-10-07: the margin switch, and the margin
 // notes' look):
-//   - "My notes": whether the margin shows them (shown by default);
+//   - "Notes in the margin": whether the margin shows them (shown by default);
 //   - "Handwriting / Plain": Playpen Sans or Inter for margin notes
 //     (handwriting by default). The reader's own font choice, Atkinson
 //     Hyperlegible or OpenDyslexic, still wins: global.css sets every element
@@ -19,9 +19,9 @@
 //     (two lines by default);
 //   - "Hide my notes" (M1; decision 8 under "the margin switch"), which hides
 //     everything of the reader's at once, for sharing a screen: it remembers
-//     "My notes", "My bookmarks" and both views' highlights, turns them off,
+//     "Notes in the margin", "My bookmarks" and both views' highlights, turns them off,
 //     and puts them back when it is turned off. It is no setting of its own,
-//     so the most recent action wins without more code: turning "My notes"
+//     so the most recent action wins without more code: turning "Notes in the margin"
 //     back on while everything is hidden brings back the notes only, and
 //     M1's box shows checked exactly when everything is hidden. The key H
 //     does the same (keyboard-shortcuts.js sends lit:desk-hide).
@@ -136,7 +136,7 @@ export function initNoteSettings() {
 let uid = 0;
 
 /**
- * The "My notes" box, the Handwriting / Plain choice, the "My bookmarks" box,
+ * The "Notes in the margin" box, the Handwriting / Plain choice, the "My bookmarks" box,
  * the "My highlights" box and the "Hide my notes" box, as controls that
  * follow their settings wherever they change. `classes` names the host's own
  * styles, so the same controls sit naturally in the tray and in the panel,
@@ -147,7 +147,7 @@ function noteControls(classes) {
   const check = document.createElement("label");
   check.className = classes.check;
   check.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskNotesCheck${n}" />
-    <span class="${classes.checkLabel}">My notes</span>`;
+    <span class="${classes.checkLabel}">Notes in the margin</span>`;
   const box = check.querySelector("input");
   box.addEventListener("change", () => setSetting("notes", box.checked ? "on" : "off"));
 
@@ -283,7 +283,7 @@ function injectIntoTray() {
 /**
  * An article or the glossary (N11) has no Show group in the tray, since it
  * has no verse numbers, so the notes' switches get one of their own, before
- * the Keyboard group: "My notes" and "Hide my notes", then the lettering.
+ * the Keyboard group: "Notes in the margin" and "Hide my notes", then the lettering.
  */
 function injectProseShow() {
   const tray = document.getElementById("fontTray");

@@ -16,7 +16,7 @@
 // not the Custom Highlight, which would mark verse words).
 //
 // For a screen reader, each note opens with the words it hangs on, hidden
-// from view ("My note on ‘nothing is now a verdict’, Romans 8:1: ").
+// from view ("My note on ‘nothing is now a verdict,’ Romans 8:1: ").
 //
 // The same margin serves a glossary entry's or an article's own text (N11,
 // provisional; decision 9 under "the margin switch"): the page's `source`
@@ -84,7 +84,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   const aside = document.createElement("aside");
   aside.className = "desk-notes";
-  aside.setAttribute("aria-label", "My notes");
+  aside.setAttribute("aria-label", "Notes in the margin");
   aside.setAttribute("data-desk-notes-margin", "");
   document.body.append(aside);
 
@@ -158,7 +158,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       return r.top + sy;
     };
 
-    // Bookmarks have their own switch, "My bookmarks"; "My notes" leaves them be.
+    // Bookmarks have their own switch, "My bookmarks"; "Notes in the margin" leaves them be.
     // Outside the circles' rows, each is right-aligned in the notes' column
     // (or, where there's no room for that, just clear of the text).
     const marks = getSetting("bookmarks") === "on" ? placed(bookmarks) : [];

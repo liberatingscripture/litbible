@@ -32,7 +32,7 @@ export function createFloatResize(panel, onChange) {
   handle.hidden = true;
   handle.setAttribute("role", "separator");
   handle.setAttribute("aria-orientation", "vertical");
-  handle.setAttribute("aria-label", "Resize the notebook");
+  handle.setAttribute("aria-label", "Resize the Notebook");
   handle.tabIndex = 0;
   handle.innerHTML = `<span class="desk-panel__edge-grip" aria-hidden="true"></span>`;
   panel.append(handle);

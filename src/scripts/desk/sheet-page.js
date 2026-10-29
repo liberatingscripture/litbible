@@ -266,7 +266,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
 
   const bar = make("div", "sheets-page__bar");
   bar.setAttribute("role", "group");
-  bar.setAttribute("aria-label", "Copy, paper and printing");
+  bar.setAttribute("aria-label", "Copy, paper, and printing");
   const back = make("a", "sheets-page__back", "‹ My sheets");
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit on the Study Desk");

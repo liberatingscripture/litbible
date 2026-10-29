@@ -151,7 +151,7 @@ export const COMMANDS = [
       { code: "*", word: "any", means: "Any word", note: "Needs a filter: *.gen.noun is any genitive noun", insert: "*" },
       { code: "/", word: "or", means: "Either one", note: "Two words, Ἰησοῦς/Χριστός, or two filters of one kind, πίστις.gen/dat", insert: "/" },
       { code: "=", word: "exact", means: "This form only", note: "=πίστεως leaves out the word’s other forms", insert: "=" },
-      { code: "\"any\"", means: "The word itself", note: "Quotes search for any, exact, and or or as a word", insert: "\"" },
+      { code: "\"any\"", means: "The word itself", note: "Quotes search for “any,” “exact,” “and,” or “or” as a word", insert: "\"" },
     ],
   },
   {

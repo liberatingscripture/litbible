@@ -32,7 +32,7 @@ import { searchTokens } from "./desk-search.mjs";
 export const COMMANDS = Object.freeze([
   {
     id: "open-notebook",
-    name: () => "Open the notebook",
+    name: () => "Open the Notebook",
     keywords: ["panel"],
     needs: "surface",
     show: (ctx) => !ctx.panelOpen,
@@ -40,7 +40,7 @@ export const COMMANDS = Object.freeze([
   },
   {
     id: "close-notebook",
-    name: () => "Close the notebook",
+    name: () => "Close the Notebook",
     keywords: ["panel"],
     needs: "surface",
     show: (ctx) => ctx.panelOpen,
@@ -51,21 +51,21 @@ export const COMMANDS = Object.freeze([
     name: () => "Show My Notes",
     keywords: ["list", "mine"],
     needs: "surface",
-    hint: "In the notebook",
+    hint: "In the Notebook",
   },
   {
     id: "show-this-verse",
     name: () => "Show This verse",
     keywords: ["tab"],
     needs: "study",
-    hint: "In the notebook",
+    hint: "In the Notebook",
   },
   {
     id: "show-greek",
     name: () => "Show the Greek",
     keywords: ["greek", "sblgnt", "tab"],
     needs: "greek",
-    hint: "In the notebook",
+    hint: "In the Notebook",
   },
   {
     id: "hide-notes",

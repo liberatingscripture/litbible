@@ -32,7 +32,7 @@
 // shows no tab row. The tab last chosen is remembered in
 // localStorage['lit-desk-tab'] and used wherever the page has it.
 //
-// The foot belongs to My Notes and shows only with it: the "My notes",
+// The foot belongs to My Notes and shows only with it: the "Notes in the margin",
 // Handwriting / Plain, "My bookmarks" and "Hide my notes" switches (the same
 // settings as the Display tray's), "Reset widths" while the reader has
 // dragged any, and where the notebook is kept. (The list's "Open all" is
@@ -210,8 +210,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
       <span class="desk-panel__badge">Preview</span>
-      <button type="button" class="desk-panel__collapse" aria-label="Minimize the notebook" title="Minimize">${ICON_COLLAPSE}</button>
-      <button type="button" class="desk-panel__close" aria-label="Close the notebook">${ICON_CLOSE}</button>
+      <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook" title="Minimize">${ICON_COLLAPSE}</button>
+      <button type="button" class="desk-panel__close" aria-label="Close the Notebook">${ICON_CLOSE}</button>
     </div>
     ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(
       (t) =>

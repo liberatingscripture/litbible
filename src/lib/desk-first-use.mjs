@@ -135,7 +135,7 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark” and “Highlight.” Select any words instead, and the same row works on just those words.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words.",
       read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
@@ -187,7 +187,7 @@ export const TOUR_STEPS = [
     title: "Bookmark a verse",
     body: {
       study:
-        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and “My Notes” lists every one.",
+        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and the Notebook lists every one.",
       read: "“Bookmark” puts a red mark beside this verse, here and in Study View. A bookmark stays on its verse until you remove it, and the Notebook lists every one.",
     },
   },
@@ -236,7 +236,7 @@ export const TOUR_STEPS = [
     title: "“This verse”",
     body: {
       default:
-        "Everything on one verse: its footnotes, your notes and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
+        "Everything on one verse: its footnotes, your notes, and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
     },
   },
   {
@@ -247,7 +247,7 @@ export const TOUR_STEPS = [
     title: "“Greek”",
     body: {
       default:
-        "The chapter in the SBL Greek New Testament, at the verse you’re reading. Select a word for its parsing and its dictionary entry. The search button finds a word, its forms or a Strong’s number.",
+        "The chapter in the SBL Greek New Testament, at the verse you’re reading. Select a word for its parsing and its dictionary entry. The search button finds a word, its forms, or a Strong’s number.",
     },
   },
   {
@@ -269,7 +269,7 @@ export const TOUR_STEPS = [
     title: "Set the widths",
     body: {
       default:
-        "Drag the edges between your notes, the text and the Notebook to make each wider or narrower. “Reset widths” at the foot of “My Notes” puts them back.",
+        "Drag the edges between your notes, the text, and the Notebook to make each wider or narrower. “Reset widths” at the foot of “My Notes” puts them back.",
     },
   },
   {
@@ -292,7 +292,7 @@ export const TOUR_STEPS = [
     title: "Search and commands",
     body: {
       default:
-        "The search box looks in your notebook too, and understands commands such as “hide,” “Greek” and “tour.” Here it shows what “notebook” finds.",
+        "The search box looks in your notebook too, and understands commands such as “hide,” “Greek,” and “tour.” Here it shows what “notebook” finds.",
     },
   },
   {

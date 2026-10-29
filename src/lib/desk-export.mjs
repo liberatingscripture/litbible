@@ -23,7 +23,7 @@
 // reaches the notebook only as a trash record, which only the full backup
 // carries. The two JSON files' own `exported` time caps their records' times
 // in the merge, and a record dated by a clock running ahead never replaces,
-// deletes or brings back anything here (BA4). Pure: no storage, no DOM, no
+// deletes, or brings back anything here (BA4). Pure: no storage, no DOM, no
 // clock unless the caller leaves `now` or `exported` out.
 //
 // Motivations in the Web Annotation file (decided here, for BVJ to confirm):
@@ -768,7 +768,7 @@ export const sameOpen = (a, b) => !a.message && !b.message && a.sentence === b.s
 /**
  * A plain sentence about records dated by a clock running ahead, or null.
  * "2 records in this file were dated by a clock running ahead. Such a record
- * never replaces, deletes or brings back anything here: 1 added with an
+ * never replaces, deletes, or brings back anything here: 1 added with an
  * earlier date, and yours kept for the other."
  */
 export function describeAhead(ahead = []) {
@@ -781,7 +781,7 @@ export function describeAhead(ahead = []) {
   if (!kept) rest = `${n === 1 ? "It was" : "They were"} added with an earlier date.`;
   else if (!added) rest = `Yours ${n === 1 ? "is" : "are"} kept as ${n === 1 ? "it is" : "they are"}.`;
   else rest = `${added} added with an earlier date, and yours kept for the other${kept === 1 ? "" : ` ${kept}`}.`;
-  return `${head} Such a record never replaces, deletes or brings back anything here: ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
+  return `${head} Such a record never replaces, deletes, or brings back anything here: ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
 }
 
 /** A plain sentence for a summary: "3 new, 1 updated, 12 already here." */

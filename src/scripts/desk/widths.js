@@ -176,7 +176,7 @@ export function createWidths({ column, panel, onChange }) {
   gutters.hidden = true;
   gutters.setAttribute("data-desk-dock", "");
   const textEdge = handle("text", "Resize the text and your notes’ margin");
-  const bookEdge = handle("book", "Resize the text and the notebook");
+  const bookEdge = handle("book", "Resize the text and the Notebook");
   gutters.append(textEdge, bookEdge);
   document.body.append(gutters);
 
