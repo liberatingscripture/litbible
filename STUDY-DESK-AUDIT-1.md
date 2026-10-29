@@ -30,6 +30,11 @@ points here. Its decision log holds the BVJ calls made along the way.
   medium and 18 low. They are in four more new phases, FA1-aa to FA1-ad,
   and BA127 is in FA1-i. That ends FA1-u: **145 findings in all, 144
   planned.**
+- **FA1-v, its Windows half** (2026-10-28): Chrome and Firefox on BVJ's
+  laptop, and the deployed site's beacon, found 8 more, BA146 to BA153: 4
+  medium and 4 low, planned as FA1-ae. The Mac, the screen reader, two
+  screens and a touchscreen are still to do. **153 findings in all, 152
+  planned.**
 
 ## IDs
 
@@ -128,7 +133,8 @@ it goes after both, and FA1-ac after FA1-t.
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 | done, #407 |
 | FA1-ac | The copy pass | BA134 to BA139 | done, #408 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 | done, #409 |
-| FA1-v | The follow-up audit: real devices | new findings | open |
+| FA1-v | The follow-up audit: real devices | new findings, BA146 onward | Windows half done (BA146 to BA153); Mac, VoiceOver, two screens and a touchscreen open |
+| FA1-ae | What FA1-v found on Windows | BA146 to BA153 | open |
 
 **Declined**
 
@@ -551,8 +557,13 @@ script), `STUDY-DESK-FORMAT.md` ("Sharing a sheet"). Tests:
     `hashchange`. Checked locally (2026-10-27): listeners added after
     load, where the beacon's would be, saw `/sheets/` with no fragment on
     both events, and the page reloaded once with the sheet in
-    `history.state`. The check against the real beacon on the deployed
-    site is still FA1-v's, item 7.
+    `history.state`. **Checked on the deployed site** (FA1-v, item 7,
+    2026-10-28): in a tab already on litbible.net/sheets/ with Cloudflare's
+    beacon loaded, `sendBeacon`, `fetch` and XHR were wrapped to log, and
+    the address was changed to `/sheets/#share1.…`. The old page sent
+    nothing, the page reloaded once with the sheet in `history.state`, and
+    the reloaded page's one `/cdn-cgi/rum` request went out from
+    `/sheets/`, the fragment already gone.
 - **BA80 (low, security; reproduced). A `.lit-sheet.md` file opens the first
   data line in it, and a sheet's own text can plant one.**
   - *What happens*: the data regex isn't anchored to the last line
@@ -2345,6 +2356,13 @@ area's entry for the files.
   stylesheets). Browser
   check: DevTools' forced-colors emulation in both themes, Tab through the
   segmented controls, and a print at 900px wide.
+- **FA1-ae. What FA1-v found on Windows.** BA146 to BA153 (BA152's print
+  contents are BVJ's call). Files: `print-notes.js` and `desk.css` (BA146,
+  BA148, BA150, BA151), `greek-commands.js` (BA147), `global.css` (BA149,
+  site-wide), `print.css` (BA151), `notebook.css` (BA152), the desk pages
+  and their stylesheets (BA153). Browser checks: Firefox's print dialog
+  (BA146), Chrome's forced-colors emulation in both themes (BA148, BA149),
+  and the PDFs of item 6.
 
 ## FA1-v. The follow-up audit: real devices
 
@@ -2387,6 +2405,157 @@ Then, in particular:
 7. **The deployed site**: the shared-link beacon check (BA78). FA1-g
    checked it locally, with listeners standing in for the beacon's; the
    real beacon is added only at deploy.
+
+### What FA1-v found on Windows (2026-10-28)
+
+The first half of the pass, on BVJ's Windows laptop (one screen, a touchpad,
+no touchscreen), against a build of `f7974df` served from `dist/`:
+**Firefox 151** driven over WebDriver BiDi, **Chrome** over the DevTools
+protocol, both headless at 1440 × 900 unless noted, and item 7 on the
+deployed site in the desktop app's browser. Eight findings, BA146 to BA153:
+4 medium, 4 low. They are planned as FA1-ae.
+
+**Done here:**
+
+- **Item 2, Firefox:** the whole pass. A note, a highlight, a bookmark and a
+  pin on Romans 8 came back after a reload and drew: the margin note, its
+  lit words, the highlight's tint (the CSS Custom Highlight API), the
+  bookmark mark, and the verse numbers' names. /notebook/ listed them; /desk/
+  drew its panes and Layout menu; a sheet opened as both copies on Letter
+  and A4. Two tabs kept in step; all three copies saved with the right file
+  names; Copy text, Copy link and Copy with footnotes reached the clipboard.
+  No console errors on any page. Printing: BA146 and BA151.
+- **Item 6, Chrome and Firefox** (PDFs, `print()` stubbed, so no real
+  dialog): notes (M6) and room to write (N9) print beside the text with the
+  ruled margin unbroken, the Notebook never prints, and the credit line
+  does; a sheet's copies follow the paper chosen, one code per chapter.
+  Findings BA146, BA151, BA152.
+- **Item 7:** done; see BA78.
+- **From "Not covered", in Chrome:** BA121 holds (with the chapter held back
+  4 seconds, My Notes drew at about 40 ms and was unchanged once it came);
+  BA122 holds (at 1280 × 600 in Three rows every pane menu fits, flipping
+  upward at the bottom); a ribbon following in one tab moves for that tab
+  only and the other tab's list keeps in step; in forced colors, light and
+  dark, the highlights, the bookmark mark and the note glyph stay visible.
+  **Large sheets:** 512 KB stops a sheet near 2,700 blanks, so 3,000 can't be
+  made; at 2,600 the sheet page paints in about 1.0 s, the Sheet pane in
+  1.07 s, and typing costs about 80 ms a key. Acceptable; not a finding.
+  Findings BA147 to BA150, BA153.
+
+**Still for BVJ** (needs a Mac, a second screen or a touchscreen): item 1
+(Safari, including C18's line, which shows only in desktop Safari), item 3
+(VoiceOver), item 4 (two screens, BA85), item 5 (a touchscreen, BA28), the
+Safari half of item 6, and a real print dialog to paper. Also untested
+here: whether Duplicate tab copies the ribbon's follow flag, the commands
+window opened from the Greek tab (BA147 was seen from /search), a real
+Windows contrast theme (BA149 and BA150 were seen in Chrome's emulation),
+and a sheet's Leader only, page break and space modules on paper.
+
+- **BA146 (medium, print; seen in Firefox). “Print with my notes” prints no
+  highlights in Firefox.**
+  - *What happens*: the print highlights are registered and
+    `data-desk-print="notes"` is set, but the PDF shows no tint, with
+    backgrounds printed or not. Firefox paints `::highlight()` on screen but
+    not, it seems, on paper. Chrome prints them.
+  - *Where*: `print-notes.js` step 3 (`hlName`, the `desk-print-hl-<colour>`
+    highlights); `desk.css`, `::highlight(desk-print-hl-*)` under print.
+  - *Fix*: where the browser won't print a highlight, wrap the ranges in a
+    print-only `<mark>` for the print and take them out at `afterprint`,
+    as the asides are; keep the marks out of `[data-verse]` text reads.
+  - *Check*: confirm with Firefox's own print dialog first (the pass used
+    BiDi's print), then the PDF shows each colour.
+  - Status: open, FA1-ae.
+- **BA147 (medium, a11y; seen in Chrome). The commands window's Insert and
+  examples wipe the field's undo.**
+  - *What happens*: `insert()` and `runExample()` set `field.value`, which
+    clears the browser's undo history, so Ctrl+Z afterwards undoes nothing,
+    not even the typing before the insertion.
+  - *Where*: `src/scripts/greek-commands.js`, `insert` and `runExample`.
+  - *Fix*: insert with `document.execCommand("insertText")` after selecting
+    the range (it keeps undo, and fires `input` itself), falling back to the
+    present code where it fails; an example replaces the whole field the
+    same way.
+  - *Check*: type, insert a command, Ctrl+Z removes the insertion and a
+    second Ctrl+Z the typing; in Chrome and Firefox.
+  - Status: open, FA1-ae.
+- **BA148 (medium, a11y; seen in Chrome's forced-colors emulation). A chosen
+  segment's label can't be read in forced colors.**
+  - *What happens*: the segmented controls' chosen option ("Romans 8",
+    "Handwriting", "Everything" beside it) shows as a white box with no
+    visible text: Chrome draws its Canvas backplate behind the text, over
+    the `Highlight` background, and the text is `HighlightText`.
+  - *Where*: `desk.css`, the forced-colors block's
+    `.desk-seg__input:checked + .desk-seg__text` (FA1-ad's BA141).
+  - *Fix*: `forced-color-adjust: none` on that label, so the
+    Highlight/HighlightText pair it sets is what paints.
+  - *Check*: the emulation in both themes, and a real Windows contrast theme.
+  - Status: open, FA1-ae.
+- **BA149 (medium, a11y; seen in Chrome's forced-colors emulation). The
+  header's Menu button vanishes in forced colors.**
+  - *What happens*: its three bars are backgrounds (`var(--text)`), which
+    forced colors drop, and the button has no border, so on /desk/, where
+    it shows at every width, nothing marks it beside Aa. **Site-wide**: the
+    same button is the phone and narrow-window menu everywhere.
+  - *Where*: `global.css`, `.site-header__menu-toggle` and its `.menu-icon`
+    bars.
+  - *Fix*: under `@media (forced-colors: active)`, give the bars
+    `background: CanvasText` with `forced-color-adjust: none` (or draw them
+    as borders), and the button a `ButtonBorder` edge as Aa has.
+  - *Check*: the emulation in both themes, with the menu closed and open.
+  - Status: open, FA1-ae.
+- **BA150 (low, a11y; seen in Chrome). Focus rings are cut off at a pane's
+  edge.**
+  - *What happens*: a verse number, a highlight swatch, a sheet's field or
+    the Greek split's handle at the edge of a scrolling box loses 2 to 4 px
+    of its ring, worst in a short pane.
+  - *Where*: `desk.css`, `.desk-lit__scroll`, `.desk-pane__body` and the
+    sheet pane's scroller: no inner padding for the ring.
+  - *Fix*: `scroll-padding` with matching inner padding, or an inset ring
+    (`outline-offset` negative) for controls that sit at a scroller's edge.
+  - *Check*: Tab through a short /desk/ pane; every ring is whole.
+  - Status: open, FA1-ae.
+- **BA151 (low, print; seen in Chrome and Firefox). Two prints waste a page.**
+  - *What happens*: Chrome's room-to-write print of Romans 8 on Letter puts
+    the SBLGNT notice alone on a fifth page; Firefox's notes and room
+    prints end page 1 about a fifth empty, the next paragraph moving whole.
+  - *Where*: `print.css` and the end of `desk.css` (`break-inside` on the
+    paragraphs and the notice under `data-desk-print`).
+  - *Fix*: let a long paragraph break in those prints (`break-inside: auto`
+    with `orphans`/`widows` 2 or 3), and keep the notice with the text's last
+    lines rather than whole.
+  - *Check*: print Romans 8 both ways on Letter and A4 in both browsers.
+  - Status: open, FA1-ae.
+- **BA152 (low, print; seen in Chrome). /notebook/ prints its controls.**
+  - *What happens*: the search field, the select, the swatches, the label
+    form, the radios, Save and Open, and the red Delete button all print, and
+    headings ("Romans 8:8", "Places") are left at a page's foot apart from
+    their rows.
+  - *Where*: `src/styles/pages/notebook.css`, which has no print rules.
+  - *Fix*: under `@media print`, hide the settings, the copy and delete
+    sections and the controls in the list, and keep each heading with what
+    follows (`break-after: avoid`). What the page should print is BVJ's call;
+    the recommendation is the list of what is kept, as read.
+  - *Check*: print /notebook/ on Letter.
+  - Status: open, FA1-ae.
+- **BA153 (low; seen in Chrome). The desk's pages say the preview is off
+  while the desk is loading.**
+  - *What happens*: on a slow connection /desk/, /notebook/ and /sheets/
+    show “The preview isn’t switched on in this browser” for as long as the
+    desk's code takes to load (six seconds or more at 150 kbps), though it is
+    on.
+  - *Where*: `desk.astro`, `notebook.astro`, `sheets.astro` (the `__off`
+    paragraph) and their page stylesheets.
+  - *Fix*: hide the paragraph while `html[data-desk="on"]`, which the
+    pre-paint script stamps, and show a short “Loading the Study Desk…” line
+    there instead; if the shell stands down (BA29), `standDown()` removes the
+    stamp and the note comes back.
+  - *Check*: throttle the network; the page says it is loading, never that
+    the preview is off, and with the preview off the note shows at once.
+  - Status: open, FA1-ae.
+
+**For BVJ, not a finding:** “Print with my notes” prints no bookmarks (in
+either browser). The code prints notes and highlights only, which may be
+the intent; say if bookmarks should print too.
 
 ---
 
@@ -2503,6 +2672,8 @@ browser is below, for FA1-v:
   ribbon following, whether Duplicate tab copies the follow flag, whether
   setting a field's `value` clears its undo (the commands window), and a
   screen reader on the Greek tab.
-- **Other browsers.** All browser use was Chromium. Nothing ran in Safari or
-  Firefox, with a real screen reader, on two screens, or on a touchscreen
-  computer.
+- **Other browsers.** FA1-u's browser use was all Chromium. FA1-v's
+  Windows half (2026-10-28) ran Firefox and reached most of the items above
+  (“What FA1-v found on Windows”). Still not run: Safari, a real screen
+  reader, two screens, a touchscreen computer, Duplicate tab with a ribbon
+  following, and a real print dialog.
