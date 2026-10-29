@@ -2589,7 +2589,8 @@ and a sheet's Leader only, page break and space modules on paper.
 
 **For BVJ, not a finding:** “Print with my notes” prints no bookmarks (in
 either browser). The code prints notes and highlights only, which may be
-the intent; say if bookmarks should print too.
+the intent; say if bookmarks should print too. **Answered** (BVJ,
+2026-10-29): they stay off; STUDY-DESK.md's decision log, FA1-ae.
 
 ---
 

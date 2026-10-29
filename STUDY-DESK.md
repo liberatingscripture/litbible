@@ -5905,9 +5905,9 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
-### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's call)
+### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's two calls)
 
-FA1-ae fixed BA146 to BA153 (`STUDY-DESK-AUDIT-1.md`). One call was BVJ's:
+FA1-ae fixed BA146 to BA153 (`STUDY-DESK-AUDIT-1.md`). Two calls were BVJ's:
 
 - **/notebook/ prints the list, as read** (BVJ, 2026-10-29; BA152, the
   first of three options). On paper the page is What I've kept and Places:
@@ -5920,8 +5920,11 @@ FA1-ae fixed BA146 to BA153 (`STUDY-DESK-AUDIT-1.md`). One call was BVJ's:
   float beside their block instead of sharing a grid row with it, so the
   text breaks across pages as plain printing does (Firefox moved a whole
   row to the next page). The highlights print as `<mark>`s (BA146).
-  Bookmarks still don't print with the notes; FA1-v's question about that
-  stays open for BVJ.
+- **Bookmarks stay off “Print with my notes”** (BVJ, 2026-10-29; FA1-v's
+  question). The print carries notes and highlights only. A bookmark is a
+  place to come back to, which a printed page doesn't need, and E9 will
+  make bookmarks named and able to move. The /notebook/ print lists them
+  (BA152).
 
 ### 2026-10-28 (FA1-z: the Greek tab; one recommendation for BVJ)
 
