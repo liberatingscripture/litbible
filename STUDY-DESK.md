@@ -167,7 +167,7 @@ are recorded so they aren't re-argued.
   verse taken only when the page has it (BA104), one rename form at a time
   (BA105), names cut by character (BA106), and a failed delete that says so
   (BA108). E9 is still to come and will rebuild this code as Bookmarks.
-  FA1-z is done (#PR): the Greek tab searches a one-letter Greek word,
+  FA1-z is done (#406): the Greek tab searches a one-letter Greek word,
   as BVJ chose (BA110), and a search for the article alone answers with a
   line pointing to a search beside a word (recommended, for BVJ to
   confirm); a sign closing a span of verses reaches its note (BA111); the
@@ -6950,7 +6950,7 @@ The phases, in working order:
 | FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | done, #402: BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | done, #405: BA99 to BA108 |
-| FA1-z | The Greek tab | done, #PR: BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
+| FA1-z | The Greek tab | done, #406: BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
 | FA1-ac | The copy pass | BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |
