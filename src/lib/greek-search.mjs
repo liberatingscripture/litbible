@@ -173,6 +173,38 @@ export function parseStrong(text) {
   return m ? `G${Number(m[1])}` : null;
 }
 
+/**
+ * Whether a query is long enough to search: Greek or a Strong's number at any
+ * length, as the tray and /search take it (ὦ, ἤ; BVJ, 2026-10-26, BA110), and
+ * anything else from two characters, so a lone Latin letter gets the hint.
+ */
+export function longEnoughForGreek(raw) {
+  const q = String(raw ?? "").trim();
+  return hasGreek(q) || Boolean(parseStrong(q)) || q.length >= 2;
+}
+
+/* ── The article ─────────────────────────────────────────────────── */
+
+/** The article's lemma, and the verses of the SBLGNT (a test holds both to public/greek/text/). */
+export const ARTICLE = "ὁ";
+export const GREEK_VERSES = 7942;
+
+/**
+ * What a search for the article alone says instead of listing it: it is in
+ * nearly every verse, so it is studied beside a word (BA110; a recommendation
+ * awaiting BVJ's confirmation).
+ */
+export function articleLine(verses) {
+  const n = (x) => x.toLocaleString("en-US");
+  return `${ARTICLE} is in ${n(verses)} of ${n(GREEK_VERSES)} verses. To study it, search it beside a word:`;
+}
+export const ARTICLE_EXAMPLE = "ὁ, θεός";
+
+/** How many verses a search's hits are in: a hit is one occurrence, so a verse can hold several. */
+export function versesIn(hits) {
+  return new Set((hits ?? []).map((h) => `${h.book} ${h.chapter}:${h.verse}`)).size;
+}
+
 /* ── Glosses ─────────────────────────────────────────────────────── */
 
 const foldLatin = (s) => String(s ?? "").normalize("NFD").replace(COMBINING, "").toLowerCase();

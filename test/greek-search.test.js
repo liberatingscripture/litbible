@@ -5,11 +5,16 @@
 // that makes a plain query find nothing fails here.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import {
+  ARTICLE,
   GREEK_PARSE_FORMAT,
+  GREEK_VERSES,
+  articleLine,
+  longEnoughForGreek,
+  versesIn,
   GREEK_SEARCH_FORMAT,
   decodeOccurrences,
   decodeParseGroup,
@@ -360,4 +365,35 @@ test("the glossary bridge reaches the Greek from the LIT's own words, first", ()
   // Without the bridge, the same query is the lexicons' English alone.
   assert.ok(matchGreek(fake, "trust").lemmas.every((x) => x.how !== "lit"));
   assert.equal(prepareBridge({ format: 2, terms: [] }), null);
+});
+
+test("Greek and Strong's numbers search at any length, anything else from two characters (BA110)", () => {
+  for (const q of ["ὦ", "ἤ", "ὁ", " ἡ ", "G1", "g5"]) assert.equal(longEnoughForGreek(q), true, q);
+  for (const q of ["", " ", "a", "Z", "*"]) assert.equal(longEnoughForGreek(q), false, q);
+  for (const q of ["of", "pi", ".gen"]) assert.equal(longEnoughForGreek(q), true, q);
+});
+
+test("the article's line counts its verses against the whole New Testament (BA110)", () => {
+  // GREEK_VERSES and the article's 6,966 are the committed text's own.
+  const dir = fileURLToPath(new URL("../public/greek/text/", import.meta.url));
+  let verses = 0;
+  let withArticle = 0;
+  for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+    const { paragraphs, lemmas } = JSON.parse(readFileSync(dir + file, "utf8"));
+    const article = new Set(lemmas.flatMap((l, i) => (l[0] === ARTICLE ? [i] : [])));
+    const seen = new Map();
+    for (const w of paragraphs.flat()) seen.set(w[0], seen.get(w[0]) || article.has(w[5]));
+    verses += seen.size;
+    for (const has of seen.values()) if (has) withArticle++;
+  }
+  assert.equal(verses, GREEK_VERSES);
+  assert.equal(withArticle, 6966);
+  assert.equal(articleLine(withArticle), "ὁ is in 6,966 of 7,942 verses. To study it, search it beside a word:");
+});
+
+test("a search's hits count by verse, not by occurrence (BA110)", () => {
+  const hit = (book, chapter, verse) => ({ book, chapter, verse });
+  assert.equal(versesIn([hit("john", 1, 1), hit("john", 1, 1), hit("john", 1, 2), hit("mark", 1, 1)]), 3);
+  assert.equal(versesIn([]), 0);
+  assert.equal(versesIn(undefined), 0);
 });

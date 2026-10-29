@@ -118,8 +118,17 @@ function announce(text) {
   window.setTimeout(() => { if (current) current.status.textContent = text; }, 30);
 }
 
-/** Add `text` at the field's cursor; a mouse press keeps focus in the field. */
-function insert(text, { byMouse = false } = {}) {
+/** One full stop at the end of a spoken phrase, never two. */
+function sentence(s) {
+  return /\.$/.test(s) ? s : `${s}.`;
+}
+
+/**
+ * Add `text` at the field's cursor; a mouse press keeps focus in the field.
+ * `name` is what a screen reader hears it as (a command's meaning); without
+ * one it hears the text itself, as the builder's query.
+ */
+function insert(text, { byMouse = false, name = null } = {}) {
   if (!current) return;
   const { field } = current;
   // Its field is gone (a /desk pane closed or redrawn): so is the window (BA114).
@@ -134,7 +143,7 @@ function insert(text, { byMouse = false } = {}) {
   if (byMouse) field.focus({ preventScroll: true });
   try { field.setSelectionRange(caret, caret); } catch (_) {}
   field.dispatchEvent(new Event("input", { bubbles: true }));
-  announce(`Added ${text.trim()} to the search.`);
+  announce(`Added: ${sentence(name ?? text.trim())}`);
 }
 
 /** Put an example in the field and run it (in the Greek type, where the page has one). */
@@ -221,7 +230,7 @@ function buildCommand(item) {
   b.dataset.name = item.means;
   b.append(code, means);
   b.addEventListener("mousedown", (e) => e.preventDefault());
-  b.addEventListener("click", (e) => insert(item.insert, { byMouse: e.detail > 0 }));
+  b.addEventListener("click", (e) => insert(item.insert, { byMouse: e.detail > 0, name: item.means }));
   return b;
 }
 

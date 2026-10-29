@@ -20,6 +20,17 @@ export function clampSplit(share) {
 }
 
 /**
+ * Whether the tab forgets its line when the widths change. Only an event that
+ * says nothing is kept (`detail.kept === false`, which "Reset widths" sends)
+ * does: the tab's own move sends `kept: true` for a share it holds, and must
+ * not undo itself where the browser blocks site storage and a read finds
+ * nothing (BA113). Events from the other width handles say `kept: true` too.
+ */
+export function forgetsSplit(share, detail) {
+  return share != null && detail?.kept === false;
+}
+
+/**
  * The entry's share when the line is dragged to `y`, in the same coordinates
  * as `top` and `bottom`, the room the text and the entry share together.
  * @returns {number | null} null where there is no room to measure

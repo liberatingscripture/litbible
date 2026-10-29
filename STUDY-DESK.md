@@ -167,6 +167,15 @@ are recorded so they aren't re-argued.
   verse taken only when the page has it (BA104), one rename form at a time
   (BA105), names cut by character (BA106), and a failed delete that says so
   (BA108). E9 is still to come and will rebuild this code as Bookmarks.
+  FA1-z is done (#406): the Greek tab searches a one-letter Greek word,
+  as BVJ chose (BA110), and a search for the article alone answers with a
+  line pointing to a search beside a word (recommended, for BVJ to
+  confirm); a sign closing a span of verses reaches its note (BA111); the
+  split handle always has a current value (BA112) and moves where storage
+  is blocked (BA113); what the tab and the commands window announce is in
+  words (BA117); the empty choices box takes no room (BA119); and a
+  passage naming a verse the Greek lacks opens at the nearest one before it
+  (BA120).
 
 - **Phase 2c is built on the preview** (2026-10-20): notes on a footnote
   and questions for discussion. **A note can be on a footnote** (M11):
@@ -5872,6 +5881,24 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-28 (FA1-z: the Greek tab; one recommendation for BVJ)
+
+FA1-z fixed BA110 to BA113, BA117, BA119 and BA120 (`STUDY-DESK-AUDIT-1.md`).
+BA110's floor is BVJ's decision of 2026-10-26. One item is a
+**recommendation the phase acted on, not a decision**:
+
+- **The article alone answers with a line** (a recommendation, for BVJ to
+  confirm or change). A Greek tab search that settles on ὁ, with “Exact
+  form only” off, shows no list but “ὁ is in 6,966 of 7,942 verses. To
+  study it, search it beside a word: ὁ, θεός.” The last two words are a
+  button that runs that search, and “See these on the search page” stays,
+  so the whole list is a click away. A form searched exactly (τῷ, from a
+  word in the text) still lists. The tray and /search are unchanged.
+- **New sentences a reader can hear**: a chosen word is announced with its
+  parsing in words, without MorphGNT's code; a command added from the
+  commands window is announced by its meaning (“Added: Within 3 words.”),
+  and the builder's by its query (“Added: πίστις.gen.”).
+
 ### 2026-10-28 (FA1-y: ribbons and Continue reading; one question for BVJ)
 
 FA1-y fixed BA99 to BA108 (`STUDY-DESK-AUDIT-1.md`), against today's code;
@@ -6923,7 +6950,7 @@ The phases, in working order:
 | FA1-w | What's new for you | done, #401: BA88, BA90, BA92, BA96, BA97, BA98 |
 | FA1-x | A note's references | done, #402: BA89, BA93, BA94, BA95 |
 | FA1-y | Ribbons and Continue reading | done, #405: BA99 to BA108 |
-| FA1-z | The Greek tab | BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
+| FA1-z | The Greek tab | done, #406: BA110, BA111, BA112, BA113, BA117, BA119, BA120 |
 | FA1-aa | /desk's panes and the shared modules | BA121 to BA126 |
 | FA1-ac | The copy pass | BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | BA140 to BA145 |

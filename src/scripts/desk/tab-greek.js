@@ -25,7 +25,7 @@ import { describeParse } from "../../lib/greek-parse.mjs";
 import { GREEK_LICENSE_HREF, SOURCES } from "../../lib/greek-credits.mjs";
 import { parsingQuery } from "../../lib/greek-commands-ui.mjs";
 import {
-  W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, orderSenses,
+  W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, nearestVerse, noteVerseFor, orderSenses,
   renderingsIn, splitSigns, termsForLemma, versesOf,
 } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
@@ -34,6 +34,7 @@ import {
   MIN_SPLIT,
   SPLIT_STEP,
   clampSplit,
+  forgetsSplit,
   splitFromPointer,
 } from "../../lib/desk-greek-split.mjs";
 import { WIDTHS_EVENT, keepGreekSplit, keptGreekSplit } from "./widths.js";
@@ -482,10 +483,9 @@ export function createGreekTab({
   function openAtReading() {
     const m = source ? null : /^#v(\d+)/.exec(window.location.hash);
     const fromHash = m ? Number(m[1]) : null;
-    const v = startVerse != null && verses.includes(startVerse)
-      ? startVerse
-      : fromHash && verses.includes(fromHash) ? fromHash : pageVerse();
-    const at = v != null && verses.includes(v) ? v : verses[0];
+    // A verse the Greek lacks (Matthew 17:21) opens at the nearest one.
+    const at = nearestVerse(verses, startVerse) ?? nearestVerse(verses, fromHash)
+      ?? nearestVerse(verses, pageVerse()) ?? verses[0];
     if (at == null) return;
     // Opening at a verse isn't the reader scrolling there.
     toldTop = at;
@@ -573,8 +573,10 @@ export function createGreekTab({
   }
 
   /** Bring a verse to the Greek's top, as the passage it follows moves (not told back). */
-  async function goToVerse(verse) {
-    if (!(await ensure()) || !verses.includes(verse)) return;
+  async function goToVerse(passageVerse) {
+    if (!(await ensure())) return;
+    const verse = nearestVerse(verses, passageVerse);
+    if (verse == null) return;
     toldTop = verse;
     readerScrolled = false;
     if (selected == null) setRover(firstWordOf(flat, verse));
@@ -647,7 +649,10 @@ export function createGreekTab({
 
   let litTimer = 0;
   function toApparatus(verse) {
-    const item = scroller.querySelector(`.desk-greek__app-item[data-app-verse="${verse}"]`);
+    // A note on a span of verses sits under the span's first verse.
+    const noteVerses = (data.apparatus ?? []).map((a) => a[0]);
+    const at = noteVerseFor(noteVerses, verse);
+    const item = at == null ? null : scroller.querySelector(`.desk-greek__app-item[data-app-verse="${at}"]`);
     if (!item) return;
     bringIntoView(item);
     scroller.querySelector(".desk-greek__app-item.is-lit")?.classList.remove("is-lit");
@@ -676,18 +681,29 @@ export function createGreekTab({
   let share = keptGreekSplit();
   let splitFrame = 0;
 
+  // The entry's share as it stands: the reader's, else what it measures.
+  const measuredShare = () =>
+    clampSplit(details.offsetHeight / (details.offsetHeight + visibleScroller().offsetHeight)) ?? 0.5;
+
+  // The one place the handle's value is written, so the number and its words
+  // can't drift (BA112). A separator needs a value whenever it can be focused.
+  function writeSplitValue(value) {
+    const pct = Math.round(value * 100);
+    splitter.setAttribute("aria-valuenow", String(pct));
+    splitter.setAttribute("aria-valuetext", `Entry ${pct} percent, Greek ${100 - pct} percent`);
+  }
+
   function setShare(next, { keep = true } = {}) {
     share = next;
     if (share == null) {
       el.removeAttribute("data-split");
       el.style.removeProperty("--desk-greek-split");
       splitter.removeAttribute("aria-valuenow");
+      splitter.removeAttribute("aria-valuetext");
     } else {
       el.dataset.split = "";
       el.style.setProperty("--desk-greek-split", String(share));
-      const pct = Math.round(share * 100);
-      splitter.setAttribute("aria-valuenow", String(pct));
-      splitter.setAttribute("aria-valuetext", `Entry ${pct} percent, Greek ${100 - pct} percent`);
+      writeSplitValue(share);
     }
     if (keep) {
       try {
@@ -699,6 +715,8 @@ export function createGreekTab({
     // The text changed height under the word: bring it back into view.
     cancelAnimationFrame(splitFrame);
     splitFrame = requestAnimationFrame(() => {
+      // After a reset the entry sizes itself again: say what it came to.
+      if (share == null) writeSplitValue(measuredShare());
       if (selected != null && buttons[selected]) bringIntoView(buttons[selected]);
     });
   }
@@ -706,9 +724,13 @@ export function createGreekTab({
   splitter.setAttribute("aria-valuemin", String(MIN_SPLIT * 100));
   splitter.setAttribute("aria-valuemax", String(MAX_SPLIT * 100));
   if (share != null) setShare(share, { keep: false });
-  // "Reset widths" forgets it.
-  const onWidths = () => {
-    if (keptGreekSplit() == null && share != null) setShare(null, { keep: false });
+  // The entry sizes itself until the line is moved, so read it when focused.
+  splitter.addEventListener("focus", () => writeSplitValue(share ?? measuredShare()));
+  // "Reset widths" forgets it. Only an event saying nothing is kept does: our
+  // own move sends kept: true, and where storage is blocked a read would find
+  // nothing and snap the line back (BA113).
+  const onWidths = (e) => {
+    if (forgetsSplit(share, e.detail)) setShare(null, { keep: false });
   };
   document.addEventListener(WIDTHS_EVENT, onWidths);
 
@@ -749,7 +771,7 @@ export function createGreekTab({
   // lowers it. Shift takes bigger steps, Home and End go to the bounds, and
   // Enter or a double click lets the entry size itself again.
   splitter.addEventListener("keydown", (e) => {
-    const now = share ?? clampSplit(details.offsetHeight / (details.offsetHeight + visibleScroller().offsetHeight)) ?? 0.5;
+    const now = share ?? measuredShare();
     const step = (e.shiftKey ? 5 : 1) * SPLIT_STEP;
     let next = null;
     if (e.key === "ArrowUp") next = now + step;
@@ -797,10 +819,11 @@ export function createGreekTab({
 
     // The live line: the word and its parsing, in words with the code beside.
     parseLine.replaceChildren();
+    let inWords = "";
     if (pos || parse) {
       // The parsing in words searches every word parsed so ("*.aor.act.impv.2nd.pl").
       const parsed = parsingQuery(pos, parse);
-      const inWords = describeParse(pos, parse);
+      inWords = describeParse(pos, parse);
       parseLine.append(parsed ? starter(inWords, parsed, () => find.open({ query: parsed })) : inWords);
       parseLine.append(" ", make("span", "desk-greek__code", [pos, parse].filter(Boolean).join(" ")));
     } else {
@@ -810,7 +833,8 @@ export function createGreekTab({
     announce.replaceChildren();
     const said = make("span", null, w[W.text]);
     said.lang = "grc";
-    announce.append(said, ". ", parseLine.textContent);
+    // The parsing in words only: the code beside it is MorphGNT's raw string, not for the ear.
+    announce.append(said, ". ", inWords || "No parsing for this word.");
 
     // Dictionary form, short gloss and Strong's number.
     lemmaLine.replaceChildren();
