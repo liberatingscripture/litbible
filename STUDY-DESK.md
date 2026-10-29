@@ -5905,6 +5905,24 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's call)
+
+FA1-ae fixed BA146 to BA153 (`STUDY-DESK-AUDIT-1.md`). One call was BVJ's:
+
+- **/notebook/ prints the list, as read** (BVJ, 2026-10-29; BA152, the
+  first of three options). On paper the page is What I've kept and Places:
+  the notes, highlights, bookmarks, pinned footnotes, other items and
+  places under their headings, with no controls. What's new, Labels, the
+  panel setting, Save a copy and Delete everything are left off. Weighed
+  and not chosen: the notes alone, and a page saying to print a chapter
+  with “Print with my notes” instead.
+- **“Print with my notes” changes layout, not look** (BA151): the notes
+  float beside their block instead of sharing a grid row with it, so the
+  text breaks across pages as plain printing does (Firefox moved a whole
+  row to the next page). The highlights print as `<mark>`s (BA146).
+  Bookmarks still don't print with the notes; FA1-v's question about that
+  stays open for BVJ.
+
 ### 2026-10-28 (FA1-z: the Greek tab; one recommendation for BVJ)
 
 FA1-z fixed BA110 to BA113, BA117, BA119 and BA120 (`STUDY-DESK-AUDIT-1.md`).
@@ -6979,7 +6997,7 @@ The phases, in working order:
 | FA1-ac | The copy pass | done, #408: BA134 to BA139 |
 | FA1-ad | The stylesheet: focus, forced colors, contrast, and print | done, #409: BA140 to BA145 |
 | FA1-v | The follow-up audit: real devices | Windows half done, 2026-10-28: BA146 to BA153; the Mac, VoiceOver, two screens and a touchscreen remain |
-| FA1-ae | What FA1-v found on Windows | BA146 to BA153 |
+| FA1-ae | What FA1-v found on Windows | done, #PR: BA146 to BA153 |
 
 FA1-f should land before the record format is frozen for the apps, and
 FA1-s before Greek search launches. FA1-v needs BVJ's own computers (or a
