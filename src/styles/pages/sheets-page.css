@@ -1201,6 +1201,19 @@ html[data-presenter] .sheets-page {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* The Notes toggle in forced colors (BA141): its pressed state is a
+   background and a border color, which forced colors replaces, so it takes
+   the selection's pair. Both selectors, since the presenter view's rule is
+   the more specific. */
+@media (forced-colors: active) {
+  .present-btn[aria-pressed="true"],
+  .present-presenter .present-btn[aria-pressed="true"] {
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+
 .present-notes {
   margin-bottom: 1.5rem;
   padding: 0.75rem 1rem;
