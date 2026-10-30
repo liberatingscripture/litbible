@@ -2488,12 +2488,23 @@ bottom, and a panel already open moves left when the Notebook expands
 drags by its header, extends to a range, and closes on its × or a tap
 elsewhere.
 
+**Duplicate tab with a ribbon following: copied the follow, now fixed**
+(BVJ, 2026-10-29, Chrome). The duplicate carried the flag (session storage
+is copied), and both tabs moved the ribbon, each to wherever it was read
+last. Fixed the same day: the flag names its tab, a duplicate finds the
+original holding that name on a BroadcastChannel and stops following, and
+opening a ribbon's link in another tab takes the ribbon over from the first
+(`ribbon-follow.js`; `loseRibbon` in `desk-places.mjs`). Checked in the
+browser pane with a copied flag (the copy dropped it, the ribbon stayed with
+the original) and with the link opened in a second tab (the first let go).
+
 **A real Windows contrast theme: passed** (BVJ, 2026-10-29): the desk
 works in it. This closes the real-theme checks left on BA148 and BA149.
 
 Items 1, 3 and Safari's half of 6 go to BDR, who has a
-Mac; BVJ is testing Duplicate tab (item 5, a print to paper, the contrast
-theme and the sheet's modules on paper have passed).
+Mac; BVJ's checks have run (item 5, a print to paper, the contrast theme,
+the sheet's modules on paper, a scanned code, A4 and Duplicate tab). Left
+for BVJ: Duplicate tab again after its fix, and /desk's Print menu.
 
 - **BA146 (medium, print; seen in Firefox). “Print with my notes” prints no
   highlights in Firefox.**

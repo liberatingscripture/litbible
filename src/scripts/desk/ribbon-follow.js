@@ -23,11 +23,20 @@
 // and outlives the page, so it can be another tab's place in the book or the
 // reader's place before they followed the link (BA99, BA100). Pages without
 // the shell drop the flag in desk-gate.js (BA101).
+//
+// One tab follows a ribbon at a time. Duplicate tab copies session storage,
+// so the flag names its tab (a token), and a page that loads with it asks on
+// RIBBON_TAB_CHANNEL whether a live page holds that token; one that does
+// answers, and the asking tab, the copy, drops the flag. Following a link
+// announces it, and any other tab following that ribbon stops (loseRibbon).
 
 import { canEdit, editRecord } from "../../lib/desk-records.mjs";
 import {
+  DUPLICATE_WAIT_MS,
   RIBBON_FLAG_KEY,
+  RIBBON_TAB_CHANNEL,
   isRibbon,
+  loseRibbon,
   nextRibbonState,
   pageBookOf,
   parseRibbonFlag,
@@ -42,6 +51,20 @@ import { pageLastRead } from "../last-read.js";
 let flag = null;
 /** Set by initRibbonFollow, so a link followed on this page can start a ribbon moving at once. */
 let env = null;
+/** RIBBON_TAB_CHANNEL, opened once; null where the browser has none. */
+let channel = null;
+
+function openChannel() {
+  if (channel || typeof BroadcastChannel !== "function") return channel;
+  try {
+    channel = new BroadcastChannel(RIBBON_TAB_CHANNEL);
+  } catch {
+    channel = null;
+  }
+  return channel;
+}
+
+const newTab = () => globalThis.crypto?.randomUUID?.() ?? `t${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
 
 function readFlag() {
   try {
@@ -54,7 +77,7 @@ function readFlag() {
 function writeFlag(next) {
   flag = next;
   try {
-    if (next) window.sessionStorage.setItem(RIBBON_FLAG_KEY, ribbonFlagFor({ id: next.id, bookKey: next.bookKey }));
+    if (next) window.sessionStorage.setItem(RIBBON_FLAG_KEY, ribbonFlagFor(next));
     else window.sessionStorage.removeItem(RIBBON_FLAG_KEY);
   } catch {
     /* no session storage: the ribbon simply doesn't follow */
@@ -73,7 +96,13 @@ function writeFlag(next) {
  * @param {string | null} [href] the link's address
  */
 export function followRibbon(ribbon, href = null) {
-  writeFlag({ id: ribbon.id, bookKey: ribbon.bookKey });
+  writeFlag({ id: ribbon.id, bookKey: ribbon.bookKey, tab: newTab() });
+  // Any other tab following this ribbon stops: the link opened last wins.
+  try {
+    openChannel()?.postMessage({ took: flag.id, tab: flag.tab });
+  } catch {
+    /* the other tab keeps following until it leaves the book */
+  }
   env?.followed(href);
 }
 
@@ -98,6 +127,28 @@ export function initRibbonFollow({ store, ctx }) {
   const page = pageBookOf(window.location.pathname);
   // Dropped on a page outside the book even when the notebook didn't open.
   writeFlag(nextRibbonState(readFlag(), page));
+  // A flag stored before tokens gets one; there is nothing to ask about it.
+  if (flag && !flag.tab) writeFlag({ ...flag, tab: newTab() });
+  const ch = openChannel();
+  let asking = null; // the token this page is asking about, until the wait ends
+  let settled = Promise.resolve();
+  if (ch) {
+    ch.addEventListener("message", (e) => {
+      const msg = e.data;
+      if (msg && typeof msg === "object" && typeof msg.ask === "string" && flag?.tab === msg.ask && asking == null) {
+        ch.postMessage({ taken: msg.ask });
+        return;
+      }
+      if (loseRibbon(flag, msg)) writeFlag(null);
+    });
+    if (flag) {
+      asking = flag.tab;
+      ch.postMessage({ ask: asking });
+      settled = new Promise((resolve) => window.setTimeout(resolve, DUPLICATE_WAIT_MS)).then(() => {
+        asking = null;
+      });
+    }
+  }
   if (!store) return;
 
   let latest = null; // where the reader last was, as { bookKey, chapter, verse }
@@ -109,6 +160,8 @@ export function initRibbonFollow({ store, ctx }) {
 
   async function flush() {
     timer = 0;
+    // Not before this page knows whether its tab is a copy.
+    await settled;
     // A ribbon opened into another book is about to be followed there, by the
     // page that loads next; this page's reading says nothing about it.
     if (!flag || !latest || latest.bookKey !== flag.bookKey) return;

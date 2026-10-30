@@ -33,10 +33,10 @@ test("a draft chapter offers the Greek tab but not This verse", () => {
   assert.ok(!ids("this verse", draft).includes("show-this-verse"), "a draft has no LIT verse to show");
 });
 
-test("open and close are one command, by whether the panel is open", () => {
+test("the Notebook can be opened but has no close command (it only minimizes)", () => {
   const panel = (c) => ids("notebook", c).filter((i) => i.endsWith("-notebook"));
   assert.deepEqual(panel({ ...chapter, panelOpen: false }), ["open-notebook"]);
-  assert.deepEqual(panel({ ...chapter, panelOpen: true }), ["close-notebook"]);
+  assert.deepEqual(panel({ ...chapter, panelOpen: true }), []);
 });
 
 test("hide my marks turns into show my marks while they are hidden", () => {
@@ -49,7 +49,7 @@ test("a query starting with > asks for commands, and what follows narrows them",
   assert.equal(isCommandQuery("  > hid"), true);
   assert.equal(isCommandQuery("hide"), false);
   assert.equal(commandQueryText(">  hid"), "hid");
-  assert.equal(ids(">", chapter).length, COMMANDS.filter((c) => c.id !== "close-notebook").length);
+  assert.equal(ids(">", chapter).length, COMMANDS.length);
   assert.deepEqual(ids("> hid", chapter), ["hide-notes"]);
   assert.deepEqual(ids("> zzz", chapter), []);
 });

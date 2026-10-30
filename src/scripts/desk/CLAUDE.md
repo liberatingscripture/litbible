@@ -382,7 +382,13 @@ that section.
        every tab shares and an earlier page left (BA99, BA100). Following a
        link forgets where the reader was, and a link to another page stops
        the page it leaves from moving the ribbon. The follower's move is
-       one `store.change` too. **Making, renaming and moving a ribbon read the
+       one `store.change` too. **One tab follows a ribbon at a time**
+       (BVJ's Duplicate tab check, 2026-10-29): Duplicate tab copies
+       session storage, so the flag carries the tab's token, and a page that
+       loads with it asks on `RIBBON_TAB_CHANNEL` whether a live page holds
+       that token; an answer makes this tab the copy, which drops the flag.
+       Following a link announces it, and any other tab following that
+       ribbon stops (`loseRibbon`, `desk-places.mjs`). **Making, renaming and moving a ribbon read the
        record and write it in one `store.change`** (`desk-ribbon-change.mjs`,
        pure and unit-tested; BA102): a ribbon deleted meanwhile is reported,
        not brought back, and the name and the six-ribbon limit are checked

@@ -18,7 +18,6 @@
 export function initCommands({ panel, printNotes = null, printRoom = null }) {
   const run = {
     "open-notebook": () => panel.open(null),
-    "close-notebook": () => panel.close(),
     "show-my-notes": () => panel.showTab("mine"),
     "show-this-verse": () => panel.showTab("verse"),
     // The Greek tab exists on Study View chapters and draft chapters; showTab
