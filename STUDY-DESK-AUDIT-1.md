@@ -2466,7 +2466,10 @@ last three lines took a fifth page of their own in the room-to-write print, as
 the text fell on Letter; not a finding. A second print with a green highlight
 on Romans 8:3 printed its tint, broken into pieces at each footnote letter
 (the marks wrap the words and leave the letters out), which leaves thin white
-gaps in the band; cosmetic, raised with BVJ. Still to check: a printed code
+gaps in the band; cosmetic. **Fixed the same day** (BVJ asked for one band):
+a superscript the highlight holds whole is marked from outside. The test
+also found /desk had no way to print a chapter; it now has a Print menu
+(STUDY-DESK.md, Decisions, 2026-10-29). Still to check: a printed code
 scanned by phone, and A4.
 
 Items 1, 3 and Safari's half of 6 go to BDR, who has a

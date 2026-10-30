@@ -71,6 +71,8 @@ import {
   writeSaved,
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { bookKeyToLabel } from "../../data/books.js";
+import { printHref } from "../../lib/desk-print-notes.mjs";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
@@ -330,6 +332,85 @@ async function start() {
     part.addEventListener("focusout", (e) => {
       const to = e.relatedTarget;
       if (to instanceof Node && !menu.contains(to) && !layoutButton.contains(to)) closeMenu({ focus: false });
+    });
+  }
+
+  // ---- the Print menu ----
+
+  // The chapter the leading LIT pane shows (or, with none, the place the
+  // panes share), printed as Study View prints it: each choice opens that
+  // chapter in a new tab, which prints itself (print-link.js; BVJ,
+  // 2026-10-29). A draft has no text to print.
+  const printButton = el("button", "desk-ws__layout desk-ws__print");
+  printButton.type = "button";
+  printButton.setAttribute("aria-haspopup", "dialog");
+  printButton.setAttribute("aria-expanded", "false");
+  printButton.setAttribute("aria-controls", "deskPrintMenu");
+  printButton.innerHTML = `<span>Print</span>${ICON_CARET}`;
+  bar.insertBefore(printButton, layoutButton);
+
+  const printMenu = el("div", "desk-ws__menu desk-ws__print-menu");
+  printMenu.id = "deskPrintMenu";
+  printMenu.setAttribute("role", "dialog");
+  printMenu.setAttribute("aria-label", "Print");
+  printMenu.hidden = true;
+  printMenu.innerHTML = `
+    <p class="desk-ws__print-title"></p>
+    <div class="desk-ws__print-choices">
+      <a data-print="plain" target="_blank" rel="noopener">The chapter</a>
+      <a data-print="notes" target="_blank" rel="noopener">With my notes</a>
+      <a data-print="room" target="_blank" rel="noopener">With room to write</a>
+    </div>
+    <p class="desk-ws__menu-note">Each opens the chapter in a new tab, ready to print.</p>`;
+  bar.insertBefore(printMenu, layoutButton);
+  const printTitle = printMenu.querySelector(".desk-ws__print-title");
+  const printLinks = Array.from(printMenu.querySelectorAll("a[data-print]"));
+
+  /** The chapter to print: the leading LIT pane's, else the shared place. */
+  function printChapter() {
+    const active = findPane(layout.root, layout.active);
+    const p = active?.kind === "lit" ? passageOf(active.id) : parsePassage(layout.place);
+    return p?.bookKey && p.chapter ? p : null;
+  }
+
+  function openPrintMenu() {
+    closeMenu({ focus: false });
+    const p = printChapter();
+    const draft = p && (drafts[p.bookKey] ?? []).includes(p.chapter);
+    const name = p ? `${bookKeyToLabel(p.bookKey)} ${p.chapter}` : "";
+    printTitle.textContent = !p
+      ? "Open a chapter in a LIT pane to print it."
+      : draft
+        ? `${name} is a draft, with no text to print yet.`
+        : `Print ${name}`;
+    for (const a of printLinks) {
+      // With my notes needs a notebook; the other two need only the text.
+      const off = !p || draft || (a.dataset.print === "notes" && !store);
+      a.hidden = off;
+      if (!off) a.href = printHref(p.bookKey, p.chapter, a.dataset.print);
+    }
+    printMenu.hidden = false;
+    printButton.setAttribute("aria-expanded", "true");
+    (printLinks.find((a) => !a.hidden) ?? printMenu).focus?.();
+  }
+
+  function closePrintMenu({ focus = true } = {}) {
+    if (printMenu.hidden) return;
+    printMenu.hidden = true;
+    printButton.setAttribute("aria-expanded", "false");
+    if (focus) printButton.focus();
+  }
+
+  printButton.addEventListener("click", () => (printMenu.hidden ? openPrintMenu() : closePrintMenu()));
+  layoutButton.addEventListener("click", () => closePrintMenu({ focus: false }));
+  for (const a of printLinks) a.addEventListener("click", () => closePrintMenu({ focus: false }));
+  printMenu.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.stopPropagation(); closePrintMenu(); }
+  });
+  for (const part of [printMenu, printButton]) {
+    part.addEventListener("focusout", (e) => {
+      const to = e.relatedTarget;
+      if (to instanceof Node && !printMenu.contains(to) && !printButton.contains(to)) closePrintMenu({ focus: false });
     });
   }
 
@@ -645,6 +726,7 @@ async function start() {
       closeKindMenu({ focus: false });
     }
     if (!menu.hidden && !menu.contains(e.target) && !layoutButton.contains(e.target)) closeMenu({ focus: false });
+    if (!printMenu.hidden && !printMenu.contains(e.target) && !printButton.contains(e.target)) closePrintMenu({ focus: false });
   });
 
   // ---- the lines between panes ----

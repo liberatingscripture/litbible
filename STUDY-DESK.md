@@ -5945,6 +5945,21 @@ BVJ answered a round of the open questions in this file and the audit:
   differences of form stay: a note needs a verse after a short name, and a
   comma in a note lists verses rather than separating chapter and verse.
 
+### 2026-10-29 (printing: a highlight on paper, and /desk)
+
+From BVJ's own print test (FA1-v, item 6):
+
+- **A highlight prints as one band through its footnote letters**: a
+  superscript inside the highlight is marked whole, from outside, where
+  marking inside it tinted only the raised letter and left a notch.
+- **/desk can print a chapter** (BVJ: "there's currently no way to prompt
+  'print this chapter'… from /desk"). A **Print** menu beside Layout names
+  the leading LIT pane's chapter and offers it plainly, with my notes, or
+  with room to write. Each opens the chapter's Study View page in a new
+  tab, which prints itself, as a sheet's "Print or share…" opens its own
+  page; the Study View page is what print.css and both prints are built
+  for. A draft chapter offers nothing to print.
+
 ### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's two calls)
 
 FA1-ae fixed BA146 to BA153 (`STUDY-DESK-AUDIT-1.md`). Two calls were BVJ's:

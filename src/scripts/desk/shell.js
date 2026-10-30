@@ -30,6 +30,7 @@ import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
 import { createPrintNotes } from "./print-notes.js";
 import { createPrintRoom } from "./print-room.js";
+import { initPrintLink } from "./print-link.js";
 
 /**
  * Go to a highlight's verse on this page by its ordinary address (`#v3`,
@@ -163,6 +164,8 @@ async function start() {
   // Painted on a Study View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.
   if (store) createHighlights({ store });
+  // A chapter opened from /desk's Print menu prints itself (print-link.js).
+  initPrintLink({ printNotes, printRoom });
 }
 
 start().catch((err) => {

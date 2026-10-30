@@ -6,7 +6,11 @@ import {
   LOST_VERSE_NOTE,
   PRINT_QUOTE_WORDS,
   blockForVerse,
+  PRINT_KINDS,
+  PRINT_PARAM,
   markPieces,
+  parsePrintParam,
+  printHref,
   planNotes,
   printHeading,
   standing,
@@ -122,4 +126,13 @@ test("a printed highlight wraps each run once, in text order, inside its node (B
   assert.deepEqual(markPieces(10, [{ start: 0, end: 9, color: "yellow" }, { start: 2, end: 5, color: "pink" }]), [
     { start: 0, end: 9, color: "yellow" },
   ]);
+});
+
+test("printHref and parsePrintParam: /desk's Print menu (BVJ, 2026-10-29)", () => {
+  assert.equal(printHref("romans", 8, "notes"), "/romans-8/?print=notes");
+  assert.equal(printHref("1corinthians", 13, "room"), "/1corinthians-13/?print=room");
+  for (const kind of PRINT_KINDS) assert.equal(parsePrintParam(kind), kind);
+  assert.equal(parsePrintParam("all"), null);
+  assert.equal(parsePrintParam(null), null);
+  assert.equal(PRINT_PARAM, "print");
 });

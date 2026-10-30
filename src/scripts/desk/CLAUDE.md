@@ -821,11 +821,22 @@ that section.
        so no reader of the page sees it), wraps each highlighted run in a
        print-only `mark.desk-print-mark--<colour>`, and undoes all of it on
        `afterprint`, joining every split text node back into the original
-       node. **Not Custom Highlights**: Firefox prints a copy of the page that
+       node. **A superscript the highlight holds whole (a footnote letter, a
+       verse number) is moved into a mark of its own, never marked inside**
+       (BVJ, 2026-10-29): a mark inside the raised letter is tinted only as
+       tall as the letter, which notched the band at every letter. **Not Custom Highlights**: Firefox prints a copy of the page that
        leaves them behind (BA146). **Not a grid**: `desk.css` floats each
        aside right beside its block, because Firefox moves a whole grid row
        to the next page (BA151). Plain Ctrl+P never has the attribute and
        prints as before.
+     - **/desk prints through Study View** (BVJ, 2026-10-29): the header's
+       Print menu, beside Layout, names the leading LIT pane's chapter (else
+       the shared place) and offers it plainly, with my notes or with room to
+       write, each a link to `/<book>-<chapter>/?print=<kind>` in a new tab
+       (`printHref`, `PRINT_KINDS` in `desk-print-notes.mjs`). There the
+       shell's `desk/print-link.js` strips the parameter and starts that
+       print once the page has loaded. A draft chapter offers none; "With my
+       notes" needs a notebook.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        button right after it in the My Notes foot, and the command
        `print-with-room`. `desk/print-room.js` only stamps

@@ -4618,6 +4618,43 @@ html[data-desk-workspace] .desk-page__notice {
   gap: 8px;
 }
 
+/* The Print menu (BVJ, 2026-10-29): the chapter's name, then three links,
+   each opening the chapter in a new tab that prints itself. */
+.site-header__desk-tools .desk-ws__print-menu {
+  width: min(300px, calc(100vw - 32px));
+}
+
+.desk-ws__print-title {
+  margin: 0 2px 10px;
+  font-weight: 600;
+}
+
+.desk-ws__print-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.desk-ws__print-choices a {
+  padding: 8px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.desk-ws__print-choices a:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-ws__print-choices a[hidden] {
+  display: none;
+}
+
+.desk-ws__print-menu .desk-ws__menu-note {
+  margin-bottom: 0;
+}
+
 .desk-ws__menu-actions button {
   padding: 6px 12px;
   border: 1px solid rgba(var(--ink-rgb), 0.22);
