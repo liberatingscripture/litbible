@@ -281,7 +281,7 @@ export const TOUR_STEPS = [
     title: "Undo, and a clean page",
     body: {
       default:
-        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my notes,” or the H key, clears your marks from the page and brings them back.",
+        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Shift+Z redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my marks,” or the H key, clears your notes, highlights, and bookmarks from the page and brings them back.",
     },
   },
   {

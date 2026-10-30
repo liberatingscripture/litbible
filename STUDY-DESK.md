@@ -869,7 +869,8 @@ plan as a whole was accepted; nothing was declined except where stated).
     in the margin. Not yet placed in a phase: it needs 1c's marks first.
     New. Medium. **Decided: yes.** **Built provisionally on the preview
     2026-10-08** (BVJ: now rather than with format draft 2); see "Order of
-    work", 1c.
+    work", 1c. **Out of version 1** (BVJ, 2026-10-29; maybe version 2):
+    see "Version 2: deferred and shelved".
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
   is the blank version. New. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3i).
@@ -2410,7 +2411,7 @@ website has to say goes here, on `main`, with its date.
   bookmark gains a name and an optional following flag; a `place` with
   `ribbon: true` retires), so **the apps need not build ribbons as a
   separate kind** (R4 asked for "bookmarks and named ribbons"), and
-  whether reading places sync (kind 5) is still open. Nothing is built or
+  reading places don't sync in version 1 (kind 5; BVJ, 2026-10-29). Nothing is built or
   changed in the format yet; the website will say so here when it is, with
   new merge vectors. **Also**: BVJ strongly recommends that the
   `bookmark` note marker be renamed `ribbon` (E10; retiring it is the other
@@ -4814,6 +4815,13 @@ be revisited for version 2.
   from `isAppPlatform`, which should keep treating tablets as tablets for
   the app QR code and the share sheet. It would need touch work and
   real-device checks, since the desk was built for a mouse.
+- **N11, notes on glossary entries and articles**: out of version 1 (BVJ,
+  2026-10-29; "maybe v2"). Built provisionally on the preview 2026-10-08;
+  taking it off the preview's glossary and article pages is its own
+  change. The format keeps its description for version 2.
+- **Reading places that sync** (the format's kind 5): not in version 1
+  (BVJ, 2026-10-29; "maybe in v2"). Each device keeps its own "Continue
+  reading".
 
 **Still open, for BVJ:**
 - **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
@@ -5905,6 +5913,34 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-10-29 (BVJ's answers to the open questions)
+
+BVJ answered a round of the open questions in this file and the audit:
+
+- **The desk is released to readers after phase 3** ("Still open").
+- **A sheet's own words link references in note mode**, as a note's do
+  (FA1-x's question): `sheetHtmlForShow` passes the notes' options, so a
+  note copied onto a sheet by “+ For discussion” links the same in both.
+- **Reading places don't sync in version 1**, maybe in version 2
+  (`STUDY-DESK-FORMAT.md`, kind 5). On the website nothing changes, since
+  "Continue reading" was never a synced record.
+- **No notes on glossary entries or articles in version 1** (N11), maybe in
+  version 2. Moved to "Version 2: deferred and shelved"; taking it off the
+  preview is its own change.
+- **FA1-z's line for the article alone is confirmed.**
+- **M1 becomes “Hide my marks” / “Show my marks”** (FA1-ac's question; BVJ
+  asked for "something broader than 'my notes'"): the Display tray's box,
+  the command (which still answers to "notes", "highlights" and
+  "bookmarks"), the H key's help line, and the tour, which now names the
+  three. “Show My Notes,” the command that opens the Notebook's tab, is
+  unchanged, and the two no longer differ only by case.
+- **The `/contact` and `/app-support` fields get the site's field border**
+  (FA1-ad's question), `--field-border` beside their shadow.
+- **The merge rules' last pieces** were confirmed by BDR on 2026-10-23; the
+  "Still open" entry now says so.
+- **BA94's short names: not yet confirmed.** BVJ asked first how they
+  compare with the search bar's jump-to aliases (`search-core.js`).
+
 ### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's two calls)
 
 FA1-ae fixed BA146 to BA153 (`STUDY-DESK-AUDIT-1.md`). Two calls were BVJ's:
@@ -5933,7 +5969,7 @@ BA110's floor is BVJ's decision of 2026-10-26. One item is a
 **recommendation the phase acted on, not a decision**:
 
 - **The article alone answers with a line** (a recommendation, for BVJ to
-  confirm or change). A Greek tab search that settles on ὁ, with “Exact
+  confirm or change). **Confirmed** (BVJ, 2026-10-29). A Greek tab search that settles on ὁ, with “Exact
   form only” off, shows no list but “ὁ is in 6,966 of 7,942 verses. To
   study it, search it beside a word: ὁ, θεός.” The last two words are a
   button that runs that search, and “See these on the search page” stays,
@@ -5986,7 +6022,7 @@ asked to confirm or change them.
   and lowercase Hebrew Bible and apocrypha names, which stay exact-case
   (a lowercase “is 3:15” is a time, not Isaiah).
 - **Sheets and note mode** (an open question for BVJ, with no recommendation
-  yet).
+  yet). **Answered 2026-10-29: note mode** (decision log, that day).
   `sheetHtmlForShow` in `desk-sheet-copy.mjs` still uses the site's rule,
   so a note copied onto a sheet by “+ For discussion” now links differently
   there than it does in the note (“Romans 8:28, 30” links 8:30 on the sheet
@@ -7251,9 +7287,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   **For BDR's Claude: please notice.** This changes what syncs. The apps
   are building "full bookmarks and named ribbons" (R4, in the first synced
   release); that would now be one feature, bookmarks, and ribbons need not
-  be built as a separate kind. Whether a reading place syncs at all stays
-  open (kind 5's open question); if it does, "Continue reading" is the
-  only place, one per book, and no named place exists. The website will
+  be built as a separate kind. A reading place doesn't sync in version 1
+  (kind 5; BVJ, 2026-10-29); if one does in version 2, "Continue reading"
+  is the only place, one per book, and no named place exists. The website will
   update the format draft and the merge vectors when it builds this and
   will say so here. ~~Raise any objection here before the apps build ribbons.~~
   **Accepted by BDR, 2026-10-23**: the apps build one kind, Bookmarks.
@@ -7415,20 +7451,17 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   - ~~**The second slice's defaults** (2026-10-08)~~: **confirmed**
     (BVJ, 2026-10-13), with N11's provisional choices, the highlights'
     defaults and undo's (all listed under "Order of work", 1c).
-- **The merge rules** (talk-through item 20; rules a to e): **settled
+- ~~**The merge rules**~~ (talk-through item 20; rules a to e): **settled
   2026-10-09**, by BDR's answers and BVJ going with BDR on a note's older
-  version (discarded). What remains:
-  - ~~**The trash record's kind**~~: built 2026-10-12 as `deletedKind`.
-  - **For BDR to confirm:** the rule for collapsing two trash records of one
-    deletion (question 4). The website built its own proposal on
-    2026-10-12: the later deletion, with the newer content
-    (`STUDY-DESK-FORMAT.md`, kind 10). If BDR prefers another rule, it
-    changes in `src/lib/desk-merge.mjs` and the shared merge vectors. Also
-    for BDR: three details of the merge (an edit and a deletion at the same
-    instant leave it deleted; an exact tie between edits keeps the device's
-    own copy; a deletion that wins over an edit keeps the edited words in
-    the trash), under "Clocks" in the format, and the shared cases in
-    `test/fixtures/merge-vectors.json`.
+  version (discarded). The trash record's kind was built 2026-10-12 as
+  `deletedKind`. **The last pieces were confirmed by BDR on 2026-10-23**:
+  two trash records of one deletion collapse to the later deletion, with
+  the newer content (`STUDY-DESK-FORMAT.md`, kind 10), and the three
+  details under "Clocks" (an edit and a deletion at the same instant leave
+  it deleted; an exact tie between edits keeps the device's own copy; a
+  deletion that wins over an edit keeps the edited words in the trash),
+  with the shared cases in `test/fixtures/merge-vectors.json`. Nothing
+  here is open.
 - **The hidden passage, at length** (the Zoom's item 17; BDR, 2026-10-09).
   BDR's other questions of that day are answered (the website's answers
   under "One notebook, three homes").
@@ -7484,13 +7517,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   window beside the Notebook on its first expansion, with "Take the tour
   now," "Remind me later," and "Don't show this again" (decision log,
   2026-10-14, "The tour offer").
-- **When to release the desk to readers.** Not before phase 1 is
-  completely done (N8 and the exploring of 1g and 1h included), and
-  perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). Which of the two
-  is still open; **BVJ is leaning toward after phase 3** (2026-10-13,
-  not decided), since phase 1 took about two weeks to build. A small
-  group of trusted readers given `?desk=on` would not be a release, and
-  is a separate question.
+- ~~**When to release the desk to readers**~~: **after phase 3** (BVJ,
+  2026-10-29), as BVJ had leaned since 2026-10-13. A small group of
+  trusted readers given `?desk=on` would not be a release, and is a
+  separate question.
 - ~~**A fuller tour**~~: **built** (BVJ, 2026-10-13: steps that act, and
   nothing they do persists). Fifteen steps in three parts; see "Order of
   work", 1d, "First use, the tour and the help page".

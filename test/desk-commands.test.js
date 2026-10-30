@@ -39,9 +39,9 @@ test("open and close are one command, by whether the panel is open", () => {
   assert.deepEqual(panel({ ...chapter, panelOpen: true }), ["close-notebook"]);
 });
 
-test("hide my notes turns into show my notes while they are hidden", () => {
-  assert.equal(matchCommands("hide", chapter)[0].name, "Hide my notes");
-  assert.equal(matchCommands("show my", { ...chapter, hidden: true }).find((c) => c.id === "hide-notes").name, "Show my notes");
+test("hide my marks turns into show my marks while they are hidden", () => {
+  assert.equal(matchCommands("hide", chapter)[0].name, "Hide my marks");
+  assert.equal(matchCommands("show my", { ...chapter, hidden: true }).find((c) => c.id === "hide-notes").name, "Show my marks");
 });
 
 test("a query starting with > asks for commands, and what follows narrows them", () => {

@@ -461,7 +461,7 @@ notice there or nowhere.
   2026-09-28): `/` search, `g` Go to passage, and ← → or `[` `]` for the
   previous and next chapter (Study View's top Previous/Next, found by their
   `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Read View).
-  `h` is the Study Desk's "Hide my notes" and does nothing unless
+  `h` is the Study Desk's "Hide my marks" and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.
   They are on by default, with a Keyboard switch in the Display tray

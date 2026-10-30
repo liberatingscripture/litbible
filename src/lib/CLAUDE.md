@@ -179,12 +179,13 @@ From the root's project tree.
   "mark 3 places" stays plain. Hebrew Bible and apocrypha names stay
   exact-case, since a lowercase "is 3:15" is a time, not Isaiah. The short-name
   set is a recommendation awaiting BVJ's confirmation (STUDY-DESK.md,
-  Decisions, 2026-10-28). **A range into a later chapter keeps its end** on the
+  Decisions, 2026-10-28 and 2026-10-29). **A range into a later chapter keeps its end** on the
   link as `data-end` ("John 3:16–4:2" gets `4:2`, "Hebrews 6–9" gets `9`), which
   `citedRefs` reads to list the span chapter by chapter. Footnotes, intros,
   articles, the glossary and release notes keep the five rules exactly; the
-  Study Desk's sheets (`sheetHtmlForShow`) do too, and whether a sheet's own
-  words should use note mode is an open question for BVJ. The lookbehind that
+  Study Desk's sheets (`sheetHtmlForShow`) read a sheet's own words in note
+  mode, as a note's (BVJ, 2026-10-29), so a note copied onto a sheet links
+  the same in both. The lookbehind that
   keeps "1 John" from matching as "John" bounds its whitespace run
   (`SP_BEHIND`, at most four), since an unbounded one stalled a note of 40,000
   spaces for 3.5 seconds (BA95); this holds in every mode.

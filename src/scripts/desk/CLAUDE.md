@@ -186,7 +186,7 @@ that section.
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Study View tool. The notes' settings (`data-desk-notes`,
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
      script, since nothing of the desk paints before it loads. "Hide my
-     notes" (M1, key H) is no setting of its own: it saves and turns off
+     marks" (M1, key H; "Hide my notes" until 2026-10-29) is no setting of its own: it saves and turns off
      "Notes in the margin", "My bookmarks" and both views' "My highlights", and puts
      them back (`note-settings.js`). With "Notes in the margin" off, a footnote's
      popover lists none of the reader's notes either (`desk.css`, BA17),

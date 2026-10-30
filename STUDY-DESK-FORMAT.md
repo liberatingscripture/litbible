@@ -162,8 +162,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    `star` as `emphasis`. (The other option, retiring it, was not taken.)
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), a verse, and `ribbon: true` for a named ribbon. Places are stored
-   as verses, never scroll positions (A-F13). **Open:** whether each device's
-   reading place syncs at all (BVJ leans slightly against). **On the
+   as verses, never scroll positions (A-F13). **Reading places don't sync
+   in version 1** (BVJ, 2026-10-29; maybe in version 2): each device keeps
+   its own. **On the
    website, "Continue reading" and Read View's per-book places are not
    `place` records**: they stay in their own browser storage, and the
    notebook lists them beside the ribbons. Only a ribbon is a `place`
@@ -848,17 +849,18 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   (2026-10-12): the later deletion with the newer content. Built that way;
   **confirmed by BDR, 2026-10-23**, with the three details under "Clocks".
 - **Notes on glossary entries and articles** (STUDY-DESK.md, N11; BVJ,
-  2026-10-06). **Built provisionally on the website's preview
-  (2026-10-08)**: the two targets under kind 2, the rule against renaming
-  an article silently (`src/data/article-slugs.json`), and "Anchor text for
-  prose". All three are the website's proposals for draft 2, for BVJ to
-  confirm. **Website only** unless BDR changes the apps. Until then the apps
+  2026-10-06). **Not in version 1** (BVJ, 2026-10-29; maybe in version
+  2). Built provisionally on the website's preview (2026-10-08): the two
+  targets under kind 2, the rule against renaming an article silently
+  (`src/data/article-slugs.json`), and "Anchor text for prose". They stay
+  described here for version 2, and draft 2 doesn't need them. **Website only** unless BDR changes the apps. Until then the apps
   carry these records untouched (principle 6), as they would any target
   they don't know.
 - ~~**Notes on a footnote** (M11; kind 2)~~: the fields (`footnote` and `n`,
   as kind 11 has them; built on the preview 2026-10-20) **confirmed by BDR,
   2026-10-23**.
-- Whether reading places sync (kind 5).
+- ~~Whether reading places sync (kind 5)~~: **not in version 1** (BVJ,
+  2026-10-29; maybe in version 2). See kind 5.
 - ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
   "Sheets (kind 9)".
 - Each store's exact mapping, once plan A or C is chosen.

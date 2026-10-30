@@ -33,7 +33,7 @@
 // localStorage['lit-desk-tab'] and used wherever the page has it.
 //
 // The foot belongs to My Notes and shows only with it: the "Notes in the margin",
-// Handwriting / Plain, "My bookmarks" and "Hide my notes" switches (the same
+// Handwriting / Plain, "My bookmarks" and "Hide my marks" switches (the same
 // settings as the Display tray's), "Reset widths" while the reader has
 // dragged any, and where the notebook is kept. (The list's "Open all" is
 // My Notes' own, above its list.)
@@ -442,7 +442,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   // The margin's switches only mean something where the margin is: all of
   // them on a Study View chapter, "My bookmarks" alone in Read View, and the
-  // notes' two on an article or the glossary (N11). "Hide my notes" (M1)
+  // notes' two on an article or the glossary (N11). "Hide my marks" (M1)
   // goes with any of them.
   const slot = panel.querySelector(".desk-panel__settings-slot");
   if (here) {

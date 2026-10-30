@@ -17,7 +17,7 @@
 //     hidden by default. `highlightSetting()` names the one this page uses;
 //   - whether the Notebook panel's list shows notes in full or at two lines
 //     (two lines by default);
-//   - "Hide my notes" (M1; decision 8 under "the margin switch"), which hides
+//   - "Hide my marks" (M1; decision 8 under "the margin switch"), which hides
 //     everything of the reader's at once, for sharing a screen: it remembers
 //     "Notes in the margin", "My bookmarks" and both views' highlights, turns them off,
 //     and puts them back when it is turned off. It is no setting of its own,
@@ -48,7 +48,7 @@ const SETTINGS = {
 
 export const SETTINGS_EVENT = "desk:settings";
 
-/** Sent when "Hide my notes" hides or shows everything: { hidden, from }. */
+/** Sent when "Hide my marks" hides or shows everything: { hidden, from }. */
 export const HIDE_EVENT = "desk:hide";
 const HIDE_KEY = "lit-desk-hide";
 // What M1 hides. Both views' highlights go, whichever view it is pressed in,
@@ -137,7 +137,7 @@ let uid = 0;
 
 /**
  * The "Notes in the margin" box, the Handwriting / Plain choice, the "My bookmarks" box,
- * the "My highlights" box and the "Hide my notes" box, as controls that
+ * the "My highlights" box and the "Hide my marks" box, as controls that
  * follow their settings wherever they change. `classes` names the host's own
  * styles, so the same controls sit naturally in the tray and in the panel,
  * and `from` names the host.
@@ -170,7 +170,7 @@ function noteControls(classes) {
   const hide = document.createElement("label");
   hide.className = classes.check;
   hide.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHideCheck${n}" aria-keyshortcuts="h" />
-    <span class="${classes.checkLabel}">Hide my notes</span>`;
+    <span class="${classes.checkLabel}">Hide my marks</span>`;
   const hideBox = hide.querySelector("input");
   hideBox.addEventListener("change", () => setHideAll(hideBox.checked, { from: classes.from }));
 
@@ -204,7 +204,7 @@ function noteControls(classes) {
 
 /**
  * The controls in the Display tray's Show group: all of them on a Study View
- * chapter, only "My bookmarks", "My highlights" and "Hide my notes" in
+ * chapter, only "My bookmarks", "My highlights" and "Hide my marks" in
  * Read View, which shows no notes, and "My highlights" alone on /desk. Also H
  * and Ctrl+Z in the tray's list of keys, and on a chapter a line under the Show group saying that a selection
  * reaches the same actions as a verse number (audit C10: hiding the numbers
@@ -283,7 +283,7 @@ function injectIntoTray() {
 /**
  * An article or the glossary (N11) has no Show group in the tray, since it
  * has no verse numbers, so the notes' switches get one of their own, before
- * the Keyboard group: "Notes in the margin" and "Hide my notes", then the lettering.
+ * the Keyboard group: "Notes in the margin" and "Hide my marks", then the lettering.
  */
 function injectProseShow() {
   const tray = document.getElementById("fontTray");
@@ -317,7 +317,7 @@ function addKeyLines() {
   const keys = document.getElementById("fontTrayKeys");
   if (!keys) return;
   for (const html of [
-    "<kbd>h</kbd> Hide or show my notes",
+    "<kbd>h</kbd> Hide or show my marks",
     `<kbd>${undoModifier()}</kbd> <kbd>Z</kbd> Undo a change to my notebook`,
   ]) {
     const li = document.createElement("li");
@@ -329,7 +329,7 @@ function addKeyLines() {
 
 /**
  * The same controls for the Notebook panel's foot; with `notes: false`
- * (Read View), only "My bookmarks", "My highlights" and "Hide my notes"; with
+ * (Read View), only "My bookmarks", "My highlights" and "Hide my marks"; with
  * `bookmarks: false` (an article or the glossary, where nothing is
  * bookmarked or highlighted), all but "My bookmarks" and "My highlights".
  * `highlights` says it outright where a caller needs to; left out, it

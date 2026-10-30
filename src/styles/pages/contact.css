@@ -84,7 +84,9 @@
 .field textarea,
 .field select {
   width: 100%;
-  border: none;
+  /* The site's field edge (BA144; BVJ, 2026-10-29): the fill is only 1.28:1
+     on cream, so without it the field's only edge was the shadow. */
+  border: 1px solid var(--field-border);
   border-radius: 10px;
 
   background: var(--surface-raised);
