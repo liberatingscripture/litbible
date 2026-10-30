@@ -2463,8 +2463,11 @@ to write” ran the ruled margin unbroken down every page. On a sheet, Leader
 only left the participant copy (its code moving to the passage left), and the
 page break and the space printed on both copies. The source-text notice's
 last three lines took a fifth page of their own in the room-to-write print, as
-the text fell on Letter; not a finding. Still to check: a highlight's tint on
-paper (none was in this print), a printed code scanned by phone, and A4.
+the text fell on Letter; not a finding. A second print with a green highlight
+on Romans 8:3 printed its tint, broken into pieces at each footnote letter
+(the marks wrap the words and leave the letters out), which leaves thin white
+gaps in the band; cosmetic, raised with BVJ. Still to check: a printed code
+scanned by phone, and A4.
 
 Items 1, 3 and Safari's half of 6 go to BDR, who has a
 Mac; BVJ is testing item 5, a print to paper, the contrast theme, the
