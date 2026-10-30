@@ -389,6 +389,11 @@ if (headerKind === "chapter") {
         justify-content: flex-end;
       }
 
+      /* Gone while the Study Desk preview is on (BVJ, 2026-10-29). */
+      :global(html[data-desk]) .reading-view-right {
+        display: none;
+      }
+
       /* Mirror the ReadMenu picker's trigger so the two ends of the tools bar
          read as one design family. --green-text flips to a LIGHT green in dark
          mode (it's a text token), so where we use it as the hover fill it needs

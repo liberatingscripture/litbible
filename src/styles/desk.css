@@ -141,7 +141,6 @@
 }
 
 .desk-panel__collapse,
-.desk-panel__close,
 .desk-undo__close {
   display: inline-flex;
   align-items: center;
@@ -156,15 +155,32 @@
 }
 
 /* » minimizes the notebook to its tab at the window's edge, in the margin
-   and floating alike (BVJ, 2026-10-09); × closes it. */
-.desk-panel__collapse {
-  margin-left: auto;
-}
-
+   and floating alike (BVJ, 2026-10-09). It has no close (BVJ, 2026-10-29). */
 .desk-panel__collapse:hover,
-.desk-panel__close:hover,
 .desk-undo__close:hover {
   background: rgba(var(--ink-rgb), 0.08);
+}
+
+/* The link to /desk, icon only (the panel is narrow), right of the title and
+   badge (BVJ, 2026-10-29), the header's Study Desk button in small. */
+.desk-panel__desk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 1.5px solid rgba(var(--ink-rgb), 0.45);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.desk-panel__desk:hover {
+  background: var(--green-text);
+  border-color: transparent;
+  color: var(--on-green-fill);
 }
 
 /* ── Tabs ── */
@@ -283,22 +299,16 @@ a.desk-item__ref:hover {
   color: rgba(var(--ink-rgb), 0.7);
 }
 
-/* ── The foot ── */
+/* ── The Settings tab (what was My Notes' foot) ── */
 
-.desk-panel__foot {
+.desk-panel__settings {
   padding: 10px 16px 14px;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   color: rgba(var(--ink-rgb), 0.72);
   font-size: 0.8125rem;
 }
 
-.desk-panel__foot p {
+.desk-panel__settings p {
   margin: 0;
-}
-
-/* The foot belongs to the My Notes tab alone. */
-.desk-panel__foot[hidden] {
-  display: none;
 }
 
 /* ── The undo bar ──────────────────────────────────────────────── */
