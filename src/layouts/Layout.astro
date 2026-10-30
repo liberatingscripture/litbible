@@ -9,7 +9,7 @@ import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 import AppInstallBanner from "../components/AppInstallBanner.astro";
 import { APP_PLATFORM_UA } from "../lib/app-platform.mjs";
 import { EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH } from "../lib/desk-margin.mjs";
-import { contentVersion } from "../lib/content-version.mjs";
+import { contentUpdated, contentVersion } from "../lib/content-version.mjs";
 
 const {
   title = "Liberation and Inclusion Translation",
@@ -68,7 +68,7 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
 ---
 
 <!doctype html>
-<html lang="en" data-content-version={contentVersion()}>
+<html lang="en" data-content-version={contentVersion()} data-content-updated={contentUpdated()}>
   <head>
     <meta charset="utf-8" />
     <!-- Apply the saved reader font before first paint to avoid a flash of the default font.

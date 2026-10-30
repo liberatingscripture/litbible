@@ -364,7 +364,9 @@ export async function renderCopy(sheet, { copy, codes = true }) {
   const foot = make("footer", "sheet-copy__foot");
   foot.append(make("p", "sheet-copy__credit", LIT_CREDIT_LINE));
   if (chapters.length) foot.append(make("p", "sheet-copy__addresses", chapters.map((c) => c.printable).join(" · ")));
-  const asOf = textAsOfLine(newestVersion([...views.values()].filter((v) => v.ok).map((v) => v.contentVersion)));
+  const read = [...views.values()].filter((v) => v.ok);
+  const newest = newestVersion(read.map((v) => v.contentVersion));
+  const asOf = textAsOfLine(newest, read.find((v) => v.contentVersion === newest)?.contentUpdated);
   if (asOf) foot.append(make("p", "sheet-copy__as-of", asOf));
   article.append(foot);
   return article;

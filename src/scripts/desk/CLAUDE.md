@@ -150,7 +150,11 @@ that section.
   5. **Records name the text they were made on** through
      `<html data-content-version>`, which Layout.astro reads at build from
      `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"
-     in dev before a build).
+     in dev before a build). The same file's `updatedAt` goes on
+     `<html data-content-updated>`: the version's day is the build's UTC
+     day, so a sheet's "Text as of" line names the build time's day in the
+     reader's time zone instead (`textDay`, `desk-sheet-check.mjs`).
+     Records never read it.
      **Every record read comes through `migrateRecord`** (`desk-records.mjs`):
      the store's reads (`current` in `desk/store.js`, the history's "before"
      included), `desk/readonly-notebook.js`, an import (`planImport`) and the
@@ -961,7 +965,8 @@ that section.
        through N3's `wordingChanged` (typography folded), judging a quoted
        passage on its own words only; `freshCopy` is what "Keep the new
        wording" writes; `textAsOfLine` is the copy's "Text as of" line from a
-       content version. `readPassage` (`desk/sheet-lit.js`) carries the
+       content version and its build time (`textDay`: the reader's day,
+       not the build's UTC day). `readPassage` (`desk/sheet-lit.js`) carries the
        check as `check`, and the source's `contentVersion` (read off the
        fetched page's `<html>` by `chapter-page.js`).
      - **The Sheet pane writes one thing the reader didn't ask for**: a
