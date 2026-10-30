@@ -2472,9 +2472,12 @@ also found /desk had no way to print a chapter; it now has a Print menu
 (STUDY-DESK.md, Decisions, 2026-10-29). Still to check: a printed code
 scanned by phone, and A4.
 
+**A real Windows contrast theme: passed** (BVJ, 2026-10-29): the desk
+works in it. This closes the real-theme checks left on BA148 and BA149.
+
 Items 1, 3 and Safari's half of 6 go to BDR, who has a
-Mac; BVJ is testing item 5, a print to paper, the contrast theme, the
-sheet's modules on paper and Duplicate tab.
+Mac; BVJ is testing item 5 and Duplicate tab (a print to paper, the
+contrast theme and the sheet's modules on paper have passed).
 
 - **BA146 (medium, print; seen in Firefox). “Print with my notes” prints no
   highlights in Firefox.**
@@ -2529,7 +2532,8 @@ sheet's modules on paper and Duplicate tab.
   - *Check*: the emulation in both themes, and a real Windows contrast theme.
   - Status: fixed in FA1-ae (#411): `forced-color-adjust: none` on the chosen
     label (and no inset band on its focus ring). Checked in Chrome's
-    emulation in both themes; a real Windows contrast theme is still BVJ's.
+    emulation in both themes; a real Windows contrast theme passed (BVJ,
+    2026-10-29).
 - **BA149 (medium, a11y; seen in Chrome's forced-colors emulation). The
   header's Menu button vanishes in forced colors.**
   - *What happens*: its three bars are backgrounds (`var(--text)`), which
