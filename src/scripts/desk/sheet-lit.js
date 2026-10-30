@@ -113,7 +113,8 @@ function footnotePositions(source, chapter) {
 /**
  * A passage module read against today's chapter: { ok: true, source, chapter,
  * at, check (S2: whether its wording changed since it was added, from
- * desk-sheet-check.mjs), contentVersion (the text's), marks (the term marks
+ * desk-sheet-check.mjs), contentVersion (the text's) and contentUpdated (its
+ * build time), marks (the term marks
  * in it), terms, list, footnoteIds, labels } or { ok: false, message }.
  */
 export async function readPassage(m) {
@@ -142,6 +143,8 @@ export async function readPassage(m) {
     at,
     check: passageCheck(facts.chapter, m),
     contentVersion: source.contentVersion ?? document.documentElement.dataset.contentVersion ?? null,
+    // The build time that goes with contentVersion, from the same page.
+    contentUpdated: source.contentVersion ? (source.contentUpdated ?? null) : (document.documentElement.dataset.contentUpdated ?? null),
     marks: marksInRange(facts.marks, at.start, at.end),
     allMarks: facts.marks,
     terms: facts.terms,

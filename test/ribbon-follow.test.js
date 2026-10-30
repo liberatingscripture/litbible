@@ -17,8 +17,36 @@ function storage(entries = {}) {
   };
 }
 
-/** A tab on `path`, sharing `session` (sessionStorage) and `local` across its pages. */
-function tab(path, { session = storage(), local = storage() } = {}) {
+/**
+ * A BroadcastChannel shared by the pages given it: a page's message reaches
+ * every other page's channel of that name a turn later, never its own.
+ */
+function bus() {
+  const open = new Set();
+  return class FakeChannel {
+    constructor(name) {
+      this.name = name;
+      this.listeners = [];
+      open.add(this);
+    }
+    addEventListener(type, fn) {
+      if (type === "message") this.listeners.push(fn);
+    }
+    postMessage(data) {
+      for (const c of open) {
+        if (c !== this && c.name === this.name) setTimeout(() => c.listeners.forEach((fn) => fn({ data: structuredClone(data) })), 0);
+      }
+    }
+  };
+}
+
+/**
+ * A tab on `path`, sharing `session` (sessionStorage) and `local` across its
+ * pages. Without `channel` the page has no BroadcastChannel, so it doesn't
+ * wait to learn whether it is a duplicate (Node's own would keep the test
+ * process open).
+ */
+function tab(path, { session = storage(), local = storage(), channel } = {}) {
   const win = new EventTarget();
   const origin = "https://litbible.net";
   Object.assign(win, {
@@ -29,11 +57,12 @@ function tab(path, { session = storage(), local = storage() } = {}) {
     clearTimeout: (t) => clearTimeout(t),
   });
   globalThis.window = win;
+  globalThis.BroadcastChannel = channel;
   globalThis.document = {
     documentElement: { dataset: {}, hasAttribute: () => false },
     querySelector: () => null,
   };
-  return { session, local };
+  return { session, local, win };
 }
 
 /**
@@ -224,4 +253,58 @@ test("a deleted ribbon stops following", async () => {
   await settle();
   assert.equal(store.writes.length, 0);
   assert.equal(session.getItem("lit-desk-ribbon"), null);
+});
+
+/* ── One tab follows (BVJ's Duplicate tab check, 2026-10-29) ─────────── */
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const tabFlag = (r, tabToken) => JSON.stringify({ id: r.id, bookKey: r.bookKey, tab: tabToken });
+
+test("a duplicated tab finds its original following and doesn't move the ribbon", async () => {
+  const channel = bus();
+  const store = fakeStore([ribbon()]);
+  const a = tab("/romans-8/", { session: storage({ "lit-desk-ribbon": tabFlag(ribbon(), "T1") }), channel });
+  const pageA = await loadFollower();
+  pageA.initRibbonFollow({ store, ctx });
+  await wait(300); // nobody holds T1: the original keeps following
+  const before = store.map.get("r1");
+
+  // Duplicate tab: session storage copied, flag and token with it.
+  const b = tab("/romans-9/", { session: storage({ "lit-desk-ribbon": tabFlag(ribbon(), "T1") }), channel });
+  const pageB = await loadFollower();
+  pageB.initRibbonFollow({ store, ctx });
+  saveLastRead({ book: "romans", chapter: 9, verse: 5, view: "study" });
+  await wait(300);
+  assert.equal(b.session.getItem("lit-desk-ribbon"), null, "the copy drops the flag");
+  assert.equal(store.map.get("r1").chapter, before.chapter, "and the ribbon stays where the original put it");
+  assert.ok(a.session.getItem("lit-desk-ribbon"), "the original keeps following");
+});
+
+test("opening a ribbon's link in another tab takes it over", async () => {
+  const channel = bus();
+  const store = fakeStore([ribbon()]);
+  const a = tab("/romans-8/", { session: storage({ "lit-desk-ribbon": tabFlag(ribbon(), "T1") }), channel });
+  const pageA = await loadFollower();
+  pageA.initRibbonFollow({ store, ctx });
+  await wait(300);
+
+  const b = tab("/romans-12/", { channel });
+  const pageB = await loadFollower();
+  pageB.initRibbonFollow({ store, ctx });
+  pageB.followRibbon(ribbon(), "/romans-8/#v30");
+  const taken = JSON.parse(b.session.getItem("lit-desk-ribbon"));
+  assert.ok(taken.tab && taken.tab !== "T1", "the new tab has its own token");
+  globalThis.window = a.win; // the first tab hears the announcement
+  await wait(50);
+  assert.equal(a.session.getItem("lit-desk-ribbon"), null, "the first tab stops following");
+});
+
+test("a flag stored before tokens gets one, and still follows", async () => {
+  const session = storage({ "lit-desk-ribbon": flagFor(ribbon()) });
+  tab("/romans-8/", { session, channel: bus() });
+  const { initRibbonFollow } = await loadFollower();
+  initRibbonFollow({ store: fakeStore([ribbon()]), ctx });
+  const f = JSON.parse(session.getItem("lit-desk-ribbon"));
+  assert.equal(f.id, "r1");
+  assert.ok(typeof f.tab === "string" && f.tab);
 });

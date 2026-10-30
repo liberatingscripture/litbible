@@ -39,14 +39,6 @@ export const COMMANDS = Object.freeze([
     hint: "On this page",
   },
   {
-    id: "close-notebook",
-    name: () => "Close the Notebook",
-    keywords: ["panel"],
-    needs: "surface",
-    show: (ctx) => ctx.panelOpen,
-    hint: "On this page",
-  },
-  {
     id: "show-my-notes",
     name: () => "Show My Notes",
     keywords: ["list", "mine"],

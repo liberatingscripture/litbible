@@ -151,7 +151,7 @@ are recorded so they aren't re-argued.
   (BA89); New Testament names match in any case and in common short forms
   (“john 3:16,” “Jn 3:16,” “1Cor 13:4”), a period may separate chapter and
   verse, and a range into a later chapter chains every verse in the span
-  (BA94, whose set of short names awaits BVJ's confirmation); “Mentioned
+  (BA94, whose short names BVJ confirmed on 2026-10-29 as one list shared with the search bar's jump); “Mentioned
   in your note on…” lists the notes in Bible order (BA93); and a note of
   40,000 spaces draws in about 2 ms, not 3.5 s (BA95).
   FA1-y is done (#405): a ribbon that follows the reader moves only to
@@ -5948,8 +5948,27 @@ BVJ answered a round of the open questions in this file and the audit:
   (FA1-ad's question), `--field-border` beside their shadow.
 - **The merge rules' last pieces** were confirmed by BDR on 2026-10-23; the
   "Still open" entry now says so.
-- **BA94's short names: not yet confirmed.** BVJ asked first how they
-  compare with the search bar's jump-to aliases (`search-core.js`).
+- **BA94's short names: one list, shared with the search bar's jump**
+  (BVJ, after seeing how they compared). `BOOK_SHORT_NAMES` in
+  `src/data/books.js` feeds both, so notes gained Ac, Act, Jud and Re, and
+  the jump gained Mat, Philem, 1 and 2 Pt, Rv and "Revelations". The
+  differences of form stay: a note needs a verse after a short name, and a
+  comma in a note lists verses rather than separating chapter and verse.
+
+### 2026-10-29 (printing: a highlight on paper, and /desk)
+
+From BVJ's own print test (FA1-v, item 6):
+
+- **A highlight prints as one band through its footnote letters**: a
+  superscript inside the highlight is marked whole, from outside, where
+  marking inside it tinted only the raised letter and left a notch.
+- **/desk can print a chapter** (BVJ: "there's currently no way to prompt
+  'print this chapter'… from /desk"). A **Print** menu beside Layout names
+  the leading LIT pane's chapter and offers it plainly, with my notes, or
+  with room to write. Each opens the chapter's Study View page in a new
+  tab, which prints itself, as a sheet's "Print or share…" opens its own
+  page; the Study View page is what print.css and both prints are built
+  for. A draft chapter offers nothing to print.
 
 ### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's two calls)
 
@@ -6004,7 +6023,13 @@ One thing the browser check showed, for BVJ:
   was true before FA1-y, about four seconds later; BA99's fix only stops
   the reader's *old* place being written. Should a ribbon opened and not
   read stay where it was, E9's bookmarks that follow the reader are the
-  place to decide it.
+  place to decide it. **Answered 2026-10-29** (BVJ, testing a following
+  ribbon: "1/3 down the screen isn't right. It should be at the top of the
+  screen, or about 10% down"): the reading line (`last-read.js`) is now 10%
+  of the way down, and never above where a link puts a verse's number, so
+  an opened ribbon stays at its verse. It is the one line for Continue
+  reading, Read View's record, a following ribbon, and the Greek and Verse
+  tabs. The /desk LIT pane keeps its own line, a quarter of the way down.
 - **New sentences a reader can see**: “That ribbon has been deleted.”
   (renaming or moving a ribbon removed meanwhile); “You already have six
   ribbons. Move one of them here instead.” (the limit reached while a new
@@ -6019,7 +6044,8 @@ below are **recommendations the phase acted on, not decisions**: BVJ is
 asked to confirm or change them.
 
 - **BA94, the short names and the verse rule** (a recommendation, for BVJ to
-  confirm or change). In a note, a New Testament book matches in any case,
+  confirm or change). **Confirmed 2026-10-29**, as one list shared with the
+  search bar's jump (decision log, that day). In a note, a New Testament book matches in any case,
   and in these short forms (`NOTE_SHORT_NAMES` in `scripture-refs.mjs`),
   with the space after a book's number optional (“1Cor”): Mt and Mat;
   Mk and Mrk; Lk and Luk; Jn and Jhn; Ro; 1 Co and 2 Co; Php; 1 Th, 1 Thes,

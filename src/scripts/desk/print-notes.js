@@ -57,12 +57,33 @@ import { fillNoteWords } from "./note-words.js";
 import { chapterBlocks, chapterTextFor, footnoteList, pageChapter, readBook, readChapterBlocks } from "./page.js";
 import { printLook } from "./print-look.js";
 
-/** The text nodes a range covers, each with the part of it inside the range. */
+/** Whether a range holds the whole of an element. */
+function holds(range, el) {
+  const whole = document.createRange();
+  whole.selectNode(el);
+  return range.compareBoundaryPoints(Range.START_TO_START, whole) <= 0
+    && range.compareBoundaryPoints(Range.END_TO_END, whole) >= 0;
+}
+
+/**
+ * The text nodes a range covers, each with the part of it inside the range,
+ * and the superscripts it holds whole (a footnote letter or verse number in
+ * the middle of a highlight). A superscript is marked whole, from outside: a
+ * mark inside it is tinted only as tall as the small raised letter, which
+ * left a white notch in the band at every letter (BVJ, 2026-10-29).
+ */
 function textPieces(range) {
   const root = range.commonAncestorContainer;
   const pieces = [];
+  const lifted = new Set();
   const take = (node) => {
     if (!range.intersectsNode(node)) return;
+    const sup = root.nodeType === Node.TEXT_NODE ? null : node.parentElement?.closest("sup");
+    if (sup && root.contains(sup) && sup !== root && holds(range, sup)) {
+      if (!lifted.has(sup)) pieces.push({ element: sup });
+      lifted.add(sup);
+      return;
+    }
     const start = node === range.startContainer ? range.startOffset : 0;
     const end = node === range.endContainer ? range.endOffset : node.length;
     // Whitespace between blocks would become a stray box in the print grid.
@@ -82,9 +103,18 @@ function textPieces(range) {
  * so anything holding that node (the anchor reader) finds it as it was.
  *
  * @param {Map<Text, { start: number, end: number, color: string }[]>} byNode
+ * @param {Map<Element, string>} byElement superscripts marked whole, moved
+ *   into a mark and back, never changed
  */
-function wrapMarks(byNode) {
+function wrapMarks(byNode, byElement = new Map()) {
   const marks = [];
+  for (const [el, color] of byElement) {
+    const mark = document.createElement("mark");
+    mark.className = `desk-print-mark desk-print-mark--${color}`;
+    el.before(mark);
+    mark.append(el);
+    marks.push(mark);
+  }
   const joins = []; // [original node, the nodes split off it, in order]
   for (const [node, wanted] of byNode) {
     const pieces = markPieces(node.length, wanted);
@@ -326,6 +356,7 @@ export function createPrintNotes({ store }) {
     // range is found before any node is split, since splitting moves the
     // offsets the anchor text maps to.
     const byNode = new Map();
+    const byElement = new Map(); // a superscript held whole -> its colour
     for (const r of marks) {
       if (!COLORS.includes(r.color)) continue;
       const c = chapterOf(r.chapter);
@@ -339,7 +370,11 @@ export function createPrintNotes({ store }) {
         range.setStart(pts.startContainer, pts.startOffset);
         range.setEnd(pts.endContainer, pts.endOffset);
         if (range.collapsed) continue;
-        for (const { node, start, end } of textPieces(range)) {
+        for (const { node, start, end, element } of textPieces(range)) {
+          if (element) {
+            if (!byElement.has(element)) byElement.set(element, r.color);
+            continue;
+          }
           if (!byNode.has(node)) byNode.set(node, []);
           byNode.get(node).push({ start, end, color: r.color });
         }
@@ -347,7 +382,7 @@ export function createPrintNotes({ store }) {
         // One highlight that can't be placed mustn't take the others'.
       }
     }
-    const unmark = wrapMarks(byNode);
+    const unmark = wrapMarks(byNode, byElement);
 
     const noteText = allNotes.map((r) => `${r.body ?? ""} ${recordReference(r)}`).join(" ");
     return {

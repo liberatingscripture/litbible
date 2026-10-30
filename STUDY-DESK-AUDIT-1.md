@@ -1581,7 +1581,7 @@ chapters, intros, glossary, articles) rightly yield none.
   - *Where*: `scripture-refs.mjs:66–80, 150–190`; `desk-chains.mjs:47`.
   - *Fix*: the reader mode of BA89, accepting any case and common short
     names, and a cross-chapter span in `citedRefs`.
-  - Status: **Fixed in #402** (FA1-x), in note mode, except that the set of short names awaits BVJ's confirmation (STUDY-DESK.md, Decisions, 2026-10-28). New Testament names match in any case and in common short forms (“john 3:16,” “rom 8:28,” “Jn 3:16,” “Mt 5:3,” “1Cor 13:4,” “Revelations”), and a period may separate chapter and verse (“Gal 3.28”). A name not written as the site writes it links only with a verse, so “mark 3 places” stays plain. Hebrew Bible and apocrypha names stay exact-case, so a lowercase “is 3:15” is not Isaiah. A range into a later chapter carries its end on the link as `data-end` (“John 3:16–4:2,” “Hebrews 6–9”), and `citedRefs` lists it chapter by chapter. Tested in `test/scripture-refs.test.js` and `test/desk-chains.test.js`.
+  - Status: **Fixed in #402** (FA1-x), in note mode, and the set of short names is confirmed (BVJ, 2026-10-29) as one list shared with the search bar's jump, `BOOK_SHORT_NAMES` in `books.js` (STUDY-DESK.md, Decisions, 2026-10-29). New Testament names match in any case and in common short forms (“john 3:16,” “rom 8:28,” “Jn 3:16,” “Mt 5:3,” “1Cor 13:4,” “Revelations”), and a period may separate chapter and verse (“Gal 3.28”). A name not written as the site writes it links only with a verse, so “mark 3 places” stays plain. Hebrew Bible and apocrypha names stay exact-case, so a lowercase “is 3:15” is not Isaiah. A range into a later chapter carries its end on the link as `data-end` (“John 3:16–4:2,” “Hebrews 6–9”), and `citedRefs` lists it chapter by chapter. Tested in `test/scripture-refs.test.js` and `test/desk-chains.test.js`.
 - **BA95 (low, performance; reproduced). A long run of spaces in a note stalls
   the page.**
   - *What happens*: the linker's lookbehind rescans a whole whitespace run
@@ -2451,6 +2451,61 @@ window opened from the Greek tab (BA147 was seen from /search), a real
 Windows contrast theme (BA149 and BA150 were seen in Chrome's emulation),
 and a sheet's Leader only, page break and space modules on paper.
 
+**Item 4, two screens: passed** (BVJ, 2026-10-29, Chrome on Windows). The
+presenter view put the room's window on the second screen. The only prompt
+was Chrome asking once for permission to use the screens; later tries
+didn't ask again.
+
+**Item 6 in Chrome, through the real print dialog: passed** (BVJ,
+2026-10-29, PDFs on Letter). “Print with my notes” put the note on Romans
+8:5 beside its block, with clean breaks and the credit line; “Print with room
+to write” ran the ruled margin unbroken down every page. On a sheet, Leader
+only left the participant copy (its code moving to the passage left), and the
+page break and the space printed on both copies. The source-text notice's
+last three lines took a fifth page of their own in the room-to-write print, as
+the text fell on Letter; not a finding. A second print with a green highlight
+on Romans 8:3 printed its tint, broken into pieces at each footnote letter
+(the marks wrap the words and leave the letters out), which leaves thin white
+gaps in the band; cosmetic. **Fixed the same day** (BVJ asked for one band):
+a superscript the highlight holds whole is marked from outside. The test
+also found /desk had no way to print a chapter; it now has a Print menu
+(STUDY-DESK.md, Decisions, 2026-10-29). **A printed code scanned by phone
+opens its chapter, and A4 passed** (BVJ, 2026-10-29: a leader copy on A4,
+with the code, Leader only, a page break and two space modules, all in
+place). That print's “Text as of October 30, 2026,” made at 9:07 PM on
+October 29, is a day ahead: the content version's day is the build's UTC
+day (`build-api-manifest.mjs`), and the 7:09 PM Pacific publish was already
+October 30 in UTC. **Fixed the same day** (BVJ chose it): the page also
+carries the build's time (`<html data-content-updated>`), and the line names
+that time's day in the reader's time zone (`textDay`); the version stamp the
+apps compare is unchanged.
+
+**Item 5, a touchscreen computer: passed** (BVJ, 2026-10-29, Chrome on
+Windows). A finger selection beside the expanded Notebook opens its panel
+clear of the Notebook and of Windows' Copy bubble, near the top and the
+bottom, and a panel already open moves left when the Notebook expands
+(BA28). The verse menu by touch opens as the chip card beside its number,
+drags by its header, extends to a range, and closes on its × or a tap
+elsewhere.
+
+**Duplicate tab with a ribbon following: copied the follow, now fixed**
+(BVJ, 2026-10-29, Chrome). The duplicate carried the flag (session storage
+is copied), and both tabs moved the ribbon, each to wherever it was read
+last. Fixed the same day: the flag names its tab, a duplicate finds the
+original holding that name on a BroadcastChannel and stops following, and
+opening a ribbon's link in another tab takes the ribbon over from the first
+(`ribbon-follow.js`; `loseRibbon` in `desk-places.mjs`). Checked in the
+browser pane with a copied flag (the copy dropped it, the ribbon stayed with
+the original) and with the link opened in a second tab (the first let go).
+
+**A real Windows contrast theme: passed** (BVJ, 2026-10-29): the desk
+works in it. This closes the real-theme checks left on BA148 and BA149.
+
+Items 1, 3 and Safari's half of 6 go to BDR, who has a
+Mac; BVJ's checks have run (item 5, a print to paper, the contrast theme,
+the sheet's modules on paper, a scanned code, A4 and Duplicate tab). Left
+for BVJ: Duplicate tab again after its fix, and /desk's Print menu.
+
 - **BA146 (medium, print; seen in Firefox). “Print with my notes” prints no
   highlights in Firefox.**
   - *What happens*: the print highlights are registered and
@@ -2504,7 +2559,8 @@ and a sheet's Leader only, page break and space modules on paper.
   - *Check*: the emulation in both themes, and a real Windows contrast theme.
   - Status: fixed in FA1-ae (#411): `forced-color-adjust: none` on the chosen
     label (and no inset band on its focus ring). Checked in Chrome's
-    emulation in both themes; a real Windows contrast theme is still BVJ's.
+    emulation in both themes; a real Windows contrast theme passed (BVJ,
+    2026-10-29).
 - **BA149 (medium, a11y; seen in Chrome's forced-colors emulation). The
   header's Menu button vanishes in forced colors.**
   - *What happens*: its three bars are backgrounds (`var(--text)`), which

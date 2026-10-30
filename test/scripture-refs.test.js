@@ -347,6 +347,10 @@ test("note mode: New Testament names match in any case and in short forms (BA94)
     ["1 cor 13:4", "/1corinthians-13/#v4"],
     ["1John 4:8", "/1john-4/#v8"],
     ["Revelations 21:4", "/revelation-21/#v4"],
+    ["Ac 2:38", "/acts-2/#v38"],
+    ["act 2:38", "/acts-2/#v38"],
+    ["Jud 1:3", "/jude-1/#v3"],
+    ["Re 21:4", "/revelation-21/#v4"],
   ];
   for (const [text, href] of cases) assert.deepEqual(noteRefs(text), [[text, href]], text);
 });
@@ -360,6 +364,8 @@ test("note mode: a name not written as the site writes it needs a verse (BA94)",
   assert.equal(noteLink("mark 3 places"), "mark 3 places");
   assert.equal(noteLink("jn 3"), "jn 3");
   assert.equal(noteLink("rom 8"), "rom 8");
+  assert.equal(noteLink("Act 2 of the play"), "Act 2 of the play");
+  assert.equal(noteLink("there are 3:16 left"), "there are 3:16 left", "\"re\" inside a word is not Revelation");
   assert.deepEqual(noteRefs("Mark 3"), [["Mark 3", "/mark-3/"]], "the site's own spelling still links the chapter");
 });
 

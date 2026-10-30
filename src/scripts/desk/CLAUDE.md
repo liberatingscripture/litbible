@@ -150,7 +150,11 @@ that section.
   5. **Records name the text they were made on** through
      `<html data-content-version>`, which Layout.astro reads at build from
      `public/api/version.json` (`src/lib/content-version.mjs`; "unversioned"
-     in dev before a build).
+     in dev before a build). The same file's `updatedAt` goes on
+     `<html data-content-updated>`: the version's day is the build's UTC
+     day, so a sheet's "Text as of" line names the build time's day in the
+     reader's time zone instead (`textDay`, `desk-sheet-check.mjs`).
+     Records never read it.
      **Every record read comes through `migrateRecord`** (`desk-records.mjs`):
      the store's reads (`current` in `desk/store.js`, the history's "before"
      included), `desk/readonly-notebook.js`, an import (`planImport`) and the
@@ -393,7 +397,13 @@ that section.
        every tab shares and an earlier page left (BA99, BA100). Following a
        link forgets where the reader was, and a link to another page stops
        the page it leaves from moving the ribbon. The follower's move is
-       one `store.change` too. **Making, renaming and moving a ribbon read the
+       one `store.change` too. **One tab follows a ribbon at a time**
+       (BVJ's Duplicate tab check, 2026-10-29): Duplicate tab copies
+       session storage, so the flag carries the tab's token, and a page that
+       loads with it asks on `RIBBON_TAB_CHANNEL` whether a live page holds
+       that token; an answer makes this tab the copy, which drops the flag.
+       Following a link announces it, and any other tab following that
+       ribbon stops (`loseRibbon`, `desk-places.mjs`). **Making, renaming and moving a ribbon read the
        record and write it in one `store.change`** (`desk-ribbon-change.mjs`,
        pure and unit-tested; BA102): a ribbon deleted meanwhile is reported,
        not brought back, and the name and the six-ribbon limit are checked
@@ -836,11 +846,22 @@ that section.
        so no reader of the page sees it), wraps each highlighted run in a
        print-only `mark.desk-print-mark--<colour>`, and undoes all of it on
        `afterprint`, joining every split text node back into the original
-       node. **Not Custom Highlights**: Firefox prints a copy of the page that
+       node. **A superscript the highlight holds whole (a footnote letter, a
+       verse number) is moved into a mark of its own, never marked inside**
+       (BVJ, 2026-10-29): a mark inside the raised letter is tinted only as
+       tall as the letter, which notched the band at every letter. **Not Custom Highlights**: Firefox prints a copy of the page that
        leaves them behind (BA146). **Not a grid**: `desk.css` floats each
        aside right beside its block, because Firefox moves a whole grid row
        to the next page (BA151). Plain Ctrl+P never has the attribute and
        prints as before.
+     - **/desk prints through Study View** (BVJ, 2026-10-29): the header's
+       Print menu, beside Layout, names the leading LIT pane's chapter (else
+       the shared place) and offers it plainly, with my notes or with room to
+       write, each a link to `/<book>-<chapter>/?print=<kind>` in a new tab
+       (`printHref`, `PRINT_KINDS` in `desk-print-notes.mjs`). There the
+       shell's `desk/print-link.js` strips the parameter and starts that
+       print once the page has loaded. A draft chapter offers none; "With my
+       notes" needs a notebook.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        button right after it in the My Notes foot, and the command
        `print-with-room`. `desk/print-room.js` only stamps
@@ -965,7 +986,8 @@ that section.
        through N3's `wordingChanged` (typography folded), judging a quoted
        passage on its own words only; `freshCopy` is what "Keep the new
        wording" writes; `textAsOfLine` is the copy's "Text as of" line from a
-       content version. `readPassage` (`desk/sheet-lit.js`) carries the
+       content version and its build time (`textDay`: the reader's day,
+       not the build's UTC day). `readPassage` (`desk/sheet-lit.js`) carries the
        check as `check`, and the source's `contentVersion` (read off the
        fetched page's `<html>` by `chapter-page.js`).
      - **The Sheet pane writes one thing the reader didn't ask for**: a

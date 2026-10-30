@@ -386,10 +386,18 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
       const { book, chapter } = (event as CustomEvent<{ book: string; chapter: number }>).detail;
       if (!book || !chapter) return;
       if (document.getElementById(`ch-${chapter}`)?.hasAttribute("data-rm-draft")) return;
-      const prefix = `${book}-${chapter}-v`;
-      const markers = Array.from(document.querySelectorAll(`.rm-verse-anchor[id^="${prefix}"]`));
-      const verse = verseAtReadingLine(markers, (id: string) => Number(id.slice(prefix.length)) || null);
-      saveLastRead({ book, chapter, verse, view: "read" });
+      // Read View names its chapter by a line lower down the window than the
+      // reading line (read-mode.js's ACTIVE_CHAPTER_LINE), so the verse at
+      // the reading line can still be in the chapter before.
+      const markers = [chapter - 1, chapter]
+        .filter((c) => c >= 1 && !document.getElementById(`ch-${c}`)?.hasAttribute("data-rm-draft"))
+        .flatMap((c) => Array.from(document.querySelectorAll(`.rm-verse-anchor[id^="${book}-${c}-v"]`)));
+      const at = verseAtReadingLine(markers, (id: string) => {
+        const m = /-(\d+)-v(\d+)/.exec(id);
+        return m ? { chapter: Number(m[1]), verse: Number(m[2]) } : null;
+      });
+      if (at) saveLastRead({ book, chapter: at.chapter, verse: at.verse, view: "read" });
+      else saveLastRead({ book, chapter, verse: null, view: "read" });
     });
   </script>
 </Layout>

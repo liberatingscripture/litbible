@@ -85,7 +85,8 @@ From the root's project tree.
                      #   (the one "is this a phone or tablet" test, read by
                      #   the desk's gate and the app announcement),
                      #   content-version.mjs (the build's content version,
-                     #   stamped on <html> for desk records)
+                     #   stamped on <html> for desk records, and its build
+                     #   time, for a sheet's "Text as of" day)
 ```
 
 ## Conventions
@@ -173,13 +174,14 @@ From the root's project tree.
   against the SBLGNT and the LIT), so "Luke 2:100" stays plain while a gap
   inside a chapter (Matthew 17:21) still lands on its chapter (rule 4).
   **Names are looser**: a New Testament book matches in any case and in the
-  common short forms in `NOTE_SHORT_NAMES` ("john 3:16", "Jn 3:16", "1Cor
-  13:4", "Revelations"), a period may separate chapter and verse ("Gal 3.28"),
+  common short forms in `BOOK_SHORT_NAMES` (`src/data/books.js`, the one
+  list the search bar's jump shares; "john 3:16", "Jn 3:16", "1Cor 13:4",
+  "Revelations", "Ac 2:38"), a period may separate chapter and verse ("Gal 3.28"),
   and a name not written as the site writes it links only with a verse, so
   "mark 3 places" stays plain. Hebrew Bible and apocrypha names stay
   exact-case, since a lowercase "is 3:15" is a time, not Isaiah. The short-name
-  set is a recommendation awaiting BVJ's confirmation (STUDY-DESK.md,
-  Decisions, 2026-10-28 and 2026-10-29). **A range into a later chapter keeps its end** on the
+  set is confirmed (BVJ, 2026-10-29): one list for notes, sheets and the
+  search bar's jump, so a short form one accepts the other does too. **A range into a later chapter keeps its end** on the
   link as `data-end` ("John 3:16–4:2" gets `4:2`, "Hebrews 6–9" gets `9`), which
   `citedRefs` reads to list the span chapter by chapter. Footnotes, intros,
   articles, the glossary and release notes keep the five rules exactly; the
