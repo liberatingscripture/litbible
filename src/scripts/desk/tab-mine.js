@@ -41,6 +41,8 @@
 // small choice at its top switches to everything kept; on an article or the
 // glossary it starts on the notes on this page (N11); elsewhere it lists
 // everything. An article also offers a note on the whole article here.
+// N11 is out of version 1 (note-sources.js, PROSE_NOTES), so for now an
+// article and the glossary list everything, with no such offer.
 //
 // On /desk (3g; BVJ, 2026-10-19) the tab is a pane that follows the LIT
 // pane, as This verse does, but by keeping its list as it is and scrolling

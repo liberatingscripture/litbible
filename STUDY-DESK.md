@@ -870,7 +870,15 @@ plan as a whole was accepted; nothing was declined except where stated).
     New. Medium. **Decided: yes.** **Built provisionally on the preview
     2026-10-08** (BVJ: now rather than with format draft 2); see "Order of
     work", 1c. **Out of version 1** (BVJ, 2026-10-29; maybe version 2):
-    see "Version 2: deferred and shelved".
+    see "Version 2: deferred and shelved". **Taken off the preview
+    2026-10-29** by a switch, not by deleting it: `PROSE_NOTES` in
+    `src/scripts/desk/note-sources.js` is off, so the glossary and articles
+    offer no "Add a note", show no notes in the margin and get no tray
+    group, and the tour leaves those steps out there. Their Notebook panel
+    lists everything, as on any page that isn't a chapter. A reader's
+    existing notes on them are kept: export, import, the merge and
+    /notebook carry and list them unchanged, and the format still
+    describes them. Version 2 turns the switch back on.
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
   is the blank version. New. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3i).
@@ -4816,9 +4824,11 @@ be revisited for version 2.
   the app QR code and the share sheet. It would need touch work and
   real-device checks, since the desk was built for a mouse.
 - **N11, notes on glossary entries and articles**: out of version 1 (BVJ,
-  2026-10-29; "maybe v2"). Built provisionally on the preview 2026-10-08;
-  taking it off the preview's glossary and article pages is its own
-  change. The format keeps its description for version 2.
+  2026-10-29; "maybe v2"). Built provisionally on the preview 2026-10-08,
+  and switched off on the preview's glossary and article pages
+  2026-10-29 (`PROSE_NOTES` in `src/scripts/desk/note-sources.js`), with
+  the code kept for version 2 and readers' existing notes kept and
+  listed. The format keeps its description for version 2.
 - **Reading places that sync** (the format's kind 5): not in version 1
   (BVJ, 2026-10-29; "maybe in v2"). Each device keeps its own "Continue
   reading".
@@ -5925,8 +5935,8 @@ BVJ answered a round of the open questions in this file and the audit:
   (`STUDY-DESK-FORMAT.md`, kind 5). On the website nothing changes, since
   "Continue reading" was never a synced record.
 - **No notes on glossary entries or articles in version 1** (N11), maybe in
-  version 2. Moved to "Version 2: deferred and shelved"; taking it off the
-  preview is its own change.
+  version 2. Moved to "Version 2: deferred and shelved", and switched off
+  on the preview the same day (N11's entry says how).
 - **FA1-z's line for the article alone is confirmed.**
 - **M1 becomes “Hide my marks” / “Show my marks”** (FA1-ac's question; BVJ
   asked for "something broader than 'my notes'"): the Display tray's box,

@@ -284,6 +284,7 @@ function injectIntoTray() {
  * An article or the glossary (N11) has no Show group in the tray, since it
  * has no verse numbers, so the notes' switches get one of their own, before
  * the Keyboard group: "Notes in the margin" and "Hide my marks", then the lettering.
+ * Never called in version 1, where N11 is off and prosePage() is null.
  */
 function injectProseShow() {
   const tray = document.getElementById("fontTray");
