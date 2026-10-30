@@ -2480,12 +2480,20 @@ carries the build's time (`<html data-content-updated>`), and the line names
 that time's day in the reader's time zone (`textDay`); the version stamp the
 apps compare is unchanged.
 
+**Item 5, a touchscreen computer: passed** (BVJ, 2026-10-29, Chrome on
+Windows). A finger selection beside the expanded Notebook opens its panel
+clear of the Notebook and of Windows' Copy bubble, near the top and the
+bottom, and a panel already open moves left when the Notebook expands
+(BA28). The verse menu by touch opens as the chip card beside its number,
+drags by its header, extends to a range, and closes on its × or a tap
+elsewhere.
+
 **A real Windows contrast theme: passed** (BVJ, 2026-10-29): the desk
 works in it. This closes the real-theme checks left on BA148 and BA149.
 
 Items 1, 3 and Safari's half of 6 go to BDR, who has a
-Mac; BVJ is testing item 5 and Duplicate tab (a print to paper, the
-contrast theme and the sheet's modules on paper have passed).
+Mac; BVJ is testing Duplicate tab (item 5, a print to paper, the contrast
+theme and the sheet's modules on paper have passed).
 
 - **BA146 (medium, print; seen in Firefox). “Print with my notes” prints no
   highlights in Firefox.**
