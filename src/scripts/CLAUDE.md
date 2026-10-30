@@ -433,9 +433,12 @@ notice there or nowhere.
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
   `src/scripts/last-read.js`. Study View writes it on arrival (at a `#vN`
-  verse) and as the reader scrolls, taking the last verse number above 30% of
-  the viewport; Read View writes it whenever it saves its own per-book
-  resume position. `read-mode.js` is loaded through `?url`, so Vite serves it
+  verse) and as the reader scrolls, taking the last verse number above the
+  reading line, 10% of the way down the window (BVJ, 2026-10-29; it was 30%)
+  but never above where a link to a verse puts its number (`readingLine`).
+  Read View writes it whenever it saves its own per-book resume position,
+  with the verse at the same line (which can be in the chapter before the
+  one its toolbar names). `read-mode.js` is loaded through `?url`, so Vite serves it
   unbundled and it **cannot import**: it announces each save with an
   `rm:position` event, and a bundled script in `read/[book].astro` records
   it. Draft chapters are never recorded. `ContinueReading.astro` (home title
