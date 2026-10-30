@@ -2451,6 +2451,13 @@ window opened from the Greek tab (BA147 was seen from /search), a real
 Windows contrast theme (BA149 and BA150 were seen in Chrome's emulation),
 and a sheet's Leader only, page break and space modules on paper.
 
+**Item 4, two screens: passed** (BVJ, 2026-10-29, Chrome on Windows). The
+presenter view put the room's window on the second screen. The only prompt
+was Chrome asking once for permission to use the screens; later tries
+didn't ask again. Items 1, 3 and Safari's half of 6 go to BDR, who has a
+Mac; BVJ is testing item 5, a print to paper, the contrast theme, the
+sheet's modules on paper and Duplicate tab.
+
 - **BA146 (medium, print; seen in Firefox). “Print with my notes” prints no
   highlights in Firefox.**
   - *What happens*: the print highlights are registered and
