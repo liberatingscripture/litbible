@@ -329,7 +329,7 @@ export function createTour({ panel, canKeep = true }) {
     async panel() {
       closePanel();
       panel.showTab("mine", { focus: false, remember: false });
-      const marks = [".desk-panel__collapse", ".desk-panel__close"].map((s) => panel.el.querySelector(s)).filter(visible);
+      const marks = [".desk-panel__collapse"].map((s) => panel.el.querySelector(s)).filter(visible);
       return { el: panel.el, side: "left", marks };
     },
 
@@ -398,7 +398,7 @@ export function createTour({ panel, canKeep = true }) {
 
     async undo() {
       closePanel();
-      panel.showTab("mine", { focus: false, remember: false });
+      panel.showTab("settings", { focus: false, remember: false });
       const hide = panel.el.querySelector('input[aria-keyshortcuts="h"]')?.closest("label");
       return { el: panel.el, side: "left", marks: visible(hide) ? [hide] : [] };
     },
@@ -422,14 +422,14 @@ export function createTour({ panel, canKeep = true }) {
 
     async "notebook-page"() {
       closePanel();
-      panel.showTab("mine", { focus: false, remember: false });
+      panel.showTab("settings", { focus: false, remember: false });
       const link = panel.el.querySelector(".desk-panel__page a");
       return { el: panel.el, side: "left", marks: visible(link) ? [link] : [] };
     },
 
     async kept() {
       closePanel();
-      panel.showTab("mine", { focus: false, remember: false });
+      panel.showTab("settings", { focus: false, remember: false });
       const foot = panel.el.querySelector(".desk-home");
       return { el: panel.el, side: "left", marks: visible(foot) ? [foot] : [] };
     },

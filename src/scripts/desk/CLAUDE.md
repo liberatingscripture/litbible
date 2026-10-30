@@ -268,8 +268,17 @@ that section.
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
      the last-read attributes), from the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
-     deferred indefinitely: not in version 1, BVJ 2026-10-11.) A page with one tab shows no tab
-     row, and the panel's foot belongs to My Notes.
+     deferred indefinitely: not in version 1, BVJ 2026-10-11.) **Settings is the last tab, on every page**
+     (BVJ, 2026-10-29): the switches, print buttons, "Open the notebook page",
+     the tour and help links and where the notebook is kept, which were My
+     Notes' foot. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
+     "Close the Notebook" command, Escape and the Read View toolbar's Notebook
+     button minimize it. (`close()` stays for "Hide my marks", the tour's
+     restore and a reader's saved "Closed" start.) **The header's Notebook
+     buttons are links to /desk** ("Study Desk"), still carrying
+     `data-desk-toggle` so global.css shows them on the same pages; the panel
+     wires `button[data-desk-toggle]` only. The Study View "Switch to Read View"
+     pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Close the Notebook," "Show in Notebook"); lowercase "notebook" means

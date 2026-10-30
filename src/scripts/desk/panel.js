@@ -20,8 +20,7 @@
 // (margin.js says when) it floats, and the reader can collapse and expand it
 // the same way (BVJ, 2026-10-07). It collapses by itself whenever it starts floating without
 // the reader asking to see it, so it never lands on the text unasked. The
-// Notebook buttons then expand it, Escape collapses it rather than closing
-// it, and its × still closes it.
+// Notebook buttons then expand it, and Escape collapses it.
 //
 // Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
 // Notes" (tab-mine.js) everywhere, on Study View chapters "This verse"
@@ -32,11 +31,15 @@
 // shows no tab row. The tab last chosen is remembered in
 // localStorage['lit-desk-tab'] and used wherever the page has it.
 //
-// The foot belongs to My Notes and shows only with it: the "Notes in the margin",
-// Handwriting / Plain, "My bookmarks" and "Hide my marks" switches (the same
-// settings as the Display tray's), "Reset widths" while the reader has
-// dragged any, and where the notebook is kept. (The list's "Open all" is
-// My Notes' own, above its list.)
+// The last tab, Settings (BVJ, 2026-10-29), holds what used to be the foot of
+// My Notes: the "Notes in the margin", Handwriting / Plain, "My bookmarks" and
+// "Hide my marks" switches (the same settings as the Display tray's), "Reset
+// widths" while the reader has dragged any, the print buttons, the tour and
+// help links, and where the notebook is kept. (The list's "Open all" is My
+// Notes' own, above its list.)
+//
+// The Notebook has no way to close from its own controls (BVJ, 2026-10-29): it
+// only minimizes to its tab, and Escape minimizes too.
 
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { currentPanel } from "../lit-panel.js";
@@ -58,16 +61,19 @@ const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 3v18M12.5 8h3M12.5 12h3" /></svg>`;
 
+// The desk lamp, as on the header's Study Desk button.
+const ICON_DESK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" /><path d="M14.5 4h3l2.5 6h-8z" /><path d="M16 13.5v2" /></svg>`;
+
 // Toward the window's edge, where the collapsed tab waits.
 const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 6l6 6-6 6M13 6l6 6-6 6" /></svg>`;
 
-const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" /></svg>`;
-
 /**
- * Build the panel and wire every [data-desk-toggle] on the page to it.
+ * Build the panel and wire every button[data-desk-toggle] on the page to it.
+ * (The header's Notebook controls are links to /desk, not toggles.)
  *
  * @param {{ store: object | null, storeError: unknown,
  *   onEdit?: (record: object, trigger: Element) => void,
@@ -99,7 +105,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const root = document.documentElement;
   const here = pageChapter();
   const greekHere = here ?? greekChapter();
-  const toggles = Array.from(document.querySelectorAll("[data-desk-toggle]"));
+  const toggles = Array.from(document.querySelectorAll("button[data-desk-toggle]"));
   const inReadView = Boolean(document.querySelector("[data-rm-root]"));
 
   const panel = document.createElement("aside");
@@ -142,6 +148,16 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     panelEl: () => panel,
     panelShown: () => shown(),
   });
+
+  // The Settings tab's content (BVJ, 2026-10-29): the settings, print buttons
+  // and links that were the foot of My Notes.
+  const settingsEl = document.createElement("div");
+  settingsEl.className = "desk-panel__settings";
+  settingsEl.innerHTML = `
+    <div class="desk-panel__settings-slot"></div>
+    <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
+    <p class="desk-panel__kept"></p>
+    <p class="desk-panel__persist" hidden></p>`;
 
   // The tabs this page has, in order. Each tab module returns its element
   // and a render(); a tab is drawn only while it is the one showing.
@@ -205,6 +221,11 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
           },
         ]
       : []),
+    {
+      id: "settings",
+      label: "Settings",
+      make: () => ({ el: settingsEl, render() {}, setVerse() {}, focusHeading() {}, async selectWord() {} }),
+    },
   ];
   const withRow = TABS.length > 1;
 
@@ -212,25 +233,19 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
       <span class="desk-panel__badge">Preview</span>
+      <a class="desk-panel__desk" href="/desk/" aria-label="Open the Study Desk" title="Open the Study Desk">${ICON_DESK}</a>
       <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook" title="Minimize">${ICON_COLLAPSE}</button>
-      <button type="button" class="desk-panel__close" aria-label="Close the Notebook">${ICON_CLOSE}</button>
     </div>
     ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(
       (t) =>
         `<button type="button" role="tab" id="deskTab-${t.id}" data-tab="${t.id}" aria-controls="deskTabpanel-${t.id}"
            aria-selected="false" tabindex="-1">${escapeHtml(t.label)}</button>`,
     ).join("")}</div>` : ""}
-    <div class="desk-panel__foot">
-      <div class="desk-panel__settings-slot"></div>
-      <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
-      <p class="desk-panel__kept"></p>
-      <p class="desk-panel__persist" hidden></p>
-    </div>`;
+    `;
 
   // One body per tab, each its own tabpanel, so a tab keeps its place (the
   // verse This verse shows, how far the list is scrolled) while another is
   // showing.
-  const foot = panel.querySelector(".desk-panel__foot");
   const tabs = new Map();
   for (const t of TABS) {
     const body = document.createElement("div");
@@ -241,12 +256,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       body.setAttribute("role", "tabpanel");
       body.setAttribute("aria-labelledby", `deskTab-${t.id}`);
     }
-    foot.before(body);
+    panel.append(body);
     tabs.set(t.id, { ...t, body, view: null });
   }
 
   tabs.get("mine").body.prepend(firstUse.card);
-  panel.querySelector(".desk-panel__kept").replaceWith(firstUse.foot);
+  settingsEl.querySelector(".desk-panel__kept").replaceWith(firstUse.foot);
 
   let activeTab = TABS[0].id;
   try {
@@ -282,7 +297,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     if (state.collapsed && panel.contains(document.activeElement)) tab.focus({ preventScroll: true });
   });
 
-  const persistLine = panel.querySelector(".desk-panel__persist");
+  const persistLine = settingsEl.querySelector(".desk-panel__persist");
   const tabButtons = Array.from(panel.querySelectorAll('[role="tab"]'));
   let lastToggle = null;
 
@@ -355,7 +370,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
 
   // A Notebook button opens the panel, expands it when it's folded to its
-  // tab, and closes it when it's showing.
+  // tab, and minimizes it when it's showing.
   for (const t of toggles) {
     t.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -363,7 +378,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       else if (rail.state().collapsed) {
         lastToggle = t;
         expand();
-      } else close();
+      } else collapse();
     });
   }
   tab.addEventListener("click", (e) => {
@@ -371,9 +386,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     expand();
   });
   panel.querySelector(".desk-panel__collapse").addEventListener("click", collapse);
-  panel.querySelector(".desk-panel__close").addEventListener("click", close);
 
-  // Escape closes the panel when focus is in it and nothing floating is open
+  // Escape minimizes the panel when focus is in it and nothing floating is open
   // over it; a floating panel (lit-panel.js) or the Display tray takes its own
   // Escape first. A floating window (float-window.js: the tour offer, the
   // Greek commands) wears the panels' class but not their slot, and takes
@@ -388,8 +402,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const tray = document.getElementById("fontTray");
     if (tray && !tray.hidden) return;
     e.stopPropagation();
-    if (rail.state().floating) collapse();
-    else close();
+    collapse();
   });
 
   /* ── Tabs ───────────────────────────────────────────────────────── */
@@ -404,7 +417,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       if (on && focus) b.focus();
     }
     for (const [tid, t] of tabs) t.body.hidden = tid !== id;
-    foot.hidden = id !== "mine";
     if (remember) {
       try { localStorage.setItem(TAB_KEY, id); } catch (_) {}
     }
@@ -447,7 +459,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // notes' two on an article or the glossary (N11, off in version 1, so
   // none there). "Hide my marks" (M1)
   // goes with any of them.
-  const slot = panel.querySelector(".desk-panel__settings-slot");
+  const slot = settingsEl.querySelector(".desk-panel__settings-slot");
   if (here) {
     const controls = panelNoteControls();
     // The widths the reader dragged, Study View's alone (widths.js).
