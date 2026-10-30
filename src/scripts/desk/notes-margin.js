@@ -21,6 +21,7 @@
 // The same margin serves a glossary entry's or an article's own text (N11,
 // provisional; decision 9 under "the margin switch"): the page's `source`
 // (note-sources.js) says what the notes sit beside and how each is found.
+// N11 is out of version 1, so for now no prose page has a source.
 //
 // The change notice (change-notice.js) is shown here too. A note in full
 // whose wording has changed carries a small flag beside Edit; a note in a

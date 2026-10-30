@@ -232,12 +232,27 @@ that section.
      `note-settings.js` only with the desk on; BVJ, 2026-10-21), on Study
      View chapters, in Read View (its own setting) and on /desk, where it is
      the only desk switch the tray gets and is Study View's setting.
-  8. **Notes on a glossary entry or an article** (N11, provisional) use
-     the same margin: `desk/note-sources.js` says what a page's notes sit
-     beside and how each is found (a chapter's verses, or an entry's or
-     article's own text through `src/lib/desk-prose-anchor.mjs`), and
-     `desk/prose-actions.js` offers "Add a note" on a selection there (on
-     the glossary, as the "My Notebook" row of every reader's selection panel,
+  8. **Notes on a glossary entry or an article** (N11) are **out of
+     version 1** (BVJ, 2026-10-29; maybe version 2), and **switched off,
+     not removed**: `PROSE_NOTES` in `desk/note-sources.js` is `false`, so
+     `prosePage()` returns null everywhere, and with it go the margin on
+     those pages (`proseSource`), the "My Notebook" row and "Add a note on
+     this article" (`desk/prose-actions.js`, `panel.js`), the tray's Show
+     group there (`note-settings.js`) and their change notices. The tour's
+     first three steps leave out the "prose" view (`desk-first-use.mjs`).
+     On /glossary and an article the Notebook panel stays, and My Notes
+     lists everything, as on any page that isn't a chapter or Read View.
+     **The records are kept whole**: `proseTarget`, the export, the merge
+     and the format's principle 6 still carry a reader's existing notes,
+     My Notes and /notebook list them, and the editor still opens them.
+     Version 2 turns the switch back on, restores the three steps' "prose"
+     view (their wording is still there) and the test of it in
+     `desk-first-use.test.js`. Built, it worked so: the same margin as
+     Study View, `note-sources.js` saying what a page's notes sit beside
+     and how each is found (a chapter's verses, or an entry's or article's
+     own text through `src/lib/desk-prose-anchor.mjs`), and
+     `prose-actions.js` offering "Add a note" on a selection there (on the
+     glossary, as the "My Notebook" row of every reader's selection panel,
      with "Note on this entry" for the whole entry).
   9. **Pinned footnotes** (`desk/pins.js`, rules in
      `src/lib/desk-footnotes.mjs`) reach the footnote popover the same way

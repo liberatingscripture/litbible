@@ -121,6 +121,10 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  * `notebook` marks a step about marking the text or keeping the notebook,
  * left out where the browser keeps none (BA34).
  *
+ * "prose" is left out of the first three steps' `views` while notes on an
+ * article or the glossary (N11) are out of version 1 (BVJ, 2026-10-29): their
+ * "prose" wording stays for version 2, which puts the view back.
+ *
  * The walk-through (BVJ, 2026-10-13: "more thorough in walking through how to
  * use the features", with steps that act and leave nothing behind) replaced
  * five steps that only named things.
@@ -129,7 +133,7 @@ export const TOUR_STEPS = [
   {
     id: "actions",
     part: 0,
-    views: ["study", "read", "prose"],
+    views: ["study", "read"],
     since: "1d",
     notebook: true,
     title: "Open the menu",
@@ -143,7 +147,7 @@ export const TOUR_STEPS = [
   {
     id: "note",
     part: 0,
-    views: ["study", "prose"],
+    views: ["study"],
     since: "1h",
     notebook: true,
     title: "Write a note",
@@ -155,7 +159,7 @@ export const TOUR_STEPS = [
   {
     id: "margin",
     part: 0,
-    views: ["study", "prose"],
+    views: ["study"],
     since: "1d",
     notebook: true,
     title: "Your notes in the margin",

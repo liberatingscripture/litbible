@@ -121,7 +121,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const visible = () => !panel.hidden;
 
   // What My Notes starts on: this chapter's records, or the notes on this
-  // article or the glossary (N11); everything elsewhere.
+  // article or the glossary (N11); everything elsewhere. With N11 out of
+  // version 1 prosePage() is null, so an article and the glossary list
+  // everything too, notes already kept on them included.
   const prose = here ? null : prosePage();
   const mineScope = here
     ? {
@@ -454,7 +456,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   // The margin's switches only mean something where the margin is: all of
   // them on a Study View chapter, "My bookmarks" alone in Read View, and the
-  // notes' two on an article or the glossary (N11). "Hide my marks" (M1)
+  // notes' two on an article or the glossary (N11, off in version 1, so
+  // none there). "Hide my marks" (M1)
   // goes with any of them.
   const slot = settingsEl.querySelector(".desk-panel__settings-slot");
   if (here) {

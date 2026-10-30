@@ -241,9 +241,11 @@ test("a tour leaves out the steps that don't belong to the page's view", () => {
   const read = planTour({ available: all, view: "read" }).map((s) => s.id);
   assert.ok(read.includes("bookmark") && read.includes("ribbon"));
   for (const id of ["note", "margin", "highlight", "pin", "verse", "greek", "widths"]) assert.ok(!read.includes(id), id);
+  // An article or the glossary: no notes there in version 1 (N11, BVJ 2026-10-29),
+  // so nothing from "Marking the text".
   const prose = planTour({ available: all, view: "prose" }).map((s) => s.id);
-  assert.ok(prose.includes("note") && prose.includes("margin"));
-  assert.ok(!prose.includes("bookmark") && !prose.includes("ribbon"));
+  for (const id of ["actions", "note", "margin", "bookmark", "ribbon"]) assert.ok(!prose.includes(id), id);
+  assert.ok(prose.length);
 });
 
 test("where the browser keeps no notebook, the tour leaves out marking the text and keeping it (BA34)", () => {
