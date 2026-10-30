@@ -17,6 +17,10 @@
 //     Notebook panel's My Notes ("Add a note on this article").
 // Both open the ordinary note editor (note-editor.js) with the entry or
 // article as the note's target.
+//
+// Off in version 1 (BVJ, 2026-10-29): prosePage() is null while
+// note-sources.js's PROSE_NOTES is off, so this offers nothing. Kept whole
+// for version 2.
 
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
 import { proseAnchorText, proseQuote } from "../../lib/desk-prose-anchor.mjs";

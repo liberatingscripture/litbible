@@ -6,6 +6,17 @@
 // same margin and the same switch serve both (decision 9 under "the margin
 // switch"); only how a note is found on the page differs.
 //
+// N11 is out of version 1 (BVJ, 2026-10-29; "maybe v2"), so PROSE_NOTES is
+// off and prosePage() finds no prose page. That one switch closes every way
+// to write or show such a note: the margin (proseSource), the selection
+// panel's "My Notebook" row and "Add a note on this article"
+// (prose-actions.js, panel.js), the tray's Show group (note-settings.js), the
+// tour's steps there (tour.js), and the change notice on those pages. The
+// records themselves are untouched: the format still describes them,
+// proseTarget, the merge and the export carry them, and My Notes and
+// /notebook list them like any other note. Turning the switch back on is
+// version 2's start (STUDY-DESK.md, N11).
+//
 // A source gives:
 //   textBox   the element notes sit beside, in the margin to its left
 //   lineEl()  an element whose line height the notes take their rhythm from
@@ -27,6 +38,9 @@ import { currentSlug, forChapter, forProse } from "../../lib/desk-store-core.mjs
 import articleSlugs from "../../data/article-slugs.json";
 import { footnoteElementFor } from "./footnote-notes.js";
 import { chapterBlocks, chapterText, pageChapter } from "./page.js";
+
+/** Whether the desk offers notes on glossary entries and articles (N11): off in version 1. */
+export const PROSE_NOTES = false;
 
 /** An article's old slugs and the ones they became (src/data/article-slugs.json). */
 export const RENAMED_ARTICLES = articleSlugs.renamed ?? {};
@@ -87,11 +101,13 @@ export function studySource() {
  * element holding its own text (`root`) and its heading (`head`, where a
  * note on the whole entry or article sits). Null on any other page, and on
  * the glossary unless the desk is on, which gives it a reading column.
+ * Null everywhere while PROSE_NOTES is off.
  *
  * @returns {{ kind: "article" | "glossary", box: Element, label: string,
  *   targets: Array<{ type: string, id: string, title: string, root: Element, head: Element }> } | null}
  */
 export function prosePage() {
+  if (!PROSE_NOTES) return null;
   const card = document.querySelector(".article__card");
   const body = card?.querySelector(".article__body");
   if (card && body) {
