@@ -92,6 +92,38 @@ export const BOOK_ABBREVIATIONS = {
   revelation: "Rev",
 };
 
+// Other short forms readers type, beyond each book's name and its
+// BOOK_ABBREVIATIONS entry. One list for both places that read a reader's
+// typing (BVJ, 2026-10-29): the search bar's jump to a passage
+// (search-core.js, matched ignoring case, spaces and periods) and the
+// references in a Study Desk note or sheet (scripture-refs.mjs's note mode,
+// any case, the space after a number optional, and only with a verse).
+export const BOOK_SHORT_NAMES = {
+  matthew: ["Mt", "Mat"],
+  mark: ["Mk", "Mrk"],
+  luke: ["Lk", "Luk"],
+  john: ["Jn", "Jhn"],
+  acts: ["Ac", "Act"],
+  romans: ["Ro"],
+  "1corinthians": ["1 Co"],
+  "2corinthians": ["2 Co"],
+  philippians: ["Php"],
+  "1thessalonians": ["1 Th", "1 Thes"],
+  "2thessalonians": ["2 Th", "2 Thes"],
+  "1timothy": ["1 Ti"],
+  "2timothy": ["2 Ti"],
+  titus: ["Tit"],
+  philemon: ["Phm", "Philem"],
+  james: ["Jas", "Jm"],
+  "1peter": ["1 Pe", "1 Pt"],
+  "2peter": ["2 Pe", "2 Pt"],
+  "1john": ["1 Jn", "1 Jhn"],
+  "2john": ["2 Jn", "2 Jhn"],
+  "3john": ["3 Jn", "3 Jhn"],
+  jude: ["Jud"],
+  revelation: ["Re", "Rv", "Revelations"],
+};
+
 export function bookKeyToLabel(key) {
   const m = String(key).match(/^(\d+)?([a-z]+)$/i);
   if (!m) return String(key);

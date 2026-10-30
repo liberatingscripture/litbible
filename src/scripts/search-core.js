@@ -10,7 +10,7 @@
 // labelled and linked), it lives here. Page-specific rendering stays in the
 // respective entry scripts.
 
-import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { BOOKS, BOOK_ABBREVIATIONS, BOOK_ORDER, BOOK_SHORT_NAMES, bookKeyToLabel } from "../data/books.js";
 
 export { bookKeyToLabel };
 
@@ -34,65 +34,12 @@ function slugifyBookName(name) {
     .replace(/[^0-9a-z]/g, "");
 }
 
-const BOOK_ALIAS_ENTRIES = [
-  ["matthew", ["matthew", "matt", "mt"]],
-  ["mark", ["mark", "mrk", "mk"]],
-  ["luke", ["luke", "luk", "lk"]],
-  ["john", ["john", "jhn", "jn"]],
-  ["acts", ["acts", "act", "ac"]],
-  ["romans", ["romans", "rom", "ro"]],
-  [
-    "1corinthians",
-    ["1corinthians", "1 corinthians", "1cor", "1 cor", "1co", "1 co"],
-  ],
-  [
-    "2corinthians",
-    ["2corinthians", "2 corinthians", "2cor", "2 cor", "2co", "2 co"],
-  ],
-  ["galatians", ["galatians", "gal"]],
-  ["ephesians", ["ephesians", "eph"]],
-  ["philippians", ["philippians", "phil", "php"]],
-  ["colossians", ["colossians", "col"]],
-  [
-    "1thessalonians",
-    [
-      "1thessalonians",
-      "1 thessalonians",
-      "1thess",
-      "1 thess",
-      "1thes",
-      "1 thes",
-      "1th",
-      "1 th",
-    ],
-  ],
-  [
-    "2thessalonians",
-    [
-      "2thessalonians",
-      "2 thessalonians",
-      "2thess",
-      "2 thess",
-      "2thes",
-      "2 thes",
-      "2th",
-      "2 th",
-    ],
-  ],
-  ["1timothy", ["1timothy", "1 timothy", "1tim", "1 tim", "1ti", "1 ti"]],
-  ["2timothy", ["2timothy", "2 timothy", "2tim", "2 tim", "2ti", "2 ti"]],
-  ["titus", ["titus", "tit"]],
-  ["philemon", ["philemon", "phm", "phlm"]],
-  ["hebrews", ["hebrews", "heb"]],
-  ["james", ["james", "jas", "jm"]],
-  ["1peter", ["1peter", "1 peter", "1pet", "1 pet", "1pe", "1 pe"]],
-  ["2peter", ["2peter", "2 peter", "2pet", "2 pet", "2pe", "2 pe"]],
-  ["1john", ["1john", "1 john", "1jn", "1 jn", "1jhn", "1 jhn"]],
-  ["2john", ["2john", "2 john", "2jn", "2 jn", "2jhn", "2 jhn"]],
-  ["3john", ["3john", "3 john", "3jn", "3 jn", "3jhn", "3 jhn"]],
-  ["jude", ["jude", "jud"]],
-  ["revelation", ["revelation", "rev", "re"]],
-];
+// Each book answers to its key, its name, its abbreviation and the short
+// forms in BOOK_SHORT_NAMES, the list a Study Desk note's references share.
+const BOOK_ALIAS_ENTRIES = BOOK_ORDER.map((key) => [
+  key,
+  [bookKeyToLabel(key), BOOK_ABBREVIATIONS[key], ...(BOOK_SHORT_NAMES[key] ?? [])],
+]);
 
 const BOOK_ALIASES = new Map();
 for (const [bookKey, aliases] of BOOK_ALIAS_ENTRIES) {

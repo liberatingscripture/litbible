@@ -52,7 +52,7 @@
 //   - a range into another chapter ("John 3:16–4:2", "Hebrews 6–9") carries
 //     its end on the link as `data-end` ("4:2", "9"), for the note's chains.
 
-import { BOOKS, BOOK_ORDER, BOOK_ABBREVIATIONS, bookKeyToLabel } from "../data/books.js";
+import { BOOKS, BOOK_ORDER, BOOK_ABBREVIATIONS, BOOK_SHORT_NAMES, bookKeyToLabel } from "../data/books.js";
 import { HB_BOOKS, chapterCount as hbChapterCount, sefariaHref } from "./sefaria-refs.mjs";
 import { APOCRYPHA, chapterCount as apocryphaChapterCount, ebibleHref } from "./ebible-refs.mjs";
 
@@ -144,33 +144,12 @@ const contRe = (cv) =>
 const REF_RE = refRe(NAME_ALT, ":");
 const CONT_RE = contRe(":");
 
-// Note mode's names: the New Testament's in any case, with these common short
-// forms and with a numbered book's space optional ("1Cor"), and the other
+// Note mode's names: the New Testament's in any case, with the common short
+// forms in BOOK_SHORT_NAMES (books.js, shared with the search bar's jump)
+// and with a numbered book's space optional ("1Cor"), and the other
 // books' exactly as above (a lowercase "is 3:15" is a time, not Isaiah).
 // Character classes rather than the i flag, so the rest stays exact.
-const NOTE_SHORT_NAMES = {
-  matthew: ["Mt", "Mat"],
-  mark: ["Mk", "Mrk"],
-  luke: ["Lk", "Luk"],
-  john: ["Jn", "Jhn"],
-  romans: ["Ro"],
-  "1corinthians": ["1 Co"],
-  "2corinthians": ["2 Co"],
-  philippians: ["Php"],
-  "1thessalonians": ["1 Th", "1 Thes"],
-  "2thessalonians": ["2 Th", "2 Thes"],
-  "1timothy": ["1 Ti"],
-  "2timothy": ["2 Ti"],
-  titus: ["Tit"],
-  philemon: ["Phm"],
-  james: ["Jm"],
-  "1peter": ["1 Pt", "1 Pe"],
-  "2peter": ["2 Pt", "2 Pe"],
-  "1john": ["1 Jn", "1 Jhn"],
-  "2john": ["2 Jn", "2 Jhn"],
-  "3john": ["3 Jn", "3 Jhn"],
-  revelation: ["Rv", "Revelations"],
-};
+const NOTE_SHORT_NAMES = BOOK_SHORT_NAMES;
 const squash = (name) => name.replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, "").toLowerCase();
 const NOTE_NAME_TO_KEY = new Map();
 for (const [name, key] of NAME_TO_KEY) if (!key.includes(":")) NOTE_NAME_TO_KEY.set(squash(name), key);

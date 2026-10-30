@@ -151,7 +151,7 @@ are recorded so they aren't re-argued.
   (BA89); New Testament names match in any case and in common short forms
   (“john 3:16,” “Jn 3:16,” “1Cor 13:4”), a period may separate chapter and
   verse, and a range into a later chapter chains every verse in the span
-  (BA94, whose set of short names awaits BVJ's confirmation); “Mentioned
+  (BA94, whose short names BVJ confirmed on 2026-10-29 as one list shared with the search bar's jump); “Mentioned
   in your note on…” lists the notes in Bible order (BA93); and a note of
   40,000 spaces draws in about 2 ms, not 3.5 s (BA95).
   FA1-y is done (#405): a ribbon that follows the reader moves only to
@@ -5938,8 +5938,12 @@ BVJ answered a round of the open questions in this file and the audit:
   (FA1-ad's question), `--field-border` beside their shadow.
 - **The merge rules' last pieces** were confirmed by BDR on 2026-10-23; the
   "Still open" entry now says so.
-- **BA94's short names: not yet confirmed.** BVJ asked first how they
-  compare with the search bar's jump-to aliases (`search-core.js`).
+- **BA94's short names: one list, shared with the search bar's jump**
+  (BVJ, after seeing how they compared). `BOOK_SHORT_NAMES` in
+  `src/data/books.js` feeds both, so notes gained Ac, Act, Jud and Re, and
+  the jump gained Mat, Philem, 1 and 2 Pt, Rv and "Revelations". The
+  differences of form stay: a note needs a verse after a short name, and a
+  comma in a note lists verses rather than separating chapter and verse.
 
 ### 2026-10-29 (FA1-ae: what FA1-v found on Windows; BVJ's two calls)
 
@@ -6009,7 +6013,8 @@ below are **recommendations the phase acted on, not decisions**: BVJ is
 asked to confirm or change them.
 
 - **BA94, the short names and the verse rule** (a recommendation, for BVJ to
-  confirm or change). In a note, a New Testament book matches in any case,
+  confirm or change). **Confirmed 2026-10-29**, as one list shared with the
+  search bar's jump (decision log, that day). In a note, a New Testament book matches in any case,
   and in these short forms (`NOTE_SHORT_NAMES` in `scripture-refs.mjs`),
   with the space after a book's number optional (“1Cor”): Mt and Mat;
   Mk and Mrk; Lk and Luk; Jn and Jhn; Ro; 1 Co and 2 Co; Php; 1 Th, 1 Thes,
