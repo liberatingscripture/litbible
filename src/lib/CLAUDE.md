@@ -85,7 +85,8 @@ From the root's project tree.
                      #   (the one "is this a phone or tablet" test, read by
                      #   the desk's gate and the app announcement),
                      #   content-version.mjs (the build's content version,
-                     #   stamped on <html> for desk records)
+                     #   stamped on <html> for desk records, and its build
+                     #   time, for a sheet's "Text as of" day)
 ```
 
 ## Conventions

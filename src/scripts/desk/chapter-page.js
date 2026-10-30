@@ -49,6 +49,7 @@ function read(page, bookKey, chapter) {
     termData = JSON.parse(page.getElementById("term-lens-data")?.textContent || "null");
   } catch (_) {}
   const contentVersion = page.documentElement?.dataset.contentVersion || null;
+  const contentUpdated = page.documentElement?.dataset.contentUpdated || null;
   const doc = keepParts(page, textBox);
   const verses = Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? [])
     .map((m) => Number(m.id.slice(1)))
@@ -79,6 +80,9 @@ function read(page, bookKey, chapter) {
     // The content version the page was built from (<html data-content-version>),
     // which a sheet's "Text as of" line and its comparison copies name.
     contentVersion,
+    // That build's time (<html data-content-updated>), so the "Text as of"
+    // line can name the reader's day rather than the build's UTC day.
+    contentUpdated,
     // The parts kept (keepParts), where a handout copied in the LIT pane reads
     // its notes, and a sheet walks the text.
     doc,

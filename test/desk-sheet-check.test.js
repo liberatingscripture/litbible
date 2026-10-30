@@ -25,6 +25,7 @@ import {
   passageAsRecord,
   passageCheck,
   textAsOfLine,
+  textDay,
 } from "../src/lib/desk-sheet-check.mjs";
 
 const VERSION = "v20261018.5d2c847d";
@@ -102,6 +103,41 @@ test("textAsOfLine: names the day the text is from", () => {
 
 test("textAsOfLine: a version that names no day gives null", () => {
   assert.equal(textAsOfLine("unversioned"), null);
+});
+
+test("textAsOfLine: an evening publish in the Americas names the reader's day", () => {
+  // 7:09 PM Pacific on October 29 is October 30 in UTC, the version's day.
+  const v = "v20261030.43c51b53";
+  const at = "2026-10-30T02:09:11.000Z";
+  assert.equal(textAsOfLine(v, at, "America/Los_Angeles"), "Text as of October 29, 2026");
+  assert.equal(textAsOfLine(v, at, "America/New_York"), "Text as of October 29, 2026");
+  assert.equal(textAsOfLine(v, at, "Europe/London"), "Text as of October 30, 2026");
+});
+
+/* ── textDay ─────────────────────────────────────────────────────────── */
+
+test("textDay: a build time on the version's day gives that time's local day", () => {
+  assert.equal(textDay("v20261030.43c51b53", "2026-10-30T02:09:11.000Z", "America/Chicago"), "2026-10-29");
+  assert.equal(textDay("v20261030.43c51b53", "2026-10-30T02:09:11.000Z", "Asia/Tokyo"), "2026-10-30");
+});
+
+test("textDay: a time east of UTC can name the next day", () => {
+  assert.equal(textDay("v20261029.43c51b53", "2026-10-29T20:00:00.000Z", "Asia/Tokyo"), "2026-10-30");
+});
+
+test("textDay: no build time, or one from another day, keeps the version's day", () => {
+  assert.equal(textDay(VERSION, null, "America/Los_Angeles"), "2026-10-18");
+  assert.equal(textDay(VERSION, "2026-10-19T02:00:00.000Z", "America/Los_Angeles"), "2026-10-18");
+  assert.equal(textDay(VERSION, "not a time", "America/Los_Angeles"), "2026-10-18");
+  assert.equal(textDay(VERSION, "2026-10-18T02:00:00", "America/Los_Angeles"), "2026-10-18");
+});
+
+test("textDay: a time zone the browser doesn't know keeps the version's day", () => {
+  assert.equal(textDay("v20261030.43c51b53", "2026-10-30T02:09:11.000Z", "Nowhere/Atlantis"), "2026-10-30");
+});
+
+test("textDay: a version that names no day gives null", () => {
+  assert.equal(textDay("unversioned", "2026-10-30T02:09:11.000Z"), null);
 });
 
 /* ── passageCheck, whole verses ──────────────────────────────────────── */

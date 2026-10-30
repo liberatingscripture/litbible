@@ -45,13 +45,37 @@ export function dayWords(day) {
 }
 
 /**
- * The line a copy of the sheet carries: "Text as of October 18, 2026", from
- * the content version the passages were read from. Null when the version
- * names no day (a dev build), and then the copy prints no date rather than a
- * wrong one.
+ * The day the text is from, as the reader counts days. A content version's
+ * day is the build's UTC day (build-api-manifest.mjs), so a publish on an
+ * American evening is already tomorrow in it (BVJ's A4 print, 2026-10-29).
+ * When the page also names the build's time (`updatedAt`, version.json's,
+ * on <html data-content-updated>) and that time falls on the version's own
+ * UTC day, the day is that time's in `timeZone` (the reader's when
+ * omitted). Otherwise it is the version's day, as before.
  */
-export function textAsOfLine(contentVersion) {
-  const words = dayWords(dayOf(contentVersion));
+export function textDay(contentVersion, updatedAt, timeZone) {
+  const day = dayOf(contentVersion);
+  if (!day || typeof updatedAt !== "string" || !/Z$/.test(updatedAt) || dayOf(updatedAt) !== day) return day;
+  const time = new Date(updatedAt);
+  if (Number.isNaN(time.getTime())) return day;
+  let parts;
+  try {
+    parts = new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(time);
+  } catch {
+    return day;
+  }
+  const part = (type) => parts.find((p) => p.type === type)?.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+/**
+ * The line a copy of the sheet carries: "Text as of October 18, 2026", from
+ * the content version the passages were read from and its build time
+ * (textDay). Null when the version names no day (a dev build), and then the
+ * copy prints no date rather than a wrong one.
+ */
+export function textAsOfLine(contentVersion, updatedAt, timeZone) {
+  const words = dayWords(textDay(contentVersion, updatedAt, timeZone));
   return words ? `Text as of ${words}` : null;
 }
 

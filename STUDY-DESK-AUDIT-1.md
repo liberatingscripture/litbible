@@ -2475,7 +2475,10 @@ with the code, Leader only, a page break and two space modules, all in
 place). That print's “Text as of October 30, 2026,” made at 9:07 PM on
 October 29, is a day ahead: the content version's day is the build's UTC
 day (`build-api-manifest.mjs`), and the 7:09 PM Pacific publish was already
-October 30 in UTC. Cosmetic; noted for BVJ.
+October 30 in UTC. **Fixed the same day** (BVJ chose it): the page also
+carries the build's time (`<html data-content-updated>`), and the line names
+that time's day in the reader's time zone (`textDay`); the version stamp the
+apps compare is unchanged.
 
 **A real Windows contrast theme: passed** (BVJ, 2026-10-29): the desk
 works in it. This closes the real-theme checks left on BA148 and BA149.
