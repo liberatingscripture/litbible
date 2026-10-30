@@ -19,6 +19,7 @@ import {
   lastReadHref,
   nextRibbonState,
   pageBookOf,
+  loseRibbon,
   parseRibbonFlag,
   placeItems,
   positionOnPage,
@@ -85,6 +86,9 @@ test("pageBookOf reads a book from a chapter, an intro or a Read View path", () 
 test("the flag round-trips and refuses anything that isn't one", () => {
   const f = parseRibbonFlag(ribbonFlagFor({ id: "abc", bookKey: "romans", extra: 1 }));
   assert.deepEqual(f, { id: "abc", bookKey: "romans" });
+  assert.deepEqual(parseRibbonFlag(ribbonFlagFor({ id: "abc", bookKey: "romans", tab: "t1" })), { id: "abc", bookKey: "romans", tab: "t1" });
+  assert.deepEqual(parseRibbonFlag('{"id":"abc","bookKey":"romans","tab":""}'), { id: "abc", bookKey: "romans" }, "an empty token is none");
+  assert.deepEqual(parseRibbonFlag('{"id":"abc","bookKey":"romans","tab":7}'), { id: "abc", bookKey: "romans" }, "a token is a string");
   for (const bad of [null, "", "not json", "{}", '{"id":"x","bookKey":"nope"}', '{"id":"","bookKey":"romans"}', "[]"]) {
     assert.equal(parseRibbonFlag(bad), null, String(bad));
   }
@@ -215,6 +219,20 @@ test("a place another client kept is listed, unnamed and read-only", () => {
 
 test("nothing to show gives an empty list", () => {
   assert.deepEqual(placeItems({}), []);
+});
+
+test("loseRibbon: a copied tab, or another tab opening the same ribbon, stops this one", () => {
+  const flag = { id: "r1", bookKey: "romans", tab: "t1" };
+  assert.equal(loseRibbon(flag, { taken: "t1" }), true, "another page holds this tab's token: this tab is the copy");
+  assert.equal(loseRibbon(flag, { taken: "t2" }), false);
+  assert.equal(loseRibbon(flag, { took: "r1", tab: "t2" }), true, "another tab followed this ribbon's link since");
+  assert.equal(loseRibbon(flag, { took: "r1", tab: "t1" }), false, "this tab's own announcement");
+  assert.equal(loseRibbon(flag, { took: "r2", tab: "t2" }), false, "another ribbon");
+  assert.equal(loseRibbon(flag, { ask: "t1" }), false, "a question is answered, not obeyed");
+  assert.equal(loseRibbon(flag, null), false);
+  assert.equal(loseRibbon(flag, "taken"), false);
+  assert.equal(loseRibbon(null, { taken: "t1" }), false);
+  assert.equal(loseRibbon({ id: "r1", bookKey: "romans" }, { taken: "t1" }), false, "no token, nothing to match");
 });
 
 test("an inherited property name is not a book", () => {

@@ -16,7 +16,8 @@ const shellHere = document.documentElement.dataset.desk === "on" && readingSurfa
 // outside the book, but the shell loads only on a reading surface, so every
 // other page (home, search, /notebook, /desk) drops it here (BA101). The key
 // is RIBBON_FLAG_KEY in src/lib/desk-places.mjs, which this file doesn't
-// import, to stay small.
+// import, to stay small. (Telling a duplicated tab from its original is the
+// shell's, ribbon-follow.js: a page here never moves a ribbon.)
 if (!shellHere) {
   try {
     window.sessionStorage.removeItem("lit-desk-ribbon");

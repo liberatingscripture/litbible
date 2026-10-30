@@ -99,19 +99,51 @@ export function pageBookOf(pathname) {
   return null;
 }
 
-/** The flag as stored text, or null for anything that isn't one. */
+/**
+ * The channel a tab's pages use to tell a duplicated tab from the tab it was
+ * copied from. A browser's Duplicate tab copies session storage, flag and
+ * all, so without it both tabs moved the ribbon, each to wherever it was
+ * read last (BVJ, 2026-10-29). The flag carries the tab's own token (`tab`);
+ * a page that loads with the flag asks whether a live page already holds
+ * that token, and if one answers, this tab is the copy and doesn't follow.
+ * Following a ribbon's link announces it too, so the tab whose link was
+ * opened last is the one the ribbon follows.
+ */
+export const RIBBON_TAB_CHANNEL = "lit-desk-ribbon-tab";
+
+/** How long a page with the flag waits for another page to claim its tab. */
+export const DUPLICATE_WAIT_MS = 250;
+
+/**
+ * The flag as stored text, or null for anything that isn't one: { id,
+ * bookKey, tab }, `tab` only when the flag has one (a flag stored before
+ * tokens has none).
+ */
 export function parseRibbonFlag(raw) {
   try {
     const f = JSON.parse(raw ?? "null");
-    return typeof f?.id === "string" && f.id && Object.hasOwn(BOOKS, f.bookKey) ? { id: f.id, bookKey: f.bookKey } : null;
+    if (!(typeof f?.id === "string" && f.id && Object.hasOwn(BOOKS, f.bookKey))) return null;
+    return typeof f.tab === "string" && f.tab ? { id: f.id, bookKey: f.bookKey, tab: f.tab } : { id: f.id, bookKey: f.bookKey };
   } catch {
     return null;
   }
 }
 
-/** The flag to store for a ribbon opened into its book. */
+/** The flag to store for a ribbon opened into its book, with the tab's token when it has one. */
 export function ribbonFlagFor(ribbon) {
-  return JSON.stringify({ id: ribbon.id, bookKey: ribbon.bookKey });
+  return JSON.stringify(ribbon.tab ? { id: ribbon.id, bookKey: ribbon.bookKey, tab: ribbon.tab } : { id: ribbon.id, bookKey: ribbon.bookKey });
+}
+
+/**
+ * Whether a message on RIBBON_TAB_CHANNEL means this page should stop
+ * following: another tab answered that it holds this tab's token (`taken`,
+ * so this tab is a copy), or another tab followed the same ribbon's link
+ * since (`took`, with a different token).
+ */
+export function loseRibbon(flag, message) {
+  if (!flag?.tab || !message || typeof message !== "object") return false;
+  if (message.taken === flag.tab) return true;
+  return message.took === flag.id && typeof message.tab === "string" && message.tab !== flag.tab;
 }
 
 /**
