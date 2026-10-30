@@ -2469,8 +2469,13 @@ on Romans 8:3 printed its tint, broken into pieces at each footnote letter
 gaps in the band; cosmetic. **Fixed the same day** (BVJ asked for one band):
 a superscript the highlight holds whole is marked from outside. The test
 also found /desk had no way to print a chapter; it now has a Print menu
-(STUDY-DESK.md, Decisions, 2026-10-29). Still to check: a printed code
-scanned by phone, and A4.
+(STUDY-DESK.md, Decisions, 2026-10-29). **A printed code scanned by phone
+opens its chapter, and A4 passed** (BVJ, 2026-10-29: a leader copy on A4,
+with the code, Leader only, a page break and two space modules, all in
+place). That print's “Text as of October 30, 2026,” made at 9:07 PM on
+October 29, is a day ahead: the content version's day is the build's UTC
+day (`build-api-manifest.mjs`), and the 7:09 PM Pacific publish was already
+October 30 in UTC. Cosmetic; noted for BVJ.
 
 **A real Windows contrast theme: passed** (BVJ, 2026-10-29): the desk
 works in it. This closes the real-theme checks left on BA148 and BA149.
