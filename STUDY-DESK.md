@@ -6013,7 +6013,13 @@ One thing the browser check showed, for BVJ:
   was true before FA1-y, about four seconds later; BA99's fix only stops
   the reader's *old* place being written. Should a ribbon opened and not
   read stay where it was, E9's bookmarks that follow the reader are the
-  place to decide it.
+  place to decide it. **Answered 2026-10-29** (BVJ, testing a following
+  ribbon: "1/3 down the screen isn't right. It should be at the top of the
+  screen, or about 10% down"): the reading line (`last-read.js`) is now 10%
+  of the way down, and never above where a link puts a verse's number, so
+  an opened ribbon stays at its verse. It is the one line for Continue
+  reading, Read View's record, a following ribbon, and the Greek and Verse
+  tabs. The /desk LIT pane keeps its own line, a quarter of the way down.
 - **New sentences a reader can see**: “That ribbon has been deleted.”
   (renaming or moving a ribbon removed meanwhile); “You already have six
   ribbons. Move one of them here instead.” (the limit reached while a new

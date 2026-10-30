@@ -16,8 +16,14 @@ import { BOOKS, bookKeyToLabel } from "../data/books.js";
 const KEY = "lit_last_read";
 
 // The verse a reader is "on" is the last verse number above this line, as a
-// fraction of the viewport height: roughly where the eye rests while reading.
-const READING_LINE = 0.3;
+// fraction of the viewport height: near the top, where a reader scrolls what
+// they are reading (BVJ, 2026-10-29). It was 30%, which put a following
+// ribbon and Continue reading a verse or two past the top of the screen.
+const READING_LINE = 0.1;
+// The line is never above where a link to a verse puts its number (the
+// markers' scroll-margin-top, below Read View's toolbar), give or take this
+// much rounding, so a verse just opened counts as the one being read.
+const LANDING_SLACK = 8;
 
 /** @returns {{v: 1, book: string, chapter: number, verse: number | null, view: "study" | "read", t: number} | null} */
 export function loadLastRead() {
@@ -94,9 +100,20 @@ export function continueLabel(r) {
   return `${bookKeyToLabel(r.book)} ${r.chapter}`;
 }
 
+/** The reading line for `markers`, in px from the top of the window. */
+export function readingLine(markers) {
+  let landing = 0;
+  try {
+    if (markers[0]) landing = (parseFloat(window.getComputedStyle(markers[0]).scrollMarginTop) || 0) + LANDING_SLACK;
+  } catch {
+    /* no styles to read: the fraction alone */
+  }
+  return Math.max(window.innerHeight * READING_LINE, landing);
+}
+
 /** Last marker above the reading line, or null above the first one. */
 export function verseAtReadingLine(markers, idToVerse) {
-  const line = window.innerHeight * READING_LINE;
+  const line = readingLine(markers);
   let verse = null;
   for (const m of markers) {
     if (m.getBoundingClientRect().top > line) break;
