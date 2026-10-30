@@ -424,3 +424,20 @@ test("resolveMistypedPath: addresses that name no book return null", () => {
     assert.equal(resolveMistypedPath(path), null, path);
   }
 });
+
+test("parseReferenceJump: the short forms shared with a note's references (BVJ, 2026-10-29)", () => {
+  const cases = [
+    ["Mat 5:3", "matthew"],
+    ["Philem 1:6", "philemon"],
+    ["1 Pt 2:9", "1peter"],
+    ["2pt 1:4", "2peter"],
+    ["Rv 21:4", "revelation"],
+    ["Revelations 21:4", "revelation"],
+    ["ac 2:38", "acts"],
+    ["jud 1:3", "jude"],
+    ["re 21:4", "revelation"],
+    ["1 Thess 4:13", "1thessalonians"],
+    ["Phlm 1:6", "philemon"],
+  ];
+  for (const [q, bookKey] of cases) assert.equal(parseReferenceJump(q)?.bookKey, bookKey, q);
+});
