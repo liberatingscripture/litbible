@@ -2315,7 +2315,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   display: none;
 }
 
-/* With "My notes" off, as "Hide my notes" (M1) leaves it, a footnote's popover
+/* With "My notes" off, as "Hide my marks" (M1) leaves it, a footnote's popover
    lists none of the reader's notes, since it opens over the page being shown;
    the Notebook's tabs and /desk's Footnotes pane still list them (BA17). */
 html[data-desk-notes="off"] .lit-panel .desk-fnn {

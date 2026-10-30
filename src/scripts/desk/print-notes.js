@@ -34,7 +34,7 @@
 //      dialog opened; print-look.js, BA35). It never writes a record.
 //
 // The reader's screen switches ("Notes in the margin", "My highlights", Read View's own,
-// "Hide my notes") do not apply: the reader asked for notes on paper, and
+// "Hide my marks") do not apply: the reader asked for notes on paper, and
 // Read View hides highlights by default only so the book reads straight
 // through. Plain printing (Ctrl+P) is untouched and stays the text and its
 // footnotes.

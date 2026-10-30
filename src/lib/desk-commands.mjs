@@ -15,7 +15,7 @@
 // ones that open the notebook's own pages work anywhere.
 //
 // A query reaches a command when each of its words begins one of the
-// command's words ("hide" finds "Hide my notes"; "back" finds "Save a copy of
+// command's words ("hide" finds "Hide my marks"; "back" finds "Save a copy of
 // my notebook" through its keyword "backup"). A query that starts with ">"
 // asks for commands alone: ">" lists them all, and what follows narrows them.
 
@@ -24,7 +24,7 @@ import { searchTokens } from "./desk-search.mjs";
 /**
  * Where the box is, as far as commands care:
  * { surface: a reading surface (the desk's panel exists), study: a Study View
- *   chapter, panelOpen: the Notebook panel is open, hidden: "Hide my notes"
+ *   chapter, panelOpen: the Notebook panel is open, hidden: "Hide my marks"
  *   is on }.
  */
 
@@ -69,8 +69,8 @@ export const COMMANDS = Object.freeze([
   },
   {
     id: "hide-notes",
-    name: (ctx) => (ctx.hidden ? "Show my notes" : "Hide my notes"),
-    keywords: ["hide", "show", "private", "screen"],
+    name: (ctx) => (ctx.hidden ? "Show my marks" : "Hide my marks"),
+    keywords: ["hide", "show", "notes", "highlights", "bookmarks", "private", "screen"],
     needs: "surface",
     hint: "On this page",
   },

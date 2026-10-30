@@ -26,7 +26,7 @@
 // It adds no text to the scripture: the only thing it touches is an attribute.
 // Each kind counts only while the reader is showing it: notes while "Notes in the margin"
 // is on, highlights while "My highlights" is on, bookmarks while "My bookmarks"
-// is on (all three are turned off by "Hide my notes"). A verse goes back to the
+// is on (all three are turned off by "Hide my marks"). A verse goes back to the
 // plain "Verse N" for whatever is hidden, so nothing on the page mentions what
 // the reader chose not to see.
 

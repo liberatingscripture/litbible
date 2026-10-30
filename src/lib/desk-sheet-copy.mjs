@@ -17,6 +17,7 @@ import { MODULE_TYPES, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
 import { blanksGivenAway } from "./desk-sheet-lit.mjs";
 import { linkScriptureRefs } from "./scripture-refs.mjs";
 import { openExternalLinks } from "./external-links.mjs";
+import { NOTE_LINKING } from "./desk-chains.mjs";
 
 /** The two copies of a sheet (S4). */
 export const COPIES = Object.freeze(["leader", "participant"]);
@@ -120,10 +121,12 @@ export function blankedTermsNote(n) {
  * A sheet's own formatted words as they are shown and printed: sanitized again
  * (the format sanitizes on the way out as well as in), with scripture
  * references linked and links leaving the site opening in a new tab, as a
- * note's are (noteBodyHtml). Neither of the last two is ever stored.
+ * note's are (noteBodyHtml). Neither of the last two is ever stored. The
+ * references are read in the linker's note mode, as a note's are (BVJ,
+ * 2026-10-29), so a note copied onto a sheet links there as it did in the note.
  */
 export function sheetHtmlForShow(html) {
-  return openExternalLinks(linkScriptureRefs(sanitizeSheetHtml(html ?? "")));
+  return openExternalLinks(linkScriptureRefs(sanitizeSheetHtml(html ?? ""), NOTE_LINKING));
 }
 
 /* ── Paper ──────────────────────────────────────────────────────────── */

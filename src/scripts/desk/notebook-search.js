@@ -42,7 +42,7 @@ function ensureStyles() {
   document.head.append(style);
 }
 
-// "Hide my notes" (M1) as it stands in the saved settings. note-settings.js
+// "Hide my marks" (M1) as it stands in the saved settings. note-settings.js
 // has the same test over the attributes it stamps on <html>, but it runs only
 // where the desk's shell does, and this file also runs on /search; the saved
 // values are what the attributes mirror. Read View's highlights are off by
@@ -65,7 +65,7 @@ function notesHidden() {
 
 /**
  * Search the notebook for a query. Resolves to { hits, total }: the matches
- * (none while "Hide my notes" is on) and their count. `bookKey` is the search
+ * (none while "Hide my marks" is on) and their count. `bookKey` is the search
  * box's book filter.
  */
 export async function search(query, { bookKey = "" } = {}) {

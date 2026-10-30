@@ -314,10 +314,9 @@
   softer borders failed site-wide. Buttons, cards and dividers keep their own.
   **It resolves on `:root`**, so a local `--ink-rgb` pin (the green header's
   `__inner`, `/sheets`' paper and presenter) does not reach it: a field on a
-  pinned surface writes `rgba(var(--ink-rgb), 0.58)` itself. Still open: the
-  `/contact` and `/app-support` fields (`contact.css`, `.field`) have no border
-  at all, only a shadow, and their fill is 1.28:1 on cream; adding one is a
-  visible design change, left for BVJ.
+  pinned surface writes `rgba(var(--ink-rgb), 0.58)` itself. The `/contact`
+  and `/app-support` fields (`contact.css`, `.field`) take it too, beside
+  their shadow (BVJ, 2026-10-29), since their fill is only 1.28:1 on cream.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

@@ -264,6 +264,15 @@ test("sheetHtmlForShow: links a typed scripture reference", () => {
   assert.ok(out.includes("/romans-8/#v28"), out);
 });
 
+test("sheetHtmlForShow: reads references in note mode, as a note does (BVJ, 2026-10-29)", () => {
+  const list = sheetHtmlForShow("<p>Romans 8:28, 30</p>");
+  assert.ok(list.includes("/romans-8/#v28"), list);
+  assert.ok(!list.includes("#v30"), list);
+  const short = sheetHtmlForShow("<p>See jn 3:16.</p>");
+  assert.ok(short.includes("/john-3/#v16"), short);
+  assert.ok(!sheetHtmlForShow("<p>Luke 2:100</p>").includes('class="sref"'));
+});
+
 test("sheetHtmlForShow: an external http link opens in a new tab", () => {
   const out = sheetHtmlForShow('<p><a href="https://example.com/page">a page</a></p>');
   assert.ok(out.includes('href="https://example.com/page"'), out);

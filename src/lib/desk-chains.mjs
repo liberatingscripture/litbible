@@ -31,7 +31,8 @@ import { onFootnote, proseTarget } from "./desk-records.mjs";
 import { byPlace } from "./desk-store-core.mjs";
 import { verseCount } from "../data/verse-counts.js";
 
-const NOTE_LINKING = {
+/** How a reader's own words are linked: in notes, and on a sheet (BVJ, 2026-10-29). */
+export const NOTE_LINKING = {
   mode: "note",
   hasVerse: (bookKey, chapter, verse) => verse <= verseCount(bookKey, chapter),
 };
