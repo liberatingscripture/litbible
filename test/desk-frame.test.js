@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 import { MIN_PANEL_ROOM, READING_SURFACES, panelRoom, readingSurface, shiftClearOfDock, standDown } from "../src/scripts/desk-frame.js";
 
 const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
-const rule = /body:not\(:has\(([^)]*)\)\)\s*\[data-desk-toggle\]/.exec(css);
+const rule = /body:not\(:has\(([^)]*)\)\)\s*button\[data-desk-toggle\]/.exec(css);
 
 test("global.css hides the Notebook button on exactly the pages READING_SURFACES leaves out", () => {
   assert.ok(rule, "the :has() rule wasn't found in global.css; update this test with it");

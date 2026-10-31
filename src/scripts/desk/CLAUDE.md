@@ -97,7 +97,7 @@ that section.
      edge matches) and its `end`: the seam where the page meets the footer's colour, which
      on the scripture pages is the top of the license band (SblgntNotice),
      since a band right above the footer counts as footer.
-     Everywhere else there is no panel, no button (a `:has()` rule in
+     Everywhere else there is no panel, no Notebook button (a `:has()` rule in
      global.css, held to the list by `test/desk-frame.test.js`), and the
      desk's code isn't loaded. **A new reading surface needs an entry in
      both.**
@@ -276,7 +276,9 @@ that section.
      button minimize it. (`close()` stays for "Hide my marks", the tour's
      restore and a reader's saved "Closed" start.) **The header's Notebook
      buttons are links to /desk** ("Study Desk"), still carrying
-     `data-desk-toggle` so global.css shows them on the same pages; the panel
+     `data-desk-toggle` so global.css shows them with the desk on, on every page
+     (BVJ, 2026-10-30; only the panel's buttons are held to the reading
+     surfaces, and the desk's own header hides its link); the panel
      wires `button[data-desk-toggle]` only. The Study View "Switch to Read View"
      pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
