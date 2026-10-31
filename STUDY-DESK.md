@@ -7439,7 +7439,8 @@ sign of a feature: log it, and move it when it's clear where it belongs).
 - **E17, rough: the My Notes pane and the Things I've Kept pane overlap
   too much to be two panes.** BVJ (2026-10-30). Some small differences
   show, but their use is largely the same. They should be consolidated
-  into one. Open: which name and which pane's behavior survives, what
+  into one. **Frontrunner name: "My Notebook"** (BVJ, 2026-10-30), not
+  yet decided. Open: which pane's behavior survives, what
   happens to the layouts and saved panes that name either one, and what
   the Notebook's tabs and the tour and help copy say afterward. Needs a
   look at what each pane holds that the other doesn't before it is built.
@@ -7474,6 +7475,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   tooltip ("Stay here," "Follow the LIT pane"), and `aria-pressed`.
   This also frees the thumbtack to mean pinning a footnote only (E18).
   Status: open.
+
+- **E22, bug: the My Notes pane doesn't follow the LIT pane.** BVJ
+  (2026-10-30), from using the preview on /desk. By design it should:
+  the pane lists notes on the verse at the LIT pane's reading line and
+  scrolls to match ("Order of work", 3; the pane's lead title says "My
+  Notes, This verse, Greek, and Footnotes follow this pane"), unless its
+  lock is on. Not yet reproduced: check whether its own "Stay here" is on,
+  whether it follows a scroll but not a picker move (or the reverse), and
+  whether it happens only with the LIT pane scrolled by the reader. Fold
+  the fix into E17, since the consolidated pane must follow. Status: open.
 
 **Fixed**
 
