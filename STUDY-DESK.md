@@ -738,7 +738,7 @@ every week.
   open in Word, Obsidian or any text editor.
 - **Paper** (N9): print any chapter with a ruled margin.
 
-## The ideas (49)
+## The ideas (53)
 
 "New" means no Bible site or tool was found doing it; "Borrowed" names the
 source. Sizes run extra small to large. Status is BVJ's decision where one was
@@ -1496,6 +1496,105 @@ plan as a whole was accepted; nothing was declined except where stated).
       their notebooks, the very trial 2c was waiting for ("Order of
       work", 2c). N2, H2 and M11 still add kinds of record wherever they
       are made, so that caution doesn't change.
+- **D10. The Septuagint behind a footnote.** Footnotes in 65 chapters name
+  the Septuagint (113 mentions, counted 2026-10-30), as in "the Septuagint
+  version of Psalm 40:6", but a reader can't see the Greek being
+  discussed. When a footnote cites the Septuagint's form of a verse, the
+  desk shows that verse's Greek: in the footnote's popover and the
+  Footnotes pane, and in This verse. Borrowed (STEPBible shows the LXX
+  beside the Hebrew). Medium. **Version 1 (BVJ, 2026-10-30)**, not yet
+  placed in a phase. From the 2026-10-30 review of a Gemini design
+  document (see "Decisions", 2026-10-30). To settle before building:
+  - **The text and its license.** Swete's edition (1887 to 1894) is public
+    domain and the safe base; each digitized copy's own terms still need
+    checking. Editions of Rahlfs (1935) built from the CCAT files come with
+    a user agreement that may not allow this. Parsing is a separate
+    question: the first version can show the text without it.
+  - **Numbering.** The footnotes cite English numbering, and Psalm 40:6 is
+    the LXX's Psalm 39:7.
+    The desk needs an English-to-LXX verse map for the Psalms, Jeremiah and
+    the other books where the two differ, the way
+    `src/lib/sefaria-refs.mjs` maps English to Hebrew numbering for
+    Sefaria.
+  - **Which citations qualify.** Only a reference the footnote ties to the
+    Septuagint ("the Septuagint version of Proverbs 11:31", "LXX Ps 51:4").
+    Today `QUALIFIER_BEHIND` in `src/lib/scripture-refs.mjs` keeps the
+    second kind unlinked, since Sefaria would open the Hebrew; D10 needs a
+    wider form of that test, which also catches the first kind. A plain
+    Hebrew Bible reference keeps opening Sefaria.
+  - **Starting points.** lit-xref's copy of Kalvesmaki's chart
+    (`data/kalvesmaki/NTChart.htm`; see D11) pairs each Old Testament
+    quotation in the New Testament with its LXX and MT verses, a check on
+    the verse map. Cardo and the Greek tab's layout already serve Greek
+    text.
+  - **Ground rule 5.** The LXX text is a file of its own beside the Greek
+    tab's (`public/greek/`), with nothing added to chapter JSON or `/api/`.
+- **D11. Cross-references of the LIT's own.** Related passages for each
+  verse, built and reviewed for the LIT, **never another database taken
+  over whole** (BVJ, 2026-10-30). The LIT's own footnotes are the first
+  source; other lists (the Treasury of Scripture Knowledge, OpenBible.info,
+  the NA and UBS indexes) are read only to find what the LIT's list missed,
+  row by row. The reader meets it in This verse and in a pane on /desk.
+  Borrowed (every study Bible); built from the translation's own evidence.
+  Large. **Version 2 (BVJ, 2026-10-30).**
+  - **Gospel parallels**, a kind of cross-reference within D11: the same
+    story or saying in Matthew, Mark, Luke and John, opened side by side
+    in /desk's panes. The Eusebian canons (fourth century, public domain)
+    are the base list. Modern synopses (Aland's) are copyrighted, so they
+    can check the list, never supply it.
+  - **The starting point is the lit-xref repository**, a separate folder
+    beside this one (`lit-xref`), built 2026-06-02 to 2026-06-16 and
+    surveyed 2026-10-30. Its `CLAUDE.md` sets the method: outside lists
+    feed candidate pools, and only `scripts/promote.py` writes the accepted
+    list, each entry stamped with who identified it (BCVJ for the
+    translator, footnotes included). What it holds:
+    - **Accepted** (`xref/included.json`): 123 entries, all drawn from LIT
+      footnotes. This is the file the site would read.
+    - **Candidates**: 1,266 footnote references that the outside lists
+      lack (the translator's own finds); 748 quotation candidates
+      (Kalvesmaki's chart for the Old Testament, Heiser's compilation of
+      the NA27 and UBS4 indexes for the deuterocanon, pseudepigrapha and
+      classical writers, and a short curated list); 7,823 word-overlap
+      candidates from MorphGNT; and OpenBible.info's 54,278 links with 5
+      or more votes, kept as corroboration only.
+    - **A review workbook** (`xref/review.xlsx`): a Decision column on
+      every row, kept when the workbook is regenerated. **No decisions are
+      entered yet.**
+  - **To do before continuing** (found 2026-10-30):
+    - Put lit-xref under git. It has no history or backup today.
+    - Re-run it against today's chapters. It read them on 2026-06-14, and
+      124 commits have changed chapter files since; Luke is complete now
+      (its spec still says pending), and Acts and Revelation are drafts.
+    - Fix the footnote audit's verse matching, which is verse-exact and
+      reports false gaps: Matthew 4:15 to Isaiah 9:1 (the footnote is on
+      4:16), Mark 9:44 and 15:28 (verses the LIT doesn't print), and
+      probably ranges such as "Isaiah 61:1–2a".
+    - Give Synoptic parallels a type of their own. 1,680 of the 7,823
+      word-overlap candidates link only Matthew, Mark and Luke: they are
+      Gospel parallels, not allusions, and would swamp the review.
+    - Its README runs `python3`, which fails on BVJ's computer (`py` or
+      `python` work).
+    - Check its license (CC BY-NC-ND 4.0) against the LIT's license
+      (changed 2026-10) before anything publishes.
+  - **Sources still to survey**, each for gaps only: public-domain
+    quotation lists (Westcott and Hort's index of Old Testament
+    quotations, Dittmar's *Vetus Testamentum in Novo*, Toy's *Quotations
+    in the New Testament*; coverage and digitized copies to confirm), the
+    Eusebian canons, and the NA and UBS margins as a check only, since
+    they are copyrighted.
+  - **How it reaches the site**: a file of its own, outside chapter JSON
+    and `/api/` (ground rule 5). The apps would read it only if BDR
+    agrees.
+- **D12. See this verse in a manuscript.** From the Greek tab's apparatus
+  and from This verse, a link opens the verse in a manuscript project's
+  own viewer, such as the Codex Sinaiticus Project or CSNTM's images.
+  **Links only**, in a new tab: showing the images in the desk (IIIF)
+  would need changes to the CSP in `public/_headers` and each holder's
+  image license. The starting point is the apparatus already in the Greek
+  tab (1f), which names where the editions differ. To settle: which
+  projects have addresses by book, chapter and verse stable enough to
+  link. Borrowed (the projects' own viewers). Small. **Version 2 (BVJ,
+  2026-10-30).**
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -4836,8 +4935,15 @@ be revisited for version 2.
 - **Reading places that sync** (the format's kind 5): not in version 1
   (BVJ, 2026-10-29; "maybe in v2"). Each device keeps its own "Continue
   reading".
+- **D11, cross-references of the LIT's own, with Gospel parallels**: version
+  2 (BVJ, 2026-10-30). It continues from the lit-xref repository; D11
+  lists what is there and what to fix first.
+- **D12, a link to the verse in a manuscript**: version 2 (BVJ,
+  2026-10-30).
 
 **Still open, for BVJ:**
+- **Which phase takes D10, the Septuagint behind a footnote**: it is
+  version 1 (BVJ, 2026-10-30) and not yet placed.
 - **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
   stays in 1d until then.
 - **Whether `glossaryId` (N2) and `markRule` (H2) stay in the format as
@@ -5926,6 +6032,33 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-10-30 (the Septuagint, cross-references and manuscripts)
+
+BVJ asked whether a Gemini design document for "the ultimate free Bible
+software" held anything the desk lacked. Most of it was already here, or set
+aside: the interlinear (the alignment project, and 1g for version 2), the
+variants (the Greek tab's apparatus), the lexicons, every place a lemma
+occurs (1h), commentaries, the AI features, other versions, and working
+offline (the apps). Three ideas were new. **Decided (BVJ):**
+
+- **D10, the Septuagint behind a footnote, is version 1**, not yet placed
+  in a phase.
+- **D11, cross-references of the LIT's own, is version 2**, with Gospel
+  parallels as a kind within it. It continues from the lit-xref
+  repository rather than starting over, and other lists are read for what
+  it missed, **never taken over whole**.
+- **D12, a link to the verse in a manuscript, is version 2.**
+- **Nothing starts now**: these are planning entries for later work.
+
+Set aside from the same document, so they don't come back: a 3D graph of
+themes (against quiet controls, and its links would mostly be noise), a
+side-by-side of denominational commentaries (the commentary question
+again, larger), a drawer of ancient Near Eastern parallels (its examples
+are Genesis; no open dataset links the New Testament to Philo, Josephus or
+1 Enoch), and a browser database of the whole library (the site's static
+files already do this, and a download of about 15 MB would undo the desk's
+lazy loading).
 
 ### 2026-10-29 (BVJ's answers to the open questions)
 
