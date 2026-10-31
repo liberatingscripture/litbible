@@ -353,7 +353,11 @@ are recorded so they aren't re-argued.
   where putting a search together isn't intuitive (E5; BVJ wants to try a
   menu-based builder) and a word family can't be searched (E6),
   whether the Notebook's Greek tab should search at all (E7), and a switch
-  for whether a Greek search lists the reader's notes (E11, 2026-10-28). **Decided
+  for whether a Greek search lists the reader's notes (E11, 2026-10-28),
+  and the header's home link, a quick add-pane control, a page-title menu
+  the Print menu's own chapter choice (E13 to E16), and consolidating
+  My Notes and Things I've Kept, glyph buttons, "+ Note", the Study View
+  rename and the lock glyph (E17 to E21, 2026-10-30). **Decided
   2026-10-21** (E8): there is no way into /desk, and **Read View is
   removed at the desk's launch**, its button on a computer becoming the
   way into the desk. **Decided 2026-10-22** (E9, which takes up E4):
@@ -7388,6 +7392,99 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   Open: where the list lives (the notebook page, beside “Empty the trash
   now,” is the likely place), and whether restoring is an undoable change
   like any other. Status: open.
+- **E13, bug: the logo and word mark's home link reaches across the
+  header's empty space to the page title.** BVJ (2026-10-30), from using
+  the preview. The link should cover only the emblem and the "LIT Bible"
+  word mark, not the gap between them and the page title (clicking the
+  gap goes home, which nobody means). Likely cause, not yet checked: the
+  brand anchor (`.site-header__brand`, `SiteHeader.astro`) is a flex item
+  that grows to fill the row on the desk's pages. Expected: the hit area
+  is the glyph and word mark only, on every page, with the focus ring
+  hugging the same box. Status: open.
+- **E14, wish: a quick way to add a pane on /desk.** BVJ (2026-10-30). One
+  control adds the next pane: with one column open it adds a second, and
+  so on. With four panes open (the most /desk holds, D9) it is disabled,
+  not hidden, so the limit reads as a limit. Open: what the new pane
+  shows (an empty pane that asks what to open, as the layout control does
+  today, is the likely answer), and whether it also lives beside the
+  Layout choices. Status: open; it ships as an item in E15's menu.
+- **E15, wish: the page title becomes a menu.** BVJ (2026-10-30), thinking
+  aloud and not a decision. On /desk the page title would open a drop-down
+  that gathers the page-level actions now spread along the bar: **Layout**,
+  **Display options**, **Add new pane** (E14), the **Print chapter**
+  dialog (E16), and "anything else we decide should be added." Open:
+  what else belongs (Settings, the tour, the help page are candidates;
+  nothing is chosen), whether the Layout and Print buttons on the bar
+  stay as well or give way to the menu, whether the title on `/notebook`
+  and `/sheets` becomes a menu too or only `/desk` does, and how it
+  announces itself as a button (a caret, as the Layout and Print buttons
+  have, and `aria-haspopup`/`aria-expanded`). Needs a mock before it is
+  built ("quiet controls"). Status: open.
+- **E16, rough: printing a chapter needs its own chapter choice, and the
+  Notebook lacks the plain-chapter print.** BVJ (2026-10-30), two parts.
+  (1) The Print menu on /desk (`desk-page.js`, "the Print menu") prints
+  "the leading LIT pane's chapter, else the shared place," so with no LIT
+  pane open it has nothing to print. It should carry a **chapter picker**
+  (book and chapter) so it is fully usable with no LIT pane open; the
+  open pane's chapter stays the default when there is one. (2) /desk
+  offers three choices ("The chapter," "With my notes," "With room to
+  write"), but the **Notebook offers only the ones with notes**. The
+  chapter without notes or room to write should be there too. The menu
+  and the picker should be one piece of code that /desk and the Notebook
+  both use, so they can't drift again; E15 would open it from the title
+  menu. Open: the picker's shape (two selects, or a reference field that
+  reads "John 3" the way the search box does) and where the Notebook's
+  copy of the menu sits. Status: open.
+
+- **E17, rough: the My Notes pane and the Things I've Kept pane overlap
+  too much to be two panes.** BVJ (2026-10-30). Some small differences
+  show, but their use is largely the same. They should be consolidated
+  into one. **Frontrunner name: "My Notebook"** (BVJ, 2026-10-30), not
+  yet decided. Open: which pane's behavior survives, what
+  happens to the layouts and saved panes that name either one, and what
+  the Notebook's tabs and the tour and help copy say afterward. Needs a
+  look at what each pane holds that the other doesn't before it is built.
+  Status: open.
+- **E18, wording: pin and unpin on footnotes should be a glyph, not
+  words.** BVJ (2026-10-30). Pin becomes a thumbtack; unpin becomes the
+  same thumbtack with a diagonal line through it. Each keeps an
+  accessible name ("Pin footnote 3," "Unpin footnote 3"), `aria-pressed`
+  or the label saying which it is, and a tooltip. Applies to the pin
+  buttons in `pins.js` and wherever Study View's Footnotes list shows
+  them. Status: open.
+- **E19, wording: "Add a note" becomes "+ Note."** BVJ (2026-10-30). On
+  the buttons by footnotes (`footnote-notes.js`), in the My Notes pane
+  and in the This verse pane. The accessible name stays long ("Add a note
+  on footnote 3"), as it is today. The verse menu's and selection panel's
+  "Add a note" rows are not named, so they stay unless BVJ says
+  otherwise. Open: "+Note" or "+ Note." Status: open.
+- **E20, wish: rename Study View, and put the Study Desk in Ways to Read.**
+  BVJ (2026-10-30). On /read, the three cards in the Ways to Read section
+  change: the **Read View** card is replaced by the **Study Desk**. And
+  **"Study View" is renamed sitewide**, to something not yet chosen
+  ("Chapter pages" is a candidate). Open: the name; that this follows E8,
+  where Read View retires at launch and its button becomes the way into
+  the desk; and the reach of a rename: reader-facing copy, the tour,
+  help, the apps' mentions, release notes already written, and the
+  "Study View"/"Read View" paragraph in CLAUDE.md. Nothing is renamed
+  until BVJ picks the name. Status: open.
+- **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
+  BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
+  pane stays and an unlocked lock when it follows, with no words
+  (`desk-page.js`, the pane header). It keeps an accessible name and
+  tooltip ("Stay here," "Follow the LIT pane"), and `aria-pressed`.
+  This also frees the thumbtack to mean pinning a footnote only (E18).
+  Status: open.
+
+- **E22, bug: the My Notes pane doesn't follow the LIT pane.** BVJ
+  (2026-10-30), from using the preview on /desk. By design it should:
+  the pane lists notes on the verse at the LIT pane's reading line and
+  scrolls to match ("Order of work", 3; the pane's lead title says "My
+  Notes, This verse, Greek, and Footnotes follow this pane"), unless its
+  lock is on. Not yet reproduced: check whether its own "Stay here" is on,
+  whether it follows a scroll but not a picker move (or the reverse), and
+  whether it happens only with the LIT pane scrolled by the reader. Fold
+  the fix into E17, since the consolidated pane must follow. Status: open.
 
 **Fixed**
 
