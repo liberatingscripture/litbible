@@ -1498,37 +1498,51 @@ plan as a whole was accepted; nothing was declined except where stated).
       are made, so that caution doesn't change.
 - **D10. The Septuagint behind a footnote.** Footnotes in 65 chapters name
   the Septuagint (113 mentions, counted 2026-10-30), as in "the Septuagint
-  version of Psalm 40:6", but a reader can't see the Greek being
-  discussed. When a footnote cites the Septuagint's form of a verse, the
-  desk shows that verse's Greek: in the footnote's popover and the
-  Footnotes pane, and in This verse. Borrowed (STEPBible shows the LXX
-  beside the Hebrew). Medium. **Version 1 (BVJ, 2026-10-30)**, not yet
-  placed in a phase. From the 2026-10-30 review of a Gemini design
-  document (see "Decisions", 2026-10-30). To settle before building:
-  - **The text and its license.** Swete's edition (1887 to 1894) is public
-    domain and the safe base; each digitized copy's own terms still need
-    checking. Editions of Rahlfs (1935) built from the CCAT files come with
-    a user agreement that may not allow this. Parsing is a separate
-    question: the first version can show the text without it.
-  - **Numbering.** The footnotes cite English numbering, and Psalm 40:6 is
-    the LXX's Psalm 39:7.
-    The desk needs an English-to-LXX verse map for the Psalms, Jeremiah and
-    the other books where the two differ, the way
-    `src/lib/sefaria-refs.mjs` maps English to Hebrew numbering for
-    Sefaria.
-  - **Which citations qualify.** Only a reference the footnote ties to the
-    Septuagint ("the Septuagint version of Proverbs 11:31", "LXX Ps 51:4").
-    Today `QUALIFIER_BEHIND` in `src/lib/scripture-refs.mjs` keeps the
-    second kind unlinked, since Sefaria would open the Hebrew; D10 needs a
-    wider form of that test, which also catches the first kind. A plain
-    Hebrew Bible reference keeps opening Sefaria.
+  version of Psalm 40:6", usually where it differs from the Hebrew. Today
+  a reader can't see it: "LXX Ps 51:4" stays plain, and a reference
+  written out in words opens Sefaria's translation of the Hebrew, the very
+  wording the footnote contrasts (E23). From the 2026-10-30 review of a
+  Gemini design document (see "Decisions", 2026-10-30). **Two parts
+  (BVJ, 2026-10-30):**
+  - **Version 1: a link to the Septuagint in English.** Small. Not yet
+    placed in a phase. A reference the footnote ties to the Septuagint
+    opens Brenton's English translation (1844, public domain), the way
+    apocrypha open the WEB on eBible.org (`src/lib/ebible-refs.mjs`).
+    Whether eBible.org carries Brenton, and which numbering its addresses
+    use, is still to check; failing that, another site with the LXX in
+    English addressed by verse. The fix in E23 comes first and can ship
+    on its own.
+  - **Version 2: the Greek and the Hebrew in the desk.** Medium. The desk
+    shows the cited verse's own text in the footnote's popover, the
+    Footnotes pane and This verse: the LXX's Greek for a Septuagint
+    reference, and the Hebrew for a Hebrew Bible one, so both kinds of
+    reference are treated alike (BVJ's question, 2026-10-30: why show the
+    one and not the other?). Borrowed (STEPBible shows the LXX beside the
+    Hebrew). Hebrew Bible references keep their Sefaria link either way.
+  - **The texts and their licenses** (version 2). For the LXX, Swete's
+    edition (1887 to 1894) is public domain and the safe base; each
+    digitized copy's own terms still need checking, and editions of
+    Rahlfs (1935) built from the CCAT files come with a user agreement
+    that may not allow this. For the Hebrew, the Westminster Leningrad
+    Codex is public domain ("Ready for the Greek text"). Parsing is a
+    separate question: the first version can show the text without it.
+  - **Numbering** (both versions). The footnotes cite English numbering,
+    and Psalm 40:6 is the LXX's Psalm 39:7. A link or a display needs an
+    English-to-LXX verse map for the Psalms, Jeremiah and the other books
+    where the two differ, the way `src/lib/sefaria-refs.mjs` maps English
+    to Hebrew numbering for Sefaria.
+  - **Which citations count as the Septuagint's** (both versions). A
+    reference the footnote ties to it: "LXX Ps 51:4", "the Septuagint
+    version of Proverbs 11:31", "the Septuagint (Isaiah 24:20)". The test
+    is E23's.
   - **Starting points.** lit-xref's copy of Kalvesmaki's chart
     (`data/kalvesmaki/NTChart.htm`; see D11) pairs each Old Testament
     quotation in the New Testament with its LXX and MT verses, a check on
     the verse map. Cardo and the Greek tab's layout already serve Greek
-    text.
-  - **Ground rule 5.** The LXX text is a file of its own beside the Greek
-    tab's (`public/greek/`), with nothing added to chapter JSON or `/api/`.
+    and Hebrew text.
+  - **Ground rule 5** (version 2). The texts are files of their own beside
+    the Greek tab's (`public/greek/`), with nothing added to chapter JSON
+    or `/api/`.
 - **D11. Cross-references of the LIT's own.** Related passages for each
   verse, built and reviewed for the LIT, **never another database taken
   over whole** (BVJ, 2026-10-30). The LIT's own footnotes are the first
@@ -4940,10 +4954,13 @@ be revisited for version 2.
   lists what is there and what to fix first.
 - **D12, a link to the verse in a manuscript**: version 2 (BVJ,
   2026-10-30).
+- **D10's second part, the Greek and the Hebrew shown in the desk**:
+  version 2 (BVJ, 2026-10-30). Its first part, a link, is version 1.
 
 **Still open, for BVJ:**
-- **Which phase takes D10, the Septuagint behind a footnote**: it is
-  version 1 (BVJ, 2026-10-30) and not yet placed.
+- **Which phase takes D10's version 1 part, a link to the Septuagint in
+  English** (BVJ, 2026-10-30): not yet placed. E23, the fix it builds on,
+  is in phase 5's log.
 - **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
   stays in 1d until then.
 - **Whether `glossaryId` (N2) and `markRule` (H2) stay in the format as
@@ -6042,8 +6059,16 @@ variants (the Greek tab's apparatus), the lexicons, every place a lemma
 occurs (1h), commentaries, the AI features, other versions, and working
 offline (the apps). Three ideas were new. **Decided (BVJ):**
 
-- **D10, the Septuagint behind a footnote, is version 1**, not yet placed
-  in a phase.
+- **D10, the Septuagint behind a footnote, is split** (BVJ, later the same
+  day). First planned as version 1 whole, showing the LXX's Greek in the
+  desk; BVJ then asked why the Greek of LXX references would show and not
+  the Hebrew of Hebrew Bible references. The answer was that Hebrew
+  references already open Sefaria, while LXX references get nothing, and
+  checking that found worse: a Septuagint reference written out in words
+  opens Sefaria's translation of the Hebrew (E23). So **version 1 fixes
+  that and links LXX references to an English translation of the
+  Septuagint**, and **version 2 shows the Greek and the Hebrew in the desk,
+  for both kinds of reference alike**.
 - **D11, cross-references of the LIT's own, is version 2**, with Gospel
   parallels as a kind within it. It continues from the lit-xref
   repository rather than starting over, and other lists are read for what
@@ -7618,6 +7643,25 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   whether it follows a scroll but not a picker move (or the reverse), and
   whether it happens only with the LIT pane scrolled by the reader. Fold
   the fix into E17, since the consolidated pane must follow. Status: open.
+- **E23, bug: a Septuagint reference opens a translation of the Hebrew.**
+  Found 2026-10-30 while planning D10, by running `linkScriptureRefs` on
+  footnote wording. "LXX Ps 51:4" stays plain, as intended:
+  `QUALIFIER_BEHIND` in `src/lib/scripture-refs.mjs` keeps a reference
+  qualified by "LXX" or "Septuagint" from linking, since Sefaria would
+  open the Hebrew. But the test looks only at the word right before the
+  reference, so "the Septuagint version of Psalm 40:6", "the Septuagint
+  version of Proverbs 11:31" and "the Septuagint (Isaiah 24:20)" all link
+  to Sefaria's JPS English. Those footnotes usually cite the Septuagint
+  where it differs from the Hebrew (Hebrews 10's footnote c quotes the
+  Septuagint's Psalm 40:6 and sets it against the Hebrew's "You have
+  hollowed out ears for me"), so the link shows the reader the wording
+  the footnote contrasts. Affects every
+  reader, not only the desk. Expected: a reference the footnote ties to
+  the Septuagint doesn't open Sefaria; it stays plain until D10's link
+  exists, then opens the Septuagint in English. Open: how wide the test
+  reaches (a phrase ending in "of", a parenthesis after "the
+  Septuagint"), checked against all 113 mentions so a Hebrew reference
+  near the word isn't caught. Status: open.
 
 **Fixed**
 
