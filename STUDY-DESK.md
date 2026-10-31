@@ -355,7 +355,9 @@ are recorded so they aren't re-argued.
   whether the Notebook's Greek tab should search at all (E7), and a switch
   for whether a Greek search lists the reader's notes (E11, 2026-10-28),
   and the header's home link, a quick add-pane control, a page-title menu
-  and the Print menu's own chapter choice (E13 to E16, 2026-10-30). **Decided
+  the Print menu's own chapter choice (E13 to E16), and consolidating
+  My Notes and Things I've Kept, glyph buttons, "+ Note", the Study View
+  rename and the lock glyph (E17 to E21, 2026-10-30). **Decided
   2026-10-21** (E8): there is no way into /desk, and **Read View is
   removed at the desk's launch**, its button on a computer becoming the
   way into the desk. **Decided 2026-10-22** (E9, which takes up E4):
@@ -7433,6 +7435,45 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   menu. Open: the picker's shape (two selects, or a reference field that
   reads "John 3" the way the search box does) and where the Notebook's
   copy of the menu sits. Status: open.
+
+- **E17, rough: the My Notes pane and the Things I've Kept pane overlap
+  too much to be two panes.** BVJ (2026-10-30). Some small differences
+  show, but their use is largely the same. They should be consolidated
+  into one. Open: which name and which pane's behavior survives, what
+  happens to the layouts and saved panes that name either one, and what
+  the Notebook's tabs and the tour and help copy say afterward. Needs a
+  look at what each pane holds that the other doesn't before it is built.
+  Status: open.
+- **E18, wording: pin and unpin on footnotes should be a glyph, not
+  words.** BVJ (2026-10-30). Pin becomes a thumbtack; unpin becomes the
+  same thumbtack with a diagonal line through it. Each keeps an
+  accessible name ("Pin footnote 3," "Unpin footnote 3"), `aria-pressed`
+  or the label saying which it is, and a tooltip. Applies to the pin
+  buttons in `pins.js` and wherever Study View's Footnotes list shows
+  them. Status: open.
+- **E19, wording: "Add a note" becomes "+ Note."** BVJ (2026-10-30). On
+  the buttons by footnotes (`footnote-notes.js`), in the My Notes pane
+  and in the This verse pane. The accessible name stays long ("Add a note
+  on footnote 3"), as it is today. The verse menu's and selection panel's
+  "Add a note" rows are not named, so they stay unless BVJ says
+  otherwise. Open: "+Note" or "+ Note." Status: open.
+- **E20, wish: rename Study View, and put the Study Desk in Ways to Read.**
+  BVJ (2026-10-30). On /read, the three cards in the Ways to Read section
+  change: the **Read View** card is replaced by the **Study Desk**. And
+  **"Study View" is renamed sitewide**, to something not yet chosen
+  ("Chapter pages" is a candidate). Open: the name; that this follows E8,
+  where Read View retires at launch and its button becomes the way into
+  the desk; and the reach of a rename: reader-facing copy, the tour,
+  help, the apps' mentions, release notes already written, and the
+  "Study View"/"Read View" paragraph in CLAUDE.md. Nothing is renamed
+  until BVJ picks the name. Status: open.
+- **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
+  BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
+  pane stays and an unlocked lock when it follows, with no words
+  (`desk-page.js`, the pane header). It keeps an accessible name and
+  tooltip ("Stay here," "Follow the LIT pane"), and `aria-pressed`.
+  This also frees the thumbtack to mean pinning a footnote only (E18).
+  Status: open.
 
 **Fixed**
 
