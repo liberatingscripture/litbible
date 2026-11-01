@@ -3675,11 +3675,20 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
-/* The selected word: a tint of the text's own colour (so its contrast holds
-   in both themes) and a rule under it, so it doesn't rest on colour alone. */
+/* The selected word: a green tint (the text green, which flips in dark mode,
+   so its contrast holds in both themes) and a rule under it, so it doesn't
+   rest on colour alone. */
 .desk-greek__w.is-selected {
-  background: rgba(var(--ink-rgb), 0.14);
+  background: color-mix(in srgb, var(--green-text) 22%, transparent);
   box-shadow: inset 0 -2px 0 var(--green-text);
+}
+
+/* The selected word's other forms in the chapter: a lighter green than the
+   word itself, no underline. Later than the hover rule, so green wins where
+   the pointer is over the same lemma; hovering another lemma stays gray, so
+   both sets show at once. */
+.desk-greek__w.is-sel-kin {
+  background: color-mix(in srgb, var(--green-text) 12%, transparent);
 }
 
 .desk-greek__sign {
@@ -3911,8 +3920,46 @@ html:has(.desk-greek__split--dragging) {
   margin: 0 0 6px;
 }
 
+.desk-greek__live {
+  position: relative;
+}
+
+.desk-greek__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.desk-greek__close[hidden] {
+  display: none;
+}
+
+.desk-greek__close:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-greek__close:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .desk-greek__word {
   margin: 0;
+  padding-right: 36px;
   font-family: var(--serif);
   font-size: 1.375rem;
   font-weight: 600;
@@ -5955,6 +6002,11 @@ html.desk-ws--moving * {
   .desk-greek__w.is-selected {
     background: Highlight;
     color: HighlightText;
+  }
+
+  /* A tint draws nothing here, so the selected word's other forms get an underline. */
+  .desk-greek__w.is-sel-kin {
+    text-decoration: underline;
   }
 
   .desk-greek__choice[aria-pressed="true"] {
