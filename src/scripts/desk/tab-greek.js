@@ -173,6 +173,7 @@ export function createGreekTab({
     <section class="desk-greek__details" aria-label="Word details">
       <div class="sr-only desk-greek__announce" aria-live="polite" aria-atomic="true"></div>
       <div class="desk-greek__live">
+        <button type="button" class="desk-greek__close" aria-label="Close the word’s details" title="Close the word’s details" hidden>&times;</button>
         <h4 class="desk-greek__word" lang="grc"></h4>
         <p class="desk-greek__parse"></p>
       </div>
@@ -204,6 +205,8 @@ export function createGreekTab({
   const splitter = el.querySelector(".desk-greek__split");
   const wordHead = el.querySelector(".desk-greek__word");
   const parseLine = el.querySelector(".desk-greek__parse");
+  const closeWord = el.querySelector(".desk-greek__close");
+  const NO_WORD = "Select a word to see its dictionary entry. The arrow keys move between words.";
   const more = el.querySelector(".desk-greek__more");
   const lemmaLine = el.querySelector(".desk-greek__lemma");
   const fromLine = el.querySelector(".desk-greek__from");
@@ -222,6 +225,7 @@ export function createGreekTab({
   let buttons = []; // flat index -> its button
   const verseMarks = new Map(); // verse -> its number in the text
   let selected = null;
+  let selKin = []; // the other words of the selected word's lemma, tinted green
   let rover = 0;
   let pending = null; // a verse to scroll to once the tab has a size
   let loading = null;
@@ -307,6 +311,7 @@ export function createGreekTab({
     flat = flattenWords(data.paragraphs);
     verses = versesOf(flat);
     buttons = [];
+    selKin = [];
     verseMarks.clear();
     const frag = document.createDocumentFragment();
 
@@ -360,8 +365,9 @@ export function createGreekTab({
     rover = 0;
     if (buttons[0]) buttons[0].tabIndex = 0;
     wordHead.textContent = "";
-    parseLine.textContent = "Select a word to see its dictionary entry. The arrow keys move between words.";
+    parseLine.textContent = NO_WORD;
     more.hidden = true;
+    closeWord.hidden = true;
 
     window.addEventListener("scroll", queueGoto, { passive: true });
     scroller.addEventListener("scroll", queueGoto, { passive: true });
@@ -600,14 +606,53 @@ export function createGreekTab({
       buttons[selected].classList.remove("is-selected");
     }
     selected = i;
+    closeWord.hidden = false;
     buttons[i].setAttribute("aria-pressed", "true");
     buttons[i].classList.add("is-selected");
+    markSelectedLemma(i);
     if (focus) buttons[i].focus({ preventScroll: true });
     // The details first: they take height from the text, so the word is
     // placed against the Greek's final size.
     showDetails(i);
     if (scroll) bringIntoView(buttons[i]);
     queueGoto();
+  }
+
+  /** Let go of the selected word: its tints and its entry go, and the pane is as it was before any word was chosen. */
+  function deselect({ focus = false } = {}) {
+    if (selected == null) return;
+    const b = buttons[selected];
+    if (b) {
+      b.setAttribute("aria-pressed", "false");
+      b.classList.remove("is-selected");
+    }
+    for (const k of selKin) k.classList.remove("is-sel-kin");
+    selKin = [];
+    selected = null;
+    lexSeq++; // a lexicon still loading is for a word no longer chosen
+    wordHead.replaceChildren();
+    parseLine.textContent = NO_WORD;
+    announce.replaceChildren();
+    more.hidden = true;
+    closeWord.hidden = true;
+    if (focus && b) b.focus({ preventScroll: true });
+    queueGoto();
+  }
+
+  closeWord.addEventListener("click", () => deselect({ focus: true }));
+
+  /** Every word of the selected word's lemma gets a lighter green tint; they stay while the reader scrolls. */
+  function markSelectedLemma(i) {
+    for (const b of selKin) b.classList.remove("is-sel-kin");
+    selKin = [];
+    const lemma = flat[i].w[W.lemma];
+    if (lemma == null) return;
+    flat.forEach((f, j) => {
+      if (j !== i && f.w[W.lemma] === lemma && buttons[j]) {
+        buttons[j].classList.add("is-sel-kin");
+        selKin.push(buttons[j]);
+      }
+    });
   }
 
   scroller.addEventListener("click", (e) => {
@@ -617,7 +662,11 @@ export function createGreekTab({
       return;
     }
     const word = e.target.closest(".desk-greek__w");
-    if (word) select(Number(word.dataset.i), { scroll: true });
+    if (!word) return;
+    const i = Number(word.dataset.i);
+    // Clicking the chosen word again lets it go.
+    if (i === selected) deselect();
+    else select(i, { scroll: true });
   });
 
   // Hovering a word also tints every word of its lemma in the chapter.
@@ -867,6 +916,8 @@ export function createGreekTab({
       f.append(starter(form, form, () => find.open({ query: form, prefer: form })));
       lemmaLine.append(f);
       if (gloss) lemmaLine.append(` · ${gloss}`);
+      const count = flat.filter((x) => x.w[W.lemma] === w[W.lemma]).length;
+      lemmaLine.append(` · ${count} in this chapter`);
       if (strong) {
         const s = make("span", "desk-greek__strong");
         s.append(starter(`Strong’s ${strong}`, strong, () => find.open({ query: strong, prefer: form })));
