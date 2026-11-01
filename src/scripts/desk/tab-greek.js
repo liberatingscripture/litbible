@@ -620,6 +620,27 @@ export function createGreekTab({
     if (word) select(Number(word.dataset.i), { scroll: true });
   });
 
+  // Hovering a word also tints every word of its lemma in the chapter.
+  let kin = [];
+  const clearKin = () => {
+    for (const b of kin) b.classList.remove("is-kin");
+    kin = [];
+  };
+  scroller.addEventListener("pointerover", (e) => {
+    const word = e.target.closest?.(".desk-greek__w");
+    clearKin();
+    if (!word || e.pointerType === "touch") return;
+    const lemma = flat[Number(word.dataset.i)]?.w[W.lemma];
+    if (lemma == null) return;
+    flat.forEach((f, i) => {
+      if (f.w[W.lemma] === lemma && buttons[i] !== word) {
+        buttons[i].classList.add("is-kin");
+        kin.push(buttons[i]);
+      }
+    });
+  });
+  scroller.addEventListener("pointerleave", clearKin);
+
   scroller.addEventListener("keydown", (e) => {
     const word = e.target.closest?.(".desk-greek__w");
     if (!word || e.ctrlKey || e.metaKey || e.altKey) return;

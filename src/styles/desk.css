@@ -3670,7 +3670,8 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   cursor: pointer;
 }
 
-.desk-greek__w:hover {
+.desk-greek__w:hover,
+.desk-greek__w.is-kin {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
