@@ -7756,8 +7756,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   pane, shows Continue reading and the change flags, and opens notes in full;
   it took from What I've kept the search ("Search my notebook"), "Show" by
   kind, the count in words, headings by chapter (once the list spans more
-  than one), and the "Labels…" button with label chips. That design is
-  Claude's recommendation; BVJ confirmed only the name. The pane kind `kept`
+  than one), and the "Labels…" button with label chips. That design was
+  Claude's recommendation; BVJ confirmed the name first and then the
+  design ("Looks good," 2026-11-02, on PR #435). The pane kind `kept`
   is retired: a saved layout that names it reads back as `mine`
   (`RETIRED_KINDS`), "My default" included; a layout that held both keeps
   two My Notes panes. `kept-list.js` stays for /notebook. E19 needed no
@@ -7859,7 +7860,7 @@ the rest is polish.
 4. **One notes pane**: E17 with E22. **Done 2026-11-02**: one pane, "My
    Notes" (BVJ's name), with What I've kept's search, kind choice, count,
    chapter headings and labels folded in; the follow fix; saved layouts
-   naming `kept` migrate to `mine`. Awaiting BVJ's look at the design calls.
+   naming `kept` migrate to `mine`. BVJ approved the design on PR #435.
 5. **The shared Print menu with a chapter picker**: E16. One piece of code
    for /desk and the Notebook; goes before 6, which opens it.
 6. **The page-title menu and the quick add-pane control**: E15 with E14.
