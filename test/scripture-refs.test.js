@@ -182,6 +182,48 @@ test("a Hebrew Bible reference in another text's numbering or wording stays plai
   assert.deepEqual(sefaria("the Hebrew of Psalm 51:4"), [["Psalm 51:4", "Psalms.51.6"]]);
 });
 
+test("a reference a footnote ties to the Septuagint in a phrase stays plain (E23)", () => {
+  // The footnotes' own wording (Hebrews 10, 1 Peter 4, Luke 21, Hebrews 1,
+  // Luke 18, Romans 3): Sefaria would open the Hebrew the footnote contrasts.
+  for (const s of [
+    "This is a quotation of the Septuagint version of Psalm 40:6. The Hebrew version reads",
+    "This is a quotation of the Septuagint version of Proverbs 11:31, though it differs",
+    "some uses of the related verb form in the Septuagint (Isaiah 24:20; 29:9) referred",
+    "a direct quotation of the Septuagint (Greek translation of the Hebrew Bible) version of Psalm 104.",
+    "This quotation is of the Greek version (Septuagint) of Psalm 45.",
+    "echoes the Septuagint’s rendering of Deuteronomy 30:20, which reads",
+    "Quotation of Psalm 51:4 (in the Septuagint, the Greek translation).",
+    "the LXX version of Psalm 40:6",
+  ]) {
+    assert.deepEqual(sefaria(s), [], s);
+  }
+  // A New Testament reference in the same phrase still links to the LIT.
+  assert.deepEqual(hrefs("the Septuagint version of Psalm 68 and of Ephesians 4:8"), [
+    ["Ephesians 4:8", "/ephesians-4/#v8"],
+  ]);
+});
+
+test("a Hebrew reference near the word Septuagint still links", () => {
+  for (const [s, ref, target] of [
+    ["the Hebrew of Psalm 40:6, unlike the Septuagint", "Psalm 40:6", "Psalms.40.7"],
+    // The Hebrew is named too, so the verse is not the Greek's alone.
+    [
+      "the original Hebrew and Septuagint (Greek translation) of Deuteronomy 30:13 refer to crossing the sea",
+      "Deuteronomy 30:13",
+      "Deuteronomy.30.13",
+    ],
+    ["the Hebrew and Septuagint versions of Psalm 40:6", "Psalm 40:6", "Psalms.40.7"],
+    [
+      "The Septuagint includes this word; however, there is no corresponding word in the Hebrew text. Proverbs 3:12 in Hebrew",
+      "Proverbs 3:12",
+      "Proverbs.3.12",
+    ],
+    ["It is not what Psalm 118:25 says either in Hebrew or the Greek translation (Septuagint).", "Psalm 118:25", "Psalms.118.25"],
+  ]) {
+    assert.deepEqual(sefaria(s), [[ref, target]], s);
+  }
+});
+
 test("the apocrypha link to the World English Bible on eBible.org", () => {
   // The notes' own citations; a range opens at its first verse.
   assert.deepEqual(ebible("Sirach 6:24–30; Sirach 14:20–27; Sirach 51:23–27; Wisdom 3:1"), [

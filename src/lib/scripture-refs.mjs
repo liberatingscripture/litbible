@@ -35,7 +35,9 @@
 //     A reference that links to another site also stays plain when tagged
 //     with a text whose numbering or wording isn't the one shown there (LXX,
 //     MT, Alter's translation), since the link would open a different verse
-//     or wording;
+//     or wording. A footnote that ties the verse to the Septuagint in a
+//     phrase ("the Septuagint version of Psalm 40:6") counts as a tag too;
+//     see QUALIFIER_BEHIND;
 //   - anything already inside <a>, <script>, <style>, <code> or <pre>.
 //
 // A reader's own note is read in a mode of its own (`mode: "note"`; BVJ,
@@ -177,13 +179,35 @@ const NOTE_CONT_RE = contRe("[:.]");
 const NUMBERED_BOOK_AHEAD = /^(?:\s|\u00a0|&nbsp;)+[A-Z]/;
 
 // An outbound reference qualified from in front ("LXX Ps 51:4") cites that
-// text's numbering or wording, so it stays plain like a tagged one.
-const QUALIFIER_BEHIND = /(?:LXX|MT|Septuagint|Masoretic)(?:\s|\u00a0|&nbsp;)*$/;
+// text's numbering or wording, so it stays plain like a tagged one. The
+// Septuagint is also named a few words ahead (E23): "the Septuagint version
+// of Psalm 40:6", "the Septuagint (Greek translation of the Hebrew Bible)
+// version of Psalm 104", "the Septuagint\u2019s rendering of Deuteronomy 30:20",
+// "the Greek version (Septuagint) of Psalm 45", "in the Septuagint (Isaiah
+// 24:20; 29:9)". Each phrase ties the verse to the Greek on its own; a
+// plural "versions of" (the Hebrew and Septuagint versions) or a bare "of"
+// ("the original Hebrew and Septuagint (Greek translation) of Deuteronomy
+// 30:13") can name the Hebrew too, so those still link. Whitespace runs are
+// bounded, as in SP_BEHIND, so a long run can't make the test backtrack.
+const WS_BEHIND = String.raw`(?:\s|\u00a0|&nbsp;|&#160;){1,4}`;
+const LXX_NAME = String.raw`(?:LXX|Septuagint)`;
+const QUALIFIER_BEHIND = new RegExp(
+  String.raw`(?:(?:LXX|MT|Septuagint|Masoretic)(?:\s|\u00a0|&nbsp;)*` +
+    String.raw`|${LXX_NAME}(?:(?:[\u2019']|&rsquo;)s)?(?:${WS_BEHIND}\([^()]{1,80}\))?${WS_BEHIND}` +
+    String.raw`(?:version|rendering|reading|text|translation)${WS_BEHIND}of${WS_BEHIND}` +
+    String.raw`|(?:version|translation)${WS_BEHIND}\(${LXX_NAME}\)${WS_BEHIND}of${WS_BEHIND}` +
+    String.raw`|${LXX_NAME}(?:\s|\u00a0|&nbsp;|&#160;){0,4}\()$`,
+);
 
 const tagRe = (tags) =>
   new RegExp(String.raw`^,?(?:\s|\u00a0|&nbsp;)*\(?(?:${tags.join("|")})(?![A-Za-z])`);
 const TAG_RE = tagRe(OTHER_TRANSLATIONS);
 const OUTBOUND_TAG_RE = tagRe(OUTBOUND_TAGS);
+// The Septuagint named in a parenthesis right after: "Psalm 51:4 (in the
+// Septuagint, the Greek translation)".
+const LXX_AFTER_RE = new RegExp(
+  String.raw`^(?:\s|\u00a0|&nbsp;)*\(in${WS_BEHIND}the${WS_BEHIND}${LXX_NAME}(?![A-Za-z])`,
+);
 
 /**
  * Resolves one parsed reference to a link target, or null when it isn't a
@@ -361,7 +385,8 @@ function linkText(text, opts) {
     refs.lastIndex = pos;
 
     // Tagged with another translation: the whole list stays plain.
-    if ((first.outbound ? OUTBOUND_TAG_RE : TAG_RE).test(text.slice(pos))) continue;
+    const after = text.slice(pos);
+    if (first.outbound ? OUTBOUND_TAG_RE.test(after) || LXX_AFTER_RE.test(after) : TAG_RE.test(after)) continue;
 
     for (const p of parts) {
       out += text.slice(last, p.start) + anchor(p.target, text.slice(p.start, p.end));

@@ -156,7 +156,15 @@ From the root's project tree.
      reference that links out also stays plain when it names a text the other
      site doesn't show, after it ("Psalm 40:6 LXX", "Alter's Translation") or
      before it ("LXX Ps 51:4"), since that text's numbering or wording is the
-     one being cited.
+     one being cited. A footnote that ties the verse to the Septuagint in a
+     phrase counts the same (E23): "the Septuagint version of Psalm 40:6",
+     "the Septuagint’s rendering of", "the Greek version (Septuagint) of",
+     "in the Septuagint (Isaiah 24:20", "Psalm 51:4 (in the Septuagint".
+     A phrase that names the Hebrew too still links ("the Hebrew and
+     Septuagint versions of", "Hebrew and Septuagint (Greek translation) of"),
+     so `QUALIFIER_BEHIND` wants a singular "version" (or "rendering", "text"…)
+     and never a bare "of". Run the linker over every footnote naming the
+     Septuagint before widening it.
   4. **A verse the page has no anchor for links the chapter** (a gap like Matthew
      17:21, or a draft), which is what keeps `check:links` green. That checker
      now resolves a range `#v16-18` when both ends exist, so it validates every
