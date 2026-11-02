@@ -700,10 +700,30 @@ that section.
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
        `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
-       foot), Greek `tab-greek.js`, and What I've kept `kept-list.js`, which
-       the notebook page draws too. Those tabs take a `source` and an
+       foot), and Greek `tab-greek.js`. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
-       A record's reference in My Notes and What I've kept moves the LIT
+       **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02; the
+       "What I've kept" pane was folded into it): `tab-mine.js` has the
+       search ("Search my notebook"), "Show" by kind, a count in words, the
+       list in Bible order under a heading for each chapter once it spans
+       more than one, a "Labels…" button and chips on a row, and, on /desk,
+       follows the LIT pane. `kept-list.js` remains, but only the notebook
+       page draws it. A layout saved with the retired kind `kept` reads back
+       as `mine` (`RETIRED_KINDS`, applied in `checkLayout`, so the last
+       layout and "My default" are both migrated); one that held both panes
+       keeps two My Notes panes. A new feature of the notebook's list goes in
+       both `tab-mine.js` and, if the page needs it, `kept-list.js`.
+       **My Notes' follow** (E22): the row it follows to is `followTarget`
+       (`desk-notebook.mjs`): the first record at or after the LIT pane's
+       reading line, by the end of its verses, across books, or the last
+       before it. It scrolls there only when that row is out of view, marks
+       it `aria-current="location"` when it is in the chapter being read, and
+       says "Nothing kept in Matthew 9." when the chapter holds nothing, while
+       still bringing the nearest records up. Before this it stayed where it
+       was in a chapter with nothing kept, which read as not following. A
+       heading is a row of the list (`li.desk-mine__heading`), so a row is
+       found by `.desk-item` and its record id, never by its position.
+       A record's reference in My Notes moves the LIT
        pane there (`goToRecord`, passed as `goHere`; BA124), never leaving
        /desk; the notebook page's list keeps plain links. The "Show in this
        pane" menu is placed on the screen (`placeKindMenu`, `position:

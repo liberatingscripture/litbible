@@ -7,11 +7,12 @@
 // Every pane mounts the Notebook's own module, never a copy, so a pane and
 // the tab or list it comes from can't drift apart:
 // - My Notes is tab-mine.js (3c), following the LIT pane by scrolling its
-//   list (3g);
+//   list (3g). It is also what "What I've kept" was, searched, filtered and
+//   grouped by chapter (E17, 2026-11-02); kept-list.js remains the notebook
+//   page's list;
 // - This verse is tab-verse.js, with a "This chapter" section at its foot
 //   holding the chapter's Go deeper (D9, "Phase 3a's answers", 3) (3d);
 // - Greek is tab-greek.js (3d);
-// - What I've kept is kept-list.js, the notebook page's list (3d).
 // - the LIT text is lit-pane.js, the whole corpus in one scroll (3e);
 // - Footnotes is footnotes-view.js, the chapter's notes with the reader's
 //   verse marked (X11; 3e);
@@ -32,7 +33,6 @@
 import { sameChapter, passageLabel } from "../../lib/desk-passage.mjs";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { createFootnotesView } from "./footnotes-view.js";
-import { createKeptList } from "./kept-list.js";
 import { createLitPane } from "./lit-pane.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
@@ -343,30 +343,14 @@ function mountSearch(body, env, pane) {
 
 /**
  * A record on a verse moves the LIT pane being read there (3g), which the
- * following panes then follow: for My Notes' rows and What I've kept's
- * (BA124), whose references would otherwise leave /desk.
+ * following panes then follow: for My Notes' rows (BA124), whose
+ * references would otherwise leave /desk.
  */
 function goToRecord(env) {
   return {
     can: (r) => Boolean(r?.bookKey && r.chapter),
     go: (r) => env.showPassage({ bookKey: r.bookKey, chapter: r.chapter, verse: r.verse ?? null }),
   };
-}
-
-function mountKept(body, env, pane) {
-  if (!env.store) {
-    return message(body, "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t.");
-  }
-  const list = createKeptList({ store: env.store, ctx: env.ctx, idPrefix: `deskKept${pane.id}`, goHere: goToRecord(env) });
-  const wrap = make("div", "desk-np desk-np--pane");
-  wrap.append(list.el);
-  body.append(wrap);
-  queueMicrotask(() => list.render());
-  // The list holds no places (listable leaves them out), and a bookmark moving
-  // as the reader reads is quiet too, so neither redraws it under a reader
-  // typing in its search (BA107).
-  const unsubscribe = env.store.subscribe(() => list.render(), { except: QUIET_KINDS });
-  return { destroy: () => unsubscribe() };
 }
 
 /**
@@ -427,7 +411,6 @@ export function mountPane(kind, body, env, pane) {
   }
   if (kind === "verse") return mountVerse(body, env, pane);
   if (kind === "greek") return mountGreek(body, env, pane);
-  if (kind === "kept") return mountKept(body, env, pane);
   if (kind === "lit") return mountLit(body, env, pane);
   if (kind === "footnotes") return mountFootnotes(body, env, pane);
   if (kind === "sheet") return mountSheet(body, env, pane);

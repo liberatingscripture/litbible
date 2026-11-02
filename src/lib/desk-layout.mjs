@@ -53,13 +53,21 @@ export const KINDS = [
   { kind: "greek", label: "Greek", follows: true },
   { kind: "footnotes", label: "Footnotes", follows: true },
   { kind: "sheet", label: "Sheet", follows: false },
-  { kind: "kept", label: "What I’ve kept", follows: false },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
   // book menu offers "The book I’m reading" and keeps the book it was set to.
   { kind: "search", label: "Search", follows: false },
 ];
 
 const KIND_INFO = new Map(KINDS.map((k) => [k.kind, k]));
+
+/**
+ * Kinds that no longer exist, and the kind that took their place. "What I've
+ * kept" was folded into My Notes (E17, 2026-11-02), which now searches,
+ * filters and groups its list the way that pane did. A layout saved with the
+ * old kind reads back as the new one (`checkLayout`), so no reader is left with
+ * a pane that says it needs a newer copy of the page.
+ */
+export const RETIRED_KINDS = Object.freeze({ kept: "mine" });
 
 /** True for a kind that follows the active LIT pane. */
 export const isFollower = (kind) => Boolean(KIND_INFO.get(kind)?.follows);
@@ -629,7 +637,8 @@ export function checkLayout(value) {
   const check = (node, depth) => {
     if (!node || typeof node !== "object" || depth > 6) return null;
     if (node.pane) {
-      const { id, kind, pin } = node.pane;
+      const { id, pin } = node.pane;
+      const kind = Object.hasOwn(RETIRED_KINDS, node.pane.kind) ? RETIRED_KINDS[node.pane.kind] : node.pane.kind;
       if (typeof id !== "string" || !PANE_ID.test(id) || ids.has(id) || typeof kind !== "string" || !kind) return null;
       ids.add(id);
       const keepPin = pin && typeof pin === "object" && isFollower(kind)

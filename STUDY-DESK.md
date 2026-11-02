@@ -7749,7 +7749,20 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   happens to the layouts and saved panes that name either one, and what
   the Notebook's tabs and the tour and help copy say afterward. Needs a
   look at what each pane holds that the other doesn't before it is built.
-  Status: open.
+  **Decided and built 2026-11-02 (work session 4).** BVJ named the one pane
+  **"My Notes"** (the Notebook's tab and the pane kind keep their name; not
+  "My Notebook," which would collide with "the Notebook" panel and the verse
+  menu's "My Notebook" row). My Notes was the base, since it follows the LIT
+  pane, shows Continue reading and the change flags, and opens notes in full;
+  it took from What I've kept the search ("Search my notebook"), "Show" by
+  kind, the count in words, headings by chapter (once the list spans more
+  than one), and the "Labels…" button with label chips. That design is
+  Claude's recommendation; BVJ confirmed only the name. The pane kind `kept`
+  is retired: a saved layout that names it reads back as `mine`
+  (`RETIRED_KINDS`), "My default" included; a layout that held both keeps
+  two My Notes panes. `kept-list.js` stays for /notebook. E19 needed no
+  rework (the /desk My Notes pane had no "+ Note" button). A label record is
+  no longer listed in My Notes (`listable`). Status: done.
 - **E18, wording: pin and unpin on footnotes should be a glyph, not
   words.** BVJ (2026-10-30). Pin becomes a thumbtack; unpin becomes the
   same thumbtack with a diagonal line through it. Each keeps an
@@ -7789,7 +7802,20 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   lock is on. Not yet reproduced: check whether its own "Stay here" is on,
   whether it follows a scroll but not a picker move (or the reverse), and
   whether it happens only with the LIT pane scrolled by the reader. Fold
-  the fix into E17, since the consolidated pane must follow. Status: open.
+  the fix into E17, since the consolidated pane must follow. **Reproduced
+  and fixed 2026-11-02.** Tried on /desk with 23 notes in Matthew 1 to 7:
+  the pane followed the picker, wheel scrolling and a scrollbar drag, held
+  with Stay here on, and caught up when it was turned off. What read as not
+  following was the design of `follow`: it stayed put in a chapter with
+  nothing kept and whenever the row it wanted was already in view, and
+  never marked which row that was. Now `followTarget` (`desk-notebook.mjs`)
+  finds the first record at or after the reading line across books, so a
+  chapter with nothing kept brings up the nearest records; the row in the
+  chapter being read is marked (`aria-current="location"`, a bar at its left
+  edge); and a line says "Nothing kept in Matthew 9." Not tried: two LIT
+  panes, and a scrollbar drag in Firefox or Safari. The LIT pane's own
+  picker keeps the old reference while it has focus and the reader scrolls;
+  not changed. Status: fixed.
 - **E23, bug: a Septuagint reference opens a translation of the Hebrew.**
   Found 2026-10-30 while planning D10, by running `linkScriptureRefs` on
   footnote wording. "LXX Ps 51:4" stays plain, as intended:
@@ -7830,9 +7856,10 @@ the rest is polish.
    Places is gone from My Notes, so session 4 starts from a My Notes with
    Continue reading above its list and no Places group. Awaiting BVJ's look
    on the judgment calls (2026-11-02 entry).
-4. **One notes pane**: E17 with E22. Medium to large. First check what each
-   pane holds that the other doesn't, and migrate saved layouts that name
-   either one. BVJ confirms the name.
+4. **One notes pane**: E17 with E22. **Done 2026-11-02**: one pane, "My
+   Notes" (BVJ's name), with What I've kept's search, kind choice, count,
+   chapter headings and labels folded in; the follow fix; saved layouts
+   naming `kept` migrate to `mine`. Awaiting BVJ's look at the design calls.
 5. **The shared Print menu with a chapter picker**: E16. One piece of code
    for /desk and the Notebook; goes before 6, which opens it.
 6. **The page-title menu and the quick add-pane control**: E15 with E14.

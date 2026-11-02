@@ -56,12 +56,29 @@
 //
 // Labels (M8) narrow the list the way colours do: when any label is on a
 // record in the list, a row of choices above it narrows it to one label. They
-// are made and put on records on the notebook page (/notebook/).
+// are made on the notebook page (/notebook/) and put on a record there or with
+// its "Labels…" button.
+//
+// This is also what "What I've kept" was (E17, BVJ, 2026-11-02; kept-list.js
+// still draws that list on the notebook page): a search over words, a
+// reference and labels, a "Show" choice of kind, a count in words, and the
+// list in Bible order under a heading for each chapter (and for notes on
+// glossary entries, notes on articles, and anything else) once it spans more
+// than one. Those headings are rows of the list, so a row is found by
+// `.desk-item`, never by its position.
+//
+// On /desk the list follows the LIT pane (E22): the row followed to is the
+// first record at or after the reading line (the last before it, with none
+// after), scrolled to when out of view and marked `aria-current="location"`
+// when it is in the chapter being read. With nothing kept in that chapter a
+// line says so, and the list shows the nearest records instead of staying put.
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
-import { liveLabels } from "../../lib/desk-labels.mjs";
+import { labelMap, labelsOf, liveLabels } from "../../lib/desk-labels.mjs";
+import { describeCounts, filterRecords, followTarget, groupRecords, kindsPresent, listable } from "../../lib/desk-notebook.mjs";
+import { passageLabel } from "../../lib/desk-passage.mjs";
 import {
   kindName,
   liveRecords,
@@ -70,7 +87,9 @@ import {
   recordReference,
   recordWhere,
 } from "../../lib/desk-store-core.mjs";
+import { currentPanel } from "../lit-panel.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
+import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
@@ -144,6 +163,15 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   // narrow apart (BA31); a tab lasts the visit.
   let colorFilter = null;
   let labelFilter = null;
+  // The search words and the kind chosen in "Show" (a record kind; null for
+  // everything), likewise this tab's own.
+  let query = "";
+  let kindFilter = null;
+  // Whether anything narrows the list now, and the record whose Labels… button
+  // opened the popover now showing (so a redraw can point the popover at the
+  // button that replaces it).
+  let narrowed = false;
+  let labelsRow = null;
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
@@ -158,10 +186,22 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       </label>
     </div>` : ""}
     ${addAction && store ? `<button type="button" class="desk-mine__add"></button>` : ""}
+    <div class="desk-mine__filters" role="search" aria-label="Filter my notebook" hidden>
+      <div class="desk-mine__field desk-mine__field--grow">
+        <label for="deskMineQuery${n}">Search my notebook</label>
+        <input type="search" id="deskMineQuery${n}" autocomplete="off" placeholder="Words, a reference, a label" />
+      </div>
+      <div class="desk-mine__field">
+        <label for="deskMineKind${n}">Show</label>
+        <select id="deskMineKind${n}"></select>
+      </div>
+    </div>
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one color" hidden></div>
     <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
     <p class="desk-mine__whatsnew" hidden><a href="/notebook/#whats-new"></a></p>
     <p class="desk-mine__changed" hidden></p>
+    <p class="desk-mine__count" hidden></p>
+    <p class="desk-mine__here" hidden></p>
     <button type="button" class="desk-mine__all" hidden></button>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
@@ -190,6 +230,24 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const changed = el.querySelector(".desk-mine__changed");
   const whatsNew = el.querySelector(".desk-mine__whatsnew");
   const allButton = el.querySelector(".desk-mine__all");
+  const filterBox = el.querySelector(".desk-mine__filters");
+  const queryBox = el.querySelector(`#deskMineQuery${n}`);
+  const kindSelect = el.querySelector(`#deskMineKind${n}`);
+  const countLine = el.querySelector(".desk-mine__count");
+  const hereLine = el.querySelector(".desk-mine__here");
+  // The rows of the list; headings sit among them.
+  const rowsOf = () => list.querySelectorAll(":scope > .desk-item");
+  const rowOf = (id) => list.querySelector(`:scope > .desk-item[data-id="${CSS.escape(id)}"]`);
+  queryBox.addEventListener("input", () => {
+    query = queryBox.value;
+    render();
+  });
+  kindSelect.addEventListener("change", () => {
+    kindFilter = kindSelect.value || null;
+    // A colour only means something among highlights.
+    if (kindFilter && kindFilter !== "highlight") colorFilter = null;
+    render();
+  });
   allButton.addEventListener("click", () => {
     if (getSetting("listFull") === "full") {
       openNotes.clear();
@@ -215,24 +273,18 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   let followedOnce = false;
 
   /**
-   * /desk: make sure the records on this passage are in view. The first one
-   * in its chapter at or after its verse is the one looked for (or, with none
-   * after, the chapter's last); when it is already in view the list stays
-   * put, so a reader moving through the text sees it move only as needed.
-   * A chapter with nothing kept leaves the list where it is.
+   * /desk: make sure the records on this passage are in view. The row looked
+   * for is `followTarget`'s; when it is already in view the list stays put,
+   * so a reader moving through the text sees it move only as needed. With
+   * nothing kept in the chapter the nearest records are brought up instead,
+   * and a line says there is nothing here (`markHere`).
    */
   function follow(p) {
     following = p ?? null;
+    markHere();
     if (!p?.bookKey || !list.isConnected) return;
-    let at = -1;
-    for (let i = 0; i < shown.length; i++) {
-      const r = shown[i];
-      if (r.bookKey !== p.bookKey || r.chapter !== p.chapter) continue;
-      at = i;
-      const last = Number.isInteger(r.endVerse) ? Math.max(r.verse ?? 0, r.endVerse) : r.verse ?? 0;
-      if (p.verse == null || last >= p.verse) break;
-    }
-    const row = at >= 0 ? list.children[at] : null;
+    const hit = followTarget(shown, p);
+    const row = hit ? rowOf(hit.record.id) : null;
     const box = row ? scroller(el) : null;
     if (!box) return;
     const r = row.getBoundingClientRect();
@@ -241,12 +293,31 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     box.scrollTop = Math.max(0, box.scrollTop + (r.top - b.top) - 8);
   }
 
+  /**
+   * Mark the row being followed to (E22) when it is in the chapter being
+   * read, and say so when nothing in the list is.
+   */
+  function markHere() {
+    for (const row of list.querySelectorAll('[aria-current="location"]')) row.removeAttribute("aria-current");
+    const hit = following?.bookKey ? followTarget(shown, following) : null;
+    if (hit?.here) rowOf(hit.record.id)?.setAttribute("aria-current", "location");
+    const label =
+      following?.bookKey && following.chapter ? passageLabel({ bookKey: following.bookKey, chapter: following.chapter }) : "";
+    const say = Boolean(label) && shown.length > 0 && !hit?.here;
+    hereLine.hidden = !say;
+    if (say) hereLine.textContent = `${narrowed ? "Nothing shown" : "Nothing kept"} in ${label}.`;
+  }
+
   let renderSeq = 0;
   async function render({ focusIndex = null, focusPin = null } = {}) {
     if (!visible() && focusIndex === null && focusPin === null) return;
     const seq = ++renderSeq;
     if (!store) {
       list.replaceChildren();
+      shown = [];
+      filterBox.hidden = true;
+      countLine.hidden = true;
+      hereLine.hidden = true;
       pinBox.hidden = true;
       colors.hidden = true;
       labelRow.hidden = true;
@@ -261,8 +332,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
     // Pins have a group of their own, and a reading place another client kept
-    // is not listed (E9: only what the reader marked).
-    const kept = everything.filter((r) => r.kind !== "footnotePin" && r.kind !== "place");
+    // is not listed (E9: only what the reader marked); nor is a label, which
+    // is not a mark at all (`listable`).
+    const marks = listable(everything);
+    const kept = marks.filter((r) => r.kind !== "footnotePin");
+    const allPins = marks.filter((r) => r.kind === "footnotePin");
     continued.refresh();
 
     // The colours this list holds. A choice of colour that has left it (the
@@ -279,26 +353,61 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).includes(l.id)));
     if (labelFilter && !inUse.some((l) => l.id === labelFilter)) labelFilter = null;
     drawLabels(inUse);
-    const hasLabel = (r) => (r.labels ?? []).includes(labelFilter);
-    const byColor = colorFilter ? kept.filter((r) => colorOf(r) === colorFilter) : kept;
-    const records = labelFilter ? byColor.filter(hasLabel) : byColor;
+    const kinds = kindsPresent(marks);
+    if (kindFilter && !kinds.some((k) => k.value === kindFilter)) kindFilter = null;
+    drawFilters(kinds, marks.length > 0);
 
-    const allPins = everything.filter((r) => r.kind === "footnotePin");
-    const pins = colorFilter ? [] : labelFilter ? allPins.filter(hasLabel) : allPins;
+    narrowed = Boolean(query.trim() || kindFilter || colorFilter || labelFilter);
+    const labelsById = labelMap(everyRecord);
+    const matched = filterRecords(marks, { query, kind: kindFilter, color: colorFilter, labelId: labelFilter }, labelsById);
+    const records = matched.filter((r) => r.kind !== "footnotePin");
+    const pins = matched.filter((r) => r.kind === "footnotePin");
     const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
     drawChanged([...records, ...pins], notices);
-    list.replaceChildren(...records.map((r) => rowFor(r, notices.get(r.id))));
-    shown = records;
+    drawCount(marks, matched);
+
+    // In Bible order, under a heading for each chapter once there is more
+    // than one place to tell apart.
+    const groups = groupRecords(records);
+    const sections = [];
+    for (const book of groups.books) {
+      for (const chapter of book.chapters) sections.push({ title: chapter.label, records: chapter.records });
+    }
+    if (groups.glossary.length) sections.push({ title: "Notes on glossary entries", records: groups.glossary });
+    if (groups.articles.length) sections.push({ title: "Notes on articles", records: groups.articles });
+    if (groups.other.length) sections.push({ title: "Other items", records: groups.other });
+    const nodes = [];
+    for (const section of sections) {
+      if (sections.length > 1) nodes.push(headingFor(section.title));
+      nodes.push(...section.records.map((r) => rowFor(r, notices.get(r.id), labelsById)));
+    }
+    list.replaceChildren(...nodes);
+    shown = sections.flatMap((section) => section.records);
+    markHere();
     pinBox.hidden = pins.length === 0;
-    pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id))));
+    pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id), labelsById)));
     empty.hidden = records.length > 0 || pins.length > 0;
-    empty.textContent = labelFilter
-      ? "Nothing here has that label."
-      : colorFilter
-      ? `No ${colorFilter} highlights here.`
-      : scope === "chapter"
-        ? pageScope.empty
-        : "Nothing kept yet.";
+    empty.textContent =
+      query.trim() || kindFilter
+        ? "Nothing matches. Clear the search or a filter to see more."
+        : labelFilter
+          ? "Nothing here has that label."
+          : colorFilter
+            ? `No ${colorFilter} highlights here.`
+            : scope === "chapter"
+              ? pageScope.empty
+              : "Nothing kept yet.";
+    // A save that redrew the list took the button the open Labels… popover
+    // belongs to; point it at the one that replaced it, so closing it returns
+    // focus there.
+    const open = currentPanel();
+    if (open && labelsRow) {
+      const b = el.querySelector(`[data-id="${CSS.escape(labelsRow)}"] .desk-item__tag`);
+      if (b) {
+        open.trigger = b;
+        open.restoreFocus = b;
+      }
+    }
 
     markCut();
     drawWhatsNew(everyRecord, seq);
@@ -377,6 +486,78 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (focused) labelRow.querySelector(`[data-choice="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
   }
 
+  // The search and "Show" above the list, hidden while nothing is kept. The
+  // search box is never rebuilt, so a redraw under a reader typing in it
+  // leaves what they have typed and where the caret is.
+  function drawFilters(kinds, any) {
+    filterBox.hidden = !any;
+    const values = ["", ...kinds.map((k) => k.value)];
+    if (values.join("|") !== [...kindSelect.options].map((o) => o.value).join("|")) {
+      kindSelect.replaceChildren(new Option("Everything", ""), ...kinds.map((k) => new Option(k.plural, k.value)));
+    }
+    kindSelect.value = kindFilter ?? "";
+  }
+
+  // "12 notes, 4 highlights." for the list, or what the narrowing leaves of it.
+  function drawCount(all, matched) {
+    countLine.hidden = all.length === 0;
+    if (!all.length) return;
+    countLine.textContent = narrowed
+      ? `${describeCounts(matched) === "Nothing kept yet." ? "Nothing matches" : `Showing ${describeCounts(matched)}`} (of ${all.length} kept).`
+      : `${describeCounts(all)}.`;
+  }
+
+  // A chapter's heading among the rows. Not a list item to a screen reader
+  // (the list stays a list of records), but still a heading to move by.
+  function headingFor(title) {
+    const li = document.createElement("li");
+    li.className = "desk-mine__heading";
+    li.setAttribute("role", "presentation");
+    const h = document.createElement("h3");
+    h.className = "desk-mine__heading-text";
+    h.textContent = title;
+    li.append(h);
+    return li;
+  }
+
+  // The labels on a record, and the button that opens them (the notebook
+  // page's row has the same pair).
+  function labelsFor(li, r, on, labelsById) {
+    const chips = labelsOf(r, labelsById);
+    if (chips.length) {
+      const ul = document.createElement("ul");
+      ul.className = "desk-chips";
+      ul.setAttribute("aria-label", "Labels");
+      for (const l of chips) {
+        const chip = document.createElement("li");
+        chip.className = "desk-chip";
+        chip.textContent = l.name;
+        ul.append(chip);
+      }
+      li.append(ul);
+    }
+    if (!store || !ctx || !canEdit(r)) return;
+    const tag = document.createElement("button");
+    tag.type = "button";
+    tag.className = "desk-item__tag";
+    tag.textContent = "Labels…";
+    tag.setAttribute("aria-label", `Labels for ${labelsSubject(r, on)}`);
+    tag.addEventListener("click", () => {
+      labelsRow = r.id;
+      // Forget the record once its popover has closed.
+      openLabelsPopover({ trigger: tag, store, ctx, recordId: r.id, name: labelsSubject(r, on) }).then(() => {
+        const open = currentPanel();
+        if (!open) return;
+        const done = open.onClose;
+        open.onClose = () => {
+          done?.();
+          labelsRow = null;
+        };
+      });
+    });
+    li.append(tag);
+  }
+
   // One line above the list when a publish since the reader last looked
   // touched their verses (B3), linking to the notebook page's section. Not
   // waited for: the feed is fetched (once per tab) after the list is drawn,
@@ -417,7 +598,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   /** The card for a row's notice, and where focus goes once the reader has chosen. */
   function openCard(trigger, r, li) {
-    const index = Array.from(list.children).indexOf(li);
+    const index = Array.from(rowsOf()).indexOf(li);
     openNotice(trigger, r, {
       store,
       ctx,
@@ -442,7 +623,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     });
   }
 
-  function rowFor(r, notice = null) {
+  function rowFor(r, notice = null, labelsById = new Map()) {
     const li = document.createElement("li");
     li.className = "desk-item";
     li.dataset.id = r.id;
@@ -581,6 +762,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       });
       li.append(edit);
     }
+    labelsFor(li, r, on, labelsById);
     if (notice) li.append(flagButton(r, notice, (trigger) => openCard(trigger, r, li)));
     const del = document.createElement("button");
     del.type = "button";
@@ -597,7 +779,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
    * it was rewritten, and Unpin. The footnote is the reader's pin, not their
    * words, but it is still put on the page as text, never as HTML.
    */
-  function pinRowFor(r, notice = null) {
+  function pinRowFor(r, notice = null, labelsById = new Map()) {
     const li = document.createElement("li");
     li.className = "desk-item desk-item--pin";
     li.dataset.id = r.id;
@@ -622,6 +804,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     words.className = "desk-item__words desk-item__pin-text";
     words.textContent = r.footnote;
     li.append(head, kind, words);
+    labelsFor(li, r, ref, labelsById);
     if (notice) li.append(flagButton(r, notice, (trigger) => openPinCard(trigger, r, li)));
     const unpin = document.createElement("button");
     unpin.type = "button";
@@ -685,7 +868,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   async function remove(r, li) {
-    const index = Array.from(list.children).indexOf(li);
+    const index = Array.from(rowsOf()).indexOf(li);
     const trash = await store.remove(r.id);
     if (!trash) return;
     // The change this made, read before anything else can write: the undo
