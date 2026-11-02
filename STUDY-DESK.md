@@ -7738,10 +7738,26 @@ the rest is polish.
    for /desk and the Notebook; goes before 6, which opens it.
 6. **The page-title menu and the quick add-pane control**: E15 with E14.
    Needs a mock first. After 4, so the control offers the final panes.
-7. **Greek search**: 7a, decide E7 and build E11's small switch; 7b, the
-   E5 builder (mock first); 7c, E6, which reopens the word-families
-   deferral of 2026-10-13, so confirm with BVJ before starting. Independent
-   of the panes; can run in parallel.
+7. **Greek search**: 7a, decide E7 and build E11's small switch (**done
+   2026-11-02**: E7 decided and built, #428; E11 built, #427); 7b, the
+   E5 builder (mock first), **which also carries what is left open of E7
+   and E11** (below); 7c, E6, which reopens the word-families deferral of
+   2026-10-13, so confirm with BVJ before starting. Independent of the
+   panes; can run in parallel.
+   **Carried into 7b** (both are in the search bar's commands window and
+   its Greek surfaces, where the builder goes):
+   - *E7:* BVJ's look at the Greek tab on the preview (the focus move to
+     "Back to the text", the header while results show, the reworded tour
+     step); whether the parsing link stays in a word's details; where the
+     word links' results show (kept in the tab for now; /search is the
+     alternative); and E5's builder now living in the commands window
+     alone, since the tab no longer opens it.
+   - *E11:* BVJ's look at the "My notes" checkbox on the preview (its look
+     on /search's narrow row, the tray re-searching on a change); the tray
+     shows it only when a Greek group renders, so a Greek search with no
+     Greek hits has no switch there (placement to settle with the builder's
+     layout); and the LSC site's `/privacy` mirror needs the sentence for
+     `lit-desk-greek-notes`.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
    the passage (buildable now); 8b, at launch, the Read View removal and
    E20's rename (blocked on the name and the launch date). E12 (the trash
