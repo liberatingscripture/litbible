@@ -84,13 +84,13 @@ test("markLinks names each mark with its verse link, once, grouped by place", ()
     note(),
     { kind: "highlight", color: "yellow", bookKey: "galatians", chapter: 3, verse: 27 },
     { kind: "highlight", color: "blue", bookKey: "galatians", chapter: 3, verse: 27 },
-    { kind: "place", ribbon: true, bookKey: "romans", chapter: 4, verse: 6, endVerse: 9 },
+    { kind: "place", bookKey: "romans", chapter: 4, verse: 6, endVerse: 9 },
     { kind: "footnotePin", bookKey: "romans", chapter: 4, verse: 7 },
   ]);
   assert.deepEqual(links, [
     { text: "your note and pinned footnote on Romans 4:7", href: "/romans-4/#v7" },
     { text: "your highlight on Galatians 3:27", href: "/galatians-3/#v27" },
-    { text: "your ribbon on Romans 4:6–9", href: "/romans-4/#v6-9" },
+    { text: "your place on Romans 4:6–9", href: "/romans-4/#v6-9" },
   ]);
 });
 

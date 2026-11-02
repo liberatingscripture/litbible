@@ -9,7 +9,7 @@
 //   note          the body, and the title of the entry or article it is on
 //   highlight     the words highlighted
 //   bookmark      its label
-//   place         its name (a ribbon or a reading place)
+//   place         its name (a reading place another client kept)
 //   footnotePin   the pinned footnote's text
 //   anything      the names of the labels it carries
 // A `hidden` record is never a result: its note is the reader's preparation
@@ -107,9 +107,8 @@ function fieldsOf(record) {
   }
 }
 
-/** What a reader calls this record in a result: a ribbon is not a "Place". */
+/** What a reader calls this record in a result. */
 function labelFor(record) {
-  if (record.kind === "place" && record.ribbon) return "Ribbon";
   return kindName(record.kind);
 }
 

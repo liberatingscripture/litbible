@@ -79,7 +79,7 @@ export function joinList(items) {
 export function markLinks(records) {
   const places = new Map();
   for (const r of records ?? []) {
-    const name = r.kind === "place" ? (r.ribbon ? "ribbon" : "place") : (MARK_NAMES[r.kind] ?? "mark");
+    const name = MARK_NAMES[r.kind] ?? (r.kind === "place" ? "place" : "mark");
     const where = recordWhere(r);
     let place = places.get(where);
     if (!place) {

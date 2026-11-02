@@ -4,7 +4,7 @@
 // release notes narrowed to the verses the reader has marked, in two places.
 //
 //   - mountWhatsNew: the notebook page's #whats-new section, the publishes
-//     that touched a note, highlight, bookmark, pinned footnote or ribbon,
+//     that touched a note, highlight, bookmark or pinned footnote,
 //     newest first, each change linked to its entry in /release-notes/ and
 //     each mark to its verse. Publishes after the day the reader last looked
 //     carry a "New" mark; looking (the page loading) moves that day on.

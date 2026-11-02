@@ -239,12 +239,12 @@ test("a tour takes the steps whose target is on the page, numbered", () => {
 test("a tour leaves out the steps that don't belong to the page's view", () => {
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const read = planTour({ available: all, view: "read" }).map((s) => s.id);
-  assert.ok(read.includes("bookmark") && read.includes("ribbon"));
+  assert.ok(read.includes("bookmark"));
   for (const id of ["note", "margin", "highlight", "pin", "verse", "greek", "widths"]) assert.ok(!read.includes(id), id);
   // An article or the glossary: no notes there in version 1 (N11, BVJ 2026-10-29),
   // so nothing from "Marking the text".
   const prose = planTour({ available: all, view: "prose" }).map((s) => s.id);
-  for (const id of ["actions", "note", "margin", "bookmark", "ribbon"]) assert.ok(!prose.includes(id), id);
+  for (const id of ["actions", "note", "margin", "bookmark"]) assert.ok(!prose.includes(id), id);
   assert.ok(prose.length);
 });
 

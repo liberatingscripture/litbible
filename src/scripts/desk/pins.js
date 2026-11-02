@@ -34,7 +34,7 @@
 
 import { createRecord } from "../../lib/desk-records.mjs";
 import { pinFields, placePins } from "../../lib/desk-footnotes.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import {
   addNoteButton,
@@ -367,9 +367,9 @@ export function initPins({ store, ctx, desk = false }) {
     if (mine) row.after(mine);
   });
 
-  // This tab's own changes and other tabs' alike, but not a place: a ribbon
-  // following the reader writes one every few seconds (BA107).
-  store.subscribe(() => refreshPins(), { except: ["place"] });
+  // This tab's own changes and other tabs' alike, but not a place or a
+  // bookmark moving as the reader reads, which writes every few seconds (BA107).
+  store.subscribe(() => refreshPins(), { except: QUIET_KINDS });
   refreshPins();
 
   return { reveal: revealFootnote, canReveal: canRevealFootnote };

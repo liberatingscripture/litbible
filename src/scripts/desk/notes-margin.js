@@ -33,15 +33,15 @@
 // written until the reader chooses Keep or Delete there.
 
 import { onFootnote } from "../../lib/desk-records.mjs";
-import { recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { recordReference, recordWhere, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import {
   CIRCLE,
   CIRCLE_GAP,
   CIRCLE_INSET,
   NOTE_GAP,
   NOTE_LINES,
-  RIBBON,
-  RIBBON_LANE,
+  BOOKMARK_MARK,
+  BOOKMARK_LANE,
   STACK_GAP,
   notesInTheWay,
   circlesPerRow,
@@ -65,7 +65,7 @@ const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && t
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // A highlight's flag in the margin: wide enough to read as a mark beside a
-// bookmark's (RIBBON), with RIBBON_LANE between lanes. Its hit area is
+// bookmark's (BOOKMARK_MARK), with BOOKMARK_LANE between lanes. Its hit area is
 // widened in desk.css.
 const FLAG = 18;
 
@@ -165,11 +165,11 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     const marks = getSetting("bookmarks") === "on" ? placed(bookmarks) : [];
     const ribbon = (record) => {
       const mark = document.createElement("span");
-      mark.className = "desk-ribbon";
+      mark.className = "desk-bookmark-mark";
       mark.setAttribute("role", "img");
       mark.setAttribute("aria-label", `Bookmark, ${refOf(record)}`);
       mark.title = `Bookmark, ${refOf(record)}`;
-      mark.innerHTML = glyph("bookmark", "desk-ribbon__glyph");
+      mark.innerHTML = glyph("bookmark", "desk-bookmark-mark__glyph");
       aside.append(mark);
       return mark;
     };
@@ -178,14 +178,14 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     // (or another flag) already holds takes the next lane out. A note in full
     // that one is in the way of contracts to clear the outermost.
     const spots = [];
-    if ((marks.length || flagged.length) && mode !== "circles" && box.left >= RIBBON + 12) {
-      const right = box.left >= NOTE_GAP + RIBBON + 8 ? NOTE_GAP : 6;
+    if ((marks.length || flagged.length) && mode !== "circles" && box.left >= BOOKMARK_MARK + 12) {
+      const right = box.left >= NOTE_GAP + BOOKMARK_MARK + 8 ? NOTE_GAP : 6;
       for (const { record, range } of marks) {
         const mark = ribbon(record);
-        const top = lineTop(range) + (lineHeight - RIBBON) / 2;
+        const top = lineTop(range) + (lineHeight - BOOKMARK_MARK) / 2;
         spots.push({ top, lane: 0 });
         mark.style.top = `${top}px`;
-        mark.style.left = `${box.left + sx - right - RIBBON}px`;
+        mark.style.left = `${box.left + sx - right - BOOKMARK_MARK}px`;
       }
       // Where there is no margin at all ("none") there is no flag.
       if (mode === "full") {
@@ -196,7 +196,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
           spots.push({ top, lane });
           const flag = flagElement(record);
           flag.style.top = `${top}px`;
-          flag.style.left = `${box.left + sx - right - FLAG - lane * RIBBON_LANE}px`;
+          flag.style.left = `${box.left + sx - right - FLAG - lane * BOOKMARK_LANE}px`;
         }
       }
     }
@@ -276,7 +276,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         const outermost = Math.max(...spots.map((s) => s.lane));
         for (let lane = 0; lane <= outermost; lane++) {
           const tops = spots.filter((s) => s.lane >= lane).map((s) => s.top);
-          for (const id of notesInTheWay(shown, tops)) clear.set(id, RIBBON_LANE * (lane + 1));
+          for (const id of notesInTheWay(shown, tops)) clear.set(id, BOOKMARK_LANE * (lane + 1));
         }
         for (const [id, by] of clear) byId.get(id).style.width = `${width - by}px`;
         if (clear.size) laid = lay();
@@ -320,8 +320,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         const x = box.left + sx - CIRCLE_INSET - CIRCLE - l.slot * (CIRCLE + CIRCLE_GAP);
         if (record.kind === "bookmark") {
           const mark = ribbon(record);
-          mark.style.top = `${l.y + (CIRCLE - RIBBON) / 2}px`;
-          mark.style.left = `${x + (CIRCLE - RIBBON) / 2}px`;
+          mark.style.top = `${l.y + (CIRCLE - BOOKMARK_MARK) / 2}px`;
+          mark.style.left = `${x + (CIRCLE - BOOKMARK_MARK) / 2}px`;
           continue;
         }
         if (record.kind === "highlight") {
@@ -720,8 +720,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   /* ── Keeping up with the page ────────────────────────────────────── */
 
-  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
-  store.subscribe(load, { except: ["place"] });
+  // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
+  store.subscribe(load, { except: QUIET_KINDS });
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

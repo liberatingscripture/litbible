@@ -49,20 +49,20 @@ export const NOTE_LINES = 3;
  * A bookmark's mark (a trial, BVJ 2026-10-07): its glyph in red, not in a
  * circle, level with the verse and right-aligned in the notes' column, the
  * side nearest the text. A note in full that a mark is in the way of contracts
- * by RIBBON_LANE to clear it (notesInTheWay); where notes show as circles, a
+ * by BOOKMARK_LANE to clear it (notesInTheWay); where notes show as circles, a
  * mark takes a place in their rows like a circle.
  */
-export const RIBBON = 14;
-export const RIBBON_LANE = RIBBON + 6;
+export const BOOKMARK_MARK = 14;
+export const BOOKMARK_LANE = BOOKMARK_MARK + 6;
 
 /**
  * Which notes in full a bookmark's mark is in the way of (BVJ, 2026-10-08:
  * only those make room, and only by contracting at the text-side edge,
  * never by moving). `notes` are as shown: `y` and `height` (the height after
  * any cut). `marks` are the marks' tops. Returns the set of ids that
- * contract by RIBBON_LANE.
+ * contract by BOOKMARK_LANE.
  */
-export function notesInTheWay(notes, marks, { size = RIBBON } = {}) {
+export function notesInTheWay(notes, marks, { size = BOOKMARK_MARK } = {}) {
   const out = new Set();
   for (const n of notes) {
     if (marks.some((top) => top < n.y + n.height && top + size > n.y)) out.add(n.id);

@@ -749,7 +749,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   margin-top: 0.2em;
 }
 
-/* The bookmark's red, as in the margin (.desk-ribbon). */
+/* The bookmark's red, as in the margin (.desk-bookmark-mark). */
 .desk-verse__glyph--bookmark path {
   fill: #c62828;
 }
@@ -1010,20 +1010,20 @@ html[data-desk-note-font="plain"] .desk-note-pop {
    the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
    `ribbon` (named `bookmark` until E10), is green and always comes with
    words, so the two read apart. */
-.desk-ribbon {
+.desk-bookmark-mark {
   position: absolute;
   width: 14px;
   height: 14px;
   pointer-events: auto;
 }
 
-.desk-ribbon__glyph {
+.desk-bookmark-mark__glyph {
   display: block;
   width: 14px;
   height: 14px;
 }
 
-.desk-ribbon__glyph path {
+.desk-bookmark-mark__glyph path {
   fill: #c62828;
 }
 
@@ -2459,62 +2459,45 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   }
 }
 
-/* ── 1d: Places and ribbons ── */
+/* ── Continue reading, and editing a bookmark (E9) ── */
 
-/* src/scripts/desk/places.js: the Places group heading the My Notes tab (and
-   the /notebook/ page). Its title shares the Pinned footnotes heading's look. */
-.desk-places {
+/* src/scripts/desk/continue-reading.js: the one row heading the My Notes tab
+   (and the /notebook/ page). Its title shares the Pinned footnotes heading's
+   look. */
+.desk-continue {
   margin: 0 0 14px;
 }
 
-.desk-places[hidden] {
+.desk-continue[hidden] {
   display: none;
 }
 
-.desk-places__title:focus-visible {
+.desk-continue__title:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-.desk-places__empty {
+.desk-continue__empty {
   margin: 6px 4px 0;
   color: rgba(var(--ink-rgb), 0.7);
 }
 
-/* A ribbon's reference, under its name. */
-.desk-places__where {
-  margin-top: 2px;
+/* src/scripts/desk/bookmark-form.js: "Edit bookmark", the form in the
+   floating panel. */
+.desk-bookmark-form__where {
+  margin: 4px 0 8px;
   color: rgba(var(--ink-rgb), 0.75);
   font-size: 0.8125rem;
 }
 
-/* Rename and Delete sit side by side in the row's second column. */
-.desk-places__actions {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: start;
+.desk-bookmark-form__field {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 10px;
 }
 
-.desk-item .desk-places__actions .desk-item__delete,
-.desk-item .desk-places__actions .desk-item__edit {
-  grid-column: auto;
-  grid-row: auto;
-  margin-top: 0;
-}
-
-/* Renaming replaces the row's contents with a small form. */
-.desk-places__rename-form {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-
-.desk-places__name,
-.desk-ribbon-form__name {
+.desk-bookmark-form__name {
   box-sizing: border-box;
   min-width: 0;
   padding: 6px 10px;
@@ -2525,89 +2508,33 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   font: inherit;
 }
 
-.desk-places__name {
-  flex: 1 1 10em;
-}
-
-.desk-places__name:focus-visible,
-.desk-ribbon-form__name:focus-visible {
+.desk-bookmark-form__name:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
 }
 
-.desk-places__save {
-  padding: 5px 12px;
-  border: 1px solid var(--green-deep);
-  border-radius: 8px;
-  background: var(--green-deep);
-  color: #fff;
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.desk-places__save:hover {
-  filter: brightness(1.1);
-}
-
-.desk-places__problem {
-  flex-basis: 100%;
-  margin: 0;
-  color: var(--text);
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-/* "Ribbon here…": the form in the floating panel. */
-.desk-ribbon-form__where {
-  margin: 4px 0 8px;
-  color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
-}
-
-.desk-ribbon-form__limit {
-  margin: 0 0 8px;
-  font-size: 0.875rem;
-}
-
-.desk-ribbon-form__choices {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-.desk-ribbon-form__choice {
+.desk-bookmark-form__follow {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 10px;
-  padding: 4px 0;
-}
-
-.desk-ribbon-form__label {
-  display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  margin: 0 0 4px;
   cursor: pointer;
 }
 
-.desk-ribbon-form__label input {
+.desk-bookmark-form__follow input {
+  margin-top: 3px;
   accent-color: var(--green-deep);
 }
 
-.desk-ribbon-form__label input:focus-visible {
+.desk-bookmark-form__follow input:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-.desk-ribbon-form__name {
-  flex: 1 1 10em;
-}
-
-.desk-ribbon-form__existing {
-  overflow-wrap: anywhere;
+.desk-bookmark-form__hint {
+  margin: 0 0 10px 26px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.8125rem;
 }
 
 /* ── 1d: first use (the first-time choice, the foot, the tour) ── */

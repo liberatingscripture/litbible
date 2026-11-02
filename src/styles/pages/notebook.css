@@ -41,7 +41,7 @@ html[data-desk="on"] .notebook-page__off {
 
 /* On paper the page is the list of what the notebook keeps, as it reads on
    screen (BA152; BVJ, 2026-10-29): the notes, highlights, bookmarks, pinned
-   footnotes and places, each under its heading. What only works on a screen
+   footnotes and Continue reading, each under its heading. What only works on a screen
    goes: the page's links to its sections, the search and filters, What's
    new, Labels, the panel setting, Save a copy and Delete everything, and
    every button, field and form in the lists. */
@@ -52,8 +52,6 @@ html[data-desk="on"] .notebook-page__off {
     .desk-np__filters,
     .desk-np__error,
     .desk-np-row__buttons,
-    .desk-places__actions,
-    .desk-places__problem,
     #whats-new,
     #labels,
     #panel,

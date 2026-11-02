@@ -253,7 +253,7 @@ export function emptyTrashRecord(trash, now = new Date().toISOString()) {
  * Bring a record up to SCHEMA_VERSION. A record from a newer schema is
  * returned unchanged, and canEdit keeps it read-only.
  *
- * Two changes so far, within schema 1:
+ * Three changes so far, within schema 1:
  * - a trash record written before `deletedKind` existed (phase 1b's
  *   provisional fields) takes the kind from the record it holds. A tombstone
  *   already emptied can't recover it and stays as it is; nothing reads the
@@ -261,25 +261,41 @@ export function emptyTrashRecord(trash, now = new Date().toISOString()) {
  * - a note with a renamed marker (RENAMED_MARKERS) takes the current name,
  *   and so does a note a trash record holds, so undoing its deletion brings
  *   it back renamed. A note this code can't edit (a newer schema) is left as
- *   it arrived.
+ *   it arrived;
+ * - a ribbon, a `place` with `ribbon: true`, reads as a bookmark that moves
+ *   as the reader reads (STUDY-DESK.md E9; BDR accepted it, 2026-10-23): same
+ *   id, same verse, its `name` the bookmark's `label`, and `follow: true`.
+ *   A trash record holding one takes the same shape, and its `deletedKind`
+ *   follows. A `place` with no `ribbon` (a reading place another client kept)
+ *   is not changed. Nothing stored is rewritten for a read: the next write of
+ *   the bookmark carries the new kind, on the same id.
  * Returns the record itself when nothing needed changing.
  */
 export function migrateRecord(record) {
   let r = record;
+  if (r?.kind === "trash" && r.record) {
+    const held = renameMarker(ribbonToBookmark(r.record));
+    if (held !== r.record) {
+      r = { ...r, record: held };
+      if (held.kind === "bookmark" && r.deletedKind === "place") r = { ...r, deletedKind: "bookmark" };
+    }
+  }
   if (r?.kind === "trash" && r.deletedKind == null && typeof r.record?.kind === "string") {
     r = { ...r, deletedKind: r.record.kind };
   }
-  if (r?.kind === "trash" && r.record) {
-    const held = renameMarker(r.record);
-    if (held !== r.record) r = { ...r, record: held };
-  }
-  return renameMarker(r);
+  return renameMarker(ribbonToBookmark(r));
 }
 
 function renameMarker(r) {
   if (r?.kind !== "note" || !canEdit(r)) return r;
   const marker = currentMarker(r.marker);
   return marker === r.marker ? r : { ...r, marker };
+}
+
+function ribbonToBookmark(r) {
+  if (r?.kind !== "place" || r.ribbon !== true || !canEdit(r)) return r;
+  const { name, ribbon: _ribbon, ...rest } = r;
+  return { ...rest, kind: "bookmark", follow: true, ...(typeof name === "string" && name ? { label: name } : {}) };
 }
 
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
@@ -337,6 +353,10 @@ export function validateRecord(r) {
     }
   }
   if (k === "place") need(typeof r.name === "string", "name is not text");
+  if (k === "bookmark") {
+    need(r.label == null || typeof r.label === "string", "label is not text");
+    need(r.follow == null || typeof r.follow === "boolean", "follow is not true or false");
+  }
   if (k === "footnotePin") {
     need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");
     need(r.n == null || (Number.isInteger(r.n) && r.n >= 1), "n is not a positive integer");

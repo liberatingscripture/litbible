@@ -10,8 +10,6 @@
 //     on "This verse" at the verse (N10), the first verse of a selection.
 //     Offering it in the selection panel too keeps the way in when verse
 //     numbers are hidden (audit C10).
-//   - Ribbon here…: a named place (B1, ribbon-form.js), from either panel in
-//     either view.
 //   - Highlight: four colours, and Remove highlight once the words hold one.
 //     From the verse menu it marks the whole verse or range; from a selection,
 //     the selected words. Study View always offers it; Read View's selection
@@ -20,10 +18,11 @@
 //     highlight meets the ones already there (merging, trimming, leaving a
 //     changed one alone) is src/lib/desk-highlights.mjs's; this reads the
 //     page, asks it for a plan, and commits that.
+//   - Edit bookmark…, once the verse holds one: its name and "Move as I read"
+//     (E9, bookmark-form.js). A bookmark can be made first and named later.
 //   - Read View: Bookmark and Highlight only. Notes are a Study View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
-//   - /desk's LIT pane (3f, 3g): Add a note, Bookmark, Highlight and Ribbon
-//     here…, with the chapter and its text from the panel's detail (`book`,
+//   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
 //     `chapter`, `textFor`), so a pane's own words are read even when another
 //     pane shows the same chapter. Highlights are drawn on the pane as on
 //     Study View (highlights.js), under Study View's setting.
@@ -41,8 +40,8 @@ import {
 import { bookKeyToLabel } from "../../data/books.js";
 import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
+import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
-import { openRibbonForm } from "./ribbon-form.js";
 import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
@@ -87,7 +86,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     if ((d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
-    // Show in Notebook (Study View) and Ribbon here… (both views, B1).
+    // Show in Notebook (Study View), and Edit bookmark… once the verse has one.
     const second = document.createElement("div");
     second.className = "lit-panel__row";
     if (d.view === "study" && showVerse) {
@@ -99,10 +98,10 @@ export function initActions({ store, ctx, showVerse = null }) {
       });
       second.append(show);
     }
-    const ribbon = button("Ribbon here…");
-    ribbon.addEventListener("click", () => ribbonHere(d, where, ribbon));
-    second.append(ribbon);
-    if (second.childElementCount > 1) second.classList.add("lit-panel__row--halves");
+    const editMark = button("Edit bookmark…");
+    editMark.hidden = true;
+    second.append(editMark);
+    second.hidden = second.childElementCount < 2;
     d.append(second);
 
     // A bookmark is one verse: the first the menu or selection covers.
@@ -112,8 +111,16 @@ export function initActions({ store, ctx, showVerse = null }) {
     store
       .byChapter(where.bookKey, where.chapter)
       .then((records) => {
-        existing = bookmarksOn(records, place).length > 0;
-        if (existing) bookmark.textContent = "Remove bookmark";
+        const held = bookmarksOn(records, place);
+        existing = held.length > 0;
+        if (existing) {
+          bookmark.textContent = "Remove bookmark";
+          // The row grows only if it has Show in Notebook beside it.
+          editMark.hidden = false;
+          second.hidden = false;
+          if (second.childElementCount > 1) second.classList.add("lit-panel__row--halves");
+          editMark.onclick = () => editBookmark(d, held[0], editMark);
+        }
       })
       .catch(() => {});
 
@@ -154,12 +161,13 @@ export function initActions({ store, ctx, showVerse = null }) {
     });
   });
 
-  // A ribbon is one verse: the first the menu or selection covers.
-  function ribbonHere(d, where, btn) {
+  // The bookmark is one verse: the first the menu or selection covers.
+  function editBookmark(d, record, btn) {
     d.acting?.();
     const trigger = (d.kind === "selection" && d.range) || currentPanel()?.trigger || btn;
-    const restoreFocus = currentPanel()?.restoreFocus ?? null;
-    openRibbonForm({ trigger, store, ctx, where: { ...where, verse: d.start }, restoreFocus });
+    const restoreFocus =
+      currentPanel()?.restoreFocus ?? (d.kind === "selection" ? verseNumberOf(d.range, d.start) : null);
+    openBookmarkForm({ trigger, store, ctx, record, restoreFocus });
   }
 
   function addNote(d, where, btn) {

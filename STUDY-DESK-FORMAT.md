@@ -136,46 +136,61 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    passage is built but held off `main`, so nothing writes this kind yet; its
    export reads `body` and, failing that, `note`, so a record written either
    way is kept.
-4. **`bookmark`** (B2)
+4. **`bookmark`** (B2; E9)
    - a verse;
-   - an optional `label`;
+   - an optional `label`: the bookmark's name, up to 40 characters. Names
+     need not differ, and a bookmark needs none. Plain text, always shown as
+     text;
+   - an optional `follow`: `true` when the bookmark moves as the reader reads
+     ("Move as I read"; absent otherwise). A bookmark without it stays on its
+     verse. When the reader opens a bookmark that follows and reads on, the
+     client moves it to the verse they are reading, only while they stay in
+     that book and only in the tab they opened it in (the website writes a move
+     at most every 4 seconds, and `modified` moves with it). It is the
+     reader's reading, so it makes no undo step. Other clients may choose
+     their own rule for when to move it, but must not move a bookmark whose
+     `follow` is absent;
    - an optional `from`: how the reader got there (a search, an episode, an
      intro).
 
+   **At most six bookmarks with `follow: true` on the website** (plain
+   bookmarks are unlimited); a client that offers the switch picks its own
+   limit. An unknown field is kept (principle 6), so a client that doesn't
+   build the switch carries `follow` untouched.
+
+   **A ribbon is a bookmark** (E9, BVJ 2026-10-22; **accepted by BDR,
+   2026-10-23; built on the website 2026-11-02**). The feature the website's
+   preview first called a ribbon, a `place` with `ribbon: true` and a `name`,
+   has been folded into this kind. Any client that meets one reads it as a
+   bookmark: the same `id`, `name` becoming `label`, `follow: true` added,
+   `ribbon` and `name` dropped, every other field as it was, `modified`
+   unchanged (reading isn't an edit). A trash record that holds one is read
+   the same way, and its `deletedKind` becomes `bookmark`. Writing a bookmark
+   writes the new shape. Only the website's preview ever wrote a ribbon, so
+   an app holds none; the merge vectors' `migrate` cases (version 3) cover it
+   for a client that wants to. The apps build one kind, Bookmarks, and no
+   separate ribbon kind.
+
    ~~**Open:** whether the apps' `bookmark` marker on a note becomes this.~~
    **Settled 2026-10-23:** a bookmark is its own kind, and the note marker,
-   now named `ribbon` (kind 2), stays a note's glyph.
-
-   **Coming (BVJ, 2026-10-22; STUDY-DESK.md E9), not yet in the format:**
-   bookmarks and named ribbons become one feature, Bookmarks. This kind would
-   gain the ribbon's `name` (or reuse `label`) and an optional following flag
-   (the ribbon's C25 behavior, "move as I read"), and kind 5's
-   `ribbon: true` would retire. **For BDR's Claude:** the apps need not build
-   ribbons as a separate kind. Nothing changes here until the website says so
-   in STUDY-DESK.md, with new merge vectors.
-   **E9: accepted by BDR, 2026-10-23.** The apps build one kind, Bookmarks,
-   and no separate ribbon kind.
-   **E10, decided by BDR 2026-10-23: the note marker is renamed `ribbon`**
-   (kind 2's `marker` list above says so). Its picture and color stay the
-   same; the red bookmark glyph is never called a ribbon. Every client reads
-   an old `bookmark` as `ribbon` and writes `ribbon`, as iOS reads an old
-   `star` as `emphasis`. (The other option, retiring it, was not taken.)
+   now named `ribbon` (kind 2), stays a note's glyph. **E10, decided by BDR
+   2026-10-23:** the note marker is renamed `ribbon` (kind 2's `marker` list
+   above says so). Its picture and color stay the same; the red bookmark
+   glyph is never called a ribbon. Every client reads an old `bookmark` as
+   `ribbon` and writes `ribbon`, as iOS reads an old `star` as `emphasis`.
+   (The other option, retiring it, was not taken.)
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
-   place), a verse, and `ribbon: true` for a named ribbon. Places are stored
-   as verses, never scroll positions (A-F13). **Reading places don't sync
-   in version 1** (BVJ, 2026-10-29; maybe in version 2): each device keeps
-   its own. **On the
-   website, "Continue reading" and Read View's per-book places are not
-   `place` records**: they stay in their own browser storage, and the
-   notebook lists them beside the ribbons. Only a ribbon is a `place`
-   record there (`ribbon: true`; at most 6, names up to 40 characters,
-   unique ignoring case).
-
-   **Coming (E9, 2026-10-22):** named ribbons merge into kind 4, and the
-   notebook's Places list goes: "Continue reading" stays, with no bookmark
-   icon, and no other place is listed unless the reader made a bookmark. If
-   reading places sync at all, "Continue reading" would be the only `place`.
-   See kind 4.
+   place), and a verse. Places are stored as verses, never scroll positions
+   (A-F13). **Reading places don't sync in version 1** (BVJ, 2026-10-29;
+   maybe in version 2): each device keeps its own. **On the website,
+   "Continue reading" and Read View's per-book places are not `place`
+   records**: they stay in their own browser storage, and nothing but
+   "Continue reading" is listed. **`ribbon: true` retired on 2026-11-02**
+   (E9; see kind 4): the website no longer writes a `place` at all, and reads
+   an old ribbon as a bookmark. A `place` another client wrote is carried as
+   it arrives and isn't listed. If reading places sync in version 2,
+   "Continue reading" would be the only `place`, one per book, and no named
+   place exists.
 6. ~~**`legend`**~~ (H1): **dropped 2026-10-07** (BVJ with BDR; colours carry
    no named meanings). The number is kept so the kinds after it don't move.
    Draft 1 had: the reader's meaning for each of the four colours, one per
@@ -834,7 +849,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 
 - ~~Bookmarks vs the `bookmark` marker (kind 4)~~: **settled 2026-10-23** —
   the marker is renamed `ribbon` (E10, BDR); bookmarks stay their own kind,
-  with ribbons folded in (E9, accepted by BDR).
+  with ribbons folded in (E9, accepted by BDR). **E9 is built on the website
+  (2026-11-02)**: kind 4 gained `label` and `follow`, kind 5 lost
+  `ribbon: true`, and the merge vectors are version 3.
 - ~~The overlap rule's three details~~: **approved by BDR, 2026-10-09**
   (under "Highlights that meet").
 - **How records merge, and the `trash` record's fields: answered by BDR,

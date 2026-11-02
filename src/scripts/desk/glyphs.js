@@ -19,7 +19,7 @@ const PATHS = {
   flame: `<path d="M12 1.8c.6 3.4 5.7 6 5.7 11.4A5.7 5.7 0 0 1 6.3 13.2c0-2.6 1.3-4.3 2.6-5.6.2 1.9 1 3 2.2 3.4-.3-3.5.2-6.4.9-9.2z" fill="#E8590C"/><path d="M12 22.2a3 3 0 0 1-3-3c0-1.8 1.6-2.8 2.2-4.6 1.6 1.3 3.8 2.6 3.8 4.6a3 3 0 0 1-3 3z" fill="#FFD08A"/>`,
 };
 // The same shape is a bookmark's mark (the kind, drawn red by desk.css's
-// .desk-ribbon__glyph), and was the `ribbon` marker's old name (E10).
+// .desk-bookmark-mark__glyph), and was the `ribbon` marker's old name (E10).
 PATHS.bookmark = PATHS.ribbon;
 
 /** A marker's glyph as SVG markup; an unknown marker gets the plain note's. */

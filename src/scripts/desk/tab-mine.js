@@ -16,8 +16,11 @@
 // colour, and "All" brings everything back. That choice is kept for the
 // visit only, and goes back to All when its colour leaves the list.
 //
-// Places (places.js) head the tab: Continue reading, Read View's place in each
-// book and the reader's ribbons, this book's first.
+// Continue reading (continue-reading.js) heads the tab, with no bookmark mark:
+// it is where the reader stopped, not something they marked. A bookmark is a
+// row in the list like a note (E9): its name, Edit (the name, and "Move as I
+// read"), and Delete. One that moves as the reader reads says so, and following
+// its link starts it moving (bookmark-follow.js).
 //
 // A record whose wording has changed under it (change-notice.js) carries a
 // flag under its words, "Wording changed · Review" (or "Not in the text ·
@@ -56,7 +59,8 @@
 // are made and put on records on the notebook page (/notebook/).
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS, onFootnote } from "../../lib/desk-records.mjs";
+import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
+import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { liveLabels } from "../../lib/desk-labels.mjs";
 import {
   kindName,
@@ -72,7 +76,8 @@ import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
-import { placesSection } from "./places.js";
+import { followBookmark } from "./bookmark-follow.js";
+import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
 import { panelLine } from "./whats-new.js";
 
@@ -165,16 +170,16 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
-  // Places (B1, places.js) sit above everything else, whatever the scope.
-  const places = store ? placesSection({ store, ctx }) : null;
-  if (places) el.prepend(places);
+  // Continue reading (continue-reading.js) sits above everything else, whatever the scope.
+  const continued = continueSection();
+  el.prepend(continued);
   const addButton = el.querySelector(".desk-mine__add");
   if (addButton) {
     addButton.textContent = addAction.label;
     addButton.addEventListener("click", () => addAction.run(addButton));
   }
 
-  // The tab's own list, not the Places group's (also a .desk-list, and first
+  // The tab's own list, not Continue reading's (also a .desk-list, and first
   // in the tree now that it is prepended): each drew into the other's list.
   const list = el.querySelector(":scope > .desk-list");
   const empty = el.querySelector(".desk-panel__empty");
@@ -255,9 +260,10 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const everything =
       scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
     if (seq !== renderSeq) return; // a newer render has started
-    // Pins and places have their own groups.
+    // Pins have a group of their own, and a reading place another client kept
+    // is not listed (E9: only what the reader marked).
     const kept = everything.filter((r) => r.kind !== "footnotePin" && r.kind !== "place");
-    places?.refresh();
+    continued.refresh();
 
     // The colours this list holds. A choice of colour that has left it (the
     // last of its highlights deleted, or the list changed to another scope)
@@ -458,8 +464,16 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
-    kind.textContent = nameOf(r);
+    kind.textContent = isFollowing(r) ? `${nameOf(r)} · Moves as I read` : nameOf(r);
     li.append(head, kind);
+    // A bookmark that moves as the reader reads starts doing so from this link
+    // (a modified click opens elsewhere and doesn't).
+    if (href && isFollowing(r)) {
+      head.addEventListener("click", (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        followBookmark(r, head.href);
+      });
+    }
     // A note on a footnote (M11) says so, and quotes the footnote's opening
     // words; it is still a note, and the reference above still names the
     // verse that holds the footnote's letter.
@@ -553,6 +567,19 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         p.textContent = words;
         li.append(p);
       }
+    }
+    // A bookmark's name, and whether it moves as the reader reads (E9).
+    if (r.kind === "bookmark" && onEdit && canEdit(r)) {
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "desk-item__edit";
+      edit.textContent = "Edit";
+      edit.setAttribute("aria-label", `Edit bookmark${on ? ` on ${on}` : ""}`);
+      edit.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onEdit(r, edit);
+      });
+      li.append(edit);
     }
     if (notice) li.append(flagButton(r, notice, (trigger) => openCard(trigger, r, li)));
     const del = document.createElement("button");
@@ -678,7 +705,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   // Take the tab down, for a My Notes pane on /desk that closes (BA31).
   function destroy() {
     document.removeEventListener(SETTINGS_EVENT, markCut);
-    places?.destroy();
+    continued.destroy();
   }
 
   return { el, render, follow, destroy };

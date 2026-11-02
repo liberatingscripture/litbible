@@ -414,3 +414,67 @@ test("a note on a footnote needs its footnote's text, a positive n, no quote, an
   const { verse: _v, ...noVerse } = onFn;
   assert.ok(validateRecord(noVerse).some((p) => p.startsWith("verse")), "it still needs its verse");
 });
+
+/* ── E9: a ribbon reads as a bookmark that moves as the reader reads ─── */
+
+const oldRibbon = (extra = {}) =>
+  createRecord(
+    "place",
+    { name: "Thursday group", ribbon: true, bookKey: "romans", chapter: 8, verse: 30, endVerse: 30, ...extra },
+    { ...ctx, id: "rib-1" },
+  );
+
+test("E9: a ribbon reads as a bookmark with its name as `label` and `follow: true`, on the same id", () => {
+  const ribbon = oldRibbon({ labels: ["l1"], novel: { a: 1 } });
+  const read = migrateRecord(ribbon);
+  assert.equal(read.kind, "bookmark");
+  assert.equal(read.id, "rib-1");
+  assert.equal(read.label, "Thursday group");
+  assert.equal(read.follow, true);
+  assert.equal("name" in read, false);
+  assert.equal("ribbon" in read, false);
+  // Everything else survives, unknown fields included, and nothing is touched in `modified`.
+  assert.deepEqual({ ...read, kind: "place", name: "Thursday group", ribbon: true, label: undefined, follow: undefined }, { ...ribbon, label: undefined, follow: undefined });
+  assert.equal(read.modified, ribbon.modified);
+  assert.deepEqual(validateRecord(read), []);
+});
+
+test("E9: a ribbon with no name reads as an unnamed bookmark that moves", () => {
+  const read = migrateRecord(oldRibbon({ name: "" }));
+  assert.equal(read.kind, "bookmark");
+  assert.equal(read.follow, true);
+  assert.equal("label" in read, false);
+});
+
+test("E9: a place that is not a ribbon, and one from a newer schema, are carried as they arrived", () => {
+  const reading = createRecord("place", { name: "", bookKey: "mark", chapter: 4, verse: 35 }, ctx);
+  assert.equal(migrateRecord(reading), reading);
+  const newer = { ...oldRibbon(), schema: SCHEMA_VERSION + 1 };
+  assert.equal(migrateRecord(newer), newer);
+});
+
+test("E9: a deleted ribbon in the trash comes back as a bookmark that moves, and deletedKind follows", () => {
+  const trash = trashRecord(oldRibbon(), trashCtx);
+  assert.equal(trash.deletedKind, "place");
+  const read = migrateRecord(trash);
+  assert.equal(read.deletedKind, "bookmark");
+  assert.equal(read.record.kind, "bookmark");
+  assert.equal(read.record.label, "Thursday group");
+  const back = restoreFromTrash(read, trashCtx);
+  assert.equal(back.kind, "bookmark");
+  assert.equal(back.follow, true);
+  assert.equal(back.id, "rib-1");
+  // Already migrated: nothing changes a second time.
+  assert.equal(migrateRecord(read), read);
+  // A trash record written before deletedKind existed takes it from the converted record.
+  const { deletedKind: _kind, ...bare } = trash;
+  assert.equal(migrateRecord(bare).deletedKind, "bookmark");
+});
+
+test("E9: a bookmark's label and follow are checked, and both are optional", () => {
+  const plain = createRecord("bookmark", { bookKey: "john", chapter: 3, verse: 16 }, ctx);
+  assert.deepEqual(validateRecord(plain), []);
+  assert.deepEqual(validateRecord({ ...plain, label: "Sunday", follow: true }), []);
+  assert.ok(validateRecord({ ...plain, label: 7 }).includes("label is not text"));
+  assert.ok(validateRecord({ ...plain, follow: "yes" }).includes("follow is not true or false"));
+});

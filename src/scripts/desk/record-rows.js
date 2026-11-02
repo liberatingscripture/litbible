@@ -3,7 +3,7 @@
 // One row of the notebook page's lists (notebook-page.js, and a What I've
 // kept pane on /desk, through kept-list.js): the record's
 // reference, linked to its verse, its kind, its words, its labels as small
-// chips, and its buttons: Edit (notes), Labels… and Delete (Unpin for a pinned
+// chips, and its buttons: Edit (notes and bookmarks), Labels… and Delete (Unpin for a pinned
 // footnote). The same facts the panel's My Notes tab shows (tab-mine.js), set
 // out for a page rather than a narrow column, so the words are in full.
 //
@@ -13,9 +13,11 @@
 // is pressed (`actions`), this only draws.
 
 import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
+import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { kindName, recordHref, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { followBookmark } from "./bookmark-follow.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 
@@ -88,8 +90,16 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   }
   const kind = document.createElement("span");
   kind.className = "desk-item__kind";
-  kind.textContent = nameOf(r);
+  kind.textContent = isFollowing(r) ? `${nameOf(r)} · Moves as I read` : nameOf(r);
   li.append(head, kind);
+  // A bookmark that moves as the reader reads starts doing so from this link
+  // (a modified click opens elsewhere and doesn't; E9).
+  if (href && isFollowing(r)) {
+    head.addEventListener("click", (e) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      followBookmark(r, head.href);
+    });
+  }
   // It says what it is on, and quotes the footnote's opening words.
   if (onFootnote(r)) {
     const line = document.createElement("p");
@@ -148,7 +158,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
 
   const buttons = document.createElement("div");
   buttons.className = "desk-np-row__buttons";
-  if (r.kind === "note" && onEdit && canEdit(r)) {
+  if ((r.kind === "note" || r.kind === "bookmark") && onEdit && canEdit(r)) {
     buttons.append(button("desk-item__edit", "Edit", `Edit ${subject}`, (b) => onEdit(r, b)));
   }
   if (canEdit(r)) {

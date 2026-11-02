@@ -25,6 +25,7 @@ import {
 import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
+import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { nameOf, recordRow } from "./record-rows.js";
 import { showUndo } from "./undo-bar.js";
@@ -171,7 +172,8 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       goHere,
       onEdit: (record, trigger) => {
         activeRow = { id: record.id, selector: ".desk-item__edit:not(.desk-item__labels)" };
-        openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger });
+        if (record.kind === "bookmark") openBookmarkForm({ trigger, store, ctx, record, restoreFocus: trigger });
+        else openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger });
         followPanel();
       },
       onLabels: (record, trigger) => {

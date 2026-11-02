@@ -174,6 +174,19 @@ export function readChangeKinds(data) {
 /* ── Who needs to hear a change (BA107) ──────────────────────────────── */
 
 /**
+ * What a bookmark that moves as the reader reads tells listeners it changed
+ * (bookmark-follow.js), in place of `bookmark`: it writes every few seconds,
+ * and a view that redrew for each would flicker under the reader.
+ */
+export const MOVE_KIND = "bookmarkMove";
+
+/**
+ * The kinds a view that is not about where the reader is leaves out of what it
+ * hears: a reading place another client kept, and a bookmark moving (BA107).
+ */
+export const QUIET_KINDS = Object.freeze(["place", MOVE_KIND]);
+
+/**
  * The kinds of record a write changes, for a listener that draws only some
  * kinds: every kind it puts, and every kind it replaces or removes (`before`:
  * the records as they stood in the same transaction, null where there was

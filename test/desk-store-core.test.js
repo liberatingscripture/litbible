@@ -20,6 +20,8 @@ import {
   hearsChange,
   kindName,
   listenerSet,
+  MOVE_KIND,
+  QUIET_KINDS,
   liveRecords,
   metaMessage,
   planBookmark,
@@ -575,4 +577,17 @@ test("listenerSet: a place-only change doesn't reach a listener that doesn't dra
   off();
   set.notify([n.id], "this-tab", ["note"]);
   assert.equal(heard.noPlaces.length, 2, "an unsubscribed listener hears nothing more");
+});
+
+test("E9: a bookmark moving as the reader reads is heard by a view that leaves out QUIET_KINDS only if something else changed too", () => {
+  assert.deepEqual([...QUIET_KINDS].sort(), ["bookmarkMove", "place"]);
+  const set = listenerSet();
+  const heard = [];
+  set.add((ids) => heard.push(ids), { except: QUIET_KINDS });
+  set.notify(["a"], "this-tab", [MOVE_KIND]);
+  set.notify(["b"], "other-tab", ["place"]);
+  assert.deepEqual(heard, [], "neither a move nor a reading place redraws a list");
+  set.notify(["c"], "this-tab", ["bookmark"]);
+  set.notify(["d"], "this-tab", [MOVE_KIND, "note"]);
+  assert.deepEqual(heard, [["c"], ["d"]], "a bookmark the reader made or removed does");
 });

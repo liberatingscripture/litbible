@@ -68,7 +68,7 @@ export function saveLastRead({ book, chapter, verse = null, view }) {
   }
   savedHere = { book, chapter, verse: verse ?? null, view };
   // Tells the Study Desk where the reader is (a ribbon they opened a book
-  // through follows them, src/lib/desk-places.mjs). Sent even when storage
+  // through follows them, src/lib/desk-bookmarks.mjs). Sent even when storage
   // failed, and heard by nothing unless the desk is on.
   try {
     window.dispatchEvent(

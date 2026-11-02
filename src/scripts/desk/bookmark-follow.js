@@ -1,17 +1,19 @@
-// src/scripts/desk/ribbon-follow.js
+// src/scripts/desk/bookmark-follow.js
 //
-// A ribbon that follows the reader (STUDY-DESK.md B1, audit C25): open a book
-// through "Thursday group" in the Places group and that ribbon moves to where
-// they read until they leave the book. Otherwise only Continue reading moves.
+// A bookmark that moves as the reader reads (STUDY-DESK.md E9, which took up B1;
+// audit C25): with "Move as I read" on, open a book through "Thursday group" in
+// the Notebook's list and that bookmark moves to where they read until they
+// leave the book. Otherwise a bookmark stays put, and only Continue reading
+// moves.
 //
-// The rule is src/lib/desk-places.mjs. This file keeps the tab's flag
-// (sessionStorage['lit-desk-ribbon']: the ribbon's id and its book), clears it
+// The rule is src/lib/desk-bookmarks.mjs. This file keeps the tab's flag
+// (sessionStorage['lit-desk-follow']: the bookmark's id and its book), clears it
 // on the first page outside that book, and listens for the one signal both
 // views already send, `lit:last-read` (last-read.js, from Study View's
-// scrolling and from Read View's saves), to write the ribbon's new verse.
+// scrolling and from Read View's saves), to write the bookmark's new verse.
 //
 // Moving is the reader reading, so it edits the record (`modified` moves, and
-// a copy of the notebook elsewhere will see the ribbon moved) but is written
+// a copy of the notebook elsewhere will see the bookmark moved) but is written
 // with `record: false`: it makes no history entry, since Ctrl+Z would
 // otherwise undo reading instead of the reader's last deliberate change. It is
 // written at most once every few seconds and only when the verse changed, and
@@ -24,40 +26,41 @@
 // reader's place before they followed the link (BA99, BA100). Pages without
 // the shell drop the flag in desk-gate.js (BA101).
 //
-// One tab follows a ribbon at a time. Duplicate tab copies session storage,
+// One tab follows a bookmark at a time. Duplicate tab copies session storage,
 // so the flag names its tab (a token), and a page that loads with it asks on
-// RIBBON_TAB_CHANNEL whether a live page holds that token; one that does
+// FOLLOW_TAB_CHANNEL whether a live page holds that token; one that does
 // answers, and the asking tab, the copy, drops the flag. Following a link
-// announces it, and any other tab following that ribbon stops (loseRibbon).
+// announces it, and any other tab following that bookmark stops (loseFollow).
 
 import { canEdit, editRecord } from "../../lib/desk-records.mjs";
 import {
   DUPLICATE_WAIT_MS,
-  RIBBON_FLAG_KEY,
-  RIBBON_TAB_CHANNEL,
-  isRibbon,
-  loseRibbon,
-  nextRibbonState,
+  FOLLOW_FLAG_KEY,
+  FOLLOW_TAB_CHANNEL,
+  isFollowing,
+  loseFollow,
+  nextFollowState,
   pageBookOf,
-  parseRibbonFlag,
+  parseFollowFlag,
   positionOnPage,
-  ribbonFlagFor,
-  ribbonMoveChanges,
+  followFlagFor,
+  followMoveChanges,
   throttleDelay,
-} from "../../lib/desk-places.mjs";
+} from "../../lib/desk-bookmarks.mjs";
+import { MOVE_KIND } from "../../lib/desk-store-core.mjs";
 import { pageLastRead } from "../last-read.js";
 
-/** The flag as this tab holds it now; null when no ribbon is following. */
+/** The flag as this tab holds it now; null when no bookmark is following. */
 let flag = null;
-/** Set by initRibbonFollow, so a link followed on this page can start a ribbon moving at once. */
+/** Set by initBookmarkFollow, so a link followed on this page can start a bookmark moving at once. */
 let env = null;
-/** RIBBON_TAB_CHANNEL, opened once; null where the browser has none. */
+/** FOLLOW_TAB_CHANNEL, opened once; null where the browser has none. */
 let channel = null;
 
 function openChannel() {
   if (channel || typeof BroadcastChannel !== "function") return channel;
   try {
-    channel = new BroadcastChannel(RIBBON_TAB_CHANNEL);
+    channel = new BroadcastChannel(FOLLOW_TAB_CHANNEL);
   } catch {
     channel = null;
   }
@@ -68,7 +71,7 @@ const newTab = () => globalThis.crypto?.randomUUID?.() ?? `t${Date.now().toStrin
 
 function readFlag() {
   try {
-    return parseRibbonFlag(window.sessionStorage.getItem(RIBBON_FLAG_KEY));
+    return parseFollowFlag(window.sessionStorage.getItem(FOLLOW_FLAG_KEY));
   } catch {
     return null;
   }
@@ -77,27 +80,27 @@ function readFlag() {
 function writeFlag(next) {
   flag = next;
   try {
-    if (next) window.sessionStorage.setItem(RIBBON_FLAG_KEY, ribbonFlagFor(next));
-    else window.sessionStorage.removeItem(RIBBON_FLAG_KEY);
+    if (next) window.sessionStorage.setItem(FOLLOW_FLAG_KEY, followFlagFor(next));
+    else window.sessionStorage.removeItem(FOLLOW_FLAG_KEY);
   } catch {
-    /* no session storage: the ribbon simply doesn't follow */
+    /* no session storage: the bookmark simply doesn't follow */
   }
 }
 
 /**
- * The reader followed this ribbon's link from the Places group: from now on,
+ * The reader followed this bookmark's link from the Notebook's list: from now on,
  * while they stay in its book in this tab, it moves with them. Call just
  * before the navigation, with the link's address. Where the reader was
- * before the link is not where the ribbon goes (BA99): a link within this
- * page moves the ribbon at the page's next report of where the reader is,
+ * before the link is not where the bookmark goes (BA99): a link within this
+ * page moves the bookmark at the page's next report of where the reader is,
  * after the jump, and a link to another page leaves the moving to that page.
  *
- * @param {{ id: string, bookKey: string }} ribbon
+ * @param {{ id: string, bookKey: string }} bookmark
  * @param {string | null} [href] the link's address
  */
-export function followRibbon(ribbon, href = null) {
-  writeFlag({ id: ribbon.id, bookKey: ribbon.bookKey, tab: newTab() });
-  // Any other tab following this ribbon stops: the link opened last wins.
+export function followBookmark(bookmark, href = null) {
+  writeFlag({ id: bookmark.id, bookKey: bookmark.bookKey, tab: newTab() });
+  // Any other tab following this bookmark stops: the link opened last wins.
   try {
     openChannel()?.postMessage({ took: flag.id, tab: flag.tab });
   } catch {
@@ -119,14 +122,14 @@ function onThisPage(href) {
 
 /**
  * Start following on this page: drop the flag if the page is outside the
- * flagged book, and otherwise move the ribbon as the reader reads.
+ * flagged book, and otherwise move the bookmark as the reader reads.
  *
  * @param {{ store: object | null, ctx: () => { client: string } }} options
  */
-export function initRibbonFollow({ store, ctx }) {
+export function initBookmarkFollow({ store, ctx }) {
   const page = pageBookOf(window.location.pathname);
   // Dropped on a page outside the book even when the notebook didn't open.
-  writeFlag(nextRibbonState(readFlag(), page));
+  writeFlag(nextFollowState(readFlag(), page));
   // A flag stored before tokens gets one; there is nothing to ask about it.
   if (flag && !flag.tab) writeFlag({ ...flag, tab: newTab() });
   const ch = openChannel();
@@ -139,7 +142,7 @@ export function initRibbonFollow({ store, ctx }) {
         ch.postMessage({ taken: msg.ask });
         return;
       }
-      if (loseRibbon(flag, msg)) writeFlag(null);
+      if (loseFollow(flag, msg)) writeFlag(null);
     });
     if (flag) {
       asking = flag.tab;
@@ -154,15 +157,15 @@ export function initRibbonFollow({ store, ctx }) {
   let latest = null; // where the reader last was, as { bookKey, chapter, verse }
   let lastWrite = null;
   let timer = 0;
-  // The reader followed a ribbon off this page: what it reports now, as it
-  // goes (its pagehide save), is where they were, not where the ribbon goes.
+  // The reader followed a bookmark off this page: what it reports now, as it
+  // goes (its pagehide save), is where they were, not where the bookmark goes.
   let leaving = false;
 
   async function flush() {
     timer = 0;
     // Not before this page knows whether its tab is a copy.
     await settled;
-    // A ribbon opened into another book is about to be followed there, by the
+    // A bookmark opened into another book is about to be followed there, by the
     // page that loads next; this page's reading says nothing about it.
     if (!flag || !latest || latest.bookKey !== flag.bookKey) return;
     const id = flag.id;
@@ -173,21 +176,21 @@ export function initRibbonFollow({ store, ctx }) {
       await store.change(
         async ({ get }) => {
           const record = await get(id);
-          // Deleted (or never a ribbon, or kept by a newer client): stop following.
-          if (!isRibbon(record) || !canEdit(record)) {
+          // Deleted (or no longer moving, or kept by a newer client): stop following.
+          if (!isFollowing(record) || !canEdit(record)) {
             gone = true;
             return null;
           }
-          const changes = ribbonMoveChanges(record, pos);
+          const changes = followMoveChanges(record, pos);
           if (!changes) return null;
           moved = true;
           const next = editRecord(record, changes, { now: new Date().toISOString(), client: ctx().client });
           return { put: [next], remove: [] };
         },
-        { record: false },
+        { record: false, kinds: [MOVE_KIND] },
       );
     } catch (err) {
-      console.error("Study Desk: the ribbon couldn't follow the reader", err);
+      console.error("Study Desk: the bookmark couldn't follow the reader", err);
     }
     if (moved) lastWrite = Date.now();
     if (gone && flag?.id === id) writeFlag(null);
@@ -220,7 +223,7 @@ export function initRibbonFollow({ store, ctx }) {
   window.addEventListener("pageshow", (e) => {
     if (!e.persisted) return;
     followed(null);
-    writeFlag(nextRibbonState(readFlag(), page));
+    writeFlag(nextFollowState(readFlag(), page));
   });
   env = { followed };
   // This page may have said where the reader is before this module loaded.

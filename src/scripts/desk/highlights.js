@@ -24,7 +24,7 @@
 
 import { offsetsToRange, pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { COLORS, placeRecord } from "../../lib/desk-records.mjs";
-import { forChapter } from "../../lib/desk-store-core.mjs";
+import { forChapter, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 import { watchLitRecords } from "./lit-records.js";
 import { chapterTextFor, pageChapter, readBook } from "./page.js";
@@ -84,8 +84,8 @@ export function createHighlights({ store }) {
 
   /* ── Keeping up with the page ────────────────────────────────────── */
 
-  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
-  store.subscribe(load, { except: ["place"] });
+  // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
+  store.subscribe(load, { except: QUIET_KINDS });
   document.addEventListener(SETTINGS_EVENT, schedule);
   new MutationObserver(schedule).observe(textBox, { childList: true, subtree: true, characterData: true });
   load();
