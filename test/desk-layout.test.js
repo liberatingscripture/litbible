@@ -4,6 +4,7 @@ import {
   ARRANGEMENTS,
   HANDLE,
   KINDS,
+  RETIRED_KINDS,
   LAYOUT_KEY,
   MAX_PANES,
   MIN_HEIGHT,
@@ -458,7 +459,7 @@ test("setPin only works on following kinds and stores { at }", () => {
   assert.equal(setPin(l, "a", true, "x"), l);
   assert.equal(setPin(l, "c", true, "x"), l);
   assert.equal(setPin(l, "nope", true, "x"), l);
-  const kept = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "kept")));
+  const kept = mk(cols([0.5, 0.5], leaf("a", "lit"), leaf("b", "search")));
   assert.equal(setPin(kept, "b", true, "x"), kept);
 });
 
@@ -960,13 +961,34 @@ test("a changer's result doesn't share structure that later changes would corrup
 
 // ---- the shared place (3d) ------------------------------------------------
 
-test("the kept kind is labeled with a curly apostrophe and does not follow", () => {
-  const entry = KINDS.find((k) => k.kind === "kept");
-  assert.ok(entry);
-  assert.equal(entry.label, "What I\u2019ve kept");
-  assert.equal(entry.follows, false);
-  assert.equal(kindLabel("kept"), "What I\u2019ve kept");
-  assert.equal(isFollower("kept"), false);
+test("What I’ve kept is not a pane kind any more: it is My Notes (E17)", () => {
+  assert.equal(KINDS.some((k) => k.kind === "kept"), false);
+  assert.deepEqual(RETIRED_KINDS, { kept: "mine" });
+  assert.equal(isFollower("mine"), true);
+});
+
+test("a saved layout that names the retired kept kind reads back as My Notes (E17)", () => {
+  const saved = { root: cols([0.6, 0.4], leaf("p1", "lit"), leaf("p2", "kept")), active: "p1" };
+  const read = checkLayout(JSON.parse(JSON.stringify(saved)));
+  assert.equal(findPane(read.root, "p2").kind, "mine");
+  // It follows the LIT pane now, so it can be pinned and is given the shared place.
+  assert.equal(isFollower(findPane(read.root, "p2").kind), true);
+  assert.equal(placeFor(setPlace(read, "john 3:16"), "p2"), "john 3:16");
+});
+
+test("a layout that held both panes keeps both, as two My Notes panes (E17)", () => {
+  const saved = { root: cols([0.4, 0.3, 0.3], leaf("p1", "lit"), leaf("p2", "mine"), leaf("p3", "kept")), active: "p1" };
+  const read = checkLayout(JSON.parse(JSON.stringify(saved)));
+  assert.deepEqual(panes(read.root).map((p) => p.kind), ["lit", "mine", "mine"]);
+});
+
+test("a retired kind inside the saved record, the reader's default included, is migrated (E17)", () => {
+  const layout = { root: cols([0.6, 0.4], leaf("p1", "lit"), leaf("p2", "kept")), active: "p1" };
+  const raw = JSON.stringify({ v: 1, start: "default", last: layout, mine: layout });
+  const saved = readSaved(raw);
+  assert.equal(findPane(saved.last.root, "p2").kind, "mine");
+  assert.equal(findPane(saved.mine.root, "p2").kind, "mine");
+  assert.equal(saved.start, "default");
 });
 
 test("setPlace sets the place the following panes share", () => {
@@ -1006,7 +1028,7 @@ test("setPlace does not mutate its input", () => {
 });
 
 test("placeFor is null for a pane that does not follow, or does not exist", () => {
-  const l = setPlace(mk(cols([0.34, 0.33, 0.33], leaf("a", "lit"), leaf("b", "sheet"), leaf("c", "kept"))), "john 3:16");
+  const l = setPlace(mk(cols([0.34, 0.33, 0.33], leaf("a", "lit"), leaf("b", "sheet"), leaf("c", "search"))), "john 3:16");
   for (const id of ["a", "b", "c", "nope"]) assert.equal(placeFor(l, id), null, id);
 });
 

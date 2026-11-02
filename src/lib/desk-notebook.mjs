@@ -157,6 +157,36 @@ export function groupRecords(records) {
   };
 }
 
+/**
+ * The record a following list brings into view for a reader at `passage`
+ * (E17/E22): the first record on the text at or after it, in Bible order, by
+ * the end of its verses; with none after, the last one before it. `here` says
+ * the record is in the passage's own chapter, so the list can tell a reader
+ * who has nothing kept where they are apart from one who has. `records` come
+ * in the list's own order; one with no place (a note on a glossary entry or
+ * an article) is passed over. Null when no record has a place.
+ *
+ * @param {object[]} records
+ * @param {{ bookKey: string, chapter: number, verse?: number | null } | null | undefined} passage
+ * @returns {{ record: object, here: boolean } | null}
+ */
+export function followTarget(records, passage) {
+  const book = bookIndex(passage?.bookKey);
+  if (!passage?.bookKey || !Number.isInteger(passage.chapter) || book === Infinity) return null;
+  const verse = passage.verse ?? 0;
+  const here = (r) => r.bookKey === passage.bookKey && r.chapter === passage.chapter;
+  let before = null;
+  for (const r of records) {
+    const rb = bookIndex(r?.bookKey);
+    if (rb === Infinity || !Number.isInteger(r.chapter)) continue;
+    const last = Number.isInteger(r.endVerse) ? Math.max(r.verse ?? 0, r.endVerse) : r.verse ?? 0;
+    const after = rb - book || r.chapter - passage.chapter || last - verse;
+    if (after >= 0) return { record: r, here: here(r) };
+    before = r;
+  }
+  return before ? { record: before, here: here(before) } : null;
+}
+
 /* ── Counts in words ─────────────────────────────────────────────────── */
 
 /**

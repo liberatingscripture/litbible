@@ -13,6 +13,7 @@ import {
   describeCounts,
   emptyNow,
   filterRecords,
+  followTarget,
   fold,
   groupRecords,
   kindsPresent,
@@ -145,4 +146,45 @@ test("planEmptyTrashNow writes only trash that still holds something", () => {
   assert.deepEqual(plan.remove, []);
   assert.equal(trashHeld([put[0], tomb]), 1);
   assert.deepEqual(planEmptyTrashNow([tomb]).put, []);
+});
+
+/* ── The record a following list brings up (E17, E22) ─────────────────── */
+
+test("followTarget is the first record at or after the reading line, by the end of its verses", () => {
+  const a = note({ bookKey: "matthew", chapter: 5, verse: 3 });
+  const b = note({ bookKey: "matthew", chapter: 5, verse: 9, endVerse: 12 });
+  const c = note({ bookKey: "matthew", chapter: 6, verse: 1 });
+  const all = [a, b, c];
+  assert.deepEqual(followTarget(all, { bookKey: "matthew", chapter: 5, verse: 2 }), { record: a, here: true });
+  assert.deepEqual(followTarget(all, { bookKey: "matthew", chapter: 5, verse: 4 }), { record: b, here: true });
+  // A range still holds the line while the reader is inside it.
+  assert.deepEqual(followTarget(all, { bookKey: "matthew", chapter: 5, verse: 11 }), { record: b, here: true });
+  assert.deepEqual(followTarget(all, { bookKey: "matthew", chapter: 5, verse: 13 }), { record: c, here: false });
+  // No verse: the chapter's first.
+  assert.deepEqual(followTarget(all, { bookKey: "matthew", chapter: 5 }), { record: a, here: true });
+});
+
+test("followTarget with nothing after the line is the last record before it, and says it is not here", () => {
+  const a = note({ bookKey: "matthew", chapter: 5, verse: 3 });
+  const b = note({ bookKey: "matthew", chapter: 5, verse: 9 });
+  assert.deepEqual(followTarget([a, b], { bookKey: "matthew", chapter: 5, verse: 30 }), { record: b, here: true });
+  assert.deepEqual(followTarget([a, b], { bookKey: "matthew", chapter: 9, verse: 1 }), { record: b, here: false });
+});
+
+test("followTarget crosses books, so a chapter with nothing kept still finds the nearest records (E22)", () => {
+  const john = note({ bookKey: "john", chapter: 3, verse: 16 });
+  const acts = note({ bookKey: "acts", chapter: 2, verse: 1 });
+  assert.deepEqual(followTarget([john, acts], { bookKey: "luke", chapter: 1, verse: 1 }), { record: john, here: false });
+  assert.deepEqual(followTarget([john, acts], { bookKey: "romans", chapter: 8, verse: 1 }), { record: acts, here: false });
+  assert.deepEqual(followTarget([john, acts], { bookKey: "matthew", chapter: 28, verse: 1 }), { record: john, here: false });
+});
+
+test("followTarget passes over records with no place, and is null with none placed or no passage", () => {
+  const g = make("note", { glossaryEntry: "flesh", body: "x", marker: "note" });
+  const a = note({ bookKey: "john", chapter: 3, verse: 16 });
+  assert.deepEqual(followTarget([g, a], { bookKey: "john", chapter: 3, verse: 1 }), { record: a, here: true });
+  assert.equal(followTarget([g], { bookKey: "john", chapter: 3, verse: 1 }), null);
+  assert.equal(followTarget([a], null), null);
+  assert.equal(followTarget([a], { bookKey: "nowhere", chapter: 1 }), null);
+  assert.equal(followTarget([], { bookKey: "john", chapter: 3 }), null);
 });

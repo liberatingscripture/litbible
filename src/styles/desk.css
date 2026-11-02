@@ -2917,6 +2917,92 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   color: var(--green-text);
 }
 
+/* My Notes: the search and "Show" above the list (what "What I've kept" had,
+   E17), a count in words, and a line for a chapter with nothing kept (E22). */
+.desk-mine__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  margin: 10px 4px 2px;
+}
+
+.desk-mine__filters[hidden] {
+  display: none;
+}
+
+.desk-mine__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.8125rem;
+}
+
+.desk-mine__field--grow {
+  flex: 1 1 9rem;
+}
+
+.desk-mine__field input[type="search"],
+.desk-mine__field select {
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: var(--surface-raised, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.desk-mine__field input:focus-visible,
+.desk-mine__field select:focus-visible,
+.desk-item__tag:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-mine__count,
+.desk-mine__here {
+  margin: 8px 4px 0;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.8125rem;
+}
+
+/* A chapter's heading among the rows. */
+.desk-mine__heading {
+  margin: 14px 4px 0;
+}
+
+.desk-mine__heading-text {
+  margin: 0;
+  /* The panel's own face, not the site's display serif for headings. */
+  font-family: inherit;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* The row the list is following to, when it is in the chapter being read. */
+.desk-item[aria-current="location"] {
+  padding-left: 9px;
+  box-shadow: inset 3px 0 0 var(--green-text);
+}
+
+/* Labels… on a row, quieter than Edit and Delete. */
+.desk-item__tag {
+  grid-column: 1;
+  justify-self: start;
+  margin-top: 4px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--green-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* My Notes: the label choices, in the colour row's pattern. */
 .desk-mine__labels {
   display: flex;
