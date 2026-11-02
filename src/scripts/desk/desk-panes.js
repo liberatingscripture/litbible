@@ -16,7 +16,9 @@
 // - Footnotes is footnotes-view.js, the chapter's notes with the reader's
 //   verse marked (X11; 3e);
 // - Sheet is sheet-pane.js, the sheet editor (S1; 3f), showing the sheet the
-//   layout names for it, or the list of sheets.
+//   layout names for it, or the list of sheets;
+// - Search is search-pane.js, the site's search with results that move the
+//   LIT pane (3m). It stands alone, and keeps nothing of a search.
 // The following panes (This verse, Greek, Footnotes) read their chapter from
 // its fetched Study View page (chapter-page.js), and show the passage
 // desk-page.js gives them, with a passage picker at their top
@@ -34,6 +36,7 @@ import { createKeptList } from "./kept-list.js";
 import { createLitPane } from "./lit-pane.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
+import { createSearchPane } from "./search-pane.js";
 import { createSheetPane } from "./sheet-pane.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
@@ -245,6 +248,18 @@ function mountGreek(body, env, pane) {
     setPassage: show,
     chapter: () => chapter,
     selectWord: (verse, t, opts) => tab?.selectWord(verse, t, opts) ?? Promise.resolve(false),
+    // A Greek search result (3m): select its word here. On this chapter that
+    // is at once; otherwise the word waits for the chapter the pane is about
+    // to be moved to (the caller moves the LIT pane there).
+    goToWord: (p, t) => {
+      if (tab && sameChapter(chapter, p)) {
+        top = p.verse;
+        tab.goToVerse(p.verse);
+        return tab.selectWord(p.verse, t, { focus: true });
+      }
+      word = { verse: p.verse, t };
+      return Promise.resolve(true);
+    },
     // The page puts the scrolling back; the Greek only mustn't tell it.
     keep: () => () => tab?.settle(),
     destroy: () => {
@@ -318,6 +333,13 @@ function mountSheet(body, env, pane) {
   return { destroy: () => sheet.destroy() };
 }
 
+function mountSearch(body, env, pane) {
+  body.classList.add("desk-pane__body--fill");
+  const search = createSearchPane({ paneId: pane.id, env, getPlace: pane.get });
+  body.append(search.el);
+  return { focusField: () => search.focusField(), destroy: () => search.destroy() };
+}
+
 /**
  * A record on a verse moves the LIT pane being read there (3g), which the
  * following panes then follow: for My Notes' rows and What I've kept's
@@ -354,6 +376,9 @@ function mountKept(body, env, pane) {
  *   onEdit: ((record: object, trigger: Element) => void) | null,
  *   ctx: () => { client: string, contentVersion: string },
  *   openGreekWord: (passage: object, t: number) => void,
+ *   showPassage: (passage: object, options?: { beside?: string }) => void,
+ *   showSheet: (sheetId: string, keep?: string) => boolean,
+ *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env
  * @param {{ id: string, get: () => object, set: (passage: object) => void,
  *   getSheet: () => string | null, setSheet: (id: string | null) => void }} pane
@@ -404,6 +429,7 @@ export function mountPane(kind, body, env, pane) {
   if (kind === "lit") return mountLit(body, env, pane);
   if (kind === "footnotes") return mountFootnotes(body, env, pane);
   if (kind === "sheet") return mountSheet(body, env, pane);
+  if (kind === "search") return mountSearch(body, env, pane);
   // A pane saved by a later version of the page, which this copy doesn't know.
   return message(body, "This pane needs a newer copy of the page. Reload to get it.");
 }

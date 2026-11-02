@@ -15,14 +15,14 @@ that section.
 
 | Path | Purpose |
 |------|---------|
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20; 3m, the search pane, 2026-11-01), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward and are planned in phases FA1-w onward. Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 
 ## The rules
 
 - **The Study Desk preview** (STUDY-DESK.md, phases 1a to 1d, 1f and 1h,
-  2a to 2c, and phase 3's 3b to 3k) is in production but
+  2a to 2c, and phase 3's 3b to 3k and 3m) is in production but
   switched off for everyone: `?desk=on` turns it on in one browser on a
   computer, `?desk=off` turns it off. STUDY-DESK.md is the record; what a
   change elsewhere in the site has to respect:
@@ -803,7 +803,7 @@ that section.
        Layout menu (desk-page.js fills `[data-desk-header-tools]`), Aa and
        the menu button. No nav row and no search; the Display tray carries
        Study View's "Show" switches (`scriptureControls="study"`), which
-       reach the LIT pane's text. A search pane is phase 3m.
+       reach the LIT pane's text. Search is a pane (below).
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
        LIT's license line; the rest of the footer is hidden by
        `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its
@@ -815,6 +815,26 @@ that section.
        notice. Scroll anchoring is
        off there, or the browser answers the growth with a scroll of its
        own.
+     - **The Search pane is phase 3m** (built 2026-11-01):
+       `desk/search-pane.js`, a third UI beside `searchbar.js` and
+       `search.js`, reached only from `desk-panes.js`. It calls
+       `search-core.js` and never copies its parsing or bucketing; a new
+       rule both UIs need goes there. Its pure rules are
+       `src/lib/desk-search-pane.mjs`. **It keeps nothing about a search**
+       (no key, no layout field), so /privacy doesn't name it and a reload
+       empties it. **It stands alone**: not a follower, and “The book I’m
+       reading” fixes the book when picked. A plain click on a verse or
+       topic moves the LIT pane through `env.showPassage`, and rows stay
+       real links, so a modified click opens a tab and `ref-preview.js`
+       previews them (`.desk-search__link`). A glossary entry is cloned from
+       the fetched /glossary/ page into the pane; an article or intro opens
+       in a new tab. A Greek result goes through `env.openGreekHit`, and
+       every Greek group carries `creditHtml` (rule 14). Adding to a sheet
+       reads the target from `addTarget` and `onAddTarget` (`sheet-pane.js`),
+       the same rule as “Add to sheet,” and writes in one `store.change`.
+       `showSheet`'s `keep` stops the pane giving its own place to the sheet
+       it just made. `/` reaches it as a `lit:desk-search` event from
+       `keyboard-shortcuts.js`, which imports nothing of the desk.
   19. **Phase 3i is a sheet on paper** (built 2026-10-20; STUDY-DESK.md, S4,
      S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
      `desk-gate.js` fills with `src/scripts/desk/sheet-page.js` when

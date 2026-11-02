@@ -67,7 +67,8 @@ From the root's project tree.
                      #   (desk-first-use); the Greek tab's helpers
                      #   (desk-greek); /desk's panes and their
                      #   layouts (desk-layout), the passages they show
-                     #   (desk-passage), and the LIT pane's corpus and
+                     #   (desk-passage), the search pane's rules
+                     #   (desk-search-pane), and the LIT pane's corpus and
                      #   text (desk-corpus, desk-lit-text)), greek-parse.mjs (MorphGNT's parsing
                      #   codes in words, shared with the phase 2 tool),
                      #   greek-search.mjs (searching the Greek: folding,

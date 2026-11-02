@@ -1,0 +1,117 @@
+// src/lib/desk-search-pane.mjs
+//
+// The rules behind /desk's Search pane (STUDY-DESK.md, "Order of work", 3m):
+// where a result goes, which books the pane's book menu offers, how long a
+// query must be, and what its "add to a sheet" controls say. Pure and
+// unit-tested; the pane that draws it is src/scripts/desk/search-pane.js, which
+// takes what a search finds from search-core.js and never copies its parsing.
+//
+// BVJ's answers (2026-11-01, 3m):
+// - the pane stands alone, and its book menu offers "The book I’m reading
+//   (John)", which sets the filter to that book and keeps it when the LIT pane
+//   moves;
+// - a glossary result opens in the pane, an article or intro result in a new
+//   tab, and a verse or topic result moves the LIT pane;
+// - results can go on an open Sheet pane's sheet.
+
+import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { hasGreek } from "./greek-search.mjs";
+
+/** The shortest query searched as the tray does (a Greek query has no minimum). */
+export const MIN_QUERY_LEN = 3;
+
+/** How many verse rows show before "Show more". */
+export const PAGE = 20;
+
+/** The book menu's value for "The book I’m reading". */
+export const READING = "@reading";
+
+/**
+ * Whether a query is long enough to search: three letters, or any Greek
+ * letters while the Greek is searched at all (ὁ, ἐν). The tray's `longEnough`.
+ */
+export function longEnoughQuery(text, greekOn = false) {
+  const q = String(text ?? "").trim();
+  return q.length >= MIN_QUERY_LEN || (Boolean(greekOn) && hasGreek(q));
+}
+
+/**
+ * Where a result's address goes:
+ * - `{ type: "passage", bookKey, chapter, verse }`: a chapter of the LIT (verse
+ *   null when the address names none, or a topic's whole chapter), which moves
+ *   the LIT pane;
+ * - `{ type: "glossary", id }`: an entry, which opens in the pane;
+ * - `{ type: "tab", href }`: anything else (an introduction, an article, a page
+ *   of the site, another site), which opens in a new tab.
+ * A verse range `#v16-18` goes to its first verse.
+ */
+export function resultTarget(href) {
+  const raw = String(href ?? "");
+  let url;
+  try {
+    url = new URL(raw, "https://local.invalid");
+  } catch (_) {
+    return { type: "tab", href: raw };
+  }
+  if (url.origin !== "https://local.invalid") return { type: "tab", href: raw };
+  const path = url.pathname.replace(/\/+$/, "");
+  if (path === "/glossary") {
+    let id = "";
+    try { id = decodeURIComponent(url.hash.slice(1)); } catch (_) { id = url.hash.slice(1); }
+    return id ? { type: "glossary", id } : { type: "tab", href: raw };
+  }
+  const m = /^\/([0-9a-z]+)-(\d+)$/.exec(path);
+  if (m && Object.hasOwn(BOOKS, m[1])) {
+    const chapter = Number(m[2]);
+    if (chapter >= 1 && chapter <= BOOKS[m[1]]) {
+      const v = /^#v(\d+)(?:-\d+)?$/.exec(url.hash);
+      return { type: "passage", bookKey: m[1], chapter, verse: v ? Number(v[1]) : null };
+    }
+  }
+  return { type: "tab", href: raw };
+}
+
+/**
+ * The book menu's options: All books, "The book I’m reading (John)" when there
+ * is one, then every book in Bible order. `reading` is a book key or null.
+ */
+export function bookOptions(reading = null) {
+  const out = [{ value: "", label: "All books" }];
+  if (reading && Object.hasOwn(BOOKS, reading)) {
+    out.push({ value: READING, label: `The book I’m reading (${bookKeyToLabel(reading)})` });
+  }
+  for (const key of BOOK_ORDER) out.push({ value: key, label: bookKeyToLabel(key) });
+  return out;
+}
+
+/**
+ * The book filter a menu choice sets: "" for all books, the book being read
+ * for "The book I’m reading", else the book chosen. A book the corpus doesn't
+ * have is no filter. Choosing "The book I’m reading" fixes the book at that
+ * moment, so the list holds still when the LIT pane moves.
+ */
+export function bookFilterFor(choice, reading = null) {
+  if (choice === READING) return reading && Object.hasOwn(BOOKS, reading) ? reading : "";
+  return typeof choice === "string" && Object.hasOwn(BOOKS, choice) ? choice : "";
+}
+
+/** A verse row's reference, as the sheet rules take it. */
+export const verseRef = (hit) => ({ bookKey: hit.bookKey, chapter: hit.chapter, verse: hit.verse });
+
+/** The name of a verse row's + button. */
+export const addVerseLabel = (hit) => `Add ${bookKeyToLabel(hit.bookKey)} ${hit.chapter}:${hit.verse} to the sheet`;
+
+/**
+ * The button that adds every verse found to the sheet showing, named by it.
+ * The sheet's name is in curly quotes, any quotes inside it turned single.
+ */
+export function addAllLabel(name, count) {
+  const quoted = String(name ?? "").replace(/“/g, "‘").replace(/”/g, "’");
+  return `Add ${count === 1 ? "this verse" : "these verses"} to “${quoted}”`;
+}
+
+/** How many of `total` rows show after one more page, and how many remain hidden. */
+export function nextPage(shown, total, page = PAGE) {
+  const next = Math.min(total, Math.max(0, shown) + page);
+  return { shown: next, hidden: total - next };
+}

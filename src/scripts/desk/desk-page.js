@@ -53,6 +53,8 @@ import {
   kindLabel,
   needs,
   nodeAt,
+  openKind,
+  openLitBeside,
   openingLayout,
   originalLayout,
   panes,
@@ -193,13 +195,57 @@ async function start() {
   try { drafts = JSON.parse(document.getElementById("desk-drafts")?.textContent || "{}") ?? {}; } catch (_) {}
   // A sheet's passage shown in the LIT pane being read (or, with none, in the
   // panes that follow), as a picker would move it.
-  const showPassage = (passage) => {
+  // `beside` is a pane (the Search pane) that a result came from: with no LIT
+  // pane open, one opens to its left where there is room (3m), so a verse
+  // found still lands.
+  const showPassage = (passage, { beside = null } = {}) => {
     const at = formatPassage(passage);
     if (!at) return;
-    if (findPane(layout.root, layout.active)?.kind === "lit") commit(setLitAt(layout, layout.active, at), { draw: false });
-    else commit(setPlace(layout, at), { draw: false });
+    if (findPane(layout.root, layout.active)?.kind === "lit") {
+      commit(setLitAt(layout, layout.active, at), { draw: false });
+      return;
+    }
+    const placed = setPlace(layout, at);
+    if (beside) {
+      const room = panesBox.getBoundingClientRect();
+      const next = openLitBeside(placed, beside, room.width, room.height);
+      if (next !== placed) {
+        commit(next);
+        return;
+      }
+    }
+    commit(placed, { draw: false });
   };
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage };
+  // A new sheet shown in a Sheet pane, as "Open it on the Study Desk" does
+  // (M5): from the Search pane's "Make a sheet of these verses". That pane and
+  // the LIT panes keep their places; false when no other pane could show it.
+  const showSheetPane = (sheetId, keep) => {
+    const next = showSheet(layout, sheetId, panesBox.getBoundingClientRect().width, keep);
+    if (next === layout) return false;
+    commit(next);
+    return true;
+  };
+  // A Greek search result (3m): its word in an unpinned Greek pane, else a
+  // Greek pane opened beside the search where there is room; the LIT pane
+  // moves to the verse either way.
+  const openGreekHit = (hit, searchId) => {
+    const passage = { bookKey: hit.book, chapter: hit.chapter, verse: hit.verse };
+    const unpinned = () => panes(layout.root).find((p) => p.kind === "greek" && !p.pin);
+    let greek = unpinned();
+    if (!greek) {
+      const room = panesBox.getBoundingClientRect();
+      const before = new Set(panes(layout.root).map((p) => p.id));
+      const next = openKind(layout, "greek", room.width, room.height, searchId);
+      if (next !== layout) {
+        commit(next);
+        greek = panes(layout.root).find((p) => !before.has(p.id));
+      }
+    }
+    if (greek) paneEls.get(greek.id)?.inst?.goToWord?.(passage, hit.t);
+    else announce("Open a Greek pane to see the word.");
+    showPassage(passage, { beside: searchId });
+  };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, openGreekHit };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -983,6 +1029,31 @@ async function start() {
       save();
     }
   }
+
+  // `/` (keyboard-shortcuts.js): the first Search pane's field, or the one
+  // holding focus, else a new Search pane beside the active pane; with no room
+  // it says so and does nothing else (3m, BVJ 2026-11-01). The shared reader
+  // code only sends the event; nothing of the desk is imported there.
+  document.addEventListener("lit:desk-search", (e) => {
+    const open = panes(layout.root).filter((p) => p.kind === "search" && paneEls.get(p.id)?.inst?.focusField);
+    const holding = open.find((p) => paneEls.get(p.id).el.contains(document.activeElement));
+    const use = holding ?? open[0];
+    e.preventDefault();
+    if (use) {
+      paneEls.get(use.id).inst.focusField();
+      return;
+    }
+    const room = panesBox.getBoundingClientRect();
+    const before = new Set(panes(layout.root).map((p) => p.id));
+    const next = openKind(layout, "search", room.width, room.height);
+    if (next === layout) {
+      announce("Close a pane to open search.");
+      return;
+    }
+    commit(next);
+    const made = panes(layout.root).find((p) => !before.has(p.id));
+    paneEls.get(made?.id)?.inst?.focusField();
+  });
 
   fitHeight();
   draw();

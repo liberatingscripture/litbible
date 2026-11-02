@@ -54,6 +54,9 @@ export const KINDS = [
   { kind: "footnotes", label: "Footnotes", follows: true },
   { kind: "sheet", label: "Sheet", follows: false },
   { kind: "kept", label: "What I’ve kept", follows: false },
+  // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
+  // book menu offers "The book I’m reading" and keeps the book it was set to.
+  { kind: "search", label: "Search", follows: false },
 ];
 
 const KIND_INFO = new Map(KINDS.map((k) => [k.kind, k]));
@@ -400,8 +403,11 @@ export function setPaneSheet(layout, id, sheetId) {
  * scrolls sideways for it. A split to the right never raises the height a
  * layout needs, so only the width is asked. Without a width that is a
  * positive number, the room isn't asked about. Unchanged for an empty id.
+ * `keep` names a pane that mustn't give its place (3m: the Search pane a new
+ * sheet came from, whose results would be lost); with no other pane to give,
+ * the layout comes back unchanged, the same object.
  */
-export function showSheet(layout, sheetId, width) {
+export function showSheet(layout, sheetId, width, keep = null) {
   if (typeof sheetId !== "string" || !sheetId) return layout;
   const all = panes(layout.root);
   if (!all.length) return layout;
@@ -413,8 +419,49 @@ export function showSheet(layout, sheetId, width) {
     const asked = typeof width === "number" && Number.isFinite(width) && width > 0;
     if (!asked || minSize(split.root).w <= width) return split;
   }
-  const give = [...all].reverse().find((p) => p.kind !== "lit") ?? all[all.length - 1];
+  const others = all.filter((p) => p.id !== keep);
+  if (!others.length) return layout;
+  const give = [...others].reverse().find((p) => p.kind !== "lit") ?? (keep ? null : others[others.length - 1]);
+  if (!give) return layout;
   return setPaneSheet(setKind(layout, give.id, "sheet"), give.id, sheetId);
+}
+
+/**
+ * Open a new pane of a kind beside a pane (`besideId`), else the active pane,
+ * else the first, as a split to its right (3m: `/` on the desk opens a Search
+ * pane this way, and a Greek result a Greek pane beside the search). Returns
+ * the layout unchanged, the same object, when there is no room: four panes are
+ * open, or the window can't give the new pane its 280 by 160. `width` and
+ * `height` are the panes' room in pixels; either left out is not asked
+ * about.
+ */
+export function openKind(layout, kind, width, height, besideId = null) {
+  const all = panes(layout.root);
+  if (!all.length || all.length >= MAX_PANES || typeof kind !== "string" || !kind) return layout;
+  const target = (besideId && findPane(layout.root, besideId)) || findPane(layout.root, layout.active) || all[0];
+  const split = splitPane(layout, target.id, "right", newPane(layout, kind));
+  return fits(split, width, height) ? split : layout;
+}
+
+/**
+ * Open a LIT pane to the left of a pane (3m: a search result's verse needs a
+ * LIT pane to land in, and there is none). It becomes the active pane and
+ * starts at the shared place. Unchanged, the same object, when the pane isn't
+ * there, four panes are open or there is no room (see `openKind`).
+ */
+export function openLitBeside(layout, besideId, width, height) {
+  if (!findPane(layout.root, besideId) || panes(layout.root).length >= MAX_PANES) return layout;
+  const split = splitPane(layout, besideId, "left", newPane(layout, "lit"));
+  if (split === layout || !fits(split, width, height)) return layout;
+  const lit = panes(split.root).find((p) => p.kind === "lit");
+  return lit ? setActive(split, lit.id) : split;
+}
+
+/** Whether a layout fits a space; a side left out is not asked about. */
+function fits(layout, width, height) {
+  const ok = (n) => typeof n === "number" && Number.isFinite(n) && n > 0;
+  if (!ok(width) && !ok(height)) return true;
+  return needs(layout.root, ok(width) ? width : Infinity, ok(height) ? height : Infinity) === null;
 }
 
 /**
