@@ -1,5 +1,33 @@
 [
   {
+    "version": "2026-11-01",
+    "date": "2026-11-01",
+    "label": "November 1, 2026",
+    "changes": [
+      {
+        "type": "text_updated",
+        "description": "Acts 1:11, 16 — text updated",
+        "detail": "v. 11: \"“Men,\" → \"“Folks,\"; v. 16: \"“Men,\" → \"“Folks,\"",
+        "location": {
+          "bookKey": "acts",
+          "chapter": 1,
+          "verse": 11
+        }
+      },
+      {
+        "type": "footnote_updated",
+        "description": "Acts 1:11, 16 — footnotes m, u, v updated",
+        "detail": "fn. m (v. 11): added \"The word aner often means ‘man’ as in a male adult, but it is also often used for ‘people’ in a group or ‘individuals.’\"; fn. u (v. 16): removed \"The word aner most often means ‘man’ or ‘husband’ and can sometimes be translated ‘individuals’ in a way that is not ge…\"; fn. v (v. 16): added \"The word aner most often means ‘man’ or ‘husband’ and can sometimes be translated ‘individuals’ in a way that is not ge…\"",
+        "location": {
+          "bookKey": "acts",
+          "chapter": 1,
+          "verse": 11
+        },
+        "relabel": "footnotes formerly m–cc relabeled n–dd"
+      }
+    ]
+  },
+  {
     "version": "2026-10-23",
     "date": "2026-10-23",
     "label": "October 23, 2026",
