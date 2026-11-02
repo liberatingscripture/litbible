@@ -191,20 +191,8 @@ export const TOUR_STEPS = [
     title: "Bookmark a verse",
     body: {
       study:
-        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and the Notebook lists every one.",
-      read: "“Bookmark” puts a red mark beside this verse, here and in Study View. A bookmark stays on its verse until you remove it, and the Notebook lists every one.",
-    },
-  },
-  {
-    id: "ribbon",
-    part: 0,
-    views: ["study", "read"],
-    since: "1h",
-    notebook: true,
-    title: "A ribbon for a reading",
-    body: {
-      default:
-        "A bookmark stays put; a ribbon moves with you. “Ribbon here…” names a place for a reading you’re following, such as a study group’s. Open it later from “Places” in “My Notes” and read on, and while you stay in that book the ribbon follows. Keep up to six, one for each reading.",
+        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book, as a study group’s reading would.",
+      read: "“Bookmark” puts a red mark beside this verse, here and in Study View. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book.",
     },
   },
   {
@@ -297,7 +285,7 @@ export const TOUR_STEPS = [
     title: "The notebook page",
     body: {
       default:
-        "“Open the notebook page” shows everything you’ve kept in one place. There you can sort it with labels, keep your ribbons, and save a copy of your notebook or open one.",
+        "“Open the notebook page” shows everything you’ve kept in one place. There you can sort it with labels and save a copy of your notebook or open one.",
     },
   },
   {

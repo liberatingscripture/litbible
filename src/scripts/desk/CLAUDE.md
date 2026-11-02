@@ -159,8 +159,10 @@ that section.
      the store's reads (`current` in `desk/store.js`, the history's "before"
      included), `desk/readonly-notebook.js`, an import (`planImport`) and the
      merge. It renames an old note marker in memory (`bookmark` reads as
-     `ribbon`, STUDY-DESK.md E10; `RENAMED_MARKERS`) and never writes back
-     for a read, so the next write of the note carries the new name. A new
+     `ribbon`, STUDY-DESK.md E10; `RENAMED_MARKERS`) and reads an old ribbon (a
+     `place` with `ribbon: true`) as a bookmark that follows (E9), and never
+     writes back for a read, so the next write of the record carries the new
+     name or kind. A new
      way of reading records needs it too, or an old note shows its old name
      and a write over it compares unlike records.
   6. **Phase 1c's notes reach the reader code through one event.**
@@ -331,13 +333,14 @@ that section.
      2026-10-09), never while hovered or focused; that is safe only because
      the same undo stays on Ctrl+Z, so don't remove one without the other.
      **A listener may ask for only the kinds it draws** (BA107):
-     `store.subscribe(fn, { kinds })` or `{ except }`, so a ribbon that follows
-     the reader (a `place` written every few seconds) redraws nothing that
-     doesn't show places. A notice carries the kinds it touched, including what
+     `store.subscribe(fn, { kinds })` or `{ except }`, so a bookmark that moves
+     as the reader reads (written every few seconds with `{ kinds: [MOVE_KIND] }`,
+     which tells listeners `bookmarkMove` instead of `bookmark`) redraws nothing
+     that listens with `{ except: QUIET_KINDS }` (`place` and `bookmarkMove`). A notice carries the kinds it touched, including what
      a record was before and a trash record's held kind (`changeKinds`,
      `hearsChange`, `listenerSet` in `desk-store-core.mjs`), and the
      BroadcastChannel message carries them too; one without them (an older tab)
-     is heard by all. A view that draws places, or anything not yet checked,
+     is heard by all. A view that draws where a bookmark is, or anything not yet checked,
      subscribes with no filter.
   12. **A mark whose words moved says so** (the change notice, N3).
      `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
@@ -367,7 +370,7 @@ that section.
        the gate's `standDown()` takes the stamp off and the note is back.
        /notebook/ prints as the list of what is kept (BVJ, 2026-10-29;
        BA152): `notebook.css` hides its controls and every section but What
-       I've kept and Places. Shared pieces: `desk/boot.js` (the stylesheet and context the
+       I've kept and Continue reading. Shared pieces: `desk/boot.js` (the stylesheet and context the
        shell and the page both need), `record-rows.js`, `labels-ui.js`.
      - **Save and open a copy** (`src/lib/desk-export.mjs`, pure; format in
        STUDY-DESK-FORMAT.md, "The export file"): Markdown, Web Annotation
@@ -392,34 +395,48 @@ that section.
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
        applied from the notebook page, names unique ignoring case and
        accents.
-     - **Places and ribbons** (`desk-places.mjs`, `desk/places.js`,
-       `ribbon-follow.js`, `ribbon-form.js`). "Continue reading" and Read
-       View's per-book places are **not records**: they stay in their own
-       storage and are only listed beside the ribbons. A ribbon is a `place`
-       record with `ribbon: true`. `last-read.js` dispatches `lit:last-read`
-       on every save (nothing hears it unless the desk is on). **The C25
-       rule**: following a ribbon's link sets `sessionStorage['lit-desk-ribbon']`,
-       and while the reader stays in that book in that tab the ribbon
-       follows them (written without an undo entry); a page outside the
-       book clears it, the shell's `initRibbonFollow` in a book and
-       `desk-gate.js` on every page without the shell (BA101). **A ribbon
-       moves only to where this page says the reader is**: `pageLastRead()`
-       and the `lit:last-read` event, never `lit_last_read` in storage, which
-       every tab shares and an earlier page left (BA99, BA100). Following a
-       link forgets where the reader was, and a link to another page stops
-       the page it leaves from moving the ribbon. The follower's move is
-       one `store.change` too. **One tab follows a ribbon at a time**
-       (BVJ's Duplicate tab check, 2026-10-29): Duplicate tab copies
-       session storage, so the flag carries the tab's token, and a page that
-       loads with it asks on `RIBBON_TAB_CHANNEL` whether a live page holds
-       that token; an answer makes this tab the copy, which drops the flag.
-       Following a link announces it, and any other tab following that
-       ribbon stops (`loseRibbon`, `desk-places.mjs`). **Making, renaming and moving a ribbon read the
-       record and write it in one `store.change`** (`desk-ribbon-change.mjs`,
-       pure and unit-tested; BA102): a ribbon deleted meanwhile is reported,
-       not brought back, and the name and the six-ribbon limit are checked
-       against the records at the write. Only one rename form is open in a
-       Places group at a time (BA105).
+     - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
+       `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
+       `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK.md E9).
+       **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22; the
+       word "ribbon" is for the note marker alone, E10). A `bookmark` record is
+       a verse, an optional `label` (its name, up to 40 characters, not
+       unique) and an optional `follow: true` ("Move as I read"). **A bookmark
+       stays on its verse unless that switch is on** (BVJ, 2026-11-02). The old
+       ribbon, a `place` with `ribbon: true`, is read as a bookmark that
+       follows by `migrateRecord` (same id, `name` to `label`), so nothing else
+       knows the old shape; the website never writes a `place`. A bookmark is a
+       row in the ordinary My Notes list and the notebook page's, with its name,
+       "Moves as I read" when on, and **Edit** (`bookmark-form.js`: name and the
+       switch; the verse menu's "Edit bookmark…" opens it too, once the verse
+       has one). "Bookmark" in the verse menu and the selection panel stays one
+       press. **At most six bookmarks move at once** (plain ones are not
+       counted); the limit and the write are one `store.change`
+       (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
+       not brought back. **"Continue reading" is the one place that isn't a
+       bookmark**: `lit_last_read` (last-read.js), never a record, shown with no
+       bookmark mark by `continue-reading.js` above My Notes' list and first on
+       the notebook page. Read View's per-book places and other clients' places
+       aren't listed. `last-read.js` dispatches `lit:last-read` on every save
+       (nothing hears it unless the desk is on). **The C25 rule**: following a
+       moving bookmark's link (from either list) sets
+       `sessionStorage['lit-desk-follow']`, and while the reader stays in that
+       book in that tab the bookmark follows them (written without an undo
+       entry, as `bookmarkMove`); a page outside the book clears it, the shell's
+       `initBookmarkFollow` in a book and `desk-gate.js` on every page without
+       the shell (BA101). **A bookmark moves only to where this page says the
+       reader is**: `pageLastRead()` and the `lit:last-read` event, never
+       `lit_last_read` in storage, which every tab shares and an earlier page
+       left (BA99, BA100). Following a link forgets where the reader was, and a
+       link to another page stops the page it leaves from moving the bookmark.
+       **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
+       2026-10-29): Duplicate tab copies session storage, so the flag carries
+       the tab's token, and a page that loads with it asks on
+       `FOLLOW_TAB_CHANNEL` whether a live page holds that token; an answer makes
+       this tab the copy, which drops the flag. Following a link announces it,
+       and any other tab following that bookmark stops (`loseFollow`). The
+       follower's move is quiet on purpose: the margin mark isn't redrawn as it
+       moves, and takes its new place at the next redraw.
      - **The interleaf (N7) was built and set aside** (BVJ, 2026-10-13: it
        repeats the margin and the panel, and breaks up the scripture). Its
        code is on `claude/desk-1d-hidden` (commit 1f27b2e); revert aacdc92

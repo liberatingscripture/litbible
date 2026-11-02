@@ -30,11 +30,12 @@ import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountBackup } from "./export-import.js";
 import { createHistory, undoEntry } from "./history.js";
 import { createKeptList } from "./kept-list.js";
-import { placesSection } from "./places.js";
+import { continueSection } from "./continue-reading.js";
 import { openStore } from "./store.js";
 import { START_CHOICES, START_KEY, startChoice } from "../../lib/desk-start.mjs";
 import { initUndo, showUndo } from "./undo-bar.js";
 import { mountWhatsNew } from "./whats-new.js";
+import { QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
@@ -92,20 +93,20 @@ async function start() {
   root.innerHTML = `
     <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you save a copy.</p>
     <nav class="desk-np__jump" aria-label="On this page">
+      <a href="#continue">Continue reading</a>
       <a href="#kept">What I’ve kept</a>
       <a href="#whats-new">What’s new for you</a>
-      <a href="#places">Places</a>
       <a href="#labels">Labels</a>
       <a href="#panel">The Notebook panel</a>
       <a href="#backup">Save a copy</a>
       <a href="#delete-everything">Delete everything</a>
     </nav>
+    <section class="desk-np__section" id="continue" data-np-continue></section>
     <section class="desk-np__section" id="kept" aria-labelledby="deskNpKeptTitle">
       <h2 class="desk-np__h2" id="deskNpKeptTitle">What I’ve kept</h2>
       <div data-np-kept></div>
     </section>
     <section class="desk-np__section" id="whats-new" data-np-whats-new></section>
-    <section class="desk-np__section" id="places" data-np-places></section>
     <section class="desk-np__section" id="labels" aria-labelledby="deskNpLabelsTitle">
       <h2 class="desk-np__h2" id="deskNpLabelsTitle">Labels</h2>
       <p>Labels are your own tags. Put them on a note, highlight, or bookmark with its Labels… button, then filter by them above.</p>
@@ -129,7 +130,7 @@ async function start() {
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
       <div class="desk-np__danger">
-        <p>Moves every note, highlight, bookmark, label, and place in this browser to the trash. You can undo it right away. The trash keeps each one for 30 days, then only a marker that it was deleted.</p>
+        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. You can undo it right away. The trash keeps each one for 30 days, then only a marker that it was deleted.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">
@@ -155,10 +156,10 @@ async function start() {
   // up to date by whats-new.js.
   mountWhatsNew(q("[data-np-whats-new]"), { store });
   mountStartChoice(q("[data-np-start]"));
-  // Continue reading, Read View's places and the reader's ribbons (B1), drawn
-  // and kept up to date by places.js.
-  q("[data-np-places]").append(
-    placesSection({ store, ctx, emptyText: "No places yet. “Continue reading” and your ribbons appear here." }),
+  // Continue reading, drawn and kept up to date by continue-reading.js. Bookmarks
+  // are in "What I’ve kept" with the rest (E9).
+  q("[data-np-continue]").append(
+    continueSection({ emptyText: "Nothing to continue yet. Where you stop reading appears here." }),
   );
 
   let renderSeq = 0;
@@ -390,15 +391,15 @@ async function start() {
   const asked = new URLSearchParams(window.location.search).get("q");
   if (asked) kept.setQuery(asked);
 
-  // A ribbon that follows the reader moves a place every few seconds, and
-  // nothing drawn here but the Places group (which keeps itself up to date)
-  // reads where a place is, so a notice about places alone isn't a reason to
-  // redraw the page under a reader who is typing or has a menu open (BA107).
-  // Two things here do count places, as items: "Delete everything"'s number
-  // and whether there is anything to delete. A new place changes those, so a
-  // place the last draw hadn't seen draws again; moving one doesn't, and
-  // deleting one arrives with its trash record, which isn't excepted.
-  store.subscribe(() => render(), { except: ["place"] });
+  // A bookmark that moves as the reader reads writes every few seconds, and
+  // says so (MOVE_KIND), so it isn't a reason to redraw the page under a reader
+  // who is typing or has a menu open (BA107). A reading place another client
+  // kept is quiet too, except that two things here count places, as items:
+  // "Delete everything"'s number and whether there is anything to delete. A new
+  // place changes those, so a place the last draw hadn't seen draws again;
+  // moving one doesn't, and deleting one arrives with its trash record, which
+  // isn't excepted.
+  store.subscribe(() => render(), { except: QUIET_KINDS });
   store.subscribe((ids) => {
     if (ids.some((id) => !latestRecords.some((r) => r?.id === id))) render();
   }, { kinds: ["place"] });

@@ -31,7 +31,7 @@
 import { findPin, pinFields } from "../../lib/desk-footnotes.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { onFootnote } from "../../lib/desk-records.mjs";
-import { forChapter, recordReference } from "../../lib/desk-store-core.mjs";
+import { forChapter, recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { currentPanel } from "../lit-panel.js";
 import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
 import { glyph } from "./glyphs.js";
@@ -302,9 +302,9 @@ export async function refreshFootnoteNotes() {
  */
 export function initFootnoteNotes({ store, ctx }) {
   env = { store, ctx };
-  // This tab's own changes and other tabs' alike, but not a place: a ribbon
-  // following the reader writes one every few seconds (BA107).
-  store.subscribe(() => refreshFootnoteNotes(), { except: ["place"] });
+  // This tab's own changes and other tabs' alike, but not a place or a
+  // bookmark moving as the reader reads, which writes every few seconds (BA107).
+  store.subscribe(() => refreshFootnoteNotes(), { except: QUIET_KINDS });
   refreshFootnoteNotes();
 }
 

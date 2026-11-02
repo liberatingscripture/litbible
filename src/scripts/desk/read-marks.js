@@ -8,8 +8,8 @@
 // end of <body> and add nothing to the text.
 
 import { BOOK_ORDER } from "../../data/books.js";
-import { NOTE_GAP, RIBBON } from "../../lib/desk-notes.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { NOTE_GAP, BOOKMARK_MARK } from "../../lib/desk-notes.mjs";
+import { recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { glyph } from "./glyphs.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 
@@ -41,11 +41,11 @@ export function createReadMarks({ store }) {
   function draw() {
     aside.replaceChildren();
     const box = text.getBoundingClientRect();
-    if (getSetting("bookmarks") !== "on" || !marks.length || box.left < RIBBON + 12) {
+    if (getSetting("bookmarks") !== "on" || !marks.length || box.left < BOOKMARK_MARK + 12) {
       aside.hidden = true;
       return;
     }
-    const right = box.left >= NOTE_GAP + RIBBON + 8 ? NOTE_GAP : 6;
+    const right = box.left >= NOTE_GAP + BOOKMARK_MARK + 8 ? NOTE_GAP : 6;
     for (const r of marks) {
       const verse = text.querySelector(`[data-chapter="${r.chapter}"] [data-verse="${r.verse}"]`);
       const line = verse?.getClientRects()[0];
@@ -53,13 +53,13 @@ export function createReadMarks({ store }) {
       const block = verse.closest("[data-chapter]");
       const lineHeight = parseFloat(getComputedStyle(block).lineHeight) || line.height;
       const mark = document.createElement("span");
-      mark.className = "desk-ribbon";
+      mark.className = "desk-bookmark-mark";
       mark.setAttribute("role", "img");
       mark.setAttribute("aria-label", `Bookmark, ${recordReference(r)}`);
       mark.title = `Bookmark, ${recordReference(r)}`;
-      mark.innerHTML = glyph("bookmark", "desk-ribbon__glyph");
-      mark.style.top = `${line.top + window.scrollY + (lineHeight - RIBBON) / 2}px`;
-      mark.style.left = `${box.left + window.scrollX - right - RIBBON}px`;
+      mark.innerHTML = glyph("bookmark", "desk-bookmark-mark__glyph");
+      mark.style.top = `${line.top + window.scrollY + (lineHeight - BOOKMARK_MARK) / 2}px`;
+      mark.style.left = `${box.left + window.scrollX - right - BOOKMARK_MARK}px`;
       aside.append(mark);
     }
     aside.hidden = !aside.childElementCount;
@@ -99,8 +99,8 @@ export function createReadMarks({ store }) {
     }
   }
 
-  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
-  store.subscribe(load, { except: ["place"] });
+  // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
+  store.subscribe(load, { except: QUIET_KINDS });
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

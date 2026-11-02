@@ -166,7 +166,7 @@ are recorded so they aren't re-argued.
   smaller fixes: book names checked as the store's own (BA103), an address's
   verse taken only when the page has it (BA104), one rename form at a time
   (BA105), names cut by character (BA106), and a failed delete that says so
-  (BA108). E9 is still to come and will rebuild this code as Bookmarks.
+  (BA108). E9 then rebuilt this code as Bookmarks (2026-11-02).
   FA1-z is done (#406): the Greek tab searches a one-letter Greek word,
   as BVJ chose (BA110), and a search for the article alone answers with a
   line pointing to a search beside a word (recommended, for BVJ to
@@ -349,7 +349,8 @@ are recorded so they aren't re-argued.
 - **Phase 5 is fixes and experience** (BVJ, 2026-10-16): a running log of
   bugs and of what using the desk is like, BVJ's own use first, under
   "Fixes and experience" (IDs E1 onward). It never waits for phases 3 and 4.
-  Open from BVJ's use so far: Places (E4), and the Greek search commands,
+  Open from BVJ's use so far: Places (E4, folded into E9 and built
+  2026-11-02), and the Greek search commands,
   where putting a search together isn't intuitive (E5; BVJ wants to try a
   menu-based builder) and a word family can't be searched (E6),
   whether the Notebook's Greek tab should search at all (E7), and a switch
@@ -6052,6 +6053,95 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-11-02 (E9 built: Bookmarks are one feature)
+
+**BVJ confirmed first** (2026-11-02): **a bookmark stays on its verse unless
+"Move as I read" is on for it.** Built the same day, in one change (work
+session 3), on the preview.
+
+**For BDR's Claude: the record.** BDR accepted E9 on 2026-10-23; this is what
+the website now writes and reads. The format is in `STUDY-DESK-FORMAT.md`,
+kinds 4 and 5.
+
+- **One kind, `bookmark`.** A verse, as before, plus an optional **`label`**,
+  the bookmark's name (up to 40 characters; names need not differ, and a
+  bookmark needs none), and an optional **`follow: true`**, "Move as I
+  read." A bookmark without `follow` is the record it always was. Nothing
+  new is required of an app that doesn't build the switch: it carries
+  `follow` untouched (principle 6), and the apps' R4 ("full bookmarks and
+  named ribbons") is now just this kind.
+- **`place` with `ribbon: true` retires.** The website never writes one
+  again. A `place` that is not a ribbon (another client's reading place,
+  kind 5) is carried as it arrives; reading places still don't sync in
+  version 1.
+- **Read old, write new**, as for E10. A ribbon arriving from anywhere (the
+  notebook's own storage, a backup file, the merge, the trash) **reads as a
+  bookmark**: the same `id`, its `name` becoming `label`, `follow: true`
+  added, `ribbon` and `name` gone, everything else (the verse, `created`,
+  `modified`, unknown fields) as it was (`migrateRecord`,
+  `src/lib/desk-records.mjs`). A ribbon held by a trash record converts the
+  same way, and the trash record's `deletedKind` becomes `bookmark`. Reading
+  isn't an edit, so `modified` doesn't move, and the bookmark is written as a
+  bookmark the next time anything writes it. Only the website's preview ever
+  wrote a ribbon, so no app holds one.
+- **At most six bookmarks move at once.** Only the ones with `follow: true`
+  count; plain bookmarks are unlimited. The limit is checked in the write's
+  own transaction (`planBookmarkEdit`). It is the website's rule; an app that
+  builds the switch should pick its own limit and say so here.
+- **The merge vectors are version 3.** `test/fixtures/merge-vectors.json`
+  gains six cases: four `migrate` ones (a ribbon arriving as a bookmark, a
+  ribbon and the bookmark it became being one record, a later ribbon edit
+  beating its bookmark copy, and a ribbon in the trash), a `keep` one (a
+  reading place that is no ribbon arriving untouched), and an `a` case for a
+  bookmark's name and switch. An app that never met a ribbon may skip the
+  `migrate` cases; it should pass the `keep` one. There is no generator for
+  this file: the cases are written by hand.
+- **Nothing else in the format changes.** The Web Annotation and Markdown
+  files carry a bookmark's `label` as before and don't carry `follow`; a
+  full backup carries both.
+
+**What a reader sees.** One feature, called Bookmarks; the word "ribbon" is
+gone from everything but the note marker (E10), which is a different thing.
+
+- **The Places section is gone**, from My Notes and the notebook page. Above
+  My Notes' list, and first on the notebook page, there is one row,
+  **Continue reading**, with no bookmark mark. It is the only place listed
+  that isn't a bookmark. The book's other places, other clients' places and
+  Read View's per-book places aren't listed (E8's open question: let go).
+- **A bookmark is a row in the ordinary list**, as it already was, now with
+  its name under its reference, a "Moves as I read" note when the switch is
+  on, and an **Edit** button. Edit opens a small form (a name, and a
+  "Move as I read" checkbox, with its hint). Opening a bookmark that moves
+  from the list starts it following the reader through its book, as a ribbon
+  did (C25); a bookmark that doesn't move is just a link.
+- **The verse menu and the selection panel have "Bookmark"** (as before,
+  one press, undoable) **and no "Ribbon here…"**. Once the verse holds a
+  bookmark, "Edit bookmark…" appears beside "Show in Notebook". So a bookmark
+  can be named at once, or later.
+- **The tour's "A ribbon for a reading" step is gone**; the Bookmark step says
+  what Edit does. The help page's "Places and ribbons" is now "Bookmarks."
+  /privacy names the session key, now **`lit-desk-follow`** (it was
+  `lit-desk-ribbon`), and no longer lists "places" among what the notebook
+  keeps. **The LSC site's `/privacy` mirror needs the same two changes.**
+
+**Judgment calls, for BVJ to look at on the preview** (each easy to change):
+
+- **Bookmarks stay in the ordinary list, with notes and highlights**, rather
+  than a group of their own under Continue reading. A separate "Bookmarks"
+  group (Continue reading first, then every bookmark, this book's first)
+  would match the decision's wording more closely, but would list each
+  bookmark twice or take it out of the list that carries labels and the
+  chapter scope.
+- **Bookmarks are named after being made**, from Edit, rather than by a form
+  in front of the Bookmark press, so a plain mark is still one press.
+- **A moving bookmark's mark in the margin isn't redrawn as it moves**: it
+  writes every few seconds and says so with a pseudo-kind (`bookmarkMove`),
+  so no view redraws under the reader (BA107). The mark takes its new place
+  at the next redraw.
+- **Name rule: not unique.** Ribbon names were unique ignoring case; bookmark
+  labels weren't, and one rule was needed (E9). Duplicates are allowed, and
+  the six-limit counts only the bookmarks that move.
+
 ### 2026-11-01 (Phase 3m: the search pane)
 
 BVJ's answers on the mockup (each as recommended):
@@ -6500,7 +6590,7 @@ recommendations, for BVJ to confirm or change:
   list holds "Continue reading", with no bookmark icon, then only the
   bookmarks the reader adds. Read View's per-book places aren't carried
   over (E8's open question, answered).
-- **Claude's recommendation, not decided: a bookmark stays put unless the
+- **Claude's recommendation, confirmed by BVJ on 2026-11-02: a bookmark stays put unless the
   reader turns on "Move as I read."** See E9.
 - **BDR's Claude is to be told** (BVJ): the consolidation changes the
   record kinds the apps sync. It is recorded where BDR's Claude reads: E9's
@@ -7314,7 +7404,8 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   plan. **Taken up on 2026-10-22 as E9** (BVJ named the trouble: two
   features for one idea, and a Places section that lists places the reader
   never made). E9 holds the answer; the questions below stay as the
-  record of what was weighed. **Questions to ask when it is picked up**,
+  record of what was weighed. **Closed by E9, built 2026-11-02.**
+  **Questions to ask when it is picked up**,
   as prompts and not findings:
   - Is the trouble **finding and seeing** places: where the list sits, how
     it is ordered, or that nothing marks a place on the page itself (the
@@ -7505,7 +7596,7 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     rule has to be chosen.
   - **Following.** The ribbon's behavior (C25: following its link makes it
     follow the reader through the book, moved at most every 4 seconds)
-    becomes a bookmark's. **Claude's recommendation, for BVJ to confirm**:
+    becomes a bookmark's. **Claude's recommendation, confirmed by BVJ on 2026-11-02**:
     a bookmark stays on its verse unless the reader turns on "Move as I
     read" for it, so that someone who marks John 3:16 to find it again
     isn't surprised, while a "Thursday group" bookmark does what a ribbon
@@ -7533,6 +7624,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   update the format draft and the merge vectors when it builds this and
   will say so here. ~~Raise any objection here before the apps build ribbons.~~
   **Accepted by BDR, 2026-10-23**: the apps build one kind, Bookmarks.
+  **Built 2026-11-02 (work session 3), with BVJ's answer to the one open
+  question: a bookmark stays put unless "Move as I read" is on.** The record
+  is `bookmark` with `label` and `follow`; a ribbon reads as one. What was
+  built, the judgment calls, and the note to BDR's Claude are in the
+  2026-11-02 entry under "Decisions". Status: built, awaiting BVJ's look
+  on the preview (the apps need nothing but to carry `follow`).
 - **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
   or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven
@@ -7726,11 +7823,13 @@ the rest is polish.
    (`scripture-refs.mjs`, reaches every reader). Small.
 2. **Glyph and wording pass**: E18, E19, E21. Small. E19's My Notes button
    may be reworked by session 4.
-3. **Bookmarks become one feature**: E9 (closing E4 and E10). Large, in two
-   parts: the record and its conversion (format doc, merge vectors, a note
-   to BDR's Claude through the repo), then the UI and copy. BVJ confirms
-   first whether a bookmark stays put unless "Move as I read" is on. Goes
-   before session 4, because it removes Places from My Notes.
+3. **Bookmarks become one feature**: E9 (closing E4 and E10). **Done
+   2026-11-02**, in one change: the record and its conversion (format doc,
+   merge vectors version 3, a note to BDR's Claude), then the UI and copy.
+   BVJ confirmed that a bookmark stays put unless "Move as I read" is on.
+   Places is gone from My Notes, so session 4 starts from a My Notes with
+   Continue reading above its list and no Places group. Awaiting BVJ's look
+   on the judgment calls (2026-11-02 entry).
 4. **One notes pane**: E17 with E22. Medium to large. First check what each
    pane holds that the other doesn't, and migrate saved layouts that name
    either one. BVJ confirms the name.

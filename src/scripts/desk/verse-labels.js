@@ -31,7 +31,7 @@
 // the reader chose not to see.
 
 import { onFootnote } from "../../lib/desk-records.mjs";
-import { forChapter } from "../../lib/desk-store-core.mjs";
+import { forChapter, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { bookmarkedVerses, highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
@@ -75,8 +75,8 @@ export function createVerseLabels({ store }) {
     apply();
   }
 
-  // Not a place: a ribbon following the reader writes one every few seconds (BA107).
-  store.subscribe(refresh, { except: ["place"] });
+  // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
+  store.subscribe(refresh, { except: QUIET_KINDS });
   document.addEventListener(SETTINGS_EVENT, apply);
   refresh();
 

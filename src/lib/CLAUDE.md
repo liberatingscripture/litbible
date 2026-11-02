@@ -61,7 +61,8 @@ From the root's project tree.
                      #   of a notebook (desk-merge); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
                      #   and its files (desk-notebook, desk-export,
-                     #   desk-labels), places and ribbons (desk-places), the
+                     #   desk-labels), bookmarks and Continue reading (desk-bookmarks,
+                     #   desk-bookmark-change), the
                      #   notebook search and commands
                      #   (desk-search, desk-commands) and first use
                      #   (desk-first-use); the Greek tab's helpers

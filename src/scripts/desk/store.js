@@ -108,7 +108,7 @@ export async function openStore({ ctx }) {
   db.onversionchange = () => db.close();
 
   // A listener may ask for only the kinds of record it draws (BA107), so a
-  // ribbon following the reader doesn't redraw a list of notes.
+  // bookmark moving as the reader reads (MOVE_KIND) doesn't redraw a list of notes.
   const listeners = listenerSet();
   const notify = (ids, origin, kinds) => listeners.notify(ids, origin, kinds);
   const metaListeners = new Set();
@@ -175,7 +175,7 @@ export async function openStore({ ctx }) {
   /** Transactions waiting for what they read before they write (writeNow). */
   const reading = new Set();
 
-  async function apply(build, { record = true } = {}) {
+  async function apply(build, { record = true, kinds: heardAs = null } = {}) {
     if (typeof build !== "function" && !build.put.length && !build.remove.length) return build;
     const tx = db.transaction(RECORDS, "readwrite");
     const done = committed(tx);
@@ -216,7 +216,9 @@ export async function openStore({ ctx }) {
     await done;
     if (!ids.length) return plan ?? null;
     const before = was.map((r) => r.result ?? null);
-    const kinds = changeKinds(plan, before);
+    // A followed bookmark's move says what it is (MOVE_KIND), so the views that
+    // would redraw for any bookmark can stay quiet about it (E9).
+    const kinds = heardAs ?? changeKinds(plan, before);
     channel?.postMessage(changeMessage(ids, kinds));
     if (record) {
       const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, current(before[i])])), entryId());
@@ -327,16 +329,18 @@ export async function openStore({ ctx }) {
      * nothing else, and returns the plan, or null to write nothing. The plan
      * is written as it is, so a caller writing the reader's own record checks
      * it first (planSave, planWrite). Resolves to what `build` returned.
-     * Remembered for the history unless `record` is false.
+     * Remembered for the history unless `record` is false. `kinds`, when
+     * given, is what listeners are told the change touched, in place of the
+     * kinds it did (a bookmark moving as the reader reads says MOVE_KIND).
      */
-    async change(build, { record = true } = {}) {
+    async change(build, { record = true, kinds = null } = {}) {
       let made = null;
       await apply(
         async (reads) => {
           made = await build(reads);
           return made ? { put: made.put ?? [], remove: made.remove ?? [] } : null;
         },
-        { record },
+        { record, kinds },
       );
       if (made) askToPersist();
       return made;

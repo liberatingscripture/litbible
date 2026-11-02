@@ -11,18 +11,18 @@ import { readingSurface, standDown } from "./desk-frame.js";
 
 const shellHere = document.documentElement.dataset.desk === "on" && readingSurface();
 
-// A ribbon follows the reader only while every page the tab lands on is in
+// A bookmark that moves as the reader reads follows only while every page the tab lands on is in
 // its book (STUDY-DESK.md C25). The shell drops the tab's flag on a page
 // outside the book, but the shell loads only on a reading surface, so every
 // other page (home, search, /notebook, /desk) drops it here (BA101). The key
-// is RIBBON_FLAG_KEY in src/lib/desk-places.mjs, which this file doesn't
+// is FOLLOW_FLAG_KEY in src/lib/desk-bookmarks.mjs, which this file doesn't
 // import, to stay small. (Telling a duplicated tab from its original is the
-// shell's, ribbon-follow.js: a page here never moves a ribbon.)
+// shell's, bookmark-follow.js: a page here never moves a bookmark.)
 if (!shellHere) {
   try {
-    window.sessionStorage.removeItem("lit-desk-ribbon");
+    window.sessionStorage.removeItem("lit-desk-follow");
   } catch {
-    /* no session storage: no ribbon was following */
+    /* no session storage: no bookmark was following */
   }
 }
 

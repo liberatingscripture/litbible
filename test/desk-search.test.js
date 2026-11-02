@@ -41,7 +41,7 @@ test("each kind is found by its own words, and a hidden or trashed record never 
   const records = [
     { ...base, id: "h", kind: "highlight", bookKey: "john", chapter: 3, verse: 16, color: "yellow", quote: { exact: "loved the world", prefix: "", suffix: "" } },
     { ...base, id: "b", kind: "bookmark", bookKey: "john", chapter: 3, verse: 17, label: "Sunday world sermon" },
-    { ...base, id: "p", kind: "place", bookKey: "john", chapter: 3, verse: 1, name: "World ribbon", ribbon: true },
+    { ...base, id: "p", kind: "place", bookKey: "john", chapter: 3, verse: 1, name: "World place" },
     { ...base, id: "f", kind: "footnotePin", bookKey: "john", chapter: 3, verse: 16, footnote: "The world here means all", n: 1 },
     { ...base, id: "x", kind: "hidden", bookKey: "john", chapter: 3, verse: 18, body: "world, brace for this" },
     { ...base, id: "t", kind: "trash", deletedId: "n", deletedKind: "note", deletedAt: base.created, record: note("n", "john", 3, 2, "world") },
@@ -49,7 +49,7 @@ test("each kind is found by its own words, and a hidden or trashed record never 
   ];
   const hits = searchNotebook(records, "world");
   assert.deepEqual(hits.map((h) => h.id), ["p", "h", "f", "b"]);
-  assert.equal(hits.find((h) => h.id === "p").label, "Ribbon");
+  assert.equal(hits.find((h) => h.id === "p").label, "Place");
   assert.equal(hits.find((h) => h.id === "f").label, "Pinned footnote");
   assert.equal(hits[0].reference, "John 3:1");
   assert.equal(hits[0].href, "/john-3/#v1");

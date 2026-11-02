@@ -42,6 +42,7 @@ import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
+import { QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 
 function make(tag, cls, text) {
   const e = document.createElement(tag);
@@ -169,8 +170,8 @@ function mountVerse(body, env, pane) {
   }
 
   // It draws the chapter's notes, bookmarks and highlights, never a place, so a
-  // ribbon following the reader doesn't redraw it (BA107).
-  const unsubscribe = env.store?.subscribe(() => tab?.render(), { except: ["place"] });
+  // bookmark moving as the reader reads (MOVE_KIND) doesn't redraw it (BA107).
+  const unsubscribe = env.store?.subscribe(() => tab?.render(), { except: QUIET_KINDS });
   // A record's wording is judged only where a LIT pane shows its chapter, so
   // the tab is drawn again when the panes' chapters change (BA121).
   const offChapters = onDeskChapters(() => tab?.render());
@@ -361,9 +362,10 @@ function mountKept(body, env, pane) {
   wrap.append(list.el);
   body.append(wrap);
   queueMicrotask(() => list.render());
-  // The list holds no places (listable leaves them out), so a ribbon following
-  // the reader doesn't redraw it under a reader typing in its search (BA107).
-  const unsubscribe = env.store.subscribe(() => list.render(), { except: ["place"] });
+  // The list holds no places (listable leaves them out), and a bookmark moving
+  // as the reader reads is quiet too, so neither redraws it under a reader
+  // typing in its search (BA107).
+  const unsubscribe = env.store.subscribe(() => list.render(), { except: QUIET_KINDS });
   return { destroy: () => unsubscribe() };
 }
 

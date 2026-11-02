@@ -16,6 +16,7 @@ import { initNoteSettings } from "./note-settings.js";
 import { initActions } from "./actions.js";
 import { createNotesMargin } from "./notes-margin.js";
 import { createReadMarks } from "./read-marks.js";
+import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { createHighlights } from "./highlights.js";
@@ -24,7 +25,7 @@ import { pageChapter } from "./page.js";
 import { standDown } from "../desk-frame.js";
 import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
-import { initRibbonFollow } from "./ribbon-follow.js";
+import { initBookmarkFollow } from "./bookmark-follow.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
@@ -82,9 +83,12 @@ async function start() {
   // Ctrl+Z for the notebook: from here on, what this tab writes can be taken
   // back, so it starts before anything can write.
   if (store) createHistory({ store, ctx });
-  // A note opens in the editor from the margin or the panel's list.
+  // A note opens in the editor from the margin or the panel's list, and a
+  // bookmark in its own small form (its name, "Move as I read"; E9).
   const edit = (record, trigger, restoreFocus = trigger) =>
-    openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
+    record.kind === "bookmark"
+      ? openBookmarkForm({ trigger, store, ctx, record, restoreFocus })
+      : openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
   const addNote = (draft, trigger) =>
     openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus: trigger });
   let margin = null;
@@ -154,7 +158,7 @@ async function start() {
   });
   panelUp = true;
   initActions({ store, ctx, showVerse: panel.showVerse });
-  initRibbonFollow({ store, ctx });
+  initBookmarkFollow({ store, ctx });
   initCommands({ panel, printNotes, printRoom });
   initGreekLink({ panel });
   initProseActions({ store, addNote });

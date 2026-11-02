@@ -6,8 +6,8 @@
 // notice (changeVerses in desk-change.mjs), so the two can't disagree about
 // which verses a publish touched, and it writes nothing.
 //
-// Which marks count: notes on verses, highlights, bookmarks, pinned footnotes
-// and ribbons, the records that sit on a verse. Which changes count: a
+// Which marks count: notes on verses, highlights, bookmarks and pinned
+// footnotes, the records that sit on a verse. Which changes count: a
 // change to a verse's wording (text_updated) and a change to a footnote on
 // it (footnote_added, footnote_updated). A chapter's metadata and an intro,
 // glossary or article change are not "your verses". A pinned footnote and a

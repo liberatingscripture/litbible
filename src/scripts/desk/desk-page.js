@@ -83,6 +83,7 @@ import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
+import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
@@ -175,7 +176,7 @@ async function start() {
   }
   if (store) createHistory({ store, ctx });
   // The LIT pane's verse menu and selection panel get the "My Notebook" row
-  // (3f, 3g): Add a note, Bookmark, Highlight and Ribbon here….
+  // (3f, 3g): Add a note, Bookmark and Highlight.
   if (store) initActions({ store, ctx });
   // Pin / Unpin on the LIT pane's footnotes, This verse and the Footnotes
   // pane (3g).
@@ -187,7 +188,10 @@ async function start() {
     createVerseLabels({ store });
   }
   const onEdit = store
-    ? (record, trigger) => openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger })
+    ? (record, trigger) =>
+        record.kind === "bookmark"
+          ? openBookmarkForm({ trigger, store, ctx, record, restoreFocus: trigger })
+          : openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger })
     : null;
   // A word in This verse's Greek opens in a Greek pane showing its chapter.
   const openGreekWord = (passage, t) => {

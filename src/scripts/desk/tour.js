@@ -32,8 +32,8 @@
 //     snapshot and restore).
 //   - The search box gets its words back and its tray closes.
 //   - The page scrolls back to where the reader was, and while the tour runs
-//     `data-desk-tour` on <html> keeps "Continue reading" (and a ribbon that
-//     follows the reader) from recording the places it scrolls through.
+//     `data-desk-tour` on <html> keeps "Continue reading" (and a bookmark that
+//     moves as the reader reads) from recording the places it scrolls through.
 // What the reader does themselves during the tour (a highlight they choose,
 // a pin they press) is theirs, and stays.
 //
@@ -300,12 +300,6 @@ export function createTour({ panel, canKeep = true }) {
       return el ? { el, side: "right", marks } : null;
     },
 
-    async ribbon() {
-      const el = view === "study" ? await openVerseMenu() : await selectWords();
-      const marks = [byText(el, "Ribbon here")].filter(Boolean);
-      return el ? { el, side: "right", marks } : null;
-    },
-
     async pin() {
       closePanel();
       const refs = Array.from(document.querySelectorAll(".chapter-paragraphs .fn-ref a")).filter(visible);
@@ -408,7 +402,7 @@ export function createTour({ panel, canKeep = true }) {
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
     if (!document.querySelector(".desk-gutter")) ids.delete("widths");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
-      for (const id of ["actions", "note", "highlight", "bookmark", "ribbon", "margin"]) ids.delete(id);
+      for (const id of ["actions", "note", "highlight", "bookmark", "margin"]) ids.delete(id);
     }
     return ids;
   };

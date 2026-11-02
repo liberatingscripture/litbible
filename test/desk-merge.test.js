@@ -40,12 +40,12 @@ function shuffled(items, seed) {
 }
 
 test("the vectors are well formed", () => {
-  assert.equal(vectors.version, 2);
+  assert.equal(vectors.version, 3);
   assert.ok(vectors.cases.length >= 15);
   const names = vectors.cases.map((c) => c.name);
   assert.equal(new Set(names).size, names.length, "case names are unique");
   for (const c of vectors.cases) {
-    assert.ok(["a", "b", "c", "collapse", "keep", "clamp", "skip"].includes(c.rule), `${c.name}: rule`);
+    assert.ok(["a", "b", "c", "collapse", "keep", "clamp", "skip", "migrate"].includes(c.rule), `${c.name}: rule`);
     assert.deepEqual(
       c.expect.map((r) => r.id),
       c.expect.map((r) => r.id).sort(),
@@ -99,6 +99,8 @@ const ONE_SIDED = new Set([
   "a-exact-tie-keeps-local",
   "keep-older-trash-record-takes-its-deletedKind-from-what-it-holds",
 ]);
+// A migrate case changes the shape of what arrives, never of what is local.
+for (const c of vectors.cases) if (c.rule === "migrate") ONE_SIDED.add(c.name);
 for (const c of vectors.cases.filter((c) => !["clamp", "skip"].includes(c.rule) && !ONE_SIDED.has(c.name))) {
   test(`vector ${c.name}: A into B equals B into A`, () => {
     const ab = mergeSets(clone(c.local), clone(c.incoming), opts(c));
