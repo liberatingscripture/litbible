@@ -7404,6 +7404,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     window's open-and-close rule, and the desk's rule 15 in CLAUDE.md.
     E5's builder would then live in the search bar's commands window
     until /desk.
+  **Built** (2026-11-02, for BVJ to judge on the preview): the tab's search
+  button, field and commands link are gone; the form, lemma, Strong's
+  number and parsing links in a word's details still search, with results
+  in the tab and "Back to the text" (their place is unchanged). The tour's
+  `greek-commands` step is removed (14 steps in Study View; a stored old id
+  is ignored), the `greek` step and the help page's paragraph are reworded,
+  and rules 15 and 17 follow. Status: built, awaiting BVJ's look.
 - **E8, rough: there is no way into /desk, and Read View retires at
   launch.** BVJ (2026-10-21): no button or link reaches /desk, and
   switching between Study View and Read View was always clunky. **Decided**
