@@ -2205,6 +2205,19 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   cursor: default;
 }
 
+/* The footnote Pin / Unpin is a thumbtack glyph (E18): same pill, the icon in
+   the text's own color (currentColor), so dark mode and forced colors follow. */
+.desk-pin--glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+}
+
+.desk-pin--glyph svg {
+  display: block;
+}
+
 /* The Footnotes list: the note and its button on one line, so the list grows
    no taller; a flag, when the note was rewritten, takes the line below. */
 .footnotes > li.desk-fn {
@@ -4872,25 +4885,33 @@ html.desk-ws--moving * {
   display: none;
 }
 
+/* "Stay here": a lock glyph and no words (E21), closed while the pane stays. */
 .desk-pane__pin {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   margin-left: auto;
-  padding: 4px 8px;
+  padding: 0;
   border: 1px solid rgba(var(--ink-rgb), 0.2);
   border-radius: 999px;
   background: transparent;
   color: var(--text);
-  font: inherit;
-  font-size: 0.8125rem;
   cursor: pointer;
+}
+
+.desk-pane__pin svg {
+  display: block;
+}
+
+.desk-pane__pin:hover {
+  background: rgba(var(--ink-rgb), 0.08);
 }
 
 .desk-pane__pin[aria-pressed="true"] {
   border-color: var(--green-text);
   background: rgba(var(--ink-rgb), 0.06);
-  font-weight: 600;
 }
 
 .desk-pane__close {

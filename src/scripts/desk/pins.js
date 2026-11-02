@@ -4,8 +4,12 @@
 // wherever a footnote is read on a Study View chapter, in the popover a
 // footnote letter opens and on each note in the Footnotes list at the foot of
 // the page, and in the Notebook's "This verse" tab. "Pinned footnotes" in the
-// panel (tab-mine.js) lists them. Readers see exactly "Pin", "Unpin" and
-// "Pinned footnotes", as in the two apps.
+// panel (tab-mine.js) lists them. The button is a glyph, not words (BVJ,
+// 2026-10-30, E18): a thumbtack to pin, the same thumbtack struck through to
+// unpin, named "Pin footnote 3" / "Unpin footnote 3" and given a tooltip. The
+// thumbtack means pinning a footnote and nothing else on the desk (a pane's
+// "Stay here" is a lock). The panel's list is headed "Pinned footnotes", as
+// in the two apps.
 //
 // The rules (what a pin keeps, how it is found again, when it carries a change
 // notice) are src/lib/desk-footnotes.mjs and desk-change.mjs, pure and
@@ -119,13 +123,27 @@ async function toggle(id, label, where) {
 
 /* ── The button ──────────────────────────────────────────────────── */
 
-/** Set a button's words and name from whether its footnote is pinned. */
+// A thumbtack (stroke only, in the text's own color, so it follows the theme
+// and forced colors), and the same with a diagonal line through it.
+const ICON_PIN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z" /></svg>`;
+
+const ICON_UNPIN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z" /><path d="M3 3l18 18" /></svg>`;
+
+/** Set a button's glyph, name and tooltip from whether its footnote is pinned. */
 function paint(button) {
   const pinned = Boolean(current.get(keyOf(whereOf(button)))?.has(button.dataset.deskPin));
-  const word = pinned ? "Unpin" : "Pin";
-  button.textContent = word;
-  // The visible word leads the name (label in name); the letter says which.
-  button.setAttribute("aria-label", `${word} footnote ${button.dataset.deskPinLabel}`);
+  const name = `${pinned ? "Unpin" : "Pin"} footnote ${button.dataset.deskPinLabel}`;
+  if (button.dataset.deskPinned !== String(pinned)) {
+    button.dataset.deskPinned = String(pinned);
+    button.innerHTML = pinned ? ICON_UNPIN : ICON_PIN;
+  }
+  // No visible words, so the label is the name; the letter says which footnote.
+  button.setAttribute("aria-label", name);
+  button.title = name;
 }
 
 /**
@@ -146,7 +164,7 @@ export function pinButton(id, label, where = pageChapter()) {
   const at = { bookKey: where.bookKey, chapter: where.chapter };
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "desk-pin";
+  button.className = "desk-pin desk-pin--glyph";
   button.dataset.deskPin = id;
   button.dataset.deskPinLabel = label;
   button.dataset.deskPinBook = at.bookKey;

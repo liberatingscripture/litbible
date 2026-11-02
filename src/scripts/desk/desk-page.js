@@ -105,9 +105,15 @@ const ICON_GRIP = `<svg viewBox="0 0 24 24" width="14" height="14" fill="current
   focusable="false"><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" />
   <circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" /></svg>`;
 
-const ICON_PIN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+// A pane's "Stay here": a closed lock when it stays, an open one when it
+// follows the LIT pane. (The thumbtack is the footnote Pin's alone, pins.js.)
+const ICON_LOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z" /></svg>`;
+  <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>`;
+
+const ICON_UNLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" /></svg>`;
 
 // "Greek, The LIT, and My Notes": the Oxford comma, as the site writes lists.
 const LIST = new Intl.ListFormat("en-US", { type: "conjunction" });
@@ -553,7 +559,8 @@ async function start() {
       lead.title = "My Notes, This verse, Greek, and Footnotes follow this pane";
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
-      pin.innerHTML = `${ICON_PIN}<span>Stay here</span>`;
+      // A glyph with no words; mark() paints the lock and sets its name.
+      pin.innerHTML = ICON_UNLOCK;
       const close = el("button", "desk-pane__close");
       close.type = "button";
       close.innerHTML = ICON_CLOSE;
@@ -676,7 +683,16 @@ async function start() {
       rec.el.classList.toggle("desk-pane--leading", leading);
       rec.pin.hidden = !isFollower(pane.kind);
       rec.pin.setAttribute("aria-pressed", String(Boolean(pane.pin)));
-      rec.pin.title = pane.pin ? "Follow the LIT pane again" : "Stop following the LIT pane";
+      // Pressed means it stays, so the lock is closed. The name is "Stay here"
+      // either way (aria-pressed carries the state); the tooltip says what a
+      // press does now.
+      rec.pin.setAttribute("aria-label", "Stay here");
+      rec.pin.title = pane.pin ? "Follow the LIT pane" : "Stay here";
+      const locked = Boolean(pane.pin);
+      if (rec.pin.dataset.locked !== String(locked)) {
+        rec.pin.dataset.locked = String(locked);
+        rec.pin.innerHTML = locked ? ICON_LOCK : ICON_UNLOCK;
+      }
       rec.close.hidden = all.length <= 1;
       rec.close.setAttribute("aria-label", `Close the ${name.replace(/^The /, "")} pane`);
     }

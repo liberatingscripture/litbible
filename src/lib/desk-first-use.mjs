@@ -216,7 +216,7 @@ export const TOUR_STEPS = [
     title: "Pin a footnote",
     body: {
       default:
-        "Select a footnote letter, then “Pin” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
+        "Select a footnote letter, then the thumbtack button, “Pin footnote,” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
     },
   },
   {
