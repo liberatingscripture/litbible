@@ -312,11 +312,52 @@ if (input && greekSearchEnabled()) {
   (input.closest(".searchbar__input-wrap") ?? input).after(commandsBtn);
 }
 
+// "My notes" (E11): whether a Greek search lists the reader's matching notes
+// above the Greek (BA40). A checkbox in the same row, beside "Search commands",
+// shown only with the Study Desk's part loaded, the type "All types" (the one
+// place notes are listed) and a Greek search under way. The choice is the
+// desk's own, remembered in storage (desk/notebook-search.js), and changing it
+// redraws the page from what is already fetched.
+let deskMod = null;
+let notesSwitch = null;
+let notesBox = null;
+if (input && commandsBtn) {
+  loadDeskSearch()?.then((m) => {
+    if (!m) return;
+    deskMod = m;
+    notesSwitch = m.greekNotesSwitch();
+    notesBox = notesSwitch.querySelector("input");
+    notesSwitch.classList.add("greek-notes-switch--field");
+    commandsBtn.after(notesSwitch);
+    notesBox.addEventListener("change", () => {
+      deskMod.setGreekNotes(notesBox.checked);
+      if (lastSearchCache?.greekOnly) renderFromCache();
+    });
+    // Another tab or the tray changed it.
+    window.addEventListener("storage", (e) => {
+      if (e.key !== deskMod.GREEK_NOTES_KEY && e.key !== null) return;
+      syncGreekChrome();
+      if (lastSearchCache?.greekOnly) renderFromCache();
+    });
+    syncGreekChrome();
+  });
+}
+
 function syncGreekChrome() {
   if (!commandsBtn) return;
   const greekType = modeSelect?.value === "greek";
-  commandsBtn.hidden = !(greekType || isGreekQuery(input.value));
+  const greekSearch = greekType || isGreekQuery(input.value);
+  commandsBtn.hidden = !greekSearch;
   input.placeholder = greekType ? GREEK_PLACEHOLDER : defaultPlaceholder;
+  if (notesSwitch) {
+    // Under all types only: a Greek-letter query reads "Greek" in the menu
+    // while the reader's own pick is still all types.
+    notesSwitch.hidden = !(
+      greekSearch &&
+      (modeSelect ? pickedMode(modeSelect) || "all" : "all") === "all"
+    );
+    notesBox.checked = deskMod.greekNotesOn();
+  }
 }
 
 function syncControlsFromUrl() {
@@ -1096,6 +1137,8 @@ function renderGreekCommands() {
 function showGreekNotebook() {
   const { notebook, deskApi } = lastSearchCache || {};
   if (!deskApi || !notebook?.total || readState().page !== 1) return;
+  // "My notes" unchecked (E11): the Greek alone.
+  if (!deskApi.greekNotesOn()) return;
   groupNotebook.hidden = false;
   deskApi.renderPageGroup(notebookEl, notebook);
 }

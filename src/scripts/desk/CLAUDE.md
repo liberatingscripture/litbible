@@ -522,7 +522,15 @@ that section.
        2026-10-13). A query with Greek letters or a Strong's number
        (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save
        the reader's own notes: under all types, the notebook's matches
-       come ahead of it (BA40, BVJ 2026-10-28); every
+       come ahead of it (BA40, BVJ 2026-10-28) unless the reader unchecks
+       "My notes" (E11; a native checkbox in the tray's Greek group foot and
+       beside /search's "Search commands", shown only with the desk loaded
+       and the type "All types"; remembered as
+       `localStorage['lit-desk-greek-notes']` = "off", absent = on, named
+       in /privacy; the key and rule are `src/lib/desk-greek-notes.mjs`,
+       the storage reads in `notebook-search.js`, which both surfaces
+       already load lazily; English searches and the desk's Search pane are
+       not governed by it); every
        other query gets exactly the pre-1h search, unless the reader picks
        the type menu's "Greek" (injected by script, only with the gate on),
        which searches Latin text as a transliteration or a gloss. /search
