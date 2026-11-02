@@ -495,6 +495,15 @@ body:has(.site-header--green) .skip-link {
   text-decoration: none;
   color: var(--text);
   min-width: 0;
+  /* The brand is a grid item in the header's first column, which is 1fr. A
+     grid item stretches to fill its column by default, so the link (and its
+     hover and focus box) covered the whole gap up to the title or nav, and
+     on /desk, /notebook and /sheets, where the page title sits in the middle,
+     clicking the empty space went home. Size it to the emblem and wordmark.
+     max-width keeps it inside the column, so a title too long for the column
+     still clips at the column's edge, as it did when the link stretched. */
+  justify-self: start;
+  max-width: 100%;
 }
 
 /* Remove underline on brand hover/focus */
