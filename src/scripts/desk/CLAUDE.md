@@ -1060,10 +1060,13 @@ that section.
      note citing its own verse is a chain like any other, so `notesCiting`
      (`desk-chains.mjs`) lists it rather than treating it as sitting on
      that verse (BA20).
-     - **`desk/footnote-notes.js` is its page side**: "Add a note" beside
-       every Pin (`addNoteButton`, which `pins.js` and the tabs and pane
-       call) and the reader's notes under a footnote (`footnoteNotes`). Both
-       sit beside `.fn-body`, never in it, so a footnote's text, the
+     - **`desk/footnote-notes.js` is its page side**: a "+ Note" button
+       (named "Add a note on footnote 3") beside every Pin (`addNoteButton`,
+       which `pins.js` and the tabs and pane call). **Pin is a glyph, not
+       words** (E18): a thumbtack to pin, struck through to unpin, and the
+       thumbtack means that and nothing else; a pane's "Stay here" on /desk
+       is a lock (E21). The same file draws the reader's notes under a
+       footnote (`footnoteNotes`). Both sit beside `.fn-body`, never in it, so a footnote's text, the
        handout and `footnoteList()` read only the footnote. The margin
        places such a note beside its footnote's `li` (`note-sources.js`)
        and marks the `li` instead of lighting verse words.

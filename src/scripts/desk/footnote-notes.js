@@ -151,8 +151,8 @@ export function addNoteButton(id, label, where = pageChapter()) {
   // Looks as Pin does (desk.css), and is hidden from print the same way.
   button.className = "desk-pin desk-fn-add";
   button.dataset.deskFnAdd = id;
-  button.textContent = "Add a note";
-  // The visible words lead the name (label in name); the letter says which.
+  button.textContent = "+ Note";
+  // "+ Note" is the visible label; the longer name says which footnote.
   button.setAttribute("aria-label", `Add a note on footnote ${label}`);
   button.addEventListener("click", async (e) => {
     e.stopPropagation();

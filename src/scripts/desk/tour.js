@@ -317,7 +317,8 @@ export function createTour({ panel, canKeep = true }) {
       await frame();
       const pop = currentPanel()?.el;
       later(() => closePanel());
-      const pin = byText(pop, "Pin", "Unpin");
+      // The Pin button is a thumbtack with no words (E18), so it is found by its mark.
+      const pin = pop?.querySelector("button[data-desk-pin]");
       return pop ? { el: pop, side: "right", marks: pin ? [pin] : [] } : { el: ref };
     },
 
