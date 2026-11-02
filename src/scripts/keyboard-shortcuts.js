@@ -1,7 +1,8 @@
 // src/scripts/keyboard-shortcuts.js
 //
 // Keyboard shortcuts for reading (audit U4), on every page:
-//   /          search (the page's own box, or the header's search strip)
+//   /          search (the page's own box, or the header's search strip; on
+//              /desk, a Search pane)
 //   g          Go to passage, where the page has the picker
 //   ← → [ ]    previous and next chapter: Study View's Previous/Next links,
 //              or the neighbouring chapter in Read View
@@ -55,6 +56,14 @@ function busy(target) {
 const visible = (el) => Boolean(el) && el.offsetParent !== null;
 
 function openSearch() {
+  // /desk has no search box in its header: it answers with a Search pane
+  // (focused if one is open, else opened), and says why when it can't (3m).
+  // Only where the desk is on; the page that listens is the desk's.
+  if (document.documentElement.hasAttribute("data-desk")) {
+    const ev = new CustomEvent("lit:desk-search", { cancelable: true });
+    document.dispatchEvent(ev);
+    if (ev.defaultPrevented) return true;
+  }
   if (document.getElementById("headerSearch")) {
     document.dispatchEvent(new CustomEvent("lit:search-open"));
     return true;

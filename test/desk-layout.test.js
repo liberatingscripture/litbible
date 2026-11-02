@@ -24,6 +24,8 @@ import {
   newPane,
   nodeAt,
   normalize,
+  openKind,
+  openLitBeside,
   openingLayout,
   originalLayout,
   panes,
@@ -1339,8 +1341,66 @@ test("BA60: showSheet on a single LIT pane too narrow for two columns uses that 
   assert.equal(panes(showSheet(l, "s-1", 600).root).length, 2, "two columns fit 600");
 });
 
+test("3m: showSheet never takes the pane it is told to keep", () => {
+  const l = setKind(originalLayout(), "p2", "search");
+  assert.equal(showSheet(l, "s-1", 600, "p2"), l, "only the LIT pane is left to give, and it keeps its place");
+  const roomy = showSheet(l, "s-1", 1200, "p2");
+  assert.equal(findPane(roomy.root, "p2").kind, "search");
+  assert.equal(panes(roomy.root).filter((p) => p.kind === "sheet").length, 1, "a new pane has room");
+  const three = openKind(l, "mine", 1200, 800);
+  const given = showSheet(three, "s-1", 600, "p2");
+  assert.equal(findPane(given.root, "p2").kind, "search");
+  assert.equal(panes(given.root).filter((p) => p.kind === "sheet").length, 1, "another pane gives its place");
+  assert.equal(showSheet(mk(leaf("p1", "search")), "s-1", 400, "p1").root.pane.kind, "search", "nothing else to give");
+});
+
 test("showSheet leaves the layout alone for an empty id", () => {
   const l = originalLayout();
   assert.equal(showSheet(l, ""), l);
   assert.equal(showSheet(l, null), l);
+});
+
+// ---- the Search pane (3m) -------------------------------------------------------
+
+test("3m: Search is a kind that stands alone, filled last", () => {
+  assert.equal(kindLabel("search"), "Search");
+  assert.equal(isFollower("search"), false);
+  assert.equal(KINDS.at(-1).kind, "search");
+  // A pin is dropped when a pane is changed to Search.
+  const l = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "verse", { at: "john 3:16" })));
+  assert.equal(findPane(setKind(l, "p2", "search").root, "p2").pin, null);
+  // A saved layout holding one is kept.
+  assert.equal(findPane(checkLayout(setKind(l, "p2", "search")).root, "p2").kind, "search");
+});
+
+test("3m: openKind splits a new pane to the right of the active pane", () => {
+  const l = originalLayout("john 3:16");
+  const next = openKind(l, "search", 1200, 600);
+  assert.deepEqual(kinds(next), ["lit", "search", "mine"]);
+  assert.equal(next.active, "p1");
+  assert.deepEqual(kinds(l), ["lit", "mine"], "the original is untouched");
+});
+
+test("3m: openKind gives back the same layout when there is no room", () => {
+  const four = applyArrangement(originalLayout(), "grid");
+  assert.equal(openKind(four, "search", 4000, 4000), four, "four panes are open");
+  const l = originalLayout();
+  assert.equal(openKind(l, "search", 800, 600), l, "three columns need 852");
+  assert.equal(openKind(l, "search", 852, 600) === l, false);
+  assert.equal(openKind(l, "search", 1200, 100), l, "too short");
+  assert.equal(panes(openKind(l, "search").root).length, 3, "no size given asks nothing");
+  assert.equal(openKind(l, ""), l);
+});
+
+test("3m: openLitBeside puts a LIT pane left of the pane, active, at the shared place", () => {
+  const l = { ...mk(cols([0.5, 0.5], leaf("p1", "search"), leaf("p2", "mine")), null), place: "romans 8:1" };
+  const next = openLitBeside(l, "p1", 1200, 600);
+  assert.deepEqual(kinds(next), ["lit", "search", "mine"]);
+  const lit = panes(next.root)[0];
+  assert.equal(next.active, lit.id);
+  assert.equal(lit.at, "romans 8:1");
+  assert.equal(openLitBeside(l, "nope", 1200, 600), l);
+  assert.equal(openLitBeside(l, "p1", 800, 600), l, "no room");
+  const four = applyArrangement(mk(leaf("p1", "search")), "grid");
+  assert.equal(openLitBeside(four, "p1", 4000, 4000), four);
 });

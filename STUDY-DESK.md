@@ -4,7 +4,7 @@ The complete record of the Study Desk as planned so far: what it is, every idea
 with its status, every decision BVJ has made and why, the audit and how each
 finding was settled, the account and sync work planned with BDR, and the
 related projects that came out of it. **Nothing is released to readers**;
-phases 1a to 1d, 1f, 1h, 2a, 2b and 3b to 3k are built behind a preview switch ("Where things stand").
+phases 1a to 1d, 1f, 1h, 2a to 2c, 3b to 3k and 3m are built behind a preview switch ("Where things stand").
 This file exists so a future session can pick the work up without the
 conversations that produced it.
 
@@ -375,7 +375,7 @@ are recorded so they aren't re-argued.
   work starts, with mockups then. **Split into parts 3a to 3l**
   (proposed 2026-10-18, "Order of work", 3), to be worked one at a time.
   3l (D4) moved to version 2 on 2026-10-21. **3m, a search pane, was
-  added the same day** (BVJ), since /desk's own header has no search box.
+  added the same day** (BVJ), since /desk's own header has no search box. **It was built on 2026-11-01**, which finishes phase 3 (decision log, 2026-11-01).
 
 - **The tour is offered in a window beside the Notebook** (BVJ,
   2026-10-14), the first time it is expanded, with "Take the tour now,"
@@ -4823,12 +4823,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      move the active LIT pane instead of leaving the page, a Greek result
      opening its word in a Greek pane, and the usual hover previews. Its UI
      is a third module beside `searchbar.js` and `search.js`, reading
-     `search-core.js` and never copying its parsing or bucketing. To
-     design, with a mockup: whether it follows the passage (a "this book"
-     filter, say) or stands alone; where a glossary, article or intro
-     result opens; whether `/` focuses it; and whether its results can go
-     onto an open Sheet pane, as /search's "make a sheet" does (M5).
-     Medium. To build; not started.
+     `search-core.js` and never copying its parsing or bucketing.
+     Mocked 2026-11-01 (“Desk Search Pane”, a private claude.ai page,
+     https://claude.ai/artifact/H26w7ZmhGL7yJ8zENuFnLo) and answered by BVJ
+     the same day (decision log, 2026-11-01). **Built on the preview
+     2026-11-01**: the pane is `desk/search-pane.js`, its pure rules
+     `src/lib/desk-search-pane.mjs` and the layout's `openKind`,
+     `openLitBeside` and `showSheet`'s `keep` in `src/lib/desk-layout.mjs`.
+     Nothing about a search is stored, and no key is added.
 
    Suggested order: 3a, 3b, 3c, then 3f and 3d (both need only 3b and
    3c), then 3e, 3g, 3h, 3i, 3j, 3k, and 3l. (3g was added on 2026-10-19,
@@ -6049,6 +6051,34 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-11-01 (Phase 3m: the search pane)
+
+BVJ's answers on the mockup (each as recommended):
+
+- **It stands alone.** No following and no pin; the book menu offers
+  “The book I’m reading (John),” which sets the filter to that book and
+  keeps it when the LIT pane moves. A result moves the LIT pane, so a list
+  tied to that pane would change under the reader.
+- **A glossary result opens in the pane**, with “Back to results” and “Open
+  in the glossary.” **An article or intro result opens in a new tab**, since
+  those are sit-down reads and their styles aren’t on /desk. A verse or
+  topic result moves the LIT pane.
+- **`/` goes to an open search pane, or opens one beside the active pane.**
+  With four panes open or no room it says “Close a pane to open search.”
+  `keyboard-shortcuts.js` sends a cancelable `lit:desk-search` event;
+  desk-page.js answers it.
+- **Results can go on an open sheet**: “Make a sheet of these verses” stays,
+  and while a Sheet pane shows a sheet, “Add these verses to …” and a + on
+  each verse, shown on hover or focus.
+
+Built without asking, as the mockup listed: a typed reference moves the LIT
+pane; with no LIT pane open, a result opens one beside the search where
+there is room; a Greek result opens its word in an unpinned Greek pane,
+opening one where there is room, and moves the LIT pane; several search
+panes may be open; a book filter leaves out the glossary, topics, articles,
+and intros, as on /search. Making a sheet never takes the search pane’s
+place, so its results stay.
 
 ### 2026-10-30 (the Septuagint, cross-references and manuscripts)
 

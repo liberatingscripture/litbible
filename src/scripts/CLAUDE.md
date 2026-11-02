@@ -377,7 +377,8 @@ notice there or nowhere.
     so both surfaces stay in sync. The 404 page's `resolveMistypedPath` lives
     there for the same reason, and so do the Greek's loaders (`searchGreek`;
     the rules are in `src/lib/greek-search.mjs`, which the Notebook's Greek
-    tab shares).
+    tab shares). The Study Desk's Search pane (`desk/search-pane.js`) is a
+    third UI over the same module.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the
@@ -461,7 +462,8 @@ notice there or nowhere.
   Don't make that first landing smooth again: this replaced it after the owner
   saw the switch land "at random places within the book" (2026-09-27).
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
-  2026-09-28): `/` search, `g` Go to passage, and ← → or `[` `]` for the
+  2026-09-28): `/` search (a Search pane on /desk), `g` Go to passage, and
+  ← → or `[` `]` for the
   previous and next chapter (Study View's top Previous/Next, found by their
   `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Read View).
   `h` is the Study Desk's "Hide my marks" and does nothing unless

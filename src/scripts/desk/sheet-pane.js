@@ -122,6 +122,25 @@ function targetPane() {
   return showing[0] ?? null;
 }
 
+/**
+ * The sheet "Add to sheet" adds to: the one in the Sheet pane last worked in,
+ * else the first showing one, as `{ id, name }`; null when no Sheet pane shows
+ * a sheet. The Search pane's add buttons (3m) follow the same rule.
+ */
+export function addTarget() {
+  const s = targetPane()?.sheet();
+  return s ? { id: s.id, name: sheetName(s) } : null;
+}
+
+const targetListeners = new Set();
+const targetChanged = () => { for (const fn of targetListeners) fn(); };
+
+/** Called when the sheet `addTarget` names may have changed; returns the way to stop. */
+export function onAddTarget(fn) {
+  targetListeners.add(fn);
+  return () => targetListeners.delete(fn);
+}
+
 function listenForPanels() {
   if (listening) return;
   listening = true;
@@ -230,8 +249,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   };
   openPanes.add(me);
   listenForPanels();
-  el.addEventListener("pointerdown", () => { lastUsed = me; });
-  el.addEventListener("focusin", () => { lastUsed = me; });
+  el.addEventListener("pointerdown", () => { lastUsed = me; targetChanged(); });
+  el.addEventListener("focusin", () => { lastUsed = me; targetChanged(); });
 
   // ---- saving ----
 
@@ -306,6 +325,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       const moved = json(made.sheet) !== json(sheet);
       sheet = made.sheet;
+      if (moved) targetChanged();
       if (made.changed && !quiet) status.textContent = "Saved";
       if (source && made.changed) {
         const card = cards.get(source);
@@ -366,6 +386,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     }
     if (json(record) === json(sheet)) return;
     sheet = record;
+    targetChanged();
     draw();
   }
 
@@ -374,6 +395,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   async function showList() {
     const n = ++seq;
     sheet = null;
+    targetChanged();
     lastModule = null;
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
@@ -511,6 +533,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     }
     setSheet(id);
     sheet = record;
+    targetChanged();
     lastModule = null;
     readOnly = !canEdit(record);
     for (const card of cards.values()) card.inst?.destroy?.();
@@ -1172,6 +1195,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       window.removeEventListener("pagehide", onPagehide);
       openPanes.delete(me);
       if (lastUsed === me) lastUsed = null;
+      targetChanged();
       for (const card of cards.values()) card.inst?.destroy?.();
     },
   };

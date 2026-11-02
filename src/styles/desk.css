@@ -7230,3 +7230,367 @@ mark.desk-print-mark {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
+
+/* ── The Search pane (3m) ─────────────────────────────────────────────── */
+
+/* A field and two menus at the top, then the results in a scroller of their
+   own (or a glossary entry in its place). Nothing may overflow at the pane's
+   280px minimum: the menus share a row and shrink, long text wraps. */
+.desk-search {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.desk-search__top {
+  flex: none;
+  padding: 10px 14px 6px;
+}
+
+.desk-search__top[hidden],
+.desk-search__results[hidden],
+.desk-search__entry[hidden] {
+  display: none;
+}
+
+.desk-search__form {
+  margin: 0;
+}
+
+.desk-search__input,
+.desk-search__select {
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: var(--surface-raised, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+
+.desk-search__input {
+  display: block;
+  width: 100%;
+  height: 32px;
+  padding: 2px 10px;
+}
+
+.desk-search__tools {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.desk-search__select {
+  flex: 1 1 0;
+  height: 30px;
+  padding: 2px 6px;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+}
+
+.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__choice, .desk-search__open):focus-visible,
+.desk-search .desk-search__link:focus-visible,
+.desk-search .greek-cmd-link:focus-visible,
+.desk-search__exact input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-search__status,
+.desk-search__note,
+.desk-search__empty {
+  margin: 6px 0 0;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.8125rem;
+}
+
+.desk-search__status:empty {
+  display: none;
+}
+
+.desk-search__empty {
+  padding: 0 2px;
+}
+
+.desk-search__results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 14px 12px;
+}
+
+.desk-search__group {
+  margin-top: 12px;
+}
+
+.desk-search__group-title {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-search__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-search__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  border-radius: 6px;
+}
+
+.desk-search__row:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-search__link {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.desk-search__jump-link {
+  margin-top: 8px;
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-search__title {
+  display: block;
+}
+
+.desk-search__kind {
+  margin-left: 8px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.75rem;
+}
+
+.desk-search__ref {
+  color: rgba(var(--ink-rgb), 0.85);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-search__text {
+  display: block;
+  margin-top: 1px;
+}
+
+.desk-search mark {
+  background: rgba(var(--ink-rgb), 0.14);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.desk-search__greek-form {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+}
+
+.desk-search__btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-search__btn:hover:not(:disabled) {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-search__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.desk-search__btn--quiet {
+  border-color: transparent;
+}
+
+.desk-search__btn--quiet[aria-pressed="true"] {
+  border-color: rgba(var(--ink-rgb), 0.25);
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-search__more {
+  margin: 6px 0 0;
+}
+
+.desk-search__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 4px;
+}
+
+/* A verse's + : seen on hover or focus within its row, always where there is
+   no hover (a touch screen). */
+.desk-search__add {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: 2px 2px 0 0;
+  padding: 0;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.desk-search__row:hover .desk-search__add,
+.desk-search__row:focus-within .desk-search__add,
+.desk-search__add:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .desk-search__add {
+    opacity: 1;
+  }
+}
+
+.desk-search__add[hidden],
+.desk-search__add-all[hidden] {
+  display: none;
+}
+
+/* The Greek: the word chosen or offered, said back, the credit. */
+.desk-search__found,
+.desk-search__readback {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+}
+
+.desk-search__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 8px;
+}
+
+.desk-search__choice {
+  max-width: 100%;
+  padding: 3px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-search__choice[aria-pressed="true"] {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-search__exact {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+}
+
+.desk-search__help {
+  margin: 8px 0;
+}
+
+.desk-search__greek-foot {
+  margin-top: 10px;
+}
+
+.desk-search__credit {
+  margin: 6px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.75rem;
+}
+
+.desk-search__credit a {
+  color: var(--green-text);
+}
+
+/* A glossary entry in the pane: cloned from /glossary/, whose own styles stay
+   there, so the parts it uses are set here. */
+.desk-search__entry {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px 14px 16px;
+}
+
+.desk-search__entry-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 0 0 10px;
+}
+
+.desk-search__open,
+.desk-search__entry a:not(.desk-search__link) {
+  color: var(--green-text);
+}
+
+.desk-search__entry .entry-title {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.desk-search__entry .entries-strike {
+  text-decoration: line-through;
+}
+
+.desk-search__entry .entries-underline {
+  text-decoration: underline;
+}
+
+.desk-search__entry .entry-body {
+  max-width: calc(48 * var(--ch));
+}
+
+.desk-search__entry .entry-body a.sref {
+  color: var(--green-text);
+}
+
+.desk-search__entry .entry-occurrences {
+  margin-top: 12px;
+  font-size: 0.875rem;
+}
+
+.desk-search__entry .entry-occurrences a {
+  color: var(--green-text);
+}
+
+.desk-search__failed p,
+.desk-search__entry .desk-search__status {
+  margin: 0 0 8px;
+}

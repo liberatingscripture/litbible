@@ -1126,6 +1126,25 @@ export function bucketSearchResults(
   return { glossary, subject, article, intro };
 }
 
+/* ── Pagefind ────────────────────────────────────────────────────────── */
+
+let pagefindPromise = null;
+
+/**
+ * The Pagefind module (glossary, articles and book introductions), imported
+ * once from the built site: the tray's loader, shared with the Study Desk's
+ * Search pane. Rejects when the index isn't built; a failure is not
+ * remembered, so a later call tries again. (/search loads its own, which
+ * checks the index's files first.)
+ */
+export function loadPagefind(base) {
+  pagefindPromise ||= import(/* @vite-ignore */ `${base}pagefind/pagefind.js`);
+  pagefindPromise.catch(() => {
+    pagefindPromise = null;
+  });
+  return pagefindPromise;
+}
+
 /* ── Topics index loader ─────────────────────────────────────────────── */
 
 /**

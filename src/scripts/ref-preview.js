@@ -25,8 +25,11 @@ import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 
 // The Greek tab's search results are previewed too (they link a verse, with a
 // ?greek= word parameter the preview ignores; one for the chapter on screen is
-// a button, so it names its verse in data-preview-href instead).
-const SELECTOR = "a.sref, .article__body a[href], .desk-greek__hit";
+// a button, so it names its verse in data-preview-href instead). So are the
+// Study Desk's Search pane's links to a verse, a topic's chapter, a Greek
+// result and a glossary entry's references (.desk-search__link, 3m); a link
+// there that isn't scripture has no preview, as parseRef finds.
+const SELECTOR = "a.sref, .article__body a[href], .desk-greek__hit, .desk-search__link";
 const HREF_RE = /^\/([0-9a-z]+)-(\d+)\/?(?:\?[^#]*)?(?:#v(\d+)(?:-(\d+))?)?$/;
 const MAX_VERSES = 6;
 const OPEN_DELAY = 350;

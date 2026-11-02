@@ -32,6 +32,7 @@ import {
   verseHitLabel,
   verseHitHref,
   loadTopicsIndex,
+  loadPagefind,
   loadDeskSearch,
   greekSearchEnabled,
   isGreekQuery,
@@ -360,9 +361,7 @@ const _initSearchbars = async () => {
     async function ensurePagefind() {
       if (pagefind) return pagefind;
       try {
-        pagefind = await import(
-          /* @vite-ignore */ `${base}pagefind/pagefind.js`
-        );
+        pagefind = await loadPagefind(base);
         return pagefind;
       } catch {
         status.textContent =
