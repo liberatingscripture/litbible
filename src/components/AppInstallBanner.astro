@@ -2,12 +2,11 @@
 /**
  * Android app-install banner — a slim, dismissible bar at the top of every page
  * offering the LIT Bible app on Google Play. Android mobile browsers only:
- * hidden on iOS and desktop, and gone once dismissed (localStorage).
+ * hidden on iOS and desktop, and gone for 90 days once dismissed (a timestamp
+ * in localStorage).
  *
- * One dismissal with the app announcement (AppsLaunchPopover.astro, audit F5):
- * the banner also stays down once that announcement has been closed (its
- * cookie, lit_apps_launch_v1), and the announcement reads this banner's key.
- * Each only reads the other's flag, so neither stores anything new.
+ * Its dismissal is its own: the app announcement (AppsLaunchPopover.astro)
+ * keeps a separate, longer one, and closing either leaves the other alone.
  *
  * iOS is handled separately by Apple's Smart App Banner (the apple-itunes-app
  * <meta> tag in Layout.astro), which can hand an already-installed app the
@@ -37,15 +36,20 @@
 <script is:inline>
   (function () {
     var KEY = "lit_app_banner_dismissed";
-    try { if (localStorage.getItem(KEY) === "1") return; } catch (e) {}
-    if (document.cookie.split("; ").some(function (c) { return c.indexOf("lit_apps_launch_v1=") === 0; })) return;
+    var DAYS = 90;
+    // The value is the dismissal's timestamp; an older "1" or an expired one
+    // lets the banner show again.
+    try {
+      var at = Number(localStorage.getItem(KEY));
+      if (at && Date.now() - at < DAYS * 864e5) return;
+    } catch (e) {}
     if (!/Android/i.test(navigator.userAgent || "")) return;
     var b = document.getElementById("lit-app-banner");
     if (!b) return;
     b.hidden = false;
     b.querySelector(".litab__x").addEventListener("click", function () {
       b.hidden = true;
-      try { localStorage.setItem(KEY, "1"); } catch (e) {}
+      try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
     });
   })();
 </script>

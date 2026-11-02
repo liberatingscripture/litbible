@@ -30,10 +30,10 @@
      announcement can opt out with `{ overScripture: true }`.
   What belongs to one announcement stays in its component, passed to the gate
   as `skip` or kept in its own markup, so the slot never learns about apps.
-  The app announcement adds two such rules (owner, 2026-09-28). It shares one
-  dismissal with the Android banner (`AppInstallBanner.astro`): each reads the
-  other's flag, the cookie one way and `lit_app_banner_dismissed` the other,
-  so closing either retires both without storing anything new. And on a
+  The app announcement adds one such rule (owner, 2026-09-28). Its dismissal
+  (the 365-day `lit_apps_launch_v1` cookie) is separate from the Android
+  banner's (`AppInstallBanner.astro`, a 90-day timestamp in
+  `lit_app_banner_dismissed`); closing either leaves the other alone. On a
   computer it shows a QR code to `/apps` (`public/images/apps-qr.svg`, from
   `npm run build:apps-qr`), hidden on a phone or tablet by the same device
   check (`isAppPlatform`) and lazy-loaded so a closed dialog never fetches it. It

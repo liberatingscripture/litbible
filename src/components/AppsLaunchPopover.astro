@@ -1,6 +1,6 @@
 ---
 // AppsLaunchPopover — announces the iOS + Android app release. Shown once per
-// visitor (cookie lit_apps_launch_v1, 30-day expiry), under the rules every
+// visitor (cookie lit_apps_launch_v1, 365-day expiry), under the rules every
 // announcement shares (src/scripts/announcement-gate.js: never on a session's
 // first pageview, a shared verse link, /apps or /privacy, or over scripture).
 // This is the site's single active announcement slot: Layout renders exactly
@@ -8,11 +8,10 @@
 // the repo unimported so a past announcement can be brought back by swapping
 // the import in Layout.astro.
 //
-// Its own rules, which belong to this announcement and not to the slot:
-//   - one dismissal with the Android app banner (AppInstallBanner.astro):
-//     closing either one retires both
+// Its own rule, which belongs to this announcement and not to the slot:
 //   - a QR code on a computer only, pointing at /apps
 //     (public/images/apps-qr.svg, from npm run build:apps-qr)
+// Its dismissal is separate from the Android app banner's (AppInstallBanner.astro).
 import PlatformIcon from "./apps/PlatformIcon.astro";
 import AppIcons from "./apps/AppIcons.astro";
 
@@ -376,19 +375,7 @@ import AppIcons from "./apps/AppIcons.astro";
   import { shouldAnnounce, isAppPlatform } from "../scripts/announcement-gate.js";
 
   const COOKIE_NAME = "lit_apps_launch_v1";
-  const COOKIE_DAYS = 30;
-  // The Android banner's own dismissal (AppInstallBanner.astro, which reads
-  // this announcement's cookie the same way). One dismissal covers both.
-  const BANNER_KEY = "lit_app_banner_dismissed";
-
-  function bannerDismissed() {
-    try {
-      return localStorage.getItem(BANNER_KEY) === "1";
-    } catch (_) {
-      return false;
-    }
-  }
-
+  const COOKIE_DAYS = 365;
   function setCookie(name: string, value: string, days: number) {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
@@ -397,9 +384,6 @@ import AppIcons from "./apps/AppIcons.astro";
   function dismissAndSet() {
     if (dialog.classList.contains("is-closing")) return;
     setCookie(COOKIE_NAME, "1", COOKIE_DAYS);
-    // The banner reads the cookie on the next page; take it down on this one.
-    const banner = document.getElementById("lit-app-banner");
-    if (banner) banner.hidden = true;
     dialog.classList.add("is-closing");
     setTimeout(() => dialog.close(), 250);
   }
@@ -408,9 +392,8 @@ import AppIcons from "./apps/AppIcons.astro";
     "apps-launch-popover",
   ) as HTMLDialogElement;
 
-  // The rules every announcement shares live in announcement-gate.js; this
-  // one adds the shared dismissal with the Android banner (audit F5).
-  const eligible = shouldAnnounce({ cookie: COOKIE_NAME, skip: bannerDismissed });
+  // The rules every announcement shares live in announcement-gate.js.
+  const eligible = shouldAnnounce({ cookie: COOKIE_NAME });
 
   if (dialog && eligible) {
     // A QR code is for a computer; on a phone or tablet the button is the way.
