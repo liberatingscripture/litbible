@@ -1,52 +1,39 @@
 // src/scripts/desk/greek-find.js
 //
-// The Greek tab's own search (STUDY-DESK.md, "Order of work", 1h, step 5).
-// A search button in the tab's header row opens a field in place of the row's
-// contents, so the tab loses no height until it's used. The text stays as it
-// is until the reader types; results then take the text's place (the text is
-// hidden, not rebuilt, so its place and selected word are exactly as they
-// were) with "Back to the text" at the top.
+// The Greek tab's word searches (STUDY-DESK.md, "Order of work", 1h). A word's
+// form, lemma, Strong's number and parsing, in its details, each start a search
+// (tab-greek.js calls `open`). The results then take the text's place (the text
+// is hidden, not rebuilt, so its place and selected word are exactly as they
+// were) with "Back to the text" at the top. There is no typed search in the
+// tab (BVJ, 2026-11-02): typing a Greek search is the search bar's, /search's
+// and /desk's Search pane's job, and the commands window opens from those.
 //
 // What a query means, and what comes back, is search-core.js's
 // searchGreekAuto, the same call the search bar and /search make: one word at
-// a time as before, or a command query (πίστις.gen, *.aor.impv) whose verses
-// show with the words that matched, under the query said back. A "Search
-// commands" button in the field opens the commands window beside the Notebook
-// (greek-commands.js), which closes with the field. A result in the chapter on
-// the page selects that word here; one in another chapter is the ordinary
-// verse link with ?greek=, which loads the chapter and opens the Notebook at
-// the word (desk/greek-link.js). On /desk (`openHit`, desk-panes.js) one in
-// another chapter moves the Greek pane there instead, so the reader stays on
-// the desk.
+// a time as before, or a command query (the parsing link's *.aor.impv) whose
+// verses show with the words that matched, under the query said back. A result
+// in the chapter on the page selects that word here; one in another chapter is
+// the ordinary verse link with ?greek=, which loads the chapter and opens the
+// Notebook at the word (desk/greek-link.js). On /desk (`openHit`,
+// desk-panes.js) one in another chapter moves the Greek pane there instead, so
+// the reader stays on the desk.
 //
 // Nothing here scrolls the PAGE, and nothing is stored about a search.
 
 import {
-  couldBeGreek,
   escapeHtml,
   isGreekQuery,
   loadGreekChapter,
   loadGreekIndex,
   searchGreekAuto,
 } from "../search-core.js";
-import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, longEnoughForGreek, versesIn } from "../../lib/greek-search.mjs";
-import { EXAMPLES, countLine, describeGreekQuery, errorMessage, isCommandQuery } from "../../lib/greek-query.mjs";
-import { formsLine, replaceWord, verseGreek } from "../../lib/greek-commands-ui.mjs";
-import {
-  closeGreekCommands,
-  commandsLinkButton,
-  exampleList,
-  greekCommandsOpenFor,
-  openGreekCommands,
-} from "../greek-commands.js";
+import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../../lib/greek-search.mjs";
+import { countLine, describeGreekQuery, errorMessage } from "../../lib/greek-query.mjs";
+import { formsLine, verseGreek } from "../../lib/greek-commands-ui.mjs";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const PAGE = 10; // verses at a time
 const CHOICES = 10; // words offered at a time
-const DEBOUNCE = 180;
-
-const HINT =
-  "Type a Greek word, a Strong’s number such as G4102, a transliteration such as pistis, or an English word such as faith.";
 
 /** A new element with a class and, optionally, text. */
 function make(tag, cls, text) {
@@ -71,14 +58,10 @@ function lemmaNodes(into, item, { count = true } = {}) {
  *   focusText: () => boolean }} options
  *   `root` is the Greek tab's element; `focusText` puts focus on the selected
  *   word (or the roving one) and says whether there was one to focus.
- * @returns {{ open: (opts?: { query?: string, exact?: boolean, prefer?: string }) => void,
- *   close: (opts?: { focus?: "button" | "word" | false }) => void, isOpen: () => boolean }}
+ * @returns {{ open: (opts: { query: string, exact?: boolean, prefer?: string }) => void,
+ *   close: (opts?: { focus?: "word" | false }) => void, isOpen: () => boolean }}
  */
 export function createGreekFind({ root, here, selectWord, focusText, openHit = null }) {
-  const openBtn = root.querySelector(".desk-greek__find-btn");
-  const form = root.querySelector(".desk-greek__find");
-  const input = root.querySelector(".desk-greek__find-input");
-  const closeBtn = root.querySelector(".desk-greek__find-close");
   const scroller = root.querySelector(".desk-greek__scroller");
   const pane = root.querySelector(".desk-greek__results");
 
@@ -106,23 +89,8 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   const pageLine = pane.querySelector(".desk-greek__find-page");
   const pageLink = pageLine.querySelector("a");
 
-  // Beside the box once it is open: the way to the commands window. It adds
-  // nothing to the tab's header.
-  const cmdBtn = make("button", "greek-cmd-link desk-greek__cmds", "Search commands");
-  cmdBtn.type = "button";
-  cmdBtn.setAttribute("aria-haspopup", "dialog");
-  input.after(cmdBtn);
-  const helpBox = make("div", "desk-greek__help");
-  helpBox.hidden = true;
-  status.after(helpBox);
-
-  function openCommands(filter = null) {
-    openGreekCommands({ field: input, source: "notebook", filter });
-  }
-  cmdBtn.addEventListener("click", () => openCommands());
-
   let seq = 0; // a newer search cancels an older one
-  let timer = 0;
+  let query = ""; // what the results on screen are for
   let textScroll = 0; // where the text was when the results took its place
   let state = { lemmaId: null, exact: false, prefer: null };
   let lemmas = [];
@@ -130,14 +98,15 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   let hits = [];
   let hitsShown = 0;
 
-  const isOpen = () => !form.hidden;
   const showingResults = () => !pane.hidden;
+  const isOpen = showingResults;
 
   /* ── The text and the results trade places ─────────────────────── */
 
   function showResults() {
     if (showingResults()) return;
     textScroll = scroller.scrollTop;
+    root.classList.add("is-finding");
     scroller.hidden = true;
     pane.hidden = false;
     pane.scrollTop = 0;
@@ -146,6 +115,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   function showText() {
     if (!showingResults()) return;
     pane.hidden = true;
+    root.classList.remove("is-finding");
     scroller.hidden = false;
     // A hidden scroller forgets where it was in some browsers.
     scroller.scrollTop = textScroll;
@@ -153,69 +123,40 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
 
   /* ── Opening and closing ───────────────────────────────────────── */
 
-  function open({ query = "", exact = false, prefer = null } = {}) {
+  /** Search for a word's form, lemma, Strong's number or parsing, and show what comes back. */
+  function open({ query: q, exact = false, prefer = null }) {
     state = { lemmaId: null, exact, prefer: prefer ? prefer.normalize("NFC") : null };
     exactBox.checked = exact;
-    root.classList.add("is-finding");
-    form.hidden = false;
-    input.value = query;
-    input.focus({ preventScroll: true });
-    input.setSelectionRange(query.length, query.length);
-    if (longEnoughForGreek(query)) run();
+    query = q;
+    run();
+    // The results have taken the text's place (run does that before it waits),
+    // so focus goes to their first control, where Escape closes them.
+    backBtn.focus({ preventScroll: true });
   }
 
-  function close({ focus = "button" } = {}) {
+  function close({ focus = "word" } = {}) {
     if (!isOpen()) return;
-    if (greekCommandsOpenFor(input)) closeGreekCommands("field");
     seq++;
-    window.clearTimeout(timer);
     showText();
-    form.hidden = true;
-    root.classList.remove("is-finding");
-    input.value = "";
+    query = "";
     status.textContent = "";
     state = { lemmaId: null, exact: false, prefer: null };
     exactBox.checked = false;
-    if (focus === "word") {
-      if (!focusText()) openBtn.focus({ preventScroll: true });
-    } else if (focus === "button") {
-      openBtn.focus({ preventScroll: true });
-    }
+    if (focus === "word") focusText();
   }
 
-  openBtn.addEventListener("click", () => open());
-  closeBtn.addEventListener("click", () => close({ focus: "button" }));
   backBtn.addEventListener("click", () => close({ focus: "word" }));
 
-  // Escape is the field's own: it closes the search and no more, so the
-  // panel (panel.js) doesn't close as well.
-  const onEscape = (e) => {
+  // Escape closes the results and no more, so the panel (panel.js) doesn't
+  // close as well.
+  pane.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || !isOpen()) return;
     e.preventDefault();
     e.stopPropagation();
-    close({ focus: "button" });
-  };
-  form.addEventListener("keydown", onEscape);
-  pane.addEventListener("keydown", onEscape);
+    close({ focus: "word" });
+  });
 
   /* ── Asking ────────────────────────────────────────────────────── */
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    run();
-  });
-
-  input.addEventListener("input", () => {
-    // A new query starts afresh: no chosen word, no exact form.
-    state = { lemmaId: null, exact: false, prefer: null };
-    exactBox.checked = false;
-    window.clearTimeout(timer);
-    if (!longEnoughForGreek(input.value)) {
-      timer = window.setTimeout(run, 0);
-      return;
-    }
-    timer = window.setTimeout(run, DEBOUNCE);
-  });
 
   retry.addEventListener("click", () => run());
 
@@ -250,8 +191,6 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     hitsMore.hidden = true;
     pageLine.hidden = true;
     retry.hidden = true;
-    helpBox.hidden = true;
-    helpBox.replaceChildren();
     lemmas = [];
     hits = [];
     hitsShown = 0;
@@ -265,22 +204,13 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
 
   /** Run the search in the field; `keep` names the control to give focus back to. */
   async function run({ keep = null } = {}) {
-    window.clearTimeout(timer);
-    const raw = input.value.trim();
+    const raw = query.trim();
     const my = ++seq;
-    if (!longEnoughForGreek(raw)) {
-      if (showingResults()) say(HINT);
-      return;
-    }
+    if (!raw) return;
     showResults();
     pane.setAttribute("aria-busy", "true");
     if (!status.textContent) status.textContent = "Searching…";
     try {
-      if (!couldBeGreek(raw) && !isCommandQuery(raw)) {
-        say("No Greek matches. Try one word at a time, or see the search commands.");
-        drawHelp({ examples: 2 });
-        return;
-      }
       const ask = () => searchGreekAuto(BASE, raw, { lemmaId: state.lemmaId, exactForm: state.exact });
       let res = await ask();
       if (my !== seq) return;
@@ -319,47 +249,18 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
 
   /* ── A command search ──────────────────────────────────────────── */
 
-  /** Run an example or a suggestion in the box. */
-  function runQuery(query) {
+  /** Run a suggestion the results offer (the article's “ὁ, θεός”, a corrected word). */
+  function runQuery(next) {
     state = { lemmaId: null, exact: false, prefer: null };
     exactBox.checked = false;
-    input.value = query;
-    input.focus({ preventScroll: true });
+    query = next;
     run();
-  }
-
-  /**
-   * What fills the room an empty or failed search leaves, sized for the tab:
-   * up to two examples and the way to the window (at `filter`, when an error
-   * points to a command).
-   */
-  function drawHelp({ filter = null, examples = 2 } = {}) {
-    helpBox.replaceChildren();
-    if (examples) helpBox.append(exampleList(EXAMPLES.slice(0, examples), runQuery));
-    helpBox.append(commandsLinkButton("See all search commands", () => openCommands(filter)));
-    helpBox.hidden = false;
-  }
-
-  /** An error as a sentence in the status line, the suggested word a button that fixes the box. */
-  function sayError(error) {
-    const msg = errorMessage(error);
-    const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
-    if (at < 0) {
-      status.textContent = msg.text;
-      return msg;
-    }
-    const fix = make("button", "greek-cmd-link", msg.suggest);
-    fix.type = "button";
-    fix.addEventListener("click", () => runQuery(replaceWord(input.value, msg.replace, msg.suggest)));
-    status.replaceChildren(msg.text.slice(0, at), fix, msg.text.slice(at + msg.suggest.length));
-    return msg;
   }
 
   function paintCommands(res, raw) {
     reset();
     if (res.error) {
-      const msg = sayError(res.error);
-      drawHelp({ filter: msg.filter ?? null });
+      status.textContent = errorMessage(res.error).text;
       return;
     }
     if (res.failed) {
@@ -367,17 +268,13 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
       return;
     }
     if (!res.resolved) {
-      say("Type a search, like πίστις.gen or *.aor.impv.");
-      drawHelp({ examples: 2 });
+      say("No Greek matches.");
       return;
     }
     // The query said back, with its count: the status line, so it is read out.
     const greek = (g) => `<span lang="grc">${escapeHtml(g)}</span>`;
     status.innerHTML = `${describeGreekQuery(res.resolved, { greek, text: escapeHtml })} · ${escapeHtml(countLine(res.hits))}`;
-    if (!res.hits.length) {
-      drawHelp({ examples: 2 });
-      return;
-    }
+    if (!res.hits.length) return;
     hits = res.hits;
     hitsShown = 0;
     list.hidden = false;

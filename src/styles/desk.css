@@ -4103,33 +4103,7 @@ html:has(.desk-greek__split--dragging) {
   white-space: nowrap;
 }
 
-/* The search button, and the field that takes the header row's place. */
-.desk-greek__find-btn,
-.desk-greek__find-close {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 1.125rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.desk-greek__find-btn:hover,
-.desk-greek__find-close:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.desk-greek__find-btn:focus-visible,
-.desk-greek__find-close:focus-visible,
+/* The word searches (greek-find.js): the results take the text's place. */
 .desk-greek__choice:focus-visible,
 .desk-greek__choices-more:focus-visible,
 .desk-greek__hits-more:focus-visible,
@@ -4141,40 +4115,8 @@ html:has(.desk-greek__split--dragging) {
   outline-offset: 2px;
 }
 
-.desk-greek__find {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  margin: 0;
-}
-
-.desk-greek__find[hidden] {
-  display: none;
-}
-
-.desk-greek__find-input {
-  flex: 1;
-  min-width: 0;
-  height: 28px;
-  padding: 2px 8px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-raised, transparent);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.9375rem;
-}
-
-.desk-greek__find-input:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
-.desk-greek.is-finding .desk-greek__title,
-.desk-greek.is-finding .desk-greek__goto,
-.desk-greek.is-finding .desk-greek__find-btn {
+/* While results show, "Go to verse N" would act on text that is hidden. */
+.desk-greek.is-finding .desk-greek__goto {
   display: none;
 }
 
@@ -4347,45 +4289,10 @@ html:has(.desk-greek__split--dragging) {
   text-underline-offset: 3px;
 }
 
-/* Searching with commands from the tab (greek-find.js): the "Search commands"
-   link-button inside the open field, the query said back in the status line,
-   and the examples that fill the room a failed search leaves, sized for the
-   tab. */
-.desk-greek__cmds {
-  flex: none;
-  padding: 2px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-
+/* A command search from a parsing link: the query said back in the status line. */
 .desk-greek__find-status [lang="grc"] {
   font-family: var(--serif);
   font-size: 1.05em;
-}
-
-.desk-greek__help {
-  margin: 0 0 8px;
-}
-
-.desk-greek__help .greek-examples {
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.desk-greek__help .greek-ex {
-  padding: 5px 9px;
-}
-
-.desk-greek__help .greek-ex__query {
-  font-size: 0.92rem;
-}
-
-.desk-greek__help .greek-ex__says {
-  font-size: 0.78rem;
-}
-
-.desk-greek__help .greek-cmd-link {
-  font-size: 0.8125rem;
 }
 
 /* ── 1f: the verse's Greek in This verse ── */
