@@ -251,18 +251,7 @@ export const TOUR_STEPS = [
     title: "“Greek”",
     body: {
       default:
-        "The chapter in the SBL Greek New Testament, at the verse you’re reading. Select a word for its parsing and its dictionary entry. The search button finds a word, its forms, or a Strong’s number.",
-    },
-  },
-  {
-    id: "greek-commands",
-    part: 1,
-    views: ["study"],
-    since: "2a",
-    title: "Greek search commands",
-    body: {
-      default:
-        "A Greek search can name a word’s parsing and several words together. This one finds πίστις in the genitive, followed by Jesus or Christ in the genitive. “Search commands” lists every command, each with a word you can type instead.",
+        "The chapter in the SBL Greek New Testament, at the verse you’re reading. Select a word for its parsing and its dictionary entry. Select its form, its dictionary form, or its Strong’s number there to see where else it occurs.",
     },
   },
   {

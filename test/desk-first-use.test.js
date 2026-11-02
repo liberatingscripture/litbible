@@ -260,31 +260,24 @@ test("where the browser keeps no notebook, the tour leaves out marking the text 
     assert.ok(planTour({ available: all, view, canKeep: false }).every((s) => s.part !== 0), view);
   }
   const study = planTour({ available: all, view: "study", canKeep: false }).map((s) => s.id);
-  assert.deepEqual(study, ["panel", "verse", "greek", "greek-commands", "widths", "search"]);
+  assert.deepEqual(study, ["panel", "verse", "greek", "widths", "search"]);
   // The default keeps them.
   assert.ok(planTour({ available: all, view: "study" }).some((s) => s.id === "actions"));
 });
 
-test("the Greek search commands step follows the Greek step, in Study View only, and is offered as new", () => {
+test("the removed Greek search commands step is gone, and a reader who saw it is not offered a new tour for it (2026-11-02)", () => {
+  assert.ok(!TOUR_STEPS.some((s) => s.id === "greek-commands"));
+  // The Greek step still comes after "This verse" and before "Set the widths", in Study View only.
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const study = planTour({ available: all, view: "study" }).map((s) => s.id);
-  assert.equal(study[study.indexOf("greek") + 1], "greek-commands");
-  for (const view of ["read", "prose"]) {
-    assert.ok(!planTour({ available: all, view }).some((s) => s.id === "greek-commands"), view);
-  }
-  // It is planned only where its target is (a page without the Greek tab leaves it out).
-  const noGreek = new Set([...all].filter((id) => id !== "greek-commands"));
-  assert.ok(!planTour({ available: noGreek, view: "study" }).some((s) => s.id === "greek-commands"));
-
-  // A reader who took the tour before it existed is offered it, once, and only it.
-  const before = TOUR_STEPS.map((s) => s.id).filter((id) => id !== "greek-commands");
-  const offer = tourOffer(JSON.stringify(before));
-  assert.equal(offer.kind, "new");
-  assert.deepEqual(offer.ids, ["greek-commands"]);
-  assert.equal(tourOffer(JSON.stringify(withOffered(before, offer.ids))).kind, null);
-  // And a tour of just what is new is that one step.
-  const only = planTour({ available: all, only: offer.ids, view: "study" });
-  assert.deepEqual(only.map((s) => s.id), ["greek-commands"]);
+  assert.equal(study[study.indexOf("greek") + 1], "widths");
+  // A reader who took the tour while the step existed has its id stored: it
+  // is ignored as an unknown id, offers nothing, and is kept in their list.
+  const stored = [...TOUR_STEPS.map((s) => s.id), "greek-commands"];
+  const state = parseTourState(JSON.stringify(stored));
+  assert.ok(!state.seen.includes("greek-commands"));
+  assert.ok(state.list.includes("greek-commands"));
+  assert.equal(tourOffer(JSON.stringify(stored)).kind, null);
 });
 
 test("each step knows its part and where the next part starts", () => {

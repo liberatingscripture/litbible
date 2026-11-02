@@ -545,10 +545,15 @@ that section.
        (`greekHref`). `desk/greek-link.js` opens the Notebook at that word,
        even if the reader had closed it, and strips the parameter; a result
        for the chapter on screen sends `lit:greek-word` instead of loading.
-     - **The Greek tab searches too** (`desk/greek-find.js`): a button in
-       its header opens a field in place, results replace the text until
-       "Back to the text", and in a word's details the form, the lemma and
-       the Strong's number each start a search (BVJ, 2026-10-13). Its result
+     - **The Greek tab has word searches but no typed search**
+       (`desk/greek-find.js`): in a word's details the form, the lemma, the
+       Strong's number and the parsing each start a search (BVJ, 2026-10-13),
+       and the results replace the text until "Back to the text". The
+       header's search button and its field were taken out (BVJ,
+       2026-11-02, E7): a typed Greek search is the search bar's, /search's
+       and /desk's Search pane's, and the tab has no way into the commands
+       window. The word choices, "Exact form only" and "See these on the
+       search page" stay. Its result
        rows preview their verse on hover like any reference
        (`ref-preview.js`: a row for another chapter is a link with a
        `?greek=` parameter, which the preview ignores; one for the chapter
@@ -615,7 +620,7 @@ that section.
        match round its middle word, exact but cubic only because of that
        cap, so raising it needs a new matcher, not a bigger number.
      - **`searchGreekAuto` in `search-core.js` is the one Greek search**
-       the tray, /search and the Greek tab call: a command query goes to
+       the tray, /search, /desk's Search pane and the Greek tab's word links call: a command query goes to
        `searchGreekCommands`, anything else to 1h's `searchGreek`, with
        two or three plain Latin words that find nothing tried as a
        construction. **Plain words holding a command word are a gloss when
@@ -631,12 +636,13 @@ that section.
        hint or a control to a search page, put it in the window
        (`src/scripts/greek-commands.js`). It is a `float-window.js` window,
        outside `lit-panel.js`'s one slot, so a footnote or preview opening
-       never closes it; from the Greek tab it closes with the Notebook,
-       which announces itself with `lit:notebook-state` (`desk/panel.js`),
-       and from a Greek pane on /desk, which has no Notebook, it sits beside
-       the pane and closes with the pane's search, which the tab's `destroy`
-       closes when the pane closes or moves to another chapter. A click
-       finding its field gone closes it too (BA114). What it announces is
+       never closes it. It opens from the tray, /search and /desk's Search
+       pane. (It once opened from the Greek tab's field too, until E7,
+       2026-11-02; its `source: "notebook"` placement and
+       `greek-commands.js`'s listener for `lit:notebook-state` are left over
+       from that, tested and unused, and `panel.js` no longer sends the
+       event.) A click finding its field gone closes it
+       too (BA114). What it announces is
        meant to be heard: a command by its meaning (“Added: Within 3
        words.”), the builder's by the query it made (BA117).
        **What it puts in a field is typed, not set** (BA147): `typeInto`

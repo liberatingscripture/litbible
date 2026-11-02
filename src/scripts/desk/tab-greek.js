@@ -159,13 +159,6 @@ export function createGreekTab({
     <div class="desk-greek__head">
       <h3 class="desk-greek__title" id="deskGreekTitle${idSuffix}" tabindex="-1"></h3>
       <button type="button" class="desk-greek__goto" hidden></button>
-      <button type="button" class="desk-greek__find-btn" aria-label="Search the Greek" title="Search the Greek">
-        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.8 12.8 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
-      <form class="desk-greek__find" role="search" hidden>
-        <input type="text" class="desk-greek__find-input" aria-label="Search the Greek" placeholder="Greek, G4102, pistis, faith" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" />
-        <button type="button" class="desk-greek__find-close" aria-label="Close the Greek search" title="Close the Greek search">&times;</button>
-      </form>
     </div>
     <div class="desk-greek__scroller"></div>
     <div class="desk-greek__scroller desk-greek__results" aria-label="Greek search results" role="region" hidden></div>
@@ -880,8 +873,10 @@ export function createGreekTab({
     more.hidden = false;
     const lemmaForm = lemma?.[0];
     // The form, the lemma, the Strong's number and the parsing each start a
-    // search of the Greek (BVJ, 2026-10-13; the parsing, 2026-10-14); plain
-    // clicks only, so the browser's own menu stays.
+    // search of the Greek (BVJ, 2026-10-13; the parsing, 2026-10-14), shown in
+    // place of the text. They are the tab's only searches: a typed one is the
+    // search bar's (BVJ, 2026-11-02). Plain clicks only, so the browser's own
+    // menu stays.
     const formQuery = w[W.text].replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
     wordHead.replaceChildren(
       starter(w[W.text], formQuery, () => find.open({ query: formQuery, exact: true, prefer: lemmaForm })),
@@ -1143,9 +1138,8 @@ export function createGreekTab({
 
   /**
    * Take the tab down for good (BA115): /desk's Greek pane builds a tab per
-   * chapter, so each must let go of the window, the document and the
-   * commands window its search opened. The Notebook's tab lives as long as
-   * the page and never calls it.
+   * chapter, so each must let go of the window and the document. The
+   * Notebook's tab lives as long as the page and never calls it.
    */
   function destroy() {
     destroyed = true;
