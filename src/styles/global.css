@@ -3485,6 +3485,49 @@ button.greek-cmd:hover {
   border-radius: 3px;
 }
 
+/* "My notes" (E11): the checkbox that turns the reader's notes on or off in a
+   Greek search. A native checkbox with a visible label, quiet like the link
+   beside it. It follows the ink and green tokens, so both themes are covered
+   by them. */
+.greek-notes-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.85);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.greek-notes-switch[hidden] {
+  display: none;
+}
+
+.greek-notes-switch input {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--green-text);
+  cursor: pointer;
+}
+
+.greek-notes-switch input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Beside the search box on /search, in the box's own row like the link. */
+.greek-notes-switch--field {
+  flex: none;
+  padding: 6px 4px;
+  font-size: 0.85rem;
+}
+
 /* Scripture reference previews (ref-preview.js): the verses themselves, set a
    step larger than a footnote because they are the thing being read. */
 .lit-panel--preview .ref-preview__text {

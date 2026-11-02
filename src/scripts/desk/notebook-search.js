@@ -17,6 +17,11 @@
 
 import deskCss from "../../styles/desk.css?inline";
 import { isCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
+import {
+  GREEK_NOTES_KEY,
+  greekNotesOn as greekNotesStoredOn,
+  greekNotesStored,
+} from "../../lib/desk-greek-notes.mjs";
 import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
@@ -72,6 +77,49 @@ export async function search(query, { bookKey = "" } = {}) {
   const records = await readRecords();
   const hits = notesHidden() ? [] : searchNotebook(records, query, { bookKey });
   return { hits, total: hits.length };
+}
+
+/* ── Whether a Greek search lists the notes (E11) ────────────────────── */
+
+/**
+ * Whether a Greek search under all types lists the reader's notes (the "My
+ * notes" checkbox beside it). On unless the reader turned it off; read each
+ * time, so the tray and /search stay in step. Storage that can't be read
+ * leaves it on.
+ */
+export function greekNotesOn() {
+  return greekNotesStoredOn((key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (_) {
+      return null;
+    }
+  });
+}
+
+/** Remember the reader's choice; where storage is blocked it lasts until the page is left. */
+export function setGreekNotes(on) {
+  try {
+    const v = greekNotesStored(on);
+    if (v === null) localStorage.removeItem(GREEK_NOTES_KEY);
+    else localStorage.setItem(GREEK_NOTES_KEY, v);
+  } catch (_) {
+    /* the choice just isn't kept */
+  }
+}
+
+export { GREEK_NOTES_KEY };
+
+/** The "My notes" checkbox for a Greek search, checked per the saved choice. */
+export function greekNotesSwitch() {
+  const label = document.createElement("label");
+  label.className = "greek-notes-switch";
+  const box = document.createElement("input");
+  box.type = "checkbox";
+  box.checked = greekNotesOn();
+  box.dataset.greekNotes = "";
+  label.append(box, document.createTextNode("My notes"));
+  return label;
 }
 
 /* ── Commands ────────────────────────────────────────────────────────── */

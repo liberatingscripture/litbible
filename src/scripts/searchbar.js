@@ -598,6 +598,30 @@ const _initSearchbars = async () => {
     // names and links as the Greek tab's sources (greek-credits.mjs).
     const GREEK_CREDIT = `<p class="searchbar__credit">${creditHtml(escapeHtml)}</p>`;
 
+    // "My notes" (E11): whether this Greek search lists the reader's matching
+    // notes. Only with the Study Desk's part loaded and the type "All types",
+    // the one place the notes are listed. It sits in the group's foot, before
+    // `beforeSel` when the foot holds that, and a change searches again with the
+    // same query, so the lemma chosen and the filters stay.
+    function addNotesSwitch(group, beforeSel) {
+      if (!desk || activeMode !== "all") return;
+      let foot = group.querySelector(".searchbar__group-foot");
+      if (!foot) {
+        foot = document.createElement("div");
+        foot.className = "searchbar__group-foot";
+        const credit = group.querySelector(".searchbar__credit");
+        if (credit) credit.before(foot);
+        else group.append(foot);
+      }
+      foot.insertBefore(desk.greekNotesSwitch(), (beforeSel && group.querySelector(beforeSel)) || null);
+      foot.addEventListener("change", async (e) => {
+        if (!e.target.matches?.("[data-greek-notes]")) return;
+        desk.setGreekNotes(e.target.checked);
+        await runSearch(input.value.trim());
+        groupsEl.querySelector("[data-greek-notes]")?.focus();
+      });
+    }
+
     function renderGreekCommandsGroup(greek, q, bookKey) {
       const group = document.createElement("div");
       group.className = "searchbar__group";
@@ -648,6 +672,7 @@ const _initSearchbars = async () => {
         ${rows ? `<ol class="searchbar__results">${rows}</ol>` : ""}
         <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>
         ${GREEK_CREDIT}`;
+      addNotesSwitch(group, ".searchbar__group-foot [data-greek-cmds]");
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
@@ -735,6 +760,7 @@ const _initSearchbars = async () => {
         <ol class="searchbar__results">${rows}</ol>
         ${GREEK_CREDIT}
       `;
+      addNotesSwitch(group, null);
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
@@ -899,7 +925,7 @@ const _initSearchbars = async () => {
         ) {
           if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
           const notebookPromise =
-            desk && activeMode === "all"
+            desk && activeMode === "all" && desk.greekNotesOn()
               ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
               : null;
           const greek = await searchGreekAuto(base, q, {
