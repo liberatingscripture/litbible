@@ -7693,6 +7693,44 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   Septuagint"), checked against all 113 mentions so a Hebrew reference
   near the word isn't caught. Status: open.
 
+**Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
+items above, not a decision. E4 is folded into E9, E10 is done on the
+website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
+and E22, so those sessions run one after another; the Greek search work and
+the two small bug fixes touch other files and can run alongside. Phase 3
+finished on 2026-11-01, so what a release needs first is E8 and E20 (the
+launch work), E9 (it changes what syncs), and the bugs E13, E22 and E23;
+the rest is polish.
+
+1. **Two independent bug fixes**: E13 (`SiteHeader.astro`) and E23
+   (`scripture-refs.mjs`, reaches every reader). Small.
+2. **Glyph and wording pass**: E18, E19, E21. Small. E19's My Notes button
+   may be reworked by session 4.
+3. **Bookmarks become one feature**: E9 (closing E4 and E10). Large, in two
+   parts: the record and its conversion (format doc, merge vectors, a note
+   to BDR's Claude through the repo), then the UI and copy. BVJ confirms
+   first whether a bookmark stays put unless "Move as I read" is on. Goes
+   before session 4, because it removes Places from My Notes.
+4. **One notes pane**: E17 with E22. Medium to large. First check what each
+   pane holds that the other doesn't, and migrate saved layouts that name
+   either one. BVJ confirms the name.
+5. **The shared Print menu with a chapter picker**: E16. One piece of code
+   for /desk and the Notebook; goes before 6, which opens it.
+6. **The page-title menu and the quick add-pane control**: E15 with E14.
+   Needs a mock first. After 4, so the control offers the final panes.
+7. **Greek search**: 7a, decide E7 and build E11's small switch; 7b, the
+   E5 builder (mock first); 7c, E6, which reopens the word-families
+   deferral of 2026-10-13, so confirm with BVJ before starting. Independent
+   of the panes; can run in parallel.
+8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
+   the passage (buildable now); 8b, at launch, the Read View removal and
+   E20's rename (blocked on the name and the launch date). E12 (the trash
+   restore) is its own small session after 4.
+
+Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
+Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a, and 8b at
+launch.
+
 **Fixed**
 
 - **E3, bug: My Notes and Places overwrote each other's list** in the
