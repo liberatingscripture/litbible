@@ -7384,7 +7384,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   could keep doing what it does with the Greek, and focused Greek
   searching could be designed for /desk's Greek pane (D9), which happens
   either way. **The Phase 5 question is only whether to take searching out
-  of the Notebook's Greek tab.** Open. What is there today (1h, "The Greek
+  of the Notebook's Greek tab.** **Decided** (BVJ, 2026-11-02): **take out
+  the typed search, keep the word links.** The search button and field
+  leave the tab; a word's form, lemma and Strong's number still start a
+  search from the details. Typed Greek searching lives in the search bar,
+  /search and /desk's Search pane (3m). Open: decided, to build (the
+  removals listed below, and where the word links' results show). What is there today (1h, "The Greek
   tab searches too"; `desk/greek-find.js`): a search button in the tab's
   header opens a field in place, results replace the text until "Back to
   the text," and in a word's details the form, the lemma and the Strong's
@@ -7568,7 +7573,15 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the switch lives (the Greek group's foot beside "Search commands", the
   "Your notebook" group's own title, or /search's filters), whether it
   is remembered (a new storage key goes in /privacy's paragraph), and
-  whether it should also govern notes on English searches. Status: open.
+  whether it should also govern notes on English searches. **Built**
+  (2026-11-02, on Claude's recommendations, for BVJ to judge on the
+  preview): a "My notes" checkbox, on by default, in the tray's Greek group
+  foot and beside "Search commands" on /search; shown only with the desk on
+  and the type "All types"; remembered in `lit-desk-greek-notes` (named in
+  /privacy; the LSC site's mirror needs the same sentence); English
+  searches are not governed by it, and /desk's Search pane lists no notes
+  for a Greek search. The tray shows it only when a Greek group renders.
+  Status: built, awaiting BVJ's look.
 - **E12, wish: a trash the reader can restore from.** BVJ (2026-10-28),
   with BA39's call (FA1-t, #400). The help page used to say a deleted item
   waits in the trash for 30 days, which suggested it could be brought back;
