@@ -14,8 +14,9 @@ import SearchBar from "./SearchBar.astro";
 // first paint without moving the header. desk-gate.js loads the desk.
 // deskTitle: the Study Desk's own header (/desk, BVJ 2026-10-21), at every
 // width: the emblem and "LIT Bible" as the home link, the page's title
-// centered, and then the desk's tools (desk-page.js fills
-// [data-desk-header-tools] with the Layout menu), Aa and the menu button.
+// centered, and then the menu button. desk-page.js turns the title into a
+// menu and moves Aa into it (E15), so Aa is in the markup but leaves the bar
+// once the desk is up.
 // No nav row and no search.
 const { class: className = "", scriptureControls, headerSearch = false, deskTitle } = Astro.props;
 
@@ -610,8 +611,14 @@ const SIZE_OPTIONS = [
       // View's Aa sits in a bottom sheet on phones and tablets). Aligned to
       // the button's right edge, or its left when that would run off the
       // left of the screen (Read View's Aa is at the toolbar's left end).
+      // A toggle can name another element to hang the tray from
+      // (data-tray-anchor="<selector>"): the Study Desk moves its Aa into the
+      // page title's menu, which closes as the tray opens, so the tray hangs
+      // from the title and focus returns to it.
+      const anchorOf = (btn) => (btn.dataset.trayAnchor && document.querySelector(btn.dataset.trayAnchor)) || btn;
+
       const positionTray = (btn) => {
-        const rect = btn.getBoundingClientRect();
+        const rect = anchorOf(btn).getBoundingClientRect();
         const margin = 8;
         tray.style.maxHeight = 'none';
         const width = tray.offsetWidth;
@@ -633,7 +640,7 @@ const SIZE_OPTIONS = [
       const closeTray = (returnFocus = true) => {
         tray.hidden = true;
         for (const btn of toggleBtns) btn.setAttribute('aria-expanded', 'false');
-        if (returnFocus && activeBtn) activeBtn.focus({ preventScroll: true });
+        if (returnFocus && activeBtn) anchorOf(activeBtn).focus({ preventScroll: true });
         activeBtn = null;
       };
 

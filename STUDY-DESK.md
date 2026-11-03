@@ -7712,7 +7712,19 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   not hidden, so the limit reads as a limit. Open: what the new pane
   shows (an empty pane that asks what to open, as the layout control does
   today, is the likely answer), and whether it also lives beside the
-  Layout choices. Status: open; it ships as an item in E15's menu.
+  Layout choices. **Decided and built 2026-11-02 (work session 6), in E15's
+  menu.** BVJ chose **Add pane** to open a flyout to the right with **Add
+  column** and **Add row**, and, once one is chosen, the kinds of pane
+  replacing those two in the same flyout (a "‹ Add column" row goes back).
+  Claude had expected an empty pane that asks what to open, "as the layout
+  control does today"; it does not (the Layout choices fill a new slot with the
+  first kind not yet open), and the flyout makes the question unnecessary. A
+  column is a full-height pane at the page's right edge, a row a full-width pane
+  along the bottom (`addPane`, `desk-layout.mjs`); the existing panes keep their
+  proportions. With four panes open the item is disabled with "Four is the
+  most", and a direction the window can't hold is disabled with "Needs a
+  wider/taller window". Add pane is not repeated beside the Layout choices.
+  Status: done.
 - **E15, wish: the page title becomes a menu.** BVJ (2026-10-30), thinking
   aloud and not a decision. On /desk the page title would open a drop-down
   that gathers the page-level actions now spread along the bar: **Layout**,
@@ -7724,7 +7736,25 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   and `/sheets` becomes a menu too or only `/desk` does, and how it
   announces itself as a button (a caret, as the Layout and Print buttons
   have, and `aria-haspopup`/`aria-expanded`). Needs a mock before it is
-  built ("quiet controls"). Status: open.
+  built ("quiet controls"). **Decided and built 2026-11-02 (work session 6).**
+  Claude mocked three options (everything in the title; the menu added with
+  the bar unchanged; Layout kept on the bar with a "+ Pane" button) and BVJ
+  chose the first, **with Aa moved into the menu too**. The title is now
+  `Study Desk ▾` (caret, `aria-haspopup="menu"`, `aria-expanded`); its menu
+  holds **Add pane** (E14), **Layout…**, **Print…** (the shared Print menu,
+  E16), **Display options** (the header's own Aa button moved in whole; the tray
+  hangs from the title), then **My notebook page**, **Take the tour** and **Help
+  for the Study Desk** (the three links open in a new tab, since they leave the
+  desk). BVJ (2026-11-02) asked for a Settings item holding only what applies
+  to /desk; Claude found nothing left to put in one (the margin switches mean
+  nothing here, highlights are in Display options, the start layout in Layout),
+  and BVJ answered that no "Hide my marks" button is needed and the notebook
+  items belong in the menu itself; a "Where my notebook is kept" link was
+  tried and dropped, since it only went to a section of the notebook page. Layout and Print left
+  the bar, which now holds only the menu button; their windows are the same,
+  hung under the title. Only `/desk` has the menu; `/notebook` and `/sheets`
+  are unchanged. **For BVJ to check:** the tour link goes to John 3 (the tour
+  runs on a chapter page, not on /desk), so it opens in a new tab. Status: done.
 - **E16, rough: printing a chapter needs its own chapter choice, and the
   Notebook lacks the plain-chapter print.** BVJ (2026-10-30), two parts.
   (1) The Print menu on /desk (`desk-page.js`, "the Print menu") prints
@@ -7852,6 +7882,24 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   reaches (a phrase ending in "of", a parenthesis after "the
   Septuagint"), checked against all 113 mentions so a Hebrew reference
   near the word isn't caught. Status: open.
+- **E24, wish: split the tour in two, a notebook tour and a Study Desk
+  tour.** BVJ (2026-11-02), while the title menu (E15) was being built. The
+  one tour (`desk/tour.js`) walks through the notebook on a chapter page, so
+  /desk's "Take the tour" link has to send the reader to John 3. The ask: a
+  **notebook tour** that stays on the chapter pages, and a **Study Desk
+  tour** that runs on /desk (panes, the title menu, the Layout choices, Add
+  pane, the shared place and "Stay here", My Notes). Then /desk's menu
+  starts the desk tour in place, and the notebook's help and ">tour"
+  command keep starting the notebook one. Open (to settle when the session
+  starts): the desk tour's steps, whether the two share the seen-steps list
+  (`lit-desk-tour`) and the first-use offer, and whether the desk tour is
+  offered the first time /desk opens. Status: open; added to Phase 5.
+- **E25, rough: how panes behave when dragged.** BVJ (2026-11-02). The drag
+  behavior of panes (today: a pane's header is the handle, dropping on an
+  edge of another splits it, shown before the drop, a drop that leaves a pane
+  too small is refused, Escape cancels) needs a look. **Nothing is specified:
+  when the session starts, ask BVJ what to change before doing anything.**
+  Status: open; added to Phase 5.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -7882,7 +7930,9 @@ the rest is polish.
    2026-11-02**: `desk/print-menu.js`, with the Notebook's two buttons
    folded into one "Print…" that opens it; BVJ approved the design.
 6. **The page-title menu and the quick add-pane control**: E15 with E14.
-   Needs a mock first. After 4, so the control offers the final panes.
+   **Done 2026-11-02**: the title is the menu (Add pane, Layout, Print,
+   Display options, the tour, Help), Aa moved into it, and Layout and Print left
+   the bar; BVJ picked the design from a mock.
 7. **Greek search**: 7a, decide E7 and build E11's small switch (**done
    2026-11-02**: E7 decided and built, #428; E11 built, #427); 7b, the
    E5 builder (mock first), **which also carries what is left open of E7
@@ -7907,6 +7957,10 @@ the rest is polish.
    the passage (buildable now); 8b, at launch, the Read View removal and
    E20's rename (blocked on the name and the launch date). E12 (the trash
    restore) is its own small session after 4.
+9. **Two tours**: E24. Touches `tour.js`, `first-use.js` and `desk-page.js`'s
+   title menu, so after 6 (done), and not alongside another session on those.
+10. **Pane drag behavior**: E25. **Ask BVJ what to change first**; it touches
+    `desk-page.js`, so it runs alone on that file.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a, and 8b at

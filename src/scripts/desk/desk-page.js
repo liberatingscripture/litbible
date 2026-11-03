@@ -7,7 +7,10 @@
 // module opens the notebook for them.
 //
 // The rules are src/lib/desk-layout.mjs (pure, unit-tested); this draws them:
-// - **The Layout menu** offers every arrangement BVJ kept (2026-10-18: all
+// - **The page's title is a menu** (E15 and E14, 2026-11-02): Add pane (a
+//   column or a row, then the kind of pane), Layout, Print, Display options,
+//   the notebook's page, the tour and the help page.
+// - **The Layout window** offers every arrangement BVJ kept (2026-10-18: all
 //   mocked but four rows), each drawn as a small diagram and grayed out, with
 //   the reason, when the window can't give every pane 280 by 160 pixels. It
 //   also holds which layout the page opens with ("My last layout" or "My
@@ -43,6 +46,8 @@ import {
   KINDS,
   LAYOUT_KEY,
   MIN_HEIGHT,
+  addPane,
+  addPaneNeeds,
   applyArrangement,
   arrangementOf,
   closePane,
@@ -74,6 +79,7 @@ import {
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
+import { HELP_HREF, TOUR_LINK } from "../../lib/desk-first-use.mjs";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
@@ -270,18 +276,35 @@ async function start() {
   let layout = openingLayout(saved, reading);
   if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
 
-  // ---- the Layout menu ----
+  // ---- the title menu ----
 
-  // In the desk's own header (SiteHeader's deskTitle), beside Aa; the page
-  // title is the header's too.
+  // The page's title is a menu (E15; BVJ, 2026-11-02) gathering what the bar
+  // held: Add pane (E14), Layout, Print and Display options, then the tour and
+  // the help page. The Layout and Print windows below open under the title, as
+  // they opened under their buttons, and Escape in one returns focus to it.
   const bar = document.querySelector("[data-desk-header-tools]") ?? el("div", "desk-ws__bar");
-  const layoutButton = el("button", "desk-ws__layout");
-  layoutButton.type = "button";
-  layoutButton.setAttribute("aria-haspopup", "dialog");
-  layoutButton.setAttribute("aria-expanded", "false");
-  layoutButton.setAttribute("aria-controls", "deskLayoutMenu");
-  layoutButton.innerHTML = `<span>Layout</span>${ICON_CARET}`;
-  bar.append(layoutButton);
+  const titleHost = document.querySelector(".site-header__page-title");
+  const wrap = el("div", "desk-title");
+  const titleButton = el("button", "desk-title__button");
+  titleButton.type = "button";
+  titleButton.setAttribute("aria-haspopup", "menu");
+  titleButton.setAttribute("aria-expanded", "false");
+  titleButton.setAttribute("aria-controls", "deskTitleMenu");
+  titleButton.innerHTML = `<span></span>${ICON_CARET}`;
+  titleButton.firstElementChild.textContent = titleHost?.textContent.trim() || "Study Desk";
+  if (titleHost) {
+    // The heading keeps its place and its type; the menus sit beside it in
+    // the header's own type, not the heading's.
+    const heading = el("h1", titleHost.className);
+    heading.append(titleButton);
+    wrap.prepend(heading);
+    titleHost.replaceWith(wrap);
+  } else {
+    wrap.append(titleButton);
+    bar.append(wrap);
+  }
+
+  // ---- the Layout window ----
 
   const menu = el("div", "desk-ws__menu");
   menu.id = "deskLayoutMenu";
@@ -300,7 +323,7 @@ async function start() {
       <button type="button" data-ws-make-default>Make this my default</button>
       <button type="button" data-ws-reset>Reset to the original layout</button>
     </div>`;
-  bar.append(menu);
+  wrap.append(menu);
 
   const shapesBox = menu.querySelector(".desk-ws__shapes");
   const shapeButtons = ARRANGEMENTS.map((a) => {
@@ -365,30 +388,25 @@ async function start() {
   function openMenu() {
     refreshMenu();
     menu.hidden = false;
-    layoutButton.setAttribute("aria-expanded", "true");
     (shapesBox.querySelector('[aria-pressed="true"]') ?? shapeButtons[0]).focus();
   }
 
   function closeMenu({ focus = true } = {}) {
     if (menu.hidden) return;
     menu.hidden = true;
-    layoutButton.setAttribute("aria-expanded", "false");
-    if (focus) layoutButton.focus();
+    if (focus) titleButton.focus();
   }
 
-  layoutButton.addEventListener("click", () => (menu.hidden ? openMenu() : closeMenu()));
   menu.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { e.stopPropagation(); closeMenu(); }
   });
-  // Tabbing out of the menu closes it, as a click elsewhere does (BA63). Focus
-  // going nowhere (another window, a click on nothing focusable) leaves it to
-  // the click.
-  for (const part of [menu, layoutButton]) {
-    part.addEventListener("focusout", (e) => {
-      const to = e.relatedTarget;
-      if (to instanceof Node && !menu.contains(to) && !layoutButton.contains(to)) closeMenu({ focus: false });
-    });
-  }
+  // Tabbing out of the window closes it, as a click elsewhere does (BA63).
+  // Focus going nowhere (another window, a click on nothing focusable) leaves
+  // it to the click.
+  menu.addEventListener("focusout", (e) => {
+    const to = e.relatedTarget;
+    if (to instanceof Node && !menu.contains(to) && !wrap.contains(to)) closeMenu({ focus: false });
+  });
 
   // ---- the Print menu ----
 
@@ -397,20 +415,12 @@ async function start() {
   // share) and can be changed to any other, then the three prints. Each choice
   // opens that chapter in a new tab, which prints itself (print-link.js; BVJ,
   // 2026-10-29). A draft has no text to print.
-  const printButton = el("button", "desk-ws__layout desk-ws__print");
-  printButton.type = "button";
-  printButton.setAttribute("aria-haspopup", "dialog");
-  printButton.setAttribute("aria-expanded", "false");
-  printButton.setAttribute("aria-controls", "deskPrintMenu");
-  printButton.innerHTML = `<span>Print</span>${ICON_CARET}`;
-  bar.insertBefore(printButton, layoutButton);
-
   const printMenu = el("div", "desk-ws__menu desk-ws__print-menu");
   printMenu.id = "deskPrintMenu";
   printMenu.setAttribute("role", "dialog");
   printMenu.setAttribute("aria-label", "Print");
   printMenu.hidden = true;
-  bar.insertBefore(printMenu, layoutButton);
+  wrap.append(printMenu);
 
   /** The chapter to start from: the leading LIT pane's, else the shared place. */
   function printChapter() {
@@ -432,28 +442,253 @@ async function start() {
     closeMenu({ focus: false });
     printContents.open();
     printMenu.hidden = false;
-    printButton.setAttribute("aria-expanded", "true");
     printContents.focusTarget().focus?.();
   }
 
   function closePrintMenu({ focus = true } = {}) {
     if (printMenu.hidden) return;
     printMenu.hidden = true;
-    printButton.setAttribute("aria-expanded", "false");
-    if (focus) printButton.focus();
+    if (focus) titleButton.focus();
   }
 
-  printButton.addEventListener("click", () => (printMenu.hidden ? openPrintMenu() : closePrintMenu()));
-  layoutButton.addEventListener("click", () => closePrintMenu({ focus: false }));
   printMenu.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { e.stopPropagation(); closePrintMenu(); }
   });
-  for (const part of [printMenu, printButton]) {
-    part.addEventListener("focusout", (e) => {
-      const to = e.relatedTarget;
-      if (to instanceof Node && !printMenu.contains(to) && !printButton.contains(to)) closePrintMenu({ focus: false });
-    });
+  printMenu.addEventListener("focusout", (e) => {
+    const to = e.relatedTarget;
+    if (to instanceof Node && !printMenu.contains(to) && !wrap.contains(to)) closePrintMenu({ focus: false });
+  });
+
+  // ---- the title menu's items ----
+
+  const titleMenu = el("div", "desk-ws__menu desk-title__menu");
+  titleMenu.id = "deskTitleMenu";
+  titleMenu.setAttribute("role", "menu");
+  titleMenu.setAttribute("aria-label", titleButton.firstElementChild.textContent);
+  titleMenu.hidden = true;
+  wrap.append(titleMenu);
+
+  let hintCount = 0;
+  const item = (label, tag = "button") => {
+    const b = el(tag, "desk-title__item");
+    if (tag === "button") b.type = "button";
+    b.setAttribute("role", "menuitem");
+    b.tabIndex = -1;
+    b.append(el("span", "desk-title__label", label));
+    return b;
+  };
+  /** A disabled item carries the reason beside it (and for a screen reader). */
+  const setDisabled = (b, why) => {
+    let hint = b.querySelector(".desk-title__hint");
+    if (!hint) {
+      hint = el("span", "desk-title__hint");
+      hint.id = `deskTitleHint-${++hintCount}`;
+      b.querySelector(".desk-title__label").after(hint);
+    }
+    hint.textContent = why ?? "";
+    if (why) {
+      b.setAttribute("aria-disabled", "true");
+      b.setAttribute("aria-describedby", hint.id);
+    } else {
+      b.removeAttribute("aria-disabled");
+      b.removeAttribute("aria-describedby");
+    }
+  };
+  const enabled = (list) => list.filter((b) => b.getAttribute("aria-disabled") !== "true");
+
+  // Add pane: a flyout to the right that asks "Add column" or "Add row" and
+  // then, in the same flyout, which kind of pane to show (BVJ, 2026-11-02). A
+  // column is a pane the page's full height at the right edge, a row one the
+  // full width along the bottom (addPane). Disabled, not hidden, when the page
+  // can't take one, with the reason beside it.
+  const addItem = item("Add pane");
+  addItem.setAttribute("aria-haspopup", "menu");
+  addItem.setAttribute("aria-expanded", "false");
+  const more = el("span", "desk-title__more");
+  more.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M9 6l6 6-6 6" /></svg>`;
+  addItem.append(more);
+  const addFly = el("div", "desk-ws__menu desk-title__fly");
+  addFly.setAttribute("role", "menu");
+  addFly.setAttribute("aria-label", "Add pane");
+  addFly.hidden = true;
+  const addSub = el("div", "desk-title__sub");
+  addSub.append(addItem, addFly);
+
+  const layoutItem = item("Layout…");
+  layoutItem.setAttribute("aria-haspopup", "dialog");
+  const printItem = item("Print…");
+  printItem.setAttribute("aria-haspopup", "dialog");
+  // Aa is the Display tray's own button, moved here whole so the tray's
+  // listeners stay on it. It hangs the tray from the title (SiteHeader's
+  // data-tray-anchor), since this menu closes as the tray opens.
+  const displayItem = document.querySelector(".site-header__actions [data-font-toggle]");
+  if (displayItem) {
+    displayItem.className = "desk-title__item";
+    displayItem.setAttribute("role", "menuitem");
+    displayItem.setAttribute("aria-haspopup", "dialog");
+    displayItem.dataset.trayAnchor = ".desk-title__button";
+    displayItem.tabIndex = -1;
+    displayItem.replaceChildren(el("span", "desk-title__label", "Display options"));
   }
+  // The notebook's page (BVJ, 2026-11-02). No Settings window, and no "where
+  // it is kept" item (it would only link to a section of that page): nothing
+  // else of the Notebook's settings applies here.
+  const notebookItem = item("My notebook page", "a");
+  notebookItem.href = "/notebook/";
+  const tourItem = item("Take the tour", "a");
+  tourItem.href = TOUR_LINK;
+  const helpItem = item("Help for the Study Desk", "a");
+  helpItem.href = HELP_HREF;
+  // Each leaves the desk, so they open beside it.
+  const links = [notebookItem, tourItem, helpItem];
+  for (const link of links) {
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+  }
+  titleMenu.append(addSub, layoutItem, printItem);
+  if (displayItem) titleMenu.append(displayItem);
+  titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
+  const topItems = [addItem, layoutItem, printItem, ...(displayItem ? [displayItem] : []), ...links];
+
+  const DIRECTIONS = [
+    { id: "column", label: "Add column" },
+    { id: "row", label: "Add row" },
+  ];
+  let addStep = null; // null, or the direction chosen, once the flyout asks for a kind
+
+  const addRoom = () => panesBox.getBoundingClientRect();
+
+  /** Why a direction can't take a pane, for the hint; null when it can. */
+  function addWhy(direction) {
+    const { width, height } = addRoom();
+    const why = addPaneNeeds(layout, direction, width, height);
+    return why === "full" ? "Four is the most" : why ? NEEDS_TEXT[why] : null;
+  }
+
+  function refreshAdd() {
+    const reasons = DIRECTIONS.map((d) => addWhy(d.id));
+    if (!reasons.every(Boolean)) return setDisabled(addItem, null);
+    setDisabled(addItem, reasons.includes("Four is the most") ? "Four is the most" : NEEDS_TEXT.larger);
+  }
+
+  /** Draw the flyout's step: column or row, then the kinds replacing them. */
+  function drawAddFly() {
+    addFly.replaceChildren();
+    if (addStep) {
+      const back = item(`‹ ${DIRECTIONS.find((d) => d.id === addStep).label}`);
+      back.addEventListener("click", () => { addStep = null; drawAddFly(); enabled(Array.from(addFly.children))[0]?.focus(); });
+      addFly.append(back);
+      for (const k of KINDS) {
+        const b = item(k.label);
+        b.addEventListener("click", () => {
+          const { width, height } = addRoom();
+          const direction = addStep;
+          const next = addPane(layout, direction, k.kind, width, height);
+          closeTitleMenu();
+          if (next === layout) return;
+          commit(next);
+          announce(`Added a ${direction} showing ${k.label}.`);
+        });
+        addFly.append(b);
+      }
+    } else {
+      for (const d of DIRECTIONS) {
+        const b = item(d.label);
+        setDisabled(b, addWhy(d.id));
+        b.addEventListener("click", () => {
+          if (b.getAttribute("aria-disabled") === "true") return;
+          addStep = d.id;
+          drawAddFly();
+          addFly.children[1].focus();
+        });
+        addFly.append(b);
+      }
+    }
+  }
+
+  function openAddFly() {
+    if (addItem.getAttribute("aria-disabled") === "true") return;
+    addStep = null;
+    drawAddFly();
+    addFly.hidden = false;
+    // Beside the menu where there is room to its right, else to its left.
+    addFly.classList.remove("desk-title__fly--left");
+    if (titleMenu.getBoundingClientRect().right + 6 + addFly.offsetWidth > window.innerWidth - 8) {
+      addFly.classList.add("desk-title__fly--left");
+    }
+    addItem.setAttribute("aria-expanded", "true");
+    (enabled(Array.from(addFly.children))[0] ?? addFly.children[0]).focus();
+  }
+
+  function closeAddFly({ focus = false } = {}) {
+    if (addFly.hidden) return;
+    addFly.hidden = true;
+    addStep = null;
+    addItem.setAttribute("aria-expanded", "false");
+    if (focus) addItem.focus();
+  }
+
+  function openTitleMenu() {
+    closeMenu({ focus: false });
+    closePrintMenu({ focus: false });
+    refreshAdd();
+    titleMenu.hidden = false;
+    titleButton.setAttribute("aria-expanded", "true");
+    (enabled(topItems)[0] ?? topItems[0]).focus();
+  }
+
+  function closeTitleMenu({ focus = true } = {}) {
+    if (titleMenu.hidden) return;
+    closeAddFly();
+    titleMenu.hidden = true;
+    titleButton.setAttribute("aria-expanded", "false");
+    if (focus) titleButton.focus();
+  }
+
+  titleButton.addEventListener("click", () => (titleMenu.hidden ? openTitleMenu() : closeTitleMenu()));
+  addItem.addEventListener("click", () => (addFly.hidden ? openAddFly() : closeAddFly({ focus: true })));
+  layoutItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); openMenu(); });
+  printItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); openPrintMenu(); });
+  // The tray's own listener (first on this button) has placed it under the title.
+  displayItem?.addEventListener("click", () => closeTitleMenu({ focus: false }));
+  for (const link of links) link.addEventListener("click", () => closeTitleMenu({ focus: false }));
+
+  titleMenu.addEventListener("keydown", (e) => {
+    const inFly = addFly.contains(document.activeElement);
+    const list = inFly ? enabled(Array.from(addFly.children)) : topItems;
+    const i = list.indexOf(document.activeElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      list[(i + (e.key === "ArrowDown" ? 1 : list.length - 1)) % list.length]?.focus();
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      list[e.key === "Home" ? 0 : list.length - 1]?.focus();
+    } else if (e.key === "ArrowRight" && document.activeElement === addItem) {
+      e.preventDefault();
+      if (addFly.hidden) openAddFly();
+    } else if ((e.key === "ArrowLeft" || e.key === "Escape") && inFly) {
+      // One step back: from the kinds to column and row, then closed.
+      e.preventDefault();
+      e.stopPropagation();
+      if (addStep) {
+        addStep = null;
+        drawAddFly();
+        enabled(Array.from(addFly.children))[0]?.focus();
+      } else {
+        closeAddFly({ focus: true });
+      }
+    } else if (e.key === "Escape") {
+      e.stopPropagation();
+      closeTitleMenu();
+    }
+  });
+  // Tabbing out of the menu closes it, as a click elsewhere does.
+  titleMenu.addEventListener("focusout", (e) => {
+    const to = e.relatedTarget;
+    if (to instanceof Node && !wrap.contains(to)) closeTitleMenu({ focus: false });
+  });
 
   // ---- the panes ----
 
@@ -776,8 +1011,11 @@ async function start() {
     if (kindMenu && !kindMenu.menuEl.contains(e.target) && e.target !== kindMenu.button && !kindMenu.button.contains(e.target)) {
       closeKindMenu({ focus: false });
     }
-    if (!menu.hidden && !menu.contains(e.target) && !layoutButton.contains(e.target)) closeMenu({ focus: false });
-    if (!printMenu.hidden && !printMenu.contains(e.target) && !printButton.contains(e.target)) closePrintMenu({ focus: false });
+    if (!wrap.contains(e.target)) {
+      closeTitleMenu({ focus: false });
+      closeMenu({ focus: false });
+      closePrintMenu({ focus: false });
+    }
   });
 
   // ---- the lines between panes ----

@@ -452,6 +452,52 @@ export function openKind(layout, kind, width, height, besideId = null) {
 }
 
 /**
+ * Add a pane along an edge of the whole page, from the title menu's "Add pane"
+ * (E14; BVJ, 2026-11-02): a "column" is a full-height pane at the right edge,
+ * a "row" a full-width pane along the bottom. Pane widths and heights already
+ * there are kept in proportion and the newcomer takes an even share. The new
+ * pane shows `kind`, chosen in the menu. Unchanged, the same object, when
+ * `addPaneNeeds` says there is no room.
+ */
+export function addPane(layout, direction, kind, width, height) {
+  if (addPaneNeeds(layout, direction, width, height) || typeof kind !== "string" || !kind) return layout;
+  const split = direction === "row" ? "rows" : "columns";
+  const root = clone(layout.root);
+  const pane = { pane: newPane(layout, kind) };
+  let grown;
+  if (!root.pane && root.split === split) {
+    const n = root.children.length;
+    grown = {
+      split,
+      sizes: [...(root.sizes?.length === n ? root.sizes : even(n)).map((s) => (s * n) / (n + 1)), 1 / (n + 1)],
+      children: [...root.children, pane],
+    };
+  } else {
+    grown = { split, sizes: [0.5, 0.5], children: [root, pane] };
+  }
+  return settleActive({ ...clone(layout), root: normalize(grown) });
+}
+
+/**
+ * Why `addPane` can't add one along an edge: "full" (four panes are open, the
+ * most the page holds), or "wider", "taller" or "larger" when the window can't
+ * give every pane its 280 by 160, as `needs` says it. null when it can. A side
+ * of the window left out is not asked about.
+ */
+export function addPaneNeeds(layout, direction, width, height) {
+  const all = panes(layout.root);
+  if (!all.length || all.length >= MAX_PANES) return "full";
+  const split = direction === "row" ? "rows" : "columns";
+  const probe = { pane: {} };
+  const root = !layout.root.pane && layout.root.split === split
+    ? { ...layout.root, children: [...layout.root.children, probe] }
+    : { split, children: [layout.root, probe] };
+  const ok = (n) => typeof n === "number" && Number.isFinite(n) && n > 0;
+  if (!ok(width) && !ok(height)) return null;
+  return needs(root, ok(width) ? width : Infinity, ok(height) ? height : Infinity);
+}
+
+/**
  * Open a LIT pane to the left of a pane (3m: a search result's verse needs a
  * LIT pane to land in, and there is none). It becomes the active pane and
  * starts at the shared place. Unchanged, the same object, when the pane isn't
