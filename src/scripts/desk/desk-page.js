@@ -15,9 +15,11 @@
 //   the reason, when the window can't give every pane 280 by 160 pixels. It
 //   also holds which layout the page opens with ("My last layout" or "My
 //   default"), "Make this my default" and "Reset to the original layout".
-// - **Dragging a pane by its header** to an edge of another splits that one,
-//   shown before the drop; a drop that would leave a pane too small is
-//   refused. Escape cancels.
+// - **Dragging a pane by its header** to an edge band of another splits that
+//   one, and to its middle swaps the two, each shown and named before the
+//   drop; a split that would leave a pane too small is refused. Escape
+//   cancels. The pane's menu has Move left, right, up, and down for the
+//   keyboard (a swap with the pane beside it; E25).
 // - **The lines between panes move**, by pointer or by the arrow keys
 //   (Shift for bigger steps); double-clicking one shares the room evenly.
 // - **Each pane's name is a menu** for showing another kind in it, which is
@@ -52,12 +54,14 @@ import {
   arrangementOf,
   arrivalLayout,
   closePane,
+  dropZone,
   evenOut,
   findPane,
   fitSizes,
   isFollower,
   kindLabel,
   needs,
+  neighborIn,
   nodeAt,
   openKind,
   openLitBeside,
@@ -76,6 +80,7 @@ import {
   setPaneSheet,
   showSheet,
   splitPane,
+  swapPanes,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
@@ -122,6 +127,14 @@ const ICON_LOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" s
 const ICON_UNLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" /></svg>`;
+
+// A pane's "Move" items, in the order the menu lists them (E25).
+const MOVES = [
+  { direction: "left", label: "Move left" },
+  { direction: "right", label: "Move right" },
+  { direction: "up", label: "Move up" },
+  { direction: "down", label: "Move down" },
+];
 
 // "Greek, The LIT, and My Notes": the Oxford comma, as the site writes lists.
 const LIST = new Intl.ListFormat("en-US", { type: "conjunction" });
@@ -329,7 +342,7 @@ async function start() {
   menu.hidden = true;
   menu.innerHTML = `
     <div class="desk-ws__shapes" role="group" aria-label="Arrange the panes"></div>
-    <p class="desk-ws__menu-note">Or drag a pane by its header to an edge of another to split it.</p>
+    <p class="desk-ws__menu-note">Or drag a pane by its header: to an edge of another to split it, to its middle to swap places.</p>
     <fieldset class="desk-ws__start">
       <legend>When this page opens, show</legend>
       <label><input type="radio" name="desk-ws-start" value="last" /> My last layout</label>
@@ -988,7 +1001,7 @@ async function start() {
     const pane = findPane(layout.root, id);
     const menuEl = el("div", "desk-pane__menu");
     menuEl.setAttribute("role", "menu");
-    menuEl.setAttribute("aria-label", "Show in this pane");
+    menuEl.setAttribute("aria-label", "This pane");
     for (const k of KINDS) {
       const item = el("button", "desk-pane__menu-item", k.label);
       item.type = "button";
@@ -1002,7 +1015,34 @@ async function start() {
       });
       menuEl.append(item);
     }
-    const items = Array.from(menuEl.children);
+    // Move this pane (E25): the keyboard's way to do what dragging does. It
+    // swaps places with the pane beside it, so "Move left" is only offered
+    // where there is one; the panes are asked where they are drawn.
+    const rects = panes(layout.root).map((p) => {
+      const r = paneEls.get(p.id)?.el.getBoundingClientRect();
+      return r ? { id: p.id, left: r.left, top: r.top, right: r.right, bottom: r.bottom } : null;
+    }).filter(Boolean);
+    const moves = MOVES.map((m) => ({ ...m, other: neighborIn(rects, id, m.direction) })).filter((m) => m.other);
+    if (moves.length) {
+      const line = el("div", "desk-pane__menu-line");
+      line.setAttribute("role", "separator");
+      menuEl.append(line);
+    }
+    for (const m of moves) {
+      const item = el("button", "desk-pane__menu-item desk-pane__menu-item--move", m.label);
+      item.type = "button";
+      item.setAttribute("role", "menuitem");
+      item.tabIndex = -1;
+      item.addEventListener("click", () => {
+        const name = kindLabel(findPane(layout.root, id)?.kind);
+        const other = kindLabel(findPane(layout.root, m.other)?.kind);
+        closeKindMenu();
+        commit(swapPanes(layout, id, m.other));
+        announce(`${name} moved ${m.direction}, swapping with ${other}.`);
+      });
+      menuEl.append(item);
+    }
+    const items = Array.from(menuEl.querySelectorAll("button"));
     menuEl.addEventListener("keydown", (e) => {
       const i = items.indexOf(document.activeElement);
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -1181,12 +1221,14 @@ async function start() {
 
   // ---- dragging a pane to split another ----
 
-  function edgeAt(rect, x, y) {
-    const fx = (x - rect.left) / rect.width;
-    const fy = (y - rect.top) / rect.height;
-    const d = { left: fx, right: 1 - fx, top: fy, bottom: 1 - fy };
-    return Object.keys(d).reduce((a, b) => (d[b] < d[a] ? b : a));
-  }
+  // What the drop box says each zone does (E25). `kind` is the target pane's.
+  const DROP_TEXT = {
+    swap: (kind) => `Swap with ${kind}`,
+    left: (kind) => `Left of ${kind}`,
+    right: (kind) => `Right of ${kind}`,
+    top: (kind) => `Above ${kind}`,
+    bottom: (kind) => `Below ${kind}`,
+  };
 
   function startMove(e, movingId) {
     if (e.button !== 0 || e.target.closest("button, .desk-pane__menu")) return;
@@ -1196,6 +1238,7 @@ async function start() {
     const y0 = e.clientY;
     let moving = false;
     let candidate = null;
+    let swapped = null; // the pane the candidate swaps with, if it is a swap
     head.setPointerCapture(e.pointerId);
     const stop = () => {
       head.removeEventListener("pointermove", move);
@@ -1219,20 +1262,28 @@ async function start() {
       if (!target || target.dataset.paneId === movingId) {
         drop.hidden = true;
         candidate = null;
+        swapped = null;
         return;
       }
       const rect = target.getBoundingClientRect();
-      const edge = edgeAt(rect, ev.clientX, ev.clientY);
-      const next = splitPane(layout, target.dataset.paneId, edge, movingId);
+      const targetId = target.dataset.paneId;
+      const zone = dropZone(rect.width, rect.height, ev.clientX - rect.left, ev.clientY - rect.top);
+      const swap = zone === "swap";
+      // A swap always fits (each slot keeps its size); a split may not.
+      const next = swap ? swapPanes(layout, movingId, targetId) : splitPane(layout, targetId, zone, movingId);
       const box = panesBox.getBoundingClientRect();
-      const why = next === layout ? "larger" : needs(next.root, box.width, box.height);
+      const why = next === layout ? "larger" : swap ? null : needs(next.root, box.width, box.height);
       candidate = why ? null : next;
+      swapped = swap && !why ? targetId : null;
+      // A swap shows the whole target, the pane the dragged one will take
+      // the place of; a split shows the half it will take.
       const half = {
+        swap: [rect.left, rect.top, rect.width, rect.height],
         left: [rect.left, rect.top, rect.width / 2, rect.height],
         right: [rect.left + rect.width / 2, rect.top, rect.width / 2, rect.height],
         top: [rect.left, rect.top, rect.width, rect.height / 2],
         bottom: [rect.left, rect.top + rect.height / 2, rect.width, rect.height / 2],
-      }[edge];
+      }[zone];
       Object.assign(drop.style, {
         left: `${half[0] - box.left}px`,
         top: `${half[1] - box.top}px`,
@@ -1240,15 +1291,22 @@ async function start() {
         height: `${half[3]}px`,
       });
       drop.classList.toggle("desk-ws__drop--refused", Boolean(why));
-      drop.textContent = why ? "No room here" : "";
+      drop.classList.toggle("desk-ws__drop--swap", swap);
+      const name = kindLabel(findPane(layout.root, targetId)?.kind);
+      // The words sit on a chip of their own, or the pane's text under the
+      // box's faint tint would run through them.
+      drop.replaceChildren(el("span", "desk-ws__drop-label", why
+        ? (NEEDS_TEXT[why] ? `No room here (${NEEDS_TEXT[why].toLowerCase()})` : "No room here")
+        : DROP_TEXT[zone](name)));
       drop.hidden = false;
     };
     const up = () => {
       stop();
       if (moving && candidate) {
         const name = kindLabel(findPane(layout.root, movingId)?.kind);
+        const other = swapped && kindLabel(findPane(layout.root, swapped)?.kind);
         commit(candidate);
-        announce(`${name} moved.`);
+        announce(swapped ? `${name} swapped with ${other}.` : `${name} moved.`);
       }
     };
     const cancel = () => stop();

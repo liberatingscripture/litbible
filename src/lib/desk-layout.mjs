@@ -16,7 +16,8 @@
 //
 // BVJ's answers (2026-10-18, D9, "Phase 3a's answers"):
 // - one to four panes; the menu offers every arrangement mocked except four
-//   rows, and dragging a pane to an edge of another splits it as well;
+//   rows, and dragging a pane to an edge of another splits it as well (the
+//   middle of another swaps the two, E25);
 // - a pane needs at least 280px across and 160px high, so an arrangement
 //   that can't fit the window is grayed out with the reason;
 // - several panes of a kind may be open. The LIT pane leads; This verse,
@@ -372,6 +373,76 @@ export function splitPane(layout, targetId, edge, moving) {
   };
   if (!findPane(root, targetId)) return layout;
   return settleActive({ ...base, root: normalize(replace(root)) });
+}
+
+/**
+ * Swap two open panes' places (E25, BVJ 2026-11-02). Each pane keeps its
+ * kind, pin, place and sheet; the two slots keep their sizes, so a pane that
+ * lands in a smaller slot is not made smaller than that slot already was,
+ * and the swap always fits whatever the window gave the slots. Returns the
+ * layout unchanged for a pane onto itself or an id that isn't open.
+ */
+export function swapPanes(layout, aId, bId) {
+  if (aId === bId || !findPane(layout.root, aId) || !findPane(layout.root, bId)) return layout;
+  const root = clone(layout.root);
+  const leaves = [];
+  const collect = (node) => (node.pane ? leaves.push(node) : node.children.forEach(collect));
+  collect(root);
+  const a = leaves.find((l) => l.pane.id === aId);
+  const b = leaves.find((l) => l.pane.id === bId);
+  [a.pane, b.pane] = [b.pane, a.pane];
+  return { ...layout, root };
+}
+
+/** How far into a pane, in the pane's own pixels, a drop zone's edge band reaches. */
+export const DROP_BAND = { x: 120, y: 80, share: 0.3 };
+
+/**
+ * Where dropping a dragged pane over another would land, from the pointer's
+ * place in the target (`x`, `y` from its top left; `width`, `height` its
+ * size): "left", "right", "top" or "bottom" in a band along that edge, which
+ * splits the target there, and "swap" in the middle (E25, BVJ 2026-11-02).
+ * The bands are a fixed depth, not a share of the pane, so a wide pane's
+ * middle doesn't shrink to nothing; on a small pane they stop at 30%, so the
+ * middle stays. Distances are measured in band depths, so a corner goes to
+ * whichever edge the pointer is nearer in those terms.
+ */
+export function dropZone(width, height, x, y) {
+  const bx = Math.min(DROP_BAND.x, width * DROP_BAND.share) || 1;
+  const by = Math.min(DROP_BAND.y, height * DROP_BAND.share) || 1;
+  const d = { left: x / bx, right: (width - x) / bx, top: y / by, bottom: (height - y) / by };
+  const edge = Object.keys(d).reduce((a, b) => (d[b] < d[a] ? b : a));
+  return d[edge] >= 1 ? "swap" : edge;
+}
+
+/**
+ * The open pane beside `id` in a direction ("left", "right", "up", "down"),
+ * from the panes' drawn rectangles (`{ id, left, top, right, bottom }`): the
+ * one past that side that shares the most of the pane's length along it, the
+ * nearer breaking a tie. For "Move left" and the rest in a pane's menu.
+ */
+export function neighborIn(rects, id, direction) {
+  const me = rects.find((r) => r.id === id);
+  if (!me) return null;
+  const slack = HANDLE + 2;
+  const across = direction === "left" || direction === "right";
+  let best = null;
+  for (const r of rects) {
+    if (r.id === id) continue;
+    const gap = {
+      left: me.left - r.right,
+      right: r.left - me.right,
+      up: me.top - r.bottom,
+      down: r.top - me.bottom,
+    }[direction];
+    if (gap === undefined || gap < -slack) continue;
+    const shared = across
+      ? Math.min(me.bottom, r.bottom) - Math.max(me.top, r.top)
+      : Math.min(me.right, r.right) - Math.max(me.left, r.left);
+    if (shared <= 0) continue;
+    if (!best || shared > best.shared || (shared === best.shared && gap < best.gap)) best = { id: r.id, shared, gap };
+  }
+  return best?.id ?? null;
 }
 
 /** Show another kind in a pane. A pin is dropped when the new kind doesn't follow. */

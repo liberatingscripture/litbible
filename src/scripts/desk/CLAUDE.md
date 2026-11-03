@@ -737,7 +737,11 @@ that section.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
-       dragging a pane to an edge of another (`splitPane`); the 280 by 160
+       dragging a pane over another, where `dropZone` says an edge band
+       splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
+       E25, BVJ 2026-11-02, the drop box names which), and `neighborIn`
+       for the pane menu's Move left, right, up, and down (the keyboard's
+       swap); the 280 by 160
        minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.
