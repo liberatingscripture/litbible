@@ -101,9 +101,13 @@ export function makeEntry(plan, before, id, { newId = () => globalThis.crypto.ra
     after: ids.map((rid) => ({ id: rid, record: gone.has(rid) ? null : snapshot(put.get(rid) ?? null) })),
   };
   // A record the change added, which an undo deletes through a trash record
-  // with this id (see the top of this file).
+  // with this id (see the top of this file). Not one the change brought back
+  // from the trash (a restore, E12): the trash record it took away is in
+  // `before`, and putting that back is the deletion again, so a second would
+  // leave two trash records for one deletion.
+  const restored = heldIds(entry.before);
   entry.undoTrash = entry.after
-    .filter((a, i) => a.record && a.record.kind !== "trash" && entry.before[i].record == null)
+    .filter((a, i) => a.record && a.record.kind !== "trash" && entry.before[i].record == null && !restored.has(a.id))
     .map((a) => ({ id: a.id, trashId: newId() }));
   return entry;
 }

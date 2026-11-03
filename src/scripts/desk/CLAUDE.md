@@ -392,6 +392,21 @@ that section.
        an active Open.
        `META.lastExport` (`store.getMeta/setMeta`) is what the
        "last saved a copy" line and the reminder read.
+     - **The trash can be restored from** (E12; BVJ, 2026-11-02): a Trash section
+       on the notebook page (`desk/trash-list.js`; `trashItems`, `daysLeft`,
+       `planRestore` and `planRestoreAll` in `desk-notebook.mjs`), each row the
+       ordinary `recordRow` with `trash:` set (when it was deleted, days left,
+       Restore only). **A restore is an ordinary, undoable change** (`store.change`
+       over the record and its trash record, so the history remembers it): it
+       writes what `restoreFromTrash` says and adds no field or kind, so the
+       format and `merge-vectors.json` are untouched. It is **refused, and left
+       in the trash**, for a bookmark onto a verse that already has one (BA16)
+       and a label whose name is kept; a bookmark that moved comes back plain when
+       six already move. A dead label id on a restored note is left (not drawn).
+       **`makeEntry` allots no `undoTrash` for a record the change took out of the
+       trash**, or undoing a restore would leave two trash records for one
+       deletion. "Empty the trash now" stays under Delete everything and isn't
+       undoable.
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
        applied from the notebook page, names unique ignoring case and
        accents.

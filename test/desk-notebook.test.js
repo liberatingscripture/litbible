@@ -6,10 +6,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { COLORS, createRecord, emptyTrashRecord } from "../src/lib/desk-records.mjs";
+import { COLORS, createRecord, emptyTrashRecord, trashRecord } from "../src/lib/desk-records.mjs";
 import { planWrite } from "../src/lib/desk-store-core.mjs";
 import {
   colorsPresent,
+  daysLeft,
   describeCounts,
   emptyNow,
   filterRecords,
@@ -19,7 +20,10 @@ import {
   kindsPresent,
   planDeleteEverything,
   planEmptyTrashNow,
+  planRestore,
+  planRestoreAll,
   trashHeld,
+  trashItems,
 } from "../src/lib/desk-notebook.mjs";
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261005.5d2c847d", now: "2026-10-12T10:00:00.000Z" };
@@ -187,4 +191,108 @@ test("followTarget passes over records with no place, and is null with none plac
   assert.equal(followTarget([a], null), null);
   assert.equal(followTarget([a], { bookKey: "nowhere", chapter: 1 }), null);
   assert.equal(followTarget([], { bookKey: "john", chapter: 3 }), null);
+});
+
+/* ── Restoring from the trash (E12) ──────────────────────────────────── */
+
+const trashed = (record, at) => trashRecord(record, { ...ctx, now: at, id: nextId() });
+const NOW = "2026-10-20T10:00:00.000Z";
+const T = "2026-10-12T10:00:00.000Z";
+
+test("trashItems lists what the trash still holds, the latest deletion first, and not a tombstone", () => {
+  const a = trashed(note({ bookKey: "romans", chapter: 8, verse: 3 }), "2026-10-10T00:00:00.000Z");
+  const b = trashed(note({ bookKey: "romans", chapter: 8, verse: 4 }), "2026-10-15T00:00:00.000Z");
+  const gone = emptyNow(trashed(note({ bookKey: "romans", chapter: 8, verse: 5 }), "2026-10-18T00:00:00.000Z"));
+  const live = note({ bookKey: "john", chapter: 3, verse: 16 });
+  assert.deepEqual(trashItems([a, live, gone, b]).map((t) => t.id), [b.id, a.id]);
+  assert.deepEqual(trashItems([live]), []);
+});
+
+test("daysLeft counts up to the 30th day and stops at zero", () => {
+  const t = trashed(note({ bookKey: "romans", chapter: 8, verse: 3 }), "2026-10-01T00:00:00.000Z");
+  assert.equal(daysLeft(t, "2026-10-01T00:00:01.000Z"), 30);
+  assert.equal(daysLeft(t, "2026-10-20T00:00:00.000Z"), 11);
+  assert.equal(daysLeft(t, "2026-10-30T23:59:59.000Z"), 1);
+  assert.equal(daysLeft(t, "2026-10-31T00:00:00.000Z"), 0);
+  assert.equal(daysLeft(t, "2027-01-01T00:00:00.000Z"), 0);
+  assert.equal(daysLeft({}, NOW), 0);
+});
+
+test("planRestore brings the record back under its id with a new modified, and takes the trash record away", () => {
+  const a = note({ bookKey: "romans", chapter: 8, verse: 3 }, "words");
+  const t = trashed(a, "2026-10-10T00:00:00.000Z");
+  const done = planRestore([t], t.id, { ...ctx, now: NOW });
+  assert.equal(done.ok, true);
+  assert.deepEqual(done.plan.remove, [t.id]);
+  assert.equal(done.plan.put.length, 1);
+  assert.equal(done.record.id, a.id);
+  assert.equal(done.record.body, "words");
+  assert.equal(done.record.modified, NOW, "restoring is the reader acting");
+  assert.ok(Date.parse(done.record.modified) > Date.parse(t.deletedAt), "so it outranks the deletion in a merge");
+  assert.doesNotThrow(() => planWrite(done.plan));
+});
+
+test("planRestore refuses what is gone, emptied, or already back", () => {
+  const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const t = trashed(a, T);
+  assert.deepEqual(planRestore([], t.id, ctx), { ok: false, reason: "missing" });
+  assert.deepEqual(planRestore([live0()], t.id, ctx), { ok: false, reason: "missing" });
+  assert.deepEqual(planRestore([emptyNow(t)], t.id, ctx), { ok: false, reason: "emptied" });
+  assert.deepEqual(planRestore([t, a], t.id, ctx), { ok: false, reason: "exists" });
+  function live0() {
+    return note({ bookKey: "john", chapter: 1, verse: 1 });
+  }
+});
+
+test("planRestore leaves a bookmark in the trash when its verse already holds one", () => {
+  const where = { bookKey: "john", chapter: 3, verse: 16 };
+  const old = trashed(make("bookmark", where), T);
+  const fresh = make("bookmark", where);
+  assert.deepEqual(planRestore([old, fresh], old.id, ctx), { ok: false, reason: "bookmark" });
+  assert.equal(planRestore([old], old.id, ctx).ok, true, "a bookmark elsewhere is no obstacle");
+  const other = make("bookmark", { ...where, verse: 17 });
+  assert.equal(planRestore([old, other], old.id, ctx).ok, true);
+});
+
+test("planRestore leaves a label in the trash when its name is kept again, in any case", () => {
+  const old = trashed(make("label", { name: "Prayer" }), T);
+  const again = make("label", { name: "prayer" });
+  assert.deepEqual(planRestore([old, again], old.id, ctx), { ok: false, reason: "label" });
+  assert.equal(planRestore([old], old.id, ctx).ok, true);
+});
+
+test("planRestore brings a following bookmark back plain when six already move", () => {
+  const moving = (verse) => make("bookmark", { bookKey: "john", chapter: 3, verse, follow: true });
+  const six = [1, 2, 3, 4, 5, 6].map(moving);
+  const old = trashed(moving(9), T);
+  const full = planRestore([old, ...six], old.id, ctx);
+  assert.equal(full.ok, true);
+  assert.equal(full.movesNoMore, true);
+  assert.equal("follow" in full.record, false);
+  assert.equal(full.record.verse, 9);
+  const room = planRestore([old, ...six.slice(1)], old.id, ctx);
+  assert.equal(room.movesNoMore, false);
+  assert.equal(room.record.follow, true);
+});
+
+test("planRestore leaves a label id that names nothing, and a record this code can't edit comes back as it was", () => {
+  const withGone = trashed(note({ bookKey: "romans", chapter: 8, verse: 3 }, "x", { labels: ["no-such-label"] }), T);
+  assert.deepEqual(planRestore([withGone], withGone.id, ctx).record.labels, ["no-such-label"]);
+  const newer = { ...note({ bookKey: "romans", chapter: 8, verse: 3 }), schema: 99 };
+  const t = trashed(newer, T);
+  assert.deepEqual(planRestore([t], t.id, { ...ctx, now: NOW }).record, newer);
+});
+
+test("planRestoreAll restores the lot, judging each over those before it, and says what stayed", () => {
+  const where = { bookKey: "john", chapter: 3, verse: 16 };
+  const a = trashed(note({ bookKey: "romans", chapter: 8, verse: 3 }), "2026-10-10T00:00:00.000Z");
+  const early = trashed(make("bookmark", where), "2026-10-11T00:00:00.000Z");
+  const late = trashed(make("bookmark", where), "2026-10-14T00:00:00.000Z");
+  const gone = emptyNow(trashed(note({ bookKey: "romans", chapter: 8, verse: 9 }), "2026-10-09T00:00:00.000Z"));
+  const all = planRestoreAll([a, early, late, gone], { ...ctx, now: NOW });
+  assert.equal(all.restored, 2);
+  assert.deepEqual(all.plan.remove.sort(), [a.id, late.id].sort(), "the later deletion's bookmark is the one that stays");
+  assert.deepEqual(all.skipped.map((s) => [s.trash.id, s.reason]), [[early.id, "bookmark"]]);
+  assert.doesNotThrow(() => planWrite(all.plan));
+  assert.equal(planRestoreAll([], ctx).restored, 0);
 });

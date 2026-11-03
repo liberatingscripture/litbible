@@ -7766,7 +7766,44 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   (`restoreFromTrash` in `desk-records.mjs`; M7, “A trash with undo”).
   Open: where the list lives (the notebook page, beside “Empty the trash
   now,” is the likely place), and whether restoring is an undoable change
-  like any other. Status: open.
+  like any other. **Decided and built 2026-11-02 (work session 11), on
+  Claude's recommendations, which BVJ accepted whole:**
+  - **Where**: a **Trash** section on the notebook page, above Delete
+    everything (a jump link, `#trash`; hidden in print). “Empty the trash
+    now” stays under Delete everything, the opposite act. Not in the
+    Notebook panel (too narrow for the words) or /desk (not needed for
+    version 1).
+  - **A row** is the ordinary record row with “Deleted Nov 2, 2026, 21 days
+    left” and **Restore** as its only button, latest deletion first; a
+    tombstone isn't listed; labels and sheets are listed too. **Restore all**
+    sits above the rows; it needs no confirmation, being undoable.
+  - **Restoring is an ordinary undoable change**: Ctrl+Z, the undo bar
+    (“Note on Romans 8:3 restored.”), redo. Undoing puts the same trash record
+    back with a fresh `deletedAt`, as the format already says for any undo
+    (rule 10); `makeEntry` no longer allots a second trash record for a
+    record a change brought back from the trash, which would have left two
+    for one deletion.
+  - **A restore writes what the format already says** (the record under its
+    own id, `modified` and `client` restamped, the trash record removed; one
+    this code can't edit comes back exactly as it was), **so the format, the
+    merge and `merge-vectors.json` are unchanged** and the apps need nothing:
+    the restored record outranks the deletion by rule b, and the vectors for
+    an edit later than a deletion already cover it. For BDR to confirm that
+    the apps' restore does the same (same id, trash record removed, no
+    tombstone left behind).
+  - **What a restore leaves alone**: a label id on a note that names no label
+    stays and isn't drawn; restoring a label brings the label back, not its
+    use on items (deleting it stripped those, in a step of its own).
+    **Refused, and left in the trash, with a sentence**: a bookmark onto a
+    verse that already has one (BA16), and a label whose name is already
+    kept (names are unique). **A bookmark that moved as the reader reads comes
+    back plain when six already move** (and the sentence says so). A mark
+    whose words moved since gets the usual change notice (N3), nothing special.
+  - **The help page** says so again: Undo puts it back right away; after
+    that, Restore in the Trash on the notebook page, for 30 days.
+  Code: `trashItems`, `daysLeft`, `planRestore` and `planRestoreAll` in
+  `desk-notebook.mjs` (pure, tested), `desk/trash-list.js`, a `trash` option
+  on `recordRow`. Status: built, awaiting BVJ's look.
 - **E13, bug: the logo and word mark's home link reaches across the
   header's empty space to the page title.** BVJ (2026-10-30), from using
   the preview. The link should cover only the emblem and the "LIT Bible"
@@ -8119,7 +8156,8 @@ the rest is polish.
    and docs go, the last Read View commit is tagged (E20's rename to Chapter
    View was done in 8b's PR, BVJ 2026-11-02; 8c is blocked on the launch date). The Read View removal can't sit
    behind the preview, since `/read/<book>` is what every reader has today.
-   E12 (the trash restore) is its own small session after 4.
+   E12 (the trash restore) is its own small session after 4: see work
+   session 11.
 9. **Two tours**: E24. **Done 2026-11-02.** Touched `tour.js` (the shared card
    moved to `tour-runner.js`), `first-use.js` and `desk-page.js`'s title menu,
    and added `desk-tour.js`.
@@ -8127,6 +8165,11 @@ the rest is polish.
     a list: swap on a drop in a pane's middle, steadier edge bands, a named
     drop box, and Move left, right, up, and down in a pane's menu. Touched
     `desk-page.js`, `desk-layout.mjs` and `desk.css`. BVJ kept all of it.
+11. **The trash restore**: E12. **Built 2026-11-02.** A Trash section on the
+    notebook page with Restore and Restore all, undoable like any change;
+    the help page says so again. Touched `desk-notebook.mjs`,
+    `desk-history.mjs`, `notebook-page.js`, `record-rows.js`, `desk.css`,
+    the help page, and added `trash-list.js`. No record-format change.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
