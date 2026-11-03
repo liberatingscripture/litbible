@@ -352,7 +352,7 @@ are recorded so they aren't re-argued.
   Open from BVJ's use so far: Places (E4, folded into E9 and built
   2026-11-02), and the Greek search commands,
   where putting a search together isn't intuitive (E5; BVJ wants to try a
-  menu-based builder) and a word family can't be searched (E6),
+  menu-based builder) and a word family can't be searched (E6, version 2),
   whether the Notebook's Greek tab should search at all (E7), and a switch
   for whether a Greek search lists the reader's notes (E11, 2026-10-28),
   and the header's home link, a quick add-pane control, a page-title menu
@@ -4929,7 +4929,10 @@ be revisited for version 2.
   own notes on it, is version 2.
 - **1e, the licensed translations, D7, and the Versions tab**: deferred
   indefinitely 2026-10-11.
-- **Word families**: deferred indefinitely 2026-10-13.
+- **Word families, and E6 (search a word family)**: deferred indefinitely
+  2026-10-13; E6 added to this list by BVJ, 2026-11-03. E6 keeps its entry
+  above, with the two things to settle (where the families come from, how
+  a reader asks for it), so it can be revisited for version 2.
 - **N7, the interleaf**: set aside 2026-10-13.
 - **D4, pop the notebook out** (was phase 3l): deferred 2026-10-21 (BVJ),
   to be revisited for version 2. /desk's panes already cover most of its
@@ -7487,7 +7490,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   narrows that lemma's own forms, so `.verb` on a noun lemma can never
   match. Nothing in the search knows that ἁμαρτία, ἁμαρτάνω, ἁμάρτημα and
   ἁμαρτωλός are one family, and a Greek stem (ἁμαρτ) comes back "unknown."
-  Open. Two things to settle when it is taken up:
+  **Version 2 (BVJ, 2026-11-03):** out of every phase of version 1; see
+  "Version 2: deferred and shelved". Two things to settle when it is
+  taken up:
   - **Where the families come from.** Stems or prefix matching would be
     wrong often (ἁμαρτ- is clean; many roots aren't, and compounds hide
     them). A source that groups lemmas by root is better, if one of the
@@ -8179,9 +8184,9 @@ the rest is polish.
    E5 builder (mock first), **which also carries what is left open of E7
    and E11** (below) (**done 2026-11-02**: BVJ picked from a mock and took
    every recommendation; the builder, E11's two placements and E7's three
-   calls are in one PR, awaiting BVJ's merge); 7c, E6, which reopens the word-families deferral of
-   2026-10-13, so confirm with BVJ before starting. Independent of the
-   panes; can run in parallel.
+   calls are in one PR, awaiting BVJ's merge); 7c, E6, **moved to version
+   2** (BVJ, 2026-11-03), so it is not a Phase 5 session. Independent of
+   the panes; can run in parallel.
    **Carried into 7b** (both are in the search bar's commands window and
    its Greek surfaces, where the builder goes):
    - *E7:* BVJ's look at the Greek tab on the preview (the focus move to
