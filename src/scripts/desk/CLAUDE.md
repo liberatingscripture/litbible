@@ -860,8 +860,12 @@ that section.
        is a button, `Study Desk ▾` (`.desk-title`, built by desk-page.js, which
        swaps the heading for a wrapper holding the h1 and the menus so the
        windows take the header's type, not the heading's). Its menu holds Add
-       pane, Layout…, Print…, Display options, then Take the tour and Help (both
-       open in a new tab, since they leave the desk). **Layout and Print left
+       pane, Layout…, Print…, Display options, then My notebook page and Where my
+       notebook is kept (`/notebook/#backup`, the "Save a copy" section, which
+       says where it lives), then Take the tour and Help. The four links open in
+       a new tab, since they leave the desk. **There is no Settings window**
+       (BVJ, 2026-11-02): the Notebook's other settings are margin switches that
+       mean nothing here, or already live in Display options and Layout. **Layout and Print left
        the bar**: their windows are the same ones, hung centered under the
        title. **Display options is the header's own Aa button moved into the
        menu whole**, so the shared tray's listeners stay on it;

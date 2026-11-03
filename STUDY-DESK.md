@@ -7743,13 +7743,18 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `Study Desk ▾` (caret, `aria-haspopup="menu"`, `aria-expanded`); its menu
   holds **Add pane** (E14), **Layout…**, **Print…** (the shared Print menu,
   E16), **Display options** (the header's own Aa button moved in whole; the tray
-  hangs from the title), then **Take the tour** and **Help for the Study Desk**
-  (both open in a new tab, since they leave the desk). Layout and Print left
+  hangs from the title), then **My notebook page** and **Where my notebook is
+  kept** (the page's "Save a copy" section), then **Take the tour** and **Help
+  for the Study Desk** (the four links open in a new tab, since they leave the
+  desk). BVJ (2026-11-02) asked for a Settings item holding only what applies
+  to /desk; Claude found nothing left to put in one (the margin switches mean
+  nothing here, highlights are in Display options, the start layout in Layout),
+  and BVJ answered that no "Hide my marks" button is needed and the two
+  notebook items belong in the menu itself. Layout and Print left
   the bar, which now holds only the menu button; their windows are the same,
   hung under the title. Only `/desk` has the menu; `/notebook` and `/sheets`
   are unchanged. **For BVJ to check:** the tour link goes to John 3 (the tour
-  runs on a chapter page, not on /desk), so it opens in a new tab; and Settings
-  is not in the menu (it is a Notebook tab, not a /desk page). Status: done.
+  runs on a chapter page, not on /desk), so it opens in a new tab. Status: done.
 - **E16, rough: printing a chapter needs its own chapter choice, and the
   Notebook lacks the plain-chapter print.** BVJ (2026-10-30), two parts.
   (1) The Print menu on /desk (`desk-page.js`, "the Print menu") prints
