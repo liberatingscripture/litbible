@@ -696,6 +696,19 @@ that section.
        minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.
+     - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02): "Reading" is the
+       first row of the Layout window, one LIT pane (`readingLayout`); it is
+       One pane's shape, so `arrangementOf` tells them apart by the pane's
+       kind. `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
+       `romans-8-v16`) is what a link to the desk carries: whatever the page
+       would have opened (last, default, or the original for a first visit)
+       keeps its panes and sizes, and only the active LIT pane and the
+       shared place move (`arrivalLayout`, pure and tested; BVJ, 2026-11-02:
+       a link never forces an arrangement, Reading included). desk-page.js saves the move
+       and strips the parameter. The header's "Study Desk" link carries the
+       chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref`
+       is the same address for code). A new link into /desk that means to
+       open at a passage uses this, never the layout key.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse

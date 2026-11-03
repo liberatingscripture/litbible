@@ -50,6 +50,7 @@ import {
   addPaneNeeds,
   applyArrangement,
   arrangementOf,
+  arrivalLayout,
   closePane,
   evenOut,
   findPane,
@@ -77,7 +78,7 @@ import {
   splitPane,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
-import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { formatPassage, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { HELP_HREF, TOUR_LINK } from "../../lib/desk-first-use.mjs";
 import { loadLastRead } from "../last-read.js";
@@ -273,7 +274,12 @@ async function start() {
   let lastRead = null;
   try { lastRead = loadLastRead(); } catch (_) {}
   const reading = formatPassage(startingPassage(lastRead));
-  let layout = openingLayout(saved, reading);
+  // /desk/?place=romans-8 (E8) is a link that carries a passage: the layout
+  // the page would have opened (last, default, or the original) stays, and
+  // only the leading LIT pane moves. A value that names no passage is
+  // ignored, and the parameter is stripped below either way.
+  const arrivalPlace = parsePlaceParam(new URLSearchParams(location.search).get("place"));
+  let layout = arrivalPlace ? arrivalLayout(saved, arrivalPlace, reading) : openingLayout(saved, reading);
   if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
 
   // ---- the title menu ----
@@ -1249,6 +1255,19 @@ async function start() {
     sizeAll();
     if (!menu.hidden) refreshMenu();
   });
+
+  // ---- a place named in the address (E8) ----
+
+  // Kept as the move it is, then taken off the address so a reload doesn't
+  // pull the desk back to it.
+  if (new URLSearchParams(location.search).has("place")) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("place");
+      history.replaceState(history.state, "", url);
+    } catch (_) {}
+    if (arrivalPlace) save();
+  }
 
   // ---- a sheet named in the address (M5: "Open it on the Study Desk") ----
 

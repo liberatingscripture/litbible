@@ -86,6 +86,9 @@ const rows = (...children) => ({ split: "rows", children });
  * (left to right, then top to bottom) by `applyArrangement`.
  */
 export const ARRANGEMENTS = [
+  // Reading (E8): one LIT pane, whatever else was open. It is the way into the
+  // desk for a reader who wants to read, and what a first visit by link opens.
+  { id: "reading", label: "Reading", shape: P },
   { id: "one", label: "One pane", shape: P },
   { id: "cols-2", label: "Two columns", shape: cols(P, P) },
   { id: "rows-2", label: "Two rows", shape: rows(P, P) },
@@ -145,6 +148,8 @@ export function pathTo(node, id, path = []) {
 export function arrangementOf(layout) {
   const sig = (n) => (n.pane || n.slot ? "p" : `${n.split}(${n.children.map(sig).join(",")})`);
   const s = sig(layout.root);
+  // Reading and One pane are one shape; the pane's kind tells them apart.
+  if (layout.root.pane) return layout.root.pane.kind === "lit" ? "reading" : "one";
   return ARRANGEMENTS.find((a) => sig(a.shape) === s)?.id ?? null;
 }
 
@@ -248,6 +253,7 @@ function placeLitPanes(root, place) {
 export function applyArrangement(layout, id) {
   const arrangement = ARRANGEMENT_BY_ID.get(id);
   if (!arrangement) return layout;
+  if (id === "reading") return readingLayout(layout);
   const keep = panes(layout.root).slice(0, countSlots(arrangement.shape)).map(clone);
   const used = new Set(keep.map((p) => p.id));
   const open = new Set(keep.map((p) => p.kind));
@@ -264,6 +270,45 @@ export function applyArrangement(layout, id) {
       ? { pane: fill() }
       : { split: shape.split, sizes: even(shape.children.length), children: shape.children.map(build) };
   return settleActive({ ...layout, root: normalize(build(arrangement.shape)) });
+}
+
+/**
+ * The Reading arrangement (E8): a single LIT pane, the active one if there is
+ * one (else the first, else a new one at the shared place), with its place kept. The other panes close; nothing of theirs is
+ * lost but their position, since a layout holds no records.
+ */
+export function readingLayout(layout) {
+  const all = panes(layout.root);
+  const active = findPane(layout.root, layout.active);
+  const lit = active?.kind === "lit" ? active : all.find((p) => p.kind === "lit");
+  const pane = lit ? clone(lit) : newPane(layout, "lit");
+  pane.pin = null;
+  if (!lit && layout.place) pane.at = layout.place;
+  return settleActive({ ...layout, root: { pane }, active: pane.id });
+}
+
+/**
+ * The layout a link to /desk with a place opens (E8, `/desk/?place=romans-8`):
+ * whatever the page would have opened (the reader's last layout, their
+ * default, or the original LIT beside My Notes for a first visit), with only
+ * the active LIT pane and the shared place moved to `place` (BVJ, 2026-11-02:
+ * a link never forces an arrangement, Reading included). Nothing is written
+ * here: the page saves it as it saves any move.
+ */
+export function arrivalLayout(saved, place, reading = null) {
+  const opening = openingLayout(saved, reading);
+  const at = parsePassage(place) ? place : null;
+  if (!at) return opening;
+  const next = clone(opening);
+  const lit = findPane(next.root, next.active)?.kind === "lit"
+    ? findPane(next.root, next.active)
+    : panes(next.root).find((p) => p.kind === "lit");
+  if (lit) {
+    lit.at = at;
+    next.active = lit.id;
+  }
+  next.place = at;
+  return next;
 }
 
 /** Close a pane. Its neighbors take its room. The last pane can't be closed. */

@@ -34,6 +34,9 @@ const {
   // The Study Desk's own header (/desk): the page's title, centered, in
   // place of the nav, and no search (SiteHeader's deskTitle).
   deskTitle,
+  // A chapter page's address for the header's Study Desk link, so it carries
+  // the passage (E8): "romans-8" makes /desk/?place=romans-8.
+  deskPlace,
 } = Astro.props;
 
 // Auto-generate canonical URL from site config when not explicitly provided.
@@ -202,7 +205,7 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskPlace={deskPlace} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

@@ -36,6 +36,28 @@ export function parsePassage(at) {
   return checkPassage({ bookKey: m[1], chapter: Number(m[2]), verse: m[3] ? Number(m[3]) : null });
 }
 
+/**
+ * The passage a link to /desk names (E8: `/desk/?place=romans-8`): a chapter's
+ * address as Study View spells it, with a verse as `romans-8:16`,
+ * `romans-8-v16` or `romans-8#v16`, or the layout's own "romans 8:16". The
+ * result is the layout's string ("romans 8:16"), or null when it names no
+ * passage, so a stray or old link is ignored.
+ */
+export function parsePlaceParam(value) {
+  if (typeof value !== "string") return null;
+  const s = value.trim().toLowerCase();
+  const m = /^([a-z0-9]+)[- ](\d{1,3})(?:(?::|-v|#v|:v)(\d{1,3}))?$/.exec(s);
+  if (!m) return null;
+  return formatPassage({ bookKey: m[1], chapter: Number(m[2]), verse: m[3] ? Number(m[3]) : null });
+}
+
+/** The address of a passage for a link to /desk: `/desk/?place=romans-8` or `…=romans-8:16`. */
+export function deskPlaceHref(p) {
+  const ok = checkPassage(p);
+  if (!ok) return "/desk/";
+  return `/desk/?place=${ok.bookKey}-${ok.chapter}${ok.verse ? `:${ok.verse}` : ""}`;
+}
+
 /** A passage as the layout keeps it: "john 3:16", or null when it isn't one. */
 export function formatPassage(p) {
   const ok = checkPassage(p);
