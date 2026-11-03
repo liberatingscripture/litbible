@@ -1246,9 +1246,17 @@ async function start() {
     const x0 = e.clientX;
     const y0 = e.clientY;
     let moving = false;
-    let candidate = null;
-    let swapped = null; // the pane the candidate swaps with, if it is a swap
+    let pick = null; // { zone, targetId }: the drop shown now, if it would work
     head.setPointerCapture(e.pointerId);
+    // What dropping on a zone of a pane would make, from the layout as it is
+    // now: a swap always fits (each slot keeps its size), a split may not.
+    const plan = (zone, targetId) => {
+      const swap = zone === "swap";
+      const next = swap ? swapPanes(layout, movingId, targetId) : splitPane(layout, targetId, zone, movingId);
+      const box = panesBox.getBoundingClientRect();
+      const why = next === layout ? "larger" : swap ? null : needs(next.root, box.width, box.height);
+      return { swap, next, why };
+    };
     const stop = () => {
       head.removeEventListener("pointermove", move);
       head.removeEventListener("pointerup", up);
@@ -1270,20 +1278,15 @@ async function start() {
         .find((n) => n && panesBox.contains(n));
       if (!target || target.dataset.paneId === movingId) {
         drop.hidden = true;
-        candidate = null;
-        swapped = null;
+        pick = null;
         return;
       }
       const rect = target.getBoundingClientRect();
       const targetId = target.dataset.paneId;
       const zone = dropZone(rect.width, rect.height, ev.clientX - rect.left, ev.clientY - rect.top);
-      const swap = zone === "swap";
-      // A swap always fits (each slot keeps its size); a split may not.
-      const next = swap ? swapPanes(layout, movingId, targetId) : splitPane(layout, targetId, zone, movingId);
+      const { swap, why } = plan(zone, targetId);
       const box = panesBox.getBoundingClientRect();
-      const why = next === layout ? "larger" : swap ? null : needs(next.root, box.width, box.height);
-      candidate = why ? null : next;
-      swapped = swap && !why ? targetId : null;
+      pick = why ? null : { zone, targetId };
       // A swap shows the whole target, the pane the dragged one will take
       // the place of; a split shows the half it will take.
       const half = {
@@ -1311,12 +1314,16 @@ async function start() {
     };
     const up = () => {
       stop();
-      if (moving && candidate) {
-        const name = kindLabel(findPane(layout.root, movingId)?.kind);
-        const other = swapped && kindLabel(findPane(layout.root, swapped)?.kind);
-        commit(candidate);
-        announce(swapped ? `${name} swapped with ${other}.` : `${name} moved.`);
-      }
+      if (!moving || !pick) return;
+      // Planned again from the layout as it is now, not as it was at the last
+      // pointer move: a pane's place (a scroll, say) may have been saved
+      // since, and committing the old tree would undo it.
+      const { swap, next, why } = plan(pick.zone, pick.targetId);
+      if (why) return;
+      const name = kindLabel(findPane(layout.root, movingId)?.kind);
+      const other = swap && kindLabel(findPane(layout.root, pick.targetId)?.kind);
+      commit(next);
+      announce(swap ? `${name} swapped with ${other}.` : `${name} moved.`);
     };
     const cancel = () => stop();
     const key = (ev) => {

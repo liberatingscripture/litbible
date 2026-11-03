@@ -426,7 +426,7 @@ export function neighborIn(rects, id, direction) {
   if (!me) return null;
   const slack = HANDLE + 2;
   const across = direction === "left" || direction === "right";
-  let best = null;
+  const beside = [];
   for (const r of rects) {
     if (r.id === id) continue;
     const gap = {
@@ -439,8 +439,15 @@ export function neighborIn(rects, id, direction) {
     const shared = across
       ? Math.min(me.bottom, r.bottom) - Math.max(me.top, r.top)
       : Math.min(me.right, r.right) - Math.max(me.left, r.left);
-    if (shared <= 0) continue;
-    if (!best || shared > best.shared || (shared === best.shared && gap < best.gap)) best = { id: r.id, shared, gap };
+    if (shared > 0) beside.push({ id: r.id, shared, gap });
+  }
+  // Only the panes touching it count (a pane past another is not beside it,
+  // however much length it shares); of those, the one sharing the most.
+  const nearest = Math.min(...beside.map((b) => b.gap));
+  let best = null;
+  for (const b of beside) {
+    if (b.gap > nearest + slack) continue;
+    if (!best || b.shared > best.shared || (b.shared === best.shared && b.gap < best.gap)) best = b;
   }
   return best?.id ?? null;
 }

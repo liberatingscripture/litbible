@@ -487,6 +487,27 @@ test("the neighbor in a direction is the pane beside it sharing the most length"
   assert.equal(neighborIn(rects, "nope", "left"), null);
 });
 
+test("a pane past another is not beside it, however much length it shares", () => {
+  // a | (b over c) | d
+  const rects = [
+    box("a", 0, 0, 300, 600),
+    box("b", 306, 0, 600, 300),
+    box("c", 306, 306, 600, 600),
+    box("d", 606, 0, 900, 600),
+  ];
+  assert.ok(["b", "c"].includes(neighborIn(rects, "a", "right")));
+  assert.ok(["b", "c"].includes(neighborIn(rects, "d", "left")));
+  assert.equal(neighborIn(rects, "b", "right"), "d");
+  assert.equal(neighborIn(rects, "c", "right"), "d");
+  assert.equal(neighborIn(rects, "b", "left"), "a");
+  // three plain columns: each pane's neighbors are the ones next to it
+  const three = [box("x", 0, 0, 300, 400), box("y", 306, 0, 600, 400), box("z", 606, 0, 900, 400)];
+  assert.equal(neighborIn(three, "x", "right"), "y");
+  assert.equal(neighborIn(three, "z", "left"), "y");
+  assert.equal(neighborIn(three, "y", "right"), "z");
+  assert.equal(neighborIn(three, "x", "left"), null);
+});
+
 test("a pane diagonal to another, sharing no length, is no neighbor", () => {
   const rects = [box("a", 0, 0, 400, 300), box("b", 406, 306, 800, 600)];
   for (const d of ["left", "right", "up", "down"]) assert.equal(neighborIn(rects, "a", d), null, d);

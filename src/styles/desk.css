@@ -5326,6 +5326,8 @@ html.desk-ws--moving * {
   color: var(--text);
   font-weight: 600;
   pointer-events: none;
+  padding: 8px;
+  text-align: center;
 }
 
 .desk-ws__drop[hidden] {
@@ -5340,11 +5342,6 @@ html.desk-ws--moving * {
    drop from a split's dashed half (E25). */
 .desk-ws__drop--swap {
   border-style: solid;
-}
-
-.desk-ws__drop {
-  padding: 8px;
-  text-align: center;
 }
 
 .desk-ws__drop-label {
