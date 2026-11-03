@@ -7595,6 +7595,40 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     time), and Ctrl+F's in-context highlighting. These go with Read View;
     8c says so in the help copy. Status: **8a built, awaiting BVJ's look on
     the preview.**
+  **8b built 2026-11-02 (work session 8b).** BVJ's answers: swap the /read
+  card in place (option A), the picker link too, and the card's wording
+  chosen by an Opus subagent; the "Available now" badge moves to the desk
+  card.
+  - *Behind the preview* (`html[data-desk="on"]`; everyone else keeps Read
+    View unchanged): the /read "Ways to read the LIT" grid shows a **Study
+    Desk** card in the Read View card's slot (both are in the page and
+    `read.css` shows one, so nothing shifts), "On a computer: the whole New
+    Testament in one scroll, with your notes and the Greek alongside when
+    you want them." with "Try the Study Desk →" to `/desk/?place=matthew-5`;
+    the "Available now" badge leaves the apps card for it. The chapter
+    picker's footer link reads "Open Matthew in the Study Desk →" and goes
+    to `/desk/?place=matthew-1` (ReadMenu.astro reads `data-desk` when it
+    builds the footer). Study View's own "Read View" button was already gone
+    (8a: the header's Study Desk link, carrying the chapter, replaced it).
+    The picker on Read View itself still offers Study View.
+  - *Dormant prep, not switched on:* `src/lib/read-view-retirement.mjs`
+    holds the rules named under "At launch": `readViewRedirects()` (the
+    Astro redirect entries, `/read/<book>` to `/<book>-1/`),
+    `studyAddress(pathname, hash)` (`#ch-N` to `/<book>-N/`,
+    `#<book>-N-vV` to `/<book>-N/#vV`, a block id keeps its id, an unknown
+    chapter falls back to the book's start), `studyRecord` and
+    `studyContinueHref` (a `view: "read"` "Continue reading" record is read
+    as a Study View place; Read View's `lit_rm_*` per-book places are let go,
+    E9). `src/scripts/read-view-redirect.js` is the page script that applies
+    `studyAddress`. Astro's static redirect page is a meta refresh and drops
+    the `#fragment`, so at 8c `/read/[book].astro` becomes a noindex page
+    that loads that script and carries the meta refresh as the no-script
+    fallback. `test/read-view-retirement.test.js` covers all of it, plus a
+    test that fails if anything imports these files, so they cannot go live
+    by accident; **8c wires them in and deletes that test.** Search
+    results' Read View anchors (`search-core.js`) are 8c's too.
+  Status: **8b built, awaiting BVJ's merge and look on the preview; 8c at
+  launch.**
 - **E9, rough: Bookmarks and Ribbons are confusing and redundant, and
   Places adds a third layer.** BVJ (2026-10-22), from using the preview.
   **Decided** (BVJ, 2026-10-22; decision log, "Bookmarks and ribbons become
@@ -7868,7 +7902,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the desk; and the reach of a rename: reader-facing copy, the tour,
   help, the apps' mentions, release notes already written, and the
   "Study View"/"Read View" paragraph in CLAUDE.md. Nothing is renamed
-  until BVJ picks the name. Status: open.
+  until BVJ picks the name. **The card part is built behind the preview**
+  (work session 8b, 2026-11-02; see E8): with the preview on, the Study Desk
+  card takes the Read View card's slot, and it goes to everyone at 8c. The
+  rename of "Study View" is still open. Status: open (the rename).
 - **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
   BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
   pane stays and an unlocked lock when it follows, with no words
@@ -7990,9 +8027,9 @@ the rest is polish.
      layout); and the LSC site's `/privacy` mirror needs the sentence for
      `lit-desk-greek-notes`.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
-   the passage (buildable now; **done 2026-11-02**, awaiting BVJ's merge and
-   look: Reading, `?place=` (moves the LIT pane only), the header link carrying the chapter; the
-   whole-book option let go, BVJ); 8b, after 8a, the parts of E8 and E20 that
+   the passage (buildable now; **done 2026-11-02**, merged: Reading, `?place=` (moves the LIT pane only), the header link carrying the chapter; the
+   whole-book option let go, BVJ); 8b (**done 2026-11-02**, awaiting BVJ's
+   merge), after 8a, the parts of E8 and E20 that
    stay behind the desk preview (BVJ, 2026-11-02): with the preview on,
    Study View's "Read View" button and the /read card become ways into /desk,
    while everyone else keeps Read View; and the dormant prep for launch (the

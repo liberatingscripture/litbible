@@ -709,6 +709,16 @@ that section.
        chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref`
        is the same address for code). A new link into /desk that means to
        open at a passage uses this, never the layout key.
+     - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
+       2026-11-02). With the preview on, `/read`'s Read View card and the
+       chapter picker's "Open X in Read View" link become the Study Desk
+       (`.view-card--desk` in `read.css`; ReadMenu reads `data-desk`), and
+       the rest stays. `src/lib/read-view-retirement.mjs` (redirects, the
+       `#ch-N` and verse-anchor mapping, "Continue reading" records from
+       Read View read as Study View places) and
+       `src/scripts/read-view-redirect.js` are built and tested but imported
+       by nothing: work session 8c wires them in at launch, removes Read
+       View, and deletes the test that guards the gap.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse

@@ -326,6 +326,27 @@ body.bg-cream > main {
   text-underline-offset: 3px;
 }
 
+/* The Study Desk preview (html[data-desk="on"]) swaps the Read View card for
+   the Study Desk card in the same grid slot (E8, 8b). Both are in the page, so
+   nothing shifts when the attribute is stamped before first paint. */
+.view-card--desk {
+  display: none;
+}
+
+html[data-desk="on"] .view-card--desk {
+  display: flex;
+}
+
+html[data-desk="on"] .view-card--read {
+  display: none;
+}
+
+/* The "Available now" badge moves from the apps card to the Study Desk card with
+   the preview on (BVJ, 2026-11-02). */
+html[data-desk="on"] .view-card__badge--apps {
+  display: none;
+}
+
 /* =========================================================
    License band (full-bleed with curve)
    ========================================================= */

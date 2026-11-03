@@ -237,6 +237,12 @@ const fallbackHref =
             const ch = crossViewKey === curBook && /^\d+$/.test(cur) ? cur : "1";
             a.href = "/" + crossViewKey + "-" + ch;
             a.textContent = "Open " + label(crossViewKey) + " in Study View →";
+          } else if (document.documentElement.dataset.desk === "on") {
+            // The Study Desk preview offers the desk where Read View would be
+            // (E8, 8b). The address is desk-passage.mjs's deskPlaceHref, written
+            // out because shared reader code never imports desk code.
+            a.href = "/desk/?place=" + crossViewKey + "-1";
+            a.textContent = "Open " + label(crossViewKey) + " in the Study Desk →";
           } else {
             a.href = "/read/" + crossViewKey;
             a.textContent =
