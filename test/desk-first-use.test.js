@@ -239,12 +239,12 @@ test("a tour takes the steps whose target is on the page, numbered", () => {
 test("a tour leaves out the steps that don't belong to the page's view", () => {
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const read = planTour({ available: all, view: "read" }).map((s) => s.id);
-  assert.ok(read.includes("bookmark"));
-  for (const id of ["note", "margin", "highlight", "pin", "verse", "greek", "widths"]) assert.ok(!read.includes(id), id);
+  assert.ok(read.includes("actions"));
+  for (const id of ["note", "margin", "pin", "verse", "greek"]) assert.ok(!read.includes(id), id);
   // An article or the glossary: no notes there in version 1 (N11, BVJ 2026-10-29),
   // so nothing from "Marking the text".
   const prose = planTour({ available: all, view: "prose" }).map((s) => s.id);
-  for (const id of ["actions", "note", "margin", "bookmark"]) assert.ok(!prose.includes(id), id);
+  for (const id of ["actions", "note", "margin"]) assert.ok(!prose.includes(id), id);
   assert.ok(prose.length);
 });
 
@@ -260,17 +260,17 @@ test("where the browser keeps no notebook, the tour leaves out marking the text 
     assert.ok(planTour({ available: all, view, canKeep: false }).every((s) => s.part !== 0), view);
   }
   const study = planTour({ available: all, view: "study", canKeep: false }).map((s) => s.id);
-  assert.deepEqual(study, ["panel", "verse", "greek", "widths", "search"]);
+  assert.deepEqual(study, ["panel", "verse", "greek", "search"]);
   // The default keeps them.
   assert.ok(planTour({ available: all, view: "study" }).some((s) => s.id === "actions"));
 });
 
 test("the removed Greek search commands step is gone, and a reader who saw it is not offered a new tour for it (2026-11-02)", () => {
   assert.ok(!TOUR_STEPS.some((s) => s.id === "greek-commands"));
-  // The Greek step still comes after "This verse" and before "Set the widths", in Chapter View only.
+  // The Greek step still comes after "This verse" and before the third part, in Chapter View only.
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const study = planTour({ available: all, view: "study" }).map((s) => s.id);
-  assert.equal(study[study.indexOf("greek") + 1], "widths");
+  assert.equal(study[study.indexOf("greek") + 1], "undo");
   // A reader who took the tour while the step existed has its id stored: it
   // is ignored as an unknown id, offers nothing, and is kept in their list.
   const stored = [...TOUR_STEPS.map((s) => s.id), "greek-commands"];
@@ -369,4 +369,17 @@ test("planning the Study Desk tour numbers its steps, splits it in two parts and
   const cramped = new Set(all);
   cramped.delete("add");
   assert.ok(!planTour({ available: cramped, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS }).some((s) => s.id === "add"));
+});
+
+test("the notebook tour was cut from 14 steps to 10 (BVJ, 2026-11-02), and retired ids offer nothing", () => {
+  const study = planTour({ available: new Set(TOUR_STEPS.map((s) => s.id)), view: "study" }).map((s) => s.id);
+  assert.deepEqual(study, ["actions", "note", "margin", "pin", "panel", "verse", "greek", "undo", "search", "kept"]);
+  // The menu step names what the cut steps taught.
+  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Bookmark,” and “Highlight\.”.*Move as I read/);
+  // A reader who took the 14-step tour has the retired ids stored: ignored, kept, and no "new" offer.
+  const retired = ["highlight", "bookmark", "widths", "notebook-page"];
+  const stored = [...TOUR_STEPS.map((s) => s.id), ...retired];
+  const state = parseTourState(JSON.stringify(stored));
+  for (const id of retired) assert.ok(!state.seen.includes(id) && state.list.includes(id), id);
+  assert.equal(tourOffer(JSON.stringify(stored)).kind, null);
 });

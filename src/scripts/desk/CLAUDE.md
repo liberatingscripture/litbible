@@ -491,6 +491,12 @@ that section.
        card, the way through the steps, placement and the ending are
        `desk/tour-runner.js`**, shared; a tour brings `act(step)`, `finish` and
        its `more` link. Keep the two in step when the card changes.
+       **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels
+       like a lot"; it was 14): Highlight and Bookmark are named in "Open the
+       menu", "Set the widths" is in the help page, and the notebook page and
+       where it's kept are one step (`kept`). The retired ids stay in a
+       reader's stored list and are ignored, so nobody is offered a new tour
+       for steps that went (tested).
        - **The desk tour acts fully and writes nothing** (BVJ: "make sure
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found

@@ -8005,7 +8005,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the notebook's offer was a window beside the Notebook; it is), and "Remind
   me later" leaves a quiet line at the top of the title menu. The menu's
   "Take the tour" starts it in place; the notebook's help and `>tour` command
-  still start the notebook tour. Left out of the tour, as the notebook tour
+  still start the notebook tour. BVJ also found the notebook tour's 14 steps
+  too many, and it is now 10 (option 1 of three: Highlight and Bookmark are
+  named in "Open the menu", "Set the widths" went to the help page, the
+  notebook page and where it's kept merged). Left out of the desk tour, as the notebook tour
   covers or the menu names them: Print, Display options, the Search and Sheet
   panes, the start radios. See `src/scripts/desk/CLAUDE.md`, rule 13, "Two
   tours".

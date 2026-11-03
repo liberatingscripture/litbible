@@ -5,8 +5,8 @@
 // three parts (marking the text, the Notebook, finding and keeping), each
 // beside the thing it is about on the page in front of the reader, and each
 // showing that thing working: the verse menu opened, the note editor with an
-// example in it, an example note in the margin, a preview of a highlight, a
-// footnote's Pin, the panel's tabs, the search box answering a query (BVJ,
+// example in it, an example note in the margin, a footnote's Pin, the
+// panel's tabs, the search box answering a query (BVJ,
 // 2026-10-13: "more thorough in walking through how to use the features",
 // with steps that act).
 //
@@ -23,9 +23,8 @@
 // when it ends everything it changed is put back.
 //   - The note editor opens in its example mode (note-editor.js's
 //     setEditorPreview): read-only words, and Save does nothing.
-//   - The example note and the highlight's preview are drawn by the tour,
-//     outside the notebook (a `desk-tour-demo` element, and a Custom
-//     Highlight of its own), and removed with the step.
+//   - The example note is drawn by the tour, outside the notebook (a
+//     `desk-tour-demo` element), and removed with the step.
 //   - Menus, the footnote popover and any selection it made are closed.
 //   - The Notebook goes back as it was, shown, minimized or closed, on the
 //     same tab, with the keys that remember those unchanged (panel.js's
@@ -60,7 +59,6 @@ import { editorHolds, setEditorPreview } from "./note-editor.js";
 import { pageChapter } from "./page.js";
 import { prosePage } from "./note-sources.js";
 
-const DEMO_HIGHLIGHT = "desk-tour-hl";
 const SETTLE_MS = 450; // a selection panel opens 200ms after the selection settles
 const EXAMPLE_NOTE =
   "An example. Your own words go here: a question, a connection, something to come back to.";
@@ -274,33 +272,6 @@ export function createTour({ panel, canKeep = true }) {
       return demo ? { el: demo } : column() && { el: column(), side: "right" };
     },
 
-    async highlight() {
-      const menu = await openVerseMenu();
-      // The preview: the verse tinted yellow by a highlight of the tour's
-      // own, never one of the reader's.
-      if (typeof CSS !== "undefined" && CSS.highlights && typeof Highlight !== "undefined") {
-        const ranges = Array.from(document.querySelectorAll(`.chapter-paragraphs [data-verse="${verseNumber()}"]`)).map(
-          (span) => {
-            const r = document.createRange();
-            r.selectNodeContents(span);
-            return r;
-          },
-        );
-        if (ranges.length) {
-          CSS.highlights.set(DEMO_HIGHLIGHT, new Highlight(...ranges));
-          later(() => CSS.highlights.delete(DEMO_HIGHLIGHT));
-        }
-      }
-      const row = menu?.querySelector(".desk-hl-row");
-      return menu ? { el: menu, side: "right", marks: row ? [row] : [] } : null;
-    },
-
-    async bookmark() {
-      const el = view === "study" ? await openVerseMenu() : await selectWords();
-      const marks = [byText(el, "Bookmark", "Remove bookmark")].filter(Boolean);
-      return el ? { el, side: "right", marks } : null;
-    },
-
     async pin() {
       closePanel();
       const refs = Array.from(document.querySelectorAll(".chapter-paragraphs .fn-ref a")).filter(visible);
@@ -337,14 +308,6 @@ export function createTour({ panel, canKeep = true }) {
       return { el: panel.el, side: "left", marks: tabButton("greek") };
     },
 
-    async widths() {
-      closePanel();
-      panel.showTab("mine", { focus: false, remember: false });
-      await frame();
-      const gutter = Array.from(document.querySelectorAll(".desk-gutter")).find(visible);
-      return gutter ? { el: gutter, side: "right", marks: [gutter] } : { el: panel.el, side: "left" };
-    },
-
     async undo() {
       closePanel();
       panel.showTab("settings", { focus: false, remember: false });
@@ -369,18 +332,13 @@ export function createTour({ panel, canKeep = true }) {
       return { el: input, marks: [input] };
     },
 
-    async "notebook-page"() {
-      closePanel();
-      panel.showTab("settings", { focus: false, remember: false });
-      const link = panel.el.querySelector(".desk-panel__page a");
-      return { el: panel.el, side: "left", marks: visible(link) ? [link] : [] };
-    },
-
+    // The notebook page's link and the foot that says where it's kept.
     async kept() {
       closePanel();
       panel.showTab("settings", { focus: false, remember: false });
+      const link = panel.el.querySelector(".desk-panel__page a");
       const foot = panel.el.querySelector(".desk-home");
-      return { el: panel.el, side: "left", marks: visible(foot) ? [foot] : [] };
+      return { el: panel.el, side: "left", marks: [link, foot].filter(visible) };
     },
   };
 
@@ -401,9 +359,8 @@ export function createTour({ panel, canKeep = true }) {
     if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
-    if (!document.querySelector(".desk-gutter")) ids.delete("widths");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
-      for (const id of ["actions", "note", "highlight", "bookmark", "margin"]) ids.delete(id);
+      for (const id of ["actions", "note", "margin"]) ids.delete(id);
     }
     return ids;
   };

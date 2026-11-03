@@ -2828,13 +2828,8 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   display: none;
 }
 
-/* The tour's previews, which are never the reader's: a highlight of its own
-   (the reader's are desk-hl-*), and an example note drawn outside the
-   notebook's margin (tour.js). */
-::highlight(desk-tour-hl) {
-  background-color: var(--desk-hl-yellow);
-}
-
+/* The tour's preview, which is never the reader's: an example note drawn
+   outside the notebook's margin (tour.js). */
 .desk-tour-demo .desk-note {
   background: var(--surface-raised);
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.12);

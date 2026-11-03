@@ -130,7 +130,12 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  *
  * The walk-through (BVJ, 2026-10-13: "more thorough in walking through how to
  * use the features", with steps that act and leave nothing behind) replaced
- * five steps that only named things.
+ * five steps that only named things. It ran to 14 steps and was cut to 10
+ * (BVJ, 2026-11-02, "14 steps feels like a lot"): Highlight and Bookmark are
+ * named in "Open the menu", "Set the widths" is in the help page, and the
+ * notebook page and where it's kept are one step. A retired id stays in a
+ * reader's stored list and is ignored (`parseTourState`), so nobody is offered
+ * a new tour for steps that went.
  */
 export const TOUR_STEPS = [
   {
@@ -142,8 +147,8 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark,” and “Highlight” while “My highlights” is on in the Display tray. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },
@@ -171,31 +176,6 @@ export const TOUR_STEPS = [
         "A note sits in the margin beside the words it’s on, and shows three lines. Hover over it or select it to read the rest, then “Edit” to change or delete it. Nothing is added to the scripture.",
       prose:
         "A note sits in the margin beside the words it’s on, and shows three lines. Hover over it or select it to read the rest, then “Edit” to change or delete it. Nothing is added to the page’s own text.",
-    },
-  },
-  {
-    id: "highlight",
-    part: 0,
-    views: ["study"],
-    since: "1h",
-    notebook: true,
-    title: "Highlight",
-    body: {
-      default:
-        "Choose a color to tint the words. To take part of a highlight away, select those words and choose “Remove highlight.” The tint shown now is only a preview.",
-    },
-  },
-  {
-    id: "bookmark",
-    part: 0,
-    views: ["study", "read"],
-    since: "1h",
-    notebook: true,
-    title: "Bookmark a verse",
-    body: {
-      study:
-        "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book, as a study group’s reading would.",
-      read: "“Bookmark” puts a red mark beside this verse, here and in Chapter View. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book.",
     },
   },
   {
@@ -246,17 +226,6 @@ export const TOUR_STEPS = [
     },
   },
   {
-    id: "widths",
-    part: 1,
-    views: ["study"],
-    since: "1h",
-    title: "Set the widths",
-    body: {
-      default:
-        "Drag the edges between your notes, the text, and the Notebook to make each wider or narrower. “Reset widths” at the foot of “My Notes” puts them back.",
-    },
-  },
-  {
     id: "undo",
     part: 2,
     views: ["study", "read", "prose"],
@@ -280,27 +249,15 @@ export const TOUR_STEPS = [
     },
   },
   {
-    id: "notebook-page",
-    part: 2,
-    views: ["study", "read", "prose"],
-    since: "1h",
-    notebook: true,
-    title: "The notebook page",
-    body: {
-      default:
-        "“Open the notebook page” shows everything you’ve kept in one place. There you can sort it with labels and save a copy of your notebook or open one.",
-    },
-  },
-  {
     id: "kept",
     part: 2,
     views: ["study", "read", "prose"],
     since: "1d",
     notebook: true,
-    title: "Where it’s kept",
+    title: "The notebook page, and where it’s kept",
     body: {
       default:
-        "Your notebook is kept in this browser, on this computer. Nothing is sent anywhere. The foot of the panel says when you last saved a copy.",
+        "“Open the notebook page” shows everything you’ve kept in one place, where you can sort it with labels and save a copy of your notebook or open one. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The foot of the panel says when you last saved a copy.",
     },
   },
 ];
