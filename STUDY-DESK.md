@@ -7954,17 +7954,26 @@ the rest is polish.
      layout); and the LSC site's `/privacy` mirror needs the sentence for
      `lit-desk-greek-notes`.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
-   the passage (buildable now); 8b, at launch, the Read View removal and
-   E20's rename (blocked on the name and the launch date). E12 (the trash
-   restore) is its own small session after 4.
+   the passage (buildable now); 8b, after 8a, the parts of E8 and E20 that
+   stay behind the desk preview (BVJ, 2026-11-02): with the preview on,
+   Study View's "Read View" button and the /read card become ways into /desk,
+   while everyone else keeps Read View; and the dormant prep for launch (the
+   `/read/<book>` redirect rules and the `#ch-N` and verse-anchor mapping, the
+   saved-places change so a Read View "Continue reading" record reads as a
+   Study View place, and tests for both), built but not switched on; 8c, at
+   launch, the cutover itself: the redirects go live, Read View's code, copy
+   and docs go, the last Read View commit is tagged, and E20's rename lands
+   (blocked on the name and the launch date). The Read View removal can't sit
+   behind the preview, since `/read/<book>` is what every reader has today.
+   E12 (the trash restore) is its own small session after 4.
 9. **Two tours**: E24. Touches `tour.js`, `first-use.js` and `desk-page.js`'s
    title menu, so after 6 (done), and not alongside another session on those.
 10. **Pane drag behavior**: E25. **Ask BVJ what to change first**; it touches
     `desk-page.js`, so it runs alone on that file.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
-Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a, and 8b at
-launch.
+Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
+8c at launch.
 
 **Fixed**
 
