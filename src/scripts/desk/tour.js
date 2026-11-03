@@ -5,8 +5,8 @@
 // three parts (marking the text, the Notebook, finding and keeping), each
 // beside the thing it is about on the page in front of the reader, and each
 // showing that thing working: the verse menu opened, the note editor with an
-// example in it, an example note in the margin, a preview of a highlight, a
-// footnote's Pin, the panel's tabs, the search box answering a query (BVJ,
+// example in it, an example note in the margin, a footnote's Pin, the
+// panel's tabs, the search box answering a query (BVJ,
 // 2026-10-13: "more thorough in walking through how to use the features",
 // with steps that act).
 //
@@ -23,9 +23,8 @@
 // when it ends everything it changed is put back.
 //   - The note editor opens in its example mode (note-editor.js's
 //     setEditorPreview): read-only words, and Save does nothing.
-//   - The example note and the highlight's preview are drawn by the tour,
-//     outside the notebook (a `desk-tour-demo` element, and a Custom
-//     Highlight of its own), and removed with the step.
+//   - The example note is drawn by the tour, outside the notebook (a
+//     `desk-tour-demo` element), and removed with the step.
 //   - Menus, the footnote popover and any selection it made are closed.
 //   - The Notebook goes back as it was, shown, minimized or closed, on the
 //     same tab, with the keys that remember those unchanged (panel.js's
@@ -50,8 +49,9 @@
 // finishing, and a later phase that adds a step offers just that.
 
 import { closePanel, currentPanel } from "../lit-panel.js";
+import { createTourRunner } from "./tour-runner.js";
 import { readingSurface } from "../desk-frame.js";
-import { WAYS_HREF, parseTourState, planTour, stepBody, withSeen, TOUR_STEPS } from "../../lib/desk-first-use.mjs";
+import { WAYS_HREF, parseTourState, planTour, withSeen, TOUR_STEPS } from "../../lib/desk-first-use.mjs";
 import { NOTE_GAP, NOTE_LINES, marginMode, noteWidth } from "../../lib/desk-notes.mjs";
 import { COMMAND_EVENT, getTourRaw, saveTourList } from "./first-use.js";
 import { glyph } from "./glyphs.js";
@@ -59,16 +59,12 @@ import { editorHolds, setEditorPreview } from "./note-editor.js";
 import { pageChapter } from "./page.js";
 import { prosePage } from "./note-sources.js";
 
-const GAP = 12;
-const EDGE = 12;
-const DEMO_HIGHLIGHT = "desk-tour-hl";
 const SETTLE_MS = 450; // a selection panel opens 200ms after the selection settles
 const EXAMPLE_NOTE =
   "An example. Your own words go here: a question, a connection, something to come back to.";
 const EXAMPLE_MARGIN =
   "An example note. Yours sit here in the margin, beside the words they’re on. A long one shows three lines until you hover over it or select it, and then the rest of it appears, the way this one does.";
 
-const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const visible = (e) => Boolean(e && e.getClientRects().length && e.getBoundingClientRect().width > 4);
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -89,8 +85,12 @@ function viewOfPage() {
  *   (BA34).
  */
 export function createTour({ panel, canKeep = true }) {
-  let run = null;
+  const runner = createTourRunner();
+  let state = { verse: null, snap: null };
   const view = viewOfPage();
+
+  // What a step opened, to undo before the next step and at the end.
+  const later = (fn) => runner.later(fn);
 
   /* ── The page's pieces ────────────────────────────────────────── */
 
@@ -121,7 +121,7 @@ export function createTour({ panel, canKeep = true }) {
     const numbers = Array.from(document.querySelectorAll(".chapter-paragraphs sup.vn")).filter(visible);
     return numbers.find(inView) ?? numbers[0] ?? null;
   };
-  const verseNumber = () => Number.parseInt(run.verse?.id?.slice(1) ?? "", 10) || 1;
+  const verseNumber = () => Number.parseInt(state.verse?.id?.slice(1) ?? "", 10) || 1;
 
   const byText = (root, ...texts) =>
     Array.from(root?.querySelectorAll("button, a") ?? []).find((b) => texts.some((t) => b.textContent.trim().startsWith(t)));
@@ -152,10 +152,10 @@ export function createTour({ panel, canKeep = true }) {
 
   // The verse menu, opened as a reader opens it: a click on its number.
   async function openVerseMenu() {
-    if (!run.verse) return null;
+    if (!state.verse) return null;
     closePanel();
-    await bringIntoView(run.verse);
-    run.verse.click();
+    await bringIntoView(state.verse);
+    state.verse.click();
     await frame();
     return currentPanel()?.el ?? null;
   }
@@ -200,7 +200,6 @@ export function createTour({ panel, canKeep = true }) {
     sel.removeAllRanges();
     sel.addRange(range);
     pointer("pointerup");
-    run.selected = true;
     later(() => {
       window.getSelection()?.removeAllRanges();
       closePanel();
@@ -244,7 +243,7 @@ export function createTour({ panel, canKeep = true }) {
     async actions() {
       const el = view === "study" ? await openVerseMenu() : await selectWords();
       const marks = notebookRow(el);
-      return el ? { el, side: "right", marks: marks.length ? marks : [el] } : run.verse ? { el: run.verse } : null;
+      return el ? { el, side: "right", marks: marks.length ? marks : [el] } : state.verse ? { el: state.verse } : null;
     },
 
     async note() {
@@ -266,44 +265,17 @@ export function createTour({ panel, canKeep = true }) {
       closePanel();
       const real = Array.from(document.querySelectorAll("aside.desk-notes .desk-note")).find((e) => visible(e) && inView(e));
       if (real) return { el: real, side: "left" };
-      const line = view === "study" ? run.verse : textParagraphs().find(inView) ?? textParagraphs()[0];
+      const line = view === "study" ? state.verse : textParagraphs().find(inView) ?? textParagraphs()[0];
       await bringIntoView(line);
       const demo = exampleNote(line);
       // Below the note, in the margin, rather than beside it over the text.
       return demo ? { el: demo } : column() && { el: column(), side: "right" };
     },
 
-    async highlight() {
-      const menu = await openVerseMenu();
-      // The preview: the verse tinted yellow by a highlight of the tour's
-      // own, never one of the reader's.
-      if (typeof CSS !== "undefined" && CSS.highlights && typeof Highlight !== "undefined") {
-        const ranges = Array.from(document.querySelectorAll(`.chapter-paragraphs [data-verse="${verseNumber()}"]`)).map(
-          (span) => {
-            const r = document.createRange();
-            r.selectNodeContents(span);
-            return r;
-          },
-        );
-        if (ranges.length) {
-          CSS.highlights.set(DEMO_HIGHLIGHT, new Highlight(...ranges));
-          later(() => CSS.highlights.delete(DEMO_HIGHLIGHT));
-        }
-      }
-      const row = menu?.querySelector(".desk-hl-row");
-      return menu ? { el: menu, side: "right", marks: row ? [row] : [] } : null;
-    },
-
-    async bookmark() {
-      const el = view === "study" ? await openVerseMenu() : await selectWords();
-      const marks = [byText(el, "Bookmark", "Remove bookmark")].filter(Boolean);
-      return el ? { el, side: "right", marks } : null;
-    },
-
     async pin() {
       closePanel();
       const refs = Array.from(document.querySelectorAll(".chapter-paragraphs .fn-ref a")).filter(visible);
-      const after = refs.find((a) => run.verse && run.verse.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const after = refs.find((a) => state.verse && state.verse.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING);
       const ref = refs.find(inView) ?? after ?? refs[0];
       if (!ref) return null;
       await bringIntoView(ref);
@@ -336,14 +308,6 @@ export function createTour({ panel, canKeep = true }) {
       return { el: panel.el, side: "left", marks: tabButton("greek") };
     },
 
-    async widths() {
-      closePanel();
-      panel.showTab("mine", { focus: false, remember: false });
-      await frame();
-      const gutter = Array.from(document.querySelectorAll(".desk-gutter")).find(visible);
-      return gutter ? { el: gutter, side: "right", marks: [gutter] } : { el: panel.el, side: "left" };
-    },
-
     async undo() {
       closePanel();
       panel.showTab("settings", { focus: false, remember: false });
@@ -368,18 +332,13 @@ export function createTour({ panel, canKeep = true }) {
       return { el: input, marks: [input] };
     },
 
-    async "notebook-page"() {
-      closePanel();
-      panel.showTab("settings", { focus: false, remember: false });
-      const link = panel.el.querySelector(".desk-panel__page a");
-      return { el: panel.el, side: "left", marks: visible(link) ? [link] : [] };
-    },
-
+    // The notebook page's link and the foot that says where it's kept.
     async kept() {
       closePanel();
       panel.showTab("settings", { focus: false, remember: false });
+      const link = panel.el.querySelector(".desk-panel__page a");
       const foot = panel.el.querySelector(".desk-home");
-      return { el: panel.el, side: "left", marks: visible(foot) ? [foot] : [] };
+      return { el: panel.el, side: "left", marks: [link, foot].filter(visible) };
     },
   };
 
@@ -400,17 +359,16 @@ export function createTour({ panel, canKeep = true }) {
     if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
-    if (!document.querySelector(".desk-gutter")) ids.delete("widths");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
-      for (const id of ["actions", "note", "highlight", "bookmark", "margin"]) ids.delete(id);
+      for (const id of ["actions", "note", "margin"]) ids.delete(id);
     }
     return ids;
   };
 
-  /* ── Starting and ending ──────────────────────────────────────── */
+  /* ── Starting ─────────────────────────────────────────────────── */
 
   function start({ only = null } = {}) {
-    if (run) return;
+    if (runner.running()) return;
     // A note being written isn't thrown away for the tour (BA37).
     if (editorHolds("Save or cancel this note first, then take the tour.")) return;
     closePanel(); // a verse menu or note card open over the text would sit under the tour
@@ -419,215 +377,19 @@ export function createTour({ panel, canKeep = true }) {
 
     // Seen from the moment it starts, so ending early is the same as ending.
     saveTourList(withSeen(parseTourState(getTourRaw()).list, TOUR_STEPS.map((s) => s.id)));
-    document.documentElement.setAttribute("data-desk-tour", "");
-
-    run = {
+    state = { verse: view === "study" ? pickVerse() : null, snap: panel.snapshot() };
+    runner.start({
       steps,
-      index: 0,
-      returnTo: document.activeElement instanceof HTMLElement ? document.activeElement : null,
-      snap: panel.snapshot(),
-      scroll: { x: window.scrollX, y: window.scrollY },
-      verse: view === "study" ? pickVerse() : null,
-      selected: false,
-      undo: [],
-      card: null,
-      marked: [],
-      token: 0,
-      placeFrame: 0,
-      target: null,
-    };
-    const card = document.createElement("div");
-    card.className = "desk-tour";
-    card.setAttribute("role", "dialog");
-    card.setAttribute("aria-modal", "false");
-    card.setAttribute("data-desk-dock", "");
-    card.tabIndex = -1;
-    card.innerHTML = `
-      <p class="desk-tour__count"></p>
-      <h3 class="desk-tour__title" id="deskTourTitle"></h3>
-      <p class="desk-tour__body" id="deskTourBody"></p>
-      <p class="desk-tour__more" hidden><a href="${WAYS_HREF}">Ways to keep your notebook</a></p>
-      <div class="desk-tour__row">
-        <span class="desk-tour__skips">
-          <button type="button" class="desk-tour__skip">Skip the tour</button>
-          <button type="button" class="desk-tour__skip desk-tour__skip-part">Skip this part</button>
-        </span>
-        <span class="desk-tour__nav">
-          <button type="button" class="desk-tour__back">Back</button>
-          <button type="button" class="desk-tour__next"></button>
-        </span>
-      </div>`;
-    card.setAttribute("aria-labelledby", "deskTourTitle");
-    card.setAttribute("aria-describedby", "deskTourBody");
-    run.card = card;
-    document.body.append(card);
-
-    card.querySelector(".desk-tour__skip").addEventListener("click", () => end());
-    card.querySelector(".desk-tour__skip-part").addEventListener("click", () => {
-      const next = run.steps[run.index].nextPart;
-      if (next === null) end();
-      else go(next);
+      view,
+      act: (step) => STEPS[step.id]?.() ?? null,
+      more: (step) => (step.id === "kept" ? { href: WAYS_HREF, text: "Ways to keep your notebook" } : null),
+      afterUndo: () => {
+        closePanel();
+        setEditorPreview(null);
+      },
+      // The Notebook back as it was, shown, minimized or closed.
+      finish: () => panel.restore(state.snap),
     });
-    card.querySelector(".desk-tour__back").addEventListener("click", () => go(run.index - 1));
-    card.querySelector(".desk-tour__next").addEventListener("click", () => {
-      if (run.index === run.steps.length - 1) end();
-      else go(run.index + 1);
-    });
-    document.addEventListener("keydown", onKey, true);
-    window.addEventListener("resize", queuePlace);
-    window.addEventListener("scroll", queuePlace, { passive: true });
-    go(0);
-  }
-
-  function onKey(e) {
-    if (e.key !== "Escape" || !run) return;
-    e.preventDefault();
-    e.stopPropagation();
-    end();
-  }
-
-  // What a step opened, to undo before the next step and at the end.
-  function later(fn) {
-    run?.undo.push(fn);
-  }
-
-  function undoStep() {
-    if (!run) return;
-    unmark();
-    const fns = run.undo.splice(0).reverse();
-    for (const fn of fns) {
-      try {
-        fn();
-      } catch (_) {}
-    }
-    closePanel();
-    setEditorPreview(null);
-  }
-
-  function end() {
-    if (!run) return;
-    const { card, returnTo, snap, scroll } = run;
-    run.token++;
-    document.removeEventListener("keydown", onKey, true);
-    window.removeEventListener("resize", queuePlace);
-    window.removeEventListener("scroll", queuePlace);
-    cancelAnimationFrame(run.placeFrame);
-    undoStep();
-    card.remove();
-    run = null;
-    // Everything back as the tour found it: the Notebook, then the place on
-    // the page (the panel's width can move the text), then focus.
-    panel.restore(snap);
-    requestAnimationFrame(() => {
-      window.scrollTo({ left: scroll.x, top: scroll.y, behavior: "instant" });
-      if (returnTo && returnTo.isConnected) returnTo.focus({ preventScroll: true });
-      // Held past last-read.js's 500ms wait after a scroll, so the scroll
-      // back records nothing, not even a new time on the same verse. A tour
-      // started again meanwhile keeps it (BA36).
-      setTimeout(() => {
-        if (!run) document.documentElement.removeAttribute("data-desk-tour");
-      }, 900);
-    });
-  }
-
-  /* ── One step ─────────────────────────────────────────────────── */
-
-  async function go(i) {
-    const step = run.steps[Math.max(0, Math.min(i, run.steps.length - 1))];
-    run.index = run.steps.indexOf(step);
-    const token = ++run.token;
-    undoStep();
-
-    const card = run.card;
-    card.querySelector(".desk-tour__count").textContent = `${step.partName} · Step ${step.number} of ${step.of}`;
-    card.querySelector(".desk-tour__title").textContent = step.title;
-    card.querySelector(".desk-tour__body").textContent = stepBody(step, view);
-    card.querySelector(".desk-tour__more").hidden = step.id !== "kept";
-    card.querySelector(".desk-tour__back").hidden = run.index === 0;
-    card.querySelector(".desk-tour__skip-part").hidden = step.nextPart === null;
-    card.querySelector(".desk-tour__next").textContent = run.index === run.steps.length - 1 ? "Done" : "Next";
-
-    let target = null;
-    try {
-      target = (await STEPS[step.id]?.()) ?? null;
-    } catch (err) {
-      console.error("Study Desk: a tour step couldn't show itself", err);
-    }
-    // The reader moved on while this step was opening.
-    if (!run || token !== run.token) return;
-    // The page may still be settling (the panel opening reflows a Chapter View
-    // chapter), so the target is placed after a frame.
-    await frame();
-    if (!run || token !== run.token) return;
-    if (target?.el) {
-      const r = target.el.getBoundingClientRect();
-      // A small target scrolled out of sight is brought into view first.
-      if (r.height < window.innerHeight * 0.5 && (r.bottom < 0 || r.top > window.innerHeight)) {
-        target.el.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" });
-      }
-      const marks = target.marks ?? (r.height < window.innerHeight * 0.5 ? [target.el] : []);
-      mark(marks);
-    }
-    run.target = target;
-    place();
-    card.classList.add("desk-tour--on");
-    card.focus({ preventScroll: true });
-  }
-
-  function mark(els) {
-    run.marked = els.filter(Boolean);
-    for (const e of run.marked) e.classList.add("desk-tour-target");
-  }
-
-  function unmark() {
-    for (const e of run?.marked ?? []) e.classList.remove("desk-tour-target");
-    if (run) run.marked = [];
-  }
-
-  /* ── Placing the card beside its target ───────────────────────── */
-
-  function queuePlace() {
-    if (!run) return;
-    cancelAnimationFrame(run.placeFrame);
-    run.placeFrame = requestAnimationFrame(place);
-  }
-
-  function place() {
-    if (!run?.card) return;
-    const card = run.card;
-    const vw = document.documentElement.clientWidth;
-    const vh = window.innerHeight;
-    const cw = card.offsetWidth;
-    const ch = card.offsetHeight;
-    const clamp = (v, lo, hi) => Math.max(lo, Math.min(v, Math.max(lo, hi)));
-    let x = (vw - cw) / 2;
-    let y = (vh - ch) / 2;
-    const t = run.target;
-    if (t?.el?.isConnected) {
-      const r = t.el.getBoundingClientRect();
-      const tall = r.height > vh * 0.5 || r.width > vw * 0.5;
-      const roomRight = vw - r.right;
-      const roomLeft = r.left;
-      const sideX = () => {
-        const wantRight = t.side === "right" ? roomRight >= cw + GAP || roomRight >= roomLeft : t.side === "left" ? roomLeft < cw + GAP && roomRight > roomLeft : roomRight >= roomLeft;
-        return wantRight ? r.right + GAP : r.left - cw - GAP;
-      };
-      if (tall || t.side) {
-        x = clamp(sideX(), EDGE, vw - cw - EDGE);
-        y = clamp(Math.max(r.top, 0) + 8, EDGE, vh - ch - EDGE);
-      } else if (r.bottom + GAP + ch <= vh - EDGE) {
-        x = clamp(r.left, EDGE, vw - cw - EDGE);
-        y = r.bottom + GAP;
-      } else if (r.top - GAP - ch >= EDGE) {
-        x = clamp(r.left, EDGE, vw - cw - EDGE);
-        y = r.top - GAP - ch;
-      } else {
-        x = clamp(sideX(), EDGE, vw - cw - EDGE);
-        y = clamp(r.top, EDGE, vh - ch - EDGE);
-      }
-    }
-    card.style.left = `${Math.round(x)}px`;
-    card.style.top = `${Math.round(y)}px`;
   }
 
   /* ── The ways in ──────────────────────────────────────────────── */

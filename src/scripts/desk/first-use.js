@@ -40,6 +40,8 @@ import { createFloatWindow } from "../float-window.js";
 
 const HOME_KEY = "lit-desk-home";
 export const TOUR_KEY = "lit-desk-tour";
+/** The Study Desk tour's own list (E24), the same shape as the notebook tour's. */
+export const DESK_TOUR_KEY = "lit-desk-page-tour";
 export const COMMAND_EVENT = "lit:desk-command";
 
 /* ── What is kept in this browser ─────────────────────────────────── */
@@ -59,6 +61,15 @@ export function getTourRaw() {
 
 export function saveTourList(list) {
   try { localStorage.setItem(TOUR_KEY, JSON.stringify(list)); } catch (_) {}
+}
+
+/** The Study Desk tour's raw state (desk/desk-tour.js reads and writes it through these). */
+export function getDeskTourRaw() {
+  try { return localStorage.getItem(DESK_TOUR_KEY); } catch (_) { return null; }
+}
+
+export function saveDeskTourList(list) {
+  try { localStorage.setItem(DESK_TOUR_KEY, JSON.stringify(list)); } catch (_) {}
 }
 
 /** Ask for the tour, as the search box's "tour" command does. */

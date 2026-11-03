@@ -80,12 +80,13 @@ import {
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
-import { HELP_HREF, TOUR_LINK } from "../../lib/desk-first-use.mjs";
+import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
+import { createDeskTour } from "./desk-tour.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
@@ -136,9 +137,18 @@ function readKey() {
   try { return localStorage.getItem(LAYOUT_KEY); } catch (_) { return null; }
 }
 
+// While the Study Desk tour runs the desk changes its layout on the screen and
+// writes none of it (E24, desk-tour.js): the reader's own is put back at the end,
+// and a reload mid-tour finds the layout it left.
+let layoutFrozen = false;
+
 function writeKey(text) {
+  if (layoutFrozen) return;
   try { localStorage.setItem(LAYOUT_KEY, text); } catch (_) {}
 }
+
+/** Inside the tour's card, which the menus' own "click elsewhere" closing must not count as elsewhere. */
+const inTour = (node) => node instanceof Element && Boolean(node.closest(".desk-tour"));
 
 /** A small picture of an arrangement, for the Layout menu. */
 function diagram(shape) {
@@ -351,13 +361,14 @@ async function start() {
   const startRadios = Array.from(menu.querySelectorAll('input[name="desk-ws-start"]'));
   for (const radio of startRadios) {
     radio.addEventListener("change", () => {
-      if (!radio.checked) return;
+      if (!radio.checked || layoutFrozen) return;
       saved = { ...saved, start: radio.value };
       writeKey(writeSaved(saved));
     });
   }
   const makeDefault = menu.querySelector("[data-ws-make-default]");
   makeDefault.addEventListener("click", () => {
+    if (layoutFrozen) return;
     saved = { ...saved, mine: layout };
     writeKey(writeSaved(saved));
     refreshMenu();
@@ -411,7 +422,7 @@ async function start() {
   // it to the click.
   menu.addEventListener("focusout", (e) => {
     const to = e.relatedTarget;
-    if (to instanceof Node && !menu.contains(to) && !wrap.contains(to)) closeMenu({ focus: false });
+    if (to instanceof Node && !menu.contains(to) && !wrap.contains(to) && !inTour(to)) closeMenu({ focus: false });
   });
 
   // ---- the Print menu ----
@@ -462,7 +473,7 @@ async function start() {
   });
   printMenu.addEventListener("focusout", (e) => {
     const to = e.relatedTarget;
-    if (to instanceof Node && !printMenu.contains(to) && !wrap.contains(to)) closePrintMenu({ focus: false });
+    if (to instanceof Node && !printMenu.contains(to) && !wrap.contains(to) && !inTour(to)) closePrintMenu({ focus: false });
   });
 
   // ---- the title menu's items ----
@@ -543,20 +554,40 @@ async function start() {
   // else of the Notebook's settings applies here.
   const notebookItem = item("My notebook page", "a");
   notebookItem.href = "/notebook/";
-  const tourItem = item("Take the tour", "a");
-  tourItem.href = TOUR_LINK;
+  // The Study Desk tour runs here, in place (E24); the notebook's runs on a
+  // chapter page and starts from the Notebook's foot and the help page.
+  let tour = null; // the Study Desk tour, made once the panes exist (below)
+  const tourItem = item("Take the tour");
+  tourItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); tour?.start(); });
   const helpItem = item("Help for the Study Desk", "a");
   helpItem.href = HELP_HREF;
   // Each leaves the desk, so they open beside it.
-  const links = [notebookItem, tourItem, helpItem];
+  const links = [notebookItem, helpItem];
   for (const link of links) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
   }
+  // The quiet line (E24): until the reader has taken the tour or said "Not now,"
+  // a line at the top of the menu says there is one. Shown when the offer
+  // window was put off (or is not on the screen), refreshed as the menu opens.
+  const tourLine = el("div", "desk-title__line");
+  const tourLineGo = item("New to the Study Desk? Take the tour");
+  tourLineGo.classList.add("desk-title__line-go");
+  tourLineGo.addEventListener("click", () => { closeTitleMenu({ focus: false }); tour?.start(); });
+  const tourLineNo = item("Not now");
+  tourLineNo.classList.add("desk-title__line-no");
+  tourLineNo.addEventListener("click", () => { tour?.declineLine(); refreshTourLine(); tourItem.focus(); });
+  tourLine.append(tourLineGo, tourLineNo);
+  tourLine.hidden = true;
+  function refreshTourLine() {
+    tourLine.hidden = !tour?.lineWanted();
+  }
+  titleMenu.append(tourLine);
   titleMenu.append(addSub, layoutItem, printItem);
   if (displayItem) titleMenu.append(displayItem);
   titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
-  const topItems = [addItem, layoutItem, printItem, ...(displayItem ? [displayItem] : []), ...links];
+  const baseItems = [addItem, layoutItem, printItem, ...(displayItem ? [displayItem] : []), notebookItem, tourItem, helpItem];
+  const topItems = () => (tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
 
   const DIRECTIONS = [
     { id: "column", label: "Add column" },
@@ -636,13 +667,23 @@ async function start() {
     if (focus) addItem.focus();
   }
 
+  /** The flyout at its second step, as the tour shows it (E24): the kinds a column could show. */
+  function showAddKinds(direction) {
+    openTitleMenu();
+    openAddFly();
+    addStep = direction;
+    drawAddFly();
+  }
+
   function openTitleMenu() {
     closeMenu({ focus: false });
     closePrintMenu({ focus: false });
     refreshAdd();
+    refreshTourLine();
     titleMenu.hidden = false;
     titleButton.setAttribute("aria-expanded", "true");
-    (enabled(topItems)[0] ?? topItems[0]).focus();
+    const items = topItems();
+    (enabled(items)[0] ?? items[0]).focus();
   }
 
   function closeTitleMenu({ focus = true } = {}) {
@@ -663,7 +704,7 @@ async function start() {
 
   titleMenu.addEventListener("keydown", (e) => {
     const inFly = addFly.contains(document.activeElement);
-    const list = inFly ? enabled(Array.from(addFly.children)) : topItems;
+    const list = inFly ? enabled(Array.from(addFly.children)) : topItems();
     const i = list.indexOf(document.activeElement);
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
@@ -693,7 +734,7 @@ async function start() {
   // Tabbing out of the menu closes it, as a click elsewhere does.
   titleMenu.addEventListener("focusout", (e) => {
     const to = e.relatedTarget;
-    if (to instanceof Node && !wrap.contains(to)) closeTitleMenu({ focus: false });
+    if (to instanceof Node && !wrap.contains(to) && !inTour(to)) closeTitleMenu({ focus: false });
   });
 
   // ---- the panes ----
@@ -715,6 +756,7 @@ async function start() {
   let kindMenu = null; // the open "show in this pane" menu, if any
 
   function save() {
+    if (layoutFrozen) return;
     saved = { ...saved, last: layout };
     writeKey(writeSaved(saved));
   }
@@ -1017,7 +1059,7 @@ async function start() {
     if (kindMenu && !kindMenu.menuEl.contains(e.target) && e.target !== kindMenu.button && !kindMenu.button.contains(e.target)) {
       closeKindMenu({ focus: false });
     }
-    if (!wrap.contains(e.target)) {
+    if (!wrap.contains(e.target) && !inTour(e.target)) {
       closeTitleMenu({ focus: false });
       closeMenu({ focus: false });
       closePrintMenu({ focus: false });
@@ -1319,6 +1361,45 @@ async function start() {
 
   fitHeight();
   draw();
+
+  // ---- the Study Desk tour (E24) ----
+
+  // Started from the title menu, `?desk-tour` on the address (the help page
+  // links to it) or the offer. It acts through the page's own pieces and
+  // freezes the layout's saving while it runs (desk-tour.js).
+  tour = createDeskTour({
+    canKeep: Boolean(store),
+    getLayout: () => layout,
+    setLayout: (next) => commit(next),
+    freeze: (on) => { layoutFrozen = on; },
+    paneEls,
+    panesBox,
+    titleButton,
+    titleMenu,
+    addFly,
+    openTitleMenu,
+    closeTitleMenu,
+    showAddKinds,
+    layoutMenu: menu,
+    openLayoutMenu: openMenu,
+    closeLayoutMenu: closeMenu,
+    refreshLayoutMenu: refreshMenu,
+    shapeButtons,
+    onLineChange: refreshTourLine,
+  });
+  const wantsTour = new URLSearchParams(location.search).has("desk-tour");
+  if (wantsTour) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("desk-tour");
+      history.replaceState(history.state, "", url);
+    } catch (_) {}
+    // Once the panes have settled, as the notebook tour waits for its panel.
+    setTimeout(() => tour.start(), 600);
+  } else {
+    // The first time /desk opens, an offer; a window the reader can put off.
+    setTimeout(() => tour.maybeOffer(), 1200);
+  }
 }
 
 start();

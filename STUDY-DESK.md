@@ -7989,7 +7989,29 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   command keep starting the notebook one. Open (to settle when the session
   starts): the desk tour's steps, whether the two share the seen-steps list
   (`lit-desk-tour`) and the first-use offer, and whether the desk tour is
-  offered the first time /desk opens. Status: open; added to Phase 5.
+  offered the first time /desk opens. **Status: done 2026-11-02 (work session
+  9), the open choices settled with BVJ the same day.** (1) The desk tour acts
+  fully, with the desk in its original layout first and the reader's own put
+  back at the end (BVJ: "make sure everything is in the default layout, then
+  begin the demonstration. At the end of the tour, it should put everything
+  back the way it found it"). Seven steps in two parts: Your panes, My Notes,
+  Reading in sync (BVJ's wording and title), Stay here, then the title menu,
+  Add pane and Layout. Claude had recommended pointing rather than acting,
+  since every layout change saves; the answer was to act and keep any of it
+  from being saved while the tour runs (`layoutFrozen`), tested by reloading
+  mid-tour. (2) The two tours keep separate lists and offers
+  (`lit-desk-tour`, `lit-desk-page-tour`). (3) /desk offers the tour in a
+  floating window the first time it opens, as the notebook does (BVJ thought
+  the notebook's offer was a window beside the Notebook; it is), and "Remind
+  me later" leaves a quiet line at the top of the title menu. The menu's
+  "Take the tour" starts it in place; the notebook's help and `>tour` command
+  still start the notebook tour. BVJ also found the notebook tour's 14 steps
+  too many, and it is now 10 (option 1 of three: Highlight and Bookmark are
+  named in "Open the menu", "Set the widths" went to the help page, the
+  notebook page and where it's kept merged). Left out of the desk tour, as the notebook tour
+  covers or the menu names them: Print, Display options, the Search and Sheet
+  panes, the start radios. See `src/scripts/desk/CLAUDE.md`, rule 13, "Two
+  tours".
 - **E25, rough: how panes behave when dragged.** BVJ (2026-11-02). The drag
   behavior of panes (today: a pane's header is the handle, dropping on an
   edge of another splits it, shown before the drop, a drop that leaves a pane
@@ -8064,8 +8086,9 @@ the rest is polish.
    View was done in 8b's PR, BVJ 2026-11-02; 8c is blocked on the launch date). The Read View removal can't sit
    behind the preview, since `/read/<book>` is what every reader has today.
    E12 (the trash restore) is its own small session after 4.
-9. **Two tours**: E24. Touches `tour.js`, `first-use.js` and `desk-page.js`'s
-   title menu, so after 6 (done), and not alongside another session on those.
+9. **Two tours**: E24. **Done 2026-11-02.** Touched `tour.js` (the shared card
+   moved to `tour-runner.js`), `first-use.js` and `desk-page.js`'s title menu,
+   and added `desk-tour.js`.
 10. **Pane drag behavior**: E25. **Ask BVJ what to change first**; it touches
     `desk-page.js`, so it runs alone on that file.
 
