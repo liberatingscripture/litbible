@@ -766,3 +766,29 @@ test("BA7: add, a copy saved, then undo the add: the copy can't bring the note b
   assert.equal(again.filter((x) => x.id === r.id && x.kind === "note").length, 1);
   assert.equal(again.some((x) => x.kind === "trash" && x.deletedId === r.id), false);
 });
+
+/* ── Restoring from the trash (E12) ──────────────────────────────────── */
+
+test("a restore is an entry the history can undo and redo, and undoing it leaves one trash record, not two", () => {
+  const nb = notebook();
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  nb.apply(planDelete(r, { ...ctx, now: T1, id: nextId() }));
+  const [trash] = trashOf(nb, r.id);
+
+  nb.apply({ put: [{ ...r, modified: T2 }], remove: [trash.id] });
+  const entry = nb.last;
+  assert.deepEqual(entry.undoTrash, [], "the trash record it removed is the one an undo puts back");
+  assert.equal(describeEntry(entry), "Note on Romans 8:3 restored.");
+  assert.equal(stored(nb, r.id).modified, T2);
+  assert.equal(stored(nb, trash.id), null);
+
+  assert.notEqual(nb.step(entry, "undo", T3), null);
+  assert.equal(stored(nb, r.id), null);
+  assert.deepEqual(trashOf(nb, r.id).map((t) => t.id), [trash.id], "the same trash record, not a second");
+  assert.equal(stored(nb, trash.id).deletedAt, T3, "the deletion made again, now");
+  assert.deepEqual(stored(nb, trash.id).record, r);
+
+  assert.notEqual(nb.step(entry, "redo", T4), null);
+  assert.equal(stored(nb, r.id).modified, T4);
+  assert.deepEqual(trashOf(nb, r.id), []);
+});

@@ -59,14 +59,17 @@ const button = (className, text, label, onClick) => {
  *   onEdit?: (record: object, trigger: Element) => void,
  *   onLabels: (record: object, trigger: Element) => void,
  *   onDelete: (record: object, li: Element) => void,
- *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} actions
+ *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
+ *   trash?: { when: string, onRestore: (record: object, trigger: Element) => void } | null }} actions
  *   `goHere` is for a list in a /desk pane: a plain click on a reference it
  *   can take moves the LIT pane there rather than leaving /desk (BA124), as
  *   My Notes' does (tab-mine.js). A modified or middle click still follows
- *   the link.
+ *   the link. `trash`, given by the Trash list (trash-list.js; E12), draws a
+ *   deleted record: the line `when` says when it was deleted and how long it
+ *   waits, and Restore is its only button.
  * @returns {HTMLLIElement}
  */
-export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null }) {
+export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null, trash = null }) {
   const r = record;
   const li = document.createElement("li");
   li.className = "desk-item desk-np-row";
@@ -156,8 +159,20 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
     li.append(ul);
   }
 
+  if (trash) {
+    const when = document.createElement("p");
+    when.className = "desk-np-row__when";
+    when.textContent = trash.when;
+    li.append(when);
+  }
+
   const buttons = document.createElement("div");
   buttons.className = "desk-np-row__buttons";
+  if (trash) {
+    buttons.append(button("desk-item__edit desk-item__restore", "Restore", `Restore ${subject}`, (b) => trash.onRestore(r, b)));
+    li.append(buttons);
+    return li;
+  }
   if ((r.kind === "note" || r.kind === "bookmark") && onEdit && canEdit(r)) {
     buttons.append(button("desk-item__edit", "Edit", `Edit ${subject}`, (b) => onEdit(r, b)));
   }

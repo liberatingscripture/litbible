@@ -16,9 +16,10 @@
 // prevent.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
-import { trashRecord } from "./desk-records.mjs";
-import { kindName, recordReference } from "./desk-store-core.mjs";
-import { labelsOf } from "./desk-labels.mjs";
+import { TRASH_DAYS, restoreFromTrash, trashRecord } from "./desk-records.mjs";
+import { bookmarksOn, kindName, recordReference } from "./desk-store-core.mjs";
+import { canFollowMore, isFollowing } from "./desk-bookmarks.mjs";
+import { findLabel, labelsOf } from "./desk-labels.mjs";
 
 /* ── Text matching ───────────────────────────────────────────────────── */
 
@@ -252,4 +253,97 @@ export function planEmptyTrashNow(records) {
 /** How many trash records still hold a deleted record. */
 export function trashHeld(records) {
   return records.filter((r) => r?.kind === "trash" && "record" in r && r.record != null).length;
+}
+
+/* ── Restoring from the trash (STUDY-DESK.md E12) ────────────────────── */
+
+/**
+ * The trash records that still hold a record, the latest deletion first (on a
+ * tie, the lower id, so every client lists them alike). An emptied one is only
+ * a tombstone and isn't listed.
+ */
+export function trashItems(records) {
+  return records
+    .filter((r) => r?.kind === "trash" && r.record != null && typeof r.record === "object")
+    .sort((a, b) => Date.parse(b.deletedAt) - Date.parse(a.deletedAt) || (a.id < b.id ? -1 : 1));
+}
+
+/**
+ * Whole days a trash record has left before its words are dropped (TRASH_DAYS
+ * after `deletedAt`), counted up, so a record deleted a moment ago has 30 and
+ * one in its last hours has 1. Zero once it is due.
+ */
+export function daysLeft(trash, now = new Date().toISOString()) {
+  const left = Date.parse(trash?.deletedAt) + TRASH_DAYS * 86_400_000 - Date.parse(now);
+  return Number.isFinite(left) ? Math.max(0, Math.ceil(left / 86_400_000)) : 0;
+}
+
+/**
+ * Why a restore was refused. `missing` (the trash record is gone), `emptied`
+ * (only its tombstone is left), `exists` (a live record already has the id),
+ * `bookmark` (the verse already holds a bookmark, BA16) or `label` (a label of
+ * that name is already kept; names are unique).
+ */
+export const RESTORE_REFUSALS = Object.freeze(["missing", "emptied", "exists", "bookmark", "label"]);
+
+/**
+ * Bring one record back from the trash, planned over the notebook as it is now
+ * (`records`, read in the same transaction as the write): the record, under
+ * its own id with a fresh `modified` (restoreFromTrash), and its trash record
+ * gone. Nothing else is edited: a label id on it that no longer names a label
+ * is left, and is not drawn (labelsOf). Two cases are settled here, on BVJ's
+ * calls of 2026-11-02:
+ *   - a bookmark onto a verse that already holds one is refused (`bookmark`),
+ *     so a restore never makes the second the rule forbids; a label whose name
+ *     is kept already is refused too (`label`);
+ *   - a bookmark that moved as the reader reads comes back still, unless
+ *     six already move, and then comes back plain (`movesNoMore: true`).
+ *
+ * @returns {{ ok: true, plan: { put: object[], remove: string[] }, record: object, movesNoMore: boolean }
+ *   | { ok: false, reason: string }}
+ */
+export function planRestore(records, trashId, ctx) {
+  const trash = records.find((r) => r?.kind === "trash" && r.id === trashId);
+  if (!trash) return { ok: false, reason: "missing" };
+  if (!trash.record) return { ok: false, reason: "emptied" };
+  const live = records.filter((r) => r && r.kind !== "trash");
+  const held = trash.record;
+  if (live.some((r) => r.id === held.id)) return { ok: false, reason: "exists" };
+  if (held.kind === "bookmark" && bookmarksOn(live, held).length) return { ok: false, reason: "bookmark" };
+  if (held.kind === "label" && findLabel(live, held.name)) return { ok: false, reason: "label" };
+  let record = restoreFromTrash(trash, ctx);
+  let movesNoMore = false;
+  if (isFollowing(record) && !canFollowMore(live)) {
+    const { follow: _follow, ...plain } = record;
+    record = plain;
+    movesNoMore = true;
+  }
+  return { ok: true, plan: { put: [record], remove: [trash.id] }, record, movesNoMore };
+}
+
+/**
+ * Every record in the trash that can come back, in one plan, each judged over
+ * what the ones before it brought (two bookmarks on one verse bring one;
+ * the seventh to move comes back plain). The latest deletion goes first, so it
+ * is the one that stays. `skipped` lists the trash records left in the trash
+ * and why.
+ */
+export function planRestoreAll(records, ctx) {
+  const put = [];
+  const remove = [];
+  const skipped = [];
+  let movesNoMore = 0;
+  let held = records;
+  for (const trash of trashItems(records)) {
+    const done = planRestore(held, trash.id, ctx);
+    if (!done.ok) {
+      skipped.push({ trash, reason: done.reason });
+      continue;
+    }
+    put.push(...done.plan.put);
+    remove.push(...done.plan.remove);
+    if (done.movesNoMore) movesNoMore++;
+    held = [...held.filter((r) => r.id !== trash.id), ...done.plan.put];
+  }
+  return { plan: { put, remove }, restored: put.length, skipped, movesNoMore };
 }

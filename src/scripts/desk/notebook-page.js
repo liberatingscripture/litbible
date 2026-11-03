@@ -11,7 +11,8 @@
 // of that name shares: filters by words, kind, highlight colour and label, a
 // count in words, and the records in Bible order); What's new for you (whats-new.js: the
 // release notes that touched their verses); Labels (make, rename, delete); Save a
-// copy and Open a copy (export-import.js); and Delete everything, with the
+// copy and Open a copy (export-import.js); Trash, where a deleted item can be
+// restored for its 30 days (trash-list.js; E12); and Delete everything, with the
 // shared-computer button "Empty the trash now".
 //
 // It keeps in step with the other tabs (store.subscribe). Every write goes
@@ -34,6 +35,7 @@ import { continueSection } from "./continue-reading.js";
 import { openStore } from "./store.js";
 import { START_CHOICES, START_KEY, startChoice } from "../../lib/desk-start.mjs";
 import { initUndo, showUndo } from "./undo-bar.js";
+import { createTrashList } from "./trash-list.js";
 import { mountWhatsNew } from "./whats-new.js";
 import { QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 
@@ -99,6 +101,7 @@ async function start() {
       <a href="#labels">Labels</a>
       <a href="#panel">The Notebook panel</a>
       <a href="#backup">Save a copy</a>
+      <a href="#trash">Trash</a>
       <a href="#delete-everything">Delete everything</a>
     </nav>
     <section class="desk-np__section" id="continue" data-np-continue></section>
@@ -127,10 +130,15 @@ async function start() {
       <p class="desk-np__note">“As I left it” starts minimized, then follows what you last did: a panel you close stays closed, and one you open out stays open.</p>
     </section>
     <section class="desk-np__section desk-backup" id="backup" data-np-backup></section>
+    <section class="desk-np__section" id="trash" aria-labelledby="deskNpTrashTitle">
+      <h2 class="desk-np__h2" id="deskNpTrashTitle">Trash</h2>
+      <p>What you delete waits here for 30 days. Restore an item to put it back where it was; after 30 days only a marker that it was deleted remains.</p>
+      <div data-np-trash-list></div>
+    </section>
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
       <div class="desk-np__danger">
-        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. You can undo it right away. The trash keeps each one for 30 days, then only a marker that it was deleted.</p>
+        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. You can undo it right away, or restore them from the Trash above. The trash keeps each one for 30 days, then only a marker that it was deleted.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">
@@ -147,6 +155,8 @@ async function start() {
   const labelList = q("[data-np-labels]");
   const noLabels = q("[data-np-no-labels]");
   const labelError = q("[data-np-label-error]");
+  const trashList = createTrashList({ store, ctx, announce: (message) => announce(message), onChange: () => render() });
+  q("[data-np-trash-list]").replaceWith(trashList.el);
   const deleteBox = q("[data-np-delete-box]");
   const trashBox = q("[data-np-trash-box]");
   const statusEl = q("[data-np-status]");
@@ -179,6 +189,7 @@ async function start() {
     if (seq !== renderSeq) return;
     latestRecords = records;
     drawLabels(records);
+    trashList.draw(records);
     drawDanger(records);
   }
 
