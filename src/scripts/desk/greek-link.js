@@ -3,7 +3,7 @@
 // Where a Greek search result lands (STUDY-DESK.md, "Order of work", 1h,
 // step 4). A result is the ordinary verse link with one parameter naming the
 // word, `/john-3/?greek=16.7#v16` (greekHref in src/lib/greek-search.mjs).
-// On a Study View chapter this opens the Notebook to the Greek tab at that
+// On a Chapter View chapter this opens the Notebook to the Greek tab at that
 // word, opening the panel even if the reader closed it (they asked for the
 // Greek; BVJ, 2026-10-13) and restoring it if minimized, then takes the
 // parameter off the address, so what the reader keeps or shares is the plain

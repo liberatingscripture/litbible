@@ -78,7 +78,7 @@
 
 /* Where the reader is (the picker and the percentage), then the tools, then
    the ways out. The first cluster takes the slack, so the other two sit at
-   the right end, as the view switch does in Study View's toolbar. */
+   the right end, as the view switch does in Chapter View's toolbar. */
 .rm-page .rm-toolbar__row {
   display: flex;
   align-items: center;
@@ -155,7 +155,7 @@
 /* Toolbar controls follow the site's utility-pill recipe (the Study tools
    bar: 999px pill, surface-input fill, faint ink border, soft shadow) at
    toolbar density: 36px, the header's own Aa. They were 27px with 13px
-   labels, a third smaller than the same picker in Study View. The side
+   labels, a third smaller than the same picker in Chapter View. The side
    padding is what fits the widest row ("2 Thessalonians 3", "100%", "My
    Location") inside the default font's 681px column, with 8px to spare. */
 .rm-page .rm-toolbar button,
@@ -187,7 +187,7 @@
 }
 
 /* Icons on the toolbar's buttons take the picker's green accent and flip
-   to the fill's foreground on hover, like the Study View switch's below. */
+   to the fill's foreground on hover, like the Chapter View switch's below. */
 .rm-page .rm-toolbar .rm-tool-icon {
   flex: none;
   color: var(--green-text);
@@ -241,7 +241,7 @@
   color: inherit;
 }
 
-/* The Study View switch: its glyph takes the picker's green accent, so the
+/* The Chapter View switch: its glyph takes the picker's green accent, so the
    "switch views" control reads as part of the same family. */
 .rm-page .rm-toolbar a.rm-switch {
   gap: 0.4rem;
@@ -555,7 +555,7 @@ html.rm-tools-open {
    Read View hides chapter headings along with verse numbers, as its own
    "Numbers" button always did, for unbroken text. Neither is a control here
    (verse anchors live on .rm-verse-anchor), so plain display:none is safe;
-   Study View's rule is different (global.css). */
+   Chapter View's rule is different (global.css). */
 html[data-vn="off"] .rm-page .rm-reader .rm-text sup.vn,
 html[data-vn="off"] .rm-page .rm-reader .rm-chapter {
   display: none;
@@ -607,7 +607,7 @@ html[data-vn="off"]
 
 /* Tablets and phones: 20px of margin a side. It was 0.9rem in total
    (about 7px a side), which ran the text nearly edge to edge on a phone,
-   tighter than Study View's 16px. The toolbar is a fixed bottom sheet at
+   tighter than Chapter View's 16px. The toolbar is a fixed bottom sheet at
    this width, so only the reading column narrows. */
 @media (max-width: 900px) {
   .rm-page {
@@ -746,7 +746,7 @@ html[data-vn="off"]
   }
 
   /* Controls (sheet mode): the same pill recipe, at the site's 44px touch
-     size, as the verse menu's chips and Study View's phone toolbar. */
+     size, as the verse menu's chips and Chapter View's phone toolbar. */
   .rm-page .rm-toolbar button,
   .rm-page .rm-toolbar a {
     min-height: 44px;
@@ -754,7 +754,7 @@ html[data-vn="off"]
     padding: 0 0.9rem;
   }
 
-  /* OpenDyslexic: Back to Top and Study View needed 182px and 175px against
+  /* OpenDyslexic: Back to Top and Chapter View needed 182px and 175px against
      a half row of 166–173px on a phone, so each took a line. The side
      padding only sets a button's minimum (each stretches to its half), so
      trimming it changes nothing visible; the verse menu's chips do the same. */

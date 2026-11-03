@@ -267,7 +267,7 @@ test("where the browser keeps no notebook, the tour leaves out marking the text 
 
 test("the removed Greek search commands step is gone, and a reader who saw it is not offered a new tour for it (2026-11-02)", () => {
   assert.ok(!TOUR_STEPS.some((s) => s.id === "greek-commands"));
-  // The Greek step still comes after "This verse" and before "Set the widths", in Study View only.
+  // The Greek step still comes after "This verse" and before "Set the widths", in Chapter View only.
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const study = planTour({ available: all, view: "study" }).map((s) => s.id);
   assert.equal(study[study.indexOf("greek") + 1], "widths");

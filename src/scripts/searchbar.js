@@ -395,7 +395,7 @@ const _initSearchbars = async () => {
           <a class="searchbar__jump-link" href="${studyHref}">
             <span>Jump to <strong>${label}</strong></span>
             <span class="searchbar__jump-hint">${
-              isBook ? "intro, in Study View" : "in Study View, with notes"
+              isBook ? "intro, in Chapter View" : "in Chapter View, with notes"
             }</span>
           </a>
           <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
@@ -407,7 +407,7 @@ const _initSearchbars = async () => {
         </div>
         <div class="searchbar__jump-meta">
           <span class="searchbar__jump-keys">
-            Enter: Study View &nbsp;&middot;&nbsp; Shift+Enter: Read View
+            Enter: Chapter View &nbsp;&middot;&nbsp; Shift+Enter: Read View
           </span>
           <button type="button" class="searchbar__jump-search" data-jump-search>
             Search for this instead

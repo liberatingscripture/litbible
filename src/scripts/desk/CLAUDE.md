@@ -91,7 +91,7 @@ that section.
      `data-desk-panel` still means open-or-minimized, for the dock and the
      commands.
      **It appears only on the pages `READING_SURFACES`
-     (`src/scripts/desk-frame.js`) lists**: Study View chapters and intros,
+     (`src/scripts/desk-frame.js`) lists**: Chapter View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
      (or, on an article, `start`: the card, whose top edge the panel's top
      edge matches) and its `end`: the seam where the page meets the footer's colour, which
@@ -114,7 +114,7 @@ that section.
      which wears the panels' class but takes Escape only from inside itself
      (BA24).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
-     picked for the desk's release, **and 48 on Study View chapters while the
+     picked for the desk's release, **and 48 on Chapter View chapters while the
      notebook is expanded** (BVJ, 2026-10-08; 2026-10-14), to leave the panel room for the
      Greek tab without moving the column. Read View, intros,
      articles and the glossary stay at 52, since none gets that tab. The switch is
@@ -133,7 +133,7 @@ that section.
      CSS, or to the placement rules, needs `firstPaint` to follow.
      Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
-     **On Study View the reader can drag the widths** of their notes'
+     **On Chapter View the reader can drag the widths** of their notes'
      margin, the LIT and the notebook (`desk/widths.js`, rules in
      `desk-margin.mjs`): kept in `sessionStorage` for the visit, stamped
      before first paint as `data-desk-widths` with `--desk-measure` and
@@ -189,7 +189,7 @@ that section.
      everywhere. Bookmarks show in the same `<aside>` as a red mark, a trial
      STUDY-DESK.md records, with their own switch (`data-desk-bookmarks`).
      **Bookmarks are the one piece of marginalia Read View shows**
-     (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Study View tool. The notes' settings (`data-desk-notes`,
+     (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool. The notes' settings (`data-desk-notes`,
      `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
      script, since nothing of the desk paints before it loads. "Hide my
      marks" (M1, key H; "Hide my notes" until 2026-10-29) is no setting of its own: it saves and turns off
@@ -204,7 +204,7 @@ that section.
      `planUnbookmark` in `desk-store-core.mjs`), so a second press adds
      nothing and removing takes every bookmark a copy may have brought
      (BA16).
-     While the desk is on, each Study View verse number's accessible name
+     While the desk is on, each Chapter View verse number's accessible name
      names the reader's bookmark and highlights and counts their notes on it
      ("Verse 18, bookmarked, highlighted yellow, 1 note of mine";
      `desk/verse-labels.js`, each kind only while its switch is on), the one
@@ -233,7 +233,7 @@ that section.
      "My highlights" box in the Display tray's Show group (injected by
      `note-settings.js` only with the desk on; BVJ, 2026-10-21), on Study
      View chapters, in Read View (its own setting) and on /desk, where it is
-     the only desk switch the tray gets and is Study View's setting.
+     the only desk switch the tray gets and is Chapter View's setting.
   8. **Notes on a glossary entry or an article** (N11) are **out of
      version 1** (BVJ, 2026-10-29; maybe version 2), and **switched off,
      not removed**: `PROSE_NOTES` in `desk/note-sources.js` is `false`, so
@@ -250,7 +250,7 @@ that section.
      Version 2 turns the switch back on, restores the three steps' "prose"
      view (their wording is still there) and the test of it in
      `desk-first-use.test.js`. Built, it worked so: the same margin as
-     Study View, `note-sources.js` saying what a page's notes sit beside
+     Chapter View, `note-sources.js` saying what a page's notes sit beside
      and how each is found (a chapter's verses, or an entry's or article's
      own text through `src/lib/desk-prose-anchor.mjs`), and
      `prose-actions.js` offering "Add a note" on a selection there (on the
@@ -266,7 +266,7 @@ that section.
      footnote HTML that adds visible text will fail there.
   10. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
-     and "Greek" (`desk/tab-greek.js`, rule 14) on Study View chapters, and
+     and "Greek" (`desk/tab-greek.js`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
      the last-read attributes), from the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
@@ -281,7 +281,7 @@ that section.
      `data-desk-toggle` so global.css shows them with the desk on, on every page
      (BVJ, 2026-10-30; only the panel's buttons are held to the reading
      surfaces, and the desk's own header hides its link); the panel
-     wires `button[data-desk-toggle]` only. The Study View "Switch to Read View"
+     wires `button[data-desk-toggle]` only. The Chapter View "Switch to Read View"
      pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
@@ -709,6 +709,16 @@ that section.
        chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref`
        is the same address for code). A new link into /desk that means to
        open at a passage uses this, never the layout key.
+     - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
+       2026-11-02). With the preview on, `/read`'s Read View card and the
+       chapter picker's "Open X in Read View" link become the Study Desk
+       (`.view-card--desk` in `read.css`; ReadMenu reads `data-desk`), and
+       the rest stays. `src/lib/read-view-retirement.mjs` (redirects, the
+       `#ch-N` and verse-anchor mapping, "Continue reading" records from
+       Read View read as Chapter View places) and
+       `src/scripts/read-view-redirect.js` are built and tested but imported
+       by nothing: work session 8c wires them in at launch, removes Read
+       View, and deletes the test that guards the gap.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
@@ -757,9 +767,9 @@ that section.
        and what it knows about the LIT (3h: blanks, the footnote picker,
        the key terms box and the license card) in `desk/sheet-lit.js`,
        whose rules are `src/lib/desk-sheet-lit.mjs`.
-     - **Every pane reads a chapter from its built Study View page**,
+     - **Every pane reads a chapter from its built Chapter View page**,
        fetched and parsed once a visit (`desk/chapter-page.js`), so what it
-       shows is character-identical to Study View. Only the parts the panes
+       shows is character-identical to Chapter View. Only the parts the panes
        read are kept, moved into a document of their own (`keepParts`: the
        text, the footnotes and Go deeper; BA65), so a new reader of `doc`
        finds nothing else there. Each LIT pane keeps
@@ -796,21 +806,21 @@ that section.
        the line (`--desk-lit-below`, BA57), so the last verses reach it.
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
-       note (`footnotePanel`, shared with Study View in `panel-pieces.js`);
+       note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);
        key terms are attached per chapter (`attachTermLens` in
        `term-lens.js`). **The verse menu and the selection panel are Study
        View's own** (3f): `attachVerseTools` in `chapter-tools.js` takes the
        pane as a view whose text holds many chapters (each names its own
        reference, link and notes), and one set of selection listeners serves
        every view, so two panes never answer one selection. A change to
-       either panel must keep Study View, Read View and the pane working.
+       either panel must keep Chapter View, Read View and the pane working.
        **A panel opened from a pane's text is pinned to the screen** where it
        opens (BVJ, 2026-10-26; BA125): the pane's scroller carries
        `data-panels-pin`, and `showPanel` (`lit-panel.js`) pins a panel whose
        trigger is inside it, or one opened with `pinned` (the selection
        panel, whose trigger is a rectangle), since a place in the document
        wouldn't move with text scrolling in its own box. Its footnote letters
-       are `aria-haspopup="dialog"`, as Study View's, and a middle-click on
+       are `aria-haspopup="dialog"`, as Chapter View's, and a middle-click on
        one is cancelled, so it never opens another /desk (BA126). No
        reader's notes or bookmarks beside the pane's text, by BVJ's choice
        (3g): My Notes is a following pane that scrolls its list so the
@@ -866,7 +876,7 @@ that section.
        as the home link, "Study Desk" centered as the page's h1, then the
        menu button (Aa is gone from the bar: see "The title menu" below).
        No nav row and no search; the Display tray carries
-       Study View's "Show" switches (`scriptureControls="study"`), which
+       Chapter View's "Show" switches (`scriptureControls="study"`), which
        reach the LIT pane's text. Search is a pane (below).
      - **The title menu** (E15 and E14; BVJ, 2026-11-02; mocked first, he
        picked "everything in the title, and Aa moves in too"). The h1's text
@@ -963,7 +973,7 @@ that section.
        theme, and `sheets-page.css` lets the reader's named fonts, colors and
        backgrounds print, which print.css otherwise turns to black serif.
      - **Printing with my notes (M6) needs no sheet**: "Print with my notes"
-       in the Print menu (below) and the command list, on Study View chapters and
+       in the Print menu (below) and the command list, on Chapter View chapters and
        Read View (`desk/print-notes.js`, rules in
        `src/lib/desk-print-notes.mjs`). For that one print it sets
        `html[data-desk-print="notes"]`, inserts a print-only
@@ -1000,7 +1010,7 @@ that section.
        place**, with no new tab, as the Notebook's buttons always did. /desk's
        is "Print…" in the page-title menu (E15, below); the
        Notebook's is one "Print…" button at the foot of the Settings tab
-       (`panel.js`'s `printBox`, Study View chapters and Read View), opening the
+       (`panel.js`'s `printBox`, Chapter View chapters and Read View), opening the
        menu in place under it. **In Read View the menu has no picker** and
        prints the book on the page in place (the plain choice reads "The
        book"): a book is what Read View prints, and picking a chapter is Study

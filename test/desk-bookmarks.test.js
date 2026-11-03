@@ -105,7 +105,7 @@ test("the reader's position counts only on the page it was recorded for", () => 
   const study = { book: "romans", chapter: 8, verse: 12, view: "study" };
   assert.deepEqual(positionOnPage(study, pageBookOf("/romans-8/")), { bookKey: "romans", chapter: 8, verse: 12 });
   assert.equal(positionOnPage(study, pageBookOf("/romans-9/")), null, "a draft chapter records nothing, so the last record is stale");
-  assert.equal(positionOnPage(study, pageBookOf("/read/romans/")), null, "a Study View record is not Read View's");
+  assert.equal(positionOnPage(study, pageBookOf("/read/romans/")), null, "a Chapter View record is not Read View's");
   assert.equal(positionOnPage(study, pageBookOf("/romans-intro/")), null);
   assert.equal(positionOnPage(study, pageBookOf("/john-3/")), null);
   const read = { book: "romans", chapter: 5, verse: null, view: "read" };
@@ -180,7 +180,7 @@ test("an inherited property name is not a book", () => {
 test("Continue reading is one row, with its address and the view it was kept in", () => {
   const item = continueItem({ book: "luke", chapter: 15, verse: 11, view: "study" });
   assert.equal(item.title, "Luke 15:11");
-  assert.equal(item.detail, "Continue reading · Study View");
+  assert.equal(item.detail, "Continue reading · Chapter View");
   assert.equal(item.href, "/luke-15/#v11");
   assert.equal(item.bookKey, "luke");
   const read = continueItem({ book: "john", chapter: 3, verse: null, view: "read" });

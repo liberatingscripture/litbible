@@ -1,7 +1,7 @@
 // src/scripts/desk/note-sources.js
 //
 // What a page holds notes on, for the margin (notes-margin.js) and the
-// Notebook's list: a Study View chapter's verses, or (STUDY-DESK.md N11,
+// Notebook's list: a Chapter View chapter's verses, or (STUDY-DESK.md N11,
 // provisional, 2026-10-08) a glossary entry's or an article's own text. The
 // same margin and the same switch serve both (decision 9 under "the margin
 // switch"); only how a note is found on the page differs.
@@ -52,7 +52,7 @@ const toRange = (pts) => {
   return range;
 };
 
-/** A Study View chapter's notes and bookmarks, on its verses. */
+/** A Chapter View chapter's notes and bookmarks, on its verses. */
 export function studySource() {
   const here = pageChapter();
   const textBox = document.querySelector(".chapter-paragraphs");

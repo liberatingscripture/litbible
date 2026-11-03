@@ -441,15 +441,15 @@ corpus-wide fold. It has two readers, /glossary's list and the term lens
 below, so neither can publish a claim the other doesn't. Any new surface that
 shows where a term appears reads it too, rather than restating the table above.
 
-### The term lens (Study View)
+### The term lens (Chapter View)
 
-Every use of a glossary term in a Study View chapter carries a quiet dotted
+Every use of a glossary term in a Chapter View chapter carries a quiet dotted
 underline, and hovering one with a mouse (350 ms) or tapping it opens a card
 in the shared panel: the word as printed, "Traditionally *flesh* · Greek
 *sarx*", up to four other renderings with their corpus counts, and a link to
 the glossary entry. Four owner decisions (2026-09-28): **every use**, not just
 the first of each term; **on by default**, with a **Key terms** box in the
-Display tray to turn it off; **Study View only**, never Read View, which is
+Display tray to turn it off; **Chapter View only**, never Read View, which is
 for immersion; and **no tab stops** (below). The pieces are
 `src/lib/term-lens.mjs` (pure, unit-tested), `term-lens-data.mjs` (its fs
 shell) and `src/scripts/term-lens.js`. Five rules:

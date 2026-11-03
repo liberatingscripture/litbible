@@ -7,9 +7,9 @@
 // time the menu opens and changes only what is printed; it never moves a pane
 // or the page. What each choice does for the chapter picked is
 // `printMenuState` (src/lib/desk-print-notes.mjs, pure and tested):
-//   - a chapter other than this page's opens its Study View address in a new
+//   - a chapter other than this page's opens its Chapter View address in a new
 //     tab with `?print=<kind>`, which prints itself (print-link.js);
-//   - this page's own chapter (`here`, the Notebook on Study View) prints in
+//   - this page's own chapter (`here`, the Notebook on Chapter View) prints in
 //     place with `inPlace`, as the Notebook's buttons always did;
 //   - in Read View (`book`) there is no picker: the menu prints the book on
 //     the page, in place.

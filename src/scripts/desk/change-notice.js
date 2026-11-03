@@ -15,7 +15,7 @@
 // A notice is judged only where the chapter's text is on the page: a Study
 // View chapter, or a chapter of the book Read View shows, or the glossary
 // entry or article a prose note is on. A pinned footnote (pins.js) is the
-// fourth case and the narrowest: its chapter's Study View page, the only one
+// fourth case and the narrowest: its chapter's Chapter View page, the only one
 // that has the footnotes. (A note on a footnote, M11, is judged the same way
 // while its card still shows a note.) Its card is the same card: what changed, word by
 // word, with Keep (move the pin to the footnote now standing there) and

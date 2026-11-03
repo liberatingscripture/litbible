@@ -38,7 +38,7 @@ export const EDGE = 16; // between the panel and the window's edge
 // about 1157px windows but left the panel noticeably narrow; BVJ chose the
 // 280px panel with the column moving (2026-10-06). At the 52 measure the
 // text moved from about 1205px windows down at the default size (58px at
-// 1162px). Study View chapters narrow to 48 while the panel is open
+// 1162px). Chapter View chapters narrow to 48 while the panel is open
 // (2026-10-08): there nothing moves at 1280px, where the panel gets 304px;
 // it gets 347px at 1366 and 384px at 1440.
 export const MIN_WIDTH = 280;
@@ -186,7 +186,7 @@ export function nextCollapsed({ floating, wasFloating, collapsed, opening, minim
   return collapsed;
 }
 
-/* ── Widths the reader drags (Study View, the notebook open) ─────────── */
+/* ── Widths the reader drags (Chapter View, the notebook open) ─────────── */
 
 // BVJ, 2026-10-08 ("Decisions", the Greek tab, item 13): the reader can drag
 // the widths of their notes' margin, the LIT and the notebook, and they last
@@ -305,7 +305,7 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width }) {
 /* ── Before first paint ─────────────────────────────────────────────── */
 
 // Layout.astro's pre-paint script stamps <html data-desk-expanded> (the 48
-// measure on Study View chapters) and the reader's kept widths, so a page
+// measure on Chapter View chapters) and the reader's kept widths, so a page
 // opening with the notebook expanded doesn't reflow. Stamped where the
 // window can't hold them, the first placement undid them: in a window too
 // narrow for the margin the notebook floats, folds by itself
@@ -316,13 +316,13 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width }) {
 // which it repeats, since it can't import (test/desk-prepaint.test.js holds
 // the two together and this to the placements it predicts).
 //
-// It reads the Study View column's width from the reader's settings, from
+// It reads the Chapter View column's width from the reader's settings, from
 // these values, which test/desk-margin.test.js holds to global.css and
 // ScriptureLayout.astro. The window is the whole width the script sees,
 // before the page has a scrollbar, so a classic scrollbar leaves a band of
 // about 16px where it still guesses wrong.
 export const FIRST_PAINT = {
-  measure: 48, // Study View's measure with the notebook expanded (global.css)
+  measure: 48, // Chapter View's measure with the notebook expanded (global.css)
   pad: 32, // .scripture-main's side padding (ScriptureLayout.astro)
   body: 1.125, // the body's font size, in rem (global.css)
   // --ch in em, by data-font (global.css; "" is Inter, the default)
@@ -332,13 +332,13 @@ export const FIRST_PAINT = {
 };
 
 /**
- * What the first placement will make of a Study View page opening with the
+ * What the first placement will make of a Chapter View page opening with the
  * notebook expanded: whether it stays expanded (`expanded`; it folds where
  * the margin can't hold it even with the column moved), and the widths to
  * draw the page with (`widths`: the kept ones, given way as placeWithWidths
  * gives them, or null where they don't fit and the ordinary placement takes
  * over). The column starts against its containing box's left edge, which
- * is the window's on Study View.
+ * is the window's on Chapter View.
  *
  * @param {object} m
  * @param {number} m.viewport the window's width

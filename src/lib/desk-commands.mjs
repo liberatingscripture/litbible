@@ -10,7 +10,7 @@
 // A command is offered only where it can work. The ones that act on the
 // Notebook panel or the page's settings need the desk's code running, which it
 // is only on a reading surface (desk-frame.js); "This verse" and the Greek tab
-// need a Study View chapter, "Print with my notes" and "Print with room to
+// need a Chapter View chapter, "Print with my notes" and "Print with room to
 // write" a chapter or Read View; the
 // ones that open the notebook's own pages work anywhere.
 //
@@ -23,7 +23,7 @@ import { searchTokens } from "./desk-search.mjs";
 
 /**
  * Where the box is, as far as commands care:
- * { surface: a reading surface (the desk's panel exists), study: a Study View
+ * { surface: a reading surface (the desk's panel exists), study: a Chapter View
  *   chapter, panelOpen: the Notebook panel is open, hidden: "Hide my marks"
  *   is on }.
  */
@@ -118,7 +118,7 @@ function offered(command, ctx) {
   if (command.needs === "surface" && !ctx.surface) return false;
   if (command.needs === "study" && !ctx.study) return false;
   if (command.needs === "greek" && !(ctx.greek ?? ctx.study)) return false;
-  // Printing (with notes, or with room to write) works on a Study View
+  // Printing (with notes, or with room to write) works on a Chapter View
   // chapter and in Read View. With room to write needs no notebook; with my
   // notes says so itself (`show`).
   if (command.needs === "print" && !(ctx.print ?? ctx.study)) return false;

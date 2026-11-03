@@ -4,7 +4,7 @@
 // modified; these transforms run only when rendering the website. Two views
 // consume them with different needs:
 //
-// - Study View (/[slug].astro): one page per chapter. Keeps `#vN` verse ids,
+// - Chapter View (/[slug].astro): one page per chapter. Keeps `#vN` verse ids,
 //   adds OSIS ids and Pagefind indexing helpers.
 // - Read View (/read/[book].astro): all chapters of a book on one page.
 //   Strips footnote refs, namespaces verse ids to `<book>-<ch>-vN`, and moves
@@ -88,7 +88,7 @@ function normalizeHbqVerseGlue(html: string): string {
   );
 }
 
-/* ── Study View passes ───────────────────────────────────────────────── */
+/* ── Chapter View passes ───────────────────────────────────────────────── */
 
 /**
  * Normalize `.vglue` whitespace so the verse number stays glued to the verse's
@@ -289,7 +289,7 @@ function normalizeReadVerseGlue(html: string): string {
 /* ── Entry points ────────────────────────────────────────────────────── */
 
 /**
- * Full Study View pipeline for one paragraph. `seenVerseIds` and
+ * Full Chapter View pipeline for one paragraph. `seenVerseIds` and
  * `verseState` must be fresh per chapter (duplicate verse ids are only
  * dropped — and the current verse only carries — within a chapter).
  */
@@ -319,7 +319,7 @@ export function prepareStudyParagraph(
 
 /**
  * Full Read View pipeline for one paragraph. `seenVerseIds` and
- * `verseState` must be fresh per chapter, as in Study View.
+ * `verseState` must be fresh per chapter, as in Chapter View.
  */
 export function prepareReadParagraph(
   html: string,
@@ -336,7 +336,7 @@ export function prepareReadParagraph(
   // addHbqAria here too: Read View renders the same poetry blocks and had
   // never announced any of them. Its page carries the same #hbq-description
   // target, so the describedby reference resolves on both views.
-  // The verse spans come last, as in Study View: the verse menu and the
+  // The verse spans come last, as in Chapter View: the verse menu and the
   // selection bar (chapter-tools.js) read a verse's text from them.
   return wrapVerseSegments(
     addHbqAria(

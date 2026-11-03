@@ -1,7 +1,7 @@
 // test/chapter-html.test.js
 //
 // Unit tests for src/lib/chapter-html.ts — the shared server-side (build-time)
-// HTML transform pipeline that both Study View and Read View use to prepare
+// HTML transform pipeline that both Chapter View and Read View use to prepare
 // chapter paragraphs. Run with `npm test` (node --test test/). No disk
 // fixtures: every case is a small inline HTML string shaped like real chapter
 // JSON `paragraphs` entries.
@@ -127,7 +127,7 @@ test("vglue: Read View moves the verse id off the <sup> onto a standalone .rm-ve
   assert.equal(/<sup[^>]*\bid=/.test(out), false);
 });
 
-test("verse spans: Read View wraps each verse like Study View, anchor inside its own verse", () => {
+test("verse spans: Read View wraps each verse like Chapter View, anchor inside its own verse", () => {
   const state = { currentVerse: null };
   const seen = new Set();
   const p1 =
@@ -364,7 +364,7 @@ test("addHbqAria: leaves a non-hbq blockquote alone and does not double-inject",
   const other = '<blockquote id="x" class="other"><p>Text</p></blockquote>';
   assert.ok(!prepareStudyParagraph(other, "john", 3, new Set(), freshState()).includes('role="group"'));
 
-  // Idempotent: Read View and Study View run the same pipeline, and a block
+  // Idempotent: Read View and Chapter View run the same pipeline, and a block
   // that already carries the role must not collect a second copy.
   const once = prepareStudyParagraph(
     '<blockquote id="p1" class="hbq"><p class="hbq-line">Text</p></blockquote>',

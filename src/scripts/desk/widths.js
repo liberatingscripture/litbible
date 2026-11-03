@@ -1,7 +1,7 @@
 // src/scripts/desk/widths.js
 //
 // Widths the reader can drag (BVJ, 2026-10-08; "Decisions", the Greek tab,
-// item 13, with the recommended details): on a Study View chapter with the
+// item 13, with the recommended details): on a Chapter View chapter with the
 // notebook open in the margin, two handles trade width between neighbours,
 // one between the notes' margin and the LIT, one between the LIT and the
 // notebook. src/lib/desk-margin.mjs holds the rules (placeWithWidths and the
@@ -124,7 +124,7 @@ export function resetWidthsButton(className) {
 
 /**
  * @param {{ column: HTMLElement, panel: HTMLElement, onChange: () => void }} options
- *   `column` is Study View's column (.scripture-main), `panel` the Notebook
+ *   `column` is Chapter View's column (.scripture-main), `panel` the Notebook
  *   panel, and `onChange` places everything again (margin.js).
  */
 export function createWidths({ column, panel, onChange }) {

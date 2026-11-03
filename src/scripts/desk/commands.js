@@ -20,12 +20,12 @@ export function initCommands({ panel, printNotes = null, printRoom = null }) {
     "open-notebook": () => panel.open(null),
     "show-my-notes": () => panel.showTab("mine"),
     "show-this-verse": () => panel.showTab("verse"),
-    // The Greek tab exists on Study View chapters and draft chapters; showTab
+    // The Greek tab exists on Chapter View chapters and draft chapters; showTab
     // returns false where it is absent, so the command does nothing there.
     "show-greek": () => panel.showTab("greek"),
     // The same event the H key sends; note-settings.js toggles M1.
     "hide-notes": () => document.dispatchEvent(new CustomEvent("lit:desk-hide")),
-    // M6: a Study View chapter or Read View, which is where the command is
+    // M6: a Chapter View chapter or Read View, which is where the command is
     // offered (desk-commands.mjs); anywhere else it does nothing.
     "print-with-notes": () => {
       if (printNotes?.can()) printNotes.print();

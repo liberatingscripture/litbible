@@ -21,7 +21,7 @@
 // - Search is search-pane.js, the site's search with results that move the
 //   LIT pane (3m). It stands alone, and keeps nothing of a search.
 // The following panes (This verse, Greek, Footnotes) read their chapter from
-// its fetched Study View page (chapter-page.js), and show the passage
+// its fetched Chapter View page (chapter-page.js), and show the passage
 // desk-page.js gives them, with a passage picker at their top
 // (passage-bar.js). Each mount returns { destroy },
 // plus setPassage for a pane that is moved: a following pane, or a LIT pane
@@ -75,9 +75,9 @@ const hereOf = (p) => ({ bookKey: p.bookKey, chapter: p.chapter, label: passageL
 /**
  * "This chapter" at the foot of This verse: the chapter's Go deeper rows
  * (podcast episodes, articles, key terms, and the book's introduction), taken
- * from its Study View page, and a link to that page. Its links are the
+ * from its Chapter View page, and a link to that page. Its links are the
  * page's own, so one to another page of the site leaves /desk as it would
- * from Study View.
+ * from Chapter View.
  */
 function thisChapter(source, paneId) {
   const section = make("section", "desk-verse__section desk-chapter");
@@ -92,7 +92,7 @@ function thisChapter(source, paneId) {
     section.append(copy);
   }
   const open = make("p", "desk-chapter__open");
-  const a = make("a", null, `Read ${passageLabel({ bookKey: source.bookKey, chapter: source.chapter })} in Study View`);
+  const a = make("a", null, `Read ${passageLabel({ bookKey: source.bookKey, chapter: source.chapter })} in Chapter View`);
   a.href = chapterHref(source.bookKey, source.chapter);
   open.append(a);
   section.append(open);

@@ -72,6 +72,9 @@ From the root's project tree.
                      #   (desk-search-pane), and the LIT pane's corpus and
                      #   text (desk-corpus, desk-lit-text)), greek-parse.mjs (MorphGNT's parsing
                      #   codes in words, shared with the phase 2 tool),
+                     #   read-view-retirement.mjs (Read View's launch
+                     #   redirects and saved-place rules; dormant until
+                     #   the cutover, nothing imports it),
                      #   greek-search.mjs (searching the Greek: folding,
                      #   transliteration keys, matching; shared by both
                      #   search UIs, the Greek tab and build:greek),
@@ -94,7 +97,7 @@ From the root's project tree.
 ## Conventions
 
 - **Scripture references link at render, never in the data.** Footnotes
-  (Study View), book intros, article bodies, glossary bodies, and release-note
+  (Chapter View), book intros, article bodies, glossary bodies, and release-note
   descriptions are passed through `linkScriptureRefs` (`src/lib/scripture-refs.mjs`,
   pure and unit-tested; `scripture-refs-data.mjs` is its fs shell) as the page is
   built, so "Romans 2:24" becomes `<a class="sref" href="/romans-2/#v24">`, and

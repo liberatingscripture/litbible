@@ -17,7 +17,7 @@ From the root's project tree.
                      #   lit-panel, the one floating panel every reader tool
                      #   shares; ref-preview, scripture reference previews;
                      #   last-read + continue-reading, "Continue reading";
-                     #   term-lens, the Study View term underline and card;
+                     #   term-lens, the Chapter View term underline and card;
                      #   header-search, the header's search strip;
                      #   keyboard-shortcuts; verse-image, which draws and
                      #   hands on "Make an image"; glossary-entry-links, the
@@ -69,10 +69,10 @@ offers the verse menu's actions under the same names (see "One set of
 actions, two ways in" below), for a half-sentence, a phrase crossing two
 verses, or part of a poetry quotation. It runs in **both views**, and in
 Read View it is the only such tool: that view's verse numbers stay plain
-text, because the verse menu belongs to the chapter's Study View page (owner,
+text, because the verse menu belongs to the chapter's Chapter View page (owner,
 2026-09-28). In Read View a selection is clamped to the first chapter it
 touches, since one reference names one chapter, and every link it produces,
-Copy link's included, is the Study View verse link (`/john-3#v16`), never a
+Copy link's included, is the Chapter View verse link (`/john-3#v16`), never a
 Read View anchor.
 Four owner decisions (2026-09) shape it:
 
@@ -146,7 +146,7 @@ a tap elsewhere or on Escape. Dragging marks it `acting`, as a button press
 does, because a finger on it clears a phone's selection.
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
-screen-reader route to the same copy (in Study View; Read View has none).
+screen-reader route to the same copy (in Chapter View; Read View has none).
 
 ### One set of actions, two ways in
 
@@ -165,7 +165,7 @@ both about whole verses. Both panels build from the same pieces
 **The glossary has a selection panel too** (owner, 2026-10-09), for every
 reader: selecting words in an entry's definition offers **Copy entry text**
 (the words, "— Glossary: Flesh (LIT)" and the entry's link) and **Copy entry
-link** (`src/scripts/glossary-selection.js`). It is Study View's selection
+link** (`src/scripts/glossary-selection.js`). It is Chapter View's selection
 panel in miniature, built from `panel-pieces.js` with the same settling,
 placement, word snapping and never-take-focus rules, clamped to one entry's
 definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
@@ -326,7 +326,7 @@ notice there or nowhere.
 - **The selection bar copies a handout too** (`selectionHandout`), in both
   views, so a handout can start mid-verse. Read View prints no footnote
   letters and has no notes on the page, so there the handout reads them from
-  the chapter's Study View page, fetched when the bar opens (`readingView` in
+  the chapter's Chapter View page, fetched when the bar opens (`readingView` in
   `chapter-tools.js`). Three things make that work:
   1. **A selection's ends are recorded as counts, not DOM positions**: how
      many characters of the verse come before each end, with verse numbers,
@@ -433,7 +433,7 @@ notice there or nowhere.
     or it renders two.
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
-  `src/scripts/last-read.js`. Study View writes it on arrival (at a `#vN`
+  `src/scripts/last-read.js`. Chapter View writes it on arrival (at a `#vN`
   verse) and as the reader scrolls, taking the last verse number above the
   reading line, 10% of the way down the window (BVJ, 2026-10-29; it was 30%)
   but never above where a link to a verse puts its number (`readingLine`).
@@ -450,7 +450,7 @@ notice there or nowhere.
   it there if the record ever changes shape or purpose.
 - **Read View lands on a link instantly, then holds it.** `/read/<book>` is
   the whole book on one page, tens of thousands of pixels tall, so arriving at
-  `#ch-10` (Study View's "Switch to Read View") or `#luke-10-v25` (search)
+  `#ch-10` (Chapter View's "Switch to Read View") or `#luke-10-v25` (search)
   is fragile: any height change above the target after the jump (a web font
   finishing, the Android banner) slides the text under a fixed scroll offset,
   and Safari has no scroll anchoring to undo it. (The reader's text size is
@@ -464,7 +464,7 @@ notice there or nowhere.
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
   2026-09-28): `/` search (a Search pane on /desk), `g` Go to passage, and
   ← → or `[` `]` for the
-  previous and next chapter (Study View's top Previous/Next, found by their
+  previous and next chapter (Chapter View's top Previous/Next, found by their
   `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Read View).
   `h` is the Study Desk's "Hide my marks" and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code

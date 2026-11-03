@@ -1,6 +1,6 @@
 // src/lib/desk-lit-text.mjs
 //
-// A chapter's Study View text made ready for /desk's LIT pane (STUDY-DESK.md,
+// A chapter's Chapter View text made ready for /desk's LIT pane (STUDY-DESK.md,
 // D9; "Order of work", 3e). The pane shows many chapters in one scroll, and
 // two LIT panes can be open at once, so the ids a chapter's page carries
 // (`v16`, `fnref-a`, `john-3-p4`) would repeat. Every id is given a prefix
@@ -10,7 +10,7 @@
 // opens the note in a popover rather than jumping to a list it doesn't show.
 //
 // Only attributes change. The text, the `data-verse` spans and the markup are
-// the page's own, so the anchor text read off the pane is Study View's
+// the page's own, so the anchor text read off the pane is Chapter View's
 // character for character (test/desk-anchor-dom.test.js sweeps every
 // published chapter through this). Pure: it needs only childNodes,
 // getAttribute and setAttribute, so the tests run it on their small DOM.

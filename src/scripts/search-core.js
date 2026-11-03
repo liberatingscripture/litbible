@@ -903,7 +903,7 @@ export function verseHitLabel(hit) {
   });
 }
 
-/** Study View deep link ("/john-3#v16") for a verse hit. */
+/** Chapter View deep link ("/john-3#v16") for a verse hit. */
 export function verseHitHref(hit) {
   return makeStudyReferenceHref({
     bookKey: hit.bookKey,

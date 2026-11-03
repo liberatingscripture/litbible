@@ -21,10 +21,10 @@ test("commands appear only where they can work", () => {
   assert.deepEqual(ids(">", page), ["notebook-page", "notebook-backup", "notebook-help"]);
   assert.ok(ids("this verse", chapter).includes("show-this-verse"));
   const notStudy = { ...chapter, study: false };
-  assert.ok(!ids("this verse", notStudy).includes("show-this-verse"), "This verse is a Study View tab");
+  assert.ok(!ids("this verse", notStudy).includes("show-this-verse"), "This verse is a Chapter View tab");
   assert.deepEqual(ids("greek", chapter), ["show-greek"], "the Greek tab is found by its name");
   assert.deepEqual(ids("sblgnt", chapter), ["show-greek"], "and by its keyword");
-  assert.deepEqual(ids("greek", notStudy), [], "the Greek tab is a Study View tab");
+  assert.deepEqual(ids("greek", notStudy), [], "the Greek tab is a Chapter View tab");
 });
 
 test("a draft chapter offers the Greek tab but not This verse", () => {
@@ -77,7 +77,7 @@ test("printing with notes, and with room to write, are offered on a chapter and 
   assert.deepEqual(ids("ruled", chapter), ["print-with-room"]);
   assert.deepEqual(ids("annotated", chapter), ["print-with-notes"]);
   const readView = { ...chapter, study: false, print: true };
-  assert.deepEqual(ids("print with", readView), both, "Read View has no Study View tabs but can print");
+  assert.deepEqual(ids("print with", readView), both, "Read View has no Chapter View tabs but can print");
   assert.deepEqual(ids("print", { ...chapter, study: false, greek: true }), [], "a draft chapter has no notes to print");
   assert.deepEqual(ids("print", page), []);
   assert.equal(matchCommands("print", chapter)[0].href, null, "a command, not a link");

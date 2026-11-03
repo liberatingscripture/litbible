@@ -25,7 +25,7 @@ test("global.css hides the Notebook button on exactly the pages READING_SURFACES
 /** A document that has exactly these selectors. */
 const docWith = (...present) => ({ querySelector: (sel) => (present.includes(sel) ? {} : null) });
 
-test("readingSurface finds Study View, intros, Read View, articles and the glossary, and nothing else", () => {
+test("readingSurface finds Chapter View, intros, Read View, articles and the glossary, and nothing else", () => {
   assert.equal(readingSurface(docWith(".glossary-entries .entries-wrap")).title, ".glossary-entries .entry-title");
   assert.equal(readingSurface(docWith(".scripture-layout--scripture .scripture-main")), READING_SURFACES[0]);
   assert.equal(readingSurface(docWith(".scripture-layout--intro .scripture-main")), READING_SURFACES[1]);

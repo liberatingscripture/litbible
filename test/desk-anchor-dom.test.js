@@ -35,7 +35,7 @@ const published = readdirSync(CHAPTER_DIR)
   .map((f) => JSON.parse(readFileSync(new URL(f, CHAPTER_DIR), "utf8")))
   .filter((c) => c.indexed !== false);
 
-/** A chapter as Study View renders it: one `.p` container per paragraph. */
+/** A chapter as Chapter View renders it: one `.p` container per paragraph. */
 function studyBlocks(c) {
   const seen = new Set();
   const state = { currentVerse: null };
@@ -66,7 +66,7 @@ test("the sweep covers the published corpus", () => {
   assert.ok(published.length > 150, `only ${published.length} published chapters found`);
 });
 
-test("sweep: Study View's page text is the anchor text, verse by verse, in every published chapter", () => {
+test("sweep: Chapter View's page text is the anchor text, verse by verse, in every published chapter", () => {
   const failures = [];
   for (const c of published) {
     const want = chapterAnchorText(c.paragraphs);
@@ -78,7 +78,7 @@ test("sweep: Study View's page text is the anchor text, verse by verse, in every
       failures.push(`${c.bookKey}-${c.chapter}`);
     }
   }
-  assert.deepEqual(failures, [], `Study View disagrees with the anchor text in ${failures.length} chapters`);
+  assert.deepEqual(failures, [], `Chapter View disagrees with the anchor text in ${failures.length} chapters`);
 });
 
 test("sweep: Read View's page text is the anchor text, verse by verse, in every published chapter", () => {
@@ -96,7 +96,7 @@ test("sweep: Read View's page text is the anchor text, verse by verse, in every 
   assert.deepEqual(failures, [], `Read View disagrees with the anchor text in ${failures.length} chapters`);
 });
 
-// /desk's LIT pane shows Study View's text with its ids prefixed
+// /desk's LIT pane shows Chapter View's text with its ids prefixed
 // (src/lib/desk-lit-text.mjs), so it is a third way the page is read.
 test("sweep: the LIT pane's text on /desk is the anchor text, and its ids are its own, in every published chapter", () => {
   const failures = [];

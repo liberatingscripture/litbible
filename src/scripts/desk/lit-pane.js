@@ -5,10 +5,10 @@
 // Revelation 22, with no setting for a chapter or a book (BVJ, 2026-10-18,
 // "Phase 3a's answers", 5).
 //
-// - **Study View's own text, a chapter at a time.** Each chapter's built page
+// - **Chapter View's own text, a chapter at a time.** Each chapter's built page
 //   is fetched (chapter-page.js, shared with the other panes) as the reader
 //   nears it, and its paragraphs are taken as they are, ids aside
-//   (src/lib/desk-lit-text.mjs), so the text is Study View's character for
+//   (src/lib/desk-lit-text.mjs), so the text is Chapter View's character for
 //   character and a mark's anchor is measured against the same words
 //   (test/desk-anchor-dom.test.js sweeps it).
 // - **A chapter loading above doesn't move the text being read**: the line
@@ -30,7 +30,7 @@
 //   moved it (the Greek pane's rule), so a pane sent somewhere never chases
 //   the panes that follow it. A chapter in a stub is told only once the
 //   reader stops on it (BA64).
-// - **The verse menu and the selection panel are Study View's own** (3f;
+// - **The verse menu and the selection panel are Chapter View's own** (3f;
 //   chapter-tools.js's attachVerseTools), with the pane as one more view:
 //   each chapter names its own reference and link, and "Copy with
 //   footnotes" reads the notes from the chapter's fetched page. Their "My
@@ -42,7 +42,7 @@
 //   (page.js, addDeskText), and the reader's highlights are drawn on it and
 //   its verse numbers named for them (highlights.js, verse-labels.js), from
 //   every pane showing a chapter. A footnote's popover offers Pin through
-//   the same `lit:footnote-actions` event Study View's does (pins.js).
+//   the same `lit:footnote-actions` event Chapter View's does (pins.js).
 //   Nothing of the reader's sits beside the text (BVJ, 2026-10-19): notes
 //   and bookmarks are in My Notes, which follows this pane.
 
@@ -141,7 +141,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       const { bookKey, chapter } = parseKey(key);
       return `${bookKeyToLabel(bookKey)} ${chapter}:${start}${end > start ? "–" + end : ""}`;
     },
-    // Links go to the verse in Study View, as Read View's do.
+    // Links go to the verse in Chapter View, as Read View's do.
     url: (key, start, end) => `${studyLink(key)}#v${start}${end > start ? "-" + end : ""}`,
     // A block's id here carries the pane's prefix; its link is the page's own.
     partUrl: (key, id) => {
@@ -225,7 +225,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     h.id = `deskLit-${paneId}-${i}`;
     const a = make("a", null, unitHeading(u));
     a.href = chapterHref(u.bookKey, chapter);
-    a.title = "Open in Study View";
+    a.title = "Open in Chapter View";
     h.append(a);
     section.setAttribute("aria-labelledby", h.id);
     const box = make("div", "chapter-paragraphs");
@@ -233,7 +233,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     prepareLitBlocks(blocks, litPrefix(paneId, u.bookKey, chapter));
     box.append(...blocks);
     tools.enableNumbers(box);
-    // A letter opens its note in a panel, as on Study View (BA126).
+    // A letter opens its note in a panel, as on Chapter View (BA126).
     for (const fn of box.querySelectorAll(".fn-ref a")) fn.setAttribute("aria-haspopup", "dialog");
     section.append(h, box);
     if (source.termData) lenses.push(attachTermLens(box, source.termData));
@@ -512,7 +512,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       label: `Footnote ${letter}, ${where}`,
       body: source.footnoteBody(a.dataset.fn),
     });
-    // The same offer Study View's popover makes, naming the chapter since a
+    // The same offer Chapter View's popover makes, naming the chapter since a
     // pane holds many; only pins.js listens (3g), and only with a notebook.
     document.dispatchEvent(
       new CustomEvent("lit:footnote-actions", { detail: { panel, note: { id: a.dataset.fn }, ref: a, book: bookKey, chapter } }),

@@ -43,7 +43,7 @@
 // reader's line is held, keepReadingPlace); an earlier rule that they never
 // move it, made 2026-10-09, is withdrawn.
 //
-// On a Study View chapter, with the notebook in the margin, the reader can
+// On a Chapter View chapter, with the notebook in the margin, the reader can
 // drag the widths of their notes' margin, the LIT and the notebook
 // (widths.js). With widths kept, those place everything instead: the
 // notebook at the window's edge at the kept width, the column (set by
@@ -109,7 +109,7 @@ export function createRail(panel, tab, onChange = () => {}) {
   rail.append(panel, tab);
   document.body.append(rail);
   const panelTitle = panel.querySelector(".desk-panel__title") ?? panel;
-  // The draggable widths: Study View chapters only (the first surface).
+  // The draggable widths: Chapter View chapters only (the first surface).
   const studyColumn = surface === READING_SURFACES[0] ? columnEls[0] : null;
   const widths = studyColumn ? createWidths({ column: studyColumn, panel, onChange: () => place() }) : null;
   // The floating panel's left edge, which the reader drags to change its width.

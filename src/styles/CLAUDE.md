@@ -81,14 +81,14 @@
   `lit-leading`; `data-vn` off in `lit-verse-numbers`, or `lit-read-numbers`
   in Read View (rule 6); `data-fn` off in
   `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
-  switch, which Study View alone shows; with the desk preview on, the tray's
+  switch, which Chapter View alone shows; with the desk preview on, the tray's
   Show group also gains the desk's own switches, "My highlights" among them,
   injected by `desk/note-settings.js` and sharing the Notebook panel's stored
   setting). There is **one
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:
-  1. **They apply to the reading surfaces only**: Study View's column, book
+  1. **They apply to the reading surfaces only**: Chapter View's column, book
      intros, Read View, and article bodies. Each surface multiplies its own
      default by `--reading-scale` (16 / 18 / 20 / 23px at the 18px body size)
      and adds `--reading-leading-extra` to its own line-height, so Medium and
@@ -106,7 +106,7 @@
      `lit_rm_markers` is a fallback for Read View's numbers only (rule 6),
      so only a change made in Read View deletes it. Focus mode
      stayed in Read View's toolbar (`lit_rm_focus`).
-  4. **A hidden verse number or footnote letter in Study View is still a
+  4. **A hidden verse number or footnote letter in Chapter View is still a
      control and a scroll target** (the verse menu's button, `#v16`, a
      footnote's backlink), so it is clipped rather than removed, stays in the
      tab order, and reappears while it has keyboard focus. The no-break space
@@ -122,16 +122,16 @@
   6. **Verse numbers are one setting per view** (owner, 2026-09-30). Every
      other setting is the reader's everywhere; what a page shows depends on
      what the page is for. They were one switch at first, so hiding
-     numbers to read a book straight through also hid them in Study View,
+     numbers to read a book straight through also hid them in Chapter View,
      where (rule 4) a hidden number is a 1px box a finger can't tap, and the
      verse menu vanished from touch screens with nothing on the page saying
-     why. That was 2026-09-27 to 09-30. Study View reads `lit-verse-numbers` alone. Read View reads
-     `lit-read-numbers`, then `lit_rm_markers`, then Study View's key, so
-     it **follows Study View until the reader sets it**, and nobody's Read
+     why. That was 2026-09-27 to 09-30. Chapter View reads `lit-verse-numbers` alone. Read View reads
+     `lit-read-numbers`, then `lit_rm_markers`, then Chapter View's key, so
+     it **follows Chapter View until the reader sets it**, and nobody's Read
      View changed when the switch split. That fallback is why the tray
      stores Read View's value as set, `'on'` included (`keep` in its
      `SETTINGS`): removing it at the default would hand the page back to
-     Study View's choice. Layout.astro learns the view from
+     Chapter View's choice. Layout.astro learns the view from
      `scriptureControls` through `define:vars`.
   Changing any of these reflows the page, so the tray pins the block at the
   reading line and scrolls it back (`keepReadingPlace`, in
@@ -152,7 +152,7 @@
   settled from the first frame and no font swap can move it. Write
   `calc(72 * var(--ch))` (still reads as "72 characters"). Two shared widths
   are built from it: **`--reading-width`** (`--reading-measure` × `--ch`) for
-  long-form reading (Study View, intros, Read View, article bodies), which
+  long-form reading (Chapter View, intros, Read View, article bodies), which
   is the text column itself, so a surface with side padding adds it on top
   (otherwise the same setting gives each view a different line). The measure
   is **60** (owner, 2026-09-27), picked from side-by-side screenshots: about 77

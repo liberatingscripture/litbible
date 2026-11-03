@@ -2,7 +2,7 @@
 //
 // The reader's records for the chapters /desk's LIT panes show (3g), kept up
 // to date for whatever draws on them: highlights (highlights.js) and the verse
-// numbers' names (verse-labels.js). It is Study View's "this chapter's
+// numbers' names (verse-labels.js). It is Chapter View's "this chapter's
 // records" for a page whose panes hold many chapters, two panes sometimes the
 // same one (page.js, deskChapterBoxes).
 //

@@ -1,6 +1,6 @@
 // src/scripts/lit-panel.js
 //
-// The floating panel shared by every reader tool: the Study View verse menu,
+// The floating panel shared by every reader tool: the Chapter View verse menu,
 // footnote popovers and selection panel (chapter-tools.js), and scripture
 // reference previews (ref-preview.js). ONE panel is open at a time across all
 // of them: opening any panel closes the last, and an outside click or Escape
@@ -67,7 +67,7 @@ document.addEventListener("click", (e) => {
 
 let escapeFallback = null;
 
-/** What Escape does when no panel is open (Study View clears its highlight). */
+/** What Escape does when no panel is open (Chapter View clears its highlight). */
 export function setEscapeFallback(fn) {
   escapeFallback = fn;
 }

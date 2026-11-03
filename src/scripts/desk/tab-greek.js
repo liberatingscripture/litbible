@@ -1,7 +1,7 @@
 // src/scripts/desk/tab-greek.js
 //
 // The Notebook panel's "Greek" tab (STUDY-DESK.md, "Decisions", 2026-10-08;
-// phase 1f), on Study View chapters and on draft chapters: the SBL Greek New
+// phase 1f), on Chapter View chapters and on draft chapters: the SBL Greek New
 // Testament for this chapter, with a word's dictionary form, parsing and
 // lexicon entries docked at the tab's foot. A draft has no LIT text beside it,
 // so there is no "Go to verse" and no footnote letters there.
@@ -134,7 +134,7 @@ function readTermData() {
  *   word).
  *
  *   On /desk (desk-panes.js) the chapter isn't the page's: `source` gives the
- *   chapter's text and key terms from its fetched Study View page
+ *   chapter's text and key terms from its fetched Chapter View page
  *   (chapter-page.js), with `textBox` null for a draft; `startVerse` is
  *   where it opens; `idSuffix` keeps two panes' ids apart; `openHit` takes a
  *   search result in another chapter (the pane moves there, rather than the

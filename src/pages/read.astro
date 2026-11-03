@@ -130,17 +130,19 @@ const TYPE_LABEL: Record<string, string> = {
       iPhone and Android.
     </p>
 
+    {/* With the Study Desk preview on (html[data-desk="on"]), the Study Desk card
+        takes the Read View card's slot; read.css swaps them, so nothing shifts (E8, 8b). */}
     <div class="views-grid">
       <div class="view-card">
-        <h3 class="view-card__title">Study View</h3>
+        <h3 class="view-card__title">Chapter View</h3>
         <p class="view-card__desc">
           One chapter at a time, with its footnotes, key terms, and linked
           references. Made for close reading and study.
         </p>
-        <a href="/matthew-5" class="view-card__link">Try Study View &rarr;</a>
+        <a href="/matthew-5" class="view-card__link">Try Chapter View &rarr;</a>
       </div>
 
-      <div class="view-card">
+      <div class="view-card view-card--read">
         <h3 class="view-card__title">Read View</h3>
         <p class="view-card__desc">
           A whole book on one page, read straight through, with no notes and no
@@ -151,9 +153,21 @@ const TYPE_LABEL: Record<string, string> = {
         >
       </div>
 
+      <div class="view-card view-card--desk">
+        <h3 class="view-card__title">Study Desk</h3>
+        <span class="view-card__badge">Available now</span>
+        <p class="view-card__desc">
+          On a computer: the whole New Testament in one scroll, with your notes
+          and the Greek alongside when you want them.
+        </p>
+        <a href="/desk/?place=matthew-5" class="view-card__link"
+          >Try the Study Desk &rarr;</a
+        >
+      </div>
+
       <div class="view-card view-card--available">
         <h3 class="view-card__title">LIT Bible apps</h3>
-        <span class="view-card__badge">Available now</span>
+        <span class="view-card__badge view-card__badge--apps">Available now</span>
         <p class="view-card__desc">
           iPhone and Android apps with the whole translation offline, plus notes,
           highlights, and daily and Lectionary readings.

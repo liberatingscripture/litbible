@@ -10,7 +10,7 @@
 // chapter (S5).
 //
 // The rules are src/lib/desk-sheet-copy.mjs. A passage's words are read from
-// the chapter's Study View page exactly as the Sheet pane reads them
+// the chapter's Chapter View page exactly as the Sheet pane reads them
 // (sheet-lit.js's readPassage and passageWords), so the copy and the editor
 // can't disagree about which words a passage, a blank or a footnote covers.
 

@@ -93,7 +93,7 @@ for (const c of chapters) {
 }
 
 // De-index the read-view aggregate when every chapter of the book is a draft
-// ("indexed": false). Mirrors the per-chapter noindex on Study View so a
+// ("indexed": false). Mirrors the per-chapter noindex on Chapter View so a
 // book's full draft text can't be indexed via its /read/<book> page. Books
 // with even one published chapter (e.g. Luke) stay indexable.
 const existingChapterData = chapterNumbers
@@ -266,7 +266,7 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
             href={`/${bookKey}-1`}
             class="rm-switch"
             data-rm-study-switch
-            aria-label={`Switch to Study View for ${bookName} chapter 1`}
+            aria-label={`Switch to Chapter View for ${bookName} chapter 1`}
           >
             <span
               class="reading-view-pill__icon rm-cycle-icon"
@@ -279,7 +279,7 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
                 <circle cx="5" cy="14" r="3"/>
               </svg></span
             >
-            <span>Study View</span>
+            <span>Chapter View</span>
           </a>
         </div>
       </div>
@@ -371,9 +371,9 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
 
   {/* Continue reading: record where the reader is each time Read View
       saves its own resume position. Draft chapters are never recorded. */}
-  {/* The selection bar, as in Study View. Only the bar: verse numbers stay
+  {/* The selection bar, as in Chapter View. Only the bar: verse numbers stay
       plain text here, since a verse menu's links and actions belong to the
-      chapter's Study View page. */}
+      chapter's Chapter View page. */}
   <script>
     import "../../scripts/chapter-tools.js";
   </script>

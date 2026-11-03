@@ -273,7 +273,7 @@ Study Desk), plus what the apps download from the website. Read
 ### ❓ Outside your areas: "are you sure?" first
 
 Everything else, for example: the scripture text and chapter JSON in
-`src/data/`, book intros, the glossary and articles, Study View and Read View,
+`src/data/`, book intros, the glossary and articles, Chapter View and Read View,
 search, the rest of the Study Desk's reading tools (the Notebook panel, the
 margin notes, the menus), shared components like `SiteHeader.astro` and
 `SiteFooter.astro`, the other build scripts in `scripts/`, the `workers/`

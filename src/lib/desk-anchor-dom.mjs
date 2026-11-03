@@ -62,7 +62,7 @@ const SPACE = /^\s$/;
  * per text node, carrying its verse (or null when it isn't verse text, or sits
  * in a verse number or footnote letter), and a boundary at each block edge.
  *
- * @param {Iterable<Node>} blocks the chapter's blocks: Study View's `.p`
+ * @param {Iterable<Node>} blocks the chapter's blocks: Chapter View's `.p`
  *   containers, or one chapter's `[data-chapter]` blocks in Read View
  */
 export function segmentsFromDom(blocks) {

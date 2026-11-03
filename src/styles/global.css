@@ -202,7 +202,7 @@
      each rule still reads on its own. */
   --content-width: calc(72 * var(--ch));
 
-  /* The long-form reading measure: Study View, Read View, book intros and
+  /* The long-form reading measure: Chapter View, Read View, book intros and
      article bodies. Only --reading-measure is a design choice (--ch keeps its
      per-font value). Like --content-width it resolves against the font size
      of the element that uses it, so a column set at the reader's text size
@@ -2397,7 +2397,7 @@ blockquote.hbq {
   color: inherit;
 }
 
-/* Explicit parity targets: Read View + Study View text */
+/* Explicit parity targets: Read View + Chapter View text */
 .rm-page .rm-text blockquote.hbq,
 .chapter-paragraphs blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
@@ -2724,7 +2724,7 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
 }
 
 /* =========================
-   Chapter tools (Study View): verse-range highlight, verse menu,
+   Chapter tools (Chapter View): verse-range highlight, verse menu,
    footnote popovers — see src/scripts/chapter-tools.js
    ========================= */
 
@@ -2827,7 +2827,7 @@ html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible) + .vn-gap {
 }
 
 /* The term lens (term-lens.js): a quiet dotted underline under each key term
-   in Study View. Not a link or a control, so it takes no colour of its own
+   in Chapter View. Not a link or a control, so it takes no colour of its own
    and never prints. The Display tray's "Key terms" box turns it off. */
 .chapter-paragraphs .term {
   text-decoration: underline dotted;
@@ -3579,7 +3579,7 @@ body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--i
 
 /* The narrower reading measures for the desk, on for the preview only until
    the desk is released. --ch is untouched. 52 (from 60; BVJ, 2026-10-05),
-   and on Study View chapters 48 while the notebook is open, to leave the
+   and on Chapter View chapters 48 while the notebook is open, to leave the
    panel room for the Greek and Versions tabs without moving the column (BVJ,
    2026-10-08; STUDY-DESK.md, "Decisions"). Read View, intros, articles and
    the glossary stay at 52: none of them gets those tabs. Only the expanded notebook does
@@ -3595,7 +3595,7 @@ html[data-desk][data-desk-expanded]:has(.scripture-layout--scripture .scripture-
 }
 
 /* Widths the reader dragged (BVJ, 2026-10-08; src/scripts/desk/widths.js),
-   on Study View chapters with the notebook expanded: the LIT's measure, and the
+   on Chapter View chapters with the notebook expanded: the LIT's measure, and the
    notebook's width, which sets where the column ends (the notebook sits 16px
    from the window's edge and the column 24px before it: EDGE and GAP in
    src/lib/desk-margin.mjs). Layout.astro stamps both before first paint

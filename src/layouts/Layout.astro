@@ -88,11 +88,11 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
          that came before the shared Display tray (lit_rm_fontSize, lit_rm_lineHeight,
          lit_rm_markers) are still read as fallbacks; the tray deletes each one when
          its setting changes, so it can't resurrect an older choice.
-         Verse numbers are one setting per view. Study View reads lit-verse-numbers
+         Verse numbers are one setting per view. Chapter View reads lit-verse-numbers
          alone: a number there is the verse menu's button, so hiding it for Read
          View's sake took the menu away on a touch screen. Read View reads
          lit-read-numbers, then lit_rm_markers (its own key before the tray), then
-         Study View's, so it follows Study View until the reader sets it. -->
+         Chapter View's, so it follows Chapter View until the reader sets it. -->
     <script is:inline define:vars={{ readView: scriptureControls === "read" }}>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=readView?(s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers')||s.getItem('lit-verse-numbers')):s.getItem('lit-verse-numbers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
     <!-- The Study Desk preview (STUDY-DESK.md, phase 1b). ?desk=on or ?desk=off sets or
          clears lit-desk-preview in this browser (off clears lit-desk-panel too) and is
@@ -105,12 +105,12 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
          closed (lit-desk-start; src/lib/desk-start.mjs is the rule),
          data-desk-panel="open" goes on too, and, when it starts expanded rather than
          minimized (lit-desk-min "0", or a start of "open"), data-desk-expanded: only the
-         expanded notebook narrows Study View chapters to 48 and applies the dragged widths
+         expanded notebook narrows Chapter View chapters to 48 and applies the dragged widths
          (BVJ, 2026-10-14), so stamped here a page opening that way never reflows.
          margin.js keeps data-desk-expanded in step from then on. The widths
          a reader dragged this visit (sessionStorage lit-desk-measure and lit-desk-width;
          src/scripts/desk/widths.js) go on with it as data-desk-widths, --desk-measure and
-         --desk-width, so a Study View chapter opens with them and doesn't jump. Both are
+         --desk-width, so a Chapter View chapter opens with them and doesn't jump. Both are
          stamped only where the window holds them: the script repeats
          src/lib/desk-margin.mjs's firstPaint (handed its numbers as deskFit), which works
          out the column's width from the reader's font and text size. Too narrow for the

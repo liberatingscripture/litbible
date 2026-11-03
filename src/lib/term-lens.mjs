@@ -1,5 +1,5 @@
 // The term lens: where, in one chapter, each glossary term the alignment
-// dataset can vouch for sits in the text, so Study View can mark it.
+// dataset can vouch for sits in the text, so Chapter View can mark it.
 //
 // Pure. The shell that reads the files is term-lens-data.mjs.
 //

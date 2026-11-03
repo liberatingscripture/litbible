@@ -1,6 +1,6 @@
 // src/scripts/desk/print-link.js
 //
-// A Study View page opened with `?print=plain|notes|room` (/desk's Print
+// A Chapter View page opened with `?print=plain|notes|room` (/desk's Print
 // menu; rules in src/lib/desk-print-notes.mjs) prints itself once it has
 // loaded: plainly, with the reader's notes (M6) or with room to write (N9).
 // The parameter is taken out of the address first, so a reload or a copied

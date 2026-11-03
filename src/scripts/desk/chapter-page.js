@@ -1,13 +1,13 @@
 // src/scripts/desk/chapter-page.js
 //
-// A chapter's Study View page, fetched and read for /desk's panes
+// A chapter's Chapter View page, fetched and read for /desk's panes
 // (STUDY-DESK.md, D9; "Order of work", 3d). On a reading page the Notebook's
 // tabs read the chapter off the page itself; /desk shows no chapter of its
 // own, so This verse and Greek read the same built page instead: its text
 // (for the verse's words and footnote letters), its footnotes, its key-term
 // data, and its Go deeper section ("This chapter", D9, "Phase 3a's
 // answers", 3). Reading the built page rather than the chapter JSON keeps
-// what a pane shows character-identical to Study View, which is what a
+// what a pane shows character-identical to Chapter View, which is what a
 // mark's anchor is measured against (desk-anchor-dom.mjs).
 //
 // One fetch per chapter per visit, shared by every pane (the browser's
@@ -22,7 +22,7 @@ const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const cache = new Map(); // "john 3" → Promise<source>
 const loaded = new Map(); // "john 3" → source, once its page has been read
 
-/** The chapter's Study View address. */
+/** The chapter's Chapter View address. */
 export const chapterHref = (bookKey, chapter) => `${BASE}${bookKey}-${chapter}/`;
 
 /**
@@ -91,7 +91,7 @@ function read(page, bookKey, chapter) {
     anchorText: () => pageAnchorText(textBox?.children ?? []),
     // The footnotes as the pinned-footnote rules read them, [{ id, verse,
     // text }] (desk-footnotes.mjs), the same list page.js's footnoteList()
-    // gives Study View; null for a draft. The fetched page never changes, so
+    // gives Chapter View; null for a draft. The fetched page never changes, so
     // it is read once.
     footnoteList: () => {
       if (draft) return null;

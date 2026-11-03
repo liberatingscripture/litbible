@@ -1,6 +1,6 @@
 // src/scripts/desk/print-room.js
 //
-// "Print with room to write" (STUDY-DESK.md, N9): a Study View chapter, or the
+// "Print with room to write" (STUDY-DESK.md, N9): a Chapter View chapter, or the
 // book Read View shows, printed with the text in a narrower column and a ruled
 // margin beside it, like a journaling Bible. It is "Print with my notes"'s
 // blank sibling (print-notes.js, M6): no notes, no highlights, nothing read
@@ -21,7 +21,7 @@ import { printLook } from "./print-look.js";
  * @returns {{ can(): boolean, print(): Promise<void> }}
  */
 export function createPrintRoom() {
-  /** Whether this page can print with room to write: a Study View chapter, or Read View. */
+  /** Whether this page can print with room to write: a Chapter View chapter, or Read View. */
   const can = () => Boolean(surface()?.container);
 
   async function print() {

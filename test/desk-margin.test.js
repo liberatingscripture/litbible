@@ -3,9 +3,9 @@
 // src/lib/desk-margin.mjs: where the Notebook panel goes. It fills the right
 // margin beside the reading column and moves nothing when the margin is wide
 // enough; otherwise the column moves left only as far as the panel needs.
-// The widths below are real ones: Study View's column is 622px at the
+// The widths below are real ones: Chapter View's column is 622px at the
 // default text size with the desk's 52 measure, 787px at Extra large. (At
-// 48, which Study View chapters take while the panel is open since
+// 48, which Chapter View chapters take while the panel is open since
 // 2026-10-08, it is 577px; the rule doesn't care.)
 
 import { test } from "node:test";
@@ -182,7 +182,7 @@ test("the notebook collapses when it starts floating, unless the reader is openi
   assert.equal(nextCollapsed({ floating: false, wasFloating: false, collapsed: true, opening: true, minimized: true }), false);
 });
 
-/* ── Widths the reader drags (Study View, the notebook open) ─────────── */
+/* ── Widths the reader drags (Chapter View, the notebook open) ─────────── */
 
 // Real numbers: a window of 1171 or 1280px, the column starting at the left
 // edge of its containing box, 11.355px to a measure unit (one --ch at the
@@ -558,7 +558,7 @@ test("widestMeasure: it is the most dragTextEdge lets the LIT widen to", () => {
 
 /* ── Before first paint (BA25, BA30) ─────────────────────────────────── */
 
-// px per measure unit on Study View for every font and size, at two root sizes.
+// px per measure unit on Chapter View for every font and size, at two root sizes.
 const chs = Object.values(FIRST_PAINT.ch).flatMap((c) =>
   Object.values(FIRST_PAINT.scale).flatMap((s) => [16, 20].map((root) => c * s * FIRST_PAINT.body * root)),
 );

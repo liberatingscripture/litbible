@@ -24,7 +24,7 @@ export const DOCK_SELECTOR = "[data-desk-dock]";
  *
  * global.css hides the Notebook button on every other page with a :has()
  * rule naming the same first selectors; test/desk-frame.test.js holds the
- * two to each other. /search uses Study View's column class too, so Study
+ * two to each other. /search uses Chapter View's column class too, so Study
  * View is told apart by its layout's type.
  */
 

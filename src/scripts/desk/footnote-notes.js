@@ -8,13 +8,13 @@
 // pure rules (the record, the change notice, the words) are in src/lib; this
 // file is the pieces of page that make and show such notes:
 //
-//   - "Add a note" beside Pin, under each note in Study View's Footnotes list,
+//   - "Add a note" beside Pin, under each note in Chapter View's Footnotes list,
 //     in the popover a footnote letter opens, in the Notebook's "This verse"
 //     tab and in /desk's Footnotes pane;
 //   - the reader's notes on a footnote, listed under it where there is room
 //     (the tab and the pane, in full) or in two compact rows with "and N more
 //     in My Notes" (the popover);
-//   - the footnote element a note sits beside on Study View, for the margin
+//   - the footnote element a note sits beside on Chapter View, for the margin
 //     (note-sources.js), "Show in the footnotes" and printing.
 //
 // Like pins.js, nothing here touches the footnote's text: buttons and lists sit
@@ -107,7 +107,7 @@ export function notesByFootnote(list, records) {
 /**
  * The element of this page's Footnotes list a note on a footnote sits on now,
  * or null: the note is another chapter's, the page has no such list, or the
- * footnote is lost. Study View only.
+ * footnote is lost. Chapter View only.
  */
 export function footnoteElementFor(record) {
   const here = pageChapter();
@@ -275,7 +275,7 @@ export function footnoteNotes(id, where = pageChapter(), { compact = false } = {
 
 /**
  * Read the notebook and bring every list on the page up to date: the page's
- * own chapter on Study View, and every chapter a list is drawn for on /desk.
+ * own chapter on Chapter View, and every chapter a list is drawn for on /desk.
  */
 export async function refreshFootnoteNotes() {
   if (!env) return;
@@ -298,7 +298,7 @@ export async function refreshFootnoteNotes() {
 
 /**
  * Start notes on footnotes: called by initPins once the notebook is open, so
- * it runs where pins do (a Study View chapter, and /desk).
+ * it runs where pins do (a Chapter View chapter, and /desk).
  */
 export function initFootnoteNotes({ store, ctx }) {
   env = { store, ctx };

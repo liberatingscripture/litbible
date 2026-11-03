@@ -1,6 +1,6 @@
 // src/lib/desk-notes.mjs
 //
-// The rules behind the reader's notes in Study View's left margin
+// The rules behind the reader's notes in Chapter View's left margin
 // (STUDY-DESK.md, "Decisions", 2026-10-07: the margin switch, and the margin
 // notes' look). Pure: positions in, positions out, so Node can test what the
 // page does. src/scripts/desk/notes-margin.js measures the page and draws.

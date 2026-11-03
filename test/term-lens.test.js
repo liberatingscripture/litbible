@@ -1,7 +1,7 @@
 // test/term-lens.test.js
 //
 // Unit tests for src/lib/term-lens.mjs — where, in one chapter, a gated
-// alignment term sits in the text, so Study View can mark it. See that
+// alignment term sits in the text, so Chapter View can mark it. See that
 // module's header: each mark is handed over as the kth plain case-insensitive
 // occurrence of its text in the verse, so both the writer (review-core.mjs's
 // computeOccurrenceN) and the reader (indexOf) agree on the same span.
