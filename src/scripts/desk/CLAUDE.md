@@ -480,6 +480,45 @@ that section.
        tour leaves out the `notebook` steps of `TOUR_STEPS` (`canKeep`), and
        the shell stamps `html[data-desk-no-notebook]`, which the search box's
        command context reads as `keeps` (BA34).
+     - **Two tours** (E24; BVJ, 2026-11-02): the notebook tour (`tour.js`) stays
+       on the chapter pages, and the **Study Desk tour** (`desk/desk-tour.js`)
+       runs on /desk. Each has **its own steps, seen list and offer**:
+       `TOUR_STEPS`/`lit-desk-tour` and `DESK_TOUR_STEPS`/`lit-desk-page-tour`
+       (`desk-first-use.mjs`; the helpers `parseTourState`, `tourOffer` and
+       `planTour` take the step list, defaulting to the notebook's), so
+       finishing one says nothing about the other and one "Don't show this
+       again" never silences both. Ids may not collide (a test holds it). **The
+       card, the way through the steps, placement and the ending are
+       `desk/tour-runner.js`**, shared; a tour brings `act(step)`, `finish` and
+       its `more` link. Keep the two in step when the card changes.
+       - **The desk tour acts fully and writes nothing** (BVJ: "make sure
+         everything is in the default layout, then begin the demonstration. At
+         the end of the tour, it should put everything back the way it found
+         it"). It switches the desk to `originalLayout` for the run, adds a LIT
+         pane (the "Leading" badge), presses a lock, opens the title menu, the
+         Add pane flyout (adding a Footnotes column behind it) and the Layout
+         window (applying an arrangement that fits), undoing each step before
+         the next, and at the end commits the reader's own layout back. **What
+         keeps that off disk is `layoutFrozen` in desk-page.js**: `save()`,
+         `writeKey`, the "When this page opens" radios and "Make this my
+         default" all do nothing while it is on, so a reload or closed tab
+         mid-tour leaves `lit-desk-layout` as it was (the BA33 trap; tested by
+         reloading mid-tour). A new step that changes anything goes through the
+         page's `commit` and is undone with `later`, never a direct write.
+         The menus' "click elsewhere" and `focusout` closers ignore the tour's
+         card (`inTour`), or taking focus to the card would close what a step
+         opened.
+       - **Offer**: a floating window (`float-window.js`, as the notebook's)
+         the first time /desk opens, 1.2 seconds after the panes draw: Take
+         the tour now, Remind me later (also ×, Escape, leaving), Don't show
+         this again. **Remind me later leaves a quiet line at the top of the
+         title menu** ("New to the Study Desk? Take the tour", and "Not now",
+         which is "never"), shown until the tour is taken or declined
+         (`lineWanted`, `declineLine`). The menu's own "Take the tour" item is
+         always there. `?desk-tour` on /desk starts it after load (the help page
+         links to it) and is stripped from the address.
+       - **Privacy**: `lit-desk-page-tour` is named in /privacy's paragraph
+         beside `lit-desk-tour`.
      - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
        after the Zoom) on branches `claude/desk-1d-hidden` and
        `claude/desk-1d-search`; it is not in this tree, so nothing here
@@ -884,8 +923,9 @@ that section.
        swaps the heading for a wrapper holding the h1 and the menus so the
        windows take the header's type, not the heading's). Its menu holds Add
        pane, Layout…, Print…, Display options, then My notebook page, Take the tour
-       and Help (one divider before the three). The three links open in a new
-       tab, since they leave the desk. **There is no Settings window and no
+       and Help (one divider before the three). My notebook page and Help open
+       in a new tab, since they leave the desk; **Take the tour starts the
+       Study Desk tour in place** (a button, E24; see "Two tours" under rule 13). **There is no Settings window and no
        "Where my notebook is kept" item** (BVJ, 2026-11-02): the Notebook's other
        settings are margin switches that mean nothing here, or already live in
        Display options and Layout, and "where it is kept" would only link to a

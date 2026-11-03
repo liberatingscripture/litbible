@@ -8,7 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  HOMES, REMIND_AFTER_DAYS, SAFARI_LINE, TOUR_PARTS, TOUR_STEPS,
+  DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
   agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
   reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
@@ -289,4 +289,84 @@ test("each step knows its part and where the next part starts", () => {
   assert.equal(steps.at(-1).nextPart, null, "the last part has nowhere to skip to");
   // Parts run in order, never interleaved.
   assert.deepEqual(steps.map((s) => s.part), [...steps.map((s) => s.part)].sort());
+});
+
+/* ── The Study Desk tour (E24) ── */
+
+test("the Study Desk tour has its own steps, wording and parts", () => {
+  const ids = DESK_TOUR_STEPS.map((s) => s.id);
+  assert.deepEqual(ids, ["panes", "mine", "sync", "stay", "title", "add", "layout"]);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const s of DESK_TOUR_STEPS) {
+    assert.ok(DESK_TOUR_PARTS[s.part], s.id);
+    assert.ok(stepBody(s, null).length > 20, s.id);
+    // Reader-facing prose: no em dashes, no straight quotes.
+    for (const text of [s.title, s.more ?? "", ...Object.values(s.body)]) assert.doesNotMatch(text, /[—"']/, s.id);
+    assert.ok(s.id !== "never" && !s.id.startsWith("later:") && !s.id.startsWith("offered"), s.id);
+  }
+  // Parts run in order, never interleaved.
+  assert.deepEqual(DESK_TOUR_STEPS.map((s) => s.part), [...DESK_TOUR_STEPS.map((s) => s.part)].sort());
+  // The wording BVJ chose for the third step (2026-11-02).
+  assert.equal(DESK_TOUR_STEPS[2].title, "Reading in sync");
+  assert.match(stepBody(DESK_TOUR_STEPS[2], null), /follow the LIT pane\. Move through the LIT, and they move with it\. With two LIT panes open, the one you selected most recently is marked “Leading\.”$/);
+});
+
+test("the two tours share no step id, so each one's list means only its own", () => {
+  const notebook = new Set(TOUR_STEPS.map((s) => s.id));
+  for (const s of DESK_TOUR_STEPS) assert.ok(!notebook.has(s.id), s.id);
+});
+
+test("the Study Desk tour has an address of its own, beside the notebook tour's", () => {
+  assert.equal(DESK_TOUR_LINK, "/desk/?desk-tour");
+  assert.equal(TOUR_LINK, "/john-3/?desk-tour");
+});
+
+test("a reader of one tour is a first-time reader of the other", () => {
+  const notebookDone = JSON.stringify(TOUR_STEPS.map((s) => s.id));
+  // The notebook's list says nothing about the desk's steps, and the reverse.
+  assert.equal(tourOffer(notebookDone, { steps: DESK_TOUR_STEPS }).kind, "first");
+  const deskDone = JSON.stringify(DESK_TOUR_STEPS.map((s) => s.id));
+  assert.equal(tourOffer(deskDone, { steps: DESK_TOUR_STEPS }).kind, null);
+  assert.equal(tourOffer(deskDone).kind, "first");
+  // Ids of the other tour are kept in the list but not counted as seen.
+  const p = parseTourState(JSON.stringify(["actions", "panes"]), DESK_TOUR_STEPS);
+  assert.deepEqual(p.seen, ["panes"]);
+  assert.deepEqual(p.list, ["actions", "panes"]);
+});
+
+test("the Study Desk tour's offer follows the same markers: later, never, new steps", () => {
+  const first = tourOffer(null, { today: "2026-11-02", steps: DESK_TOUR_STEPS });
+  assert.equal(first.kind, "first");
+  // "Remind me later" is written as soon as the offer is shown.
+  const waiting = JSON.stringify(withLater(first.list, "2026-11-02"));
+  assert.equal(tourOffer(waiting, { today: "2026-11-02", steps: DESK_TOUR_STEPS }).snoozed, true);
+  // Without a day (the title menu's quiet line asks this), the reader is still owed the tour.
+  assert.equal(tourOffer(waiting, { steps: DESK_TOUR_STEPS }).kind, "first");
+  assert.equal(tourOffer(waiting, { today: "2026-11-03", steps: DESK_TOUR_STEPS }).kind, "first");
+  // "Don't show this again" ends the line and the offers of new steps.
+  const never = JSON.stringify(withNever(first.list));
+  assert.equal(tourOffer(never, { steps: DESK_TOUR_STEPS }).kind, null);
+  // A later step is offered alone, once.
+  const some = DESK_TOUR_STEPS.map((s) => s.id).slice(0, -1);
+  const offer = tourOffer(JSON.stringify(some), { steps: DESK_TOUR_STEPS });
+  assert.equal(offer.kind, "new");
+  assert.deepEqual(offer.ids, ["layout"]);
+  assert.equal(tourOffer(JSON.stringify(withOffered(some, offer.ids)), { steps: DESK_TOUR_STEPS }).kind, null);
+});
+
+test("planning the Study Desk tour numbers its steps, splits it in two parts and leaves out what can't be shown", () => {
+  const all = new Set(DESK_TOUR_STEPS.map((s) => s.id));
+  const plan = planTour({ available: all, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS });
+  assert.deepEqual(plan.map((s) => `${s.number} of ${s.of}`), ["1 of 7", "2 of 7", "3 of 7", "4 of 7", "5 of 7", "6 of 7", "7 of 7"]);
+  assert.equal(plan[0].partName, "What’s on the desk");
+  assert.equal(plan[0].nextPart, 4);
+  assert.equal(plan[4].partName, "Changing the desk");
+  assert.equal(plan.at(-1).nextPart, null);
+  // Where the browser keeps no notebook, My Notes is left out.
+  const bare = planTour({ available: all, canKeep: false, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS });
+  assert.deepEqual(bare.map((s) => s.id), ["panes", "sync", "stay", "title", "add", "layout"]);
+  // A step whose target isn't there (no room for another pane) is left out.
+  const cramped = new Set(all);
+  cramped.delete("add");
+  assert.ok(!planTour({ available: cramped, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS }).some((s) => s.id === "add"));
 });

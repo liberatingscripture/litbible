@@ -23,8 +23,11 @@ export const HELP_HREF = "/notebook/help/";
 export const WAYS_HREF = "/notebook/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
 
-/** The start of the tour from a chapter page: `?desk-tour` starts it after load. */
+/** The start of the notebook tour from a chapter page: `?desk-tour` starts it after load. */
 export const TOUR_LINK = "/john-3/?desk-tour";
+
+/** The start of the Study Desk tour: `?desk-tour` on /desk starts it after load. */
+export const DESK_TOUR_LINK = "/desk/?desk-tour";
 
 const DAY_MS = 86_400_000;
 
@@ -322,15 +325,16 @@ const LATER_RE = /^later:\d{4}-\d{2}-\d{2}$/;
  *     a later local calendar day than that date. Only one is ever kept;
  *   - "never": "Don't show this again." No offer of either kind, ever.
  * Anything that isn't a list of strings reads as nothing seen. `laterDay` is
- * the greatest well-formed later date, or null.
+ * the greatest well-formed later date, or null. The notebook tour and the Study
+ * Desk tour each keep a list of their own (`steps` says whose ids are known).
  */
-export function parseTourState(raw) {
+export function parseTourState(raw, steps = TOUR_STEPS) {
   let list = [];
   try {
     const v = JSON.parse(raw ?? "null");
     if (Array.isArray(v)) list = v.filter((x) => typeof x === "string");
   } catch (_) {}
-  const known = new Set(TOUR_STEPS.map((s) => s.id));
+  const known = new Set(steps.map((s) => s.id));
   const laters = list.filter((x) => LATER_RE.test(x)).map((x) => x.slice(LATER.length)).sort();
   return {
     list,
@@ -385,12 +389,12 @@ export function withNever(list) {
  * back on a later day. "Don't show this again" writes "never" (`withNever`).
  * Pass `today` (a `localDay` string) for the later marker to be honored.
  */
-export function tourOffer(raw, { today = null } = {}) {
-  const { list, seen, offeredWhole, offeredSteps, never, laterDay } = parseTourState(raw);
+export function tourOffer(raw, { today = null, steps = TOUR_STEPS } = {}) {
+  const { list, seen, offeredWhole, offeredSteps, never, laterDay } = parseTourState(raw, steps);
   if (never) return { kind: null, list };
   if (today && laterDay && today <= laterDay) return { kind: null, list, snoozed: true };
   if (!seen.length) return offeredWhole ? { kind: null, list } : { kind: "first", list };
-  const ids = TOUR_STEPS.map((s) => s.id).filter((id) => !seen.includes(id) && !offeredSteps.includes(id));
+  const ids = steps.map((s) => s.id).filter((id) => !seen.includes(id) && !offeredSteps.includes(id));
   return ids.length ? { kind: "new", ids, list } : { kind: null, list };
 }
 
@@ -400,10 +404,11 @@ export function tourOffer(raw, { today = null } = {}) {
  * new. Each carries its number, so a card can say "Step 2 of 14", and its
  * part's name and where the next part starts (`nextPart`, an index, or null
  * in the last part), for "Skip this part". With `canKeep` false (a browser
- * that keeps no notebook) the `notebook` steps are left out.
+ * that keeps no notebook) the `notebook` steps are left out. `steps` and
+ * `parts` default to the notebook tour's; the Study Desk's are passed in.
  */
-export function planTour({ available, only = null, view = null, canKeep = true }) {
-  const steps = TOUR_STEPS.filter(
+export function planTour({ available, only = null, view = null, canKeep = true, steps: all = TOUR_STEPS, parts = TOUR_PARTS }) {
+  const steps = all.filter(
     (s) =>
       available.has(s.id) &&
       (!only || only.includes(s.id)) &&
@@ -412,6 +417,98 @@ export function planTour({ available, only = null, view = null, canKeep = true }
   );
   return steps.map((s, i) => {
     const next = steps.findIndex((t, j) => j > i && t.part !== s.part);
-    return { ...s, number: i + 1, of: steps.length, partName: TOUR_PARTS[s.part], nextPart: next < 0 ? null : next };
+    return { ...s, number: i + 1, of: steps.length, partName: parts[s.part], nextPart: next < 0 ? null : next };
   });
 }
+
+/* ── The Study Desk tour (E24) ───────────────────────────────────── */
+
+/**
+ * The Study Desk tour's parts. It runs on /desk (desk/desk-tour.js) and is a
+ * tour of its own (BVJ, 2026-11-02): its own steps, its own seen list
+ * (`lit-desk-page-tour`, same shape as the notebook tour's) and its own offer,
+ * so finishing one says nothing about the other.
+ */
+export const DESK_TOUR_PARTS = ["What’s on the desk", "Changing the desk"];
+
+/**
+ * The steps, in order. Unlike the notebook tour's they have no `views`: /desk
+ * is one page. Like it, they act on the real page and leave nothing behind:
+ * the desk shows its original layout for the tour, nothing is saved while it
+ * runs, and the reader's own layout comes back at the end. `notebook` marks a
+ * step that needs the notebook kept (My Notes), left out where it isn't.
+ */
+export const DESK_TOUR_STEPS = [
+  {
+    id: "panes",
+    part: 0,
+    since: "e24",
+    title: "Your panes",
+    body: {
+      default:
+        "Each pane shows one thing: the LIT, the Greek, your notes, and more. A pane’s name is a menu for showing something else there. Drag a pane by its header to move it, and × closes it. For the tour the desk shows its original layout. Yours comes back at the end.",
+    },
+  },
+  {
+    id: "mine",
+    part: 0,
+    since: "e24",
+    notebook: true,
+    title: "My Notes",
+    body: {
+      default:
+        "What you’ve kept in the chapter you’re reading, or everything: notes, highlights, bookmarks, and pinned footnotes. A bookmark can “Move as I read,” so it keeps your place through a book.",
+    },
+    more: "See how to make them: the notebook tour",
+  },
+  {
+    id: "sync",
+    part: 0,
+    since: "e24",
+    title: "Reading in sync",
+    body: {
+      default:
+        "My Notes, This verse, Greek, and Footnotes follow the LIT pane. Move through the LIT, and they move with it. With two LIT panes open, the one you selected most recently is marked “Leading.”",
+    },
+  },
+  {
+    id: "stay",
+    part: 0,
+    since: "e24",
+    title: "Stay here",
+    body: {
+      default:
+        "The lock keeps a pane where it is while the LIT moves on, so a verse or a Greek word stays in view. Select it again to follow. It is on here only for the tour.",
+    },
+  },
+  {
+    id: "title",
+    part: 1,
+    since: "e24",
+    title: "The title menu",
+    body: {
+      default:
+        "“Study Desk” is a menu for the page itself: adding a pane, the layout, printing, and display options. Help for the Study Desk is here too.",
+    },
+  },
+  {
+    id: "add",
+    part: 1,
+    since: "e24",
+    title: "Add pane",
+    body: {
+      default:
+        "Add a column at the right or a row along the bottom, then choose what it shows. Four panes fit when the window has room. A pane is added here only for the tour.",
+    },
+  },
+  {
+    id: "layout",
+    part: 1,
+    since: "e24",
+    title: "Layout",
+    body: {
+      default:
+        "Choose an arrangement and your panes move into it. Grayed ones need a bigger window. “Make this my default” keeps one for next time. An arrangement is applied here only for the tour.",
+    },
+  },
+];

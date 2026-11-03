@@ -4600,6 +4600,34 @@ html[data-desk-workspace] .desk-page__notice {
   position: relative;
 }
 
+/* The quiet line at the top of the title menu while the Study Desk tour hasn't
+   been taken or put off for good (E24, desk-tour.js). */
+.desk-title__line {
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-title__line[hidden] {
+  display: none;
+}
+
+.desk-title__line .desk-title__label {
+  white-space: normal;
+}
+
+.desk-title__line-go {
+  color: var(--green-text);
+  font-size: 0.875rem;
+}
+
+.desk-title__line-no {
+  width: auto;
+  padding: 4px 10px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
 /* Column and row, then the kinds of pane, in one panel beside the menu. */
 .desk-title .desk-title__fly {
   top: -6px;
