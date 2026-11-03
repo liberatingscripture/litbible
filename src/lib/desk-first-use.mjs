@@ -198,9 +198,9 @@ export const TOUR_STEPS = [
     title: "The Notebook",
     body: {
       study:
-        "“My Notes” lists what you’ve kept in this chapter, or everything. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, × closes it, and the Notebook button brings it back.",
+        "“My Notes” lists what you’ve kept in this chapter, or everything. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, and selecting that tab brings it back.",
       default:
-        "This lists what you’ve kept. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, × closes it, and the Notebook button brings it back.",
+        "This lists what you’ve kept. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, and selecting that tab brings it back.",
     },
   },
   {
