@@ -9,7 +9,7 @@
 // The rules are src/lib/desk-layout.mjs (pure, unit-tested); this draws them:
 // - **The page's title is a menu** (E15 and E14, 2026-11-02): Add pane (a
 //   column or a row, then the kind of pane), Layout, Print, Display options,
-//   the notebook's page and where it is kept, the tour and the help page.
+//   the notebook's page, the tour and the help page.
 // - **The Layout window** offers every arrangement BVJ kept (2026-10-18: all
 //   mocked but four rows), each drawn as a small diagram and grayed out, with
 //   the reason, when the window can't give every pane 280 by 160 pixels. It
@@ -79,7 +79,7 @@ import {
 } from "../../lib/desk-layout.mjs";
 import { formatPassage, parsePassage, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
-import { BACKUP_HREF, HELP_HREF, TOUR_LINK } from "../../lib/desk-first-use.mjs";
+import { HELP_HREF, TOUR_LINK } from "../../lib/desk-first-use.mjs";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
@@ -532,26 +532,24 @@ async function start() {
     displayItem.tabIndex = -1;
     displayItem.replaceChildren(el("span", "desk-title__label", "Display options"));
   }
-  // The notebook's own two (BVJ, 2026-11-02): its page, and where it is kept,
-  // which is the page's "Save a copy" section. No Settings window: nothing
+  // The notebook's page (BVJ, 2026-11-02). No Settings window, and no "where
+  // it is kept" item (it would only link to a section of that page): nothing
   // else of the Notebook's settings applies here.
   const notebookItem = item("My notebook page", "a");
   notebookItem.href = "/notebook/";
-  const keptItem = item("Where my notebook is kept", "a");
-  keptItem.href = BACKUP_HREF;
   const tourItem = item("Take the tour", "a");
   tourItem.href = TOUR_LINK;
   const helpItem = item("Help for the Study Desk", "a");
   helpItem.href = HELP_HREF;
   // Each leaves the desk, so they open beside it.
-  const links = [notebookItem, keptItem, tourItem, helpItem];
+  const links = [notebookItem, tourItem, helpItem];
   for (const link of links) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
   }
   titleMenu.append(addSub, layoutItem, printItem);
   if (displayItem) titleMenu.append(displayItem);
-  titleMenu.append(el("div", "desk-title__rule"), notebookItem, keptItem, el("div", "desk-title__rule"), tourItem, helpItem);
+  titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
   const topItems = [addItem, layoutItem, printItem, ...(displayItem ? [displayItem] : []), ...links];
 
   const DIRECTIONS = [

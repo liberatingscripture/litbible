@@ -7743,14 +7743,14 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `Study Desk ▾` (caret, `aria-haspopup="menu"`, `aria-expanded`); its menu
   holds **Add pane** (E14), **Layout…**, **Print…** (the shared Print menu,
   E16), **Display options** (the header's own Aa button moved in whole; the tray
-  hangs from the title), then **My notebook page** and **Where my notebook is
-  kept** (the page's "Save a copy" section), then **Take the tour** and **Help
-  for the Study Desk** (the four links open in a new tab, since they leave the
+  hangs from the title), then **My notebook page**, **Take the tour** and **Help
+  for the Study Desk** (the three links open in a new tab, since they leave the
   desk). BVJ (2026-11-02) asked for a Settings item holding only what applies
   to /desk; Claude found nothing left to put in one (the margin switches mean
   nothing here, highlights are in Display options, the start layout in Layout),
-  and BVJ answered that no "Hide my marks" button is needed and the two
-  notebook items belong in the menu itself. Layout and Print left
+  and BVJ answered that no "Hide my marks" button is needed and the notebook
+  items belong in the menu itself; a "Where my notebook is kept" link was
+  tried and dropped, since it only went to a section of the notebook page. Layout and Print left
   the bar, which now holds only the menu button; their windows are the same,
   hung under the title. Only `/desk` has the menu; `/notebook` and `/sheets`
   are unchanged. **For BVJ to check:** the tour link goes to John 3 (the tour
