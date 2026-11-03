@@ -919,7 +919,7 @@ that section.
        theme, and `sheets-page.css` lets the reader's named fonts, colors and
        backgrounds print, which print.css otherwise turns to black serif.
      - **Printing with my notes (M6) needs no sheet**: "Print with my notes"
-       in the My Notes foot and the command list, on Study View chapters and
+       in the Print menu (below) and the command list, on Study View chapters and
        Read View (`desk/print-notes.js`, rules in
        `src/lib/desk-print-notes.mjs`). For that one print it sets
        `html[data-desk-print="notes"]`, inserts a print-only
@@ -936,16 +936,34 @@ that section.
        aside right beside its block, because Firefox moves a whole grid row
        to the next page (BA151). Plain Ctrl+P never has the attribute and
        prints as before.
-     - **/desk prints through Study View** (BVJ, 2026-10-29): the header's
-       Print menu, beside Layout, names the leading LIT pane's chapter (else
-       the shared place) and offers it plainly, with my notes or with room to
-       write, each a link to `/<book>-<chapter>/?print=<kind>` in a new tab
-       (`printHref`, `PRINT_KINDS` in `desk-print-notes.mjs`). There the
-       shell's `desk/print-link.js` strips the parameter and starts that
-       print once the page has loaded. A draft chapter offers none; "With my
-       notes" needs a notebook.
+     - **One Print menu, on /desk and in the Notebook** (E16; BVJ,
+       2026-10-29, and 2026-11-02): `desk/print-menu.js` is the menu, and what
+       each choice does for the chapter picked is `printMenuState`
+       (`desk-print-notes.mjs`, pure, tested), so the two homes can't drift
+       apart. It is a **chapter picker**, the passage field the panes use
+       (`passage-bar.js`: "John 3", "Rom 8", the arrows across the books), then
+       three choices: the chapter plainly, with my notes, with room to write
+       (`PRINT_KINDS`). The picker starts at a chapter given by the host each
+       time the menu opens (on /desk the leading LIT pane's, else the shared
+       place; in the Notebook this page's) and changes only what is printed,
+       never a pane or the page; a draft chapter (the list is /desk's alone)
+       or no chapter leaves the choices off, with a line saying why, and "With
+       my notes" is left out where the browser keeps no notebook. **A chapter
+       other than this page's opens `/<book>-<chapter>/?print=<kind>` in a new
+       tab** (`printHref`), where the shell's `desk/print-link.js` strips the
+       parameter and starts that print once the page has loaded (a draft page,
+       which has no text, prints nothing). **This page's own chapter prints in
+       place**, with no new tab, as the Notebook's buttons always did. /desk's
+       is a drop-down under the header's Print button, beside Layout; the
+       Notebook's is one "Print…" button at the foot of the Settings tab
+       (`panel.js`'s `printBox`, Study View chapters and Read View), opening the
+       menu in place under it. **In Read View the menu has no picker** and
+       prints the book on the page in place (the plain choice reads "The
+       book"): a book is what Read View prints, and picking a chapter is Study
+       View's and /desk's. The host owns the button, Escape and focus; the
+       menu's `onChoose` closes it. E15's page-title menu opens this same menu.
      - **Printing with room to write (N9) is M6's blank sibling**: the
-       button right after it in the My Notes foot, and the command
+       choice right after it in the Print menu, and the command
        `print-with-room`. `desk/print-room.js` only stamps
        `html[data-desk-print="room"]`, waits for the print fonts (reusing
        `print-notes.js`'s bounded `printFonts`), prints, and removes the
