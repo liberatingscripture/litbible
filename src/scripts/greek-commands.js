@@ -1,11 +1,13 @@
 // src/scripts/greek-commands.js
 //
-// The Greek search commands window (STUDY-DESK.md, "Order of work", 2a). One
-// small window lists every command a Greek search understands, builds a word
-// from pickers, and offers example searches; clicking a command puts it into
-// the search field it was opened from, at the cursor. The commands, their
+// The Greek search commands window (STUDY-DESK.md, "Order of work", 2a, and E5).
+// One small window builds a search from menus (greek-builder.js: a card for each
+// word, each offering only what that word takes), lists every command a Greek
+// search understands, and offers example searches; clicking a command puts it
+// into the search field it was opened from, at the cursor. The commands, their
 // words and the examples are greek-query.mjs's COMMANDS and EXAMPLES, so what
-// the window teaches and what a query accepts are one list.
+// the window teaches and what a query accepts are one list. The builder and the
+// field are one search: the field is the record, and the builder reads it.
 //
 // It is a float-window.js window, so it stays open while the reader types or
 // clicks elsewhere. It closes on its ×, on Escape inside it (focus goes back
@@ -26,11 +28,12 @@
 // three search surfaces only call it when the Greek is being searched.
 
 import { createFloatWindow } from "./float-window.js";
-import { COMMANDS, EXAMPLES, FILTERS } from "../lib/greek-query.mjs";
-import { builderQuery, editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
+import { COMMANDS, EXAMPLES } from "../lib/greek-query.mjs";
+import { editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
 import { hasGreek } from "../lib/greek-search.mjs";
 import { dockWidth } from "./desk-frame.js";
-import { setPickedMode } from "./search-core.js";
+import { isGreekQuery, setPickedMode } from "./search-core.js";
+import { createGreekBuilder } from "./greek-builder.js";
 
 const POS_KEY = "lit-greek-commands-pos";
 const SEEN_KEY = "lit-greek-commands";
@@ -44,7 +47,7 @@ const EDGE = 8;
 const MAX_HEIGHT = 620;
 const MIN_HEIGHT = 280;
 
-/** The open window: { win, field, source, typeSelect, status }, or null. */
+/** The open window: { win, field, source, typeSelect, status, builder, more }, or null. */
 let current = null;
 
 /* ── What is kept ──────────────────────────────────────────────────── */
@@ -169,6 +172,32 @@ function insert(text, { byMouse = false, name = null } = {}) {
   announce(`Added: ${sentence(name ?? text.trim())}`);
 }
 
+/**
+ * Make the field's whole text `text` as the builder's choices do: typed when the
+ * field has focus (Ctrl+Z still works), set otherwise. A search that is not
+ * plainly Greek is put in the page's Greek type, where it has one, as an
+ * example is: a builder search is one. False when the field is gone (the
+ * window closes with it).
+ */
+function putSearch(text, { byMouse = false } = {}) {
+  if (!current) return false;
+  const { field, typeSelect } = current;
+  if (!field.isConnected) {
+    closeGreekCommands("field");
+    return false;
+  }
+  if (text && typeSelect && typeSelect.value !== "greek" && !isGreekQuery(text)) {
+    setPickedMode(typeSelect, "greek");
+    typeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  if (byMouse) field.focus({ preventScroll: true });
+  const typed = typeInto(field, text);
+  if (!typed) field.value = text;
+  try { field.setSelectionRange(text.length, text.length); } catch (_) {}
+  if (!typed) field.dispatchEvent(new Event("input", { bubbles: true }));
+  return true;
+}
+
 /** Put an example in the field and run it (in the Greek type, where the page has one). */
 function runExample(query) {
   if (!current) return;
@@ -185,53 +214,6 @@ function runExample(query) {
 }
 
 /* ── The window's contents ────────────────────────────────────────── */
-
-function buildBuilder() {
-  const box = make("div", "greek-build");
-  const word = make("input");
-  word.type = "text";
-  word.placeholder = "Word, or leave empty for any";
-  word.setAttribute("aria-label", "Word");
-  word.autocomplete = "off";
-  word.spellcheck = false;
-  word.autocapitalize = "off";
-
-  const row = make("div", "greek-build__row");
-  const selects = [];
-  for (const [axis, label] of [["case", "Case"], ["tense", "Tense"], ["mood", "Mood"], ["pos", "Part of speech"]]) {
-    const sel = make("select");
-    sel.setAttribute("aria-label", label);
-    sel.append(new Option(label, ""));
-    for (const f of FILTERS.filter((x) => x.axis === axis)) sel.append(new Option(f.name, f.words[0]));
-    selects.push(sel);
-    row.append(sel);
-  }
-
-  const add = make("button", "greek-build__add", "Add to the search");
-  add.type = "button";
-  const query = () => builderQuery(word.value, selects.map((s) => s.value));
-  const refresh = () => add.setAttribute("aria-disabled", String(!query()));
-  refresh();
-  word.addEventListener("input", refresh);
-  for (const s of selects) s.addEventListener("change", refresh);
-  const press = (byMouse) => {
-    const q = query();
-    if (!q) {
-      word.focus({ preventScroll: true });
-      return;
-    }
-    insert(q, { byMouse });
-  };
-  add.addEventListener("mousedown", (e) => e.preventDefault());
-  add.addEventListener("click", (e) => press(e.detail > 0));
-  word.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    press(false);
-  });
-  box.append(word, row, add);
-  return box;
-}
 
 function buildCommand(item) {
   const code = make("span", "greek-cmd__code");
@@ -258,19 +240,26 @@ function buildCommand(item) {
   return b;
 }
 
-function fillBody(body) {
-  body.append(make("h3", "greek-cmds__heading", "Build a word"), buildBuilder());
-  body.append(make("h3", "greek-cmds__heading", "Try one"), exampleList(EXAMPLES, runExample));
+function fillBody(body, builder) {
+  body.append(make("h3", "greek-cmds__heading", "Build a search"), builder.el);
+  // The list the builder is made from, for typing the notation by hand: kept
+  // under one heading so the window opens short.
+  const more = make("details", "greek-cmds__more");
+  more.append(make("summary", "greek-cmds__summary", "Examples and all commands"));
+  more.append(make("p", "greek-cmds__lead", "Click a command to add it where your cursor is. Each has a word you can type instead. This stays open while you type."));
+  more.append(make("h3", "greek-cmds__heading", "Try one"), exampleList(EXAMPLES, runExample));
   for (const group of COMMANDS) {
-    body.append(make("h3", "greek-cmds__heading", group.title));
+    more.append(make("h3", "greek-cmds__heading", group.title));
     const ul = make("ul", "greek-cmds__list");
     for (const item of group.items) {
       const li = make("li");
       li.append(buildCommand(item));
       ul.append(li);
     }
-    body.append(ul);
+    more.append(ul);
   }
+  body.append(more);
+  return more;
 }
 
 /** Scroll the button for a filter (by its word or its name) into view and mark it. */
@@ -281,6 +270,7 @@ function showTarget(filter, { focus = true } = {}) {
     (b) => b.dataset.filter === filter || b.dataset.name === filter,
   );
   if (!btn) return;
+  if (current.more) current.more.open = true;
   root.querySelector(".greek-cmd.is-target")?.classList.remove("is-target");
   btn.classList.add("is-target");
   btn.scrollIntoView({ block: "center" });
@@ -355,6 +345,7 @@ export function openGreekCommands({ field, source = "page", focus = true, filter
     current.field = field;
     current.source = source;
     current.typeSelect = typeSelect;
+    current.builder.follow(field);
     if (moved) current.win.reposition();
     if (filter) showTarget(filter, { focus });
     else if (focus) current.win.title.focus({ preventScroll: true });
@@ -372,20 +363,23 @@ export function openGreekCommands({ field, source = "page", focus = true, filter
     onClose: (reason) => {
       const was = current;
       current = null;
+      was?.builder.destroy();
       document.removeEventListener(NOTEBOOK_EVENT, onNotebook);
       window.removeEventListener("pagehide", onPageHide);
       if (reason === "close" && was?.field.isConnected) was.field.focus({ preventScroll: true });
     },
   });
 
-  const lead = make("p", "greek-cmds__lead", "Click a command to add it where your cursor is. Each has a word you can type instead. This stays open while you type.");
+  const lead = make("p", "greek-cmds__lead", "Choose here and your search field shows the command it makes. Type in the field and this follows. They are always the same search.");
   const status = make("p", "sr-only");
   status.setAttribute("role", "status");
   win.body.before(lead);
-  fillBody(win.body);
+  const builder = createGreekBuilder({ put: putSearch, announce });
+  const more = fillBody(win.body, builder);
   win.body.append(status);
 
-  current = { win, field, source, typeSelect, status };
+  current = { win, field, source, typeSelect, status, builder, more };
+  builder.follow(field);
   document.addEventListener(NOTEBOOK_EVENT, onNotebook);
   window.addEventListener("pagehide", onPageHide);
   win.show({ focus: focus && !filter });

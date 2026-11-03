@@ -2,13 +2,12 @@
 //
 // The pure pieces behind the Greek search commands' screens (STUDY-DESK.md,
 // "Order of work", 2a): putting a command into the search field where the
-// cursor is, building a word from the commands window's pickers, the query a
-// word's parsing starts, and a result verse read off a chapter's Greek with
-// every matched word marked. The rules for what a query means are
+// cursor is, the query a word's parsing starts, and a result verse read off a
+// chapter's Greek with every matched word marked. The rules for what a query means are
 // greek-query.mjs's; the screens (the commands window, /search, the tray and
 // the Notebook's Greek tab) draw with these.
 
-import { FILTERS, codeFits, filterFor } from "./greek-query.mjs";
+import { FILTERS, codeFits } from "./greek-query.mjs";
 import { describeParse } from "./greek-parse.mjs";
 import { SIGNS, W } from "./desk-greek.mjs";
 
@@ -62,28 +61,8 @@ export function editSpan(before, after) {
   return { start, end: a.length - tail, text: b.slice(start, b.length - tail) };
 }
 
-/** The filter words in the order a query reads best: part of speech, tense, voice, mood, case, person, number, gender, degree. */
-const QUERY_AXES = ["pos", "tense", "voice", "mood", "case", "person", "number", "gender", "degree"];
-
-export function sortFilterWords(words) {
-  const rank = (w) => {
-    const f = filterFor(w);
-    return f ? QUERY_AXES.indexOf(f.axis) : QUERY_AXES.length;
-  };
-  return [...words].sort((a, b) => rank(a) - rank(b));
-}
-
-/**
- * What "Build a word" adds: the word and its filters joined with dots
- * (πίστις.gen), or "*" and its filters when there is no word (*.aor.impv).
- * An empty string when there is neither a word nor a filter.
- */
-export function builderQuery(word, filterWords = []) {
-  const w = String(word ?? "").trim();
-  const words = sortFilterWords(filterWords.filter(Boolean));
-  if (!w && !words.length) return "";
-  return [w || "*", ...words].join(".");
-}
+/** The kinds of filter in the order a query reads best: part of speech, tense, voice, mood, case, person, number, gender, degree. */
+export const QUERY_AXES = ["pos", "tense", "voice", "mood", "case", "person", "number", "gender", "degree"];
 
 /**
  * The query a word's parsing starts: "*." and every filter word of its part

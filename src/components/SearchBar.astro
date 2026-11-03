@@ -130,6 +130,7 @@ const glossaryTerms = Object.fromEntries(
 
       <div class="searchbar__active-filters" data-active-filters hidden></div>
       <div class="searchbar__status" aria-live="polite"></div>
+      <div class="searchbar__greek-line" data-greek-line hidden></div>
       <div class="searchbar__jump" data-jump hidden></div>
       <div class="searchbar__groups" data-groups></div>
 
@@ -646,6 +647,17 @@ const glossaryTerms = Object.fromEntries(
 
   .searchbar__title [data-greek-forms] {
     font-weight: 500;
+  }
+
+  /* "My notes" for a Greek search (searchbar.js, E11), under the status. */
+  .searchbar__greek-line {
+    display: flex;
+    justify-content: flex-end;
+    margin: -4px 0 8px;
+  }
+
+  .searchbar__greek-line[hidden] {
+    display: none;
   }
 
   .searchbar__group-foot {

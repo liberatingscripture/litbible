@@ -27,7 +27,9 @@ From the root's project tree.
                      #   which holds the reader's line through a reflow;
                      #   float-window, a window that stays open until
                      #   answered or closed (the desk's tour offer, and
-                     #   greek-commands, the Greek search commands window);
+                     #   greek-commands, the Greek search commands window,
+                     #   whose top is greek-builder, the menu-based search
+                     #   builder);
                      #   desk-gate + desk/, the Study Desk preview, and
                      #   desk-frame, what every page knows about its panel;
                      #   see "The Study Desk preview" below)

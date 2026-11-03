@@ -438,7 +438,7 @@ export function matchForTray(index, raw) {
 /* ── Occurrences ─────────────────────────────────────────────────── */
 
 /** Numbers per word in a shard entry's flat list: book, chapter, verse, t, form, parse. */
-const OCC_STRIDE = 6;
+export const OCC_STRIDE = 6;
 
 /** A code ("N-----GSF-") as the part of speech and the parsing it joins. */
 export const splitCode = (code) => ({ pos: String(code ?? "").slice(0, 2), parse: String(code ?? "").slice(2) });

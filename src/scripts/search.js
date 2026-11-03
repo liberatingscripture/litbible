@@ -301,6 +301,7 @@ function getActiveSort() {
 const GREEK_PLACEHOLDER = "Try πίστις.gen or *.aor.impv";
 const defaultPlaceholder = input ? input.placeholder : "";
 let commandsBtn = null;
+let greekExtras = null;
 if (input && greekSearchEnabled()) {
   commandsBtn = document.createElement("button");
   commandsBtn.type = "button";
@@ -309,7 +310,15 @@ if (input && greekSearchEnabled()) {
   commandsBtn.hidden = true;
   commandsBtn.setAttribute("aria-haspopup", "dialog");
   commandsBtn.addEventListener("click", () => openCommands());
-  (input.closest(".searchbar__input-wrap") ?? input).after(commandsBtn);
+  // The link and "My notes" travel together: inline in the box's row where there
+  // is room, and on one quiet line of their own under it where there is not
+  // (E11), so neither squeezes the field.
+  greekExtras = document.createElement("div");
+  greekExtras.className = "greek-field-extras";
+  greekExtras.hidden = true;
+  greekExtras.append(commandsBtn);
+  (input.closest(".searchbar__input-wrap") ?? input).after(greekExtras);
+  input.closest("form")?.classList.add("searchbar__form--extras");
 }
 
 // "My notes" (E11): whether a Greek search lists the reader's matching notes
@@ -328,7 +337,7 @@ if (input && commandsBtn) {
     notesSwitch = m.greekNotesSwitch();
     notesBox = notesSwitch.querySelector("input");
     notesSwitch.classList.add("greek-notes-switch--field");
-    commandsBtn.after(notesSwitch);
+    greekExtras.append(notesSwitch);
     notesBox.addEventListener("change", () => {
       deskMod.setGreekNotes(notesBox.checked);
       if (lastSearchCache?.greekOnly) renderFromCache();
@@ -348,6 +357,7 @@ function syncGreekChrome() {
   const greekType = modeSelect?.value === "greek";
   const greekSearch = greekType || isGreekQuery(input.value);
   commandsBtn.hidden = !greekSearch;
+  greekExtras.hidden = !greekSearch;
   input.placeholder = greekType ? GREEK_PLACEHOLDER : defaultPlaceholder;
   if (notesSwitch) {
     // Under all types only: a Greek-letter query reads "Greek" in the menu
