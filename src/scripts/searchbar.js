@@ -216,6 +216,29 @@ const _initSearchbars = async () => {
     }
     const isCmd = (text) => Boolean(desk && desk.isCommandQuery(text));
 
+    // "My notes" (E11): whether a Greek search lists the reader's matching notes
+    // above the Greek (BA40). One checkbox on a line of its own under the status,
+    // shown for every Greek search under "All types" (the one place notes are
+    // listed), whether or not the Greek found anything, so a reader whose notes
+    // fill the tray can always turn them off. It outlives each search's groups,
+    // so it keeps focus when a change searches again with the same query.
+    const notesLine = root.querySelector("[data-greek-line]");
+    let notesBox = null;
+    function syncNotesLine(show) {
+      if (!notesLine) return;
+      if (show && desk && !notesBox) {
+        const sw = desk.greekNotesSwitch();
+        notesBox = sw.querySelector("input");
+        notesLine.append(sw);
+        notesBox.addEventListener("change", () => {
+          desk.setGreekNotes(notesBox.checked);
+          runSearch(input.value.trim());
+        });
+      }
+      notesLine.hidden = !(show && desk);
+      if (notesBox && !notesLine.hidden) notesBox.checked = desk.greekNotesOn();
+    }
+
     let pagefind = null;
 
     // The lemma the reader chose from the Greek group's list, kept only while
@@ -450,6 +473,7 @@ const _initSearchbars = async () => {
     // A query that starts with ">" asks for commands alone (D3): they are
     // listed and nothing else is searched.
     function showCommandMode(q) {
+      syncNotesLine(false);
       renderJump(null);
       groupsEl.innerHTML = "";
       const commands = desk.commandsFor(q);
@@ -598,30 +622,6 @@ const _initSearchbars = async () => {
     // names and links as the Greek tab's sources (greek-credits.mjs).
     const GREEK_CREDIT = `<p class="searchbar__credit">${creditHtml(escapeHtml)}</p>`;
 
-    // "My notes" (E11): whether this Greek search lists the reader's matching
-    // notes. Only with the Study Desk's part loaded and the type "All types",
-    // the one place the notes are listed. It sits in the group's foot, before
-    // `beforeSel` when the foot holds that, and a change searches again with the
-    // same query, so the lemma chosen and the filters stay.
-    function addNotesSwitch(group, beforeSel) {
-      if (!desk || activeMode !== "all") return;
-      let foot = group.querySelector(".searchbar__group-foot");
-      if (!foot) {
-        foot = document.createElement("div");
-        foot.className = "searchbar__group-foot";
-        const credit = group.querySelector(".searchbar__credit");
-        if (credit) credit.before(foot);
-        else group.append(foot);
-      }
-      foot.insertBefore(desk.greekNotesSwitch(), (beforeSel && group.querySelector(beforeSel)) || null);
-      foot.addEventListener("change", async (e) => {
-        if (!e.target.matches?.("[data-greek-notes]")) return;
-        desk.setGreekNotes(e.target.checked);
-        await runSearch(input.value.trim());
-        groupsEl.querySelector("[data-greek-notes]")?.focus();
-      });
-    }
-
     function renderGreekCommandsGroup(greek, q, bookKey) {
       const group = document.createElement("div");
       group.className = "searchbar__group";
@@ -672,7 +672,6 @@ const _initSearchbars = async () => {
         ${rows ? `<ol class="searchbar__results">${rows}</ol>` : ""}
         <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>
         ${GREEK_CREDIT}`;
-      addNotesSwitch(group, ".searchbar__group-foot [data-greek-cmds]");
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
@@ -760,7 +759,6 @@ const _initSearchbars = async () => {
         <ol class="searchbar__results">${rows}</ol>
         ${GREEK_CREDIT}
       `;
-      addNotesSwitch(group, null);
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
@@ -885,6 +883,7 @@ const _initSearchbars = async () => {
     async function runSearch(q) {
       const mySeq = ++searchSeq;
       showModeFor(modeSelect, q);
+      syncNotesLine(false);
 
       try {
         if (isCmd(q)) {
@@ -924,6 +923,7 @@ const _initSearchbars = async () => {
           (isGreekQuery(q) || activeMode === "greek")
         ) {
           if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
+          syncNotesLine(activeMode === "all");
           const notebookPromise =
             desk && activeMode === "all" && desk.greekNotesOn()
               ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
@@ -1278,6 +1278,7 @@ const _initSearchbars = async () => {
     }
 
     function clearForShortQuery() {
+      syncNotesLine(false);
       groupsEl.innerHTML = "";
       renderJump(null);
       clearGhost();
@@ -1339,6 +1340,7 @@ const _initSearchbars = async () => {
       showModeFor(modeSelect, q);
 
       if (!q.trim()) {
+        syncNotesLine(false);
         groupsEl.innerHTML = "";
         status.textContent = "";
         renderJump(null);

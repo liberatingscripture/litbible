@@ -7,6 +7,8 @@
 // greek-commands.js and float-window.js are real; only the DOM is faked.
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 let winListeners;
 let docListeners;
@@ -55,12 +57,18 @@ class StubElement {
     node.parent = this.parent;
     this.parent.children.splice(this.parent.children.indexOf(this), 0, node);
   }
+  replaceChildren(...kids) {
+    this.children = [];
+    this.text = "";
+    this.append(...kids);
+  }
   remove() {
     if (!this.parent) return;
     this.parent.children = this.parent.children.filter((c) => c !== this);
     this.parent = null;
   }
   addEventListener(type, fn) { (this.listeners[type] ??= []).push(fn); }
+  removeEventListener(type, fn) { this.listeners[type] = (this.listeners[type] ?? []).filter((f) => f !== fn); }
   dispatch(type, ev) { for (const fn of this.listeners[type] ?? []) fn(ev); }
   dispatchEvent(ev) { this.dispatch(ev.type, ev); return true; }
   getBoundingClientRect() {
@@ -117,6 +125,13 @@ globalThis.document = {
   },
   removeEventListener: (type, fn) => docListeners.get(type)?.delete(fn),
   get body() { return body; },
+};
+
+// The Greek index is fetched from public/ on disk, as the site serves it.
+globalThis.fetch = async (url) => {
+  const file = fileURLToPath(new URL(`../public${url}`, import.meta.url));
+  const body = readFileSync(file, "utf8");
+  return { ok: true, status: 200, json: async () => JSON.parse(body) };
 };
 
 const { openGreekCommands, closeGreekCommands, greekCommandsOpenFor } = await import("../src/scripts/greek-commands.js");
@@ -220,4 +235,99 @@ test("with the Notebook panel present, the window keeps to the Notebook's left, 
   openGreekCommands({ field, source: "notebook", focus: false });
   // 900 - 340 - 16; the pane's left (which would give 244) is not used.
   assert.equal(windowEl().style.left, "544px");
+});
+
+// ── The builder (E5): the field is the one record of the search ──────────
+
+const settle = () => new Promise((r) => setTimeout(r, 40));
+const byKey = (key) => windowEl().findAll((e) => e.dataset.key === key)[0];
+const typed = (field, value) => {
+  field.value = value;
+  field.dispatch("input", { type: "input" });
+};
+
+test("a search in the field is built, and a choice writes the field back", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "πίστις";
+  openGreekCommands({ field, focus: false });
+  assert.equal(byKey("w0").value, "πίστις");
+  await settle();
+
+  // The word's own choices: only the cases and genders πίστις has.
+  assert.ok(byKey("c0.case.genitive"), "πίστις has a genitive");
+  assert.equal(byKey("c0.case.vocative"), undefined, "and no vocative");
+  assert.equal(byKey("c0.tense.present"), undefined, "a noun offers no tense");
+
+  byKey("c0.case.genitive").dispatch("click", { detail: 0 });
+  assert.equal(field.value, "πίστις.gen");
+  assert.equal(byKey("c0.case.genitive").attrs["aria-pressed"], "true");
+
+  // Typing in the field is followed, with a second word added in words alone.
+  typed(field, "πίστις.gen, Χριστός");
+  await settle();
+  assert.ok(byKey("w1"), "a second card");
+  assert.equal(byKey("w1").value, "Χριστός");
+  assert.ok(byKey("g0"), "once there are two words, how close");
+
+  byKey("g0").dispatch("click", { detail: 0 }); // next to each other
+  assert.equal(field.value, "πίστις.gen, Χριστός ~0");
+});
+
+test("a card waits for its word without touching the field", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "πίστις.gen";
+  openGreekCommands({ field, focus: false });
+  await settle();
+  byKey("add").dispatch("click", { detail: 0 });
+  assert.ok(byKey("w1"), "an empty second card");
+  assert.equal(field.value, "πίστις.gen", "an empty card writes nothing");
+  byKey("w1").value = "Ἰησοῦς";
+  byKey("w1").dispatch("input", { type: "input" });
+  assert.equal(field.value, "πίστις.gen, Ἰησοῦς");
+});
+
+test("a search the builder can't show is said so and left alone, until it is started over", () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "=πίστεως.gen";
+  openGreekCommands({ field, focus: false });
+  assert.equal(byKey("w0"), undefined, "no cards");
+  assert.ok(windowEl().findAll((e) => e.classes.has("greek-builder__why"))[0].textContent.includes("one form only"));
+  assert.equal(field.value, "=πίστεως.gen");
+
+  byKey("again").dispatch("click", { detail: 0 });
+  assert.equal(field.value, "");
+  assert.ok(byKey("w0"), "a card to begin with");
+});
+
+test("the builder stops reading a field once the window closes", () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  openGreekCommands({ field, focus: false });
+  assert.equal(field.listeners.input?.length, 1);
+  closeGreekCommands();
+  assert.equal(field.listeners.input.length, 0);
+});
+
+test("a press after the field changed behind the builder's back reads the field and does nothing else", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "πίστις.gen";
+  openGreekCommands({ field, focus: false });
+  await settle();
+  const stale = byKey("c0.case.dative");
+  assert.ok(stale);
+
+  field.value = "*.aor.impv"; // Back, or a "Did you mean": no input event
+  stale.dispatch("click", { detail: 0 });
+
+  assert.equal(field.value, "*.aor.impv", "the press meant for the old search is dropped");
+  assert.equal(byKey("w0").value, "");
+  assert.equal(byKey("c0.tense.aorist").attrs["aria-pressed"], "true", "the card shows the field now");
+});
+
+test("a word that is also a command is quoted in the field, and the card keeps the word", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  openGreekCommands({ field, focus: false });
+  byKey("w0").value = "perfect";
+  byKey("w0").dispatch("input", { type: "input" });
+  assert.equal(field.value, '"perfect"');
+  assert.equal(byKey("w0").value, "perfect");
 });

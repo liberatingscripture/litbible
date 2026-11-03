@@ -585,9 +585,11 @@ that section.
        (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save
        the reader's own notes: under all types, the notebook's matches
        come ahead of it (BA40, BVJ 2026-10-28) unless the reader unchecks
-       "My notes" (E11; a native checkbox in the tray's Greek group foot and
-       beside /search's "Search commands", shown only with the desk loaded
-       and the type "All types"; remembered as
+       "My notes" (E11; a native checkbox, on a line of its own under the tray's
+       status for every Greek search, whether or not the Greek found
+       anything, and on /search in one box with "Search commands", inline in
+       the field's row and, under 960px, on a line under the field; shown
+       only with the desk loaded and the type "All types"; remembered as
        `localStorage['lit-desk-greek-notes']` = "off", absent = on, named
        in /privacy; the key and rule are `src/lib/desk-greek-notes.mjs`,
        the storage reads in `notebook-search.js`, which both surfaces
@@ -704,7 +706,34 @@ that section.
        button, a placeholder under the "Greek" type, the readback, and
        examples where an empty search's results would be. Before adding a
        hint or a control to a search page, put it in the window
-       (`src/scripts/greek-commands.js`). It is a `float-window.js` window,
+       (`src/scripts/greek-commands.js`).
+       **Its top is the search builder** (E5, BVJ 2026-11-02; mocked first,
+       then built on Claude's recommendation): a card for each word (up to
+       four), each with menus that list only what that word takes, a "+ Then
+       another word", and "How close" once there are two. **The search field
+       is the only record of the search**: the builder reads it with
+       `parseGreekQuery` on every change and writes it with `putSearch` (typed
+       when the field has focus, so undo works after a mouse press), and a card waiting for its word is the one thing it
+       holds that the field doesn't. A search it can't show (`=` exact,
+       plain words, one that doesn't read) says so and leaves the
+       field alone, with "Start a new search". The rules are
+       `src/lib/greek-builder.mjs` (pure, tested); the drawing is
+       `src/scripts/greek-builder.js`. A word's choices are the parsings its
+       lemma's words take, read from the same shard the search uses
+       (`codeCounts`), so nothing new is built or fetched until a word is
+       typed, and a choice also narrows the others (θεός, once "genitive"
+       is chosen, offers only singular and masculine: its plural and feminine
+       forms aren't genitive). A word that is also a command ("perfect", "and") is
+       written quoted, and among several words it is left out, since a quote
+       can't sit inside "a/b". A press that finds the field changed behind its
+       back (Back, a "Did you mean") reads the field and does nothing else.
+       A choice already made
+       stays listed even when the word takes none of it, so it can be taken
+       off. The old list and examples sit under "Examples and all commands",
+       which an error pointing at a command opens. A builder search is a
+       Greek one, so writing one puts the page's type menu on "Greek" when
+       the text isn't plainly Greek already. Room is left for E6 (a "related
+       words" choice on a card); nothing is added for it. It is a `float-window.js` window,
        outside `lit-panel.js`'s one slot, so a footnote or preview opening
        never closes it. It opens from the tray, /search and /desk's Search
        pane. (It once opened from the Greek tab's field too, until E7,

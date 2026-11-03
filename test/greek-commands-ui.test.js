@@ -1,11 +1,10 @@
 // The pure pieces behind the Greek search commands' screens
-// (src/lib/greek-commands-ui.mjs): putting a command in the field, building a
-// word, the query a parsing starts, and a result verse read off a chapter.
+// (src/lib/greek-commands-ui.mjs): putting a command in the field, the query a
+// parsing starts, and a result verse read off a chapter.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  builderQuery,
   editSpan,
   formsLine,
   insertAtCursor,
@@ -62,18 +61,6 @@ test("every insertion the window offers leaves a query that reads", () => {
     v = insertAtCursor(v, v.length, v.length, t).value;
   }
   assert.equal(parseGreekQuery(v).error, undefined, v);
-});
-
-// ── Build a word ────────────────────────────────────────────────────────
-
-test("Build a word joins the word and its filters, or starts from a star", () => {
-  assert.equal(builderQuery("πίστις", ["gen"]), "πίστις.gen");
-  assert.equal(builderQuery("", ["aor", "impv"]), "*.aor.impv");
-  assert.equal(builderQuery("  πίστις  ", []), "πίστις");
-  assert.equal(builderQuery("", []), "", "nothing chosen adds nothing");
-  assert.equal(builderQuery("", ["", "gen"]), "*.gen", "an unchosen picker is left out");
-  assert.equal(builderQuery("πίστις", ["gen", "noun"]), "πίστις.noun.gen", "filters read in the order of a parsing");
-  assert.equal(parseGreekQuery(builderQuery("", ["pres", "ptc", "nom"])).error, undefined);
 });
 
 // ── A word's parsing as a search ────────────────────────────────────────

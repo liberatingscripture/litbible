@@ -7448,6 +7448,36 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     and a way to add a second word for a construction.
   - **The same builder in all three places**: the tray, /search and the
     Greek tab, since `searchGreekAuto` is already one search behind them.
+  **Decided and built 2026-11-02 (work session 7b).** BVJ looked at a mock
+  and took every one of Claude's recommendations:
+  - **Where it lives**: the top of the commands window, which already opens
+    from the tray, /search and /desk's Search pane (the Greek tab no longer
+    opens it, E7). The search pages gain nothing.
+  - **How it relates to the field**: the field is the only record of the
+    search. The builder reads it with the language's own parser on every
+    change and writes it as the reader chooses (typed, so Ctrl+Z works), so
+    the two cannot disagree; each card shows the notation it makes
+    (`πίστις.gen`) so the reader learns it by watching. A search it can't
+    show (`=` exact, plain words, one that doesn't read) is
+    said so and left alone, with "Start a new search". Rejected: a locked
+    field with "Edit as text" (two modes, the same unclear interaction), and a
+    builder on the page beside the field (a new control on every search
+    page, and a second place to keep up).
+  - **What the menus offer**: a card per word (up to four), a word box that
+    shows its lemma, Strong's number, gloss and count, then only the kinds of
+    choice the word takes (a noun offers no tense), each choice with how many
+    of the word's occurrences it leaves, and each choice narrowing the others
+    (θεός, once "genitive" is chosen, offers only singular and masculine, since
+    its plural and feminine forms aren't genitive).
+    Several of one kind mean either (`.gen/dat`). "+ Then another word" and,
+    from two words, "How close" (within 3, next to each other, anywhere in the
+    verse, either order). The old list and examples sit under "Examples and all
+    commands". Writing a builder search puts the page's type menu on "Greek"
+    when the text isn't plainly Greek.
+  - E6 (word families) is not started; a card could later gain a "related
+    words" choice, and nothing is added for it.
+  Rules: `src/lib/greek-builder.mjs`, `src/scripts/greek-builder.js`
+  (src/scripts/desk/CLAUDE.md, rule 17). Status: built, awaiting BVJ's look.
 - **E6, wish: search a word family, not just one lemma.** BVJ
   (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
   no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
@@ -7507,6 +7537,14 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `greek-commands` step is removed (14 steps in Study View; a stored old id
   is ignored), the `greek` step and the help page's paragraph are reworded,
   and rules 15 and 17 follow. Status: built, awaiting BVJ's look.
+  **Carried into work session 7b, BVJ took Claude's recommendations
+  (2026-11-02):** the focus move to "Back to the text", the header while
+  results show and the reworded tour step stay as built unless BVJ's look on
+  the preview finds a problem; the parsing link **stays** in a word's details
+  (it starts from the word being read, which is the case this item kept); and
+  the word links' results **stay in the tab** (the reader keeps their place,
+  and "See these on the search page" is the way out). Nothing was changed for
+  them. Status: built, awaiting BVJ's look.
 - **E8, rough: there is no way into /desk, and Read View retires at
   launch.** BVJ (2026-10-21): no button or link reaches /desk, and
   switching between Study View and Read View was always clunky. **Decided**
@@ -7756,6 +7794,20 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   searches are not governed by it, and /desk's Search pane lists no notes
   for a Greek search. The tray shows it only when a Greek group renders.
   Status: built, awaiting BVJ's look.
+  **Placement settled 2026-11-02 (work session 7b, on Claude's
+  recommendations):** on /search the link and "My notes" are one box, inline in
+  the field's row where there is room and, under 960px, on a line under the
+  field with the link at the left and the checkbox at the right, so a narrow
+  window no longer squeezes the field (at 768px it was 177px wide); the tray
+  re-searches when the box changes, as before; and the tray's switch is now
+  **one line under the status for every Greek search under "All types"**, so a
+  Greek search with no Greek hits still has it (it had lived in the Greek
+  group's foot, which such a search doesn't draw). **For BDR's Claude: the LSC
+  site's `/privacy` mirror needs the sentence for `lit-desk-greek-notes`** (this
+  site's, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
+  searches list your notes, once you turn that off)"). Nothing else in
+  /privacy changed; the builder keeps nothing. Status: built, awaiting BVJ's
+  look.
 - **E12, wish: a trash the reader can restore from.** BVJ (2026-10-28),
   with BA39's call (FA1-t, #400). The help page used to say a deleted item
   waits in the trash for 30 days, which suggested it could be brought back;
@@ -8088,7 +8140,9 @@ the rest is polish.
 7. **Greek search**: 7a, decide E7 and build E11's small switch (**done
    2026-11-02**: E7 decided and built, #428; E11 built, #427); 7b, the
    E5 builder (mock first), **which also carries what is left open of E7
-   and E11** (below); 7c, E6, which reopens the word-families deferral of
+   and E11** (below) (**done 2026-11-02**: BVJ picked from a mock and took
+   every recommendation; the builder, E11's two placements and E7's three
+   calls are in one PR, awaiting BVJ's merge); 7c, E6, which reopens the word-families deferral of
    2026-10-13, so confirm with BVJ before starting. Independent of the
    panes; can run in parallel.
    **Carried into 7b** (both are in the search bar's commands window and
