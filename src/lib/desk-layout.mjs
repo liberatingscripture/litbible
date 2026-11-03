@@ -288,18 +288,18 @@ export function readingLayout(layout) {
 }
 
 /**
- * The layout a link to /desk with a place opens (E8, `/desk/?place=romans-8`).
- * A reader with no saved layout (no last, no default) gets the Reading
- * arrangement there: someone sent to read mustn't land in a workspace. A
- * reader with one keeps its arrangement, panes and sizes, and only the active
- * LIT pane moves, together with the place the following panes share. Nothing
- * is written here: the page saves it as it saves any move.
+ * The layout a link to /desk with a place opens (E8, `/desk/?place=romans-8`):
+ * whatever the page would have opened (the reader's last layout, their
+ * default, or the original LIT beside My Notes for a first visit), with only
+ * the active LIT pane and the shared place moved to `place` (BVJ, 2026-11-02:
+ * a link never forces an arrangement, Reading included). Nothing is written
+ * here: the page saves it as it saves any move.
  */
 export function arrivalLayout(saved, place, reading = null) {
+  const opening = openingLayout(saved, reading);
   const at = parsePassage(place) ? place : null;
-  if (!at) return openingLayout(saved, reading);
-  if (!saved.last && !saved.mine) return readingLayout(originalLayout(at));
-  const next = clone(openingLayout(saved, reading));
+  if (!at) return opening;
+  const next = clone(opening);
   const lit = findPane(next.root, next.active)?.kind === "lit"
     ? findPane(next.root, next.active)
     : panes(next.root).find((p) => p.kind === "lit");

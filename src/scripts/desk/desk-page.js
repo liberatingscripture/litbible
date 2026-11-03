@@ -274,10 +274,10 @@ async function start() {
   let lastRead = null;
   try { lastRead = loadLastRead(); } catch (_) {}
   const reading = formatPassage(startingPassage(lastRead));
-  // /desk/?place=romans-8 (E8) is a link that carries a passage: with no saved
-  // layout it opens the Reading arrangement there; with one, the reader's
-  // panes stay and the leading LIT pane moves. A value that names no passage
-  // is ignored, and the parameter is stripped below either way.
+  // /desk/?place=romans-8 (E8) is a link that carries a passage: the layout
+  // the page would have opened (last, default, or the original) stays, and
+  // only the leading LIT pane moves. A value that names no passage is
+  // ignored, and the parameter is stripped below either way.
   const arrivalPlace = parsePlaceParam(new URLSearchParams(location.search).get("place"));
   let layout = arrivalPlace ? arrivalLayout(saved, arrivalPlace, reading) : openingLayout(saved, reading);
   if (!parsePassage(layout.place)) layout = setPlace(layout, reading);

@@ -7569,11 +7569,14 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     pane. Nothing new was needed to honor the Display tray: `.desk-lit__text`
     already sits at the reading width, centered, in Study View's own markup,
     so verse numbers, footnote letters, key terms and highlights reach it.
-  - *`/desk/?place=romans-8`* (also `romans-8:16`, `romans-8-v16`): with no
-    saved layout (no last, no default) it opens Reading there; with one, the
-    reader's panes and sizes stay and only the active LIT pane and the shared
-    place move (`arrivalLayout`, `parsePlaceParam`). The move is saved as any
-    move on the desk is, and the parameter is stripped from the address.
+  - *`/desk/?place=romans-8`* (also `romans-8:16`, `romans-8-v16`): the
+    layout the page would have opened (last, "My default", or for a first
+    visit the original LIT beside My Notes) stays, and only the active LIT
+    pane and the shared place move (`arrivalLayout`, `parsePlaceParam`).
+    **BVJ, 2026-11-02: a link never forces an arrangement**, so E8's "a
+    first visit opens the Reading arrangement" is dropped; Reading is a
+    Layout choice only. The move is saved as any move on the desk is, and
+    the parameter is stripped from the address.
     A value that names no passage is ignored. /desk has no Notebook panel,
     so the tour offer and first-use card never show there.
   - *The way in that carries the passage* is the header's "Study Desk"
@@ -7988,7 +7991,7 @@ the rest is polish.
      `lit-desk-greek-notes`.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
    the passage (buildable now; **done 2026-11-02**, awaiting BVJ's merge and
-   look: Reading, `?place=`, the header link carrying the chapter; the
+   look: Reading, `?place=` (moves the LIT pane only), the header link carrying the chapter; the
    whole-book option left unbuilt pending BVJ); 8b, after 8a, the parts of E8 and E20 that
    stay behind the desk preview (BVJ, 2026-11-02): with the preview on,
    Study View's "Read View" button and the /read card become ways into /desk,

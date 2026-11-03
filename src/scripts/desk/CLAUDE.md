@@ -700,10 +700,11 @@ that section.
        first row of the Layout window, one LIT pane (`readingLayout`); it is
        One pane's shape, so `arrangementOf` tells them apart by the pane's
        kind. `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
-       `romans-8-v16`) is what a link to the desk carries: no saved layout
-       (no last, no default) opens Reading there, a saved one keeps its
-       panes and sizes and only the active LIT pane and the shared place
-       move (`arrivalLayout`, pure and tested). desk-page.js saves the move
+       `romans-8-v16`) is what a link to the desk carries: whatever the page
+       would have opened (last, default, or the original for a first visit)
+       keeps its panes and sizes, and only the active LIT pane and the
+       shared place move (`arrivalLayout`, pure and tested; BVJ, 2026-11-02:
+       a link never forces an arrangement, Reading included). desk-page.js saves the move
        and strips the parameter. The header's "Study Desk" link carries the
        chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref`
        is the same address for code). A new link into /desk that means to

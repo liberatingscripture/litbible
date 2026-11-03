@@ -1500,12 +1500,21 @@ test("One pane over something that isn't the LIT is not Reading", () => {
   assert.equal(arrangementOf({ root: leaf("a", "mine"), active: null }), "one");
 });
 
-test("a link with a place: no saved layout opens Reading there", () => {
+test("a link with a place: no saved layout opens the original layout there, not Reading", () => {
   const l = arrivalLayout({ last: null, mine: null, start: "last" }, "romans 8", "john 3");
-  assert.equal(arrangementOf(l), "reading");
-  const [only] = panes(l.root);
-  assert.equal(only.at, "romans 8");
+  assert.equal(arrangementOf(l), "cols-2");
+  assert.deepEqual(panes(l.root).map((p) => p.kind), ["lit", "mine"]);
+  assert.equal(findPane(l.root, l.active).at, "romans 8");
   assert.equal(l.place, "romans 8");
+});
+
+test("a link with a place: the reader's default keeps its panes and moves only the place", () => {
+  const mine = mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "lit", pin: null, at: "matthew 5" } }, leaf("p2", "greek")));
+  mine.place = "matthew 5";
+  const l = arrivalLayout({ last: null, mine, start: "default" }, "romans 8:16", "john 3");
+  assert.deepEqual(panes(l.root).map((p) => p.kind), ["lit", "greek"]);
+  assert.equal(findPane(l.root, "p1").at, "romans 8:16");
+  assert.equal(l.place, "romans 8:16");
 });
 
 test("a link with a place: a saved layout keeps its panes and moves the active LIT pane", () => {
