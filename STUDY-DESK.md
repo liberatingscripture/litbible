@@ -7905,7 +7905,23 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   until BVJ picks the name. **The card part is built behind the preview**
   (work session 8b, 2026-11-02; see E8): with the preview on, the Study Desk
   card takes the Read View card's slot, and it goes to everyone at 8c. The
-  rename of "Study View" is still open. Status: open (the rename).
+  rename of "Study View" is still open. BVJ (2026-11-02) floated "Chapter
+  View" and "Page View" and asked an Opus subagent to weigh in. **Its
+  recommendation, not a decision: "Chapter View."** Keeping "Study View"
+  would leave "Study View" and "Study Desk" as the site's two web
+  surfaces once Read View is gone; "Page View" is vague and collides with
+  "page views" the metric; "Chapter pages" is a plural noun that reads
+  badly on a card or button; "Study page" and "Chapter Study" bring the
+  collision back. "Chapter View" names the unit, is a one-word swap
+  ("Try Chapter View →"), and fits the apps' vocabulary. Cost: about 20
+  reader-facing strings in about 14 files (`read.astro`, `ReadMenu.astro`,
+  `read/[book].astro`, `Layout.astro`, `SiteHeader.astro`,
+  `SblgntNotice.astro`, `notebook/help.astro`, `desk.astro`,
+  `searchbar.js`, `search.js`, `read-mode.js`, `desk-first-use.mjs`,
+  `desk-bookmarks.mjs` labels only, `desk/lit-pane.js`,
+  `desk/desk-panes.js`, `desk/tour.js`), about 10 test files, and the
+  CLAUDE docs; BDR would check the apps' copy. It lands with 8c so readers
+  see the copy change once. Status: open (the rename).
 - **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
   BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
   pane stays and an unlocked lock when it follows, with no words
