@@ -4466,36 +4466,17 @@ html[data-desk-workspace] .desk-page__notice {
   margin-bottom: 10px;
 }
 
-.desk-ws__layout {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 8px;
-  background: var(--surface-raised);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.desk-ws__layout:hover,
-.desk-ws__layout[aria-expanded="true"] {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
 .desk-ws__menu {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
 }
 
-/* In the header the button sits at the right, so the menu opens leftward. */
-.site-header__desk-tools .desk-ws__menu {
-  left: auto;
-  right: 0;
+/* The windows hang centered under the page's title, which is the menu button
+   (E15), and the title menu's flyout beside it. */
+.desk-title .desk-ws__menu {
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
   box-sizing: border-box;
   width: min(560px, calc(100vw - 32px));
@@ -4510,6 +4491,139 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-ws__menu[hidden] {
   display: none;
+}
+
+/* The page's title is a menu button (E15, E14; BVJ, 2026-11-02): the h1 holds
+   the button, and the menus sit beside the h1 in the header's own type. */
+.desk-title {
+  position: relative;
+  min-width: 0;
+  text-align: center;
+}
+
+.desk-title__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-title__button > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desk-title__button:hover,
+.desk-title__button[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-title .desk-title__menu {
+  width: min(270px, calc(100vw - 32px));
+  padding: 6px;
+}
+
+.desk-title__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.3;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.desk-title__item:hover,
+.desk-title__item:focus-visible,
+.desk-title__item[aria-expanded="true"] {
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-title__item[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.62);
+  cursor: default;
+}
+
+.desk-title__item[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-title__label {
+  white-space: nowrap;
+}
+
+.desk-title__hint {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.desk-title__more {
+  display: inline-flex;
+  margin-left: auto;
+}
+
+.desk-title__hint + .desk-title__more {
+  margin-left: 0;
+}
+
+.desk-title__item[aria-disabled="true"] .desk-title__more {
+  display: none;
+}
+
+.desk-title__rule {
+  height: 1px;
+  margin: 5px 6px;
+  background: rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-title__sub {
+  position: relative;
+}
+
+/* Column and row, then the kinds of pane, in one panel beside the menu. */
+.desk-title .desk-title__fly {
+  top: -6px;
+  left: calc(100% + 6px);
+  right: auto;
+  transform: none;
+  width: 210px;
+  padding: 6px;
+}
+
+/* A reason sits under its choice here, so the flyout stays narrow. */
+.desk-title__fly .desk-title__item {
+  flex-wrap: wrap;
+  gap: 0 10px;
+}
+
+.desk-title__fly .desk-title__hint {
+  flex-basis: 100%;
+  margin-left: 0;
+}
+
+.desk-title .desk-title__fly--left {
+  left: auto;
+  right: calc(100% + 6px);
 }
 
 .desk-ws__shapes {
@@ -4613,7 +4727,7 @@ html[data-desk-workspace] .desk-page__notice {
    choices, each opening the chapter in a new tab that prints itself. The
    menu's own parts are .desk-print-menu__*, shared with the Notebook's
    Settings tab. */
-.site-header__desk-tools .desk-ws__print-menu {
+.desk-title .desk-ws__print-menu {
   width: min(300px, calc(100vw - 32px));
 }
 

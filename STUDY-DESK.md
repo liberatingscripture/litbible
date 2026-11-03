@@ -7712,7 +7712,19 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   not hidden, so the limit reads as a limit. Open: what the new pane
   shows (an empty pane that asks what to open, as the layout control does
   today, is the likely answer), and whether it also lives beside the
-  Layout choices. Status: open; it ships as an item in E15's menu.
+  Layout choices. **Decided and built 2026-11-02 (work session 6), in E15's
+  menu.** BVJ chose **Add pane** to open a flyout to the right with **Add
+  column** and **Add row**, and, once one is chosen, the kinds of pane
+  replacing those two in the same flyout (a "‹ Add column" row goes back).
+  Claude had expected an empty pane that asks what to open, "as the layout
+  control does today"; it does not (the Layout choices fill a new slot with the
+  first kind not yet open), and the flyout makes the question unnecessary. A
+  column is a full-height pane at the page's right edge, a row a full-width pane
+  along the bottom (`addPane`, `desk-layout.mjs`); the existing panes keep their
+  proportions. With four panes open the item is disabled with "Four is the
+  most", and a direction the window can't hold is disabled with "Needs a
+  wider/taller window". Add pane is not repeated beside the Layout choices.
+  Status: done.
 - **E15, wish: the page title becomes a menu.** BVJ (2026-10-30), thinking
   aloud and not a decision. On /desk the page title would open a drop-down
   that gathers the page-level actions now spread along the bar: **Layout**,
@@ -7724,7 +7736,20 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   and `/sheets` becomes a menu too or only `/desk` does, and how it
   announces itself as a button (a caret, as the Layout and Print buttons
   have, and `aria-haspopup`/`aria-expanded`). Needs a mock before it is
-  built ("quiet controls"). Status: open.
+  built ("quiet controls"). **Decided and built 2026-11-02 (work session 6).**
+  Claude mocked three options (everything in the title; the menu added with
+  the bar unchanged; Layout kept on the bar with a "+ Pane" button) and BVJ
+  chose the first, **with Aa moved into the menu too**. The title is now
+  `Study Desk ▾` (caret, `aria-haspopup="menu"`, `aria-expanded`); its menu
+  holds **Add pane** (E14), **Layout…**, **Print…** (the shared Print menu,
+  E16), **Display options** (the header's own Aa button moved in whole; the tray
+  hangs from the title), then **Take the tour** and **Help for the Study Desk**
+  (both open in a new tab, since they leave the desk). Layout and Print left
+  the bar, which now holds only the menu button; their windows are the same,
+  hung under the title. Only `/desk` has the menu; `/notebook` and `/sheets`
+  are unchanged. **For BVJ to check:** the tour link goes to John 3 (the tour
+  runs on a chapter page, not on /desk), so it opens in a new tab; and Settings
+  is not in the menu (it is a Notebook tab, not a /desk page). Status: done.
 - **E16, rough: printing a chapter needs its own chapter choice, and the
   Notebook lacks the plain-chapter print.** BVJ (2026-10-30), two parts.
   (1) The Print menu on /desk (`desk-page.js`, "the Print menu") prints
@@ -7882,7 +7907,9 @@ the rest is polish.
    2026-11-02**: `desk/print-menu.js`, with the Notebook's two buttons
    folded into one "Print…" that opens it; BVJ approved the design.
 6. **The page-title menu and the quick add-pane control**: E15 with E14.
-   Needs a mock first. After 4, so the control offers the final panes.
+   **Done 2026-11-02**: the title is the menu (Add pane, Layout, Print,
+   Display options, the tour, Help), Aa moved into it, and Layout and Print left
+   the bar; BVJ picked the design from a mock.
 7. **Greek search**: 7a, decide E7 and build E11's small switch (**done
    2026-11-02**: E7 decided and built, #428; E11 built, #427); 7b, the
    E5 builder (mock first), **which also carries what is left open of E7

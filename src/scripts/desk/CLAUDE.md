@@ -851,10 +851,36 @@ that section.
      - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on
        Layout and SiteHeader), at every width: the emblem and "LIT Bible"
        as the home link, "Study Desk" centered as the page's h1, then the
-       Layout menu (desk-page.js fills `[data-desk-header-tools]`), Aa and
-       the menu button. No nav row and no search; the Display tray carries
+       menu button (Aa is gone from the bar: see "The title menu" below).
+       No nav row and no search; the Display tray carries
        Study View's "Show" switches (`scriptureControls="study"`), which
        reach the LIT pane's text. Search is a pane (below).
+     - **The title menu** (E15 and E14; BVJ, 2026-11-02; mocked first, he
+       picked "everything in the title, and Aa moves in too"). The h1's text
+       is a button, `Study Desk ▾` (`.desk-title`, built by desk-page.js, which
+       swaps the heading for a wrapper holding the h1 and the menus so the
+       windows take the header's type, not the heading's). Its menu holds Add
+       pane, Layout…, Print…, Display options, then Take the tour and Help (both
+       open in a new tab, since they leave the desk). **Layout and Print left
+       the bar**: their windows are the same ones, hung centered under the
+       title. **Display options is the header's own Aa button moved into the
+       menu whole**, so the shared tray's listeners stay on it;
+       `data-tray-anchor=".desk-title__button"` (SiteHeader's `anchorOf`) hangs
+       the tray from the title and returns focus there, because the menu
+       closes as the tray opens. **Add pane** is a flyout to the right that
+       asks "Add column" or "Add row", then (the kinds replace those two in
+       the same flyout, with a "‹ Add column" row to go back) which kind of
+       pane to show. A column is a full-height pane at the right edge of the
+       page and a row a full-width pane along the bottom (`addPane`, pure in
+       desk-layout.mjs; the others keep their proportions and the newcomer
+       takes an even share); the new LIT pane starts at the shared place.
+       `addPaneNeeds` says why one can't be added: "Four is the most" (D9)
+       or "Needs a wider/taller/larger window" (the 280 by 160 floor). The
+       item is disabled, not hidden, with the reason beside it, and a
+       direction that doesn't fit is disabled inside the flyout. The menu is
+       `role="menu"` (arrows, Home and End, Right opens the flyout, Left or
+       Escape steps back); Escape from the Layout or Print window returns
+       focus to the title button. `/notebook` and `/sheets` have no title menu.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
        LIT's license line; the rest of the footer is hidden by
        `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its
@@ -954,14 +980,14 @@ that section.
        parameter and starts that print once the page has loaded (a draft page,
        which has no text, prints nothing). **This page's own chapter prints in
        place**, with no new tab, as the Notebook's buttons always did. /desk's
-       is a drop-down under the header's Print button, beside Layout; the
+       is "Print…" in the page-title menu (E15, below); the
        Notebook's is one "Print…" button at the foot of the Settings tab
        (`panel.js`'s `printBox`, Study View chapters and Read View), opening the
        menu in place under it. **In Read View the menu has no picker** and
        prints the book on the page in place (the plain choice reads "The
        book"): a book is what Read View prints, and picking a chapter is Study
        View's and /desk's. The host owns the button, Escape and focus; the
-       menu's `onChoose` closes it. E15's page-title menu opens this same menu.
+       menu's `onChoose` closes it. The page-title menu opens this same menu.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        choice right after it in the Print menu, and the command
        `print-with-room`. `desk/print-room.js` only stamps

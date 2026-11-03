@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ARRANGEMENTS,
+  addPane,
+  addPaneNeeds,
   HANDLE,
   KINDS,
   RETIRED_KINDS,
@@ -1425,4 +1427,45 @@ test("3m: openLitBeside puts a LIT pane left of the pane, active, at the shared 
   assert.equal(openLitBeside(l, "p1", 800, 600), l, "no room");
   const four = applyArrangement(mk(leaf("p1", "search")), "grid");
   assert.equal(openLitBeside(four, "p1", 4000, 4000), four);
+});
+
+test("E14: addPane adds a column at the right edge, the others kept in proportion", () => {
+  const l = originalLayout("john 3:16");
+  const next = addPane(l, "column", "greek", 1400, 800);
+  assert.deepEqual(kinds(next), ["lit", "mine", "greek"]);
+  assert.equal(next.root.split, "columns");
+  close([next.root.sizes.reduce((a, b) => a + b, 0), next.root.sizes[2]], [1, 1 / 3]);
+  close([next.root.sizes[0] / next.root.sizes[1]], [l.root.sizes[0] / l.root.sizes[1]]);
+  assert.deepEqual(kinds(l), ["lit", "mine"], "the original is untouched");
+});
+
+test("E14: addPane adds a row along the bottom, wrapping what is there", () => {
+  const l = originalLayout("john 3:16");
+  const next = addPane(l, "row", "verse", 1400, 800);
+  assert.equal(next.root.split, "rows");
+  assert.deepEqual(kinds(next), ["lit", "mine", "verse"]);
+  assert.equal(next.root.children[0].split, "columns", "the old columns sit in the first row");
+  const one = addPane(mk(leaf("p1", "lit")), "column", "mine", 1400, 800);
+  assert.deepEqual(kinds(one), ["lit", "mine"], "one pane becomes two columns");
+  assert.deepEqual(one.root.sizes, [0.5, 0.5]);
+});
+
+test("E14: addPane gives a LIT pane the shared place and leaves four panes alone", () => {
+  const l = originalLayout("john 3:16");
+  const next = addPane(l, "column", "lit", 1400, 800);
+  assert.equal(panes(next.root).at(-1).at, "john 3:16");
+  const four = applyArrangement(originalLayout(), "grid");
+  assert.equal(addPane(four, "column", "mine", 4000, 4000), four);
+  assert.equal(addPaneNeeds(four, "row", 4000, 4000), "full");
+  assert.equal(addPane(l, "column", "", 1400, 800), l, "no kind");
+});
+
+test("E14: addPaneNeeds names what the window lacks", () => {
+  const l = originalLayout();
+  assert.equal(addPaneNeeds(l, "column", 852, 600), null, "three columns need 852");
+  assert.equal(addPaneNeeds(l, "column", 800, 600), "wider");
+  assert.equal(addPaneNeeds(l, "row", 1400, 300), "taller", "two rows of 160 and a line need 326");
+  assert.equal(addPaneNeeds(l, "row", 500, 300), "larger");
+  assert.equal(addPaneNeeds(l, "row", 566, 326), null);
+  assert.equal(addPaneNeeds(l, "column"), null, "no size given asks nothing");
 });
