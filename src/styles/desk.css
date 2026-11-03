@@ -4976,13 +4976,12 @@ html.desk-ws--moving * {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* The leading LIT pane's flag: a glyph and no words, as the lock is. */
 .desk-pane__lead {
-  padding: 1px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
   color: rgba(var(--ink-rgb), 0.8);
-  font-size: 0.75rem;
-  font-weight: 600;
 }
 
 .desk-pane__lead[hidden],
@@ -5084,6 +5083,18 @@ html.desk-ws--moving * {
   background-size: 8px 8px;
   background-position: 10px 50%;
   background-repeat: no-repeat;
+}
+
+/* The kinds and the Move items (E25) are each a group, which draws as plain rows. */
+.desk-pane__menu-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The Move items sit under a hairline, with no dot: they aren't a choice of kind. */
+.desk-pane__menu-line {
+  margin: 4px 6px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
 }
 
 .desk-ws button:focus-visible {
@@ -5321,6 +5332,8 @@ html.desk-ws--moving * {
   color: var(--text);
   font-weight: 600;
   pointer-events: none;
+  padding: 8px;
+  text-align: center;
 }
 
 .desk-ws__drop[hidden] {
@@ -5329,6 +5342,20 @@ html.desk-ws--moving * {
 
 .desk-ws__drop--refused {
   border-color: rgba(var(--ink-rgb), 0.4);
+}
+
+/* A swap covers the whole pane and draws solid, so it reads as a different
+   drop from a split's dashed half (E25). */
+.desk-ws__drop--swap {
+  border-style: solid;
+}
+
+.desk-ws__drop-label {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.16);
+  font-size: 0.875rem;
 }
 
 /* The LIT pane on /desk (phase 3e; src/scripts/desk/lit-pane.js): Study

@@ -8017,7 +8017,41 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   edge of another splits it, shown before the drop, a drop that leaves a pane
   too small is refused, Escape cancels) needs a look. **Nothing is specified:
   when the session starts, ask BVJ what to change before doing anything.**
-  Status: open; added to Phase 5.
+  Status: **built 2026-11-02; BVJ tried it and kept all of it.** BVJ's answer was the swap (candidate 1) and the
+  steadier zones (2), then clearer drop feedback (3) and a keyboard route
+  (6). Built: **dropping on the middle of a pane swaps the two** (the
+  slots keep their sizes, each pane its kind, pin, place and sheet;
+  `swapPanes`), **dropping in a band along an edge splits as before**; the
+  bands are a fixed depth (120px across, 80px high, never over 30% of a
+  small pane) so a wide pane's middle stays and a pointer near a corner goes
+  to the nearer edge in band depths (`dropZone`). **The drop box names what
+  the drop does** on a chip ("Swap with My Notes," "Left of My Notes," and so
+  on; a swap covers the whole pane with a solid border, a split half of it
+  dashed); a refused split says why ("No room here (needs a taller
+  window)"), and a swap is never refused, since each pane lands in a slot
+  that already fit. **The pane's name menu has Move left, right, up, and
+  down** under a hairline, offered only where a pane is beside this one, each
+  a swap with that pane (`neighborIn`); the menu's label is now "This pane."
+  The screen reader hears "<Kind> swapped with <Kind>." or "<Kind> moved."
+  After an Opus review (same day): a zone **holds 8px past its own edge**
+  while the pointer stays over the same pane (`dropZone`'s `previous`), so a
+  pointer on the line doesn't flip between swap and split; the menu is
+  "Pane options" with two groups ("Show in this pane," "Move this pane"), the
+  name button says "…show something else here, or move it," and the Layout
+  window's note names the Move items; Move picks only a pane touching this
+  one; a drop is planned again from the layout at release.
+  Not built, left as BVJ finds them: dragging to the desk's own edge (5), a
+  visible handle at rest (7), keeping the dragged pane's size (8), an
+  animated move or live layout preview (4), a note when a drag ends on a
+  line or outside the panes (9).
+
+- **E26, glyph: the leading LIT pane's "Leading" pill becomes a flag.** BVJ
+  (2026-11-02), as the lock replaced "Stay here" in E21. Status: **done**, in
+  E25's change (the same pane header). The flag shows on the active LIT pane
+  while two or more are open, as the pill did; its name for a screen reader
+  and its hover text are unchanged ("Leading" and "Leading: My Notes, This
+  verse, Greek, and Footnotes follow this pane"), and the desk tour's
+  step now says the pane is "marked with a flag." (`desk-first-use.mjs`).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -8089,8 +8123,10 @@ the rest is polish.
 9. **Two tours**: E24. **Done 2026-11-02.** Touched `tour.js` (the shared card
    moved to `tour-runner.js`), `first-use.js` and `desk-page.js`'s title menu,
    and added `desk-tour.js`.
-10. **Pane drag behavior**: E25. **Ask BVJ what to change first**; it touches
-    `desk-page.js`, so it runs alone on that file.
+10. **Pane drag behavior**: E25. **Built 2026-11-02** after BVJ chose from
+    a list: swap on a drop in a pane's middle, steadier edge bands, a named
+    drop box, and Move left, right, up, and down in a pane's menu. Touched
+    `desk-page.js`, `desk-layout.mjs` and `desk.css`. BVJ kept all of it.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and

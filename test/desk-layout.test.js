@@ -16,6 +16,7 @@ import {
   arrivalLayout,
   checkLayout,
   closePane,
+  dropZone,
   evenOut,
   findPane,
   fitSizes,
@@ -25,6 +26,7 @@ import {
   litPlace,
   minSize,
   needs,
+  neighborIn,
   newPane,
   nodeAt,
   normalize,
@@ -47,6 +49,7 @@ import {
   setPlace,
   slotCount,
   splitPane,
+  swapPanes,
   writeSaved,
 } from "../src/lib/desk-layout.mjs";
 
@@ -397,6 +400,146 @@ test("a new pane when four are open is refused, but moving one is allowed", () =
   const moved = splitPane(l, ids(l)[0], "left", ids(l)[3]);
   assert.notEqual(moved, l);
   assert.equal(panes(moved.root).length, 4);
+});
+
+// ---- swapPanes, dropZone, neighborIn (E25) --------------------------------
+
+test("swapping exchanges two panes' places and leaves the slots' sizes", () => {
+  const l = mk(cols([0.6, 0.4], leaf("a", "lit"), rows([0.3, 0.7], leaf("b", "mine"), leaf("c", "verse"))), "a");
+  const next = swapPanes(l, "a", "c");
+  assert.deepEqual(ids(next), ["c", "b", "a"]);
+  assert.deepEqual(next.root.sizes, [0.6, 0.4]);
+  assert.deepEqual(next.root.children[1].sizes, [0.3, 0.7]);
+  assert.equal(next.active, "a");
+  assert.equal(arrangementOf(next), arrangementOf(l));
+  // the original is untouched
+  assert.deepEqual(ids(l), ["a", "b", "c"]);
+});
+
+test("a swap keeps each pane's kind, pin, place and sheet", () => {
+  const pin = { at: "Mark 1:1" };
+  const a = { pane: { id: "a", kind: "lit", pin: null, at: "john 3:16" } };
+  const b = { pane: { id: "b", kind: "sheet", pin: null, sheet: "r1" } };
+  const c = leaf("c", "verse", pin);
+  const l = mk(cols([0.4, 0.3, 0.3], a, b, c), "a");
+  const next = swapPanes(l, "a", "c");
+  assert.deepEqual(findPane(next.root, "a"), a.pane);
+  assert.deepEqual(findPane(next.root, "c"), { id: "c", kind: "verse", pin });
+  assert.deepEqual(findPane(next.root, "b"), b.pane);
+});
+
+test("swapping a pane with itself or with one that isn't open is a no-op", () => {
+  const l = originalLayout();
+  assert.equal(swapPanes(l, "p1", "p1"), l);
+  assert.equal(swapPanes(l, "p1", "nope"), l);
+  assert.equal(swapPanes(l, "nope", "p1"), l);
+});
+
+test("a swap of every pair in a four-pane grid is its own inverse", () => {
+  const l = applyArrangement(originalLayout(), "grid");
+  for (const a of ids(l)) {
+    for (const b of ids(l)) {
+      if (a === b) continue;
+      assert.deepEqual(swapPanes(swapPanes(l, a, b), a, b), l, `${a} ${b}`);
+    }
+  }
+});
+
+test("a drop zone is an edge near it and a swap in the middle", () => {
+  assert.equal(dropZone(600, 400, 300, 200), "swap");
+  assert.equal(dropZone(600, 400, 10, 200), "left");
+  assert.equal(dropZone(600, 400, 590, 200), "right");
+  assert.equal(dropZone(600, 400, 300, 10), "top");
+  assert.equal(dropZone(600, 400, 300, 390), "bottom");
+});
+
+test("the edge bands have a fixed depth on a large pane and stop at 30% on a small one", () => {
+  // 1200 wide: the band is 120px, not 360, so 200px in is the middle.
+  assert.equal(dropZone(1200, 800, 200, 400), "swap");
+  assert.equal(dropZone(1200, 800, 100, 400), "left");
+  // 300 by 200: bands of 90 and 60, leaving a middle of 120 by 80.
+  assert.equal(dropZone(300, 200, 150, 100), "swap");
+  assert.equal(dropZone(300, 200, 80, 100), "left");
+  assert.equal(dropZone(300, 200, 100, 100), "swap");
+});
+
+test("a corner goes to the edge the pointer is nearer in band depths", () => {
+  // 600 by 400 (bands 120 and 80): 30px in is 0.25 of a side band, 10px down
+  // is 0.125 of a top band.
+  assert.equal(dropZone(600, 400, 30, 10), "top");
+  assert.equal(dropZone(600, 400, 10, 30), "left");
+  assert.equal(dropZone(600, 400, 590, 390), "right");
+});
+
+test("a zone holds a few pixels past its own edge, so a pointer on the line doesn't flip", () => {
+  // 600 by 400: the left band is 120px deep, held to 128.
+  assert.equal(dropZone(600, 400, 124, 200), "swap");
+  assert.equal(dropZone(600, 400, 124, 200, "left"), "left");
+  assert.equal(dropZone(600, 400, 130, 200, "left"), "swap");
+  // and the middle holds to 8px inside each band
+  assert.equal(dropZone(600, 400, 116, 200), "left");
+  assert.equal(dropZone(600, 400, 116, 200, "swap"), "swap");
+  assert.equal(dropZone(600, 400, 110, 200, "swap"), "left");
+  assert.equal(dropZone(600, 400, 300, 76, "swap"), "swap");
+  assert.equal(dropZone(600, 400, 300, 70, "swap"), "top");
+});
+
+test("a corner holds its edge until the pointer is clearly nearer the other", () => {
+  // 30px in and 10px down is the top edge; 30 and 20 is nearly even.
+  assert.equal(dropZone(600, 400, 30, 10), "top");
+  assert.equal(dropZone(600, 400, 20, 20), "left");
+  assert.equal(dropZone(600, 400, 20, 20, "top"), "top");
+  // clearly nearer the left edge: the hold is let go
+  assert.equal(dropZone(600, 400, 5, 70, "top"), "left");
+});
+
+test("a previous zone that doesn't apply changes nothing", () => {
+  assert.equal(dropZone(600, 400, 300, 200, "left"), "swap");
+  assert.equal(dropZone(600, 400, 590, 200, "left"), "right");
+  assert.equal(dropZone(600, 400, 10, 200, null), "left");
+  assert.equal(dropZone(600, 400, 10, 200, "left"), "left");
+});
+
+const box = (id, left, top, right, bottom) => ({ id, left, top, right, bottom });
+
+test("the neighbor in a direction is the pane beside it sharing the most length", () => {
+  // a | (b over c)
+  const rects = [box("a", 0, 0, 400, 600), box("b", 406, 0, 800, 200), box("c", 406, 206, 800, 600)];
+  assert.equal(neighborIn(rects, "a", "right"), "c");
+  assert.equal(neighborIn(rects, "b", "left"), "a");
+  assert.equal(neighborIn(rects, "c", "left"), "a");
+  assert.equal(neighborIn(rects, "b", "down"), "c");
+  assert.equal(neighborIn(rects, "c", "up"), "b");
+  assert.equal(neighborIn(rects, "a", "left"), null);
+  assert.equal(neighborIn(rects, "a", "up"), null);
+  assert.equal(neighborIn(rects, "b", "right"), null);
+  assert.equal(neighborIn(rects, "nope", "left"), null);
+});
+
+test("a pane past another is not beside it, however much length it shares", () => {
+  // a | (b over c) | d
+  const rects = [
+    box("a", 0, 0, 300, 600),
+    box("b", 306, 0, 600, 300),
+    box("c", 306, 306, 600, 600),
+    box("d", 606, 0, 900, 600),
+  ];
+  assert.ok(["b", "c"].includes(neighborIn(rects, "a", "right")));
+  assert.ok(["b", "c"].includes(neighborIn(rects, "d", "left")));
+  assert.equal(neighborIn(rects, "b", "right"), "d");
+  assert.equal(neighborIn(rects, "c", "right"), "d");
+  assert.equal(neighborIn(rects, "b", "left"), "a");
+  // three plain columns: each pane's neighbors are the ones next to it
+  const three = [box("x", 0, 0, 300, 400), box("y", 306, 0, 600, 400), box("z", 606, 0, 900, 400)];
+  assert.equal(neighborIn(three, "x", "right"), "y");
+  assert.equal(neighborIn(three, "z", "left"), "y");
+  assert.equal(neighborIn(three, "y", "right"), "z");
+  assert.equal(neighborIn(three, "x", "left"), null);
+});
+
+test("a pane diagonal to another, sharing no length, is no neighbor", () => {
+  const rects = [box("a", 0, 0, 400, 300), box("b", 406, 306, 800, 600)];
+  for (const d of ["left", "right", "up", "down"]) assert.equal(neighborIn(rects, "a", d), null, d);
 });
 
 test("an unknown target, edge or moving pane is a no-op", () => {

@@ -501,7 +501,7 @@ that section.
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found
          it"). It switches the desk to `originalLayout` for the run, adds a LIT
-         pane (the "Leading" badge), presses a lock, opens the title menu, the
+         pane (the flag that marks the leading one), presses a lock, opens the title menu, the
          Add pane flyout (adding a Footnotes column behind it) and the Layout
          window (applying an arrangement that fits), undoing each step before
          the next, and at the end commits the reader's own layout back. **What
@@ -737,7 +737,14 @@ that section.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
-       dragging a pane to an edge of another (`splitPane`); the 280 by 160
+       dragging a pane over another, where `dropZone` says an edge band
+       splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
+       E25, BVJ 2026-11-02, the drop box names which), and `neighborIn`
+       for the pane menu's Move left, right, up, and down (the keyboard's
+       swap; only a pane touching this one counts). `dropZone` takes the
+       zone the pointer was in and holds it 8px past its edge, so the line
+       between zones doesn't flicker; a drop is planned again at release;
+       the 280 by 160
        minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.

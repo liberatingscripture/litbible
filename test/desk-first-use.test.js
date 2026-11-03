@@ -308,7 +308,7 @@ test("the Study Desk tour has its own steps, wording and parts", () => {
   assert.deepEqual(DESK_TOUR_STEPS.map((s) => s.part), [...DESK_TOUR_STEPS.map((s) => s.part)].sort());
   // The wording BVJ chose for the third step (2026-11-02).
   assert.equal(DESK_TOUR_STEPS[2].title, "Reading in sync");
-  assert.match(stepBody(DESK_TOUR_STEPS[2], null), /follow the LIT pane\. Move through the LIT, and they move with it\. With two LIT panes open, the one you selected most recently is marked “Leading\.”$/);
+  assert.match(stepBody(DESK_TOUR_STEPS[2], null), /follow the LIT pane\. Move through the LIT, and they move with it\. With two LIT panes open, the one you selected most recently is marked with a flag\.$/);
 });
 
 test("the two tours share no step id, so each one's list means only its own", () => {
