@@ -8038,6 +8038,14 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   animated move or live layout preview (4), a note when a drag ends on a
   line or outside the panes (9).
 
+- **E26, glyph: the leading LIT pane's "Leading" pill becomes a flag.** BVJ
+  (2026-11-02), as the lock replaced "Stay here" in E21. Status: **done**, in
+  E25's change (the same pane header). The flag shows on the active LIT pane
+  while two or more are open, as the pill did; its name for a screen reader
+  and its hover text are unchanged ("Leading" and "Leading: My Notes, This
+  verse, Greek, and Footnotes follow this pane"), and the desk tour's
+  step now says the pane is "marked with a flag." (`desk-first-use.mjs`).
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

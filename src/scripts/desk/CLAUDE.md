@@ -501,7 +501,7 @@ that section.
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found
          it"). It switches the desk to `originalLayout` for the run, adds a LIT
-         pane (the "Leading" badge), presses a lock, opens the title menu, the
+         pane (the flag that marks the leading one), presses a lock, opens the title menu, the
          Add pane flyout (adding a Footnotes column behind it) and the Layout
          window (applying an arrangement that fits), undoing each step before
          the next, and at the end commits the reader's own layout back. **What

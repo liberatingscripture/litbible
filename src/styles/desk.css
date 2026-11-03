@@ -4976,13 +4976,12 @@ html.desk-ws--moving * {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* The leading LIT pane's flag: a glyph and no words, as the lock is. */
 .desk-pane__lead {
-  padding: 1px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
   color: rgba(var(--ink-rgb), 0.8);
-  font-size: 0.75rem;
-  font-weight: 600;
 }
 
 .desk-pane__lead[hidden],

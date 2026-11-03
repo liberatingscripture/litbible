@@ -25,7 +25,7 @@
 // - **Each pane's name is a menu** for showing another kind in it, which is
 //   also the keyboard's way to put any pane anywhere. × closes a pane.
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
-//   marked "Leading" when more than one is open, and My Notes, This verse,
+//   flagged "Leading" when more than one is open, and My Notes, This verse,
 //   Greek, and Footnotes follow it unless their "Stay here" is pressed.
 // - **Each LIT pane keeps where its reader is** (`at`, 3e), and the active
 //   one's is the passage the following panes share, `layout.place`, so they
@@ -117,6 +117,11 @@ const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
 const ICON_GRIP = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"
   focusable="false"><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" />
   <circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" /></svg>`;
+
+// The flag on the leading LIT pane, where there are two or more.
+const ICON_FLAG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><path d="M4 22v-7" /></svg>`;
 
 // A pane's "Stay here": a closed lock when it stays, an open one when it
 // follows the LIT pane. (The thumbtack is the footnote Pin's alone, pins.js.)
@@ -840,8 +845,12 @@ async function start() {
       kindButton.setAttribute("aria-expanded", "false");
       kindButton.innerHTML = `<span class="desk-pane__name"></span>${ICON_CARET}`;
       h2.append(kindButton);
-      const lead = el("span", "desk-pane__lead", "Leading");
-      lead.title = "My Notes, This verse, Greek, and Footnotes follow this pane";
+      // A flag and no words (BVJ, 2026-11-02); the name is for a screen reader.
+      const lead = el("span", "desk-pane__lead");
+      lead.innerHTML = ICON_FLAG;
+      lead.setAttribute("role", "img");
+      lead.setAttribute("aria-label", "Leading");
+      lead.title = "Leading: My Notes, This verse, Greek, and Footnotes follow this pane";
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
       // A glyph with no words; mark() paints the lock and sets its name.
