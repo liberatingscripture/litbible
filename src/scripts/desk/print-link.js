@@ -7,7 +7,18 @@
 // link never prints again.
 
 import { PRINT_PARAM, parsePrintParam } from "../../lib/desk-print-notes.mjs";
+import { pageChapter } from "./page.js";
 import { printFonts } from "./print-notes.js";
+
+/**
+ * The chapter or book on this page, printed plainly (print.css's look, in
+ * Crimson Text, which the screen never loads, so wait for it as the other two
+ * prints do).
+ */
+export async function printPlain() {
+  await printFonts();
+  window.print();
+}
 
 /**
  * @param {{ printNotes: { can(): boolean, print(): Promise<void> } | null,
@@ -28,10 +39,8 @@ export function initPrintLink({ printNotes, printRoom }) {
       } else if (kind === "room") {
         if (printRoom?.can()) await printRoom.print();
       } else {
-        // Plain printing is print.css's, in Crimson Text, which the screen
-        // never loads, so wait for it as the other two prints do.
-        await printFonts();
-        window.print();
+        // A draft page has no text, so its address prints nothing.
+        if (pageChapter()) await printPlain();
       }
     } catch (err) {
       console.error("Study Desk: the chapter didn't print", err);

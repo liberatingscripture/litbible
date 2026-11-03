@@ -4609,41 +4609,90 @@ html[data-desk-workspace] .desk-page__notice {
   gap: 8px;
 }
 
-/* The Print menu (BVJ, 2026-10-29): the chapter's name, then three links,
-   each opening the chapter in a new tab that prints itself. */
+/* The Print menu (BVJ, 2026-10-29; E16): a chapter to print, then three
+   choices, each opening the chapter in a new tab that prints itself. The
+   menu's own parts are .desk-print-menu__*, shared with the Notebook's
+   Settings tab. */
 .site-header__desk-tools .desk-ws__print-menu {
   width: min(300px, calc(100vw - 32px));
 }
 
-.desk-ws__print-title {
-  margin: 0 2px 10px;
-  font-weight: 600;
+/* The picker keeps its arrows on the field's row even in the Notebook's narrow
+   panel, where the panes' flex-wrapped bar would drop one to a second line. */
+.desk-print-menu__picker.desk-passage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0 0 8px;
+  border-bottom: 0;
 }
 
-.desk-ws__print-choices {
+.desk-print-menu__picker .desk-passage__error {
+  grid-column: 1 / -1;
+}
+
+.desk-print-menu__message {
+  margin: 0 2px 8px;
+  font-size: 0.875rem;
+}
+
+.desk-print-menu__message[hidden] {
+  display: none;
+}
+
+.desk-print-menu__choices {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.desk-ws__print-choices a {
+.desk-print-menu__choices > a,
+.desk-print-menu__choices > button {
   padding: 8px 12px;
   border: 1px solid rgba(var(--ink-rgb), 0.22);
   border-radius: 8px;
+  background: transparent;
   color: var(--text);
+  font: inherit;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
 }
 
-.desk-ws__print-choices a:hover {
+.desk-print-menu__choices > a:hover,
+.desk-print-menu__choices > button:hover {
   background: rgba(var(--ink-rgb), 0.06);
 }
 
-.desk-ws__print-choices a[hidden] {
+.desk-print-menu__choices > [aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.5);
+  cursor: default;
+}
+
+.desk-print-menu__choices > [aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-print-menu__choices > [hidden] {
   display: none;
 }
 
-.desk-ws__print-menu .desk-ws__menu-note {
-  margin-bottom: 0;
+.desk-print-menu__note {
+  margin: 8px 2px 0;
+  color: rgba(var(--ink-rgb), 0.72);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* In the Notebook's Settings tab the menu opens in place under the button. */
+.desk-panel__print-menu {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.18);
+  border-radius: 8px;
+}
+
+.desk-panel__print-menu[hidden] {
+  display: none;
 }
 
 .desk-ws__menu-actions button {
@@ -6973,11 +7022,6 @@ mark.desk-print-mark {
 }
 
 /* ── N9: Print with room to write ───────────────────────────────── */
-
-/* The second button under "Print with my notes" takes a little more air. */
-.desk-panel__print--room {
-  margin-top: 10px;
-}
 
 /* A variant of print.css, on paper only and only for the print that
    src/scripts/desk/print-room.js stamps with `data-desk-print="room"`. The

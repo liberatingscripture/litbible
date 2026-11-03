@@ -7739,7 +7739,23 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   both use, so they can't drift again; E15 would open it from the title
   menu. Open: the picker's shape (two selects, or a reference field that
   reads "John 3" the way the search box does) and where the Notebook's
-  copy of the menu sits. Status: open.
+  copy of the menu sits. **Decided and built 2026-11-02 (work
+  session 5).** BVJ approved Claude's recommendation on all three open
+  points ("Go ahead"). (1) The picker is the **reference field the panes
+  use**, with its Previous and Next arrows, not two selects. (2) It starts at
+  the leading LIT pane's chapter (else the shared place; in the Notebook,
+  the page's own) each time the menu opens, changes only what is printed,
+  and with no chapter (or a draft) leaves the choices off with a line
+  saying why. (3) The Notebook's two print buttons became one **"Print…"**
+  button in the Settings tab that opens the same menu in place, with all
+  three choices; this page's own chapter prints in place, another chapter
+  opens a new tab, as /desk's does. In Read View the menu has no picker and
+  prints the book on the page (the plain choice says "The book"). One
+  module, `desk/print-menu.js`, with its rule in `printMenuState`. Not
+  tried: a real print of the new tab's output on paper (the print paths
+  themselves are unchanged). The Notebook can't tell a draft chapter, since
+  only /desk carries the draft list, so a draft picked there opens a tab
+  that prints nothing. Status: done.
 
 - **E17, rough: the My Notes pane and the Things I've Kept pane overlap
   too much to be two panes.** BVJ (2026-10-30). Some small differences
@@ -7862,7 +7878,9 @@ the rest is polish.
    chapter headings and labels folded in; the follow fix; saved layouts
    naming `kept` migrate to `mine`. BVJ approved the design on PR #435.
 5. **The shared Print menu with a chapter picker**: E16. One piece of code
-   for /desk and the Notebook; goes before 6, which opens it.
+   for /desk and the Notebook; goes before 6, which opens it. **Done
+   2026-11-02**: `desk/print-menu.js`, with the Notebook's two buttons
+   folded into one "Print…" that opens it; BVJ approved the design.
 6. **The page-title menu and the quick add-pane control**: E15 with E14.
    Needs a mock first. After 4, so the control offers the final panes.
 7. **Greek search**: 7a, decide E7 and build E11's small switch (**done

@@ -18,6 +18,7 @@
 //   - plain printing (Ctrl+P) is not this: it stays the text and its
 //     footnotes (print.css).
 
+import { bookKeyToLabel } from "../data/books.js";
 import { shortQuote } from "./desk-notes.mjs";
 
 /** How many words of the quotation each printed note leads with. */
@@ -172,4 +173,53 @@ export function parsePrintParam(value) {
 /** The Study View address that prints a chapter as `kind`. */
 export function printHref(bookKey, chapter, kind) {
   return `/${bookKey}-${chapter}/?${PRINT_PARAM}=${kind}`;
+}
+
+/* ── The shared Print menu (E16) ───────────────────────────────────────── */
+
+// One menu, on /desk and in the Notebook (desk/print-menu.js): a chapter
+// choice, then the three prints. This decides what each choice does for the
+// chapter picked, so the two places cannot drift apart again.
+
+/** Each print's name on the menu; the book's, where the menu prints a book. */
+export const PRINT_LABELS = Object.freeze({ plain: "The chapter", notes: "With my notes", room: "With room to write" });
+export const PRINT_BOOK_LABELS = Object.freeze({ plain: "The book", notes: "With my notes", room: "With room to write" });
+
+/**
+ * What the Print menu shows for the chapter picked.
+ *
+ * `passage` is the chapter picked ({ bookKey, chapter }) or null; `drafts` is
+ * the draft chapters by book where the page knows them; `notebook` is whether
+ * the browser keeps a notebook ("With my notes" needs one, and is left out
+ * without); `here` is the Study View chapter this page already shows, whose
+ * prints run in place instead of opening a tab; `book` is a Read View's book,
+ * where the menu prints that book in place and picks nothing.
+ *
+ * Each choice is `{ kind, label, state, href, inPlace }`: `state` is "on",
+ * "off" (shown, but nothing to open) or "hidden" (can never work here).
+ * `message` is a line that says why choices are off, or null.
+ *
+ * @returns {{ message: string | null, choices: Array<object> }}
+ */
+export function printMenuState({ passage = null, drafts = {}, notebook = true, here = null, book = null } = {}) {
+  const labels = book ? PRINT_BOOK_LABELS : PRINT_LABELS;
+  const name = book
+    ? bookKeyToLabel(book)
+    : passage ? `${bookKeyToLabel(passage.bookKey)} ${passage.chapter}` : "";
+  const draft = Boolean(!book && passage && (drafts[passage.bookKey] ?? []).includes(passage.chapter));
+  const message = book || (passage && !draft)
+    ? null
+    : !passage ? "Type a chapter to print it." : `${name} is a draft, with no text to print yet.`;
+  const live = Boolean(book || (passage && !draft));
+  const inPlace = Boolean(book || (here && passage && here.bookKey === passage.bookKey && here.chapter === passage.chapter));
+  return {
+    message,
+    choices: PRINT_KINDS.map((kind) => ({
+      kind,
+      label: labels[kind],
+      state: kind === "notes" && !notebook ? "hidden" : live ? "on" : "off",
+      href: live && !book ? printHref(passage.bookKey, passage.chapter, kind) : null,
+      inPlace: live && inPlace,
+    })),
+  };
 }

@@ -11,6 +11,7 @@ import {
   markPieces,
   parsePrintParam,
   printHref,
+  printMenuState,
   planNotes,
   printHeading,
   standing,
@@ -135,4 +136,38 @@ test("printHref and parsePrintParam: /desk's Print menu (BVJ, 2026-10-29)", () =
   assert.equal(parsePrintParam("all"), null);
   assert.equal(parsePrintParam(null), null);
   assert.equal(PRINT_PARAM, "print");
+});
+
+test("printMenuState: the shared Print menu says what each choice does (E16)", () => {
+  const john3 = { bookKey: "john", chapter: 3 };
+  // /desk: no page chapter, every choice opens a tab for the chapter picked.
+  const desk = printMenuState({ passage: john3 });
+  assert.equal(desk.message, null);
+  assert.deepEqual(desk.choices.map((c) => [c.kind, c.label, c.state, c.href, c.inPlace]), [
+    ["plain", "The chapter", "on", "/john-3/?print=plain", false],
+    ["notes", "With my notes", "on", "/john-3/?print=notes", false],
+    ["room", "With room to write", "on", "/john-3/?print=room", false],
+  ]);
+  // No chapter picked yet: the choices are shown but off, and the line says why.
+  const none = printMenuState({ passage: null });
+  assert.equal(none.message, "Type a chapter to print it.");
+  assert.ok(none.choices.every((c) => c.state === "off" && c.href === null && !c.inPlace));
+  // A draft has no text to print.
+  const draft = printMenuState({ passage: { bookKey: "john", chapter: 4 }, drafts: { john: [4] } });
+  assert.equal(draft.message, "John 4 is a draft, with no text to print yet.");
+  assert.ok(draft.choices.every((c) => c.state === "off"));
+  // With my notes needs a notebook; the others do not.
+  const bare = printMenuState({ passage: john3, notebook: false });
+  assert.deepEqual(bare.choices.map((c) => c.state), ["on", "hidden", "on"]);
+  // The Notebook: the page's own chapter prints in place, another opens a tab.
+  const here = { bookKey: "john", chapter: 3 };
+  assert.ok(printMenuState({ passage: john3, here }).choices.every((c) => c.inPlace));
+  assert.ok(printMenuState({ passage: { bookKey: "john", chapter: 2 }, here }).choices.every((c) => !c.inPlace));
+  // Read View: the book, in place, with the book's own name for the first choice.
+  const rv = printMenuState({ book: "mark" });
+  assert.deepEqual(rv.choices.map((c) => [c.label, c.state, c.inPlace, c.href]), [
+    ["The book", "on", true, null],
+    ["With my notes", "on", true, null],
+    ["With room to write", "on", true, null],
+  ]);
 });
