@@ -7877,6 +7877,24 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   reaches (a phrase ending in "of", a parenthesis after "the
   Septuagint"), checked against all 113 mentions so a Hebrew reference
   near the word isn't caught. Status: open.
+- **E24, wish: split the tour in two, a notebook tour and a Study Desk
+  tour.** BVJ (2026-11-02), while the title menu (E15) was being built. The
+  one tour (`desk/tour.js`) walks through the notebook on a chapter page, so
+  /desk's "Take the tour" link has to send the reader to John 3. The ask: a
+  **notebook tour** that stays on the chapter pages, and a **Study Desk
+  tour** that runs on /desk (panes, the title menu, the Layout choices, Add
+  pane, the shared place and "Stay here", My Notes). Then /desk's menu
+  starts the desk tour in place, and the notebook's help and ">tour"
+  command keep starting the notebook one. Open (to settle when the session
+  starts): the desk tour's steps, whether the two share the seen-steps list
+  (`lit-desk-tour`) and the first-use offer, and whether the desk tour is
+  offered the first time /desk opens. Status: open; added to Phase 5.
+- **E25, rough: how panes behave when dragged.** BVJ (2026-11-02). The drag
+  behavior of panes (today: a pane's header is the handle, dropping on an
+  edge of another splits it, shown before the drop, a drop that leaves a pane
+  too small is refused, Escape cancels) needs a look. **Nothing is specified:
+  when the session starts, ask BVJ what to change before doing anything.**
+  Status: open; added to Phase 5.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -7934,6 +7952,10 @@ the rest is polish.
    the passage (buildable now); 8b, at launch, the Read View removal and
    E20's rename (blocked on the name and the launch date). E12 (the trash
    restore) is its own small session after 4.
+9. **Two tours**: E24. Touches `tour.js`, `first-use.js` and `desk-page.js`'s
+   title menu, so after 6 (done), and not alongside another session on those.
+10. **Pane drag behavior**: E25. **Ask BVJ what to change first**; it touches
+    `desk-page.js`, so it runs alone on that file.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a, and 8b at
