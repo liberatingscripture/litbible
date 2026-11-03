@@ -38,7 +38,7 @@ export function parsePassage(at) {
 
 /**
  * The passage a link to /desk names (E8: `/desk/?place=romans-8`): a chapter's
- * address as Study View spells it, with a verse as `romans-8:16`,
+ * address as Chapter View spells it, with a verse as `romans-8:16`,
  * `romans-8-v16` or `romans-8#v16`, or the layout's own "romans 8:16". The
  * result is the layout's string ("romans 8:16"), or null when it names no
  * passage, so a stray or old link is ignored.

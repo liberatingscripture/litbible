@@ -155,11 +155,11 @@ export function markPieces(length, pieces) {
 /* ── Printing a chapter from /desk ─────────────────────────────────────── */
 
 // /desk has no chapter page of its own to print, so its Print menu opens the
-// chapter's Study View page in a new tab with `?print=<kind>`, and the shell
+// chapter's Chapter View page in a new tab with `?print=<kind>`, and the shell
 // there starts that print once the page has loaded (desk/print-link.js), as a
 // sheet's "Print or share…" opens /sheets/ (BVJ, 2026-10-29).
 
-/** The address parameter that asks a Study View page to print. */
+/** The address parameter that asks a Chapter View page to print. */
 export const PRINT_PARAM = "print";
 
 /** Plain printing, "Print with my notes" (M6) and "Print with room to write" (N9). */
@@ -170,7 +170,7 @@ export function parsePrintParam(value) {
   return PRINT_KINDS.includes(value) ? value : null;
 }
 
-/** The Study View address that prints a chapter as `kind`. */
+/** The Chapter View address that prints a chapter as `kind`. */
 export function printHref(bookKey, chapter, kind) {
   return `/${bookKey}-${chapter}/?${PRINT_PARAM}=${kind}`;
 }
@@ -191,7 +191,7 @@ export const PRINT_BOOK_LABELS = Object.freeze({ plain: "The book", notes: "With
  * `passage` is the chapter picked ({ bookKey, chapter }) or null; `drafts` is
  * the draft chapters by book where the page knows them; `notebook` is whether
  * the browser keeps a notebook ("With my notes" needs one, and is left out
- * without); `here` is the Study View chapter this page already shows, whose
+ * without); `here` is the Chapter View chapter this page already shows, whose
  * prints run in place instead of opening a tab; `book` is a Read View's book,
  * where the menu prints that book in place and picks nothing.
  *

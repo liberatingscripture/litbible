@@ -148,7 +148,7 @@ const hasClass = (el, name) => ` ${el.getAttribute("class") ?? ""} `.includes(` 
  * runs unchanged on any DOM with `childNodes`, `tagName`, `nodeType` and
  * `getAttribute`.
  *
- * @param {Iterable<Node>} blocks Study View's scripture blocks
+ * @param {Iterable<Node>} blocks Chapter View's scripture blocks
  * @param {(id: string) => string | null} bodyHtml
  * @returns {ChapterFootnote[]}
  */

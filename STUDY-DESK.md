@@ -7920,8 +7920,15 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `searchbar.js`, `search.js`, `read-mode.js`, `desk-first-use.mjs`,
   `desk-bookmarks.mjs` labels only, `desk/lit-pane.js`,
   `desk/desk-panes.js`, `desk/tour.js`), about 10 test files, and the
-  CLAUDE docs; BDR would check the apps' copy. It lands with 8c so readers
-  see the copy change once. Status: open (the rename).
+  CLAUDE docs. **Decided and built (BVJ, 2026-11-02): "Study View" is now
+  "Chapter View."** The apps have only the one view, so nothing there
+  changes. Every reader-facing string, code comment, test and CLAUDE doc
+  in `src/`, `test/`, the root `CLAUDE.md` and `BDR-ONBOARDING.md` was
+  swapped in PR #440 (identifiers such as `view: "study"`,
+  `scriptureControls: "study"` and `trackStudyView` are storage and code
+  names and stay). This file, FIXLIST.md and the audits are records and
+  still say "Study View." Status: done (the rename); the Study Desk card
+  part ships to everyone at 8c.
 - **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
   BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
   pane stays and an unlocked lock when it follows, with no words
@@ -8053,8 +8060,8 @@ the rest is polish.
    saved-places change so a Read View "Continue reading" record reads as a
    Study View place, and tests for both), built but not switched on; 8c, at
    launch, the cutover itself: the redirects go live, Read View's code, copy
-   and docs go, the last Read View commit is tagged, and E20's rename lands
-   (blocked on the name and the launch date). The Read View removal can't sit
+   and docs go, the last Read View commit is tagged (E20's rename to Chapter
+   View was done in 8b's PR, BVJ 2026-11-02; 8c is blocked on the launch date). The Read View removal can't sit
    behind the preview, since `/read/<book>` is what every reader has today.
    E12 (the trash restore) is its own small session after 4.
 9. **Two tours**: E24. Touches `tour.js`, `first-use.js` and `desk-page.js`'s

@@ -232,7 +232,7 @@ test("any other value is left alone, address included", () => {
 
 const expandedStart = { "lit-desk-preview": "on", "lit-desk-min": "0" };
 
-/** px per measure unit on Study View, as the script works it out. */
+/** px per measure unit on Chapter View, as the script works it out. */
 function chPx({ font = "", size = "", rootPx = 16 } = {}) {
   return FIRST_PAINT.ch[font] * FIRST_PAINT.scale[size] * FIRST_PAINT.body * rootPx;
 }

@@ -3,10 +3,10 @@
 // The glossary's selection panel (BVJ, 2026-10-09): selecting words in an
 // entry's definition offers "Copy entry text" (the selected words, then
 // "— Glossary: Flesh (LIT)" and the entry's link) and "Copy entry link", the
-// way Study View's selection panel offers Copy text and Copy link for
+// way Chapter View's selection panel offers Copy text and Copy link for
 // scripture. For every reader, not only the Study Desk's preview.
 //
-// It is Study View's panel in miniature and built from the same pieces
+// It is Chapter View's panel in miniature and built from the same pieces
 // (panel-pieces.js), so it behaves the same way:
 //   - it opens once the selection settles, and with a mouse only after the
 //     button comes up, so the click that ends a selection can't close it;
@@ -19,7 +19,7 @@
 //     whole words, and ordinary Copy is left alone (decision 4 under
 //     "Sharing a selection" in CLAUDE.md).
 // The Study Desk adds its "My Notebook" row (Add a note) through the same
-// `lit:panel-actions` event Study View's panels send.
+// `lit:panel-actions` event Chapter View's panels send.
 
 import { markEmphasis, handoutPlain, handoutHtml } from "../lib/handout-rich.mjs";
 import { closePanel, currentPanel, showPanel } from "./lit-panel.js";

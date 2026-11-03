@@ -1,7 +1,7 @@
 // src/scripts/desk/tab-verse.js
 //
 // The Notebook panel's "This verse" tab (STUDY-DESK.md, N10; BVJ 2026-10-02:
-// one verse at a time), on Study View chapters: the verse the reader picked,
+// one verse at a time), on Chapter View chapters: the verse the reader picked,
 // with the translation's footnotes on it and the reader's own notes,
 // bookmark and highlights, and a way to add a note. A highlight is listed as
 // its words in the colour's own look, with Remove (and an Undo bar, as a
@@ -75,7 +75,7 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
  *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null }} options
  *   `ctx` and `showInText` are what the change notice's card needs; `greek`
  *   opens the Greek tab at a word. On /desk the chapter isn't the page's:
- *   `source` reads it from the chapter's fetched Study View page
+ *   `source` reads it from the chapter's fetched Chapter View page
  *   (chapter-page.js), `startVerse` is where it opens, and `idSuffix` keeps
  *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
  *   so the panes that share a passage move together.

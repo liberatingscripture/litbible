@@ -131,7 +131,7 @@ async function start() {
   readMarks = store && !margin ? createReadMarks({ store }) : null;
   // Before the panel: its tabs ask for Pin buttons as they draw.
   pins = initPins({ store, ctx });
-  // What the panel's links can do without leaving the page: Study View
+  // What the panel's links can do without leaving the page: Chapter View
   // shows a note on its chapter; Read View scrolls to a verse in its book.
   const here = margin ?? readMarks;
   // "Print with my notes" (M6): the panel's button and the command both start it.
@@ -147,7 +147,7 @@ async function start() {
     onAddNote: store ? addNote : null,
     goHere: here
       ? {
-          // On Study View a note on a footnote can be shown only while its
+          // On Chapter View a note on a footnote can be shown only while its
           // footnote is there; Read View has no footnotes and goes to the verse.
           can: (r) => here.canReveal(r) && (!margin || !onFootnote(r) || Boolean(pins?.canReveal(r))),
           go: (r) => (margin ? margin.reveal(r.id) : readMarks.reveal(r)),
@@ -165,7 +165,7 @@ async function start() {
   // The tour (D8): started by the reader, never by itself (tour.js).
   createTour({ panel, canKeep: Boolean(store) });
   if (store) createVerseLabels({ store });
-  // Painted on a Study View chapter or in Read View; after initNoteSettings,
+  // Painted on a Chapter View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.
   if (store) createHighlights({ store });
   // A chapter opened from /desk's Print menu prints itself (print-link.js).

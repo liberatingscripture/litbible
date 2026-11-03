@@ -3,13 +3,13 @@
 // The Footnotes pane's body on /desk (STUDY-DESK.md, D9; X11, "Footnotes in
 // the margin": a footnotes pane following the LIT pane; "Order of work", 3e).
 // The chapter's footnotes in the page's order, each with its letter, the verse
-// it hangs on and its note, copied from the built Study View page so it reads
+// it hangs on and its note, copied from the built Chapter View page so it reads
 // exactly as it does there, links included (a footnote's scripture references
 // still preview). The reader's verse marks its notes and brings them to the
 // top of the pane's own scroll.
 //
 // Nothing here adds to the scripture. With a notebook (3g) each note carries
-// the Pin / Unpin button it has in This verse and in Study View's Footnotes
+// the Pin / Unpin button it has in This verse and in Chapter View's Footnotes
 // list (pins.js), under the note, with Add a note beside it (M11) and the
 // reader's notes on that footnote under both, in full (footnote-notes.js),
 // then the flag a rewritten pinned note gets; pins.js draws the flags, since

@@ -1,6 +1,6 @@
 // src/lib/chapter-nav.mjs
 //
-// The one rule for Previous and Next across Study View: every book's intro,
+// The one rule for Previous and Next across Chapter View: every book's intro,
 // then its chapters, in canonical order, stepping over pages that are still
 // drafts. The top buttons (ScriptureHeader), the bottom buttons on chapter
 // and intro pages, and a draft page's "nearest published page" links all ask
@@ -29,7 +29,7 @@ export function chapterRuns(chapters) {
 }
 
 /**
- * Every Study View page in reading order.
+ * Every Chapter View page in reading order.
  * @param {{ isDraftChapter: (bookKey: string, chapter: number) => boolean,
  *           isDraftIntro: (bookKey: string) => boolean }} drafts
  * @returns {{ bookKey: string, chapter: number | "intro", draft: boolean }[]}

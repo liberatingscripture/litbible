@@ -3,7 +3,7 @@
 // Bookmarks in Read View's margin. Read View is for reading a book straight
 // through, so it shows none of the reader's notes; bookmarks are the one
 // piece of marginalia it shows (BVJ, 2026-10-08), the same red mark as in
-// Study View (notes-margin.js), beside the verse, with the same
+// Chapter View (notes-margin.js), beside the verse, with the same
 // "My bookmarks" switch. Like the notes, the marks sit in one <aside> at the
 // end of <body> and add nothing to the text.
 
@@ -76,7 +76,7 @@ export function createReadMarks({ store }) {
   const canReveal = (r) => Boolean(verseIn(r));
 
   // Scrolls Read View to the verse in place and marks it briefly, the way
-  // Study View's margin marks a note's words. The address takes the verse's
+  // Chapter View's margin marks a note's words. The address takes the verse's
   // anchor too, so a reload lands there.
   function reveal(r) {
     const verse = verseIn(r);

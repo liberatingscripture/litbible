@@ -88,7 +88,7 @@ Each file in `src/data/chapters/` follows this structure:
      *every* chapter of that book is a draft. The picker has two modes: the
      default standalone pill on Study/Search pages, and `mode="read"` — a
      compact trigger embedded in the Read View toolbar whose label IS the
-     live "Book N" readout, in the form Study View's picker uses
+     live "Book N" readout, in the form Chapter View's picker uses
      (`read-mode.js` keeps the label and the
      root's `data-current-chapter` updated on scroll, and intercepts
      same-book chapter picks for an in-page scroll; other books navigate to
@@ -320,7 +320,7 @@ exists to prevent.
 
 **Every page that prints the translation ends with the source-text notice**,
 `src/components/SblgntNotice.astro`, which credits the SBLGNT under its CC BY
-4.0 license: Study View chapters and intros (through `ScriptureLayout`) and
+4.0 license: Chapter View chapters and intros (through `ScriptureLayout`) and
 Read View. Read View went without it until 2026-09-27, though it prints
 whole books; a new surface that prints scripture needs it too. It is one
 sentence with the rest of the credit in a "Source text and license"

@@ -1,6 +1,6 @@
 // src/scripts/desk/print-notes.js
 //
-// "Print with my notes" (STUDY-DESK.md, M6): a Study View chapter, or the book
+// "Print with my notes" (STUDY-DESK.md, M6): a Chapter View chapter, or the book
 // Read View shows, printed with the reader's notes in a column beside the
 // text and their highlights tinted. The rules are src/lib/desk-print-notes.mjs;
 // this file reads the page and the notebook, builds what print needs, asks
@@ -154,7 +154,7 @@ function wrapMarks(byNode, byElement = new Map()) {
   };
 }
 
-/** Where this page's chapters are, or null: Study View's chapter, or the book in Read View. */
+/** Where this page's chapters are, or null: Chapter View's chapter, or the book in Read View. */
 export function surface() {
   const here = pageChapter();
   if (here) {
@@ -239,7 +239,7 @@ export async function printFonts(noteText = "") {
 export function createPrintNotes({ store }) {
   if (!store) return null;
 
-  /** Whether this page can print with notes: a Study View chapter, or Read View. */
+  /** Whether this page can print with notes: a Chapter View chapter, or Read View. */
   const can = () => Boolean(surface()?.container);
 
   async function build(s) {

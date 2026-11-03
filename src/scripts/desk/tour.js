@@ -104,7 +104,7 @@ export function createTour({ panel, canKeep = true }) {
     return r.top >= 90 && r.bottom <= window.innerHeight - 40;
   };
 
-  // The text a selection is made in: Study View's or Read View's paragraphs,
+  // The text a selection is made in: Chapter View's or Read View's paragraphs,
   // or an article's or a glossary entry's own words.
   const textParagraphs = () => {
     if (view === "prose") {
@@ -115,7 +115,7 @@ export function createTour({ panel, canKeep = true }) {
     return root ? Array.from(root.querySelectorAll("p")) : [];
   };
 
-  // The verse every Study View step uses, chosen once per run: the first
+  // The verse every Chapter View step uses, chosen once per run: the first
   // verse number in view, else the chapter's first.
   const pickVerse = () => {
     const numbers = Array.from(document.querySelectorAll(".chapter-paragraphs sup.vn")).filter(visible);
@@ -555,7 +555,7 @@ export function createTour({ panel, canKeep = true }) {
     }
     // The reader moved on while this step was opening.
     if (!run || token !== run.token) return;
-    // The page may still be settling (the panel opening reflows a Study View
+    // The page may still be settling (the panel opening reflows a Chapter View
     // chapter), so the target is placed after a frame.
     await frame();
     if (!run || token !== run.token) return;

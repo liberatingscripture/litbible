@@ -192,7 +192,7 @@ export const TOUR_STEPS = [
     body: {
       study:
         "“Bookmark” puts a red mark beside this verse. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book, as a study group’s reading would.",
-      read: "“Bookmark” puts a red mark beside this verse, here and in Study View. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book.",
+      read: "“Bookmark” puts a red mark beside this verse, here and in Chapter View. A bookmark stays on its verse until you remove it, and the Notebook lists every one. In the Notebook, “Edit” gives a bookmark a name and can turn on “Move as I read,” so it follows you through a book.",
     },
   },
   {

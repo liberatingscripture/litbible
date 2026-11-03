@@ -1,6 +1,6 @@
 // src/scripts/desk/verse-labels.js
 //
-// A Study View verse number (and, on /desk, a LIT pane's; 3g) names the
+// A Chapter View verse number (and, on /desk, a LIT pane's; 3g) names the
 // reader's notes and highlights on its verse (STUDY-DESK.md, "Still open":
 // "How a screen reader learns a verse has notes"; the highlights came in
 // phase 1c). The rules are in
@@ -40,7 +40,7 @@ import { pageChapter } from "./page.js";
 
 /**
  * @param {{ store: object }} options
- * @returns {{ refresh(): void } | null} Null off a Study View chapter and
+ * @returns {{ refresh(): void } | null} Null off a Chapter View chapter and
  *   /desk.
  */
 export function createVerseLabels({ store }) {

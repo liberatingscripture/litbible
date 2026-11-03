@@ -1583,7 +1583,7 @@ a.desk-item__highlight:hover {
 
 /* ── Widths the reader drags ─────────────────────────────────── */
 
-/* src/scripts/desk/widths.js (BVJ, 2026-10-08): on a Study View chapter with
+/* src/scripts/desk/widths.js (BVJ, 2026-10-08): on a Chapter View chapter with
    the notebook open in the margin, a handle in each gap trades width between
    its neighbours. Nothing shows between the columns at rest; the pointer in a
    gap gets the resize cursor and a small grip beside it, and a hairline
@@ -3675,7 +3675,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   line-height: 1.6;
 }
 
-/* Verse numbers, small like Study View's. */
+/* Verse numbers, small like Chapter View's. */
 .desk-greek__vn {
   margin: 0 0.25em 0 0.2em;
   color: var(--green-text);
@@ -5198,7 +5198,7 @@ html.desk-ws--moving * {
 }
 
 /* "This chapter" at the foot of This verse: the chapter's Go deeper rows
-   (GoDeeper.astro's own styles stay on Study View, so they are set here). */
+   (GoDeeper.astro's own styles stay on Chapter View, so they are set here). */
 .desk-chapter__rows {
   margin: 0;
 }
@@ -5310,8 +5310,8 @@ html.desk-ws--moving * {
 
 /* The LIT pane on /desk (phase 3e; src/scripts/desk/lit-pane.js): Study
    View's text, a chapter after another, scrolling in the pane. Its text size
-   and spacing follow the Display tray as Study View's do, and the column
-   keeps Study View's reading width when the pane is wider. */
+   and spacing follow the Display tray as Chapter View's do, and the column
+   keeps Chapter View's reading width when the pane is wider. */
 .desk-lit {
   display: flex;
   flex-direction: column;

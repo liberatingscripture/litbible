@@ -1,7 +1,7 @@
 // src/scripts/last-read.js
 //
 // "Continue reading": the one record of where a reader last was, across both
-// views, and the links that offer it back. Study View writes it as the page
+// views, and the links that offer it back. Chapter View writes it as the page
 // is read (trackStudyView, below); Read View writes it beside its own
 // per-book resume position (read-mode.js). Draft chapters are never recorded.
 //
@@ -138,7 +138,7 @@ export function verseInHash(hash, ids) {
 }
 
 /**
- * Study View: record this chapter on arrival (at the verse in the address,
+ * Chapter View: record this chapter on arrival (at the verse in the address,
  * if any), then follow the reader down the page. `root` carries the book and
  * chapter as data attributes, and is only rendered on published chapters.
  */

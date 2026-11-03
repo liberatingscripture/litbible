@@ -26,7 +26,7 @@
 // flag under its words, "Wording changed · Review" (or "Not in the text ·
 // Review" when its verses are gone), which opens the card beside it, and a
 // line above the list counts them. A notice is judged only where the
-// chapter's text is on the page, so on Study View's "Everything" list only
+// chapter's text is on the page, so on Chapter View's "Everything" list only
 // this chapter's records can carry one, and in Read View only this book's.
 //
 // When a publish since the reader last looked touched their verses, one line
@@ -40,7 +40,7 @@
 // The group follows the list's scope and hides while a highlight colour is
 // chosen, since that choice is about highlights.
 //
-// On a Study View chapter the tab starts on that chapter's records, and a
+// On a Chapter View chapter the tab starts on that chapter's records, and a
 // small choice at its top switches to everything kept; on an article or the
 // glossary it starts on the notes on this page (N11); elsewhere it lists
 // everything. An article also offers a note on the whole article here.
@@ -633,7 +633,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     head.className = "desk-item__ref";
     head.textContent = ref || kindName(r.kind);
     if (href) head.href = href;
-    // A record on this page (a note on this Study View chapter, a verse of
+    // A record on this page (a note on this Chapter View chapter, a verse of
     // the book Read View shows) is gone to in place, scrolled to and marked,
     // rather than reloading. Otherwise it is an ordinary link.
     const goTo = (e) => {

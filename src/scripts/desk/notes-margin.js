@@ -1,6 +1,6 @@
 // src/scripts/desk/notes-margin.js
 //
-// The reader's notes in Study View's left margin, "like pencil in a printed
+// The reader's notes in Chapter View's left margin, "like pencil in a printed
 // Bible" (STUDY-DESK.md, placement 2; the details BVJ settled 2026-10-07 are
 // under "Decisions": the margin switch, and the margin notes' look). The
 // rules are in src/lib/desk-notes.mjs; this file measures the page and draws.

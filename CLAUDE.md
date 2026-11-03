@@ -35,7 +35,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/scripts/desk/CLAUDE.md` | Anything to do with the Study Desk, wherever it lives: `src/lib/desk-*.mjs`, the /desk, /notebook and /sheets pages, `desk.css`, `public/greek/`, Greek search |
 | `src/lib/CLAUDE.md` | The module map of `src/lib/`; scripture reference linking (Sefaria, eBible), external links, Go deeper, the release notes page and feed |
 | `src/styles/CLAUDE.md` | CSS anywhere, including component `<style>` blocks: theming, the Display tray's settings, `--ch`, Greek and Hebrew fonts, the brand greens, the emblem, the LSC mark, focus rings |
-| `src/layouts/CLAUDE.md` | Study View's phone toolbar; chapter prefetching |
+| `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
 | `src/components/CLAUDE.md` | The announcement popover |
@@ -313,9 +313,9 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/<book>-<chapter>` | `[slug].astro` | Scripture chapter ("Study View") |
+| `/<book>-<chapter>` | `[slug].astro` | Scripture chapter ("Chapter View") |
 | `/<book>-intro` | `[book]-intro.astro` | Book introduction |
-| `/read` | `read.astro` | The /read landing (Study View, Read View, the apps) |
+| `/read` | `read.astro` | The /read landing (Chapter View, Read View, the apps) |
 | `/read/<book>` | `read/[book].astro` | Read View: a whole book on one page |
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
@@ -384,8 +384,8 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.
-- **Study View and Read View differ in what a page holds, and that decides
-  where a new tool goes** (owner, 2026-09-30). Study View is one chapter
+- **Chapter View and Read View differ in what a page holds, and that decides
+  where a new tool goes** (owner, 2026-09-30). Chapter View is one chapter
   with everything the site has for it: footnotes, the verse menu, the term
   lens, reference previews, Go deeper. Read View is a whole book on one page,
   read straight through, with no notes and no page turn between chapters.
@@ -394,17 +394,19 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
   **Read View gets what serves reading a book straight through** (display
   settings, the selection panel and its handouts, keeping and restoring a
   place, print, focus mode), and **a tool about a verse or a word goes in
-  Study View only** unless the owner decides otherwise. The 2026-09-28 calls
+  Chapter View only** unless the owner decides otherwise. The 2026-09-28 calls
   on the term lens and the verse menu were this rule before it had a name.
-  Call them "Study View" and "Read View" in anything a reader sees. Until
+  Call them "Chapter View" and "Read View" in anything a reader sees
+  ("Chapter View" was "Study View" until 2026-11-02, so STUDY-DESK.md and
+  FIXLIST.md still say that). Until
   2026-09-30 the site also said "Reading View" and "Reading Mode", as
   FIXLIST.md and older commits still do; the `rm-` classes and `read-mode.js`
   keep the old initials.
   **Don't measure Read View with Cloudflare's Visits view.** A visit is a
   page view whose referrer isn't the site, and Read View is reached almost
-  only from inside it (Study View's toolbar, the /read card, the search
+  only from inside it (Chapter View's toolbar, the /read card, the search
   links), so it barely appears there. Use page views, and remember one Read
-  View page view can hold a whole book where Study View logs one per chapter.
+  View page view can hold a whole book where Chapter View logs one per chapter.
 - **Mobile apps are first-class consumers** of `public/api/` output — changing
   chapter/intro/manifest shape can break them. Treat the API as a contract.
   The **sync contract**: both apps poll `version.json` first and do nothing
@@ -495,9 +497,9 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 | Path | Purpose |
 |------|---------|
 | `src/data/books.js` | Source of truth for NT book list + chapter counts |
-| `src/pages/[slug].astro` | Scripture chapter pages (Study View) |
+| `src/pages/[slug].astro` | Scripture chapter pages (Chapter View) |
 | `src/pages/read/[book].astro` | Read View (a whole book on one page) |
-| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Study View); the selection bar alone in Read View |
+| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Chapter View); the selection bar alone in Read View |
 | `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
 | `src/lib/sefaria-refs.mjs` | The Hebrew Bible books the linker sends to Sefaria and the English→Hebrew verse map; change the map only after checking it against Sefaria's text |
 | `src/lib/ebible-refs.mjs` | The apocryphal books the linker sends to the World English Bible on eBible.org, with eBible's verse counts |

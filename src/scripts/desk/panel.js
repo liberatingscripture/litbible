@@ -23,9 +23,9 @@
 // Notebook buttons then expand it, and Escape collapses it.
 //
 // Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
-// Notes" (tab-mine.js) everywhere, on Study View chapters "This verse"
+// Notes" (tab-mine.js) everywhere, on Chapter View chapters "This verse"
 // (tab-verse.js), and "Greek" (tab-greek.js, phase 1f), which reads the
-// SBLGNT with the dictionary beside it, on Study View chapters and on draft
+// SBLGNT with the dictionary beside it, on Chapter View chapters and on draft
 // chapters too (BVJ, 2026-10-13), where there is no LIT text to go with it. A Versions tab is deferred
 // indefinitely (BVJ, 2026-10-11). A surface with one tab
 // shows no tab row. The tab last chosen is remembered in
@@ -88,7 +88,7 @@ const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
  *   `printNotes` is "Print with my notes" (print-notes.js, M6) and `printRoom`
  *   "Print with room to write" (print-room.js, N9, which needs no notebook);
  *   the foot's "Print…" opens the shared Print menu (print-menu.js, E16) on a
- *   Study View chapter and in Read View.
+ *   Chapter View chapter and in Read View.
  *   `store` is null when this browser can't keep a notebook. `ctx` and
  *   `showInText` are what a change notice's card needs (change-notice.js):
  *   what a write is stamped with, and a way to take the reader to the mark on
@@ -96,7 +96,7 @@ const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
  *   a note in the editor, and `onAddNote` a new one; `goHere` takes the reader to a record on this page
  *   without leaving it, where it can (`can`). Elsewhere a record's links go to
  *   its verse in the view the reader is in: Read View from Read View (BVJ,
- *   2026-10-08), Study View from anywhere else.
+ *   2026-10-08), Chapter View from anywhere else.
  * @returns {{ open: (from?: Element) => void, close: () => void,
  *   showTab: (id: string, opts?: { focus?: boolean, remember?: boolean }) => boolean,
  *   showVerse: ((verse: number) => void) | null }}
@@ -315,7 +315,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     firstUse.panelChanged();
   }
 
-  // On Study View chapters the column narrows from 52 to 48 while the panel
+  // On Chapter View chapters the column narrows from 52 to 48 while the panel
   // is expanded (global.css; BVJ, 2026-10-08), which reflows the text. The
   // rail owns that switch (data-desk-expanded, margin.js) and keeps the line
   // being read where it was, in both directions.
@@ -389,7 +389,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // Escape only from inside itself, so it doesn't count here (BA24).
   // Floating, it collapses instead, the way a floating window
   // gets out of the way: the text comes back and the notebook stays a tab
-  // away. Stopped here, so Study View's Escape fallback (clearing a selected
+  // away. Stopped here, so Chapter View's Escape fallback (clearing a selected
   // verse) doesn't run as well.
   panel.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
@@ -449,14 +449,14 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   /* ── Settings at the foot ───────────────────────────────────────── */
 
   // The margin's switches only mean something where the margin is: all of
-  // them on a Study View chapter, "My bookmarks" alone in Read View, and the
+  // them on a Chapter View chapter, "My bookmarks" alone in Read View, and the
   // notes' two on an article or the glossary (N11, off in version 1, so
   // none there). "Hide my marks" (M1)
   // goes with any of them.
   const slot = settingsEl.querySelector(".desk-panel__settings-slot");
   if (here) {
     const controls = panelNoteControls();
-    // The widths the reader dragged, Study View's alone (widths.js).
+    // The widths the reader dragged, Chapter View's alone (widths.js).
     controls.append(resetWidthsButton("desk-panel__reset"));
     controls.append(...printBox());
     slot.replaceWith(controls);
@@ -473,7 +473,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
    * One "Print…" button and the line that says what it does (the line is the
    * button's description, so it is spoken with it). It opens the shared Print
    * menu (print-menu.js; E16) in place below it: the plain chapter, "With my
-   * notes" (M6) and "With room to write" (N9), for any chapter on a Study View
+   * notes" (M6) and "With room to write" (N9), for any chapter on a Chapter View
    * page (this page's own prints here, another opens a new tab) and for the
    * book in Read View. Left out where this page can't print. "With my notes"
    * is left out of the menu where the browser keeps no notebook.

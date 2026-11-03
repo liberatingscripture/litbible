@@ -11,7 +11,7 @@
 //   is a meta refresh, which drops the address's `#fragment`, so it is only
 //   the no-script fallback.
 // - `studyAddress(pathname, hash)`: where an old Read View address belongs in
-//   Study View, anchors included. At 8c `/read/[book].astro` becomes a small
+//   Chapter View, anchors included. At 8c `/read/[book].astro` becomes a small
 //   noindex page whose script (src/scripts/read-view-redirect.js) does
 //   `location.replace(studyAddress(...))`, so an old `#ch-10` or
 //   `#luke-10-v25` link keeps its place; the pages leave the sitemap.
@@ -19,7 +19,7 @@
 //   same function's chapter and verse forms.
 // - `studyRecord(r)` and `studyContinueHref(r)`: "Continue reading"
 //   (`lit_last_read`, last-read.js) records written by Read View (`view:
-//   "read"`) are read as Study View places, not dropped: the same book,
+//   "read"`) are read as Chapter View places, not dropped: the same book,
 //   chapter and verse, in the other view. Read View's per-book resume
 //   positions (`lit_rm_*`) are let go (E9's answer), since the reader never
 //   made them.
@@ -31,21 +31,21 @@ import { BOOKS, BOOK_ORDER } from "../data/books.js";
 const known = (bookKey) => typeof bookKey === "string" && Object.hasOwn(BOOKS, bookKey);
 const chapterOf = (bookKey, n) => known(bookKey) && Number.isInteger(n) && n >= 1 && n <= BOOKS[bookKey];
 
-/** Study View's chapter address: `/john-3/`. */
+/** Chapter View's chapter address: `/john-3/`. */
 const chapterPath = (bookKey, chapter) => `/${bookKey}-${chapter}/`;
 
 /**
- * Where an old Read View address belongs in Study View, or null when the
+ * Where an old Read View address belongs in Chapter View, or null when the
  * path isn't a Read View book page (so the caller leaves the address alone).
  *
  * - `/read/john/` and anything unrecognized after it: `/john-1/`, the book's start.
- * - `#ch-10` (a chapter heading, Study View's old "Switch to Read View"):
+ * - `#ch-10` (a chapter heading, Chapter View's old "Switch to Read View"):
  *   `/john-10/`.
  * - `#luke-10-v25` (a verse, as search and Continue reading linked it):
  *   `/luke-10/#v25`. A verse with a letter (`#john-3-v16b`) keeps it. The
  *   anchor's own book wins over the path's, as it does in Read View.
  * - `#john-8-p9` (one block of a verse, "Or copy one part"): `/john-8/#john-8-p9`,
- *   since Study View's block ids are the same ids.
+ *   since Chapter View's block ids are the same ids.
  *
  * A chapter the book hasn't got falls back to the book's start rather than a
  * page that doesn't exist.
@@ -74,8 +74,8 @@ export function readViewRedirects() {
 }
 
 /**
- * A "Continue reading" record, read as a Study View place: `view` becomes
- * "study", everything else as it was. A record that is already Study View's,
+ * A "Continue reading" record, read as a Chapter View place: `view` becomes
+ * "study", everything else as it was. A record that is already Chapter View's,
  * or isn't a record, comes back as it is.
  */
 export function studyRecord(r) {
@@ -83,7 +83,7 @@ export function studyRecord(r) {
   return { ...r, view: "study" };
 }
 
-/** Where "Continue reading" goes for any record: Study View, at the verse when there is one. */
+/** Where "Continue reading" goes for any record: Chapter View, at the verse when there is one. */
 export function studyContinueHref(r) {
   return `/${r.book}-${r.chapter}/${r.verse ? `#v${r.verse}` : ""}`;
 }

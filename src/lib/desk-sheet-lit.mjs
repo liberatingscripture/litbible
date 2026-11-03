@@ -5,7 +5,7 @@
 // a blank away (C15), and the commercial-quotation check (S7). The rules only;
 // the sheet pane reads the chapters and draws (src/scripts/desk/sheet-lit.js).
 // Pure: a chapter is anchor-core's shape ({ verses, spans, text }), built from
-// the chapter's Study View page by whoever has it, and the term data is that
+// the chapter's Chapter View page by whoever has it, and the term data is that
 // page's own #term-lens-data.
 //
 // Everything here is worked out live from today's text, as the format asks

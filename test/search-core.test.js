@@ -340,7 +340,7 @@ test("formatReferenceLabel: formats a verse range with an en dash", () => {
   );
 });
 
-test("makeStudyReferenceHref: builds a Study View deep link", () => {
+test("makeStudyReferenceHref: builds a Chapter View deep link", () => {
   assert.equal(
     makeStudyReferenceHref({
       bookKey: "john",

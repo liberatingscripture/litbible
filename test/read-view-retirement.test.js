@@ -24,7 +24,7 @@ test("a verse anchor goes to its chapter and verse, a letter kept, its own book 
   assert.equal(studyAddress("/read/luke/", "#1john-4-v8"), "/1john-4/#v8");
 });
 
-test("a block anchor keeps its own id, which Study View shares", () => {
+test("a block anchor keeps its own id, which Chapter View shares", () => {
   assert.equal(studyAddress("/read/john/", "#john-8-p9"), "/john-8/#john-8-p9");
   assert.equal(studyAddress("/read/1peter/", "#1peter-2-p2"), "/1peter-2/#1peter-2-p2");
 });
@@ -44,7 +44,7 @@ test("an address that isn't a Read View book page is left alone", () => {
   }
 });
 
-test("every book and chapter answers with a real Study View address", () => {
+test("every book and chapter answers with a real Chapter View address", () => {
   for (const book of BOOK_ORDER) {
     for (let ch = 1; ch <= BOOKS[book]; ch++) {
       assert.equal(studyAddress(`/read/${book}/`, `#ch-${ch}`), `/${book}-${ch}/`);
@@ -68,20 +68,20 @@ test("each redirect agrees with studyAddress for the same book", () => {
 
 // ---- saved places ----------------------------------------------------------
 
-test("a Continue reading record from Read View is read as a Study View place", () => {
+test("a Continue reading record from Read View is read as a Chapter View place", () => {
   const read = { v: 1, book: "romans", chapter: 8, verse: 3, view: "read", t: 5 };
   assert.deepEqual(studyRecord(read), { ...read, view: "study" });
   assert.equal(read.view, "read", "the record it was given is not changed");
 });
 
-test("a Study View record, or something that isn't a record, comes back as it was", () => {
+test("a Chapter View record, or something that isn't a record, comes back as it was", () => {
   const study = { v: 1, book: "romans", chapter: 8, verse: null, view: "study", t: 5 };
   assert.equal(studyRecord(study), study);
   assert.equal(studyRecord(null), null);
   assert.equal(studyRecord("x"), "x");
 });
 
-test("Continue reading goes to Study View whichever view the record came from", () => {
+test("Continue reading goes to Chapter View whichever view the record came from", () => {
   assert.equal(studyContinueHref({ book: "romans", chapter: 8, verse: 3, view: "read" }), "/romans-8/#v3");
   assert.equal(studyContinueHref({ book: "romans", chapter: 8, verse: null, view: "read" }), "/romans-8/");
   assert.equal(studyContinueHref({ book: "john", chapter: 3, verse: 16, view: "study" }), "/john-3/#v16");

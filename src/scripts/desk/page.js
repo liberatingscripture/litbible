@@ -6,7 +6,7 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
 
-/** The Study View chapter this page shows, or null (an intro, a draft, Read View, any other page). */
+/** The Chapter View chapter this page shows, or null (an intro, a draft, Read View, any other page). */
 export function pageChapter() {
   const article = document.querySelector("article.chapter[data-last-read-book]");
   const bookKey = article?.dataset.lastReadBook;
@@ -16,7 +16,7 @@ export function pageChapter() {
 }
 
 /**
- * The chapter whose Greek the Notebook can show: a Study View chapter's, or a
+ * The chapter whose Greek the Notebook can show: a Chapter View chapter's, or a
  * draft chapter's (which has no LIT text yet), or null.
  */
 export function greekChapter() {
@@ -29,7 +29,7 @@ export function greekChapter() {
   return { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` };
 }
 
-/** Study View's scripture blocks. */
+/** Chapter View's scripture blocks. */
 export function chapterBlocks() {
   return document.querySelector(".chapter-paragraphs")?.children ?? [];
 }
@@ -44,7 +44,7 @@ export function chapterText() {
 }
 
 /**
- * This Study View chapter's footnotes as the pinned-footnote rules read them
+ * This Chapter View chapter's footnotes as the pinned-footnote rules read them
  * ([{ id, verse, text }], desk-footnotes.mjs), or null when the page isn't a
  * chapter. Read fresh, like chapterText. A note's text is its `.fn-body`
  * without the back-link, so what the reader sees is what a pin keeps.
@@ -75,7 +75,7 @@ export function readChapterBlocks(chapter) {
 /* ── /desk's LIT panes ───────────────────────────────────────────── */
 
 // Each LIT pane on /desk (lit-pane.js) puts its text here, so the reader's
-// marks can be drawn on it and read from it as they are on Study View
+// marks can be drawn on it and read from it as they are on Chapter View
 // (3g). A pane's text holds many chapters, and two panes may show the same
 // one, so a chapter on /desk is a box, not the page.
 const deskTexts = new Set();
@@ -165,7 +165,7 @@ export function deskChapterBoxes() {
 }
 
 /**
- * A chapter's anchor text from whichever view this page is: Study View's
+ * A chapter's anchor text from whichever view this page is: Chapter View's
  * chapter, one chapter of the book Read View shows, or, on /desk, the first
  * LIT pane showing it. Null when the page doesn't show that chapter. Read
  * fresh, like chapterText.

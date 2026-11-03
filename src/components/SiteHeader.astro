@@ -556,12 +556,12 @@ const SIZE_OPTIONS = [
       // first paint. `legacy` is the Read View key the setting replaced,
       // which the pre-paint script still falls back to, so it is deleted on
       // every change or it could resurrect an older choice.
-      // Verse numbers are one setting per view. In Study View a number is
+      // Verse numbers are one setting per view. In Chapter View a number is
       // the verse menu's button, so a shared switch meant that hiding numbers
       // in Read View took the menu away on a touch screen. Read View's
-      // setting follows Study View's until the reader sets it, so it is
+      // setting follows Chapter View's until the reader sets it, so it is
       // stored as set (`keep`), 'on' included: removing it would hand it back
-      // to Study View's. Its legacy key was Read View's own before the tray.
+      // to Chapter View's. Its legacy key was Read View's own before the tray.
       const readView = vnCheck?.getAttribute('data-vn-view') === 'read';
       const SETTINGS = {
         size: { attr: 'data-size', key: 'lit-size', legacy: 'lit_rm_fontSize', fallback: 'md' },

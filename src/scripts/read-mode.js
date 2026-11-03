@@ -313,7 +313,7 @@ function initReadMode() {
     studySwitch.href = studyChapterHref(activeChapter);
     studySwitch.setAttribute(
       "aria-label",
-      `Switch to Study View for ${bookTitle} chapter ${activeChapter}`,
+      `Switch to Chapter View for ${bookTitle} chapter ${activeChapter}`,
     );
   }
 
@@ -986,7 +986,7 @@ function initReadMode() {
     pickActiveFocusTarget();
   });
 
-  // Arriving on a link into the book (#ch-10 from Study View's "Switch to
+  // Arriving on a link into the book (#ch-10 from Chapter View's "Switch to
   // Read View", #luke-10-v5 from search) has to land on that spot and
   // stay there. The whole book is one page, tens of thousands of pixels
   // tall, so anything that changes its height above the target after the

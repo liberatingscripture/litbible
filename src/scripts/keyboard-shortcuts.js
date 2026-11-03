@@ -4,7 +4,7 @@
 //   /          search (the page's own box, or the header's search strip; on
 //              /desk, a Search pane)
 //   g          Go to passage, where the page has the picker
-//   ← → [ ]    previous and next chapter: Study View's Previous/Next links,
+//   ← → [ ]    previous and next chapter: Chapter View's Previous/Next links,
 //              or the neighbouring chapter in Read View
 //   h          hide or show my marks, where the Study Desk is on (M1)
 //
@@ -68,7 +68,7 @@ function openSearch() {
     document.dispatchEvent(new CustomEvent("lit:search-open"));
     return true;
   }
-  // Study View's phone toolbar keeps its search behind a button.
+  // Chapter View's phone toolbar keeps its search behind a button.
   const toggle = document.querySelector(".tools-search-toggle");
   if (visible(toggle) && toggle.getAttribute("aria-expanded") !== "true") {
     toggle.click();
@@ -93,7 +93,7 @@ function openPicker() {
 }
 
 function goToChapter(step) {
-  // Study View (and intros and drafts): the top Previous/Next links.
+  // Chapter View (and intros and drafts): the top Previous/Next links.
   const link = document.querySelector(`.chapter-nav a[rel="${step < 0 ? "prev" : "next"}"]`);
   if (link) {
     link.click();

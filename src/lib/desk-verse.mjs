@@ -118,7 +118,7 @@ function joinWords(words) {
 }
 
 /**
- * A Study View verse number's accessible name. It names the reader's bookmark,
+ * A Chapter View verse number's accessible name. It names the reader's bookmark,
  * highlights and notes on the verse, the bookmark first (BA22; BVJ,
  * 2026-10-27): "Verse 1", "Verse 28, bookmarked", "Verse 1, highlighted
  * yellow", "Verse 1, 1 note of mine", "Verse 1, bookmarked, highlighted yellow

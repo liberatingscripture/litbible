@@ -97,7 +97,7 @@ From the root's project tree.
 ## Conventions
 
 - **Scripture references link at render, never in the data.** Footnotes
-  (Study View), book intros, article bodies, glossary bodies, and release-note
+  (Chapter View), book intros, article bodies, glossary bodies, and release-note
   descriptions are passed through `linkScriptureRefs` (`src/lib/scripture-refs.mjs`,
   pure and unit-tested; `scripture-refs-data.mjs` is its fs shell) as the page is
   built, so "Romans 2:24" becomes `<a class="sref" href="/romans-2/#v24">`, and

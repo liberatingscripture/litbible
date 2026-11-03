@@ -5,7 +5,7 @@
 // chip layout, a mouse the rows of a computer's menu), copying, the buttons
 // and their rows, the attribution line, snapping a selection to whole words,
 // and placing a panel beside a touch selection clear of the phone's own
-// selection UI. Study View's verse menu and selection panel
+// selection UI. Chapter View's verse menu and selection panel
 // (chapter-tools.js) and the glossary's selection panel
 // (glossary-selection.js) use them. Moved here unchanged from
 // chapter-tools.js when the glossary got a selection panel (2026-10-09).
@@ -242,7 +242,7 @@ export function placeClearOfSelection(rect) {
 
 /**
  * A footnote popover's frame: a dialog headed `title`, with a × that closes
- * it, holding a copy of the note's body (its backlink removed). Study View's
+ * it, holding a copy of the note's body (its backlink removed). Chapter View's
  * popover (chapter-tools.js) adds its "See in footnotes" link after; /desk's
  * LIT pane uses it as it is. The caller shows it with showPanel.
  *

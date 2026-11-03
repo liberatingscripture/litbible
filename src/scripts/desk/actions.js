@@ -3,16 +3,16 @@
 // "My Notebook": the reader's own actions in the verse menu and the selection
 // panel (STUDY-DESK.md, placement 1). chapter-tools.js offers each panel
 // through the `lit:panel-actions` event before placing it; this adds a row.
-//   - Study View: Add a note, and Bookmark (Remove bookmark when the verse
+//   - Chapter View: Add a note, and Bookmark (Remove bookmark when the verse
 //     has one). From the verse menu a note covers the whole verse or range;
 //     from a selection it quotes the selected words.
-//   - Study View also has "Show in Notebook", which opens the Notebook panel
+//   - Chapter View also has "Show in Notebook", which opens the Notebook panel
 //     on "This verse" at the verse (N10), the first verse of a selection.
 //     Offering it in the selection panel too keeps the way in when verse
 //     numbers are hidden (audit C10).
 //   - Highlight: four colours, and Remove highlight once the words hold one.
 //     From the verse menu it marks the whole verse or range; from a selection,
-//     the selected words. Study View always offers it; Read View's selection
+//     the selected words. Chapter View always offers it; Read View's selection
 //     panel offers it only while Read View's highlights are shown (audit C2),
 //     since a mark made where it can't be seen would be a puzzle. How a new
 //     highlight meets the ones already there (merging, trimming, leaving a
@@ -20,12 +20,12 @@
 //     page, asks it for a plan, and commits that.
 //   - Edit bookmark…, once the verse holds one: its name and "Move as I read"
 //     (E9, bookmark-form.js). A bookmark can be made first and named later.
-//   - Read View: Bookmark and Highlight only. Notes are a Study View tool, and
+//   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
 //     `chapter`, `textFor`), so a pane's own words are read even when another
 //     pane shows the same chapter. Highlights are drawn on the pane as on
-//     Study View (highlights.js), under Study View's setting.
+//     Chapter View (highlights.js), under Chapter View's setting.
 
 import { COLORS, createRecord, quoteFields } from "../../lib/desk-records.mjs";
 import { bookmarksOn, planBookmark, planUnbookmark, recordReference } from "../../lib/desk-store-core.mjs";
@@ -79,14 +79,14 @@ export function initActions({ store, ctx, showVerse = null }) {
     row.append(bookmark);
     d.append(heading);
     d.append(row);
-    // Study View and /desk always offer Highlight (pressing a colour turns the
+    // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
     // isn't on it), since a mark can't be placed without them.
     if ((d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
-    // Show in Notebook (Study View), and Edit bookmark… once the verse has one.
+    // Show in Notebook (Chapter View), and Edit bookmark… once the verse has one.
     const second = document.createElement("div");
     second.className = "lit-panel__row";
     if (d.view === "study" && showVerse) {
@@ -173,7 +173,7 @@ export function initActions({ store, ctx, showVerse = null }) {
   function addNote(d, where, btn) {
     d.acting?.();
     let draft = { ...where, verse: d.start, endVerse: d.end };
-    // The LIT pane on /desk reads its own chapter; Study View, the page's.
+    // The LIT pane on /desk reads its own chapter; Chapter View, the page's.
     const textOf = d.textFor ?? chapterText;
     if (d.kind === "selection" && d.range) {
       try {
@@ -205,7 +205,7 @@ export function initActions({ store, ctx, showVerse = null }) {
    */
   function markOf(d, where) {
     try {
-      // The LIT pane on /desk reads its own chapter; Study View and Read
+      // The LIT pane on /desk reads its own chapter; Chapter View and Read
       // View, the page's.
       const text = d.textFor ? d.textFor() : chapterTextFor(where.bookKey, where.chapter);
       if (!text) return null;

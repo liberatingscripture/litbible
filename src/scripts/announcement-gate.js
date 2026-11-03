@@ -13,7 +13,7 @@
 //     (#john-3-v16)
 //   - never on /apps or /privacy, which people open to act on or to read
 //     terms, not to be pitched to
-//   - never over scripture: a Study View chapter or intro, or Read View.
+//   - never over scripture: a Chapter View chapter or intro, or Read View.
 //     A reader who chose a passage came to read it (audit F5). /desk
 //     counts too, since its panes hold the text (STUDY-DESK.md, D9), and
 //     so does a sheet's own page, /sheets/, which prints passages. An

@@ -4,9 +4,9 @@
 // still scrolls to #vN anchors and footnote links still jump to the
 // footnotes section.
 //
-// Study View (a chapter page) gets all four; Read View (a whole book on
+// Chapter View (a chapter page) gets all four; Read View (a whole book on
 // /read/<book>) gets only the fourth, since its verse numbers aren't
-// controls and a verse's links and notes belong to its Study View page.
+// controls and a verse's links and notes belong to its Chapter View page.
 //
 // 1. Verse-range highlighting — #v16 or #v16-18 softly highlights the
 //    addressed verses via the CSS Custom Highlight API (no-op where
@@ -65,8 +65,8 @@ function init(container) {
 // run on. A view's text may hold more than one chapter (a Read View book, the
 // Study Desk's LIT pane), so `chapterOf` names the chapter an element is in,
 // and the rest take that name back. `scope` is where a handout reads each
-// verse's footnote letters and notes from: the page itself in Study View, and
-// elsewhere the chapter's Study View page, fetched once per chapter. It
+// verse's footnote letters and notes from: the page itself in Chapter View, and
+// elsewhere the chapter's Chapter View page, fetched once per chapter. It
 // returns the scope directly or a Promise of it, and null when it can't be
 // had. `partUrl` is a block's own link (see "parts" below), and `detail`
 // adds to what lit:panel-actions tells the Study Desk.
@@ -101,7 +101,7 @@ function readingView(container) {
       ...container.querySelectorAll(`[data-chapter="${ch}"] [data-verse="${verse}"]`),
     ],
     ref: (ch, start, end) => title + " " + ch + ":" + start + (end > start ? "–" + end : ""),
-    // Links go to the verse on its Study View page, like every other shared
+    // Links go to the verse on its Chapter View page, like every other shared
     // verse link, where the reader who follows it finds the notes too.
     url: (ch, start, end) => chapterUrl(ch) + "#v" + start + (end > start ? "-" + end : ""),
     scope(ch) {
@@ -474,7 +474,7 @@ function getHandoutText(scope, start, end, ref, url) {
 
 /**
  * A handout from its text (letters kept as "[a]") and the notes those letters
- * cite, looked up in `root`: this page, or a fetched Study View page when the
+ * cite, looked up in `root`: this page, or a fetched Chapter View page when the
  * handout comes from Read View. Shared by the verse menu and the selection
  * bar, so the two lay a handout out identically.
  */
@@ -530,7 +530,7 @@ function copyRich(marked) {
 
 /**
  * copyRich for text that is still on its way: Read View's waits on the
- * chapter's Study View page for its notes. Safari lets a page write to the
+ * chapter's Chapter View page for its notes. Safari lets a page write to the
  * clipboard only while handling the tap, so the write starts at once with each
  * flavor as a promise. Where that form isn't taken, wait for the text and write
  * it then, which the other browsers allow for a few seconds after a tap.
@@ -586,7 +586,7 @@ function shareButton(ref, url, getText) {
  * a panel before it is measured and placed (STUDY-DESK.md, placement 1). Only
  * src/scripts/desk/actions.js listens, and only with the desk switched on, so
  * a reader's panels are unchanged. `append` adds to the panel's end.
- * Study View sends `kind: "verse"` from the verse menu and
+ * Chapter View sends `kind: "verse"` from the verse menu and
  * `kind: "selection"` from the selection panel; Read View sends the
  * selection only, with its `book` and `chapter`. A selection carries its
  * `range` (the scripture actually selected) and `acting`, which keeps the
@@ -730,7 +730,7 @@ function openVerseMenu(
       }),
       menuButton("Copy link", () => copyToClipboard(url)),
       menuButton("Copy with footnotes", async () => {
-        // The Study Desk reads the notes from the chapter's Study View page,
+        // The Study Desk reads the notes from the chapter's Chapter View page,
         // which may still be on its way (see copyRichLater).
         const scope = view.scope(ch);
         if (typeof scope?.then === "function") {
@@ -946,7 +946,7 @@ function initFootnotePopovers(container) {
 // actions, under the same names, for what the verse menu can't reach: a
 // half-sentence, a phrase crossing two verses, part of a poetry quotation. The reference names the verses the selection touches in plain
 // numbers ("John 3:16", never "16a" — the quoted words already show it's
-// partial), and the link is the ordinary verse link on the Study View page,
+// partial), and the link is the ordinary verse link on the Chapter View page,
 // in Read View as well. Read View has no verse menu, so this bar is its
 // only way to copy or share.
 //

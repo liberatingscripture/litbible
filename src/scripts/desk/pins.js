@@ -1,7 +1,7 @@
 // src/scripts/desk/pins.js
 //
 // Pinned footnotes (STUDY-DESK.md, "Draft 4d"; BDR, 2026-10-09): a Pin button
-// wherever a footnote is read on a Study View chapter, in the popover a
+// wherever a footnote is read on a Chapter View chapter, in the popover a
 // footnote letter opens and on each note in the Footnotes list at the foot of
 // the page, and in the Notebook's "This verse" tab. "Pinned footnotes" in the
 // panel (tab-mine.js) lists them. The button is a glyph, not words (BVJ,
@@ -25,7 +25,7 @@
 // `data-desk-pin` attribute whenever the notebook changes, so a popover that
 // has closed or a tab that has redrawn leaves nothing to clean up.
 //
-// Study View chapters, and /desk (3g), where a note belongs to whichever
+// Chapter View chapters, and /desk (3g), where a note belongs to whichever
 // chapter its pane shows: every button names its chapter (`where`, kept in
 // `data-desk-pin-book` and `-chapter`) and the notebook is read per chapter.
 // The footnotes of a chapter that isn't the page's come from its fetched Study
@@ -192,7 +192,7 @@ export function pinButton(id, label, where = pageChapter()) {
 
 /**
  * The footnote a pin sits on in this chapter now, as findPin says, or null.
- * Study View only. It answers for a note on a footnote (M11) too, which names
+ * Chapter View only. It answers for a note on a footnote (M11) too, which names
  * its footnote the same way.
  */
 function footnoteOf(record) {
@@ -226,7 +226,7 @@ export function revealFootnote(record) {
 
 /* ── Keeping the page in step ────────────────────────────────────── */
 
-/** The lists that carry a flag under a note: Study View's Footnotes list and the Footnotes pane's. */
+/** The lists that carry a flag under a note: Chapter View's Footnotes list and the Footnotes pane's. */
 const FLAG_HOSTS = ".footnotes > li.desk-fn, li.desk-fns__item";
 
 /** The flag for a pin whose footnote was rewritten: a row under the note, rebuilt only when it changes. */
@@ -293,7 +293,7 @@ async function load(where) {
 
 /**
  * Read the notebook and bring every button and flag on the page up to date:
- * the page's own chapter on Study View, and every chapter a button is drawn
+ * the page's own chapter on Chapter View, and every chapter a button is drawn
  * for on /desk. A list that has redrawn its notes calls it too.
  */
 export async function refreshPins() {
@@ -313,7 +313,7 @@ export async function refreshPins() {
 /**
  * Start pinned footnotes on this page: a button on each note in the Footnotes
  * list, one in the popover every footnote letter opens, and the flags. Does
- * nothing off a Study View chapter (or /desk, `desk: true`, where the panes
+ * nothing off a Chapter View chapter (or /desk, `desk: true`, where the panes
  * ask for their own buttons) or without a notebook.
  *
  * @param {{ store: object | null, ctx: () => { client: string, contentVersion: string },

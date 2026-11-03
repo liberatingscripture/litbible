@@ -11,7 +11,7 @@
 // - **The pane shows one sheet, or the list of them.** Which one is kept in
 //   the layout (`setPaneSheet`), so the page opens on it again.
 // - **Passages come from the live text** (format rule 1): a passage module
-//   holds a reference, and its words are read from the chapter's Study View
+//   holds a reference, and its words are read from the chapter's Chapter View
 //   page whenever it is drawn (desk-sheet-passages.mjs's locatePassage). They
 //   are added from the LIT pane's verse menu or a selection ("Add to sheet",
 //   offered while a sheet is open), by typing a reference, or from the

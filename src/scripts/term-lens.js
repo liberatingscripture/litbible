@@ -1,6 +1,6 @@
 // src/scripts/term-lens.js
 //
-// The term lens (Study View only). Marks every use of the glossary terms the
+// The term lens (Chapter View only). Marks every use of the glossary terms the
 // alignment dataset vouches for in this chapter with a quiet dotted underline
 // (every use rather than the first of each, owner 2026-09-28), and opens
 // a small card about the term on hover (mouse) or tap (touch):
@@ -26,7 +26,7 @@
 //
 // Everything per chapter lives behind attachTermLens(container, data), so a
 // page can hold several chapters at once, each with its own data: this module
-// attaches the one Study View page it finds on load, and /desk's LIT pane
+// attaches the one Chapter View page it finds on load, and /desk's LIT pane
 // attaches each chapter it fetches through the same export.
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 

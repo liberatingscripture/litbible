@@ -349,7 +349,7 @@ export function recordWhere(r) {
 }
 
 /**
- * The Study View link for a record on the text, in the format's address form
+ * The Chapter View link for a record on the text, in the format's address form
  * (`/romans-8/#v3`, `#v3-5` for a range), or null for one that isn't.
  */
 export function recordHref(r) {

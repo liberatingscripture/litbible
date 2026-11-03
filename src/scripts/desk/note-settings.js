@@ -12,7 +12,7 @@
 //     default; BVJ, 2026-10-08: their own switch, apart from notes);
 //   - "My highlights": whether the page draws the reader's highlights. Two
 //     settings stand behind the one box, because the two views are for
-//     different things (audit C2/H1): Study View's is shown by default, and
+//     different things (audit C2/H1): Chapter View's is shown by default, and
 //     Read View, which is for reading a book straight through, keeps its own,
 //     hidden by default. `highlightSetting()` names the one this page uses;
 //   - whether the Notebook panel's list shows notes in full or at two lines
@@ -60,7 +60,7 @@ const HIDDEN_BY_M1 = ["notes", "bookmarks", "highlights", "readHighlights"];
 
 /**
  * The setting that switches highlights on this page: Read View's own in Read
- * View, and Study View's everywhere else. Callers needn't know which view
+ * View, and Chapter View's everywhere else. Callers needn't know which view
  * they are in; read it when you need it, never keep it.
  */
 export function highlightSetting() {
@@ -203,7 +203,7 @@ function noteControls(classes) {
 }
 
 /**
- * The controls in the Display tray's Show group: all of them on a Study View
+ * The controls in the Display tray's Show group: all of them on a Chapter View
  * chapter, only "My bookmarks", "My highlights" and "Hide my marks" in
  * Read View, which shows no notes, and "My highlights" alone on /desk. Also H
  * and Ctrl+Z in the tray's list of keys, and on a chapter a line under the Show group saying that a selection
@@ -229,9 +229,9 @@ function injectIntoTray() {
   const show = checks?.closest("fieldset");
   const study = Boolean(document.querySelector("#fontTray [data-terms-check]") && document.querySelector(".chapter-paragraphs"));
   const read = vn?.getAttribute("data-vn-view") === "read";
-  // /desk shows Study View's text in its LIT panes but no margin: of the desk's
+  // /desk shows Chapter View's text in its LIT panes but no margin: of the desk's
   // switches only "My highlights" means anything there, so that alone is added
-  // (BVJ, 2026-10-21). It is Study View's setting, as the panes' highlights are.
+  // (BVJ, 2026-10-21). It is Chapter View's setting, as the panes' highlights are.
   const deskPage = Boolean(
     document.querySelector("[data-desk-page]") && vn?.getAttribute("data-vn-view") === "study",
   );

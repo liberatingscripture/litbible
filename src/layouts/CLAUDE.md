@@ -7,7 +7,7 @@
 > this was one file, so they may point into another area file; the root's
 > index says which file holds each section.
 
-- **On a phone, Study View's toolbar is one row** (audit F3, owner
+- **On a phone, Chapter View's toolbar is one row** (audit F3, owner
   2026-09-28). At 640px and below the passage picker, a search button and an
   icon-only Read View link share one 44px row; search opens in place of the
   row, and its × or Escape closes it and returns focus to the button. The top

@@ -1,6 +1,6 @@
 // src/scripts/desk/highlights.js
 //
-// The reader's highlights, drawn on a Study View chapter, on the book Read
+// The reader's highlights, drawn on a Chapter View chapter, on the book Read
 // View shows, or on /desk's LIT panes (STUDY-DESK.md, highlights; 3g). Four colours, one CSS Custom
 // Highlight per colour (`desk-hl-yellow` and the rest; their look is in
 // desk.css), so the scripture's text and markup are never touched: Copy text,
@@ -34,7 +34,7 @@ const nameOf = (color) => `desk-hl-${color}`;
 /**
  * @param {{ store: object }} options
  * @returns {{ refresh(): void } | null} null where the page has no highlights
- *   to draw (not a Study View chapter, Read View or /desk, or a browser
+ *   to draw (not a Chapter View chapter, Read View or /desk, or a browser
  *   without the CSS Custom Highlight API)
  */
 export function createHighlights({ store }) {
@@ -95,8 +95,8 @@ export function createHighlights({ store }) {
 
 /**
  * /desk's LIT panes (3g): every chapter they show, in every pane showing it,
- * read through lit-records.js. Study View's setting decides whether they're
- * shown, since the panes are Study View's text.
+ * read through lit-records.js. Chapter View's setting decides whether they're
+ * shown, since the panes are Chapter View's text.
  */
 function deskHighlights(store) {
   let entries = [];

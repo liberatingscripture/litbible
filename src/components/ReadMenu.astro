@@ -9,11 +9,11 @@ import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 
 /**
  * mode="study" (default): the standalone "Go to passage" pill. Chapter picks
- *   navigate to Study View pages (/john-3); the footer offers Read View.
+ *   navigate to Chapter View pages (/john-3); the footer offers Read View.
  * mode="read": the compact trigger embedded in the Read View toolbar.
  *   Chapter picks stay in Read View (/read/<book>#ch-N — same-book picks
  *   are intercepted by read-mode.js for an in-page smooth scroll); the footer
- *   offers Study View instead. The trigger label doubles as the live
+ *   offers Chapter View instead. The trigger label doubles as the live
  *   location readout: `label` sets the initial text and read-mode.js updates
  *   it (and data-current-chapter on the root) as the reader scrolls.
  */
@@ -219,8 +219,8 @@ const fallbackHref =
         panel.style.top = Math.round(top) + "px";
       }
 
-      // The footer's cross-view link flips with the mode: Study View pages
-      // offer Read View, the Read View toolbar offers Study View.
+      // The footer's cross-view link flips with the mode: Chapter View pages
+      // offer Read View, the Read View toolbar offers Chapter View.
       function legendEl(crossViewKey) {
         const foot = document.createElement("div");
         foot.className = "read-menu__foot";
@@ -236,7 +236,7 @@ const fallbackHref =
             const cur = getCurChapter();
             const ch = crossViewKey === curBook && /^\d+$/.test(cur) ? cur : "1";
             a.href = "/" + crossViewKey + "-" + ch;
-            a.textContent = "Open " + label(crossViewKey) + " in Study View →";
+            a.textContent = "Open " + label(crossViewKey) + " in Chapter View →";
           } else if (document.documentElement.dataset.desk === "on") {
             // The Study Desk preview offers the desk where Read View would be
             // (E8, 8b). The address is desk-passage.mjs's deskPlaceHref, written

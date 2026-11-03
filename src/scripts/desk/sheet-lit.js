@@ -9,9 +9,9 @@
 // sheet-pane.js owns saving: each card here is handed `update(fields)` for its
 // own module, and `getSheet()` for what the rest of the sheet holds.
 //
-// Everything is read from the chapter's Study View page (chapter-page.js), so
+// Everything is read from the chapter's Chapter View page (chapter-page.js), so
 // a passage's words, its key terms and its footnotes are character for
-// character the ones Study View shows, and every offset here is in that
+// character the ones Chapter View shows, and every offset here is in that
 // chapter's anchor text (desk-anchor-dom.mjs), the same measure a blank's
 // quote is stored in.
 
@@ -162,7 +162,7 @@ export function locateBlanks(view, m) {
 /* ── The passage's words ─────────────────────────────────────────────── */
 
 /**
- * The passage's words as Study View prints them, verse numbers kept, footnote
+ * The passage's words as Chapter View prints them, verse numbers kept, footnote
  * letters, ids and the page's own labels left out. Whole blocks are copied and
  * then trimmed to the passage, so every verse keeps its data-verse span and
  * the copy reads as anchor text exactly as the chapter does: `base` is the

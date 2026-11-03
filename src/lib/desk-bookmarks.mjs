@@ -216,7 +216,7 @@ export function lastReadHref(r) {
   return `/${r.book}-${r.chapter}/${r.verse ? `#v${r.verse}` : ""}`;
 }
 
-const VIEW_NAMES = { study: "Study View", read: "Read View" };
+const VIEW_NAMES = { study: "Chapter View", read: "Read View" };
 
 /**
  * The one row the Notebook keeps above its list, from the last-read record, or
@@ -228,7 +228,7 @@ export function continueItem(lastRead) {
   const where = `${bookKeyToLabel(lastRead.book)} ${lastRead.chapter}${lastRead.verse ? `:${lastRead.verse}` : ""}`;
   return {
     title: where,
-    detail: `Continue reading · ${VIEW_NAMES[lastRead.view] ?? "Study View"}`,
+    detail: `Continue reading · ${VIEW_NAMES[lastRead.view] ?? "Chapter View"}`,
     href: lastReadHref(lastRead),
     bookKey: lastRead.book,
   };

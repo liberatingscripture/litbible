@@ -9,7 +9,7 @@
 // The rule is src/lib/desk-bookmarks.mjs. This file keeps the tab's flag
 // (sessionStorage['lit-desk-follow']: the bookmark's id and its book), clears it
 // on the first page outside that book, and listens for the one signal both
-// views already send, `lit:last-read` (last-read.js, from Study View's
+// views already send, `lit:last-read` (last-read.js, from Chapter View's
 // scrolling and from Read View's saves), to write the bookmark's new verse.
 //
 // Moving is the reader reading, so it edits the record (`modified` moves, and
