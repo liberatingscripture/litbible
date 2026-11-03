@@ -13,6 +13,7 @@ import {
   MIN_WIDTH,
   applyArrangement,
   arrangementOf,
+  arrivalLayout,
   checkLayout,
   closePane,
   evenOut,
@@ -35,6 +36,7 @@ import {
   pathTo,
   placeFor,
   readSaved,
+  readingLayout,
   resize,
   setActive,
   setKind,
@@ -117,8 +119,8 @@ test("newPane picks the first p-number not in use", () => {
 // ---- arrangements ---------------------------------------------------------
 
 test("there are eleven arrangements and none of them is four rows", () => {
-  assert.equal(ARRANGEMENTS.length, 11);
-  assert.equal(new Set(ARRANGEMENTS.map((a) => a.id)).size, 11);
+  assert.equal(ARRANGEMENTS.length, 12);
+  assert.equal(new Set(ARRANGEMENTS.map((a) => a.id)).size, 12);
   const fourRows = (shape) => !shape.slot && ((shape.split === "rows" && shape.children.length >= 4) || shape.children.some(fourRows));
   assert.equal(ARRANGEMENTS.some((a) => fourRows(a.shape)), false);
   assert.equal(ARRANGEMENTS.some((a) => /four rows/i.test(a.label)), false);
@@ -128,7 +130,9 @@ test("there are eleven arrangements and none of them is four rows", () => {
 test("every arrangement round-trips through applyArrangement and arrangementOf", () => {
   for (const a of ARRANGEMENTS) {
     const l = applyArrangement(originalLayout(), a.id);
-    assert.equal(arrangementOf(l), a.id, a.id);
+    // One pane over a LIT pane is the Reading arrangement: one shape, told
+    // apart by the pane's kind.
+    assert.equal(arrangementOf(l), a.id === "one" ? "reading" : a.id, a.id);
     assert.equal(panes(l.root).length, slotCount(a.id), a.id);
     assert.equal(new Set(ids(l)).size, ids(l).length, `${a.id} has unique ids`);
     assert.ok(l.active === null || findPane(l.root, l.active)?.kind === "lit", a.id);
@@ -139,14 +143,14 @@ test("round-trips from a four-pane layout too", () => {
   const four = applyArrangement(originalLayout(), "grid");
   for (const a of ARRANGEMENTS) {
     const l = applyArrangement(four, a.id);
-    assert.equal(arrangementOf(l), a.id, a.id);
+    assert.equal(arrangementOf(l), a.id === "one" ? "reading" : a.id, a.id);
     assert.equal(panes(l.root).length, slotCount(a.id), a.id);
   }
 });
 
 test("slotCount counts the slots of each shape, and is one for an unknown id", () => {
   const expected = {
-    one: 1, "cols-2": 2, "rows-2": 2, "cols-3": 3, "rows-3": 3, "one-left-two": 3,
+    reading: 1, one: 1, "cols-2": 2, "rows-2": 2, "cols-3": 3, "rows-3": 3, "one-left-two": 3,
     "two-one-right": 3, "one-over-two": 3, "two-over-one": 3, "cols-4": 4, grid: 4,
   };
   for (const [id, n] of Object.entries(expected)) assert.equal(slotCount(id), n, id);
@@ -1468,4 +1472,63 @@ test("E14: addPaneNeeds names what the window lacks", () => {
   assert.equal(addPaneNeeds(l, "row", 500, 300), "larger");
   assert.equal(addPaneNeeds(l, "row", 566, 326), null);
   assert.equal(addPaneNeeds(l, "column"), null, "no size given asks nothing");
+});
+
+// ---- Reading (E8) ------------------------------------------------------------
+
+test("Reading is one LIT pane: the active one, with its place", () => {
+  const two = mk(cols([0.5, 0.5], leaf("a", "mine"), { pane: { id: "b", kind: "lit", pin: null, at: "romans 8" } }), "b");
+  two.place = "romans 8";
+  const l = applyArrangement(two, "reading");
+  assert.deepEqual(ids(l), ["b"]);
+  assert.equal(arrangementOf(l), "reading");
+  assert.equal(findPane(l.root, "b").at, "romans 8");
+  assert.equal(l.active, "b");
+  assert.equal(two.root.children.length, 2, "the layout it came from is untouched");
+});
+
+test("Reading from a layout with no LIT pane opens one at the shared place", () => {
+  const l = readingLayout({ root: leaf("a", "mine"), active: null, place: "john 3:16" });
+  const [only] = panes(l.root);
+  assert.equal(only.kind, "lit");
+  assert.equal(only.at, "john 3:16");
+  assert.equal(l.active, only.id);
+  assert.notEqual(only.id, "a");
+});
+
+test("One pane over something that isn't the LIT is not Reading", () => {
+  assert.equal(arrangementOf({ root: leaf("a", "mine"), active: null }), "one");
+});
+
+test("a link with a place: no saved layout opens Reading there", () => {
+  const l = arrivalLayout({ last: null, mine: null, start: "last" }, "romans 8", "john 3");
+  assert.equal(arrangementOf(l), "reading");
+  const [only] = panes(l.root);
+  assert.equal(only.at, "romans 8");
+  assert.equal(l.place, "romans 8");
+});
+
+test("a link with a place: a saved layout keeps its panes and moves the active LIT pane", () => {
+  const last = mk(cols([0.7, 0.3], { pane: { id: "p1", kind: "lit", pin: null, at: "john 3" } }, leaf("p2", "mine")));
+  last.place = "john 3";
+  const l = arrivalLayout({ last, mine: null, start: "last" }, "romans 8:16", "matthew 1");
+  assert.equal(arrangementOf(l), "cols-2");
+  assert.deepEqual(l.root.sizes, [0.7, 0.3]);
+  assert.equal(findPane(l.root, "p1").at, "romans 8:16");
+  assert.equal(l.place, "romans 8:16");
+  assert.equal(last.place, "john 3", "the saved layout is not changed in place");
+  assert.equal(findPane(last.root, "p1").at, "john 3");
+});
+
+test("a link with a place: a saved layout with no LIT pane takes the shared place only", () => {
+  const last = mk(leaf("p1", "mine"), null);
+  const l = arrivalLayout({ last, mine: null, start: "last" }, "romans 8", null);
+  assert.deepEqual(ids(l), ["p1"]);
+  assert.equal(l.place, "romans 8");
+});
+
+test("a link with no usable place opens what the page would have opened", () => {
+  const saved = { last: null, mine: null, start: "last" };
+  assert.deepEqual(arrivalLayout(saved, "nonsense", "john 3"), openingLayout(saved, "john 3"));
+  assert.deepEqual(arrivalLayout(saved, null, null), openingLayout(saved, null));
 });

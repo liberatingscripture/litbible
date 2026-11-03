@@ -18,7 +18,11 @@ import SearchBar from "./SearchBar.astro";
 // menu and moves Aa into it (E15), so Aa is in the markup but leaves the bar
 // once the desk is up.
 // No nav row and no search.
-const { class: className = "", scriptureControls, headerSearch = false, deskTitle } = Astro.props;
+// deskPlace: on a chapter page, its address ("romans-8"), which the Study
+// Desk link carries as ?place= so the desk opens at the chapter being read
+// (E8). Everywhere else the link is plain /desk/.
+const { class: className = "", scriptureControls, headerSearch = false, deskTitle, deskPlace } = Astro.props;
+const deskHref = deskPlace ? `/desk/?place=${deskPlace}` : "/desk/";
 
 // Text size steps. The visible letters are the usual abbreviations; the
 // radios carry the words for screen readers.
@@ -98,7 +102,7 @@ const SIZE_OPTIONS = [
             </button>
             <a
               class="site-header__desk site-header__desk--nav"
-              href="/desk/"
+              href={deskHref}
               data-desk-toggle
             >
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
@@ -138,7 +142,7 @@ const SIZE_OPTIONS = [
       </button>
       <a
         class="site-header__desk site-header__desk--actions"
-        href="/desk/"
+        href={deskHref}
         data-desk-toggle
       >
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"

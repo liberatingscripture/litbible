@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import {
   FIRST_PASSAGE,
   checkPassage,
+  deskPlaceHref,
   formatPassage,
+  parsePlaceParam,
   parsePassage,
   passageLabel,
   sameChapter,
@@ -240,4 +242,29 @@ test("the fallback is a copy: changing it leaves FIRST_PASSAGE alone", () => {
   assert.deepEqual(FIRST_PASSAGE, { bookKey: "matthew", chapter: 1, verse: 1 });
   assert.deepEqual(startingPassage(null), { bookKey: "matthew", chapter: 1, verse: 1 });
   assert.ok(Object.isFrozen(FIRST_PASSAGE));
+});
+
+// ---- links to /desk (E8) ---------------------------------------------------
+
+test("parsePlaceParam reads a chapter address, with or without a verse", () => {
+  assert.equal(parsePlaceParam("romans-8"), "romans 8");
+  assert.equal(parsePlaceParam("1corinthians-13"), "1corinthians 13");
+  assert.equal(parsePlaceParam("romans-8:16"), "romans 8:16");
+  assert.equal(parsePlaceParam("romans-8-v16"), "romans 8:16");
+  assert.equal(parsePlaceParam("romans-8#v16"), "romans 8:16");
+  assert.equal(parsePlaceParam("Romans 8:16"), "romans 8:16");
+  assert.equal(parsePlaceParam("  john-3 "), "john 3");
+});
+
+test("parsePlaceParam ignores anything that isn't a passage in the New Testament", () => {
+  for (const bad of ["", "john", "john-0", "john-22", "genesis-1", "john-3:0", "john-3:x", "<script>", "john-3-16", null, undefined, 3]) {
+    assert.equal(parsePlaceParam(bad), null, String(bad));
+  }
+});
+
+test("deskPlaceHref names the chapter, and the verse when there is one", () => {
+  assert.equal(deskPlaceHref(p("romans", 8)), "/desk/?place=romans-8");
+  assert.equal(deskPlaceHref(p("romans", 8, 16)), "/desk/?place=romans-8:16");
+  assert.equal(deskPlaceHref(p("nonsense", 1)), "/desk/");
+  assert.equal(parsePlaceParam(new URL(deskPlaceHref(p("1john", 4, 8)), "https://x.test").searchParams.get("place")), "1john 4:8");
 });

@@ -7559,6 +7559,39 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     "load the whole book" choice in the Reading arrangement, or let them go.
   - **The button's label.** "Study Desk" says study; the button now also
     serves the reader who wants to read straight through.
+  **8a built 2026-11-02 (work session 8a).** BVJ's answers: build "Reading"
+  and see how it feels (the menu's word is a try, not a decision); the
+  recommended `?place=` rules; the whole-book question below.
+  - *Reading* is the first row of the Layout window: one LIT pane (the
+    active one, else the first, else a new one at the shared place), the
+    other panes closed. It is the same shape as "One pane", told apart by
+    the pane's kind (`arrangementOf`): One pane over My Notes is still One
+    pane. Nothing new was needed to honor the Display tray: `.desk-lit__text`
+    already sits at the reading width, centered, in Study View's own markup,
+    so verse numbers, footnote letters, key terms and highlights reach it.
+  - *`/desk/?place=romans-8`* (also `romans-8:16`, `romans-8-v16`): with no
+    saved layout (no last, no default) it opens Reading there; with one, the
+    reader's panes and sizes stay and only the active LIT pane and the shared
+    place move (`arrivalLayout`, `parsePlaceParam`). The move is saved as any
+    move on the desk is, and the parameter is stripped from the address.
+    A value that names no passage is ignored. /desk has no Notebook panel,
+    so the tour offer and first-use card never show there.
+  - *The way in that carries the passage* is the header's "Study Desk"
+    link (BVJ added it, 2026-10-29, and hid the "Switch to Read View" pill
+    while the preview is on): on a chapter page it now points at
+    `/desk/?place=<book>-<chapter>` (`deskPlace` through Layout to
+    SiteHeader). The Notebook panel's foot and the notebook page were
+    **not** given links of their own: the header link is on every page and a
+    second one would only add a control.
+  - *Open for BVJ:* **the whole-book choice.** Not built. BVJ asked whether
+    Ctrl+F across a book is needed when book-scoped search (the bar, /search
+    and the Search pane) finds a word anywhere in a book. Search covers
+    finding, with stem matching. What it does not cover is a browser tool
+    working on the page as read: Edge's Read Aloud past the loaded
+    chapters, printing a whole book (the Print menu prints one chapter at a
+    time), and Ctrl+F's in-context highlighting. Recommended: let them go,
+    and say so on the retiring page's help copy at 8c. Status: **8a built,
+    awaiting BVJ's look on the preview; the whole-book choice open.**
 - **E9, rough: Bookmarks and Ribbons are confusing and redundant, and
   Places adds a third layer.** BVJ (2026-10-22), from using the preview.
   **Decided** (BVJ, 2026-10-22; decision log, "Bookmarks and ribbons become
@@ -7954,7 +7987,9 @@ the rest is polish.
      layout); and the LSC site's `/privacy` mirror needs the sentence for
      `lit-desk-greek-notes`.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
-   the passage (buildable now); 8b, after 8a, the parts of E8 and E20 that
+   the passage (buildable now; **done 2026-11-02**, awaiting BVJ's merge and
+   look: Reading, `?place=`, the header link carrying the chapter; the
+   whole-book option left unbuilt pending BVJ); 8b, after 8a, the parts of E8 and E20 that
    stay behind the desk preview (BVJ, 2026-11-02): with the preview on,
    Study View's "Read View" button and the /read card become ways into /desk,
    while everyone else keeps Read View; and the dormant prep for launch (the
