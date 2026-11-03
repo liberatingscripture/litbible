@@ -741,7 +741,10 @@ that section.
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
        E25, BVJ 2026-11-02, the drop box names which), and `neighborIn`
        for the pane menu's Move left, right, up, and down (the keyboard's
-       swap); the 280 by 160
+       swap; only a pane touching this one counts). `dropZone` takes the
+       zone the pointer was in and holds it 8px past its edge, so the line
+       between zones doesn't flicker; a drop is planned again at release;
+       the 280 by 160
        minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.

@@ -347,7 +347,7 @@ async function start() {
   menu.hidden = true;
   menu.innerHTML = `
     <div class="desk-ws__shapes" role="group" aria-label="Arrange the panes"></div>
-    <p class="desk-ws__menu-note">Or drag a pane by its header: to an edge of another to split it, to its middle to swap places.</p>
+    <p class="desk-ws__menu-note">Or drag a pane by its header: to an edge of another to split it, to its middle to swap places. A pane’s name menu has Move left, right, up, and down for the keyboard.</p>
     <fieldset class="desk-ws__start">
       <legend>When this page opens, show</legend>
       <label><input type="radio" name="desk-ws-start" value="last" /> My last layout</label>
@@ -971,7 +971,7 @@ async function start() {
       if (!rec) continue;
       const name = kindLabel(pane.kind);
       rec.kindButton.querySelector(".desk-pane__name").textContent = name;
-      rec.kindButton.setAttribute("aria-label", `${name} pane: show something else here`);
+      rec.kindButton.setAttribute("aria-label", `${name} pane: show something else here, or move it`);
       const leading = pane.kind === "lit" && lits > 1 && layout.active === pane.id;
       rec.lead.hidden = !leading;
       rec.el.classList.toggle("desk-pane--leading", leading);
@@ -1010,7 +1010,13 @@ async function start() {
     const pane = findPane(layout.root, id);
     const menuEl = el("div", "desk-pane__menu");
     menuEl.setAttribute("role", "menu");
-    menuEl.setAttribute("aria-label", "This pane");
+    menuEl.setAttribute("aria-label", "Pane options");
+    // The kinds are radios and the moves plain items, so each has a group of
+    // its own with its own name.
+    const kinds = el("div", "desk-pane__menu-group");
+    kinds.setAttribute("role", "group");
+    kinds.setAttribute("aria-label", "Show in this pane");
+    menuEl.append(kinds);
     for (const k of KINDS) {
       const item = el("button", "desk-pane__menu-item", k.label);
       item.type = "button";
@@ -1022,7 +1028,7 @@ async function start() {
         commit(setKind(layout, id, k.kind));
         announce(`This pane now shows ${k.label}.`);
       });
-      menuEl.append(item);
+      kinds.append(item);
     }
     // Move this pane (E25): the keyboard's way to do what dragging does. It
     // swaps places with the pane beside it, so "Move left" is only offered
@@ -1037,6 +1043,10 @@ async function start() {
       line.setAttribute("role", "separator");
       menuEl.append(line);
     }
+    const moveGroup = el("div", "desk-pane__menu-group");
+    moveGroup.setAttribute("role", "group");
+    moveGroup.setAttribute("aria-label", "Move this pane");
+    if (moves.length) menuEl.append(moveGroup);
     for (const m of moves) {
       const item = el("button", "desk-pane__menu-item desk-pane__menu-item--move", m.label);
       item.type = "button";
@@ -1049,7 +1059,7 @@ async function start() {
         commit(swapPanes(layout, id, m.other));
         announce(`${name} moved ${m.direction}, swapping with ${other}.`);
       });
-      menuEl.append(item);
+      moveGroup.append(item);
     }
     const items = Array.from(menuEl.querySelectorAll("button"));
     menuEl.addEventListener("keydown", (e) => {
@@ -1247,6 +1257,7 @@ async function start() {
     const y0 = e.clientY;
     let moving = false;
     let pick = null; // { zone, targetId }: the drop shown now, if it would work
+    let seen = null; // { zone, targetId }: the zone the pointer is in, for dropZone to hold
     head.setPointerCapture(e.pointerId);
     // What dropping on a zone of a pane would make, from the layout as it is
     // now: a swap always fits (each slot keeps its size), a split may not.
@@ -1279,11 +1290,14 @@ async function start() {
       if (!target || target.dataset.paneId === movingId) {
         drop.hidden = true;
         pick = null;
+        seen = null;
         return;
       }
       const rect = target.getBoundingClientRect();
       const targetId = target.dataset.paneId;
-      const zone = dropZone(rect.width, rect.height, ev.clientX - rect.left, ev.clientY - rect.top);
+      const held = seen?.targetId === targetId ? seen.zone : null;
+      const zone = dropZone(rect.width, rect.height, ev.clientX - rect.left, ev.clientY - rect.top, held);
+      seen = { zone, targetId };
       const { swap, why } = plan(zone, targetId);
       const box = panesBox.getBoundingClientRect();
       pick = why ? null : { zone, targetId };

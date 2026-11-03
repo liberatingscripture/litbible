@@ -8033,6 +8033,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   down** under a hairline, offered only where a pane is beside this one, each
   a swap with that pane (`neighborIn`); the menu's label is now "This pane."
   The screen reader hears "<Kind> swapped with <Kind>." or "<Kind> moved."
+  After an Opus review (same day): a zone **holds 8px past its own edge**
+  while the pointer stays over the same pane (`dropZone`'s `previous`), so a
+  pointer on the line doesn't flip between swap and split; the menu is
+  "Pane options" with two groups ("Show in this pane," "Move this pane"), the
+  name button says "…show something else here, or move it," and the Layout
+  window's note names the Move items; Move picks only a pane touching this
+  one; a drop is planned again from the layout at release.
   Not built, left as BVJ finds them: dragging to the desk's own edge (5), a
   visible handle at rest (7), keeping the dragged pane's size (8), an
   animated move or live layout preview (4), a note when a drag ends on a

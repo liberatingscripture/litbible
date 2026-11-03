@@ -395,7 +395,7 @@ export function swapPanes(layout, aId, bId) {
 }
 
 /** How far into a pane, in the pane's own pixels, a drop zone's edge band reaches. */
-export const DROP_BAND = { x: 120, y: 80, share: 0.3 };
+export const DROP_BAND = { x: 120, y: 80, share: 0.3, hold: 8 };
 
 /**
  * Where dropping a dragged pane over another would land, from the pointer's
@@ -406,13 +406,30 @@ export const DROP_BAND = { x: 120, y: 80, share: 0.3 };
  * middle doesn't shrink to nothing; on a small pane they stop at 30%, so the
  * middle stays. Distances are measured in band depths, so a corner goes to
  * whichever edge the pointer is nearer in those terms.
+ *
+ * `previous` is the zone this pointer was in over the same pane a moment
+ * ago, which holds for `DROP_BAND.hold` pixels past its own edge, so a
+ * pointer resting on the line between two zones doesn't flip between them
+ * (a corner holds the same way, until the pointer is clearly nearer the
+ * other edge).
  */
-export function dropZone(width, height, x, y) {
+export function dropZone(width, height, x, y, previous = null) {
   const bx = Math.min(DROP_BAND.x, width * DROP_BAND.share) || 1;
   const by = Math.min(DROP_BAND.y, height * DROP_BAND.share) || 1;
-  const d = { left: x / bx, right: (width - x) / bx, top: y / by, bottom: (height - y) / by };
-  const edge = Object.keys(d).reduce((a, b) => (d[b] < d[a] ? b : a));
-  return d[edge] >= 1 ? "swap" : edge;
+  const band = { left: bx, right: bx, top: by, bottom: by };
+  const px = { left: x, right: width - x, top: y, bottom: height - y };
+  const d = (e) => px[e] / band[e];
+  const edge = Object.keys(px).reduce((a, b) => (d(b) < d(a) ? b : a));
+  const zone = d(edge) >= 1 ? "swap" : edge;
+  if (previous && previous !== zone) {
+    const hold = DROP_BAND.hold;
+    if (previous === "swap") {
+      if (Object.keys(px).every((e) => px[e] >= band[e] - hold)) return "swap";
+    } else if (px[previous] < band[previous] + hold && d(previous) <= d(edge) + hold / band[previous]) {
+      return previous;
+    }
+  }
+  return zone;
 }
 
 /**

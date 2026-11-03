@@ -471,6 +471,35 @@ test("a corner goes to the edge the pointer is nearer in band depths", () => {
   assert.equal(dropZone(600, 400, 590, 390), "right");
 });
 
+test("a zone holds a few pixels past its own edge, so a pointer on the line doesn't flip", () => {
+  // 600 by 400: the left band is 120px deep, held to 128.
+  assert.equal(dropZone(600, 400, 124, 200), "swap");
+  assert.equal(dropZone(600, 400, 124, 200, "left"), "left");
+  assert.equal(dropZone(600, 400, 130, 200, "left"), "swap");
+  // and the middle holds to 8px inside each band
+  assert.equal(dropZone(600, 400, 116, 200), "left");
+  assert.equal(dropZone(600, 400, 116, 200, "swap"), "swap");
+  assert.equal(dropZone(600, 400, 110, 200, "swap"), "left");
+  assert.equal(dropZone(600, 400, 300, 76, "swap"), "swap");
+  assert.equal(dropZone(600, 400, 300, 70, "swap"), "top");
+});
+
+test("a corner holds its edge until the pointer is clearly nearer the other", () => {
+  // 30px in and 10px down is the top edge; 30 and 20 is nearly even.
+  assert.equal(dropZone(600, 400, 30, 10), "top");
+  assert.equal(dropZone(600, 400, 20, 20), "left");
+  assert.equal(dropZone(600, 400, 20, 20, "top"), "top");
+  // clearly nearer the left edge: the hold is let go
+  assert.equal(dropZone(600, 400, 5, 70, "top"), "left");
+});
+
+test("a previous zone that doesn't apply changes nothing", () => {
+  assert.equal(dropZone(600, 400, 300, 200, "left"), "swap");
+  assert.equal(dropZone(600, 400, 590, 200, "left"), "right");
+  assert.equal(dropZone(600, 400, 10, 200, null), "left");
+  assert.equal(dropZone(600, 400, 10, 200, "left"), "left");
+});
+
 const box = (id, left, top, right, bottom) => ({ id, left, top, right, bottom });
 
 test("the neighbor in a direction is the pane beside it sharing the most length", () => {

@@ -5085,7 +5085,13 @@ html.desk-ws--moving * {
   background-repeat: no-repeat;
 }
 
-/* The Move items (E25) sit under a hairline, with no dot: they aren't a choice of kind. */
+/* The kinds and the Move items (E25) are each a group, which draws as plain rows. */
+.desk-pane__menu-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The Move items sit under a hairline, with no dot: they aren't a choice of kind. */
 .desk-pane__menu-line {
   margin: 4px 6px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.12);
