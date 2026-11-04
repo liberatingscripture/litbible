@@ -397,3 +397,32 @@ test("a search's hits count by verse, not by occurrence (BA110)", () => {
   assert.equal(versesIn([]), 0);
   assert.equal(versesIn(undefined), 0);
 });
+
+test("a form clicked on the page finds its own lemma, for every word of the committed text (GK-1)", () => {
+  const root = fileURLToPath(new URL("../public/greek/", import.meta.url));
+  const index = prepareIndex(JSON.parse(readFileSync(`${root}search/lemmas.json`, "utf8")));
+  const pairs = new Set();
+  for (const file of readdirSync(`${root}text/`).filter((f) => f.endsWith(".json"))) {
+    const { paragraphs, lemmas } = JSON.parse(readFileSync(`${root}text/${file}`, "utf8"));
+    for (const w of paragraphs.flat()) if (w[5] != null && w[5] >= 0 && lemmas[w[5]]) pairs.add(`${lemmas[w[5]][0]}\t${w[2]}`);
+  }
+  assert.ok(pairs.size > 19000);
+  const lost = [];
+  for (const pair of pairs) {
+    const [lemma, form] = pair.split("\t");
+    const found = matchGreek(index, form, { exactForm: true }).lemmas.map((m) => index.lemmas[m.id].lemma);
+    if (!found.includes(lemma.normalize("NFC"))) lost.push(pair);
+  }
+  assert.deepEqual(lost, []);
+  // What a reader types still takes the lemma alone, as the file's header says.
+  assert.deepEqual(matchGreek(index, "ἡ").lemmas.map((m) => m.how), ["lemma"]);
+  const click = matchGreek(index, "ἡ", { exactForm: true }).lemmas;
+  assert.equal(click[0].how, "lemma");
+  assert.ok(click.some((m) => index.lemmas[m.id].lemma === ARTICLE && m.how === "form"));
+});
+
+test("compatibility letters fold to the letters they stand for (GK-15)", () => {
+  assert.equal(foldGreek("ϕίλος"), foldGreek("φίλος"));
+  assert.equal(foldGreek("ϑεός"), "θεοσ");
+  assert.equal(foldGreek("ϖνεῦμα ϱῆμα ϰύριος ϵγώ"), "πνευμαρημακυριοσεγω");
+});

@@ -154,3 +154,12 @@ test("a command replaces only what changed, so undo takes back only that", () =>
     assert.equal(a.slice(0, start) + text + a.slice(end), b);
   }
 });
+
+test("= goes to the start of the word the cursor is in or after (GK-8)", () => {
+  assert.deepEqual(put("πίστεως", "="), { value: "=πίστεως", caret: 8 });
+  assert.deepEqual(put("θεός, πίστεως", "="), { value: "θεός, =πίστεως", caret: 14 });
+  assert.deepEqual(put("πίστεως", "=", 3), { value: "=πίστεως", caret: 4 });
+  assert.deepEqual(put("", "="), { value: "=", caret: 1 });
+  assert.deepEqual(put("=πίστεως", "="), put("=πίστεως", "="));
+  assert.equal(parseGreekQuery(put("πίστεως", "=").value).terms[0].exact, true);
+});

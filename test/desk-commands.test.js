@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { COMMANDS, commandQueryText, isCommandQuery, matchCommands } from "../src/lib/desk-commands.mjs";
+import { COMMANDS, commandQueryText, isDeskCommandQuery, matchCommands } from "../src/lib/desk-commands.mjs";
 
 const page = { surface: false, study: false, panelOpen: false, hidden: false };
 const chapter = { surface: true, study: true, panelOpen: false, hidden: false };
@@ -45,9 +45,9 @@ test("hide my marks turns into show my marks while they are hidden", () => {
 });
 
 test("a query starting with > asks for commands, and what follows narrows them", () => {
-  assert.equal(isCommandQuery(">"), true);
-  assert.equal(isCommandQuery("  > hid"), true);
-  assert.equal(isCommandQuery("hide"), false);
+  assert.equal(isDeskCommandQuery(">"), true);
+  assert.equal(isDeskCommandQuery("  > hid"), true);
+  assert.equal(isDeskCommandQuery("hide"), false);
   assert.equal(commandQueryText(">  hid"), "hid");
   assert.equal(ids(">", chapter).length, COMMANDS.length);
   assert.deepEqual(ids("> hid", chapter), ["hide-notes"]);

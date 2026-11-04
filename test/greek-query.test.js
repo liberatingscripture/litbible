@@ -19,7 +19,7 @@ import {
   errorMessage,
   filterFor,
   groupsForFilters,
-  isCommandQuery,
+  isGreekCommandQuery,
   isSimpleQuery,
   matchConstruction,
   nearestFilter,
@@ -81,10 +81,10 @@ test("codeFits reads each axis at its place in a ten-character code", () => {
 
 test("one bare word is always a word, and plain English stays a gloss search", () => {
   for (const q of ["πίστις", "pistis", "G4102", "any", "exact", "and", "or", "perfect", "genitive", "\"any\"", "son of man", "faith hope", ""]) {
-    assert.equal(isCommandQuery(q), false, q);
+    assert.equal(isGreekCommandQuery(q), false, q);
   }
   for (const q of ["πίστις.gen", "*.aor.impv", "πίστεως Ἰησοῦ", "faith and love", "aorist imperative", "pistis genitive", "=πίστεως", "πίστις, Χριστός", "πίστις & νόμος", "first person verbs"]) {
-    assert.equal(isCommandQuery(q), true, q);
+    assert.equal(isGreekCommandQuery(q), true, q);
   }
 });
 
@@ -488,4 +488,12 @@ test("BA50: the readback places each later word from the one before it", () => {
     assert.doesNotMatch(say(q), /, then/, q);
   }
   assert.match(say("*.art, *.noun, *.art ~0 &"), /next to that/);
+});
+
+test("a very long query is read in bounded time (GK-7)", () => {
+  for (const q of [",".repeat(100000), ".".repeat(100000), `a${" ".repeat(50000)}b`, "exact ".repeat(20000)]) {
+    const t = Date.now();
+    parseGreekQuery(q);
+    assert.ok(Date.now() - t < 500, "slow parse");
+  }
 });

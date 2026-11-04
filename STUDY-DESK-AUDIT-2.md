@@ -318,6 +318,8 @@ one; see "Not covered") and forced-colors emulation. Claude cannot do this; BVJ 
 
 Independent; can run beside any other session. Do GK-1 first, with a test over the committed data.
 
+**Status (2026-11-03, branch `claude/audit2-session8-greek`):** FA2-s and FA2-t are done, and FA2-u except GK-9, the `/greek/*` cache rule, which waits on decision 9's answer (a day of `max-age`, or keep revalidating); nothing was added to `public/_headers`. Typed `ἡ`, `ἐξ` and `αὐτοῦ` (decision 9, first question) still take the lemma alone. The forced-colors, font and screen-reader items need a browser or a person to confirm.
+
 | Task | Findings | What |
 |---|---|---|
 | FA2-s | GK-1, GK-4, GK-5, GK-6, GK-7, GK-8, GK-15, RC-6 | The form button searches the right word (88 form and lemma pairs); length rules agree between the tab and the search; the tokenizer; a long input (check `greek-builder.js` too); the insert-at-cursor joins; compatibility letters folded. |
@@ -1680,6 +1682,8 @@ For typed queries, decide separately whether `ἡ`, `ἐξ` and `αὐτοῦ` s
 
 **Confidence** High.
 
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `matchGreek` takes `exactForm`: a form is also looked up among every lemma's forms, after the lemma it spells, and the tab's form button asks that way. A test runs every (lemma, form) pair of the committed text (19,414) and finds each lemma. Typed `ἡ` still takes the lemma alone, pending decision 9.
+
 #### GK-2 · Medium · a11y · NEW
 **Where** `src/scripts/desk/tab-greek.js:86-119` (`sanitizeInto`), used at `:1093` and `:1124`; data in `public/greek/step/`, `lsj/`, `ubs/`.
 
@@ -1697,6 +1701,8 @@ and Strong's number are all marked or in English; what is lost is the quoted Gre
 `[\u0590-\u05FF\uFB1D-\uFB4F]` in `<span lang="he">`. The same for UBS `def`, `glosses` and `comment`.
 
 **Confidence** High on the facts; Medium on how a given screen reader voices it (not tested).
+
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `langRuns` (`desk-greek.mjs`) splits text into Greek, Hebrew and English runs; `sanitizeInto` and the UBS definition, glosses and comment wrap them in `lang` spans. Which voice a screen reader picks is untested.
 
 #### GK-3 · Medium · compat · NEW
 **Where** `src/styles/greek-hebrew-fonts.css:443-520` versus `src/styles/global.css:50-73` and `:2566-2573`.
@@ -1721,6 +1727,8 @@ the way global.css does for the brackets. Confirm with `CSS.getPlatformFontsForN
 
 **Confidence** Medium (code is conclusive; the visible result needs a browser check).
 
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `text-critical-signs.otf` is registered under OpenDyslexic (400 and 700, upright and italic) and Atkinson (200 800, both styles). Not yet checked with `CSS.getPlatformFontsForNode`.
+
 #### GK-4 · Low · usability · NEW
 **Where** `src/lib/greek-search.mjs:181-184` (`longEnoughForGreek`) versus `src/scripts/search-core.js:1379-1385`
 (`couldBeGreek`); message at `src/scripts/desk/greek-find.js:279-283`.
@@ -1737,6 +1745,8 @@ word at a time, or see the search commands." for what already is one word. These
 already does the work), or lower its floor to 2 to match `longEnoughForGreek`, and keep one test that both gates agree.
 
 **Confidence** High.
+
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `couldBeGreek` takes two Latin letters; a test holds it to `longEnoughForGreek`.
 
 #### GK-5 · Low · bug · NEW
 **Where** `src/lib/desk-search.mjs:29` and `:32`; note bodies are not normalized on save (no `normalize` in
@@ -1762,6 +1772,8 @@ and extend `fold` with Hebrew points (U+0591 to U+05C7) and ϲ → σ.
 Related, not a defect at today's sizes: `readRecords()` does a full `getAll()` on every search, and 20,000 notes of about
 600 characters took 1.7 s per query (790 ms for a miss). A typical notebook is far smaller.
 
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** The notebook search's word pattern includes combining marks, and its fold drops Hebrew points and reads ϲ as σ. Both sides still go through the same fold, so NFC and NFD agree.
+
 #### GK-6 · Low · bug · NEW
 **Where** `src/scripts/desk/greek-find.js:413-421`, with `src/scripts/search-core.js:1431-1446` returning null for a failed shard.
 
@@ -1778,6 +1790,8 @@ in the word details always searches exact, so this is the path a reader on a fla
 `searchGreekCommands` already does, and branch on that in `paint`.
 
 **Confidence** High.
+
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `searchGreek` returns `failed` when a word's shard doesn't load, and the tab shows "The verses couldn’t be loaded" with Try again for an exact form too.
 
 #### GK-7 · Low · performance · NEW
 **Where** `src/lib/greek-query.mjs:196` (`PENDING`) and `:242` (the `while` that strips it).
@@ -1801,6 +1815,8 @@ main thread 180 ms after the last keystroke.
 
 **Confidence** High.
 
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `parseGreekQuery` reads at most 300 characters (`MAX_QUERY_LENGTH`); a 100,000-character run now takes under 10 ms. The builder's word field has a `maxLength`; the search bar's own field has none, since the clamp is what protects the parser.
+
 #### GK-8 · Low · usability · NEW
 **Where** `src/lib/greek-commands-ui.mjs:18` and `:30-46` (`insertAtCursor`, `JOINS`).
 
@@ -1815,6 +1831,8 @@ buttons are fine: `"` after a word is a stray quote, but `/` is meant to follow 
 announce "Added: This form only." only when it changed the meaning.
 
 **Confidence** High.
+
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** "=" goes to the front of the word the cursor is in or after.
 
 #### GK-9 · Low · performance · NEW
 **Where** `public/_headers` (no `/greek/*` rule).
@@ -1859,6 +1877,8 @@ a Greek voice. The word details and results are correctly outside the Greek para
 
 **Confidence** Medium (depends on the screen reader).
 
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `lang="grc"` is on each word button, not the paragraph.
+
 #### GK-12 · Low · a11y · NEW
 **Where** `src/scripts/desk/tab-greek.js:106-111` (`sanitizeInto` keeps `abbr[title]`) and the LSJ HTML in `public/greek/lsj/`; `desk.css:4064-4067` styles it as a dotted underline with `cursor: help`.
 
@@ -1871,6 +1891,8 @@ they voice a title at all (WCAG 1.4.13 and 2.1.1 in spirit).
 titles inline), or at least add `tabindex="0"` and show the title on focus.
 
 **Confidence** High on the facts.
+
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** Each lexicon entry that cites sources gets a "Show sources" button that writes the abbreviations' titles out in brackets; the hover remains.
 
 #### GK-13 · Low · docs · NEW
 **Where** `src/scripts/desk/greek-find.js` (no credit drawn); rule 14/15 in `src/scripts/desk/CLAUDE.md` ("every group of
@@ -1885,6 +1907,8 @@ says every place.
 **Fix** Draw `creditHtml(escapeHtml)` (or the same parts) under the hits list, and say in rule 14 whether the tab is exempt.
 
 **Confidence** High.
+
+> **Fixed in FA2-u (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** The tab's results end with the one-line credit, its links in a new tab.
 
 #### GK-14 · Low · longevity · NEW
 **Where** `src/scripts/search-core.js:1254` and `:1272`; `src/scripts/desk/greek-data.js:25-27`; `src/scripts/desk/tab-greek.js:267-289`.
@@ -1901,6 +1925,8 @@ the JSON unchecked; no code reads `format` for a chapter, UBS, STEP or LSJ file.
 
 **Confidence** Medium (reasoned from the code; not provoked in a browser).
 
+> **Fixed in FA2-u (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** A failed desk-search or sheets import is forgotten, so the next call tries again; the tab checks a chapter file's format and says "couldn’t be loaded" with Try again.
+
 #### GK-15 · Low · bug · NEW
 **Where** `src/lib/greek-search.mjs:65-73` (`foldGreek`).
 
@@ -1913,6 +1939,8 @@ the build to check `public/greek/search/` does not change.
 
 **Confidence** High.
 
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `foldGreek` maps ϑ ϕ ϖ ϱ ϰ ϵ to their letters. None occurs in the committed text or index, so `build:greek` output is unchanged (checked, not re-run).
+
 #### GK-16 · Low · a11y · NEW (low confidence)
 **Where** `src/scripts/desk/greek-find.js:276` and `:314`.
 
@@ -1924,6 +1952,8 @@ busy ancestor and do not replay them when the flag clears, which would leave the
 **Fix** Drop `aria-busy` (the status line already says "Searching…"), or set it on the list only.
 
 **Confidence** Low. Confirm with NVDA and JAWS in Firefox and Chrome.
+
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `aria-busy` is gone from the results region.
 
 #### GK-17 · Low · a11y · NEW (low confidence)
 **Where** `src/styles/desk.css:6002-6005`.
@@ -1939,6 +1969,8 @@ background-only and vanishes in forced colors.
 
 **Confidence** Low. Confirm with Chrome's forced-colors emulation.
 
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** The selected word opts out of forcing, as the chosen segment does, and the apparatus row's lit cue is a `Highlight` border. Not yet checked in forced-colors emulation.
+
 #### GK-18 · Low · docs · NEW
 **Where** `src/scripts/desk/tab-greek.js:209` (`NO_WORD`), `src/pages/notebook/help.astro:109-146`; the model in `src/lib/desk-greek.mjs:81-104`.
 
@@ -1952,12 +1984,16 @@ the word buttons are one tab stop.
 
 **Confidence** High.
 
+> **Fixed in FA2-u (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** The tab's line and the help page name Left and Right, Up and Down, Home and End, the one Tab stop and the splitter's keys.
+
 #### GK-19 · Nit · longevity · NEW
 **Where** `src/lib/desk-commands.mjs` (`isCommandQuery`, the `>` prefix) and `src/lib/greek-query.mjs:207` (`isCommandQuery`, Greek).
 
 Two different exported functions share a name and a meaning-by-context; `search-core.js` imports one and `notebook-search.js`
 re-exports the other. Rename one (`isDeskCommandQuery`, `isGreekCommandQuery`) before a third caller imports the wrong one.
 **Confidence** High.
+
+> **Fixed in FA2-u (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** Renamed `isGreekCommandQuery` and `isDeskCommandQuery`.
 
 #### GK-20 · Nit · performance · NEW
 **Where** `src/scripts/desk/greek-data.js:11` and `src/scripts/search-core.js:1451`.
@@ -2298,6 +2334,8 @@ Of the other-auditor claims I tried: 9 CONFIRMED (NB-1 for the H key, NB-2, NB-3
 **Evidence** Attribute dump of all four separators on John 3 with the Greek entry open.
 **Fix** Set `aria-valuenow` and `aria-valuetext` when the entry opens, from the current split.
 **Confidence** High.
+
+> **Fixed in FA2-t (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** The separator is given its value when an entry opens.
 
 #### LV-3 · Low · usability · NEW
 **Where** `src/scripts/desk/record-rows.js` (the fallback line, about `:115-125`: `r.label ?? r.name ?? r.body ?? r.note ?? r.title ?? r.quote?.exact`), shown by `src/scripts/desk/kept-list.js:213` as "Other items" on /notebook/.

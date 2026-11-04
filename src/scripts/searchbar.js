@@ -214,7 +214,7 @@ const _initSearchbars = async () => {
         desk = m;
       });
     }
-    const isCmd = (text) => Boolean(desk && desk.isCommandQuery(text));
+    const isCmd = (text) => Boolean(desk && desk.isDeskCommandQuery(text));
 
     // "My notes" (E11): whether a Greek search lists the reader's matching notes
     // above the Greek (BA40). One checkbox on a line of its own under the status,

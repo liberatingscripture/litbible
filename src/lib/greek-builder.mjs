@@ -20,7 +20,7 @@
 // index (public/greek/search/occ/), so a noun offers no tense and, once
 // "genitive" is chosen, only the numbers and genders the word has in it.
 
-import { FILTERS, MAX_TERMS, codeFits, errorMessage, filterFor, isCommandQuery, parseGreekQuery, resolveGreekQuery } from "./greek-query.mjs";
+import { FILTERS, MAX_TERMS, codeFits, errorMessage, filterFor, isGreekCommandQuery, parseGreekQuery, resolveGreekQuery } from "./greek-query.mjs";
 import { QUERY_AXES } from "./greek-commands-ui.mjs";
 import { OCC_STRIDE } from "./greek-search.mjs";
 
@@ -53,7 +53,7 @@ export function readBuilder(raw) {
   if (!quoted && !/\s/.test(text) && !/[.,/*=~&]/.test(text)) {
     return { cards: [{ words: [text], filters: [] }], gap: 3, anyOrder: false };
   }
-  if (!quoted && !isCommandQuery(text)) return { cannot: "plain" };
+  if (!quoted && !isGreekCommandQuery(text)) return { cannot: "plain" };
   const parsed = parseGreekQuery(text);
   if (parsed.error) return { cannot: "error", error: parsed.error };
   if (parsed.terms.some((t) => t.exact)) return { cannot: "exact" };

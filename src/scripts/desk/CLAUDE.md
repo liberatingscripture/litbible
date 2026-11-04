@@ -570,7 +570,8 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        STEPBible brief glosses in `search/` (BA47). The sources and their
        credits are `src/lib/greek-credits.mjs`: the tab lists `SOURCES`, and
        every group of Greek search results carries `SEARCH_CREDIT` under it
-       (BA46), so a new place that shows Greek results draws it too. **Nothing
+       (BA46; the Greek tab's result list too, GK-13), so a new place that
+       shows Greek results draws it too. **Nothing
        from the LIT goes into `public/greek/`**: the tab's "rendered here
        as…" line reads the page's own `#term-lens-data`, whose terms carry
        their Greek `lemmas` (`term-lens-data.mjs`, from

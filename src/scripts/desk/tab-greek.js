@@ -26,7 +26,7 @@ import { GREEK_LICENSE_HREF, SOURCES } from "../../lib/greek-credits.mjs";
 import { parsingQuery } from "../../lib/greek-commands-ui.mjs";
 import {
   W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, nearestVerse, noteVerseFor, orderSenses,
-  renderingsIn, splitSigns, termsForLemma, versesOf,
+  langRuns, renderingsIn, splitSigns, termsForLemma, versesOf,
 } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import {
@@ -78,6 +78,22 @@ function make(tag, cls, text) {
 }
 
 /**
+ * Text into `into` with the Greek and Hebrew in it marked by `lang`, so a
+ * screen reader voices a quoted word as the language it is (GK-2).
+ */
+function appendLang(into, text) {
+  for (const run of langRuns(text)) {
+    if (!run.lang) {
+      into.append(document.createTextNode(run.text));
+    } else {
+      const s = make("span", null, run.text);
+      s.lang = run.lang;
+      into.append(s);
+    }
+  }
+}
+
+/**
  * Lexicon HTML into `to`, keeping only what the build is meant to leave in it
  * (b, i, br, span.lex-ref and abbr[title]) and dropping the rest, text kept.
  * The build already sanitizes; this is the second lock. A template's content
@@ -89,7 +105,7 @@ function sanitizeInto(to, html) {
   const walk = (from, into) => {
     for (const n of from.childNodes) {
       if (n.nodeType === 3) {
-        into.append(document.createTextNode(n.nodeValue));
+        appendLang(into, n.nodeValue);
       } else if (n.nodeType === 1) {
         const tag = n.tagName;
         if (tag === "SCRIPT" || tag === "STYLE") continue;
@@ -116,6 +132,31 @@ function sanitizeInto(to, html) {
     }
   };
   walk(t.content, to);
+}
+
+/**
+ * A button that writes out the sources a lexicon entry names, which are the
+ * `title` of its abbreviations and so reach only a mouse's hover. Pressed,
+ * each is set in brackets after its abbreviation; pressed again, they go.
+ * Null where the entry cites none (GK-12).
+ */
+function sourcesToggle(body) {
+  if (!body.querySelector("abbr[title]")) return null;
+  const b = make("button", "desk-greek__sources", "Show sources");
+  b.type = "button";
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", String(on));
+    b.textContent = on ? "Hide sources" : "Show sources";
+    body.querySelectorAll(".lex-cite").forEach((c) => c.remove());
+    if (!on) return;
+    for (const a of body.querySelectorAll("abbr[title]")) {
+      const c = make("span", "lex-cite", ` [${a.getAttribute("title")}]`);
+      a.after(c);
+    }
+  });
+  return b;
 }
 
 /** The page's glossary terms, or null (the lens data is absent on some chapters). */
@@ -199,7 +240,7 @@ export function createGreekTab({
   const wordHead = el.querySelector(".desk-greek__word");
   const parseLine = el.querySelector(".desk-greek__parse");
   const closeWord = el.querySelector(".desk-greek__close");
-  const NO_WORD = "Select a word to see its dictionary entry. The arrow keys move between words.";
+  const NO_WORD = "Select a word to see its dictionary entry. Left and Right move between words, Up and Down between verses.";
   const more = el.querySelector(".desk-greek__more");
   const lemmaLine = el.querySelector(".desk-greek__lemma");
   const fromLine = el.querySelector(".desk-greek__from");
@@ -264,6 +305,12 @@ export function createGreekTab({
     loading = loadChapterGreek(here.bookKey, here.chapter)
       .then(
         (d) => {
+          // A file in a format this code doesn't read would throw in build() and
+          // leave "Loading" up for good; say so and offer Try again instead (GK-14).
+          if (d?.format !== 1 || !Array.isArray(d.paragraphs)) {
+            showStatus("The Greek couldn’t be loaded.", true);
+            return false;
+          }
           data = d;
           return true;
         },
@@ -326,8 +373,9 @@ export function createGreekTab({
         const note = BORROWED[range[2]]?.note ?? `Verses ${range[0]}–${range[1]} are not in the SBLGNT text; their source is ${range[2]}.`;
         frag.append(make("p", "desk-greek__borrowed", note));
       }
+      // The language is on each word, not the paragraph: the "Verse" labels and
+      // the signs' names are English and sit among the words (GK-11).
       const p = make("p", "desk-greek__p");
-      p.lang = "grc";
       for (const w of words) {
         const verse = w[W.verse];
         if (verse !== last) {
@@ -340,6 +388,7 @@ export function createGreekTab({
         }
         appendWithSigns(p, w[W.pre], verse);
         const b = make("button", "desk-greek__w", w[W.text]);
+        b.lang = "grc";
         b.type = "button";
         b.tabIndex = -1;
         b.dataset.i = String(i);
@@ -871,6 +920,8 @@ export function createGreekTab({
     const parse = w[W.parse];
     details.scrollTop = 0;
     more.hidden = false;
+    // The separator shows with the entry, and a focusable one carries its value from then (LV-2).
+    requestAnimationFrame(() => writeSplitValue(share ?? measuredShare()));
     const lemmaForm = lemma?.[0];
     // The form, the lemma, the Strong's number and the parsing each start a
     // search of the Greek (BVJ, 2026-10-13; the parsing, 2026-10-14), shown in
@@ -1059,11 +1110,21 @@ export function createGreekTab({
     if (s.code) head.append(make("b", null, s.code));
     if (where) head.append(s.code ? " " : "", where);
     if (head.childNodes.length) li.append(head);
-    if (s.def) li.append(make("p", "desk-greek__def", s.def));
-    if (s.glosses?.length) li.append(make("p", "desk-greek__glosses", s.glosses.join("; ")));
+    if (s.def) {
+      const p = make("p", "desk-greek__def");
+      appendLang(p, s.def);
+      li.append(p);
+    }
+    if (s.glosses?.length) {
+      const p = make("p", "desk-greek__glosses");
+      appendLang(p, s.glosses.join("; "));
+      li.append(p);
+    }
     if (s.comment) {
       const d = make("details", "desk-greek__comment");
-      d.append(make("summary", null, "Comment"), make("p", null, s.comment));
+      const cp = make("p");
+      appendLang(cp, s.comment);
+      d.append(make("summary", null, "Comment"), cp);
       li.append(d);
     }
     return li;
@@ -1086,6 +1147,8 @@ export function createGreekTab({
       box.append(head);
       const body = make("div", "desk-greek__entry-body");
       sanitizeInto(body, e.html);
+      const toggle = sourcesToggle(body);
+      if (toggle) box.append(toggle);
       box.append(body);
       wrap.append(box);
     }
@@ -1117,6 +1180,8 @@ export function createGreekTab({
           entry.append(head);
           const body = make("div", "desk-greek__entry-body");
           sanitizeInto(body, e.html);
+          const toggle = sourcesToggle(body);
+          if (toggle) entry.append(toggle);
           entry.append(body);
           frag.append(entry);
         }

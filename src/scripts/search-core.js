@@ -623,7 +623,7 @@ import {
   codeFits,
   filterFor,
   groupsForFilters,
-  isCommandQuery,
+  isGreekCommandQuery,
   isSimpleQuery,
   matchConstruction,
   parseGreekQuery,
@@ -1251,8 +1251,10 @@ let deskSearchPromise = null;
  */
 export function loadDeskSearch() {
   if (document.documentElement.dataset.desk !== "on") return null;
+  // A failed import is forgotten, so a page left open across a deploy tries again (GK-14).
   deskSearchPromise ||= import("./desk/notebook-search.js").catch((err) => {
     console.error("Study Desk: search couldn't load its part", err);
+    deskSearchPromise = null;
     return null;
   });
   return deskSearchPromise;
@@ -1271,6 +1273,7 @@ export function loadDeskSheets() {
   if (document.documentElement.dataset.desk !== "on") return null;
   deskSheetsPromise ||= import("./desk/search-sheet.js").catch((err) => {
     console.error("Study Desk: search couldn't load its sheets", err);
+    deskSheetsPromise = null;
     return null;
   });
   return deskSheetsPromise;
@@ -1381,7 +1384,7 @@ export function couldBeGreek(raw) {
   if (hasGreek(q) || parseStrong(q)) return true;
   if (q.length < 2) return false;
   const words = q.match(/[\p{L}]+/gu) ?? [];
-  return words.length > 0 && words.length <= 3 && q.length >= 3;
+  return words.length > 0 && words.length <= 3;
 }
 
 let greekBridgePromise = null;
@@ -1465,7 +1468,8 @@ export function loadGreekChapter(base, book, chapter) {
 
 /**
  * Search the Greek. Resolves to
- *   { kind, lemmas, selected, hits, total, form, otherForms }
+ *   { kind, lemmas, selected, hits, total, form, otherForms, failed }
+ * where `failed` is true when the selected word's verses wouldn't load.
  * `lemmas` are the index's lemma items, best first; `selected` is the one
  * whose verses are in `hits` (the only lemma, or `lemmaId`), else null, in
  * which case a surface offers the lemmas to choose from. Each hit is
@@ -1477,7 +1481,7 @@ export function loadGreekChapter(base, book, chapter) {
  * `exactForm` keeps only the form typed (Greek queries only).
  */
 export async function searchGreek(base, raw, { tray = false, near = true, bookKey = "", lemmaId = null, exactForm = false } = {}) {
-  const empty = { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false };
+  const empty = { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false, failed: false };
   if (!couldBeGreek(raw)) return empty;
   const index = await loadGreekIndex(base);
   if (!index) return empty;
@@ -1488,7 +1492,7 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   if (tray) {
     ({ match, lemmas: found } = matchForTray(index, raw));
   } else {
-    match = matchGreek(index, raw, { near, bridge });
+    match = matchGreek(index, raw, { near, bridge, exactForm });
     found = match.lemmas;
   }
   let lemmas = found.map((m) => ({ ...index.lemmas[m.id], how: m.how, lit: m.lit ?? null }));
@@ -1515,6 +1519,8 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   const out = { ...empty, kind: match.kind, lemmas, selected, form: match.form, query: match.query ?? null };
   if (!selected) return out;
   const entry = await loadGreekOccurrences(base, index, selected.id);
+  // A word with occurrences and no entry means its shard didn't load (GK-6).
+  if (!entry && selected.count > 0) out.failed = true;
   const form = exactForm && match.form ? match.form : null;
   out.otherForms = hasOtherForms(entry, match.form);
   // Found by a LIT rendering: only the verses where the LIT renders it so.
@@ -1687,7 +1693,7 @@ function wholeGloss(res) {
  */
 export async function searchGreekAuto(base, raw, options = {}) {
   const q = String(raw ?? "").trim();
-  if (isCommandQuery(q)) {
+  if (isGreekCommandQuery(q)) {
     // First, so a gloss ending in a command word ("be next to") isn't cut short.
     const gloss = plainLatinWords(q) ? await searchGreek(base, q, options) : null;
     if (gloss && wholeGloss(gloss)) return gloss;

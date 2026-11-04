@@ -107,3 +107,12 @@ test("a final sigma typed as σ is read as ς, in the query and in the note (BA4
   assert.deepEqual(parts.filter((p) => p.mark).map((p) => p.text), ["πίστις"]);
   assert.equal(parts.map((p) => p.text).join(""), "Faith is πίστις in Greek");
 });
+
+test("NFD text, Hebrew points and a lunate sigma search like their plain forms (GK-5)", async () => {
+  const { searchTokens } = await import("../src/lib/desk-search.mjs");
+  const nfc = searchTokens("πίστις");
+  assert.deepEqual(searchTokens("πίστις".normalize("NFD")), nfc);
+  assert.deepEqual(searchTokens("λόγοϲ"), searchTokens("λόγος"));
+  assert.deepEqual(searchTokens("naïve".normalize("NFD")), ["naive"]);
+  assert.deepEqual(searchTokens("שָׁלוֹם"), searchTokens("שלום"));
+});

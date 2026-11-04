@@ -27,6 +27,7 @@ import {
   loadGreekIndex,
   searchGreekAuto,
 } from "../search-core.js";
+import { creditHtml } from "../../lib/greek-credits.mjs";
 import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../../lib/greek-search.mjs";
 import { countLine, describeGreekQuery, errorMessage } from "../../lib/greek-query.mjs";
 import { formsLine, verseGreek } from "../../lib/greek-commands-ui.mjs";
@@ -75,7 +76,8 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     <label class="desk-greek__exact" hidden><input type="checkbox" /> <span>Exact form only</span></label>
     <ul class="desk-greek__hits" hidden></ul>
     <button type="button" class="desk-greek__hits-more" hidden>Show more</button>
-    <p class="desk-greek__find-page" hidden><a href="/search/">See these on the search page</a></p>`;
+    <p class="desk-greek__find-page" hidden><a href="/search/">See these on the search page</a></p>
+    <p class="desk-greek__credit" hidden></p>`;
   const backBtn = pane.querySelector(".desk-greek__back");
   const status = pane.querySelector(".desk-greek__find-status");
   const retry = pane.querySelector(".desk-greek__retry");
@@ -88,6 +90,14 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   const hitsMore = pane.querySelector(".desk-greek__hits-more");
   const pageLine = pane.querySelector(".desk-greek__find-page");
   const pageLink = pageLine.querySelector("a");
+  // Every group of Greek results carries the credit (rule 14); the tab's own
+  // "Sources and licenses" is under the text, which results hide (GK-13).
+  const credit = pane.querySelector(".desk-greek__credit");
+  credit.innerHTML = creditHtml(escapeHtml);
+  for (const a of credit.querySelectorAll("a")) {
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  }
 
   let seq = 0; // a newer search cancels an older one
   let query = ""; // what the results on screen are for
@@ -190,6 +200,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     list.replaceChildren();
     hitsMore.hidden = true;
     pageLine.hidden = true;
+    credit.hidden = true;
     retry.hidden = true;
     lemmas = [];
     hits = [];
@@ -208,7 +219,6 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     const my = ++seq;
     if (!raw) return;
     showResults();
-    pane.setAttribute("aria-busy", "true");
     if (!status.textContent) status.textContent = "Searching…";
     try {
       const ask = () => searchGreekAuto(BASE, raw, { lemmaId: state.lemmaId, exactForm: state.exact });
@@ -240,8 +250,6 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     } catch (err) {
       console.warn("[greek tab] search failed", err);
       if (my === seq) say("The Greek search couldn’t be loaded.", { canRetry: true });
-    } finally {
-      if (my === seq) pane.removeAttribute("aria-busy");
     }
   }
 
@@ -309,7 +317,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
 
     if (!res.total) {
       // A word with occurrences and no verses means the shard didn't load.
-      if (sel && sel.count > 0 && !state.exact) {
+      if (res.failed) {
         status.textContent = "The verses couldn’t be loaded.";
         retry.hidden = false;
         return;
@@ -327,6 +335,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
       status.replaceChildren(`${articleLine(versesIn(res.hits))} `, next, ".");
       pageLink.href = searchPageHref(raw);
       pageLine.hidden = false;
+      credit.hidden = false;
       return;
     }
     status.textContent = `${res.total} time${res.total === 1 ? "" : "s"} in the New Testament${state.exact ? ", in this form" : ""}`;
@@ -384,6 +393,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     }
     hitsShown = end;
     hitsMore.hidden = hitsShown >= hits.length;
+    credit.hidden = false;
   }
 
   hitsMore.addEventListener("click", () => {

@@ -52,6 +52,8 @@ export const GREEK_PARSE_FORMAT = 1;
 const GREEK_LETTER = /[Ͱ-Ͽἀ-῿]/;
 const COMBINING = /[̀-ͯ]/g;
 const NOT_GREEK = /[^α-ω]/g;
+/** Letter variants from math keyboards and copied pages: ϑ ϕ ϖ ϱ ϰ ϵ are θ φ π ρ κ ε (GK-15). */
+const COMPAT = { "ϑ": "θ", "ϕ": "φ", "ϖ": "π", "ϱ": "ρ", "ϰ": "κ", "ϵ": "ε" };
 
 /** True when the text has a Greek letter in it. */
 export const hasGreek = (s) => GREEK_LETTER.test(String(s ?? ""));
@@ -69,6 +71,7 @@ export function foldGreek(s) {
     .toLowerCase()
     .replace(/ς/g, "σ")
     .replace(/ϲ/g, "σ")
+    .replace(/[ϑϕϖϱϰϵ]/g, (c) => COMPAT[c])
     .replace(NOT_GREEK, "");
 }
 
@@ -351,8 +354,12 @@ const byCount = (index) => (a, b) =>
  * `bridge` is prepareBridge()'s result, or null to leave the LIT out.
  *
  * Options: `near` (default true) allows near misses, which the tray doesn't.
+ * `exactForm` is for a search that starts from a word on the page (the Greek
+ * tab's form button): the lemma-first rule is about what a reader types, and a
+ * clicked ἡ must not become ἤ, so a Greek form is also looked up among every
+ * lemma's forms, after the lemma it spells (GK-1).
  */
-export function matchGreek(index, raw, { near = true, bridge = null } = {}) {
+export function matchGreek(index, raw, { near = true, bridge = null, exactForm = false } = {}) {
   const none = { kind: null, lemmas: [], form: null };
   const q = String(raw ?? "").trim().replace(/^["“”']+|["“”']+$/g, "");
   if (!index || !q) return none;
@@ -362,7 +369,19 @@ export function matchGreek(index, raw, { near = true, bridge = null } = {}) {
     const form = foldGreek(q);
     if (!form) return none;
     const asLemma = index.byFold.get(form);
-    const ids = asLemma ?? index.byForm.get(form) ?? [];
+    const asForm = index.byForm.get(form) ?? [];
+    if (asLemma && exactForm) {
+      const others = asForm.filter((id) => !asLemma.includes(id));
+      return {
+        kind: "greek",
+        form,
+        lemmas: [
+          ...asLemma.map((id) => ({ id, how: "lemma" })).sort(byCount(index)),
+          ...others.map((id) => ({ id, how: "form" })).sort(byCount(index)),
+        ],
+      };
+    }
+    const ids = asLemma ?? asForm;
     const how = asLemma ? "lemma" : "form";
     return {
       kind: "greek",
