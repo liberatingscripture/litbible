@@ -35,6 +35,12 @@ export const CLOSE_AFTER_MS = 10_000;
 let clock = 0;
 let held = false; // the pointer is over the bar, or focus is in it
 
+/** The modifier the reader presses: ⌘ on a Mac, Ctrl elsewhere. For labels and the spoken notice. */
+export function undoModifier() {
+  const platform = navigator.userAgentData?.platform || navigator.platform || "";
+  return /mac/i.test(platform) ? "⌘" : "Ctrl";
+}
+
 /** Start the closing time again for whichever notice is showing. */
 function startClock() {
   clearTimeout(clock);
@@ -154,7 +160,10 @@ export function showUndo(message, onAction, { label = "Undo" } = {}) {
   });
   text.textContent = message;
   bar.hidden = false;
-  announce(message);
+  // The bar is the last thing in the page, out of a keyboard reader's reach
+  // in ten seconds, so what is spoken names the key that is (NB-5).
+  const mod = undoModifier();
+  announce(label === "Undo" ? `${message} Press ${mod === "Ctrl" ? "Ctrl+Z" : "⌘Z"} to undo.` : message);
   startClock();
   return mine;
 }

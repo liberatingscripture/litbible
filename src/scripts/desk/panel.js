@@ -130,7 +130,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const mineScope = here
     ? {
         label: here.label,
-        empty: `Nothing kept for ${here.label} yet.`,
+        empty: inReadView
+          ? `Nothing kept for ${here.label} yet. Select some words, then choose “Bookmark” or “Highlight.”`
+          : `Nothing kept for ${here.label} yet. Select a verse number, then choose “Add a note,” “Bookmark,” or “Highlight.”`,
         load: async (st) => forChapter(await st.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter),
       }
     : prose
@@ -154,7 +156,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // The Settings tab's content (BVJ, 2026-10-29): the settings, print buttons
   // and links that were the foot of My Notes.
   const settingsEl = document.createElement("div");
-  settingsEl.className = "desk-panel__settings";
+  settingsEl.className = "desk-panel__settings-tab";
   settingsEl.innerHTML = `
     <div class="desk-panel__settings-slot"></div>
     <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
@@ -412,6 +414,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       if (on && focus) b.focus();
     }
     for (const [tid, t] of tabs) t.body.hidden = tid !== id;
+    if (id === "settings") renderPersistence();
     if (remember) {
       try { localStorage.setItem(TAB_KEY, id); } catch (_) {}
     }
@@ -640,6 +643,23 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     selectTab(id, { focus, remember });
     return true;
   }
+
+  // A way in for a keyboard reader (NB-4; BVJ, 2026-11-04: a skip link). The
+  // panel comes after the footer in the page, so this sits beside "Skip to
+  // content", visible only while focused, and opens, expands and focuses it.
+  const skipToNotebook = document.createElement("a");
+  skipToNotebook.href = "#deskPanel";
+  skipToNotebook.className = "skip-link";
+  skipToNotebook.textContent = "Skip to the Notebook";
+  skipToNotebook.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (panel.hidden) open(skipToNotebook);
+    else if (rail.state().collapsed) expand();
+    else panel.focus({ preventScroll: true });
+  });
+  const firstSkip = document.querySelector("a.skip-link");
+  if (firstSkip) firstSkip.after(skipToNotebook);
+  else document.body.prepend(skipToNotebook);
 
   return {
     open,

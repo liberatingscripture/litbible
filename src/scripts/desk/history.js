@@ -67,11 +67,9 @@ function leaveToBrowser(target) {
   );
 }
 
-/** The modifier the reader presses: ⌘ on a Mac, Ctrl elsewhere. For labels. */
-export function undoModifier() {
-  const platform = navigator.userAgentData?.platform || navigator.platform || "";
-  return /mac/i.test(platform) ? "⌘" : "Ctrl";
-}
+// The modifier the reader presses (⌘ or Ctrl) lives in undo-bar.js, which
+// speaks it in the announcement; it is re-exported here for the labels.
+export { undoModifier } from "./undo-bar.js";
 
 let active = null;
 
