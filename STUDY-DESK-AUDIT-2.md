@@ -26,7 +26,7 @@ or scripts. Audit 1's fixes that were re-checked all held, and none was reopened
 
 The risks are concentrated in five places:
 
-1. **One security hole to close before anyone else gets the desk.** A backup file, written in a
+1. **One security hole to close before anyone else gets the desk (closed by #446).** A backup file, written in a
    newer format, can make the desk fetch an attacker's page and import its HTML into the live
    page (SEC-1). It is the same class as Audit 1's BA66, through a field BA66 did not cover.
 2. **The reader's own work can be lost or misplaced silently.** A note being typed is thrown
@@ -176,23 +176,178 @@ Collected from the appendices, de-duplicated. The first six block work.
     Should a smaller layout offer undo before closing panes? (DK Qs, DK-9.)
 13. Should real-browser tests (Playwright) be a launch gate? (LG Q4.)
 
-## Suggested phases
+## Status on main
 
-Each is meant as one session's work, in the order that spends the least for the most.
+Re-checked on 2026-11-03 against `main` at `9cc05f24`, because the audit ran on a snapshot 20 PRs
+behind (#426 to #445 landed since; #446 and #447 after). Six agents read every finding against
+the diff of those commits. Result: **96 still valid, 2 fixed, 2 moot, 10 changed, 1 unverified.**
+A finding not named below is still valid as written (line numbers may have moved; use the symbol).
 
-| Phase | Findings | Notes |
+| ID | Status | What happened |
 |---|---|---|
-| FA2-a Security | SEC-1, SEC-2, SEC-3, SEC-6, SEC-4, SEC-5 (copy) | Add the tests the report names; the CSP header is a decision (item 5). |
-| FA2-b The note editor and Hide | NB-2, DI-6, NB-1, NB-15, LV-1, NB-18 | Needs decisions 1 and 2. |
-| FA2-c Phase 5 follow-through | NB-3, NB-4, NB-5, NB-6 with CP-1, NB-7, NB-8, NB-9, CP-2, CP-3 (copy), CP-5 | Needs decision 3. Mostly strings and one CSS row. |
-| FA2-d Anchoring spec v3 (with BDR) | DI-1, DI-2 | Vectors, version bump, a note in STUDY-DESK.md "One notebook, three homes". Add the reword fuzz as a test. |
-| FA2-e Merge, import, store | DI-3, DI-4, DI-7, DI-8, DI-10, DI-12, DI-9, DI-5, DI-11, SEC-6 | Add `merge-sim.mjs` as a property test; also with BDR. |
-| FA2-f Focus and announcements | DK-3, DK-4, DK-2, DK-14, GK-16, NB-10, NB-16, DK-13, LV-2, DK-6, GK-17, DK-7, DK-16 | One focus helper; then verify with NVDA, VoiceOver and forced-colors emulation. |
-| FA2-g Sheets and /desk | DK-1, DK-8, DK-9, DK-10, DK-11, DK-12, LV-3 | DK-1 is the one that matters. |
-| FA2-h Greek | GK-1, GK-4 to GK-8, GK-15, GK-2, GK-3, GK-9, GK-11 to GK-14 | GK-1 first (a test over the committed data). |
-| FA2-i Launch readiness and tests | LG-1, LG-3, LG-5, LG-7, LG-8, LG-2, LG-4, LG-6, LG-9 to LG-12 | The checklist is Appendix F. Needs decision 6. |
-| FA2-j Copy pass | CP-4, CP-6 to CP-18 and the terminology decisions | Every finding gives the replacement string. |
-| FA2-k Performance | DK-5, DK-15, GK-10, GK-20, LG-10 | Measure first in a browser. |
+| SEC-1 | Fixed | #446: `chapterPath` and `isChapterAddress` guard every address built from a stored `bookKey`. No other path to an off-site address was found. The hardening items beside it are open (tasks c, h, n). |
+| CP-2 | Fixed | #434 (Bookmarks): the ribbon paragraph and the Places and ribbons help section are gone. |
+| CP-12 | Moot | #434 deleted `places.js` and `desk-places.mjs`. |
+| LV-5 | Moot | #437 rebuilt the /desk header; `desk-ws__layout` is gone. |
+| NB-6, CP-1 | Changed | #441 removed the "×" wording and the "Reset widths" step. "The foot of the panel" is still wrong at `desk-first-use.mjs:260`, `help.astro:53`, `notebook-page.js:130`. |
+| NB-7 | Changed | The help page has a Bookmarks section and Ctrl+Z now. Still nothing on making notes or highlights, the tabs and Settings, or Hide my marks. |
+| DI-4, CP-3 | Changed | #443 added a Trash you can restore from. The import summary still says "yours are newer" and does not point to it (`desk-export.mjs:795`); the trash copy still says "only a marker" and has no undo note. |
+| DI-10 | Changed | Restore refuses a live id and runs `planWrite`, which blocks the audit's scenario. Open: the `deletedId` mismatch check, trash validation on import, `store.undo` skipping `planWrite`. |
+| DK-13 | Changed | The Print case is gone (#436). The Layout window case remains. |
+| LV-1 | Changed | The tour-end focus loss is fixed (#441). The Escape-in-note-editor loss remains. |
+| CP-16 | Changed | The ribbon limit is gone; "six bookmarks" is still typed at `help.astro:101` (the limit is `MAX_FOLLOWING = 6`, `desk-bookmarks.mjs:42`). |
+| LG-15 | Partly wrong | `TOUR_LINK` is used now. `sameLabelName` and two CSS classes (`desk.css:2604,2631`) are still dead. The four search exports were never dead: `searchbar.js` and `search.js` call them through `desk.x`, which the audit's graph script missed. |
+| NB-14 | Unverified | Contrast ratios were not recomputed; nothing suggests the tints or numerals changed. |
+| SEC-2 | Worse | #429 (E23) lengthened `QUALIFIER_BEHIND`: a 200 KB note now takes about 8.8 s, up from 2.0 s. A fix must cover the longest E23 phrase. |
+| LG-12 | Worse | Root `CLAUDE.md` is 40,410 bytes against the 40,960 limit, so about 550 bytes of room. |
+| LG-2 | Narrowed | `privacy.astro` now lists `lit-desk-follow`, `lit-desk-page-tour` and `lit-desk-greek-notes`; it still omits persist, `lastExport`, BroadcastChannel and `history.state`. |
+| DK-5, DK-6 | Caveats | DK-5: the notes pane and the highlight and verse-label watchers now filter `place` and `bookmarkMove`, but `lit-records.js` and My Notes still subscribe to every write. DK-6: Stay here has a lock glyph (#431), so it is no longer color-only; the Search pane's chosen states still have no forced-colors rule. |
+
+**New problems seen in the changed code** (found in passing, not hunted for; IDs `RC` for
+"re-check"). Each is placed in a task below.
+
+| ID | Where | What |
+|---|---|---|
+| RC-1 | `desk-records.mjs:228` | E12's Restore returns a newer-schema held record untouched, and `planWrite` does not check it (`validateRecord` stops at `canEdit`), so a record from an imported backup reaches the live set unchecked. #446's sink guards keep it from steering a fetch. |
+| RC-2 | `desk-layout.mjs:281` | The new Reading arrangement closes every other pane with only "Layout: Reading." (DK-9's silent close, in a new place). |
+| RC-3 | `desk-first-use.mjs:135` | The comment says the widths guidance is "in the help page"; `help.astro` has none, so it has no home. |
+| RC-4 | `actions.js:322, 324` | A third wording for removing a highlight ("Highlight removed from X."), and the bar ("X highlighted yellow.") differs from the announcement (`desk-announce.mjs:24`, "Highlighted yellow: X.") for one event. CP-14 cites `desk-announce.mjs:186`, which does not exist; use the function name. |
+| RC-5 | `test/desk-greek-notes.test.js:7` | Repeats LG-8's self-compare test, so `lit-desk-greek-notes` is protected only by hand. |
+| RC-6 | `greek-builder.js` | #444's builder was not audited. It writes into the same search field, so GK-7 (a very long input) probably applies. |
+| RC-7 | `desk-page.js:395, 489` | The Layout and Print windows are `role="dialog"` but not modal and have no focus trap; Escape works only while focus is inside (DK-13's pattern). |
+
+## Work sessions
+
+Proposed by Claude, 2026-11-03: a grouping of the open findings into tasks (**FA2-a** to
+**FA2-z**) and the tasks into 11 sessions, not a decision. This replaces the earlier "Suggested
+phases" (FA2-a to FA2-k), which the re-check made partly stale. Fixed and moot findings are left
+out. Every other finding is in exactly one task.
+
+**How the sessions were cut.** By the files they touch, so two sessions that run side by side do
+not edit the same code; by the decisions that block them; and by whether the apps (BDR) must agree.
+`desk-page.js` is touched by sessions 4 and 7; `panel.js` by 2 and 5; `store.js` by 6 and 9;
+`search-core.js` by 8 and 9; `desk.css` by almost all of them (different regions; merge in
+session order). Those pairs run one after the other.
+
+**Order.**
+- **Wave 1** (nothing here waits on another session): 2, 3, 4, then 1 and 8. Sessions 2, 3 and 4
+  hold the Tier 1 items (NB-2, DI-1, DK-1); run those first. Sessions 1 and 8 are independent of
+  everything and can run beside them.
+- **Wave 2:** 5 (after 2), 6 (after 3), 7 (after 4).
+- **Wave 3:** 9 (after 6 and 8), 10 (after 5 and 7), 11 (last, measure first).
+
+How many run at once is BVJ's call; one at a time in the order 2, 3, 4, 1, 5, 6, 7, 8, 9, 10, 11
+loses nothing.
+
+### Session 1: Security residue
+
+Independent. SEC-1 is done (#446). Needs decision 5 only for FA2-c.
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-a | SEC-2 | Bound the `QUALIFIER_BEHIND` lookbehind in `scripture-refs.mjs` (shared by every reader, so run the rendered-output diff before and after, and cover E23's longest phrase). Add the tests the report names. |
+| FA2-b | SEC-3, SEC-4, SEC-5 | Outside links in a sheet get `noopener noreferrer` and a new tab (`external-links.mjs`, `desk-sheet-format.mjs`); `?print=notes` needs a gesture and honors Hide my marks (`print-link.js`, `print-notes.js`); the Share dialog stops saying the link "never passes through a server" (`sheet-page.js`). |
+| FA2-c | SEC Q1 | Enforce `connect-src 'self'` and `img-src 'self' data:` on `/desk/*`, `/sheets/*`, `/notebook/*` (`public/_headers`). **Blocked on decision 5.** Edits the same file as FA2-u. |
+
+### Session 2: A note is never lost (Tier 1)
+
+Independent of everything else; session 5 builds on it. **Needs decisions 1 and 2.**
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-d | NB-2, DI-6, LV-1 | Guard `closePanel` and `showPanel` while a `stay` panel `changed()`; ask once; keep a `sessionStorage` draft; `beforeunload` while it holds words; return focus when the editor closes on Escape. Files: `note-editor.js`, `lit-panel.js`, `chapter-tools.js`. |
+| FA2-e | NB-1, NB-15, NB-18 | Hide my marks minimizes instead of closing, or reopens on un-hide, and one visible reopen control stays (`panel.js`, `margin.js`, `SiteHeader.astro`); the Escape and undo wording and `aria-keyshortcuts` follow (`note-editor.js`, `actions.js`, `note-settings.js`). Retest the second Escape handler the Print menu added (`panel.js` near 500 to 535). |
+
+### Session 3: Anchoring spec v3 (Tier 1, with BDR)
+
+Independent. **Needs decision 4 and BDR's agreement**; the change is to the spec the apps copy.
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-f | DI-1 | Require the context floor for a single remaining occurrence too (`bestByContext` in `anchor-core.mjs`); for a `moved` across verses require both sides or raise a notice. Bump `ANCHOR_SPEC_VERSION` to 3, regenerate `test/fixtures/anchor-vectors.json` (`npm run build:anchor-vectors`), add the reword fuzz as a test, note it in STUDY-DESK.md "One notebook, three homes". |
+| FA2-g | DI-2 | A typography-only change beside a mark must not drop it to the whole verse (`anchor-core.mjs`, `desk-change.mjs`). Same version bump, same vectors. |
+
+### Session 4: Sheets and /desk (Tier 1)
+
+Independent. Runs before session 7 (both edit `desk-page.js` and `sheet-pane.js`).
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-h | DK-1, plus SEC-1's second lock | A way for a keyboard-only reader to blank any word on a sheet (a word cursor, or a "choose words" mode with a button per word), in `sheet-lit.js`. In the same file, strip `img`, `script` and `on*` from imported chapter blocks before `importNode` (line 189). |
+| FA2-i | DK-8 to DK-12, LV-3, RC-2 | Separator drag and keys; the silent close in `applyArrangement` and the new Reading arrangement (an announcement naming what closed, or undo before closing; decision 12); the fill-pane overflow; the second-tab layout write-back; the missing print rules for `.desk-ws`; the fallback row line. |
+
+### Session 5: The Notebook panel follow-through
+
+After session 2 (shares `panel.js`). **Needs decision 3** (FA2-k) and **decision 10** (NB-14).
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-j | NB-3, NB-8, NB-11, NB-13, NB-17 | Four tabs fit the 280 to 350 px panel (`flex-wrap`, tighter padding or shorter labels, or a gear button; add the `data-font` allowance), plus the CSS and small layout items. Mostly `desk.css` and `panel.js`. |
+| FA2-k | NB-4, NB-5, NB-9, NB-14 | An early keyboard route to the Notebook (a skip link, a toggle, or a key; decision 3); the undo bar placed where Tab reaches it, and an announcement that mentions Ctrl+Z; the persistence line on every tab; the highlight-tint contrast (decision 10). |
+| FA2-l | NB-6, CP-1, NB-7, CP-3, CP-5, RC-3 | Finish what #441 started: fix "the foot of the panel" in three places; write the missing help sections (making notes and highlights, the tabs and Settings, Hide my marks, widths); the trash copy ("only a marker", the undo note); empty states that say how to start. |
+
+### Session 6: Merge, import, store, trash (with BDR)
+
+After session 3, so BDR gets one note covering both spec changes. **Needs decisions 5 (SEC Q2) and 7.**
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-m | DI-3, DI-7, DI-8, DI-12 | The shared record rules: converge on a trash record's words, keep labels when joining highlights and unknown fields when splitting, a clock clamp that survives skew, an `exported` time with an offset. New merge vectors; add `merge-sim.mjs` as a property test. |
+| FA2-n | DI-4, DI-10, RC-1, SEC-6, NB-19 | Backup and trash safety: the import summary points to the Trash; check a trash record's held record (`deletedId`, fields) on import and in Restore, and run `planWrite` in `store.undo`; check the fields of a record `canEdit` refuses (decision 5, SEC Q2); size limits on a file's contents; "Saved <file>." only after the save happens. |
+| FA2-o | DI-5, DI-9, DI-11, NB-12 | `store.js`: ask for persistent storage more than once; one transaction for each read-then-write; a version-aware upgrade handler (before the first `DB_VERSION` bump); the open-failure path. |
+
+### Session 7: Focus, announcements, forced colors
+
+After session 4 (shares `desk-page.js` and `sheet-pane.js`). Ends with a check by hand.
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-p | DK-3, DK-4, NB-16, DK-13, RC-7 | One shared "restore focus after `replaceChildren`" helper, used by the sheet list, the Search pane, Pin and Unpin, and the Layout window; give the Layout and Print windows a trap or make them modal. |
+| FA2-q | DK-2, DK-7, DK-14, DK-16, NB-10 | Live regions that probably never announce (the Search pane's status), the chatty autosave status, landmark inflation (the pane's accessible name got longer in #437), the present-mode clock, the destructive buttons' labels. |
+| FA2-r | DK-6 | A forced-colors rule for the Search pane's choices and the Bible order toggle. Verify with emulation. |
+
+**By hand, once, after this session:** NVDA, JAWS or VoiceOver on the desk (the audit never used
+one; see "Not covered") and forced-colors emulation. Claude cannot do this; BVJ or a tester can.
+
+### Session 8: Greek
+
+Independent; can run beside any other session. Do GK-1 first, with a test over the committed data.
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-s | GK-1, GK-4, GK-5, GK-6, GK-7, GK-8, GK-15, RC-6 | The form button searches the right word (88 form and lemma pairs); length rules agree between the tab and the search; the tokenizer; a long input (check `greek-builder.js` too); the insert-at-cursor joins; compatibility letters folded. |
+| FA2-t | GK-2, GK-3, GK-11, GK-12, GK-16, GK-17, LV-2 | `lang` on the Greek and Hebrew inside lexicon entries (about 1.9 million and 32,000 characters); a patch for the text-critical signs under Atkinson and OpenDyslexic; the live-region and forced-colors items; the splitter's value. |
+| FA2-u | GK-9, GK-13, GK-14, GK-18, GK-19 | A cache rule for `/greek/*` (decision 9); the credit line; the cached null in `search-core.js:1254`; the `NO_WORD` copy; the `>` prefix. Edits `public/_headers` along with FA2-c. |
+
+### Session 9: Launch readiness and tests
+
+After sessions 6 and 8 (`store.js`, `search-core.js`). **Needs decisions 6, 11 and 13.**
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-v | LG-1, LG-8, LG-14, RC-5 | Test the real `store.js` against `fake-indexeddb`; add a Playwright smoke test; replace the self-compare tests (including `desk-greek-notes.test.js:7`) with real ones; drop the wall-clock test. |
+| FA2-w | LG-2, LG-3, LG-4, LG-5, LG-6, LV-4, LG-7 | `/privacy` lists persist, `lastExport`, BroadcastChannel and `history.state`; the launch checklist (Appendix F) done and `?desk=off` made to survive; a plan for the 12 `document.execCommand` calls; do not offer Highlight where the Custom Highlight API is missing; do not ship the Greek search engine in every page's bundle until launch; the `:has()` rule split from its list. |
+| FA2-x | LG-9, LG-11, LG-12, LG-15 | Greek build header and licence text; the doc contradictions; make room in root `CLAUDE.md` (about 550 bytes left) by moving text to an area file, not by raising the limit; delete `sameLabelName` and the two dead CSS classes. |
+
+### Session 10: Copy pass
+
+After sessions 5 and 7, which edit the same strings. **Needs decision 11** (terminology).
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-y | CP-4, CP-6, CP-7, CP-8, CP-9, CP-10, CP-11, CP-13, CP-14, CP-15, CP-16, CP-17, CP-18, RC-4 | Every finding gives its replacement string. One name for the feature; Delete versus Remove; "my desk" versus "my notebook"; one wording each for highlighting and for removing a highlight, on the bar and in the announcement (name the function, not the line); `help.astro:101`'s "six bookmarks" read from the constant; validator text out of "Open a copy". |
+
+### Session 11: Performance
+
+Last; measure in a browser first and fix only what the numbers justify.
+
+| Task | Findings | What |
+|---|---|---|
+| FA2-z | DK-5, DK-15, GK-10, GK-20, LG-10, LG-13 | Filter the remaining subscriptions (`lit-records.js`, My Notes); the LIT pane's fill; the Greek tab's arrow keys; one Greek data cache; the desk bundle a reader on a chapter pays for; the 3,397-function complexity map. |
+
+Not in any session: the unaudited surfaces ("Not covered by this audit"), the apps' side of the
+shared format, and decisions 8 (tombstones kept forever) and 12 (Duplicate sheet; Search easier to
+find), which have no code until BVJ answers.
 
 ## What the orchestrator checked personally
 
@@ -285,6 +440,8 @@ Counts: **Critical 1, High 0, Medium 1, Low 4, Nit 0** (6 findings).
 ### Findings
 
 #### SEC-1 · Critical · security · NEW (an unfixed path of the BA66 class)
+
+> **Status (2026-11-03, main `9cc05f24`):** Fixed by #446. The sink guard is complete; the four hardening items under it are open (FA2-c, FA2-h, FA2-n).
 
 > **Checked by the orchestrator:** the code chain was read end to end (`desk-records.mjs:305`, `chapter-page.js:26` and `:122`, `sheet-lit.js:123` and `:189`, `sheet-copy.js:105`) and the agent’s repro re-run: the record is stored and resolves off-site. No guard exists between the stored module and the fetch, and the enforced CSP (`public/_headers:15`) does not restrict scripts or connections. The imported handler running in a browser was not tried.
 
@@ -2122,6 +2279,8 @@ Of the other-auditor claims I tried: 9 CONFIRMED (NB-1 for the H key, NB-2, NB-3
 **Confidence** Low on production size; High on the dev request list.
 
 #### LV-5 · Nit · longevity · NEW
+
+> **Status (2026-11-03, main `9cc05f24`):** Moot: #437 rebuilt the /desk header.
 **Where** the /desk header (`src/scripts/desk/desk-page.js`): the Print button and the Layout button both carry the class `desk-ws__layout`.
 **What happens** `document.querySelector(".desk-ws__layout")` returns the Print button, so any CSS, test or script meant for the Layout menu also reaches Print (it cost me a wrong click). Harmless today.
 **Fix** Give Print its own class (`desk-ws__print`) and keep `desk-ws__layout` for Layout alone.
@@ -2237,6 +2396,8 @@ foot of My Notes into the Settings tab, and the tour/help still teach the old la
 **Confidence**: High.
 
 #### CP-2 · Medium · docs · NEW
+
+> **Status (2026-11-03, main `9cc05f24`):** Fixed by #434 (Bookmarks).
 
 **Where**: `src/pages/notebook/help.astro:94-95` (compare `src/lib/desk-first-use.mjs:207`, the tour's ribbon step).
 
@@ -2477,6 +2638,8 @@ for you" on one page (`notebook-page.js:104`, `whats-new.js:120`).
 **Confidence**: High.
 
 #### CP-12 · Low · a11y · NEW
+
+> **Status (2026-11-03, main `9cc05f24`):** Moot: #434 deleted `places.js` and `desk-places.mjs`.
 
 **Where**: `src/scripts/desk/places.js:73` (`document.createElement("h3")`), `src/scripts/desk/notebook-page.js:159-162`.
 
