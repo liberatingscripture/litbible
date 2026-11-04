@@ -669,7 +669,7 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        `longEnoughForGreek` in `greek-search.mjs`, decides it everywhere the
        tab starts a search. A search that settles on the article (ὁ, not an
        exact form) answers with a line and a search beside a word (“ὁ, θεός”)
-       instead of its list, a recommendation awaiting BVJ's confirmation.
+       instead of its list (confirmed, BVJ, 2026-11-03).
   16. **Phase 2a's small pieces read, never write** (built 2026-10-15;
      STUDY-DESK.md, "Order of work", 2a): B3 and N4 add no kind of record,
      so each can be taken out cleanly (M10 was, the same day: BVJ shelved

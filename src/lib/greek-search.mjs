@@ -197,8 +197,8 @@ export const GREEK_VERSES = 7942;
 
 /**
  * What a search for the article alone says instead of listing it: it is in
- * nearly every verse, so it is studied beside a word (BA110; a recommendation
- * awaiting BVJ's confirmation).
+ * nearly every verse, so it is studied beside a word (BA110; confirmed by
+ * BVJ, 2026-11-03).
  */
 export function articleLine(verses) {
   const n = (x) => x.toLocaleString("en-US");

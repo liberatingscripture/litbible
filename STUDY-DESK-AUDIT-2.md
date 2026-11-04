@@ -171,8 +171,8 @@ Collected from the appendices, de-duplicated. The first six block work.
    is also another word's headword offer both? Is the article answer confirmed? Is a day of
    `max-age` acceptable for `/greek/*`? Has STEP confirmed no ShareAlike behind its shards?
    (GK Qs 1 to 5.) **Decided (BVJ, 2026-11-03):** a typed form that could be several words asks
-   which (no breathing-mark rule, which couldn't be made consistent); a day of `max-age`. Still
-   open: the article answer, and STEP's provenance.
+   which (no breathing-mark rule, which couldn't be made consistent); a day of `max-age`. The article
+   answer is confirmed too. Still open: STEP's provenance.
 10. Highlight tints are 1.05 to 1.23:1 against the cream page in light mode. Is that strength
     intended? (NB Q1.)
 11. Terminology (CP-11, CP-7, CP-8): one name for the feature ("Study Desk"), Delete versus
@@ -2020,7 +2020,7 @@ Share one loader. **Confidence** High.
 ### Questions for the owner
 
 1. **Typed `ἡ`, `ἐξ`, `αὐτοῦ`:** the rule "a lemma typed directly finds that lemma alone" gives ἤ (or), ἕξ (six) and a four-hit adverb. Should a typed form that is *also* another word's headword offer both (a choice box, as ὦ/Ὦ does)? GK-1's fix for the tab does not depend on the answer.
-2. **The article answer** ("ὁ is in 6,966 of 7,942 verses. To study it, search it beside a word: ὁ, θεός") is still marked "a recommendation awaiting BVJ's confirmation" in `greek-search.mjs:193-195` and rule 15. Confirmed?
+2. **The article answer** ("ὁ is in 6,966 of 7,942 verses. To study it, search it beside a word: ὁ, θεός") was marked "a recommendation awaiting BVJ's confirmation" in `greek-search.mjs:193-195` and rule 15. **Confirmed (BVJ, 2026-11-03).**
 3. **Credit in the tab's own results (GK-13):** is the tab's foot-of-text credit enough, or should its results carry the one-line credit like every other surface?
 4. **Lexicon provenance:** STEP's headers say the full lexicon is "edited from the Full LSJ" and the brief one is "based on Abbott-Smith", and the TFLSJ header on disk still mentions Bill Mounce's Teknia dictionary for fill-ins. `LICENSE.txt` treats both as plain CC BY 4.0. Has STEP/Tyndale House confirmed no ShareAlike or restricted upstream sits behind the shards? (I could not check this.)
 5. **Caching (GK-9):** is a day of `max-age` acceptable for `/greek/*` given `build:greek` is manual, or would you rather keep revalidation?
