@@ -340,8 +340,8 @@ test("locateBlank: a blank whose words moved within the passage still prints", (
   const blank = blankFromOffsets(chapter, start, end, { id: "b" });
   const moved = assembleChapter(
     new Map([
-      [6, "Sin is a mark from the way."],
-      [7, "People who miss it are sinners."],
+      [6, "Sin is a deviation from the way. People who miss the mark"],
+      [7, "are sinners."],
       [8, V8],
     ]),
   );

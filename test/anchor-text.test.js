@@ -144,3 +144,33 @@ test("resolveAnchor, rule e: a changed region longer than twice the quote plus C
   assert.equal(resolveAnchor(long, a).status, "verse");
   assert.equal(resolveAnchor(fits, a).status, "changed");
 });
+
+test("spec 3: rewording one word of a mark seldom lands it silently on other words (audit DI-1)", () => {
+  // Every 3-word mark in three chapters; the middle word is replaced. The mark
+  // may be found again, flagged, or fall to its verse, but a `found` or
+  // `moved` on a different stretch of words must be rare. Audit 2 measured
+  // 6.7% for this shape before spec 3.
+  let trials = 0;
+  let silentWrong = 0;
+  for (const slug of ["john-3", "romans-8", "colossians-3"]) {
+    const paragraphs = JSON.parse(
+      readFileSync(new URL(`../src/data/chapters/${slug}.json`, import.meta.url), "utf8"),
+    ).paragraphs;
+    const chapter = chapterAnchorText(paragraphs);
+    for (const [, [vs, ve]] of chapter.spans) {
+      const words = [...chapter.text.slice(vs, ve).matchAll(/\S+/g)];
+      for (let i = 0; i + 2 < words.length; i++) {
+        const start = vs + words[i].index;
+        const end = vs + words[i + 2].index + words[i + 2][0].length;
+        const anchor = makeAnchor(chapter, start, end);
+        const mid = words[i + 1];
+        const exact = chapter.text.slice(start, vs + mid.index) + "zzqx" + chapter.text.slice(vs + mid.index + mid[0].length, end);
+        const r = resolveAnchor(chapter, { ...anchor, exact });
+        trials++;
+        if ((r.status === "found" || r.status === "moved") && chapter.text.slice(r.start, r.end) !== exact) silentWrong++;
+      }
+    }
+  }
+  assert.ok(trials > 500, `trials: ${trials}`);
+  assert.ok(silentWrong / trials < 0.02, `${silentWrong} of ${trials}`);
+});

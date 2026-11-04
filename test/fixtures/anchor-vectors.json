@@ -1,6 +1,6 @@
 {
  "spec": "STUDY-DESK-FORMAT.md",
- "specVersion": 2,
+ "specVersion": 3,
  "contextLength": 32,
  "minContext": 8,
  "changedGrowth": 16,
@@ -1285,6 +1285,110 @@
     "text": "see",
     "start": 4485,
     "end": 4488
+   }
+  },
+  {
+   "why": "v3, typography: a mark made on straight quotes and hyphens still finds its words in today's curly text (audit DI-2)",
+   "madeOn": "matthew-20 at 63aa937^",
+   "chapter": "matthew-20",
+   "anchor": {
+    "verse": 7,
+    "endVerse": 7,
+    "exact": "Because no one hired us",
+    "prefix": "ng here all day without work?' '",
+    "suffix": ",' they answered. \"'You go to th"
+   },
+   "expected": {
+    "status": "found",
+    "text": "Because no one hired us",
+    "start": 644,
+    "end": 667
+   }
+  },
+  {
+   "why": "v3, typography: the quote itself carries the curly quotes; the stored copy is straight",
+   "madeOn": "matthew-20 at 63aa937^",
+   "chapter": "matthew-20",
+   "anchor": {
+    "verse": 7,
+    "endVerse": 7,
+    "exact": "\"'You go to the vineyard",
+    "prefix": "o one hired us,' they answered. ",
+    "suffix": " too,' he told them. \"At the end"
+   },
+   "expected": {
+    "status": "changed",
+    "text": "‘You go to the vineyard",
+    "start": 685,
+    "end": 708
+   }
+  },
+  {
+   "why": "v3, floor: words that occur once, in the right verse, but whose stored context no longer agrees, are not taken blind (audit DI-1)",
+   "chapter": "john-3",
+   "anchor": {
+    "verse": 16,
+    "endVerse": 16,
+    "exact": "One-of-a-kind Son",
+    "prefix": "qqqqqqqqqqqqqqqqqqqq",
+    "suffix": "zzzzzzzzzzzzzzzzzzzz"
+   },
+   "expected": {
+    "status": "verse",
+    "text": "You see, this is how God loved the whole world: God gave the One-of-a-kind Son so that everyone who places their trust in him would not be lost to death but would have agelong life.",
+    "start": 1875,
+    "end": 2056
+   }
+  },
+  {
+   "why": "v3, floor: the same words with their context intact are still found",
+   "chapter": "john-3",
+   "anchor": {
+    "verse": 16,
+    "endVerse": 16,
+    "exact": "One-of-a-kind Son",
+    "prefix": "d the whole world: God gave the ",
+    "suffix": " so that everyone who places the"
+   },
+   "expected": {
+    "status": "found",
+    "text": "One-of-a-kind Son",
+    "start": 1936,
+    "end": 1953
+   }
+  },
+  {
+   "why": "v3, moved: wrong verse, one occurrence, context agreeing on one side only (a long prefix, a wrong suffix) is not enough",
+   "chapter": "john-3",
+   "anchor": {
+    "verse": 5,
+    "endVerse": 5,
+    "exact": "One-of-a-kind Son",
+    "prefix": "d the whole world: God gave the ",
+    "suffix": "zzzzzzzzzzzzzzzzzzzz"
+   },
+   "expected": {
+    "status": "verse",
+    "text": "“Truly, truly I’m telling you,” Jesus answered, “Unless someone is brought into being from water and from the Life-breath, they aren’t able to start participating in God’s Reign.",
+    "start": 565,
+    "end": 743
+   }
+  },
+  {
+   "why": "v3, moved: wrong verse, one occurrence, context agreeing on both sides is still found",
+   "chapter": "john-3",
+   "anchor": {
+    "verse": 5,
+    "endVerse": 5,
+    "exact": "One-of-a-kind Son",
+    "prefix": "d the whole world: God gave the ",
+    "suffix": " so that everyone who places the"
+   },
+   "expected": {
+    "status": "moved",
+    "text": "One-of-a-kind Son",
+    "start": 1936,
+    "end": 1953
    }
   }
  ]

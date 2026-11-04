@@ -2472,6 +2472,13 @@ footer still says 4b). Drafts 3 to 4d are summarized under "BDR's answers
 and requests (2026-10-09)" below, and the sections after it are updated to
 match.
 
+**Anchoring spec version 3 (proposed 2026-11-03, audit 2 FA2-f and FA2-g; for BDR
+to confirm, BVJ's decision 4 still open):** a single occurrence of the quoted
+words needs the context floor too, `moved` needs both sides to agree, and
+matching folds quotes and dashes. `ANCHOR_SPEC_VERSION` is 3 and
+`test/fixtures/anchor-vectors.json` is regenerated; the apps' resolvers and
+vectors must change together. Rules in `STUDY-DESK-FORMAT.md`, "Spec version 3".
+
 **How the website answers (BVJ, 2026-10-07): through this file.** BDR's
 Claude reads this repo directly, so nothing is sent by hand and no new reply
 document is written; `STUDY-DESK-REPLY-TO-APPS.md` was the last. What the

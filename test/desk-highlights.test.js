@@ -129,8 +129,7 @@ test("placeHighlights marks a highlight with a change notice, a newer schema, or
 });
 
 test("a highlight that differs from its quote only in typography is editable; one whose words changed is not", () => {
-  // "Changed" by the format's steps (quotes are kept as written), but nobody's
-  // words moved: the August passes curled quotes. No notice, so a new mark may
+  // Found once typography is folded (spec version 3): the August passes curled quotes. No notice, so a new mark may
   // trim or merge it. The same shape with different words carries a notice.
   const quoted = assembleChapter(new Map([[1, "He said, “Do not be afraid.” Then he left."]]));
   const made = (exact, verseCopy) =>
@@ -142,7 +141,7 @@ test("a highlight that differs from its quote only in typography is editable; on
   const typography = made(`"Do not be afraid."`, `He said, "Do not be afraid." Then he left.`);
   const reworded = made(`"Be not afraid."`, `He said, "Be not afraid." Then he left.`);
   const [a, b] = placeHighlights(quoted, [typography, reworded], VERSION);
-  assert.equal(a.status, "changed");
+  assert.equal(a.status, "found", "spec version 3 folds typography when matching");
   assert.equal(a.editable, true, "typography only: no notice, so editable");
   assert.equal(b.status, "changed");
   assert.equal(b.editable, false, "the words changed: a notice, so untouched");

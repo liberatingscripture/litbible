@@ -20,7 +20,9 @@
 import { stripBracketMarkers } from "./bracket-markers.mjs";
 
 // 2 since audit FA1-f (2026-10-26): rule e's guards, MIN_CONTEXT and CHANGED_GROWTH.
-export const ANCHOR_SPEC_VERSION = 2;
+// 3 since audit 2 (FA2-f, FA2-g): the context floor also holds for a single
+// occurrence (and `moved` needs both sides), and matching folds typography.
+export const ANCHOR_SPEC_VERSION = 3;
 
 /** Characters of context stored either side of the quoted words. */
 export const CONTEXT_LENGTH = 32;
@@ -42,6 +44,24 @@ export function normalizeAnchorText(text) {
     // covers U+00A0, so a literal no-break space becomes a plain space here.
     .replace(/\s+/g, " ")
     .trim();
+}
+
+const FOLD_SINGLE = /[‘’‚‛′]/g;
+const FOLD_DOUBLE = /[“”„‟″]/g;
+const FOLD_DASH = /[‐-―−]/g;
+
+/**
+ * Typography folded for matching only (spec version 3): curly and low quotes
+ * to straight, hyphen, dash and minus variants to "-". Every replacement is one
+ * UTF-16 unit for one, so an offset in the folded text is the same offset in
+ * the real text. Used to compare a stored quote with today's text, never to
+ * store or draw anything.
+ */
+export function foldTypography(text) {
+  return String(text ?? "")
+    .replace(FOLD_SINGLE, "'")
+    .replace(FOLD_DOUBLE, '"')
+    .replace(FOLD_DASH, "-");
 }
 
 /**
@@ -143,21 +163,36 @@ export const CHANGED_GROWTH = 16;
  * first on a tie. With more than one occurrence, a choice is trusted only when
  * at least MIN_CONTEXT characters of context agree ("Amen." twice in a verse);
  * otherwise null, and resolveAnchor tries its next step. Null too for none.
+ * Spec version 3: a single occurrence needs the floor as well (or all the
+ * context there is, if less is stored), and with `bothSides` (a `moved`) each
+ * side stored with 4 or more characters must agree on at least 4 of them.
  */
-function bestByContext(chapter, starts, anchor) {
+function bestByContext(chapter, starts, anchor, bothSides = false) {
   let best = null;
   let bestScore = -1;
+  let bestSides = false;
+  const half = Math.floor(MIN_CONTEXT / 2);
   for (const s of starts) {
     const e = s + anchor.exact.length;
-    const score =
-      commonSuffix(chapter.text.slice(Math.max(0, s - anchor.prefix.length), s), anchor.prefix) +
-      commonPrefix(chapter.text.slice(e, e + anchor.suffix.length), anchor.suffix);
+    const before = commonSuffix(chapter.text.slice(Math.max(0, s - anchor.prefix.length), s), anchor.prefix);
+    const after = commonPrefix(chapter.text.slice(e, e + anchor.suffix.length), anchor.suffix);
+    const score = before + after;
     if (score > bestScore) {
       best = s;
       bestScore = score;
+      // Each side that was stored with at least `half` characters must still
+      // agree on at least `half` of them.
+      bestSides =
+        (anchor.prefix.length < half || before >= half) && (anchor.suffix.length < half || after >= half);
     }
   }
-  if (starts.length > 1 && bestScore < MIN_CONTEXT) return null;
+  if (best === null) return null;
+  // Spec version 3: the floor holds for one occurrence as well, whenever the
+  // stored quote carries that much context (older quotes with less are exempt).
+  const stored = anchor.prefix.length + anchor.suffix.length;
+  const floor = starts.length > 1 ? MIN_CONTEXT : Math.min(MIN_CONTEXT, stored);
+  if (bestScore < floor) return null;
+  if (bothSides && !bestSides) return null;
   return best;
 }
 
@@ -192,20 +227,26 @@ export function resolveAnchor(chapter, anchor) {
     suffix: suffix && /^\s/.test(anchor.suffix) ? " " + suffix : suffix,
   };
   const range = rangeOf(chapter, anchor.verse, anchor.endVerse ?? anchor.verse);
+  // Match on folded typography (spec version 3); the folds keep every offset.
+  const folded = { ...chapter, text: foldTypography(chapter.text) };
+  a.exact = foldTypography(a.exact);
+  a.prefix = foldTypography(a.prefix);
+  a.suffix = foldTypography(a.suffix);
+  const fexact = a.exact;
 
   // A step that finds something its guard won't trust doesn't succeed, and
   // the next step is tried (rule e).
   if (range && exact) {
-    const s = bestByContext(chapter, occurrences(chapter.text, exact, range[0], range[1]), a);
+    const s = bestByContext(folded, occurrences(folded.text, fexact, range[0], range[1]), a);
     if (s !== null) return { status: "found", start: s, end: s + exact.length };
   }
   if (exact) {
-    const s = bestByContext(chapter, occurrences(chapter.text, exact, 0, chapter.text.length), a);
+    const s = bestByContext(folded, occurrences(folded.text, fexact, 0, folded.text.length), a, true);
     if (s !== null) return { status: "moved", start: s, end: s + exact.length };
   }
   if (!range) return { status: "lost", start: null, end: null };
 
-  const between = textBetweenContext(chapter, a, range);
+  const between = textBetweenContext(folded, a, range);
   if (between && between.end - between.start <= 2 * exact.length + CHANGED_GROWTH) {
     return { status: "changed", ...between };
   }

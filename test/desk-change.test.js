@@ -93,7 +93,8 @@ const noticeOf = (chapter, record, version = VERSION) => changeNotice(chapter, r
 /* The same chapter after a later publish, one change each. */
 const REWORDED = chapterOf(V1, "It is not envious, it never brags, it is not arrogant.", V3);
 const REWRITTEN = chapterOf(V1, "Charity does not envy.", V3);
-const MOVED = chapterOf("Love is patient, love is kind. It does not boast.", "It is not envious, it is not arrogant.", V3);
+// The verse boundary moved: the words keep their surroundings (spec version 3 needs them for a `moved`).
+const MOVED = chapterOf("Love is patient, love is kind. It is not envious, it does not boast,", "it is not arrogant.", V3);
 const GONE = new Map([
   [1, V1],
   [3, V3],
@@ -192,16 +193,16 @@ test("a quote that failed only on typography raises no notice (verse copy: strai
   for (const make of [noteOn, highlightOn]) {
     const record = make(`"Do not be afraid."`, {}, then);
     assert.equal(typeof record.verseCopy, "string");
-    // The format keeps quotes as written, so the quote is no longer found: a "changed" placement…
-    assert.equal(placeRecord(today, record).status, "changed");
-    // …but nobody's words moved, so there is nothing to tell the reader.
+    // Spec version 3 matches with typography folded, so the quote is still found…
+    assert.equal(placeRecord(today, record).status, "found");
+    // …and nobody's words moved, so there is nothing to tell the reader.
     assert.equal(noticeOf(today, record), null);
   }
   // The marked words decide, not the rest of the verse: here the verse was
   // also reworded after them, but the words the mark sits on are the same.
   const after = chapterOf("He said, “Do not be afraid.” Then he went away.");
   const record = highlightOn(`"Do not be afraid."`, {}, then);
-  assert.equal(placeRecord(after, record).status, "changed");
+  assert.equal(placeRecord(after, record).status, "found");
   assert.equal(noticeOf(after, record), null);
 });
 
@@ -220,7 +221,7 @@ test("a record with no verse copy (made in an app) is compared by its quote agai
   };
   // Typography only: the quote and the words now there agree once evened out.
   const bare = fromApp(noteOn(`"Do not be afraid."`, {}, then));
-  assert.equal(placeRecord(today, bare).status, "changed");
+  assert.equal(placeRecord(today, bare).status, "found");
   assert.equal(noticeOf(today, bare), null);
   // A real change: the words now there differ. There is no copy to show, so no before or diff.
   const rewritten = chapterOf("He said, “Fear nothing.” Then he left.");
@@ -253,9 +254,9 @@ test("nothing usable is left: the mark has fallen to whole verses", () => {
 });
 
 test("falling to whole verses is always a notice, even when the words are the same once typography is evened out", () => {
-  const then = chapterOf(`"Peace!"`);
-  const today = chapterOf("“Peace!”");
-  // No context to find the words by, and quotes are kept as written: whole verse.
+  const then = chapterOf(`"Peace!" and "Peace!"`);
+  const today = chapterOf("“Peace!” and “Peace!”");
+  // No context to choose between the two occurrences: whole verse.
   const record = createRecord(
     "note",
     { ...where, verse: 1, quote: { exact: `"Peace!"`, prefix: "", suffix: "" }, verseCopy: then.text, verseCopyAsOf: before, body: "x", marker: "note" },
@@ -263,7 +264,7 @@ test("falling to whole verses is always a notice, even when the words are the sa
   );
   const notice = noticeOf(today, record);
   assert.equal(notice.kind, "verse");
-  assert.deepEqual(notice.diff, [{ op: "same", text: "“Peace!”", lead: "" }], "and the diff shows nothing changed");
+  assert.deepEqual(notice.diff, [{ op: "same", text: "“Peace!” and “Peace!”", lead: "" }], "and the diff shows nothing changed");
 });
 
 /* ── Lost ────────────────────────────────────────────────────────────── */

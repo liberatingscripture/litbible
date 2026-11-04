@@ -92,6 +92,8 @@ function anchorOn(chapter, quote, verse, occurrence = 1) {
   return makeAnchor(chapter, i, i + quote.length);
 }
 
+const straighten = (t) => t.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-");
+
 const RESOLVE_CASES = [
   {
     why: "Romans 4:7 reworded on 2026-09-03 (Gratified → How greatly fortunate); the context before it changed too",
@@ -158,6 +160,39 @@ const RESOLVE_CASES = [
     why: "rule e, context floor: 8 characters of agreeing context is enough, and picks the third",
     madeOn: { slug: "john-9" }, quote: "see", verse: 39, occurrence: 3, against: "john-9",
     adjust: (a) => ({ prefix: a.prefix.slice(-4), suffix: a.suffix.slice(0, 4) }),
+  },
+  // Spec version 3 (audit 2, FA2-f and FA2-g).
+  {
+    why: "v3, typography: a mark made on straight quotes and hyphens still finds its words in today's curly text (audit DI-2)",
+    madeOn: { rev: "63aa937^", slug: "matthew-20" },
+    quote: "Because no one hired us", verse: 7, against: "matthew-20",
+    adjust: (a) => ({ exact: straighten(a.exact), prefix: straighten(a.prefix), suffix: straighten(a.suffix) }),
+  },
+  {
+    why: "v3, typography: the quote itself carries the curly quotes; the stored copy is straight",
+    madeOn: { rev: "63aa937^", slug: "matthew-20" },
+    quote: "“‘You go to the vineyard", verse: 7, against: "matthew-20",
+    adjust: (a) => ({ exact: straighten(a.exact), prefix: straighten(a.prefix), suffix: straighten(a.suffix) }),
+  },
+  {
+    why: "v3, floor: words that occur once, in the right verse, but whose stored context no longer agrees, are not taken blind (audit DI-1)",
+    madeOn: { slug: "john-3" }, quote: "One-of-a-kind Son", verse: 16, against: "john-3",
+    override: { prefix: "qqqqqqqqqqqqqqqqqqqq", suffix: "zzzzzzzzzzzzzzzzzzzz" },
+  },
+  {
+    why: "v3, floor: the same words with their context intact are still found",
+    madeOn: { slug: "john-3" }, quote: "One-of-a-kind Son", verse: 16, against: "john-3",
+  },
+  {
+    why: "v3, moved: wrong verse, one occurrence, context agreeing on one side only (a long prefix, a wrong suffix) is not enough",
+    madeOn: { slug: "john-3" }, quote: "One-of-a-kind Son", verse: 16, against: "john-3",
+    override: { verse: 5, endVerse: 5 },
+    adjust: (a) => ({ suffix: "zzzzzzzzzzzzzzzzzzzz" }),
+  },
+  {
+    why: "v3, moved: wrong verse, one occurrence, context agreeing on both sides is still found",
+    madeOn: { slug: "john-3" }, quote: "One-of-a-kind Son", verse: 16, against: "john-3",
+    override: { verse: 5, endVerse: 5 },
   },
 ];
 
