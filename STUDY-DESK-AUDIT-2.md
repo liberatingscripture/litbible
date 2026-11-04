@@ -318,7 +318,7 @@ one; see "Not covered") and forced-colors emulation. Claude cannot do this; BVJ 
 
 Independent; can run beside any other session. Do GK-1 first, with a test over the committed data.
 
-**Status (2026-11-03, branch `claude/audit2-session8-greek`):** FA2-s and FA2-t are done, and FA2-u except GK-9, the `/greek/*` cache rule, which waits on decision 9's answer (a day of `max-age`, or keep revalidating); nothing was added to `public/_headers`. Typed `ἡ`, `ἐξ` and `αὐτοῦ` (decision 9, first question) still take the lemma alone. The forced-colors, font and screen-reader items need a browser or a person to confirm.
+**Status (2026-11-03, branch `claude/audit2-session8-greek`):** FA2-s, FA2-t and FA2-u are done. GK-9's cache rule is `/greek/*` at a day of `max-age` with `must-revalidate` in `public/_headers` (BVJ, 2026-11-03: "add a day"), so after `build:greek` is re-run a returning reader may see the old files for up to 24 hours. Typed `ἡ`, `ἐξ` and `αὐτοῦ` (decision 9, first question) still take the lemma alone. The forced-colors, font and screen-reader items need a browser or a person to confirm.
 
 | Task | Findings | What |
 |---|---|---|
@@ -1847,6 +1847,8 @@ round trip. These files change only when `build:greek` is re-run by hand.
 if edge caching is wanted, a Cloudflare Cache Rule for `/greek/*`.
 
 **Confidence** High.
+
+> **Fixed in FA2-u (2026-11-03, branch claude/audit2-session8-greek):** `/greek/*` takes `public/_headers`' day of `max-age` with `must-revalidate`, the `/assets/*` pattern (BVJ, decision 9). Not checked against the deployed headers; `curl -I` a `/greek/` file after the deploy.
 
 #### GK-10 · Low · performance · NEW
 **Where** `src/scripts/desk/tab-greek.js:601-619` and `:693-701` (arrow keys call `select`), `:874-947`, `:1018-1035`;
