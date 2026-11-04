@@ -170,7 +170,9 @@ Collected from the appendices, de-duplicated. The first six block work.
 9. Typed `ἡ`, `ἐξ`, `αὐτοῦ` give "or", "six" and a four-hit adverb. Should a typed form that
    is also another word's headword offer both? Is the article answer confirmed? Is a day of
    `max-age` acceptable for `/greek/*`? Has STEP confirmed no ShareAlike behind its shards?
-   (GK Qs 1 to 5.)
+   (GK Qs 1 to 5.) **Decided (BVJ, 2026-11-03):** a typed form that could be several words asks
+   which (no breathing-mark rule, which couldn't be made consistent); a day of `max-age`. Still
+   open: the article answer, and STEP's provenance.
 10. Highlight tints are 1.05 to 1.23:1 against the cream page in light mode. Is that strength
     intended? (NB Q1.)
 11. Terminology (CP-11, CP-7, CP-8): one name for the feature ("Study Desk"), Delete versus
@@ -318,7 +320,7 @@ one; see "Not covered") and forced-colors emulation. Claude cannot do this; BVJ 
 
 Independent; can run beside any other session. Do GK-1 first, with a test over the committed data.
 
-**Status (2026-11-03, branch `claude/audit2-session8-greek`):** FA2-s, FA2-t and FA2-u are done. GK-9's cache rule is `/greek/*` at a day of `max-age` with `must-revalidate` in `public/_headers` (BVJ, 2026-11-03: "add a day"), so after `build:greek` is re-run a returning reader may see the old files for up to 24 hours. Typed `ἡ`, `ἐξ` and `αὐτοῦ` (decision 9, first question) still take the lemma alone. The forced-colors, font and screen-reader items need a browser or a person to confirm.
+**Status (2026-11-03, branch `claude/audit2-session8-greek`):** FA2-s, FA2-t and FA2-u are done. GK-9's cache rule is `/greek/*` at a day of `max-age` with `must-revalidate` in `public/_headers` (BVJ, 2026-11-03: "add a day"), so after `build:greek` is re-run a returning reader may see the old files for up to 24 hours. Typed `ἡ`, `ἐξ` and `αὐτοῦ` (decision 9, first question) now ask which word: BVJ chose a clarifying question over a breathing-mark rule, 2026-11-03; the count was 58 spellings. The forced-colors, font and screen-reader items need a browser or a person to confirm.
 
 | Task | Findings | What |
 |---|---|---|
@@ -1682,7 +1684,7 @@ For typed queries, decide separately whether `ἡ`, `ἐξ` and `αὐτοῦ` s
 
 **Confidence** High.
 
-> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `matchGreek` takes `exactForm`: a form is also looked up among every lemma's forms, after the lemma it spells, and the tab's form button asks that way. A test runs every (lemma, form) pair of the committed text (19,414) and finds each lemma. Typed `ἡ` still takes the lemma alone, pending decision 9.
+> **Fixed in FA2-s (2026-11-03, branch claude/audit2-session8-greek; not yet browser-checked):** `matchGreek` takes `exactForm`: a form is also looked up among every lemma's forms, after the lemma it spells, and the tab's form button asks that way. A test runs every (lemma, form) pair of the committed text (19,414) and finds each lemma. A typed word that could be several (`ἡ`, `ἐξ`, `αὐτοῦ`) now offers each, commonest first (decision 9, BVJ 2026-11-03); a command query stays lemma-first.
 
 #### GK-2 · Medium · a11y · NEW
 **Where** `src/scripts/desk/tab-greek.js:86-119` (`sanitizeInto`), used at `:1093` and `:1124`; data in `public/greek/step/`, `lsj/`, `ubs/`.

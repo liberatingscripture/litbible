@@ -1492,7 +1492,7 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   if (tray) {
     ({ match, lemmas: found } = matchForTray(index, raw));
   } else {
-    match = matchGreek(index, raw, { near, bridge, exactForm });
+    match = matchGreek(index, raw, { near, bridge, offerForms: true });
     found = match.lemmas;
   }
   let lemmas = found.map((m) => ({ ...index.lemmas[m.id], how: m.how, lit: m.lit ?? null }));

@@ -410,15 +410,31 @@ test("a form clicked on the page finds its own lemma, for every word of the comm
   const lost = [];
   for (const pair of pairs) {
     const [lemma, form] = pair.split("\t");
-    const found = matchGreek(index, form, { exactForm: true }).lemmas.map((m) => index.lemmas[m.id].lemma);
+    const found = matchGreek(index, form, { offerForms: true }).lemmas.map((m) => index.lemmas[m.id].lemma);
     if (!found.includes(lemma.normalize("NFC"))) lost.push(pair);
   }
   assert.deepEqual(lost, []);
-  // What a reader types still takes the lemma alone, as the file's header says.
-  assert.deepEqual(matchGreek(index, "ἡ").lemmas.map((m) => m.how), ["lemma"]);
-  const click = matchGreek(index, "ἡ", { exactForm: true }).lemmas;
-  assert.equal(click[0].how, "lemma");
-  assert.ok(click.some((m) => index.lemmas[m.id].lemma === ARTICLE && m.how === "form"));
+  // A command's reading has no one to ask: the lemma alone, so "ὁ, θεός" is the article.
+  assert.deepEqual(matchGreek(index, "ἡ").lemmas.map((m) => index.lemmas[m.id].lemma), ["ἤ"]);
+  assert.deepEqual(matchGreek(index, "ὁ").lemmas.map((m) => index.lemmas[m.id].lemma), [ARTICLE]);
+});
+
+test("a typed word that could be more than one is offered as each, commonest first (decision 9)", () => {
+  const root = fileURLToPath(new URL("../public/greek/", import.meta.url));
+  const index = prepareIndex(JSON.parse(readFileSync(`${root}search/lemmas.json`, "utf8")));
+  const names = (q) => matchGreek(index, q, { offerForms: true }).lemmas.map((m) => index.lemmas[m.id].lemma);
+  assert.deepEqual(names("ἡ"), ["ὁ", "εἰμί", "ὅς", "ἤ"]);
+  assert.deepEqual(names("ἤ"), names("ἡ"), "marks never decide it");
+  assert.deepEqual(names("η"), names("ἡ"));
+  assert.deepEqual(names("ἐξ"), ["ἐκ", "ἕξ"]);
+  assert.equal(names("ἐν")[0], "ἐν");
+  assert.ok(names("ἐν").includes("εἷς"));
+  // A word with no collision is still found alone.
+  assert.deepEqual(names("λόγος"), ["λόγος"]);
+  // How many headwords now ask: 58 folded spellings (counted 2026-11-03).
+  let asking = 0;
+  for (const [fold, ids] of index.byFold) if ((index.byForm.get(fold) ?? []).some((id) => !ids.includes(id))) asking++;
+  assert.equal(asking, 58);
 });
 
 test("compatibility letters fold to the letters they stand for (GK-15)", () => {

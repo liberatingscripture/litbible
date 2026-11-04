@@ -623,6 +623,17 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        which searches Latin text as a transliteration or a gloss. /search
        pages the Greek with the English verses' pager, in Bible order with
        no sort control; the tray shows its own Greek group alone.
+     - **A typed Greek word that could be more than one is a question, never
+       a guess** (BVJ, 2026-11-03, decision 9). 58 folded spellings are both a
+       headword and a form of another word (ἡ: the article's form, εἰμί's, ὅς's
+       and the headword ἤ). A one-word search (`matchGreek` with `offerForms`,
+       which `searchGreek` and the tray pass) offers each such lemma, the
+       commonest first, and the surface shows its choice box. **Marks never
+       decide it** (a breathing rule would leave ὃ/ὁ and εἶ/εἰ colliding and
+       would be invisible to readers who type none), and a command query keeps
+       lemma-first (no one to ask; `ὁ, θεός` must stay the article, not ὅς). The
+       Greek tab's form button names its lemma (`prefer`), so it never asks. A test
+       holds the 58.
      - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
        any form and accent (folded by `foldGreek`, which `build:greek` also
        uses for the index), a Strong's number (a lemma's other MACULA numbers

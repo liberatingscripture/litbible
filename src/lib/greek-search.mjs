@@ -10,7 +10,10 @@
 // A query is sorted into one kind:
 //   greek    anything with a Greek letter: one word, any form, accents,
 //            breathings and case optional. Finds the word's lemma, and every
-//            form of it. A lemma typed directly finds that lemma alone.
+//            form of it. When the spelling could be more than one word (ἡ is
+//            the article's form and the headword ἤ), every one is offered,
+//            commonest first, and the search asks; marks never decide it.
+//            In a command a lemma typed directly is that lemma alone.
 //   strong   G plus digits (also g4102, strong:4102, Strong's 4102, G04102).
 //   latin    other text, tried both as a transliteration of a lemma
 //            (agreuō = agreuo, Christos = Khristos = xristos) and as an
@@ -354,12 +357,14 @@ const byCount = (index) => (a, b) =>
  * `bridge` is prepareBridge()'s result, or null to leave the LIT out.
  *
  * Options: `near` (default true) allows near misses, which the tray doesn't.
- * `exactForm` is for a search that starts from a word on the page (the Greek
- * tab's form button): the lemma-first rule is about what a reader types, and a
- * clicked ἡ must not become ἤ, so a Greek form is also looked up among every
- * lemma's forms, after the lemma it spells (GK-1).
+ * `offerForms` is for a search of one typed word, where a reader can answer a
+ * question (GK-1, decision 9): what was typed may spell a headword and also a
+ * form of another word (ἡ is a form of ὁ, εἰμί and ὅς, and the headword ἤ), so
+ * every such lemma is offered, the commonest first, and the surface asks. The
+ * default is a command's reading, which has no one to ask: a lemma typed
+ * directly is that lemma alone, so "ὁ, θεός" is the article and not ὅς.
  */
-export function matchGreek(index, raw, { near = true, bridge = null, exactForm = false } = {}) {
+export function matchGreek(index, raw, { near = true, bridge = null, offerForms = false } = {}) {
   const none = { kind: null, lemmas: [], form: null };
   const q = String(raw ?? "").trim().replace(/^["“”']+|["“”']+$/g, "");
   if (!index || !q) return none;
@@ -370,15 +375,15 @@ export function matchGreek(index, raw, { near = true, bridge = null, exactForm =
     if (!form) return none;
     const asLemma = index.byFold.get(form);
     const asForm = index.byForm.get(form) ?? [];
-    if (asLemma && exactForm) {
+    if (asLemma && offerForms) {
       const others = asForm.filter((id) => !asLemma.includes(id));
       return {
         kind: "greek",
         form,
         lemmas: [
-          ...asLemma.map((id) => ({ id, how: "lemma" })).sort(byCount(index)),
-          ...others.map((id) => ({ id, how: "form" })).sort(byCount(index)),
-        ],
+          ...asLemma.map((id) => ({ id, how: "lemma" })),
+          ...others.map((id) => ({ id, how: "form" })),
+        ].sort(byCount(index)),
       };
     }
     const ids = asLemma ?? asForm;
@@ -450,7 +455,7 @@ export function trayLemmas(index, match) {
 
 /** matchGreek without near misses, and the lemmas of it the tray shows. */
 export function matchForTray(index, raw) {
-  const match = matchGreek(index, raw, { near: false });
+  const match = matchGreek(index, raw, { near: false, offerForms: true });
   return { match, lemmas: trayLemmas(index, match) };
 }
 
