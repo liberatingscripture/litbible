@@ -26,12 +26,22 @@
  * Sources, none of them in the repo (see scripts/lib/greek-core.mjs for how
  * they are joined; every rule that decides what a file says lives there):
  *
- *   GREEK_SOURCES_DIR   (default C:\Users\bcjoh\GitHub\greek-sources)
- *     sblgnt/             SBL's SBLGNT v1.2: the text of record, and its apparatus
- *     macula-greek/       MACULA Greek (SBLGNT and Nestle 1904 TSVs)
- *     ubs/                the UBS Greek NT Dictionary
- *     stepbible/Lexicons/ TBESG and TFLSJ
+ *   GREEK_SOURCES_DIR   (default ../greek-sources, beside the repo)
+ *     sblgnt/             https://github.com/LogosBible/SBLGNT: SBL's SBLGNT
+ *                         v1.2, the text of record, and its apparatus
+ *     macula-greek/       https://github.com/Clear-Bible/macula-greek
+ *                         (SBLGNT and Nestle 1904 TSVs)
+ *     ubs/                https://github.com/ubsicap/ubs-open-license: the UBS
+ *                         Greek NT Dictionary
+ *     stepbible/Lexicons/ https://github.com/STEPBible/STEPBible-Data: TBESG
+ *                         and TFLSJ
  *   MORPHGNT_DIR          MorphGNT's SBLGNT clone, as for build:alignment
+ *                         (https://github.com/morphgnt/sblgnt)
+ *
+ * The committed output was built from these commits (recorded 2026-11-04,
+ * LG-9); update them when a source is re-pulled and the output regenerated:
+ *   sblgnt c4d241a (2025-01-19), macula-greek 8423afe (2026-07-07),
+ *   ubs 33dcc8c (2026-09-22), stepbible cb4a117 (2026-10-13).
  *
  * Prints a report: every disagreement between the sources is listed, never
  * resolved by guessing.
@@ -79,7 +89,7 @@ import {
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "public", "greek");
-const SOURCES = process.env.GREEK_SOURCES_DIR || "C:\\Users\\bcjoh\\GitHub\\greek-sources";
+const SOURCES = process.env.GREEK_SOURCES_DIR || path.join(ROOT, "..", "greek-sources");
 const MORPHGNT_DIR = process.env.MORPHGNT_DIR || path.join(ROOT, ".morphgnt");
 
 const sblDir = path.join(SOURCES, "sblgnt", "data", "sblgnt", "xml");

@@ -159,6 +159,15 @@ export function initNoteSettings() {
   injectIntoTray();
 }
 
+/**
+ * Whether this browser can draw highlights at all (the CSS Custom Highlight
+ * API: Chrome 105, Safari 17.2, Firefox 140). Where it can't, Highlight isn't
+ * offered, so a reader never makes a mark that is never drawn (LG-5).
+ */
+export function highlightsSupported() {
+  return typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
+}
+
 let uid = 0;
 
 /**
@@ -191,6 +200,11 @@ function noteControls(classes) {
   lights.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHighlightsCheck${n}" />
     <span class="${classes.checkLabel}">My highlights</span>`;
   const lightsBox = lights.querySelector("input");
+  // This browser can't draw highlights (LG-5): say so rather than offer a switch that does nothing.
+  if (!highlightsSupported()) {
+    lightsBox.disabled = true;
+    lights.querySelector("span").textContent = "My highlights (this browser can’t draw them)";
+  }
   lightsBox.addEventListener("change", () => setSetting(lightsName, lightsBox.checked ? "on" : "off"));
 
   const hide = document.createElement("label");

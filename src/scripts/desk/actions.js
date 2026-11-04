@@ -42,7 +42,7 @@ import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.m
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
-import { getSetting, hiddenNotice, highlightSetting, setSetting } from "./note-settings.js";
+import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
 import { announce, showUndo } from "./undo-bar.js";
@@ -83,7 +83,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
     // isn't on it), since a mark can't be placed without them.
-    if ((d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
+    if (highlightsSupported() && (d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
     // Show in Notebook (Chapter View), and Edit bookmark… once the verse has one.

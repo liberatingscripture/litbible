@@ -25,7 +25,7 @@
 import { offsetsToRange, pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { COLORS, placeRecord } from "../../lib/desk-records.mjs";
 import { forChapter, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
-import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
+import { SETTINGS_EVENT, getSetting, highlightSetting, highlightsSupported } from "./note-settings.js";
 import { watchLitRecords } from "./lit-records.js";
 import { chapterTextFor, pageChapter, readBook } from "./page.js";
 
@@ -38,8 +38,7 @@ const nameOf = (color) => `desk-hl-${color}`;
  *   without the CSS Custom Highlight API)
  */
 export function createHighlights({ store }) {
-  const supported = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
-  if (!store || !supported) return null;
+  if (!store || !highlightsSupported()) return null;
   if (document.querySelector("[data-desk-page]")) return deskHighlights(store);
   const study = pageChapter();
   const book = study ? null : readBook();

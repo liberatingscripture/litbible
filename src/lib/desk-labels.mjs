@@ -36,8 +36,6 @@ export function labelKey(name) {
     .toLocaleLowerCase();
 }
 
-export const sameLabelName = (a, b) => labelKey(a) === labelKey(b);
-
 /** The live label records, by name. */
 export function liveLabels(records) {
   return records

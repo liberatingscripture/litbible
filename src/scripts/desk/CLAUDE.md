@@ -17,8 +17,71 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
 |------|---------|
 | `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20; 3m, the search pane, 2026-11-01), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
-| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward and are planned in phases FA1-w onward. Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
+| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward (to BA153) and were planned in phases FA1-w onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 | `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table (the re-check of 2026-11-03: 96 still valid, 2 fixed, 2 moot, 10 changed) and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
+
+## Routes
+
+From the root's routing table.
+
+| Route | File | Purpose |
+|-------|------|---------|
+| `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
+
+## Launching
+
+(Audit 2, LG-3 and LG-4; BVJ, 2026-11-04.) The pre-paint script stamps the
+preview in one place, but about a dozen others read it. Flipping the default
+means each of these, in one change:
+
+1. `src/layouts/Layout.astro` pre-paint script: stop requiring
+   `lit-desk-preview==='on'` (keep the `isAppPlatform` and touch exclusions;
+   `test/desk-prepaint.test.js` runs the same devices) and rewrite the comment
+   block above it. **There is no opt-out at launch** (BVJ, 2026-11-04: the desk
+   isn't removable; a reader who doesn't use it loses only a tab in the
+   corner), so `?desk=on` and `?desk=off` and the stored `lit-desk-preview`
+   retire with the flip, and the `/privacy` paragraph drops the key.
+2. `search-core.js`: `deskEnabled()` (the one read of the stamp for search),
+   `greekSearchEnabled()`, `loadDeskSearch`, `loadDeskSheets`.
+3. Direct readers of the stamp: `desk-gate.js`, `keyboard-shortcuts.js` (`h`),
+   `sheet-share-gate.js` (delete its "turn the desk on" link and the computer
+   branch), `ScriptureLayout.astro`, `read/[book].astro`, `SiteHeader.astro`.
+4. CSS written for "the preview is on": `global.css` (the hide rule, the 52/48
+   measure and widths), `glossary.css` ("Readers keep the wide glossary until
+   the desk is released"), `read-mode.css`.
+5. The pages' preview copy and loading/off pairs: `desk.astro`, `notebook.astro`,
+   `sheets.astro`, `notebook/help.astro`, and the matching rules in
+   `desk-page.css`, `notebook.css`, `sheets-page.css`. The "off" note must still
+   say something true for no-JS and phones.
+6. `/privacy`'s notebook paragraph ("Readers who switch on the notebook, a
+   preview…") and whether to bump its effective date.
+7. Indexing: `/notebook` and `/sheets` stay noindex; `/desk` and the help page
+   are a decision (`robotsNoindex`, the sitemap filter in `astro.config.mjs`).
+8. `PROSE_NOTES` in `desk/note-sources.js` stays false for version 1.
+9. Browser floor (BVJ, 2026-11-04): highlights need the CSS Custom Highlight
+   API (Chrome 105, Safari 17.2, Firefox 140). Below that the desk offers no
+   Highlight and its switch says so (`highlightsSupported`). Mac Safari and
+   Firefox passes are still open from Audit 1's FA1-v.
+10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
+    wording.
+11. The Greek search engine rides in every page's search bundle until it is
+    loaded on demand (LG-6; about 14 KB gzipped). The imports are static in
+    `search-core.js`, `searchbar.js` and `search.js` with synchronous call
+    sites, so the fix is a refactor, not a swap; do it before launch or accept it.
+
+**The sheet editor runs on `document.execCommand`** (12 calls through
+`sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
+engine). Decision for version 1: accept it. Output is re-sanitized to a
+canonical form (`sheetHtmlForShow`) so engine differences don't reach the
+record. A replacement behind the `createSheetText` interface is a version 2
+item; add a cross-browser golden-file test of the eight commands before it.
+
+**Tests**: `test/desk-store.test.js` runs the real `store.js` against
+`fake-indexeddb`; `test/desk-storage-keys.test.js` holds `/privacy` to every
+storage key. Playwright is not a launch gate (BVJ, 2026-11-04); a smoke test
+against `dist/` is a later item.
 
 ## The rules
 
@@ -292,7 +355,7 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
      pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
-     ("Close the Notebook," "Show in Notebook"); lowercase "notebook" means
+     ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
      what the reader has kept ("Save a copy of my notebook," "Search my
      notebook") or the feature as a whole. "My Notes" is the tab and the
      /desk pane kind only; the margin's switch and its region are "Notes in
@@ -565,8 +628,8 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        John 7:53–8:11 takes its parsing from MACULA's SBLGNT, Romans
        16:25–27 its Greek from the SBLGNT apparatus and its parsing from
        MACULA's Nestle 1904. Re-run it when a source changes, never by hand.
-     - **Licenses keep the files apart.** `text/` and `ubs/` are CC BY-SA
-       4.0 (MorphGNT, UBS); `step/` stays CC BY 4.0, as do the
+     - **Licenses keep the files apart.** `text/` and `ubs/` are licensed CC BY-SA
+       4.0 (`text/` draws on MorphGNT, CC BY-SA 3.0, which converts one way to 4.0; `ubs/` on UBS); `step/` stays CC BY 4.0, as do the
        STEPBible brief glosses in `search/` (BA47), with two exceptions that
        are **CC BY-SA 4.0 because they are Perseus's text, which STEP edited and
        labels CC BY** (BVJ, 2026-11-03, the cautious route until STEP confirms a

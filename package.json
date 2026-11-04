@@ -60,6 +60,7 @@
     "@astrojs/markdown-remark": "7.3.5",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/noto-sans-math": "^5.3.0",
+    "fake-indexeddb": "^6.2.7",
     "jsonc-parser": "^3.3.1",
     "opentype.js": "^2.0.0",
     "pagefind": "^1.5.2",

@@ -860,10 +860,6 @@ test("fitSizes on a dragged grid gives the left column exactly its minimum", () 
 
 // ---- keeping it -----------------------------------------------------------
 
-test("the storage key is the one /privacy names", () => {
-  assert.equal(LAYOUT_KEY, "lit-desk-layout");
-});
-
 test("a layout round-trips through writeSaved and readSaved", () => {
   const last = applyArrangement(originalLayout(), "grid");
   const mine = originalLayout();

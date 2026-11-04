@@ -2632,12 +2632,6 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   margin-top: 10px;
 }
 
-.desk-home-card__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .desk-home-card__choose,
 .desk-tour__next,
 .desk-tour__back {
@@ -2659,7 +2653,6 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
-.desk-home-card__skip,
 .desk-tour__skip,
 .desk-home__tour {
   padding: 4px 6px;

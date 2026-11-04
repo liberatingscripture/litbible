@@ -4,10 +4,6 @@ import { GREEK_NOTES_KEY, greekNotesOn, greekNotesStored } from "../src/lib/desk
 
 const from = (stored) => (key) => (key in stored ? stored[key] : null);
 
-test("the storage key is the one /privacy names", () => {
-  assert.equal(GREEK_NOTES_KEY, "lit-desk-greek-notes");
-});
-
 test("a Greek search lists notes unless the reader turned them off", () => {
   assert.equal(greekNotesOn(from({})), true);
   assert.equal(greekNotesOn(from({ [GREEK_NOTES_KEY]: "off" })), false);

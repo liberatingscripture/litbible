@@ -1250,7 +1250,7 @@ let deskSearchPromise = null;
  * module fails to load; search then goes on without it.
  */
 export function loadDeskSearch() {
-  if (document.documentElement.dataset.desk !== "on") return null;
+  if (!deskEnabled()) return null;
   // A failed import is forgotten, so a page left open across a deploy tries again (GK-14).
   deskSearchPromise ||= import("./desk/notebook-search.js").catch((err) => {
     console.error("Study Desk: search couldn't load its part", err);
@@ -1262,6 +1262,11 @@ export function loadDeskSearch() {
 
 let deskSheetsPromise = null;
 
+/** Whether the Study Desk is on for this page: the one place search reads the stamp (LG-3). */
+export function deskEnabled() {
+  return document.documentElement.dataset.desk === "on";
+}
+
 /**
  * The Study Desk's "make a sheet of these results" (M5; src/scripts/desk/
  * search-sheet.js), or null when the desk is off. Reached like loadDeskSearch
@@ -1270,7 +1275,7 @@ let deskSheetsPromise = null;
  * none of it. Resolves to null if the module fails to load.
  */
 export function loadDeskSheets() {
-  if (document.documentElement.dataset.desk !== "on") return null;
+  if (!deskEnabled()) return null;
   deskSheetsPromise ||= import("./desk/search-sheet.js").catch((err) => {
     console.error("Study Desk: search couldn't load its sheets", err);
     deskSheetsPromise = null;
@@ -1293,7 +1298,7 @@ export function loadDeskSheets() {
  * launch this becomes `return true`.
  */
 export function greekSearchEnabled() {
-  return document.documentElement.dataset.desk === "on";
+  return deskEnabled();
 }
 
 /**

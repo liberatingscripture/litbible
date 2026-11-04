@@ -7,6 +7,13 @@
 > this was one file, so they may point into another area file; the root's
 > index says which file holds each section.
 
+- **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
+  reader-selectable accessibility fonts, OpenDyslexic and Atkinson
+  Hyperlegible Next (the latter variable, via `@fontsource-variable`), set from
+  the Display tray. Playpen Sans (variable) is the Study Desk's margin-note
+  face, loaded only by the desk. All of them load Latin only; Greek and Hebrew
+  letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
+  by character range (see "Greek and Hebrew letters" below).
 - **Theming (light/dark) is a dual mechanism.** Dark-mode tokens are declared
   twice — `@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) … }`
   (follow the OS) and `:root[data-theme="dark"] … }` (explicit override) — in
