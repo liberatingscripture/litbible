@@ -53,6 +53,8 @@ import {
   applyArrangement,
   arrangementOf,
   arrivalLayout,
+  addBeside,
+  addBesideNeeds,
   closePane,
   dropZone,
   evenOut,
@@ -671,7 +673,7 @@ async function start() {
     }
   }
 
-  function openAddFly() {
+  function openAddFly({ focus = true } = {}) {
     if (addItem.getAttribute("aria-disabled") === "true") return;
     addStep = null;
     drawAddFly();
@@ -682,7 +684,7 @@ async function start() {
       addFly.classList.add("desk-title__fly--left");
     }
     addItem.setAttribute("aria-expanded", "true");
-    (enabled(Array.from(addFly.children))[0] ?? addFly.children[0]).focus();
+    if (focus) (enabled(Array.from(addFly.children))[0] ?? addFly.children[0]).focus();
   }
 
   function closeAddFly({ focus = false } = {}) {
@@ -721,7 +723,24 @@ async function start() {
   }
 
   titleButton.addEventListener("click", () => (titleMenu.hidden ? openTitleMenu() : closeTitleMenu()));
-  addItem.addEventListener("click", () => (addFly.hidden ? openAddFly() : closeAddFly({ focus: true })));
+  // Hover may have opened it already, so a click then moves into it.
+  addItem.addEventListener("click", () => {
+    if (addFly.hidden) openAddFly();
+    else (enabled(Array.from(addFly.children))[0] ?? addFly.children[0]).focus();
+  });
+  // Hover opens the flyout without taking focus, and leaving the item and the
+  // flyout closes it after a beat, so the pointer can cross the gap between them.
+  let addLeave = 0;
+  addSub.addEventListener("mouseenter", () => {
+    clearTimeout(addLeave);
+    if (addFly.hidden && !titleMenu.hidden) openAddFly({ focus: false });
+  });
+  addSub.addEventListener("mouseleave", () => {
+    clearTimeout(addLeave);
+    addLeave = setTimeout(() => {
+      if (!addFly.contains(document.activeElement)) closeAddFly();
+    }, 250);
+  });
   layoutItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); openMenu(); });
   printItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); openPrintMenu(); });
   // The tray's own listener (first on this button) has placed it under the title.
@@ -1008,12 +1027,93 @@ async function start() {
 
   function closeKindMenu({ focus = true } = {}) {
     if (!kindMenu) return;
-    const { menuEl, button } = kindMenu;
+    const { menuEl, button, fly } = kindMenu;
+    clearTimeout(flyTimer);
     kindMenu = null;
+    fly?.el.remove();
     menuEl.remove();
     button.setAttribute("aria-expanded", "false");
     if (focus) button.focus();
   }
+
+  // The pane menu's Add pane, Move and Size are flyouts beside it, as the title
+  // menu's Add pane is: hover opens one without taking focus, a click or the
+  // right arrow moves into it. A flyout is a sibling of the menu, not a child,
+  // since the menu scrolls and would clip it.
+  let flyTimer = 0;
+
+  const flyButtons = (flyEl) => Array.from(flyEl.querySelectorAll("button")).filter((b) => b.getAttribute("aria-disabled") !== "true");
+
+  function closeFly({ focus = false } = {}) {
+    const fly = kindMenu?.fly;
+    if (!fly) return;
+    fly.el.remove();
+    fly.trigger.setAttribute("aria-expanded", "false");
+    kindMenu.fly = null;
+    if (focus) fly.trigger.focus({ preventScroll: true });
+  }
+
+  function closeFlyLater() {
+    clearTimeout(flyTimer);
+    flyTimer = setTimeout(() => {
+      if (kindMenu?.fly && !kindMenu.fly.el.contains(document.activeElement)) closeFly();
+    }, 250);
+  }
+
+  function openFly(def, trigger, { focus = true } = {}) {
+    if (!kindMenu) return;
+    clearTimeout(flyTimer);
+    const current = kindMenu.fly;
+    if (current?.trigger === trigger) {
+      if (focus) flyButtons(current.el)[0]?.focus({ preventScroll: true });
+      return;
+    }
+    closeFly();
+    const flyEl = el("div", "desk-pane__menu desk-pane__fly");
+    flyEl.setAttribute("role", "menu");
+    flyEl.setAttribute("aria-label", def.name);
+    def.build(flyEl, null);
+    kindMenu.head.append(flyEl);
+    // Beside the menu, level with its line; on the other side where the
+    // window's edge is in the way, and kept inside the window below.
+    const m = kindMenu.menuEl.getBoundingClientRect();
+    const t = trigger.getBoundingClientRect();
+    const edge = 8;
+    let left = m.right + 2;
+    if (left + flyEl.offsetWidth > window.innerWidth - edge) left = m.left - flyEl.offsetWidth - 2;
+    flyEl.style.left = `${Math.max(edge, left)}px`;
+    flyEl.style.top = `${Math.max(edge, Math.min(t.top - 4, window.innerHeight - edge - flyEl.offsetHeight))}px`;
+    flyEl.addEventListener("mouseenter", () => clearTimeout(flyTimer));
+    flyEl.addEventListener("mouseleave", closeFlyLater);
+    flyEl.addEventListener("keydown", (e) => {
+      const live = flyButtons(flyEl);
+      const i = live.indexOf(document.activeElement);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        live[(i + (e.key === "ArrowDown" ? 1 : live.length - 1)) % live.length]?.focus();
+      } else if (e.key === "Home" || e.key === "End") {
+        e.preventDefault();
+        live[e.key === "Home" ? 0 : live.length - 1]?.focus();
+      } else if (e.key === "ArrowLeft" || e.key === "Escape") {
+        // One step back: from the kinds to the directions, then out of the flyout.
+        e.preventDefault();
+        e.stopPropagation();
+        if (flyEl.dataset.step) {
+          def.build(flyEl, null);
+          flyButtons(flyEl)[0]?.focus();
+        } else {
+          closeFly({ focus: true });
+        }
+      } else if (e.key === "Tab") {
+        closeKindMenu({ focus: false });
+      }
+    });
+    trigger.setAttribute("aria-expanded", "true");
+    kindMenu.fly = { el: flyEl, trigger };
+    if (focus) flyButtons(flyEl)[0]?.focus({ preventScroll: true });
+  }
+
+  let paneHintCount = 0;
 
   function openKindMenu(id, button) {
     const wasOpen = kindMenu?.button === button;
@@ -1042,6 +1142,25 @@ async function start() {
       });
       kinds.append(item);
     }
+    const head = button.closest(".desk-pane__head");
+    // A line of the menu or its flyouts: a label, and under it, greyed, the
+    // reason it can't be used (as the title menu draws one).
+    const menuItem = (label, why) => {
+      const b = el("button", "desk-pane__menu-item");
+      b.type = "button";
+      b.setAttribute("role", "menuitem");
+      b.tabIndex = -1;
+      b.append(el("span", "desk-title__label", label));
+      if (why) {
+        const hint = el("span", "desk-title__hint", why);
+        hint.id = `deskPaneHint-${id}-${++paneHintCount}`;
+        b.append(hint);
+        b.setAttribute("aria-disabled", "true");
+        b.setAttribute("aria-describedby", hint.id);
+      }
+      return b;
+    };
+
     // Move this pane (E25): the keyboard's way to do what dragging does. It
     // swaps places with the pane beside it, so "Move left" is only offered
     // where there is one; the panes are asked where they are drawn.
@@ -1050,62 +1169,129 @@ async function start() {
       return r ? { id: p.id, left: r.left, top: r.top, right: r.right, bottom: r.bottom } : null;
     }).filter(Boolean);
     const moves = MOVES.map((m) => ({ ...m, other: neighborIn(rects, id, m.direction) })).filter((m) => m.other);
-    if (moves.length) {
-      const line = el("div", "desk-pane__menu-line");
-      line.setAttribute("role", "separator");
-      menuEl.append(line);
-    }
-    const moveGroup = el("div", "desk-pane__menu-group");
-    moveGroup.setAttribute("role", "group");
-    moveGroup.setAttribute("aria-label", "Move this pane");
-    if (moves.length) menuEl.append(moveGroup);
-    for (const m of moves) {
-      const item = el("button", "desk-pane__menu-item desk-pane__menu-item--move", m.label);
-      item.type = "button";
-      item.setAttribute("role", "menuitem");
-      item.tabIndex = -1;
-      item.addEventListener("click", () => {
-        const name = kindLabel(findPane(layout.root, id)?.kind);
-        const other = kindLabel(findPane(layout.root, m.other)?.kind);
-        closeKindMenu();
-        commit(swapPanes(layout, id, m.other));
-        announce(`${name} moved ${m.direction}, swapping with ${other}.`);
-      });
-      moveGroup.append(item);
-    }
+    const buildMove = (fly) => {
+      for (const m of moves) {
+        const b = menuItem(m.label);
+        b.addEventListener("click", () => {
+          const name = kindLabel(findPane(layout.root, id)?.kind);
+          const other = kindLabel(findPane(layout.root, m.other)?.kind);
+          closeKindMenu();
+          commit(swapPanes(layout, id, m.other));
+          announce(`${name} moved ${m.direction}, swapping with ${other}.`);
+        });
+        fly.append(b);
+      }
+    };
+
+    // Add a pane beside this one: the flyout asks which side, then, in the same
+    // flyout, the kind, and the others scoot over (addBeside).
+    const { width, height } = panesBox.getBoundingClientRect();
+    const SIDES = [
+      { id: "left", label: "To the left", said: "to the left" },
+      { id: "right", label: "To the right", said: "to the right" },
+      { id: "above", label: "Above", said: "above" },
+      { id: "below", label: "Below", said: "below" },
+    ];
+    const sideWhy = (s) => {
+      const why = addBesideNeeds(layout, id, s, width, height);
+      return why === "full" ? "Four is the most" : why ? NEEDS_TEXT[why] : null;
+    };
+    const buildAdd = (fly, side) => {
+      fly.replaceChildren();
+      if (side) fly.dataset.step = side; else delete fly.dataset.step;
+      if (!side) {
+        for (const s of SIDES) {
+          const b = menuItem(s.label, sideWhy(s.id));
+          b.addEventListener("click", () => {
+            if (b.getAttribute("aria-disabled") === "true") return;
+            buildAdd(fly, s.id);
+            fly.children[1]?.focus();
+          });
+          fly.append(b);
+        }
+        return;
+      }
+      const label = SIDES.find((s) => s.id === side).label;
+      const back = menuItem(`‹ ${label}`);
+      back.addEventListener("click", () => { buildAdd(fly, null); fly.children[0]?.focus(); });
+      fly.append(back);
+      for (const k of KINDS) {
+        const b = menuItem(k.label);
+        b.addEventListener("click", () => {
+          const next = addBeside(layout, id, side, k.kind, width, height);
+          closeKindMenu();
+          if (next === layout) return;
+          commit(next);
+          announce(`Added a pane ${SIDES.find((x) => x.id === side).said} showing ${k.label}.`);
+        });
+        fly.append(b);
+      }
+    };
+    const addReasons = SIDES.map((s) => sideWhy(s.id));
+    const addWhy = addReasons.every(Boolean) ? (addReasons.includes("Four is the most") ? "Four is the most" : NEEDS_TEXT.larger) : null;
+
     // Size this pane (DK-8): the click-only way to do what dragging a line
     // does, for a reader who can't drag. Each step is a tenth of the split.
     const sizes = SIZINGS.map((z) => ({ ...z, at: sizingFor(id, z) })).filter((z) => z.at);
-    if (sizes.length) {
-      const line = el("div", "desk-pane__menu-line");
-      line.setAttribute("role", "separator");
-      menuEl.append(line);
-      const group = el("div", "desk-pane__menu-group");
-      group.setAttribute("role", "group");
-      group.setAttribute("aria-label", "Size this pane");
-      menuEl.append(group);
+    const buildSize = (fly) => {
       for (const z of sizes) {
-        const item = el("button", "desk-pane__menu-item desk-pane__menu-item--move", z.label);
-        item.type = "button";
-        item.setAttribute("role", "menuitem");
-        item.tabIndex = -1;
-        item.addEventListener("click", () => {
+        const b = menuItem(z.label);
+        b.addEventListener("click", () => {
           closeKindMenu();
           sizePane(id, z);
         });
-        group.append(item);
+        fly.append(b);
       }
+    };
+
+    // The three are lines of the menu that open flyouts.
+    const flyDefs = [
+      { name: "Add pane", build: buildAdd, why: addWhy },
+      ...(moves.length ? [{ name: "Move", build: buildMove }] : []),
+      ...(sizes.length ? [{ name: "Size", build: buildSize }] : []),
+    ];
+    const triggers = new Map();
+    const line = el("div", "desk-pane__menu-line");
+    line.setAttribute("role", "separator");
+    menuEl.append(line);
+    for (const def of flyDefs) {
+      const b = menuItem(def.name, def.why);
+      b.classList.add("desk-pane__menu-item--fly");
+      b.setAttribute("aria-haspopup", "menu");
+      b.setAttribute("aria-expanded", "false");
+      const more = el("span", "desk-title__more");
+      more.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M9 6l6 6-6 6" /></svg>`;
+      b.append(more);
+      b.addEventListener("click", () => {
+        if (b.getAttribute("aria-disabled") !== "true") openFly(def, b);
+      });
+      triggers.set(b, def);
+      menuEl.append(b);
     }
+    menuEl.addEventListener("mouseover", (e) => {
+      const b = e.target instanceof Element ? e.target.closest("button") : null;
+      if (!b) return;
+      const def = triggers.get(b);
+      if (def && b.getAttribute("aria-disabled") !== "true") openFly(def, b, { focus: false });
+      else closeFlyLater();
+    });
+    menuEl.addEventListener("mouseleave", closeFlyLater);
     const items = Array.from(menuEl.querySelectorAll("button"));
     menuEl.addEventListener("keydown", (e) => {
-      const i = items.indexOf(document.activeElement);
+      const live = items.filter((b) => b.getAttribute("aria-disabled") !== "true");
+      const i = live.indexOf(document.activeElement);
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
-        const n = items.length;
-        items[(i + (e.key === "ArrowDown" ? 1 : n - 1)) % n].focus();
+        const n = live.length;
+        live[(i + (e.key === "ArrowDown" ? 1 : n - 1)) % n].focus();
       } else if (e.key === "Home" || e.key === "End") {
         e.preventDefault();
-        items[e.key === "Home" ? 0 : items.length - 1].focus();
+        live[e.key === "Home" ? 0 : live.length - 1].focus();
+      } else if (e.key === "ArrowRight" && triggers.has(document.activeElement)) {
+        e.preventDefault();
+        if (document.activeElement.getAttribute("aria-disabled") !== "true") openFly(triggers.get(document.activeElement), document.activeElement);
       } else if (e.key === "Escape") {
         e.stopPropagation();
         closeKindMenu();
@@ -1113,10 +1299,10 @@ async function start() {
         closeKindMenu({ focus: false });
       }
     });
-    button.closest(".desk-pane__head").append(menuEl);
+    head.append(menuEl);
     placeKindMenu(menuEl, button);
     button.setAttribute("aria-expanded", "true");
-    kindMenu = { menuEl, button };
+    kindMenu = { menuEl, button, head, fly: null };
     (items.find((it) => it.getAttribute("aria-checked") === "true") ?? items[0]).focus({ preventScroll: true });
   }
 
@@ -1182,13 +1368,13 @@ async function start() {
   // A scroll anywhere but in the menu itself (the page, the panes box, a
   // pane), or a new window size, would leave it beside nothing.
   const kindMenuMoved = (e) => {
-    if (kindMenu && !(e.type === "scroll" && kindMenu.menuEl.contains(e.target))) closeKindMenu({ focus: false });
+    if (kindMenu && !(e.type === "scroll" && (kindMenu.menuEl.contains(e.target) || kindMenu.fly?.el.contains(e.target)))) closeKindMenu({ focus: false });
   };
   window.addEventListener("scroll", kindMenuMoved, { capture: true, passive: true });
   window.addEventListener("resize", kindMenuMoved);
 
   document.addEventListener("pointerdown", (e) => {
-    if (kindMenu && !kindMenu.menuEl.contains(e.target) && e.target !== kindMenu.button && !kindMenu.button.contains(e.target)) {
+    if (kindMenu && !kindMenu.menuEl.contains(e.target) && !kindMenu.fly?.el.contains(e.target) && e.target !== kindMenu.button && !kindMenu.button.contains(e.target)) {
       closeKindMenu({ focus: false });
     }
     if (!wrap.contains(e.target) && !inTour(e.target)) {

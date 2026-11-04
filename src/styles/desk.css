@@ -5062,10 +5062,19 @@ html.desk-ws--moving * {
 
 /* The leading LIT pane's flag: a glyph and no words, as the lock is. */
 .desk-pane__lead {
+  /* The lock's own box, so the flag sits exactly where the lock does on the
+     other panes (the two are never on one pane). */
   display: inline-flex;
   align-items: center;
-  padding: 0 2px;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
   color: rgba(var(--ink-rgb), 0.8);
+}
+
+.desk-pane__lead svg {
+  display: block;
 }
 
 .desk-pane__lead[hidden],
@@ -5117,6 +5126,7 @@ html.desk-ws--moving * {
   cursor: pointer;
 }
 
+.desk-pane__lead:not([hidden]) ~ .desk-pane__close,
 .desk-pane__pin:not([hidden]) + .desk-pane__close {
   margin-left: 0;
 }
@@ -5158,6 +5168,51 @@ html.desk-ws--moving * {
 .desk-pane__menu-item:hover,
 .desk-pane__menu-item:focus-visible {
   background-color: rgba(var(--ink-rgb), 0.08);
+}
+
+/* A choice the page has no room for, as the title menu draws one: greyed, no
+   hover, the reason in small type under its label. */
+.desk-pane__menu-item[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.62);
+  cursor: default;
+}
+
+.desk-pane__menu-item[aria-disabled="true"]:hover {
+  background-color: transparent;
+}
+
+.desk-pane__menu-item .desk-title__hint {
+  display: block;
+  margin-left: 0;
+}
+
+/* Add pane, Move and Size open flyouts beside the menu, as the title menu's
+   Add pane does: the label, a chevron at the end, a reason under the label. */
+.desk-pane__menu-item--fly {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.desk-pane__menu-item--fly .desk-title__more {
+  margin-left: auto;
+}
+
+.desk-pane__menu-item--fly .desk-title__hint {
+  flex-basis: 100%;
+  order: 3;
+}
+
+.desk-pane__menu-item--fly[aria-expanded="true"] {
+  background-color: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-pane__menu-item--fly[aria-disabled="true"] .desk-title__more {
+  display: none;
+}
+
+.desk-pane__fly {
+  min-width: 170px;
 }
 
 /* The kind shown now: bold, with a dot before it. */
