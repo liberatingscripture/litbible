@@ -33,6 +33,7 @@ import { editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
 import { hasGreek } from "../lib/greek-search.mjs";
 import { dockWidth } from "./desk-frame.js";
 import { isGreekQuery, setPickedMode } from "./search-core.js";
+import { exampleList } from "./search-greek.js";
 import { createGreekBuilder } from "./greek-builder.js";
 
 const POS_KEY = "lit-greek-commands-pos";
@@ -80,36 +81,6 @@ function make(tag, className, text) {
   if (className) e.className = className;
   if (text !== undefined) e.textContent = text;
   return e;
-}
-
-/**
- * A list of example searches as buttons, each running its query when pressed.
- * `run(query)` is the caller's; a button never takes focus from the field on
- * a mouse press, so the field keeps its cursor.
- */
-export function exampleList(examples, run) {
-  const ul = make("ul", "greek-examples");
-  for (const ex of examples) {
-    const li = make("li");
-    const b = make("button", "greek-ex");
-    b.type = "button";
-    const q = make("span", "greek-ex__query", ex.query);
-    if (hasGreek(ex.query)) q.lang = "grc";
-    b.append(q, make("span", "greek-ex__says", ex.says));
-    b.addEventListener("mousedown", (e) => e.preventDefault());
-    b.addEventListener("click", () => run(ex.query));
-    li.append(b);
-    ul.append(li);
-  }
-  return ul;
-}
-
-/** A "See all search commands" kind of button: it reads as a link and opens the window. */
-export function commandsLinkButton(label, open) {
-  const b = make("button", "greek-cmd-link", label);
-  b.type = "button";
-  b.addEventListener("click", () => open(b));
-  return b;
 }
 
 /* ── Putting a command in the field ───────────────────────────────── */

@@ -23,7 +23,7 @@
 
 import { describeParse } from "../../lib/greek-parse.mjs";
 import { GREEK_LICENSE_HREF, SOURCES } from "../../lib/greek-credits.mjs";
-import { parsingQuery } from "../../lib/greek-commands-ui.mjs";
+import { parsingQuery } from "../../lib/greek-detect.mjs";
 import {
   W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, nearestVerse, noteVerseFor, orderSenses,
   langRuns, renderingsIn, splitSigns, termsForLemma, versesOf,
@@ -38,7 +38,6 @@ import {
   splitFromPointer,
 } from "../../lib/desk-greek-split.mjs";
 import { WIDTHS_EVENT, keepGreekSplit, keptGreekSplit } from "./widths.js";
-import { createGreekFind } from "./greek-find.js";
 import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
@@ -266,19 +265,56 @@ export function createGreekTab({
   let lexSeq = 0;
   let toldTop = null; // the verse last told to onTopVerse (or moved to)
 
-  const find = createGreekFind({
-    root: el,
-    here,
-    selectWord: selectWordHere,
-    openHit,
-    // Focus goes back to the selected word, else the roving one.
-    focusText: () => {
-      const b = buttons[selected ?? rover];
-      if (!b) return false;
-      b.focus({ preventScroll: true });
-      return true;
-    },
-  });
+  // The tab's search and the engine behind it (greek-find.js) load when the
+  // reader starts a search, not with the tab (LG-6). A failed load is forgotten,
+  // so the next click tries again.
+  let find = null;
+  let findLoading = null;
+  let findAsk = 0;
+  const loadFind = () =>
+    (findLoading ||= import("./greek-find.js")
+      .then(({ createGreekFind }) => {
+        find = createGreekFind({
+          root: el,
+          here,
+          selectWord: selectWordHere,
+          openHit,
+          // Focus goes back to the selected word, else the roving one.
+          focusText: () => {
+            const b = buttons[selected ?? rover];
+            if (!b) return false;
+            b.focus({ preventScroll: true });
+            return true;
+          },
+        });
+        return find;
+      })
+      .catch((err) => {
+        findLoading = null;
+        throw err;
+      }));
+
+  function openFind(opts) {
+    const ask = ++findAsk;
+    el.querySelector(".desk-greek__find-failed")?.remove();
+    loadFind().then(
+      (f) => {
+        if (ask === findAsk && !destroyed) f.open(opts);
+      },
+      (err) => {
+        console.error("Study Desk: the Greek search couldn't load", err);
+        if (ask !== findAsk || destroyed) return;
+        const note = make("p", "desk-greek__find-failed", "The Greek search couldn’t be loaded. Try again.");
+        note.setAttribute("role", "status");
+        parseLine.after(note);
+      },
+    );
+  }
+
+  function closeFind(opts) {
+    findAsk++; // a search still loading doesn't open over what came after it
+    find?.close(opts);
+  }
 
   /* ── Loading ───────────────────────────────────────────────────── */
 
@@ -753,7 +789,7 @@ export function createGreekTab({
 
   /** The same, for a caller from outside: an open search gives the text back first. */
   function selectWord(verse, t, opts) {
-    find.close({ focus: false });
+    closeFind({ focus: false });
     return selectWordHere(verse, t, opts);
   }
 
@@ -930,7 +966,7 @@ export function createGreekTab({
     // menu stays.
     const formQuery = w[W.text].replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
     wordHead.replaceChildren(
-      starter(w[W.text], formQuery, () => find.open({ query: formQuery, exact: true, prefer: lemmaForm })),
+      starter(w[W.text], formQuery, () => openFind({ query: formQuery, exact: true, prefer: lemmaForm })),
     );
 
     // The live line: the word and its parsing, in words with the code beside.
@@ -940,7 +976,7 @@ export function createGreekTab({
       // The parsing in words searches every word parsed so ("*.aor.act.impv.2nd.pl").
       const parsed = parsingQuery(pos, parse);
       inWords = describeParse(pos, parse);
-      parseLine.append(parsed ? starter(inWords, parsed, () => find.open({ query: parsed })) : inWords);
+      parseLine.append(parsed ? starter(inWords, parsed, () => openFind({ query: parsed })) : inWords);
       parseLine.append(" ", make("span", "desk-greek__code", [pos, parse].filter(Boolean).join(" ")));
     } else {
       parseLine.append("No parsing for this word.");
@@ -959,14 +995,14 @@ export function createGreekTab({
       const [form, strong, , gloss] = lemma;
       const f = make("span", "desk-greek__lemma-form");
       f.lang = "grc";
-      f.append(starter(form, form, () => find.open({ query: form, prefer: form })));
+      f.append(starter(form, form, () => openFind({ query: form, prefer: form })));
       lemmaLine.append(f);
       if (gloss) lemmaLine.append(` · ${gloss}`);
       const count = flat.filter((x) => x.w[W.lemma] === w[W.lemma]).length;
       lemmaLine.append(` · ${count} in this chapter`);
       if (strong) {
         const s = make("span", "desk-greek__strong");
-        s.append(starter(`Strong’s ${strong}`, strong, () => find.open({ query: strong, prefer: form })));
+        s.append(starter(`Strong’s ${strong}`, strong, () => openFind({ query: strong, prefer: form })));
         lemmaLine.append(" · ", s);
       }
     }
@@ -1208,7 +1244,7 @@ export function createGreekTab({
    */
   function destroy() {
     destroyed = true;
-    find.close({ focus: false });
+    closeFind({ focus: false });
     window.removeEventListener("scroll", queueGoto);
     document.removeEventListener(WIDTHS_EVENT, onWidths);
     resizes?.disconnect();

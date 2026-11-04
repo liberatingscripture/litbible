@@ -7,9 +7,11 @@
 // greek-query.mjs's; the screens (the commands window, /search, the tray and
 // the Notebook's Greek tab) draw with these.
 
-import { FILTERS, codeFits } from "./greek-query.mjs";
+import { QUERY_AXES, parsingQuery } from "./greek-detect.mjs";
 import { describeParse } from "./greek-parse.mjs";
 import { SIGNS, W } from "./desk-greek.mjs";
+
+export { QUERY_AXES, parsingQuery };
 
 /* ── Putting a command in the field ──────────────────────────────── */
 
@@ -71,28 +73,6 @@ export function editSpan(before, after) {
   let tail = 0;
   while (tail < a.length - start && tail < b.length - start && a[a.length - 1 - tail] === b[b.length - 1 - tail]) tail++;
   return { start, end: a.length - tail, text: b.slice(start, b.length - tail) };
-}
-
-/** The kinds of filter in the order a query reads best: part of speech, tense, voice, mood, case, person, number, gender, degree. */
-export const QUERY_AXES = ["pos", "tense", "voice", "mood", "case", "person", "number", "gender", "degree"];
-
-/**
- * The query a word's parsing starts: "*." and every filter word of its part
- * of speech and parsing ("*.aor.act.impv.2nd.pl"). A verb's part of speech is
- * left out, since its tense and mood already say it. Null for a word with no
- * parsing to search by. `pos` is MorphGNT's two characters ("V-"), `parse`
- * the eight that follow.
- */
-export function parsingQuery(pos, parse) {
-  const code = String(pos ?? "").padEnd(2, "-") + String(parse ?? "").padEnd(8, "-");
-  const words = [];
-  for (const axis of QUERY_AXES) {
-    if (axis === "pos" && code.startsWith("V-")) continue;
-    for (const f of FILTERS) {
-      if (f.axis === axis && codeFits([f], code)) words.push(f.words[0]);
-    }
-  }
-  return words.length ? `*.${words.join(".")}` : null;
 }
 
 /**

@@ -44,7 +44,10 @@
 // with `lemmaId` the lemma's place in lemmas.json and `codeIndex` into that
 // group's `codes`.
 
+import { hasGreek, parseGreekParam, parseStrong } from "./greek-detect.mjs";
 import { levenshtein } from "./levenshtein.mjs";
+
+export { hasGreek, parseGreekParam, parseStrong };
 
 export const GREEK_SEARCH_FORMAT = 2;
 /** The format of search/parse.json and of each search/parse/<group>.json. */
@@ -52,14 +55,10 @@ export const GREEK_PARSE_FORMAT = 1;
 
 /* ── Folding ─────────────────────────────────────────────────────── */
 
-const GREEK_LETTER = /[Ͱ-Ͽἀ-῿]/;
 const COMBINING = /[̀-ͯ]/g;
 const NOT_GREEK = /[^α-ω]/g;
 /** Letter variants from math keyboards and copied pages: ϑ ϕ ϖ ϱ ϰ ϵ are θ φ π ρ κ ε (GK-15). */
 const COMPAT = { "ϑ": "θ", "ϕ": "φ", "ϖ": "π", "ϱ": "ρ", "ϰ": "κ", "ϵ": "ε" };
-
-/** True when the text has a Greek letter in it. */
-export const hasGreek = (s) => GREEK_LETTER.test(String(s ?? ""));
 
 /**
  * A Greek word as search compares it: accents, breathings, diaeresis and iota
@@ -170,14 +169,6 @@ export function transliterate(greek) {
 }
 
 /* ── Strong's numbers ────────────────────────────────────────────── */
-
-const STRONG_RE = /^(?:strong(?:['’]?s)?\s*:?\s*g?|g)\s*0*(\d{1,5})$/i;
-
-/** "G4102" for any way of typing a Strong's number, else null. */
-export function parseStrong(text) {
-  const m = STRONG_RE.exec(String(text ?? "").trim());
-  return m ? `G${Number(m[1])}` : null;
-}
 
 /**
  * Whether a query is long enough to search: Greek or a Strong's number at any
@@ -545,12 +536,6 @@ export function hasOtherForms(entry, form) {
  */
 export function greekHref({ book, chapter, verse, t }) {
   return `/${book}-${chapter}/?greek=${verse}.${t}#v${verse}`;
-}
-
-/** The word a `greek` parameter names ({ verse, t }), or null. */
-export function parseGreekParam(value) {
-  const m = /^(\d{1,3})\.(\d{1,3})$/.exec(String(value ?? ""));
-  return m ? { verse: Number(m[1]), t: Number(m[2]) } : null;
 }
 
 /** One line for a lemma: "πίστις · pistis · G4102 · faith · 243 times". */

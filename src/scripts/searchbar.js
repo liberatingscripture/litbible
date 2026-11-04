@@ -41,15 +41,17 @@ import {
   setPickedMode,
   notePickedMode,
   showModeFor,
-  searchGreekAuto,
-  loadGreekChapter,
+  loadGreekSearch,
   showGreekHere,
   MODE_LABELS,
 } from "./search-core.js";
-import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
-import { countLine, describeGreekQuery, errorMessage } from "../lib/greek-query.mjs";
-import { formsLine, replaceWord, verseGreek } from "../lib/greek-commands-ui.mjs";
-import { creditHtml } from "../lib/greek-credits.mjs";
+import { hasGreek } from "../lib/greek-detect.mjs";
+
+// The Greek search itself, loaded by the first Greek query (LG-6), so a reader
+// who never makes one downloads none of it. Whatever draws a Greek result runs
+// after that search, so `gk` is set by then.
+let gk = null;
+const withGreek = async () => (gk ||= await loadGreekSearch());
 
 // The Greek commands window is loaded only when the Greek is searched at all
 // (and then only when a button asks for it), so a reader without the Study
@@ -620,7 +622,7 @@ const _initSearchbars = async () => {
 
     // Who the Greek comes from, under every Greek group (BA46): the same
     // names and links as the Greek tab's sources (greek-credits.mjs).
-    const GREEK_CREDIT = `<p class="searchbar__credit">${creditHtml(escapeHtml)}</p>`;
+    const greekCredit = () => `<p class="searchbar__credit">${gk.creditHtml(escapeHtml)}</p>`;
 
     function renderGreekCommandsGroup(greek, q, bookKey) {
       const group = document.createElement("div");
@@ -631,7 +633,7 @@ const _initSearchbars = async () => {
 
       let body = "";
       if (error) {
-        const msg = errorMessage(error);
+        const msg = gk.errorMessage(error);
         status.textContent = msg.text;
         pointTo = msg.filter ?? null;
         const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
@@ -647,8 +649,8 @@ const _initSearchbars = async () => {
         return;
       } else {
         const greekSpan = (g) => `<span lang="grc">${escapeHtml(g)}</span>`;
-        body = `<p class="searchbar__readback">${describeGreekQuery(resolved, { greek: greekSpan, text: escapeHtml })} · ${escapeHtml(countLine(hits))}</p>`;
-        status.textContent = hits.length ? countLine(hits) : "No verses match that search.";
+        body = `<p class="searchbar__readback">${gk.describeGreekQuery(resolved, { greek: greekSpan, text: escapeHtml })} · ${escapeHtml(gk.countLine(hits))}</p>`;
+        status.textContent = hits.length ? gk.countLine(hits) : "No verses match that search.";
       }
 
       const shown = hits.slice(0, GREEK_TRAY_LIMIT);
@@ -671,7 +673,7 @@ const _initSearchbars = async () => {
         ${body}
         ${rows ? `<ol class="searchbar__results">${rows}</ol>` : ""}
         <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>
-        ${GREEK_CREDIT}`;
+        ${greekCredit()}`;
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
@@ -689,8 +691,8 @@ const _initSearchbars = async () => {
           return;
         }
         if (e.target.closest?.("[data-greek-fix]") && error) {
-          const msg = errorMessage(error);
-          input.value = replaceWord(input.value, msg.replace, msg.suggest);
+          const msg = gk.errorMessage(error);
+          input.value = gk.replaceWord(input.value, msg.replace, msg.suggest);
           clearGhost();
           runSearch(input.value.trim());
         }
@@ -700,9 +702,9 @@ const _initSearchbars = async () => {
       // The words each verse matched, once its chapter's Greek has arrived.
       shown.forEach((h, i) => {
         const slot = group.querySelectorAll("[data-greek-forms]")[i];
-        loadGreekChapter(base, h.book, h.chapter).then((data) => {
+        gk.loadGreekChapter(base, h.book, h.chapter).then((data) => {
           if (!data || !slot?.isConnected) return;
-          const line = formsLine(verseGreek(data, h.verse, h.marked, escapeHtml).words);
+          const line = gk.formsLine(gk.verseGreek(data, h.verse, h.marked, escapeHtml).words);
           if (line) slot.innerHTML = ` · <span lang="grc">${escapeHtml(line)}</span>`;
         });
       });
@@ -743,7 +745,7 @@ const _initSearchbars = async () => {
         if (!lemmas.length) return;
         rows = lemmas
           .map((item, i) => {
-            const line = lemmaLine(item);
+            const line = gk.lemmaLine(item);
             return `
               <li class="searchbar__result">
                 <button type="button" class="searchbar__link searchbar__link--button" data-greek-lemma="${i}">
@@ -757,7 +759,7 @@ const _initSearchbars = async () => {
       group.innerHTML = `
         <div class="searchbar__group-title">Greek</div>
         <ol class="searchbar__results">${rows}</ol>
-        ${GREEK_CREDIT}
+        ${greekCredit()}
       `;
 
       group.addEventListener("click", (e) => {
@@ -928,11 +930,17 @@ const _initSearchbars = async () => {
             desk && activeMode === "all" && desk.greekNotesOn()
               ? desk.search(q, { bookKey: keywordBook }).catch(() => null)
               : null;
-          const greek = await searchGreekAuto(base, q, {
-            near: false,
-            bookKey: keywordBook,
-            lemmaId: pinnedGreek ? pinnedGreek.id : null,
-          }).catch(() => null);
+          const greek = await withGreek()
+            .then((m) =>
+              m
+                ? m.searchGreekAuto(base, q, {
+                    near: false,
+                    bookKey: keywordBook,
+                    lemmaId: pinnedGreek ? pinnedGreek.id : null,
+                  })
+                : null,
+            )
+            .catch(() => null);
           if (mySeq !== searchSeq) return;
           const notebook = notebookPromise ? await notebookPromise : null;
           if (mySeq !== searchSeq) return;

@@ -15,7 +15,7 @@
 // - results can go on an open Sheet pane's sheet.
 
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
-import { hasGreek } from "./greek-search.mjs";
+import { hasGreek } from "./greek-detect.mjs";
 
 /** The shortest query searched as the tray does (a Greek query has no minimum). */
 export const MIN_QUERY_LEN = 3;

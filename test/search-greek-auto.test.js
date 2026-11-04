@@ -1,4 +1,4 @@
-// How the three search surfaces route a Greek query (search-core.js):
+// How the three search surfaces route a Greek query (search-greek.js):
 // searchGreekAuto sends a command query to searchGreekCommands and anything
 // else to searchGreek as before, and isGreekQuery knows the commands' symbols.
 // The loaders fetch from public/greek/ (the committed index), so fetch is
@@ -24,7 +24,8 @@ globalThis.fetch = async (url) => {
 const warn = console.warn;
 console.warn = () => {}; // the absent bridge is logged once
 
-const { isGreekQuery, searchGreekAuto, searchGreekCommands } = await import("../src/scripts/search-core.js");
+const { isGreekQuery } = await import("../src/scripts/search-core.js");
+const { searchGreekAuto, searchGreekCommands } = await import("../src/scripts/search-greek.js");
 
 // ── What counts as only Greek ───────────────────────────────────────────
 
@@ -151,7 +152,7 @@ test("BA45: a command of plain words that is no gloss is still a command", async
 });
 
 test("couldBeGreek and longEnoughForGreek agree on two Latin letters (GK-4)", async () => {
-  const { couldBeGreek } = await import("../src/scripts/search-core.js");
+  const { couldBeGreek } = await import("../src/scripts/search-greek.js");
   const { longEnoughForGreek } = await import("../src/lib/greek-search.mjs");
   for (const q of ["de", "ou", "ei", "en", "go", "a", "", "*"]) assert.equal(couldBeGreek(q), longEnoughForGreek(q) && /\p{L}/u.test(q), q);
 });

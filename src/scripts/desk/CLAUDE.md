@@ -74,10 +74,6 @@ means each of these, in one change:
    Firefox passes are still open from Audit 1's FA1-v.
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
-11. The Greek search engine rides in every page's search bundle until it is
-    loaded on demand (LG-6; about 14 KB gzipped). The imports are static in
-    `search-core.js`, `searchbar.js` and `search.js` with synchronous call
-    sites, so the fix is a refactor, not a swap; do it before launch or accept it.
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
@@ -675,12 +671,20 @@ against `dist/` is a later item.
        (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
        (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120).
   15. **Phase 1h is searching the Greek** (built 2026-10-13; STUDY-DESK.md,
-     "Order of work", 1h). Five things to know:
+     "Order of work", 1h). Six things to know:
      - **It is ordinary site search, gated until launch.** Only while
        `greekSearchEnabled()` in `search-core.js` is true, which today is
        the preview's `data-desk="on"`; without it nothing under `greek/`
        is fetched and search is exactly as before. **Launch is that one
        function returning true.**
+     - **The engine is its own download, desk on or off** (`search-greek.js`;
+       LG-6, BVJ 2026-11-04: it loads only when actually needed). The tray,
+       /search and /desk's Search pane reach it through `loadGreekSearch()`
+       when a query is Greek, and the Greek tab's `greek-find.js`, which
+       imports it, loads when a word's search is started. Never import either
+       statically from desk code. What has to run first is in the small
+       `greek-detect.mjs`: `isGreekQuery`'s parts, and the tab's
+       `parsingQuery`. `test/search-greek-lazy.test.js` holds the split.
      - **One query never gets both English and Greek results** (BVJ,
        2026-10-13). A query with Greek letters or a Strong's number
        (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save
@@ -803,7 +807,7 @@ against `dist/` is a later item.
        most four words** (`MAX_TERMS`, BA44): `matchConstruction` builds each
        match round its middle word, exact but cubic only because of that
        cap, so raising it needs a new matcher, not a bigger number.
-     - **`searchGreekAuto` in `search-core.js` is the one Greek search**
+     - **`searchGreekAuto` in `search-greek.js` is the one Greek search**
        the tray, /search, /desk's Search pane and the Greek tab's word links call: a command query goes to
        `searchGreekCommands`, anything else to 1h's `searchGreek`, with
        two or three plain Latin words that find nothing tried as a

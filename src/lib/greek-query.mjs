@@ -36,70 +36,16 @@
 // ten characters, the part of speech then person, tense, voice, mood, case,
 // number, gender and degree.
 
+import { FILTERS, codeFits, filterFor } from "./greek-detect.mjs";
 import { foldGreek, hasGreek, matchGreek, parseGroup } from "./greek-search.mjs";
 import { levenshtein } from "./levenshtein.mjs";
 
+export { FILTERS, codeFits, filterFor };
+
 /* ── Filters ─────────────────────────────────────────────────────── */
-
-// Where each axis sits in a code ("V-2AAD-P--").
-const AT = { person: 2, tense: 3, voice: 4, mood: 5, case: 6, number: 7, gender: 8, degree: 9 };
-
-/**
- * Every filter: its axis, the code it matches, what it is called (`name`,
- * which the readback uses) and the words a reader can type for it, the
- * shortcut first. Parts of speech match the code's first two characters;
- * "pronoun" matches every pronoun but the article.
- */
-export const FILTERS = [
-  { axis: "pos", code: "N-", name: "noun", words: ["noun"] },
-  { axis: "pos", code: "V-", name: "verb", words: ["verb"] },
-  { axis: "pos", code: "A-", name: "adjective", words: ["adj", "adjective"] },
-  { axis: "pos", code: "RA", name: "article", words: ["art", "article"] },
-  { axis: "pos", code: "R*", name: "pronoun", words: ["pron", "pronoun"] },
-  { axis: "pos", code: "P-", name: "preposition", words: ["prep", "preposition"] },
-  { axis: "pos", code: "C-", name: "conjunction", words: ["conj", "conjunction"] },
-  { axis: "pos", code: "D-", name: "adverb", words: ["adv", "adverb"] },
-  { axis: "pos", code: "X-", name: "particle", words: ["particle"] },
-  { axis: "pos", code: "I-", name: "interjection", words: ["interjection"] },
-  { axis: "tense", code: "P", name: "present", words: ["pres", "present"] },
-  { axis: "tense", code: "I", name: "imperfect", words: ["impf", "imperfect"] },
-  { axis: "tense", code: "F", name: "future", words: ["fut", "future"] },
-  { axis: "tense", code: "A", name: "aorist", words: ["aor", "aorist"] },
-  { axis: "tense", code: "X", name: "perfect", words: ["pf", "perf", "perfect"] },
-  { axis: "tense", code: "Y", name: "pluperfect", words: ["plpf", "pluperfect"] },
-  { axis: "voice", code: "A", name: "active", words: ["act", "active"] },
-  { axis: "voice", code: "M", name: "middle", words: ["mid", "middle"] },
-  { axis: "voice", code: "P", name: "passive", words: ["pass", "passive"] },
-  { axis: "mood", code: "I", name: "indicative", words: ["ind", "indicative"] },
-  { axis: "mood", code: "D", name: "imperative", words: ["impv", "imperative"] },
-  { axis: "mood", code: "S", name: "subjunctive", words: ["subj", "subjunctive"] },
-  { axis: "mood", code: "O", name: "optative", words: ["opt", "optative"] },
-  { axis: "mood", code: "N", name: "infinitive", words: ["inf", "infinitive"] },
-  { axis: "mood", code: "P", name: "participle", words: ["ptc", "ptcp", "participle"] },
-  { axis: "case", code: "N", name: "nominative", words: ["nom", "nominative"] },
-  { axis: "case", code: "G", name: "genitive", words: ["gen", "genitive"] },
-  { axis: "case", code: "D", name: "dative", words: ["dat", "dative"] },
-  { axis: "case", code: "A", name: "accusative", words: ["acc", "accusative"] },
-  { axis: "case", code: "V", name: "vocative", words: ["voc", "vocative"] },
-  { axis: "number", code: "S", name: "singular", words: ["sg", "sing", "singular"] },
-  { axis: "number", code: "P", name: "plural", words: ["pl", "plural"] },
-  { axis: "gender", code: "M", name: "masculine", words: ["masc", "masculine"] },
-  { axis: "gender", code: "F", name: "feminine", words: ["fem", "feminine"] },
-  { axis: "gender", code: "N", name: "neuter", words: ["neut", "neuter"] },
-  { axis: "person", code: "1", name: "1st person", words: ["1st"] },
-  { axis: "person", code: "2", name: "2nd person", words: ["2nd"] },
-  { axis: "person", code: "3", name: "3rd person", words: ["3rd"] },
-  { axis: "degree", code: "C", name: "comparative", words: ["comp", "comparative"] },
-  { axis: "degree", code: "S", name: "superlative", words: ["superl", "superlative"] },
-];
 
 /** The order an axis is named in, in the readback and the commands window. */
 export const AXES = ["pos", "person", "tense", "voice", "mood", "case", "number", "gender", "degree"];
-
-const FILTER_BY_WORD = new Map(FILTERS.flatMap((f) => f.words.map((w) => [w, f])));
-
-/** The filter a typed word names ("gen", "Genitive"), or null. */
-export const filterFor = (word) => FILTER_BY_WORD.get(String(word ?? "").toLowerCase()) ?? null;
 
 /** The filter word a mistyped one was probably meant to be ("genetive" → "genitive"), or null. */
 export function nearestFilter(word) {
@@ -114,22 +60,6 @@ export function nearestFilter(word) {
     }
   }
   return best?.word ?? null;
-}
-
-const fitsOne = (f, c) =>
-  f.axis === "pos" ? (f.code === "R*" ? c[0] === "R" && c[1] !== "A" : c.slice(0, 2) === f.code) : c[AT[f.axis]] === f.code;
-
-/**
- * True when a ten-character code fits `filters` (a list of FILTERS entries):
- * one of each kind given, so two of one kind ("gen/dat") mean either.
- */
-export function codeFits(filters, code) {
-  const c = String(code ?? "");
-  const axes = new Set(filters.map((f) => f.axis));
-  for (const axis of axes) {
-    if (!filters.some((f) => f.axis === axis && fitsOne(f, c))) return false;
-  }
-  return true;
 }
 
 /* ── The commands window ─────────────────────────────────────────── */
