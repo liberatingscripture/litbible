@@ -1423,6 +1423,8 @@ The sharpest items: a keyboard-only reader cannot blank arbitrary words on a she
 
 #### DK-1 · High · a11y · NEW
 
+> **Fixed in FA2-h (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** the passage takes focus (`tabindex=0`); arrows move a word cursor, Shift extends, Enter blanks the chosen words (`wordSpans`, `sheet-lit.js`); imported chapter blocks lose `img`, `script`, `on*` and `javascript:` addresses before `importNode` (SEC-1's second lock).
+
 > **Live check (LV): confirmed.** Shift+Arrow leaves no selection in the passage text; only the key-term chip blanked a word.
 **Where** `src/scripts/desk/sheet-lit.js:413-447` (`blankSelection`, the "Blank the selected words" button); the passage text it works on is built at `sheet-lit.js:179-243` (`passageWords`) and has no `tabindex`, role or key handler (grep of `sheet-lit.js` finds no `keydown` and no `tabindex`).
 **What happens** A leader building a fill-in-the-blank handout can blank the key terms from the chips (`sheet-lit.js:462-480`, real buttons), but any other word has to be blanked by selecting it in the passage text with a mouse and pressing the button. The passage text is non-editable, non-focusable text, so Shift+Arrow has no caret to extend; the only keyboard route is the browser's caret browsing (F7), which the site neither mentions nor can count on. A keyboard-only or switch user therefore cannot make a custom blank. With no selection the button only says "Select words in this passage first" (`sheet-lit.js:420`).
@@ -1487,12 +1489,16 @@ The sharpest items: a keyboard-only reader cannot blank arbitrary words on a she
 **Fix** Show small "narrower / wider" buttons on the focused or hovered line, or in the pane menu ("Make this pane wider"); add an invisible 16 to 24px pseudo-element hit area to `.desk-split__handle`.
 **Confidence** Medium.
 
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** the line has a 20px hit area, Home and End, and `aria-valuetext`. The pane menu also has Make this pane wider, narrower, taller and shorter (owner question 2, BVJ chose that option on 2026-11-03).
+
 #### DK-9 · Low · usability · NEW
 **Where** `src/lib/desk-layout.mjs:234-259` (`applyArrangement`), `src/scripts/desk/desk-page.js:304-309`.
 **What happens** Choosing a layout with fewer slots than there are panes closes the extra panes from the end, silently. A reader with LIT, Greek, a Sheet pane and a Search pane who clicks "Two columns" loses the Sheet and Search panes (the Search pane's query and results, a Sheet pane's open sheet), `lit-desk-layout` is overwritten at once, and the announcement says only "Layout: Two columns." There is no undo (the desk's undo bar is not used for layout changes) and "My last layout" is already replaced. Also, a new slot is filled with "the first kind not yet open" (`:248`), so Search and Sheet come last in that order and the reader gets This verse first.
 **Evidence** Read `applyArrangement`; ran `dk-layout.mjs` (a 3-pane layout re-applied to "One pane" keeps only the first).
 **Fix** Say what closed in the announcement and, ideally, offer "Undo" through `showUndo`; keep the closed panes' kinds in the saved layout until the next arrangement. Fill new slots with the kinds the reader used most recently.
 **Confidence** High.
+
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** a layout that closes panes names them and offers Undo through the undo bar.
 
 #### DK-10 · Low · usability · NEW
 **Where** `src/styles/desk.css:4983-4988` (`.desk-pane__body--fill`, `overflow: hidden`), `:7247-7252` (`.desk-search__top`, `flex: none`), `desk-pane` `min-height: 160px` (`:4800ish`).
@@ -1501,7 +1507,11 @@ The sharpest items: a keyboard-only reader cannot blank arbitrary words on a she
 **Fix** Let `.desk-search__top` scroll with the results when the pane is short (one scroller, `overflow-y: auto` on `.desk-search`), or collapse the type and book menus into a "Filters" disclosure below about 260px of height.
 **Confidence** Medium.
 
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** the Search pane's field and menus scroll (max 60% of the pane) so results keep room.
+
 #### DK-11 · Low · data-integrity · NEW
+
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** `save()` writes only `last` over the key as it is now; the start radios and Make this my default re-read it too.
 
 > **Live check (LV): confirmed** with a simulated second tab: the next layout save wrote back start “last” and dropped “mine.”
 **Where** `src/scripts/desk/desk-page.js:254` (`let saved = readSaved(readKey())`, read once) and `:481-484` (`save()` writes `{ ...saved, last: layout }`); no `storage` listener anywhere in the file.
@@ -1516,6 +1526,8 @@ The sharpest items: a keyboard-only reader cannot blank arbitrary words on a she
 **Evidence** Read the print blocks; not printed.
 **Fix** Under `@media print` on `html[data-desk-workspace]`, hide the panes and show one line ("Use Print in the header to print a chapter."), or print the leading LIT pane's chapter.
 **Confidence** Medium.
+
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** `@media print` on /desk hides the panes and says where Print is.
 
 #### DK-13 · Low · a11y · NEW
 
@@ -2281,6 +2293,8 @@ Of the other-auditor claims I tried: 9 CONFIRMED (NB-1 for the H key, NB-2, NB-3
 **Evidence** Row HTML: `<span class="desk-item__ref">Sheet</span><span class="desk-item__kind">Sheet</span>` plus the two buttons, nothing else.
 **Fix** For a sheet, fall back to "Untitled sheet", link to `/sheets/?id=` (it is a page of its own), and put the title in the button names.
 **Confidence** High for an untitled sheet.
+
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** a sheet's row shows its name, links to `/sheets/?id=`, and names it in Labels and Delete.
 
 #### LV-4 · Low · performance · NEW
 **Where** `src/scripts/searchbar.js:49-52`, `src/scripts/search.js:47-49`, `src/scripts/greek-commands.js:29-31`, `src/lib/greek-commands-ui.mjs:13` (`import { SIGNS, W } from "./desk-greek.mjs"`), loaded for every reader.

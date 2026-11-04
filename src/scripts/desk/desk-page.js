@@ -63,6 +63,7 @@ import {
   needs,
   neighborIn,
   nodeAt,
+  pathTo,
   openKind,
   openLitBeside,
   openingLayout,
@@ -99,7 +100,7 @@ import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
-import { initUndo } from "./undo-bar.js";
+import { initUndo, showUndo } from "./undo-bar.js";
 
 const NEEDS_TEXT = {
   wider: "Needs a wider window",
@@ -369,8 +370,15 @@ async function start() {
     b.querySelector(".desk-ws__shape-needs").id = `deskWsNeeds-${a.id}`;
     b.addEventListener("click", () => {
       if (b.getAttribute("aria-disabled") === "true") return;
-      commit(applyArrangement(layout, a.id));
-      announce(`Layout: ${a.label}.`);
+      const before = layout;
+      const next = applyArrangement(layout, a.id);
+      const stays = new Set(panes(next.root).map((p) => p.id));
+      const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
+      commit(next);
+      // A smaller layout closes panes from the end: say which, and offer to
+      // bring them back (DK-9). The bar announces itself.
+      if (closed.length) showUndo(`Layout: ${a.label}. Closed ${LIST.format(closed)}.`, () => commit(before));
+      else announce(`Layout: ${a.label}.`);
       closeMenu();
     });
     shapesBox.append(b);
@@ -380,14 +388,14 @@ async function start() {
   for (const radio of startRadios) {
     radio.addEventListener("change", () => {
       if (!radio.checked || layoutFrozen) return;
-      saved = { ...saved, start: radio.value };
+      saved = { ...readSaved(readKey()), start: radio.value };
       writeKey(writeSaved(saved));
     });
   }
   const makeDefault = menu.querySelector("[data-ws-make-default]");
   makeDefault.addEventListener("click", () => {
     if (layoutFrozen) return;
-    saved = { ...saved, mine: layout };
+    saved = { ...readSaved(readKey()), mine: layout };
     writeKey(writeSaved(saved));
     refreshMenu();
     announce("This layout is now your default.");
@@ -775,7 +783,11 @@ async function start() {
 
   function save() {
     if (layoutFrozen) return;
-    saved = { ...saved, last: layout };
+    // The key holds three things, and another tab may have changed the
+    // default or the opening choice since this one loaded: this tab writes
+    // only `last` over what is there now (DK-11).
+    const { mine, start } = readSaved(readKey());
+    saved = { ...saved, mine, start, last: layout };
     writeKey(writeSaved(saved));
   }
 
@@ -1061,6 +1073,29 @@ async function start() {
       });
       moveGroup.append(item);
     }
+    // Size this pane (DK-8): the click-only way to do what dragging a line
+    // does, for a reader who can't drag. Each step is a tenth of the split.
+    const sizes = SIZINGS.map((z) => ({ ...z, at: sizingFor(id, z) })).filter((z) => z.at);
+    if (sizes.length) {
+      const line = el("div", "desk-pane__menu-line");
+      line.setAttribute("role", "separator");
+      menuEl.append(line);
+      const group = el("div", "desk-pane__menu-group");
+      group.setAttribute("role", "group");
+      group.setAttribute("aria-label", "Size this pane");
+      menuEl.append(group);
+      for (const z of sizes) {
+        const item = el("button", "desk-pane__menu-item desk-pane__menu-item--move", z.label);
+        item.type = "button";
+        item.setAttribute("role", "menuitem");
+        item.tabIndex = -1;
+        item.addEventListener("click", () => {
+          closeKindMenu();
+          sizePane(id, z);
+        });
+        group.append(item);
+      }
+    }
     const items = Array.from(menuEl.querySelectorAll("button"));
     menuEl.addEventListener("keydown", (e) => {
       const i = items.indexOf(document.activeElement);
@@ -1083,6 +1118,44 @@ async function start() {
     button.setAttribute("aria-expanded", "true");
     kindMenu = { menuEl, button };
     (items.find((it) => it.getAttribute("aria-checked") === "true") ?? items[0]).focus({ preventScroll: true });
+  }
+
+  // "Make this pane wider" and its kin: which way a step goes along which kind of split.
+  const SIZINGS = [
+    { label: "Make this pane wider", split: "columns", grow: true, word: "wide" },
+    { label: "Make this pane narrower", split: "columns", grow: false, word: "wide" },
+    { label: "Make this pane taller", split: "rows", grow: true, word: "tall" },
+    { label: "Make this pane shorter", split: "rows", grow: false, word: "tall" },
+  ];
+
+  /** The nearest split round a pane that runs the way a sizing needs: its path and the pane's place in it. */
+  function sizingFor(id, z) {
+    const at = pathTo(layout.root, id);
+    if (!at) return null;
+    for (let d = at.length - 1; d >= 0; d--) {
+      const path = at.slice(0, d);
+      const node = nodeAt(layout.root, path);
+      if (node?.split === z.split) return { path, index: at[d], count: node.children.length };
+    }
+    return null;
+  }
+
+  function sizePane(id, z) {
+    const at = sizingFor(id, z);
+    const box = at && panesBox.querySelector(`.desk-split[data-path="${at.path.join(".")}"]`);
+    if (!at || !box) return;
+    const r = box.getBoundingClientRect();
+    const length = z.split === "columns" ? r.width : r.height;
+    const step = length * 0.1;
+    // The line beside the pane that gives way: after it, or before the last pane.
+    const line = at.index < at.count - 1 ? at.index : at.index - 1;
+    const forward = (at.index < at.count - 1) === z.grow;
+    layout = resize(asDrawn(at.path), at.path, line, forward ? step : -step, length);
+    fit();
+    sizeSplit(at.path);
+    save();
+    const share = Math.round((nodeAt(drawn, at.path)?.sizes[at.index] ?? 0) * 100);
+    announce(`${kindLabel(findPane(layout.root, id)?.kind)} is now ${share} percent of the ${z.word === "wide" ? "width" : "height"} here.`);
   }
 
   /**
@@ -1140,6 +1213,8 @@ async function start() {
     line.setAttribute("aria-label", node.split === "columns"
       ? `Resize: ${names[0]} on the left, ${names[1]} on the right`
       : `Resize: ${names[0]} above, ${names[1]} below`);
+    const first = Math.round(node.sizes[index] * 100);
+    line.setAttribute("aria-valuetext", `${names[0]} ${first} percent, ${names[1]} ${100 - first} percent`);
     line.style.flexBasis = `${HANDLE}px`;
     const columns = node.split === "columns";
     const lengthOf = () => {
@@ -1173,11 +1248,12 @@ async function start() {
     line.addEventListener("keydown", (e) => {
       const back = columns ? "ArrowLeft" : "ArrowUp";
       const ahead = columns ? "ArrowRight" : "ArrowDown";
-      if (e.key !== back && e.key !== ahead) return;
+      if (e.key !== back && e.key !== ahead && e.key !== "Home" && e.key !== "End") return;
       e.preventDefault();
       const length = lengthOf();
-      const step = length * (e.shiftKey ? 0.1 : 0.02);
-      layout = resize(asDrawn(path), path, index, e.key === ahead ? step : -step, length);
+      // Home and End push the line as far as it goes (DK-8); resize() keeps each pane's minimum.
+      const step = e.key === "Home" || e.key === "End" ? length : length * (e.shiftKey ? 0.1 : 0.02);
+      layout = resize(asDrawn(path), path, index, e.key === ahead || e.key === "End" ? step : -step, length);
       fit();
       sizeSplit(path);
       save();
@@ -1235,7 +1311,12 @@ async function start() {
     parts.forEach((part, i) => { part.style.flex = `${node.sizes[i]} 1 0px`; });
     Array.from(box.children)
       .filter((c) => c.classList.contains("desk-split__handle"))
-      .forEach((line, i) => line.setAttribute("aria-valuenow", String(Math.round(node.sizes[i] * 100))));
+      .forEach((line, i) => {
+        const first = Math.round(node.sizes[i] * 100);
+        line.setAttribute("aria-valuenow", String(first));
+        const names = [node.children[i], node.children[i + 1]].map((c) => LIST.format(panes(c).map((p) => kindLabel(p.kind))));
+        line.setAttribute("aria-valuetext", `${names[0]} ${first} percent, ${names[1]} ${100 - first} percent`);
+      });
   }
 
   // ---- dragging a pane to split another ----

@@ -15,6 +15,7 @@
 import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
+import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { kindName, recordHref, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { followBookmark } from "./bookmark-follow.js";
@@ -74,11 +75,14 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   const li = document.createElement("li");
   li.className = "desk-item desk-np-row";
   li.dataset.id = r.id;
-  const ref = recordReference(r);
-  const href = recordHref(r);
+  // A sheet is a page of its own (/sheets/?id=), listed by its name, so its
+  // row and its buttons say which sheet they are (LV-3).
+  const isSheet = r.kind === "sheet";
+  const ref = isSheet ? sheetName(r) : recordReference(r);
+  const href = isSheet ? `/sheets/?id=${encodeURIComponent(r.id)}` : recordHref(r);
   // A note on a footnote (M11) is "on a footnote in Romans 8:3", not on the verse.
   const where = recordWhere(r);
-  const subject = `${nameOf(r).toLowerCase()}${where ? ` on ${where}` : ""}`;
+  const subject = isSheet ? `sheet “${sheetName(r)}”` : `${nameOf(r).toLowerCase()}${where ? ` on ${where}` : ""}`;
 
   const head = document.createElement(href ? "a" : "span");
   head.className = "desk-item__ref";
@@ -135,7 +139,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
     words.className = "desk-item__words desk-item__pin-text desk-np-row__pin";
     words.textContent = r.footnote ?? "";
     li.append(words);
-  } else {
+  } else if (!isSheet) {
     const text = r.label ?? r.name ?? r.body ?? r.note ?? r.title ?? r.quote?.exact;
     if (typeof text === "string" && text) {
       const words = document.createElement("p");

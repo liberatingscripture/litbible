@@ -4903,9 +4903,23 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-split__handle {
   flex: 0 0 6px;
+  position: relative;
   border-radius: 3px;
   background: transparent;
   touch-action: none;
+}
+
+/* A larger target than the 6px line: 20px across, centered on it (DK-8). */
+.desk-split--columns > .desk-split__handle::before {
+  content: "";
+  position: absolute;
+  inset: 0 -7px;
+}
+
+.desk-split--rows > .desk-split__handle::before {
+  content: "";
+  position: absolute;
+  inset: -7px 0;
 }
 
 .desk-split--columns > .desk-split__handle {
@@ -6656,6 +6670,17 @@ html.desk-ws--moving * {
   text-underline-offset: 3px;
 }
 
+/* The keyboard word cursor (DK-1): system colors, so it shows in forced colors. */
+::highlight(desk-sheet-cursor) {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.desk-sheet__words:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 /* A passage's blanks */
 .desk-sheet__blanks {
   margin-top: 10px;
@@ -7427,7 +7452,11 @@ mark.desk-print-mark {
 }
 
 .desk-search__top {
-  flex: none;
+  /* In a short pane the field and its menus scroll rather than push the
+     results out of reach (DK-10). */
+  flex: 0 1 auto;
+  max-height: 60%;
+  overflow-y: auto;
   padding: 10px 14px 6px;
 }
 
@@ -7775,4 +7804,20 @@ mark.desk-print-mark {
 .desk-search__failed p,
 .desk-search__entry .desk-search__status {
   margin: 0 0 8px;
+}
+
+/* Ctrl+P on /desk (DK-12): the workspace's panes are scroll containers with
+   on-screen heights and would print cut off. The page's title menu has the
+   Print routes that make a chapter or a sheet, so the paper says so. */
+@media print {
+  html[data-desk-workspace] .desk-ws > * {
+    display: none !important;
+  }
+
+  html[data-desk-workspace] .desk-ws::before {
+    content: "To print from the Study Desk, open the page’s title menu and choose Print.";
+    display: block;
+    padding: 1em 0;
+    color: #000;
+  }
 }
