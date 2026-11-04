@@ -33,6 +33,7 @@
 // pre-paint script, since nothing of the desk paints before this file runs.
 
 import { undoModifier } from "./history.js";
+import { announce } from "./undo-bar.js";
 import { prosePage } from "./note-sources.js";
 import { readBook } from "./page.js";
 import { resetWidthsButton } from "./widths.js";
@@ -112,7 +113,32 @@ export function setHideAll(hide, { from = null } = {}) {
     const showsNothing = HIDDEN_BY_M1.every((name) => back(name) === "off");
     for (const name of HIDDEN_BY_M1) setSetting(name, showsNothing ? SETTINGS[name].fallback : back(name));
   }
+  // The key and the command change a page with nothing to read out, unlike the
+  // checkbox, whose own state is announced (NB-15).
+  if (from === "key") {
+    announce(hide ? "Your notes, bookmarks, and highlights are hidden." : "Your notes, bookmarks, and highlights are showing again.");
+  }
   document.dispatchEvent(new CustomEvent(HIDE_EVENT, { detail: { hidden: hide, from } }));
+}
+
+/**
+ * What to tell a reader who has just saved a note or bookmark that the page
+ * won't show because its switch is off, or because Hide my marks is on: the
+ * sentence, and a button that shows it. null when it shows. A visible notice,
+ * not only a spoken one, and the setting is never switched back on for them,
+ * since that could put private notes on a shared screen (NB-15).
+ * @param {"notes" | "bookmarks"} name
+ * @param {string} saved the sentence that says what was saved
+ */
+export function hiddenNotice(name, saved) {
+  if (getSetting(name) === "on") return null;
+  const m1 = allHidden();
+  const reason = m1 ? "“Hide my marks” is on" : name === "notes" ? "“Notes in the margin” is off" : "“My bookmarks” is off";
+  return {
+    message: `${saved} It’s hidden because ${reason}.`,
+    label: name === "notes" ? "Show notes" : "Show bookmarks",
+    show: () => (m1 ? setHideAll(false, { from: "notice" }) : setSetting(name, "on")),
+  };
 }
 
 /** Read the stored settings onto <html>, and follow changes made in other tabs. */
@@ -169,10 +195,21 @@ function noteControls(classes) {
 
   const hide = document.createElement("label");
   hide.className = classes.check;
-  hide.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHideCheck${n}" aria-keyshortcuts="h" />
+  hide.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHideCheck${n}" data-desk-hide-check />
     <span class="${classes.checkLabel}">Hide my marks</span>`;
   const hideBox = hide.querySelector("input");
   hideBox.addEventListener("change", () => setHideAll(hideBox.checked, { from: classes.from }));
+  // H hides only while the Keyboard switch is on (WCAG 2.1.4), so the box
+  // advertises it only then (NB-18).
+  const keys = () => {
+    let on = true;
+    try { on = localStorage.getItem("lit-shortcuts") !== "off"; } catch (_) {}
+    if (on) hideBox.setAttribute("aria-keyshortcuts", "H");
+    else hideBox.removeAttribute("aria-keyshortcuts");
+  };
+  keys();
+  document.addEventListener("lit:shortcuts-changed", keys);
+  window.addEventListener("storage", (e) => { if (e.key === "lit-shortcuts") keys(); });
 
   const seg = document.createElement("div");
   seg.className = classes.seg;

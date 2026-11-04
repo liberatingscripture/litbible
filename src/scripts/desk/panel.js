@@ -536,10 +536,22 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
 
   // M1 hides everything of the reader's at once, for sharing a screen, and
-  // the panel lists it all, so it closes too, unless the reader hid them from
-  // inside the panel itself.
+  // the panel lists it all, so it folds to its tab (Audit 2, NB-1; BVJ,
+  // 2026-11-03: decision 1 of Audit 2). It used to close, and with the header's
+  // Notebook buttons now links to /desk nothing on the page brought it back.
+  // Un-hiding opens it again only if hiding was what folded it. Focus stays
+  // where it is, as the close did.
+  let foldedByHide = false;
   document.addEventListener(HIDE_EVENT, (e) => {
-    if (e.detail?.hidden && !panel.hidden && e.detail.from !== "panel") close();
+    if (e.detail?.from === "panel") return;
+    if (e.detail?.hidden) {
+      if (panel.hidden || rail.state().collapsed) return;
+      foldedByHide = true;
+      rail.collapse();
+    } else if (foldedByHide) {
+      foldedByHide = false;
+      if (!panel.hidden && rail.state().collapsed) rail.expand();
+    }
   });
 
   /* ── Keeping in step ────────────────────────────────────────────── */

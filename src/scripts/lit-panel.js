@@ -41,13 +41,36 @@ export function keepClearOfDock() {
   if (by) el.style.left = `${(parseFloat(el.style.left) || 0) - by}px`;
 }
 
-export function closePanel() {
-  if (!openPanel) return;
+/**
+ * Whether the open panel must stay because it holds unsaved words, and is
+ * saying so now. True the first time; the next ask, with nothing typed in
+ * between (the panel clears `held` on input), lets it go. A caller that is
+ * about to replace the panel's content with a page action (a verse number, a
+ * footnote letter) asks this first and does nothing when it is true.
+ */
+export function holdPanel() {
+  if (!openPanel?.stay || !openPanel.changed?.() || openPanel.held) return false;
+  openPanel.held = true;
+  openPanel.onHold?.();
+  return true;
+}
+
+/**
+ * Close the open panel. A `stay` panel that holds unsaved words (`changed()`)
+ * is not closed the first time it is asked to: its `onHold` says so, and the
+ * call returns false (NB-2). Asking again without typing in between closes it,
+ * so "ask once" never traps anyone. `force` skips the question (a save, a
+ * delete, the editor's own discard).
+ */
+export function closePanel({ force = false } = {}) {
+  if (!openPanel) return true;
+  if (!force && holdPanel()) return false;
   const { el, restoreFocus, onClose } = openPanel;
   openPanel = null;
   el.remove();
   if (onClose) onClose();
   if (restoreFocus && document.contains(restoreFocus)) restoreFocus.focus();
+  return true;
 }
 
 // An outside click closes without restoring focus: the reader has just put
@@ -97,7 +120,9 @@ export function isSmallScreen() {
  * where the trigger is no element (a selection's rectangle).
  */
 export function showPanel(trigger, el, { restoreFocus = null, onClose = null, extra = null, preferAbove = false, place = null, sheet = true, pinned = false } = {}) {
-  closePanel();
+  // A note editor holding words stays; the panel that was to replace it is
+  // handed back unattached (its callers only measure and fill it).
+  if (!closePanel()) return el;
   el.classList.add("lit-panel");
 
   if (place) {

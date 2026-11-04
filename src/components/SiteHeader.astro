@@ -750,6 +750,7 @@ const SIZE_OPTIONS = [
             ? localStorage.removeItem('lit-shortcuts')
             : localStorage.setItem('lit-shortcuts', 'off');
         } catch (_) {}
+        document.dispatchEvent(new CustomEvent('lit:shortcuts-changed'));
       });
 
       syncFont();

@@ -311,7 +311,7 @@ export function createTour({ panel, canKeep = true }) {
     async undo() {
       closePanel();
       panel.showTab("settings", { focus: false, remember: false });
-      const hide = panel.el.querySelector('input[aria-keyshortcuts="h"]')?.closest("label");
+      const hide = panel.el.querySelector('input[data-desk-hide-check]')?.closest("label");
       return { el: panel.el, side: "left", marks: visible(hide) ? [hide] : [] };
     },
 
