@@ -1489,7 +1489,7 @@ The sharpest items: a keyboard-only reader cannot blank arbitrary words on a she
 **Fix** Show small "narrower / wider" buttons on the focused or hovered line, or in the pane menu ("Make this pane wider"); add an invisible 16 to 24px pseudo-element hit area to `.desk-split__handle`.
 **Confidence** Medium.
 
-> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** the line has a 20px hit area, Home and End, and `aria-valuetext`. A click-only alternative to dragging is still open (owner question 2).
+> **Fixed in FA2-i (2026-11-03, branch claude/audit2-session4; not yet browser-checked):** the line has a 20px hit area, Home and End, and `aria-valuetext`. The pane menu also has Make this pane wider, narrower, taller and shorter (owner question 2, BVJ chose that option on 2026-11-03).
 
 #### DK-9 · Low · usability · NEW
 **Where** `src/lib/desk-layout.mjs:234-259` (`applyArrangement`), `src/scripts/desk/desk-page.js:304-309`.
