@@ -6,12 +6,16 @@
 // The reader can choose instead, on the notebook page, that every page opens
 // it minimized, open or closed (lit-desk-start), whatever they did last.
 //
+// "Show the Notebook" off beats every start choice, without touching them.
+//
 // Layout.astro's pre-paint script repeats the `open` half, since it can't
 // import; test/desk-prepaint.test.js holds the two together.
 
 export const START_KEY = "lit-desk-start";
 export const OPEN_KEY = "lit-desk-panel";
 export const MIN_KEY = "lit-desk-min";
+/** The Display tray's "Show the Notebook": "off" hides the panel and its tab on every page. */
+export const SHOW_KEY = "lit-desk-show";
 
 /** The reader's choices, in the order the notebook page lists them. */
 export const START_CHOICES = [
@@ -32,6 +36,7 @@ export function startChoice(get) {
  * `get` reads localStorage (a key → string | null function).
  */
 export function startState(get) {
+  if (get(SHOW_KEY) === "off") return { open: false, minimized: true };
   const choice = startChoice(get);
   if (choice === "closed") return { open: false, minimized: true };
   if (choice === "min") return { open: true, minimized: true };

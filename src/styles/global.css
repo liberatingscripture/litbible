@@ -3804,6 +3804,7 @@ button.greek-cmd:hover {
    !important because each button sits under a more specific display rule of
    its own (the header's nav/actions pairs, Read View's toolbar buttons). */
 html:not([data-desk]) [data-desk-toggle],
+html[data-desk-show="off"] button[data-desk-toggle],
 .site-header--desk [data-desk-toggle] {
   display: none !important;
 }

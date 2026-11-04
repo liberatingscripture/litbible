@@ -24,3 +24,10 @@ test("an unknown choice reads as the default", () => {
   assert.equal(startChoice(from({ "lit-desk-start": "sideways" })), "left");
   assert.equal(startChoice(from({})), "left");
 });
+
+test("Show the Notebook off starts it closed whatever else is chosen", () => {
+  for (const start of ["min", "open", "left"]) {
+    assert.deepEqual(startState(from({ "lit-desk-show": "off", "lit-desk-start": start })), { open: false, minimized: true });
+  }
+  assert.equal(startState(from({ "lit-desk-show": "on" })).open, true);
+});

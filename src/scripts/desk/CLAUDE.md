@@ -39,10 +39,18 @@ means each of these, in one change:
 1. `src/layouts/Layout.astro` pre-paint script: stop requiring
    `lit-desk-preview==='on'` (keep the `isAppPlatform` and touch exclusions;
    `test/desk-prepaint.test.js` runs the same devices) and rewrite the comment
-   block above it. **There is no opt-out at launch** (BVJ, 2026-11-04: the desk
+   block above it. **There is no opt-out of the desk itself at launch** (BVJ, 2026-11-04: it
    isn't removable; a reader who doesn't use it loses only a tab in the
    corner), so `?desk=on` and `?desk=off` and the stored `lit-desk-preview`
-   retire with the flip, and the `/privacy` paragraph drops the key.
+   retire with the flip, and the `/privacy` paragraph drops the key. **The
+   compromise (BVJ, 2026-11-04) is "Show the Notebook" in the Display tray**
+   on pages that have the panel (`lit-desk-show` = "off"; absent = shown): off
+   closes the panel and hides its tab and the Read View Notebook button, and
+   writes none of the reader's panel keys, so turning it on restores the
+   Notebook as they left it (`startState` returns closed first; Layout.astro's
+   pre-paint script repeats that and stamps `data-desk-show="off"`; the panel
+   follows `desk:settings`). It hides the panel only: the header's Study Desk
+   link, /desk, and an explicit "Show in Notebook" still work.
 2. `search-core.js`: `deskEnabled()` (the one read of the stamp for search),
    `greekSearchEnabled()`, `loadDeskSearch`, `loadDeskSheets`.
 3. Direct readers of the stamp: `desk-gate.js`, `keyboard-shortcuts.js` (`h`),
