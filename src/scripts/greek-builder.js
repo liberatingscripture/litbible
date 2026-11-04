@@ -18,7 +18,7 @@
 // (lemmas.json, and the lemma's own shard of occ/ for the parsings its words
 // take), fetched when a word is typed, never before.
 
-import { loadGreekIndex, loadGreekOccurrences } from "./search-core.js";
+import { loadGreekIndex, loadGreekOccurrences } from "./search-greek.js";
 import { errorMessage } from "../lib/greek-query.mjs";
 import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
 import {

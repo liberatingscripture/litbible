@@ -43,7 +43,8 @@ test("the Greek tab, the search tray and /search draw from greek-credits.mjs", (
   const tab = read("src/scripts/desk/tab-greek.js");
   assert.match(tab, /import\s*\{[^}]*\bSOURCES\b[^}]*\}\s*from\s*["']\.\.\/\.\.\/lib\/greek-credits\.mjs["']/);
   assert.ok(!/const SOURCES\b/.test(tab), "no list of its own");
-  assert.match(read("src/scripts/searchbar.js"), /import\s*\{[^}]*\bcreditHtml\b[^}]*\}\s*from\s*["'][^"']*greek-credits\.mjs["']/);
+  assert.match(read("src/scripts/searchbar.js"), /\bgk\.creditHtml\(/);
+  assert.match(read("src/scripts/search-greek.js"), /export\s*\{\s*creditHtml\s*\}\s*from\s*["'][^"']*greek-credits\.mjs["']/);
   assert.match(read("src/pages/search.astro"), /import\s*\{[^}]*\bSEARCH_CREDIT\b[^}]*\}\s*from\s*["'][^"']*greek-credits\.mjs["']/);
 });
 

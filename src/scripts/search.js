@@ -40,13 +40,16 @@ import {
   setPickedMode,
   notePickedMode,
   showModeFor,
-  searchGreekAuto,
-  loadGreekChapter,
+  loadGreekSearch,
   MODE_LABELS,
 } from "./search-core.js";
-import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
-import { EXAMPLES, countLine, describeGreekQuery, errorMessage } from "../lib/greek-query.mjs";
-import { replaceWord, verseGreek } from "../lib/greek-commands-ui.mjs";
+import { hasGreek } from "../lib/greek-detect.mjs";
+
+// The Greek search itself, loaded by the first Greek query (LG-6), so a reader
+// who never makes one downloads none of it. Whatever draws a Greek result runs
+// after that search, so `gk` is set by then.
+let gk = null;
+const withGreek = async () => (gk ||= await loadGreekSearch());
 
 // The commands window is loaded only when the Greek is searched at all, so a
 // reader without the preview downloads none of it.
@@ -890,6 +893,7 @@ let greekSeq = 0;
  */
 async function fetchGreek(q, book, lemmaId, exact) {
   const opts = { bookKey: book, exactForm: exact };
+  const { searchGreekAuto } = await withGreek();
   let result = await searchGreekAuto(base, q, { ...opts, lemmaId });
   if (result.kind !== "commands" && !result.selected && result.lemmas.length) {
     result = await searchGreekAuto(base, q, { ...opts, lemmaId: result.lemmas[0].id });
@@ -907,7 +911,7 @@ function wantsGreekOnly(q, mode) {
  * a command match, else the one word), and those words with their parsing.
  */
 function greekVerseParts(data, hit) {
-  return verseGreek(data, hit.verse, hit.marked ?? [hit.t], escapeHtml);
+  return gk.verseGreek(data, hit.verse, hit.marked ?? [hit.t], escapeHtml);
 }
 
 /** Rows [from, to) of the current Greek hits, their Greek filling in as the chapters arrive. */
@@ -957,7 +961,7 @@ function appendGreekRows(from, to, token) {
 
   for (const rows of pending.values()) {
     const { book, chapter } = rows[0].hit;
-    loadGreekChapter(base, book, chapter).then((data) => {
+    gk.loadGreekChapter(base, book, chapter).then((data) => {
       if (token !== greekSeq) return;
       for (const { hit, greekLine, parseLine } of rows) {
         const { html, words } = data ? greekVerseParts(data, hit) : { html: "", words: [] };
@@ -1029,11 +1033,12 @@ function runGreekQuery(query) {
  * window. `stale()` says a newer search has drawn since.
  */
 async function drawGreekHelp({ lead = "", error = null, examples = true }, stale = () => false) {
-  const mod = await withCommands();
-  if (stale()) return;
+  // The empty Greek type draws this before any search has loaded the Greek.
+  const g = await withGreek();
+  if (stale() || !g) return;
   const frag = document.createDocumentFragment();
   if (error) {
-    const msg = errorMessage(error);
+    const msg = g.errorMessage(error);
     const p = document.createElement("p");
     p.className = "greek-help__error";
     const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
@@ -1043,7 +1048,7 @@ async function drawGreekHelp({ lead = "", error = null, examples = true }, stale
       fix.className = "greek-cmd-link";
       fix.textContent = msg.suggest;
       fix.addEventListener("click", () => {
-        input.value = replaceWord(input.value, msg.replace, msg.suggest);
+        input.value = g.replaceWord(input.value, msg.replace, msg.suggest);
         updateFromControls({ resetPage: true, push: true });
         input.focus({ preventScroll: true });
       });
@@ -1053,7 +1058,7 @@ async function drawGreekHelp({ lead = "", error = null, examples = true }, stale
     }
     frag.append(p);
     frag.append(
-      mod.commandsLinkButton("See search commands", () => openCommands({ filter: msg.filter ?? null })),
+      g.commandsLinkButton("See search commands", () => openCommands({ filter: msg.filter ?? null })),
     );
   } else {
     if (lead) {
@@ -1062,8 +1067,8 @@ async function drawGreekHelp({ lead = "", error = null, examples = true }, stale
       p.textContent = lead;
       frag.append(p);
     }
-    if (examples) frag.append(mod.exampleList(EXAMPLES.slice(0, 3), runGreekQuery));
-    frag.append(mod.commandsLinkButton("See all search commands", () => openCommands()));
+    if (examples) frag.append(g.exampleList(g.EXAMPLES.slice(0, 3), runGreekQuery));
+    frag.append(g.commandsLinkButton("See all search commands", () => openCommands()));
   }
   greekHelpEl.replaceChildren(frag);
   greekHelpEl.hidden = false;
@@ -1105,7 +1110,7 @@ function renderGreekCommands() {
   clearGreekHelp();
 
   if (greek.error) {
-    setStatus(errorMessage(greek.error).text);
+    setStatus(gk.errorMessage(greek.error).text);
     drawGreekHelp({ error: greek.error }, stale);
     return;
   }
@@ -1122,7 +1127,7 @@ function renderGreekCommands() {
   const green = (s) => `<span lang="grc">${escapeHtml(s)}</span>`;
   const readback = document.createElement("p");
   readback.className = "greek-readback";
-  readback.innerHTML = `${describeGreekQuery(greek.resolved, { greek: green, text: escapeHtml })} · ${escapeHtml(countLine(greek.hits))}`;
+  readback.innerHTML = `${gk.describeGreekQuery(greek.resolved, { greek: green, text: escapeHtml })} · ${escapeHtml(gk.countLine(greek.hits))}`;
   greekLemmasEl.append(readback);
   greekLemmasEl.hidden = false;
 
@@ -1131,7 +1136,7 @@ function renderGreekCommands() {
     drawGreekHelp({ lead: "No verses match that search. Try one of these." }, stale);
     return;
   }
-  setStatus(countLine(greek.hits));
+  setStatus(gk.countLine(greek.hits));
 
   const total = greek.hits.length;
   const pages = Math.ceil(total / pageSize);
@@ -1174,7 +1179,7 @@ function renderGreekOnly() {
 
   // Which lemma: named when the query reaches one, a choice when it reaches several.
   const lemmaHtml = (item) =>
-    `<span lang="grc">${escapeHtml(item.lemma)}</span>${escapeHtml(lemmaLine(item).slice(item.lemma.length))}`;
+    `<span lang="grc">${escapeHtml(item.lemma)}</span>${escapeHtml(gk.lemmaLine(item).slice(item.lemma.length))}`;
   greekLemmasEl.replaceChildren();
   greekLemmasEl.removeAttribute("role");
   greekLemmasEl.removeAttribute("aria-label");

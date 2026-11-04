@@ -15,7 +15,7 @@
 // loads, and the parameter is ignored: the reader lands on the verse, as any
 // verse link does.
 
-import { parseGreekParam } from "../../lib/greek-search.mjs";
+import { parseGreekParam } from "../../lib/greek-detect.mjs";
 
 /** @param {{ panel: { showGreekWord: ((verse: number, t: number) => Promise<void>) | null } }} options */
 export function initGreekLink({ panel }) {

@@ -51,9 +51,6 @@ import {
 import { gatherMessage, passagesFromVerses, roomOnSheet, searchSheetTitle } from "../../lib/desk-sheet-gather.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { addModule, createSheet, makeModule } from "../../lib/desk-sheets.mjs";
-import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../../lib/greek-search.mjs";
-import { EXAMPLES, countLine, describeGreekQuery, errorMessage } from "../../lib/greek-query.mjs";
-import { formsLine, replaceWord, verseGreek } from "../../lib/greek-commands-ui.mjs";
 import { creditHtml } from "../../lib/greek-credits.mjs";
 import {
   MODE_LABELS,
@@ -69,8 +66,7 @@ import {
   isGreekQuery,
   greekSearchEnabled,
   loadDeskSearch,
-  loadGreekChapter,
-  loadGreekIndex,
+  loadGreekSearch,
   loadPagefind,
   loadTopicsIndex,
   loadVerseIndex,
@@ -84,19 +80,25 @@ import {
   pickedMode,
   rankVerseHits,
   scriptureResultTitle,
-  searchGreekAuto,
   searchVerses,
   showModeFor,
   topicsIndexSubjectItem,
   verseHitHref,
   verseHitLabel,
 } from "../search-core.js";
-import { closeGreekCommands, commandsLinkButton, exampleList, greekCommandsOpenFor, openGreekCommands } from "../greek-commands.js";
 import { addTarget, onAddTarget } from "./sheet-pane.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
+
+// The Greek search itself, loaded by the pane's first Greek query, and the
+// commands window, loaded when it is asked for (LG-6). Whatever draws a Greek
+// result runs after that search, so `gk` is set by then.
+let gk = null;
+const withGreek = async () => (gk ||= await loadGreekSearch());
+let commands = null;
+const withCommands = () => import("../greek-commands.js").then((m) => (commands = m));
 const DEBOUNCE = 120; // as the tray
 const CHOICES = 10; // Greek words offered at a time
 
@@ -831,12 +833,17 @@ export function createSearchPane({ paneId, env, getPlace }) {
   const GREEK_HINT = "Type a search, like πίστις.gen or *.aor.impv.";
 
   function openCommands(filter = null) {
-    openGreekCommands({ field: input, filter, typeSelect: typeSel });
+    withCommands()
+      .then((m) => m.openGreekCommands({ field: input, filter, typeSelect: typeSel }))
+      .catch((err) => console.error("Study Desk: the search commands couldn't load", err));
   }
 
   async function runGreek(q, my, book, jump) {
     const notebookPromise = deskPart && activeMode === "all" ? deskPart.search(q, { bookKey: book }).catch(() => null) : null;
-    const ask = () => searchGreekAuto(BASE, q, { bookKey: book, lemmaId: greekState.lemmaId, exactForm: greekState.exact }).catch(() => null);
+    const ask = () =>
+      withGreek()
+        .then((m) => m.searchGreekAuto(BASE, q, { bookKey: book, lemmaId: greekState.lemmaId, exactForm: greekState.exact }))
+        .catch(() => null);
     let res = await ask();
     if (my !== seq) return;
     // Several words match: the commonest, as the Greek tab does, the rest offered.
@@ -886,26 +893,28 @@ export function createSearchPane({ paneId, env, getPlace }) {
   /** The credit under every Greek group (a license requirement) and the way to the commands window. */
   function foot() {
     const box = make("div", "desk-search__greek-foot");
-    const cmds = commandsLinkButton("Search commands", () => openCommands());
-    cmds.setAttribute("aria-haspopup", "dialog");
+    // No engine means the search couldn't load, and the window needs it too.
+    const cmds = gk?.commandsLinkButton("Search commands", () => openCommands());
+    cmds?.setAttribute("aria-haspopup", "dialog");
     const credit = make("p", "desk-search__credit");
     credit.innerHTML = creditHtml(escapeHtml);
     for (const a of credit.querySelectorAll("a")) awayTab(a);
-    box.append(cmds, credit);
+    if (cmds) box.append(cmds);
+    box.append(credit);
     return box;
   }
 
   function drawHelp(g, { filter = null, examples = 2 } = {}) {
     const box = make("div", "desk-search__help");
     if (examples) {
-      box.append(exampleList(EXAMPLES.slice(0, examples), (query) => {
+      box.append(gk.exampleList(gk.EXAMPLES.slice(0, examples), (query) => {
         greekState = { lemmaId: null, exact: false };
         input.value = query;
         input.focus({ preventScroll: true });
         input.dispatchEvent(new Event("input", { bubbles: true }));
       }));
     }
-    box.append(commandsLinkButton("See all search commands", () => openCommands(filter)));
+    box.append(gk.commandsLinkButton("See all search commands", () => openCommands(filter)));
     g.append(box);
   }
 
@@ -913,7 +922,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   async function paintCommands(g, res) {
     greekHits = [];
     if (res.error) {
-      const msg = errorMessage(res.error);
+      const msg = gk.errorMessage(res.error);
       const p = make("p", "desk-search__readback");
       const at = msg.suggest ? msg.text.lastIndexOf(`${msg.suggest}?`) : -1;
       if (at < 0) {
@@ -922,7 +931,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
         const fix = make("button", "greek-cmd-link", msg.suggest);
         fix.type = "button";
         fix.addEventListener("click", () => {
-          input.value = replaceWord(input.value, msg.replace, msg.suggest);
+          input.value = gk.replaceWord(input.value, msg.replace, msg.suggest);
           input.dispatchEvent(new Event("input", { bubbles: true }));
         });
         p.append(msg.text.slice(0, at), fix, msg.text.slice(at + msg.suggest.length));
@@ -942,14 +951,14 @@ export function createSearchPane({ paneId, env, getPlace }) {
     }
     const greek = (x) => `<span lang="grc">${escapeHtml(x)}</span>`;
     const back = make("p", "desk-search__readback");
-    back.innerHTML = `${describeGreekQuery(res.resolved, { greek, text: escapeHtml })} · ${escapeHtml(countLine(res.hits))}`;
+    back.innerHTML = `${gk.describeGreekQuery(res.resolved, { greek, text: escapeHtml })} · ${escapeHtml(gk.countLine(res.hits))}`;
     g.append(back);
     if (!res.hits.length) {
       drawHelp(g);
       return "No verses match that search.";
     }
     greekRows(g, res.hits);
-    return countLine(res.hits);
+    return gk.countLine(res.hits);
   }
 
   /** One word (or its choices) and its verses. Resolves to the status line. */
@@ -958,7 +967,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const lemmas = res.lemmas ?? [];
     if (!res.kind || !lemmas.length) {
       // Nothing matched, or the index never loaded; the two read differently.
-      if (!(await loadGreekIndex(BASE))) {
+      if (!(await gk.loadGreekIndex(BASE))) {
         g.append(make("p", "desk-search__readback", "The Greek search couldn’t be loaded."), retryButton(q));
         return "The Greek search couldn’t be loaded.";
       }
@@ -1027,11 +1036,11 @@ export function createSearchPane({ paneId, env, getPlace }) {
       g.append(make("p", "desk-search__readback", "This exact form doesn’t occur. Clear “Exact form only” to see every form."));
       return "";
     }
-    if (sel?.lemma.normalize("NFC") === ARTICLE && !greekState.exact) {
+    if (sel?.lemma.normalize("NFC") === gk.ARTICLE && !greekState.exact) {
       // The article alone is in nearly every verse: it is studied beside a
       // word, so the answer is a line and a search to try, not the list (BA110).
       const p = make("p", "desk-search__readback");
-      const next = make("button", "greek-cmd-link", ARTICLE_EXAMPLE);
+      const next = make("button", "greek-cmd-link", gk.ARTICLE_EXAMPLE);
       next.type = "button";
       next.lang = "grc";
       next.addEventListener("click", () => {
@@ -1039,7 +1048,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
         input.value = ARTICLE_EXAMPLE;
         input.dispatchEvent(new Event("input", { bubbles: true }));
       });
-      p.append(`${articleLine(versesIn(res.hits))} `, next, ".");
+      p.append(`${gk.articleLine(gk.versesIn(res.hits))} `, next, ".");
       g.append(p);
       return "";
     }
@@ -1051,7 +1060,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
 
   /** A lemma's line with its Greek set as Greek: "πίστις · pistis · G4102 · faith · 243 times". */
   function lemmaNodes(into, item, { count = true } = {}) {
-    let line = lemmaLine(item);
+    let line = gk.lemmaLine(item);
     if (!count) line = line.replace(/ · \d+ times?$/, "");
     const g = make("span", null, item.lemma);
     g.lang = "grc";
@@ -1072,8 +1081,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
       a.append(" ", form);
       // A command match names the words it matched, from the chapter's Greek.
       if (hit.marked) {
-        loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
-          if (data && form.isConnected) form.textContent = formsLine(verseGreek(data, hit.verse, hit.marked, (x) => x).words);
+        gk.loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
+          if (data && form.isConnected) form.textContent = gk.formsLine(gk.verseGreek(data, hit.verse, hit.marked, (x) => x).words);
         });
       }
       li.append(a);
@@ -1098,7 +1107,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
       entrySeq++;
       clearTimeout(timer);
       offTarget();
-      if (greekCommandsOpenFor(input)) closeGreekCommands("pane");
+      if (commands?.greekCommandsOpenFor(input)) commands.closeGreekCommands("pane");
     },
   };
 }

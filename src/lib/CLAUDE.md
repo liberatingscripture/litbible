@@ -75,6 +75,9 @@ From the root's project tree.
                      #   read-view-retirement.mjs (Read View's launch
                      #   redirects and saved-place rules; dormant until
                      #   the cutover, nothing imports it),
+                     #   greek-detect.mjs (what runs before the Greek search
+                     #   loads: telling a query is Greek, and the code
+                     #   matching the Greek tab needs),
                      #   greek-search.mjs (searching the Greek: folding,
                      #   transliteration keys, matching; shared by both
                      #   search UIs, the Greek tab and build:greek),

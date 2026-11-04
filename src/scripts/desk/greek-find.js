@@ -20,13 +20,8 @@
 //
 // Nothing here scrolls the PAGE, and nothing is stored about a search.
 
-import {
-  escapeHtml,
-  isGreekQuery,
-  loadGreekChapter,
-  loadGreekIndex,
-  searchGreekAuto,
-} from "../search-core.js";
+import { escapeHtml, isGreekQuery } from "../search-core.js";
+import { loadGreekChapter, loadGreekIndex, searchGreekAuto } from "../search-greek.js";
 import { creditHtml } from "../../lib/greek-credits.mjs";
 import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../../lib/greek-search.mjs";
 import { countLine, describeGreekQuery, errorMessage } from "../../lib/greek-query.mjs";

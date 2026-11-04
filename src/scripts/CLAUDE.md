@@ -377,10 +377,13 @@ notice there or nowhere.
     `SearchBar.astro`); `search.js` is the `/search` page UI. Never duplicate
     parsing/bucketing logic into the UI modules — add it to `search-core.js`
     so both surfaces stay in sync. The 404 page's `resolveMistypedPath` lives
-    there for the same reason, and so do the Greek's loaders (`searchGreek`;
-    the rules are in `src/lib/greek-search.mjs`, which the Notebook's Greek
-    tab shares). The Study Desk's Search pane (`desk/search-pane.js`) is a
-    third UI over the same module.
+    there for the same reason. The Greek's engine and loaders (`searchGreek`)
+    are `search-greek.js`, loaded through `loadGreekSearch()` so no page carries
+    them until a Greek search starts, desk on or off; never import that file
+    statically from anything a page loads at the start (the rules are in
+    `src/lib/greek-search.mjs`, which the Notebook's Greek tab shares). The
+    Study Desk's Search pane (`desk/search-pane.js`) is a third UI over the
+    same modules.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the
