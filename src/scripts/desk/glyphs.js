@@ -24,6 +24,8 @@ PATHS.bookmark = PATHS.ribbon;
 
 /** A marker's glyph as SVG markup; an unknown marker gets the plain note's. */
 export function glyph(marker, cls = "desk-glyph") {
-  const inner = PATHS[marker] ?? PATHS.note;
+  // An own, string-named entry only: a record from a newer schema may carry any
+  // value here, and `PATHS["constructor"]` is a function, not a drawing (SEC Q2).
+  const inner = typeof marker === "string" && Object.hasOwn(PATHS, marker) ? PATHS[marker] : PATHS.note;
   return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${inner}</svg>`;
 }

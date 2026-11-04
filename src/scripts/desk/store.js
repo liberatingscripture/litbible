@@ -403,6 +403,23 @@ export async function openStore({ ctx }) {
     },
 
     /**
+     * Ask the browser to keep the notebook now, because the reader pressed a
+     * button (DI-5). Resolves to true (granted), false (not granted), or null
+     * where the browser can't be asked.
+     */
+    async askToKeep() {
+      if (!navigator.storage?.persist) return null;
+      try {
+        const granted = await navigator.storage.persist();
+        await setMeta("persistAsked", { at: new Date().toISOString(), granted });
+        notify([], "this-tab", null);
+        return granted;
+      } catch {
+        return null;
+      }
+    },
+
+    /**
      * Whether the browser has promised to keep the notebook: true, false, or
      * null where it can't say.
      */
