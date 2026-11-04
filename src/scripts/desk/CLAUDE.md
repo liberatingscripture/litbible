@@ -811,7 +811,16 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
        E25, BVJ 2026-11-02, the drop box names which), and `neighborIn`
        for the pane menu's Move left, right, up, and down (the keyboard's
-       swap; only a pane touching this one counts). `dropZone` takes the
+       swap; only a pane touching this one counts). **The pane menu is the
+       kinds plus three flyout lines, Add pane, Move and Size** (BVJ,
+       2026-11-04; `openKindMenu`, `openFly` in desk-page.js): hover opens one
+       without taking focus, a click or the right arrow moves in, left or
+       Escape steps back. A flyout is a sibling of the menu, never a child,
+       since the menu scrolls and would clip it. **Add pane there is
+       `addBeside`/`addBesideNeeds`** (desk-layout.mjs): left, right, above or
+       below the pane, joining the nearest row or column running that way (or
+       turning what is there into a two-part stack), with the room shared
+       evenly, so nothing is split off the chosen pane alone. `dropZone` takes the
        zone the pointer was in and holds it 8px past its edge, so the line
        between zones doesn't flicker; a drop is planned again at release;
        the 280 by 160

@@ -592,6 +592,58 @@ export function openKind(layout, kind, width, height, besideId = null) {
 }
 
 /**
+ * Add a pane of `kind` beside pane `id`, on its "left" or "right", "above" or
+ * "below" (the Add pane flyout of its menu). The newcomer joins the nearest
+ * row or column running that way, or what is there becomes one half of a new
+ * stack; either way the room is shared evenly. Unchanged, the same object,
+ * when the pane isn't open, four panes are open or the window can't give
+ * every pane its 280 by 160.
+ */
+export function addBeside(layout, id, side, kind, width, height) {
+  const WAYS = { right: ["columns", false], left: ["columns", true], below: ["rows", false], above: ["rows", true] };
+  const way = WAYS[side];
+  if (!way || typeof kind !== "string" || !kind || !findPane(layout.root, id)) return layout;
+  if (panes(layout.root).length >= MAX_PANES) return layout;
+  const [want, before] = way;
+  const root = clone(layout.root);
+  const pane = { pane: newPane(layout, kind) };
+  const at = pathTo(root, id);
+  if (!at) return layout;
+  // The nearest split round the pane that runs the way asked for, and which of
+  // its children holds the pane.
+  let depth = at.length - 1;
+  while (depth >= 0 && nodeAt(root, at.slice(0, depth)).split !== want) depth--;
+  const parent = depth >= 0 ? nodeAt(root, at.slice(0, depth)) : null;
+  let next;
+  if (parent) {
+    // The newcomer goes in beside the pane (or the group holding it), and the
+    // room is shared evenly among all the rows (or columns) there are then.
+    const n = parent.children.length;
+    const i = at[depth];
+    const sizes = even(n + 1);
+    parent.children.splice(before ? i : i + 1, 0, pane);
+    parent.sizes = sizes;
+    next = root;
+  } else {
+    // Nothing runs that way yet: what is there becomes one row (or column) of
+    // a stack, and the newcomer the other.
+    next = { split: want, sizes: [0.5, 0.5], children: before ? [pane, root] : [root, pane] };
+  }
+  const result = settleActive({ ...layout, root: normalize(next) });
+  return fits(result, width, height) ? result : layout;
+}
+
+/** Why `addBeside` can't add one, as `addPaneNeeds` says it; null when it can. */
+export function addBesideNeeds(layout, id, side, width, height) {
+  if (panes(layout.root).length >= MAX_PANES) return "full";
+  const probe = addBeside(layout, id, side, "lit", Infinity, Infinity);
+  if (probe === layout) return "full";
+  const ok = (n) => typeof n === "number" && Number.isFinite(n) && n > 0;
+  if (!ok(width) && !ok(height)) return null;
+  return needs(probe.root, ok(width) ? width : Infinity, ok(height) ? height : Infinity);
+}
+
+/**
  * Add a pane along an edge of the whole page, from the title menu's "Add pane"
  * (E14; BVJ, 2026-11-02): a "column" is a full-height pane at the right edge,
  * a "row" a full-width pane along the bottom. Pane widths and heights already
