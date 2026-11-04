@@ -42,7 +42,7 @@ import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.m
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
-import { getSetting, highlightSetting, setSetting } from "./note-settings.js";
+import { getSetting, hiddenNotice, highlightSetting, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
 import { announce, showUndo } from "./undo-bar.js";
@@ -152,7 +152,9 @@ export function initActions({ store, ctx, showVerse = null }) {
         existing = true;
         bookmark.textContent = "Bookmarked ✓";
         setTimeout(closePanel, 700);
-        announce(bookmarkedMessage(ref));
+        const hidden = hiddenNotice("bookmarks", bookmarkedMessage(ref));
+        if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
+        else announce(bookmarkedMessage(ref));
       } catch (err) {
         console.error("Study Desk: the bookmark couldn't be changed", err);
         busy = false;

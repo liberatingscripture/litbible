@@ -176,7 +176,12 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
      (`desk/tab-verse.js`) listens too: a verse menu opened while the
      notebook is open moves the tab to that verse. Keep the event before `showPanel`, or the panel is measured
      without the row. A panel opened with `extra: { stay: true }` (the note
-     editor) ignores outside clicks in `lit-panel.js`.
+     editor) ignores outside clicks in `lit-panel.js`, and while its
+     `changed()` is true `closePanel`/`showPanel` and a verse number or footnote
+     letter (`holdPanel`) say so once instead of closing it; the next ask, with
+     nothing typed between, discards (NB-2). The editor also keeps a
+     `sessionStorage['lit-desk-note-draft']` and asks the browser before leaving.
+     Save and delete close with `{ force: true }`.
   7. **Margin notes never add text to the scripture.** They sit in one
      `<aside class="desk-notes">` at the end of `<body>`, placed beside
      their first word (`src/lib/desk-notes.mjs` holds the rules,
@@ -276,8 +281,9 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
      the tour and help links and where the notebook is kept, which were My
      Notes' foot. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
      "Close the Notebook" command, Escape and the Read View toolbar's Notebook
-     button minimize it. (`close()` stays for "Hide my marks", the tour's
-     restore and a reader's saved "Closed" start.) **The header's Notebook
+     button minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
+     start; "Hide my marks" and H fold it to its tab and un-hiding opens it
+     again, NB-1, pending BVJ's decision 1.) **The header's Notebook
      buttons are links to /desk** ("Study Desk"), still carrying
      `data-desk-toggle` so global.css shows them with the desk on, on every page
      (BVJ, 2026-10-30; only the panel's buttons are held to the reading

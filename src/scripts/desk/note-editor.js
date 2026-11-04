@@ -5,7 +5,8 @@
 // reference, the seven markers (the apps' set; STUDY-DESK-FORMAT.md
 // `note.marker`), and the reader's own words. Ctrl+Enter (⌘+Enter) saves.
 // The panel ignores clicks outside it, so a stray click can't lose what was
-// typed; Cancel, × and Escape close it.
+// typed; Cancel, × and Escape close it, asking once first while it holds
+// unsaved words.
 //
 // A note's body is the reader's own words: always text, never HTML.
 //
@@ -23,6 +24,7 @@ import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
+import { hiddenNotice } from "./note-settings.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 let seq = 0;
@@ -142,7 +144,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   };
 
   async function saveEdit(now) {
-    if (record.body === body.value && currentMarker(record.marker) === marker) return closePanel();
+    if (record.body === body.value && currentMarker(record.marker) === marker) return closePanel({ force: true });
     const changes = { body: body.value, marker };
     let overtaken = false;
     try {
@@ -160,9 +162,9 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
         "This note was changed in another tab, so your edit wasn’t saved. Copy your words, then close this and open the note again.";
       return;
     }
-    closePanel();
+    closePanel({ force: true });
     landFocus(record);
-    announce(noteSavedMessage(where));
+    saidSaved(where);
   }
 
   async function save() {
@@ -220,18 +222,19 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     }
     try {
       await store.save(next);
-      closePanel();
+      closePanel({ force: true });
       landFocus(next);
-      announce(noteSavedMessage(where));
+      saidSaved(where);
     } catch (err) {
       failed(err);
     }
   }
 
   panel.querySelector(".desk-editor__save").addEventListener("click", save);
+  // Cancel and × ask once when the editor holds words (NB-2): the first press
+  // says so (onHold below), the next, with nothing typed between, discards.
   const dismiss = () => {
-    closePanel();
-    landFocus(place);
+    if (closePanel()) landFocus(place);
   };
   panel.querySelector(".desk-editor__cancel").addEventListener("click", dismiss);
   panel.querySelector(".lit-panel__close").addEventListener("click", dismiss);
@@ -240,7 +243,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     // The change this made, read at once: the undo button, like Ctrl+Z,
     // takes back exactly this one (history.js).
     const entry = trash ? store.lastEntry() : null;
-    closePanel();
+    closePanel({ force: true });
     landFocus(record);
     if (!entry) return;
     showUndo(`Note on ${where} deleted.`, () => undoEntry(entry));
@@ -252,17 +255,99 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     }
   });
 
+  const changed = () => !example && (body.value !== (record?.body ?? "") || marker !== currentMarker(record?.marker ?? "note"));
+
+  // A reload, a closed tab or a followed link would lose the words too (DI-6):
+  // the browser is asked to confirm while the editor holds some, and a draft is
+  // kept for the visit and offered back when the editor opens on this place.
+  const draftKey = example ? null : draftKeyFor(record, draft);
+  const leaving = (e) => {
+    if (!changed()) return;
+    e.preventDefault();
+    e.returnValue = "";
+  };
+  window.addEventListener("beforeunload", leaving);
+  const saveDraft = () => {
+    if (!draftKey) return;
+    try {
+      if (changed()) sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ key: draftKey, body: body.value, marker }));
+      else clearDraft();
+    } catch (_) {}
+  };
+  const typed = () => {
+    const open = currentPanel();
+    if (open?.el === panel) open.held = false;
+    saveDraft();
+  };
+  body.addEventListener("input", typed);
+  panel.addEventListener("change", typed);
+
+  const back = draftKey ? readDraft(draftKey) : null;
+  if (back) {
+    body.value = back.body;
+    marker = currentMarker(back.marker);
+    nameEl.textContent = MARKER_NAMES[marker];
+    for (const r of panel.querySelectorAll('input[type="radio"]')) r.checked = r.value === marker;
+  }
+
   showPanel(trigger, panel, {
     restoreFocus,
     sheet: false,
+    onClose: () => {
+      window.removeEventListener("beforeunload", leaving);
+      clearDraft();
+      landFocus(place);
+    },
     extra: {
       kind: "note-editor",
       stay: true,
-      changed: () => !example && (body.value !== (record?.body ?? "") || marker !== currentMarker(record?.marker ?? "note")),
+      changed,
+      onHold: () => {
+        error.hidden = false;
+        // Cleared first so a second hold, with the same words, is announced again.
+        error.textContent = "";
+        error.textContent = "Your words aren’t saved yet. Choose Save to keep them, or press Cancel, Close, or Escape again to discard them.";
+        body.focus({ preventScroll: true });
+      },
     },
   });
+  if (back) {
+    error.hidden = false;
+    error.textContent = "Your unsaved words from earlier are back. Choose Save to keep them.";
+  }
   body.focus({ preventScroll: true });
   return panel;
+}
+
+// The words of a note being written, for the visit (sessionStorage, named in
+// /privacy). One draft at a time: the editor is one panel.
+const DRAFT_KEY = "lit-desk-note-draft";
+
+function draftKeyFor(record, draft) {
+  if (record) return `edit:${record.id}`;
+  const d = draft ?? {};
+  return `new:${JSON.stringify([d.bookKey, d.chapter, d.verse, d.endVerse, d.footnote, d.n, d.glossaryEntry, d.article])}`;
+}
+
+function readDraft(key) {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY));
+    return d && d.key === key && typeof d.body === "string" && d.body ? d : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearDraft() {
+  try { sessionStorage.removeItem(DRAFT_KEY); } catch (_) {}
+}
+
+/** Say a note was saved, and, if the margin won't show it, why and how to (NB-15). */
+function saidSaved(where) {
+  const saved = noteSavedMessage(where);
+  const hidden = hiddenNotice("notes", saved);
+  if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
+  else announce(saved);
 }
 
 /**

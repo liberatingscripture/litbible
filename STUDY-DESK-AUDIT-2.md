@@ -692,6 +692,8 @@ and the clamp is not ready for a sync.
 - **Confidence**: High on the code; Medium on Chrome's grant rate.
 
 #### DI-6 · Medium · data-integrity · NEW
+
+> **Fixed in FA2-d (same branch):** `beforeunload` while the editor holds words, and a `lit-desk-note-draft` sessionStorage draft offered back (named in /privacy).
 **A note being typed is lost without warning when the page is left.**
 
 - **Where**: `src/scripts/desk/note-editor.js` has no `pagehide`, `beforeunload` or draft handling. A grep of `src/scripts/desk/` finds those only in `sheet-pane.js`, `sheet-present.js` and `ribbon-follow.js`.
@@ -870,6 +872,8 @@ The three that matter most:
 
 #### NB-1 · High · usability · NEW
 
+> **Fixed in FA2-d/e (2026-11-03, branch claude/fa2-session2-notes-never-lost; not yet browser-checked):** H and "Hide my marks" now fold the Notebook to its tab and un-hiding expands it again, per the audit's recommendation (decision 1 still awaits BVJ).
+
 > **Live check (LV): confirmed for the H key only.** Ticking “Hide my marks” in the Settings tab hides the marks and leaves the panel open. After H the panel stays closed across a reload; the route back that exists is the search command “Open the Notebook.”
 
 **Where**: `src/scripts/desk/panel.js:533-535` (the Hide listener calls
@@ -907,6 +911,8 @@ reopen control on Study View when the panel is closed.
 **Confidence**: High (code path traced end to end; not run in a browser).
 
 #### NB-2 · High · data-integrity · NEW
+
+> **Fixed in FA2-d (same branch; not yet browser-checked):** `closePanel`/`showPanel`, verse numbers and footnote letters ask once while the editor holds words (`holdPanel`); the next ask discards. Decision 2 taken as "both" (warn and draft) per the audit; awaits BVJ.
 
 > **Live check (LV): confirmed** for Escape, Cancel and a click on a verse number. The × was not driven separately.
 

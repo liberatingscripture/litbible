@@ -35,7 +35,7 @@ import { stripBracketMarkers } from "../lib/bracket-markers.mjs";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import { pullBackSelectionEnd } from "../lib/selection-end.mjs";
 import { markEmphasis, handoutPlain, handoutHtml, VN_ON, VN_OFF, FN_ON, FN_OFF } from "../lib/handout-rich.mjs";
-import { showPanel, closePanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
+import { showPanel, closePanel, holdPanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
 import {
   PANEL_EDGE,
@@ -812,6 +812,7 @@ function openVerseMenu(
 function handleVerseActivation(view, sup, { viaKeyboard = false } = {}) {
   const verse = parseInt(sup.textContent, 10);
   if (!Number.isFinite(verse)) return;
+  if (holdPanel()) return; // a note being written keeps the screen (NB-2)
   const ch = view.chapterOf(sup);
 
   const opts = {
@@ -896,6 +897,7 @@ function initFootnotePopovers(container) {
 
     e.preventDefault();
     e.stopPropagation();
+    if (holdPanel()) return; // a note being written keeps the screen (NB-2)
 
     if (currentPanel() && currentPanel().trigger === a) {
       closePanel();
