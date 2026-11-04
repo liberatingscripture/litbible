@@ -939,3 +939,12 @@ test("collectKeyTerms and termForWords print a disambiguated term plainly", () =
   assert.equal(keyTermLine(term), "deviation, traditionally good, agathos");
   assert.equal(termForWords(marks[0].start, marks[0].end, marks, terms).traditional, "good");
 });
+
+test("wordSpans lists the words of a passage for the keyboard cursor (DK-1)", async () => {
+  const { wordSpans } = await import("../src/lib/desk-sheet-lit.mjs");
+  const text = "In the beginning, God’s well-known word.";
+  const spans = wordSpans(text, 3, text.length);
+  assert.deepEqual(spans.map(([s, e]) => text.slice(s, e)), ["the", "beginning", "God’s", "well-known", "word"]);
+  assert.deepEqual(wordSpans(text, 0, 2).map(([s, e]) => text.slice(s, e)), ["In"]);
+  assert.deepEqual(wordSpans("", 0, 0), []);
+});

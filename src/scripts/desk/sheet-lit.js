@@ -36,6 +36,7 @@ import {
   termForWords,
   termMarkOffsets,
   traditionalWord,
+  wordSpans,
 } from "../../lib/desk-sheet-lit.mjs";
 import { locatePassage, passageReference } from "../../lib/desk-sheet-passages.mjs";
 import { freshCopy, passageAsRecord, passageCheck } from "../../lib/desk-sheet-check.mjs";
@@ -162,6 +163,26 @@ export function locateBlanks(view, m) {
 /* ── The passage's words ─────────────────────────────────────────────── */
 
 /**
+ * A copy of a block from a fetched chapter page with nothing that loads or
+ * runs: no img, script, style, frame or embed, no on* attribute, no
+ * javascript: address. The page is the site's own, but a stored book key once
+ * reached any address (SEC-1), so what is imported is cleaned as well. The
+ * copy is made in the page's inert document, before it joins this one.
+ */
+function inertCopy(block) {
+  const copy = block.cloneNode(true);
+  copy.querySelectorAll("img, picture, script, style, iframe, object, embed, link, meta, svg, audio, video").forEach((n) => n.remove());
+  for (const el of [copy, ...copy.querySelectorAll("*")]) {
+    for (const a of [...el.attributes]) {
+      if (/^on/i.test(a.name) || (/^(href|src|xlink:href|action|formaction)$/i.test(a.name) && /^\s*(javascript|data):/i.test(a.value))) {
+        el.removeAttribute(a.name);
+      }
+    }
+  }
+  return copy;
+}
+
+/**
  * The passage's words as Chapter View prints them, verse numbers kept, footnote
  * letters, ids and the page's own labels left out. Whole blocks are copied and
  * then trimmed to the passage, so every verse keeps its data-verse span and
@@ -186,7 +207,7 @@ export function passageWords(view, m, { keepNotes = null } = {}) {
   const blocks = [...source.textBox.children].filter((b) => range.intersectsNode(b));
   if (!blocks.length) return null;
   const words = make("div", "desk-sheet__words chapter-paragraphs");
-  for (const b of blocks) words.append(document.importNode(b, true));
+  for (const b of blocks) words.append(document.importNode(inertCopy(b), true));
 
   const full = pageAnchorText(words.children);
   const blockStart = chapter.text.lastIndexOf(full.text, at.start);
@@ -356,6 +377,10 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       return;
     }
     box.append(words.el);
+    if (!readOnly && words.base != null) {
+      box.append(make("p", "desk-sheet__hint", "With the keyboard: Tab to the passage, move by word with the arrow keys (Shift extends), and press Enter to blank."));
+      armWordCursor();
+    }
     if (v.check.state === "changed") {
       box.append(wordingNotice(v, mod, { readOnly, update }));
     } else if (v.at.status === "moved") {
@@ -431,6 +456,84 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     e = Math.min(e, view.at.end);
     sel.removeAllRanges();
     addBlanks([[s, e]]);
+  }
+
+  // ---- the word cursor (DK-1) ----
+  // A keyboard reader chooses words without a selection: the passage takes
+  // focus, the arrows move a cursor by word (Shift extends it), Enter blanks
+  // the chosen words. The cursor is two word indexes, kept across redraws.
+
+  let cur = null; // { a: anchor index, b: moving index }
+  const CURSOR_HIGHLIGHT = "desk-sheet-cursor";
+
+  const cursorList = () => (view && words?.base != null ? wordSpans(view.chapter.text, view.at.start, view.at.end) : []);
+
+  function cursorSpan(list) {
+    if (!cur || !list.length) return null;
+    const lo = Math.min(cur.a, cur.b);
+    const hi = Math.max(cur.a, cur.b);
+    return [list[lo][0], list[hi][1], hi - lo + 1];
+  }
+
+  function clearCursor() {
+    if (typeof CSS !== "undefined" && CSS.highlights) CSS.highlights.delete(CURSOR_HIGHLIGHT);
+  }
+
+  function drawCursor(list) {
+    clearCursor();
+    const span = cursorSpan(list);
+    if (!span || typeof CSS === "undefined" || !CSS.highlights || typeof Highlight === "undefined") return;
+    const r = offsetsToRange(pageAnchorText(words.el.children), span[0] - words.base, span[1] - words.base);
+    if (!r) return;
+    const range = document.createRange();
+    range.setStart(r.startContainer, r.startOffset);
+    range.setEnd(r.endContainer, r.endOffset);
+    CSS.highlights.set(CURSOR_HIGHLIGHT, new Highlight(range));
+    (range.startContainer.parentElement ?? words.el).scrollIntoView?.({ block: "nearest" });
+  }
+
+  function armWordCursor() {
+    const w = words.el;
+    w.tabIndex = 0;
+    w.dataset.focusKey = "passage-words";
+    w.setAttribute("role", "group");
+    w.setAttribute("aria-label", "Passage text. Use the arrow keys to move by word, Shift to choose more words, and Enter to blank the chosen words.");
+    w.addEventListener("focus", () => {
+      const list = cursorList();
+      if (!list.length) return;
+      if (!cur || cur.a >= list.length || cur.b >= list.length) cur = { a: 0, b: 0 };
+      drawCursor(list);
+    });
+    w.addEventListener("blur", clearCursor);
+    w.addEventListener("keydown", (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const list = cursorList();
+      if (!list.length) return;
+      if (!cur) cur = { a: 0, b: 0 };
+      const last = list.length - 1;
+      const said = () => {
+        const [s, en, n] = cursorSpan(list);
+        say(`${n > 1 ? `${n} words: ` : ""}“${view.chapter.text.slice(s, en)}”`);
+      };
+      let move = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") move = Math.min(last, cur.b + 1);
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") move = Math.max(0, cur.b - 1);
+      else if (e.key === "Home") move = 0;
+      else if (e.key === "End") move = last;
+      if (move != null) {
+        e.preventDefault();
+        cur = { a: e.shiftKey ? cur.a : move, b: move };
+        drawCursor(list);
+        said();
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const span = cursorSpan(list);
+        if (span) addBlanks([[span[0], span[1]]]);
+      } else if (e.key === "Escape" && cur.a !== cur.b) {
+        cur = { a: cur.b, b: cur.b };
+        drawCursor(list);
+      }
+    });
   }
 
   function drawBlanks() {
@@ -679,6 +782,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       gone = true;
       blankRanges.delete(el);
       drawBlankHighlight();
+      if (el.contains(document.activeElement)) clearCursor();
     },
   };
 }

@@ -99,7 +99,7 @@ import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
-import { initUndo } from "./undo-bar.js";
+import { initUndo, showUndo } from "./undo-bar.js";
 
 const NEEDS_TEXT = {
   wider: "Needs a wider window",
@@ -369,8 +369,15 @@ async function start() {
     b.querySelector(".desk-ws__shape-needs").id = `deskWsNeeds-${a.id}`;
     b.addEventListener("click", () => {
       if (b.getAttribute("aria-disabled") === "true") return;
-      commit(applyArrangement(layout, a.id));
-      announce(`Layout: ${a.label}.`);
+      const before = layout;
+      const next = applyArrangement(layout, a.id);
+      const stays = new Set(panes(next.root).map((p) => p.id));
+      const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
+      commit(next);
+      // A smaller layout closes panes from the end: say which, and offer to
+      // bring them back (DK-9). The bar announces itself.
+      if (closed.length) showUndo(`Layout: ${a.label}. Closed ${LIST.format(closed)}.`, () => commit(before));
+      else announce(`Layout: ${a.label}.`);
       closeMenu();
     });
     shapesBox.append(b);
@@ -380,14 +387,14 @@ async function start() {
   for (const radio of startRadios) {
     radio.addEventListener("change", () => {
       if (!radio.checked || layoutFrozen) return;
-      saved = { ...saved, start: radio.value };
+      saved = { ...readSaved(readKey()), start: radio.value };
       writeKey(writeSaved(saved));
     });
   }
   const makeDefault = menu.querySelector("[data-ws-make-default]");
   makeDefault.addEventListener("click", () => {
     if (layoutFrozen) return;
-    saved = { ...saved, mine: layout };
+    saved = { ...readSaved(readKey()), mine: layout };
     writeKey(writeSaved(saved));
     refreshMenu();
     announce("This layout is now your default.");
@@ -775,7 +782,11 @@ async function start() {
 
   function save() {
     if (layoutFrozen) return;
-    saved = { ...saved, last: layout };
+    // The key holds three things, and another tab may have changed the
+    // default or the opening choice since this one loaded: this tab writes
+    // only `last` over what is there now (DK-11).
+    const { mine, start } = readSaved(readKey());
+    saved = { ...saved, mine, start, last: layout };
     writeKey(writeSaved(saved));
   }
 
@@ -1140,6 +1151,8 @@ async function start() {
     line.setAttribute("aria-label", node.split === "columns"
       ? `Resize: ${names[0]} on the left, ${names[1]} on the right`
       : `Resize: ${names[0]} above, ${names[1]} below`);
+    const first = Math.round(node.sizes[index] * 100);
+    line.setAttribute("aria-valuetext", `${names[0]} ${first} percent, ${names[1]} ${100 - first} percent`);
     line.style.flexBasis = `${HANDLE}px`;
     const columns = node.split === "columns";
     const lengthOf = () => {
@@ -1173,11 +1186,12 @@ async function start() {
     line.addEventListener("keydown", (e) => {
       const back = columns ? "ArrowLeft" : "ArrowUp";
       const ahead = columns ? "ArrowRight" : "ArrowDown";
-      if (e.key !== back && e.key !== ahead) return;
+      if (e.key !== back && e.key !== ahead && e.key !== "Home" && e.key !== "End") return;
       e.preventDefault();
       const length = lengthOf();
-      const step = length * (e.shiftKey ? 0.1 : 0.02);
-      layout = resize(asDrawn(path), path, index, e.key === ahead ? step : -step, length);
+      // Home and End push the line as far as it goes (DK-8); resize() keeps each pane's minimum.
+      const step = e.key === "Home" || e.key === "End" ? length : length * (e.shiftKey ? 0.1 : 0.02);
+      layout = resize(asDrawn(path), path, index, e.key === ahead || e.key === "End" ? step : -step, length);
       fit();
       sizeSplit(path);
       save();
@@ -1235,7 +1249,12 @@ async function start() {
     parts.forEach((part, i) => { part.style.flex = `${node.sizes[i]} 1 0px`; });
     Array.from(box.children)
       .filter((c) => c.classList.contains("desk-split__handle"))
-      .forEach((line, i) => line.setAttribute("aria-valuenow", String(Math.round(node.sizes[i] * 100))));
+      .forEach((line, i) => {
+        const first = Math.round(node.sizes[i] * 100);
+        line.setAttribute("aria-valuenow", String(first));
+        const names = [node.children[i], node.children[i + 1]].map((c) => LIST.format(panes(c).map((p) => kindLabel(p.kind))));
+        line.setAttribute("aria-valuetext", `${names[0]} ${first} percent, ${names[1]} ${100 - first} percent`);
+      });
   }
 
   // ---- dragging a pane to split another ----

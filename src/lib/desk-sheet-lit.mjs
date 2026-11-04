@@ -171,6 +171,20 @@ export function locateBlank(chapter, blank, passageAt, endVerse) {
   return { status: "lost", start: null, end: null, prints: false };
 }
 
+/**
+ * The words of chapter text [start, end) as [start, end) pairs, for the
+ * keyboard word cursor (DK-1). A word is a run of letters and digits; an
+ * apostrophe or hyphen joins two letters, as `wholeWords` in sheet-lit.js
+ * snaps a mouse selection.
+ */
+export function wordSpans(text, start, end) {
+  const out = [];
+  const re = /[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu;
+  const slice = text.slice(start, end);
+  for (let m = re.exec(slice); m; m = re.exec(slice)) out.push([start + m.index, start + m.index + m[0].length]);
+  return out;
+}
+
 /** Whether chapter text [start, end) overlaps any of the located blanks. */
 export function overlapsBlank(located, start, end) {
   return located.some((b) => b.start != null && b.start < end && start < b.end);
