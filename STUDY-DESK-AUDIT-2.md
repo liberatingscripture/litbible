@@ -153,6 +153,7 @@ Collected from the appendices, de-duplicated. The first six block work.
    (NB-4.) It decides whether a skip link, a toggle, or a key is the fix.
 4. **Anchoring spec change** (DI-1, DI-2): should a mark that moves to another verse carry a
    notice? Should a single remaining occurrence need context? BDR must agree.
+   **Decided (BVJ, 2026-11-03): the proposal as built in spec version 3 (#450); BDR to confirm in STUDY-DESK.md.**
 5. **Enforce part of the CSP on the desk's pages before release?** (SEC Q1.) A path-scoped
    `connect-src 'self' ...; img-src 'self' data:` blocks SEC-1's fetch on its own. And should a
    record the website cannot edit still have the fields it draws checked? (SEC Q2.)
@@ -635,6 +636,8 @@ and the clamp is not ready for a sync.
   - It is the shared spec, so add vectors, bump `ANCHOR_SPEC_VERSION` to 3, and tell BDR (STUDY-DESK.md, "One notebook, three homes").
 - **Confidence**: High.
 
+> **Fixed in FA2-f (2026-11-03, branch claude/audit2-s3-anchoring-v3; spec version 3, awaiting BDR):** the floor holds for a single occurrence, `moved` needs 4 characters agreeing on each side, vectors regenerated, `STUDY-DESK-FORMAT.md` "Spec version 3".
+
 #### DI-2 · Medium · data-integrity · NEW
 **A change of typography alone, next to a mark, drops it to the whole verse with a notice.**
 
@@ -646,6 +649,8 @@ and the clamp is not ready for a sync.
   - This is the position of every app highlight made before the August 2026 passes, and of every mark after a future mechanical pass.
 - **Fix**: match on a typography-folded copy of both texts (the fold `desk-wording.mjs` already defines, with an offset map back to the real text), at least inside `textBetweenContext`. This is a spec change: vectors and a version bump, as for DI-1.
 - **Confidence**: High (mechanism and count). Medium on how many app records it reaches.
+
+> **Fixed in FA2-g (same branch; spec version 3, awaiting BDR):** `resolveAnchor` matches on a length-preserving typography fold (`foldTypography`), so offsets are unchanged. `desk-change.mjs` needed no edit: a mark that is `found` raises no notice.
 
 #### DI-3 · Medium · data-integrity · NEW
 

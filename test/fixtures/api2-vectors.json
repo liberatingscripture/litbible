@@ -1,6 +1,6 @@
 {
  "api": 2,
- "anchorSpec": 2,
+ "anchorSpec": 3,
  "note": "Vectors for the content API, version 2 (API-2-FORMAT.md). `hashes[slug].source` is the SHA-256 of the version 1 chapter file, as the version 1 manifest lists it; `hash` is the version 2 chapter's hash when built from that file, and `words` the fingerprint of its text, verse spans and footnote texts. `chapters` and `synthetic` copy their version 1 input, and `expected` is the whole version 2 chapter file. `anchorSpec` here is information only (the Study Desk's rule number when these were written); a chapter file doesn't carry it. Regenerate with `npm run build:api2-vectors`.",
  "hashes": {
   "1corinthians-1": {
@@ -314,9 +314,9 @@
    "words": "3c297a3f054020341e9f03fbf93b6f661eeb906dd54b2caff454a365d12b6b11"
   },
   "acts-1": {
-   "source": "455805126eadc7b2d296f567bf131b89bbd0a1929657b5213140c8c6ac92fae7",
-   "hash": "3860a32e0891d7fe029ea3fc3a14008e82b51f2d0f7065768b99e8e09d5fc4ac",
-   "words": "70ee4e204ea0e5c30e2cb9c0faad5443bd1966c5491fd5b2fdbeb82dc4f70cf8"
+   "source": "d66cd6e265ca5b0ee90d5b49b4f5b8bf8aee8dca5f333b56eecdede3b141d21a",
+   "hash": "4c288549ecc275aad7927e83cd8818a2bcc62d01f5968f245c0cd4ba2c8dc5a7",
+   "words": "7ebb7b739223cd4f763277e9ad60a527e8a0329b0dde74e5ac6a85302c7f48fd"
   },
   "acts-10": {
    "source": "72a10d37bd67c0eb0cd703ef7e0ef7635ccf33eb78c6d1296f30d321304620fa",

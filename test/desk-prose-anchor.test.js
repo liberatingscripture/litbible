@@ -185,9 +185,10 @@ test("placeProse finds the words after they moved elsewhere in the body, and cal
   assert.equal(after.text.slice(at.start, at.end), "turned inward");
 
   const rewrapped = read("<p>Nothing like the old context at all: turned inward, then something else entirely.</p>");
+  // Spec version 3: the same words with none of the old surroundings are not
+  // taken blind.
   const again = placeProse(rewrapped, { quote });
-  assert.equal(again.status, "found");
-  assert.equal(rewrapped.text.slice(again.start, again.end), "turned inward");
+  assert.notEqual(again.status, "found");
 });
 
 test("placeProse takes the occurrence whose surroundings match when the words appear twice", () => {

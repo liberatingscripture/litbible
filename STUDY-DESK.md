@@ -2472,6 +2472,20 @@ footer still says 4b). Drafts 3 to 4d are summarized under "BDR's answers
 and requests (2026-10-09)" below, and the sections after it are updated to
 match.
 
+**Anchoring spec version 3 (BVJ approved the choices 2026-11-03, audit 2 FA2-f
+and FA2-g; BDR, please confirm them or say what to change):** a single occurrence of the quoted
+words needs the context floor too, `moved` needs both sides to agree, and
+matching folds quotes and dashes. `ANCHOR_SPEC_VERSION` is 3 and
+`test/fixtures/anchor-vectors.json` is regenerated; the apps' resolvers and
+vectors must change together. Rules in `STUDY-DESK-FORMAT.md`, "Spec version 3".
+**For BDR to confirm, each in both apps' resolvers:** (1) a single occurrence
+needs `min(8, stored context)` characters to agree; (2) a `moved` needs at
+least 4 characters agreeing on each side stored with 4 or more, and still
+carries no notice (a failed move falls to `changed` or `verse`, which do);
+(3) matching folds quotes (curly and low to straight) and dashes (U+2010 to
+U+2015, U+2212 to "-"), one UTF-16 unit for one, so offsets are unchanged.
+The new cases are the last six of `resolve` in `anchor-vectors.json`.
+
 **How the website answers (BVJ, 2026-10-07): through this file.** BDR's
 Claude reads this repo directly, so nothing is sent by hand and no new reply
 document is written; `STUDY-DESK-REPLY-TO-APPS.md` was the last. What the

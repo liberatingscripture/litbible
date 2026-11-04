@@ -679,6 +679,30 @@ the end such a mark falls to `verse`, with the notice:
 The vectors carry both numbers (`minContext`, `changedGrowth`) and five cases
 for them.
 
+**Spec version 3** (audit 2, FA2-f and FA2-g, DI-1 and DI-2; **proposed by
+Claude 2026-11-03, for BVJ's decision 4 and BDR's agreement**). Three
+changes to finding a mark again, all in `anchor-core.mjs`:
+- **The floor holds for one occurrence too.** A single occurrence of `exact`
+  is taken only when `min(8, prefix + suffix length)` characters of context
+  agree, so a quote stored with 8 or more characters of context is never
+  taken blind (an old quote with less is exempt, as before). Where `exact`
+  occurs more than once the floor is still 8.
+- **`moved` needs both sides.** Each of `prefix` and `suffix` stored with 4
+  or more characters must still agree on at least 4 (`MIN_CONTEXT / 2`),
+  on top of the floor. Otherwise a repeated formula elsewhere in the chapter
+  satisfied the floor on one side alone. `moved` still carries no notice;
+  a move that fails the test falls on to `changed` or `verse`, which do.
+- **Typography is folded for matching.** Before comparing, curly and low
+  quotes become straight and every hyphen, dash and minus (U+2010 to U+2015,
+  U+2212) becomes "-", in the chapter text, `exact`, `prefix` and `suffix`.
+  Each is one UTF-16 unit for one, so offsets are unchanged and the range
+  returned is in the real text. Nothing stored or drawn is folded.
+  A mark made on straight quotes now finds its words in today's curly text
+  (22% of marks touching one fell to `verse` before).
+Measured by the audit's reword fuzz (one word inside the mark changed): the
+share drawn on other words with no notice was 38% for a one-word mark, 15%
+for two. `test/anchor-text.test.js` holds a small version of that fuzz.
+
 ### Highlights that meet
 
 **Settled** (A-M5): Android's rule, which BDR ruled for iOS (2026-10-05)
