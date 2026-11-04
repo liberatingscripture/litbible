@@ -665,3 +665,32 @@ test("a plan never changes the records it was given", () => {
 function rangeFor([start, end]) {
   return { start, end };
 }
+
+/* ── Audit 2, DI-7 ───────────────────────────────────────────────────── */
+
+test("joining highlights keeps every label of the ones absorbed (DI-7)", () => {
+  const a = highlight(at("Love"), "yellow", { labels: ["L-prayer"] });
+  const b = highlight(at("kind"), "yellow", { labels: ["L-study", "L-prayer"] });
+  const out = plan([a, b], at("Love is patient, love is kind"), "yellow");
+  const survivors = [...apply([a, b], out).values()].filter((r) => r.kind === "highlight");
+  assert.equal(survivors.length, 1);
+  assert.deepEqual([...survivors[0].labels].sort(), ["L-prayer", "L-study"]);
+  assert.doesNotThrow(() => planWrite(out));
+});
+
+test("a survivor that already covers the mark still takes the others' labels (DI-7)", () => {
+  const big = highlight(at(V1), "yellow", { labels: [] });
+  const small = highlight(at("kind"), "yellow", { labels: ["L-x"] });
+  const out = plan([big, small], at("patient"), "yellow");
+  const survivor = [...apply([big, small], out).values()].find((r) => r.kind === "highlight");
+  assert.deepEqual(survivor.labels, ["L-x"]);
+});
+
+test("the second piece of a split keeps the fields the code doesn't know (DI-7)", () => {
+  const old = highlight(at(V1), "yellow", { appField: { ranked: 3 } });
+  const out = plan([old], at("patient"), "green");
+  const piece = out.put.find((r) => r.id !== old.id && r.color === "yellow");
+  assert.deepEqual(piece.appField, { ranked: 3 });
+  assert.notEqual(piece.id, old.id);
+  assert.equal(piece.modified, NOW);
+});

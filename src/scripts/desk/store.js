@@ -80,16 +80,46 @@ const committed = (tx) =>
 function openDatabase() {
   return new Promise((resolve, reject) => {
     const open = indexedDB.open(DB_NAME, DB_VERSION);
-    open.onupgradeneeded = () => {
+    // Version-aware (DI-11): each step runs for a database older than it, so a
+    // later DB_VERSION adds its own `if (oldVersion < 2) { … }` and never
+    // re-creates a store that exists, which would abort every reader's upgrade.
+    open.onupgradeneeded = (event) => {
       const db = open.result;
-      const records = db.createObjectStore(RECORDS, { keyPath: "id" });
-      records.createIndex("kind", "kind");
-      // A record not on the text has no bookKey, so it simply isn't indexed.
-      records.createIndex("chapter", ["bookKey", "chapter"]);
-      db.createObjectStore(META);
+      if (event.oldVersion < 1) {
+        const records = db.createObjectStore(RECORDS, { keyPath: "id" });
+        records.createIndex("kind", "kind");
+        // A record not on the text has no bookKey, so it simply isn't indexed.
+        records.createIndex("chapter", ["bookKey", "chapter"]);
+        db.createObjectStore(META);
+      }
     };
     open.onsuccess = () => resolve(open.result);
     open.onerror = () => reject(open.error);
+  });
+}
+
+/** How long to wait for the database before treating the browser as keeping none (NB-12). */
+const OPEN_TIMEOUT_MS = 8000;
+
+/** `openDatabase`, or a rejection if the browser never answers (a WebKit failure just after it starts). */
+function openDatabaseInTime() {
+  return new Promise((resolve, reject) => {
+    let gaveUp = false;
+    const timer = setTimeout(() => {
+      gaveUp = true;
+      reject(new Error("desk-store: the browser didn't open the database in time"));
+    }, OPEN_TIMEOUT_MS);
+    openDatabase().then(
+      (db) => {
+        clearTimeout(timer);
+        if (gaveUp) db.close();
+        else resolve(db);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
   });
 }
 
@@ -102,7 +132,7 @@ function openDatabase() {
  */
 export async function openStore({ ctx }) {
   if (!globalThis.indexedDB) throw new Error("desk-store: IndexedDB isn't available");
-  const db = await openDatabase();
+  const db = await openDatabaseInTime();
   // A newer version of the site opening the database in another tab (a later
   // DB_VERSION) waits for this one to let go.
   db.onversionchange = () => db.close();
@@ -240,13 +270,20 @@ export async function openStore({ ctx }) {
     return plan;
   }
 
+  // Asked once a visit (DI-5). Chrome answers `persist()` silently, by how much
+  // the reader uses the site, so a "no" on the first write says little about a
+  // notebook in daily use months later: a stored "no" is asked again after a
+  // day. Firefox asks the reader, and a refusal there is theirs to keep, so
+  // "dismissed" is final everywhere but where a "no" was a silent one.
   let persistAsked = false;
+  const PERSIST_RETRY_MS = 86_400_000;
   async function askToPersist() {
     if (persistAsked || !navigator.storage?.persist) return;
     persistAsked = true;
     try {
       if (await navigator.storage.persisted()) return;
-      if (await getMeta("persistAsked")) return;
+      const asked = await getMeta("persistAsked");
+      if (asked && (asked.granted || Date.now() - Date.parse(asked.at) < PERSIST_RETRY_MS)) return;
       const granted = await navigator.storage.persist();
       await setMeta("persistAsked", { at: new Date().toISOString(), granted });
       notify([], "this-tab", null);
@@ -359,9 +396,27 @@ export async function openStore({ ctx }) {
     async undo(trashId) {
       const plan = await store.change(async ({ get }) => {
         const trash = await get(trashId);
+        // planUndo checks what it brings back as any write is checked (DI-10, RC-1).
         return trash?.kind === "trash" ? planUndo(trash, ctx()) : null;
       });
       return plan?.record ?? null;
+    },
+
+    /**
+     * Ask the browser to keep the notebook now, because the reader pressed a
+     * button (DI-5). Resolves to true (granted), false (not granted), or null
+     * where the browser can't be asked.
+     */
+    async askToKeep() {
+      if (!navigator.storage?.persist) return null;
+      try {
+        const granted = await navigator.storage.persist();
+        await setMeta("persistAsked", { at: new Date().toISOString(), granted });
+        notify([], "this-tab", null);
+        return granted;
+      } catch {
+        return null;
+      }
     },
 
     /**

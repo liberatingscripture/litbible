@@ -135,7 +135,8 @@ function wrapMarks(byNode, byElement = new Map()) {
         split.push(rest);
       }
       const mark = document.createElement("mark");
-      mark.className = `desk-print-mark desk-print-mark--${p.color}`;
+      // A color from a newer schema isn't a class name to build (SEC Q2).
+      mark.className = `desk-print-mark${COLORS.includes(p.color) ? ` desk-print-mark--${p.color}` : ""}`;
       run.replaceWith(mark);
       mark.append(run);
       marks.push(mark);

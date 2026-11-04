@@ -13,6 +13,7 @@ import { createRecord, editRecord, validateRecord } from "../src/lib/desk-record
 import { OSIS_BOOKS, osisRef } from "../src/lib/osis.mjs";
 import { LIT_CREDIT_LINE } from "../src/lib/lit-credit.mjs";
 import { planDelete } from "../src/lib/desk-store-core.mjs";
+import { createSheet } from "../src/lib/desk-sheets.mjs";
 import {
   MAX_NESTING,
   describeAhead,
@@ -225,7 +226,7 @@ test("a note whose words were edited in the file comes back as an edit of the bo
   assert.equal(edited.modified, now);
   assert.deepEqual({ ...edited, body: romans.body, modified: romans.modified }, romans);
   const plan = planImport([romans, label], back.records, { now });
-  assert.deepEqual(plan.summary, { added: 0, updated: 1, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: 0 });
+  assert.deepEqual(plan.summary, { added: 0, updated: 1, unchanged: 0, keptHere: 0, deletedHere: 0, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("a note missing from the file is never deleted", () => {
@@ -383,7 +384,7 @@ test("planImport adds new records and leaves identical ones alone", () => {
   const out = planImport([romans], [romans, asked], { now: "2026-10-13T00:00:00.000Z" });
   assert.deepEqual(out.plan.put, [asked]);
   assert.deepEqual(out.plan.remove, []);
-  assert.deepEqual(out.summary, { added: 1, updated: 0, unchanged: 1, keptHere: 0, deleted: 0, trash: 0, skipped: 0 });
+  assert.deepEqual(out.summary, { added: 1, updated: 0, unchanged: 1, keptHere: 0, deletedHere: 0, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("planImport lets the newer writing win either way and says which copy stayed", () => {
@@ -393,13 +394,13 @@ test("planImport lets the newer writing win either way and says which copy staye
   assert.equal(a.summary.updated, 1);
   const b = planImport([theirs], [romans], { now: "2026-10-13T00:00:00.000Z" });
   assert.deepEqual(b.plan.put, []);
-  assert.deepEqual(b.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, trash: 0, skipped: 0 });
+  assert.deepEqual(b.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deletedHere: 0, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("planImport: a deletion here stands over an older copy in the file, and one in the file removes the record", () => {
   const mine = planDelete(romans, { ...ctx, now: "2026-10-05T00:00:00.000Z" });
   const a = planImport([mine.trash], [romans], { now: "2026-10-13T00:00:00.000Z" });
-  assert.equal(a.summary.keptHere, 1);
+  assert.equal(a.summary.deletedHere, 1);
   assert.equal(planChanges(a.plan), false);
   const theirs = planDelete(romans, { ...ctx, now: "2026-10-12T00:00:00.000Z" });
   const b = planImport([romans], [theirs.trash], { now: "2026-10-13T00:00:00.000Z" });
@@ -497,7 +498,8 @@ test("planImport keeps a record nested exactly to the limit, and a sheet inside 
   // The record is depth 1, so its `extra` may hold the other 63 levels.
   const edge = { ...make("note", { bookKey: "acts", chapter: 2, verse: 2, body: "x", marker: "note" }), extra: nest(MAX_NESTING - 1) };
   const over = { ...make("note", { bookKey: "acts", chapter: 2, verse: 3, body: "x", marker: "note" }), extra: nest(MAX_NESTING) };
-  const gone = planDelete(sheet, { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+  // A real sheet: a trash record's held record is checked on the way in (DI-10).
+  const gone = planDelete(createSheet({ title: "Study sheet" }, ctx), { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
   assert.equal(nestedTooDeep(edge), false);
   assert.equal(nestedTooDeep(over), true);
   assert.equal(nestedTooDeep(gone), false);
@@ -535,7 +537,7 @@ test("an older copy opened after a local edit keeps the newer local words (BA1)"
   assert.equal(back.records[0].modified, romans.modified, "stamped with the file's own time, not now");
   const out = planImport([mine, label], back.records, { now });
   assert.equal(planChanges(out.plan), false);
-  assert.deepEqual(out.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deleted: 0, trash: 0, skipped: 0 });
+  assert.deepEqual(out.summary, { added: 0, updated: 0, unchanged: 0, keptHere: 1, deletedHere: 0, deleted: 0, trash: 0, skipped: 0 });
 });
 
 test("a note edited in the file and not here since still comes back as an edit stamped now (BA1)", () => {
@@ -787,7 +789,7 @@ test("a note deleted in another tab after the file was read isn’t brought back
   const local = [gone, label];
   const second = planOpen(file, { local, ctx, now });
   assert.equal(sameOpen(first, second), false);
-  assert.equal(second.planned.summary.keptHere, 1);
+  assert.equal(second.planned.summary.deletedHere, 1);
   // The deletion stands; the only change is the trash record, which now holds the file's newer words for an undo.
   assert.ok(second.planned.plan.put.every((r) => r.kind === "trash" && r.deletedId === romans.id));
   assert.deepEqual(second.planned.plan.remove, []);
@@ -897,7 +899,7 @@ test("a local trash record past its 30 days is emptied by the merge and counted 
 });
 
 test("describeSummary counts changes in the trash and still says nothing only when nothing happens (BA11)", () => {
-  const zero = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: 0 };
+  const zero = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deletedHere: 0, deleted: 0, trash: 0, skipped: 0 };
   assert.equal(describeSummary({ ...zero, trash: 1 }), "1 change in the trash.");
   assert.equal(describeSummary({ ...zero, trash: 3, added: 1 }), "1 new, 3 changes in the trash.");
   assert.equal(describeSummary(zero), NOTHING);

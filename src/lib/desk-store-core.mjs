@@ -129,6 +129,8 @@ export function planUnbookmark(records, place, ctx) {
 export function planUndo(trash, ctx) {
   const record = restoreFromTrash(trash, ctx);
   if (!record) return null;
+  // Checked as any other write is (RC-1, DI-10): the held record is the file's or a sync's word.
+  planWrite({ put: [record] });
   return { put: [record], remove: [trash.id], record };
 }
 

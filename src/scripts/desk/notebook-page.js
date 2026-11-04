@@ -37,7 +37,7 @@ import { START_CHOICES, START_KEY, startChoice } from "../../lib/desk-start.mjs"
 import { initUndo, showUndo } from "./undo-bar.js";
 import { createTrashList } from "./trash-list.js";
 import { mountWhatsNew } from "./whats-new.js";
-import { QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
@@ -210,9 +210,8 @@ async function start() {
     e.preventDefault();
     sayLabel(null);
     const box = q("#deskNpNewLabel");
-    const done = planCreateLabel(await store.all(), box.value, ctx());
+    const done = await writeOver((records) => planCreateLabel(records, box.value, ctx()));
     if (!done.ok) return sayLabel(labelMessages[done.reason]);
-    await store.commit(done.plan);
     box.value = "";
     announce(`Label “${done.label.name}” added.`);
   });
@@ -269,9 +268,8 @@ async function start() {
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         sayLabel(null);
-        const done = planRenameLabel(await store.all(), label.id, input.value, ctx());
+        const done = await writeOver((records) => planRenameLabel(records, label.id, input.value, ctx()));
         if (!done.ok) return sayLabel(labelMessages[done.reason]);
-        await store.commit(done.plan);
         announce(`Label renamed to “${done.label.name}.”`);
         back();
       });
@@ -280,9 +278,8 @@ async function start() {
     del.addEventListener("click", async () => {
       sayLabel(null);
       const index = Array.from(labelList.children).indexOf(li);
-      const done = planDeleteLabel(await store.all(), label.id, ctx());
+      const done = await writeOver((records) => planDeleteLabel(records, label.id, ctx()));
       if (!done.ok) return sayLabel(labelMessages[done.reason]);
-      await store.commit(done.plan);
       const entry = store.lastEntry();
       await render();
       const buttons = labelList.querySelectorAll(".desk-item__delete");
@@ -370,11 +367,31 @@ async function start() {
     state.box.replaceChildren(ask);
   }
 
+  /**
+   * Plan a change over the notebook as it is, and write it, in one
+   * transaction (DI-9): another tab's write between the read and the write
+   * can't be overwritten from a stale copy. `make` takes every record and
+   * returns a plan, or a result with `ok` and a `plan` (the labels'); a result
+   * that isn't `ok`, or an empty plan, writes nothing. Resolves to what `make`
+   * returned.
+   */
+  async function writeOver(make, { record = true } = {}) {
+    let made;
+    await store.change(
+      async ({ all }) => {
+        made = make(await all());
+        const plan = made?.plan ?? made;
+        const none = !plan || made.ok === false || !(plan.put?.length || plan.remove?.length);
+        return none ? null : planWrite(plan);
+      },
+      { record },
+    );
+    return made;
+  }
+
   async function deleteEverything() {
-    const records = await store.all();
-    const plan = planDeleteEverything(records, ctx());
+    const plan = await writeOver((records) => planDeleteEverything(records, ctx()));
     if (!plan.remove.length) return;
-    await store.commit(plan);
     const entry = store.lastEntry();
     await render();
     const message = `Everything deleted: ${plural(plan.remove.length, "item", "items")} moved to the trash.`;
@@ -387,11 +404,9 @@ async function start() {
   }
 
   async function emptyTrash() {
-    const records = await store.all();
-    const plan = planEmptyTrashNow(records);
-    if (!plan.put.length) return;
     // Not remembered for undo: undoing it would bring back what it was for.
-    await store.commit(plan, { record: false });
+    const plan = await writeOver((records) => planEmptyTrashNow(records), { record: false });
+    if (!plan.put.length) return;
     await render();
     announce(`The trash is empty. The words of ${plural(plan.put.length, "item", "items")} are gone.`);
     trashBox.querySelector("p")?.setAttribute("tabindex", "-1");

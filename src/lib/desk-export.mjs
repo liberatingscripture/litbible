@@ -451,7 +451,7 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
         const here = instantOf(have.modified);
         const editedInFile = fileTime != null && here != null && here <= fileTime;
         const stamp = editedInFile ? now : fileTime != null ? new Date(fileTime).toISOString() : have.modified;
-        records.push(editRecord(have, { [field]: body }, { now: stamp, client: ctx.client }));
+        records.push(editRecord(have, { [field]: body }, { now: stamp, client: ctx.client, exact: true }));
       } else {
         records.push(have);
       }
@@ -663,7 +663,7 @@ function cleanIncoming(r) {
  * @param {{ now?: string, exported?: string, tiebreak?: Function }} [ctx]
  *   `exported` is the file's own time (parseImport's), the merge's cap.
  * @returns {{ plan: { put: object[], remove: string[] },
- *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deleted: number, trash: number, skipped: number },
+ *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deletedHere: number, deleted: number, trash: number, skipped: number },
  *   skipped: { record: unknown, reason: string }[], ahead: { record: unknown, written: boolean }[] }}
  *   Every write the plan makes is counted, so a plan that changes anything
  *   never reads as "Nothing to open" (BA11). `added`, `updated` and `deleted`
@@ -685,7 +685,10 @@ export function planImport(local, incoming, ctx = {}) {
     }
     // Brought up to date first, so a note with a renamed marker reads by its new name (E10).
     const m = r && typeof r === "object" ? migrateRecord(r) : r;
-    const bad = m && typeof m === "object" && m.kind !== "trash" ? validateRecord(m) : [];
+    // A trash record's held record is checked too, for the fields every record carries and, of a kind
+    // this code knows, its own (DI-10, RC-1; a record it can't edit is judged by the common fields only).
+    const held = m?.kind === "trash" && m.record != null && typeof m.record === "object" ? validateRecord(migrateRecord(m.record)) : [];
+    const bad = m && typeof m === "object" ? (m.kind !== "trash" ? validateRecord(m) : held.map((p) => `its held record: ${p}`)) : [];
     if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
     else usable.push(cleanIncoming(m));
   }
@@ -697,7 +700,7 @@ export function planImport(local, incoming, ctx = {}) {
   for (const id of merged.remove) now.delete(id);
   for (const r of merged.put) now.set(r.id, r);
 
-  const summary = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deleted: 0, trash: 0, skipped: skipped.length };
+  const summary = { added: 0, updated: 0, unchanged: 0, keptHere: 0, deletedHere: 0, deleted: 0, trash: 0, skipped: skipped.length };
   const isTrash = (r) => r?.kind === "trash";
 
   // What was written, counted from the writes themselves (BA11).
@@ -721,7 +724,10 @@ export function planImport(local, incoming, ctx = {}) {
   }
   summary.trash = trashFor.size;
 
-  // What the file held that changed nothing.
+  // What the file held that changed nothing. A record the reader deleted here
+  // since the copy was saved is told apart from one that is merely newer here
+  // (DI-4): the deletion stands, and the Trash holds it for 30 days.
+  const deletedHere = new Set([...was.values()].filter((r) => isTrash(r)).map((r) => r.deletedId));
   const rejected = new Set(merged.skipped.map((s) => s.record));
   const seen = new Set();
   for (const r of usable) {
@@ -735,6 +741,7 @@ export function planImport(local, incoming, ctx = {}) {
     }
     const before = was.get(r.id);
     if (before && same(before, r)) summary.unchanged++;
+    else if (!before && deletedHere.has(r.id)) summary.deletedHere++;
     else summary.keptHere++;
   }
   return { plan: { put: merged.put, remove: merged.remove }, summary, skipped, ahead: merged.ahead };
@@ -792,6 +799,9 @@ export function describeSummary(s) {
   if (s.deleted) parts.push(`${s.deleted} deleted`);
   if (s.trash) parts.push(`${s.trash} ${s.trash === 1 ? "change" : "changes"} in the trash`);
   if (s.unchanged) parts.push(`${s.unchanged} already here`);
+  if (s.deletedHere) {
+    parts.push(`${s.deletedHere} deleted here since this copy was saved (the Trash can still bring back what is in it)`);
+  }
   if (s.keptHere) parts.push(`${s.keptHere} kept as they are here (yours ${s.keptHere === 1 ? "is" : "are"} newer)`);
   if (s.skipped) parts.push(`${s.skipped} left out`);
   return parts.length ? `${parts.join(", ")}.` : "Nothing to open in this file.";
