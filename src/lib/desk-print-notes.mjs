@@ -170,6 +170,30 @@ export function parsePrintParam(value) {
   return PRINT_KINDS.includes(value) ? value : null;
 }
 
+/**
+ * The Print menu's one-time mark, in localStorage since its new tab shares no
+ * session: a page prints itself only for the address the menu was just pressed
+ * for. A link from anywhere else (a chat, an email, a shared sheet) must not
+ * open a print preview of the reader's notes on its own (SEC-4). A referrer
+ * can't say this: some browsers and extensions leave it out, and a link in a
+ * sheet on /desk would carry one.
+ */
+export const PRINT_ASK_KEY = "lit-desk-print-ask";
+export const PRINT_ASK_MS = 60_000;
+
+/** The mark for a press of the Print menu on `href`. */
+export function printAsk(href, now) {
+  return `${now} ${href}`;
+}
+
+/** Whether `stored`, the mark as read, asks for `href` at the time `now`. */
+export function printWasAsked(stored, href, now) {
+  if (typeof stored !== "string") return false;
+  const space = stored.indexOf(" ");
+  const age = now - Number(stored.slice(0, space));
+  return stored.slice(space + 1) === href && age >= 0 && age <= PRINT_ASK_MS;
+}
+
 /** The Chapter View address that prints a chapter as `kind`. */
 export function printHref(bookKey, chapter, kind) {
   return `/${bookKey}-${chapter}/?${PRINT_PARAM}=${kind}`;

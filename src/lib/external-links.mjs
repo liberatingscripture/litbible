@@ -22,11 +22,21 @@ const OWN_HOSTS = new Set(["litbible.net", "www.litbible.net"]);
 const ANCHOR_RE = /<a\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
 const ATTR_RE = (name) => new RegExp(`(\\s${name}\\s*=\\s*)("([^"]*)"|'([^']*)')`, "i");
 
-/** True when `href` is an absolute http(s) address on a host that isn't this site. */
+/**
+ * True when `href` leads to an http(s) address on a host that isn't this site.
+ * It is read as a browser reads it, on a page of this site, so the spellings a
+ * browser forgives (`https:\\evil.example/`, `http:evil.example`,
+ * `https://litbible.net:443@evil.example/`) count for where they really go
+ * (SEC-3). An address a browser couldn't follow goes nowhere, so it isn't one.
+ */
 export function isExternalHref(href) {
-  const m = /^(?:https?:)?\/\/([^/?#:]+)/i.exec(href.trim());
-  if (!m) return false;
-  return !OWN_HOSTS.has(m[1].toLowerCase());
+  let url;
+  try {
+    url = new URL(href, "https://litbible.net/");
+  } catch {
+    return false;
+  }
+  return (url.protocol === "http:" || url.protocol === "https:") && !OWN_HOSTS.has(url.hostname);
 }
 
 function attrValue(tag, name) {

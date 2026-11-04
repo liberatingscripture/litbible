@@ -1123,7 +1123,12 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        other than this page's opens `/<book>-<chapter>/?print=<kind>` in a new
        tab** (`printHref`), where the shell's `desk/print-link.js` strips the
        parameter and starts that print once the page has loaded (a draft page,
-       which has no text, prints nothing). **This page's own chapter prints in
+       which has no text, prints nothing). **Only the menu's press prints**
+       (SEC-4): it leaves a one-time mark for that address
+       (`localStorage['lit-desk-print-ask']`, `printWasAsked`, good for a
+       minute), so a link from a chat or a shared sheet only opens the chapter,
+       and with notes it stands down, saying so, while "Hide my marks" is on. A
+       new way to ask for such a print must leave the mark. **This page's own chapter prints in
        place**, with no new tab, as the Notebook's buttons always did. /desk's
        is "Print…" in the page-title menu (E15, below); the
        Notebook's is one "Print…" button at the foot of the Settings tab

@@ -4,11 +4,15 @@
 // menu; rules in src/lib/desk-print-notes.mjs) prints itself once it has
 // loaded: plainly, with the reader's notes (M6) or with room to write (N9).
 // The parameter is taken out of the address first, so a reload or a copied
-// link never prints again.
+// link never prints again. Only the Print menu's press prints, and "Hide my
+// marks" holds back the notes (SEC-4): a link posted in a chat while the reader
+// shares their screen must not put their notes on it.
 
-import { PRINT_PARAM, parsePrintParam } from "../../lib/desk-print-notes.mjs";
+import { PRINT_ASK_KEY, PRINT_PARAM, parsePrintParam, printWasAsked } from "../../lib/desk-print-notes.mjs";
+import { allHidden } from "./note-settings.js";
 import { pageChapter } from "./page.js";
 import { printFonts } from "./print-notes.js";
+import { showNotice } from "./undo-bar.js";
 
 /**
  * The chapter or book on this page, printed plainly (print.css's look, in
@@ -18,6 +22,17 @@ import { printFonts } from "./print-notes.js";
 export async function printPlain() {
   await printFonts();
   window.print();
+}
+
+/** Whether the Print menu just asked for `href`. The mark works once. */
+function takeAsk(href) {
+  try {
+    const stored = localStorage.getItem(PRINT_ASK_KEY);
+    localStorage.removeItem(PRINT_ASK_KEY);
+    return printWasAsked(stored, href, Date.now());
+  } catch (_) {
+    return false;
+  }
 }
 
 /**
@@ -30,7 +45,12 @@ export function initPrintLink({ printNotes, printRoom }) {
   const kind = parsePrintParam(url.searchParams.get(PRINT_PARAM));
   url.searchParams.delete(PRINT_PARAM);
   history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
-  if (!kind) return;
+  if (!kind || !takeAsk(`${url.pathname}?${PRINT_PARAM}=${kind}`)) return;
+
+  if (kind === "notes" && allHidden()) {
+    showNotice("Not printed, because “Hide my marks” is on. Turn it off to print with your notes.");
+    return;
+  }
 
   const go = async () => {
     try {

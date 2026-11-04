@@ -71,10 +71,10 @@ const OTHER_TRANSLATIONS = [
   "CEV", "YLT", "DBH",
 ];
 
-const SP = String.raw`(?:\s|\u00a0|&nbsp;|&#160;)+`;
+const SP = String.raw`(?:\s|&nbsp;|&#160;)+`;
 // In a lookbehind, a bounded run: an unbounded one rescans a long run of
 // spaces at every position, which stalled a note of 40,000 spaces (BA95).
-const SP_BEHIND = String.raw`(?:\s|\u00a0|&nbsp;|&#160;){1,4}`;
+const SP_BEHIND = String.raw`(?:\s|&nbsp;|&#160;){1,4}`;
 const DASH = String.raw`(?:-|\u2013|&ndash;|&#8211;)`;
 
 // Books that link to another site, keyed by a prefix on the book key. And the
@@ -152,13 +152,13 @@ const CONT_RE = contRe(":");
 // books' exactly as above (a lowercase "is 3:15" is a time, not Isaiah).
 // Character classes rather than the i flag, so the rest stays exact.
 const NOTE_SHORT_NAMES = BOOK_SHORT_NAMES;
-const squash = (name) => name.replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, "").toLowerCase();
+const squash = (name) => name.replace(/(?:\s|&nbsp;|&#160;)+/g, "").toLowerCase();
 const NOTE_NAME_TO_KEY = new Map();
 for (const [name, key] of NAME_TO_KEY) if (!key.includes(":")) NOTE_NAME_TO_KEY.set(squash(name), key);
 for (const [key, names] of Object.entries(NOTE_SHORT_NAMES)) {
   for (const name of names) NOTE_NAME_TO_KEY.set(squash(name), key);
 }
-const SP_OPT = String.raw`(?:\s|\u00a0|&nbsp;|&#160;)*`;
+const SP_OPT = String.raw`(?:\s|&nbsp;|&#160;)*`;
 const anyCase = (name) =>
   escapeRe(name)
     .replace(/[A-Za-z]/g, (c) => `[${c.toUpperCase()}${c.toLowerCase()}]`)
@@ -176,7 +176,7 @@ const NOTE_CONT_RE = contRe("[:.]");
 
 // A numbered book's number ("and 1 Samuel", "and 1 Enoch") is not a verse
 // continuing the list before it, though it parses as one.
-const NUMBERED_BOOK_AHEAD = /^(?:\s|\u00a0|&nbsp;)+[A-Z]/;
+const NUMBERED_BOOK_AHEAD = /^(?:\s|&nbsp;)+[A-Z]/;
 
 // An outbound reference qualified from in front ("LXX Ps 51:4") cites that
 // text's numbering or wording, so it stays plain like a tagged one. The
@@ -189,24 +189,29 @@ const NUMBERED_BOOK_AHEAD = /^(?:\s|\u00a0|&nbsp;)+[A-Z]/;
 // ("the original Hebrew and Septuagint (Greek translation) of Deuteronomy
 // 30:13") can name the Hebrew too, so those still link. Whitespace runs are
 // bounded, as in SP_BEHIND, so a long run can't make the test backtrack.
-const WS_BEHIND = String.raw`(?:\s|\u00a0|&nbsp;|&#160;){1,4}`;
+const WS_BEHIND = String.raw`(?:\s|&nbsp;|&#160;){1,4}`;
 const LXX_NAME = String.raw`(?:LXX|Septuagint)`;
 const QUALIFIER_BEHIND = new RegExp(
-  String.raw`(?:(?:LXX|MT|Septuagint|Masoretic)(?:\s|\u00a0|&nbsp;)*` +
+  String.raw`(?:(?:LXX|MT|Septuagint|Masoretic)(?:\s|&nbsp;)*` +
     String.raw`|${LXX_NAME}(?:(?:[\u2019']|&rsquo;)s)?(?:${WS_BEHIND}\([^()]{1,80}\))?${WS_BEHIND}` +
     String.raw`(?:version|rendering|reading|text|translation)${WS_BEHIND}of${WS_BEHIND}` +
     String.raw`|(?:version|translation)${WS_BEHIND}\(${LXX_NAME}\)${WS_BEHIND}of${WS_BEHIND}` +
-    String.raw`|${LXX_NAME}(?:\s|\u00a0|&nbsp;|&#160;){0,4}\()$`,
+    String.raw`|${LXX_NAME}(?:\s|&nbsp;|&#160;){0,4}\()$`,
 );
 
+// How far back the qualifier can begin: its longest phrase, with every
+// whitespace run at its longest. The test looks no further, so a long text
+// full of references costs no more per reference than a short one (SEC-2).
+const QUALIFIER_REACH = 256;
+
 const tagRe = (tags) =>
-  new RegExp(String.raw`^,?(?:\s|\u00a0|&nbsp;)*\(?(?:${tags.join("|")})(?![A-Za-z])`);
+  new RegExp(String.raw`^,?(?:\s|&nbsp;)*\(?(?:${tags.join("|")})(?![A-Za-z])`);
 const TAG_RE = tagRe(OTHER_TRANSLATIONS);
 const OUTBOUND_TAG_RE = tagRe(OUTBOUND_TAGS);
 // The Septuagint named in a parenthesis right after: "Psalm 51:4 (in the
 // Septuagint, the Greek translation)".
 const LXX_AFTER_RE = new RegExp(
-  String.raw`^(?:\s|\u00a0|&nbsp;)*\(in${WS_BEHIND}the${WS_BEHIND}${LXX_NAME}(?![A-Za-z])`,
+  String.raw`^(?:\s|&nbsp;)*\(in${WS_BEHIND}the${WS_BEHIND}${LXX_NAME}(?![A-Za-z])`,
 );
 
 /**
@@ -350,7 +355,7 @@ function linkText(text, opts) {
   refs.lastIndex = 0;
   let m;
   while ((m = refs.exec(text))) {
-    const name = m[1].replace(/(?:\s|\u00a0|&nbsp;|&#160;)+/g, " ");
+    const name = m[1].replace(/(?:\s|&nbsp;|&#160;)+/g, " ");
     let key = NAME_TO_KEY.get(name);
     if (VERSE_ONLY.has(name) && m[3] == null) continue;
     if (!key && opts.note) {
@@ -360,7 +365,7 @@ function linkText(text, opts) {
     }
     const first = key ? resolve(key, m.slice(2, 8), {}, opts) : null;
     if (!first) continue;
-    if (first.outbound && QUALIFIER_BEHIND.test(text.slice(0, m.index))) continue;
+    if (first.outbound && QUALIFIER_BEHIND.test(text.slice(Math.max(0, m.index - QUALIFIER_REACH), m.index))) continue;
 
     // Collect the list this reference opens.
     const parts = [{ start: m.index, end: m.index + m[0].length, target: first }];

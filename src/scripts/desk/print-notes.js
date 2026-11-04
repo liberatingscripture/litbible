@@ -37,7 +37,8 @@
 // "Hide my marks") do not apply: the reader asked for notes on paper, and
 // Read View hides highlights by default only so the book reads straight
 // through. Plain printing (Ctrl+P) is untouched and stays the text and its
-// footnotes.
+// footnotes. A print asked for by an address is another matter: print-link.js
+// holds that one back while "Hide my marks" is on.
 
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import { MARKER_NAMES } from "../../lib/desk-notes.mjs";

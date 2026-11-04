@@ -206,7 +206,11 @@ From the root's project tree.
   the same in both. The lookbehind that
   keeps "1 John" from matching as "John" bounds its whitespace run
   (`SP_BEHIND`, at most four), since an unbounded one stalled a note of 40,000
-  spaces for 3.5 seconds (BA95); this holds in every mode.
+  spaces for 3.5 seconds (BA95); this holds in every mode. `QUALIFIER_BEHIND`
+  is tested on at most `QUALIFIER_REACH` characters for the same reason
+  (SEC-2): a longer phrase needs that number raised. **Never list `\u00a0`
+  beside `\s` in a pattern**: `\s` holds it, and a repeated group offering it
+  twice doubles the time with every nonbreaking space in a run.
   On `/glossary`, `linkGlossaryCrossRefs` also turns `the entry for “X”` into a
   jump to that entry, resolving X through the feed's own `normalizeLabel` so the
   page and iOS agree; the phrase itself ships verbatim (see The Glossary Feed).

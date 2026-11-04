@@ -10,6 +10,9 @@ import {
   PRINT_PARAM,
   markPieces,
   parsePrintParam,
+  PRINT_ASK_MS,
+  printAsk,
+  printWasAsked,
   printHref,
   printMenuState,
   planNotes,
@@ -127,6 +130,20 @@ test("a printed highlight wraps each run once, in text order, inside its node (B
   assert.deepEqual(markPieces(10, [{ start: 0, end: 9, color: "yellow" }, { start: 2, end: 5, color: "pink" }]), [
     { start: 0, end: 9, color: "yellow" },
   ]);
+});
+
+test("printWasAsked: only the Print menu's press on that address prints (SEC-4)", () => {
+  const href = "/romans-8/?print=notes";
+  const mark = printAsk(href, 1000);
+  assert.equal(printWasAsked(mark, href, 1000), true);
+  assert.equal(printWasAsked(mark, href, 1000 + PRINT_ASK_MS), true);
+  assert.equal(printWasAsked(mark, href, 1001 + PRINT_ASK_MS), false);
+  assert.equal(printWasAsked(mark, href, 999), false);
+  assert.equal(printWasAsked(mark, "/romans-9/?print=notes", 1000), false);
+  assert.equal(printWasAsked(mark, "/romans-8/?print=plain", 1000), false);
+  assert.equal(printWasAsked(null, href, 1000), false);
+  assert.equal(printWasAsked("", href, 1000), false);
+  assert.equal(printWasAsked(href, href, 1000), false);
 });
 
 test("printHref and parsePrintParam: /desk's Print menu (BVJ, 2026-10-29)", () => {

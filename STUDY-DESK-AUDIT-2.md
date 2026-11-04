@@ -157,6 +157,10 @@ Collected from the appendices, de-duplicated. The first six block work.
 5. **Enforce part of the CSP on the desk's pages before release?** (SEC Q1.) A path-scoped
    `connect-src 'self' ...; img-src 'self' data:` blocks SEC-1's fetch on its own. And should a
    record the website cannot edit still have the fields it draws checked? (SEC Q2.)
+   **Enforcing the CSP: not yet (BVJ, 2026-11-03), so FA2-c isn't built.** Weighed then: it blocks
+   `fetch` and image beacons on those three paths only, while chapter pages reach the same notebook,
+   scripts still run and can navigate away, and a later outside connection (sync) would fail on
+   deploy alone. SEC-1 itself is fixed. **SEC Q2 is still open.**
 6. **Launch opt-out and browser floor.** Will a Settings switch ("Turn the Study Desk off") ship?
    Which browsers are in scope (Safari before 17.2 and Firefox before 140 draw no highlights)?
    (LG-3, LG-5, LG-7.)
@@ -242,13 +246,13 @@ loses nothing.
 
 ### Session 1: Security residue
 
-Independent. SEC-1 is done (#446). Needs decision 5 only for FA2-c.
+Independent. SEC-1 is done (#446). **FA2-a and FA2-b are done** (2026-11-03, branch `claude/audit2-session1`). FA2-c is held: decision 5's answer on the CSP is "not yet."
 
 | Task | Findings | What |
 |---|---|---|
 | FA2-a | SEC-2 | Bound the `QUALIFIER_BEHIND` lookbehind in `scripture-refs.mjs` (shared by every reader, so run the rendered-output diff before and after, and cover E23's longest phrase). Add the tests the report names. |
 | FA2-b | SEC-3, SEC-4, SEC-5 | Outside links in a sheet get `noopener noreferrer` and a new tab (`external-links.mjs`, `desk-sheet-format.mjs`); `?print=notes` needs a gesture and honors Hide my marks (`print-link.js`, `print-notes.js`); the Share dialog stops saying the link "never passes through a server" (`sheet-page.js`). |
-| FA2-c | SEC Q1 | Enforce `connect-src 'self'` and `img-src 'self' data:` on `/desk/*`, `/sheets/*`, `/notebook/*` (`public/_headers`). **Blocked on decision 5.** Edits the same file as FA2-u. |
+| FA2-c | SEC Q1 | Enforce `connect-src 'self'` and `img-src 'self' data:` on `/desk/*`, `/sheets/*`, `/notebook/*` (`public/_headers`). **Not yet (BVJ, 2026-11-03; decision 5).** Edits the same file as FA2-u. |
 
 ### Session 2: A note is never lost (Tier 1)
 
@@ -458,6 +462,8 @@ Counts: **Critical 1, High 0, Medium 1, Low 4, Nit 0** (6 findings).
 
 #### SEC-2 · Medium · security · NEW (BA95's fix bounded one lookbehind, not this one)
 
+> **Fixed in FA2-a (2026-11-03, branch claude/audit2-session1):** the test reads back at most `QUALIFIER_REACH` (256 characters, E23's longest phrase with every whitespace run at its longest; 209 today). `noteBodyHtml` of 400 KB of `LXX Ps 51:4 ` takes 80 ms, and the 480 KB sheet 120 ms in `sheetHtmlForShow`. A rendered diff of all 354 built pages, before and after, shows no change. **Found while fixing it, and worse than the finding:** eleven patterns in `scripture-refs.mjs` listed `\u00a0` beside `\s`, which already holds it, so each nonbreaking space in a run could match two ways and the failing case doubled per character (26 of them took 1.3 s, so a few dozen in a note would hang the tab outright). They list it no longer; behavior is the same, and a test holds it.
+
 **Denial of service: a 1,510-character share link freezes the tab for about 11 seconds each time the sheet is drawn.**
 
 - **Where**: `src/lib/scripture-refs.mjs:339` runs `QUALIFIER_BEHIND.test(text.slice(0, m.index))` (`:181`, `/(?:LXX|MT|Septuagint|Masoretic)(?:\s|\u00a0|&nbsp;)*$/`) for every outbound reference (Hebrew Bible or apocrypha), scanning the whole text before it each time, so the cost is quadratic in the text's length. Reached by `sheetHtmlForShow` (`desk-sheet-copy.mjs:128-130`) for every text and question part, and by `noteBodyHtml` (`desk-chains.mjs:60`) for every note. The build-time linker (footnotes, intros) shares it, but that text is the owner's.
@@ -469,6 +475,8 @@ Counts: **Critical 1, High 0, Medium 1, Low 4, Nit 0** (6 findings).
 
 #### SEC-3 · Low · security · NEW
 
+> **Fixed in FA2-b (2026-11-03, branch claude/audit2-session1):** `isExternalHref` reads an address with `new URL` as a browser would on this site, so all four open in a new tab with `noopener noreferrer`. `cleanHref` and the format are unchanged (the sanitized form is shared with the apps). `https:evil.example` with one scheme and no slashes is a path on this site, as a browser reads it there.
+
 **Four spellings of an outside link in a sheet open in the same tab, without `noopener noreferrer`.**
 
 - **Where**: `src/lib/external-links.mjs:26-30` (`isExternalHref` requires `//` after the scheme and takes the host up to the first `:`); the sanitizer's `cleanHref` (`src/lib/desk-sheet-format.mjs:290-297`) accepts anything starting `http:` or `https:`.
@@ -479,6 +487,8 @@ Counts: **Critical 1, High 0, Medium 1, Low 4, Nit 0** (6 findings).
 
 #### SEC-4 · Low · security · NEW
 
+> **Fixed in FA2-b (2026-11-03, branch claude/audit2-session1):** only a press of the Print menu prints: it leaves a one-time mark for that address (`lit-desk-print-ask`, good for a minute, named in /privacy), so any other link just opens the chapter. With notes, the tab says why it didn't print while "Hide my marks" is on. The referrer check the fix first suggests was tried and dropped: the referrer can be stripped, which would stop the menu printing with no word why, and a link in a shared sheet on /desk would carry one. Prints the reader starts on the page itself still ignore the switches, by design.
+
 **Privacy: any site can open a reader's print dialog with all their notes in it, even while "Hide my marks" is on.**
 
 - **Where**: `src/scripts/desk/print-link.js:16-41` acts on `?print=notes` from any source; `src/scripts/desk/print-notes.js:36-40, 243` ignores the screen switches, "Hide my marks" included, by design for a print the reader asked for. The parameter came with /desk's Print menu (7529b0a9, after the prior audit).
@@ -488,6 +498,8 @@ Counts: **Critical 1, High 0, Medium 1, Low 4, Nit 0** (6 findings).
 - **Confidence**: Medium (code read; whether each browser allows `window.print()` with no user gesture on load was not tried here; Chromium and Firefox generally do).
 
 #### SEC-5 · Low · security · NEW
+
+> **Fixed in FA2-b (2026-11-03, branch claude/audit2-session1):** the dialog says litbible.net never sees or stores the link, and that any service carrying it can read it. Claude's copy, not the owner's.
 
 **Privacy: the Share dialog promises the link "never passes through a server," which isn't true of the services that carry it.**
 

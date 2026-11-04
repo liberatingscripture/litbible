@@ -8,7 +8,8 @@
 // or the page. What each choice does for the chapter picked is
 // `printMenuState` (src/lib/desk-print-notes.mjs, pure and tested):
 //   - a chapter other than this page's opens its Chapter View address in a new
-//     tab with `?print=<kind>`, which prints itself (print-link.js);
+//     tab with `?print=<kind>`, which prints itself (print-link.js) for the
+//     one-time mark a press leaves;
 //   - this page's own chapter (`here`, the Notebook on Chapter View) prints in
 //     place with `inPlace`, as the Notebook's buttons always did;
 //   - in Read View (`book`) there is no picker: the menu prints the book on
@@ -17,7 +18,7 @@
 // menu is `el`, `open()` fills it for a fresh look, `focusTarget()` says where
 // focus belongs once it is shown.
 
-import { printMenuState } from "../../lib/desk-print-notes.mjs";
+import { PRINT_ASK_KEY, printAsk, printMenuState } from "../../lib/desk-print-notes.mjs";
 import { createPassageBar } from "./passage-bar.js";
 
 /**
@@ -109,14 +110,27 @@ export function createPrintMenu({
           .then(run)
           .catch((err) => console.error("Study Desk: the chapter didn't print", err));
       } else {
+        markAsk(item);
         onChoose?.();
       }
+    });
+    // A middle press opens the new tab with no click.
+    item.addEventListener("auxclick", (e) => {
+      if (e.button === 1 && item.getAttribute("aria-disabled") !== "true") markAsk(item);
     });
     choices.append(item);
     return item;
   });
 
   let state = { message: null, choices: [] };
+
+  function markAsk(item) {
+    const href = item.getAttribute("href");
+    if (!href) return;
+    try {
+      localStorage.setItem(PRINT_ASK_KEY, printAsk(href, Date.now()));
+    } catch (_) {}
+  }
 
   function render() {
     state = printMenuState({ passage: chosen, drafts, notebook, here, book });
