@@ -184,6 +184,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     section.dataset.unit = String(i);
     const h = make("h3", "desk-lit__heading", unitHeading(u));
     h.id = `deskLit-${paneId}-${i}`;
+    // A group, not a region: a pane that has scrolled through sixty chapters would list sixty landmarks (DK-7).
+    section.setAttribute("role", "group");
     section.setAttribute("aria-labelledby", h.id);
     section.append(h, make("p", "desk-lit__stub", `${draftStubText(u)} Its Greek is ready in a Greek pane.`));
     return section;
@@ -228,6 +230,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     if (href) a.href = href;
     a.title = "Open in Chapter View";
     h.append(a);
+    // A group, not a region: a pane that has scrolled through sixty chapters would list sixty landmarks (DK-7).
+    section.setAttribute("role", "group");
     section.setAttribute("aria-labelledby", h.id);
     const box = make("div", "chapter-paragraphs");
     const blocks = Array.from(source.textBox.children, (b) => document.importNode(b, true));

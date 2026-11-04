@@ -73,6 +73,7 @@ import { undoEntry } from "./history.js";
 import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./sheet-lit.js";
 import { createSheetText } from "./sheet-text.js";
 import { showUndo } from "./undo-bar.js";
+import { redraw } from "./focus-keep.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -258,7 +259,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   /** The changes asked for whose write hasn't landed, in the order asked (BA72). */
   const pending = new Set();
   const status = make("span", "desk-sheet__saved");
-  status.setAttribute("role", "status");
+  // Saving… and Saved are for the eye: each autosave would otherwise be read
+  // out between a typist's phrases (DK-14). A failure is said through `say`.
+  status.setAttribute("aria-hidden", "true");
 
   /**
    * Apply an operation to the sheet and save it. Saves run one after
@@ -351,6 +354,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     status.textContent = sheetTooBig(err)
       ? `Not saved: this sheet is too big to save (${SHEET_LIMITS.bytes / 1024} KB). Remove some text or blanks.`
       : "Not saved, so that change was taken back.";
+    say(status.textContent);
     const card = source ? cards.get(source) : null;
     if (!card || !sheet || !moduleList) return;
     const focused = card.inst?.hasFocus?.();
@@ -392,7 +396,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   // ---- the list of sheets ----
 
-  async function showList() {
+  async function showList({ focus = null } = {}) {
     const n = ++seq;
     sheet = null;
     targetChanged();
@@ -401,7 +405,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     cards.clear();
     license = null;
     keyTermsButton = null;
-    content.replaceChildren(make("p", "desk-sheet__status", "Loading your sheets…"));
+    // The button just pressed is gone with the view it was in, so the list
+    // names where focus goes (DK-3); "loading" holds it meanwhile.
+    const loading = make("p", "desk-sheet__status", "Loading your sheets…");
+    redraw(content, [loading]);
     let all = [];
     try {
       all = (await store.all()).filter((r) => r.kind === "sheet");
@@ -412,8 +419,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     const list = make("div", "desk-sheet__list");
     const head = make("div", "desk-sheet__list-head");
     const h = make("h3", "desk-sheet__list-title", "My sheets");
+    h.tabIndex = -1;
     const fresh = button("New sheet", "desk-sheet__btn desk-sheet__btn--primary");
     fresh.setAttribute("aria-expanded", "false");
+    fresh.dataset.focusKey = "new-sheet";
     const chooser = templateChooser(fresh);
     fresh.setAttribute("aria-controls", chooser.id);
     fresh.addEventListener("click", () => chooser.toggle());
@@ -430,21 +439,28 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         const passages = s.modules?.filter((m) => m?.type === "passage").length ?? 0;
         const bits = [s.subtitle, `${passages} ${passages === 1 ? "passage" : "passages"}`, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean);
         open.append(make("span", "desk-sheet__open-meta", bits.join(" · ")));
-        open.addEventListener("click", () => openSheet(s.id));
+        open.dataset.focusKey = `open-${s.id}`;
+        open.addEventListener("click", () => openSheet(s.id, { focusTitle: true }));
         const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
         del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
         del.addEventListener("click", async () => {
           const trash = await store.remove(s.id);
           const entry = trash ? store.lastEntry() : null;
           if (entry) showUndo(`${sheetName(s)} deleted.`, () => undoEntry(entry));
-          showList();
+          // The row below takes focus (else the one above, else New sheet).
+          const rows = Array.from(ul.querySelectorAll(".desk-sheet__open"));
+          const at = rows.indexOf(open);
+          const next = rows[at + 1] ?? rows[at - 1];
+          showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
         });
         li.append(open, del);
         ul.append(li);
       }
       list.append(ul);
     }
-    content.replaceChildren(list);
+    const target = focus ? list.querySelector(`[data-focus-key="${CSS.escape(focus)}"]`) : null;
+    const moved = redraw(content, [list], { fallback: () => target ?? h, force: Boolean(focus) });
+    if (focus && moved) say(moved === target || moved === h ? "My sheets" : "");
   }
 
   /**
@@ -551,7 +567,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       flushAll();
       await saving;
       setSheet(null);
-      showList();
+      showList({ focus: `open-${sheet?.id ?? ""}` });
     });
     status.textContent = "";
     // The sheet's own address prints, copies and shares it (3i, 3k), in a tab
@@ -683,11 +699,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       keyTermsButton.title = has ? "A sheet has one key terms box" : "A box listing the key terms in the sheet’s passages, filled in for you";
     }
     if (!sheet.modules.length) {
-      if (!moduleList.querySelector(".desk-sheet__none")) {
-        moduleList.append(make("p", "desk-sheet__none", "Nothing on this sheet yet. Add a passage or your own text below."));
+      // Beside the list, not in it: a list holds only list items (DK-16).
+      if (!moduleList.parentNode.querySelector(".desk-sheet__none")) {
+        moduleList.before(make("p", "desk-sheet__none", "Nothing on this sheet yet. Add a passage or your own text below."));
       }
     } else {
-      moduleList.querySelector(".desk-sheet__none")?.remove();
+      moduleList.parentNode.querySelector(".desk-sheet__none")?.remove();
     }
   }
 

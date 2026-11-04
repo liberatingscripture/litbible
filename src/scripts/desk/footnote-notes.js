@@ -34,6 +34,7 @@ import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter, recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { currentPanel } from "../lit-panel.js";
 import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
+import { busy, isBusy } from "./focus-keep.js";
 import { glyph } from "./glyphs.js";
 import { openNoteEditor } from "./note-editor.js";
 import { fillNoteWords } from "./note-words.js";
@@ -156,14 +157,14 @@ export function addNoteButton(id, label, where = pageChapter()) {
   button.setAttribute("aria-label", `Add a note on footnote ${label}`);
   button.addEventListener("click", async (e) => {
     e.stopPropagation();
-    if (button.disabled) return;
-    button.disabled = true;
+    if (isBusy(button)) return;
+    const done = busy(button);
     try {
       await addNote(id, at, button);
     } catch (err) {
       console.error("Study Desk: the note on a footnote couldn't be started", err);
     } finally {
-      button.disabled = false;
+      done();
     }
   });
   return button;

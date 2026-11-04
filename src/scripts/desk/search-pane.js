@@ -168,6 +168,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
 
   const form = make("form", "desk-search__form");
   form.setAttribute("role", "search");
+  form.setAttribute("aria-label", "Search the LIT");
   form.noValidate = true;
   const input = make("input", "desk-search__input");
   input.type = "search";
@@ -206,10 +207,13 @@ export function createSearchPane({ paneId, env, getPlace }) {
   }
   tools.append(typeSel, bookSel);
 
+  // One polite region for the pane, always in the tree, so a screen reader
+  // hears its text change (DK-2). The visible status and note carry the same
+  // words for the eye and are not live themselves.
+  const live = make("p", "sr-only");
+  live.setAttribute("role", "status");
   const status = make("p", "desk-search__status");
-  status.setAttribute("role", "status");
   const note = make("p", "desk-search__note");
-  note.setAttribute("role", "status");
   note.hidden = true;
   const results = make("div", "desk-search__results");
   const jumpBox = make("div", "desk-search__jump");
@@ -218,7 +222,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   const entryBox = make("div", "desk-search__entry");
   entryBox.hidden = true;
   const top = make("div", "desk-search__top");
-  top.append(form, tools, status, note);
+  top.append(form, tools, live, status, note);
   el.append(top, results, entryBox);
 
   // ---- state (none of it stored) ----
@@ -242,12 +246,37 @@ export function createSearchPane({ paneId, env, getPlace }) {
     deskPart = m;
   });
 
+  // The live region is cleared and filled a frame later, so the same words
+  // twice in a row are heard twice.
+  const hear = (text) => {
+    live.textContent = "";
+    if (text) requestAnimationFrame(() => { if (!destroyed) live.textContent = text; });
+  };
   const say = (text) => {
     status.textContent = text;
+    hear(text);
   };
   const tell = (text) => {
     note.textContent = text;
     note.hidden = !text;
+    hear(text);
+  };
+
+  // A control pressed in the results is rebuilt by the search it starts, so
+  // its replacement takes focus once the results are drawn (DK-4).
+  let pendingFocus = null;
+  const settleFocus = () => {
+    if (!pendingFocus) return;
+    const key = pendingFocus;
+    pendingFocus = null;
+    // Only from where focus was dropped: a reader who has gone on typing keeps the field.
+    const at = document.activeElement;
+    if (at && at !== document.body && !groupsEl.contains(at)) return;
+    groupsEl.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)?.focus({ preventScroll: true });
+  };
+  const runKeeping = (q, key) => {
+    pendingFocus = key;
+    run(q);
   };
 
   const searchable = (q) => longEnoughQuery(q, greekSearchEnabled()) || Boolean(parseReference(q) || parseBookOnly(q));
@@ -568,6 +597,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     }
     say(counts.length ? counts.join(STATUS_SEP) : r.jump ? "" : "No results.");
     syncAdd();
+    settleFocus();
   }
 
   // ---- verses, and the sheet ----
@@ -843,11 +873,13 @@ export function createSearchPane({ paneId, env, getPlace }) {
     groupsEl.append(g);
     const said = typeof line === "string" ? line : "";
     say(nCount ? `${said.replace(/\.$/, "")}${said ? STATUS_SEP : ""}${plural(nCount, "notebook match", "notebook matches")}` : said);
+    settleFocus();
   }
 
   function retryButton(q) {
     const b = button("Try again");
-    b.addEventListener("click", () => run(q));
+    b.dataset.focusKey = "retry";
+    b.addEventListener("click", () => runKeeping(q, "retry"));
     return b;
   }
 
@@ -951,17 +983,21 @@ export function createSearchPane({ paneId, env, getPlace }) {
           b.type = "button";
           b.setAttribute("aria-pressed", String(item.id === sel?.id));
           lemmaNodes(b, item);
+          b.dataset.focusKey = `choice-${item.id}`;
           b.addEventListener("click", () => {
             greekState.lemmaId = item.id;
-            run(q);
+            runKeeping(q, `choice-${item.id}`);
           });
           box.append(b);
         });
         if (lemmas.length > shown) {
           const more = button("Show more words", "desk-search__btn desk-search__more");
           more.addEventListener("click", () => {
+            const first = lemmas[shown]?.id;
             shown += CHOICES;
             draw();
+            // The button is gone (or moved on): the first new word takes focus.
+            box.querySelector(`[data-focus-key="choice-${CSS.escape(String(first))}"]`)?.focus();
           });
           box.append(more);
         }
@@ -974,9 +1010,10 @@ export function createSearchPane({ paneId, env, getPlace }) {
       const check = make("input");
       check.type = "checkbox";
       check.checked = greekState.exact;
+      check.dataset.focusKey = "exact";
       check.addEventListener("change", () => {
         greekState.exact = check.checked;
-        run(q);
+        runKeeping(q, "exact");
       });
       label.append(check, " ", make("span", null, "Exact form only"));
       g.append(label);

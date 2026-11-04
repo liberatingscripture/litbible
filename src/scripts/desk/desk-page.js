@@ -347,6 +347,7 @@ async function start() {
   menu.id = "deskLayoutMenu";
   menu.setAttribute("role", "dialog");
   menu.setAttribute("aria-label", "Layout");
+  menu.tabIndex = -1; // takes focus itself when it has nothing to hand it to (DK-13)
   menu.hidden = true;
   menu.innerHTML = `
     <div class="desk-ws__shapes" role="group" aria-label="Arrange the panes"></div>
@@ -464,6 +465,7 @@ async function start() {
   printMenu.id = "deskPrintMenu";
   printMenu.setAttribute("role", "dialog");
   printMenu.setAttribute("aria-label", "Print");
+  printMenu.tabIndex = -1;
   printMenu.hidden = true;
   wrap.append(printMenu);
 
@@ -498,6 +500,16 @@ async function start() {
 
   printMenu.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { e.stopPropagation(); closePrintMenu(); }
+  });
+  // Escape from the title button, where focus can sit while a window is open
+  // (Shift+Tab back to it, or a window with nothing to focus), closes the
+  // window as it does from inside (DK-13). These windows are popups that close
+  // when focus leaves them (BA63), not modal dialogs, so there is no trap to
+  // wrap Tab (RC-7); the title button is the one control focus can go back to.
+  wrap.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || e.defaultPrevented) return;
+    if (!menu.hidden) { e.stopPropagation(); closeMenu(); }
+    else if (!printMenu.hidden) { e.stopPropagation(); closePrintMenu(); }
   });
   printMenu.addEventListener("focusout", (e) => {
     const to = e.relatedTarget;
@@ -891,7 +903,6 @@ async function start() {
       close.innerHTML = ICON_CLOSE;
       head.append(grip, h2, lead, pin, close);
       const body = el("div", "desk-pane__body");
-      section.setAttribute("aria-labelledby", kindButton.id);
       section.append(head, body);
       rec = { el: section, head, body, kindButton, lead, pin, close, kind: null, inst: null, at: null };
       paneEls.set(pane.id, rec);
@@ -1003,6 +1014,8 @@ async function start() {
       const name = kindLabel(pane.kind);
       rec.kindButton.querySelector(".desk-pane__name").textContent = name;
       rec.kindButton.setAttribute("aria-label", `${name} pane: show something else here, or move it`);
+      // The region is named by its kind alone; the instruction stays on the button (DK-7).
+      rec.el.setAttribute("aria-label", name);
       const leading = pane.kind === "lit" && lits > 1 && layout.active === pane.id;
       rec.lead.hidden = !leading;
       rec.el.classList.toggle("desk-pane--leading", leading);
