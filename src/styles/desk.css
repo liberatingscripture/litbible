@@ -4120,6 +4120,43 @@ html:has(.desk-greek__split--dragging) {
   cursor: help;
 }
 
+.desk-greek__credit {
+  margin: 10px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
+.desk-greek__credit a {
+  color: inherit;
+}
+
+/* "Show sources" writes out what an abbreviation's hover text says (GK-12). */
+.desk-greek__sources {
+  margin: 2px 0 4px;
+  padding: 1px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.58);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.desk-greek__sources[aria-pressed="true"] {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-greek__sources:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-greek__entry-body .lex-cite {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+}
+
 .desk-greek__entry-body .lex-ref {
   color: rgba(var(--ink-rgb), 0.7);
   font-size: 0.8125rem;
@@ -6201,13 +6238,26 @@ html.desk-ws--moving * {
 
   /* A chosen Greek word: its comment's second cue is a shadow, dropped here. */
   .desk-greek__w.is-selected {
+    /* As the chosen segment does: opt out of forcing, or Chrome's Canvas
+       backplate sits behind HighlightText on its Highlight fill (GK-17). */
+    forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+  }
+
+  .desk-greek__w.is-selected:focus-visible {
+    outline-color: HighlightText;
   }
 
   /* A tint draws nothing here, so the selected word's other forms get an underline. */
   .desk-greek__w.is-sel-kin {
     text-decoration: underline;
+  }
+
+  /* The apparatus row for the selected word is a tint and a bar; both vanish here. */
+  .desk-greek__app-item.is-lit {
+    box-shadow: none;
+    border-left: 3px solid Highlight;
   }
 
   .desk-greek__choice[aria-pressed="true"] {

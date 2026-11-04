@@ -395,13 +395,22 @@ ubs/
 
 step/
   The Translators Brief lexicon of Extended Strongs for Greek (TBESG), from
-  STEPBible.org, Tyndale House Cambridge, CC BY 4.0, based on Abbott-Smith.
-  Reformatted for the Greek tab: markup reduced to bold, italic and line
-  breaks, and references made plain text.
+  STEPBible.org, Tyndale House Cambridge, CC BY 4.0, based on Abbott-Smith
+  (public domain). Reformatted for the Greek tab: markup reduced to bold,
+  italic and line breaks, and references made plain text.
+  Where Abbott-Smith has no entry, STEPBible fills in Middle Liddell, and
+  those entries end "(ML)". Middle Liddell comes from the Perseus Digital
+  Library, Tufts University (https://github.com/PerseusDL/lexica), CC BY-SA,
+  so each entry ending "(ML)" is licensed CC BY-SA 4.0. The rest of this
+  directory is CC BY 4.0.
 
 lsj/
   The Translators Formatted full LSJ lexicon, from STEPBible.org, Tyndale
-  House Cambridge, CC BY 4.0, edited from Liddell, Scott and Jones.
+  House Cambridge, edited from Liddell, Scott and Jones. STEPBible takes its
+  LSJ text from the Perseus Digital Library, Tufts University
+  (https://github.com/PerseusDL/lexica), CC BY-SA, so this directory is
+  licensed CC BY-SA 4.0, with Tyndale House's additions (CC BY 4.0) under it.
+  Corrections to its wording are offered to the Perseus Digital Library.
   Reformatted for the Greek tab: markup reduced to bold, italic and line
   breaks, references made plain text, and each source reference kept as
   hover text.

@@ -16,7 +16,7 @@
 // textContent), never as HTML.
 
 import deskCss from "../../styles/desk.css?inline";
-import { isCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
+import { isDeskCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
 import {
   GREEK_NOTES_KEY,
   greekNotesOn as greekNotesStoredOn,
@@ -27,7 +27,7 @@ import { readingSurface } from "../desk-frame.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { readRecords } from "./readonly-notebook.js";
 
-export { isCommandQuery };
+export { isDeskCommandQuery };
 
 /** How many matches the tray lists before "N more in your notebook". */
 export const TRAY_LIMIT = 4;

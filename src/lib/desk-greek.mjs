@@ -234,3 +234,35 @@ export function nearestVerse(verses, v) {
   }
   return before;
 }
+
+/* ── Language of parts ───────────────────────────────────────────── */
+
+// A run is letters of one script, with the spaces, commas and marks between
+// them, and never ends on punctuation: "ἀγάπη, ἀγάπης" is one run, "ἀγάπη, and"
+// is a run and a comma.
+const GREEK_LETTERS = "\u0370-\u03ff\u1f00-\u1fff";
+const HEBREW_LETTERS = "\u0590-\u05ff\ufb1d-\ufb4f";
+const RUN = new RegExp(
+  `[${GREEK_LETTERS}](?:[${GREEK_LETTERS}\u0300-\u036f ,;·’'\-]*[${GREEK_LETTERS}\u0300-\u036f])?` +
+    `|[${HEBREW_LETTERS}](?:[${HEBREW_LETTERS} ,;·’'\-]*[${HEBREW_LETTERS}])?`,
+  "g",
+);
+
+/**
+ * Text split into parts by language, for WCAG 3.1.2: a lexicon entry is
+ * English with Greek and Hebrew quoted in it, and a screen reader voices
+ * them right only when each run says what it is. [{ text, lang }] with `lang`
+ * "grc", "he" or null (English); the parts joined are the text again.
+ */
+export function langRuns(text) {
+  const s = String(text ?? "");
+  const out = [];
+  let at = 0;
+  for (const m of s.matchAll(RUN)) {
+    if (m.index > at) out.push({ text: s.slice(at, m.index), lang: null });
+    out.push({ text: m[0], lang: new RegExp(`^[${HEBREW_LETTERS}]`).test(m[0]) ? "he" : "grc" });
+    at = m.index + m[0].length;
+  }
+  if (at < s.length) out.push({ text: s.slice(at), lang: null });
+  return out;
+}

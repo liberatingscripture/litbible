@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import { countLine, isCommandQuery } from "../src/lib/greek-query.mjs";
+import { countLine, isGreekCommandQuery } from "../src/lib/greek-query.mjs";
 import { foldGreek } from "../src/lib/greek-search.mjs";
 
 const publicDir = (rel) => fileURLToPath(new URL(`../public/${rel}`, import.meta.url));
@@ -131,7 +131,7 @@ test.after(() => {
 test("BA45: two or three plain words that are a whole gloss are the gloss, even holding a command word", async () => {
   // "be next to" and "be exactly" end in a command word, which a command drops.
   for (const q of ["present time", "in the middle", "next day", "in order to", "be next to", "be exactly"]) {
-    assert.equal(isCommandQuery(q), true, `${q} reads as a command`);
+    assert.equal(isGreekCommandQuery(q), true, `${q} reads as a command`);
     const res = await searchGreekAuto("/", q);
     assert.notEqual(res.kind, "commands", q);
     assert.equal(res.kind, "latin", q);
@@ -148,4 +148,10 @@ test("BA45: a command of plain words that is no gloss is still a command", async
   assert.equal(res.kind, "commands");
   assert.equal(res.error, null);
   assert.ok(res.hits.length > 0);
+});
+
+test("couldBeGreek and longEnoughForGreek agree on two Latin letters (GK-4)", async () => {
+  const { couldBeGreek } = await import("../src/scripts/search-core.js");
+  const { longEnoughForGreek } = await import("../src/lib/greek-search.mjs");
+  for (const q of ["de", "ou", "ei", "en", "go", "a", "", "*"]) assert.equal(couldBeGreek(q), longEnoughForGreek(q) && /\p{L}/u.test(q), q);
 });

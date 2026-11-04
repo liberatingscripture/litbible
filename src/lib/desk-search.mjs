@@ -26,10 +26,17 @@ import { BOOK_ORDER } from "../data/books.js";
 import { foldDiacritics } from "./word-stem.mjs";
 import { kindName, recordHref, recordReference } from "./desk-store-core.mjs";
 
-const WORD_RE = /[\p{L}\p{N}]+/gu;
+// Combining marks belong to the word, so a note typed in NFD (an accent as a
+// mark of its own) is one word, as its NFC twin is (GK-5).
+const WORD_RE = /[\p{L}\p{N}\p{M}]+/gu;
 
-// A final sigma is a sigma (BA40): "πιστισ" typed with σ finds "πίστις".
-const fold = (s) => foldDiacritics(String(s || "").toLowerCase()).replace(/ς/g, "σ");
+// A final sigma is a sigma (BA40): "πιστισ" typed with σ finds "πίστις", and so
+// does a lunate ϲ; Hebrew points and cantillation (U+0591 to U+05C7) fall away
+// as accents do.
+const fold = (s) =>
+  foldDiacritics(String(s || "").toLowerCase())
+    .replace(/[֑-ׇ]/g, "")
+    .replace(/[ςϲ]/g, "σ");
 
 /**
  * The words of a query, folded. A single letter is dropped when the query has

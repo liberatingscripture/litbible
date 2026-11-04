@@ -189,6 +189,13 @@ export const EXAMPLES = [
 /** The most words a construction joins (BA44), which keeps matchConstruction fast. */
 export const MAX_TERMS = 4;
 
+/**
+ * The longest query read: no search is this long, and the loop that strips a
+ * command still being typed is quadratic in a long run of commas or spaces
+ * (a 100,000-character paste took 50 seconds; GK-7).
+ */
+export const MAX_QUERY_LENGTH = 300;
+
 const QUOTED = /["“”]([^"“”]+)["“”]/g;
 const LITERAL = "\u0001";
 const COMMAND_WORD = /^(?:any|exact(?:ly)?|and|or)$/i;
@@ -204,7 +211,7 @@ const COMMAND_WORDS = /^(?:and|or|any|exact(?:ly)?|within|next|anywhere|order)$/
  * of man") stay a gloss search; when that finds nothing, a caller may try
  * them here as a construction (pistis Christos).
  */
-export function isCommandQuery(raw) {
+export function isGreekCommandQuery(raw) {
   const q = String(raw ?? "").trim().replace(QUOTED, " x ").trim();
   if (!q) return false;
   if (/[.,/*=~&]/.test(q)) return true;
@@ -229,7 +236,7 @@ export function isSimpleQuery(parsed) {
  * while there is nothing to search yet.
  */
 export function parseGreekQuery(raw) {
-  let q = String(raw ?? "").trim();
+  let q = String(raw ?? "").slice(0, MAX_QUERY_LENGTH * 4).trim().slice(0, MAX_QUERY_LENGTH).trim();
   if (!q) return { terms: [], gap: 3, anyOrder: false };
 
   const literals = [];

@@ -283,6 +283,7 @@ export function createGreekBuilder({ put, announce }) {
     input.placeholder = "A word, or leave empty for any";
     input.setAttribute("aria-label", `Word ${i + 1}`);
     input.autocomplete = "off";
+    input.maxLength = 100;
     input.spellcheck = false;
     input.autocapitalize = "off";
     if (hasGreek(input.value)) input.lang = "grc";

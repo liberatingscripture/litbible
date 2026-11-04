@@ -126,7 +126,7 @@ function offered(command, ctx) {
 }
 
 /** Whether the query asks for commands alone (it starts with ">"). */
-export function isCommandQuery(query) {
+export function isDeskCommandQuery(query) {
   return /^\s*>/.test(String(query || ""));
 }
 
@@ -142,7 +142,7 @@ export function commandQueryText(query) {
  * when nothing follows the ">". A plain query that is empty finds none.
  */
 export function matchCommands(query, ctx) {
-  const asked = isCommandQuery(query);
+  const asked = isDeskCommandQuery(query);
   const tokens = searchTokens(asked ? commandQueryText(query) : query);
   if (!tokens.length && !asked) return [];
 

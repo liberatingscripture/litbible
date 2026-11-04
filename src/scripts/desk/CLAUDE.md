@@ -566,11 +566,19 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        16:25–27 its Greek from the SBLGNT apparatus and its parsing from
        MACULA's Nestle 1904. Re-run it when a source changes, never by hand.
      - **Licenses keep the files apart.** `text/` and `ubs/` are CC BY-SA
-       4.0 (MorphGNT, UBS); `step/` and `lsj/` stay CC BY 4.0, as do the
-       STEPBible brief glosses in `search/` (BA47). The sources and their
+       4.0 (MorphGNT, UBS); `step/` stays CC BY 4.0, as do the
+       STEPBible brief glosses in `search/` (BA47), with two exceptions that
+       are **CC BY-SA 4.0 because they are Perseus's text, which STEP edited and
+       labels CC BY** (BVJ, 2026-11-03, the cautious route until STEP confirms a
+       separate agreement with Tufts): all of `lsj/`, and each `step/` entry
+       ending "(ML)", Middle Liddell filling a word Abbott-Smith lacks (55
+       entries; Abbott-Smith itself is public domain). `LICENSE.txt` says so,
+       and `SOURCES` credits Perseus. If STEP confirms in writing, `lsj/` and
+       the "(ML)" entries can go back to CC BY 4.0. The sources and their
        credits are `src/lib/greek-credits.mjs`: the tab lists `SOURCES`, and
        every group of Greek search results carries `SEARCH_CREDIT` under it
-       (BA46), so a new place that shows Greek results draws it too. **Nothing
+       (BA46; the Greek tab's result list too, GK-13), so a new place that
+       shows Greek results draws it too. **Nothing
        from the LIT goes into `public/greek/`**: the tab's "rendered here
        as…" line reads the page's own `#term-lens-data`, whose terms carry
        their Greek `lemmas` (`term-lens-data.mjs`, from
@@ -622,6 +630,17 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        which searches Latin text as a transliteration or a gloss. /search
        pages the Greek with the English verses' pager, in Bible order with
        no sort control; the tray shows its own Greek group alone.
+     - **A typed Greek word that could be more than one is a question, never
+       a guess** (BVJ, 2026-11-03, decision 9). 58 folded spellings are both a
+       headword and a form of another word (ἡ: the article's form, εἰμί's, ὅς's
+       and the headword ἤ). A one-word search (`matchGreek` with `offerForms`,
+       which `searchGreek` and the tray pass) offers each such lemma, the
+       commonest first, and the surface shows its choice box. **Marks never
+       decide it** (a breathing rule would leave ὃ/ὁ and εἶ/εἰ colliding and
+       would be invisible to readers who type none), and a command query keeps
+       lemma-first (no one to ask; `ὁ, θεός` must stay the article, not ὅς). The
+       Greek tab's form button names its lemma (`prefer`), so it never asks. A test
+       holds the 58.
      - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
        any form and accent (folded by `foldGreek`, which `build:greek` also
        uses for the index), a Strong's number (a lemma's other MACULA numbers
@@ -657,7 +676,7 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        `longEnoughForGreek` in `greek-search.mjs`, decides it everywhere the
        tab starts a search. A search that settles on the article (ὁ, not an
        exact form) answers with a line and a search beside a word (“ὁ, θεός”)
-       instead of its list, a recommendation awaiting BVJ's confirmation.
+       instead of its list (confirmed, BVJ, 2026-11-03).
   16. **Phase 2a's small pieces read, never write** (built 2026-10-15;
      STUDY-DESK.md, "Order of work", 2a): B3 and N4 add no kind of record,
      so each can be taken out cleanly (M10 was, the same day: BVJ shelved

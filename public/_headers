@@ -64,6 +64,14 @@
 /assets/*
   Cache-Control: public, max-age=86400, must-revalidate
 
+# The Study Desk's Greek data (chapters, search index, lexicon and occurrence
+# shards). It changes only when build:greek is re-run by hand, and with no rule
+# every file was revalidated on every page load, dozens of round trips for a
+# chapter's word clicks (GK-9; BVJ chose a day, 2026-11-03). After a rebuild a
+# returning reader may see the old files for up to 24h.
+/greek/*
+  Cache-Control: public, max-age=86400, must-revalidate
+
 # CORS + JSON type for the whole API surface. Cache-Control is intentionally NOT
 # set here: Cloudflare _headers *appends* (it does not override) when several
 # rules match a path, so a broad `max-age` here would concatenate with the

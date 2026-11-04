@@ -10,7 +10,10 @@
 // A query is sorted into one kind:
 //   greek    anything with a Greek letter: one word, any form, accents,
 //            breathings and case optional. Finds the word's lemma, and every
-//            form of it. A lemma typed directly finds that lemma alone.
+//            form of it. When the spelling could be more than one word (ἡ is
+//            the article's form and the headword ἤ), every one is offered,
+//            commonest first, and the search asks; marks never decide it.
+//            In a command a lemma typed directly is that lemma alone.
 //   strong   G plus digits (also g4102, strong:4102, Strong's 4102, G04102).
 //   latin    other text, tried both as a transliteration of a lemma
 //            (agreuō = agreuo, Christos = Khristos = xristos) and as an
@@ -52,6 +55,8 @@ export const GREEK_PARSE_FORMAT = 1;
 const GREEK_LETTER = /[Ͱ-Ͽἀ-῿]/;
 const COMBINING = /[̀-ͯ]/g;
 const NOT_GREEK = /[^α-ω]/g;
+/** Letter variants from math keyboards and copied pages: ϑ ϕ ϖ ϱ ϰ ϵ are θ φ π ρ κ ε (GK-15). */
+const COMPAT = { "ϑ": "θ", "ϕ": "φ", "ϖ": "π", "ϱ": "ρ", "ϰ": "κ", "ϵ": "ε" };
 
 /** True when the text has a Greek letter in it. */
 export const hasGreek = (s) => GREEK_LETTER.test(String(s ?? ""));
@@ -69,6 +74,7 @@ export function foldGreek(s) {
     .toLowerCase()
     .replace(/ς/g, "σ")
     .replace(/ϲ/g, "σ")
+    .replace(/[ϑϕϖϱϰϵ]/g, (c) => COMPAT[c])
     .replace(NOT_GREEK, "");
 }
 
@@ -191,8 +197,8 @@ export const GREEK_VERSES = 7942;
 
 /**
  * What a search for the article alone says instead of listing it: it is in
- * nearly every verse, so it is studied beside a word (BA110; a recommendation
- * awaiting BVJ's confirmation).
+ * nearly every verse, so it is studied beside a word (BA110; confirmed by
+ * BVJ, 2026-11-03).
  */
 export function articleLine(verses) {
   const n = (x) => x.toLocaleString("en-US");
@@ -351,8 +357,14 @@ const byCount = (index) => (a, b) =>
  * `bridge` is prepareBridge()'s result, or null to leave the LIT out.
  *
  * Options: `near` (default true) allows near misses, which the tray doesn't.
+ * `offerForms` is for a search of one typed word, where a reader can answer a
+ * question (GK-1, decision 9): what was typed may spell a headword and also a
+ * form of another word (ἡ is a form of ὁ, εἰμί and ὅς, and the headword ἤ), so
+ * every such lemma is offered, the commonest first, and the surface asks. The
+ * default is a command's reading, which has no one to ask: a lemma typed
+ * directly is that lemma alone, so "ὁ, θεός" is the article and not ὅς.
  */
-export function matchGreek(index, raw, { near = true, bridge = null } = {}) {
+export function matchGreek(index, raw, { near = true, bridge = null, offerForms = false } = {}) {
   const none = { kind: null, lemmas: [], form: null };
   const q = String(raw ?? "").trim().replace(/^["“”']+|["“”']+$/g, "");
   if (!index || !q) return none;
@@ -362,7 +374,19 @@ export function matchGreek(index, raw, { near = true, bridge = null } = {}) {
     const form = foldGreek(q);
     if (!form) return none;
     const asLemma = index.byFold.get(form);
-    const ids = asLemma ?? index.byForm.get(form) ?? [];
+    const asForm = index.byForm.get(form) ?? [];
+    if (asLemma && offerForms) {
+      const others = asForm.filter((id) => !asLemma.includes(id));
+      return {
+        kind: "greek",
+        form,
+        lemmas: [
+          ...asLemma.map((id) => ({ id, how: "lemma" })),
+          ...others.map((id) => ({ id, how: "form" })),
+        ].sort(byCount(index)),
+      };
+    }
+    const ids = asLemma ?? asForm;
     const how = asLemma ? "lemma" : "form";
     return {
       kind: "greek",
@@ -431,7 +455,7 @@ export function trayLemmas(index, match) {
 
 /** matchGreek without near misses, and the lemmas of it the tray shows. */
 export function matchForTray(index, raw) {
-  const match = matchGreek(index, raw, { near: false });
+  const match = matchGreek(index, raw, { near: false, offerForms: true });
   return { match, lemmas: trayLemmas(index, match) };
 }
 

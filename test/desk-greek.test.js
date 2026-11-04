@@ -186,3 +186,19 @@ test("Matthew 17:21, which neither text has, opens at 17:20", () => {
   assert.equal(verses.includes(21), false);
   assert.equal(nearestVerse(verses, 21), 20);
 });
+
+test("langRuns marks the Greek and Hebrew in English text and loses nothing (GK-2)", async () => {
+  const { langRuns } = await import("../src/lib/desk-greek.mjs");
+  const text = "love, ἀγάπη, ἀγάπης and אהבה (Heb.) of Φ.";
+  const runs = langRuns(text);
+  assert.equal(runs.map((r) => r.text).join(""), text);
+  assert.deepEqual(
+    runs.filter((r) => r.lang).map((r) => [r.text, r.lang]),
+    [["ἀγάπη, ἀγάπης", "grc"], ["אהבה", "he"], ["Φ", "grc"]],
+  );
+  assert.deepEqual(langRuns("only English, here."), [{ text: "only English, here.", lang: null }]);
+  assert.deepEqual(langRuns(""), []);
+  const t = Date.now();
+  langRuns(`ἀ${" ".repeat(200000)}x`);
+  assert.ok(Date.now() - t < 500);
+});

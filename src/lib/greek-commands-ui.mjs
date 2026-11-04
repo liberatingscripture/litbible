@@ -36,6 +36,18 @@ export function insertAtCursor(value, start, end, text) {
     const trimmed = before.replace(/\s+$/, "");
     return { value: `${trimmed}, ${after.replace(/^\s+/, "")}`, caret: trimmed.length + 2 };
   }
+  if (text === "=") {
+    // "=" belongs at the front of a word: "πίστεως=" is a command still being
+    // typed and is dropped, so a press with the cursor in or after a word goes
+    // to that word's start (GK-8).
+    let at = s;
+    while (at > 0 && !/[\s,/]/.test(before[at - 1])) at--;
+    const word = before.slice(at);
+    if (at < s && !word.startsWith("=")) {
+      const head = before.slice(0, at);
+      return { value: `${head}=${word}${after}`, caret: head.length + 1 + word.length };
+    }
+  }
   const joins = JOINS.test(text);
   const pad = !joins && before && !/\s$/.test(before) ? " " : "";
   const tail = joins || text === "*" || /^\s/.test(after) ? "" : " ";
