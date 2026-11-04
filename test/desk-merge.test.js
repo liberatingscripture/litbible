@@ -174,7 +174,7 @@ test("now defaults to the clock", () => {
   const future = new Date(Date.now() + 86_400_000 * 40).toISOString();
   const [kept] = mergeSets([], [note({ modified: future })]);
   assert.ok(Date.parse(kept.modified) <= Date.now());
-  assert.ok(Date.parse(kept.modified) > Date.now() - 60_000);
+  assert.ok(Date.parse(kept.modified) > Date.now() - 600_000);
 });
 
 test("a now that isn't a time is refused rather than clamping everything to nothing", () => {

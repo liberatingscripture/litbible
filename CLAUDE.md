@@ -123,13 +123,7 @@ companion iOS/Android apps consume.
   + book intros. A third, the Greek (`public/greek/search/`), runs only with
   the Study Desk preview on until the desk is released ("The Study Desk
   preview", rule 15)
-- **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
-  reader-selectable accessibility fonts, OpenDyslexic and Atkinson
-  Hyperlegible Next (the latter variable, via `@fontsource-variable`) — see
-  the Display tray note below. Playpen Sans (variable) is the Study Desk's
-  margin-note face, loaded only by the desk (see "The Study Desk preview"). All of them load Latin only; Greek and Hebrew
-  letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
-  by character range (see "Greek and Hebrew letters" under Key Conventions)
+- **Fonts**: `@fontsource` faces, Latin only; the reader-selectable ones, the Study Desk's Playpen Sans, and Greek and Hebrew letters by range are in `src/styles/CLAUDE.md`
 - **Icons**: simple-icons
 - **Client JS**: Hand-written vanilla JS in `src/scripts/` (progressive
   enhancement only — no client framework, no hydration). The site is fully
@@ -201,7 +195,7 @@ npm run studio:apps -- <seed|apply|check|board-css|board-files>  # The Apps Page
 ### Build Pipeline, in brief
 
 `fetch:podcast` → `build:topics` → `build:verses` → `build:glossary` →
-`build:greek-bridge` → `build:manifest` → `build:api` → `build:og` →
+`build:greek-bridge` → `build:manifest` → `build:api` → `build:api2` → `build:og` →
 `astro build` → `pagefind --site dist`. The order is load-bearing:
 `build:glossary` must run before `build:manifest`, which owns the content
 `version`, and `build:api` reads that version afterwards. A podcast fetch
@@ -320,9 +314,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
-| `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
-| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
+| `/notebook`, `/desk`, `/sheets` | `notebook.astro`, `desk.astro`, `sheets.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`); their routes in full are in `src/scripts/desk/CLAUDE.md`, "Routes" |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; every section's content is data (`apps-sections`, `callouts`, `examples`, `seasons`), laid out in order by `components/apps/AppsPage.astro` and edited through the Apps Page Studio; scoped styles in `src/styles/pages/apps.css`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |

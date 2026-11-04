@@ -44,7 +44,7 @@
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { currentPanel } from "../lit-panel.js";
 import { createRail } from "./margin.js";
-import { HIDE_EVENT, panelNoteControls } from "./note-settings.js";
+import { HIDE_EVENT, SETTINGS_EVENT, panelNoteControls } from "./note-settings.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { createPrintMenu } from "./print-menu.js";
 import { printPlain } from "./print-link.js";
@@ -348,6 +348,27 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const back = [lastToggle, ...toggles].find((t) => t && t.offsetParent !== null);
     back?.focus({ preventScroll: true });
   }
+
+  // "Show the Notebook" in the Display tray (BVJ, 2026-11-04). Off hides the panel and
+  // its tab as `close` does but writes none of the reader's keys, so turning it back
+  // on brings the Notebook back as they left it (startState).
+  document.addEventListener(SETTINGS_EVENT, (e) => {
+    if (e.detail?.name !== "show") return;
+    if (e.detail.value === "off") {
+      if (panel.hidden) return;
+      keepReadingPlace(() => root.removeAttribute("data-desk-panel"));
+      panel.hidden = true;
+      rail.hide();
+      syncToggles();
+      return;
+    }
+    if (!panel.hidden) return;
+    let st = { open: true, minimized: true };
+    try { st = startState((k) => localStorage.getItem(k)); } catch (_) {}
+    if (!st.open) return;
+    open(null, { focus: false, remember: false });
+    if (st.minimized || rail.state().floating) rail.collapse();
+  });
 
   /** Show the panel without taking focus, and folded to its tab where it would float over the text. */
   function revealPanel() {

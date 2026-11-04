@@ -44,6 +44,7 @@ const SETTINGS = {
   bookmarks: { attr: "data-desk-bookmarks", key: "lit-desk-bookmarks", fallback: "on" },
   highlights: { attr: "data-desk-highlights", key: "lit-desk-highlights", fallback: "on" },
   readHighlights: { attr: "data-desk-read-highlights", key: "lit-desk-read-highlights", fallback: "off" },
+  show: { attr: "data-desk-show", key: "lit-desk-show", fallback: "on" },
   listFull: { attr: "data-desk-list", key: "lit-desk-list", fallback: "lines" },
 };
 
@@ -159,6 +160,15 @@ export function initNoteSettings() {
   injectIntoTray();
 }
 
+/**
+ * Whether this browser can draw highlights at all (the CSS Custom Highlight
+ * API: Chrome 105, Safari 17.2, Firefox 140). Where it can't, Highlight isn't
+ * offered, so a reader never makes a mark that is never drawn (LG-5).
+ */
+export function highlightsSupported() {
+  return typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
+}
+
 let uid = 0;
 
 /**
@@ -191,7 +201,20 @@ function noteControls(classes) {
   lights.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHighlightsCheck${n}" />
     <span class="${classes.checkLabel}">My highlights</span>`;
   const lightsBox = lights.querySelector("input");
+  // This browser can't draw highlights (LG-5): say so rather than offer a switch that does nothing.
+  if (!highlightsSupported()) {
+    lightsBox.disabled = true;
+    lights.querySelector("span").textContent = "My highlights (this browser can’t draw them)";
+  }
   lightsBox.addEventListener("change", () => setSetting(lightsName, lightsBox.checked ? "on" : "off"));
+
+  // Whether the Notebook panel, its tab and the Read View button show at all.
+  const panel = document.createElement("label");
+  panel.className = classes.check;
+  panel.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskShowCheck${n}" />
+    <span class="${classes.checkLabel}">Show the Notebook</span>`;
+  const panelBox = panel.querySelector("input");
+  panelBox.addEventListener("change", () => setSetting("show", panelBox.checked ? "on" : "off"));
 
   const hide = document.createElement("label");
   hide.className = classes.check;
@@ -230,13 +253,14 @@ function noteControls(classes) {
     box.checked = getSetting("notes") === "on";
     marksBox.checked = getSetting("bookmarks") === "on";
     lightsBox.checked = getSetting(lightsName) === "on";
+    panelBox.checked = getSetting("show") === "on";
     hideBox.checked = allHidden();
     const font = getSetting("noteFont");
     for (const r of radios) r.checked = r.value === font;
   };
   sync();
   document.addEventListener(SETTINGS_EVENT, sync);
-  return { check, seg, marks, lights, hide, sync };
+  return { check, seg, marks, lights, hide, panel, sync };
 }
 
 /**
@@ -284,17 +308,18 @@ function injectIntoTray() {
     return;
   }
   if (!checks || !show || !(study || read)) return;
-  const { check, seg, marks, lights, hide } = noteControls(TRAY_CLASSES);
+  const { check, seg, marks, lights, hide, panel } = noteControls(TRAY_CLASSES);
+  panel.dataset.desk = "";
   marks.dataset.desk = "";
   lights.dataset.desk = "";
   hide.dataset.desk = "";
   addKeyLines();
   if (read) {
-    checks.append(marks, lights, hide);
+    checks.append(panel, marks, lights, hide);
     return;
   }
   check.dataset.desk = "";
-  checks.append(check, marks, lights, hide);
+  checks.append(panel, check, marks, lights, hide);
   const hint = document.createElement("p");
   hint.className = "font-tray__hint";
   hint.id = "deskVerseNumbersHint";
@@ -327,12 +352,13 @@ function injectProseShow() {
   const tray = document.getElementById("fontTray");
   const keysRow = tray?.querySelector(".font-tray__row--keys");
   if (!tray || !keysRow) return;
-  const { check, seg, hide } = noteControls(TRAY_CLASSES);
+  const { check, seg, hide, panel } = noteControls(TRAY_CLASSES);
+  panel.dataset.desk = "";
   const show = document.createElement("fieldset");
   show.className = "font-tray__row";
   show.dataset.desk = "";
   show.innerHTML = `<legend class="font-tray__legend">Show</legend><div class="font-tray__checks"></div>`;
-  show.querySelector(".font-tray__checks").append(check, hide);
+  show.querySelector(".font-tray__checks").append(panel, check, hide);
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";

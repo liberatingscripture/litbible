@@ -3804,8 +3804,14 @@ button.greek-cmd:hover {
    !important because each button sits under a more specific display rule of
    its own (the header's nav/actions pairs, Read View's toolbar buttons). */
 html:not([data-desk]) [data-desk-toggle],
-body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--intro .scripture-main, .rm-page .rm-reader, .article__card, .glossary-entries .entries-wrap)) button[data-desk-toggle],
+html[data-desk-show="off"] button[data-desk-toggle],
 .site-header--desk [data-desk-toggle] {
+  display: none !important;
+}
+/* Its own rule (LG-7): in a selector list one :has() an old engine can't parse
+   would drop the gate above with it. The :has() list is the reading-column
+   case alone. */
+body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--intro .scripture-main, .rm-page .rm-reader, .article__card, .glossary-entries .entries-wrap)) button[data-desk-toggle] {
   display: none !important;
 }
 /* The header's "Study Desk" links go to /desk, so they need no reading column

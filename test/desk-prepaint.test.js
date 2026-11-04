@@ -152,6 +152,11 @@ test("an open notebook is stamped before paint; only an expanded one is marked a
   assert.deepEqual(chosenMin.attrs, { "data-desk": "on", "data-desk-panel": "open" });
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
+  // "Show the Notebook" off (the Display tray) beats every start choice.
+  for (const start of ["min", "open", "left"]) {
+    const hidden = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": start, "lit-desk-min": "0" } });
+    assert.deepEqual(hidden.attrs, { "data-desk": "on", "data-desk-show": "off" }, start);
+  }
 });
 
 test("a width dragged in the notebook is stamped before paint, with its measure", () => {
