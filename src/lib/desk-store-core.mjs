@@ -13,6 +13,7 @@
 // builds its own plan; planWrite is what checks it before the shell commits it.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { chapterPath, isChapterAddress } from "./desk-passage.mjs";
 import { editRecord, emptyTrashRecord, restoreFromTrash, trashRecord, validateRecord } from "./desk-records.mjs";
 
 /** The BroadcastChannel every tab of the notebook listens on. */
@@ -355,8 +356,10 @@ export function recordWhere(r) {
 export function recordHref(r) {
   if (typeof r?.glossaryEntry === "string") return `/glossary/#${r.glossaryEntry}`;
   if (typeof r?.article === "string") return `/articles/${r.article}/`;
-  if (!r?.bookKey || !r.chapter) return null;
-  const path = `/${r.bookKey}-${r.chapter}/`;
+  // A record this code can't edit is drawn as it came, so its book key is not
+  // known to be one (desk-passage.mjs, isChapterAddress): null, not a link.
+  const path = chapterPath(r?.bookKey, r?.chapter);
+  if (!path) return null;
   if (!r.verse) return path;
   return r.endVerse && r.endVerse !== r.verse ? `${path}#v${r.verse}-${r.endVerse}` : `${path}#v${r.verse}`;
 }
@@ -367,7 +370,7 @@ export function recordHref(r) {
  * chapter (`#ch-8`) for one with no verse. Null for one not on the text.
  */
 export function recordReadHref(r) {
-  if (!r?.bookKey || !r.chapter) return null;
+  if (!isChapterAddress(r?.bookKey, r?.chapter)) return null;
   const path = `/read/${r.bookKey}/`;
   return r.verse ? `${path}#${r.bookKey}-${r.chapter}-v${r.verse}` : `${path}#ch-${r.chapter}`;
 }

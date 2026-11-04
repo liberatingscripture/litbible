@@ -12,6 +12,7 @@
 // (STUDY-DESK-FORMAT.md, "Sheets (kind 9)", rule 1).
 
 import { bookKeyToLabel } from "../data/books.js";
+import { isChapterAddress } from "./desk-passage.mjs";
 import { printableUrl } from "./lit-credit.mjs";
 import { MODULE_TYPES, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
 import { blanksGivenAway } from "./desk-sheet-lit.mjs";
@@ -65,7 +66,9 @@ export function chapterCodes(modules) {
   const out = [];
   const seen = new Set();
   for (const m of modules ?? []) {
-    if (m?.type !== "passage" || !m.bookKey || !Number.isInteger(m.chapter)) continue;
+    // A printed code opens a chapter, so a passage naming none gets no code
+    // (a stored book key isn't always checked: isChapterAddress).
+    if (m?.type !== "passage" || !isChapterAddress(m.bookKey, m.chapter)) continue;
     const key = `${m.bookKey}-${m.chapter}`;
     if (seen.has(key)) continue;
     seen.add(key);

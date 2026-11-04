@@ -863,6 +863,19 @@ that section.
        and what it knows about the LIT (3h: blanks, the footnote picker,
        the key terms box and the license card) in `desk/sheet-lit.js`,
        whose rules are `src/lib/desk-sheet-lit.mjs`.
+     - **A chapter's address is built from a stored book key only through
+       `chapterPath` / `isChapterAddress` (`desk-passage.mjs`)**, which refuse a
+       book the LIT hasn't got or a chapter outside it. A record from a newer
+       schema, or a sheet in a newer format, is carried untouched without its
+       fields being checked (`validateRecord` stops at `canEdit`; principle 6), so
+       `bookKey` can hold anything a backup file or a sync brought, and
+       `/${bookKey}-1/` with "/attacker.example/x" is an address on another site
+       that a sheet's passage would fetch and import into the page (SEC-1 of the
+       2026-11-03 audit). So `loadChapterPage` rejects before it fetches
+       (`chapterHref` returns null), `recordHref` and `recordReadHref` return
+       null, and `chapterCodes` prints no code. A new place that turns a
+       record's book key into a link or a fetch uses the same helper;
+       `test/desk-chapter-address.test.js` holds each sink.
      - **Every pane reads a chapter from its built Chapter View page**,
        fetched and parsed once a visit (`desk/chapter-page.js`), so what it
        shows is character-identical to Chapter View. Only the parts the panes
