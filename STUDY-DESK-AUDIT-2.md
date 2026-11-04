@@ -153,6 +153,7 @@ Collected from the appendices, de-duplicated. The first six block work.
    (NB-4.) It decides whether a skip link, a toggle, or a key is the fix.
 4. **Anchoring spec change** (DI-1, DI-2): should a mark that moves to another verse carry a
    notice? Should a single remaining occurrence need context? BDR must agree.
+   **Decided (BVJ, 2026-11-03): the proposal as built in spec version 3 (#450); BDR to confirm in STUDY-DESK.md.**
 5. **Enforce part of the CSP on the desk's pages before release?** (SEC Q1.) A path-scoped
    `connect-src 'self' ...; img-src 'self' data:` blocks SEC-1's fetch on its own. And should a
    record the website cannot edit still have the fields it draws checked? (SEC Q2.)
