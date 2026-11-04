@@ -157,6 +157,10 @@ Collected from the appendices, de-duplicated. The first six block work.
 5. **Enforce part of the CSP on the desk's pages before release?** (SEC Q1.) A path-scoped
    `connect-src 'self' ...; img-src 'self' data:` blocks SEC-1's fetch on its own. And should a
    record the website cannot edit still have the fields it draws checked? (SEC Q2.)
+   **Enforcing the CSP: not yet (BVJ, 2026-11-03), so FA2-c isn't built.** Weighed then: it blocks
+   `fetch` and image beacons on those three paths only, while chapter pages reach the same notebook,
+   scripts still run and can navigate away, and a later outside connection (sync) would fail on
+   deploy alone. SEC-1 itself is fixed. **SEC Q2 is still open.**
 6. **Launch opt-out and browser floor.** Will a Settings switch ("Turn the Study Desk off") ship?
    Which browsers are in scope (Safari before 17.2 and Firefox before 140 draw no highlights)?
    (LG-3, LG-5, LG-7.)
@@ -242,13 +246,13 @@ loses nothing.
 
 ### Session 1: Security residue
 
-Independent. SEC-1 is done (#446). **FA2-a and FA2-b are done** (2026-11-03, branch `claude/audit2-session1`). Needs decision 5 only for FA2-c.
+Independent. SEC-1 is done (#446). **FA2-a and FA2-b are done** (2026-11-03, branch `claude/audit2-session1`). FA2-c is held: decision 5's answer on the CSP is "not yet."
 
 | Task | Findings | What |
 |---|---|---|
 | FA2-a | SEC-2 | Bound the `QUALIFIER_BEHIND` lookbehind in `scripture-refs.mjs` (shared by every reader, so run the rendered-output diff before and after, and cover E23's longest phrase). Add the tests the report names. |
 | FA2-b | SEC-3, SEC-4, SEC-5 | Outside links in a sheet get `noopener noreferrer` and a new tab (`external-links.mjs`, `desk-sheet-format.mjs`); `?print=notes` needs a gesture and honors Hide my marks (`print-link.js`, `print-notes.js`); the Share dialog stops saying the link "never passes through a server" (`sheet-page.js`). |
-| FA2-c | SEC Q1 | Enforce `connect-src 'self'` and `img-src 'self' data:` on `/desk/*`, `/sheets/*`, `/notebook/*` (`public/_headers`). **Blocked on decision 5.** Edits the same file as FA2-u. |
+| FA2-c | SEC Q1 | Enforce `connect-src 'self'` and `img-src 'self' data:` on `/desk/*`, `/sheets/*`, `/notebook/*` (`public/_headers`). **Not yet (BVJ, 2026-11-03; decision 5).** Edits the same file as FA2-u. |
 
 ### Session 2: A note is never lost (Tier 1)
 
