@@ -283,7 +283,7 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
      "Close the Notebook" command, Escape and the Read View toolbar's Notebook
      button minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
      start; "Hide my marks" and H fold it to its tab and un-hiding opens it
-     again, NB-1, pending BVJ's decision 1.) **The header's Notebook
+     again, NB-1; BVJ, 2026-11-03.) **The header's Notebook
      buttons are links to /desk** ("Study Desk"), still carrying
      `data-desk-toggle` so global.css shows them with the desk on, on every page
      (BVJ, 2026-10-30; only the panel's buttons are held to the reading

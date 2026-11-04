@@ -147,8 +147,8 @@ GK-20; LG-6, LG-8, LG-9, LG-11 to LG-15; LV-3 to LV-5; CP-6 to CP-18; SEC "Impro
 
 Collected from the appendices, de-duplicated. The first six block work.
 
-1. **Hide my marks: close or minimize?** (NB-1, Appendix C Q2.) Minimizing still shows no notes.
-2. **Unsaved note words: warn, keep a draft, or both?** (NB-2, DI-6.)
+1. **Hide my marks: close or minimize?** (NB-1, Appendix C Q2.) Minimizing still shows no notes. **Decided (BVJ, 2026-11-03): minimize.**
+2. **Unsaved note words: warn, keep a draft, or both?** (NB-2, DI-6.) **Decided (BVJ, 2026-11-03): both.**
 3. **Is it intended that the header's "Study Desk" no longer opens the panel on Study View?**
    (NB-4.) It decides whether a skip link, a toggle, or a key is the fix.
 4. **Anchoring spec change** (DI-1, DI-2): should a mark that moves to another verse carry a
@@ -872,7 +872,7 @@ The three that matter most:
 
 #### NB-1 · High · usability · NEW
 
-> **Fixed in FA2-d/e (2026-11-03, branch claude/fa2-session2-notes-never-lost; not yet browser-checked):** H and "Hide my marks" now fold the Notebook to its tab and un-hiding expands it again, per the audit's recommendation (decision 1 still awaits BVJ).
+> **Fixed in FA2-d/e (2026-11-03, branch claude/fa2-session2-notes-never-lost; not yet browser-checked):** H and "Hide my marks" now fold the Notebook to its tab and un-hiding expands it again, per the audit's recommendation
 
 > **Live check (LV): confirmed for the H key only.** Ticking “Hide my marks” in the Settings tab hides the marks and leaves the panel open. After H the panel stays closed across a reload; the route back that exists is the search command “Open the Notebook.”
 
@@ -912,7 +912,7 @@ reopen control on Study View when the panel is closed.
 
 #### NB-2 · High · data-integrity · NEW
 
-> **Fixed in FA2-d (same branch; not yet browser-checked):** `closePanel`/`showPanel`, verse numbers and footnote letters ask once while the editor holds words (`holdPanel`); the next ask discards. Decision 2 taken as "both" (warn and draft) per the audit; awaits BVJ.
+> **Fixed in FA2-d (same branch; not yet browser-checked):** `closePanel`/`showPanel`, verse numbers and footnote letters ask once while the editor holds words (`holdPanel`); the next ask discards.
 
 > **Live check (LV): confirmed** for Escape, Cancel and a click on a verse number. The × was not driven separately.
 

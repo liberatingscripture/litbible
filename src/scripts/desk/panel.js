@@ -536,8 +536,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
 
   // M1 hides everything of the reader's at once, for sharing a screen, and
-  // the panel lists it all, so it folds to its tab (Audit 2, NB-1; the
-  // audit's recommendation, decision 1 awaiting BVJ). It used to close, and with the header's
+  // the panel lists it all, so it folds to its tab (Audit 2, NB-1; BVJ,
+  // 2026-11-03: decision 1 of Audit 2). It used to close, and with the header's
   // Notebook buttons now links to /desk nothing on the page brought it back.
   // Un-hiding opens it again only if hiding was what folded it. Focus stays
   // where it is, as the close did.
