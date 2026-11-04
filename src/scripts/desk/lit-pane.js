@@ -224,7 +224,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const h = make("h3", "desk-lit__heading");
     h.id = `deskLit-${paneId}-${i}`;
     const a = make("a", null, unitHeading(u));
-    a.href = chapterHref(u.bookKey, chapter);
+    const href = chapterHref(u.bookKey, chapter);
+    if (href) a.href = href;
     a.title = "Open in Chapter View";
     h.append(a);
     section.setAttribute("aria-labelledby", h.id);

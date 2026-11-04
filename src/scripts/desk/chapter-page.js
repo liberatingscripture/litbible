@@ -16,14 +16,24 @@
 
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
+import { chapterPath } from "../../lib/desk-passage.mjs";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 const cache = new Map(); // "john 3" → Promise<source>
 const loaded = new Map(); // "john 3" → source, once its page has been read
 
-/** The chapter's Chapter View address. */
-export const chapterHref = (bookKey, chapter) => `${BASE}${bookKey}-${chapter}/`;
+/**
+ * The chapter's Chapter View address, or null when the book key and chapter
+ * don't name a chapter. A sheet's passage or a note's footnote carries a
+ * stored book key, and one from a newer schema is not checked on the way in,
+ * so this is the guard: `//attacker.example/x-1/` would otherwise be fetched
+ * and its HTML imported into the page (SEC-1 of the 2026-11-03 audit).
+ */
+export const chapterHref = (bookKey, chapter) => {
+  const path = chapterPath(bookKey, chapter);
+  return path ? `${BASE}${path.slice(1)}` : null;
+};
 
 /**
  * The parts of a parsed page the panes read, moved into a document of their
@@ -116,10 +126,12 @@ function read(page, bookKey, chapter) {
  * can't be had; a failed fetch is forgotten, so the next ask tries again.
  */
 export function loadChapterPage(bookKey, chapter) {
+  const href = chapterHref(bookKey, chapter);
+  if (!href) return Promise.reject(new Error("Not a chapter"));
   const key = `${bookKey} ${chapter}`;
   let p = cache.get(key);
   if (!p) {
-    p = fetch(chapterHref(bookKey, chapter), { credentials: "same-origin" })
+    p = fetch(href, { credentials: "same-origin" })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.text();

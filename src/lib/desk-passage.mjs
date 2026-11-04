@@ -28,6 +28,24 @@ export function checkPassage(p) {
   return { bookKey, chapter, verse };
 }
 
+/**
+ * Whether a book key and a chapter name a chapter the LIT has. **A URL or a
+ * fetch is built from a stored book key only after this says yes.** A record
+ * from a newer schema (or a sheet in a newer format) is carried untouched
+ * without its fields being checked (`validateRecord` stops at `canEdit`), so
+ * `bookKey` can hold anything a file or a sync brought, and "/attacker.example/x"
+ * in `/${bookKey}-1/` is an address on another site, which a sheet's passage
+ * would fetch and import into the page (SEC-1 of the 2026-11-03 audit).
+ */
+export function isChapterAddress(bookKey, chapter) {
+  return checkPassage({ bookKey, chapter }) !== null;
+}
+
+/** A chapter's Chapter View path, "/john-3/", or null when it isn't a chapter. */
+export function chapterPath(bookKey, chapter) {
+  return isChapterAddress(bookKey, chapter) ? `/${bookKey}-${chapter}/` : null;
+}
+
 /** "john 3:16" (or "john 3") back to a passage, or null when it isn't one. */
 export function parsePassage(at) {
   if (typeof at !== "string") return null;

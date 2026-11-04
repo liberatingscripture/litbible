@@ -93,7 +93,8 @@ function thisChapter(source, paneId) {
   }
   const open = make("p", "desk-chapter__open");
   const a = make("a", null, `Read ${passageLabel({ bookKey: source.bookKey, chapter: source.chapter })} in Chapter View`);
-  a.href = chapterHref(source.bookKey, source.chapter);
+  const href = chapterHref(source.bookKey, source.chapter);
+  if (href) a.href = href;
   open.append(a);
   section.append(open);
   return section;
