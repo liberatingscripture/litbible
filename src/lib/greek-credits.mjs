@@ -15,6 +15,10 @@ const MACULA = "https://github.com/Clear-Bible/macula-greek";
 const UBS = "https://github.com/ubsicap/ubs-open-license";
 // Credited as STEPBible's README asks: "STEP Bible" linked to www.STEPBible.org.
 const STEP = "https://www.stepbible.org/";
+// The full LSJ, and the Middle Liddell fill-ins in the brief lexicon, are
+// Perseus's text, CC BY-SA, which STEP edited and labels CC BY. Until STEP says
+// a separate agreement allows that, ShareAlike is kept (BVJ, 2026-11-03).
+const PERSEUS = "https://github.com/PerseusDL/lexica";
 
 /** The license note for everything under public/greek/. */
 export const GREEK_LICENSE_HREF = "/greek/LICENSE.txt";
@@ -25,7 +29,8 @@ export const SOURCES = [
   ["Lemmas and parsing: MorphGNT, CC BY-SA 3.0", MORPHGNT],
   ["Parsing for John 7:53–8:11 and Romans 16:25–27: MACULA Greek, Clear Bible, CC BY 4.0", MACULA],
   ["UBS Dictionary of the Greek New Testament, United Bible Societies, CC BY-SA 4.0", UBS],
-  ["STEP Bible: brief lexicon (TBESG) and full LSJ (TFLSJ), Tyndale House Cambridge, CC BY 4.0, reformatted", STEP],
+  ["STEP Bible: brief lexicon (TBESG), Tyndale House Cambridge, CC BY 4.0, reformatted", STEP],
+  ["Full LSJ, and the Middle Liddell entries marked (ML) in the brief lexicon: Perseus Digital Library, Tufts University, edited by STEP Bible, CC BY-SA 4.0, reformatted", PERSEUS],
 ];
 
 /**

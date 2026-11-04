@@ -172,7 +172,7 @@ Collected from the appendices, de-duplicated. The first six block work.
    `max-age` acceptable for `/greek/*`? Has STEP confirmed no ShareAlike behind its shards?
    (GK Qs 1 to 5.) **Decided (BVJ, 2026-11-03):** a typed form that could be several words asks
    which (no breathing-mark rule, which couldn't be made consistent); a day of `max-age`. The article
-   answer is confirmed too. Still open: STEP's provenance.
+   answer is confirmed too. STEP's provenance: the cautious route was taken (see Questions, 4); an email to STEP is still open.
 10. Highlight tints are 1.05 to 1.23:1 against the cream page in light mode. Is that strength
     intended? (NB Q1.)
 11. Terminology (CP-11, CP-7, CP-8): one name for the feature ("Study Desk"), Delete versus
@@ -2023,6 +2023,7 @@ Share one loader. **Confidence** High.
 2. **The article answer** ("ὁ is in 6,966 of 7,942 verses. To study it, search it beside a word: ὁ, θεός") was marked "a recommendation awaiting BVJ's confirmation" in `greek-search.mjs:193-195` and rule 15. **Confirmed (BVJ, 2026-11-03).**
 3. **Credit in the tab's own results (GK-13):** is the tab's foot-of-text credit enough, or should its results carry the one-line credit like every other surface?
 4. **Lexicon provenance:** STEP's headers say the full lexicon is "edited from the Full LSJ" and the brief one is "based on Abbott-Smith", and the TFLSJ header on disk still mentions Bill Mounce's Teknia dictionary for fill-ins. `LICENSE.txt` treats both as plain CC BY 4.0. Has STEP/Tyndale House confirmed no ShareAlike or restricted upstream sits behind the shards? (I could not check this.)
+   **Checked online and decided (BVJ, 2026-11-03):** STEP's own terms are CC BY 4.0 with no ShareAlike, and Abbott-Smith is public domain, but the full LSJ and the Middle Liddell fill-ins are Perseus's text, which Perseus offers CC BY-SA (its `lexica` repository, license CC BY-SA 4.0, and STEP's own licences page lists the LSJ as CC-BY-SA), while STEP labels the file CC BY. A separate agreement with Tufts is possible (Perseus was at the 2018 meeting where STEP dropped its ND restriction) but nothing says so, and STEP's header notes its permission for Mounce's Teknia text but none for Perseus. **The cautious route was taken:** `lsj/` and the 55 "(ML)" entries in `step/` are licensed CC BY-SA 4.0 with Perseus credited (`public/greek/LICENSE.txt`, `greek-credits.mjs`). No "(MT)" entry is in our `step/` shards. Open: an email to STEPBible@Gmail.com asking whether an agreement lets the TFLSJ and Middle Liddell be CC BY; a yes would let both go back.
 5. **Caching (GK-9):** is a day of `max-age` acceptable for `/greek/*` given `build:greek` is manual, or would you rather keep revalidation?
 
 ### What held up

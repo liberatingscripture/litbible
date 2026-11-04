@@ -566,8 +566,15 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
        16:25–27 its Greek from the SBLGNT apparatus and its parsing from
        MACULA's Nestle 1904. Re-run it when a source changes, never by hand.
      - **Licenses keep the files apart.** `text/` and `ubs/` are CC BY-SA
-       4.0 (MorphGNT, UBS); `step/` and `lsj/` stay CC BY 4.0, as do the
-       STEPBible brief glosses in `search/` (BA47). The sources and their
+       4.0 (MorphGNT, UBS); `step/` stays CC BY 4.0, as do the
+       STEPBible brief glosses in `search/` (BA47), with two exceptions that
+       are **CC BY-SA 4.0 because they are Perseus's text, which STEP edited and
+       labels CC BY** (BVJ, 2026-11-03, the cautious route until STEP confirms a
+       separate agreement with Tufts): all of `lsj/`, and each `step/` entry
+       ending "(ML)", Middle Liddell filling a word Abbott-Smith lacks (55
+       entries; Abbott-Smith itself is public domain). `LICENSE.txt` says so,
+       and `SOURCES` credits Perseus. If STEP confirms in writing, `lsj/` and
+       the "(ML)" entries can go back to CC BY 4.0. The sources and their
        credits are `src/lib/greek-credits.mjs`: the tab lists `SOURCES`, and
        every group of Greek search results carries `SEARCH_CREDIT` under it
        (BA46; the Greek tab's result list too, GK-13), so a new place that
