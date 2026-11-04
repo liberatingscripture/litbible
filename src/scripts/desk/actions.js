@@ -28,7 +28,7 @@
 //     Chapter View (highlights.js), under Chapter View's setting.
 
 import { COLORS, createRecord, quoteFields } from "../../lib/desk-records.mjs";
-import { bookmarksOn, planBookmark, planUnbookmark, recordReference } from "../../lib/desk-store-core.mjs";
+import { bookmarksOn, planBookmark, planUnbookmark, planWrite, recordReference } from "../../lib/desk-store-core.mjs";
 import { rangeOf } from "../../lib/anchor-core.mjs";
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
 import {
@@ -293,24 +293,28 @@ export function initActions({ store, ctx, showVerse = null }) {
     busy = true;
     d.acting?.();
     try {
-      const records = await store.byChapter(where.bookKey, where.chapter);
       const mark = markOf(d, where);
       if (mark) {
         const { text } = mark;
-        const placed = placeHighlights(text, records, ctx().contentVersion);
-        const plan = planHighlight({
-          chapter: text,
-          placed,
-          start: mark.start,
-          end: mark.end,
-          color,
-          blockAt: (pos) => blockAt(text, pos),
-          where,
-          now: new Date().toISOString(),
-          ctx: ctx(),
+        // Read, planned and written in one transaction, so a write from another
+        // tab between the two can't be overwritten from a stale copy (DI-9).
+        const plan = await store.change(async ({ all }) => {
+          const records = (await all()).filter((r) => r.bookKey === where.bookKey && r.chapter === where.chapter);
+          const placed = placeHighlights(text, records, ctx().contentVersion);
+          const made = planHighlight({
+            chapter: text,
+            placed,
+            start: mark.start,
+            end: mark.end,
+            color,
+            blockAt: (pos) => blockAt(text, pos),
+            where,
+            now: new Date().toISOString(),
+            ctx: ctx(),
+          });
+          return { ...made, ...planWrite(made) };
         });
         const changed = plan.put.length > 0 || plan.remove.length > 0;
-        if (changed) await store.commit(plan);
         const entry = changed ? store.lastEntry() : null;
 
         // A reader who just highlighted should see it, so hidden highlights

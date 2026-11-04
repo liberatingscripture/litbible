@@ -136,27 +136,45 @@ function problemWith(r) {
     if (typeof r.deletedId !== "string" || !r.deletedId) return "It is a trash record that doesn’t say which record it deleted.";
     if (r.deletedId === r.id) return "It is a trash record that names itself as the record it deleted.";
     if (!parses(r.deletedAt)) return "It is a trash record whose deletion time is missing or is not a time.";
+    if (holds(r) && r.record.id !== r.deletedId) return "It is a trash record holding a record with another id than the one it deleted.";
   }
   return null;
 }
 
-/** The record with its times no later than the cap (the same object if they are). */
-function clamped(r, cap, capMs) {
+/**
+ * How far past `now` a time may be and still count as `now` (DI-8): two devices' clocks differ by seconds, and an edit made on a phone
+ * two seconds fast must not be dropped as "from the future". A time further
+ * ahead than this is the clock running ahead, as before.
+ */
+export const CLOCK_TOLERANCE_MS = 5 * 60_000;
+
+/** The record with its times no later than the cap, give or take the tolerance (the same object if they are). */
+function clamped(r, cap, capMs, tolerance) {
+  const late = (t) => instant(t) > capMs + tolerance;
   let out = r;
-  if (instant(out.modified) > capMs) out = { ...out, modified: cap };
+  if (late(out.modified)) out = { ...out, modified: cap };
   if (out.kind === "trash") {
-    if (instant(out.deletedAt) > capMs) out = { ...out, deletedAt: cap };
+    if (late(out.deletedAt)) out = { ...out, deletedAt: cap };
     // The copy a trash record holds too, or a held copy from the future would
     // outrank every later one, and an undo would bring back its words (BA12).
-    if (holds(out) && instant(out.record.modified) > capMs) out = { ...out, record: { ...out.record, modified: cap } };
+    if (holds(out) && late(out.record.modified)) out = { ...out, record: { ...out.record, modified: cap } };
   }
   return out;
 }
 
 /* ── Rule a ──────────────────────────────────────────────────────────── */
 
+/**
+ * Two copies of one trash id: merged field-wise, as rule 6 does across ids
+ * (DI-3). Picking one whole copy let two notebooks keep different held words
+ * for ever when their `modified` agreed. The later deletion, the later
+ * `modified` and the held record with the later `modified` all survive.
+ */
+const bothTrash = (x, y) => x.kind === "trash" && y.kind === "trash";
+
 /** Two copies of one id from the same input: later wins, a tie the smaller JSON. */
 function pickWithin(x, y) {
+  if (bothTrash(x, y)) return collapseTrash([x, y].sort((a, b) => (canonical(a) <= canonical(b) ? -1 : 1)));
   const dx = instant(x.modified);
   const dy = instant(y.modified);
   if (dx !== dy) return dx > dy ? x : y;
@@ -165,6 +183,7 @@ function pickWithin(x, y) {
 
 /** A local and an arriving copy of one id: later wins; a tie, `tiebreak`, else local. */
 function pickAcross(local, incoming, tiebreak) {
+  if (bothTrash(local, incoming)) return collapseTrash([local, incoming]);
   const dl = instant(local.modified);
   const di = instant(incoming.modified);
   if (dl > di) return local;
@@ -218,7 +237,9 @@ function checkNow(now) {
 /** The latest time an arriving record may carry: `now`, or `exported` if earlier. */
 function capOf(at, exported) {
   const nowMs = Date.parse(at);
-  return parses(exported) && Date.parse(exported) < nowMs ? [exported, Date.parse(exported)] : [at, nowMs];
+  if (!parses(exported) || Date.parse(exported) >= nowMs) return [at, nowMs];
+  // Written in the format's own form (UTC, `Z`): a file's `exported` may carry an offset (DI-12).
+  return [new Date(Date.parse(exported)).toISOString(), Date.parse(exported)];
 }
 
 const kindName = (kind) => (kind === "trash" ? "trash record" : kind);
@@ -228,6 +249,9 @@ const aKind = (kind) => `${/^[aeiou]/i.test(kindName(kind)) ? "an" : "a"} ${kind
 function combine(local, incoming, { now, exported, tiebreak } = {}) {
   const at = checkNow(now);
   const [cap, capMs] = capOf(at, exported);
+  // A file's own time is exact: nothing in it can be newer (BA4). Only `now`,
+  // another device's clock, is judged with room for skew (DI-8).
+  const tolerance = cap === at ? CLOCK_TOLERANCE_MS : 0;
 
   const skipped = [];
   const arriving = [];
@@ -240,7 +264,7 @@ function combine(local, incoming, { now, exported, tiebreak } = {}) {
       continue;
     }
     const migrated = migrateRecord(raw);
-    const r = clamped(migrated, cap, capMs);
+    const r = clamped(migrated, cap, capMs, tolerance);
     if (r !== migrated) ahead.add(r);
     rawOf.set(r, raw);
     arriving.push(r);

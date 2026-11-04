@@ -5,7 +5,7 @@
 // says what each is for), and a file the reader chooses is read and shown as a
 // plain summary before anything is written: what is new, what would change,
 // what stays as it is here, and anything left out with its line number. Only
-// Open writes, in one store.commit, so it is one step in the undo history and
+// Open writes, in one store.change (read, planned and written together, DI-9), so it is one step in the undo history and
 // the undo bar offers it back. Open plans again against the notebook as it is
 // then, since the summary may have stood open while notes changed here, in
 // another tab or by Keep: if the outcome differs, it shows the new one and
@@ -25,10 +25,14 @@ import {
   toMarkdown,
   toWebAnnotation,
 } from "../../lib/desk-export.mjs";
+import { planWrite } from "../../lib/desk-store-core.mjs";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
 export const LAST_EXPORT_KEY = "lastExport";
+
+/** The largest file Open a copy reads (SEC-6): far past any real notebook, short of freezing the tab. */
+const MAX_FILE_BYTES = 50_000_000;
 
 const FORMATS = [
   {
@@ -127,7 +131,8 @@ export function mountBackup(el, { store, ctx }) {
         console.error("Study Desk: the time of the copy wasn’t kept", err);
       }
       status.textContent = "";
-      setTimeout(() => (status.textContent = `Saved ${exportFilename(f.id, exported)}.`), 50);
+      // A page can't see a cancelled save dialog, so it says only that the download began (NB-19).
+      setTimeout(() => (status.textContent = `Started the download of ${exportFilename(f.id, exported)}. Your browser may ask where to keep it.`), 50);
       showLast();
     });
   }
@@ -151,6 +156,9 @@ export function mountBackup(el, { store, ctx }) {
     clearResult();
     if (!chosen) return;
     let text;
+    if (chosen.size > MAX_FILE_BYTES) {
+      return showResult({ message: `That file is too large to open here (over ${MAX_FILE_BYTES / 1_000_000} MB). A notebook copy is far smaller.` });
+    }
     try {
       text = await chosen.text();
     } catch (err) {
@@ -241,18 +249,27 @@ export function mountBackup(el, { store, ctx }) {
     go.disabled = true;
     // Plan again against the notebook as it is now (BA3), and write that
     // plan; if it would do anything other than what the reader was shown, show that.
-    const opened = await plan(shown.text);
-    if (opened.message || !sameOpen(shown.opened, opened)) {
-      return showResult({ name: shown.name, text: shown.text, opened, changed: !opened.message });
-    }
-    const { sentence } = opened;
+    // Read, planned and written in one transaction (DI-9), so another tab's
+    // write can't land between the plan and its commit.
+    let opened;
+    let differs = false;
     try {
-      await store.commit(opened.planned.plan);
+      await store.change(async ({ all }) => {
+        const local = await all();
+        opened = planOpen(shown.text, { local, ctx: ctx(), now: new Date().toISOString() });
+        if (opened.message || !sameOpen(shown.opened, opened)) {
+          differs = true;
+          return null;
+        }
+        return planWrite(opened.planned.plan);
+      });
     } catch (err) {
       console.error("Study Desk: the copy wasn’t opened", err);
       go.disabled = false;
       return announce("That couldn’t be saved in this browser. Nothing was changed.");
     }
+    if (differs) return showResult({ name: shown.name, text: shown.text, opened, changed: !opened.message });
+    const { sentence } = opened;
     const entry = store.lastEntry();
     clearResult();
     file.value = "";

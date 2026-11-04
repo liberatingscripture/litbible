@@ -726,7 +726,10 @@ keeps the **oldest** of the merged records, by `created`, and deletes the
 others through the trash, so a highlight's id lasts as long as it does. A
 trim edits the old record; where a new colour lands in the middle of an old
 one, the old record keeps the first piece and the second becomes a new
-record of the old colour, carrying its labels. A record that is rewritten
+record of the old colour, carrying its labels and every field the client
+doesn't know (principle 6; audit 2 DI-7). The record that survives a merge
+takes the labels of every one it absorbed, so joining highlights never loses
+a label. A record that is rewritten
 gets a new quote and `verseCopy` taken from today's text, and today's
 `contentVersion`. A record written by a newer schema, or on newer text than
 the client has (principle 7), counts as one carrying an unread notice: it is
@@ -775,7 +778,19 @@ the same export file opened again a day later would beat the edit or the
 deletion made in between, every time (BA4). So:
 - **The cap** is the receiving side's "now", or, for an export file, the
   file's own `exported` time when that is earlier, since nothing in a file can
-  be newer than the file. A sync service's cap is its own clock.
+  be newer than the file. A sync service's cap is its own clock. The cap is
+  written as UTC with a `Z`, whatever form the file's time had (DI-12).
+- **Room for skew** (audit 2 DI-8; merge vectors version 4; for BDR to
+  confirm): against "now", a time up to **five minutes** ahead still counts as
+  now, so an edit from a phone whose clock is seconds fast isn't dropped as
+  "from the future". A file's own `exported` time stays exact. A sync that
+  drops a record as ahead must not advance its cursor past it. And an edit
+  stamps `max(now, the version it replaces + 1 ms)`, so it always outranks
+  that version, even on a clock running behind.
+- **One trash id, two copies** (DI-3): merged field-wise, as the collapse
+  rule does across ids: the later `deletedAt`, the later `modified`, and the
+  held record with the later `modified`. A trash record whose held record has
+  another id than `deletedId` is skipped and reported.
 - **What is clamped**: `modified`, a trash record's `deletedAt`, and the
   `modified` of the copy a trash record holds (BA12; a held copy from the
   future would outrank every later one, and an undo would bring back its

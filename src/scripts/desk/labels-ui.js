@@ -12,7 +12,7 @@
 // write, so a stale popover can't overwrite a newer edit.
 
 import { liveLabels, planNewLabelOn, planSetLabel } from "../../lib/desk-labels.mjs";
-import { kindName } from "../../lib/desk-store-core.mjs";
+import { kindName, planWrite } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 
 let seq = 0;
@@ -97,14 +97,17 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
 
   async function toggle(labelId, box) {
     say(null);
-    const record = await store.get(recordId);
-    const done = planSetLabel(record, labelId, box.checked, ctx());
-    if (!done.ok) {
-      box.checked = !box.checked;
-      return say(MESSAGES[done.reason] ?? "That couldn’t be changed.");
-    }
+    let done;
     try {
-      await store.commit(done.plan);
+      // Read and written together, so another tab's edit isn't overwritten (DI-9).
+      await store.change(async ({ get }) => {
+        done = planSetLabel(await get(recordId), labelId, box.checked, ctx());
+        return done.ok ? planWrite(done.plan) : null;
+      });
+      if (!done.ok) {
+        box.checked = !box.checked;
+        return say(MESSAGES[done.reason] ?? "That couldn’t be changed.");
+      }
     } catch (err) {
       console.error("Study Desk: the label wasn’t changed", err);
       box.checked = !box.checked;
@@ -115,13 +118,16 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
   panel.querySelector(".desk-labels__new").addEventListener("submit", async (e) => {
     e.preventDefault();
     say(null);
-    const records = await store.all();
-    const record = records.find((r) => r.id === recordId);
-    if (!record) return closePanel();
-    const done = planNewLabelOn(records, record, input.value, ctx());
-    if (!done.ok) return say(MESSAGES[done.reason] ?? "That couldn’t be added.");
+    let done;
     try {
-      await store.commit(done.plan);
+      await store.change(async ({ all }) => {
+        const records = await all();
+        const record = records.find((r) => r.id === recordId);
+        done = record ? planNewLabelOn(records, record, input.value, ctx()) : null;
+        return done?.ok ? planWrite(done.plan) : null;
+      });
+      if (!done) return closePanel();
+      if (!done.ok) return say(MESSAGES[done.reason] ?? "That couldn’t be added.");
       input.value = "";
       input.focus({ preventScroll: true });
     } catch (err) {

@@ -39,7 +39,7 @@ import {
 import { proseAnchorText } from "../../lib/desk-prose-anchor.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { canEdit, compareContentVersions, onFootnote, proseTarget } from "../../lib/desk-records.mjs";
-import { recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { planSave, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
@@ -427,7 +427,16 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       }
       const next = planKeep({ text, record: fresh, notice: current, ctx: ctx() });
       if (!next) return fail(`That ${noun} can’t be kept here.`);
-      await store.save(next);
+      // Written only over the record the reader was shown, read again in the
+      // write's own transaction: the version fetch above can take a while (DI-9).
+      let landed = false;
+      await store.change(async ({ get }) => {
+        const now = await get(fresh.id);
+        if (!now || now.modified !== fresh.modified) return null;
+        landed = true;
+        return planSave(next);
+      });
+      if (!landed) return fail(`That ${noun} changed while this was open. Reload the page, then try again.`);
       // The change this made, read at once: the undo button, like Ctrl+Z,
       // takes back exactly this one (history.js).
       const entry = store.lastEntry();

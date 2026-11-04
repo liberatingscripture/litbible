@@ -297,6 +297,8 @@ After session 2 (shares `panel.js`). **Needs decision 3** (FA2-k) and **decision
 
 ### Session 6: Merge, import, store, trash (with BDR)
 
+**Status (2026-11-04, branch `claude/audit2-session6-merge-store`):** FA2-m, FA2-n and FA2-o are done. Merge vectors are version 4 (three cases, two rule changes, for BDR to confirm, with the format's notes). Decision 7: E12's Trash exists, so the import summary points to it ("N deleted here since this copy was saved"), and no explicit "bring back" was built. **SEC Q2 is still open**: a trash record's held record is checked for the fields every record carries (and its own, of a known kind) on import and in a restore, but a newer-schema record's own fields are still not judged. Not done: DI-5's button for browsers that prompt (Chrome's silent answer is asked again after a day; Firefox's refusal stays final), and DI-9's Keep now checks the record is unchanged rather than merging.
+
 After session 3, so BDR gets one note covering both spec changes. **Needs decisions 5 (SEC Q2) and 7.**
 
 | Task | Findings | What |

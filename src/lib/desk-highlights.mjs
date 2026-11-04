@@ -188,8 +188,17 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
     return { ...q, verseCopy: verseCopyFor(chapter, q.verse, q.endVerse), verseCopyAsOf: now };
   };
   const rewrite = (p, a, b) => editRecord(p.record, { ...fieldsFor(a, b), contentVersion: ctx.contentVersion }, stamp);
-  const fresh = (a, b, tint, labels) =>
-    createRecord("highlight", { ...where, ...fieldsFor(a, b), color: tint, ...(labels ? { labels: [...labels] } : {}) }, made);
+  const fresh = (a, b, tint) =>
+    createRecord("highlight", { ...where, ...fieldsFor(a, b), color: tint }, made);
+  /**
+   * The second piece of a split: everything the original carries, fields this
+   * code doesn't know included (principle 6), but its own id and times, and the
+   * quote and verses for its own text.
+   */
+  const pieceOf = (original, a, b) => {
+    const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: _v, ...rest } = original;
+    return createRecord("highlight", { ...rest, ...fieldsFor(a, b), labels: [...(original.labels ?? [])] }, made);
+  };
   /** Delete a highlight: its trash record goes in, it comes out, and an undo reverses both. */
   const discard = (p) => {
     const trash = trashRecord(p.record, made);
@@ -213,7 +222,7 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
       put.push(rewrite(p, ...first));
       undo.put.push(back(p.record));
       if (second) {
-        const piece = fresh(...second, p.record.color, p.record.labels);
+        const piece = pieceOf(p.record, ...second);
         put.push(piece);
         undo.remove.push(piece.id);
         summary.split++;
@@ -248,9 +257,12 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
     } else {
       const survivor = absorbed.reduce((a, b) => (older(b, a) ? b : a));
       created = survivor.record;
-      // A survivor that already covers the whole mark is left exactly as it is.
-      if (union.start !== survivor.start || union.end !== survivor.end) {
-        created = rewrite(survivor, union.start, union.end);
+      // The joined mark keeps every label the absorbed ones carried (DI-7).
+      const labels = [...new Set(absorbed.flatMap((p) => p.record.labels ?? []))];
+      const keepsLabels = labels.length === (survivor.record.labels ?? []).length;
+      // A survivor that already covers the whole mark, and every label, is left exactly as it is.
+      if (union.start !== survivor.start || union.end !== survivor.end || !keepsLabels) {
+        created = { ...rewrite(survivor, union.start, union.end), labels };
         put.push(created);
         undo.put.push(back(survivor.record));
       }

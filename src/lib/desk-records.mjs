@@ -164,10 +164,11 @@ export function canEdit(record) {
 
 /**
  * The reader changed something: a new record with `changes` applied and
- * `modified` moved to `now`. Every field the change doesn't name survives,
+ * `modified` moved to `now` (or one millisecond past the record's own, if that is
+ * later: see laterThan; `exact` stamps `now` as given, for a file's own time). Every field the change doesn't name survives,
  * including fields this code doesn't know.
  */
-export function editRecord(record, changes, { now, client } = {}) {
+export function editRecord(record, changes, { now, client, exact = false } = {}) {
   if (!canEdit(record)) {
     throw new Error(`desk-records: record ${record?.id} can't be edited here (kind "${record?.kind}", schema ${record?.schema})`);
   }
@@ -177,9 +178,20 @@ export function editRecord(record, changes, { now, client } = {}) {
   return {
     ...record,
     ...changes,
-    modified: now ?? new Date().toISOString(),
+    modified: exact ? (now ?? new Date().toISOString()) : laterThan(record.modified, now ?? new Date().toISOString()),
     ...(client ? { client } : {}),
   };
+}
+
+/**
+ * `now`, unless that is no later than the version being replaced: then one
+ * millisecond past it, so an edit always outranks what it was made over, even
+ * on a clock that runs behind (DI-8, a hybrid-clock step). The same for an undo.
+ */
+function laterThan(previous, now) {
+  const before = typeof previous === "string" ? Date.parse(previous) : NaN;
+  if (Number.isNaN(before) || Date.parse(now) > before) return now;
+  return new Date(before + 1).toISOString();
 }
 
 /* ── Deleting (item 20, rule c) ──────────────────────────────────────── */
@@ -225,10 +237,12 @@ export function trashRecord(record, { now, client, contentVersion, id } = {}) {
 export function restoreFromTrash(trash, { now, client } = {}) {
   if (trash?.kind !== "trash") throw new Error("desk-records: not a trash record");
   if (!trash.record) return null;
+  // A held record that isn't the one deleted would overwrite another (DI-10).
+  if (trash.record.id !== trash.deletedId) return null;
   if (!canEdit(trash.record)) return trash.record;
   return {
     ...trash.record,
-    modified: now ?? new Date().toISOString(),
+    modified: laterThan(trash.record.modified, now ?? new Date().toISOString()),
     ...(client ? { client } : {}),
   };
 }
@@ -298,6 +312,9 @@ function ribbonToBookmark(r) {
   return { ...rest, kind: "bookmark", follow: true, ...(typeof name === "string" && name ? { label: name } : {}) };
 }
 
+/** The longest a note's words may be (SEC-6): far past a margin note, short of slowing every draw of it. */
+export const MAX_NOTE_BODY = 65_536;
+
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
 /**
@@ -343,6 +360,7 @@ export function validateRecord(r) {
   }
   if (k === "note") {
     need(typeof r.body === "string", "body is not text");
+    need(typeof r.body !== "string" || r.body.length <= MAX_NOTE_BODY, `body is too long to keep (over ${MAX_NOTE_BODY} characters)`);
     // A renamed marker's old name is still valid: every client reads it as the new one.
     need(MARKERS.includes(currentMarker(r.marker)), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
     if (r.footnote != null) {
