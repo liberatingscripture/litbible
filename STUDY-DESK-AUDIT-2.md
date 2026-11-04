@@ -311,6 +311,8 @@ After session 3, so BDR gets one note covering both spec changes. **Needs decisi
 
 After session 4 (shares `desk-page.js` and `sheet-pane.js`). Ends with a check by hand.
 
+**Status (2026-11-04, branch `claude/audit2-session7-focus-announce`):** FA2-p, FA2-q and FA2-r are built and unit-suite green; none was run in a browser or with a screen reader. Calls of Claude's: the shared helper is `desk/focus-keep.js` (`redraw` by `data-focus-key`, plus `busy` for NB-16's `aria-disabled`); RC-7 keeps the Layout and Print windows as popups that close when focus leaves (BA63) rather than adding a trap, and Escape now also works from the title button (DK-13); the Search pane has one always-rendered live region (`sr-only`) in place of two hidden ones; Saving…/Saved is `aria-hidden` and only a failure is said; DK-16's `printHref` hardcoded `/` is left (a test pins it, and the site has no subpath).
+
 | Task | Findings | What |
 |---|---|---|
 | FA2-p | DK-3, DK-4, NB-16, DK-13, RC-7 | One shared "restore focus after `replaceChildren`" helper, used by the sheet list, the Search pane, Pin and Unpin, and the Layout window; give the Layout and Print windows a trap or make them modal. |

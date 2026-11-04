@@ -6356,6 +6356,19 @@ html.desk-ws--moving * {
     border: 3px solid Highlight;
   }
 
+  /* The Search pane's chosen word, the Bible order toggle and a pinned pane's
+     lock are tints and a weight, which forced colors flattens (DK-6). Padding
+     is lessened by the border's extra width so nothing shifts. */
+  .desk-search__choice[aria-pressed="true"] {
+    padding: 1px 6px;
+    border: 3px solid Highlight;
+  }
+
+  .desk-search__btn--quiet[aria-pressed="true"],
+  .desk-pane__pin[aria-pressed="true"] {
+    border: 3px solid Highlight;
+  }
+
   /* The Footnotes pane draws its 3px bar on every row (the transparent one
      too), so only the current row's is in a color. */
   .desk-fns__item {
@@ -7656,7 +7669,8 @@ mark.desk-print-mark {
 }
 
 .desk-search__status:empty {
-  display: none;
+  min-height: 0;
+  margin: 0;
 }
 
 .desk-search__empty {

@@ -43,6 +43,7 @@ import {
   footnoteNotes,
   initFootnoteNotes,
 } from "./footnote-notes.js";
+import { busy, isBusy } from "./focus-keep.js";
 import { undoEntry } from "./history.js";
 import { pageChapter } from "./page.js";
 import { announce, showUndo } from "./undo-bar.js";
@@ -174,14 +175,14 @@ export function pinButton(id, label, where = pageChapter()) {
   if (!current.has(keyOf(at))) load(at).then(() => paint(button));
   button.addEventListener("click", async (e) => {
     e.stopPropagation();
-    if (button.disabled) return;
-    button.disabled = true;
+    if (isBusy(button)) return;
+    const done = busy(button);
     try {
       await toggle(id, label, at);
     } catch (err) {
       console.error("Study Desk: the footnote couldn't be pinned or unpinned", err);
     } finally {
-      button.disabled = false;
+      done();
       paint(button);
     }
   });

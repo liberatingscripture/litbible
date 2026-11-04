@@ -326,6 +326,7 @@ async function start() {
     });
   }
 
+  let askSeq = 0;
   function drawAsk(state, spec) {
     if (state.asking && spec.ready(spec.count)) {
       // Keep the question open, but bring its number up to date.
@@ -343,8 +344,10 @@ async function start() {
       state.asking = true;
       const group = el("div", "desk-np__ask");
       group.setAttribute("role", "group");
-      group.setAttribute("aria-label", "Confirm");
       const text = el("p", "desk-np__ask-text", spec.question(spec.count));
+      // The group is named by the question, so it is read when focus lands on Cancel (NB-10).
+      text.id = `deskNpAsk-${++askSeq}`;
+      group.setAttribute("aria-labelledby", text.id);
       const yes = el("button", "desk-np__danger-button", spec.confirm);
       yes.type = "button";
       const no = el("button", "", "Cancel");

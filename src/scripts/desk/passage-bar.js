@@ -29,7 +29,7 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" s
 export function createPassageBar({ id, set }) {
   const el = document.createElement("form");
   el.className = "desk-passage";
-  el.setAttribute("role", "search");
+  el.setAttribute("role", "group"); // a picker, not a search (DK-7)
   el.setAttribute("aria-label", "Passage");
   el.noValidate = true;
   el.innerHTML = `

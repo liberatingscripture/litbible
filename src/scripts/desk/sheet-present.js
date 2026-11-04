@@ -694,6 +694,7 @@ export async function showPresenterView({ root, sheet, store }) {
   const title = make("h1", "present-presenter__title", sheetName(sheet));
   const where = make("p", "present-presenter__where");
   const clock = make("p", "present-presenter__clock");
+  clock.setAttribute("role", "timer");
   clock.setAttribute("aria-label", "Time since the presentation began");
   const restart = button("Restart clock", "present-btn present-btn--quiet");
   head.append(title, where, clock, restart);
