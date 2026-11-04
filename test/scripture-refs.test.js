@@ -203,6 +203,34 @@ test("a reference a footnote ties to the Septuagint in a phrase stays plain (E23
   ]);
 });
 
+test("the qualifier's longest phrase is still seen, however far it reaches (SEC-2)", () => {
+  const ws = "&#160;".repeat(4);
+  const phrase = `Septuagint&rsquo;s${ws}(${"x".repeat(80)})${ws}translation${ws}of${ws}`;
+  assert.ok(phrase.length <= 256, `the phrase is ${phrase.length} characters`);
+  const html = `${"Words before it. ".repeat(40)}${phrase}Psalm 40:6`;
+  assert.deepEqual(sefaria(html), []);
+  assert.deepEqual(sefaria(html.replace("Septuagint", "Vulgate")).map((s) => s[0]), ["Psalm 40:6"]);
+});
+
+test("a long text of outbound references stays quick (SEC-2)", () => {
+  const started = performance.now();
+  const html = link("LXX Ps 51:4 ".repeat(40000), { mode: "note" });
+  assert.ok(performance.now() - started < 1000, "480 KB took too long");
+  assert.ok(!html.includes("sefaria-ref"));
+});
+
+test("a run of nonbreaking spaces doesn't stall the linker", () => {
+  // Written twice over in a pattern (\s holds it), each one doubled the time.
+  const run = "\u00a0".repeat(60);
+  for (const text of [`Psalm 22:1${run}x`, `LXX${run}x Psalm 22:1`, `1${run}x`, `Psalm${run}x`]) {
+    const started = performance.now();
+    link(text, { mode: "note" });
+    link(text);
+    assert.ok(performance.now() - started < 1000, JSON.stringify(text.slice(0, 12)));
+  }
+  assert.deepEqual(sefaria("Psalm\u00a022:1").map((s) => s[0]), ["Psalm\u00a022:1"]);
+});
+
 test("a Hebrew reference near the word Septuagint still links", () => {
   for (const [s, ref, target] of [
     ["the Hebrew of Psalm 40:6, unlike the Septuagint", "Psalm 40:6", "Psalms.40.7"],

@@ -47,6 +47,37 @@ test("a look-alike host is external", () => {
   assert.equal(isExternalHref("https://notlitbible.net/"), true);
 });
 
+test("a spelling a browser forgives counts for where it really goes (SEC-3)", () => {
+  for (const href of [
+    "https:\\\\evil.example/",
+    "http:evil.example",
+    "https:/\\evil.example/",
+    "https://litbible.net:443@evil.example/",
+    "//evil.example/x",
+  ]) {
+    assert.equal(isExternalHref(href), true, href);
+    const out = openExternalLinks(`<a href="${href}">x</a>`);
+    assert.match(out, /target="_blank"/, href);
+    assert.match(out, /rel="noopener noreferrer"/, href);
+  }
+});
+
+test("what stays on this site, or isn't a web address, is not external", () => {
+  for (const href of [
+    "/romans-8/",
+    "#v16",
+    "john-3",
+    "mailto:someone@example.org",
+    "HTTPS://LITBIBLE.NET/read/",
+    "https://litbible.net:443/read/",
+    "//www.litbible.net/",
+    "https://evil.example@litbible.net/",
+    "http://[bad",
+  ]) {
+    assert.equal(isExternalHref(href), false, href);
+  }
+});
+
 test("an existing target is kept, a missing rel is still filled in", () => {
   const out = openExternalLinks(
     '<a href="https://dianabutlerbass.substack.com/p/mary-the-tower" target="_blank" style="color: #209D50">x</a>'

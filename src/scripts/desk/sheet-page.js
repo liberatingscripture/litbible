@@ -496,7 +496,7 @@ function openShareDialog(sheet, opener) {
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link holds the sheet itself, so it never passes through a server and nothing is stored. Anyone who has the link can open it on a computer. The passages are read from the LIT when it is opened.",
+    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant copy when you’re unsure. The passages are read from the LIT when it is opened.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button("Save as a file");
