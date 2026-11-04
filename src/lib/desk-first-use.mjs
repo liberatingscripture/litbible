@@ -257,7 +257,7 @@ export const TOUR_STEPS = [
     title: "The notebook page, and where it’s kept",
     body: {
       default:
-        "“Open the notebook page” shows everything you’ve kept in one place, where you can sort it with labels and save a copy of your notebook or open one. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The foot of the panel says when you last saved a copy.",
+        "“Open the notebook page” shows everything you’ve kept in one place, where you can sort it with labels and save a copy of your notebook or open one. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last saved a copy.",
     },
   },
 ];

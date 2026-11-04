@@ -187,14 +187,16 @@
 
 .desk-panel__tabs {
   display: flex;
-  gap: 4px;
-  padding: 0 12px;
+  flex-wrap: wrap;
+  gap: 0 2px;
+  padding: 0 8px;
   border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
 }
 
 .desk-panel__tabs [role="tab"] {
   margin-bottom: -1px;
-  padding: 8px 10px;
+  padding: 8px;
+  white-space: nowrap;
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
@@ -207,6 +209,12 @@
 
 .desk-panel__tabs [role="tab"]:hover {
   color: var(--text);
+}
+
+/* OpenDyslexic is far wider than Inter (NB-3): the row wraps to a second line
+   rather than clip a tab, and the labels keep their size. */
+html[data-font="dyslexic"] .desk-panel__tabs [role="tab"] {
+  padding-inline: 6px;
 }
 
 .desk-panel__tabs [role="tab"][aria-selected="true"] {
@@ -265,6 +273,7 @@ a.desk-item__ref:hover {
 
 /* The reader's own words: plain text, line breaks kept. */
 .desk-item__words {
+  unicode-bidi: plaintext;
   grid-column: 1 / -1;
   margin: 6px 0 0;
   white-space: pre-wrap;
@@ -301,13 +310,13 @@ a.desk-item__ref:hover {
 
 /* ── The Settings tab (what was My Notes' foot) ── */
 
-.desk-panel__settings {
+.desk-panel__settings-tab {
   padding: 10px 16px 14px;
   color: rgba(var(--ink-rgb), 0.72);
   font-size: 0.8125rem;
 }
 
-.desk-panel__settings p {
+.desk-panel__settings-tab p {
   margin: 0;
 }
 
@@ -428,7 +437,6 @@ a.desk-item__ref:hover {
   overflow: hidden;
 }
 
-.desk-item__note-row:hover .desk-item__words,
 .desk-item__note-row:focus-within .desk-item__words,
 .desk-item__note-row--open .desk-item__words,
 html[data-desk-list="full"] .desk-item__note .desk-item__words {
@@ -755,6 +763,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 }
 
 .desk-verse__words {
+  unicode-bidi: plaintext;
   min-width: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -905,6 +914,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 
 .desk-note__text {
   min-width: 0;
+  unicode-bidi: plaintext;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -928,6 +938,15 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   background: var(--surface-raised);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.12);
   transform: translateY(-1px);
+}
+
+/* A very long note scrolls inside its own card instead of covering every
+   note below it (NB-17). */
+.desk-note:hover,
+.desk-note:focus-within,
+.desk-note--open {
+  max-height: min(60vh, 28rem);
+  overflow-y: auto;
 }
 
 .desk-note--open {
@@ -1146,6 +1165,7 @@ a.desk-verse__mention-ref:hover {
 
 .desk-note-pop__text {
   min-width: 0;
+  unicode-bidi: plaintext;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -1238,6 +1258,16 @@ a.desk-verse__mention-ref:hover {
 ::highlight(desk-hl-pink),
 .desk-swatch[data-color="pink"] .desk-swatch__sample {
   background-color: var(--desk-hl-pink);
+}
+
+/* The green verse numbers and footnote letters inside a highlight fell to 4.0
+   to 4.4:1 on the tints (NB-14; BVJ, 2026-11-04: keep the tints, darken the
+   numerals), so a highlighted range draws its text in the ink color. */
+::highlight(desk-hl-yellow),
+::highlight(desk-hl-green),
+::highlight(desk-hl-blue),
+::highlight(desk-hl-pink) {
+  color: var(--text);
 }
 
 /* A colour as a control or a label: a short sample of text in the colour's
@@ -1511,6 +1541,7 @@ a.desk-item__highlight:hover {
 }
 
 .desk-editor__body {
+  unicode-bidi: plaintext;
   box-sizing: border-box;
   width: 100%;
   min-height: 88px;

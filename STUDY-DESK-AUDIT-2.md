@@ -287,6 +287,8 @@ Independent. Runs before session 7 (both edit `desk-page.js` and `sheet-pane.js`
 
 After session 2 (shares `panel.js`). **Needs decision 3** (FA2-k) and **decision 10** (NB-14).
 
+**Status (2026-11-04, branch `claude/audit2-session5-notebook-panel`):** FA2-j, FA2-k and FA2-l are done. Decision 3 (BVJ, 2026-11-04): a second skip link, "Skip to the Notebook". Decision 10 (BVJ, 2026-11-04): keep the tints and draw highlighted text in the ink color. Two calls of Claude's, not BVJ's: the undo bar stays last in the page (the announcement names Ctrl+Z, ⌘Z on a Mac, which is the route a keyboard reader can use), and the persistence line stays in Settings, now drawn whenever Settings is selected, not on every tab. Contrast was not re-measured in a browser.
+
 | Task | Findings | What |
 |---|---|---|
 | FA2-j | NB-3, NB-8, NB-11, NB-13, NB-17 | Four tabs fit the 280 to 350 px panel (`flex-wrap`, tighter padding or shorter labels, or a gear button; add the `data-font` allowance), plus the CSS and small layout items. Mostly `desk.css` and `panel.js`. |
