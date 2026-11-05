@@ -522,7 +522,7 @@ against `dist/` is a later item.
        **A moving bookmark's margin mark jumps rather than glides**: its writes
        are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
        5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
-       catches up when the reading pauses. "Bookmark" in the verse menu and the
+       catches up when the reading pauses. "Add bookmark" in the verse menu and the
        selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
        counted); the limit and the write are one `store.change`
        (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,

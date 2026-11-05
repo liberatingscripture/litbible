@@ -70,7 +70,8 @@ export function initActions({ store, ctx, showVerse = null }) {
     // "My Notebook" (BVJ, 2026-10-09; it was "Yours").
     heading.textContent = "My Notebook";
 
-    const bookmark = button("Bookmark");
+    // "Add bookmark" while the verse holds none (BVJ, 2026-11-04); once it does, a "Bookmark ▸" flyout takes its place.
+    const bookmark = button("Add bookmark");
     const row = document.createElement("div");
     row.className = "lit-panel__row";
     if (notes) {

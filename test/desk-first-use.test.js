@@ -103,7 +103,7 @@ test("the tour's steps have unique ids and wording for every view they may meet"
     // Reader-facing prose: no em dashes, no straight quotes.
     for (const text of [s.title, ...Object.values(s.body)]) assert.doesNotMatch(text, /[—"']/);
   }
-  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Bookmark,” and “Highlight” while “My highlights” is on/);
+  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Add bookmark,” and “Highlight” while “My highlights” is on/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add a note/);
 });
 
@@ -375,7 +375,7 @@ test("the notebook tour was cut from 14 steps to 10 (BVJ, 2026-11-02), and retir
   const study = planTour({ available: new Set(TOUR_STEPS.map((s) => s.id)), view: "study" }).map((s) => s.id);
   assert.deepEqual(study, ["actions", "note", "margin", "pin", "panel", "verse", "greek", "undo", "search", "kept"]);
   // The menu step names what the cut steps taught.
-  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Bookmark,” and “Highlight\.”.*Move as I read/);
+  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add bookmark,” and “Highlight\.”.*Move as I read/);
   // A reader who took the 14-step tour has the retired ids stored: ignored, kept, and no "new" offer.
   const retired = ["highlight", "bookmark", "widths", "notebook-page"];
   const stored = [...TOUR_STEPS.map((s) => s.id), ...retired];

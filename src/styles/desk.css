@@ -1062,9 +1062,17 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 
 /* The verse menu's "Bookmark ▸" flyout, once the verse holds bookmarks (a mouse
    only; a finger's chips stay flat). Fixed to the window beside its row. */
+.desk-bookmark-fly__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* The caret at the row's right edge. */
 .desk-bookmark-fly__trigger::after {
   content: "▸";
-  margin-left: 0.5em;
+  margin-left: auto;
+  padding-left: 0.75em;
 }
 
 .desk-bookmark-fly {
