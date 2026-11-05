@@ -182,10 +182,16 @@ export function initActions({ store, ctx, showVerse = null }) {
       const kindWord = (b) => (b.follow === true ? "bookmark that moves" : "bookmark that stays put");
       for (const b of held) {
         const both = held.length > 1;
-        const label = b.label ? `“${b.label}”` : both ? kindWord(b) : "bookmark";
-        const remove = button(`Remove ${label}`);
+        // "Remove bookmark “Advent”": the name, cut where it won't fit, after the
+        // word that says what is removed (BVJ, 2026-11-04); the full name is the
+        // button's accessible name.
+        const named = b.label ? `bookmark ${shownName(b.label)}` : both ? kindWord(b) : "bookmark";
+        const whole = b.label ? `bookmark “${b.label}”` : named;
+        const remove = button(`Remove ${named}`);
+        remove.setAttribute("aria-label", `Remove ${whole}`);
         remove.addEventListener("click", guarded(remove, removeBookmark(b)));
-        const edit = button(both ? `Edit ${label}…` : "Edit bookmark…");
+        const edit = button(b.label || both ? `Edit ${named}…` : "Edit bookmark…");
+        edit.setAttribute("aria-label", `Edit ${whole}`);
         edit.addEventListener("click", () => editBookmark(d, b, edit));
         // Edit sits right beside Remove (BVJ, 2026-11-04).
         bookmarkBox.append(lineOf(remove), lineOf(edit));
@@ -422,6 +428,12 @@ function verseNumberOf(range, verse) {
   const at = range?.startContainer;
   const box = (at instanceof Element ? at : at?.parentElement)?.closest(".chapter-paragraphs");
   return box?.querySelector(`sup.vn[id$="v${verse}"]`) ?? null;
+}
+
+/** A bookmark's name as the menu shows it: in quotes, cut with an ellipsis when long. */
+function shownName(name, max = 14) {
+  const letters = Array.from(name);
+  return `“${letters.length > max ? `${letters.slice(0, max).join("").trimEnd()}…` : name}”`;
 }
 
 function button(label) {
