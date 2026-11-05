@@ -241,6 +241,24 @@ test("a jump pauses the bookmark where it was and tells the reader once; reading
   assert.equal(told.length, 1);
 });
 
+test("a far page that reports twice before the first check still pauses, never moves the bookmark", async () => {
+  // A link with a verse (/luke-1/#v1 from Luke 5) reports the arrival and then
+  // the landing in one breath; the second must not count the first as reading.
+  const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
+  tab("/john-3/", { session });
+  saveLastRead({ book: "john", chapter: 3, verse: 1, view: "study" });
+  const store = fakeStore([bookmark()]);
+  const told = [];
+  const { initBookmarkFollow } = await loadFollower();
+  initBookmarkFollow({ store, ctx, tell: (about) => told.push(about) });
+  saveLastRead({ book: "john", chapter: 3, verse: 2, view: "study" });
+  await settle();
+  assert.equal(store.map.get("r1").chapter, 8, "it stays where the reader left off");
+  assert.equal(store.writes.length, 0);
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
+  assert.equal(told.length, 1);
+});
+
 test("a pause that has run out is let go when a page loads", async () => {
   const old = JSON.stringify({ id: "r1", bookKey: "romans", paused: true, since: 1 });
   const session = storage({ "lit-desk-follow": old });

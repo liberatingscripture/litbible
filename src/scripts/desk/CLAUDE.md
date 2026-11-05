@@ -556,7 +556,13 @@ against `dist/` is a later item.
        far chapter, or another book (Matthew 28 to Mark 1 included), pauses it
        where it was, and the reader is told once, in the undo bar, with "Move it
        here" (`showPausedBar`; the move is an ordinary undoable edit and may cross
-       books); reading on from the bookmark resumes it. Pages outside the book
+       books); reading on from the bookmark resumes it. **The "last place this page heard"
+       that `followStep` allows for Read View's long scroll is the last report
+       the follower accepted**, set when a report is judged and never as it
+       arrives: a page that lands on a far verse (a link to `/luke-1/#v1`)
+       reports twice before the first judgment, and the second would count the
+       first as reading and move the bookmark instead of pausing it (found
+       2026-11-04 testing "Move it here"). Pages outside the book
        (/search, /notebook, /desk) pause it too (`desk-gate.js`), and a pause
        ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
        storage). Rows say Following, Paused, Moves or Stays put.
