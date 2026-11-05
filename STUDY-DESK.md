@@ -8403,11 +8403,19 @@ sign of a feature: log it, and move it when it's clear where it belongs).
      `lit-pane.js`). **It does not apply to Chapter View's own pages** (BVJ,
      2026-11-05): a chapter page is already separated from the next by being
      its own page, so removing its heading buys no continuity and would only
-     confuse; its heading and `h1` stay whatever the numbers setting. Still to
-     settle in the session: what a screen reader meets where a LIT pane
-     heading is hidden (visually hidden, as `global.css` does for `sup.vn`,
-     keeps the landmark; `display: none` removes it, which is Read View's
-     choice).
+     confuse; its heading and `h1` stay whatever the numbers setting.
+     **Navigation stays** (BVJ, 2026-11-05): the headings are how a reader
+     moves between chapters, so what goes is the visual separation, not the
+     heading. The rule is that a chapter heading may remain, for navigation's
+     sake, wherever it makes no visual break: no visible text, no gap, no
+     rule, and the text flows on as one. The default is the visually hidden
+     treatment `global.css` gives `sup.vn` (still a heading for a screen
+     reader's heading navigation, still a link and a focus stop for the
+     keyboard, brought into view only on focus), not `display: none`, which
+     removes it (Read View's choice; revisit it by the same rule). Still to
+     settle in the session: what, if anything, a sighted mouse reader gets to
+     jump by in the LIT pane (the Go to field and the title may already be
+     enough), and that the hidden heading adds no height to the flow.
   2. **The location field must still name the verse being read.** It shows
      the book, chapter and verse 1 and never moves while the reader scrolls.
      Wanted: the verse at the reading line (10%, BVJ 2026-11-04), as it is
