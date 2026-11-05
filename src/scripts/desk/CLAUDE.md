@@ -1005,6 +1005,13 @@ against `dist/` is a later item.
        add to the window or the document, which the pane calls when it
        closes and when it builds a new tab for another chapter (BA31,
        BA115); a listener a tab adds outside its own element goes in it.
+       **A pane's scroller must be positioned** (`position: relative`; the
+       Greek's in #354, the Sheet's 2026-11-04, and `.desk-pane__body` as a
+       guard): `.sr-only` is absolute, so a hidden label or hint below the fold
+       otherwise takes the pane as its containing block, escapes the scroller's
+       clipping, and stretches the panes box, which grows a scrollbar of its own
+       and shows empty space under the panes. Check a new pane kind with
+       `.desk-ws__panes`' `scrollHeight` against its `clientHeight`.
        **A LIT pane stops drawing chapters far from its window** (DK-15):
        past 40 on the page, one more than 3 pane heights away gets
        `display: none` on its text and keeps its height (`park`, `balance` in
