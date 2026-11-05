@@ -14,6 +14,7 @@ import { BOOKMARK_NAME_MAX, MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { planBookmarkEdit } from "../../lib/desk-bookmark-change.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
+import { isFollowedHere, stopFollowing } from "./bookmark-follow.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -108,6 +109,8 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
     // Nothing changed: nothing was written.
     if (!outcome?.plan) return closePanel();
     const entry = store.lastEntry();
+    // Turned off while this tab is moving it: it stops now, not at the next scroll.
+    if (!follow.checked && isFollowedHere(record.id)) stopFollowing();
     closePanel();
     showUndo(`Bookmark on ${ref} updated.`, () => undoEntry(entry));
   }

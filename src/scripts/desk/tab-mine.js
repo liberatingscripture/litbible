@@ -96,7 +96,7 @@ import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
-import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-follow.js";
+import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
 import { stopFollowButton } from "./bookmark-stop.js";
 import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
@@ -656,7 +656,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (href && r.kind === "bookmark") {
       head.addEventListener("click", (e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        if (isFollowing(r)) followBookmark(r, head.href);
+        // On a page that doesn't follow the reader (/desk), a link handled in
+        // place moves nothing, so it must not start a follow it can't carry out.
+        if (isFollowing(r) && (!revealHere || followsHere())) followBookmark(r, head.href);
         else stopFollowing();
       });
     }

@@ -551,7 +551,13 @@ against `dist/` is a later item.
        of the bookmark this tab is moving, and a button beside "Edit bookmark…"
        in the verse menu. It clears the flag only: the bookmark stays where it
        last was with "Move as I read" still on, and opening it from the list
-       starts it again.
+       starts it again. **Every way the flag drops redraws the rows**
+       (`dropFlag`: another tab took it, it was deleted or turned off, a
+       back-forward restore), turning the switch off in the form stops it at
+       once, a Back or reload doesn't write verse 1 over the bookmark before
+       the scroll is restored, and a restored page reports its own last place
+       (`pageshow`). A row opened in place on a page that doesn't follow the
+       reader (/desk) never starts a follow (`followsHere`).
        **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
        2026-10-29): Duplicate tab copies session storage, so the flag carries
        the tab's token, and a page that loads with it asks on

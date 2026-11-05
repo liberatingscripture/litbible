@@ -148,8 +148,22 @@ export function syncBookmarkLines(root = document) {
  */
 export function stopFollowing() {
   if (!flag && !readFlag()) return;
+  dropFlag();
+}
+
+/** The tab stops moving anything, and every row's line and button say so. */
+function dropFlag() {
   writeFlag(null);
   syncBookmarkLines();
+}
+
+/**
+ * Whether the page this tab is on follows the reader at all: false on /desk and
+ * other pages the shell didn't set up, where a link opened in place moves
+ * nothing, so a row must not start a follow it can't carry out.
+ */
+export function followsHere() {
+  return env != null;
 }
 
 /**
@@ -208,7 +222,7 @@ export function initBookmarkFollow({ store, ctx }) {
         ch.postMessage({ taken: msg.ask });
         return;
       }
-      if (loseFollow(flag, msg)) writeFlag(null);
+      if (loseFollow(flag, msg)) dropFlag();
     });
     if (flag) {
       asking = flag.tab;
@@ -259,7 +273,7 @@ export function initBookmarkFollow({ store, ctx }) {
       console.error("Study Desk: the bookmark couldn't follow the reader", err);
     }
     if (moved) lastWrite = Date.now();
-    if (gone && flag?.id === id) writeFlag(null);
+    if (gone && flag?.id === id) dropFlag();
   }
 
   function schedule() {
@@ -267,8 +281,24 @@ export function initBookmarkFollow({ store, ctx }) {
     timer = window.setTimeout(flush, throttleDelay(lastWrite, Date.now()));
   }
 
+  // After a reload or Back, the page first reports the chapter's top (no verse)
+  // before the browser restores the scroll; that is not where the reader is, so
+  // it is skipped until a real verse comes (it would write verse 1 over the
+  // bookmark, which the restore corrects seconds later).
+  let settling = false;
+  try {
+    const type = performance.getEntriesByType?.("navigation")?.[0]?.type;
+    settling = type === "reload" || type === "back_forward";
+  } catch {
+    settling = false;
+  }
+
   function hear(position) {
     if (leaving) return;
+    if (settling) {
+      if (position && position.verse == null) return;
+      settling = false;
+    }
     const pos = positionOnPage(position, page);
     if (!pos) return;
     latest = pos;
@@ -290,6 +320,10 @@ export function initBookmarkFollow({ store, ctx }) {
     if (!e.persisted) return;
     followed(null);
     writeFlag(nextFollowState(readFlag(), page));
+    syncBookmarkLines();
+    // The page's own last report is where the reader was as it was left (its
+    // pagehide save), not where a link they only looked at took the bookmark.
+    if (flag) hear(pageLastRead());
   });
   env = { followed };
   // This page may have said where the reader is before this module loaded.
