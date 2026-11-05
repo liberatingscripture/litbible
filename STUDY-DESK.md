@@ -7708,6 +7708,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     builds the footer). Study View's own "Read View" button was already gone
     (8a: the header's Study Desk link, carrying the chapter, replaced it).
     The picker on Read View itself still offers Study View.
+  - *BVJ, 2026-11-04:* the desk card drops "On a computer:" (`data-desk="on"`
+    is stamped only on a computer, so a phone or tablet never shows it), and
+    the Chapter View card's "Made for close reading and study" became "Nothing
+    to set up, and it works on any device," since the desk now owns study. The
+    name stays "Chapter View" for now (an Opus agent advised keeping it:
+    "Classic" reads as "the old one" while Read View is being retired, and the
+    name was changed two days ago); BVJ's call.
   - *Dormant prep, not switched on:* `src/lib/read-view-retirement.mjs`
     holds the rules named under "At launch": `readViewRedirects()` (the
     Astro redirect entries, `/read/<book>` to `/<book>-1/`),
