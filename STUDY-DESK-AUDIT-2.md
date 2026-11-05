@@ -151,6 +151,7 @@ Collected from the appendices, de-duplicated. The first six block work.
 2. **Unsaved note words: warn, keep a draft, or both?** (NB-2, DI-6.) **Decided (BVJ, 2026-11-03): both.**
 3. **Is it intended that the header's "Study Desk" no longer opens the panel on Study View?**
    (NB-4.) It decides whether a skip link, a toggle, or a key is the fix.
+   **Decided (BVJ, 2026-11-04): a second skip link, "Skip to the Notebook" (#455).**
 4. **Anchoring spec change** (DI-1, DI-2): should a mark that moves to another verse carry a
    notice? Should a single remaining occurrence need context? BDR must agree.
    **Decided (BVJ, 2026-11-03): the proposal as built in spec version 3 (#450); BDR to confirm in STUDY-DESK.md.**
@@ -164,24 +165,31 @@ Collected from the appendices, de-duplicated. The first six block work.
 6. **Launch opt-out and browser floor.** Will a Settings switch ("Turn the Study Desk off") ship?
    Which browsers are in scope (Safari before 17.2 and Firefox before 140 draw no highlights)?
    (LG-3, LG-5, LG-7.)
+   **Decided (BVJ, 2026-11-04): no opt-out; `?desk=off` and `lit-desk-preview` retire at the flip, with a "Show the Notebook" box in the Display tray; a browser that cannot draw highlights is offered no Highlight and says why (#458).**
 7. Should a backup be able to bring back what was deleted since, on an explicit request? Or is
    the answer a trash view (E12)? Either way CP-3's copy must stop promising it. (DI-4, CP-3.)
+   **Resolved by E12's Trash; no separate "bring back" was built, and the import summary points to the Trash (#456).**
 8. Tombstones are kept forever, so a backup grows without bound. Intended? (DI Q4.)
+   **Put to BDR and BDR's Claude (2026-11-04), in STUDY-DESK.md, "One notebook, three homes". BDR already agreed to "forever" on 2026-10-09 (rule c); the open part is whether either app has a size limit that would force compaction. No code waits on it.**
 9. Typed `ἡ`, `ἐξ`, `αὐτοῦ` give "or", "six" and a four-hit adverb. Should a typed form that
    is also another word's headword offer both? Is the article answer confirmed? Is a day of
    `max-age` acceptable for `/greek/*`? Has STEP confirmed no ShareAlike behind its shards?
    (GK Qs 1 to 5.) **Decided (BVJ, 2026-11-03):** a typed form that could be several words asks
    which (no breathing-mark rule, which couldn't be made consistent); a day of `max-age`. The article
-   answer is confirmed too. STEP's provenance: the cautious route was taken (see Questions, 4); an email to STEP is still open.
+   answer is confirmed too. STEP's provenance: the cautious route was taken (see Questions, 4), and BVJ will not email STEP (2026-11-04), so it is settled.
 10. Highlight tints are 1.05 to 1.23:1 against the cream page in light mode. Is that strength
     intended? (NB Q1.)
+    **Decided (BVJ, 2026-11-04): keep the tints and draw highlighted text in the ink color (#455).**
 11. Terminology (CP-11, CP-7, CP-8): one name for the feature ("Study Desk"), Delete versus
     Remove, "my desk" versus "my notebook", the note icon named "Ribbon", "My Notes" in title
     case. Should the Greek search engine ride in every page's search bundle until launch?
     (LG-6, LV-4.)
+    **Decided (BVJ, 2026-11-04): the audit's recommendations, "Study Desk", Delete for what the reader typed or named and Remove for marks on the text, "My Notes"; the Greek search engine loads only when a Greek search starts (#459, #460).**
 12. Is "Duplicate sheet" planned? Should Search be easier to find (an "Add pane" menu)?
     Should a smaller layout offer undo before closing panes? (DK Qs, DK-9.)
+    **Add pane menu: built (#437, #454). Undo before closing panes: built (#451). Duplicate sheet: BVJ wants it built (2026-11-04).**
 13. Should real-browser tests (Playwright) be a launch gate? (LG Q4.)
+    **Decided (BVJ, 2026-11-04): `fake-indexeddb` now, Playwright later, not a gate (#458).**
 
 ## Status on main
 

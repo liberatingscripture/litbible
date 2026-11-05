@@ -26,6 +26,7 @@ import {
 import {
   addModule,
   createSheet,
+  duplicateSheet,
   makeModule,
   moveModule,
   planSheetChange,
@@ -1430,4 +1431,66 @@ test("sheetTooBig: only the size limit's error is the size limit", () => {
   assert.equal(sheetTooBig(null), false);
   assert.equal(sheetTooBig("a sheet is at most 512 KB"), false, "a string is not an error");
   assert.equal(sheetTooBig(new Error("desk-store: not saved (… a sheet is at most 512 KB …)")), true);
+});
+
+/* ── Duplicating a sheet ─────────────────────────────────────────────── */
+
+function sampleSheet() {
+  let sheet = createSheet({ title: "Romans 8 study", subtitle: "Lent", template: "blank", modules: [] }, { ...ctx, now: T0, id: nextId() });
+  sheet = addModule(sheet, makeModule("text", { html: "<p>Welcome</p>" }), 0, { ...ctx, now: T1 });
+  sheet = addModule(sheet, makeModule("passage", { bookKey: "romans", chapter: 8, verse: 1, endVerse: 4, verseCopy: "There is therefore now no condemnation" }), 1, { ...ctx, now: T1 });
+  return { ...sheet, labels: ["label-1"], extra: { kept: true } };
+}
+
+test("duplicateSheet: a new sheet with the same parts under fresh ids and a title that says copy", () => {
+  const src = sampleSheet();
+  const dup = duplicateSheet(src, { ...ctx, now: T2 });
+  assert.equal(dup.kind, "sheet");
+  assert.notEqual(dup.id, src.id);
+  assert.equal(dup.title, "Romans 8 study (copy)");
+  assert.equal(dup.subtitle, "Lent");
+  assert.equal(dup.created, T2);
+  assert.equal(dup.modified, T2);
+  assert.equal(dup.modules.length, 2);
+  for (const [i, m] of dup.modules.entries()) {
+    assert.notEqual(m.id, src.modules[i].id);
+    const { id: _a, ...mine } = m;
+    const { id: _b, ...theirs } = src.modules[i];
+    assert.deepEqual(mine, theirs);
+  }
+  assert.equal(new Set(dup.modules.map((m) => m.id)).size, dup.modules.length);
+  assert.deepEqual(validateRecord(dup), []);
+});
+
+test("duplicateSheet: keeps labels, a passage's verseCopy and fields it doesn't know; never mutates the source", () => {
+  const src = sampleSheet();
+  const before = JSON.parse(JSON.stringify(src));
+  const dup = duplicateSheet(src, { ...ctx, now: T2 });
+  assert.deepEqual(dup.labels, ["label-1"]);
+  assert.deepEqual(dup.extra, { kept: true });
+  assert.equal(dup.modules[1].verseCopy, "There is therefore now no condemnation");
+  assert.deepEqual(src, before);
+});
+
+test("duplicateSheet: an untitled sheet is named, and a long title is cut to the limit and still ends in (copy)", () => {
+  const blank = createSheet({ title: "   " }, { ...ctx, now: T0, id: nextId() });
+  assert.equal(duplicateSheet(blank, { ...ctx, now: T2 }).title, "Untitled sheet (copy)");
+  const long = createSheet({ title: "x".repeat(SHEET_LIMITS.title) }, { ...ctx, now: T0, id: nextId() });
+  const dup = duplicateSheet(long, { ...ctx, now: T2 });
+  assert.equal([...dup.title].length, SHEET_LIMITS.title);
+  assert.ok(dup.title.endsWith(" (copy)"));
+  assert.deepEqual(validateRecord(dup), []);
+});
+
+test("duplicateSheet: refuses a sheet of a newer sheet format, as every other change does", () => {
+  const newer = { ...sampleSheet(), sheetFormat: SHEET_FORMAT + 1 };
+  assert.throws(() => duplicateSheet(newer, { ...ctx, now: T2 }), /can't be edited here/);
+  assert.throws(() => duplicateSheet({ kind: "note" }, { ...ctx, now: T2 }), /not a sheet/);
+});
+
+test("duplicateSheet: an id and a source of ids may be given", () => {
+  let n = 0;
+  const dup = duplicateSheet(sampleSheet(), { ...ctx, now: T2, id: "fixed-id", newId: () => `m${++n}` });
+  assert.equal(dup.id, "fixed-id");
+  assert.deepEqual(dup.modules.map((m) => m.id), ["m1", "m2"]);
 });

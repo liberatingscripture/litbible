@@ -94,6 +94,36 @@ export function createSheet({ title = "", subtitle = "", template = "blank", com
   );
 }
 
+/**
+ * A copy of the reader's own sheet as a new sheet (STUDY-DESK.md, Audit 2
+ * decision 12; BVJ, 2026-11-04): the same parts, each under a fresh id, and a
+ * title that says it is a copy. Everything else stays as it is, labels and a
+ * passage's `verseCopy` included, so the copy is still checked against the
+ * wording it was made on, and a module or field this code doesn't know is kept
+ * whole (principle 6). Refuses a sheet of a newer sheet format, as every other
+ * change does (canEdit). The new title is cut to the title limit.
+ *
+ * @param {object} sheet
+ * @param {{ now?: string, client: string, contentVersion?: string, id?: string, newId?: () => string }} ctx
+ */
+export function duplicateSheet(sheet, { now, client, contentVersion, id, newId = newIdDefault } = {}) {
+  mustEdit(sheet);
+  const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, ...fields } = sheet;
+  const title = `${sheet.title?.trim() || "Untitled sheet"} (copy)`;
+  const limit = SHEET_LIMITS.title;
+  return createRecord(
+    "sheet",
+    {
+      ...fields,
+      title: [...title].length > limit ? [...title].slice(0, limit - 7).join("") + " (copy)" : title,
+      modules: sheet.modules.map((m) => ({ ...m, id: newId() })),
+    },
+    { now, client, contentVersion: contentVersion ?? cv, id: id ?? newId() },
+  );
+}
+
+const newIdDefault = newId;
+
 /* ── Changing a sheet ────────────────────────────────────────────────── */
 
 function mustEdit(sheet) {

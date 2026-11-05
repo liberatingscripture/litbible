@@ -2584,6 +2584,36 @@ website has to say goes here, on `main`, with its date.
     is refused); a tombstone keeps every field but `record`; the Web
     Annotation `FragmentSelector` is `v3-4`, without `#`; a `hidden`
     record's note to self is proposed as `body`.
+- **2026-11-04: a question for BDR and BDR's Claude. Do the tombstones need a
+  limit?** (Audit 2, DI Q4, owner decision 8; BVJ asked that it be put to
+  BDR.) A tombstone is what a trash record becomes after its 30 days: the
+  record's words are dropped and the rest (`deletedId`, `deletedKind`,
+  `deletedAt`) is kept so a stale backup can't bring the record back
+  (rule c, `STUDY-DESK-FORMAT.md` kind 10). BDR agreed on 2026-10-09 that
+  the marker is **kept forever**, and the website's code does that
+  (`desk-merge.mjs`, "Rule c"). What was never asked is what that means
+  over years, and under sync:
+  - **Where they come from.** Every deleted note, label, bookmark, sheet
+    or highlight, and also every highlight join, trim and undone add, which
+    the reader never sees as a deletion. A tombstone is a few hundred bytes,
+    so a heavy user might hold a few thousand after years (about a megabyte)
+    and an ordinary one a few dozen. Nothing prunes them, so a backup file
+    and, later, a synced notebook only grow.
+  - **The website's recommendation: keep them forever and revisit when sync
+    is built.** Dropping old ones is the only way to bound the size, and it
+    reopens the bug they exist to stop: a backup older than the cutoff would
+    bring a deleted record back. A cutoff would have to be one number all
+    three clients share, and applied by all three.
+  - **For BDR to answer:** (1) Does either app have a limit (a CloudKit
+    record or zone quota, Drive's file size, a sync payload cap, a database
+    row count) that tombstones would reach in practice? If neither does,
+    "forever" stands. (2) If a limit exists, is a **compaction** acceptable:
+    drop a tombstone only when it is older than a stated time (a year is the
+    website's suggestion) **and** the reader has synced since, so no known
+    backup is older than it? (3) Do the apps already prune on their own,
+    and if so by what rule, since the website's merge would then bring a
+    pruned record's tombstone back from a website export? Please answer in
+    this file with a date, as for the other items. No code waits on it.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 
@@ -7883,7 +7913,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   brand anchor (`.site-header__brand`, `SiteHeader.astro`) is a flex item
   that grows to fill the row on the desk's pages. Expected: the hit area
   is the glyph and word mark only, on every page, with the focus ring
-  hugging the same box. Status: open.
+  hugging the same box. **Fixed 2026-11-02 (#430):** the brand anchor is a
+  grid item in the header's first column, and grid items stretch by default;
+  `justify-self: start` sizes the link to its content, with `max-width:
+  100%` so a long title still stops it at the column's edge. Status: done.
 - **E14, wish: a quick way to add a pane on /desk.** BVJ (2026-10-30). One
   control adds the next pane: with one column open it adds a second, and
   so on. With four panes open (the most /desk holds, D9) it is disabled,
@@ -7994,13 +8027,20 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   accessible name ("Pin footnote 3," "Unpin footnote 3"), `aria-pressed`
   or the label saying which it is, and a tooltip. Applies to the pin
   buttons in `pins.js` and wherever Study View's Footnotes list shows
-  them. Status: open.
+  them. **Built 2026-11-02 (#431):** a stroke-only thumbtack to pin and the
+  same thumbtack struck through to unpin, in the text's own color so it
+  follows the theme and forced colors, named "Pin footnote 3" and "Unpin
+  footnote 3" with a tooltip (`pins.js`). The thumbtack now means pinning a
+  footnote and nothing else on the desk. Status: done.
 - **E19, wording: "Add a note" becomes "+ Note."** BVJ (2026-10-30). On
   the buttons by footnotes (`footnote-notes.js`), in the My Notes pane
   and in the This verse pane. The accessible name stays long ("Add a note
   on footnote 3"), as it is today. The verse menu's and selection panel's
   "Add a note" rows are not named, so they stay unless BVJ says
-  otherwise. Open: "+Note" or "+ Note." Status: open.
+  otherwise. **Built 2026-11-02 (#431) as "+ Note"** (with the space) on the
+  footnote buttons (`footnote-notes.js`) and in This verse (`tab-verse.js`),
+  each keeping its long accessible name. The My Notes pane has no such
+  button (see E17). Status: done.
 - **E20, wish: rename Study View, and put the Study Desk in Ways to Read.**
   BVJ (2026-10-30). On /read, the three cards in the Ways to Read section
   change: the **Read View** card is replaced by the **Study Desk**. And
@@ -8043,7 +8083,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   (`desk-page.js`, the pane header). It keeps an accessible name and
   tooltip ("Stay here," "Follow the LIT pane"), and `aria-pressed`.
   This also frees the thumbtack to mean pinning a footnote only (E18).
-  Status: open.
+  **Built 2026-11-02 (#431):** a lock when a pane stays, an unlocked lock
+  when it follows, no words, with the name and tooltip kept and
+  `aria-pressed`; the thumbtack is free for pinning a footnote (E18).
+  Status: done.
 
 - **E22, bug: the My Notes pane doesn't follow the LIT pane.** BVJ
   (2026-10-30), from using the preview on /desk. By design it should:
@@ -8085,7 +8128,14 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   exists, then opens the Septuagint in English. Open: how wide the test
   reaches (a phrase ending in "of", a parenthesis after "the
   Septuagint"), checked against all 113 mentions so a Hebrew reference
-  near the word isn't caught. Status: open.
+  near the word isn't caught. **Fixed 2026-11-02 (#429):** `QUALIFIER_BEHIND`
+  also reads a singular "version, rendering, reading, text or translation
+  of" after the Septuagint (with an optional parenthesis), "version
+  (Septuagint) of", a parenthesis opening right after it, and a reference
+  followed by "(in the Septuagint"; a plural "versions of" or a bare "of"
+  can name the Hebrew, so those still link. Across the corpus it unlinks 11
+  Sefaria links in 9 footnotes and changes nothing else. D10's link to the
+  Septuagint in English is still unplaced. Status: done.
 - **E24, wish: split the tour in two, a notebook tour and a Study Desk
   tour.** BVJ (2026-11-02), while the title menu (E15) was being built. The
   one tour (`desk/tour.js`) walks through the notebook on a chapter page, so
@@ -8160,6 +8210,22 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   and its hover text are unchanged ("Leading" and "Leading: My Notes, This
   verse, Greek, and Footnotes follow this pane"), and the desk tour's
   step now says the pane is "marked with a flag." (`desk-first-use.mjs`).
+
+- **E27, wish: Duplicate sheet.** Raised by Audit 2 (DK Qs, owner decision
+  12: "is Duplicate sheet planned?"); **BVJ wants it built** (2026-11-04). A
+  sheet to reuse as the base of the next one, such as last Lent's study, was
+  a copy-by-hand job. **Built 2026-11-04:** "Duplicate" beside "Delete" on each
+  row of My sheets (`duplicateSheet`, `desk-sheets.mjs`, pure and tested;
+  `duplicate` in `desk/sheet-pane.js`). The copy is a new sheet with the same
+  parts under fresh ids and the title "<title> (copy)" ("Untitled sheet
+  (copy)" for an untitled one; cut to the 200-character limit, still ending in
+  "(copy)"); labels, a passage's `verseCopy` and any field or part this code
+  doesn't know are kept, so the copy is still checked against the wording it
+  was made on. It is read from the store at the click, not from the list, and
+  the new sheet opens with its title focused. A sheet of a newer sheet format
+  gets a disabled button, as it can't be changed here either. No field, kind
+  or format change, so nothing for the apps. Status: built, awaiting BVJ's
+  look.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
