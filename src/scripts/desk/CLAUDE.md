@@ -918,7 +918,9 @@ against `dist/` is a later item.
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
        dragging a pane over another, where `dropZone` says an edge band
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
-       E25, BVJ 2026-11-02, the drop box names which), and `neighborIn`
+       E25, BVJ 2026-11-02, the drop box names which; over nothing a pane can
+       land on, a label by the pointer says so and a drop announces "not
+       moved," 2026-11-04), and `neighborIn`
        for the pane menu's Move left, right, up, and down (the keyboard's
        swap; only a pane touching this one counts). **The pane menu is the
        kinds plus three flyout lines, Add pane, Move and Size** (BVJ,

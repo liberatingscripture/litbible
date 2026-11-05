@@ -5526,6 +5526,25 @@ html.desk-ws--moving * {
   border-style: solid;
 }
 
+/* Beside the pointer while a dragged pane is over nothing it can land on. */
+.desk-ws__miss {
+  position: absolute;
+  z-index: 11;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.3);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.desk-ws__miss[hidden] {
+  display: none;
+}
+
 .desk-ws__drop-label {
   padding: 4px 10px;
   border-radius: 999px;

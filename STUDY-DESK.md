@@ -8229,10 +8229,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   name button says "…show something else here, or move it," and the Layout
   window's note names the Move items; Move picks only a pane touching this
   one; a drop is planned again from the layout at release.
-  Not built, left as BVJ finds them: dragging to the desk's own edge (5), a
-  visible handle at rest (7), keeping the dragged pane's size (8), an
-  animated move or live layout preview (4), a note when a drag ends on a
-  line or outside the panes (9).
+  The five ideas left open were settled **2026-11-04 (BVJ)**: **9 built**, a
+  label beside the pointer ("Drop on another pane to move this one") while a
+  dragged pane is over a line, the gutter, or itself, and "<Kind> not moved."
+  for a screen reader when a drop lands nowhere or has no room; **7 built in
+  its cheap form**, a hover tooltip on the header ("Drag to move this pane",
+  with two or more panes; the grip icon and grab cursor were already there);
+  **8 left as it is** (a swap keeps each slot's size, a split halves the
+  target); **4 and 5 skipped** (a live preview would rebuild the panes at
+  every pointer move, which resets their scrolling, and the Layout menu's 12
+  arrangements cover the shapes a desk-edge drop would make).
 
 - **E26, glyph: the leading LIT pane's "Leading" pill becomes a flag.** BVJ
   (2026-11-02), as the lock replaced "Stay here" in E21. Status: **done**, in
