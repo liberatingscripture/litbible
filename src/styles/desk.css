@@ -4241,9 +4241,18 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__back--text {
-  margin: 0 0 8px;
+  margin: 0;
   padding: 4px 10px;
   font-size: 0.8125rem;
+}
+
+/* "Back to the text" and "See results on the search page", side by side at the top. */
+.desk-greek__find-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin: 0 0 8px;
 }
 
 .desk-greek__find-status {
@@ -4374,8 +4383,12 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__find-page {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 0.875rem;
+}
+
+.desk-greek__find-page[hidden] {
+  display: none;
 }
 
 .desk-greek__find-page a {
@@ -7596,7 +7609,7 @@ mark.desk-print-mark {
 .desk-search__top {
   /* In a short pane the field and its menus scroll rather than push the
      results out of reach (DK-10). */
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   max-height: 60%;
   overflow-y: auto;
   padding: 10px 14px 6px;
@@ -7661,6 +7674,34 @@ mark.desk-print-mark {
   font-size: 0.8125rem;
 }
 
+.desk-search__linkrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 12px;
+}
+
+.desk-search__page,
+.desk-search__notes {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+}
+
+.desk-search__page[hidden],
+.desk-search__notes[hidden] {
+  display: none;
+}
+
+.desk-search__page a {
+  color: var(--green-text);
+}
+
+.desk-search__page a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .desk-search__status:empty {
   min-height: 0;
   margin: 0;
@@ -7684,10 +7725,12 @@ mark.desk-print-mark {
 
 .desk-search__group-title {
   margin: 0 0 4px;
-  font-size: 0.75rem;
+  /* The notebook pane's group headings (.desk-mine__heading-text), so a group
+     reads the same in every pane: Inter, 13px, semibold, mixed case (BVJ,
+     2026-11-04). It was small caps, which no other pane's headings were. */
+  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: rgba(var(--ink-rgb), 0.7);
 }
 

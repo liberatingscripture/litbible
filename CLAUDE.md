@@ -361,7 +361,8 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 - **Generated files are git-ignored** and regenerated at build time:
   `public/api/`, `public/og/`, `public/search/topics.json`,
   `public/search/verses.json`, `public/search/chapters/`,
-  `public/search/greek-bridge.json`, `public/topics-index.json`,
+  `public/search/greek-bridge.json`, `public/search/greek-offers.json`,
+  `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
   Don't hand-edit them. Eight generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`

@@ -1327,14 +1327,71 @@ export function isGreekQuery(raw) {
    read "Greek" without that being the reader's own pick: their pick is kept
    aside (dataset.ownMode) and comes back when the query is Latin again. */
 
-/** Adds the "Greek" option to a results-type <select> (once, and only with the Greek on). */
+/**
+ * Adds the "Greek" option to a results-type <select> (once, and only with the
+ * Greek on), set apart from the other types by a rule, since it is a different
+ * search, not a seventh kind of result (BVJ, 2026-11-04). It also shows the
+ * Greek line of the menu's tooltip, which a page without the Greek never says.
+ * "All results" keeps its name: it is true for a Greek-letter query, and a
+ * Latin word that is also a Greek one gets `greekOfferFor`'s offer instead.
+ */
 export function addGreekMode(select) {
   if (!select || !greekSearchEnabled()) return;
   if (select.querySelector('option[value="greek"]')) return;
   const opt = document.createElement("option");
   opt.value = "greek";
   opt.textContent = MODE_LABELS.greek;
-  select.append(opt);
+  select.append(document.createElement("hr"), opt);
+  const tip = select.closest(".searchbar__filter")?.querySelector(".searchbar__tip");
+  tip?.querySelector("[data-greek-tip]")?.removeAttribute("hidden");
+  const label = tip?.getAttribute("aria-label");
+  if (label?.endsWith("Book introductions)")) tip.setAttribute("aria-label", `${label.slice(0, -1)}, Greek)`);
+}
+
+/* ── The offer: a Latin word that is also a Greek one ─────────────────── */
+
+let greekOffersPromise = null;
+
+/** `public/search/greek-offers.json` ({ words: { key: lemma } }), fetched once. */
+function loadGreekOffers(base) {
+  greekOffersPromise ??= fetch(`${base}search/greek-offers.json`)
+    .then((res) => (res.ok ? res.json() : null))
+    .then((json) => (json && typeof json.words === "object" ? json.words : {}))
+    .catch(() => ({}));
+  return greekOffersPromise;
+}
+
+/**
+ * When a single Latin word, searched under any type but "Greek", is also a
+ * Greek word the glossary knows ("pistis"), the Greek it names: { word, greek },
+ * else null. It lists no Greek itself: a query never gets English and Greek
+ * results together (BVJ, 2026-10-13), so this only offers the Greek search.
+ * Only with the Greek on, and the small file is fetched only then.
+ */
+export async function greekOfferFor(base, q, mode) {
+  if (!greekSearchEnabled() || mode === "greek") return null;
+  const word = String(q ?? "").trim();
+  if (!/^\p{L}{4,}$/u.test(word) || hasGreek(word) || isGreekQuery(word)) return null;
+  // Loaded here, never at the top: the Greek's rules stay out of every page
+  // until a Greek search or an offer needs them (LG-6).
+  const [words, { latinKeys }] = await Promise.all([loadGreekOffers(base), import("../lib/greek-search.mjs")]);
+  for (const key of latinKeys(word)) if (words[key]) return { word, greek: words[key] };
+  return null;
+}
+
+/** The offer's line, with its one button: “pistis” is also a Greek word (πίστις). Search the Greek */
+export function greekOfferLine(offer, onSearch) {
+  const line = document.createElement("span");
+  const greek = document.createElement("span");
+  greek.lang = "grc";
+  greek.textContent = offer.greek;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "greek-cmd-link";
+  button.textContent = "Search the Greek";
+  button.addEventListener("click", onSearch);
+  line.append(`“${offer.word}” is also a Greek word (`, greek, "). ", button);
+  return line;
 }
 
 /** The type the reader picked, whatever the menu shows for a Greek query. */

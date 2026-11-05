@@ -4,7 +4,6 @@ topics:
   - Pauline epistles
   - justification
   - righteousness of God
-  - pistis Christou
   - grace
   - law
   - salvation

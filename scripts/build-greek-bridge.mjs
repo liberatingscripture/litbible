@@ -1,7 +1,9 @@
 /**
  * build-greek-bridge.mjs
  *
- * `npm run build:greek-bridge` writes public/search/greek-bridge.json: the
+ * `npm run build:greek-bridge` also writes public/search/greek-offers.json, the
+ * small word list behind the search's "also a Greek word" offer, and writes
+ * public/search/greek-bridge.json: the
  * LIT's renderings of the glossary terms, for searching the Greek by the
  * LIT's own words (STUDY-DESK.md, 1h). fs shell only; every rule is in
  * scripts/lib/greek-bridge-core.mjs. Part of `npm run build` (after
@@ -17,12 +19,14 @@ import { BOOK_ORDER } from "../src/data/books.js";
 import { gatedOccurrences } from "../src/lib/alignment-gate.mjs";
 import { GLOSSARY_LEMMAS } from "./lib/glossary-lemmas.mjs";
 import { isDraftEntry, readGlossaryFrontmatter } from "./lib/glossary-feed-core.mjs";
-import { buildGreekBridge } from "./lib/greek-bridge-core.mjs";
+import { buildGreekBridge, buildGreekOffers } from "./lib/greek-bridge-core.mjs";
+import { greekKey } from "../src/lib/greek-search.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const alignmentDir = path.join(ROOT, "src", "data", "alignment");
 const glossaryDir = path.join(ROOT, "src", "content", "glossary");
 const out = path.join(ROOT, "public", "search", "greek-bridge.json");
+const outOffers = path.join(ROOT, "public", "search", "greek-offers.json");
 
 async function main() {
   const files = [];
@@ -43,8 +47,11 @@ async function main() {
   });
   await fs.mkdir(path.dirname(out), { recursive: true });
   await fs.writeFile(out, `${JSON.stringify(bridge).normalize("NFC")}\n`, "utf8");
+  const offers = buildGreekOffers({ entries, lemmas: GLOSSARY_LEMMAS, key: greekKey });
+  await fs.writeFile(outOffers, `${JSON.stringify(offers).normalize("NFC")}
+`, "utf8");
   const renderings = bridge.terms.reduce((n, t) => n + t.renderings.length, 0);
-  console.log(`build:greek-bridge: ${bridge.terms.length} terms, ${renderings} renderings → public/search/greek-bridge.json`);
+  console.log(`build:greek-bridge: ${bridge.terms.length} terms, ${renderings} renderings → public/search/greek-bridge.json, ${Object.keys(offers.words).length} offer words → greek-offers.json`);
 }
 
 main().catch((err) => {

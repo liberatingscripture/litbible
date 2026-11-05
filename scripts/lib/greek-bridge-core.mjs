@@ -58,3 +58,31 @@ export function buildGreekBridge({ gated, entries, lemmas, bookOrder }) {
   }
   return { format: GREEK_BRIDGE_FORMAT, terms };
 }
+
+export const GREEK_OFFERS_FORMAT = 1;
+
+/**
+ * The words behind the search's offer ("pistis" is also a Greek word, πίστις):
+ * every lemma of a published glossary term, by the key a reader's Latin typing
+ * makes (`greekKey`, src/lib/greek-search.mjs), which the client compares with
+ * `latinKeys`. Small on purpose (a few hundred bytes a lemma, fetched only
+ * with the Greek on), so a Latin word never loads the 741 KB lemma index.
+ * Where two lemmas share a key the first in id order wins, so the file is
+ * deterministic.
+ *
+ * @param {{ entries: Map<string, unknown>, lemmas: Record<string, string[]>, key: (greek: string) => string }} input
+ *   the published glossary entries; GLOSSARY_LEMMAS; greekKey
+ * @returns {{ format: number, words: Record<string, string> }}
+ */
+export function buildGreekOffers({ entries, lemmas, key }) {
+  const words = {};
+  for (const id of Object.keys(lemmas).sort(byCodePoint)) {
+    if (!entries.has(id)) continue;
+    for (const lemma of lemmas[id]) {
+      const l = lemma.normalize("NFC");
+      const k = key(l);
+      if (k && !Object.hasOwn(words, k)) words[k] = l;
+    }
+  }
+  return { format: GREEK_OFFERS_FORMAT, words };
+}

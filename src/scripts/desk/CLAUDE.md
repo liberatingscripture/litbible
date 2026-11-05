@@ -716,12 +716,26 @@ against `dist/` is a later item.
        only with the desk loaded and the type "All types"; remembered as
        `localStorage['lit-desk-greek-notes']` = "off", absent = on, named
        in /privacy; the key and rule are `src/lib/desk-greek-notes.mjs`,
-       the storage reads in `notebook-search.js`, which both surfaces
-       already load lazily; English searches and the desk's Search pane are
-       not governed by it); every
+       the storage reads in `notebook-search.js`, which the surfaces
+       already load lazily; English searches are not governed by it, and the
+       desk's Search pane has the same checkbox on its link row, right of
+       "See results on the search page", for a Greek search under all
+       types, BVJ 2026-11-04); every
        other query gets exactly the pre-1h search, unless the reader picks
-       the type menu's "Greek" (injected by script, only with the gate on),
-       which searches Latin text as a transliteration or a gloss. /search
+       the type menu's "Greek" (injected by script, only with the gate on,
+       set apart by a rule, with its own line in the "i" tooltip),
+       which searches Latin text as a transliteration or a gloss. "All
+       results" keeps its name, and a **single Latin word that is also a
+       glossary term's Greek lemma** ("pistis") gets one line under the status,
+       "“pistis” is also a Greek word (πίστις). Search the Greek", whose link
+       sets the type to Greek (BVJ, 2026-11-04, after a mock of three options:
+       a relabel, this, and a separate English | Greek switch). The offer
+       lists no Greek itself, so a query still never gets English and Greek
+       together (2026-10-13). `greekOfferFor` (search-core.js) reads the
+       build's `public/search/greek-offers.json` (125 lemma keys, fetched only
+       with the gate on) and loads `greek-search.mjs` by a dynamic import for
+       `latinKeys`, never at the top; the tray, /search and the Search pane
+       each draw the line. /search
        pages the Greek with the English verses' pager, in Bible order with
        no sort control; the tray shows its own Greek group alone.
      - **A typed Greek word that could be more than one is a question, never
@@ -759,8 +773,9 @@ against `dist/` is a later item.
        header's search button and its field were taken out (BVJ,
        2026-11-02, E7): a typed Greek search is the search bar's, /search's
        and /desk's Search pane's, and the tab has no way into the commands
-       window. The word choices, "Exact form only" and "See these on the
-       search page" stay. Its result
+       window. The word choices and "Exact form only" stay, and "See results
+       on the search page" sits at the top beside "Back to the text" (BVJ,
+       2026-11-04). Its result
        rows preview their verse on hover like any reference
        (`ref-preview.js`: a row for another chapter is a link with a
        `?greek=` parameter, which the preview ignores; one for the chapter
@@ -1185,7 +1200,10 @@ against `dist/` is a later item.
        `search.js`, reached only from `desk-panes.js`. It calls
        `search-core.js` and never copies its parsing or bucketing; a new
        rule both UIs need goes there. Its pure rules are
-       `src/lib/desk-search-pane.mjs`. **It keeps nothing about a search**
+       `src/lib/desk-search-pane.mjs`. Its filters are in /search's order (book,
+       then type), and a "See results on the search page" link under them
+       carries the same search (q, book, mode) to /search, which shows more
+       than the pane does (BVJ, 2026-11-04). **It keeps nothing about a search**
        (no key, no layout field), so /privacy doesn't name it and a reload
        empties it. **It stands alone**: not a follower, and “The book I’m
        reading” fixes the book when picked. A plain click on a verse or
