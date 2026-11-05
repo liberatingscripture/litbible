@@ -105,10 +105,39 @@ export function bookmarkState(bookmark) {
     : { word: "Moves", title: "Moves as I read, once opened from this list" };
 }
 
-/** A bookmark row's "Bookmark · …" line, as text and as its hover text. */
-export function bookmarkLine(bookmark, name = "Bookmark") {
-  const { word, title } = bookmarkState(bookmark);
-  return { text: `${name} · ${word}`, title };
+/**
+ * Write a bookmark row's "Bookmark · …" line into `el`, and remember what it
+ * needs to be written again (`syncBookmarkLines`).
+ *
+ * @param {HTMLElement} el the row's kind line
+ * @param {{ id: string, follow?: boolean }} bookmark
+ * @param {string} name what the row calls the kind ("Bookmark")
+ */
+export function drawBookmarkLine(el, bookmark, name = "Bookmark") {
+  el.dataset.bookmark = bookmark.id;
+  el.dataset.moves = bookmark.follow === true ? "1" : "0";
+  el.dataset.kindName = name;
+  const { word, title } = bookmarkState({ id: bookmark.id, kind: "bookmark", follow: bookmark.follow });
+  el.textContent = `${name} · ${word}`;
+  el.title = title;
+}
+
+/** Draw every bookmark line on the page again, after the tab's flag changed. */
+export function syncBookmarkLines(root = document) {
+  for (const el of root.querySelectorAll("[data-bookmark]")) {
+    drawBookmarkLine(el, { id: el.dataset.bookmark, follow: el.dataset.moves === "1" }, el.dataset.kindName);
+  }
+}
+
+/**
+ * The reader followed a bookmark's link that doesn't move: whatever was moving
+ * stops, since they have left it for another place in the book (BVJ,
+ * 2026-11-04). A moving bookmark's link takes over through `followBookmark`.
+ */
+export function stopFollowing() {
+  if (!flag && !readFlag()) return;
+  writeFlag(null);
+  syncBookmarkLines();
 }
 
 /**
@@ -130,6 +159,7 @@ export function followBookmark(bookmark, href = null) {
   } catch {
     /* the other tab keeps following until it leaves the book */
   }
+  syncBookmarkLines();
   env?.followed(href);
 }
 

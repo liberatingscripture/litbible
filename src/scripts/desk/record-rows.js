@@ -18,7 +18,7 @@ import { labelsOf } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { kindName, recordHref, takeOff, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
-import { bookmarkLine, followBookmark } from "./bookmark-follow.js";
+import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 
@@ -97,21 +97,17 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   }
   const kind = document.createElement("span");
   kind.className = "desk-item__kind";
-  const setKind = () => {
-    if (r.kind !== "bookmark") return void (kind.textContent = nameOf(r));
-    const line = bookmarkLine(r, nameOf(r));
-    kind.textContent = line.text;
-    kind.title = line.title;
-  };
-  setKind();
+  if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
+  else kind.textContent = nameOf(r);
   li.append(head, kind);
   // A bookmark that moves as the reader reads starts doing so from this link
-  // (a modified click opens elsewhere and doesn't; E9).
-  if (href && isFollowing(r)) {
+  // (a modified click opens elsewhere and doesn't; E9); one that stays put
+  // stops whatever was moving, since the reader has gone to it instead.
+  if (href && r.kind === "bookmark") {
     head.addEventListener("click", (e) => {
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-      followBookmark(r, head.href);
-      setKind();
+      if (isFollowing(r)) followBookmark(r, head.href);
+      else stopFollowing();
     });
   }
   // It says what it is on, and quotes the footnote's opening words.

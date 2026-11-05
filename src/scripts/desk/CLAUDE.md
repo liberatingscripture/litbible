@@ -542,6 +542,11 @@ against `dist/` is a later item.
        `lit_last_read` in storage, which every tab shares and an earlier page
        left (BA99, BA100). Following a link forgets where the reader was, and a
        link to another page stops the page it leaves from moving the bookmark.
+       **Following a bookmark that stays put stops the moving one** (BVJ,
+       2026-11-04: it kept following and would have moved to the new place):
+       a plain click on any bookmark's link in either list either takes over
+       (`followBookmark`) or clears the flag (`stopFollowing`), and every row's
+       line redraws (`syncBookmarkLines`).
        **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
        2026-10-29): Duplicate tab copies session storage, so the flag carries
        the tab's token, and a page that loads with it asks on
