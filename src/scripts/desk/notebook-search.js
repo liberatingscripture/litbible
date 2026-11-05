@@ -24,6 +24,7 @@ import {
 } from "../../lib/desk-greek-notes.mjs";
 import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
+import { followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { readRecords } from "./readonly-notebook.js";
 
@@ -200,12 +201,28 @@ function groupShell(title) {
   return { group, list };
 }
 
+/**
+ * A bookmark's result opens it as its row in the Notebook's list does
+ * (BVJ, 2026-11-04): one that moves starts following the reader, and one that
+ * stays put stops whatever was moving. A modified click opens elsewhere and
+ * changes nothing.
+ */
+function openAsBookmark(el, hit) {
+  if (hit.kind !== "bookmark" || !hit.href) return;
+  el.addEventListener("click", (e) => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    if (hit.follow) followBookmark({ id: hit.id, bookKey: hit.bookKey }, el.href);
+    else stopFollowing();
+  });
+}
+
 function trayHit(hit) {
   const li = document.createElement("li");
   li.className = "searchbar__result";
   const el = document.createElement(hit.href ? "a" : "div");
   el.className = "searchbar__link desk-hit";
   if (hit.href) el.href = hit.href;
+  openAsBookmark(el, hit);
   const title = document.createElement("div");
   title.className = "searchbar__title";
   title.textContent = hit.reference;
@@ -273,6 +290,7 @@ export function renderPageGroup(list, notebook) {
     const el = document.createElement(hit.href ? "a" : "div");
     el.className = "result-link";
     if (hit.href) el.href = hit.href;
+    openAsBookmark(el, hit);
     const title = document.createElement("div");
     title.className = "result-title";
     title.textContent = hit.reference;

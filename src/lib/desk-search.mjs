@@ -198,6 +198,9 @@ export function searchNotebook(records, query, { bookKey = "" } = {}) {
         label: labelFor(r),
         reference: recordReference(r) || (r.glossaryId ? `Glossary: ${r.glossaryId}` : labelFor(r)),
         href: recordHref(r) ?? (typeof r.glossaryId === "string" ? `/glossary/#${r.glossaryId}` : null),
+        // A bookmark's result opens it like its row does (follow or stop): see
+        // desk/notebook-search.js.
+        ...(r.kind === "bookmark" ? { bookKey: r.bookKey, follow: r.follow === true } : {}),
         parts,
       },
     });

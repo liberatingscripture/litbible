@@ -7820,8 +7820,17 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   its verse." Also built 2026-11-04: **opening a bookmark that stays put stops
   the one that was moving**, and a **"Stop following"** link (the row of the
   bookmark being followed) and button (the verse menu) end it by hand, leaving
-  the bookmark on its verse with the switch still on. Status: **looked at;
-  changes built** (the apps need nothing but to carry `follow`).
+  the bookmark on its verse with the switch still on. An Opus audit of "when
+  should it stop" followed (2026-11-04); fixed: every way the flag drops redraws
+  the rows, turning the switch off stops it at once, a reload or Back no longer
+  writes verse 1, a link opened in place on /desk starts no follow, and a
+  bookmark found in search follows or stops like its row. **Accepted (BVJ):**
+  /desk, /notebook and /search clear the flag; a move overtakes Undo of an
+  earlier edit after the reader reads on; the last move before a tab closes can
+  be lost. **Open for BVJ:** whether other rows (notes, highlights, pins,
+  Continue reading) that go to another chapter should stop following, and
+  whether the verse a moving bookmark sits on should count as bookmarked in
+  its verse menu. Status: **looked at; changes built** (the apps need nothing but to carry `follow`).
 - **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
   or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven

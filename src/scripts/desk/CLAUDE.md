@@ -557,7 +557,15 @@ against `dist/` is a later item.
        once, a Back or reload doesn't write verse 1 over the bookmark before
        the scroll is restored, and a restored page reports its own last place
        (`pageshow`). A row opened in place on a page that doesn't follow the
-       reader (/desk) never starts a follow (`followsHere`).
+       reader (/desk) never starts a follow (`followsHere`). **A bookmark found in a notebook search opens like its row**
+       (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
+       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit): /desk,
+       /notebook and /search clear the flag, so Back into the book doesn't
+       resume it (the row's label shows the state); a move overtakes Undo of an
+       earlier edit once the reader has read on (`desk-history.mjs`'s overtaken
+       rule), and Delete then Undo resumes following only if they haven't
+       scrolled since; and the last move before the tab closes can be lost,
+       since Chrome drops a read-then-write made as a page closes (BA72).
        **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
        2026-10-29): Duplicate tab copies session storage, so the flag carries
        the tab's token, and a page that loads with it asks on
