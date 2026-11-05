@@ -7524,7 +7524,18 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   - E6 (word families) is not started; a card could later gain a "related
     words" choice, and nothing is added for it.
   Rules: `src/lib/greek-builder.mjs`, `src/scripts/greek-builder.js`
-  (src/scripts/desk/CLAUDE.md, rule 17). Status: built, awaiting BVJ's look.
+  (src/scripts/desk/CLAUDE.md, rule 17).
+  **BVJ looked, 2026-11-04** (a pass of the preview items, steps one at a
+  time). The builder "feels more intuitive than the old commands window" and
+  makes clearer how the choices interact; the steps checked out. One change:
+  the window sat at the top of where the Notebook sits, not the top of the
+  browser window, so the search bar was hard to see without scrolling. **Built
+  (PR #463):** where there is room beside the field the window now opens at the
+  window's top edge, below the field only where that would cover it (not for
+  the Notebook's placement). The same pass moved a Greek search's type menu:
+  "All results" keeps its name and a Latin word that is also a Greek one
+  offers the Greek search (rule 15; see the 2026-11-04 note under E11).
+  Status: **looked at; the change built.**
 - **E6, wish: search a word family, not just one lemma.** BVJ
   (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
   no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
@@ -7585,7 +7596,15 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   in the tab and "Back to the text" (their place is unchanged). The tour's
   `greek-commands` step is removed (14 steps in Study View; a stored old id
   is ignored), the `greek` step and the help page's paragraph are reworded,
-  and rules 15 and 17 follow. Status: built, awaiting BVJ's look.
+  and rules 15 and 17 follow.
+  **BVJ looked, 2026-11-04:** all of it works as described, with three
+  changes, built in PR #463: **"See results on the search page"** (was "See
+  these on the search page") sits at the top of the Greek tab's results beside
+  "Back to the text", not at the bottom; **the Search pane's filters are in
+  /search's order** (book, then type); and **the Search pane has the same
+  "See results on the search page" link**, since it shows less than the page
+  does (it carries the query, book and mode). Status: **looked at; changes
+  built.**
   **Carried into work session 7b, BVJ took Claude's recommendations
   (2026-11-02):** the focus move to "Back to the text", the header while
   results show and the reworded tour step stay as built unless BVJ's look on
@@ -7717,7 +7736,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     to set up, and it works on any device," since the desk now owns study. The
     name stays "Chapter View" for now (an Opus agent advised keeping it:
     "Classic" reads as "the old one" while Read View is being retired, and the
-    name was changed two days ago); BVJ's call.
+    name was changed two days ago). **Decided (BVJ, 2026-11-04): keep "Chapter
+    View"** ("Classic View" was floated and let go). The same pass made the
+    hamburger menu a side tray on a computer (below).
   - *Dormant prep, not switched on:* `src/lib/read-view-retirement.mjs`
     holds the rules named under "At launch": `readViewRedirects()` (the
     Astro redirect entries, `/read/<book>` to `/<book>-1/`),
@@ -7734,8 +7755,14 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     test that fails if anything imports these files, so they cannot go live
     by accident; **8c wires them in and deletes that test.** Search
     results' Read View anchors (`search-core.js`) are 8c's too.
-  Status: **8b built, awaiting BVJ's merge and look on the preview; 8c at
-  launch.**
+  - *Also from BVJ's look, 2026-11-04, built in PR #464:* **the hamburger
+    menu is a right-hand side tray on a computer** (mouse and fine pointer,
+    including /desk and a narrowed window), 380px at most, over a dimmed
+    page, instead of the full-screen overlay; a touch device keeps the full
+    screen. The Study Desk card and the header link stay computer-only, also
+    after the preview flag is removed (a phone or tablet is sent to the apps),
+    which is a requirement for 8c's flip.
+  Status: **8b looked at 2026-11-04 and merged (#464); 8c at launch.**
 - **E9, rough: Bookmarks and Ribbons are confusing and redundant, and
   Places adds a third layer.** BVJ (2026-10-22), from using the preview.
   **Decided** (BVJ, 2026-10-22; decision log, "Bookmarks and ribbons become
@@ -7880,8 +7907,28 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   display settings the Reading layout turned off, so choosing another layout
   can turn them back on"), in the same list on this site's /privacy, just
   before `lit-desk-layout`. Nothing else in
-  /privacy changed; the builder keeps nothing. Status: built, awaiting BVJ's
-  look.
+  /privacy changed; the builder keeps nothing.
+  **BVJ looked, 2026-11-04, and found three things, all built in PR #463.**
+  (1) The "My notes" checkbox didn't show in /desk's Search pane, which had no
+  switch; it now has the same one on its link row, beside "See results on the
+  search page", for a Greek search under all types. (2) The capital O's in the
+  pane's headings looked odd at that size: the other panes' headings are Inter,
+  so the Search pane's match them (one style, in the same case, across pane
+  kinds). (3) The look raised two things not in E11: **Greek terms in topics**
+  (a topic "pistis" made a plain search show results as if it were a Greek one,
+  which would confuse), so **BVJ decided to remove transliterated Greek from
+  topics corpus-wide** (about 80 tags from 53 chapters and 3 intros;
+  TOPICS.md rule 5 rewritten and CLAUDE.md follows); and **the type menu's
+  "All except Greek"** was awkward, so an Opus agent was asked for options (a
+  relabel, a line offering the Greek search, or a separate English | Greek
+  switch) and BVJ took **B, the offer**: "All results" keeps its name, the
+  Greek type stays set apart in the menu, and **a single Latin word that is
+  also a glossary term's Greek lemma ("pistis") gets one line under the
+  status**, "“pistis” is also a Greek word
+  (πίστις). Search the Greek," whose link sets the type to Greek (a build step
+  writes `public/search/greek-offers.json`, 125 lemma keys; rule 15). The
+  offer lists no Greek itself, so a query still never gets English and Greek
+  together. Status: **looked at; changes built.**
 - **E12, wish: a trash the reader can restore from.** BVJ (2026-10-28),
   with BA39's call (FA1-t, #400). The help page used to say a deleted item
   waits in the trash for 30 days, which suggested it could be brought back;
@@ -8261,8 +8308,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   was made on. It is read from the store at the click, not from the list, and
   the new sheet opens with its title focused. A sheet of a newer sheet format
   gets a disabled button, as it can't be changed here either. No field, kind
-  or format change, so nothing for the apps. Status: built, awaiting BVJ's
-  look.
+  or format change, so nothing for the apps. **BVJ looked, 2026-11-04:** the
+  button's place beside Delete and the "(copy)" wording are right, and an
+  untitled sheet copies. The button is in the Sheet pane's My sheets list
+  only: **/sheets stays read-only** (its list has no Delete either, and the
+  page never writes a record), which BVJ accepted. The look turned up a bug
+  that wasn't Duplicate's: with a Sheet pane open /desk's panes box grew a
+  scrollbar of its own showing empty space under the panes, because the
+  sheet's hidden hints (`.sr-only`, absolute) escaped its scroller (the Greek
+  pane's trap, #354); fixed in PR #465, with every pane's body positioned as
+  a guard. Status: **looked at; done.**
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -8306,13 +8361,13 @@ the rest is polish.
    the panes; can run in parallel.
    **Carried into 7b** (both are in the search bar's commands window and
    its Greek surfaces, where the builder goes):
-   - *E7:* BVJ's look at the Greek tab on the preview (the focus move to
+   - *E7 (looked at 2026-11-04; changes built, #463):* BVJ's look at the Greek tab on the preview (the focus move to
      "Back to the text", the header while results show, the reworded tour
      step); whether the parsing link stays in a word's details; where the
      word links' results show (kept in the tab for now; /search is the
      alternative); and E5's builder now living in the commands window
      alone, since the tab no longer opens it.
-   - *E11:* BVJ's look at the "My notes" checkbox on the preview (its look
+   - *E11 (looked at 2026-11-04; changes built, #463):* BVJ's look at the "My notes" checkbox on the preview (its look
      on /search's narrow row, the tray re-searching on a change); the tray
      shows it only when a Greek group renders, so a Greek search with no
      Greek hits has no switch there (placement to settle with the builder's
@@ -8320,8 +8375,8 @@ the rest is polish.
      `lit-desk-greek-notes`.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
    the passage (buildable now; **done 2026-11-02**, merged: Reading, `?place=` (moves the LIT pane only), the header link carrying the chapter; the
-   whole-book option let go, BVJ); 8b (**done 2026-11-02**, awaiting BVJ's
-   merge), after 8a, the parts of E8 and E20 that
+   whole-book option let go, BVJ); 8b (**done 2026-11-02**, looked at and
+   merged 2026-11-04, #464), after 8a, the parts of E8 and E20 that
    stay behind the desk preview (BVJ, 2026-11-02): with the preview on,
    Study View's "Read View" button and the /read card become ways into /desk,
    while everyone else keeps Read View; and the dormant prep for launch (the
