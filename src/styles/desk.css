@@ -5278,7 +5278,11 @@ html.desk-ws--moving * {
   outline-offset: 2px;
 }
 
+/* Positioned, as a guard: a pane's hidden labels and hints (.sr-only is
+   absolute) are placed and clipped by the body even where the pane's own
+   scroller forgot to be positioned, instead of stretching the panes box. */
 .desk-pane__body {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
@@ -6414,7 +6418,14 @@ html.desk-ws--moving * {
 
 /* ── The Sheet pane on /desk (3f; sheet-pane.js) ─────────────────────── */
 
+/* Positioned, so the hidden hints that describe its buttons (.sr-only, which is
+   absolute) are placed and clipped inside this scroller. Otherwise their
+   containing block was the pane, past the scroller's clipping, and each one
+   below the fold stretched /desk's panes box, which grew a scrollbar of its
+   own and showed empty space under the panes (the same trap as the Greek
+   pane's, #354). */
 .desk-sheet {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   padding: 12px 16px 32px;
