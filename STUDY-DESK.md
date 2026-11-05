@@ -7964,7 +7964,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     that, Restore in the Trash on the notebook page, for 30 days.
   Code: `trashItems`, `daysLeft`, `planRestore` and `planRestoreAll` in
   `desk-notebook.mjs` (pure, tested), `desk/trash-list.js`, a `trash` option
-  on `recordRow`. Status: built, awaiting BVJ's look.
+  on `recordRow`. **BVJ looked at it on the preview (2026-11-04) and said it
+  all looks good**: the Trash section, Restore and Restore all, the undo bar
+  and redo. The look turned up one change, made the same day: with a verse
+  now holding a bookmark that stays put and one that moves (E9), a restore is
+  refused only when the verse already holds one of the bookmark's own kind.
+  Status: done.
 - **E13, bug: the logo and word mark's home link reaches across the
   header's empty space to the page title.** BVJ (2026-10-30), from using
   the preview. The link should cover only the emblem and the "LIT Bible"
