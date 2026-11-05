@@ -178,11 +178,11 @@ test("BA100: arriving in Read View starts from this page's own place, not anothe
   assert.equal(store.writes.length, 0, "already there: nothing written");
 });
 
-test("BA101: a page without the shell drops the flag, so the book's next page doesn't move the bookmark", async () => {
+test("BA101: a page without the shell pauses the flag, so a far chapter doesn't move the bookmark", async () => {
   const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
   tab("/search/", { session }); // the desk is off or the page has no reading surface
   await import(`../src/scripts/desk-gate.js?page=${++pages}`);
-  assert.equal(session.getItem("lit-desk-follow"), null);
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
 
   tab("/romans-11/", { session });
   saveLastRead({ book: "romans", chapter: 11, verse: 1, view: "study" });
@@ -208,9 +208,43 @@ test("BA101: back to a page in the book from the back-forward cache re-reads the
   assert.equal(store.writes.length, 0);
 });
 
-test("BA101: the flag is dropped outside the book even when the notebook didn't open", async () => {
+test("a page outside the book leaves the follow in place, and the next chapter read decides it", async () => {
+  const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
+  tab("/search/", { session });
+  const { initBookmarkFollow } = await loadFollower();
+  initBookmarkFollow({ store: null, ctx });
+  assert.ok(session.getItem("lit-desk-follow"), "a page with no notebook doesn't end it");
+});
+
+test("a jump pauses the bookmark where it was and tells the reader once; reading on from there resumes it", async () => {
   const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
   tab("/john-3/", { session });
+  saveLastRead({ book: "john", chapter: 3, verse: 5, view: "study" }); // far from Romans 8
+  const store = fakeStore([bookmark()]);
+  const told = [];
+  const { initBookmarkFollow } = await loadFollower();
+  initBookmarkFollow({ store, ctx, tell: (about) => told.push(about) });
+  await settle();
+  assert.equal(store.map.get("r1").verse, 30, "it stays where the reader left off");
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
+  assert.equal(told.length, 1, "the reader is told once");
+  assert.equal(told[0].record.id, "r1");
+
+  // Back in Romans, next to where it sits: it resumes and moves.
+  tab("/romans-9/", { session });
+  saveLastRead({ book: "romans", chapter: 9, verse: 4, view: "study" });
+  const again = await loadFollower();
+  again.initBookmarkFollow({ store, ctx, tell: (about) => told.push(about) });
+  await settle();
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, undefined);
+  assert.equal(store.map.get("r1").chapter, 9);
+  assert.equal(told.length, 1);
+});
+
+test("a pause that has run out is let go when a page loads", async () => {
+  const old = JSON.stringify({ id: "r1", bookKey: "romans", paused: true, since: 1 });
+  const session = storage({ "lit-desk-follow": old });
+  tab("/romans-8/", { session });
   const { initBookmarkFollow } = await loadFollower();
   initBookmarkFollow({ store: null, ctx });
   assert.equal(session.getItem("lit-desk-follow"), null);

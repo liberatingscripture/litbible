@@ -117,7 +117,7 @@ export function announce(message) {
 }
 
 /** What the bar says when its button has done its work and put up nothing else. */
-const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.", "Show bookmarks": "Bookmarks showing." };
+const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.", "Show bookmarks": "Bookmarks showing.", "Move it here": "Moved." };
 
 /**
  * Show the bar for one change, with a button that takes it back or does it

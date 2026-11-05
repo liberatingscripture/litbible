@@ -97,7 +97,7 @@ import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
-import { stopFollowButton } from "./bookmark-stop.js";
+import { moveItHereButton, stopFollowButton } from "./bookmark-stop.js";
 import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -649,7 +649,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
     else kind.textContent = nameOf(r);
     li.append(head, kind);
-    if (r.kind === "bookmark" && isFollowing(r)) kind.after(stopFollowButton(r, ref));
+    if (r.kind === "bookmark" && isFollowing(r)) kind.after(stopFollowButton(r, ref), moveItHereButton(r, ref));
     // A bookmark that moves as the reader reads starts doing so from this link
     // (a modified click opens elsewhere and doesn't); one that stays put stops
     // whatever was moving, since the reader has gone to it instead.
