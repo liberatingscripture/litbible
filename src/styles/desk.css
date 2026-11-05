@@ -1068,11 +1068,18 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   justify-content: space-between;
 }
 
-/* The caret at the row's right edge. */
+/* A chevron at the row's right edge, drawn with borders so it keeps the text's
+   colour in both themes and is easy to see. */
 .desk-bookmark-fly__trigger::after {
-  content: "▸";
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
   margin-left: auto;
-  padding-left: 0.75em;
+  margin-right: 4px;
+  border-top: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+  transform: rotate(45deg);
 }
 
 .desk-bookmark-fly {
