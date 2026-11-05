@@ -166,7 +166,7 @@ async function showList(root, store) {
   desk.href = `${BASE}desk/`;
   const intro = make("p", "sheets-page__intro");
   intro.append(
-    document.createTextNode("Each sheet here can be printed as a leader copy or a participant copy, or copied into Word. Sheets are made and changed on "),
+    document.createTextNode("Each sheet here can be printed as a leader’s version or a participant’s version, or copied into Word. Sheets are made and changed on "),
     desk,
     document.createTextNode(", in a Sheet pane."),
   );
@@ -280,7 +280,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
 
   const bar = make("div", "sheets-page__bar");
   bar.setAttribute("role", "group");
-  bar.setAttribute("aria-label", "Copy, paper, and printing");
+  bar.setAttribute("aria-label", "Version, paper, and printing");
   const back = make("a", "sheets-page__back", "‹ My sheets");
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit on the Study Desk");
@@ -289,7 +289,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   links.append(back);
   if (!shared) links.append(edit);
 
-  const copyChoice = choices("sheet-copy", "Copy", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
+  const copyChoice = choices("sheet-copy", "Version", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
     copy = v;
     draw();
   });
@@ -463,7 +463,7 @@ function sharedBanner(root, sheet, store, scope) {
     strong,
     document.createTextNode(
       scope === "participant"
-        ? "This is the participant copy of a sheet. It isn’t in your notebook until you copy it there."
+        ? "This is the participant’s version of a sheet. It isn’t in your notebook until you copy it there."
         : "This sheet isn’t in your notebook until you copy it there.",
     ),
   );
@@ -508,7 +508,7 @@ function openShareDialog(sheet, opener) {
   let scope = "leader";
   const scopeChoice = choices("sheet-share-scope", "What to share", [
     ["leader", "Everything, for another leader"],
-    ["participant", "The participant copy, without answers or Leader only parts"],
+    ["participant", "The participant’s version, without answers or Leader only parts"],
   ], scope, (v) => {
     scope = v;
     refresh();
@@ -516,7 +516,7 @@ function openShareDialog(sheet, opener) {
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant copy when you’re unsure. The passages are read from the LIT when it is opened.",
+    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button("Save as a file");

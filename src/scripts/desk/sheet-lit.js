@@ -126,6 +126,15 @@ function footnotePositions(source, chapter) {
 }
 
 /**
+ * When a passage's verses are found in today's text but its words can't be
+ * taken from the chapter's page (passageWords returns null). Reading again
+ * gives the same answer, so the step is to add the verses afresh (CP-13).
+ */
+export const UNREAD_PASSAGE = "This passage couldn’t be read from the chapter.";
+export const UNREAD_PASSAGE_STEP = `${UNREAD_PASSAGE} Try adding these verses again from the LIT pane, then remove this passage.`;
+export const UNREAD_PASSAGE_ON_PAPER = `${UNREAD_PASSAGE} On the Study Desk, try adding these verses to the sheet again, then remove this passage.`;
+
+/**
  * A passage module read against today's chapter: { ok: true, source, chapter,
  * at, check (S2: whether its wording changed since it was added, from
  * desk-sheet-check.mjs), contentVersion (the text's) and contentUpdated (its
@@ -358,6 +367,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
   let blanksBox = null;
   let notesBox = null;
   let notesOpen = false;
+  let blankNote = null; // under the Blanks heading: why a blank wasn't made
   let seq = 0;
 
   const ownBlanks = () => (view ? locateBlanks(view, mod) : []);
@@ -386,7 +396,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     words = passageWords(v, mod);
     const box = make("div", "desk-sheet__passage-text");
     if (!words) {
-      box.append(make("p", "desk-sheet__status", "This passage couldn’t be read from the chapter."));
+      box.append(make("p", "desk-sheet__status", readOnly ? UNREAD_PASSAGE : UNREAD_PASSAGE_STEP));
       el.replaceChildren(box);
       return;
     }
@@ -434,6 +444,19 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
 
   // ---- blanks ----
 
+  /**
+   * A blank refused: shown under the Blanks heading as well as announced, so
+   * a reader who pressed the button sees why nothing happened (CP-13). The
+   * line isn't a live region; `say` is the one announcement.
+   */
+  function refuse(text) {
+    if (blankNote?.isConnected) {
+      blankNote.textContent = text;
+      blankNote.hidden = false;
+    }
+    say(text);
+  }
+
   function setBlanks(blanks, announce) {
     return update({ blanks }, announce);
   }
@@ -447,7 +470,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       fresh.push({ s, e, blank: blankFromOffsets(view.chapter, s, e, { id: crypto.randomUUID(), hint: term ? "traditional" : "none" }) });
     }
     if (!fresh.length) {
-      say("Those words are already blank.");
+      refuse("Those words are already blank.");
       return;
     }
     setBlanks([...(mod.blanks ?? []), ...fresh.map((f) => f.blank)], announce ?? `${plural(fresh.length, "blank")} added.`);
@@ -456,13 +479,14 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
   function blankSelection() {
     const sel = window.getSelection();
     const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+    if (blankNote) blankNote.hidden = true;
     if (!range || range.collapsed || !words?.el.contains(range.commonAncestorContainer) || words.base == null) {
-      say("Select words in this passage first, then choose “Blank the selected words.”");
+      refuse("Select words in this passage first, then choose “Blank the selected words.”");
       return;
     }
     const offsets = rangeToOffsets(pageAnchorText(words.el.children), range);
     if (!offsets) {
-      say("Select words in this passage first, then choose “Blank the selected words.”");
+      refuse("Select words in this passage first, then choose “Blank the selected words.”");
       return;
     }
     let [s, e] = wholeWords(view.chapter.text, words.base + offsets[0], words.base + offsets[1]);
@@ -559,13 +583,15 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     if (!readOnly) {
       const pick = button("Blank the selected words");
       pick.dataset.focusKey = "blank-selection";
-      pick.title = "Leave the words you’ve selected in this passage blank on the participant’s copy";
+      pick.title = "Leave the words you’ve selected in this passage blank on the participant’s version";
       // Keep the selection: pressing the button would otherwise clear it first.
       pick.addEventListener("mousedown", (e) => e.preventDefault());
       pick.addEventListener("click", blankSelection);
-      head.append(pick, describe(pick, "Leaves the words you’ve selected in this passage blank on the participant’s copy."));
+      head.append(pick, describe(pick, "Leaves the words you’ve selected in this passage blank on the participant’s version."));
     }
-    blanksBox.append(head);
+    blankNote = make("p", "desk-sheet__empty");
+    blankNote.hidden = true;
+    blanksBox.append(head, blankNote);
 
     // The key terms in the passage, one button each: the LIT-only kind of
     // blank, with the traditional word beneath as the hint (S10).
@@ -604,7 +630,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
 
     if (!located.length) {
-      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. A blank leaves words out of the participant’s copy, with the answer on the leader’s copy."));
+      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. A blank leaves words out of the participant’s version, with the answer on the leader’s version."));
       return;
     }
     const ul = make("ul", "desk-sheet__blank-list");
@@ -1064,7 +1090,7 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
     }
     check.append(list);
     const foot = make("p", "desk-sheet__lit-note");
-    foot.append(document.createTextNode("These counts are for the copy everyone gets: parts marked Leader only, and answers, are left out. Anything beyond these terms needs written permission; "));
+    foot.append(document.createTextNode("These counts are for the version everyone gets: parts marked Leader only, and answers, are left out. Anything beyond these terms needs written permission; "));
     const contact = make("a", null, "contact the LIT");
     contact.href = `${BASE}contact/`;
     contact.target = "_blank";

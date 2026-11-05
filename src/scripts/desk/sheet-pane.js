@@ -337,7 +337,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       if (made.refused) {
         console.error("Study Desk: the sheet refused a change", made.refused);
-        say(/holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made, so the sheet is as it was. Reload the page, then try again.");
+        // Seen beside Saved as well as heard, as a failed save is (CP-13).
+        status.textContent = /holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made, so the sheet is as it was. Reload the page, then try again.";
+        say(status.textContent);
         return false;
       }
       const moved = json(made.sheet) !== json(sheet);
@@ -532,7 +534,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       await store.save(s);
     } catch (err) {
       console.error("Study Desk: couldn't make a sheet", err);
-      say("The sheet couldn’t be made in this browser. Try again in a moment.");
+      // Shown under the list's heading as well as heard (CP-13).
+      const text = "The sheet couldn’t be made in this browser. Try again in a moment.";
+      const head = content.querySelector(".desk-sheet__list-head");
+      if (head) {
+        head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
+        head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
+      }
+      say(text);
       return;
     }
     await openSheet(s.id, { focusTitle: true });
@@ -796,12 +805,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         box.addEventListener("change", () => {
           change((s) => updateModule(s, m.id, { leaderOnly: box.checked || undefined }, opCtx()), {
             source: m.id,
-            announce: box.checked ? `${name}: on the leader’s copy only.` : `${name}: on every copy.`,
+            announce: box.checked ? `${name}: on the leader’s version only.` : `${name}: on every version.`,
           });
         });
         leader.append(box, make("span", null, "Leader only"));
-        leader.title = "Print and present this on the leader’s copy only";
-        tools.append(leader, describe(box, "Prints and presents this on the leader’s copy only."));
+        leader.title = "Print and present this on the leader’s version only";
+        tools.append(leader, describe(box, "Prints and presents this on the leader’s version only."));
       }
       up = button("↑", "desk-sheet__icon");
       up.setAttribute("aria-label", `Move ${name} up`);
@@ -957,7 +966,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       return null;
     }
     const q = textField(m, "html", "Question", "Ask a question for discussion…");
-    const a = textField(m, "answer", "Answer, on the leader’s copy only", "An answer or notes for the leader (optional)");
+    const a = textField(m, "answer", "Answer, on the leader’s version only", "An answer or notes for the leader (optional)");
     const lines = linesField(m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on" });
     card.append(q.el, a.el, lines.el);
     return group(q, a, lines);

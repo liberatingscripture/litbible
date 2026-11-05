@@ -481,6 +481,14 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   reveal.addEventListener("click", (e) => control.act({ type: e.shiftKey ? "hide" : "reveal" }));
   notes.addEventListener("click", () => control.act({ type: "notes" }));
 
+  // A refusal is seen in the strip, where the screen count is, until the next
+  // step redraws it, as well as heard through the one live region (CP-13).
+  const tell = (text) => {
+    where.textContent = text;
+    wake();
+    live.say(text);
+  };
+
   const isFull = () => document.fullscreenElement === stage;
   const syncFull = () => {
     full.textContent = isFull() ? "Exit full screen" : "Full screen";
@@ -494,14 +502,14 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   document.addEventListener("fullscreenchange", onFullscreen);
   full.addEventListener("click", () => {
     if (isFull()) document.exitFullscreen?.().catch(() => {});
-    else stage.requestFullscreen?.().catch(() => live.say("This browser didn’t allow full screen. Use the browser’s own full screen command instead."));
+    else stage.requestFullscreen?.().catch(() => tell("This browser didn’t allow full screen. Use the browser’s own full screen command instead."));
   });
   stage.addEventListener("dblclick", (e) => {
     if (e.target instanceof Element && e.target.closest(".present-stage__strip")) return;
     full.click();
   });
 
-  presenter.addEventListener("click", () => openPresenterWindow(stage, sheet, (t) => live.say(t)));
+  presenter.addEventListener("click", () => openPresenterWindow(stage, sheet, tell));
 
   function finish() {
     clearTimeout(idle);

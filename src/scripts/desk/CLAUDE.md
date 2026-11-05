@@ -28,7 +28,7 @@ From the root's routing table.
 |-------|------|---------|
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 
 ## Launching
 
