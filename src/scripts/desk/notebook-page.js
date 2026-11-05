@@ -7,7 +7,7 @@
 // It is not a reading surface, so there is no panel here and no margin: this
 // module opens the notebook itself and draws into that element.
 //
-// The page, top to bottom: What I've kept (kept-list.js, which /desk's pane
+// The page, top to bottom: My Notes (kept-list.js, which /desk's pane
 // of that name shares: filters by words, kind, highlight colour and label, a
 // count in words, and the records in Bible order); What's new for you (whats-new.js: the
 // release notes that touched their verses); Labels (make, rename, delete); Save a
@@ -96,7 +96,7 @@ async function start() {
     <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you save a copy.</p>
     <nav class="desk-np__jump" aria-label="On this page">
       <a href="#continue">Continue reading</a>
-      <a href="#kept">What I’ve kept</a>
+      <a href="#kept">My Notes</a>
       <a href="#whats-new">What’s new for you</a>
       <a href="#labels">Labels</a>
       <a href="#panel">The Notebook panel</a>
@@ -106,7 +106,7 @@ async function start() {
     </nav>
     <section class="desk-np__section" id="continue" data-np-continue></section>
     <section class="desk-np__section" id="kept" aria-labelledby="deskNpKeptTitle">
-      <h2 class="desk-np__h2" id="deskNpKeptTitle">What I’ve kept</h2>
+      <h2 class="desk-np__h2" id="deskNpKeptTitle">My Notes</h2>
       <div data-np-kept></div>
     </section>
     <section class="desk-np__section" id="whats-new" data-np-whats-new></section>
@@ -167,7 +167,7 @@ async function start() {
   mountWhatsNew(q("[data-np-whats-new]"), { store });
   mountStartChoice(q("[data-np-start]"));
   // Continue reading, drawn and kept up to date by continue-reading.js. Bookmarks
-  // are in "What I’ve kept" with the rest (E9).
+  // are in My Notes with the rest (E9).
   q("[data-np-continue]").append(
     continueSection({ emptyText: "Nothing to continue yet. Where you stop reading appears here." }),
   );
