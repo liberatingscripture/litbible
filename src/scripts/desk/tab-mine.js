@@ -96,7 +96,8 @@ import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
-import { followBookmark } from "./bookmark-follow.js";
+import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
+import { moveItHereButton, stopFollowButton } from "./bookmark-stop.js";
 import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -645,14 +646,20 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
-    kind.textContent = isFollowing(r) ? `${nameOf(r)} · Moves as I read` : nameOf(r);
+    if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
+    else kind.textContent = nameOf(r);
     li.append(head, kind);
+    if (r.kind === "bookmark" && isFollowing(r)) kind.after(stopFollowButton(r, ref), moveItHereButton(r, ref));
     // A bookmark that moves as the reader reads starts doing so from this link
-    // (a modified click opens elsewhere and doesn't).
-    if (href && isFollowing(r)) {
+    // (a modified click opens elsewhere and doesn't); one that stays put stops
+    // whatever was moving, since the reader has gone to it instead.
+    if (href && r.kind === "bookmark") {
       head.addEventListener("click", (e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        followBookmark(r, head.href);
+        // On a page that doesn't follow the reader (/desk), a link handled in
+        // place moves nothing, so it must not start a follow it can't carry out.
+        if (isFollowing(r) && (!revealHere || followsHere())) followBookmark(r, head.href);
+        else stopFollowing();
       });
     }
     // A note on a footnote (M11) says so, and quotes the footnote's opening
@@ -746,7 +753,14 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         const p = document.createElement("p");
         p.className = "desk-item__words";
         p.textContent = words;
-        li.append(p);
+        // A bookmark's name sits right under its reference, above the line that
+        // says whether it moves (BVJ, 2026-11-04).
+        if (r.kind === "bookmark") {
+          p.className = "desk-item__bookmark-name";
+          li.insertBefore(p, kind);
+        } else {
+          li.append(p);
+        }
       }
     }
     // A bookmark's name, and whether it moves as the reader reads (E9).

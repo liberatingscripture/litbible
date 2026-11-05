@@ -83,10 +83,24 @@ export function listable(records) {
   return records.filter((r) => r && r.kind !== "trash" && r.kind !== "label" && r.kind !== "place");
 }
 
+// Bookmarks split two more ways in the Show menu once a list holds both (BVJ,
+// 2026-11-04): the ones that move as the reader reads and the ones that stay put.
+export const BOOKMARK_MOVES = "bookmark:moves";
+export const BOOKMARK_STAYS = "bookmark:stays";
+const BOOKMARK_SPLITS = Object.freeze([
+  { value: BOOKMARK_MOVES, plural: "Bookmarks that move" },
+  { value: BOOKMARK_STAYS, plural: "Bookmarks that stay put" },
+]);
+
 /** Which of the filter's kinds have at least one record. */
 export function kindsPresent(records) {
   const present = new Set(records.map((r) => r.kind));
-  return KIND_CHOICES.filter((k) => present.has(k.value));
+  const kinds = KIND_CHOICES.filter((k) => present.has(k.value));
+  const moving = records.filter((r) => r.kind === "bookmark" && r.follow === true).length;
+  const staying = records.filter((r) => r.kind === "bookmark").length - moving;
+  if (!moving || !staying) return kinds;
+  const at = kinds.findIndex((k) => k.value === "bookmark") + 1;
+  return [...kinds.slice(0, at), ...BOOKMARK_SPLITS, ...kinds.slice(at)];
 }
 
 /** The highlight colours in use, in the format's order. */
@@ -102,7 +116,11 @@ export function colorsPresent(records, colors) {
 export function filterRecords(records, { query = "", kind = null, color = null, labelId = null } = {}, labels = new Map()) {
   const words = fold(query).split(" ").filter(Boolean);
   return records.filter((r) => {
-    if (kind && r.kind !== kind) return false;
+    if (kind === BOOKMARK_MOVES) {
+      if (!(r.kind === "bookmark" && r.follow === true)) return false;
+    } else if (kind === BOOKMARK_STAYS) {
+      if (!(r.kind === "bookmark" && r.follow !== true)) return false;
+    } else if (kind && r.kind !== kind) return false;
     if (color && !(r.kind === "highlight" && r.color === color)) return false;
     if (labelId && !(r.labels ?? []).includes(labelId)) return false;
     if (!words.length) return true;
@@ -281,7 +299,7 @@ export function daysLeft(trash, now = new Date().toISOString()) {
 /**
  * Why a restore was refused. `missing` (the trash record is gone), `emptied`
  * (only its tombstone is left), `exists` (a live record already has the id),
- * `bookmark` (the verse already holds a bookmark, BA16) or `label` (a label of
+ * `bookmark` (the verse already holds a bookmark of its kind, BA16) or `label` (a label of
  * that name is already kept; names are unique).
  */
 export const RESTORE_REFUSALS = Object.freeze(["missing", "emptied", "exists", "bookmark", "label"]);
@@ -293,8 +311,9 @@ export const RESTORE_REFUSALS = Object.freeze(["missing", "emptied", "exists", "
  * gone. Nothing else is edited: a label id on it that no longer names a label
  * is left, and is not drawn (labelsOf). Two cases are settled here, on BVJ's
  * calls of 2026-11-02:
- *   - a bookmark onto a verse that already holds one is refused (`bookmark`),
- *     so a restore never makes the second the rule forbids; a label whose name
+ *   - a bookmark onto a verse that already holds one of its kind is refused
+ *     (`bookmark`), so a restore never makes the second the rule forbids (a
+ *     verse takes one that stays put and one that moves); a label whose name
  *     is kept already is refused too (`label`);
  *   - a bookmark that moved as the reader reads comes back still, unless
  *     six already move, and then comes back plain (`movesNoMore: true`).
@@ -309,7 +328,10 @@ export function planRestore(records, trashId, ctx) {
   const live = records.filter((r) => r && r.kind !== "trash");
   const held = trash.record;
   if (live.some((r) => r.id === held.id)) return { ok: false, reason: "exists" };
-  if (held.kind === "bookmark" && bookmarksOn(live, held).length) return { ok: false, reason: "bookmark" };
+  // A verse takes one bookmark of each kind, one that stays put and one that moves.
+  if (held.kind === "bookmark" && bookmarksOn(live, held).some((r) => isFollowing(r) === isFollowing(held))) {
+    return { ok: false, reason: "bookmark" };
+  }
   if (held.kind === "label" && findLabel(live, held.name)) return { ok: false, reason: "label" };
   let record = restoreFromTrash(trash, ctx);
   let movesNoMore = false;

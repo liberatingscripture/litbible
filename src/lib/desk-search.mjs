@@ -195,14 +195,49 @@ export function searchNotebook(records, query, { bookKey = "" } = {}) {
       hit: {
         id: r.id,
         kind: r.kind,
-        label: labelFor(r),
+        // A bookmark's result says whether it moves, as its row does (BVJ,
+        // 2026-11-04), since opening it from here starts or stops following.
+        label: r.kind === "bookmark" ? `${labelFor(r)} · ${r.follow === true ? "Moves" : "Stays put"}` : labelFor(r),
         reference: recordReference(r) || (r.glossaryId ? `Glossary: ${r.glossaryId}` : labelFor(r)),
         href: recordHref(r) ?? (typeof r.glossaryId === "string" ? `/glossary/#${r.glossaryId}` : null),
+        // A bookmark's result opens it like its row does (follow or stop): see
+        // desk/notebook-search.js.
+        ...(r.kind === "bookmark" ? { bookKey: r.bookKey, follow: r.follow === true } : {}),
         parts,
       },
     });
   }
   return found.sort((a, b) => compareKeys(a.sort, b.sort)).map((f) => f.hit);
+}
+
+const MATCH_NOUNS = {
+  note: ["note match", "note matches"],
+  highlight: ["highlight match", "highlight matches"],
+  bookmark: ["bookmark match", "bookmark matches"],
+  footnotePin: ["pinned footnote match", "pinned footnote matches"],
+};
+
+/**
+ * What to call the notebook matches in a count ("1 bookmark match"): the kind's
+ * own word when every hit is of one kind (BVJ, 2026-11-04), else "notebook
+ * match". Returns [one, many].
+ */
+export function matchNouns(hits) {
+  const kinds = new Set((hits ?? []).map((h) => h.kind));
+  if (kinds.size === 1) {
+    const nouns = MATCH_NOUNS[[...kinds][0]];
+    if (nouns) return nouns;
+  }
+  return ["notebook match", "notebook matches"];
+}
+
+/**
+ * The notebook group's heading above its matches: "Bookmark labels" when every
+ * hit is a bookmark (a bookmark is found by its name; BVJ, 2026-11-04), else
+ * "Your notebook".
+ */
+export function matchTitle(hits) {
+  return hits?.length && hits.every((h) => h.kind === "bookmark") ? "Bookmark labels" : "Your notebook";
 }
 
 /** The notebook page's address for a query (D2's "N more in your notebook"). */

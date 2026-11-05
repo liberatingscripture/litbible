@@ -13,11 +13,13 @@ import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   BOOKMARK_NAME_MAX,
   MAX_FOLLOWING,
+  PAUSE_EXPIRES_MS,
   canFollowMore,
   cleanBookmarkName,
   continueItem,
   followFlagFor,
   followMoveChanges,
+  followStep,
   followingOf,
   isFollowing,
   lastReadHref,
@@ -25,7 +27,10 @@ import {
   nextFollowState,
   pageBookOf,
   parseFollowFlag,
+  pausedFlag,
   positionOnPage,
+  readingOn,
+  resumedFlag,
   throttleDelay,
 } from "../src/lib/desk-bookmarks.mjs";
 import { continueHref } from "../src/scripts/last-read.js";
@@ -90,15 +95,45 @@ test("the flag round-trips and refuses anything that isn't one", () => {
   }
 });
 
-test("the flag lasts while the tab stays in the book and ends on the first page outside it", () => {
+test("a page outside the book no longer ends the flag; only a pause that has run out does", () => {
   const flag = { id: "abc", bookKey: "romans" };
-  assert.equal(nextFollowState(flag, pageBookOf("/romans-9/")), flag);
-  assert.equal(nextFollowState(flag, pageBookOf("/read/romans/")), flag);
-  assert.equal(nextFollowState(flag, pageBookOf("/romans-intro/")), flag, "the book's own intro is still the book");
-  assert.equal(nextFollowState(flag, pageBookOf("/john-3/")), null);
-  assert.equal(nextFollowState(flag, pageBookOf("/read/john/")), null);
-  assert.equal(nextFollowState(flag, pageBookOf("/search/")), null);
-  assert.equal(nextFollowState(null, pageBookOf("/romans-9/")), null);
+  assert.equal(nextFollowState(flag), flag);
+  assert.equal(nextFollowState(null), null);
+  const paused = pausedFlag(flag, 1000);
+  assert.deepEqual(paused, { id: "abc", bookKey: "romans", paused: true, since: 1000, told: false });
+  assert.equal(nextFollowState(paused, 1000 + PAUSE_EXPIRES_MS), paused, "right at the limit it still waits");
+  assert.equal(nextFollowState(paused, 1000 + PAUSE_EXPIRES_MS + 1), null, "a pause from long ago is let go");
+  assert.deepEqual(resumedFlag({ ...paused, tab: "t" }, "mark"), { id: "abc", bookKey: "mark", tab: "t" });
+});
+
+test("a pause survives being stored and read back", () => {
+  const flag = { id: "abc", bookKey: "romans", tab: "t", paused: true, since: 5, told: true };
+  assert.deepEqual(parseFollowFlag(followFlagFor(flag)), flag);
+  assert.deepEqual(parseFollowFlag(followFlagFor({ id: "abc", bookKey: "romans" })), { id: "abc", bookKey: "romans" });
+  assert.deepEqual(parseFollowFlag('{"id":"abc","bookKey":"romans","paused":"yes"}'), { id: "abc", bookKey: "romans" });
+});
+
+test("reading on is the book's own chapters within one of where the bookmark sits; anything else is a jump", () => {
+  const record = { bookKey: "luke", chapter: 1, verse: 12 };
+  const at = (bookKey, chapter) => ({ bookKey, chapter, verse: 1 });
+  assert.equal(readingOn(record, at("luke", 1)), true);
+  assert.equal(readingOn(record, at("luke", 2)), true, "Next chapter");
+  assert.equal(readingOn(record, at("luke", 3)), false);
+  assert.equal(readingOn(record, at("mark", 1)), false, "the next book's first chapter is a jump, offered with the bar");
+  assert.equal(readingOn(record, at("luke", 4), at("luke", 3)), true, "scrolling Read View keeps up with the last place heard");
+  assert.equal(readingOn(record, null), false);
+});
+
+test("what a followed bookmark does at each report", () => {
+  const record = { bookKey: "luke", chapter: 1, verse: 12 };
+  const near = { bookKey: "luke", chapter: 2, verse: 3 };
+  const far = { bookKey: "luke", chapter: 9, verse: 3 };
+  const flag = { id: "abc", bookKey: "luke" };
+  const paused = { ...flag, paused: true };
+  assert.equal(followStep(flag, record, near), "move");
+  assert.equal(followStep(flag, record, far), "pause");
+  assert.equal(followStep(paused, record, far), "stay");
+  assert.equal(followStep(paused, record, near), "resume");
 });
 
 test("the reader's position counts only on the page it was recorded for", () => {

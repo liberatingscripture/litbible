@@ -17,7 +17,7 @@
 
 import { canEdit, editRecord } from "./desk-records.mjs";
 import { canFollowMore, cleanBookmarkName } from "./desk-bookmarks.mjs";
-import { planSave } from "./desk-store-core.mjs";
+import { followChoices, planSave } from "./desk-store-core.mjs";
 
 /** Said when the bookmark being changed is no longer in the notebook. */
 export const BOOKMARK_GONE = "That bookmark has been deleted.";
@@ -27,6 +27,10 @@ export const FOLLOW_LIMIT_REACHED = "Six of your bookmarks already move as you r
 
 /** Said when a newer version of the Study Desk wrote the bookmark. */
 export const BOOKMARK_NEWER = "That bookmark was made by a newer version and can’t be changed here.";
+
+/** Said when the verse already holds a bookmark that moves, or one that stays put, and the change would make two. */
+export const KIND_TAKEN_MOVES = "This verse already has a bookmark that moves as you read.";
+export const KIND_TAKEN_STAYS = "This verse already has a bookmark that stays put.";
 
 const refused = (problem) => ({ plan: null, problem, record: null });
 
@@ -54,6 +58,9 @@ export async function planBookmarkEdit({ get, all }, id, change, stamp) {
     const follow = change.follow === true;
     if (follow !== (current.follow === true)) {
       if (follow && !canFollowMore(await all(), id)) return refused(FOLLOW_LIMIT_REACHED);
+      // A verse holds one bookmark of each kind (BVJ, 2026-11-04).
+      const choices = followChoices(await all(), { ...current, follow });
+      if (!(follow ? choices.moves : choices.stays)) return refused(follow ? KIND_TAKEN_MOVES : KIND_TAKEN_STAYS);
       fields.follow = follow ? true : undefined;
     }
   }

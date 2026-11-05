@@ -147,8 +147,8 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Bookmark,” and “Highlight” while “My highlights” is on in the Display tray. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in the Display tray. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },

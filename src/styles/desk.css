@@ -271,6 +271,35 @@ a.desk-item__ref:hover {
   font-size: 0.8125rem;
 }
 
+/* A bookmark's name: directly under its reference, above the line that says
+   whether it moves, and in the column beside the buttons (BVJ, 2026-11-04). */
+.desk-item__bookmark-name {
+  unicode-bidi: plaintext;
+  grid-column: 1;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
+/* "Stop following", on the bookmark being followed: a quiet link under its
+   state line, so the state line itself never wraps (BVJ, 2026-11-04). */
+.desk-item__stop {
+  grid-column: 1;
+  justify-self: start;
+  margin: 2px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.desk-item__stop[hidden] {
+  display: none;
+}
+
 /* The reader's own words: plain text, line breaks kept. */
 .desk-item__words {
   unicode-bidi: plaintext;
@@ -1025,6 +1054,52 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   }
 }
 
+/* A button the verse menu hides (Bookmark, once the verse holds one) stays hidden
+   whatever the panel's own button rule says. */
+.lit-panel__row > button[hidden] {
+  display: none;
+}
+
+/* The verse menu's "Bookmark ▸" flyout, once the verse holds bookmarks (a mouse
+   only; a finger's chips stay flat). Fixed to the window beside its row. */
+.desk-bookmark-fly__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* A chevron at the row's right edge, drawn with borders so it keeps the text's
+   colour in both themes and is easy to see. */
+.desk-bookmark-fly__trigger::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  margin-right: 4px;
+  border-top: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.desk-bookmark-fly {
+  position: fixed;
+  z-index: 1110;
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+.desk-bookmark-fly[hidden] {
+  display: none;
+}
+
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
    the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
    `ribbon` (named `bookmark` until E10), is green and always comes with
@@ -1044,6 +1119,23 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 
 .desk-bookmark-mark__glyph path {
   fill: #c62828;
+}
+
+/* Which is which at a glance (BVJ, 2026-11-04): red moves, gold stays put, and
+   the one this tab is following only rests at its verse, so it is an outline
+   until the follow ends. */
+.desk-bookmark-mark--stays .desk-bookmark-mark__glyph path {
+  fill: #e0a100;
+  stroke: #8a6100;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.desk-bookmark-mark--resting .desk-bookmark-mark__glyph path {
+  fill: none;
+  stroke: #c62828;
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
 /* Your own chains (N4). A scripture reference typed in a note is a link

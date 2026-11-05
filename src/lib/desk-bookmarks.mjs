@@ -120,23 +120,81 @@ export const FOLLOW_TAB_CHANNEL = "lit-desk-follow-tab";
 export const DUPLICATE_WAIT_MS = 250;
 
 /**
+ * How long a paused follow waits (BVJ, 2026-11-04): a restored tab keeps its
+ * session storage, so without an end a pause from days ago would offer to
+ * follow the reader again.
+ */
+export const PAUSE_EXPIRES_MS = 12 * 60 * 60 * 1000;
+
+/**
  * The flag as stored text, or null for anything that isn't one: { id,
- * bookKey, tab }, `tab` only when the flag has one (a flag stored before
- * tokens has none).
+ * bookKey, tab, paused?, since?, told? }. `tab` is there only when the flag
+ * has one (a flag stored before tokens has none). `paused` is a follow that
+ * is waiting at the bookmark's place while the reader looks around; `since`
+ * is when it began, and `told` is whether the reader has been shown the bar
+ * that offers to move it.
  */
 export function parseFollowFlag(raw) {
   try {
     const f = JSON.parse(raw ?? "null");
     if (!(typeof f?.id === "string" && f.id && Object.hasOwn(BOOKS, f.bookKey))) return null;
-    return typeof f.tab === "string" && f.tab ? { id: f.id, bookKey: f.bookKey, tab: f.tab } : { id: f.id, bookKey: f.bookKey };
+    const flag = { id: f.id, bookKey: f.bookKey };
+    if (typeof f.tab === "string" && f.tab) flag.tab = f.tab;
+    if (f.paused === true) {
+      flag.paused = true;
+      if (Number.isFinite(f.since)) flag.since = f.since;
+      if (f.told === true) flag.told = true;
+    }
+    return flag;
   } catch {
     return null;
   }
 }
 
-/** The flag to store for a bookmark opened into its book, with the tab's token when it has one. */
-export function followFlagFor(bookmark) {
-  return JSON.stringify(bookmark.tab ? { id: bookmark.id, bookKey: bookmark.bookKey, tab: bookmark.tab } : { id: bookmark.id, bookKey: bookmark.bookKey });
+/** The flag to store: a bookmark opened into its book, or a flag as it stands (pausing, telling). */
+export function followFlagFor(flag) {
+  const out = { id: flag.id, bookKey: flag.bookKey };
+  if (flag.tab) out.tab = flag.tab;
+  if (flag.paused) {
+    out.paused = true;
+    if (Number.isFinite(flag.since)) out.since = flag.since;
+    if (flag.told) out.told = true;
+  }
+  return JSON.stringify(out);
+}
+
+/** The flag paused, from now: the reader has gone somewhere that isn't reading on. */
+export function pausedFlag(flag, now) {
+  return { ...flag, paused: true, since: now, told: false };
+}
+
+/** The flag following again, in `bookKey` (a bookmark moved to another book follows there). */
+export function resumedFlag(flag, bookKey = flag.bookKey) {
+  const out = { id: flag.id, bookKey };
+  if (flag.tab) out.tab = flag.tab;
+  return out;
+}
+
+/**
+ * Whether the reader at `pos` is reading on from the bookmark: in its book,
+ * within a chapter of where it sits (or, scrolling Read View, of the last
+ * place this page heard, which a throttled write can lag behind). The next
+ * book's first chapter is not reading on: that is a jump, offered with the bar.
+ */
+export function readingOn(record, pos, lastHeard = null) {
+  const near = (from) => from && from.bookKey === pos.bookKey && Math.abs(from.chapter - pos.chapter) <= 1;
+  return Boolean(pos && (near(record) || near(lastHeard)));
+}
+
+/**
+ * What a followed bookmark does at a report of where the reader is: "move" to
+ * it, "pause" because the reader jumped, "resume" because a paused one is
+ * being read on from, or "stay" paused.
+ */
+export function followStep(flag, record, pos, lastHeard = null) {
+  const on = readingOn(record, pos, lastHeard);
+  if (flag.paused) return on ? "resume" : "stay";
+  return on ? "move" : "pause";
 }
 
 /**
@@ -152,13 +210,15 @@ export function loseFollow(flag, message) {
 }
 
 /**
- * The flag after landing on `page` (pageBookOf's answer, null outside any
- * book): the same flag while the page is in the flagged book, its intro
- * included, and none once the reader has left it.
+ * The flag as a page finds it: the same flag, unless it is a pause that has
+ * run out (PAUSE_EXPIRES_MS). A page outside the book no longer ends a follow:
+ * the flag waits, paused, and the next chapter the reader reads decides
+ * whether it moves (`followStep`).
  */
-export function nextFollowState(flag, page) {
+export function nextFollowState(flag, now = Date.now()) {
   if (!flag) return null;
-  return page && page.bookKey === flag.bookKey ? flag : null;
+  if (flag.paused && Number.isFinite(flag.since) && now - flag.since > PAUSE_EXPIRES_MS) return null;
+  return flag;
 }
 
 /**

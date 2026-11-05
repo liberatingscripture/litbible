@@ -26,6 +26,7 @@ import { standDown } from "../desk-frame.js";
 import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
 import { initBookmarkFollow } from "./bookmark-follow.js";
+import { showPausedBar } from "./bookmark-stop.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
@@ -158,7 +159,7 @@ async function start() {
   });
   panelUp = true;
   initActions({ store, ctx, showVerse: panel.showVerse });
-  initBookmarkFollow({ store, ctx });
+  initBookmarkFollow({ store, ctx, tell: showPausedBar });
   initCommands({ panel, printNotes, printRoom });
   initGreekLink({ panel });
   initProseActions({ store, addNote });

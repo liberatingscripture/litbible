@@ -7805,8 +7805,41 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   question: a bookmark stays put unless "Move as I read" is on.** The record
   is `bookmark` with `label` and `follow`; a ribbon reads as one. What was
   built, the judgment calls, and the note to BDR's Claude are in the
-  2026-11-02 entry under "Decisions". Status: built, awaiting BVJ's look
-  on the preview (the apps need nothing but to carry `follow`).
+  2026-11-02 entry under "Decisions". **BVJ looked, 2026-11-04:** "Bookmarks" is
+  fine, and a plain bookmark stays put while a moving one follows. Changes, built
+  the same day: the verse menu's "Edit bookmark…" sits right after "Remove
+  bookmark"; pressing "Bookmark" opens that form at once; a row shows the name
+  under the reference and a line "Bookmark · Stays put" / "Moves" /
+  "Following" (the first wording, "Moves as I read" and "Following me now,"
+  wrapped to a second line in the Notebook's narrow list, so each is one short
+  word with the longer sentence as hover text; BVJ proposed "Smart," "Static" and "Following"; an Opus
+  agent advised against the first two, as an AI-sounding gimmick and developer
+  vocabulary, so the plain words stand unless BVJ prefers his); and the margin
+  mark of a moving bookmark jumps 5 seconds after the reading pauses instead of
+  sliding as the reader scrolls. The form's hint gained "Off, it stays put on
+  its verse." Also built 2026-11-04: **opening a bookmark that stays put stops
+  the one that was moving**, and a **"Stop following"** link (the row of the
+  bookmark being followed) and button (the verse menu) end it by hand, leaving
+  the bookmark on its verse with the switch still on. **Decided the same day
+  (BVJ, after two Opus design passes): a follow pauses instead of ending.**
+  Jumping (a far chapter, another book, a page outside the book) pauses it where
+  you left off, with a bar and a row link "Move it here"; reading on (the next
+  chapter) carries it; a pause ends after 12 hours. A bookmark being followed only
+  *rests* at its verse (an outline in the margin, no Remove in the verse menu,
+  "Leave it here" instead) and belongs to it only when the follow ends. A verse
+  holds one bookmark that stays put and one that moves, the second made with
+  "Move as I read" fixed at the kind the verse lacks. **Moves are red, stays put
+  are gold.** An Opus audit of "when
+  should it stop" followed (2026-11-04); fixed: every way the flag drops redraws
+  the rows, turning the switch off stops it at once, a reload or Back no longer
+  writes verse 1, a link opened in place on /desk starts no follow, and a
+  bookmark found in search follows or stops like its row. **Accepted (BVJ):**
+  /desk, /notebook and /search clear the flag; a move overtakes Undo of an
+  earlier edit after the reader reads on; the last move before a tab closes can
+  be lost. **Open for BVJ:** whether other rows (notes, highlights, pins,
+  Continue reading) that go to another chapter should stop following, and
+  whether the verse a moving bookmark sits on should count as bookmarked in
+  its verse menu. Status: **looked at; changes built** (the apps need nothing but to carry `follow`).
 - **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
   or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven
@@ -7921,7 +7954,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     stays and isn't drawn; restoring a label brings the label back, not its
     use on items (deleting it stripped those, in a step of its own).
     **Refused, and left in the trash, with a sentence**: a bookmark onto a
-    verse that already has one (BA16), and a label whose name is already
+    verse that already has one of its kind (BA16; since 2026-11-04 a verse
+    takes one that stays put and one that moves, so the other kind is
+    restored), and a label whose name is already
     kept (names are unique). **A bookmark that moved as the reader reads comes
     back plain when six already move** (and the sentence says so). A mark
     whose words moved since gets the usual change notice (N3), nothing special.
@@ -8263,6 +8298,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   gets a disabled button, as it can't be changed here either. No field, kind
   or format change, so nothing for the apps. Status: built, awaiting BVJ's
   look.
+
+- **E28, wish: bookmarks on /desk.** BVJ (2026-11-04), raised while deciding
+  how a follow pauses (E9). Today /desk follows nothing: its panes don't report
+  the reader's place, its LIT pane draws no bookmark marks (BVJ's choice, 3g), and
+  /desk counts as a page outside the book, so a follow pauses there. To settle, as
+  its own session in Phase 5: should reading in a LIT pane move a following
+  bookmark and show its resting outline; should the LIT pane draw bookmarks at
+  all (red, gold, outline); how a bookmark's "Move it here" works with several
+  LIT panes (the active one?); and what Paused means while a desk is open. Status:
+  **open, own session.**
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
