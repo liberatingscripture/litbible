@@ -203,7 +203,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     opt.value = o.value;
     bookSel.append(opt);
   }
-  tools.append(typeSel, bookSel);
+  tools.append(bookSel, typeSel); // the order /search has them in (BVJ, 2026-11-04)
 
   // One polite region for the pane, always in the tree, so a screen reader
   // hears its text change (DK-2). The visible status and note carry the same
@@ -217,6 +217,19 @@ export function createSearchPane({ paneId, env, getPlace }) {
   // the Greek search (BVJ, 2026-11-04). Not live, and it lists no Greek.
   const offerBox = make("p", "desk-search__note");
   offerBox.hidden = true;
+  // The pane shows less than /search does (no pager, no counts), so the same
+  // search is one link away (BVJ, 2026-11-04). Shown while there is a search.
+  const pageLine = make("p", "desk-search__page");
+  pageLine.hidden = true;
+  const pageLink = make("a", null, "See results on the search page");
+  pageLine.append(pageLink);
+  const showPageLink = (q) => {
+    const params = new URLSearchParams({ q });
+    if (activeBook) params.set("book", activeBook);
+    if (activeMode !== "all") params.set("mode", activeMode);
+    pageLink.href = `/search/?${params}`;
+    pageLine.hidden = false;
+  };
   let offerSeq = 0;
   async function syncOffer(q) {
     const mySeq = ++offerSeq;
@@ -238,7 +251,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   const entryBox = make("div", "desk-search__entry");
   entryBox.hidden = true;
   const top = make("div", "desk-search__top");
-  top.append(form, tools, live, status, note, offerBox);
+  top.append(form, tools, pageLine, live, status, note, offerBox);
   el.append(top, results, entryBox);
 
   // ---- state (none of it stored) ----
@@ -340,6 +353,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     seq++;
     offerSeq++;
     offerBox.hidden = true;
+    pageLine.hidden = true;
     last = null;
     jumpBox.replaceChildren();
     groupsEl.replaceChildren();
@@ -407,6 +421,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     showModeFor(typeSel, q);
     tell("");
     syncOffer(q);
+    showPageLink(q);
     closeEntry({ focus: false });
     try {
       const jump = jumpOf(q);

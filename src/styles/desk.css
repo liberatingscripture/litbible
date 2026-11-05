@@ -4241,9 +4241,18 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__back--text {
-  margin: 0 0 8px;
+  margin: 0;
   padding: 4px 10px;
   font-size: 0.8125rem;
+}
+
+/* "Back to the text" and "See results on the search page", side by side at the top. */
+.desk-greek__find-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin: 0 0 8px;
 }
 
 .desk-greek__find-status {
@@ -4374,8 +4383,12 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__find-page {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 0.875rem;
+}
+
+.desk-greek__find-page[hidden] {
+  display: none;
 }
 
 .desk-greek__find-page a {
@@ -7596,7 +7609,7 @@ mark.desk-print-mark {
 .desk-search__top {
   /* In a short pane the field and its menus scroll rather than push the
      results out of reach (DK-10). */
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   max-height: 60%;
   overflow-y: auto;
   padding: 10px 14px 6px;
@@ -7659,6 +7672,24 @@ mark.desk-print-mark {
   margin: 6px 0 0;
   color: rgba(var(--ink-rgb), 0.75);
   font-size: 0.8125rem;
+}
+
+.desk-search__page {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+}
+
+.desk-search__page[hidden] {
+  display: none;
+}
+
+.desk-search__page a {
+  color: var(--green-text);
+}
+
+.desk-search__page a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .desk-search__status:empty {

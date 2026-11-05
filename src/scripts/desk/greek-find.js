@@ -55,7 +55,10 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   const pane = root.querySelector(".desk-greek__results");
 
   pane.innerHTML = `
-    <button type="button" class="desk-greek__back desk-greek__back--text">Back to the text</button>
+    <div class="desk-greek__find-top">
+      <button type="button" class="desk-greek__back desk-greek__back--text">Back to the text</button>
+      <p class="desk-greek__find-page" hidden><a href="/search/">See results on the search page</a></p>
+    </div>
     <p class="desk-greek__find-status" role="status"></p>
     <button type="button" class="desk-greek__retry" hidden>Try again</button>
     <p class="desk-greek__found" hidden></p>
@@ -64,7 +67,6 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     <label class="desk-greek__exact" hidden><input type="checkbox" /> <span>Exact form only</span></label>
     <ul class="desk-greek__hits" hidden></ul>
     <button type="button" class="desk-greek__hits-more" hidden>Show more</button>
-    <p class="desk-greek__find-page" hidden><a href="/search/">See these on the search page</a></p>
     <p class="desk-greek__credit" hidden></p>`;
   const backBtn = pane.querySelector(".desk-greek__back");
   const status = pane.querySelector(".desk-greek__find-status");

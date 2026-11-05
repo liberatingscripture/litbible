@@ -771,8 +771,9 @@ against `dist/` is a later item.
        header's search button and its field were taken out (BVJ,
        2026-11-02, E7): a typed Greek search is the search bar's, /search's
        and /desk's Search pane's, and the tab has no way into the commands
-       window. The word choices, "Exact form only" and "See these on the
-       search page" stay. Its result
+       window. The word choices and "Exact form only" stay, and "See results
+       on the search page" sits at the top beside "Back to the text" (BVJ,
+       2026-11-04). Its result
        rows preview their verse on hover like any reference
        (`ref-preview.js`: a row for another chapter is a link with a
        `?greek=` parameter, which the preview ignores; one for the chapter
@@ -1197,7 +1198,10 @@ against `dist/` is a later item.
        `search.js`, reached only from `desk-panes.js`. It calls
        `search-core.js` and never copies its parsing or bucketing; a new
        rule both UIs need goes there. Its pure rules are
-       `src/lib/desk-search-pane.mjs`. **It keeps nothing about a search**
+       `src/lib/desk-search-pane.mjs`. Its filters are in /search's order (book,
+       then type), and a "See results on the search page" link under them
+       carries the same search (q, book, mode) to /search, which shows more
+       than the pane does (BVJ, 2026-11-04). **It keeps nothing about a search**
        (no key, no layout field), so /privacy doesn't name it and a reload
        empties it. **It stands alone**: not a follower, and “The book I’m
        reading” fixes the book when picked. A plain click on a verse or
