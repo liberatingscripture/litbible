@@ -7817,8 +7817,11 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   vocabulary, so the plain words stand unless BVJ prefers his); and the margin
   mark of a moving bookmark jumps 5 seconds after the reading pauses instead of
   sliding as the reader scrolls. The form's hint gained "Off, it stays put on
-  its verse." Status: **looked at; changes built** (the apps need nothing but to
-  carry `follow`).
+  its verse." Also built 2026-11-04: **opening a bookmark that stays put stops
+  the one that was moving**, and a **"Stop following"** link (the row of the
+  bookmark being followed) and button (the verse menu) end it by hand, leaving
+  the bookmark on its verse with the switch still on. Status: **looked at;
+  changes built** (the apps need nothing but to carry `follow`).
 - **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
   or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven

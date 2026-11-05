@@ -122,8 +122,17 @@ export function drawBookmarkLine(el, bookmark, name = "Bookmark") {
   el.title = title;
 }
 
+/** Whether this tab is moving the bookmark `id` right now. */
+export function isFollowedHere(id) {
+  return readFlag()?.id === id;
+}
+
 /** Draw every bookmark line on the page again, after the tab's flag changed. */
 export function syncBookmarkLines(root = document) {
+  // The "Stop following" buttons show only for the bookmark being followed.
+  for (const el of root?.querySelectorAll?.("[data-bookmark-stop]") ?? []) {
+    el.hidden = !isFollowedHere(el.dataset.bookmarkStop);
+  }
   // A page with no list drawn (and a test's stand-in document) has no lines to redraw.
   for (const el of root?.querySelectorAll?.("[data-bookmark]") ?? []) {
     drawBookmarkLine(el, { id: el.dataset.bookmark, follow: el.dataset.moves === "1" }, el.dataset.kindName);
@@ -131,9 +140,11 @@ export function syncBookmarkLines(root = document) {
 }
 
 /**
- * The reader followed a bookmark's link that doesn't move: whatever was moving
- * stops, since they have left it for another place in the book (BVJ,
- * 2026-11-04). A moving bookmark's link takes over through `followBookmark`.
+ * Stop whatever is moving in this tab: the reader asked ("Stop following",
+ * BVJ 2026-11-04), or followed a bookmark's link that doesn't move, since they
+ * have left it for another place in the book. The bookmark keeps "Move as I
+ * read" on and stays where it last was; opening it from the list starts it
+ * again. A moving bookmark's link takes over through `followBookmark`.
  */
 export function stopFollowing() {
   if (!flag && !readFlag()) return;

@@ -280,6 +280,26 @@ a.desk-item__ref:hover {
   overflow-wrap: anywhere;
 }
 
+/* "Stop following", on the bookmark being followed: a quiet link under its
+   state line, so the state line itself never wraps (BVJ, 2026-11-04). */
+.desk-item__stop {
+  grid-column: 1;
+  justify-self: start;
+  margin: 2px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.desk-item__stop[hidden] {
+  display: none;
+}
+
 /* The reader's own words: plain text, line breaks kept. */
 .desk-item__words {
   unicode-bidi: plaintext;

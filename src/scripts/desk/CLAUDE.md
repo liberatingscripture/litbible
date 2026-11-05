@@ -546,7 +546,12 @@ against `dist/` is a later item.
        2026-11-04: it kept following and would have moved to the new place):
        a plain click on any bookmark's link in either list either takes over
        (`followBookmark`) or clears the flag (`stopFollowing`), and every row's
-       line redraws (`syncBookmarkLines`).
+       line redraws (`syncBookmarkLines`). **"Stop following" ends it by hand**
+       (BVJ, 2026-11-04; `bookmark-stop.js`): a quiet link under the state line
+       of the bookmark this tab is moving, and a button beside "Edit bookmark…"
+       in the verse menu. It clears the flag only: the bookmark stays where it
+       last was with "Move as I read" still on, and opening it from the list
+       starts it again.
        **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
        2026-10-29): Duplicate tab copies session storage, so the flag carries
        the tab's token, and a page that loads with it asks on

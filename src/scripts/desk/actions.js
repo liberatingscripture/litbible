@@ -42,6 +42,8 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openBookmarkForm } from "./bookmark-form.js";
+import { isFollowedHere } from "./bookmark-follow.js";
+import { stopFollowingNow } from "./bookmark-stop.js";
 import { openNoteEditor } from "./note-editor.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
@@ -86,7 +88,9 @@ export function initActions({ store, ctx, showVerse = null }) {
     editRow.className = "lit-panel__row";
     editRow.hidden = true;
     const editMark = button("Edit bookmark…");
-    editRow.append(editMark);
+    const stopMark = button("Stop following");
+    stopMark.hidden = true;
+    editRow.append(editMark, stopMark);
     d.append(editRow);
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
@@ -123,6 +127,16 @@ export function initActions({ store, ctx, showVerse = null }) {
           bookmark.textContent = "Remove bookmark";
           editRow.hidden = false;
           editMark.onclick = () => editBookmark(d, held[0], editMark);
+          // Shown only while this tab is moving this very bookmark.
+          if (isFollowedHere(held[0].id)) {
+            stopMark.hidden = false;
+            editRow.classList.add("lit-panel__row--halves");
+            stopMark.onclick = () => {
+              d.acting?.();
+              stopFollowingNow(`${bookKeyToLabel(where.bookKey)} ${where.chapter}:${held[0].verse}`);
+              closePanel();
+            };
+          }
         }
       })
       .catch(() => {});

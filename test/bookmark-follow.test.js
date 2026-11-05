@@ -308,3 +308,26 @@ test("a flag stored before tokens gets one, and still follows", async () => {
   assert.equal(f.id, "r1");
   assert.ok(typeof f.tab === "string" && f.tab);
 });
+
+test("stopping by hand ends the following and leaves the bookmark where it was, switch still on", async () => {
+  tab("/romans-8/");
+  saveLastRead({ book: "romans", chapter: 8, verse: 2, view: "study" });
+  const store = fakeStore([bookmark()]);
+  const { initBookmarkFollow, followBookmark, stopFollowing, isFollowedHere, bookmarkState } = await loadFollower();
+  initBookmarkFollow({ store, ctx });
+
+  followBookmark(bookmark(), "/romans-8/#v30");
+  assert.equal(isFollowedHere("r1"), true);
+  assert.equal(bookmarkState(bookmark()).word, "Following");
+  saveLastRead({ book: "romans", chapter: 8, verse: 31, view: "study" });
+  await settle();
+  assert.equal(store.map.get("r1").verse, 31);
+
+  stopFollowing();
+  assert.equal(isFollowedHere("r1"), false);
+  assert.equal(bookmarkState(bookmark()).word, "Moves", "the switch stays on");
+  saveLastRead({ book: "romans", chapter: 8, verse: 35, view: "study" });
+  await settle();
+  assert.equal(store.map.get("r1").verse, 31, "it stays where it last was");
+  assert.equal(store.map.get("r1").follow, true);
+});
