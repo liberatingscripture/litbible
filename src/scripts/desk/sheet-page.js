@@ -56,16 +56,10 @@ import { diffParagraph } from "./diff-view.js";
 import { openPresentation, showPresenterView } from "./sheet-present.js";
 import { copyForWord } from "./sheet-word.js";
 import { openStore } from "./store.js";
+import { make } from "./dom.js";
 
 const PAPER_KEY = "lit-sheet-paper";
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function button(label, cls = "desk-sheet__btn") {
   const b = make("button", cls, label);

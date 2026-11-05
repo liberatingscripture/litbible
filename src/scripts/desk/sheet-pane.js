@@ -74,6 +74,7 @@ import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./shee
 import { createSheetText } from "./sheet-text.js";
 import { showUndo } from "./undo-bar.js";
 import { redraw } from "./focus-keep.js";
+import { make } from "./dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -88,13 +89,6 @@ const TYPE_NAMES = {
 
 /** How long typing in the title waits before it is saved. */
 const TITLE_DELAY = 500;
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function button(label, cls = "desk-sheet__btn") {
   const b = make("button", cls, label);

@@ -38,15 +38,9 @@ import { initUndo, showUndo } from "./undo-bar.js";
 import { createTrashList } from "./trash-list.js";
 import { mountWhatsNew } from "./whats-new.js";
 import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { el } from "./dom.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 // How the Notebook panel starts on each page (src/lib/desk-start.mjs; BVJ,
 // 2026-10-13): kept as the reader chooses, and "As I left it" stores nothing.

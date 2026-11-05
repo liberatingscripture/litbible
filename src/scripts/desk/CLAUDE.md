@@ -991,6 +991,11 @@ against `dist/` is a later item.
        520 ms to 15 ms, scrolling 42 ms a frame to 7. `content-visibility`
        was tried and fixed the layout only. A new reader of a pane's text that
        needs it drawn (a rect, a selection) must handle a parked chapter.
+       **`desk/dom.js` holds `make`/`el` and `escapeHtml`** (LG-13): import them,
+       don't write another copy. `announce` and `say` are not shared on purpose
+       (the copies differ), and `first-use.js`, `desk-tour.js` and
+       `sheet-text.js` keep their own `el`/`make`, which differ in how they
+       treat a null text.
        The LIT pane is `desk/lit-pane.js`, Footnotes
        `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
        the sheet editor, with its formatted text in `desk/sheet-text.js`

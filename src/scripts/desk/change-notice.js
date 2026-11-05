@@ -50,6 +50,7 @@ import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
 import { diffParagraph } from "./diff-view.js";
 import { loadReleaseNotes } from "./release-feed.js";
 import { announce, showUndo } from "./undo-bar.js";
+import { el } from "./dom.js";
 
 /** The content version of the text this page is showing. */
 const pageVersion = () => document.documentElement.dataset.contentVersion || "unversioned";
@@ -265,13 +266,6 @@ async function keepAllowed(record) {
 /* ── The card ────────────────────────────────────────────────────── */
 
 let seq = 0;
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 /**
  * Open the card for a record's notice, in the shared floating panel beside

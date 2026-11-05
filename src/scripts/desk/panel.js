@@ -54,6 +54,7 @@ import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
+import { escapeHtml } from "./dom.js";
 
 const TAB_KEY = "lit-desk-tab";
 
@@ -795,6 +796,3 @@ function brokenTab() {
   return { el, render() {}, setVerse() {}, focusHeading() {}, async selectWord() {} };
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-}

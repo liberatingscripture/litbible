@@ -59,6 +59,7 @@ import { attachTermLens } from "../term-lens.js";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
+import { make } from "./dom.js";
 
 /** How far down the pane the reading line sits. */
 const LINE = 0.25;
@@ -77,13 +78,6 @@ const PARK_AFTER = 40;
 /** How far from the window, in pane heights, a chapter must be to stop being drawn, and how near to be drawn again. */
 const PARK_FAR = 3;
 const PARK_NEAR = 2;
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 /**
  * @param {{ paneId: string, start: object, drafts: Record<string, number[]>,

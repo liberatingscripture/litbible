@@ -26,18 +26,11 @@ import { creditHtml } from "../../lib/greek-credits.mjs";
 import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../../lib/greek-search.mjs";
 import { countLine, describeGreekQuery, errorMessage } from "../../lib/greek-query.mjs";
 import { formsLine, verseGreek } from "../../lib/greek-commands-ui.mjs";
+import { make } from "./dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const PAGE = 10; // verses at a time
 const CHOICES = 10; // words offered at a time
-
-/** A new element with a class and, optionally, text. */
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 /** A lemma's line with its Greek set as Greek: "πίστις · pistis · G4102 · faith · 243 times". */
 function lemmaNodes(into, item, { count = true } = {}) {

@@ -47,19 +47,13 @@ import {
 import { modulesForCopy } from "../../lib/desk-sheet-copy.mjs";
 import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { codeFigure, keyTermsSection, presentPassage, printingBlanks, readAll, rich } from "./sheet-copy.js";
+import { make } from "./dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 // The virtual screen a preview is laid out on in the presenter view, then
 // scaled to fit its frame: a 16:9 projector.
 const VIRTUAL = { width: 1600, height: 900 };
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function button(label, cls = "present-btn") {
   const b = make("button", cls, label);

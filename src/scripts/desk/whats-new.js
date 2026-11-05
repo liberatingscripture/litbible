@@ -29,16 +29,10 @@ import {
   seenValue,
 } from "../../lib/desk-whats-new-view.mjs";
 import { loadReleaseNotes } from "./release-feed.js";
+import { el } from "./dom.js";
 
 /** Where the section is, for the panel's line. */
 export const WHATS_NEW_HREF = "/notebook/#whats-new";
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 /** The saved "last looked" value as it is stored ("2026-10-26+3"), or null. */
 async function lastLooked(store) {

@@ -29,13 +29,7 @@ import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { nameOf, recordRow } from "./record-rows.js";
 import { showUndo } from "./undo-bar.js";
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
+import { el } from "./dom.js";
 
 /**
  * @param {{ store: object, ctx: () => object, idPrefix?: string,

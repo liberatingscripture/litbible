@@ -43,13 +43,7 @@ import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
 import { NO_CHAPTER_KINDS, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
+import { make } from "./dom.js";
 
 function message(body, text) {
   body.append(make("p", "desk-pane__later", text));

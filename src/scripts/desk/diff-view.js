@@ -8,13 +8,7 @@
 // (excerptDiff). The look is `.desk-notice__diff` in desk.css.
 
 import { excerptDiff } from "../../lib/desk-change.mjs";
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
+import { el } from "./dom.js";
 
 /**
  * The diff as a paragraph: unchanged words as they read, deleted words struck

@@ -103,6 +103,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
 import { initUndo, showUndo } from "./undo-bar.js";
+import { el } from "./dom.js";
 
 const NEEDS_TEXT = {
   wider: "Needs a wider window",
@@ -146,13 +147,6 @@ const MOVES = [
 
 // "Greek, The LIT, and My Notes": the Oxford comma, as the site writes lists.
 const LIST = new Intl.ListFormat("en-US", { type: "conjunction" });
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function readKey() {
   try { return localStorage.getItem(LAYOUT_KEY); } catch (_) { return null; }

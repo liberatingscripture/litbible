@@ -41,6 +41,7 @@ import { WIDTHS_EVENT, keepGreekSplit, keptGreekSplit } from "./widths.js";
 import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
+import { make } from "./dom.js";
 
 // The editions SBL's notes compare the SBLGNT with.
 const EDITIONS = [
@@ -67,14 +68,6 @@ const BORROWED = {
 
 // How long an apparatus entry stays lit after a sign takes the reader to it.
 const LIT_MS = 1800;
-
-/** A new element with a class and, optionally, text. */
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 /**
  * Text into `into` with the Greek and Hebrew in it marked by `lang`, so a

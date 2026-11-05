@@ -38,19 +38,13 @@ import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
 import { addModule, createSheet, makeModule } from "../../lib/desk-sheets.mjs";
 import { createHistory, undoEntry } from "./history.js";
 import { openStore } from "./store.js";
+import { make } from "./dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const contentVersion = document.documentElement.dataset.contentVersion || "unversioned";
 const ctx = () => ({ client: webClient(contentVersion), contentVersion });
 
 /* ── Small helpers ───────────────────────────────────────────────────── */
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function button(label, cls = "desk-gather__btn") {
   const b = make("button", cls, label);

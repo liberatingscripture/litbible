@@ -39,6 +39,7 @@ import { glyph } from "./glyphs.js";
 import { openNoteEditor } from "./note-editor.js";
 import { fillNoteWords } from "./note-words.js";
 import { footnoteList, pageChapter } from "./page.js";
+import { escapeHtml } from "./dom.js";
 
 /** What the buttons need: the notebook and what a write is stamped with. */
 let env = null;
@@ -309,6 +310,3 @@ export function initFootnoteNotes({ store, ctx }) {
   refreshFootnoteNotes();
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-}
