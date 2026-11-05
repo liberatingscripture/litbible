@@ -34,6 +34,8 @@
 
 import { onFootnote } from "../../lib/desk-records.mjs";
 import { recordReference, recordWhere, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { FOLLOW_CHANGED } from "./bookmark-follow.js";
+import { markLook } from "./bookmark-mark.js";
 import { redrawAfterMove } from "./move-redraw.js";
 import {
   CIRCLE,
@@ -167,10 +169,11 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     const marks = getSetting("bookmarks") === "on" ? placed(bookmarks) : [];
     const ribbon = (record) => {
       const mark = document.createElement("span");
-      mark.className = "desk-bookmark-mark";
+      const look = markLook(record, refOf(record));
+      mark.className = look.className;
       mark.setAttribute("role", "img");
-      mark.setAttribute("aria-label", `Bookmark, ${refOf(record)}`);
-      mark.title = `Bookmark, ${refOf(record)}`;
+      mark.setAttribute("aria-label", look.name);
+      mark.title = look.name;
       mark.innerHTML = glyph("bookmark", "desk-bookmark-mark__glyph");
       aside.append(mark);
       return mark;
@@ -185,9 +188,13 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       for (const { record, range } of marks) {
         const mark = ribbon(record);
         const top = lineTop(range) + (lineHeight - BOOKMARK_MARK) / 2;
-        spots.push({ top, lane: 0 });
+        // Two bookmarks on one line (one that stays put and one that moves, or the
+        // one resting there) sit side by side, the second a lane out.
+        let lane = 0;
+        while (spots.some((s) => s.lane === lane && Math.abs(s.top - top) < BOOKMARK_MARK)) lane++;
+        spots.push({ top, lane });
         mark.style.top = `${top}px`;
-        mark.style.left = `${box.left + sx - right - BOOKMARK_MARK}px`;
+        mark.style.left = `${box.left + sx - right - BOOKMARK_MARK - lane * BOOKMARK_LANE}px`;
       }
       // Where there is no margin at all ("none") there is no flag.
       if (mode === "full") {
@@ -726,6 +733,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   store.subscribe(load, { except: QUIET_KINDS });
   // It catches up as a jump once the reader pauses, not a slide (move-redraw.js).
   redrawAfterMove(store, load);
+  // The flag changing (a follow starts, pauses, stops) changes which mark is an outline.
+  window.addEventListener(FOLLOW_CHANGED, schedule);
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

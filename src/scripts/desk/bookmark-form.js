@@ -12,9 +12,9 @@
 
 import { BOOKMARK_NAME_MAX, MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { planBookmarkEdit } from "../../lib/desk-bookmark-change.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
+import { followChoices, recordReference } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
-import { isFollowedHere, stopFollowing } from "./bookmark-follow.js";
+import { isFollowedHere, restingId, stopFollowing } from "./bookmark-follow.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -27,8 +27,10 @@ let seq = 0;
  * @param {() => object} options.ctx
  * @param {object} options.record the bookmark being edited
  * @param {Element} [options.restoreFocus]
+ * @param {boolean | null} [options.lock] fix "Move as I read" at this value, the
+ *   kind the verse doesn't already hold (BVJ, 2026-11-04); null works it out
  */
-export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = null }) {
+export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = null, lock = null }) {
   const n = ++seq;
   const ref = recordReference(record);
 
@@ -54,6 +56,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
       <input type="checkbox" class="desk-bookmark-form__follow-box" aria-describedby="deskBookmarkHint${n}" />
       <span>Move as I read</span>
     </label>
+    <p class="desk-bookmark-form__lock" role="status" hidden></p>
     <p class="desk-bookmark-form__hint" id="deskBookmarkHint${n}">
       Open this bookmark from your list, and it follows you through the book.
       Off, it stays put on its verse. Up to ${MAX_FOLLOWING} bookmarks can move.
@@ -70,6 +73,28 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
   nameInput.value = record.label ?? "";
   const follow = panel.querySelector(".desk-bookmark-form__follow-box");
   follow.checked = record.follow === true;
+  // The verse holds one bookmark of each kind: when the other is taken, the
+  // switch is fixed at the one that isn't, and says why.
+  const lockLine = panel.querySelector(".desk-bookmark-form__lock");
+  function fixSwitch(value) {
+    follow.checked = value;
+    follow.disabled = true;
+    lockLine.hidden = false;
+    lockLine.textContent = value
+      ? "This verse already has a bookmark that stays put, so this one moves as you read."
+      : "This verse already has a bookmark that moves as you read, so this one stays put.";
+  }
+  if (lock !== null) fixSwitch(lock);
+  else if (store?.byChapter) {
+    store
+      .byChapter(record.bookKey, record.chapter)
+      .then((records) => {
+        const choices = followChoices(records, record, { except: restingId() });
+        if (choices.moves && choices.stays) return;
+        fixSwitch(choices.moves ? true : choices.stays ? false : record.follow === true);
+      })
+      .catch(() => {});
+  }
   const error = panel.querySelector(".desk-editor__error");
   const saveButton = panel.querySelector(".desk-editor__save");
 

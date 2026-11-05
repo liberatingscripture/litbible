@@ -100,10 +100,11 @@ export function highlightColors(records) {
  * span is read like any record's, so one a copy brought with a range marks
  * each verse in it. Only bookmarks count.
  */
-export function bookmarkedVerses(records) {
+export function bookmarkedVerses(records, { except = null } = {}) {
   const verses = new Set();
   for (const r of records ?? []) {
-    if (r?.kind !== "bookmark") continue;
+    // The bookmark this tab is following only rests on its verse (BVJ, 2026-11-04).
+    if (r?.kind !== "bookmark" || r.id === except) continue;
     const s = span(r);
     if (!s) continue;
     for (let v = s.from; v <= s.to; v++) verses.add(v);

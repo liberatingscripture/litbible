@@ -7820,7 +7820,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   its verse." Also built 2026-11-04: **opening a bookmark that stays put stops
   the one that was moving**, and a **"Stop following"** link (the row of the
   bookmark being followed) and button (the verse menu) end it by hand, leaving
-  the bookmark on its verse with the switch still on. An Opus audit of "when
+  the bookmark on its verse with the switch still on. **Decided the same day
+  (BVJ, after two Opus design passes): a follow pauses instead of ending.**
+  Jumping (a far chapter, another book, a page outside the book) pauses it where
+  you left off, with a bar and a row link "Move it here"; reading on (the next
+  chapter) carries it; a pause ends after 12 hours. A bookmark being followed only
+  *rests* at its verse (an outline in the margin, no Remove in the verse menu,
+  "Leave it here" instead) and belongs to it only when the follow ends. A verse
+  holds one bookmark that stays put and one that moves, the second made with
+  "Move as I read" fixed at the kind the verse lacks. **Moves are red, stays put
+  are gold.** An Opus audit of "when
   should it stop" followed (2026-11-04); fixed: every way the flag drops redraws
   the rows, turning the switch off stops it at once, a reload or Back no longer
   writes verse 1, a link opened in place on /desk starts no follow, and a
@@ -8287,6 +8296,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   gets a disabled button, as it can't be changed here either. No field, kind
   or format change, so nothing for the apps. Status: built, awaiting BVJ's
   look.
+
+- **E28, wish: bookmarks on /desk.** BVJ (2026-11-04), raised while deciding
+  how a follow pauses (E9). Today /desk follows nothing: its panes don't report
+  the reader's place, its LIT pane draws no bookmark marks (BVJ's choice, 3g), and
+  /desk counts as a page outside the book, so a follow pauses there. To settle, as
+  its own session in Phase 5: should reading in a LIT pane move a following
+  bookmark and show its resting outline; should the LIT pane draw bookmarks at
+  all (red, gold, outline); how a bookmark's "Move it here" works with several
+  LIT panes (the active one?); and what Paused means while a desk is open. Status:
+  **open, own session.**
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

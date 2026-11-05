@@ -259,7 +259,7 @@ against `dist/` is a later item.
      with its Latin, Latin-ext and Greek ranges, so it loads only with the
      desk and only when a note uses it), or Inter on "Plain"; a reader's
      Atkinson or OpenDyslexic choice wins through `html[data-font]` as
-     everywhere. Bookmarks show in the same `<aside>` as a red mark, a trial
+     everywhere. Bookmarks show in the same `<aside>` as a red mark (gold if they stay put; see "Bookmarks, and Continue reading"), a trial
      STUDY-DESK.md records, with their own switch (`data-desk-bookmarks`).
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool. The notes' settings (`data-desk-notes`,
@@ -546,7 +546,27 @@ against `dist/` is a later item.
        2026-11-04: it kept following and would have moved to the new place):
        a plain click on any bookmark's link in either list either takes over
        (`followBookmark`) or clears the flag (`stopFollowing`), and every row's
-       line redraws (`syncBookmarkLines`). **"Stop following" ends it by hand**
+       line redraws (`syncBookmarkLines`).
+       **A follow pauses rather than ends** (BVJ, 2026-11-04, after an Opus
+       design pass). The flag is `{ id, bookKey, tab, paused?, since?, told? }`.
+       Each report of where the reader is goes through `followStep`
+       (desk-bookmarks.mjs): within a chapter of where the bookmark sits (or of
+       the last place this page heard, for Read View's long scroll) it moves; a
+       far chapter, or another book (Matthew 28 to Mark 1 included), pauses it
+       where it was, and the reader is told once, in the undo bar, with "Move it
+       here" (`showPausedBar`; the move is an ordinary undoable edit and may cross
+       books); reading on from the bookmark resumes it. Pages outside the book
+       (/search, /notebook, /desk) pause it too (`desk-gate.js`), and a pause
+       ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
+       storage). Rows say Following, Paused, Moves or Stays put.
+       **A following or paused bookmark rests at its verse and does not belong
+       to it** (`restingId`): the verse menu leaves it out of Remove and offers
+       "Leave it here" and Edit, and a verse holds **one bookmark that stays put
+       and one that moves** (`followChoices`, `planBookmark`; Edit and the form
+       lock "Move as I read" at the kind the verse lacks). Its mark is the red
+       outline; a bookmark that moves and isn't followed is solid red, and one
+       that stays put is gold (`bookmark-mark.js`). A follow that ends on a verse
+       already holding a bookmark of its kind is tolerated. **"Stop following" ends it by hand**
        (BVJ, 2026-11-04; `bookmark-stop.js`): a quiet link under the state line
        of the bookmark this tab is moving, and a button beside "Edit bookmark…"
        in the verse menu. It clears the flag only: the bookmark stays where it

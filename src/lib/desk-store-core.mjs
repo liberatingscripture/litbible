@@ -90,30 +90,65 @@ export function planDelete(record, ctx) {
   return { put: [trash], remove: [record.id], trash };
 }
 
-/** The bookmarks on one verse. A verse should hold one, but a copy can bring a second. */
-export function bookmarksOn(records, { bookKey, chapter, verse }) {
+/**
+ * The bookmarks on one verse. `except` is the id of the one this tab is
+ * following: it only rests at its verse and does not belong to it until the
+ * follow ends (BVJ, 2026-11-04), so the verse's menu and the rule below leave it
+ * out. A verse holds at most one bookmark that stays put and one that moves,
+ * but a copy can bring more.
+ */
+export function bookmarksOn(records, { bookKey, chapter, verse }, { except = null } = {}) {
   return (records ?? []).filter(
-    (r) => r?.kind === "bookmark" && r.bookKey === bookKey && r.chapter === chapter && r.verse === verse,
+    (r) =>
+      r?.kind === "bookmark" && r.bookKey === bookKey && r.chapter === chapter && r.verse === verse && r.id !== except,
   );
+}
+
+/** Whether a bookmark is of the kind that moves (its "Move as I read" is on). */
+const movesKind = (r) => r?.follow === true;
+
+/**
+ * Which values of "Move as I read" a bookmark on this verse may take: the kind
+ * the verse doesn't already hold (BVJ, 2026-11-04). Its own value is always
+ * allowed, so a bookmark that is already a second of its kind can be edited.
+ * `except` is the bookmark being followed, who doesn't count.
+ *
+ * @returns {{ moves: boolean, stays: boolean }}
+ */
+export function followChoices(records, record, { except = null } = {}) {
+  const others = bookmarksOn(records, record, { except }).filter((r) => r.id !== record.id);
+  const mine = movesKind(record);
+  return {
+    moves: mine || !others.some(movesKind),
+    stays: !mine || !others.some((r) => !movesKind(r)),
+  };
 }
 
 /**
  * Bookmark a verse, planned over the notebook as it is now (`records`, read in
  * the same transaction as the write): the new bookmark, or null and nothing
- * written when the verse already holds one, so a second press, or a press
- * before the panel has read the chapter, never saves two (BA16).
+ * written when the verse already holds one of its kind (it stays put, or it
+ * moves), so a second press, or a press before the panel has read the chapter,
+ * never saves two (BA16). `except` is the bookmark this tab is following.
  */
-export function planBookmark(records, record) {
-  return bookmarksOn(records, record).length ? null : planSave(record);
+export function planBookmark(records, record, options = {}) {
+  const same = bookmarksOn(records, record, options).some((r) => movesKind(r) === movesKind(record));
+  return same ? null : planSave(record);
 }
 
 /**
- * Remove the bookmark on a verse: every one it holds, each through its trash
- * record, so the mark goes from the margin (BA16). Null when there is none.
- * `trash` lists the trash records.
+ * Remove a bookmark on a verse, each through its trash record, so the mark
+ * goes from the margin (BA16). Given `id`, that one and any identical copy a
+ * sync brought (the same name and kind); else every one the verse holds.
+ * Null when there is none. `trash` lists the trash records.
  */
-export function planUnbookmark(records, place, ctx) {
-  const plans = bookmarksOn(records, place).map((r) => planDelete(r, ctx));
+export function planUnbookmark(records, place, ctx, { id = null, except = null } = {}) {
+  const held = bookmarksOn(records, place, { except });
+  const chosen = id ? held.find((r) => r.id === id) : null;
+  // Asked for one that isn't on the verse (it went, or it is the one resting): nothing is removed.
+  if (id && !chosen) return null;
+  const targets = chosen ? held.filter((r) => r.id === id || ((r.label ?? "") === (chosen.label ?? "") && movesKind(r) === movesKind(chosen))) : held;
+  const plans = targets.map((r) => planDelete(r, ctx));
   if (!plans.length) return null;
   return {
     put: plans.flatMap((p) => p.put),

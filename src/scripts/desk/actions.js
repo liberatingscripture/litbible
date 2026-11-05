@@ -42,7 +42,7 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openBookmarkForm } from "./bookmark-form.js";
-import { isFollowedHere } from "./bookmark-follow.js";
+import { isPausedHere, restingId } from "./bookmark-follow.js";
 import { stopFollowingNow } from "./bookmark-stop.js";
 import { openNoteEditor } from "./note-editor.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
@@ -82,16 +82,13 @@ export function initActions({ store, ctx, showVerse = null }) {
     row.append(bookmark);
     d.append(heading);
     d.append(row);
-    // Edit bookmark…, right after Remove bookmark (BVJ, 2026-11-04), once the
-    // verse holds a bookmark.
-    const editRow = document.createElement("div");
-    editRow.className = "lit-panel__row";
-    editRow.hidden = true;
-    const editMark = button("Edit bookmark…");
-    const stopMark = button("Stop following");
-    stopMark.hidden = true;
-    editRow.append(editMark, stopMark);
-    d.append(editRow);
+    // What the verse holds, drawn once the notebook has been read: each bookmark
+    // that belongs to it with Remove and Edit bookmark… right beside, an add
+    // button for the kind it lacks, and the one this tab is following, which
+    // only rests here (BVJ, 2026-11-04).
+    const bookmarkBox = document.createElement("div");
+    bookmarkBox.className = "desk-bookmark-menu";
+    d.append(bookmarkBox);
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
@@ -117,77 +114,130 @@ export function initActions({ store, ctx, showVerse = null }) {
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;
     const place = { ...where, verse };
-    let existing = false;
-    store
-      .byChapter(where.bookKey, where.chapter)
-      .then((records) => {
-        const held = bookmarksOn(records, place);
-        existing = held.length > 0;
-        if (existing) {
-          bookmark.textContent = "Remove bookmark";
-          editRow.hidden = false;
-          editMark.onclick = () => editBookmark(d, held[0], editMark);
-          // Shown only while this tab is moving this very bookmark.
-          if (isFollowedHere(held[0].id)) {
-            stopMark.hidden = false;
-            editRow.classList.add("lit-panel__row--halves");
-            stopMark.onclick = () => {
-              d.acting?.();
-              stopFollowingNow(`${bookKeyToLabel(where.bookKey)} ${where.chapter}:${held[0].verse}`);
-              closePanel();
-            };
-          }
-        }
-      })
-      .catch(() => {});
+    const ref = `${bookKeyToLabel(where.bookKey)} ${where.chapter}:${verse}`;
 
-    // One press is one change: the button stands down until the panel closes,
-    // and each change is planned over the notebook as it is when written, so
-    // a press before the chapter has been read never saves a second bookmark,
-    // and removing takes every one the verse holds (BA16).
+    // One press is one change: a button stands down until the panel closes, and
+    // each change is planned over the notebook as it is when written, so a press
+    // before the panel has read the chapter never saves a second bookmark of a
+    // kind the verse holds (BA16).
     let busy = false;
-    bookmark.addEventListener("click", async () => {
+    const guarded = (btn, work) => async () => {
       if (busy) return;
       busy = true;
-      bookmark.setAttribute("aria-disabled", "true");
+      btn.setAttribute("aria-disabled", "true");
       d.acting?.();
-      const ref = `${bookKeyToLabel(where.bookKey)} ${where.chapter}:${verse}`;
       try {
-        if (existing) {
-          const plan = await store.change(({ all }) => all().then((records) => planUnbookmark(records, place, ctx())));
-          // The change this made, read at once: the undo button, like Ctrl+Z,
-          // takes back exactly this one (history.js).
-          const entry = plan ? store.lastEntry() : null;
-          bookmark.textContent = "Removed ✓";
-          setTimeout(closePanel, 700);
-          if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
-          return;
-        }
-        const now = new Date().toISOString();
-        const record = createRecord("bookmark", { ...place, endVerse: verse }, { now, ...ctx() });
-        await store.change(({ all }) => all().then((records) => planBookmark(records, record)));
-        existing = true;
-        const hidden = hiddenNotice("bookmarks", bookmarkedMessage(ref));
-        if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
-        else announce(bookmarkedMessage(ref));
-        // The form for its name and "Move as I read" opens at once, in the
-        // menu's place (BVJ, 2026-11-04); closing it leaves a plain bookmark.
-        editBookmark(d, record, bookmark);
+        await work(btn);
       } catch (err) {
         console.error("Study Desk: the bookmark couldn't be changed", err);
         busy = false;
-        bookmark.removeAttribute("aria-disabled");
+        btn.removeAttribute("aria-disabled");
       }
-    });
+    };
+
+    // Make a bookmark of the given kind and open its form, the switch fixed at
+    // the kind (`lock`) when the verse already holds the other one.
+    const addBookmark = (follow, lock) => async (btn) => {
+      const now = new Date().toISOString();
+      const record = createRecord("bookmark", { ...place, endVerse: verse, ...(follow ? { follow: true } : {}) }, { now, ...ctx() });
+      const resting = restingId();
+      await store.change(({ all }) => all().then((records) => planBookmark(records, record, { except: resting })));
+      const hidden = hiddenNotice("bookmarks", bookmarkedMessage(ref));
+      if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
+      else announce(bookmarkedMessage(ref));
+      // The form for its name and "Move as I read" opens at once, in the menu's
+      // place (BVJ, 2026-11-04); closing it leaves the bookmark as made.
+      editBookmark(d, record, btn, lock);
+    };
+
+    const removeBookmark = (b) => async (btn) => {
+      const resting = restingId();
+      const plan = await store.change(({ all }) =>
+        all().then((records) => planUnbookmark(records, place, ctx(), { id: b.id, except: resting })),
+      );
+      // The change this made, read at once: the undo button, like Ctrl+Z, takes
+      // back exactly this one (history.js).
+      const entry = plan ? store.lastEntry() : null;
+      btn.textContent = "Removed ✓";
+      setTimeout(closePanel, 700);
+      if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
+    };
+
+    const lineOf = (...buttons) => {
+      const r = document.createElement("div");
+      r.className = "lit-panel__row";
+      r.append(...buttons);
+      return r;
+    };
+
+    function drawBookmarks(records) {
+      const resting = restingId();
+      const held = bookmarksOn(records, place, { except: resting });
+      const restingHere = resting ? bookmarksOn(records, place).find((b) => b.id === resting) : null;
+      bookmarkBox.replaceChildren();
+      // With nothing of its own on the verse, the one button adds a plain bookmark.
+      bookmark.hidden = held.length > 0;
+      // The note button takes the whole row when Bookmark steps aside.
+      row.classList.toggle("lit-panel__row--halves", notes && !bookmark.hidden);
+      const kindWord = (b) => (b.follow === true ? "bookmark that moves" : "bookmark that stays put");
+      for (const b of held) {
+        const both = held.length > 1;
+        const label = b.label ? `“${b.label}”` : both ? kindWord(b) : "bookmark";
+        const remove = button(`Remove ${label}`);
+        remove.addEventListener("click", guarded(remove, removeBookmark(b)));
+        const edit = button(both ? `Edit ${label}…` : "Edit bookmark…");
+        edit.addEventListener("click", () => editBookmark(d, b, edit));
+        // Edit sits right beside Remove (BVJ, 2026-11-04).
+        bookmarkBox.append(lineOf(remove), lineOf(edit));
+      }
+      // A verse takes a bookmark of each kind; the one it lacks may be added.
+      if (held.length) {
+        if (!held.some((b) => b.follow === true)) {
+          const add = button("Add a bookmark that moves");
+          add.addEventListener("click", guarded(add, addBookmark(true, true)));
+          bookmarkBox.append(lineOf(add));
+        }
+        if (!held.some((b) => b.follow !== true)) {
+          const add = button("Add a bookmark that stays put");
+          add.addEventListener("click", guarded(add, addBookmark(false, false)));
+          bookmarkBox.append(lineOf(add));
+        }
+      }
+      // The bookmark this tab is moving rests here: it isn't the verse's, so there
+      // is no Remove, only letting it stay here, or editing it.
+      if (restingHere) {
+        const paused = isPausedHere(restingHere.id);
+        const name = restingHere.label ? `“${restingHere.label}”` : "A bookmark";
+        const line = document.createElement("p");
+        line.className = "lit-panel__hint";
+        line.textContent = `${name} is resting here while it ${paused ? "waits for you" : "follows you"}.`;
+        const leave = button("Leave it here");
+        leave.addEventListener("click", () => {
+          d.acting?.();
+          stopFollowingNow(ref);
+          closePanel();
+        });
+        const edit = button("Edit bookmark…");
+        edit.addEventListener("click", () => editBookmark(d, restingHere, edit));
+        bookmarkBox.append(line, lineOf(leave, edit));
+      }
+    }
+
+    // Until the notebook is read, the one button is a plain Bookmark.
+    bookmark.addEventListener("click", guarded(bookmark, addBookmark(false, null)));
+    store
+      .byChapter(where.bookKey, where.chapter)
+      .then(drawBookmarks)
+      .catch(() => {});
   });
 
   // The bookmark is one verse: the first the menu or selection covers.
-  function editBookmark(d, record, btn) {
+  function editBookmark(d, record, btn, lock = null) {
     d.acting?.();
     const trigger = (d.kind === "selection" && d.range) || currentPanel()?.trigger || btn;
     const restoreFocus =
       currentPanel()?.restoreFocus ?? (d.kind === "selection" ? verseNumberOf(d.range, d.start) : null);
-    openBookmarkForm({ trigger, store, ctx, record, restoreFocus });
+    openBookmarkForm({ trigger, store, ctx, record, restoreFocus, lock });
   }
 
   function addNote(d, where, btn) {

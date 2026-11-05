@@ -36,7 +36,8 @@ import "../../styles/pages/notebook-help.css";
           note,” “Bookmark,” and “Highlight” under “My Notebook.” To mark only some
           words, select them instead: the same choices appear beside the
           selection. A note appears in the margin beside its words, a highlight
-          tints them, and a bookmark shows in red beside the verse. In Read View
+          tints them, and a bookmark shows beside the verse, in red if it moves as
+          you read and in gold if it stays put. In Read View
           you can bookmark and highlight, but notes belong to Chapter View.
         </p>
         <p>
@@ -135,12 +136,17 @@ import "../../styles/pages/notebook-help.css";
       <section aria-labelledby="bookmarks">
         <h2 id="bookmarks">Bookmarks</h2>
         <p>
-          A bookmark shows in red beside a verse: a spot you want to return to. It
-          stays on its verse until you remove it. In the Notebook, “Edit” gives a
-          bookmark a name, such as “Thursday group,” and can turn on “Move as I
-          read.” Open that bookmark from your list and read on, and while you stay in
-          that book it follows you, so it always shows where the group left off. Up
-          to {MAX_FOLLOWING} bookmarks can move this way.
+          A bookmark shows beside a verse: a spot you want to return to. One that
+          stays put is gold and stays on its verse until you remove it. In the
+          Notebook, “Edit” gives a bookmark a name, such as “Thursday group,” and
+          can turn on “Move as I read.” That bookmark is red. Open it from your list
+          and read on, and it follows you, so it always shows where the group left
+          off; while it follows, its mark is an outline, because it is only resting
+          where you are. Looking something up, such as a note in another chapter,
+          pauses it where you left off, and a bar offers to move it to where you
+          are. Reading on to the next chapter carries it along. A verse can hold one
+          bookmark that stays put and one that moves. Up to {MAX_FOLLOWING}
+          bookmarks can move this way.
         </p>
         <p>
           “Continue reading” is not a bookmark. It is the one place that is always

@@ -1054,6 +1054,12 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   }
 }
 
+/* A button the verse menu hides (Bookmark, once the verse holds one) stays hidden
+   whatever the panel's own button rule says. */
+.lit-panel__row > button[hidden] {
+  display: none;
+}
+
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
    the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
    `ribbon` (named `bookmark` until E10), is green and always comes with
@@ -1073,6 +1079,23 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 
 .desk-bookmark-mark__glyph path {
   fill: #c62828;
+}
+
+/* Which is which at a glance (BVJ, 2026-11-04): red moves, gold stays put, and
+   the one this tab is following only rests at its verse, so it is an outline
+   until the follow ends. */
+.desk-bookmark-mark--stays .desk-bookmark-mark__glyph path {
+  fill: #e0a100;
+  stroke: #8a6100;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.desk-bookmark-mark--resting .desk-bookmark-mark__glyph path {
+  fill: none;
+  stroke: #c62828;
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
 /* Your own chains (N4). A scripture reference typed in a note is a link
