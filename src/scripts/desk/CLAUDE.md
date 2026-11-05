@@ -561,7 +561,9 @@ against `dist/` is a later item.
        that stay put" once a list holds both (BVJ, 2026-11-04;
        `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
        both lists), and **a search's count names the kind when every notebook
-       hit is one** ("1 bookmark match"; `matchNouns`, else "notebook match").
+       hit is one** ("1 bookmark match"; `matchNouns`, else "notebook match"); the
+       group's heading is "Bookmark labels" then, else "Your notebook"
+       (`matchTitle`; the tray, /search and the Search pane).
        **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
        **Known and accepted** (BVJ, 2026-11-04, from an Opus audit): /desk,

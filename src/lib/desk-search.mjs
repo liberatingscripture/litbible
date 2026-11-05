@@ -229,6 +229,15 @@ export function matchNouns(hits) {
   return ["notebook match", "notebook matches"];
 }
 
+/**
+ * The notebook group's heading above its matches: "Bookmark labels" when every
+ * hit is a bookmark (a bookmark is found by its name; BVJ, 2026-11-04), else
+ * "Your notebook".
+ */
+export function matchTitle(hits) {
+  return hits?.length && hits.every((h) => h.kind === "bookmark") ? "Bookmark labels" : "Your notebook";
+}
+
 /** The notebook page's address for a query (D2's "N more in your notebook"). */
 export function notebookSearchHref(query) {
   const q = String(query || "").trim();

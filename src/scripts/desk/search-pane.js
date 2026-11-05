@@ -630,7 +630,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const nCount = r.notebook?.total ?? 0;
 
     if (nCount) {
-      const g = group("Your notebook", "notebook");
+      const g = group(r.notebook.title ?? "Your notebook", "notebook");
       paged(g, r.notebook.hits, notebookRow);
       groupsEl.append(g);
       counts.push(plural(nCount, ...(r.notebook.nouns ?? ["notebook match", "notebook matches"])));
@@ -918,7 +918,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     groupsEl.replaceChildren();
     const nCount = last.notebook?.total ?? 0;
     if (nCount) {
-      const g = group("Your notebook", "notebook");
+      const g = group(last.notebook.title ?? "Your notebook", "notebook");
       paged(g, last.notebook.hits, notebookRow);
       groupsEl.append(g);
     }

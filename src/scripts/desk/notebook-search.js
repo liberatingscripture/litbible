@@ -22,7 +22,7 @@ import {
   greekNotesOn as greekNotesStoredOn,
   greekNotesStored,
 } from "../../lib/desk-greek-notes.mjs";
-import { matchNouns, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
+import { matchNouns, matchTitle, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
@@ -78,7 +78,7 @@ export async function search(query, { bookKey = "" } = {}) {
   const records = await readRecords();
   const hits = notesHidden() ? [] : searchNotebook(records, query, { bookKey });
   // `nouns` names them in a count: "1 bookmark match", or "notebook match" for a mix.
-  return { hits, total: hits.length, nouns: matchNouns(hits) };
+  return { hits, total: hits.length, nouns: matchNouns(hits), title: matchTitle(hits) };
 }
 
 /* ── Whether a Greek search lists the notes (E11) ────────────────────── */
@@ -257,7 +257,7 @@ export function renderTray(host, { commands = [], notebook = null, query = "", o
   }
 
   if (notebook?.total) {
-    const { group, list } = groupShell("Your notebook");
+    const { group, list } = groupShell(notebook.title ?? "Your notebook");
     group.dataset.deskNotebook = "";
     for (const hit of notebook.hits.slice(0, TRAY_LIMIT)) list.append(trayHit(hit));
     const rest = notebook.total - TRAY_LIMIT;
