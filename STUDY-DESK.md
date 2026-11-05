@@ -6169,7 +6169,7 @@ gone from everything but the note marker (E10), which is a different thing.
   what Edit does. The help page's "Places and ribbons" is now "Bookmarks."
   /privacy names the session key, now **`lit-desk-follow`** (it was
   `lit-desk-ribbon`), and no longer lists "places" among what the notebook
-  keeps. **The LSC site's `/privacy` mirror needs the same two changes.**
+  keeps. **The LSC site needs neither** (it has no Study Desk and stores no `lit-desk-*` key; reviewed 2026-11-04, LSC issue #120).
 
 **Judgment calls, for BVJ to look at on the preview** (each easy to change):
 
@@ -7887,7 +7887,7 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   preview): a "My notes" checkbox, on by default, in the tray's Greek group
   foot and beside "Search commands" on /search; shown only with the desk on
   and the type "All types"; remembered in `lit-desk-greek-notes` (named in
-  /privacy; the LSC site's mirror needs the same sentence); English
+  /privacy; the LSC site stores none of the desk's keys, so needs no sentence); English
   searches are not governed by it. (Corrected 2026-11-04: /desk's Search pane
   has the same switch and lists notes for a Greek search when it is on, PR
   #463.) The tray shows it only when a Greek group renders.
@@ -7900,10 +7900,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   re-searches when the box changes, as before; and the tray's switch is now
   **one line under the status for every Greek search under "All types"**, so a
   Greek search with no Greek hits still has it (it had lived in the Greek
-  group's foot, which such a search doesn't draw). **For the LSC site's
-  `/privacy`, which BVJ looks after (the workflow notifies the LSC repo for
-  review; BDR's Claude has no part in it): it needs the sentence for
-  `lit-desk-greek-notes`** (this site's, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
+  group's foot, which such a search doesn't draw). **The LSC site's
+  `/privacy` needs no sentence for it** (BVJ looks after that page; an Opus
+  agent reviewed LSC's issue #120 on 2026-11-04: LSC has no Study Desk and
+  sets only `lsc_apps_launch_v1`, `lsc_pv` and `lsc-theme`, and its Scope
+  section sends readers to litbible's policy for this site's storage). This
+  site's sentence, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
   searches list your notes, once you turn that off)"). **A second one, from
   PR #464 (2026-11-04):** the sentence for `lit-desk-reading-off` ("which
   display settings the Reading layout turned off, so choosing another layout
@@ -8373,8 +8375,8 @@ the rest is polish.
      on /search's narrow row, the tray re-searching on a change); the tray
      shows it only when a Greek group renders, so a Greek search with no
      Greek hits has no switch there (placement to settle with the builder's
-     layout); and the LSC site's `/privacy` mirror needs the sentence for
-     `lit-desk-greek-notes`.
+     layout); and (settled 2026-11-04) the LSC site's `/privacy` needs no
+     sentence for `lit-desk-greek-notes`, since it stores no desk keys.
 8. **Launch work**: 8a, E8's Reading arrangement and a way in that carries
    the passage (buildable now; **done 2026-11-02**, merged: Reading, `?place=` (moves the LIT pane only), the header link carrying the chapter; the
    whole-book option let go, BVJ); 8b (**done 2026-11-02**, looked at and
