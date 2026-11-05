@@ -7611,8 +7611,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the preview finds a problem; the parsing link **stays** in a word's details
   (it starts from the word being read, which is the case this item kept); and
   the word links' results **stay in the tab** (the reader keeps their place,
-  and "See these on the search page" is the way out). Nothing was changed for
-  them. Status: built, awaiting BVJ's look.
+  and "See these on the search page" is the way out; the link's words and
+  place changed 2026-11-04, above). Nothing was changed for them. Status:
+  looked at 2026-11-04.
 - **E8, rough: there is no way into /desk, and Read View retires at
   launch.** BVJ (2026-10-21): no button or link reaches /desk, and
   switching between Study View and Read View was always clunky. **Decided**
@@ -7890,7 +7891,7 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   searches are not governed by it. (Corrected 2026-11-04: /desk's Search pane
   has the same switch and lists notes for a Greek search when it is on, PR
   #463.) The tray shows it only when a Greek group renders.
-  Status: built, awaiting BVJ's look.
+  Status: looked at 2026-11-04 (below).
   **Placement settled 2026-11-02 (work session 7b, on Claude's
   recommendations):** on /search the link and "My notes" are one box, inline in
   the field's row where there is room and, under 960px, on a line under the
