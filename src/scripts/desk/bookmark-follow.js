@@ -42,9 +42,12 @@ import {
   nextFollowState,
   pageBookOf,
   parseFollowFlag,
+  pausedFlag,
   positionOnPage,
+  resumedFlag,
   followFlagFor,
   followMoveChanges,
+  followStep,
   throttleDelay,
 } from "../../lib/desk-bookmarks.mjs";
 import { MOVE_KIND } from "../../lib/desk-store-core.mjs";
@@ -77,6 +80,9 @@ function readFlag() {
   }
 }
 
+/** Sent on `window` whenever this tab's flag changes, so the margin can draw the resting mark. */
+export const FOLLOW_CHANGED = "desk:follow-changed";
+
 function writeFlag(next) {
   flag = next;
   try {
@@ -85,6 +91,119 @@ function writeFlag(next) {
   } catch {
     /* no session storage: the bookmark simply doesn't follow */
   }
+  try {
+    window.dispatchEvent(new Event(FOLLOW_CHANGED));
+  } catch {
+    /* a stand-in window with no events */
+  }
+}
+
+/**
+ * What a bookmark's row says about whether it moves (BVJ, 2026-11-04): one
+ * short word so the line never wraps in the Notebook's narrow list ("Bookmark ·
+ * Following" is the longest), and the fuller sentence as the line's hover text.
+ * "Following" is while this tab is moving it, "Moves" is a bookmark with the
+ * switch on, "Stays put" one without. The words are an Opus agent's, who advised
+ * against "Smart" and "Static". A row says it as drawn; the next redraw updates it.
+ *
+ * @param {{ id: string }} bookmark
+ * @returns {{ word: string, title: string }}
+ */
+export function bookmarkState(bookmark) {
+  if (!isFollowing(bookmark)) return { word: "Stays put", title: "Stays on its verse" };
+  const mine = readFlag();
+  if (mine?.id !== bookmark.id) return { word: "Moves", title: "Moves as I read, once opened from this list" };
+  return mine.paused
+    ? { word: "Paused", title: "Waiting where I left off. It moves again when I read on from there, or I can move it here." }
+    : { word: "Following", title: "Following me now: it moves as I read in this tab" };
+}
+
+/**
+ * The bookmark this tab is following or has paused, or null. While it is,
+ * it only rests at its verse: it doesn't belong to it, so the verse's menu
+ * and the one-bookmark-of-each-kind rule leave it out (BVJ, 2026-11-04).
+ */
+export function restingId() {
+  return readFlag()?.id ?? null;
+}
+
+/** Whether the flag for `id` is a paused follow. */
+export function isPausedHere(id) {
+  const mine = readFlag();
+  return mine?.id === id && mine.paused === true;
+}
+
+/**
+ * Write a bookmark row's "Bookmark · …" line into `el`, and remember what it
+ * needs to be written again (`syncBookmarkLines`).
+ *
+ * @param {HTMLElement} el the row's kind line
+ * @param {{ id: string, follow?: boolean }} bookmark
+ * @param {string} name what the row calls the kind ("Bookmark")
+ */
+export function drawBookmarkLine(el, bookmark, name = "Bookmark") {
+  el.dataset.bookmark = bookmark.id;
+  el.dataset.moves = bookmark.follow === true ? "1" : "0";
+  el.dataset.kindName = name;
+  const { word, title } = bookmarkState({ id: bookmark.id, kind: "bookmark", follow: bookmark.follow });
+  el.textContent = `${name} · ${word}`;
+  el.title = title;
+}
+
+/** Whether this tab is moving the bookmark `id` right now. */
+export function isFollowedHere(id) {
+  return readFlag()?.id === id;
+}
+
+/** Draw every bookmark line on the page again, after the tab's flag changed. */
+export function syncBookmarkLines(root = document) {
+  // The "Stop following" buttons show only for the bookmark being followed,
+  // and "Move it here" only while it is paused.
+  for (const el of root?.querySelectorAll?.("[data-bookmark-stop]") ?? []) {
+    el.hidden = !isFollowedHere(el.dataset.bookmarkStop);
+  }
+  for (const el of root?.querySelectorAll?.("[data-bookmark-move]") ?? []) {
+    el.hidden = !isPausedHere(el.dataset.bookmarkMove);
+  }
+  // A page with no list drawn (and a test's stand-in document) has no lines to redraw.
+  for (const el of root?.querySelectorAll?.("[data-bookmark]") ?? []) {
+    drawBookmarkLine(el, { id: el.dataset.bookmark, follow: el.dataset.moves === "1" }, el.dataset.kindName);
+  }
+}
+
+/**
+ * "Move it here" from a row or the verse menu: the paused bookmark goes to
+ * where the reader is on this page. False where this page can't say (no shell).
+ */
+export async function moveItHereNow() {
+  return env ? env.moveItHere() : false;
+}
+
+/**
+ * Stop whatever is moving in this tab: the reader asked ("Stop following",
+ * BVJ 2026-11-04), or followed a bookmark's link that doesn't move, since they
+ * have left it for another place in the book. The bookmark keeps "Move as I
+ * read" on and stays where it last was; opening it from the list starts it
+ * again. A moving bookmark's link takes over through `followBookmark`.
+ */
+export function stopFollowing() {
+  if (!flag && !readFlag()) return;
+  dropFlag();
+}
+
+/** The tab stops moving anything, and every row's line and button say so. */
+function dropFlag() {
+  writeFlag(null);
+  syncBookmarkLines();
+}
+
+/**
+ * Whether the page this tab is on follows the reader at all: false on /desk and
+ * other pages the shell didn't set up, where a link opened in place moves
+ * nothing, so a row must not start a follow it can't carry out.
+ */
+export function followsHere() {
+  return env != null;
 }
 
 /**
@@ -106,6 +225,7 @@ export function followBookmark(bookmark, href = null) {
   } catch {
     /* the other tab keeps following until it leaves the book */
   }
+  syncBookmarkLines();
   env?.followed(href);
 }
 
@@ -124,12 +244,14 @@ function onThisPage(href) {
  * Start following on this page: drop the flag if the page is outside the
  * flagged book, and otherwise move the bookmark as the reader reads.
  *
- * @param {{ store: object | null, ctx: () => { client: string } }} options
+ * @param {{ store: object | null, ctx: () => { client: string }, tell?: (about: object) => void }} options
+ *   `tell` is called once when a follow pauses, to show the reader the bar that
+ *   offers to move the bookmark where they are ({ record, pos, move }).
  */
-export function initBookmarkFollow({ store, ctx }) {
+export function initBookmarkFollow({ store, ctx, tell = null }) {
   const page = pageBookOf(window.location.pathname);
   // Dropped on a page outside the book even when the notebook didn't open.
-  writeFlag(nextFollowState(readFlag(), page));
+  writeFlag(nextFollowState(readFlag()));
   // A flag stored before tokens gets one; there is nothing to ask about it.
   if (flag && !flag.tab) writeFlag({ ...flag, tab: newTab() });
   const ch = openChannel();
@@ -142,7 +264,7 @@ export function initBookmarkFollow({ store, ctx }) {
         ch.postMessage({ taken: msg.ask });
         return;
       }
-      if (loseFollow(flag, msg)) writeFlag(null);
+      if (loseFollow(flag, msg)) dropFlag();
     });
     if (flag) {
       asking = flag.tab;
@@ -155,6 +277,7 @@ export function initBookmarkFollow({ store, ctx }) {
   if (!store) return;
 
   let latest = null; // where the reader last was, as { bookKey, chapter, verse }
+  let heard = null; // the report before it, for telling a scroll from a jump (Read View's long page)
   let lastWrite = null;
   let timer = 0;
   // The reader followed a bookmark off this page: what it reports now, as it
@@ -165,13 +288,14 @@ export function initBookmarkFollow({ store, ctx }) {
     timer = 0;
     // Not before this page knows whether its tab is a copy.
     await settled;
-    // A bookmark opened into another book is about to be followed there, by the
-    // page that loads next; this page's reading says nothing about it.
-    if (!flag || !latest || latest.bookKey !== flag.bookKey) return;
+    if (!flag || !latest) return;
     const id = flag.id;
     const pos = latest;
+    const before = heard;
     let gone = false;
     let moved = false;
+    let step = null;
+    let held = null;
     try {
       await store.change(
         async ({ get }) => {
@@ -181,6 +305,11 @@ export function initBookmarkFollow({ store, ctx }) {
             gone = true;
             return null;
           }
+          held = record;
+          // Reading on moves it; a jump (a far chapter, another book) pauses it
+          // where it was, and reading on from there resumes it (BVJ, 2026-11-04).
+          step = followStep(flag, record, pos, before);
+          if (step === "pause" || step === "stay") return null;
           const changes = followMoveChanges(record, pos);
           if (!changes) return null;
           moved = true;
@@ -193,7 +322,39 @@ export function initBookmarkFollow({ store, ctx }) {
       console.error("Study Desk: the bookmark couldn't follow the reader", err);
     }
     if (moved) lastWrite = Date.now();
-    if (gone && flag?.id === id) writeFlag(null);
+    if (gone && flag?.id === id) return dropFlag();
+    if (flag?.id !== id) return;
+    if (step === "pause") writeFlag(pausedFlag(flag, Date.now()));
+    else if (step === "resume") writeFlag(resumedFlag(flag));
+    if (step === "pause" || step === "resume") syncBookmarkLines();
+    // The bar is shown once for a pause, on the page where the reader landed.
+    if ((step === "pause" || step === "stay") && flag?.paused && !flag.told && held && tell) {
+      writeFlag({ ...flag, told: true });
+      tell({ record: held, pos, move: () => moveItHere() });
+    }
+  }
+
+  /**
+   * "Move it here": the paused bookmark goes to where the reader is now, as an
+   * ordinary edit the reader can undo, and follows from there, in whichever book
+   * that is. Resolves to whether it moved.
+   */
+  async function moveItHere() {
+    const mine = readFlag();
+    const pos = latest;
+    if (!mine || !pos) return false;
+    let plan = null;
+    await store.change(async ({ get }) => {
+      const record = await get(mine.id);
+      if (!isFollowing(record) || !canEdit(record)) return null;
+      const changes = followMoveChanges(record, pos);
+      if (!changes) return null;
+      plan = { put: [editRecord(record, changes, { now: new Date().toISOString(), client: ctx().client })], remove: [] };
+      return plan;
+    });
+    writeFlag(resumedFlag(mine, pos.bookKey));
+    syncBookmarkLines();
+    return Boolean(plan);
   }
 
   function schedule() {
@@ -201,10 +362,27 @@ export function initBookmarkFollow({ store, ctx }) {
     timer = window.setTimeout(flush, throttleDelay(lastWrite, Date.now()));
   }
 
+  // After a reload or Back, the page first reports the chapter's top (no verse)
+  // before the browser restores the scroll; that is not where the reader is, so
+  // it is skipped until a real verse comes (it would write verse 1 over the
+  // bookmark, which the restore corrects seconds later).
+  let settling = false;
+  try {
+    const type = performance.getEntriesByType?.("navigation")?.[0]?.type;
+    settling = type === "reload" || type === "back_forward";
+  } catch {
+    settling = false;
+  }
+
   function hear(position) {
     if (leaving) return;
+    if (settling) {
+      if (position && position.verse == null) return;
+      settling = false;
+    }
     const pos = positionOnPage(position, page);
     if (!pos) return;
+    heard = latest;
     latest = pos;
     schedule();
   }
@@ -223,9 +401,13 @@ export function initBookmarkFollow({ store, ctx }) {
   window.addEventListener("pageshow", (e) => {
     if (!e.persisted) return;
     followed(null);
-    writeFlag(nextFollowState(readFlag(), page));
+    writeFlag(nextFollowState(readFlag()));
+    syncBookmarkLines();
+    // The page's own last report is where the reader was as it was left (its
+    // pagehide save), not where a link they only looked at took the bookmark.
+    if (flag) hear(pageLastRead());
   });
-  env = { followed };
+  env = { followed, moveItHere };
   // This page may have said where the reader is before this module loaded.
   if (flag) hear(pageLastRead());
 }

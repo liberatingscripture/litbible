@@ -9,6 +9,8 @@ import assert from "node:assert/strict";
 import { COLORS, createRecord, emptyTrashRecord, trashRecord } from "../src/lib/desk-records.mjs";
 import { planWrite } from "../src/lib/desk-store-core.mjs";
 import {
+  BOOKMARK_MOVES,
+  BOOKMARK_STAYS,
   colorsPresent,
   daysLeft,
   describeCounts,
@@ -244,11 +246,16 @@ test("planRestore refuses what is gone, emptied, or already back", () => {
   }
 });
 
-test("planRestore leaves a bookmark in the trash when its verse already holds one", () => {
+test("planRestore leaves a bookmark in the trash when its verse already holds one of its kind", () => {
   const where = { bookKey: "john", chapter: 3, verse: 16 };
   const old = trashed(make("bookmark", where), T);
   const fresh = make("bookmark", where);
   assert.deepEqual(planRestore([old, fresh], old.id, ctx), { ok: false, reason: "bookmark" });
+  const moving = make("bookmark", { ...where, follow: true });
+  assert.equal(planRestore([old, moving], old.id, ctx).ok, true, "one that moves leaves room for one that stays put");
+  const oldMoving = trashed(make("bookmark", { ...where, follow: true }), T);
+  assert.equal(planRestore([oldMoving, fresh], oldMoving.id, ctx).ok, true, "and the other way round");
+  assert.deepEqual(planRestore([oldMoving, moving], oldMoving.id, ctx), { ok: false, reason: "bookmark" });
   assert.equal(planRestore([old], old.id, ctx).ok, true, "a bookmark elsewhere is no obstacle");
   const other = make("bookmark", { ...where, verse: 17 });
   assert.equal(planRestore([old, other], old.id, ctx).ok, true);
@@ -295,4 +302,19 @@ test("planRestoreAll restores the lot, judging each over those before it, and sa
   assert.deepEqual(all.skipped.map((s) => [s.trash.id, s.reason]), [[early.id, "bookmark"]]);
   assert.doesNotThrow(() => planWrite(all.plan));
   assert.equal(planRestoreAll([], ctx).restored, 0);
+});
+
+test("the Show menu splits bookmarks into moving and staying put only when a list holds both", () => {
+  const mark = (extra) => ({ kind: "bookmark", id: `b${Math.random()}`, bookKey: "luke", chapter: 1, verse: 1, ...extra });
+  const moving = mark({ follow: true });
+  const plain = mark({});
+  const values = (records) => kindsPresent(records).map((k) => k.value);
+  assert.deepEqual(values([moving]), ["bookmark"]);
+  assert.deepEqual(values([plain]), ["bookmark"]);
+  assert.deepEqual(values([moving, plain]), ["bookmark", BOOKMARK_MOVES, BOOKMARK_STAYS]);
+  const records = [moving, plain, { kind: "note", id: "n1", bookKey: "luke", chapter: 1, verse: 2, body: "x" }];
+  assert.deepEqual(values(records), ["note", "bookmark", BOOKMARK_MOVES, BOOKMARK_STAYS]);
+  assert.deepEqual(filterRecords(records, { kind: BOOKMARK_MOVES }), [moving]);
+  assert.deepEqual(filterRecords(records, { kind: BOOKMARK_STAYS }), [plain]);
+  assert.equal(filterRecords(records, { kind: "bookmark" }).length, 2);
 });

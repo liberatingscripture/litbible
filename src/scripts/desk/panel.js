@@ -130,8 +130,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     ? {
         label: here.label,
         empty: inReadView
-          ? `Nothing kept for ${here.label} yet. Select some words, then choose “Bookmark” or “Highlight.”`
-          : `Nothing kept for ${here.label} yet. Select a verse number, then choose “Add a note,” “Bookmark,” or “Highlight.”`,
+          ? `Nothing kept for ${here.label} yet. Select some words, then choose “Add bookmark” or “Highlight.”`
+          : `Nothing kept for ${here.label} yet. Select a verse number, then choose “Add a note,” “Add bookmark,” or “Highlight.”`,
         load: async (st) => forChapter(await st.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter),
       }
     : prose

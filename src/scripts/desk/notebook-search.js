@@ -22,8 +22,9 @@ import {
   greekNotesOn as greekNotesStoredOn,
   greekNotesStored,
 } from "../../lib/desk-greek-notes.mjs";
-import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
+import { matchNouns, matchTitle, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
+import { followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { readRecords } from "./readonly-notebook.js";
 
@@ -69,14 +70,15 @@ function notesHidden() {
 }
 
 /**
- * Search the notebook for a query. Resolves to { hits, total }: the matches
+ * Search the notebook for a query. Resolves to { hits, total, nouns }: the matches
  * (none while "Hide my marks" is on) and their count. `bookKey` is the search
  * box's book filter.
  */
 export async function search(query, { bookKey = "" } = {}) {
   const records = await readRecords();
   const hits = notesHidden() ? [] : searchNotebook(records, query, { bookKey });
-  return { hits, total: hits.length };
+  // `nouns` names them in a count: "1 bookmark match", or "notebook match" for a mix.
+  return { hits, total: hits.length, nouns: matchNouns(hits), title: matchTitle(hits) };
 }
 
 /* ── Whether a Greek search lists the notes (E11) ────────────────────── */
@@ -200,12 +202,28 @@ function groupShell(title) {
   return { group, list };
 }
 
+/**
+ * A bookmark's result opens it as its row in the Notebook's list does
+ * (BVJ, 2026-11-04): one that moves starts following the reader, and one that
+ * stays put stops whatever was moving. A modified click opens elsewhere and
+ * changes nothing.
+ */
+function openAsBookmark(el, hit) {
+  if (hit.kind !== "bookmark" || !hit.href) return;
+  el.addEventListener("click", (e) => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    if (hit.follow) followBookmark({ id: hit.id, bookKey: hit.bookKey }, el.href);
+    else stopFollowing();
+  });
+}
+
 function trayHit(hit) {
   const li = document.createElement("li");
   li.className = "searchbar__result";
   const el = document.createElement(hit.href ? "a" : "div");
   el.className = "searchbar__link desk-hit";
   if (hit.href) el.href = hit.href;
+  openAsBookmark(el, hit);
   const title = document.createElement("div");
   title.className = "searchbar__title";
   title.textContent = hit.reference;
@@ -239,7 +257,7 @@ export function renderTray(host, { commands = [], notebook = null, query = "", o
   }
 
   if (notebook?.total) {
-    const { group, list } = groupShell("Your notebook");
+    const { group, list } = groupShell(notebook.title ?? "Your notebook");
     group.dataset.deskNotebook = "";
     for (const hit of notebook.hits.slice(0, TRAY_LIMIT)) list.append(trayHit(hit));
     const rest = notebook.total - TRAY_LIMIT;
@@ -273,6 +291,7 @@ export function renderPageGroup(list, notebook) {
     const el = document.createElement(hit.href ? "a" : "div");
     el.className = "result-link";
     if (hit.href) el.href = hit.href;
+    openAsBookmark(el, hit);
     const title = document.createElement("div");
     title.className = "result-title";
     title.textContent = hit.reference;

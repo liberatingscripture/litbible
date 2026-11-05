@@ -630,10 +630,10 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const nCount = r.notebook?.total ?? 0;
 
     if (nCount) {
-      const g = group("Your notebook", "notebook");
+      const g = group(r.notebook.title ?? "Your notebook", "notebook");
       paged(g, r.notebook.hits, notebookRow);
       groupsEl.append(g);
-      counts.push(plural(nCount, "notebook match", "notebook matches"));
+      counts.push(plural(nCount, ...(r.notebook.nouns ?? ["notebook match", "notebook matches"])));
     }
     const plainGroups = [
       ["glossary", MODE_LABELS.glossary, r.glossary, "glossary match", "glossary matches"],
@@ -918,7 +918,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     groupsEl.replaceChildren();
     const nCount = last.notebook?.total ?? 0;
     if (nCount) {
-      const g = group("Your notebook", "notebook");
+      const g = group(last.notebook.title ?? "Your notebook", "notebook");
       paged(g, last.notebook.hits, notebookRow);
       groupsEl.append(g);
     }
@@ -936,7 +936,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     g.append(foot());
     groupsEl.append(g);
     const said = typeof line === "string" ? line : "";
-    say(nCount ? `${said.replace(/\.$/, "")}${said ? STATUS_SEP : ""}${plural(nCount, "notebook match", "notebook matches")}` : said);
+    say(nCount ? `${said.replace(/\.$/, "")}${said ? STATUS_SEP : ""}${plural(nCount, ...(last.notebook.nouns ?? ["notebook match", "notebook matches"]))}` : said);
     settleFocus();
   }
 

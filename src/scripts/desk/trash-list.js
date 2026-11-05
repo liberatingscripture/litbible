@@ -34,7 +34,7 @@ const REFUSED = {
   missing: "That item isn’t in the trash any more.",
   emptied: "Its words are gone, so it can’t be restored.",
   exists: "That item is already back in your notebook.",
-  bookmark: "That verse already has a bookmark, so this one stays in the trash.",
+  bookmark: "That verse already has a bookmark of the same kind, so this one stays in the trash.",
   label: "You already have a label with that name, so this one stays in the trash.",
 };
 
@@ -55,7 +55,7 @@ export function skippedLine(skipped) {
   const bookmarks = count("bookmark");
   const labels = count("label");
   const parts = [];
-  if (bookmarks) parts.push(`${plural(bookmarks, "bookmark", "bookmarks")} stayed in the trash because ${bookmarks === 1 ? "its verse already has" : "their verses already have"} one`);
+  if (bookmarks) parts.push(`${plural(bookmarks, "bookmark", "bookmarks")} stayed in the trash because ${bookmarks === 1 ? "its verse already has" : "their verses already have"} one of the same kind`);
   if (labels) parts.push(`${plural(labels, "label", "labels")} stayed because ${labels === 1 ? "its name is" : "their names are"} already in use`);
   return parts.length ? `${parts.join("; ")}.` : "";
 }

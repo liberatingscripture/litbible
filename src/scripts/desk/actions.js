@@ -18,8 +18,9 @@
 //     highlight meets the ones already there (merging, trimming, leaving a
 //     changed one alone) is src/lib/desk-highlights.mjs's; this reads the
 //     page, asks it for a plan, and commits that.
-//   - Edit bookmark…, once the verse holds one: its name and "Move as I read"
-//     (E9, bookmark-form.js). A bookmark can be made first and named later.
+//   - Edit bookmark…, right after Remove bookmark once the verse holds one: its
+//     name and "Move as I read" (E9, bookmark-form.js). Pressing Bookmark opens
+//     the same form at once (BVJ, 2026-11-04), so it is named as it is made.
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
@@ -41,6 +42,8 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openBookmarkForm } from "./bookmark-form.js";
+import { isPausedHere, restingId } from "./bookmark-follow.js";
+import { stopFollowingNow } from "./bookmark-stop.js";
 import { openNoteEditor } from "./note-editor.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
@@ -67,7 +70,8 @@ export function initActions({ store, ctx, showVerse = null }) {
     // "My Notebook" (BVJ, 2026-10-09; it was "Yours").
     heading.textContent = "My Notebook";
 
-    const bookmark = button("Bookmark");
+    // "Add bookmark" while the verse holds none (BVJ, 2026-11-04); once it does, a "Bookmark ▸" flyout takes its place.
+    const bookmark = button("Add bookmark");
     const row = document.createElement("div");
     row.className = "lit-panel__row";
     if (notes) {
@@ -79,6 +83,13 @@ export function initActions({ store, ctx, showVerse = null }) {
     row.append(bookmark);
     d.append(heading);
     d.append(row);
+    // What the verse holds, drawn once the notebook has been read: each bookmark
+    // that belongs to it with Remove and Edit bookmark… right beside, an add
+    // button for the kind it lacks, and the one this tab is following, which
+    // only rests here (BVJ, 2026-11-04).
+    const bookmarkBox = document.createElement("div");
+    bookmarkBox.className = "desk-bookmark-menu";
+    d.append(bookmarkBox);
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
@@ -86,7 +97,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     if (highlightsSupported() && (d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
-    // Show in Notebook (Chapter View), and Edit bookmark… once the verse has one.
+    // Show in Notebook (Chapter View).
     const second = document.createElement("div");
     second.className = "lit-panel__row";
     if (d.view === "study" && showVerse) {
@@ -98,78 +109,224 @@ export function initActions({ store, ctx, showVerse = null }) {
       });
       second.append(show);
     }
-    const editMark = button("Edit bookmark…");
-    editMark.hidden = true;
-    second.append(editMark);
-    second.hidden = second.childElementCount < 2;
+    second.hidden = second.childElementCount < 1;
     d.append(second);
 
     // A bookmark is one verse: the first the menu or selection covers.
     const verse = d.start;
     const place = { ...where, verse };
-    let existing = false;
-    store
-      .byChapter(where.bookKey, where.chapter)
-      .then((records) => {
-        const held = bookmarksOn(records, place);
-        existing = held.length > 0;
-        if (existing) {
-          bookmark.textContent = "Remove bookmark";
-          // The row grows only if it has Show in Notebook beside it.
-          editMark.hidden = false;
-          second.hidden = false;
-          if (second.childElementCount > 1) second.classList.add("lit-panel__row--halves");
-          editMark.onclick = () => editBookmark(d, held[0], editMark);
-        }
-      })
-      .catch(() => {});
+    const ref = `${bookKeyToLabel(where.bookKey)} ${where.chapter}:${verse}`;
 
-    // One press is one change: the button stands down until the panel closes,
-    // and each change is planned over the notebook as it is when written, so
-    // a press before the chapter has been read never saves a second bookmark,
-    // and removing takes every one the verse holds (BA16).
+    // One press is one change: a button stands down until the panel closes, and
+    // each change is planned over the notebook as it is when written, so a press
+    // before the panel has read the chapter never saves a second bookmark of a
+    // kind the verse holds (BA16).
     let busy = false;
-    bookmark.addEventListener("click", async () => {
+    const guarded = (btn, work) => async () => {
       if (busy) return;
       busy = true;
-      bookmark.setAttribute("aria-disabled", "true");
+      btn.setAttribute("aria-disabled", "true");
       d.acting?.();
-      const ref = `${bookKeyToLabel(where.bookKey)} ${where.chapter}:${verse}`;
       try {
-        if (existing) {
-          const plan = await store.change(({ all }) => all().then((records) => planUnbookmark(records, place, ctx())));
-          // The change this made, read at once: the undo button, like Ctrl+Z,
-          // takes back exactly this one (history.js).
-          const entry = plan ? store.lastEntry() : null;
-          bookmark.textContent = "Removed ✓";
-          setTimeout(closePanel, 700);
-          if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
-          return;
-        }
-        const now = new Date().toISOString();
-        const record = createRecord("bookmark", { ...place, endVerse: verse }, { now, ...ctx() });
-        await store.change(({ all }) => all().then((records) => planBookmark(records, record)));
-        existing = true;
-        bookmark.textContent = "Bookmarked ✓";
-        setTimeout(closePanel, 700);
-        const hidden = hiddenNotice("bookmarks", bookmarkedMessage(ref));
-        if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
-        else announce(bookmarkedMessage(ref));
+        await work(btn);
       } catch (err) {
         console.error("Study Desk: the bookmark couldn't be changed", err);
         busy = false;
-        bookmark.removeAttribute("aria-disabled");
+        btn.removeAttribute("aria-disabled");
       }
-    });
+    };
+
+    // Make a bookmark of the given kind and open its form, the switch fixed at
+    // the kind (`lock`) when the verse already holds the other one.
+    const addBookmark = (follow, lock) => async (btn) => {
+      const now = new Date().toISOString();
+      const record = createRecord("bookmark", { ...place, endVerse: verse, ...(follow ? { follow: true } : {}) }, { now, ...ctx() });
+      const resting = restingId();
+      await store.change(({ all }) => all().then((records) => planBookmark(records, record, { except: resting })));
+      const hidden = hiddenNotice("bookmarks", bookmarkedMessage(ref));
+      if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
+      else announce(bookmarkedMessage(ref));
+      // The form for its name and "Move as I read" opens at once, in the menu's
+      // place (BVJ, 2026-11-04); closing it leaves the bookmark as made.
+      editBookmark(d, record, btn, lock);
+    };
+
+    const removeBookmark = (b) => async (btn) => {
+      const resting = restingId();
+      const plan = await store.change(({ all }) =>
+        all().then((records) => planUnbookmark(records, place, ctx(), { id: b.id, except: resting })),
+      );
+      // The change this made, read at once: the undo button, like Ctrl+Z, takes
+      // back exactly this one (history.js).
+      const entry = plan ? store.lastEntry() : null;
+      btn.textContent = "Removed ✓";
+      setTimeout(closePanel, 700);
+      if (entry) showUndo(`Bookmark on ${ref} removed.`, () => undoEntry(entry));
+    };
+
+    const lineOf = (...buttons) => {
+      const r = document.createElement("div");
+      r.className = "lit-panel__row";
+      r.append(...buttons);
+      return r;
+    };
+
+    function drawBookmarks(records) {
+      const resting = restingId();
+      const held = bookmarksOn(records, place, { except: resting });
+      const restingHere = resting ? bookmarksOn(records, place).find((b) => b.id === resting) : null;
+      bookmarkBox.replaceChildren();
+      const items = [];
+      // With nothing of its own on the verse, the one button adds a plain bookmark.
+      bookmark.hidden = held.length > 0;
+      // The note button takes the whole row when Bookmark steps aside.
+      row.classList.toggle("lit-panel__row--halves", notes && !bookmark.hidden);
+      const kindWord = (b) => (b.follow === true ? "bookmark that moves" : "bookmark that stays put");
+      for (const b of held) {
+        const both = held.length > 1;
+        // "Remove bookmark “Advent”": the name, cut where it won't fit, after the
+        // word that says what is removed (BVJ, 2026-11-04); the full name is the
+        // button's accessible name.
+        const named = b.label ? `bookmark ${shownName(b.label)}` : both ? kindWord(b) : "bookmark";
+        const whole = b.label ? `bookmark “${b.label}”` : named;
+        const remove = button(`Remove ${named}`);
+        remove.setAttribute("aria-label", `Remove ${whole}`);
+        remove.addEventListener("click", guarded(remove, removeBookmark(b)));
+        const edit = button(b.label || both ? `Edit ${named}…` : "Edit bookmark…");
+        edit.setAttribute("aria-label", `Edit ${whole}`);
+        edit.addEventListener("click", () => editBookmark(d, b, edit));
+        // Edit sits right beside Remove (BVJ, 2026-11-04).
+        items.push(lineOf(remove), lineOf(edit));
+      }
+      // A verse takes a bookmark of each kind; the one it lacks may be added.
+      if (held.length) {
+        if (!held.some((b) => b.follow === true)) {
+          const add = button("Add a bookmark that moves");
+          add.addEventListener("click", guarded(add, addBookmark(true, true)));
+          items.push(lineOf(add));
+        }
+        if (!held.some((b) => b.follow !== true)) {
+          const add = button("Add a bookmark that stays put");
+          add.addEventListener("click", guarded(add, addBookmark(false, false)));
+          items.push(lineOf(add));
+        }
+      }
+      // The bookmark this tab is moving rests here: it isn't the verse's, so there
+      // is no Remove, only letting it stay here, or editing it.
+      if (restingHere) {
+        const paused = isPausedHere(restingHere.id);
+        const name = restingHere.label ? `“${restingHere.label}”` : "A bookmark";
+        const line = document.createElement("p");
+        line.className = "lit-panel__hint";
+        line.textContent = `${name} is resting here while it ${paused ? "waits for you" : "follows you"}.`;
+        const leave = button("Leave it here");
+        leave.addEventListener("click", () => {
+          d.acting?.();
+          stopFollowingNow(ref);
+          closePanel();
+        });
+        const edit = button("Edit bookmark…");
+        edit.addEventListener("click", () => editBookmark(d, restingHere, edit));
+        items.push(line, lineOf(leave, edit));
+      }
+      // Once the verse holds bookmarks, a mouse gets them in one "Bookmark ▸"
+      // flyout (BVJ, 2026-11-04); a finger's chips stay flat, and a verse with
+      // none keeps its one press.
+      const flat = Boolean(d.panel?.classList.contains("lit-panel--chips"));
+      if (items.length && !flat) {
+        const name = held.length ? "Bookmark" : isPausedHere(restingHere.id) ? "Paused bookmark" : "Following bookmark";
+        bookmarkBox.append(flyoutRow(name, items));
+      } else {
+        bookmarkBox.append(...items);
+      }
+    }
+
+    /**
+     * A row that opens `items` in a flyout beside it: on hover without taking
+     * focus, on a click, Enter or the right arrow with focus moved in; Escape
+     * or the left arrow closes it and gives focus back. A sibling of the panel's
+     * rows and fixed to the window, so the panel's own scrolling never clips it.
+     */
+    function flyoutRow(name, items) {
+      const wrap = document.createElement("div");
+      wrap.className = "lit-panel__row desk-bookmark-flywrap";
+      const trigger = button(name);
+      trigger.classList.add("desk-bookmark-fly__trigger");
+      trigger.setAttribute("aria-haspopup", "menu");
+      trigger.setAttribute("aria-expanded", "false");
+      const fly = document.createElement("div");
+      fly.className = "desk-bookmark-fly";
+      fly.setAttribute("role", "menu");
+      fly.setAttribute("aria-label", name);
+      fly.hidden = true;
+      fly.append(...items);
+      wrap.append(trigger, fly);
+
+      let closing = 0;
+      const open = (focusIn) => {
+        window.clearTimeout(closing);
+        if (!fly.hidden) return focusIn && fly.querySelector("button")?.focus();
+        fly.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        const box = trigger.getBoundingClientRect();
+        const room = fly.getBoundingClientRect();
+        const right = box.right + 6;
+        const left = right + room.width <= window.innerWidth - 8 ? right : Math.max(8, box.left - room.width - 6);
+        fly.style.left = `${left}px`;
+        fly.style.top = `${Math.max(8, Math.min(box.top, window.innerHeight - room.height - 8))}px`;
+        if (focusIn) fly.querySelector("button")?.focus();
+      };
+      const close = (refocus) => {
+        window.clearTimeout(closing);
+        if (fly.hidden) return;
+        fly.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        if (refocus) trigger.focus();
+      };
+      const later = () => {
+        window.clearTimeout(closing);
+        closing = window.setTimeout(() => close(false), 220);
+      };
+      trigger.addEventListener("click", () => (fly.hidden ? open(true) : close(true)));
+      trigger.addEventListener("pointerenter", () => open(false));
+      wrap.addEventListener("pointerleave", later);
+      wrap.addEventListener("pointerenter", () => window.clearTimeout(closing));
+      trigger.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          open(true);
+        }
+      });
+      fly.addEventListener("keydown", (e) => {
+        const buttons = [...fly.querySelectorAll("button:not([hidden])")];
+        const at = buttons.indexOf(document.activeElement);
+        if (e.key === "Escape" || e.key === "ArrowLeft") {
+          e.preventDefault();
+          e.stopPropagation();
+          close(true);
+        } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          buttons[(at + (e.key === "ArrowDown" ? 1 : buttons.length - 1)) % buttons.length]?.focus();
+        }
+      });
+      return wrap;
+    }
+
+    // Until the notebook is read, the one button is a plain Bookmark.
+    bookmark.addEventListener("click", guarded(bookmark, addBookmark(false, null)));
+    store
+      .byChapter(where.bookKey, where.chapter)
+      .then(drawBookmarks)
+      .catch((err) => console.error("Study Desk: the verse menu couldn't draw the verse's bookmarks", err));
   });
 
   // The bookmark is one verse: the first the menu or selection covers.
-  function editBookmark(d, record, btn) {
+  function editBookmark(d, record, btn, lock = null) {
     d.acting?.();
     const trigger = (d.kind === "selection" && d.range) || currentPanel()?.trigger || btn;
     const restoreFocus =
       currentPanel()?.restoreFocus ?? (d.kind === "selection" ? verseNumberOf(d.range, d.start) : null);
-    openBookmarkForm({ trigger, store, ctx, record, restoreFocus });
+    openBookmarkForm({ trigger, store, ctx, record, restoreFocus, lock });
   }
 
   function addNote(d, where, btn) {
@@ -354,6 +511,12 @@ function verseNumberOf(range, verse) {
   const at = range?.startContainer;
   const box = (at instanceof Element ? at : at?.parentElement)?.closest(".chapter-paragraphs");
   return box?.querySelector(`sup.vn[id$="v${verse}"]`) ?? null;
+}
+
+/** A bookmark's name as the menu shows it: in quotes, cut with an ellipsis when long. */
+function shownName(name, max = 14) {
+  const letters = Array.from(name);
+  return `“${letters.length > max ? `${letters.slice(0, max).join("").trimEnd()}…` : name}”`;
 }
 
 function button(label) {

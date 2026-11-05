@@ -8,8 +8,11 @@
 // end of <body> and add nothing to the text.
 
 import { BOOK_ORDER } from "../../data/books.js";
-import { NOTE_GAP, BOOKMARK_MARK } from "../../lib/desk-notes.mjs";
+import { NOTE_GAP, BOOKMARK_MARK, BOOKMARK_LANE } from "../../lib/desk-notes.mjs";
 import { recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { FOLLOW_CHANGED } from "./bookmark-follow.js";
+import { markLook } from "./bookmark-mark.js";
+import { redrawAfterMove } from "./move-redraw.js";
 import { glyph } from "./glyphs.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 
@@ -46,6 +49,7 @@ export function createReadMarks({ store }) {
       return;
     }
     const right = box.left >= NOTE_GAP + BOOKMARK_MARK + 8 ? NOTE_GAP : 6;
+    const lanes = [];
     for (const r of marks) {
       const verse = text.querySelector(`[data-chapter="${r.chapter}"] [data-verse="${r.verse}"]`);
       const line = verse?.getClientRects()[0];
@@ -53,13 +57,19 @@ export function createReadMarks({ store }) {
       const block = verse.closest("[data-chapter]");
       const lineHeight = parseFloat(getComputedStyle(block).lineHeight) || line.height;
       const mark = document.createElement("span");
-      mark.className = "desk-bookmark-mark";
+      const look = markLook(r, recordReference(r));
+      mark.className = look.className;
       mark.setAttribute("role", "img");
-      mark.setAttribute("aria-label", `Bookmark, ${recordReference(r)}`);
-      mark.title = `Bookmark, ${recordReference(r)}`;
+      mark.setAttribute("aria-label", look.name);
+      mark.title = look.name;
       mark.innerHTML = glyph("bookmark", "desk-bookmark-mark__glyph");
       mark.style.top = `${line.top + window.scrollY + (lineHeight - BOOKMARK_MARK) / 2}px`;
-      mark.style.left = `${box.left + window.scrollX - right - BOOKMARK_MARK}px`;
+      const top = line.top + window.scrollY + (lineHeight - BOOKMARK_MARK) / 2;
+      // A second bookmark on the same line sits a lane out, as in Chapter View.
+      let lane = 0;
+      while (lanes.some((s) => s.lane === lane && Math.abs(s.top - top) < BOOKMARK_MARK)) lane++;
+      lanes.push({ top, lane });
+      mark.style.left = `${box.left + window.scrollX - right - BOOKMARK_MARK - lane * BOOKMARK_LANE}px`;
       aside.append(mark);
     }
     aside.hidden = !aside.childElementCount;
@@ -101,6 +111,9 @@ export function createReadMarks({ store }) {
 
   // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
   store.subscribe(load, { except: QUIET_KINDS });
+  // It catches up as a jump once the reader pauses, not a slide (move-redraw.js).
+  redrawAfterMove(store, load);
+  window.addEventListener(FOLLOW_CHANGED, schedule);
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

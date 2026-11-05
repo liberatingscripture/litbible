@@ -153,7 +153,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
         : `${describeCounts(all)}.`;
 
     if (!all.length) {
-      lists.replaceChildren(el("p", "desk-panel__empty", "Notes, highlights, and bookmarks you make while reading appear here. On a chapter, select a verse number and choose “Add a note,” “Bookmark,” or “Highlight.”"));
+      lists.replaceChildren(el("p", "desk-panel__empty", "Notes, highlights, and bookmarks you make while reading appear here. On a chapter, select a verse number and choose “Add a note,” “Add bookmark,” or “Highlight.”"));
       return;
     }
     if (!shown.length) {

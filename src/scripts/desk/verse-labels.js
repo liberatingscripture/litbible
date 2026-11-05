@@ -32,6 +32,7 @@
 
 import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { FOLLOW_CHANGED, restingId } from "./bookmark-follow.js";
 import { bookmarkedVerses, highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
@@ -77,6 +78,7 @@ export function createVerseLabels({ store }) {
 
   // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
   store.subscribe(refresh, { except: QUIET_KINDS });
+  window.addEventListener(FOLLOW_CHANGED, refresh);
   document.addEventListener(SETTINGS_EVENT, apply);
   refresh();
 
@@ -111,7 +113,7 @@ function noticeCounts(records) {
 function label(textBox, records) {
   const counts = getSetting("notes") === "on" ? noteCounts(records) : new Map();
   const colors = getSetting("highlights") === "on" ? highlightColors(records) : new Map();
-  const marked = getSetting("bookmarks") === "on" ? bookmarkedVerses(records) : new Set();
+  const marked = getSetting("bookmarks") === "on" ? bookmarkedVerses(records, { except: restingId() }) : new Set();
   const changed = noticeCounts(records);
   for (const sup of textBox.querySelectorAll("sup.vn")) {
     // chapter-tools.js makes it a button at init; one it hasn't reached yet

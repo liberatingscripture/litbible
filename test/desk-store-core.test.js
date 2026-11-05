@@ -11,6 +11,7 @@ import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   CHANNEL,
   bookmarksOn,
+  followChoices,
   byPlace,
   changeKinds,
   changeMessage,
@@ -602,4 +603,31 @@ test("NO_CHAPTER_KINDS: a sheet's autosave or a place wakes no view of marks, bu
     assert.equal(hearsChange(filter, [k]), true, k);
   }
   assert.equal(hearsChange(filter, null), true, "unknown kinds reach all");
+});
+
+test("a verse holds one bookmark that stays put and one that moves; the one being followed only rests", () => {
+  const stays = bookmark(HERE);
+  const moves = bookmark(HERE, { follow: true });
+  const second = bookmark(HERE, { follow: true });
+  const context = { ...base, now: "2026-10-05T12:00:00.000Z" };
+
+  // A second of a kind is refused (the double press, BA16); the other kind is allowed.
+  assert.equal(planBookmark([stays], bookmark(HERE)), null);
+  assert.ok(planBookmark([stays], bookmark(HERE, { follow: true })));
+  assert.equal(planBookmark([stays, moves], second), null);
+
+  // The bookmark this tab is following doesn't belong to the verse yet.
+  assert.deepEqual(bookmarksOn([stays, moves], HERE, { except: moves.id }), [stays]);
+  assert.ok(planBookmark([stays, moves], second, { except: moves.id }), "a verse may hold a second one that moves while the first rests");
+
+  // Which values the switch may take.
+  assert.deepEqual(followChoices([stays], bookmark(HERE)), { moves: true, stays: true });
+  assert.deepEqual(followChoices([stays], moves), { moves: true, stays: false }, "a verse that has one that stays put gets one that moves");
+  assert.deepEqual(followChoices([stays, moves], stays), { moves: false, stays: true });
+  assert.deepEqual(followChoices([stays, moves], moves, { except: moves.id }), { moves: true, stays: false });
+
+  // Remove takes the one chosen (and identical copies), not the other kind.
+  const plan = planUnbookmark([stays, moves], HERE, context, { id: moves.id });
+  assert.deepEqual(plan.remove, [moves.id]);
+  assert.equal(planUnbookmark([stays, moves], HERE, context, { id: moves.id, except: moves.id }), null, "the resting one is never removed from the verse menu, and nothing else goes with it");
 });

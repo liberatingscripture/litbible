@@ -11,16 +11,22 @@ import { readingSurface, standDown } from "./desk-frame.js";
 
 const shellHere = document.documentElement.dataset.desk === "on" && readingSurface();
 
-// A bookmark that moves as the reader reads follows only while every page the tab lands on is in
-// its book (STUDY-DESK.md C25). The shell drops the tab's flag on a page
-// outside the book, but the shell loads only on a reading surface, so every
-// other page (home, search, /notebook, /desk) drops it here (BA101). The key
+// A bookmark that moves as the reader reads follows only while the reader reads
+// on in its book (STUDY-DESK.md C25). The shell loads only on a reading
+// surface, so every other page (home, search, /notebook, /desk) pauses the
+// tab's flag here (BA101; it ended the follow until 2026-11-04). The key
 // is FOLLOW_FLAG_KEY in src/lib/desk-bookmarks.mjs, which this file doesn't
 // import, to stay small. (Telling a duplicated tab from its original is the
 // shell's, bookmark-follow.js: a page here never moves a bookmark.)
 if (!shellHere) {
   try {
-    window.sessionStorage.removeItem("lit-desk-follow");
+    const raw = window.sessionStorage.getItem("lit-desk-follow");
+    const flag = raw ? JSON.parse(raw) : null;
+    if (flag && flag.paused !== true) {
+      // Paused rather than ended (BVJ, 2026-11-04): the next chapter the reader
+      // reads decides whether it moves, and a bar offers to bring it along.
+      window.sessionStorage.setItem("lit-desk-follow", JSON.stringify({ ...flag, paused: true, since: Date.now(), told: false }));
+    }
   } catch {
     /* no session storage: no bookmark was following */
   }
