@@ -57,6 +57,7 @@ import { changedGlyph, drawnNotices, markName, noticeFor, noticesFor, openNotice
 import { glyph } from "./glyphs.js";
 import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
+import { escapeHtml } from "./dom.js";
 
 const LIT = "desk-note-words";
 // What a hovered, focused or opened note on a footnote puts on its footnote.
@@ -743,6 +744,3 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   return { reveal, canReveal };
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-}

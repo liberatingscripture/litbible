@@ -342,7 +342,7 @@ against `dist/` is a later item.
      and "Greek" (`desk/tab-greek.js`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
-     the last-read attributes), from the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
+     the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) **Settings is the last tab, on every page**
      (BVJ, 2026-10-29): the switches, print buttons, "Open the notebook page",
      the tour and help links and where the notebook is kept, which were My
@@ -427,7 +427,10 @@ against `dist/` is a later item.
      `hearsChange`, `listenerSet` in `desk-store-core.mjs`), and the
      BroadcastChannel message carries them too; one without them (an older tab)
      is heard by all. A view that draws where a bookmark is, or anything not yet checked,
-     subscribes with no filter.
+     subscribes with no filter. **A view of marks leaves out sheets**
+     (`{ except: NO_CHAPTER_KINDS }`, DK-5): a sheet's autosave fires every
+     few hundred milliseconds while typing and would re-read every chapter a
+     LIT pane holds.
   12. **A mark whose words moved says so** (the change notice, N3).
      `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
      a notice, from the format's statuses, comparing the marked words (or a
@@ -663,6 +666,10 @@ against `dist/` is a later item.
        their Greek `lemmas` (`term-lens-data.mjs`, from
        `scripts/lib/glossary-lemmas.mjs`). A website asset, never under
        `public/api/`.
+     - **One loader serves a chapter's Greek** (`src/scripts/greek-chapters.js`,
+       GK-20), the tab's `greek-data.js` and the search's `search-greek.js`
+       alike, so a chapter on screen is fetched and parsed once. **Arrowing
+       through words asks for a lexicon only at rest** (150 ms, GK-10).
      - **The tab never moves the page.** Its text scrolls on its own and
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop, moved with the arrow keys. The
@@ -975,6 +982,20 @@ against `dist/` is a later item.
        add to the window or the document, which the pane calls when it
        closes and when it builds a new tab for another chapter (BA31,
        BA115); a listener a tab adds outside its own element goes in it.
+       **A LIT pane stops drawing chapters far from its window** (DK-15):
+       past 40 on the page, one more than 3 pane heights away gets
+       `display: none` on its text and keeps its height (`park`, `balance` in
+       `lit-pane.js`), and is drawn again within 2. The text stays in the
+       DOM, so marks, labels and anchors read it as before; browser find does
+       not search it. Measured on /desk with all 211 chapters: re-layout
+       520 ms to 15 ms, scrolling 42 ms a frame to 7. `content-visibility`
+       was tried and fixed the layout only. A new reader of a pane's text that
+       needs it drawn (a rect, a selection) must handle a parked chapter.
+       **`desk/dom.js` holds `make`/`el` and `escapeHtml`** (LG-13): import them,
+       don't write another copy. `announce` and `say` are not shared on purpose
+       (the copies differ), and `first-use.js`, `desk-tour.js` and
+       `sheet-text.js` keep their own `el`/`make`, which differ in how they
+       treat a null text.
        The LIT pane is `desk/lit-pane.js`, Footnotes
        `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
        the sheet editor, with its formatted text in `desk/sheet-text.js`

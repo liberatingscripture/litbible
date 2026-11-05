@@ -59,6 +59,7 @@ import { attachTermLens } from "../term-lens.js";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
+import { make } from "./dom.js";
 
 /** How far down the pane the reading line sits. */
 const LINE = 0.25;
@@ -66,13 +67,17 @@ const LINE = 0.25;
 const AHEAD = 1.5;
 /** How long the reading line rests in a stub before its chapter is told, in ms. */
 const STUB_SETTLE = 300;
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
+/**
+ * Past this many chapters on the page, those far from the window stop being
+ * drawn (DK-15). Measured 2026-11-04 on /desk: re-laying the page out after a
+ * width change took 33 ms with 11 chapters, 136 ms with 61 and about 520 ms
+ * with all 211, and scrolling ran at 42 ms a frame against 7 with only a
+ * few drawn.
+ */
+const PARK_AFTER = 40;
+/** How far from the window, in pane heights, a chapter must be to stop being drawn, and how near to be drawn again. */
+const PARK_FAR = 3;
+const PARK_NEAR = 2;
 
 /**
  * @param {{ paneId: string, start: object, drafts: Record<string, number[]>,
@@ -105,6 +110,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
   el.append(bar.el, scroller);
 
   const sections = new Map(); // unit index → its section
+  const parked = new Set(); // sections whose text is not drawn now (balance)
   let lo = 0; // the first unit on the page
   let hi = -1; // the last
   let seq = 0; // bumped whenever the page is cleared, so late loads are dropped
@@ -280,6 +286,55 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     if (Math.abs(delta) >= 1) scroller.scrollTop += delta;
   }
 
+  /**
+   * Stop drawing a chapter far from the window, or draw it again when the
+   * reader nears it (DK-15). Its text stays in the page, so marks, labels and
+   * anchors read it as before, but `display: none` takes it out of layout and
+   * paint; the section keeps the height it had, so nothing moves. Find in
+   * page does not search what is not drawn, which is why this starts only
+   * past PARK_AFTER chapters. The heading stays, so the landmark does.
+   */
+  function park(section) {
+    const box = section.querySelector(":scope > .chapter-paragraphs");
+    if (!box || parked.has(section)) return;
+    section.style.boxSizing = "border-box";
+    section.style.height = `${section.getBoundingClientRect().height}px`;
+    box.style.display = "none";
+    parked.add(section);
+  }
+
+  function unpark(section) {
+    if (!parked.delete(section)) return;
+    section.style.height = "";
+    section.style.boxSizing = "";
+    const box = section.querySelector(":scope > .chapter-paragraphs");
+    if (box) box.style.display = "";
+  }
+
+  /** Park the far chapters and unpark the near ones. All the measuring comes before any change, so it lays out once. */
+  function balance() {
+    const h = scroller.clientHeight;
+    if (!h || (parked.size === 0 && sections.size <= PARK_AFTER)) return;
+    const view = scroller.getBoundingClientRect();
+    const toPark = [];
+    const toDraw = [];
+    for (const s of sections.values()) {
+      if (!s.isConnected || !s.dataset.key) continue;
+      const r = s.getBoundingClientRect();
+      const gap = Math.max(view.top - r.bottom, r.top - view.bottom, 0);
+      if (parked.has(s)) {
+        if (gap < h * PARK_NEAR) toDraw.push(s);
+      } else if (sections.size > PARK_AFTER && gap > h * PARK_FAR) toPark.push(s);
+    }
+    if (!toPark.length && !toDraw.length) return;
+    // A chapter drawn again above the window may be a little taller than it
+    // was (the width changed meanwhile), so the text is held where it is.
+    hold(() => {
+      for (const s of toDraw) unpark(s);
+      for (const s of toPark) park(s);
+    });
+  }
+
   /** Where the reader is: the passage at the reading line. */
   function placeNow() {
     const s = sectionAtLine();
@@ -427,6 +482,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     if (i < 0) return;
     const there = sections.get(i);
     if (there?.isConnected) {
+      unpark(there); // its verse is to be measured
       scrollTo(there, p);
       if (!resized()) note();
       fill();
@@ -439,6 +495,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     lo = 0;
     hi = -1;
     sections.clear();
+    parked.clear();
     for (const l of lenses.splice(0)) l?.destroy?.();
     text.replaceChildren(make("p", "desk-dp__status", `Loading ${passageLabel({ ...p, verse: null })}…`));
     deskChaptersMoved();
@@ -472,6 +529,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       frame = 0;
       if (!resized()) note();
       fill();
+      balance();
       if (!readerMoved) return;
       clearTimeout(stubWait);
       stubWait = 0;

@@ -25,15 +25,9 @@ import { planWrite } from "../../lib/desk-store-core.mjs";
 import { undoEntry } from "./history.js";
 import { recordRow } from "./record-rows.js";
 import { showUndo } from "./undo-bar.js";
+import { el } from "./dom.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 /** Why a restore was refused, as a sentence. */
 const REFUSED = {

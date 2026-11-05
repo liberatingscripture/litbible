@@ -26,6 +26,7 @@ import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { hiddenNotice } from "./note-settings.js";
 import { announce, showUndo } from "./undo-bar.js";
+import { escapeHtml } from "./dom.js";
 
 let seq = 0;
 
@@ -365,6 +366,3 @@ function landFocus(place) {
   document.getElementById(`v${place.verse}`)?.focus({ preventScroll: true });
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-}

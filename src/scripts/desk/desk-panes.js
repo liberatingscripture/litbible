@@ -42,14 +42,8 @@ import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
-import { QUIET_KINDS } from "../../lib/desk-store-core.mjs";
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
+import { NO_CHAPTER_KINDS, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { make } from "./dom.js";
 
 function message(body, text) {
   body.append(make("p", "desk-pane__later", text));
@@ -395,7 +389,7 @@ export function mountPane(kind, body, env, pane) {
     // The pane goes on the page right after this returns, and a tab draws
     // only once it is there.
     queueMicrotask(() => tab.render());
-    const unsubscribe = env.store?.subscribe(() => tab.render());
+    const unsubscribe = env.store?.subscribe(() => tab.render(), { except: NO_CHAPTER_KINDS });
     const offMeta = env.store?.onMeta?.(() => tab.render()); // What's new's line (BA96)
     // Its rows' wording is judged only where a LIT pane shows their chapter,
     // so it is drawn again when the panes' chapters change (BA121).

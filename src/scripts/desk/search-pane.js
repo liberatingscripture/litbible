@@ -89,6 +89,7 @@ import {
 import { addTarget, onAddTarget } from "./sheet-pane.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
+import { make } from "./dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -101,13 +102,6 @@ let commands = null;
 const withCommands = () => import("../greek-commands.js").then((m) => (commands = m));
 const DEBOUNCE = 120; // as the tray
 const CHOICES = 10; // Greek words offered at a time
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function button(label, cls = "desk-search__btn") {
   const b = make("button", cls, label);

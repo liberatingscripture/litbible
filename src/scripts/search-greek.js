@@ -37,6 +37,7 @@ import {
   resolveGreekQuery,
 } from "../lib/greek-query.mjs";
 import { isGreekQuery } from "./search-core.js";
+import { fetchGreekChapter } from "./greek-chapters.js";
 
 // What the surfaces draw results with, so each has the one module to wait for.
 export { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../lib/greek-search.mjs";
@@ -151,22 +152,9 @@ export async function loadGreekOccurrences(base, index, id) {
   return shard?.[id] ?? null;
 }
 
-const greekChapters = new Map();
-
 /** A chapter's Greek (public/greek/text/<book>-<chapter>.json), or null. */
 export function loadGreekChapter(base, book, chapter) {
-  const key = `${book}-${chapter}`;
-  let p = greekChapters.get(key);
-  if (!p) {
-    p = fetch(`${base}greek/text/${key}.json`)
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
-      .catch(() => {
-        greekChapters.delete(key);
-        return null;
-      });
-    greekChapters.set(key, p);
-  }
-  return p;
+  return fetchGreekChapter(base, book, chapter).catch(() => null);
 }
 
 /**

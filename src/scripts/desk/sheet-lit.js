@@ -44,15 +44,9 @@ import { releaseNoteFor } from "../../lib/desk-change.mjs";
 import { loadChapterPage } from "./chapter-page.js";
 import { diffParagraph } from "./diff-view.js";
 import { loadReleaseNotes } from "./release-feed.js";
+import { make } from "./dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
 
 function button(label, cls = "desk-sheet__btn") {
   const b = make("button", cls, label);

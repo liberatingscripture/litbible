@@ -52,10 +52,9 @@ import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
-import { createGreekTab } from "./tab-greek.js";
-import { createVerseTab } from "./tab-verse.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
+import { escapeHtml } from "./dom.js";
 
 const TAB_KEY = "lit-desk-tab";
 
@@ -196,7 +195,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
             id: "verse",
             label: "This verse",
             make: () =>
-              createVerseTab({
+              lazyTab(() => import("./tab-verse.js").then((m) => m.createVerseTab), {
+                listensForVerse: visible,
+              }, {
                 store,
                 here,
                 visible: () => visible() && activeTab === "verse",
@@ -217,7 +218,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
             id: "greek",
             label: "Greek",
             make: () =>
-              createGreekTab({
+              lazyTab(() => import("./tab-greek.js").then((m) => m.createGreekTab), {}, {
                 here: greekHere,
                 visible: () => visible() && activeTab === "greek",
                 openVerse: (verse) => showVerse(verse),
@@ -718,6 +719,76 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
  * A tab that failed to build (BA29): a line saying so where its content would
  * be, and every call the panel makes on a tab's view answered with nothing.
  */
+/**
+ * A tab whose module comes only when the tab is first drawn (Audit 2, LG-10):
+ * the Notebook starts minimized, so a reader who never opens This verse or
+ * Greek never downloads them, the Greek tab's libraries included. It stands in
+ * for the real view with the same few methods and holds a call made before
+ * the module arrives (a verse to show, a word to select) until it does.
+ * `listensForVerse` repeats This verse's own rule, that a verse menu opened
+ * while the Notebook is open moves the tab to that verse, for the time before
+ * the tab exists.
+ */
+function lazyTab(load, { listensForVerse } = {}, options) {
+  const el = document.createElement("div");
+  el.style.display = "contents";
+  let real = null;
+  let loading = null;
+  let wantVerse = null;
+  let wantFocus = false;
+  const onActions = (e) => {
+    const d = e.detail;
+    if (real || d?.kind !== "verse" || d.view !== "study" || !listensForVerse?.()) return;
+    wantVerse = d.start;
+  };
+  if (listensForVerse) document.addEventListener("lit:panel-actions", onActions);
+
+  function ready() {
+    if (real) return Promise.resolve(real);
+    loading ??= load()
+      .then((create) => {
+        real = create(options);
+        document.removeEventListener("lit:panel-actions", onActions);
+        el.replaceChildren(real.el);
+        if (wantVerse != null) real.setVerse(wantVerse);
+        if (wantFocus) real.focusHeading();
+        return real;
+      })
+      .catch((err) => {
+        console.error("Study Desk: a tab didn't load", err);
+        loading = null; // the next draw asks again
+        const broken = brokenTab();
+        el.replaceChildren(broken.el);
+        return null;
+      });
+    return loading;
+  }
+
+  return {
+    el,
+    render() {
+      if (!real) el.replaceChildren(Object.assign(document.createElement("p"), { className: "desk-panel__empty", textContent: "Loading…" }));
+      ready().then((v) => v?.render());
+    },
+    setVerse(verse) {
+      wantVerse = verse;
+      real?.setVerse(verse);
+    },
+    focusHeading() {
+      if (real) real.focusHeading();
+      else wantFocus = true;
+    },
+    async selectWord(...args) {
+      const v = await ready();
+      return v?.selectWord(...args);
+    },
+    destroy: () => {
+      document.removeEventListener("lit:panel-actions", onActions);
+      real?.destroy?.();
+    },
+  };
+}
+
 function brokenTab() {
   const el = document.createElement("p");
   el.className = "desk-panel__empty";
@@ -725,6 +796,3 @@ function brokenTab() {
   return { el, render() {}, setVerse() {}, focusHeading() {}, async selectWord() {} };
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-}

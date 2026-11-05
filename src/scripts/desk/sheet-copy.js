@@ -30,13 +30,7 @@ import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
 import { locateBlanks, passageWords, readPassage, UNREAD_PASSAGE_ON_PAPER } from "./sheet-lit.js";
-
-function make(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
-}
+import { make } from "./dom.js";
 
 /** Lines to write on: one ruled line each, as borders, which print where backgrounds don't. */
 function ruled(n) {

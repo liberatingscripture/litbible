@@ -7,6 +7,7 @@
 // fetch is forgotten, so "Try again" asks again. Nothing here throws into the
 // page: a caller gets a rejected promise and decides what to say.
 
+import { fetchGreekChapter } from "../greek-chapters.js";
 import { lsjShard, stepShard, ubsShard } from "../../lib/desk-greek.mjs";
 
 const cache = new Map();
@@ -26,7 +27,7 @@ function load(url) {
 
 /** One chapter's Greek: { paragraphs, lemmas, apparatus, borrowed?, title? }. */
 export function loadChapterGreek(bookKey, chapter) {
-  return load(`/greek/text/${bookKey}-${chapter}.json`);
+  return fetchGreekChapter("/", bookKey, chapter); // shared with the Greek search (GK-20)
 }
 
 /** A UBS entry by its MainId, or null when the dictionary has none. */

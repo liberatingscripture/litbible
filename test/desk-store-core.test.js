@@ -21,6 +21,7 @@ import {
   kindName,
   listenerSet,
   MOVE_KIND,
+  NO_CHAPTER_KINDS,
   QUIET_KINDS,
   liveRecords,
   metaMessage,
@@ -590,4 +591,15 @@ test("E9: a bookmark moving as the reader reads is heard by a view that leaves o
   set.notify(["c"], "this-tab", ["bookmark"]);
   set.notify(["d"], "this-tab", [MOVE_KIND, "note"]);
   assert.deepEqual(heard, [["c"], ["d"]], "a bookmark the reader made or removed does");
+});
+
+test("NO_CHAPTER_KINDS: a sheet's autosave or a place wakes no view of marks, but a bookmark's move does (DK-5)", () => {
+  const filter = { except: NO_CHAPTER_KINDS };
+  assert.equal(hearsChange(filter, ["sheet"]), false);
+  assert.equal(hearsChange(filter, ["place", "sheet"]), false);
+  assert.equal(hearsChange(filter, [MOVE_KIND]), true);
+  for (const k of ["note", "highlight", "bookmark", "label", "footnotePin", "trash"]) {
+    assert.equal(hearsChange(filter, [k]), true, k);
+  }
+  assert.equal(hearsChange(filter, null), true, "unknown kinds reach all");
 });
