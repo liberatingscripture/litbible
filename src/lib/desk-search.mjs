@@ -195,7 +195,9 @@ export function searchNotebook(records, query, { bookKey = "" } = {}) {
       hit: {
         id: r.id,
         kind: r.kind,
-        label: labelFor(r),
+        // A bookmark's result says whether it moves, as its row does (BVJ,
+        // 2026-11-04), since opening it from here starts or stops following.
+        label: r.kind === "bookmark" ? `${labelFor(r)} · ${r.follow === true ? "Moves" : "Stays put"}` : labelFor(r),
         reference: recordReference(r) || (r.glossaryId ? `Glossary: ${r.glossaryId}` : labelFor(r)),
         href: recordHref(r) ?? (typeof r.glossaryId === "string" ? `/glossary/#${r.glossaryId}` : null),
         // A bookmark's result opens it like its row does (follow or stop): see
