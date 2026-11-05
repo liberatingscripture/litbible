@@ -25,8 +25,8 @@
 //   every chapter; key terms are underlined per chapter (term-lens.js's
 //   attachTermLens); scripture references in a note preview as they do
 //   anywhere (ref-preview.js).
-// - **Where the reader is** is the verse at the reading line, a quarter of
-//   the way down, told to `onPlace` only when the reader's own scrolling
+// - **Where the reader is** is the verse at the reading line, a tenth of
+//   the way down (BVJ, 2026-11-04; Chapter View's moved to 10% on 2026-10-29), told to `onPlace` only when the reader's own scrolling
 //   moved it (the Greek pane's rule), so a pane sent somewhere never chases
 //   the panes that follow it. A chapter in a stub is told only once the
 //   reader stops on it (BA64).
@@ -62,7 +62,7 @@ import { createPassageBar } from "./passage-bar.js";
 import { make } from "./dom.js";
 
 /** How far down the pane the reading line sits. */
-const LINE = 0.25;
+const LINE = 0.1;
 /** How much text to keep ready beyond each edge, in pane heights. */
 const AHEAD = 1.5;
 /** How long the reading line rests in a stub before its chapter is told, in ms. */

@@ -98,6 +98,7 @@ import { createDeskTour } from "./desk-tour.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
+import { turnOffMarks, turnOnMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
@@ -371,11 +372,22 @@ async function start() {
       const next = applyArrangement(layout, a.id);
       const stays = new Set(panes(next.root).map((p) => p.id));
       const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
+      // Reading also clears the marks off the text, and leaving it puts back
+      // the ones it cleared (reading-display.js), before the panes are drawn
+      // so they come up right.
+      const marks = a.id === "reading" ? turnOffMarks() : arrangementOf(before) === "reading" ? turnOnMarks() : null;
       commit(next);
       // A smaller layout closes panes from the end: say which, and offer to
       // bring them back (DK-9). The bar announces itself.
-      if (closed.length) showUndo(`Layout: ${a.label}. Closed ${LIST.format(closed)}.`, () => commit(before));
-      else announce(`Layout: ${a.label}.`);
+      const said = [`Layout: ${a.label}.`];
+      if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
+      if (marks?.names.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks.names)}.`);
+      if (said.length > 1) {
+        showUndo(said.join(" "), () => {
+          marks?.undo();
+          commit(before);
+        });
+      } else announce(`Layout: ${a.label}.`);
       closeMenu();
     });
     shapesBox.append(b);
@@ -399,8 +411,9 @@ async function start() {
   });
   menu.querySelector("[data-ws-reset]").addEventListener("click", () => {
     // The panes go back; the reader's place stays (BA55).
+    const marks = arrangementOf(layout) === "reading" ? turnOnMarks() : null;
     commit(originalLayout(layout.place));
-    announce("Back to the original layout: the LIT beside My Notes.");
+    announce(`Back to the original layout: the LIT beside My Notes.${marks?.names.length ? ` Turned on ${LIST.format(marks.names)}.` : ""}`);
     closeMenu();
   });
 
@@ -793,6 +806,10 @@ async function start() {
   const panesBox = el("div", "desk-ws__panes");
   const drop = el("div", "desk-ws__drop");
   drop.hidden = true;
+  // Beside the pointer while a dragged pane is over nothing it could land on
+  // (a line, the gutter, itself), so a missed drop isn't silent (E25, 9).
+  const miss = el("div", "desk-ws__miss");
+  miss.hidden = true;
   const status = el("p", "sr-only");
   status.setAttribute("role", "status");
   const announce = (text) => { status.textContent = ""; requestAnimationFrame(() => { status.textContent = text; }); };
@@ -928,6 +945,9 @@ async function start() {
       // above or is sent somewhere, and that isn't the reader working in it.
       body.addEventListener("wheel", touch, { passive: true });
     }
+    // The header is the handle, and says so on hover once there is a pane to move
+    // it beside (E25, 7).
+    rec.head.title = panes(layout.root).length > 1 ? "Drag to move this pane" : "";
     if (rec.kind !== pane.kind) {
       rec.inst?.destroy();
       rec.body.replaceChildren();
@@ -991,7 +1011,7 @@ async function start() {
     const focused = panesBox.contains(document.activeElement) ? document.activeElement : null;
     const tree = build(drawn, []);
     tree.style.flex = "1 1 0px";
-    panesBox.replaceChildren(tree, drop);
+    panesBox.replaceChildren(tree, drop, miss);
     for (const back of putBack) back?.();
     if (focused?.isConnected) focused.focus({ preventScroll: true });
     mark();
@@ -1548,6 +1568,7 @@ async function start() {
       head.removeEventListener("pointercancel", cancel);
       document.removeEventListener("keydown", key, true);
       drop.hidden = true;
+      miss.hidden = true;
       document.documentElement.classList.remove("desk-ws--moving");
       paneEls.get(movingId)?.el.classList.remove("desk-pane--moving");
     };
@@ -1565,8 +1586,15 @@ async function start() {
         drop.hidden = true;
         pick = null;
         seen = null;
+        // Nothing here to land on: say so beside the pointer.
+        const box = panesBox.getBoundingClientRect();
+        miss.textContent = "Drop on another pane to move this one";
+        miss.style.left = `${ev.clientX - box.left + 14}px`;
+        miss.style.top = `${ev.clientY - box.top + 14}px`;
+        miss.hidden = false;
         return;
       }
+      miss.hidden = true;
       const rect = target.getBoundingClientRect();
       const targetId = target.dataset.paneId;
       const held = seen?.targetId === targetId ? seen.zone : null;
@@ -1602,7 +1630,13 @@ async function start() {
     };
     const up = () => {
       stop();
-      if (!moving || !pick) return;
+      if (!moving) return;
+      // A drop that lands nowhere (or where there is no room; the box said why)
+      // changes nothing: say so, since the panes look the same as before.
+      if (!pick) {
+        announce(`${kindLabel(findPane(layout.root, movingId)?.kind)} not moved.`);
+        return;
+      }
       // Planned again from the layout as it is now, not as it was at the last
       // pointer move: a pane's place (a scroll, say) may have been saved
       // since, and committing the old tree would undo it.

@@ -7645,7 +7645,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     page, and the LIT pane loads chapters as the reader nears them. **Let
     go** (BVJ, 2026-11-02): book-scoped search covers finding a word.
   - **The button's label.** "Study Desk" says study; the button now also
-    serves the reader who wants to read straight through.
+    serves the reader who wants to read straight through. **Decided (BVJ,
+    2026-11-04): keep "Study Desk."** Read View is going, the card and the
+    picker link use the same name, and the Reading layout is the way to a
+    plain page of text.
   **8a built 2026-11-02 (work session 8a).** BVJ's answers: build "Reading"
   and see how it feels (the menu's word is a try, not a decision); the
   recommended `?place=` rules; the whole-book question below (let go).
@@ -7680,8 +7683,18 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     working on the page as read: Edge's Read Aloud past the loaded
     chapters, printing a whole book (the Print menu prints one chapter at a
     time), and Ctrl+F's in-context highlighting. These go with Read View;
-    8c says so in the help copy. Status: **8a built, awaiting BVJ's look on
-    the preview.**
+    8c says so in the help copy.
+  - *BVJ looked, 2026-11-04.* `?place=` and the Layout row behaved as
+    described, with two changes. **Reading is told apart from One pane by what
+    it takes off the text**: choosing it also turns off verse numbers, footnote
+    letters, key terms, and highlights (the undo bar names them and Undo puts
+    them back); choosing another layout (or Reset) turns back on only the ones
+    Reading turned off.
+    And **every reading line is 10% down** (the LIT pane's was 25%, and
+    `keepReadingPlace`'s 30%), so a `?place=` verse lands near the top. Left
+    at their own lines on purpose: Read View's chapter line and focus line,
+    which Read View's retirement (8c) removes, and the Greek pane's "Go to
+    verse" tolerance. Status: **8a looked at; both changes built.**
   **8b built 2026-11-02 (work session 8b).** BVJ's answers: swap the /read
   card in place (option A), the picker link too, and the card's wording
   chosen by an Opus subagent; the "Available now" badge moves to the desk
@@ -7698,6 +7711,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     builds the footer). Study View's own "Read View" button was already gone
     (8a: the header's Study Desk link, carrying the chapter, replaced it).
     The picker on Read View itself still offers Study View.
+  - *BVJ, 2026-11-04:* the desk card drops "On a computer:" (`data-desk="on"`
+    is stamped only on a computer, so a phone or tablet never shows it), and
+    the Chapter View card's "Made for close reading and study" became "Nothing
+    to set up, and it works on any device," since the desk now owns study. The
+    name stays "Chapter View" for now (an Opus agent advised keeping it:
+    "Classic" reads as "the old one" while Read View is being retired, and the
+    name was changed two days ago); BVJ's call.
   - *Dormant prep, not switched on:* `src/lib/read-view-retirement.mjs`
     holds the rules named under "At launch": `readViewRedirects()` (the
     Astro redirect entries, `/read/<book>` to `/<book>-1/`),
@@ -7840,8 +7860,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   foot and beside "Search commands" on /search; shown only with the desk on
   and the type "All types"; remembered in `lit-desk-greek-notes` (named in
   /privacy; the LSC site's mirror needs the same sentence); English
-  searches are not governed by it, and /desk's Search pane lists no notes
-  for a Greek search. The tray shows it only when a Greek group renders.
+  searches are not governed by it. (Corrected 2026-11-04: /desk's Search pane
+  has the same switch and lists notes for a Greek search when it is on, PR
+  #463.) The tray shows it only when a Greek group renders.
   Status: built, awaiting BVJ's look.
   **Placement settled 2026-11-02 (work session 7b, on Claude's
   recommendations):** on /search the link and "My notes" are one box, inline in
@@ -7854,7 +7875,11 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   group's foot, which such a search doesn't draw). **For BDR's Claude: the LSC
   site's `/privacy` mirror needs the sentence for `lit-desk-greek-notes`** (this
   site's, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
-  searches list your notes, once you turn that off)"). Nothing else in
+  searches list your notes, once you turn that off)"). **A second one, from
+  PR #464 (2026-11-04):** the sentence for `lit-desk-reading-off` ("which
+  display settings the Reading layout turned off, so choosing another layout
+  can turn them back on"), in the same list on this site's /privacy, just
+  before `lit-desk-layout`. Nothing else in
   /privacy changed; the builder keeps nothing. Status: built, awaiting BVJ's
   look.
 - **E12, wish: a trash the reader can restore from.** BVJ (2026-10-28),
@@ -8076,7 +8101,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `scriptureControls: "study"` and `trackStudyView` are storage and code
   names and stay). This file, FIXLIST.md and the audits are records and
   still say "Study View." Status: done (the rename); the Study Desk card
-  part ships to everyone at 8c.
+  part ships to everyone at 8c. **At 8c the card and the chapter picker's
+  Study Desk link still show only on a computer** (BVJ, 2026-11-04): they are
+  hidden on a phone or tablet today only because `data-desk="on"` is stamped
+  under the app-platform test (Layout.astro's pre-paint script,
+  `src/lib/app-platform.mjs`). When the preview flag goes, keep that test in
+  the stamp, or give the card and the link their own device guard, so a
+  phone never sees a link to a page it can't use.
 - **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
   BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
   pane stays and an unlocked lock when it follows, with no words
@@ -8198,10 +8229,16 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   name button says "…show something else here, or move it," and the Layout
   window's note names the Move items; Move picks only a pane touching this
   one; a drop is planned again from the layout at release.
-  Not built, left as BVJ finds them: dragging to the desk's own edge (5), a
-  visible handle at rest (7), keeping the dragged pane's size (8), an
-  animated move or live layout preview (4), a note when a drag ends on a
-  line or outside the panes (9).
+  The five ideas left open were settled **2026-11-04 (BVJ)**: **9 built**, a
+  label beside the pointer ("Drop on another pane to move this one") while a
+  dragged pane is over a line, the gutter, or itself, and "<Kind> not moved."
+  for a screen reader when a drop lands nowhere or has no room; **7 built in
+  its cheap form**, a hover tooltip on the header ("Drag to move this pane",
+  with two or more panes; the grip icon and grab cursor were already there);
+  **8 left as it is** (a swap keeps each slot's size, a split halves the
+  target); **4 and 5 skipped** (a live preview would rebuild the panes at
+  every pointer move, which resets their scrolling, and the Layout menu's 12
+  arrangements cover the shapes a desk-edge drop would make).
 
 - **E26, glyph: the leading LIT pane's "Leading" pill becomes a flag.** BVJ
   (2026-11-02), as the lock replaced "Stay here" in E21. Status: **done**, in

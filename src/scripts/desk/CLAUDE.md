@@ -918,7 +918,9 @@ against `dist/` is a later item.
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
        dragging a pane over another, where `dropZone` says an edge band
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
-       E25, BVJ 2026-11-02, the drop box names which), and `neighborIn`
+       E25, BVJ 2026-11-02, the drop box names which; over nothing a pane can
+       land on, a label by the pointer says so and a drop announces "not
+       moved," 2026-11-04), and `neighborIn`
        for the pane menu's Move left, right, up, and down (the keyboard's
        swap; only a pane touching this one counts). **The pane menu is the
        kinds plus three flyout lines, Add pane, Move and Size** (BVJ,
@@ -939,7 +941,13 @@ against `dist/` is a later item.
      - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02): "Reading" is the
        first row of the Layout window, one LIT pane (`readingLayout`); it is
        One pane's shape, so `arrangementOf` tells them apart by the pane's
-       kind. `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
+       kind. **Choosing it also turns off verse numbers, footnote letters, key
+       terms, and highlights** (BVJ, 2026-11-04; `reading-display.js`), and
+       **leaving Reading** by another row or Reset turns back on only the ones
+       Reading turned off (remembered under `lit-desk-reading-off`) and that are
+       still off. The undo bar names them either way and Undo reverses them. The LIT pane's reading
+       line and the shared `keepReadingPlace` line are both 10% down, as
+       Continue reading's (`LINE` in `lit-pane.js`). `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
        `romans-8-v16`) is what a link to the desk carries: whatever the page
        would have opened (last, default, or the original for a first visit)
        keeps its panes and sizes, and only the active LIT pane and the
