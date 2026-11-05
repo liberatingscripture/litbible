@@ -365,6 +365,12 @@ against `dist/` is a later item.
      /desk pane kind only; the margin's switch and its region are "Notes in
      the margin," and This verse's subhead stays "My notes," naming the
      reader's notes on that verse.
+     **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
+     "the notebook preview"); "Delete" is for what the reader typed or named
+     (notes, labels, sheets) and "Remove" for marks on the text (bookmarks,
+     highlights), both from `takeOff(kind)` in `desk-store-core.mjs`; in a
+     button "copy" means a saved file, so a sheet's leader and participant
+     copies are "versions"; "Dictionary forms" for lemmas.
   11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
      history per page visit, 50 deep. The store records an entry for every
      write the reader makes (`apply` in `desk/store.js`, which reads the
