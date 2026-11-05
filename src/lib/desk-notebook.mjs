@@ -299,7 +299,7 @@ export function daysLeft(trash, now = new Date().toISOString()) {
 /**
  * Why a restore was refused. `missing` (the trash record is gone), `emptied`
  * (only its tombstone is left), `exists` (a live record already has the id),
- * `bookmark` (the verse already holds a bookmark, BA16) or `label` (a label of
+ * `bookmark` (the verse already holds a bookmark of its kind, BA16) or `label` (a label of
  * that name is already kept; names are unique).
  */
 export const RESTORE_REFUSALS = Object.freeze(["missing", "emptied", "exists", "bookmark", "label"]);
@@ -311,8 +311,9 @@ export const RESTORE_REFUSALS = Object.freeze(["missing", "emptied", "exists", "
  * gone. Nothing else is edited: a label id on it that no longer names a label
  * is left, and is not drawn (labelsOf). Two cases are settled here, on BVJ's
  * calls of 2026-11-02:
- *   - a bookmark onto a verse that already holds one is refused (`bookmark`),
- *     so a restore never makes the second the rule forbids; a label whose name
+ *   - a bookmark onto a verse that already holds one of its kind is refused
+ *     (`bookmark`), so a restore never makes the second the rule forbids (a
+ *     verse takes one that stays put and one that moves); a label whose name
  *     is kept already is refused too (`label`);
  *   - a bookmark that moved as the reader reads comes back still, unless
  *     six already move, and then comes back plain (`movesNoMore: true`).
@@ -327,7 +328,10 @@ export function planRestore(records, trashId, ctx) {
   const live = records.filter((r) => r && r.kind !== "trash");
   const held = trash.record;
   if (live.some((r) => r.id === held.id)) return { ok: false, reason: "exists" };
-  if (held.kind === "bookmark" && bookmarksOn(live, held).length) return { ok: false, reason: "bookmark" };
+  // A verse takes one bookmark of each kind, one that stays put and one that moves.
+  if (held.kind === "bookmark" && bookmarksOn(live, held).some((r) => isFollowing(r) === isFollowing(held))) {
+    return { ok: false, reason: "bookmark" };
+  }
   if (held.kind === "label" && findLabel(live, held.name)) return { ok: false, reason: "label" };
   let record = restoreFromTrash(trash, ctx);
   let movesNoMore = false;

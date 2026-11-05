@@ -246,11 +246,16 @@ test("planRestore refuses what is gone, emptied, or already back", () => {
   }
 });
 
-test("planRestore leaves a bookmark in the trash when its verse already holds one", () => {
+test("planRestore leaves a bookmark in the trash when its verse already holds one of its kind", () => {
   const where = { bookKey: "john", chapter: 3, verse: 16 };
   const old = trashed(make("bookmark", where), T);
   const fresh = make("bookmark", where);
   assert.deepEqual(planRestore([old, fresh], old.id, ctx), { ok: false, reason: "bookmark" });
+  const moving = make("bookmark", { ...where, follow: true });
+  assert.equal(planRestore([old, moving], old.id, ctx).ok, true, "one that moves leaves room for one that stays put");
+  const oldMoving = trashed(make("bookmark", { ...where, follow: true }), T);
+  assert.equal(planRestore([oldMoving, fresh], oldMoving.id, ctx).ok, true, "and the other way round");
+  assert.deepEqual(planRestore([oldMoving, moving], oldMoving.id, ctx), { ok: false, reason: "bookmark" });
   assert.equal(planRestore([old], old.id, ctx).ok, true, "a bookmark elsewhere is no obstacle");
   const other = make("bookmark", { ...where, verse: 17 });
   assert.equal(planRestore([old, other], old.id, ctx).ok, true);

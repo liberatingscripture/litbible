@@ -489,8 +489,9 @@ against `dist/` is a later item.
        over the record and its trash record, so the history remembers it): it
        writes what `restoreFromTrash` says and adds no field or kind, so the
        format and `merge-vectors.json` are untouched. It is **refused, and left
-       in the trash**, for a bookmark onto a verse that already has one (BA16)
-       and a label whose name is kept; a bookmark that moved comes back plain when
+       in the trash**, for a bookmark onto a verse that already has one of its
+       kind (BA16; a verse takes one that stays put and one that moves, so
+       the other kind comes back) and a label whose name is kept; a bookmark that moved comes back plain when
        six already move. A dead label id on a restored note is left (not drawn).
        **`makeEntry` allots no `undoTrash` for a record the change took out of the
        trash**, or undoing a restore would leave two trash records for one

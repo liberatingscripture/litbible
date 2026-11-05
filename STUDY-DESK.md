@@ -7954,7 +7954,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     stays and isn't drawn; restoring a label brings the label back, not its
     use on items (deleting it stripped those, in a step of its own).
     **Refused, and left in the trash, with a sentence**: a bookmark onto a
-    verse that already has one (BA16), and a label whose name is already
+    verse that already has one of its kind (BA16; since 2026-11-04 a verse
+    takes one that stays put and one that moves, so the other kind is
+    restored), and a label whose name is already
     kept (names are unique). **A bookmark that moved as the reader reads comes
     back plain when six already move** (and the sentence says so). A mark
     whose words moved since gets the usual change notice (N3), nothing special.
