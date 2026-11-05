@@ -88,16 +88,27 @@ function writeFlag(next) {
 }
 
 /**
- * What a bookmark's row says about whether it moves (BVJ, 2026-11-04; wording
- * from an Opus agent, who advised against "Smart" and "Static"): "Following me
- * now" while this tab is moving it, else "Moves as I read" for one with the
- * switch on, else "Stays put". A row says it as drawn; the next redraw updates it.
+ * What a bookmark's row says about whether it moves (BVJ, 2026-11-04): one
+ * short word so the line never wraps in the Notebook's narrow list ("Bookmark ·
+ * Following" is the longest), and the fuller sentence as the line's hover text.
+ * "Following" is while this tab is moving it, "Moves" is a bookmark with the
+ * switch on, "Stays put" one without. The words are an Opus agent's, who advised
+ * against "Smart" and "Static". A row says it as drawn; the next redraw updates it.
  *
  * @param {{ id: string }} bookmark
+ * @returns {{ word: string, title: string }}
  */
 export function bookmarkState(bookmark) {
-  if (!isFollowing(bookmark)) return "Stays put";
-  return readFlag()?.id === bookmark.id ? "Following me now" : "Moves as I read";
+  if (!isFollowing(bookmark)) return { word: "Stays put", title: "Stays on its verse" };
+  return readFlag()?.id === bookmark.id
+    ? { word: "Following", title: "Following me now: it moves as I read in this tab" }
+    : { word: "Moves", title: "Moves as I read, once opened from this list" };
+}
+
+/** A bookmark row's "Bookmark · …" line, as text and as its hover text. */
+export function bookmarkLine(bookmark, name = "Bookmark") {
+  const { word, title } = bookmarkState(bookmark);
+  return { text: `${name} · ${word}`, title };
 }
 
 /**

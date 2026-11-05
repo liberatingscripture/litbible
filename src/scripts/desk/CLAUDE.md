@@ -511,10 +511,11 @@ against `dist/` is a later item.
        follows by `migrateRecord` (same id, `name` to `label`), so nothing else
        knows the old shape; the website never writes a `place`. A bookmark is a
        row in the ordinary My Notes list and the notebook page's: its reference,
-       its name right under it, then a line "Bookmark · Stays put" / "Moves as I
-       read" / "Following me now" (`bookmarkState`, bookmark-follow.js: following
-       is this tab's flag; the words are an Opus agent's, who advised against
-       "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
+       its name right under it, then a line "Bookmark · Stays put" / "Moves" /
+       "Following" (`bookmarkLine`, bookmark-follow.js: following is this tab's
+       flag; one short word each so the line never wraps in the narrow list,
+       with the fuller sentence as hover text; the words are an Opus agent's,
+       who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
        name and the switch). The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).

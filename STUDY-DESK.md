@@ -7809,8 +7809,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   fine, and a plain bookmark stays put while a moving one follows. Changes, built
   the same day: the verse menu's "Edit bookmark…" sits right after "Remove
   bookmark"; pressing "Bookmark" opens that form at once; a row shows the name
-  under the reference and a line "Bookmark · Stays put" / "Moves as I read" /
-  "Following me now" (BVJ proposed "Smart," "Static" and "Following"; an Opus
+  under the reference and a line "Bookmark · Stays put" / "Moves" /
+  "Following" (the first wording, "Moves as I read" and "Following me now,"
+  wrapped to a second line in the Notebook's narrow list, so each is one short
+  word with the longer sentence as hover text; BVJ proposed "Smart," "Static" and "Following"; an Opus
   agent advised against the first two, as an AI-sounding gimmick and developer
   vocabulary, so the plain words stand unless BVJ prefers his); and the margin
   mark of a moving bookmark jumps 5 seconds after the reading pauses instead of

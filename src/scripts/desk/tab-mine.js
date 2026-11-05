@@ -96,7 +96,7 @@ import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
-import { bookmarkState, followBookmark } from "./bookmark-follow.js";
+import { bookmarkLine, followBookmark } from "./bookmark-follow.js";
 import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -645,7 +645,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
-    kind.textContent = r.kind === "bookmark" ? `${nameOf(r)} · ${bookmarkState(r)}` : nameOf(r);
+    const setKind = () => {
+      if (r.kind !== "bookmark") return void (kind.textContent = nameOf(r));
+      const line = bookmarkLine(r, nameOf(r));
+      kind.textContent = line.text;
+      kind.title = line.title;
+    };
+    setKind();
     li.append(head, kind);
     // A bookmark that moves as the reader reads starts doing so from this link
     // (a modified click opens elsewhere and doesn't).
@@ -653,7 +659,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       head.addEventListener("click", (e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
         followBookmark(r, head.href);
-        kind.textContent = `${nameOf(r)} · ${bookmarkState(r)}`;
+        setKind();
       });
     }
     // A note on a footnote (M11) says so, and quotes the footnote's opening
