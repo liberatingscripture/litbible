@@ -982,6 +982,15 @@ against `dist/` is a later item.
        add to the window or the document, which the pane calls when it
        closes and when it builds a new tab for another chapter (BA31,
        BA115); a listener a tab adds outside its own element goes in it.
+       **A LIT pane stops drawing chapters far from its window** (DK-15):
+       past 40 on the page, one more than 3 pane heights away gets
+       `display: none` on its text and keeps its height (`park`, `balance` in
+       `lit-pane.js`), and is drawn again within 2. The text stays in the
+       DOM, so marks, labels and anchors read it as before; browser find does
+       not search it. Measured on /desk with all 211 chapters: re-layout
+       520 ms to 15 ms, scrolling 42 ms a frame to 7. `content-visibility`
+       was tried and fixed the layout only. A new reader of a pane's text that
+       needs it drawn (a rect, a selection) must handle a parked chapter.
        The LIT pane is `desk/lit-pane.js`, Footnotes
        `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
        the sheet editor, with its formatted text in `desk/sheet-text.js`
