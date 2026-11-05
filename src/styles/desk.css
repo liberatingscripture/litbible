@@ -7725,12 +7725,12 @@ mark.desk-print-mark {
 
 .desk-search__group-title {
   margin: 0 0 4px;
-  /* Inter, as the other panes' headings are (BVJ, 2026-11-04). */
+  /* The notebook pane's group headings (.desk-mine__heading-text), so a group
+     reads the same in every pane: Inter, 13px, semibold, mixed case (BVJ,
+     2026-11-04). It was small caps, which no other pane's headings were. */
   font-family: Inter, "Inter Fallback", system-ui, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: rgba(var(--ink-rgb), 0.7);
 }
 
