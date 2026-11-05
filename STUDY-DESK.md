@@ -3787,7 +3787,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        note, a bookmark or a highlight, a merge or colour change included.
        One history per page visit, 50 deep; a change made in another tab is
        never in it. In a text field, or with the note editor open, the keys
-       are the browser's own undo.
+       are the browser's own undo. **Ctrl+Y is the redo the tour, the Display
+       tray's list of keys and the help page name** (BVJ, 2026-11-04, #468;
+       ⇧⌘Z on a Mac); Ctrl+Shift+Z still works.
      - **The bar says what happened** ("Undone: note on Romans 8:3 added."
        with Redo), and its Undo button is the same history, so the button
        and the key never disagree. A change overtaken since (edited in
@@ -7862,12 +7864,23 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the rows, turning the switch off stops it at once, a reload or Back no longer
   writes verse 1, a link opened in place on /desk starts no follow, and a
   bookmark found in search follows or stops like its row. **Accepted (BVJ):**
-  /desk, /notebook and /search clear the flag; a move overtakes Undo of an
+  /desk, /notebook and /search pause the flag instead of clearing it; a move overtakes Undo of an
   earlier edit after the reader reads on; the last move before a tab closes can
   be lost. **Open for BVJ:** whether other rows (notes, highlights, pins,
   Continue reading) that go to another chapter should stop following, and
   whether the verse a moving bookmark sits on should count as bookmarked in
-  its verse menu. Status: **looked at; changes built** (the apps need nothing but to carry `follow`).
+  its verse menu. **Checked in the browser the same day (2026-11-04):** the pause
+  bar on a far jump (Luke 1 to Luke 5), "Move it here" (the bookmark goes to the
+  new place, follows from there, and the next far jump pauses it again), a gold
+  mark in dark mode, the Bookmark flyout in the selection panel (as in the verse
+  menu), and a gold mark with a resting outline on one verse (stacked, both
+  visible). **That check found a bug, fixed in #470:** a far jump that lands on a
+  verse (a link to `/luke-1/#v1`) reports twice before the follower's first
+  check, and the second counted the first as reading, so the bookmark moved
+  instead of pausing. The place a page "last heard" is now set only when a
+  report is accepted (`bookmark-follow.js`, with a test). Merged: #465 (the
+  /desk panes box no longer shows an extra scrollbar with a Sheet pane open) and
+  #467 (all of the above). Status: **looked at; changes built** (the apps need nothing but to carry `follow`).
 - **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
   or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven
