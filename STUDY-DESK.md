@@ -8386,6 +8386,59 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   LIT panes (the active one?); and what Paused means while a desk is open. Status:
   **open, own session.**
 
+- **E29, bug and rough: with verse numbers off, /desk's LIT pane keeps its
+  chapter headings, and its location field says verse 1 the whole time.** BVJ
+  (2026-11-05), from /desk in the Reading arrangement (which turns verse
+  numbers off, `reading-display.js`, E8). Two parts, probably one cause: the
+  pane may be treating a hidden verse number as if the verse weren't there.
+  1. **Chapter headings off whenever the numbers are off, on the surfaces
+     that run chapters together.** The point (BVJ, 2026-11-05) is a reading
+     experience without the separations between verses and chapters, which
+     are arbitrary later additions. So on /desk's LIT pane (in Reading, and
+     any time its verse numbers are off, `html[data-vn="off"]`, the Display
+     tray's verse-numbers switch) the chapter headings go too. Read View
+     already does this (`read-mode.css`, "NUMBERS OFF": `.rm-chapter` is
+     `display: none` beside `sup.vn`), so the precedent is there. The LIT
+     pane's headings are `.desk-lit__heading` (`desk.css`, drawn by
+     `lit-pane.js`). **It does not apply to Chapter View's own pages** (BVJ,
+     2026-11-05): a chapter page is already separated from the next by being
+     its own page, so removing its heading buys no continuity and would only
+     confuse; its heading and `h1` stay whatever the numbers setting.
+     **Navigation stays** (BVJ, 2026-11-05): the headings are how a reader
+     moves between chapters, so what goes is the visual separation, not the
+     heading. The rule is that a chapter heading may remain, for navigation's
+     sake, wherever it makes no visual break: no visible text, no gap, no
+     rule, and the text flows on as one. The default is the visually hidden
+     treatment `global.css` gives `sup.vn` (still a heading for a screen
+     reader's heading navigation, still a link and a focus stop for the
+     keyboard, brought into view only on focus), not `display: none`, which
+     removes it (Read View's choice; revisit it by the same rule). Still to
+     settle in the session: what, if anything, a sighted mouse reader gets to
+     jump by in the LIT pane (the Go to field and the title may already be
+     enough), and that the hidden heading adds no height to the flow.
+  2. **The location field must still name the verse being read.** It shows
+     the book, chapter and verse 1 and never moves while the reader scrolls.
+     Wanted: the verse at the reading line (10%, BVJ 2026-11-04), as it is
+     with the numbers showing, **even though the markers are not visible**.
+     Where to look first: `placeNow()` and `keep()` in `lit-pane.js` find the
+     verse by walking the section's `sup.vn` elements and comparing
+     `getBoundingClientRect().top` with the reading line. With
+     `html[data-vn="off"]` those numbers are 1px absolutely positioned boxes
+     (`global.css`, Chapter View's rule) that may all sit at the paragraph's
+     top, or have no box where another rule hides them, so none compares as
+     "below the line" and the walk ends on the last number, or none counts and
+     it falls back to the first (`verse == null` takes the first `sup.vn`).
+     **This is a reading of the code, not yet reproduced**; the session starts
+     by confirming it. A fix must not rely on a number being painted: take
+     each verse's position from its own `[data-verse]` spans, which stay laid
+     out. The same walk drives a following bookmark and "Move it here" on
+     /desk, and `keep()` holds the reader's place through a redraw (BA51,
+     BA54), so check all three with the numbers off.
+  Status: **open, own session** (touches `lit-pane.js`, `desk.css`,
+  `global.css`, perhaps `read-mode.css`; `src/styles/CLAUDE.md`'s Display
+  tray rule 6 should say the headings follow the numbers only where chapters
+  run together).
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
@@ -8468,6 +8521,11 @@ the rest is polish.
     the help page says so again. Touched `desk-notebook.mjs`,
     `desk-history.mjs`, `notebook-page.js`, `record-rows.js`, `desk.css`,
     the help page, and added `trash-list.js`. No record-format change.
+12. **Verse numbers off** (BVJ, 2026-11-05): E29. Chapter headings go with the
+    numbers where chapters run together (the LIT pane, as Read View does), not on
+    Chapter View's own pages, and the LIT pane's location field follows the verse at the
+    reading line though the markers are hidden. Not started. Shares
+    `lit-pane.js` with E28, so run it before or after that session, not beside it.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
