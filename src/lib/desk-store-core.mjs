@@ -190,6 +190,14 @@ export const MOVE_KIND = "bookmarkMove";
 export const QUIET_KINDS = Object.freeze(["place", MOVE_KIND]);
 
 /**
+ * Kinds of record that mark no chapter's text and no list of marks: a sheet
+ * (its autosave writes every few hundred milliseconds while typing, and a
+ * sheet can be 512 KB) and a reading place. A view of marks subscribes with
+ * `{ except }` this (Audit 2, DK-5). A bookmark that moves is not in it.
+ */
+export const NO_CHAPTER_KINDS = Object.freeze(["place", "sheet"]);
+
+/**
  * The kinds of record a write changes, for a listener that draws only some
  * kinds: every kind it puts, and every kind it replaces or removes (`before`:
  * the records as they stood in the same transaction, null where there was

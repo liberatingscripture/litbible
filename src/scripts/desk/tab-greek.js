@@ -263,6 +263,8 @@ export function createGreekTab({
   let pending = null; // a verse to scroll to once the tab has a size
   let loading = null;
   let lexSeq = 0;
+  let lexTimer = 0; // the pause before a selected word's lexicon is asked for
+  const LEXICON_PAUSE = 150; // ms
   let toldTop = null; // the verse last told to onTopVerse (or moved to)
 
   // The tab's search and the engine behind it (greek-find.js) load when the
@@ -708,6 +710,7 @@ export function createGreekTab({
     selKin = [];
     selected = null;
     lexSeq++; // a lexicon still loading is for a word no longer chosen
+    window.clearTimeout(lexTimer);
     wordHead.replaceChildren();
     parseLine.textContent = NO_WORD;
     announce.replaceChildren();
@@ -1018,8 +1021,14 @@ export function createGreekTab({
     if (lemma) {
       const which = getLexicon();
       for (const r of radios) r.checked = r.value === which;
-      renderLexicon();
+      // The arrow keys select each word they pass, and each would ask for a
+      // lexicon shard (up to 200 KB), so only the word the reader rests on
+      // loads (GK-10). The word itself is announced at once, above.
+      lexBox.replaceChildren(make("p", "desk-greek__muted", "Loading…"));
+      window.clearTimeout(lexTimer);
+      lexTimer = window.setTimeout(renderLexicon, LEXICON_PAUSE);
     } else {
+      window.clearTimeout(lexTimer);
       lexBox.replaceChildren();
     }
 
@@ -1249,6 +1258,7 @@ export function createGreekTab({
     document.removeEventListener(WIDTHS_EVENT, onWidths);
     resizes?.disconnect();
     window.clearTimeout(litTimer);
+    window.clearTimeout(lexTimer);
     cancelAnimationFrame(splitFrame);
   }
 

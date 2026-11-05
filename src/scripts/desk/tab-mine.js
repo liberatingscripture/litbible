@@ -329,8 +329,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       if (storeError) console.error("Study Desk: the notebook didn't open", storeError);
       return;
     }
+    const everyRecord = await store.all(); // once a render: a clone of every sheet too (DK-5)
     const everything =
-      scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(await store.all());
+      scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(everyRecord);
     if (seq !== renderSeq) return; // a newer render has started
     // Pins have a group of their own, and a reading place another client kept
     // is not listed (E9: only what the reader marked); nor is a label, which
@@ -348,7 +349,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     drawColors(present);
     // The labels on something in this list; a choice that has left it goes
     // back to All, as the colour does.
-    const everyRecord = await store.all();
     const labels = liveLabels(everyRecord);
     if (seq !== renderSeq) return;
     const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).includes(l.id)));

@@ -360,6 +360,8 @@ After sessions 5 and 7, which edit the same strings. **Needs decision 11** (term
 
 Last; measure in a browser first and fix only what the numbers justify.
 
+**Status (2026-11-04, branch `claude/audit2-session11-performance`):** FA2-z is done in part, by the numbers; nothing was timed in a browser, so what is claimed is what the code and a `dist/` build show. **Fixed:** DK-5 (`lit-records.js` and the /desk My Notes pane subscribe with `{ except: NO_CHAPTER_KINDS }`, `place` and `sheet`, so a sheet's autosave wakes neither; My Notes reads `store.all()` once a render), GK-10 (a selected word's lexicon is asked for 150 ms after the last move, the word announced at once), GK-20 (`src/scripts/greek-chapters.js` is the one chapter loader for the tab and the search). **Measured and left:** LG-10: a build's chunks a desk-on reader on a chapter page loads are about 115 KB gzipped (`shell` 18, `boot` 13, `desk` 30 as the stylesheet, `tab-verse` 33, `whats-new` 20), of which the last two (about 53 KB) are needed only once a tab is opened. Splitting them is a change to `panel.js`'s `TABS` and the tour, for a preview-only cost that is downloaded once and cached; **a call for BVJ** before the flip (Launching, item 1). **Not built, on purpose:** DK-15 (the finding itself rates the need Low; revisit if a long LIT pane is reported slow), LG-13 (a refactor with no number behind it; the ranked first step, tests for `store.js`, is done).
+
 | Task | Findings | What |
 |---|---|---|
 | FA2-z | DK-5, DK-15, GK-10, GK-20, LG-10, LG-13 | Filter the remaining subscriptions (`lit-records.js`, My Notes); the LIT pane's fill; the Greek tab's arrow keys; one Greek data cache; the desk bundle a reader on a chapter pays for; the 3,397-function complexity map. |

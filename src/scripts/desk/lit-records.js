@@ -13,7 +13,7 @@
 // chapter, records }, the records live ones (forChapter), read from the
 // notebook once per chapter however many panes show it.
 
-import { forChapter } from "../../lib/desk-store-core.mjs";
+import { NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
 import { DESK_TEXTS_EVENT, deskChapterBoxes, deskTextsListed } from "./page.js";
 
 /**
@@ -89,10 +89,15 @@ export function watchLitRecords({ store, onChange }) {
     schedule();
   }
 
-  store.subscribe(() => {
-    generation++;
-    schedule();
-  });
+  // A sheet or a reading place touches no chapter's text, and a sheet's
+  // autosave would otherwise re-read every chapter the panes hold (DK-5).
+  store.subscribe(
+    () => {
+      generation++;
+      schedule();
+    },
+    { except: NO_CHAPTER_KINDS },
+  );
   document.addEventListener(DESK_TEXTS_EVENT, watchTexts);
   watchTexts();
 

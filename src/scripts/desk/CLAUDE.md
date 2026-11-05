@@ -427,7 +427,10 @@ against `dist/` is a later item.
      `hearsChange`, `listenerSet` in `desk-store-core.mjs`), and the
      BroadcastChannel message carries them too; one without them (an older tab)
      is heard by all. A view that draws where a bookmark is, or anything not yet checked,
-     subscribes with no filter.
+     subscribes with no filter. **A view of marks leaves out sheets**
+     (`{ except: NO_CHAPTER_KINDS }`, DK-5): a sheet's autosave fires every
+     few hundred milliseconds while typing and would re-read every chapter a
+     LIT pane holds.
   12. **A mark whose words moved says so** (the change notice, N3).
      `src/lib/desk-change.mjs` (pure, unit-tested) decides which marks carry
      a notice, from the format's statuses, comparing the marked words (or a
@@ -663,6 +666,10 @@ against `dist/` is a later item.
        their Greek `lemmas` (`term-lens-data.mjs`, from
        `scripts/lib/glossary-lemmas.mjs`). A website asset, never under
        `public/api/`.
+     - **One loader serves a chapter's Greek** (`src/scripts/greek-chapters.js`,
+       GK-20), the tab's `greek-data.js` and the search's `search-greek.js`
+       alike, so a chapter on screen is fetched and parsed once. **Arrowing
+       through words asks for a lexicon only at rest** (150 ms, GK-10).
      - **The tab never moves the page.** Its text scrolls on its own and
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop, moved with the arrow keys. The
