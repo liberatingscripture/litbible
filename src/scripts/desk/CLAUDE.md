@@ -342,7 +342,7 @@ against `dist/` is a later item.
      and "Greek" (`desk/tab-greek.js`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
-     the last-read attributes), from the `TABS` table in `desk/panel.js`. (A Versions tab, and API.bible with it, is
+     the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) **Settings is the last tab, on every page**
      (BVJ, 2026-10-29): the switches, print buttons, "Open the notebook page",
      the tour and help links and where the notebook is kept, which were My

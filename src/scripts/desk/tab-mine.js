@@ -99,7 +99,6 @@ import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { followBookmark } from "./bookmark-follow.js";
 import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
-import { panelLine } from "./whats-new.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
@@ -566,7 +565,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   async function drawWhatsNew(records, seq) {
     let line = null;
     try {
-      line = await panelLine(store, records);
+      line = await (await import("./whats-new.js")).panelLine(store, records); // a chunk of its own (LG-10)
     } catch (err) {
       console.error("Study Desk: what's new couldn't be worked out", err);
     }
