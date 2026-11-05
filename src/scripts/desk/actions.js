@@ -325,7 +325,7 @@ export function initActions({ store, ctx, showVerse = null }) {
 
         const ref = recordReference({ ...where, verse: d.start, endVerse: d.end });
         if (entry && color === null) {
-          showUndo(`Highlight removed from ${ref}.`, () => undoEntry(entry));
+          showUndo(`Highlight on ${ref} removed.`, () => undoEntry(entry));
         } else if (entry && plan.summary.otherColors > 0) {
           showUndo(`${ref} highlighted ${COLOR_WORDS[color]}.`, () => undoEntry(entry));
         } else if (entry && color) {

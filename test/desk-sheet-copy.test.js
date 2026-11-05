@@ -30,8 +30,8 @@ import {
 
 test("COPIES and COPY_NAMES: the two copies, by name", () => {
   assert.deepEqual([...COPIES], ["leader", "participant"]);
-  assert.equal(COPY_NAMES.leader, "Leader copy");
-  assert.equal(COPY_NAMES.participant, "Participant copy");
+  assert.equal(COPY_NAMES.leader, "Leader version");
+  assert.equal(COPY_NAMES.participant, "Participant version");
   assert.equal(SITE, "https://litbible.net");
 });
 
@@ -220,12 +220,12 @@ test("blankedTermsNote: none gives no line", () => {
 });
 
 test("blankedTermsNote: one term", () => {
-  assert.equal(blankedTermsNote(1), "One term is left blank here. Its answer is on the leader copy.");
+  assert.equal(blankedTermsNote(1), "One term is left blank here. Its answer is on the leader’s version.");
 });
 
 test("blankedTermsNote: two or more terms", () => {
-  assert.equal(blankedTermsNote(2), "2 terms are left blank here. Their answers are on the leader copy.");
-  assert.equal(blankedTermsNote(5), "5 terms are left blank here. Their answers are on the leader copy.");
+  assert.equal(blankedTermsNote(2), "2 terms are left blank here. Their answers are on the leader’s version.");
+  assert.equal(blankedTermsNote(5), "5 terms are left blank here. Their answers are on the leader’s version.");
 });
 
 /* ── sheetHtmlForShow ────────────────────────────────────────────────── */

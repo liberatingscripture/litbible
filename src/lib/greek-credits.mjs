@@ -26,7 +26,7 @@ export const GREEK_LICENSE_HREF = "/greek/LICENSE.txt";
 /** The Greek tab's "Sources and licenses": [label, href] each. */
 export const SOURCES = [
   ["SBL Greek New Testament (SBLGNT), © 2010 Society of Biblical Literature and Logos Bible Software, CC BY 4.0", SBLGNT],
-  ["Lemmas and parsing: MorphGNT, CC BY-SA 3.0", MORPHGNT],
+  ["Dictionary forms and parsing: MorphGNT, CC BY-SA 3.0", MORPHGNT],
   ["Parsing for John 7:53–8:11 and Romans 16:25–27: MACULA Greek, Clear Bible, CC BY 4.0", MACULA],
   ["UBS Dictionary of the Greek New Testament, United Bible Societies, CC BY-SA 4.0", UBS],
   ["STEP Bible: brief lexicon (TBESG), Tyndale House Cambridge, CC BY 4.0, reformatted", STEP],

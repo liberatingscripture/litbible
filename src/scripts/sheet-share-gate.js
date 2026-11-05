@@ -39,7 +39,7 @@ if (typeof shared === "string" && shared && box && document.documentElement.data
         await navigator.clipboard.writeText(link);
         status.textContent = " Copied.";
       } catch (_) {
-        status.textContent = " Your browser didn’t allow the copy.";
+        status.textContent = " Your browser didn’t allow the copy. Open the message that held this link on a computer instead.";
       }
     });
     const row = document.createElement("p");
@@ -51,7 +51,7 @@ if (typeof shared === "string" && shared && box && document.documentElement.data
     on.href = `${location.pathname}?desk=on#${shared}`;
     on.textContent = "Switch the preview on and open the sheet";
     p.append(
-      document.createTextNode("Someone shared a sheet with you. Sheets are part of a preview of new study tools, which isn’t switched on in this browser. "),
+      document.createTextNode("Someone shared a sheet with you. Sheets are part of the Study Desk preview, which isn’t switched on in this browser. "),
       on,
       document.createTextNode("."),
     );

@@ -464,7 +464,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const persisted = await store?.persisted();
     if (persisted === false) {
       persistLine.hidden = false;
-      persistLine.textContent = "Your browser may clear it to free up space. ";
+      persistLine.textContent = "Your browser may clear this notebook to free up space. ";
       // A browser that asks the reader (Firefox) takes a dismissal as final, so
       // this is the way to ask again (DI-5). Chrome answers on its own, by use.
       if (store?.askToKeep && navigator.storage?.persist) {

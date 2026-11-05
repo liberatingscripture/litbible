@@ -340,6 +340,8 @@ function keyAction(e) {
   return presentKey(e);
 }
 
+let presentHints = 0;
+
 function liveRegion() {
   const live = make("div", "sr-only");
   live.setAttribute("aria-live", "polite");
@@ -399,8 +401,20 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   const where = make("span", "present-stage__where");
   const close = button("Close", "present-btn present-btn--close");
   close.title = "Leave present mode (Escape)";
+  close.setAttribute("aria-keyshortcuts", "Escape");
+  // What the titles say beyond the labels, for a screen reader too (CP-9).
+  const hints = [
+    [reveal, "Reveals the next blank. Shift+R covers it again."],
+    [notes, "Shows or hides this passage’s footnotes."],
+    [presenter, "Opens the presenter view in a window of its own: your notes, what comes next, and a clock."],
+  ].map(([control, text], i) => {
+    const hint = make("span", "sr-only", text);
+    hint.id = `presentHint${++presentHints}-${i}`;
+    control.setAttribute("aria-describedby", hint.id);
+    return hint;
+  });
   strip.append(prev, next, reveal, notes, where, presenter, full, close);
-  stage.append(frame, strip, live);
+  stage.append(frame, strip, live, ...hints);
 
   // Everything behind the presentation is out of reach while it is open.
   const behind = [...document.body.children].filter((el) => !el.inert);
@@ -467,6 +481,14 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   reveal.addEventListener("click", (e) => control.act({ type: e.shiftKey ? "hide" : "reveal" }));
   notes.addEventListener("click", () => control.act({ type: "notes" }));
 
+  // A refusal is seen in the strip, where the screen count is, until the next
+  // step redraws it, as well as heard through the one live region (CP-13).
+  const tell = (text) => {
+    where.textContent = text;
+    wake();
+    live.say(text);
+  };
+
   const isFull = () => document.fullscreenElement === stage;
   const syncFull = () => {
     full.textContent = isFull() ? "Exit full screen" : "Full screen";
@@ -480,14 +502,14 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   document.addEventListener("fullscreenchange", onFullscreen);
   full.addEventListener("click", () => {
     if (isFull()) document.exitFullscreen?.().catch(() => {});
-    else stage.requestFullscreen?.().catch(() => live.say("This browser didn’t allow full screen."));
+    else stage.requestFullscreen?.().catch(() => tell("This browser didn’t allow full screen. Use the browser’s own full screen command instead."));
   });
   stage.addEventListener("dblclick", (e) => {
     if (e.target instanceof Element && e.target.closest(".present-stage__strip")) return;
     full.click();
   });
 
-  presenter.addEventListener("click", () => openPresenterWindow(stage, sheet, (t) => live.say(t)));
+  presenter.addEventListener("click", () => openPresenterWindow(stage, sheet, tell));
 
   function finish() {
     clearTimeout(idle);
@@ -724,7 +746,7 @@ export async function showPresenterView({ root, sheet, store }) {
   notesBox.append(notesBody);
 
   const keys = make("p", "present-presenter__keys",
-    "Keys, in either window: → or Page Down for the next screen, ← or Page Up for the one before, R to reveal, Shift+R to cover again, F for footnotes.");
+    "Keys, in either window: →, Page Down, or Space for the next step; ←, Page Up, or Shift+Space for the one before; Home and End for the first and last; R to reveal; Shift+R to cover again; F for footnotes.");
 
   const main = make("div", "present-presenter__main");
   const left = make("div", "present-presenter__now");
@@ -798,7 +820,7 @@ export async function showPresenterView({ root, sheet, store }) {
   });
   window.addEventListener("pagehide", () => control.close());
 
-  status.textContent = "Waiting for the presentation. If it’s on another screen, it will follow this view; if not, drag its window to the room’s screen and choose Full screen there.";
+  status.textContent = "Waiting for the presentation. If it’s on another screen, it will follow this view; if not, drag its window to the room’s display and choose Full screen there.";
   await control.start();
   setTimeout(() => {
     if (!stageSeen && status.textContent.startsWith("Waiting")) {

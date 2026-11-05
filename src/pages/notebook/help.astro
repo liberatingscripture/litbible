@@ -1,15 +1,16 @@
 ---
-// Help for the notebook preview (STUDY-DESK.md M12, D6). A static page that
+// Help for the Study Desk preview (STUDY-DESK.md M12, D6). A static page that
 // reads without the desk: it is noindex, out of the sitemap, and (as every
 // generic page) out of Pagefind. The panel's foot, the first-time choice and
 // the tour link here.
+import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/pages/notebook-help.css";
 ---
 
 <Layout
   title="Notebook help | Liberation and Inclusion Translation"
-  description="Help for the notebook preview: where it is kept, saving and opening a copy, and what each part does."
+  description="Help for the Study Desk preview: where it is kept, saving and opening a copy, and what each part does."
   canonical="https://litbible.net/notebook/help/"
   robotsNoindex={true}
 >
@@ -18,7 +19,7 @@ import "../../styles/pages/notebook-help.css";
       <div class="nbhelp__inner">
         <h1 id="nbhelp-title" class="nbhelp__title">Your notebook</h1>
         <p class="nbhelp__lede">
-          The notebook is a preview of study tools for reading on a computer: notes,
+          The Study Desk is a preview of study tools for reading on a computer. Its notebook holds notes,
           bookmarks and highlights that stay with you as you read. It is switched on
           for a few readers while it is tried out. This page explains it, and you
           can read it whether or not it is on for you.
@@ -35,7 +36,7 @@ import "../../styles/pages/notebook-help.css";
           note,” “Bookmark,” and “Highlight” under “My Notebook.” To mark only some
           words, select them instead: the same choices appear beside the
           selection. A note appears in the margin beside its words, a highlight
-          tints them, and a bookmark is a red mark beside the verse. In Read View
+          tints them, and a bookmark shows in red beside the verse. In Read View
           you can bookmark and highlight, but notes belong to Chapter View.
         </p>
         <p>
@@ -57,9 +58,10 @@ import "../../styles/pages/notebook-help.css";
           panes sit side by side.
         </p>
         <p>
-          <strong>Hide my marks.</strong> The key H, or the switch in Settings,
-          hides your notes, bookmarks, and highlights from the page, so you can read
-          it clean, and puts them back when you press it again. Nothing is deleted.
+          <strong>Hide my marks.</strong> Your marks are your notes, highlights,
+          and bookmarks. The key H, or the switch in Settings, hides them from the
+          page, so you can read it clean, and puts them back when you press it
+          again. Nothing is deleted.
         </p>
         <p>
           <strong>Widths.</strong> On a chapter you can drag the edges between the
@@ -118,11 +120,11 @@ import "../../styles/pages/notebook-help.css";
       <section aria-labelledby="delete-everything">
         <h2 id="delete-everything">Deleting everything</h2>
         <p>
-          Deleting a note, bookmark, or highlight moves it to the trash, where it
+          Deleting a note, or removing a bookmark or highlight, moves it to the trash, where it
           waits for 30 days. Undo (or Ctrl+Z, ⌘Z on a Mac) puts it back right
           away. After that, open the Trash on the
           <a href="/notebook/">notebook page</a> and press Restore, on one item or
-          on all of them. After 30 days only a note that it was deleted remains,
+          on all of them. After 30 days only a record that it was deleted remains,
           so a saved copy is the only way back. To remove the whole notebook from
           this browser, use “Delete everything” on that page; “Empty the trash
           now” is there too. Clearing this site’s data in your
@@ -133,12 +135,12 @@ import "../../styles/pages/notebook-help.css";
       <section aria-labelledby="bookmarks">
         <h2 id="bookmarks">Bookmarks</h2>
         <p>
-          A bookmark is a red mark beside a verse, a spot you want to return to. It
+          A bookmark shows in red beside a verse: a spot you want to return to. It
           stays on its verse until you remove it. In the Notebook, “Edit” gives a
           bookmark a name, such as “Thursday group,” and can turn on “Move as I
           read.” Open that bookmark from your list and read on, and while you stay in
-          that book it follows you, so it always marks where the group left off. Up
-          to six bookmarks can move this way.
+          that book it follows you, so it always shows where the group left off. Up
+          to {MAX_FOLLOWING} bookmarks can move this way.
         </p>
         <p>
           “Continue reading” is not a bookmark. It is the one place that is always
@@ -159,13 +161,13 @@ import "../../styles/pages/notebook-help.css";
       <section aria-labelledby="greek">
         <h2 id="greek">The Greek tab</h2>
         <p>
-          On a Chapter View chapter, the notebook’s Greek tab shows the chapter in the
+          On a Chapter View chapter, the Notebook’s Greek tab shows the chapter in the
           Greek of the SBL Greek New Testament (SBLGNT), in its own paragraphs. It
           opens at the verse you are reading, and a “Go to verse” button brings you
           back to it. Like the rest of the notebook, it is for computers.
         </p>
         <p>
-          Click a word, or move through the words with the arrow keys, to see its
+          Select a word, or move through the words with the arrow keys, to see its
           details at the foot of the tab. Left and Right step one word, Up and
           Down jump a verse, and Home and End go to the first and last word of the
           chapter. The words are one stop for Tab, so a keyboard reader passes the
@@ -226,7 +228,7 @@ import "../../styles/pages/notebook-help.css";
           tour. It never starts by itself, it keeps nothing in your notebook, and
           when it ends the page is as you left it.
           <a href="/john-3/?desk-tour">Take the notebook tour</a> on John 3. It
-          needs the notebook preview to be on for you.
+          needs the Study Desk preview to be on for you.
         </p>
         <p>
           The Study Desk tour runs on the Study Desk page, in two parts: what is

@@ -73,6 +73,20 @@ function button(label, cls = "desk-sheet__btn") {
   return b;
 }
 
+let hintCount = 0;
+
+/**
+ * A sentence a control's `title` carries, given to a screen reader as well
+ * (CP-9): a hidden span the control is described by, which the caller puts
+ * in the page. The title stays, for a mouse.
+ */
+function describe(control, text) {
+  const hint = make("span", "sr-only", text);
+  hint.id = `sheetsPageHint${++hintCount}`;
+  control.setAttribute("aria-describedby", hint.id);
+  return hint;
+}
+
 const dateWords = (iso) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -152,7 +166,7 @@ async function showList(root, store) {
   desk.href = `${BASE}desk/`;
   const intro = make("p", "sheets-page__intro");
   intro.append(
-    document.createTextNode("Each sheet here can be printed as a leader copy or a participant copy, or copied into Word. Sheets are made and changed on "),
+    document.createTextNode("Each sheet here can be printed as a leader’s version or a participant’s version, or copied into Word. Sheets are made and changed on "),
     desk,
     document.createTextNode(", in a Sheet pane."),
   );
@@ -254,7 +268,7 @@ async function showSheet(root, store, id, view = null) {
 /**
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
- * only with "Copy into my desk"; absent for the reader's own.
+ * only with "Copy into my notebook"; absent for the reader's own.
  */
 async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   const id = sheet.id;
@@ -266,7 +280,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
 
   const bar = make("div", "sheets-page__bar");
   bar.setAttribute("role", "group");
-  bar.setAttribute("aria-label", "Copy, paper, and printing");
+  bar.setAttribute("aria-label", "Version, paper, and printing");
   const back = make("a", "sheets-page__back", "‹ My sheets");
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit on the Study Desk");
@@ -275,7 +289,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   links.append(back);
   if (!shared) links.append(edit);
 
-  const copyChoice = choices("sheet-copy", "Copy", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
+  const copyChoice = choices("sheet-copy", "Version", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
     copy = v;
     draw();
   });
@@ -294,24 +308,30 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   });
   codeBox.append(codeInput, document.createTextNode(" Codes to scan"));
   codeBox.title = "A code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
+  const hints = [describe(codeInput, "A code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
   const present = button("Present");
   present.title = "Show this sheet to a room, full screen, one part at a time";
   const print = button("Print", "desk-sheet__btn desk-sheet__btn--primary");
   const word = button("Copy for Word");
-  word.title = "Copy this copy with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
+  word.title = "Copy this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
   const share = button("Share…");
   share.title = "Send this sheet to someone as a link or a file";
+  hints.push(
+    describe(present, "Shows this sheet to a room, full screen, one part at a time."),
+    describe(word, "Copies this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages."),
+    describe(share, "Sends this sheet to someone as a link or a file."),
+  );
   // Presenting needs the presenter view's window to find the sheet, so a
   // shared one is copied into the desk first.
   if (shared) present.hidden = true;
   actions.append(present, print, word);
   if (!shared) actions.append(share);
   actions.append(status);
-  bar.append(links, copyChoice, paperChoice, codeBox, actions);
+  bar.append(links, copyChoice, paperChoice, codeBox, actions, ...hints);
 
   const paperBox = make("div", "sheets-page__paper");
   // S2's notice. A shared sheet carries no comparison copies (desk-sheet-share),
@@ -374,7 +394,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
     await ready;
     if (!current) return;
     const ok = await copyToClipboard(copyForWord(current));
-    status.textContent = ok ? `${COPY_NAMES[copy]} copied. Paste it into your document.` : "Your browser didn’t allow the copy.";
+    status.textContent = ok ? `${COPY_NAMES[copy]} copied. Paste it into your document.` : "Your browser didn’t allow the copy. Choose Copy for Word again.";
     setTimeout(() => { status.textContent = ""; }, 6000);
   });
 
@@ -432,7 +452,7 @@ function drawCheck(box, checks, deskHref) {
   box.replaceChildren(head, list, advice);
 }
 
-/** "Shared with you", with "Copy into my desk". */
+/** "Shared with you", with "Copy into my notebook". */
 function sharedBanner(root, sheet, store, scope) {
   const box = make("div", "sheets-page__shared");
   box.setAttribute("role", "region");
@@ -443,11 +463,11 @@ function sharedBanner(root, sheet, store, scope) {
     strong,
     document.createTextNode(
       scope === "participant"
-        ? "This is the participant copy of a sheet. It isn’t in your notebook until you copy it there."
+        ? "This is the participant’s version of a sheet. It isn’t in your notebook until you copy it there."
         : "This sheet isn’t in your notebook until you copy it there.",
     ),
   );
-  const take = button("Copy into my desk", "desk-sheet__btn desk-sheet__btn--primary");
+  const take = button("Copy into my notebook", "desk-sheet__btn desk-sheet__btn--primary");
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
   if (!store) {
@@ -461,7 +481,7 @@ function sharedBanner(root, sheet, store, scope) {
       await store.save(mine);
     } catch (err) {
       console.error("Study Desk: couldn't copy the shared sheet", err);
-      status.textContent = "The sheet couldn’t be copied.";
+      status.textContent = "The sheet couldn’t be copied into your notebook. It is still here to print: try again in a moment.";
       take.disabled = false;
       return;
     }
@@ -488,7 +508,7 @@ function openShareDialog(sheet, opener) {
   let scope = "leader";
   const scopeChoice = choices("sheet-share-scope", "What to share", [
     ["leader", "Everything, for another leader"],
-    ["participant", "The participant copy, without answers or Leader only parts"],
+    ["participant", "The participant’s version, without answers or Leader only parts"],
   ], scope, (v) => {
     scope = v;
     refresh();
@@ -496,18 +516,19 @@ function openShareDialog(sheet, opener) {
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant copy when you’re unsure. The passages are read from the LIT when it is opened.",
+    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button("Save as a file");
   saveFile.title = "A Markdown file of the sheet, which opens with “Open a shared file” on the Sheets page";
+  const saveFileHint = describe(saveFile, "A Markdown file of the sheet, which opens with “Open a shared file” on the Sheets page.");
   const status = make("p", "sheets-page__status");
   status.setAttribute("role", "status");
   const code = make("figure", "sheets-page__share-code");
   const close = button("Close");
   const row = make("div", "sheets-page__dialog-actions");
   row.append(copyLink, saveFile, close);
-  dialog.append(h, scopeChoice, note, row, status, code);
+  dialog.append(h, scopeChoice, note, row, status, code, saveFileHint);
   document.body.append(dialog);
 
   let link = "";
@@ -542,7 +563,7 @@ function openShareDialog(sheet, opener) {
       await navigator.clipboard.writeText(link);
       status.textContent = "Link copied. Paste it into an email or a message.";
     } catch (_) {
-      status.textContent = "Your browser didn’t allow the copy.";
+      status.textContent = "Your browser didn’t allow the copy. Choose Save as a file instead.";
     }
   });
   saveFile.addEventListener("click", async () => {
@@ -558,7 +579,9 @@ function openShareDialog(sheet, opener) {
       status.textContent = `Saved ${a.download}. Send it as an attachment.`;
     } catch (err) {
       console.error("Study Desk: couldn't save the file", err);
-      status.textContent = "The file couldn’t be made.";
+      status.textContent = copyLink.disabled
+        ? "The file couldn’t be made. The sheet is unchanged: try again in a moment."
+        : "The file couldn’t be made. The sheet is unchanged: choose Copy link instead.";
     }
   });
   close.addEventListener("click", () => dialog.close());
@@ -587,7 +610,7 @@ async function start() {
     return;
   }
   if (!store) {
-    root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "This browser isn’t letting the site keep a notebook, so there are no sheets to show. Private windows sometimes don’t."));
+    root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "This browser isn’t letting the site keep a notebook, so there are no sheets to show. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
     return;
   }
   const id = new URLSearchParams(location.search).get("id");

@@ -39,7 +39,7 @@ import {
 import { proseAnchorText } from "../../lib/desk-prose-anchor.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { canEdit, compareContentVersions, onFootnote, proseTarget } from "../../lib/desk-records.mjs";
-import { planSave, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { planSave, recordReference, takeOff, recordWhere } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
@@ -395,7 +395,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
     show.type = "button";
     actions.append(show);
   }
-  const del = el("button", "desk-notice__delete", isPin ? "Unpin" : "Delete");
+  const del = el("button", "desk-notice__delete", takeOff(record.kind)[0]);
   del.type = "button";
   actions.append(del);
   panel.append(actions);
@@ -447,7 +447,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("keep", fresh);
     } catch (err) {
       console.error("Study Desk: the mark wasn't kept", err);
-      fail(`The ${noun} couldn’t be kept in this browser.`);
+      fail(`The ${noun} couldn’t be kept in this browser, so it is as it was. Try again.`);
     }
   }
 
@@ -459,12 +459,12 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       const entry = trash ? store.lastEntry() : null;
       closePanel();
       if (entry) {
-        showUndo(isPin ? `Footnote on ${ref} unpinned.` : `${markName(record)} on ${where} deleted.`, () => undoEntry(entry));
+        showUndo(isPin ? `Footnote on ${ref} unpinned.` : `${markName(record)} on ${where} ${takeOff(record.kind)[1]}.`, () => undoEntry(entry));
       }
       onDone?.("delete", record);
     } catch (err) {
       console.error("Study Desk: the mark wasn't deleted", err);
-      fail(isPin ? "The footnote couldn’t be unpinned." : `The ${noun} couldn’t be deleted.`);
+      fail(`${isPin ? "The footnote couldn’t be unpinned" : `The ${noun} couldn’t be ${takeOff(record.kind)[1]}`}, so it is still in your notebook. Try again.`);
     }
   }
 

@@ -141,7 +141,7 @@ function ensureBar(kind) {
   go.setAttribute("aria-haspopup", "dialog");
   go.setAttribute("aria-expanded", "false");
   const hint = make("span", "desk-gather__hint");
-  const clear = button("Clear ticks", "desk-gather__btn desk-gather__btn--quiet");
+  const clear = button("Clear checks", "desk-gather__btn desk-gather__btn--quiet");
   clear.hidden = true;
   row.append(go, hint, clear);
   const slot = make("div", "desk-gather__slot");
@@ -177,8 +177,8 @@ function describeBar(bar) {
   if (bar.kind === "verses") {
     const n = detail.verses.length;
     bar.hint.textContent = ticked.size
-      ? `${plural(ticked.size, "verse", "verses")} ticked.`
-      : `Tick verses to choose; with none ticked, every result goes (${n}).`;
+      ? `${plural(ticked.size, "verse", "verses")} checked.`
+      : `Check verses to choose. With none checked, all ${n} results go on the sheet.`;
     bar.clear.hidden = !ticked.size;
   } else {
     const n = detail.chapters.length;
@@ -308,7 +308,7 @@ async function openPanel(bar) {
   } catch (err) {
     console.error("Study Desk: couldn’t read the sheets", err);
     if (bar.panel === panel) {
-      intro.textContent = "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t.";
+      intro.textContent = "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes.";
       fresh.disabled = true;
     }
     return;
@@ -362,7 +362,7 @@ async function gather(bar, into) {
     store = await notebook();
   } catch (err) {
     console.error("Study Desk: couldn’t open the notebook", err);
-    fail("This browser isn’t letting the site keep a notebook, so sheets can’t be saved here.");
+    fail("This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes.");
     return;
   }
   // The fetching comes first, so the sheet is read only inside the write.
@@ -393,11 +393,11 @@ async function gather(bar, into) {
     });
   } catch (err) {
     console.error("Study Desk: the sheet couldn’t be made", err);
-    fail("The sheet couldn’t be saved. Nothing was changed.");
+    fail("The sheet couldn’t be saved. Nothing was changed. Try again in a moment.");
     return;
   }
   if (outcome.gone) {
-    fail("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT.");
+    fail("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT. Start a new sheet instead.");
     return;
   }
   const { result, sheet } = outcome;
@@ -437,7 +437,8 @@ function say(bar, text, { sheet = null, entry = null } = {}) {
         } catch (err) {
           console.error("Study Desk: couldn’t undo the sheet", err);
         }
-        line.replaceChildren(make("span", null, ok ? "Undone." : "That couldn’t be undone."));
+        if (ok) line.replaceChildren(make("span", null, "Undone."));
+        else line.replaceChildren(make("span", null, "That couldn’t be undone here, so the sheet is as it was."), " ", open, make("span", null, " to change it."));
       });
       line.append(" ", undo);
     }

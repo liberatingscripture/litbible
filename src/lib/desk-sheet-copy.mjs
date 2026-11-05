@@ -23,8 +23,8 @@ import { NOTE_LINKING } from "./desk-chains.mjs";
 /** The two copies of a sheet (S4). */
 export const COPIES = Object.freeze(["leader", "participant"]);
 
-/** What each copy is called, on the page and on paper ("Participant copy", as the mock had it). */
-export const COPY_NAMES = Object.freeze({ leader: "Leader copy", participant: "Participant copy" });
+/** What each copy is called, on the page and on paper: "versions" to the reader (Audit 2, CP-11; the mock said "Participant copy"). */
+export const COPY_NAMES = Object.freeze({ leader: "Leader version", participant: "Participant version" });
 
 /** The site's address for codes and the foot of a copy: the apex host (STUDY-DESK-FORMAT.md, "Addresses"). */
 export const SITE = "https://litbible.net";
@@ -116,8 +116,8 @@ export function keyTermsForCopy(terms, blanks, copy) {
 export function blankedTermsNote(n) {
   if (!n) return "";
   return n === 1
-    ? "One term is left blank here. Its answer is on the leader copy."
-    : `${n} terms are left blank here. Their answers are on the leader copy.`;
+    ? "One term is left blank here. Its answer is on the leader’s version."
+    : `${n} terms are left blank here. Their answers are on the leader’s version.`;
 }
 
 /**

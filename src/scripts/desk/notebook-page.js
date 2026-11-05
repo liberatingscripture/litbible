@@ -7,7 +7,7 @@
 // It is not a reading surface, so there is no panel here and no margin: this
 // module opens the notebook itself and draws into that element.
 //
-// The page, top to bottom: What I've kept (kept-list.js, which /desk's pane
+// The page, top to bottom: My Notes (kept-list.js, which /desk's pane
 // of that name shares: filters by words, kind, highlight colour and label, a
 // count in words, and the records in Bible order); What's new for you (whats-new.js: the
 // release notes that touched their verses); Labels (make, rename, delete); Save a
@@ -86,7 +86,7 @@ async function start() {
     console.error("Study Desk: the notebook didn’t open", err);
   }
   if (!store) {
-    root.append(el("p", "desk-panel__empty", "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t."));
+    root.append(el("p", "desk-panel__empty", "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
     return;
   }
   initUndo();
@@ -96,7 +96,7 @@ async function start() {
     <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you save a copy.</p>
     <nav class="desk-np__jump" aria-label="On this page">
       <a href="#continue">Continue reading</a>
-      <a href="#kept">What I’ve kept</a>
+      <a href="#kept">My Notes</a>
       <a href="#whats-new">What’s new for you</a>
       <a href="#labels">Labels</a>
       <a href="#panel">The Notebook panel</a>
@@ -106,7 +106,7 @@ async function start() {
     </nav>
     <section class="desk-np__section" id="continue" data-np-continue></section>
     <section class="desk-np__section" id="kept" aria-labelledby="deskNpKeptTitle">
-      <h2 class="desk-np__h2" id="deskNpKeptTitle">What I’ve kept</h2>
+      <h2 class="desk-np__h2" id="deskNpKeptTitle">My Notes</h2>
       <div data-np-kept></div>
     </section>
     <section class="desk-np__section" id="whats-new" data-np-whats-new></section>
@@ -132,18 +132,18 @@ async function start() {
     <section class="desk-np__section desk-backup" id="backup" data-np-backup></section>
     <section class="desk-np__section" id="trash" aria-labelledby="deskNpTrashTitle">
       <h2 class="desk-np__h2" id="deskNpTrashTitle">Trash</h2>
-      <p>What you delete waits here for 30 days. Restore an item to put it back where it was; after 30 days only a note that it was deleted remains, and a saved copy is the only way back.</p>
+      <p>What you delete waits here for 30 days. Restore an item to put it back where it was; after 30 days only a record that it was deleted remains, and a saved copy is the only way back.</p>
       <div data-np-trash-list></div>
     </section>
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
       <div class="desk-np__danger">
-        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring them back until you leave the page, or restore them from the Trash above. The trash keeps each one for 30 days, then only a note that it was deleted.</p>
+        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring them back until you leave the page, or restore them from the Trash above. The trash keeps each one for 30 days, then only a record that it was deleted.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Empty the trash now</h3>
-        <p>For a shared computer. Wipes the words of everything in the trash at once, instead of after 30 days. Only a note that each item was deleted stays. This can’t be undone.</p>
+        <p>For a shared computer. Wipes the words of everything in the trash at once, instead of after 30 days. Only a record that each item was deleted stays. This can’t be undone.</p>
         <div data-np-trash-box></div>
       </div>
     </section>
@@ -167,7 +167,7 @@ async function start() {
   mountWhatsNew(q("[data-np-whats-new]"), { store });
   mountStartChoice(q("[data-np-start]"));
   // Continue reading, drawn and kept up to date by continue-reading.js. Bookmarks
-  // are in "What I’ve kept" with the rest (E9).
+  // are in My Notes with the rest (E9).
   q("[data-np-continue]").append(
     continueSection({ emptyText: "Nothing to continue yet. Where you stop reading appears here." }),
   );

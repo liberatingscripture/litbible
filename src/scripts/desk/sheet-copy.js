@@ -29,7 +29,7 @@ import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
-import { locateBlanks, passageWords, readPassage } from "./sheet-lit.js";
+import { locateBlanks, passageWords, readPassage, UNREAD_PASSAGE_ON_PAPER } from "./sheet-lit.js";
 
 function make(tag, cls, text) {
   const e = document.createElement(tag);
@@ -136,7 +136,7 @@ function passageSection(m, view, { copy, allBlanks, code }) {
   const rows = footnoteRows(view.list, view.footnoteIds, m.footnotes, allBlanks).filter((r) => r.print);
   const words = passageWords(view, m, { keepNotes: new Set(rows.map((r) => r.id)) });
   if (!words) {
-    section.append(make("p", "sheet-copy__missing", "This passage couldn’t be read from the chapter."));
+    section.append(make("p", "sheet-copy__missing", UNREAD_PASSAGE_ON_PAPER));
     return section;
   }
   words.el.className = "sheet-copy__words chapter-paragraphs";
@@ -181,11 +181,11 @@ function passageSection(m, view, { copy, allBlanks, code }) {
  * @returns {{ ok: true, words: HTMLElement, notes: HTMLOListElement | null, rows: object[], blanks: string[] } | { ok: false, message: string }}
  */
 export function presentPassage(m, view, { allBlanks }) {
-  if (!view?.ok) return { ok: false, message: view?.message ?? "This passage couldn’t be read from the chapter." };
+  if (!view?.ok) return { ok: false, message: view?.message ?? UNREAD_PASSAGE_ON_PAPER };
   const rows = footnoteRows(view.list, view.footnoteIds, m.footnotes, allBlanks);
   const inPlay = new Set(footnotesInPlay(rows));
   const words = passageWords(view, m, { keepNotes: inPlay });
-  if (!words) return { ok: false, message: "This passage couldn’t be read from the chapter." };
+  if (!words) return { ok: false, message: UNREAD_PASSAGE_ON_PAPER };
   words.el.className = "present-screen__words chapter-paragraphs";
   applyBlanks(words, view, m, "present");
   // The blanks' words as the anchor text reads them (what a footnote is
@@ -359,7 +359,7 @@ export async function renderCopy(sheet, { copy, codes = true }) {
     }
   }
 
-  if (!modules.length) article.append(make("p", "sheet-copy__missing", "Nothing on this copy yet."));
+  if (!modules.length) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
 
   const foot = make("footer", "sheet-copy__foot");
   foot.append(make("p", "sheet-copy__credit", LIT_CREDIT_LINE));

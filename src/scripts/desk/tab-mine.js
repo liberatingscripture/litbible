@@ -86,6 +86,7 @@ import {
   recordReadHref,
   recordReference,
   recordWhere,
+  takeOff,
 } from "../../lib/desk-store-core.mjs";
 import { currentPanel } from "../lit-panel.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
@@ -324,7 +325,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       changed.hidden = true;
       empty.hidden = false;
       empty.textContent =
-        "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t.";
+        "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t. Open the site in a regular window to keep notes.";
       if (storeError) console.error("Study Desk: the notebook didn't open", storeError);
       return;
     }
@@ -767,8 +768,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const del = document.createElement("button");
     del.type = "button";
     del.className = "desk-item__delete";
-    del.textContent = "Delete";
-    del.setAttribute("aria-label", `Delete ${nameOf(r).toLowerCase()}${on ? ` on ${on}` : ""}`);
+    del.textContent = takeOff(r.kind)[0];
+    del.setAttribute("aria-label", `${takeOff(r.kind)[0]} ${nameOf(r).toLowerCase()}${on ? ` on ${on}` : ""}`);
     del.addEventListener("click", () => remove(r, li));
     li.append(del);
     return li;
@@ -876,7 +877,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const entry = store.lastEntry();
     await render({ focusIndex: index });
     const ref = recordWhere(r);
-    showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} deleted.`, async () => {
+    showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} ${takeOff(r.kind)[1]}.`, async () => {
       await undoEntry(entry);
       await render();
       list.querySelector(`[data-id="${CSS.escape(r.id)}"] .desk-item__delete`)?.focus();

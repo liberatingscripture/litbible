@@ -153,7 +153,7 @@ export function showUndo(message, onAction, { label = "Undo" } = {}) {
     } catch (err) {
       console.error(`Study Desk: ${label.toLowerCase()} failed`, err);
       if (shown !== mine) return;
-      text.textContent = `That couldn’t be ${label === "Redo" ? "redone" : "undone"}.`;
+      text.textContent = `That couldn’t be ${label === "Redo" ? "redone" : "undone"}, so nothing changed. Try again.`;
       announce(text.textContent);
       fresh.disabled = false;
     }

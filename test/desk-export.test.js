@@ -361,7 +361,8 @@ test("E10: ribbon opens as itself, and an unknown marker is still skipped", () =
   assert.deepEqual(out.plan.put, [ribbon]);
   assert.equal(out.skipped.length, 1);
   assert.equal(out.skipped[0].record, star);
-  assert.match(out.skipped[0].reason, /^Marker "star" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame\.$/);
+  assert.equal(out.skipped[0].reason, "It has a marker the notebook doesn’t know.");
+  assert.match(out.skipped[0].detail, /^Marker "star" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame\.$/);
 });
 
 test("E10: Markdown says ribbon, and an old copy's “Note (bookmark)” reads as ribbon", () => {
@@ -993,7 +994,7 @@ test("a deletion dated ahead in a backup doesn’t delete a note here, and openi
   assert.equal(planChanges(first.planned.plan), false);
   assert.deepEqual(first.planned.plan.remove, []);
   assert.equal(first.planned.ahead.length, 1);
-  assert.match(first.ahead, /dated by a clock running ahead/);
+  assert.match(first.ahead, /carries a date from a clock that was set ahead/);
   const second = planOpen(file, { local: applyPlan(local, first.planned.plan), ctx, now: at(now, 5) });
   assert.equal(planChanges(second.planned.plan), false);
 });
@@ -1004,23 +1005,23 @@ test("describeAhead says what happened to one record kept here, one added, and a
   assert.equal(describeAhead(undefined), null);
   assert.equal(
     describeAhead([{ record: rec, written: false }]),
-    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: yours is kept as it is.",
+    "One item in this file carries a date from a clock that was set ahead. It never replaces or deletes anything here, or brings anything back: what you already had was kept.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: true }]),
-    "One record in this file was dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: it was added with an earlier date.",
+    "One item in this file carries a date from a clock that was set ahead. It never replaces or deletes anything here, or brings anything back: it was added with an earlier date.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: false }, { record: rec, written: false }]),
-    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: yours are kept as they are.",
+    "2 items in this file carry a date from a clock that was set ahead. They never replace or delete anything here, or bring anything back: what you already had was kept.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: true }, { record: rec, written: true }]),
-    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: they were added with an earlier date.",
+    "2 items in this file carry a date from a clock that was set ahead. They never replace or delete anything here, or bring anything back: they were added with an earlier date.",
   );
   assert.equal(
     describeAhead([{ record: rec, written: true }, { record: rec, written: false }]),
-    "2 records in this file were dated by a clock running ahead. Such a record never replaces, deletes, or brings back anything here: 1 added with an earlier date, and yours kept for the other.",
+    "2 items in this file carry a date from a clock that was set ahead. They never replace or delete anything here, or bring anything back: 1 added with an earlier date, and what you already had kept for the other.",
   );
 });
 
@@ -1030,7 +1031,7 @@ test("planOpen carries the ahead sentence, and a different one makes sameOpen fa
   const file = toBackupJson([filed, label], opts);
   const open = planOpen(file, { local: [romans, label], ctx, now });
   assert.equal(open.ahead, describeAhead(open.planned.ahead));
-  assert.match(open.ahead, /yours is kept as it is/);
+  assert.match(open.ahead, /what you already had was kept/);
   assert.equal(sameOpen(open, { ...open, ahead: null }), false);
   assert.equal(sameOpen(open, { ...open, sentence: "something else." }), false);
   assert.equal(sameOpen(open, { ...open }), true);

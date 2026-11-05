@@ -28,7 +28,7 @@ From the root's routing table.
 |-------|------|---------|
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader or participant copy, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 
 ## Launching
 
@@ -365,6 +365,18 @@ against `dist/` is a later item.
      /desk pane kind only; the margin's switch and its region are "Notes in
      the margin," and This verse's subhead stays "My notes," naming the
      reader's notes on that verse.
+     **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
+     "the notebook preview"); "Delete" is for what the reader typed or named
+     (notes, labels, sheets) and "Remove" for marks on the text (bookmarks,
+     highlights), both from `takeOff(kind)` in `desk-store-core.mjs`; in a
+     button "copy" means a saved file, so a sheet's leader and participant
+     copies are "versions"; "Dictionary forms" for lemmas. "Marker" is
+     only a note's icon ("Marker: Question," "the Question marker"); a
+     trashed item's leftover is "a record that it was deleted," never a
+     marker or a note. "Marks" is the umbrella for notes, highlights, and
+     bookmarks, defined on the "Hide my marks" switch (its title and
+     `aria-description`) and in the help page's paragraph of that name, so a
+     bookmark "shows in red," not "is a red mark."
   11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
      history per page visit, 50 deep. The store records an entry for every
      write the reader makes (`apply` in `desk/store.js`, which reads the
@@ -1354,7 +1366,7 @@ against `dist/` is a later item.
        shared link: on a phone or tablet, copy the link to send to a
        computer; on a computer without the preview, a link that switches it
        on (`?desk=on#share1.…`, a new page, so the fragment is taken again).
-       A shared sheet shows read only until "Copy into my desk", which saves
+       A shared sheet shows read only until "Copy into my notebook", which saves
        it as a new sheet (`copyOfShared`) and turns the page into that
        sheet's own address. No storage key is added.
   22. **Phase 2b is a sheet checked before printing** (built 2026-10-20;

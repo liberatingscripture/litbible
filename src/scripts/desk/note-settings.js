@@ -221,6 +221,11 @@ function noteControls(classes) {
   hide.innerHTML = `<input type="checkbox" class="${classes.checkInput}" id="deskHideCheck${n}" data-desk-hide-check />
     <span class="${classes.checkLabel}">Hide my marks</span>`;
   const hideBox = hide.querySelector("input");
+  // "Marks" is the umbrella word for notes, highlights, and bookmarks; this is
+  // where a reader first meets it, so it is said here (CP-11).
+  const marksMeaning = "Your marks are your notes, highlights, and bookmarks. Hiding them deletes nothing.";
+  hide.title = marksMeaning;
+  hideBox.setAttribute("aria-description", marksMeaning);
   hideBox.addEventListener("change", () => setHideAll(hideBox.checked, { from: classes.from }));
   // H hides only while the Keyboard switch is on (WCAG 2.1.4), so the box
   // advertises it only then (NB-18).

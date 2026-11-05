@@ -102,6 +102,20 @@ function button(label, cls = "desk-sheet__btn") {
   return b;
 }
 
+let hintCount = 0;
+
+/**
+ * A sentence a control's `title` carries, given to a screen reader as well
+ * (CP-9): a hidden span the control is described by, which the caller puts
+ * in the page. The title stays, for a mouse.
+ */
+function describe(control, text) {
+  const hint = make("span", "sr-only", text);
+  hint.id = `deskSheetHint${++hintCount}`;
+  control.setAttribute("aria-describedby", hint.id);
+  return hint;
+}
+
 const json = (x) => JSON.stringify(x);
 
 const dateWords = (iso) => {
@@ -205,7 +219,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   };
 
   if (!store) {
-    content.append(make("p", "desk-pane__later", "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t."));
+    content.append(make("p", "desk-pane__later", "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
     return { el, destroy() {} };
   }
 
@@ -323,7 +337,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       }
       if (made.refused) {
         console.error("Study Desk: the sheet refused a change", made.refused);
-        say(/holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made.");
+        // Seen beside Saved as well as heard, as a failed save is (CP-13).
+        status.textContent = /holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made, so the sheet is as it was. Reload the page, then try again.";
+        say(status.textContent);
         return false;
       }
       const moved = json(made.sheet) !== json(sheet);
@@ -353,7 +369,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   function failed(err, source) {
     status.textContent = sheetTooBig(err)
       ? `Not saved: this sheet is too big to save (${SHEET_LIMITS.bytes / 1024} KB). Remove some text or blanks.`
-      : "Not saved, so that change was taken back.";
+      : source && cards.has(source)
+        ? "Not saved, so that change was taken back. Try it again."
+        : "That change wasn’t saved. Try it again.";
     say(status.textContent);
     const card = source ? cards.get(source) : null;
     if (!card || !sheet || !moduleList) return;
@@ -405,6 +423,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     cards.clear();
     license = null;
     keyTermsButton = null;
+    keyTermsHint = null;
     // The button just pressed is gone with the view it was in, so the list
     // names where focus goes (DK-3); "loading" holds it meanwhile.
     const loading = make("p", "desk-sheet__status", "Loading your sheets…");
@@ -515,7 +534,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       await store.save(s);
     } catch (err) {
       console.error("Study Desk: couldn't make a sheet", err);
-      say("The sheet couldn’t be made.");
+      // Shown under the list's heading as well as heard (CP-13).
+      const text = "The sheet couldn’t be made in this browser. Try again in a moment.";
+      const head = content.querySelector(".desk-sheet__list-head");
+      if (head) {
+        head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
+        head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
+      }
+      say(text);
       return;
     }
     await openSheet(s.id, { focusTitle: true });
@@ -531,6 +557,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   let readOnly = false;
   let license = null;
   let keyTermsButton = null;
+  let keyTermsHint = null;
 
   /** What a card's head shows, which an in-place update can't redraw. */
   const headKey = (m) => json([m.type, m.leaderOnly === true, m.type === "passage" ? passageReference(m) : null]);
@@ -573,16 +600,20 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     // The sheet's own address prints, copies and shares it (3i, 3k), in a tab
     // of its own so the desk stays as it is.
     const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or share…");
+    print.append(make("span", "sr-only", " (opens in a new tab)"));
     print.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`;
     print.target = "_blank";
     print.rel = "noopener";
-    print.title = "Open the leader and participant copies, to print, copy into Word, or share (opens in a new tab)";
+    print.title = "Open the leader and participant versions, to print, copy into Word, or share (opens in a new tab)";
+    const printHint = describe(print, "The leader and participant versions, to print, copy into Word, or share.");
     const present = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Present…");
+    present.append(make("span", "sr-only", " (opens in a new tab)"));
     present.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=present`;
     present.target = "_blank";
     present.rel = "noopener";
     present.title = "Show this sheet to a room, one part at a time, with a presenter view (opens in a new tab)";
-    header.append(back, present, print, status);
+    const presentHint = describe(present, "Shows this sheet to a room, one part at a time, with a presenter view.");
+    header.append(back, present, print, status, printHint, presentHint);
     wrap.append(header);
 
     if (readOnly) {
@@ -697,6 +728,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
       keyTermsButton.disabled = has;
       keyTermsButton.title = has ? "A sheet has one key terms box" : "A box listing the key terms in the sheet’s passages, filled in for you";
+      if (keyTermsHint) keyTermsHint.textContent = has ? "A sheet has one key terms box, and this one has it." : "A box listing the key terms in the sheet’s passages, filled in for you.";
     }
     if (!sheet.modules.length) {
       // Beside the list, not in it: a list holds only list items (DK-16).
@@ -773,12 +805,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         box.addEventListener("change", () => {
           change((s) => updateModule(s, m.id, { leaderOnly: box.checked || undefined }, opCtx()), {
             source: m.id,
-            announce: box.checked ? `${name}: on the leader’s copy only.` : `${name}: on every copy.`,
+            announce: box.checked ? `${name}: on the leader’s version only.` : `${name}: on every version.`,
           });
         });
         leader.append(box, make("span", null, "Leader only"));
-        leader.title = "Print and present this on the leader’s copy only";
-        tools.append(leader);
+        leader.title = "Print and present this on the leader’s version only";
+        tools.append(leader, describe(box, "Prints and presents this on the leader’s version only."));
       }
       up = button("↑", "desk-sheet__icon");
       up.setAttribute("aria-label", `Move ${name} up`);
@@ -934,7 +966,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       return null;
     }
     const q = textField(m, "html", "Question", "Ask a question for discussion…");
-    const a = textField(m, "answer", "Answer, on the leader’s copy only", "An answer or notes for the leader (optional)");
+    const a = textField(m, "answer", "Answer, on the leader’s version only", "An answer or notes for the leader (optional)");
     const lines = linesField(m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on" });
     card.append(q.el, a.el, lines.el);
     return group(q, a, lines);
@@ -990,7 +1022,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     // N6: the notebook's notes marked as questions, on this sheet's passages,
     // in one go (one change, so one Ctrl+Z takes them all back).
     const discuss = button("+ For discussion");
-    discuss.title = "Gather your notes marked as questions, on this sheet’s passages, into a section";
+    discuss.title = "Gather your notes with the Question marker, on this sheet’s passages, into a section";
+    const discussHint = describe(discuss, "Gathers your notes with the Question marker, on this sheet’s passages, into a section.");
     const discussNote = make("p", "desk-sheet__empty");
     discussNote.hidden = true;
     discuss.addEventListener("click", async () => {
@@ -1007,7 +1040,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       } else if (!got.modules.length && got.already) {
         text = "Your questions on these passages are already on the sheet.";
       } else if (!got.modules.length) {
-        text = "None of your notes marked as questions are on this sheet’s passages. Mark a note as a question with the question marker.";
+        text = "None of your notes with the Question marker are on this sheet’s passages. To gather a note here, edit it and choose that marker.";
       }
       if (text) {
         discussNote.textContent = text;
@@ -1034,8 +1067,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     add("pageBreak", "Page break");
     add("keyTerms", "Key terms box");
     keyTermsButton = row.lastChild;
+    keyTermsHint = describe(keyTermsButton, "A box listing the key terms in the sheet’s passages, filled in for you.");
     form.id = `deskSheetPassage-${paneId}`;
-    bar.append(row, discussNote, form);
+    bar.append(row, discussNote, form, discussHint, keyTermsHint);
     return bar;
   }
 

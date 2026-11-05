@@ -395,6 +395,21 @@ export function kindName(kind) {
 }
 
 /**
+ * The verb for taking a record away, so every surface speaks the same one
+ * (Audit 2, CP-7): a mark put on the text (a bookmark, a highlight) is
+ * removed, a pinned footnote is unpinned, and anything the reader typed or
+ * named (a note, a label, a sheet) is deleted. [button, past tense].
+ */
+const TAKE_OFF = {
+  bookmark: ["Remove", "removed"],
+  highlight: ["Remove", "removed"],
+  footnotePin: ["Unpin", "unpinned"],
+};
+export function takeOff(kind) {
+  return TAKE_OFF[kind] ?? ["Delete", "deleted"];
+}
+
+/**
  * The `client` field for a record the website writes: `web/2026.10`, the year
  * and month of the text the page was built from, so it moves with each month's
  * publishes without a version number of its own to keep.

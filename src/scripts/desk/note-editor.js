@@ -140,7 +140,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   const failed = (err) => {
     console.error("Study Desk: the note wasn't saved", err);
     error.hidden = false;
-    error.textContent = "The note couldn’t be saved in this browser.";
+    error.textContent = "The note couldn’t be saved in this browser. Your words are still here: copy them, then try again.";
   };
 
   async function saveEdit(now) {

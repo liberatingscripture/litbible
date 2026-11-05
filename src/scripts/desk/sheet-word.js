@@ -113,7 +113,7 @@ export function copyForWord(article) {
     if (tag === "hr") {
       html.push("<hr>");
       flush();
-      text.push("———");
+      text.push("* * *");
       return;
     }
     if (tag === "ul" || tag === "ol") {

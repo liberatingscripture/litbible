@@ -21,5 +21,5 @@ export function bookmarkedMessage(ref) {
 
 /** After words are highlighted. `colorWord` is "yellow", "green", "blue" or "pink" (COLOR_WORDS). */
 export function highlightedMessage(colorWord, ref) {
-  return `Highlighted ${colorWord}: ${ref}.`;
+  return `${ref} highlighted ${colorWord}.`;
 }

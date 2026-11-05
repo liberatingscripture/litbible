@@ -224,8 +224,8 @@ test("a mark of nothing but spaces is no mark", () => {
 });
 
 test("a mark that isn't a colour, or has no ends, is refused", () => {
-  assert.throws(() => plan([], at("patient"), "teal"), /not a highlight colour/);
-  assert.throws(() => plan([], at("patient"), undefined), /not a highlight colour/);
+  assert.throws(() => plan([], at("patient"), "teal"), /not a highlight color/);
+  assert.throws(() => plan([], at("patient"), undefined), /not a highlight color/);
   assert.throws(() => planHighlight({ chapter, placed: [], start: null, end: 4, color: "yellow", where, now: NOW, ctx }), /start and an end/);
 });
 

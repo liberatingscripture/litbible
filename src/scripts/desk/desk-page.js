@@ -892,7 +892,7 @@ async function start() {
       const lead = el("span", "desk-pane__lead");
       lead.innerHTML = ICON_FLAG;
       lead.setAttribute("role", "img");
-      lead.setAttribute("aria-label", "Leading");
+      lead.setAttribute("aria-label", "Leading pane: My Notes, This verse, Greek, and Footnotes follow it");
       lead.title = "Leading: My Notes, This verse, Greek, and Footnotes follow this pane";
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
