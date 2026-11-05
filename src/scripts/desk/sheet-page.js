@@ -254,7 +254,7 @@ async function showSheet(root, store, id, view = null) {
 /**
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
- * only with "Copy into my desk"; absent for the reader's own.
+ * only with "Copy into my notebook"; absent for the reader's own.
  */
 async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   const id = sheet.id;
@@ -300,7 +300,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   present.title = "Show this sheet to a room, full screen, one part at a time";
   const print = button("Print", "desk-sheet__btn desk-sheet__btn--primary");
   const word = button("Copy for Word");
-  word.title = "Copy this copy with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
+  word.title = "Copy this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
   const share = button("Share…");
@@ -432,7 +432,7 @@ function drawCheck(box, checks, deskHref) {
   box.replaceChildren(head, list, advice);
 }
 
-/** "Shared with you", with "Copy into my desk". */
+/** "Shared with you", with "Copy into my notebook". */
 function sharedBanner(root, sheet, store, scope) {
   const box = make("div", "sheets-page__shared");
   box.setAttribute("role", "region");
@@ -447,7 +447,7 @@ function sharedBanner(root, sheet, store, scope) {
         : "This sheet isn’t in your notebook until you copy it there.",
     ),
   );
-  const take = button("Copy into my desk", "desk-sheet__btn desk-sheet__btn--primary");
+  const take = button("Copy into my notebook", "desk-sheet__btn desk-sheet__btn--primary");
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
   if (!store) {
@@ -587,7 +587,7 @@ async function start() {
     return;
   }
   if (!store) {
-    root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "This browser isn’t letting the site keep a notebook, so there are no sheets to show. Private windows sometimes don’t."));
+    root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "This browser isn’t letting the site keep a notebook, so there are no sheets to show. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
     return;
   }
   const id = new URLSearchParams(location.search).get("id");

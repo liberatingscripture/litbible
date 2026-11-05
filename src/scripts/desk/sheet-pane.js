@@ -205,7 +205,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   };
 
   if (!store) {
-    content.append(make("p", "desk-pane__later", "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t."));
+    content.append(make("p", "desk-pane__later", "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
     return { el, destroy() {} };
   }
 
@@ -573,11 +573,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     // The sheet's own address prints, copies and shares it (3i, 3k), in a tab
     // of its own so the desk stays as it is.
     const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or share…");
+    print.append(make("span", "sr-only", " (opens in a new tab)"));
     print.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`;
     print.target = "_blank";
     print.rel = "noopener";
     print.title = "Open the leader and participant copies, to print, copy into Word, or share (opens in a new tab)";
     const present = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Present…");
+    present.append(make("span", "sr-only", " (opens in a new tab)"));
     present.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=present`;
     present.target = "_blank";
     present.rel = "noopener";

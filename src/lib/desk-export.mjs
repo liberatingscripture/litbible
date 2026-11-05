@@ -552,7 +552,7 @@ export function parseImport(text, opts = {}) {
     try {
       data = JSON.parse(trimmed);
     } catch {
-      return { kind: "unknown", records: [], problems: [fail(null, "This looks like JSON but couldn’t be read.")], notes: [] };
+      return { kind: "unknown", records: [], problems: [fail(null, "This file isn’t a notebook copy this page can read. Choose a file saved with “Save a copy.”")], notes: [] };
     }
     if (data && !Array.isArray(data) && data.format === BACKUP_FORMAT) return parseBackup(data);
     if (isAnnotation(data)) return parseAnnotations(data);
@@ -566,7 +566,7 @@ function parseBackup(data) {
   const notes = [];
   const problems = [];
   if (!Array.isArray(data.records)) {
-    return { kind: "backup", records: [], problems: [fail(null, "This backup has no list of records.")], notes };
+    return { kind: "backup", records: [], problems: [fail(null, "This backup file has no entries in it.")], notes };
   }
   if (Number.isFinite(data.version) && data.version > BACKUP_VERSION) {
     notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
@@ -689,7 +689,7 @@ export function planImport(local, incoming, ctx = {}) {
     // this code knows, its own (DI-10, RC-1; a record it can't edit is judged by the common fields only).
     const held = m?.kind === "trash" && m.record != null && typeof m.record === "object" ? validateRecord(migrateRecord(m.record)) : [];
     const bad = m && typeof m === "object" ? (m.kind !== "trash" ? validateRecord(m) : held.map((p) => `its held record: ${p}`)) : [];
-    if (bad.length) skipped.push({ record: r, reason: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
+    if (bad.length) skipped.push({ record: r, reason: plainReason(bad), detail: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
     else usable.push(cleanIncoming(m));
   }
   const merged = mergeRecords(local, usable, { now: ctx.now, exported: ctx.exported, tiebreak: ctx.tiebreak });
@@ -773,6 +773,21 @@ export function planOpen(text, { local, ctx, now = isoNow() }) {
 export const sameOpen = (a, b) => !a.message && !b.message && a.sentence === b.sentence && a.ahead === b.ahead;
 
 /**
+ * What a reader is told about an entry the validator refused (CP-4): a plain
+ * sentence from the first problem. The validator's own text stays on the
+ * skipped entry as `detail`, for the console.
+ */
+export function plainReason(problems) {
+  const first = String(problems[0] ?? "");
+  if (/^its held record/.test(first)) return "The copy it holds in the trash couldn’t be read.";
+  if (/^marker .* is not one of/i.test(first)) return "It has a marker the notebook doesn’t know.";
+  if (/^color .* is not one of/i.test(first)) return "It has a color the notebook doesn’t know.";
+  if (/ISO 8601/.test(first)) return "Its date couldn’t be read.";
+  if (/comes before/.test(first)) return "Its verses are out of order.";
+  return "It couldn’t be read.";
+}
+
+/**
  * A plain sentence about records dated by a clock running ahead, or null.
  * "2 records in this file were dated by a clock running ahead. Such a record
  * never replaces, deletes, or brings back anything here: 1 added with an
@@ -783,12 +798,13 @@ export function describeAhead(ahead = []) {
   if (!n) return null;
   const added = ahead.filter((a) => a.written).length;
   const kept = n - added;
-  const head = `${n === 1 ? "One record in this file was" : `${n} records in this file were`} dated by a clock running ahead.`;
+  const head = `${n === 1 ? "One item in this file carries" : `${n} items in this file carry`} a date from a clock that was set ahead.`;
   let rest;
   if (!kept) rest = `${n === 1 ? "It was" : "They were"} added with an earlier date.`;
-  else if (!added) rest = `Yours ${n === 1 ? "is" : "are"} kept as ${n === 1 ? "it is" : "they are"}.`;
-  else rest = `${added} added with an earlier date, and yours kept for the other${kept === 1 ? "" : ` ${kept}`}.`;
-  return `${head} Such a record never replaces, deletes, or brings back anything here: ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
+  else if (!added) rest = "What you already had was kept.";
+  else rest = `${added} added with an earlier date, and what you already had kept for the other${kept === 1 ? "" : ` ${kept}`}.`;
+  const never = n === 1 ? "It never replaces or deletes anything here, or brings anything back" : "They never replace or delete anything here, or bring anything back";
+  return `${head} ${never}: ${rest.charAt(0).toLowerCase()}${rest.slice(1)}`;
 }
 
 /** A plain sentence for a summary: "3 new, 1 updated, 12 already here." */

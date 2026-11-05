@@ -1354,7 +1354,7 @@ against `dist/` is a later item.
        shared link: on a phone or tablet, copy the link to send to a
        computer; on a computer without the preview, a link that switches it
        on (`?desk=on#share1.…`, a new page, so the fragment is taken again).
-       A shared sheet shows read only until "Copy into my desk", which saves
+       A shared sheet shows read only until "Copy into my notebook", which saves
        it as a new sheet (`copyOfShared`) and turns the page into that
        sheet's own address. No storage key is added.
   22. **Phase 2b is a sheet checked before printing** (built 2026-10-20;

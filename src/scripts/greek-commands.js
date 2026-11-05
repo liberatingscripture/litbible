@@ -217,7 +217,7 @@ function fillBody(body, builder) {
   // under one heading so the window opens short.
   const more = make("details", "greek-cmds__more");
   more.append(make("summary", "greek-cmds__summary", "Examples and all commands"));
-  more.append(make("p", "greek-cmds__lead", "Click a command to add it where your cursor is. Each has a word you can type instead. This stays open while you type."));
+  more.append(make("p", "greek-cmds__lead", "Select a command to add it where your cursor is. Each has a word you can type instead. This stays open while you type."));
   more.append(make("h3", "greek-cmds__heading", "Try one"), exampleList(EXAMPLES, runExample));
   for (const group of COMMANDS) {
     more.append(make("h3", "greek-cmds__heading", group.title));

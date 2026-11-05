@@ -354,7 +354,7 @@ export function footnoteRows(list, ids, choices, blanks) {
 
 /**
  * The passage's choices with the leader's decision for some footnotes
- * written in (Select all and Unselect all pass every footnote of the
+ * written in (Select all and Clear all pass every footnote of the
  * passage). Other choices are kept as they are.
  *
  * @param {object[]} choices

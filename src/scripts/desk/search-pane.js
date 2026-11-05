@@ -476,7 +476,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
       if (my !== seq) return;
       console.error("Study Desk: the search failed", err);
       groupsEl.replaceChildren();
-      say("Search failed.");
+      say("The search didn’t finish. Try again in a moment.");
     }
   }
 

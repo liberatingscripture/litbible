@@ -17,7 +17,7 @@ import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { kindName, recordHref, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { kindName, recordHref, takeOff, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { followBookmark } from "./bookmark-follow.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
@@ -186,8 +186,8 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   buttons.append(
     button(
       "desk-item__delete",
-      r.kind === "footnotePin" ? "Unpin" : "Delete",
-      `${r.kind === "footnotePin" ? "Unpin" : "Delete"} ${subject}`,
+      takeOff(r.kind)[0],
+      `${takeOff(r.kind)[0]} ${subject}`,
       () => onDelete(r, li),
     ),
   );

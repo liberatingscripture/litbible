@@ -163,7 +163,7 @@ export function mountBackup(el, { store, ctx }) {
       text = await chosen.text();
     } catch (err) {
       console.error("Study Desk: the file couldn’t be read", err);
-      return showResult({ message: "That file couldn’t be read." });
+      return showResult({ message: "That file couldn’t be read. Choose a file saved with “Save a copy.”" });
     }
     showResult({ name: chosen.name, text, opened: await plan(text) });
   });
@@ -177,7 +177,7 @@ export function mountBackup(el, { store, ctx }) {
       return planOpen(text, { local, ctx: ctx(), now: new Date().toISOString() });
     } catch (err) {
       console.error("Study Desk: the file couldn’t be opened", err);
-      return { message: "That file couldn’t be read." };
+      return { message: "That file couldn’t be read. Choose a file saved with “Save a copy.”" };
     }
   }
 
@@ -204,7 +204,7 @@ export function mountBackup(el, { store, ctx }) {
     // What was left out, with its line when the file has lines.
     const left = [
       ...read.problems.map((p) => (p.line ? `Line ${p.line}: ${p.message}` : p.message)),
-      ...planned.skipped.map((s) => `A record was left out: ${s.reason}`),
+      ...planned.skipped.map((s) => `An item in this file was left out: ${s.reason}`),
     ];
     if (left.length) {
       result.append(paragraph("Left out, so you can look them over:", "desk-backup__left-title"));

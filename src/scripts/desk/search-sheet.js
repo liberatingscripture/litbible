@@ -141,7 +141,7 @@ function ensureBar(kind) {
   go.setAttribute("aria-haspopup", "dialog");
   go.setAttribute("aria-expanded", "false");
   const hint = make("span", "desk-gather__hint");
-  const clear = button("Clear ticks", "desk-gather__btn desk-gather__btn--quiet");
+  const clear = button("Clear checks", "desk-gather__btn desk-gather__btn--quiet");
   clear.hidden = true;
   row.append(go, hint, clear);
   const slot = make("div", "desk-gather__slot");
@@ -177,8 +177,8 @@ function describeBar(bar) {
   if (bar.kind === "verses") {
     const n = detail.verses.length;
     bar.hint.textContent = ticked.size
-      ? `${plural(ticked.size, "verse", "verses")} ticked.`
-      : `Tick verses to choose; with none ticked, every result goes (${n}).`;
+      ? `${plural(ticked.size, "verse", "verses")} checked.`
+      : `Check verses to choose. With none checked, all ${n} results go on the sheet.`;
     bar.clear.hidden = !ticked.size;
   } else {
     const n = detail.chapters.length;
@@ -308,7 +308,7 @@ async function openPanel(bar) {
   } catch (err) {
     console.error("Study Desk: couldn’t read the sheets", err);
     if (bar.panel === panel) {
-      intro.textContent = "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t.";
+      intro.textContent = "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes.";
       fresh.disabled = true;
     }
     return;

@@ -42,7 +42,7 @@
 //     isn't a change anyone made.
 
 import { canEdit, trashRecord } from "./desk-records.mjs";
-import { deepEqual, kindName, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
+import { deepEqual, kindName, takeOff, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
 
 /** How many changes one page visit remembers. */
 export const HISTORY_LIMIT = 50;
@@ -247,7 +247,7 @@ export function describeEntry(entry) {
 
   if (after.length === 0) {
     const gone = first(before);
-    return gone ? named(gone, gone.kind === "note" ? "deleted" : "removed") : "Notebook changed.";
+    return gone ? named(gone, takeOff(gone.kind)[1]) : "Notebook changed.";
   }
 
   const held = heldIds(entry.before);

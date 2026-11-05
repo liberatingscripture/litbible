@@ -724,7 +724,7 @@ export async function showPresenterView({ root, sheet, store }) {
   notesBox.append(notesBody);
 
   const keys = make("p", "present-presenter__keys",
-    "Keys, in either window: → or Page Down for the next screen, ← or Page Up for the one before, R to reveal, Shift+R to cover again, F for footnotes.");
+    "Keys, in either window: →, Page Down, or Space for the next step; ←, Page Up, or Shift+Space for the one before; Home and End for the first and last; R to reveal; Shift+R to cover again; F for footnotes.");
 
   const main = make("div", "present-presenter__main");
   const left = make("div", "present-presenter__now");
@@ -798,7 +798,7 @@ export async function showPresenterView({ root, sheet, store }) {
   });
   window.addEventListener("pagehide", () => control.close());
 
-  status.textContent = "Waiting for the presentation. If it’s on another screen, it will follow this view; if not, drag its window to the room’s screen and choose Full screen there.";
+  status.textContent = "Waiting for the presentation. If it’s on another screen, it will follow this view; if not, drag its window to the room’s display and choose Full screen there.";
   await control.start();
   setTimeout(() => {
     if (!stageSeen && status.textContent.startsWith("Waiting")) {

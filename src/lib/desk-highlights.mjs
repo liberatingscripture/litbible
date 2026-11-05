@@ -162,7 +162,7 @@ function older(a, b) {
  */
 export function planHighlight({ chapter, placed = [], start, end, color, blockAt, where, now = new Date().toISOString(), ctx = {} }) {
   if (color !== null && !COLORS.includes(color)) {
-    throw new Error(`desk-highlights: "${color}" is not a highlight colour`);
+    throw new Error(`desk-highlights: "${color}" is not a highlight color`);
   }
   if (!Number.isInteger(start) || !Number.isInteger(end)) {
     throw new Error("desk-highlights: the mark needs a start and an end");

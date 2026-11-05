@@ -95,7 +95,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
     } catch (err) {
       console.error("Study Desk: the bookmark wasn't saved", err);
       error.hidden = false;
-      error.textContent = "The bookmark couldn’t be saved in this browser.";
+      error.textContent = "The bookmark couldn’t be saved in this browser. Try again.";
       saveButton.disabled = false;
       return;
     }

@@ -12,7 +12,7 @@
 // A reader's words are put on the page as text, never as HTML.
 
 import { COLORS } from "../../lib/desk-records.mjs";
-import { recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { recordReference, takeOff, recordWhere } from "../../lib/desk-store-core.mjs";
 import { labelCounts, labelMap, liveLabels } from "../../lib/desk-labels.mjs";
 import {
   colorsPresent,
@@ -238,7 +238,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     } catch (err) {
       console.error("Study Desk: the item wasn't deleted", err);
       deleteError.hidden = false;
-      deleteError.textContent = "That item couldn’t be deleted in this browser.";
+      deleteError.textContent = "That item couldn’t be taken off in this browser. Try again.";
       return;
     }
     if (!trash) return;
@@ -248,7 +248,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     await render();
     focusDelete(index);
     const ref = recordWhere(r);
-    showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} ${r.kind === "footnotePin" ? "unpinned" : "deleted"}.`, async () => {
+    showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} ${takeOff(r.kind)[1]}.`, async () => {
       await undoEntry(entry);
       await render();
       lists.querySelector(`[data-id="${CSS.escape(r.id)}"] .desk-item__delete`)?.focus();

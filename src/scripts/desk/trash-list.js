@@ -12,6 +12,7 @@
 // "Empty the trash now" is not here; it stays under Delete everything, since
 // it is the opposite act.
 
+import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { labelMap } from "../../lib/desk-labels.mjs";
 import {
   daysLeft,
@@ -43,7 +44,7 @@ const REFUSED = {
   label: "You already have a label with that name, so this one stays in the trash.",
 };
 
-const MOVES_NO_MORE = "It doesn’t move as you read, because six bookmarks already do.";
+const MOVES_NO_MORE = `It doesn’t move as you read, because ${MAX_FOLLOWING} bookmarks already do.`;
 
 /** "Deleted Oct 28, 21 days left": when it went and how long its words stay. */
 export function whenLine(trash, now = new Date().toISOString()) {

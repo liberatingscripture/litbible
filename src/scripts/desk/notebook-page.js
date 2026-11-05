@@ -86,7 +86,7 @@ async function start() {
     console.error("Study Desk: the notebook didn’t open", err);
   }
   if (!store) {
-    root.append(el("p", "desk-panel__empty", "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t."));
+    root.append(el("p", "desk-panel__empty", "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
     return;
   }
   initUndo();

@@ -711,7 +711,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       const bar = make("div", "desk-sheet__notes-bar");
       const all = button("Select all");
       all.dataset.focusKey = "notes-all";
-      const none = button("Unselect all");
+      const none = button("Clear all");
       none.dataset.focusKey = "notes-none";
       const ids = rows.map((r) => r.id);
       all.addEventListener("click", () => update({ footnotes: setFootnoteChoices(mod.footnotes, view.list, ids, true) }, "Every footnote in the passage will print."));

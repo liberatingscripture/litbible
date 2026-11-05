@@ -1284,7 +1284,7 @@ test("history: a sheet deletion describes itself and undoes", () => {
   const s = sheetOf(makeModule("text", {}, { id: "t" }));
   const plan = planDelete(s, { ...ctx, now: T1, id: nextId() });
   const entry = makeEntry(plan, new Map([[s.id, s]]), "e");
-  assert.equal(describeEntry(entry), "Sheet “T” removed.");
+  assert.equal(describeEntry(entry), "Sheet “T” deleted.");
   const undo = inversePlan(entry, at(T2));
   assert.deepEqual(undo.remove, [plan.trash.id]);
   assert.equal(undo.put[0].id, s.id);
