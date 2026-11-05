@@ -377,7 +377,8 @@ function injectProseShow() {
 
 /**
  * The desk's lines in the tray's list of keys: H hides or shows my notes, and
- * Ctrl+Z (⌘Z on a Mac) undoes a change to the notebook. The list sits under
+ * Ctrl+Z (⌘Z on a Mac) undoes a change to the notebook and Ctrl+Y (⇧⌘Z on a
+ * Mac) redoes it (BVJ, 2026-11-04). The list sits under
  * the Keyboard switch, but Ctrl+Z isn't one of its single-key shortcuts and
  * doesn't follow it (history.js). Like the other desk controls, they are
  * marked data-desk.
@@ -388,6 +389,10 @@ function addKeyLines() {
   for (const html of [
     "<kbd>h</kbd> Hide or show my marks",
     `<kbd>${undoModifier()}</kbd> <kbd>Z</kbd> Undo a change to my notebook`,
+    // Ctrl+Y on a computer with a Ctrl key; the Mac's redo is Shift+Command+Z.
+    undoModifier() === "Ctrl"
+      ? "<kbd>Ctrl</kbd> <kbd>Y</kbd> Redo a change to my notebook"
+      : "<kbd>⇧</kbd> <kbd>⌘</kbd> <kbd>Z</kbd> Redo a change to my notebook",
   ]) {
     const li = document.createElement("li");
     li.dataset.desk = "";
