@@ -124,7 +124,8 @@ export function drawBookmarkLine(el, bookmark, name = "Bookmark") {
 
 /** Draw every bookmark line on the page again, after the tab's flag changed. */
 export function syncBookmarkLines(root = document) {
-  for (const el of root.querySelectorAll("[data-bookmark]")) {
+  // A page with no list drawn (and a test's stand-in document) has no lines to redraw.
+  for (const el of root?.querySelectorAll?.("[data-bookmark]") ?? []) {
     drawBookmarkLine(el, { id: el.dataset.bookmark, follow: el.dataset.moves === "1" }, el.dataset.kindName);
   }
 }
