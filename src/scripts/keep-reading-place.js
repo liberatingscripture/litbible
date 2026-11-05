@@ -6,8 +6,8 @@
 // page. Either would carry a reader's place away (in Read View, a whole
 // book's worth).
 //
-// It pins the line of text at the reading line (30% down, just inside the
-// text column) and scrolls it back to where it was. A paragraph's top is not
+// It pins the line of text at the reading line (10% down, as last-read.js's;
+// BVJ, 2026-11-04, it was 30%, just inside the text column) and scrolls it back to where it was. A paragraph's top is not
 // enough: a long paragraph grows below its top, so the line being read still
 // drifts. Moved here from SiteHeader.astro's Display tray when the desk's
 // panel needed the same thing (phase 1b).
@@ -33,7 +33,7 @@ function lineAt(overlay) {
   const surface = READING_SURFACES.map((s) => document.querySelector(s)).find(Boolean);
   if (!surface) return null;
   const x = surface.getBoundingClientRect().left + 24;
-  const y = window.innerHeight * 0.3;
+  const y = window.innerHeight * 0.1;
   if (overlay) overlay.style.pointerEvents = "none";
   let node = null;
   let offset = 0;

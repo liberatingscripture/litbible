@@ -98,6 +98,7 @@ import { createDeskTour } from "./desk-tour.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
+import { turnOffMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
@@ -371,11 +372,21 @@ async function start() {
       const next = applyArrangement(layout, a.id);
       const stays = new Set(panes(next.root).map((p) => p.id));
       const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
+      // Reading also clears the marks off the text (reading-display.js), before
+      // the panes are drawn so they come up without them.
+      const marks = a.id === "reading" ? turnOffMarks() : null;
       commit(next);
       // A smaller layout closes panes from the end: say which, and offer to
       // bring them back (DK-9). The bar announces itself.
-      if (closed.length) showUndo(`Layout: ${a.label}. Closed ${LIST.format(closed)}.`, () => commit(before));
-      else announce(`Layout: ${a.label}.`);
+      const said = [`Layout: ${a.label}.`];
+      if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
+      if (marks?.names.length) said.push(`Turned off ${LIST.format(marks.names)}.`);
+      if (said.length > 1) {
+        showUndo(said.join(" "), () => {
+          marks?.undo();
+          commit(before);
+        });
+      } else announce(`Layout: ${a.label}.`);
       closeMenu();
     });
     shapesBox.append(b);

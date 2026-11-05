@@ -939,7 +939,12 @@ against `dist/` is a later item.
      - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02): "Reading" is the
        first row of the Layout window, one LIT pane (`readingLayout`); it is
        One pane's shape, so `arrangementOf` tells them apart by the pane's
-       kind. `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
+       kind. **Choosing it also turns off verse numbers, footnote letters, key
+       terms, and highlights** (BVJ, 2026-11-04; `reading-display.js`), once and
+       not as a mode: the undo bar names them, Undo turns them back on, and
+       another arrangement leaves them as they are. The LIT pane's reading
+       line and the shared `keepReadingPlace` line are both 10% down, as
+       Continue reading's (`LINE` in `lit-pane.js`). `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
        `romans-8-v16`) is what a link to the desk carries: whatever the page
        would have opened (last, default, or the original for a first visit)
        keeps its panes and sizes, and only the active LIT pane and the

@@ -7680,8 +7680,17 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     working on the page as read: Edge's Read Aloud past the loaded
     chapters, printing a whole book (the Print menu prints one chapter at a
     time), and Ctrl+F's in-context highlighting. These go with Read View;
-    8c says so in the help copy. Status: **8a built, awaiting BVJ's look on
-    the preview.**
+    8c says so in the help copy.
+  - *BVJ looked, 2026-11-04.* `?place=` and the Layout row behaved as
+    described, with two changes. **Reading is told apart from One pane by what
+    it takes off the text**: choosing it also turns off verse numbers, footnote
+    letters, key terms, and highlights (once, not a mode; the undo bar names
+    them and Undo puts them back; another arrangement leaves them as they are).
+    And **every reading line is 10% down** (the LIT pane's was 25%, and
+    `keepReadingPlace`'s 30%), so a `?place=` verse lands near the top. Left
+    at their own lines on purpose: Read View's chapter line and focus line,
+    which Read View's retirement (8c) removes, and the Greek pane's "Go to
+    verse" tolerance. Status: **8a looked at; both changes built.**
   **8b built 2026-11-02 (work session 8b).** BVJ's answers: swap the /read
   card in place (option A), the picker link too, and the card's wording
   chosen by an Opus subagent; the "Available now" badge moves to the desk
