@@ -114,11 +114,22 @@ first stone; God so loved the world; it is finished; last will be first + first
 will be last. Written **without internal punctuation** — the corpus has "love is
 patient love is kind" and "if God is for us who is against us".
 
-### 5. Greek/Hebrew/Aramaic/Latin terms
+### 5. Hebrew/Aramaic/Latin terms (and borrowed English ones)
 
 When the term is doing theological work in the passage and a scholar might
-search it: logos, hamartia, agapao, phileo, metanoia, gehenna, diabolon,
-stoicheia, authentein, paidagogos.
+search it: gehenna, shema, korban, talitha koum. English words that began as
+Greek (demon, diaspora, anathema, kenosis, theosis) stay.
+
+**No transliterated Greek** (BVJ, 2026-11-04): not logos, hamartia, agapao,
+phileo, metanoia, pistis, diabolon, stoicheia, authentein, paidagogos, and
+the rest, which an earlier version of this rule listed. A reader who types
+`pistis` into the ordinary search got topic matches for it while the same
+word is a different search under "Greek" (Latin letters read as a
+transliteration there), and the two looked like one. Greek is searched in the
+Greek search (Study Desk preview), which reads Greek letters, Latin
+transliterations and Strong's numbers. About 80 such tags were removed from
+53 chapters and 3 book intros (50 distinct terms), and the topics index and
+autocomplete lose them at the next build. The English tags beside them stay.
 
 ### 6. Topical subjects and thematic concepts
 

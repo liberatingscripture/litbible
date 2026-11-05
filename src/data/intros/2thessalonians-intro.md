@@ -3,7 +3,6 @@ description: "Introduction to 2 Thessalonians in the LIT Bible."
 topics:
   - Pauline epistles
   - second coming
-  - parousia
   - end times
 ---
 

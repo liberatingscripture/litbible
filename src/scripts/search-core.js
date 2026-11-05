@@ -1327,10 +1327,19 @@ export function isGreekQuery(raw) {
    read "Greek" without that being the reader's own pick: their pick is kept
    aside (dataset.ownMode) and comes back when the query is Latin again. */
 
-/** Adds the "Greek" option to a results-type <select> (once, and only with the Greek on). */
+/** What the menu's first option says once "Greek" is a type of its own: a Latin-letter search under it never lists Greek. */
+export const ALL_EXCEPT_GREEK_LABEL = "All except Greek";
+
+/**
+ * Adds the "Greek" option to a results-type <select> (once, and only with the
+ * Greek on), and renames "All results" to say it leaves the Greek out (BVJ,
+ * 2026-11-04). Without the Greek the menu keeps "All results", which is true.
+ */
 export function addGreekMode(select) {
   if (!select || !greekSearchEnabled()) return;
   if (select.querySelector('option[value="greek"]')) return;
+  const all = select.querySelector('option[value="all"]');
+  if (all) all.textContent = ALL_EXCEPT_GREEK_LABEL;
   const opt = document.createElement("option");
   opt.value = "greek";
   opt.textContent = MODE_LABELS.greek;

@@ -720,7 +720,9 @@ against `dist/` is a later item.
        already load lazily; English searches and the desk's Search pane are
        not governed by it); every
        other query gets exactly the pre-1h search, unless the reader picks
-       the type menu's "Greek" (injected by script, only with the gate on),
+       the type menu's "Greek" (injected by script, only with the gate on,
+       which also renames "All results" to "All except Greek": a Latin-letter
+       search under it lists no Greek, BVJ 2026-11-04),
        which searches Latin text as a transliteration or a gloss. /search
        pages the Greek with the English verses' pager, in Bible order with
        no sort control; the tray shows its own Greek group alone.
