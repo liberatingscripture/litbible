@@ -447,7 +447,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("keep", fresh);
     } catch (err) {
       console.error("Study Desk: the mark wasn't kept", err);
-      fail(`The ${noun} couldn’t be kept in this browser.`);
+      fail(`The ${noun} couldn’t be kept in this browser, so it is as it was. Try again.`);
     }
   }
 
@@ -464,7 +464,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       onDone?.("delete", record);
     } catch (err) {
       console.error("Study Desk: the mark wasn't deleted", err);
-      fail(isPin ? "The footnote couldn’t be unpinned." : `The ${noun} couldn’t be ${takeOff(record.kind)[1]}.`);
+      fail(`${isPin ? "The footnote couldn’t be unpinned" : `The ${noun} couldn’t be ${takeOff(record.kind)[1]}`}, so it is still in your notebook. Try again.`);
     }
   }
 

@@ -106,12 +106,12 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
       });
       if (!done.ok) {
         box.checked = !box.checked;
-        return say(MESSAGES[done.reason] ?? "That couldn’t be changed.");
+        return say(MESSAGES[done.reason] ?? "That couldn’t be changed. Close this and try again.");
       }
     } catch (err) {
       console.error("Study Desk: the label wasn’t changed", err);
       box.checked = !box.checked;
-      say("That couldn’t be saved in this browser.");
+      say("That couldn’t be saved in this browser, so nothing changed. Try again.");
     }
   }
 
@@ -127,12 +127,12 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
         return done?.ok ? planWrite(done.plan) : null;
       });
       if (!done) return closePanel();
-      if (!done.ok) return say(MESSAGES[done.reason] ?? "That couldn’t be added.");
+      if (!done.ok) return say(MESSAGES[done.reason] ?? "That couldn’t be added. Close this and try again.");
       input.value = "";
       input.focus({ preventScroll: true });
     } catch (err) {
       console.error("Study Desk: the label wasn’t added", err);
-      say("That couldn’t be saved in this browser.");
+      say("The label couldn’t be saved in this browser. Its name is still in the field: try again.");
     }
   });
   panel.querySelector(".lit-panel__close").addEventListener("click", closePanel);

@@ -370,7 +370,13 @@ against `dist/` is a later item.
      (notes, labels, sheets) and "Remove" for marks on the text (bookmarks,
      highlights), both from `takeOff(kind)` in `desk-store-core.mjs`; in a
      button "copy" means a saved file, so a sheet's leader and participant
-     copies are "versions"; "Dictionary forms" for lemmas.
+     copies are "versions"; "Dictionary forms" for lemmas. "Marker" is
+     only a note's icon ("Marker: Question," "the Question marker"); a
+     trashed item's leftover is "a record that it was deleted," never a
+     marker or a note. "Marks" is the umbrella for notes, highlights, and
+     bookmarks, defined on the "Hide my marks" switch (its title and
+     `aria-description`) and in the help page's paragraph of that name, so a
+     bookmark "shows in red," not "is a red mark."
   11. **Ctrl+Z (⌘Z) and redo undo this tab's changes to the notebook**, one
      history per page visit, 50 deep. The store records an entry for every
      write the reader makes (`apply` in `desk/store.js`, which reads the

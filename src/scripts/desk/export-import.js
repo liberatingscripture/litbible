@@ -266,7 +266,7 @@ export function mountBackup(el, { store, ctx }) {
     } catch (err) {
       console.error("Study Desk: the copy wasn’t opened", err);
       go.disabled = false;
-      return announce("That couldn’t be saved in this browser. Nothing was changed.");
+      return announce("That couldn’t be saved in this browser. Nothing was changed. Choose Open this copy to try again.");
     }
     if (differs) return showResult({ name: shown.name, text: shown.text, opened, changed: !opened.message });
     const { sentence } = opened;

@@ -204,7 +204,7 @@ export function createHistory({ store, ctx }) {
 
   const failed = (err, what) => {
     console.error(`Study Desk: ${what} failed`, err);
-    showNotice(`That couldn’t be ${what === "undo" ? "undone" : "redone"}.`);
+    showNotice(`That couldn’t be ${what === "undo" ? "undone" : "redone"}, so nothing changed. Try again.`);
   };
 
   document.addEventListener("keydown", (e) => {

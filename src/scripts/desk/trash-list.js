@@ -148,7 +148,7 @@ export function createTrashList({ store, ctx, announce, onChange = () => {} }) {
       made = await write((records) => planRestore(records, trashId, ctx()));
     } catch (err) {
       console.error("Study Desk: the item wasn't restored", err);
-      say("That item couldn’t be restored in this browser.");
+      say("That item couldn’t be restored in this browser, so it is still in the trash. Try again.");
       return;
     }
     if (!made?.ok) {
@@ -170,7 +170,7 @@ export function createTrashList({ store, ctx, announce, onChange = () => {} }) {
       made = await write((records) => planRestoreAll(records, ctx()));
     } catch (err) {
       console.error("Study Desk: the trash wasn't restored", err);
-      say("The trash couldn’t be restored in this browser.");
+      say("The trash couldn’t be restored in this browser, so everything is still in it. Try again.");
       return;
     } finally {
       all.disabled = false;

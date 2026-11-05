@@ -39,7 +39,7 @@ if (typeof shared === "string" && shared && box && document.documentElement.data
         await navigator.clipboard.writeText(link);
         status.textContent = " Copied.";
       } catch (_) {
-        status.textContent = " Your browser didn’t allow the copy.";
+        status.textContent = " Your browser didn’t allow the copy. Open the message that held this link on a computer instead.";
       }
     });
     const row = document.createElement("p");

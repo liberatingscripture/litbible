@@ -238,7 +238,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     } catch (err) {
       console.error("Study Desk: the item wasn't deleted", err);
       deleteError.hidden = false;
-      deleteError.textContent = "That item couldn’t be taken off in this browser. Try again.";
+      deleteError.textContent = "That item couldn’t be taken off in this browser, so it is still in your notebook. Try again.";
       return;
     }
     if (!trash) return;

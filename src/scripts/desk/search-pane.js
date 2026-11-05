@@ -431,7 +431,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
         try {
           pf = await loadPagefind(BASE);
         } catch (_) {
-          if (my === seq) tell("The glossary, articles, and introductions couldn’t be searched just now.");
+          if (my === seq) tell("The glossary, articles, and introductions couldn’t be searched just now. Search again in a moment to include them.");
         }
         if (my !== seq) return;
         if (pf) {
@@ -702,14 +702,14 @@ export function createSearchPane({ paneId, env, getPlace }) {
       console.error("Study Desk: the sheet couldn’t be written", err);
       busy = false;
       syncAdd();
-      tell("The sheet couldn’t be saved. Nothing was changed.");
+      tell("The sheet couldn’t be saved. Nothing was changed. Try again in a moment.");
       return;
     }
     busy = false;
     if (destroyed) return;
     syncAdd();
     if (outcome.gone) {
-      tell("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT.");
+      tell("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT. Start a new sheet instead.");
       return;
     }
     const { result, sheet } = outcome;

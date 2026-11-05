@@ -1234,7 +1234,7 @@ const _initSearchbars = async () => {
         console.error(err);
         groupsEl.innerHTML = "";
         renderJump(null);
-        status.textContent = "Search failed.";
+        status.textContent = "The search didn’t finish. Try again in a moment.";
       }
     }
 

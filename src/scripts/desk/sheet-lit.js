@@ -60,6 +60,20 @@ function button(label, cls = "desk-sheet__btn") {
   return b;
 }
 
+let hintCount = 0;
+
+/**
+ * A sentence a control's `title` carries, given to a screen reader as well
+ * (CP-9): a hidden span the control is described by, which the caller puts
+ * in the page. The title stays, for a mouse.
+ */
+function describe(control, text) {
+  const hint = make("span", "sr-only", text);
+  hint.id = `deskSheetLitHint${++hintCount}`;
+  control.setAttribute("aria-describedby", hint.id);
+  return hint;
+}
+
 const plural = (n, one, many = `${one}s`) => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
 const quoted = (words) => `“${words.length > 60 ? words.slice(0, 59) + "…" : words}”`;
 
@@ -549,7 +563,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       // Keep the selection: pressing the button would otherwise clear it first.
       pick.addEventListener("mousedown", (e) => e.preventDefault());
       pick.addEventListener("click", blankSelection);
-      head.append(pick);
+      head.append(pick, describe(pick, "Leaves the words you’ve selected in this passage blank on the participant’s copy."));
     }
     blanksBox.append(head);
 
@@ -575,6 +589,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         chip.title = blanked
           ? `Fill in “${word}” again`
           : `Blank “${word}”${marks.length > 1 ? ` (${marks.length} times)` : ""} with “traditionally ${traditionalWord(term)}” beneath`;
+        const chipHint = describe(chip, `${chip.title}.`);
         chip.addEventListener("click", () => {
           if (blanked) {
             const keep = located.filter((b) => !marks.some((mk) => b.start != null && b.start < mk.end && mk.start < b.end));
@@ -583,7 +598,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
             addBlanks(marks.map((mk) => [mk.start, mk.end]), `“${word}” blanked${marks.length > 1 ? ` ${marks.length} times` : ""}.`);
           }
         });
-        row.append(chip);
+        row.append(chip, chipHint);
       }
       blanksBox.append(row);
     }
