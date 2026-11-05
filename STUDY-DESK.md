@@ -8391,18 +8391,23 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   (2026-11-05), from /desk in the Reading arrangement (which turns verse
   numbers off, `reading-display.js`, E8). Two parts, probably one cause: the
   pane may be treating a hidden verse number as if the verse weren't there.
-  1. **Chapter headings off whenever the numbers are off.** On /desk in
-     Reading, and **any time sitewide that verse numbers are turned off**
-     (`html[data-vn="off"]`, the Display tray's verse-numbers switch), the
-     chapter headings go too, for unbroken text. Read View already does this
-     (`read-mode.css`, "NUMBERS OFF": `.rm-chapter` is `display: none` beside
-     `sup.vn`), so the precedent is there. The LIT pane's headings are
-     `.desk-lit__heading` (`desk.css`, drawn by `lit-pane.js`). To settle in
-     the session, not decided: whether Chapter View's own page follows (the
-     request says "sitewide," which reads as yes, with the page's `h1` kept),
-     and what a screen reader meets where a heading is hidden (visually
-     hidden, as `global.css` does for `sup.vn`, keeps the landmark;
-     `display: none` removes it, which is Read View's choice).
+  1. **Chapter headings off whenever the numbers are off, on the surfaces
+     that run chapters together.** The point (BVJ, 2026-11-05) is a reading
+     experience without the separations between verses and chapters, which
+     are arbitrary later additions. So on /desk's LIT pane (in Reading, and
+     any time its verse numbers are off, `html[data-vn="off"]`, the Display
+     tray's verse-numbers switch) the chapter headings go too. Read View
+     already does this (`read-mode.css`, "NUMBERS OFF": `.rm-chapter` is
+     `display: none` beside `sup.vn`), so the precedent is there. The LIT
+     pane's headings are `.desk-lit__heading` (`desk.css`, drawn by
+     `lit-pane.js`). **It does not apply to Chapter View's own pages** (BVJ,
+     2026-11-05): a chapter page is already separated from the next by being
+     its own page, so removing its heading buys no continuity and would only
+     confuse; its heading and `h1` stay whatever the numbers setting. Still to
+     settle in the session: what a screen reader meets where a LIT pane
+     heading is hidden (visually hidden, as `global.css` does for `sup.vn`,
+     keeps the landmark; `display: none` removes it, which is Read View's
+     choice).
   2. **The location field must still name the verse being read.** It shows
      the book, chapter and verse 1 and never moves while the reader scrolls.
      Wanted: the verse at the reading line (10%, BVJ 2026-11-04), as it is
@@ -8422,8 +8427,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
      /desk, and `keep()` holds the reader's place through a redraw (BA51,
      BA54), so check all three with the numbers off.
   Status: **open, own session** (touches `lit-pane.js`, `desk.css`,
-  `global.css`, perhaps `read-mode.css`; and `src/styles/CLAUDE.md`'s
-  Display tray rule 6 if the headings follow the numbers sitewide).
+  `global.css`, perhaps `read-mode.css`; `src/styles/CLAUDE.md`'s Display
+  tray rule 6 should say the headings follow the numbers only where chapters
+  run together).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -8508,7 +8514,8 @@ the rest is polish.
     `desk-history.mjs`, `notebook-page.js`, `record-rows.js`, `desk.css`,
     the help page, and added `trash-list.js`. No record-format change.
 12. **Verse numbers off** (BVJ, 2026-11-05): E29. Chapter headings go with the
-    numbers, and the LIT pane's location field follows the verse at the
+    numbers where chapters run together (the LIT pane, as Read View does), not on
+    Chapter View's own pages, and the LIT pane's location field follows the verse at the
     reading line though the markers are hidden. Not started. Shares
     `lit-pane.js` with E28, so run it before or after that session, not beside it.
 
