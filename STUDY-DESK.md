@@ -7645,7 +7645,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     page, and the LIT pane loads chapters as the reader nears them. **Let
     go** (BVJ, 2026-11-02): book-scoped search covers finding a word.
   - **The button's label.** "Study Desk" says study; the button now also
-    serves the reader who wants to read straight through.
+    serves the reader who wants to read straight through. **Decided (BVJ,
+    2026-11-04): keep "Study Desk."** Read View is going, the card and the
+    picker link use the same name, and the Reading layout is the way to a
+    plain page of text.
   **8a built 2026-11-02 (work session 8a).** BVJ's answers: build "Reading"
   and see how it feels (the menu's word is a try, not a decision); the
   recommended `?place=` rules; the whole-book question below (let go).
@@ -7857,8 +7860,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   foot and beside "Search commands" on /search; shown only with the desk on
   and the type "All types"; remembered in `lit-desk-greek-notes` (named in
   /privacy; the LSC site's mirror needs the same sentence); English
-  searches are not governed by it, and /desk's Search pane lists no notes
-  for a Greek search. The tray shows it only when a Greek group renders.
+  searches are not governed by it. (Corrected 2026-11-04: /desk's Search pane
+  has the same switch and lists notes for a Greek search when it is on, PR
+  #463.) The tray shows it only when a Greek group renders.
   Status: built, awaiting BVJ's look.
   **Placement settled 2026-11-02 (work session 7b, on Claude's
   recommendations):** on /search the link and "My notes" are one box, inline in
@@ -7871,7 +7875,11 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   group's foot, which such a search doesn't draw). **For BDR's Claude: the LSC
   site's `/privacy` mirror needs the sentence for `lit-desk-greek-notes`** (this
   site's, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
-  searches list your notes, once you turn that off)"). Nothing else in
+  searches list your notes, once you turn that off)"). **A second one, from
+  PR #464 (2026-11-04):** the sentence for `lit-desk-reading-off` ("which
+  display settings the Reading layout turned off, so choosing another layout
+  can turn them back on"), in the same list on this site's /privacy, just
+  before `lit-desk-layout`. Nothing else in
   /privacy changed; the builder keeps nothing. Status: built, awaiting BVJ's
   look.
 - **E12, wish: a trash the reader can restore from.** BVJ (2026-10-28),
