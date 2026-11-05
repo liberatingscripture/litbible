@@ -272,10 +272,13 @@ function place(el) {
   // left where that has room, else to its right (BA114).
   const pane = current.source === "notebook" && !panel ? current.field.closest(".desk-pane")?.getBoundingClientRect() : null;
   if (pane) left = pane.left - w - GAP >= EDGE ? pane.left - w - GAP : pane.right + GAP;
-  // No room beside the field: below it, against the right edge.
+  // No room beside the field: against the right edge. At the top of the window
+  // when that clears the field itself (BVJ, 2026-11-04), so the field and the
+  // builder show together without scrolling; below the field when it doesn't.
   if (left + w > right - EDGE || left < EDGE) {
     left = right - w - GAP;
-    top = box.bottom + 10;
+    const clear = left >= current.field.getBoundingClientRect().right + GAP;
+    top = clear && current.source !== "notebook" ? EDGE : box.bottom + 10;
   }
   top = Math.max(EDGE, top);
   el.style.left = `${left}px`;
