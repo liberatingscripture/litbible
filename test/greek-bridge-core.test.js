@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildGreekBridge } from "../scripts/lib/greek-bridge-core.mjs";
+import { buildGreekBridge, buildGreekOffers } from "../scripts/lib/greek-bridge-core.mjs";
 
 const BOOKS = ["matthew", "mark", "romans"];
 const occ = (bookKey, chapter, verse) => ({ bookKey, chapter, verse, record: {} });
@@ -41,4 +41,24 @@ test("the bridge lists each published term's renderings with their verses", () =
       ],
     },
   ]);
+});
+
+test("the offers list a published term's lemmas by their Latin key, first in id order winning", () => {
+  const offers = buildGreekOffers({
+    entries: new Map([["b-term", {}], ["a-term", {}]]),
+    lemmas: { "b-term": ["πίστις", "ἅγιος"], "a-term": ["πίστις", "ἄγγελος"], "draft-term": ["λόγος"] },
+    key: (g) => ({ "πίστις": "pistis", "ἅγιος": "agios", "ἄγγελος": "angelos" })[g] ?? "",
+  });
+  assert.deepEqual(offers, { format: 1, words: { pistis: "πίστις", angelos: "ἄγγελος", agios: "ἅγιος" } });
+});
+
+test("the offers skip a lemma with no key and normalize to NFC", () => {
+  const decomposed = "πίστις".normalize("NFD");
+  const offers = buildGreekOffers({
+    entries: new Map([["t", {}]]),
+    lemmas: { t: [decomposed, "?"] },
+    key: (g) => (g === "?" ? "" : "pistis"),
+  });
+  assert.deepEqual(Object.keys(offers.words), ["pistis"]);
+  assert.equal(offers.words.pistis, "πίστις".normalize("NFC"));
 });

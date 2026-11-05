@@ -721,9 +721,19 @@ against `dist/` is a later item.
        not governed by it); every
        other query gets exactly the pre-1h search, unless the reader picks
        the type menu's "Greek" (injected by script, only with the gate on,
-       which also renames "All results" to "All except Greek": a Latin-letter
-       search under it lists no Greek, BVJ 2026-11-04),
-       which searches Latin text as a transliteration or a gloss. /search
+       set apart by a rule, with its own line in the "i" tooltip),
+       which searches Latin text as a transliteration or a gloss. "All
+       results" keeps its name, and a **single Latin word that is also a
+       glossary term's Greek lemma** ("pistis") gets one line under the status,
+       "“pistis” is also a Greek word (πίστις). Search the Greek", whose link
+       sets the type to Greek (BVJ, 2026-11-04, after a mock of three options:
+       a relabel, this, and a separate English | Greek switch). The offer
+       lists no Greek itself, so a query still never gets English and Greek
+       together (2026-10-13). `greekOfferFor` (search-core.js) reads the
+       build's `public/search/greek-offers.json` (125 lemma keys, fetched only
+       with the gate on) and loads `greek-search.mjs` by a dynamic import for
+       `latinKeys`, never at the top; the tray, /search and the Search pane
+       each draw the line. /search
        pages the Greek with the English verses' pager, in Bible order with
        no sort control; the tray shows its own Greek group alone.
      - **A typed Greek word that could be more than one is a question, never

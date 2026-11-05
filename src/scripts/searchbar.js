@@ -37,6 +37,8 @@ import {
   greekSearchEnabled,
   isGreekQuery,
   addGreekMode,
+  greekOfferFor,
+  greekOfferLine,
   pickedMode,
   setPickedMode,
   notePickedMode,
@@ -239,6 +241,26 @@ const _initSearchbars = async () => {
       }
       notesLine.hidden = !(show && desk);
       if (notesBox && !notesLine.hidden) notesBox.checked = desk.greekNotesOn();
+    }
+
+    // The offer (BVJ, 2026-11-04): a single Latin word that is also a Greek one
+    // ("pistis") searches as English; one line under the status says so and
+    // offers the Greek search. It lists no Greek itself.
+    const offerLine = root.querySelector("[data-greek-offer]");
+    let offerSeq = 0;
+    async function syncOffer(q, mySeq = ++offerSeq) {
+      if (!offerLine) return;
+      offerLine.hidden = true;
+      if (!greekSearchEnabled()) return;
+      const offer = await greekOfferFor(base, q, activeMode);
+      if (mySeq !== offerSeq || !offer) return;
+      offerLine.replaceChildren(
+        greekOfferLine(offer, () => {
+          modeSelect.value = "greek";
+          modeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        }),
+      );
+      offerLine.hidden = false;
     }
 
     let pagefind = null;
@@ -886,6 +908,7 @@ const _initSearchbars = async () => {
       const mySeq = ++searchSeq;
       showModeFor(modeSelect, q);
       syncNotesLine(false);
+      syncOffer(q);
 
       try {
         if (isCmd(q)) {
@@ -1287,6 +1310,8 @@ const _initSearchbars = async () => {
 
     function clearForShortQuery() {
       syncNotesLine(false);
+      offerSeq++;
+      if (offerLine) offerLine.hidden = true;
       groupsEl.innerHTML = "";
       renderJump(null);
       clearGhost();

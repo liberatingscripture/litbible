@@ -3681,6 +3681,19 @@ button.greek-cmd:hover {
   display: none;
 }
 
+/* /search's "“pistis” is also a Greek word (πίστις). Search the Greek" line,
+   under the status (search.js); the tray's has its own in SearchBar.astro. */
+.greek-offer {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.greek-offer[hidden] {
+  display: none;
+}
+
 /* Beside the search box on /search: its own small, quiet link in the box's
    row, so the page gains no height. */
 .greek-cmd-link--field {

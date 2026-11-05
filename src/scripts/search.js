@@ -36,6 +36,8 @@ import {
   greekSearchEnabled,
   isGreekQuery,
   addGreekMode,
+  greekOfferFor,
+  greekOfferLine,
   pickedMode,
   setPickedMode,
   notePickedMode,
@@ -1516,9 +1518,36 @@ function hideResultGroups() {
   setPager(0, 1);
 }
 
+// The offer (BVJ, 2026-11-04): a single Latin word that is also a Greek one
+// ("pistis") searches as English, and one line under the status offers the
+// Greek search. It lists no Greek itself, and is not live: it adds no
+// announcement to the status's.
+let greekOfferEl = null;
+let offerSeq = 0;
+async function syncGreekOffer(q, mode) {
+  const mySeq = ++offerSeq;
+  if (greekOfferEl) greekOfferEl.hidden = true;
+  if (!greekSearchEnabled()) return;
+  const offer = await greekOfferFor(base, q, mode);
+  if (mySeq !== offerSeq || !offer) return;
+  if (!greekOfferEl) {
+    greekOfferEl = document.createElement("p");
+    greekOfferEl.className = "greek-offer";
+    statusEl.after(greekOfferEl);
+  }
+  greekOfferEl.replaceChildren(
+    greekOfferLine(offer, () => {
+      modeSelect.value = "greek";
+      modeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    }),
+  );
+  greekOfferEl.hidden = false;
+}
+
 async function runFullSearch() {
   const { q, book } = readState();
   const displayQ = displayQueryLabel(q);
+  syncGreekOffer(q.length >= MIN_QUERY_LEN ? q : "", readState().mode);
 
   if (!q) {
     setStatus("Type to search.");

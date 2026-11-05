@@ -55,6 +55,8 @@ import { creditHtml } from "../../lib/greek-credits.mjs";
 import {
   MODE_LABELS,
   addGreekMode,
+  greekOfferFor,
+  greekOfferLine,
   bookKeyToLabel,
   bucketSearchResults,
   buildPfQuery,
@@ -211,6 +213,24 @@ export function createSearchPane({ paneId, env, getPlace }) {
   const status = make("p", "desk-search__status");
   const note = make("p", "desk-search__note");
   note.hidden = true;
+  // A single Latin word that is also a Greek one ("pistis"): one line offering
+  // the Greek search (BVJ, 2026-11-04). Not live, and it lists no Greek.
+  const offerBox = make("p", "desk-search__note");
+  offerBox.hidden = true;
+  let offerSeq = 0;
+  async function syncOffer(q) {
+    const mySeq = ++offerSeq;
+    offerBox.hidden = true;
+    const offer = await greekOfferFor(BASE, q, activeMode);
+    if (destroyed || mySeq !== offerSeq || !offer) return;
+    offerBox.replaceChildren(
+      greekOfferLine(offer, () => {
+        typeSel.value = "greek";
+        typeSel.dispatchEvent(new Event("change", { bubbles: true }));
+      }),
+    );
+    offerBox.hidden = false;
+  }
   const results = make("div", "desk-search__results");
   const jumpBox = make("div", "desk-search__jump");
   const groupsEl = make("div", "desk-search__groups");
@@ -218,7 +238,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   const entryBox = make("div", "desk-search__entry");
   entryBox.hidden = true;
   const top = make("div", "desk-search__top");
-  top.append(form, tools, live, status, note);
+  top.append(form, tools, live, status, note, offerBox);
   el.append(top, results, entryBox);
 
   // ---- state (none of it stored) ----
@@ -318,6 +338,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
 
   function empty() {
     seq++;
+    offerSeq++;
+    offerBox.hidden = true;
     last = null;
     jumpBox.replaceChildren();
     groupsEl.replaceChildren();
@@ -384,6 +406,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const my = ++seq;
     showModeFor(typeSel, q);
     tell("");
+    syncOffer(q);
     closeEntry({ focus: false });
     try {
       const jump = jumpOf(q);
