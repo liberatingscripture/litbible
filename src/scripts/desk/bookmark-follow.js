@@ -88,6 +88,19 @@ function writeFlag(next) {
 }
 
 /**
+ * What a bookmark's row says about whether it moves (BVJ, 2026-11-04; wording
+ * from an Opus agent, who advised against "Smart" and "Static"): "Following me
+ * now" while this tab is moving it, else "Moves as I read" for one with the
+ * switch on, else "Stays put". A row says it as drawn; the next redraw updates it.
+ *
+ * @param {{ id: string }} bookmark
+ */
+export function bookmarkState(bookmark) {
+  if (!isFollowing(bookmark)) return "Stays put";
+  return readFlag()?.id === bookmark.id ? "Following me now" : "Moves as I read";
+}
+
+/**
  * The reader followed this bookmark's link from the Notebook's list: from now on,
  * while they stay in its book in this tab, it moves with them. Call just
  * before the navigation, with the link's address. Where the reader was

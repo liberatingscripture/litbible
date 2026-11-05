@@ -7805,8 +7805,18 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   question: a bookmark stays put unless "Move as I read" is on.** The record
   is `bookmark` with `label` and `follow`; a ribbon reads as one. What was
   built, the judgment calls, and the note to BDR's Claude are in the
-  2026-11-02 entry under "Decisions". Status: built, awaiting BVJ's look
-  on the preview (the apps need nothing but to carry `follow`).
+  2026-11-02 entry under "Decisions". **BVJ looked, 2026-11-04:** "Bookmarks" is
+  fine, and a plain bookmark stays put while a moving one follows. Changes, built
+  the same day: the verse menu's "Edit bookmark…" sits right after "Remove
+  bookmark"; pressing "Bookmark" opens that form at once; a row shows the name
+  under the reference and a line "Bookmark · Stays put" / "Moves as I read" /
+  "Following me now" (BVJ proposed "Smart," "Static" and "Following"; an Opus
+  agent advised against the first two, as an AI-sounding gimmick and developer
+  vocabulary, so the plain words stand unless BVJ prefers his); and the margin
+  mark of a moving bookmark jumps 5 seconds after the reading pauses instead of
+  sliding as the reader scrolls. The form's hint gained "Off, it stays put on
+  its verse." Status: **looked at; changes built** (the apps need nothing but to
+  carry `follow`).
 - **E10: the `bookmark` note marker clashes with Bookmarks, so rename it
   or retire it. Decided by BDR, 2026-10-23: renamed `ribbon`.** BVJ (2026-10-22): leave it
   for now, and **strongly recommend** one of the two. One of the seven

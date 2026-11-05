@@ -18,8 +18,9 @@
 //     highlight meets the ones already there (merging, trimming, leaving a
 //     changed one alone) is src/lib/desk-highlights.mjs's; this reads the
 //     page, asks it for a plan, and commits that.
-//   - Edit bookmark…, once the verse holds one: its name and "Move as I read"
-//     (E9, bookmark-form.js). A bookmark can be made first and named later.
+//   - Edit bookmark…, right after Remove bookmark once the verse holds one: its
+//     name and "Move as I read" (E9, bookmark-form.js). Pressing Bookmark opens
+//     the same form at once (BVJ, 2026-11-04), so it is named as it is made.
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
@@ -79,6 +80,14 @@ export function initActions({ store, ctx, showVerse = null }) {
     row.append(bookmark);
     d.append(heading);
     d.append(row);
+    // Edit bookmark…, right after Remove bookmark (BVJ, 2026-11-04), once the
+    // verse holds a bookmark.
+    const editRow = document.createElement("div");
+    editRow.className = "lit-panel__row";
+    editRow.hidden = true;
+    const editMark = button("Edit bookmark…");
+    editRow.append(editMark);
+    d.append(editRow);
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
@@ -86,7 +95,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     if (highlightsSupported() && (d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
-    // Show in Notebook (Chapter View), and Edit bookmark… once the verse has one.
+    // Show in Notebook (Chapter View).
     const second = document.createElement("div");
     second.className = "lit-panel__row";
     if (d.view === "study" && showVerse) {
@@ -98,10 +107,7 @@ export function initActions({ store, ctx, showVerse = null }) {
       });
       second.append(show);
     }
-    const editMark = button("Edit bookmark…");
-    editMark.hidden = true;
-    second.append(editMark);
-    second.hidden = second.childElementCount < 2;
+    second.hidden = second.childElementCount < 1;
     d.append(second);
 
     // A bookmark is one verse: the first the menu or selection covers.
@@ -115,10 +121,7 @@ export function initActions({ store, ctx, showVerse = null }) {
         existing = held.length > 0;
         if (existing) {
           bookmark.textContent = "Remove bookmark";
-          // The row grows only if it has Show in Notebook beside it.
-          editMark.hidden = false;
-          second.hidden = false;
-          if (second.childElementCount > 1) second.classList.add("lit-panel__row--halves");
+          editRow.hidden = false;
           editMark.onclick = () => editBookmark(d, held[0], editMark);
         }
       })
@@ -150,11 +153,12 @@ export function initActions({ store, ctx, showVerse = null }) {
         const record = createRecord("bookmark", { ...place, endVerse: verse }, { now, ...ctx() });
         await store.change(({ all }) => all().then((records) => planBookmark(records, record)));
         existing = true;
-        bookmark.textContent = "Bookmarked ✓";
-        setTimeout(closePanel, 700);
         const hidden = hiddenNotice("bookmarks", bookmarkedMessage(ref));
         if (hidden) showUndo(hidden.message, hidden.show, { label: hidden.label });
         else announce(bookmarkedMessage(ref));
+        // The form for its name and "Move as I read" opens at once, in the
+        // menu's place (BVJ, 2026-11-04); closing it leaves a plain bookmark.
+        editBookmark(d, record, bookmark);
       } catch (err) {
         console.error("Study Desk: the bookmark couldn't be changed", err);
         busy = false;

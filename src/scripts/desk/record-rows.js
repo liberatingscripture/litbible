@@ -18,7 +18,7 @@ import { labelsOf } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { kindName, recordHref, takeOff, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
-import { followBookmark } from "./bookmark-follow.js";
+import { bookmarkState, followBookmark } from "./bookmark-follow.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 
@@ -97,7 +97,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   }
   const kind = document.createElement("span");
   kind.className = "desk-item__kind";
-  kind.textContent = isFollowing(r) ? `${nameOf(r)} · Moves as I read` : nameOf(r);
+  kind.textContent = r.kind === "bookmark" ? `${nameOf(r)} · ${bookmarkState(r)}` : nameOf(r);
   li.append(head, kind);
   // A bookmark that moves as the reader reads starts doing so from this link
   // (a modified click opens elsewhere and doesn't; E9).
@@ -105,6 +105,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
     head.addEventListener("click", (e) => {
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
       followBookmark(r, head.href);
+      kind.textContent = `${nameOf(r)} · ${bookmarkState(r)}`;
     });
   }
   // It says what it is on, and quotes the footnote's opening words.
@@ -145,7 +146,14 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
       const words = document.createElement("p");
       words.className = "desk-item__words";
       words.textContent = text;
-      li.append(words);
+      // A bookmark's name sits right under its reference, above the line that
+      // says whether it moves (BVJ, 2026-11-04).
+      if (r.kind === "bookmark") {
+        words.className = "desk-item__bookmark-name";
+        li.insertBefore(words, kind);
+      } else {
+        li.append(words);
+      }
     }
   }
 

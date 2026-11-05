@@ -510,11 +510,19 @@ against `dist/` is a later item.
        ribbon, a `place` with `ribbon: true`, is read as a bookmark that
        follows by `migrateRecord` (same id, `name` to `label`), so nothing else
        knows the old shape; the website never writes a `place`. A bookmark is a
-       row in the ordinary My Notes list and the notebook page's, with its name,
-       "Moves as I read" when on, and **Edit** (`bookmark-form.js`: name and the
-       switch; the verse menu's "Edit bookmark…" opens it too, once the verse
-       has one). "Bookmark" in the verse menu and the selection panel stays one
-       press. **At most six bookmarks move at once** (plain ones are not
+       row in the ordinary My Notes list and the notebook page's: its reference,
+       its name right under it, then a line "Bookmark · Stays put" / "Moves as I
+       read" / "Following me now" (`bookmarkState`, bookmark-follow.js: following
+       is this tab's flag; the words are an Opus agent's, who advised against
+       "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
+       name and the switch). The verse menu lists "Edit bookmark…" right after
+       "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
+       that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
+       **A moving bookmark's margin mark jumps rather than glides**: its writes
+       are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
+       5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
+       catches up when the reading pauses. "Bookmark" in the verse menu and the
+       selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
        counted); the limit and the write are one `store.change`
        (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
        not brought back. **"Continue reading" is the one place that isn't a

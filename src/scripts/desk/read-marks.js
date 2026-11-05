@@ -10,6 +10,7 @@
 import { BOOK_ORDER } from "../../data/books.js";
 import { NOTE_GAP, BOOKMARK_MARK } from "../../lib/desk-notes.mjs";
 import { recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { redrawAfterMove } from "./move-redraw.js";
 import { glyph } from "./glyphs.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 
@@ -101,6 +102,8 @@ export function createReadMarks({ store }) {
 
   // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
   store.subscribe(load, { except: QUIET_KINDS });
+  // It catches up as a jump once the reader pauses, not a slide (move-redraw.js).
+  redrawAfterMove(store, load);
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

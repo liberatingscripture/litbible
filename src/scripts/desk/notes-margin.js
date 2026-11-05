@@ -34,6 +34,7 @@
 
 import { onFootnote } from "../../lib/desk-records.mjs";
 import { recordReference, recordWhere, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { redrawAfterMove } from "./move-redraw.js";
 import {
   CIRCLE,
   CIRCLE_GAP,
@@ -723,6 +724,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
   store.subscribe(load, { except: QUIET_KINDS });
+  // It catches up as a jump once the reader pauses, not a slide (move-redraw.js).
+  redrawAfterMove(store, load);
   window.addEventListener("resize", schedule);
   document.addEventListener("desk:column-moved", schedule);
   document.addEventListener(SETTINGS_EVENT, schedule);

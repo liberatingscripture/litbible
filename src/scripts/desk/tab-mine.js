@@ -96,7 +96,7 @@ import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
-import { followBookmark } from "./bookmark-follow.js";
+import { bookmarkState, followBookmark } from "./bookmark-follow.js";
 import { continueSection } from "./continue-reading.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -645,7 +645,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (revealHere) head.addEventListener("click", goTo);
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
-    kind.textContent = isFollowing(r) ? `${nameOf(r)} · Moves as I read` : nameOf(r);
+    kind.textContent = r.kind === "bookmark" ? `${nameOf(r)} · ${bookmarkState(r)}` : nameOf(r);
     li.append(head, kind);
     // A bookmark that moves as the reader reads starts doing so from this link
     // (a modified click opens elsewhere and doesn't).
@@ -653,6 +653,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       head.addEventListener("click", (e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
         followBookmark(r, head.href);
+        kind.textContent = `${nameOf(r)} · ${bookmarkState(r)}`;
       });
     }
     // A note on a footnote (M11) says so, and quotes the footnote's opening
@@ -746,7 +747,14 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         const p = document.createElement("p");
         p.className = "desk-item__words";
         p.textContent = words;
-        li.append(p);
+        // A bookmark's name sits right under its reference, above the line that
+        // says whether it moves (BVJ, 2026-11-04).
+        if (r.kind === "bookmark") {
+          p.className = "desk-item__bookmark-name";
+          li.insertBefore(p, kind);
+        } else {
+          li.append(p);
+        }
       }
     }
     // A bookmark's name, and whether it moves as the reader reads (E9).

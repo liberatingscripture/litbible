@@ -271,6 +271,15 @@ a.desk-item__ref:hover {
   font-size: 0.8125rem;
 }
 
+/* A bookmark's name: directly under its reference, above the line that says
+   whether it moves, and in the column beside the buttons (BVJ, 2026-11-04). */
+.desk-item__bookmark-name {
+  unicode-bidi: plaintext;
+  grid-column: 1;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
 /* The reader's own words: plain text, line breaks kept. */
 .desk-item__words {
   unicode-bidi: plaintext;

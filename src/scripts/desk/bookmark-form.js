@@ -55,7 +55,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
     </label>
     <p class="desk-bookmark-form__hint" id="deskBookmarkHint${n}">
       Open this bookmark from your list, and it follows you through the book.
-      Up to ${MAX_FOLLOWING} bookmarks can move.
+      Off, it stays put on its verse. Up to ${MAX_FOLLOWING} bookmarks can move.
     </p>
     <p class="desk-editor__error" role="alert" hidden></p>
     <div class="desk-editor__actions">
