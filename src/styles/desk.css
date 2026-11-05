@@ -7674,12 +7674,22 @@ mark.desk-print-mark {
   font-size: 0.8125rem;
 }
 
-.desk-search__page {
+.desk-search__linkrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 12px;
+}
+
+.desk-search__page,
+.desk-search__notes {
   margin: 6px 0 0;
   font-size: 0.8125rem;
 }
 
-.desk-search__page[hidden] {
+.desk-search__page[hidden],
+.desk-search__notes[hidden] {
   display: none;
 }
 

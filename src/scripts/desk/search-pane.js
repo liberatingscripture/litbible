@@ -223,6 +223,27 @@ export function createSearchPane({ paneId, env, getPlace }) {
   pageLine.hidden = true;
   const pageLink = make("a", null, "See results on the search page");
   pageLine.append(pageLink);
+  // "My notes" (E11) beside it, on the same line: whether a Greek search under
+  // all types lists the reader's notes. The choice is the one the tray and
+  // /search keep (notebook-search.js), so it changes there too.
+  const notesSlot = make("span", "desk-search__notes");
+  notesSlot.hidden = true;
+  const linkRow = make("div", "desk-search__linkrow");
+  linkRow.append(pageLine, notesSlot);
+  let notesBox = null;
+  function syncNotes(show) {
+    if (show && deskPart && !notesBox) {
+      const sw = deskPart.greekNotesSwitch();
+      notesBox = sw.querySelector("input");
+      notesSlot.append(sw);
+      notesBox.addEventListener("change", () => {
+        deskPart.setGreekNotes(notesBox.checked);
+        rerun();
+      });
+    }
+    notesSlot.hidden = !(show && deskPart);
+    if (notesBox && !notesSlot.hidden) notesBox.checked = deskPart.greekNotesOn();
+  }
   const showPageLink = (q) => {
     const params = new URLSearchParams({ q });
     if (activeBook) params.set("book", activeBook);
@@ -251,7 +272,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   const entryBox = make("div", "desk-search__entry");
   entryBox.hidden = true;
   const top = make("div", "desk-search__top");
-  top.append(form, tools, pageLine, live, status, note, offerBox);
+  top.append(form, tools, linkRow, live, status, note, offerBox);
   el.append(top, results, entryBox);
 
   // ---- state (none of it stored) ----
@@ -354,6 +375,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     offerSeq++;
     offerBox.hidden = true;
     pageLine.hidden = true;
+    syncNotes(false);
     last = null;
     jumpBox.replaceChildren();
     groupsEl.replaceChildren();
@@ -422,6 +444,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     tell("");
     syncOffer(q);
     showPageLink(q);
+    syncNotes(false);
     closeEntry({ focus: false });
     try {
       const jump = jumpOf(q);
@@ -871,7 +894,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
   }
 
   async function runGreek(q, my, book, jump) {
-    const notebookPromise = deskPart && activeMode === "all" ? deskPart.search(q, { bookKey: book }).catch(() => null) : null;
+    syncNotes(activeMode === "all");
+    const notebookPromise =
+      deskPart && activeMode === "all" && deskPart.greekNotesOn() ? deskPart.search(q, { bookKey: book }).catch(() => null) : null;
     const ask = () =>
       withGreek()
         .then((m) => m.searchGreekAuto(BASE, q, { bookKey: book, lemmaId: greekState.lemmaId, exactForm: greekState.exact }))

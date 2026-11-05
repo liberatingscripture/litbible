@@ -716,9 +716,11 @@ against `dist/` is a later item.
        only with the desk loaded and the type "All types"; remembered as
        `localStorage['lit-desk-greek-notes']` = "off", absent = on, named
        in /privacy; the key and rule are `src/lib/desk-greek-notes.mjs`,
-       the storage reads in `notebook-search.js`, which both surfaces
-       already load lazily; English searches and the desk's Search pane are
-       not governed by it); every
+       the storage reads in `notebook-search.js`, which the surfaces
+       already load lazily; English searches are not governed by it, and the
+       desk's Search pane has the same checkbox on its link row, right of
+       "See results on the search page", for a Greek search under all
+       types, BVJ 2026-11-04); every
        other query gets exactly the pre-1h search, unless the reader picks
        the type menu's "Greek" (injected by script, only with the gate on,
        set apart by a rule, with its own line in the "i" tooltip),
