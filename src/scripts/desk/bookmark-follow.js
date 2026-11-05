@@ -277,7 +277,12 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
   if (!store) return;
 
   let latest = null; // where the reader last was, as { bookKey, chapter, verse }
-  let heard = null; // the report before it, for telling a scroll from a jump (Read View's long page)
+  // The last report the follower accepted as reading, for telling a scroll from a
+  // jump (Read View's long page). Set only when a report is judged, never as it
+  // arrives: a page that lands on a far verse reports twice before the first
+  // judgment, and the second would count the first as reading and move the
+  // bookmark there instead of pausing it.
+  let heard = null;
   let lastWrite = null;
   let timer = 0;
   // The reader followed a bookmark off this page: what it reports now, as it
@@ -324,6 +329,7 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     if (moved) lastWrite = Date.now();
     if (gone && flag?.id === id) return dropFlag();
     if (flag?.id !== id) return;
+    heard = step === "move" || step === "resume" ? pos : null;
     if (step === "pause") writeFlag(pausedFlag(flag, Date.now()));
     else if (step === "resume") writeFlag(resumedFlag(flag));
     if (step === "pause" || step === "resume") syncBookmarkLines();
@@ -382,7 +388,6 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     }
     const pos = positionOnPage(position, page);
     if (!pos) return;
-    heard = latest;
     latest = pos;
     schedule();
   }
