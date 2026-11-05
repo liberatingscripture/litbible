@@ -7900,9 +7900,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   re-searches when the box changes, as before; and the tray's switch is now
   **one line under the status for every Greek search under "All types"**, so a
   Greek search with no Greek hits still has it (it had lived in the Greek
-  group's foot, which such a search doesn't draw). **For BDR's Claude: the LSC
-  site's `/privacy` mirror needs the sentence for `lit-desk-greek-notes`** (this
-  site's, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
+  group's foot, which such a search doesn't draw). **For the LSC site's
+  `/privacy`, which BVJ looks after (the workflow notifies the LSC repo for
+  review; BDR's Claude has no part in it): it needs the sentence for
+  `lit-desk-greek-notes`** (this site's, in the storage paragraph: "`lit-desk-greek-notes` (whether Greek
   searches list your notes, once you turn that off)"). **A second one, from
   PR #464 (2026-11-04):** the sentence for `lit-desk-reading-off` ("which
   display settings the Reading layout turned off, so choosing another layout
