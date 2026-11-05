@@ -1005,7 +1005,14 @@ against `dist/` is a later item.
        BA71, BA73. How a client reads a paste isn't in the format)
        and what it knows about the LIT (3h: blanks, the footnote picker,
        the key terms box and the license card) in `desk/sheet-lit.js`,
-       whose rules are `src/lib/desk-sheet-lit.mjs`.
+       whose rules are `src/lib/desk-sheet-lit.mjs`. **My sheets lists
+       Duplicate beside Delete** (BVJ, 2026-11-04; `duplicateSheet` in
+       `desk-sheets.mjs`): the same parts under fresh ids, "<title> (copy)"
+       (cut to the title limit), and everything else kept, so labels and a
+       passage's `verseCopy` carry and the copy is still checked against the
+       wording it was made on. It reads the sheet from the store at the click,
+       refuses a sheet of a newer format (the button is disabled), and opens
+       the copy. It adds no field or kind and changes no format.
      - **A chapter's address is built from a stored book key only through
        `chapterPath` / `isChapterAddress` (`desk-passage.mjs`)**, which refuse a
        book the LIT hasn't got or a chapter outside it. A record from a newer

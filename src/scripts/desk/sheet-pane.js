@@ -43,6 +43,7 @@ import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
 import {
   addModule,
   createSheet,
+  duplicateSheet,
   makeModule,
   moveModule,
   planSheetChange,
@@ -454,6 +455,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         open.append(make("span", "desk-sheet__open-meta", bits.join(" · ")));
         open.dataset.focusKey = `open-${s.id}`;
         open.addEventListener("click", () => openSheet(s.id, { focusTitle: true }));
+        const dup = button("Duplicate", "desk-sheet__btn desk-sheet__btn--quiet");
+        dup.setAttribute("aria-label", `Duplicate ${sheetName(s)}`);
+        // A sheet of a newer sheet format can't be changed here, so it isn't copied either.
+        if (!canEdit(s)) {
+          dup.disabled = true;
+          dup.title = "Made with a newer version of the Study Desk, so it can’t be duplicated here.";
+        }
+        dup.addEventListener("click", () => duplicate(s));
         const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
         del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
         del.addEventListener("click", async () => {
@@ -466,7 +475,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           const next = rows[at + 1] ?? rows[at - 1];
           showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
         });
-        li.append(open, del);
+        li.append(open, dup, del);
         ul.append(li);
       }
       list.append(ul);
@@ -539,6 +548,32 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       return;
     }
     await openSheet(s.id, { focusTitle: true });
+  }
+
+  /** Duplicate one of the reader's sheets (Audit 2, decision 12) and open the copy. */
+  async function duplicate(source) {
+    // The copy is made from the sheet as stored now, which another tab may have changed.
+    let current = source;
+    let copy = null;
+    try {
+      current = (await store.get(source.id)) ?? source;
+      copy = duplicateSheet(current, opCtx());
+      await store.save(copy);
+    } catch (err) {
+      console.error("Study Desk: couldn't duplicate a sheet", err);
+      const text = sheetTooBig(err)
+        ? "That sheet is too big to duplicate."
+        : "The sheet couldn’t be duplicated in this browser. Try again in a moment.";
+      const head = content.querySelector(".desk-sheet__list-head");
+      if (head) {
+        head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
+        head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
+      }
+      say(text);
+      return;
+    }
+    say(`Duplicated ${sheetName(current)}.`);
+    await openSheet(copy.id, { focusTitle: true });
   }
 
   // ---- one sheet ----
