@@ -8093,7 +8093,13 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `scriptureControls: "study"` and `trackStudyView` are storage and code
   names and stay). This file, FIXLIST.md and the audits are records and
   still say "Study View." Status: done (the rename); the Study Desk card
-  part ships to everyone at 8c.
+  part ships to everyone at 8c. **At 8c the card and the chapter picker's
+  Study Desk link still show only on a computer** (BVJ, 2026-11-04): they are
+  hidden on a phone or tablet today only because `data-desk="on"` is stamped
+  under the app-platform test (Layout.astro's pre-paint script,
+  `src/lib/app-platform.mjs`). When the preview flag goes, keep that test in
+  the stamp, or give the card and the link their own device guard, so a
+  phone never sees a link to a page it can't use.
 - **E21, wording: the panes' "Stay here" buttons become a lock glyph.**
   BVJ (2026-10-30). The thumbtack with "Stay here" becomes a lock when a
   pane stays and an unlocked lock when it follows, with no words
