@@ -7684,8 +7684,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   - *BVJ looked, 2026-11-04.* `?place=` and the Layout row behaved as
     described, with two changes. **Reading is told apart from One pane by what
     it takes off the text**: choosing it also turns off verse numbers, footnote
-    letters, key terms, and highlights (once, not a mode; the undo bar names
-    them and Undo puts them back; another arrangement leaves them as they are).
+    letters, key terms, and highlights (the undo bar names them and Undo puts
+    them back); choosing another layout (or Reset) turns back on only the ones
+    Reading turned off.
     And **every reading line is 10% down** (the LIT pane's was 25%, and
     `keepReadingPlace`'s 30%), so a `?place=` verse lands near the top. Left
     at their own lines on purpose: Read View's chapter line and focus line,

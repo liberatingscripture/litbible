@@ -98,7 +98,7 @@ import { createDeskTour } from "./desk-tour.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
-import { turnOffMarks } from "./reading-display.js";
+import { turnOffMarks, turnOnMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
@@ -372,15 +372,16 @@ async function start() {
       const next = applyArrangement(layout, a.id);
       const stays = new Set(panes(next.root).map((p) => p.id));
       const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
-      // Reading also clears the marks off the text (reading-display.js), before
-      // the panes are drawn so they come up without them.
-      const marks = a.id === "reading" ? turnOffMarks() : null;
+      // Reading also clears the marks off the text, and leaving it puts back
+      // the ones it cleared (reading-display.js), before the panes are drawn
+      // so they come up right.
+      const marks = a.id === "reading" ? turnOffMarks() : arrangementOf(before) === "reading" ? turnOnMarks() : null;
       commit(next);
       // A smaller layout closes panes from the end: say which, and offer to
       // bring them back (DK-9). The bar announces itself.
       const said = [`Layout: ${a.label}.`];
       if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
-      if (marks?.names.length) said.push(`Turned off ${LIST.format(marks.names)}.`);
+      if (marks?.names.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks.names)}.`);
       if (said.length > 1) {
         showUndo(said.join(" "), () => {
           marks?.undo();
@@ -410,8 +411,9 @@ async function start() {
   });
   menu.querySelector("[data-ws-reset]").addEventListener("click", () => {
     // The panes go back; the reader's place stays (BA55).
+    const marks = arrangementOf(layout) === "reading" ? turnOnMarks() : null;
     commit(originalLayout(layout.place));
-    announce("Back to the original layout: the LIT beside My Notes.");
+    announce(`Back to the original layout: the LIT beside My Notes.${marks?.names.length ? ` Turned on ${LIST.format(marks.names)}.` : ""}`);
     closeMenu();
   });
 
