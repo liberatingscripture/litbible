@@ -971,7 +971,7 @@ const _initSearchbars = async () => {
           const withNotebook = () => {
             if (!nCount) return;
             desk.renderTray(groupsEl, { notebook, query: q });
-            const line = `${nCount} notebook match${nCount === 1 ? "" : "es"}`;
+            const line = `${nCount} ${(notebook.nouns ?? ["notebook match", "notebook matches"])[nCount === 1 ? 0 : 1]}`;
             // "No Greek words match." loses its period beside the count.
             const said = status.textContent.replace(/\.$/, "");
             status.textContent = said ? `${said}${STATUS_SEP}${line}` : line;
@@ -1168,7 +1168,7 @@ const _initSearchbars = async () => {
         // failed search, so only the kinds that matched are listed.
         const parts = [];
         if (nCount)
-          parts.push(`${nCount} notebook match${nCount === 1 ? "" : "es"}`);
+          parts.push(`${nCount} ${(notebook.nouns ?? ["notebook match", "notebook matches"])[nCount === 1 ? 0 : 1]}`);
         if (showG && gCount)
           parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
         if (showS && (sCount || !(hasJump || commands.length)))

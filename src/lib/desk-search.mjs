@@ -208,6 +208,27 @@ export function searchNotebook(records, query, { bookKey = "" } = {}) {
   return found.sort((a, b) => compareKeys(a.sort, b.sort)).map((f) => f.hit);
 }
 
+const MATCH_NOUNS = {
+  note: ["note match", "note matches"],
+  highlight: ["highlight match", "highlight matches"],
+  bookmark: ["bookmark match", "bookmark matches"],
+  footnotePin: ["pinned footnote match", "pinned footnote matches"],
+};
+
+/**
+ * What to call the notebook matches in a count ("1 bookmark match"): the kind's
+ * own word when every hit is of one kind (BVJ, 2026-11-04), else "notebook
+ * match". Returns [one, many].
+ */
+export function matchNouns(hits) {
+  const kinds = new Set((hits ?? []).map((h) => h.kind));
+  if (kinds.size === 1) {
+    const nouns = MATCH_NOUNS[[...kinds][0]];
+    if (nouns) return nouns;
+  }
+  return ["notebook match", "notebook matches"];
+}
+
 /** The notebook page's address for a query (D2's "N more in your notebook"). */
 export function notebookSearchHref(query) {
   const q = String(query || "").trim();

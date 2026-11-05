@@ -22,7 +22,7 @@ import {
   greekNotesOn as greekNotesStoredOn,
   greekNotesStored,
 } from "../../lib/desk-greek-notes.mjs";
-import { notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
+import { matchNouns, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
@@ -70,14 +70,15 @@ function notesHidden() {
 }
 
 /**
- * Search the notebook for a query. Resolves to { hits, total }: the matches
+ * Search the notebook for a query. Resolves to { hits, total, nouns }: the matches
  * (none while "Hide my marks" is on) and their count. `bookKey` is the search
  * box's book filter.
  */
 export async function search(query, { bookKey = "" } = {}) {
   const records = await readRecords();
   const hits = notesHidden() ? [] : searchNotebook(records, query, { bookKey });
-  return { hits, total: hits.length };
+  // `nouns` names them in a count: "1 bookmark match", or "notebook match" for a mix.
+  return { hits, total: hits.length, nouns: matchNouns(hits) };
 }
 
 /* ── Whether a Greek search lists the notes (E11) ────────────────────── */

@@ -557,7 +557,12 @@ against `dist/` is a later item.
        once, a Back or reload doesn't write verse 1 over the bookmark before
        the scroll is restored, and a restored page reports its own last place
        (`pageshow`). A row opened in place on a page that doesn't follow the
-       reader (/desk) never starts a follow (`followsHere`). **A bookmark found in a notebook search opens like its row**
+       reader (/desk) never starts a follow (`followsHere`). **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
+       that stay put" once a list holds both (BVJ, 2026-11-04;
+       `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
+       both lists), and **a search's count names the kind when every notebook
+       hit is one** ("1 bookmark match"; `matchNouns`, else "notebook match").
+       **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
        **Known and accepted** (BVJ, 2026-11-04, from an Opus audit): /desk,
        /notebook and /search clear the flag, so Back into the book doesn't

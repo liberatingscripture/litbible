@@ -83,10 +83,24 @@ export function listable(records) {
   return records.filter((r) => r && r.kind !== "trash" && r.kind !== "label" && r.kind !== "place");
 }
 
+// Bookmarks split two more ways in the Show menu once a list holds both (BVJ,
+// 2026-11-04): the ones that move as the reader reads and the ones that stay put.
+export const BOOKMARK_MOVES = "bookmark:moves";
+export const BOOKMARK_STAYS = "bookmark:stays";
+const BOOKMARK_SPLITS = Object.freeze([
+  { value: BOOKMARK_MOVES, plural: "Bookmarks that move" },
+  { value: BOOKMARK_STAYS, plural: "Bookmarks that stay put" },
+]);
+
 /** Which of the filter's kinds have at least one record. */
 export function kindsPresent(records) {
   const present = new Set(records.map((r) => r.kind));
-  return KIND_CHOICES.filter((k) => present.has(k.value));
+  const kinds = KIND_CHOICES.filter((k) => present.has(k.value));
+  const moving = records.filter((r) => r.kind === "bookmark" && r.follow === true).length;
+  const staying = records.filter((r) => r.kind === "bookmark").length - moving;
+  if (!moving || !staying) return kinds;
+  const at = kinds.findIndex((k) => k.value === "bookmark") + 1;
+  return [...kinds.slice(0, at), ...BOOKMARK_SPLITS, ...kinds.slice(at)];
 }
 
 /** The highlight colours in use, in the format's order. */
@@ -102,7 +116,11 @@ export function colorsPresent(records, colors) {
 export function filterRecords(records, { query = "", kind = null, color = null, labelId = null } = {}, labels = new Map()) {
   const words = fold(query).split(" ").filter(Boolean);
   return records.filter((r) => {
-    if (kind && r.kind !== kind) return false;
+    if (kind === BOOKMARK_MOVES) {
+      if (!(r.kind === "bookmark" && r.follow === true)) return false;
+    } else if (kind === BOOKMARK_STAYS) {
+      if (!(r.kind === "bookmark" && r.follow !== true)) return false;
+    } else if (kind && r.kind !== kind) return false;
     if (color && !(r.kind === "highlight" && r.color === color)) return false;
     if (labelId && !(r.labels ?? []).includes(labelId)) return false;
     if (!words.length) return true;
