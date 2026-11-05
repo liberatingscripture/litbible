@@ -566,7 +566,16 @@ against `dist/` is a later item.
        lock "Move as I read" at the kind the verse lacks). Its mark is the red
        outline; a bookmark that moves and isn't followed is solid red, and one
        that stays put is gold (`bookmark-mark.js`). A follow that ends on a verse
-       already holding a bookmark of its kind is tolerated. **"Stop following" ends it by hand**
+       already holding a bookmark of its kind is tolerated.
+       **The verse menu and the selection panel group a verse's bookmarks in a
+       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04, bookmarks only:
+       Copy stays flat, since it is shared code every reader uses and the most
+       used item): Remove and Edit (`Remove bookmark “Advent”`, the name cut at
+       14 characters, the full name the accessible name), Add a bookmark that
+       moves or stays put, and for the resting one "Leave it here". A verse with
+       none keeps the one-press "Bookmark", and a finger's chips stay flat
+       (`flyoutRow` in actions.js; hover opens, a click, Enter or the right arrow
+       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" ends it by hand**
        (BVJ, 2026-11-04; `bookmark-stop.js`): a quiet link under the state line
        of the bookmark this tab is moving, and a button beside "Edit bookmark…"
        in the verse menu. It clears the flag only: the bookmark stays where it

@@ -175,6 +175,7 @@ export function initActions({ store, ctx, showVerse = null }) {
       const held = bookmarksOn(records, place, { except: resting });
       const restingHere = resting ? bookmarksOn(records, place).find((b) => b.id === resting) : null;
       bookmarkBox.replaceChildren();
+      const items = [];
       // With nothing of its own on the verse, the one button adds a plain bookmark.
       bookmark.hidden = held.length > 0;
       // The note button takes the whole row when Bookmark steps aside.
@@ -194,19 +195,19 @@ export function initActions({ store, ctx, showVerse = null }) {
         edit.setAttribute("aria-label", `Edit ${whole}`);
         edit.addEventListener("click", () => editBookmark(d, b, edit));
         // Edit sits right beside Remove (BVJ, 2026-11-04).
-        bookmarkBox.append(lineOf(remove), lineOf(edit));
+        items.push(lineOf(remove), lineOf(edit));
       }
       // A verse takes a bookmark of each kind; the one it lacks may be added.
       if (held.length) {
         if (!held.some((b) => b.follow === true)) {
           const add = button("Add a bookmark that moves");
           add.addEventListener("click", guarded(add, addBookmark(true, true)));
-          bookmarkBox.append(lineOf(add));
+          items.push(lineOf(add));
         }
         if (!held.some((b) => b.follow !== true)) {
           const add = button("Add a bookmark that stays put");
           add.addEventListener("click", guarded(add, addBookmark(false, false)));
-          bookmarkBox.append(lineOf(add));
+          items.push(lineOf(add));
         }
       }
       // The bookmark this tab is moving rests here: it isn't the verse's, so there
@@ -225,8 +226,89 @@ export function initActions({ store, ctx, showVerse = null }) {
         });
         const edit = button("Edit bookmark…");
         edit.addEventListener("click", () => editBookmark(d, restingHere, edit));
-        bookmarkBox.append(line, lineOf(leave, edit));
+        items.push(line, lineOf(leave, edit));
       }
+      // Once the verse holds bookmarks, a mouse gets them in one "Bookmark ▸"
+      // flyout (BVJ, 2026-11-04); a finger's chips stay flat, and a verse with
+      // none keeps its one press.
+      const flat = Boolean(d.panel?.classList.contains("lit-panel--chips"));
+      if (items.length && !flat) {
+        const name = held.length ? "Bookmark" : isPausedHere(restingHere.id) ? "Paused bookmark" : "Following bookmark";
+        bookmarkBox.append(flyoutRow(name, items));
+      } else {
+        bookmarkBox.append(...items);
+      }
+    }
+
+    /**
+     * A row that opens `items` in a flyout beside it: on hover without taking
+     * focus, on a click, Enter or the right arrow with focus moved in; Escape
+     * or the left arrow closes it and gives focus back. A sibling of the panel's
+     * rows and fixed to the window, so the panel's own scrolling never clips it.
+     */
+    function flyoutRow(name, items) {
+      const wrap = document.createElement("div");
+      wrap.className = "lit-panel__row desk-bookmark-flywrap";
+      const trigger = button(name);
+      trigger.classList.add("desk-bookmark-fly__trigger");
+      trigger.setAttribute("aria-haspopup", "menu");
+      trigger.setAttribute("aria-expanded", "false");
+      const fly = document.createElement("div");
+      fly.className = "desk-bookmark-fly";
+      fly.setAttribute("role", "menu");
+      fly.setAttribute("aria-label", name);
+      fly.hidden = true;
+      fly.append(...items);
+      wrap.append(trigger, fly);
+
+      let closing = 0;
+      const open = (focusIn) => {
+        window.clearTimeout(closing);
+        if (!fly.hidden) return focusIn && fly.querySelector("button")?.focus();
+        fly.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        const box = trigger.getBoundingClientRect();
+        const room = fly.getBoundingClientRect();
+        const right = box.right + 6;
+        const left = right + room.width <= window.innerWidth - 8 ? right : Math.max(8, box.left - room.width - 6);
+        fly.style.left = `${left}px`;
+        fly.style.top = `${Math.max(8, Math.min(box.top, window.innerHeight - room.height - 8))}px`;
+        if (focusIn) fly.querySelector("button")?.focus();
+      };
+      const close = (refocus) => {
+        window.clearTimeout(closing);
+        if (fly.hidden) return;
+        fly.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        if (refocus) trigger.focus();
+      };
+      const later = () => {
+        window.clearTimeout(closing);
+        closing = window.setTimeout(() => close(false), 220);
+      };
+      trigger.addEventListener("click", () => (fly.hidden ? open(true) : close(true)));
+      trigger.addEventListener("pointerenter", () => open(false));
+      wrap.addEventListener("pointerleave", later);
+      wrap.addEventListener("pointerenter", () => window.clearTimeout(closing));
+      trigger.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          open(true);
+        }
+      });
+      fly.addEventListener("keydown", (e) => {
+        const buttons = [...fly.querySelectorAll("button:not([hidden])")];
+        const at = buttons.indexOf(document.activeElement);
+        if (e.key === "Escape" || e.key === "ArrowLeft") {
+          e.preventDefault();
+          e.stopPropagation();
+          close(true);
+        } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          buttons[(at + (e.key === "ArrowDown" ? 1 : buttons.length - 1)) % buttons.length]?.focus();
+        }
+      });
+      return wrap;
     }
 
     // Until the notebook is read, the one button is a plain Bookmark.
@@ -234,7 +316,7 @@ export function initActions({ store, ctx, showVerse = null }) {
     store
       .byChapter(where.bookKey, where.chapter)
       .then(drawBookmarks)
-      .catch(() => {});
+      .catch((err) => console.error("Study Desk: the verse menu couldn't draw the verse's bookmarks", err));
   });
 
   // The bookmark is one verse: the first the menu or selection covers.

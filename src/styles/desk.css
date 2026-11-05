@@ -1060,6 +1060,31 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   display: none;
 }
 
+/* The verse menu's "Bookmark ▸" flyout, once the verse holds bookmarks (a mouse
+   only; a finger's chips stay flat). Fixed to the window beside its row. */
+.desk-bookmark-fly__trigger::after {
+  content: "▸";
+  margin-left: 0.5em;
+}
+
+.desk-bookmark-fly {
+  position: fixed;
+  z-index: 1110;
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+.desk-bookmark-fly[hidden] {
+  display: none;
+}
+
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
    the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
    `ribbon` (named `bookmark` until E10), is green and always comes with
