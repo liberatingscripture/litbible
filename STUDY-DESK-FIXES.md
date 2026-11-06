@@ -1255,7 +1255,30 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   mustn't try to leave a mode it didn't enter; the line can be "Full screen
   (F11)" while off and "Exit full screen" only when the API entered it. The
   desk is a computer tool (website study tools are desktop-only), so a
-  browser without the API just gets no line. Status: **open.**
+  browser without the API just gets no line. **Precedent:** present mode for
+  sheets already has a full-screen toggle (`sheet-present.js`: the same API,
+  a `fullscreenchange` listener, and a line telling the reader to use the
+  browser's own command when it refuses), so the desk's wording and handling
+  can share it. **To settle** (explored with BVJ, 2026-11-05):
+  1. *The goal.* Full screen only reclaims the browser's tabs and address
+     bar. If BVJ also wants more room for the panes, a focus mode that hides
+     the site header too is a second option, in the same menu line or the same
+     button.
+  2. *Escape.* The desk uses Escape to close menus, the Notebook and floating
+     windows, and in API full screen the browser also treats Escape as "leave
+     full screen". **Not tested**: whether one press closes a menu and also
+     exits full screen. Test this first, in Chrome, Firefox and Safari; if it
+     misbehaves, the desk's Escape handlers or the button's design change.
+  3. *No remembered choice.* Browsers refuse to start full screen on page
+     load, so "open the desk in full screen" can't be a saved preference; each
+     visit needs a click.
+  4. *Cheapest version.* One title-menu line, "Full screen (F11)", that
+     presses the real API; for a reader already in F11 it is harmless.
+  5. *A shortcut* (a single key such as `f`) would sit under the Keyboard
+     switch with the others and stand down in text fields. Optional.
+  Claude's lean: the title-menu line, with a Display-settings mention that
+  points to it rather than duplicating it; settle 2 before building.
+  Status: **open.**
 
 - **E44, wish: "Start following" where "Stop following" appears.** BVJ
   (2026-11-05): when a moving bookmark isn't following, the same spot (the
