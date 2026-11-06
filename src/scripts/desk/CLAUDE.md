@@ -584,8 +584,10 @@ against `dist/` is a later item.
        already holding a bookmark of its kind is tolerated.
        **The verse menu and the selection panel group a verse's bookmarks in a
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04, bookmarks only:
-       Copy stays flat, since it is shared code every reader uses and the most
-       used item): Remove and Edit (`Remove bookmark “Advent”`, the name cut at
+       BVJ proposed a Copy flyout too and Claude advised against it for now,
+       since Copy is shared code every reader uses and the most used item,
+       to be revisited if more reason came; it is being revisited, STUDY-DESK-FIXES.md
+       E39): Remove and Edit (`Remove bookmark “Advent”`, the name cut at
        14 characters, the full name the accessible name), Add a bookmark that
        moves or stays put, and for the resting one "Leave it here". A verse with
        none keeps the one-press "Bookmark", and a finger's chips stay flat
