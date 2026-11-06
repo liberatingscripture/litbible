@@ -1,6 +1,6 @@
 // src/scripts/desk/continue-reading.js
 //
-// "Continue reading" (STUDY-DESK.md E9): the one place the Notebook lists that
+// "Continue reading" (STUDY-DESK-FIXES.md E9): the one place the Notebook lists that
 // is not a bookmark. It is where the reader stopped, not something they
 // marked, so it carries no bookmark mark, and it is the only thing above the
 // list; every other place the Notebook once listed (the book's other places,

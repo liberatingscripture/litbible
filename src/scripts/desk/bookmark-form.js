@@ -1,6 +1,6 @@
 // src/scripts/desk/bookmark-form.js
 //
-// "Edit bookmark" (STUDY-DESK.md E9): the small form a bookmark row's Edit
+// "Edit bookmark" (STUDY-DESK-FIXES.md E9): the small form a bookmark row's Edit
 // button opens, in the shared floating panel (as the note editor does). The
 // reader names the bookmark, or leaves it unnamed, and turns "Move as I read"
 // on or off. A bookmark stays on its verse unless that switch is on, and a few

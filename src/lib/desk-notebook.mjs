@@ -273,7 +273,7 @@ export function trashHeld(records) {
   return records.filter((r) => r?.kind === "trash" && "record" in r && r.record != null).length;
 }
 
-/* ── Restoring from the trash (STUDY-DESK.md E12) ────────────────────── */
+/* ── Restoring from the trash (STUDY-DESK-FIXES.md E12) ────────────────────── */
 
 /**
  * The trash records that still hold a record, the latest deletion first (on a

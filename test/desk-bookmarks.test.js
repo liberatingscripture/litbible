@@ -1,7 +1,7 @@
 // test/desk-bookmarks.test.js
 //
 // src/lib/desk-bookmarks.mjs: the rules for a bookmark that moves as the reader
-// reads (STUDY-DESK.md E9, audit C25) and for Continue reading. The ones that
+// reads (STUDY-DESK-FIXES.md E9, audit C25) and for Continue reading. The ones that
 // matter: a bookmark follows the reader only inside the book it was opened
 // into, a flag from anywhere else is ignored, a bookmark is only written when
 // the verse changed, and Continue reading's address agrees with last-read.js's.

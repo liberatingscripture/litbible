@@ -63,7 +63,7 @@ export const MARKERS = Object.freeze([
 
 /**
  * Note markers renamed since a client may have written them, each with the
- * name it reads as now. `bookmark` became `ribbon` (STUDY-DESK.md E10; BDR,
+ * name it reads as now. `bookmark` became `ribbon` (STUDY-DESK-FIXES.md E10; BDR,
  * 2026-10-23), so the marker no longer shares a name with Bookmarks; its
  * picture and color stayed. Every client reads the old name as the new one
  * and writes the new one, as iOS reads an old `star` as `emphasis`. A record
@@ -277,7 +277,7 @@ export function emptyTrashRecord(trash, now = new Date().toISOString()) {
  *   it back renamed. A note this code can't edit (a newer schema) is left as
  *   it arrived;
  * - a ribbon, a `place` with `ribbon: true`, reads as a bookmark that moves
- *   as the reader reads (STUDY-DESK.md E9; BDR accepted it, 2026-10-23): same
+ *   as the reader reads (STUDY-DESK-FIXES.md E9; BDR accepted it, 2026-10-23): same
  *   id, same verse, its `name` the bookmark's `label`, and `follow: true`.
  *   A trash record holding one takes the same shape, and its `deletedKind`
  *   follows. A `place` with no `ribbon` (a reading place another client kept)

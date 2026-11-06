@@ -1,6 +1,6 @@
 // src/scripts/desk/bookmark-follow.js
 //
-// A bookmark that moves as the reader reads (STUDY-DESK.md E9, which took up B1;
+// A bookmark that moves as the reader reads (STUDY-DESK-FIXES.md E9, which took up B1;
 // audit C25): with "Move as I read" on, open a book through "Thursday group" in
 // the Notebook's list and that bookmark moves to where they read until they
 // leave the book. Otherwise a bookmark stays put, and only Continue reading

@@ -7,7 +7,7 @@
 > this was one file, so they may point into another area file; the root's
 > index says which file holds each section.
 
-**`STUDY-DESK.md` (about 470 KB), `STUDY-DESK-AUDIT-1.md` and
+**`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md`, `STUDY-DESK-AUDIT-1.md` and
 `STUDY-DESK-AUDIT-2.md` are too large to read whole.** Grep them for the ID or
 heading you need (BA42, 3j, N9, SEC-1) and read that section.
 
@@ -16,9 +16,17 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
 | Path | Purpose |
 |------|---------|
 | `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20; 3m, the search pane, 2026-11-01), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK-FIXES.md` | **The Phase 5 log: the desk's bugs, rough spots, wording and wishes** (IDs **E1** onward), kept by BVJ's use of the preview, with the rules for adding an entry and the work-session grouping. It was a section of `STUDY-DESK.md` until 2026-11-05 and moved whole, so every "E9" or "E28" in this repo means an entry there. **A new bug or preference BVJ reports goes here as the next E number**, never into `STUDY-DESK.md`; where an entry settles a decision, say so in the entry. |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward (to BA153) and were planned in phases FA1-w onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 | `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table (the re-check of 2026-11-03: 96 still valid, 2 fixed, 2 moot, 10 changed) and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
+
+**Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
+and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and
+statuses, never added to `STUDY-DESK.md` or `STUDY-DESK-FIXES.md`. A fix
+BVJ asks for from an audit is marked in the audit file; a bug or preference BVJ
+raises in daily use goes in `STUDY-DESK-FIXES.md`. Give the new file a row in the
+table above and a mention in the root `CLAUDE.md`'s Important Files row.
 
 ## Routes
 
@@ -227,7 +235,7 @@ against `dist/` is a later item.
      the store's reads (`current` in `desk/store.js`, the history's "before"
      included), `desk/readonly-notebook.js`, an import (`planImport`) and the
      merge. It renames an old note marker in memory (`bookmark` reads as
-     `ribbon`, STUDY-DESK.md E10; `RENAMED_MARKERS`) and reads an old ribbon (a
+     `ribbon`, STUDY-DESK-FIXES.md E10; `RENAMED_MARKERS`) and reads an old ribbon (a
      `place` with `ribbon: true`) as a bookmark that follows (E9), and never
      writes back for a read, so the next write of the record carries the new
      name or kind. A new
@@ -502,7 +510,7 @@ against `dist/` is a later item.
        accents.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
-       `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK.md E9).
+       `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md E9).
        **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22; the
        word "ribbon" is for the note marker alone, E10). A `bookmark` record is
        a verse, an optional `label` (its name, up to 40 characters, not

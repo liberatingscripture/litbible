@@ -2,7 +2,7 @@
 //
 // src/lib/desk-bookmark-change.mjs: naming a bookmark and turning "Move as I
 // read" on or off, over the records the notebook holds at the write
-// (STUDY-DESK-AUDIT-1.md BA102; STUDY-DESK.md E9). The store is a fake whose
+// (STUDY-DESK-AUDIT-1.md BA102; STUDY-DESK-FIXES.md E9). The store is a fake whose
 // `get` waits a turn, as a real read does, and whose records can change
 // between the form opening and the write.
 

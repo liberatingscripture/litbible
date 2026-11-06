@@ -1,6 +1,6 @@
 // src/scripts/desk/trash-list.js
 //
-// "Trash" on the notebook page (STUDY-DESK.md E12): what a deletion left, for
+// "Trash" on the notebook page (STUDY-DESK-FIXES.md E12): what a deletion left, for
 // the 30 days it waits, with Restore on each row and Restore all. A row is
 // the ordinary record row (record-rows.js) with the line "Deleted Oct 28, 21
 // days left" and Restore as its one button. The plans (what a restore writes,
