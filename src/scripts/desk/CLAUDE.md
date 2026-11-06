@@ -21,6 +21,13 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward (to BA153) and were planned in phases FA1-w onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 | `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table (the re-check of 2026-11-03: 96 still valid, 2 fixed, 2 moot, 10 changed) and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
 
+**Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
+and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and
+statuses, never added to `STUDY-DESK.md` or `STUDY-DESK-FIXES.md`. A fix
+BVJ asks for from an audit is marked in the audit file; a bug or preference BVJ
+raises in daily use goes in `STUDY-DESK-FIXES.md`. Give the new file a row in the
+table above and a mention in the root `CLAUDE.md`'s Important Files row.
+
 ## Routes
 
 From the root's routing table.
