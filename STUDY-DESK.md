@@ -358,7 +358,10 @@ are recorded so they aren't re-argued.
   and the header's home link, a quick add-pane control, a page-title menu
   the Print menu's own chapter choice (E13 to E16), and consolidating
   My Notes and Things I've Kept, glyph buttons, "+ Note", the Study View
-  rename and the lock glyph (E17 to E21, 2026-10-30). **Decided
+  rename and the lock glyph (E17 to E21, 2026-10-30); and BVJ's pass of
+  2026-11-05 (E30 to E50: search commands, the notebook heading, the name
+  Chapter View, bookmark following and its dialog, sheet files, the verse
+  menu, the footnote controls and the Study Desk button). **Decided
   2026-10-21** (E8): there is no way into /desk, and **Read View is
   removed at the desk's launch**, its button on a computer becoming the
   way into the desk. **Decided 2026-10-22** (E9, which takes up E4):
@@ -8383,7 +8386,11 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   its own session in Phase 5: should reading in a LIT pane move a following
   bookmark and show its resting outline; should the LIT pane draw bookmarks at
   all (red, gold, outline); how a bookmark's "Move it here" works with several
-  LIT panes (the active one?); and what Paused means while a desk is open. Status:
+  LIT panes (the active one?); and what Paused means while a desk is open.
+  **BVJ added (2026-11-05, E41):** the bookmarks' colors didn't carry over to
+  the desk, and they should; and the moving bookmark should work there too. It
+  could still be updated from My Notes, which is where it is reached, even if
+  the LIT pane doesn't show it, and it would change This verse as well. Status:
   **open, own session.**
 
 - **E29, bug and rough: with verse numbers off, /desk's LIT pane keeps its
@@ -8438,6 +8445,298 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   `global.css`, perhaps `read-mode.css`; `src/styles/CLAUDE.md`'s Display
   tray rule 6 should say the headings follow the numbers only where chapters
   run together).
+
+**BVJ's pass of 2026-11-05** (E30 to E50; one list from BVJ's own use of the
+preview, logged together and in the order BVJ gave them. None is started.
+Where BVJ asked a question, the answer from the code is in the entry. Where
+BVJ was only wondering, the entry says so and nothing here is decided.)
+
+- **E30, rough: the dashed outline around what a tour step points at (the
+  highlights step) is unnecessary.** BVJ (2026-11-05). `desk.css` draws it for
+  every step ("A dashed outline, so it isn't mistaken for focus", about line
+  2954). To settle: whether it goes from the highlights step only or from every
+  step, and if every step, what (if anything) still tells a reader which thing
+  the card means, since the dashed line was chosen so a pointed-at control
+  wouldn't look focused. Status: **open.**
+
+- **E31, wish: a way to find the commands that work in the search bar.**
+  BVJ (2026-11-05). Today a reader has to know they exist. Wanted: a link on
+  the search bar's tray that opens a popup of them, and/or a line on the
+  Notebook's Settings tab, "maybe both"; and the same on the search page
+  (/search). The commands are the Study Desk's own (`desk-commands.mjs`) and
+  the Greek search commands, which already have a commands window with the menu
+  builder (E5, `greek-commands.js`). To settle: whether one window lists both
+  kinds, with the Greek ones as a section, or two; and the link's wording. It
+  must work without the Greek search on, since the desk commands don't need
+  it. The desk's code stays out of the two search UIs (a link there dispatches
+  the existing window's event, as the commands already travel). Status: **open.**
+
+- **E32, wording: the notebook's group in search results should always be
+  headed "My notebook".** BVJ (2026-11-05). BVJ had the heading changed from
+  "Your notebook" to "Bookmarks" because they thought bookmarks were all it
+  held. **What a notebook search finds** (`desk-search.mjs`): a **note** by its
+  words, the title of the glossary entry or article it is on, and the footnote
+  it hangs on; a **highlight** by the words highlighted; a **bookmark** by its
+  name; a **place** by its name (one another client kept); a **pinned
+  footnote** by its text; and **any of those by the names of the labels on
+  it** (the snippet then reads "Label: …"). Hidden and trashed records never
+  show. So the group is more than bookmarks, and it should be headed the same
+  whatever it holds, bookmarks included. Today `matchTitle` returns "Bookmark
+  labels" when every hit is a bookmark and "Your notebook" otherwise (the
+  tray, /search and the Search pane read it; also `search.astro` and the
+  strings in `search.js`, `notebook-search.js` and `search-pane.js`). Wanted:
+  one heading. BVJ wrote it "MY NOTEBOOK" (the groups' titles are drawn in
+  capitals), so the string is "My notebook", lowercase as the names rule
+  (desk/CLAUDE.md, rule 10) has it for what the reader has kept. The count
+  line can keep naming the kind ("1 bookmark match", `matchNouns`) or follow
+  the heading; one call for the session. Remove `matchTitle` with the
+  rule's sentence in desk/CLAUDE.md ("The Show menu splits bookmarks…").
+  Status: **open.**
+
+- **E33, decision: does Chapter View need a name?** BVJ (2026-11-05), only
+  wondering: "I still don't really like 'Chapter View.' Maybe it doesn't need a
+  name. It's just the standard way to read on the site." Where confusion needs
+  a word, "the scripture pages" or "chapter pages". The /read card still needs a
+  heading (the card that points at the chapter-by-chapter way to read), and BVJ
+  suggests **"Scripture Pages"** for it. **Not decided; the name was settled
+  only three days ago** (E20, BVJ 2026-11-02, "Study View" to "Chapter View"),
+  so this wants BVJ's yes before any copy moves. If yes, the work is a copy
+  pass: reader-facing text (the /read card and landing, Read View's toolbar
+  pill, the tour and help, the Display tray, release-note wording, the verse
+  menu's "…in Chapter View" strings, `lit-pane.js`'s "Open in Chapter View"
+  hover text), the root CLAUDE.md's "Call them 'Chapter View' and 'Read View'"
+  rule, and the docs that use the term. It must also decide what the
+  Read View side is called once the other has no name (Read View is removed at
+  launch, E8, so the question may mostly disappear then). Status: **open,
+  waiting on BVJ.**
+
+- **E34, rough: a Search pane result's link to the passage goes to the
+  scripture page, not the LIT pane.** BVJ (2026-11-05), from the Search pane on
+  /desk. The result offers a link to read the passage, which leaves the desk.
+  Wanted: a clear choice of **see it in the LIT pane** or **on a scripture
+  page**. To settle: the LIT pane choice moves the leading LIT pane (the flag,
+  E26) or opens one when there is none, and says which; two small links or one
+  button with a menu; and which is the default for a plain click, since the
+  scripture page is what a click does now. Related: E35. Status: **open.**
+
+- **E35, wish: a button on the LIT pane that opens the passage on its
+  scripture page, at the verse shown.** BVJ (2026-11-05). The chapter headings
+  in the LIT pane already do this (their hover text is "Open in Chapter View",
+  `lit-pane.js`), "but it's not obvious". Wanted: an explicit button in the
+  pane, opening the page at **whatever verse the location field shows**
+  (`#vN`), with the headings staying links. The location field names the verse
+  at the reading line (see E29 for the numbers-off bug). Mind the new-tab rule
+  (a link that leaves the desk opens apart so the layout isn't lost) and the
+  name in E33. Touches `lit-pane.js`, so run beside no other `lit-pane.js` work
+  (E28, E29). Status: **open.**
+
+- **E36, wording: "Copy for Word" becomes "Copy".** BVJ (2026-11-05): "Copy to
+  Word" is "unnecessarily specific". Candidates: "Copy to clipboard", or "Copy"
+  with the copy glyph. (S9: the button copies the copy on screen as formatted
+  text and plain text, which pastes into Word, Docs or Mail alike.) Lives in
+  `sheet-page.js` (the button and its failure line, "Choose Copy for Word
+  again."), `sheet-word.js`'s header and desk/CLAUDE.md, which also names it; grep
+  "Copy for Word" for any help or tour wording. The file name `sheet-word.js`
+  can stay. The names rule (desk/CLAUDE.md,
+  rule 10) says "copy" in a button means a saved file, which is why a sheet's
+  two forms are "versions"; "Copy" for the clipboard is that rule's own other
+  half, but check that the word doesn't now collide with "Save as a file"
+  beside it. Status: **open.**
+
+- **E37, wish: more file types under a sheet's "Save as a file".** BVJ
+  (2026-11-05): the share menu's save-as-file should offer a document as
+  **PDF, ODT, DOCX or RTF**, and a presentation as **PPTX, ODP or PDF**. Today
+  "Save as a file" (`sheet-page.js`) writes the sheet's own shareable file,
+  which another Study Desk opens ("Open a shared file"); it is not a document.
+  So the menu would hold two different things, **a copy to share with another
+  desk** (what it does now) and **a document to open elsewhere**, and the words
+  must keep them apart. Notes for the session: the site has no server, so
+  every format is made in the browser, loaded only with the desk (a dynamic
+  import behind `data-desk="on"`, like the rest of the desk, and nothing in a
+  reader's bundle). ODT, DOCX and PPTX/ODP are zip files of XML; RTF is text;
+  PDF can be the browser's own print to PDF (already there) or drawn. The
+  presentation forms are present mode's slides (`desk-present.mjs`), the
+  document forms the leader's or participant's copy (`desk-sheet-copy.mjs`).
+  Fonts, the QR code, the sheet's tables and the license notice
+  (`LIT_CREDIT_LINE` must travel into every file, as it does into print) are the
+  hard parts, and size and any new dependency need BVJ's eye (a library is
+  weight and a license to carry). Design first (Opus), and a mock of the menu.
+  Status: **open.**
+
+- **E38, question, answered: can a reader search their labels, and is having
+  labels going to get cumbersome? How hard would syncing them to the app be?**
+  BVJ (2026-11-05). **Searching: yes, already.** A notebook search matches the
+  names of the labels on a record as well as its words (`desk-search.mjs`), and
+  says so in the snippet ("Label: Advent"); the label itself is not a result,
+  and there is no "show only this label" in the tray. The notebook page sorts
+  by label. **Cumbersome:** not measured; the cost is the reader's upkeep (a
+  label is something to apply, name and prune), and nothing makes a reader
+  use them. Ideas if it is felt: a "show only this label" choice in the
+  tray's results (the Show menu already filters by kind), and offering to apply
+  a label as a note is saved. **Syncing:** the records carry a `labels` field
+  of label ids (STUDY-DESK-FORMAT.md), which the apps keep untouched. The
+  **label records themselves** (id and name) are a website-only kind, in the
+  separate zone the apps never open (the format's sync section), so the apps
+  would carry the ids and show no names. For the website this is no work. For
+  the apps it would take BDR choosing to read the `label` kind (a name per id,
+  unique ignoring case and accents, as the website keeps them) and to apply
+  and show them; that is app work and a format decision (the zone is meant to
+  stay generic), not a website change. Raise it with BDR if BVJ wants labels in
+  the apps. Status: **answered; waiting on BVJ whether to ask BDR.**
+
+- **E39, wording and design: the verse menu and selection panel's "Share…" and
+  "Make an image".** BVJ (2026-11-05), asking for thoughts. Proposed: "Share…"
+  becomes **"Share link"** and "Make an image" becomes **"Share image"**; and
+  BVJ wonders about flyouts: **Copy ▸ text / link / with footnotes** and
+  **Share ▸ link / image.** Thoughts, for the session: (1) "Share…" is the
+  phone's share sheet, and what it sends is the words and the link, so "Share
+  link" understates it; "Share" with the ellipsis, or "Share text and link",
+  may be truer, which is why this isn't just a rename. "Share image" is right
+  (it hands the image on, to the share sheet or a download). (2) These are
+  shared reader code for everyone (`panel-pieces.js`, `chapter-tools.js`), with
+  names fixed by the 2026-09-29 decision that both panels offer the same
+  actions under the same names and kept short so the three copies fit a phone
+  row; "Share link" is longer, so check the chips at 360px. (3) **Flyouts for
+  Copy were declined on 2026-11-04** (BVJ: Copy is the most used item and
+  shared code, so it stays flat; only the desk's Bookmark flyout was built,
+  `flyoutRow` in `actions.js`, which is desk-only). Flyouts here would need
+  that component moved into shared code and would add a step to the most used
+  actions on a computer; on a phone the chips rows are not flyouts at all. A
+  middle path: keep Copy flat and flyout only Share (two items). Mock first
+  (the phone rig). Status: **open, BVJ is wondering.**
+
+- **E40, wish: a Print line in the verse menu and selection panel, with a
+  flyout: Selection / With my notes / With room to write.** BVJ (2026-11-05),
+  asking whether the print commands on the Notebook's Settings tab can be
+  reused. They can: the Print menu is one piece of code for /desk and the
+  Notebook (`desk/print-menu.js`, E16), with the notes version
+  (`print-notes.js`) and room to write (`print-room.js`, N9), so the row would
+  call them for the verse or selection instead of a chapter. "Selection" (the
+  plain text of just those verses) is new: the site prints a whole page today.
+  It is a desk row ("My Notebook" rows, `actions.js`), so readers without the
+  desk see no change, and it is the desk's flyout (`flyoutRow`). Share the
+  menu's settings with E39 so the two flyouts are made once. Status: **open.**
+
+- **E41, bug and wish: bookmark colors, and moving bookmarks, on the desk.**
+  BVJ (2026-11-05): "It doesn't look like the colors of the bookmarks
+  transferred to the desk. They should." and the moving bookmark should work
+  there, updating from My Notes (where it is reached) even if the LIT pane
+  doesn't show it, which would also change This verse. **Folded into E28**,
+  which is the same question (the LIT pane draws no bookmark marks, BVJ's 3g
+  choice, so there is nothing to color), now with BVJ's answer to its first
+  question leaning to yes. Status: **moved to E28.**
+
+- **E42, glyph: the note marker called "ribbon" should look like a ribbon.**
+  BVJ (2026-11-05), thinking of 🎗️ (the awareness ribbon, a loop with two
+  tails). Today the marker's drawing (`glyphs.js`, `ribbon`) is a flag-shaped
+  bookmark, the same as the bookmark glyph (`PATHS.bookmark = PATHS.ribbon`,
+  which is why the two are confusable). Only the drawing changes: the marker's
+  stored name stays `ribbon` and its display name "Ribbon", so no record and
+  no format. If the bookmark keeps today's shape the ribbon stops sharing
+  `PATHS`. Check it at the marker's smallest size in the margin and on the
+  menu's chips, and in dark mode. Status: **open.**
+
+- **E43, wish: a full-screen button on the desk.** BVJ (2026-11-05): F11 does
+  it, but a button would be more reachable. Places weighed: the Display
+  settings (obvious, not accessible enough), **a line in the Study Desk title
+  menu** (BVJ's lean: "one of the lines in the dropdown"), or both. Notes: the
+  button calls the Fullscreen API on the desk's root (`requestFullscreen`; the
+  page needs a user gesture, and Escape leaves it). **F11 is not the same
+  thing**: it is the browser's own full screen, `document.fullscreenElement`
+  stays null under it, so the button can't show "on" for an F11 reader and
+  mustn't try to leave a mode it didn't enter; the line can be "Full screen
+  (F11)" while off and "Exit full screen" only when the API entered it. The
+  desk is a computer tool (website study tools are desktop-only), so a
+  browser without the API just gets no line. Status: **open.**
+
+- **E44, wish: "Start following" where "Stop following" appears.** BVJ
+  (2026-11-05): when a moving bookmark isn't following, the same spot (the
+  quiet link under the row's state line, and the verse menu's button beside
+  "Edit bookmark…", `bookmark-stop.js`) should offer "Start following". Or
+  a toggle, **Following: On / Off.** Today starting a follow means opening the
+  bookmark from the list, which BVJ finds hidden. Claude's lean: **the link
+  that swaps its own label** ("Stop following" / "Start following"), shown only
+  for a bookmark with "Move as I read" on. A "Following: On/Off" toggle reads
+  as a setting that stays, but a follow is this tab's, ends when the book is
+  left or a tab closes, and is a different thing from the "Move as I read"
+  switch, which is the record's; two on/off controls on one row would be
+  confused. Starting follows the same rule as opening from the list
+  (`followBookmark`: the six-bookmark limit, one tab at a time, the flag in
+  `sessionStorage`). The desk copy that describes it needs E48. Status:
+  **open.**
+
+- **E45, rough: a moving bookmark takes too long to move.** BVJ (2026-11-05).
+  Two waits stack: the follower writes at most once every
+  `MOVE_EVERY_MS` (4 seconds, `desk-bookmarks.mjs`) and the margin's mark then
+  waits for the reading to pause for `MOVE_SETTLE_MS` (5 seconds,
+  `move-redraw.js`), so the mark can lag nine seconds behind the reader. The
+  settle was chosen so a mark doesn't jump while someone is scrolling, and the
+  write gap so the notebook isn't written, and synced, on every scroll. To
+  settle: shorter numbers for each (candidates to try: 2 s and 2 s), whether
+  the mark redraws on its own clock while the page is still, and the sync side:
+  a move is a record write, so a shorter gap raises writes, and BDR's side
+  should be told if the gap changes.
+  Status: **open.**
+
+- **E46, wish: change which verse a bookmark belongs to, in its dialog.**
+  BVJ (2026-11-05). Today the form (`bookmark-form.js`) edits the name and
+  the "Move as I read" switch only; moving a bookmark means making a new one.
+  Wanted: a verse choice (book, chapter, verse, as the Go to passage field
+  takes them). Rules it must keep: **a verse holds one bookmark that stays put
+  and one that moves** (`planBookmark`), so a target that already holds one of
+  its kind is refused with a line saying which; the write is one
+  `store.change` (`planBookmarkEdit`, BA102) and an ordinary undoable edit; a
+  following or paused bookmark's resting place changes with it; and the
+  record's anchor (its verse and the text it was made on) is rebuilt for the
+  new verse, as a new bookmark's would be. Status: **open.**
+
+- **E47, wish: "Start following now?" in the dialog.** BVJ (2026-11-05): when
+  "Move as I read" is checked in the Bookmark dialog, a second option appears,
+  "Start following now?". It is the dialog's version of E44 and starts the same
+  follow (and shows at all only if this tab isn't already following it and the
+  six-bookmark limit isn't reached; otherwise a line says why). Checked on a
+  new bookmark made from the verse menu, it makes the first Bookmark press
+  start following at once. Status: **open.**
+
+- **E48, wording: the Move as I read blurb.** BVJ (2026-11-05): the copy
+  "needs work": "Open this bookmark from your list, and it follows you through
+  the book. Off, it stays put on its verse. Up to 6 bookmarks can move."
+  (In `bookmark-form.js`.) The trouble is that it explains how a follow starts
+  by opening the bookmark from the list, which E44 and E47 give another way
+  to do, and "Off," is a fragment. **Write it after E44 and E47 are decided.**
+  A starting draft, for BVJ to react to: "Moves along with you as you read this
+  book. Off, it stays on its verse. Up to six can move at once." Status:
+  **open, after E44 and E47.**
+
+- **E49, rough: the footnote's pin and add-note pills.** BVJ (2026-11-05): on
+  the scripture pages the two pills (Pin, from `pins.js`, and Add a note, M11,
+  `footnote-notes.js`) are **not vertically aligned** with each other and **sit
+  awkwardly** with the footnote. Wanted: move them into the **margin, stacked,
+  probably the left one** (the right holds the Notebook panel and the margin
+  notes); and where the window is too narrow for a margin to hold them, **one
+  stacked triple-dot menu that expands**. Notes: the controls must stay
+  keyboard and screen-reader reachable in reading order (a menu button per
+  footnote is one more tab stop; check it against the footnote popover's own
+  Pin button, which stays), still follow the "Notes in the margin" switch,
+  and never add text to the scripture page. The left margin is empty at most
+  widths but not all, so the narrow rule needs a measure, as the notes' margin
+  (`desk-margin.mjs`) has. Mock first, at the real widths. Status: **open.**
+
+- **E50, rough: the Study Desk button, where it is and where it shows.**
+  BVJ (2026-11-05), "not totally satisfied with the current version." The
+  idea: the button only on the pages that are ways into the desk, **scripture
+  pages (chapters and chapter intros), home and /read.** On those, either (a)
+  everything stays as now (the header link), (b) home stays as now, scripture
+  pages put it **where the old "Switch to Read View" pill sat**, and on /read it
+  takes that design and sits **beside the verse picker, the two centered
+  together on one row**, or (c) a better third. This would change rule 10's
+  "the header's Notebook buttons are links to /desk on every page" (BVJ,
+  2026-10-30), so that rule and the header's `data-desk-toggle` wiring move
+  with it. It also meets 8b (the Read View button and the /read card become
+  ways into /desk, and E33's card heading) and the chapter-carrying link
+  (8a). To do it: mock the three at the real widths (the toolbar has a fixed
+  floor, and the desk is a computer tool, so the phone toolbar rules don't
+  apply), then decide. Status: **open, mock first.**
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -8526,6 +8825,29 @@ the rest is polish.
     Chapter View's own pages, and the LIT pane's location field follows the verse at the
     reading line though the markers are hidden. Not started. Shares
     `lit-pane.js` with E28, so run it before or after that session, not beside it.
+13. **BVJ's pass of 2026-11-05** (E30 to E50; Claude's grouping, not a decision;
+    none started). Sessions that touch the same files run one after another.
+    a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
+       group's heading), E42 (`glyphs.js`). E36 joins session d.
+    b. *Bookmark dialog and following*: E44, E45, E46, E47, then E48 (the copy,
+       once E44 and E47 are settled). `bookmark-form.js`, `bookmark-stop.js`,
+       `desk-bookmarks.mjs`, `move-redraw.js`. Then **E28** (with E41), which
+       shares `lit-pane.js` with E29 and E35.
+    c. *LIT pane and Search pane links*: E34, E35. `lit-pane.js` and
+       `search-pane.js`; run with or after E29 and E28, not beside them.
+    d. *Sheet copy and files*: E36, E37 (design first). `sheet-page.js`,
+       `sheet-word.js`, `desk-sheet-copy.mjs`, `desk-present.mjs`.
+    e. *Finding the commands*: E31. The search bar's tray, /search and the
+       Settings tab; touches `searchbar.js`/`search.js` only to dispatch an
+       event, per the rule that desk code stays out of them.
+    f. *The verse menu and selection panel*: E39 and E40 together (shared code
+       and a shared flyout), after a mock. `panel-pieces.js`,
+       `chapter-tools.js`, `desk/actions.js`.
+    g. *Layout and chrome*: E49 and E50, mock first, at the real widths; E43
+       (a title-menu line in `desk-page.js`, so after anything else in that
+       file).
+    Waiting on BVJ, not sessions: **E33** (does Chapter View need a name) and
+    **E38** (whether to ask BDR about labels).
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
