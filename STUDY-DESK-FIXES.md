@@ -1194,14 +1194,24 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   shared reader code for everyone (`panel-pieces.js`, `chapter-tools.js`), with
   names fixed by the 2026-09-29 decision that both panels offer the same
   actions under the same names and kept short so the three copies fit a phone
-  row; "Share link" is longer, so check the chips at 360px. (3) **Flyouts for
-  Copy were declined on 2026-11-04** (BVJ: Copy is the most used item and
-  shared code, so it stays flat; only the desk's Bookmark flyout was built,
-  `flyoutRow` in `actions.js`, which is desk-only). Flyouts here would need
-  that component moved into shared code and would add a step to the most used
-  actions on a computer; on a phone the chips rows are not flyouts at all. A
-  middle path: keep Copy flat and flyout only Share (two items). Mock first
-  (the phone rig). Status: **open, BVJ is wondering.**
+  row; "Share link" is longer, so check the chips at 360px. (3) **A Copy flyout
+  was BVJ's own idea on 2026-11-04, and Claude recommended against it for now,
+  with the door left open to revisit it if more reason came** (Copy is the most
+  used item and shared code every reader uses, so it stayed flat; only the
+  desk's Bookmark flyout was built, `flyoutRow` in `actions.js`, which is
+  desk-only). **BVJ (2026-11-05): today's other ideas for this menu (Share
+  link and Share image, and E40's Print) make it more compelling, so it is
+  being revisited.** What stays true: a flyout here means moving that
+  component into shared code and adds a step to the most used actions on a
+  computer; on a phone the chips rows are not flyouts at all and stay as they
+  are. What changed: with Share and Print also grouped, and Bookmark already a
+  flyout, a flat Copy would be the odd one out of the grouped menu. Claude's
+  lean now: do it, and soften the extra step by making the row itself the
+  default (pressing "Copy" copies the text, as the top item does now) with the
+  flyout, opened by hover, the right arrow or a chevron, holding the others,
+  so the common press stays one step. Mock first (the phone rig), for the
+  menu and the selection panel both. Status: **open; the Copy flyout is back
+  on the table.**
 
 - **E40, wish: a Print line in the verse menu and selection panel, with a
   flyout: Selection / With my notes / With room to write.** BVJ (2026-11-05),
