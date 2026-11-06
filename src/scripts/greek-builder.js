@@ -1,6 +1,6 @@
 // src/scripts/greek-builder.js
 //
-// The Greek search builder (STUDY-DESK.md, E5): the top of the commands window.
+// The Greek search builder (STUDY-DESK-FIXES.md, E5): the top of the commands window.
 // One card for each word of the search, each with menus that list only what
 // that word takes, and a way to add a word and say how close the words must be.
 // The rules (reading the field, writing it, what each card offers) are

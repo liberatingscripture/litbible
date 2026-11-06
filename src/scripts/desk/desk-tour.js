@@ -1,6 +1,6 @@
 // src/scripts/desk/desk-tour.js
 //
-// The Study Desk tour (STUDY-DESK.md E24; BVJ, 2026-11-02): a tour of /desk
+// The Study Desk tour (STUDY-DESK-FIXES.md E24; BVJ, 2026-11-02): a tour of /desk
 // itself, apart from the notebook tour (tour.js), which stays on the chapter
 // pages. Seven cards in two parts (what is on the desk, then changing it), run
 // by the same card as the notebook's (tour-runner.js), each beside the thing it

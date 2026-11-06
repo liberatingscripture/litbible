@@ -2,7 +2,7 @@
 //
 // What changing a bookmark's name and its "Move as I read" switch decide, as a
 // plan over the records the notebook holds *now* (STUDY-DESK-AUDIT-1.md BA102,
-// kept through STUDY-DESK.md E9). The function takes the `{ get, all }` that
+// kept through STUDY-DESK-FIXES.md E9). The function takes the `{ get, all }` that
 // `store.change` hands its builder, so the read and the write are one
 // transaction: a bookmark another tab (or a /desk pane) deleted meanwhile is
 // reported as gone and nothing is written, instead of the reader's stale copy

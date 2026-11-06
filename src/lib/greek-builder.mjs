@@ -1,6 +1,6 @@
 // src/lib/greek-builder.mjs
 //
-// The Greek search builder's rules (STUDY-DESK.md, E5): the menu-based way to
+// The Greek search builder's rules (STUDY-DESK-FIXES.md, E5): the menu-based way to
 // put a command search together, in the commands window. Pure and unit-tested;
 // the window (src/scripts/greek-builder.js) only draws what this decides.
 //

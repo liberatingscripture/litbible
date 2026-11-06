@@ -1,6 +1,6 @@
 // src/scripts/desk/print-menu.js
 //
-// The Print menu (STUDY-DESK.md, E16), one piece of code for /desk's header
+// The Print menu (STUDY-DESK-FIXES.md, E16), one piece of code for /desk's header
 // and the Notebook's Settings tab: a chapter to print, picked in the same
 // passage field the panes use, then the three prints (the chapter plainly,
 // with my notes, with room to write). The picker starts at `start()` each
