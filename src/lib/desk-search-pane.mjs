@@ -10,8 +10,9 @@
 // - the pane stands alone, and its book menu offers "The book I’m reading
 //   (John)", which sets the filter to that book and keeps it when the LIT pane
 //   moves;
-// - a glossary result opens in the pane, an article or intro result in a new
-//   tab, and a verse or topic result moves the LIT pane;
+// - a glossary result opens in the pane, an article result in a new tab, and
+//   a verse or topic result moves the LIT pane; an intro result shows in a
+//   Book Intro pane (E53, 2026-11-06; it opened in a new tab before);
 // - results can go on an open Sheet pane's sheet.
 
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
@@ -41,8 +42,10 @@ export function longEnoughQuery(text, greekOn = false) {
  *   null when the address names none, or a topic's whole chapter), which moves
  *   the LIT pane;
  * - `{ type: "glossary", id }`: an entry, which opens in the pane;
- * - `{ type: "tab", href }`: anything else (an introduction, an article, a page
- *   of the site, another site), which opens in a new tab.
+ * - `{ type: "intro", bookKey }`: a book's introduction, which shows in a Book
+ *   Intro pane (E53);
+ * - `{ type: "tab", href }`: anything else (an article, a page of the site,
+ *   another site), which opens in a new tab.
  * A verse range `#v16-18` goes to its first verse.
  */
 export function resultTarget(href) {
@@ -60,6 +63,8 @@ export function resultTarget(href) {
     try { id = decodeURIComponent(url.hash.slice(1)); } catch (_) { id = url.hash.slice(1); }
     return id ? { type: "glossary", id } : { type: "tab", href: raw };
   }
+  const intro = /^\/([0-9a-z]+)-intro$/.exec(path);
+  if (intro && Object.hasOwn(BOOKS, intro[1])) return { type: "intro", bookKey: intro[1] };
   const m = /^\/([0-9a-z]+)-(\d+)$/.exec(path);
   if (m && Object.hasOwn(BOOKS, m[1])) {
     const chapter = Number(m[2]);
@@ -127,6 +132,20 @@ export function passageMoveMessage(outcome, label) {
   if (outcome === "moved") return `The LIT pane moved to ${label}.`;
   if (outcome === "opened") return `A LIT pane opened at ${label}.`;
   if (outcome === "placed") return `There’s no room for a LIT pane to show ${label}. Close a pane, or open it on its page.`;
+  return "";
+}
+
+/**
+ * What a plain click on an intro result says it did (E53). `result` is
+ * desk-layout.mjs's `showIntroIn`: `outcome` "shown" or "opened" (a Book Intro
+ * pane), or "none" (no room); `moved`, the LIT's new place, or null. `book` is
+ * the book's name, `movedLabel` that place's ("Romans 1").
+ */
+export function introMoveMessage(result, book, movedLabel = "") {
+  const lit = result?.moved && movedLabel ? ` The LIT moved to ${movedLabel}.` : "";
+  if (result?.outcome === "shown") return `The Book Intro pane shows ${book}.${lit}`;
+  if (result?.outcome === "opened") return `A Book Intro pane opened at ${book}.${lit}`;
+  if (result?.outcome === "none") return `There’s no room for a Book Intro pane. Close a pane, or open the introduction on its page.`;
   return "";
 }
 

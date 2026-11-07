@@ -12,6 +12,7 @@ import {
   pageLinkLabel,
   passageMoveMessage,
   resultTarget,
+  introMoveMessage,
   verseRef,
 } from "../src/lib/desk-search-pane.mjs";
 
@@ -40,10 +41,26 @@ test("resultTarget: a glossary entry opens in the pane", () => {
   assert.deepEqual(resultTarget("/glossary/"), { type: "tab", href: "/glossary/" }, "no entry named");
 });
 
-test("resultTarget: introductions, articles and other pages open in a tab", () => {
-  for (const href of ["/john-intro", "/john-intro/#intro", "/articles/many-and-all/", "/about", "/read/john", "https://example.com/john-3"]) {
+test("resultTarget: an introduction shows in a Book Intro pane (E53)", () => {
+  assert.deepEqual(resultTarget("/john-intro"), { type: "intro", bookKey: "john" });
+  assert.deepEqual(resultTarget("/1corinthians-intro/#intro"), { type: "intro", bookKey: "1corinthians" });
+  assert.equal(resultTarget("/notabook-intro/").type, "tab");
+});
+
+test("resultTarget: articles and other pages open in a tab", () => {
+  for (const href of ["/articles/many-and-all/", "/about", "/read/john", "https://example.com/john-3", "https://example.com/john-intro"]) {
     assert.deepEqual(resultTarget(href), { type: "tab", href });
   }
+});
+
+test("introMoveMessage says what an intro result did (E53)", () => {
+  assert.equal(introMoveMessage({ outcome: "shown", moved: null }, "Romans"), "The Book Intro pane shows Romans.");
+  assert.equal(
+    introMoveMessage({ outcome: "opened", moved: "romans 1" }, "Romans", "Romans 1"),
+    "A Book Intro pane opened at Romans. The LIT moved to Romans 1.",
+  );
+  assert.match(introMoveMessage({ outcome: "none", moved: null }, "Romans"), /no room for a Book Intro pane/);
+  assert.equal(introMoveMessage(null, "Romans"), "");
 });
 
 test("resultTarget: a chapter that doesn't exist, or junk, is a tab", () => {

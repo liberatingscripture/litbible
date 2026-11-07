@@ -26,7 +26,8 @@
 //   also the keyboard's way to put any pane anywhere. × closes a pane.
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
 //   flagged "Leading" when more than one is open, and My Notes, This verse,
-//   Greek, and Footnotes follow it unless their "Stay here" is pressed.
+//   Greek, Footnotes, and Book Intro follow it unless their "Stay here" is
+//   pressed (Book Intro by its book, E53).
 // - **Each LIT pane keeps where its reader is** (`at`, 3e), and the active
 //   one's is the passage the following panes share, `layout.place`, so they
 //   follow it. They lead back too: a following pane's picker, This verse's
@@ -83,6 +84,7 @@ import {
   setKind,
   setPin,
   setPlace,
+  showIntroIn,
   placeFor,
   litPlace,
   setLitAt,
@@ -92,7 +94,7 @@ import {
   swapPanes,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
-import { formatPassage, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { loadLastRead } from "../last-read.js";
@@ -300,7 +302,16 @@ async function start() {
     else announce("Open a Greek pane to see the word.");
     showPassage(passage, { beside: searchId });
   };
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, openGreekHit };
+  // A book's introduction in a Book Intro pane (E53): from a Search pane's
+  // intro result, beside it where one has to open. Returns showIntroIn's
+  // { outcome, moved } for the Search pane to tell the reader.
+  const showIntro = (bookKey, { beside = null } = {}) => {
+    const room = panesBox.getBoundingClientRect();
+    const result = showIntroIn(layout, bookKey, room.width, room.height, beside);
+    if (result.layout !== layout) commit(result.layout, { draw: result.outcome === "opened" });
+    return { outcome: result.outcome, moved: result.moved };
+  };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showIntro, openGreekHit };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -981,8 +992,8 @@ async function start() {
       const lead = el("span", "desk-pane__lead");
       lead.innerHTML = ICON_FLAG;
       lead.setAttribute("role", "img");
-      lead.setAttribute("aria-label", "Leading pane: My Notes, This verse, Greek, and Footnotes follow it");
-      lead.title = "Leading: My Notes, This verse, Greek, and Footnotes follow this pane";
+      lead.setAttribute("aria-label", "Leading pane: My Notes, This verse, Greek, Footnotes, and Book Intro follow it");
+      lead.title = "Leading: My Notes, This verse, Greek, Footnotes, and Book Intro follow this pane";
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
       // A glyph with no words; mark() paints the lock and sets its name.
@@ -1805,6 +1816,28 @@ async function start() {
       // column, else in a pane that isn't a LIT pane (BA60).
       layout = showSheet(layout, record.id, panesBox.getBoundingClientRect().width);
       save();
+    }
+  }
+
+  // ---- a book's introduction named in the address (E53) ----
+
+  // /desk/?intro=romans (an introduction page's "Open in the Study Desk", with
+  // ?place= at its chapter 1) shows it in a Book Intro pane: one already open,
+  // else a new one beside the active pane where the width holds it, as ?sheet=
+  // does. Stripped either way.
+  const introBook = parseIntroParam(new URLSearchParams(location.search).get("intro"));
+  if (new URLSearchParams(location.search).has("intro")) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("intro");
+      history.replaceState(history.state, "", url);
+    } catch (_) {}
+    if (introBook) {
+      const next = showIntroIn(layout, introBook, panesBox.getBoundingClientRect().width).layout;
+      if (next !== layout) {
+        layout = next;
+        save();
+      }
     }
   }
 

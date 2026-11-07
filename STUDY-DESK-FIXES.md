@@ -1738,8 +1738,34 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   one (the passage field taking "Romans intro", the arrows stepping back from
   chapter 1, a line in the pane's menu, Search's intro results opening in a
   pane), and what the panes beside it do while it shows (This verse, My Notes,
-  the Greek and the Footnotes have no verse to follow in an intro, though an
-  intro has footnotes of its own). Status: **open, to discuss.**
+  the Greek and the Footnotes have no verse to follow in an intro). (The entry
+  first said an intro has footnotes of its own; none of the 27 has, though their
+  scripture references are linked.) **Decided by BVJ (2026-11-06), taking
+  Claude's recommendations, with the pane named "Book Intro":**
+  1. *A pane kind of its own*, "Book Intro," that follows the book the leading
+     LIT pane is in (switching as the LIT crosses into the next book) and keeps
+     one book with "Stay here." The LIT pane's place stays a verse, so the other
+     followers, a moving bookmark and `?place=` meet no new state, and nothing
+     in the record format changes.
+  2. *Ways in*: the pane menus (Show in this pane, Add pane); a Search pane's
+     intro result (a plain click shows it in a Book Intro pane, opening one
+     beside the search where there is room, and moves the LIT to the book's
+     chapter 1 unless it is in that book; the small link beside the row opens
+     the page in a new tab); and an introduction page's "Open in the Study
+     Desk" pill (`?place=romans-1&intro=romans`, a pane opened only where the
+     width holds it, as `?sheet=` does). Not the LIT's arrows, and not "Romans
+     intro" in the passage field.
+  3. *A scripture reference in it moves the LIT pane* on a plain click, and the
+     pane keeps its book while the LIT shows the passage it sent (1 Timothy's
+     introduction cites Matthew 5:44). Any other click on a link opens a new
+     tab. A draft introduction (Luke, Acts, Revelation) says it isn't ready yet.
+  Status: **built 2026-11-06** (`claude/desk-e53-book-intro`): `intro-pane.js`,
+  `showIntroIn` in `desk-layout.mjs`, `introPath`, `stepBook` and
+  `parseIntroParam` in `desk-passage.mjs`, the `intro` result type and
+  `introMoveMessage` in `desk-search-pane.mjs`, the pill in
+  `ScriptureLayout.astro`, the styles in `desk.css`. No record or format
+  change; a layout saved with the kind reads back in an older copy of the page
+  as "needs a newer copy." **Awaiting BVJ's look.**
 
 - **E54, bug: Greek copied from the Greek tab pastes into a sheet as only its
   spaces, commas and verse numbers.** BVJ (2026-11-06): selected in the Greek
@@ -1910,7 +1936,8 @@ the rest is polish.
     E37's phase A (Save as a document, on the same branch), and f (E39, E40,
     after BVJ's look at a mock), and g's E43 and E49 (decided from a mock).
     E50 is built too (decided from a mock), and so is E37's phase B (slides,
-    decided by BVJ the same day). **Still open**: E53 (intros on /desk, to discuss). BVJ settled E33 (at
+    decided by BVJ the same day), and so is E53 (the Book Intro pane, decided
+    by BVJ the same day). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook

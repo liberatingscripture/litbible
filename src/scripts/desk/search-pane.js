@@ -16,7 +16,8 @@
 //   moves, so the list holds still.
 // - **A glossary result opens in the pane** (the entry cloned from /glossary/,
 //   fetched once a visit) with "Back to results" and "Open in the glossary";
-//   an article or an introduction opens in a new tab. A verse or topic result
+//   an article opens in a new tab, and an introduction in a Book Intro pane
+//   (E53, 2026-11-06; `env.showIntro`). A verse or topic result
 //   moves the LIT pane (`env.showPassage`) with a plain click, and is a real
 //   link otherwise, so a modified or middle click opens a tab and
 //   ref-preview.js previews it on hover.
@@ -51,10 +52,11 @@ import {
   nextPage,
   pageLinkLabel,
   passageMoveMessage,
+  introMoveMessage,
   resultTarget,
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
-import { passageLabel } from "../../lib/desk-passage.mjs";
+import { parsePassage, passageLabel } from "../../lib/desk-passage.mjs";
 import { gatherMessage, passagesFromVerses, roomOnSheet, searchSheetTitle } from "../../lib/desk-sheet-gather.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { NOTEBOOK_GROUP_TITLE } from "../../lib/desk-search.mjs";
@@ -162,7 +164,7 @@ function loadGlossary() {
 /**
  * @param {{ paneId: string, env: object, getPlace: () => { bookKey: string } }} options
  *   `env` is desk-page.js's: `store`, `ctx`, `showPassage(passage, { beside })`,
- *   `showSheet(id)` and `openGreekHit(hit, paneId)`. `getPlace` is the passage
+ *   `showSheet(id)`, `showIntro(bookKey, { beside })` and `openGreekHit(hit, paneId)`. `getPlace` is the passage
  *   being read, for "The book I’m reading".
  * @returns {{ el: HTMLElement, focusField: () => void, destroy: () => void }}
  */
@@ -456,11 +458,11 @@ export function createSearchPane({ paneId, env, getPlace }) {
    */
   function awayLink(href) {
     const target = resultTarget(href);
-    if (target.type !== "passage") return null;
+    if (target.type !== "passage" && target.type !== "intro") return null;
     const a = awayTab(make("a", "desk-search__away"));
     a.href = href;
     a.title = "Open on its page";
-    a.setAttribute("aria-label", pageLinkLabel(passageLabel(target)));
+    a.setAttribute("aria-label", pageLinkLabel(target.type === "intro" ? `the ${bookKeyToLabel(target.bookKey)} introduction` : passageLabel(target)));
     a.innerHTML = OPEN_PAGE_ICON;
     return a;
   }
@@ -845,6 +847,11 @@ export function createSearchPane({ paneId, env, getPlace }) {
       e.preventDefault();
       openedFrom = a;
       openEntry(target.id);
+    } else if (target.type === "intro") {
+      e.preventDefault();
+      const result = env.showIntro(target.bookKey, { beside: paneId });
+      const moved = result.moved ? passageLabel(parsePassage(result.moved)) : "";
+      tell(introMoveMessage(result, bookKeyToLabel(target.bookKey), moved));
     }
   });
 
