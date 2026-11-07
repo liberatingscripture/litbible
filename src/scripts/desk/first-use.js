@@ -2,32 +2,33 @@
 //
 // The notebook's first use (STUDY-DESK.md D6, C18 and D8; phase 1d). Three
 // pieces, all built from the rules in src/lib/desk-first-use.mjs:
-//   - `card`, at the top of the My Notes tab: until the reader answers "Where
-//     should your notebook live?" it shows that question;
+//   - `card`, at the top of the My Notes tab: until the reader presses its
+//     "Got it", it says the notebook is kept in this browser and offers the
+//     copy reminder;
 //   - the tour offer, a window beside the panel (float-window.js) the first
-//     time the reader expands the Notebook with that question answered;
+//     time the reader expands the Notebook with the card answered;
 //   - `foot`, in the panel's foot: where the notebook is kept and when a copy
 //     was last saved, a reminder to save one when the reader asked for it, the
 //     plain line for Safari, and the Help, Tell us what's missing, and Take
 //     the tour links.
 //
-// The choice is a per-browser setting (localStorage['lit-desk-home'], absent
-// until answered), like the display settings: it never syncs. Both choices
-// keep the notebook in this browser. Saving into a chosen file waits on a
+// The answer is a per-browser setting (localStorage['lit-desk-home'], absent
+// until answered), like the display settings: it never syncs. Both values
+// keep the notebook in this browser; one asks for the reminder. Saving into a chosen file waits on a
 // decision (T3), and accounts are not mentioned or promised.
 //
 // "The first time the reader opens the Notebook panel or uses a desk action":
 // the card is simply what My Notes shows until there is an answer, and the
 // first thing the reader writes (a note, a bookmark, a highlight) asks the
 // panel to show itself, once a visit, so a reader who never opens it still
-// meets the question.
+// meets the card.
 //
 // The tour itself is tour.js. This only offers it, by sending the same
 // `lit:desk-command` event the search box's "tour" command sends.
 //
 // Where the browser keeps no notebook (`store` null: IndexedDB refused, as
 // some private windows do), none of this applies, so My Notes' own line
-// saying so stands alone: no question, no offer, and of the foot only its
+// saying so stands alone: no card, no offer, and of the foot only its
 // links (BA34).
 
 import { liveRecords } from "../../lib/desk-store-core.mjs";
@@ -112,52 +113,47 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
 
   const card = el("div", "desk-home-wrap");
 
+  // A statement, not a question, while this browser is the only place to keep
+  // it (BVJ, 2026-11-07, Audit 4 FU4-1): it asked "Where should your notebook
+  // live?" with two answers that were the same place. Revisit it as a choice
+  // when phase 4 brings a second place. The checkbox writes `browser-remind`,
+  // so `lit-desk-home` keeps both its values.
   const choice = el("section", "desk-home-card");
   choice.setAttribute("aria-labelledby", "deskHomeTitle");
-  const choiceTitle = el("h3", "desk-home-card__title", "Where should your notebook live?");
+  const choiceTitle = el("h3", "desk-home-card__title", "Your notebook is kept in this browser");
   choiceTitle.id = "deskHomeTitle";
   choiceTitle.tabIndex = -1;
   choice.append(
     choiceTitle,
-    el("p", "desk-home-card__lead", "Your notebook is kept in this browser, on this computer. Nothing is sent anywhere."),
+    el("p", "desk-home-card__lead", "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, the notebook is gone unless you have saved a copy."),
   );
-  const options = el("ul", "desk-home-card__options");
-  const add = (value, label, text) => {
-    const li = el("li", "desk-home-card__option");
-    const b = el("button", "desk-home-card__choose", label);
-    b.type = "button";
-    const note = el("p", "desk-home-card__note", text);
-    note.id = `deskHome-${value}`;
-    b.setAttribute("aria-describedby", note.id);
-    b.addEventListener("click", () => choose(value));
-    li.append(b, note);
-    options.append(li);
-  };
-  add(
-    "browser",
-    "Keep it in this browser",
-    "You save a copy yourself when you want one. If this browser’s data for this site is cleared, the notebook is gone unless you have a copy.",
-  );
-  add(
-    "browser-remind",
-    "Keep it in this browser, and remind me to save a copy",
-    "Also kept in this browser, and the Notebook reminds you when it has been a week since your last copy. Clearing the browser’s data still removes the notebook, but your copy is safe.",
-  );
-  choice.append(options);
+  const remind = el("div", "desk-home-card__remind");
+  const remindAskLabel = el("label", "desk-setting");
+  const remindAsk = el("input", "desk-setting__input");
+  remindAsk.type = "checkbox";
+  remindAskLabel.append(remindAsk, el("span", "desk-setting__label", "Remind me to save a copy"));
+  const remindNote = el("p", "desk-home-card__note", "The Notebook reminds you when it has been a week since your last copy.");
+  remindNote.id = "deskHomeRemindNote";
+  remindAsk.setAttribute("aria-describedby", remindNote.id);
+  remind.append(remindAskLabel, remindNote);
+  choice.append(remind);
   if (safari) choice.append(el("p", "desk-home-card__safari", SAFARI_LINE));
   const more = el("p", "desk-home-card__more");
   more.append(
     "Other ways to keep it, across your computers and the apps, are being planned. ",
     link(WAYS_HREF, "Ways to keep your notebook"),
   );
-  choice.append(more);
+  const done = el("button", "desk-home-card__choose desk-home-card__done", "Got it");
+  done.type = "button";
+  done.addEventListener("click", () => choose(remindAsk.checked ? "browser-remind" : "browser"));
+  choice.append(more, done);
 
   card.append(choice);
 
   /* ── The tour offer ───────────────────────────────────────────── */
 
   // A window beside the Notebook, opened the first time the reader expands
-  // it once "Where should your notebook live?" is answered (BVJ,
+  // it once the card is answered (BVJ,
   // 2026-10-14). Over the Notebook instead where there is no room beside
   // it. Three answers: take the tour now; remind me later, which is also
   // what the ×, Escape, closing or minimizing the Notebook, and simply
@@ -347,7 +343,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   });
 
   // The first write the reader makes this visit, with no answer yet: show
-  // the panel so the question is met (once, so it never nags).
+  // the panel so the card is met (once, so it never nags).
   let revealed = false;
   store?.onEntry(() => {
     if (revealed || getHome()) return;

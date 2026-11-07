@@ -320,3 +320,16 @@ export function continueItem(lastRead) {
     bookKey: lastRead.book,
   };
 }
+
+/**
+ * Whether the last-read record names what is already on screen, where the
+ * Notebook leaves Continue reading out (Audit 4, FU4-2; BVJ, 2026-11-07): on
+ * a first visit it named the chapter being read and looked like a bookmark
+ * the reader hadn't made. `here` is { bookKey, chapter } for a chapter (a
+ * Chapter View page, /desk's LIT pane) or { bookKey } for a whole book (Read
+ * View); null where nothing is being read (the notebook page, an article).
+ */
+export function continueIsHere(lastRead, here) {
+  if (!lastRead || !here?.bookKey || lastRead.book !== here.bookKey) return false;
+  return here.chapter == null || Number(lastRead.chapter) === Number(here.chapter);
+}

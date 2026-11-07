@@ -18,6 +18,7 @@ import {
   PAUSE_EXPIRES_MS,
   canFollowMore,
   cleanBookmarkName,
+  continueIsHere,
   continueItem,
   followFlagFor,
   followMoveChanges,
@@ -251,4 +252,15 @@ test("Continue reading is one row, with its address and the view it was kept in"
   assert.equal(read.title, "John 3");
   assert.equal(read.detail, "Continue reading · Read View");
   assert.equal(continueItem(null), null);
+});
+
+test("Continue reading is left out where it names what is on screen (FU4-2)", () => {
+  const last = { book: "john", chapter: 3, verse: 16, view: "study" };
+  assert.equal(continueIsHere(last, { bookKey: "john", chapter: 3 }), true, "the chapter being read");
+  assert.equal(continueIsHere(last, { bookKey: "john", chapter: 4 }), false, "another chapter");
+  assert.equal(continueIsHere(last, { bookKey: "luke", chapter: 3 }), false, "another book");
+  assert.equal(continueIsHere(last, { bookKey: "john" }), true, "Read View: the whole book is on the page");
+  assert.equal(continueIsHere(last, { bookKey: "mark" }), false);
+  assert.equal(continueIsHere(last, null), false, "the notebook page keeps it");
+  assert.equal(continueIsHere(null, { bookKey: "john", chapter: 3 }), false);
 });
