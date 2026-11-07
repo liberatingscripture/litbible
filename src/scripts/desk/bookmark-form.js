@@ -12,7 +12,7 @@
 // verse) are src/lib/desk-bookmarks.mjs and desk-bookmark-change.mjs, applied
 // in the one transaction that writes.
 
-import { BOOKMARK_NAME_MAX, MAX_FOLLOWING, canFollowMore } from "../../lib/desk-bookmarks.mjs";
+import { BOOKMARK_NAME_MAX, canFollowMore } from "../../lib/desk-bookmarks.mjs";
 import { bookmarkPlace, placeLabel, planBookmarkEdit, roomAt } from "../../lib/desk-bookmark-change.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
@@ -73,8 +73,8 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
     </label>
     <p class="desk-bookmark-form__lock" role="status" hidden></p>
     <p class="desk-bookmark-form__hint" id="deskBookmarkHint${n}">
-      Open this bookmark from your list, and it follows you through the book.
-      Off, it stays put on its verse. Up to ${MAX_FOLLOWING} bookmarks can move.
+      Moves along with you as you read its book, once it’s following you.
+      Without this, it stays on its verse. Up to six of your bookmarks can move.
     </p>
     <label class="desk-bookmark-form__follow desk-bookmark-form__start" hidden>
       <input type="checkbox" class="desk-bookmark-form__start-box" />

@@ -112,7 +112,7 @@ function writeFlag(next) {
 export function bookmarkState(bookmark) {
   if (!isFollowing(bookmark)) return { word: "Stays put", title: "Stays on its verse" };
   const mine = readFlag();
-  if (mine?.id !== bookmark.id) return { word: "Moves", title: "Moves as I read, once opened from this list" };
+  if (mine?.id !== bookmark.id) return { word: "Moves", title: "Moves as I read, once it’s following me" };
   return mine.paused
     ? { word: "Paused", title: "Waiting where I left off. It moves again when I read on from there, or I can move it here." }
     : { word: "Following", title: "Following me now: it moves as I read in this tab" };

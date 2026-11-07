@@ -543,7 +543,10 @@ against `dist/` is a later item.
        where the page doesn't follow the reader, not with six others moving);
        otherwise a line says which. Checked at Save, the bookmark is saved and
        then followed (`followBookmark`), even when nothing else changed, so a
-       new bookmark from the verse menu starts following with its first Save. The verse menu lists "Edit bookmark…" right after
+       new bookmark from the verse menu starts following with its first Save.
+       The switch's hint (E48) no longer explains how a follow starts: "Moves
+       along with you as you read its book, once it’s following you. Without
+       this, it stays on its verse. Up to six of your bookmarks can move." The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
