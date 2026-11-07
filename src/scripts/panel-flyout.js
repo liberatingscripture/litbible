@@ -12,6 +12,13 @@
 // panel's rows and fixed to the window, so the panel's own scrolling never
 // clips it. Styles are the .lit-flyout rules in global.css.
 //
+// A click on a flyout that hover opened is the click the reader came to make,
+// so it moves focus in rather than shutting it (Audit 3, NB3-1); only a click
+// on one a click or a key opened toggles it shut. Being fixed, the flyout can't
+// follow its row, so a scroll or a press anywhere else (the panel's grip
+// included) closes it (NB3-12). It never hides with focus inside it: focus goes
+// back to the row first.
+//
 // Two shapes:
 //   - a plain row (`flyoutRow(name, items)`): one button, the name and a
 //     chevron, whose press opens the flyout;
@@ -61,12 +68,29 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
   fly.hidden = true;
   fly.append(...items);
   for (const item of fly.querySelectorAll("button")) item.setAttribute("role", "menuitem");
+  // A menu holds menu items only (NB3-11): a row of buttons steps aside, and a
+  // line of words (the Bookmark flyout's "resting here") describes the menu
+  // instead of sitting in it.
+  const described = [];
+  for (const child of fly.children) {
+    if (child.matches("button")) continue;
+    child.setAttribute("role", "none");
+    if (child.querySelector("button")) continue;
+    child.id ||= `lit-flyout-note-${++noteIds}`;
+    child.setAttribute("aria-hidden", "true");
+    described.push(child.id);
+  }
+  if (described.length) fly.setAttribute("aria-describedby", described.join(" "));
   wrap.append(fly);
 
   let closing = 0;
-  const open = (focusIn) => {
+  let openedBy = null; // "hover", "click" or "key"
+  let watching = null; // the scroll and press listeners while it is open
+  const focusFirst = () => fly.querySelector("button:not([hidden])")?.focus({ preventScroll: true });
+  const open = (focusIn, by) => {
     window.clearTimeout(closing);
-    if (!fly.hidden) return focusIn && fly.querySelector("button")?.focus();
+    if (!fly.hidden) return focusIn && focusFirst();
+    openedBy = by;
     fly.hidden = false;
     trigger.setAttribute("aria-expanded", "true");
     const box = anchor.getBoundingClientRect();
@@ -75,28 +99,49 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
     const left = right + room.width <= window.innerWidth - 8 ? right : Math.max(8, box.left - room.width - 6);
     fly.style.left = `${left}px`;
     fly.style.top = `${Math.max(8, Math.min(box.top, window.innerHeight - room.height - 8))}px`;
-    if (focusIn) fly.querySelector("button")?.focus();
+    watching = new AbortController();
+    const away = (e) => {
+      if (!wrap.contains(e.target)) close(false);
+    };
+    document.addEventListener("scroll", away, { capture: true, passive: true, signal: watching.signal });
+    document.addEventListener("pointerdown", away, { capture: true, signal: watching.signal });
+    if (focusIn) focusFirst();
   };
   const close = (refocus) => {
     window.clearTimeout(closing);
     if (fly.hidden) return;
+    watching?.abort();
+    watching = null;
+    // Focus leaves before the menu hides, or it would fall to the page.
+    if (refocus || fly.contains(document.activeElement)) (main ?? trigger).focus({ preventScroll: true });
     fly.hidden = true;
+    openedBy = null;
     trigger.setAttribute("aria-expanded", "false");
-    if (refocus) (main ?? trigger).focus();
   };
   const later = () => {
     window.clearTimeout(closing);
+    // A flyout holding focus stays until focus leaves it, not the pointer.
+    if (fly.contains(document.activeElement)) return;
     closing = window.setTimeout(() => close(false), 220);
   };
   const hover = (e) => {
-    if (e.pointerType !== "touch") open(false);
+    if (e.pointerType !== "touch") open(false, "hover");
   };
 
   // A click on the chevron (or on a plain row) opens it; one that came from
-  // the keyboard (detail 0) always moves focus in.
+  // the keyboard (detail 0) always moves focus in. On a flyout hover opened,
+  // the click takes it instead of shutting it.
   trigger.addEventListener("click", (e) => {
-    if (!fly.hidden) return close(true);
-    open(pointerFocus || e.detail === 0);
+    const focusIn = pointerFocus || e.detail === 0;
+    if (fly.hidden) return open(focusIn, "click");
+    if (openedBy === "hover") {
+      openedBy = "click";
+      return open(focusIn, "click");
+    }
+    close(true);
+  });
+  fly.addEventListener("focusout", (e) => {
+    if (!wrap.contains(/** @type {Node | null} */ (e.relatedTarget))) later();
   });
   anchor.addEventListener("pointerenter", hover);
   wrap.addEventListener("pointerleave", later);
@@ -105,7 +150,7 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
     opener.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        open(true);
+        open(true, "key");
       }
     });
   }
@@ -128,6 +173,8 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
   wrap.closeFlyout = () => close(false);
   return wrap;
 }
+
+let noteIds = 0;
 
 function button(label) {
   const b = document.createElement("button");

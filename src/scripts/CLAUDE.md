@@ -183,7 +183,19 @@ imports it; this file never imports desk code): a trigger with
 window (`.lit-flyout*` in `global.css`), hover opens, a click, Enter or → move
 focus in, Escape or ← step back. The selection panel passes
 `pointerFocus: false`, so a mouse click never moves focus into it (the panel
-never takes focus; a keyboard press does). No explanatory hint text is added
+never takes focus; a keyboard press does). **A click on a flyout that hover
+opened takes it rather than shutting it** (Audit 3, NB3-1): the pointer opens
+it on the way to the row, so that click is the one the reader came to make;
+only a click on one a click or a key opened closes it. Being fixed to the
+window, it can't follow its row, so a scroll or a press anywhere else (the
+panel's grip included) closes it (NB3-12), and it never hides with focus
+inside: focus goes back to the row first. A row of buttons in it is
+`role="none"` and a line of words describes the menu (`aria-describedby`)
+rather than sitting in it (NB3-11). **A failed image gives Share text…
+back** (NB3-2): when the image step ends in "Too long" or "Couldn't make the
+image", `imageStep`'s `onFail` restores the Share row (or, in the chip
+layout, the Share text… chip) beside the reason, and a keyboard reader's
+focus goes to it. No explanatory hint text is added
 to either panel. The verse-number menu stays the keyboard and screen-reader
 route to all of it.
 

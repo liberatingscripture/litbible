@@ -621,6 +621,12 @@ function actionRows({ touch, copies, shareBtn, image, pointerFocus = true }) {
   imageItem.textContent = "Share image";
   const shareRow = flyoutRow("Share", [shareBtn, imageItem], { pointerFocus });
   image.hidden = true;
+  // An image that can't be made gives the Share row back, with the reason under
+  // it, and a keyboard reader's focus with it (Audit 3, NB3-2).
+  image.onFail = (hadFocus) => {
+    shareRow.hidden = false;
+    if (hadFocus) shareRow.querySelector("button")?.focus();
+  };
   imageItem.addEventListener("click", (e) => {
     // The flyout steps aside and the questions take the Share row's place.
     shareRow.closeFlyout();
