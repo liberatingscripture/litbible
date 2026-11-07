@@ -11,16 +11,21 @@
 `STUDY-DESK-AUDIT-*.md` files are too large to read whole.** Grep them for the ID or
 heading you need (BA42, 3j, N9, SEC-1) and read that section.
 
+**This file has a size cap** (`DESK_LIMIT` in `test/claude-docs.test.js`; BVJ,
+2026-11-07), meant to come down as it is trimmed. Rules, owner decisions and
+their reasons go here; the story of how an E number was decided and built goes
+under its entry in `STUDY-DESK-FIXES.md`, and a "Built on…" line goes nowhere.
+
 ## The records
 
 | Path | Purpose |
 |------|---------|
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1a to 1d, 1f and 1h are built (the merge engine; notes, bookmarks, highlights, pinned footnotes, the margin and the panel's tabs; the notebook page, export and import, labels, ribbons, search and commands, first use and the tour; the Greek tab; searching the Greek), and so is phase 2a (2026-10-15: B3, N4, and construction search and searching by parsing as Greek search commands; M10 was built and shelved; N2, H2 and M4 are shelved for version 2, 2026-10-15), phase 3's sheets and /desk (3b to 3k, 2026-10-18 to 10-20; 3m, the search pane, 2026-11-01), phase 2b (2026-10-20: S2, a sheet checked before printing, and N9, print with room to write), and phase 2c (2026-10-20: M11, notes on a footnote, and N6's questions gathered onto a sheet), the shell behind a preview switch (`?desk=on`); nothing reader-facing is released. N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) and 1h (searching the Greek) belong to phase 1: 1g is shelved for the future, and 1h was built on 2026-10-13. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1 to 3 (with 2a to 2c) are built behind the preview switch (`?desk=on`); nothing reader-facing is released. M10 was built and shelved, and N2, H2 and M4 are shelved for version 2 (2026-10-15). N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) is shelved for the future. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
 | `STUDY-DESK-FIXES.md` | **The Phase 5 log: the desk's bugs, rough spots, wording and wishes** (IDs **E1** onward), kept by BVJ's use of the preview, with the rules for adding an entry and the work-session grouping. It was a section of `STUDY-DESK.md` until 2026-11-05 and moved whole, so every "E9" or "E28" in this repo means an entry there. **A new bug or preference BVJ reports goes here as the next E number**, never into `STUDY-DESK.md`; where an entry settles a decision, say so in the entry. |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward (to BA153) and were planned in phases FA1-w onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
-| `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table (the re-check of 2026-11-03: 96 still valid, 2 fixed, 2 moot, 10 changed) and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
-| `STUDY-DESK-AUDIT-3.md` | **Audit 3 of the Study Desk** (2026-11-06, commit `60af379e`): 81 findings from eight auditors (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`), 80 after an Opus agent tried to disprove the highest (none Critical; none High after verification). The top matter holds the priority list in three tiers, the decisions awaiting the owner, and six proposed work sessions; each report is an appendix (A to J), and Appendix K is the brief, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships. |
+| `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
+| `STUDY-DESK-AUDIT-3.md` | **Audit 3 of the Study Desk** (2026-11-06, commit `60af379e`): 81 findings from eight auditors (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`), 80 after an Opus agent tried to disprove the highest. The top matter holds the priority list in three tiers, the decisions awaiting the owner, and six proposed work sessions; each report is an appendix (A to J), and Appendix K is the brief, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships. |
 
 **Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
 and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and
@@ -128,8 +133,7 @@ against `dist/` is a later item.
      global.css unless the desk is on and the page has a reading column.
   3. **The Notebook panel sits in the right margin, beside the reading
      column, and moves nothing where the margin is wide enough** (BVJ,
-     2026-10-06: "fill the margin, not just push everything aside"; the
-     first build pushed the whole page left). `src/lib/desk-margin.mjs` is
+     2026-10-06: "fill the margin, not just push everything aside"). `src/lib/desk-margin.mjs` is
      the rule and `src/scripts/desk/margin.js` places it: a card in an
      absolutely positioned rail down the margin to the end of `<main>`,
      sticky inside it, reaching 16px above the bottom of the window, with its
@@ -472,7 +476,7 @@ against `dist/` is a later item.
      `description`, and one naming no verse as the whole chapter, BA98),
      fetched only when a notice opens. A highlight carrying
      a notice is never merged or trimmed (`placeHighlights`).
-  13. **Phase 1d is the notebook around the marks** (built 2026-10-12).
+  13. **Phase 1d is the notebook around the marks.**
      - **The notebook page**, `/notebook/` (`pages/notebook.astro`), and its
        help, `/notebook/help/`: noindex, out of the sitemap (one `notebook/`
        prefix rule in `astro.config.mjs`) and out of Pagefind (Layout's
@@ -562,9 +566,7 @@ against `dist/` is a later item.
        otherwise a line says which. Checked at Save, the bookmark is saved and
        then followed (`followBookmark`), even when nothing else changed, so a
        new bookmark from the verse menu starts following with its first Save.
-       The switch's hint (E48) no longer explains how a follow starts: "Moves
-       along with you as you read its book, once it’s following you. Without
-       this, it stays on its verse. Up to six of your bookmarks can move." The verse menu lists "Edit bookmark…" right after
+       The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
@@ -574,9 +576,8 @@ against `dist/` is a later item.
        2.5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
        catches up when the reading pauses; the follower writes at most every 2
        seconds (`MOVE_EVERY_MS`), and the settle must stay longer than that gap
-       or steady scrolling redraws between writes. They were 4 and 5 seconds until E45
-       (2026-11-05); a move is a record write that syncs, so tell BDR if the
-       write gap changes. "Add bookmark" in the verse menu and the
+       or steady scrolling redraws between writes. A move is a record write that syncs
+       (E45), so tell BDR if the write gap changes. "Add bookmark" in the verse menu and the
        selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
        counted); the limit and the write are one `store.change`
        (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
@@ -614,8 +615,7 @@ against `dist/` is a later item.
        the follower accepted**, set when a report is judged and never as it
        arrives: a page that lands on a far verse (a link to `/luke-1/#v1`)
        reports twice before the first judgment, and the second would count the
-       first as reading and move the bookmark instead of pausing it (found
-       2026-11-04 testing "Move it here"). Pages outside the book
+       first as reading and move the bookmark instead of pausing it. Pages outside the book
        (/search, /notebook) pause it too (`desk-gate.js`), and a pause
        ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
        storage). Rows say Following, Paused, Moves or Stays put.
@@ -648,13 +648,9 @@ against `dist/` is a later item.
        2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js`, styled by
        `.lit-flyout*` in `global.css`, also builds every reader's "Copy text ▸" and
        "Share ▸" rows and this file's "Print ▸" (rule 19). Desk code imports it;
-       shared code never imports desk code. Hover opens it without taking focus; a
-       click, Enter or the right arrow moves focus in (the selection panel passes
-       `pointerFocus: false`, so a mouse click never moves focus into it); Escape or
-       the left arrow steps back; it is fixed to the window and `role="menu"`.
-       (BVJ proposed a Copy flyout on 2026-11-04 and Claude advised against it; BVJ
-       revisited it on 2026-11-05 and decided on 2026-11-06 to build it, with the Copy
-       row's own press still copying.) **"Stop following" and "Start following" are one
+       shared code never imports desk code. Its behavior is
+       described in `src/scripts/CLAUDE.md`, "One set of actions, two ways in".
+       **"Stop following" and "Start following" are one
        quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
        `drawFollowLink`) under the state line of every bookmark with "Move as I
        read" on, its label swapping with this tab's flag; not an On/Off switch,
@@ -810,7 +806,7 @@ against `dist/` is a later item.
        `claude/desk-1d-search`; it is not in this tree, so nothing here
        should assume a `hidden` record is honoured (an imported one shows as
        "Other items").
-  14. **Phase 1f is the Greek tab** (built 2026-10-13; STUDY-DESK.md,
+  14. **Phase 1f is the Greek tab** (STUDY-DESK.md,
      "Order of work", 1f). Three things to know before touching it:
      - **Its data is committed, not built.** `npm run build:greek` reads
        clones kept outside the repo (`GREEK_SOURCES_DIR`: SBL's SBLGNT 1.2
@@ -869,7 +865,7 @@ against `dist/` is a later item.
        finds its note at the nearest verse at or before its own
        (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
        (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120).
-  15. **Phase 1h is searching the Greek** (built 2026-10-13; STUDY-DESK.md,
+  15. **Phase 1h is searching the Greek** (STUDY-DESK.md,
      "Order of work", 1h). Six things to know:
      - **It is ordinary site search, gated until launch.** Only while
        `greekSearchEnabled()` in `search-core.js` is true, which today is
@@ -966,8 +962,8 @@ against `dist/` is a later item.
        tab starts a search. A search that settles on the article (ὁ, not an
        exact form) answers with a line and a search beside a word (“ὁ, θεός”)
        instead of its list (confirmed, BVJ, 2026-11-03).
-  16. **Phase 2a's small pieces read, never write** (built 2026-10-15;
-     STUDY-DESK.md, "Order of work", 2a): B3 and N4 add no kind of record,
+  16. **Phase 2a's small pieces read, never write** (STUDY-DESK.md,
+     "Order of work", 2a): B3 and N4 add no kind of record,
      so each can be taken out cleanly (M10 was, the same day: BVJ shelved
      it, and its code is on `claude/desk-2a-m10`). Two things to know:
      - **A note's body is drawn through `noteBodyHtml`**
@@ -1001,7 +997,7 @@ against `dist/` is a later item.
        message of its own (`metaMessage`, heard through `store.onMeta`), so
        My Notes' line moves on with the notebook page without every tab
        redrawing its marks (BA96).
-  17. **Phase 2a's Greek search commands** (built 2026-10-15; STUDY-DESK.md,
+  17. **Phase 2a's Greek search commands** (STUDY-DESK.md,
      "Order of work", 2a): searching by parsing (`*.aor.impv`, "genitives
      of πίστις") and by construction (`πίστις.gen, Ἰησοῦς/Χριστός.gen`),
      behind rule 15's gate. Four things to know:
@@ -1037,8 +1033,7 @@ against `dist/` is a later item.
        examples where an empty search's results would be. Before adding a
        hint or a control to a search page, put it in the window
        (`src/scripts/greek-commands.js`).
-       **Its top is the search builder** (E5, BVJ 2026-11-02; mocked first,
-       then built on Claude's recommendation): a card for each word (up to
+       **Its top is the search builder** (E5, BVJ 2026-11-02): a card for each word (up to
        four), each with menus that list only what that word takes, a "+ Then
        another word", and "How close" once there are two. **The search field
        is the only record of the search**: the builder reads it with
@@ -1087,7 +1082,7 @@ against `dist/` is a later item.
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
-  18. **Phases 3c to 3g are /desk** (built 2026-10-19; STUDY-DESK.md, D9
+  18. **Phases 3c to 3g are /desk** (STUDY-DESK.md, D9
      and "Order of work", 3c to 3g): `src/pages/desk.astro`, which `desk-gate.js`
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
@@ -1184,8 +1179,7 @@ against `dist/` is a later item.
        before it. It scrolls there only when that row is out of view, marks
        it `aria-current="location"` when it is in the chapter being read, and
        says "Nothing kept in Matthew 9." when the chapter holds nothing, while
-       still bringing the nearest records up. Before this it stayed where it
-       was in a chapter with nothing kept, which read as not following. A
+       still bringing the nearest records up. A
        heading is a row of the list (`li.desk-mine__heading`), so a row is
        found by `.desk-item` and its record id, never by its position.
        A record's reference in My Notes moves the LIT
@@ -1199,9 +1193,7 @@ against `dist/` is a later item.
        add to the window or the document, which the pane calls when it
        closes and when it builds a new tab for another chapter (BA31,
        BA115); a listener a tab adds outside its own element goes in it.
-       **A pane's scroller must be positioned** (`position: relative`; the
-       Greek's in #354, the Sheet's 2026-11-04, and `.desk-pane__body` as a
-       guard): `.sr-only` is absolute, so a hidden label or hint below the fold
+       **A pane's scroller must be positioned** (`position: relative`, on the Greek's, the Sheet's and `.desk-pane__body`): `.sr-only` is absolute, so a hidden label or hint below the fold
        otherwise takes the pane as its containing block, escapes the scroller's
        clipping, and stretches the panes box, which grows a scrollbar of its own
        and shows empty space under the panes. Check a new pane kind with
@@ -1211,9 +1203,8 @@ against `dist/` is a later item.
        `display: none` on its text and keeps its height (`park`, `balance` in
        `lit-pane.js`), and is drawn again within 2. The text stays in the
        DOM, so marks, labels and anchors read it as before; browser find does
-       not search it. Measured on /desk with all 211 chapters: re-layout
-       520 ms to 15 ms, scrolling 42 ms a frame to 7. `content-visibility`
-       was tried and fixed the layout only. A new reader of a pane's text that
+       not search it. `content-visibility` was tried and fixed
+       the layout only. A new reader of a pane's text that
        needs it drawn (a rect, a selection) must handle a parked chapter.
        **`desk/dom.js` holds `make`/`el` and `escapeHtml`** (LG-13): import them,
        don't write another copy. `announce` and `say` are not shared on purpose
@@ -1376,8 +1367,7 @@ against `dist/` is a later item.
        No nav row and no search; the Display tray carries
        Chapter View's "Show" switches (`scriptureControls="study"`), which
        reach the LIT pane's text. Search is a pane (below).
-     - **The title menu** (E15 and E14; BVJ, 2026-11-02; mocked first, he
-       picked "everything in the title, and Aa moves in too"). The h1's text
+     - **The title menu** (E15 and E14; BVJ, 2026-11-02). The h1's text
        is a button, `Study Desk ▾` (`.desk-title`, built by desk-page.js, which
        swaps the heading for a wrapper holding the h1 and the menus so the
        windows take the header's type, not the heading's). Its menu holds Add
@@ -1431,7 +1421,7 @@ against `dist/` is a later item.
        notice. Scroll anchoring is
        off there, or the browser answers the growth with a scroll of its
        own.
-     - **The Search pane is phase 3m** (built 2026-11-01):
+     - **The Search pane is phase 3m**:
        `desk/search-pane.js`, a third UI beside `searchbar.js` and
        `search.js`, reached only from `desk-panes.js`. It calls
        `search-core.js` and never copies its parsing or bucketing; a new
@@ -1461,7 +1451,7 @@ against `dist/` is a later item.
        `showSheet`'s `keep` stops the pane giving its own place to the sheet
        it just made. `/` reaches it as a `lit:desk-search` event from
        `keyboard-shortcuts.js`, which imports nothing of the desk.
-  19. **Phase 3i is a sheet on paper** (built 2026-10-20; STUDY-DESK.md, S4,
+  19. **Phase 3i is a sheet on paper** (STUDY-DESK.md, S4,
      S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
      `desk-gate.js` fills with `src/scripts/desk/sheet-page.js` when
      `[data-sheet-page]` is present. It shows, prints and copies a sheet and
@@ -1622,7 +1612,7 @@ against `dist/` is a later item.
        text held in by padding), in `desk.css` beside M6's section, so the
        rules run unbroken across page breaks; footnotes and the notice stay
        full width after it.
-  20. **Phase 3j is present mode** (built 2026-10-20; STUDY-DESK.md, S6, M2,
+  20. **Phase 3j is present mode** (STUDY-DESK.md, S6, M2,
      M3 and "Order of work", 3j), on the sheet's own page:
      `src/scripts/desk/sheet-present.js`, opened by sheet-page.js's
      "Present", or at once for `&view=present` (the Sheet pane's
@@ -1668,8 +1658,8 @@ against `dist/` is a later item.
        on the document in the capture phase, and a strip button about to be
        disabled or hidden hands focus to the stage first, so focus never
        falls out of the keys' reach (BA79).
-  21. **Phase 3k is getting started and sharing** (built 2026-10-20;
-     STUDY-DESK.md, M5, M9, S8 and "Order of work", 3k). Four things to know:
+  21. **Phase 3k is getting started and sharing** (STUDY-DESK.md,
+     M5, M9, S8 and "Order of work", 3k). Four things to know:
      - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
        tested; every template's formatted text must already be in the
        sanitizer's canonical form). New sheet in the Sheet pane lists them,
@@ -1716,11 +1706,10 @@ against `dist/` is a later item.
        `history.state.litSharedSheet` while the page parses, and again on
        `popstate` and `hashchange` (then reloads), since a link opened in a
        tab already on /sheets/ changes only the fragment, and a fragment
-       navigation fires `popstate` first (BA78). Checked against the
-       real beacon on 2026-10-20: its `location` came without the fragment.
-       The navigation timing entry's `name` still holds the original
-       address, and the beacon didn't send it then; recheck if the beacon
-       starts sending timing names. Keep `SHARE_PREFIX` and the inline
+       navigation fires `popstate` first (BA78). The navigation timing
+       entry's `name` still holds the original address, and the beacon didn't
+       send it when checked (2026-10-20); recheck if the beacon starts sending
+       timing names. Keep `SHARE_PREFIX` and the inline
        script in step.
      - **Where the desk doesn't run**, `src/scripts/sheet-share-gate.js`
        (loaded by /sheets/ for everyone, small) says what to do with a
@@ -1730,8 +1719,8 @@ against `dist/` is a later item.
        A shared sheet shows read only until "Import into my notebook", which saves
        it as a new sheet (`copyOfShared`) and turns the page into that
        sheet's own address. No storage key is added.
-  22. **Phase 2b is a sheet checked before printing** (built 2026-10-20;
-     STUDY-DESK.md, S2, N9 and "Order of work", 2b). N9 is the bullet under
+  22. **Phase 2b is a sheet checked before printing** (STUDY-DESK.md,
+     S2, N9 and "Order of work", 2b). N9 is the bullet under
      rule 19. S2, in three things:
      - **`src/lib/desk-sheet-check.mjs` is the rules** (pure, tested):
        `passageCheck` compares a passage's `verseCopy` with today's verses
@@ -1752,7 +1741,7 @@ against `dist/` is a later item.
        notices draw the diff with `desk/diff-view.js`, shared with the
        change notice; change one and both move.
   23. **Phase 2c is notes on a footnote and questions for discussion**
-     (built 2026-10-20; STUDY-DESK.md, M11, N6 and "Order of work", 2c).
+     (STUDY-DESK.md, M11, N6 and "Order of work", 2c).
      Three things to know:
      - **A note on a footnote is a `note` with a pin's fields**
        (`footnote`, `n` and the letter's verse; no `quote`, no
