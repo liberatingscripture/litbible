@@ -27,6 +27,9 @@ export const PRINT_QUOTE_WORDS = 8;
 /** What a printed note says where the words it hangs on have changed since. */
 export const CHANGED_NOTE = "The wording has changed since I wrote this.";
 
+/** What it says where its words were found in another verse while its own still stands (anchor spec version 4). */
+export const MOVED_NOTE = "The words this note was on have moved to another verse.";
+
 /** What it says where its verse is on the page but its words are gone. */
 export const LOST_NOTE = "The words I wrote this on are no longer in the text.";
 
@@ -37,15 +40,21 @@ export const LOST_VERSE_NOTE = "The verse I wrote this on is not in the text.";
 export const STRAYS_TITLE = "Notes that are not on these pages";
 
 /**
- * How a note stands against today's text, from `placeRecord`'s status:
- * "here" (its words are where they were), "changed" (found, but the wording
- * between its edges differs, or only its verses were found) or "lost".
+ * How a note stands against today's text, from `placeRecord`'s placement (or
+ * its status alone): "here" (its words are where they were), "moved" (its
+ * words were found in another verse while its own still stands, which the
+ * screen's change notice says too; anchor spec version 4, audit 3 DI3-2),
+ * "changed" (found, but the wording between its edges differs, or only its
+ * verses were found) or "lost". A `moved` whose placement isn't given, or
+ * that stays inside its verses, is "here", as a pinned footnote's is.
  *
- * @param {string} status
- * @returns {"here" | "changed" | "lost"}
+ * @param {string | { status: string, outsideVerses?: boolean }} at
+ * @returns {"here" | "moved" | "changed" | "lost"}
  */
-export function standing(status) {
-  if (status === "found" || status === "moved") return "here";
+export function standing(at) {
+  const status = typeof at === "string" ? at : at?.status;
+  if (status === "moved") return typeof at === "object" && at.outsideVerses === true ? "moved" : "here";
+  if (status === "found") return "here";
   if (status === "changed" || status === "verse") return "changed";
   return "lost";
 }
@@ -53,7 +62,9 @@ export function standing(status) {
 /**
  * What heads a printed note: its reference, the words it hangs on in short
  * (none for a note on whole verses; a footnote's for a note on one), and a line saying so when the wording
- * has moved. `how` is `standing`'s answer.
+ * has moved. `how` is `standing`'s answer. A moved note prints beside the
+ * verse its words are in now, as the screen draws it, under its own
+ * reference, so the line says where it went.
  *
  * @returns {{ ref: string, quote: string, warning: string }}
  */
@@ -61,10 +72,12 @@ export function printHeading(record, ref, how = "here") {
   // A note on a footnote (M11) quotes the footnote's opening words.
   const exact = typeof record?.quote?.exact === "string" ? record.quote.exact
     : record?.kind === "note" && typeof record.footnote === "string" ? record.footnote : "";
+  const warning =
+    how === "changed" ? CHANGED_NOTE : how === "moved" ? MOVED_NOTE : how === "lost" ? (exact ? LOST_NOTE : LOST_VERSE_NOTE) : "";
   return {
     ref: ref || "",
     quote: exact ? shortQuote(exact, PRINT_QUOTE_WORDS) : "",
-    warning: how === "changed" ? CHANGED_NOTE : how === "lost" ? (exact ? LOST_NOTE : LOST_VERSE_NOTE) : "",
+    warning,
   };
 }
 
