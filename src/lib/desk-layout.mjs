@@ -724,6 +724,58 @@ export function addPaneNeeds(layout, direction, width, height) {
   return needs(root, ok(width) ? width : Infinity, ok(height) ? height : Infinity);
 }
 
+/** What a menu says under a line that needs more room: "Needs a wider window" and its kin. */
+export const NEEDS_TEXT = {
+  wider: "Needs a wider window",
+  taller: "Needs a taller window",
+  larger: "Needs a larger window",
+};
+
+/**
+ * The words for one `addPaneNeeds` or `addBesideNeeds` reason: FULL_TEXT for
+ * "full", the NEEDS_TEXT for "wider", "taller" or "larger", null for no reason
+ * (the line is usable).
+ */
+export function whyText(reason) {
+  return reason === "full" ? FULL_TEXT : reason ? (NEEDS_TEXT[reason] ?? null) : null;
+}
+
+/**
+ * The words for a menu line that opens a choice of sides (Add pane: column or
+ * row, or left, right, above, below), given the reason each side is refused
+ * (null where it is not). The line is only grayed when every side is: FULL_TEXT
+ * if any says "full", else "Needs a larger window"; null when one side is open.
+ */
+export function addWhy(reasons) {
+  if (!reasons.every(Boolean)) return null;
+  return reasons.includes("full") ? FULL_TEXT : NEEDS_TEXT.larger;
+}
+
+/** A pane menu's "Make this pane wider" and its kin: which way a step goes along which kind of split. */
+export const SIZINGS = [
+  { label: "Make this pane wider", split: "columns", grow: true, word: "wide" },
+  { label: "Make this pane narrower", split: "columns", grow: false, word: "wide" },
+  { label: "Make this pane taller", split: "rows", grow: true, word: "tall" },
+  { label: "Make this pane shorter", split: "rows", grow: false, word: "tall" },
+];
+
+/**
+ * The nearest split round a pane that runs the way a sizing needs (one of
+ * SIZINGS): its path, the pane's place in it, and how many children it has.
+ * null when the pane has no such split round it (the only pane, or in rows
+ * when asked to widen).
+ */
+export function sizingFor(root, id, z) {
+  const at = pathTo(root, id);
+  if (!at) return null;
+  for (let d = at.length - 1; d >= 0; d--) {
+    const path = at.slice(0, d);
+    const node = nodeAt(root, path);
+    if (node?.split === z.split) return { path, index: at[d], count: node.children.length };
+  }
+  return null;
+}
+
 /**
  * Open a LIT pane to the left of a pane (3m: a search result's verse needs a
  * LIT pane to land in, and there is none). It becomes the active pane and
