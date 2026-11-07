@@ -34,6 +34,7 @@ import {
   loadTopicsIndex,
   loadPagefind,
   loadDeskSearch,
+  deskEnabled,
   greekSearchEnabled,
   isGreekQuery,
   addGreekMode,
@@ -84,6 +85,7 @@ const _initSearchbars = async () => {
     const modeSelect = root.querySelector(".searchbar__mode");
     const closeBtn = root.querySelector(".searchbar__close");
     const fullLink = root.querySelector(".searchbar__full");
+    const commandsLink = root.querySelector("[data-search-commands]");
     const jumpRow = root.querySelector("[data-jump]");
     const activeFiltersEl = root.querySelector("[data-active-filters]");
 
@@ -632,6 +634,19 @@ const _initSearchbars = async () => {
       withCommands().then((m) =>
         m.openGreekCommands({ field: input, filter, typeSelect: modeSelect }),
       );
+    }
+
+    // The tray's quiet "Search commands" link (E31), for the Study Desk
+    // preview only: it opens the same window with the Notebook and page
+    // commands first. It sits in the footer's own row, so the tray gains no
+    // height, and it is in no page without data-desk="on".
+    if (commandsLink && deskEnabled()) {
+      commandsLink.hidden = false;
+      commandsLink.addEventListener("click", () => {
+        withCommands().then((m) =>
+          m.openGreekCommands({ field: input, typeSelect: modeSelect, section: "desk" }),
+        );
+      });
     }
 
     // A command search (STUDY-DESK.md, 2a): the query said back in a line,

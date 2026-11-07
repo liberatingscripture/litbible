@@ -144,6 +144,14 @@ const glossaryTerms = Object.fromEntries(
 
       <div class="searchbar__footer">
         <a class="searchbar__full" href={fullSearchHref}>Go to full search</a>
+        {/* Study Desk preview only: searchbar.js shows it with data-desk="on". */}
+        <button
+          type="button"
+          class="greek-cmd-link searchbar__commands"
+          data-search-commands
+          aria-haspopup="dialog"
+          hidden>Search commands</button
+        >
         <button type="button" class="searchbar__close" aria-label="Close tray">
           Close
         </button>

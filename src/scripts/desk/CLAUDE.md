@@ -943,6 +943,24 @@ against `dist/` is a later item.
        examples where an empty search's results would be. Before adding a
        hint or a control to a search page, put it in the window
        (`src/scripts/greek-commands.js`).
+       **It lists every kind of search command, not only the Greek's**
+       (E31, BVJ 2026-11-05): a "Notebook and page commands" section,
+       `desk-commands.mjs`'s own (what a ">" in the box lists, asked of
+       `notebook-search.js`'s `commandList()` and run with its `runCommand`),
+       beside the "Greek search" section. Each section is left out where it
+       has nothing: the Greek's where `greekSearchEnabled()` is false (no
+       builder is made), the desk's where the desk's module is unavailable.
+       Only what the box would offer on this page is listed, with a line
+       saying more appear on a chapter page (`listCommands`). A plain
+       "Search commands" link (the tray's footer, /search's field row, the
+       Notebook's Settings tab) opens it with `section: "desk"`, the desk's
+       first; the Greek's own places (the Greek group's foot, an error, the
+       Greek type) leave the Greek first. The tray's and /search's links
+       exist only with `data-desk="on"` and open the window by the same
+       gated dynamic import the Greek links use; the Settings tab's brings
+       the page's search field into view first (`lit:search-open`, Chapter
+       View's phone toolbar button). A command chosen in the window runs and
+       closes it, as it does in the box.
        **Its top is the search builder** (E5, BVJ 2026-11-02; mocked first,
        then built on Claude's recommendation): a card for each word (up to
        four), each with menus that list only what that word takes, a "+ Then

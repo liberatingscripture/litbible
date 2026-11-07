@@ -16,7 +16,7 @@
 // textContent), never as HTML.
 
 import deskCss from "../../styles/desk.css?inline";
-import { isDeskCommandQuery, matchCommands } from "../../lib/desk-commands.mjs";
+import { isDeskCommandQuery, listCommands, matchCommands } from "../../lib/desk-commands.mjs";
 import {
   GREEK_NOTES_KEY,
   greekNotesOn as greekNotesStoredOn,
@@ -142,6 +142,11 @@ function commandContext() {
 /** The commands a query reaches here (desk-commands.mjs), or none. */
 export function commandsFor(query) {
   return matchCommands(query, commandContext());
+}
+
+/** Every command offered here, and how many more a chapter page has: the search commands window's list (E31). */
+export function commandList() {
+  return listCommands(commandContext());
 }
 
 /** Run a command that isn't a link: the desk's shell listens (commands.js). */
