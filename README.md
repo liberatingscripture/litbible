@@ -46,6 +46,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run fix:chapters` | Auto-fix chapter JSON formatting |
 | `npm run import:chapter` | Build chapter JSON from a Word master (see below) |
 | `npm test` | Run the unit test suite |
+| `npm run test:desk` | Run only the Study Desk's tests, for a faster loop while working on it |
 | `npm run check:links` | Verify every internal link in a production build resolves |
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
 | `npm run build:apps-qr` | Regenerate the QR code the app announcement shows on a computer (only needed if its address changes) |
