@@ -1653,7 +1653,18 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   pages (chapters and intros; an intro has no right-hand toolbar slot today, so
   it gets one) and /read take the toolbar pill; every other page has no Study
   Desk button. Rule 10's "links to /desk on every page" changes with it.
-  Status: **decided, to build.**
+  **Built (2026-11-06).** The header's Study Desk link is on the home page
+  only (SiteHeader's `deskLink`, which Layout sets for `/`; the `deskPlace`
+  prop is gone). Chapters and intros have "Open in the Study Desk" ("Study
+  Desk" where the old pill shortened, the icon alone on the compact toolbar)
+  in the toolbar's right slot, in the Read View pill's classes, linking to
+  `/desk/?place=<book>-<chapter>` (chapter 1 on an intro, as the Read menu's
+  footer does). /read has a "Study Desk" pill beside "Go to passage"
+  (`.read-menu__desk`, through ReadMenu's new slot), linking to `/desk/`. Both
+  show only under `html[data-desk]`. /sheets keeps "Edit on the Study Desk";
+  /notebook has no link of its own back to /desk (it opens from the desk's
+  title menu in a new tab). Checked in the Browser pane at 1366px on John 3,
+  Romans's intro, /read and home. Status: **built.**
 
 - **E51, rough: the Share this sheet dialog needs a close × in its corner, and
   its "Close" button should say "Cancel".** BVJ (2026-11-06), on /sheets.
@@ -1777,8 +1788,8 @@ the rest is polish.
     (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look, and so is
     E37's phase A (Save as a document, on the same branch), and f (E39, E40,
     after BVJ's look at a mock), and g's E43 and E49 (decided from a mock).
-    **Still open**: E37's phase B (slides), and E50 (mocked 2026-11-06,
-    waiting on BVJ). BVJ settled E33 (at
+    E50 is built too (decided from a mock). **Still open**: E37's phase B
+    (slides), and E53 (intros on /desk, to discuss). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
