@@ -1003,6 +1003,20 @@ function appendGreekRows(from, to, token) {
   }
 }
 
+/**
+ * The status line when a Greek file wouldn’t load, with a way to ask again:
+ * the loaders forget what failed, so the same search runs afresh (GK3-9).
+ */
+function writeGreekFailed(text) {
+  statusEl.textContent = `${text} `;
+  const retry = document.createElement("button");
+  retry.type = "button";
+  retry.className = "greek-cmd-link";
+  retry.textContent = "Try again";
+  retry.addEventListener("click", () => updateFromControls({ resetPage: false }));
+  statusEl.append(retry);
+}
+
 /** The status line of a Greek search: the count alone. */
 function writeGreekStatus() {
   const c = lastSearchCache;
@@ -1013,6 +1027,8 @@ function writeGreekStatus() {
     : "";
   if (!greek.lemmas.length) {
     statusEl.textContent = `No Greek words match “${c.displayQ}.”`;
+  } else if (greek.failed) {
+    writeGreekFailed("The verses couldn’t be loaded.");
   } else if (!greek.total) {
     statusEl.innerHTML = `No occurrences of ${word} in the selected book.`;
   } else {
@@ -1129,7 +1145,7 @@ function renderGreekCommands() {
     return;
   }
   if (greek.failed) {
-    setStatus("The Greek search couldn’t be loaded.");
+    writeGreekFailed("The Greek search couldn’t be loaded.");
     return;
   }
   if (!greek.resolved) {

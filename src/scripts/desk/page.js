@@ -5,6 +5,7 @@
 import { bookKeyToLabel } from "../../data/books.js";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
+import { readBook } from "./page-kind.js";
 
 /** The Chapter View chapter this page shows, or null (an intro, a draft, Read View, any other page). */
 export function pageChapter() {
@@ -60,12 +61,8 @@ export function footnoteList() {
   });
 }
 
-/** The book Read View shows on this page, or null anywhere else. */
-export function readBook() {
-  const root = document.querySelector("[data-rm-root]");
-  const book = root?.dataset.rmBook;
-  return book && root.querySelector("[data-rm-text]") ? book : null;
-}
+/** The book Read View shows on this page, or null anywhere else (page-kind.js, which the first stage carries). */
+export { readBook };
 
 /** One chapter's blocks in Read View, where a whole book shares the page. */
 export function readChapterBlocks(chapter) {

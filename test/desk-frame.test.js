@@ -168,9 +168,42 @@ test("standDown works on a page with no reading column", () => {
   assert.equal(page.column.style.translate, "-40px 0");
 });
 
-test("the gate and the shell stand down when the desk fails, and each tab is built on its own", () => {
+// The gate runs as it is imported, so it is given a page where the desk is
+// off: it then only defines loadShell (Audit 3, LG3-12).
+async function gate() {
+  const before = globalThis.document;
+  globalThis.document = { documentElement: { dataset: {} }, querySelector: () => null };
+  try {
+    return await import("../src/scripts/desk-gate.js");
+  } finally {
+    globalThis.document = before;
+  }
+}
+
+test("the gate stands the page down when the desk doesn't load or doesn't start, and not when it does", async () => {
+  const { loadShell } = await gate();
+  const quiet = console.error;
+  console.error = () => {};
+  try {
+    let stood = 0;
+    const stand = () => { stood += 1; };
+    await loadShell(() => Promise.reject(new Error("offline")), stand);
+    assert.equal(stood, 1, "the import failed");
+    await loadShell(async () => ({ start: async () => { throw new Error("no rail"); } }), stand);
+    assert.equal(stood, 2, "the first stage threw as it started");
+    let started = 0;
+    await loadShell(async () => ({ start: async () => { started += 1; } }), stand);
+    assert.equal(stood, 2);
+    assert.equal(started, 1);
+  } finally {
+    console.error = quiet;
+  }
+});
+
+test("the shell stands down when the Notebook fails before it is up, and each tab is built on its own", () => {
+  // Read as text: the shell's ?inline stylesheet can't be imported here.
+  // loadStageTwo's own test (desk-first-stage.test.js) runs the other half.
   const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
-  assert.match(read("../src/scripts/desk-gate.js"), /import\("\.\/desk\/shell\.js"\)\.catch\(\(err\) => \{[^}]*standDown\(\);/);
-  assert.match(read("../src/scripts/desk/shell.js"), /start\(\)\.catch\(\(err\) => \{[^}]*if \(!panelUp\) standDown\(\);/);
+  assert.match(read("../src/scripts/desk/shell.js"), /if \(!panelUp\) standDown\(\);/);
   assert.match(read("../src/scripts/desk/panel.js"), /try \{\s*t\.view = t\.make\(\);\s*\} catch/);
 });

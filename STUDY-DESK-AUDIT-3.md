@@ -475,6 +475,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 
 #### SEC3-1 · Medium · security · REGRESSION SEC-6
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 7's (a): `validateRecord`'s common block refuses any record over 1 MB as JSON (`MAX_RECORD_BYTES`, `recordBytes`), whatever its schema or kind, and `planImport` applies the same ceiling to a trash record as a whole, with the reason "It is too large to keep (over 1 MB)." Covered in `desk-hostile-records.test.js`; noted in the format and `STUDY-DESK.md` for BDR.
+
 > **Verified (Opus, Appendix J):** confirmed, Low. The `?sheet=` link adds nothing beyond opening the sheet by hand. Not a regression of a guard that once worked: SEC Q2's option B exempted newer records by design, so this is a gap SEC-6's fix left.
 
 **SEC-6's size caps don't apply to a newer-schema note or a newer-format sheet. A file someone sends can still slow the notebook for good.**
@@ -487,6 +489,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 
 #### SEC3-2 · Low · security · NEW (FA2-h's second lock is partial)
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** the scrub is `makeInert` in `src/lib/desk-inert.mjs`, applied once in `chapter-page.js`'s `keepParts` (the text, the footnotes, Go deeper) and to the intro pane's section, so a passage's words, its footnotes, the LIT pane and the Book Intro pane all get it; `sheet-lit.js`'s own copy is gone. An address is judged as a browser reads it (`[\x00-\x20]` dropped, then `URL`'s protocol; only http, https, mailto and tel pass), and the removed set covers `base`, `form` and its controls, `template`, `picture`/`source`, `math`, `canvas`, `track` and the resource attributes (`background`, `srcset`, `poster`, `ping`, `style`). The remove list stayed a denylist rather than an allowlist, since an allowlist written wrong would silently drop part of the text. `test/desk-inert.test.js` holds the split schemes and each element.
+
 **The scrub applied to fetched chapter HTML (`inertCopy`) covers a passage's words only, and it lets a split `javascript:` and several resource-loading elements through.**
 
 - **Where**: `src/scripts/desk/sheet-lit.js:189-200` `inertCopy`. Its scheme test is `/^\s*(javascript|data):/i`. It removes `img, picture, script, style, iframe, object, embed, link, meta, svg, audio, video` and nothing else. It is applied at `:227` only. Nodes from the same fetched or parsed page are imported with no scrub at `src/scripts/desk/sheet-copy.js:153` (paper footnotes) and `:201` (present-mode footnotes), at `src/scripts/desk/lit-pane.js:267` (the LIT pane's blocks), and at `src/scripts/desk/intro-pane.js:89` (the Book Intro pane).
@@ -496,6 +500,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 - **Confidence**: High for the gaps; the effect needs SEC-1's guard to fail first.
 
 #### SEC3-3 · Low · security (privacy) · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** per decision 6 (b), slides saved while the participant version is on screen have no speaker notes at all (`deckSlides`' `participant`, from `readSlides`): no answers, no Leader only parts, no list of a slide's blanks; the leader's version keeps E37 as it is.
 
 > **Verified (Opus, Appendix J):** confirmed, but what the slides hold is BVJ's E37 decision; only the menu's version line and accessible name mislead.
 
@@ -509,6 +515,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 
 #### SEC3-4 · Low · security · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** `validateRecord` caps `bookmark.label` at `BOOKMARK_NAME_MAX` (40, by character) and a label's `name` at `LABEL_NAME_MAX` (200); `openFileRow` refuses a file over `MAX_SHARE_FILE_BYTES` (4 MB) before reading it, and `fragmentInFile` throws "too-large" for a data line longer than any sheet's could decompress to, before `replaceState`. Tests in `desk-hostile-records.test.js`.
+
 **Two readers have no size limit: a bookmark's or label's name, and the Sheets page's "Import a Study Desk file."**
 
 - **Where**: `src/lib/desk-records.mjs:374-377` (`bookmark.label`: type only; the 40-character limit is the form's `maxlength`, `bookmark-form.js`) and `:382` (`label.name`: non-empty only). `src/scripts/desk/sheet-page.js:242-262` `openFileRow` (`file.text()` of any size, then the fragment goes into `history.replaceState`). Compare `export-import.js:35, 159`: the notebook's own import refuses files over 50 MB, which is SEC-6's other half.
@@ -518,6 +526,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 - **Confidence**: High for what is stored and planned; Medium for the browser-side cost.
 
 #### SEC3-5 · Nit · security · KNOWN-OPEN (Audit 2 Appendix A, Improvements: "Look up markers with Object.hasOwn")
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** `markerName` in `desk-notes.mjs` (hasOwn, else "Note") is what `print-notes.js` prints now; a hostile-records test feeds it the prototype names.
 
 **One marker lookup still reads the prototype.**
 
@@ -613,6 +623,8 @@ The slice is in good shape: the merge converges and is idempotent under 8,000 ra
 
 #### DI3-1 · High · data-integrity · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** one rule, `laterThan`/`laterThanAll` in `desk-records.mjs`: `trashRecord` stamps past the record it deletes, `restoreFromTrash` past the deletion and the record's own stamp, and `desk-history.mjs`'s `restamped` past every record the undo or redo puts back over (the other version, the deletion's `deletedAt`, the held copy). The audit's two skewed-clock cases are a test in `desk-merge.test.js` (both ways, through the real functions); four rule-b vectors show the resulting stamps; the format's "Room for skew" bullet states the rule for BDR.
+
 > **Verified (Opus, Appendix J):** confirmed, and wider: an Undo of an ordinary edit is lost the same way, so `restamped` needs the step for every record it puts back. Medium today, High once sync ships. Website-only fix; the format text gains a note for BDR.
 **Where**: `src/lib/desk-records.mjs:209-227` (`trashRecord`: `deletedAt: at`, no step past the record's `modified`); `:237-248` (`restoreFromTrash`: `laterThan(trash.record.modified, now)`, never against `trash.deletedAt`); `src/lib/desk-history.mjs:132-138` (`restamped`: an undo of a deletion stamps `now`, an undo of a restore stamps `deletedAt: now`); `src/lib/desk-merge.mjs:325-334` (rule b compares `live.modified` with `deletedAt`, equal or earlier means deleted); `:149` (`CLOCK_TOLERANCE_MS`, five minutes).
 **What happens**: two devices whose clocks differ by less than five minutes, which the spec says is normal and tolerated (`STUDY-DESK-FORMAT.md`, "Room for skew").
@@ -625,6 +637,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 
 #### DI3-2 · Medium · data-integrity · KNOWN-OPEN DI-1 (its residual: Audit 2's question 1, "should a mark moved to another verse say so?")
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 1, fix (a), as anchor spec version 4: `resolveAnchor`'s `moved` result carries `outsideVerses` (the verse the words now begin in lies outside the record's verses while they still exist), `changeNotice` raises a "moved" notice for it with the verses found (`noticeWords`: "Your words moved"; Keep moves the record there), and the margin's flag reads "Words moved." The print agrees (the sibling path): `standing` in `desk-print-notes.mjs` takes the whole placement and answers "moved" for a `moved` with `outsideVerses`, so "Print with my notes" prints such a note beside the verse its words are in now (as before) with a `MOVED_NOTE` line, "The words this note was on have moved to another verse."; a move inside its verses, and a pinned footnote's move, stay silent. The other readers of the status were checked: the margin, My Notes, This verse and the verse labels go through `changeNotice`; highlights draw at the found place and, carrying a notice, are no longer merged or trimmed; passages, blanks, pins and prose quotes have their own rules outside decision 1. Three vectors: the two Matthew 23 marks at `ff34f594` (against the chapter as that revision left it, a new `<slug>@<rev>` chapter form in the builder) and the silent verses-gone case; `ANCHOR_SPEC_VERSION` is 4. Written up in the format ("Spec version 4") and `STUDY-DESK.md` for BDR.
+
 > **Verified (Opus, Appendix J):** confirmed for 13 of the 15 cases (11 are one Matthew 23 revision). Fix (b) would not catch Matthew 23, where verse 15 kept the old formula; fix (a), a notice, would. Either needs BDR.
 **Where**: `src/lib/anchor-core.mjs:243-246` (the `moved` step searches the whole chapter), `:170-197` (`bestByContext` with `bothSides`: four characters each side is enough); `src/lib/desk-change.mjs` (`found` and `moved` carry no notice, by the format).
 **What happens**: the reader's verse is reworded, and the chapter keeps the same words in another verse with enough shared context around them (a repeated formula, a refrain). The mark leaves its verse for the other one with no notice. On the real revision `ff34f594` (2026-08-16, Matthew 23: "You'd better watch out, fakers, Bible Scholars and Pharisees, because" reworded to "Things won't end well for you pretenders" in every verse but 15), marks on "watch out, fakers," in verses 13, 16, 23, 25, 27 and 29 are all drawn on verse 15 afterwards. Luke 13:2's "more" (26e379a1) lands on verse 4's "debtors more so than"; 2 Corinthians 3:18's "One" (7d478b2d) on verse 17. Spec 3's four-characters-each-side test is met in all of them ("tors " + " so than all").
@@ -633,6 +647,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 **Confidence**: High on the numbers and the counterexamples; the rate is low in absolute terms (15 of 9,444 marks on changed verses) but each one is a mark silently drawn on another verse, in the spec both apps copy.
 
 #### DI3-3 · Medium · data-integrity · NEW (sync-readiness)
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 2, fix (a): a bookmark carries `placedAt` (`BOOKMARK_PLACE_FIELDS`: book, chapter, verses, `contentVersion`) and `editedAt`; `createRecord` and `editRecord` keep them (a change moves the stamp of the group it touches), the follower writes the place group with the page's `contentVersion`, a restore and an undo move both, and `desk-merge.mjs` merges two stamped copies by group (`mergeBookmark`; a copy without both stamps merges whole by rule a; the stamps are clamped). Merge vectors version 5 (five cases); the audit's two scenarios through the real writes and a 2,000-history three-replica property test in `desk-merge.test.js`. Written up under kind 4 and "Clocks" in the format, and in `STUDY-DESK.md`, for BDR.
 
 > **Verified (Opus, Appendix J):** confirmed. Low today (it needs two devices), Medium once sync ships; a design call under rule a rather than a code defect.
 **Where**: `src/scripts/desk/bookmark-follow.js:382-401` (`flush` writes the whole bookmark with `editRecord` every `MOVE_EVERY_MS`, `src/lib/desk-bookmarks.mjs:53`, 2 s); `src/lib/desk-merge.mjs:185-193` (rule a, whole record, later `modified` wins).
@@ -643,6 +659,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 
 #### DI3-4 · Medium · data-integrity · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 8: `planImport` writes such a trash record as its tombstone (`record` dropped; `deletedId`, `deletedKind`, `deletedAt` kept) and reports it in a new `warnings` list ("A deletion in this file was kept, but its words couldn’t be read, so it can’t be restored."), which the Open a copy result shows. Test in `desk-export.test.js`; noted in the format (kind 10) and `STUDY-DESK.md`.
+
 > **Verified (Opus, Appendix J):** confirmed. Low: the trigger is narrow. A tombstone-only trash record is already accepted by `planImport`, so the fix uses a shape the code knows.
 **Where**: `src/lib/desk-export.mjs:690-693` (`planImport`: a trash record whose held record fails `validateRecord` is pushed to `skipped` whole); `src/lib/desk-merge.mjs:130-142` (`problemWith` had already accepted the deletion itself).
 **What happens**: the deletion is well-formed (`deletedId`, `deletedAt`), only the copy it holds isn't (a marker the website doesn't know, a body over `MAX_NOTE_BODY`, a verse out of range in an app's record). The whole trash record is left out with "The copy it holds in the trash couldn't be read.", so the notebook never learns the record was deleted. An older backup, or a sync from a device that hasn't seen the deletion, then brings the live record in with nothing to stop it; that is the A-F10 case the tombstone exists for.
@@ -652,6 +670,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 
 #### DI3-5 · Medium · compat · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** `RENAMED_MARKERS` gains `star: "emphasis"`, so `validateRecord`, `migrateRecord` (live and in the trash) and the Markdown reader follow; merge vector `migrate-an-old-star-marker-reads-as-emphasis`; the format asks BDR for every marker name either app has written.
+
 > **Verified (Opus, Appendix J):** confirmed. Low. Adding `star` to `RENAMED_MARKERS` is harmless on the website; stating it as a rule for every client is a format line for BDR.
 **Where**: `src/lib/desk-records.mjs:74` (`RENAMED_MARKERS = { bookmark: "ribbon" }`), `:365` (`validateRecord` refuses a marker outside `MARKERS`); `STUDY-DESK-FORMAT.md:104` ("iOS already reads an old `star` as `emphasis`; nothing stored is rewritten").
 **What happens**: an iOS record written before `star` became `emphasis` still carries `marker: "star"` on disk, by the format's own rule that nothing stored is rewritten. In a backup or a sync it reaches the website as `star`, and the website skips it: "It has a marker the notebook doesn't know." The note, and (DI3-4) its deletion, never arrive.
@@ -660,6 +680,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 **Confidence**: Medium: it depends on iOS records still carrying `star`, which the format says they may.
 
 #### DI3-6 · Low · longevity · NEW
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** both halves: (a) `npm run build:sheet-golden` writes `test/fixtures/sheet-text-golden.json` (the five templates' text plus 372 seeded random inputs, with the sanitizer's output for each), which `desk-sheets.test.js` holds byte for byte, so a canonical-form change is a deliberate regeneration and `SHEET_FORMAT` bump; (b) `planSheetChange` runs the operation over `cleanSheetText(current)`, so a drift degrades to a one-time rewrite on the next edit rather than a refusal.
 **Where**: `src/lib/desk-sheet-format.mjs:1051-1055` (`validateSheet` requires `sanitizeSheetHtml(m.html) === m.html` for every module); `src/lib/desk-sheets.mjs:235-245` (`planSheetChange` validates the whole sheet on every edit); `test/desk-sheets.test.js:52-78` (`CANONICAL`, 21 hand-written inputs).
 **What happens**: every stored sheet is valid only while the sanitizer's output for its text never changes. E55 (`c4472a41`, 2026-11-06) changed the parser; it happens to be safe, but the only guard is a 21-line list. A future change that altered any canonical form (a serialization detail, an entity, a whitespace rule) would make every sheet holding that form refuse every edit ("not saved (Module 3 (text): html is not in the sheet's formatted-text form)"), including edits to other modules, with no path that re-canonicalizes it.
 **Evidence**: `sanitizer-compat.mjs` ran the pre-E55 sanitizer (`git show c4472a41^`) and today's over 30,000 random HTML inputs: 0 pre-E55 canonical outputs changed under the new sanitizer, 0 idempotence failures either side. So no defect today; the risk is the missing guard.
@@ -765,6 +787,8 @@ For a keyboard user it is worse. `swap` re-focuses `step.querySelector("button")
 
 #### NB3-3 · Medium · a11y · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** `notes-margin.js`'s `markFootnotes` now runs inside `keepPillFocus` (`footnote-pills.js`): when the margin mark hides the control focus is on, focus moves to "Add a note" (from the "⋯") or to the "⋯" (from a pill that went behind it), in both directions. Not run in a browser.
+
 > **Live check (Appendix G):** confirmed at 770px: focus on `BODY` after the save.
 
 **Where**: `src/scripts/desk/footnote-pills.js:100-106` (`pillsHome`); `src/scripts/desk/footnote-notes.js:128-132` (`openedFrom`); `src/scripts/desk/notes-margin.js:130-134` (`markFootnotes`); `src/styles/desk.css:2366-2368` and `:2411-2413`.
@@ -778,6 +802,8 @@ For a keyboard user it is worse. `swap` re-focuses `step.querySelector("button")
 **Confidence**: Medium. Browser check: narrow the window so the Footnotes list reads "more" (`data-desk-fn-pills="more"` on `ol.footnotes`), use the keyboard to open "⋯" then Add a note, type, press Ctrl+Enter, then read `document.activeElement`.
 
 #### NB3-4 · Medium · docs · NEW
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-help`):** the page is now "Study Desk help" at `/desk/help/` (BVJ's decision 5; `/notebook/help/` redirects, `HELP_HREF`, `WAYS_HREF` and the "Ways to keep your notebook" command moved), with new sections on the desk page and its panes, the title and pane menus, Layout, Full screen and Print…, sheets (editing, Present, Share, Save as, Print), the Search and Book Intro panes, pinned footnotes and notes on a footnote with the left-margin pills and "⋯", Print ▸, "Skip to the Notebook" and the Notebook actions window.
 
 **Where**: `src/pages/notebook/help.astro` (whole page); the "Help for the Study Desk" item in `src/scripts/desk/desk-page.js:692-693` and the tour's "title" step in `src/lib/desk-first-use.mjs`, both of which link to it.
 
@@ -800,6 +826,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-5 · Medium · a11y · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Narrowing the list (search, Show, color, label, scope) speaks the new count through an always-present `role="status"` region, debounced to 600 ms and only for a change the reader made, so opening the tab reads nothing. "Nothing shown in Matthew 9." speaks when it changes after the first drawing.
+
 > **Live check (Appendix G):** confirmed; no live region receives the count.
 
 **Where**: `src/scripts/desk/tab-mine.js:199-203` (`.desk-mine__count`, `.desk-mine__here`) and `:502-509` (`drawCount`).
@@ -814,6 +842,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-6 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Escape in a search field holding words clears it (and sends an `input`) and returns; the next Escape folds the Notebook (`panel.js`). Done in the handler rather than left to the browser, which sends no `input` and in some engines doesn't clear.
+
 > **Live check (Appendix G):** confirmed, and worse: see LV3-1.
 
 **Where**: `src/scripts/desk/panel.js:430-437` (panel `keydown`, Escape).
@@ -825,6 +855,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Medium. Browser check: type in "Search my notebook", press Escape once.
 
 #### NB3-7 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** The rail's change callback clears `foldedByHide` unless the hide handler is the one folding (`foldingByHide`), so a hand open, fold or window-narrowing in between means un-hiding no longer opens the panel.
 
 > **Live check (Appendix G):** confirmed.
 
@@ -838,6 +870,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-8 · Low · a11y · NEW (extends NB-16)
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Restore all and Undo use `busy()` (`aria-disabled`), not `disabled`. A keyboard Undo that puts up Redo keeps focus on the new button, and a bar that closes with focus in it returns focus to where it was when the notice came up, else the page's main region. "Ask this browser to keep it" moves focus to the rebuilt button or, once it is gone, the Settings tab.
+
 **Where**: `src/scripts/desk/trash-list.js:161` (`restoreAll`: `all.disabled = true`); `src/scripts/desk/panel.js:489` (`ask.disabled = true`, then `renderPersistence()` replaces the button); `src/scripts/desk/undo-bar.js:146` (`fresh.disabled = true`, then `hideUndo()` hides the bar the button is in).
 
 **What happens**: NB-16 moved Pin, Unpin and Add-a-note to `busy()`/`aria-disabled` because a focused button that becomes disabled loses focus in some browsers. These three still use `disabled`. Restore all loses focus on its failure and "nothing to restore" paths (the success path calls `focusAt`). "Ask this browser to keep it" always loses focus: `renderPersistence` rebuilds the line, so the button is gone whatever the answer. After a keyboard Undo, focus is on a hidden bar.
@@ -848,6 +882,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-9 · Low · bug · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** `revealPanel` calls `rail.collapse()` directly, so the first mark in a narrow window no longer moves focus to the Notebook tab.
+
 **Where**: `src/scripts/desk/panel.js:387-391` (`revealPanel`), `:398-401` (`collapse`), `:148-153` (`firstUse.reveal`).
 
 **What happens**: The first time the reader makes any mark with no "where should the notebook live" answer, `reveal()` runs `open(null, { focus: false })`. If the panel floats (a narrow window), `revealPanel` then calls `collapse()`, which calls `tab.focus()`. So in a narrow window the first note, bookmark or highlight moves focus to the Notebook tab right after the editor closes, taking it from the verse number the editor just restored. `open` was deliberately called with `focus: false`, so this contradicts the intent.
@@ -857,6 +893,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Medium.
 
 #### NB3-10 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** (a) The skip link carries `data-desk-skip`, and `desk.css` hides it while `data-desk-show="off"`. (b) `SiteHeader.astro`'s `bgRegions` is read on each open and close and takes every `.skip-link`, so the link the desk adds later is made inert with the first. (b) not checked in a browser.
 
 **Where**: `src/scripts/desk/panel.js:698-713` (the "Skip to the Notebook" link); `src/components/SiteHeader.astro:424-429` (`bgRegions` names only `document.querySelector(".skip-link")`).
 
@@ -892,6 +930,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-13 · Low · data-integrity · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** `save()` ignores a call while one is in flight (a `saving` flag around `saveNow`), covering a double-click, a held Ctrl+Enter and the edit path.
+
 **Where**: `src/scripts/desk/note-editor.js:171-232` (`save`, `saveEdit`), `:252-257` (Ctrl+Enter).
 
 **What happens**: Nothing guards a second Save while the first is in flight. A double-click on Save, or a held Ctrl+Enter, runs `save()` twice before the first `await store.save(next)` resolves. `createRecord` runs again and writes a second note with a new id on the same words. The window is small (the panel closes when the first write resolves), but IndexedDB in Safari or under load is slow enough to hit it. The edit path saves the same body twice, which is harmless.
@@ -901,6 +941,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Low to Medium (timing; browser check: throttle storage or double-click quickly).
 
 #### NB3-14 · Nit · docs · NEW
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-help`):** the sentence now names the toolbar's "Open in the Study Desk" button and links to the Study Desk page section; Read View's "Study Desk" button is named in that section.
 
 **Where**: `src/pages/notebook/help.astro:57-59`.
 
@@ -982,6 +1024,8 @@ Nothing here needed a browser to confirm except where each finding says so.
 
 #### DK3-1 · Medium · compat · NEW
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** a paragraph longer than a slide is cut after a sentence (`cutSentences` in `desk-slides.mjs`, a sentence longer than a slide after a word), across as many slides as it needs, and a quotation or box too long is cut between its blocks; a passage with blanks still cuts only at verse numbers, since its two forms' words differ. A long start-slide title is set smaller (`titlePoints`) in the .pptx, the .odp and the PDF. Checked in LibreOffice 26.2; not opened in PowerPoint.
+
 > **Verified (Opus, Appendix J):** the XML is as described. Whether PowerPoint refits on open is likely but not reproduced (Medium confidence). Low.
 **Where** `src/lib/desk-slides-pptx.mjs:127` (`textBox`, `<a:normAutofit/>` with no `fontScale`); `src/lib/desk-slides-odp.mjs:106` (`style:shrink-to-fit="true"`); cutting rule `src/lib/desk-slides.mjs:208` (`splitBlocks`, "between blocks only") and `:139`-`:156` (`chooseCuts`: a single verse stays whole).
 **What happens** A slide's body is a fixed 11.9 by 5.85 inch box at 28 pt. A text or question part holding one long paragraph (say 1,500 characters of sermon notes) is never cut, because `splitBlocks` cuts only between blocks. PowerPoint does not shrink text on open: `normAutofit` without a `fontScale` means "autofit on, scale 100%", and PowerPoint recomputes only when the text is edited. So the paragraph runs past the bottom of the slide. The same holds for a 200-character sheet title (the title limit is 200, `SHEET_LIMITS.title`) at 48 pt in a 1.35-inch box anchored at the bottom: it grows upward off the slide. LibreOffice does shrink (it honors the autofit), and the print/PDF path shrinks in `fitBoxes`, so only the files opened in PowerPoint (and probably Keynote and Google Slides) are affected. The tests say a file was opened in PowerPoint "by hand (2026-11-06)" but on the normal-length fixtures.
@@ -991,6 +1035,8 @@ Nothing here needed a browser to confirm except where each finding says so.
 
 #### DK3-2 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** any way out of Reading (a Layout row, Reset, Add pane, a drag, a pane's kind, `?sheet=` or `?intro=`) turns back on the marks Reading turned off, through `leavesReading` (`desk-layout.mjs`) run in `commit`, and says so in the undo bar (“Left Reading: turned on …”), whose Undo puts back both; the remembered list is cleared on the way out, so a plain single LIT pane never brings back an old list. Not run in a browser.
+
 > **Live check (Appendix G):** confirmed; LV3-2 is a worse sequence of the same feature.
 **Where** `src/scripts/desk/desk-page.js:434` (the Layout window's shape buttons) and `:470` (Reset); `src/scripts/desk/reading-display.js:76-84`; `src/lib/desk-layout.mjs:153` (`arrangementOf`).
 **What happens** Choosing Reading turns off verse numbers, footnote letters, key terms and highlights (site-wide settings in `localStorage`) and remembers which. They come back only when the reader later picks another row or Reset from a layout that `arrangementOf` calls "reading" (one LIT pane). Any other way out of Reading leaves them off with no word: Add pane from the title menu or a pane menu, the `/` Search shortcut, `?sheet=`, `?intro=`, a drag split. The reader then has two panes and no verse numbers or highlights in the LIT pane (so no verse menu), and the next Layout choice does not restore them either, because the layout in between was not "reading". The reverse also holds: a plain single LIT pane that the reader never set to Reading counts as Reading, so choosing "Two columns" can turn marks back on (with the undo bar) from an old remembered list. The doc (`desk/CLAUDE.md` rule on Reading) says "leaving Reading by another row or Reset", so this is the documented scope, but it is easy to trip.
@@ -999,6 +1045,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High on the code; the live-browser auditor can confirm: choose Layout > Reading, then title menu > Add pane > The LIT's right side; check Display options (verse numbers stay off).
 
 #### DK3-3 · Low · usability · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `?intro=` with no room shows “There’s no room for a Book Intro pane…” (`introMoveMessage`, the Search pane's words) in the notice bar once the panes are drawn. Not run in a browser.
+
 **Where** `src/scripts/desk/desk-page.js:1828-1840` (`?intro=` handler); `src/layouts/ScriptureLayout.astro` (pill `deskPlaceHref`).
 **What happens** An introduction page's "Open the Romans introduction in the Study Desk" pill goes to `/desk/?place=romans-1&intro=romans`. With four panes saved, or a window too narrow to fit another column, `showIntroIn` returns outcome `"none"` and the handler drops it without a word. The reader lands on the desk at Romans 1 with no introduction and no message. (The Search pane path does say "There's no room for a Book Intro pane" through `introMoveMessage`.) `?sheet=` falls back to the last non-LIT pane; `?intro=` has no fallback.
 **Evidence** `intro.mjs`: `showIntroIn(four-column layout, "romans", 2400, 900).outcome` is `"none"`; at width 500 also `"none"`. Handler reads `.layout` only.
@@ -1006,6 +1055,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High (code and probe). Browser check: open `/desk/?intro=romans` with four panes, or at a narrow width, and see nothing change.
 
 #### DK3-4 · Low · ui · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** a list inside a quotation is moved in by the quotation's indent and keeps its right margin in the .docx (`w:ind` on each item), the .odt (`LBQ`/`LNQ` list styles, written only when used), the .rtf (`\li`, `\ri`) and the slides (italic, as the quote). Checked in LibreOffice's PDFs of all three documents.
+
 **Where** `src/lib/desk-doc-docx.mjs:206` (`listParagraphs`), `desk-doc-odt.mjs:215` (`listXml`), `desk-doc-rtf.mjs:133` (`listRtf`), `desk-slides.mjs:344` (`list` inside `slideParagraphs`).
 **What happens** A list inside a blockquote (`quote` block) is written at the plain list indent, not inside the quote's 0.5 inch margins, so it looks detached from the quote above it. The quote's own paragraphs are indented by the `Quote` style; the list is not. In the paper copy the list is inside the quote.
 **Evidence** `gen.mjs` "A quote" then a bullet: in the LibreOffice PDFs of all three files "A quote" is indented and "in quote" is at the page's list indent (page 1, below "Restart at 1").
@@ -1013,6 +1065,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High.
 
 #### DK3-5 · Low · data-integrity · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `inlines` reads a `sup` as a verse number or footnote letter only when it has the copy's class (`.vn`, `.fn-ref`, `.sheet-copy__fnref`); any other is a new `{ t: "sup", kids }` piece, raised in the files and the HTML and plain words (“1st”) in the text.
+
 **Where** `src/scripts/desk/sheet-word.js:43-47` (`inlines`, `tag === "sup"`), `src/lib/desk-sheet-doc.mjs:200` (`docText`, `fn` as `[text]`).
 **What happens** A reader's own superscript in a sheet's text (the sanitizer allows `sup`, `desk-sheet-format.mjs:74`, so "1<sup>st</sup>" or "x<sup>2</sup>") is read as a footnote letter. The files raise it correctly, but Copy's plain-text flavor writes "1[st]" and "x[2]". Formatting inside the superscript is flattened to its text. Subscripts are not affected (they read as "x2").
 **Evidence** Read the two sites; `san.mjs` shows `sup` survives the sanitizer. Not run through `docText` with a real DOM (it needs one), but the branch is plain.
@@ -1020,6 +1075,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Medium (confirm by copying a sheet with "1<sup>st</sup>" and pasting into a plain-text field).
 
 #### DK3-6 · Low · usability · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `codePng` gives the SVG a width and height (`sizedSvg`) before drawing it; a code that still can't be drawn is counted (`codesMissing`), and the status line adds “A code to scan couldn’t be drawn, so the file leaves it out.” Not run in Firefox.
+
 **Where** `src/scripts/desk/sheet-save.js:62-72` (`drawCodes`), `src/scripts/desk/sheet-slides.js:105-116` (`codesWithPng`).
 **What happens** If the browser cannot draw a code to scan to a PNG, the code is left out of the file, with only a `console.error`; the status line still says "Saved … .docx". The paper copy, which the reader checked on screen, had the code. `codePng` draws a data URL of an SVG that has only a `viewBox`, no `width` or `height` (`qr-svg.mjs`); that is the case browsers treat differently (Firefox has historically refused it in `drawImage`).
 **Evidence** Read the code. Not run (no browser).
@@ -1027,6 +1085,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Low on the Firefox failure; High that a failure is silent. Browser check: Firefox, a sheet with "Show QR codes" on, Save as .docx, and see whether the code is in the file.
 
 #### DK3-7 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** per BVJ's rule (a disabled item is passed over in every menu), the title menu's top level now passes over a disabled Add pane as its flyouts and the pane menu already did; the shared `panel-flyout.js` and the Save as menu pass over `disabled` or `aria-disabled` items too (none of the reader's other menus has a disabled item). The rule is in `src/scripts/CLAUDE.md` and the desk's file.
+
 **Where** `src/scripts/desk/desk-page.js:1371-1396` (pane menu `keydown`: `live = items.filter(aria-disabled !== "true")`), and `menuItem(label, why)` at `:1226`.
 **What happens** In the pane menu, a line that cannot be used (Add pane with "Four is the most", or a side of it) is `aria-disabled` and carries its reason in `aria-describedby`, but the arrow keys skip it, and it is a button without `tabindex`, so a keyboard or screen-reader user never reaches it to hear why. Sighted users see the reason. The same pattern is in the title menu (`enabled(...)`), so it may be deliberate.
 **Evidence** Read. 
@@ -1034,6 +1095,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Medium (a design choice to confirm; see Questions).
 
 #### DK3-8 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** a pane's region is named by `regionNames` (`desk-layout.mjs`): its kind, and “The LIT, 2 of 2” where a kind is open more than once.
+
 **Where** `src/scripts/desk/desk-page.js:978-1010` (the pane `section`, `aria-label` from `mark()` at `:1112-1118`).
 **What happens** Each pane is a `<section aria-label="The LIT">`, a region landmark. Two LIT panes, or two Search panes, give two regions with the same name, which screen-reader landmark lists cannot tell apart. DK-7 shortened the label; it did not make it unique.
 **Evidence** Read.
@@ -1041,6 +1105,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High on the markup.
 
 #### DK3-9 · Low · compat · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `docHref` (`desk-sheet-doc.mjs`) writes every link's address as a valid URI (`new URL().href`: a space or a non-ASCII character percent-encoded, an encoded one left alone), so every writer and Copy get it; the Copy golden's mailto link changed with it.
+
 **Where** `src/lib/desk-doc-docx.mjs:336` (hyperlink relationship `Target`), `desk-slides-pptx.mjs:297`, `desk-doc-rtf.mjs:101` (percent-encodes only quote, space, backslash and braces).
 **What happens** A link's address is written as typed. The sanitizer keeps `https://x.com/a b` (probe `san.mjs`), so a .docx or .pptx relationship carries a `Target` with a space (and any non-ASCII character as is). Word is usually lenient but Open XML tooling that parses `Target` as a URI throws, and Word may call the link broken. The .rtf path does encode a space.
 **Evidence** `san.mjs` output; code read. Not opened in Word.
@@ -1048,6 +1115,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Low.
 
 #### DK3-10 · Low · compat · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** each line to write on in the .rtf is an exact 32pt paragraph with no space before (`\sl-640\slmult0`), still ruled below and between; LibreOffice now spaces the three evenly. Not opened in Word.
+
 **Where** `src/lib/desk-doc-rtf.mjs:71` (`ruled`: `\brdrbtw` with `\sb360`).
 **What happens** In LibreOffice's PDF of the .rtf, three "lines to write on" are spaced 50, then 25 pixels apart, where the .docx and .odt are even. Word may draw it differently. Only observed in LibreOffice.
 **Evidence** `pdf/rtf/awkward-letter.pdf` page 2 against `pdf/docx/awkward-letter.pdf`.
@@ -1055,12 +1125,18 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Low; open the .rtf in Word to see.
 
 #### DK3-11 · Nit · performance · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `docRuns` tidies spaces in one pass forward and one back, keeping the line's last text and whether text follows, so 60,000 runs take milliseconds.
+
 **Where** `src/lib/desk-sheet-doc.mjs:330-338` (`docRuns`: `prevText` uses `runs.indexOf(r)`, the trim pass uses `raw.slice(i + 1).find`).
 **What happens** Quadratic in the number of runs in one paragraph: 15,000 runs take 72 ms, 60,000 take 4.5 s (`perf.mjs`). A real sheet (512 KB limit, passage paragraphs of tens of verses) stays far under this; only an absurd single paragraph hits it.
 **Fix** Track the previous run's text in the loop.
 **Confidence** High; unlikely to matter.
 
 #### DK3-12 · Nit · copy · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** the share file's words are escaped for Markdown (`markdownLine`: a leading `#`, `-`, `+`, `>` or number-dot, and `*`, `_`, backquote and backslash anywhere, title and subtitle included), paragraphs are a blank line apart, and the file's own list marks and rule are left as Markdown.
+
 **Where** `src/lib/desk-sheet-share.mjs:196-210` (`plainText`) and `shareFile` (`:262-266`).
 **What happens** The share file's human half does not escape Markdown: a text part starting "# x" or "- y" becomes a heading or list in the file, a title with `*` or `_` italicizes, and paragraphs are joined by one newline so they run together in a Markdown viewer. The authoritative data is on the last line, so nothing is lost.
 **Fix** Escape a line's leading `#`, `-`, `>` and number-dot, and join paragraphs with a blank line.
@@ -1134,6 +1210,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-1 · Medium · ui · REGRESSION GK-12
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the “Show sources” button has its own class, `desk-greek__show-sources` (JS and the three CSS rules), so the credit block keeps its rule and spacing; `test/greek-audit3.test.js` fails if any class in `tab-greek.js` names two kinds of element. Not seen in a browser.
+
 > **Live check (Appendix G):** confirmed: the section computes a 999px radius and a border.
 
 **Where** `src/styles/desk.css:4427-4445` (the "Show sources" button rules) against `desk.css:4061-4068` and `src/scripts/desk/tab-greek.js:503` (`sourcesSection`, `make("section", "desk-greek__sources")`) and `tab-greek.js:137` (`sourcesToggle`, `make("button", "desk-greek__sources", ...)`).
@@ -1147,6 +1225,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High on the cascade; Medium on how ugly it renders. **Live browser:** open the Notebook's Greek tab, scroll to the foot of the text, look at "Sources and licenses" (expect a rounded outline box, no top rule); select any word with a STEP or LSJ entry and confirm "Show sources" itself still looks right.
 
 #### GK3-2 · Medium · a11y · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** a card’s word box is made once and reused: `render` fits the window’s children to the wanted list without moving a box already in place, and `drawCard` replaces only the heading and everything below the box, keeping the caret when the box’s text changed. `test/greek-commands.test.js` holds that the typed-in node stays the same. Screen-reader behavior not heard.
 
 > **Live check (Appendix G):** partly: the input is replaced on each keystroke, but focus and caret carry into the new one. Counted as Low.
 
@@ -1162,6 +1242,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-3 · Medium · a11y · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `global.css` has a `forced-colors: active` block: a pressed `.greek-chip` gets a 3px `Highlight` border (padding eased), the “only” chip a dashed `GrayText` edge, and the card’s × a `ButtonBorder` edge. Not seen in forced-colors emulation.
+
 **Where** `src/styles/global.css:3641-3664` (`.greek-chip`, `.greek-chip[aria-pressed="true"]`); no `forced-colors` rule for them anywhere (`desk.css:6687-6760` covers `.desk-greek__choice`, the segmented controls and the others, but not `.greek-chip`).
 
 **What happens** The builder's chosen state is a Deep Green fill, a matching border and a white label, all colors. In Windows contrast themes background, border color and text color are replaced by system colors, so a pressed chip (genitive, singular, "Next to each other", "Either order") looks identical to an unpressed one. The only other cue is the `aria-pressed` attribute, which sighted contrast-theme users don't have. The file `src/styles/CLAUDE.md` (forced colors paragraph) and BA141/BA142 already require "chosen" to be drawn in a system color for exactly this.
@@ -1171,6 +1253,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** Medium (code is conclusive; not rendered). **Live browser:** DevTools > Rendering > Emulate CSS media feature `forced-colors: active`, open the commands window, press a case and a number chip, compare pressed and unpressed.
 
 #### GK3-4 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** a card’s look-up fetches the glossary bridge for Latin words (`loadGreekBridge`) and `resolveCard` passes it on, so a LIT rendering resolves as it does in the field (BVJ’s decision 12).
 
 **Where** `src/scripts/greek-builder.js:127-153` (`load`), `src/lib/greek-builder.mjs:156-165` (`resolveCard`): `resolveGreekQuery(index, ..., {})` is called without `bridge`; the search (`search-greek.js:179-180, 304-306`) passes it.
 
@@ -1182,6 +1266,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-5 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `readBuilder` reads two or three plain Latin words as a construction (`plainLatinWords`, now shared from `greek-query.mjs`), with `plain: true` and a line in the window saying how they are read; four or more stay “plain” (BVJ’s decision 12).
+
 **Where** `src/lib/greek-builder.mjs:56` (`readBuilder`: `if (!quoted && !isGreekCommandQuery(text)) return { cannot: "plain" }`), `cannotSay` at `:72-73`.
 
 **What happens** Two or three plain Latin words are a word search of their own to the builder, "nothing to build", but `searchGreekAuto` runs them as a construction when no single word fits (`search-greek.js:398-405`). `pistis Christos` gives the builder's "ordinary word search, so there is nothing to build. Start a new search", while the search runs "Any form of πίστις, followed within 3 words by Χριστός"; `πίστις Χριστός` builds two cards. `logos theos` and `faith hope` likewise. The message is wrong for what is actually happening, and the "Start a new search" button wipes a working search.
@@ -1191,6 +1277,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High (`b7.mjs`).
 
 #### GK3-6 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the offers table is a null-prototype object and `offerLemma` takes own keys only (`Object.hasOwn`, a non-empty string), so “constructor” is never a Greek word; `test/greek-offers.test.js`.
 
 > **Live check (Appendix G):** confirmed on /search with the desk on.
 
@@ -1204,6 +1292,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-7 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `parseGreekQuery` returns `{ error: { kind: "tooLong", length } }` past 300 characters instead of cutting; `errorMessage` says why, every surface shows it, and the builder shows the sentence and leaves the field as typed (BVJ’s decision 12).
+
 **Where** `src/lib/greek-query.mjs` `parseGreekQuery` (`slice(0, MAX_QUERY_LENGTH * 4).trim().slice(0, MAX_QUERY_LENGTH)`), consumers `greek-builder.mjs:49-65` and `search-greek.js:297`.
 
 **What happens** GK-7's fix clamps a query to 300 characters silently. A valid but long query (34 alternative words and `.gen`, 348 characters) is searched without its last words and without its `.gen`, with no error or note: `searchGreekAuto` returns 157 matches with 0 filters (`r1.mjs`). The builder reads the same truncated text (34 words, no filter); the next chip press then rewrites the field with the 299-character version, so the tail is lost for good. Rare (a real query is far shorter), but silent loss of input is the pattern RC-6 asked about.
@@ -1213,6 +1303,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High on behavior; the scenario is contrived.
 
 #### GK3-8 · Low · a11y · NEW (gap in GK-2's fix, and a double state in GK-12's)
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the cite is built with `appendLang` (Greek in `lang="grc"`), and the button keeps one label, “Show sources”, with `aria-pressed` alone; a forced-colors border marks it pressed.
 
 **Where** `src/scripts/desk/tab-greek.js:136-152` (`sourcesToggle`).
 
@@ -1224,6 +1316,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-9 · Low · bug · KNOWN-OPEN GK-6 (partial)
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** /search, the tray and the Search pane read `res.failed`: “The verses couldn’t be loaded.” (and the commands search’s load failure) with a Try again button; the pane’s exact-form guard is gone, and a book with no occurrences now says “No occurrences in the selected book.”
+
 **Where** `src/scripts/search.js:1007-1020` (`writeGreekStatus`), `src/scripts/desk/search-pane.js:1137-1143` (`paintWord`), `src/scripts/searchbar.js` `renderGreekGroup` (`if (!hits.length) return;`).
 
 **What happens** `searchGreek` now returns `failed: true` when a word's shard doesn't load, and the Greek tab uses it (`greek-find.js:264, 310`). The other surfaces ignore it for a single-word search: /search says "No occurrences of πίστις in the selected book." (no retry, and wrong when no book is selected), the tray silently draws no Greek group, and the Search pane keeps the exact-form guard `&& !greekState.exact`, so an exact-form search with a failed shard says "This exact form doesn’t occur. Clear “Exact form only”…" with no Try again. The only trigger is a flaky connection or a shard 404 after a deploy, so the damage is a wrong message.
@@ -1233,6 +1327,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High (read in each file); not provoked in a browser.
 
 #### GK3-10 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** when a typed word’s look-up settles and the typing pauses, the builder announces the lemmas it reached (or that none matched, or that the look-up failed) through the window’s live region; “Word N added.” is announced too.
 
 **Where** `src/scripts/greek-builder.js:206-224` (`lemmaLines`), `:175-181`.
 
@@ -1244,6 +1340,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-11 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `showDetails` takes `pause`: only arrow-key selection waits 150 ms; a click or a search answer asks for the lexicon at once.
+
 **Where** `src/scripts/desk/tab-greek.js:1047-1058` (`showDetails`, `LEXICON_PAUSE`).
 
 **What happens** GK-10's debounce applies to every selection, not only to arrow-key runs: a plain click on a word, or a word whose lexicon shard is already cached, shows "Loading…" for 150 ms before the entry appears. It's a flicker on every click and a fixed 150 ms of latency that buys nothing there.
@@ -1253,6 +1351,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High on the code; the flicker needs a look.
 
 #### GK3-12 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the copy handler’s plain text comes from `plainTextOf` (`src/lib/desk-greek-text.mjs`), which walks the copied nodes: every block is a paragraph, a `<br>` a line break, so a lexicon entry’s body is kept; tested over a small DOM.
 
 **Where** `src/scripts/desk/tab-greek.js:732-763` (the `copy` handler, E54).
 
@@ -1264,6 +1364,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-13 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the note is one permanent `role="status"` element with a class and style, cleared when another word is selected or the word is let go, and it says “Opening the Greek search…” while the module loads the first time.
+
 **Where** `src/scripts/desk/tab-greek.js:292-307` (`openFind`) and the lack of a style (`grep desk-greek__find-failed src/styles` finds nothing).
 
 **What happens** When the lazy `greek-find.js` import fails (a page left open across a deploy), an unstyled `<p role="status">` is inserted after the parsing line. A `role="status"` node created with its text already in it is often not announced, and the note is removed only by the next `openFind`; selecting another word leaves "The Greek search couldn’t be loaded. Try again." under the new word's details. There's also no progress cue while the chunk loads for the first time (the "Searching…" status only exists after it arrives).
@@ -1273,6 +1375,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** Medium.
 
 #### GK3-14 · Low · longevity · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `loadGreekOffers` clears its cached promise on a failure (and on a bad file), as `loadGreekSearch` does; `test/greek-offers.test.js`.
 
 **Where** `src/scripts/search-core.js:1353-1362` (`loadGreekOffers`).
 
@@ -1284,6 +1388,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-15 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `readCardText` reports what a card’s box left out (a space or symbol, or a command word that can’t be joined with a slash) and the card shows a one-line note under the box.
+
 **Where** `src/scripts/greek-builder.js:290-299` (`typed`), `src/lib/greek-builder.mjs:130-133, 96`.
 
 **What happens** A card's text box strips spaces and symbols as they're typed ("holy spirit" becomes `holyspirit`), and among several `/`-joined words it silently drops any that is also a command word (`perfect/aorist` shows `aorist` only, and typing `perfect/` then `a` makes the first word vanish mid-sentence). That's the documented rule ("a quote can't sit inside a/b"), but nothing on screen says so; the reader just sees their text change.
@@ -1294,6 +1400,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-16 · Nit · docs · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the header comment now says the Search pane has the “My notes” checkbox and lists the notes for a Greek search.
+
 **Where** `src/lib/desk-greek-notes.mjs:12-13`.
 
 **What happens** The header says the "My notes" switch does not govern the desk's Search pane, "which lists no notes for a Greek search". Since #463 the Search pane has the checkbox and lists them (`search-pane.js:247-256, 947`; the desk `CLAUDE.md` rule 15 says so).
@@ -1303,6 +1411,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High.
 
 #### GK3-17 · Nit · a11y · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the chips no longer carry the `title=".gen"` notation; the card already shows it.
 
 **Where** `src/scripts/greek-builder.js:238-244` (`title: ".${filter.words[0]}"`).
 
@@ -1388,6 +1498,8 @@ Counts: 0 Critical, 0 High, 5 Medium, 6 Low, 2 Nit (13 findings).
 ### Findings
 
 #### LG3-1 · Medium · docs · NEW (extends LG-3)
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-checklist`):** "Launching" names the stamp readers the grep found (items 2 to 4, with the Read View pill's CSS in `ScriptureLayout.astro`, which the finding missed, in item 4), adds Read View's retirement (8c) as item 11 for the same change as the flip, with the guard test and its two neighbours, and re-runs the grep after the flip.
 **Where** `src/scripts/desk/CLAUDE.md`, "Launching" (lines 41 to 90) against the code.
 **What happens** The checklist names the readers of the preview stamp, but the stamp is also read in places it does not name, and one whole launch step (Read View's retirement, work session 8c) is not in it at all. Flipping the pre-paint script will make all of these work (they key on the same `data-desk` attribute), so nothing breaks at the flip. What breaks is the cleanup: the `html:not([data-desk])` branches, "preview" copy and a guard test stay behind, and the Read View cutover is easy to forget because it lives only in rule text (`CLAUDE.md` lines 1139 to 1148).
 Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off`):
@@ -1401,6 +1513,7 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-2 · Medium · performance · KNOWN-OPEN LG-10 (unchanged, and it matters more at launch)
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-lazy-desk`):** per decision 3, a reading page now loads a first stage (`desk/first-stage.js`: the tab, `desk-tab.css`, the Display tray's Notebook switches from a now-light `note-settings.js`, one read of the notebook's `chapter` index) and the shell and `desk.css` only when there is something to draw or the reader reaches for the Notebook, with early events held and replayed; opening the Display tray loads nothing more (BVJ's review); the search box's `notebook-search.js` loads on first focus. On `dist/john-3/`, gzipped: 130 KB of desk script on every load before (the shell's 124 and the search box's 6), 14 KB now with nothing kept and the Notebook minimized (the tray opened included), 130 KB once it opens.
 **Where** `dist/_astro/shell.Dgv48En5.js` and its static closure; `src/scripts/desk-gate.js:45`.
 **What happens** After the flip every desktop reader on a chapter page fetches the whole desk, though the Notebook starts minimized. From `dist/` (script `closure.mjs`-style walk, in Python in my session, results below): the desk-only chunks (those not reachable from the scripts a non-desk `john-3` page loads) are `desk.js` 152,482 B (it embeds `desk.css` as a string), `tab-mine` 75,882, `shell` 61,372, `continue-reading` 57,267, `boot` 32,587, `page` 12,283, `desk-footnotes` 8,430, `store` 7,714, `history` 5,562, and four small ones. Total **416,990 B raw, 124,059 B gzipped**. The scripts a non-desk chapter page loads total 112,496 B raw, 43,818 B gzipped. So the flip roughly quadruples the JavaScript on the site's main page for every desktop reader. Audit 2 measured 141 KB gzipped for the same closure; it has not moved, because FA2-z cut other things. The Greek tab is already a separate chunk (`tab-greek`, 24 KB), which is the right pattern. It is a deliberate-looking choice nobody has weighed against the site's "progressive enhancement, almost no JS" stance, so I have put the owner's call in Questions.
 **Evidence** `dist/_astro` chunk walk (static `from"./x.js"` edges); `MX.md` section 2 sizes.
@@ -1408,6 +1521,7 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High on the sizes; Medium on how much a lazy split saves (not built).
 
 #### LG3-3 · Medium · longevity · KNOWN-OPEN LG-13 (worse)
+> **Fixed in part (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-desk-page`):** the pane menu (`openKindMenu`, its Add pane, Move and Size flyouts, placement and closing listeners) is now `src/scripts/desk/kind-menu.js`, `createKindMenu({ getLayout, panesBox, paneEls, commit, announce, sizePane })`; `addWhy`, `whyText`, `sizingFor`, `SIZINGS` and `NEEDS_TEXT` moved into `desk-layout.mjs` with tests; `start()` went from 1,747 lines to 1,414. **Still open:** the title menu with its Add-pane flyout (its keydown, hover and tour wiring share `addStep`, `addFly` and `enabled`), the move-by-drag (`startMove`, 116 lines), the print and Layout windows and the tour wiring, one extraction per sitting.
 **Where** `src/scripts/desk/desk-page.js:205` `start()` and the other closure factories (script `fnsize.mjs`, acorn, 3,944 functions).
 **What happens** Longest functions now against Audit 2: `start` (desk-page.js) **1,706 lines** (906), `createGreekTab` 1,110 (1,012), `createSheetPane` 1,084 (1,009), `createSearchPane` 1,050 (906), `createSheetText` 937, `createMineTab` 754 (551), `createNotesMargin` 685 (663), `createPanel` 624 (534), `createLitPane` 557 (473), `createPassageBody` 470. 36 functions exceed 150 lines (29), 56 exceed 100 (47). `desk-page.js` is 1,912 lines, so 89% of the file is one function; it grew 1,063 to 1,912 lines in four days (pane menu flyouts, bookmarks on /desk, Full screen, the Book Intro pane, the add-pane flyout all went into `start`). Inside it live five separable subsystems that share state only through `layout`, `commit` and `draw`: the title menu and Add-pane flyout (about lines 476 to 900), the kind menu (1234 to 1500), the move-by-drag (1635 to 1760), the print/layout windows and the tour wiring. The next bug in any of them means reading 1,700 lines of shared locals.
 **Evidence** `node scratchpad\a3\lg3\fnsize.mjs`; `git diff --stat a57e155d..HEAD -- src/scripts/desk/desk-page.js` (1,152 lines changed).
@@ -1415,6 +1529,7 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High on the numbers; Medium on the proposed seams.
 
 #### LG3-4 · Medium · longevity · KNOWN-OPEN LG-8(b) (partly)
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-tests`):** `test/desk-gate-imports.test.js` walks the static import closure of every shared file under `src/scripts`, `src/layouts`, `src/components` and `src/pages` and fails on any path into the desk. The Greek engine's edge is allowed from `src/lib/greek-commands-ui.mjs`, the module that imports `desk-greek.mjs`, not from the three scripts the finding named.
 **Where** `test/desk-commands-window.test.js:30-36` is the only import-graph test: four search entries (`search-core.js`, `searchbar.js`, `search.js`, `greek-commands.js`). `test/search-greek-lazy.test.js` covers the Greek engine only.
 **What happens** The root rule "shared reader code never imports the desk statically" is untested for every other shared script (`chapter-tools.js`, `lit-panel.js`, `panel-pieces.js`, `last-read.js`, `ref-preview.js`, `read-mode.js`, `glossary-selection.js`, the layouts and components). A future edit that adds `import { x } from "./desk/y.js"` to any of them silently ships the desk to every reader; nothing fails, and the cost is invisible except in the bundle. I checked the rule by hand and it holds today.
 **Evidence** `scratchpad\a3\lg3\closure.mjs` walks the static closure of every non-desk file under `src/scripts`, `src/layouts`, `src/components`, `src/pages` and reports any path into `src/scripts/desk/` or `src/lib/desk-*`. Output: only `greek-builder.js`, `greek-commands.js` and `search-greek.js` reach `src/lib/desk-greek.mjs`, which is documented as shared with the Greek engine (`src/scripts/CLAUDE.md`, search section). Nothing reaches `src/scripts/desk/`. The MX six: `desk-gate.js` and `desk-frame.js` are the sanctioned gate files (`desk-frame.js` has no imports; `desk-margin.mjs` has none); `Layout.astro:11` pulls constants from `desk-margin.mjs` for the pre-paint script (pure, 363 lines, no imports); `greek-commands.js`, `lit-panel.js`, `panel-pieces.js` import `desk-frame.js` for `panelRoom`/`dockWidth`, which `src/scripts/CLAUDE.md` names as what "every page knows about its panel". So **none of the six is a breach**.
@@ -1422,6 +1537,7 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-5 · Medium · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-desk-doc`):** `test/claude-docs.test.js` caps `src/scripts/desk/CLAUDE.md` (`DESK_LIMIT`, 150 KB, to be lowered as it is trimmed) and the file says so at the top; the dated build lines, measurements and mock stories that sat beside rules moved to their E entries (or a closing section) in `STUDY-DESK-FIXES.md`. Only about 2 KB was narrative: the file is mostly rules, so further reduction needs a deliberate rewrite of rules, not a cut.
 **Where** `src/scripts/desk/CLAUDE.md` (135,928 bytes, 1,811 lines).
 **What happens** It was 77,727 bytes at Audit 2 and is 75% larger four days later (31 of the 40 commits touching the desk's paths edited it, MX section 9). Claude Code loads it whole the first time a session reads any file in `src/scripts/desk/`, so every desk session starts about 34,000 tokens in, on a Pro plan whose limits already pace the work (memory: "Claude plans"). Only the root file has a size test (`test/claude-docs.test.js:18`); this one has none, and the root file's instruction to put area detail here means it will keep growing. Much of the growth is per-entry build narrative ("Built 2026-11-06, awaiting BVJ's look", branch names, which E number asked) that the Phase 5 log (`STUDY-DESK-FIXES.md`, 139 KB) already holds.
 **Evidence** `git show a57e155d:src/scripts/desk/CLAUDE.md | wc -c` = 77,727; `wc -c` now = 135,928; `git log --since=2026-11-03 -- src/scripts/desk/CLAUDE.md` count 31.
@@ -1429,24 +1545,30 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-6 · Low · docs · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** `src/scripts/desk/CLAUDE.md` now says `bookmarkState`, and the sentence on the chapter-carrying link names the toolbar's pill (`ScriptureLayout.astro`), with the header link on the home page only.
+
 **Where** `src/scripts/desk/CLAUDE.md:541` and `:1136`.
 **What happens** Of 139 file names, 185 identifiers and 14 CSS classes I extracted from the lines added to the four area docs since Audit 2 (`syms.py`), all but these exist: (1) `bookmarkLine` at line 541 is `bookmarkState` in `bookmark-follow.js:119`. (2) Line 1136 says "The header's 'Study Desk' link carries the chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref` is the same address for code)". E50 (decided (b), 2026-11-06) moved that link: the header link is on the home page only (`SiteHeader.astro:10`, `deskLink`), and the chapter-carrying link is the pill in the scripture toolbar (`ScriptureLayout.astro:122-130,218`, local consts `deskPlaceHref`, `deskPlaceLabel`). No `deskPlace` prop exists. `ReadMenu.astro:242` also cites `desk-passage.mjs`'s `deskPlaceHref`, which does exist (`desk-passage.mjs:73`).
 **Fix** Rename the first; rewrite the second sentence to the pill. The other 38 sampled claims, and the four "held by test X" claims I checked (`desk-frame.test.js` for the `:has()` list, `desk-footnotes.test.js`, `desk-chapter-address.test.js`, `desk-anchor-dom.test.js`), are accurate.
 **Confidence** High
 
 #### LG3-7 · Low · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-tests`):** `test/desk-storage-keys.test.js` now scans every storage call's key (literal or template prefix), every `KEY`, `key:` and `legacy:` value and every `lit_` value in a property map, allowlists the site-wide keys with a reason, and checks both ways against `/privacy`. Decisions for BVJ: `lit_rm_focus` (Read View's focus mode) is not clearly named on `/privacy` and is allowlisted as `TODO(BVJ)`; and `lit_welcome_v2`, a cookie the welcome popover sets, is not named on `/privacy`, which says the site sets one cookie. The privacy page is not edited.
 **Where** `test/desk-storage-keys.test.js:25-29`.
 **What happens** The test collects keys with `/["'`](lit-(?:desk|sheet|greek)-[a-z-]+)["'`]/g`. It misses any key with a digit, capital, underscore or template hole, and any other prefix. I ran the regex: `"lit-desk-v2"`, `"lit_desk_x"`, `"lit-sheets-x"`, `` `lit-desk-${n}` `` and `"lit-desk-Foo"` all return no match, so a new key like that reaches `localStorage` with no `/privacy` line and no failing test. It also checks only one direction. (I checked the other direction by hand: every key `/privacy` lists still exists in code.) The test would catch a plain new `lit-desk-something` key, which is the likely case.
 **Fix** Collect any string literal that is an argument to `getItem`, `setItem` or `removeItem` on `localStorage`/`sessionStorage` (or starts with `lit-`/`lit_`) and subtract an explicit site-wide allowlist (`lit-shortcuts`, `lit_last_read`, the Display tray's). Add the reverse check (every key `/privacy` names appears in code).
 **Confidence** High
 
 #### LG3-8 · Low · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-tests`):** `test/desk-package-integrity.test.js` builds the .docx, .odt, .pptx and .odp with the repo's writers and checks CRC-32s, relationship targets, `r:id` definitions, duplicate relationship ids, content-type overrides and ODF manifest entries, with no new dependency. Small broken packages are checked too, so the checker is shown to reject them.
 **Where** `test/desk-sheet-doc.test.js`, `test/desk-slides.test.js`, `test/helpers/xml-check.js`.
 **What happens** The E37 writers are the largest new risky code that is tested well: every XML part is parsed strictly, parts are named in the content types, the credit line, escaping and link filtering are asserted. What no test checks is what Word and PowerPoint repair dialogs are made of: the zip's CRC-32s, every relationship `Target` resolving to a real part, every `r:id` used in a part being defined in its `.rels`, no duplicate relationship ids, and an `Override` that points at no part. I wrote that check (`zipcheck.mjs`) and ran it on the real writers: **`.pptx` (42 parts), `.odp` (6) and `.docx` (9) all pass with no problems**, so nothing is wrong today. The test file's header says opening in PowerPoint and LibreOffice was done by hand on 2026-11-06, which covers the present but not the next edit.
 **Fix** Add the roughly 30-line `check()` from `zipcheck.mjs` as one test over the three packages (`docx`, `pptx`, `odp`/`odt` for the manifest equivalent). It runs in milliseconds and needs no new dependency.
 **Confidence** High
 
 #### LG3-9 · Low · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-more-tests`):** items (c) to (e) are tested: `test/panel-flyout.test.js` (the flyout's hover, click, arrow, Escape and `pointerFocus` rules), `test/desk-intro-text.test.js` (with `introText` and the `held` rule moved to `src/scripts/desk/intro-text.js`), and a `QuotaExceededError` case in `test/desk-store.test.js`. Items (a) and (b) are in another PR.
+
 **Where** Untested new or shared code (MX section 3 and my reading).
 **What happens** The new code with the most behavior and no test, ranked by risk:
 1. `src/scripts/panel-flyout.js` (82 lines): **shared with every reader** (the verse menu's "Copy text ▸" and "Share ▸", E39) and the desk. It owns the hover timer, `aria-expanded`, Escape/arrow handling and focus return. Only `desk-print-part.test.js` touches it. A regression here hits the public site, not the preview.
@@ -1458,30 +1580,38 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-10 · Low · longevity · NEW (extends LG-13/FA2-z)
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** `commands-window.js` imports `make` from `dom.js`, and the chevron pair in `intro-pane.js`, `passage-bar.js` and `tab-verse.js` comes from `chevronIcons()` in `glyphs.js`. The other copies are left alone.
+
 **Where** `src/scripts/desk/commands-window.js:37`, `desk-tour.js:47`, `first-use.js:82`, `sheet-text.js:69`; `desk-sheet-format.mjs:664-665`, `desk-sheet-discussion.mjs:96`, `desk-sheet-doc.mjs:98`.
 **What happens** `dom.js` (FA2-z, 2026-11-04) is imported by 25 modules, and all the new pane code (`intro-pane`, `sheet-save`, `sheet-page`, `trash-list`) uses it. One new copy appeared after it existed: `commands-window.js` (added 2026-11-06, E31) defines its own `make`. Three older copies remain because they differ by `!== undefined` against `!= null`. Plus four HTML escapers and one XML escaper; the document and slide writers all share `xmlEscape`, which is good. The same chevron SVG pair is pasted in `intro-pane.js`, `passage-bar.js` and `tab-verse.js`. None of this causes a bug today.
 **Fix** Use `dom.js` in `commands-window.js` now. Move the chevron icons to `glyphs.js` beside `OPEN_PAGE_ICON`. Leave the rest.
 **Confidence** High
 
 #### LG3-11 · Low · compat · NEW
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-checklist`):** browser-floor item 9 in "Launching" says `CompressionStream` (Safari 16.4) is inside the floor, so Save as and Share a sheet need no fallback.
 **Where** `src/lib/desk-zip.mjs:38`, `desk-sheet-share.mjs:90,96`; `desk-page.js:662`; `sheet-present.js:486-575`.
 **What happens** Nothing wrong; this is the browser-floor check. New code uses `CompressionStream("deflate-raw")` (Chrome 103, Safari 16.4, Firefox 113), `requestFullscreen` (all behind `fullscreenEnabled` or `?.`), `getScreenDetails` (gated by `window.screen.isExtended`, falls back to a window), `ClipboardItem` (gated, `sheet-page.js:174`), `:has()` (only inside a selector string in `sheet-present.js:144`, which would throw in an engine without it, but the floor is Chrome 105 / Safari 17.2 / Firefox 140 so it is covered), `showModal`, `structuredClone`, `.at`, `Object.hasOwn`. `desk.css` uses none of `light-dark()`, `@container`, `@layer`, nesting, `dvh`, `text-wrap` or anchor positioning. Every use of the CSS Highlight API is guarded: `highlights.js:41` returns null without `highlightsSupported()`, `notes-margin.js` (`supportsHighlight`), `sheet-lit.js:285`, `read-marks.js:106`. Nothing breaks at the stated floor.
 **Fix** None. The one line I would add to "Launching" item 9 is that `CompressionStream` (Safari 16.4) is inside the floor, so Save as and Share a sheet need no fallback.
 **Confidence** High
 
 #### LG3-12 · Low · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-lazy-desk`):** `desk-gate.js` exports `loadShell(importer, stand)` and `src/lib/desk-first-stage.mjs` `loadStageTwo`, and `test/desk-frame.test.js` and `test/desk-first-stage.test.js` run both with rejecting importers in place of the gate's regex; the shell's `panelUp` check and `desk-commands-window.test.js`'s wiring checks stay as text, since those files import `?inline` CSS or need a DOM.
 **Where** `test/desk-frame.test.js:172-176`, `test/desk-commands-window.test.js:46-54`.
 **What happens** A few tests assert on the source text with regexes, for example `/import\("\.\/desk\/shell\.js"\)\.catch\(\(err\) => \{[^}]*standDown\(\);/` against `desk-gate.js`. They protect a real invariant (the gate stands down when the desk fails), but a harmless reformat of that call (a new line, a named function) fails them, and a change that keeps the text but breaks the behavior passes. This is the "mirror of the implementation" shape. The CP-16 constants test (`desk-copy-constants.test.js`) is the good version: it ties a sentence to the enforcing constant. I scanned 1,911 desk and Greek tests for tests with no assertion or a self-comparison: none (the 13 apparent hits assert through the `close`/`near` helpers).
 **Fix** Where practical, make the invariant executable: have `desk-gate.js` export a `loadShell(importer, stand)` and test it with a rejecting importer. Otherwise leave it and expect to touch these tests when the gate is edited.
 **Confidence** Medium
 
 #### LG3-13 · Nit · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** the three `.desk-np--pane` rules are deleted from `src/styles/desk.css`; a grep of `src/` confirmed no `np--` class is built.
+
 **Where** `src/styles/desk.css:5755-5767`.
 **What happens** `.desk-np--pane` (three rules) styles a class nothing builds; it is a leftover of the retired "kept" pane kind. MX confirmed no `np--` string exists in `src/`. The other ten "not found" classes in MX section 5 are all built by template strings (`desk-bookmark-glyph--${look}`, `desk-print-mark--${color}`, `desk-split--${node.split}`, `desk-sheet__module--${type}`) and are live.
 **Fix** Delete the three rules.
 **Confidence** High
 
 #### LG3-14 · Nit · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-tests`):** `store.js` keeps the last request for persistent storage and exports `settled()`, which resolves once it lands; `freshBrowser` in `test/desk-store.test.js` awaits it in place of the 30ms sleep. The app never calls `settled()`.
 **Where** `test/desk-store.test.js:33-34` (`freshBrowser`).
 **What happens** The helper waits `setTimeout(r, 30)` so "the last test's unawaited request for persistent storage" lands before the next stub is installed. If a slow CI machine lets that request land late, it increments the next test's `calls.persist` and the "asks once" assertions (`:168-176`) fail intermittently. It passes in every run I saw (3,026 pass) and node runs each file in its own process, so it affects only tests inside this file.
 **Fix** Have the store expose the in-flight persist promise (or have the test await `store.settled()`), and drop the sleep.
@@ -1573,6 +1703,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-1 · Medium · bug · NEW (extends NB3-6)
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** The My Notes box, the notebook page's box and the Search pane's field now hear `search` (and `change`) as well as `input`; with NB3-6's fix an Escape clears the field and the list together, and a stale filter can no longer show "Nothing matches" over a notebook that holds notes.
+
 **Where** `src/scripts/desk/tab-mine.js:242` (`queryBox.addEventListener("input", …)`), `src/scripts/desk/panel.js:430-437` (Escape handler).
 
 **What happens** In "Search my notebook", Escape clears the field the browser's way. Chrome fires `change` and `search` on that, not `input`, and the list listens to `input` only. So the field is empty but `query` is still the old text, and the panel then folds. Reopened, the field is blank and the list says "Nothing matches (of 1 kept)." with "Nothing matches. Clear the search or a filter to see more." under it, though the notebook holds one note. The reader sees an empty search box over an empty list. The same stale filter makes a real empty state worse: after deleting the only note it read "Nothing matches" instead of "Nothing kept yet."
@@ -1584,6 +1716,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 **Confidence** High (Chromium in the Browser pane). Not run in Firefox or Safari, which differ on Escape in a search field.
 
 #### LV3-2 · Medium · bug · NEW (extends DK3-2)
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** choosing Reading adds what it turns off to what is remembered instead of replacing it (`turnOffMarks`), so a second press keeps the list; Undo puts back the list as it was.
 
 **Where** `src/scripts/desk/reading-display.js:76-84`, `src/scripts/desk/desk-page.js` Layout window handler.
 
@@ -1597,6 +1731,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-3 · Medium · bug · REGRESSION LV-3
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Per BVJ's decision, `tab-mine.js` leaves sheets out (`withoutSheets` in `desk-notebook.mjs`, applied before anything is counted), so the My Notes pane and the Notebook's tab have no sheet rows and every count, "Show" choice, label choice and empty line agrees. The notebook page's "What I've kept" still lists sheets as "Other items" (its rows are right).
+
 **Where** `src/scripts/desk/record-rows.js` (fallback row for a `sheet` record), shown by `tab-mine.js` (the My Notes pane and the Notebook's My Notes tab) as well as `kept-list.js`.
 
 **What happens** Audit 2's LV-3 was marked "Fixed in FA2-i: a sheet's row shows its name, links to `/sheets/?id=`, and names it in Labels and Delete." On the built site it is not. After creating two sheets ("Untitled sheet" and "Untitled sheet (copy)"), the My Notes pane on /desk reads "1 note, 1 bookmark, 2 other items." and lists, under "Other items", two identical rows: `Sheet` / `Sheet` / `Labels…` / `Delete`. Their buttons are `aria-label="Labels for sheet"` and `aria-label="Delete sheet"`, with no title, no link, and nothing to tell the two apart. Sheets also count as "items" in a notebook of notes.
@@ -1609,7 +1745,11 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-4 · Low · a11y · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Part (a) only: the tour runner takes a `returnFallback` (the Notebook tab when folded, the panel when open, else the page's heading) for when the element focused at the start is gone or hidden at the end. Part (b), Full screen, is session 3's.
+
 **Where** the Notebook tour's last step and `desk-page.js` `fullscreen` refusal path.
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** part (b): Full screen closes the title menu with focus on the title button before asking, so a refused request leaves focus there. Part (a), the Notebook tour, is session 2's.
 
 **What happens** Two endings drop focus to `<body>`. (a) The notebook tour on a chapter page: after the last "Done" (and any "Skip the tour"), `document.activeElement` is `BODY`; the tour's own steps restore the page. (b) /desk ▸ title menu ▸ Full screen when the browser refuses (the Browser pane does, as the doc says): the menu closes and the announcement ("This browser didn’t allow full screen. Use the browser’s own command instead (F11).") plays, but focus is on `BODY` rather than the title button. The desk tour, by contrast, ends on the title button, and Layout ▸ Reading returned focus to it.
 
@@ -1620,6 +1760,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 **Confidence** Medium (a refusal path is hard to meet in a real browser; the tour ending was reproduced after a run through all ten steps).
 
 #### LV3-5 · Low · usability · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** the list buttons put the selection back among the same characters after the command (`keepingSelection` in `sheet-text.js`, by text offset), so typing goes where the caret was. Not run in a browser.
 
 **Where** `src/scripts/desk/sheet-text.js` (toolbar button handling for lists).
 
@@ -1632,6 +1774,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 **Confidence** Low.
 
 #### LV3-6 · Low · ui · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** the part header wraps: in a narrow Sheet pane its controls go to a second row, right-aligned, and no control's label breaks (`desk.css`, `.desk-sheet__module-head`). Not seen in a browser.
 
 **Where** the passage part's header in the Sheet pane (`sheet-pane.js`, `desk.css`).
 
@@ -1727,10 +1871,12 @@ Each constant agrees with the number in the text today. The problem is that the 
 |----|-----------|--------------|----------------|------|
 | CP3-2 | `src/lib/desk-bookmark-change.mjs:30` | `"Six of your bookmarks already move as you read. Turn that off on one of them first."` | Build the word from `MAX_FOLLOWING` (`src/lib/desk-bookmarks.mjs:42`, currently 6). | Agrees (6). Not owner-quoted. |
 | CP3-3 | `src/scripts/desk/bookmark-form.js:160` | `"Six of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them."` | As CP3-2, from `MAX_FOLLOWING`. | Agrees (6). Not owner-quoted. The E48 blurb at `bookmark-form.js:77` is owner wording (below). |
-| CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. |
+| CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `FULL_TEXT` in `desk-layout.mjs` builds “Four is the most” from `MAX_PANES`, and `desk-page.js` compares the reason (`"full"`), never the words. |
 | CP3-5 | `src/lib/desk-first-use.mjs:458` | `Four panes fit when the window has room.` (tour step "Add pane") | Interpolate `MAX_PANES` as a spelled-out word. | Agrees (4). |
-| CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. |
+| CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-help`):** both sentences read `{TRASH_DAYS}` in `src/pages/desk/help.astro`, held by `test/desk-copy-constants.test.js`. |
 | CP3-7 | `src/scripts/desk/notebook-page.js:137` and `:148` | `What you delete waits here for 30 days.` and `instead of after 30 days.` | `${TRASH_DAYS}`, as CP3-6. | Agrees (30). |
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** CP3-2, CP3-3, CP3-5 and CP3-7 now build their numbers from `MAX_FOLLOWING`, `MAX_PANES` and `TRASH_DAYS`, with `numberWord` (in `src/lib/desk-wording.mjs`) spelling the small counts. CP3-7 covers all four "30 days" in `notebook-page.js`, not only the two lines the table names. The E48 blurb is built the same way, its wording unchanged. CP3-4 and CP3-6 are left to their own sessions.
 
 ### Owner wording, report only
 

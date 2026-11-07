@@ -58,6 +58,15 @@ const DATA_LINE = /<!--\s*lit-sheet\s+(share1\.[A-Za-z0-9_-]*(?:\s+[A-Za-z0-9_-]
 const DATA_OPENER = /<!--\s*lit-sheet\b/;
 /** Decompressed data larger than this is refused (the sheet limit with room for JSON's own). */
 const MAX_JSON_BYTES = SHEET_LIMITS.bytes * 2;
+/**
+ * The longest a file read for its data line may be, in bytes (SEC3-4): a
+ * share's data is at most about 1.4 MB of base64 (MAX_JSON_BYTES deflated),
+ * and the Markdown around it is a sheet's text, so a file past this holds
+ * no sheet this page could open, and isn't read into memory at all.
+ */
+export const MAX_SHARE_FILE_BYTES = 4 * 1024 * 1024;
+/** The longest data line that could decompress within MAX_JSON_BYTES (base64 of it, with room for deflate's framing). */
+const MAX_FRAGMENT_LENGTH = SHARE_PREFIX.length + Math.ceil(((MAX_JSON_BYTES + 4096) * 4) / 3);
 
 /** Module fields that never travel. */
 const DROP = new Set(["id", "verseCopy", "verseCopyAsOf"]);
@@ -192,19 +201,44 @@ export async function shareLink(sheet, { origin, base = "/", ...opts } = {}) {
 
 /* ── The file ────────────────────────────────────────────────────────── */
 
-/** Formatted text as plain lines, for the human half of the file. */
+/**
+ * A line of the reader's own words for the file's Markdown half (DK3-12): a
+ * star, underscore, backquote or backslash can't start emphasis or code, and
+ * a line can't become a heading, a quotation or a list by how it begins.
+ */
+export function markdownLine(text) {
+  return String(text ?? "")
+    .replace(/[\\`*_]/g, "\\$&")
+    // At a line's start, or a list item's (plainText's stand-in, \u0001).
+    .replace(/^([ \t]*\u0001?[ \t]*)([#>+-]|\d+(?=[.)]))/gm, (_, space, mark) => (/\d/.test(mark) ? `${space}${mark}\\` : `${space}\\${mark}`));
+}
+
+// Stand-ins for the list marks and rules plainText writes itself, so they
+// aren't escaped as the reader's own words are.
+const ITEM = "\u0001";
+const RULE_LINE = "\u0002";
+
+/**
+ * Formatted text as plain lines, for the human half of the file: Markdown,
+ * paragraphs a blank line apart, a list item "- ", and the reader's own words
+ * escaped (markdownLine), so they read as written in a Markdown viewer.
+ */
 export function plainText(html) {
-  return String(html ?? "")
-    .replace(/<li[^>]*>/gi, "\n- ")
+  const text = String(html ?? "")
+    .replace(/[\u0001\u0002]/g, "")
+    .replace(/<li[^>]*>/gi, `\n${ITEM}`)
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/li>/gi, "")
-    .replace(/<\/(p|h2|h3|blockquote|ul|ol)>/gi, "\n")
-    .replace(/<hr[^>]*>/gi, "\n---\n")
+    .replace(/<\/(p|h2|h3|blockquote|ul|ol)>/gi, "\n\n")
+    .replace(/<hr[^>]*>/gi, `\n\n${RULE_LINE}\n\n`)
     .replace(/<[^>]+>/g, "")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, "\"")
-    .replace(/&amp;/g, "&")
+    .replace(/&amp;/g, "&");
+  return markdownLine(text)
+    .replace(/\u0001/g, "- ")
+    .replace(/\u0002/g, "---")
     // A sheet's own text can't plant a data line in the file (BA80).
     .replace(/<!--/g, "&lt;!--")
     .replace(/[ \t]+\n/g, "\n")
@@ -256,8 +290,8 @@ function describeModules(modules) {
 export async function shareFile(sheet, opts = {}) {
   const shared = sharedSheet(sheet, opts);
   const fragment = await shareFragment(sheet, opts);
-  const head = [`# ${shared.title.trim() || "Untitled sheet"}`];
-  if (shared.subtitle.trim()) head.push(shared.subtitle.trim());
+  const head = [`# ${markdownLine(shared.title.trim()) || "Untitled sheet"}`];
+  if (shared.subtitle.trim()) head.push(markdownLine(shared.subtitle.trim()));
   const how =
     "A sheet from the Study Desk on litbible.net. To open it, go to https://litbible.net/sheets/ on a computer and choose “Import a Study Desk file.” The passages are read from the LIT when it is opened, so they are named here, not quoted.";
   return [...head, "", how, "", ...describeModules(shared.modules).flatMap((b) => [b, ""]), `<!-- lit-sheet ${fragment} -->`, ""].join("\n");
@@ -278,13 +312,19 @@ export function shareFileName(sheet) {
 /**
  * The fragment a shared sheet's file carries, or null when it has no data
  * line. Throws ShareError("damaged") when a data line is begun but can't be
- * read, so the reader is told to ask for the file again (BA87).
+ * read, so the reader is told to ask for the file again (BA87), and
+ * ShareError("too-large") for a data line longer than any sheet's could be,
+ * before it is kept anywhere (SEC3-4).
  */
 export function fragmentInFile(text) {
   const str = String(text ?? "");
   let last = null;
   for (const m of str.matchAll(DATA_LINE)) last = m[1];
-  if (last !== null) return last.replace(/\s+/g, "");
+  if (last !== null) {
+    const fragment = last.replace(/\s+/g, "");
+    if (fragment.length > MAX_FRAGMENT_LENGTH) throw new ShareError("too-large");
+    return fragment;
+  }
   if (DATA_OPENER.test(str)) throw new ShareError("damaged");
   return null;
 }

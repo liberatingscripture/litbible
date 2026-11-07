@@ -168,7 +168,20 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     saidSaved(where);
   }
 
+  // A second Save (a double-click, a held Ctrl+Enter) while the first write is
+  // in flight would make a second note on the same words (NB3-13).
+  let saving = false;
   async function save() {
+    if (saving) return;
+    saving = true;
+    try {
+      await saveNow();
+    } finally {
+      saving = false;
+    }
+  }
+
+  async function saveNow() {
     if (example) return;
     const now = new Date().toISOString();
     if (editing) return saveEdit(now);

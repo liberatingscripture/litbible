@@ -19,7 +19,12 @@
 //   - Undoing is the reader acting, so every record put back is stamped with
 //     the time of the undo and this client (principle 4). Under the newer
 //     `modified` wins rule of a sync, the undone state must outrank the change
-//     it undoes, or another device would keep the change. A record this code
+//     it undoes, or another device would keep the change: the stamp is
+//     stepped past every time on the record it replaces (its `modified`, a
+//     trash record's `deletedAt` and the `modified` of the copy it holds), as
+//     well as past the put-back record's own, so it outranks that change even
+//     on a clock running behind the one that made it (laterThanAll; audit 3
+//     DI3-1). A record this code
 //     can't edit comes back exactly as it was (principle 6). A trash record
 //     put back is the deletion made again, so its `deletedAt` moves to the
 //     same time: a copy of the notebook saved in between holds the record
@@ -41,7 +46,7 @@
 //     verses, colours and every other field still count; a stamp alone
 //     isn't a change anyone made.
 
-import { canEdit, trashRecord } from "./desk-records.mjs";
+import { canEdit, laterThanAll, trashRecord } from "./desk-records.mjs";
 import { deepEqual, kindName, takeOff, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
 
 /** How many changes one page visit remembers. */
@@ -61,6 +66,11 @@ function content(record) {
   if (record == null) return null;
   const { modified: _modified, client: _client, ...rest } = record;
   if (record.kind === "trash") delete rest.deletedAt;
+  // A bookmark's two group stamps move with an undo as `modified` does (DI3-3).
+  if (record.kind === "bookmark") {
+    delete rest.placedAt;
+    delete rest.editedAt;
+  }
   return rest;
 }
 
@@ -125,24 +135,44 @@ export function pushEntry(stack, entry, limit = HISTORY_LIMIT) {
 
 /* ── Taking a change back, or doing it again ─────────────────────────── */
 
+/** Every time a record carries that a stamp over it must step past (see the top of this file). */
+const timesOf = (r) => (r ? [r.modified, r.deletedAt, r.placedAt, r.editedAt, r.record?.modified] : []);
+
 /**
  * A record put back by an undo or a redo: stamped with the reader's act, unless
- * it isn't ours to stamp. A trash record is a deletion made again, now.
+ * it isn't ours to stamp, and stepped past `replaced`, the records it goes
+ * back over, so it outranks that change wherever the copies meet (DI3-1). A
+ * trash record is a deletion made again, now.
  */
-function restamped(record, { now, client } = {}) {
-  const at = now ?? new Date().toISOString();
+function restamped(record, replaced, { now, client } = {}) {
+  const at = laterThanAll(now ?? new Date().toISOString(), ...timesOf(record), ...replaced.flatMap(timesOf));
   const by = client ? { client } : {};
   if (record.kind === "trash") return { ...snapshot(record), modified: at, deletedAt: at, ...by };
   if (!canEdit(record)) return snapshot(record);
-  return { ...snapshot(record), modified: at, ...by };
+  // An undo puts the whole bookmark back, so both of its group stamps move with it.
+  const stamps = record.kind === "bookmark" ? { placedAt: at, editedAt: at } : {};
+  return { ...snapshot(record), modified: at, ...by, ...stamps };
 }
 
-function planFor(states, ctx) {
+/**
+ * The plan that puts one side of an entry back, over the other side (`over`).
+ * What a put-back record replaces is the other side's record under its id
+ * and, since a deletion and its record are two ids, the other side's trash
+ * record for a live record, or the live record for a trash record.
+ */
+function planFor(states, over, ctx) {
+  const was = lookup(over);
+  const trashOver = new Map();
+  for (const { record } of over) if (record?.kind === "trash" && record.deletedId) trashOver.set(record.deletedId, record);
   const put = [];
   const remove = [];
   for (const { id, record } of states) {
-    if (record == null) remove.push(id);
-    else put.push(restamped(record, ctx));
+    if (record == null) {
+      remove.push(id);
+      continue;
+    }
+    const other = record.kind === "trash" ? was(record.deletedId) : trashOver.get(id);
+    put.push(restamped(record, [was(id), other], ctx));
   }
   return { put, remove };
 }
@@ -161,11 +191,12 @@ function planFor(states, ctx) {
  * @returns {{ put: object[], remove: string[] }}
  */
 export function inversePlan(entry, ctx = {}) {
-  const plan = planFor(entry.before, ctx);
+  const plan = planFor(entry.before, entry.after, ctx);
   const now = ctx.now ?? new Date().toISOString();
   for (const { id, trashId } of entry.undoTrash ?? []) {
     const added = entry.after.find((a) => a.id === id)?.record;
     if (!added) continue;
+    // trashRecord steps the deletion past the added record's own `modified`.
     plan.put.push(
       trashRecord(snapshot(added), {
         now,
@@ -183,7 +214,7 @@ export function inversePlan(entry, ctx = {}) {
  * `after`, which also takes away the trash record an undone add left.
  */
 export function redoPlan(entry, ctx = {}) {
-  const plan = planFor(entry.after, ctx);
+  const plan = planFor(entry.after, entry.before, ctx);
   for (const { trashId } of entry.undoTrash ?? []) plan.remove.push(trashId);
   return plan;
 }

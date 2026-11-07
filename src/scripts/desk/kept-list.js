@@ -249,10 +249,14 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     });
   }
 
-  queryBox.addEventListener("input", () => {
+  // The browser's own clear (Escape, the field's x) fires `search` and
+  // `change` and no `input` (LV3-1), so all three are heard.
+  const takeQuery = () => {
+    if (filters.query === queryBox.value) return;
     filters.query = queryBox.value;
     render();
-  });
+  };
+  for (const type of ["input", "search", "change"]) queryBox.addEventListener(type, takeQuery);
   kindSelect.addEventListener("change", () => {
     filters.kind = kindSelect.value || null;
     // A color only means something among highlights.

@@ -214,11 +214,19 @@ const _initSearchbars = async () => {
     // only with the preview on. It is loaded only through loadDeskSearch(), so
     // `desk` stays null, and the tray behaves as it always did, for everyone
     // else. /search draws its own results, and this tray is hidden there.
+    // It loads when focus first enters the box, not with the page (Audit 3,
+    // LG3-2: a reader with nothing kept downloads only the desk's first
+    // stage). A query typed before it arrives is searched again with it.
     let desk = null;
     if (!root.closest(".scripture-layout--search")) {
-      loadDeskSearch()?.then((m) => {
-        desk = m;
-      });
+      const want = () => {
+        root.removeEventListener("focusin", want);
+        loadDeskSearch()?.then((m) => {
+          desk = m;
+          if (m && input.value.trim()) input.dispatchEvent(new Event("input"));
+        });
+      };
+      root.addEventListener("focusin", want);
     }
     const isCmd = (text) => Boolean(desk && desk.isDeskCommandQuery(text));
 
@@ -663,6 +671,17 @@ const _initSearchbars = async () => {
     // names and links as the Greek tab's sources (greek-credits.mjs).
     const greekCredit = () => `<p class="searchbar__credit">${gk.creditHtml(escapeHtml)}</p>`;
 
+    /** A Greek file wouldn’t load: say so, with a way to ask again (GK3-9; the loaders forget a failure). */
+    function greekFailedStatus(text) {
+      status.textContent = `${text} `;
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "greek-cmd-link";
+      retry.textContent = "Try again";
+      retry.addEventListener("click", () => runSearch(input.value.trim()));
+      status.append(retry);
+    }
+
     function renderGreekCommandsGroup(greek, q, bookKey) {
       const group = document.createElement("div");
       group.className = "searchbar__group";
@@ -681,7 +700,7 @@ const _initSearchbars = async () => {
             ? `<p class="searchbar__readback">${escapeHtml(msg.text.slice(0, at))}<button type="button" class="greek-cmd-link" data-greek-fix>${escapeHtml(msg.suggest)}</button>${escapeHtml(msg.text.slice(at + msg.suggest.length))}</p>`
             : `<p class="searchbar__readback">${escapeHtml(msg.text)}</p>`;
       } else if (failed) {
-        status.textContent = "The Greek search couldn’t be loaded.";
+        greekFailedStatus("The Greek search couldn’t be loaded.");
         return;
       } else if (!resolved) {
         status.textContent = "";
@@ -997,6 +1016,12 @@ const _initSearchbars = async () => {
           if (greek?.kind === "commands") {
             renderGreekCommandsGroup(greek, q, keywordBook);
             withNotebook();
+            renderActiveFilters();
+            return;
+          }
+          // The word's verses wouldn't load: not "no matches" (GK3-9).
+          if (greek?.selected && greek.failed) {
+            greekFailedStatus("The verses couldn’t be loaded.");
             renderActiveFilters();
             return;
           }

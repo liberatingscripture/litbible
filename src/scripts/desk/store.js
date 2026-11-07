@@ -53,9 +53,9 @@ import {
 import { isNoop, makeEntry } from "../../lib/desk-history.mjs";
 import { migrateRecord } from "../../lib/desk-records.mjs";
 
-const DB_NAME = "lit-desk";
+export const DB_NAME = "lit-desk";
 const DB_VERSION = 1;
-const RECORDS = "records";
+export const RECORDS = "records";
 const META = "meta";
 
 const request = (r) =>
@@ -97,6 +97,12 @@ function openDatabase() {
     open.onerror = () => reject(open.error);
   });
 }
+
+/** The last request for persistent storage that a store started (askToPersist). */
+let persistRequest = Promise.resolve();
+
+/** Resolves once that request has landed. Only the store's tests wait on it; the app never does. */
+export const settled = () => persistRequest;
 
 /** How long to wait for the database before treating the browser as keeping none (NB-12). */
 const OPEN_TIMEOUT_MS = 8000;
@@ -277,9 +283,12 @@ export async function openStore({ ctx }) {
   // "dismissed" is final everywhere but where a "no" was a silent one.
   let persistAsked = false;
   const PERSIST_RETRY_MS = 86_400_000;
-  async function askToPersist() {
+  function askToPersist() {
     if (persistAsked || !navigator.storage?.persist) return;
     persistAsked = true;
+    persistRequest = requestPersist();
+  }
+  async function requestPersist() {
     try {
       if (await navigator.storage.persisted()) return;
       const asked = await getMeta("persistAsked");

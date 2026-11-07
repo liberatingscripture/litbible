@@ -76,6 +76,17 @@ it. Trash records are only required to carry times that parse, but write
 them with `Z` too. Clients compare times as instants, not as strings, so
 `…09.5Z` and `…09.500Z` are the same time.
 
+**A record is at most 1 MB as JSON, whatever its kind or schema** (audit 3
+SEC3-1; BVJ's decision 7, 2026-11-07; **for BDR to confirm**). The limits a
+kind carries (a note's 64 KB body, a sheet's 512 KB) apply only to records a
+client can edit, so a note from a newer schema with a 40 MB body was kept,
+drawn, backed up, and would have synced. The website's `validateRecord`
+refuses any record whose serialized size passes 1 MB, with a reason in the
+import's report, and the same ceiling should stand at the apps' import and
+at sync. It is far above every real limit, so a newer client's records are
+never touched by it, and a kept record is still never rewritten (SEC Q2,
+option B).
+
 A record about the text also carries **where**:
 
 | Field | Meaning |
@@ -102,7 +113,15 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      **`ribbon` was `bookmark` until 2026-10-23** (E10; BDR's decision):
      every client reads `bookmark` as `ribbon` and writes `ribbon`, as iOS
      already reads an old `star` as `emphasis`; nothing stored is rewritten.
-     The marker's picture and color do not change;
+     The marker's picture and color do not change. **Every client reads
+     every old name** (audit 3 DI3-5, 2026-11-07): since nothing stored is
+     rewritten, an iOS note from before the rename still carries `star` on
+     disk and reaches the website in a backup or a sync, where it was
+     refused. The website's `RENAMED_MARKERS` now holds both `bookmark →
+     ribbon` and `star → emphasis` (merge vector
+     `migrate-an-old-star-marker-reads-as-emphasis`). **BDR, please list
+     every marker name either app has ever written**, so the website reads
+     them all;
    - `quote`, optional: a note on a whole verse has none;
    - `verseCopy`, `verseCopyAsOf`.
 
@@ -152,7 +171,29 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      their own rule for when to move it, but must not move a bookmark whose
      `follow` is absent;
    - an optional `from`: how the reader got there (a search, an episode, an
-     intro).
+     intro);
+   - **`placedAt` and `editedAt`** (audit 3 DI3-3; **BVJ's decision 2,
+     2026-11-07, on Claude's recommendation; merge vectors version 5; for
+     BDR to review and amend**): two more stamps beside `modified`, in the
+     same form. `placedAt` is when the bookmark's **place** last changed
+     (`bookKey`, `chapter`, `verse`, `endVerse` and `contentVersion`, the
+     text it was read on); `editedAt` when anything else did (`label`,
+     `labels`, `follow`, `from`, and any field a client adds). A write
+     moves the stamp of each group it touches to the new `modified`; a
+     move as the reader reads writes the place and `placedAt` only. Under
+     "Clocks": two copies that both carry the stamps merge **by group**, the
+     place from the copy whose `placedAt` is later and the rest from the
+     copy whose `editedAt` is later, with `modified` and `client` from the
+     copy whose `modified` is later; a copy without both stamps merges
+     whole by rule a as before, so an app that hasn't adopted them still
+     syncs, and gains them on its next write by a client that has. The
+     only field-level rule in the format, and confined to this kind. Why: a
+     bookmark that moves as the reader reads is written every two seconds,
+     so by the whole record a rename, a label, or "Move as I read" turned
+     off on another device always lost to the reading device's next move,
+     which also turned the switch back on. (Stopping the follower when the
+     record changed under it was weighed and would not help: a reading
+     device's every write arrives newer than the edit from elsewhere.)
 
    **At most six bookmarks with `follow: true` on the website** (plain
    bookmarks are unlimited); a client that offers the switch picks its own
@@ -198,7 +239,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    reader.
 7. **`markRule`** (H2): a glossary term, a book and a colour, worked out
    from the published alignment on each load.
-8. **`label`** (M8): a name. Records list the labels on them. The website
+8. **`label`** (M8): a name, up to 200 characters (the website's
+   `LABEL_NAME_MAX`, audit 3 SEC3-4; its form stops at 60). Records list
+   the labels on them. The website
    calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
    unique ignoring case and accents: a new label matching an old one reuses
    it.
@@ -221,6 +264,17 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     The website names the field `deletedKind`, beside `deletedId` and
     `deletedAt` (built 2026-10-12; a trash record written before then takes
     the kind of the record it holds).
+
+    **A deletion whose held copy can't be read is kept as its tombstone**
+    (audit 3 DI3-4; BVJ's decision 8, 2026-11-07; **for BDR to confirm**).
+    When a trash record arrives well formed (`deletedId`, `deletedAt`) but
+    the copy it holds fails the receiving client's checks (a marker it
+    doesn't know, a body over its limit, a verse out of range), the client
+    writes the trash record without `record`, keeping `deletedId`,
+    `deletedKind` and `deletedAt`, and tells the reader its words couldn't
+    be read, so it can't be restored. Skipping the whole trash record, as the
+    website did until then, lost the deletion itself: an older backup, or a
+    device that hadn't seen it, brought the record back.
 
     **Two trash records for one deletion** (two devices each deleted the
     record before they met) **collapse to one. The website's proposal,
@@ -623,7 +677,7 @@ Run these steps in order. The first that succeeds gives the status:
 | Status | When | What the reader sees |
 |---|---|---|
 | `found` | `exact` occurs in the record's verses. If it occurs more than once, take the occurrence whose surroundings agree longest with `prefix` (read backwards) plus `suffix` (read forwards); on a tie, the first. **Only if at least 8 characters agree** (the context floor, below) | The mark, as made |
-| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way, with the same floor) | The mark, at its new place |
+| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way, with the same floor). **Spec version 4**: the result also says whether the verse the words now begin in lies outside the record's verses while those verses still exist (`outsideVerses`) | The mark, at its new place; **with the change notice when it left the record's verses** (spec version 4, below), silent when it begins inside them or when those verses are gone |
 | `changed` | The words are gone, but enough of the context survives inside the record's verses. Take the longest tail of `prefix` and head of `suffix` that still occur in order, at least 8 characters between them, and use the text between. **Only if that text is at most twice `exact`'s length plus 16 characters** (the size limit, below) | The mark on the new words, flagged, with the old words kept: the apps' existing behaviour |
 | `verse` | Nothing usable | The mark on its whole verse range, flagged |
 | `lost` | The record's verses no longer exist | Listed, never drawn |
@@ -649,7 +703,9 @@ The apps still have to agree it. Three refinements of the rule above:
 - **A note on whole verses carries one when their wording changes.** It
   has no quote, so it is always `found`; the website compares its
   `verseCopy` with today's verses and shows the notice when the wording
-  differs. A quoted mark whose words are still found carries none.
+  differs. A quoted mark whose words are still found carries none, and
+  neither does one whose words moved within its verses (a `moved` that
+  left them does, since spec version 4).
 - **Keep from `verse`**: a note loses its quote and becomes a note on its
   whole verses; a highlight takes the whole verses as its quote. Keep moves
   `modified` and `contentVersion`, since the reader acted. A record whose
@@ -703,6 +759,36 @@ changes to finding a mark again, all in `anchor-core.mjs`:
 Measured by the audit's reword fuzz (one word inside the mark changed): the
 share drawn on other words with no notice was 38% for a one-word mark, 15%
 for two. `test/anchor-text.test.js` holds a small version of that fuzz.
+
+**Spec version 4** (audit 3, DI3-2; **BVJ's decision 1, 2026-11-07, on
+Claude's recommendation; for BDR to review and amend**, together with spec
+3). One change, which answers audit 2's open question "should a mark moved
+to another verse say so?" with yes:
+- **A `moved` that leaves the record's verses carries the change notice.**
+  The resolver's `moved` result says whether the verse the words now begin
+  in lies outside the record's `verse`..`endVerse` while those verses still
+  exist in the chapter (`outsideVerses`, in the vectors' `expected` for
+  every `moved` case). When it does, the mark is drawn at the new place and
+  the reader is told ("The words you marked are now in verse 15. You marked
+  them in verse 27, which still stands with other words"); Keep moves the
+  record to the verses its words are in now, with a fresh quote and
+  `verseCopy` there. A move that begins inside the record's verses (a verse
+  boundary moved across the words), or one whose verses are gone, stays
+  silent, as every `moved` did under spec 3.
+- Why: run over all 173 chapter revisions in the website's history, `moved`
+  landed outside the reader's verses while they still existed 15 times in
+  18, each one a repeated formula elsewhere in the chapter capturing a mark
+  whose own verse was reworded (Matthew 23 at `ff34f594`: "watch out,
+  fakers," reworded in every verse but 15, so marks on it in verses 13, 16,
+  23, 25, 27 and 29 were all drawn on verse 15 with no notice). Words that
+  legitimately move (a paragraph joined or split) stay in their verse and
+  come back as `found`. The stricter alternative (the full stored context
+  on both sides for a move out of the verses) would not have caught
+  Matthew 23, where verse 15 kept the old formula with its context.
+- The vectors' two Matthew 23 cases are resolved against that chapter as
+  revision `ff34f594` left it (chapter `matthew-23@ff34f594`), since later
+  revisions reworded verse 15 too; the third, with the record's verses
+  gone, shows the silent case.
 
 ### Highlights that meet
 
@@ -788,14 +874,38 @@ deletion made in between, every time (BA4). So:
   drops a record as ahead must not advance its cursor past it. And an edit
   stamps `max(now, the version it replaces + 1 ms)`, so it always outranks
   that version, even on a clock running behind.
+  **Every stamp steps past what it replaces, not edits alone** (audit 3
+  DI3-1, 2026-11-07; the website's stamps do this now, and **the apps' need
+  the same step**, since rules a to c and the vectors don't change): a
+  deletion stamps `deletedAt` (and its `modified`) past the record it
+  deletes; a restore from the trash stamps `modified` past the deletion it
+  undoes as well as past the record's own; and an undo or a redo stamps the
+  record it puts back past everything it goes back over (the other version,
+  a deletion's `deletedAt`, the copy a deletion holds). Within the five
+  minutes of skew this bullet allows, a deletion or a restore made on the
+  slower of two clocks was otherwise reversed when the copies met: the
+  phone's edit, three minutes ahead, outranked the desktop's later deletion
+  under rule b, and the phone's deletion outranked the desktop's later
+  restore. Merge vectors
+  `b-a-deletion-stamped-past-the-record-it-deletes-stands` and
+  `b-a-restore-stamped-past-the-deletion-it-undoes-stands` (each with an
+  `-other-way` twin) show the stamps that result.
 - **One trash id, two copies** (DI-3): merged field-wise, as the collapse
   rule does across ids: the later `deletedAt`, the later `modified`, and the
   held record with the later `modified`. A trash record whose held record has
   another id than `deletedId` is skipped and reported.
-- **What is clamped**: `modified`, a trash record's `deletedAt`, and the
+- **What is clamped**: `modified`, a trash record's `deletedAt`, the
   `modified` of the copy a trash record holds (BA12; a held copy from the
   future would outrank every later one, and an undo would bring back its
-  words).
+  words), and a bookmark's `placedAt` and `editedAt` (version 5).
+- **A bookmark merges by group** (audit 3 DI3-3; merge vectors version 5,
+  2026-11-07; for BDR to review): where both copies carry `placedAt` and
+  `editedAt` (kind 4), the place comes from the later `placedAt`, the rest
+  from the later `editedAt`, and `modified` and `client` from the later
+  `modified`, each tie settled as rule a settles one (the local copy, or
+  the store's tiebreak). Rules b and c read the bookmark's `modified` as
+  before. The five `a-bookmark-` and `clamp-a-bookmark-` cases show it,
+  including an app's copy without the stamps merging whole.
 - **A record that had to be clamped never beats anything the receiving side
   holds**: it is dropped when that side has a record with its id or a
   deletion of it, or, for a trash record, the record it deletes or another

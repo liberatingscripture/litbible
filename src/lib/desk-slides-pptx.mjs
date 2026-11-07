@@ -28,7 +28,7 @@
 // adding one.
 
 import { DOC_CREDIT, DOC_FONTS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
-import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, slideBoxes, slideParagraphs, slideRuns } from "./desk-slides.mjs";
+import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, slideBoxes, slideParagraphs, slideRuns, titlePoints } from "./desk-slides.mjs";
 import { zipFiles } from "./desk-zip.mjs";
 
 export const PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
@@ -150,7 +150,7 @@ function slideShapes(ctx, slide) {
   const boxes = slideBoxes(slide);
   let out = "";
   if (slide.kind === "start") {
-    const title = { ...WORDS, pt: SLIDE_PT.title, b: true, font: SLIDE_FONTS.heading };
+    const title = { ...WORDS, pt: titlePoints(slide), b: true, font: SLIDE_FONTS.heading };
     out += textBox(ctx, boxes.title, paraXml(ctx, textRuns(slide.title), { look: title, align: "center" }), { name: "Title", title: true, anchor: "b" });
     if (slide.subtitle) {
       out += textBox(ctx, boxes.subtitle, paraXml(ctx, textRuns(slide.subtitle), { look: { ...QUIET, pt: SLIDE_PT.subtitle, i: true }, align: "center" }), { name: "Subtitle" });

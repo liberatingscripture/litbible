@@ -38,6 +38,11 @@
 import { parsePassage } from "./desk-passage.mjs";
 
 export const MAX_PANES = 4;
+/**
+ * Why no pane can be added once there are MAX_PANES (D9): built from the
+ * constant, so the words can't drift from the limit (CP3-4).
+ */
+export const FULL_TEXT = `${["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"][MAX_PANES] ?? MAX_PANES} is the most`;
 export const MIN_WIDTH = 280;
 export const MIN_HEIGHT = 160;
 /** The width of the line between two panes, which the reader drags. */
@@ -156,6 +161,32 @@ export function arrangementOf(layout) {
   // Reading and One pane are one shape; the pane's kind tells them apart.
   if (layout.root.pane) return layout.root.pane.kind === "lit" ? "reading" : "one";
   return ARRANGEMENTS.find((a) => sig(a.shape) === s)?.id ?? null;
+}
+
+/**
+ * Whether a change of layout leaves Reading: from one LIT pane to anything
+ * else (more panes, or the one pane showing another kind). Every way out
+ * counts, not only the Layout window's rows (DK3-2).
+ */
+export const leavesReading = (before, next) =>
+  Boolean(before?.root && next?.root) && arrangementOf(before) === "reading" && arrangementOf(next) !== "reading";
+
+/**
+ * Each pane's accessible name, in the tree's order: its kind, and where a kind
+ * is open more than once, its place among them ("The LIT, 2 of 2"), so a
+ * screen reader's list of regions can tell them apart (DK3-8).
+ */
+export function regionNames(layout) {
+  const all = panes(layout?.root);
+  const total = new Map();
+  for (const p of all) total.set(p.kind, (total.get(p.kind) ?? 0) + 1);
+  const seen = new Map();
+  return new Map(all.map((p) => {
+    const n = (seen.get(p.kind) ?? 0) + 1;
+    seen.set(p.kind, n);
+    const name = kindLabel(p.kind);
+    return [p.id, total.get(p.kind) > 1 ? `${name}, ${n} of ${total.get(p.kind)}` : name];
+  }));
 }
 
 // ---- making and changing --------------------------------------------------
@@ -691,6 +722,58 @@ export function addPaneNeeds(layout, direction, width, height) {
   const ok = (n) => typeof n === "number" && Number.isFinite(n) && n > 0;
   if (!ok(width) && !ok(height)) return null;
   return needs(root, ok(width) ? width : Infinity, ok(height) ? height : Infinity);
+}
+
+/** What a menu says under a line that needs more room: "Needs a wider window" and its kin. */
+export const NEEDS_TEXT = {
+  wider: "Needs a wider window",
+  taller: "Needs a taller window",
+  larger: "Needs a larger window",
+};
+
+/**
+ * The words for one `addPaneNeeds` or `addBesideNeeds` reason: FULL_TEXT for
+ * "full", the NEEDS_TEXT for "wider", "taller" or "larger", null for no reason
+ * (the line is usable).
+ */
+export function whyText(reason) {
+  return reason === "full" ? FULL_TEXT : reason ? (NEEDS_TEXT[reason] ?? null) : null;
+}
+
+/**
+ * The words for a menu line that opens a choice of sides (Add pane: column or
+ * row, or left, right, above, below), given the reason each side is refused
+ * (null where it is not). The line is only grayed when every side is: FULL_TEXT
+ * if any says "full", else "Needs a larger window"; null when one side is open.
+ */
+export function addWhy(reasons) {
+  if (!reasons.every(Boolean)) return null;
+  return reasons.includes("full") ? FULL_TEXT : NEEDS_TEXT.larger;
+}
+
+/** A pane menu's "Make this pane wider" and its kin: which way a step goes along which kind of split. */
+export const SIZINGS = [
+  { label: "Make this pane wider", split: "columns", grow: true, word: "wide" },
+  { label: "Make this pane narrower", split: "columns", grow: false, word: "wide" },
+  { label: "Make this pane taller", split: "rows", grow: true, word: "tall" },
+  { label: "Make this pane shorter", split: "rows", grow: false, word: "tall" },
+];
+
+/**
+ * The nearest split round a pane that runs the way a sizing needs (one of
+ * SIZINGS): its path, the pane's place in it, and how many children it has.
+ * null when the pane has no such split round it (the only pane, or in rows
+ * when asked to widen).
+ */
+export function sizingFor(root, id, z) {
+  const at = pathTo(root, id);
+  if (!at) return null;
+  for (let d = at.length - 1; d >= 0; d--) {
+    const path = at.slice(0, d);
+    const node = nodeAt(root, path);
+    if (node?.split === z.split) return { path, index: at[d], count: node.children.length };
+  }
+  return null;
 }
 
 /**

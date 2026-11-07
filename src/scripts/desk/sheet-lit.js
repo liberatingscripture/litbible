@@ -180,32 +180,14 @@ export function locateBlanks(view, m) {
 /* ── The passage's words ─────────────────────────────────────────────── */
 
 /**
- * A copy of a block from a fetched chapter page with nothing that loads or
- * runs: no img, script, style, frame or embed, no on* attribute, no
- * javascript: address. The page is the site's own, but a stored book key once
- * reached any address (SEC-1), so what is imported is cleaned as well. The
- * copy is made in the page's inert document, before it joins this one.
- */
-function inertCopy(block) {
-  const copy = block.cloneNode(true);
-  copy.querySelectorAll("img, picture, script, style, iframe, object, embed, link, meta, svg, audio, video").forEach((n) => n.remove());
-  for (const el of [copy, ...copy.querySelectorAll("*")]) {
-    for (const a of [...el.attributes]) {
-      if (/^on/i.test(a.name) || (/^(href|src|xlink:href|action|formaction)$/i.test(a.name) && /^\s*(javascript|data):/i.test(a.value))) {
-        el.removeAttribute(a.name);
-      }
-    }
-  }
-  return copy;
-}
-
-/**
  * The passage's words as Chapter View prints them, verse numbers kept, footnote
  * letters, ids and the page's own labels left out. Whole blocks are copied and
  * then trimmed to the passage, so every verse keeps its data-verse span and
  * the copy reads as anchor text exactly as the chapter does: `base` is the
  * chapter offset where the copy's own anchor text begins (null when the two
- * can't be lined up, and then nothing can be blanked).
+ * can't be lined up, and then nothing can be blanked). The blocks come from
+ * the fetched page's kept parts, which chapter-page.js made inert before
+ * any pane could import them (SEC3-2), so no scrub is needed here.
  *
  * `keepNotes`, for a copy on paper (/sheets/), is the footnotes that print:
  * their letters stay in the words as plain superscripts, so each note can be
@@ -224,7 +206,7 @@ export function passageWords(view, m, { keepNotes = null } = {}) {
   const blocks = [...source.textBox.children].filter((b) => range.intersectsNode(b));
   if (!blocks.length) return null;
   const words = make("div", "desk-sheet__words chapter-paragraphs");
-  for (const b of blocks) words.append(document.importNode(inertCopy(b), true));
+  for (const b of blocks) words.append(document.importNode(b, true));
 
   const full = pageAnchorText(words.children);
   const blockStart = chapter.text.lastIndexOf(full.text, at.start);

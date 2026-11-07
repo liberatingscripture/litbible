@@ -135,12 +135,12 @@ function runXml(run, halfPoints) {
  * Paragraph XML: `style` a style id, `runs` from docRuns (plus any runs
  * written ahead of them), `pPr` the paragraph's own settings after the style.
  */
-function paragraph(ctx, { style = null, runs = [], align = null, indent = 0, numbering = null, flush = false, pre = "" }) {
+function paragraph(ctx, { style = null, runs = [], align = null, indent = 0, right = 0, hanging = 0, numbering = null, flush = false, pre = "" }) {
   const p = [];
   if (style) p.push(`<w:pStyle w:val="${style}"/>`);
   if (numbering) p.push(`<w:numPr><w:ilvl w:val="${numbering.level}"/><w:numId w:val="${numbering.id}"/></w:numPr>`);
   if (flush) p.push('<w:spacing w:before="0"/>');
-  if (indent) p.push(`<w:ind w:left="${indent}"/>`);
+  if (indent || right) p.push(`<w:ind w:left="${indent}"${right ? ` w:right="${right}"` : ""}${hanging ? ` w:hanging="${hanging}"` : ""}/>`);
   if (align && ALIGN[align]) p.push(`<w:jc w:val="${ALIGN[align]}"/>`);
   const size = STYLE_SIZE[style] ?? BASE_HALF_POINTS;
   let body = pre;
@@ -203,13 +203,20 @@ function abstractNum(id, ordered) {
   return `<w:abstractNum w:abstractNumId="${id}"><w:multiLevelType w:val="hybridMultilevel"/>${levels}</w:abstractNum>`;
 }
 
-function listParagraphs(ctx, b, level = 0) {
+/** A quotation's indent on each side, as the Quote style sets it. */
+const QUOTE_INDENT = 720;
+
+function listParagraphs(ctx, b, level = 0, quoted = false) {
   // Bullets share one definition; each numbered list gets its own, so it counts from 1.
   const id = b.ordered ? ctx.numbered() : 1;
+  const at = Math.min(level, 8);
+  // Inside a quotation the list keeps the quotation's margins (DK3-4): its
+  // level's indent moved in by the quote's, and the quote's on the right.
+  const ind = quoted ? { indent: QUOTE_INDENT + 720 + 360 * at, right: QUOTE_INDENT, hanging: 360 } : {};
   let out = "";
   for (const item of b.items) {
-    out += paragraph(ctx, { style: "ListParagraph", runs: docRuns(item.inlines), numbering: { id, level: Math.min(level, 8) } });
-    for (const list of item.lists) out += listParagraphs(ctx, list, level + 1);
+    out += paragraph(ctx, { style: "ListParagraph", runs: docRuns(item.inlines), numbering: { id, level: at }, ...ind });
+    for (const list of item.lists) out += listParagraphs(ctx, list, level + 1, quoted);
   }
   return out;
 }
@@ -252,7 +259,7 @@ function body(ctx, blocks, quoted = false) {
         break;
       case "quote": out += body(ctx, b.blocks, true); break;
       case "box": out += boxTable(ctx, body(ctx, b.blocks, quoted)); break;
-      case "list": out += listParagraphs(ctx, b); break;
+      case "list": out += listParagraphs(ctx, b, 0, quoted); break;
       case "rule": out += paragraph(ctx, { style: "Rule" }); break;
       case "note": {
         const runs = [{ text: b.label, sup: true }, { text: " " }, ...docRuns(b.inlines)];

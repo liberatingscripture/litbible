@@ -27,19 +27,16 @@
 // introduction (Acts, in 2026-11) shows a line saying so.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
+import { makeInert } from "../../lib/desk-inert.mjs";
 import { introPath, stepBook } from "../../lib/desk-passage.mjs";
 import { resultTarget } from "../../lib/desk-search-pane.mjs";
+import { heldAfterReference, introText, keepsBook } from "./intro-text.js";
 import { make } from "./dom.js";
-import { OPEN_PAGE_ICON } from "./glyphs.js";
+import { chevronIcons, OPEN_PAGE_ICON } from "./glyphs.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
-const ICON_PREV = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M15 6l-6 6 6 6" /></svg>`;
-const ICON_NEXT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M9 6l6 6-6 6" /></svg>`;
+const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons();
 
 const cache = new Map(); // book key → Promise<{ draft, body }>
 
@@ -68,38 +65,15 @@ function loadIntro(bookKey) {
         const page = new DOMParser().parseFromString(html, "text/html");
         const section = page.querySelector("article.chapter section.intro");
         if (!section) return { draft: true, body: null };
+        // Made inert before the pane imports a node of it (SEC3-2), as a chapter's parts are.
         const kept = document.implementation.createHTMLDocument("");
-        kept.body.append(section);
+        kept.body.append(makeInert(section));
         return { draft: false, body: section };
       });
     p.catch(() => cache.delete(bookKey));
     cache.set(bookKey, p);
   }
   return p;
-}
-
-/**
- * The introduction's text as the pane shows it: a copy, its headings one level
- * under the pane's own (the pane's name is an h2, the introduction's title an
- * h3), no ids, and every link opening a new tab except where the pane takes a
- * plain click itself.
- */
-function introText(body) {
-  const box = make("div", "desk-intro__text");
-  for (const node of body.childNodes) box.append(document.importNode(node, true));
-  for (const h of box.querySelectorAll("h2, h3, h4")) {
-    const level = Math.min(6, Number(h.tagName[1]) + 2);
-    const to = document.createElement(`h${level}`);
-    to.className = "desk-intro__heading";
-    to.append(...h.childNodes);
-    h.replaceWith(to);
-  }
-  for (const el of box.querySelectorAll("[id]")) el.removeAttribute("id");
-  for (const a of box.querySelectorAll("a[href]")) {
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-  }
-  return box;
 }
 
 const modified = (e) => e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
@@ -206,7 +180,7 @@ export function createIntroPane({ paneId, start, set, showPassage }) {
   /** The passage the pane follows moved: show its book, unless it is the one a reference sent the LIT to. */
   function setPassage(p) {
     if (!p?.bookKey) return;
-    if (held && p.bookKey === held) return;
+    if (keepsBook(held, p.bookKey)) return;
     held = null;
     show(p.bookKey);
   }
@@ -234,7 +208,7 @@ export function createIntroPane({ paneId, start, set, showPassage }) {
     const target = resultTarget(a.getAttribute("href"));
     if (target.type !== "passage") return;
     e.preventDefault();
-    held = target.bookKey === book ? null : target.bookKey;
+    held = heldAfterReference(book, target.bookKey);
     showPassage({ bookKey: target.bookKey, chapter: target.chapter, verse: target.verse });
   });
 

@@ -378,6 +378,18 @@ export function createTour({ panel, canKeep = true }) {
       },
       // The Notebook back as it was, shown, minimized or closed.
       finish: () => panel.restore(state.snap),
+      // Where the tour was started from (a button in the offer window, which
+      // the tour closes, or in a panel it folds away) may be gone: the
+      // Notebook's tab when it is folded, the panel when it is open, else
+      // the page's heading (LV3-4).
+      returnFallback: () => {
+        const tab = document.querySelector(".desk-tab");
+        if (tab && tab.getClientRects().length) return tab;
+        if (panel.isOpen()) return panel.el;
+        const heading = document.querySelector("main h1");
+        if (heading && !heading.hasAttribute("tabindex")) heading.tabIndex = -1;
+        return heading;
+      },
     });
   }
 

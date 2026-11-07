@@ -3743,6 +3743,26 @@ button.greek-cmd:hover {
   outline-offset: 2px;
 }
 
+/* Forced colors (Windows contrast themes; GK3-3): a fill draws nothing, so a
+   pressed chip would look like an unpressed one. A chosen chip gets a thicker
+   edge in Highlight, its padding lessened by the extra width so nothing
+   shifts, and the card's × (borderless) gets an edge. */
+@media (forced-colors: active) {
+  .greek-chip[aria-pressed="true"] {
+    padding: 1px 8px;
+    border: 3px solid Highlight;
+  }
+
+  .greek-chip--only,
+  .greek-chip--only:hover {
+    border: 1px dashed GrayText;
+  }
+
+  .greek-card__x {
+    border: 1px solid ButtonBorder;
+  }
+}
+
 /* The list under the builder, folded: "Examples and all commands". */
 .greek-cmds__more {
   margin-top: 14px;

@@ -10,6 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import { canEdit, createRecord, validateRecord } from "../src/lib/desk-records.mjs";
 import {
@@ -76,6 +77,21 @@ const CANONICAL = [
 
 test("canonical text comes back as it went in", () => {
   for (const html of CANONICAL) assert.equal(clean(html), html, html);
+});
+
+test("DI3-6: the committed golden corpus holds every canonical form the sanitizer makes, byte for byte", () => {
+  // A stored sheet is valid only while the sanitizer's output for its text
+  // never changes. A failure here is a change to a canonical form: regenerate
+  // with `npm run build:sheet-golden`, and bump SHEET_FORMAT if a stored sheet
+  // could hold the old form.
+  const golden = JSON.parse(readFileSync(new URL("./fixtures/sheet-text-golden.json", import.meta.url), "utf8"));
+  assert.equal(golden.sheetFormat, SHEET_FORMAT);
+  assert.ok(golden.cases.length >= 300, `cases: ${golden.cases.length}`);
+  assert.ok(golden.cases.some((c) => c.why.startsWith("template ")), "the templates' text is in it");
+  for (const c of golden.cases) {
+    assert.equal(clean(c.input), c.output, `${c.why}: ${c.input.slice(0, 80)}`);
+    assert.equal(clean(c.output), c.output, `idempotent: ${c.why}`);
+  }
 });
 
 test("a value that isn't a string is empty text", () => {
@@ -1420,6 +1436,24 @@ test("planSheetChange: a change that changes nothing returns the very same sheet
   assert.deepEqual(Object.keys(out).sort(), ["changed", "sheet"]);
   assert.equal(out.changed, false);
   assert.equal(out.sheet, s);
+});
+
+test("DI3-6: planSheetChange makes its change over the sheet's text in today's canonical form, so a drift is a one-time rewrite", () => {
+  // A stored sheet whose text is no longer canonical (as a sanitizer change
+  // would leave it): the edit lands, and the sheet is re-canonicalized with it
+  // rather than refused.
+  const s = twoTexts();
+  const drifted = { ...s, modules: s.modules.map((m) => (m.id === "y" ? { ...m, html: "<p>Y0 <b>bold</b></p>" } : m)) };
+  assert.ok(validateRecord(drifted).some((p) => /formatted-text form/.test(p)), "the drifted sheet would be refused as it stands");
+  const out = planSheetChange(drifted, (cur) => updateModule(cur, "x", { html: "<p>X1</p>" }, at(T1)));
+  assert.equal(out.changed, true);
+  assert.equal(htmlOf(out.sheet, "x"), "<p>X1</p>");
+  assert.equal(htmlOf(out.sheet, "y"), "<p>Y0 <strong>bold</strong></p>");
+  assert.deepEqual(validateRecord(out.sheet), []);
+  // An edit that changes nothing on a drifted sheet still rewrites it once.
+  const same = planSheetChange(drifted, (cur) => updateModule(cur, "x", { html: "<p>X0</p>" }, at(T1)));
+  assert.equal(same.changed, true);
+  assert.equal(htmlOf(same.sheet, "y"), "<p>Y0 <strong>bold</strong></p>");
 });
 
 test("planSheetChange: a change comes back as a plan to put the new sheet", () => {

@@ -12,6 +12,9 @@
 // two answers and neither mentions sync: the notebook stays in this browser,
 // with or without a reminder to save a copy now and then.
 
+import { MAX_PANES } from "./desk-layout.mjs";
+import { numberWord } from "./desk-wording.mjs";
+
 /** Where the notebook lives. No choice yet behaves as "browser" and shows the card. */
 export const HOMES = ["browser", "browser-remind"];
 
@@ -19,8 +22,8 @@ export const HOMES = ["browser", "browser-remind"];
 export const REMIND_AFTER_DAYS = 7;
 
 export const BACKUP_HREF = "/notebook/#backup";
-export const HELP_HREF = "/notebook/help/";
-export const WAYS_HREF = "/notebook/help/#ways-to-keep";
+export const HELP_HREF = "/desk/help/";
+export const WAYS_HREF = "/desk/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
 
 /** The start of the notebook tour from a chapter page: `?desk-tour` starts it after load. */
@@ -455,7 +458,7 @@ export const DESK_TOUR_STEPS = [
     title: "Add pane",
     body: {
       default:
-        "Add a column at the right or a row along the bottom, then choose what it shows. Four panes fit when the window has room. A pane is added here only for the tour.",
+        `Add a column at the right or a row along the bottom, then choose what it shows. ${numberWord(MAX_PANES, { capital: true })} panes fit when the window has room. A pane is added here only for the tour.`,
     },
   },
   {

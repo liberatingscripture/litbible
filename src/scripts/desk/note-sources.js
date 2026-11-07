@@ -39,8 +39,10 @@ import articleSlugs from "../../data/article-slugs.json";
 import { footnoteElementFor } from "./footnote-notes.js";
 import { chapterBlocks, chapterText, pageChapter } from "./page.js";
 
-/** Whether the desk offers notes on glossary entries and articles (N11): off in version 1. */
-export const PROSE_NOTES = false;
+// PROSE_NOTES and prosePage live in page-kind.js, which the first stage
+// carries (note-settings.js reads them); the rest of the desk imports them here.
+import { PROSE_NOTES, prosePage } from "./page-kind.js";
+export { PROSE_NOTES, prosePage };
 
 /** An article's old slugs and the ones they became (src/data/article-slugs.json). */
 export const RENAMED_ARTICLES = articleSlugs.renamed ?? {};
@@ -94,50 +96,6 @@ export function studySource() {
     },
     owns: (r) => r?.kind === "note" && r.bookKey === here.bookKey && r.chapter === here.chapter,
   };
-}
-
-/**
- * The glossary or an article, as notes see it: its targets, each with the
- * element holding its own text (`root`) and its heading (`head`, where a
- * note on the whole entry or article sits). Null on any other page, and on
- * the glossary unless the desk is on, which gives it a reading column.
- * Null everywhere while PROSE_NOTES is off.
- *
- * @returns {{ kind: "article" | "glossary", box: Element, label: string,
- *   targets: Array<{ type: string, id: string, title: string, root: Element, head: Element }> } | null}
- */
-export function prosePage() {
-  if (!PROSE_NOTES) return null;
-  const card = document.querySelector(".article__card");
-  const body = card?.querySelector(".article__body");
-  if (card && body) {
-    const slug = /^\/articles\/([^/]+)\/?$/.exec(window.location.pathname)?.[1];
-    if (!slug) return null;
-    const head = card.querySelector(".article__title") ?? body;
-    const title = head.textContent.trim() || slug;
-    return {
-      kind: "article",
-      box: card,
-      label: "This article",
-      targets: [{ type: "article", id: decodeURIComponent(slug), title, root: body, head }],
-    };
-  }
-  const wrap = document.querySelector(".glossary-entries .entries-wrap");
-  if (wrap && document.documentElement.hasAttribute("data-desk")) {
-    const targets = Array.from(wrap.querySelectorAll("article.entry[data-entry]"))
-      .map((el) => ({
-        type: "glossaryEntry",
-        id: el.dataset.entry,
-        title: el.querySelector(".entries-strike strong")?.textContent.trim() || el.dataset.entry,
-        root: el.querySelector(".entry-body"),
-        // The heading's visible words: it also holds an off-screen label for
-        // the site search, whose box would misplace the note.
-        head: el.querySelector(".entries-strike") ?? el.querySelector(".entry-title") ?? el,
-      }))
-      .filter((t) => t.root);
-    return { kind: "glossary", box: wrap, label: "The glossary", targets };
-  }
-  return null;
 }
 
 /** The page's target a note is on, following an article's rename. */

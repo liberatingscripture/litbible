@@ -16,7 +16,7 @@
 // numbered ODF list would restart at every one.
 
 import { DOC_CREDIT, DOC_FONTS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
-import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, slideBoxes, slideParagraphs, slideRuns } from "./desk-slides.mjs";
+import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, slideBoxes, slideParagraphs, slideRuns, titlePoints } from "./desk-slides.mjs";
 import { zipFiles } from "./desk-zip.mjs";
 
 export const ODP_MIME = "application/vnd.oasis.opendocument.presentation";
@@ -200,7 +200,7 @@ function slideShapes(ctx, slide) {
   const line = (box, text, look, name, opts = {}) => textBox(ctx, box, paraXml(ctx, textRuns(text), { look, align: "center" }), { name, ...opts });
   let out = "";
   if (slide.kind === "start") {
-    out += line(boxes.title, slide.title, { ...WORDS, pt: SLIDE_PT.title, b: true, font: SLIDE_FONTS.heading }, "Title", { title: true, anchor: "bottom" });
+    out += line(boxes.title, slide.title, { ...WORDS, pt: titlePoints(slide), b: true, font: SLIDE_FONTS.heading }, "Title", { title: true, anchor: "bottom" });
     if (slide.subtitle) out += line(boxes.subtitle, slide.subtitle, { ...QUIET, pt: SLIDE_PT.subtitle, i: true }, "Subtitle");
     const codes = (slide.codes ?? []).filter((c) => c.png);
     if (codes.length) {
