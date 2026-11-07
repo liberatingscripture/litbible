@@ -101,8 +101,8 @@ tab in the same task as the panel draws its own, so nothing moves. **A new
 startup listener in the shell needs the same**: held in `first-stage.js`, or a
 reason to load. The search box loads `notebook-search.js` on first focus, not
 with the page. Measured on `dist/john-3/` (gzipped, 2026-11-07): the desk's
-scripts were 124 KB before any use, plus 47 KB of the search box's; now 10 KB
-with nothing kept, and 129 KB once the Notebook opens.
+scripts were 130 KB on every load; now 10 KB with nothing kept and the
+Notebook minimized, and 129 KB once it opens (135 with the search box).
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
