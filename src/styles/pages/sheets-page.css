@@ -622,6 +622,96 @@
   flex: none;
 }
 
+/* "Save as ▾" (E37, sheet-save.js): a menu under its button, in the toolbar's
+   type, opening leftward since the button sits near the toolbar's right end.
+   Themed by tokens only, so it needs no dark-mode rule of its own. */
+.sheets-page__save {
+  position: relative;
+  display: inline-flex;
+}
+
+.sheets-page__save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.sheets-page__save-more {
+  display: inline-flex;
+}
+
+.sheets-page__save-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 6px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  font-size: 0.9375rem;
+}
+
+.sheets-page__save-menu[hidden] {
+  display: none;
+}
+
+.sheets-page__save-version {
+  margin: 0;
+  padding: 6px 10px 4px;
+  font-weight: 600;
+}
+
+.sheets-page__save-group + .sheets-page__save-group {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.sheets-page__save-head {
+  margin: 0;
+  padding: 4px 10px 2px;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.72);
+}
+
+.sheets-page__save-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheets-page__save-item:hover,
+.sheets-page__save-item:focus-visible {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.sheets-page__save-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.sheets-page__save-hint {
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.72);
+}
+
 /* ── On paper ──────────────────────────────────────────────────────────── */
 
 @media print {

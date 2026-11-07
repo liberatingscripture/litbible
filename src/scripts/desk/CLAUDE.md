@@ -1435,6 +1435,21 @@ against `dist/` is a later item.
        what would print, codes aside. Its button carries the copy glyph (two
        sheets, drawn in `sheet-page.js`'s `copyGlyph`, as the glossary's copy-link icon) and
        the accessible name "Copy this version to the clipboard".
+     - **Save as ▾** (E37; BVJ, 2026-11-06) sits after Copy and saves the
+       version on screen as a document: .docx, .odt, .rtf, or "PDF…", which
+       runs Print and says to choose "Save as PDF". **Copy and the files read
+       one model**: `readCopy` (`sheet-word.js`) walks the copy on screen into
+       blocks and inline pieces (`src/lib/desk-sheet-doc.mjs` documents them),
+       and Copy is that model's HTML and text writer (`docHtml`, `docText`),
+       held to its old output by `test/fixtures/sheet-copy-golden.json`. A new
+       part of the paper copy is read there once, and every writer then
+       follows. The writers (`desk-doc-docx.mjs`, `desk-doc-odt.mjs`,
+       `desk-doc-rtf.mjs`, over the hand-written `desk-zip.mjs`) are pure and
+       reached only by `sheet-save.js`'s dynamic imports, never statically
+       (`test/desk-sheet-doc.test.js` holds it). The menu's groups are
+       `SAVE_GROUPS`; slides (phase B) are a second group there. Every file ends
+       with `LIT_CREDIT_LINE` and carries it in its properties; fonts are named,
+       not embedded.
      - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
        guessed from the reader's languages until chosen), named in /privacy's
        paragraph. Its `@page` rule is added as the page's last style, after
@@ -1584,7 +1599,10 @@ against `dist/` is a later item.
        deflate-raw JSON in base64url after `#share1.`, or the same data on
        the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
        last data line, ignores whitespace folded into it, and throws
-       "damaged" for one it can't read). Opening one decompresses with a
+       "damaged" for one it can't read). The Share dialog's button for that
+       file is "Export a Study Desk file" and the Sheets page's is "Import a
+       shared file" (`EXPORT_LABEL`, `IMPORT_LABEL` in `sheet-page.js`; BVJ,
+       2026-11-06), so "Save as" names only a document. Opening one decompresses with a
        ceiling, rebuilds the record with fresh ids, drops the comparison
        copies again and refuses it unless `validateRecord` passes. **The
        fragment must never reach a server or the analytics beacon**: an

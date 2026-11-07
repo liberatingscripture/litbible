@@ -1278,7 +1278,46 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   (`LIT_CREDIT_LINE` must travel into every file, as it does into print) are the
   hard parts, and size and any new dependency need BVJ's eye (a library is
   weight and a license to carry). Design first (Opus), and a mock of the menu.
-  Status: **open.**
+  **BVJ's decisions (2026-11-06), from the design:** (1) a **"Save as ▾"** menu
+  on the sheet page's toolbar, after Copy and before Share…, following the
+  Version choice; phase A holds its "A document" group only (Word document
+  (.docx), OpenDocument text (.odt), Rich text (.rtf), PDF…), and **phase B** adds
+  "A presentation" (slides) to the same menu. (2) The Share dialog's "Save as a
+  file" becomes **"Export a Study Desk file"**, with the hint "To open the sheet
+  in Word or another program, use Save as."; its behavior is unchanged. (3) PDF
+  is the browser's own Print of the version on screen, telling the reader to
+  choose "Save as PDF"; no PDF library. (4) Fonts are named, not embedded
+  (Crimson Text, falling back to Georgia; Greek and Hebrew in Cardo). No new
+  dependency: the zip is hand-written (CompressionStream "deflate-raw" and a
+  CRC-32). With it, **"Open a shared file" became "Import a shared file"**
+  (BVJ, 2026-11-06), pairing with Export and the banner's "Import into my
+  notebook".
+  **Phase A built 2026-11-06** (`claude/desk-phase5-e28`). Copy and the files
+  read the copy on screen into **one model** (`readCopy`, `desk/sheet-word.js`;
+  the model and Copy's HTML and text writers in `src/lib/desk-sheet-doc.mjs`),
+  so they can't disagree; Copy is now that model's HTML writer, held
+  byte-identical to the old code by `test/fixtures/sheet-copy-golden.json` (and
+  checked so on all 260 chapters before the old walk went). The writers are
+  `desk-doc-docx.mjs`, `desk-doc-odt.mjs` and `desk-doc-rtf.mjs` over
+  `desk-zip.mjs`, each pure and loaded by a dynamic import only when chosen
+  (`desk/sheet-save.js`, which also draws the menu and the codes as PNGs from
+  `qrSvg`, left out when codes are off). Every file ends with
+  `LIT_CREDIT_LINE` as its last paragraph and carries it in its properties.
+  Files are named "Romans 8 study (leader).docx". `test/desk-sheet-doc.test.js`
+  unzips each file independently and reads every XML part strictly. LibreOffice
+  (headless, 2026-11-06) turned a .docx, an .odt and an .rtf of the test sheet
+  into PDFs that matched the paper copy: headings, lists restarting, raised
+  verse numbers, the footnote, blanks, Greek, Hebrew right to left, ruled
+  lines, links, the code and the credit line last. **Departures from the
+  design:** the credit goes in the description and a custom "Rights" property,
+  since neither format's core properties has `dc:rights`; a blank is
+  underlined no-break spaces, as Copy writes it, not a tab; a code is an
+  inline picture on its own right-aligned line with its caption, not floated.
+  **Not checked:** the menu in a browser, and the files opened in Word, Google
+  Docs and Pages. **Open for phase B:** blanks on slides (covered, or shown),
+  speaker notes (the Leader only parts?), footnotes on slides, and where the
+  credit line goes on slides. Status: **phase A built, awaiting BVJ's look;
+  phase B open.**
 
 - **E38, question, answered: can a reader search their labels, and is having
   labels going to get cumbersome? How hard would syncing them to the app be?**
@@ -1636,8 +1675,9 @@ the rest is polish.
     2026-11-06, one branch (`claude/desk-phase5-e29-e48`), awaiting BVJ's
     look**: session 12 (E29), a (E30, E32, E42), b's E44 to E48, c (E34, E35),
     d's E36 and e (E31). E28 with E41 is built on its own branch
-    (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look. **Still open**:
-    E37 (design first), f (E39, E40; mock first),
+    (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look, and so is
+    E37's phase A (Save as a document, on the same branch). **Still open**:
+    E37's phase B (slides), f (E39, E40; mock first),
     g (E49, E50; mock first; E43, Escape to test first). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.

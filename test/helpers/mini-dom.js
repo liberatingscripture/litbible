@@ -91,7 +91,90 @@ class MiniElement extends MiniNode {
     }
     return out;
   }
+
+  // Enough more for the sheet page's walks (test/desk-sheet-doc.test.js):
+  // child elements, classes, data attributes, and selectors made of tags and
+  // classes joined by descendant or child combinators, with `:scope` and
+  // comma lists. Anything else in a selector throws.
+  get children() {
+    return this.childNodes.filter((c) => c.nodeType === 1);
+  }
+  get classList() {
+    const names = (this.attrs.class ?? "").split(/\s+/).filter(Boolean);
+    return { contains: (n) => names.includes(n) };
+  }
+  get dataset() {
+    const out = {};
+    for (const [k, v] of Object.entries(this.attrs)) {
+      if (k.startsWith("data-")) out[k.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = v;
+    }
+    return out;
+  }
+  matches(selector, scope = null) {
+    return parseSelector(selector).some((chain) => matchChain(this, chain, chain.length - 1, scope));
+  }
+  querySelectorAll(selector) {
+    return this.findAll((el) => el.matches(selector, this));
+  }
+  querySelector(selector) {
+    return this.querySelectorAll(selector)[0] ?? null;
+  }
+  append(...nodes) {
+    for (const n of nodes) this.appendChild(typeof n === "string" ? new MiniText(n) : n);
+  }
+  cloneNode(deep = false) {
+    const copy = new MiniElement(this.tagName, { ...this.attrs });
+    if (deep) for (const c of this.childNodes) copy.appendChild(c.nodeType === 3 ? new MiniText(c.nodeValue) : c.cloneNode(true));
+    return copy;
+  }
 }
+
+MiniText.prototype.cloneNode = function () {
+  return new MiniText(this.nodeValue);
+};
+
+/** "a > .b c, d" as [[{ tag, classes, scope, combinator }, …], …]. */
+function parseSelector(selector) {
+  return selector.split(",").map((part) => {
+    const chain = [];
+    let combinator = " ";
+    for (const token of part.trim().split(/\s*(>)\s*|\s+/).filter(Boolean)) {
+      if (token === ">") {
+        combinator = ">";
+        continue;
+      }
+      if (token === ":scope") {
+        chain.push({ scope: true, combinator });
+      } else {
+        const m = token.match(/^([a-z][\w-]*)?((?:\.[\w-]+)*)$/i);
+        if (!m) throw new Error(`mini-dom: selector "${token}" isn't supported`);
+        chain.push({ tag: m[1]?.toUpperCase() ?? null, classes: m[2].split(".").filter(Boolean), combinator });
+      }
+      combinator = " ";
+    }
+    return chain;
+  });
+}
+
+function matchOne(el, step, scope) {
+  if (step.scope) return el === scope;
+  if (step.tag && el.tagName !== step.tag) return false;
+  return step.classes.every((c) => el.classList.contains(c));
+}
+
+function matchChain(el, chain, i, scope) {
+  if (!el || el.nodeType !== 1 || !matchOne(el, chain[i], scope)) return false;
+  if (i === 0) return true;
+  if (chain[i].combinator === ">") return matchChain(el.parentNode, chain, i - 1, scope);
+  for (let up = el.parentNode; up; up = up.parentNode) if (matchChain(up, chain, i - 1, scope)) return true;
+  return false;
+}
+
+/** A `document` with createElement and createTextNode, for code that builds a node or two. */
+export const miniDocument = {
+  createElement: (tag) => new MiniElement(tag, {}),
+  createTextNode: (text) => new MiniText(text),
+};
 
 function parseAttrs(src) {
   const attrs = {};

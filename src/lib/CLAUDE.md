@@ -55,7 +55,10 @@ From the root's project tree.
                      #   the reader's questions on it (desk-sheet-discussion),
                      #   sharing it by link or file (desk-sheet-share),
                      #   and its copies on paper (desk-sheet-copy, with
-                     #   qr-svg.mjs, the one QR drawing), and on a
+                     #   qr-svg.mjs, the one QR drawing), as a document
+                     #   (desk-sheet-doc, the model Copy and the files
+                     #   share; desk-doc-docx, desk-doc-odt, desk-doc-rtf,
+                     #   over desk-zip), and on a
                      #   screen for a room (desk-present);
                      #   merging two copies
                      #   of a notebook (desk-merge); finding a pinned
