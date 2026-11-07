@@ -1352,7 +1352,16 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   confused. Starting follows the same rule as opening from the list
   (`followBookmark`: the six-bookmark limit, one tab at a time, the flag in
   `sessionStorage`). The desk copy that describes it needs E48. Status:
-  **open.**
+  **built 2026-11-06** on Claude's lean, awaiting BVJ's look: the row's quiet
+  link reads "Stop following" or "Start following" for any bookmark with "Move
+  as I read" on, and the verse menu offers "Start following" beside "Edit
+  bookmark…" for a moving bookmark this tab isn't following. Start shows only
+  where the page can follow (not /desk or /notebook), and neither moves the
+  bookmark nor navigates: the next report decides, reading on from it moves it
+  and reading elsewhere pauses it with "Move it here". Starting forgets what the
+  last follow heard, or a far bookmark started in place would jump to the
+  reader (tested). The resting bookmark's "Leave it here" (BVJ's word,
+  2026-11-04) stays as it is.
 
 - **E45, rough: a moving bookmark takes too long to move.** BVJ (2026-11-05).
   Two waits stack: the follower writes at most once every
@@ -1365,7 +1374,12 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   the mark redraws on its own clock while the page is still, and the sync side:
   a move is a record write, so a shorter gap raises writes, and BDR's side
   should be told if the gap changes.
-  Status: **open.**
+  Status: **built 2026-11-06**, awaiting BVJ's feel of it: the write gap is 2
+  seconds and the settle 2.5 (not 2: a settle no longer than the gap would let
+  steady scrolling redraw between writes, and the mark would glide again), so
+  the mark lags at most about 4.5 seconds. No redraw clock of its own. **For
+  BDR:** a follow can now write a move every 2 seconds instead of 4;
+  STUDY-DESK-FORMAT.md states the new rate.
 
 - **E46, wish: change which verse a bookmark belongs to, in its dialog.**
   BVJ (2026-11-05). Today the form (`bookmark-form.js`) edits the name and
@@ -1377,7 +1391,16 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   `store.change` (`planBookmarkEdit`, BA102) and an ordinary undoable edit; a
   following or paused bookmark's resting place changes with it; and the
   record's anchor (its verse and the text it was made on) is rebuilt for the
-  new verse, as a new bookmark's would be. Status: **open.**
+  new verse, as a new bookmark's would be. Status: **built 2026-11-06**,
+  awaiting BVJ's look: a Verse field read by the passage field's
+  `parseReference` (a range keeps its first verse; a chapter alone is verse 1;
+  "Romans 8 has 39 verses." past the end), sent only if the reader changed it,
+  so a move the follower made meanwhile stands. One `planBookmarkEdit` change,
+  undoable; refused with "John 3:5 already has a bookmark that stays put." and
+  the like; `verse`, `endVerse` and `contentVersion` written as for a new
+  bookmark, everything else kept; a followed bookmark's resting place moves
+  with it. `planBookmarkEdit` now leaves the bookmark this tab follows out of
+  the verse check, as the dialog's lock already did. No format change.
 
 - **E47, wish: "Start following now?" in the dialog.** BVJ (2026-11-05): when
   "Move as I read" is checked in the Bookmark dialog, a second option appears,
@@ -1385,7 +1408,11 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   follow (and shows at all only if this tab isn't already following it and the
   six-bookmark limit isn't reached; otherwise a line says why). Checked on a
   new bookmark made from the verse menu, it makes the first Bookmark press
-  start following at once. Status: **open.**
+  start following at once. Status: **built 2026-11-06**, awaiting BVJ's look:
+  shown while "Move as I read" is checked; where the tab can't start it, a line
+  says why (already following this one, a page that can't follow, six others
+  already moving). Checked at Save, the bookmark is saved and then followed,
+  even with nothing else changed.
 
 - **E48, wording: the Move as I read blurb.** BVJ (2026-11-05): the copy
   "needs work": "Open this bookmark from your list, and it follows you through
@@ -1395,7 +1422,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   to do, and "Off," is a fragment. **Write it after E44 and E47 are decided.**
   A starting draft, for BVJ to react to: "Moves along with you as you read this
   book. Off, it stays on its verse. Up to six can move at once." Status:
-  **open, after E44 and E47.**
+  **built 2026-11-06**, for BVJ to react to: "Moves along with you as you read
+  its book, once it’s following you. Without this, it stays on its verse. Up to
+  six of your bookmarks can move." The "Moves" row's hover text is now "Moves as
+  I read, once it’s following me." **For BVJ:** /privacy still describes
+  `lit-desk-follow` as "which bookmark you followed from your list", which E44
+  and E47 make incomplete; /privacy is mirrored to the LSC site, so it was left
+  for BVJ's word.
 
 - **E49, rough: the footnote's pin and add-note pills.** BVJ (2026-11-05): on
   the scripture pages the two pills (Pin, from `pins.js`, and Add a note, M11,
@@ -1512,10 +1545,15 @@ the rest is polish.
 12. **Verse numbers off** (BVJ, 2026-11-05): E29. Chapter headings go with the
     numbers where chapters run together (the LIT pane, as Read View does), not on
     Chapter View's own pages, and the LIT pane's location field follows the verse at the
-    reading line though the markers are hidden. Not started. Shares
+    reading line though the markers are hidden. **Built 2026-11-06** (see 13). Shared
     `lit-pane.js` with E28, so run it before or after that session, not beside it.
-13. **BVJ's pass of 2026-11-05** (E30 to E50; Claude's grouping, not a decision;
-    none started). Sessions that touch the same files run one after another.
+13. **BVJ's pass of 2026-11-05** (E30 to E50; Claude's grouping, not a decision).
+    Sessions that touch the same files run one after another. **Built
+    2026-11-06, one branch (`claude/desk-phase5-e29-e48`), awaiting BVJ's
+    look**: session 12 (E29), a (E30, E32, E42), b's E44 to E48, c (E34, E35),
+    d's E36 and e (E31). **Still open**: E28 with E41 (next, now that E29, E35
+    and the bookmark work are in), E37 (design first), f (E39, E40; mock first),
+    g (E49, E50; mock first; E43, Escape to test first), and BVJ's E33 and E38.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
        group's heading), E42 (`glyphs.js`). E36 joins session d.
     b. *Bookmark dialog and following*: E44, E45, E46, E47, then E48 (the copy,
