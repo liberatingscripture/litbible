@@ -84,7 +84,7 @@ SEC3-1 and DK3-1 to Low), the live pass's partial verdict on GK3-2 (to Low), and
 | 1 | NB3-1 (Medium) | In every reader's verse menu and selection panel, hovering "Copy text ▸", "Share ▸" or "Print ▸" opens the flyout, and the click that follows closes it. | Live site, desk off: every mouse reader. Confirmed live. `src/scripts/CLAUDE.md` says a click moves focus in, so this is a bug, not a choice. | In `flyoutRow` (`panel-flyout.js`), a click on a trigger whose flyout is open by hover moves focus in rather than closing; close only on a second click once focus is inside, or not at all. |
 | 2 | NB3-2 (Medium) | "Share image" on a passage too long for an image hides the "Share text…" row and drops focus to `<body>`. | Live site, desk off, wherever a share sheet exists (phones, Safari, Edge). Confirmed live. | Keep the Share row (or put "Share text…" back) when the image step ends in "Too long"; return focus to the row. |
 | 3 | LV3-2 (Medium) | Choosing Reading while its marks are already off writes an empty list over the remembered one; leaving Reading then restores nothing. | Verse numbers, footnote letters, key terms and highlights are site-wide settings: they stay off on every chapter page, with no note why. Confirmed live and in `turnOffMarks` (`reading-display.js`). | Remember only when something was turned off (or union with what is remembered). DK3-2 is the same feature (marks come back only through Layout). |
-| 4 | LV3-3 (Medium, REGRESSION LV-3) | Sheets list in My Notes as identical "Sheet / Sheet" rows under "Other items", with "Delete sheet" and "Labels for sheet" naming neither. | Audit 2's fix went into `recordRow`; My Notes' `rowFor` (`tab-mine.js`) has no sheet branch. A reader can delete the wrong sheet. Confirmed live and in code. | Give `rowFor` the sheet branch from `recordRow` (name, `/sheets/?id=` link, named buttons), or share the builder. |
+| 4 | LV3-3 (Medium, REGRESSION LV-3) | Sheets list in My Notes as identical "Sheet / Sheet" rows under "Other items", with "Delete sheet" and "Labels for sheet" naming neither. | Audit 2's fix went into `recordRow`; My Notes' `rowFor` (`tab-mine.js`) has no sheet branch. A reader can delete the wrong sheet. Confirmed live and in code. | ~~Give `rowFor` the sheet branch from `recordRow`.~~ BVJ, 2026-11-07: leave sheets out of My Notes (see Decisions). |
 | 5 | LV3-1, NB3-6 (Medium, Low) | Escape in "Search my notebook" empties the field (the browser's way, with no `input` event), the list stays filtered ("Nothing matches"), and the Notebook folds. | A reader clearing a search sees an empty notebook and loses the panel. Confirmed live. | Listen to `search` too; let Escape in a non-empty search field only clear it. |
 | 6 | DI3-1 (Medium, High once sync ships) | A delete, a restore, or an Undo of an edit made on the slower of two clocks (inside the five minutes the format allows) is undone when the copies meet. | Reproduced with the real merge by the auditor and again by the verifier, who found the Undo case. Silent; no BDR agreement needed for the website fix. | `trashRecord`, `restoreFromTrash` and `restamped` (`desk-history.mjs`) stamp past what they replace (`laterThan`), as DI-8 did for edits; extend the format's "Room for skew" bullet as a note for BDR; two merge vectors. |
 | 7 | NB3-3 (Medium) | In the footnotes' "⋯" mode, saving a note on a footnote hides the "⋯" that holds focus, so focus drops to `<body>`. | Keyboard readers lose their place after the commonest action there. Confirmed live. | After the save, focus the footnote's other pill or its letter when `pillsHome` returns a hidden button. |
@@ -183,22 +183,78 @@ Collected from the appendices. The first four block work.
    "Launching" checklist (LG3-1), with the guard test deleted in that change.
 5. **The help page** (NB3-4): a Study Desk help page of its own, or `/notebook/help/` renamed
    "Study Desk help" and widened?
+   **Decided (BVJ, 2026-11-07): one shared page, "Study Desk help", at
+   `/desk/help/`** (the location on Claude's recommendation, which BVJ left to
+   Claude). The desk is the name over all of it (the Notebook, /desk, sheets,
+   the Greek), so its help sits under /desk, beside the page its title menu
+   opens it from. `/notebook/help/` redirects there (the privacy page and old
+   links use it); `HELP_HREF`, `WAYS_HREF` and `desk-commands.mjs` move with
+   it, and the sitemap filter gains `desk/help`. Built in session 6, with
+   the sections NB3-4 lists.
 6. **Slides in the participant version** (SEC3-3): (a) say the speaker notes hold the answers,
    (b) leave the notes out for that version, or (c) keep E37 as it is and move the menu's
    version line into the document group (the verifier's reading: only the line misleads).
+   **Decided (BVJ, 2026-11-07): (b).** Slides saved while the participant
+   version is on screen carry no answers and no Leader only parts in their
+   speaker notes; the leader's version keeps E37 as it is. Session 3.
 7. **A record too large, from a newer schema** (SEC3-1): refuse it on the way in with a reason,
    or keep it and draw only the first 64 KB? BDR's sync will need the same rule.
+   **Decided (BVJ, 2026-11-07): Claude's recommendation, refuse it on the way
+   in.** `validateRecord`'s common block, which runs for every schema, refuses
+   a record whose serialized size passes 1 MB, with a reason in the import's
+   report. Drawing only the first 64 KB would still store, back up and sync
+   the whole thing; a ceiling far above every real limit costs a newer
+   client nothing and keeps SEC Q2 option B (a kept record is never
+   rewritten). Session 5; noted in `STUDY-DESK.md` for BDR.
 8. **A deletion whose held copy can't be read** (DI3-4): keep it as a tombstone (recommended)?
+   **Decided (BVJ, 2026-11-07): keep it as a tombstone**, reported as "its
+   words couldn't be read, so it can't be restored." Session 5; noted in
+   `STUDY-DESK.md` for BDR.
 9. **A size cap on `src/scripts/desk/CLAUDE.md`, and build narrative kept in `STUDY-DESK-FIXES.md`?**
    (LG3-5.)
+   **Decided (BVJ, 2026-11-07): yes to both**, as LG3-5's fix proposes: a cap
+   test that starts near today's size and comes down as the file is trimmed,
+   rules and their reasons kept, the story of how each E number was built
+   moved to the E log. Session 6.
 10. **Reading's marks** (DK3-2): should leaving Reading by Add pane or a drag also bring them
     back? And `?intro=` with no room (DK3-3): fall back to an open pane, or say so?
+    **Decided (BVJ, 2026-11-07): DK3-2, yes, with a message.** Any way out of
+    Reading turns the marks back on and says so (the undo bar Layout's way
+    out already shows). **DK3-3: tell the reader** ("There's no room for a
+    Book Intro pane," as the Search pane already says). Session 3.
 11. **Long slides** (DK3-1): cut inside a very long paragraph, or one block per slide?
+    **Decided (BVJ, 2026-11-07): cut at sentence boundaries,** across as many
+    slides as the paragraph needs, as `chooseCuts` already does for verses.
+    Session 3.
 12. **Greek** (GK3 Qs): a narrow fallback for command queries that find nothing under the
     lemma-first rule (`ἐξ.prep`); the builder accepting LIT renderings and plain Latin pairs;
     the 300-character cut as an error or a note; and applying the cautious licence to the 25
     search glosses identical to "(ML)" entries.
+    **Decided (BVJ, 2026-11-07).** (1) The narrow fallback:
+    yes, only when the lemma-first reading finds nothing under the typed
+    filters and another lemma with the same spelling finds something.
+    (3) An error with a note: past 300 characters the query isn't searched or
+    cut, and the field says why and is left as typed. (4) The 25 glosses take
+    the cautious CC BY-SA route, as the best information there is; say so in
+    `public/greek/LICENSE.txt`. (2) The builder accepts what the search
+    field accepts: a LIT rendering (GK3-4, pass the glossary bridge) and two
+    or three Latin-letter words read as a construction (GK3-5). Session 4.
 13. **Margin pills' tab order** (NB3 Q1): drawn right to left, tabbed left to right. Acceptable?
+    **Decided (BVJ, 2026-11-07): the order should match what the eye sees**
+    (most likely a leftover of the pills' older order). Reverse the DOM
+    rather than drawing `row-reverse`, so Tab moves left to right. Session 2.
+
+**The appendices' smaller questions (BVJ, 2026-11-07):**
+- **LV3-3: sheets don't belong in My Notes.** Leave them out of its list
+  rather than naming their rows; they stay in the Notebook's sheets list and
+  on /sheets. Tier 1 item 4's fix changes to this. Session 2.
+- **DK3-7: a disabled item is skipped by the arrow keys in every menu**, the
+  title menu included (it was assumed to be deliberate). A rule for all menus,
+  so the session that builds it writes it into `src/scripts/CLAUDE.md` and
+  the desk's `CLAUDE.md`. Session 3, and a check of the shared menus.
+- **DI Q4: no date is set for BDR to settle the format changes.** Every
+  decision that touches the apps' work is noted in `STUDY-DESK.md` for BDR to
+  review later; the website builds its side meanwhile.
 
 ## Work sessions
 
@@ -209,11 +265,11 @@ most (different regions; merge in session order).
 | Session | Findings | Files | Waits on |
 |---|---|---|---|
 | 1. Shared panels (every reader) | NB3-1, NB3-2, NB3-11, NB3-12 | `panel-flyout.js`, `chapter-tools.js`, `verse-image.js`, `global.css` | nothing; run first, check with the desk off |
-| 2. The Notebook panel | LV3-1, NB3-6, LV3-3, NB3-3, NB3-5, NB3-7 to NB3-10, NB3-13, LV3-4(a) | `panel.js`, `tab-mine.js`, `note-editor.js`, `footnote-pills.js`, `footnote-notes.js` | nothing |
-| 3. /desk and sheets | LV3-2, DK3-2 to DK3-12, DK3-1, SEC3-3, LV3-4(b), LV3-5, LV3-6 | `desk-page.js`, `reading-display.js`, `sheet-*.js`, `desk-doc-*.mjs`, `desk-slides*.mjs` | decisions 6, 10, 11 for their parts |
-| 4. Greek | GK3-1 to GK3-17 | `tab-greek.js`, `greek-builder.js`, `search-core.js` (GK3-6, GK3-14), `search-greek.js` | decision 12 for its parts |
-| 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions 1, 2, 7, 8; BDR for the format |
-| 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | decisions 3, 4, 5, 9 |
+| 2. The Notebook panel | LV3-1, NB3-6, LV3-3, NB3-3, NB3-5, NB3-7 to NB3-10, NB3-13, LV3-4(a), the margin pills' order (decision 13) | `panel.js`, `tab-mine.js`, `note-editor.js`, `footnote-pills.js`, `footnote-notes.js` | nothing |
+| 3. /desk and sheets | LV3-2, DK3-2 to DK3-12, DK3-1, SEC3-3, LV3-4(b), LV3-5, LV3-6 | `desk-page.js`, `reading-display.js`, `sheet-*.js`, `desk-doc-*.mjs`, `desk-slides*.mjs` | nothing now (decisions 6, 10, 11 and DK3-7 made) |
+| 4. Greek | GK3-1 to GK3-17 | `tab-greek.js`, `greek-builder.js`, `search-core.js` (GK3-6, GK3-14), `search-greek.js` | nothing now (decision 12 made) |
+| 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions made; BDR reviews the format later |
+| 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | nothing now (decisions 3, 4, 5, 9 made) |
 
 **Status:** session 1 is done (2026-11-07, branch `claude/audit3-session1-shared-panels`):
 NB3-1, NB3-2, NB3-11 and NB3-12, checked live with the desk off and on. The
