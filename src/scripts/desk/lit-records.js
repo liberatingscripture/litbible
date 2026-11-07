@@ -12,8 +12,14 @@
 // Range pointing at nodes that are gone). Each entry is { box, bookKey,
 // chapter, records }, the records live ones (forChapter), read from the
 // notebook once per chapter however many panes show it.
+//
+// A bookmark moving as the reader reads in the leading LIT pane (E28) is
+// written as often as every 2 seconds; those writes (MOVE_KIND) are left out,
+// and the chapters are read again once the reading pauses (redrawAfterMove),
+// so the verse numbers' names catch up without a re-read on every move.
 
-import { NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
+import { MOVE_KIND, NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
+import { redrawAfterMove } from "./move-redraw.js";
 import { DESK_TEXTS_EVENT, deskChapterBoxes, deskTextsListed } from "./page.js";
 
 /**
@@ -91,13 +97,12 @@ export function watchLitRecords({ store, onChange }) {
 
   // A sheet or a reading place touches no chapter's text, and a sheet's
   // autosave would otherwise re-read every chapter the panes hold (DK-5).
-  store.subscribe(
-    () => {
-      generation++;
-      schedule();
-    },
-    { except: NO_CHAPTER_KINDS },
-  );
+  const changed = () => {
+    generation++;
+    schedule();
+  };
+  store.subscribe(changed, { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
+  redrawAfterMove(store, changed);
   document.addEventListener(DESK_TEXTS_EVENT, watchTexts);
   watchTexts();
 

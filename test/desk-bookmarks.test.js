@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   BOOKMARK_NAME_MAX,
+  DESK_PAGE,
   MAX_FOLLOWING,
   MOVE_EVERY_MS,
   PAUSE_EXPIRES_MS,
@@ -137,6 +138,18 @@ test("what a followed bookmark does at each report", () => {
   assert.equal(followStep(paused, record, near), "resume");
 });
 
+test("E28: a LIT pane that has just become /desk's leading one pauses the follow wherever it is", () => {
+  const record = { bookKey: "luke", chapter: 1, verse: 12 };
+  const near = { bookKey: "luke", chapter: 1, verse: 14 };
+  const flag = { id: "abc", bookKey: "luke" };
+  const paused = { ...flag, paused: true };
+  assert.equal(followStep(flag, record, near, null, { newLead: true }), "pause", "even on the bookmark's own chapter");
+  assert.equal(followStep(paused, record, near, null, { newLead: true }), "stay", "a paused one stays paused, never resumes on the change itself");
+  assert.equal(followStep(paused, record, near), "resume", "reading on from it in the new pane resumes it");
+  // The LIT pane scrolls on from one book into the next: that is still a jump.
+  assert.equal(followStep(flag, { bookKey: "matthew", chapter: 28, verse: 20 }, { bookKey: "mark", chapter: 1, verse: 1 }), "pause");
+});
+
 test("the reader's position counts only on the page it was recorded for", () => {
   const study = { book: "romans", chapter: 8, verse: 12, view: "study" };
   assert.deepEqual(positionOnPage(study, pageBookOf("/romans-8/")), { bookKey: "romans", chapter: 8, verse: 12 });
@@ -148,6 +161,17 @@ test("the reader's position counts only on the page it was recorded for", () => 
   assert.deepEqual(positionOnPage(read, pageBookOf("/read/romans/")), { bookKey: "romans", chapter: 5, verse: 1 }, "a chapter's top is verse 1");
   assert.equal(positionOnPage(read, pageBookOf("/romans-5/")), null);
   assert.equal(positionOnPage(null, pageBookOf("/romans-5/")), null);
+});
+
+test("E28: on /desk the leading LIT pane's place counts in any book, and only a chapter the book has", () => {
+  assert.equal(pageBookOf("/desk/"), null, "/desk is no book's page");
+  const desk = (book, chapter, verse = null) => ({ book, chapter, verse, view: "desk" });
+  assert.deepEqual(positionOnPage(desk("romans", 8, 12), DESK_PAGE), { bookKey: "romans", chapter: 8, verse: 12 });
+  assert.deepEqual(positionOnPage(desk("jude", 1), DESK_PAGE), { bookKey: "jude", chapter: 1, verse: 1 }, "a chapter alone is verse 1");
+  assert.equal(positionOnPage(desk("jude", 2), DESK_PAGE), null, "Jude has one chapter");
+  assert.equal(positionOnPage(desk("genesis", 1), DESK_PAGE), null);
+  assert.equal(positionOnPage(desk("romans", 0), DESK_PAGE), null);
+  assert.equal(positionOnPage(null, DESK_PAGE), null);
 });
 
 test("a followed bookmark is written only when the reader is somewhere else", () => {

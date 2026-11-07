@@ -786,10 +786,8 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   margin-top: 0.2em;
 }
 
-/* The bookmark's red, as in the margin (.desk-bookmark-mark). */
-.desk-verse__glyph--bookmark path {
-  fill: #c62828;
-}
+/* The bookmark's color is the margin's (.desk-bookmark-glyph--moves, --stays,
+   --resting, beside .desk-bookmark-mark below; E28). */
 
 .desk-verse__words {
   unicode-bidi: plaintext;
@@ -1116,25 +1114,41 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   height: 14px;
 }
 
-.desk-bookmark-mark__glyph path {
+.desk-bookmark-mark__glyph path,
+.desk-bookmark-glyph--moves path {
   fill: #c62828;
 }
 
 /* Which is which at a glance (BVJ, 2026-11-04): red moves, gold stays put, and
    the one this tab is following only rests at its verse, so it is an outline
-   until the follow ends. */
-.desk-bookmark-mark--stays .desk-bookmark-mark__glyph path {
+   until the follow ends. A row's mark (`.desk-bookmark-glyph--…`, from
+   bookmarkLook: My Notes, the notebook page and This verse) takes the same
+   colors, so a bookmark looks alike wherever it shows (E28). They hold in both
+   themes, as the note markers' do. */
+.desk-bookmark-mark--stays .desk-bookmark-mark__glyph path,
+.desk-bookmark-glyph--stays path {
   fill: #e0a100;
   stroke: #8a6100;
   stroke-width: 1;
   stroke-linejoin: round;
 }
 
-.desk-bookmark-mark--resting .desk-bookmark-mark__glyph path {
+.desk-bookmark-mark--resting .desk-bookmark-mark__glyph path,
+.desk-bookmark-glyph--resting path {
   fill: none;
   stroke: #c62828;
   stroke-width: 2;
   stroke-linejoin: round;
+}
+
+/* A bookmark row's line ("Bookmark · Moves", drawBookmarkLine) leads with its
+   mark, the height of a capital. */
+[data-bookmark] > .desk-bookmark-glyph {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 4px;
+  vertical-align: -0.1em;
 }
 
 /* Your own chains (N4). A scripture reference typed in a note is a link

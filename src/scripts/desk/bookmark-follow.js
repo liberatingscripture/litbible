@@ -24,7 +24,13 @@
 // event), never to what storage holds: `lit_last_read` is shared by every tab
 // and outlives the page, so it can be another tab's place in the book or the
 // reader's place before they followed the link (BA99, BA100). Pages without
-// the shell drop the flag in desk-gate.js (BA101).
+// the shell pause the flag in desk-gate.js (BA101), except /desk.
+//
+// /desk follows too (E28, BVJ 2026-11-06): desk-page.js runs this with a
+// position source of its own (`page: DESK_PAGE`, `place`) rather than
+// `lit:last-read`, which would also move Continue reading, and reports the
+// leading LIT pane's place as it changes (`hear`) and a change of which pane
+// leads (`lead`, which pauses). The rules are the same as on a chapter page.
 //
 // One tab follows a bookmark at a time. Duplicate tab copies session storage,
 // so the flag names its tab (a token), and a page that loads with it asks on
@@ -52,6 +58,7 @@ import {
 } from "../../lib/desk-bookmarks.mjs";
 import { MOVE_KIND } from "../../lib/desk-store-core.mjs";
 import { pageLastRead } from "../last-read.js";
+import { glyph } from "./glyphs.js";
 
 /** The flag as this tab holds it now; null when no bookmark is following. */
 let flag = null;
@@ -134,8 +141,24 @@ export function isPausedHere(id) {
 }
 
 /**
- * Write a bookmark row's "Bookmark · …" line into `el`, and remember what it
- * needs to be written again (`syncBookmarkLines`).
+ * How a bookmark's mark looks (BVJ, 2026-11-04): "resting" for the one this tab
+ * is following or has paused (an outline), "moves" (red) or "stays" (gold).
+ * bookmark-mark.js names the margin's marks from it, and a row's line draws its
+ * glyph from it, so the colors are the same wherever a bookmark shows (E28).
+ *
+ * @param {{ id: string, follow?: boolean }} bookmark
+ * @returns {"resting" | "moves" | "stays"}
+ */
+export function bookmarkLook(bookmark) {
+  if (restingId() === bookmark.id) return "resting";
+  return bookmark.follow === true ? "moves" : "stays";
+}
+
+/**
+ * Write a bookmark row's "Bookmark · …" line into `el`, led by the bookmark's
+ * mark in its color (E28; the words say the same, so the color is never the
+ * only cue), and remember what it needs to be written again
+ * (`syncBookmarkLines`).
  *
  * @param {HTMLElement} el the row's kind line
  * @param {{ id: string, follow?: boolean }} bookmark
@@ -146,7 +169,8 @@ export function drawBookmarkLine(el, bookmark, name = "Bookmark") {
   el.dataset.moves = bookmark.follow === true ? "1" : "0";
   el.dataset.kindName = name;
   const { word, title } = bookmarkState({ id: bookmark.id, kind: "bookmark", follow: bookmark.follow });
-  el.textContent = `${name} · ${word}`;
+  el.innerHTML = glyph("bookmark", `desk-glyph desk-bookmark-glyph desk-bookmark-glyph--${bookmarkLook(bookmark)}`);
+  el.append(`${name} · ${word}`);
   el.title = title;
 }
 
@@ -158,8 +182,8 @@ export function isFollowedHere(id) {
 /**
  * The quiet link under a moving bookmark's line (E44, BVJ 2026-11-05): "Stop
  * following" while this tab is moving it, "Start following" otherwise. Starting
- * needs a page that follows the reader (`followsHere`), so elsewhere (/desk,
- * /notebook) only the stop shows; opening the bookmark from the list still
+ * needs a page that follows the reader (`followsHere`), so elsewhere
+ * (/notebook) only the stop shows; opening the bookmark from the list still
  * starts it there.
  *
  * @param {HTMLElement} el a link made by bookmark-stop.js's followLinkButton
@@ -189,7 +213,8 @@ export function syncBookmarkLines(root = document) {
 
 /**
  * "Move it here" from a row or the verse menu: the paused bookmark goes to
- * where the reader is on this page. False where this page can't say (no shell).
+ * where the reader is on this page (on /desk, the leading LIT pane's place).
+ * False where this page can't say (no shell).
  */
 export async function moveItHereNow() {
   return env ? env.moveItHere() : false;
@@ -215,9 +240,10 @@ function dropFlag() {
 }
 
 /**
- * Whether the page this tab is on follows the reader at all: false on /desk and
- * other pages the shell didn't set up, where a link opened in place moves
- * nothing, so a row must not start a follow it can't carry out.
+ * Whether the page this tab is on follows the reader at all: true on a chapter
+ * page, Read View and /desk (E28), false on pages that set up no follower
+ * (/notebook), where a link opened in place moves nothing, so a row must not
+ * start a follow it can't carry out.
  */
 export function followsHere() {
   return env != null;
@@ -281,12 +307,21 @@ function onThisPage(href) {
  * Start following on this page: drop the flag if the page is outside the
  * flagged book, and otherwise move the bookmark as the reader reads.
  *
- * @param {{ store: object | null, ctx: () => { client: string }, tell?: (about: object) => void }} options
+ * @param {{ store: object | null, ctx: () => { client: string }, tell?: (about: object) => void,
+ *   page?: object | null, place?: (() => object | null) | null }} options
  *   `tell` is called once when a follow pauses, to show the reader the bar that
  *   offers to move the bookmark where they are ({ record, pos, move }).
+ *   `page` and `place` are for a page that says where its reader is itself
+ *   (/desk: DESK_PAGE, and the leading LIT pane's place now, in last-read's
+ *   shape): it reports through the functions returned, and `lit:last-read`
+ *   isn't heard.
+ * @returns {{ hear: (position: object | null) => void, lead: (position: object | null) => void } | null}
+ *   `hear` takes a report of where the reader is; `lead` one from a LIT pane
+ *   that has just become the leading one, which pauses the follow (E28). Null
+ *   without a store.
  */
-export function initBookmarkFollow({ store, ctx, tell = null }) {
-  const page = pageBookOf(window.location.pathname);
+export function initBookmarkFollow({ store, ctx, tell = null, page: pageKind = null, place = null }) {
+  const page = pageKind ?? pageBookOf(window.location.pathname);
   // Dropped on a page outside the book even when the notebook didn't open.
   writeFlag(nextFollowState(readFlag()));
   // A flag stored before tokens gets one; there is nothing to ask about it.
@@ -311,9 +346,12 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
       });
     }
   }
-  if (!store) return;
+  if (!store) return null;
 
   let latest = null; // where the reader last was, as { bookKey, chapter, verse }
+  // The report waiting to be judged came from a pane that has just become the
+  // leading one (/desk): it pauses, whatever reports join it before the check.
+  let newLead = false;
   // The last report the follower accepted as reading, for telling a scroll from a
   // jump (Read View's long page). Set only when a report is judged, never as it
   // arrives: a page that lands on a far verse reports twice before the first
@@ -334,6 +372,8 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     const id = flag.id;
     const pos = latest;
     const before = heard;
+    const leading = newLead;
+    newLead = false;
     let gone = false;
     let moved = false;
     let step = null;
@@ -350,7 +390,7 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
           held = record;
           // Reading on moves it; a jump (a far chapter, another book) pauses it
           // where it was, and reading on from there resumes it (BVJ, 2026-11-04).
-          step = followStep(flag, record, pos, before);
+          step = followStep(flag, record, pos, before, { newLead: leading });
           if (step === "pause" || step === "stay") return null;
           const changes = followMoveChanges(record, pos);
           if (!changes) return null;
@@ -384,7 +424,8 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
    */
   async function moveItHere() {
     const mine = readFlag();
-    const pos = latest;
+    // On /desk, the leading LIT pane's place as it is now (E28).
+    const pos = (place ? positionOnPage(place(), page) : null) ?? latest;
     if (!mine || !pos) return false;
     let plan = null;
     await store.change(async ({ get }) => {
@@ -409,10 +450,11 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
   // before the browser restores the scroll; that is not where the reader is, so
   // it is skipped until a real verse comes (it would write verse 1 over the
   // bookmark, which the restore corrects seconds later).
+  // /desk reports only what its reader does, never a restore (E28).
   let settling = false;
   try {
     const type = performance.getEntriesByType?.("navigation")?.[0]?.type;
-    settling = type === "reload" || type === "back_forward";
+    settling = !place && (type === "reload" || type === "back_forward");
   } catch {
     settling = false;
   }
@@ -429,6 +471,15 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     schedule();
   }
 
+  /** A report from a pane that has just become /desk's leading one: it pauses (E28). */
+  function lead(position) {
+    const pos = positionOnPage(position, page);
+    if (!pos || leaving) return;
+    latest = pos;
+    newLead = true;
+    schedule();
+  }
+
   /**
    * Forget where the reader was; for a link off the page, stop listening. What
    * the follower last accepted goes too: it belonged to the follow before, and
@@ -440,10 +491,11 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     timer = 0;
     latest = null;
     heard = null;
+    newLead = false;
     leaving = href != null && !onThisPage(href);
   }
 
-  window.addEventListener("lit:last-read", (e) => hear(e.detail ? { ...e.detail } : null));
+  if (!place) window.addEventListener("lit:last-read", (e) => hear(e.detail ? { ...e.detail } : null));
   // Back to this page from the back-forward cache: the tab may have left the
   // book since, and the flag in session storage says so (BA101).
   window.addEventListener("pageshow", (e) => {
@@ -453,11 +505,15 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     syncBookmarkLines();
     // The page's own last report is where the reader was as it was left (its
     // pagehide save), not where a link they only looked at took the bookmark.
-    if (flag) hear(pageLastRead());
+    // /desk waits for its reader instead.
+    if (flag && !place) hear(pageLastRead());
   });
   env = { followed, moveItHere };
   // Rows drawn before this page could follow offer "Start following" now.
   syncBookmarkLines();
   // This page may have said where the reader is before this module loaded.
-  if (flag) hear(pageLastRead());
+  // /desk reports nothing until its reader moves (E28): what its panes opened
+  // at isn't reading, and a chapter-only place would put the bookmark at verse 1.
+  if (flag && !place) hear(pageLastRead());
+  return { hear, lead };
 }

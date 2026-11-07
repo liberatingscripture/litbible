@@ -262,6 +262,17 @@ test("watchLitRecords watches a text that isn't on the page yet", () => {
   off();
 });
 
+test("E28: watchLitRecords leaves a moving bookmark's writes to the redraw after the reading pauses", () => {
+  const filters = [];
+  const off = addDeskText(litText());
+  watchLitRecords({ store: { subscribe(fn, opts) { filters.push(opts); }, byChapter: async () => [] }, onChange() {} });
+  assert.equal(filters.length, 2);
+  assert.ok(filters[0].except.includes("bookmarkMove"), "every move doesn't re-read the chapters");
+  assert.ok(filters[0].except.includes("sheet"), "nor does a sheet's autosave (DK-5)");
+  assert.deepEqual(filters[1], { kinds: ["bookmarkMove"] }, "one re-read once the moves settle");
+  off();
+});
+
 // ---- BA124: a row's reference in a /desk pane ----------------------------
 
 const note = {

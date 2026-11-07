@@ -988,8 +988,60 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   **BVJ added (2026-11-05, E41):** the bookmarks' colors didn't carry over to
   the desk, and they should; and the moving bookmark should work there too. It
   could still be updated from My Notes, which is where it is reached, even if
-  the LIT pane doesn't show it, and it would change This verse as well. Status:
-  **open, own session.**
+  the LIT pane doesn't show it, and it would change This verse as well.
+  **BVJ's decisions (2026-11-06):** (1) the colors carry over to the bookmark
+  rows of My Notes and This verse, red for one that moves and gold for one that
+  stays put, as Chapter View draws them, and the LIT pane still draws no marks
+  beside its text (3g stands); (2) reading in the leading LIT pane moves a
+  following bookmark by a chapter page's rules, and other LIT panes never do;
+  (3) "Move it here" on /desk means the leading LIT pane's place; (4) /desk no
+  longer counts as outside the book: reading on moves the bookmark, a far jump
+  or another book (scrolled into, as Matthew 28 to Mark 1, or reached by a link,
+  the picker, a search result or a My Notes row) pauses it with "Move it here",
+  and the 12-hour rule and the tab's end are unchanged; (5) a change of which
+  LIT pane is leading pauses the follow too; (6) the pause message sits outside
+  the panes, one bar for the desk.
+  Status: **built 2026-11-06** (branch `claude/desk-phase5-e28`, awaiting
+  BVJ's look). What was built:
+  1. **Row colors**: a bookmark row's state line starts with the bookmark glyph
+     in the margin's colors (`bookmarkLook` in `bookmark-follow.js`, which
+     `bookmark-mark.js`'s `markLook` now reads too; `.desk-bookmark-glyph--moves`,
+     `--stays`, `--resting` in `desk.css`, the same in both themes). It is
+     `drawBookmarkLine`, so My Notes (Notebook and pane), the notebook page and
+     This verse (`tab-verse.js`, whose fixed red glyph and "Bookmarked" it
+     replaces) all show it. My Notes, This verse and `lit-records.js` (the verse
+     numbers' names) leave `bookmarkMove` writes out and catch up once the
+     reading pauses (`redrawAfterMove`; `desk-panes.js`, `lit-records.js`).
+  2. **The follower on /desk**: `desk-page.js` runs `initBookmarkFollow` with
+     `page: DESK_PAGE` and `place` (the leading LIT pane's place now), and
+     after every `commit` tells it what changed: the leading pane's place
+     (`hear`) or a new leading pane (`lead`). So scrolling, the picker,
+     `showPassage` and `goToRecord` all report, and a far jump pauses at once.
+     Nothing is reported at load (the panes' opening place isn't reading, and
+     a chapter alone would mean verse 1) or while the tour runs
+     (`layoutFrozen`). `lit:last-read` isn't heard there, nor a restore.
+     `positionOnPage` takes any book on `DESK_PAGE`, and `followStep`'s
+     `newLead` pauses (`desk-bookmarks.mjs`). `desk-gate.js` no longer pauses
+     the flag on /desk. `followsHere()` is now true there, so "Start
+     following" shows on /desk's rows.
+  3. **The bar** is the ordinary undo bar (`showPausedBar`): fixed at the
+     bottom of the window, outside the panes, announced, never taking focus,
+     closing after ten seconds, in the theme's tokens. It is shown once per
+     pause, so a second change of leading pane while still paused shows no new
+     bar; the row's "Move it here" still moves it to the new leading pane.
+  4. **A moving bookmark's row clicked in My Notes on /desk**: the row's link
+     moves the leading LIT pane to the bookmark first (`goTo`), then the follow
+     starts with no link (`followBookmark(r, null)` when the row is handled in
+     place, `tab-mine.js`), which forgets that jump's report; reading on from
+     the bookmark then moves it. With the link's address the follower would
+     have taken /desk as left and heard nothing more.
+  No record-format change. Tests: `desk-bookmarks.test.js` (the desk page's
+  positions, `newLead`), `bookmark-follow.test.js` (two /desk cases),
+  `desk-panes-shared.test.js` (`lit-records.js`' filters). **Not checked in a
+  browser**: the row glyphs' size and colors in both themes, a follow moving
+  and pausing on /desk and where the bar sits, switching the leading pane,
+  clicking a moving bookmark's row in My Notes, Matthew 28 to Mark 1 in the
+  pane, This verse after a move, and a duplicated /desk tab.
 
 - **E29, bug and rough: with verse numbers off, /desk's LIT pane keeps its
   chapter headings, and its location field says verse 1 the whole time.** BVJ
@@ -1283,7 +1335,7 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   doesn't show it, which would also change This verse. **Folded into E28**,
   which is the same question (the LIT pane draws no bookmark marks, BVJ's 3g
   choice, so there is nothing to color), now with BVJ's answer to its first
-  question leaning to yes. Status: **moved to E28.**
+  question leaning to yes. Status: **moved to E28**, built with it 2026-11-06.
 
 - **E42, glyph: the note marker called "ribbon" should look like a ribbon.**
   BVJ (2026-11-05), thinking of 🎗️ (the awareness ribbon, a loop with two
@@ -1565,8 +1617,9 @@ the rest is polish.
     Sessions that touch the same files run one after another. **Built
     2026-11-06, one branch (`claude/desk-phase5-e29-e48`), awaiting BVJ's
     look**: session 12 (E29), a (E30, E32, E42), b's E44 to E48, c (E34, E35),
-    d's E36 and e (E31). **Still open**: E28 with E41 (next, now that E29, E35
-    and the bookmark work are in), E37 (design first), f (E39, E40; mock first),
+    d's E36 and e (E31). E28 with E41 is built on its own branch
+    (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look. **Still open**:
+    E37 (design first), f (E39, E40; mock first),
     g (E49, E50; mock first; E43, Escape to test first), and BVJ's E33 and E38.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
        group's heading), E42 (`glyphs.js`). E36 joins session d.

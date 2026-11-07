@@ -550,7 +550,9 @@ against `dist/` is a later item.
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
-       are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
+       are quiet (QUIET_KINDS), and the margin and Read View's marks (and on
+       /desk the My Notes and This verse rows and the verse numbers' names,
+       E28) redraw once
        2.5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
        catches up when the reading pauses; the follower writes at most every 2
        seconds (`MOVE_EVERY_MS`), and the settle must stay longer than that gap
@@ -571,7 +573,7 @@ against `dist/` is a later item.
        book in that tab the bookmark follows them (written without an undo
        entry, as `bookmarkMove`); a page outside the book clears it, the shell's
        `initBookmarkFollow` in a book and `desk-gate.js` on every page without
-       the shell (BA101). **A bookmark moves only to where this page says the
+       the shell but /desk (BA101, E28). **A bookmark moves only to where this page says the
        reader is**: `pageLastRead()` and the `lit:last-read` event, never
        `lit_last_read` in storage, which every tab shares and an earlier page
        left (BA99, BA100). Following a link forgets where the reader was, and a
@@ -596,7 +598,7 @@ against `dist/` is a later item.
        reports twice before the first judgment, and the second would count the
        first as reading and move the bookmark instead of pausing it (found
        2026-11-04 testing "Move it here"). Pages outside the book
-       (/search, /notebook, /desk) pause it too (`desk-gate.js`), and a pause
+       (/search, /notebook) pause it too (`desk-gate.js`), and a pause
        ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
        storage). Rows say Following, Paused, Moves or Stays put.
        **A following or paused bookmark rests at its verse and does not belong
@@ -605,8 +607,20 @@ against `dist/` is a later item.
        and one that moves** (`followChoices`, `planBookmark`; Edit and the form
        lock "Move as I read" at the kind the verse lacks). Its mark is the red
        outline; a bookmark that moves and isn't followed is solid red, and one
-       that stays put is gold (`bookmark-mark.js`). A follow that ends on a verse
+       that stays put is gold (`bookmark-mark.js`). **The rows carry the same
+       colors** (E28; BVJ, 2026-11-06): `drawBookmarkLine` starts each
+       bookmark's state line with the glyph in its look (`bookmarkLook`, which
+       `markLook` reads too), in My Notes, This verse and the notebook page.
+       A follow that ends on a verse
        already holding a bookmark of its kind is tolerated.
+       **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
+       `desk-page.js` runs the follower with `page: DESK_PAGE` and `place`, and
+       after every `commit` reports the leading pane's place (`hear`) or, when
+       another pane has become the leading one, `lead`, which pauses the follow
+       (`followStep`'s `newLead`). Other LIT panes never move it; the opening
+       place, a restore and the tour report nothing, and `lit:last-read` isn't
+       heard there. "Move it here" takes the leading pane's place at the press.
+       The pause bar is the ordinary undo bar, outside the panes.
        **The verse menu and the selection panel group a verse's bookmarks in a
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04, bookmarks only:
        BVJ proposed a Copy flyout too and Claude advised against it for now,
@@ -629,14 +643,17 @@ against `dist/` is a later item.
        the list is apart from the navigation: the next report of where the
        reader is decides (reading on from it moves it, anywhere else pauses it
        with "Move it here"). It is offered only where the page follows the
-       reader (`followsHere`), so /desk and /notebook show the stop alone.
+       reader (`followsHere`), so /notebook shows the stop alone.
        **Every way the flag drops redraws the rows**
        (`dropFlag`: another tab took it, it was deleted or turned off, a
        back-forward restore), turning the switch off in the form stops it at
        once, a Back or reload doesn't write verse 1 over the bookmark before
        the scroll is restored, and a restored page reports its own last place
        (`pageshow`). A row opened in place on a page that doesn't follow the
-       reader (/desk) never starts a follow (`followsHere`). **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
+       reader never starts a follow (`followsHere`); on /desk a moving
+       bookmark's row moves the leading LIT pane to it and then starts the
+       follow with no link (`tab-mine.js`), so the jump isn't taken as leaving
+       the page. **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
        that stay put" once a list holds both (BVJ, 2026-11-04;
        `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
        both lists), and **a search's count names the kind when every notebook
@@ -645,7 +662,7 @@ against `dist/` is a later item.
        `NOTEBOOK_GROUP_TITLE`; the tray, /search and the Search pane).
        **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
-       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit): /desk,
+       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit):
        /notebook and /search clear the flag, so Back into the book doesn't
        resume it (the row's label shows the state); a move overtakes Undo of an
        earlier edit once the reader has read on (`desk-history.mjs`'s overtaken
@@ -1262,7 +1279,8 @@ against `dist/` is a later item.
        are `aria-haspopup="dialog"`, as Chapter View's, and a middle-click on
        one is cancelled, so it never opens another /desk (BA126). No
        reader's notes or bookmarks beside the pane's text, by BVJ's choice
-       (3g): My Notes is a following pane that scrolls its list so the
+       (3g, kept in E28, though the leading pane now moves a following
+       bookmark and the rows carry its colors): My Notes is a following pane that scrolls its list so the
        records on the passage being read are in view (`follow` in
        `tab-mine.js`), and a record's reference moves the LIT pane there.
      - **The reader's marks reach the LIT pane through `page.js`** (3g): each

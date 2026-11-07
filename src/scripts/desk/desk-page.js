@@ -35,6 +35,12 @@
 //   the place among themselves (3d, BVJ's option A). "Stay here" gives a pane
 //   its own passage, `pin.at`, which only it moves. The place starts at the
 //   reader's Continue reading place, or Matthew 1.
+// - **A bookmark that moves as the reader reads follows the leading LIT pane**
+//   (E28; BVJ, 2026-11-06), by a chapter page's rules (bookmark-follow.js):
+//   every commit that moves the leading pane's place reports it (`hear`), and
+//   one that makes another pane the leading one reports it as a new lead
+//   (`lead`), which pauses the follow. Other LIT panes never move it, the
+//   page's opening place isn't reported, and the tour reports nothing.
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
@@ -100,6 +106,9 @@ import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
 import { turnOffMarks, turnOnMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
+import { initBookmarkFollow } from "./bookmark-follow.js";
+import { showPausedBar } from "./bookmark-stop.js";
+import { DESK_PAGE } from "../../lib/desk-bookmarks.mjs";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
@@ -311,6 +320,38 @@ async function start() {
   const arrivalPlace = parsePlaceParam(new URLSearchParams(location.search).get("place"));
   let layout = arrivalPlace ? arrivalLayout(saved, arrivalPlace, reading) : openingLayout(saved, reading);
   if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
+
+  // ---- a bookmark that moves as the reader reads (E28) ----
+
+  // The leading LIT pane and its place, in last-read's shape; null with no
+  // LIT pane leading.
+  const leadingPane = () => {
+    const pane = findPane(layout.root, layout.active);
+    return pane?.kind === "lit" ? pane : null;
+  };
+  const leadingPosition = () => {
+    const pane = leadingPane();
+    const p = pane ? parsePassage(litPlace(layout, pane.id)) : null;
+    return p ? { book: p.bookKey, chapter: p.chapter, verse: p.verse ?? null, view: "desk" } : null;
+  };
+  const follower = initBookmarkFollow({ store, ctx, tell: showPausedBar, page: DESK_PAGE, place: leadingPosition });
+  // What the follower was last told: nothing at load, since the place the
+  // panes open at isn't reading (and a chapter alone would mean verse 1).
+  let toldLead = leadingPane()?.id ?? null;
+  let toldAt = toldLead ? litPlace(layout, toldLead) : null;
+  /** After a commit: report the leading pane's place, or a new leading pane. */
+  function tellFollower() {
+    if (layoutFrozen) return; // the tour's panes aren't the reader's reading
+    const id = leadingPane()?.id ?? null;
+    const at = id ? litPlace(layout, id) : null;
+    if (id === toldLead && at === toldAt) return;
+    const newLead = id !== toldLead;
+    toldLead = id;
+    toldAt = at;
+    if (!id || !follower) return;
+    if (newLead) follower.lead(leadingPosition());
+    else follower.hear(leadingPosition());
+  }
 
   // ---- the title menu ----
 
@@ -845,6 +886,7 @@ async function start() {
     if (redraw) draw();
     else mark();
     follow();
+    tellFollower();
   }
 
   /** The passage a pane shows now: a LIT pane's own, a following pane's own or the shared one. */

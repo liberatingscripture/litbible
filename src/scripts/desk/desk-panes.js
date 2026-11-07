@@ -42,8 +42,9 @@ import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
-import { NO_CHAPTER_KINDS, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { MOVE_KIND, NO_CHAPTER_KINDS, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { make } from "./dom.js";
+import { redrawAfterMove } from "./move-redraw.js";
 
 function message(body, text) {
   body.append(make("p", "desk-pane__later", text));
@@ -167,6 +168,8 @@ function mountVerse(body, env, pane) {
   // It draws the chapter's notes, bookmarks and highlights, never a place, so a
   // bookmark moving as the reader reads (MOVE_KIND) doesn't redraw it (BA107).
   const unsubscribe = env.store?.subscribe(() => tab?.render(), { except: QUIET_KINDS });
+  // It catches up with a moved bookmark once the reading pauses (E28).
+  const offMoves = env.store ? redrawAfterMove(env.store, () => tab?.render()) : null;
   // A record's wording is judged only where a LIT pane shows its chapter, so
   // the tab is drawn again when the panes' chapters change (BA121).
   const offChapters = onDeskChapters(() => tab?.render());
@@ -176,6 +179,7 @@ function mountVerse(body, env, pane) {
     destroy: () => {
       seq++;
       unsubscribe?.();
+      offMoves?.();
       offChapters();
       tab?.destroy();
     },
@@ -389,7 +393,11 @@ export function mountPane(kind, body, env, pane) {
     // The pane goes on the page right after this returns, and a tab draws
     // only once it is there.
     queueMicrotask(() => tab.render());
-    const unsubscribe = env.store?.subscribe(() => tab.render(), { except: NO_CHAPTER_KINDS });
+    // A bookmark moving as the reader reads in the leading LIT pane (E28) is
+    // written as often as every 2 seconds: its row is drawn once the reading
+    // pauses (redrawAfterMove), as the margin's mark is, not on every write.
+    const unsubscribe = env.store?.subscribe(() => tab.render(), { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
+    const offMoves = env.store ? redrawAfterMove(env.store, () => tab.render()) : null;
     const offMeta = env.store?.onMeta?.(() => tab.render()); // What's new's line (BA96)
     // Its rows' wording is judged only where a LIT pane shows their chapter,
     // so it is drawn again when the panes' chapters change (BA121).
@@ -398,6 +406,7 @@ export function mountPane(kind, body, env, pane) {
       setPassage: (p) => tab.follow(p),
       destroy: () => {
         unsubscribe?.();
+        offMoves?.();
         offMeta?.();
         offChapters();
         tab.destroy();

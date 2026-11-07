@@ -656,9 +656,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (href && r.kind === "bookmark") {
       head.addEventListener("click", (e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        // On a page that doesn't follow the reader (/desk), a link handled in
-        // place moves nothing, so it must not start a follow it can't carry out.
-        if (isFollowing(r) && (!revealHere || followsHere())) followBookmark(r, head.href);
+        // On a page that doesn't follow the reader, a link handled in place
+        // moves nothing, so it must not start a follow it can't carry out. On
+        // /desk (E28) the link was handled in place: `goTo`, added first, has
+        // already moved the leading LIT pane to the bookmark, so the follow
+        // starts with no link (the page isn't left) and forgets that jump's
+        // report; reading on from the bookmark then moves it.
+        if (isFollowing(r) && (!revealHere || followsHere())) followBookmark(r, revealHere ? null : head.href);
         else stopFollowing();
       });
     }
