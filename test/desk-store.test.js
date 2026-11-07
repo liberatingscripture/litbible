@@ -8,7 +8,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { IDBFactory } from "fake-indexeddb";
+import { IDBFactory, IDBObjectStore } from "fake-indexeddb";
 
 import { createRecord } from "../src/lib/desk-records.mjs";
 import { planSave } from "../src/lib/desk-store-core.mjs";
@@ -87,6 +87,54 @@ test("a change that throws writes nothing, even after a put was queued", async (
   // A record the browser can't clone throws inside the transaction (BA5): the put before it must not survive.
   await assert.rejects(store.commit({ put: [good, { ...note(), poison: () => {} }], remove: [] }));
   assert.deepEqual(await store.all(), []);
+});
+
+test("a put that fails with QuotaExceededError inside a change writes nothing, remembers nothing, and tells no one", async () => {
+  await freshBrowser();
+  const store = await openStore({ ctx });
+  const saved = note();
+  await store.save(saved);
+  await settle(); // the first save's persist request lands before the counts below start
+  const entry = store.lastEntry();
+  assert.ok(entry, "the earlier save is in the history");
+
+  let heard = 0;
+  store.subscribe(() => { heard += 1; });
+  let entries = 0;
+  store.onEntry(() => { entries += 1; });
+
+  // fake-indexeddb cannot fill a disk, so the second put in the change throws
+  // the error a full disk gives. The put before it has already been queued.
+  const realPut = IDBObjectStore.prototype.put;
+  let puts = 0;
+  IDBObjectStore.prototype.put = function (...args) {
+    if (this.name === "records" && ++puts === 2) {
+      throw new DOMException("The quota has been exceeded.", "QuotaExceededError");
+    }
+    return realPut.apply(this, args);
+  };
+  const first = note();
+  const second = note();
+  try {
+    await assert.rejects(
+      store.change(() => ({ put: [first, second], remove: [] })),
+      (err) => err.name === "QuotaExceededError",
+    );
+  } finally {
+    IDBObjectStore.prototype.put = realPut;
+  }
+  await settle();
+
+  assert.equal(await store.get(first.id), undefined, "the put before the failure is rolled back");
+  assert.equal(await store.get(second.id), undefined);
+  assert.equal(store.lastEntry(), entry, "no history entry is written for the failed change");
+  assert.equal(entries, 0, "and no history listener hears of one");
+  assert.equal(heard, 0, "no change listener is told");
+
+  // The store is not left broken: the next write goes through.
+  const later = note();
+  await store.save(later);
+  assert.deepEqual((await store.get(later.id)).body, "mine");
 });
 
 test("change reads and writes in one transaction", async () => {
