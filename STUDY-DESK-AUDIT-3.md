@@ -152,14 +152,35 @@ Collected from the appendices. The first four block work.
 1. **A mark that moves to another verse: say so?** (DI3-2; Audit 2's question 1.) The verifier
    recommends a notice on any `moved` that leaves the mark's verses; the stricter-context option
    would not catch the Matthew 23 case. Spec change, so BDR must agree.
+   **Decided (BVJ, 2026-11-07): the recommendation.** A `moved` that lands
+   outside the mark's verses while they still exist carries the change notice;
+   one inside them stays silent. Spec version 4 with new vectors, built in
+   session 5. Recorded in `STUDY-DESK.md` for BDR to review and amend.
 2. **Bookmarks across devices** (DI3-3): should "a move never beats an edit" be the rule (the
    follower stops when the record changed under it), should a bookmark's place carry its own time,
    or is whole-record newest-wins accepted with the consequence written down?
+   **Decided (BVJ, 2026-11-07): the recommendation**, which is the place's own
+   time, since stopping the follower can't help: a reading device writes every
+   2 seconds, so any edit from elsewhere arrives older than its last move and
+   loses under rule a. A bookmark carries `placedAt` (its book, chapter, verses
+   and `contentVersion`) and `editedAt` (everything else); a merge takes each
+   group from the copy whose stamp is newer, and `modified` is the later of
+   the two. A copy without the stamps (an app not yet updated) merges by rule
+   a as now. The follower writes only the place and `placedAt`. Merge vectors
+   version 5, built in session 5. Recorded in `STUDY-DESK.md` for BDR to
+   review and amend.
 3. **About 124 KB gzipped of desk script on every desktop chapter page at launch** (LG3-2):
    acceptable, or should the shell load on the Notebook's first expand? If acceptable, say so in
    "Launching" so the next audit doesn't reopen it.
+   **Decided (BVJ, 2026-11-07): load it lazily.** A reader with nothing kept
+   and the Notebook minimized (the default) downloads only a small first
+   stage: the tab, and a check of the notebook for anything to draw. The rest
+   of the shell, and `desk.css`, come when there is something to draw or the
+   reader opens the Notebook. Built in session 6, measured on `dist/`.
 4. **Read View's retirement (8c): in the same change as the flip, or after?** (LG3 Q2.) The guard
    test makes a half-way state fail CI.
+   **Decided (BVJ, 2026-11-07): the same change.** Session 6 adds it to the
+   "Launching" checklist (LG3-1), with the guard test deleted in that change.
 5. **The help page** (NB3-4): a Study Desk help page of its own, or `/notebook/help/` renamed
    "Study Desk help" and widened?
 6. **Slides in the participant version** (SEC3-3): (a) say the speaker notes hold the answers,
@@ -193,6 +214,10 @@ most (different regions; merge in session order).
 | 4. Greek | GK3-1 to GK3-17 | `tab-greek.js`, `greek-builder.js`, `search-core.js` (GK3-6, GK3-14), `search-greek.js` | decision 12 for its parts |
 | 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions 1, 2, 7, 8; BDR for the format |
 | 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | decisions 3, 4, 5, 9 |
+
+**Status:** session 1 is done (2026-11-07, branch `claude/audit3-session1-shared-panels`):
+NB3-1, NB3-2, NB3-11 and NB3-12, checked live with the desk off and on. The
+chip layout's half of NB3-2 needs a touch screen and was not seen.
 
 Sessions 1, 2, 4 and 5 touch different files and can run side by side. Session 3 shares
 `desk-page.js` with nothing else here. Session 6 edits the desk's `CLAUDE.md`, which every other
