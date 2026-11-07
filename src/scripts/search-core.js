@@ -1352,13 +1352,36 @@ export function addGreekMode(select) {
 
 let greekOffersPromise = null;
 
-/** `public/search/greek-offers.json` ({ words: { key: lemma } }), fetched once. */
+/**
+ * `public/search/greek-offers.json` ({ words: { key: lemma } }), fetched once.
+ * A failed fetch is forgotten, as in loadGreekSearch, so the offer comes back
+ * on the next search instead of staying off until a reload (GK3-14). The words
+ * object has no prototype: "constructor" must never be a Greek word (GK3-6).
+ */
 function loadGreekOffers(base) {
-  greekOffersPromise ??= fetch(`${base}search/greek-offers.json`)
+  if (greekOffersPromise) return greekOffersPromise;
+  const attempt = fetch(`${base}search/greek-offers.json`)
     .then((res) => (res.ok ? res.json() : null))
-    .then((json) => (json && typeof json.words === "object" ? json.words : {}))
-    .catch(() => ({}));
-  return greekOffersPromise;
+    .then((json) => {
+      if (!json || typeof json.words !== "object" || !json.words) throw new Error("no offers");
+      return Object.assign(Object.create(null), json.words);
+    })
+    .catch(() => {
+      if (greekOffersPromise === attempt) greekOffersPromise = null;
+      return Object.create(null);
+    });
+  greekOffersPromise = attempt;
+  return attempt;
+}
+
+/** The lemma a Latin word's keys name in `words` (own keys only), else null. */
+export function offerLemma(words, keys) {
+  for (const key of keys) {
+    if (!Object.hasOwn(words, key)) continue;
+    const lemma = words[key];
+    if (typeof lemma === "string" && lemma) return lemma;
+  }
+  return null;
 }
 
 /**
@@ -1375,8 +1398,8 @@ export async function greekOfferFor(base, q, mode) {
   // Loaded here, never at the top: the Greek's rules stay out of every page
   // until a Greek search or an offer needs them (LG-6).
   const [words, { latinKeys }] = await Promise.all([loadGreekOffers(base), import("../lib/greek-search.mjs")]);
-  for (const key of latinKeys(word)) if (words[key]) return { word, greek: words[key] };
-  return null;
+  const greek = offerLemma(words, latinKeys(word));
+  return greek ? { word, greek } : null;
 }
 
 /** The offer's line, with its one button: “pistis” is also a Greek word (πίστις). Search the Greek */

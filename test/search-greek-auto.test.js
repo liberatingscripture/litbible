@@ -156,3 +156,45 @@ test("couldBeGreek and longEnoughForGreek agree on two Latin letters (GK-4)", as
   const { longEnoughForGreek } = await import("../src/lib/greek-search.mjs");
   for (const q of ["de", "ou", "ei", "en", "go", "a", "", "*"]) assert.equal(couldBeGreek(q), longEnoughForGreek(q) && /\p{L}/u.test(q), q);
 });
+
+// ── Audit 3, session 4 (GK3, BVJ's decision 12) ─────────────────────────
+
+test("decision 12: a command that finds nothing lemma-first tries the other lemmas of that spelling", async () => {
+  const { describeGreekQuery } = await import("../src/lib/greek-query.mjs");
+  // ἐξ is the numeral ἕξ (six) as a headword and a form of the preposition ἐκ.
+  const res = await searchGreekAuto("/", "ἐξ.prep");
+  assert.equal(res.error, null);
+  assert.ok(res.hits.length > 500, "the prepositions of ἐκ");
+  assert.equal(describeGreekQuery(res.resolved), "Prepositions of ἐκ", "the readback names the word searched");
+  assert.equal(res.resolved.terms[0].fellBack, true);
+  // A book filter doesn't change which word is meant.
+  const mark = await searchGreekAuto("/", "ἐξ.prep", { bookKey: "mark" });
+  assert.equal(describeGreekQuery(mark.resolved), "Prepositions of ἐκ");
+  assert.ok(mark.hits.length > 0 && mark.hits.every((h) => h.book === "mark"));
+  // It works as one term among several.
+  const two = await searchGreekAuto("/", "ἐξ.prep, ὁ");
+  assert.match(describeGreekQuery(two.resolved), /^Prepositions of ἐκ, followed within 3 words by /);
+  assert.ok(two.hits.length > 0);
+});
+
+test("decision 12: where the lemma-first reading finds something, nothing changes", async () => {
+  const { describeGreekQuery } = await import("../src/lib/greek-query.mjs");
+  const nom = await searchGreekAuto("/", "ὁ.nom");
+  assert.equal(nom.resolved.terms[0].fellBack, undefined);
+  assert.equal(describeGreekQuery(nom.resolved).includes("ὅς"), false, "the article, not ὅς");
+  // Nothing found anywhere stays nothing found: no lemma shares the spelling.
+  const none = await searchGreekAuto("/", "θεός.aor");
+  assert.equal(none.error, null);
+  assert.equal(none.hits.length, 0);
+  assert.equal(none.resolved.terms[0].fellBack, undefined);
+});
+
+test("GK3-7: a query over 300 characters is an error with a sentence, never searched cut", async () => {
+  const long = Array.from({ length: 60 }, () => "λόγος").join("/") + ".gen";
+  assert.ok(long.length > 300);
+  const res = await searchGreekAuto("/", long);
+  assert.equal(res.kind, "commands");
+  assert.equal(res.error.kind, "tooLong");
+  assert.equal(res.hits.length, 0);
+  assert.equal(res.resolved, null);
+});
