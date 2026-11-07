@@ -27,6 +27,7 @@ import {
   completeBooks,
   countWords,
   footnoteRows,
+  groupBlanks,
   htmlToText,
   keyTermLine,
   locateBlank,
@@ -34,8 +35,10 @@ import {
   overlapsBlank,
   setFootnoteChoices,
   termForWords,
+  termBlanksLeft,
   termMarkOffsets,
   traditionalWord,
+  verseLabel,
   wordSpans,
 } from "../../lib/desk-sheet-lit.mjs";
 import { locatePassage, passageReference } from "../../lib/desk-sheet-passages.mjs";
@@ -66,6 +69,17 @@ function describe(control, text) {
   hint.id = `deskSheetLitHint${++hintCount}`;
   control.setAttribute("aria-describedby", hint.id);
   return hint;
+}
+
+/**
+ * Puts focus back on the control a redraw replaced (SH5-10). A control that is
+ * gone (its row was removed, its list changed) must not drop focus to the page:
+ * it goes to `fallback`, a control that is always drawn, when there is one.
+ */
+function restoreFocus(root, key, fallback = null) {
+  if (!key) return;
+  const find = (k) => root.querySelector(`[data-focus-key="${CSS.escape(k)}"]`);
+  (find(key) ?? (fallback ? find(fallback) : null))?.focus();
 }
 
 const plural = (n, one, many = `${one}s`) => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
@@ -397,7 +411,8 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     el.replaceChildren(box, blanksBox, notesBox);
     drawBlanks();
     drawNotes();
-    if (focusKey) el.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
+    // A removed blank's row is gone: focus goes to the button that makes one.
+    restoreFocus(el, focusKey, "blank-selection");
   }
 
   function markBlanks(located) {
@@ -610,22 +625,36 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       return;
     }
     const ul = make("ul", "desk-sheet__blank-list");
-    // In reading order; a blank that can't be found goes last.
-    const order = (b) => (b.start ?? Infinity);
-    for (const b of [...located].sort((x, y) => order(x) - order(y) || x.blank.verse - y.blank.verse)) ul.append(blankRow(b));
+    // One row for each key term (every time it is blanked), one for each other
+    // blank, in order of first occurrence in the passage (SH5-9).
+    for (const group of groupBlanks(located, view.allMarks, view.terms)) ul.append(blankRow(group, located));
     blanksBox.append(ul);
   }
 
-  function blankRow(b) {
-    const { blank } = b;
+  /**
+   * One row of the list: a glossary term's blanks together, or a single blank
+   * (words chosen by hand, one that no longer prints, one whose words changed).
+   * Every change a row makes is made to each of its blanks.
+   */
+  function blankRow(group, located) {
+    const { blanks: members } = group;
+    const first = members[0];
+    const ids = new Set(members.map((m) => m.blank.id));
     const li = make("li", "desk-sheet__blank");
-    const words = b.prints ? view.chapter.text.slice(b.start, b.end) : blank.exact;
+    const wordsOf = (m) => (m.prints ? view.chapter.text.slice(m.start, m.end) : m.blank.exact);
+    // The words as printed, each form once ("deviation" and "Deviation" are one).
+    const seen = new Set();
+    const forms = members.map(wordsOf).filter((w) => !seen.has(w.toLowerCase()) && seen.add(w.toLowerCase()));
+    const words = forms.join(" / ");
     const ref = make("span", "desk-sheet__blank-words", quoted(words));
-    li.append(ref, make("span", "desk-sheet__blank-verse", `v. ${blank.verse}`));
-    const term = b.prints ? termForWords(b.start, b.end, view.allMarks, view.terms) : null;
+    li.append(ref);
+    li.append(make("span", "desk-sheet__blank-verse", members.length > 1 ? `${members.length} times, ${verseLabel(group.verses)}` : verseLabel(group.verses)));
+    const term = group.termId ? view.terms[group.termId] : null;
+    const suffix = group.termId ? `term-${group.termId}` : first.blank.id;
+    const blank = first.blank;
     if (!readOnly) {
       const select = make("select", "desk-sheet__hint");
-      select.dataset.focusKey = `hint-${blank.id}`;
+      select.dataset.focusKey = `hint-${suffix}`;
       select.setAttribute("aria-label", `Hint beneath ${quoted(words)}`);
       const opt = (value, label) => {
         const o = make("option", null, label);
@@ -633,22 +662,27 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         select.append(o);
       };
       opt("none", "No hint");
-      if (term || blank.hint === "traditional") opt("traditional", term ? `traditionally ${term.traditional}` : "The traditional word");
+      if (term || group.hint === "traditional") opt("traditional", term ? `traditionally ${traditionalWord(term)}` : "The traditional word");
       opt("custom", "My own hint…");
-      select.value = blank.hint;
+      if (group.hint === "mixed") {
+        opt("mixed", "Different hints");
+        select.lastChild.disabled = true;
+      }
+      select.value = group.hint;
       li.append(select);
       const custom = make("input", "desk-sheet__hint-text");
       custom.type = "text";
       custom.maxLength = 100;
-      custom.value = blank.hintText ?? "";
+      custom.value = group.hintText;
       custom.placeholder = "A hint to print beneath";
-      custom.dataset.focusKey = `hint-text-${blank.id}`;
+      custom.dataset.focusKey = `hint-text-${suffix}`;
       custom.setAttribute("aria-label", `Your hint beneath ${quoted(words)}`);
-      custom.hidden = blank.hint !== "custom";
+      custom.hidden = group.hint !== "custom";
       li.append(custom);
+      // The same hint goes to every blank in the row.
       const save = (fields) => {
         const blanks = (mod.blanks ?? []).map((x) => {
-          if (x.id !== blank.id) return x;
+          if (!ids.has(x.id)) return x;
           const next = { ...x, ...fields };
           if (next.hint !== "custom") delete next.hintText;
           return next;
@@ -667,22 +701,30 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       custom.addEventListener("change", () => {
         const text = custom.value.trim();
         if (text) save({ hint: "custom", hintText: text });
-        else if (blank.hint === "custom") save({ hint: "none" });
+        else if (group.hint === "custom") save({ hint: "none" });
       });
       const remove = button("×", "desk-sheet__icon");
-      remove.dataset.focusKey = `remove-${blank.id}`;
-      remove.setAttribute("aria-label", `Fill in ${quoted(words)} again`);
+      remove.dataset.focusKey = `remove-${suffix}`;
+      remove.setAttribute("aria-label", members.length > 1 ? `Fill in ${quoted(words)} again, all ${members.length} times` : `Fill in ${quoted(words)} again`);
       remove.addEventListener("click", () => {
-        setBlanks((mod.blanks ?? []).filter((x) => x.id !== blank.id), `${quoted(words)} filled in again.`);
+        // A row fills in all of its blanks. A blank of a term kept apart from the
+        // term's row (its words changed) can leave others blank, and the
+        // sentence says how many (SH5-17).
+        const termId = group.termId ?? (first.prints ? termForWords(first.start, first.end, view.allMarks, view.terms)?.id : null) ?? null;
+        const left = termBlanksLeft(located, view.allMarks, view.terms, termId, ids);
+        setBlanks(
+          (mod.blanks ?? []).filter((x) => !ids.has(x.id)),
+          `${quoted(words)} filled in again${left ? `; ${left} still blank.` : "."}`,
+        );
       });
       li.append(remove);
     } else {
-      const hint = blankHint(blank, b, view.allMarks, view.terms);
-      if (hint) li.append(make("span", "desk-sheet__hint-label", hint));
+      const shown = [...new Set(members.map((m) => blankHint(m.blank, m, view.allMarks, view.terms)).filter(Boolean))];
+      if (shown.length) li.append(make("span", "desk-sheet__hint-label", shown.join(", ")));
     }
-    if (!b.prints) {
+    if (!first.prints) {
       li.append(make("p", "desk-sheet__problem", "These words can no longer be found in the passage, so this blank won’t print."));
-    } else if (b.status === "changed") {
+    } else if (first.status === "changed") {
       li.append(make("p", "desk-sheet__problem", `The blanked words have changed since you chose them (they were ${quoted(blank.exact)}), so this blank covers the closest match.`));
     }
     return li;
@@ -722,8 +764,12 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     const summary = make("summary", "desk-sheet__notes-summary");
     summary.append(make("span", null, rows.length ? `Footnotes: ${printing} of ${rows.length} print` : "Footnotes: none in these verses"));
     if (flagged) summary.append(document.createTextNode(" · "), make("span", "desk-sheet__flag", `${plural(flagged, "footnote")} would give a blank away`));
+    summary.dataset.focusKey = "notes-summary";
     notesBox.append(summary);
-    if (!rows.length) return;
+    if (!rows.length) {
+      restoreFocus(notesBox, focusKey, "notes-summary");
+      return;
+    }
     if (!readOnly) {
       const bar = make("div", "desk-sheet__notes-bar");
       const all = button("Select all");
@@ -767,7 +813,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       ul.append(li);
     }
     notesBox.append(ul);
-    if (focusKey) notesBox.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
+    restoreFocus(notesBox, focusKey, "notes-summary");
   }
 
   // A hint being typed isn't redrawn under the reader: the change waits
@@ -843,12 +889,19 @@ export function createKeyTermsBody({ m, readOnly, getSheet, update }) {
     const focusKey = el.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
     el.replaceChildren();
     if (!terms.length) {
-      el.append(make("p", "desk-sheet__empty", "None of the sheet’s passages uses a key term yet. As you add passages, their key terms are listed here for you."));
+      const none = make("p", "desk-sheet__empty", "None of the sheet’s passages uses a key term yet. As you add passages, their key terms are listed here for you.");
+      none.tabIndex = -1;
+      none.dataset.focusKey = "terms-note";
+      el.append(none);
+      restoreFocus(el, focusKey, "terms-note");
       return;
     }
-    el.append(make("p", "desk-sheet__lit-note", readOnly
+    const note = make("p", "desk-sheet__lit-note", readOnly
       ? "Filled in from the sheet’s passages."
-      : "Filled in from the sheet’s passages: the LIT’s word, the traditional one, and the Greek. Clear the box beside a term to leave it out."));
+      : "Filled in from the sheet’s passages: the LIT’s word, the traditional one, and the Greek. Clear the box beside a term to leave it out.");
+    note.tabIndex = -1;
+    note.dataset.focusKey = "terms-note";
+    el.append(note);
     const ul = make("ul", "desk-sheet__term-list");
     for (const t of terms) {
       const li = make("li", "desk-sheet__term");
@@ -882,7 +935,7 @@ export function createKeyTermsBody({ m, readOnly, getSheet, update }) {
       ul.append(li);
     }
     el.append(ul);
-    if (focusKey) el.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
+    restoreFocus(el, focusKey, "terms-note");
   }
 
   const passagesKey = () =>

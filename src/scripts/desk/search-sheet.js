@@ -315,7 +315,16 @@ async function openPanel(bar) {
     const pick = button("", "desk-gather__sheet");
     pick.append(make("span", "desk-gather__sheet-name", sheetName(sheet)));
     const n = sheet.modules?.length ?? 0;
-    pick.append(make("span", "desk-gather__sheet-meta", plural(n, "part", "parts")));
+    // What the Sheet pane's list shows, so two sheets with one title can be told apart.
+    const modified = sheet.modified ? new Date(sheet.modified) : null;
+    const meta = [
+      sheet.subtitle,
+      plural(n, "part", "parts"),
+      modified && !Number.isNaN(modified.getTime())
+        ? `changed ${modified.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`
+        : "",
+    ].filter(Boolean).join(" · ");
+    pick.append(make("span", "desk-gather__sheet-meta", meta));
     if (!canEdit(sheet)) {
       pick.disabled = true;
       pick.append(make("span", "desk-gather__sheet-meta", "Made by a newer version of the LIT"));
@@ -417,10 +426,12 @@ async function gather(bar, into) {
 function say(bar, text, { sheet = null, entry = null } = {}) {
   const line = make("p", "desk-gather__done");
   line.append(make("span", null, text));
+  let target = null;
   if (sheet) {
     const open = make("a", "desk-gather__link", "Open it on the Study Desk");
     open.href = `${BASE}desk/?sheet=${encodeURIComponent(sheet.id)}`;
     line.append(" ", open);
+    target = open;
     if (entry) {
       const undo = button("Undo", "desk-gather__btn desk-gather__btn--quiet");
       undo.addEventListener("click", async () => {
@@ -435,9 +446,17 @@ function say(bar, text, { sheet = null, entry = null } = {}) {
         else line.replaceChildren(make("span", null, "That couldn’t be undone here, so the sheet is as it was."), " ", open, make("span", null, " to change it."));
       });
       line.append(" ", undo);
+      target ??= undo;
     }
   }
   bar.slot.replaceChildren(line);
+  // The panel that held focus is gone, so focus would fall to the top of the
+  // page (SH5-10): the link to the sheet, else Undo, else the message itself.
+  if (!target) {
+    line.tabIndex = -1;
+    target = line;
+  }
+  target.focus();
 }
 
 /**

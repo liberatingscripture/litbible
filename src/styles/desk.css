@@ -4918,6 +4918,24 @@ html[data-desk-workspace] .desk-page__notice {
   margin-left: auto;
 }
 
+/* A kind's one-line description under its name in the Add pane flyout and
+   the pane menu (Audit 5, SH5-5): greyed like a reason, though the line is
+   usable, and allowed to wrap where a menu is narrow. */
+/* "+ Key terms box" names why it is disabled beside itself (Audit 5, SH5-17). */
+.desk-sheet__add-row .desk-title__hint {
+  margin-left: 0;
+  align-self: center;
+  color: rgba(var(--ink-rgb), 0.62);
+}
+
+.desk-title__hint--about {
+  margin-left: 0;
+  color: rgba(var(--ink-rgb), 0.62);
+  font-weight: 400;
+  white-space: normal;
+  max-width: 22em;
+}
+
 .desk-title__hint + .desk-title__more {
   margin-left: 0;
 }
@@ -6313,9 +6331,18 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   align-items: center;
   gap: 2px;
   padding: 4px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
   font-size: 0.8125rem;
   line-height: 1.2;
+}
+
+/* One toolbar at a time (Audit 5, SH5-6). A part's toolbar shows while focus
+   is in it, and while one of its menus or its link form is open or a press
+   that moved focus away is still down (sheet-text.js sets --tools then). It
+   sits below the text, so clicking into a part grows the card downward and
+   never moves the words under the pointer. */
+.desk-rich-editor:not(:focus-within):not(.desk-rich-editor--tools) > .desk-rich-toolbar {
+  display: none;
 }
 
 .desk-rich-sep {
@@ -6407,7 +6434,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
    seconds and read aloud. */
 .desk-rich-status {
   padding: 4px 8px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
   color: rgba(var(--ink-rgb), 0.8);
   font-size: 0.8125rem;
 }
@@ -6495,7 +6522,8 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   font-size: 0.8125rem;
 }
 
-/* The menus open under their button, over the text. */
+/* The menus open under their button, or above it, over the text, where the
+   pane has no room below (sheet-text.js, placeMenu). */
 .desk-rich-menu {
   position: absolute;
   z-index: 30;
@@ -6580,9 +6608,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 .desk-rich-editor > .desk-rich {
   min-height: 7em;
   padding: 10px 12px;
-  border-radius: 0 0 8px 8px;
+  border-radius: 7px;
   font-size: 1rem;
   outline: 0;
+}
+
+/* The toolbar is showing under it. */
+.desk-rich-editor:is(:focus-within, .desk-rich-editor--tools) > .desk-rich {
+  border-radius: 7px 7px 0 0;
 }
 
 .desk-rich-editor > .desk-rich:focus-visible {
@@ -7295,7 +7328,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   font-size: 0.75rem;
 }
 
-.desk-sheet__hint,
+select.desk-sheet__hint,
 .desk-sheet__hint-text {
   min-width: 0;
   max-width: 100%;
@@ -7308,15 +7341,21 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   font-size: 0.8125rem;
 }
 
+/* "My own hint…" opens its field on a line of its own under the row, the
+   row's full width, so the × stays at the end of the row (Audit 5, SH5-12). */
 .desk-sheet__hint-text {
-  flex: 1 1 10em;
+  order: 1;
+  flex: 1 1 100%;
+  box-sizing: border-box;
 }
 
 .desk-sheet__blank .desk-sheet__icon {
+  flex: none;
   margin-left: auto;
 }
 
 .desk-sheet__blank .desk-sheet__problem {
+  order: 2;
   flex: 1 0 100%;
   margin: 0;
 }

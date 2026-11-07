@@ -29,6 +29,7 @@ import {
   findPane,
   fitSizes,
   isFollower,
+  kindAbout,
   kindLabel,
   leaderFor,
   litPlace,
@@ -1828,4 +1829,15 @@ test("SIZINGS: four steps, two per kind of split, each way (LG3-3)", () => {
     assert.equal(new Set(of.map((z) => z.word)).size, 1);
   }
   assert.deepEqual([...new Set(SIZINGS.map((z) => z.word))].sort(), ["tall", "wide"]);
+});
+
+test("SH5-5: every kind carries one short description for the kind menus", () => {
+  for (const k of KINDS) {
+    assert.equal(typeof k.about, "string", `${k.kind} has an about line`);
+    assert.ok(k.about.length > 0 && k.about.length <= 60, `${k.kind}: ${k.about}`);
+    assert.equal(kindAbout(k.kind), k.about);
+    // Reader-facing copy: no em dash, no straight apostrophe, no closing period.
+    assert.ok(!/[—']/.test(k.about) && !/\.$/.test(k.about), `${k.kind}: ${k.about}`);
+  }
+  assert.equal(kindAbout("nothing-like-it"), "");
 });

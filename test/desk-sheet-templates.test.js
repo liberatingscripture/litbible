@@ -2,23 +2,24 @@
 //
 // The templates "New sheet" offers (src/lib/desk-sheet-templates.mjs): each
 // makes a sheet that passes the record check, with formatted text already in
-// the sanitizer's canonical form, and new ids on every call.
+// the sanitizer's canonical form, and new ids on every call; and no part
+// holds text that could print, only structure and a prompt (SH5-2).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { validateRecord } from "../src/lib/desk-records.mjs";
-import { sanitizeSheetHtml } from "../src/lib/desk-sheet-format.mjs";
+import { SHEET_LIMITS, sanitizeSheetHtml } from "../src/lib/desk-sheet-format.mjs";
 import { createSheet, makeModule } from "../src/lib/desk-sheets.mjs";
-import { READING_HINT, TEMPLATES, readingPart, templateModules } from "../src/lib/desk-sheet-templates.mjs";
+import { TEMPLATES, readingPart, templateModules } from "../src/lib/desk-sheet-templates.mjs";
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d" };
 
 test("the templates are the five, in order", () => {
   assert.deepEqual(TEMPLATES.map((t) => t.id), ["bible-study", "sermon", "class", "lectio-divina", "blank"]);
   for (const t of TEMPLATES) {
-    assert.ok(t.name && t.description, t.id);
-    assert.doesNotMatch(`${t.name} ${t.description}`, /—|"|'/, `${t.id} copy uses an em dash or straight quote`);
+    assert.ok(t.name && t.description && t.parts, t.id);
+    assert.doesNotMatch(`${t.name} ${t.description} ${t.parts}`, /—|"|'/, `${t.id} copy uses an em dash or straight quote`);
   }
 });
 
@@ -55,11 +56,63 @@ test("the blank template is one empty text module", () => {
   assert.equal(m.html, "");
 });
 
-test("the class template keeps the background for the leader and one answer", () => {
+test("the class template keeps the background for the leader, and one answer prompt", () => {
   const mods = templateModules("class");
   assert.equal(mods[2].leaderOnly, true);
-  assert.equal(mods[3].answer, "<p>An answer for the leader’s version.</p>");
+  assert.match(mods[2].prompt, /leader’s version only/);
+  assert.equal(mods[3].answer, "");
+  assert.match(mods[3].answerPrompt, /^Optional\./);
   assert.equal(mods[4].answer, "");
+  assert.equal(mods[4].answerPrompt, undefined);
+});
+
+/* ── Structure and prompts, never text that prints (SH5-2) ───────────── */
+
+const prompts = (m) => [m.prompt, m.answerPrompt].filter((p) => p !== undefined);
+
+for (const { id } of TEMPLATES) {
+  test(`${id}: every text part is a heading alone (or empty) with a prompt, every question empty with one`, () => {
+    for (const m of templateModules(id)) {
+      if (m.type === "text") {
+        assert.match(m.html, id === "blank" ? /^$/ : /^<h2>[^<]+<\/h2>$/, `${id}: ${m.html}`);
+        if (id === "blank") assert.equal(m.prompt, undefined);
+        else assert.ok(typeof m.prompt === "string" && m.prompt.length > 0, `${id} ${m.html} has no prompt`);
+      } else if (m.type === "question") {
+        assert.equal(m.html, "", id);
+        assert.equal(m.answer, "", id);
+        assert.equal(m.lines, 3, id);
+        assert.ok(typeof m.prompt === "string" && m.prompt.length > 0, `${id} question has no prompt`);
+      } else {
+        assert.deepEqual(prompts(m), [], `${id} ${m.type} carries a prompt`);
+      }
+    }
+  });
+
+  test(`${id}: prompts are plain text within the limit, in the site's typography`, () => {
+    for (const m of templateModules(id)) {
+      for (const p of prompts(m)) {
+        assert.equal(typeof p, "string");
+        assert.ok(Array.from(p).length <= SHEET_LIMITS.prompt, `${id}: ${p}`);
+        assert.doesNotMatch(p, /</, `${id}: ${p}`);
+        assert.doesNotMatch(p, /—|"|'/, `${id} prompt uses an em dash or straight quote: ${p}`);
+      }
+    }
+  });
+}
+
+test("the sermon template's key terms box is last (SH5-13)", () => {
+  const mods = templateModules("sermon");
+  assert.equal(mods.at(-1).type, "keyTerms");
+  assert.equal(mods.filter((m) => m.type === "keyTerms").length, 1);
+});
+
+test("each template's parts line matches what it holds", () => {
+  for (const { id, parts } of TEMPLATES) {
+    const mods = templateModules(id);
+    const questions = mods.filter((m) => m.type === "question").length;
+    if (questions) assert.match(parts, new RegExp(`${questions} questions`), id);
+    assert.equal(/Key terms/.test(parts), mods.some((m) => m.type === "keyTerms"), id);
+  }
 });
 
 test("an unknown template throws", () => {
@@ -72,11 +125,23 @@ test("an unknown template throws", () => {
 
 test("no template's text tells the reader about the editor, since it prints (BA70)", () => {
   for (const { id } of TEMPLATES) {
-    for (const m of templateModules(id)) {
+    const modules = templateModules(id);
+    const reading = readingPart({ modules });
+    for (const m of modules) {
       assert.doesNotMatch(`${m.html ?? ""} ${m.answer ?? ""}`, /\+ Passage|LIT pane/, id);
+      // Only the reading part's prompt may name the tools: it never prints.
+      if (m === reading) continue;
+      for (const p of prompts(m)) assert.doesNotMatch(p, /\+ Passage|LIT pane/, `${id}: ${p}`);
     }
   }
-  assert.match(READING_HINT, /\+ Passage/);
+});
+
+test("the reading part's prompt says how to add the passage (BA70, SH5-4)", () => {
+  for (const id of ["bible-study", "sermon", "class"]) {
+    const reading = readingPart({ modules: templateModules(id) });
+    assert.match(reading.prompt, /\+ Passage/, id);
+    assert.match(reading.html, /^<h2>[^<]+<\/h2>$/, id);
+  }
 });
 
 test("readingPart: each template's passage part, by its heading", () => {

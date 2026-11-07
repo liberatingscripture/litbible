@@ -25,7 +25,7 @@ import { planSave } from "./desk-store-core.mjs";
 const DEFAULTS = {
   passage: () => ({ blanks: [], footnotes: [] }),
   text: () => ({ html: "" }),
-  question: () => ({ html: "", answer: "", lines: 0 }),
+  question: () => ({ html: "", answer: "", lines: 3 }),
   space: () => ({ lines: 4 }),
   keyTerms: () => ({ omit: [] }),
   pageBreak: () => ({}),

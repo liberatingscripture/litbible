@@ -19,6 +19,11 @@
 // - `announce(text)` says what happened to a screen reader.
 // - `sizePane(id, sizing)` the page's step of a pane's size (it resizes the
 //   drawn tree, so it stays with the lines between panes).
+//
+// Each kind in the two kind lists ("Show in this pane" and the Add pane flyout)
+// carries its one-line description under its name (`about` in `KINDS`; SH5-5):
+// greyed like a reason, but not a disabled line, and heard as the item's
+// description.
 
 import {
   KINDS,
@@ -73,6 +78,21 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
   // right arrow moves into it. A flyout is a sibling of the menu, not a child,
   // since the menu scrolls and would clip it.
   let flyTimer = 0;
+
+  /**
+   * A kind's one-line description under its name, in the same small type as a
+   * reason (`desk-title__hint`) but on a line that stays usable: no
+   * `aria-disabled`, and the item is described by it, not named by it (the line
+   * is `aria-hidden`, so a screen reader reads the name, then the description).
+   */
+  function addAbout(b, text, id) {
+    if (!text) return;
+    const line = el("span", "desk-title__hint desk-title__hint--about", text);
+    line.id = id;
+    line.setAttribute("aria-hidden", "true");
+    b.append(line);
+    b.setAttribute("aria-describedby", id);
+  }
 
   const flyButtons = (flyEl) => Array.from(flyEl.querySelectorAll("button")).filter((b) => b.getAttribute("aria-disabled") !== "true");
 
@@ -163,8 +183,10 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
     kinds.setAttribute("aria-label", "Show in this pane");
     menuEl.append(kinds);
     for (const k of KINDS) {
-      const item = el("button", "desk-pane__menu-item", k.label);
+      const item = el("button", "desk-pane__menu-item");
       item.type = "button";
+      item.append(el("span", "desk-title__label", k.label));
+      addAbout(item, k.about, `deskPaneKindAbout-${id}-${k.kind}`);
       item.setAttribute("role", "menuitemradio");
       item.setAttribute("aria-checked", String(k.kind === pane.kind));
       item.tabIndex = -1;
@@ -178,7 +200,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
     const head = button.closest(".desk-pane__head");
     // A line of the menu or its flyouts: a label, and under it, greyed, the
     // reason it can't be used (as the title menu draws one).
-    const menuItem = (label, why) => {
+    const menuItem = (label, why, about) => {
       const b = el("button", "desk-pane__menu-item");
       b.type = "button";
       b.setAttribute("role", "menuitem");
@@ -190,6 +212,8 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
         b.append(hint);
         b.setAttribute("aria-disabled", "true");
         b.setAttribute("aria-describedby", hint.id);
+      } else {
+        addAbout(b, about, `deskPaneAbout-${id}-${++paneHintCount}`);
       }
       return b;
     };
@@ -250,7 +274,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
       fly.append(back);
       kindMenu?.fly?.reasons.refresh();
       for (const k of KINDS) {
-        const b = menuItem(k.label);
+        const b = menuItem(k.label, null, k.about);
         b.addEventListener("click", () => {
           const next = addBeside(getLayout(), id, side, k.kind, width, height);
           closeKindMenu();

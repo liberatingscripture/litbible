@@ -103,7 +103,7 @@ test("the constants are what the format names", () => {
   assert.deepEqual([...MODULE_TYPES], ["passage", "text", "question", "space", "keyTerms", "pageBreak"]);
   assert.deepEqual([...HINTS], ["none", "traditional", "custom"]);
   assert.deepEqual([...ALIGNMENTS], ["center", "right", "justify"]);
-  assert.deepEqual({ ...SHEET_LIMITS }, { bytes: 524288, modules: 300, title: 200, subtitle: 200, hintText: 100, questionLines: 20, spaceLines: 40 });
+  assert.deepEqual({ ...SHEET_LIMITS }, { bytes: 524288, modules: 300, title: 200, subtitle: 200, hintText: 100, prompt: 200, questionLines: 20, spaceLines: 40 });
   for (const o of [MODULE_TYPES, HINTS, ALIGNMENTS, SHEET_LIMITS]) assert.ok(Object.isFrozen(o));
 });
 
@@ -1097,7 +1097,9 @@ test("makeModule: defaults per type, an id, and html sanitized", () => {
     id: "p", type: "passage", blanks: [], footnotes: [], bookKey: "romans", chapter: 8, verse: 1,
   });
   assert.deepEqual(makeModule("text", {}, { id: "t" }), { id: "t", type: "text", html: "" });
-  assert.deepEqual(makeModule("question", {}, { id: "q" }), { id: "q", type: "question", html: "", answer: "", lines: 0 });
+  assert.deepEqual(makeModule("question", {}, { id: "q" }), { id: "q", type: "question", html: "", answer: "", lines: 3 });
+  assert.equal(makeModule("question").lines, 3, "a new question starts with the templates' three lines (SH5-7)");
+  assert.equal(makeModule("question", { lines: 0 }).lines, 0, "0 lines is still allowed");
   assert.deepEqual(makeModule("space", {}, { id: "s" }), { id: "s", type: "space", lines: 4 });
   assert.deepEqual(makeModule("keyTerms", {}, { id: "k" }), { id: "k", type: "keyTerms", omit: [] });
   assert.deepEqual(makeModule("pageBreak", {}, { id: "b" }), { id: "b", type: "pageBreak" });
@@ -1184,7 +1186,7 @@ test("updateModule merges fields, sanitizes html and answer, and returns the she
   assert.equal(updateModule(s, "t", { html: "<p>one</p>" }, at(T1)), s);
   assert.equal(updateModule(s, "t", { html: "<div>one</div>" }, at(T1)), s, "the same after sanitizing");
   assert.equal(updateModule(s, "t", {}, at(T1)), s);
-  assert.equal(updateModule(s, "q", { lines: 0 }, at(T1)), s);
+  assert.equal(updateModule(s, "q", { lines: 3 }, at(T1)), s);
   assert.deepEqual(validateRecord(a), []);
   // A non-text value is passed through for the validator to refuse.
   assert.ok(hasProblem(updateModule(s, "t", { html: 5 }, at(T1)), /formatted-text form/));

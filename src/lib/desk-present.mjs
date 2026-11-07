@@ -25,13 +25,23 @@ export const ROOM_CODES_MAX = 4;
 /** The version of the messages the two windows send each other. */
 export const MESSAGE_VERSION = 1;
 
+/** A text or question part with no words and no rule: nothing to show or to say. */
+function isEmptyPart(m) {
+  if (m.type !== "text" && m.type !== "question") return false;
+  const html = typeof m.html === "string" ? m.html : "";
+  return htmlToText(html).trim() === "" && !/<hr/i.test(html);
+}
+
 /**
  * A sheet's screens, in order. The first is always the start screen (the
  * sheet's name and the codes to scan); then one screen per part the room sees,
  * in the sheet's order. A part marked Leader only never reaches the room: it
  * goes with the screen before it as the leader's notes (`notes`), or with the
  * start screen when nothing comes before it. Spaces, page breaks and parts of
- * a type this version doesn't know have no screen.
+ * a type this version doesn't know have no screen, and neither does an empty
+ * text or question part (one added and never filled): it would be a blank
+ * screen in the room. An empty part marked Leader only is dropped too, having
+ * no notes to give. A part with only a heading or a rule still counts as filled.
  *
  * @param {{ modules?: object[] }} sheet
  * @returns {{ kind: "start" | "passage" | "text" | "question" | "keyTerms", module: object | null, notes: object[] }[]}
@@ -40,6 +50,7 @@ export function presentScreens(sheet) {
   const screens = [{ kind: "start", module: null, notes: [] }];
   for (const m of sheet?.modules ?? []) {
     if (!m || !MODULE_TYPES.includes(m.type)) continue;
+    if (isEmptyPart(m)) continue;
     if (m.leaderOnly === true) {
       screens[screens.length - 1].notes.push(m);
       continue;

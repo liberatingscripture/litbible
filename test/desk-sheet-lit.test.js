@@ -20,6 +20,7 @@ import {
   countWords,
   footnoteKey,
   footnoteRows,
+  groupBlanks,
   htmlToText,
   keyTermLine,
   locateBlank,
@@ -27,9 +28,11 @@ import {
   overlapsBlank,
   setFootnoteChoices,
   telltaleStems,
+  termBlanksLeft,
   termForWords,
   termMarkOffsets,
   traditionalWord,
+  verseLabel,
 } from "../src/lib/desk-sheet-lit.mjs";
 
 const V6 = "Sin is a deviation from the way.";
@@ -947,4 +950,96 @@ test("wordSpans lists the words of a passage for the keyboard cursor (DK-1)", as
   assert.deepEqual(spans.map(([s, e]) => text.slice(s, e)), ["the", "beginning", "God’s", "well-known", "word"]);
   assert.deepEqual(wordSpans(text, 0, 2).map(([s, e]) => text.slice(s, e)), ["In"]);
   assert.deepEqual(wordSpans("", 0, 0), []);
+});
+
+/* ── groupBlanks / verseLabel / termBlanksLeft (SH5-9, SH5-17) ──────── */
+
+// Four blanks of "sin" (marks 0-3, 10-13, 30-33, 50-53) and a phrase blank.
+const GMARKS = [
+  { start: 0, end: 3, id: "hamartia", v: 1 },
+  { start: 10, end: 13, id: "hamartia", v: 1 },
+  { start: 30, end: 33, id: "hamartia", v: 2 },
+  { start: 50, end: 53, id: "hamartia", v: 3 },
+  { start: 20, end: 25, id: "sarx", v: 1 },
+];
+const loc = (id, start, end, verse, extra = {}) => ({
+  blank: { id, verse, hint: "traditional", ...(extra.blank ?? {}) },
+  start,
+  end,
+  prints: extra.prints ?? true,
+  status: extra.status ?? "found",
+});
+
+test("groupBlanks: a term's blanks share one row, in order of first occurrence", () => {
+  const located = [
+    loc("p", 40, 45, 2), // a phrase with no term
+    loc("s3", 50, 53, 3),
+    loc("s1", 0, 3, 1),
+    loc("f", 20, 25, 1),
+    loc("s2", 10, 13, 1),
+    loc("s4", 30, 33, 2),
+  ];
+  const groups = groupBlanks(located, GMARKS, TERMS);
+  assert.deepEqual(groups.map((g) => g.key), ["term-hamartia", "term-sarx", "blank-p"]);
+  assert.deepEqual(groups[0].blanks.map((b) => b.blank.id), ["s1", "s2", "s4", "s3"]);
+  assert.deepEqual(groups[0].verses, [1, 2, 3]);
+  assert.equal(groups[0].termId, "hamartia");
+  assert.equal(groups[2].termId, null);
+});
+
+test("groupBlanks: blanks with no term keep a row each", () => {
+  const groups = groupBlanks([loc("a", 60, 63, 4), loc("b", 70, 73, 4)], GMARKS, TERMS);
+  assert.deepEqual(groups.map((g) => g.key), ["blank-a", "blank-b"]);
+});
+
+test("groupBlanks: a blank that no longer prints, or whose words changed, keeps its own row", () => {
+  const located = [
+    loc("s1", 0, 3, 1),
+    loc("gone", null, null, 1, { prints: false }),
+    loc("chg", 10, 13, 1, { status: "changed" }),
+    loc("s2", 30, 33, 2),
+  ];
+  const groups = groupBlanks(located, GMARKS, TERMS);
+  assert.deepEqual(groups.map((g) => g.key), ["term-hamartia", "blank-chg", "blank-gone"]);
+  assert.deepEqual(groups[0].blanks.map((b) => b.blank.id), ["s1", "s2"]);
+});
+
+test("groupBlanks: the row's hint is the blanks' own when they agree, mixed when they do not", () => {
+  const same = groupBlanks([loc("a", 0, 3, 1), loc("b", 10, 13, 1)], GMARKS, TERMS);
+  assert.equal(same[0].hint, "traditional");
+  assert.equal(same[0].hintText, "");
+  const custom = { blank: { hint: "custom", hintText: "missing the mark" } };
+  const agree = groupBlanks([loc("a", 0, 3, 1, custom), loc("b", 10, 13, 1, custom)], GMARKS, TERMS);
+  assert.equal(agree[0].hint, "custom");
+  assert.equal(agree[0].hintText, "missing the mark");
+  const differ = groupBlanks([loc("a", 0, 3, 1, custom), loc("b", 10, 13, 1, { blank: { hint: "none" } })], GMARKS, TERMS);
+  assert.equal(differ[0].hint, "mixed");
+  const texts = groupBlanks(
+    [loc("a", 0, 3, 1, custom), loc("b", 10, 13, 1, { blank: { hint: "custom", hintText: "other" } })],
+    GMARKS,
+    TERMS,
+  );
+  assert.equal(texts[0].hint, "mixed");
+  assert.equal(texts[0].hintText, "");
+});
+
+test("groupBlanks: no blanks gives no rows, and the input is not reordered", () => {
+  assert.deepEqual(groupBlanks([], GMARKS, TERMS), []);
+  const located = [loc("b", 10, 13, 1), loc("a", 0, 3, 1)];
+  groupBlanks(located, GMARKS, TERMS);
+  assert.deepEqual(located.map((b) => b.blank.id), ["b", "a"]);
+});
+
+test("verseLabel: one verse, several, and runs", () => {
+  assert.equal(verseLabel([2]), "v. 2");
+  assert.equal(verseLabel([3, 2, 2]), "vv. 2, 3");
+  assert.equal(verseLabel([1, 2, 3, 4, 7]), "vv. 1–4, 7");
+  assert.equal(verseLabel([1, 3, 5]), "vv. 1, 3, 5");
+});
+
+test("termBlanksLeft: counts the term's other printing blanks", () => {
+  const located = [loc("s1", 0, 3, 1), loc("s2", 10, 13, 1), loc("s3", 30, 33, 2), loc("gone", null, null, 1, { prints: false })];
+  assert.equal(termBlanksLeft(located, GMARKS, TERMS, "hamartia", ["s1"]), 2);
+  assert.equal(termBlanksLeft(located, GMARKS, TERMS, "hamartia", ["s1", "s2", "s3"]), 0);
+  assert.equal(termBlanksLeft(located, GMARKS, TERMS, null, ["s1"]), 0);
 });

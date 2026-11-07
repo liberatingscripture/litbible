@@ -23,6 +23,10 @@
 //  - The toolbar is one tab stop (the WAI-ARIA toolbar pattern, arrow keys
 //    inside it). A button press never takes focus from the text: the
 //    selection is remembered, and put back before an action is applied.
+//  - One toolbar at a time (Audit 5, SH5-6): it shows only while focus is in
+//    the editor (or one of its menus or its link form is open), and it sits
+//    below the text, so clicking into a part grows the card downward and
+//    never moves the words under the pointer. Tab goes from the text to it.
 //  - Styles are names. A span carries data-font, data-size, data-color or
 //    data-mark and nothing else; how "red" looks is the stylesheet's
 //    business (desk.css, `.desk-rich`).
@@ -71,6 +75,32 @@ function make(tag, cls, text) {
   if (cls) el.className = cls;
   if (text !== undefined) el.textContent = text;
   return el;
+}
+
+/**
+ * Whether a mouse button is down anywhere on the page. A press that moves
+ * focus from one editor to something else would hide that editor's toolbar
+ * at once and slide everything below it up under the pointer before the press
+ * ended, so a button pressed down there could lose its click. The toolbar
+ * stays until the press is over instead (createSheetText's focusout).
+ */
+let pointerDown = false;
+let watchingPointer = false;
+function watchPointer() {
+  if (watchingPointer) return;
+  watchingPointer = true;
+  const up = () => {
+    pointerDown = false;
+  };
+  document.addEventListener(
+    "pointerdown",
+    () => {
+      pointerDown = true;
+    },
+    true,
+  );
+  document.addEventListener("pointerup", up, true);
+  document.addEventListener("pointercancel", up, true);
 }
 
 function icon(name) {
@@ -190,6 +220,18 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
   let lastRange = null;
   let openMenu = null;
   let linkAnchor = null;
+  let leaving = false;
+
+  watchPointer();
+
+  /**
+   * The toolbar shows while focus is in the editor (desk.css, :focus-within),
+   * and also while a menu or the link form is open and for the rest of a press
+   * that took focus elsewhere, when focus can be outside the editor.
+   */
+  function showTools() {
+    el.classList.toggle("desk-rich-editor--tools", Boolean(openMenu) || !linkForm.hidden || leaving);
+  }
 
   /* ── Reporting changes ───────────────────────────────────────── */
 
@@ -625,6 +667,7 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     linkRemove.hidden = !linkAnchor;
     showLinkError(null);
     linkForm.hidden = false;
+    showTools();
     linkInput.focus();
     linkInput.select();
   }
@@ -633,6 +676,7 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     linkForm.hidden = true;
     linkAnchor = null;
     showLinkError(null);
+    showTools();
   }
 
   function setLink(href) {
@@ -702,6 +746,41 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     if (openMenu) openMenu.close(false);
   }
 
+  /** The band of the window the editor can be seen in: its scrolling pane's, or the window's. */
+  function visibleBand() {
+    let top = 0;
+    let bottom = window.innerHeight;
+    for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      const { overflowY } = getComputedStyle(n);
+      if (overflowY !== "auto" && overflowY !== "scroll") continue;
+      const box = n.getBoundingClientRect();
+      top = Math.max(top, box.top);
+      bottom = Math.min(bottom, box.bottom);
+      break;
+    }
+    return { top, bottom };
+  }
+
+  /**
+   * A menu opens under its button. The toolbar is at the foot of the editor,
+   * so where the pane has no room for the menu below and more room above, it
+   * opens upward, over the text, as tall as that room allows.
+   */
+  function placeMenu(menu, button) {
+    const box = el.getBoundingClientRect();
+    const at = button.getBoundingClientRect();
+    const band = visibleBand();
+    const below = band.bottom - at.bottom - 4;
+    const above = at.top - band.top - 4;
+    if (menu.offsetHeight > below && above > below) {
+      if (menu.offsetHeight > above) menu.style.maxHeight = `${Math.floor(above)}px`;
+      menu.style.top = `${at.top - box.top - 2 - menu.offsetHeight}px`;
+    } else {
+      menu.style.top = `${at.bottom - box.top + 2}px`;
+    }
+    menu.style.left = `${Math.max(0, Math.min(at.left - box.left, box.width - menu.offsetWidth))}px`;
+  }
+
   /**
    * A toolbar button that opens a menu of radio items.
    * @param {{ name: string, groups: { label?: string, items: { label: string, value: any, sample?: object }[] }[],
@@ -718,12 +797,20 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     button.append(content);
     const menuId = `${idPrefix}-menu-${name.toLowerCase().replace(/[^a-z]+/g, "-")}`;
 
+    // Removing the menu while its focused item is inside it fires blur, and
+    // the editor's focusout closes menus too. So the menu leaves openMenu
+    // before it leaves the page, and that nested close finds nothing to do.
+    // Removed in the other order, the second remove() threw NotFoundError and
+    // the item's pick() never ran: Paragraph style, Text alignment and Style
+    // applied nothing (Audit 5, SH5-1).
     function close(refocus) {
       if (openMenu?.button !== button) return;
-      openMenu.menu.remove();
+      const { menu } = openMenu;
+      openMenu = null;
+      menu.remove();
       button.setAttribute("aria-expanded", "false");
       button.removeAttribute("aria-controls");
-      openMenu = null;
+      showTools();
       if (refocus) button.focus();
     }
 
@@ -774,14 +861,12 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
       button.setAttribute("aria-expanded", "true");
       button.setAttribute("aria-controls", menuId);
       openMenu = { button, menu, close };
-
-      const box = el.getBoundingClientRect();
-      const at = button.getBoundingClientRect();
-      menu.style.top = `${at.bottom - box.top + 2}px`;
-      menu.style.left = `${Math.max(0, Math.min(at.left - box.left, box.width - menu.offsetWidth))}px`;
+      showTools();
+      placeMenu(menu, button);
 
       const start = items.find((r) => r.getAttribute("aria-checked") === "true") ?? items[0];
-      start.focus();
+      start.focus({ preventScroll: true });
+      menu.scrollIntoView({ block: "nearest" });
       start.scrollIntoView({ block: "nearest" });
 
       menu.addEventListener("keydown", (e) => {
@@ -1103,9 +1188,25 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     if (e.relatedTarget && el.contains(e.relatedTarget)) return;
     closeMenus();
     if (dirty) emit();
+    // Focus left with a mouse press: keep the toolbar until the press and its
+    // click are over, so nothing below slides up under the pointer meanwhile.
+    if (!pointerDown || leaving) return;
+    leaving = true;
+    showTools();
+    const done = () => {
+      document.removeEventListener("pointerup", done, true);
+      document.removeEventListener("pointercancel", done, true);
+      setTimeout(() => {
+        leaving = false;
+        showTools();
+      }, 0);
+    };
+    document.addEventListener("pointerup", done, true);
+    document.addEventListener("pointercancel", done, true);
   });
 
-  el.append(toolbar, status, editable);
+  // The text first, then the toolbar and the status line (SH5-6).
+  el.append(editable, toolbar, status);
 
   return {
     el,
@@ -1118,7 +1219,7 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     focus() {
       restore();
     },
-    /** Whether focus is anywhere inside the editor, toolbar included. */
+    /** Whether focus is anywhere inside the editor, toolbar and menus included. */
     hasFocus() {
       return el.contains(document.activeElement);
     },
