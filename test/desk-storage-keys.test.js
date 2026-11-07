@@ -16,8 +16,8 @@
 // A found key must be named on /privacy as <code>key</code>, or be in ALLOWLIST
 // with a reason. ALLOWLIST is for keys the page describes in prose rather than
 // by name (the Display tray's settings, the Read View place, keyboard shortcuts)
-// and for the rare key the owner has not yet decided on (TODO(BVJ)). Cookies
-// (document.cookie) are not storage and are not scanned here.
+// and nothing else. Cookies are checked by the last test: a rendered component's
+// cookie is named on /privacy, and the page's count of them is right.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -46,9 +46,7 @@ const ALLOWLIST = new Map([
   ["lit_rm_lineHeight", "Read View's legacy line spacing key, read once and moved to lit-leading (display settings, prose on /privacy)"],
   ["lit_rm_markers", "Read View's legacy verse-number key, read once and moved to lit-read-numbers (display settings, prose on /privacy)"],
   ["lit_rm_resume_", "the place you last reached in each book in Read View (prose on /privacy)"],
-  // TODO(BVJ): Read View's focus-mode setting, saved when the reader keeps it. /privacy's
-  // "what the page shows" doesn't clearly name it. Left for BVJ (audit 3, LG3-7); the privacy page is not edited here.
-  ["lit_rm_focus", "TODO(BVJ): Read View's focus mode, saved as a setting; not clearly named on /privacy (audit 3, LG3-7)"],
+  ["lit_rm_focus", "display setting: Read View's focus mode (prose on /privacy, \"whether focus mode is on in Read View\")"],
   ["lit-shortcuts", "keyboard shortcuts switch (prose on /privacy: whether you have turned keyboard shortcuts off)"],
   ["lit_last_read", "the chapter you last read (prose on /privacy; the record is src/scripts/last-read.js)"],
   ["lit_app_banner_dismissed", "the Android app banner, closed (prose on /privacy)"],
@@ -133,4 +131,24 @@ test("every key /privacy names in code is still in the code", () => {
 test("the two keys the layout and Greek-notes rules export are the ones /privacy names", () => {
   assert.ok(privacy.includes(`<code>${LAYOUT_KEY}</code>`));
   assert.ok(privacy.includes(`<code>${GREEK_NOTES_KEY}</code>`));
+});
+
+test("every cookie a rendered component sets is named on /privacy, and the page counts them right", () => {
+  // A component sets a cookie through `COOKIE_NAME = "…"`; it is rendered when
+  // some other file imports it (WelcomePopover.astro is kept but retired).
+  const files = sources(SRC);
+  const live = [];
+  for (const file of files) {
+    const text = readFileSync(file, "utf8");
+    if (!text.includes("document.cookie =")) continue;
+    const name = text.match(/COOKIE_NAME\s*=\s*["']([^"']+)["']/)?.[1];
+    assert.ok(name, `${file} sets a cookie without a COOKIE_NAME`);
+    const base = file.replaceAll("\\", "/").split("/").pop();
+    const imported = files.some((f) => f !== file && readFileSync(f, "utf8").includes(`/${base}"`));
+    if (imported) live.push(name);
+  }
+  assert.ok(live.length >= 1);
+  for (const name of live) assert.ok(privacy.includes(`<code>${name}</code>`), `/privacy doesn't name the cookie ${name}`);
+  const words = ["no", "one", "two", "three"];
+  assert.match(privacy, new RegExp(String.raw`sets ${words[live.length]}\s+cookies? of its own`), `/privacy should say the site sets ${words[live.length]} cookie(s) of its own`);
 });
