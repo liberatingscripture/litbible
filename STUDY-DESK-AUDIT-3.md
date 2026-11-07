@@ -271,9 +271,68 @@ most (different regions; merge in session order).
 | 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions made; BDR reviews the format later |
 | 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | nothing now (decisions 3, 4, 5, 9 made) |
 
-**Status:** session 1 is done (2026-11-07, branch `claude/audit3-session1-shared-panels`):
-NB3-1, NB3-2, NB3-11 and NB3-12, checked live with the desk off and on. The
-chip layout's half of NB3-2 needs a touch screen and was not seen.
+**Status (2026-11-07): every finding is fixed and merged to `main`**, in the PRs below (two of them, #493 and #494, follow up BVJ's answers further down).
+Session 1 is merged (NB3-1, NB3-2, NB3-11, NB3-12, checked live with the desk off and on; the
+chip layout's half of NB3-2 needs a touch screen and was not seen). The rest, each finding
+marked Fixed in its appendix:
+
+| PR | Branch | Findings |
+|---|---|---|
+| #480 | `claude/audit3-session6-cleanups` | CP3-2, CP3-3, CP3-5, CP3-7, LG3-6, LG3-10, LG3-13 |
+| #481 | `claude/audit3-session2-notebook` | Session 2: LV3-1, NB3-6, LV3-3, NB3-3, NB3-5, NB3-7 to NB3-10, NB3-13, LV3-4(a), decision 13 |
+| #482 | `claude/audit3-session6-tests` | LG3-4, LG3-7, LG3-8, LG3-14 |
+| #483 | `claude/audit3-session6-checklist` | LG3-1, LG3-11 |
+| #484 | `claude/audit3-session3-desk-sheets` | Session 3: LV3-2, DK3-1 to DK3-12, SEC3-3, LV3-4(b), LV3-5, LV3-6, CP3-4 |
+| #485 | `claude/audit3-session4-greek` | Session 4: GK3-1 to GK3-17 |
+| #486 | `claude/audit3-session6-help` | NB3-4, NB3-14, CP3-6 (`/desk/help/`) |
+| #487 | `claude/audit3-session5-records` | Session 5: DI3-1 to DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5 |
+| #488 | `claude/audit3-session6-desk-page` | LG3-3, first sitting (stacked on #484) |
+| #489 | `claude/audit3-session6-more-tests` | LG3-9 (stacked on #484) |
+| #490 | `claude/audit3-session6-desk-doc` | LG3-5 |
+| #491 | `claude/audit3-session6-lazy-desk` | LG3-2, LG3-12 |
+| #493 | `claude/audit3-api2-vectors` | Decision 6 below (stacked on #487) |
+| #494 | `claude/audit3-menu-reasons` | Decision 5 below (stacked on #488) |
+
+Before merging, all twelve together passed the tests, `astro check`, the build and the link check.
+LG3-3 stays partly open by design (one extraction per sitting): what remains is named under it.
+
+**Decisions found while working the sessions, and BVJ's answers (2026-11-07).**
+
+1. **The margin pills' inline layout** (#481): reversing the DOM for decision 13 also flips the
+   inline layout, which now reads "Add a note, Pin". **BVJ: keep it** (one order everywhere).
+2. **Sheets on `/notebook`** (#481): LV3-3 took sheets out of My Notes; the notebook page's own
+   list still shows them under "Other items". **BVJ: keep them there**, on Claude's
+   recommendation. The notebook page is the desk's portable part, and it has no other list of
+   sheets.
+3. **`/privacy`** (#482): **BVJ: make it accurate and compliant.** Done in #482. Read View's
+   focus mode (`lit_rm_focus`) is now named with the display settings. "One cookie of its own"
+   was already right: the second cookie the test found (`lit_welcome_v2`) belongs to the retired,
+   unrendered `WelcomePopover.astro`. A test now holds both directions: every storage key the
+   code uses is named, and every cookie a rendered component sets is named and counted.
+4. **A sentence longer than a whole slide** (#484): it is split, not truncated. The sentence
+   continues on the next slide from the last word that fits, so nothing is left out. Sentences
+   are the cut points; a word is the cut only inside a single sentence too long for one slide.
+5. **A disabled menu item's reason** (#484): **BVJ asked for a fix; built in #494.** The menu's
+   description now names each unavailable line and why, so a screen reader hears it on
+   entering the menu. The arrow keys still skip the line. A pass with a real screen reader is
+   still owed.
+6. **`test/fixtures/api2-vectors.json`** (#487): **BVJ left it to Claude.** Regenerated in #493,
+   stacked on #487: anchor spec 4, and 53 chapter hashes from #463's topics change. No chapter's
+   words changed. BDR is to re-run the apps' vector test.
+7. **The desk's `CLAUDE.md`** (#490): **BVJ: OK**, keep the 150 KB cap with no rules rewrite.
+8. **Opening the Display tray loaded the whole desk** (#491): **BVJ: unnecessary. Fixed in
+   #491.** The tray's Notebook switches now come with the first stage (about 14 KB in all), so
+   opening the tray loads nothing more, and "Show the Notebook" works without the shell.
+
+Calls made in the sessions that BVJ may want to see, not decisions: a mark's words count as
+outside its verses by the verse they now begin in; a bookmark merge takes `client` from the
+later `modified`; a label name is capped at 200 characters; the imported-HTML scrub is a
+widened denylist rather than an allowlist; two or three plain words ("son of man") open in the
+Greek builder as a construction, per decision 12(2).
+
+Small follow-ups noticed, outside the findings: the .rtf numbers a nested ordered list "1."
+where .docx and .odt use "a."; `/search` listens to `input` only, so Chrome's Escape-to-clear
+leaves the old results; the store's asynchronous full-disk path (Chrome's) is untested.
 
 Sessions 1, 2, 4 and 5 touch different files and can run side by side. Session 3 shares
 `desk-page.js` with nothing else here. Session 6 edits the desk's `CLAUDE.md`, which every other
