@@ -1368,6 +1368,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-6 · Low · docs · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** `src/scripts/desk/CLAUDE.md` now says `bookmarkState`, and the sentence on the chapter-carrying link names the toolbar's pill (`ScriptureLayout.astro`), with the header link on the home page only.
+
 **Where** `src/scripts/desk/CLAUDE.md:541` and `:1136`.
 **What happens** Of 139 file names, 185 identifiers and 14 CSS classes I extracted from the lines added to the four area docs since Audit 2 (`syms.py`), all but these exist: (1) `bookmarkLine` at line 541 is `bookmarkState` in `bookmark-follow.js:119`. (2) Line 1136 says "The header's 'Study Desk' link carries the chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref` is the same address for code)". E50 (decided (b), 2026-11-06) moved that link: the header link is on the home page only (`SiteHeader.astro:10`, `deskLink`), and the chapter-carrying link is the pill in the scripture toolbar (`ScriptureLayout.astro:122-130,218`, local consts `deskPlaceHref`, `deskPlaceLabel`). No `deskPlace` prop exists. `ReadMenu.astro:242` also cites `desk-passage.mjs`'s `deskPlaceHref`, which does exist (`desk-passage.mjs:73`).
 **Fix** Rename the first; rewrite the second sentence to the pill. The other 38 sampled claims, and the four "held by test X" claims I checked (`desk-frame.test.js` for the `:has()` list, `desk-footnotes.test.js`, `desk-chapter-address.test.js`, `desk-anchor-dom.test.js`), are accurate.
