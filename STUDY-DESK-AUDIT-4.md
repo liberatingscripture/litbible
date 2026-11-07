@@ -31,14 +31,15 @@ leftovers (SEC4-1, SEC4-2, both since fixed) and the standing CSP decision (SEC4
 tab at the window's edge and one pill), every empty state says what to do, the offers have
 three plain answers, and both tours act on the real page and put it back, as checked live.
 The one thing a first-time reader meets that does not explain itself is the opening question,
-"Where should your notebook live?", whose two answers are the same place (FU4-1).
+"Where should your notebook live?", whose two answers are the same place (FU4-1, since made a
+statement until phase 4).
 
 **The tours: keep both, minor adjustments, not a restart.** Ten and seven steps is the right
 length, each step shows the thing working, Back, Skip this part, Skip the tour and Escape all
 behave, and the ending restores the page. One step was broken (TR4-1, fixed): "Search and
 commands" showed an empty search box, because the click that advances the tour also closes
-the tray the step had just opened. Four wording and ordering changes followed on BVJ's yes (TR4-2, TR4-3,
-TR4-5, TR4-6); TR4-4 is left as a suggestion.
+the tray the step had just opened. Five wording and ordering changes followed on BVJ's yes (TR4-2 to
+TR4-6).
 
 **Copy: already close to the house style.** Of 2,630 strings, nine sentences were improved
 (CP4-1 to CP4-7); the rest hold to the American conventions and the desk's naming rules.
@@ -129,7 +130,12 @@ own offer 1.2 seconds later. `/notebook/` opens with a one-sentence explanation 
 links; `/sheets/` says sheets are made on the Study Desk and links there. All of this reads
 well and asks nothing a reader can't answer, with the exceptions below.
 
-#### FU4-1 · Medium · design · for BVJ (D6)
+#### FU4-1 · Medium · design · FIXED (BVJ, 2026-11-07)
+
+> **Fixed, for now:** the card is a statement, "Your notebook is kept in this browser", with
+> one "Remind me to save a copy" checkbox (unchecked; it writes `browser-remind`), the Safari
+> line, the "Ways to keep your notebook" link and "Got it". BVJ: it will have more options, so
+> **revisit it as a choice once phase 4 is in play.**
 
 **"Where should your notebook live?" asks a question with one answer.** Both buttons keep the
 notebook in this browser; the only difference is a weekly reminder. The title promises a
@@ -142,7 +148,11 @@ save a copy", the Safari line where it applies, the "Ways to keep your notebook"
 one button, "Got it". `lit-desk-home` keeps its two values (the checkbox writes
 `browser-remind`), so nothing else changes. Not changed here: the card is BVJ's D6 decision.
 
-#### FU4-2 · Low · design · for BVJ (E9)
+#### FU4-2 · Low · design · FIXED (BVJ, 2026-11-07)
+
+> **Fixed:** My Notes leaves the row out while it names what is on screen (`continueIsHere`
+> in `desk-bookmarks.mjs`): this chapter, Read View's book, or /desk's leading LIT pane's
+> chapter. The notebook page, other pages and other chapters keep it.
 
 **On a first visit, "Continue reading" points at the page the reader is on.** The row appears
 in My Notes the moment a chapter opens, because the chapter writes `lit_last_read` on
@@ -230,7 +240,9 @@ thing is the panel that keeps it (step 5). Two options: move "Pin a footnote" af
 verse" (where footnotes are already on screen), or send it to the help page and run nine
 steps. Either keeps the three parts.
 
-#### TR4-4 · Low · wording
+#### TR4-4 · Low · wording · FIXED (BVJ, 2026-11-07)
+
+> **Fixed:** the step is titled "Undo, and Hide my marks".
 
 **"Undo, and a clean page" bundles two unrelated things**, Undo and "Hide my marks". Both are
 worth a sentence and the pairing saves a step, so keep it, but the title could name both:

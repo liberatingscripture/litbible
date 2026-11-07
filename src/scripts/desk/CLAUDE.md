@@ -674,7 +674,8 @@ against `dist/` is a later item.
        not brought back. **"Continue reading" is the one place that isn't a
        bookmark**: `lit_last_read` (last-read.js), never a record, shown with no
        bookmark mark by `continue-reading.js` above My Notes' list and first on
-       the notebook page. Read View's per-book places and other clients' places
+       the notebook page, and left out of My Notes while it names what is on
+       screen (`continueIsHere`; Audit 4, FU4-2). Read View's per-book places and other clients' places
        aren't listed. `last-read.js` dispatches `lit:last-read` on every save
        (nothing hears it unless the desk is on). **The C25 rule**: following a
        moving bookmark's link (from either list) sets
@@ -815,8 +816,9 @@ against `dist/` is a later item.
        `notebook-search.js` through `loadDeskSearch()`, never importing desk
        code (`test/desk-commands-window.test.js` holds it).
      - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
-       `desk/tour.js`): the "Where should your notebook live?" card
-       (`localStorage['lit-desk-home']`), the foot's reminder and Safari
+       `desk/tour.js`): the "Your notebook is kept in this browser" card, a
+       statement with a reminder checkbox and "Got it" until phase 4 gives a
+       second place to choose (BVJ, 2026-11-07, FU4-1; `localStorage['lit-desk-home']`), the foot's reminder and Safari
        line, and the tour (`lit-desk-tour`, which also holds the offer's
        markers: `later:<date>` and `never`). **The tour is offered in a
        window beside the Notebook** (BVJ, 2026-10-14), the first time it is

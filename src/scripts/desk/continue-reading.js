@@ -11,9 +11,12 @@
 // tab puts above its list and the /notebook/ page mounts as it is. It stays
 // where reader code keeps it (localStorage `lit_last_read`, last-read.js) and
 // is only read here; it is not a notebook record. It links to where the reader
-// was, in the view it was kept in, and moves as they read.
+// was, in the view it was kept in, and moves as they read. Where it names
+// what is already on screen (`here`: this chapter, Read View's book, /desk's
+// LIT pane) it is left out (Audit 4, FU4-2), so a first visit doesn't show a
+// row that looks like a bookmark the reader never made.
 
-import { continueItem } from "../../lib/desk-bookmarks.mjs";
+import { continueIsHere, continueItem } from "../../lib/desk-bookmarks.mjs";
 import { loadLastRead } from "../last-read.js";
 
 let seq = 0;
@@ -23,12 +26,14 @@ let seq = 0;
  * step with the reader (other tabs' saves, and this tab's as they read, slowly),
  * and has nothing to show for a reader who hasn't read yet: it stays hidden
  * unless `emptyText` is given. `section.refresh()` redraws it at once; the My
- * Notes tab calls that when it is shown.
+ * Notes tab calls that when it is shown. `here` says what is on screen
+ * (`continueIsHere`), where the row is left out.
  *
- * @param {{ emptyText?: string | null }} [options]
+ * @param {{ emptyText?: string | null,
+ *   here?: () => { bookKey: string, chapter?: number } | null }} [options]
  * @returns {HTMLElement & { refresh: () => void, destroy: () => void }}
  */
-export function continueSection({ emptyText = null } = {}) {
+export function continueSection({ emptyText = null, here = () => null } = {}) {
   const n = ++seq;
   const section = document.createElement("section");
   section.className = "desk-continue";
@@ -47,7 +52,8 @@ export function continueSection({ emptyText = null } = {}) {
   section.append(title, list, empty);
 
   function render() {
-    const item = continueItem(loadLastRead());
+    const last = loadLastRead();
+    const item = continueIsHere(last, here()) ? null : continueItem(last);
     if (item) {
       const li = document.createElement("li");
       li.className = "desk-item desk-item--continue";

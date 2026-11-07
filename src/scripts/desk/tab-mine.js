@@ -17,7 +17,8 @@
 // visit only, and goes back to All when its colour leaves the list.
 //
 // Continue reading (continue-reading.js) heads the tab, with no bookmark mark:
-// it is where the reader stopped, not something they marked. A bookmark is a
+// it is where the reader stopped, not something they marked, and it is left
+// out while it names what is on screen (FU4-2). A bookmark is a
 // row in the list like a note (E9): its name, Edit (the name, and "Move as I
 // read"), and Delete. One that moves as the reader reads says so, and following
 // its link starts it moving (bookmark-follow.js).
@@ -99,6 +100,8 @@ import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
 import { continueSection } from "./continue-reading.js";
+import { pageChapter } from "./page.js";
+import { readBook } from "./page-kind.js";
 import { showUndo } from "./undo-bar.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
@@ -212,8 +215,19 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
   if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
-  // Continue reading (continue-reading.js) sits above everything else, whatever the scope.
-  const continued = continueSection();
+  // The passage /desk's LIT pane is at (`follow`); null elsewhere.
+  let following = null;
+  // Continue reading (continue-reading.js) sits above everything else, whatever
+  // the scope, unless it names what is on screen (FU4-2): /desk's LIT pane's
+  // chapter, Read View's book, or this chapter.
+  const continued = continueSection({
+    here: () => {
+      if (following) return following;
+      if (!inReadView) return pageChapter();
+      const book = readBook();
+      return book ? { bookKey: book } : null;
+    },
+  });
   el.prepend(continued);
   const addButton = el.querySelector(".desk-mine__add");
   if (addButton) {
@@ -296,7 +310,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   let shown = []; // the records the list shows now, in its order
-  let following = null; // the passage /desk's LIT pane is at (follow)
   let followedOnce = false;
   let hereReady = false; // the first drawing is not announced
 
@@ -309,6 +322,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
    */
   function follow(p) {
     following = p ?? null;
+    continued.refresh();
     markHere();
     if (!p?.bookKey || !list.isConnected) return;
     const hit = followTarget(shown, p);

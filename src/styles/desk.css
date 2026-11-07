@@ -2743,6 +2743,18 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   margin-bottom: 0;
 }
 
+.desk-home-card__remind {
+  margin: 0 0 8px;
+}
+
+.desk-home-card__remind .desk-home-card__note {
+  margin-left: 24px;
+}
+
+.desk-home-card__done {
+  margin-top: 10px;
+}
+
 .desk-home-card__options {
   margin: 0 0 8px;
   padding: 0;
