@@ -58,5 +58,9 @@ search/
   lexicon (Tyndale House Cambridge, CC BY 4.0). As with step/ and lsj/,
   those glosses are formatted for this search and are not a copy of the
   data: to use the lexicon yourself, get it from
-  https://github.com/STEPBible/STEPBible-Data (CC BY 4.0). Apart from them,
-  this directory is licensed CC BY-SA 4.0.
+  https://github.com/STEPBible/STEPBible-Data (CC BY 4.0). Where a lemma's
+  step/ entry ends "(ML)" (Middle Liddell, above) and the brief gloss given
+  here is the same as that entry's, the gloss is treated as CC BY-SA 4.0
+  like the entry: the cautious route, until STEPBible confirms in writing
+  that it is not Perseus's text. Apart from the other glosses, this
+  directory is licensed CC BY-SA 4.0.

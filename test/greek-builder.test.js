@@ -96,7 +96,8 @@ test("every example the window offers is a search the builder can show, and writ
 test("one bare word is a card, and a plain word search is not something to build", () => {
   assert.deepEqual(readBuilder("πίστις").cards, [{ words: ["πίστις"], filters: [] }]);
   assert.deepEqual(readBuilder("faith").cards, [{ words: ["faith"], filters: [] }]);
-  assert.equal(readBuilder("son of man").cannot, "plain");
+  assert.equal(readBuilder("son of the man").cannot, "plain", "four plain words stay a word search of their own");
+  assert.equal(readBuilder("son of man").plain, true, "two or three are read as the construction the field runs (GK3-5)");
 });
 
 test("a search the builder can't show says why and is left to the field", () => {
@@ -104,7 +105,7 @@ test("a search the builder can't show says why and is left to the field", () => 
   const bad = readBuilder("πίστις.genetive");
   assert.equal(bad.cannot, "error");
   assert.match(cannotSay(bad), /Did you mean genitive/);
-  for (const r of [readBuilder("=πίστεως.gen"), readBuilder("son of man"), bad]) {
+  for (const r of [readBuilder("=πίστεως.gen"), readBuilder("son of the man"), bad]) {
     assert.ok(cannotSay(r).length > 20);
   }
   assert.equal(cannotSay({ cards: [] }), "");

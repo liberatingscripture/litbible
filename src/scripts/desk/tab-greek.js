@@ -22,6 +22,7 @@
 // changes the scripture on the page.
 
 import { describeParse } from "../../lib/greek-parse.mjs";
+import { plainTextOf } from "../../lib/desk-greek-text.mjs";
 import { GREEK_LICENSE_HREF, SOURCES } from "../../lib/greek-credits.mjs";
 import { parsingQuery } from "../../lib/greek-detect.mjs";
 import {
@@ -134,17 +135,23 @@ function sanitizeInto(to, html) {
  */
 function sourcesToggle(body) {
   if (!body.querySelector("abbr[title]")) return null;
-  const b = make("button", "desk-greek__sources", "Show sources");
+  // Its own class: "desk-greek__sources" is the credit block's, and a button
+  // given it was drawn as a pill around the licence (GK3-1). The label stays
+  // fixed and the state is aria-pressed alone; a label that also flips to
+  // "Hide sources" read as "Hide sources, pressed" (GK3-8).
+  const b = make("button", "desk-greek__show-sources", "Show sources");
   b.type = "button";
   b.setAttribute("aria-pressed", "false");
   b.addEventListener("click", () => {
     const on = b.getAttribute("aria-pressed") !== "true";
     b.setAttribute("aria-pressed", String(on));
-    b.textContent = on ? "Hide sources" : "Show sources";
     body.querySelectorAll(".lex-cite").forEach((c) => c.remove());
     if (!on) return;
     for (const a of body.querySelectorAll("abbr[title]")) {
-      const c = make("span", "lex-cite", ` [${a.getAttribute("title")}]`);
+      // Many titles hold Greek (28,920 of 76,389), so they go through the
+      // same language marking as the entry's own text (GK-2).
+      const c = make("span", "lex-cite");
+      appendLang(c, ` [${a.getAttribute("title")}]`);
       a.after(c);
     }
   });
@@ -232,6 +239,12 @@ export function createGreekTab({
   const wordHead = el.querySelector(".desk-greek__word");
   const parseLine = el.querySelector(".desk-greek__parse");
   const closeWord = el.querySelector(".desk-greek__close");
+  // A line for what the lazy search module is doing or couldn't do. It is in
+  // the page from the start and only its text changes, since a live region
+  // made with its text already in it is often not announced (GK3-13).
+  const findNote = make("p", "desk-greek__find-note");
+  findNote.setAttribute("role", "status");
+  parseLine?.after(findNote);
   const NO_WORD = "Select a word to see its dictionary entry. Left and Right move between words, Up and Down between verses.";
   const more = el.querySelector(".desk-greek__more");
   const lemmaLine = el.querySelector(".desk-greek__lemma");
@@ -291,17 +304,17 @@ export function createGreekTab({
 
   function openFind(opts) {
     const ask = ++findAsk;
-    el.querySelector(".desk-greek__find-failed")?.remove();
+    findNote.textContent = find ? "" : "Opening the Greek search…";
     loadFind().then(
       (f) => {
-        if (ask === findAsk && !destroyed) f.open(opts);
+        if (ask !== findAsk || destroyed) return;
+        findNote.textContent = "";
+        f.open(opts);
       },
       (err) => {
         console.error("Study Desk: the Greek search couldn't load", err);
         if (ask !== findAsk || destroyed) return;
-        const note = make("p", "desk-greek__find-failed", "The Greek search couldn’t be loaded. Try again.");
-        note.setAttribute("role", "status");
-        parseLine.after(note);
+        findNote.textContent = "The Greek search couldn’t be loaded. Try again.";
       },
     );
   }
@@ -671,7 +684,7 @@ export function createGreekTab({
     buttons[i].tabIndex = 0;
   }
 
-  function select(i, { focus = false, scroll = true } = {}) {
+  function select(i, { focus = false, scroll = true, pause = false } = {}) {
     if (i == null || !flat[i]) return;
     setRover(i);
     if (selected != null && buttons[selected]) {
@@ -686,7 +699,7 @@ export function createGreekTab({
     if (focus) buttons[i].focus({ preventScroll: true });
     // The details first: they take height from the text, so the word is
     // placed against the Greek's final size.
-    showDetails(i);
+    showDetails(i, { pause });
     if (scroll) bringIntoView(buttons[i]);
     queueGoto();
   }
@@ -706,6 +719,7 @@ export function createGreekTab({
     window.clearTimeout(lexTimer);
     wordHead.replaceChildren();
     parseLine.textContent = NO_WORD;
+    findNote.textContent = "";
     announce.replaceChildren();
     more.hidden = true;
     closeWord.hidden = true;
@@ -751,11 +765,8 @@ export function createGreekTab({
     }
     const html = box.innerHTML;
     for (const vn of box.querySelectorAll("sup")) vn.append(" ");
-    const blocks = box.querySelectorAll("p, h3, h4");
-    const text = (blocks.length ? [...blocks] : [box])
-      .map((n) => n.textContent.replace(/\s+/g, " ").trim())
-      .filter(Boolean)
-      .join("\n\n");
+    // Walked, not read by paragraph: a lexicon entry's body holds none (GK3-12).
+    const text = plainTextOf(box);
     if (!text) return;
     e.preventDefault();
     e.clipboardData.setData("text/plain", text);
@@ -804,7 +815,7 @@ export function createGreekTab({
     // The keys are the Greek's own, so the text doesn't scroll by itself.
     e.preventDefault();
     const to = moveFrom(flat, Number(word.dataset.i), e.key);
-    if (to != null) select(to, { focus: true });
+    if (to != null) select(to, { focus: true, pause: true });
   });
 
   /** Select the word at a verse and place, and (with focus) move focus to it. */
@@ -978,7 +989,7 @@ export function createGreekTab({
 
   const lemmaOf = (w) => data.lemmas?.[w[W.lemma]] ?? null;
 
-  function showDetails(i) {
+  function showDetails(i, { pause = false } = {}) {
     const { w, verse } = flat[i];
     const lemma = lemmaOf(w);
     const pos = w[W.pos];
@@ -998,6 +1009,8 @@ export function createGreekTab({
       starter(w[W.text], formQuery, () => openFind({ query: formQuery, exact: true, prefer: lemmaForm })),
     );
 
+    // A word's note about the search belongs to that word.
+    findNote.textContent = "";
     // The live line: the word and its parsing, in words with the code beside.
     parseLine.replaceChildren();
     let inWords = "";
@@ -1050,9 +1063,16 @@ export function createGreekTab({
       // The arrow keys select each word they pass, and each would ask for a
       // lexicon shard (up to 200 KB), so only the word the reader rests on
       // loads (GK-10). The word itself is announced at once, above.
-      lexBox.replaceChildren(make("p", "desk-greek__muted", "Loading…"));
+      // A click or a search answer rests on its word at once, so only the
+      // arrow keys wait (GK3-11); a word still shows "Loading…" until its
+      // entry arrives.
       window.clearTimeout(lexTimer);
-      lexTimer = window.setTimeout(renderLexicon, LEXICON_PAUSE);
+      if (pause) {
+        lexBox.replaceChildren(make("p", "desk-greek__muted", "Loading…"));
+        lexTimer = window.setTimeout(renderLexicon, LEXICON_PAUSE);
+      } else {
+        renderLexicon();
+      }
     } else {
       window.clearTimeout(lexTimer);
       lexBox.replaceChildren();

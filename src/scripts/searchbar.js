@@ -663,6 +663,17 @@ const _initSearchbars = async () => {
     // names and links as the Greek tab's sources (greek-credits.mjs).
     const greekCredit = () => `<p class="searchbar__credit">${gk.creditHtml(escapeHtml)}</p>`;
 
+    /** A Greek file wouldn’t load: say so, with a way to ask again (GK3-9; the loaders forget a failure). */
+    function greekFailedStatus(text) {
+      status.textContent = `${text} `;
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "greek-cmd-link";
+      retry.textContent = "Try again";
+      retry.addEventListener("click", () => runSearch(input.value.trim()));
+      status.append(retry);
+    }
+
     function renderGreekCommandsGroup(greek, q, bookKey) {
       const group = document.createElement("div");
       group.className = "searchbar__group";
@@ -681,7 +692,7 @@ const _initSearchbars = async () => {
             ? `<p class="searchbar__readback">${escapeHtml(msg.text.slice(0, at))}<button type="button" class="greek-cmd-link" data-greek-fix>${escapeHtml(msg.suggest)}</button>${escapeHtml(msg.text.slice(at + msg.suggest.length))}</p>`
             : `<p class="searchbar__readback">${escapeHtml(msg.text)}</p>`;
       } else if (failed) {
-        status.textContent = "The Greek search couldn’t be loaded.";
+        greekFailedStatus("The Greek search couldn’t be loaded.");
         return;
       } else if (!resolved) {
         status.textContent = "";
@@ -997,6 +1008,12 @@ const _initSearchbars = async () => {
           if (greek?.kind === "commands") {
             renderGreekCommandsGroup(greek, q, keywordBook);
             withNotebook();
+            renderActiveFilters();
+            return;
+          }
+          // The word's verses wouldn't load: not "no matches" (GK3-9).
+          if (greek?.selected && greek.failed) {
+            greekFailedStatus("The verses couldn’t be loaded.");
             renderActiveFilters();
             return;
           }

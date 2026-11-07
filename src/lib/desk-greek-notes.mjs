@@ -10,8 +10,9 @@
 // key -> string | null function, so the tests need no browser. The reading and
 // writing of localStorage are src/scripts/desk/notebook-search.js's, which both
 // search surfaces already load lazily, so the key lives here and nowhere else.
-// English searches are not governed by it, and neither is the desk's Search
-// pane, which lists no notes for a Greek search.
+// English searches are not governed by it. The desk's Search pane has the same
+// checkbox on its link row and lists the notes for a Greek search under all
+// types (search-pane.js).
 
 export const GREEK_NOTES_KEY = "lit-desk-greek-notes";
 
