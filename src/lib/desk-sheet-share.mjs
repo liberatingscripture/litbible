@@ -192,19 +192,44 @@ export async function shareLink(sheet, { origin, base = "/", ...opts } = {}) {
 
 /* ── The file ────────────────────────────────────────────────────────── */
 
-/** Formatted text as plain lines, for the human half of the file. */
+/**
+ * A line of the reader's own words for the file's Markdown half (DK3-12): a
+ * star, underscore, backquote or backslash can't start emphasis or code, and
+ * a line can't become a heading, a quotation or a list by how it begins.
+ */
+export function markdownLine(text) {
+  return String(text ?? "")
+    .replace(/[\\`*_]/g, "\\$&")
+    // At a line's start, or a list item's (plainText's stand-in, \u0001).
+    .replace(/^([ \t]*\u0001?[ \t]*)([#>+-]|\d+(?=[.)]))/gm, (_, space, mark) => (/\d/.test(mark) ? `${space}${mark}\\` : `${space}\\${mark}`));
+}
+
+// Stand-ins for the list marks and rules plainText writes itself, so they
+// aren't escaped as the reader's own words are.
+const ITEM = "\u0001";
+const RULE_LINE = "\u0002";
+
+/**
+ * Formatted text as plain lines, for the human half of the file: Markdown,
+ * paragraphs a blank line apart, a list item "- ", and the reader's own words
+ * escaped (markdownLine), so they read as written in a Markdown viewer.
+ */
 export function plainText(html) {
-  return String(html ?? "")
-    .replace(/<li[^>]*>/gi, "\n- ")
+  const text = String(html ?? "")
+    .replace(/[\u0001\u0002]/g, "")
+    .replace(/<li[^>]*>/gi, `\n${ITEM}`)
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/li>/gi, "")
-    .replace(/<\/(p|h2|h3|blockquote|ul|ol)>/gi, "\n")
-    .replace(/<hr[^>]*>/gi, "\n---\n")
+    .replace(/<\/(p|h2|h3|blockquote|ul|ol)>/gi, "\n\n")
+    .replace(/<hr[^>]*>/gi, `\n\n${RULE_LINE}\n\n`)
     .replace(/<[^>]+>/g, "")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, "\"")
-    .replace(/&amp;/g, "&")
+    .replace(/&amp;/g, "&");
+  return markdownLine(text)
+    .replace(/\u0001/g, "- ")
+    .replace(/\u0002/g, "---")
     // A sheet's own text can't plant a data line in the file (BA80).
     .replace(/<!--/g, "&lt;!--")
     .replace(/[ \t]+\n/g, "\n")
@@ -256,8 +281,8 @@ function describeModules(modules) {
 export async function shareFile(sheet, opts = {}) {
   const shared = sharedSheet(sheet, opts);
   const fragment = await shareFragment(sheet, opts);
-  const head = [`# ${shared.title.trim() || "Untitled sheet"}`];
-  if (shared.subtitle.trim()) head.push(shared.subtitle.trim());
+  const head = [`# ${markdownLine(shared.title.trim()) || "Untitled sheet"}`];
+  if (shared.subtitle.trim()) head.push(markdownLine(shared.subtitle.trim()));
   const how =
     "A sheet from the Study Desk on litbible.net. To open it, go to https://litbible.net/sheets/ on a computer and choose “Import a Study Desk file.” The passages are read from the LIT when it is opened, so they are named here, not quoted.";
   return [...head, "", how, "", ...describeModules(shared.modules).flatMap((b) => [b, ""]), `<!-- lit-sheet ${fragment} -->`, ""].join("\n");

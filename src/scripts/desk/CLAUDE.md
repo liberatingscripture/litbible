@@ -1519,7 +1519,12 @@ against `dist/` is a later item.
        (the deck, cutting by length, the layout, a text box's paragraphs) are
        `src/lib/desk-slides.mjs`, shared by `desk-slides-pptx.mjs`,
        `desk-slides-odp.mjs` and the print view, so all three lay a slide out
-       alike. The credit line is on the first and last slides and in the
+       alike. A paragraph too long for a slide is cut after a sentence
+       (DK3-1), since PowerPoint doesn't shrink a box's words on opening; a
+       passage with blanks is cut only at verse numbers, its two forms' words
+       differing. **Saved from the participant version the slides have no
+       speaker notes** (SEC3-3; BVJ, 2026-11-07): no answers, no Leader only
+       parts, no list of blanks. The credit line is on the first and last slides and in the
        properties. "PDF…" there is `printSlides`: a print-only copy of the
        slides, the page's `@page` rule swapped for the slide's size, every
        inline style `!important` (print.css turns everything black serif

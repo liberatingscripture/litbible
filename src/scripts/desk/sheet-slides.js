@@ -15,12 +15,15 @@
 // view. desk-slides.mjs lays the deck out, and its writers (or `printSlides`
 // here, for a PDF) draw it.
 //
-// Slides are the room's, so they are the same whichever version is on screen.
+// Slides are the room's, so they show the same whichever version is on
+// screen; only the leader's version has speaker notes (SEC3-3; BVJ,
+// 2026-11-07): saved from the participant version they carry no answers and
+// no Leader only parts, as the menu's "Participant version" line says.
 
 import { DOC_CREDIT, docRuns } from "../../lib/desk-sheet-doc.mjs";
 import { revealedWords, roomCodes } from "../../lib/desk-present.mjs";
 import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
-import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, deckSlides, slideBoxes, slideParagraphs } from "../../lib/desk-slides.mjs";
+import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, deckSlides, slideBoxes, slideParagraphs, titlePoints } from "../../lib/desk-slides.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
 import { rich } from "./sheet-copy.js";
 import { prepareDeck } from "./sheet-present.js";
@@ -101,18 +104,23 @@ function leaderOnly(notes) {
   return out;
 }
 
-/** Each code's PNG, drawn from the same SVG the start screen shows; a code that can't be drawn is left off. */
+/**
+ * Each code's PNG, drawn from the same SVG the start screen shows; a code that
+ * can't be drawn is left off, and `missing` counts it for the status line (DK3-6).
+ */
 async function codesWithPng(codes) {
   const out = [];
+  let missing = 0;
   for (const c of codes) {
     try {
       const { png } = await codePng(qrSvg(c.url, { title: `QR code for ${c.printable}` }));
       out.push({ ...c, png });
     } catch (err) {
+      missing += 1;
       console.error("Study Desk: a code to scan couldn't be drawn for the slides", err);
     }
   }
-  return out;
+  return { codes: out, missing };
 }
 
 /**
@@ -120,12 +128,14 @@ async function codesWithPng(codes) {
  * code on the first slide with its PNG.
  *
  * @param {object} sheet
+ * @param {{ participant?: boolean }} [opts] the participant version is on screen: no speaker notes
  */
-export async function readSlides(sheet) {
+export async function readSlides(sheet, { participant = false } = {}) {
   const deck = await prepareDeck(sheet);
   const before = (i) => Object.fromEntries(deck.words.map((w, k) => [k, k < i ? w.length : 0]));
   const through = (i) => Object.fromEntries(deck.words.map((w, k) => [k, k <= i ? w.length : 0]));
   const screens = [];
+  let codesMissing = 0;
 
   for (let i = 0; i < deck.screens.length; i++) {
     const s = deck.screens[i];
@@ -133,11 +143,13 @@ export async function readSlides(sheet) {
     const notes = leaderOnly(s.notes);
     if (s.kind === "start") {
       const { codes, more } = roomCodes(sheet);
+      const drawn = await codesWithPng(codes);
+      codesMissing = drawn.missing;
       screens.push({
         kind: "start",
         title: sheetName(sheet),
         subtitle: sheet.subtitle?.trim() ?? "",
-        codes: await codesWithPng(codes),
+        codes: drawn.codes,
         addresses: [...codes, ...more].map((c) => c.printable).join(" · "),
         notes,
       });
@@ -185,7 +197,8 @@ export async function readSlides(sheet) {
   // Leave the deck's screens as present mode would start them.
   deck.built.forEach((b, i) => b.update({ screen: i, revealed: {}, notes: {} }, new Set()));
 
-  return { title: sheetName(sheet), slides: deckSlides(screens, { credit: DOC_CREDIT }) };
+  const slides = deckSlides(screens, { credit: DOC_CREDIT, participant });
+  return { title: sheetName(sheet), slides, ...(codesMissing ? { codesMissing } : {}) };
 }
 
 /* ── The PDF: the slides printed, one to a page ───────────────────────── */
@@ -273,7 +286,7 @@ function slideEl(slide) {
   const words = { color: SLIDE_LOOK.words, font: TEXT_FONT };
   const quiet = { color: SLIDE_LOOK.quiet, font: TEXT_FONT };
   if (slide.kind === "start") {
-    el.append(boxEl(boxes.title, plain(slide.title), { ...words, pt: SLIDE_PT.title, b: true, font: HEAD_FONT, align: "center", anchor: "end" }));
+    el.append(boxEl(boxes.title, plain(slide.title), { ...words, pt: titlePoints(slide), b: true, font: HEAD_FONT, align: "center", anchor: "end" }));
     if (slide.subtitle) el.append(boxEl(boxes.subtitle, plain(slide.subtitle), { ...quiet, pt: SLIDE_PT.subtitle, i: true, align: "center" }));
     const codes = (slide.codes ?? []).filter((c) => c.png);
     if (codes.length) {

@@ -13,14 +13,21 @@
 //      than animations, which PowerPoint, Impress and Google Slides each play
 //      differently. Clicking forward is the reveal.
 //   2. The Leader only parts and each question's answer go in the speaker
-//      notes, as present mode sends them to the presenter view.
+//      notes, as present mode sends them to the presenter view. Slides saved
+//      while the participant version is on screen have no speaker notes at
+//      all (SEC3-3; BVJ, 2026-11-07, decision 6): no answers, no Leader only
+//      parts, no list of a slide's blanks.
 //   3. The footnotes a passage shows get a slide of their own after it, so the
 //      verses stay large.
 //   4. The full credit line on the first slide and on a short closing slide,
 //      and in the file's properties.
 // A long passage is cut across slides by length (`SLIDE_CHARS`), between
 // paragraphs or before a verse number, since a file can't measure its text as
-// present mode does.
+// present mode does. A paragraph still too long (a text part's sermon notes, a
+// verse without blanks longer than a slide) is cut after a sentence, across
+// as many slides as it needs (DK3-1; BVJ, 2026-11-07), because PowerPoint
+// doesn't shrink a text box's words when a file opens; a sentence longer than
+// a slide is cut after a word. A long title is set smaller (`titlePoints`).
 //
 // The look is present mode's room screen (sheets-page.css, .present-stage):
 // dark in either theme, its words, its green for a passage's reference, its
@@ -155,6 +162,77 @@ function chooseCuts(inlines, max) {
   return chosen;
 }
 
+/**
+ * Where a paragraph's text may be cut between sentences: after a sentence's
+ * closing mark, any closing quotes or brackets, and the space that follows,
+ * as offsets into its text (inlineText).
+ */
+export function sentenceEnds(text) {
+  const at = [];
+  for (const m of String(text).matchAll(/[.!?…]+[”’"')\]]*\s+(?=\S)/g)) at.push(m.index + m[0].length);
+  return at;
+}
+
+/**
+ * Inline pieces cut at a character offset into their text: [before, after].
+ * A text piece is split; one holding others (a link, a style) is split into
+ * two of itself; a verse number, footnote letter or blank is never cut inside.
+ */
+function splitInlines(nodes, at) {
+  const left = [];
+  const right = [];
+  let pos = 0;
+  for (const n of nodes) {
+    const len = inlineText([n]).length;
+    if (pos + len <= at) left.push(n);
+    else if (pos >= at) right.push(n);
+    else if (n.t === "text") {
+      left.push({ ...n, text: n.text.slice(0, at - pos) });
+      right.push({ ...n, text: n.text.slice(at - pos) });
+    } else if (n.kids) {
+      const [l, r] = splitInlines(n.kids, at - pos);
+      if (l.length) left.push({ ...n, kids: l });
+      if (r.length) right.push({ ...n, kids: r });
+    } else left.push(n);
+    pos += len;
+  }
+  return [left, right];
+}
+
+/**
+ * A paragraph longer than `max` cut after its sentences into pieces of about
+ * `max` each, as chooseCuts cuts a passage before its verses. A sentence
+ * longer than `max` on its own is cut after its last word that fits.
+ */
+function cutSentences(b, max) {
+  const text = inlineText(b.inlines);
+  const ends = sentenceEnds(text);
+  const cuts = [];
+  let start = 0;
+  while (text.slice(start).replace(/\s+/g, " ").trim().length > max) {
+    let cut = ends.filter((e) => e > start && e <= start + max).at(-1);
+    if (cut === undefined) {
+      let k = start + max - 1;
+      while (k > start && !/\s/.test(text[k])) k--;
+      cut = k > start ? k + 1 : undefined;
+    }
+    if (cut === undefined) break;
+    cuts.push(cut);
+    start = cut;
+  }
+  const pieces = [];
+  let rest = b.inlines;
+  let done = 0;
+  for (const cut of cuts) {
+    const [left, right] = splitInlines(rest, cut - done);
+    pieces.push({ ...b, inlines: left });
+    rest = right;
+    done = cut;
+  }
+  pieces.push({ ...b, inlines: rest });
+  return pieces;
+}
+
 /** A paragraph cut before the chosen verse numbers (by their order, so both forms of a passage cut alike). */
 function cutAt(b, chosen) {
   const cuts = verseCuts(b.inlines);
@@ -166,6 +244,9 @@ function cutAt(b, chosen) {
  * A passage's blocks in slide-sized groups: whole paragraphs while they fit,
  * a long one cut before a verse number. `covered` is the same blocks with the
  * blanks covered, cut in the same places, or null when nothing is blanked.
+ * Without a covered form, a piece still too long is cut after a sentence
+ * (cutSentences), and a quotation or box too long is cut between its blocks;
+ * with one, the two forms' words differ, so only verse numbers cut them.
  *
  * @returns {{ revealed: object[], covered: object[] | null }[]}
  */
@@ -181,7 +262,12 @@ export function splitPassage(revealed, covered = null, max = SLIDE_CHARS) {
       const chosen = chooseCuts(b.inlines, max);
       const r = cutAt(b, chosen);
       const cs = c ? cutAt(c, chosen) : null;
-      r.forEach((piece, k) => pairs.push([piece, cs ? cs[k] : null]));
+      r.forEach((piece, k) => {
+        if (!cs && blockLength(piece) > max) for (const s of cutSentences(piece, max)) pairs.push([s, null]);
+        else pairs.push([piece, cs ? cs[k] : null]);
+      });
+    } else if (!covered && b.blocks && blockLength(b) > max) {
+      for (const g of splitBlocks(b.blocks, max)) pairs.push([{ ...b, blocks: g }, null]);
     } else pairs.push([b, c]);
   });
   const groups = [];
@@ -247,10 +333,13 @@ const para = (text) => ({ type: "para", inlines: [{ t: "text", text }] });
  * credit and addresses.
  *
  * @param {object[]} screens
- * @param {{ credit: string, max?: number }} opts
+ * `participant`: the participant version is on screen, so no slide has
+ * speaker notes (decision 2 above).
+ *
+ * @param {{ credit: string, max?: number, participant?: boolean }} opts
  * @returns {{ kind: string, heading: string | null, blocks: object[], notes: object[] }[]}
  */
-export function deckSlides(screens, { credit, max = SLIDE_CHARS }) {
+export function deckSlides(screens, { credit, max = SLIDE_CHARS, participant = false }) {
   const slides = [];
   let addresses = "";
   for (const s of screens) {
@@ -305,13 +394,15 @@ export function deckSlides(screens, { credit, max = SLIDE_CHARS }) {
     parts.forEach((blocks, i) => slides.push({ kind: s.kind, heading: null, blocks, notes: i ? [] : s.notes ?? [] }));
   }
   slides.push({ kind: "end", heading: null, blocks: [], notes: [], credit, addresses });
-  return slides;
+  return participant ? slides.map((slide) => ({ ...slide, notes: [] })) : slides;
 }
 
 /* ── A text box's paragraphs ──────────────────────────────────────────── */
 
 /** Inches of indent per list level. */
 export const LIST_STEP = 0.4;
+/** Inches a quotation is moved in, and a list inside one with it (DK3-4). */
+const QUOTE_INSET = 0.5;
 
 const BULLETS = ["•", "◦", "▪"];
 const roman = (n) => {
@@ -341,24 +432,25 @@ export function listLabel(ordered, level, n) {
 export function slideParagraphs(blocks, { toRuns = slideRuns } = {}) {
   const out = [];
   const textRuns = (text) => toRuns([{ t: "text", text: text ?? "" }]);
-  const list = (b, level) => {
+  const list = (b, level, quoted = false) => {
     let n = 0;
     for (const item of b.items) {
       n += 1;
       out.push({
         runs: toRuns(item.inlines),
-        marL: LIST_STEP * (level + 1),
+        i: quoted,
+        marL: (quoted ? QUOTE_INSET : 0) + LIST_STEP * (level + 1),
         indent: -LIST_STEP * 0.8,
         list: { ordered: !!b.ordered, level, n, label: listLabel(!!b.ordered, level, n) },
       });
-      for (const sub of item.lists ?? []) list(sub, level + 1);
+      for (const sub of item.lists ?? []) list(sub, level + 1, quoted);
     }
   };
   const walk = (list_, quoted) => {
     for (const b of list_) {
       switch (b.type) {
         case "para":
-          out.push({ runs: toRuns(b.inlines), i: quoted, align: b.align, marL: b.poetry || quoted ? 0.5 : 0 });
+          out.push({ runs: toRuns(b.inlines), i: quoted, align: b.align, marL: b.poetry || quoted ? QUOTE_INSET : 0 });
           break;
         case "heading":
           out.push({ runs: toRuns(b.inlines), b: true, heading: true, scale: b.level === 2 ? 1.2 : 1.08, align: b.align });
@@ -367,7 +459,7 @@ export function slideParagraphs(blocks, { toRuns = slideRuns } = {}) {
         case "tag":
           out.push({ runs: textRuns(b.text), b: b.type === "section", i: b.type === "tag" });
           break;
-        case "list": list(b, 0); break;
+        case "list": list(b, 0, quoted); break;
         case "quote":
         case "box":
           walk(b.blocks, quoted || b.type === "quote");
@@ -382,6 +474,24 @@ export function slideParagraphs(blocks, { toRuns = slideRuns } = {}) {
   };
   walk(blocks ?? [], false);
   return out.map((p) => ({ b: false, i: false, heading: false, scale: 1, align: null, marL: 0, indent: 0, list: null, ...p }));
+}
+
+/**
+ * The start slide's title size, in points: SLIDE_PT.title, or smaller for a
+ * long title, so its lines fit the title's box and the room above it (a title
+ * box grows upward, and PowerPoint doesn't shrink it when the file opens).
+ * About 0.55 of the size per character, and lines 1.2 times the size.
+ */
+export function titlePoints(slide) {
+  const box = slideBoxes({ ...slide, kind: "start" }).title;
+  const room = box.y + box.h - 0.35;
+  const chars = String(slide.title ?? "").length;
+  for (const pt of [SLIDE_PT.title, 40, 34, 28, 24, 20]) {
+    const perLine = Math.floor((box.w * 72) / (0.55 * pt));
+    const lines = Math.max(1, Math.ceil(chars / perLine));
+    if ((lines * 1.2 * pt) / 72 <= room) return pt;
+  }
+  return 20;
 }
 
 /** The type size of a slide's body, in points. */
