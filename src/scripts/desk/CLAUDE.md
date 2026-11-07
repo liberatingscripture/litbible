@@ -862,7 +862,10 @@ against `dist/` is a later item.
        menu", "Set the widths" is in the help page, and the notebook page and
        where it's kept are one step (`kept`). The retired ids stay in a
        reader's stored list and are ignored, so nobody is offered a new tour
-       for steps that went (tested).
+       for steps that went (tested). **Audit 4 (BVJ, 2026-11-07; TR4-2,
+       TR4-3): "Pin a footnote" runs in the Notebook part, right after "This
+       verse", and "Open the menu" leaves "Move as I read" to the help page
+       and the Edit bookmark form.**
        - **The desk tour acts fully and writes nothing** (BVJ: "make sure
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found

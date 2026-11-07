@@ -306,9 +306,10 @@ test("the Study Desk tour has its own steps, wording and parts", () => {
   }
   // Parts run in order, never interleaved.
   assert.deepEqual(DESK_TOUR_STEPS.map((s) => s.part), [...DESK_TOUR_STEPS.map((s) => s.part)].sort());
-  // The wording BVJ chose for the third step (2026-11-02).
+  // The wording BVJ chose for the third step (2026-11-02), with the clause
+  // saying the second LIT pane is the tour's (Audit 4, TR4-6; BVJ, 2026-11-07).
   assert.equal(DESK_TOUR_STEPS[2].title, "Reading in sync");
-  assert.match(stepBody(DESK_TOUR_STEPS[2], null), /follow the LIT pane\. Move through the LIT, and they move with it\. With two LIT panes open, the one you selected most recently is marked with a flag\.$/);
+  assert.match(stepBody(DESK_TOUR_STEPS[2], null), /follow the LIT pane\. Move through the LIT, and they move with it\. With two LIT panes open, as here for the tour, the one you selected most recently is marked with a flag\.$/);
 });
 
 test("the two tours share no step id, so each one's list means only its own", () => {
@@ -373,9 +374,13 @@ test("planning the Study Desk tour numbers its steps, splits it in two parts and
 
 test("the notebook tour was cut from 14 steps to 10 (BVJ, 2026-11-02), and retired ids offer nothing", () => {
   const study = planTour({ available: new Set(TOUR_STEPS.map((s) => s.id)), view: "study" }).map((s) => s.id);
-  assert.deepEqual(study, ["actions", "note", "margin", "pin", "panel", "verse", "greek", "undo", "search", "kept"]);
-  // The menu step names what the cut steps taught.
-  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add bookmark,” and “Highlight\.”.*Move as I read/);
+  // "Pin a footnote" follows "This verse" (Audit 4, TR4-3; BVJ, 2026-11-07).
+  assert.deepEqual(study, ["actions", "note", "margin", "panel", "verse", "pin", "greek", "undo", "search", "kept"]);
+  assert.equal(TOUR_STEPS.find((s) => s.id === "pin").part, TOUR_STEPS.find((s) => s.id === "verse").part);
+  // The menu step names what the cut steps taught; "Move as I read" is left
+  // to the help page and the Edit bookmark form (Audit 4, TR4-2; BVJ, 2026-11-07).
+  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add bookmark,” and “Highlight\.”/);
+  for (const view of ["study", "read"]) assert.doesNotMatch(stepBody(TOUR_STEPS[0], view), /Move as I read/);
   // A reader who took the 14-step tour has the retired ids stored: ignored, kept, and no "new" offer.
   const retired = ["highlight", "bookmark", "widths", "notebook-page"];
   const stored = [...TOUR_STEPS.map((s) => s.id), ...retired];

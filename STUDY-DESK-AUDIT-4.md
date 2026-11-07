@@ -37,8 +37,8 @@ The one thing a first-time reader meets that does not explain itself is the open
 length, each step shows the thing working, Back, Skip this part, Skip the tour and Escape all
 behave, and the ending restores the page. One step was broken (TR4-1, fixed): "Search and
 commands" showed an empty search box, because the click that advances the tour also closes
-the tray the step had just opened. Four wording and ordering suggestions follow (TR4-2 to
-TR4-7).
+the tray the step had just opened. Four wording and ordering changes followed on BVJ's yes (TR4-2, TR4-3,
+TR4-5, TR4-6); TR4-4 is left as a suggestion.
 
 **Copy: already close to the house style.** Of 2,630 strings, nine sentences were improved
 (CP4-1 to CP4-7); the rest hold to the American conventions and the desk's naming rules.
@@ -201,7 +201,10 @@ The card's words changed to match (`desk-first-use.mjs`): "The search box search
 notebook as well as the text. Typing “>” lists its commands, such as hiding your marks,
 printing, and taking this tour again. Here it lists them." Verified live.
 
-#### TR4-2 · Low · wording · for BVJ
+#### TR4-2 · Low · wording · FIXED (BVJ, 2026-11-07)
+
+> **Fixed:** the "Move as I read" sentence is out of "Open the menu" in both views; the
+> help page's Bookmarks section and the Edit bookmark form's hint carry it.
 
 **Step 1, "Open the menu", carries four ideas in eight lines**: the verse menu, the selection
 panel, that a bookmark stays put, and "Move as I read". The last is an advanced feature a
@@ -210,7 +213,10 @@ help page. Dropping that sentence makes the card five lines. It was folded in wh
 the tour (2026-11-02), and `test/desk-first-use.test.js:378` records that fold, so this is
 BVJ's call.
 
-#### TR4-3 · Low · ordering · for BVJ
+#### TR4-3 · Low · ordering · FIXED (BVJ, 2026-11-07)
+
+> **Fixed, the first option:** "Pin a footnote" runs in part 2, "The Notebook", right after
+> "This verse", whose tab lists the footnotes it pins. Still ten steps; part 1 is three.
 
 **"Pin a footnote" is step 4 of 10, before the Notebook itself is shown.** Pinning is a niche
 action; a first-time reader has just seen a note written and placed, and the next most useful
@@ -224,7 +230,10 @@ steps. Either keeps the three parts.
 worth a sentence and the pairing saves a step, so keep it, but the title could name both:
 "Undo, and Hide my marks". Not changed: a one-line preference, left for BVJ.
 
-#### TR4-5 · Low · wording · desk tour
+#### TR4-5 · Low · wording · desk tour · FIXED (BVJ, 2026-11-07)
+
+> **Fixed:** the two sentences are one: "For the tour the desk shows its original layout,
+> and yours comes back at the end."
 
 **"Your panes" ends with two sentences a first-time reader has no use for**: "For the tour the
 desk shows its original layout. Yours comes back at the end." They matter only to a reader
@@ -233,7 +242,10 @@ saved." Suggest one clause, "The desk shows its original layout for the tour; yo
 at the end," or moving it into the offer. The three later "only for the tour" lines (Stay
 here, Add pane, Layout) earn their place, since each visibly changes the desk.
 
-#### TR4-6 · Nit · wording · desk tour
+#### TR4-6 · Nit · wording · desk tour · FIXED (BVJ, 2026-11-07)
+
+> **Fixed:** "With two LIT panes open, as here for the tour, the one you selected most
+> recently is marked with a flag." BVJ's sentence otherwise stands.
 
 **"Reading in sync" adds a second LIT pane without saying so.** "With two LIT panes open, the
 one you selected most recently is marked with a flag" implies the reader opened them. Suggest

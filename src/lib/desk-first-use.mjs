@@ -139,6 +139,12 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  * notebook page and where it's kept are one step. A retired id stays in a
  * reader's stored list and is ignored (`parseTourState`), so nobody is offered
  * a new tour for steps that went.
+ *
+ * Audit 4 (BVJ, 2026-11-07; TR4-2, TR4-3): "Open the menu" no longer explains
+ * "Move as I read", which the help page and the Edit bookmark form's hint
+ * cover, so the first card is five lines; and "Pin a footnote" runs in the
+ * Notebook part, right after "This verse", whose tab lists the footnotes it
+ * pins, rather than before the Notebook has been shown. Still 10 steps.
  */
 export const TOUR_STEPS = [
   {
@@ -150,8 +156,8 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in the Display tray. A bookmark stays on its verse until you remove it, and “Move as I read” in the Notebook makes it follow you through a book.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },
@@ -182,18 +188,6 @@ export const TOUR_STEPS = [
     },
   },
   {
-    id: "pin",
-    part: 0,
-    views: ["study"],
-    since: "1h",
-    notebook: true,
-    title: "Pin a footnote",
-    body: {
-      default:
-        "Select a footnote letter, then the thumbtack button, “Pin footnote,” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
-    },
-  },
-  {
     id: "panel",
     part: 1,
     views: ["study", "read", "prose"],
@@ -215,6 +209,18 @@ export const TOUR_STEPS = [
     body: {
       default:
         "Everything on one verse: its footnotes, your notes, and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
+    },
+  },
+  {
+    id: "pin",
+    part: 1,
+    views: ["study"],
+    since: "1h",
+    notebook: true,
+    title: "Pin a footnote",
+    body: {
+      default:
+        "Select a footnote letter, then the thumbtack button, “Pin footnote,” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
     },
   },
   {
@@ -406,7 +412,7 @@ export const DESK_TOUR_STEPS = [
     title: "Your panes",
     body: {
       default:
-        "Each pane shows one thing: the LIT, the Greek, your notes, and more. A pane’s name is a menu for showing something else there. Drag a pane by its header to move it, and × closes it. For the tour the desk shows its original layout. Yours comes back at the end.",
+        "Each pane shows one thing: the LIT, the Greek, your notes, and more. A pane’s name is a menu for showing something else there. Drag a pane by its header to move it, and × closes it. For the tour the desk shows its original layout, and yours comes back at the end.",
     },
   },
   {
@@ -428,7 +434,7 @@ export const DESK_TOUR_STEPS = [
     title: "Reading in sync",
     body: {
       default:
-        "My Notes, This verse, Greek, Footnotes, and Book Intro follow the LIT pane. Move through the LIT, and they move with it. With two LIT panes open, the one you selected most recently is marked with a flag.",
+        "My Notes, This verse, Greek, Footnotes, and Book Intro follow the LIT pane. Move through the LIT, and they move with it. With two LIT panes open, as here for the tour, the one you selected most recently is marked with a flag.",
     },
   },
   {
