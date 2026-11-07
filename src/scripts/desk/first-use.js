@@ -141,7 +141,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   add(
     "browser-remind",
     "Keep it in this browser, and remind me to save a copy",
-    "The same, and the panel reminds you when it has been a week since your last copy. Clearing the browser’s data still removes the notebook, but your copy is safe.",
+    "Also kept in this browser, and the Notebook reminds you when it has been a week since your last copy. Clearing the browser’s data still removes the notebook, but your copy is safe.",
   );
   choice.append(options);
   if (safari) choice.append(el("p", "desk-home-card__safari", SAFARI_LINE));

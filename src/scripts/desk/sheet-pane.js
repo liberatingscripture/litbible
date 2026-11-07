@@ -214,7 +214,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   };
 
   if (!store) {
-    content.append(make("p", "desk-pane__later", "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes."));
+    content.append(make("p", "desk-pane__later", "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep sheets."));
     return { el, destroy() {} };
   }
 

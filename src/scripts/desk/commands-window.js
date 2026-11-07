@@ -29,7 +29,7 @@ const MAX_HEIGHT = 520;
 const MIN_HEIGHT = 240;
 
 export const COMMANDS_LEAD =
-  "Type “>” in the search box to list these, or the start of a few of their words, such as “hide marks.” Select one here to run it.";
+  "Type “>” in the search box to list these, or type the first words of one, such as “hide marks.” Select one here to run it.";
 export const COMMANDS_MORE = "More appear when you are reading a chapter.";
 
 /** The open window: { win, anchor, beside, opener }, or null. */

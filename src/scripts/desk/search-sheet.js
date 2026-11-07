@@ -302,7 +302,7 @@ async function openPanel(bar) {
   } catch (err) {
     console.error("Study Desk: couldn’t read the sheets", err);
     if (bar.panel === panel) {
-      intro.textContent = "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes.";
+      intro.textContent = "This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep sheets.";
       fresh.disabled = true;
     }
     return;
@@ -356,7 +356,7 @@ async function gather(bar, into) {
     store = await notebook();
   } catch (err) {
     console.error("Study Desk: couldn’t open the notebook", err);
-    fail("This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep notes.");
+    fail("This browser isn’t letting the site keep a notebook, so sheets can’t be saved here. Private windows sometimes don’t. Open the site in a regular window to keep sheets.");
     return;
   }
   // The fetching comes first, so the sheet is read only inside the write.

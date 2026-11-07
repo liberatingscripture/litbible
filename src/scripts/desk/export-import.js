@@ -38,7 +38,7 @@ const FORMATS = [
   {
     id: "markdown",
     label: "Markdown",
-    about: "For reading and editing. Opens in any text editor. Words you change here come back in when you open it.",
+    about: "For reading and editing. Opens in any text editor, and words you change there come back when you open the file here.",
     make: toMarkdown,
     type: "text/markdown;charset=utf-8",
   },

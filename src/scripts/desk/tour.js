@@ -310,7 +310,18 @@ export function createTour({ panel, canKeep = true }) {
       if (!visible(input)) return null;
       const root = input.closest("[data-searchbar]");
       const before = input.value;
-      input.value = "notebook";
+      // The click on the card that brought the tour here is still bubbling,
+      // and the tray closes on any click outside itself (searchbar.js), so
+      // the tray is opened only once that click is over; opened within it,
+      // it shut at once and the step showed an empty box.
+      await frame();
+      // ">" lists the box's commands, the one thing a reader with an empty
+      // notebook can be shown. The commands are the box's desk part, loaded
+      // on its first focus (searchbar.js listens for focusin), and once it
+      // arrives a query already in the box is searched again, so the list
+      // comes up as soon as it is ready.
+      root?.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+      input.value = ">";
       input.dispatchEvent(new Event("input", { bubbles: true }));
       later(() => {
         input.value = before;
@@ -318,7 +329,8 @@ export function createTour({ panel, canKeep = true }) {
         root?.querySelector(".searchbar__close")?.click();
       });
       await wait(200);
-      return { el: input, marks: [input] };
+      // Beside the box, not under it, where the card would cover the list.
+      return { el: input, side: "right", marks: [input] };
     },
 
     // The notebook page's link and the foot that says where it's kept.
