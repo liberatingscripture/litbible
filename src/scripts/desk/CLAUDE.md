@@ -35,7 +35,8 @@ From the root's routing table.
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/desk/help` | `desk/help.astro` (`desk-help.css`) | **One help page for the whole desk** (the Notebook, /desk, sheets, the Greek; BVJ, 2026-11-07). `/notebook/help/` redirects to it (`redirects` in `astro.config.mjs`; the static redirect page drops a `#fragment`, so link `HELP_HREF`/`WAYS_HREF`, never the old address). A static page that reads without the desk: noindex, out of the sitemap (`desk/help` in the filter) and Pagefind. **A feature that adds a pane, a menu item, or a sheet tool gets its sentence there**; counts come from `MAX_PANES`, `MAX_FOLLOWING`, `TRASH_DAYS`, never typed |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
 | `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 
@@ -69,7 +70,7 @@ means each of these, in one change:
    measure and widths), `glossary.css` ("Readers keep the wide glossary until
    the desk is released"), `read-mode.css`.
 5. The pages' preview copy and loading/off pairs: `desk.astro`, `notebook.astro`,
-   `sheets.astro`, `notebook/help.astro`, and the matching rules in
+   `sheets.astro`, `desk/help.astro`, and the matching rules in
    `desk-page.css`, `notebook.css`, `sheets-page.css`. The "off" note must still
    say something true for no-JS and phones.
 6. `/privacy`'s notebook paragraph ("Readers who switch on the notebook, a
@@ -473,9 +474,9 @@ against `dist/` is a later item.
      fetched only when a notice opens. A highlight carrying
      a notice is never merged or trimmed (`placeHighlights`).
   13. **Phase 1d is the notebook around the marks** (built 2026-10-12).
-     - **The notebook page**, `/notebook/` (`pages/notebook.astro`), and its
-       help, `/notebook/help/`: noindex, out of the sitemap (one `notebook/`
-       prefix rule in `astro.config.mjs`) and out of Pagefind (Layout's
+     - **The notebook page**, `/notebook/` (`pages/notebook.astro`): noindex,
+       out of the sitemap (one `notebook/` prefix rule in `astro.config.mjs`;
+       its help is `/desk/help/`, see Routes) and out of Pagefind (Layout's
        default). `desk-gate.js` loads `desk/notebook-page.js` when
        `[data-notebook-page]` is present; the page isn't a reading surface,
        so it has no panel, and without the preview it shows only a short
