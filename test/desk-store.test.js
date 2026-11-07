@@ -98,8 +98,12 @@ test("a put that fails with QuotaExceededError inside a change writes nothing, r
   const entry = store.lastEntry();
   assert.ok(entry, "the earlier save is in the history");
 
+  // Only a notice naming this change's records counts: the BroadcastChannel is
+  // shared by every store in the process, so an earlier test's store can post
+  // a change that this one hears as another tab's.
+  const failing = new Set();
   let heard = 0;
-  store.subscribe(() => { heard += 1; });
+  store.subscribe((ids) => { if (ids.some((id) => failing.has(id))) heard += 1; });
   let entries = 0;
   store.onEntry(() => { entries += 1; });
 
@@ -115,6 +119,7 @@ test("a put that fails with QuotaExceededError inside a change writes nothing, r
   };
   const first = note();
   const second = note();
+  failing.add(first.id).add(second.id);
   try {
     await assert.rejects(
       store.change(() => ({ put: [first, second], remove: [] })),
