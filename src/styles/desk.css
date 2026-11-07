@@ -1101,9 +1101,8 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 }
 
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
-   the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
-   `ribbon` (named `bookmark` until E10), is green and always comes with
-   words, so the two read apart. */
+   the verse (a trial, BVJ 2026-10-07). The note marker `ribbon` (named
+   `bookmark` until E10) is drawn as an awareness ribbon (E42) and is green. */
 .desk-bookmark-mark {
   position: absolute;
   width: 14px;
@@ -2951,7 +2950,8 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.12);
 }
 
-/* What a step points at. A dashed outline, so it isn't mistaken for focus. */
+/* The control a step points at (never the page's own text, E30). A dashed
+   outline, so it isn't mistaken for focus. */
 .desk-tour-target {
   outline: 2px dashed var(--green-text);
   outline-offset: 3px;
