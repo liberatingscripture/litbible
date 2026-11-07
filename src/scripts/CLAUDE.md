@@ -181,7 +181,11 @@ implementation the Study Desk's "Bookmark ▸" and "Print ▸" use too (desk cod
 imports it; this file never imports desk code): a trigger with
 `aria-haspopup="menu"` and `aria-expanded`, a `role="menu"` fixed to the
 window (`.lit-flyout*` in `global.css`), hover opens, a click, Enter or → move
-focus in, Escape or ← step back. The selection panel passes
+focus in, Escape or ← step back. **In every menu, here and on the Study Desk,
+the arrow keys, Home and End pass over a disabled item** (`disabled` or
+`aria-disabled="true"`; BVJ, 2026-11-07, DK3-7), and opening a menu focuses
+its first item that isn't; a disabled line that can't be used shows its
+reason beside it for the eye. A new menu follows this. The selection panel passes
 `pointerFocus: false`, so a mouse click never moves focus into it (the panel
 never takes focus; a keyboard press does). **A click on a flyout that hover
 opened takes it rather than shutting it** (Audit 3, NB3-1): the pointer opens

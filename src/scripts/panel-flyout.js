@@ -86,7 +86,11 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
   let closing = 0;
   let openedBy = null; // "hover", "click" or "key"
   let watching = null; // the scroll and press listeners while it is open
-  const focusFirst = () => fly.querySelector("button:not([hidden])")?.focus({ preventScroll: true });
+  // The arrow keys, and opening it, pass over a disabled item (DK3-7; BVJ,
+  // 2026-11-07: the rule for every menu, src/scripts/CLAUDE.md). A busy row
+  // that keeps focus (aria-disabled while it works) is passed over too.
+  const live = () => [...fly.querySelectorAll("button:not([hidden]):not(:disabled)")].filter((b) => b.getAttribute("aria-disabled") !== "true");
+  const focusFirst = () => live()[0]?.focus({ preventScroll: true });
   const open = (focusIn, by) => {
     window.clearTimeout(closing);
     if (!fly.hidden) return focusIn && focusFirst();
@@ -155,7 +159,7 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
     });
   }
   fly.addEventListener("keydown", (e) => {
-    const buttons = [...fly.querySelectorAll("button:not([hidden])")];
+    const buttons = live();
     const at = buttons.indexOf(document.activeElement);
     if (e.key === "Escape" || e.key === "ArrowLeft") {
       e.preventDefault();

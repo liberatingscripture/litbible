@@ -287,6 +287,51 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     }
   }
 
+  /** Where a boundary sits among the text's characters, counted from its start. */
+  function textOffset(node, offset) {
+    const range = document.createRange();
+    range.selectNodeContents(editable);
+    range.setEnd(node, offset);
+    return range.toString().length;
+  }
+
+  /** The boundary `count` characters into the text: [text node, offset], or null with no text. */
+  function boundaryAt(count) {
+    const walker = document.createTreeWalker(editable, NodeFilter.SHOW_TEXT);
+    let left = count;
+    let last = null;
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      last = n;
+      if (left <= n.length) return [n, left];
+      left -= n.length;
+    }
+    return last ? [last, last.length] : null;
+  }
+
+  /**
+   * A command that changes the blocks and not the words, with the selection
+   * put back among the same characters after it: making a list moved the
+   * caret to the start of the item in Chrome, so typing went in ahead of the
+   * words (LV3-5).
+   */
+  function keepingSelection(fn) {
+    return () => {
+      const range = rangeInside();
+      const at = range && [textOffset(range.startContainer, range.startOffset), textOffset(range.endContainer, range.endOffset)];
+      fn();
+      if (!at) return;
+      const start = boundaryAt(at[0]);
+      const end = boundaryAt(at[1]);
+      if (!start || !end) return;
+      const next = document.createRange();
+      next.setStart(...start);
+      next.setEnd(...end);
+      const sel = selection();
+      sel.removeAllRanges();
+      sel.addRange(next);
+    };
+  }
+
   /** Run an action on the remembered selection, then bring the toolbar up to date. */
   function act(fn) {
     restore();
@@ -802,8 +847,9 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
   }
 
   /** A button for a browser command that is on or off (aria-pressed). */
-  function toggleButton(name, content, command, shortcut) {
-    const button = toolButton(name, content, () => act(() => exec(command)), shortcut);
+  function toggleButton(name, content, command, shortcut, { keep = false } = {}) {
+    const run = () => exec(command);
+    const button = toolButton(name, content, () => act(keep ? keepingSelection(run) : run), shortcut);
     button.setAttribute("aria-pressed", "false");
     toggles.push({ button, command });
     return button;
@@ -849,8 +895,8 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
   separator();
 
   // 5. Lists
-  toggleButton("Bulleted list", icon("ul"), "insertUnorderedList");
-  toggleButton("Numbered list", icon("ol"), "insertOrderedList");
+  toggleButton("Bulleted list", icon("ul"), "insertUnorderedList", undefined, { keep: true });
+  toggleButton("Numbered list", icon("ol"), "insertOrderedList", undefined, { keep: true });
   indentButton = toolButton("Indent list item", icon("indent"), () => act(indent));
   outdentButton = toolButton("Outdent list item", icon("outdent"), () => act(outdent));
   separator();

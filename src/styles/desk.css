@@ -6966,10 +6966,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   background: var(--focus-ring);
 }
 
+/* In a narrow Sheet pane the controls go to a second row, right-aligned,
+   rather than squeezing the part's name and breaking "Show in the LIT" over
+   three lines (LV3-6). No control's label ever breaks. */
 .desk-sheet__module-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 2px 6px;
   margin-bottom: 4px;
   font-size: 0.8125rem;
 }
@@ -6988,8 +6992,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 .desk-sheet__module-tools {
   margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 2px;
+}
+
+.desk-sheet__module-tools > * {
+  white-space: nowrap;
 }
 
 .desk-sheet__leader {

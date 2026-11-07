@@ -37,8 +37,10 @@
 //                                           needs `png` and `pixels` added
 // Inline pieces:
 //   { t: "text", text }   as the page holds it (the writers collapse its spaces)
-//   { t: "em" | "strong" | "u" | "s" | "sub", kids }
-//   { t: "link", href, kids }   href absolute (http, https or mailto)
+//   { t: "em" | "strong" | "u" | "s" | "sub" | "sup", kids }   sup: the reader's
+//                         own superscript ("1st"), never a footnote letter (DK3-5)
+//   { t: "link", href, kids }   href absolute (http, https or mailto), a valid
+//                               URI (docHref)
 //   { t: "style", color?, mark?, size?, kids }   names from DOC_COLORS, DOC_MARKS, DOC_SIZES
 //   { t: "blank", answer, hint }   answer null on the participant's version
 //   { t: "vn", text }   a verse number;  { t: "fn", text }   a footnote letter
@@ -81,7 +83,8 @@ export const SAVE_GROUPS = Object.freeze([
     ]),
   }),
   // E37 phase B: the room's screens as slides, whichever version is on screen,
-  // with the leader's notes as speaker notes (desk-slides.mjs).
+  // with the leader's notes as speaker notes in the leader's version only
+  // (desk-slides.mjs; SEC3-3).
   Object.freeze({
     id: "slides",
     label: "Slides",
@@ -92,6 +95,23 @@ export const SAVE_GROUPS = Object.freeze([
     ]),
   }),
 ]);
+
+/**
+ * A link's address as the files and Copy write it: absolute (http, https or
+ * mailto) and a valid URI, with a space or a non-ASCII character
+ * percent-encoded as a browser would, since Word and other Open XML readers
+ * may refuse a relationship target that isn't (DK3-9). Null for an address
+ * that isn't one of those or can't be read.
+ */
+export function docHref(href) {
+  const abs = String(href ?? "").trim();
+  if (!/^(https?:|mailto:)/i.test(abs)) return null;
+  try {
+    return new URL(abs).href;
+  } catch (_) {
+    return null;
+  }
+}
 
 /* ── Copy: HTML and plain text ─────────────────────────────────────────── */
 
@@ -308,6 +328,7 @@ export function docRuns(inlines) {
       else if (n.t === "u") walk(n.kids, { ...fmt, u: true });
       else if (n.t === "s") walk(n.kids, { ...fmt, s: true });
       else if (n.t === "sub") walk(n.kids, { ...fmt, sub: true });
+      else if (n.t === "sup") walk(n.kids, { ...fmt, sup: true });
       else if (n.t === "link") walk(n.kids, { ...fmt, href: n.href });
       else if (n.t === "style") {
         const next = { ...fmt };
@@ -320,21 +341,33 @@ export function docRuns(inlines) {
   };
   walk(inlines, {});
 
-  // One space at most between words, across runs, and none at a line's ends.
+  // One space at most between words, across runs, and none at a line's ends:
+  // one pass forward with the line's last text so far, one back with whether
+  // any text follows before a break, so a long paragraph stays linear (DK3-11).
   let lineStart = true;
+  let before = ""; // the text of the last run with text on this line
   for (const r of raw) {
     if (r.br) {
       lineStart = true;
+      before = "";
       continue;
     }
-    if (lineStart || /[ ]$/.test(prevText(raw, r))) r.text = r.text.replace(/^ /, "");
-    if (r.text) lineStart = false;
+    if (lineStart || / $/.test(before)) r.text = r.text.replace(/^ /, "");
+    if (r.text) {
+      lineStart = false;
+      before = r.text;
+    }
   }
-  for (let i = 0; i < raw.length; i++) {
+  let lineEnd = true; // no run with text follows this one before a break or the end
+  for (let i = raw.length - 1; i >= 0; i--) {
     const r = raw[i];
-    if (r.br) continue;
-    const next = raw.slice(i + 1).find((x) => x.br || x.text);
-    if (!next || next.br) r.text = r.text.replace(/ $/, "");
+    if (r.br) {
+      lineEnd = true;
+      continue;
+    }
+    const had = r.text;
+    if (lineEnd) r.text = r.text.replace(/ $/, "");
+    if (had) lineEnd = false;
   }
 
   const out = [];
@@ -351,15 +384,6 @@ export function docRuns(inlines) {
     }
   }
   return out;
-}
-
-/** The text of the run with text before `r` on its line, or "". */
-function prevText(runs, r) {
-  for (let i = runs.indexOf(r) - 1; i >= 0; i--) {
-    if (runs[i].br) return "";
-    if (runs[i].text) return runs[i].text;
-  }
-  return "";
 }
 
 /* ── The files: what every writer shares ───────────────────────────────── */

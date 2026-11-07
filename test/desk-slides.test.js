@@ -23,7 +23,10 @@ import {
   blankWords,
   coveredBlank,
   deckSlides,
+  blocksLength,
   listLabel,
+  sentenceEnds,
+  titlePoints,
   slideBoxes,
   slideParagraphs,
   slideRuns,
@@ -136,11 +139,97 @@ test("a long passage is cut before a verse number, both forms alike, and goes on
   assert.equal(slides.filter((s) => s.covered).length, 1, "only the piece holding the blank is shown twice");
 });
 
-test("a single verse longer than a slide stays whole", () => {
-  const long = para(vn(1), T("word ".repeat(SLIDE_CHARS)));
-  const groups = splitPassage([long]);
+test("a single verse with blanks longer than a slide stays whole, since its two forms' words differ", () => {
+  const long = para(vn(1), T("word ".repeat(SLIDE_CHARS)), { t: "blank", answer: "Word", hint: "" });
+  const cover = para(vn(1), T("word ".repeat(SLIDE_CHARS)), coveredBlank({ kind: "line", hint: "" }));
+  const groups = splitPassage([long], [cover]);
   assert.equal(groups.length, 1);
   assert.deepEqual(groups[0].revealed, [long]);
+});
+
+/** Every text piece's words in reading order, for checking nothing is lost or repeated. */
+const wordsOf = (blocks) => {
+  const out = [];
+  const walk = (nodes) => {
+    for (const n of nodes ?? []) {
+      if (n.t === "text" || n.t === "vn") out.push(n.text);
+      else if (n.kids) walk(n.kids);
+    }
+  };
+  for (const b of blocks) {
+    walk(b.inlines);
+    if (b.blocks) out.push(wordsOf(b.blocks));
+  }
+  return out.join("");
+};
+
+test("a long paragraph is cut after its sentences across as many slides as it needs (DK3-1)", () => {
+  const sentence = "This is a sentence that goes on for a while, saying something about the text. ";
+  const text = sentence.repeat(25);
+  const long = para(T("Lead: "), { t: "em", kids: [T(text)] }, { t: "link", href: "https://litbible.net/", kids: [T("the end.")] });
+  const slides = deckSlides([{ kind: "text", blocks: [long], notes: [para(T("Say it slowly."))] }], { credit: "C" });
+  const bodies = slides.filter((s) => s.kind === "text");
+  assert.ok(bodies.length >= 4, `cut across ${bodies.length} slides`);
+  for (const s of bodies) assert.ok(blocksLength(s.blocks) <= SLIDE_CHARS + 20, "each piece fits a slide");
+  assert.equal(wordsOf(bodies.flatMap((s) => s.blocks)), wordsOf([long]), "no word lost or repeated");
+  for (const s of bodies.slice(0, -1)) {
+    const last = wordsOf(s.blocks).trimEnd();
+    assert.ok(last.endsWith("."), `a piece ends at a sentence: …${last.slice(-20)}`);
+  }
+  assert.equal(bodies[0].blocks[0].inlines[1].t, "em", "the italics go on across the cut");
+  assert.equal(bodies[1].blocks[0].inlines[0].t, "em");
+  assert.equal(bodies.at(-1).blocks[0].inlines.at(-1).t, "link", "the link stays whole on the last piece");
+  assert.equal(bodies[0].notes.length, 1, "the notes go with the first slide");
+  assert.ok(bodies.slice(1).every((s) => s.notes.length === 0));
+});
+
+test("a sentence longer than a slide is cut after a word, and a long verse without blanks after a sentence", () => {
+  const groups = splitPassage([para(vn(1), T("word ".repeat(SLIDE_CHARS)))]);
+  assert.ok(groups.length > 1);
+  for (const g of groups) assert.ok(blocksLength(g.revealed) <= SLIDE_CHARS + 20);
+  const joined = groups.flatMap((g) => g.revealed).map((b) => wordsOf([b])).join("");
+  assert.equal(joined, "1" + "word ".repeat(SLIDE_CHARS), "no word lost or cut in two");
+  assert.ok(groups.flatMap((g) => g.revealed).every((b) => !/\bwor$|^ord\b/.test(wordsOf([b]).trim())));
+});
+
+test("a quotation too long for a slide is cut between its paragraphs, each piece still a quotation", () => {
+  const p = para(T("A quoted paragraph of some length, which says one thing and then another. ".repeat(3)));
+  const groups = splitPassage([{ type: "quote", blocks: [p, p, p, p] }]);
+  assert.ok(groups.length > 1);
+  for (const g of groups) assert.ok(g.revealed.every((b) => b.type === "quote"));
+});
+
+test("sentenceEnds: after the mark, any closing quotes or brackets, and the space", () => {
+  const text = "He said, “Go.” Then she left! (Really.) End";
+  assert.deepEqual(sentenceEnds(text).map((i) => text.slice(0, i)), ["He said, “Go.” ", "He said, “Go.” Then she left! ", "He said, “Go.” Then she left! (Really.) "]);
+  assert.deepEqual(sentenceEnds("Romans 8:28 and 1.5 meters"), [], "a number's point is no sentence's end");
+});
+
+test("a long title is set smaller so its lines fit (DK3-1); a short one keeps the title size", () => {
+  assert.equal(titlePoints({ kind: "start", title: "John 1", codes: [] }), 48);
+  const long = { kind: "start", title: "A study of ".repeat(18).slice(0, 200), codes: [{}] };
+  const pt = titlePoints(long);
+  assert.ok(pt < 48 && pt >= 20, `200 characters at ${pt}pt`);
+  const box = slideBoxes(long).title;
+  const lines = Math.ceil(200 / Math.floor((box.w * 72) / (0.55 * pt)));
+  assert.ok((lines * 1.2 * pt) / 72 <= box.y + box.h, "the lines stay on the slide");
+});
+
+test("slides saved from the participant version carry no speaker notes at all (SEC3-3)", async () => {
+  const leader = deckSlides(screens(), { credit: DOC_CREDIT });
+  const participant = deckSlides(screens(), { credit: DOC_CREDIT, participant: true });
+  assert.ok(leader.some((s) => s.notes.length), "the leader's version keeps them (E37)");
+  assert.deepEqual(participant.map((s) => s.notes), participant.map(() => []));
+  assert.deepEqual(participant.map((s) => [s.kind, s.heading]), leader.map((s) => [s.kind, s.heading]), "the slides themselves are the same");
+  const entries = unzip(await pptxFile({ title: "John 1", slides: participant }, { title: "John 1", date: 0 }));
+  assert.ok(!entries.some((e) => e.name.startsWith("ppt/notesSlides/")), "no notes pages");
+  const all = entries.filter((e) => /\.(xml|rels)$/.test(e.name));
+  for (const e of all) parseXml(e.data.toString("utf8"));
+  const words = all.map((e) => e.data.toString("utf8")).join("");
+  assert.ok(!words.includes("Closeness") && !words.includes("Blanks on this slide") && !words.includes("Leader only: pause"), "no answer, no blank list, no Leader only part");
+  const odp = unzip(await odpFile({ title: "John 1", slides: participant }, { title: "John 1", date: 0 }));
+  for (const e of odp.filter((x) => x.name.endsWith(".xml"))) parseXml(e.data.toString("utf8"));
+  assert.ok(!textOf(xmlOf(odp, "content.xml")).includes("Closeness"));
 });
 
 test("the deck opens and closes with the credit line and the addresses", () => {
@@ -176,6 +265,14 @@ test("slideParagraphs flattens lists, quotes, boxes and notes into indented para
   assert.equal(ps[4].i, true, "a quote is italic");
   assert.equal(ps[5].b, true, "a section is bold");
   assert.equal(ps[6].runs[0].sup, true, "a footnote's letter is raised");
+
+  // A list inside a quotation keeps the quotation's indent and italics (DK3-4).
+  const [quoted, item, plainItem] = slideParagraphs([
+    { type: "quote", blocks: [para(T("q")), { type: "list", ordered: false, items: [{ inlines: [T("in quote")], lists: [] }] }] },
+    { type: "list", ordered: false, items: [{ inlines: [T("plain")], lists: [] }] },
+  ]);
+  assert.ok(item.marL > plainItem.marL && item.marL >= quoted.marL, "the quote's list sits inside the quote");
+  assert.equal(item.i, true);
 });
 
 test("slideRuns moves a sheet's colors onto the dark ground", () => {

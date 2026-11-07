@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ARRANGEMENTS,
+  FULL_TEXT,
+  leavesReading,
+  regionNames,
   addPane,
   addPaneNeeds,
   HANDLE,
@@ -1744,4 +1747,36 @@ test("E53: showIntroIn with no room changes nothing, and with no LIT pane moves 
   assert.equal(r.outcome, "opened");
   assert.equal(r.layout.place, "romans 1");
   assert.equal(showIntroIn(narrow, "notabook", 1200, 600).outcome, "none");
+});
+
+// ---- Audit 3, session 3 ---------------------------------------------------
+
+test("FULL_TEXT names the limit in words, from MAX_PANES (CP3-4)", () => {
+  assert.equal(MAX_PANES, 4);
+  assert.equal(FULL_TEXT, "Four is the most");
+});
+
+test("leavesReading: any way out of one LIT pane counts, not only a Layout row (DK3-2)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  assert.equal(arrangementOf(reading), "reading");
+  const added = addPane(reading, "column", "mine", 1600, 900);
+  assert.notEqual(added, reading);
+  assert.equal(leavesReading(reading, added), true, "Add pane");
+  assert.equal(leavesReading(reading, setKind(reading, reading.root.pane.id, "mine")), true, "the one pane shown as another kind");
+  assert.equal(leavesReading(reading, applyArrangement(reading, "cols-2")), true, "a Layout row");
+  assert.equal(leavesReading(reading, setPlace(reading, "john 4")), false, "a move within Reading");
+  assert.equal(leavesReading(added, reading), false, "coming into Reading");
+  assert.equal(leavesReading(originalLayout(), applyArrangement(originalLayout(), "cols-3")), false, "never in Reading");
+});
+
+test("regionNames: a kind open twice is told apart by its place (DK3-8)", () => {
+  const three = applyArrangement(originalLayout("john 3"), "cols-3");
+  const ids = panes(three.root).map((p) => p.id);
+  let l = setKind(three, ids[0], "lit");
+  l = setKind(l, ids[1], "lit");
+  l = setKind(l, ids[2], "mine");
+  const names = regionNames(l);
+  assert.deepEqual(panes(l.root).map((p) => names.get(p.id)), ["The LIT, 1 of 2", "The LIT, 2 of 2", "My Notes"]);
+  const one = regionNames(originalLayout());
+  assert.deepEqual([...one.values()], ["The LIT", "My Notes"], "a kind open once is named by its kind alone");
 });
