@@ -426,8 +426,10 @@ notice there or nowhere.
     topics-index loading); `searchbar.js` is the tray UI (loaded by
     `SearchBar.astro`); `search.js` is the `/search` page UI. Never duplicate
     parsing/bucketing logic into the UI modules — add it to `search-core.js`
-    so both surfaces stay in sync. The 404 page's `resolveMistypedPath` lives
-    there for the same reason. The Greek's engine and loaders (`searchGreek`)
+    so both surfaces stay in sync. A `type="search"` box must listen to
+    `search` as well as `input`, since Escape and the clear button fire only
+    `search` (the /search page and the Notebook's box do). The 404 page's
+    `resolveMistypedPath` lives there for the same reason. The Greek's engine and loaders (`searchGreek`)
     are `search-greek.js`, loaded through `loadGreekSearch()` so no page carries
     them until a Greek search starts, desk on or off; never import that file
     statically from anything a page loads at the start (the rules are in

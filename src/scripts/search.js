@@ -1852,6 +1852,13 @@ if (input) {
   input.addEventListener("input", () =>
     updateFromControls({ resetPage: true }),
   );
+  // Escape and the field's clear button empty a type="search" box and fire
+  // `search`, not `input`. Typing and Enter fire it too, after the URL
+  // already holds the words, so only a change in the words is acted on.
+  input.addEventListener("search", () => {
+    if (input.value.trim() === readState().q) return;
+    updateFromControls({ resetPage: true });
+  });
   input.addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
     updateFromControls({ resetPage: true, push: true });
