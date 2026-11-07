@@ -1671,6 +1671,8 @@ Each constant agrees with the number in the text today. The problem is that the 
 | CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. |
 | CP3-7 | `src/scripts/desk/notebook-page.js:137` and `:148` | `What you delete waits here for 30 days.` and `instead of after 30 days.` | `${TRASH_DAYS}`, as CP3-6. | Agrees (30). |
 
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** CP3-2, CP3-3, CP3-5 and CP3-7 now build their numbers from `MAX_FOLLOWING`, `MAX_PANES` and `TRASH_DAYS`, with `numberWord` (in `src/lib/desk-wording.mjs`) spelling the small counts. CP3-7 covers all four "30 days" in `notebook-page.js`, not only the two lines the table names. The E48 blurb is built the same way, its wording unchanged. CP3-4 and CP3-6 are left to their own sessions.
+
 ### Owner wording, report only
 
 These match wording BVJ asked for or approved in STUDY-DESK-FIXES.md, so they are not counted as violations.
