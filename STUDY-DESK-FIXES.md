@@ -139,6 +139,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   "All results" keeps its name and a Latin word that is also a Greek one
   offers the Greek search (rule 15; see the 2026-11-04 note under E11).
   Status: **looked at; the change built.**
+  *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* The search
+  builder was mocked first and then built on Claude's recommendation (BVJ,
+  2026-11-02).
 - **E6, wish: search a word family, not just one lemma.** BVJ
   (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
   no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
@@ -671,6 +674,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   most", and a direction the window can't hold is disabled with "Needs a
   wider/taller window". Add pane is not repeated beside the Layout choices.
   Status: done.
+  *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* Decided
+  together with E15: BVJ picked "everything in the title, and Aa moves in
+  too" from a mock (2026-11-02).
 - **E15, wish: the page title becomes a menu.** BVJ (2026-10-30), thinking
   aloud and not a decision. On /desk the page title would open a drop-down
   that gathers the page-level actions now spread along the bar: **Layout**,
@@ -701,6 +707,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   hung under the title. Only `/desk` has the menu; `/notebook` and `/sheets`
   are unchanged. **For BVJ to check:** the tour link goes to John 3 (the tour
   runs on a chapter page, not on /desk), so it opens in a new tab. Status: done.
+  *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* The title
+  menu was mocked first; BVJ picked "everything in the title, and Aa moves
+  in too" (2026-11-02).
 - **E16, rough: printing a chapter needs its own chapter choice, and the
   Notebook lacks the plain-chapter print.** BVJ (2026-10-30), two parts.
   (1) The Print menu on /desk (`desk-page.js`, "the Print menu") prints
@@ -1433,6 +1442,10 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   to `global.css` (`.lit-flyout*`). Measured from the fonts' advance widths: at
   360px "Share text…" and "Share image" fit one chip row in Inter, Atkinson and
   OpenDyslexic (`src/scripts/CLAUDE.md` has the numbers). Status: **built.**
+  *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* BVJ proposed
+  a Copy flyout on 2026-11-04 and Claude advised against it; BVJ revisited
+  it on 2026-11-05 and decided on 2026-11-06 to build it, with the Copy
+  row's own press still copying.
 
 - **E40, wish: a Print line in the verse menu and selection panel, with a
   flyout: Selection / With my notes / With room to write.** BVJ (2026-11-05),
@@ -1573,6 +1586,10 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   the mark lags at most about 4.5 seconds. No redraw clock of its own. **For
   BDR:** a follow can now write a move every 2 seconds instead of 4;
   STUDY-DESK-FORMAT.md states the new rate.
+  *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* The
+  follower's write gap and settle were 4 and 5 seconds before this entry
+  (2026-11-05); the desk's CLAUDE.md keeps the current values and the rule
+  that the settle must stay longer than the gap.
 
 - **E46, wish: change which verse a bookmark belongs to, in its dialog.**
   BVJ (2026-11-05). Today the form (`bookmark-form.js`) edits the name and
@@ -1624,6 +1641,10 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   stopped, when the tab closes, or after 12 hours away from the book (BVJ: "however
   is most appropriate"). The key and what it holds are unchanged, so the
   effective date stays.
+  *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* The switch's
+  hint, as shipped, no longer explains how a follow starts: "Moves along
+  with you as you read its book, once it’s following you. Without this, it
+  stays on its verse. Up to six of your bookmarks can move."
 
 - **E49, rough: the footnote's pin and add-note pills.** BVJ (2026-11-05): on
   the scripture pages the two pills (Pin, from `pins.js`, and Add a note, M11,
@@ -1969,3 +1990,29 @@ Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
 - **E3, bug: My Notes and Places overwrote each other's list** in the
   Notebook. Fixed in 2dbab04 (2026-10-15).
 
+**Build notes without an E entry (moved from the desk's CLAUDE.md, 2026-11-07)**
+
+Narrative that sat in the desk's CLAUDE.md beside a rule and belongs to no
+single E number. The rule stays there; the story is here.
+
+- *The build dates of phases 1d, 1f, 1h, 2a, 2b, 2c, 3c to 3g, 3i, 3j, 3k and
+  3m* (2026-10-12 to 2026-11-01) are in STUDY-DESK.md, "Order of work". The
+  Records table once listed them in its first row.
+- *Rule 3, the Notebook's place in the margin:* the first build (BVJ,
+  2026-10-06) pushed the whole page left, which is why the panel now fills the
+  margin and moves the column only as far as needed.
+- *The LIT pane parks far chapters* (DK-15). Measured on /desk with all 211
+  chapters: re-layout 520 ms down to 15 ms, scrolling 42 ms a frame down to 7.
+  The rule in CLAUDE.md keeps the reason `content-visibility` was not enough.
+- *A pane's scroller must be positioned.* The Greek's was fixed in #354, the
+  Sheet's on 2026-11-04, and `.desk-pane__body` carries it as a guard.
+- *Bookmarks, `followStep`'s "last place this page heard":* the bug was found on
+  2026-11-04 testing "Move it here" (a page landing on a far verse reports
+  twice before the first judgment).
+- *Sharing a sheet (S8):* checked against the real analytics beacon on
+  2026-10-20, its `location` came without the fragment. The navigation timing
+  entry's `name` still held the original address and the beacon did not send
+  it; recheck if the beacon starts sending timing names.
+- *E22, My Notes' follow:* before the `followTarget` change the pane stayed
+  where it was in a chapter with nothing kept, which read as not following
+  (the entry above has the full account).
