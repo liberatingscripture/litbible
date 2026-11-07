@@ -119,6 +119,7 @@ import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
 import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
+import { describeUnavailable } from "./menu-reasons.js";
 import { createKindMenu } from "./kind-menu.js";
 
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
@@ -577,6 +578,9 @@ async function start() {
   titleMenu.setAttribute("aria-label", titleButton.firstElementChild.textContent);
   titleMenu.hidden = true;
   wrap.append(titleMenu);
+  // A line that is unavailable is passed over by the arrow keys, so the menu
+  // names it and says why when a screen reader enters it (menu-reasons.js).
+  const titleReasons = describeUnavailable(titleMenu, { id: "deskTitleMenuWhy" });
 
   let hintCount = 0;
   const item = (label, tag = "button") => {
@@ -625,6 +629,7 @@ async function start() {
   addFly.hidden = true;
   const addSub = el("div", "desk-title__sub");
   addSub.append(addItem, addFly);
+  const addFlyReasons = describeUnavailable(addFly, { id: "deskAddFlyWhy" });
 
   const layoutItem = item("Layout…");
   layoutItem.setAttribute("aria-haspopup", "dialog");
@@ -736,6 +741,7 @@ async function start() {
     const { width, height } = addRoom();
     const reasons = DIRECTIONS.map((d) => addPaneNeeds(layout, d.id, width, height));
     setDisabled(addItem, addWhy(reasons));
+    titleReasons.refresh();
   }
 
   /** Draw the flyout's step: column or row, then the kinds replacing them. */
@@ -771,6 +777,7 @@ async function start() {
         addFly.append(b);
       }
     }
+    addFlyReasons.refresh();
   }
 
   function openAddFly({ focus = true } = {}) {
