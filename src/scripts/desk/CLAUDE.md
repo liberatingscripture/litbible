@@ -530,8 +530,11 @@ against `dist/` is a later item.
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
        are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
-       5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
-       catches up when the reading pauses. "Add bookmark" in the verse menu and the
+       2 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
+       catches up when the reading pauses; the follower writes at most every 2
+       seconds (`MOVE_EVERY_MS`). Both were 4 and 5 seconds until E45
+       (2026-11-05); a move is a record write that syncs, so tell BDR if the
+       write gap changes. "Add bookmark" in the verse menu and the
        selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
        counted); the limit and the write are one `store.change`
        (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,

@@ -146,7 +146,8 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      verse. When the reader opens a bookmark that follows and reads on, the
      client moves it to the verse they are reading, only while they stay in
      that book and only in the tab they opened it in (the website writes a move
-     at most every 4 seconds, and `modified` moves with it). It is the
+     at most every 2 seconds, 4 until 2026-11-05 (E45), and `modified` moves
+     with it). It is the
      reader's reading, so it makes no undo step. Other clients may choose
      their own rule for when to move it, but must not move a bookmark whose
      `follow` is absent;
