@@ -6,8 +6,10 @@
 // the row and applies the answer, the way margin.js does for the Notebook.
 //
 // Each footnote gets one `.desk-fn-pills` after its `.fn-body`, so reading
-// order and tab order are the note, then its Pin, then "Add a note", wherever they
-// are drawn. The list carries `data-desk-fn-pills="row" | "more" | "inline"`
+// order and tab order are the note, then "Add a note", then its Pin, wherever they
+// are drawn: left to right in a row (Pin nearest the footnote), top to bottom in
+// the "⋯" stack, with no reversed drawing to part Tab from the eye (BVJ,
+// 2026-11-07). The list carries `data-desk-fn-pills="row" | "more" | "inline"`
 // (desk.css draws each):
 //   row     the two pills in the left margin, level with the footnote's first line;
 //   more    one "⋯" pill there, a disclosure button that opens Pin and "Add a note"
@@ -41,7 +43,8 @@ function setOpen(wrap, on) {
  * the group holding Pin and "Add a note".
  *
  * @param {string} label the footnote's letter, which names the "⋯" button
- * @param {Array<HTMLElement | null>} buttons Pin, then "Add a note" (a null is skipped)
+ * @param {Array<HTMLElement | null>} buttons "Add a note", then Pin, in the order
+ *   they are to be read and tabbed (a null is skipped)
  * @returns {HTMLElement}
  */
 export function footnotePills(label, buttons) {
@@ -102,6 +105,29 @@ export function pillsHome(button) {
   const inMore =
     wrap.closest(".footnotes")?.getAttribute(ATTR) === "more" && !wrap.closest("li")?.hasAttribute("data-desk-fn-margin");
   return inMore ? more : button;
+}
+
+/**
+ * Run a change that may move a footnote's pills between the "⋯" and the
+ * note's line (the margin note that takes the left margin, or gives it back),
+ * and keep focus on a control that is showing afterward (NB3-3). Focus on a
+ * control the change hides would drop to the page's body. Focus on the "⋯"
+ * goes to "Add a note", since a note is what just arrived; on a pill that is
+ * now behind the "⋯", to the "⋯".
+ *
+ * @param {() => void} change
+ */
+export function keepPillFocus(change) {
+  const active = document.activeElement;
+  const li = active instanceof Element && active.closest(".desk-fn-pills") ? active.closest("li") : null;
+  if (!li) return change();
+  change();
+  // Hidden either way: display none ("⋯" gone) or a closed stack's visibility.
+  if (!active.isConnected || (active.getClientRects().length && getComputedStyle(active).visibility !== "hidden")) return;
+  const target = active.classList.contains("desk-fn-more")
+    ? li.querySelector(".desk-fn-add") ?? li.querySelector(".desk-pin")
+    : pillsHome(active);
+  target?.focus({ preventScroll: true });
 }
 
 /** Put focus on a footnote's Pin, or on its "⋯" where the Pin is behind it. */

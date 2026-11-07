@@ -61,6 +61,7 @@ import { glyph } from "./glyphs.js";
 import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 import { escapeHtml } from "./dom.js";
+import { keepPillFocus } from "./footnote-pills.js";
 
 const LIT = "desk-note-words";
 // What a hovered, focused or opened note on a footnote puts on its footnote.
@@ -129,8 +130,13 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
    */
   function markFootnotes(items) {
     const mine = new Set(items.map((p) => p.footnote).filter(Boolean));
-    for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
-    for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
+    // The mark moves a footnote's pills between "⋯" and inline, hiding whichever
+    // control focus is on; keepPillFocus puts focus on the one now showing
+    // (NB3-3).
+    keepPillFocus(() => {
+      for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
+      for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
+    });
   }
 
   let frame = 0;

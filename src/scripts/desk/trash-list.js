@@ -26,6 +26,7 @@ import { undoEntry } from "./history.js";
 import { recordRow } from "./record-rows.js";
 import { showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
+import { busy, isBusy } from "./focus-keep.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
@@ -158,7 +159,8 @@ export function createTrashList({ store, ctx, announce, onChange = () => {} }) {
 
   async function restoreAll() {
     say(null);
-    all.disabled = true;
+    if (isBusy(all)) return;
+    const idle = busy(all);
     let made;
     try {
       made = await write((records) => planRestoreAll(records, ctx()));
@@ -167,7 +169,7 @@ export function createTrashList({ store, ctx, announce, onChange = () => {} }) {
       say("The trash couldn’t be restored in this browser, so everything is still in it. Try again.");
       return;
     } finally {
-      all.disabled = false;
+      idle();
     }
     if (!made?.restored) {
       say(skippedLine(made?.skipped ?? []) || "There is nothing in the trash that can be restored.");

@@ -422,8 +422,10 @@ const SIZE_OPTIONS = [
       // header itself. The AppsLaunchPopover <dialog> and the font tray
       // (hidden until opened) need no handling — both are already out of the
       // tab order/a11y tree when closed.
-      const bgRegions = [
-        document.querySelector(".skip-link"),
+      // Read each time, not once: the Study Desk adds a second skip link
+      // ("Skip to the Notebook") after this script has run (NB3-10).
+      const bgRegions = () => [
+        ...document.querySelectorAll(".skip-link"),
         document.getElementById("main-content"),
         document.querySelector(".site-footer"),
         document.querySelector(".footer-license-band"),
@@ -436,7 +438,7 @@ const SIZE_OPTIONS = [
         toggle.setAttribute("aria-expanded", open ? "true" : "false");
         toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
 
-        for (const el of bgRegions) el.inert = open;
+        for (const el of bgRegions()) el.inert = open;
 
         // Defer scroll-lock to the next frame so the paint of the visual
         // open/close state isn't blocked by a full layout recalculation
