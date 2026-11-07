@@ -40,7 +40,7 @@ function shuffled(items, seed) {
 }
 
 test("the vectors are well formed", () => {
-  assert.equal(vectors.version, 4);
+  assert.equal(vectors.version, 5);
   assert.ok(vectors.cases.length >= 15);
   const names = vectors.cases.map((c) => c.name);
   assert.equal(new Set(names).size, names.length, "case names are unique");
@@ -432,5 +432,98 @@ test("three devices that create, edit, delete, restore and swap copies end with 
     }
     const [x, y, z] = devices.map((s) => [...s].sort((p, q) => (p.id < q.id ? -1 : 1)));
     assert.ok(sameSet(x, y) && sameSet(y, z), `history ${history} ended with different notebooks`);
+  }
+});
+
+/* ── A bookmark's place and its other fields merge apart (audit 3 DI3-3; vectors version 5) ─ */
+
+const a2bookmark = (id, now, extra = {}) =>
+  createForAudit2("bookmark", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16, label: "Advent", follow: true, ...extra }, { ...A2, now, id });
+
+test("DI3-3: a rename, a label and 'Move as I read' turned off on the phone survive the desktop's later move, through the real writes", () => {
+  const b = a2bookmark("00000000-0000-4000-8000-0000000000c1", "2026-11-04T11:00:00.000Z");
+  const phone = editForAudit2(b, { label: "Advent, week 2", labels: ["l1"] }, { now: "2026-11-04T12:00:00.000Z", client: "ios/2.1" });
+  const desktop = editForAudit2(b, { verse: 14, endVerse: 14 }, { now: "2026-11-04T12:00:02.000Z" });
+  for (const [x, y] of [[phone, desktop], [desktop, phone]]) {
+    const [m] = mergeSets([x], [y], { now: A2_NOW });
+    assert.equal(m.label, "Advent, week 2");
+    assert.deepEqual(m.labels, ["l1"]);
+    assert.equal(m.verse, 14);
+    assert.equal(m.modified, desktop.modified);
+    assert.equal(m.editedAt, phone.editedAt);
+    assert.equal(m.placedAt, desktop.placedAt);
+    assert.equal(m.client, desktop.client);
+  }
+  const { follow: _f, ...off } = editForAudit2(b, { follow: undefined }, { now: "2026-11-04T12:00:00.000Z", client: "ios/2.1" });
+  const [m] = mergeSets([off], [desktop], { now: A2_NOW });
+  assert.equal("follow" in m, false, "turned off stays off");
+  assert.equal(m.verse, 14);
+  // Merged again, nothing changes.
+  assert.deepEqual(mergeRecords([m], [desktop, off], { now: A2_NOW }), { put: [], remove: [], skipped: [], ahead: [] });
+});
+
+test("DI3-3: three devices that rename, move, stop, delete and restore bookmarks and swap copies end with one notebook (property)", () => {
+  let seed = 20261107;
+  const rnd = (n) => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed % n;
+  };
+  const BASE = Date.parse("2026-11-01T00:00:00.000Z");
+  const iso = (tick) => new Date(BASE + tick * 1000).toISOString();
+  const sameSet = (p, q) => JSON.stringify(p) === JSON.stringify(q);
+  for (let history = 0; history < 2000; history++) {
+    let tick = 0;
+    const devices = [[], [], []];
+    let ids = 0;
+    for (let step = 0; step < 24; step++) {
+      tick++;
+      const d = rnd(3);
+      const mine = devices[d];
+      const live = mine.filter((r) => r.kind === "bookmark");
+      const trashed = mine.filter((r) => r.kind === "trash" && r.record);
+      const op = rnd(7);
+      if (op === 0 || (!live.length && !trashed.length)) {
+        const id = `00000000-0000-4000-8000-${String(++ids).padStart(12, "0")}`;
+        const verse = 1 + rnd(30);
+        const made = a2bookmark(id, iso(tick), { verse, endVerse: verse });
+        // Now and then an app's copy, with no stamps, which merges whole.
+        if (rnd(4) === 0) {
+          delete made.placedAt;
+          delete made.editedAt;
+        }
+        mine.push(made);
+      } else if (op === 1 && live.length) {
+        const r = live[rnd(live.length)];
+        mine.splice(mine.indexOf(r), 1, editForAudit2(r, { label: `name ${tick}` }, { now: iso(tick) }));
+      } else if (op === 2 && live.length) {
+        const r = live[rnd(live.length)];
+        const verse = 1 + rnd(30);
+        mine.splice(mine.indexOf(r), 1, editForAudit2(r, { verse, endVerse: verse }, { now: iso(tick) }));
+      } else if (op === 3 && live.length) {
+        const r = live[rnd(live.length)];
+        const next = editForAudit2(r, { follow: r.follow ? undefined : true }, { now: iso(tick) });
+        if (next.follow === undefined) delete next.follow;
+        mine.splice(mine.indexOf(r), 1, next);
+      } else if (op === 4 && live.length) {
+        const r = live[rnd(live.length)];
+        mine.splice(mine.indexOf(r), 1, trashForAudit2(r, { ...A2, now: iso(tick), id: `00000000-0000-4000-8000-b${String(++ids).padStart(11, "0")}` }));
+      } else if (op === 5 && trashed.length) {
+        const t = trashed[rnd(trashed.length)];
+        mine.splice(mine.indexOf(t), 1);
+        mine.push(restoreForAudit2(t, { now: iso(tick) }));
+      } else {
+        const e = rnd(3);
+        if (e !== d) {
+          devices[d] = mergeSets(devices[d], devices[e], { now: iso(tick) });
+          devices[e] = mergeSets(devices[e], devices[d], { now: iso(tick) });
+        }
+      }
+    }
+    for (let round = 0; round < 4; round++) {
+      for (const i of [0, 1, 2]) for (const j of [0, 1, 2]) if (i !== j) devices[i] = mergeSets(devices[i], devices[j], { now: iso(tick + 1) });
+    }
+    const [x, y, z] = devices.map((s) => [...s].sort((p, q) => (p.id < q.id ? -1 : 1)));
+    assert.ok(sameSet(x, y) && sameSet(y, z), `history ${history} ended with different notebooks`);
+    for (const s of [x, y, z]) for (const r of s) if (r.kind === "bookmark") assert.deepEqual(validateForAudit2(r), [], `history ${history}: ${r.id}`);
   }
 });

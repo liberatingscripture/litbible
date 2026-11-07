@@ -395,7 +395,9 @@ export function initBookmarkFollow({ store, ctx, tell = null, page: pageKind = n
           const changes = followMoveChanges(record, pos);
           if (!changes) return null;
           moved = true;
-          const next = editRecord(record, changes, { now: new Date().toISOString(), client: ctx().client });
+          // A move writes the place group only (bookKey, chapter, verses and the text they were read on),
+          // so editRecord stamps `placedAt` and leaves `editedAt` alone (DI3-3).
+          const next = editRecord(record, { ...changes, contentVersion: ctx().contentVersion }, { now: new Date().toISOString(), client: ctx().client });
           return { put: [next], remove: [] };
         },
         { record: false, kinds: [MOVE_KIND] },
@@ -433,7 +435,7 @@ export function initBookmarkFollow({ store, ctx, tell = null, page: pageKind = n
       if (!isFollowing(record) || !canEdit(record)) return null;
       const changes = followMoveChanges(record, pos);
       if (!changes) return null;
-      plan = { put: [editRecord(record, changes, { now: new Date().toISOString(), client: ctx().client })], remove: [] };
+      plan = { put: [editRecord(record, { ...changes, contentVersion: ctx().contentVersion }, { now: new Date().toISOString(), client: ctx().client })], remove: [] };
       return plan;
     });
     writeFlag(resumedFlag(mine, pos.bookKey));

@@ -66,6 +66,11 @@ function content(record) {
   if (record == null) return null;
   const { modified: _modified, client: _client, ...rest } = record;
   if (record.kind === "trash") delete rest.deletedAt;
+  // A bookmark's two group stamps move with an undo as `modified` does (DI3-3).
+  if (record.kind === "bookmark") {
+    delete rest.placedAt;
+    delete rest.editedAt;
+  }
   return rest;
 }
 
@@ -131,7 +136,7 @@ export function pushEntry(stack, entry, limit = HISTORY_LIMIT) {
 /* ── Taking a change back, or doing it again ─────────────────────────── */
 
 /** Every time a record carries that a stamp over it must step past (see the top of this file). */
-const timesOf = (r) => (r ? [r.modified, r.deletedAt, r.record?.modified] : []);
+const timesOf = (r) => (r ? [r.modified, r.deletedAt, r.placedAt, r.editedAt, r.record?.modified] : []);
 
 /**
  * A record put back by an undo or a redo: stamped with the reader's act, unless
@@ -144,7 +149,9 @@ function restamped(record, replaced, { now, client } = {}) {
   const by = client ? { client } : {};
   if (record.kind === "trash") return { ...snapshot(record), modified: at, deletedAt: at, ...by };
   if (!canEdit(record)) return snapshot(record);
-  return { ...snapshot(record), modified: at, ...by };
+  // An undo puts the whole bookmark back, so both of its group stamps move with it.
+  const stamps = record.kind === "bookmark" ? { placedAt: at, editedAt: at } : {};
+  return { ...snapshot(record), modified: at, ...by, ...stamps };
 }
 
 /**

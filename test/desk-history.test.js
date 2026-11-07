@@ -817,3 +817,18 @@ test("a restore is an entry the history can undo and redo, and undoing it leaves
   assert.equal(stored(nb, r.id).modified, T4);
   assert.deepEqual(trashOf(nb, r.id), []);
 });
+
+test("DI3-3: an undo moves a bookmark's group stamps with modified, and stillCurrent ignores them as it does the stamp", () => {
+  const b = createRecord("bookmark", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16, label: "Advent", follow: true }, { ...ctx, now: T0, id: nextId() });
+  const renamed = { ...b, label: "Advent, week 2", modified: T1, editedAt: T1 };
+  const entry = makeEntry({ put: [renamed], remove: [] }, new Map([[b.id, b]]), "e");
+  const undo = inversePlan(entry, { now: T2, client: ctx.client });
+  assert.equal(undo.put[0].label, "Advent");
+  assert.equal(undo.put[0].modified, T2);
+  assert.equal(undo.put[0].placedAt, T2);
+  assert.equal(undo.put[0].editedAt, T2);
+  // The follower moved it meanwhile (a place write): the entry is overtaken, as any change is.
+  assert.equal(stillCurrent(entry, new Map([[b.id, { ...renamed, verse: 14, endVerse: 14, placedAt: T2, modified: T2 }]])), false);
+  // A restamp alone, stamps included, is not a change.
+  assert.equal(stillCurrent(entry, new Map([[b.id, { ...renamed, modified: T3, placedAt: T3, editedAt: T3, client: "x" }]])), true);
+});

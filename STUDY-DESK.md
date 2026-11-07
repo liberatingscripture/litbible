@@ -2511,8 +2511,13 @@ its (two real Matthew 23 marks, one silent case). Rules in
 **Audit 3's shared-format decisions (BVJ, 2026-11-07, on Claude's
 recommendations; BDR, please review them and amend what doesn't work for the
 apps).** Rationale and evidence are in `STUDY-DESK-AUDIT-3.md` (DI3-1 to
-DI3-5 and SEC3-1, Appendices A, B and J). None is built yet; session 5 builds them, so a
-change from BDR before then costs nothing.
+DI3-5 and SEC3-1, Appendices A, B and J). **All six are built on the website
+(session 5, 2026-11-07)**, each written up in `STUDY-DESK-FORMAT.md` as a
+proposal BDR can amend: anchor spec version 4 ("Spec version 4"), merge
+vectors version 5 (kind 4 and "Clocks"), the stamp rule ("Room for skew"),
+`star` (kind 2), the 1 MB ceiling ("Fields every record carries") and the
+tombstone (kind 10). A change from BDR costs the website a regeneration of
+the vectors and the matching code, nothing stored.
 1. **A mark that moves to another verse says so** (DI3-2; audit 2's open
    question 1). Run over every chapter revision in git history, 15 of 18
    `moved` results landed on the wrong words (Matthew 23 moved marks from five

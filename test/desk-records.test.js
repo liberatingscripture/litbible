@@ -489,3 +489,38 @@ test("E9: a bookmark's label and follow are checked, and both are optional", () 
   assert.ok(validateRecord({ ...plain, label: 7 }).includes("label is not text"));
   assert.ok(validateRecord({ ...plain, follow: "yes" }).includes("follow is not true or false"));
 });
+
+/* ── A bookmark's two stamps (audit 3 DI3-3; merge vectors version 5) ──── */
+
+test("DI3-3: a bookmark carries placedAt and editedAt, and a change moves only the group it touches", () => {
+  const b = createRecord("bookmark", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16, label: "Advent", follow: true }, { ...ctx, id: "b-1" });
+  assert.equal(b.placedAt, ctx.now);
+  assert.equal(b.editedAt, ctx.now);
+  assert.deepEqual(validateRecord(b), []);
+  const moved = editRecord(b, { chapter: 4, verse: 2, endVerse: 2, contentVersion: "v20261012.1a2b3c4d" }, { now: "2026-10-06T09:00:00.000Z" });
+  assert.equal(moved.placedAt, "2026-10-06T09:00:00.000Z");
+  assert.equal(moved.editedAt, ctx.now, "a move leaves the edit stamp alone");
+  assert.equal(moved.modified, moved.placedAt);
+  const renamed = editRecord(moved, { label: "Advent, week 2", labels: ["l1"] }, { now: "2026-10-06T10:00:00.000Z" });
+  assert.equal(renamed.editedAt, "2026-10-06T10:00:00.000Z");
+  assert.equal(renamed.placedAt, moved.placedAt, "a rename leaves the place stamp alone");
+  const stopped = editRecord(renamed, { follow: undefined }, { now: "2026-10-06T11:00:00.000Z" });
+  assert.equal(stopped.editedAt, "2026-10-06T11:00:00.000Z");
+  const both = editRecord(renamed, { verse: 3, endVerse: 3, label: "x" }, { now: "2026-10-06T12:00:00.000Z" });
+  assert.equal(both.placedAt, "2026-10-06T12:00:00.000Z");
+  assert.equal(both.editedAt, "2026-10-06T12:00:00.000Z");
+  // A copy without the stamps (an app's, or a ribbon read as a bookmark) gains them on its first edit here.
+  const { placedAt: _p, editedAt: _e, ...plain } = b;
+  const first = editRecord(plain, { label: "named" }, { now: "2026-10-06T13:00:00.000Z" });
+  assert.equal(first.placedAt, "2026-10-06T13:00:00.000Z");
+  assert.equal(first.editedAt, "2026-10-06T13:00:00.000Z");
+  assert.deepEqual(validateRecord(plain), [], "and is valid without them");
+  assert.ok(validateRecord({ ...b, placedAt: "yesterday" }).some((p) => p.startsWith("placedAt")));
+  // A restore is the reader acting on the whole bookmark.
+  const back = restoreFromTrash(trashRecord(renamed, { ...trashCtx, now: "2026-10-07T00:00:00.000Z" }), { now: "2026-10-07T01:00:00.000Z" });
+  assert.equal(back.placedAt, back.modified);
+  assert.equal(back.editedAt, back.modified);
+  // Other kinds carry none.
+  assert.equal("placedAt" in highlight(), false);
+  assert.equal("placedAt" in editRecord(highlight(), { color: "green" }, { now: "2026-10-06T09:00:00.000Z" }), false);
+});

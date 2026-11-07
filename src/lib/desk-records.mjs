@@ -117,6 +117,31 @@ export function onFootnote(record) {
 /** Fields a reader's edit may never change. */
 const FIXED = new Set(["id", "kind", "schema", "created"]);
 
+/**
+ * A bookmark's place: the fields its `placedAt` stamps (audit 3 DI3-3; BVJ's
+ * decision 2, 2026-11-07). A bookmark that moves as the reader reads is
+ * written every two seconds, so under rule a (the whole record, newer
+ * `modified` wins) a rename, a label or "Move as I read" turned off on
+ * another device always lost to the reading device's next move. So a
+ * bookmark carries two stamps beside `modified`: `placedAt` for these
+ * fields and `editedAt` for everything else, and the merge takes each group
+ * from the copy whose stamp is newer (desk-merge.mjs). The only field-level
+ * rule in the format, confined to bookmarks. A copy without the stamps (an
+ * app not yet updated, a ribbon read as a bookmark) merges by rule a as before.
+ */
+export const BOOKMARK_PLACE_FIELDS = Object.freeze(["bookKey", "chapter", "verse", "endVerse", "contentVersion"]);
+
+/** The two stamps as a write of a bookmark leaves them: the group a change touched takes the new `modified`. */
+function bookmarkStamps(record, changedKeys, modified) {
+  const place = changedKeys.some((k) => BOOKMARK_PLACE_FIELDS.includes(k));
+  const other = changedKeys.some((k) => !BOOKMARK_PLACE_FIELDS.includes(k));
+  const valid = (t) => typeof t === "string" && ISO.test(t);
+  return {
+    placedAt: place || !valid(record.placedAt) ? modified : record.placedAt,
+    editedAt: other || !valid(record.editedAt) ? modified : record.editedAt,
+  };
+}
+
 function newId() {
   return globalThis.crypto.randomUUID();
 }
@@ -145,6 +170,8 @@ export function createRecord(kind, fields, { now, client, contentVersion, id } =
     client,
     contentVersion,
     labels: [],
+    // A bookmark's two stamps (BOOKMARK_PLACE_FIELDS) start with the record.
+    ...(kind === "bookmark" ? { placedAt: at, editedAt: at } : {}),
     ...fields,
   };
 }
@@ -169,7 +196,10 @@ export function canEdit(record) {
  * The reader changed something: a new record with `changes` applied and
  * `modified` moved to `now` (or one millisecond past the record's own, if that is
  * later: see laterThan; `exact` stamps `now` as given, for a file's own time). Every field the change doesn't name survives,
- * including fields this code doesn't know.
+ * including fields this code doesn't know. A bookmark's `placedAt` or
+ * `editedAt` moves with `modified` when the change touches that group
+ * (BOOKMARK_PLACE_FIELDS), and a bookmark without the stamps gains them on
+ * its first edit here.
  */
 export function editRecord(record, changes, { now, client, exact = false } = {}) {
   if (!canEdit(record)) {
@@ -178,11 +208,13 @@ export function editRecord(record, changes, { now, client, exact = false } = {})
   for (const f of Object.keys(changes)) {
     if (FIXED.has(f)) throw new Error(`desk-records: "${f}" can't change`);
   }
+  const modified = exact ? (now ?? new Date().toISOString()) : laterThan(record.modified, now ?? new Date().toISOString());
   return {
     ...record,
     ...changes,
-    modified: exact ? (now ?? new Date().toISOString()) : laterThan(record.modified, now ?? new Date().toISOString()),
+    modified,
     ...(client ? { client } : {}),
+    ...(record.kind === "bookmark" ? bookmarkStamps(record, Object.keys(changes), modified) : {}),
   };
 }
 
@@ -258,10 +290,13 @@ export function restoreFromTrash(trash, { now, client } = {}) {
   // A held record that isn't the one deleted would overwrite another (DI-10).
   if (trash.record.id !== trash.deletedId) return null;
   if (!canEdit(trash.record)) return trash.record;
+  const modified = laterThanAll(now ?? new Date().toISOString(), trash.record.modified, trash.deletedAt);
   return {
     ...trash.record,
-    modified: laterThanAll(now ?? new Date().toISOString(), trash.record.modified, trash.deletedAt),
+    modified,
     ...(client ? { client } : {}),
+    // A restore is the reader acting on the whole bookmark: both stamps move.
+    ...(trash.record.kind === "bookmark" ? { placedAt: modified, editedAt: modified } : {}),
   };
 }
 
@@ -421,6 +456,8 @@ export function validateRecord(r) {
     need(r.label == null || typeof r.label === "string", "label is not text");
     need(typeof r.label !== "string" || chars(r.label) <= BOOKMARK_NAME_MAX, `label is too long (over ${BOOKMARK_NAME_MAX} characters)`);
     need(r.follow == null || typeof r.follow === "boolean", "follow is not true or false");
+    need(r.placedAt == null || ISO.test(r.placedAt), "placedAt is not an ISO 8601 UTC time");
+    need(r.editedAt == null || ISO.test(r.editedAt), "editedAt is not an ISO 8601 UTC time");
   }
   if (k === "footnotePin") {
     need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");
