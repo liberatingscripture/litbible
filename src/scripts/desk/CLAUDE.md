@@ -1480,9 +1480,12 @@ against `dist/` is a later item.
        Chapter View's "Show" switches (`scriptureControls="study"`), which
        reach the LIT pane's text. Search is a pane (below).
      - **The title menu** (E15 and E14; BVJ, 2026-11-02). The h1's text
-       is a button, `Study Desk ▾` (`.desk-title`, built by desk-page.js, which
-       swaps the heading for a wrapper holding the h1 and the menus so the
-       windows take the header's type, not the heading's). Its menu holds Add
+       is a button, `Study Desk ▾` (`.desk-title`; desk-page.js swaps the
+       heading for a wrapper holding the h1 and the menus so the windows take
+       the header's type, not the heading's, and `title-menu.js` builds the
+       menu and its Add pane flyout from what `start()` hands it, as
+       `kind-menu.js` does: `getLayout`, `commit`, the two windows and the
+       tour, read when wanted). Its menu holds Add
        pane, Layout…, Print…, Display options, Full screen, then My notebook
        page, Take the tour and Help (one divider before the three). **Full
        screen** (E43; BVJ, 2026-11-06: the browser's own full screen only, no

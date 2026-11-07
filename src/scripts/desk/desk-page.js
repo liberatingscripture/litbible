@@ -53,12 +53,8 @@ import {
   ARRANGEMENTS,
   NEEDS_TEXT,
   HANDLE,
-  KINDS,
   LAYOUT_KEY,
   MIN_HEIGHT,
-  addPane,
-  addWhy,
-  addPaneNeeds,
   applyArrangement,
   arrangementOf,
   arrivalLayout,
@@ -92,14 +88,12 @@ import {
   splitPane,
   sizingFor,
   swapPanes,
-  whyText,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
 import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
 import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
-import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
@@ -119,8 +113,8 @@ import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
 import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
-import { describeUnavailable } from "./menu-reasons.js";
 import { createKindMenu } from "./kind-menu.js";
+import { createTitleMenu } from "./title-menu.js";
 
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -570,324 +564,10 @@ async function start() {
     if (to instanceof Node && !printMenu.contains(to) && !wrap.contains(to) && !inTour(to)) closePrintMenu({ focus: false });
   });
 
-  // ---- the title menu's items ----
+  // ---- the title menu ----
 
-  const titleMenu = el("div", "desk-ws__menu desk-title__menu");
-  titleMenu.id = "deskTitleMenu";
-  titleMenu.setAttribute("role", "menu");
-  titleMenu.setAttribute("aria-label", titleButton.firstElementChild.textContent);
-  titleMenu.hidden = true;
-  wrap.append(titleMenu);
-  // A line that is unavailable is passed over by the arrow keys, so the menu
-  // names it and says why when a screen reader enters it (menu-reasons.js).
-  const titleReasons = describeUnavailable(titleMenu, { id: "deskTitleMenuWhy" });
-
-  let hintCount = 0;
-  const item = (label, tag = "button") => {
-    const b = el(tag, "desk-title__item");
-    if (tag === "button") b.type = "button";
-    b.setAttribute("role", "menuitem");
-    b.tabIndex = -1;
-    b.append(el("span", "desk-title__label", label));
-    return b;
-  };
-  /** A disabled item carries the reason beside it (and for a screen reader). */
-  const setDisabled = (b, why) => {
-    let hint = b.querySelector(".desk-title__hint");
-    if (!hint) {
-      hint = el("span", "desk-title__hint");
-      hint.id = `deskTitleHint-${++hintCount}`;
-      b.querySelector(".desk-title__label").after(hint);
-    }
-    hint.textContent = why ?? "";
-    if (why) {
-      b.setAttribute("aria-disabled", "true");
-      b.setAttribute("aria-describedby", hint.id);
-    } else {
-      b.removeAttribute("aria-disabled");
-      b.removeAttribute("aria-describedby");
-    }
-  };
-  const enabled = (list) => list.filter((b) => b.getAttribute("aria-disabled") !== "true");
-
-  // Add pane: a flyout to the right that asks "Add column" or "Add row" and
-  // then, in the same flyout, which kind of pane to show (BVJ, 2026-11-02). A
-  // column is a pane the page's full height at the right edge, a row one the
-  // full width along the bottom (addPane). Disabled, not hidden, when the page
-  // can't take one, with the reason beside it.
-  const addItem = item("Add pane");
-  addItem.setAttribute("aria-haspopup", "menu");
-  addItem.setAttribute("aria-expanded", "false");
-  const more = el("span", "desk-title__more");
-  more.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-    <path d="M9 6l6 6-6 6" /></svg>`;
-  addItem.append(more);
-  const addFly = el("div", "desk-ws__menu desk-title__fly");
-  addFly.setAttribute("role", "menu");
-  addFly.setAttribute("aria-label", "Add pane");
-  addFly.hidden = true;
-  const addSub = el("div", "desk-title__sub");
-  addSub.append(addItem, addFly);
-  const addFlyReasons = describeUnavailable(addFly, { id: "deskAddFlyWhy" });
-
-  const layoutItem = item("Layout…");
-  layoutItem.setAttribute("aria-haspopup", "dialog");
-  const printItem = item("Print…");
-  printItem.setAttribute("aria-haspopup", "dialog");
-  // Aa is the Display tray's own button, moved here whole so the tray's
-  // listeners stay on it. It hangs the tray from the title (SiteHeader's
-  // data-tray-anchor), since this menu closes as the tray opens.
-  const displayItem = document.querySelector(".site-header__actions [data-font-toggle]");
-  if (displayItem) {
-    displayItem.className = "desk-title__item";
-    displayItem.setAttribute("role", "menuitem");
-    displayItem.setAttribute("aria-haspopup", "dialog");
-    displayItem.dataset.trayAnchor = ".desk-title__button";
-    displayItem.tabIndex = -1;
-    displayItem.replaceChildren(el("span", "desk-title__label", "Display options"));
-  }
-  // Full screen (E43; BVJ, 2026-11-06: the browser's own full screen, nothing
-  // more). It presses the Fullscreen API on the whole page, which a browser
-  // only allows from a click. F11 is a different thing the page can't see
-  // (fullscreenElement stays null under it), so the line says "Exit" only for
-  // a full screen it entered, and names the key otherwise. Escape is the
-  // browser's way out, and in full screen the page never hears that press.
-  // No line where the browser has no Fullscreen API.
-  const fullItem = document.fullscreenEnabled ? item("") : null;
-  const fullKey = /Mac|iPhone|iPad/.test(navigator.platform) ? "⌃⌘F" : "F11";
-  const refreshFull = () => {
-    fullItem.querySelector(".desk-title__label").textContent = document.fullscreenElement
-      ? "Exit full screen"
-      : `Full screen (${fullKey})`;
-  };
-  if (fullItem) {
-    refreshFull();
-    document.addEventListener("fullscreenchange", refreshFull);
-    fullItem.addEventListener("click", () => {
-      // Focus goes back to the title, so a refused request (announced below)
-      // doesn't leave it on the page's body (LV3-4).
-      closeTitleMenu();
-      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-      else {
-        document.documentElement.requestFullscreen?.().catch(() =>
-          announce(`This browser didn’t allow full screen. Use the browser’s own command instead (${fullKey}).`),
-        );
-      }
-    });
-  }
-  // The notebook's page (BVJ, 2026-11-02). No Settings window, and no "where
-  // it is kept" item (it would only link to a section of that page): nothing
-  // else of the Notebook's settings applies here.
-  const notebookItem = item("My notebook page", "a");
-  notebookItem.href = "/notebook/";
-  // The Study Desk tour runs here, in place (E24); the notebook's runs on a
-  // chapter page and starts from the Notebook's foot and the help page.
+  // Built below, once the panes box and `announce` exist (title-menu.js).
   let tour = null; // the Study Desk tour, made once the panes exist (below)
-  const tourItem = item("Take the tour");
-  tourItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); tour?.start(); });
-  const helpItem = item("Help for the Study Desk", "a");
-  helpItem.href = HELP_HREF;
-  // Each leaves the desk, so they open beside it.
-  const links = [notebookItem, helpItem];
-  for (const link of links) {
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-  }
-  // The quiet line (E24): until the reader has taken the tour or said "Not now,"
-  // a line at the top of the menu says there is one. Shown when the offer
-  // window was put off (or is not on the screen), refreshed as the menu opens.
-  const tourLine = el("div", "desk-title__line");
-  const tourLineGo = item("New to the Study Desk? Take the tour");
-  tourLineGo.classList.add("desk-title__line-go");
-  tourLineGo.addEventListener("click", () => { closeTitleMenu({ focus: false }); tour?.start(); });
-  const tourLineNo = item("Not now");
-  tourLineNo.classList.add("desk-title__line-no");
-  tourLineNo.addEventListener("click", () => { tour?.declineLine(); refreshTourLine(); tourItem.focus(); });
-  tourLine.append(tourLineGo, tourLineNo);
-  tourLine.hidden = true;
-  function refreshTourLine() {
-    tourLine.hidden = !tour?.lineWanted();
-  }
-  titleMenu.append(tourLine);
-  titleMenu.append(addSub, layoutItem, printItem);
-  if (displayItem) titleMenu.append(displayItem);
-  if (fullItem) titleMenu.append(fullItem);
-  titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
-  const baseItems = [
-    addItem, layoutItem, printItem,
-    ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
-    notebookItem, tourItem, helpItem,
-  ];
-  // A disabled line is passed over by the arrow keys, Home and End, as in
-  // every menu (DK3-7; BVJ, 2026-11-07): its reason is drawn beside it.
-  const topItems = () => enabled(tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
-
-  const DIRECTIONS = [
-    { id: "column", label: "Add column" },
-    { id: "row", label: "Add row" },
-  ];
-  let addStep = null; // null, or the direction chosen, once the flyout asks for a kind
-
-  const addRoom = () => panesBox.getBoundingClientRect();
-
-  /** Why a direction can't take a pane, for the hint; null when it can. */
-  function directionWhy(direction) {
-    const { width, height } = addRoom();
-    return whyText(addPaneNeeds(layout, direction, width, height));
-  }
-
-  function refreshAdd() {
-    const { width, height } = addRoom();
-    const reasons = DIRECTIONS.map((d) => addPaneNeeds(layout, d.id, width, height));
-    setDisabled(addItem, addWhy(reasons));
-    titleReasons.refresh();
-  }
-
-  /** Draw the flyout's step: column or row, then the kinds replacing them. */
-  function drawAddFly() {
-    addFly.replaceChildren();
-    if (addStep) {
-      const back = item(`‹ ${DIRECTIONS.find((d) => d.id === addStep).label}`);
-      back.addEventListener("click", () => { addStep = null; drawAddFly(); enabled(Array.from(addFly.children))[0]?.focus(); });
-      addFly.append(back);
-      for (const k of KINDS) {
-        const b = item(k.label);
-        b.addEventListener("click", () => {
-          const { width, height } = addRoom();
-          const direction = addStep;
-          const next = addPane(layout, direction, k.kind, width, height);
-          closeTitleMenu();
-          if (next === layout) return;
-          commit(next);
-          announce(`Added a ${direction} showing ${k.label}.`);
-        });
-        addFly.append(b);
-      }
-    } else {
-      for (const d of DIRECTIONS) {
-        const b = item(d.label);
-        setDisabled(b, directionWhy(d.id));
-        b.addEventListener("click", () => {
-          if (b.getAttribute("aria-disabled") === "true") return;
-          addStep = d.id;
-          drawAddFly();
-          addFly.children[1].focus();
-        });
-        addFly.append(b);
-      }
-    }
-    addFlyReasons.refresh();
-  }
-
-  function openAddFly({ focus = true } = {}) {
-    if (addItem.getAttribute("aria-disabled") === "true") return;
-    addStep = null;
-    drawAddFly();
-    addFly.hidden = false;
-    // Beside the menu where there is room to its right, else to its left.
-    addFly.classList.remove("desk-title__fly--left");
-    if (titleMenu.getBoundingClientRect().right + 6 + addFly.offsetWidth > window.innerWidth - 8) {
-      addFly.classList.add("desk-title__fly--left");
-    }
-    addItem.setAttribute("aria-expanded", "true");
-    if (focus) (enabled(Array.from(addFly.children))[0] ?? addFly.children[0]).focus();
-  }
-
-  function closeAddFly({ focus = false } = {}) {
-    if (addFly.hidden) return;
-    addFly.hidden = true;
-    addStep = null;
-    addItem.setAttribute("aria-expanded", "false");
-    if (focus) addItem.focus();
-  }
-
-  /** The flyout at its second step, as the tour shows it (E24): the kinds a column could show. */
-  function showAddKinds(direction) {
-    openTitleMenu();
-    openAddFly();
-    addStep = direction;
-    drawAddFly();
-  }
-
-  function openTitleMenu() {
-    closeMenu({ focus: false });
-    closePrintMenu({ focus: false });
-    refreshAdd();
-    refreshTourLine();
-    titleMenu.hidden = false;
-    titleButton.setAttribute("aria-expanded", "true");
-    const items = topItems();
-    items[0]?.focus();
-  }
-
-  function closeTitleMenu({ focus = true } = {}) {
-    if (titleMenu.hidden) return;
-    closeAddFly();
-    titleMenu.hidden = true;
-    titleButton.setAttribute("aria-expanded", "false");
-    if (focus) titleButton.focus();
-  }
-
-  titleButton.addEventListener("click", () => (titleMenu.hidden ? openTitleMenu() : closeTitleMenu()));
-  // Hover may have opened it already, so a click then moves into it.
-  addItem.addEventListener("click", () => {
-    if (addFly.hidden) openAddFly();
-    else (enabled(Array.from(addFly.children))[0] ?? addFly.children[0]).focus();
-  });
-  // Hover opens the flyout without taking focus, and leaving the item and the
-  // flyout closes it after a beat, so the pointer can cross the gap between them.
-  let addLeave = 0;
-  addSub.addEventListener("mouseenter", () => {
-    clearTimeout(addLeave);
-    if (addFly.hidden && !titleMenu.hidden) openAddFly({ focus: false });
-  });
-  addSub.addEventListener("mouseleave", () => {
-    clearTimeout(addLeave);
-    addLeave = setTimeout(() => {
-      if (!addFly.contains(document.activeElement)) closeAddFly();
-    }, 250);
-  });
-  layoutItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); openMenu(); });
-  printItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); openPrintMenu(); });
-  // The tray's own listener (first on this button) has placed it under the title.
-  displayItem?.addEventListener("click", () => closeTitleMenu({ focus: false }));
-  for (const link of links) link.addEventListener("click", () => closeTitleMenu({ focus: false }));
-
-  titleMenu.addEventListener("keydown", (e) => {
-    const inFly = addFly.contains(document.activeElement);
-    const list = inFly ? enabled(Array.from(addFly.children)) : topItems();
-    const i = list.indexOf(document.activeElement);
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      list[(i + (e.key === "ArrowDown" ? 1 : list.length - 1)) % list.length]?.focus();
-    } else if (e.key === "Home" || e.key === "End") {
-      e.preventDefault();
-      list[e.key === "Home" ? 0 : list.length - 1]?.focus();
-    } else if (e.key === "ArrowRight" && document.activeElement === addItem) {
-      e.preventDefault();
-      if (addFly.hidden) openAddFly();
-    } else if ((e.key === "ArrowLeft" || e.key === "Escape") && inFly) {
-      // One step back: from the kinds to column and row, then closed.
-      e.preventDefault();
-      e.stopPropagation();
-      if (addStep) {
-        addStep = null;
-        drawAddFly();
-        enabled(Array.from(addFly.children))[0]?.focus();
-      } else {
-        closeAddFly({ focus: true });
-      }
-    } else if (e.key === "Escape") {
-      e.stopPropagation();
-      closeTitleMenu();
-    }
-  });
-  // Tabbing out of the menu closes it, as a click elsewhere does.
-  titleMenu.addEventListener("focusout", (e) => {
-    const to = e.relatedTarget;
-    if (to instanceof Node && !wrap.contains(to) && !inTour(to)) closeTitleMenu({ focus: false });
-  });
 
   // ---- the panes ----
 
@@ -912,6 +592,14 @@ async function start() {
   // The pane menu (kind-menu.js). It reads the layout through `getLayout`,
   // since `layout` is replaced on every change.
   const kindMenu = createKindMenu({ getLayout: () => layout, panesBox, paneEls, commit, announce, sizePane });
+  // The title menu and its Add pane flyout (title-menu.js). It reads the
+  // layout and the tour when it needs them, since both are replaced later,
+  // and opens and closes the Layout and Print windows above through these.
+  const titleMenu = createTitleMenu({
+    wrap, titleButton, getLayout: () => layout, panesBox, commit, announce, getTour: () => tour, inTour,
+    layoutWindow: { open: openMenu, close: closeMenu },
+    printWindow: { open: openPrintMenu, close: closePrintMenu },
+  });
 
   function save() {
     if (layoutFrozen) return;
@@ -1190,7 +878,7 @@ async function start() {
 
   document.addEventListener("pointerdown", (e) => {
     if (!wrap.contains(e.target) && !inTour(e.target)) {
-      closeTitleMenu({ focus: false });
+      titleMenu.close({ focus: false });
       closeMenu({ focus: false });
       closePrintMenu({ focus: false });
     }
@@ -1587,17 +1275,17 @@ async function start() {
     paneEls,
     panesBox,
     titleButton,
-    titleMenu,
-    addFly,
-    openTitleMenu,
-    closeTitleMenu,
-    showAddKinds,
+    titleMenu: titleMenu.el,
+    addFly: titleMenu.addFly,
+    openTitleMenu: titleMenu.open,
+    closeTitleMenu: titleMenu.close,
+    showAddKinds: titleMenu.showAddKinds,
     layoutMenu: menu,
     openLayoutMenu: openMenu,
     closeLayoutMenu: closeMenu,
     refreshLayoutMenu: refreshMenu,
     shapeButtons,
-    onLineChange: refreshTourLine,
+    onLineChange: titleMenu.refreshTourLine,
   });
   const wantsTour = new URLSearchParams(location.search).has("desk-tour");
   if (wantsTour) {
