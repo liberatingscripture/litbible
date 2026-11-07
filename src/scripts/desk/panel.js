@@ -52,10 +52,10 @@ import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
+import { notebookTab } from "./notebook-tab.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { escapeHtml } from "./dom.js";
-import { notebookTab } from "./notebook-tab.js";
 
 const TAB_KEY = "lit-desk-tab";
 
