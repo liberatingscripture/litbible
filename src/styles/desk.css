@@ -2314,9 +2314,12 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   display: block;
 }
 
-/* The Footnotes list: the note and its button on one line, so the list grows
-   no taller; a flag, when the note was rewritten, takes the line below. */
+/* The Footnotes list: the note and its buttons on one line, so the list grows
+   no taller; a flag, when the note was rewritten, takes the line below. This
+   is the "inline" placement (E49), which the left margin replaces where it has
+   room: see "The pills in the left margin" below. */
 .footnotes > li.desk-fn {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -2335,6 +2338,100 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 .desk-fn__flag .desk-flag--row {
   margin-top: 0;
+}
+
+/* ── The pills in the left margin (E49) ─────────────────────────── */
+
+/* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
+   (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
+   follows its note in the document, so reading and tab order are the note,
+   Pin, then "+ Note" wherever it is drawn.
+     inline  (no attribute yet, or no room): a row on the note's line, as before;
+     row     the two pills side by side in the left margin, level with the
+             footnote's first line, right-aligned against the footnote;
+     more    one "⋯" pill there that opens the two stacked under it.
+   A footnote with a margin note beside it (data-desk-fn-margin) stays inline,
+   since a margin note sits in that same margin. */
+.desk-fn-pills {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.desk-fn-pills__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.desk-fn-more {
+  display: none;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 22px;
+  margin: 0;
+  padding: 0 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.74);
+  cursor: pointer;
+}
+
+.desk-fn-more:hover,
+.desk-fn-more[aria-expanded="true"] {
+  border-color: rgba(var(--ink-rgb), 0.4);
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-fn-more svg {
+  display: block;
+}
+
+.footnotes:is([data-desk-fn-pills="row"], [data-desk-fn-pills="more"]) > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills {
+  position: absolute;
+  z-index: 2;
+  right: calc(100% + 14px);
+  /* Centered on the footnote's first line: half of (line height less the
+     pills' 22px). The line height is .fn-body's, with the Display tray's
+     extra leading. */
+  top: calc(((1.6 + var(--reading-leading-extra, 0)) * 1em - 22px) / 2);
+  justify-content: flex-end;
+}
+
+.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-more {
+  display: inline-flex;
+}
+
+/* Closed, the stack is hidden from sight, focus and screen readers (it is
+   still laid out, so the list can measure its pills); open, it hangs under the
+   "⋯" with its right edge level with it. */
+.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  visibility: hidden;
+}
+
+.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills[data-open] > .desk-fn-pills__group {
+  visibility: visible;
+}
+
+@media (forced-colors: active) {
+  .desk-fn-more {
+    border-color: ButtonBorder;
+    color: ButtonText;
+  }
 }
 
 /* The popover: "See in footnotes" at one end of its last line, Pin at the other. */
@@ -2539,6 +2636,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
    the Footnotes list goes back to a plain block. */
 @media print {
   .desk-pin,
+  .desk-fn-pills,
   .desk-fn-actions,
   .desk-fnn,
   .desk-fn__flag {

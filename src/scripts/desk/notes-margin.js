@@ -122,6 +122,17 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   /* ── Drawing ─────────────────────────────────────────────────────── */
 
+  /**
+   * A footnote with a note drawn beside it here has that margin taken, so its
+   * Pin and "+ Note" take their place on its line instead (footnote-pills.js,
+   * E49). Marks exactly the footnotes of `items` and unmarks the rest.
+   */
+  function markFootnotes(items) {
+    const mine = new Set(items.map((p) => p.footnote).filter(Boolean));
+    for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
+    for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
+  }
+
   let frame = 0;
   function schedule() {
     cancelAnimationFrame(frame);
@@ -212,6 +223,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
     aside.hidden = mode === "none" && !aside.childElementCount;
     if (mode === "none") {
+      markFootnotes([]);
       if (popId) {
         const gone = popId;
         closePanel();
@@ -222,6 +234,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       return;
     }
     const items = notesOn ? placed() : [];
+    markFootnotes(items);
     const noticed = noticesFor(items.map((p) => p.record));
 
     if (mode === "full") {

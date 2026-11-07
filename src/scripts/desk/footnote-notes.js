@@ -35,6 +35,7 @@ import { forChapter, recordReference, QUIET_KINDS } from "../../lib/desk-store-c
 import { currentPanel } from "../lit-panel.js";
 import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
 import { busy, isBusy } from "./focus-keep.js";
+import { pillsHome } from "./footnote-pills.js";
 import { glyph } from "./glyphs.js";
 import { openNoteEditor } from "./note-editor.js";
 import { fillNoteWords } from "./note-words.js";
@@ -125,7 +126,9 @@ export function footnoteElementFor(record) {
 /** Where the editor opens from a button: beside the panel the button is in, if it is in one (the popover is replaced by the editor). */
 function openedFrom(button) {
   const panel = button.closest(".lit-panel") ? currentPanel() : null;
-  return { trigger: panel?.trigger ?? button, restoreFocus: panel ? panel.restoreFocus ?? null : button };
+  // A button behind a footnote's "⋯" (E49) hands back the "⋯", which stays.
+  const home = pillsHome(button);
+  return { trigger: panel?.trigger ?? home, restoreFocus: panel ? panel.restoreFocus ?? null : home };
 }
 
 /** Open the editor on a new note for the footnote with this id in this chapter. */
