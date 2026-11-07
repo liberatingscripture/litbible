@@ -1412,9 +1412,9 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   selected words as a passage. Not offered in /desk's LIT pane or the
   glossary. "With my notes" stands down with "Hide my marks". Print preview
   can't be emulated in the Browser pane; the pure parts are tested
-  (`test/desk-print-part.test.js`). Status: **built; needs a real print preview
-  in Chrome (and Firefox) for a verse, a range across a poetry block, a
-  selection, each of the three kinds.**
+  (`test/desk-print-part.test.js`). **BVJ tested it in Chrome (2026-11-06): all
+  worked** (a verse, a range, a selection, each kind, and the page as it was
+  after each dialog). Firefox not checked. Status: **done.**
 
 - **E41, bug and wish: bookmark colors, and moving bookmarks, on the desk.**
   BVJ (2026-11-05): "It doesn't look like the colors of the bookmarks
