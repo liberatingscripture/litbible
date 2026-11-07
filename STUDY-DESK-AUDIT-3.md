@@ -334,8 +334,9 @@ Small follow-ups noticed, outside the findings: the .rtf numbers a nested ordere
 where .docx and .odt use "a."; `/search` listens to `input` only, so Chrome's Escape-to-clear
 leaves the old results; the store's asynchronous full-disk path (Chrome's) is untested. All
 three have PRs (2026-11-07): #495 (the .rtf), #496 (/search), and #497, the store test, which
-found that on that path the change rejects with `null` (`committed()`'s `tx.onerror` runs
-before `tx.error` is set); the test is marked todo and the fix waits on BVJ.
+found that on that path the change rejected with `null` (`committed()`'s `tx.onerror` ran
+before `tx.error` was set); BVJ asked for the fix, which is in the same PR: the abort is the
+one rejection, and carries the error.
 
 Sessions 1, 2, 4 and 5 touch different files and can run side by side. Session 3 shares
 `desk-page.js` with nothing else here. Session 6 edits the desk's `CLAUDE.md`, which every other
