@@ -539,7 +539,7 @@ against `dist/` is a later item.
        knows the old shape; the website never writes a `place`. A bookmark is a
        row in the ordinary My Notes list and the notebook page's: its reference,
        its name right under it, then a line "Bookmark · Stays put" / "Moves" /
-       "Following" (`bookmarkLine`, bookmark-follow.js: following is this tab's
+       "Following" (`bookmarkState`, bookmark-follow.js: following is this tab's
        flag; one short word each so the line never wraps in the narrow list,
        with the fuller sentence as hover text; the words are an Opus agent's,
        who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
@@ -1133,10 +1133,10 @@ against `dist/` is a later item.
        keeps its panes and sizes, and only the active LIT pane and the
        shared place move (`arrivalLayout`, pure and tested; BVJ, 2026-11-02:
        a link never forces an arrangement, Reading included). desk-page.js saves the move
-       and strips the parameter. The header's "Study Desk" link carries the
-       chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref`
-       is the same address for code). A new link into /desk that means to
-       open at a passage uses this, never the layout key.
+       and strips the parameter. On a chapter or intro page the toolbar's
+       "Study Desk" pill carries the chapter (`ScriptureLayout.astro`, its
+       `deskPlaceHref`); the header's link is on the home page only. A new link
+       into /desk that means to open at a passage uses this, never the layout key.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
        2026-11-02). With the preview on, `/read`'s Read View card and the
        chapter picker's "Open X in Read View" link become the Study Desk

@@ -5752,21 +5752,6 @@ html.desk-ws--moving * {
   border-top: 1px solid rgba(var(--ink-rgb), 0.1);
 }
 
-/* What I've kept as a pane: the notebook page's list at the pane's size. */
-.desk-np--pane {
-  font-size: inherit;
-}
-
-.desk-np--pane .desk-np__h3 {
-  margin-top: 1.25rem;
-  font-size: 1.05rem;
-}
-
-.desk-np--pane .desk-np__h4 {
-  margin-top: 0.85rem;
-  font-size: 0.9375rem;
-}
-
 /* Where a dragged pane would land: half of the pane under the pointer. */
 .desk-ws__drop {
   position: absolute;

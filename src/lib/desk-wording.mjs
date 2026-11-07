@@ -16,6 +16,9 @@
 //
 // This is a different job from finding a mark again (anchor-core.mjs), which
 // keeps quotes and dashes exactly as written.
+//
+// It also spells small counts for copy (`numberWord`), so a limit's sentence
+// reads from the constant that enforces it.
 
 const SINGLE = /[‘’‚‛′]/g;
 const DOUBLE = /[“”„‟″]/g;
@@ -130,4 +133,19 @@ export function wordingDiff(before, now) {
     if (ins.length) runs.push({ op: "ins", text: joinRun(ins), lead: ins[0].lead });
   }
   return runs;
+}
+
+const SMALL_NUMBERS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+/**
+ * A small count in words, for copy that states a limit ("Six of your
+ * bookmarks", "Four panes fit"): the constant is the number, the word is what
+ * the reader reads. `capital` capitalizes it for a sentence's first word. A
+ * count outside 1 to 10 is written in figures, so a limit raised past ten
+ * shows as a number rather than breaking the sentence.
+ */
+export function numberWord(n, { capital = false } = {}) {
+  const word = Number.isInteger(n) && n >= 1 && n < SMALL_NUMBERS.length ? SMALL_NUMBERS[n] : null;
+  if (!word) return String(n);
+  return capital ? word[0].toUpperCase() + word.slice(1) : word;
 }

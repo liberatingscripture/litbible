@@ -38,6 +38,7 @@ import { initUndo, showUndo } from "./undo-bar.js";
 import { createTrashList } from "./trash-list.js";
 import { mountWhatsNew } from "./whats-new.js";
 import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import { el } from "./dom.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -134,18 +135,18 @@ async function start() {
     <section class="desk-np__section desk-backup" id="backup" data-np-backup></section>
     <section class="desk-np__section" id="trash" aria-labelledby="deskNpTrashTitle">
       <h2 class="desk-np__h2" id="deskNpTrashTitle">Trash</h2>
-      <p>What you delete waits here for 30 days. Restore an item to put it back where it was; after 30 days only a record that it was deleted remains, and a saved copy is the only way back.</p>
+      <p>What you delete waits here for ${TRASH_DAYS} days. Restore an item to put it back where it was; after ${TRASH_DAYS} days only a record that it was deleted remains, and a saved copy is the only way back.</p>
       <div data-np-trash-list></div>
     </section>
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
       <div class="desk-np__danger">
-        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring them back until you leave the page, or restore them from the Trash above. The trash keeps each one for 30 days, then only a record that it was deleted.</p>
+        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring them back until you leave the page, or restore them from the Trash above. The trash keeps each one for ${TRASH_DAYS} days, then only a record that it was deleted.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Empty the trash now</h3>
-        <p>For a shared computer. Wipes the words of everything in the trash at once, instead of after 30 days. Only a record that each item was deleted stays. This can’t be undone.</p>
+        <p>For a shared computer. Wipes the words of everything in the trash at once, instead of after ${TRASH_DAYS} days. Only a record that each item was deleted stays. This can’t be undone.</p>
         <div data-np-trash-box></div>
       </div>
     </section>
