@@ -24,8 +24,8 @@ const note = (extra = {}) =>
 
 /** A fresh browser: its own database, and a navigator.storage that answers as told. */
 async function freshBrowser({ persisted = false, grant = true } = {}) {
-  // Let the last test's unawaited request for persistent storage land first.
-  await new Promise((r) => setTimeout(r, 30));
+  // The last test's request for persistent storage may still be in flight; let it land first.
+  await settled();
   globalThis.indexedDB = new IDBFactory();
   const calls = { persist: 0 };
   Object.defineProperty(globalThis, "navigator", {
@@ -53,7 +53,7 @@ globalThis.BroadcastChannel = class extends RealChannel {
   }
 };
 
-const { openStore } = await import("../src/scripts/desk/store.js");
+const { openStore, settled } = await import("../src/scripts/desk/store.js");
 const settle = () => new Promise((r) => setTimeout(r, 20));
 
 test("a saved record is read back, and by chapter", async () => {
