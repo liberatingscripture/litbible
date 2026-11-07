@@ -135,11 +135,23 @@ const textRuns = (text) => docRuns([{ t: "text", text: text ?? "" }]);
 /** A quotation's indent on each side, in twips, as `quote` sets it. */
 const QUOTE_INDENT = 720;
 
+// A list number as lowercase letters, as Word and LibreOffice count them: 1 is a, 26 is z, 27 is aa, 28 is bb.
+const letters = (n) => String.fromCharCode(97 + ((n - 1) % 26)).repeat(Math.ceil(n / 26));
+
+// A list number as lowercase roman numerals: 1 is i, 4 is iv, 9 is ix.
+function roman(n) {
+  const digits = [[100, "c"], [90, "xc"], [50, "l"], [40, "xl"], [10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"]];
+  let s = "";
+  for (const [value, text] of digits) while (n >= value) { s += text; n -= value; }
+  return s;
+}
+
 function listRtf(b, depth = 0, quoted = false) {
   let out = "";
   let n = 0;
   for (const item of b.items) {
-    const marker = b.ordered ? `${++n}.` : ["•", "◦", "▪"][depth % 3];
+    // Ordered levels cycle decimal, letters, roman numerals, as the .docx and .odt writers do.
+    const marker = b.ordered ? `${[String, letters, roman][depth % 3](++n)}.` : ["•", "◦", "▪"][depth % 3];
     // Inside a quotation the list keeps the quotation's margins (DK3-4).
     const left = (quoted ? QUOTE_INDENT : 0) + 720 + 360 * depth;
     const right = quoted ? `\\ri${QUOTE_INDENT}` : "";

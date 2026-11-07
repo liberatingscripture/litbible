@@ -482,6 +482,34 @@ test(".rtf: headings, lists, raised verse numbers, footnotes, links, and the cre
   assert.ok(!rtf.includes("javascript"));
 });
 
+test(".rtf: a nested ordered list counts in letters, then roman numerals, then decimal again", () => {
+  const t = (text) => ({ t: "text", text });
+  const doc = { title: "N", blocks: [{ type: "list", ordered: true, items: [
+    { inlines: [t("first")], lists: [] },
+    { inlines: [t("second")], lists: [{ type: "list", ordered: true, items: [
+      { inlines: [t("nested a")], lists: [{ type: "list", ordered: true, items: [
+        { inlines: [t("third")], lists: [{ type: "list", ordered: true, items: [{ inlines: [t("deep")], lists: [] }] }] },
+      ] }] },
+      { inlines: [t("nested b")], lists: [] },
+    ] }] },
+  ] }] };
+  const rtf = rtfText(doc, {});
+  assert.match(rtf, /\\li720\\tx720 1\.\\tab \{first\}\\par/, "the top level is decimal");
+  assert.match(rtf, /\\li720\\tx720 2\.\\tab \{second\}\\par/, "the top level is decimal");
+  assert.match(rtf, /\\li1080\\tx1080 a\.\\tab \{nested a\}\\par/, "depth 1 is letters");
+  assert.match(rtf, /\\li1080\\tx1080 b\.\\tab \{nested b\}\\par/, "depth 1 is letters");
+  assert.match(rtf, /\\li1440\\tx1440 i\.\\tab \{third\}\\par/, "depth 2 is lowercase roman");
+  assert.match(rtf, /\\li1800\\tx1800 1\.\\tab \{deep\}\\par/, "depth 3 goes back to decimal");
+  // Past z the letters double, as Word and LibreOffice count: 27 is aa, 28 is bb.
+  const many = { title: "N", blocks: [{ type: "list", ordered: true, items: [{ inlines: [t("one")], lists: [
+    { type: "list", ordered: true, items: Array.from({ length: 28 }, (_, i) => ({ inlines: [t(`item ${i + 1}`)], lists: [] })) },
+  ] }] }] };
+  const long = rtfText(many, {});
+  assert.match(long, /\\li1080\\tx1080 z\.\\tab \{item 26\}/);
+  assert.match(long, /\\li1080\\tx1080 aa\.\\tab \{item 27\}/);
+  assert.match(long, /\\li1080\\tx1080 bb\.\\tab \{item 28\}/);
+});
+
 /* ── The key terms box (E57) ──────────────────────────────────────────── */
 
 test("the key terms box is read as a box, its tag outside it", () => {
