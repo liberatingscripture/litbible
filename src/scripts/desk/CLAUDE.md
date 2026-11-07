@@ -1197,6 +1197,20 @@ against `dist/` is a later item.
        settles, and its ResizeObserver puts it back when the width or height
        changes (BA54). The room below the text is the part of the pane below
        the line (`--desk-lit-below`, BA57), so the last verses reach it.
+       **The verse at the line is read from the verses' `[data-verse]`
+       spans, never their numbers** (`placeNow`, `keep`, `indexAtLine` in
+       `desk-lit-text.mjs`; E29), since the Display tray may hide the
+       numbers. **The scroller is positioned** for the same reason: a hidden
+       number, letter or heading is a 1px absolute box (global.css), and with
+       the pane's body as its containing block it stayed where the text was
+       first drawn, so with numbers off the location field read verse 1 and
+       a jump to a verse landed wrong. With numbers off the chapter headings
+       are hidden that way too (styles/CLAUDE.md, the Display tray's rule 6).
+       **Its bar has "Open on its page"** (E35): a link after the
+       next-chapter arrow (`extra` in `passage-bar.js`, `OPEN_PAGE_ICON` in
+       `glyphs.js`) to the chapter's page at the verse the field names
+       (`showPlace`, which every move of the field goes through), in a new
+       tab, as the chapter headings' links also open.
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);
@@ -1325,10 +1339,16 @@ against `dist/` is a later item.
        than the pane does (BVJ, 2026-11-04). **It keeps nothing about a search**
        (no key, no layout field), so /privacy doesn't name it and a reload
        empties it. **It stands alone**: not a follower, and “The book I’m
-       reading” fixes the book when picked. A plain click on a verse or
-       topic moves the LIT pane through `env.showPassage`, and rows stay
+       reading” fixes the book when picked. **A passage result offers both
+       ways to read it** (E34; BVJ, 2026-11-05): a plain click on a verse or
+       topic moves the leading LIT pane through `env.showPassage`, or opens
+       one beside the pane when there is none, and the note line says which
+       (`showPassage` returns "moved", "opened" or "placed";
+       `passageMoveMessage`); a small link beside the row (`awayLink`,
+       `.desk-search__away`) opens its page in a new tab. Rows stay
        real links, so a modified click opens a tab and `ref-preview.js`
-       previews them (`.desk-search__link`). A glossary entry is cloned from
+       previews them (`.desk-search__link`); on /desk the preview's
+       "Open John 3 →" opens in a new tab too. A glossary entry is cloned from
        the fetched /glossary/ page into the pane; an article or intro opens
        in a new tab. A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Adding to a sheet

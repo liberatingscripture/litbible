@@ -115,3 +115,20 @@ export function nextPage(shown, total, page = PAGE) {
   const next = Math.min(total, Math.max(0, shown) + page);
   return { shown: next, hidden: total - next };
 }
+
+/**
+ * What a plain click on a passage result says it did (E34; BVJ, 2026-11-05:
+ * a result offers the LIT pane or the passage's page, and the LIT pane choice
+ * says which happened). `outcome` is desk-page.js's `showPassage`: "moved"
+ * the leading LIT pane, "opened" a new one, or "placed" (no LIT pane, and no
+ * room for one). `label` is the passage, "John 3:16". Empty for anything else.
+ */
+export function passageMoveMessage(outcome, label) {
+  if (outcome === "moved") return `The LIT pane moved to ${label}.`;
+  if (outcome === "opened") return `A LIT pane opened at ${label}.`;
+  if (outcome === "placed") return `There’s no room for a LIT pane to show ${label}. Close a pane, or open it on its page.`;
+  return "";
+}
+
+/** The name of a result's link to its passage's own page, which opens in a new tab (E34). */
+export const pageLinkLabel = (label) => `Open ${label} on its page, in a new tab`;

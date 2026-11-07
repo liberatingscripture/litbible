@@ -47,7 +47,7 @@
 //   and bookmarks are in My Notes, which follows this pane.
 
 import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
-import { litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
+import { indexAtLine, litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
 import { checkPassage, passageLabel, sameChapter } from "../../lib/desk-passage.mjs";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
@@ -60,6 +60,7 @@ import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
 import { make } from "./dom.js";
+import { OPEN_PAGE_ICON } from "./glyphs.js";
 
 /** How far down the pane the reading line sits. */
 const LINE = 0.1;
@@ -91,13 +92,33 @@ const PARK_NEAR = 2;
 export function createLitPane({ paneId, start, drafts, onPlace }) {
   const units = corpusUnits(drafts);
   const el = make("div", "desk-lit");
+  // The passage on its own page, at the verse the field names (E35): a new
+  // tab, as every link that leaves the desk opens, so the layout stays. The
+  // headings link the same pages, but a heading isn't seen as a button.
+  const openPage = make("a", "desk-passage__step desk-lit__open");
+  openPage.target = "_blank";
+  openPage.rel = "noopener noreferrer";
+  openPage.title = "Open on its page";
+  openPage.innerHTML = OPEN_PAGE_ICON;
   const bar = createPassageBar({
     id: paneId,
     set: (p) => {
       goTo(p, { force: true });
       tell(p);
     },
+    extra: openPage,
   });
+  /** The field and the link to the page both name `p`. */
+  function showPlace(p) {
+    bar.update(p);
+    const href = chapterHref(p.bookKey, p.chapter);
+    if (!href) {
+      openPage.removeAttribute("href");
+      return;
+    }
+    openPage.href = p.verse ? `${href}#v${p.verse}` : href;
+    openPage.setAttribute("aria-label", `Open ${passageLabel(p)} on its page, in a new tab`);
+  }
   const scroller = make("div", "desk-lit__scroll");
   // A panel opened from the text (the verse menu, the selection panel, a
   // footnote, a key term) stays put on the screen as the pane scrolls (BA125).
@@ -179,7 +200,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
 
   function tell(p) {
     told = p;
-    bar.update(p);
+    showPlace(p);
     onPlace(p);
   }
 
@@ -234,6 +255,9 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const a = make("a", null, unitHeading(u));
     const href = chapterHref(u.bookKey, chapter);
     if (href) a.href = href;
+    // A link that leaves the desk opens apart, so the layout stays.
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
     a.title = "Open in Chapter View";
     h.append(a);
     // A group, not a region: a pane that has scrolled through sixty chapters would list sixty landmarks (DK-7).
@@ -335,6 +359,17 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     });
   }
 
+  /**
+   * Where each verse starts in a section: its `[data-verse]` spans, in
+   * document order (E29). Never the verse numbers, which the Display tray may
+   * hide; the spans hold the words and are always laid out.
+   */
+  const verseMarks = (section) =>
+    Array.from(section.querySelectorAll(":scope > .chapter-paragraphs [data-verse]"));
+  function* topsOf(marks) {
+    for (const m of marks) yield m.getBoundingClientRect().top;
+  }
+
   /** Where the reader is: the passage at the reading line. */
   function placeNow() {
     const s = sectionAtLine();
@@ -347,21 +382,16 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       const share = Math.min(0.999, Math.max(0, (line() - r.top) / Math.max(1, r.height)));
       return { bookKey: u.bookKey, chapter: u.chapters[Math.floor(share * u.chapters.length)], verse: null };
     }
-    const y = line();
-    let verse = null;
-    for (const m of s.querySelectorAll("sup.vn")) {
-      if (m.getBoundingClientRect().top > y) break;
-      const n = /v(\d+)$/.exec(m.id)?.[1];
-      if (n) verse = Number(n);
-    }
-    if (verse == null) verse = Number(/v(\d+)$/.exec(s.querySelector("sup.vn")?.id ?? "")?.[1]) || null;
-    return { bookKey: u.bookKey, chapter: u.chapters[0], verse };
+    // Before the line, or none: the chapter's first verse.
+    const marks = verseMarks(s);
+    const at = marks[Math.max(0, indexAtLine(topsOf(marks), line()))];
+    return { bookKey: u.bookKey, chapter: u.chapters[0], verse: Number(at?.dataset.verse) || null };
   }
 
   /**
    * Note where the text is, before the page takes the pane off it to redraw
    * the panes (which resets its scrolling, BA51), and return what puts it
-   * back: the verse number at or above the reading line goes back the same
+   * back: the verse start at or above the reading line goes back the same
    * distance from it, however a new width has rewrapped the lines. The move
    * isn't the reader's scrolling, so nothing is told.
    */
@@ -369,11 +399,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const s = sectionAtLine();
     if (!s || !scroller.clientHeight) return () => {};
     const y = line();
-    let mark = s;
-    for (const m of s.querySelectorAll("sup.vn")) {
-      if (m.getBoundingClientRect().top > y) break;
-      mark = m;
-    }
+    const marks = verseMarks(s);
+    const mark = marks[indexAtLine(topsOf(marks), y)] ?? s;
     const offset = mark.getBoundingClientRect().top - y;
     return () => {
       if (destroyed || !mark.isConnected || !scroller.clientHeight) return;
@@ -477,7 +504,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     // A stub's place still waiting is the reader's old one: going elsewhere drops it.
     clearTimeout(stubWait);
     stubWait = 0;
-    bar.update(p);
+    showPlace(p);
     const i = unitIndex(units, p.bookKey, p.chapter);
     if (i < 0) return;
     const there = sections.get(i);

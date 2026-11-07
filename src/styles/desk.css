@@ -5661,6 +5661,11 @@ html.desk-ws--moving * {
 }
 
 .desk-lit__scroll {
+  /* Positioned, so a verse number, footnote letter or heading the Display
+     tray hides (a 1px absolute box, global.css) scrolls with the text. With
+     the pane's body as their containing block they stayed where the text
+     had first been drawn, so a hidden number was no scroll target (E29). */
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -5723,6 +5728,36 @@ html.desk-ws--moving * {
 
 .desk-lit__heading a:hover {
   text-decoration: underline;
+}
+
+/* With verse numbers off (the Display tray, or the Reading arrangement), the
+   chapters run together as one text, so a chapter's heading makes no break
+   (E29; BVJ, 2026-11-05). It is hidden the way a hidden verse number is: out
+   of the flow, so it adds no height, and still a heading, a link and a focus
+   stop. With focus it shows over the start of its chapter rather than
+   pushing the text down. Chapter View's own pages keep theirs. */
+html[data-vn="off"] .desk-lit__heading {
+  position: absolute;
+  margin: 0;
+}
+
+html[data-vn="off"] .desk-lit__heading:not(:focus-within) {
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html[data-vn="off"] .desk-lit__heading:focus-within {
+  z-index: 1;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .desk-lit .chapter-paragraphs p {
@@ -7780,7 +7815,7 @@ mark.desk-print-mark {
   text-overflow: ellipsis;
 }
 
-.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__choice, .desk-search__open):focus-visible,
+.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__away, .desk-search__choice, .desk-search__open):focus-visible,
 .desk-search .desk-search__link:focus-visible,
 .desk-search .greek-cmd-link:focus-visible,
 .desk-search__exact input:focus-visible {
@@ -7984,6 +8019,34 @@ mark.desk-print-mark {
 .desk-search__row:hover .desk-search__add,
 .desk-search__row:focus-within .desk-search__add,
 .desk-search__add:focus-visible {
+  opacity: 1;
+}
+
+/* A passage result's second way to read it (E34): its own page, in a new
+   tab, beside the result whose plain click moves the LIT pane. Quiet at
+   rest, so a list of results doesn't read as a column of icons, and full
+   strength on its row's hover or focus. */
+.desk-search__away {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 2px 0 0;
+  border-radius: 8px;
+  color: var(--text);
+  /* Still 3:1 or more against the pane at rest, as an icon that means
+     something must be. */
+  opacity: 0.6;
+}
+
+.desk-search__away:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-search__row:hover .desk-search__away,
+.desk-search__row:focus-within .desk-search__away {
   opacity: 1;
 }
 
