@@ -280,6 +280,14 @@ test("pointerFocus: false: a click on a flyout hover opened keeps focus out too"
   assert.equal(doc.activeElement, doc.body);
 });
 
+test("pointerFocus: false: a second mouse click shuts it without pulling focus to the trigger", () => {
+  const { trigger, fly } = build({ pointerFocus: false });
+  trigger.dispatch("click", { detail: 1 });
+  trigger.dispatch("click", { detail: 1 });
+  assert.equal(fly.hidden, true);
+  assert.equal(doc.activeElement, doc.body, "the selection panel never takes focus");
+});
+
 test("leaving the row shuts a hover-opened flyout after a beat", () => {
   const { row, trigger, fly } = build();
   trigger.dispatch("pointerenter", { pointerType: "mouse" });

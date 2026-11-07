@@ -142,7 +142,9 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
       openedBy = "click";
       return open(focusIn, "click");
     }
-    close(true);
+    // A mouse that may not move focus in (`pointerFocus: false`) doesn't pull
+    // it to the trigger on the way out either.
+    close(focusIn);
   });
   fly.addEventListener("focusout", (e) => {
     if (!wrap.contains(/** @type {Node | null} */ (e.relatedTarget))) later();
