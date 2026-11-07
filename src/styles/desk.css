@@ -4327,6 +4327,17 @@ html:has(.desk-greek__split--dragging) {
   color: rgba(var(--ink-rgb), 0.85);
 }
 
+/* What the lazy Greek search is doing or couldn't do (GK3-13). */
+.desk-greek__find-note {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.8);
+}
+
+.desk-greek__find-note:empty {
+  display: none;
+}
+
 .desk-greek__code {
   margin-left: 4px;
   color: rgba(var(--ink-rgb), 0.65);
@@ -4430,7 +4441,7 @@ html:has(.desk-greek__split--dragging) {
 }
 
 /* "Show sources" writes out what an abbreviation's hover text says (GK-12). */
-.desk-greek__sources {
+.desk-greek__show-sources {
   margin: 2px 0 4px;
   padding: 1px 8px;
   border: 1px solid rgba(var(--ink-rgb), 0.58);
@@ -4442,11 +4453,11 @@ html:has(.desk-greek__split--dragging) {
   cursor: pointer;
 }
 
-.desk-greek__sources[aria-pressed="true"] {
+.desk-greek__show-sources[aria-pressed="true"] {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
-.desk-greek__sources:focus-visible {
+.desk-greek__show-sources:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -6737,6 +6748,12 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
   .desk-greek__choice[aria-pressed="true"] {
     padding: 3px 8px;
+    border: 3px solid Highlight;
+  }
+
+  /* "Show sources", pressed: a tint draws nothing here. */
+  .desk-greek__show-sources[aria-pressed="true"] {
+    padding: 0 6px;
     border: 3px solid Highlight;
   }
 
