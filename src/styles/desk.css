@@ -5441,7 +5441,7 @@ html.desk-ws--moving * {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
-/* Placed on the screen by desk-page.js (placeKindMenu), clear of the panes
+/* Placed on the screen by kind-menu.js (placeKindMenu), clear of the panes
    box's scrolling, which cut it off below a bottom-row pane (BA122). */
 .desk-pane__menu {
   position: fixed;
