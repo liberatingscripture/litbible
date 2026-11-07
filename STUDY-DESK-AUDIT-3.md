@@ -1417,6 +1417,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** Medium
 
 #### LG3-13 · Nit · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** the three `.desk-np--pane` rules are deleted from `src/styles/desk.css`; a grep of `src/` confirmed no `np--` class is built.
+
 **Where** `src/styles/desk.css:5755-5767`.
 **What happens** `.desk-np--pane` (three rules) styles a class nothing builds; it is a leftover of the retired "kept" pane kind. MX confirmed no `np--` string exists in `src/`. The other ten "not found" classes in MX section 5 are all built by template strings (`desk-bookmark-glyph--${look}`, `desk-print-mark--${color}`, `desk-split--${node.split}`, `desk-sheet__module--${type}`) and are live.
 **Fix** Delete the three rules.
