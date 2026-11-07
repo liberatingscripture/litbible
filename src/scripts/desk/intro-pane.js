@@ -30,16 +30,11 @@ import { BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
 import { introPath, stepBook } from "../../lib/desk-passage.mjs";
 import { resultTarget } from "../../lib/desk-search-pane.mjs";
 import { make } from "./dom.js";
-import { OPEN_PAGE_ICON } from "./glyphs.js";
+import { chevronIcons, OPEN_PAGE_ICON } from "./glyphs.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
-const ICON_PREV = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M15 6l-6 6 6 6" /></svg>`;
-const ICON_NEXT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M9 6l6 6-6 6" /></svg>`;
+const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons();
 
 const cache = new Map(); // book key → Promise<{ draft, body }>
 

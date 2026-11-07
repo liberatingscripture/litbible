@@ -12,8 +12,9 @@
 // verse) are src/lib/desk-bookmarks.mjs and desk-bookmark-change.mjs, applied
 // in the one transaction that writes.
 
-import { BOOKMARK_NAME_MAX, canFollowMore } from "../../lib/desk-bookmarks.mjs";
+import { BOOKMARK_NAME_MAX, canFollowMore, MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { bookmarkPlace, placeLabel, planBookmarkEdit, roomAt } from "../../lib/desk-bookmark-change.mjs";
+import { numberWord } from "../../lib/desk-wording.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
 import { closePanel, showPanel } from "../lit-panel.js";
@@ -74,7 +75,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
     <p class="desk-bookmark-form__lock" role="status" hidden></p>
     <p class="desk-bookmark-form__hint" id="deskBookmarkHint${n}">
       Moves along with you as you read its book, once it’s following you.
-      Without this, it stays on its verse. Up to six of your bookmarks can move.
+      Without this, it stays on its verse. Up to ${numberWord(MAX_FOLLOWING)} of your bookmarks can move.
     </p>
     <label class="desk-bookmark-form__follow desk-bookmark-form__start" hidden>
       <input type="checkbox" class="desk-bookmark-form__start-box" />
@@ -157,7 +158,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
         : !followsHere()
           ? "It can start following from a chapter or Read View page."
           : atLimit
-            ? "Six of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them."
+            ? `${numberWord(MAX_FOLLOWING, { capital: true })} of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them.`
             : null;
     startWrap.hidden = !follow.checked || Boolean(why);
     if (startWrap.hidden) startBox.checked = false;

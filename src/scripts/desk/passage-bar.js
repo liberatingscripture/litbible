@@ -13,13 +13,9 @@
 
 import { parseReference } from "../search-core.js";
 import { checkPassage, passageLabel, stepChapter } from "../../lib/desk-passage.mjs";
+import { chevronIcons } from "./glyphs.js";
 
-const ICON_PREV = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M15 6l-6 6 6 6" /></svg>`;
-const ICON_NEXT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M9 6l6 6-6 6" /></svg>`;
+const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons();
 
 /**
  * @param {{ id: string, set: (passage: object) => void, extra?: HTMLElement }} options

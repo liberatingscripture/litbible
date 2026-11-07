@@ -1368,6 +1368,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-6 · Low · docs · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** `src/scripts/desk/CLAUDE.md` now says `bookmarkState`, and the sentence on the chapter-carrying link names the toolbar's pill (`ScriptureLayout.astro`), with the header link on the home page only.
+
 **Where** `src/scripts/desk/CLAUDE.md:541` and `:1136`.
 **What happens** Of 139 file names, 185 identifiers and 14 CSS classes I extracted from the lines added to the four area docs since Audit 2 (`syms.py`), all but these exist: (1) `bookmarkLine` at line 541 is `bookmarkState` in `bookmark-follow.js:119`. (2) Line 1136 says "The header's 'Study Desk' link carries the chapter on a chapter page (`deskPlace` to `SiteHeader`, `deskPlaceHref` is the same address for code)". E50 (decided (b), 2026-11-06) moved that link: the header link is on the home page only (`SiteHeader.astro:10`, `deskLink`), and the chapter-carrying link is the pill in the scripture toolbar (`ScriptureLayout.astro:122-130,218`, local consts `deskPlaceHref`, `deskPlaceLabel`). No `deskPlace` prop exists. `ReadMenu.astro:242` also cites `desk-passage.mjs`'s `deskPlaceHref`, which does exist (`desk-passage.mjs:73`).
 **Fix** Rename the first; rewrite the second sentence to the pill. The other 38 sampled claims, and the four "held by test X" claims I checked (`desk-frame.test.js` for the `:has()` list, `desk-footnotes.test.js`, `desk-chapter-address.test.js`, `desk-anchor-dom.test.js`), are accurate.
@@ -1397,6 +1399,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-10 · Low · longevity · NEW (extends LG-13/FA2-z)
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** `commands-window.js` imports `make` from `dom.js`, and the chevron pair in `intro-pane.js`, `passage-bar.js` and `tab-verse.js` comes from `chevronIcons()` in `glyphs.js`. The other copies are left alone.
+
 **Where** `src/scripts/desk/commands-window.js:37`, `desk-tour.js:47`, `first-use.js:82`, `sheet-text.js:69`; `desk-sheet-format.mjs:664-665`, `desk-sheet-discussion.mjs:96`, `desk-sheet-doc.mjs:98`.
 **What happens** `dom.js` (FA2-z, 2026-11-04) is imported by 25 modules, and all the new pane code (`intro-pane`, `sheet-save`, `sheet-page`, `trash-list`) uses it. One new copy appeared after it existed: `commands-window.js` (added 2026-11-06, E31) defines its own `make`. Three older copies remain because they differ by `!== undefined` against `!= null`. Plus four HTML escapers and one XML escaper; the document and slide writers all share `xmlEscape`, which is good. The same chevron SVG pair is pasted in `intro-pane.js`, `passage-bar.js` and `tab-verse.js`. None of this causes a bug today.
 **Fix** Use `dom.js` in `commands-window.js` now. Move the chevron icons to `glyphs.js` beside `OPEN_PAGE_ICON`. Leave the rest.
@@ -1415,6 +1419,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** Medium
 
 #### LG3-13 · Nit · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** the three `.desk-np--pane` rules are deleted from `src/styles/desk.css`; a grep of `src/` confirmed no `np--` class is built.
+
 **Where** `src/styles/desk.css:5755-5767`.
 **What happens** `.desk-np--pane` (three rules) styles a class nothing builds; it is a leftover of the retired "kept" pane kind. MX confirmed no `np--` string exists in `src/`. The other ten "not found" classes in MX section 5 are all built by template strings (`desk-bookmark-glyph--${look}`, `desk-print-mark--${color}`, `desk-split--${node.split}`, `desk-sheet__module--${type}`) and are live.
 **Fix** Delete the three rules.
@@ -1670,6 +1676,8 @@ Each constant agrees with the number in the text today. The problem is that the 
 | CP3-5 | `src/lib/desk-first-use.mjs:458` | `Four panes fit when the window has room.` (tour step "Add pane") | Interpolate `MAX_PANES` as a spelled-out word. | Agrees (4). |
 | CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. |
 | CP3-7 | `src/scripts/desk/notebook-page.js:137` and `:148` | `What you delete waits here for 30 days.` and `instead of after 30 days.` | `${TRASH_DAYS}`, as CP3-6. | Agrees (30). |
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** CP3-2, CP3-3, CP3-5 and CP3-7 now build their numbers from `MAX_FOLLOWING`, `MAX_PANES` and `TRASH_DAYS`, with `numberWord` (in `src/lib/desk-wording.mjs`) spelling the small counts. CP3-7 covers all four "30 days" in `notebook-page.js`, not only the two lines the table names. The E48 blurb is built the same way, its wording unchanged. CP3-4 and CP3-6 are left to their own sessions.
 
 ### Owner wording, report only
 

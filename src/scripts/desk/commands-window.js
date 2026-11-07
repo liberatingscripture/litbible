@@ -20,6 +20,7 @@
 
 import { createFloatWindow } from "../float-window.js";
 import { dockWidth } from "../desk-frame.js";
+import { make } from "./dom.js";
 
 const GAP = 16;
 const EDGE = 8;
@@ -33,13 +34,6 @@ export const COMMANDS_MORE = "More appear when you are reading a chapter.";
 
 /** The open window: { win, anchor, beside, opener }, or null. */
 let current = null;
-
-function make(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text !== undefined) e.textContent = text;
-  return e;
-}
 
 function row(command, run) {
   const el = make(command.href ? "a" : "button", "desk-cmds__row");
