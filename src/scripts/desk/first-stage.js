@@ -3,10 +3,12 @@
 // The Study Desk on a reading page, stage one (Audit 3, LG3-2; BVJ,
 // 2026-11-07, decision 3: load the desk lazily). desk-gate.js loads this on a
 // page with a reading column. It draws the minimized Notebook's tab (and its
-// stylesheet, desk-tab.css, alone) and takes a look at the notebook; the rest
-// of the desk, the shell and desk.css, comes only when there is something to
-// draw on this page or the reader reaches for it. The rules are
-// src/lib/desk-first-stage.mjs.
+// stylesheet, desk-tab.css, alone), puts the Notebook's switches in the
+// Display tray (note-settings.js, which the shell finds already started, so
+// the tray, the H key and "Show the Notebook" need no shell; BVJ, 2026-11-07),
+// and takes a look at the notebook; the rest of the desk, the shell and
+// desk.css, comes only when there is something to draw on this page or the
+// reader reaches for it. The rules are src/lib/desk-first-stage.mjs.
 //
 // The shell loads at once, with no tab drawn here, when the Notebook starts
 // expanded, a bookmark is following, or the address asks for a desk action
@@ -16,23 +18,24 @@
 //     while N11 is off), or can't say, or another tab writes to it;
 //   - the reader presses the tab, Read View's Notebook button or "Skip to
 //     the Notebook" (which the Notebook then opens for, so no press is lost),
-//     or opens the Display tray, whose Notebook switches the shell adds;
+//     or turns "Show the Notebook" on where the Notebook starts expanded;
 //   - the reader starts toward a menu the desk adds to: a verse number or a
 //     footnote letter pressed or focused, or words selected (a head start);
 //   - an event the desk answers arrives first: `lit:panel-actions`,
-//     `lit:footnote-actions`, `lit:desk-command`, `lit:desk-hide` (the H
-//     key), `lit:greek-word`. Each is held and sent again once the shell is
+//     `lit:footnote-actions`, `lit:desk-command`, `lit:greek-word`. Each is
+//     held and sent again once the shell is
 //     up; a menu still open then gets its rows late, and is moved to keep its
 //     place (`grownPanelShift`).
 // If either stage fails to load, the page stands down as it always has.
 
 import { standDown } from "../desk-frame.js";
 import { currentPanel } from "../lit-panel.js";
-import { SHOW_KEY, startState } from "../../lib/desk-start.mjs";
+import { startState } from "../../lib/desk-start.mjs";
 import { CHANNEL, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook } from "../../lib/desk-first-stage.mjs";
 import { createRail } from "./margin.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { addTabStyle, notebookTab } from "./notebook-tab.js";
+import { SETTINGS_EVENT, initNoteSettings } from "./note-settings.js";
 
 const root = document.documentElement;
 const readLocal = (k) => {
@@ -68,6 +71,8 @@ export async function start({ importShell = () => import("./shell.js") } = {}) {
   addTabStyle();
   // First, so the glossary's headings settle as early as they can.
   if (document.querySelector(".glossary-entries")) fitGlossaryTitles();
+  // The settings onto <html>, the Display tray's Notebook switches, and H.
+  initNoteSettings();
 
   const where = drawnHere();
   let state = { open: true, minimized: true };
@@ -220,11 +225,6 @@ async function drawAndWait({ where, state, importShell, leave }) {
   // A head start: the pointer on its way to the tab.
   on(tab, "pointerenter", () => want());
 
-  // The Display tray: the Notebook's switches are the shell's to add.
-  on(document, "click", (e) => {
-    if (e.target instanceof Element && e.target.closest('[aria-controls="fontTray"]')) want();
-  }, true);
-
   // Toward a menu the desk adds a row to (a head start; the events below are
   // the guarantee). Only where the desk adds one: Chapter View and Read View.
   if (where) {
@@ -256,19 +256,27 @@ async function drawAndWait({ where, state, importShell, leave }) {
   // A footnote's popover: Pin and "Add a note" (pins.js), on a chapter.
   hold("lit:footnote-actions", { ifHere: () => Boolean(where?.chapter) });
   hold("lit:desk-command");
-  hold("lit:desk-hide");
   // A Greek result for this chapter: taken now, so the search box keeps its
   // link from loading, and shown by greek-link.js once it is here.
   hold("lit:greek-word", { ifHere: greekHere, take: true });
 
-  // "Show the Notebook" changed in another tab: as note-settings.js would.
-  on(window, "storage", (e) => {
-    if (e.key !== SHOW_KEY) return;
-    if (e.newValue === "off") root.setAttribute("data-desk-show", "off");
-    else root.removeAttribute("data-desk-show");
-    let st = state;
+  // "Show the Notebook" (the Display tray's, or another tab's through
+  // note-settings.js), as panel.js follows it: off hides the tab and writes
+  // none of the reader's panel keys; on brings the Notebook back as they left
+  // it, which needs the shell only where it was left expanded.
+  on(document, SETTINGS_EVENT, (e) => {
+    if (e.detail?.name !== "show") return;
+    if (e.detail.value === "off") {
+      root.removeAttribute("data-desk-panel");
+      showRail(false);
+      return;
+    }
+    let st = { open: true, minimized: true };
     try { st = startState(readLocal); } catch (_) {}
-    showRail(st.open);
+    if (!st.open) return;
+    root.setAttribute("data-desk-panel", "open");
+    showRail(true);
+    if (!st.minimized) want();
   });
 
   /* ── The look at the notebook ────────────────────────────────────── */

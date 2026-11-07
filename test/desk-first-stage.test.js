@@ -170,9 +170,15 @@ function staticClosure(entry) {
 
 test("the first stage carries the tab's stylesheet and none of the shell, the store or desk.css", () => {
   const first = staticClosure("src/scripts/desk/first-stage.js");
-  for (const f of ["src/scripts/desk/shell.js", "src/scripts/desk/panel.js", "src/scripts/desk/store.js", "src/scripts/desk/boot.js", "src/styles/desk.css", "src/lib/desk-store-core.mjs", "src/lib/desk-records.mjs"]) {
+  for (const f of [
+    "src/scripts/desk/shell.js", "src/scripts/desk/panel.js", "src/scripts/desk/store.js", "src/scripts/desk/boot.js",
+    "src/scripts/desk/history.js", "src/scripts/desk/page.js", "src/scripts/desk/note-sources.js",
+    "src/styles/desk.css", "src/lib/desk-store-core.mjs", "src/lib/desk-records.mjs",
+  ]) {
     assert.ok(!first.has(f), `the first stage reaches ${f}`);
   }
+  // The Display tray's Notebook switches are the first stage's (BVJ, 2026-11-07).
+  assert.ok(first.has("src/scripts/desk/note-settings.js"));
   assert.ok(first.has("src/styles/desk-tab.css"));
   // The tab's rules live in desk-tab.css alone, so the first stage's tab is
   // styled and the shell's arrival restyles nothing.

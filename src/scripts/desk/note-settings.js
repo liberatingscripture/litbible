@@ -32,10 +32,12 @@
 // for the default, with one localStorage key; unlike them there is no
 // pre-paint script, since nothing of the desk paints before this file runs.
 
-import { undoModifier } from "./history.js";
-import { announce } from "./undo-bar.js";
-import { prosePage } from "./note-sources.js";
-import { readBook } from "./page.js";
+// The desk's first stage carries this file, so the Display tray's switches
+// are there before the shell (Audit 3, LG3-2): it imports only light modules,
+// none of which reaches the store or the page's text. Keep it that way
+// (test/desk-first-stage.test.js holds it).
+import { announce, undoModifier } from "./undo-bar.js";
+import { prosePage, readBook } from "./page-kind.js";
 import { resetWidthsButton } from "./widths.js";
 
 const SETTINGS = {
@@ -143,7 +145,12 @@ export function hiddenNotice(name, saved) {
 }
 
 /** Read the stored settings onto <html>, and follow changes made in other tabs. */
+let started = false;
 export function initNoteSettings() {
+  // Once a page: the first stage starts it, and the shell's call then finds
+  // the tray's switches already there (Audit 3, LG3-2).
+  if (started) return;
+  started = true;
   for (const name of Object.keys(SETTINGS)) {
     let v = null;
     try { v = localStorage.getItem(SETTINGS[name].key); } catch (_) {}
