@@ -1642,13 +1642,38 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   ways into /desk, and E33's card heading) and the chapter-carrying link
   (8a). To do it: mock the three at the real widths (the toolbar has a fixed
   floor, and the desk is a computer tool, so the phone toolbar rules don't
-  apply), then decide. Status: **open, mock first.**
+  apply), then decide. **Mocked (2026-11-06)**, (b) at 1366px on John 3 and
+  /read: on a chapter, "Open in the Study Desk" ("Study Desk" where the
+  toolbar is tight, as the old pill shortened) fills the toolbar's right end,
+  empty since the preview hid "Switch to Read View", and links to /desk at that
+  chapter; on /read a "Study Desk" pill matching "Go to passage ▾" sits beside
+  it, the two centered on one row; the header's floating link goes from both.
+  (c) was offered too: "Study Desk" in the header's own nav row on every page.
+  **Decided (BVJ, 2026-11-06): (b).** Home keeps the header link; scripture
+  pages (chapters and intros; an intro has no right-hand toolbar slot today, so
+  it gets one) and /read take the toolbar pill; every other page has no Study
+  Desk button. Rule 10's "links to /desk on every page" changes with it.
+  Status: **decided, to build.**
 
 - **E51, rough: the Share this sheet dialog needs a close × in its corner, and
   its "Close" button should say "Cancel".** BVJ (2026-11-06), on /sheets.
   Status: **done 2026-11-06**: the shared panels' round × (`lit-panel__close`,
   named "Close") in the dialog's top right corner, and "Cancel" in the button
   row; both close it (`openShareDialog`, `sheet-page.js`).
+
+- **E53, gap: no way to read a book's introduction on /desk.** BVJ
+  (2026-11-06), noticed while weighing E50. The LIT pane shows chapters only:
+  its passage field takes "John 3", its arrows step chapter to chapter, and an
+  intro found in the Search pane opens in a new tab (rule 13). So a reader at
+  the desk who wants Romans's introduction beside Romans 1 has to leave the
+  desk for it. **To think through with BVJ** (this conversation): where an
+  intro shows (the LIT pane itself, as the site's Previous/Next treats it as
+  the page before chapter 1, or a pane kind of its own), how a reader asks for
+  one (the passage field taking "Romans intro", the arrows stepping back from
+  chapter 1, a line in the pane's menu, Search's intro results opening in a
+  pane), and what the panes beside it do while it shows (This verse, My Notes,
+  the Greek and the Footnotes have no verse to follow in an intro, though an
+  intro has footnotes of its own). Status: **open, to discuss.**
 
 - **E52, rough: on /sheets the header's buttons overlap the toolbar.** BVJ
   (2026-11-06), with a screenshot. Over 1100px the header's search, Aa and
