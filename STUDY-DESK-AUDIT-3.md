@@ -589,6 +589,8 @@ The two findings that reach every reader, desk on or off, are NB3-1 (flyout togg
 
 #### NB3-1 · Medium · usability · NEW (the flyout is from E39; the toggle came with the desk's earlier `flyoutRow` and now ships to every reader)
 
+> **Fixed (Audit 3 session 1, 2026-11-07, branch `claude/audit3-session1-shared-panels`):** a click on a flyout that hover opened moves focus in (or, in the selection panel, keeps it open); only a click on one a click or a key opened closes it. Checked live on a built site with the desk off and on.
+
 > **Live check (Appendix G):** confirmed with the desk off, on the Copy and the Share rows.
 
 **Where**: `src/scripts/panel-flyout.js:97-100` (`flyoutRow`, the trigger's click handler) with `:91-94` and `:101` (hover opens).
@@ -602,6 +604,8 @@ The two findings that reach every reader, desk on or off, are NB3-1 (flyout togg
 **Confidence**: High on the logic. Browser check: in a verse menu with a mouse, hover "Share ▸", wait for the flyout, then click the row. Expect the flyout to vanish. Repeat on the Copy text chevron.
 
 #### NB3-2 · Medium · usability · NEW
+
+> **Fixed (Audit 3 session 1, 2026-11-07, branch `claude/audit3-session1-shared-panels`):** `imageStep`'s `onFail` gives the Share row back beside the reason (the chip layout's Share text… chip too), and a keyboard reader's focus goes to Share. Checked live on a built site with the desk off and on.
 
 > **Live check (Appendix G):** confirmed with the desk off (the pane has no share sheet, so `navigator.share` was stubbed).
 
@@ -722,6 +726,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-11 · Low · a11y · NEW
 
+> **Fixed (Audit 3 session 1, 2026-11-07, branch `claude/audit3-session1-shared-panels`):** rows of buttons are `role="none"`; a line of words is `aria-hidden` and describes the menu through `aria-describedby`. Checked live on a built site with the desk off and on.
+
 **Where**: `src/scripts/panel-flyout.js:63` with `src/scripts/desk/actions.js:179-183, 226-231` (`lineOf`, the resting-bookmark hint `p`).
 
 **What happens**: The flyout is `role="menu"` and `flyoutRow` gives `role="menuitem"` to every `button`, but the Bookmark flyout also holds `div` rows and a hint `<p>` ("“Advent” is resting here while it follows you."). A menu may only contain menuitems or groups, so the hint is not exposed reliably and axe flags `aria-required-children`. The vertical arrow keys also step button to button across the rows, which is fine.
@@ -731,6 +737,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Medium.
 
 #### NB3-12 · Low · ui · NEW
+
+> **Fixed (Audit 3 session 1, 2026-11-07, branch `claude/audit3-session1-shared-panels`):** a scroll or a press outside the row closes the flyout; it never hides with focus inside (focus returns to the row first). Checked live on a built site with the desk off and on.
 
 **Where**: `src/scripts/panel-flyout.js:66-79, 128-130` (the menu is `position: fixed`, placed once on open).
 

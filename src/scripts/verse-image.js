@@ -172,14 +172,16 @@ const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)")
 /**
  * Replace the step's contents with `build()`'s, fading the old out and the
  * new in. Focus follows only a reader who was already in the step (the
- * keyboard, in the verse menu); the selection panel never takes focus.
+ * keyboard, in the verse menu); the selection panel never takes focus. A step
+ * with no button left (a note) takes focus itself. `after(hadFocus)` runs once
+ * the new contents are in.
  */
-function swap(step, build) {
+function swap(step, build, after = () => {}) {
   const hadFocus = step.contains(document.activeElement);
   const next = () => {
     step.replaceChildren(...build());
     step.inert = false;
-    if (hadFocus) step.querySelector("button")?.focus();
+    if (hadFocus) /** @type {HTMLElement | null} */ (step.querySelector("button, [tabindex]"))?.focus();
     if (!reduceMotion()) {
       step.animate(
         [
@@ -189,6 +191,7 @@ function swap(step, build) {
         { duration: 160, easing: "ease-out" }
       );
     }
+    after(hadFocus);
   };
   if (reduceMotion()) return next();
   step.inert = true; // no second tap on a button that is leaving
@@ -230,6 +233,7 @@ function note(text) {
   const p = document.createElement("p");
   p.className = "lit-image__note";
   p.setAttribute("role", "status");
+  p.tabIndex = -1;
   p.textContent = text;
   return p;
 }
@@ -245,7 +249,9 @@ function note(text) {
  * @param {() => void} [o.onStart]  called on the first tap (the selection
  *   panel marks itself busy, so clearing the selection doesn't close it)
  * @param {() => void} o.onDone  called once the image has gone
- * @returns {HTMLElement}
+ * @returns {HTMLElement} the step. A caller that hid something for it sets
+ *   `step.onFail(hadFocus)`, called when the image can't be made (too long, or
+ *   the browser can't draw it), to give that back (Audit 3, NB3-2).
  */
 export function imageStep({ content, onStart = () => {}, onDone }) {
   const step = document.createElement("div");
@@ -267,10 +273,7 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
     start.setAttribute("aria-busy", "true");
     await loadAssets();
     fitting = sizesThatFit(what.text);
-    if (!fitting.length) {
-      swap(step, () => [note("Too long for an image. Try fewer verses.")]);
-      return;
-    }
+    if (!fitting.length) return fail("Too long for an image. Try fewer verses.");
     swap(step, lookStep);
   };
   start.addEventListener("click", begin);
@@ -278,6 +281,17 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
   // A caller that puts the first press somewhere else (the mouse layout's
   // "Share ▸" flyout holds "Share image") shows the step and calls this.
   step.begin = begin;
+  step.onFail = null;
+
+  // No image: say why, and give back the row the questions took over (the
+  // chip layout's Share text…, or the caller's Share row), so Share text… is
+  // never lost to a failed image.
+  function fail(text) {
+    swap(step, () => [note(text)], (hadFocus) => {
+      step.classList.remove("lit-image--open");
+      step.onFail?.(hadFocus);
+    });
+  }
 
   function lookStep() {
     const buttons = Object.entries(LOOKS).map(([key, look]) => {
@@ -318,10 +332,7 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
       await making;
     }
     const blob = made[size];
-    if (!blob) {
-      swap(step, () => [note("Couldn’t make the image in this browser.")]);
-      return;
-    }
+    if (!blob) return fail("Couldn’t make the image in this browser.");
     const file = new File([blob], name, { type: "image/png" });
     if (!canShareFile(file)) {
       download(blob, name);
