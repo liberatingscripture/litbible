@@ -126,20 +126,6 @@ export function createTour({ panel, canKeep = true }) {
   const byText = (root, ...texts) =>
     Array.from(root?.querySelectorAll("button, a") ?? []).find((b) => texts.some((t) => b.textContent.trim().startsWith(t)));
 
-  // The "My Notebook" heading in a menu and the rows under it, up to the
-  // next heading.
-  const notebookRow = (el) => {
-    const heading = Array.from(el?.querySelectorAll(".lit-panel__subheading") ?? []).find(
-      (h) => h.textContent.trim() === "My Notebook",
-    );
-    if (!heading) return [];
-    const out = [heading];
-    for (let n = heading.nextElementSibling; n && !n.classList.contains("lit-panel__subheading"); n = n.nextElementSibling) {
-      out.push(n);
-    }
-    return out;
-  };
-
   // Instant, not the stylesheet's smooth scroll, so the step measures where
   // things are once they're there.
   const bringIntoView = async (el) => {
@@ -238,14 +224,15 @@ export function createTour({ panel, canKeep = true }) {
   // Each step's act: what it opens or draws, and what its card points at.
   // `el` places the card; `marks` are outlined (default: el, when small).
   // Only controls are outlined (E30): where a step lands on the page's own
-  // text, a verse number or a footnote letter, it passes `marks: []`.
+  // text, a verse number or a footnote letter, it passes `marks: []`. "Open
+  // the menu" (the step that names Highlight) outlines nothing either: the
+  // menu it opens is the thing, and BVJ found the dashed line there unneeded.
   // What a step opens is undone by `later`, before the next step and at the
   // end.
   const STEPS = {
     async actions() {
       const el = view === "study" ? await openVerseMenu() : await selectWords();
-      const marks = notebookRow(el);
-      return el ? { el, side: "right", marks: marks.length ? marks : [el] } : state.verse ? { el: state.verse, marks: [] } : null;
+      return el ? { el, side: "right", marks: [] } : state.verse ? { el: state.verse, marks: [] } : null;
     },
 
     async note() {
