@@ -1661,6 +1661,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   named "Close") in the dialog's top right corner, and "Cancel" in the button
   row; both close it (`openShareDialog`, `sheet-page.js`).
 
+- **E52, rough: on /sheets the header's buttons overlap the toolbar.** BVJ
+  (2026-11-06), with a screenshot. Over 1100px the header's search, Aa and
+  Study Desk buttons float below READ NOW, out of the header's flow, and the
+  sheets page left them no room. Status: **done 2026-11-06**: `.sheets-page`
+  takes 3.5rem of top padding over 1100px (`sheets-page.css`), as the
+  notebook page's own padding does.
+
 - **E53, gap: no way to read a book's introduction on /desk.** BVJ
   (2026-11-06), noticed while weighing E50. The LIT pane shows chapters only:
   its passage field takes "John 3", its arrows step chapter to chapter, and an
@@ -1674,13 +1681,6 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   pane), and what the panes beside it do while it shows (This verse, My Notes,
   the Greek and the Footnotes have no verse to follow in an intro, though an
   intro has footnotes of its own). Status: **open, to discuss.**
-
-- **E52, rough: on /sheets the header's buttons overlap the toolbar.** BVJ
-  (2026-11-06), with a screenshot. Over 1100px the header's search, Aa and
-  Study Desk buttons float below READ NOW, out of the header's flow, and the
-  sheets page left them no room. Status: **done 2026-11-06**: `.sheets-page`
-  takes 3.5rem of top padding over 1100px (`sheets-page.css`), as the
-  notebook page's own padding does.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
