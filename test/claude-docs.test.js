@@ -16,6 +16,13 @@ import { fileURLToPath } from "node:url";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const ROOT_LIMIT = 40 * 1024;
+// The Study Desk's file loads whole the first time a session reads any file in
+// src/scripts/desk/, so it is capped too. Audit 3 (LG3-5) found it grown from
+// 77 KB to 136 KB in four days. This cap is meant to come down as the file is
+// trimmed further, never to be raised: rules, owner decisions and their
+// reasons go in that file; the story of how an E number was decided and built
+// goes under its entry in STUDY-DESK-FIXES.md.
+const DESK_LIMIT = 150 * 1024;
 const SKIP = new Set(["node_modules", ".git", ".claude", ".astro", "dist", ".morphgnt"]);
 
 const root = readFileSync(join(repo, "CLAUDE.md"), "utf8");
@@ -47,6 +54,15 @@ test("the root CLAUDE.md stays under its size limit", () => {
   assert.ok(
     size <= ROOT_LIMIT,
     `CLAUDE.md is ${size} bytes, over ${ROOT_LIMIT}: move detail into an area file`,
+  );
+});
+
+test("the Study Desk's CLAUDE.md stays under its size limit", () => {
+  const size = statSync(join(repo, "src/scripts/desk/CLAUDE.md")).size;
+  assert.ok(
+    size <= DESK_LIMIT,
+    `src/scripts/desk/CLAUDE.md is ${size} bytes, over ${DESK_LIMIT}: keep the rule and its reason, ` +
+      "and move the story of how an E number was built to STUDY-DESK-FIXES.md",
   );
 });
 
