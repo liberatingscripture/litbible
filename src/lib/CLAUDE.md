@@ -62,7 +62,9 @@ From the root's project tree.
                      #   desk-slides-pptx and desk-slides-odp), and on a
                      #   screen for a room (desk-present);
                      #   merging two copies
-                     #   of a notebook (desk-merge); finding a pinned
+                     #   of a notebook (desk-merge); the scrub a fetched
+                     #   page's parts get before a pane imports them
+                     #   (desk-inert); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page
                      #   and its files (desk-notebook, desk-export,
                      #   desk-labels), bookmarks and Continue reading (desk-bookmarks,

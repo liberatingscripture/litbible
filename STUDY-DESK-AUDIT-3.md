@@ -414,6 +414,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 
 #### SEC3-1 · Medium · security · REGRESSION SEC-6
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 7's (a): `validateRecord`'s common block refuses any record over 1 MB as JSON (`MAX_RECORD_BYTES`, `recordBytes`), whatever its schema or kind, and `planImport` applies the same ceiling to a trash record as a whole, with the reason "It is too large to keep (over 1 MB)." Covered in `desk-hostile-records.test.js`; noted in the format and `STUDY-DESK.md` for BDR.
+
 > **Verified (Opus, Appendix J):** confirmed, Low. The `?sheet=` link adds nothing beyond opening the sheet by hand. Not a regression of a guard that once worked: SEC Q2's option B exempted newer records by design, so this is a gap SEC-6's fix left.
 
 **SEC-6's size caps don't apply to a newer-schema note or a newer-format sheet. A file someone sends can still slow the notebook for good.**
@@ -425,6 +427,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 - **Confidence**: High (reproduced with the real modules). The browser cost of the 3 million links was not measured.
 
 #### SEC3-2 · Low · security · NEW (FA2-h's second lock is partial)
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** the scrub is `makeInert` in `src/lib/desk-inert.mjs`, applied once in `chapter-page.js`'s `keepParts` (the text, the footnotes, Go deeper) and to the intro pane's section, so a passage's words, its footnotes, the LIT pane and the Book Intro pane all get it; `sheet-lit.js`'s own copy is gone. An address is judged as a browser reads it (`[\x00-\x20]` dropped, then `URL`'s protocol; only http, https, mailto and tel pass), and the removed set covers `base`, `form` and its controls, `template`, `picture`/`source`, `math`, `canvas`, `track` and the resource attributes (`background`, `srcset`, `poster`, `ping`, `style`). The remove list stayed a denylist rather than an allowlist, since an allowlist written wrong would silently drop part of the text. `test/desk-inert.test.js` holds the split schemes and each element.
 
 **The scrub applied to fetched chapter HTML (`inertCopy`) covers a passage's words only, and it lets a split `javascript:` and several resource-loading elements through.**
 
@@ -448,6 +452,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 
 #### SEC3-4 · Low · security · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** `validateRecord` caps `bookmark.label` at `BOOKMARK_NAME_MAX` (40, by character) and a label's `name` at `LABEL_NAME_MAX` (200); `openFileRow` refuses a file over `MAX_SHARE_FILE_BYTES` (4 MB) before reading it, and `fragmentInFile` throws "too-large" for a data line longer than any sheet's could decompress to, before `replaceState`. Tests in `desk-hostile-records.test.js`.
+
 **Two readers have no size limit: a bookmark's or label's name, and the Sheets page's "Import a Study Desk file."**
 
 - **Where**: `src/lib/desk-records.mjs:374-377` (`bookmark.label`: type only; the 40-character limit is the form's `maxlength`, `bookmark-form.js`) and `:382` (`label.name`: non-empty only). `src/scripts/desk/sheet-page.js:242-262` `openFileRow` (`file.text()` of any size, then the fragment goes into `history.replaceState`). Compare `export-import.js:35, 159`: the notebook's own import refuses files over 50 MB, which is SEC-6's other half.
@@ -457,6 +463,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 - **Confidence**: High for what is stored and planned; Medium for the browser-side cost.
 
 #### SEC3-5 · Nit · security · KNOWN-OPEN (Audit 2 Appendix A, Improvements: "Look up markers with Object.hasOwn")
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** `markerName` in `desk-notes.mjs` (hasOwn, else "Note") is what `print-notes.js` prints now; a hostile-records test feeds it the prototype names.
 
 **One marker lookup still reads the prototype.**
 
@@ -552,6 +560,8 @@ The slice is in good shape: the merge converges and is idempotent under 8,000 ra
 
 #### DI3-1 · High · data-integrity · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** one rule, `laterThan`/`laterThanAll` in `desk-records.mjs`: `trashRecord` stamps past the record it deletes, `restoreFromTrash` past the deletion and the record's own stamp, and `desk-history.mjs`'s `restamped` past every record the undo or redo puts back over (the other version, the deletion's `deletedAt`, the held copy). The audit's two skewed-clock cases are a test in `desk-merge.test.js` (both ways, through the real functions); four rule-b vectors show the resulting stamps; the format's "Room for skew" bullet states the rule for BDR.
+
 > **Verified (Opus, Appendix J):** confirmed, and wider: an Undo of an ordinary edit is lost the same way, so `restamped` needs the step for every record it puts back. Medium today, High once sync ships. Website-only fix; the format text gains a note for BDR.
 **Where**: `src/lib/desk-records.mjs:209-227` (`trashRecord`: `deletedAt: at`, no step past the record's `modified`); `:237-248` (`restoreFromTrash`: `laterThan(trash.record.modified, now)`, never against `trash.deletedAt`); `src/lib/desk-history.mjs:132-138` (`restamped`: an undo of a deletion stamps `now`, an undo of a restore stamps `deletedAt: now`); `src/lib/desk-merge.mjs:325-334` (rule b compares `live.modified` with `deletedAt`, equal or earlier means deleted); `:149` (`CLOCK_TOLERANCE_MS`, five minutes).
 **What happens**: two devices whose clocks differ by less than five minutes, which the spec says is normal and tolerated (`STUDY-DESK-FORMAT.md`, "Room for skew").
@@ -564,6 +574,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 
 #### DI3-2 · Medium · data-integrity · KNOWN-OPEN DI-1 (its residual: Audit 2's question 1, "should a mark moved to another verse say so?")
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 1, fix (a), as anchor spec version 4: `resolveAnchor`'s `moved` result carries `outsideVerses` (the verse the words now begin in lies outside the record's verses while they still exist), `changeNotice` raises a "moved" notice for it with the verses found (`noticeWords`: "Your words moved"; Keep moves the record there), and the margin's flag reads "Words moved." The print agrees (the sibling path): `standing` in `desk-print-notes.mjs` takes the whole placement and answers "moved" for a `moved` with `outsideVerses`, so "Print with my notes" prints such a note beside the verse its words are in now (as before) with a `MOVED_NOTE` line, "The words this note was on have moved to another verse."; a move inside its verses, and a pinned footnote's move, stay silent. The other readers of the status were checked: the margin, My Notes, This verse and the verse labels go through `changeNotice`; highlights draw at the found place and, carrying a notice, are no longer merged or trimmed; passages, blanks, pins and prose quotes have their own rules outside decision 1. Three vectors: the two Matthew 23 marks at `ff34f594` (against the chapter as that revision left it, a new `<slug>@<rev>` chapter form in the builder) and the silent verses-gone case; `ANCHOR_SPEC_VERSION` is 4. Written up in the format ("Spec version 4") and `STUDY-DESK.md` for BDR.
+
 > **Verified (Opus, Appendix J):** confirmed for 13 of the 15 cases (11 are one Matthew 23 revision). Fix (b) would not catch Matthew 23, where verse 15 kept the old formula; fix (a), a notice, would. Either needs BDR.
 **Where**: `src/lib/anchor-core.mjs:243-246` (the `moved` step searches the whole chapter), `:170-197` (`bestByContext` with `bothSides`: four characters each side is enough); `src/lib/desk-change.mjs` (`found` and `moved` carry no notice, by the format).
 **What happens**: the reader's verse is reworded, and the chapter keeps the same words in another verse with enough shared context around them (a repeated formula, a refrain). The mark leaves its verse for the other one with no notice. On the real revision `ff34f594` (2026-08-16, Matthew 23: "You'd better watch out, fakers, Bible Scholars and Pharisees, because" reworded to "Things won't end well for you pretenders" in every verse but 15), marks on "watch out, fakers," in verses 13, 16, 23, 25, 27 and 29 are all drawn on verse 15 afterwards. Luke 13:2's "more" (26e379a1) lands on verse 4's "debtors more so than"; 2 Corinthians 3:18's "One" (7d478b2d) on verse 17. Spec 3's four-characters-each-side test is met in all of them ("tors " + " so than all").
@@ -572,6 +584,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 **Confidence**: High on the numbers and the counterexamples; the rate is low in absolute terms (15 of 9,444 marks on changed verses) but each one is a mark silently drawn on another verse, in the spec both apps copy.
 
 #### DI3-3 · Medium · data-integrity · NEW (sync-readiness)
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 2, fix (a): a bookmark carries `placedAt` (`BOOKMARK_PLACE_FIELDS`: book, chapter, verses, `contentVersion`) and `editedAt`; `createRecord` and `editRecord` keep them (a change moves the stamp of the group it touches), the follower writes the place group with the page's `contentVersion`, a restore and an undo move both, and `desk-merge.mjs` merges two stamped copies by group (`mergeBookmark`; a copy without both stamps merges whole by rule a; the stamps are clamped). Merge vectors version 5 (five cases); the audit's two scenarios through the real writes and a 2,000-history three-replica property test in `desk-merge.test.js`. Written up under kind 4 and "Clocks" in the format, and in `STUDY-DESK.md`, for BDR.
 
 > **Verified (Opus, Appendix J):** confirmed. Low today (it needs two devices), Medium once sync ships; a design call under rule a rather than a code defect.
 **Where**: `src/scripts/desk/bookmark-follow.js:382-401` (`flush` writes the whole bookmark with `editRecord` every `MOVE_EVERY_MS`, `src/lib/desk-bookmarks.mjs:53`, 2 s); `src/lib/desk-merge.mjs:185-193` (rule a, whole record, later `modified` wins).
@@ -582,6 +596,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 
 #### DI3-4 · Medium · data-integrity · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** decision 8: `planImport` writes such a trash record as its tombstone (`record` dropped; `deletedId`, `deletedKind`, `deletedAt` kept) and reports it in a new `warnings` list ("A deletion in this file was kept, but its words couldn’t be read, so it can’t be restored."), which the Open a copy result shows. Test in `desk-export.test.js`; noted in the format (kind 10) and `STUDY-DESK.md`.
+
 > **Verified (Opus, Appendix J):** confirmed. Low: the trigger is narrow. A tombstone-only trash record is already accepted by `planImport`, so the fix uses a shape the code knows.
 **Where**: `src/lib/desk-export.mjs:690-693` (`planImport`: a trash record whose held record fails `validateRecord` is pushed to `skipped` whole); `src/lib/desk-merge.mjs:130-142` (`problemWith` had already accepted the deletion itself).
 **What happens**: the deletion is well-formed (`deletedId`, `deletedAt`), only the copy it holds isn't (a marker the website doesn't know, a body over `MAX_NOTE_BODY`, a verse out of range in an app's record). The whole trash record is left out with "The copy it holds in the trash couldn't be read.", so the notebook never learns the record was deleted. An older backup, or a sync from a device that hasn't seen the deletion, then brings the live record in with nothing to stop it; that is the A-F10 case the tombstone exists for.
@@ -591,6 +607,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 
 #### DI3-5 · Medium · compat · NEW
 
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** `RENAMED_MARKERS` gains `star: "emphasis"`, so `validateRecord`, `migrateRecord` (live and in the trash) and the Markdown reader follow; merge vector `migrate-an-old-star-marker-reads-as-emphasis`; the format asks BDR for every marker name either app has written.
+
 > **Verified (Opus, Appendix J):** confirmed. Low. Adding `star` to `RENAMED_MARKERS` is harmless on the website; stating it as a rule for every client is a format line for BDR.
 **Where**: `src/lib/desk-records.mjs:74` (`RENAMED_MARKERS = { bookmark: "ribbon" }`), `:365` (`validateRecord` refuses a marker outside `MARKERS`); `STUDY-DESK-FORMAT.md:104` ("iOS already reads an old `star` as `emphasis`; nothing stored is rewritten").
 **What happens**: an iOS record written before `star` became `emphasis` still carries `marker: "star"` on disk, by the format's own rule that nothing stored is rewritten. In a backup or a sync it reaches the website as `star`, and the website skips it: "It has a marker the notebook doesn't know." The note, and (DI3-4) its deletion, never arrive.
@@ -599,6 +617,8 @@ DI-8 fixed exactly this for edits ("an edit stamps `max(now, the version it repl
 **Confidence**: Medium: it depends on iOS records still carrying `star`, which the format says they may.
 
 #### DI3-6 · Low · longevity · NEW
+
+> **Fixed (Audit 3 session 5, 2026-11-07, branch `claude/audit3-session5-records`):** both halves: (a) `npm run build:sheet-golden` writes `test/fixtures/sheet-text-golden.json` (the five templates' text plus 372 seeded random inputs, with the sanitizer's output for each), which `desk-sheets.test.js` holds byte for byte, so a canonical-form change is a deliberate regeneration and `SHEET_FORMAT` bump; (b) `planSheetChange` runs the operation over `cleanSheetText(current)`, so a drift degrades to a one-time rewrite on the next edit rather than a refusal.
 **Where**: `src/lib/desk-sheet-format.mjs:1051-1055` (`validateSheet` requires `sanitizeSheetHtml(m.html) === m.html` for every module); `src/lib/desk-sheets.mjs:235-245` (`planSheetChange` validates the whole sheet on every edit); `test/desk-sheets.test.js:52-78` (`CANONICAL`, 21 hand-written inputs).
 **What happens**: every stored sheet is valid only while the sanitizer's output for its text never changes. E55 (`c4472a41`, 2026-11-06) changed the parser; it happens to be safe, but the only guard is a 21-line list. A future change that altered any canonical form (a serialization detail, an entity, a whitespace rule) would make every sheet holding that form refuse every edit ("not saved (Module 3 (text): html is not in the sheet's formatted-text form)"), including edits to other modules, with no path that re-canonicalizes it.
 **Evidence**: `sanitizer-compat.mjs` ran the pre-E55 sanitizer (`git show c4472a41^`) and today's over 30,000 random HTML inputs: 0 pre-E55 canonical outputs changed under the new sanitizer, 0 idempotence failures either side. So no defect today; the risk is the missing guard.

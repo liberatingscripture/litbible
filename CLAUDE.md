@@ -186,6 +186,8 @@ npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the
                           #   anchor-text vectors the apps run (on demand only — committed,
                           #   and its "before" texts come from git history)
 npm run build:api2-vectors # Regenerate test/fixtures/api2-vectors.json (on demand; committed)
+npm run build:sheet-golden # Regenerate test/fixtures/sheet-text-golden.json, the sheet sanitizer's
+                          #   canonical forms (on demand; committed; bump SHEET_FORMAT if one moved)
 npm run audit:alignment   # Re-check decided alignment records against the current text
                           #   (--all to list every finding). Run after editing scripture
 npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
@@ -365,16 +367,18 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
   `public/search/greek-bridge.json`, `public/search/greek-offers.json`,
   `public/topics-index.json`,
   `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Eight generators are deliberately **outside** this rule
+  Don't hand-edit them. Nine generators are deliberately **outside** this rule
   because their output is committed and hand-maintained — `build:favicons`
   (icons), `build:alignment` (review state), `build:bracket-font`
   (`public/fonts/bracket-markers.otf`), `build:text-critical-font`
   (`public/fonts/text-critical-signs.otf`), `build:apps-qr`
   (`public/images/apps-qr.svg`), `build:anchor-vectors`
   (`test/fixtures/anchor-vectors.json`, which the apps fetch),
-  `build:api2-vectors` (`test/fixtures/api2-vectors.json`, likewise), and
+  `build:api2-vectors` (`test/fixtures/api2-vectors.json`, likewise),
+  `build:sheet-golden` (`test/fixtures/sheet-text-golden.json`, the sheet
+  sanitizer's canonical forms), and
   `build:greek` (`public/greek/`, built from sources CI doesn't have); none
-  of the eight runs in `npm run build`.
+  of the nine runs in `npm run build`.
 - **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
   progressive enhancement (verse highlighting/menus, footnote popovers, reading
   mode, search). Everything must degrade gracefully without JS.

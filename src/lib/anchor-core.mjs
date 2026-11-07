@@ -22,7 +22,11 @@ import { stripBracketMarkers } from "./bracket-markers.mjs";
 // 2 since audit FA1-f (2026-10-26): rule e's guards, MIN_CONTEXT and CHANGED_GROWTH.
 // 3 since audit 2 (FA2-f, FA2-g): the context floor also holds for a single
 // occurrence (and `moved` needs both sides), and matching folds typography.
-export const ANCHOR_SPEC_VERSION = 3;
+// 4 since audit 3 (DI3-2; BVJ's decision 1, 2026-11-07): a `moved` result
+// says whether the words were found outside the anchor's verses while those
+// verses still exist (`outsideVerses`); such a move carries the change
+// notice, and one inside them, or one whose verses are gone, stays silent.
+export const ANCHOR_SPEC_VERSION = 4;
 
 /** Characters of context stored either side of the quoted words. */
 export const CONTEXT_LENGTH = 32;
@@ -202,7 +206,16 @@ function bestByContext(chapter, starts, anchor, bothSides = false) {
  * the reader acts on it (STUDY-DESK-FORMAT.md, "Finding a mark again").
  *
  *   found    the quoted words, in the anchor's verses
- *   moved    the quoted words, elsewhere in the chapter
+ *   moved    the quoted words, elsewhere in the chapter. The result also
+ *            says whether the verse the words now begin in lies outside the
+ *            anchor's verses while those verses still exist
+ *            (`outsideVerses`; spec version 4). On real revisions such a
+ *            move is nearly always a repeated formula in another verse
+ *            capturing a mark whose own verse was reworded (Matthew 23 at
+ *            ff34f594 moved marks from six verses onto verse 15), so it
+ *            carries the change notice; a move that begins inside the
+ *            anchor's verses (a verse boundary moved across the words), or
+ *            whose verses are gone, stays silent
  *   changed  the words are gone; the text now between the stored context,
  *            inside the anchor's verses, is shown instead and flagged
  *   verse    nothing usable; the mark falls back to its whole verse range
@@ -213,7 +226,7 @@ function bestByContext(chapter, starts, anchor, bothSides = false) {
  * its context agree; and a `changed` region is never longer than twice the
  * quoted words plus CHANGED_GROWTH. Past either, that step doesn't succeed.
  *
- * @returns {{status: string, start: number|null, end: number|null}}
+ * @returns {{status: string, start: number|null, end: number|null, outsideVerses?: boolean}}
  */
 export function resolveAnchor(chapter, anchor) {
   const exact = normalizeAnchorText(anchor.exact);
@@ -242,7 +255,12 @@ export function resolveAnchor(chapter, anchor) {
   }
   if (exact) {
     const s = bestByContext(folded, occurrences(folded.text, fexact, 0, folded.text.length), a, true);
-    if (s !== null) return { status: "moved", start: s, end: s + exact.length };
+    if (s !== null) {
+      // Spec version 4: outside the anchor's verses, while they still exist.
+      const begins = verseAt(chapter, s);
+      const outsideVerses = range !== null && (begins < anchor.verse || begins > (anchor.endVerse ?? anchor.verse));
+      return { status: "moved", start: s, end: s + exact.length, outsideVerses };
+    }
   }
   if (!range) return { status: "lost", start: null, end: null };
 

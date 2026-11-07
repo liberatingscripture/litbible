@@ -200,6 +200,8 @@ export function mountBackup(el, { store, ctx }) {
     result.append(paragraph(sentence, "desk-backup__summary"));
     if (ahead) result.append(paragraph(ahead));
     for (const note of read.notes) result.append(paragraph(note));
+    // Kept, with something to say about it (a deletion whose words couldn't be read, DI3-4).
+    for (const w of (planned.warnings ?? []).slice(0, 10)) result.append(paragraph(w.reason));
 
     // What was left out, with its line when the file has lines.
     const left = [

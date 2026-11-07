@@ -44,6 +44,7 @@
 
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../lib/desk-sheet-copy.mjs";
 import {
+  MAX_SHARE_FILE_BYTES,
   QR_LINK_LIMIT,
   ShareError,
   SHARE_ERRORS,
@@ -244,6 +245,11 @@ function openFileRow(root, store) {
     input.value = "";
     if (!file) return;
     status.textContent = "";
+    // A file far past any share's size isn't read into memory at all (SEC3-4).
+    if (file.size > MAX_SHARE_FILE_BYTES) {
+      status.textContent = SHARE_ERRORS["too-large"];
+      return;
+    }
     let fragment = null;
     try {
       fragment = fragmentInFile(await file.text());

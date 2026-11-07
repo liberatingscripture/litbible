@@ -203,6 +203,31 @@ test("undoing a deletion brings the record back stamped, and removes the trash r
   assert.equal(undo.put[0].body, "mine");
 });
 
+test("DI3-1: an undo or a redo on a clock running behind still steps past what it puts back over", () => {
+  const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  // Deleted on a clock three minutes fast; undone a minute later on this one.
+  const fast = "2026-10-09T08:08:00.000Z";
+  const plan = planDelete(r, { ...ctx, now: fast, id: nextId() });
+  const entry = makeEntry(plan, new Map([[r.id, r]]), "e");
+  const undo = inversePlan(entry, { now: T2, client: ctx.client });
+  assert.equal(undo.put[0].modified, "2026-10-09T08:08:00.001Z", "past the deletion it undoes, so rule b keeps the record");
+  // The redo, by the same slow clock, steps past the restored record's stamp.
+  const redo = redoPlan(entry, { now: T3, client: ctx.client });
+  assert.equal(redo.put[0].kind, "trash");
+  assert.equal(redo.put[0].deletedAt, T3, "a clock that is ahead stamps its own time");
+  const slow = redoPlan(entry, { now: T2, client: ctx.client });
+  assert.equal(slow.put[0].deletedAt, "2026-10-09T08:08:00.001Z");
+  assert.equal(slow.put[0].modified, slow.put[0].deletedAt);
+  // Undoing an edit made on the fast clock outranks it too.
+  const edited = { ...r, body: "new", modified: fast };
+  const edit = makeEntry({ put: [edited], remove: [] }, new Map([[r.id, r]]), "e2");
+  assert.equal(inversePlan(edit, { now: T2 }).put[0].modified, "2026-10-09T08:08:00.001Z");
+  // And undoing an add deletes it with a stamp past the added record.
+  const fresh = { ...note({ bookKey: "romans", chapter: 8, verse: 4 }), modified: fast };
+  const add = makeEntry({ put: [fresh], remove: [] }, new Map(), "e3", { newId: () => "trash-di3" });
+  assert.equal(inversePlan(add, { now: T2, client: ctx.client }).put[0].deletedAt, "2026-10-09T08:08:00.001Z");
+});
+
 test("redoing a deletion deletes again, now: the trash record comes back with a fresh deletedAt", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
   const plan = planDelete(r, { ...ctx, now: T1, id: nextId() });
@@ -791,4 +816,19 @@ test("a restore is an entry the history can undo and redo, and undoing it leaves
   assert.notEqual(nb.step(entry, "redo", T4), null);
   assert.equal(stored(nb, r.id).modified, T4);
   assert.deepEqual(trashOf(nb, r.id), []);
+});
+
+test("DI3-3: an undo moves a bookmark's group stamps with modified, and stillCurrent ignores them as it does the stamp", () => {
+  const b = createRecord("bookmark", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16, label: "Advent", follow: true }, { ...ctx, now: T0, id: nextId() });
+  const renamed = { ...b, label: "Advent, week 2", modified: T1, editedAt: T1 };
+  const entry = makeEntry({ put: [renamed], remove: [] }, new Map([[b.id, b]]), "e");
+  const undo = inversePlan(entry, { now: T2, client: ctx.client });
+  assert.equal(undo.put[0].label, "Advent");
+  assert.equal(undo.put[0].modified, T2);
+  assert.equal(undo.put[0].placedAt, T2);
+  assert.equal(undo.put[0].editedAt, T2);
+  // The follower moved it meanwhile (a place write): the entry is overtaken, as any change is.
+  assert.equal(stillCurrent(entry, new Map([[b.id, { ...renamed, verse: 14, endVerse: 14, placedAt: T2, modified: T2 }]])), false);
+  // A restamp alone, stamps included, is not a change.
+  assert.equal(stillCurrent(entry, new Map([[b.id, { ...renamed, modified: T3, placedAt: T3, editedAt: T3, client: "x" }]])), true);
 });

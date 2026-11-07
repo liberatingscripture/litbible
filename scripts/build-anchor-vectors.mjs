@@ -72,10 +72,14 @@ const CHAPTERS = [
   ["galatians-3", "used by the rewording vectors below"],
   ["matthew-20", "used by the paragraph-merge vectors below"],
   ["john-3", "used by rule e's size-limit vectors below"],
-].map(([slug, why]) => {
-  const paragraphs = readNow(slug);
+  // A chapter as a past revision left it, keyed "<slug>@<rev>": spec version
+  // 4's real case needs the text right after the rewording, since later
+  // revisions reworded verse 15 too.
+  ["matthew-23", "as revision ff34f594 (2026-08-16) left it: the woe formula reworded in every verse but 15", "ff34f594"],
+].map(([slug, why, rev]) => {
+  const paragraphs = rev ? readAt(rev, slug) : readNow(slug);
   const { verses, text } = chapterAnchorText(paragraphs);
-  return { slug, why, paragraphs, verses: Object.fromEntries(verses), text };
+  return { slug: rev ? `${slug}@${rev}` : slug, why, paragraphs, verses: Object.fromEntries(verses), text };
 });
 const chapterBySlug = new Map(CHAPTERS.map((c) => [c.slug, chapterAnchorText(c.paragraphs)]));
 
@@ -194,6 +198,23 @@ const RESOLVE_CASES = [
     madeOn: { slug: "john-3" }, quote: "One-of-a-kind Son", verse: 16, against: "john-3",
     override: { verse: 5, endVerse: 5 },
   },
+  // Spec version 4 (audit 3, DI3-2): a `moved` says whether it left the
+  // anchor's verses while they still exist, and such a move carries the notice.
+  {
+    why: "v4, moved outside its verses: Matthew 23's woe formula was reworded in every verse but 15 (ff34f594), so a mark on it in verse 27 lands on verse 15, which the reader must be told (audit 3 DI3-2)",
+    madeOn: { rev: "ff34f594^", slug: "matthew-23" },
+    quote: "watch out, fakers,", verse: 27, against: "matthew-23@ff34f594",
+  },
+  {
+    why: "v4, moved outside its verses: the same formula marked in verse 13 lands on verse 15 too",
+    madeOn: { rev: "ff34f594^", slug: "matthew-23" },
+    quote: "watch out, fakers,", verse: 13, against: "matthew-23@ff34f594",
+  },
+  {
+    why: "v4, moved with its verses gone: the anchor names verses the chapter no longer has, so there is nothing to say against them and the move is silent",
+    madeOn: { slug: "john-3" }, quote: "One-of-a-kind Son", verse: 16, against: "john-3",
+    override: { verse: 90, endVerse: 90 },
+  },
 ];
 
 const RESOLVE = RESOLVE_CASES.map((c) => {
@@ -221,6 +242,8 @@ const RESOLVE = RESOLVE_CASES.map((c) => {
       text: r.start === null ? null : chapter.text.slice(r.start, r.end),
       start: r.start,
       end: r.end,
+      // Spec version 4: a `moved` says whether it left the anchor's verses while they still exist.
+      ...(r.status === "moved" ? { outsideVerses: r.outsideVerses } : {}),
     },
   };
 });
@@ -232,6 +255,7 @@ const out = {
   minContext: MIN_CONTEXT,
   changedGrowth: CHANGED_GROWTH,
   changedLimit: "a changed region is at most 2 × exact's length + changedGrowth",
+  moved: "spec version 4: a moved result carries outsideVerses, true when the verse the words now begin in lies outside the anchor's verses while those verses still exist; such a move carries the change notice, and one inside them, or whose verses are gone, stays silent",
   offsets: "UTF-16 code units into a chapter's anchor text (verse texts joined by one space)",
   generatedBy: "npm run build:anchor-vectors (scripts/build-anchor-vectors.mjs)",
   normalize: NORMALIZE,

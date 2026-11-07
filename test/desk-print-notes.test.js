@@ -4,6 +4,7 @@ import {
   CHANGED_NOTE,
   LOST_NOTE,
   LOST_VERSE_NOTE,
+  MOVED_NOTE,
   PRINT_QUOTE_WORDS,
   blockForVerse,
   PRINT_KINDS,
@@ -22,11 +23,27 @@ import {
 
 test("a note stands where its words are, or says they have changed, or lost", () => {
   assert.equal(standing("found"), "here");
-  assert.equal(standing("moved"), "here");
+  assert.equal(standing("moved"), "here", "a status alone (a pinned footnote's) is a move within reach");
   assert.equal(standing("changed"), "changed", "found between its edges, with other words between");
   assert.equal(standing("verse"), "changed", "only its verses were found");
   assert.equal(standing("lost"), "lost");
   assert.equal(standing("anything else"), "lost", "an unknown status is never trusted");
+  // The whole placement, as the print judges a verse note (spec version 4, DI3-2).
+  assert.equal(standing({ status: "moved", outsideVerses: true, start: 10, end: 14 }), "moved", "its words left its verses, which still stand");
+  assert.equal(standing({ status: "moved", outsideVerses: false, start: 10, end: 14 }), "here", "inside its verses, or its verses gone");
+  assert.equal(standing({ status: "found", start: 10, end: 14 }), "here");
+  assert.equal(standing({ status: "verse", start: 0, end: 9 }), "changed");
+  assert.equal(standing({ status: "lost", start: null, end: null }), "lost");
+  assert.equal(standing(null), "lost");
+});
+
+test("a note whose words moved out of its verses says so in print, as the screen does (DI3-2)", () => {
+  const h = printHeading({ quote: { exact: "watch out, fakers," } }, "Matthew 23:27", "moved");
+  assert.equal(h.warning, MOVED_NOTE);
+  assert.equal(h.ref, "Matthew 23:27", "under its own reference; it prints beside the verse the words are in now");
+  assert.equal(h.quote, "watch out, fakers,");
+  assert.equal(MOVED_NOTE, "The words this note was on have moved to another verse.");
+  assert.equal(printHeading({}, "Romans 8:1", "here").warning, "");
 });
 
 test("a printed note leads with its reference and a short quotation", () => {

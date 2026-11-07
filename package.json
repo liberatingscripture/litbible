@@ -23,6 +23,7 @@
     "build:apps-qr": "node scripts/build-apps-qr.mjs",
     "build:alignment": "node scripts/build-alignment.mjs",
     "build:anchor-vectors": "node scripts/build-anchor-vectors.mjs",
+    "build:sheet-golden": "node scripts/build-sheet-text-golden.mjs",
     "build:greek": "node scripts/build-greek.mjs",
     "review:alignment": "node scripts/alignment-review/server.mjs",
     "review:words": "node scripts/alignment-words/server.mjs",

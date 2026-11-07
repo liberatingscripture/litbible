@@ -12,10 +12,14 @@
 //
 // One fetch per chapter per visit, shared by every pane (the browser's
 // cache does the rest), and of each only what the panes read is kept (BA65).
-// The page is parsed with DOMParser, so nothing in it runs or loads.
+// The page is parsed with DOMParser, so nothing in it runs or loads, and the
+// parts kept are made inert before any pane imports a node of them
+// (desk-inert.mjs; SEC3-2), so a reader of `textBox`, `doc` or `goDeeper`
+// needs no scrub of its own.
 
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
+import { makeInert } from "../../lib/desk-inert.mjs";
 import { chapterPath } from "../../lib/desk-passage.mjs";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
@@ -38,13 +42,14 @@ export const chapterHref = (bookKey, chapter) => {
 /**
  * The parts of a parsed page the panes read, moved into a document of their
  * own, so the rest of the page (its header, footer, scripts and styles) can
- * go (BA65): the text, the footnotes and Go deeper. The key-term data and the
- * content version are read before this, as values.
+ * go (BA65): the text, the footnotes and Go deeper, each made inert on the
+ * way (SEC3-2). The key-term data and the content version are read before
+ * this, as values.
  */
 function keepParts(doc, textBox) {
   const kept = document.implementation.createHTMLDocument("");
   const parts = [textBox, ...doc.querySelectorAll("ol.footnotes"), doc.querySelector(".go-deeper")];
-  for (const part of parts) if (part) kept.body.append(part);
+  for (const part of parts) if (part) kept.body.append(makeInert(part));
   return kept;
 }
 
