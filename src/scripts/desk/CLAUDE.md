@@ -1517,7 +1517,9 @@ against `dist/` is a later item.
        item is disabled, not hidden, with the reason beside it, and a
        direction that doesn't fit is disabled inside the flyout. The menu is
        `role="menu"` (arrows, Home and End, which pass over a disabled
-       line in every desk menu, as `src/scripts/CLAUDE.md` says; Right opens the flyout, Left or
+       line in every desk menu, and a disabled line's reason is also the
+       menu's description, so a screen reader hears it
+       (`menu-reasons.js`), as `src/scripts/CLAUDE.md` says; Right opens the flyout, Left or
        Escape steps back); Escape from the Layout or Print window returns
        focus to the title button. `/notebook` and `/sheets` have no title menu.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the

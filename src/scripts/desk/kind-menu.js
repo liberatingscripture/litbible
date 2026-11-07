@@ -36,6 +36,7 @@ import {
   whyText,
 } from "../../lib/desk-layout.mjs";
 import { el } from "./dom.js";
+import { describeUnavailable } from "./menu-reasons.js";
 
 // A pane's "Move" items, in the order the menu lists them (E25).
 const MOVES = [
@@ -56,10 +57,12 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
 
   function closeKindMenu({ focus = true } = {}) {
     if (!kindMenu) return;
-    const { menuEl, button, fly } = kindMenu;
+    const { menuEl, button, fly, reasons } = kindMenu;
     clearTimeout(flyTimer);
     kindMenu = null;
+    fly?.reasons.destroy();
     fly?.el.remove();
+    reasons.destroy();
     menuEl.remove();
     button.setAttribute("aria-expanded", "false");
     if (focus) button.focus();
@@ -76,6 +79,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
   function closeFly({ focus = false } = {}) {
     const fly = kindMenu?.fly;
     if (!fly) return;
+    fly.reasons.destroy();
     fly.el.remove();
     fly.trigger.setAttribute("aria-expanded", "false");
     kindMenu.fly = null;
@@ -138,7 +142,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
       }
     });
     trigger.setAttribute("aria-expanded", "true");
-    kindMenu.fly = { el: flyEl, trigger };
+    kindMenu.fly = { el: flyEl, trigger, reasons: describeUnavailable(flyEl, { id: `deskPaneFlyWhy-${++paneHintCount}` }) };
     if (focus) flyButtons(flyEl)[0]?.focus({ preventScroll: true });
   }
 
@@ -237,12 +241,14 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
           });
           fly.append(b);
         }
+        kindMenu?.fly?.reasons.refresh();
         return;
       }
       const label = SIDES.find((s) => s.id === side).label;
       const back = menuItem(`‹ ${label}`);
       back.addEventListener("click", () => { buildAdd(fly, null); fly.children[0]?.focus(); });
       fly.append(back);
+      kindMenu?.fly?.reasons.refresh();
       for (const k of KINDS) {
         const b = menuItem(k.label);
         b.addEventListener("click", () => {
@@ -330,7 +336,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
     head.append(menuEl);
     placeKindMenu(menuEl, button);
     button.setAttribute("aria-expanded", "true");
-    kindMenu = { menuEl, button, head, fly: null };
+    kindMenu = { menuEl, button, head, fly: null, reasons: describeUnavailable(menuEl, { id: `deskPaneMenuWhy-${++paneHintCount}` }) };
     (items.find((it) => it.getAttribute("aria-checked") === "true") ?? items[0]).focus({ preventScroll: true });
   }
 
