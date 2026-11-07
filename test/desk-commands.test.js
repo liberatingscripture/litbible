@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { COMMANDS, commandQueryText, isDeskCommandQuery, matchCommands } from "../src/lib/desk-commands.mjs";
+import { COMMANDS, commandQueryText, isDeskCommandQuery, listCommands, matchCommands } from "../src/lib/desk-commands.mjs";
 
 const page = { surface: false, study: false, panelOpen: false, hidden: false };
 const chapter = { surface: true, study: true, panelOpen: false, hidden: false };
@@ -89,4 +89,23 @@ test("where the browser keeps no notebook, printing with notes isn't offered, an
   assert.deepEqual(ids("print", noNotebook), ["print-with-room"]);
   assert.deepEqual(ids("print with my", noNotebook), []);
   assert.deepEqual(ids("print", { ...chapter, keeps: true }), ["print-with-notes", "print-with-room"]);
+});
+
+test("the commands window lists what is offered here and counts what a chapter page adds (E31)", () => {
+  const off = listCommands(page);
+  assert.deepEqual(off.here.map((c) => c.id), ["notebook-page", "notebook-backup", "notebook-help"]);
+  assert.equal(off.here.length + off.more, COMMANDS.length, "every command is either listed or counted");
+
+  const on = listCommands(chapter);
+  assert.equal(on.here.length, COMMANDS.length);
+  assert.equal(on.more, 0, "nothing more to say on a chapter page");
+
+  // A command hidden by state (the panel is open) is not "elsewhere".
+  const open = listCommands({ ...chapter, panelOpen: true });
+  assert.ok(!open.here.some((c) => c.id === "open-notebook"));
+  assert.equal(open.more, 0);
+
+  // Where the browser keeps no notebook, printing with notes is not a command anywhere.
+  const bare = listCommands({ ...page, keeps: false });
+  assert.equal(bare.here.length + bare.more, COMMANDS.length - 1);
 });

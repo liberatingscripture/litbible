@@ -160,3 +160,21 @@ export function matchCommands(query, ctx) {
   }
   return out;
 }
+
+/** The kind of page: what a chapter page has that another page may not. */
+const ON_A_CHAPTER = Object.freeze({ surface: true, study: true, greek: true, print: true });
+
+/**
+ * What the search commands window lists (E31): the commands offered where the
+ * reader is, as a ">" query gives them, and how many more exist elsewhere (on
+ * a chapter page, say), so the window can say that others appear there
+ * without naming commands the box would not offer here.
+ *
+ * @returns {{ here: { id: string, name: string, href: string | null, hint: string }[], more: number }}
+ */
+export function listCommands(ctx) {
+  const here = matchCommands(">", ctx);
+  // The same state (panel open, marks hidden, no notebook kept), on a chapter page.
+  const all = matchCommands(">", { ...ctx, ...ON_A_CHAPTER }).length;
+  return { here, more: Math.max(0, all - here.length) };
+}
