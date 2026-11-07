@@ -1,6 +1,6 @@
 // test/desk-footnote-pills.test.js
 //
-// src/lib/desk-footnote-pills.mjs: whether a footnote's Pin and "+ Note" sit
+// src/lib/desk-footnote-pills.mjs: whether a footnote's Pin and "Add a note" sit
 // side by side in the left margin, behind one "⋯" pill, or on the note's line
 // (E49). The widths are the real ones in Inter: Pin 32px, "+ Note" 56px.
 

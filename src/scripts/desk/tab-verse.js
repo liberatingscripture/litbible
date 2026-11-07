@@ -117,7 +117,7 @@ export function createVerseTab({
       <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
-      <button type="button" class="desk-verse__add" aria-label="Add a note on this verse">+ Note</button>
+      <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse" title="Add a note on this verse">${glyph("note", "desk-fn-add__glyph")}</button>
     </section>
     <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseChainsTitle${idSuffix}">Notes that cite this verse</h4>

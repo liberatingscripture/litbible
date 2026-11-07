@@ -1732,7 +1732,8 @@ against `dist/` is a later item.
      - **`desk/footnote-notes.js` is its page side**: an "Add a note" button,
        the plain note marker's glyph (BVJ, 2026-11-06; it read "+ Note" until
        then), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
-       which `pins.js` and the tabs and pane call). **Pin is a glyph, not
+       which `pins.js` and the tabs and pane call). This verse's own add button (`tab-verse.js`,
+       "Add a note on this verse") is the same glyph pill. **Pin is a glyph, not
        words** (E18): a thumbtack to pin, struck through to unpin, and the
        thumbtack means that and nothing else; a pane's "Stay here" on /desk
        is a lock (E21). The same file draws the reader's notes under a

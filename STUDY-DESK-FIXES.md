@@ -1611,7 +1611,8 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   row stays as it is.
   **BVJ, after a look (2026-11-06):** side by side, Pin is drawn nearest the
   footnote, and "+ Note" became the plain note marker's glyph (the one the
-  note window shows), named "Add a note on footnote a", everywhere it appears.
+  note window shows), named "Add a note on footnote a", everywhere it appears. This verse's "+ Note" (tab and pane) took the same glyph pill,
+  named "Add a note on this verse".
   /notebook gained "Open the Study Desk" under its title, its way back to the
   desk now the header link is on home only (E50).
   Status: **built 2026-11-06.** `src/lib/desk-footnote-pills.mjs`
