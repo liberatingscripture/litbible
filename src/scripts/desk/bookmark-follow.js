@@ -112,7 +112,7 @@ function writeFlag(next) {
 export function bookmarkState(bookmark) {
   if (!isFollowing(bookmark)) return { word: "Stays put", title: "Stays on its verse" };
   const mine = readFlag();
-  if (mine?.id !== bookmark.id) return { word: "Moves", title: "Moves as I read, once opened from this list" };
+  if (mine?.id !== bookmark.id) return { word: "Moves", title: "Moves as I read, once it’s following me" };
   return mine.paused
     ? { word: "Paused", title: "Waiting where I left off. It moves again when I read on from there, or I can move it here." }
     : { word: "Following", title: "Following me now: it moves as I read in this tab" };
@@ -155,13 +155,29 @@ export function isFollowedHere(id) {
   return readFlag()?.id === id;
 }
 
+/**
+ * The quiet link under a moving bookmark's line (E44, BVJ 2026-11-05): "Stop
+ * following" while this tab is moving it, "Start following" otherwise. Starting
+ * needs a page that follows the reader (`followsHere`), so elsewhere (/desk,
+ * /notebook) only the stop shows; opening the bookmark from the list still
+ * starts it there.
+ *
+ * @param {HTMLElement} el a link made by bookmark-stop.js's followLinkButton
+ */
+export function drawFollowLink(el) {
+  const id = el.dataset.bookmarkFollowLink;
+  const where = el.dataset.where ?? "";
+  const on = isFollowedHere(id);
+  el.hidden = !on && !followsHere();
+  el.textContent = on ? "Stop following" : "Start following";
+  el.setAttribute("aria-label", `${on ? "Stop" : "Start"} following the bookmark${where ? ` on ${where}` : ""}`);
+}
+
 /** Draw every bookmark line on the page again, after the tab's flag changed. */
 export function syncBookmarkLines(root = document) {
-  // The "Stop following" buttons show only for the bookmark being followed,
-  // and "Move it here" only while it is paused.
-  for (const el of root?.querySelectorAll?.("[data-bookmark-stop]") ?? []) {
-    el.hidden = !isFollowedHere(el.dataset.bookmarkStop);
-  }
+  // Each moving bookmark's link says "Stop following" or "Start following",
+  // and "Move it here" shows only while it is paused.
+  for (const el of root?.querySelectorAll?.("[data-bookmark-follow-link]") ?? []) drawFollowLink(el);
   for (const el of root?.querySelectorAll?.("[data-bookmark-move]") ?? []) {
     el.hidden = !isPausedHere(el.dataset.bookmarkMove);
   }
@@ -183,8 +199,9 @@ export async function moveItHereNow() {
  * Stop whatever is moving in this tab: the reader asked ("Stop following",
  * BVJ 2026-11-04), or followed a bookmark's link that doesn't move, since they
  * have left it for another place in the book. The bookmark keeps "Move as I
- * read" on and stays where it last was; opening it from the list starts it
- * again. A moving bookmark's link takes over through `followBookmark`.
+ * read" on and stays where it last was; "Start following", or opening it from
+ * the list, starts it again. A moving bookmark's link takes over through
+ * `followBookmark`.
  */
 export function stopFollowing() {
   if (!flag && !readFlag()) return;
@@ -213,6 +230,9 @@ export function followsHere() {
  * before the link is not where the bookmark goes (BA99): a link within this
  * page moves the bookmark at the page's next report of where the reader is,
  * after the jump, and a link to another page leaves the moving to that page.
+ * "Start following" (E44, E47) calls it with no link: the reader stays where
+ * they are, and the next report decides (reading on from the bookmark moves
+ * it; anywhere else pauses it and offers "Move it here").
  *
  * @param {{ id: string, bookKey: string }} bookmark
  * @param {string | null} [href] the link's address
@@ -227,6 +247,23 @@ export function followBookmark(bookmark, href = null) {
   }
   syncBookmarkLines();
   env?.followed(href);
+}
+
+/**
+ * The reader moved the bookmark this tab follows to another verse in its form
+ * (E46): its resting place goes with it, in whichever book that is, and the
+ * next report of where the reader is is judged from there, as a fresh follow's
+ * is (reading on from it moves it; anywhere else pauses it).
+ *
+ * @param {string} id
+ * @param {string} bookKey the book it is in now
+ */
+export function restedAt(id, bookKey) {
+  const mine = readFlag();
+  if (mine?.id !== id) return;
+  writeFlag({ ...mine, bookKey });
+  env?.followed(null);
+  syncBookmarkLines();
 }
 
 /** Whether `href` is this page, its hash aside. */
@@ -392,11 +429,17 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     schedule();
   }
 
-  /** Forget where the reader was; for a link off the page, stop listening. */
+  /**
+   * Forget where the reader was; for a link off the page, stop listening. What
+   * the follower last accepted goes too: it belonged to the follow before, and
+   * would count a far report as reading on from this one (a follow started in
+   * place, E44, or a resting place moved in the form, E46).
+   */
   function followed(href) {
     window.clearTimeout(timer);
     timer = 0;
     latest = null;
+    heard = null;
     leaving = href != null && !onThisPage(href);
   }
 
@@ -413,6 +456,8 @@ export function initBookmarkFollow({ store, ctx, tell = null }) {
     if (flag) hear(pageLastRead());
   });
   env = { followed, moveItHere };
+  // Rows drawn before this page could follow offer "Start following" now.
+  syncBookmarkLines();
   // This page may have said where the reader is before this module loaded.
   if (flag) hear(pageLastRead());
 }

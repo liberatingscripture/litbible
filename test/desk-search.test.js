@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { matchNouns, matchTitle, notebookSearchHref, searchNotebook, searchTokens, snippetParts } from "../src/lib/desk-search.mjs";
+import { matchNouns, NOTEBOOK_GROUP_TITLE, notebookSearchHref, searchNotebook, searchTokens, snippetParts } from "../src/lib/desk-search.mjs";
 
 const base = { schema: 1, created: "2026-10-01T00:00:00Z", modified: "2026-10-01T00:00:00Z", client: "web/test", contentVersion: "v1", labels: [] };
 const note = (id, bookKey, chapter, verse, body, extra = {}) => ({ ...base, id, kind: "note", bookKey, chapter, verse, body, marker: "note", ...extra });
@@ -125,8 +125,6 @@ test("a count names the kind when every notebook hit is one kind, else the noteb
   assert.deepEqual(matchNouns([]), ["notebook match", "notebook matches"]);
 });
 
-test("the notebook group is headed Bookmark labels only when every hit is a bookmark", () => {
-  assert.equal(matchTitle([{ kind: "bookmark" }, { kind: "bookmark" }]), "Bookmark labels");
-  assert.equal(matchTitle([{ kind: "bookmark" }, { kind: "note" }]), "Your notebook");
-  assert.equal(matchTitle([]), "Your notebook");
+test("the notebook group is always headed My notebook, whatever it holds", () => {
+  assert.equal(NOTEBOOK_GROUP_TITLE, "My notebook");
 });

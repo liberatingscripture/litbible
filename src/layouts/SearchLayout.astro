@@ -87,13 +87,19 @@ const baseUrl = import.meta.env.BASE_URL || "/";
           aria-label="Scripture tools"
         >
           <div class="scripture-tools__inner">
+            {/* Content above the search bar (the search page's heading), in a
+                grid row of its own so the picker can share the field's row. */}
+            {Astro.slots.has("preSearch") && (
+              <div class="scripture-tools__heading">
+                <slot name="preSearch" />
+              </div>
+            )}
+
             <div class="scripture-tools__left" aria-label="Jump to passage">
               {showToolsReadMenu ? <ReadMenu /> : null}
             </div>
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
-              {/* Slot for content above the search bar (e.g. search page heading) */}
-              <slot name="preSearch" />
               {showToolsSearch ? (
                 <SearchBar
                   fullSearchHref={`${baseUrl}search`}
@@ -210,15 +216,47 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         white-space: nowrap;
       }
 
-      /* Mobile-only breathing room BETWEEN the two tool columns.
+      /* The heading sits over the search field in a row of its own, and the
+         passage picker shares the next row with the field, its label on the
+         same baseline as the field's text (BVJ, 2026-11-06). Centered on the
+         whole middle column (heading, field and filters), the picker landed
+         wherever the heading's wrapping and the filters' height put that
+         column's middle, a different place at each width. A phone stacks
+         them: heading, picker, field. */
+      :global(.scripture-tools__heading) {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      @media (min-width: 641px) {
+        :global(.scripture-tools__inner) {
+          align-items: first baseline;
+        }
+
+        :global(.scripture-tools__left),
+        :global(.scripture-tools__center),
+        :global(.scripture-tools__right) {
+          grid-row: 2;
+        }
+
+        /* A flex box takes its baseline from its first item, which in the
+           picker is the book icon; this hands it the label's. The label is
+           the tallest item, so it doesn't move. */
+        :global(.scripture-tools__left .read-menu__label) {
+          align-self: baseline;
+        }
+      }
+
+      /* Mobile-only breathing room BETWEEN the stacked tools.
          (We do NOT style SearchBar internals here.) */
       @media (max-width: 640px) {
         :global(.scripture-tools__inner) {
           gap: 18px;
         }
 
-        :global(.scripture-tools__center) {
-          margin-top: 44px;
+        :global(.scripture-tools__heading) {
+          grid-column: auto;
+          grid-row: auto;
         }
       }
 

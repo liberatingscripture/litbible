@@ -159,8 +159,20 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   settingsEl.innerHTML = `
     <div class="desk-panel__settings-slot"></div>
     <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
+    <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook actions</button></p>
     <p class="desk-panel__kept"></p>
     <p class="desk-panel__persist" hidden></p>`;
+
+  // E31: a line on this tab for the commands the search box understands. It
+  // opens the Commands window (commands-window.js, through the search module
+  // that lists them), left of the Notebook; the Greek's "Search commands" is a
+  // separate window by BVJ's choice (2026-11-06), so no search field is needed.
+  const commandsBtn = settingsEl.querySelector(".desk-panel__commands button");
+  commandsBtn.addEventListener("click", () => {
+    import("./notebook-search.js")
+      .then((m) => m.openCommands({ anchor: commandsBtn, beside: panel, opener: commandsBtn }))
+      .catch((err) => console.error("Study Desk: the commands couldn't load", err));
+  });
 
   // The tabs this page has, in order. Each tab module returns its element
   // and a render(); a tab is drawn only while it is the one showing.

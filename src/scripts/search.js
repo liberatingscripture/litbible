@@ -320,8 +320,21 @@ if (input && greekSearchEnabled()) {
   // (E11), so neither squeezes the field.
   greekExtras = document.createElement("div");
   greekExtras.className = "greek-field-extras";
-  greekExtras.hidden = true;
-  greekExtras.append(commandsBtn);
+  // The quiet "Notebook actions" link (E31, reworked 2026-11-06): the Notebook and page
+  // commands, in a window of their own (desk/commands-window.js), apart from the
+  // Greek's. It is always here with the desk on, so this row is too; the Greek's
+  // button and "My notes" come and go inside it.
+  const deskCommandsBtn = document.createElement("button");
+  deskCommandsBtn.type = "button";
+  deskCommandsBtn.className = "greek-cmd-link greek-cmd-link--field";
+  deskCommandsBtn.textContent = "Notebook actions";
+  deskCommandsBtn.setAttribute("aria-haspopup", "dialog");
+  deskCommandsBtn.addEventListener("click", () => {
+    loadDeskSearch()?.then((m) =>
+      m?.openCommands({ anchor: input.closest("form") ?? input, opener: deskCommandsBtn }),
+    );
+  });
+  greekExtras.append(deskCommandsBtn, commandsBtn);
   (input.closest(".searchbar__input-wrap") ?? input).after(greekExtras);
   input.closest("form")?.classList.add("searchbar__form--extras");
 }
@@ -362,7 +375,6 @@ function syncGreekChrome() {
   const greekType = modeSelect?.value === "greek";
   const greekSearch = greekType || isGreekQuery(input.value);
   commandsBtn.hidden = !greekSearch;
-  greekExtras.hidden = !greekSearch;
   input.placeholder = greekType ? GREEK_PLACEHOLDER : defaultPlaceholder;
   if (notesSwitch) {
     // Under all types only: a Greek-letter query reads "Greek" in the menu
@@ -1157,7 +1169,7 @@ function showGreekNotebook() {
   // "My notes" unchecked (E11): the Greek alone.
   if (!deskApi.greekNotesOn()) return;
   groupNotebook.hidden = false;
-  groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "Your notebook";
+  groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My notebook";
   deskApi.renderPageGroup(notebookEl, notebook);
 }
 
@@ -1416,7 +1428,7 @@ function renderFromCache() {
 
   if (showNotebook && deskApi) {
     groupNotebook.hidden = false;
-    groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "Your notebook";
+    groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My notebook";
     deskApi.renderPageGroup(notebookEl, notebook);
   } else {
     groupNotebook.hidden = true;

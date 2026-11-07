@@ -1101,9 +1101,8 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 }
 
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
-   the verse (a trial, BVJ 2026-10-07). The note marker of the same shape,
-   `ribbon` (named `bookmark` until E10), is green and always comes with
-   words, so the two read apart. */
+   the verse (a trial, BVJ 2026-10-07). The note marker `ribbon` (named
+   `bookmark` until E10) is drawn as an awareness ribbon (E42) and is green. */
 .desk-bookmark-mark {
   position: absolute;
   width: 14px;
@@ -2607,12 +2606,6 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 
 /* src/scripts/desk/bookmark-form.js: "Edit bookmark", the form in the
    floating panel. */
-.desk-bookmark-form__where {
-  margin: 4px 0 8px;
-  color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
-}
-
 .desk-bookmark-form__field {
   display: flex;
   flex-direction: column;
@@ -2620,6 +2613,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   margin: 0 0 10px;
 }
 
+.desk-bookmark-form__verse,
 .desk-bookmark-form__name {
   box-sizing: border-box;
   min-width: 0;
@@ -2631,6 +2625,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   font: inherit;
 }
 
+.desk-bookmark-form__verse:focus-visible,
 .desk-bookmark-form__name:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
@@ -2655,6 +2650,22 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 }
 
 .desk-bookmark-form__hint {
+  margin: 0 0 10px 26px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.8125rem;
+}
+
+/* "Start following now?" (E47): under the switch it belongs to, and gone
+   (not just empty) while it isn't offered, since the label is a flex row. */
+.desk-bookmark-form__start {
+  margin-left: 26px;
+}
+
+.desk-bookmark-form__start[hidden] {
+  display: none;
+}
+
+.desk-bookmark-form__start-note {
   margin: 0 0 10px 26px;
   color: rgba(var(--ink-rgb), 0.75);
   font-size: 0.8125rem;
@@ -2848,6 +2859,94 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   cursor: pointer;
 }
 
+/* The Commands window (desk/commands-window.js, E31): the desk's own commands,
+   a float-window.js window apart from the Greek's. Above the search tray (999)
+   and its tooltips (1000), which it opens beside, as the Greek's is. Tokens
+   only, so both themes follow without a rule of their own. */
+.desk-cmds {
+  z-index: 1050;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  max-height: min(70vh, 520px);
+  padding-bottom: 0;
+}
+
+.desk-cmds .lit-panel__header {
+  margin-bottom: 0;
+}
+
+.desk-cmds .lit-window__title {
+  margin: 4px 0 2px;
+}
+
+.desk-cmds .lit-window__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0 -14px;
+  padding: 0 14px 14px;
+}
+
+.desk-cmds__lead {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-cmds__more {
+  margin: 8px 0 0;
+}
+
+.desk-cmds__list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A command: a link or a button, its name and where it works on one line. */
+.desk-cmds__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 6px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.desk-cmds__row:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-cmds__row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.desk-cmds__name {
+  font-weight: 600;
+}
+
+.desk-cmds__hint {
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
 /* The tour: a small card beside its target. */
 .desk-tour {
   position: fixed;
@@ -2951,7 +3050,8 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.12);
 }
 
-/* What a step points at. A dashed outline, so it isn't mistaken for focus. */
+/* The control a step points at (never the page's own text, E30). A dashed
+   outline, so it isn't mistaken for focus. */
 .desk-tour-target {
   outline: 2px dashed var(--green-text);
   outline-offset: 3px;
@@ -5661,6 +5761,11 @@ html.desk-ws--moving * {
 }
 
 .desk-lit__scroll {
+  /* Positioned, so a verse number, footnote letter or heading the Display
+     tray hides (a 1px absolute box, global.css) scrolls with the text. With
+     the pane's body as their containing block they stayed where the text
+     had first been drawn, so a hidden number was no scroll target (E29). */
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -5723,6 +5828,36 @@ html.desk-ws--moving * {
 
 .desk-lit__heading a:hover {
   text-decoration: underline;
+}
+
+/* With verse numbers off (the Display tray, or the Reading arrangement), the
+   chapters run together as one text, so a chapter's heading makes no break
+   (E29; BVJ, 2026-11-05). It is hidden the way a hidden verse number is: out
+   of the flow, so it adds no height, and still a heading, a link and a focus
+   stop. With focus it shows over the start of its chapter rather than
+   pushing the text down. Chapter View's own pages keep theirs. */
+html[data-vn="off"] .desk-lit__heading {
+  position: absolute;
+  margin: 0;
+}
+
+html[data-vn="off"] .desk-lit__heading:not(:focus-within) {
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html[data-vn="off"] .desk-lit__heading:focus-within {
+  z-index: 1;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .desk-lit .chapter-paragraphs p {
@@ -7780,7 +7915,7 @@ mark.desk-print-mark {
   text-overflow: ellipsis;
 }
 
-.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__choice, .desk-search__open):focus-visible,
+.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__away, .desk-search__choice, .desk-search__open):focus-visible,
 .desk-search .desk-search__link:focus-visible,
 .desk-search .greek-cmd-link:focus-visible,
 .desk-search__exact input:focus-visible {
@@ -7984,6 +8119,34 @@ mark.desk-print-mark {
 .desk-search__row:hover .desk-search__add,
 .desk-search__row:focus-within .desk-search__add,
 .desk-search__add:focus-visible {
+  opacity: 1;
+}
+
+/* A passage result's second way to read it (E34): its own page, in a new
+   tab, beside the result whose plain click moves the LIT pane. Quiet at
+   rest, so a list of results doesn't read as a column of icons, and full
+   strength on its row's hover or focus. */
+.desk-search__away {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 2px 0 0;
+  border-radius: 8px;
+  color: var(--text);
+  /* Still 3:1 or more against the pane at rest, as an icon that means
+     something must be. */
+  opacity: 0.6;
+}
+
+.desk-search__away:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-search__row:hover .desk-search__away,
+.desk-search__row:focus-within .desk-search__away {
   opacity: 1;
 }
 

@@ -21,6 +21,7 @@
 //   - Edit bookmark…, right after Remove bookmark once the verse holds one: its
 //     name and "Move as I read" (E9, bookmark-form.js). Pressing Bookmark opens
 //     the same form at once (BVJ, 2026-11-04), so it is named as it is made.
+//     A bookmark that moves has "Start following" beside its Edit (E44).
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
@@ -42,8 +43,8 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
 import { openBookmarkForm } from "./bookmark-form.js";
-import { isPausedHere, restingId } from "./bookmark-follow.js";
-import { stopFollowingNow } from "./bookmark-stop.js";
+import { followsHere, isPausedHere, restingId } from "./bookmark-follow.js";
+import { startFollowingNow, stopFollowingNow } from "./bookmark-stop.js";
 import { openNoteEditor } from "./note-editor.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
@@ -195,8 +196,22 @@ export function initActions({ store, ctx, showVerse = null }) {
         const edit = button(b.label || both ? `Edit ${named}…` : "Edit bookmark…");
         edit.setAttribute("aria-label", `Edit ${whole}`);
         edit.addEventListener("click", () => editBookmark(d, b, edit));
-        // Edit sits right beside Remove (BVJ, 2026-11-04).
-        items.push(lineOf(remove), lineOf(edit));
+        // Edit sits right beside Remove (BVJ, 2026-11-04). A bookmark that
+        // moves, and isn't the one this tab follows (that one only rests here,
+        // below), has "Start following" beside Edit (E44), where this page
+        // can follow the reader.
+        const line = [edit];
+        if (b.follow === true && followsHere()) {
+          const start = button("Start following");
+          start.setAttribute("aria-label", `Start following ${whole}`);
+          start.addEventListener("click", () => {
+            d.acting?.();
+            startFollowingNow(b, ref);
+            closePanel();
+          });
+          line.push(start);
+        }
+        items.push(lineOf(remove), lineOf(...line));
       }
       // A verse takes a bookmark of each kind; the one it lacks may be added.
       if (held.length) {

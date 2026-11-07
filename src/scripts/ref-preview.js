@@ -109,6 +109,12 @@ function buildPanel(ref, draft) {
   open.className = "lit-panel__jump";
   open.href = ref.href;
   open.textContent = `Open ${chapterName} →`;
+  // On the Study Desk a link that leaves the page opens apart, so the
+  // reader's layout stays (E34).
+  if (document.querySelector("[data-desk-page]")) {
+    open.target = "_blank";
+    open.rel = "noopener noreferrer";
+  }
   panel.appendChild(open);
 
   const setUnavailable = () => {

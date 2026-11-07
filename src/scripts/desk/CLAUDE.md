@@ -36,7 +36,7 @@ From the root's routing table.
 |-------|------|---------|
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 
 ## Launching
 
@@ -525,13 +525,38 @@ against `dist/` is a later item.
        flag; one short word each so the line never wraps in the narrow list,
        with the fuller sentence as hover text; the words are an Opus agent's,
        who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
-       name and the switch). The verse menu lists "Edit bookmark…" right after
+       the verse, the name and the switch). **The form moves a bookmark to
+       another verse** (E46, 2026-11-05): a Verse field read as the Go to
+       passage field reads one (`parseReference`, then `bookmarkPlace`: a range
+       keeps its first verse, a chapter alone is verse 1, a verse past the
+       chapter's last is refused), sent only when the reader changed it, so a
+       move the follower made meanwhile is kept. It is the same one
+       `store.change` (`planBookmarkEdit`), an ordinary undoable edit, refused
+       with "John 3:5 already has a bookmark that stays put" when the verse
+       holds one of its kind (`roomAt`, `kindTakenAt`; the switch locks for the
+       typed verse as for its own), and it writes `verse`, `endVerse` and
+       `contentVersion` as a new bookmark gets them; other fields (`from`
+       included) are kept. Moving the bookmark this tab follows moves where it
+       rests (`restedAt`), and the next report is judged from there. **"Start
+       following now?"** (E47) shows under the switch while it is checked, and
+       only when this tab could start it (not while it follows this one, not
+       where the page doesn't follow the reader, not with six others moving);
+       otherwise a line says which. Checked at Save, the bookmark is saved and
+       then followed (`followBookmark`), even when nothing else changed, so a
+       new bookmark from the verse menu starts following with its first Save.
+       The switch's hint (E48) no longer explains how a follow starts: "Moves
+       along with you as you read its book, once it’s following you. Without
+       this, it stays on its verse. Up to six of your bookmarks can move." The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
        are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
-       5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
-       catches up when the reading pauses. "Add bookmark" in the verse menu and the
+       2.5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
+       catches up when the reading pauses; the follower writes at most every 2
+       seconds (`MOVE_EVERY_MS`), and the settle must stay longer than that gap
+       or steady scrolling redraws between writes. They were 4 and 5 seconds until E45
+       (2026-11-05); a move is a record write that syncs, so tell BDR if the
+       write gap changes. "Add bookmark" in the verse menu and the
        selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
        counted); the limit and the write are one `store.change`
        (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
@@ -592,12 +617,20 @@ against `dist/` is a later item.
        moves or stays put, and for the resting one "Leave it here". A verse with
        none keeps the one-press "Bookmark", and a finger's chips stay flat
        (`flyoutRow` in actions.js; hover opens, a click, Enter or the right arrow
-       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" ends it by hand**
-       (BVJ, 2026-11-04; `bookmark-stop.js`): a quiet link under the state line
-       of the bookmark this tab is moving, and a button beside "Edit bookmark…"
-       in the verse menu. It clears the flag only: the bookmark stays where it
-       last was with "Move as I read" still on, and opening it from the list
-       starts it again. **Every way the flag drops redraws the rows**
+       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" and "Start following" are one
+       quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
+       `drawFollowLink`) under the state line of every bookmark with "Move as I
+       read" on, its label swapping with this tab's flag; not an On/Off switch,
+       since a follow is the tab's and the switch is the record's. In the verse
+       menu a moving bookmark has "Start following" beside "Edit bookmark…",
+       and the resting one's "Leave it here" is the stop. Stopping clears the
+       flag only: the bookmark stays where it last was with "Move as I read"
+       still on. Starting is `followBookmark` with no link, as opening it from
+       the list is apart from the navigation: the next report of where the
+       reader is decides (reading on from it moves it, anywhere else pauses it
+       with "Move it here"). It is offered only where the page follows the
+       reader (`followsHere`), so /desk and /notebook show the stop alone.
+       **Every way the flag drops redraws the rows**
        (`dropFlag`: another tab took it, it was deleted or turned off, a
        back-forward restore), turning the switch off in the form stops it at
        once, a Back or reload doesn't write verse 1 over the bookmark before
@@ -608,8 +641,8 @@ against `dist/` is a later item.
        `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
        both lists), and **a search's count names the kind when every notebook
        hit is one** ("1 bookmark match"; `matchNouns`, else "notebook match"); the
-       group's heading is "Bookmark labels" then, else "Your notebook"
-       (`matchTitle`; the tray, /search and the Search pane).
+       group is always headed "My notebook", whatever it holds (E32;
+       `NOTEBOOK_GROUP_TITLE`; the tray, /search and the Search pane).
        **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
        **Known and accepted** (BVJ, 2026-11-04, from an Opus audit): /desk,
@@ -638,6 +671,23 @@ against `dist/` is a later item.
        `data-desk="on"`; commands (`desk-commands.mjs`, `desk/commands.js`)
        travel as one `lit:desk-command` event with a single listener. Keep
        desk code out of the two search UIs themselves.
+       **The Notebook actions window** (E31, reworked 2026-11-06) lists those
+       commands (`listCommands` in `desk-commands.mjs`: what a ">" in the box
+       offers on this page, and a line saying more appear on a chapter page).
+       It is desk code (`desk/commands-window.js`), a `float-window.js`
+       window like the Greek's and the tour offer, styled in `desk.css`, and
+       **it is kept apart from the Greek "Search commands" window by BVJ's
+       choice**: the two were one window for a day and BVJ did not want them
+       combined, so don't put desk commands in `greek-commands.js` or Greek
+       ones here. A row runs its command and closes the window, as the box
+       does; link commands are plain links. It has three ways in, each a
+       quiet "Notebook actions" link (named apart from the Greek's "Search commands", since the two sit side by side on /search, and not "prompts", which reads as AI or as reflection questions; BVJ 2026-11-06): the tray's footer row (`SearchBar.astro`), a
+       link in /search's field row with the desk on (the "Search commands"
+       button beside it is the Greek's, shown only for a Greek search), and
+       the Notebook's Settings tab (`panel.js`, which sits the window left of
+       the Notebook). The tray and /search call `openCommands` on
+       `notebook-search.js` through `loadDeskSearch()`, never importing desk
+       code (`test/desk-commands-window.test.js` holds it).
      - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
        `desk/tour.js`): the "Where should your notebook live?" card
        (`localStorage['lit-desk-home']`), the foot's reminder and Safari
@@ -1179,6 +1229,20 @@ against `dist/` is a later item.
        settles, and its ResizeObserver puts it back when the width or height
        changes (BA54). The room below the text is the part of the pane below
        the line (`--desk-lit-below`, BA57), so the last verses reach it.
+       **The verse at the line is read from the verses' `[data-verse]`
+       spans, never their numbers** (`placeNow`, `keep`, `indexAtLine` in
+       `desk-lit-text.mjs`; E29), since the Display tray may hide the
+       numbers. **The scroller is positioned** for the same reason: a hidden
+       number, letter or heading is a 1px absolute box (global.css), and with
+       the pane's body as its containing block it stayed where the text was
+       first drawn, so with numbers off the location field read verse 1 and
+       a jump to a verse landed wrong. With numbers off the chapter headings
+       are hidden that way too (styles/CLAUDE.md, the Display tray's rule 6).
+       **Its bar has "Open on its page"** (E35): a link after the
+       next-chapter arrow (`extra` in `passage-bar.js`, `OPEN_PAGE_ICON` in
+       `glyphs.js`) to the chapter's page at the verse the field names
+       (`showPlace`, which every move of the field goes through), in a new
+       tab, as the chapter headings' links also open.
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);
@@ -1307,10 +1371,16 @@ against `dist/` is a later item.
        than the pane does (BVJ, 2026-11-04). **It keeps nothing about a search**
        (no key, no layout field), so /privacy doesn't name it and a reload
        empties it. **It stands alone**: not a follower, and “The book I’m
-       reading” fixes the book when picked. A plain click on a verse or
-       topic moves the LIT pane through `env.showPassage`, and rows stay
+       reading” fixes the book when picked. **A passage result offers both
+       ways to read it** (E34; BVJ, 2026-11-05): a plain click on a verse or
+       topic moves the leading LIT pane through `env.showPassage`, or opens
+       one beside the pane when there is none, and the note line says which
+       (`showPassage` returns "moved", "opened" or "placed";
+       `passageMoveMessage`); a small link beside the row (`awayLink`,
+       `.desk-search__away`) opens its page in a new tab. Rows stay
        real links, so a modified click opens a tab and `ref-preview.js`
-       previews them (`.desk-search__link`). A glossary entry is cloned from
+       previews them (`.desk-search__link`); on /desk the preview's
+       "Open John 3 →" opens in a new tab too. A glossary entry is cloned from
        the fetched /glossary/ page into the pane; an article or intro opens
        in a new tab. A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Adding to a sheet
@@ -1342,9 +1412,11 @@ against `dist/` is a later item.
      - **The printed codes are `src/lib/qr-svg.mjs`**, shared with
        `build-apps-qr.mjs`; `qrcode-generator` is a runtime dependency for
        that reason, loaded only by the sheet page's chunk.
-     - **Copy for Word** (`desk/sheet-word.js`) reads the copy on screen and
+     - **Copy** (`desk/sheet-word.js`; "Copy for Word" until E36) reads the copy on screen and
        writes HTML with inline styles plus plain text, so what is pasted is
-       what would print, codes aside.
+       what would print, codes aside. Its button carries the copy glyph (two
+       sheets, drawn in `sheet-page.js`'s `copyGlyph`, as the glossary's copy-link icon) and
+       the accessible name "Copy this version to the clipboard".
      - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
        guessed from the reader's languages until chosen), named in /privacy's
        paragraph. Its `@page` rule is added as the page's last style, after

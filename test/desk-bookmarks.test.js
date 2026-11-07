@@ -13,6 +13,7 @@ import { createRecord } from "../src/lib/desk-records.mjs";
 import {
   BOOKMARK_NAME_MAX,
   MAX_FOLLOWING,
+  MOVE_EVERY_MS,
   PAUSE_EXPIRES_MS,
   canFollowMore,
   cleanBookmarkName,
@@ -175,6 +176,10 @@ test("the throttle waits out the gap since the last write", () => {
   assert.equal(throttleDelay(1000, 1500, 4000), 3500);
   assert.equal(throttleDelay(1000, 5000, 4000), 0);
   assert.equal(throttleDelay(1000, 9000, 4000), 0);
+  // The default gap is MOVE_EVERY_MS, 2 seconds since E45 (STUDY-DESK-FORMAT.md
+  // tells the apps the website's rate, so a change here is a change there).
+  assert.equal(MOVE_EVERY_MS, 2000);
+  assert.equal(throttleDelay(1000, 1500), 1500);
 });
 
 test("Continue reading's address agrees with last-read.js's", () => {

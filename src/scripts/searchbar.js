@@ -34,6 +34,7 @@ import {
   loadTopicsIndex,
   loadPagefind,
   loadDeskSearch,
+  deskEnabled,
   greekSearchEnabled,
   isGreekQuery,
   addGreekMode,
@@ -84,6 +85,7 @@ const _initSearchbars = async () => {
     const modeSelect = root.querySelector(".searchbar__mode");
     const closeBtn = root.querySelector(".searchbar__close");
     const fullLink = root.querySelector(".searchbar__full");
+    const commandsLink = root.querySelector("[data-search-commands]");
     const jumpRow = root.querySelector("[data-jump]");
     const activeFiltersEl = root.querySelector("[data-active-filters]");
 
@@ -632,6 +634,21 @@ const _initSearchbars = async () => {
       withCommands().then((m) =>
         m.openGreekCommands({ field: input, filter, typeSelect: modeSelect }),
       );
+    }
+
+    // The tray's quiet "Notebook actions" link (E31), for the Study Desk preview only:
+    // it opens the Notebook and page commands in a window of their own
+    // (desk/commands-window.js, reached through the gated desk module, never
+    // imported here), apart from the Greek's "Search commands." It sits in the
+    // footer's own row, so the tray gains no height, and it is in no page
+    // without data-desk="on".
+    if (commandsLink && deskEnabled()) {
+      commandsLink.hidden = false;
+      commandsLink.addEventListener("click", () => {
+        loadDeskSearch()?.then((m) =>
+          m?.openCommands({ anchor: input.closest("form") ?? input, opener: commandsLink, onRun: closePanel }),
+        );
+      });
     }
 
     // A command search (STUDY-DESK.md, 2a): the query said back in a line,
@@ -1357,8 +1374,8 @@ const _initSearchbars = async () => {
     closeBtn.addEventListener("click", closePanel);
 
     document.addEventListener("click", (e) => {
-      // The Greek commands window belongs to the search it was opened from.
-      if (e.target instanceof Element && e.target.closest("[data-greek-commands]")) return;
+      // The commands windows belong to the search they were opened from.
+      if (e.target instanceof Element && e.target.closest("[data-greek-commands], [data-desk-commands]")) return;
       if (!root.contains(e.target)) closePanel();
     });
 
