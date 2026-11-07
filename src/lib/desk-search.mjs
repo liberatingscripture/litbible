@@ -232,13 +232,11 @@ export function matchNouns(hits) {
 }
 
 /**
- * The notebook group's heading above its matches: "Bookmark labels" when every
- * hit is a bookmark (a bookmark is found by its name; BVJ, 2026-11-04), else
- * "Your notebook".
+ * The notebook group's heading above its matches, whatever they are (E32, BVJ,
+ * 2026-11-05). The shared reader pages (search.js, search.astro) carry the same
+ * string literally, since they can't import desk code.
  */
-export function matchTitle(hits) {
-  return hits?.length && hits.every((h) => h.kind === "bookmark") ? "Bookmark labels" : "Your notebook";
-}
+export const NOTEBOOK_GROUP_TITLE = "My notebook";
 
 /** The notebook page's address for a query (D2's "N more in your notebook"). */
 export function notebookSearchHref(query) {

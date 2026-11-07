@@ -1,7 +1,7 @@
 // src/scripts/desk/notebook-search.js
 //
 // The Study Desk's part of the site's search (STUDY-DESK.md, D2 and D3): the
-// "Your notebook" group of matches from the reader's own notebook, and the
+// "My notebook" group of matches from the reader's own notebook, and the
 // "Commands" group. The search tray (searchbar.js) and
 // /search (search.js) reach this file only through loadDeskSearch() in
 // search-core.js, which imports it only when <html data-desk="on">, so a
@@ -22,7 +22,7 @@ import {
   greekNotesOn as greekNotesStoredOn,
   greekNotesStored,
 } from "../../lib/desk-greek-notes.mjs";
-import { matchNouns, matchTitle, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
+import { matchNouns, NOTEBOOK_GROUP_TITLE, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
@@ -78,7 +78,7 @@ export async function search(query, { bookKey = "" } = {}) {
   const records = await readRecords();
   const hits = notesHidden() ? [] : searchNotebook(records, query, { bookKey });
   // `nouns` names them in a count: "1 bookmark match", or "notebook match" for a mix.
-  return { hits, total: hits.length, nouns: matchNouns(hits), title: matchTitle(hits) };
+  return { hits, total: hits.length, nouns: matchNouns(hits), title: NOTEBOOK_GROUP_TITLE };
 }
 
 /* ── Whether a Greek search lists the notes (E11) ────────────────────── */
@@ -240,7 +240,7 @@ function trayHit(hit) {
 }
 
 /**
- * Put the Commands group, then the Your notebook group, at the top of the
+ * Put the Commands group, then the My notebook group, at the top of the
  * tray's results (`host` is its groups element, which the tray empties before
  * each search). `commands` is commandsFor()'s answer; `notebook` is search()'s;
  * `onRun(command)` is what a command button does.
@@ -257,7 +257,7 @@ export function renderTray(host, { commands = [], notebook = null, query = "", o
   }
 
   if (notebook?.total) {
-    const { group, list } = groupShell(notebook.title ?? "Your notebook");
+    const { group, list } = groupShell(notebook.title ?? NOTEBOOK_GROUP_TITLE);
     group.dataset.deskNotebook = "";
     for (const hit of notebook.hits.slice(0, TRAY_LIMIT)) list.append(trayHit(hit));
     const rest = notebook.total - TRAY_LIMIT;
@@ -275,7 +275,7 @@ export function renderTray(host, { commands = [], notebook = null, query = "", o
 }
 
 /**
- * Fill /search's "Your notebook" group (`list` is its <ol>): every match,
+ * Fill /search's "My notebook" group (`list` is its <ol>): every match,
  * the first PAGE_LIMIT showing and the rest behind "Show N more", in the
  * same cards the page's other groups use.
  */
