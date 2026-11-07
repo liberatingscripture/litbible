@@ -237,13 +237,15 @@ export function createTour({ panel, canKeep = true }) {
 
   // Each step's act: what it opens or draws, and what its card points at.
   // `el` places the card; `marks` are outlined (default: el, when small).
+  // Only controls are outlined (E30): where a step lands on the page's own
+  // text, a verse number or a footnote letter, it passes `marks: []`.
   // What a step opens is undone by `later`, before the next step and at the
   // end.
   const STEPS = {
     async actions() {
       const el = view === "study" ? await openVerseMenu() : await selectWords();
       const marks = notebookRow(el);
-      return el ? { el, side: "right", marks: marks.length ? marks : [el] } : state.verse ? { el: state.verse } : null;
+      return el ? { el, side: "right", marks: marks.length ? marks : [el] } : state.verse ? { el: state.verse, marks: [] } : null;
     },
 
     async note() {
@@ -285,7 +287,7 @@ export function createTour({ panel, canKeep = true }) {
       later(() => closePanel());
       // The Pin button is a thumbtack with no words (E18), so it is found by its mark.
       const pin = pop?.querySelector("button[data-desk-pin]");
-      return pop ? { el: pop, side: "right", marks: pin ? [pin] : [] } : { el: ref };
+      return pop ? { el: pop, side: "right", marks: pin ? [pin] : [] } : { el: ref, marks: [] };
     },
 
     async panel() {
