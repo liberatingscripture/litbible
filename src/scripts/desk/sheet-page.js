@@ -63,7 +63,7 @@ import { documentFileName } from "../../lib/desk-sheet-doc.mjs";
 import { copyChecks, renderCopy } from "./sheet-copy.js";
 import { diffParagraph } from "./diff-view.js";
 import { openPresentation, showPresenterView } from "./sheet-present.js";
-import { createSaveMenu, download, drawCodes, writerFor } from "./sheet-save.js";
+import { CODES_MISSING, createSaveMenu, download, drawCodes, writerFor } from "./sheet-save.js";
 import { copyForWord, readCopy } from "./sheet-word.js";
 import { openStore } from "./store.js";
 import { make } from "./dom.js";
@@ -466,7 +466,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
       const write = await writerFor(item.id);
       const bytes = await write(doc, { title: sheetName(sheet), version: COPY_NAMES[copy], paper, date: Date.now() });
       download(bytes, item.mime, name);
-      say(`Saved ${name}.`);
+      say(`Saved ${name}.${doc.codesMissing ? ` ${CODES_MISSING}` : ""}`);
     } catch (err) {
       console.error("Study Desk: couldn't make the file", err);
       say("The file couldn’t be made. The sheet is unchanged: try again in a moment.");
@@ -475,13 +475,14 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
 
   /**
    * A Slides item (E37 phase B): the room's screens as a .pptx or .odp, or
-   * printed one to a page for a PDF. The same whichever version is on screen.
+   * printed one to a page for a PDF. The same slides whichever version is on
+   * screen; the participant version's have no speaker notes (SEC3-3).
    */
   async function saveSlides(item) {
     say(item.print ? "Laying out the slides…" : "Making the slides…", { keep: true });
     try {
       const { printSlides, readSlides } = await import("./sheet-slides.js");
-      const deck = await readSlides(sheet);
+      const deck = await readSlides(sheet, { participant: copy === "participant" });
       if (item.print) {
         say("In the print window, choose “Save as PDF” as the printer.");
         await printSlides(deck);
@@ -490,7 +491,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
       const name = documentFileName(sheetName(sheet), "slides", item.ext);
       const write = await writerFor(item.id);
       download(await write(deck, { title: sheetName(sheet), date: Date.now() }), item.mime, name);
-      say(`Saved ${name}.`);
+      say(`Saved ${name}.${deck.codesMissing ? ` ${CODES_MISSING}` : ""}`);
     } catch (err) {
       console.error("Study Desk: couldn't make the slides", err);
       say("The slides couldn’t be made. The sheet is unchanged: try again in a moment.");

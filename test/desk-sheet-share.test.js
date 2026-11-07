@@ -10,6 +10,7 @@ import {
   fragmentInFile,
   isShareFragment,
   openShare,
+  markdownLine,
   plainText,
   shareFile,
   shareFileName,
@@ -155,6 +156,19 @@ test("plainText and file names", () => {
   assert.equal(plainText("<h2>A</h2><ul><li>one</li><li>two &amp; three</li></ul>"), "A\n\n- one\n- two & three");
   assert.equal(shareFileName({ title: "Freedom and the Life-breath!" }), "freedom-and-the-life-breath.lit-sheet.md");
   assert.equal(shareFileName({ title: "" }), "sheet.lit-sheet.md");
+});
+
+test("the file's words are Markdown that reads as written: escaped, paragraphs a blank line apart (DK3-12)", async () => {
+  assert.equal(plainText("<p># not a heading</p><p>- not a list</p><p>&gt; not a quote</p><p>3. not a number</p>"),
+    "\\# not a heading\n\n\\- not a list\n\n\\> not a quote\n\n3\\. not a number");
+  assert.equal(plainText("<p>a *star* and _under_ and `tick` and C:\\dir</p>"), "a \\*star\\* and \\_under\\_ and \\`tick\\` and C:\\\\dir");
+  assert.equal(plainText("<ul><li>- dash</li><li>plain</li></ul><hr><p>after</p>"), "- \\- dash\n- plain\n\n---\n\nafter", "the file's own list marks and rule stay");
+  assert.equal(plainText("<p>one</p><p>two</p>"), "one\n\ntwo");
+  assert.equal(markdownLine("Week *2* of 1. Romans"), "Week \\*2\\* of 1. Romans", "a number mid-line is left alone");
+  const s = createSheet({ title: "Rivers *and* wells", subtitle: "# week 2", modules: [makeModule("keyTerms")] }, ctx);
+  const file = await shareFile(s);
+  assert.ok(file.startsWith("# Rivers \\*and\\* wells\n\\# week 2\n"), file.slice(0, 60));
+  assert.equal(fragmentInFile(file), await shareFragment(s), "the data line still reads back");
 });
 
 test("a copy into my desk is a new sheet of mine", async () => {

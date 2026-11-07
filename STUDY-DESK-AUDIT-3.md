@@ -436,6 +436,8 @@ Counts: **Critical 0, High 0, Medium 1, Low 3, Nit 1** (5 findings).
 
 #### SEC3-3 · Low · security (privacy) · NEW
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** per decision 6 (b), slides saved while the participant version is on screen have no speaker notes at all (`deckSlides`' `participant`, from `readSlides`): no answers, no Leader only parts, no list of a slide's blanks; the leader's version keeps E37 as it is.
+
 > **Verified (Opus, Appendix J):** confirmed, but what the slides hold is BVJ's E37 decision; only the menu's version line and accessible name mislead.
 
 **"Save as ▸ Slides" puts every Leader only part and every answer in the speaker notes, even while the menu's first line reads "Participant version".**
@@ -921,6 +923,8 @@ Nothing here needed a browser to confirm except where each finding says so.
 
 #### DK3-1 · Medium · compat · NEW
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** a paragraph longer than a slide is cut after a sentence (`cutSentences` in `desk-slides.mjs`, a sentence longer than a slide after a word), across as many slides as it needs, and a quotation or box too long is cut between its blocks; a passage with blanks still cuts only at verse numbers, since its two forms' words differ. A long start-slide title is set smaller (`titlePoints`) in the .pptx, the .odp and the PDF. Checked in LibreOffice 26.2; not opened in PowerPoint.
+
 > **Verified (Opus, Appendix J):** the XML is as described. Whether PowerPoint refits on open is likely but not reproduced (Medium confidence). Low.
 **Where** `src/lib/desk-slides-pptx.mjs:127` (`textBox`, `<a:normAutofit/>` with no `fontScale`); `src/lib/desk-slides-odp.mjs:106` (`style:shrink-to-fit="true"`); cutting rule `src/lib/desk-slides.mjs:208` (`splitBlocks`, "between blocks only") and `:139`-`:156` (`chooseCuts`: a single verse stays whole).
 **What happens** A slide's body is a fixed 11.9 by 5.85 inch box at 28 pt. A text or question part holding one long paragraph (say 1,500 characters of sermon notes) is never cut, because `splitBlocks` cuts only between blocks. PowerPoint does not shrink text on open: `normAutofit` without a `fontScale` means "autofit on, scale 100%", and PowerPoint recomputes only when the text is edited. So the paragraph runs past the bottom of the slide. The same holds for a 200-character sheet title (the title limit is 200, `SHEET_LIMITS.title`) at 48 pt in a 1.35-inch box anchored at the bottom: it grows upward off the slide. LibreOffice does shrink (it honors the autofit), and the print/PDF path shrinks in `fitBoxes`, so only the files opened in PowerPoint (and probably Keynote and Google Slides) are affected. The tests say a file was opened in PowerPoint "by hand (2026-11-06)" but on the normal-length fixtures.
@@ -930,6 +934,8 @@ Nothing here needed a browser to confirm except where each finding says so.
 
 #### DK3-2 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** any way out of Reading (a Layout row, Reset, Add pane, a drag, a pane's kind, `?sheet=` or `?intro=`) turns back on the marks Reading turned off, through `leavesReading` (`desk-layout.mjs`) run in `commit`, and says so in the undo bar (“Left Reading: turned on …”), whose Undo puts back both; the remembered list is cleared on the way out, so a plain single LIT pane never brings back an old list. Not run in a browser.
+
 > **Live check (Appendix G):** confirmed; LV3-2 is a worse sequence of the same feature.
 **Where** `src/scripts/desk/desk-page.js:434` (the Layout window's shape buttons) and `:470` (Reset); `src/scripts/desk/reading-display.js:76-84`; `src/lib/desk-layout.mjs:153` (`arrangementOf`).
 **What happens** Choosing Reading turns off verse numbers, footnote letters, key terms and highlights (site-wide settings in `localStorage`) and remembers which. They come back only when the reader later picks another row or Reset from a layout that `arrangementOf` calls "reading" (one LIT pane). Any other way out of Reading leaves them off with no word: Add pane from the title menu or a pane menu, the `/` Search shortcut, `?sheet=`, `?intro=`, a drag split. The reader then has two panes and no verse numbers or highlights in the LIT pane (so no verse menu), and the next Layout choice does not restore them either, because the layout in between was not "reading". The reverse also holds: a plain single LIT pane that the reader never set to Reading counts as Reading, so choosing "Two columns" can turn marks back on (with the undo bar) from an old remembered list. The doc (`desk/CLAUDE.md` rule on Reading) says "leaving Reading by another row or Reset", so this is the documented scope, but it is easy to trip.
@@ -938,6 +944,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High on the code; the live-browser auditor can confirm: choose Layout > Reading, then title menu > Add pane > The LIT's right side; check Display options (verse numbers stay off).
 
 #### DK3-3 · Low · usability · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `?intro=` with no room shows “There’s no room for a Book Intro pane…” (`introMoveMessage`, the Search pane's words) in the notice bar once the panes are drawn. Not run in a browser.
+
 **Where** `src/scripts/desk/desk-page.js:1828-1840` (`?intro=` handler); `src/layouts/ScriptureLayout.astro` (pill `deskPlaceHref`).
 **What happens** An introduction page's "Open the Romans introduction in the Study Desk" pill goes to `/desk/?place=romans-1&intro=romans`. With four panes saved, or a window too narrow to fit another column, `showIntroIn` returns outcome `"none"` and the handler drops it without a word. The reader lands on the desk at Romans 1 with no introduction and no message. (The Search pane path does say "There's no room for a Book Intro pane" through `introMoveMessage`.) `?sheet=` falls back to the last non-LIT pane; `?intro=` has no fallback.
 **Evidence** `intro.mjs`: `showIntroIn(four-column layout, "romans", 2400, 900).outcome` is `"none"`; at width 500 also `"none"`. Handler reads `.layout` only.
@@ -945,6 +954,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High (code and probe). Browser check: open `/desk/?intro=romans` with four panes, or at a narrow width, and see nothing change.
 
 #### DK3-4 · Low · ui · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** a list inside a quotation is moved in by the quotation's indent and keeps its right margin in the .docx (`w:ind` on each item), the .odt (`LBQ`/`LNQ` list styles, written only when used), the .rtf (`\li`, `\ri`) and the slides (italic, as the quote). Checked in LibreOffice's PDFs of all three documents.
+
 **Where** `src/lib/desk-doc-docx.mjs:206` (`listParagraphs`), `desk-doc-odt.mjs:215` (`listXml`), `desk-doc-rtf.mjs:133` (`listRtf`), `desk-slides.mjs:344` (`list` inside `slideParagraphs`).
 **What happens** A list inside a blockquote (`quote` block) is written at the plain list indent, not inside the quote's 0.5 inch margins, so it looks detached from the quote above it. The quote's own paragraphs are indented by the `Quote` style; the list is not. In the paper copy the list is inside the quote.
 **Evidence** `gen.mjs` "A quote" then a bullet: in the LibreOffice PDFs of all three files "A quote" is indented and "in quote" is at the page's list indent (page 1, below "Restart at 1").
@@ -952,6 +964,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High.
 
 #### DK3-5 · Low · data-integrity · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `inlines` reads a `sup` as a verse number or footnote letter only when it has the copy's class (`.vn`, `.fn-ref`, `.sheet-copy__fnref`); any other is a new `{ t: "sup", kids }` piece, raised in the files and the HTML and plain words (“1st”) in the text.
+
 **Where** `src/scripts/desk/sheet-word.js:43-47` (`inlines`, `tag === "sup"`), `src/lib/desk-sheet-doc.mjs:200` (`docText`, `fn` as `[text]`).
 **What happens** A reader's own superscript in a sheet's text (the sanitizer allows `sup`, `desk-sheet-format.mjs:74`, so "1<sup>st</sup>" or "x<sup>2</sup>") is read as a footnote letter. The files raise it correctly, but Copy's plain-text flavor writes "1[st]" and "x[2]". Formatting inside the superscript is flattened to its text. Subscripts are not affected (they read as "x2").
 **Evidence** Read the two sites; `san.mjs` shows `sup` survives the sanitizer. Not run through `docText` with a real DOM (it needs one), but the branch is plain.
@@ -959,6 +974,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Medium (confirm by copying a sheet with "1<sup>st</sup>" and pasting into a plain-text field).
 
 #### DK3-6 · Low · usability · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `codePng` gives the SVG a width and height (`sizedSvg`) before drawing it; a code that still can't be drawn is counted (`codesMissing`), and the status line adds “A code to scan couldn’t be drawn, so the file leaves it out.” Not run in Firefox.
+
 **Where** `src/scripts/desk/sheet-save.js:62-72` (`drawCodes`), `src/scripts/desk/sheet-slides.js:105-116` (`codesWithPng`).
 **What happens** If the browser cannot draw a code to scan to a PNG, the code is left out of the file, with only a `console.error`; the status line still says "Saved … .docx". The paper copy, which the reader checked on screen, had the code. `codePng` draws a data URL of an SVG that has only a `viewBox`, no `width` or `height` (`qr-svg.mjs`); that is the case browsers treat differently (Firefox has historically refused it in `drawImage`).
 **Evidence** Read the code. Not run (no browser).
@@ -966,6 +984,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Low on the Firefox failure; High that a failure is silent. Browser check: Firefox, a sheet with "Show QR codes" on, Save as .docx, and see whether the code is in the file.
 
 #### DK3-7 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** per BVJ's rule (a disabled item is passed over in every menu), the title menu's top level now passes over a disabled Add pane as its flyouts and the pane menu already did; the shared `panel-flyout.js` and the Save as menu pass over `disabled` or `aria-disabled` items too (none of the reader's other menus has a disabled item). The rule is in `src/scripts/CLAUDE.md` and the desk's file.
+
 **Where** `src/scripts/desk/desk-page.js:1371-1396` (pane menu `keydown`: `live = items.filter(aria-disabled !== "true")`), and `menuItem(label, why)` at `:1226`.
 **What happens** In the pane menu, a line that cannot be used (Add pane with "Four is the most", or a side of it) is `aria-disabled` and carries its reason in `aria-describedby`, but the arrow keys skip it, and it is a button without `tabindex`, so a keyboard or screen-reader user never reaches it to hear why. Sighted users see the reason. The same pattern is in the title menu (`enabled(...)`), so it may be deliberate.
 **Evidence** Read. 
@@ -973,6 +994,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Medium (a design choice to confirm; see Questions).
 
 #### DK3-8 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** a pane's region is named by `regionNames` (`desk-layout.mjs`): its kind, and “The LIT, 2 of 2” where a kind is open more than once.
+
 **Where** `src/scripts/desk/desk-page.js:978-1010` (the pane `section`, `aria-label` from `mark()` at `:1112-1118`).
 **What happens** Each pane is a `<section aria-label="The LIT">`, a region landmark. Two LIT panes, or two Search panes, give two regions with the same name, which screen-reader landmark lists cannot tell apart. DK-7 shortened the label; it did not make it unique.
 **Evidence** Read.
@@ -980,6 +1004,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** High on the markup.
 
 #### DK3-9 · Low · compat · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `docHref` (`desk-sheet-doc.mjs`) writes every link's address as a valid URI (`new URL().href`: a space or a non-ASCII character percent-encoded, an encoded one left alone), so every writer and Copy get it; the Copy golden's mailto link changed with it.
+
 **Where** `src/lib/desk-doc-docx.mjs:336` (hyperlink relationship `Target`), `desk-slides-pptx.mjs:297`, `desk-doc-rtf.mjs:101` (percent-encodes only quote, space, backslash and braces).
 **What happens** A link's address is written as typed. The sanitizer keeps `https://x.com/a b` (probe `san.mjs`), so a .docx or .pptx relationship carries a `Target` with a space (and any non-ASCII character as is). Word is usually lenient but Open XML tooling that parses `Target` as a URI throws, and Word may call the link broken. The .rtf path does encode a space.
 **Evidence** `san.mjs` output; code read. Not opened in Word.
@@ -987,6 +1014,9 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Low.
 
 #### DK3-10 · Low · compat · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** each line to write on in the .rtf is an exact 32pt paragraph with no space before (`\sl-640\slmult0`), still ruled below and between; LibreOffice now spaces the three evenly. Not opened in Word.
+
 **Where** `src/lib/desk-doc-rtf.mjs:71` (`ruled`: `\brdrbtw` with `\sb360`).
 **What happens** In LibreOffice's PDF of the .rtf, three "lines to write on" are spaced 50, then 25 pixels apart, where the .docx and .odt are even. Word may draw it differently. Only observed in LibreOffice.
 **Evidence** `pdf/rtf/awkward-letter.pdf` page 2 against `pdf/docx/awkward-letter.pdf`.
@@ -994,12 +1024,18 @@ Nothing here needed a browser to confirm except where each finding says so.
 **Confidence** Low; open the .rtf in Word to see.
 
 #### DK3-11 · Nit · performance · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `docRuns` tidies spaces in one pass forward and one back, keeping the line's last text and whether text follows, so 60,000 runs take milliseconds.
+
 **Where** `src/lib/desk-sheet-doc.mjs:330-338` (`docRuns`: `prevText` uses `runs.indexOf(r)`, the trim pass uses `raw.slice(i + 1).find`).
 **What happens** Quadratic in the number of runs in one paragraph: 15,000 runs take 72 ms, 60,000 take 4.5 s (`perf.mjs`). A real sheet (512 KB limit, passage paragraphs of tens of verses) stays far under this; only an absurd single paragraph hits it.
 **Fix** Track the previous run's text in the loop.
 **Confidence** High; unlikely to matter.
 
 #### DK3-12 · Nit · copy · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** the share file's words are escaped for Markdown (`markdownLine`: a leading `#`, `-`, `+`, `>` or number-dot, and `*`, `_`, backquote and backslash anywhere, title and subtitle included), paragraphs are a blank line apart, and the file's own list marks and rule are left as Markdown.
+
 **Where** `src/lib/desk-sheet-share.mjs:196-210` (`plainText`) and `shareFile` (`:262-266`).
 **What happens** The share file's human half does not escape Markdown: a text part starting "# x" or "- y" becomes a heading or list in the file, a title with `*` or `_` italicizes, and paragraphs are joined by one newline so they run together in a Markdown viewer. The authoritative data is on the last line, so nothing is lost.
 **Fix** Escape a line's leading `#`, `-`, `>` and number-dot, and join paragraphs with a blank line.
@@ -1524,6 +1560,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-2 · Medium · bug · NEW (extends DK3-2)
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** choosing Reading adds what it turns off to what is remembered instead of replacing it (`turnOffMarks`), so a second press keeps the list; Undo puts back the list as it was.
+
 **Where** `src/scripts/desk/reading-display.js:76-84`, `src/scripts/desk/desk-page.js` Layout window handler.
 
 **What happens** Choosing Reading a second time while its marks are already off overwrites the remembered list with an empty one, so nothing is ever turned back on. Sequence: Layout ▸ Reading (all four off, `lit-desk-reading-off = ["vn","fn","terms","highlights"]`); add any pane; Layout ▸ Two columns; Layout ▸ Reading again. The second press turns off nothing new, and `lit-desk-reading-off` becomes `null`. Layout ▸ Reset or Two columns afterward leaves verse numbers, footnote letters, key terms and highlights off, with no memory of why. The only way back is Display options, one switch at a time. The undo bar even still says "Layout: Reading. Closed My Notes." with no mention of the marks.
@@ -1550,6 +1588,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 **Where** the Notebook tour's last step and `desk-page.js` `fullscreen` refusal path.
 
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** part (b): Full screen closes the title menu with focus on the title button before asking, so a refused request leaves focus there. Part (a), the Notebook tour, is session 2's.
+
 **What happens** Two endings drop focus to `<body>`. (a) The notebook tour on a chapter page: after the last "Done" (and any "Skip the tour"), `document.activeElement` is `BODY`; the tour's own steps restore the page. (b) /desk ▸ title menu ▸ Full screen when the browser refuses (the Browser pane does, as the doc says): the menu closes and the announcement ("This browser didn’t allow full screen. Use the browser’s own command instead (F11).") plays, but focus is on `BODY` rather than the title button. The desk tour, by contrast, ends on the title button, and Layout ▸ Reading returned focus to it.
 
 **Evidence** Live (`__f()` reading after each).
@@ -1559,6 +1599,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 **Confidence** Medium (a refusal path is hard to meet in a real browser; the tour ending was reproduced after a run through all ten steps).
 
 #### LV3-5 · Low · usability · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** the list buttons put the selection back among the same characters after the command (`keepingSelection` in `sheet-text.js`, by text offset), so typing goes where the caret was. Not run in a browser.
 
 **Where** `src/scripts/desk/sheet-text.js` (toolbar button handling for lists).
 
@@ -1571,6 +1613,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 **Confidence** Low.
 
 #### LV3-6 · Low · ui · NEW
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** the part header wraps: in a narrow Sheet pane its controls go to a second row, right-aligned, and no control's label breaks (`desk.css`, `.desk-sheet__module-head`). Not seen in a browser.
 
 **Where** the passage part's header in the Sheet pane (`sheet-pane.js`, `desk.css`).
 
@@ -1666,7 +1710,7 @@ Each constant agrees with the number in the text today. The problem is that the 
 |----|-----------|--------------|----------------|------|
 | CP3-2 | `src/lib/desk-bookmark-change.mjs:30` | `"Six of your bookmarks already move as you read. Turn that off on one of them first."` | Build the word from `MAX_FOLLOWING` (`src/lib/desk-bookmarks.mjs:42`, currently 6). | Agrees (6). Not owner-quoted. |
 | CP3-3 | `src/scripts/desk/bookmark-form.js:160` | `"Six of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them."` | As CP3-2, from `MAX_FOLLOWING`. | Agrees (6). Not owner-quoted. The E48 blurb at `bookmark-form.js:77` is owner wording (below). |
-| CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. |
+| CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `FULL_TEXT` in `desk-layout.mjs` builds “Four is the most” from `MAX_PANES`, and `desk-page.js` compares the reason (`"full"`), never the words. |
 | CP3-5 | `src/lib/desk-first-use.mjs:458` | `Four panes fit when the window has room.` (tour step "Add pane") | Interpolate `MAX_PANES` as a spelled-out word. | Agrees (4). |
 | CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. |
 | CP3-7 | `src/scripts/desk/notebook-page.js:137` and `:148` | `What you delete waits here for 30 days.` and `instead of after 30 days.` | `${TRASH_DAYS}`, as CP3-6. | Agrees (30). |

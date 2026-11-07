@@ -24,6 +24,7 @@ import { findAll, parseXml, textOf } from "./helpers/xml-check.js";
 import {
   DOC_CREDIT,
   SAVE_GROUPS,
+  docHref,
   docHtml,
   docRuns,
   docText,
@@ -39,7 +40,7 @@ import { rtfEscape, rtfFile, rtfText } from "../src/lib/desk-doc-rtf.mjs";
 
 globalThis.Node ??= /** @type {any} */ ({ TEXT_NODE: 3, ELEMENT_NODE: 1 });
 globalThis.document ??= /** @type {any} */ (miniDocument);
-const { copyForWord, readCopy } = await import("../src/scripts/desk/sheet-word.js");
+const { block, copyForWord, readCopy } = await import("../src/scripts/desk/sheet-word.js");
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const GOLDEN = JSON.parse(readFileSync(join(root, "test/fixtures/sheet-copy-golden.json"), "utf8"));
@@ -334,7 +335,7 @@ test(".docx: links are relationships, a bad one is dropped, and markup in the wo
   assert.deepEqual(links.map((l) => [l.text, l.rel.attrs.Target, l.rel.attrs.TargetMode]), [
     ["John 1:14", "https://litbible.net/john-1/#v14", "External"],
     ["Psalm 2:7", "https://www.sefaria.org/Psalms.2.7", "External"],
-    ["mail", 'mailto:a@b.org?x=1&y="2"', "External"],
+    ["mail", "mailto:a@b.org?x=1&y=%222%22", "External"], // a valid URI (DK3-9)
   ]);
   assert.ok(!parts.some((p) => typeof p.data === "string" && p.data.includes("javascript:")));
   assert.ok(textOf(doc).includes("A new line & more"));
@@ -560,4 +561,120 @@ test("the writers load only when chosen: the sheet page reaches none by a static
   assert.ok(reached.has("src/scripts/desk/sheet-save.js"));
   const save = readFileSync(join(root, "src/scripts/desk/sheet-save.js"), "utf8");
   for (const file of ["desk-doc-docx.mjs", "desk-doc-odt.mjs", "desk-doc-rtf.mjs"]) assert.ok(save.includes(`import("../../lib/${file}")`));
+});
+
+/* ── Audit 3, session 3 ───────────────────────────────────────────────── */
+
+/** A model with a list inside a quotation, one outside, and lines to write on. */
+function quotedListDoc() {
+  const t = (text) => ({ t: "text", text });
+  return {
+    title: "Q",
+    blocks: [
+      { type: "quote", blocks: [
+        { type: "para", inlines: [t("A quotation.")] },
+        { type: "list", ordered: false, items: [{ inlines: [t("in the quote")], lists: [{ type: "list", ordered: true, items: [{ inlines: [t("deeper")], lists: [] }] }] }] },
+      ] },
+      { type: "list", ordered: false, items: [{ inlines: [t("outside")], lists: [] }] },
+      { type: "lines", count: 3 },
+    ],
+  };
+}
+
+test("a list inside a quotation keeps the quotation's margins in .docx, .odt and .rtf (DK3-4)", async () => {
+  const doc = parseXml(docxParts(quotedListDoc(), { date: 0 }).find((p) => p.name === "word/document.xml").data);
+  const ind = (text) => W(W(doc, "p").find((p) => textOf(p) === text), "ind")[0]?.attrs ?? {};
+  assert.deepEqual([ind("in the quote")["w:left"], ind("in the quote")["w:right"], ind("in the quote")["w:hanging"]], ["1440", "720", "360"]);
+  assert.equal(ind("deeper")["w:left"], "1800", "a deeper level moves in from the quote's indent");
+  assert.deepEqual(ind("outside"), {}, "a list outside a quotation takes its numbering's indent");
+
+  const entries = unzip(await odtFile(quotedListDoc(), { date: 0 }));
+  const content = xmlOf(entries, "content.xml");
+  const lists = findAll(content, "text:list").filter((l) => l.attrs["text:style-name"]);
+  assert.deepEqual(lists.map((l) => l.attrs["text:style-name"]), ["LBQ", "LNQ", "LB"], "a nested list of the other kind names its quoted style");
+  const listStyle = findAll(content, "text:list-style").find((s) => s.attrs["style:name"] === "LBQ");
+  assert.equal(findAll(listStyle, "style:list-level-label-alignment")[0].attrs["fo:margin-left"], "1in");
+  const item = findAll(lists[0], "text:p")[0];
+  const style = findAll(content, "style:style").find((s) => s.attrs["style:name"] === item.attrs["text:style-name"]);
+  assert.equal(findAll(style, "style:paragraph-properties")[0].attrs["fo:margin-right"], "0.5in");
+  const plain = unzip(await odtFile(leaderDoc(), { date: 0 }));
+  assert.ok(!findAll(xmlOf(plain, "content.xml"), "text:list-style").some((s) => s.attrs["style:name"] === "LBQ"), "no quoted list style where no list is quoted");
+
+  const rtf = rtfText(quotedListDoc(), {});
+  assert.match(rtf, /\\fi-360\\li1440\\ri720\\tx1440 [^\n]*\{in the quote\}/);
+  assert.match(rtf, /\\fi-360\\li1800\\ri720\\tx1800 [^\n]*\{deeper\}/);
+  assert.match(rtf, /\\fi-360\\li720\\tx720 [^\n]*\{outside\}/);
+  assert.ok(balanced(rtf));
+});
+
+test(".rtf: lines to write on are each an exact height, with no space before to lose (DK3-10)", () => {
+  const rtf = rtfText(quotedListDoc(), {});
+  const lines = rtf.split("\n").filter((l) => l.includes("\\brdrbtw"));
+  assert.equal(lines.length, 3);
+  for (const l of lines) assert.match(l, /^\\pard\\plain\\sb0\\sa0\\sl-640\\slmult0\\brdrb/);
+});
+
+test("readCopy reads the reader's own superscript as raised words, not a footnote letter (DK3-5)", () => {
+  const el = parseHtml('<div class="desk-rich"><p>The 1<sup>st</sup> and x<sup><em>2</em></sup> and a note<sup class="fn-ref sheet-copy__fnref" data-note="fn1">a</sup>.</p></div>').children[0];
+  const out = [];
+  for (const child of el.children) block(child, out);
+  const [p] = out;
+  assert.deepEqual(p.inlines.filter((n) => n.t === "sup" || n.t === "fn").map((n) => [n.t, n.text ?? JSON.stringify(n.kids)]), [
+    ["sup", JSON.stringify([{ t: "text", text: "st" }])],
+    ["sup", JSON.stringify([{ t: "em", kids: [{ t: "text", text: "2" }] }])],
+    ["fn", "a"],
+  ]);
+  const doc = { title: "S", blocks: out };
+  assert.equal(docText(doc).trim(), "The 1st and x2 and a note[a].", "plain text reads a superscript as its words");
+  assert.match(docHtml(doc), /1<sup>st<\/sup> and x<sup><em>2<\/em><\/sup>/);
+  const runs = docRuns(p.inlines);
+  assert.deepEqual(runs.filter((r) => r.sup).map((r) => [r.text, Boolean(r.i)]), [["st", false], ["2", true], ["a", false]]);
+});
+
+test("a link's address is written as a valid URI in every writer (DK3-9)", () => {
+  assert.equal(docHref("https://x.com/a b"), "https://x.com/a%20b");
+  assert.equal(docHref("https://x.com/a%20b"), "https://x.com/a%20b", "an encoded address isn't encoded twice");
+  assert.equal(docHref("https://x.com/ünï"), "https://x.com/%C3%BCn%C3%AF");
+  assert.equal(docHref("javascript:alert(1)"), null);
+  assert.equal(docHref("https://"), null, "one that can't be read");
+  const el = parseHtml('<div><p>See <a href="https://x.com/a b">this</a> and <a href="/john-3/#v16">John 3:16</a>.</p></div>').children[0];
+  const out = [];
+  for (const child of el.children) block(child, out);
+  assert.deepEqual(out[0].inlines.filter((n) => n.t === "link").map((n) => n.href), ["https://x.com/a%20b", "https://litbible.net/john-3/#v16"]);
+  const parts = docxParts({ title: "L", blocks: out }, { date: 0 });
+  const rels = findAll(parseXml(parts.find((p) => p.name === "word/_rels/document.xml.rels").data), "Relationship");
+  assert.ok(rels.some((r) => r.attrs.Target === "https://x.com/a%20b"));
+  assert.ok(!rels.some((r) => / /.test(r.attrs.Target)), "no target holds a space");
+});
+
+test("a code's SVG is given a size before it is drawn, and a code left out is counted (DK3-6)", async () => {
+  const { CODES_MISSING, drawCodes, sizedSvg } = await import("../src/scripts/desk/sheet-save.js");
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29"><rect width="29" height="29"/></svg>';
+  assert.match(sizedSvg(svg, 232), /^<svg width="232" height="232" xmlns=/);
+  assert.equal(sizedSvg('<svg width="10" viewBox="0 0 1 1"/>', 232), '<svg width="10" viewBox="0 0 1 1"/>', "one with a size keeps it");
+  // No Image here, so drawing fails as a refusing browser's would: the file
+  // goes without the code, and the count says so.
+  const quiet = console.error;
+  console.error = () => {};
+  let doc;
+  try {
+    doc = await drawCodes({ title: "C", blocks: [{ type: "code", svg, caption: "c", label: "l" }, { type: "para", inlines: [] }] });
+  } finally {
+    console.error = quiet;
+  }
+  assert.equal(doc.codesMissing, 1);
+  assert.ok(!doc.blocks[0].png);
+  assert.match(CODES_MISSING, /couldn’t be drawn/);
+});
+
+test("docRuns stays linear on a paragraph of very many runs (DK3-11)", () => {
+  const many = Array.from({ length: 60000 }, (_, i) => (i % 2 ? { t: "em", kids: [{ t: "text", text: " w " }] } : { t: "text", text: " v " }));
+  const start = performance.now();
+  const runs = docRuns(many);
+  const took = performance.now() - start;
+  assert.equal(runs.length, 60000);
+  assert.equal(runs[0].text, "v ", "no space at the line's start");
+  assert.equal(runs.at(-1).text, "w", "none at its end");
+  assert.ok(runs.slice(1).every((r) => !r.text.startsWith(" ")), "one space at most between words");
+  assert.ok(took < 1500, `took ${Math.round(took)} ms`);
 });

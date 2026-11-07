@@ -1123,9 +1123,12 @@ against `dist/` is a later item.
        One pane's shape, so `arrangementOf` tells them apart by the pane's
        kind. **Choosing it also turns off verse numbers, footnote letters, key
        terms, and highlights** (BVJ, 2026-11-04; `reading-display.js`), and
-       **leaving Reading** by another row or Reset turns back on only the ones
-       Reading turned off (remembered under `lit-desk-reading-off`) and that are
-       still off. The undo bar names them either way and Undo reverses them. The LIT pane's reading
+       **leaving Reading by any way** (a row, Reset, Add pane, a drag, a
+       pane's kind, a link's `?sheet=` or `?intro=`; `leavesReading`, run in
+       `commit`; BVJ, 2026-11-07, DK3-2) turns back on only the ones Reading
+       turned off (remembered under `lit-desk-reading-off`) and that are
+       still off. A second press of Reading adds to that list, never
+       replaces it (LV3-2). The undo bar names them either way and Undo reverses them. The LIT pane's reading
        line and the shared `keepReadingPlace` line are both 10% down, as
        Continue reading's (`LINE` in `lit-pane.js`). `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
        `romans-8-v16`) is what a link to the desk carries: whatever the page
@@ -1413,11 +1416,13 @@ against `dist/` is a later item.
        page and a row a full-width pane along the bottom (`addPane`, pure in
        desk-layout.mjs; the others keep their proportions and the newcomer
        takes an even share); the new LIT pane starts at the shared place.
-       `addPaneNeeds` says why one can't be added: "Four is the most" (D9)
+       `addPaneNeeds` says why one can't be added: `FULL_TEXT`, "Four is the
+       most" built from `MAX_PANES` (D9; compare the reason, never the words)
        or "Needs a wider/taller/larger window" (the 280 by 160 floor). The
        item is disabled, not hidden, with the reason beside it, and a
        direction that doesn't fit is disabled inside the flyout. The menu is
-       `role="menu"` (arrows, Home and End, Right opens the flyout, Left or
+       `role="menu"` (arrows, Home and End, which pass over a disabled
+       line in every desk menu, as `src/scripts/CLAUDE.md` says; Right opens the flyout, Left or
        Escape steps back); Escape from the Layout or Print window returns
        focus to the title button. `/notebook` and `/sheets` have no title menu.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
@@ -1514,7 +1519,12 @@ against `dist/` is a later item.
        (the deck, cutting by length, the layout, a text box's paragraphs) are
        `src/lib/desk-slides.mjs`, shared by `desk-slides-pptx.mjs`,
        `desk-slides-odp.mjs` and the print view, so all three lay a slide out
-       alike. The credit line is on the first and last slides and in the
+       alike. A paragraph too long for a slide is cut after a sentence
+       (DK3-1), since PowerPoint doesn't shrink a box's words on opening; a
+       passage with blanks is cut only at verse numbers, its two forms' words
+       differing. **Saved from the participant version the slides have no
+       speaker notes** (SEC3-3; BVJ, 2026-11-07): no answers, no Leader only
+       parts, no list of blanks. The credit line is on the first and last slides and in the
        properties. "PDF…" there is `printSlides`: a print-only copy of the
        slides, the page's `@page` rule swapped for the slide's size, every
        inline style `!important` (print.css turns everything black serif
