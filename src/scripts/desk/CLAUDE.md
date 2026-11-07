@@ -525,13 +525,37 @@ against `dist/` is a later item.
        flag; one short word each so the line never wraps in the narrow list,
        with the fuller sentence as hover text; the words are an Opus agent's,
        who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
-       name and the switch). The verse menu lists "Edit bookmark…" right after
+       the verse, the name and the switch). **The form moves a bookmark to
+       another verse** (E46, 2026-11-05): a Verse field read as the Go to
+       passage field reads one (`parseReference`, then `bookmarkPlace`: a range
+       keeps its first verse, a chapter alone is verse 1, a verse past the
+       chapter's last is refused), sent only when the reader changed it, so a
+       move the follower made meanwhile is kept. It is the same one
+       `store.change` (`planBookmarkEdit`), an ordinary undoable edit, refused
+       with "John 3:5 already has a bookmark that stays put" when the verse
+       holds one of its kind (`roomAt`, `kindTakenAt`; the switch locks for the
+       typed verse as for its own), and it writes `verse`, `endVerse` and
+       `contentVersion` as a new bookmark gets them; other fields (`from`
+       included) are kept. Moving the bookmark this tab follows moves where it
+       rests (`restedAt`), and the next report is judged from there. **"Start
+       following now?"** (E47) shows under the switch while it is checked, and
+       only when this tab could start it (not while it follows this one, not
+       where the page doesn't follow the reader, not with six others moving);
+       otherwise a line says which. Checked at Save, the bookmark is saved and
+       then followed (`followBookmark`), even when nothing else changed, so a
+       new bookmark from the verse menu starts following with its first Save.
+       The switch's hint (E48) no longer explains how a follow starts: "Moves
+       along with you as you read its book, once it’s following you. Without
+       this, it stays on its verse. Up to six of your bookmarks can move." The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
        are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
-       5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
-       catches up when the reading pauses. "Add bookmark" in the verse menu and the
+       2 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
+       catches up when the reading pauses; the follower writes at most every 2
+       seconds (`MOVE_EVERY_MS`). Both were 4 and 5 seconds until E45
+       (2026-11-05); a move is a record write that syncs, so tell BDR if the
+       write gap changes. "Add bookmark" in the verse menu and the
        selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
        counted); the limit and the write are one `store.change`
        (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
@@ -592,12 +616,20 @@ against `dist/` is a later item.
        moves or stays put, and for the resting one "Leave it here". A verse with
        none keeps the one-press "Bookmark", and a finger's chips stay flat
        (`flyoutRow` in actions.js; hover opens, a click, Enter or the right arrow
-       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" ends it by hand**
-       (BVJ, 2026-11-04; `bookmark-stop.js`): a quiet link under the state line
-       of the bookmark this tab is moving, and a button beside "Edit bookmark…"
-       in the verse menu. It clears the flag only: the bookmark stays where it
-       last was with "Move as I read" still on, and opening it from the list
-       starts it again. **Every way the flag drops redraws the rows**
+       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" and "Start following" are one
+       quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
+       `drawFollowLink`) under the state line of every bookmark with "Move as I
+       read" on, its label swapping with this tab's flag; not an On/Off switch,
+       since a follow is the tab's and the switch is the record's. In the verse
+       menu a moving bookmark has "Start following" beside "Edit bookmark…",
+       and the resting one's "Leave it here" is the stop. Stopping clears the
+       flag only: the bookmark stays where it last was with "Move as I read"
+       still on. Starting is `followBookmark` with no link, as opening it from
+       the list is apart from the navigation: the next report of where the
+       reader is decides (reading on from it moves it, anywhere else pauses it
+       with "Move it here"). It is offered only where the page follows the
+       reader (`followsHere`), so /desk and /notebook show the stop alone.
+       **Every way the flag drops redraws the rows**
        (`dropFlag`: another tab took it, it was deleted or turned off, a
        back-forward restore), turning the switch off in the form stops it at
        once, a Back or reload doesn't write verse 1 over the bookmark before

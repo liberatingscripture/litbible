@@ -2606,12 +2606,6 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 
 /* src/scripts/desk/bookmark-form.js: "Edit bookmark", the form in the
    floating panel. */
-.desk-bookmark-form__where {
-  margin: 4px 0 8px;
-  color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
-}
-
 .desk-bookmark-form__field {
   display: flex;
   flex-direction: column;
@@ -2619,6 +2613,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   margin: 0 0 10px;
 }
 
+.desk-bookmark-form__verse,
 .desk-bookmark-form__name {
   box-sizing: border-box;
   min-width: 0;
@@ -2630,6 +2625,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   font: inherit;
 }
 
+.desk-bookmark-form__verse:focus-visible,
 .desk-bookmark-form__name:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
@@ -2654,6 +2650,22 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 }
 
 .desk-bookmark-form__hint {
+  margin: 0 0 10px 26px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.8125rem;
+}
+
+/* "Start following now?" (E47): under the switch it belongs to, and gone
+   (not just empty) while it isn't offered, since the label is a flex row. */
+.desk-bookmark-form__start {
+  margin-left: 26px;
+}
+
+.desk-bookmark-form__start[hidden] {
+  display: none;
+}
+
+.desk-bookmark-form__start-note {
   margin: 0 0 10px 26px;
   color: rgba(var(--ink-rgb), 0.75);
   font-size: 0.8125rem;

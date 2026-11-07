@@ -15,8 +15,13 @@ import {
   BOOKMARK_GONE,
   BOOKMARK_NEWER,
   FOLLOW_LIMIT_REACHED,
+  NOT_A_VERSE,
+  bookmarkPlace,
+  kindTakenAt,
   planBookmarkEdit,
+  roomAt,
 } from "../src/lib/desk-bookmark-change.mjs";
+import { parseReference } from "../src/scripts/search-core.js";
 
 const ctx = { now: "2026-10-28T12:00:00.000Z", client: "web/2026.10", contentVersion: "v20261028.aaaaaaaa" };
 const later = { now: "2026-10-28T13:00:00.000Z", client: "web/2026.10" };
@@ -125,4 +130,104 @@ test("the limit is checked against the notebook at the write, not the form's lis
   for (let i = 0; i < MAX_FOLLOWING; i++) s.records.push(bookmark(`m${i}`, { follow: true }, i + 1));
   const out = await planBookmarkEdit(s, "p0", { follow: true }, later);
   assert.equal(out.problem, FOLLOW_LIMIT_REACHED);
+});
+
+/* ── E46: changing the verse ─────────────────────────────────────────── */
+
+const stampNow = { ...later, contentVersion: "v20261105.bbbbbbbb" };
+
+test("E46: a typed reference reads as one verse, the way Go to passage reads it", () => {
+  const read = (text) => bookmarkPlace(parseReference(text));
+  assert.deepEqual(read("Rom 8:28").place, { bookKey: "romans", chapter: 8, verse: 28, endVerse: 28 });
+  assert.deepEqual(read("jn 3.16").place, { bookKey: "john", chapter: 3, verse: 16, endVerse: 16 });
+  assert.equal(read("John 3:16-18").place.verse, 16, "a range keeps its first verse");
+  assert.equal(read("Romans 8").place.verse, 1, "a chapter alone is its first verse");
+  assert.equal(read("Hesitations 2:1").problem, NOT_A_VERSE);
+  assert.equal(read("").problem, NOT_A_VERSE);
+  assert.equal(read("Jude 2").problem, "Jude has 1 chapter.");
+  assert.equal(read("Romans 17:1").problem, "Romans has 16 chapters.");
+  assert.equal(read("Romans 8:40").problem, "Romans 8 has 39 verses.");
+  // A gap inside a chapter is still inside it (verse-counts.js).
+  assert.ok(read("Matthew 17:21").place);
+});
+
+test("E46: a bookmark moves to the verse asked for, its anchor rebuilt as a new bookmark's", async () => {
+  const s = fake([bookmark("a", { label: "Thursday" }, 16)]);
+  const out = await planBookmarkEdit(s, "a", { place: { bookKey: "romans", chapter: 8, verse: 28 } }, stampNow);
+  assert.equal(out.problem, null);
+  assert.equal(out.moved, true);
+  const r = out.plan.put[0];
+  assert.deepEqual([r.bookKey, r.chapter, r.verse, r.endVerse], ["romans", 8, 28, 28]);
+  assert.equal(r.contentVersion, stampNow.contentVersion, "the text it is on now");
+  assert.equal(r.label, "Thursday");
+  assert.equal(r.id, "a", "the same bookmark, so one change undoes it");
+  assert.equal(r.created, ctx.now);
+  assert.equal(r.modified, later.now);
+  assert.equal(out.plan.remove.length, 0);
+});
+
+test("E46: the verse it is on already, or no verse sent, writes nothing and keeps a move made meanwhile", async () => {
+  const s = fake([bookmark("a", { follow: true }, 16)]);
+  const same = await planBookmarkEdit(s, "a", { place: { bookKey: "john", chapter: 3, verse: 16 } }, stampNow);
+  assert.equal(same.plan, null);
+  assert.equal(same.moved, false);
+  // The follower moved it while the form was open; a rename leaves it there.
+  s.records[0] = { ...s.records[0], verse: 20, endVerse: 20 };
+  const renamed = await planBookmarkEdit(s, "a", { name: "Advent" }, stampNow);
+  assert.equal(renamed.plan.put[0].verse, 20);
+  assert.equal(renamed.plan.put[0].contentVersion, ctx.contentVersion, "no new verse, no new text");
+});
+
+test("E46: a verse that doesn't read is refused and nothing is written", async () => {
+  const s = fake([bookmark("a")]);
+  const out = await planBookmarkEdit(s, "a", { place: null, name: "x" }, stampNow);
+  assert.equal(out.plan, null);
+  assert.equal(out.problem, NOT_A_VERSE);
+  const past = await planBookmarkEdit(s, "a", { place: { bookKey: "john", chapter: 3, verse: 99 } }, stampNow);
+  assert.equal(past.problem, "John 3 has 36 verses.");
+});
+
+test("E46: a verse that already holds one of its kind refuses, saying which", async () => {
+  const stays = bookmark("s", {}, 5);
+  const moves = bookmark("m", { follow: true }, 6);
+  const s = fake([bookmark("a", {}, 1), bookmark("b", { follow: true }, 2), stays, moves]);
+  const onStays = await planBookmarkEdit(s, "a", { place: { bookKey: "john", chapter: 3, verse: 5 } }, stampNow);
+  assert.equal(onStays.plan, null);
+  assert.equal(onStays.problem, kindTakenAt({ bookKey: "john", chapter: 3, verse: 5 }, false));
+  assert.equal(onStays.problem, "John 3:5 already has a bookmark that stays put.");
+  const onMoves = await planBookmarkEdit(s, "b", { place: { bookKey: "john", chapter: 3, verse: 6 } }, stampNow);
+  assert.equal(onMoves.problem, "John 3:6 already has a bookmark that moves as you read.");
+  // The other kind is welcome: a verse holds one of each.
+  assert.equal((await planBookmarkEdit(s, "b", { place: { bookKey: "john", chapter: 3, verse: 5 } }, stampNow)).problem, null);
+  assert.equal((await planBookmarkEdit(s, "a", { place: { bookKey: "john", chapter: 3, verse: 6 } }, stampNow)).problem, null);
+  // The switch and the verse change together: the kind it will be is the one checked.
+  const turned = await planBookmarkEdit(s, "a", { follow: true, place: { bookKey: "john", chapter: 3, verse: 6 } }, stampNow);
+  assert.equal(turned.problem, "John 3:6 already has a bookmark that moves as you read.");
+  const both = await planBookmarkEdit(s, "a", { follow: true, place: { bookKey: "john", chapter: 3, verse: 5 } }, stampNow);
+  assert.equal(both.problem, null);
+  assert.equal(both.plan.put[0].follow, true);
+  assert.equal(both.plan.put[0].verse, 5);
+});
+
+test("E46: the bookmark this tab is following only rests where it is, so it doesn't fill that verse", async () => {
+  const resting = bookmark("f", { follow: true }, 6);
+  const s = fake([bookmark("b", { follow: true }, 2), resting]);
+  const to6 = { place: { bookKey: "john", chapter: 3, verse: 6 } };
+  assert.equal((await planBookmarkEdit(s, "b", to6, stampNow)).problem, "John 3:6 already has a bookmark that moves as you read.");
+  assert.equal((await planBookmarkEdit(s, "b", to6, stampNow, { except: "f" })).problem, null);
+  // And the followed one may itself be moved, which moves where it rests.
+  const moved = await planBookmarkEdit(s, "f", { place: { bookKey: "mark", chapter: 1, verse: 1 } }, stampNow, { except: "f" });
+  assert.equal(moved.problem, null);
+  assert.equal(moved.plan.put[0].bookKey, "mark");
+  assert.equal(moved.plan.put[0].follow, true);
+});
+
+test("E46: roomAt on the bookmark's own verse is followChoices; elsewhere, only what that verse lacks", () => {
+  const a = bookmark("a", { follow: true }, 1);
+  const dup = bookmark("d", { follow: true }, 1);
+  const stays = bookmark("s", {}, 2);
+  // Two of a kind on one verse (a sync brought one): each may still be edited where it is.
+  assert.deepEqual(roomAt([a, dup], a), { moves: true, stays: true });
+  assert.deepEqual(roomAt([a, dup, stays], a, { bookKey: "john", chapter: 3, verse: 2 }), { moves: true, stays: false });
+  assert.deepEqual(roomAt([a, dup], stays, { bookKey: "john", chapter: 3, verse: 1 }), { moves: false, stays: true });
 });

@@ -44,8 +44,13 @@ export const MAX_FOLLOWING = 6;
 /** The longest name a bookmark takes, in code points (an emoji counts once). */
 export const BOOKMARK_NAME_MAX = 40;
 
-/** A followed bookmark is written at most this often, and only when the verse changed. */
-export const MOVE_EVERY_MS = 4000;
+/**
+ * A followed bookmark is written at most this often, and only when the verse
+ * changed. It was 4 seconds until E45 (BVJ, 2026-11-05: the mark lagged too far
+ * behind); each move is a record write that syncs, so a shorter gap is more
+ * writes, and the apps' side is told when it changes.
+ */
+export const MOVE_EVERY_MS = 2000;
 
 /* ── Naming and following ────────────────────────────────────────────── */
 

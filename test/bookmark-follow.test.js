@@ -383,3 +383,30 @@ test("stopping by hand ends the following and leaves the bookmark where it was, 
   assert.equal(store.map.get("r1").verse, 31, "it stays where it last was");
   assert.equal(store.map.get("r1").follow, true);
 });
+
+test("E44: starting a follow in place, with no link, is judged afresh: a far bookmark pauses rather than jumping to the reader", async () => {
+  const session = storage();
+  tab("/romans-11/", { session });
+  saveLastRead({ book: "romans", chapter: 11, verse: 2, view: "study" });
+  const a = bookmark({ id: "a", chapter: 11, verse: 2, endVerse: 2 });
+  const b = bookmark({ id: "b", chapter: 3, verse: 1, endVerse: 1 });
+  const store = fakeStore([a, b]);
+  const { initBookmarkFollow, followBookmark, followsHere, isFollowedHere } = await loadFollower();
+  assert.equal(followsHere(), false, "not before the page can follow");
+  initBookmarkFollow({ store, ctx });
+  assert.equal(followsHere(), true);
+
+  // Following "a", which already sits where the reader is: the report is accepted.
+  followBookmark(a, "/romans-11/#v2");
+  saveLastRead({ book: "romans", chapter: 11, verse: 2, view: "study" });
+  await settle();
+  assert.equal(store.writes.length, 0);
+
+  // "Start following" on "b", two chapters back, from where the reader is.
+  followBookmark(b);
+  assert.equal(isFollowedHere("b"), true);
+  saveLastRead({ book: "romans", chapter: 11, verse: 3, view: "study" });
+  await settle();
+  assert.equal(store.map.get("b").chapter, 3, "what was heard for “a” doesn't count as reading on from “b”");
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
+});
