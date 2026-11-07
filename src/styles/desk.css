@@ -2403,6 +2403,13 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   justify-content: flex-end;
 }
 
+/* Side by side, Pin is drawn nearest the footnote and "+ Note" outside it
+   (BVJ, 2026-11-06). Only the drawing flips: tab order stays note, Pin,
+   "+ Note", moving outward from the note. */
+.footnotes[data-desk-fn-pills="row"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
+  flex-direction: row-reverse;
+}
+
 .footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-more {
   display: inline-flex;
 }

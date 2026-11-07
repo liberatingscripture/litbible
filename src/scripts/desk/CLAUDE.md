@@ -1747,7 +1747,9 @@ against `dist/` is a later item.
        drawn. The list measures its own left edge (on load, resize,
        `desk:column-moved`, the Display tray's size, face and text width, and
        fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
-       by side, right-aligned 14px from the footnote, level with its first
+       by side, Pin nearest the footnote and "+ Note" outside it (BVJ,
+       2026-11-06; drawn reversed, so tab order is unchanged), right-aligned
+       14px from the footnote, level with its first
        line, nothing grows), **`more`** (one "⋯" disclosure button there,
        `aria-expanded`, that opens Pin and "+ Note" stacked under it; Escape, a
        click elsewhere or focus leaving closes it, and choosing either returns

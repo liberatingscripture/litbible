@@ -1486,8 +1486,9 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   title menu (`desk-page.js`), "Exit full screen" while the API's full screen
   is on, absent without the API, a refusal announced. The Browser pane holds
   the request without answering, so neither full screen nor the Escape
-  behavior could be seen there. Status: **built; needs a look in Chrome
-  (and Firefox): full screen on and off, and Escape with a menu open.**
+  behavior could be seen there. **BVJ tested it in Chrome (2026-11-06): all
+  worked** (on, "Exit full screen", Escape leaving full screen with a menu
+  open and the second press closing it, F11 alongside). Status: **done.**
 
 - **E44, wish: "Start following" where "Stop following" appears.** BVJ
   (2026-11-05): when a moving bookmark isn't following, the same spot (the
