@@ -114,9 +114,17 @@ if (headerKind === "chapter") {
   const n = Number.parseInt(String(pagefindChapter || "1"), 10);
   headerChapter = Number.isFinite(n) ? n : 1;
 }
+
+// The Study Desk pill's address (E50, BVJ 2026-11-06): /desk at the chapter
+// being read (E8's ?place=), and at chapter 1 on a book's introduction, which
+// the desk's LIT pane can't show (E53). The pill is in the markup for every
+// reader and shown by CSS only with the desk preview on.
+const deskPlaceChapter = headerKind === "chapter" ? (headerChapter ?? 1) : 1;
+const deskPlaceLabel = `${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
+const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskPlace={pagefindType === "scripture" && headerKind === "chapter" ? `${pagefindBook}-${headerChapter}` : undefined}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent
@@ -193,6 +201,27 @@ if (headerKind === "chapter") {
                     </span>
                     <span class="rvp-full">Switch to Read View</span>
                     <span class="rvp-short">Read View</span>
+                  </a>
+                </div>
+              ) : null}
+              {showDeskPill ? (
+                <div class="reading-view-right reading-view-right--desk" data-pagefind-ignore>
+                  <a
+                    class="reading-view-pill"
+                    href={`/desk/?place=${pagefindBook}-${deskPlaceChapter}`}
+                    aria-label={`Open in the Study Desk at ${deskPlaceLabel}`}
+                  >
+                    <span class="reading-view-pill__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
+                           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                           stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
+                        <path d="M14.5 4h3l2.5 6h-8z" />
+                        <path d="M16 13.5v2" />
+                      </svg>
+                    </span>
+                    <span class="rvp-full">Open in the Study Desk</span>
+                    <span class="rvp-short">Study Desk</span>
                   </a>
                 </div>
               ) : null}
@@ -389,8 +418,14 @@ if (headerKind === "chapter") {
         justify-content: flex-end;
       }
 
-      /* Gone while the Study Desk preview is on (BVJ, 2026-10-29). */
-      :global(html[data-desk]) .reading-view-right {
+      /* The Read View pill is gone while the Study Desk preview is on (BVJ,
+         2026-10-29), and the Study Desk pill takes its place (E50, BVJ
+         2026-11-06): same slot, same design, shown only with the preview on. */
+      :global(html[data-desk]) .reading-view-right:not(.reading-view-right--desk) {
+        display: none;
+      }
+
+      :global(html:not([data-desk])) .reading-view-right--desk {
         display: none;
       }
 

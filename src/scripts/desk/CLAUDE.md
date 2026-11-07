@@ -358,12 +358,28 @@ against `dist/` is a later item.
      "Close the Notebook" command, Escape and the Read View toolbar's Notebook
      button minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
      start; "Hide my marks" and H fold it to its tab and un-hiding opens it
-     again, NB-1; BVJ, 2026-11-03.) **The header's Notebook
-     buttons are links to /desk** ("Study Desk"), still carrying
-     `data-desk-toggle` so global.css shows them with the desk on, on every page
-     (BVJ, 2026-10-30; only the panel's buttons are held to the reading
-     surfaces, and the desk's own header hides its link); the panel
-     wires `button[data-desk-toggle]` only. The Chapter View "Switch to Read View"
+     again, NB-1; BVJ, 2026-11-03.) **Where the Study Desk button is** (BVJ, 2026-10-30,
+     changed 2026-11-06, E50): a link to /desk, never a toggle (the panel
+     wires `button[data-desk-toggle]` only). **The home page keeps the
+     header's** "Study Desk" link (`SiteHeader`'s `deskLink`, which `Layout`
+     sets for `/` alone; still `data-desk-toggle`, so global.css shows it with
+     the desk on). **Scripture pages, chapters and book introductions, put a
+     pill in the toolbar's right slot**, the old "Switch to Read View" pill's
+     design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
+     beside the Read View wrapper, which stays hidden while the preview is on):
+     "Open in the Study Desk," "Study Desk" where that pill shortened, an icon
+     alone on the phone-width compact toolbar. Its `?place=` is the chapter
+     being read (`romans-8`), and chapter 1 on an introduction (the LIT pane
+     can't show an intro, E53), written out in the layout because shared
+     reader code never imports `desk-passage.mjs`. **/read has a "Study Desk"
+     pill matching "Go to passage"** (`.read-menu__desk`, passed into
+     `ReadMenu`'s slot by `ReadLayout`, the two centered on one row), linking
+     to plain `/desk/`. Both pills are in the markup for everyone and shown
+     only under `html[data-desk]` by their own rules. **No other page has a
+     Study Desk button in the header**: articles, the glossary, Read View,
+     /notebook and /sheets reach the desk by other routes (the Notebook panel's
+     lamp link, /sheets' "Edit on the Study Desk"; /notebook has none of its
+     own). The desk's own header hides it, being there already. The Chapter View "Switch to Read View"
      pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel

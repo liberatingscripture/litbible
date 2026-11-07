@@ -34,10 +34,12 @@ const {
   // The Study Desk's own header (/desk): the page's title, centered, in
   // place of the nav, and no search (SiteHeader's deskTitle).
   deskTitle,
-  // A chapter page's address for the header's Study Desk link, so it carries
-  // the passage (E8): "romans-8" makes /desk/?place=romans-8.
-  deskPlace,
 } = Astro.props;
+
+// The header's Study Desk link is on the home page only (BVJ, 2026-11-06,
+// E50). Scripture pages and /read carry their own pill in the page, where a
+// reader is already looking at a passage; no other page has one.
+const deskLink = Astro.url.pathname === "/";
 
 // Auto-generate canonical URL from site config when not explicitly provided.
 // Astro.site is set via `site:` in astro.config.mjs.
@@ -205,7 +207,7 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskPlace={deskPlace} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskLink={deskLink} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

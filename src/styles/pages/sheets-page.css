@@ -17,7 +17,7 @@
   margin: 0 auto;
 }
 
-/* Over 1100px the header's search, Aa and Study Desk buttons float below
+/* Over 1100px the header's search and Aa buttons float below
    READ NOW, out of the header's flow (global.css, .site-header__nav-tools), so
    the page leaves them room, as the notebook page's top padding does; the
    toolbar ran under them (BVJ, 2026-11-06). */
