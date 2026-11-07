@@ -61,13 +61,22 @@ means each of these, in one change:
    follows `desk:settings`). It hides the panel only: the header's Study Desk
    link, /desk, and an explicit "Show in Notebook" still work.
 2. `search-core.js`: `deskEnabled()` (the one read of the stamp for search),
-   `greekSearchEnabled()`, `loadDeskSearch`, `loadDeskSheets`.
-3. Direct readers of the stamp: `desk-gate.js`, `keyboard-shortcuts.js` (`h`),
-   `sheet-share-gate.js` (delete its "turn the desk on" link and the computer
-   branch), `ScriptureLayout.astro`, `read/[book].astro`, `SiteHeader.astro`.
+   `greekSearchEnabled()`, `loadDeskSearch`, `loadDeskSheets`. Their callers
+   gate on them too: `search.js` (every `greekSearchEnabled()`, and the
+   Notebook and Greek groups at 324 to 386), `searchbar.js:644` (the "Notebook
+   actions" button), `SearchBar.astro:147`, `search.astro:67,99`.
+3. Direct readers of the stamp: `desk-gate.js` (five reads, at 12, 15, 49, 56
+   and 62), `desk-frame.js:95` (`DESK_ATTRS`, what `standDown` removes),
+   `keyboard-shortcuts.js` (`h`), `sheet-share-gate.js` (delete its "turn the
+   desk on" link and the computer branch), `ScriptureLayout.astro`,
+   `read/[book].astro`, `SiteHeader.astro`, and `ReadMenu.astro` (`dataset.desk`
+   at 240, and the `html:not([data-desk])` rule at 551 that hides the E50 pill
+   in `ReadLayout.astro:40-51` when the preview is off).
 4. CSS written for "the preview is on": `global.css` (the hide rule, the 52/48
    measure and widths), `glossary.css` ("Readers keep the wide glossary until
-   the desk is released"), `read-mode.css`.
+   the desk is released"), `read-mode.css`, and the Read View card and pill
+   swaps: `pages/read.css:329-346` with the two cards in `read.astro:133`, and
+   `ScriptureLayout.astro:424-435`.
 5. The pages' preview copy and loading/off pairs: `desk.astro`, `notebook.astro`,
    `sheets.astro`, `notebook/help.astro`, and the matching rules in
    `desk-page.css`, `notebook.css`, `sheets-page.css`. The "off" note must still
@@ -80,9 +89,31 @@ means each of these, in one change:
 9. Browser floor (BVJ, 2026-11-04): highlights need the CSS Custom Highlight
    API (Chrome 105, Safari 17.2, Firefox 140). Below that the desk offers no
    Highlight and its switch says so (`highlightsSupported`). Mac Safari and
-   Firefox passes are still open from Audit 1's FA1-v.
+   Firefox passes are still open from Audit 1's FA1-v. `CompressionStream`
+   (Safari 16.4) is inside that floor, so Save as and Share a sheet need no
+   fallback.
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
+11. **Read View's retirement (8c)** ships in the same change as the flip
+    (BVJ, 2026-11-07). Wire `src/lib/read-view-retirement.mjs` and
+    `src/scripts/read-view-redirect.js` in: the redirects in
+    `astro.config.mjs`, the `/read/[book].astro` rewrite, the sitemap filter,
+    and the `lit_last_read` records Read View writes. Read View itself goes,
+    as "The rules" says. Delete `test/read-view-retirement.test.js`'s guard,
+    "nothing in the site imports the retirement rules before the launch
+    cutover" (line 92), and rewrite its two neighbours, "with the preview on,
+    /read swaps the Read View card" (line 111) and "with the preview on, the
+    chapter picker's footer link opens the Study Desk" (line 125), to what
+    launch shows.
+
+After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
+`lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere. The
+stamp itself stays (item 1 still sets it, minus the preview, for the
+devices that get the desk), so expect `data-desk` and `deskEnabled` hits
+outside `src/scripts/desk/` only in its writer (`Layout.astro`), the gate
+(`desk-gate.js`, `desk-frame.js`, `search-core.js`'s `deskEnabled()`) and
+their tests, plus the `data-desk-*` attributes; any other hit is a reader
+this list missed.
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every

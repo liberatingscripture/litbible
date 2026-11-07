@@ -1343,6 +1343,8 @@ Counts: 0 Critical, 0 High, 5 Medium, 6 Low, 2 Nit (13 findings).
 ### Findings
 
 #### LG3-1 · Medium · docs · NEW (extends LG-3)
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-checklist`):** "Launching" names the stamp readers the grep found (items 2 to 4, with the Read View pill's CSS in `ScriptureLayout.astro`, which the finding missed, in item 4), adds Read View's retirement (8c) as item 11 for the same change as the flip, with the guard test and its two neighbours, and re-runs the grep after the flip.
 **Where** `src/scripts/desk/CLAUDE.md`, "Launching" (lines 41 to 90) against the code.
 **What happens** The checklist names the readers of the preview stamp, but the stamp is also read in places it does not name, and one whole launch step (Read View's retirement, work session 8c) is not in it at all. Flipping the pre-paint script will make all of these work (they key on the same `data-desk` attribute), so nothing breaks at the flip. What breaks is the cleanup: the `html:not([data-desk])` branches, "preview" copy and a guard test stay behind, and the Read View cutover is easy to forget because it lives only in rule text (`CLAUDE.md` lines 1139 to 1148).
 Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off`):
@@ -1426,6 +1428,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-11 · Low · compat · NEW
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-checklist`):** browser-floor item 9 in "Launching" says `CompressionStream` (Safari 16.4) is inside the floor, so Save as and Share a sheet need no fallback.
 **Where** `src/lib/desk-zip.mjs:38`, `desk-sheet-share.mjs:90,96`; `desk-page.js:662`; `sheet-present.js:486-575`.
 **What happens** Nothing wrong; this is the browser-floor check. New code uses `CompressionStream("deflate-raw")` (Chrome 103, Safari 16.4, Firefox 113), `requestFullscreen` (all behind `fullscreenEnabled` or `?.`), `getScreenDetails` (gated by `window.screen.isExtended`, falls back to a window), `ClipboardItem` (gated, `sheet-page.js:174`), `:has()` (only inside a selector string in `sheet-present.js:144`, which would throw in an engine without it, but the floor is Chrome 105 / Safari 17.2 / Firefox 140 so it is covered), `showModal`, `structuredClone`, `.at`, `Object.hasOwn`. `desk.css` uses none of `light-dark()`, `@container`, `@layer`, nesting, `dvh`, `text-wrap` or anchor positioning. Every use of the CSS Highlight API is guarded: `highlights.js:41` returns null without `highlightsSupported()`, `notes-margin.js` (`supportsHighlight`), `sheet-lit.js:285`, `read-marks.js:106`. Nothing breaks at the stated floor.
 **Fix** None. The one line I would add to "Launching" item 9 is that `CompressionStream` (Safari 16.4) is inside the floor, so Save as and Share a sheet need no fallback.
