@@ -1607,7 +1607,26 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   footnote opens the two stacked under it (one tab stop per footnote, as
   today). **Decided (BVJ, 2026-11-06): side by side in the left margin**, with
   the "⋯" fallback where it doesn't fit; the popover's own Pin and "+ Note"
-  row stays as it is. Status: **decided, to build.**
+  row stays as it is.
+  Status: **built 2026-11-06.** `src/lib/desk-footnote-pills.mjs`
+  (`footnotePillMode({ free, row, stack })`,
+  `test/desk-footnote-pills.test.js`) picks `row`, `more` or `inline` from the
+  list's left margin; `desk/footnote-pills.js` builds each footnote's
+  `.desk-fn-pills` (a "⋯" button named "Actions for footnote a", and the group
+  holding Pin and "+ Note"), measures on load and resize, and sets
+  `data-desk-fn-pills` on the list; `desk.css` draws the three. Side by side,
+  the pills are 14px left of the footnote, centered on its first line (22px
+  pills in a 1.6 line, plus the Display tray's extra leading), so they share a
+  center line and no footnote grows. Thresholds in Inter: `row` from about
+  118px of free margin, `more` from about 78px, `inline` below (measured from
+  the real pill widths, so a wider face asks for more). One departure from the
+  rough note: the notes' margin is also on the LEFT (not the right, which holds
+  only the Notebook panel), level with the footnote, so a footnote with a
+  margin note drawn beside it keeps the in-line placement
+  (`data-desk-fn-margin`, set by `notes-margin.js`). Checked in the Browser
+  pane on John 3: side by side at 1366px, the "⋯" at 760px (it opens the two
+  stacked, Tab reaches Pin, Escape closes it and returns focus), in-line at
+  600px.
 
 - **E50, rough: the Study Desk button, where it is and where it shows.**
   BVJ (2026-11-05), "not totally satisfied with the current version." The
@@ -1732,8 +1751,9 @@ the rest is polish.
     d's E36 and e (E31). E28 with E41 is built on its own branch
     (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look, and so is
     E37's phase A (Save as a document, on the same branch), and f (E39, E40,
-    after BVJ's look at a mock). **Still open**: E37's phase B (slides), and g
-    (E49, E50; mock first; E43, decided 2026-11-06, to build). BVJ settled E33 (at
+    after BVJ's look at a mock), and g's E43 and E49 (decided from a mock).
+    **Still open**: E37's phase B (slides), and E50 (mocked 2026-11-06,
+    waiting on BVJ). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook

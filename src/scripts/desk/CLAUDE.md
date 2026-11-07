@@ -1723,6 +1723,30 @@ against `dist/` is a later item.
        handout and `footnoteList()` read only the footnote. The margin
        places such a note beside its footnote's `li` (`note-sources.js`)
        and marks the `li` instead of lighting verse words.
+     - **In the Footnotes list, Pin and "+ Note" sit in the left margin**
+       (BVJ, 2026-11-06, E49; `desk/footnote-pills.js`, the rule in
+       `src/lib/desk-footnote-pills.mjs`, pure and tested). `initPins` puts
+       both in one `.desk-fn-pills` after each footnote's `.fn-body`, so
+       reading and tab order stay note, Pin, "+ Note" wherever they are
+       drawn. The list measures its own left edge (on load, resize,
+       `desk:column-moved`, the Display tray's size, face and text width, and
+       fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
+       by side, right-aligned 14px from the footnote, level with its first
+       line, nothing grows), **`more`** (one "⋯" disclosure button there,
+       `aria-expanded`, that opens Pin and "+ Note" stacked under it; Escape, a
+       click elsewhere or focus leaving closes it, and choosing either returns
+       focus to the "⋯"), or **`inline`** (the pre-E49 placement on the note's
+       line). The thresholds use the pills' measured widths: `row` needs the
+       two pills and the 4px gap plus 14px and an 8px window edge; `more`
+       needs the wider pill plus the same 14 and 8 (about 118px and 78px in
+       Inter; OpenDyslexic needs more). **A footnote with one of the reader's
+       margin notes beside it takes `inline`** whatever the list's mode:
+       `notes-margin.js` sets `data-desk-fn-margin` on it, because the margin
+       notes (full or circles) are in the same left margin, level with the
+       footnote. Print hides the pills as before. Code that restores focus to
+       a pill must use `pillsHome(button)`, since a pill behind a closed "⋯" is
+       hidden; the popover's own Pin and "+ Note" row, and /desk's panes, are
+       unchanged. Read View has no footnotes, so it has none of this.
      - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
        (pure, tested) turns the notes marked `question` on a sheet's
        passages into a heading and `question` modules, once; nothing links
