@@ -60,7 +60,43 @@ test("resolution vectors", () => {
     assert.equal(r.start, v.expected.start, v.why);
     assert.equal(r.end, v.expected.end, v.why);
     if (r.start !== null) assert.equal(chapter.text.slice(r.start, r.end), v.expected.text, v.why);
+    // Spec version 4: a `moved` says whether it left the anchor's verses.
+    if (r.status === "moved") assert.equal(r.outsideVerses, v.expected.outsideVerses, v.why);
   }
+  assert.ok(vectors.resolve.some((v) => v.expected.status === "moved" && v.expected.outsideVerses === true), "a move outside its verses");
+  assert.ok(vectors.resolve.some((v) => v.expected.status === "moved" && v.expected.outsideVerses === false), "a move whose verses are gone");
+});
+
+test("spec 4: a moved result says whether it left the anchor's verses while they still exist (audit 3 DI3-2)", () => {
+  const then = chapterAnchorText([
+    '<p><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Love</span> is patient and love is kind to all who ask of it. <span class="vglue"><sup id="v2" class="vn">2</sup>&nbsp;It</span> is not envious, it does not boast, it is not arrogant.</p>',
+  ]);
+  const s = then.text.indexOf("does not boast");
+  const a = makeAnchor(then, s, s + "does not boast".length);
+  assert.equal(a.verse, 2);
+  // The verse boundary moved across the words: the move begins inside verse 2, so it is silent.
+  const boundary = chapterAnchorText([
+    '<p><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Love</span> is patient and love is kind to all who ask of it. It is not envious, it does <span class="vglue"><sup id="v2" class="vn">2</sup>&nbsp;not</span> boast, it is not arrogant.</p>',
+  ]);
+  const straddle = resolveAnchor(boundary, { ...a, verse: 2, endVerse: 2 });
+  assert.equal(straddle.status, "moved");
+  assert.equal(straddle.outsideVerses, true, "the words now begin in verse 1, outside the mark's verse 2");
+  // The same words in verse 1 while verse 2 stands reworded: outside.
+  const other = chapterAnchorText([
+    '<p><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Love</span> is patient and love is kind, it does not boast, it is not arrogant. <span class="vglue"><sup id="v2" class="vn">2</sup>&nbsp;It</span> is not envious, it never brags, it is not proud.</p>',
+  ]);
+  assert.equal(resolveAnchor(other, a).status, "moved");
+  assert.equal(resolveAnchor(other, a).outsideVerses, true);
+  // The anchor's verses no longer exist: a move, but nothing to say against them.
+  assert.equal(resolveAnchor(other, { ...a, verse: 9, endVerse: 9 }).status, "moved");
+  assert.equal(resolveAnchor(other, { ...a, verse: 9, endVerse: 9 }).outsideVerses, false);
+  // A move that begins inside the anchor's verses is silent: the words now cross out of verse 2's end.
+  const crossing = chapterAnchorText([
+    '<p><span class="vglue"><sup id="v1" class="vn">1</sup>&nbsp;Love</span> is patient and love is kind to all who ask of it. <span class="vglue"><sup id="v2" class="vn">2</sup>&nbsp;It</span> is not envious, it does <span class="vglue"><sup id="v3" class="vn">3</sup>&nbsp;not</span> boast, it is not arrogant.</p>',
+  ]);
+  const inside = resolveAnchor(crossing, a);
+  assert.equal(inside.status, "moved");
+  assert.equal(inside.outsideVerses, false);
 });
 
 test("no bracket marker survives in any vector chapter's text", () => {

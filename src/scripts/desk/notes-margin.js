@@ -56,7 +56,7 @@ import {
   popoverPlace,
 } from "../../lib/desk-notes.mjs";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
-import { changedGlyph, drawnNotices, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
+import { changedGlyph, drawnNotices, flagText, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
@@ -473,8 +473,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.type = "button";
       flag.className = "desk-flag desk-flag--inline";
       flag.setAttribute("aria-haspopup", "dialog");
-      flag.setAttribute("aria-label", `The wording changed under my note on ${whereOf(r)}. Review`);
-      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">Wording changed</span>`;
+      flag.setAttribute("aria-label", `${flagText(notice)} under my note on ${whereOf(r)}. Review`);
+      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">${flagText(notice)}</span>`;
       const foot = document.createElement("div");
       foot.className = "desk-note__foot";
       foot.append(flag, edit);
@@ -665,7 +665,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.type = "button";
       flag.className = "desk-flag desk-flag--row desk-note-pop__flag";
       flag.setAttribute("aria-haspopup", "dialog");
-      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text">Wording changed<span class="sr-only">.</span><span aria-hidden="true"> · </span>Review<span class="sr-only"> my note on ${escapeHtml(ref)}</span></span>`;
+      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text">${flagText(notice)}<span class="sr-only">.</span><span aria-hidden="true"> · </span>Review<span class="sr-only"> my note on ${escapeHtml(ref)}</span></span>`;
       flag.addEventListener("click", (e) => {
         e.stopPropagation();
         review(record, anchor);

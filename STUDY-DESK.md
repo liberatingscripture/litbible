@@ -2500,6 +2500,13 @@ carries no notice (a failed move falls to `changed` or `verse`, which do);
 (3) matching folds quotes (curly and low to straight) and dashes (U+2010 to
 U+2015, U+2212 to "-"), one UTF-16 unit for one, so offsets are unchanged.
 The new cases are the last six of `resolve` in `anchor-vectors.json`.
+**Spec version 4 rides with it (built 2026-11-07, audit 3 session 5; BVJ's
+decision 1 below):** (2)'s "still carries no notice" now holds only for a
+move that begins inside the record's verses or whose verses are gone; a
+`moved` result carries `outsideVerses`, and such a move carries the change
+notice. `ANCHOR_SPEC_VERSION` is 4, and the last three `resolve` cases are
+its (two real Matthew 23 marks, one silent case). Rules in
+`STUDY-DESK-FORMAT.md`, "Spec version 4".
 
 **Audit 3's shared-format decisions (BVJ, 2026-11-07, on Claude's
 recommendations; BDR, please review them and amend what doesn't work for the

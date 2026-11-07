@@ -155,12 +155,12 @@ test("a highlight that differs from its quote only in typography is editable; on
   assert.equal(mark.put.some((r) => r.id === reworded.id), false, "the one with a notice is left alone");
 });
 
-test("placeHighlights calls a highlight whose words moved editable, and one that fell back to its verse not", () => {
+test("placeHighlights calls a highlight whose words moved out of its verses not editable (it carries a notice, spec 4), nor one that fell back to its verse", () => {
   const moved = highlight(at("boast"), "yellow", { verse: 1, endVerse: 1 });
   const verseOnly = highlight(at("boast"), "yellow", { verse: 3, endVerse: 3, quote: { exact: "xxxxxxxx", prefix: "zz", suffix: "qq" } });
   const placed = place([moved, verseOnly]);
   assert.equal(placed.find((p) => p.record === moved).status, "moved");
-  assert.equal(placed.find((p) => p.record === moved).editable, true);
+  assert.equal(placed.find((p) => p.record === moved).editable, false, "its words left verse 1, which still stands: a notice, so no merge or trim");
   assert.equal(placed.find((p) => p.record === verseOnly).status, "verse");
   assert.equal(placed.find((p) => p.record === verseOnly).editable, false);
 });

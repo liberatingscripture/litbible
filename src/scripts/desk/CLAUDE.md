@@ -506,7 +506,10 @@ against `dist/` is a later item.
      a notice, from the format's statuses, comparing the marked words (or a
      whole-verse note's `verseCopy`) with typography evened out
      (`desk-wording.mjs`), so a change of quotes or dashes alone never
-     raises one; `desk/change-notice.js` shows it and is the only
+     raises one, and a `moved` that left the record's verses while they
+     still stand raises a "moved" notice (anchor spec version 4, DI3-2: on
+     real revisions such a move is nearly always a repeated formula in
+     another verse); `desk/change-notice.js` shows it and is the only
      place a notice writes (Keep), since a mark is never rewritten until
      the reader acts. A notice is judged only where the chapter's text is
      on the page. It reads two app-contract files: `/api/version.json`,
