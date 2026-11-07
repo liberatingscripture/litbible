@@ -1291,7 +1291,12 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   dependency: the zip is hand-written (CompressionStream "deflate-raw" and a
   CRC-32). With it, **"Open a shared file" became "Import a shared file"**
   (BVJ, 2026-11-06), pairing with Export and the banner's "Import into my
-  notebook".
+  notebook". **BVJ, later the same day, from a look at it:** the button is
+  **"Import a Study Desk file"**; the share file is called **"a Study Desk
+  file (.md)"** wherever it is mentioned (the Export button reads "Export a
+  Study Desk file (.md)"); and the Share dialog's note adds "For a PDF, choose
+  Print, then “Save as PDF” in the print window", beside Save as's own "PDF…"
+  line, so a reader who wants a PDF now finds it from either place.
   **Phase A built 2026-11-06** (`claude/desk-phase5-e28`). Copy and the files
   read the copy on screen into **one model** (`readCopy`, `desk/sheet-word.js`;
   the model and Copy's HTML and text writers in `src/lib/desk-sheet-doc.mjs`),

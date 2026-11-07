@@ -1637,9 +1637,12 @@ against `dist/` is a later item.
        the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
        last data line, ignores whitespace folded into it, and throws
        "damaged" for one it can't read). The Share dialog's button for that
-       file is "Export a Study Desk file" and the Sheets page's is "Import a
-       shared file" (`EXPORT_LABEL`, `IMPORT_LABEL` in `sheet-page.js`; BVJ,
-       2026-11-06), so "Save as" names only a document. Opening one decompresses with a
+       file is "Export a Study Desk file (.md)" and the Sheets page's is
+       "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
+       `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;
+       the reader-facing name of a `.lit-sheet.md` file is "a Study Desk file
+       (.md)" wherever it is mentioned. The dialog's note also says a PDF comes
+       from Print ("Save as PDF"). Opening one decompresses with a
        ceiling, rebuilds the record with fresh ids, drops the comparison
        copies again and refuses it unless `validateRecord` passes. **The
        fragment must never reach a server or the analytics beacon**: an

@@ -3,7 +3,7 @@
 // "Save as ▾" on a sheet's page (STUDY-DESK-FIXES.md, E37; BVJ, 2026-11-06):
 // the version on screen as a document to open in another program. It follows
 // the toolbar's Version choice, as Print and Copy do; the Share dialog's
-// "Export a Study Desk file" is the other kind of file, one for another Study
+// "Export a Study Desk file (.md)" is the other kind of file, one for another Study
 // Desk. The groups and items are SAVE_GROUPS (desk-sheet-doc.mjs): "A
 // document" now, and a "Slides" group added there later is drawn here with no
 // change to the menu.
