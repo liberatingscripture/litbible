@@ -420,8 +420,15 @@ async function start() {
   }
 
   // Search's "more in your notebook" link arrives with the words (?q=…).
-  const asked = new URLSearchParams(window.location.search).get("q");
+  // They go into the filter and out of the address, so the reader's search
+  // isn't kept in the history or a bookmark of the page (SEC4-1).
+  const url = new URL(window.location.href);
+  const asked = url.searchParams.get("q");
   if (asked) kept.setQuery(asked);
+  if (url.searchParams.has("q")) {
+    url.searchParams.delete("q");
+    history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }
 
   // A bookmark that moves as the reader reads writes every few seconds, and
   // says so (MOVE_KIND), so it isn't a reason to redraw the page under a reader
@@ -438,9 +445,18 @@ async function start() {
   await render();
 
   // The page is drawn after the browser has looked for the address's #part
-  // (#backup, #labels), so go to it now.
-  const target = window.location.hash && document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+  // (#backup, #labels), so go to it now. A fragment that isn't valid
+  // percent-encoding (#%E0) names no part and is left alone (SEC4-2).
+  const target = window.location.hash && document.getElementById(partId(window.location.hash.slice(1)));
   if (target) target.scrollIntoView({ block: "start" });
+}
+
+function partId(fragment) {
+  try {
+    return decodeURIComponent(fragment);
+  } catch {
+    return "";
+  }
 }
 
 start();

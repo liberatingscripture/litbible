@@ -25,7 +25,7 @@ Fixed items say so; the rest are recommendations, several of them BVJ's call.
 **Security: nothing new above Nit.** Audit 3's five security fixes are on `main` and hold; the
 sink sweep found every HTML sink fed static markup, an escaped string or sanitized HTML; the
 address, file, link and cross-window readers each validate what they take. Two small
-leftovers (SEC4-1, SEC4-2) and the standing CSP decision (SEC4-3).
+leftovers (SEC4-1, SEC4-2, both since fixed) and the standing CSP decision (SEC4-3).
 
 **First use: in good shape, with one design question.** A first visit is quiet (a "Notebook"
 tab at the window's edge and one pill), every empty state says what to do, the offers have
@@ -87,7 +87,10 @@ validates an address before `setLink`, and the saved sheet is re-sanitized anywa
 
 ### Findings
 
-#### SEC4-1 · Low · privacy · KNOWN-OPEN (Audit 2, Appendix A, Improvements)
+#### SEC4-1 · Low · privacy · FIXED (2026-11-07)
+
+> **Fixed:** `notebook-page.js` puts `q` into the filter and then drops it from the address
+> with `replaceState`, keeping any other parameter (`?desk=on`) and the fragment.
 
 **`/notebook/?q=<words>` keeps the reader's search words in the address**, so they sit in the
 browser's history and in any bookmark of the page. `notebook-page.js:423` reads `q` into the
@@ -95,7 +98,10 @@ filter and leaves it. Nothing leaves the device, so this is tidiness, not exposu
 `kept.setQuery(asked)`, `history.replaceState(history.state, "", location.pathname + location.hash)`,
 as the tours and `?print` already do for their parameters.
 
-#### SEC4-2 · Nit · robustness · NEW
+#### SEC4-2 · Nit · robustness · FIXED (2026-11-07)
+
+> **Fixed:** the decode is in a `try` (`partId`); a fragment that isn't valid
+> percent-encoding names no part and the page stays where it is.
 
 **A malformed fragment on `/notebook/` throws after the page is drawn.** `notebook-page.js:442`
 runs `decodeURIComponent(window.location.hash.slice(1))`; `/notebook/#%E0` raises a `URIError`
