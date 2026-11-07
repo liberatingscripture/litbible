@@ -1125,6 +1125,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-1 · Medium · ui · REGRESSION GK-12
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the “Show sources” button has its own class, `desk-greek__show-sources` (JS and the three CSS rules), so the credit block keeps its rule and spacing; `test/greek-audit3.test.js` fails if any class in `tab-greek.js` names two kinds of element. Not seen in a browser.
+
 > **Live check (Appendix G):** confirmed: the section computes a 999px radius and a border.
 
 **Where** `src/styles/desk.css:4427-4445` (the "Show sources" button rules) against `desk.css:4061-4068` and `src/scripts/desk/tab-greek.js:503` (`sourcesSection`, `make("section", "desk-greek__sources")`) and `tab-greek.js:137` (`sourcesToggle`, `make("button", "desk-greek__sources", ...)`).
@@ -1138,6 +1140,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High on the cascade; Medium on how ugly it renders. **Live browser:** open the Notebook's Greek tab, scroll to the foot of the text, look at "Sources and licenses" (expect a rounded outline box, no top rule); select any word with a STEP or LSJ entry and confirm "Show sources" itself still looks right.
 
 #### GK3-2 · Medium · a11y · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** a card’s word box is made once and reused: `render` fits the window’s children to the wanted list without moving a box already in place, and `drawCard` replaces only the heading and everything below the box, keeping the caret when the box’s text changed. `test/greek-commands.test.js` holds that the typed-in node stays the same. Screen-reader behavior not heard.
 
 > **Live check (Appendix G):** partly: the input is replaced on each keystroke, but focus and caret carry into the new one. Counted as Low.
 
@@ -1153,6 +1157,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-3 · Medium · a11y · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `global.css` has a `forced-colors: active` block: a pressed `.greek-chip` gets a 3px `Highlight` border (padding eased), the “only” chip a dashed `GrayText` edge, and the card’s × a `ButtonBorder` edge. Not seen in forced-colors emulation.
+
 **Where** `src/styles/global.css:3641-3664` (`.greek-chip`, `.greek-chip[aria-pressed="true"]`); no `forced-colors` rule for them anywhere (`desk.css:6687-6760` covers `.desk-greek__choice`, the segmented controls and the others, but not `.greek-chip`).
 
 **What happens** The builder's chosen state is a Deep Green fill, a matching border and a white label, all colors. In Windows contrast themes background, border color and text color are replaced by system colors, so a pressed chip (genitive, singular, "Next to each other", "Either order") looks identical to an unpressed one. The only other cue is the `aria-pressed` attribute, which sighted contrast-theme users don't have. The file `src/styles/CLAUDE.md` (forced colors paragraph) and BA141/BA142 already require "chosen" to be drawn in a system color for exactly this.
@@ -1162,6 +1168,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** Medium (code is conclusive; not rendered). **Live browser:** DevTools > Rendering > Emulate CSS media feature `forced-colors: active`, open the commands window, press a case and a number chip, compare pressed and unpressed.
 
 #### GK3-4 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** a card’s look-up fetches the glossary bridge for Latin words (`loadGreekBridge`) and `resolveCard` passes it on, so a LIT rendering resolves as it does in the field (BVJ’s decision 12).
 
 **Where** `src/scripts/greek-builder.js:127-153` (`load`), `src/lib/greek-builder.mjs:156-165` (`resolveCard`): `resolveGreekQuery(index, ..., {})` is called without `bridge`; the search (`search-greek.js:179-180, 304-306`) passes it.
 
@@ -1173,6 +1181,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-5 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `readBuilder` reads two or three plain Latin words as a construction (`plainLatinWords`, now shared from `greek-query.mjs`), with `plain: true` and a line in the window saying how they are read; four or more stay “plain” (BVJ’s decision 12).
+
 **Where** `src/lib/greek-builder.mjs:56` (`readBuilder`: `if (!quoted && !isGreekCommandQuery(text)) return { cannot: "plain" }`), `cannotSay` at `:72-73`.
 
 **What happens** Two or three plain Latin words are a word search of their own to the builder, "nothing to build", but `searchGreekAuto` runs them as a construction when no single word fits (`search-greek.js:398-405`). `pistis Christos` gives the builder's "ordinary word search, so there is nothing to build. Start a new search", while the search runs "Any form of πίστις, followed within 3 words by Χριστός"; `πίστις Χριστός` builds two cards. `logos theos` and `faith hope` likewise. The message is wrong for what is actually happening, and the "Start a new search" button wipes a working search.
@@ -1182,6 +1192,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High (`b7.mjs`).
 
 #### GK3-6 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the offers table is a null-prototype object and `offerLemma` takes own keys only (`Object.hasOwn`, a non-empty string), so “constructor” is never a Greek word; `test/greek-offers.test.js`.
 
 > **Live check (Appendix G):** confirmed on /search with the desk on.
 
@@ -1195,6 +1207,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-7 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `parseGreekQuery` returns `{ error: { kind: "tooLong", length } }` past 300 characters instead of cutting; `errorMessage` says why, every surface shows it, and the builder shows the sentence and leaves the field as typed (BVJ’s decision 12).
+
 **Where** `src/lib/greek-query.mjs` `parseGreekQuery` (`slice(0, MAX_QUERY_LENGTH * 4).trim().slice(0, MAX_QUERY_LENGTH)`), consumers `greek-builder.mjs:49-65` and `search-greek.js:297`.
 
 **What happens** GK-7's fix clamps a query to 300 characters silently. A valid but long query (34 alternative words and `.gen`, 348 characters) is searched without its last words and without its `.gen`, with no error or note: `searchGreekAuto` returns 157 matches with 0 filters (`r1.mjs`). The builder reads the same truncated text (34 words, no filter); the next chip press then rewrites the field with the 299-character version, so the tail is lost for good. Rare (a real query is far shorter), but silent loss of input is the pattern RC-6 asked about.
@@ -1204,6 +1218,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High on behavior; the scenario is contrived.
 
 #### GK3-8 · Low · a11y · NEW (gap in GK-2's fix, and a double state in GK-12's)
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the cite is built with `appendLang` (Greek in `lang="grc"`), and the button keeps one label, “Show sources”, with `aria-pressed` alone; a forced-colors border marks it pressed.
 
 **Where** `src/scripts/desk/tab-greek.js:136-152` (`sourcesToggle`).
 
@@ -1215,6 +1231,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-9 · Low · bug · KNOWN-OPEN GK-6 (partial)
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** /search, the tray and the Search pane read `res.failed`: “The verses couldn’t be loaded.” (and the commands search’s load failure) with a Try again button; the pane’s exact-form guard is gone, and a book with no occurrences now says “No occurrences in the selected book.”
+
 **Where** `src/scripts/search.js:1007-1020` (`writeGreekStatus`), `src/scripts/desk/search-pane.js:1137-1143` (`paintWord`), `src/scripts/searchbar.js` `renderGreekGroup` (`if (!hits.length) return;`).
 
 **What happens** `searchGreek` now returns `failed: true` when a word's shard doesn't load, and the Greek tab uses it (`greek-find.js:264, 310`). The other surfaces ignore it for a single-word search: /search says "No occurrences of πίστις in the selected book." (no retry, and wrong when no book is selected), the tray silently draws no Greek group, and the Search pane keeps the exact-form guard `&& !greekState.exact`, so an exact-form search with a failed shard says "This exact form doesn’t occur. Clear “Exact form only”…" with no Try again. The only trigger is a flaky connection or a shard 404 after a deploy, so the damage is a wrong message.
@@ -1224,6 +1242,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High (read in each file); not provoked in a browser.
 
 #### GK3-10 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** when a typed word’s look-up settles and the typing pauses, the builder announces the lemmas it reached (or that none matched, or that the look-up failed) through the window’s live region; “Word N added.” is announced too.
 
 **Where** `src/scripts/greek-builder.js:206-224` (`lemmaLines`), `:175-181`.
 
@@ -1235,6 +1255,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-11 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `showDetails` takes `pause`: only arrow-key selection waits 150 ms; a click or a search answer asks for the lexicon at once.
+
 **Where** `src/scripts/desk/tab-greek.js:1047-1058` (`showDetails`, `LEXICON_PAUSE`).
 
 **What happens** GK-10's debounce applies to every selection, not only to arrow-key runs: a plain click on a word, or a word whose lexicon shard is already cached, shows "Loading…" for 150 ms before the entry appears. It's a flicker on every click and a fixed 150 ms of latency that buys nothing there.
@@ -1244,6 +1266,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High on the code; the flicker needs a look.
 
 #### GK3-12 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the copy handler’s plain text comes from `plainTextOf` (`src/lib/desk-greek-text.mjs`), which walks the copied nodes: every block is a paragraph, a `<br>` a line break, so a lexicon entry’s body is kept; tested over a small DOM.
 
 **Where** `src/scripts/desk/tab-greek.js:732-763` (the `copy` handler, E54).
 
@@ -1255,6 +1279,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-13 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the note is one permanent `role="status"` element with a class and style, cleared when another word is selected or the word is let go, and it says “Opening the Greek search…” while the module loads the first time.
+
 **Where** `src/scripts/desk/tab-greek.js:292-307` (`openFind`) and the lack of a style (`grep desk-greek__find-failed src/styles` finds nothing).
 
 **What happens** When the lazy `greek-find.js` import fails (a page left open across a deploy), an unstyled `<p role="status">` is inserted after the parsing line. A `role="status"` node created with its text already in it is often not announced, and the note is removed only by the next `openFind`; selecting another word leaves "The Greek search couldn’t be loaded. Try again." under the new word's details. There's also no progress cue while the chunk loads for the first time (the "Searching…" status only exists after it arrives).
@@ -1264,6 +1290,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** Medium.
 
 #### GK3-14 · Low · longevity · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `loadGreekOffers` clears its cached promise on a failure (and on a bad file), as `loadGreekSearch` does; `test/greek-offers.test.js`.
 
 **Where** `src/scripts/search-core.js:1353-1362` (`loadGreekOffers`).
 
@@ -1275,6 +1303,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-15 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** `readCardText` reports what a card’s box left out (a space or symbol, or a command word that can’t be joined with a slash) and the card shows a one-line note under the box.
+
 **Where** `src/scripts/greek-builder.js:290-299` (`typed`), `src/lib/greek-builder.mjs:130-133, 96`.
 
 **What happens** A card's text box strips spaces and symbols as they're typed ("holy spirit" becomes `holyspirit`), and among several `/`-joined words it silently drops any that is also a command word (`perfect/aorist` shows `aorist` only, and typing `perfect/` then `a` makes the first word vanish mid-sentence). That's the documented rule ("a quote can't sit inside a/b"), but nothing on screen says so; the reader just sees their text change.
@@ -1285,6 +1315,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 
 #### GK3-16 · Nit · docs · NEW
 
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the header comment now says the Search pane has the “My notes” checkbox and lists the notes for a Greek search.
+
 **Where** `src/lib/desk-greek-notes.mjs:12-13`.
 
 **What happens** The header says the "My notes" switch does not govern the desk's Search pane, "which lists no notes for a Greek search". Since #463 the Search pane has the checkbox and lists them (`search-pane.js:247-256, 947`; the desk `CLAUDE.md` rule 15 says so).
@@ -1294,6 +1326,8 @@ All 20 Audit 2 `GK-*` items and RC-6 were re-checked: all fixes are still in the
 **Confidence** High.
 
 #### GK3-17 · Nit · a11y · NEW
+
+> **Fixed (Audit 3 session 4, 2026-11-07, branch `claude/audit3-session4-greek`):** the chips no longer carry the `title=".gen"` notation; the card already shows it.
 
 **Where** `src/scripts/greek-builder.js:238-244` (`title: ".${filter.words[0]}"`).
 

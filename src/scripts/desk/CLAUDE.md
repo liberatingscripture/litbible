@@ -866,7 +866,9 @@ against `dist/` is a later item.
        ending "(ML)", Middle Liddell filling a word Abbott-Smith lacks (55
        entries; Abbott-Smith itself is public domain). `LICENSE.txt` says so,
        and `SOURCES` credits Perseus. If STEP confirms in writing, `lsj/` and
-       the "(ML)" entries can go back to CC BY 4.0. The sources and their
+       the "(ML)" entries can go back to CC BY 4.0. A `search/` brief gloss that
+       equals its lemma's "(ML)" entry gloss takes the same route (BVJ,
+       2026-11-07; 25 were found), said in `LICENSE.txt`. The sources and their
        credits are `src/lib/greek-credits.mjs`: the tab lists `SOURCES`, and
        every group of Greek search results carries `SEARCH_CREDIT` under it
        (BA46; the Greek tab's result list too, GK-13), so a new place that
@@ -960,7 +962,12 @@ against `dist/` is a later item.
        commonest first, and the surface shows its choice box. **Marks never
        decide it** (a breathing rule would leave ὃ/ὁ and εἶ/εἰ colliding and
        would be invisible to readers who type none), and a command query keeps
-       lemma-first (no one to ask; `ὁ, θεός` must stay the article, not ὅς). The
+       lemma-first (no one to ask; `ὁ, θεός` must stay the article, not ὅς),
+       with one narrow fallback (BVJ, 2026-11-07): a single Greek word with
+       filters whose lemma-first reading finds nothing in the whole text
+       (`ἐξ.prep`, the numeral ἕξ) tries the other lemmas of that spelling
+       (`formFallbackTerm`; `searchGreekCommands` judges it unscoped by book,
+       and the readback names the word used). The
        Greek tab's form button names its lemma (`prefer`), so it never asks. A test
        holds the 58.
      - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
@@ -1054,7 +1061,9 @@ against `dist/` is a later item.
        before it is any word (".gen" is "*.gen", BA48). **A search joins at
        most four words** (`MAX_TERMS`, BA44): `matchConstruction` builds each
        match round its middle word, exact but cubic only because of that
-       cap, so raising it needs a new matcher, not a bigger number.
+       cap, so raising it needs a new matcher, not a bigger number. **A query
+       over 300 characters is an error** (`tooLong`, BVJ 2026-11-07), never
+       cut and searched: the surfaces say why and leave the field as typed.
      - **`searchGreekAuto` in `search-greek.js` is the one Greek search**
        the tray, /search, /desk's Search pane and the Greek tab's word links call: a command query goes to
        `searchGreekCommands`, anything else to 1h's `searchGreek`, with
@@ -1078,8 +1087,14 @@ against `dist/` is a later item.
        is the only record of the search**: the builder reads it with
        `parseGreekQuery` on every change and writes it with `putSearch` (typed
        when the field has focus, so undo works after a mouse press), and a card waiting for its word is the one thing it
-       holds that the field doesn't. A search it can't show (`=` exact,
-       plain words, one that doesn't read) says so and leaves the
+       holds that the field doesn't. **It accepts what the field accepts**
+       (BVJ, 2026-11-07): a card's word looks up the LIT's renderings through
+       the glossary bridge, and two or three plain Latin words are read as the
+       construction the field falls back to (`plain`, with a line saying so).
+       **A card's word box is made once and never replaced** while typed in
+       (the draw patches around it, `boxes`/`shown`), or a screen reader hears
+       a new control per letter and Ctrl+Z is lost. A search it can't show (`=` exact,
+       four or more plain words, one that doesn't read, over 300 characters) says so and leaves the
        field alone, with "Start a new search". The rules are
        `src/lib/greek-builder.mjs` (pure, tested); the drawing is
        `src/scripts/greek-builder.js`. A word's choices are the parsings its
