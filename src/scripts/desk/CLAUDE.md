@@ -106,9 +106,14 @@ means each of these, in one change:
     chapter picker's footer link opens the Study Desk" (line 125), to what
     launch shows.
 
-After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`
-and expect zero hits outside `src/scripts/desk/`; the pattern also matches
-the `data-desk-*` attributes, which stay.
+After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
+`lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere. The
+stamp itself stays (item 1 still sets it, minus the preview, for the
+devices that get the desk), so expect `data-desk` and `deskEnabled` hits
+outside `src/scripts/desk/` only in its writer (`Layout.astro`), the gate
+(`desk-gate.js`, `desk-frame.js`, `search-core.js`'s `deskEnabled()`) and
+their tests, plus the `data-desk-*` attributes; any other hit is a reader
+this list missed.
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
