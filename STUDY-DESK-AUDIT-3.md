@@ -718,6 +718,8 @@ For a keyboard user it is worse. `swap` re-focuses `step.querySelector("button")
 
 #### NB3-4 · Medium · docs · NEW
 
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-help`):** the page is now "Study Desk help" at `/desk/help/` (BVJ's decision 5; `/notebook/help/` redirects, `HELP_HREF`, `WAYS_HREF` and the "Ways to keep your notebook" command moved), with new sections on the desk page and its panes, the title and pane menus, Layout, Full screen and Print…, sheets (editing, Present, Share, Save as, Print), the Search and Book Intro panes, pinned footnotes and notes on a footnote with the left-margin pills and "⋯", Print ▸, "Skip to the Notebook" and the Notebook actions window.
+
 **Where**: `src/pages/notebook/help.astro` (whole page); the "Help for the Study Desk" item in `src/scripts/desk/desk-page.js:692-693` and the tour's "title" step in `src/lib/desk-first-use.mjs`, both of which link to it.
 
 **What happens**: The page titled "Notebook help" is the only help, and /desk's title menu calls it "Help for the Study Desk". It covers marks, the panel, saving, bookmarks, labels, the Greek tab, search and the tours. It has nothing on:
@@ -840,6 +842,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Low to Medium (timing; browser check: throttle storage or double-click quickly).
 
 #### NB3-14 · Nit · docs · NEW
+
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-help`):** the sentence now names the toolbar's "Open in the Study Desk" button and links to the Study Desk page section; Read View's "Study Desk" button is named in that section.
 
 **Where**: `src/pages/notebook/help.astro:57-59`.
 
@@ -1668,7 +1672,7 @@ Each constant agrees with the number in the text today. The problem is that the 
 | CP3-3 | `src/scripts/desk/bookmark-form.js:160` | `"Six of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them."` | As CP3-2, from `MAX_FOLLOWING`. | Agrees (6). Not owner-quoted. The E48 blurb at `bookmark-form.js:77` is owner wording (below). |
 | CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. |
 | CP3-5 | `src/lib/desk-first-use.mjs:458` | `Four panes fit when the window has room.` (tour step "Add pane") | Interpolate `MAX_PANES` as a spelled-out word. | Agrees (4). |
-| CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. |
+| CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-help`):** both sentences read `{TRASH_DAYS}` in `src/pages/desk/help.astro`, held by `test/desk-copy-constants.test.js`. |
 | CP3-7 | `src/scripts/desk/notebook-page.js:137` and `:148` | `What you delete waits here for 30 days.` and `instead of after 30 days.` | `${TRASH_DAYS}`, as CP3-6. | Agrees (30). |
 
 ### Owner wording, report only

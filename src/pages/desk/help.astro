@@ -1,26 +1,33 @@
 ---
-// Help for the Study Desk preview (STUDY-DESK.md M12, D6). A static page that
-// reads without the desk: it is noindex, out of the sitemap, and (as every
-// generic page) out of Pagefind. The panel's foot, the first-time choice and
-// the tour link here.
+// Help for the Study Desk preview (STUDY-DESK.md M12, D6; Audit 3, NB3-4 and
+// decision 5): one page for the whole desk, the Notebook, /desk, sheets and
+// the Greek. It was /notebook/help/ (that address redirects here). A static
+// page that reads without the desk: it is noindex, out of the sitemap
+// (astro.config.mjs), and (as every generic page) out of Pagefind. The
+// Notebook's foot, the first-time choice, the tours and /desk's title menu
+// link here.
 import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
+import { MAX_PANES } from "../../lib/desk-layout.mjs";
+import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import Layout from "../../layouts/Layout.astro";
-import "../../styles/pages/notebook-help.css";
+import "../../styles/pages/desk-help.css";
 ---
 
 <Layout
-  title="Notebook help | Liberation and Inclusion Translation"
-  description="Help for the Study Desk preview: where it is kept, saving and opening a copy, and what each part does."
-  canonical="https://litbible.net/notebook/help/"
+  title="Study Desk help | Liberation and Inclusion Translation"
+  description="Help for the Study Desk preview: the desk page and its panes, sheets, the Notebook, where your notes are kept, saving and opening a copy, and what each part does."
+  canonical="https://litbible.net/desk/help/"
   robotsNoindex={true}
 >
   <article class="nbhelp" aria-labelledby="nbhelp-title">
     <header class="nbhelp__header">
       <div class="nbhelp__inner">
-        <h1 id="nbhelp-title" class="nbhelp__title">Your notebook</h1>
+        <h1 id="nbhelp-title" class="nbhelp__title">Study Desk help</h1>
         <p class="nbhelp__lede">
-          The Study Desk is a preview of study tools for reading on a computer. Its notebook holds notes,
-          bookmarks and highlights that stay with you as you read. It is switched on
+          The Study Desk is a preview of study tools for reading on a computer. It
+          has a notebook that holds notes, bookmarks and highlights that stay with
+          you as you read, a page of its own where panes sit side by side, sheets
+          you can print or present, and the Greek text. It is switched on
           for a few readers while it is tried out. This page explains it, and you
           can read it whether or not it is on for you.
         </p>
@@ -28,6 +35,119 @@ import "../../styles/pages/notebook-help.css";
     </header>
 
     <div class="nbhelp__body">
+
+      <section aria-labelledby="desk-page">
+        <h2 id="desk-page">The Study Desk page</h2>
+        <p>
+          The <a href="/desk/">Study Desk page</a> sets up to {MAX_PANES} panes side
+          by side, each a different tool, and each scrolls on its own. Open it with
+          the “Open in the Study Desk” button in a chapter’s toolbar (“Study Desk”
+          where the toolbar is short), the “Study Desk” button in the site’s header,
+          or the “Study Desk” button beside “Go to passage” in Read View.
+        </p>
+        <p>The kinds of pane are:</p>
+        <ul>
+          <li><strong>The LIT</strong> is a chapter of the translation, with the
+            verse menu and the selection tools of Chapter View. With more than one,
+            the one you last worked in leads.</li>
+          <li><strong>My Notes</strong> lists what you have kept.</li>
+          <li><strong>This verse</strong> shows everything for one verse.</li>
+          <li><strong>Greek</strong> is the chapter in Greek, as in the Notebook.</li>
+          <li><strong>Footnotes</strong> lists the chapter’s footnotes, each with a
+            way to pin it or add a note.</li>
+          <li><strong>Book Intro</strong> is the introduction to the book.</li>
+          <li><strong>Sheet</strong> is where you make and edit sheets (see below).</li>
+          <li><strong>Search</strong> searches the translation, the glossary, the
+            articles, the book introductions, and the Greek. It stands alone and
+            keeps nothing about what you searched for. A verse you choose moves the
+            leading LIT pane, or opens one if there is none, and a book introduction
+            opens in a Book Intro pane.</li>
+        </ul>
+        <p>
+          <strong>Following.</strong> My Notes, This verse, Greek, Footnotes, and
+          Book Intro follow the place of the leading LIT pane (Book Intro follows its
+          book). The lock in a pane’s header, “Stay here,” keeps that pane where it
+          is while the others move on; press it again and the pane follows again.
+        </p>
+        <p>
+          <strong>The title menu.</strong> “Study Desk ▾” in the page’s header opens a
+          menu for the page itself: “Add pane,” “Layout…,” “Print…,” “Display
+          options,” “Full screen,” “My notebook page,” “Take the tour,” and “Help for
+          the Study Desk.” “Add pane” asks for a column (a full-height pane at the
+          right edge) or a row (a full-width pane along the bottom), then for the
+          kind. It is grayed out, with the reason beside it, when there are already
+          {MAX_PANES} panes or the window is too small to give a new one room.
+          “Full screen” uses the browser’s own full screen, and Escape leaves it.
+        </p>
+        <p>
+          <strong>Each pane’s menu.</strong> Select a pane’s name to show something
+          else in it, or to use “Add pane” (beside this one: left, right, above, or
+          below), “Move” (left, right, up, or down, swapping places with the pane
+          next to it), or “Size” (wider, narrower, taller, or shorter). Or drag a pane
+          by its header: onto the edge of another to split it, onto its middle to
+          swap the two. Drag the line between two panes to resize them. The × in a
+          pane’s header closes it.
+        </p>
+        <p>
+          <strong>Layout.</strong> “Layout…” offers ready-made arrangements. “Reading”
+          is one LIT pane with verse numbers, footnote letters, key terms, and
+          highlights turned off; leaving it turns back on only what it turned off.
+          The same window sets whether the page opens with your last layout or your
+          own default, with “Make this my default” and “Reset to the original
+          layout.” Your layout is kept in this browser. An arrangement that does not
+          fit the window is grayed out, with the reason.
+        </p>
+        <p>
+          <strong>Print.</strong> “Print…” asks for a chapter, then offers to print
+          it plainly, with your notes, or with room to write. A chapter other than
+          the one on the page opens in a new tab and prints there.
+        </p>
+      </section>
+
+      <section aria-labelledby="sheets">
+        <h2 id="sheets">Sheets</h2>
+        <p>
+          A sheet gathers passages and your own words into a handout for a study, a
+          class, or a sermon. Make one in a Sheet pane with “New sheet,” which starts
+          from a template (Bible study, Sermon preparation, Class session, Lectio
+          divina, or Blank canvas). Add passages with “+ Passage,” by typing a
+          reference, or from the LIT pane’s verse menu or a selection with “Add to
+          sheet,” or from your notes, highlights, and bookmarks. “+ Your text,”
+          “+ Question,” “+ Space,” “+ Page break,” and “+ Key terms box” add the
+          other parts, and “+ For discussion” gathers your notes marked as
+          questions on its passages. Drag a part by its grip, or use Move up and
+          Move down. Every change is saved as you make it, and Ctrl+Z (⌘Z on a Mac)
+          takes it back. A passage always shows today’s wording of the LIT, and the
+          sheet’s page tells you when the wording has changed since you added it.
+          In the list of sheets, “Delete” moves a sheet to the trash, like a note,
+          and “Duplicate” makes a copy of it.
+        </p>
+        <p>
+          <strong>Print, Present, and Share.</strong> “Print or share…” and
+          “Present…” in a Sheet pane open the sheet’s own page in a new tab. There
+          you choose a version, “Leader version” or “Participant version.” The
+          participant’s leaves out the answers and the parts marked “Leader only.”
+        </p>
+        <ul>
+          <li><strong>Print</strong> prints the version on screen, on Letter or A4
+            paper.</li>
+          <li><strong>Copy</strong> copies it, with its headings and italics, to
+            paste into Word, Google Docs, or Pages.</li>
+          <li><strong>Save as</strong> saves it as a file: a Word document (.docx),
+            an OpenDocument text file (.odt), or a Rich text file (.rtf). Under
+            “Slides” it saves the screens of Present as a PowerPoint file (.pptx) or
+            an OpenDocument slides file (.odp). A PDF comes from “PDF…,” which opens
+            Print, where you choose “Save as PDF.”</li>
+          <li><strong>Present</strong> shows the sheet to a room, full screen, one
+            part at a time, with passages you can uncover a blank at a time.
+            “Presenter view” opens a second window for you, with the leader’s notes,
+            that stays in step with the room’s screen.</li>
+          <li><strong>Share…</strong> sends the sheet to someone as a link or as a
+            Study Desk file (.md). You choose to share everything, for another
+            leader, or the participant’s version. The person opens it on the Sheets
+            page, and “Import into my notebook” keeps a copy.</li>
+        </ul>
+      </section>
 
       <section aria-labelledby="making-marks">
         <h2 id="making-marks">Making notes, highlights, and bookmarks</h2>
@@ -54,9 +174,14 @@ import "../../styles/pages/notebook-help.css";
           have kept here, “This verse” shows everything for the verse you are on,
           “Greek” opens the Greek text, and “Settings” holds the switches, the print
           buttons, and where your notebook is kept. The » button minimizes the panel
-          to a tab at the window’s edge, and that tab brings it back. The “Study
-          Desk” button beside the passage picker opens the Study Desk, a page of
-          its own where panes sit side by side.
+          to a tab at the window’s edge, and that tab brings it back. The “Open in
+          the Study Desk” button in the toolbar opens the
+          <a href="#desk-page">Study Desk page</a>, where panes sit side by side.
+        </p>
+        <p>
+          <strong>Keyboard.</strong> Tabbing from the top of a chapter reaches “Skip to
+          content” and then “Skip to the Notebook,” which opens the Notebook and
+          moves into it.
         </p>
         <p>
           <strong>Hide my marks.</strong> Your marks are your notes, highlights,
@@ -68,6 +193,50 @@ import "../../styles/pages/notebook-help.css";
           <strong>Widths.</strong> On a chapter you can drag the edges between the
           text, your notes’ margin, and the Notebook to make each wider or narrower.
           “Reset widths” in Settings puts them back.
+        </p>
+      </section>
+
+      <section aria-labelledby="footnote-pins">
+        <h2 id="footnote-pins">Pinned footnotes, and notes on a footnote</h2>
+        <p>
+          Beside each footnote are two small buttons: a thumbtack to pin it
+          (“Pin footnote 3,” and “Unpin footnote 3” once it is pinned, when the
+          thumbtack is struck through) and the note’s own icon, “Add a note on
+          footnote 3.” They are in a chapter’s Footnotes list, in the popover a
+          footnote letter opens, in the Notebook’s “This verse” tab, and in the
+          Study Desk’s Footnotes pane. Read View has no footnotes, so it has no
+          buttons.
+        </p>
+        <p>
+          A pinned footnote is kept under “Pinned footnotes” in “My Notes,” with its
+          reference and the footnote as it read when you pinned it. If the LIT later
+          revises that footnote, the pin says so. A note on a footnote is an ordinary
+          note: it shows beside its footnote and is listed in “My Notes.”
+        </p>
+        <p>
+          On a Chapter View chapter, the two buttons sit in the left margin beside
+          the footnote when there is room. When the margin is narrower they fold into
+          a single “⋯” button, which opens them one above the other, and when there
+          is no room at all, or one of your margin notes is already beside that
+          footnote, they sit on the footnote’s own line.
+        </p>
+      </section>
+
+      <section aria-labelledby="print-part">
+        <h2 id="print-part">Printing part of a chapter</h2>
+        <p>
+          In Chapter View, a verse’s menu has a “Print ▸” choice under “My Notebook,”
+          and so does the selection panel in Chapter View and Read View. In the verse
+          menu it offers “This verse” (“These verses” for a range) and, for the same
+          verses, “with my notes” and “with room to write.” For selected words it
+          offers “This selection…” and the same two. What prints is only those verses
+          or words, headed with the reference, with the footnotes they cite and the
+          LIT’s notice. “With my notes” leaves your notes and highlights on those
+          verses beside the text; “with room to write” adds a ruled margin. While
+          “Hide my marks” is on, “with my notes” does not run. The choice appears
+          only where the browser keeps a notebook. To print a whole chapter, use
+          your browser’s print, or the “Print…” choice on the Study Desk page or in
+          the Notebook’s Settings tab.
         </p>
       </section>
 
@@ -122,10 +291,10 @@ import "../../styles/pages/notebook-help.css";
         <h2 id="delete-everything">Deleting everything</h2>
         <p>
           Deleting a note, or removing a bookmark or highlight, moves it to the trash, where it
-          waits for 30 days. Undo (or Ctrl+Z, ⌘Z on a Mac) puts it back right
+          waits for {TRASH_DAYS} days. Undo (or Ctrl+Z, ⌘Z on a Mac) puts it back right
           away. After that, open the Trash on the
           <a href="/notebook/">notebook page</a> and press Restore, on one item or
-          on all of them. After 30 days only a record that it was deleted remains,
+          on all of them. After {TRASH_DAYS} days only a record that it was deleted remains,
           so a saved copy is the only way back. To remove the whole notebook from
           this browser, use “Delete everything” on that page; “Empty the trash
           now” is there too. Clearing this site’s data in your
@@ -220,7 +389,10 @@ import "../../styles/pages/notebook-help.css";
         <p>
           The search box also looks in your notebook and understands a few
           commands. On a page of scripture, for example, type “&gt;tour” and
-          press Enter to take the tour again.
+          press Enter to take the tour again. “Notebook actions,” a link in the
+          Notebook’s Settings tab, in the search tray, and beside the field on the
+          search page, lists the commands the box understands on the page you are
+          on. A row in it runs its command.
         </p>
       </section>
 
@@ -261,7 +433,7 @@ import "../../styles/pages/notebook-help.css";
         <h2 id="missing">Tell us what’s missing</h2>
         <p>
           The site deliberately doesn’t measure who uses what, so we only hear what
-          you tell us. If the notebook is missing something, or something is
+          you tell us. If the Study Desk is missing something, or something is
           confusing, <a href="/contact/">write to us</a>.
         </p>
       </section>

@@ -19,8 +19,8 @@ export const HOMES = ["browser", "browser-remind"];
 export const REMIND_AFTER_DAYS = 7;
 
 export const BACKUP_HREF = "/notebook/#backup";
-export const HELP_HREF = "/notebook/help/";
-export const WAYS_HREF = "/notebook/help/#ways-to-keep";
+export const HELP_HREF = "/desk/help/";
+export const WAYS_HREF = "/desk/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
 
 /** The start of the notebook tour from a chapter page: `?desk-tour` starts it after load. */
