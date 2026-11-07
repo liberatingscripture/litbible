@@ -1332,8 +1332,37 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   line on the first slide and a short closing slide, and in the file's
   properties. A long passage is split across slides by length, with the
   programs' shrink-to-fit as well. **BVJ (2026-11-06): leave phase B as an item
-  to come back to**; the proposal isn't decided. Status: **phase A built (E57
-  fixed its key terms box); phase B deferred.**
+  to come back to**; the proposal isn't decided. **Later the same day BVJ
+  decided it: "Build the slides files as you recommended"**, all four points as
+  proposed.
+  **Phase B built 2026-11-06** (`claude/desk-phase5-e28`). Save as ▾ gains a
+  **"Slides"** group: PowerPoint (.pptx), OpenDocument slides (.odp), and
+  "PDF…", which prints one slide to a 13.333 by 7.5 inch landscape page and says
+  to choose "Save as PDF". **The slides are present mode's screens**:
+  `desk/sheet-slides.js` runs `prepareDeck` (`sheet-present.js`) and reads each
+  screen off the stage, a passage twice (no blanks revealed, then all through
+  it), so a file shows exactly what present mode shows, the hint and the
+  traditional word on a covered blank included; they are the room's, so the
+  same whichever version is on screen. The rules are `src/lib/desk-slides.mjs`
+  (pure): the deck (`deckSlides`), cutting by length (`SLIDE_CHARS`, between
+  paragraphs or before a verse number; a covered and a revealed slide cut
+  alike; "(continued)" on the rest), the layout (`slideBoxes`) and a text box's
+  paragraphs (`slideParagraphs`), shared by both writers
+  (`desk-slides-pptx.mjs`, `desk-slides-odp.mjs`) and the print view, so they lay
+  a slide out alike. The look is present mode's room screen: dark ground, Crimson
+  Text, Fraunces (falling back to Georgia) for headings in its green, Cardo for
+  Greek and Hebrew. The speaker notes say which words a covered slide's blanks
+  hold. The programs shrink text to fit; the print view fits each box itself.
+  Files are named "Romans 8 study (slides).pptx". `test/desk-slides.test.js`
+  unzips both and reads every XML part strictly. **Checked by hand:** a 15-slide
+  deck from a Romans 8 test sheet opened in PowerPoint (notes in place) and in
+  LibreOffice, rendered alike in both; the print view laid out the same slides
+  on landscape pages in headless Chrome. **Not checked:** Keynote and Google
+  Slides, and a PDF saved through a real print dialog. Status: **built (phase A
+  and B), awaiting BVJ's look.**
+  **BVJ (2026-11-06), in passing:** the sheet page's "Codes to scan" checkbox
+  reads **"Show QR codes"**, and present mode's line for a sheet with no
+  passages says "no QR codes".
 
 - **E38, question, answered: can a reader search their labels, and is having
   labels going to get cumbersome? How hard would syncing them to the app be?**
@@ -1879,8 +1908,8 @@ the rest is polish.
     (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look, and so is
     E37's phase A (Save as a document, on the same branch), and f (E39, E40,
     after BVJ's look at a mock), and g's E43 and E49 (decided from a mock).
-    E50 is built too (decided from a mock). **Still open**: E37's phase B
-    (slides; deferred by BVJ, 2026-11-06, with a proposal on record), and E53 (intros on /desk, to discuss). BVJ settled E33 (at
+    E50 is built too (decided from a mock), and so is E37's phase B (slides,
+    decided by BVJ the same day). **Still open**: E53 (intros on /desk, to discuss). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook

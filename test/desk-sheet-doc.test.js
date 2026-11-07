@@ -204,7 +204,7 @@ test("documentFileName: the sheet's name and the version, safe on every system",
 });
 
 test("Save as holds the document group, and PDF runs Print", () => {
-  assert.deepEqual(SAVE_GROUPS.map((g) => g.label), ["A document"]);
+  assert.deepEqual(SAVE_GROUPS.map((g) => g.label), ["A document", "Slides"]);
   const [doc] = SAVE_GROUPS;
   assert.deepEqual(doc.items.map((i) => i.label), ["Word document (.docx)", "OpenDocument text (.odt)", "Rich text (.rtf)", "PDF…"]);
   const pdf = doc.items.find((i) => i.id === "pdf");

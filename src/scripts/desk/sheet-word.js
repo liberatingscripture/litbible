@@ -21,7 +21,7 @@ const INLINE = new Set(["em", "strong", "u", "s", "sub", "a"]);
 const isList = (n) => n.nodeType === Node.ELEMENT_NODE && /^(ul|ol)$/i.test(n.tagName);
 
 /** A node list's inline pieces (the model's inline tree). */
-function inlines(nodes) {
+export function inlines(nodes) {
   const out = [];
   for (const n of nodes) {
     if (n.nodeType === Node.TEXT_NODE) {
@@ -74,7 +74,7 @@ function inlines(nodes) {
 }
 
 /** A block and what it holds, onto `out`. A poetry quotation (hbq) sets one indented line per paragraph. */
-function block(node, out, poetry = false) {
+export function block(node, out, poetry = false) {
   const tag = node.tagName.toLowerCase();
   if (tag === "hr") {
     out.push({ type: "rule" });

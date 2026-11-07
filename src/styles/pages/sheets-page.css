@@ -1409,3 +1409,86 @@ html[data-desk="on"] .sheets-page__loading {
 html[data-desk="on"] .sheets-page__off {
   display: none;
 }
+
+/* Save as ▸ Slides ▸ PDF… (E37 phase B; sheet-slides.js): the slides, one to
+   a page the size of a slide, printed for "Save as PDF". The container is on
+   the page only for that print: laid out off screen to be measured
+   (data-sheet-slides="measure"), then shown on paper alone ("print"). Dark as
+   present mode's room screen in either theme, and printed with its colors. */
+.sheet-slides-print {
+  display: none;
+}
+
+html[data-sheet-slides="measure"] .sheet-slides-print {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: -200vw;
+  visibility: hidden;
+}
+
+.sheet-slide {
+  position: relative;
+  width: var(--slide-width);
+  height: var(--slide-height);
+  overflow: hidden;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.sheet-slide__box {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.sheet-slide__p {
+  margin: 0;
+}
+
+.sheet-slide__mark {
+  display: inline-block;
+  min-width: 0.32in;
+  margin-left: -0.32in;
+}
+
+.sheet-slide__code {
+  position: absolute;
+  image-rendering: pixelated;
+}
+
+@media print {
+  html[data-sheet-slides="print"] body > :not(.sheet-slides-print) {
+    display: none !important;
+  }
+
+  html[data-sheet-slides="print"],
+  html[data-sheet-slides="print"] body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+  }
+
+  html[data-sheet-slides="print"] .sheet-slides-print {
+    display: block !important;
+  }
+
+  /* print.css turns every color to black and every font to the serif; the
+     slides carry their own, set inline on each run and box. */
+  html[data-sheet-slides="print"] .sheet-slide,
+  html[data-sheet-slides="print"] .sheet-slide * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  html[data-sheet-slides="print"] .sheet-slide {
+    break-after: page;
+    break-inside: avoid;
+  }
+
+  html[data-sheet-slides="print"] .sheet-slide:last-child {
+    break-after: auto;
+  }
+}

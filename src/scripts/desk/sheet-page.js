@@ -13,7 +13,8 @@
 // - **Paper**: US Letter or A4 (C27), guessed from the reader's languages
 //   until they choose, then kept in `localStorage['lit-sheet-paper']` (named in
 //   /privacy's paragraph). The page's own preview is drawn at that paper's width.
-// - **Codes to scan** (S5), one per chapter, on by default; not kept.
+// - **Show QR codes** (S5; "Codes to scan" until 2026-11-06), one per
+//   chapter, on by default; not kept.
 // - **Checked before printing** (S2): a passage whose wording changed since it
 //   was added is named above the paper, with what moved, and the copy's foot
 //   says the day its text is from. The notice is for the screen only; the
@@ -344,9 +345,9 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
     codes = codeInput.checked;
     draw();
   });
-  codeBox.append(codeInput, document.createTextNode(" Codes to scan"));
-  codeBox.title = "A code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
-  const hints = [describe(codeInput, "A code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
+  codeBox.append(codeInput, document.createTextNode(" Show QR codes"));
+  codeBox.title = "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
+  const hints = [describe(codeInput, "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
   const present = button("Present");
@@ -449,6 +450,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
 
   /** A Save as item: a file of the version on screen, or Print for a PDF. */
   async function saveAs(item) {
+    if (item.slides) return saveSlides(item);
     if (item.print) {
       // Said before the print window opens, since it holds the page until closed.
       say("In the print window, choose “Save as PDF” as the printer.");
@@ -468,6 +470,30 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
     } catch (err) {
       console.error("Study Desk: couldn't make the file", err);
       say("The file couldn’t be made. The sheet is unchanged: try again in a moment.");
+    }
+  }
+
+  /**
+   * A Slides item (E37 phase B): the room's screens as a .pptx or .odp, or
+   * printed one to a page for a PDF. The same whichever version is on screen.
+   */
+  async function saveSlides(item) {
+    say(item.print ? "Laying out the slides…" : "Making the slides…", { keep: true });
+    try {
+      const { printSlides, readSlides } = await import("./sheet-slides.js");
+      const deck = await readSlides(sheet);
+      if (item.print) {
+        say("In the print window, choose “Save as PDF” as the printer.");
+        await printSlides(deck);
+        return;
+      }
+      const name = documentFileName(sheetName(sheet), "slides", item.ext);
+      const write = await writerFor(item.id);
+      download(await write(deck, { title: sheetName(sheet), date: Date.now() }), item.mime, name);
+      say(`Saved ${name}.`);
+    } catch (err) {
+      console.error("Study Desk: couldn't make the slides", err);
+      say("The slides couldn’t be made. The sheet is unchanged: try again in a moment.");
     }
   }
 

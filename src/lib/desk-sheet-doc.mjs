@@ -80,6 +80,17 @@ export const SAVE_GROUPS = Object.freeze([
       Object.freeze({ id: "pdf", label: "PDF…", print: true, hint: "Opens Print. Choose “Save as PDF” there." }),
     ]),
   }),
+  // E37 phase B: the room's screens as slides, whichever version is on screen,
+  // with the leader's notes as speaker notes (desk-slides.mjs).
+  Object.freeze({
+    id: "slides",
+    label: "Slides",
+    items: Object.freeze([
+      Object.freeze({ id: "pptx", label: "PowerPoint (.pptx)", ext: "pptx", slides: true, mime: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }),
+      Object.freeze({ id: "odp", label: "OpenDocument slides (.odp)", ext: "odp", slides: true, mime: "application/vnd.oasis.opendocument.presentation" }),
+      Object.freeze({ id: "slides-pdf", label: "PDF…", slides: true, print: true, hint: "Opens Print with one slide a page. Choose “Save as PDF” there." }),
+    ]),
+  }),
 ]);
 
 /* ── Copy: HTML and plain text ─────────────────────────────────────────── */

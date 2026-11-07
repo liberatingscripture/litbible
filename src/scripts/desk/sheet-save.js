@@ -5,14 +5,14 @@
 // the toolbar's Version choice, as Print and Copy do; the Share dialog's
 // "Export a Study Desk file (.md)" is the other kind of file, one for another Study
 // Desk. The groups and items are SAVE_GROUPS (desk-sheet-doc.mjs): "A
-// document" now, and a "Slides" group added there later is drawn here with no
-// change to the menu.
+// document" and "Slides" (E37 phase B, sheet-slides.js).
 //
 // Each writer is loaded by a dynamic import only when its item is chosen, so
 // the sheet page's own chunk carries the menu and not the formats. The page
 // is reached only through desk-gate.js with data-desk="on", so none of it is
-// in a reader's bundle. "PDF…" writes nothing: it runs the toolbar's Print,
-// and says to choose "Save as PDF" in the print window.
+// in a reader's bundle. "PDF…" writes nothing: it runs the toolbar's Print
+// (or, under Slides, prints the slides), and says to choose "Save as PDF" in
+// the print window.
 //
 // The menu is a button with aria-haspopup and a role="menu" under it, as
 // /desk's title menu is: the arrows, Home and End move through the items,
@@ -27,36 +27,43 @@ const WRITERS = {
   docx: () => import("../../lib/desk-doc-docx.mjs").then((m) => m.docxFile),
   odt: () => import("../../lib/desk-doc-odt.mjs").then((m) => m.odtFile),
   rtf: () => import("../../lib/desk-doc-rtf.mjs").then((m) => m.rtfFile),
+  // Slides take the deck sheet-slides.js reads, not the document model.
+  pptx: () => import("../../lib/desk-slides-pptx.mjs").then((m) => m.pptxFile),
+  odp: () => import("../../lib/desk-slides-odp.mjs").then((m) => m.odpFile),
 };
 
 /** How many pixels a module of a code to scan is drawn at in the PNG. */
 const CODE_SCALE = 8;
 
+/** A code's SVG (qrSvg's) as PNG bytes, drawn on a canvas: { png, pixels }. */
+export async function codePng(svg) {
+  const modules = Number(svg.match(/viewBox="0 0 (\d+)/)?.[1]) || 41;
+  const pixels = modules * CODE_SCALE;
+  const img = new Image();
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  await img.decode();
+  const canvas = make("canvas");
+  canvas.width = pixels;
+  canvas.height = pixels;
+  const g = canvas.getContext("2d");
+  g.imageSmoothingEnabled = false;
+  g.fillStyle = "#fff";
+  g.fillRect(0, 0, pixels, pixels);
+  g.drawImage(img, 0, 0, pixels, pixels);
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  if (!blob) throw new Error("The canvas made no PNG");
+  return { png: new Uint8Array(await blob.arrayBuffer()), pixels };
+}
+
 /**
- * Each code block's PNG (`png`, `pixels`), drawn on a canvas from the SVG the
- * copy shows (qrSvg's). A code that can't be drawn is left out of the file.
+ * Each code block's PNG (`png`, `pixels`), drawn from the SVG the copy shows.
+ * A code that can't be drawn is left out of the file.
  */
 export async function drawCodes(doc) {
   for (const b of doc.blocks) {
     if (b.type !== "code" || !b.svg) continue;
     try {
-      const modules = Number(b.svg.match(/viewBox="0 0 (\d+)/)?.[1]) || 41;
-      const pixels = modules * CODE_SCALE;
-      const img = new Image();
-      img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(b.svg)}`;
-      await img.decode();
-      const canvas = make("canvas");
-      canvas.width = pixels;
-      canvas.height = pixels;
-      const g = canvas.getContext("2d");
-      g.imageSmoothingEnabled = false;
-      g.fillStyle = "#fff";
-      g.fillRect(0, 0, pixels, pixels);
-      g.drawImage(img, 0, 0, pixels, pixels);
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-      if (!blob) continue;
-      b.png = new Uint8Array(await blob.arrayBuffer());
-      b.pixels = pixels;
+      Object.assign(b, await codePng(b.svg));
     } catch (err) {
       console.error("Study Desk: a code to scan couldn't be drawn for the file", err);
     }

@@ -1486,9 +1486,24 @@ against `dist/` is a later item.
        `desk-doc-rtf.mjs`, over the hand-written `desk-zip.mjs`) are pure and
        reached only by `sheet-save.js`'s dynamic imports, never statically
        (`test/desk-sheet-doc.test.js` holds it). The menu's groups are
-       `SAVE_GROUPS`; slides (phase B) are a second group there. Every file ends
+       `SAVE_GROUPS`. Every file ends
        with `LIT_CREDIT_LINE` and carries it in its properties; fonts are named,
        not embedded.
+       **The "Slides" group (phase B) is present mode's screens, not the paper
+       copy**: `desk/sheet-slides.js` (a dynamic import from `sheet-page.js`)
+       runs `prepareDeck` and reads each screen off the stage, a passage covered
+       and then revealed, so a slide can't disagree with what the room sees; a
+       change to a screen's markup must keep `readSlides` reading it. The rules
+       (the deck, cutting by length, the layout, a text box's paragraphs) are
+       `src/lib/desk-slides.mjs`, shared by `desk-slides-pptx.mjs`,
+       `desk-slides-odp.mjs` and the print view, so all three lay a slide out
+       alike. The credit line is on the first and last slides and in the
+       properties. "PDF…" there is `printSlides`: a print-only copy of the
+       slides, the page's `@page` rule swapped for the slide's size, every
+       inline style `!important` (print.css turns everything black serif
+       otherwise), all put back on `afterprint`. **In an .odp, never give
+       `presentation:notes` (or the master's notes) a `draw:style-name`**:
+       Impress paints the slides with it, which turned the dark ground white.
      - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
        guessed from the reader's languages until chosen), named in /privacy's
        paragraph. Its `@page` rule is added as the page's last style, after
