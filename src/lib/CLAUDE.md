@@ -41,7 +41,7 @@ From the root's project tree.
                      #   (the term lens and its fs shell), go-deeper.mjs +
                      #   go-deeper-data.ts ("Go deeper" and its build shell),
                      #   verse-image.mjs (the design and typesetting behind
-                     #   "Make an image"), anchor-core.mjs + desk-*.mjs (the
+                     #   "Share image"), anchor-core.mjs + desk-*.mjs (the
                      #   Study Desk's pure modules: records, incl. the trash
                      #   record and footnote pins; the anchor text read off
                      #   the page; the wording comparison and the change

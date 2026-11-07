@@ -1370,8 +1370,23 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   default (pressing "Copy" copies the text, as the top item does now) with the
   flyout, opened by hover, the right arrow or a chevron, holding the others,
   so the common press stays one step. Mock first (the phone rig), for the
-  menu and the selection panel both. Status: **open; the Copy flyout is back
-  on the table.**
+  menu and the selection panel both. **BVJ (2026-11-06), from the mock: build
+  it**, for every reader: "Share text…" (it sends the words, the link an
+  addendum, as "Copy text" copies them) and "Share image"; the mock's pale
+  explanatory lines were notes for BVJ, not site copy. **Built (2026-11-06).**
+  Shared reader code (`panel-pieces.js` family, `chapter-tools.js`): on a
+  mouse or the keyboard, the three copy buttons are one split row "Copy text"
+  (a press copies the text; the chevron "More ways to copy", hover or → open a
+  flyout of Copy text, Copy link, Copy with footnotes), and "Share…" with "Make
+  an image" are one row "Share" (a flyout of "Share text…", where there is a
+  share sheet, and "Share image"; choosing the image closes the flyout and the
+  questions take the row's place; no share sheet leaves a flat "Share image").
+  The new names hold everywhere, chips included. A finger's chips stay flat.
+  No hint text added. `flyoutRow` moved from `desk/actions.js` to
+  `src/scripts/panel-flyout.js`, its CSS from `desk.css` (`.desk-bookmark-fly*`)
+  to `global.css` (`.lit-flyout*`). Measured from the fonts' advance widths: at
+  360px "Share text…" and "Share image" fit one chip row in Inter, Atkinson and
+  OpenDyslexic (`src/scripts/CLAUDE.md` has the numbers). Status: **built.**
 
 - **E40, wish: a Print line in the verse menu and selection panel, with a
   flyout: Selection / With my notes / With room to write.** BVJ (2026-11-05),
@@ -1383,7 +1398,18 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   plain text of just those verses) is new: the site prints a whole page today.
   It is a desk row ("My Notebook" rows, `actions.js`), so readers without the
   desk see no change, and it is the desk's flyout (`flyoutRow`). Share the
-  menu's settings with E39 so the two flyouts are made once. Status: **open.**
+  menu's settings with E39 so the two flyouts are made once. **BVJ
+  (2026-11-06): build it**, labeled "This verse" ("These verses" for a range)
+  or "This selection", each plain, with my notes, and with room to write; a
+  selection prints only the selection. **Built (2026-11-06).** "Print ▸" after
+  Bookmark in the My Notebook rows, as in rule 19 of desk/CLAUDE.md. It prints
+  only those verses (numbers, cited footnotes, credit and notice) or the
+  selected words as a passage. Not offered in /desk's LIT pane or the
+  glossary. "With my notes" stands down with "Hide my marks". Print preview
+  can't be emulated in the Browser pane; the pure parts are tested
+  (`test/desk-print-part.test.js`). Status: **built; needs a real print preview
+  in Chrome (and Firefox) for a verse, a range across a poetry block, a
+  selection, each of the three kinds.**
 
 - **E41, bug and wish: bookmark colors, and moving bookmarks, on the desk.**
   BVJ (2026-11-05): "It doesn't look like the colors of the bookmarks
@@ -1444,7 +1470,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
      switch with the others and stand down in text fields. Optional.
   Claude's lean: the title-menu line, with a Display-settings mention that
   points to it rather than duplicating it; settle 2 before building.
-  Status: **open.**
+  **Decided (BVJ, 2026-11-06): browser full screen only** (1), the cheapest
+  version (4): no focus mode hiding the site header. On Escape (2): in full
+  screen the browser keeps the first press for itself and the page never sees
+  it, so with a menu open the first press leaves full screen and the second
+  closes the menu. Nothing is lost or skipped, so it is accepted as is, not
+  worked around (Chrome's keyboard lock would make Escape hold-to-exit, which
+  is worse); confirm it in a browser once built. Status: **decided, to build.**
 
 - **E44, wish: "Start following" where "Stop following" appears.** BVJ
   (2026-11-05): when a moving bookmark isn't following, the same spot (the
@@ -1676,9 +1708,9 @@ the rest is polish.
     look**: session 12 (E29), a (E30, E32, E42), b's E44 to E48, c (E34, E35),
     d's E36 and e (E31). E28 with E41 is built on its own branch
     (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look, and so is
-    E37's phase A (Save as a document, on the same branch). **Still open**:
-    E37's phase B (slides), f (E39, E40; mock first),
-    g (E49, E50; mock first; E43, Escape to test first). BVJ settled E33 (at
+    E37's phase A (Save as a document, on the same branch), and f (E39, E40,
+    after BVJ's look at a mock). **Still open**: E37's phase B (slides), and g
+    (E49, E50; mock first; E43, decided 2026-11-06, to build). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook

@@ -622,16 +622,21 @@ against `dist/` is a later item.
        heard there. "Move it here" takes the leading pane's place at the press.
        The pause bar is the ordinary undo bar, outside the panes.
        **The verse menu and the selection panel group a verse's bookmarks in a
-       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04, bookmarks only:
-       BVJ proposed a Copy flyout too and Claude advised against it for now,
-       since Copy is shared code every reader uses and the most used item,
-       to be revisited if more reason came; it is being revisited, STUDY-DESK-FIXES.md
-       E39): Remove and Edit (`Remove bookmark “Advent”`, the name cut at
-       14 characters, the full name the accessible name), Add a bookmark that
-       moves or stays put, and for the resting one "Leave it here". A verse with
-       none keeps the one-press "Bookmark", and a finger's chips stay flat
-       (`flyoutRow` in actions.js; hover opens, a click, Enter or the right arrow
-       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" and "Start following" are one
+       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and Edit
+       (`Remove bookmark “Advent”`, the name cut at 14 characters, the full name the
+       accessible name), Add a bookmark that moves or stays put, and for the resting
+       one "Leave it here". A verse with none keeps the one-press "Bookmark", and a
+       finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
+       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js`, styled by
+       `.lit-flyout*` in `global.css`, also builds every reader's "Copy text ▸" and
+       "Share ▸" rows and this file's "Print ▸" (rule 19). Desk code imports it;
+       shared code never imports desk code. Hover opens it without taking focus; a
+       click, Enter or the right arrow moves focus in (the selection panel passes
+       `pointerFocus: false`, so a mouse click never moves focus into it); Escape or
+       the left arrow steps back; it is fixed to the window and `role="menu"`.
+       (BVJ proposed a Copy flyout on 2026-11-04 and Claude advised against it; BVJ
+       revisited it on 2026-11-05 and decided on 2026-11-06 to build it, with the Copy
+       row's own press still copying.) **"Stop following" and "Start following" are one
        quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
        `drawFollowLink`) under the state line of every bookmark with "Move as I
        read" on, its label swapping with this tab's flag; not an On/Off switch,
@@ -1474,6 +1479,38 @@ against `dist/` is a later item.
        aside right beside its block, because Firefox moves a whole grid row
        to the next page (BA151). Plain Ctrl+P never has the attribute and
        prints as before.
+     - **Print ▸ in the verse menu and the selection panel** (E40; BVJ, 2026-11-06):
+       a flyout after Bookmark in the "My Notebook" rows (`printRow` in
+       `desk/actions.js`; a finger's chips get the three items flat under a "Print"
+       subheading). Verse menu: "This verse" ("These verses" for a range), each
+       "…with my notes" and "…with room to write"; selection panel: "This
+       selection…", the same three. Chapter View's verse menu and either view's
+       selection panel only: not /desk's LIT pane (a print there would need a
+       new-tab route like the Print menu's), and not the glossary. The labels come
+       from `partChoices` (`src/lib/desk-print-part.mjs`, pure and tested, with
+       `onVerses`, `planVerses`, `citedFootnoteIds`, `notesForPart`); the page side
+       is `desk/print-part.js`, through `printLook` so the one-at-a-time rule and
+       the take-away on `afterprint` hold. **Verses are hidden, not copied**: the
+       blocks, verse spans and footnotes a print leaves out get
+       `data-desk-print-skip` and `html[data-desk-part="verses"]` is stamped, and
+       desk.css hides them on paper only; what stays is the real text, so verse
+       numbers, footnote letters, the cited footnotes (only those) and print.css's
+       credit and notice print as for a chapter. "With my notes" hands M6's `build`
+       a verse range (`print-notes.js` `build(s, only)`, notes and highlights on
+       those verses) and "with room to write" is N9's ruled margin on the
+       container, unchanged. A note spanning verses outside the range may leave its
+       aside beside a hidden block; accepted. **A selection** prints the same text
+       as Copy text (`richText`, through `handoutHtml`: italics and verse numbers
+       kept, no footnote letters) as a print-only excerpt appended to the text's
+       container (`div.desk-print-excerpt`, `data-desk-print-extra`), everything else
+       skipped, `html[data-desk-part="selection"]`; "with my notes" appends the notes
+       on the selection's verses (not on footnotes) after it under "My notes".
+       Highlights are not tinted in a selection print. Both put a "John 3:16–18
+       (LIT)" heading first (the page's own title is hidden under
+       `html[data-desk-part]`). **"With my notes" stands down while "Hide my marks"
+       is on**, with the same notice print-link.js gives. It is offered only where
+       the browser keeps a notebook, which is where the My Notebook rows exist at
+       all, so there the whole Print ▸ row is absent.
      - **One Print menu, on /desk and in the Notebook** (E16; BVJ,
        2026-10-29, and 2026-11-02): `desk/print-menu.js` is the menu, and what
        each choice does for the chapter picked is `printMenuState`
