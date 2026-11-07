@@ -18,7 +18,7 @@
 // (lemmas.json, and the lemma's own shard of occ/ for the parsings its words
 // take), fetched when a word is typed, never before.
 
-import { loadGreekIndex, loadGreekOccurrences } from "./search-greek.js";
+import { loadGreekBridge, loadGreekIndex, loadGreekOccurrences } from "./search-greek.js";
 import { errorMessage } from "../lib/greek-query.mjs";
 import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
 import {
@@ -29,9 +29,10 @@ import {
   closenessOptions,
   codeCounts,
   emptyCard,
+  needsBridge,
   readBuilder,
+  readCardText,
   resolveCard,
-  usableWords,
   writeBuilder,
   writeCard,
 } from "../lib/greek-builder.mjs";
@@ -87,6 +88,14 @@ export function createGreekBuilder({ put, announce }) {
   // A word being composed (a dead key, an input method): nothing is redrawn
   // until it settles, or the half-typed letter is lost with the input.
   let composing = false;
+  // The cards' boxes as last drawn, by index: a card's text box is reused, never
+  // rebuilt, so typing in it keeps its focus, caret, selection and undo (GK3-2).
+  const boxes = [];
+  // What the window holds now, in order (the draw fits it to what is wanted).
+  const shown = [];
+  let spokenTimer = null;
+  // The field held plain words that the builder reads as a construction (GK3-5).
+  let plainRead = false;
 
   /* ── Reading the field ─────────────────────────────────────────── */
 
@@ -97,6 +106,7 @@ export function createGreekBuilder({ put, announce }) {
     seen = raw;
     if (!cannot && raw === writeBuilder(state)) return false;
     const read = readBuilder(raw);
+    plainRead = Boolean(read.plain);
     if (read.cannot) {
       cannot = read;
     } else {
@@ -130,7 +140,10 @@ export function createGreekBuilder({ put, announce }) {
       if (!index) {
         entry.status = "failed";
       } else {
-        const resolved = resolveCard(index, { words, filters: [] });
+        // A LIT rendering typed in a card reaches the Greek as it does in the
+        // field, through the glossary bridge (GK3-4); null if it won't load.
+        const bridge = needsBridge(words) ? await loadGreekBridge(base) : null;
+        const resolved = resolveCard(index, { words, filters: [] }, { bridge });
         if (resolved.error) {
           entry.status = "unknown";
           entry.message = errorMessage(resolved.error).text;
@@ -149,7 +162,25 @@ export function createGreekBuilder({ put, announce }) {
     } catch (_) {
       entry.status = "failed";
     }
-    if (!destroyed) render();
+    if (destroyed) return;
+    render();
+    speakLookup(words, entry);
+  }
+
+  /**
+   * Say what a typed word turned out to be, once it has settled (GK3-10): typing
+   * a word announces nothing otherwise, so a screen-reader reader would not
+   * learn that it was unknown or which lemmas it reached. Waits for a pause in
+   * the typing, and says nothing for a word no card holds any more.
+   */
+  function speakLookup(words, entry) {
+    clearTimeout(spokenTimer);
+    spokenTimer = setTimeout(() => {
+      if (destroyed || cannot || !state.cards.some((c) => c.words.join("/") === words.join("/"))) return;
+      if (entry.status === "unknown") announce(entry.message);
+      else if (entry.status === "failed") announce("This word couldn’t be looked up.");
+      else if (entry.status === "ready") announce(`${entry.lemmas.map(lemmaLine).join("; ")}.`);
+    }, 700);
   }
 
   function infoFor(card) {
@@ -173,6 +204,7 @@ export function createGreekBuilder({ put, announce }) {
   /* ── Writing the field ─────────────────────────────────────────── */
 
   function commit(byMouse, spoken = true) {
+    plainRead = false;
     const text = writeBuilder(state);
     if (field && text !== field.value.trim() && !put(text, { byMouse })) return;
     if (field) seen = field.value.trim();
@@ -190,11 +222,10 @@ export function createGreekBuilder({ put, announce }) {
 
   /* ── Drawing ───────────────────────────────────────────────────── */
 
-  function chip(label, { on, key, title, count, onPress }) {
+  function chip(label, { on, key, count, onPress }) {
     const b = make("button", "greek-chip");
     b.setAttribute("aria-pressed", String(on));
     b.dataset.key = key;
-    if (title) b.title = title;
     b.append(label);
     if (count !== null && count !== undefined) {
       b.append(make("small", "greek-chip__n", String(count.toLocaleString("en-US"))));
@@ -241,7 +272,6 @@ export function createGreekBuilder({ put, announce }) {
             on,
             count: n,
             key: `c${i}.${offer.axis}.${filter.name}`,
-            title: `.${filter.words[0]}`,
             onPress: (byMouse) => {
               if (stale()) return;
               card.filters = on ? card.filters.filter((f) => f !== filter) : [...card.filters, filter];
@@ -255,8 +285,66 @@ export function createGreekBuilder({ put, announce }) {
     return row;
   }
 
+  /** The card's word box, made once; it finds its card by its place, since cards come and go around it. */
+  function makeWordBox() {
+    const input = make("input", "greek-card__word");
+    input.type = "text";
+    input.placeholder = "A word, or leave empty for any";
+    input.autocomplete = "off";
+    input.maxLength = 100;
+    input.spellcheck = false;
+    input.autocapitalize = "off";
+    const typed = () => {
+      if (stale()) return;
+      const card = state.cards[Number(input.dataset.key.slice(1))];
+      if (!card) return;
+      // What is typed stays as typed (a "/" waiting for the next word), less
+      // the symbols the notation uses and, among several words, any that is
+      // also a command, which can't be written there. The card holds the words,
+      // and a note says what was left out (GK3-15).
+      const text = readCardText(input.value);
+      card.words = text.words;
+      card.draft = text.draft;
+      card.note = text.note;
+      commit(false, false);
+    };
+    input.addEventListener("input", (e) => {
+      if (e.isComposing || composing) return;
+      typed();
+    });
+    input.addEventListener("compositionstart", () => {
+      composing = true;
+    });
+    input.addEventListener("compositionend", () => {
+      composing = false;
+      typed();
+    });
+    return input;
+  }
+
+  /** Make the box show `wanted`, keeping the caret where it was when typing already changed what it holds. */
+  function syncWordBox(input, wanted, i) {
+    input.dataset.key = `w${i}`;
+    input.setAttribute("aria-label", `Word ${i + 1}`);
+    if (hasGreek(wanted)) input.lang = "grc";
+    else input.removeAttribute("lang");
+    if (input.value === wanted) return;
+    const focused = typeof document !== "undefined" && document.activeElement === input;
+    const caret = input.selectionStart;
+    const before = input.value.length;
+    input.value = wanted;
+    if (focused && typeof caret === "number") {
+      const at = Math.max(0, Math.min(wanted.length, caret - (before - wanted.length)));
+      try { input.setSelectionRange(at, at); } catch (_) {}
+    }
+  }
+
   function drawCard(card, i) {
-    const box = make("div", "greek-card");
+    // The box, its text input and the input's place are kept between draws, so
+    // typing never replaces the input the reader is typing in (GK3-2); only the
+    // heading and everything below the input are drawn afresh.
+    const kept = boxes[i];
+    const box = kept?.box ?? make("div", "greek-card");
     const top = make("div", "greek-card__top");
     top.append(make("span", "greek-card__title", `Word ${i + 1}`));
     const notation = writeCard(card);
@@ -274,49 +362,27 @@ export function createGreekBuilder({ put, announce }) {
         }),
       );
     }
-    box.append(top);
+    let input;
+    if (kept) {
+      input = kept.input;
+      kept.top.replaceWith(top);
+      for (const node of kept.rest) node.remove();
+    } else {
+      input = makeWordBox();
+      box.replaceChildren(top, input);
+    }
+    syncWordBox(input, card.draft ?? card.words.join("/"), i);
 
-    const input = make("input", "greek-card__word");
-    input.type = "text";
-    input.dataset.key = `w${i}`;
-    input.value = card.draft ?? card.words.join("/");
-    input.placeholder = "A word, or leave empty for any";
-    input.setAttribute("aria-label", `Word ${i + 1}`);
-    input.autocomplete = "off";
-    input.maxLength = 100;
-    input.spellcheck = false;
-    input.autocapitalize = "off";
-    if (hasGreek(input.value)) input.lang = "grc";
-    const typed = () => {
-      if (stale()) return;
-      // What is typed stays as typed (a "/" waiting for the next word), less
-      // the symbols the notation uses and, among several words, any that is
-      // also a command, which can't be written there. The card holds the words.
-      const parts = input.value.replace(/[\s.,*=~&"“”]/g, "").split("/").filter(Boolean);
-      card.words = usableWords(parts);
-      card.draft = card.words.join("/") + (card.words.length && input.value.trim().endsWith("/") ? "/" : "");
-      commit(false, false);
-    };
-    input.addEventListener("input", (e) => {
-      if (e.isComposing || composing) return;
-      typed();
-    });
-    input.addEventListener("compositionstart", () => {
-      composing = true;
-    });
-    input.addEventListener("compositionend", () => {
-      composing = false;
-      typed();
-    });
-    box.append(input);
-
+    const rest = [];
+    if (card.note) rest.push(make("p", "greek-card__line greek-card__line--quiet", card.note));
     const entry = infoFor(card);
-    box.append(lemmaLines(entry));
-
+    rest.push(lemmaLines(entry));
     // Every choice for any word; for a word, only once it is known (a word
     // being looked up or not found offers just the choices already made).
     const rows = entry.status === "any" ? null : entry.status === "ready" ? entry.rows : [];
-    for (const offer of builderOffers(card, rows)) box.append(axisRow(card, offer, i));
+    for (const offer of builderOffers(card, rows)) rest.push(axisRow(card, offer, i));
+    box.append(...rest);
+    boxes[i] = { box, input, top, rest };
     return box;
   }
 
@@ -360,38 +426,61 @@ export function createGreekBuilder({ put, announce }) {
     const active = typeof document !== "undefined" ? document.activeElement : null;
     const keep = active?.dataset?.key && root.contains?.(active) ? active.dataset.key : null;
     const caret = keep && typeof active.selectionStart === "number" ? active.selectionStart : null;
-    root.replaceChildren();
-
+    // What the window holds, top to bottom. A card's box is the one drawn last
+    // time (drawCard), so the list below is fitted to the window's children
+    // without taking a box out of the page: a box that is already in place is
+    // never moved, and the word box being typed in is never replaced.
+    const wanted = [];
     if (cannot) {
+      boxes.length = 0;
       const note = make("div", "greek-builder__note");
       note.append(make("p", "greek-builder__why", cannotSay(cannot)));
       const again = make("button", "greek-builder__again", "Start a new search");
       again.dataset.key = "again";
       note.append(pressable(again, () => startOver()));
-      root.append(note);
+      wanted.push(note);
     } else {
+      if (plainRead) {
+        wanted.push(
+          make(
+            "p",
+            "greek-builder__why greek-builder__plain",
+            "Read as a construction of these words. The field searches plain English words as a phrase first, and tries them this way only when no single Greek word fits.",
+          ),
+        );
+      }
       state.cards.forEach((card, i) => {
-        if (i) root.append(make("p", "greek-then", "then"));
-        root.append(drawCard(card, i));
+        if (i) wanted.push(make("p", "greek-then", "then"));
+        wanted.push(drawCard(card, i));
       });
+      boxes.length = state.cards.length;
       const filled = state.cards.filter((c) => c.words.length || c.filters.length).length;
       const last = state.cards[state.cards.length - 1];
       if (state.cards.length < MAX_CARDS && (last.words.length || last.filters.length)) {
         const add = make("button", "greek-builder__add", "+ Then another word");
         add.dataset.key = "add";
-        root.append(
+        wanted.push(
           pressable(add, (byMouse) => {
             if (stale()) return;
             state.cards.push(emptyCard());
             render();
+            announce(`Word ${state.cards.length} added.`);
             if (!byMouse) root.querySelector?.(`[data-key="w${state.cards.length - 1}"]`)?.focus({ preventScroll: true });
           }),
         );
       }
-      if (filled > 1) root.append(drawCloseness());
+      if (filled > 1) wanted.push(drawCloseness());
     }
+    wanted.forEach((node, k) => {
+      if (shown[k] === node) return;
+      root.insertBefore(node, shown[k] ?? null);
+      const from = shown.indexOf(node);
+      if (from >= 0) shown.splice(from, 1);
+      shown.splice(k, 0, node);
+    });
+    for (const extra of shown.splice(wanted.length)) extra.remove();
 
-    if (keep) {
+    if (keep && document.activeElement?.dataset?.key !== keep) {
       const again = root.querySelector?.(`[data-key="${keep}"]`);
       if (again) {
         again.focus({ preventScroll: true });
@@ -424,6 +513,7 @@ export function createGreekBuilder({ put, announce }) {
     },
     destroy() {
       destroyed = true;
+      clearTimeout(spokenTimer);
       field?.removeEventListener("input", onInput);
       field = null;
     },
