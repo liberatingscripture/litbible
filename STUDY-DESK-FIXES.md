@@ -1358,8 +1358,9 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   deck from a Romans 8 test sheet opened in PowerPoint (notes in place) and in
   LibreOffice, rendered alike in both; the print view laid out the same slides
   on landscape pages in headless Chrome. **Not checked:** Keynote and Google
-  Slides, and a PDF saved through a real print dialog. Status: **built (phase A
-  and B), awaiting BVJ's look.**
+  Slides, and a PDF saved through a real print dialog. **BVJ tried Save as ▸
+  Slides on the branch preview (2026-11-06): "looks good."** Status: **built
+  (phase A and B), checked by BVJ.**
   **BVJ (2026-11-06), in passing:** the sheet page's "Codes to scan" checkbox
   reads **"Show QR codes"**, and present mode's line for a sheet with no
   passages says "no QR codes".
