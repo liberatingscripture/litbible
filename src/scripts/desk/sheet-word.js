@@ -1,6 +1,7 @@
 // src/scripts/desk/sheet-word.js
 //
-// "Copy for Word" on /sheets/ (STUDY-DESK.md, S9): the copy on screen as two
+// The "Copy" button on /sheets/ (STUDY-DESK.md, S9; E36 renamed it from "Copy
+// for Word"): the copy on screen as two
 // clipboard flavors, HTML that Word, Google Docs and Pages take with its
 // headings, italics, lists and the credit line, and plain text for anything
 // else. Nothing is needed but the clipboard: no account, no file.

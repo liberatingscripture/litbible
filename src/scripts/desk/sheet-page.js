@@ -19,8 +19,9 @@
 //   says the day its text is from. The notice is for the screen only; the
 //   copy prints today's wording either way, and the new wording is kept on
 //   /desk, since this page never writes.
-// - **Print**, which prints the copy on screen, and **Copy for Word** (S9),
-//   which puts the same copy on the clipboard as formatted text and as plain.
+// - **Print**, which prints the copy on screen, and **Copy** (S9; E36 renamed
+//   it from "Copy for Word"), which puts the same copy on the clipboard as
+//   formatted text and as plain.
 // - **Present** (3j): the sheet shown to a room, full screen, with the reveal
 //   and a presenter view (sheet-present.js). `&view=present` opens it
 //   straight away (the Sheet pane's "Present…"), and `&view=presenter` is the
@@ -65,6 +66,34 @@ function button(label, cls = "desk-sheet__btn") {
   const b = make("button", cls, label);
   b.type = "button";
   return b;
+}
+
+/**
+ * The copy glyph the site's copy controls use: two sheets, as the glossary's
+ * copy-link icon draws them (glossary.astro), without its chain. Drawn with
+ * presentation attributes, not a style attribute, so the page's CSP allows it.
+ */
+function copyGlyph() {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "sheets-page__copy-glyph");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const back = document.createElementNS(NS, "path");
+  back.setAttribute("d", "M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2");
+  const front = document.createElementNS(NS, "rect");
+  front.setAttribute("x", "8");
+  front.setAttribute("y", "8");
+  front.setAttribute("width", "14");
+  front.setAttribute("height", "14");
+  front.setAttribute("rx", "2");
+  svg.append(back, front);
+  return svg;
 }
 
 let hintCount = 0;
@@ -308,7 +337,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   const present = button("Present");
   present.title = "Show this sheet to a room, full screen, one part at a time";
   const print = button("Print", "desk-sheet__btn desk-sheet__btn--primary");
-  const word = button("Copy for Word");
+  const word = button("Copy");
+  word.prepend(copyGlyph());
+  // The visible "Copy" opens the name, so a screen reader says what is copied.
+  word.setAttribute("aria-label", "Copy this version to the clipboard");
   word.title = "Copy this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
@@ -388,7 +420,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
     await ready;
     if (!current) return;
     const ok = await copyToClipboard(copyForWord(current));
-    status.textContent = ok ? `${COPY_NAMES[copy]} copied. Paste it into your document.` : "Your browser didn’t allow the copy. Choose Copy for Word again.";
+    status.textContent = ok ? `${COPY_NAMES[copy]} copied. Paste it into your document.` : "Your browser didn’t allow the copy. Choose Copy again.";
     setTimeout(() => { status.textContent = ""; }, 6000);
   });
 

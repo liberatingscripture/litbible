@@ -1,7 +1,7 @@
 // src/scripts/desk/sheet-copy.js
 //
 // A sheet drawn as one of its two copies (STUDY-DESK.md, S4; "Order of work",
-// 3i), for /sheets/ to show, print and copy for Word. The leader's copy has
+// 3i), for /sheets/ to show, print and copy. The leader's copy has
 // every part, the answers to blanks and to questions; the participant's has
 // the passages with their blanks (a line, and the hint beneath), the questions
 // with lines to write on, the key terms box, and no part marked Leader only.
