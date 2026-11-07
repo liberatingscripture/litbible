@@ -358,12 +358,28 @@ against `dist/` is a later item.
      "Close the Notebook" command, Escape and the Read View toolbar's Notebook
      button minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
      start; "Hide my marks" and H fold it to its tab and un-hiding opens it
-     again, NB-1; BVJ, 2026-11-03.) **The header's Notebook
-     buttons are links to /desk** ("Study Desk"), still carrying
-     `data-desk-toggle` so global.css shows them with the desk on, on every page
-     (BVJ, 2026-10-30; only the panel's buttons are held to the reading
-     surfaces, and the desk's own header hides its link); the panel
-     wires `button[data-desk-toggle]` only. The Chapter View "Switch to Read View"
+     again, NB-1; BVJ, 2026-11-03.) **Where the Study Desk button is** (BVJ, 2026-10-30,
+     changed 2026-11-06, E50): a link to /desk, never a toggle (the panel
+     wires `button[data-desk-toggle]` only). **The home page keeps the
+     header's** "Study Desk" link (`SiteHeader`'s `deskLink`, which `Layout`
+     sets for `/` alone; still `data-desk-toggle`, so global.css shows it with
+     the desk on). **Scripture pages, chapters and book introductions, put a
+     pill in the toolbar's right slot**, the old "Switch to Read View" pill's
+     design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
+     beside the Read View wrapper, which stays hidden while the preview is on):
+     "Open in the Study Desk," "Study Desk" where that pill shortened, an icon
+     alone on the phone-width compact toolbar. Its `?place=` is the chapter
+     being read (`romans-8`), and chapter 1 on an introduction (the LIT pane
+     can't show an intro, E53), written out in the layout because shared
+     reader code never imports `desk-passage.mjs`. **/read has a "Study Desk"
+     pill matching "Go to passage"** (`.read-menu__desk`, passed into
+     `ReadMenu`'s slot by `ReadLayout`, the two centered on one row), linking
+     to plain `/desk/`. Both pills are in the markup for everyone and shown
+     only under `html[data-desk]` by their own rules. **No other page has a
+     Study Desk button in the header**: articles, the glossary, Read View,
+     /notebook and /sheets reach the desk by other routes (the Notebook panel's
+     lamp link, /sheets' "Edit on the Study Desk", /notebook's "Open the
+     Study Desk" under its title, `notebook-page.js`). The desk's own header hides it, being there already. The Chapter View "Switch to Read View"
      pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
@@ -550,7 +566,9 @@ against `dist/` is a later item.
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes
-       are quiet (QUIET_KINDS), and the margin and Read View's marks redraw once
+       are quiet (QUIET_KINDS), and the margin and Read View's marks (and on
+       /desk the My Notes and This verse rows and the verse numbers' names,
+       E28) redraw once
        2.5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
        catches up when the reading pauses; the follower writes at most every 2
        seconds (`MOVE_EVERY_MS`), and the settle must stay longer than that gap
@@ -571,7 +589,7 @@ against `dist/` is a later item.
        book in that tab the bookmark follows them (written without an undo
        entry, as `bookmarkMove`); a page outside the book clears it, the shell's
        `initBookmarkFollow` in a book and `desk-gate.js` on every page without
-       the shell (BA101). **A bookmark moves only to where this page says the
+       the shell but /desk (BA101, E28). **A bookmark moves only to where this page says the
        reader is**: `pageLastRead()` and the `lit:last-read` event, never
        `lit_last_read` in storage, which every tab shares and an earlier page
        left (BA99, BA100). Following a link forgets where the reader was, and a
@@ -596,7 +614,7 @@ against `dist/` is a later item.
        reports twice before the first judgment, and the second would count the
        first as reading and move the bookmark instead of pausing it (found
        2026-11-04 testing "Move it here"). Pages outside the book
-       (/search, /notebook, /desk) pause it too (`desk-gate.js`), and a pause
+       (/search, /notebook) pause it too (`desk-gate.js`), and a pause
        ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
        storage). Rows say Following, Paused, Moves or Stays put.
        **A following or paused bookmark rests at its verse and does not belong
@@ -605,19 +623,36 @@ against `dist/` is a later item.
        and one that moves** (`followChoices`, `planBookmark`; Edit and the form
        lock "Move as I read" at the kind the verse lacks). Its mark is the red
        outline; a bookmark that moves and isn't followed is solid red, and one
-       that stays put is gold (`bookmark-mark.js`). A follow that ends on a verse
+       that stays put is gold (`bookmark-mark.js`). **The rows carry the same
+       colors** (E28; BVJ, 2026-11-06): `drawBookmarkLine` starts each
+       bookmark's state line with the glyph in its look (`bookmarkLook`, which
+       `markLook` reads too), in My Notes, This verse and the notebook page.
+       A follow that ends on a verse
        already holding a bookmark of its kind is tolerated.
+       **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
+       `desk-page.js` runs the follower with `page: DESK_PAGE` and `place`, and
+       after every `commit` reports the leading pane's place (`hear`) or, when
+       another pane has become the leading one, `lead`, which pauses the follow
+       (`followStep`'s `newLead`). Other LIT panes never move it; the opening
+       place, a restore and the tour report nothing, and `lit:last-read` isn't
+       heard there. "Move it here" takes the leading pane's place at the press.
+       The pause bar is the ordinary undo bar, outside the panes.
        **The verse menu and the selection panel group a verse's bookmarks in a
-       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04, bookmarks only:
-       BVJ proposed a Copy flyout too and Claude advised against it for now,
-       since Copy is shared code every reader uses and the most used item,
-       to be revisited if more reason came; it is being revisited, STUDY-DESK-FIXES.md
-       E39): Remove and Edit (`Remove bookmark “Advent”`, the name cut at
-       14 characters, the full name the accessible name), Add a bookmark that
-       moves or stays put, and for the resting one "Leave it here". A verse with
-       none keeps the one-press "Bookmark", and a finger's chips stay flat
-       (`flyoutRow` in actions.js; hover opens, a click, Enter or the right arrow
-       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" and "Start following" are one
+       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and Edit
+       (`Remove bookmark “Advent”`, the name cut at 14 characters, the full name the
+       accessible name), Add a bookmark that moves or stays put, and for the resting
+       one "Leave it here". A verse with none keeps the one-press "Bookmark", and a
+       finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
+       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js`, styled by
+       `.lit-flyout*` in `global.css`, also builds every reader's "Copy text ▸" and
+       "Share ▸" rows and this file's "Print ▸" (rule 19). Desk code imports it;
+       shared code never imports desk code. Hover opens it without taking focus; a
+       click, Enter or the right arrow moves focus in (the selection panel passes
+       `pointerFocus: false`, so a mouse click never moves focus into it); Escape or
+       the left arrow steps back; it is fixed to the window and `role="menu"`.
+       (BVJ proposed a Copy flyout on 2026-11-04 and Claude advised against it; BVJ
+       revisited it on 2026-11-05 and decided on 2026-11-06 to build it, with the Copy
+       row's own press still copying.) **"Stop following" and "Start following" are one
        quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
        `drawFollowLink`) under the state line of every bookmark with "Move as I
        read" on, its label swapping with this tab's flag; not an On/Off switch,
@@ -629,14 +664,17 @@ against `dist/` is a later item.
        the list is apart from the navigation: the next report of where the
        reader is decides (reading on from it moves it, anywhere else pauses it
        with "Move it here"). It is offered only where the page follows the
-       reader (`followsHere`), so /desk and /notebook show the stop alone.
+       reader (`followsHere`), so /notebook shows the stop alone.
        **Every way the flag drops redraws the rows**
        (`dropFlag`: another tab took it, it was deleted or turned off, a
        back-forward restore), turning the switch off in the form stops it at
        once, a Back or reload doesn't write verse 1 over the bookmark before
        the scroll is restored, and a restored page reports its own last place
        (`pageshow`). A row opened in place on a page that doesn't follow the
-       reader (/desk) never starts a follow (`followsHere`). **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
+       reader never starts a follow (`followsHere`); on /desk a moving
+       bookmark's row moves the leading LIT pane to it and then starts the
+       follow with no link (`tab-mine.js`), so the jump isn't taken as leaving
+       the page. **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
        that stay put" once a list holds both (BVJ, 2026-11-04;
        `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
        both lists), and **a search's count names the kind when every notebook
@@ -645,7 +683,7 @@ against `dist/` is a later item.
        `NOTEBOOK_GROUP_TITLE`; the tray, /search and the Search pane).
        **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
-       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit): /desk,
+       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit):
        /notebook and /search clear the flag, so Back into the book doesn't
        resume it (the row's label shows the state); a move overtakes Undo of an
        earlier edit once the reader has read on (`desk-history.mjs`'s overtaken
@@ -806,6 +844,10 @@ against `dist/` is a later item.
        GK-20), the tab's `greek-data.js` and the search's `search-greek.js`
        alike, so a chapter on screen is fetched and parsed once. **Arrowing
        through words asks for a lexicon only at rest** (150 ms, GK-10).
+     - **A copy from the tab writes its own clipboard** (E54): its words and
+       signs are buttons, which a sheet's paste drops with their text, so
+       `tab-greek.js` turns them into `lang="grc"` spans and leaves out the
+       "Verse " labels. A new clickable element among the words needs the same.
      - **The tab never moves the page.** Its text scrolls on its own and
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop, moved with the arrow keys. The
@@ -1262,7 +1304,8 @@ against `dist/` is a later item.
        are `aria-haspopup="dialog"`, as Chapter View's, and a middle-click on
        one is cancelled, so it never opens another /desk (BA126). No
        reader's notes or bookmarks beside the pane's text, by BVJ's choice
-       (3g): My Notes is a following pane that scrolls its list so the
+       (3g, kept in E28, though the leading pane now moves a following
+       bookmark and the rows carry its colors): My Notes is a following pane that scrolls its list so the
        records on the passage being read are in view (`follow` in
        `tab-mine.js`), and a record's reference moves the LIT pane there.
      - **The reader's marks reach the LIT pane through `page.js`** (3g): each
@@ -1322,8 +1365,20 @@ against `dist/` is a later item.
        is a button, `Study Desk ▾` (`.desk-title`, built by desk-page.js, which
        swaps the heading for a wrapper holding the h1 and the menus so the
        windows take the header's type, not the heading's). Its menu holds Add
-       pane, Layout…, Print…, Display options, then My notebook page, Take the tour
-       and Help (one divider before the three). My notebook page and Help open
+       pane, Layout…, Print…, Display options, Full screen, then My notebook
+       page, Take the tour and Help (one divider before the three). **Full
+       screen** (E43; BVJ, 2026-11-06: the browser's own full screen only, no
+       mode hiding the site header) presses the Fullscreen API on the whole
+       page, reads "Full screen (F11)" ("⌃⌘F" on a Mac) and "Exit full screen"
+       only for a full screen it entered, since F11's is invisible to the page
+       (`fullscreenElement` stays null); no line where the API is missing, and
+       a refusal is announced with the key to use instead. Escape is the
+       browser's way out, and in full screen the page never hears that press,
+       so with a menu open the first press leaves full screen and the second
+       closes the menu (accepted, not worked around). Each visit needs a
+       click: browsers refuse full screen on load, so it can't be a saved
+       preference. The Browser pane never answers the request, so check it in
+       a real browser. My notebook page and Help open
        in a new tab, since they leave the desk; **Take the tour starts the
        Study Desk tour in place** (a button, E24; see "Two tours" under rule 13). **There is no Settings window and no
        "Where my notebook is kept" item** (BVJ, 2026-11-02): the Notebook's other
@@ -1417,6 +1472,38 @@ against `dist/` is a later item.
        what would print, codes aside. Its button carries the copy glyph (two
        sheets, drawn in `sheet-page.js`'s `copyGlyph`, as the glossary's copy-link icon) and
        the accessible name "Copy this version to the clipboard".
+     - **Save as ▾** (E37; BVJ, 2026-11-06) sits after Copy and saves the
+       version on screen as a document: .docx, .odt, .rtf, or "PDF…", which
+       runs Print and says to choose "Save as PDF". **Copy and the files read
+       one model**: `readCopy` (`sheet-word.js`) walks the copy on screen into
+       blocks and inline pieces (`src/lib/desk-sheet-doc.mjs` documents them),
+       and Copy is that model's HTML and text writer (`docHtml`, `docText`),
+       held to its old output by `test/fixtures/sheet-copy-golden.json`. A new
+       part of the paper copy is read there once, and every writer then
+       follows. The key terms box is a `box` block (E57), which each writer
+       draws as a one-cell table ruled all round; a new writer must too, or
+       the box comes out bare. The writers (`desk-doc-docx.mjs`, `desk-doc-odt.mjs`,
+       `desk-doc-rtf.mjs`, over the hand-written `desk-zip.mjs`) are pure and
+       reached only by `sheet-save.js`'s dynamic imports, never statically
+       (`test/desk-sheet-doc.test.js` holds it). The menu's groups are
+       `SAVE_GROUPS`. Every file ends
+       with `LIT_CREDIT_LINE` and carries it in its properties; fonts are named,
+       not embedded.
+       **The "Slides" group (phase B) is present mode's screens, not the paper
+       copy**: `desk/sheet-slides.js` (a dynamic import from `sheet-page.js`)
+       runs `prepareDeck` and reads each screen off the stage, a passage covered
+       and then revealed, so a slide can't disagree with what the room sees; a
+       change to a screen's markup must keep `readSlides` reading it. The rules
+       (the deck, cutting by length, the layout, a text box's paragraphs) are
+       `src/lib/desk-slides.mjs`, shared by `desk-slides-pptx.mjs`,
+       `desk-slides-odp.mjs` and the print view, so all three lay a slide out
+       alike. The credit line is on the first and last slides and in the
+       properties. "PDF…" there is `printSlides`: a print-only copy of the
+       slides, the page's `@page` rule swapped for the slide's size, every
+       inline style `!important` (print.css turns everything black serif
+       otherwise), all put back on `afterprint`. **In an .odp, never give
+       `presentation:notes` (or the master's notes) a `draw:style-name`**:
+       Impress paints the slides with it, which turned the dark ground white.
      - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
        guessed from the reader's languages until chosen), named in /privacy's
        paragraph. Its `@page` rule is added as the page's last style, after
@@ -1441,6 +1528,38 @@ against `dist/` is a later item.
        aside right beside its block, because Firefox moves a whole grid row
        to the next page (BA151). Plain Ctrl+P never has the attribute and
        prints as before.
+     - **Print ▸ in the verse menu and the selection panel** (E40; BVJ, 2026-11-06):
+       a flyout after Bookmark in the "My Notebook" rows (`printRow` in
+       `desk/actions.js`; a finger's chips get the three items flat under a "Print"
+       subheading). Verse menu: "This verse" ("These verses" for a range), each
+       "…with my notes" and "…with room to write"; selection panel: "This
+       selection…", the same three. Chapter View's verse menu and either view's
+       selection panel only: not /desk's LIT pane (a print there would need a
+       new-tab route like the Print menu's), and not the glossary. The labels come
+       from `partChoices` (`src/lib/desk-print-part.mjs`, pure and tested, with
+       `onVerses`, `planVerses`, `citedFootnoteIds`, `notesForPart`); the page side
+       is `desk/print-part.js`, through `printLook` so the one-at-a-time rule and
+       the take-away on `afterprint` hold. **Verses are hidden, not copied**: the
+       blocks, verse spans and footnotes a print leaves out get
+       `data-desk-print-skip` and `html[data-desk-part="verses"]` is stamped, and
+       desk.css hides them on paper only; what stays is the real text, so verse
+       numbers, footnote letters, the cited footnotes (only those) and print.css's
+       credit and notice print as for a chapter. "With my notes" hands M6's `build`
+       a verse range (`print-notes.js` `build(s, only)`, notes and highlights on
+       those verses) and "with room to write" is N9's ruled margin on the
+       container, unchanged. A note spanning verses outside the range may leave its
+       aside beside a hidden block; accepted. **A selection** prints the same text
+       as Copy text (`richText`, through `handoutHtml`: italics and verse numbers
+       kept, no footnote letters) as a print-only excerpt appended to the text's
+       container (`div.desk-print-excerpt`, `data-desk-print-extra`), everything else
+       skipped, `html[data-desk-part="selection"]`; "with my notes" appends the notes
+       on the selection's verses (not on footnotes) after it under "My notes".
+       Highlights are not tinted in a selection print. Both put a "John 3:16–18
+       (LIT)" heading first (the page's own title is hidden under
+       `html[data-desk-part]`). **"With my notes" stands down while "Hide my marks"
+       is on**, with the same notice print-link.js gives. It is offered only where
+       the browser keeps a notebook, which is where the My Notebook rows exist at
+       all, so there the whole Print ▸ row is absent.
      - **One Print menu, on /desk and in the Notebook** (E16; BVJ,
        2026-10-29, and 2026-11-02): `desk/print-menu.js` is the menu, and what
        each choice does for the chapter picked is `printMenuState`
@@ -1566,7 +1685,13 @@ against `dist/` is a later item.
        deflate-raw JSON in base64url after `#share1.`, or the same data on
        the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
        last data line, ignores whitespace folded into it, and throws
-       "damaged" for one it can't read). Opening one decompresses with a
+       "damaged" for one it can't read). The Share dialog's button for that
+       file is "Export a Study Desk file (.md)" and the Sheets page's is
+       "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
+       `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;
+       the reader-facing name of a `.lit-sheet.md` file is "a Study Desk file
+       (.md)" wherever it is mentioned. The dialog's note also says a PDF comes
+       from Print ("Save as PDF"). Opening one decompresses with a
        ceiling, rebuilds the record with fresh ids, drops the comparison
        copies again and refuses it unless `validateRecord` passes. **The
        fragment must never reach a server or the analytics beacon**: an
@@ -1585,7 +1710,7 @@ against `dist/` is a later item.
        shared link: on a phone or tablet, copy the link to send to a
        computer; on a computer without the preview, a link that switches it
        on (`?desk=on#share1.…`, a new page, so the fragment is taken again).
-       A shared sheet shows read only until "Copy into my notebook", which saves
+       A shared sheet shows read only until "Import into my notebook", which saves
        it as a new sheet (`copyOfShared`) and turns the page into that
        sheet's own address. No storage key is added.
   22. **Phase 2b is a sheet checked before printing** (built 2026-10-20;
@@ -1625,9 +1750,11 @@ against `dist/` is a later item.
      note citing its own verse is a chain like any other, so `notesCiting`
      (`desk-chains.mjs`) lists it rather than treating it as sitting on
      that verse (BA20).
-     - **`desk/footnote-notes.js` is its page side**: a "+ Note" button
-       (named "Add a note on footnote 3") beside every Pin (`addNoteButton`,
-       which `pins.js` and the tabs and pane call). **Pin is a glyph, not
+     - **`desk/footnote-notes.js` is its page side**: an "Add a note" button,
+       the plain note marker's glyph (BVJ, 2026-11-06; it read "+ Note" until
+       then), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
+       which `pins.js` and the tabs and pane call). This verse's own add button (`tab-verse.js`,
+       "Add a note on this verse") is the same glyph pill. **Pin is a glyph, not
        words** (E18): a thumbtack to pin, struck through to unpin, and the
        thumbtack means that and nothing else; a pane's "Stay here" on /desk
        is a lock (E21). The same file draws the reader's notes under a
@@ -1635,6 +1762,32 @@ against `dist/` is a later item.
        handout and `footnoteList()` read only the footnote. The margin
        places such a note beside its footnote's `li` (`note-sources.js`)
        and marks the `li` instead of lighting verse words.
+     - **In the Footnotes list, Pin and "Add a note" sit in the left margin**
+       (BVJ, 2026-11-06, E49; `desk/footnote-pills.js`, the rule in
+       `src/lib/desk-footnote-pills.mjs`, pure and tested). `initPins` puts
+       both in one `.desk-fn-pills` after each footnote's `.fn-body`, so
+       reading and tab order stay note, Pin, "Add a note" wherever they are
+       drawn. The list measures its own left edge (on load, resize,
+       `desk:column-moved`, the Display tray's size, face and text width, and
+       fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
+       by side, Pin nearest the footnote and "Add a note" outside it (BVJ,
+       2026-11-06; drawn reversed, so tab order is unchanged), right-aligned
+       14px from the footnote, level with its first
+       line, nothing grows), **`more`** (one "⋯" disclosure button there,
+       `aria-expanded`, that opens Pin and "Add a note" stacked under it; Escape, a
+       click elsewhere or focus leaving closes it, and choosing either returns
+       focus to the "⋯"), or **`inline`** (the pre-E49 placement on the note's
+       line). The thresholds use the pills' measured widths: `row` needs the
+       two pills and the 4px gap plus 14px and an 8px window edge; `more`
+       needs the wider pill plus the same 14 and 8 (about 118px and 78px in
+       Inter; OpenDyslexic needs more). **A footnote with one of the reader's
+       margin notes beside it takes `inline`** whatever the list's mode:
+       `notes-margin.js` sets `data-desk-fn-margin` on it, because the margin
+       notes (full or circles) are in the same left margin, level with the
+       footnote. Print hides the pills as before. Code that restores focus to
+       a pill must use `pillsHome(button)`, since a pill behind a closed "⋯" is
+       hidden; the popover's own Pin and "Add a note" row, and /desk's panes, are
+       unchanged. Read View has no footnotes, so it has none of this.
      - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
        (pure, tested) turns the notes marked `question` on a sheet's
        passages into a heading and `question` modules, once; nothing links

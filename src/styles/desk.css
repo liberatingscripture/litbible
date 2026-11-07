@@ -786,10 +786,8 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   margin-top: 0.2em;
 }
 
-/* The bookmark's red, as in the margin (.desk-bookmark-mark). */
-.desk-verse__glyph--bookmark path {
-  fill: #c62828;
-}
+/* The bookmark's color is the margin's (.desk-bookmark-glyph--moves, --stays,
+   --resting, beside .desk-bookmark-mark below; E28). */
 
 .desk-verse__words {
   unicode-bidi: plaintext;
@@ -804,20 +802,11 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   font-size: 0.875rem;
 }
 
+/* "Add a note" on this verse: the note marker in the footnotes' pill (.desk-pin
+   .desk-pin--glyph), as the Add a note beside each footnote above it is (BVJ,
+   2026-11-06; it read "+ Note" until then). */
 .desk-verse__add {
   margin-top: 6px;
-  padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 0.8125rem;
-  cursor: pointer;
-}
-
-.desk-verse__add:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-verse__add[hidden] {
@@ -1060,46 +1049,6 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   display: none;
 }
 
-/* The verse menu's "Bookmark ▸" flyout, once the verse holds bookmarks (a mouse
-   only; a finger's chips stay flat). Fixed to the window beside its row. */
-.desk-bookmark-fly__trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* A chevron at the row's right edge, drawn with borders so it keeps the text's
-   colour in both themes and is easy to see. */
-.desk-bookmark-fly__trigger::after {
-  content: "";
-  flex: none;
-  width: 8px;
-  height: 8px;
-  margin-left: auto;
-  margin-right: 4px;
-  border-top: 2.5px solid currentColor;
-  border-right: 2.5px solid currentColor;
-  transform: rotate(45deg);
-}
-
-.desk-bookmark-fly {
-  position: fixed;
-  z-index: 1110;
-  box-sizing: border-box;
-  min-width: 220px;
-  max-width: 340px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-}
-
-.desk-bookmark-fly[hidden] {
-  display: none;
-}
-
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
    the verse (a trial, BVJ 2026-10-07). The note marker `ribbon` (named
    `bookmark` until E10) is drawn as an awareness ribbon (E42) and is green. */
@@ -1116,25 +1065,41 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   height: 14px;
 }
 
-.desk-bookmark-mark__glyph path {
+.desk-bookmark-mark__glyph path,
+.desk-bookmark-glyph--moves path {
   fill: #c62828;
 }
 
 /* Which is which at a glance (BVJ, 2026-11-04): red moves, gold stays put, and
    the one this tab is following only rests at its verse, so it is an outline
-   until the follow ends. */
-.desk-bookmark-mark--stays .desk-bookmark-mark__glyph path {
+   until the follow ends. A row's mark (`.desk-bookmark-glyph--…`, from
+   bookmarkLook: My Notes, the notebook page and This verse) takes the same
+   colors, so a bookmark looks alike wherever it shows (E28). They hold in both
+   themes, as the note markers' do. */
+.desk-bookmark-mark--stays .desk-bookmark-mark__glyph path,
+.desk-bookmark-glyph--stays path {
   fill: #e0a100;
   stroke: #8a6100;
   stroke-width: 1;
   stroke-linejoin: round;
 }
 
-.desk-bookmark-mark--resting .desk-bookmark-mark__glyph path {
+.desk-bookmark-mark--resting .desk-bookmark-mark__glyph path,
+.desk-bookmark-glyph--resting path {
   fill: none;
   stroke: #c62828;
   stroke-width: 2;
   stroke-linejoin: round;
+}
+
+/* A bookmark row's line ("Bookmark · Moves", drawBookmarkLine) leads with its
+   mark, the height of a capital. */
+[data-bookmark] > .desk-bookmark-glyph {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 4px;
+  vertical-align: -0.1em;
 }
 
 /* Your own chains (N4). A scripture reference typed in a note is a link
@@ -2340,9 +2305,19 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   display: block;
 }
 
-/* The Footnotes list: the note and its button on one line, so the list grows
-   no taller; a flag, when the note was rewritten, takes the line below. */
+/* "Add a note" is the plain note marker (BVJ, 2026-11-06), at the thumbtack's
+   size; glyph() gives its svg no size of its own. */
+.desk-fn-add__glyph {
+  width: 14px;
+  height: 14px;
+}
+
+/* The Footnotes list: the note and its buttons on one line, so the list grows
+   no taller; a flag, when the note was rewritten, takes the line below. This
+   is the "inline" placement (E49), which the left margin replaces where it has
+   room: see "The pills in the left margin" below. */
 .footnotes > li.desk-fn {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -2361,6 +2336,107 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 .desk-fn__flag .desk-flag--row {
   margin-top: 0;
+}
+
+/* ── The pills in the left margin (E49) ─────────────────────────── */
+
+/* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
+   (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
+   follows its note in the document, so reading and tab order are the note,
+   Pin, then "Add a note" wherever it is drawn.
+     inline  (no attribute yet, or no room): a row on the note's line, as before;
+     row     the two pills side by side in the left margin, level with the
+             footnote's first line, right-aligned against the footnote;
+     more    one "⋯" pill there that opens the two stacked under it.
+   A footnote with a margin note beside it (data-desk-fn-margin) stays inline,
+   since a margin note sits in that same margin. */
+.desk-fn-pills {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.desk-fn-pills__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.desk-fn-more {
+  display: none;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 22px;
+  margin: 0;
+  padding: 0 9px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.74);
+  cursor: pointer;
+}
+
+.desk-fn-more:hover,
+.desk-fn-more[aria-expanded="true"] {
+  border-color: rgba(var(--ink-rgb), 0.4);
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+.desk-fn-more svg {
+  display: block;
+}
+
+.footnotes:is([data-desk-fn-pills="row"], [data-desk-fn-pills="more"]) > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills {
+  position: absolute;
+  z-index: 2;
+  right: calc(100% + 14px);
+  /* Centered on the footnote's first line: half of (line height less the
+     pills' 22px). The line height is .fn-body's, with the Display tray's
+     extra leading. */
+  top: calc(((1.6 + var(--reading-leading-extra, 0)) * 1em - 22px) / 2);
+  justify-content: flex-end;
+}
+
+/* Side by side, Pin is drawn nearest the footnote and "Add a note" outside it
+   (BVJ, 2026-11-06). Only the drawing flips: tab order stays note, Pin,
+   "Add a note", moving outward from the note. */
+.footnotes[data-desk-fn-pills="row"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
+  flex-direction: row-reverse;
+}
+
+.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-more {
+  display: inline-flex;
+}
+
+/* Closed, the stack is hidden from sight, focus and screen readers (it is
+   still laid out, so the list can measure its pills); open, it hangs under the
+   "⋯" with its right edge level with it. */
+.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  visibility: hidden;
+}
+
+.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills[data-open] > .desk-fn-pills__group {
+  visibility: visible;
+}
+
+@media (forced-colors: active) {
+  .desk-fn-more {
+    border-color: ButtonBorder;
+    color: ButtonText;
+  }
 }
 
 /* The popover: "See in footnotes" at one end of its last line, Pin at the other. */
@@ -2565,6 +2641,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
    the Footnotes list goes back to a plain block. */
 @media print {
   .desk-pin,
+  .desk-fn-pills,
   .desk-fn-actions,
   .desk-fnn,
   .desk-fn__flag {
@@ -6916,6 +6993,15 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   content: none;
 }
 
+/* A field's visible name where a part holds two editors alike (the question's
+   answer). */
+.desk-sheet__field-label {
+  margin: 10px 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.72);
+}
+
 .desk-sheet__lines {
   display: inline-flex;
   align-items: center;
@@ -7693,6 +7779,50 @@ mark.desk-print-mark {
     background-repeat: no-repeat, repeat-y;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+}
+
+/* ── E40: Print ▸ in the verse menu and the selection panel ──────────────── */
+
+/* src/scripts/desk/print-part.js prints just some verses, or just the words
+   selected, through the two looks above (notes, room) or plainly. It hides
+   what a print leaves out with `data-desk-print-skip` (verses, footnotes, the
+   rest of the text) and stamps `data-desk-part` on <html> while it prints;
+   a selection's words are a print-only excerpt. Everything is on paper only,
+   so the screen never shows or moves for any of it. */
+.desk-print-part-ref,
+.desk-print-excerpt {
+  display: none;
+}
+
+@media print {
+  html[data-desk-part] [data-desk-print-skip],
+  html[data-desk-part] .scripture-header,
+  html[data-desk-part] .rm-title {
+    display: none !important;
+  }
+
+  html[data-desk-part] .desk-print-part-ref {
+    display: block;
+    margin: 0 0 8pt;
+    font-size: calc(14pt * var(--reading-scale, 1));
+    font-weight: 700;
+    break-after: avoid;
+  }
+
+  html[data-desk-part] .desk-print-excerpt {
+    display: block;
+  }
+
+  html[data-desk-part] .desk-print-excerpt__text p {
+    margin: 0 0 8pt;
+  }
+
+  /* The notes print's 32% right margin on the text's children is for notes
+     floated beside them; a selection's notes follow it instead. */
+  html[data-desk-print][data-desk-part="selection"] .chapter-paragraphs > .desk-print-excerpt,
+  html[data-desk-print][data-desk-part="selection"] [data-rm-text] > .desk-print-excerpt {
+    margin-right: 0 !important;
   }
 }
 

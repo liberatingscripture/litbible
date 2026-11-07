@@ -260,6 +260,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     write there), and the whole-book print layout.
   - **Docs**: CLAUDE.md (routing, Key Conventions, print, the Study View
     and Read View rule, the desk's rules) and README.
+  - **Chapter View's name goes** (E33, BVJ 2026-11-06): what is left of it
+    becomes descriptive ("on its scripture page"), and the /read card's
+    description, not its heading, says how it differs.
   - **Tag the last commit with Read View** before removing it, as the way
     back.
   **Open, for BVJ:**
@@ -467,10 +470,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   bookmark found in search follows or stops like its row. **Accepted (BVJ):**
   /desk, /notebook and /search pause the flag instead of clearing it; a move overtakes Undo of an
   earlier edit after the reader reads on; the last move before a tab closes can
-  be lost. **Open for BVJ:** whether other rows (notes, highlights, pins,
-  Continue reading) that go to another chapter should stop following, and
-  whether the verse a moving bookmark sits on should count as bookmarked in
-  its verse menu. **Checked in the browser the same day (2026-11-04):** the pause
+  be lost. **Settled (BVJ, 2026-11-06): both stay as built.** Other rows
+  (notes, highlights, pins, Continue reading) that go to another chapter
+  don't stop a follow: they are jumps like any other, so a far one pauses it
+  and the next chapter carries it. And the verse a followed bookmark rests on
+  doesn't count as bookmarked in its verse menu: "Bookmark" is still offered,
+  with the resting line, "Leave it here" and Edit below it. **Checked in the browser the same day (2026-11-04):** the pause
   bar on a far jump (Luke 1 to Luke 5), "Move it here" (the bookmark goes to the
   new place, follows from there, and the next far jump pauses it again), a gold
   mark in dark mode, the Bookmark flyout in the selection panel (as in the verse
@@ -988,8 +993,60 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   **BVJ added (2026-11-05, E41):** the bookmarks' colors didn't carry over to
   the desk, and they should; and the moving bookmark should work there too. It
   could still be updated from My Notes, which is where it is reached, even if
-  the LIT pane doesn't show it, and it would change This verse as well. Status:
-  **open, own session.**
+  the LIT pane doesn't show it, and it would change This verse as well.
+  **BVJ's decisions (2026-11-06):** (1) the colors carry over to the bookmark
+  rows of My Notes and This verse, red for one that moves and gold for one that
+  stays put, as Chapter View draws them, and the LIT pane still draws no marks
+  beside its text (3g stands); (2) reading in the leading LIT pane moves a
+  following bookmark by a chapter page's rules, and other LIT panes never do;
+  (3) "Move it here" on /desk means the leading LIT pane's place; (4) /desk no
+  longer counts as outside the book: reading on moves the bookmark, a far jump
+  or another book (scrolled into, as Matthew 28 to Mark 1, or reached by a link,
+  the picker, a search result or a My Notes row) pauses it with "Move it here",
+  and the 12-hour rule and the tab's end are unchanged; (5) a change of which
+  LIT pane is leading pauses the follow too; (6) the pause message sits outside
+  the panes, one bar for the desk.
+  Status: **built 2026-11-06** (branch `claude/desk-phase5-e28`, awaiting
+  BVJ's look). What was built:
+  1. **Row colors**: a bookmark row's state line starts with the bookmark glyph
+     in the margin's colors (`bookmarkLook` in `bookmark-follow.js`, which
+     `bookmark-mark.js`'s `markLook` now reads too; `.desk-bookmark-glyph--moves`,
+     `--stays`, `--resting` in `desk.css`, the same in both themes). It is
+     `drawBookmarkLine`, so My Notes (Notebook and pane), the notebook page and
+     This verse (`tab-verse.js`, whose fixed red glyph and "Bookmarked" it
+     replaces) all show it. My Notes, This verse and `lit-records.js` (the verse
+     numbers' names) leave `bookmarkMove` writes out and catch up once the
+     reading pauses (`redrawAfterMove`; `desk-panes.js`, `lit-records.js`).
+  2. **The follower on /desk**: `desk-page.js` runs `initBookmarkFollow` with
+     `page: DESK_PAGE` and `place` (the leading LIT pane's place now), and
+     after every `commit` tells it what changed: the leading pane's place
+     (`hear`) or a new leading pane (`lead`). So scrolling, the picker,
+     `showPassage` and `goToRecord` all report, and a far jump pauses at once.
+     Nothing is reported at load (the panes' opening place isn't reading, and
+     a chapter alone would mean verse 1) or while the tour runs
+     (`layoutFrozen`). `lit:last-read` isn't heard there, nor a restore.
+     `positionOnPage` takes any book on `DESK_PAGE`, and `followStep`'s
+     `newLead` pauses (`desk-bookmarks.mjs`). `desk-gate.js` no longer pauses
+     the flag on /desk. `followsHere()` is now true there, so "Start
+     following" shows on /desk's rows.
+  3. **The bar** is the ordinary undo bar (`showPausedBar`): fixed at the
+     bottom of the window, outside the panes, announced, never taking focus,
+     closing after ten seconds, in the theme's tokens. It is shown once per
+     pause, so a second change of leading pane while still paused shows no new
+     bar; the row's "Move it here" still moves it to the new leading pane.
+  4. **A moving bookmark's row clicked in My Notes on /desk**: the row's link
+     moves the leading LIT pane to the bookmark first (`goTo`), then the follow
+     starts with no link (`followBookmark(r, null)` when the row is handled in
+     place, `tab-mine.js`), which forgets that jump's report; reading on from
+     the bookmark then moves it. With the link's address the follower would
+     have taken /desk as left and heard nothing more.
+  No record-format change. Tests: `desk-bookmarks.test.js` (the desk page's
+  positions, `newLead`), `bookmark-follow.test.js` (two /desk cases),
+  `desk-panes-shared.test.js` (`lit-records.js`' filters). **Not checked in a
+  browser**: the row glyphs' size and colors in both themes, a follow moving
+  and pausing on /desk and where the bar sits, switching the leading pane,
+  clicking a moving bookmark's row in My Notes, Matthew 28 to Mark 1 in the
+  pane, This verse after a move, and a duplicated /desk tab.
 
 - **E29, bug and rough: with verse numbers off, /desk's LIT pane keeps its
   chapter headings, and its location field says verse 1 the whole time.** BVJ
@@ -1138,8 +1195,16 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   hover text), the root CLAUDE.md's "Call them 'Chapter View' and 'Read View'"
   rule, and the docs that use the term. It must also decide what the
   Read View side is called once the other has no name (Read View is removed at
-  launch, E8, so the question may mostly disappear then). Status: **open,
-  waiting on BVJ.**
+  launch, E8, so the question may mostly disappear then). **Decided (BVJ,
+  2026-11-06): drop the name at launch (8c), not before.** While Read View
+  lives, "Chapter View" stays, since nearly every mention tells the two apart.
+  At 8c the mentions that are left become descriptive: where the desk tells a
+  reader where else they could read, plain words and an informal, lowercase
+  "scripture page" ("Open John 3 on its scripture page"), not a name. The /read
+  card's description carries the difference, so its heading needn't ("Scripture
+  Pages" was BVJ's suggestion; the words are settled at 8c). The root CLAUDE.md's
+  "Call them 'Chapter View' and 'Read View'" rule goes with Read View. Added to
+  8c's list under E8. Status: **decided; done at 8c.**
 
 - **E34, rough: a Search pane result's link to the passage goes to the
   scripture page, not the LIT pane.** BVJ (2026-11-05), from the Search pane on
@@ -1190,7 +1255,10 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   glossary's two sheets), named "Copy this version to the clipboard", and the
   failure line "Choose Copy again." "Save as a file" doesn't collide. **One
   for BVJ:** a shared sheet's banner button "Copy into my notebook" now sits
-  near the clipboard "Copy" with "copy" meaning a saved record; left as is.
+  near the clipboard "Copy" with "copy" meaning a saved record. **BVJ
+  (2026-11-06): "Import into my notebook"**, so the clipboard "Copy" is the only
+  copy on the page; the banner's line and its failure and no-storage lines say
+  "import" to match (`sharedBanner`, `sheet-page.js`). Status: **done 2026-11-06.**
 
 - **E37, wish: more file types under a sheet's "Save as a file".** BVJ
   (2026-11-05): the share menu's save-as-file should offer a document as
@@ -1210,7 +1278,92 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   (`LIT_CREDIT_LINE` must travel into every file, as it does into print) are the
   hard parts, and size and any new dependency need BVJ's eye (a library is
   weight and a license to carry). Design first (Opus), and a mock of the menu.
-  Status: **open.**
+  **BVJ's decisions (2026-11-06), from the design:** (1) a **"Save as ▾"** menu
+  on the sheet page's toolbar, after Copy and before Share…, following the
+  Version choice; phase A holds its "A document" group only (Word document
+  (.docx), OpenDocument text (.odt), Rich text (.rtf), PDF…), and **phase B** adds
+  "A presentation" (slides) to the same menu. (2) The Share dialog's "Save as a
+  file" becomes **"Export a Study Desk file"**, with the hint "To open the sheet
+  in Word or another program, use Save as."; its behavior is unchanged. (3) PDF
+  is the browser's own Print of the version on screen, telling the reader to
+  choose "Save as PDF"; no PDF library. (4) Fonts are named, not embedded
+  (Crimson Text, falling back to Georgia; Greek and Hebrew in Cardo). No new
+  dependency: the zip is hand-written (CompressionStream "deflate-raw" and a
+  CRC-32). With it, **"Open a shared file" became "Import a shared file"**
+  (BVJ, 2026-11-06), pairing with Export and the banner's "Import into my
+  notebook". **BVJ, later the same day, from a look at it:** the button is
+  **"Import a Study Desk file"**; the share file is called **"a Study Desk
+  file (.md)"** wherever it is mentioned (the Export button reads "Export a
+  Study Desk file (.md)"); and the Share dialog's note adds "For a PDF, choose
+  Print, then “Save as PDF” in the print window", beside Save as's own "PDF…"
+  line, so a reader who wants a PDF now finds it from either place.
+  **Phase A built 2026-11-06** (`claude/desk-phase5-e28`). Copy and the files
+  read the copy on screen into **one model** (`readCopy`, `desk/sheet-word.js`;
+  the model and Copy's HTML and text writers in `src/lib/desk-sheet-doc.mjs`),
+  so they can't disagree; Copy is now that model's HTML writer, held
+  byte-identical to the old code by `test/fixtures/sheet-copy-golden.json` (and
+  checked so on all 260 chapters before the old walk went). The writers are
+  `desk-doc-docx.mjs`, `desk-doc-odt.mjs` and `desk-doc-rtf.mjs` over
+  `desk-zip.mjs`, each pure and loaded by a dynamic import only when chosen
+  (`desk/sheet-save.js`, which also draws the menu and the codes as PNGs from
+  `qrSvg`, left out when codes are off). Every file ends with
+  `LIT_CREDIT_LINE` as its last paragraph and carries it in its properties.
+  Files are named "Romans 8 study (leader).docx". `test/desk-sheet-doc.test.js`
+  unzips each file independently and reads every XML part strictly. LibreOffice
+  (headless, 2026-11-06) turned a .docx, an .odt and an .rtf of the test sheet
+  into PDFs that matched the paper copy: headings, lists restarting, raised
+  verse numbers, the footnote, blanks, Greek, Hebrew right to left, ruled
+  lines, links, the code and the credit line last. **Departures from the
+  design:** the credit goes in the description and a custom "Rights" property,
+  since neither format's core properties has `dc:rights`; a blank is
+  underlined no-break spaces, as Copy writes it, not a tab; a code is an
+  inline picture on its own right-aligned line with its caption, not floated.
+  **Not checked:** the menu in a browser, and the files opened in Word, Google
+  Docs and Pages. **Open for phase B:** blanks on slides (covered, or shown),
+  speaker notes (the Leader only parts?), footnotes on slides, and where the
+  credit line goes on slides. **Claude's proposal for phase B (2026-11-06)**,
+  following present mode (a start screen with the codes, then one 16:9 slide per
+  passage, text, question and key terms box; .pptx, .odp, and PDF by Print, one
+  slide per landscape page): (1) a passage with blanks gets two slides, covered
+  then filled in, rather than animations, which programs play differently; (2)
+  Leader only parts and each question's answer go in the speaker notes, as they
+  go to the presenter view; (3) the footnotes the sheet prints get a slide of
+  their own after the passage, so the verses stay large; (4) the full credit
+  line on the first slide and a short closing slide, and in the file's
+  properties. A long passage is split across slides by length, with the
+  programs' shrink-to-fit as well. **BVJ (2026-11-06): leave phase B as an item
+  to come back to**; the proposal isn't decided. **Later the same day BVJ
+  decided it: "Build the slides files as you recommended"**, all four points as
+  proposed.
+  **Phase B built 2026-11-06** (`claude/desk-phase5-e28`). Save as ▾ gains a
+  **"Slides"** group: PowerPoint (.pptx), OpenDocument slides (.odp), and
+  "PDF…", which prints one slide to a 13.333 by 7.5 inch landscape page and says
+  to choose "Save as PDF". **The slides are present mode's screens**:
+  `desk/sheet-slides.js` runs `prepareDeck` (`sheet-present.js`) and reads each
+  screen off the stage, a passage twice (no blanks revealed, then all through
+  it), so a file shows exactly what present mode shows, the hint and the
+  traditional word on a covered blank included; they are the room's, so the
+  same whichever version is on screen. The rules are `src/lib/desk-slides.mjs`
+  (pure): the deck (`deckSlides`), cutting by length (`SLIDE_CHARS`, between
+  paragraphs or before a verse number; a covered and a revealed slide cut
+  alike; "(continued)" on the rest), the layout (`slideBoxes`) and a text box's
+  paragraphs (`slideParagraphs`), shared by both writers
+  (`desk-slides-pptx.mjs`, `desk-slides-odp.mjs`) and the print view, so they lay
+  a slide out alike. The look is present mode's room screen: dark ground, Crimson
+  Text, Fraunces (falling back to Georgia) for headings in its green, Cardo for
+  Greek and Hebrew. The speaker notes say which words a covered slide's blanks
+  hold. The programs shrink text to fit; the print view fits each box itself.
+  Files are named "Romans 8 study (slides).pptx". `test/desk-slides.test.js`
+  unzips both and reads every XML part strictly. **Checked by hand:** a 15-slide
+  deck from a Romans 8 test sheet opened in PowerPoint (notes in place) and in
+  LibreOffice, rendered alike in both; the print view laid out the same slides
+  on landscape pages in headless Chrome. **Not checked:** Keynote and Google
+  Slides, and a PDF saved through a real print dialog. **BVJ tried Save as ▸
+  Slides on the branch preview (2026-11-06): "looks good."** Status: **built
+  (phase A and B), checked by BVJ.**
+  **BVJ (2026-11-06), in passing:** the sheet page's "Codes to scan" checkbox
+  reads **"Show QR codes"**, and present mode's line for a sheet with no
+  passages says "no QR codes".
 
 - **E38, question, answered: can a reader search their labels, and is having
   labels going to get cumbersome? How hard would syncing them to the app be?**
@@ -1231,7 +1384,9 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   unique ignoring case and accents, as the website keeps them) and to apply
   and show them; that is app work and a format decision (the zone is meant to
   stay generic), not a website change. Raise it with BDR if BVJ wants labels in
-  the apps. Status: **answered; waiting on BVJ whether to ask BDR.**
+  the apps. **BVJ (2026-11-06): ask, and leave it entirely to BDR** whether the
+  apps use them. Asked the same day in a note for BDR's Claude at the top of
+  "Accounts and sync" in `STUDY-DESK.md`. Status: **answered; asked BDR.**
 
 - **E39, wording and design: the verse menu and selection panel's "Share…" and
   "Make an image".** BVJ (2026-11-05), asking for thoughts. Proposed: "Share…"
@@ -1261,8 +1416,23 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   default (pressing "Copy" copies the text, as the top item does now) with the
   flyout, opened by hover, the right arrow or a chevron, holding the others,
   so the common press stays one step. Mock first (the phone rig), for the
-  menu and the selection panel both. Status: **open; the Copy flyout is back
-  on the table.**
+  menu and the selection panel both. **BVJ (2026-11-06), from the mock: build
+  it**, for every reader: "Share text…" (it sends the words, the link an
+  addendum, as "Copy text" copies them) and "Share image"; the mock's pale
+  explanatory lines were notes for BVJ, not site copy. **Built (2026-11-06).**
+  Shared reader code (`panel-pieces.js` family, `chapter-tools.js`): on a
+  mouse or the keyboard, the three copy buttons are one split row "Copy text"
+  (a press copies the text; the chevron "More ways to copy", hover or → open a
+  flyout of Copy text, Copy link, Copy with footnotes), and "Share…" with "Make
+  an image" are one row "Share" (a flyout of "Share text…", where there is a
+  share sheet, and "Share image"; choosing the image closes the flyout and the
+  questions take the row's place; no share sheet leaves a flat "Share image").
+  The new names hold everywhere, chips included. A finger's chips stay flat.
+  No hint text added. `flyoutRow` moved from `desk/actions.js` to
+  `src/scripts/panel-flyout.js`, its CSS from `desk.css` (`.desk-bookmark-fly*`)
+  to `global.css` (`.lit-flyout*`). Measured from the fonts' advance widths: at
+  360px "Share text…" and "Share image" fit one chip row in Inter, Atkinson and
+  OpenDyslexic (`src/scripts/CLAUDE.md` has the numbers). Status: **built.**
 
 - **E40, wish: a Print line in the verse menu and selection panel, with a
   flyout: Selection / With my notes / With room to write.** BVJ (2026-11-05),
@@ -1274,7 +1444,18 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   plain text of just those verses) is new: the site prints a whole page today.
   It is a desk row ("My Notebook" rows, `actions.js`), so readers without the
   desk see no change, and it is the desk's flyout (`flyoutRow`). Share the
-  menu's settings with E39 so the two flyouts are made once. Status: **open.**
+  menu's settings with E39 so the two flyouts are made once. **BVJ
+  (2026-11-06): build it**, labeled "This verse" ("These verses" for a range)
+  or "This selection", each plain, with my notes, and with room to write; a
+  selection prints only the selection. **Built (2026-11-06).** "Print ▸" after
+  Bookmark in the My Notebook rows, as in rule 19 of desk/CLAUDE.md. It prints
+  only those verses (numbers, cited footnotes, credit and notice) or the
+  selected words as a passage. Not offered in /desk's LIT pane or the
+  glossary. "With my notes" stands down with "Hide my marks". Print preview
+  can't be emulated in the Browser pane; the pure parts are tested
+  (`test/desk-print-part.test.js`). **BVJ tested it in Chrome (2026-11-06): all
+  worked** (a verse, a range, a selection, each kind, and the page as it was
+  after each dialog). Firefox not checked. Status: **done.**
 
 - **E41, bug and wish: bookmark colors, and moving bookmarks, on the desk.**
   BVJ (2026-11-05): "It doesn't look like the colors of the bookmarks
@@ -1283,7 +1464,7 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   doesn't show it, which would also change This verse. **Folded into E28**,
   which is the same question (the LIT pane draws no bookmark marks, BVJ's 3g
   choice, so there is nothing to color), now with BVJ's answer to its first
-  question leaning to yes. Status: **moved to E28.**
+  question leaning to yes. Status: **moved to E28**, built with it 2026-11-06.
 
 - **E42, glyph: the note marker called "ribbon" should look like a ribbon.**
   BVJ (2026-11-05), thinking of 🎗️ (the awareness ribbon, a loop with two
@@ -1335,7 +1516,20 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
      switch with the others and stand down in text fields. Optional.
   Claude's lean: the title-menu line, with a Display-settings mention that
   points to it rather than duplicating it; settle 2 before building.
-  Status: **open.**
+  **Decided (BVJ, 2026-11-06): browser full screen only** (1), the cheapest
+  version (4): no focus mode hiding the site header. On Escape (2): in full
+  screen the browser keeps the first press for itself and the page never sees
+  it, so with a menu open the first press leaves full screen and the second
+  closes the menu. Nothing is lost or skipped, so it is accepted as is, not
+  worked around (Chrome's keyboard lock would make Escape hold-to-exit, which
+  is worse); confirm it in a browser once built. **Built (2026-11-06)**: a
+  "Full screen (F11)" line ("⌃⌘F" on a Mac) after Display options in the
+  title menu (`desk-page.js`), "Exit full screen" while the API's full screen
+  is on, absent without the API, a refusal announced. The Browser pane holds
+  the request without answering, so neither full screen nor the Escape
+  behavior could be seen there. **BVJ tested it in Chrome (2026-11-06): all
+  worked** (on, "Exit full screen", Escape leaving full screen with a menu
+  open and the second press closing it, F11 alongside). Status: **done.**
 
 - **E44, wish: "Start following" where "Stop following" appears.** BVJ
   (2026-11-05): when a moving bookmark isn't following, the same spot (the
@@ -1443,7 +1637,44 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   Pin button, which stays), still follow the "Notes in the margin" switch,
   and never add text to the scripture page. The left margin is empty at most
   widths but not all, so the narrow rule needs a measure, as the notes' margin
-  (`desk-margin.mjs`) has. Mock first, at the real widths. Status: **open.**
+  (`desk-margin.mjs`) has. Mock first, at the real widths. **Mocked
+  (2026-11-06, John 3's footnote list at 1366 and 820px):** stacked, the
+  two-pill column (about 45px) is taller than a one-line footnote, so note a's
+  "+ Note" ran into note b's Pin unless each footnote grew to the stack's
+  height (about half a line more under every one-line note); side by side, the
+  two pills in one row left of the letter, level with the first line, nothing
+  overlaps, no footnote grows, and the pills share a baseline (the
+  misalignment that started this); about 90px of margin, which John 3 has from
+  about an 820px window up. Where the margin can't hold them, one "⋯" pill per
+  footnote opens the two stacked under it (one tab stop per footnote, as
+  today). **Decided (BVJ, 2026-11-06): side by side in the left margin**, with
+  the "⋯" fallback where it doesn't fit; the popover's own Pin and "+ Note"
+  row stays as it is.
+  **BVJ, after a look (2026-11-06):** side by side, Pin is drawn nearest the
+  footnote, and "+ Note" became the plain note marker's glyph (the one the
+  note window shows), named "Add a note on footnote a", everywhere it appears. This verse's "+ Note" (tab and pane) took the same glyph pill,
+  named "Add a note on this verse".
+  /notebook gained "Open the Study Desk" under its title, its way back to the
+  desk now the header link is on home only (E50).
+  Status: **built 2026-11-06.** `src/lib/desk-footnote-pills.mjs`
+  (`footnotePillMode({ free, row, stack })`,
+  `test/desk-footnote-pills.test.js`) picks `row`, `more` or `inline` from the
+  list's left margin; `desk/footnote-pills.js` builds each footnote's
+  `.desk-fn-pills` (a "⋯" button named "Actions for footnote a", and the group
+  holding Pin and "+ Note"), measures on load and resize, and sets
+  `data-desk-fn-pills` on the list; `desk.css` draws the three. Side by side,
+  the pills are 14px left of the footnote, centered on its first line (22px
+  pills in a 1.6 line, plus the Display tray's extra leading), so they share a
+  center line and no footnote grows. Thresholds in Inter: `row` from about
+  118px of free margin, `more` from about 78px, `inline` below (measured from
+  the real pill widths, so a wider face asks for more). One departure from the
+  rough note: the notes' margin is also on the LEFT (not the right, which holds
+  only the Notebook panel), level with the footnote, so a footnote with a
+  margin note drawn beside it keeps the in-line placement
+  (`data-desk-fn-margin`, set by `notes-margin.js`). Checked in the Browser
+  pane on John 3: side by side at 1366px, the "⋯" at 760px (it opens the two
+  stacked, Tab reaches Pin, Escape closes it and returns focus), in-line at
+  600px.
 
 - **E50, rough: the Study Desk button, where it is and where it shows.**
   BVJ (2026-11-05), "not totally satisfied with the current version." The
@@ -1459,7 +1690,29 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   ways into /desk, and E33's card heading) and the chapter-carrying link
   (8a). To do it: mock the three at the real widths (the toolbar has a fixed
   floor, and the desk is a computer tool, so the phone toolbar rules don't
-  apply), then decide. Status: **open, mock first.**
+  apply), then decide. **Mocked (2026-11-06)**, (b) at 1366px on John 3 and
+  /read: on a chapter, "Open in the Study Desk" ("Study Desk" where the
+  toolbar is tight, as the old pill shortened) fills the toolbar's right end,
+  empty since the preview hid "Switch to Read View", and links to /desk at that
+  chapter; on /read a "Study Desk" pill matching "Go to passage ▾" sits beside
+  it, the two centered on one row; the header's floating link goes from both.
+  (c) was offered too: "Study Desk" in the header's own nav row on every page.
+  **Decided (BVJ, 2026-11-06): (b).** Home keeps the header link; scripture
+  pages (chapters and intros; an intro has no right-hand toolbar slot today, so
+  it gets one) and /read take the toolbar pill; every other page has no Study
+  Desk button. Rule 10's "links to /desk on every page" changes with it.
+  **Built (2026-11-06).** The header's Study Desk link is on the home page
+  only (SiteHeader's `deskLink`, which Layout sets for `/`; the `deskPlace`
+  prop is gone). Chapters and intros have "Open in the Study Desk" ("Study
+  Desk" where the old pill shortened, the icon alone on the compact toolbar)
+  in the toolbar's right slot, in the Read View pill's classes, linking to
+  `/desk/?place=<book>-<chapter>` (chapter 1 on an intro, as the Read menu's
+  footer does). /read has a "Study Desk" pill beside "Go to passage"
+  (`.read-menu__desk`, through ReadMenu's new slot), linking to `/desk/`. Both
+  show only under `html[data-desk]`. /sheets keeps "Edit on the Study Desk";
+  /notebook has no link of its own back to /desk (it opens from the desk's
+  title menu in a new tab). Checked in the Browser pane at 1366px on John 3,
+  Romans's intro, /read and home. Status: **built.**
 
 - **E51, rough: the Share this sheet dialog needs a close × in its corner, and
   its "Close" button should say "Cancel".** BVJ (2026-11-06), on /sheets.
@@ -1473,6 +1726,93 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   sheets page left them no room. Status: **done 2026-11-06**: `.sheets-page`
   takes 3.5rem of top padding over 1100px (`sheets-page.css`), as the
   notebook page's own padding does.
+
+- **E53, gap: no way to read a book's introduction on /desk.** BVJ
+  (2026-11-06), noticed while weighing E50. The LIT pane shows chapters only:
+  its passage field takes "John 3", its arrows step chapter to chapter, and an
+  intro found in the Search pane opens in a new tab (rule 13). So a reader at
+  the desk who wants Romans's introduction beside Romans 1 has to leave the
+  desk for it. **To think through with BVJ** (this conversation): where an
+  intro shows (the LIT pane itself, as the site's Previous/Next treats it as
+  the page before chapter 1, or a pane kind of its own), how a reader asks for
+  one (the passage field taking "Romans intro", the arrows stepping back from
+  chapter 1, a line in the pane's menu, Search's intro results opening in a
+  pane), and what the panes beside it do while it shows (This verse, My Notes,
+  the Greek and the Footnotes have no verse to follow in an intro, though an
+  intro has footnotes of its own). Status: **open, to discuss.**
+
+- **E54, bug: Greek copied from the Greek tab pastes into a sheet as only its
+  spaces, commas and verse numbers.** BVJ (2026-11-06): selected in the Greek
+  pane, Ctrl+C, then Ctrl+V in a sheet; the same clipboard pasted into Word
+  whole. Each Greek word (and each text-critical sign) is a `<button>`, so it
+  can be clicked for its details, and the sheet's paste cleaner
+  (`pastedSheetHtml`) drops a button with what it holds, on purpose, so a
+  pasted web page's controls never land as text. Word ignores the tag. Status:
+  **fixed 2026-11-06** in the Greek tab, not the cleaner: `tab-greek.js` writes
+  the clipboard itself on a copy inside the tab, the buttons turned to spans
+  keeping `lang="grc"`, the screen reader's "Verse " left out, and plain text
+  with a space after each verse number and a blank line between paragraphs. A
+  test in `desk-sheet-paste.test.js` holds that shape through the cleaner.
+  **BVJ confirmed it in Chrome (2026-11-06).**
+
+- **E55, bug: a list in a sheet prints as plain lines on /sheets.** BVJ
+  (2026-11-06), with a screenshot: a question's bulleted list ("here?",
+  "there?") and its answer's numbered list ("one", "two", "three") showed with
+  no bullets or numbers. The editor's list buttons (`execCommand`) can build
+  the list inside the paragraph the caret was in, which the page serializes as
+  `<p><ul>…</ul></p>`. The sanitizer (`sanitizeSheetHtml`) read that as a list
+  nested in a paragraph and flattened it into the paragraph's lines
+  ("here?<br>there?"), so the list was lost when saved; the editor kept
+  showing bullets until the sheet was reloaded. Status: **fixed 2026-11-06**:
+  the sanitizer's parse now ends an open `<p>` where a block starts, as an HTML
+  parser does (`CLOSES_P`), so the list is saved as a list. No saved record
+  changes (the old reading never wrote a list inside a paragraph), and the
+  format's output rules are untouched. Lists saved before the fix were already
+  flattened and need to be made again. Checked in the browser with the
+  toolbar's button in a question, and in `test/desk-sheets.test.js`.
+
+- **E56, rough: a sheet's parts don't say how to use them.** BVJ
+  (2026-11-06): the Question part's question and answer fields need ghost text
+  saying what each is for; then a pass over every part. Claude's finding: the
+  Question part already had ghost text, but it shows only while a field is
+  empty, every template fills its questions in, and the two editors look
+  identical with no visible name (only an accessible one). Decided (BVJ,
+  "Build as proposed"): a visible label "Answer (leader’s version only)" above
+  the answer's editor (`aria-hidden`, since the editor's own name says it);
+  ghost text "A question for the group, such as “What surprised you here?”"
+  and "Optional. An answer or notes for you as leader. It prints only on the
+  leader’s version."; Your text's "Write here…" became "A heading,
+  instructions, a prayer, or anything else to print."; and a passage's empty
+  Blanks note says how to make one with the mouse ("Select words in the
+  passage, then choose “Blank the selected words.” …"). Title, subtitle,
+  Space to write, Key terms box, Page break and a blank's hint field were
+  already clear and are unchanged. Nothing prints differently. Status:
+  **built 2026-11-06** (`sheet-pane.js`, `sheet-lit.js`,
+  `.desk-sheet__field-label` in `desk.css`); checked on /desk in light and dark.
+
+- **E57, bug: the key terms box loses its box in a saved file.** BVJ
+  (2026-11-06), testing Save as (E37): the box around the key terms printed and
+  saved as PDF, but .docx, .odt and .rtf showed the terms with no rule around
+  them. The document model (`desk-sheet-doc.mjs`) had no way to say "these
+  blocks are boxed", so `readCopy` read the box's heading, list and note as
+  ordinary blocks, and Copy lost it too. Status: **fixed 2026-11-06**: a `box`
+  block (`DOC_BOX`: 0.75pt, the site's ink, 8 by 10pt of padding) holds the
+  heading, the list and the note, the "Leader only" tag staying outside it as
+  on paper; each writer draws it as a one-cell table ruled all round (Copy's
+  HTML, .docx `w:tbl`, .odt `table:table`, .rtf `\trowd` with `\intbl`), the
+  width of the text. **Spacing, from BVJ's look in Word (same day):** the box's
+  heading kept a heading's space above it, so the top of the box was deeper than
+  the bottom, and the box sat right against the line above it. The heading in a
+  box is now `flush` (no space above, as `.sheet-copy__terms-title` has none),
+  and 10pt of space goes above the box (`DOC_BOX.gap`; an exactly sized empty
+  paragraph in .docx and .rtf, since a table takes no space above it, and the
+  table's margin in .odt and Copy). The list's indent stays the documents'
+  usual half inch, deeper than the page's. Copy's golden fixture changed on purpose for it. Checked
+  in `test/desk-sheet-doc.test.js` and by rendering the three files through
+  LibreOffice. In the same report BVJ found no template but Blank Canvas would
+  add a key terms box: Bible study, Sermon and Class already hold one, and a
+  sheet takes one, so the button is disabled with its reason only as hover text
+  and for screen readers; Lectio divina has none. Not a bug (BVJ agreed).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -1565,9 +1905,14 @@ the rest is polish.
     Sessions that touch the same files run one after another. **Built
     2026-11-06, one branch (`claude/desk-phase5-e29-e48`), awaiting BVJ's
     look**: session 12 (E29), a (E30, E32, E42), b's E44 to E48, c (E34, E35),
-    d's E36 and e (E31). **Still open**: E28 with E41 (next, now that E29, E35
-    and the bookmark work are in), E37 (design first), f (E39, E40; mock first),
-    g (E49, E50; mock first; E43, Escape to test first), and BVJ's E33 and E38.
+    d's E36 and e (E31). E28 with E41 is built on its own branch
+    (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look, and so is
+    E37's phase A (Save as a document, on the same branch), and f (E39, E40,
+    after BVJ's look at a mock), and g's E43 and E49 (decided from a mock).
+    E50 is built too (decided from a mock), and so is E37's phase B (slides,
+    decided by BVJ the same day). **Still open**: E53 (intros on /desk, to discuss). BVJ settled E33 (at
+    8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
+    2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
        group's heading), E42 (`glyphs.js`). E36 joins session d.
     b. *Bookmark dialog and following*: E44, E45, E46, E47, then E48 (the copy,
@@ -1587,8 +1932,6 @@ the rest is polish.
     g. *Layout and chrome*: E49 and E50, mock first, at the real widths; E43
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
-    Waiting on BVJ, not sessions: **E33** (does Chapter View need a name) and
-    **E38** (whether to ask BDR about labels).
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and

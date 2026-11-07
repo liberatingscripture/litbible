@@ -70,7 +70,7 @@ const sheetUrl = (id, view) => `${BASE}sheets/?id=${encodeURIComponent(id)}${vie
  * `built[i]` is { el, update(state, revealed) }; `shape` is what checkState
  * and stepState need (each screen's kind and its number of blanks).
  */
-async function prepareDeck(sheet) {
+export async function prepareDeck(sheet) {
   const screens = presentScreens(sheet);
   const room = modulesForCopy(sheet, "participant");
   const views = await readAll(room);
@@ -644,7 +644,7 @@ function leaderNotes(state, deck) {
     const { codes } = roomCodes(deck.sheet);
     out.append(make("p", null, codes.length
       ? "The room can scan the codes on this screen to read along in the LIT app or on litbible.net."
-      : "This sheet has no passages, so there are no codes to scan."));
+      : "This sheet has no passages, so there are no QR codes."));
   }
 
   const words = deck.words[i] ?? [];

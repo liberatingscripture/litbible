@@ -44,6 +44,7 @@ import {
   initFootnoteNotes,
 } from "./footnote-notes.js";
 import { busy, isBusy } from "./focus-keep.js";
+import { focusPin, footnotePills, initFootnotePills } from "./footnote-pills.js";
 import { undoEntry } from "./history.js";
 import { pageChapter } from "./page.js";
 import { announce, showUndo } from "./undo-bar.js";
@@ -252,7 +253,7 @@ function drawFlag(li, entry, notice) {
         restoreFocus: trigger,
         onDone: async () => {
           await refreshPins();
-          li.querySelector(".desk-pin:not(.desk-fn-add)")?.focus({ preventScroll: true });
+          focusPin(li);
         },
       }),
     ),
@@ -331,12 +332,12 @@ export function initPins({ store, ctx, desk = false }) {
     const button = pinButton(li.id, label);
     if (!button) continue;
     li.classList.add("desk-fn");
-    li.append(button);
     // Add a note (M11), beside Pin. The reader's notes on this footnote sit in
-    // the margin beside it (notes-margin.js), not under it.
-    const add = addNoteButton(li.id, label);
-    if (add) li.append(add);
+    // the margin beside it (notes-margin.js), not under it. Pin and Add a note
+    // share one row after the note, which the left margin holds (E49).
+    li.append(footnotePills(label, [button, addNoteButton(li.id, label)]));
   }
+  initFootnotePills(document.querySelector(".footnotes-wrap ol.footnotes"));
 
   // chapter-tools.js offers the popover before placing it, and so does /desk's
   // LIT pane, which names its chapter in the detail (`book`, `chapter`). The

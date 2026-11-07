@@ -36,7 +36,21 @@ const {
       showTools && (
         <section class="read-layout__tools" aria-label="Reading tools">
           <div class="read-layout__menu">
-            <ReadMenu />
+            <ReadMenu>
+              {/* The Study Desk preview's way in from /read (E50, BVJ
+                  2026-11-06): beside the picker, shown by ReadMenu's CSS only
+                  with the preview on. Plain /desk/: /read has no passage. */}
+              <a class="read-menu__desk" href="/desk/">
+                <svg class="read-menu__icon" viewBox="0 0 24 24" width="1em" height="1em" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
+                  <path d="M14.5 4h3l2.5 6h-8z" />
+                  <path d="M16 13.5v2" />
+                </svg>
+                <span>Study Desk</span>
+              </a>
+            </ReadMenu>
           </div>
 
           <SearchBar placeholder="Search" fullSearchHref="/search" />

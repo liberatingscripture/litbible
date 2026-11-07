@@ -41,7 +41,7 @@ From the root's project tree.
                      #   (the term lens and its fs shell), go-deeper.mjs +
                      #   go-deeper-data.ts ("Go deeper" and its build shell),
                      #   verse-image.mjs (the design and typesetting behind
-                     #   "Make an image"), anchor-core.mjs + desk-*.mjs (the
+                     #   "Share image"), anchor-core.mjs + desk-*.mjs (the
                      #   Study Desk's pure modules: records, incl. the trash
                      #   record and footnote pins; the anchor text read off
                      #   the page; the wording comparison and the change
@@ -55,7 +55,11 @@ From the root's project tree.
                      #   the reader's questions on it (desk-sheet-discussion),
                      #   sharing it by link or file (desk-sheet-share),
                      #   and its copies on paper (desk-sheet-copy, with
-                     #   qr-svg.mjs, the one QR drawing), and on a
+                     #   qr-svg.mjs, the one QR drawing), as a document
+                     #   (desk-sheet-doc, the model Copy and the files
+                     #   share; desk-doc-docx, desk-doc-odt, desk-doc-rtf,
+                     #   over desk-zip), as slides (desk-slides, with
+                     #   desk-slides-pptx and desk-slides-odp), and on a
                      #   screen for a room (desk-present);
                      #   merging two copies
                      #   of a notebook (desk-merge); finding a pinned

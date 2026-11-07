@@ -436,13 +436,23 @@ test("lists nest three deep at most: a deeper list's items join the third, after
   assert.equal(clean(mixed), "<ol><li>1<ol><li>2<ol><li>3</li><li>4</li></ol></li></ol></li></ol>");
 });
 
-test("a block inside a paragraph, heading or inline element is unwrapped, blocks separated by a break", () => {
-  assert.equal(clean("<p>a<p>b</p></p>"), "<p>a<br>b</p>");
-  assert.equal(clean("<p>a<div>b</div>c</p>"), "<p>a<br>b<br>c</p>");
+test("a block starting inside a paragraph ends it, as an HTML parser reads it (E55)", () => {
+  // The editor's list buttons can leave <p><ul>…</ul></p>; read as nesting, the
+  // list became the paragraph's lines and lost its bullets on /sheets.
+  assert.equal(clean("<p>Q?</p><p><ul><li>here?</li><li>there?</li></ul></p>"), "<p>Q?</p><ul><li>here?</li><li>there?</li></ul>");
+  assert.equal(clean("<p><ol><li>one</li><li>two</li></ol></p>"), "<ol><li>one</li><li>two</li></ol>");
+  assert.equal(clean("<p>a<ul><li>b</li><li>c</li></ul>d</p>"), "<p>a</p><ul><li>b</li><li>c</li></ul><p>d</p>");
+  assert.equal(clean("<blockquote><p>a<ul><li>b</li></ul></p></blockquote>"), "<blockquote><p>a</p><ul><li>b</li></ul></blockquote>");
+  assert.equal(clean("<p>a<p>b</p></p>"), "<p>a</p><p>b</p>");
+  assert.equal(clean("<p>a<div>b</div>c</p>"), "<p>a</p><p>b</p><p>c</p>");
+  assert.equal(clean("<p>a<hr>b</p>"), "<p>a</p><hr><p>b</p>");
+  // The inline element open around it ends with the paragraph (a browser would
+  // carry the bold on; nothing the editor makes does this).
+  assert.equal(clean("<p><strong>a<p>b</p></strong></p>"), "<p><strong>a</strong></p><p>b</p>");
+});
+
+test("a block inside a heading or inline element is unwrapped, blocks separated by a break", () => {
   assert.equal(clean("<h2>a<blockquote>b</blockquote></h2>"), "<h2>a<br>b</h2>");
-  assert.equal(clean("<p><strong>a<p>b</p></strong></p>"), "<p><strong>a<br>b</strong></p>");
-  assert.equal(clean("<p>a<ul><li>b</li><li>c</li></ul>d</p>"), "<p>a<br>b<br>c<br>d</p>");
-  assert.equal(clean("<p>a<hr>b</p>"), "<p>ab</p>");
   assert.equal(clean('<a href="/x"><p>one</p><p>two</p></a>'), '<p><a href="/x">one<br>two</a></p>');
 });
 

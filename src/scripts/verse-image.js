@@ -1,12 +1,12 @@
 // src/scripts/verse-image.js
 //
-// "Make an image" (audit X8): the verse menu and the selection panel draw the
+// "Share image" (audit X8, "Make an image" until E39): the verse menu and the selection panel draw the
 // passage in the share-card design, in the reader's browser, and hand it on.
 // The design and the typesetting rules are src/lib/verse-image.mjs; this file
 // draws, and runs the button.
 //
 // One button that becomes the next question each time it's answered (owner,
-// 2026-09-28): "Make an image" → Ink or Paper → Square or Story → the phone's
+// 2026-09-28): "Share image" → Ink or Paper → Square or Story → the phone's
 // share sheet, or a download on a computer. A phone or tablet is told apart
 // by its OS, or its touch screen where its browser passes for a computer's
 // (isAppPlatform), not the screen width, the same test the app announcement
@@ -235,13 +235,13 @@ function note(text) {
 }
 
 /**
- * The "Make an image" step for a panel.
+ * The "Share image" step for a panel (named "Make an image" until E39).
  *
  * @param {object} o
  * @param {() => {text: string, ref: string, url: string, shareText: string}} o.content
  *   What to draw: the passage as it should read on the image (no verse
  *   numbers), its reference and verse link, and the text that goes with it
- *   to the share sheet (the same text Share… sends).
+ *   to the share sheet (the same text Share text… sends).
  * @param {() => void} [o.onStart]  called on the first tap (the selection
  *   panel marks itself busy, so clearing the selection doesn't close it)
  * @param {() => void} o.onDone  called once the image has gone
@@ -256,11 +256,11 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
   const made = {}; // size → Blob, for the chosen look
   let making = null;
 
-  const start = stepButton("Make an image");
-  start.addEventListener("click", async () => {
+  const start = stepButton("Share image");
+  const begin = async () => {
     onStart();
     // Marks a step past its first button, for a panel that shares its row
-    // with Share… (the chip layout gives the row over to the questions).
+    // with Share text… (the chip layout gives the row over to the questions).
     step.classList.add("lit-image--open");
     what = content();
     start.textContent = "Preparing…";
@@ -272,8 +272,12 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
       return;
     }
     swap(step, lookStep);
-  });
+  };
+  start.addEventListener("click", begin);
   step.appendChild(start);
+  // A caller that puts the first press somewhere else (the mouse layout's
+  // "Share ▸" flyout holds "Share image") shows the step and calls this.
+  step.begin = begin;
 
   function lookStep() {
     const buttons = Object.entries(LOOKS).map(([key, look]) => {

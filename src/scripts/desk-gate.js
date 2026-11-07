@@ -10,15 +10,20 @@
 import { readingSurface, standDown } from "./desk-frame.js";
 
 const shellHere = document.documentElement.dataset.desk === "on" && readingSurface();
+// /desk (the desk as a page) follows the reader itself, through its leading LIT
+// pane (STUDY-DESK-FIXES.md E28; BVJ, 2026-11-06).
+const deskPageHere = document.documentElement.dataset.desk === "on" && document.querySelector("[data-desk-page]") != null;
 
 // A bookmark that moves as the reader reads follows only while the reader reads
 // on in its book (STUDY-DESK.md C25). The shell loads only on a reading
-// surface, so every other page (home, search, /notebook, /desk) pauses the
-// tab's flag here (BA101; it ended the follow until 2026-11-04). The key
+// surface, so every other page (home, search, /notebook) pauses the tab's
+// flag here (BA101; it ended the follow until 2026-11-04). /desk is the
+// exception: its leading LIT pane is reading, and desk-page.js runs the same
+// follower the shell does (E28). The key
 // is FOLLOW_FLAG_KEY in src/lib/desk-bookmarks.mjs, which this file doesn't
 // import, to stay small. (Telling a duplicated tab from its original is the
 // shell's, bookmark-follow.js: a page here never moves a bookmark.)
-if (!shellHere) {
+if (!shellHere && !deskPageHere) {
   try {
     const raw = window.sessionStorage.getItem("lit-desk-follow");
     const flag = raw ? JSON.parse(raw) : null;

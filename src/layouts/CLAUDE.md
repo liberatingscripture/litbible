@@ -20,6 +20,11 @@
   before first paint. **Keep that script inline**: a bundled module runs after
   first paint, and the whole toolbar would visibly jump. Without JS a phone
   keeps the stacked toolbar, whose search field works on its own.
+  The toolbar's right slot holds two pills in `.reading-view-right` wrappers,
+  one at a time: "Switch to Read View" (chapters only) and, with the Study Desk
+  preview on, "Open in the Study Desk" (chapters and introductions; E50, rule 10
+  in `src/scripts/desk/CLAUDE.md`). Both use the `.reading-view-pill` look and
+  the `rvp-full`/`rvp-short` labels, so every width rule above covers both.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to

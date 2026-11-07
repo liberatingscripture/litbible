@@ -35,6 +35,7 @@ import { forChapter, recordReference, QUIET_KINDS } from "../../lib/desk-store-c
 import { currentPanel } from "../lit-panel.js";
 import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
 import { busy, isBusy } from "./focus-keep.js";
+import { pillsHome } from "./footnote-pills.js";
 import { glyph } from "./glyphs.js";
 import { openNoteEditor } from "./note-editor.js";
 import { fillNoteWords } from "./note-words.js";
@@ -125,7 +126,9 @@ export function footnoteElementFor(record) {
 /** Where the editor opens from a button: beside the panel the button is in, if it is in one (the popover is replaced by the editor). */
 function openedFrom(button) {
   const panel = button.closest(".lit-panel") ? currentPanel() : null;
-  return { trigger: panel?.trigger ?? button, restoreFocus: panel ? panel.restoreFocus ?? null : button };
+  // A button behind a footnote's "⋯" (E49) hands back the "⋯", which stays.
+  const home = pillsHome(button);
+  return { trigger: panel?.trigger ?? home, restoreFocus: panel ? panel.restoreFocus ?? null : home };
 }
 
 /** Open the editor on a new note for the footnote with this id in this chapter. */
@@ -151,11 +154,14 @@ export function addNoteButton(id, label, where = pageChapter()) {
   const button = document.createElement("button");
   button.type = "button";
   // Looks as Pin does (desk.css), and is hidden from print the same way.
-  button.className = "desk-pin desk-fn-add";
+  // A glyph, as Pin is (E18): the plain note marker the note window shows
+  // (BVJ, 2026-11-06; "+ Note" until then), in the text's own color. The name,
+  // and the hover text, say what it does and which footnote.
+  button.className = "desk-pin desk-pin--glyph desk-fn-add";
   button.dataset.deskFnAdd = id;
-  button.textContent = "+ Note";
-  // "+ Note" is the visible label; the longer name says which footnote.
+  button.innerHTML = glyph("note", "desk-fn-add__glyph");
   button.setAttribute("aria-label", `Add a note on footnote ${label}`);
+  button.title = `Add a note on footnote ${label}`;
   button.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (isBusy(button)) return;

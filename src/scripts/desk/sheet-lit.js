@@ -624,7 +624,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
 
     if (!located.length) {
-      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. A blank leaves words out of the participant’s version, with the answer on the leader’s version."));
+      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. Select words in the passage, then choose “Blank the selected words.” A blank leaves those words out of the participant’s version and shows them on the leader’s."));
       return;
     }
     const ul = make("ul", "desk-sheet__blank-list");

@@ -110,6 +110,14 @@ export function pageBookOf(pathname) {
 }
 
 /**
+ * /desk as a page the follower runs on (E28, BVJ 2026-11-06): not one book's
+ * page, since its LIT pane scrolls the whole New Testament, so a report from
+ * its leading LIT pane counts in any book, and `followStep` decides whether it
+ * is reading on (another book is a jump, as on a chapter page).
+ */
+export const DESK_PAGE = Object.freeze({ kind: "desk" });
+
+/**
  * The channel a tab's pages use to tell a duplicated tab from the tab it was
  * copied from. A browser's Duplicate tab copies session storage, flag and
  * all, so without it both tabs moved the bookmark, each to wherever it was
@@ -182,9 +190,11 @@ export function resumedFlag(flag, bookKey = flag.bookKey) {
 
 /**
  * Whether the reader at `pos` is reading on from the bookmark: in its book,
- * within a chapter of where it sits (or, scrolling Read View, of the last
- * place this page heard, which a throttled write can lag behind). The next
- * book's first chapter is not reading on: that is a jump, offered with the bar.
+ * within a chapter of where it sits (or, scrolling Read View or /desk's LIT
+ * pane, of the last place this page heard, which a throttled write can lag
+ * behind). The next book's first chapter is not reading on: that is a jump,
+ * offered with the bar, even where the LIT pane scrolls straight on into it
+ * (BVJ, 2026-11-06).
  */
 export function readingOn(record, pos, lastHeard = null) {
   const near = (from) => from && from.bookKey === pos.bookKey && Math.abs(from.chapter - pos.chapter) <= 1;
@@ -194,9 +204,13 @@ export function readingOn(record, pos, lastHeard = null) {
 /**
  * What a followed bookmark does at a report of where the reader is: "move" to
  * it, "pause" because the reader jumped, "resume" because a paused one is
- * being read on from, or "stay" paused.
+ * being read on from, or "stay" paused. `newLead` is a report from a LIT pane
+ * that has just become /desk's leading one (E28, BVJ 2026-11-06): changing
+ * which pane leads is a jump wherever that pane is, so it pauses (or stays
+ * paused), and reading on from the bookmark in the new pane resumes it.
  */
-export function followStep(flag, record, pos, lastHeard = null) {
+export function followStep(flag, record, pos, lastHeard = null, { newLead = false } = {}) {
+  if (newLead) return flag.paused ? "stay" : "pause";
   const on = readingOn(record, pos, lastHeard);
   if (flag.paused) return on ? "resume" : "stay";
   return on ? "move" : "pause";
@@ -234,10 +248,18 @@ export function nextFollowState(flag, now = Date.now()) {
  * is stale) is ignored. A chapter opened at its top has no verse yet, and a
  * bookmark needs one: that is verse 1.
  *
+ * On /desk (DESK_PAGE) the position is the leading LIT pane's, in any book,
+ * and only a chapter the book has counts.
+ *
  * @param {{ book: string, chapter: number, verse: number | null, view: string } | null} position
- * @param {ReturnType<typeof pageBookOf>} page
+ * @param {ReturnType<typeof pageBookOf> | typeof DESK_PAGE} page
  */
 export function positionOnPage(position, page) {
+  if (page?.kind === "desk") {
+    const ch = position?.chapter;
+    if (!Object.hasOwn(BOOKS, position?.book ?? "") || !Number.isInteger(ch) || ch < 1 || ch > BOOKS[position.book]) return null;
+    return { bookKey: position.book, chapter: ch, verse: position.verse || 1 };
+  }
   if (!position || !page || position.book !== page.bookKey) return null;
   if (page.kind === "chapter" && !(position.view === "study" && position.chapter === page.chapter)) return null;
   if (page.kind === "read" && position.view !== "read") return null;

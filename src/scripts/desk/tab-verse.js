@@ -41,6 +41,7 @@ import { forChapter, recordHref, recordReference, recordWhere } from "../../lib/
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
+import { drawBookmarkLine } from "./bookmark-follow.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
@@ -116,7 +117,7 @@ export function createVerseTab({
       <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
-      <button type="button" class="desk-verse__add" aria-label="Add a note on this verse">+ Note</button>
+      <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse" title="Add a note on this verse">${glyph("note", "desk-fn-add__glyph")}</button>
     </section>
     <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseChainsTitle${idSuffix}">Notes that cite this verse</h4>
@@ -325,7 +326,13 @@ export function createVerseTab({
     const li = document.createElement("li");
     li.className = "desk-verse__item";
     if (r.kind === "bookmark") {
-      li.innerHTML = `${glyph("bookmark", "desk-glyph desk-verse__glyph desk-verse__glyph--bookmark")}<span class="desk-verse__words">Bookmarked</span>`;
+      // Its mark and its line as My Notes' row has them (E28): red moves, gold
+      // stays put, an outline while it follows, and the words say which.
+      // syncBookmarkLines redraws it as this tab's follow changes.
+      const line = document.createElement("span");
+      line.className = "desk-verse__words";
+      drawBookmarkLine(line, r);
+      li.append(line);
       return li;
     }
     if (r.kind === "highlight") return flagged(highlightItem(li, r), r);

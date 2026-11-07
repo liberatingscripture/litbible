@@ -3132,6 +3132,93 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   display: contents;
 }
 
+/* display: contents beats the hidden attribute's own display: none. */
+.lit-panel__row[hidden] {
+  display: none;
+}
+
+/* A flyout row (panel-flyout.js): the verse menu's and the selection panel's
+   "Copy text ▸" and "Share ▸", and the Study Desk's "Bookmark ▸" and "Print ▸".
+   A mouse's rows only; a finger's chips stay flat. The menu is fixed to the
+   window beside its row, so the panel's scrolling never clips it. Its colors
+   are theme tokens, so both dark-mode selectors reach it. */
+.lit-flyout__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* A chevron at the row's right edge, drawn with borders so it keeps the text's
+   color in both themes and is easy to see. */
+.lit-flyout__trigger::after,
+.lit-flyout__more::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  margin-right: 4px;
+  border-top: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* A split row: the row's own button, then a chevron button that opens the menu. */
+.lit-flyout__split {
+  display: flex;
+  align-items: stretch;
+}
+
+.lit-flyout__split > .lit-panel__btn:first-child {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.lit-flyout__more {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  padding: 9px 4px;
+}
+
+.lit-flyout__more::after {
+  margin: 0 0 0 -3px;
+}
+
+.lit-flyout__menu {
+  position: fixed;
+  z-index: 1110;
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+.lit-flyout__menu[hidden] {
+  display: none;
+}
+
+.lit-flyout__menu .lit-panel__btn {
+  white-space: nowrap;
+}
+
+/* Keyboard focus on a panel button: the shared ring. */
+.lit-flyout__trigger:focus-visible,
+.lit-flyout__more:focus-visible,
+.lit-flyout__menu .lit-panel__btn:focus-visible,
+.lit-flyout__split > .lit-panel__btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
 .lit-panel--chips .lit-panel__row {
   display: flex;
   flex-wrap: wrap;
@@ -3883,10 +3970,13 @@ html[data-desk-show="off"] button[data-desk-toggle],
 body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--intro .scripture-main, .rm-page .rm-reader, .article__card, .glossary-entries .entries-wrap)) button[data-desk-toggle] {
   display: none !important;
 }
-/* The header's "Study Desk" links go to /desk, so they need no reading column
-   and show on every page of the site (BVJ, 2026-10-30), except the desk's own
-   header, which is already there. Only the buttons that open the panel (Read
-   View's toolbar) are held to the reading surfaces above. */
+/* The header's "Study Desk" links go to /desk, so they need no reading column.
+   They are on the home page only now (BVJ, 2026-11-06, E50; SiteHeader's
+   deskLink), and never in the desk's own header, which is already there. The
+   scripture toolbar's and /read's Study Desk pills are plain links too, shown
+   by their own rules (ScriptureLayout, ReadMenu) with the preview on. Only the
+   buttons that open the panel (Read View's toolbar) are held to the reading
+   surfaces above. */
 
 /* The narrower reading measures for the desk, on for the preview only until
    the desk is released. --ch is untouched. 52 (from 60; BVJ, 2026-10-05),

@@ -175,9 +175,10 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
   // Escape closes and, for keyboard-opened panels, restores focus.
   el.addEventListener("keydown", (e) => {
     if (e.key !== "Tab") return;
-    const focusables = el.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
+    // A hidden flyout's buttons (panel-flyout.js) can't take focus.
+    const focusables = [
+      ...el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+    ].filter((f) => !f.closest("[hidden]"));
     if (!focusables.length) return;
     const first = focusables[0];
     const last = focusables[focusables.length - 1];

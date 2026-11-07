@@ -307,6 +307,61 @@ test("a deleted bookmark stops following", async () => {
   assert.equal(session.getItem("lit-desk-follow"), null);
 });
 
+/* ── /desk follows its leading LIT pane (E28, BVJ 2026-11-06) ─────────── */
+
+const { DESK_PAGE } = await import("../src/lib/desk-bookmarks.mjs");
+const deskAt = (book, chapter, verse) => ({ book, chapter, verse, view: "desk" });
+
+test("E28: on /desk only the page's own reports count, and a new leading pane pauses the follow", async () => {
+  const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
+  tab("/desk/", { session });
+  const store = fakeStore([bookmark()]);
+  const told = [];
+  const { initBookmarkFollow } = await loadFollower();
+  const desk = initBookmarkFollow({ store, ctx, tell: (about) => told.push(about), page: DESK_PAGE, place: () => null });
+  // Continue reading's record isn't /desk's reader, and the page reports nothing at load.
+  saveLastRead({ book: "romans", chapter: 8, verse: 31, view: "study" });
+  await settle();
+  assert.equal(store.writes.length, 0);
+
+  // Another LIT pane takes the lead, even beside the bookmark: it pauses.
+  desk.lead(deskAt("romans", 8, 31));
+  await settle();
+  assert.equal(store.writes.length, 0);
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
+  assert.equal(told.length, 1);
+
+  // Reading on from the bookmark in the leading pane resumes and moves it.
+  desk.hear(deskAt("romans", 8, 32));
+  await settle();
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, undefined);
+  assert.equal(store.map.get("r1").verse, 32);
+  assert.equal(told.length, 1);
+});
+
+test("E28: a far jump on /desk pauses at once, and “Move it here” takes the leading pane's place now", async () => {
+  const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
+  tab("/desk/", { session });
+  const store = fakeStore([bookmark()]);
+  const told = [];
+  let leading = deskAt("john", 3, 16);
+  const { initBookmarkFollow } = await loadFollower();
+  const desk = initBookmarkFollow({ store, ctx, tell: (about) => told.push(about), page: DESK_PAGE, place: () => leading });
+  desk.hear(leading); // the picker took the leading pane to John 3:16
+  await settle();
+  assert.equal(store.map.get("r1").bookKey, "romans");
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
+  assert.equal(told.length, 1);
+
+  leading = deskAt("john", 3, 18); // read on a little before pressing it
+  assert.equal(await told[0].move(), true);
+  const r = store.map.get("r1");
+  assert.deepEqual([r.bookKey, r.chapter, r.verse], ["john", 3, 18]);
+  const flag = JSON.parse(session.getItem("lit-desk-follow"));
+  assert.equal(flag.bookKey, "john");
+  assert.equal(flag.paused, undefined);
+});
+
 /* ── One tab follows (BVJ's Duplicate tab check, 2026-10-29) ─────────── */
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));

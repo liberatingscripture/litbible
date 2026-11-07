@@ -20,7 +20,8 @@ From the root's project tree.
                      #   term-lens, the Chapter View term underline and card;
                      #   header-search, the header's search strip;
                      #   keyboard-shortcuts; verse-image, which draws and
-                     #   hands on "Make an image"; glossary-entry-links, the
+                     #   hands on "Share image"; panel-flyout, the one
+                     #   flyout row the panels share; glossary-entry-links, the
                      #   copy-link buttons on /glossary; glossary-selection,
                      #   its selection panel; panel-pieces, what every
                      #   panel is built from; keep-reading-place,
@@ -155,14 +156,36 @@ screen-reader route to the same copy (in Chapter View; Read View has none).
 The verse menu and the selection panel offer **the same actions under the
 same names** (owner, 2026-09-29): **Copy text** (the words, the reference and
 the verse link), **Copy link**, **Copy with footnotes** (the handout; see
-"Printing and handouts"), **Share…** and **Make an image**. Until then the
+"Printing and handouts"), **Share text…** and **Share image**. Until then the
 verse menu said "Copy verse", which can't name half a verse, and the
-selection panel said "Copy with reference" and had no Copy link. The labels
-are kept short on purpose, so the three copies fit one row on a phone. Only
-the verse menu's extras are its own: "Or copy one part" and the range hint,
-both about whole verses. Both panels build from the same pieces
-(`menuButton`, `shareButton`, `imageStep`, `panelRow`; the shared ones are in
-`src/scripts/panel-pieces.js`), so keep them in step.
+selection panel said "Copy with reference" and had no Copy link. "Share…" and
+"Make an image" became "Share text…" (the share sheet, with the words and the
+link) and "Share image" on 2026-11-06 (E39). Only the verse menu's extras are
+its own: "Or copy one part" and the range hint, both about whole verses. Both
+panels build from the same pieces (`menuButton`, `shareButton`, `imageStep`,
+`panelRow`, `flyoutRow`; the shared ones are in `src/scripts/panel-pieces.js`
+and `panel-flyout.js`, and `actionRows` in `chapter-tools.js` lays the copy
+and share rows out for both), so keep them in step.
+
+**A mouse or the keyboard gets two flyout rows; a finger's chips stay flat**
+(BVJ, 2026-11-06, E39, for every reader). **"Copy text"** is a split row:
+pressing the row copies the text exactly as before (one press); its chevron,
+named "More ways to copy", hover (which never takes focus) or the right arrow
+open a flyout of Copy text, Copy link and Copy with footnotes. **"Share"** is
+a flyout of "Share text…" (only where the browser has a share sheet) and
+"Share image"; choosing Share image closes the flyout and the image questions
+(Ink or Paper, Square or Story) take the Share row's place, so the panel
+keeps its height. Where there is no share sheet the row is a flat "Share
+image" button. The flyout is `flyoutRow` in `panel-flyout.js`, the one
+implementation the Study Desk's "Bookmark ▸" and "Print ▸" use too (desk code
+imports it; this file never imports desk code): a trigger with
+`aria-haspopup="menu"` and `aria-expanded`, a `role="menu"` fixed to the
+window (`.lit-flyout*` in `global.css`), hover opens, a click, Enter or → move
+focus in, Escape or ← step back. The selection panel passes
+`pointerFocus: false`, so a mouse click never moves focus into it (the panel
+never takes focus; a keyboard press does). No explanatory hint text is added
+to either panel. The verse-number menu stays the keyboard and screen-reader
+route to all of it.
 
 **The glossary has a selection panel too** (owner, 2026-10-09), for every
 reader: selecting words in an entry's definition offers **Copy entry text**
@@ -178,17 +201,22 @@ It was a bare chain until then, which reads as a link that goes somewhere.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and
-Share… with Make an image in the next. The owner's rule is that **every
-row with two buttons is split the same way**, in either panel: exact halves.
-Three share their row evenly without going narrower than a label. A missing
-Share… (no share sheet) leaves Make an image the whole row, and once pressed
-its questions take the row over from Share…, so the panel keeps its height.
-A label never breaks: a button too wide for its share wraps to a line of its
-own, which is a one-button line, not a two-button row split differently.
-OpenDyslexic's chip buttons carry 4px of side padding rather than 8px for
-that reason (it sets only their minimum width). Measured in 2026-09, Share…
-and Make an image still take a line each in the phone sheet below 375px
-(360px Androids) and in the selection panel below about 400px.
+Share text… with Share image in the next, flat, with no flyouts (E39). The
+owner's rule is that **every row with two buttons is split the same way**, in
+either panel: exact halves. Three share their row evenly without going
+narrower than a label. A missing Share text… (no share sheet) leaves Share
+image the whole row, and once pressed its questions take the row over from
+Share text…, so the panel keeps its height. A label never breaks: a button too
+wide for its share wraps to a line of its own, which is a one-button line, not
+a two-button row split differently. OpenDyslexic's chip buttons carry 4px of
+side padding rather than 8px for that reason (it sets only their minimum
+width). Measured in 2026-11 from the fonts' advance widths (the 15.2px panel
+type, the labels plus padding, kerning ignored): at 360px "Share text…" and
+"Share image" fit one row in all three fonts, in the phone sheet (halves of
+166px) and in the selection panel (154px). The widest needs 106px (Inter),
+100px (Atkinson) and 148px (OpenDyslexic, 6px to spare in the selection
+panel). The old "Make an image" needed 125, 118 and 177px, which is why those
+two took a line each below 375px before the rename (2026-09).
 
 **The verse menu follows the input, as the selection panel does** (owner,
 2026-09-29), not the screen width, and **the text it covers must always stay
@@ -220,7 +248,7 @@ selection clears.
 
 ### Verse images
 
-**"Make an image"** closes the verse menu and the selection panel, so it
+**"Share image"** ("Make an image" until 2026-11-06, E39) closes the verse menu and the selection panel, so it
 works in both views (audit X8, owner 2026-09-28). It draws the passage in the
 share-card design, in the reader's browser, and hands it on: the phone's
 share sheet on a phone or tablet, a download on a computer, told apart by the
@@ -235,7 +263,7 @@ pure and unit-tested with a fake measure) and `src/scripts/verse-image.js`
 page drawn by the same code:
 
 1. **One button that becomes the next question** each time it's answered:
-   "Make an image", then Ink or Paper, then Square or Story, then the share
+   "Share image", then Ink or Paper, then Square or Story, then the share
    sheet or the download. Each question is one row the height of a button,
    so the panel never moves while it changes.
 2. **Two looks**: Ink, the share cards' own palette, and Paper, its light
@@ -248,7 +276,7 @@ page drawn by the same code:
 4. **The chapter's own address** on the image ("litbible.net/john-3"), always
    the site's name whatever host drew it. The owner counts it as the link back
    the license's social-media exception asks for. The share sheet also gets
-   the same text Share… sends, link included.
+   the same text Share text… sends, link included.
 5. **Length is measured, not counted.** The text is set at the largest size
    that fits, lines balanced, down to a floor that stays readable where the
    image is seen (40px on a square, about 13px in a phone's feed; 44px on a
@@ -321,7 +349,7 @@ notice there or nowhere.
   `FN_ON`/`FN_OFF`. Plain text reads as it always did ("17 God…", "[a]"), so the
   handout's letters are now marked, not literal brackets. Copy text carries no
   footnote letters, and a range's first verse number is left out of it, as in
-  plain. Links and other markup stay plain on purpose; Copy link, Share… and a verse image stay plain. A note's own blocks each take a line, which is what
+  plain. Links and other markup stay plain on purpose; Copy link, Share text… and a verse image stay plain. A note's own blocks each take a line, which is what
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
   quoted as it stands. Both layouts go through `assembleHandout`.

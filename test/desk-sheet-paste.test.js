@@ -243,6 +243,15 @@ test("scripts, styles, classes and handlers never survive", () => {
   for (const bad of ["alert", "script", "style", "class", "onclick", "color"]) assert.ok(!out.includes(bad), bad);
 });
 
+test("the Greek tab's copy keeps its words, which a button would have lost", () => {
+  // tab-greek.js turns each word's button into a span keeping its lang, since a
+  // button is dropped with what it holds (only the spaces, commas and verse
+  // numbers reached a sheet; BVJ, 2026-11-06).
+  const words = `<p class="desk-greek__p"><sup class="desk-greek__vn" data-vn="1">1</sup><span lang="grc">Ἐν</span> <span lang="grc">ἀρχῇ</span> <span lang="grc">ἦν</span> <span lang="grc">ὁ</span> <span lang="grc">λόγος</span>, <span>⸀</span><span lang="grc">καὶ</span></p>`;
+  assert.equal(read(chrome(words)), "<p><sup>1</sup>Ἐν ἀρχῇ ἦν ὁ λόγος, ⸀καὶ</p>");
+  assert.equal(read(chrome(`<p><sup>1</sup><button lang="grc">Ἐν</button> <button lang="grc">ἀρχῇ</button>,</p>`)), "<p><sup>1</sup> ,</p>");
+});
+
 test("every fixture reads to a canonical form that reads to itself", () => {
   assert.ok(seen.length > 20, "the invariants need the fixtures above to have run");
   for (const html of seen) {

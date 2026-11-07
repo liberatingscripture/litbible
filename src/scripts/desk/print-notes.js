@@ -56,6 +56,7 @@ import { markPieces } from "../../lib/desk-print-notes.mjs";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { chapterBlocks, chapterTextFor, footnoteList, pageChapter, readBook, readChapterBlocks } from "./page.js";
+import { onVerses } from "../../lib/desk-print-part.mjs";
 import { printLook } from "./print-look.js";
 
 /** Whether a range holds the whole of an element. */
@@ -181,7 +182,7 @@ const versesOf = (block) =>
   Array.from(block.querySelectorAll("[data-verse]"), (el) => Number(el.getAttribute("data-verse"))).filter(Number.isInteger);
 
 /** One printed note. */
-function noteElement(record, how) {
+export function noteElement(record, how) {
   const head = printHeading(record, recordReference(record), how);
   const el = document.createElement("section");
   el.className = "desk-print-note";
@@ -235,7 +236,8 @@ export async function printFonts(noteText = "") {
 
 /**
  * @param {{ store: object | null }} options
- * @returns {{ can(): boolean, print(): Promise<void> } | null} null where the
+ * @returns {{ can(): boolean, print(): Promise<void>,
+ *   build(s: object, only?: { start: number, end: number } | null): Promise<{ noteText: string, undo(): void }> } | null} null where the
  *   browser can't keep a notebook
  */
 export function createPrintNotes({ store }) {
@@ -244,10 +246,17 @@ export function createPrintNotes({ store }) {
   /** Whether this page can print with notes: a Chapter View chapter, or Read View. */
   const can = () => Boolean(surface()?.container);
 
-  async function build(s) {
-    const mine = s.only
+  /**
+   * Adds the notes' print-only markup to the page and returns its undo and
+   * the text the notes are set in. `only` ({ start, end }) limits it to the
+   * records on those verses, which is how "Print ▸" in the verse menu prints
+   * the notes of just the verses it keeps (print-part.js, E40).
+   */
+  async function build(s, only = null) {
+    const all = s.only
       ? forChapter(await store.byChapter(s.bookKey, s.only), s.bookKey, s.only)
       : liveRecords(await store.all()).filter((r) => r.bookKey === s.bookKey);
+    const mine = only ? all.filter((r) => onVerses(r, only.start, only.end)) : all;
     const allNotes = mine.filter((r) => r.kind === "note");
     // A note on a footnote prints beside its footnote, not after a block.
     const notes = allNotes.filter((r) => !onFootnote(r));
@@ -406,5 +415,5 @@ export function createPrintNotes({ store }) {
     });
   }
 
-  return { can, print };
+  return { can, print, build };
 }

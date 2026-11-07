@@ -7,22 +7,20 @@ import SearchBar from "./SearchBar.astro";
 // headerSearch: a search icon beside "Aa" that opens a search strip under
 // the header, on pages with no search box of their own (see Layout's
 // pageSearch). Without JS the icon is a plain link to /search.
-// The Notebook button beside "Aa" opens the Study Desk's docked panel, with
-// its name written out beside the glyph so the new tool can be found. It is
-// in every page's markup and hidden by global.css unless <html data-desk> is
-// set (a computer with the preview on; see Layout.astro), so it shows from
-// first paint without moving the header. desk-gate.js loads the desk.
+// The Study Desk link beside "Aa" is on the home page only (deskLink; BVJ,
+// 2026-11-06, E50). Scripture pages and /read carry their own pill in the page
+// (ScriptureLayout's toolbar, ReadMenu's row), and no other page has one. The
+// name is written out beside the glyph so the new tool can be found. It is
+// hidden by global.css unless <html data-desk> is set (a computer with the
+// preview on; see Layout.astro), so it shows from first paint without moving
+// the header. desk-gate.js loads the desk.
 // deskTitle: the Study Desk's own header (/desk, BVJ 2026-10-21), at every
 // width: the emblem and "LIT Bible" as the home link, the page's title
 // centered, and then the menu button. desk-page.js turns the title into a
 // menu and moves Aa into it (E15), so Aa is in the markup but leaves the bar
 // once the desk is up.
 // No nav row and no search.
-// deskPlace: on a chapter page, its address ("romans-8"), which the Study
-// Desk link carries as ?place= so the desk opens at the chapter being read
-// (E8). Everywhere else the link is plain /desk/.
-const { class: className = "", scriptureControls, headerSearch = false, deskTitle, deskPlace } = Astro.props;
-const deskHref = deskPlace ? `/desk/?place=${deskPlace}` : "/desk/";
+const { class: className = "", scriptureControls, headerSearch = false, deskTitle, deskLink = false } = Astro.props;
 
 // Text size steps. The visible letters are the usual abbreviations; the
 // radios carry the words for screen readers.
@@ -100,19 +98,21 @@ const SIZE_OPTIONS = [
               <span aria-hidden="true">Aa</span>
               <span class="sr-only">Display settings</span>
             </button>
-            <a
-              class="site-header__desk site-header__desk--nav"
-              href={deskHref}
-              data-desk-toggle
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
-                <path d="M14.5 4h3l2.5 6h-8z" />
-                <path d="M16 13.5v2" />
-              </svg>
-              <span class="site-header__desk-label">Study Desk</span>
-            </a>
+            {deskLink && (
+              <a
+                class="site-header__desk site-header__desk--nav"
+                href="/desk/"
+                data-desk-toggle
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
+                  <path d="M14.5 4h3l2.5 6h-8z" />
+                  <path d="M16 13.5v2" />
+                </svg>
+                <span class="site-header__desk-label">Study Desk</span>
+              </a>
+            )}
           </div>
         </li>
       </ul>
@@ -140,19 +140,21 @@ const SIZE_OPTIONS = [
         <span aria-hidden="true">Aa</span>
         <span class="sr-only">Display settings</span>
       </button>
-      <a
-        class="site-header__desk site-header__desk--actions"
-        href={deskHref}
-        data-desk-toggle
-      >
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-          <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
-          <path d="M14.5 4h3l2.5 6h-8z" />
-          <path d="M16 13.5v2" />
-        </svg>
-        <span class="site-header__desk-label">Study Desk</span>
-      </a>
+      {deskLink && (
+        <a
+          class="site-header__desk site-header__desk--actions"
+          href="/desk/"
+          data-desk-toggle
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
+            <path d="M14.5 4h3l2.5 6h-8z" />
+            <path d="M16 13.5v2" />
+          </svg>
+          <span class="site-header__desk-label">Study Desk</span>
+        </a>
+      )}
       <button
         class="site-header__menu-toggle"
         type="button"
