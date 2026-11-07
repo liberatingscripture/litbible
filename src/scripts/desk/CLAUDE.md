@@ -585,7 +585,13 @@ against `dist/` is a later item.
        **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22; the
        word "ribbon" is for the note marker alone, E10). A `bookmark` record is
        a verse, an optional `label` (its name, up to 40 characters, not
-       unique) and an optional `follow: true` ("Move as I read"). **A bookmark
+       unique) and an optional `follow: true` ("Move as I read"), **with two
+       stamps beside `modified`, `placedAt` for its place and `editedAt` for
+       everything else** (`BOOKMARK_PLACE_FIELDS`; `createRecord` and
+       `editRecord` keep them, and the merge takes each group from the copy
+       whose stamp is newer, DI3-3), so a write of a bookmark goes through
+       `editRecord`, never a spread, and the follower writes the place
+       group alone. **A bookmark
        stays on its verse unless that switch is on** (BVJ, 2026-11-02). The old
        ribbon, a `place` with `ribbon: true`, is read as a bookmark that
        follows by `migrateRecord` (same id, `name` to `label`), so nothing else

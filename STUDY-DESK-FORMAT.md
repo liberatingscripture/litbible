@@ -171,7 +171,29 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      their own rule for when to move it, but must not move a bookmark whose
      `follow` is absent;
    - an optional `from`: how the reader got there (a search, an episode, an
-     intro).
+     intro);
+   - **`placedAt` and `editedAt`** (audit 3 DI3-3; **BVJ's decision 2,
+     2026-11-07, on Claude's recommendation; merge vectors version 5; for
+     BDR to review and amend**): two more stamps beside `modified`, in the
+     same form. `placedAt` is when the bookmark's **place** last changed
+     (`bookKey`, `chapter`, `verse`, `endVerse` and `contentVersion`, the
+     text it was read on); `editedAt` when anything else did (`label`,
+     `labels`, `follow`, `from`, and any field a client adds). A write
+     moves the stamp of each group it touches to the new `modified`; a
+     move as the reader reads writes the place and `placedAt` only. Under
+     "Clocks": two copies that both carry the stamps merge **by group**, the
+     place from the copy whose `placedAt` is later and the rest from the
+     copy whose `editedAt` is later, with `modified` and `client` from the
+     copy whose `modified` is later; a copy without both stamps merges
+     whole by rule a as before, so an app that hasn't adopted them still
+     syncs, and gains them on its next write by a client that has. The
+     only field-level rule in the format, and confined to this kind. Why: a
+     bookmark that moves as the reader reads is written every two seconds,
+     so by the whole record a rename, a label, or "Move as I read" turned
+     off on another device always lost to the reading device's next move,
+     which also turned the switch back on. (Stopping the follower when the
+     record changed under it was weighed and would not help: a reading
+     device's every write arrives newer than the edit from elsewhere.)
 
    **At most six bookmarks with `follow: true` on the website** (plain
    bookmarks are unlimited); a client that offers the switch picks its own
@@ -872,10 +894,18 @@ deletion made in between, every time (BA4). So:
   rule does across ids: the later `deletedAt`, the later `modified`, and the
   held record with the later `modified`. A trash record whose held record has
   another id than `deletedId` is skipped and reported.
-- **What is clamped**: `modified`, a trash record's `deletedAt`, and the
+- **What is clamped**: `modified`, a trash record's `deletedAt`, the
   `modified` of the copy a trash record holds (BA12; a held copy from the
   future would outrank every later one, and an undo would bring back its
-  words).
+  words), and a bookmark's `placedAt` and `editedAt` (version 5).
+- **A bookmark merges by group** (audit 3 DI3-3; merge vectors version 5,
+  2026-11-07; for BDR to review): where both copies carry `placedAt` and
+  `editedAt` (kind 4), the place comes from the later `placedAt`, the rest
+  from the later `editedAt`, and `modified` and `client` from the later
+  `modified`, each tie settled as rule a settles one (the local copy, or
+  the store's tiebreak). Rules b and c read the bookmark's `modified` as
+  before. The five `a-bookmark-` and `clamp-a-bookmark-` cases show it,
+  including an app's copy without the stamps merging whole.
 - **A record that had to be clamped never beats anything the receiving side
   holds**: it is dropped when that side has a record with its id or a
   deletion of it, or, for a trash record, the record it deletes or another
