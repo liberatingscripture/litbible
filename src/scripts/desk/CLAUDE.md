@@ -537,7 +537,13 @@ against `dist/` is a later item.
        typed verse as for its own), and it writes `verse`, `endVerse` and
        `contentVersion` as a new bookmark gets them; other fields (`from`
        included) are kept. Moving the bookmark this tab follows moves where it
-       rests (`restedAt`), and the next report is judged from there. The verse menu lists "Edit bookmark…" right after
+       rests (`restedAt`), and the next report is judged from there. **"Start
+       following now?"** (E47) shows under the switch while it is checked, and
+       only when this tab could start it (not while it follows this one, not
+       where the page doesn't follow the reader, not with six others moving);
+       otherwise a line says which. Checked at Save, the bookmark is saved and
+       then followed (`followBookmark`), even when nothing else changed, so a
+       new bookmark from the verse menu starts following with its first Save. The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes

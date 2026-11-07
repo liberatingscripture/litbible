@@ -2656,6 +2656,22 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   font-size: 0.8125rem;
 }
 
+/* "Start following now?" (E47): under the switch it belongs to, and gone
+   (not just empty) while it isn't offered, since the label is a flex row. */
+.desk-bookmark-form__start {
+  margin-left: 26px;
+}
+
+.desk-bookmark-form__start[hidden] {
+  display: none;
+}
+
+.desk-bookmark-form__start-note {
+  margin: 0 0 10px 26px;
+  color: rgba(var(--ink-rgb), 0.75);
+  font-size: 0.8125rem;
+}
+
 /* ── 1d: first use (the first-time choice, the foot, the tour) ── */
 
 /* src/scripts/desk/first-use.js and tour.js. Tokens only, so every colour

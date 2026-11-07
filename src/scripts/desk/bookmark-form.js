@@ -12,14 +12,22 @@
 // verse) are src/lib/desk-bookmarks.mjs and desk-bookmark-change.mjs, applied
 // in the one transaction that writes.
 
-import { BOOKMARK_NAME_MAX, MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
+import { BOOKMARK_NAME_MAX, MAX_FOLLOWING, canFollowMore } from "../../lib/desk-bookmarks.mjs";
 import { bookmarkPlace, placeLabel, planBookmarkEdit, roomAt } from "../../lib/desk-bookmark-change.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
 import { closePanel, showPanel } from "../lit-panel.js";
-import { isFollowedHere, restedAt, restingId, stopFollowing } from "./bookmark-follow.js";
+import {
+  followBookmark,
+  followsHere,
+  isFollowedHere,
+  isPausedHere,
+  restedAt,
+  restingId,
+  stopFollowing,
+} from "./bookmark-follow.js";
 import { undoEntry } from "./history.js";
-import { showUndo } from "./undo-bar.js";
+import { announce, showUndo } from "./undo-bar.js";
 
 let seq = 0;
 
@@ -68,6 +76,11 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
       Open this bookmark from your list, and it follows you through the book.
       Off, it stays put on its verse. Up to ${MAX_FOLLOWING} bookmarks can move.
     </p>
+    <label class="desk-bookmark-form__follow desk-bookmark-form__start" hidden>
+      <input type="checkbox" class="desk-bookmark-form__start-box" />
+      <span>Start following now?</span>
+    </label>
+    <p class="desk-bookmark-form__start-note" role="status" hidden></p>
     <p class="desk-editor__error" role="alert" hidden></p>
     <div class="desk-editor__actions">
       <button type="button" class="desk-editor__cancel">Cancel</button>
@@ -96,6 +109,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
     lockLine.textContent = value
       ? `${verse} already has a bookmark that stays put, so this one moves as you read.`
       : `${verse} already has a bookmark that moves as you read, so this one stays put.`;
+    drawStart();
   }
   function freeSwitch() {
     follow.disabled = false;
@@ -124,6 +138,43 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
       })
       .catch(() => {});
   }
+  // "Start following now?" (E47, BVJ 2026-11-05): the dialog's way to do what a
+  // row's "Start following" does (E44), offered while "Move as I read" is
+  // checked, and only when this tab could start it: not while it already
+  // follows this one, not on a page that doesn't follow the reader, and not
+  // with six others already moving. Otherwise a line says which.
+  const startWrap = panel.querySelector(".desk-bookmark-form__start");
+  const startBox = panel.querySelector(".desk-bookmark-form__start-box");
+  const startNote = panel.querySelector(".desk-bookmark-form__start-note");
+  let atLimit = false;
+  function drawStart() {
+    const why = !follow.checked
+      ? null
+      : isFollowedHere(record.id)
+        ? isPausedHere(record.id)
+          ? "It’s already following you in this tab, paused where you left off."
+          : "It’s already following you in this tab."
+        : !followsHere()
+          ? "It can start following from a chapter or Read View page."
+          : atLimit
+            ? "Six of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them."
+            : null;
+    startWrap.hidden = !follow.checked || Boolean(why);
+    if (startWrap.hidden) startBox.checked = false;
+    startNote.hidden = !why;
+    startNote.textContent = why ?? "";
+  }
+  follow.addEventListener("change", drawStart);
+  drawStart();
+  // The limit, as the notebook holds it now; the write checks it again.
+  store
+    ?.all?.()
+    .then((records) => {
+      atLimit = !canFollowMore(records, record.id);
+      drawStart();
+    })
+    .catch(() => {});
+
   if (lock !== null) fixSwitch(lock);
   else lookAt(record);
   verseInput.addEventListener("change", () => {
@@ -172,16 +223,29 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
       saveButton.disabled = false;
       return;
     }
+    // Checked and still offered: the follow starts once the bookmark is saved
+    // (E47), the way a row's "Start following" starts it.
+    const startNow = !startWrap.hidden && startBox.checked && follow.checked;
+    const saved = outcome?.record ?? record;
     // Nothing changed: nothing was written.
-    if (!outcome?.plan) return closePanel();
+    if (!outcome?.plan) {
+      closePanel();
+      if (startNow && saved.follow === true) {
+        followBookmark(saved);
+        announce(`The bookmark on ${recordReference(saved)} is following you now.`);
+      }
+      return;
+    }
     const entry = store.lastEntry();
     // Turned off while this tab is moving it: it stops now, not at the next scroll.
     if (!follow.checked && isFollowedHere(record.id)) stopFollowing();
     // Moved while this tab follows it: where it rests moves too (E46).
-    if (outcome.moved && isFollowedHere(record.id)) restedAt(record.id, outcome.record.bookKey);
+    if (outcome.moved && isFollowedHere(record.id)) restedAt(record.id, saved.bookKey);
+    const started = startNow && saved.follow === true;
+    if (started) followBookmark(saved);
     closePanel();
-    const said = outcome.moved ? `Bookmark moved to ${recordReference(outcome.record)}.` : `Bookmark on ${ref} updated.`;
-    showUndo(said, () => undoEntry(entry));
+    const said = outcome.moved ? `Bookmark moved to ${recordReference(saved)}.` : `Bookmark on ${ref} updated.`;
+    showUndo(started ? `${said} It’s following you now.` : said, () => undoEntry(entry));
   }
 
   saveButton.addEventListener("click", save);
