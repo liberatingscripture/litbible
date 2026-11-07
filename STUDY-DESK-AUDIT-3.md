@@ -1397,6 +1397,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-10 · Low · longevity · NEW (extends LG-13/FA2-z)
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-cleanups`):** `commands-window.js` imports `make` from `dom.js`, and the chevron pair in `intro-pane.js`, `passage-bar.js` and `tab-verse.js` comes from `chevronIcons()` in `glyphs.js`. The other copies are left alone.
+
 **Where** `src/scripts/desk/commands-window.js:37`, `desk-tour.js:47`, `first-use.js:82`, `sheet-text.js:69`; `desk-sheet-format.mjs:664-665`, `desk-sheet-discussion.mjs:96`, `desk-sheet-doc.mjs:98`.
 **What happens** `dom.js` (FA2-z, 2026-11-04) is imported by 25 modules, and all the new pane code (`intro-pane`, `sheet-save`, `sheet-page`, `trash-list`) uses it. One new copy appeared after it existed: `commands-window.js` (added 2026-11-06, E31) defines its own `make`. Three older copies remain because they differ by `!== undefined` against `!= null`. Plus four HTML escapers and one XML escaper; the document and slide writers all share `xmlEscape`, which is good. The same chevron SVG pair is pasted in `intro-pane.js`, `passage-bar.js` and `tab-verse.js`. None of this causes a bug today.
 **Fix** Use `dom.js` in `commands-window.js` now. Move the chevron icons to `glyphs.js` beside `OPEN_PAGE_ICON`. Leave the rest.
