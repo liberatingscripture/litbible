@@ -46,6 +46,8 @@ export default defineConfig({
   redirects: {
     '/read-now': '/read',
     '/podcast': '/found-in-translation-podcast',
+    // The Study Desk's help page was /notebook/help/ until it covered the whole desk.
+    '/notebook/help': '/desk/help/',
   },
   integrations: [
     sitemap({
@@ -58,7 +60,7 @@ export default defineConfig({
         // The Study Desk's notebook page and everything under it (noindex utility pages)
         if (slug === 'notebook' || slug.startsWith('notebook/')) return false;
         // The Study Desk as a page of its own (noindex, a preview)
-        if (slug === 'desk') return false;
+        if (slug === 'desk' || slug === 'desk/help') return false;
         // A sheet's own address (noindex, a preview, and only the reader's own sheets)
         if (slug === 'sheets' || slug.startsWith('sheets/')) return false;
         // /read/<book> aggregate pages for books that are entirely drafts

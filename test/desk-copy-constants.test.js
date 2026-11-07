@@ -22,20 +22,19 @@ const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 
 const WORDS = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven" };
 
-test("the trash's days in copy are TRASH_DAYS", () => {
-  // help.astro still types the number (CP3-6 is another session's); notebook-page.js builds it (below).
-  const file = "src/pages/notebook/help.astro";
-  const found = [...read(file).matchAll(/(\d+) days/g)].map((m) => Number(m[1]));
-  assert.ok(found.length, `${file} names the trash's days`);
-  assert.ok(found.every((n) => n === TRASH_DAYS), `${file} says ${found.join(", ")} days; TRASH_DAYS is ${TRASH_DAYS}`);
-});
-
 test("the notebook page builds the trash's days from TRASH_DAYS (CP3-7)", () => {
   const src = read("src/scripts/desk/notebook-page.js");
   assert.match(src, /import \{ TRASH_DAYS \} from "\.\.\/\.\.\/lib\/desk-records\.mjs"/);
   const code = src.split("\n").filter((line) => !line.trimStart().startsWith("//")).join("\n");
   assert.doesNotMatch(code, /\b\d+ days\b/, "no typed number of days in the code");
   assert.ok(src.match(/\$\{TRASH_DAYS\} days/g).length >= 4, "every trash sentence reads TRASH_DAYS");
+});
+
+test("the help page reads the trash's days from TRASH_DAYS (CP3-6)", () => {
+  const src = read("src/pages/desk/help.astro");
+  assert.match(src, /import \{ TRASH_DAYS \} from "\.\.\/\.\.\/lib\/desk-records\.mjs"/);
+  assert.ok(src.match(/\{TRASH_DAYS\} days/g).length >= 2, "both trash sentences read TRASH_DAYS");
+  assert.doesNotMatch(src, /\b\d+ days\b/, "no typed number of days");
 });
 
 test("the copy reminder's \"a week\" is REMIND_AFTER_DAYS", () => {
@@ -51,7 +50,7 @@ test("the Greek command line's \"Up to four words\" is MAX_TERMS", () => {
 
 test("copy that reads MAX_FOLLOWING does so, not a typed number", () => {
   assert.ok(MAX_FOLLOWING >= 1);
-  assert.match(read("src/pages/notebook/help.astro"), /\{MAX_FOLLOWING\}/);
+  assert.match(read("src/pages/desk/help.astro"), /\{MAX_FOLLOWING\}/);
   assert.match(read("src/scripts/desk/trash-list.js"), /\$\{MAX_FOLLOWING\}/);
 });
 

@@ -12,7 +12,7 @@
 //
 // Roots that are excluded, and why:
 // - src/scripts/desk/ (the desk itself): it is the desk, not shared code.
-// - src/pages/desk*, src/pages/notebook* (including notebook/help.astro, which
+// - src/pages/desk*, src/pages/notebook* (including desk/help.astro, which
 //   imports desk-bookmarks.mjs for its constants), src/pages/sheets*: the
 //   desk's own pages. They are reached only by their own URL, never by a
 //   shared import. A shared page (index, [slug], read/, search, privacy) is a

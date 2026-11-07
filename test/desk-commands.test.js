@@ -58,7 +58,7 @@ test("links carry their address and the rest carry none", () => {
   const byId = Object.fromEntries(matchCommands(">", chapter).map((c) => [c.id, c]));
   assert.equal(byId["notebook-page"].href, "/notebook/");
   assert.equal(byId["notebook-backup"].href, "/notebook/#backup");
-  assert.equal(byId["notebook-help"].href, "/notebook/help/");
+  assert.equal(byId["notebook-help"].href, "/desk/help/");
   assert.equal(byId["tour"].href, null);
 });
 

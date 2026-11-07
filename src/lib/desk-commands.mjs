@@ -102,7 +102,7 @@ export const COMMANDS = Object.freeze([
     name: () => "Ways to keep your notebook",
     keywords: ["sync", "help", "where"],
     needs: null,
-    href: "/notebook/help/",
+    href: "/desk/help/",
   },
   {
     id: "tour",
