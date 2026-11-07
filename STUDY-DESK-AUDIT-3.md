@@ -1446,6 +1446,8 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-9 · Low · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-more-tests`):** items (c) to (e) are tested: `test/panel-flyout.test.js` (the flyout's hover, click, arrow, Escape and `pointerFocus` rules), `test/desk-intro-text.test.js` (with `introText` and the `held` rule moved to `src/scripts/desk/intro-text.js`), and a `QuotaExceededError` case in `test/desk-store.test.js`. Items (a) and (b) are in another PR.
+
 **Where** Untested new or shared code (MX section 3 and my reading).
 **What happens** The new code with the most behavior and no test, ranked by risk:
 1. `src/scripts/panel-flyout.js` (82 lines): **shared with every reader** (the verse menu's "Copy text ▸" and "Share ▸", E39) and the desk. It owns the hover timer, `aria-expanded`, Escape/arrow handling and focus return. Only `desk-print-part.test.js` touches it. A regression here hits the public site, not the preview.
