@@ -51,6 +51,7 @@
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
   ARRANGEMENTS,
+  FULL_TEXT,
   HANDLE,
   KINDS,
   LAYOUT_KEY,
@@ -69,6 +70,7 @@ import {
   fitSizes,
   isFollower,
   kindLabel,
+  leavesReading,
   needs,
   neighborIn,
   nodeAt,
@@ -79,6 +81,7 @@ import {
   originalLayout,
   panes,
   readSaved,
+  regionNames,
   resize,
   setActive,
   setKind,
@@ -94,6 +97,8 @@ import {
   swapPanes,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
+import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
+import { bookKeyToLabel } from "../../data/books.js";
 import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
@@ -106,7 +111,7 @@ import { createDeskTour } from "./desk-tour.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
-import { turnOffMarks, turnOnMarks } from "./reading-display.js";
+import { marksRemembered, turnOffMarks, turnOnMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { initBookmarkFollow } from "./bookmark-follow.js";
 import { showPausedBar } from "./bookmark-stop.js";
@@ -114,7 +119,7 @@ import { DESK_PAGE } from "../../lib/desk-bookmarks.mjs";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
-import { initUndo, showUndo } from "./undo-bar.js";
+import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 
 const NEEDS_TEXT = {
@@ -670,7 +675,9 @@ async function start() {
     refreshFull();
     document.addEventListener("fullscreenchange", refreshFull);
     fullItem.addEventListener("click", () => {
-      closeTitleMenu({ focus: false });
+      // Focus goes back to the title, so a refused request (announced below)
+      // doesn't leave it on the page's body (LV3-4).
+      closeTitleMenu();
       if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
       else {
         document.documentElement.requestFullscreen?.().catch(() =>
@@ -722,7 +729,9 @@ async function start() {
     ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
     notebookItem, tourItem, helpItem,
   ];
-  const topItems = () => (tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
+  // A disabled line is passed over by the arrow keys, Home and End, as in
+  // every menu (DK3-7; BVJ, 2026-11-07): its reason is drawn beside it.
+  const topItems = () => enabled(tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
 
   const DIRECTIONS = [
     { id: "column", label: "Add column" },
@@ -736,13 +745,14 @@ async function start() {
   function addWhy(direction) {
     const { width, height } = addRoom();
     const why = addPaneNeeds(layout, direction, width, height);
-    return why === "full" ? "Four is the most" : why ? NEEDS_TEXT[why] : null;
+    return why === "full" ? FULL_TEXT : why ? NEEDS_TEXT[why] : null;
   }
 
   function refreshAdd() {
-    const reasons = DIRECTIONS.map((d) => addWhy(d.id));
+    const { width, height } = addRoom();
+    const reasons = DIRECTIONS.map((d) => addPaneNeeds(layout, d.id, width, height));
     if (!reasons.every(Boolean)) return setDisabled(addItem, null);
-    setDisabled(addItem, reasons.includes("Four is the most") ? "Four is the most" : NEEDS_TEXT.larger);
+    setDisabled(addItem, reasons.includes("full") ? FULL_TEXT : NEEDS_TEXT.larger);
   }
 
   /** Draw the flyout's step: column or row, then the kinds replacing them. */
@@ -818,7 +828,7 @@ async function start() {
     titleMenu.hidden = false;
     titleButton.setAttribute("aria-expanded", "true");
     const items = topItems();
-    (enabled(items)[0] ?? items[0]).focus();
+    items[0]?.focus();
   }
 
   function closeTitleMenu({ focus = true } = {}) {
@@ -921,15 +931,40 @@ async function start() {
     writeKey(writeSaved(saved));
   }
 
+  /**
+   * Leaving Reading by any way at all (Add pane, a drag, a pane's kind, a
+   * link's sheet or introduction, as well as the Layout window) turns back on
+   * the marks it turned off (DK3-2; BVJ, 2026-11-07). The Layout window does
+   * it itself, to name them in its own message; this catches the rest, and
+   * finds nothing remembered after the window. Run before the panes are drawn
+   * so they come up right; not while the tour is changing the layout.
+   */
+  function leaveReading(before, next = layout) {
+    if (layoutFrozen || !leavesReading(before, next) || !marksRemembered()) return null;
+    const marks = turnOnMarks();
+    return marks.names.length ? marks : null;
+  }
+
+  /** Say that leaving Reading turned its marks back on, with Undo for both. */
+  function tellMarks(marks, before) {
+    showUndo(`Left Reading: turned on ${LIST.format(marks.names)}.`, () => {
+      marks.undo();
+      commit(before);
+    });
+  }
+
   /** Take a new layout: kept at once, and drawn (or only re-marked). */
   function commit(next, { draw: redraw = true } = {}) {
     if (next === layout) return;
+    const before = layout;
     layout = next;
+    const marks = leaveReading(before);
     save();
     if (redraw) draw();
     else mark();
     follow();
     tellFollower();
+    if (marks) tellMarks(marks, before);
   }
 
   /** The passage a pane shows now: a LIT pane's own, a following pane's own or the shared one. */
@@ -1111,14 +1146,16 @@ async function start() {
   function mark() {
     const all = panes(layout.root);
     const lits = all.filter((p) => p.kind === "lit").length;
+    const regions = regionNames(layout);
     for (const pane of all) {
       const rec = paneEls.get(pane.id);
       if (!rec) continue;
       const name = kindLabel(pane.kind);
       rec.kindButton.querySelector(".desk-pane__name").textContent = name;
       rec.kindButton.setAttribute("aria-label", `${name} pane: show something else here, or move it`);
-      // The region is named by its kind alone; the instruction stays on the button (DK-7).
-      rec.el.setAttribute("aria-label", name);
+      // The region is named by its kind, and its place where the kind repeats
+      // (DK3-8); the instruction stays on the button (DK-7).
+      rec.el.setAttribute("aria-label", regions.get(pane.id) ?? name);
       const leading = pane.kind === "lit" && lits > 1 && layout.active === pane.id;
       rec.lead.hidden = !leading;
       rec.el.classList.toggle("desk-pane--leading", leading);
@@ -1310,7 +1347,7 @@ async function start() {
     ];
     const sideWhy = (s) => {
       const why = addBesideNeeds(layout, id, s, width, height);
-      return why === "full" ? "Four is the most" : why ? NEEDS_TEXT[why] : null;
+      return why === "full" ? FULL_TEXT : why ? NEEDS_TEXT[why] : null;
     };
     const buildAdd = (fly, side) => {
       fly.replaceChildren();
@@ -1343,8 +1380,8 @@ async function start() {
         fly.append(b);
       }
     };
-    const addReasons = SIDES.map((s) => sideWhy(s.id));
-    const addWhy = addReasons.every(Boolean) ? (addReasons.includes("Four is the most") ? "Four is the most" : NEEDS_TEXT.larger) : null;
+    const addReasons = SIDES.map((s) => addBesideNeeds(layout, id, s.id, width, height));
+    const addWhy = addReasons.every(Boolean) ? (addReasons.includes("full") ? FULL_TEXT : NEEDS_TEXT.larger) : null;
 
     // Size this pane (DK-8): the click-only way to do what dragging a line
     // does, for a reader who can't drag. Each step is a tenth of the split.
@@ -1802,6 +1839,7 @@ async function start() {
   // else a new one beside the active pane. A sheet that isn't in this
   // notebook is ignored without a word. The parameter is stripped either way,
   // so a reload doesn't pull the pane back.
+  const arrivedAs = layout; // before a sheet or an introduction in the address moves panes
   const wanted = new URLSearchParams(location.search).get("sheet");
   if (wanted !== null) {
     try {
@@ -1825,6 +1863,7 @@ async function start() {
   // ?place= at its chapter 1) shows it in a Book Intro pane: one already open,
   // else a new one beside the active pane where the width holds it, as ?sheet=
   // does. Stripped either way.
+  let introNoRoom = "";
   const introBook = parseIntroParam(new URLSearchParams(location.search).get("intro"));
   if (new URLSearchParams(location.search).has("intro")) {
     try {
@@ -1833,13 +1872,18 @@ async function start() {
       history.replaceState(history.state, "", url);
     } catch (_) {}
     if (introBook) {
-      const next = showIntroIn(layout, introBook, panesBox.getBoundingClientRect().width).layout;
-      if (next !== layout) {
-        layout = next;
+      const result = showIntroIn(layout, introBook, panesBox.getBoundingClientRect().width);
+      if (result.layout !== layout) {
+        layout = result.layout;
         save();
       }
+      // No room for the pane: say so, as the Search pane does (DK3-3; BVJ,
+      // 2026-11-07), once the panes are drawn.
+      if (result.outcome === "none") introNoRoom = introMoveMessage(result, bookKeyToLabel(introBook));
     }
   }
+  // A sheet or an introduction may have opened a pane beside Reading's one.
+  const arrivalMarks = leaveReading(arrivedAs);
 
   // `/` (keyboard-shortcuts.js): the first Search pane's field, or the one
   // holding focus, else a new Search pane beside the active pane; with no room
@@ -1868,6 +1912,8 @@ async function start() {
 
   fitHeight();
   draw();
+  if (arrivalMarks) tellMarks(arrivalMarks, arrivedAs);
+  else if (introNoRoom) showNotice(introNoRoom);
 
   // ---- the Study Desk tour (E24) ----
 

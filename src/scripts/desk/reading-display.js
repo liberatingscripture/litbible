@@ -6,7 +6,11 @@
 // highlights, the four switches that mark up the text, and choosing another
 // layout turns back on the ones Reading turned off. What Reading turned off is
 // remembered (a key, so a reload in between doesn't forget), and a switch the
-// reader has already turned back on by hand is left alone.
+// reader has already turned back on by hand is left alone. Choosing Reading
+// again adds to what is remembered rather than replacing it (LV3-2), or a
+// second press, finding the marks already off, would forget them all. Any way
+// out of Reading brings them back (DK3-2; desk-page.js `leaveReading`), and
+// the key is cleared then, so it is set only while Reading is on the screen.
 //
 // The three Display switches are the tray's own (SiteHeader.astro's SETTINGS:
 // an attribute on <html>, absent for the default, mirrored to one key), set
@@ -49,14 +53,22 @@ function remember(ids) {
   } catch (_) {}
 }
 
-function remembered() {
+function rememberedIds() {
   try {
     const ids = JSON.parse(localStorage.getItem(KEY) || "[]");
-    return ITEMS.filter((item) => ids.includes(item.id));
+    return Array.isArray(ids) ? ids : [];
   } catch (_) {
     return [];
   }
 }
+
+const remembered = () => {
+  const ids = rememberedIds();
+  return ITEMS.filter((item) => ids.includes(item.id));
+};
+
+/** Whether Reading has marks to bring back: the one sign that leaving it should. */
+export const marksRemembered = () => remembered().length > 0;
 
 /** The result of a change: what it was, for the message, and how to take it back. */
 function change(items, to, remembering) {
@@ -72,10 +84,24 @@ function change(items, to, remembering) {
   };
 }
 
-/** Choosing Reading: turn off whichever of the four are on. */
+/**
+ * Choosing Reading: turn off whichever of the four are on, and remember them
+ * with whatever an earlier press remembered (LV3-2).
+ */
 export function turnOffMarks() {
   const items = ITEMS.filter(isOn);
-  return change(items, "off", items.map((item) => item.id));
+  const before = rememberedIds();
+  const ids = ITEMS.filter((item) => items.includes(item) || before.includes(item.id)).map((item) => item.id);
+  const result = change(items, "off", ids);
+  return {
+    names: result.names,
+    // Undo turns back on what this press turned off, and remembers what was
+    // remembered before it.
+    undo() {
+      result.undo();
+      remember(ITEMS.filter((item) => before.includes(item.id)).map((item) => item.id));
+    },
+  };
 }
 
 /** Leaving Reading: turn back on what Reading turned off and is still off. */

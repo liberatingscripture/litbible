@@ -38,6 +38,11 @@
 import { parsePassage } from "./desk-passage.mjs";
 
 export const MAX_PANES = 4;
+/**
+ * Why no pane can be added once there are MAX_PANES (D9): built from the
+ * constant, so the words can't drift from the limit (CP3-4).
+ */
+export const FULL_TEXT = `${["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"][MAX_PANES] ?? MAX_PANES} is the most`;
 export const MIN_WIDTH = 280;
 export const MIN_HEIGHT = 160;
 /** The width of the line between two panes, which the reader drags. */
@@ -156,6 +161,32 @@ export function arrangementOf(layout) {
   // Reading and One pane are one shape; the pane's kind tells them apart.
   if (layout.root.pane) return layout.root.pane.kind === "lit" ? "reading" : "one";
   return ARRANGEMENTS.find((a) => sig(a.shape) === s)?.id ?? null;
+}
+
+/**
+ * Whether a change of layout leaves Reading: from one LIT pane to anything
+ * else (more panes, or the one pane showing another kind). Every way out
+ * counts, not only the Layout window's rows (DK3-2).
+ */
+export const leavesReading = (before, next) =>
+  Boolean(before?.root && next?.root) && arrangementOf(before) === "reading" && arrangementOf(next) !== "reading";
+
+/**
+ * Each pane's accessible name, in the tree's order: its kind, and where a kind
+ * is open more than once, its place among them ("The LIT, 2 of 2"), so a
+ * screen reader's list of regions can tell them apart (DK3-8).
+ */
+export function regionNames(layout) {
+  const all = panes(layout?.root);
+  const total = new Map();
+  for (const p of all) total.set(p.kind, (total.get(p.kind) ?? 0) + 1);
+  const seen = new Map();
+  return new Map(all.map((p) => {
+    const n = (seen.get(p.kind) ?? 0) + 1;
+    seen.set(p.kind, n);
+    const name = kindLabel(p.kind);
+    return [p.id, total.get(p.kind) > 1 ? `${name}, ${n} of ${total.get(p.kind)}` : name];
+  }));
 }
 
 // ---- making and changing --------------------------------------------------
