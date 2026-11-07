@@ -2314,6 +2314,13 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   display: block;
 }
 
+/* "Add a note" is the plain note marker (BVJ, 2026-11-06), at the thumbtack's
+   size; glyph() gives its svg no size of its own. */
+.desk-fn-add__glyph {
+  width: 14px;
+  height: 14px;
+}
+
 /* The Footnotes list: the note and its buttons on one line, so the list grows
    no taller; a flag, when the note was rewritten, takes the line below. This
    is the "inline" placement (E49), which the left margin replaces where it has
@@ -2345,7 +2352,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 /* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
    (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
    follows its note in the document, so reading and tab order are the note,
-   Pin, then "+ Note" wherever it is drawn.
+   Pin, then "Add a note" wherever it is drawn.
      inline  (no attribute yet, or no room): a row on the note's line, as before;
      row     the two pills side by side in the left margin, level with the
              footnote's first line, right-aligned against the footnote;
@@ -2403,9 +2410,9 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   justify-content: flex-end;
 }
 
-/* Side by side, Pin is drawn nearest the footnote and "+ Note" outside it
+/* Side by side, Pin is drawn nearest the footnote and "Add a note" outside it
    (BVJ, 2026-11-06). Only the drawing flips: tab order stays note, Pin,
-   "+ Note", moving outward from the note. */
+   "Add a note", moving outward from the note. */
 .footnotes[data-desk-fn-pills="row"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
   flex-direction: row-reverse;
 }

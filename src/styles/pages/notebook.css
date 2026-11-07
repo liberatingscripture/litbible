@@ -16,6 +16,16 @@
   margin: 0 0 1rem;
 }
 
+/* The way back to /desk, drawn by desk/notebook-page.js under the title, in
+   the link style of /sheets' "Edit on the Study Desk". */
+.notebook-page__desk-line {
+  margin: -0.5rem 0 1rem;
+}
+
+.notebook-page__desk {
+  color: var(--green-text);
+}
+
 .notebook-page__off {
   margin: 0;
   max-width: calc(60 * var(--ch));

@@ -1,16 +1,16 @@
 // src/scripts/desk/footnote-pills.js
 //
-// Where a footnote's Pin (pins.js) and "+ Note" (footnote-notes.js) sit in
+// Where a footnote's Pin (pins.js) and "Add a note" (footnote-notes.js) sit in
 // Chapter View's Footnotes list (STUDY-DESK-FIXES.md, E49; BVJ, 2026-11-06).
 // The rule is src/lib/desk-footnote-pills.mjs (pure, unit-tested); this builds
 // the row and applies the answer, the way margin.js does for the Notebook.
 //
 // Each footnote gets one `.desk-fn-pills` after its `.fn-body`, so reading
-// order and tab order are the note, then its Pin, then "+ Note", wherever they
+// order and tab order are the note, then its Pin, then "Add a note", wherever they
 // are drawn. The list carries `data-desk-fn-pills="row" | "more" | "inline"`
 // (desk.css draws each):
 //   row     the two pills in the left margin, level with the footnote's first line;
-//   more    one "⋯" pill there, a disclosure button that opens Pin and "+ Note"
+//   more    one "⋯" pill there, a disclosure button that opens Pin and "Add a note"
 //           stacked under it; Escape, a click elsewhere or focus leaving closes it;
 //   inline  on the note's line, on its right, as before E49.
 // A footnote with one of the reader's margin notes beside it (notes-margin.js
@@ -38,10 +38,10 @@ function setOpen(wrap, on) {
 
 /**
  * The row of pills for one footnote: a "⋯" button (shown only in "more") and
- * the group holding Pin and "+ Note".
+ * the group holding Pin and "Add a note".
  *
  * @param {string} label the footnote's letter, which names the "⋯" button
- * @param {Array<HTMLElement | null>} buttons Pin, then "+ Note" (a null is skipped)
+ * @param {Array<HTMLElement | null>} buttons Pin, then "Add a note" (a null is skipped)
  * @returns {HTMLElement}
  */
 export function footnotePills(label, buttons) {
@@ -67,7 +67,7 @@ export function footnotePills(label, buttons) {
     setOpen(wrap, on);
   });
 
-  // Choosing Pin or "+ Note" closes the stack and keeps focus on the "⋯" (the
+  // Choosing Pin or "Add a note" closes the stack and keeps focus on the "⋯" (the
   // buttons under it are hidden again), before their own handlers run.
   group.addEventListener(
     "click",
@@ -93,7 +93,7 @@ export function footnotePills(label, buttons) {
  * the "⋯" when its list is in "more", since the pill is hidden again once the
  * stack closes.
  *
- * @param {HTMLElement} button Pin or "+ Note"
+ * @param {HTMLElement} button Pin or "Add a note"
  */
 export function pillsHome(button) {
   const wrap = button.closest(".desk-fn-pills");

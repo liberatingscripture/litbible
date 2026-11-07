@@ -1729,8 +1729,9 @@ against `dist/` is a later item.
      note citing its own verse is a chain like any other, so `notesCiting`
      (`desk-chains.mjs`) lists it rather than treating it as sitting on
      that verse (BA20).
-     - **`desk/footnote-notes.js` is its page side**: a "+ Note" button
-       (named "Add a note on footnote 3") beside every Pin (`addNoteButton`,
+     - **`desk/footnote-notes.js` is its page side**: an "Add a note" button,
+       the plain note marker's glyph (BVJ, 2026-11-06; it read "+ Note" until
+       then), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
        which `pins.js` and the tabs and pane call). **Pin is a glyph, not
        words** (E18): a thumbtack to pin, struck through to unpin, and the
        thumbtack means that and nothing else; a pane's "Stay here" on /desk
@@ -1739,19 +1740,19 @@ against `dist/` is a later item.
        handout and `footnoteList()` read only the footnote. The margin
        places such a note beside its footnote's `li` (`note-sources.js`)
        and marks the `li` instead of lighting verse words.
-     - **In the Footnotes list, Pin and "+ Note" sit in the left margin**
+     - **In the Footnotes list, Pin and "Add a note" sit in the left margin**
        (BVJ, 2026-11-06, E49; `desk/footnote-pills.js`, the rule in
        `src/lib/desk-footnote-pills.mjs`, pure and tested). `initPins` puts
        both in one `.desk-fn-pills` after each footnote's `.fn-body`, so
-       reading and tab order stay note, Pin, "+ Note" wherever they are
+       reading and tab order stay note, Pin, "Add a note" wherever they are
        drawn. The list measures its own left edge (on load, resize,
        `desk:column-moved`, the Display tray's size, face and text width, and
        fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
-       by side, Pin nearest the footnote and "+ Note" outside it (BVJ,
+       by side, Pin nearest the footnote and "Add a note" outside it (BVJ,
        2026-11-06; drawn reversed, so tab order is unchanged), right-aligned
        14px from the footnote, level with its first
        line, nothing grows), **`more`** (one "⋯" disclosure button there,
-       `aria-expanded`, that opens Pin and "+ Note" stacked under it; Escape, a
+       `aria-expanded`, that opens Pin and "Add a note" stacked under it; Escape, a
        click elsewhere or focus leaving closes it, and choosing either returns
        focus to the "⋯"), or **`inline`** (the pre-E49 placement on the note's
        line). The thresholds use the pills' measured widths: `row` needs the
@@ -1763,7 +1764,7 @@ against `dist/` is a later item.
        notes (full or circles) are in the same left margin, level with the
        footnote. Print hides the pills as before. Code that restores focus to
        a pill must use `pillsHome(button)`, since a pill behind a closed "⋯" is
-       hidden; the popover's own Pin and "+ Note" row, and /desk's panes, are
+       hidden; the popover's own Pin and "Add a note" row, and /desk's panes, are
        unchanged. Read View has no footnotes, so it has none of this.
      - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
        (pure, tested) turns the notes marked `question` on a sheet's

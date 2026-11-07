@@ -154,11 +154,14 @@ export function addNoteButton(id, label, where = pageChapter()) {
   const button = document.createElement("button");
   button.type = "button";
   // Looks as Pin does (desk.css), and is hidden from print the same way.
-  button.className = "desk-pin desk-fn-add";
+  // A glyph, as Pin is (E18): the plain note marker the note window shows
+  // (BVJ, 2026-11-06; "+ Note" until then), in the text's own color. The name,
+  // and the hover text, say what it does and which footnote.
+  button.className = "desk-pin desk-pin--glyph desk-fn-add";
   button.dataset.deskFnAdd = id;
-  button.textContent = "+ Note";
-  // "+ Note" is the visible label; the longer name says which footnote.
+  button.innerHTML = glyph("note", "desk-fn-add__glyph");
   button.setAttribute("aria-label", `Add a note on footnote ${label}`);
+  button.title = `Add a note on footnote ${label}`;
   button.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (isBusy(button)) return;

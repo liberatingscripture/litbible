@@ -1609,6 +1609,11 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   today). **Decided (BVJ, 2026-11-06): side by side in the left margin**, with
   the "⋯" fallback where it doesn't fit; the popover's own Pin and "+ Note"
   row stays as it is.
+  **BVJ, after a look (2026-11-06):** side by side, Pin is drawn nearest the
+  footnote, and "+ Note" became the plain note marker's glyph (the one the
+  note window shows), named "Add a note on footnote a", everywhere it appears.
+  /notebook gained "Open the Study Desk" under its title, its way back to the
+  desk now the header link is on home only (E50).
   Status: **built 2026-11-06.** `src/lib/desk-footnote-pills.mjs`
   (`footnotePillMode({ free, row, stack })`,
   `test/desk-footnote-pills.test.js`) picks `row`, `more` or `inline` from the
