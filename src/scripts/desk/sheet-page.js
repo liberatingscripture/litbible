@@ -31,8 +31,8 @@
 // - **A shared sheet**: `/sheets/#share1.<data>`, whose fragment the page's
 //   inline script has already moved into history.state.litSharedSheet before
 //   the analytics beacon could read the address, or a file opened with "Open a
-//   shared file". Shown like the reader's own, read only, with "Copy into my
-//   desk", which saves it as a new sheet of theirs. A participant share offers
+//   shared file". Shown like the reader's own, read only, with "Import into my
+//   notebook", which saves it as a new sheet of theirs. A participant share offers
 //   the participant copy only.
 
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../lib/desk-sheet-copy.mjs";
@@ -291,7 +291,7 @@ async function showSheet(root, store, id, view = null) {
 /**
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
- * only with "Copy into my notebook"; absent for the reader's own.
+ * only with "Import into my notebook"; absent for the reader's own.
  */
 async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   const id = sheet.id;
@@ -478,7 +478,7 @@ function drawCheck(box, checks, deskHref) {
   box.replaceChildren(head, list, advice);
 }
 
-/** "Shared with you", with "Copy into my notebook". */
+/** "Shared with you", with "Import into my notebook". */
 function sharedBanner(root, sheet, store, scope) {
   const box = make("div", "sheets-page__shared");
   box.setAttribute("role", "region");
@@ -489,16 +489,16 @@ function sharedBanner(root, sheet, store, scope) {
     strong,
     document.createTextNode(
       scope === "participant"
-        ? "This is the participant’s version of a sheet. It isn’t in your notebook until you copy it there."
-        : "This sheet isn’t in your notebook until you copy it there.",
+        ? "This is the participant’s version of a sheet. It isn’t in your notebook until you import it."
+        : "This sheet isn’t in your notebook until you import it.",
     ),
   );
-  const take = button("Copy into my notebook", "desk-sheet__btn desk-sheet__btn--primary");
+  const take = button("Import into my notebook", "desk-sheet__btn desk-sheet__btn--primary");
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
   if (!store) {
     take.disabled = true;
-    status.textContent = "This browser isn’t letting the site keep a notebook, so the sheet can be printed but not copied.";
+    status.textContent = "This browser isn’t letting the site keep a notebook, so the sheet can be printed but not imported.";
   }
   take.addEventListener("click", async () => {
     take.disabled = true;
@@ -506,8 +506,8 @@ function sharedBanner(root, sheet, store, scope) {
     try {
       await store.save(mine);
     } catch (err) {
-      console.error("Study Desk: couldn't copy the shared sheet", err);
-      status.textContent = "The sheet couldn’t be copied into your notebook. It is still here to print: try again in a moment.";
+      console.error("Study Desk: couldn't import the shared sheet", err);
+      status.textContent = "The sheet couldn’t be imported into your notebook. It is still here to print: try again in a moment.";
       take.disabled = false;
       return;
     }

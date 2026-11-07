@@ -1731,6 +1731,18 @@ server. Most hard parts exist in the repo already.
 
 ## Accounts and sync
 
+**For BDR's Claude (BVJ, 2026-11-06): labels, if the apps want them.** An
+offer, not a request: whether the apps use labels is entirely BDR's call, and
+no, or not now, needs no reply. Today a record's `labels` (label ids) travel
+through the apps untouched, while the `label` records themselves (kind 8, an id
+and a name) sit in the website-only zone the apps never open
+(STUDY-DESK-FORMAT.md, "Kinds only the website uses"), so a phone can't show
+the names. To use them, an app reads kind 8 and shows a record's labels by
+name; to make or apply labels, it keeps names unique ignoring case and accents,
+as the website does (a new label matching an old one reuses it). Moving kind 8
+out of that zone would be a format change to agree here first. Nothing on the
+website changes either way. (STUDY-DESK-FIXES.md, E38.)
+
 Added 2026-10-01 after BVJ talked with BDR. This reverses the feature audit's
 "set aside: accounts and cloud sync on the web".
 

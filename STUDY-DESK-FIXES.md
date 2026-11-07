@@ -260,6 +260,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     write there), and the whole-book print layout.
   - **Docs**: CLAUDE.md (routing, Key Conventions, print, the Study View
     and Read View rule, the desk's rules) and README.
+  - **Chapter View's name goes** (E33, BVJ 2026-11-06): what is left of it
+    becomes descriptive ("on its scripture page"), and the /read card's
+    description, not its heading, says how it differs.
   - **Tag the last commit with Read View** before removing it, as the way
     back.
   **Open, for BVJ:**
@@ -467,10 +470,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   bookmark found in search follows or stops like its row. **Accepted (BVJ):**
   /desk, /notebook and /search pause the flag instead of clearing it; a move overtakes Undo of an
   earlier edit after the reader reads on; the last move before a tab closes can
-  be lost. **Open for BVJ:** whether other rows (notes, highlights, pins,
-  Continue reading) that go to another chapter should stop following, and
-  whether the verse a moving bookmark sits on should count as bookmarked in
-  its verse menu. **Checked in the browser the same day (2026-11-04):** the pause
+  be lost. **Settled (BVJ, 2026-11-06): both stay as built.** Other rows
+  (notes, highlights, pins, Continue reading) that go to another chapter
+  don't stop a follow: they are jumps like any other, so a far one pauses it
+  and the next chapter carries it. And the verse a followed bookmark rests on
+  doesn't count as bookmarked in its verse menu: "Bookmark" is still offered,
+  with the resting line, "Leave it here" and Edit below it. **Checked in the browser the same day (2026-11-04):** the pause
   bar on a far jump (Luke 1 to Luke 5), "Move it here" (the bookmark goes to the
   new place, follows from there, and the next far jump pauses it again), a gold
   mark in dark mode, the Bookmark flyout in the selection panel (as in the verse
@@ -1190,8 +1195,16 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   hover text), the root CLAUDE.md's "Call them 'Chapter View' and 'Read View'"
   rule, and the docs that use the term. It must also decide what the
   Read View side is called once the other has no name (Read View is removed at
-  launch, E8, so the question may mostly disappear then). Status: **open,
-  waiting on BVJ.**
+  launch, E8, so the question may mostly disappear then). **Decided (BVJ,
+  2026-11-06): drop the name at launch (8c), not before.** While Read View
+  lives, "Chapter View" stays, since nearly every mention tells the two apart.
+  At 8c the mentions that are left become descriptive: where the desk tells a
+  reader where else they could read, plain words and an informal, lowercase
+  "scripture page" ("Open John 3 on its scripture page"), not a name. The /read
+  card's description carries the difference, so its heading needn't ("Scripture
+  Pages" was BVJ's suggestion; the words are settled at 8c). The root CLAUDE.md's
+  "Call them 'Chapter View' and 'Read View'" rule goes with Read View. Added to
+  8c's list under E8. Status: **decided; done at 8c.**
 
 - **E34, rough: a Search pane result's link to the passage goes to the
   scripture page, not the LIT pane.** BVJ (2026-11-05), from the Search pane on
@@ -1242,7 +1255,10 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   glossary's two sheets), named "Copy this version to the clipboard", and the
   failure line "Choose Copy again." "Save as a file" doesn't collide. **One
   for BVJ:** a shared sheet's banner button "Copy into my notebook" now sits
-  near the clipboard "Copy" with "copy" meaning a saved record; left as is.
+  near the clipboard "Copy" with "copy" meaning a saved record. **BVJ
+  (2026-11-06): "Import into my notebook"**, so the clipboard "Copy" is the only
+  copy on the page; the banner's line and its failure and no-storage lines say
+  "import" to match (`sharedBanner`, `sheet-page.js`). Status: **done 2026-11-06.**
 
 - **E37, wish: more file types under a sheet's "Save as a file".** BVJ
   (2026-11-05): the share menu's save-as-file should offer a document as
@@ -1283,7 +1299,9 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   unique ignoring case and accents, as the website keeps them) and to apply
   and show them; that is app work and a format decision (the zone is meant to
   stay generic), not a website change. Raise it with BDR if BVJ wants labels in
-  the apps. Status: **answered; waiting on BVJ whether to ask BDR.**
+  the apps. **BVJ (2026-11-06): ask, and leave it entirely to BDR** whether the
+  apps use them. Asked the same day in a note for BDR's Claude at the top of
+  "Accounts and sync" in `STUDY-DESK.md`. Status: **answered; asked BDR.**
 
 - **E39, wording and design: the verse menu and selection panel's "Share…" and
   "Make an image".** BVJ (2026-11-05), asking for thoughts. Proposed: "Share…"
@@ -1620,7 +1638,9 @@ the rest is polish.
     d's E36 and e (E31). E28 with E41 is built on its own branch
     (`claude/desk-phase5-e28`, 2026-11-06), awaiting BVJ's look. **Still open**:
     E37 (design first), f (E39, E40; mock first),
-    g (E49, E50; mock first; E43, Escape to test first), and BVJ's E33 and E38.
+    g (E49, E50; mock first; E43, Escape to test first). BVJ settled E33 (at
+    8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
+    2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
        group's heading), E42 (`glyphs.js`). E36 joins session d.
     b. *Bookmark dialog and following*: E44, E45, E46, E47, then E48 (the copy,
@@ -1640,8 +1660,6 @@ the rest is polish.
     g. *Layout and chrome*: E49 and E50, mock first, at the real widths; E43
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
-    Waiting on BVJ, not sessions: **E33** (does Chapter View need a name) and
-    **E38** (whether to ask BDR about labels).
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
