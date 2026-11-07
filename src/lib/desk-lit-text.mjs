@@ -68,3 +68,28 @@ export function prepareLitBlocks(blocks, prefix) {
 
 /** The prefix for one chapter in one pane: "p1-john-3-". */
 export const litPrefix = (paneId, bookKey, chapter) => `${paneId}-${bookKey}-${chapter}-`;
+
+/**
+ * Which of a chapter's verse starts the reading line has reached (E29): the
+ * last one, in document order, whose top is at or above the line, stopping at
+ * the first below it. `tops` is each `[data-verse]` span's top, in document
+ * order (a verse running over two blocks has a span in each, so the later one
+ * is a nearer mark for keep()). The spans are measured, never the verse
+ * numbers: a number hidden by the Display tray is an absolutely positioned
+ * 1px box, and where its containing block is outside the pane's scroller it
+ * doesn't move as the pane scrolls, so every hidden number read as verse 1.
+ *
+ * @param {Iterable<number>} tops read lazily, so a generator measures only
+ *   as far as the line
+ * @param {number} line
+ * @returns {number} the index in `tops`, or -1 when even the first is below the line
+ */
+export function indexAtLine(tops, line) {
+  let at = -1;
+  let i = 0;
+  for (const top of tops) {
+    if (top > line) break;
+    at = i++;
+  }
+  return at;
+}

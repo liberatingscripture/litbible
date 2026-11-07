@@ -145,6 +145,16 @@
      `SETTINGS`): removing it at the default would hand the page back to
      Chapter View's choice. Layout.astro learns the view from
      `scriptureControls` through `define:vars`.
+     **Chapter headings follow the numbers only where chapters run
+     together** (BVJ, 2026-11-05; STUDY-DESK-FIXES.md E29): Read View and
+     /desk's LIT pane, where numbers off means one unbroken text. Read View
+     removes its headings (`display: none`, `read-mode.css`); the LIT pane
+     hides its `.desk-lit__heading` the way rule 4 hides a number (`desk.css`):
+     out of the flow, adding no height, still a heading, a link and a focus
+     stop, shown over its chapter's first line while focused. E29's rule is
+     that a heading may stay wherever it makes no visual break, so Read View's
+     `display: none` could move to the same treatment. A Chapter View page is
+     one chapter already, so its heading and `h1` stay whatever the setting.
   Changing any of these reflows the page, so the tray pins the block at the
   reading line and scrolls it back (`keepReadingPlace`, in
   `src/scripts/keep-reading-place.js`, which the Study Desk's panel uses

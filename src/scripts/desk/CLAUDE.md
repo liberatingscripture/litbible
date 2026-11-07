@@ -1179,6 +1179,15 @@ against `dist/` is a later item.
        settles, and its ResizeObserver puts it back when the width or height
        changes (BA54). The room below the text is the part of the pane below
        the line (`--desk-lit-below`, BA57), so the last verses reach it.
+       **The verse at the line is read from the verses' `[data-verse]`
+       spans, never their numbers** (`placeNow`, `keep`, `indexAtLine` in
+       `desk-lit-text.mjs`; E29), since the Display tray may hide the
+       numbers. **The scroller is positioned** for the same reason: a hidden
+       number, letter or heading is a 1px absolute box (global.css), and with
+       the pane's body as its containing block it stayed where the text was
+       first drawn, so with numbers off the location field read verse 1 and
+       a jump to a verse landed wrong. With numbers off the chapter headings
+       are hidden that way too (styles/CLAUDE.md, the Display tray's rule 6).
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);

@@ -47,7 +47,7 @@
 //   and bookmarks are in My Notes, which follows this pane.
 
 import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
-import { litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
+import { indexAtLine, litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
 import { checkPassage, passageLabel, sameChapter } from "../../lib/desk-passage.mjs";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
@@ -335,6 +335,17 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     });
   }
 
+  /**
+   * Where each verse starts in a section: its `[data-verse]` spans, in
+   * document order (E29). Never the verse numbers, which the Display tray may
+   * hide; the spans hold the words and are always laid out.
+   */
+  const verseMarks = (section) =>
+    Array.from(section.querySelectorAll(":scope > .chapter-paragraphs [data-verse]"));
+  function* topsOf(marks) {
+    for (const m of marks) yield m.getBoundingClientRect().top;
+  }
+
   /** Where the reader is: the passage at the reading line. */
   function placeNow() {
     const s = sectionAtLine();
@@ -347,21 +358,16 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       const share = Math.min(0.999, Math.max(0, (line() - r.top) / Math.max(1, r.height)));
       return { bookKey: u.bookKey, chapter: u.chapters[Math.floor(share * u.chapters.length)], verse: null };
     }
-    const y = line();
-    let verse = null;
-    for (const m of s.querySelectorAll("sup.vn")) {
-      if (m.getBoundingClientRect().top > y) break;
-      const n = /v(\d+)$/.exec(m.id)?.[1];
-      if (n) verse = Number(n);
-    }
-    if (verse == null) verse = Number(/v(\d+)$/.exec(s.querySelector("sup.vn")?.id ?? "")?.[1]) || null;
-    return { bookKey: u.bookKey, chapter: u.chapters[0], verse };
+    // Before the line, or none: the chapter's first verse.
+    const marks = verseMarks(s);
+    const at = marks[Math.max(0, indexAtLine(topsOf(marks), line()))];
+    return { bookKey: u.bookKey, chapter: u.chapters[0], verse: Number(at?.dataset.verse) || null };
   }
 
   /**
    * Note where the text is, before the page takes the pane off it to redraw
    * the panes (which resets its scrolling, BA51), and return what puts it
-   * back: the verse number at or above the reading line goes back the same
+   * back: the verse start at or above the reading line goes back the same
    * distance from it, however a new width has rewrapped the lines. The move
    * isn't the reader's scrolling, so nothing is told.
    */
@@ -369,11 +375,8 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const s = sectionAtLine();
     if (!s || !scroller.clientHeight) return () => {};
     const y = line();
-    let mark = s;
-    for (const m of s.querySelectorAll("sup.vn")) {
-      if (m.getBoundingClientRect().top > y) break;
-      mark = m;
-    }
+    const marks = verseMarks(s);
+    const mark = marks[indexAtLine(topsOf(marks), y)] ?? s;
     const offset = mark.getBoundingClientRect().top - y;
     return () => {
       if (destroyed || !mark.isConnected || !scroller.clientHeight) return;
