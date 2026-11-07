@@ -436,7 +436,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
             ? `No ${colorFilter} highlights here.`
             : scope === "chapter"
               ? pageScope.empty
-              : "Nothing kept yet.";
+              : "Nothing kept yet. On a chapter, select a verse number and choose “Add a note,” “Add bookmark,” or “Highlight.”";
     if (speak) {
       speak = false;
       tell(countLine.hidden ? (empty.hidden ? "" : empty.textContent) : countLine.textContent);

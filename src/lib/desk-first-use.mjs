@@ -248,7 +248,7 @@ export const TOUR_STEPS = [
     title: "Search and commands",
     body: {
       default:
-        "The search box looks in your notebook too, and understands commands such as “hide,” “Greek,” and “tour.” Here it shows what “notebook” finds.",
+        "The search box searches your notebook as well as the text. Typing “>” lists its commands, such as hiding your marks, printing, and taking this tour again. Here it lists them.",
     },
   },
   {
