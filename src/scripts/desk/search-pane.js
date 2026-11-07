@@ -50,6 +50,7 @@ import {
 } from "../../lib/desk-search-pane.mjs";
 import { gatherMessage, passagesFromVerses, roomOnSheet, searchSheetTitle } from "../../lib/desk-sheet-gather.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
+import { NOTEBOOK_GROUP_TITLE } from "../../lib/desk-search.mjs";
 import { addModule, createSheet, makeModule } from "../../lib/desk-sheets.mjs";
 import { creditHtml } from "../../lib/greek-credits.mjs";
 import {
@@ -630,7 +631,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const nCount = r.notebook?.total ?? 0;
 
     if (nCount) {
-      const g = group(r.notebook.title ?? "Your notebook", "notebook");
+      const g = group(r.notebook.title ?? NOTEBOOK_GROUP_TITLE, "notebook");
       paged(g, r.notebook.hits, notebookRow);
       groupsEl.append(g);
       counts.push(plural(nCount, ...(r.notebook.nouns ?? ["notebook match", "notebook matches"])));
@@ -918,7 +919,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     groupsEl.replaceChildren();
     const nCount = last.notebook?.total ?? 0;
     if (nCount) {
-      const g = group(last.notebook.title ?? "Your notebook", "notebook");
+      const g = group(last.notebook.title ?? NOTEBOOK_GROUP_TITLE, "notebook");
       paged(g, last.notebook.hits, notebookRow);
       groupsEl.append(g);
     }
