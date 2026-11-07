@@ -2501,6 +2501,42 @@ carries no notice (a failed move falls to `changed` or `verse`, which do);
 U+2015, U+2212 to "-"), one UTF-16 unit for one, so offsets are unchanged.
 The new cases are the last six of `resolve` in `anchor-vectors.json`.
 
+**Audit 3's shared-format decisions (BVJ, 2026-11-07, on Claude's
+recommendations; BDR, please review them and amend what doesn't work for the
+apps).** Rationale and evidence are in `STUDY-DESK-AUDIT-3.md` (DI3-1 to
+DI3-5, Appendices B and J). None is built yet; session 5 builds them, so a
+change from BDR before then costs nothing.
+1. **A mark that moves to another verse says so** (DI3-2; audit 2's open
+   question 1). Run over every chapter revision in git history, 15 of 18
+   `moved` results landed on the wrong words (Matthew 23 moved marks from five
+   verses onto verse 15, word for word the old formula). So a `moved` whose
+   range lies outside the anchor's verses, while those verses still exist,
+   carries the change notice; a move inside them stays silent. Spec version 4
+   and new vectors, riding with spec 3's confirmation.
+2. **A bookmark's place and its other fields merge separately** (DI3-3). A
+   bookmark that moves as the reader reads is written every 2 seconds, so
+   under rule a a rename, a label or "Move as I read" turned off on another
+   device always loses to the reading device's next move. A bookmark carries
+   `placedAt` (stamping `bookKey`, `chapter`, `verse`, `endVerse`,
+   `contentVersion`) and `editedAt` (everything else); the merge takes each
+   group from the copy whose stamp is newer, and `modified` is the later of
+   the two. A copy without the stamps merges by rule a, so an app that hasn't
+   adopted them still syncs. The follower writes only the place and
+   `placedAt`. Merge vectors version 5. The only field-level rule in the
+   format, so it is confined to bookmarks.
+3. **Every stamp is past what it replaces** (DI3-1; the website's code, with
+   this note for the apps). Within the five minutes of skew the format
+   allows, a deletion, a restore, or an undo made on the slower clock was
+   reversed by the merge, because only edits stamped past the version they
+   replace (DI-8). Now: an edit past the version, a deletion past the record,
+   a restore past the deletion, an undo past what it undoes, each by at least
+   1 ms. Rules a to c and the merge vectors don't change; the apps' own stamps
+   need the same step.
+4. **`star` reads as `emphasis`** (DI3-5): an iOS note still carrying the old
+   marker name is refused by the website today. It joins `RENAMED_MARKERS`.
+   BDR, please list every marker name either app has ever written, so the
+   website reads them all.
+
 **How the website answers (BVJ, 2026-10-07): through this file.** BDR's
 Claude reads this repo directly, so nothing is sent by hand and no new reply
 document is written; `STUDY-DESK-REPLY-TO-APPS.md` was the last. What the
