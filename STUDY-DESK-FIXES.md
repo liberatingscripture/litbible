@@ -1700,6 +1700,19 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   the Greek and the Footnotes have no verse to follow in an intro, though an
   intro has footnotes of its own). Status: **open, to discuss.**
 
+- **E54, bug: Greek copied from the Greek tab pastes into a sheet as only its
+  spaces, commas and verse numbers.** BVJ (2026-11-06): selected in the Greek
+  pane, Ctrl+C, then Ctrl+V in a sheet; the same clipboard pasted into Word
+  whole. Each Greek word (and each text-critical sign) is a `<button>`, so it
+  can be clicked for its details, and the sheet's paste cleaner
+  (`pastedSheetHtml`) drops a button with what it holds, on purpose, so a
+  pasted web page's controls never land as text. Word ignores the tag. Status:
+  **fixed 2026-11-06** in the Greek tab, not the cleaner: `tab-greek.js` writes
+  the clipboard itself on a copy inside the tab, the buttons turned to spans
+  keeping `lang="grc"`, the screen reader's "Verse " left out, and plain text
+  with a space after each verse number and a blank line between paragraphs. A
+  test in `desk-sheet-paste.test.js` holds that shape through the cleaner.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

@@ -844,6 +844,10 @@ against `dist/` is a later item.
        GK-20), the tab's `greek-data.js` and the search's `search-greek.js`
        alike, so a chapter on screen is fetched and parsed once. **Arrowing
        through words asks for a lexicon only at rest** (150 ms, GK-10).
+     - **A copy from the tab writes its own clipboard** (E54): its words and
+       signs are buttons, which a sheet's paste drops with their text, so
+       `tab-greek.js` turns them into `lang="grc"` spans and leaves out the
+       "Verse " labels. A new clickable element among the words needs the same.
      - **The tab never moves the page.** Its text scrolls on its own and
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop, moved with the arrow keys. The

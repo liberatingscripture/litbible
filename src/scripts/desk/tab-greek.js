@@ -729,6 +729,39 @@ export function createGreekTab({
     });
   }
 
+  // Copying the Greek (BVJ, 2026-11-06): each word and sign is a button, and a
+  // sheet's paste drops buttons with what they hold (as it should for a web
+  // page's controls), so a copy reached a sheet as spaces, commas and verse
+  // numbers. The clipboard gets the words as Greek text instead: buttons become
+  // spans keeping their lang, the screen reader's "Verse " goes, and the plain
+  // text puts a space after each verse number and a blank line between paragraphs.
+  el.addEventListener("copy", (e) => {
+    const sel = document.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount || !e.clipboardData) return;
+    const range = sel.getRangeAt(0);
+    if (!el.contains(range.commonAncestorContainer)) return;
+    const box = document.createElement("div");
+    box.append(range.cloneContents());
+    for (const n of box.querySelectorAll(".sr-only")) n.remove();
+    for (const b of box.querySelectorAll("button")) {
+      const s = document.createElement("span");
+      if (b.lang) s.lang = b.lang;
+      s.textContent = b.textContent;
+      b.replaceWith(s);
+    }
+    const html = box.innerHTML;
+    for (const vn of box.querySelectorAll("sup")) vn.append(" ");
+    const blocks = box.querySelectorAll("p, h3, h4");
+    const text = (blocks.length ? [...blocks] : [box])
+      .map((n) => n.textContent.replace(/\s+/g, " ").trim())
+      .filter(Boolean)
+      .join("\n\n");
+    if (!text) return;
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", text);
+    e.clipboardData.setData("text/html", html);
+  });
+
   scroller.addEventListener("click", (e) => {
     const sign = e.target.closest(".desk-greek__sign");
     if (sign) {
