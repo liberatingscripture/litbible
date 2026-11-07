@@ -271,7 +271,7 @@ most (different regions; merge in session order).
 | 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions made; BDR reviews the format later |
 | 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | nothing now (decisions 3, 4, 5, 9 made) |
 
-**Status (2026-11-07): every open finding is on a branch, in twelve PRs awaiting BVJ's review, with two follow-ups (#493, #494) from BVJ's answers below.**
+**Status (2026-11-07): every finding is fixed and merged to `main`**, in the PRs below (two of them, #493 and #494, follow up BVJ's answers further down).
 Session 1 is merged (NB3-1, NB3-2, NB3-11, NB3-12, checked live with the desk off and on; the
 chip layout's half of NB3-2 needs a touch screen and was not seen). The rest, each finding
 marked Fixed in its appendix:
@@ -293,9 +293,7 @@ marked Fixed in its appendix:
 | #493 | `claude/audit3-api2-vectors` | Decision 6 below (stacked on #487) |
 | #494 | `claude/audit3-menu-reasons` | Decision 5 below (stacked on #488) |
 
-All twelve merged together locally pass 3,203 tests, `astro check`, the build and the link
-check. Merge #484 with a merge commit, since #488 and #489 stack on it. #480 and #486 meet in
-`test/desk-copy-constants.test.js`: whichever merges second needs a one-line resolution.
+Before merging, all twelve together passed the tests, `astro check`, the build and the link check.
 LG3-3 stays partly open by design (one extraction per sitting): what remains is named under it.
 
 **Decisions found while working the sessions, and BVJ's answers (2026-11-07).**
