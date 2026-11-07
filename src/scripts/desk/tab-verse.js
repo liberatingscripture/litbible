@@ -43,7 +43,7 @@ import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { drawBookmarkLine } from "./bookmark-follow.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
-import { glyph } from "./glyphs.js";
+import { chevronIcons, glyph } from "./glyphs.js";
 import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
 import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
@@ -55,12 +55,8 @@ import { showUndo } from "./undo-bar.js";
 // A highlight's words are shown in part, as in My Notes: about this many.
 const HIGHLIGHT_WORDS = 24;
 
-const ICON_PREV = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M15 6l-6 6 6 6" /></svg>`;
-const ICON_NEXT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M9 6l6 6-6 6" /></svg>`;
+// This verse's chevrons are 18 pixels; the passage bar's and the intro pane's are 16.
+const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
 
 /**
  * @param {{ store: object | null, here: { bookKey: string, chapter: number, label: string },
