@@ -189,7 +189,10 @@ against `dist/` is a later item.
      The notebook's own Escape stands down only for the shared panel's slot
      (`currentPanel()`), not for a floating window (`float-window.js`),
      which wears the panels' class but takes Escape only from inside itself
-     (BA24).
+     (BA24). In a search field holding words it only clears the field (the
+     next press folds), and a list filtered by such a field listens to
+     `search` and `change` as well as `input`, since the browser's own clear
+     sends no `input` (LV3-1, NB3-6).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
      picked for the desk's release, **and 48 on Chapter View chapters while the
      notebook is expanded** (BVJ, 2026-10-08; 2026-10-14), to leave the panel room for the
@@ -1173,7 +1176,9 @@ against `dist/` is a later item.
        list in Bible order under a heading for each chapter once it spans
        more than one, a "Labels…" button and chips on a row, and, on /desk,
        follows the LIT pane. `kept-list.js` remains, but only the notebook
-       page draws it. A layout saved with the retired kind `kept` reads back
+       page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
+       2026-11-07): they have /sheets and the Sheet pane, and the notebook
+       page's list still shows them as "Other items". A layout saved with the retired kind `kept` reads back
        as `mine` (`RETIRED_KINDS`, applied in `checkLayout`, so the last
        layout and "My default" are both migrated); one that held both panes
        keeps two My Notes panes. A new feature of the notebook's list goes in
@@ -1782,13 +1787,14 @@ against `dist/` is a later item.
      - **In the Footnotes list, Pin and "Add a note" sit in the left margin**
        (BVJ, 2026-11-06, E49; `desk/footnote-pills.js`, the rule in
        `src/lib/desk-footnote-pills.mjs`, pure and tested). `initPins` puts
-       both in one `.desk-fn-pills` after each footnote's `.fn-body`, so
-       reading and tab order stay note, Pin, "Add a note" wherever they are
-       drawn. The list measures its own left edge (on load, resize,
+       both in one `.desk-fn-pills` after each footnote's `.fn-body`, in the
+       order "Add a note", then Pin, so reading and tab order are the drawn
+       order everywhere (left to right, top to bottom in the "⋯" stack): never
+       `row-reverse` (BVJ, 2026-11-07). The list measures its own left edge (on load, resize,
        `desk:column-moved`, the Display tray's size, face and text width, and
        fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
        by side, Pin nearest the footnote and "Add a note" outside it (BVJ,
-       2026-11-06; drawn reversed, so tab order is unchanged), right-aligned
+       2026-11-06), right-aligned
        14px from the footnote, level with its first
        line, nothing grows), **`more`** (one "⋯" disclosure button there,
        `aria-expanded`, that opens Pin and "Add a note" stacked under it; Escape, a
@@ -1803,7 +1809,8 @@ against `dist/` is a later item.
        notes (full or circles) are in the same left margin, level with the
        footnote. Print hides the pills as before. Code that restores focus to
        a pill must use `pillsHome(button)`, since a pill behind a closed "⋯" is
-       hidden; the popover's own Pin and "Add a note" row, and /desk's panes, are
+       hidden, and a change that moves a footnote between "⋯" and inline (the
+       margin note's mark) runs inside `keepPillFocus`; the popover's own Pin and "Add a note" row, and /desk's panes, are
        unchanged. Read View has no footnotes, so it has none of this.
      - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
        (pure, tested) turns the notes marked `question` on a sheet's

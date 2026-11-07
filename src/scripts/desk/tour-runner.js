@@ -40,12 +40,15 @@ export function createTourRunner() {
    *   act: (step: object) => Promise<object | null>,
    *   finish?: () => void, afterUndo?: () => void,
    *   more?: (step: object) => ({ href: string, text: string, external?: boolean } | null),
-   *   returnTo?: HTMLElement | null }} options
+   *   returnTo?: HTMLElement | null, returnFallback?: () => (HTMLElement | null) }} options
    *   `steps` is a planned tour (`planTour`). `view` picks a step's wording.
    *   `afterUndo` runs after each step's `later` functions. `more` gives a
    *   step's link under its words, if it has one.
+   *   `returnFallback` names where focus goes at the end when `returnTo` is
+   *   gone or hidden by then (a button in a window the tour closed, or in a
+   *   panel it folded away), so focus never drops to the page (LV3-4).
    */
-  function start({ steps, view = null, act, finish = () => {}, afterUndo = () => {}, more = () => null, returnTo = null }) {
+  function start({ steps, view = null, act, finish = () => {}, afterUndo = () => {}, more = () => null, returnTo = null, returnFallback = null }) {
     if (run || !steps.length) return false;
     document.documentElement.setAttribute("data-desk-tour", "");
 
@@ -58,6 +61,7 @@ export function createTourRunner() {
       more,
       index: 0,
       returnTo: returnTo ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null),
+      returnFallback,
       scroll: { x: window.scrollX, y: window.scrollY },
       undo: [],
       card: null,
@@ -136,7 +140,7 @@ export function createTourRunner() {
 
   function end() {
     if (!run) return;
-    const { card, returnTo, scroll, finish } = run;
+    const { card, returnTo, returnFallback, scroll, finish } = run;
     run.token++;
     document.removeEventListener("keydown", onKey, true);
     window.removeEventListener("resize", queuePlace);
@@ -155,7 +159,19 @@ export function createTourRunner() {
     }
     requestAnimationFrame(() => {
       window.scrollTo({ left: scroll.x, top: scroll.y, behavior: "instant" });
-      if (returnTo && returnTo.isConnected) returnTo.focus({ preventScroll: true });
+      // Back to where the reader was if that is still showing, else the
+      // tour's own fallback: the card is gone, and focus on it would drop to
+      // the page's body (LV3-4).
+      const showing = (el) =>
+        el instanceof HTMLElement && el.isConnected && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+      let back = showing(returnTo) ? returnTo : null;
+      if (!back) {
+        try {
+          const fallback = returnFallback?.() ?? null;
+          back = showing(fallback) ? fallback : null;
+        } catch (_) {}
+      }
+      back?.focus({ preventScroll: true });
       // Held past last-read.js's 500ms wait after a scroll, so the scroll
       // back records nothing, not even a new time on the same verse. A tour
       // started again meanwhile keeps it (BA36).

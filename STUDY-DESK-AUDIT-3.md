@@ -704,6 +704,8 @@ For a keyboard user it is worse. `swap` re-focuses `step.querySelector("button")
 
 #### NB3-3 · Medium · a11y · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** `notes-margin.js`'s `markFootnotes` now runs inside `keepPillFocus` (`footnote-pills.js`): when the margin mark hides the control focus is on, focus moves to "Add a note" (from the "⋯") or to the "⋯" (from a pill that went behind it), in both directions. Not run in a browser.
+
 > **Live check (Appendix G):** confirmed at 770px: focus on `BODY` after the save.
 
 **Where**: `src/scripts/desk/footnote-pills.js:100-106` (`pillsHome`); `src/scripts/desk/footnote-notes.js:128-132` (`openedFrom`); `src/scripts/desk/notes-margin.js:130-134` (`markFootnotes`); `src/styles/desk.css:2366-2368` and `:2411-2413`.
@@ -739,6 +741,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-5 · Medium · a11y · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Narrowing the list (search, Show, color, label, scope) speaks the new count through an always-present `role="status"` region, debounced to 600 ms and only for a change the reader made, so opening the tab reads nothing. "Nothing shown in Matthew 9." speaks when it changes after the first drawing.
+
 > **Live check (Appendix G):** confirmed; no live region receives the count.
 
 **Where**: `src/scripts/desk/tab-mine.js:199-203` (`.desk-mine__count`, `.desk-mine__here`) and `:502-509` (`drawCount`).
@@ -753,6 +757,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-6 · Low · usability · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Escape in a search field holding words clears it (and sends an `input`) and returns; the next Escape folds the Notebook (`panel.js`). Done in the handler rather than left to the browser, which sends no `input` and in some engines doesn't clear.
+
 > **Live check (Appendix G):** confirmed, and worse: see LV3-1.
 
 **Where**: `src/scripts/desk/panel.js:430-437` (panel `keydown`, Escape).
@@ -764,6 +770,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Medium. Browser check: type in "Search my notebook", press Escape once.
 
 #### NB3-7 · Low · bug · NEW
+
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** The rail's change callback clears `foldedByHide` unless the hide handler is the one folding (`foldingByHide`), so a hand open, fold or window-narrowing in between means un-hiding no longer opens the panel.
 
 > **Live check (Appendix G):** confirmed.
 
@@ -777,6 +785,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-8 · Low · a11y · NEW (extends NB-16)
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Restore all and Undo use `busy()` (`aria-disabled`), not `disabled`. A keyboard Undo that puts up Redo keeps focus on the new button, and a bar that closes with focus in it returns focus to where it was when the notice came up, else the page's main region. "Ask this browser to keep it" moves focus to the rebuilt button or, once it is gone, the Settings tab.
+
 **Where**: `src/scripts/desk/trash-list.js:161` (`restoreAll`: `all.disabled = true`); `src/scripts/desk/panel.js:489` (`ask.disabled = true`, then `renderPersistence()` replaces the button); `src/scripts/desk/undo-bar.js:146` (`fresh.disabled = true`, then `hideUndo()` hides the bar the button is in).
 
 **What happens**: NB-16 moved Pin, Unpin and Add-a-note to `busy()`/`aria-disabled` because a focused button that becomes disabled loses focus in some browsers. These three still use `disabled`. Restore all loses focus on its failure and "nothing to restore" paths (the success path calls `focusAt`). "Ask this browser to keep it" always loses focus: `renderPersistence` rebuilds the line, so the button is gone whatever the answer. After a keyboard Undo, focus is on a hidden bar.
@@ -787,6 +797,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 
 #### NB3-9 · Low · bug · NEW
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** `revealPanel` calls `rail.collapse()` directly, so the first mark in a narrow window no longer moves focus to the Notebook tab.
+
 **Where**: `src/scripts/desk/panel.js:387-391` (`revealPanel`), `:398-401` (`collapse`), `:148-153` (`firstUse.reveal`).
 
 **What happens**: The first time the reader makes any mark with no "where should the notebook live" answer, `reveal()` runs `open(null, { focus: false })`. If the panel floats (a narrow window), `revealPanel` then calls `collapse()`, which calls `tab.focus()`. So in a narrow window the first note, bookmark or highlight moves focus to the Notebook tab right after the editor closes, taking it from the verse number the editor just restored. `open` was deliberately called with `focus: false`, so this contradicts the intent.
@@ -796,6 +808,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Medium.
 
 #### NB3-10 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** (a) The skip link carries `data-desk-skip`, and `desk.css` hides it while `data-desk-show="off"`. (b) `SiteHeader.astro`'s `bgRegions` is read on each open and close and takes every `.skip-link`, so the link the desk adds later is made inert with the first. (b) not checked in a browser.
 
 **Where**: `src/scripts/desk/panel.js:698-713` (the "Skip to the Notebook" link); `src/components/SiteHeader.astro:424-429` (`bgRegions` names only `document.querySelector(".skip-link")`).
 
@@ -830,6 +844,8 @@ Pinned footnotes are named in the notebook tour and in My Notes but are not expl
 **Confidence**: Medium (browser check: open a flyout with the pointer resting on it, then wheel-scroll).
 
 #### NB3-13 · Low · data-integrity · NEW
+
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** `save()` ignores a call while one is in flight (a `saving` flag around `saveNow`), covering a double-click, a held Ctrl+Enter and the edit path.
 
 **Where**: `src/scripts/desk/note-editor.js:171-232` (`save`, `saveEdit`), `:252-257` (Ctrl+Enter).
 
@@ -1518,6 +1534,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-1 · Medium · bug · NEW (extends NB3-6)
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** The My Notes box, the notebook page's box and the Search pane's field now hear `search` (and `change`) as well as `input`; with NB3-6's fix an Escape clears the field and the list together, and a stale filter can no longer show "Nothing matches" over a notebook that holds notes.
+
 **Where** `src/scripts/desk/tab-mine.js:242` (`queryBox.addEventListener("input", …)`), `src/scripts/desk/panel.js:430-437` (Escape handler).
 
 **What happens** In "Search my notebook", Escape clears the field the browser's way. Chrome fires `change` and `search` on that, not `input`, and the list listens to `input` only. So the field is empty but `query` is still the old text, and the panel then folds. Reopened, the field is blank and the list says "Nothing matches (of 1 kept)." with "Nothing matches. Clear the search or a filter to see more." under it, though the notebook holds one note. The reader sees an empty search box over an empty list. The same stale filter makes a real empty state worse: after deleting the only note it read "Nothing matches" instead of "Nothing kept yet."
@@ -1542,6 +1560,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-3 · Medium · bug · REGRESSION LV-3
 
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Per BVJ's decision, `tab-mine.js` leaves sheets out (`withoutSheets` in `desk-notebook.mjs`, applied before anything is counted), so the My Notes pane and the Notebook's tab have no sheet rows and every count, "Show" choice, label choice and empty line agrees. The notebook page's "What I've kept" still lists sheets as "Other items" (its rows are right).
+
 **Where** `src/scripts/desk/record-rows.js` (fallback row for a `sheet` record), shown by `tab-mine.js` (the My Notes pane and the Notebook's My Notes tab) as well as `kept-list.js`.
 
 **What happens** Audit 2's LV-3 was marked "Fixed in FA2-i: a sheet's row shows its name, links to `/sheets/?id=`, and names it in Labels and Delete." On the built site it is not. After creating two sheets ("Untitled sheet" and "Untitled sheet (copy)"), the My Notes pane on /desk reads "1 note, 1 bookmark, 2 other items." and lists, under "Other items", two identical rows: `Sheet` / `Sheet` / `Labels…` / `Delete`. Their buttons are `aria-label="Labels for sheet"` and `aria-label="Delete sheet"`, with no title, no link, and nothing to tell the two apart. Sheets also count as "items" in a notebook of notes.
@@ -1553,6 +1573,8 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 **Confidence** High.
 
 #### LV3-4 · Low · a11y · NEW
+
+> **Fixed (Audit 3 session 2, 2026-11-07, branch `claude/audit3-session2-notebook`):** Part (a) only: the tour runner takes a `returnFallback` (the Notebook tab when folded, the panel when open, else the page's heading) for when the element focused at the start is gone or hidden at the end. Part (b), Full screen, is session 3's.
 
 **Where** the Notebook tour's last step and `desk-page.js` `fullscreen` refusal path.
 

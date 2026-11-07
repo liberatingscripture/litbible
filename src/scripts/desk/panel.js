@@ -55,6 +55,7 @@ import { createMineTab } from "./tab-mine.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { escapeHtml } from "./dom.js";
+import { busy, isBusy } from "./focus-keep.js";
 
 const TAB_KEY = "lit-desk-tab";
 
@@ -307,7 +308,14 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   tab.setAttribute("aria-expanded", "false");
   tab.innerHTML = `${ICON_NOTEBOOK}<span class="desk-tab__label">Notebook</span>`;
 
+  // Whether hiding the marks folded the panel, so un-hiding opens it again
+  // (below). Any other fold or expand, the reader's own included, makes that
+  // untrue: the callback clears the flag unless the hide handler is the one
+  // folding (NB3-7).
+  let foldedByHide = false;
+  let foldingByHide = false;
   const rail = createRail(panel, tab, (state) => {
+    if (!foldingByHide) foldedByHide = false;
     syncToggles();
     // Focus follows the panel: off it as it folds away, unless the window
     // narrowing did that and focus was elsewhere.
@@ -387,7 +395,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   function revealPanel() {
     if (shown()) return;
     open(null, { focus: false });
-    if (rail.state().floating) collapse();
+    // Folded without taking focus (NB3-9): `collapse()` would move it to the
+    // tab, off the verse number the editor just gave it back to.
+    if (rail.state().floating) rail.collapse();
   }
 
   function expand() {
@@ -432,6 +442,18 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     if (currentPanel()) return;
     const tray = document.getElementById("fontTray");
     if (tray && !tray.hidden) return;
+    // In a search field holding words, Escape means "clear this" and nothing
+    // else (NB3-6, LV3-1). Cleared here rather than left to the browser, which
+    // sends no `input` for it and in some engines doesn't clear at all; the
+    // field's owner hears an ordinary `input`. The next Escape folds the panel.
+    const t = e.target;
+    if (t instanceof HTMLInputElement && t.type === "search" && t.value !== "") {
+      e.preventDefault();
+      e.stopPropagation();
+      t.value = "";
+      t.dispatchEvent(new Event("input", { bubbles: true }));
+      return;
+    }
     e.stopPropagation();
     collapse();
   });
@@ -486,11 +508,22 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         ask.className = "desk-panel__reset";
         ask.textContent = "Ask this browser to keep it";
         ask.addEventListener("click", async () => {
-          ask.disabled = true;
+          // aria-disabled, not disabled (NB3-8): a focused button that is
+          // disabled loses focus in some browsers.
+          if (isBusy(ask)) return;
+          busy(ask);
           const granted = await store.askToKeep();
           await renderPersistence();
           if (granted === false && !persistLine.hidden) {
             persistLine.append(" Your browser said no this time. Saving a copy of your notebook is the safe way.");
+          }
+          // The line was rebuilt, so this button is gone, and focus with it
+          // unless it has moved on: to the button that asks again, or, with
+          // nothing left to ask, to the Settings tab it was reached from.
+          const a = document.activeElement;
+          if (!ask.isConnected && (!a || a === document.body)) {
+            const next = persistLine.hidden ? null : persistLine.querySelector("button");
+            (next ?? tabButtons.find((b) => b.dataset.tab === "settings"))?.focus({ preventScroll: true });
           }
         });
         persistLine.append(ask);
@@ -595,13 +628,15 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // Notebook buttons now links to /desk nothing on the page brought it back.
   // Un-hiding opens it again only if hiding was what folded it. Focus stays
   // where it is, as the close did.
-  let foldedByHide = false;
+  // (`foldedByHide` and `foldingByHide` are declared above the rail, whose
+  // change callback clears the first on any other fold or expand; NB3-7.)
   document.addEventListener(HIDE_EVENT, (e) => {
     if (e.detail?.from === "panel") return;
     if (e.detail?.hidden) {
       if (panel.hidden || rail.state().collapsed) return;
+      foldingByHide = true;
+      try { rail.collapse(); } finally { foldingByHide = false; }
       foldedByHide = true;
-      rail.collapse();
     } else if (foldedByHide) {
       foldedByHide = false;
       if (!panel.hidden && rail.state().collapsed) rail.expand();
@@ -701,6 +736,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const skipToNotebook = document.createElement("a");
   skipToNotebook.href = "#deskPanel";
   skipToNotebook.className = "skip-link";
+  // desk.css takes it out of the tab order while "Show the Notebook" is off
+  // (NB3-10), since activating it would open a panel the reader switched off.
+  skipToNotebook.setAttribute("data-desk-skip", "");
   skipToNotebook.textContent = "Skip to the Notebook";
   skipToNotebook.addEventListener("click", (e) => {
     e.preventDefault();
