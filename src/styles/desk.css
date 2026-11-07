@@ -29,6 +29,13 @@
   display: none;
 }
 
+/* "Skip to the Notebook" has nothing to skip to while the Display tray's
+   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
+   tab order. Both themes alike: no colors here. */
+html[data-desk-show="off"] .skip-link[data-desk-skip] {
+  display: none;
+}
+
 /* A card in the margin. Sticky, so it starts level with the text and pins
    16px from the top of the window as the reader scrolls (EDGE in
    src/lib/desk-margin.mjs, the same gap it keeps from the window's right
@@ -2343,7 +2350,8 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 /* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
    (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
    follows its note in the document, so reading and tab order are the note,
-   Pin, then "Add a note" wherever it is drawn.
+   "Add a note", then Pin wherever it is drawn, left to right and, in the
+   "⋯" stack, top to bottom.
      inline  (no attribute yet, or no room): a row on the note's line, as before;
      row     the two pills side by side in the left margin, level with the
              footnote's first line, right-aligned against the footnote;
@@ -2401,13 +2409,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   justify-content: flex-end;
 }
 
-/* Side by side, Pin is drawn nearest the footnote and "Add a note" outside it
-   (BVJ, 2026-11-06). Only the drawing flips: tab order stays note, Pin,
-   "Add a note", moving outward from the note. */
-.footnotes[data-desk-fn-pills="row"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
-  flex-direction: row-reverse;
-}
-
+/* Side by side, "Add a note" is drawn outside and Pin nearest the footnote
+   (BVJ, 2026-11-06). The document holds them in that order ("Add a note",
+   then Pin), so Tab runs left to right with no flipped drawing (BVJ,
+   2026-11-07; Audit 3, decision 13). */
 .footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-more {
   display: inline-flex;
 }
@@ -3645,11 +3650,12 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   cursor: pointer;
 }
 
-.desk-np__restore-all:hover:not(:disabled) {
+.desk-np__restore-all:hover:not(:disabled):not([aria-disabled="true"]) {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
-.desk-np__restore-all:disabled {
+.desk-np__restore-all:disabled,
+.desk-np__restore-all[aria-disabled="true"] {
   opacity: 0.6;
   cursor: default;
 }

@@ -26,6 +26,7 @@ import {
   planRestoreAll,
   trashHeld,
   trashItems,
+  withoutSheets,
 } from "../src/lib/desk-notebook.mjs";
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261005.5d2c847d", now: "2026-10-12T10:00:00.000Z" };
@@ -317,4 +318,19 @@ test("the Show menu splits bookmarks into moving and staying put only when a lis
   assert.deepEqual(filterRecords(records, { kind: BOOKMARK_MOVES }), [moving]);
   assert.deepEqual(filterRecords(records, { kind: BOOKMARK_STAYS }), [plain]);
   assert.equal(filterRecords(records, { kind: "bookmark" }).length, 2);
+});
+
+test("withoutSheets leaves a sheet out of My Notes and every count agrees (LV3-3)", () => {
+  const n = note({ bookKey: "romans", chapter: 8, verse: 1 });
+  const sheets = [make("sheet", { title: "Untitled sheet" }), make("sheet", { title: "Untitled sheet (copy)" })];
+  const mine = withoutSheets([n, ...sheets]);
+  assert.deepEqual(mine, [n]);
+  // The counts, the Show choices and the grouping see no "other items".
+  assert.equal(describeCounts(mine), "1 note");
+  assert.deepEqual(kindsPresent(mine).map((k) => k.value), ["note"]);
+  assert.equal(groupRecords(mine).other.length, 0);
+  // Only sheets kept: nothing is kept as far as My Notes can say.
+  assert.equal(describeCounts(withoutSheets(sheets)), "Nothing kept yet.");
+  assert.deepEqual(withoutSheets([]), []);
+  assert.equal(withoutSheets([null, n]).length, 2);
 });

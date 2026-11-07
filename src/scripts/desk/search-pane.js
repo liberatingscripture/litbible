@@ -413,6 +413,16 @@ export function createSearchPane({ paneId, env, getPlace }) {
     if (!searchable(q)) return tooShort();
     timer = window.setTimeout(() => run(q), DEBOUNCE);
   });
+  // The browser's own clear (Escape, the field's x) sends `search` and no
+  // `input` (LV3-1), which left the last results under an empty field. A
+  // `search` with words in the field is Enter, which the submit below handles.
+  input.addEventListener("search", () => {
+    if (input.value.trim()) return;
+    clearTimeout(timer);
+    greekState = { lemmaId: null, exact: false };
+    showModeFor(typeSel, input.value);
+    empty();
+  });
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

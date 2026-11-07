@@ -83,6 +83,15 @@ export function listable(records) {
   return records.filter((r) => r && r.kind !== "trash" && r.kind !== "label" && r.kind !== "place");
 }
 
+/**
+ * What My Notes lists: not a sheet, which is a page of its own with a list on
+ * /sheets and in the Sheet pane (LV3-3, BVJ 2026-11-07). The notebook page's
+ * "What I've kept" still lists sheets, as "Other items".
+ */
+export function withoutSheets(records) {
+  return records.filter((r) => r?.kind !== "sheet");
+}
+
 // Bookmarks split two more ways in the Show menu once a list holds both (BVJ,
 // 2026-11-04): the ones that move as the reader reads and the ones that stay put.
 export const BOOKMARK_MOVES = "bookmark:moves";
