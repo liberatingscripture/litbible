@@ -53,7 +53,7 @@ globalThis.BroadcastChannel = class extends RealChannel {
   }
 };
 
-const { openStore, settled } = await import("../src/scripts/desk/store.js");
+const { DB_NAME, openStore, settled } = await import("../src/scripts/desk/store.js");
 const settle = () => new Promise((r) => setTimeout(r, 20));
 
 test("a saved record is read back, and by chapter", async () => {
@@ -133,6 +133,85 @@ test("a put that fails with QuotaExceededError inside a change writes nothing, r
   assert.equal(await store.get(first.id), undefined, "the put before the failure is rolled back");
   assert.equal(await store.get(second.id), undefined);
   assert.equal(store.lastEntry(), entry, "no history entry is written for the failed change");
+  assert.equal(entries, 0, "and no history listener hears of one");
+  assert.equal(heard, 0, "no change listener is told");
+
+  // The store is not left broken: the next write goes through.
+  const later = note();
+  await store.save(later);
+  assert.deepEqual((await store.get(later.id)).body, "mine");
+});
+
+// This found committed() settling on the transaction's error event, while
+// tx.error was still null, so the change rejected with null (Audit 3
+// follow-up, 2026-11-07); the abort, which carries the error, is now the one
+// rejection.
+test("a transaction that aborts with QuotaExceededError after the puts were queued (Chrome's full disk) rejects the change, writes nothing, remembers nothing, and tells no one", async () => {
+  await freshBrowser();
+  const store = await openStore({ ctx });
+  const saved = note();
+  await store.save(saved);
+  await settle(); // the first save's persist request lands before the counts below start
+  const entry = store.lastEntry();
+  assert.ok(entry, "the earlier save is in the history");
+
+  // As in the test above, only a notice naming this change's records counts.
+  const failing = new Set();
+  let heard = 0;
+  store.subscribe((ids) => { if (ids.some((id) => failing.has(id))) heard += 1; });
+  let entries = 0;
+  store.onEntry(() => { entries += 1; });
+
+  // Chrome takes the put and fails the write later, when the transaction runs
+  // it: the request's error event bubbles to the transaction, which aborts
+  // with that error. In fake-indexeddb the write a request runs is the backing
+  // store's storeRecord, called from the transaction's queue, and one that
+  // throws takes the same path (the request's error, then the transaction's
+  // abort). The backing store is shared by every connection to the database,
+  // so a second connection reaches the one this store writes to. The patch is
+  // on that one object, and deleting it brings back the prototype's method.
+  const probe = await new Promise((resolve, reject) => {
+    const open = indexedDB.open(DB_NAME);
+    open.onsuccess = () => resolve(open.result);
+    open.onerror = () => reject(open.error);
+  });
+  const backing = probe.transaction("records", "readonly").objectStore("records")._rawObjectStore;
+  probe.close();
+  const storeRecord = backing.storeRecord;
+  let writes = 0;
+  backing.storeRecord = function (record, ...rest) {
+    if (failing.has(record.value?.id) && ++writes === 2) {
+      throw new DOMException("The quota has been exceeded.", "QuotaExceededError");
+    }
+    return storeRecord.call(this, record, ...rest);
+  };
+  const first = note();
+  const second = note();
+  const third = note();
+  const fourth = note();
+  failing.add(first.id).add(second.id).add(third.id).add(fourth.id);
+  try {
+    await assert.rejects(
+      store.change(() => ({ put: [first, second], remove: [] })),
+      (err) => err?.name === "QuotaExceededError",
+    );
+    assert.equal(writes, 2, "both puts were taken, and the second failed when the transaction ran it");
+    // commit, the other writer that waits for its transaction, takes the same path.
+    writes = 0;
+    await assert.rejects(
+      store.commit({ put: [third, fourth], remove: [] }),
+      (err) => err?.name === "QuotaExceededError",
+    );
+    assert.equal(writes, 2);
+  } finally {
+    delete backing.storeRecord;
+  }
+  await settle();
+
+  for (const r of [first, second, third, fourth]) {
+    assert.equal(await store.get(r.id), undefined, "nothing the failed changes wrote is kept");
+  }
+  assert.equal(store.lastEntry(), entry, "no history entry is written for the failed changes");
   assert.equal(entries, 0, "and no history listener hears of one");
   assert.equal(heard, 0, "no change listener is told");
 
