@@ -1481,7 +1481,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   it, so with a menu open the first press leaves full screen and the second
   closes the menu. Nothing is lost or skipped, so it is accepted as is, not
   worked around (Chrome's keyboard lock would make Escape hold-to-exit, which
-  is worse); confirm it in a browser once built. Status: **decided, to build.**
+  is worse); confirm it in a browser once built. **Built (2026-11-06)**: a
+  "Full screen (F11)" line ("⌃⌘F" on a Mac) after Display options in the
+  title menu (`desk-page.js`), "Exit full screen" while the API's full screen
+  is on, absent without the API, a refusal announced. The Browser pane holds
+  the request without answering, so neither full screen nor the Escape
+  behavior could be seen there. Status: **built; needs a look in Chrome
+  (and Firefox): full screen on and off, and Escape with a menu open.**
 
 - **E44, wish: "Start following" where "Stop following" appears.** BVJ
   (2026-11-05): when a moving bookmark isn't following, the same spot (the
@@ -1589,7 +1595,19 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   Pin button, which stays), still follow the "Notes in the margin" switch,
   and never add text to the scripture page. The left margin is empty at most
   widths but not all, so the narrow rule needs a measure, as the notes' margin
-  (`desk-margin.mjs`) has. Mock first, at the real widths. Status: **open.**
+  (`desk-margin.mjs`) has. Mock first, at the real widths. **Mocked
+  (2026-11-06, John 3's footnote list at 1366 and 820px):** stacked, the
+  two-pill column (about 45px) is taller than a one-line footnote, so note a's
+  "+ Note" ran into note b's Pin unless each footnote grew to the stack's
+  height (about half a line more under every one-line note); side by side, the
+  two pills in one row left of the letter, level with the first line, nothing
+  overlaps, no footnote grows, and the pills share a baseline (the
+  misalignment that started this); about 90px of margin, which John 3 has from
+  about an 820px window up. Where the margin can't hold them, one "⋯" pill per
+  footnote opens the two stacked under it (one tab stop per footnote, as
+  today). **Decided (BVJ, 2026-11-06): side by side in the left margin**, with
+  the "⋯" fallback where it doesn't fit; the popover's own Pin and "+ Note"
+  row stays as it is. Status: **decided, to build.**
 
 - **E50, rough: the Study Desk button, where it is and where it shows.**
   BVJ (2026-11-05), "not totally satisfied with the current version." The

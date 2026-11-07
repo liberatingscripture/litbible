@@ -1345,8 +1345,20 @@ against `dist/` is a later item.
        is a button, `Study Desk ▾` (`.desk-title`, built by desk-page.js, which
        swaps the heading for a wrapper holding the h1 and the menus so the
        windows take the header's type, not the heading's). Its menu holds Add
-       pane, Layout…, Print…, Display options, then My notebook page, Take the tour
-       and Help (one divider before the three). My notebook page and Help open
+       pane, Layout…, Print…, Display options, Full screen, then My notebook
+       page, Take the tour and Help (one divider before the three). **Full
+       screen** (E43; BVJ, 2026-11-06: the browser's own full screen only, no
+       mode hiding the site header) presses the Fullscreen API on the whole
+       page, reads "Full screen (F11)" ("⌃⌘F" on a Mac) and "Exit full screen"
+       only for a full screen it entered, since F11's is invisible to the page
+       (`fullscreenElement` stays null); no line where the API is missing, and
+       a refusal is announced with the key to use instead. Escape is the
+       browser's way out, and in full screen the page never hears that press,
+       so with a menu open the first press leaves full screen and the second
+       closes the menu (accepted, not worked around). Each visit needs a
+       click: browsers refuse full screen on load, so it can't be a saved
+       preference. The Browser pane never answers the request, so check it in
+       a real browser. My notebook page and Help open
        in a new tab, since they leave the desk; **Take the tour starts the
        Study Desk tour in place** (a button, E24; see "Two tours" under rule 13). **There is no Settings window and no
        "Where my notebook is kept" item** (BVJ, 2026-11-02): the Notebook's other

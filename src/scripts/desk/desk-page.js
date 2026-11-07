@@ -641,6 +641,33 @@ async function start() {
     displayItem.tabIndex = -1;
     displayItem.replaceChildren(el("span", "desk-title__label", "Display options"));
   }
+  // Full screen (E43; BVJ, 2026-11-06: the browser's own full screen, nothing
+  // more). It presses the Fullscreen API on the whole page, which a browser
+  // only allows from a click. F11 is a different thing the page can't see
+  // (fullscreenElement stays null under it), so the line says "Exit" only for
+  // a full screen it entered, and names the key otherwise. Escape is the
+  // browser's way out, and in full screen the page never hears that press.
+  // No line where the browser has no Fullscreen API.
+  const fullItem = document.fullscreenEnabled ? item("") : null;
+  const fullKey = /Mac|iPhone|iPad/.test(navigator.platform) ? "⌃⌘F" : "F11";
+  const refreshFull = () => {
+    fullItem.querySelector(".desk-title__label").textContent = document.fullscreenElement
+      ? "Exit full screen"
+      : `Full screen (${fullKey})`;
+  };
+  if (fullItem) {
+    refreshFull();
+    document.addEventListener("fullscreenchange", refreshFull);
+    fullItem.addEventListener("click", () => {
+      closeTitleMenu({ focus: false });
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+      else {
+        document.documentElement.requestFullscreen?.().catch(() =>
+          announce(`This browser didn’t allow full screen. Use the browser’s own command instead (${fullKey}).`),
+        );
+      }
+    });
+  }
   // The notebook's page (BVJ, 2026-11-02). No Settings window, and no "where
   // it is kept" item (it would only link to a section of that page): nothing
   // else of the Notebook's settings applies here.
@@ -677,8 +704,13 @@ async function start() {
   titleMenu.append(tourLine);
   titleMenu.append(addSub, layoutItem, printItem);
   if (displayItem) titleMenu.append(displayItem);
+  if (fullItem) titleMenu.append(fullItem);
   titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
-  const baseItems = [addItem, layoutItem, printItem, ...(displayItem ? [displayItem] : []), notebookItem, tourItem, helpItem];
+  const baseItems = [
+    addItem, layoutItem, printItem,
+    ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
+    notebookItem, tourItem, helpItem,
+  ];
   const topItems = () => (tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
 
   const DIRECTIONS = [
