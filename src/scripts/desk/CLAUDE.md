@@ -1321,10 +1321,16 @@ against `dist/` is a later item.
        than the pane does (BVJ, 2026-11-04). **It keeps nothing about a search**
        (no key, no layout field), so /privacy doesn't name it and a reload
        empties it. **It stands alone**: not a follower, and “The book I’m
-       reading” fixes the book when picked. A plain click on a verse or
-       topic moves the LIT pane through `env.showPassage`, and rows stay
+       reading” fixes the book when picked. **A passage result offers both
+       ways to read it** (E34; BVJ, 2026-11-05): a plain click on a verse or
+       topic moves the leading LIT pane through `env.showPassage`, or opens
+       one beside the pane when there is none, and the note line says which
+       (`showPassage` returns "moved", "opened" or "placed";
+       `passageMoveMessage`); a small link beside the row (`awayLink`,
+       `.desk-search__away`) opens its page in a new tab. Rows stay
        real links, so a modified click opens a tab and `ref-preview.js`
-       previews them (`.desk-search__link`). A glossary entry is cloned from
+       previews them (`.desk-search__link`); on /desk the preview's
+       "Open John 3 →" opens in a new tab too. A glossary entry is cloned from
        the fetched /glossary/ page into the pane; an article or intro opens
        in a new tab. A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Adding to a sheet

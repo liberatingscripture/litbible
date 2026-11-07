@@ -239,13 +239,16 @@ async function start() {
   // panes that follow), as a picker would move it.
   // `beside` is a pane (the Search pane) that a result came from: with no LIT
   // pane open, one opens to its left where there is room (3m), so a verse
-  // found still lands.
+  // found still lands. Says what happened, for the Search pane to tell the
+  // reader (E34): "moved" (the leading LIT pane), "opened" (a new LIT pane),
+  // "placed" (no LIT pane, and no room for one: only the following panes
+  // moved), or null for a passage that isn't one.
   const showPassage = (passage, { beside = null } = {}) => {
     const at = formatPassage(passage);
-    if (!at) return;
+    if (!at) return null;
     if (findPane(layout.root, layout.active)?.kind === "lit") {
       commit(setLitAt(layout, layout.active, at), { draw: false });
-      return;
+      return "moved";
     }
     const placed = setPlace(layout, at);
     if (beside) {
@@ -253,10 +256,11 @@ async function start() {
       const next = openLitBeside(placed, beside, room.width, room.height);
       if (next !== placed) {
         commit(next);
-        return;
+        return "opened";
       }
     }
     commit(placed, { draw: false });
+    return "placed";
   };
   // A new sheet shown in a Sheet pane, as "Open it on the Study Desk" does
   // (M5): from the Search pane's "Make a sheet of these verses". That pane and

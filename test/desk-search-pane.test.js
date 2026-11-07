@@ -9,9 +9,22 @@ import {
   bookOptions,
   longEnoughQuery,
   nextPage,
+  pageLinkLabel,
+  passageMoveMessage,
   resultTarget,
   verseRef,
 } from "../src/lib/desk-search-pane.mjs";
+
+test("passageMoveMessage: says which LIT pane took the passage (E34)", () => {
+  assert.equal(passageMoveMessage("moved", "John 3:16"), "The LIT pane moved to John 3:16.");
+  assert.equal(passageMoveMessage("opened", "John 3:16"), "A LIT pane opened at John 3:16.");
+  assert.match(passageMoveMessage("placed", "John 3:16"), /no room for a LIT pane to show John 3:16/);
+  assert.equal(passageMoveMessage(null, "John 3:16"), "");
+});
+
+test("pageLinkLabel: names the passage and the new tab", () => {
+  assert.equal(pageLinkLabel("Romans 8"), "Open Romans 8 on its page, in a new tab");
+});
 
 test("resultTarget: a chapter or verse is a passage", () => {
   assert.deepEqual(resultTarget("/john-3#v16"), { type: "passage", bookKey: "john", chapter: 3, verse: 16 });

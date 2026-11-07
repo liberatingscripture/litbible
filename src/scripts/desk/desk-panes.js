@@ -357,7 +357,7 @@ function goToRecord(env) {
  *   onEdit: ((record: object, trigger: Element) => void) | null,
  *   ctx: () => { client: string, contentVersion: string },
  *   openGreekWord: (passage: object, t: number) => void,
- *   showPassage: (passage: object, options?: { beside?: string }) => void,
+ *   showPassage: (passage: object, options?: { beside?: string }) => "moved" | "opened" | "placed" | null,
  *   showSheet: (sheetId: string, keep?: string) => boolean,
  *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env

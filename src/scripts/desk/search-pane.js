@@ -20,6 +20,10 @@
 //   moves the LIT pane (`env.showPassage`) with a plain click, and is a real
 //   link otherwise, so a modified or middle click opens a tab and
 //   ref-preview.js previews it on hover.
+// - **Both ways to read a passage** (E34; BVJ, 2026-11-05): the plain click
+//   moves the leading LIT pane, or opens one beside this pane when there is
+//   none, and the note line says which (`passageMoveMessage`); a small link
+//   beside the result opens its page in a new tab (`awayLink`).
 // - **Results can go on a sheet**: "Make a sheet of these verses" (a new sheet,
 //   shown in a Sheet pane) and, while a Sheet pane shows one, "Add these
 //   verses to “…”" and a + on each verse, through the same rules and one
@@ -45,9 +49,12 @@ import {
   bookOptions,
   longEnoughQuery,
   nextPage,
+  pageLinkLabel,
+  passageMoveMessage,
   resultTarget,
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
+import { passageLabel } from "../../lib/desk-passage.mjs";
 import { gatherMessage, passagesFromVerses, roomOnSheet, searchSheetTitle } from "../../lib/desk-sheet-gather.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { addModule, createSheet, makeModule } from "../../lib/desk-sheets.mjs";
@@ -92,6 +99,7 @@ import { addTarget, onAddTarget } from "./sheet-pane.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 import { make } from "./dom.js";
+import { OPEN_PAGE_ICON } from "./glyphs.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -410,8 +418,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
     if (!q) return;
     const jump = jumpOf(q);
     // Enter on a reference moves the LIT pane there (the results still show).
-    if (jump) goTo(jump);
+    // The search first, since it clears the note the move leaves.
     if (searchable(q)) run(q);
+    if (jump) goTo(jump);
   });
 
   function jumpOf(q) {
@@ -422,12 +431,37 @@ export function createSearchPane({ paneId, env, getPlace }) {
   }
 
   function goTo(jump) {
-    env.showPassage(
+    showHere(
       jump.kind === "ref"
         ? { bookKey: jump.bookKey, chapter: jump.chapter, verse: jump.verse ?? null }
         : { bookKey: jump.bookKey, chapter: 1, verse: null },
-      { beside: paneId },
     );
+  }
+
+  /**
+   * A passage shown in the leading LIT pane, or in one opened beside this
+   * pane when there is none, by the desk's own move (`env.showPassage`), and
+   * the reader told which happened (E34).
+   */
+  function showHere(passage) {
+    const outcome = env.showPassage(passage, { beside: paneId });
+    tell(passageMoveMessage(outcome, passageLabel(passage)));
+  }
+
+  /**
+   * A result's second link (E34): the passage on its own page, in a new tab,
+   * beside the result whose plain click moves the LIT pane. Null for a result
+   * that isn't a passage.
+   */
+  function awayLink(href) {
+    const target = resultTarget(href);
+    if (target.type !== "passage") return null;
+    const a = awayTab(make("a", "desk-search__away"));
+    a.href = href;
+    a.title = "Open on its page";
+    a.setAttribute("aria-label", pageLinkLabel(passageLabel(target)));
+    a.innerHTML = OPEN_PAGE_ICON;
+    return a;
   }
 
   // ---- running a search ----
@@ -604,6 +638,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const a = resultLink(item.href);
     a.append(make("span", "desk-search__title", item.title));
     li.append(a);
+    const away = awayLink(item.href);
+    if (away) li.append(away);
     return li;
   }
 
@@ -619,6 +655,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
     }
     a.append(head, snippet);
     li.append(a);
+    const away = awayLink(hit.href || "");
+    if (away) li.append(away);
     return li;
   }
 
@@ -692,6 +730,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
       text.innerHTML = highlightVerseHit(hit);
       a.append(text);
       li.append(a);
+      const away = awayLink(verseHitHref(hit));
+      if (away) li.append(away);
       if (store) {
         const plus = button("+", "desk-search__add");
         plus.setAttribute("aria-label", addVerseLabel(hit));
@@ -799,7 +839,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const target = resultTarget(a.getAttribute("href"));
     if (target.type === "passage") {
       e.preventDefault();
-      env.showPassage({ bookKey: target.bookKey, chapter: target.chapter, verse: target.verse }, { beside: paneId });
+      showHere({ bookKey: target.bookKey, chapter: target.chapter, verse: target.verse });
     } else if (target.type === "glossary") {
       e.preventDefault();
       openedFrom = a;
@@ -874,7 +914,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
       const t = resultTarget(a.getAttribute("href"));
       if (t.type === "passage") {
         e.preventDefault();
-        env.showPassage({ bookKey: t.bookKey, chapter: t.chapter, verse: t.verse }, { beside: paneId });
+        showHere({ bookKey: t.bookKey, chapter: t.chapter, verse: t.verse });
       }
     });
     entryBox.replaceChildren(bar, clone);
@@ -1143,6 +1183,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
         });
       }
       li.append(a);
+      const away = awayLink(hit.href);
+      if (away) li.append(away);
       return li;
     });
   }
