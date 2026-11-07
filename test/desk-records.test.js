@@ -217,10 +217,10 @@ test("restoreFromTrash returns a record it can't edit exactly as it was deleted"
 });
 
 test("emptyTrashRecord keeps only the tombstone, and only after 30 days", () => {
-  const t = trashRecord(highlight(), { ...trashCtx, now: "2026-10-01T00:00:00.000Z" });
+  const t = trashRecord(highlight(), { ...trashCtx, now: "2026-10-06T00:00:00.000Z" });
   assert.equal(TRASH_DAYS, 30);
-  assert.equal(emptyTrashRecord(t, "2026-10-30T23:59:59.000Z"), t, "not due on day 29");
-  const empty = emptyTrashRecord(t, "2026-10-31T00:00:00.000Z");
+  assert.equal(emptyTrashRecord(t, "2026-11-04T23:59:59.000Z"), t, "not due on day 29");
+  const empty = emptyTrashRecord(t, "2026-11-05T00:00:00.000Z");
   assert.equal("record" in empty, false);
   assert.equal(empty.deletedId, t.deletedId);
   assert.equal(empty.deletedAt, t.deletedAt);
@@ -295,8 +295,8 @@ test("only a note may sit on prose: any other kind still needs its verses", () =
 });
 
 test("a note on prose still keeps the note rules for its body and marker", () => {
-  const problems = validateRecord(proseNote({ article: "many-and-all" }, { marker: "star", body: 5 }));
-  assert.ok(problems.some((p) => p.startsWith('marker "star"')), problems.join("; "));
+  const problems = validateRecord(proseNote({ article: "many-and-all" }, { marker: "spark", body: 5 }));
+  assert.ok(problems.some((p) => p.startsWith('marker "spark"')), problems.join("; "));
   assert.ok(problems.some((p) => p.startsWith("body")), problems.join("; "));
 });
 
@@ -328,19 +328,30 @@ const ribbonNote = (marker, extra = {}) =>
 
 test("E10: MARKERS lists ribbon where bookmark stood, and no longer bookmark", () => {
   assert.deepEqual(MARKERS, ["note", "emphasis", "question", "heart", "ribbon", "lightbulb", "flame"]);
-  assert.deepEqual(RENAMED_MARKERS, { bookmark: "ribbon" });
+  assert.deepEqual(RENAMED_MARKERS, { bookmark: "ribbon", star: "emphasis" });
   assert.equal(currentMarker("bookmark"), "ribbon");
+  assert.equal(currentMarker("star"), "emphasis", "iOS's old name (DI3-5)");
   for (const m of MARKERS) assert.equal(currentMarker(m), m);
-  assert.equal(currentMarker("star"), "star");
+  assert.equal(currentMarker("spark"), "spark");
   assert.equal(currentMarker(undefined), undefined);
 });
 
 test("E10: a note marked ribbon validates, an old bookmark still does, an unknown marker doesn't", () => {
   assert.deepEqual(validateRecord(ribbonNote("ribbon")), []);
   assert.deepEqual(validateRecord(ribbonNote("bookmark")), [], "every client reads the old name as the new one");
-  const problems = validateRecord(ribbonNote("star"));
-  assert.deepEqual(problems, ['marker "star" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame']);
+  const problems = validateRecord(ribbonNote("spark"));
+  assert.deepEqual(problems, ['marker "spark" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame']);
   assert.ok(validateRecord(ribbonNote(undefined)).some((p) => p.startsWith("marker")));
+});
+
+test("DI3-5: an iOS note still carrying `star` validates, reads as emphasis, and is written back renamed", () => {
+  assert.deepEqual(validateRecord(ribbonNote("star")), []);
+  const read = migrateRecord(ribbonNote("star"));
+  assert.equal(read.marker, "emphasis");
+  const held = { ...trashRecord(ribbonNote("star"), trashCtx), id: "trash-star" };
+  assert.equal(migrateRecord(held).record.marker, "emphasis", "and so in the trash");
+  const newer = { ...ribbonNote("star"), schema: SCHEMA_VERSION + 1 };
+  assert.equal(migrateRecord(newer), newer, "a note this code can't edit is left as it arrived");
 });
 
 test("E10: migrateRecord reads a bookmark marker as ribbon and changes nothing else", () => {

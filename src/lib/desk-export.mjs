@@ -43,7 +43,19 @@ import { LIT_CREDIT_LINE } from "./lit-credit.mjs";
 import { osisRef } from "./osis.mjs";
 import { labelMap, labelsOf } from "./desk-labels.mjs";
 import { mergeRecords } from "./desk-merge.mjs";
-import { MARKERS, SCHEMA_VERSION, canEdit, createRecord, currentMarker, editRecord, migrateRecord, proseTarget, validateRecord } from "./desk-records.mjs";
+import {
+  MARKERS,
+  MAX_RECORD_BYTES,
+  SCHEMA_VERSION,
+  canEdit,
+  createRecord,
+  currentMarker,
+  editRecord,
+  migrateRecord,
+  proseTarget,
+  recordBytes,
+  validateRecord,
+} from "./desk-records.mjs";
 import { cleanSheetText } from "./desk-sheet-format.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
@@ -664,7 +676,8 @@ function cleanIncoming(r) {
  *   `exported` is the file's own time (parseImport's), the merge's cap.
  * @returns {{ plan: { put: object[], remove: string[] },
  *   summary: { added: number, updated: number, unchanged: number, keptHere: number, deletedHere: number, deleted: number, trash: number, skipped: number },
- *   skipped: { record: unknown, reason: string }[], ahead: { record: unknown, written: boolean }[] }}
+ *   skipped: { record: unknown, reason: string }[], warnings: { record: unknown, reason: string }[],
+ *   ahead: { record: unknown, written: boolean }[] }}
  *   Every write the plan makes is counted, so a plan that changes anything
  *   never reads as "Nothing to open" (BA11). `added`, `updated` and `deleted`
  *   count records written; `trash` the deletions whose trash record changed
@@ -673,10 +686,12 @@ function cleanIncoming(r) {
  *   the file's records that changed nothing because the copy here is newer,
  *   or a deletion here stands, or the record here is still newer than the
  *   file's deletion of it; `ahead` the merge's records dated by a clock
- *   running ahead.
+ *   running ahead; `warnings` what was kept with something to say about it:
+ *   a deletion whose held copy couldn't be read, kept as its tombstone (DI3-4).
  */
 export function planImport(local, incoming, ctx = {}) {
   const skipped = [];
+  const warnings = [];
   const usable = [];
   for (const r of incoming ?? []) {
     if (nestedTooDeep(r)) {
@@ -684,11 +699,33 @@ export function planImport(local, incoming, ctx = {}) {
       continue;
     }
     // Brought up to date first, so a note with a renamed marker reads by its new name (E10).
-    const m = r && typeof r === "object" ? migrateRecord(r) : r;
+    let m = r && typeof r === "object" ? migrateRecord(r) : r;
     // A trash record's held record is checked too, for the fields every record carries and, of a kind
     // this code knows, its own (DI-10, RC-1; a record it can't edit is judged by the common fields only).
     const held = m?.kind === "trash" && m.record != null && typeof m.record === "object" ? validateRecord(migrateRecord(m.record)) : [];
-    const bad = m && typeof m === "object" ? (m.kind !== "trash" ? validateRecord(m) : held.map((p) => `its held record: ${p}`)) : [];
+    if (held.length) {
+      // The deletion itself is well formed (the merge's problemWith judges that); only the copy it
+      // holds isn't. Keeping the deletion as its tombstone keeps what the tombstone is for (A-F10):
+      // an older backup can't bring the record back. The copy is dropped, so RC-1's rule holds too:
+      // an unchecked copy never reaches the live set (DI3-4; BVJ's decision 8).
+      const { record: _dropped, ...tombstone } = m;
+      m = tombstone;
+      warnings.push({
+        record: r,
+        reason: "A deletion in this file was kept, but its words couldn’t be read, so it can’t be restored.",
+        detail: `${held.map((p) => `its held record: ${p}`).join("; ")}.`.replace(/^./, (c) => c.toUpperCase()),
+      });
+    }
+    // A trash record is judged by the merge, not by the common fields (the format asks only that its
+    // times parse), but the size ceiling holds for every record (SEC3-1).
+    const bad =
+      m && typeof m === "object"
+        ? m.kind !== "trash"
+          ? validateRecord(m)
+          : recordBytes(m) > MAX_RECORD_BYTES
+            ? [`the record is too large to keep (over ${MAX_RECORD_BYTES / 1024 / 1024} MB as JSON)`]
+            : []
+        : [];
     if (bad.length) skipped.push({ record: r, reason: plainReason(bad), detail: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
     else usable.push(cleanIncoming(m));
   }
@@ -744,7 +781,7 @@ export function planImport(local, incoming, ctx = {}) {
     else if (!before && deletedHere.has(r.id)) summary.deletedHere++;
     else summary.keptHere++;
   }
-  return { plan: { put: merged.put, remove: merged.remove }, summary, skipped, ahead: merged.ahead };
+  return { plan: { put: merged.put, remove: merged.remove }, summary, skipped, warnings, ahead: merged.ahead };
 }
 
 /**
@@ -780,6 +817,7 @@ export const sameOpen = (a, b) => !a.message && !b.message && a.sentence === b.s
 export function plainReason(problems) {
   const first = String(problems[0] ?? "");
   if (/^its held record/.test(first)) return "The copy it holds in the trash couldn’t be read.";
+  if (/too large to keep/.test(first)) return `It is too large to keep (over ${MAX_RECORD_BYTES / 1024 / 1024} MB).`;
   if (/^marker .* is not one of/i.test(first)) return "It has a marker the notebook doesn’t know.";
   if (/^color .* is not one of/i.test(first)) return "It has a color the notebook doesn’t know.";
   if (/ISO 8601/.test(first)) return "Its date couldn’t be read.";

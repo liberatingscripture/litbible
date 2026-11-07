@@ -69,7 +69,7 @@ test("a saved record is read back, and by chapter", async () => {
 test("a malformed record is refused before anything is written", async () => {
   await freshBrowser();
   const store = await openStore({ ctx });
-  await assert.rejects(store.save({ ...note(), marker: "star" }), /not saved/);
+  await assert.rejects(store.save({ ...note(), marker: "spark" }), /not saved/);
   assert.deepEqual(await store.all(), []);
 });
 
@@ -189,7 +189,7 @@ test("writeNow writes before it returns, without a read", async () => {
   assert.equal(store.writeNow({ put: [], remove: [] }), false);
   await settle();
   assert.equal((await store.get(r.id)).id, r.id);
-  assert.throws(() => store.writeNow({ put: [{ ...r, marker: "star" }], remove: [] }), /not saved/);
+  assert.throws(() => store.writeNow({ put: [{ ...r, marker: "spark" }], remove: [] }), /not saved/);
 });
 
 test("a second store hears the first one's change as another tab's", async () => {

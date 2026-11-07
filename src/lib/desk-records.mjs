@@ -31,6 +31,7 @@
 
 import { BOOKS } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
+import { BOOKMARK_NAME_MAX } from "./desk-bookmarks.mjs";
 import { SHEET_FORMAT, validateSheet } from "./desk-sheet-format.mjs";
 
 /** The format version this code writes. */
@@ -65,13 +66,15 @@ export const MARKERS = Object.freeze([
  * Note markers renamed since a client may have written them, each with the
  * name it reads as now. `bookmark` became `ribbon` (STUDY-DESK-FIXES.md E10; BDR,
  * 2026-10-23), so the marker no longer shares a name with Bookmarks; its
- * picture and color stayed. Every client reads the old name as the new one
- * and writes the new one, as iOS reads an old `star` as `emphasis`. A record
- * still holding the old name is valid, and nothing stored is rewritten just
- * because it was read: migrateRecord renames it on the way in, so the next
- * write of that note carries the new name.
+ * picture and color stayed. `star` became `emphasis` on iOS before the format
+ * existed, and a note written then still carries `star` on disk, since
+ * nothing stored is rewritten (audit 3 DI3-5). Every client reads an old name
+ * as the new one and writes the new one. A record still holding an old name
+ * is valid, and nothing stored is rewritten just because it was read:
+ * migrateRecord renames it on the way in, so the next write of that note
+ * carries the new name.
  */
-export const RENAMED_MARKERS = Object.freeze({ bookmark: "ribbon" });
+export const RENAMED_MARKERS = Object.freeze({ bookmark: "ribbon", star: "emphasis" });
 
 /** A note marker by its current name: the new name for a renamed one. */
 export function currentMarker(marker) {
@@ -186,12 +189,21 @@ export function editRecord(record, changes, { now, client, exact = false } = {})
 /**
  * `now`, unless that is no later than the version being replaced: then one
  * millisecond past it, so an edit always outranks what it was made over, even
- * on a clock that runs behind (DI-8, a hybrid-clock step). The same for an undo.
+ * on a clock that runs behind (DI-8, a hybrid-clock step). One rule for every
+ * stamp (audit 3 DI3-1): an edit steps past the version it replaces, a
+ * deletion past the record it deletes, a restore past the deletion it undoes,
+ * and an undo past everything it puts back over (laterThanAll). A time that
+ * won't parse is ignored.
  */
-function laterThan(previous, now) {
+export function laterThan(previous, now) {
   const before = typeof previous === "string" ? Date.parse(previous) : NaN;
   if (Number.isNaN(before) || Date.parse(now) > before) return now;
   return new Date(before + 1).toISOString();
+}
+
+/** `now` stepped past every one of `previous` that parses (see laterThan). */
+export function laterThanAll(now, ...previous) {
+  return previous.reduce((at, p) => laterThan(p, at), now);
 }
 
 /* ── Deleting (item 20, rule c) ──────────────────────────────────────── */
@@ -204,12 +216,15 @@ export const TRASH_DAYS = 30;
  * removed and this written in its place, never a flag on the live record
  * (iOS found flag flips unreliable in sync). `record` holds the whole deleted
  * record as it was, fields this code doesn't know included, so a record of any
- * kind can be deleted and brought back intact.
+ * kind can be deleted and brought back intact. The deletion is stamped past
+ * the record it deletes (laterThan; DI3-1): on a clock behind the one that
+ * last edited the record, an equal or earlier `deletedAt` would lose to that
+ * edit under rule b when the copies meet, and the deletion would be undone.
  */
 export function trashRecord(record, { now, client, contentVersion, id } = {}) {
   if (!record || typeof record.id !== "string") throw new Error("desk-records: nothing to delete");
   if (record.kind === "trash") throw new Error("desk-records: a trash record isn't deleted again");
-  const at = now ?? new Date().toISOString();
+  const at = laterThan(record.modified, now ?? new Date().toISOString());
   return {
     id: id ?? newId(),
     kind: "trash",
@@ -230,9 +245,12 @@ export function trashRecord(record, { now, client, contentVersion, id } = {}) {
  * Undo a deletion: the record the trash record holds, back in the notebook.
  * Undoing is the reader acting, so `modified` moves (principle 4); that is what
  * lets an undo outlast the deletion when two copies of the notebook meet
- * (item 20, question 2). A record this code can't edit (an unknown kind, a
- * newer schema) comes back exactly as it was deleted, per principle 6.
- * Null when the trash record has been emptied and holds only its tombstone.
+ * (item 20, question 2): the restore is stamped past the deletion it undoes
+ * as well as past the record's own `modified` (laterThanAll; DI3-1), since
+ * rule b keeps the deletion over a restore whose stamp is no later than
+ * `deletedAt`. A record this code can't edit (an unknown kind, a newer
+ * schema) comes back exactly as it was deleted, per principle 6. Null when
+ * the trash record has been emptied and holds only its tombstone.
  */
 export function restoreFromTrash(trash, { now, client } = {}) {
   if (trash?.kind !== "trash") throw new Error("desk-records: not a trash record");
@@ -242,7 +260,7 @@ export function restoreFromTrash(trash, { now, client } = {}) {
   if (!canEdit(trash.record)) return trash.record;
   return {
     ...trash.record,
-    modified: laterThan(trash.record.modified, now ?? new Date().toISOString()),
+    modified: laterThanAll(now ?? new Date().toISOString(), trash.record.modified, trash.deletedAt),
     ...(client ? { client } : {}),
   };
 }
@@ -315,13 +333,40 @@ function ribbonToBookmark(r) {
 /** The longest a note's words may be (SEC-6): far past a margin note, short of slowing every draw of it. */
 export const MAX_NOTE_BODY = 65_536;
 
+/**
+ * The largest record of any kind, as JSON bytes (1 MB; audit 3 SEC3-1, BVJ's
+ * decision 7). The kind-specific limits above and in validateSheet apply only
+ * to records this code can edit, so a note from a newer schema with a 40 MB
+ * body was kept, drawn, backed up and would have synced. This ceiling is
+ * checked for every record, whatever its schema or kind, and sits far above
+ * every real limit, so a newer client's records are never touched by it.
+ * Within SEC Q2's option B: a kept record is still never rewritten.
+ */
+export const MAX_RECORD_BYTES = 1_048_576;
+
+/** A record's size as JSON bytes; Infinity when it can't be serialized. */
+export function recordBytes(r) {
+  try {
+    return new TextEncoder().encode(JSON.stringify(r)).length;
+  } catch {
+    return Infinity;
+  }
+}
+
+/** The longest a label's name may be (SEC3-4); the form's field stops at 60. */
+export const LABEL_NAME_MAX = 200;
+
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+
+/** A string's length as a reader counts it (code points), as cleanBookmarkName cuts it. */
+const chars = (s) => Array.from(s).length;
 
 /**
  * Problems with the fields the format names, as plain sentences; empty when
  * there are none. Unknown fields are never a problem, and a record of an
  * unknown kind or a newer schema is checked only for the fields every record
- * carries, since its own fields aren't this code's to judge.
+ * carries, since its own fields aren't this code's to judge, and for the size
+ * ceiling (MAX_RECORD_BYTES), which holds for every record.
  */
 export function validateRecord(r) {
   const problems = [];
@@ -335,6 +380,7 @@ export function validateRecord(r) {
   need(typeof r?.client === "string", "client is missing");
   need(typeof r?.contentVersion === "string", "contentVersion is missing");
   need(Array.isArray(r?.labels) && r.labels.every((l) => typeof l === "string"), "labels is not a list of IDs");
+  need(recordBytes(r) <= MAX_RECORD_BYTES, `the record is too large to keep (over ${MAX_RECORD_BYTES / 1024 / 1024} MB as JSON)`);
   if (problems.length || !canEdit(r)) return problems;
 
   const k = r.kind;
@@ -373,13 +419,17 @@ export function validateRecord(r) {
   if (k === "place") need(typeof r.name === "string", "name is not text");
   if (k === "bookmark") {
     need(r.label == null || typeof r.label === "string", "label is not text");
+    need(typeof r.label !== "string" || chars(r.label) <= BOOKMARK_NAME_MAX, `label is too long (over ${BOOKMARK_NAME_MAX} characters)`);
     need(r.follow == null || typeof r.follow === "boolean", "follow is not true or false");
   }
   if (k === "footnotePin") {
     need(typeof r.footnote === "string" && r.footnote.length > 0, "footnote is empty");
     need(r.n == null || (Number.isInteger(r.n) && r.n >= 1), "n is not a positive integer");
   }
-  if (k === "label") need(typeof r.name === "string" && r.name.length > 0, "name is empty");
+  if (k === "label") {
+    need(typeof r.name === "string" && r.name.length > 0, "name is empty");
+    need(typeof r.name !== "string" || chars(r.name) <= LABEL_NAME_MAX, `name is too long (over ${LABEL_NAME_MAX} characters)`);
+  }
   if (k === "markRule") need(COLORS.includes(r.color), `color "${r.color}" is not one of ${COLORS.join(", ")}`);
   if (k === "sheet") problems.push(...validateSheet(r));
   return problems;

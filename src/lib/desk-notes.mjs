@@ -199,3 +199,12 @@ export const MARKER_NAMES = Object.freeze({
   lightbulb: "Lightbulb",
   flame: "Flame",
 });
+
+/**
+ * A marker's name for a record of any origin: a marker this code doesn't
+ * know (a newer schema's, or a hostile one such as "constructor", SEC Q2 and
+ * SEC3-5) reads as the plain note's, never as something off the prototype.
+ */
+export function markerName(marker) {
+  return typeof marker === "string" && Object.hasOwn(MARKER_NAMES, marker) ? MARKER_NAMES[marker] : MARKER_NAMES.note;
+}

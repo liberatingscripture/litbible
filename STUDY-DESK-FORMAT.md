@@ -76,6 +76,17 @@ it. Trash records are only required to carry times that parse, but write
 them with `Z` too. Clients compare times as instants, not as strings, so
 `…09.5Z` and `…09.500Z` are the same time.
 
+**A record is at most 1 MB as JSON, whatever its kind or schema** (audit 3
+SEC3-1; BVJ's decision 7, 2026-11-07; **for BDR to confirm**). The limits a
+kind carries (a note's 64 KB body, a sheet's 512 KB) apply only to records a
+client can edit, so a note from a newer schema with a 40 MB body was kept,
+drawn, backed up, and would have synced. The website's `validateRecord`
+refuses any record whose serialized size passes 1 MB, with a reason in the
+import's report, and the same ceiling should stand at the apps' import and
+at sync. It is far above every real limit, so a newer client's records are
+never touched by it, and a kept record is still never rewritten (SEC Q2,
+option B).
+
 A record about the text also carries **where**:
 
 | Field | Meaning |
@@ -102,7 +113,15 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      **`ribbon` was `bookmark` until 2026-10-23** (E10; BDR's decision):
      every client reads `bookmark` as `ribbon` and writes `ribbon`, as iOS
      already reads an old `star` as `emphasis`; nothing stored is rewritten.
-     The marker's picture and color do not change;
+     The marker's picture and color do not change. **Every client reads
+     every old name** (audit 3 DI3-5, 2026-11-07): since nothing stored is
+     rewritten, an iOS note from before the rename still carries `star` on
+     disk and reaches the website in a backup or a sync, where it was
+     refused. The website's `RENAMED_MARKERS` now holds both `bookmark →
+     ribbon` and `star → emphasis` (merge vector
+     `migrate-an-old-star-marker-reads-as-emphasis`). **BDR, please list
+     every marker name either app has ever written**, so the website reads
+     them all;
    - `quote`, optional: a note on a whole verse has none;
    - `verseCopy`, `verseCopyAsOf`.
 
@@ -198,7 +217,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    reader.
 7. **`markRule`** (H2): a glossary term, a book and a colour, worked out
    from the published alignment on each load.
-8. **`label`** (M8): a name. Records list the labels on them. The website
+8. **`label`** (M8): a name, up to 200 characters (the website's
+   `LABEL_NAME_MAX`, audit 3 SEC3-4; its form stops at 60). Records list
+   the labels on them. The website
    calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
    unique ignoring case and accents: a new label matching an old one reuses
    it.
@@ -221,6 +242,17 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     The website names the field `deletedKind`, beside `deletedId` and
     `deletedAt` (built 2026-10-12; a trash record written before then takes
     the kind of the record it holds).
+
+    **A deletion whose held copy can't be read is kept as its tombstone**
+    (audit 3 DI3-4; BVJ's decision 8, 2026-11-07; **for BDR to confirm**).
+    When a trash record arrives well formed (`deletedId`, `deletedAt`) but
+    the copy it holds fails the receiving client's checks (a marker it
+    doesn't know, a body over its limit, a verse out of range), the client
+    writes the trash record without `record`, keeping `deletedId`,
+    `deletedKind` and `deletedAt`, and tells the reader its words couldn't
+    be read, so it can't be restored. Skipping the whole trash record, as the
+    website did until then, lost the deletion itself: an older backup, or a
+    device that hadn't seen it, brought the record back.
 
     **Two trash records for one deletion** (two devices each deleted the
     record before they met) **collapse to one. The website's proposal,
@@ -788,6 +820,22 @@ deletion made in between, every time (BA4). So:
   drops a record as ahead must not advance its cursor past it. And an edit
   stamps `max(now, the version it replaces + 1 ms)`, so it always outranks
   that version, even on a clock running behind.
+  **Every stamp steps past what it replaces, not edits alone** (audit 3
+  DI3-1, 2026-11-07; the website's stamps do this now, and **the apps' need
+  the same step**, since rules a to c and the vectors don't change): a
+  deletion stamps `deletedAt` (and its `modified`) past the record it
+  deletes; a restore from the trash stamps `modified` past the deletion it
+  undoes as well as past the record's own; and an undo or a redo stamps the
+  record it puts back past everything it goes back over (the other version,
+  a deletion's `deletedAt`, the copy a deletion holds). Within the five
+  minutes of skew this bullet allows, a deletion or a restore made on the
+  slower of two clocks was otherwise reversed when the copies met: the
+  phone's edit, three minutes ahead, outranked the desktop's later deletion
+  under rule b, and the phone's deletion outranked the desktop's later
+  restore. Merge vectors
+  `b-a-deletion-stamped-past-the-record-it-deletes-stands` and
+  `b-a-restore-stamped-past-the-deletion-it-undoes-stands` (each with an
+  `-other-way` twin) show the stamps that result.
 - **One trash id, two copies** (DI-3): merged field-wise, as the collapse
   rule does across ids: the later `deletedAt`, the later `modified`, and the
   held record with the later `modified`. A trash record whose held record has

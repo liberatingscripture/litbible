@@ -18,7 +18,7 @@
 //     so what reaches the store is already in the canonical form.
 
 import { canEdit, createRecord, editRecord } from "./desk-records.mjs";
-import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
+import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
 import { planSave } from "./desk-store-core.mjs";
 
 /** The fields a new module of each type starts with (besides its `id` and `type`). */
@@ -231,12 +231,21 @@ export function setSheetFields(sheet, changes, ctx) {
  *
  * Throws as planSave does when the changed sheet can't be saved (over its
  * 512 KB, BA128), so the caller's transaction writes nothing.
+ *
+ * The change is made over the sheet's formatted text in today's canonical
+ * form (cleanSheetText; audit 3 DI3-6): a stored sheet is valid only while
+ * the sanitizer's output for its text never changes, and a sanitizer change
+ * that altered a canonical form would otherwise make every sheet holding it
+ * refuse every edit ("html is not in the sheet's formatted-text form"), with
+ * no way to re-canonicalize it. Taken this way, such a drift becomes a
+ * one-time rewrite on the next edit instead. The test fixture
+ * `sheet-text-golden.json` is what makes that drift a deliberate change.
  */
 export function planSheetChange(current, op) {
   if (current?.kind !== "sheet" || !canEdit(current)) return { gone: true };
   let next;
   try {
-    next = op(current);
+    next = op(cleanSheetText(current));
   } catch (refused) {
     return { refused };
   }

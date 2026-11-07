@@ -356,13 +356,13 @@ test("E10: an incoming note marked bookmark is kept, and reads as ribbon", () =>
 
 test("E10: ribbon opens as itself, and an unknown marker is still skipped", () => {
   const ribbon = make("note", { bookKey: "luke", chapter: 15, verse: 21, endVerse: 21, body: "", marker: "ribbon" });
-  const star = make("note", { bookKey: "luke", chapter: 15, verse: 22, endVerse: 22, body: "Robe.", marker: "star" });
+  const star = make("note", { bookKey: "luke", chapter: 15, verse: 22, endVerse: 22, body: "Robe.", marker: "spark" });
   const out = planImport([], [ribbon, star], { now: "2026-10-13T00:00:00.000Z" });
   assert.deepEqual(out.plan.put, [ribbon]);
   assert.equal(out.skipped.length, 1);
   assert.equal(out.skipped[0].record, star);
   assert.equal(out.skipped[0].reason, "It has a marker the notebook doesn’t know.");
-  assert.match(out.skipped[0].detail, /^Marker "star" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame\.$/);
+  assert.match(out.skipped[0].detail, /^Marker "spark" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame\.$/);
 });
 
 test("E10: Markdown says ribbon, and an old copy's “Note (bookmark)” reads as ribbon", () => {
@@ -377,7 +377,7 @@ Ran to meet him.
   const back = parseImport(text, { local: [], ctx });
   assert.deepEqual(back.problems, []);
   assert.equal(back.records[0].marker, "ribbon");
-  const unknown = parseImport(text.replace("(bookmark)", "(star)"), { local: [], ctx });
+  const unknown = parseImport(text.replace("(bookmark)", "(spark)"), { local: [], ctx });
   assert.equal(unknown.records[0].marker, "note", "an unknown marker in Markdown is a plain note, as before");
 });
 
@@ -412,7 +412,7 @@ test("planImport: a deletion here stands over an older copy in the file, and one
 test("planImport reports malformed records and does not write them", () => {
   const bad = [
     { ...romans, id: nextId(), chapter: 99 },
-    { ...asked, id: nextId(), marker: "star" },
+    { ...asked, id: nextId(), marker: "spark" },
     { nonsense: true },
     null,
     "text",
@@ -608,6 +608,36 @@ test("an older copy never brings back a note deleted here since it was saved (BA
   assert.equal(planChanges(out.plan), false);
   assert.ok(!out.plan.put.some((r) => r.id === fresh.id || r.kind === "note"));
   assert.deepEqual(out.plan.remove, []);
+});
+
+test("DI3-4: a deletion whose held copy can't be read is kept as its tombstone, and said so", () => {
+  const live = make("note", { bookKey: "acts", chapter: 3, verse: 2, body: "mine", marker: "note" });
+  const gone = planDelete({ ...live, marker: "spark" }, { ...ctx, now: at(SAVED, 1) }).trash;
+  const out = planImport([], [gone], { now: at(SAVED, 2) });
+  assert.equal(out.skipped.length, 0);
+  assert.equal(out.plan.put.length, 1);
+  const kept = out.plan.put[0];
+  assert.equal(kept.kind, "trash");
+  assert.equal(kept.deletedId, live.id);
+  assert.equal(kept.deletedKind, "note");
+  assert.equal(kept.deletedAt, gone.deletedAt);
+  assert.ok(!("record" in kept), "the copy that couldn't be read is dropped");
+  assert.equal(out.summary.trash, 1);
+  assert.equal(out.warnings.length, 1);
+  assert.equal(out.warnings[0].record, gone);
+  assert.equal(out.warnings[0].reason, "A deletion in this file was kept, but its words couldn’t be read, so it can’t be restored.");
+  assert.match(out.warnings[0].detail, /^Its held record: marker "spark"/);
+  // What the tombstone is for (A-F10): an older copy can't bring the record
+  // back. (Rule b lets the trash record take that readable copy, so the
+  // deletion can be undone after all; the record itself stays deleted.)
+  const held = applyPlan([], out.plan);
+  const stale = planImport(held, [live], { now: at(SAVED, 3) });
+  const after = applyPlan(held, stale.plan);
+  assert.deepEqual(after.map((r) => r.kind), ["trash"]);
+  assert.equal(stale.summary.added, 0);
+  assert.equal(stale.summary.updated, 0);
+  // The same file again writes nothing.
+  assert.equal(planChanges(planImport(held, [gone], { now: at(SAVED, 3) }).plan), false);
 });
 
 test("a tombstone holds the id too, and the message leaves out the way back (BA2)", () => {

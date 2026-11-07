@@ -60,7 +60,7 @@ function note(where, extra = {}) {
 test("planSave puts a valid record and refuses a malformed one", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
   assert.deepEqual(planSave(r), { put: [r], remove: [] });
-  assert.throws(() => planSave({ ...r, marker: "star" }), /not saved/);
+  assert.throws(() => planSave({ ...r, marker: "spark" }), /not saved/);
   assert.throws(() => planSave({ ...r, chapter: 17 }), /chapter is out of range/);
 });
 
@@ -136,21 +136,21 @@ test("planUndo puts the record back and removes its trash record", () => {
 
 test("planUndo has nothing to do once the trash is emptied", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
-  const { trash } = planDelete(r, { ...base, now: "2026-08-01T00:00:00.000Z" });
-  const [emptied] = planPurge([trash], "2026-10-01T00:00:00.000Z").put;
+  const { trash } = planDelete(r, { ...base, now: "2026-10-06T00:00:00.000Z" });
+  const [emptied] = planPurge([trash], "2026-12-01T00:00:00.000Z").put;
   assert.equal(planUndo(emptied, base), null);
 });
 
 test("planPurge empties only trash past its 30 days", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 });
-  const old = planDelete(r, { ...base, now: "2026-08-01T00:00:00.000Z" }).trash;
-  const fresh = planDelete(note({ bookKey: "john", chapter: 3, verse: 16 }), { ...base, now: "2026-09-30T00:00:00.000Z" }).trash;
-  const plan = planPurge([r, old, fresh], "2026-10-01T00:00:00.000Z");
+  const old = planDelete(r, { ...base, now: "2026-10-06T00:00:00.000Z" }).trash;
+  const fresh = planDelete(note({ bookKey: "john", chapter: 3, verse: 16 }), { ...base, now: "2026-11-04T00:00:00.000Z" }).trash;
+  const plan = planPurge([r, old, fresh], "2026-11-06T00:00:00.000Z");
   assert.equal(plan.put.length, 1);
   assert.equal(plan.put[0].id, old.id);
   assert.equal("record" in plan.put[0], false);
   assert.deepEqual(plan.remove, []);
-  assert.deepEqual(planPurge([r, fresh], "2026-10-01T00:00:00.000Z"), { put: [], remove: [] });
+  assert.deepEqual(planPurge([r, fresh], "2026-11-06T00:00:00.000Z"), { put: [], remove: [] });
 });
 
 test("change messages: what tabs send each other, and nothing else is read", () => {
@@ -415,7 +415,7 @@ test("planEdit counts a property holding undefined as missing", () => {
 
 test("planEdit refuses what planSave refuses", () => {
   const opened = note({ bookKey: "romans", chapter: 8, verse: 3 });
-  assert.throws(() => planEdit(opened, opened, { body: "x", marker: "star" }, SAVED), /not saved/);
+  assert.throws(() => planEdit(opened, opened, { body: "x", marker: "spark" }, SAVED), /not saved/);
 });
 
 /* ── Bookmarks: one to a verse (BA16) ────────────────────────────────── */

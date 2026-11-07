@@ -321,8 +321,11 @@ test("an edit always outranks the version it was made over, even on a clock runn
   const record = a2note("x", "2026-11-04T12:00:00.000Z");
   const edited = editForAudit2(record, { body: "y" }, { now: "2026-11-04T11:59:58.000Z" });
   assert.equal(edited.modified, "2026-11-04T12:00:00.001Z");
-  const restored = restoreForAudit2(trashForAudit2(record, { ...A2, now: "2026-11-04T12:00:00.000Z" }), { now: "2026-11-04T11:00:00.000Z" });
-  assert.equal(restored.modified, "2026-11-04T12:00:00.001Z");
+  // The deletion steps past the record (.001), and the restore past the deletion (.002): DI3-1.
+  const trash = trashForAudit2(record, { ...A2, now: "2026-11-04T12:00:00.000Z" });
+  assert.equal(trash.deletedAt, "2026-11-04T12:00:00.001Z");
+  const restored = restoreForAudit2(trash, { now: "2026-11-04T11:00:00.000Z" });
+  assert.equal(restored.modified, "2026-11-04T12:00:00.002Z");
 });
 
 test("a file's `exported` time with an offset caps in the format's own form (DI-12)", () => {
@@ -341,6 +344,38 @@ test("a trash record holding a record with another id is skipped, and never rest
   assert.equal(out.skipped.length, 1);
   assert.deepEqual(out.put, []);
   assert.equal(restoreForAudit2(bad), null);
+});
+
+test("DI3-1: a deletion or a restore made on the slower of two clocks survives the merge, both ways", () => {
+  // The phone runs three minutes fast (within CLOCK_TOLERANCE_MS). Case 1:
+  // the phone edits X, the desktop deletes it a minute later by its own clock.
+  const x = a2note("x", "2026-11-04T12:00:00.000Z");
+  const phoneEdit = editForAudit2(x, { body: "phone's edit" }, { now: "2026-11-04T12:03:00.000Z", client: "ios/2.1" });
+  let desktop = mergeSets([x], [phoneEdit], { now: "2026-11-04T12:00:30.000Z" });
+  assert.equal(desktop[0].body, "phone's edit");
+  const deletion = trashForAudit2(desktop[0], { ...A2, now: "2026-11-04T12:01:00.000Z", id: "00000000-0000-4000-8000-0000000000d1" });
+  desktop = [deletion];
+  let phone = [phoneEdit];
+  const meet = (now) => {
+    phone = mergeSets(phone, desktop, { now });
+    desktop = mergeSets(desktop, phone, { now });
+  };
+  meet("2026-11-04T12:05:00.000Z");
+  for (const side of [phone, desktop]) {
+    assert.deepEqual(side.map((r) => r.kind), ["trash"], "the deletion stands on both devices");
+  }
+  // Case 2: the phone deletes Y; the desktop restores it from the Trash a
+  // minute later by its clock, two minutes before the deletion by the phone's.
+  const y = a2note("y", "2026-11-04T12:00:00.000Z", "00000000-0000-4000-8000-0000000000a2");
+  const phoneDelete = trashForAudit2(y, { ...A2, now: "2026-11-04T12:03:00.000Z", id: "00000000-0000-4000-8000-0000000000d2" });
+  desktop = mergeSets([y], [phoneDelete], { now: "2026-11-04T12:00:30.000Z" });
+  assert.deepEqual(desktop.map((r) => r.kind), ["trash"]);
+  desktop = [restoreForAudit2(desktop[0], { now: "2026-11-04T12:01:00.000Z", client: "web/test" })];
+  phone = [phoneDelete];
+  meet("2026-11-04T12:05:00.000Z");
+  for (const side of [phone, desktop]) {
+    assert.deepEqual(side.map((r) => [r.kind, r.id]), [["note", y.id]], "the restore stands on both devices");
+  }
 });
 
 test("a note's words have a limit (SEC-6)", () => {

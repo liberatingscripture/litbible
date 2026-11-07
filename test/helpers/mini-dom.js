@@ -79,6 +79,14 @@ class MiniElement extends MiniNode {
   removeAttribute(name) {
     delete this.attrs[name.toLowerCase()];
   }
+  getAttributeNames() {
+    return Object.keys(this.attrs);
+  }
+  remove() {
+    const kids = this.parentNode?.childNodes;
+    if (kids) kids.splice(kids.indexOf(this), 1);
+    this.parentNode = null;
+  }
   get textContent() {
     return this.childNodes.map((c) => (c.nodeType === 3 ? c.nodeValue : c.textContent)).join("");
   }

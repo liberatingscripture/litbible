@@ -27,6 +27,7 @@
 // introduction (Acts, in 2026-11) shows a line saying so.
 
 import { BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
+import { makeInert } from "../../lib/desk-inert.mjs";
 import { introPath, stepBook } from "../../lib/desk-passage.mjs";
 import { resultTarget } from "../../lib/desk-search-pane.mjs";
 import { heldAfterReference, introText, keepsBook } from "./intro-text.js";
@@ -64,8 +65,9 @@ function loadIntro(bookKey) {
         const page = new DOMParser().parseFromString(html, "text/html");
         const section = page.querySelector("article.chapter section.intro");
         if (!section) return { draft: true, body: null };
+        // Made inert before the pane imports a node of it (SEC3-2), as a chapter's parts are.
         const kept = document.implementation.createHTMLDocument("");
-        kept.body.append(section);
+        kept.body.append(makeInert(section));
         return { draft: false, body: section };
       });
     p.catch(() => cache.delete(bookKey));
