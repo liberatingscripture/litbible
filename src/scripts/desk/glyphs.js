@@ -8,6 +8,10 @@
 //
 // The coloured markers keep their colour in both themes, as in the apps; the
 // plain "note" marker is drawn in the text colour so it reads on either.
+//
+// Below them is one control's icon, not a marker: "open on its page", a box
+// with an arrow leaving it, for a link that opens a passage's own page in a
+// new tab (the LIT pane's bar, the Search pane's rows; E34, E35).
 
 const PATHS = {
   note: `<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h13M3 11h10M3 16h6"/><path d="M14.5 20.5l1-3.6 5.4-5.4a1.8 1.8 0 0 1 2.6 2.6l-5.4 5.4z" stroke-linejoin="round"/></g>`,
@@ -29,3 +33,8 @@ export function glyph(marker, cls = "desk-glyph") {
   const inner = typeof marker === "string" && Object.hasOwn(PATHS, marker) ? PATHS[marker] : PATHS.note;
   return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${inner}</svg>`;
 }
+
+/** A link's "open on its page in a new tab" icon (E35), drawn in the text colour. Decorative: the link names itself. */
+export const OPEN_PAGE_ICON = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>`;

@@ -22,11 +22,13 @@ const ICON_NEXT = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" s
   <path d="M9 6l6 6-6 6" /></svg>`;
 
 /**
- * @param {{ id: string, set: (passage: object) => void }} options
- *   `id` keeps the field's id apart from other panes'.
+ * @param {{ id: string, set: (passage: object) => void, extra?: HTMLElement }} options
+ *   `id` keeps the field's id apart from other panes'; `extra` is a control
+ *   of the pane's own, put after the next-chapter arrow (the LIT pane's
+ *   "Open on its page", E35).
  * @returns {{ el: HTMLElement, update: (passage: object) => void }}
  */
-export function createPassageBar({ id, set }) {
+export function createPassageBar({ id, set, extra = null }) {
   const el = document.createElement("form");
   el.className = "desk-passage";
   el.setAttribute("role", "group"); // a picker, not a search (DK-7)
@@ -42,6 +44,7 @@ export function createPassageBar({ id, set }) {
   const field = el.querySelector(".desk-passage__field");
   const error = el.querySelector(".desk-passage__error");
   const steps = Array.from(el.querySelectorAll(".desk-passage__step"));
+  if (extra) error.before(extra);
 
   let current = null;
 

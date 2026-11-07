@@ -1188,6 +1188,11 @@ against `dist/` is a later item.
        first drawn, so with numbers off the location field read verse 1 and
        a jump to a verse landed wrong. With numbers off the chapter headings
        are hidden that way too (styles/CLAUDE.md, the Display tray's rule 6).
+       **Its bar has "Open on its page"** (E35): a link after the
+       next-chapter arrow (`extra` in `passage-bar.js`, `OPEN_PAGE_ICON` in
+       `glyphs.js`) to the chapter's page at the verse the field names
+       (`showPlace`, which every move of the field goes through), in a new
+       tab, as the chapter headings' links also open.
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);

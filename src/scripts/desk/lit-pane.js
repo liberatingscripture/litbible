@@ -60,6 +60,7 @@ import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
 import { make } from "./dom.js";
+import { OPEN_PAGE_ICON } from "./glyphs.js";
 
 /** How far down the pane the reading line sits. */
 const LINE = 0.1;
@@ -91,13 +92,33 @@ const PARK_NEAR = 2;
 export function createLitPane({ paneId, start, drafts, onPlace }) {
   const units = corpusUnits(drafts);
   const el = make("div", "desk-lit");
+  // The passage on its own page, at the verse the field names (E35): a new
+  // tab, as every link that leaves the desk opens, so the layout stays. The
+  // headings link the same pages, but a heading isn't seen as a button.
+  const openPage = make("a", "desk-passage__step desk-lit__open");
+  openPage.target = "_blank";
+  openPage.rel = "noopener noreferrer";
+  openPage.title = "Open on its page";
+  openPage.innerHTML = OPEN_PAGE_ICON;
   const bar = createPassageBar({
     id: paneId,
     set: (p) => {
       goTo(p, { force: true });
       tell(p);
     },
+    extra: openPage,
   });
+  /** The field and the link to the page both name `p`. */
+  function showPlace(p) {
+    bar.update(p);
+    const href = chapterHref(p.bookKey, p.chapter);
+    if (!href) {
+      openPage.removeAttribute("href");
+      return;
+    }
+    openPage.href = p.verse ? `${href}#v${p.verse}` : href;
+    openPage.setAttribute("aria-label", `Open ${passageLabel(p)} on its page, in a new tab`);
+  }
   const scroller = make("div", "desk-lit__scroll");
   // A panel opened from the text (the verse menu, the selection panel, a
   // footnote, a key term) stays put on the screen as the pane scrolls (BA125).
@@ -179,7 +200,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
 
   function tell(p) {
     told = p;
-    bar.update(p);
+    showPlace(p);
     onPlace(p);
   }
 
@@ -234,6 +255,9 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     const a = make("a", null, unitHeading(u));
     const href = chapterHref(u.bookKey, chapter);
     if (href) a.href = href;
+    // A link that leaves the desk opens apart, so the layout stays.
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
     a.title = "Open in Chapter View";
     h.append(a);
     // A group, not a region: a pane that has scrolled through sixty chapters would list sixty landmarks (DK-7).
@@ -480,7 +504,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
     // A stub's place still waiting is the reader's old one: going elsewhere drops it.
     clearTimeout(stubWait);
     stubWait = 0;
-    bar.update(p);
+    showPlace(p);
     const i = unitIndex(units, p.bookKey, p.chapter);
     if (i < 0) return;
     const there = sections.get(i);
