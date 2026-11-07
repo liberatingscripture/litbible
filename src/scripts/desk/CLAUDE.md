@@ -1138,7 +1138,7 @@ against `dist/` is a later item.
        for the pane menu's Move left, right, up, and down (the keyboard's
        swap; only a pane touching this one counts). **The pane menu is the
        kinds plus three flyout lines, Add pane, Move and Size** (BVJ,
-       2026-11-04; `openKindMenu`, `openFly` in desk-page.js): hover opens one
+       2026-11-04; `kind-menu.js`, built by desk-page.js's `start()` with `getLayout` and `commit` handed in): hover opens one
        without taking focus, a click or the right arrow moves in, left or
        Escape steps back. A flyout is a sibling of the menu, never a child,
        since the menu scrolls and would clip it. **Add pane there is
@@ -1230,7 +1230,7 @@ against `dist/` is a later item.
        A record's reference in My Notes moves the LIT
        pane there (`goToRecord`, passed as `goHere`; BA124), never leaving
        /desk; the notebook page's list keeps plain links. The "Show in this
-       pane" menu is placed on the screen (`placeKindMenu`, `position:
+       pane" menu is placed on the screen (`placeKindMenu` in kind-menu.js, `position:
        fixed`), above its button where it doesn't fit below, since the
        panes box scrolls and cut it off (BA122); any scroll or resize
        closes it.
