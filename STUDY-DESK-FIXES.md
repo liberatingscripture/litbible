@@ -1039,10 +1039,22 @@ sign of a feature: log it, and move it when it's clear where it belongs).
      out. The same walk drives a following bookmark and "Move it here" on
      /desk, and `keep()` holds the reader's place through a redraw (BA51,
      BA54), so check all three with the numbers off.
-  Status: **open, own session** (touches `lit-pane.js`, `desk.css`,
-  `global.css`, perhaps `read-mode.css`; `src/styles/CLAUDE.md`'s Display
-  tray rule 6 should say the headings follow the numbers only where chapters
-  run together).
+  Status: **built 2026-11-06** (branch `claude/desk-phase5-e29-e48`, awaiting
+  BVJ's look). **The cause, confirmed in a browser:** the hidden `sup.vn`
+  boxes took `.desk-pane__body` as their containing block, outside the
+  scroller, so they stayed where the text was first drawn and the walk always
+  stopped near verse 1 (and `goTo()` landed wrong too, since it measures the
+  `sup`). Now `placeNow()` and `keep()` take each verse's position from its
+  `[data-verse]` spans (`indexAtLine`, `desk-lit-text.mjs`, tested), and
+  `.desk-lit__scroll` is positioned, so hidden markers scroll with the text.
+  With the numbers off, the pane's chapter headings are visually hidden as
+  `sup.vn` is (still a heading, a link and a focus stop; on focus one shows over
+  its chapter's first line, adding no height). Chapter View's pages and Read
+  View's `display: none` are untouched; the Display tray's rule 6 says Read View
+  could follow the same rule. **The guess above was partly wrong**: a following
+  bookmark and "Move it here" don't use this walk on /desk (`followsHere()` is
+  false there), so only `placeNow` and `keep` read it. Not checked in a
+  browser: the ResizeObserver path (BA54), real wheel scrolling, dark mode.
 
 **BVJ's pass of 2026-11-05** (E30 to E50; one list from BVJ's own use of the
 preview, logged together and in the order BVJ gave them. None is started.
@@ -1055,7 +1067,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   2954). To settle: whether it goes from the highlights step only or from every
   step, and if every step, what (if anything) still tells a reader which thing
   the card means, since the dashed line was chosen so a pointed-at control
-  wouldn't look focused. Status: **open.**
+  wouldn't look focused. Status: **built 2026-11-06**, awaiting BVJ's look.
+  No step points at highlighted text, so "the highlights step" was read as
+  **"Open the menu"**, the step that names Highlight, whose outline went round
+  the menu's My Notebook row: it now outlines nothing (`marks: []`), and
+  neither do the two fallbacks that land on scripture (a verse number, a
+  footnote letter). Every other step keeps the outline on its control. If BVJ
+  meant another step, it is the same one-line change there.
 
 - **E31, wish: a way to find the commands that work in the search bar.**
   BVJ (2026-11-05). Today a reader has to know they exist. Wanted: a link on
@@ -1067,7 +1085,21 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   kinds, with the Greek ones as a section, or two; and the link's wording. It
   must work without the Greek search on, since the desk commands don't need
   it. The desk's code stays out of the two search UIs (a link there dispatches
-  the existing window's event, as the commands already travel). Status: **open.**
+  the existing window's event, as the commands already travel). Status:
+  **built 2026-11-06**, awaiting BVJ's look. **One window**, the existing
+  commands window (`greek-commands.js`), now with two sections: "Notebook and
+  page commands" (what `>` in the search box would offer on this page, from
+  `listCommands` in `desk-commands.mjs`; a row runs its command and closes the
+  window, with "More appear when you are reading a chapter." where some are
+  hidden) and "Greek search" (the builder and examples, built only while the
+  Greek search is on). The three new ways in, each "Search commands", open it
+  with the desk section first: a quiet link in the tray's footer row, /search's
+  field-row button (now shown to every desk user, not only for a Greek search),
+  and a line on the Notebook's Settings tab. The Greek's own ways in keep the
+  Greek first. The search UIs reach it by the same gated dynamic import as
+  before; no new event was needed. **For launch:** the window still imports
+  the builder statically, harmless while the Greek and desk gates are one
+  test, to revisit if they part.
 
 - **E32, wording: the notebook's group in search results should always be
   headed "My notebook".** BVJ (2026-11-05). BVJ had the heading changed from
@@ -1089,7 +1121,9 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   line can keep naming the kind ("1 bookmark match", `matchNouns`) or follow
   the heading; one call for the session. Remove `matchTitle` with the
   rule's sentence in desk/CLAUDE.md ("The Show menu splits bookmarks…").
-  Status: **open.**
+  Status: **built 2026-11-06**: `matchTitle` is gone, one
+  `NOTEBOOK_GROUP_TITLE` ("My notebook") heads the group in the tray, /search
+  and the Search pane, and the count line still names the kind.
 
 - **E33, decision: does Chapter View need a name?** BVJ (2026-11-05), only
   wondering: "I still don't really like 'Chapter View.' Maybe it doesn't need a
@@ -1115,7 +1149,16 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   page**. To settle: the LIT pane choice moves the leading LIT pane (the flag,
   E26) or opens one when there is none, and says which; two small links or one
   button with a menu; and which is the default for a plain click, since the
-  scripture page is what a click does now. Related: E35. Status: **open.**
+  scripture page is what a click does now. Related: E35. Status: **built
+  2026-11-06**, awaiting BVJ's look. **A plain click stays on the desk**: it
+  moves the leading LIT pane, or opens one, through `showPassage`, and the
+  pane's note line says which ("The LIT pane moved to John 7:38.", "A LIT pane
+  opened at John 4:10.", or, with no room, a line saying to close a pane or open
+  it on its page; `passageMoveMessage`, tested). **A small link beside each
+  passage result** (an icon, `awayLink`) opens its page in a new tab. The likely
+  culprit was the reference preview's "Open John 3 →", which left the desk in
+  the same tab: on /desk it now opens in a new tab (`ref-preview.js`, shared
+  code that imports nothing of the desk).
 
 - **E35, wish: a button on the LIT pane that opens the passage on its
   scripture page, at the verse shown.** BVJ (2026-11-05). The chapter headings
@@ -1126,7 +1169,12 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   at the reading line (see E29 for the numbers-off bug). Mind the new-tab rule
   (a link that leaves the desk opens apart so the layout isn't lost) and the
   name in E33. Touches `lit-pane.js`, so run beside no other `lit-pane.js` work
-  (E28, E29). Status: **open.**
+  (E28, E29). Status: **built 2026-11-06**, awaiting BVJ's look: an icon link
+  after the passage bar's next-chapter arrow (`OPEN_PAGE_ICON`, a box with an
+  arrow leaving it), "Open on its page" as hover text and "Open John 3:26 on
+  its page, in a new tab" as its name, following the location field as the
+  pane scrolls. The chapter headings, which opened in the same tab against the
+  desk's rule, now open in a new tab too; their hover text is unchanged.
 
 - **E36, wording: "Copy for Word" becomes "Copy".** BVJ (2026-11-05): "Copy to
   Word" is "unnecessarily specific". Candidates: "Copy to clipboard", or "Copy"
@@ -1139,7 +1187,11 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   rule 10) says "copy" in a button means a saved file, which is why a sheet's
   two forms are "versions"; "Copy" for the clipboard is that rule's own other
   half, but check that the word doesn't now collide with "Save as a file"
-  beside it. Status: **open.**
+  beside it. Status: **built 2026-11-06**: "Copy" with the copy glyph (the
+  glossary's two sheets), named "Copy this version to the clipboard", and the
+  failure line "Choose Copy again." "Save as a file" doesn't collide. **One
+  for BVJ:** a shared sheet's banner button "Copy into my notebook" now sits
+  near the clipboard "Copy" with "copy" meaning a saved record; left as is.
 
 - **E37, wish: more file types under a sheet's "Save as a file".** BVJ
   (2026-11-05): the share menu's save-as-file should offer a document as
@@ -1242,7 +1294,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   stored name stays `ribbon` and its display name "Ribbon", so no record and
   no format. If the bookmark keeps today's shape the ribbon stops sharing
   `PATHS`. Check it at the marker's smallest size in the margin and on the
-  menu's chips, and in dark mode. Status: **open.**
+  menu's chips, and in dark mode. Status: **built 2026-11-06**, awaiting BVJ's
+  look: one stroked path (a loop with two crossed tails, the brand green, 3.6
+  wide, round caps) in the same 24 box; the bookmark keeps its flag as its own
+  path (`test/desk-glyphs.test.js` holds them apart). A stroke, where the other
+  markers are fills, since a filled loop needs two subpaths. Rendered at 14, 18
+  and 24px: a ribbon from 18px up; at 14px, the margin's smallest, the loop's
+  hole is about a pixel. Not checked in dark mode in a browser.
 
 - **E43, wish: a full-screen button on the desk.** BVJ (2026-11-05): F11 does
   it, but a button would be more reachable. Places weighed: the Display
