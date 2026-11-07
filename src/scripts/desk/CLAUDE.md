@@ -7,8 +7,8 @@
 > this was one file, so they may point into another area file; the root's
 > index says which file holds each section.
 
-**`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md`, `STUDY-DESK-AUDIT-1.md` and
-`STUDY-DESK-AUDIT-2.md` are too large to read whole.** Grep them for the ID or
+**`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md` and the
+`STUDY-DESK-AUDIT-*.md` files are too large to read whole.** Grep them for the ID or
 heading you need (BA42, 3j, N9, SEC-1) and read that section.
 
 ## The records
@@ -20,6 +20,7 @@ heading you need (BA42, 3j, N9, SEC-1) and read that section.
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward (to BA153) and were planned in phases FA1-w onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
 | `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table (the re-check of 2026-11-03: 96 still valid, 2 fixed, 2 moot, 10 changed) and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
+| `STUDY-DESK-AUDIT-3.md` | **Audit 3 of the Study Desk** (2026-11-06, commit `60af379e`): 81 findings from eight auditors (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`), 80 after an Opus agent tried to disprove the highest (none Critical; none High after verification). The top matter holds the priority list in three tiers, the decisions awaiting the owner, and six proposed work sessions; each report is an appendix (A to J), and Appendix K is the brief, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships. |
 
 **Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
 and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and

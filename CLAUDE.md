@@ -69,7 +69,7 @@ silent or expensive.
 - **The Study Desk is downloaded only with `data-desk="on"`.** Shared reader
   code never imports it statically: it dispatches events or makes a gated
   dynamic import. Read the desk file before touching a shared panel.
-- **`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md` and the two
+- **`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md` and the
   `STUDY-DESK-AUDIT-*.md` files are too large to read whole.** Grep for the ID or
   heading and read that section.
 - **Subagents are at Claude's discretion: up to two Sonnet, two Haiku, and
@@ -521,7 +521,7 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-AUDIT-1.md`, `STUDY-DESK-AUDIT-2.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
+| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-AUDIT-1.md`, `STUDY-DESK-AUDIT-2.md`, `STUDY-DESK-AUDIT-3.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2 (`/api/data/v2/`), beside version 1; opens with the manifest rule that protects installed apps |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
