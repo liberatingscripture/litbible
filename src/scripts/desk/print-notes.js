@@ -289,7 +289,8 @@ export function createPrintNotes({ store }) {
       if (c.text) {
         try {
           const at = placeRecord(c.text, r);
-          how = standing(at.status);
+          // The whole placement: a move out of the note's verses says so in print as on screen (DI3-2).
+          how = standing(at);
           if (at.start != null) {
             const node = c.text.toDom(at.start, "start")?.node;
             const k = node ? c.blocks.findIndex((b) => b.contains(node)) : -1;
