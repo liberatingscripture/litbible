@@ -1446,6 +1446,7 @@ Not in the checklist (grep of `lit-desk-preview|data-desk|dataset.desk|deskEnabl
 **Confidence** High
 
 #### LG3-14 · Nit · longevity · NEW
+> **Fixed (Audit 3 session 6, 2026-11-07, branch `claude/audit3-session6-tests`):** `store.js` keeps the last request for persistent storage and exports `settled()`, which resolves once it lands; `freshBrowser` in `test/desk-store.test.js` awaits it in place of the 30ms sleep. The app never calls `settled()`.
 **Where** `test/desk-store.test.js:33-34` (`freshBrowser`).
 **What happens** The helper waits `setTimeout(r, 30)` so "the last test's unawaited request for persistent storage" lands before the next stub is installed. If a slow CI machine lets that request land late, it increments the next test's `calls.persist` and the "asks once" assertions (`:168-176`) fail intermittently. It passes in every run I saw (3,026 pass) and node runs each file in its own process, so it affects only tests inside this file.
 **Fix** Have the store expose the in-flight persist promise (or have the test await `store.settled()`), and drop the sleep.
