@@ -1,0 +1,79 @@
+/* src/styles/desk-tab.css
+   The Notebook's rail and its minimized tab: all the desk's first stage
+   draws (src/scripts/desk/first-stage.js; Audit 3, LG3-2). It is added as a
+   <style> (?inline) by the first stage and by boot.js, so it loads only with
+   the desk, and it is small so a reader with nothing kept downloads only
+   this; desk.css, with the panel itself, comes with the shell.
+
+   Every colour is a theme token, so light and dark need no rules here. */
+
+/* The strip of right margin the panel lives in, placed by
+   src/scripts/desk/margin.js: from the top of the reading area to the end of
+   <main>, in document coordinates. It lets clicks through; only the panel
+   takes them. */
+.desk-rail {
+  position: absolute;
+  /* Above the page and Read View's sticky toolbar (70), below the shared
+     floating panels (1100) and the Display tray (2000). */
+  z-index: 900;
+  pointer-events: none;
+}
+
+.desk-rail[hidden],
+.desk-panel[hidden],
+.desk-rail--collapsed .desk-panel {
+  display: none;
+}
+
+/* The collapsed notebook: a tab at the window's edge, clear of the text
+   (TAB_WIDTH and TAB_EDGE in src/lib/desk-margin.mjs), starting level with
+   the page's heading and pinned 16px from the top as the reader scrolls,
+   like the panel it stands for. */
+.desk-tab {
+  display: none;
+}
+
+.desk-rail--collapsed .desk-tab {
+  position: sticky;
+  top: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0 14px;
+  pointer-events: auto;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  font: inherit;
+  cursor: pointer;
+}
+
+.desk-tab:hover {
+  background: linear-gradient(rgba(var(--ink-rgb), 0.06), rgba(var(--ink-rgb), 0.06)) var(--surface-raised);
+}
+
+/* While the rest of the desk loads after a press of the tab. */
+.desk-tab[aria-busy="true"] {
+  cursor: progress;
+}
+
+/* The word runs down the tab, reading from the top. */
+.desk-tab__label {
+  writing-mode: vertical-rl;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* The rail doesn't print (BA145): it is appended to <body>, outside what
+   print.css hides, and in a narrow window the Notebook floats over the text. */
+@media print {
+  .desk-rail {
+    display: none !important;
+  }
+}

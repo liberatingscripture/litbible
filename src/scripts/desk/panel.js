@@ -52,16 +52,13 @@ import { forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
+import { notebookTab } from "./notebook-tab.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
 
 const TAB_KEY = "lit-desk-tab";
-
-const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 3v18M12.5 8h3M12.5 12h3" /></svg>`;
 
 // The desk lamp, as on the header's Study Desk button.
 const ICON_DESK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
@@ -298,15 +295,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     t.body.append(t.view.el);
   }
 
-  // The collapsed notebook, at the window's edge. Its name is its visible
-  // word; aria-expanded says the panel is folded away.
-  const tab = document.createElement("button");
-  tab.type = "button";
-  tab.className = "desk-tab";
-  tab.setAttribute("data-desk-dock", "");
-  tab.setAttribute("aria-controls", "deskPanel");
-  tab.setAttribute("aria-expanded", "false");
-  tab.innerHTML = `${ICON_NOTEBOOK}<span class="desk-tab__label">Notebook</span>`;
+  // The collapsed notebook, at the window's edge: the same tab the first
+  // stage drew, if it drew one (notebook-tab.js).
+  const tab = notebookTab();
 
   // Whether hiding the marks folded the panel, so un-hiding opens it again
   // (below). Any other fold or expand, the reader's own included, makes that

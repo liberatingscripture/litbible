@@ -214,11 +214,19 @@ const _initSearchbars = async () => {
     // only with the preview on. It is loaded only through loadDeskSearch(), so
     // `desk` stays null, and the tray behaves as it always did, for everyone
     // else. /search draws its own results, and this tray is hidden there.
+    // It loads when focus first enters the box, not with the page (Audit 3,
+    // LG3-2: a reader with nothing kept downloads only the desk's first
+    // stage). A query typed before it arrives is searched again with it.
     let desk = null;
     if (!root.closest(".scripture-layout--search")) {
-      loadDeskSearch()?.then((m) => {
-        desk = m;
-      });
+      const want = () => {
+        root.removeEventListener("focusin", want);
+        loadDeskSearch()?.then((m) => {
+          desk = m;
+          if (m && input.value.trim()) input.dispatchEvent(new Event("input"));
+        });
+      };
+      root.addEventListener("focusin", want);
     }
     const isCmd = (text) => Boolean(desk && desk.isDeskCommandQuery(text));
 

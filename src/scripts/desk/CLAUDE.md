@@ -85,7 +85,7 @@ means each of these, in one change:
    preview…") and whether to bump its effective date.
 7. Indexing: `/notebook` and `/sheets` stay noindex; `/desk` and the help page
    are a decision (`robotsNoindex`, the sitemap filter in `astro.config.mjs`).
-8. `PROSE_NOTES` in `desk/note-sources.js` stays false for version 1.
+8. `PROSE_NOTES` in `desk/page-kind.js` stays false for version 1.
 9. Browser floor (BVJ, 2026-11-04): highlights need the CSS Custom Highlight
    API (Chrome 105, Safari 17.2, Firefox 140). Below that the desk offers no
    Highlight and its switch says so (`highlightsSupported`). Mac Safari and
@@ -114,6 +114,30 @@ outside `src/scripts/desk/` only in its writer (`Layout.astro`), the gate
 (`desk-gate.js`, `desk-frame.js`, `search-core.js`'s `deskEnabled()`) and
 their tests, plus the `data-desk-*` attributes; any other hit is a reader
 this list missed.
+
+**A reading page loads the desk in two stages** (BVJ, 2026-11-07, Audit 3
+decision 3; LG3-2). `desk-gate.js` loads `desk/first-stage.js`: the
+minimized tab (`notebook-tab.js`, styled by `desk-tab.css` alone), the
+glossary's heading fit, the Display tray's Notebook switches and H
+(`note-settings.js`, started once; BVJ, 2026-11-07: opening the tray must not
+load the desk, so that file imports only light modules, `undo-bar.js` and
+`page-kind.js`), and one read of the notebook's `chapter` index
+(`peekNotebook`, `src/lib/desk-first-stage.mjs`, which never creates the
+database). "Show the Notebook" hides and restores the first stage's tab
+itself. The shell, `desk.css` and the rest come when the Notebook starts
+expanded, a bookmark follows, the address carries `greek`, `desk-tour` or
+`print`, this page has records to draw, or the reader reaches for the
+Notebook (the tab, Read View's button, the skip link, a verse number, a
+footnote letter or a selection); `lit:panel-actions`, `lit:footnote-actions`,
+`lit:desk-command` and `lit:greek-word` arriving first are held and sent
+again, and a menu still open gets its rows late, moved as `showPanel` would
+place it. The shell's `handOver` removes the first stage's tab in the same
+task as the panel draws its own, so nothing moves. **A new startup listener
+in the shell needs the same**: held in `first-stage.js`, or a reason to load.
+The search box loads `notebook-search.js` on first focus, not with the page.
+Measured on `dist/john-3/` (gzipped, 2026-11-07): the desk's scripts were
+130 KB on every load; now 14 KB with nothing kept and the Notebook minimized,
+the Display tray opened included, and 130 KB once it opens.
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
@@ -147,16 +171,18 @@ against `dist/` is a later item.
      a computer's (iPadOS reports a Mac; Chrome and Firefox on an Android
      tablet in desktop site mode report Linux) is told by its touch screen,
      and a Chromebook stays a computer (BA26).
-     **If the desk doesn't come up, the page stands down** (BA29): where the
-     shell fails to load (offline, an old page after a deploy) or fails
-     before the Notebook is built, `standDown()` (`desk-frame.js`, called by
-     the gate and the shell) takes the pre-paint stamps off, so the column
+     **If the desk doesn't come up, the page stands down** (BA29): where
+     either stage fails to load (offline, an old page after a deploy) or the
+     shell fails before the Notebook is built, `standDown()` (`desk-frame.js`,
+     called by the gate's `loadShell`, `loadStageTwo` and the shell) takes the
+     pre-paint stamps off, so the column
      and the hidden Notebook buttons are the reader's again. A failure after
      the Notebook is up is only logged. `createPanel` builds each tab on its
      own, so one that throws shows a line saying so and the rest work.
-  2. **Readers download none of it.** `desk-gate.js` imports
-     `src/scripts/desk/shell.js` only with `data-desk="on"`. The shell adds
-     `desk.css` itself as a `<style>` (`?inline`): **a plain CSS import is
+  2. **Readers download none of it.** `desk-gate.js` imports the desk only
+     with `data-desk="on"`, and on a reading page only its first stage
+     ("Launching", above). `boot.js` adds `desk.css` (and the first stage
+     `desk-tab.css`) as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one rule in
@@ -356,7 +382,7 @@ against `dist/` is a later item.
      the only desk switch the tray gets and is Chapter View's setting.
   8. **Notes on a glossary entry or an article** (N11) are **out of
      version 1** (BVJ, 2026-10-29; maybe version 2), and **switched off,
-     not removed**: `PROSE_NOTES` in `desk/note-sources.js` is `false`, so
+     not removed**: `PROSE_NOTES` in `desk/page-kind.js` is `false`, so
      `prosePage()` returns null everywhere, and with it go the margin on
      those pages (`proseSource`), the "My Notebook" row and "Add a note on
      this article" (`desk/prose-actions.js`, `panel.js`), the tray's Show
