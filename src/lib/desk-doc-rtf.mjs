@@ -135,12 +135,8 @@ const textRuns = (text) => docRuns([{ t: "text", text: text ?? "" }]);
 /** A quotation's indent on each side, in twips, as `quote` sets it. */
 const QUOTE_INDENT = 720;
 
-// A list number as lowercase letters: 1 is a, 26 is z, 27 is aa, 28 is ab (as Word counts).
-function letters(n) {
-  let s = "";
-  for (let k = n; k > 0; k = Math.floor((k - 1) / 26)) s = String.fromCharCode(97 + ((k - 1) % 26)) + s;
-  return s;
-}
+// A list number as lowercase letters, as Word and LibreOffice count them: 1 is a, 26 is z, 27 is aa, 28 is bb.
+const letters = (n) => String.fromCharCode(97 + ((n - 1) % 26)).repeat(Math.ceil(n / 26));
 
 // A list number as lowercase roman numerals: 1 is i, 4 is iv, 9 is ix.
 function roman(n) {
