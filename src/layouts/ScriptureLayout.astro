@@ -116,11 +116,18 @@ if (headerKind === "chapter") {
 }
 
 // The Study Desk pill's address (E50, BVJ 2026-11-06): /desk at the chapter
-// being read (E8's ?place=), and at chapter 1 on a book's introduction, which
-// the desk's LIT pane can't show (E53). The pill is in the markup for every
-// reader and shown by CSS only with the desk preview on.
+// being read (E8's ?place=), and on a book's introduction at chapter 1 with
+// the introduction in a Book Intro pane beside it (E53's ?intro=). The pill is
+// in the markup for every reader and shown by CSS only with the desk preview on.
 const deskPlaceChapter = headerKind === "chapter" ? (headerChapter ?? 1) : 1;
-const deskPlaceLabel = `${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
+const deskPlaceHref =
+  headerKind === "intro"
+    ? `/desk/?place=${pagefindBook}-1&intro=${pagefindBook}`
+    : `/desk/?place=${pagefindBook}-${deskPlaceChapter}`;
+const deskPlaceLabel =
+  headerKind === "intro"
+    ? `Open the ${bookKeyToLabel(pagefindBook)} introduction in the Study Desk`
+    : `Open in the Study Desk at ${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
 const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
 ---
 
@@ -208,8 +215,8 @@ const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
                 <div class="reading-view-right reading-view-right--desk" data-pagefind-ignore>
                   <a
                     class="reading-view-pill"
-                    href={`/desk/?place=${pagefindBook}-${deskPlaceChapter}`}
-                    aria-label={`Open in the Study Desk at ${deskPlaceLabel}`}
+                    href={deskPlaceHref}
+                    aria-label={deskPlaceLabel}
                   >
                     <span class="reading-view-pill__icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"

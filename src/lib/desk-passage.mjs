@@ -110,6 +110,31 @@ export function stepChapter(p, dir) {
 }
 
 /**
+ * A book's introduction (the Book Intro pane, E53): its page's address,
+ * `/romans-intro/`, or null for a book the LIT hasn't got. Like `chapterPath`,
+ * the guard every fetch of an intro goes through.
+ */
+export function introPath(bookKey) {
+  return typeof bookKey === "string" && Object.hasOwn(BOOKS, bookKey) ? `/${bookKey}-intro/` : null;
+}
+
+/** The book before (`dir` -1) or after (+1) a book, or null past either end. */
+export function stepBook(bookKey, dir) {
+  if (!Object.hasOwn(BOOKS, bookKey ?? "") || (dir !== 1 && dir !== -1)) return null;
+  return BOOK_ORDER[BOOK_ORDER.indexOf(bookKey) + dir] ?? null;
+}
+
+/**
+ * `/desk/?intro=romans` (E53): a book key, or the intro page's own name
+ * ("romans-intro"), else null.
+ */
+export function parseIntroParam(value) {
+  if (typeof value !== "string") return null;
+  const key = value.trim().toLowerCase().replace(/-intro$/, "");
+  return Object.hasOwn(BOOKS, key) ? key : null;
+}
+
+/**
  * Where a following pane starts when the layout has no passage yet: the
  * reader's "Continue reading" place (localStorage['lit_last_read'], as
  * last-read.js keeps it), or the start of Matthew.

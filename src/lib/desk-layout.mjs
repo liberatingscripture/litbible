@@ -21,8 +21,9 @@
 // - a pane needs at least 280px across and 160px high, so an arrangement
 //   that can't fit the window is grayed out with the reason;
 // - several panes of a kind may be open. The LIT pane leads; This verse,
-//   Greek, and Footnotes follow the LIT pane last worked in (the active one),
-//   unless pinned with "Stay here", which the saved layout remembers;
+//   Greek, Footnotes, and Book Intro follow the LIT pane last worked in (the
+//   active one), unless pinned with "Stay here", which the saved layout
+//   remembers (Book Intro follows its book alone, E53);
 // - the following panes that aren't pinned share one place, `layout.place`;
 //   a pinned pane keeps its own (`pin.at`). Each LIT pane keeps where its
 //   reader is too (`at`, 3e), and the active one's is the shared place, so
@@ -53,6 +54,9 @@ export const KINDS = [
   { kind: "verse", label: "This verse", follows: true },
   { kind: "greek", label: "Greek", follows: true },
   { kind: "footnotes", label: "Footnotes", follows: true },
+  // A book's introduction (E53; BVJ, 2026-11-06): the book of the passage it
+  // follows, so its place is a passage like the others' and only the book is read.
+  { kind: "intro", label: "Book Intro", follows: true },
   { kind: "sheet", label: "Sheet", follows: false },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
   // book menu offers "The book I’m reading" and keeps the book it was set to.
@@ -701,6 +705,39 @@ export function openLitBeside(layout, besideId, width, height) {
   if (split === layout || !fits(split, width, height)) return layout;
   const lit = panes(split.root).find((p) => p.kind === "lit");
   return lit ? setActive(split, lit.id) : split;
+}
+
+/**
+ * A book's introduction shown in a Book Intro pane (E53; BVJ, 2026-11-06): from
+ * a Search pane's intro result (`besideId`) and `/desk/?intro=romans`. The pane
+ * used is the first that follows, else the first open, else a new one beside
+ * `besideId` (or the active pane) where there is room. One that follows shows
+ * the book the LIT pane is in, so the leading LIT pane (or, with none, the
+ * shared place) moves to chapter 1 unless it is in that book already; one that
+ * stays put is moved alone. Returns `{ layout, outcome, moved }`: `outcome` is
+ * "shown" (a pane was there), "opened", or "none" (no room, the layout
+ * unchanged), and `moved` the place the LIT moved to, or null.
+ */
+export function showIntroIn(layout, bookKey, width, height, besideId = null) {
+  const at = parsePassage(`${bookKey} 1`) ? `${bookKey} 1` : null;
+  if (!at || !panes(layout.root).length) return { layout, outcome: "none", moved: null };
+  const intros = panes(layout.root).filter((p) => p.kind === "intro");
+  let next = layout;
+  let pane = intros.find((p) => !p.pin) ?? intros[0] ?? null;
+  let outcome = "shown";
+  if (!pane) {
+    const before = new Set(panes(layout.root).map((p) => p.id));
+    next = openKind(layout, "intro", width, height, besideId);
+    if (next === layout) return { layout, outcome: "none", moved: null };
+    pane = panes(next.root).find((p) => !before.has(p.id));
+    outcome = "opened";
+  }
+  if (pane.pin) return { layout: setPin(next, pane.id, true, at), outcome, moved: null };
+  const leading = findPane(next.root, next.active)?.kind === "lit";
+  const now = parsePassage(leading ? litPlace(next, next.active) : next.place);
+  if (now?.bookKey === bookKey) return { layout: next, outcome, moved: null };
+  next = leading ? setLitAt(next, next.active, at) : setPlace(next, at);
+  return { layout: next, outcome, moved: at };
 }
 
 /** Whether a layout fits a space; a side left out is not asked about. */

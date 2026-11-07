@@ -369,9 +369,10 @@ against `dist/` is a later item.
      beside the Read View wrapper, which stays hidden while the preview is on):
      "Open in the Study Desk," "Study Desk" where that pill shortened, an icon
      alone on the phone-width compact toolbar. Its `?place=` is the chapter
-     being read (`romans-8`), and chapter 1 on an introduction (the LIT pane
-     can't show an intro, E53), written out in the layout because shared
-     reader code never imports `desk-passage.mjs`. **/read has a "Study Desk"
+     being read (`romans-8`), and on an introduction chapter 1 with
+     `&intro=romans`, which opens a Book Intro pane beside it (E53), written
+     out in the layout because shared reader code never imports
+     `desk-passage.mjs`. **/read has a "Study Desk"
      pill matching "Go to passage"** (`.read-menu__desk`, passed into
      `ReadMenu`'s slot by `ReadLayout`, the two centered on one row), linking
      to plain `/desk/`. Both pills are in the markup for everyone and shown
@@ -1151,6 +1152,20 @@ against `dist/` is a later item.
        `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
        foot), and Greek `tab-greek.js`. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
+       **Book Intro is `intro-pane.js`** (E53; BVJ, 2026-11-06): a follower
+       whose place is a passage like the others' but which reads only its
+       book, so the LIT pane's place stays a verse and no other follower
+       meets an introduction. It reads the built `/romans-intro/` page
+       (`introPath` is the fetch's guard, as `chapterPath` is a chapter's),
+       its headings moved two levels down under the pane's. A plain click on
+       an `a.sref` in it moves the LIT pane (`env.showPassage`), and the pane
+       **holds its book while the LIT shows the passage it sent**, until the
+       LIT moves to any other book; every other link opens a new tab.
+       `showIntroIn` (`desk-layout.mjs`) is the one rule for showing a book's
+       introduction from outside the pane: a following Book Intro pane first,
+       else any, else a new one beside, moving the LIT to the book's chapter 1
+       only when it is in another book (a pane that stays put moves alone).
+       A Search pane's intro result and `/desk/?intro=romans` both use it.
        **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02; the
        "What I've kept" pane was folded into it): `tab-mine.js` has the
        search ("Search my notebook"), "Show" by kind, a count in words, the
@@ -1436,8 +1451,9 @@ against `dist/` is a later item.
        real links, so a modified click opens a tab and `ref-preview.js`
        previews them (`.desk-search__link`); on /desk the preview's
        "Open John 3 →" opens in a new tab too. A glossary entry is cloned from
-       the fetched /glossary/ page into the pane; an article or intro opens
-       in a new tab. A Greek result goes through `env.openGreekHit`, and
+       the fetched /glossary/ page into the pane; an article opens in a
+       new tab, and an intro shows in a Book Intro pane (E53; `env.showIntro`,
+       `introMoveMessage`), with the small link beside it for its page. A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Adding to a sheet
        reads the target from `addTarget` and `onAddTarget` (`sheet-pane.js`),
        the same rule as “Add to sheet,” and writes in one `store.change`.

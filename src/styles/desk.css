@@ -6048,6 +6048,71 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   margin: 0 0 4px;
 }
 
+/* ── The Book Intro pane (E53; intro-pane.js) ─────────────────────────── */
+
+/* A book's introduction, set as on its own page: the reading measure and the
+   Display tray's text size and line spacing, its headings in the serif. */
+.desk-intro {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.desk-intro__book {
+  cursor: pointer;
+}
+
+/* Positioned, as every pane's scroller is (see .desk-pane__body). */
+.desk-intro__content {
+  position: relative;
+  padding: 4px 18px 24px;
+}
+
+.desk-intro__content:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.desk-intro__article {
+  max-width: var(--reading-width);
+  margin: 0 auto;
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+
+.desk-intro__title {
+  margin: 0.6em 0 0.8em;
+  font-size: 1.15em;
+}
+
+.desk-intro__text p {
+  margin: 0 0 12px;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+}
+
+.desk-intro__text ul,
+.desk-intro__text ol {
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+}
+
+.desk-intro__text li + li {
+  margin-top: 0.5rem;
+}
+
+.desk-intro__heading {
+  margin: 1.4em 0 0.7em;
+  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+:is(h5, h6).desk-intro__heading {
+  font-size: 1em;
+}
+
 /* ── The sheet editor's formatted text (3f; sheet-text.js) ───────────── */
 
 /* ── Sheet text: the formatted-text editor and how sheet html looks ───── */

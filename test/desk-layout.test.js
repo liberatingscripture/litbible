@@ -45,6 +45,7 @@ import {
   setLitAt,
   setPaneSheet,
   setPin,
+  showIntroIn,
   showSheet,
   setPlace,
   slotCount,
@@ -106,7 +107,7 @@ test("panes, findPane, nodeAt and pathTo read the tree in reading order", () => 
 });
 
 test("isFollower and kindLabel", () => {
-  for (const k of ["verse", "greek", "footnotes", "mine"]) assert.equal(isFollower(k), true, k);
+  for (const k of ["verse", "greek", "footnotes", "mine", "intro"]) assert.equal(isFollower(k), true, k);
   for (const k of ["lit", "sheet", "future", undefined]) assert.equal(isFollower(k), false, String(k));
   assert.equal(kindLabel("lit"), "The LIT");
   assert.equal(kindLabel("mine"), "My Notes");
@@ -1679,4 +1680,68 @@ test("a link with no usable place opens what the page would have opened", () => 
   const saved = { last: null, mine: null, start: "last" };
   assert.deepEqual(arrivalLayout(saved, "nonsense", "john 3"), openingLayout(saved, "john 3"));
   assert.deepEqual(arrivalLayout(saved, null, null), openingLayout(saved, null));
+});
+
+// ---- E53: the Book Intro pane ------------------------------------------------
+
+test("E53: Book Intro is a following kind named Book Intro, after Footnotes", () => {
+  assert.equal(kindLabel("intro"), "Book Intro");
+  const order = KINDS.map((k) => k.kind);
+  assert.equal(order.indexOf("intro"), order.indexOf("footnotes") + 1);
+  assert.equal(findPane(checkLayout(setKind(originalLayout("john 3:16"), "p2", "intro")).root, "p2").kind, "intro");
+});
+
+test("E53: showIntroIn opens a pane beside and moves the LIT to the book's chapter 1", () => {
+  const l = originalLayout("john 3:16");
+  const r = showIntroIn(l, "romans", 1200, 600);
+  assert.equal(r.outcome, "opened");
+  assert.equal(r.moved, "romans 1");
+  assert.deepEqual(kinds(r.layout), ["lit", "intro", "mine"]);
+  assert.equal(litPlace(r.layout, "p1"), "romans 1");
+  assert.equal(r.layout.place, "romans 1");
+  const intro = panes(r.layout.root).find((p) => p.kind === "intro");
+  assert.equal(placeFor(r.layout, intro.id), "romans 1", "it follows the LIT");
+});
+
+test("E53: showIntroIn uses an open pane, and leaves the LIT in the book alone", () => {
+  const l = setKind(originalLayout("romans 8:28"), "p2", "intro");
+  const r = showIntroIn(l, "romans", 1200, 600);
+  assert.deepEqual(r, { layout: l, outcome: "shown", moved: null });
+  const other = showIntroIn(l, "galatians", 1200, 600);
+  assert.equal(other.outcome, "shown");
+  assert.equal(other.moved, "galatians 1");
+  assert.deepEqual(kinds(other.layout), ["lit", "intro"]);
+});
+
+test("E53: a Book Intro pane that stays put is moved alone", () => {
+  const l = setPin(setKind(originalLayout("john 3:16"), "p2", "intro"), "p2", true, "john 1");
+  const r = showIntroIn(l, "romans", 1200, 600);
+  assert.equal(r.outcome, "shown");
+  assert.equal(r.moved, null);
+  assert.equal(placeFor(r.layout, "p2"), "romans 1");
+  assert.equal(litPlace(r.layout, "p1"), "john 3:16", "the LIT stays");
+});
+
+test("E53: a following Book Intro pane is preferred over one that stays put", () => {
+  let l = applyArrangement(originalLayout("john 3:16"), "cols-3");
+  const ids = panes(l.root).map((p) => p.id);
+  l = setKind(setKind(l, ids[1], "intro"), ids[2], "intro");
+  l = setPin(l, ids[1], true, "john 1");
+  const r = showIntroIn(l, "acts", 1600, 600);
+  assert.equal(placeFor(r.layout, ids[1]), "john 1", "the pinned one is untouched");
+  assert.equal(r.moved, "acts 1");
+});
+
+test("E53: showIntroIn with no room changes nothing, and with no LIT pane moves the shared place", () => {
+  const four = applyArrangement(originalLayout("john 3:16"), "grid");
+  const full = showIntroIn(four, "romans", 4000, 4000);
+  assert.equal(full.outcome, "none");
+  assert.equal(full.layout, four);
+  const narrow = originalLayout("john 3:16");
+  assert.equal(showIntroIn(narrow, "romans", 800, 600).outcome, "none", "three columns need 852");
+  const noLit = setKind(originalLayout("john 3:16"), "p1", "verse");
+  const r = showIntroIn(noLit, "romans", 1200, 600);
+  assert.equal(r.outcome, "opened");
+  assert.equal(r.layout.place, "romans 1");
+  assert.equal(showIntroIn(narrow, "notabook", 1200, 600).outcome, "none");
 });

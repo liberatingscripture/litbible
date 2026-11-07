@@ -5,11 +5,14 @@ import {
   checkPassage,
   deskPlaceHref,
   formatPassage,
+  introPath,
+  parseIntroParam,
   parsePlaceParam,
   parsePassage,
   passageLabel,
   sameChapter,
   startingPassage,
+  stepBook,
   stepChapter,
 } from "../src/lib/desk-passage.mjs";
 
@@ -267,4 +270,28 @@ test("deskPlaceHref names the chapter, and the verse when there is one", () => {
   assert.equal(deskPlaceHref(p("romans", 8, 16)), "/desk/?place=romans-8:16");
   assert.equal(deskPlaceHref(p("nonsense", 1)), "/desk/");
   assert.equal(parsePlaceParam(new URL(deskPlaceHref(p("1john", 4, 8)), "https://x.test").searchParams.get("place")), "1john 4:8");
+});
+
+// ---- introductions (E53) ---------------------------------------------------
+
+test("introPath names a book's introduction page, and refuses anything else", () => {
+  assert.equal(introPath("romans"), "/romans-intro/");
+  assert.equal(introPath("1john"), "/1john-intro/");
+  for (const bad of ["notabook", "//attacker.example/x", "__proto__", "", null, undefined]) assert.equal(introPath(bad), null, String(bad));
+});
+
+test("stepBook steps across the New Testament and stops at its ends", () => {
+  assert.equal(stepBook("romans", -1), "acts");
+  assert.equal(stepBook("romans", 1), "1corinthians");
+  assert.equal(stepBook("matthew", -1), null);
+  assert.equal(stepBook("revelation", 1), null);
+  assert.equal(stepBook("romans", 2), null);
+  assert.equal(stepBook("notabook", 1), null);
+});
+
+test("parseIntroParam reads ?intro= as a book key or an intro page's name", () => {
+  assert.equal(parseIntroParam("romans"), "romans");
+  assert.equal(parseIntroParam(" Romans-Intro "), "romans");
+  assert.equal(parseIntroParam("notabook"), null);
+  assert.equal(parseIntroParam(null), null);
 });

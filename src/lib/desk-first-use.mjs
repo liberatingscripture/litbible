@@ -425,7 +425,7 @@ export const DESK_TOUR_STEPS = [
     title: "Reading in sync",
     body: {
       default:
-        "My Notes, This verse, Greek, and Footnotes follow the LIT pane. Move through the LIT, and they move with it. With two LIT panes open, the one you selected most recently is marked with a flag.",
+        "My Notes, This verse, Greek, Footnotes, and Book Intro follow the LIT pane. Move through the LIT, and they move with it. With two LIT panes open, the one you selected most recently is marked with a flag.",
     },
   },
   {
