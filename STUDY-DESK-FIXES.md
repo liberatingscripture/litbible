@@ -1067,13 +1067,14 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   2954). To settle: whether it goes from the highlights step only or from every
   step, and if every step, what (if anything) still tells a reader which thing
   the card means, since the dashed line was chosen so a pointed-at control
-  wouldn't look focused. Status: **built 2026-11-06**, awaiting BVJ's look.
-  No step points at highlighted text, so "the highlights step" was read as
-  **"Open the menu"**, the step that names Highlight, whose outline went round
-  the menu's My Notebook row: it now outlines nothing (`marks: []`), and
-  neither do the two fallbacks that land on scripture (a verse number, a
-  footnote letter). Every other step keeps the outline on its control. If BVJ
-  meant another step, it is the same one-line change there.
+  wouldn't look focused. **BVJ's correction (2026-11-06):** "the highlights
+  step" was the logging Claude's phrase, not BVJ's. The trouble was that the
+  step wasn't about highlights, yet the highlight buttons had a dashed outline.
+  That is **"Open the menu"**: its outline went round the menu's whole My
+  Notebook row, the highlight color buttons included. Status: **built
+  2026-11-06**: that step now outlines nothing (`marks: []`), and neither do
+  the two fallbacks that land on scripture (a verse number, a footnote letter).
+  Every other step keeps the outline on its control.
 
 - **E31, wish: a way to find the commands that work in the search bar.**
   BVJ (2026-11-05). Today a reader has to know they exist. Wanted: a link on
@@ -1086,20 +1087,18 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   must work without the Greek search on, since the desk commands don't need
   it. The desk's code stays out of the two search UIs (a link there dispatches
   the existing window's event, as the commands already travel). Status:
-  **built 2026-11-06**, awaiting BVJ's look. **One window**, the existing
-  commands window (`greek-commands.js`), now with two sections: "Notebook and
-  page commands" (what `>` in the search box would offer on this page, from
-  `listCommands` in `desk-commands.mjs`; a row runs its command and closes the
-  window, with "More appear when you are reading a chapter." where some are
-  hidden) and "Greek search" (the builder and examples, built only while the
-  Greek search is on). The three new ways in, each "Search commands", open it
-  with the desk section first: a quiet link in the tray's footer row, /search's
-  field-row button (now shown to every desk user, not only for a Greek search),
-  and a line on the Notebook's Settings tab. The Greek's own ways in keep the
-  Greek first. The search UIs reach it by the same gated dynamic import as
-  before; no new event was needed. **For launch:** the window still imports
-  the builder statically, harmless while the Greek and desk gates are one
-  test, to revisit if they part.
+  **built 2026-11-06, two windows** (BVJ's look the same day). The first build
+  put both kinds in one window, the Greek commands window with a "Notebook and
+  page commands" section above its builder, and BVJ didn't like them combined.
+  So the Greek search commands window is back as it was, Greek only, and the
+  notebook and page commands have **a window of their own, "Notebook commands"** (desk
+  code, a `float-window.js` window): what `>` in the search box would offer on
+  this page (`listCommands` in `desk-commands.mjs`); a row runs its command and
+  closes the window, with "More appear when you are reading a chapter." where
+  some are hidden. Its three ways in are each a quiet "Notebook commands" link: in the
+  tray's footer row, on /search (where the Greek's "Search commands" button is
+  again shown only for a Greek search), and on the Notebook's Settings tab. The
+  search UIs reach it by a gated dynamic import, never a static one. It was "Commands" for an hour, until BVJ found it too like "Search commands" beside it on /search.
 
 - **E32, wording: the notebook's group in search results should always be
   headed "My notebook".** BVJ (2026-11-05). BVJ had the heading changed from
@@ -1422,13 +1421,15 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   to do, and "Off," is a fragment. **Write it after E44 and E47 are decided.**
   A starting draft, for BVJ to react to: "Moves along with you as you read this
   book. Off, it stays on its verse. Up to six can move at once." Status:
-  **built 2026-11-06**, for BVJ to react to: "Moves along with you as you read
+  **done 2026-11-06**, BVJ approved: "Moves along with you as you read
   its book, once it’s following you. Without this, it stays on its verse. Up to
   six of your bookmarks can move." The "Moves" row's hover text is now "Moves as
-  I read, once it’s following me." **For BVJ:** /privacy still describes
-  `lit-desk-follow` as "which bookmark you followed from your list", which E44
-  and E47 make incomplete; /privacy is mirrored to the LSC site, so it was left
-  for BVJ's word.
+  I read, once it’s following me." /privacy's line for `lit-desk-follow` said
+  "which bookmark you followed from your list", which E44 and E47 made
+  incomplete; it now names every way a follow starts, and that it ends when
+  stopped, when the tab closes, or after 12 hours away from the book (BVJ: "however
+  is most appropriate"). The key and what it holds are unchanged, so the
+  effective date stays.
 
 - **E49, rough: the footnote's pin and add-note pills.** BVJ (2026-11-05): on
   the scripture pages the two pills (Pin, from `pins.js`, and Add a note, M11,
@@ -1459,6 +1460,19 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   (8a). To do it: mock the three at the real widths (the toolbar has a fixed
   floor, and the desk is a computer tool, so the phone toolbar rules don't
   apply), then decide. Status: **open, mock first.**
+
+- **E51, rough: the Share this sheet dialog needs a close × in its corner, and
+  its "Close" button should say "Cancel".** BVJ (2026-11-06), on /sheets.
+  Status: **done 2026-11-06**: the shared panels' round × (`lit-panel__close`,
+  named "Close") in the dialog's top right corner, and "Cancel" in the button
+  row; both close it (`openShareDialog`, `sheet-page.js`).
+
+- **E52, rough: on /sheets the header's buttons overlap the toolbar.** BVJ
+  (2026-11-06), with a screenshot. Over 1100px the header's search, Aa and
+  Study Desk buttons float below READ NOW, out of the header's flow, and the
+  sheets page left them no room. Status: **done 2026-11-06**: `.sheets-page`
+  takes 3.5rem of top padding over 1100px (`sheets-page.css`), as the
+  notebook page's own padding does.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

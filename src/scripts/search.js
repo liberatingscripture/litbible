@@ -300,10 +300,9 @@ function getActiveSort() {
   return v === "order" ? "order" : "relevance";
 }
 
-// The "Search commands" button beside the box (Study Desk preview): always
-// shown with the desk on (E31), since the window lists the Notebook and page
-// commands as well as the Greek's; the box suggests Greek commands while the
-// type is "Greek". It sits in the box's own row.
+// The "Search commands" button beside the box (Study Desk preview): shown only
+// while the Greek is what is being searched, and the box suggests commands
+// while the type is "Greek". It adds no height: it sits in the box's own row.
 const GREEK_PLACEHOLDER = "Try πίστις.gen or *.aor.impv";
 const defaultPlaceholder = input ? input.placeholder : "";
 let commandsBtn = null;
@@ -313,14 +312,29 @@ if (input && greekSearchEnabled()) {
   commandsBtn.type = "button";
   commandsBtn.className = "greek-cmd-link greek-cmd-link--field";
   commandsBtn.textContent = "Search commands";
+  commandsBtn.hidden = true;
   commandsBtn.setAttribute("aria-haspopup", "dialog");
-  commandsBtn.addEventListener("click", () => openCommands({ section: "desk" }));
+  commandsBtn.addEventListener("click", () => openCommands());
   // The link and "My notes" travel together: inline in the box's row where there
   // is room, and on one quiet line of their own under it where there is not
   // (E11), so neither squeezes the field.
   greekExtras = document.createElement("div");
   greekExtras.className = "greek-field-extras";
-  greekExtras.append(commandsBtn);
+  // The quiet "Notebook commands" link (E31, reworked 2026-11-06): the Notebook and page
+  // commands, in a window of their own (desk/commands-window.js), apart from the
+  // Greek's. It is always here with the desk on, so this row is too; the Greek's
+  // button and "My notes" come and go inside it.
+  const deskCommandsBtn = document.createElement("button");
+  deskCommandsBtn.type = "button";
+  deskCommandsBtn.className = "greek-cmd-link greek-cmd-link--field";
+  deskCommandsBtn.textContent = "Notebook commands";
+  deskCommandsBtn.setAttribute("aria-haspopup", "dialog");
+  deskCommandsBtn.addEventListener("click", () => {
+    loadDeskSearch()?.then((m) =>
+      m?.openCommands({ anchor: input.closest("form") ?? input, opener: deskCommandsBtn }),
+    );
+  });
+  greekExtras.append(deskCommandsBtn, commandsBtn);
   (input.closest(".searchbar__input-wrap") ?? input).after(greekExtras);
   input.closest("form")?.classList.add("searchbar__form--extras");
 }
@@ -360,6 +374,7 @@ function syncGreekChrome() {
   if (!commandsBtn) return;
   const greekType = modeSelect?.value === "greek";
   const greekSearch = greekType || isGreekQuery(input.value);
+  commandsBtn.hidden = !greekSearch;
   input.placeholder = greekType ? GREEK_PLACEHOLDER : defaultPlaceholder;
   if (notesSwitch) {
     // Under all types only: a Greek-letter query reads "Greek" in the menu
@@ -1012,8 +1027,8 @@ function writeGreekStatus() {
    examples and the "See search commands" buttons fill the room an empty or
    failed search leaves. */
 
-function openCommands({ filter = null, focus = true, section = null } = {}) {
-  withCommands().then((m) => m.openGreekCommands({ field: input, filter, focus, typeSelect: modeSelect, section }));
+function openCommands({ filter = null, focus = true } = {}) {
+  withCommands().then((m) => m.openGreekCommands({ field: input, filter, focus, typeSelect: modeSelect }));
 }
 
 /** Put a query in the box in the Greek type and run it, as typing it would. */

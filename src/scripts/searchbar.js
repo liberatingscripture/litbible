@@ -636,15 +636,17 @@ const _initSearchbars = async () => {
       );
     }
 
-    // The tray's quiet "Search commands" link (E31), for the Study Desk
-    // preview only: it opens the same window with the Notebook and page
-    // commands first. It sits in the footer's own row, so the tray gains no
-    // height, and it is in no page without data-desk="on".
+    // The tray's quiet "Notebook commands" link (E31), for the Study Desk preview only:
+    // it opens the Notebook and page commands in a window of their own
+    // (desk/commands-window.js, reached through the gated desk module, never
+    // imported here), apart from the Greek's "Search commands." It sits in the
+    // footer's own row, so the tray gains no height, and it is in no page
+    // without data-desk="on".
     if (commandsLink && deskEnabled()) {
       commandsLink.hidden = false;
       commandsLink.addEventListener("click", () => {
-        withCommands().then((m) =>
-          m.openGreekCommands({ field: input, typeSelect: modeSelect, section: "desk" }),
+        loadDeskSearch()?.then((m) =>
+          m?.openCommands({ anchor: input.closest("form") ?? input, opener: commandsLink, onRun: closePanel }),
         );
       });
     }
@@ -1372,8 +1374,8 @@ const _initSearchbars = async () => {
     closeBtn.addEventListener("click", closePanel);
 
     document.addEventListener("click", (e) => {
-      // The Greek commands window belongs to the search it was opened from.
-      if (e.target instanceof Element && e.target.closest("[data-greek-commands]")) return;
+      // The commands windows belong to the search they were opened from.
+      if (e.target instanceof Element && e.target.closest("[data-greek-commands], [data-desk-commands]")) return;
       if (!root.contains(e.target)) closePanel();
     });
 

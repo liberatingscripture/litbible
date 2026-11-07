@@ -17,6 +17,16 @@
   margin: 0 auto;
 }
 
+/* Over 1100px the header's search, Aa and Study Desk buttons float below
+   READ NOW, out of the header's flow (global.css, .site-header__nav-tools), so
+   the page leaves them room, as the notebook page's top padding does; the
+   toolbar ran under them (BVJ, 2026-11-06). */
+@media (min-width: 1101px) {
+  .sheets-page {
+    padding-top: 3.5rem;
+  }
+}
+
 .sheets-page__title {
   margin: 0 0 1rem;
 }
@@ -530,7 +540,15 @@
 
 .sheets-page__dialog h2 {
   margin: 0 0 0.75rem;
+  padding-right: 2.25rem;
   font-size: 1.25rem;
+}
+
+/* The corner close (×); the dialog is positioned, so it holds it. */
+.sheets-page__dialog-x {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
 }
 
 .sheets-page__dialog .sheets-page__choice {

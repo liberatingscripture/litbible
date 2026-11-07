@@ -551,10 +551,13 @@ function openShareDialog(sheet, opener) {
   const status = make("p", "sheets-page__status");
   status.setAttribute("role", "status");
   const code = make("figure", "sheets-page__share-code");
-  const close = button("Close");
+  // A × in the corner as well as Cancel in the row (BVJ, 2026-11-06).
+  const x = button("×", "lit-panel__close sheets-page__dialog-x");
+  x.setAttribute("aria-label", "Close");
+  const cancel = button("Cancel");
   const row = make("div", "sheets-page__dialog-actions");
-  row.append(copyLink, saveFile, close);
-  dialog.append(h, scopeChoice, note, row, status, code, saveFileHint);
+  row.append(copyLink, saveFile, cancel);
+  dialog.append(x, h, scopeChoice, note, row, status, code, saveFileHint);
   document.body.append(dialog);
 
   let link = "";
@@ -610,7 +613,7 @@ function openShareDialog(sheet, opener) {
         : "The file couldn’t be made. The sheet is unchanged: choose Copy link instead.";
     }
   });
-  close.addEventListener("click", () => dialog.close());
+  for (const b of [x, cancel]) b.addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => {
     dialog.remove();
     opener?.focus();

@@ -3365,65 +3365,6 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   list-style: none;
 }
 
-/* The window's sections (E31): the Notebook and page commands, and the Greek
-   search. The second is set off by a rule; the title names each. */
-.greek-cmds__section + .greek-cmds__section {
-  margin-top: 16px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
-}
-
-.greek-cmds__section[hidden] {
-  display: none;
-}
-
-.greek-cmds__section-title {
-  margin: 6px 0 4px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-/* A Notebook or page command in the window: a link or a button, one line with
-   where it works beside it. Tokens only, so both themes follow. */
-.search-cmd {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 10px;
-  align-items: baseline;
-  justify-content: space-between;
-  width: 100%;
-  margin: 0;
-  padding: 6px 6px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--text);
-  font: inherit;
-  font-size: 0.9rem;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.search-cmd:hover {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
-.search-cmd:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: -2px;
-}
-
-.search-cmd__name {
-  font-weight: 600;
-}
-
-.search-cmd__hint {
-  font-size: 0.75rem;
-  color: rgba(var(--ink-rgb), 0.6);
-}
-
 .greek-cmd {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);

@@ -118,7 +118,7 @@ globalThis.localStorage = memory();
 globalThis.document = {
   createElement: (tag) => new StubElement(tag),
   getElementById: (id) => elementsById.get(id) ?? null,
-  documentElement: { hasAttribute: () => false, dataset: { desk: "on" } },
+  documentElement: { hasAttribute: () => false },
   addEventListener: (type, fn) => {
     if (!docListeners.has(type)) docListeners.set(type, new Set());
     docListeners.get(type).add(fn);
@@ -135,10 +135,6 @@ globalThis.fetch = async (url) => {
 };
 
 const { openGreekCommands, closeGreekCommands, greekCommandsOpenFor } = await import("../src/scripts/greek-commands.js");
-
-// The desk's search module can't load in node (it imports a stylesheet), so a
-// test names where the desk's commands come from: none, unless it says.
-const open = (options) => openGreekCommands({ loadDesk: () => null, ...options });
 
 beforeEach(() => {
   winListeners = new Map();
@@ -168,7 +164,7 @@ const click = (btn) => btn.dispatch("click", { detail: 0 });
 
 test("a click after the field left the document closes the window and writes nothing (BA114)", () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   assert.equal(greekCommandsOpenFor(field), true);
   const btn = commandButton();
   assert.ok(btn, "the window lists command buttons");
@@ -184,7 +180,7 @@ test("a click after the field left the document closes the window and writes not
 
 test("the same click with the field in the document inserts the command", () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   const btn = commandButton();
 
   click(btn);
@@ -196,7 +192,7 @@ test("the same click with the field in the document inserts the command", () => 
 
 test("closing the whole pane has the same effect as removing the field", () => {
   const { pane, field } = deskField({ left: 600, right: 1000, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   const btn = commandButton();
 
   pane.remove();
@@ -208,7 +204,7 @@ test("closing the whole pane has the same effect as removing the field", () => {
 
 test("from a /desk pane the window sits to the pane's left when there is room", () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   // 600 - 340 (window width) - 16 (gap)
   assert.equal(windowEl().style.left, "244px");
   assert.equal(windowEl().style.top, "120px"); // level with the field
@@ -216,7 +212,7 @@ test("from a /desk pane the window sits to the pane's left when there is room", 
 
 test("from a pane near the window's left edge it goes to the pane's right", () => {
   const { field } = deskField({ left: 100, right: 500, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   // The pane's left has no room (100 - 340 - 16 < 8), so 500 + 16.
   assert.equal(windowEl().style.left, "516px");
   assert.equal(windowEl().style.top, "120px");
@@ -224,7 +220,7 @@ test("from a pane near the window's left edge it goes to the pane's right", () =
 
 test("with no room on either side of the pane it falls back to below the field", () => {
   const { field } = deskField({ left: 100, right: 1100, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   // Right of the pane would end at 1456, past the edge: against the right edge, under the field.
   assert.equal(windowEl().style.left, "844px"); // 1200 - 340 - 16
   assert.equal(windowEl().style.top, "160px"); // field bottom (150) + 10
@@ -236,7 +232,7 @@ test("with the Notebook panel present, the window keeps to the Notebook's left, 
   elementsById.set("deskPanel", panel);
   body.append(panel);
   const { field } = deskField({ left: 600, right: 880, top: 100 });
-  open({ field, source: "notebook", focus: false });
+  openGreekCommands({ field, source: "notebook", focus: false });
   // 900 - 340 - 16; the pane's left (which would give 244) is not used.
   assert.equal(windowEl().style.left, "544px");
 });
@@ -253,7 +249,7 @@ const typed = (field, value) => {
 test("a search in the field is built, and a choice writes the field back", async () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
   field.value = "πίστις";
-  open({ field, focus: false });
+  openGreekCommands({ field, focus: false });
   assert.equal(byKey("w0").value, "πίστις");
   await settle();
 
@@ -280,7 +276,7 @@ test("a search in the field is built, and a choice writes the field back", async
 test("a card waits for its word without touching the field", async () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
   field.value = "πίστις.gen";
-  open({ field, focus: false });
+  openGreekCommands({ field, focus: false });
   await settle();
   byKey("add").dispatch("click", { detail: 0 });
   assert.ok(byKey("w1"), "an empty second card");
@@ -293,7 +289,7 @@ test("a card waits for its word without touching the field", async () => {
 test("a search the builder can't show is said so and left alone, until it is started over", () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
   field.value = "=πίστεως.gen";
-  open({ field, focus: false });
+  openGreekCommands({ field, focus: false });
   assert.equal(byKey("w0"), undefined, "no cards");
   assert.ok(windowEl().findAll((e) => e.classes.has("greek-builder__why"))[0].textContent.includes("one form only"));
   assert.equal(field.value, "=πίστεως.gen");
@@ -305,7 +301,7 @@ test("a search the builder can't show is said so and left alone, until it is sta
 
 test("the builder stops reading a field once the window closes", () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  open({ field, focus: false });
+  openGreekCommands({ field, focus: false });
   assert.equal(field.listeners.input?.length, 1);
   closeGreekCommands();
   assert.equal(field.listeners.input.length, 0);
@@ -314,7 +310,7 @@ test("the builder stops reading a field once the window closes", () => {
 test("a press after the field changed behind the builder's back reads the field and does nothing else", async () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
   field.value = "πίστις.gen";
-  open({ field, focus: false });
+  openGreekCommands({ field, focus: false });
   await settle();
   const stale = byKey("c0.case.dative");
   assert.ok(stale);
@@ -329,78 +325,9 @@ test("a press after the field changed behind the builder's back reads the field 
 
 test("a word that is also a command is quoted in the field, and the card keeps the word", async () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  open({ field, focus: false });
+  openGreekCommands({ field, focus: false });
   byKey("w0").value = "perfect";
   byKey("w0").dispatch("input", { type: "input" });
   assert.equal(field.value, '"perfect"');
   assert.equal(byKey("w0").value, "perfect");
-});
-
-// ── The Notebook and page commands (E31) ─────────────────────────────
-
-const deskStub = (here, more = 0) => {
-  const ran = [];
-  return {
-    ran,
-    load: () => Promise.resolve({ commandList: () => ({ here, more }), runCommand: (id) => ran.push(id) }),
-  };
-};
-const sectionTitles = () => windowEl().findAll((e) => e.classes.has("greek-cmds__section-title")).map((e) => e.textContent);
-const deskRows = () => windowEl().findAll((e) => e.classes.has("search-cmd"));
-
-test("the window lists the desk's commands first when asked, and the Greek's first otherwise", async () => {
-  const stub = deskStub([{ id: "tour", name: "Take the tour", href: null, hint: "On this page" }]);
-  const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  openGreekCommands({ field, focus: false, section: "desk", loadDesk: stub.load });
-  await settle();
-  assert.deepEqual(sectionTitles(), ["Notebook and page commands", "Greek search"]);
-  closeGreekCommands();
-
-  openGreekCommands({ field, focus: false, loadDesk: stub.load });
-  assert.deepEqual(sectionTitles(), ["Greek search", "Notebook and page commands"]);
-});
-
-test("a desk command is a button that runs it and closes the window; a link command is a link", async () => {
-  const stub = deskStub(
-    [
-      { id: "hide-notes", name: "Hide my marks", href: null, hint: "On this page" },
-      { id: "notebook-page", name: "Open the notebook page", href: "/notebook/", hint: "" },
-    ],
-    3,
-  );
-  const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  openGreekCommands({ field, focus: false, section: "desk", loadDesk: stub.load });
-  await settle();
-  const rows = deskRows();
-  assert.deepEqual(rows.map((r) => r.tag), ["button", "a"]);
-  assert.equal(rows[1].href, "/notebook/");
-  const note = windowEl().findAll((e) => e.classes.has("greek-cmds__lead") && e.textContent.startsWith("More appear"));
-  assert.equal(note.length, 1, "it says others appear on a chapter page");
-
-  rows[0].dispatch("click", { detail: 0 });
-  assert.deepEqual(stub.ran, ["hide-notes"]);
-  assert.equal(windowEl(), undefined, "chosen, the window is done with");
-});
-
-test("with the Greek off the window holds the desk's commands alone", async () => {
-  document.documentElement.dataset.desk = "";
-  try {
-    const stub = deskStub([{ id: "tour", name: "Take the tour", href: null, hint: "" }]);
-    const { field } = deskField({ left: 600, right: 1000, top: 100 });
-    openGreekCommands({ field, focus: false, loadDesk: stub.load });
-    await settle();
-    assert.deepEqual(sectionTitles(), ["Notebook and page commands"]);
-    assert.equal(windowEl().findAll((e) => e.classes.has("greek-builder")).length, 0, "no builder is made");
-    assert.equal(deskRows().length, 1);
-  } finally {
-    document.documentElement.dataset.desk = "on";
-  }
-});
-
-test("with the desk's part unavailable the desk's section stays hidden", async () => {
-  const { field } = deskField({ left: 600, right: 1000, top: 100 });
-  openGreekCommands({ field, focus: false, loadDesk: () => null });
-  await settle();
-  const sec = windowEl().findAll((e) => e.classes.has("greek-cmds__section")).find((e) => e.children.some((c) => c.textContent === "Notebook and page commands"));
-  assert.equal(sec.hidden, true);
 });

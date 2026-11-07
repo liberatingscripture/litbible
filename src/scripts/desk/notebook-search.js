@@ -25,6 +25,7 @@ import {
 import { matchNouns, NOTEBOOK_GROUP_TITLE, notebookSearchHref, searchNotebook } from "../../lib/desk-search.mjs";
 import { readingSurface } from "../desk-frame.js";
 import { followBookmark, stopFollowing } from "./bookmark-follow.js";
+import { openCommandsWindow } from "./commands-window.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { readRecords } from "./readonly-notebook.js";
 
@@ -144,7 +145,7 @@ export function commandsFor(query) {
   return matchCommands(query, commandContext());
 }
 
-/** Every command offered here, and how many more a chapter page has: the search commands window's list (E31). */
+/** Every command offered here, and how many more a chapter page has: the Commands window's list (E31). */
 export function commandList() {
   return listCommands(commandContext());
 }
@@ -152,6 +153,25 @@ export function commandList() {
 /** Run a command that isn't a link: the desk's shell listens (commands.js). */
 export function runCommand(id) {
   document.dispatchEvent(new CustomEvent("lit:desk-command", { detail: { id } }));
+}
+
+/**
+ * Open the Commands window (commands-window.js): the one way the search tray,
+ * /search and the Notebook's Settings tab reach it, so the first two need only
+ * this module, which loadDeskSearch() gates. `anchor` is what it sits beside,
+ * `beside` the Notebook's panel, `opener` the control that opened it, `onRun`
+ * hears that a command was chosen.
+ */
+export function openCommands({ anchor = null, beside = null, opener = null, onRun = () => {} } = {}) {
+  ensureStyles();
+  openCommandsWindow({
+    list: commandList(),
+    run: (command) => runCommand(command.id),
+    anchor,
+    beside,
+    opener,
+    onRun,
+  });
 }
 
 /* ── Drawing ─────────────────────────────────────────────────────────── */

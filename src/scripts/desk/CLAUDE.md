@@ -671,6 +671,23 @@ against `dist/` is a later item.
        `data-desk="on"`; commands (`desk-commands.mjs`, `desk/commands.js`)
        travel as one `lit:desk-command` event with a single listener. Keep
        desk code out of the two search UIs themselves.
+       **The Notebook commands window** (E31, reworked 2026-11-06) lists those
+       commands (`listCommands` in `desk-commands.mjs`: what a ">" in the box
+       offers on this page, and a line saying more appear on a chapter page).
+       It is desk code (`desk/commands-window.js`), a `float-window.js`
+       window like the Greek's and the tour offer, styled in `desk.css`, and
+       **it is kept apart from the Greek "Search commands" window by BVJ's
+       choice**: the two were one window for a day and BVJ did not want them
+       combined, so don't put desk commands in `greek-commands.js` or Greek
+       ones here. A row runs its command and closes the window, as the box
+       does; link commands are plain links. It has three ways in, each a
+       quiet "Notebook commands" link (named apart from the Greek's "Search commands", BVJ 2026-11-06, since the two sat side by side on /search): the tray's footer row (`SearchBar.astro`), a
+       link in /search's field row with the desk on (the "Search commands"
+       button beside it is the Greek's, shown only for a Greek search), and
+       the Notebook's Settings tab (`panel.js`, which sits the window left of
+       the Notebook). The tray and /search call `openCommands` on
+       `notebook-search.js` through `loadDeskSearch()`, never importing desk
+       code (`test/desk-commands-window.test.js` holds it).
      - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
        `desk/tour.js`): the "Where should your notebook live?" card
        (`localStorage['lit-desk-home']`), the foot's reminder and Safari
@@ -976,24 +993,6 @@ against `dist/` is a later item.
        examples where an empty search's results would be. Before adding a
        hint or a control to a search page, put it in the window
        (`src/scripts/greek-commands.js`).
-       **It lists every kind of search command, not only the Greek's**
-       (E31, BVJ 2026-11-05): a "Notebook and page commands" section,
-       `desk-commands.mjs`'s own (what a ">" in the box lists, asked of
-       `notebook-search.js`'s `commandList()` and run with its `runCommand`),
-       beside the "Greek search" section. Each section is left out where it
-       has nothing: the Greek's where `greekSearchEnabled()` is false (no
-       builder is made), the desk's where the desk's module is unavailable.
-       Only what the box would offer on this page is listed, with a line
-       saying more appear on a chapter page (`listCommands`). A plain
-       "Search commands" link (the tray's footer, /search's field row, the
-       Notebook's Settings tab) opens it with `section: "desk"`, the desk's
-       first; the Greek's own places (the Greek group's foot, an error, the
-       Greek type) leave the Greek first. The tray's and /search's links
-       exist only with `data-desk="on"` and open the window by the same
-       gated dynamic import the Greek links use; the Settings tab's brings
-       the page's search field into view first (`lit:search-open`, Chapter
-       View's phone toolbar button). A command chosen in the window runs and
-       closes it, as it does in the box.
        **Its top is the search builder** (E5, BVJ 2026-11-02; mocked first,
        then built on Claude's recommendation): a card for each word (up to
        four), each with menus that list only what that word takes, a "+ Then

@@ -2859,6 +2859,94 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   cursor: pointer;
 }
 
+/* The Commands window (desk/commands-window.js, E31): the desk's own commands,
+   a float-window.js window apart from the Greek's. Above the search tray (999)
+   and its tooltips (1000), which it opens beside, as the Greek's is. Tokens
+   only, so both themes follow without a rule of their own. */
+.desk-cmds {
+  z-index: 1050;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  max-height: min(70vh, 520px);
+  padding-bottom: 0;
+}
+
+.desk-cmds .lit-panel__header {
+  margin-bottom: 0;
+}
+
+.desk-cmds .lit-window__title {
+  margin: 4px 0 2px;
+}
+
+.desk-cmds .lit-window__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0 -14px;
+  padding: 0 14px 14px;
+}
+
+.desk-cmds__lead {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-cmds__more {
+  margin: 8px 0 0;
+}
+
+.desk-cmds__list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A command: a link or a button, its name and where it works on one line. */
+.desk-cmds__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 6px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.desk-cmds__row:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-cmds__row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.desk-cmds__name {
+  font-weight: 600;
+}
+
+.desk-cmds__hint {
+  font-size: 0.75rem;
+  color: rgba(var(--ink-rgb), 0.6);
+}
+
 /* The tour: a small card beside its target. */
 .desk-tour {
   position: fixed;

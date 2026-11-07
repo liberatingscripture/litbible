@@ -1,17 +1,7 @@
 // src/scripts/greek-commands.js
 //
-// The search commands window: the one place that lists what the search box
-// understands (E31). It has two sections. "Notebook and page commands" lists the
-// Study Desk's own commands (desk-commands.mjs: the ones a ">" in the box
-// lists), asked of the desk's search module, so it is empty of them where the
-// desk is off. The Greek section is the Greek search commands (STUDY-DESK.md,
-// "Order of work", 2a, and E5), and is left out where the Greek isn't searched
-// (greekSearchEnabled), so the window works with the Greek off. Which comes
-// first follows where it was opened from: the Greek's own places (the Greek
-// group's foot, the Greek type, an error pointing at a command) put the Greek
-// first, the plain "Search commands" links put the desk's.
-//
-// The Greek section: one small window builds a search from menus (greek-builder.js: a card for each
+// The Greek search commands window (STUDY-DESK.md, "Order of work", 2a, and E5).
+// One small window builds a search from menus (greek-builder.js: a card for each
 // word, each offering only what that word takes), lists every command a Greek
 // search understands, and offers example searches; clicking a command puts it
 // into the search field it was opened from, at the cursor. The commands, their
@@ -42,7 +32,7 @@ import { COMMANDS, EXAMPLES } from "../lib/greek-query.mjs";
 import { editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
 import { hasGreek } from "../lib/greek-search.mjs";
 import { dockWidth } from "./desk-frame.js";
-import { greekSearchEnabled, isGreekQuery, loadDeskSearch, setPickedMode } from "./search-core.js";
+import { isGreekQuery, setPickedMode } from "./search-core.js";
 import { exampleList } from "./search-greek.js";
 import { createGreekBuilder } from "./greek-builder.js";
 
@@ -58,8 +48,7 @@ const EDGE = 8;
 const MAX_HEIGHT = 620;
 const MIN_HEIGHT = 280;
 
-/** The open window: { win, field, source, typeSelect, status, builder, more, desk }, or null.
- *  `builder` and `more` are null with the Greek off; `desk` is the desk's section. */
+/** The open window: { win, field, source, typeSelect, status, builder, more }, or null. */
 let current = null;
 
 /* ── What is kept ──────────────────────────────────────────────────── */
@@ -222,9 +211,8 @@ function buildCommand(item) {
   return b;
 }
 
-/** The Greek's section: the builder, then the list and examples under it. */
-function fillGreek(section, builder) {
-  section.append(make("h3", "greek-cmds__heading", "Build a search"), builder.el);
+function fillBody(body, builder) {
+  body.append(make("h3", "greek-cmds__heading", "Build a search"), builder.el);
   // The list the builder is made from, for typing the notation by hand: kept
   // under one heading so the window opens short.
   const more = make("details", "greek-cmds__more");
@@ -241,65 +229,8 @@ function fillGreek(section, builder) {
     }
     more.append(ul);
   }
-  section.append(more);
+  body.append(more);
   return more;
-}
-
-/* ── The Study Desk's commands (desk-commands.mjs) ─────────────────── */
-
-/** The desk section's empty shell; drawDesk fills it once the desk's search module has loaded. */
-function makeDesk() {
-  const el = make("section", "greek-cmds__section");
-  // Hidden until there is something to list: with the desk off, never shown.
-  el.hidden = true;
-  el.append(
-    make("h3", "greek-cmds__section-title", "Notebook and page commands"),
-    make("p", "greek-cmds__lead", "Type “>” in the search box to list these, or the start of a few of their words, such as “hide marks.” Select one here to run it."),
-  );
-  const list = make("ul", "greek-cmds__list");
-  const more = make("p", "greek-cmds__lead");
-  more.hidden = true;
-  el.append(list, more);
-  return { el, list, more };
-}
-
-function deskRow(command, desk) {
-  const row = make(command.href ? "a" : "button", "search-cmd");
-  if (command.href) {
-    row.href = command.href;
-  } else {
-    row.type = "button";
-    row.addEventListener("click", () => {
-      desk.runCommand(command.id);
-      // As the box does, it is done with once chosen.
-      closeGreekCommands("command");
-    });
-  }
-  row.append(make("span", "search-cmd__name", command.name));
-  if (command.hint) row.append(make("span", "search-cmd__hint", command.hint));
-  const li = make("li");
-  li.append(row);
-  return li;
-}
-
-/** Fill the desk section with the commands offered on this page. */
-function drawDesk(box, desk) {
-  const { here, more } = desk.commandList();
-  box.list.replaceChildren(...here.map((c) => deskRow(c, desk)));
-  box.more.textContent = more ? "More appear when you are reading a chapter." : "";
-  box.more.hidden = !more;
-  box.el.hidden = !here.length;
-}
-
-function refreshDesk(loadDesk) {
-  const box = current?.desk;
-  const loading = loadDesk?.();
-  if (!box || !loading) return;
-  loading
-    .then((desk) => {
-      if (desk && current?.desk === box) drawDesk(box, desk);
-    })
-    .catch((err) => console.error("Search commands: the Study Desk's commands couldn't load", err));
 }
 
 /** Scroll the button for a filter (by its word or its name) into view and mark it. */
@@ -378,22 +309,8 @@ const onPageHide = () => closeGreekCommands("page");
  *   to and mark, which an error points to. `typeSelect` is the page's search
  *   type menu, which an example sets to "Greek". `remember: false` opens it
  *   without marking it seen (the tour's showing of it leaves no trace).
- *   `section: "desk"` puts the Notebook and page commands first and brings them
- *   into view (the plain "Search commands" links); otherwise the Greek's comes
- *   first. `loadDesk` is where the desk's commands come from (a promise of
- *   { commandList, runCommand }, or null where the desk is off); the default is
- *   the desk's search module.
  */
-export function openGreekCommands({
-  field,
-  source = "page",
-  focus = true,
-  filter = null,
-  typeSelect = null,
-  remember = true,
-  section = null,
-  loadDesk = loadDeskSearch,
-}) {
+export function openGreekCommands({ field, source = "page", focus = true, filter = null, typeSelect = null, remember = true }) {
   if (!field) return;
   if (remember) markSeen();
   if (current) {
@@ -402,19 +319,15 @@ export function openGreekCommands({
     current.field = field;
     current.source = source;
     current.typeSelect = typeSelect;
-    current.builder?.follow(field);
+    current.builder.follow(field);
     if (moved) current.win.reposition();
-    refreshDesk(loadDesk);
     if (filter) showTarget(filter, { focus });
-    else {
-      if (section === "desk") current.desk.el.scrollIntoView?.({ block: "start" });
-      if (focus) current.win.title.focus({ preventScroll: true });
-    }
+    else if (focus) current.win.title.focus({ preventScroll: true });
     return;
   }
 
   const win = createFloatWindow({
-    heading: "Search",
+    heading: "Greek search",
     title: "Search commands",
     className: "greek-cmds",
     // A click in it never closes the Notebook when that floats, nor the tray.
@@ -424,36 +337,23 @@ export function openGreekCommands({
     onClose: (reason) => {
       const was = current;
       current = null;
-      was?.builder?.destroy();
+      was?.builder.destroy();
       document.removeEventListener(NOTEBOOK_EVENT, onNotebook);
       window.removeEventListener("pagehide", onPageHide);
       if (reason === "close" && was?.field.isConnected) was.field.focus({ preventScroll: true });
     },
   });
 
+  const lead = make("p", "greek-cmds__lead", "Choose here and your search field shows the command it makes. Type in the field and this follows. They are always the same search.");
   const status = make("p", "sr-only");
   status.setAttribute("role", "status");
+  win.body.before(lead);
+  const builder = createGreekBuilder({ put: putSearch, announce });
+  const more = fillBody(win.body, builder);
+  win.body.append(status);
 
-  // The Greek's section, only where the Greek is searched.
-  let builder = null;
-  let more = null;
-  let greekEl = null;
-  if (greekSearchEnabled()) {
-    greekEl = make("section", "greek-cmds__section");
-    greekEl.append(
-      make("h3", "greek-cmds__section-title", "Greek search"),
-      make("p", "greek-cmds__lead", "Choose here and your search field shows the command it makes. Type in the field and this follows. They are always the same search."),
-    );
-    builder = createGreekBuilder({ put: putSearch, announce });
-    more = fillGreek(greekEl, builder);
-  }
-  const desk = makeDesk();
-  const sections = section === "desk" || !greekEl ? [desk.el, greekEl] : [greekEl, desk.el];
-  win.body.append(...sections.filter(Boolean), status);
-
-  current = { win, field, source, typeSelect, status, builder, more, desk };
-  builder?.follow(field);
-  refreshDesk(loadDesk);
+  current = { win, field, source, typeSelect, status, builder, more };
+  builder.follow(field);
   document.addEventListener(NOTEBOOK_EVENT, onNotebook);
   window.addEventListener("pagehide", onPageHide);
   win.show({ focus: focus && !filter });
@@ -469,7 +369,7 @@ export function openGreekCommandsOnce(options) {
   openGreekCommands({ ...options, focus: false });
 }
 
-/** Close the window (for the reason given: "close", "page", "notebook", "field", "command"). */
+/** Close the window (for the reason given: "close", "page", "notebook", "field"). */
 export function closeGreekCommands(reason = "page") {
   current?.win.close(reason);
 }
