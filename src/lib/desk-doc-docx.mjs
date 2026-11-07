@@ -27,7 +27,7 @@
 // Word refuses a file over small faults, so the order of every element inside
 // w:pPr and w:rPr below is the schema's order. Keep it when adding one.
 
-import { CODE_CM, DOC_CREDIT, DOC_FONTS, DOC_PAPERS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
+import { CODE_CM, DOC_BOX, DOC_CREDIT, DOC_FONTS, DOC_PAPERS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
 import { zipFiles } from "./desk-zip.mjs";
 
 const NS = {
@@ -213,6 +213,21 @@ function listParagraphs(ctx, b, level = 0) {
   return out;
 }
 
+/* ── The key terms box ─────────────────────────────────────────────────── */
+
+/** A one-cell table ruled all round (E57): what Word keeps as a box, where bordered paragraphs part at a list's indent. */
+function boxTable(ctx, inner) {
+  const line = `w:val="single" w:sz="${DOC_BOX.pt * 8}" w:space="0" w:color="${DOC_BOX.color}"`;
+  const borders = ["top", "left", "bottom", "right"].map((side) => `<w:${side} ${line}/>`).join("");
+  const pad = (side, pt) => `<w:${side} w:w="${pt * 20}" w:type="dxa"/>`;
+  return (
+    `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>${borders}</w:tblBorders>` +
+    `<w:tblLayout w:type="fixed"/><w:tblCellMar>${pad("top", DOC_BOX.padY)}${pad("left", DOC_BOX.padX)}${pad("bottom", DOC_BOX.padY)}${pad("right", DOC_BOX.padX)}</w:tblCellMar>` +
+    `<w:tblLook w:val="0000"/></w:tblPr><w:tblGrid><w:gridCol w:w="${ctx.textWidth}"/></w:tblGrid>` +
+    `<w:tr><w:tc><w:tcPr><w:tcW w:w="${ctx.textWidth}" w:type="dxa"/></w:tcPr>${inner || "<w:p/>"}</w:tc></w:tr></w:tbl>`
+  );
+}
+
 /* ── The document ──────────────────────────────────────────────────────── */
 
 function body(ctx, blocks, quoted = false) {
@@ -230,6 +245,7 @@ function body(ctx, blocks, quoted = false) {
         out += paragraph(ctx, { style: quoted ? "Quote" : null, runs: docRuns(b.inlines), align: b.align, indent: b.poetry ? 480 : 0 });
         break;
       case "quote": out += body(ctx, b.blocks, true); break;
+      case "box": out += boxTable(ctx, body(ctx, b.blocks, quoted)); break;
       case "list": out += listParagraphs(ctx, b); break;
       case "rule": out += paragraph(ctx, { style: "Rule" }); break;
       case "note": {
@@ -289,6 +305,7 @@ export function docxParts(doc, { title = doc.title, version = "", paper = "lette
   };
 
   const page = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
+  ctx.textWidth = page.width - 2 * page.margin;
   const content =
     body(ctx, doc.blocks) +
     paragraph(ctx, { style: "Foot", runs: textRuns(DOC_CREDIT) }) +

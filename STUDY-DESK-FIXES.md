@@ -1749,6 +1749,23 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   **built 2026-11-06** (`sheet-pane.js`, `sheet-lit.js`,
   `.desk-sheet__field-label` in `desk.css`); checked on /desk in light and dark.
 
+- **E57, bug: the key terms box loses its box in a saved file.** BVJ
+  (2026-11-06), testing Save as (E37): the box around the key terms printed and
+  saved as PDF, but .docx, .odt and .rtf showed the terms with no rule around
+  them. The document model (`desk-sheet-doc.mjs`) had no way to say "these
+  blocks are boxed", so `readCopy` read the box's heading, list and note as
+  ordinary blocks, and Copy lost it too. Status: **fixed 2026-11-06**: a `box`
+  block (`DOC_BOX`: 0.75pt, the site's ink, 8 by 10pt of padding) holds the
+  heading, the list and the note, the "Leader only" tag staying outside it as
+  on paper; each writer draws it as a one-cell table ruled all round (Copy's
+  HTML, .docx `w:tbl`, .odt `table:table`, .rtf `\trowd` with `\intbl`), the
+  width of the text. Copy's golden fixture changed on purpose for it. Checked
+  in `test/desk-sheet-doc.test.js` and by rendering the three files through
+  LibreOffice. In the same report BVJ found no template but Blank Canvas would
+  add a key terms box: Bible study, Sermon and Class already hold one, and a
+  sheet takes one, so the button is disabled with its reason only as hover text
+  and for screen readers; Lectio divina has none. Not a bug (BVJ agreed).
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

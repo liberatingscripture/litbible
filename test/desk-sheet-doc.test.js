@@ -481,6 +481,48 @@ test(".rtf: headings, lists, raised verse numbers, footnotes, links, and the cre
   assert.ok(!rtf.includes("javascript"));
 });
 
+/* ── The key terms box (E57) ──────────────────────────────────────────── */
+
+test("the key terms box is read as a box, its tag outside it", () => {
+  const blocks = leaderDoc().blocks;
+  const box = blocks.find((b) => b.type === "box");
+  assert.ok(box, "a box block");
+  assert.deepEqual(box.blocks[0], { type: "section", text: "Key terms" });
+  assert.deepEqual(box.blocks.slice(1).map((b) => b.type), ["list", "para"]);
+  assert.equal(blocks.filter((b) => b.type === "box").length, 1);
+});
+
+test("the key terms box keeps its rule in .docx, .odt and .rtf", async () => {
+  const doc = parseXml(docxParts(leaderDoc(), { date: 0 }).find((p) => p.name === "word/document.xml").data);
+  const tables = W(doc, "tbl");
+  assert.equal(tables.length, 1);
+  const borders = W(tables[0], "tblBorders")[0];
+  for (const side of ["top", "left", "bottom", "right"]) {
+    const b = W(borders, side)[0];
+    assert.equal(b.attrs["w:val"], "single", side);
+    assert.equal(b.attrs["w:sz"], "6", side);
+  }
+  assert.equal(textOf(W(tables[0], "p")[0]), "Key terms");
+
+  const entries = unzip(await odtFile(leaderDoc(), { date: 0 }));
+  const content = xmlOf(entries, "content.xml");
+  const table = findAll(content, "table:table");
+  assert.equal(table.length, 1);
+  const cell = findAll(table[0], "table:table-cell")[0];
+  const cellStyle = findAll(content, "style:style").find((s) => s.attrs["style:name"] === cell.attrs["table:style-name"]);
+  assert.match(findAll(cellStyle, "style:table-cell-properties")[0].attrs["fo:border"], /^0\.75pt solid #1D231C$/i);
+  assert.equal(textOf(findAll(cell, "text:h")[0]), "Key terms");
+
+  const rtf = rtfText(leaderDoc(), {});
+  const row = rtf.match(/\\trowd[^\n]*\n/);
+  assert.ok(row, "a table row");
+  for (const side of ["t", "l", "b", "r"]) assert.ok(row[0].includes(`\\clbrdr${side}\\brdrs\\brdrw15`), side);
+  const inBox = rtf.slice(row.index, rtf.indexOf("\\row\n"));
+  assert.ok(inBox.includes("{Key terms}") && inBox.trimEnd().endsWith("\\cell"));
+  for (const p of inBox.split("\\pard").slice(1)) assert.ok(p.startsWith("\\intbl"), p.slice(0, 40));
+  assert.ok(balanced(rtf));
+});
+
 /* ── Loading ──────────────────────────────────────────────────────────── */
 
 const STATIC_IMPORT = /^\s*(?:import|export)\s[^;]*?\sfrom\s+["'](\.[^"']+)["']|^\s*import\s+["'](\.[^"']+)["']/gm;

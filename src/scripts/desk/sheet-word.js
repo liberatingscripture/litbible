@@ -178,11 +178,12 @@ export function readCopy(article) {
       lines(part);
     } else if (part.matches(".sheet-copy__terms")) {
       tag(part);
-      blocks.push({ type: "section", text: "Key terms" });
+      const box = { type: "box", blocks: [{ type: "section", text: "Key terms" }] };
       const list = part.querySelector(".sheet-copy__term-list");
-      if (list) block(list, blocks);
+      if (list) block(list, box.blocks);
       const note = part.querySelector(".sheet-copy__terms-note, .sheet-copy__missing");
-      if (note) block(note, blocks);
+      if (note) block(note, box.blocks);
+      blocks.push(box);
     } else if (part.matches(".sheet-copy__break")) {
       blocks.push({ type: "break" });
     } else if (part.matches(".sheet-copy__foot")) {

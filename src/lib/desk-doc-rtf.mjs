@@ -16,7 +16,7 @@
 // as its stand-in, and Cardo for Greek and Hebrew. LIT_CREDIT_LINE is the
 // final paragraph and the document's comment (\doccomm).
 
-import { DOC_COLORS, DOC_CREDIT, DOC_FONTS, DOC_MARKS, DOC_PAPERS, CODE_CM, docRuns } from "./desk-sheet-doc.mjs";
+import { DOC_BOX, DOC_COLORS, DOC_CREDIT, DOC_FONTS, DOC_MARKS, DOC_PAPERS, CODE_CM, docRuns } from "./desk-sheet-doc.mjs";
 
 const BASE_HALF_POINTS = 24;
 const ALIGN = { left: "\\ql", center: "\\qc", right: "\\qr", justify: "\\qj" };
@@ -158,7 +158,23 @@ function codeRtf(b) {
   return `\\pard\\plain${PARA.code[0]} ${pict}\\par\n` + para("caption", textRuns(b.caption));
 }
 
-function body(blocks, quoted = false) {
+/**
+ * A one-cell table ruled all round (E57). Every paragraph in it is marked
+ * \intbl and the last ends the cell instead of its paragraph; the \pard of
+ * whatever follows leaves the table.
+ */
+function boxRtf(inner, width) {
+  const line = `\\brdrs\\brdrw${Math.round(DOC_BOX.pt * 20)}`;
+  const row =
+    `\\trowd\\trgaph${DOC_BOX.padX * 20}\\trleft0` +
+    `\\trpaddl${DOC_BOX.padX * 20}\\trpaddr${DOC_BOX.padX * 20}\\trpaddt${DOC_BOX.padY * 20}\\trpaddb${DOC_BOX.padY * 20}` +
+    "\\trpaddfl3\\trpaddfr3\\trpaddft3\\trpaddfb3" +
+    `\\clbrdrt${line}\\clbrdrl${line}\\clbrdrb${line}\\clbrdrr${line}\\cellx${width}\n`;
+  const cell = (inner || para("normal")).replace(/\\pard(?=\\plain)/g, "\\pard\\intbl").replace(/\\par\n$/, "\\cell\n");
+  return `${row}${cell}\\row\n`;
+}
+
+function body(blocks, quoted = false, width = 0) {
   let out = "";
   for (const b of blocks) {
     switch (b.type) {
@@ -168,7 +184,8 @@ function body(blocks, quoted = false) {
       case "tag": out += para("tag", textRuns(b.text)); break;
       case "heading": out += para(`h${b.level}`, docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "para": out += para(quoted ? "quote" : "normal", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
-      case "quote": out += body(b.blocks, true); break;
+      case "quote": out += body(b.blocks, true, width); break;
+      case "box": out += boxRtf(body(b.blocks, quoted, width), width); break;
       case "list": out += listRtf(b); break;
       case "rule": out += para("rule"); break;
       case "note": out += para("note", [{ text: b.label, sup: true }, { text: " " }, ...docRuns(b.inlines)]); break;
@@ -200,7 +217,7 @@ export function rtfText(doc, { title = doc.title, version = "", paper = "letter"
     HEADER +
     `{\\info{\\title ${rtfEscape(title)}}${version ? `{\\subject ${rtfEscape(version)}}` : ""}{\\doccomm ${rtfEscape(DOC_CREDIT)}}}\n` +
     `\\paperw${page.width}\\paperh${page.height}\\margl${page.margin}\\margr${page.margin}\\margt${page.margin}\\margb${page.margin}\\widowctrl\n` +
-    body(doc.blocks) +
+    body(doc.blocks, false, page.width - 2 * page.margin) +
     para("foot", textRuns(DOC_CREDIT)) +
     "}\n"
   );

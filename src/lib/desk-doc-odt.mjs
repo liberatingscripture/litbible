@@ -18,7 +18,7 @@
 //
 // The zip's first entry is `mimetype`, stored, as ODF requires.
 
-import { CODE_CM, DOC_CREDIT, DOC_FONTS, DOC_PAPERS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
+import { CODE_CM, DOC_BOX, DOC_CREDIT, DOC_FONTS, DOC_PAPERS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
 import { zipFiles } from "./desk-zip.mjs";
 
 export const ODT_MIME = "application/vnd.oasis.opendocument.text";
@@ -32,7 +32,8 @@ const NS =
   'xmlns:xlink="http://www.w3.org/1999/xlink" ' +
   'xmlns:dc="http://purl.org/dc/elements/1.1/" ' +
   'xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" ' +
-  'xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"';
+  'xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" ' +
+  'xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"';
 const BASE_PT = 12;
 const ALIGN = { left: "start", center: "center", right: "end", justify: "justify" };
 
@@ -111,10 +112,14 @@ function stylesXml(paper) {
 /* ── Content ───────────────────────────────────────────────────────────── */
 
 /** The automatic styles a document needs: one per run look and per paragraph variant, made as they are met. */
-function autoStyles() {
+function autoStyles(boxWidth) {
   const text = new Map();
   const para = new Map();
+  let boxes = 0;
   return {
+    box() {
+      return ++boxes;
+    },
     text(run, basePt) {
       const props = [];
       if (run.b) props.push(bold);
@@ -148,7 +153,17 @@ function autoStyles() {
         out += `<style:style style:name="${name}" style:family="paragraph" style:parent-style-name="${parent}"><style:paragraph-properties ${props.join(" ")}/></style:style>`;
       }
       for (const [props, name] of text) out += `<style:style style:name="${name}" style:family="text"><style:text-properties ${props}/></style:style>`;
-      return out + listStyle("LB", false) + listStyle("LN", true);
+      out += listStyle("LB", false) + listStyle("LN", true);
+      if (boxes) {
+        // The key terms box (E57): a one-cell table at the text's full width, ruled all round.
+        out +=
+          `<style:style style:name="Box" style:family="table"><style:table-properties style:width="${boxWidth}" table:align="margins"/></style:style>` +
+          `<style:style style:name="Box.A" style:family="table-column"><style:table-column-properties style:column-width="${boxWidth}"/></style:style>` +
+          `<style:style style:name="Box.A1" style:family="table-cell"><style:table-cell-properties ` +
+          `fo:padding-top="${DOC_BOX.padY}pt" fo:padding-bottom="${DOC_BOX.padY}pt" fo:padding-left="${DOC_BOX.padX}pt" fo:padding-right="${DOC_BOX.padX}pt" ` +
+          `fo:border="${DOC_BOX.pt}pt solid #${DOC_BOX.color}"/></style:style>`;
+      }
+      return out;
     },
   };
 }
@@ -231,6 +246,14 @@ function body(ctx, blocks, quoted = false) {
       case "heading": out += h(ctx, b.level, docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "para": out += p(ctx, quoted ? "Quote" : "Standard", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "quote": out += body(ctx, b.blocks, true); break;
+      case "box": {
+        const n = ctx.styles.box();
+        out +=
+          `<table:table table:name="Box${n}" table:style-name="Box"><table:table-column table:style-name="Box.A"/>` +
+          `<table:table-row><table:table-cell table:style-name="Box.A1" office:value-type="string">` +
+          `${body(ctx, b.blocks, quoted) || p(ctx, "Standard")}</table:table-cell></table:table-row></table:table>`;
+        break;
+      }
       case "list": out += listXml(ctx, b); break;
       case "rule": out += p(ctx, "Rule"); break;
       case "note": out += p(ctx, "Note", [{ text: b.label, sup: true }, { text: " " }, ...docRuns(b.inlines)]); break;
@@ -258,7 +281,8 @@ function body(ctx, blocks, quoted = false) {
  * @param {{ title?: string, version?: string, paper?: "letter" | "a4", date?: Date | number }} [opts]
  */
 export function odtParts(doc, { title = doc.title, version = "", paper = "letter", date = Date.now() } = {}) {
-  const ctx = { styles: autoStyles(), images: [] };
+  const sheet = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
+  const ctx = { styles: autoStyles(`${((sheet.width - 2 * sheet.margin) / 1440).toFixed(3)}in`), images: [] };
   const text = body(ctx, doc.blocks) + p(ctx, "Foot", textRuns(DOC_CREDIT));
   const content =
     `${XML}<office:document-content ${NS} office:version="1.2">${FONT_FACES}` +

@@ -1480,7 +1480,9 @@ against `dist/` is a later item.
        and Copy is that model's HTML and text writer (`docHtml`, `docText`),
        held to its old output by `test/fixtures/sheet-copy-golden.json`. A new
        part of the paper copy is read there once, and every writer then
-       follows. The writers (`desk-doc-docx.mjs`, `desk-doc-odt.mjs`,
+       follows. The key terms box is a `box` block (E57), which each writer
+       draws as a one-cell table ruled all round; a new writer must too, or
+       the box comes out bare. The writers (`desk-doc-docx.mjs`, `desk-doc-odt.mjs`,
        `desk-doc-rtf.mjs`, over the hand-written `desk-zip.mjs`) are pure and
        reached only by `sheet-save.js`'s dynamic imports, never statically
        (`test/desk-sheet-doc.test.js` holds it). The menu's groups are

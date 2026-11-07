@@ -23,6 +23,7 @@
 //   { type: "heading", level, inlines, align?, poetry? }   a sheet's own h2 or h3
 //   { type: "para", inlines, align?, poetry? }             poetry: a line of an hbq quotation
 //   { type: "quote", blocks }    a blockquote that isn't poetry
+//   { type: "box", blocks }      a ruled box around its blocks: the key terms (E57)
 //   { type: "list", ordered, items: [{ inlines, lists: [list blocks] }] }
 //   { type: "rule" }             a horizontal rule
 //   { type: "note", label, inlines }   a footnote, under its passage
@@ -55,6 +56,9 @@ export const DOC_SIZES = Object.freeze({ small: 0.85, large: 1.2, larger: 1.45 }
 export const HINT_SIZE = 0.8;
 /** A participant's blank: underlined no-break spaces, as Copy has always pasted it. */
 export const BLANK_SPACES = 16;
+/** The key terms box's rule, as the paper copy draws it (sheets-page.css): 0.75pt, 8pt by 10pt inside. */
+export const DOC_BOX = Object.freeze({ color: "1D231C", pt: 0.75, padY: 8, padX: 10 });
+const BOX_CSS = `border:${DOC_BOX.pt}pt solid #${DOC_BOX.color};padding:${DOC_BOX.padY}pt ${DOC_BOX.padX}pt`;
 /** One line to write on, in the plain text. */
 const RULE = "_".repeat(60);
 
@@ -135,6 +139,11 @@ export function docHtml(doc) {
         html.push("<blockquote>");
         b.blocks.forEach(block);
         return html.push("</blockquote>");
+      case "box":
+        // A one-cell table, the box every word processor keeps on a paste.
+        html.push(`<table style="border-collapse:collapse;width:100%"><tr><td style="${BOX_CSS}">`);
+        b.blocks.forEach(block);
+        return html.push("</td></tr></table>");
       case "list":
         html.push(b.ordered ? "<ol>" : "<ul>");
         for (const item of b.items) {
@@ -192,7 +201,8 @@ export function docText(doc) {
       case "foot":
         inline(b.inlines);
         return flush();
-      case "quote": return b.blocks.forEach(block);
+      case "quote":
+      case "box": return b.blocks.forEach(block);
       case "list":
         for (const item of b.items) {
           const before = line;
