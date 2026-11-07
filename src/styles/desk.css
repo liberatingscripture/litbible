@@ -29,13 +29,6 @@
   display: none;
 }
 
-/* "Skip to the Notebook" has nothing to skip to while the Display tray's
-   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
-   tab order. Both themes alike: no colors here. */
-html[data-desk-show="off"] .skip-link[data-desk-skip] {
-  display: none;
-}
-
 /* A card in the margin. Sticky, so it starts level with the text and pins
    16px from the top of the window as the reader scrolls (EDGE in
    src/lib/desk-margin.mjs, the same gap it keeps from the window's right
@@ -817,6 +810,13 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 }
 
 .desk-verse__add[hidden] {
+  display: none;
+}
+
+/* "Skip to the Notebook" has nothing to skip to while the Display tray's
+   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
+   tab order. Both themes alike: no colors here. */
+html[data-desk-show="off"] .skip-link[data-desk-skip] {
   display: none;
 }
 
