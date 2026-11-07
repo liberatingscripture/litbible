@@ -88,7 +88,11 @@ means each of these, in one change:
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
 engine). Decision for version 1: accept it. Output is re-sanitized to a
 canonical form (`sheetHtmlForShow`) so engine differences don't reach the
-record. A replacement behind the `createSheetText` interface is a version 2
+record. **A stored sheet is valid only while its canonical form never
+changes**, so `test/fixtures/sheet-text-golden.json` (`npm run
+build:sheet-golden`) holds the sanitizer's output byte for byte, and
+`planSheetChange` edits over `cleanSheetText(current)`, so a drift becomes a
+one-time rewrite rather than a refusal (DI3-6). A replacement behind the `createSheetText` interface is a version 2
 item; add a cross-browser golden-file test of the eight commands before it.
 
 **Tests**: `test/desk-store.test.js` runs the real `store.js` against
@@ -417,7 +421,13 @@ against `dist/` is a later item.
      an undo restamps `modified` and `client` (the undone state must outrank
      the change under the newer-wins sync rule), and a trash record it puts
      back gets a fresh `deletedAt` too, so entries are compared **without**
-     those fields, or nothing could be undone twice in a row; undoing an add
+     those fields, or nothing could be undone twice in a row; **every stamp
+     steps past the times it replaces** (`laterThan`/`laterThanAll` in
+     `desk-records.mjs`: an edit past the version, a deletion past the
+     record, a restore past the deletion, an undo past everything it goes
+     back over; DI3-1), or a deletion or a restore made on the slower of two
+     clocks is reversed by the merge, so a new way of writing a record over
+     another stamps the same way; undoing an add
      deletes through a trash record (its id allotted in the entry,
      `undoTrash`, which a redo removes), never a bare removal, which a backup
      would bring back as new (BA7); a change that depends on what the
@@ -504,7 +514,13 @@ against `dist/` is a later item.
        clamp, capped at a JSON file's `exported`), so opening one file twice
        writes nothing the second time, on any day. The summary counts every
        write the plan makes (BA11), so "Nothing to open" never sits beside
-       an active Open.
+       an active Open. **Two doors every record passes, whatever its schema**
+       (`validateRecord`'s common block, so the store and a future sync get
+       them too): over 1 MB as JSON is refused (`MAX_RECORD_BYTES`, SEC3-1),
+       since the kind-specific limits reach only records this code can edit;
+       and a deletion whose held copy fails the check is kept as its
+       tombstone and reported in `planImport`'s `warnings`, never skipped
+       whole (DI3-4), so an older copy can't bring the record back.
        `META.lastExport` (`store.getMeta/setMeta`) is what the
        "last saved a copy" line and the reminder read.
      - **The trash can be restored from** (E12; BVJ, 2026-11-02): a Trash section
@@ -1255,7 +1271,10 @@ against `dist/` is a later item.
        shows is character-identical to Chapter View. Only the parts the panes
        read are kept, moved into a document of their own (`keepParts`: the
        text, the footnotes and Go deeper; BA65), so a new reader of `doc`
-       finds nothing else there. Each LIT pane keeps
+       finds nothing else there, **and each part is made inert there**
+       (`makeInert`, `src/lib/desk-inert.mjs`; SEC3-2), as the intro pane's
+       section is, so no pane scrubs on its own and a new fetch of a site
+       page goes through it before anything is imported. Each LIT pane keeps
        where its reader is (`at` on the pane), and the active one's is the
        shared passage, `layout.place` ("john 3:16",
        `src/lib/desk-passage.mjs`), which the panes that aren't pinned

@@ -58,6 +58,15 @@ const DATA_LINE = /<!--\s*lit-sheet\s+(share1\.[A-Za-z0-9_-]*(?:\s+[A-Za-z0-9_-]
 const DATA_OPENER = /<!--\s*lit-sheet\b/;
 /** Decompressed data larger than this is refused (the sheet limit with room for JSON's own). */
 const MAX_JSON_BYTES = SHEET_LIMITS.bytes * 2;
+/**
+ * The longest a file read for its data line may be, in bytes (SEC3-4): a
+ * share's data is at most about 1.4 MB of base64 (MAX_JSON_BYTES deflated),
+ * and the Markdown around it is a sheet's text, so a file past this holds
+ * no sheet this page could open, and isn't read into memory at all.
+ */
+export const MAX_SHARE_FILE_BYTES = 4 * 1024 * 1024;
+/** The longest data line that could decompress within MAX_JSON_BYTES (base64 of it, with room for deflate's framing). */
+const MAX_FRAGMENT_LENGTH = SHARE_PREFIX.length + Math.ceil(((MAX_JSON_BYTES + 4096) * 4) / 3);
 
 /** Module fields that never travel. */
 const DROP = new Set(["id", "verseCopy", "verseCopyAsOf"]);
@@ -278,13 +287,19 @@ export function shareFileName(sheet) {
 /**
  * The fragment a shared sheet's file carries, or null when it has no data
  * line. Throws ShareError("damaged") when a data line is begun but can't be
- * read, so the reader is told to ask for the file again (BA87).
+ * read, so the reader is told to ask for the file again (BA87), and
+ * ShareError("too-large") for a data line longer than any sheet's could be,
+ * before it is kept anywhere (SEC3-4).
  */
 export function fragmentInFile(text) {
   const str = String(text ?? "");
   let last = null;
   for (const m of str.matchAll(DATA_LINE)) last = m[1];
-  if (last !== null) return last.replace(/\s+/g, "");
+  if (last !== null) {
+    const fragment = last.replace(/\s+/g, "");
+    if (fragment.length > MAX_FRAGMENT_LENGTH) throw new ShareError("too-large");
+    return fragment;
+  }
   if (DATA_OPENER.test(str)) throw new ShareError("damaged");
   return null;
 }

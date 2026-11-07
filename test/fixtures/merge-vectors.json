@@ -1,5 +1,5 @@
 {
-  "about": "Shared test vectors for the Study Desk's merge rules (src/lib/desk-merge.mjs; STUDY-DESK.md, 'When notes collide: rules a to e'). For each case, merging `incoming` into `local` as of `now` must give exactly `expect`, the whole notebook sorted by id, compared as JSON (key order does not matter). `local` is the side that is never clamped; `incoming` is the arriving side, which is clamped and checked. The clamp's cap is `now`, or the case's `exported` (when the arriving copy was saved, as an export file says) if that is earlier; an arriving record with any time past the cap (its `modified`, a trash record's `deletedAt`, or the `modified` of the copy a trash record holds) is written at the cap, and only when `local` has nothing for it: no record with its id, no trash record deleting it, and, for a trash record, neither the record it deletes nor another trash record deleting that. Version 2 (2026-10-26, audit FA1-c) added that never-beats rule, `exported`, the held copy's clamp, and skipping a record whose kind differs from another copy of its id, here or in the same input, or a trash record that names itself; two version 1 clamp cases lost their `local` records, which became cases of their own. Exact ties go to the local copy (no tiebreak is given). A case with `skipped` also says how many incoming records must be reported and not written. `rule` names the rule the case is about: a (newer writing wins), b (deleted on one side, edited on the other), c (30-day trash, then a tombstone), collapse (two trash records for one deletion; the website's proposal of 2026-10-12, not yet confirmed by the apps), keep (principle 6), clamp, skip, migrate. Version 3 (2026-11-02, STUDY-DESK.md E9, accepted by BDR 2026-10-23) added `migrate`: a bookmark gains an optional `follow: true`, its name is `label`, and a ribbon (a `place` with `ribbon: true` and a `name`, which only the website's preview ever wrote) is read as a bookmark on arrival, with the same id, `name` becoming `label` and `follow: true` added, and so is a ribbon held by a trash record, whose `deletedKind` becomes `bookmark`. Only arriving records are migrated, so a `migrate` case is one-sided (merging the other way round leaves the old shape in place). A client that never met a ribbon (the apps, which build bookmarks only) may skip the `migrate` cases, but should carry a `place` it doesn't understand untouched (the `keep` case). Version 4 (2026-11-04, audit 2 DI-3, DI-8, DI-12) added three cases and changed two rules, for BDR to confirm: two copies of one trash id merge field-wise (the later `deletedAt`, the later `modified`, and the held record with the later `modified`), not by picking a whole copy; an arriving time within five minutes of `now` is not \"ahead\" (a file's own `exported` time stays exact); and the cap is written as UTC with a `Z` however the file spelled it. A client that picks one whole trash copy will fail `collapse-one-trash-id-two-held-copies-keeps-the-newer-words`.",
+  "about": "Shared test vectors for the Study Desk's merge rules (src/lib/desk-merge.mjs; STUDY-DESK.md, 'When notes collide: rules a to e'). For each case, merging `incoming` into `local` as of `now` must give exactly `expect`, the whole notebook sorted by id, compared as JSON (key order does not matter). `local` is the side that is never clamped; `incoming` is the arriving side, which is clamped and checked. The clamp's cap is `now`, or the case's `exported` (when the arriving copy was saved, as an export file says) if that is earlier; an arriving record with any time past the cap (its `modified`, a trash record's `deletedAt`, or the `modified` of the copy a trash record holds) is written at the cap, and only when `local` has nothing for it: no record with its id, no trash record deleting it, and, for a trash record, neither the record it deletes nor another trash record deleting that. Version 2 (2026-10-26, audit FA1-c) added that never-beats rule, `exported`, the held copy's clamp, and skipping a record whose kind differs from another copy of its id, here or in the same input, or a trash record that names itself; two version 1 clamp cases lost their `local` records, which became cases of their own. Exact ties go to the local copy (no tiebreak is given). A case with `skipped` also says how many incoming records must be reported and not written. `rule` names the rule the case is about: a (newer writing wins), b (deleted on one side, edited on the other), c (30-day trash, then a tombstone), collapse (two trash records for one deletion; the website's proposal of 2026-10-12, not yet confirmed by the apps), keep (principle 6), clamp, skip, migrate. Version 3 (2026-11-02, STUDY-DESK.md E9, accepted by BDR 2026-10-23) added `migrate`: a bookmark gains an optional `follow: true`, its name is `label`, and a ribbon (a `place` with `ribbon: true` and a `name`, which only the website's preview ever wrote) is read as a bookmark on arrival, with the same id, `name` becoming `label` and `follow: true` added, and so is a ribbon held by a trash record, whose `deletedKind` becomes `bookmark`. Only arriving records are migrated, so a `migrate` case is one-sided (merging the other way round leaves the old shape in place). A client that never met a ribbon (the apps, which build bookmarks only) may skip the `migrate` cases, but should carry a `place` it doesn't understand untouched (the `keep` case). Version 4 (2026-11-04, audit 2 DI-3, DI-8, DI-12) added three cases and changed two rules, for BDR to confirm: two copies of one trash id merge field-wise (the later `deletedAt`, the later `modified`, and the held record with the later `modified`), not by picking a whole copy; an arriving time within five minutes of `now` is not \"ahead\" (a file's own `exported` time stays exact); and the cap is written as UTC with a `Z` however the file spelled it. A client that picks one whole trash copy will fail `collapse-one-trash-id-two-held-copies-keeps-the-newer-words`. Five cases added 2026-11-07 (audit 3 DI3-1 and DI3-5) under rules already here, so the version stands: a deletion stamped past the record it deletes and a restore stamped past the deletion it undoes, which every client's stamps must now guarantee (an edit past the version it replaces, a deletion past the record, a restore past the deletion, an undo past what it undoes, each by at least 1 ms; otherwise, within the five minutes of skew allowed, a deletion or a restore made on the slower clock is reversed when the copies meet), and an old iOS `star` marker read as `emphasis`, as `bookmark` is read as `ribbon`.",
   "version": 4,
   "cases": [
   {
@@ -870,6 +870,74 @@
     ],
     "expect": [
       {"id":"a1b2c3d4-0000-4000-8000-000000000001","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","modified":"2026-10-12T01:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"bookKey":"john","chapter":3,"verse":16,"body":"dated after the file","marker":"note"}
+    ]
+  },
+  {
+    "name": "b-a-deletion-stamped-past-the-record-it-deletes-stands",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000901","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"edited on a clock three minutes fast","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000911","kind":"trash","schema":1,"created":"2026-10-12T12:03:00.001Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","deletedId":"a1b2c3d4-0000-4000-8000-000000000901","deletedKind":"note","deletedAt":"2026-10-12T12:03:00.001Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000901","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"edited on a clock three minutes fast","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000911","kind":"trash","schema":1,"created":"2026-10-12T12:03:00.001Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","deletedId":"a1b2c3d4-0000-4000-8000-000000000901","deletedKind":"note","deletedAt":"2026-10-12T12:03:00.001Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000901","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"edited on a clock three minutes fast","marker":"note"}}
+    ]
+  },
+  {
+    "name": "b-a-deletion-stamped-past-the-record-it-deletes-stands-other-way",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000911","kind":"trash","schema":1,"created":"2026-10-12T12:03:00.001Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","deletedId":"a1b2c3d4-0000-4000-8000-000000000901","deletedKind":"note","deletedAt":"2026-10-12T12:03:00.001Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000901","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"edited on a clock three minutes fast","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000901","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"edited on a clock three minutes fast","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000911","kind":"trash","schema":1,"created":"2026-10-12T12:03:00.001Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","deletedId":"a1b2c3d4-0000-4000-8000-000000000901","deletedKind":"note","deletedAt":"2026-10-12T12:03:00.001Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000901","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"edited on a clock three minutes fast","marker":"note"}}
+    ]
+  },
+  {
+    "name": "b-a-restore-stamped-past-the-deletion-it-undoes-stands",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000912","kind":"trash","schema":1,"created":"2026-10-12T12:03:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","deletedId":"a1b2c3d4-0000-4000-8000-000000000902","deletedKind":"note","deletedAt":"2026-10-12T12:03:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000902","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:00:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"deleted on the phone, restored on the desktop","marker":"note"}}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000902","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","bookKey":"john","chapter":3,"verse":16,"body":"deleted on the phone, restored on the desktop","marker":"note"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000902","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","bookKey":"john","chapter":3,"verse":16,"body":"deleted on the phone, restored on the desktop","marker":"note"}
+    ]
+  },
+  {
+    "name": "b-a-restore-stamped-past-the-deletion-it-undoes-stands-other-way",
+    "rule": "b",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000902","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","bookKey":"john","chapter":3,"verse":16,"body":"deleted on the phone, restored on the desktop","marker":"note"}
+    ],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000912","kind":"trash","schema":1,"created":"2026-10-12T12:03:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.000Z","deletedId":"a1b2c3d4-0000-4000-8000-000000000902","deletedKind":"note","deletedAt":"2026-10-12T12:03:00.000Z","record":{"id":"a1b2c3d4-0000-4000-8000-000000000902","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:00:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"deleted on the phone, restored on the desktop","marker":"note"}}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000902","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"web/2026.10","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-12T12:03:00.001Z","bookKey":"john","chapter":3,"verse":16,"body":"deleted on the phone, restored on the desktop","marker":"note"}
+    ]
+  },
+  {
+    "name": "migrate-an-old-star-marker-reads-as-emphasis",
+    "rule": "migrate",
+    "now": "2026-10-12T12:00:00.000Z",
+    "local": [],
+    "incoming": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000903","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"ios/2.1","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-09T09:00:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"an iOS note from before the rename","marker":"star"}
+    ],
+    "expect": [
+      {"id":"a1b2c3d4-0000-4000-8000-000000000903","kind":"note","schema":1,"created":"2026-10-01T09:00:00.000Z","client":"ios/2.1","contentVersion":"v20261012.1a2b3c4d","labels":[],"modified":"2026-10-09T09:00:00.000Z","bookKey":"john","chapter":3,"verse":16,"body":"an iOS note from before the rename","marker":"emphasis"}
     ]
   }
   ]

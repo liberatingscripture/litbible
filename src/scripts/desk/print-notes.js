@@ -41,7 +41,7 @@
 // holds that one back while "Hide my marks" is on.
 
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
-import { MARKER_NAMES } from "../../lib/desk-notes.mjs";
+import { markerName } from "../../lib/desk-notes.mjs";
 import { COLORS, onFootnote, placeRecord } from "../../lib/desk-records.mjs";
 import { findPin } from "../../lib/desk-footnotes.mjs";
 import { forChapter, liveRecords, recordReference } from "../../lib/desk-store-core.mjs";
@@ -208,7 +208,8 @@ export function noteElement(record, how) {
   }
   const body = document.createElement("p");
   body.className = "desk-print-note__body";
-  fillNoteWords(body, record.body, MARKER_NAMES[record.marker] ?? "Note");
+  // A newer schema's marker is looked up with hasOwn, never off the prototype (SEC3-5).
+  fillNoteWords(body, record.body, markerName(record.marker));
   el.append(body);
   return el;
 }

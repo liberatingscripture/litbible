@@ -211,11 +211,11 @@ test("trashItems lists what the trash still holds, the latest deletion first, an
 });
 
 test("daysLeft counts up to the 30th day and stops at zero", () => {
-  const t = trashed(note({ bookKey: "romans", chapter: 8, verse: 3 }), "2026-10-01T00:00:00.000Z");
-  assert.equal(daysLeft(t, "2026-10-01T00:00:01.000Z"), 30);
-  assert.equal(daysLeft(t, "2026-10-20T00:00:00.000Z"), 11);
-  assert.equal(daysLeft(t, "2026-10-30T23:59:59.000Z"), 1);
-  assert.equal(daysLeft(t, "2026-10-31T00:00:00.000Z"), 0);
+  const t = trashed(note({ bookKey: "romans", chapter: 8, verse: 3 }), "2026-10-13T00:00:00.000Z");
+  assert.equal(daysLeft(t, "2026-10-13T00:00:01.000Z"), 30);
+  assert.equal(daysLeft(t, "2026-11-01T00:00:00.000Z"), 11);
+  assert.equal(daysLeft(t, "2026-11-11T23:59:59.000Z"), 1);
+  assert.equal(daysLeft(t, "2026-11-12T00:00:00.000Z"), 0);
   assert.equal(daysLeft(t, "2027-01-01T00:00:00.000Z"), 0);
   assert.equal(daysLeft({}, NOW), 0);
 });
