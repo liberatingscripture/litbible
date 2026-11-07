@@ -271,7 +271,7 @@ most (different regions; merge in session order).
 | 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions made; BDR reviews the format later |
 | 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | nothing now (decisions 3, 4, 5, 9 made) |
 
-**Status (2026-11-07): every open finding is on a branch, in twelve PRs awaiting BVJ's review.**
+**Status (2026-11-07): every open finding is on a branch, in twelve PRs awaiting BVJ's review, with two follow-ups (#493, #494) from BVJ's answers below.**
 Session 1 is merged (NB3-1, NB3-2, NB3-11, NB3-12, checked live with the desk off and on; the
 chip layout's half of NB3-2 needs a touch screen and was not seen). The rest, each finding
 marked Fixed in its appendix:
@@ -290,39 +290,41 @@ marked Fixed in its appendix:
 | #489 | `claude/audit3-session6-more-tests` | LG3-9 (stacked on #484) |
 | #490 | `claude/audit3-session6-desk-doc` | LG3-5 |
 | #491 | `claude/audit3-session6-lazy-desk` | LG3-2, LG3-12 |
+| #493 | `claude/audit3-api2-vectors` | Decision 6 below (stacked on #487) |
+| #494 | `claude/audit3-menu-reasons` | Decision 5 below (stacked on #488) |
 
 All twelve merged together locally pass 3,203 tests, `astro check`, the build and the link
 check. Merge #484 with a merge commit, since #488 and #489 stack on it. #480 and #486 meet in
 `test/desk-copy-constants.test.js`: whichever merges second needs a one-line resolution.
 LG3-3 stays partly open by design (one extraction per sitting): what remains is named under it.
 
-**Decisions found while working the sessions (for BVJ, 2026-11-07).** Each has a
-recommendation; none blocks a merge.
+**Decisions found while working the sessions, and BVJ's answers (2026-11-07).**
 
-1. **The margin pills' inline layout** (#481): reversing the DOM for decision 13 also flips
-   the inline layout, which now reads "Add a note, Pin" where it read "Pin, Add a note". One
-   order everywhere is recommended; the alternative brings back the Tab and eye mismatch there.
-2. **Sheets on `/notebook`** (#481): LV3-3 took sheets out of My Notes; the notebook page's
-   list still shows them under "Other items", where their rows are named correctly and there is
-   no other list of sheets on that page. Recommended: leave them there.
-3. **`/privacy`** (#482's wider key test): Read View's focus mode (`lit_rm_focus`) is stored but
-   not named, and the cookie paragraph says "one cookie of its own" while the site sets two
-   (`lit_apps_launch_v1`, and the welcome popover's 30-day `lit_welcome_v2`). Recommended: name
-   the key and correct the cookie paragraph (the page is mirrored to the LSC site, so this is
-   BVJ's call).
-4. **A sentence longer than a whole slide** (#484) is cut after the last word that fits.
-   Recommended: keep (the alternative runs off the slide).
-5. **A disabled menu item's reason** (#484, DK3-7): skipped by the arrow keys, its reason is
-   seen but never reached by keyboard or screen reader. Option: the menu's trigger carries the
-   reason as its description. A small follow-up if wanted.
-6. **`test/fixtures/api2-vectors.json`** (#487, which the apps fetch): only its `anchorSpec` was
-   moved to 4. Regenerating it would also move about 60 `source` hashes from corpus changes since
-   it was built. Recommended: regenerate in a PR of its own, so BDR sees that drift separately.
-7. **The desk's `CLAUDE.md`** (#490): only about 2 KB was build narrative. A real cut means
-   compressing rules (perhaps 15 to 25 KB), which risks losing traps. Recommended: keep the
-   150 KB cap and lower it as later edits allow, with no rules rewrite.
-8. **Opening the Display tray loads the whole desk** (#491), because "Show the Notebook" and the
-   Notebook's other switches come with the shell. Recommended: accept for version 1.
+1. **The margin pills' inline layout** (#481): reversing the DOM for decision 13 also flips the
+   inline layout, which now reads "Add a note, Pin". **BVJ: keep it** (one order everywhere).
+2. **Sheets on `/notebook`** (#481): LV3-3 took sheets out of My Notes; the notebook page's own
+   list still shows them under "Other items". **BVJ: keep them there**, on Claude's
+   recommendation. The notebook page is the desk's portable part, and it has no other list of
+   sheets.
+3. **`/privacy`** (#482): **BVJ: make it accurate and compliant.** Done in #482. Read View's
+   focus mode (`lit_rm_focus`) is now named with the display settings. "One cookie of its own"
+   was already right: the second cookie the test found (`lit_welcome_v2`) belongs to the retired,
+   unrendered `WelcomePopover.astro`. A test now holds both directions: every storage key the
+   code uses is named, and every cookie a rendered component sets is named and counted.
+4. **A sentence longer than a whole slide** (#484): it is split, not truncated. The sentence
+   continues on the next slide from the last word that fits, so nothing is left out. Sentences
+   are the cut points; a word is the cut only inside a single sentence too long for one slide.
+5. **A disabled menu item's reason** (#484): **BVJ asked for a fix; built in #494.** The menu's
+   description now names each unavailable line and why, so a screen reader hears it on
+   entering the menu. The arrow keys still skip the line. A pass with a real screen reader is
+   still owed.
+6. **`test/fixtures/api2-vectors.json`** (#487): **BVJ left it to Claude.** Regenerated in #493,
+   stacked on #487: anchor spec 4, and 53 chapter hashes from #463's topics change. No chapter's
+   words changed. BDR is to re-run the apps' vector test.
+7. **The desk's `CLAUDE.md`** (#490): **BVJ: OK**, keep the 150 KB cap with no rules rewrite.
+8. **Opening the Display tray loaded the whole desk** (#491): **BVJ: unnecessary. Fixed in
+   #491.** The tray's Notebook switches now come with the first stage (about 14 KB in all), so
+   opening the tray loads nothing more, and "Show the Notebook" works without the shell.
 
 Calls made in the sessions that BVJ may want to see, not decisions: a mark's words count as
 outside its verses by the verse they now begin in; a bookmark merge takes `client` from the
