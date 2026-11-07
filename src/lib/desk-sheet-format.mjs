@@ -23,7 +23,8 @@
 //   1. tokenize: tags, comments and text, decoding the entities the format
 //      names (script, style and the like are cut out here with their contents);
 //   2. parse: a lenient tree (close tags find their opener, nothing throws),
-//      dropping the elements that go with their contents;
+//      dropping the elements that go with their contents, and ending an open
+//      <p> where a block starts, as an HTML parser does (CLOSES_P, E55);
 //   3. normalize: map and unwrap tags, keep only `href`, `data-align` and a
 //      span's named styles, fit the nesting rules, collapse whitespace, drop
 //      empties, join seams;
@@ -77,6 +78,19 @@ const RENAMED = { div: "p", tr: "p", b: "strong", i: "em", h1: "h2", h4: "h3", h
 const RAW_TEXT = new Set(["script", "style", "textarea", "title", "iframe", "noscript"]);
 /** Other elements dropped with their contents (counted by nesting). */
 const DROPPED = new Set(["template", "object", "svg", "math", "head", "select", "button"]);
+/**
+ * Start tags that end an open paragraph, as an HTML parser's do. The editor's
+ * list buttons can leave a list inside a <p> in the live DOM, which serializes
+ * as <p><ul>…</ul></p>; read as nesting, the list became the paragraph's lines
+ * and lost its bullets or numbers (STUDY-DESK-FIXES.md E55).
+ */
+const CLOSES_P = new Set([
+  "address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl", "dd", "dt",
+  "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup",
+  "hr", "li", "listing", "main", "menu", "nav", "ol", "p", "pre", "section", "summary", "table", "ul", "xmp",
+]);
+/** Where the search for an open paragraph to end stops (the parser's "button scope"). */
+const P_SCOPE = new Set(["applet", "caption", "html", "marquee", "table", "td", "th"]);
 /** Elements with no contents. Only br and hr are kept. */
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr", "keygen"]);
 
@@ -254,6 +268,15 @@ function parse(tokens) {
           else if (u.t === "close" && --depth === 0) break;
         }
         continue;
+      }
+      if (CLOSES_P.has(name)) {
+        for (let k = stack.length - 1; k >= 1; k--) {
+          if (P_SCOPE.has(stack[k].name)) break;
+          if (stack[k].name === "p") {
+            stack.length = k;
+            break;
+          }
+        }
       }
       if (VOID.has(name)) {
         if (name === "br" || name === "hr") append(elNode(name, [], { attrs: tok.attrs }));

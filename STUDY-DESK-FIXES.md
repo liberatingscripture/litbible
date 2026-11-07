@@ -1714,6 +1714,22 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   test in `desk-sheet-paste.test.js` holds that shape through the cleaner.
   **BVJ confirmed it in Chrome (2026-11-06).**
 
+- **E55, bug: a list in a sheet prints as plain lines on /sheets.** BVJ
+  (2026-11-06), with a screenshot: a question's bulleted list ("here?",
+  "there?") and its answer's numbered list ("one", "two", "three") showed with
+  no bullets or numbers. The editor's list buttons (`execCommand`) can build
+  the list inside the paragraph the caret was in, which the page serializes as
+  `<p><ul>…</ul></p>`. The sanitizer (`sanitizeSheetHtml`) read that as a list
+  nested in a paragraph and flattened it into the paragraph's lines
+  ("here?<br>there?"), so the list was lost when saved; the editor kept
+  showing bullets until the sheet was reloaded. Status: **fixed 2026-11-06**:
+  the sanitizer's parse now ends an open `<p>` where a block starts, as an HTML
+  parser does (`CLOSES_P`), so the list is saved as a list. No saved record
+  changes (the old reading never wrote a list inside a paragraph), and the
+  format's output rules are untouched. Lists saved before the fix were already
+  flattened and need to be made again. Checked in the browser with the
+  toolbar's button in a question, and in `test/desk-sheets.test.js`.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
