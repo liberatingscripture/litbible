@@ -29,9 +29,9 @@
 import { BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
 import { introPath, stepBook } from "../../lib/desk-passage.mjs";
 import { resultTarget } from "../../lib/desk-search-pane.mjs";
+import { heldAfterReference, introText, keepsBook } from "./intro-text.js";
 import { make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
-import { heldAfterReference, introText, keepsBook } from "./intro-text.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
