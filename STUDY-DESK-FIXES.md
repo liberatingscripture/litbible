@@ -1321,8 +1321,19 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   **Not checked:** the menu in a browser, and the files opened in Word, Google
   Docs and Pages. **Open for phase B:** blanks on slides (covered, or shown),
   speaker notes (the Leader only parts?), footnotes on slides, and where the
-  credit line goes on slides. Status: **phase A built, awaiting BVJ's look;
-  phase B open.**
+  credit line goes on slides. **Claude's proposal for phase B (2026-11-06)**,
+  following present mode (a start screen with the codes, then one 16:9 slide per
+  passage, text, question and key terms box; .pptx, .odp, and PDF by Print, one
+  slide per landscape page): (1) a passage with blanks gets two slides, covered
+  then filled in, rather than animations, which programs play differently; (2)
+  Leader only parts and each question's answer go in the speaker notes, as they
+  go to the presenter view; (3) the footnotes the sheet prints get a slide of
+  their own after the passage, so the verses stay large; (4) the full credit
+  line on the first slide and a short closing slide, and in the file's
+  properties. A long passage is split across slides by length, with the
+  programs' shrink-to-fit as well. **BVJ (2026-11-06): leave phase B as an item
+  to come back to**; the proposal isn't decided. Status: **phase A built (E57
+  fixed its key terms box); phase B deferred.**
 
 - **E38, question, answered: can a reader search their labels, and is having
   labels going to get cumbersome? How hard would syncing them to the app be?**
@@ -1862,7 +1873,7 @@ the rest is polish.
     E37's phase A (Save as a document, on the same branch), and f (E39, E40,
     after BVJ's look at a mock), and g's E43 and E49 (decided from a mock).
     E50 is built too (decided from a mock). **Still open**: E37's phase B
-    (slides), and E53 (intros on /desk, to discuss). BVJ settled E33 (at
+    (slides; deferred by BVJ, 2026-11-06, with a proposal on record), and E53 (intros on /desk, to discuss). BVJ settled E33 (at
     8c), E36's banner wording, E38 (asked BDR) and E9's two leftovers on
     2026-11-06.
     a. *Small wording and glyph fixes*: E30 (`desk.css`), E32 (the notebook
