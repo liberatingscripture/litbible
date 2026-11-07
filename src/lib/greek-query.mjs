@@ -122,7 +122,10 @@ export const MAX_TERMS = 4;
 /**
  * The longest query read: no search is this long, and the loop that strips a
  * command still being typed is quadratic in a long run of commas or spaces
- * (a 100,000-character paste took 50 seconds; GK-7).
+ * (a 100,000-character paste took 50 seconds; GK-7). A longer query is not
+ * cut and searched, which would lose its tail and its filters without a word
+ * (GK3-7, BVJ 2026-11-07): it is an error that says why, and the field is left
+ * as typed.
  */
 export const MAX_QUERY_LENGTH = 300;
 
@@ -150,6 +153,17 @@ export function isGreekCommandQuery(raw) {
   return toks.some((t) => hasGreek(t) || COMMAND_WORDS.test(t) || filterFor(t)) || /\b(?:first|second|third)\s+person\b/i.test(q);
 }
 
+/**
+ * Two or three plain Latin words, the shape of "pistis Christos": no digits or
+ * symbols. The search tries these as a gloss, then as a construction when no
+ * word fits them whole, and the builder reads them as a construction (GK3-5).
+ */
+export function plainLatinWords(q) {
+  if (hasGreek(q) || !/^[\p{L}][\p{L}'’\- ]*$/u.test(q)) return false;
+  const n = q.split(/\s+/).filter(Boolean).length;
+  return n >= 2 && n <= 3;
+}
+
 /** True when a read query is one plain word, which matchGreek searches better (lemma choice, "exact form only"). */
 export function isSimpleQuery(parsed) {
   const t = parsed?.terms;
@@ -166,7 +180,8 @@ export function isSimpleQuery(parsed) {
  * while there is nothing to search yet.
  */
 export function parseGreekQuery(raw) {
-  let q = String(raw ?? "").slice(0, MAX_QUERY_LENGTH * 4).trim().slice(0, MAX_QUERY_LENGTH).trim();
+  let q = String(raw ?? "").trim();
+  if (q.length > MAX_QUERY_LENGTH) return { error: { kind: "tooLong", length: q.length } };
   if (!q) return { terms: [], gap: 3, anyOrder: false };
 
   const literals = [];
@@ -312,9 +327,46 @@ export function resolveGreekQuery(index, parsed, { bridge = null } = {}) {
       shown.push({ word: w, lemmas: found.map((m) => index.lemmas[m.id].lemma), gloss: match.kind === "latin" && !found.some((m) => m.how === "translit") ? w : null });
     }
     const { nearFilter, ...rest } = term;
-    terms.push({ ...rest, lemmaIds: ids, form, shown });
+    terms.push({ ...rest, lemmaIds: ids, form, shown, altIds: formFallbackIds(index, term, ids) });
   }
   return { ...parsed, terms };
+}
+
+/**
+ * The lemmas a narrow fallback may try for a term (BVJ, 2026-11-07, GK3 Q1).
+ * A command reads a Greek word lemma-first, so `ἐξ.prep` is the prepositions
+ * of the numeral ἕξ and finds none. When that reading finds nothing under the
+ * typed filters, the other lemmas that have the same spelling as a form (here
+ * ἐκ) are tried. Only a single Greek word with filters qualifies: not "="
+ * (a form is asked for), not a list of alternatives, not a word with no
+ * filter. The ids, commonest first; [] when there is nothing to try.
+ */
+function formFallbackIds(index, term, ids) {
+  const w = term.words?.length === 1 ? term.words[0] : null;
+  if (!w || term.exact || !term.filters.length || !hasGreek(w)) return [];
+  const form = foldGreek(w);
+  const asLemma = index.byFold.get(form);
+  if (!asLemma || !ids.every((id) => asLemma.includes(id))) return [];
+  return (index.byForm.get(form) ?? [])
+    .filter((id) => !ids.includes(id))
+    .sort((a, b) => index.lemmas[b].count - index.lemmas[a].count || a - b);
+}
+
+/**
+ * The term with its fallback lemmas in place of its lemma-first ones, for the
+ * search to use once the lemma-first reading found nothing: the readback then
+ * names the word that was searched (ἐκ, not ἕξ). Null when there are none.
+ */
+export function formFallbackTerm(index, term) {
+  if (!term?.altIds?.length) return null;
+  const word = term.words[0];
+  return {
+    ...term,
+    lemmaIds: term.altIds,
+    altIds: [],
+    shown: [{ word, lemmas: term.altIds.map((id) => index.lemmas[id].lemma), gloss: null }],
+    fellBack: true,
+  };
 }
 
 /**
@@ -538,6 +590,11 @@ export function errorMessage(error) {
       return { text: `A word can’t be both ${error.other} and ${error.name}. For either one, join them with a slash, like gen/dat.`, filter: error.name };
     case "mixedAxes":
       return { text: `A slash joins two of one kind, like gen/dat or aor/pres, not ${error.names.join(" and ")}.`, filter: null };
+    case "tooLong":
+      return {
+        text: `A search can be at most ${MAX_QUERY_LENGTH} characters, and this one is ${error.length ? error.length.toLocaleString("en-US") : "longer"}, so it wasn’t searched. Shorten it in the field.`,
+        filter: null,
+      };
     case "tooMany":
       return { text: `A search can join at most ${MAX_TERMS} words.`, filter: null };
     case "bareAny":
