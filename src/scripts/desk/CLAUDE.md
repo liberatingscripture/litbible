@@ -671,7 +671,7 @@ against `dist/` is a later item.
        `data-desk="on"`; commands (`desk-commands.mjs`, `desk/commands.js`)
        travel as one `lit:desk-command` event with a single listener. Keep
        desk code out of the two search UIs themselves.
-       **The Notebook commands window** (E31, reworked 2026-11-06) lists those
+       **The Notebook actions window** (E31, reworked 2026-11-06) lists those
        commands (`listCommands` in `desk-commands.mjs`: what a ">" in the box
        offers on this page, and a line saying more appear on a chapter page).
        It is desk code (`desk/commands-window.js`), a `float-window.js`
@@ -681,7 +681,7 @@ against `dist/` is a later item.
        combined, so don't put desk commands in `greek-commands.js` or Greek
        ones here. A row runs its command and closes the window, as the box
        does; link commands are plain links. It has three ways in, each a
-       quiet "Notebook commands" link (named apart from the Greek's "Search commands", BVJ 2026-11-06, since the two sat side by side on /search): the tray's footer row (`SearchBar.astro`), a
+       quiet "Notebook actions" link (named apart from the Greek's "Search commands", since the two sit side by side on /search, and not "prompts", which reads as AI or as reflection questions; BVJ 2026-11-06): the tray's footer row (`SearchBar.astro`), a
        link in /search's field row with the desk on (the "Search commands"
        button beside it is the Greek's, shown only for a Greek search), and
        the Notebook's Settings tab (`panel.js`, which sits the window left of

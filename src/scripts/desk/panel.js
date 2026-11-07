@@ -159,7 +159,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   settingsEl.innerHTML = `
     <div class="desk-panel__settings-slot"></div>
     <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
-    <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook commands</button></p>
+    <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook actions</button></p>
     <p class="desk-panel__kept"></p>
     <p class="desk-panel__persist" hidden></p>`;
 

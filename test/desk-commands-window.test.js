@@ -41,12 +41,12 @@ test("the desk's search module carries the Commands window, and the Greek window
   assert.ok(!staticClosure(WINDOW).has("src/scripts/greek-commands.js"), "the two windows stay apart");
 });
 
-test("the three ways in open it through the desk module, labeled Notebook commands", () => {
+test("the three ways in open it through the desk module, labeled Notebook actions", () => {
   const src = (p) => readFileSync(join(root, p), "utf8");
   assert.match(src("src/scripts/searchbar.js"), /openCommands\(\{ anchor/);
   assert.match(src("src/scripts/search.js"), /openCommands\(\{ anchor/);
   assert.match(src("src/scripts/desk/panel.js"), /openCommands\(\{ anchor/);
-  assert.match(src("src/components/SearchBar.astro"), /hidden>Notebook commands<\/button/);
+  assert.match(src("src/components/SearchBar.astro"), /hidden>Notebook actions<\/button/);
   // The Greek window's button is back to a Greek-only "Search commands".
   assert.match(src("src/scripts/search.js"), /commandsBtn\.textContent = "Search commands"/);
 });

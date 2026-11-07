@@ -1091,14 +1091,14 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   put both kinds in one window, the Greek commands window with a "Notebook and
   page commands" section above its builder, and BVJ didn't like them combined.
   So the Greek search commands window is back as it was, Greek only, and the
-  notebook and page commands have **a window of their own, "Notebook commands"** (desk
+  notebook and page commands have **a window of their own, "Notebook actions"** (desk
   code, a `float-window.js` window): what `>` in the search box would offer on
   this page (`listCommands` in `desk-commands.mjs`); a row runs its command and
   closes the window, with "More appear when you are reading a chapter." where
-  some are hidden. Its three ways in are each a quiet "Notebook commands" link: in the
+  some are hidden. Its three ways in are each a quiet "Notebook actions" link: in the
   tray's footer row, on /search (where the Greek's "Search commands" button is
   again shown only for a Greek search), and on the Notebook's Settings tab. The
-  search UIs reach it by a gated dynamic import, never a static one. It was "Commands" for an hour, until BVJ found it too like "Search commands" beside it on /search.
+  search UIs reach it by a gated dynamic import, never a static one. It was "Commands" for an hour, until BVJ found it too like "Search commands" beside it on /search, then "Notebook commands"; BVJ picked "Notebook actions" over "Notebook prompts", which reads as AI or as reflection questions.
 
 - **E32, wording: the notebook's group in search results should always be
   headed "My notebook".** BVJ (2026-11-05). BVJ had the heading changed from

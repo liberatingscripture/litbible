@@ -636,7 +636,7 @@ const _initSearchbars = async () => {
       );
     }
 
-    // The tray's quiet "Notebook commands" link (E31), for the Study Desk preview only:
+    // The tray's quiet "Notebook actions" link (E31), for the Study Desk preview only:
     // it opens the Notebook and page commands in a window of their own
     // (desk/commands-window.js, reached through the gated desk module, never
     // imported here), apart from the Greek's "Search commands." It sits in the

@@ -320,14 +320,14 @@ if (input && greekSearchEnabled()) {
   // (E11), so neither squeezes the field.
   greekExtras = document.createElement("div");
   greekExtras.className = "greek-field-extras";
-  // The quiet "Notebook commands" link (E31, reworked 2026-11-06): the Notebook and page
+  // The quiet "Notebook actions" link (E31, reworked 2026-11-06): the Notebook and page
   // commands, in a window of their own (desk/commands-window.js), apart from the
   // Greek's. It is always here with the desk on, so this row is too; the Greek's
   // button and "My notes" come and go inside it.
   const deskCommandsBtn = document.createElement("button");
   deskCommandsBtn.type = "button";
   deskCommandsBtn.className = "greek-cmd-link greek-cmd-link--field";
-  deskCommandsBtn.textContent = "Notebook commands";
+  deskCommandsBtn.textContent = "Notebook actions";
   deskCommandsBtn.setAttribute("aria-haspopup", "dialog");
   deskCommandsBtn.addEventListener("click", () => {
     loadDeskSearch()?.then((m) =>

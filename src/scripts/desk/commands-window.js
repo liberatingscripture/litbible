@@ -129,7 +129,7 @@ export function openCommandsWindow({ list, run, anchor = null, beside = null, op
 
   const win = createFloatWindow({
     heading: "Search",
-    title: "Notebook commands",
+    title: "Notebook actions",
     className: "desk-cmds",
     // A click in it never closes the Notebook when that floats, nor the tray.
     attrs: { "data-desk-dock": "", "data-desk-commands": "" },
