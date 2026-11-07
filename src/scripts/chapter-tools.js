@@ -12,8 +12,9 @@
 //    addressed verses via the CSS Custom Highlight API (no-op where
 //    unsupported; the scroll still works). A floating chip (or Esc)
 //    clears the highlight.
-// 2. Verse menu — tapping a verse number opens Copy text / Copy link /
-//    Copy with footnotes / Share / Make an image. Tapping more verse numbers
+// 2. Verse menu — tapping a verse number opens Copy text (a flyout: Copy
+//    text / Copy link / Copy with footnotes) and Share (a flyout: Share text…
+//    / Share image). Tapping more verse numbers
 //    while the menu is open extends the selection to a range (e.g. John
 //    3:16–18). Its layout follows the input: a finger gets chips, a mouse
 //    the rows of a computer's menu.
@@ -22,7 +23,7 @@
 //    footnotes section.
 // 4. Selection sharing — selecting any run of scripture text offers the
 //    verse menu's actions (Copy text / Copy link / Copy with footnotes / Share
-//    / Make an image), for a half-sentence or a phrase crossing two verses,
+//    text… / Share image), for a half-sentence or a phrase crossing two verses,
 //    which the verse menu can't reach.
 //
 // A verse that spans blocks (a quotation set as a block quote, a mid-verse
@@ -37,6 +38,7 @@ import { pullBackSelectionEnd } from "../lib/selection-end.mjs";
 import { markEmphasis, handoutPlain, handoutHtml, VN_ON, VN_OFF, FN_ON, FN_OFF } from "../lib/handout-rich.mjs";
 import { showPanel, closePanel, holdPanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
+import { flyoutRow } from "./panel-flyout.js";
 import {
   PANEL_EDGE,
   copyToClipboard,
@@ -558,13 +560,13 @@ async function copyRichLater(markedPromise) {
   return marked ? copyRich(marked) : false;
 }
 
-/** A Share… button for the native share sheet, or null where there is none. */
+/** A "Share text…" button for the native share sheet, or null where there is none. */
 function shareButton(ref, url, getText) {
   if (!navigator.share) return null;
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "lit-panel__btn lit-panel__share";
-  btn.textContent = "Share…";
+  btn.textContent = "Share text…";
   btn.addEventListener("click", async () => {
     const text = getText();
     try {
@@ -579,6 +581,58 @@ function shareButton(ref, url, getText) {
     }
   });
   return btn;
+}
+
+/**
+ * The copy and share rows of the verse menu and the selection panel, which
+ * offer the same actions under the same names (E39, BVJ 2026-11-06).
+ *
+ * A finger's chip layout stays flat: the three copies in one row, then
+ * "Share text…" and "Share image". A mouse or the keyboard gets rows: "Copy
+ * text" (a press copies the text, as it always did; its chevron, "More ways to
+ * copy", or hover or the right arrow open a flyout of Copy text, Copy link and
+ * Copy with footnotes) and "Share" (a flyout of "Share text…", where there is a
+ * share sheet, and "Share image", which closes the flyout and lets the image
+ * questions take the Share row's place, so the panel keeps its height). With
+ * no share sheet the second row is just "Share image".
+ *
+ * @param {{ touch: boolean,
+ *   copies: [string, () => unknown][],
+ *   shareBtn: HTMLButtonElement | null,
+ *   image: HTMLElement,
+ *   pointerFocus?: boolean }} o `copies` is [label, run] for Copy text, Copy
+ *   link and Copy with footnotes; `image` is an imageStep.
+ * @returns {HTMLElement[]}
+ */
+function actionRows({ touch, copies, shareBtn, image, pointerFocus = true }) {
+  const buttons = copies.map(([label, run]) => menuButton(label, run));
+  if (touch) return [panelRow(...buttons), panelRow(shareBtn, image)];
+
+  const copyRow = flyoutRow("Copy text", buttons, {
+    main: menuButton(copies[0][0], copies[0][1]),
+    moreLabel: "More ways to copy",
+    pointerFocus,
+  });
+  if (!shareBtn) return [copyRow, panelRow(image)];
+
+  const imageItem = document.createElement("button");
+  imageItem.type = "button";
+  imageItem.className = "lit-panel__btn";
+  imageItem.textContent = "Share image";
+  const shareRow = flyoutRow("Share", [shareBtn, imageItem], { pointerFocus });
+  image.hidden = true;
+  imageItem.addEventListener("click", (e) => {
+    // The flyout steps aside and the questions take the Share row's place.
+    shareRow.closeFlyout();
+    image.hidden = false;
+    if (e.detail === 0) image.querySelector("button")?.focus();
+    shareRow.hidden = true;
+    image.begin();
+  });
+  const row = document.createElement("div");
+  row.className = "lit-panel__row";
+  row.append(shareRow, image);
+  return [copyRow, row];
 }
 
 /**
@@ -721,33 +775,37 @@ function openVerseMenu(
   hint.textContent = (touch ? "Tap" : "Click") + " another verse number to select a range.";
   panel.appendChild(hint);
 
-  panel.appendChild(
-    panelRow(
-      menuButton("Copy text", async () => {
-        const text = getVerseText(view, ch, start, end, { rich: true });
-        if (!text) return false;
-        return copyRich(withReference(text, ref) + "\n" + url);
-      }),
-      menuButton("Copy link", () => copyToClipboard(url)),
-      menuButton("Copy with footnotes", async () => {
-        // The Study Desk reads the notes from the chapter's Chapter View page,
-        // which may still be on its way (see copyRichLater).
-        const scope = view.scope(ch);
-        if (typeof scope?.then === "function") {
-          return copyRichLater(scope.then((s) => (s ? getHandoutText(s, start, end, ref, url) : "")));
-        }
-        const text = scope ? getHandoutText(scope, start, end, ref, url) : "";
-        if (!text) return false;
-        return copyRich(text);
-      })
-    )
-  );
-
   const shareBtn = shareButton(ref, url, () => getVerseText(view, ch, start, end));
-  panel.appendChild(
-    panelRow(
+  panel.append(
+    ...actionRows({
+      touch,
+      copies: [
+        [
+          "Copy text",
+          async () => {
+            const text = getVerseText(view, ch, start, end, { rich: true });
+            if (!text) return false;
+            return copyRich(withReference(text, ref) + "\n" + url);
+          },
+        ],
+        ["Copy link", () => copyToClipboard(url)],
+        [
+          "Copy with footnotes",
+          async () => {
+            // The Study Desk reads the notes from the chapter's Chapter View page,
+            // which may still be on its way (see copyRichLater).
+            const scope = view.scope(ch);
+            if (typeof scope?.then === "function") {
+              return copyRichLater(scope.then((s) => (s ? getHandoutText(s, start, end, ref, url) : "")));
+            }
+            const text = scope ? getHandoutText(scope, start, end, ref, url) : "";
+            if (!text) return false;
+            return copyRich(text);
+          },
+        ],
+      ],
       shareBtn,
-      imageStep({
+      image: imageStep({
         content: () => ({
           text: getVerseText(view, ch, start, end, { numbers: false }),
           ref,
@@ -755,8 +813,8 @@ function openVerseMenu(
           shareText: withReference(getVerseText(view, ch, start, end), ref) + "\n" + url,
         }),
         onDone: closePanel,
-      })
-    )
+      }),
+    })
   );
 
   // Parts: only for a single verse. A range already spans blocks by nature, so
@@ -1234,34 +1292,43 @@ function openSelectionPanel(view, share, { touch }) {
     if (currentPanel()?.el === panel) currentPanel().acting = true;
   };
 
-  panel.appendChild(
-    panelRow(
-      menuButton("Copy text", () => {
-        acting();
-        return copyRich(withReference(share.richText, ref) + "\n" + url);
-      }),
-      menuButton("Copy link", () => {
-        acting();
-        return copyToClipboard(url);
-      }),
-      menuButton("Copy with footnotes", () => {
-        acting();
-        if (typeof scope?.then === "function") {
-          return copyRichLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));
-        }
-        const text = scope ? selectionHandout(share, scope, ref, url) : "";
-        return text ? copyRich(text) : false;
-      })
-    )
-  );
   const shareBtn = shareButton(ref, url, () => {
     acting();
     return share.text;
   });
-  panel.appendChild(
-    panelRow(
+  panel.append(
+    ...actionRows({
+      touch,
+      pointerFocus: false,
+      copies: [
+        [
+          "Copy text",
+          () => {
+            acting();
+            return copyRich(withReference(share.richText, ref) + "\n" + url);
+          },
+        ],
+        [
+          "Copy link",
+          () => {
+            acting();
+            return copyToClipboard(url);
+          },
+        ],
+        [
+          "Copy with footnotes",
+          () => {
+            acting();
+            if (typeof scope?.then === "function") {
+              return copyRichLater(scope.then((s) => (s ? selectionHandout(share, s, ref, url) : "")));
+            }
+            const text = scope ? selectionHandout(share, scope, ref, url) : "";
+            return text ? copyRich(text) : false;
+          },
+        ],
+      ],
       shareBtn,
-      imageStep({
+      image: imageStep({
         content: () => ({
           text: share.imageText,
           ref,
@@ -1270,8 +1337,8 @@ function openSelectionPanel(view, share, { touch }) {
         }),
         onStart: acting,
         onDone: closePanel,
-      })
-    )
+      }),
+    })
   );
 
   offerActions(panel, {
@@ -1283,6 +1350,9 @@ function openSelectionPanel(view, share, { touch }) {
     end: share.end,
     ref,
     range: share.range,
+    // The selected words as Copy text gives them, for the desk's "Print ▸".
+    text: share.text,
+    richText: share.richText,
     touch,
     acting,
     ...view.detail?.(share.chapter),

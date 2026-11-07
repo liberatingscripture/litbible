@@ -22,6 +22,10 @@
 //     name and "Move as I read" (E9, bookmark-form.js). Pressing Bookmark opens
 //     the same form at once (BVJ, 2026-11-04), so it is named as it is made.
 //     A bookmark that moves has "Start following" beside its Edit (E44).
+//   - "Print ▸" after Bookmark (E40, print-part.js): this verse or range (Chapter
+//     View's verse menu) or the selected words (either view's selection panel),
+//     plainly, with my notes, or with room to write. Its flyout is the shared
+//     one (panel-flyout.js), as Bookmark's is.
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
@@ -42,6 +46,8 @@ import {
 import { bookKeyToLabel } from "../../data/books.js";
 import { bookmarkedMessage, highlightedMessage } from "../../lib/desk-announce.mjs";
 import { closePanel, currentPanel } from "../lit-panel.js";
+import { flyoutRow } from "../panel-flyout.js";
+import { partChoices } from "../../lib/desk-print-part.mjs";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { followsHere, isPausedHere, restingId } from "./bookmark-follow.js";
 import { startFollowingNow, stopFollowingNow } from "./bookmark-stop.js";
@@ -51,7 +57,7 @@ import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
 import { announce, showUndo } from "./undo-bar.js";
 
-export function initActions({ store, ctx, showVerse = null }) {
+export function initActions({ store, ctx, showVerse = null, printPart = null }) {
   if (!store) return;
   const here = pageChapter();
 
@@ -91,6 +97,9 @@ export function initActions({ store, ctx, showVerse = null }) {
     const bookmarkBox = document.createElement("div");
     bookmarkBox.className = "desk-bookmark-menu";
     d.append(bookmarkBox);
+    // "Print ▸" right after Bookmark (E40): this verse or selection on paper.
+    const printBox = printRow(d, where);
+    if (printBox) d.append(printBox);
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
@@ -250,81 +259,10 @@ export function initActions({ store, ctx, showVerse = null }) {
       const flat = Boolean(d.panel?.classList.contains("lit-panel--chips"));
       if (items.length && !flat) {
         const name = held.length ? "Bookmark" : isPausedHere(restingHere.id) ? "Paused bookmark" : "Following bookmark";
-        bookmarkBox.append(flyoutRow(name, items));
+        bookmarkBox.append(flyoutRow(name, items, { pointerFocus: d.kind !== "selection" }));
       } else {
         bookmarkBox.append(...items);
       }
-    }
-
-    /**
-     * A row that opens `items` in a flyout beside it: on hover without taking
-     * focus, on a click, Enter or the right arrow with focus moved in; Escape
-     * or the left arrow closes it and gives focus back. A sibling of the panel's
-     * rows and fixed to the window, so the panel's own scrolling never clips it.
-     */
-    function flyoutRow(name, items) {
-      const wrap = document.createElement("div");
-      wrap.className = "lit-panel__row desk-bookmark-flywrap";
-      const trigger = button(name);
-      trigger.classList.add("desk-bookmark-fly__trigger");
-      trigger.setAttribute("aria-haspopup", "menu");
-      trigger.setAttribute("aria-expanded", "false");
-      const fly = document.createElement("div");
-      fly.className = "desk-bookmark-fly";
-      fly.setAttribute("role", "menu");
-      fly.setAttribute("aria-label", name);
-      fly.hidden = true;
-      fly.append(...items);
-      wrap.append(trigger, fly);
-
-      let closing = 0;
-      const open = (focusIn) => {
-        window.clearTimeout(closing);
-        if (!fly.hidden) return focusIn && fly.querySelector("button")?.focus();
-        fly.hidden = false;
-        trigger.setAttribute("aria-expanded", "true");
-        const box = trigger.getBoundingClientRect();
-        const room = fly.getBoundingClientRect();
-        const right = box.right + 6;
-        const left = right + room.width <= window.innerWidth - 8 ? right : Math.max(8, box.left - room.width - 6);
-        fly.style.left = `${left}px`;
-        fly.style.top = `${Math.max(8, Math.min(box.top, window.innerHeight - room.height - 8))}px`;
-        if (focusIn) fly.querySelector("button")?.focus();
-      };
-      const close = (refocus) => {
-        window.clearTimeout(closing);
-        if (fly.hidden) return;
-        fly.hidden = true;
-        trigger.setAttribute("aria-expanded", "false");
-        if (refocus) trigger.focus();
-      };
-      const later = () => {
-        window.clearTimeout(closing);
-        closing = window.setTimeout(() => close(false), 220);
-      };
-      trigger.addEventListener("click", () => (fly.hidden ? open(true) : close(true)));
-      trigger.addEventListener("pointerenter", () => open(false));
-      wrap.addEventListener("pointerleave", later);
-      wrap.addEventListener("pointerenter", () => window.clearTimeout(closing));
-      trigger.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight") {
-          e.preventDefault();
-          open(true);
-        }
-      });
-      fly.addEventListener("keydown", (e) => {
-        const buttons = [...fly.querySelectorAll("button:not([hidden])")];
-        const at = buttons.indexOf(document.activeElement);
-        if (e.key === "Escape" || e.key === "ArrowLeft") {
-          e.preventDefault();
-          e.stopPropagation();
-          close(true);
-        } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-          e.preventDefault();
-          buttons[(at + (e.key === "ArrowDown" ? 1 : buttons.length - 1)) % buttons.length]?.focus();
-        }
-      });
-      return wrap;
     }
 
     // Until the notebook is read, the one button is a plain Bookmark.
@@ -334,6 +272,53 @@ export function initActions({ store, ctx, showVerse = null }) {
       .then(drawBookmarks)
       .catch((err) => console.error("Study Desk: the verse menu couldn't draw the verse's bookmarks", err));
   });
+
+  /**
+   * The "Print ▸" flyout (E40): the verse or range (Chapter View's verse
+   * menu) or the selected words (either view's selection panel) printed
+   * plainly, with my notes, or with room to write (desk/print-part.js). A
+   * finger's chips stay flat, under a small "Print" heading. Null where the
+   * page can't print a part, and for a panel whose words it can't read.
+   */
+  function printRow(d, where) {
+    if (!printPart?.can()) return null;
+    const verses = d.kind === "verse" && d.view === "study";
+    const words = d.kind === "selection" && (d.view === "study" || d.view === "read") && Boolean(d.richText);
+    if (!verses && !words) return null;
+    const run = (kind) => {
+      d.acting?.();
+      const part = { start: d.start, end: d.end, ref: d.ref };
+      closePanel();
+      if (words) {
+        window.getSelection()?.removeAllRanges();
+        return printPart.printSelection(kind, { ...part, bookKey: where.bookKey, chapter: where.chapter, richText: d.richText });
+      }
+      return printPart.printVerses(kind, part);
+    };
+    const items = partChoices({ what: words ? "selection" : "verse", start: d.start, end: d.end, notebook: true }).map((c) => {
+      const b = button(c.label);
+      b.addEventListener("click", () => {
+        run(c.kind).catch((err) => console.error("Study Desk: the print didn't start", err));
+      });
+      return b;
+    });
+    if (d.panel?.classList.contains("lit-panel--chips")) {
+      const box = document.createElement("div");
+      box.className = "desk-print-part";
+      const label = document.createElement("p");
+      label.className = "lit-panel__subheading";
+      label.textContent = "Print";
+      box.append(label);
+      for (const b of items) {
+        const r = document.createElement("div");
+        r.className = "lit-panel__row";
+        r.append(b);
+        box.append(r);
+      }
+      return box;
+    }
+    return flyoutRow("Print", items, { pointerFocus: d.kind !== "selection" });
+  }
 
   // The bookmark is one verse: the first the menu or selection covers.
   function editBookmark(d, record, btn, lock = null) {

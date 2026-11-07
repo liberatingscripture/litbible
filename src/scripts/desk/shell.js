@@ -31,6 +31,7 @@ import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
 import { createPrintNotes } from "./print-notes.js";
+import { createPrintPart } from "./print-part.js";
 import { createPrintRoom } from "./print-room.js";
 import { initPrintLink } from "./print-link.js";
 
@@ -158,7 +159,9 @@ async function start() {
     showInText: store ? showInText : null,
   });
   panelUp = true;
-  initActions({ store, ctx, showVerse: panel.showVerse });
+  // "Print ▸" in the verse menu and the selection panel (E40).
+  const printPart = createPrintPart({ store, printNotes });
+  initActions({ store, ctx, showVerse: panel.showVerse, printPart });
   initBookmarkFollow({ store, ctx, tell: showPausedBar });
   initCommands({ panel, printNotes, printRoom });
   initGreekLink({ panel });

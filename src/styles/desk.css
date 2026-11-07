@@ -1058,46 +1058,6 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   display: none;
 }
 
-/* The verse menu's "Bookmark ▸" flyout, once the verse holds bookmarks (a mouse
-   only; a finger's chips stay flat). Fixed to the window beside its row. */
-.desk-bookmark-fly__trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* A chevron at the row's right edge, drawn with borders so it keeps the text's
-   colour in both themes and is easy to see. */
-.desk-bookmark-fly__trigger::after {
-  content: "";
-  flex: none;
-  width: 8px;
-  height: 8px;
-  margin-left: auto;
-  margin-right: 4px;
-  border-top: 2.5px solid currentColor;
-  border-right: 2.5px solid currentColor;
-  transform: rotate(45deg);
-}
-
-.desk-bookmark-fly {
-  position: fixed;
-  z-index: 1110;
-  box-sizing: border-box;
-  min-width: 220px;
-  max-width: 340px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-}
-
-.desk-bookmark-fly[hidden] {
-  display: none;
-}
-
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
    the verse (a trial, BVJ 2026-10-07). The note marker `ribbon` (named
    `bookmark` until E10) is drawn as an awareness ribbon (E42) and is green. */
@@ -7707,6 +7667,50 @@ mark.desk-print-mark {
     background-repeat: no-repeat, repeat-y;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+}
+
+/* ── E40: Print ▸ in the verse menu and the selection panel ──────────────── */
+
+/* src/scripts/desk/print-part.js prints just some verses, or just the words
+   selected, through the two looks above (notes, room) or plainly. It hides
+   what a print leaves out with `data-desk-print-skip` (verses, footnotes, the
+   rest of the text) and stamps `data-desk-part` on <html> while it prints;
+   a selection's words are a print-only excerpt. Everything is on paper only,
+   so the screen never shows or moves for any of it. */
+.desk-print-part-ref,
+.desk-print-excerpt {
+  display: none;
+}
+
+@media print {
+  html[data-desk-part] [data-desk-print-skip],
+  html[data-desk-part] .scripture-header,
+  html[data-desk-part] .rm-title {
+    display: none !important;
+  }
+
+  html[data-desk-part] .desk-print-part-ref {
+    display: block;
+    margin: 0 0 8pt;
+    font-size: calc(14pt * var(--reading-scale, 1));
+    font-weight: 700;
+    break-after: avoid;
+  }
+
+  html[data-desk-part] .desk-print-excerpt {
+    display: block;
+  }
+
+  html[data-desk-part] .desk-print-excerpt__text p {
+    margin: 0 0 8pt;
+  }
+
+  /* The notes print's 32% right margin on the text's children is for notes
+     floated beside them; a selection's notes follow it instead. */
+  html[data-desk-print][data-desk-part="selection"] .chapter-paragraphs > .desk-print-excerpt,
+  html[data-desk-print][data-desk-part="selection"] [data-rm-text] > .desk-print-excerpt {
+    margin-right: 0 !important;
   }
 }
 
