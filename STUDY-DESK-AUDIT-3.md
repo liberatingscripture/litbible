@@ -1586,9 +1586,9 @@ Three new problems found by walking the built site, none Critical or High: 0 Cri
 
 #### LV3-4 · Low · a11y · NEW
 
-> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** part (b): Full screen closes the title menu with focus on the title button before asking, so a refused request leaves focus there. Part (a), the Notebook tour, is session 2's.
-
 **Where** the Notebook tour's last step and `desk-page.js` `fullscreen` refusal path.
+
+> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** part (b): Full screen closes the title menu with focus on the title button before asking, so a refused request leaves focus there. Part (a), the Notebook tour, is session 2's.
 
 **What happens** Two endings drop focus to `<body>`. (a) The notebook tour on a chapter page: after the last "Done" (and any "Skip the tour"), `document.activeElement` is `BODY`; the tour's own steps restore the page. (b) /desk ▸ title menu ▸ Full screen when the browser refuses (the Browser pane does, as the doc says): the menu closes and the announcement ("This browser didn’t allow full screen. Use the browser’s own command instead (F11).") plays, but focus is on `BODY` rather than the title button. The desk tour, by contrast, ends on the title button, and Layout ▸ Reading returned focus to it.
 
@@ -1710,12 +1710,10 @@ Each constant agrees with the number in the text today. The problem is that the 
 |----|-----------|--------------|----------------|------|
 | CP3-2 | `src/lib/desk-bookmark-change.mjs:30` | `"Six of your bookmarks already move as you read. Turn that off on one of them first."` | Build the word from `MAX_FOLLOWING` (`src/lib/desk-bookmarks.mjs:42`, currently 6). | Agrees (6). Not owner-quoted. |
 | CP3-3 | `src/scripts/desk/bookmark-form.js:160` | `"Six of your bookmarks already move as you read, so this one can’t follow until you turn that off on one of them."` | As CP3-2, from `MAX_FOLLOWING`. | Agrees (6). Not owner-quoted. The E48 blurb at `bookmark-form.js:77` is owner wording (below). |
-| CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. |
+| CP3-4 | `src/scripts/desk/desk-page.js:739`, `:745`, `:1313`, `:1347` | `"Four is the most"` (four copies; `:745` and `:1347` also compare against the literal) | Build from `MAX_PANES` (`src/lib/desk-layout.mjs:40`, currently 4) and compare against the constant, not the string. | Agrees (4). Not owner-quoted; STUDY-DESK-FIXES.md:670 describes the text rather than asking for it. **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** `FULL_TEXT` in `desk-layout.mjs` builds “Four is the most” from `MAX_PANES`, and `desk-page.js` compares the reason (`"full"`), never the words. |
 | CP3-5 | `src/lib/desk-first-use.mjs:458` | `Four panes fit when the window has room.` (tour step "Add pane") | Interpolate `MAX_PANES` as a spelled-out word. | Agrees (4). |
 | CP3-6 | `src/pages/notebook/help.astro:125` and `:128` | `waits for 30 days.` and `After 30 days only a record that it was deleted remains,` | `{TRASH_DAYS}` days, importing `TRASH_DAYS` from `../../lib/desk-records.mjs`. | Agrees (`TRASH_DAYS = 30`, `src/lib/desk-records.mjs:200`). The page already imports `MAX_FOLLOWING` but not this. |
 | CP3-7 | `src/scripts/desk/notebook-page.js:137` and `:148` | `What you delete waits here for 30 days.` and `instead of after 30 days.` | `${TRASH_DAYS}`, as CP3-6. | Agrees (30). |
-
-> **Fixed (Audit 3 session 3, 2026-11-07, branch `claude/audit3-session3-desk-sheets`):** CP3-4: `FULL_TEXT` in `desk-layout.mjs` builds “Four is the most” from `MAX_PANES`, and `desk-page.js` compares the reason (`"full"`), never the words.
 
 ### Owner wording, report only
 
