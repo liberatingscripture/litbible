@@ -60,13 +60,14 @@ import {
   quoteFields,
   verseCopyFor,
 } from "./desk-records.mjs";
+import { verseAt } from "./anchor-core.mjs";
 import { findPin, pinFields } from "./desk-footnotes.mjs";
 import { placeProse, proseQuote } from "./desk-prose-anchor.mjs";
 import { wordingChanged, wordingDiff, wordingKey } from "./desk-wording.mjs";
 import { changeBook, entryIds, parseDetail } from "./release-notes-view.mjs";
 
-/** The kinds of notice. "changed", "verse", "lost" and "reworded" are on verses; "changed" and "whole" are on prose. */
-export const NOTICE_KINDS = Object.freeze(["changed", "verse", "lost", "reworded", "whole"]);
+/** The kinds of notice. "changed", "verse", "lost", "reworded" and "moved" are on verses; "changed" and "whole" are on prose. */
+export const NOTICE_KINDS = Object.freeze(["changed", "verse", "lost", "reworded", "whole", "moved"]);
 
 /* ── Noticing ────────────────────────────────────────────────────────── */
 
@@ -107,15 +108,22 @@ function markedWordsMoved(chapter, record, at) {
  *   lost       the record's verses are no longer in the chapter
  *   reworded   a note on whole verses (no quote) whose verses read differently
  *              than when it was written
+ *   moved      the quoted words were found in another verse while the
+ *              record's own verses still exist (anchor spec version 4, DI3-2;
+ *              BVJ's decision 1, 2026-11-07): on real revisions that is nearly
+ *              always a repeated formula capturing a mark whose verse was
+ *              reworded, so the mark is drawn where the words are and the
+ *              reader is told. `foundVerse` and `foundEndVerse` name where
  *
  * @returns {null | {
- *   kind: "changed" | "verse" | "lost" | "reworded",
+ *   kind: "changed" | "verse" | "lost" | "reworded" | "moved",
  *   status: string,       // placeRecord's status for the record
  *   start: number|null,   // chapter-text offsets where the mark is drawn today
  *   end: number|null,     //   (null when lost)
  *   before: string|null,  // record.verseCopy, if it is a string
  *   now: string|null,     // today's anchor text of the record's verses (null when lost)
  *   diff: object[]|null,  // wordingDiff(before, now), when both are strings
+ *   foundVerse?: number, foundEndVerse?: number, // for "moved": the verses the words are in now
  * }}
  */
 export function changeNotice(chapter, record, pageVersion) {
@@ -135,6 +143,10 @@ export function changeNotice(chapter, record, pageVersion) {
   if (at.status === "verse") return notice("verse");
   if (at.status === "changed") {
     return markedWordsMoved(chapter, record, at) ? notice("changed") : null;
+  }
+  // The words were found in another verse while the record's own still stand (spec version 4).
+  if (at.status === "moved" && at.outsideVerses) {
+    return { ...notice("moved"), foundVerse: verseAt(chapter, at.start), foundEndVerse: verseAt(chapter, Math.max(at.start, at.end - 1)) };
   }
   // found / moved: the words are still there. Only a note on whole verses can
   // have reworded under the reader.
@@ -277,6 +289,13 @@ export function planKeep({ text, record, notice, now = new Date().toISOString(),
     const copy = fresh(record.verse, record.endVerse ?? record.verse);
     return copy && editRecord(record, copy, stamp);
   }
+  // Keep on a move: the mark takes the verses its words are in now, with a
+  // fresh quote there (the context around the new place) and verse copy.
+  if (notice.kind === "moved" && hasRange) {
+    const at = quoteFields(text, notice.start, notice.end);
+    const copy = fresh(at.verse, at.endVerse);
+    return copy && editRecord(record, { ...at, ...copy }, stamp);
+  }
   return null;
 }
 
@@ -414,6 +433,16 @@ export function noticeWords(notice, record, ref) {
         text: `The ${whole}’s wording changed after you wrote this note.`,
         keep: "Keep",
       };
+    case "moved": {
+      const verses = (from, to) => (to != null && to !== from ? `verses ${from}–${to}` : `verse ${from}`);
+      const now = verses(notice.foundVerse, notice.foundEndVerse);
+      const was = verses(record?.verse, record?.endVerse);
+      return {
+        title: "Your words moved",
+        text: `The words you marked are now in ${now}. You marked them in ${was}, which still stands with other words. Your ${noun} is shown on ${now} for now.`,
+        keep: `Keep on ${now}`,
+      };
+    }
     default:
       return { title: "The wording changed", text: "", keep: null };
   }

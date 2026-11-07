@@ -655,7 +655,7 @@ Run these steps in order. The first that succeeds gives the status:
 | Status | When | What the reader sees |
 |---|---|---|
 | `found` | `exact` occurs in the record's verses. If it occurs more than once, take the occurrence whose surroundings agree longest with `prefix` (read backwards) plus `suffix` (read forwards); on a tie, the first. **Only if at least 8 characters agree** (the context floor, below) | The mark, as made |
-| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way, with the same floor) | The mark, at its new place |
+| `moved` | `exact` occurs elsewhere in the chapter (chosen the same way, with the same floor). **Spec version 4**: the result also says whether the verse the words now begin in lies outside the record's verses while those verses still exist (`outsideVerses`) | The mark, at its new place; **with the change notice when it left the record's verses** (spec version 4, below), silent when it begins inside them or when those verses are gone |
 | `changed` | The words are gone, but enough of the context survives inside the record's verses. Take the longest tail of `prefix` and head of `suffix` that still occur in order, at least 8 characters between them, and use the text between. **Only if that text is at most twice `exact`'s length plus 16 characters** (the size limit, below) | The mark on the new words, flagged, with the old words kept: the apps' existing behaviour |
 | `verse` | Nothing usable | The mark on its whole verse range, flagged |
 | `lost` | The record's verses no longer exist | Listed, never drawn |
@@ -681,7 +681,9 @@ The apps still have to agree it. Three refinements of the rule above:
 - **A note on whole verses carries one when their wording changes.** It
   has no quote, so it is always `found`; the website compares its
   `verseCopy` with today's verses and shows the notice when the wording
-  differs. A quoted mark whose words are still found carries none.
+  differs. A quoted mark whose words are still found carries none, and
+  neither does one whose words moved within its verses (a `moved` that
+  left them does, since spec version 4).
 - **Keep from `verse`**: a note loses its quote and becomes a note on its
   whole verses; a highlight takes the whole verses as its quote. Keep moves
   `modified` and `contentVersion`, since the reader acted. A record whose
@@ -735,6 +737,36 @@ changes to finding a mark again, all in `anchor-core.mjs`:
 Measured by the audit's reword fuzz (one word inside the mark changed): the
 share drawn on other words with no notice was 38% for a one-word mark, 15%
 for two. `test/anchor-text.test.js` holds a small version of that fuzz.
+
+**Spec version 4** (audit 3, DI3-2; **BVJ's decision 1, 2026-11-07, on
+Claude's recommendation; for BDR to review and amend**, together with spec
+3). One change, which answers audit 2's open question "should a mark moved
+to another verse say so?" with yes:
+- **A `moved` that leaves the record's verses carries the change notice.**
+  The resolver's `moved` result says whether the verse the words now begin
+  in lies outside the record's `verse`..`endVerse` while those verses still
+  exist in the chapter (`outsideVerses`, in the vectors' `expected` for
+  every `moved` case). When it does, the mark is drawn at the new place and
+  the reader is told ("The words you marked are now in verse 15. You marked
+  them in verse 27, which still stands with other words"); Keep moves the
+  record to the verses its words are in now, with a fresh quote and
+  `verseCopy` there. A move that begins inside the record's verses (a verse
+  boundary moved across the words), or one whose verses are gone, stays
+  silent, as every `moved` did under spec 3.
+- Why: run over all 173 chapter revisions in the website's history, `moved`
+  landed outside the reader's verses while they still existed 15 times in
+  18, each one a repeated formula elsewhere in the chapter capturing a mark
+  whose own verse was reworded (Matthew 23 at `ff34f594`: "watch out,
+  fakers," reworded in every verse but 15, so marks on it in verses 13, 16,
+  23, 25, 27 and 29 were all drawn on verse 15 with no notice). Words that
+  legitimately move (a paragraph joined or split) stay in their verse and
+  come back as `found`. The stricter alternative (the full stored context
+  on both sides for a move out of the verses) would not have caught
+  Matthew 23, where verse 15 kept the old formula with its context.
+- The vectors' two Matthew 23 cases are resolved against that chapter as
+  revision `ff34f594` left it (chapter `matthew-23@ff34f594`), since later
+  revisions reworded verse 15 too; the third, with the record's verses
+  gone, shows the silent case.
 
 ### Highlights that meet
 

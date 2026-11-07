@@ -188,7 +188,7 @@ export function markName(record) {
 const lowerFirst = (s) => `${s[0].toLowerCase()}${s.slice(1)}`;
 
 /** What a flag says, in a few words. */
-export const flagText = (notice) => (notice?.kind === "lost" ? "Not in the text" : "Wording changed");
+export const flagText = (notice) => (notice?.kind === "lost" ? "Not in the text" : notice?.kind === "moved" ? "Words moved" : "Wording changed");
 
 /* ── The flag ────────────────────────────────────────────────────── */
 
