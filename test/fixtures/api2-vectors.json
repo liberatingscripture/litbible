@@ -14,27 +14,27 @@
    "words": "ad04e297a4464901be8c5a8bf45e3928b9510ceb09e5963340c56fe745b9524e"
   },
   "1corinthians-11": {
-   "source": "2d8244a0426deb5fc566a4d249b8c0b1ea92931370757509106fb1e4de4c159e",
+   "source": "1422ebfcb6e2f38e0584ec63d3356d8abdef551113493878485ab51ddc3af27a",
    "hash": "b85c8178f306edc909a6acc01fb7566579f8449ae344a0e99223c799f8300a24",
    "words": "a4fd619431208c33303ef83313d28fad11d7c343a1772750765f0d97fb3711f1"
   },
   "1corinthians-12": {
-   "source": "99d5bae1b2fe2be4a8896ea308f49134292ca389cd45755f79ba5c4cad734ba1",
+   "source": "b4693cd8633888220d4a41de56a8a37fefa173d7b884638a335c5dcf3504b1a9",
    "hash": "c3138cdde9986ff7bdb04b1b6f132873bba344d57c31ea379a30ce65fc424ff5",
    "words": "1d4390da06d30456d78de3cc5433e3d4e46a804d428aa872f7cc0cb87f03d5d8"
   },
   "1corinthians-13": {
-   "source": "79cf48b879ecadcad018a1c67138a1e973c402299c6c9518593e1c338b916210",
+   "source": "d895d15206e117cc8bf24ed8221a8f6002b58f4f71f790acde8e798b53339c45",
    "hash": "0e68f7999fd4fe6212da91cc41a9a94afa9dd2e8ab54d1bb26d94a473725b978",
    "words": "9d833a9c463ce8d36f2a50c6672403cbe122d4b69c1c6c9c5c5c494148177724"
   },
   "1corinthians-14": {
-   "source": "05a01386ff298fcabb49fe7929ada80974734f70905423afbd5486d789fc3888",
+   "source": "cf43b4ad6c80d4b993003dcd1423a436dc8c83ea79005e6224a71af0eef2fa07",
    "hash": "95209713c6a9704caac208ad94aaa14cc68d1845700f7c20459e8fbda0dddfde",
    "words": "1de5e67a34cec516eeda405a29d34eeef48c30c76b2839766a5457a6c049cf43"
   },
   "1corinthians-15": {
-   "source": "f6ad57cc8f9a6a030153e30b7f76b700522255a2141f5cbe4575b04c4328b0ea",
+   "source": "d49d79ffd51bc29e864bc33a91d3969e3d778c86fd54e1fc06a666360f545e55",
    "hash": "cb1e2a49e5ae7cb83f7ce52c39a852a4ae5e93adaa54b15849aa36a3a1fec7da",
    "words": "2e564b14c9282619d38df26ae30a50139c3682d9c5023687991e3db5d520df12"
   },
@@ -59,12 +59,12 @@
    "words": "e4a2a99fdcaf8cb73e6830f06d076bbb219f4b72b84f50aba7d79f233dd88895"
   },
   "1corinthians-5": {
-   "source": "c474d60a0e8c13538e793504ec28926e8a78cff8457c7d5dce33e03b2b3b5dd3",
+   "source": "ca9791f2c21f8868e744f298ea105d4747e4f2e133191d57cabe397d7b07f707",
    "hash": "f58d92f36540a6d025d4366c34ded3846964d772ecb0951e98e2b8fa2eabd9ab",
    "words": "b19222590e3ff68cec66d74e93cd9fe908868d260f88481f951bc713d85d2b6b"
   },
   "1corinthians-6": {
-   "source": "896ad1a89571f4737d91624a8d2255d129c97c979654b130c1f558742ed01165",
+   "source": "8f4b37caa1883f48041c4a79c48ebae95cf7f374856cfe897b8b4c0d3b057570",
    "hash": "3e714feb1ad7504639e6fd51d89fb328ccf3e720a86c410f3637a3bf910c3ccf",
    "words": "5999e711f50a1619df0e48de46efb6d3f5aca6a11a731aea040c6b7d33d89de1"
   },
@@ -84,7 +84,7 @@
    "words": "7cc5724ef92f9f93d47affabbc5c04f1e0c504cba5e28d583eea3f94a1b0b73d"
   },
   "1john-1": {
-   "source": "7ffd1ed276213678e92f4a8e5b77bb3ffc1134318479a234611ca1c15ec4b6af",
+   "source": "71961ccd5540c34ab99cbbd59fa80077d13bc5073f5135bdcf8a762f46d9b6b9",
    "hash": "9cff21b300a83448d9ef58abbdef53a0e090290a75eb23f2c6c8a4af389d25e7",
    "words": "c22d0f95ed243709e9f9cb81e67a3b55e1e62d036306360730a929bab1225030"
   },
@@ -99,7 +99,7 @@
    "words": "c7c588037ed533702cfaeeb7c6ce4496213a2c0b5655e3075967ffdbacfe674c"
   },
   "1john-4": {
-   "source": "f3d5c387fd637340c1b2ddf349dc26fe27e7d37ba47f30508a3a1744ada4b243",
+   "source": "0f787164171f09f2091d2c4368d54c0ae325f28252b8f3c2f479cb44a11fd5f6",
    "hash": "f93bb0af2f5ce0eb651c2bc16e657e99e5411734b79020896d6411f5a6a828e4",
    "words": "c37fccece0fd20a3f7169c26b92c0d5101055e5025d203c903d444202827f0b3"
   },
@@ -109,7 +109,7 @@
    "words": "2cc598bcfe08923f0e0f503f2766ef3fac2d4f40e3c1d32aa02125d2cd37bef2"
   },
   "1peter-1": {
-   "source": "59367f2858976bfc6c982aacce6f4d5b06fbd33ed6c51cea6070cf4f0526acbc",
+   "source": "43f3ed1dfa445bed91a4dbe8c148871198086c91ff6af5ca7ec7fec3b481f4cd",
    "hash": "5fd9f564643b223f704b0e120f19fe9f42f915b8372ca80c95bc193d5c50b996",
    "words": "3984d7b8a88c32d3bf401d8c176ac3cabfdd837a61a121212efc30a6ffc9ae6a"
   },
@@ -164,7 +164,7 @@
    "words": "a4e2b8104b20c7999340c64ff8006811d4646c309c0a088263532b3ea28dce80"
   },
   "1timothy-2": {
-   "source": "b6170059de2a6a526ff43c23545742edd577e0e8f5dcb99622ce537cd3df2078",
+   "source": "c65146bad9a2fc66eeeb8e2f637449b01622e37e858745a41e231b9ba454c0f5",
    "hash": "33aff115172c99e69b4efe0a1d71919e49768ac55af111c96cdead61d1dcd31a",
    "words": "5b5eb13c2576a90f1c57f39711c2a5e3d904e61e87c10dcf60a6ec12ebe53686"
   },
@@ -234,7 +234,7 @@
    "words": "080733eb75cef016cfa0c2161a10aacafe6bfb11aa3a6697e556a4682537d906"
   },
   "2corinthians-6": {
-   "source": "f018fd3cc461e9797860ab6ee5aaf1b6630a5ea396aeaa7838408972bde1f276",
+   "source": "4bfd0715a97c51f4f680100ef189ae8f850d6c31f768a3abbdb41ee742f72282",
    "hash": "fa40e86dff925aac94633c508338609c844007204ec5c3856f0171ceb7e15735",
    "words": "2a882da3365f862c5febfe06bd0013fee31efe00fce58d9f5dca12cf4d061266"
   },
@@ -514,12 +514,12 @@
    "words": "916e21e2dbf6111d3a1fd5cb992242010ca6a36820a59625f6036ff0d3b9cfbb"
   },
   "galatians-3": {
-   "source": "f4ef0192c5a54cfb8eea169132aa56cef6306329e62b92bddfef1002d2be26ae",
+   "source": "aea1dbd225535ecda9ab90373f96fc0522007d9f78cac50c1e6a9031daf15063",
    "hash": "a818291fbbb69716158403714f2712b5919ff058c526ef37ac3c444bbd7122b3",
    "words": "40cf8db182b322ce002e1f55ea684233e509b0ed8d3b884875184352e8d70a0e"
   },
   "galatians-4": {
-   "source": "96dcc6b7ecd1e08954faf8f55dba886a6f863d07bd19f81a432899d89628b40b",
+   "source": "15ef7a3ecae35dd13c4fcc81372846da3a54af2beb824a63ffe280335c4e955a",
    "hash": "dc54ee8002688151d9649d53b7d0cd9ea5031f1cc449b50a9f2756ab1905fa8d",
    "words": "92cdd56ed7ac67947fabaf2887b7cdf45b04926d605d4cd4568a7ddb59246f96"
   },
@@ -579,7 +579,7 @@
    "words": "38fce57e65bdc4a32dc613475712a0c7cf9b843e9a087fa4422b77d6af3ed346"
   },
   "hebrews-6": {
-   "source": "2ca37240f3f430f307da5e29f81e71599b137f263a7a54360e8a139136c144bd",
+   "source": "1805ca4dc195fa8ddc27675f66124d3a996b911f5e6506f66d37085876ab419a",
    "hash": "72dd4ac5207d2b6b970dfff052ba9fa9aa1b8d0e3c3e8f948d58b357075522ff",
    "words": "67c4b66f717531885e20185e98eb09bd8efaf85092748caa9703ade731c5fe07"
   },
@@ -594,12 +594,12 @@
    "words": "fd623507d446de1f8a98820e94855cdb7c8d9cf592f63cef25c2f351505173aa"
   },
   "hebrews-9": {
-   "source": "63749191dbfb81778afc025ce044ed81870068b67215a34d72001df02959bb61",
+   "source": "46eed80d9cf342d62400d64050bc8dd2c944563e022be49e996b8390d7c974a4",
    "hash": "266a82b581e16747be868676f2db95ec3b5716561e926410f5a776d65615d25e",
    "words": "fb84118599fafc96a929cc939a6fc21866408992f9d1ac837abc6005387117d2"
   },
   "james-1": {
-   "source": "49a3c5f9d50ecfaa2bee092f7d837092bf32ad4e1d6cb3db51df3583d0001f21",
+   "source": "e02d70f9c6c72380310fff008aa190245fca7228515e2c399641822a8969f756",
    "hash": "faf2c5deab9024bbeb1e960510825f9cb09f472914363cd1411d3f16a8f75416",
    "words": "179bae1ff11bbb3111dd947bc5650ae8743aa035e3414d5fca4f8067fd820347"
   },
@@ -614,7 +614,7 @@
    "words": "a47c538c6ae304e76fbdae2d7a7680886a62c24e2b3a176a2969a571a04fdc05"
   },
   "james-4": {
-   "source": "212d3de8319e20040f4fe2eaeb34dff47aafacdf7dbddb839b7f87108966a6b0",
+   "source": "288fa6d45bc1085feb7acc57756340085695b8281bd6c457e2e30cf1b516a02f",
    "hash": "7c0375992b6f7402af3981fb9d18753d4ef287b736b5b695a957fd2f56010951",
    "words": "20db1611f58b6ae14bd57bb9730d1844d000dae2b14eb3f27fbce6a3161c18df"
   },
@@ -624,7 +624,7 @@
    "words": "674bfb2302459e451b5ebe5c5d1ea49d1802ef6c79d92b93f2789cc842e5854d"
   },
   "john-1": {
-   "source": "160774314ff04022294603a2a43d341c19fd4405c13f6d2221528ceb4f451cfa",
+   "source": "2dfd2df7d3e8262549bbf81921e253609d0f53f9ae449e6dd3879c0a3ea01920",
    "hash": "eeb883882a7d38346ab5a911e41bd4e88df6d51b458bf7435a129d638a7bea02",
    "words": "9e6f081cbb87a11b0792dad3bc361c7131ea8caf5a2acd37f590ca346ca0a690"
   },
@@ -634,7 +634,7 @@
    "words": "e30da9b19bc50f9bc73ac44f91530b30a5bc0d79b4c327e0a72d2d94618e75eb"
   },
   "john-11": {
-   "source": "bbed7b974f6b7eab84c1f21e9441bd3de3713160b25151940b6bfc602d9bcbd2",
+   "source": "921be61c82c428f009ba0536d423142981db5a06f9aadcb4aa49bc8264fab8ab",
    "hash": "4595998222adefa87f1adbe8cc56ab4c73511e099cf8ef944aa46cc327393ab8",
    "words": "08e03a14e6df808c506a4a2253fc81d3e48d18d1e8cd39c3a9f93a6d8cec15c7"
   },
@@ -644,12 +644,12 @@
    "words": "c10cb78b61d07fa43b28d38c5959db062bc2b10237bda4e3ab2ce190daa6854d"
   },
   "john-13": {
-   "source": "07d3dd462c00acc00d6d73f7b7c6fe8386a0db0b26531ca024cc278bcbad5b52",
+   "source": "a01dd5c941ca2eb4f1018130bc7d969f1f3b1b6eaf6edde7629ba3e75490bee8",
    "hash": "a5fe255880d022c8ee80e9830918cc79452f75c2d4c92c29e1f1ad7f50472e50",
    "words": "fbdb80a69a064422630371ad50779fe83a7d2d5bea41e9a776b3bf4ec934de89"
   },
   "john-14": {
-   "source": "4f7f3a2f5193d304f768ff14fe73ad4b0bdb925293847cb7d6324610e7865fd5",
+   "source": "67da1e60f7bb3db2b211c57d2886ca7c736751a028568220941272efa90be93c",
    "hash": "c3a3a14adbb44eaed11a1185e780623d1cc9c0f19f39a8be0103486deea8582a",
    "words": "583985a134cba741e2d1ffc669f99dc1c0674d405181c273b43a0862bfebb403"
   },
@@ -689,7 +689,7 @@
    "words": "b8abaca90d61336fe3af84e5a5f7da37cbeca849cefc26d209f0e63f363b160f"
   },
   "john-21": {
-   "source": "4bb3c99057db1a0487aa473bed4a1038ce8aef36434ed74698038b1d9d6ad251",
+   "source": "9b5bcf7c6a5062f0e5897a6bb83fc4769cf8df94619d047fa47297f2d65231e6",
    "hash": "a6da34fc4cb0d2a6cb4e4634c9fe8909fc78c0c4d5bfd6be9792474a3d5973e8",
    "words": "1ca49188ae969a6c4e4c3b857fa445082f8636979145f9996edb700347eb0cac"
   },
@@ -719,7 +719,7 @@
    "words": "70872f4cae793911fd4e0b32cea03d563c1372242494d1a2a5e2d3eef8b359fe"
   },
   "john-8": {
-   "source": "99ffba8ea32af305e3831fe747c0be546cab0b601d1cc7ab0643d46c66cf6395",
+   "source": "99ca975e4ad1ab2bacef04d4890a5be6386e8c0611a9c0098a0de4b501634455",
    "hash": "edf1d03adfa5dde881643319e57d102c14d9a230ca58faa40663eeb98313f256",
    "words": "e9c8167db18c78d1f14d2875708d065880945e14d77ad0c363fe3d2270c5df50"
   },
@@ -754,7 +754,7 @@
    "words": "47fdfa4d9121893c3aa34a564b8d39beab23d47bdfce09aa7a2918fade892ed3"
   },
   "luke-13": {
-   "source": "fb62479243cf3ecf45af12c96dae1898e63ece4e183df8b1ae9cf77506708332",
+   "source": "897c61c7bb6c86043ca668aa252e91f46756831003c669f2da51703ad689f533",
    "hash": "c470422e43dac6ad80123a27ddac87cf4230ee883f33a5f7c2b8414b5d0bd41f",
    "words": "8dd2307e8612485f30858cc2a50091b8feb8f8f4035351a5b9d933fb8c951cf5"
   },
@@ -764,17 +764,17 @@
    "words": "ad93efd38a3bf15db2465f1da56b2ce2ab2c6f5b6654494f747f8bf929301c8b"
   },
   "luke-15": {
-   "source": "1a43507ce8c9b2149a2d3c1cfe1981448b65781d575ec8f8f5d173be6ce1647b",
+   "source": "226ac598a4c267f4a62336bc03ea43739c2d64e7cb541074ced81b3c13b81431",
    "hash": "a8da04c3d2977696ffadd2a9aa0f521fe447e74b25f3036203c4f81979c3c631",
    "words": "648560cbbde1d83adf7733c140521943b221253ffa7bcca385a7dec3d7cd7768"
   },
   "luke-16": {
-   "source": "25fdaa9696d85dab2049f681de57f827fe955d9458579f963b700b8f1315d418",
+   "source": "14a84fd56885a39c456d00fa7bb6d2a1a2f18ad428c1dcb4af61e1a38b6002d3",
    "hash": "d6e134b180018382dd9914bdde18e0fc3d0bafc24d593b2395fad92018710903",
    "words": "0695a4caa8b1c2bec62f79992b48e11b779a4d34243367c0e1407b9a46c8c5b1"
   },
   "luke-17": {
-   "source": "9dfcf30840ee421a1f718f0d817ff0fff0270f50f6d4323d78d9bca23b6ffba0",
+   "source": "bdc286a8283da7f44b8392e49e8dbb98200212b2488ea3e50630304e746c1430",
    "hash": "83e374b9becda1efaca2eb51536d5d49930837c5154bc3d7b23f1dd2761fe63c",
    "words": "66789924b8eab1ccf1214666cbeab4a2c067149d5f7a275263fc03e4a639568f"
   },
@@ -799,7 +799,7 @@
    "words": "85a2ced90b40675e23404b33000978c3337acdc618ceaea0f85a432b6d64d0bc"
   },
   "luke-21": {
-   "source": "727a50bfc4750f0f9f0ec14351773d23ee82a115f9ef6970e1c38552e239fc5b",
+   "source": "d0adfbe0f15e03871f5747cb7c6545536a4294de87f20d6966e731ed92350213",
    "hash": "a33393dd75d3b561b42c8ccbc220b36d1f198744ad5dd14ff05aabb394e1669b",
    "words": "0f955ab35b639dcbd13e06e7d042ce592cd9c0b37ce2dd322ac1567e8eb3d2f9"
   },
@@ -829,7 +829,7 @@
    "words": "5a5137c46b415931882902768f699033efd33e1300ade6ab527b60332bc2417c"
   },
   "luke-5": {
-   "source": "46fef7bffd15f953674dc0d445402b505a54cd5e981d97ecafb0acc98015d6d4",
+   "source": "199030ed8f1f38f42d0cf723b28bcb8336e7d8483ebd103a035b851e4dba20d9",
    "hash": "4339c8ecdf8d439853574a3cbad46d1120543a6f73b513bb643726c99e3cc624",
    "words": "a5e1d0ac93d5ff2b1ffc8eefa5ce934cea3f5451f341df2a36d3860e36e423b3"
   },
@@ -839,7 +839,7 @@
    "words": "9873434b4cf61d183fbf0f53ca4bfc39afb452e1cad75c5e36d135b423ec26b4"
   },
   "luke-7": {
-   "source": "8504e70526e4bc1beb9375c760a660aa5205fbb74f9f1be8727f476a1cff680a",
+   "source": "5ca7c6b25c45f57530e482eda9d5bf6d5f8cd0d4d9092b0ab24633ab2737a027",
    "hash": "d114abd53680bca0d7c625917fe805e339bb350aa395f436aa85f45c8afe0160",
    "words": "2cfee387420e4bdaef780b0d0a9260153db0259541b70f4c34af638b0bb18f0c"
   },
@@ -869,7 +869,7 @@
    "words": "0466936199a64d22c32749ed52e806eee4b554f9a3d7dcde057bc1bf8236a762"
   },
   "mark-12": {
-   "source": "70eb5a069329e6a060630f6f377fafc65401bd50bb72b4352920a61e93c5e993",
+   "source": "9acc25cacfe584dbf07cbeb5a7b6d3443709390c0631b0d1c6396e1f1735f0df",
    "hash": "de527543a64feaf8c86682607e7929e5e5adf45454513698733027efd5d8a330",
    "words": "f1a2fcb907ab3430aaf8ecee251dbfc6b587e0edd7e30e92665d1238f57152f1"
   },
@@ -879,7 +879,7 @@
    "words": "a9671e565449fce3cba8fb8ce2416bc610c3e4b999b7ffdcdb3bc303a4000699"
   },
   "mark-14": {
-   "source": "a1d9e01d45e98eaca507ef55728fe16625a41dcf0b47d847ce7deba4c81dfa23",
+   "source": "5d3c710dce571351b7ecf193405601d9a5086591480d9ded7ae6fad1f0a2241f",
    "hash": "b269f6a62f761b8126309d28369666f6dc737e9cdbbcfbcdda0e97ef035cdc68",
    "words": "ea0b10a3a2450ad90955b4ddf2c6d2b33878abeeb709e200e53fdfbb5791e180"
   },
@@ -909,12 +909,12 @@
    "words": "0d7d334cc0da8531df9d866f08fbfb573e83df2f3746433ffb0346efd3e95dde"
   },
   "mark-5": {
-   "source": "36d8c57a6730e3f38f12ca08ab5e9642f9a6139ef721c92e7089d7f8d7bb2254",
+   "source": "956b26153dd228dc2862db005d3dfb61305222d54d6289d637efa8f0f5ad3c27",
    "hash": "c1eea5b05c90d3a968f39cd2e2bcca120580b24bb1a946bdec43ff74a3443d48",
    "words": "a3f0263d7a0105511471394305dae4d17619a1314d3112f0d2c4cdacd8ac4836"
   },
   "mark-6": {
-   "source": "737bb61b84dad990aafe83c8486051b72f16b671d3c5c868d828885958b29070",
+   "source": "caf6e857bf24c8eaea69535cb519a85ccd4fa1b3847ee6baf350b0f0492f7cc6",
    "hash": "9ded64575deecb3e56540e4c9490d5701346f07b1e43fc0cc4d80e4b4072d12b",
    "words": "dfd86682a69e227334487a3af74cd5a89904955e435a412e6bc2f66b68029511"
   },
@@ -994,12 +994,12 @@
    "words": "d333d7dd55c39c041cc720ba9b4746c366adc75c39c8eeec64f75dda9fc17a93"
   },
   "matthew-20": {
-   "source": "703622751bf2dd63ba8eb1a12cd218028007622aba453a0dfdfd956dcb5d2317",
+   "source": "25f21e0d407a39134c8c89badf864c64f9a014b38ac787de1f3214f041b662d9",
    "hash": "24a899c9b19b24f45b135caa339dfb66f1b57dfd62563923c201e7d7116f8f2a",
    "words": "20799ccdd8367909bb55a2a00b8731421706275ee10158a46d8022b7ad4a651d"
   },
   "matthew-21": {
-   "source": "90af4f4e01bbf798c7ecbd3569c9a92db14c4d1cef8520b02e2efc974052ebd8",
+   "source": "50550f87938b0c60482957918aeb6dee7528db3806561db233ea82f9813c662c",
    "hash": "6e0bdc0ae3ad54c644b88ecd17438e9ca528b0fc2cac65f2511b6ebf7758fe97",
    "words": "81e4ddce85585ec2f55169656f9b6b36ab67792744e7d1aebb1e398628717c05"
   },
@@ -1014,7 +1014,7 @@
    "words": "e4431b6ccbbf7ae4a61fb88c1e5ae0e1b4b52c8e1ca9711855159d2575472699"
   },
   "matthew-24": {
-   "source": "a78093654e8b8d22585e54ba0c3d2c20314d1258dc3c27b1655abd423c1d0713",
+   "source": "3265efa05c2f7e6bcc732be66d39f7c1ccec121c113612c6803a6a75545c83e4",
    "hash": "81cb8f191325a03ae67624ae14f18d5b050c36cf41a59007d9e447fc17e2e7d3",
    "words": "28f4106835d0a8f214dbb1a337b07771331c2e249466e4fe8b8ca41e779bfb8a"
   },
@@ -1039,7 +1039,7 @@
    "words": "d6dc7dc2451359556d17487472d72555f657a3ca62982e72608ca349cef00f48"
   },
   "matthew-3": {
-   "source": "e5b0a22762f3b7599074bbccf2df2f253f9745d53218db354434e68447a4cee7",
+   "source": "1652fa1dccb9a11e1f2eda82393504974e5405f3bdc11678eb931aa2d9b6a9bc",
    "hash": "4eeabe80ccecf46fca77c0e2dd3b6c8059a240a2edac1bf7f68165d27dd0cfad",
    "words": "8ba1185020376f324ea0208c43e1ef2cb8d6e71b69dcd56b87b4ba851773a055"
   },
@@ -1074,22 +1074,22 @@
    "words": "088fb5daa08c8ea552d5e58641a7da05de4d7b0d11b1f3ca234e73631fd11d7f"
   },
   "philemon-1": {
-   "source": "cf4fe5dfeb227ffe6acee358097be14982fe175a15066d24d641b8c48478bc16",
+   "source": "b5a768b1ee270464b5b75a46c38fe3a3117bf009e0a6cbdb0d6db84ef59172b5",
    "hash": "7635e7640420a8b04be8fc6a166749fddaaab9e2d1dc95984fcb62ff79f5dfc1",
    "words": "03b786a5b20f5cf92fbcd8ad5d675284f491f9139839fdbc12d3ad3b3c6ddaaf"
   },
   "philippians-1": {
-   "source": "77b74c7b898102c646dca326b70a3ae4b0e42002ee006605f101dd52ec6136ce",
+   "source": "20d95f41e911cb8eb851f3764a21d29baaf69215f16fa317a76ab4266de90e58",
    "hash": "a76898acf6d7450f22bd7b5b0294a59247bc5b3e5c444520e2731a6259163f23",
    "words": "934aa807eeb5ecc14ee5d16c7cf2262b01c141c782761a3ee1080a328af1d037"
   },
   "philippians-2": {
-   "source": "307d8e76d2deeb485db6c32abdc46c74bb825585d128ca6e69a51f5c455f5446",
+   "source": "c579efad9b30a9301c2161792e21fa7fd030551e8632c7844f2af833c2629fc6",
    "hash": "36c2a10875faddf3d980531367d38e59f34943d3373d0227588f7c30630bcd52",
    "words": "48bf3a7e5c26e4892b66048419af095cf291c7072bbfb76d8854c549a3531f6c"
   },
   "philippians-3": {
-   "source": "80577f4997f2ffeb8f97e6c859aa5d8345ab7503257cde5461513a6b72817919",
+   "source": "d4757421d0bc404ee6096d163e2e8c921a5ec02c222b1bf073c85d968989d1ff",
    "hash": "6a54ee9d9004ebe6f2130259b3874fc25a20f5649baa30c6d2b59b6680472a61",
    "words": "1b1b09a8a75817632473ff2e5b5bd66e046b6227534d28755a3221e45ac10144"
   },
@@ -1209,7 +1209,7 @@
    "words": "dff6aa74a9293d0c8e94fa64ccd255ea5d1ddef9cba512f991185ba13cf483eb"
   },
   "romans-1": {
-   "source": "0bf3e3de824e3097af00bddef0e65a7560d7f2cbe0b1df8c10c9260a2a7c5131",
+   "source": "53e94c789684b3bfd9a3c9837cb49c7cc8a22fe573633778ec7f6e626522f8da",
    "hash": "156d068c2d330d678e5377fd84bcb85fef968d9082d7234a266d1ddf090f729e",
    "words": "0fbbb3fb13459202118d752359a0c402457be5c901fbe3803e9d183ad55e11f2"
   },
@@ -1249,37 +1249,37 @@
    "words": "82e8d5ffc2e4776b2c499159d26be39117cc7238cf4ac9d0dc99f329ade8529d"
   },
   "romans-2": {
-   "source": "8b55c0e9ba0b2473d84c791bdd5af8a308e7beeec21efe7ad8742f973faa1914",
+   "source": "e72fcc7415d515303694ff0320c35f5dbdba470fb7f7ad9e9f9b432f8d0e8b50",
    "hash": "dbaf567884f90ffce2bc9f313aed942956c33561b4120b71ff392101ab96fae0",
    "words": "d9ca99e7710b706d48a0540741e20d5a8b5dae209650fa353f811f924682b8cd"
   },
   "romans-3": {
-   "source": "b065701aa9df18af50c0ae524ccf0d5ffb82174dc628b08d2694c239cc3a759b",
+   "source": "599e47eee007c27c6ae5fd3d03f5cd03d095bb9433b707a050a21da0a48cbb8b",
    "hash": "cfd6b257b09eb2a66dda4d4e7b560729ec1a9018939ec1cbae819666bb1503ba",
    "words": "2d314351d9759df8637d72617eb190daf1f62b8d6fa98a48d9ca6ff0d63a10de"
   },
   "romans-4": {
-   "source": "d6363598ff0a400b7fd292fe7cb8e51c0ab39d2e0f63be7bd094c155d3f62038",
+   "source": "d6588cfcf2f90028df15bdc4b543c5b8b6d47460d4687040648440f44b036af3",
    "hash": "ef86acb749f6e613b1e40b152c39a130f60dc8501484a310aa1c6233af077c8c",
    "words": "a0aad6fc96ad0f2b52f727acafb4b7bbb64daf1dfde37eba3f8a755074bfa366"
   },
   "romans-5": {
-   "source": "3870595c94a068ec2bb960257c7810e5342821679b7a5b19268582f25c069fa8",
+   "source": "101da8b69ef67be40dc575f66e135efe38b863bc9740c5682ffd4cdaa5216d7c",
    "hash": "2473f10223622d1b2863d67c684431f858da979c96b80f698d1adc62573caec8",
    "words": "f056c5b73cc3a5105612c00c692db0bb986e0b58465fdaee1eb93ef96d9d685b"
   },
   "romans-6": {
-   "source": "450f3e250c9a6fa9a684de6a242b26f419f49285edea725e998dd9008a2a5807",
+   "source": "89fe84e1a1a41535c616df6f3f5120cbcf9085375ea6a4567974675e3af42d59",
    "hash": "e71cd182293dd163daa45c1b3427ef7a099f2db6316c0113af57b42ebe2c1bfe",
    "words": "d08df0938bc68fcf642961f74206e4912589c4616955a27895aaf593d189807b"
   },
   "romans-7": {
-   "source": "db8f7929ff547a918fcb965b0f0afcfaed693d004fd5649f8925e7bee84ede6c",
+   "source": "6fe6dcdc489f77629b96413673aa2245d3deefaad3aaabdd85cd2675e5f1ee98",
    "hash": "e5d7f22993eb801bac4cd5e74dde0e6724b8cabdf432c106f23baca48581d963",
    "words": "21daf9514b6653e31ac1fa5d8307b285d4f9fdcb41d1371de12b3c04ea56d212"
   },
   "romans-8": {
-   "source": "a50a089ad9299ba8d42aed7c85494617d68c2c047fc420caeed06fe3f1ef782c",
+   "source": "6d52cba9b0668c2e2d1032b58593c714106654b50e5e97a7d84197a15b99ec9e",
    "hash": "de5710aed5821600d143db885218485e043e0ec93bdd9e548527affc8264154d",
    "words": "6ad01a79150b0787eda513cdf93d51d9f5b042564dd19d949b800653df5f4259"
   },
@@ -1294,12 +1294,12 @@
    "words": "d86714a525083fe4e3eb66d98443ad564fe83d0dd3eb8456a1f9d58880e77985"
   },
   "titus-2": {
-   "source": "18f55290f2b07f768140e03211a53b33644a256c8123eecd8d7fc711f24cff5b",
+   "source": "15372c4a8d0666d7d097159b45ed2ad45d72c7b9daabfa69c183083411427782",
    "hash": "6db59861c8e4971de4f85fffc3ea87e882fa7f448ad57a6abc9b4d3b02b3d5d3",
    "words": "82dc9344b24fc6efbae08f2352c4054a8ecc89c33cd3210854bb69178910fc99"
   },
   "titus-3": {
-   "source": "67e1e6ddcf239b0cec1f3e66380d51da2341d7c2fa1174ed554f3af66c888054",
+   "source": "4c17f8c47c39e627dc8e3d8a8750fd117ef0126e6addb0e8866106051d7bf8a6",
    "hash": "736d0abed6e381045b0df41c36c0e90c227a2cf0218af90e20efe435e347743d",
    "words": "d61ace5c37975e654ef2e16761788233442788d18cd5bad7b023f106e4d9ddff"
   }
@@ -4019,7 +4019,6 @@
      "stoning",
      "deviation",
      "sin",
-     "hamartia",
      "writing on the ground",
      "I am statements",
      "the truth will set you free",
@@ -4312,7 +4311,6 @@
      "stoning",
      "deviation",
      "sin",
-     "hamartia",
      "writing on the ground",
      "I am statements",
      "the truth will set you free",
@@ -5968,8 +5966,6 @@
      "Martha",
      "Thomas",
      "Caiaphas",
-     "phileo",
-     "agapao",
      "love",
      "resurrection",
      "reawakening",
@@ -6271,8 +6267,6 @@
      "Martha",
      "Thomas",
      "Caiaphas",
-     "phileo",
-     "agapao",
      "love",
      "resurrection",
      "reawakening",
@@ -9162,7 +9156,6 @@
      "almighty",
      "Lord almighty",
      "idols",
-     "pantokrator",
      "sustainer of all",
      "Holy Spirit",
      "Sacred Life-breath"
@@ -9345,7 +9338,6 @@
      "almighty",
      "Lord almighty",
      "idols",
-     "pantokrator",
      "sustainer of all",
      "Holy Spirit",
      "Sacred Life-breath"
@@ -12404,8 +12396,7 @@
      "more than conquerors",
      "intercession",
      "predestination",
-     "self-preservation",
-     "sarx"
+     "self-preservation"
     ],
     "paragraphs": [
      "<p id=\"romans-8-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;Therefore,</span> nothing is now a verdict against those connected with Christ Jesus, <span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;for</span> the Torah of the Breath of Life liberated you with Christ Jesus from the torah of deviation and death. <span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;Since</span> the Torah was unable to accomplish it while it was powerless under self-preservation,<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> God sent God’s own son in the likeness of a human life shaped by self-preservation<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> under deviation and rendered a verdict against deviation in<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> self-preservation<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;so</span> that the Torah’s act of restorative justice<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> would be fully lived out among us, those who do not walk based on self-preservation but based on Life-breath instead.</p>",
@@ -12582,8 +12573,7 @@
      "more than conquerors",
      "intercession",
      "predestination",
-     "self-preservation",
-     "sarx"
+     "self-preservation"
     ],
     "hash": "de5710aed5821600d143db885218485e043e0ec93bdd9e548527affc8264154d",
     "text": "Therefore, nothing is now a verdict against those connected with Christ Jesus, for the Torah of the Breath of Life liberated you with Christ Jesus from the torah of deviation and death. Since the Torah was unable to accomplish it while it was powerless under self-preservation, God sent God’s own son in the likeness of a human life shaped by self-preservation under deviation and rendered a verdict against deviation in self-preservation so that the Torah’s act of restorative justice would be fully lived out among us, those who do not walk based on self-preservation but based on Life-breath instead. Those who walk based on self-preservation focus on the things of self-preservation, but those who walk based on the Life-breath focus on the things of the Life-breath. The thought pattern of self-preservation is death, but the thought pattern of the Life-breath is life and peace. That’s why the thought pattern of self-preservation is hostile toward God, for it does not cooperate with the Torah of God, and it is not even able to do so; those who are within self-preservation are not able to make amends to God. However, you are not within self-preservation but rather within the Life-breath—if the Life-breath of God actually resides among you. But if anyone does not have the Life-breath of Christ, they are not his. If Christ is among you, the body is dead because of deviation while the Life-breath is alive because of justness. If the Life-breath of the one who has raised Jesus from among the dead resides among you, then the one who raised Christ from among the dead will make even your mortal bodies alive through God’s Life-breath, which resides among you. So therefore, Family, we are not indebted to self-preservation, as though our very life were due to self-preservation (for if you are alive based on self-preservation, you are going to die), but if you put to death the practices of the body with the Life-breath, you will live. Whoever is led by the Life-breath of God, they are the children of God. You see, you did not receive a spirit-breath of enslavement to fear again, but instead, you received a Life-breath that identifies you as heirs, with which we cry out, “Abba! (Father!)” This Life-breath reports, along with our life-breath, that we are God’s children. And if we are children, we are also heirs—heirs of God and fellow heirs with Christ—if we actually suffer along with him with the result that we would also be praised along with him. I calculate that the sufferings of the present time don’t carry the same weight as the renowned praiseworthiness that is going to be revealed among us. Creation is patiently waiting in eager anticipation for the revealing of the children of God, for Creation was arranged as unable to fulfill its purpose, not voluntarily but due to the one who arranged it, in the hope that even Creation itself would be liberated from enslavement to decay into the freedom of the renowned praiseworthiness of the children of God. You see, we have come to understand that the entire Creation groans together and feels pain together from the beginning to now. Not only that, but we ourselves who have the first results of the Life-breath also groan among ourselves while we patiently await our adoption, the purchase of our bodies from slavery. We are liberated for the hope; however, hope that is already seen is not hope, for who still hopes for what they already see? But if we don’t see what we hope for, we wait patiently through endurance. Likewise, the Life-breath also strives to attain it along with us during our powerlessness since we haven’t understood how we may pray according to what is necessary, and that same Life-breath intercedes with inexpressible groans. Nevertheless, the one who examines hearts has understood the thought pattern of the Life-breath, because she intercedes on behalf of those who are designated for sacred purposes according to God. We have understood that God collaborates in everything with those who love God, those who are called with intention, for what’s beneficial. Because God knew them beforehand, God also decided beforehand for them to be conformed to the image of the Son, for God’s Son to be the firstborn among many siblings. God both decided on them beforehand and also called them. God called them and also aligned them with justice. God aligned them with justice and also made them renowned for praiseworthiness. Then, what will we say about these things? If God is for us, who is against us? In fact, the one who did not selfishly hold back their own Son but instead gave him over for all our sakes, how would they not also generously give everything along with him? Who will make an accusation against God’s chosen ones? God is the one who recognizes people as just. Who will render a verdict against them? Christ is the one who died (but what’s more, he was the one who was raised) and who is at the right hand of God and who intercedes for us. Who will separate us from Christ’s love? Oppression or disaster or persecution or famine or nakedness or danger or sword? It is just as it has been written: “For your sake, we are put to death the whole day; we are counted as sheep for slaughter.” Just the opposite of being separated, with all these things we attain something that transcends victory through the one who loved us. You see, I have been convinced that neither death nor life, neither messengers nor leaders, neither things that are already here nor things that are going to be, neither powerful forces nor things that are high or low, nor any other creation will be able to separate us from God’s love, which is demonstrated with Christ Jesus our Lord.",
