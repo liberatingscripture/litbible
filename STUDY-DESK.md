@@ -2504,7 +2504,7 @@ The new cases are the last six of `resolve` in `anchor-vectors.json`.
 **Audit 3's shared-format decisions (BVJ, 2026-11-07, on Claude's
 recommendations; BDR, please review them and amend what doesn't work for the
 apps).** Rationale and evidence are in `STUDY-DESK-AUDIT-3.md` (DI3-1 to
-DI3-5, Appendices B and J). None is built yet; session 5 builds them, so a
+DI3-5 and SEC3-1, Appendices A, B and J). None is built yet; session 5 builds them, so a
 change from BDR before then costs nothing.
 1. **A mark that moves to another verse says so** (DI3-2; audit 2's open
    question 1). Run over every chapter revision in git history, 15 of 18
@@ -2536,6 +2536,24 @@ change from BDR before then costs nothing.
    marker name is refused by the website today. It joins `RENAMED_MARKERS`.
    BDR, please list every marker name either app has ever written, so the
    website reads them all.
+5. **A record over 1 MB is refused, whatever its schema** (SEC3-1). The size
+   limits (64 KB for a note's body, 512 KB for a sheet) apply only to records
+   the website can edit, so a note from a newer schema with a 40 MB body was
+   kept and slowed every draw for good. `validateRecord` now refuses any
+   record whose serialized size passes 1 MB, with a reason, on import and
+   (when it comes) on sync. The ceiling is far above every real limit, so a
+   newer client's records are untouched. The apps' import and sync need the
+   same door.
+6. **A deletion whose stored copy can't be read is kept as a tombstone**
+   (DI3-4). Before, the whole trash record was skipped, so an older backup or
+   a device that hadn't seen the deletion could bring the record back. Now the
+   website keeps `deletedId`, `deletedKind` and `deletedAt`, drops the copy,
+   and reports that it can't be restored. The apps should read such a record
+   the same way.
+
+No date is set for BDR to settle these with spec 3 and merge vectors 4 (BVJ,
+2026-11-07): each decision that touches the apps is noted here for review
+later, and the website builds its side meanwhile.
 
 **How the website answers (BVJ, 2026-10-07): through this file.** BDR's
 Claude reads this repo directly, so nothing is sent by hand and no new reply
