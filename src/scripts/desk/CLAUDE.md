@@ -476,7 +476,7 @@ against `dist/` is a later item.
      `description`, and one naming no verse as the whole chapter, BA98),
      fetched only when a notice opens. A highlight carrying
      a notice is never merged or trimmed (`placeHighlights`).
-  13. **Phase 1d is the notebook around the marks.**
+  13. **Phase 1d is the notebook around the marks** (built 2026-10-12).
      - **The notebook page**, `/notebook/` (`pages/notebook.astro`), and its
        help, `/notebook/help/`: noindex, out of the sitemap (one `notebook/`
        prefix rule in `astro.config.mjs`) and out of Pagefind (Layout's
