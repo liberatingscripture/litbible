@@ -156,7 +156,10 @@ build:sheet-golden`) holds the sanitizer's output byte for byte, and
 one-time rewrite rather than a refusal (DI3-6). A replacement behind the `createSheetText` interface is a version 2
 item; add a cross-browser golden-file test of the eight commands before it.
 
-**Tests**: `test/desk-store.test.js` runs the real `store.js` against
+**Tests**: `npm run test:desk` runs the desk's files alone (`desk-*`, `greek-*`,
+`search-greek-*`, `anchor-text`; a new desk test takes one of those names or
+the glob misses it). `npm test` is still the gate before a PR.
+`test/desk-store.test.js` runs the real `store.js` against
 `fake-indexeddb`; `test/desk-storage-keys.test.js` holds `/privacy` to every
 storage key. Playwright is not a launch gate (BVJ, 2026-11-04); a smoke test
 against `dist/` is a later item.

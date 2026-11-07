@@ -150,6 +150,9 @@ npm test                  # Run the node:test unit suite — two roots: test/**/
                           #   and scripts/reconcile/test/**/*.mjs. Both globs are in
                           #   the script; a new test root is invisible to CI until
                           #   it is added there (the reconcile files sat unrun once)
+npm run test:desk         # The Study Desk's tests alone (desk-*, greek-*, search-greek-*,
+                          #   anchor-text): a faster loop while working on the desk. Not a
+                          #   substitute for npm test before a PR; CI runs the whole suite
 npm run build:topics      # Regenerate topics indexes only
 npm run build:verses      # Regenerate the verse search index only
 npm run build:api         # Regenerate public/api/content.json only
