@@ -161,7 +161,8 @@ function codeRtf(b) {
 /**
  * A one-cell table ruled all round (E57). Every paragraph in it is marked
  * \intbl and the last ends the cell instead of its paragraph; the \pard of
- * whatever follows leaves the table.
+ * whatever follows leaves the table. A row takes no space above it, so an
+ * empty paragraph exactly `gap` points tall goes first.
  */
 function boxRtf(inner, width) {
   const line = `\\brdrs\\brdrw${Math.round(DOC_BOX.pt * 20)}`;
@@ -171,7 +172,8 @@ function boxRtf(inner, width) {
     "\\trpaddfl3\\trpaddfr3\\trpaddft3\\trpaddfb3" +
     `\\clbrdrt${line}\\clbrdrl${line}\\clbrdrb${line}\\clbrdrr${line}\\cellx${width}\n`;
   const cell = (inner || para("normal")).replace(/\\pard(?=\\plain)/g, "\\pard\\intbl").replace(/\\par\n$/, "\\cell\n");
-  return `${row}${cell}\\row\n`;
+  const gap = `\\pard\\plain\\sb0\\sa0\\sl-${DOC_BOX.gap * 20}\\slmult0\\f0\\fs2 \\par\n`;
+  return `${gap}${row}${cell}\\row\n`;
 }
 
 function body(blocks, quoted = false, width = 0) {
@@ -180,7 +182,7 @@ function body(blocks, quoted = false, width = 0) {
     switch (b.type) {
       case "title": out += para("h1", textRuns(b.text)); break;
       case "subtitle": out += para("subtitle", textRuns(b.text)); break;
-      case "section": out += para("h2", textRuns(b.text)); break;
+      case "section": out += para("h2", textRuns(b.text), { extra: b.flush ? "\\sb0" : "" }); break;
       case "tag": out += para("tag", textRuns(b.text)); break;
       case "heading": out += para(`h${b.level}`, docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "para": out += para(quoted ? "quote" : "normal", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;

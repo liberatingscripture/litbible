@@ -178,7 +178,7 @@ export function readCopy(article) {
       lines(part);
     } else if (part.matches(".sheet-copy__terms")) {
       tag(part);
-      const box = { type: "box", blocks: [{ type: "section", text: "Key terms" }] };
+      const box = { type: "box", blocks: [{ type: "section", text: "Key terms", flush: true }] };
       const list = part.querySelector(".sheet-copy__term-list");
       if (list) block(list, box.blocks);
       const note = part.querySelector(".sheet-copy__terms-note, .sheet-copy__missing");

@@ -138,18 +138,19 @@ function autoStyles(boxWidth) {
       if (!text.has(key)) text.set(key, `T${text.size + 1}`);
       return text.get(key);
     },
-    para(parent, { align = null, indent = false } = {}) {
-      if (!align && !indent) return parent;
-      const key = `${parent}|${align}|${indent}`;
-      if (!para.has(key)) para.set(key, { name: `P${para.size + 1}`, parent, align, indent });
+    para(parent, { align = null, indent = false, flush = false } = {}) {
+      if (!align && !indent && !flush) return parent;
+      const key = `${parent}|${align}|${indent}|${flush}`;
+      if (!para.has(key)) para.set(key, { name: `P${para.size + 1}`, parent, align, indent, flush });
       return para.get(key).name;
     },
     xml() {
       let out = "";
-      for (const { name, parent, align, indent } of para.values()) {
+      for (const { name, parent, align, indent, flush } of para.values()) {
         const props = [];
         if (align && ALIGN[align]) props.push(`fo:text-align="${ALIGN[align]}"`);
         if (indent) props.push('fo:margin-left="0.33in"');
+        if (flush) props.push('fo:margin-top="0in"');
         out += `<style:style style:name="${name}" style:family="paragraph" style:parent-style-name="${parent}"><style:paragraph-properties ${props.join(" ")}/></style:style>`;
       }
       for (const [props, name] of text) out += `<style:style style:name="${name}" style:family="text"><style:text-properties ${props}/></style:style>`;
@@ -157,7 +158,7 @@ function autoStyles(boxWidth) {
       if (boxes) {
         // The key terms box (E57): a one-cell table at the text's full width, ruled all round.
         out +=
-          `<style:style style:name="Box" style:family="table"><style:table-properties style:width="${boxWidth}" table:align="margins"/></style:style>` +
+          `<style:style style:name="Box" style:family="table"><style:table-properties style:width="${boxWidth}" table:align="margins" fo:margin-top="${DOC_BOX.gap}pt"/></style:style>` +
           `<style:style style:name="Box.A" style:family="table-column"><style:table-column-properties style:column-width="${boxWidth}"/></style:style>` +
           `<style:style style:name="Box.A1" style:family="table-cell"><style:table-cell-properties ` +
           `fo:padding-top="${DOC_BOX.padY}pt" fo:padding-bottom="${DOC_BOX.padY}pt" fo:padding-left="${DOC_BOX.padX}pt" fo:padding-right="${DOC_BOX.padX}pt" ` +
@@ -241,7 +242,7 @@ function body(ctx, blocks, quoted = false) {
     switch (b.type) {
       case "title": out += h(ctx, 1, textRuns(b.text)); break;
       case "subtitle": out += p(ctx, "Subtitle", textRuns(b.text)); break;
-      case "section": out += h(ctx, 2, textRuns(b.text)); break;
+      case "section": out += h(ctx, 2, textRuns(b.text), { flush: b.flush }); break;
       case "tag": out += p(ctx, "Tag", textRuns(b.text)); break;
       case "heading": out += h(ctx, b.level, docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "para": out += p(ctx, quoted ? "Quote" : "Standard", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;

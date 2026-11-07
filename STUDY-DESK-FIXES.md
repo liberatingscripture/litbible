@@ -1770,7 +1770,14 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   heading, the list and the note, the "Leader only" tag staying outside it as
   on paper; each writer draws it as a one-cell table ruled all round (Copy's
   HTML, .docx `w:tbl`, .odt `table:table`, .rtf `\trowd` with `\intbl`), the
-  width of the text. Copy's golden fixture changed on purpose for it. Checked
+  width of the text. **Spacing, from BVJ's look in Word (same day):** the box's
+  heading kept a heading's space above it, so the top of the box was deeper than
+  the bottom, and the box sat right against the line above it. The heading in a
+  box is now `flush` (no space above, as `.sheet-copy__terms-title` has none),
+  and 10pt of space goes above the box (`DOC_BOX.gap`; an exactly sized empty
+  paragraph in .docx and .rtf, since a table takes no space above it, and the
+  table's margin in .odt and Copy). The list's indent stays the documents'
+  usual half inch, deeper than the page's. Copy's golden fixture changed on purpose for it. Checked
   in `test/desk-sheet-doc.test.js` and by rendering the three files through
   LibreOffice. In the same report BVJ found no template but Blank Canvas would
   add a key terms box: Bible study, Sermon and Class already hold one, and a

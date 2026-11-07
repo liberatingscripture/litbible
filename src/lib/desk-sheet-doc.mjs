@@ -18,7 +18,8 @@
 // Blocks:
 //   { type: "title", text }      the sheet's name (h1)
 //   { type: "subtitle", text }   its subtitle and version
-//   { type: "section", text }    a passage's reference, or "Key terms" (h2)
+//   { type: "section", text, flush? }  a passage's reference, or "Key terms" (h2);
+//                                flush: no space above it, at the top of a box
 //   { type: "tag", text }        "Leader only"
 //   { type: "heading", level, inlines, align?, poetry? }   a sheet's own h2 or h3
 //   { type: "para", inlines, align?, poetry? }             poetry: a line of an hbq quotation
@@ -56,8 +57,8 @@ export const DOC_SIZES = Object.freeze({ small: 0.85, large: 1.2, larger: 1.45 }
 export const HINT_SIZE = 0.8;
 /** A participant's blank: underlined no-break spaces, as Copy has always pasted it. */
 export const BLANK_SPACES = 16;
-/** The key terms box's rule, as the paper copy draws it (sheets-page.css): 0.75pt, 8pt by 10pt inside. */
-export const DOC_BOX = Object.freeze({ color: "1D231C", pt: 0.75, padY: 8, padX: 10 });
+/** The key terms box's rule, as the paper copy draws it (sheets-page.css): 0.75pt, 8pt by 10pt inside, and `gap` points of space above it. */
+export const DOC_BOX = Object.freeze({ color: "1D231C", pt: 0.75, padY: 8, padX: 10, gap: 10 });
 const BOX_CSS = `border:${DOC_BOX.pt}pt solid #${DOC_BOX.color};padding:${DOC_BOX.padY}pt ${DOC_BOX.padX}pt`;
 /** One line to write on, in the plain text. */
 const RULE = "_".repeat(60);
@@ -132,7 +133,7 @@ export function docHtml(doc) {
       case "title": return html.push(`<h1>${esc(b.text)}</h1>`);
       case "subtitle":
       case "tag": return html.push(`<p><i>${esc(b.text)}</i></p>`);
-      case "section": return html.push(`<h2>${esc(b.text)}</h2>`);
+      case "section": return html.push(`<h2${b.flush ? ' style="margin-top:0"' : ""}>${esc(b.text)}</h2>`);
       case "heading": return html.push(`<h${b.level}${blockStyle(b)}>${inlineHtml(b.inlines)}</h${b.level}>`);
       case "para": return html.push(`<p${blockStyle(b)}>${inlineHtml(b.inlines)}</p>`);
       case "quote":
@@ -141,7 +142,7 @@ export function docHtml(doc) {
         return html.push("</blockquote>");
       case "box":
         // A one-cell table, the box every word processor keeps on a paste.
-        html.push(`<table style="border-collapse:collapse;width:100%"><tr><td style="${BOX_CSS}">`);
+        html.push(`<table style="border-collapse:collapse;width:100%;margin-top:${DOC_BOX.gap}pt"><tr><td style="${BOX_CSS}">`);
         b.blocks.forEach(block);
         return html.push("</td></tr></table>");
       case "list":

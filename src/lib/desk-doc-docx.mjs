@@ -135,10 +135,11 @@ function runXml(run, halfPoints) {
  * Paragraph XML: `style` a style id, `runs` from docRuns (plus any runs
  * written ahead of them), `pPr` the paragraph's own settings after the style.
  */
-function paragraph(ctx, { style = null, runs = [], align = null, indent = 0, numbering = null, pre = "" }) {
+function paragraph(ctx, { style = null, runs = [], align = null, indent = 0, numbering = null, flush = false, pre = "" }) {
   const p = [];
   if (style) p.push(`<w:pStyle w:val="${style}"/>`);
   if (numbering) p.push(`<w:numPr><w:ilvl w:val="${numbering.level}"/><w:numId w:val="${numbering.id}"/></w:numPr>`);
+  if (flush) p.push('<w:spacing w:before="0"/>');
   if (indent) p.push(`<w:ind w:left="${indent}"/>`);
   if (align && ALIGN[align]) p.push(`<w:jc w:val="${ALIGN[align]}"/>`);
   const size = STYLE_SIZE[style] ?? BASE_HALF_POINTS;
@@ -215,12 +216,17 @@ function listParagraphs(ctx, b, level = 0) {
 
 /* ── The key terms box ─────────────────────────────────────────────────── */
 
-/** A one-cell table ruled all round (E57): what Word keeps as a box, where bordered paragraphs part at a list's indent. */
+/**
+ * A one-cell table ruled all round (E57): what Word keeps as a box, where bordered
+ * paragraphs part at a list's indent. A table takes no space above it, so an
+ * empty paragraph exactly `gap` points tall goes first.
+ */
 function boxTable(ctx, inner) {
   const line = `w:val="single" w:sz="${DOC_BOX.pt * 8}" w:space="0" w:color="${DOC_BOX.color}"`;
   const borders = ["top", "left", "bottom", "right"].map((side) => `<w:${side} ${line}/>`).join("");
   const pad = (side, pt) => `<w:${side} w:w="${pt * 20}" w:type="dxa"/>`;
   return (
+    `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="${DOC_BOX.gap * 20}" w:lineRule="exact"/></w:pPr></w:p>` +
     `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>${borders}</w:tblBorders>` +
     `<w:tblLayout w:type="fixed"/><w:tblCellMar>${pad("top", DOC_BOX.padY)}${pad("left", DOC_BOX.padX)}${pad("bottom", DOC_BOX.padY)}${pad("right", DOC_BOX.padX)}</w:tblCellMar>` +
     `<w:tblLook w:val="0000"/></w:tblPr><w:tblGrid><w:gridCol w:w="${ctx.textWidth}"/></w:tblGrid>` +
@@ -236,7 +242,7 @@ function body(ctx, blocks, quoted = false) {
     switch (b.type) {
       case "title": out += paragraph(ctx, { style: "Heading1", runs: textRuns(b.text) }); break;
       case "subtitle": out += paragraph(ctx, { style: "Subtitle", runs: textRuns(b.text) }); break;
-      case "section": out += paragraph(ctx, { style: "Heading2", runs: textRuns(b.text) }); break;
+      case "section": out += paragraph(ctx, { style: "Heading2", runs: textRuns(b.text), flush: b.flush }); break;
       case "tag": out += paragraph(ctx, { style: "PartTag", runs: textRuns(b.text) }); break;
       case "heading":
         out += paragraph(ctx, { style: `Heading${b.level}`, runs: docRuns(b.inlines), align: b.align, indent: b.poetry ? 480 : 0 });

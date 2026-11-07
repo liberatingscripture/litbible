@@ -487,7 +487,7 @@ test("the key terms box is read as a box, its tag outside it", () => {
   const blocks = leaderDoc().blocks;
   const box = blocks.find((b) => b.type === "box");
   assert.ok(box, "a box block");
-  assert.deepEqual(box.blocks[0], { type: "section", text: "Key terms" });
+  assert.deepEqual(box.blocks[0], { type: "section", text: "Key terms", flush: true });
   assert.deepEqual(box.blocks.slice(1).map((b) => b.type), ["list", "para"]);
   assert.equal(blocks.filter((b) => b.type === "box").length, 1);
 });
@@ -502,7 +502,11 @@ test("the key terms box keeps its rule in .docx, .odt and .rtf", async () => {
     assert.equal(b.attrs["w:val"], "single", side);
     assert.equal(b.attrs["w:sz"], "6", side);
   }
-  assert.equal(textOf(W(tables[0], "p")[0]), "Key terms");
+  const head = W(tables[0], "p")[0];
+  assert.equal(textOf(head), "Key terms");
+  assert.equal(W(head, "spacing")[0].attrs["w:before"], "0", "no space above the box's heading");
+  const gap = doc.children[0].children.find((n, i, all) => all[i + 1] === tables[0]);
+  assert.equal(W(gap, "spacing")[0].attrs["w:line"], "200", "10pt of space above the box");
 
   const entries = unzip(await odtFile(leaderDoc(), { date: 0 }));
   const content = xmlOf(entries, "content.xml");
@@ -511,7 +515,11 @@ test("the key terms box keeps its rule in .docx, .odt and .rtf", async () => {
   const cell = findAll(table[0], "table:table-cell")[0];
   const cellStyle = findAll(content, "style:style").find((s) => s.attrs["style:name"] === cell.attrs["table:style-name"]);
   assert.match(findAll(cellStyle, "style:table-cell-properties")[0].attrs["fo:border"], /^0\.75pt solid #1D231C$/i);
-  assert.equal(textOf(findAll(cell, "text:h")[0]), "Key terms");
+  const odtHead = findAll(cell, "text:h")[0];
+  assert.equal(textOf(odtHead), "Key terms");
+  const styleOf = (name) => findAll(content, "style:style").find((s) => s.attrs["style:name"] === name);
+  assert.equal(findAll(styleOf(odtHead.attrs["text:style-name"]), "style:paragraph-properties")[0].attrs["fo:margin-top"], "0in");
+  assert.equal(findAll(styleOf("Box"), "style:table-properties")[0].attrs["fo:margin-top"], "10pt");
 
   const rtf = rtfText(leaderDoc(), {});
   const row = rtf.match(/\\trowd[^\n]*\n/);
@@ -519,6 +527,8 @@ test("the key terms box keeps its rule in .docx, .odt and .rtf", async () => {
   for (const side of ["t", "l", "b", "r"]) assert.ok(row[0].includes(`\\clbrdr${side}\\brdrs\\brdrw15`), side);
   const inBox = rtf.slice(row.index, rtf.indexOf("\\row\n"));
   assert.ok(inBox.includes("{Key terms}") && inBox.trimEnd().endsWith("\\cell"));
+  assert.match(inBox, /\\s2[^ ]*\\sb0 \{Key terms\}/, "no space above the box's heading");
+  assert.ok(rtf.slice(0, row.index).endsWith("\\sl-200\\slmult0\\f0\\fs2 \\par\n"), "10pt of space above the box");
   for (const p of inBox.split("\\pard").slice(1)) assert.ok(p.startsWith("\\intbl"), p.slice(0, 40));
   assert.ok(balanced(rtf));
 });
