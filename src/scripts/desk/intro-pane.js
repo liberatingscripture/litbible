@@ -29,6 +29,7 @@
 import { BOOK_ORDER, bookKeyToLabel } from "../../data/books.js";
 import { introPath, stepBook } from "../../lib/desk-passage.mjs";
 import { resultTarget } from "../../lib/desk-search-pane.mjs";
+import { heldAfterReference, introText, keepsBook } from "./intro-text.js";
 import { make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
 
@@ -76,30 +77,6 @@ function loadIntro(bookKey) {
     cache.set(bookKey, p);
   }
   return p;
-}
-
-/**
- * The introduction's text as the pane shows it: a copy, its headings one level
- * under the pane's own (the pane's name is an h2, the introduction's title an
- * h3), no ids, and every link opening a new tab except where the pane takes a
- * plain click itself.
- */
-function introText(body) {
-  const box = make("div", "desk-intro__text");
-  for (const node of body.childNodes) box.append(document.importNode(node, true));
-  for (const h of box.querySelectorAll("h2, h3, h4")) {
-    const level = Math.min(6, Number(h.tagName[1]) + 2);
-    const to = document.createElement(`h${level}`);
-    to.className = "desk-intro__heading";
-    to.append(...h.childNodes);
-    h.replaceWith(to);
-  }
-  for (const el of box.querySelectorAll("[id]")) el.removeAttribute("id");
-  for (const a of box.querySelectorAll("a[href]")) {
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-  }
-  return box;
 }
 
 const modified = (e) => e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
@@ -206,7 +183,7 @@ export function createIntroPane({ paneId, start, set, showPassage }) {
   /** The passage the pane follows moved: show its book, unless it is the one a reference sent the LIT to. */
   function setPassage(p) {
     if (!p?.bookKey) return;
-    if (held && p.bookKey === held) return;
+    if (keepsBook(held, p.bookKey)) return;
     held = null;
     show(p.bookKey);
   }
@@ -234,7 +211,7 @@ export function createIntroPane({ paneId, start, set, showPassage }) {
     const target = resultTarget(a.getAttribute("href"));
     if (target.type !== "passage") return;
     e.preventDefault();
-    held = target.bookKey === book ? null : target.bookKey;
+    held = heldAfterReference(book, target.bookKey);
     showPassage({ bookKey: target.bookKey, chapter: target.chapter, verse: target.verse });
   });
 
