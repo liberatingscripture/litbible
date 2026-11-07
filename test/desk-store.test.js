@@ -142,13 +142,11 @@ test("a put that fails with QuotaExceededError inside a change writes nothing, r
   assert.deepEqual((await store.get(later.id)).body, "mine");
 });
 
-// TODO (BVJ to decide, Audit 3 follow-up): this test fails today, and is marked
-// so until store.js is fixed. On this path `committed()`'s `tx.onerror` runs
-// first, while `tx.error` is still null (the transaction aborts, and takes the
-// error, only after that event), so the change rejects with null and the name
-// and message are lost; `tx.onabort`, which would carry the error, finds the
-// promise settled. The fix belongs in store.js, not here.
-test("a transaction that aborts with QuotaExceededError after the puts were queued (Chrome's full disk) rejects the change, writes nothing, remembers nothing, and tells no one", { todo: "store.js rejects with null here; see the note above" }, async () => {
+// This found committed() settling on the transaction's error event, while
+// tx.error was still null, so the change rejected with null (Audit 3
+// follow-up, 2026-11-07); the abort, which carries the error, is now the one
+// rejection.
+test("a transaction that aborts with QuotaExceededError after the puts were queued (Chrome's full disk) rejects the change, writes nothing, remembers nothing, and tells no one", async () => {
   await freshBrowser();
   const store = await openStore({ ctx });
   const saved = note();

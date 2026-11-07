@@ -70,10 +70,14 @@ const request = (r) =>
 // this, the history's "before" included, so what a change compares is alike.
 const current = (result) => (Array.isArray(result) ? result.map(migrateRecord) : result && migrateRecord(result));
 
+// A failed request's error event reaches the transaction before the transaction
+// aborts and takes the error (tx.error is still null while it is dispatched),
+// and nothing here prevents that default, so every such failure ends in the
+// abort below, which is where the error is read. Settling on the error event
+// rejected with null and lost the name (Chrome's full disk, QuotaExceededError).
 const committed = (tx) =>
   new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
     tx.onabort = () => reject(tx.error ?? new Error("desk-store: transaction aborted"));
   });
 
