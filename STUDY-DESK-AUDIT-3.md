@@ -230,15 +230,15 @@ Collected from the appendices. The first four block work.
     lemma-first rule (`ἐξ.prep`); the builder accepting LIT renderings and plain Latin pairs;
     the 300-character cut as an error or a note; and applying the cautious licence to the 25
     search glosses identical to "(ML)" entries.
-    **Decided (BVJ, 2026-11-07), three of four.** (1) The narrow fallback:
+    **Decided (BVJ, 2026-11-07).** (1) The narrow fallback:
     yes, only when the lemma-first reading finds nothing under the typed
     filters and another lemma with the same spelling finds something.
     (3) An error with a note: past 300 characters the query isn't searched or
     cut, and the field says why and is left as typed. (4) The 25 glosses take
     the cautious CC BY-SA route, as the best information there is; say so in
-    `public/greek/LICENSE.txt`. **(2) is still open:** BVJ asked what it
-    means, so it was explained again on 2026-11-07 (the builder refuses LIT
-    words and Latin-letter word pairs that the search field accepts). Session 4.
+    `public/greek/LICENSE.txt`. (2) The builder accepts what the search
+    field accepts: a LIT rendering (GK3-4, pass the glossary bridge) and two
+    or three Latin-letter words read as a construction (GK3-5). Session 4.
 13. **Margin pills' tab order** (NB3 Q1): drawn right to left, tabbed left to right. Acceptable?
     **Decided (BVJ, 2026-11-07): the order should match what the eye sees**
     (most likely a leftover of the pills' older order). Reverse the DOM
@@ -267,7 +267,7 @@ most (different regions; merge in session order).
 | 1. Shared panels (every reader) | NB3-1, NB3-2, NB3-11, NB3-12 | `panel-flyout.js`, `chapter-tools.js`, `verse-image.js`, `global.css` | nothing; run first, check with the desk off |
 | 2. The Notebook panel | LV3-1, NB3-6, LV3-3, NB3-3, NB3-5, NB3-7 to NB3-10, NB3-13, LV3-4(a), the margin pills' order (decision 13) | `panel.js`, `tab-mine.js`, `note-editor.js`, `footnote-pills.js`, `footnote-notes.js` | nothing |
 | 3. /desk and sheets | LV3-2, DK3-2 to DK3-12, DK3-1, SEC3-3, LV3-4(b), LV3-5, LV3-6 | `desk-page.js`, `reading-display.js`, `sheet-*.js`, `desk-doc-*.mjs`, `desk-slides*.mjs` | nothing now (decisions 6, 10, 11 and DK3-7 made) |
-| 4. Greek | GK3-1 to GK3-17 | `tab-greek.js`, `greek-builder.js`, `search-core.js` (GK3-6, GK3-14), `search-greek.js` | decision 12 (2) for GK3-4 and GK3-5 only |
+| 4. Greek | GK3-1 to GK3-17 | `tab-greek.js`, `greek-builder.js`, `search-core.js` (GK3-6, GK3-14), `search-greek.js` | nothing now (decision 12 made) |
 | 5. Records and import | DI3-1, DI3-4, DI3-5, DI3-6, SEC3-1, SEC3-2, SEC3-4, SEC3-5, then DI3-2 and DI3-3 | `desk-records.mjs`, `desk-history.mjs`, `desk-export.mjs`, `anchor-core.mjs`, `STUDY-DESK-FORMAT.md`, vectors | decisions made; BDR reviews the format later |
 | 6. Launch readiness and docs | LG3-1 to LG3-14, NB3-4, NB3-14, CP3-2 to CP3-7 | `src/scripts/desk/CLAUDE.md`, `help.astro`, tests | nothing now (decisions 3, 4, 5, 9 made) |
 
