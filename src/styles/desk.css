@@ -6993,6 +6993,15 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   content: none;
 }
 
+/* A field's visible name where a part holds two editors alike (the question's
+   answer). */
+.desk-sheet__field-label {
+  margin: 10px 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.72);
+}
+
 .desk-sheet__lines {
   display: inline-flex;
   align-items: center;

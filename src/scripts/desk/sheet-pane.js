@@ -956,7 +956,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   function textCard(card, m) {
     if (readOnly) return readOnlyRich(card, m.html);
-    const ed = textField(m, "html", "Your text", "Write here…");
+    const ed = textField(m, "html", "Your text", "A heading, instructions, a prayer, or anything else to print.");
     card.append(ed.el);
     return ed;
   }
@@ -994,10 +994,15 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       readOnlyRich(card, m.html);
       return null;
     }
-    const q = textField(m, "html", "Question", "Ask a question for discussion…");
-    const a = textField(m, "answer", "Answer, on the leader’s version only", "An answer or notes for the leader (optional)");
+    const q = textField(m, "html", "Question", "A question for the group, such as “What surprised you here?”");
+    const a = textField(m, "answer", "Answer, on the leader’s version only", "Optional. An answer or notes for you as leader. It prints only on the leader’s version.");
     const lines = linesField(m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on" });
-    card.append(q.el, a.el, lines.el);
+    // The two editors look alike, and the answer's ghost text goes once it has
+    // words, so it keeps a visible label (BVJ, 2026-11-06). The editor's own
+    // accessible name already says this, so the label is hidden from it.
+    const answerLabel = make("p", "desk-sheet__field-label", "Answer (leader’s version only)");
+    answerLabel.setAttribute("aria-hidden", "true");
+    card.append(q.el, answerLabel, a.el, lines.el);
     return group(q, a, lines);
   }
 

@@ -1730,6 +1730,25 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   flattened and need to be made again. Checked in the browser with the
   toolbar's button in a question, and in `test/desk-sheets.test.js`.
 
+- **E56, rough: a sheet's parts don't say how to use them.** BVJ
+  (2026-11-06): the Question part's question and answer fields need ghost text
+  saying what each is for; then a pass over every part. Claude's finding: the
+  Question part already had ghost text, but it shows only while a field is
+  empty, every template fills its questions in, and the two editors look
+  identical with no visible name (only an accessible one). Decided (BVJ,
+  "Build as proposed"): a visible label "Answer (leader’s version only)" above
+  the answer's editor (`aria-hidden`, since the editor's own name says it);
+  ghost text "A question for the group, such as “What surprised you here?”"
+  and "Optional. An answer or notes for you as leader. It prints only on the
+  leader’s version."; Your text's "Write here…" became "A heading,
+  instructions, a prayer, or anything else to print."; and a passage's empty
+  Blanks note says how to make one with the mouse ("Select words in the
+  passage, then choose “Blank the selected words.” …"). Title, subtitle,
+  Space to write, Key terms box, Page break and a blank's hint field were
+  already clear and are unchanged. Nothing prints differently. Status:
+  **built 2026-11-06** (`sheet-pane.js`, `sheet-lit.js`,
+  `.desk-sheet__field-label` in `desk.css`); checked on /desk in light and dark.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
