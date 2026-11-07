@@ -1,14 +1,22 @@
 // src/scripts/desk/bookmark-stop.js
 //
-// "Stop following" (BVJ, 2026-11-04): a way to end a bookmark's moving by
-// hand. It stops this tab following (stopFollowing, bookmark-follow.js) and
-// leaves the bookmark where it last was with "Move as I read" still on, so
-// opening it from the list starts it again. The button is in the bookmark's row
-// in the Notebook's lists and in the verse menu; it shows only while this tab
-// is moving that bookmark.
+// "Stop following" (BVJ, 2026-11-04) and "Start following" (E44, 2026-11-05):
+// ending a bookmark's moving by hand, and starting it without going through
+// the list. Stopping ends this tab's follow (stopFollowing, bookmark-follow.js)
+// and leaves the bookmark where it last was with "Move as I read" still on.
+// The link is in the bookmark's row in the Notebook's lists, one link whose
+// label says which; in the verse menu, "Start following" sits beside "Edit
+// bookmark…" and the resting bookmark's "Leave it here" is the stop.
 
 import { bookKeyToLabel } from "../../data/books.js";
-import { isFollowedHere, isPausedHere, moveItHereNow, stopFollowing } from "./bookmark-follow.js";
+import {
+  drawFollowLink,
+  followBookmark,
+  isFollowedHere,
+  isPausedHere,
+  moveItHereNow,
+  stopFollowing,
+} from "./bookmark-follow.js";
 import { announce, showUndo } from "./undo-bar.js";
 
 /**
@@ -47,27 +55,44 @@ export function moveItHereButton(bookmark, where = "") {
 /** Press the button's work, said aloud. `where` names the verse ("Luke 1:1"). */
 export function stopFollowingNow(where) {
   stopFollowing();
-  announce(`The bookmark${where ? ` on ${where}` : ""} stopped following. It stays on its verse until you open it from your list again.`);
+  announce(`The bookmark${where ? ` on ${where}` : ""} stopped following. It stays on its verse until you start it again.`);
 }
 
 /**
- * The row's button, hidden unless this tab is moving the bookmark;
- * syncBookmarkLines shows and hides it as the flag changes.
+ * "Start following" (E44): the bookmark follows the reader from here, by the
+ * rule opening it from the list follows (`followBookmark`: one tab at a time,
+ * the flag in session storage). Only a bookmark with "Move as I read" on is
+ * offered it, so it is already within the six that may move.
  *
- * @param {{ id: string }} bookmark
+ * @param {{ id: string, bookKey: string }} bookmark
+ * @param {string} where the bookmark's reference ("Luke 1:1")
+ */
+export function startFollowingNow(bookmark, where) {
+  followBookmark(bookmark);
+  announce(`The bookmark${where ? ` on ${where}` : ""} is following you now.`);
+}
+
+/**
+ * The row's quiet link for a bookmark with "Move as I read" on: "Stop
+ * following" while this tab is moving it, else "Start following" (E44, BVJ
+ * 2026-11-05: one link that swaps its label, not an On/Off switch, since a
+ * follow is this tab's and the switch is the record's). syncBookmarkLines
+ * redraws it as the flag changes.
+ *
+ * @param {{ id: string, bookKey: string }} bookmark
  * @param {string} where the bookmark's reference, for the accessible name
  */
-export function stopFollowButton(bookmark, where = "") {
+export function followLinkButton(bookmark, where = "") {
   const b = document.createElement("button");
   b.type = "button";
   b.className = "desk-item__stop";
-  b.textContent = "Stop following";
-  b.setAttribute("aria-label", `Stop following the bookmark${where ? ` on ${where}` : ""}`);
-  b.dataset.bookmarkStop = bookmark.id;
-  b.hidden = !isFollowedHere(bookmark.id);
+  b.dataset.bookmarkFollowLink = bookmark.id;
+  b.dataset.where = where;
+  drawFollowLink(b);
   b.addEventListener("click", (e) => {
     e.stopPropagation();
-    stopFollowingNow(where);
+    if (isFollowedHere(bookmark.id)) stopFollowingNow(where);
+    else startFollowingNow(bookmark, where);
   });
   return b;
 }

@@ -19,7 +19,7 @@ import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { kindName, recordHref, takeOff, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
 import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-follow.js";
-import { moveItHereButton, stopFollowButton } from "./bookmark-stop.js";
+import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 
@@ -101,7 +101,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
   else kind.textContent = nameOf(r);
   li.append(head, kind);
-  if (r.kind === "bookmark" && isFollowing(r)) kind.after(stopFollowButton(r, ref), moveItHereButton(r, ref));
+  if (r.kind === "bookmark" && isFollowing(r)) kind.after(followLinkButton(r, ref), moveItHereButton(r, ref));
   // A bookmark that moves as the reader reads starts doing so from this link
   // (a modified click opens elsewhere and doesn't; E9); one that stays put
   // stops whatever was moving, since the reader has gone to it instead.

@@ -592,12 +592,20 @@ against `dist/` is a later item.
        moves or stays put, and for the resting one "Leave it here". A verse with
        none keeps the one-press "Bookmark", and a finger's chips stay flat
        (`flyoutRow` in actions.js; hover opens, a click, Enter or the right arrow
-       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" ends it by hand**
-       (BVJ, 2026-11-04; `bookmark-stop.js`): a quiet link under the state line
-       of the bookmark this tab is moving, and a button beside "Edit bookmark…"
-       in the verse menu. It clears the flag only: the bookmark stays where it
-       last was with "Move as I read" still on, and opening it from the list
-       starts it again. **Every way the flag drops redraws the rows**
+       moves in, Escape or the left arrow steps back; fixed to the window). **"Stop following" and "Start following" are one
+       quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
+       `drawFollowLink`) under the state line of every bookmark with "Move as I
+       read" on, its label swapping with this tab's flag; not an On/Off switch,
+       since a follow is the tab's and the switch is the record's. In the verse
+       menu a moving bookmark has "Start following" beside "Edit bookmark…",
+       and the resting one's "Leave it here" is the stop. Stopping clears the
+       flag only: the bookmark stays where it last was with "Move as I read"
+       still on. Starting is `followBookmark` with no link, as opening it from
+       the list is apart from the navigation: the next report of where the
+       reader is decides (reading on from it moves it, anywhere else pauses it
+       with "Move it here"). It is offered only where the page follows the
+       reader (`followsHere`), so /desk and /notebook show the stop alone.
+       **Every way the flag drops redraws the rows**
        (`dropFlag`: another tab took it, it was deleted or turned off, a
        back-forward restore), turning the switch off in the form stops it at
        once, a Back or reload doesn't write verse 1 over the bookmark before
