@@ -36,7 +36,7 @@ From the root's routing table.
 |-------|------|---------|
 | `/notebook`, `/notebook/help` | `notebook.astro`, `notebook/help.astro` | The Study Desk preview's notebook page and help page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy for Word, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). Never edits. Same treatment as `/desk`. See "The Study Desk preview", rules 19 and 21 |
 
 ## Launching
 
@@ -1342,9 +1342,11 @@ against `dist/` is a later item.
      - **The printed codes are `src/lib/qr-svg.mjs`**, shared with
        `build-apps-qr.mjs`; `qrcode-generator` is a runtime dependency for
        that reason, loaded only by the sheet page's chunk.
-     - **Copy for Word** (`desk/sheet-word.js`) reads the copy on screen and
+     - **Copy** (`desk/sheet-word.js`; "Copy for Word" until E36) reads the copy on screen and
        writes HTML with inline styles plus plain text, so what is pasted is
-       what would print, codes aside.
+       what would print, codes aside. Its button carries the copy glyph (two
+       sheets, drawn in `sheet-page.js`'s `copyGlyph`, as the glossary's copy-link icon) and
+       the accessible name "Copy this version to the clipboard".
      - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
        guessed from the reader's languages until chosen), named in /privacy's
        paragraph. Its `@page` rule is added as the page's last style, after

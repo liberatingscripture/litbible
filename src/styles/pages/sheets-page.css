@@ -595,6 +595,15 @@
   outline-offset: 2px;
 }
 
+/* The copy glyph on the Copy button (E36), set on the text's line. */
+.sheets-page__copy-glyph {
+  width: 1.1em;
+  height: 1.1em;
+  margin-inline-end: 0.35em;
+  vertical-align: -0.2em;
+  flex: none;
+}
+
 /* ── On paper ──────────────────────────────────────────────────────────── */
 
 @media print {
