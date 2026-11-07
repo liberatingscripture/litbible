@@ -31,7 +31,9 @@ import {
   codeFits,
   groupsForFilters,
   isGreekCommandQuery,
+  formFallbackTerm,
   isSimpleQuery,
+  plainLatinWords,
   matchConstruction,
   parseGreekQuery,
   resolveGreekQuery,
@@ -311,30 +313,43 @@ export async function searchGreekCommands(base, raw, { bookKey = "" } = {}) {
   if (!groupNames) return { ...out, resolved, failed: true };
 
   let failed = false;
-  const lists = await Promise.all(
+  const listFor = async (term, book) => {
+    const fits = (w) => (!book || w.book === book) && codeFits(term.filters, w.pos + w.parse);
+    if (term.lemmaIds) {
+      const parts = await Promise.all(
+        term.lemmaIds.map(async (id) => {
+          const entry = await loadGreekOccurrences(base, index, id);
+          if (!entry) failed = true;
+          return decodeOccurrences(entry, BOOK_ORDER, { form: term.form, bookKey: book }).filter(fits);
+        }),
+      );
+      return parts.flat();
+    }
+    const names = groupsForFilters(term.filters, groupNames);
+    const groups = await Promise.all(names.map((n) => loadGreekParseGroup(base, n)));
+    return groups.flatMap((g) => {
+      if (!g) failed = true;
+      return (g ?? []).filter(fits);
+    });
+  };
+  // The narrow fallback (GK3 Q1): a word read lemma-first that finds nothing
+  // under its filters anywhere in the New Testament, while another lemma with
+  // the same spelling does (ἐξ.prep: not the numeral ἕξ, but ἐκ). It is judged
+  // on the whole text, so a book filter never changes which word is meant.
+  const terms = await Promise.all(
     resolved.terms.map(async (term) => {
-      const fits = (w) => (!bookKey || w.book === bookKey) && codeFits(term.filters, w.pos + w.parse);
-      if (term.lemmaIds) {
-        const parts = await Promise.all(
-          term.lemmaIds.map(async (id) => {
-            const entry = await loadGreekOccurrences(base, index, id);
-            if (!entry) failed = true;
-            return decodeOccurrences(entry, BOOK_ORDER, { form: term.form, bookKey }).filter(fits);
-          }),
-        );
-        return parts.flat();
-      }
-      const names = groupsForFilters(term.filters, groupNames);
-      const groups = await Promise.all(names.map((n) => loadGreekParseGroup(base, n)));
-      return groups.flatMap((g) => {
-        if (!g) failed = true;
-        return (g ?? []).filter(fits);
-      });
+      if (!term.altIds?.length) return term;
+      if ((await listFor(term, "")).length) return term;
+      const alt = formFallbackTerm(index, term);
+      return alt && (await listFor(alt, "")).length ? alt : term;
     }),
   );
   if (failed) return { ...out, resolved, failed: true };
+  const settled = terms.some((t, i) => t !== resolved.terms[i]) ? { ...resolved, terms } : resolved;
+  const lists = await Promise.all(settled.terms.map((term) => listFor(term, bookKey)));
+  if (failed) return { ...out, resolved: settled, failed: true };
 
-  const found = matchConstruction(lists, { gap: resolved.gap, anyOrder: resolved.anyOrder, bookOrder: BOOK_ORDER });
+  const found = matchConstruction(lists, { gap: settled.gap, anyOrder: settled.anyOrder, bookOrder: BOOK_ORDER });
   const hits = found.map((h) => {
     const marked = [...new Set(h.matches.flat())].sort((a, b) => a - b);
     const t = h.matches[0][0];
@@ -348,19 +363,12 @@ export async function searchGreekCommands(base, raw, { bookKey = "" } = {}) {
   });
   return {
     ...out,
-    resolved,
+    resolved: settled,
     hits,
     matchCount: hits.reduce((n, h) => n + h.matches.length, 0),
     verseCount: hits.length,
     total: hits.length,
   };
-}
-
-/** One to three plain Latin words, the shape of "pistis Christos": no digits or symbols. */
-function plainLatinWords(q) {
-  if (hasGreek(q) || !/^[\p{L}][\p{L}'’\- ]*$/u.test(q)) return false;
-  const n = q.split(/\s+/).filter(Boolean).length;
-  return n >= 2 && n <= 3;
 }
 
 /** Whether a Latin search found a lemma by the whole phrase: the LIT's rendering, a gloss or a sense. */

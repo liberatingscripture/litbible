@@ -35,12 +35,21 @@ const WRITERS = {
 /** How many pixels a module of a code to scan is drawn at in the PNG. */
 const CODE_SCALE = 8;
 
+/**
+ * An SVG with a width and height of its own, as an image to draw: one with
+ * only a viewBox has no size, which some browsers (Firefox has) refuse to
+ * draw on a canvas (DK3-6).
+ */
+export function sizedSvg(svg, pixels) {
+  return /^<svg\b[^>]*\bwidth=/.test(svg) ? svg : svg.replace(/^<svg\b/, `<svg width="${pixels}" height="${pixels}"`);
+}
+
 /** A code's SVG (qrSvg's) as PNG bytes, drawn on a canvas: { png, pixels }. */
 export async function codePng(svg) {
   const modules = Number(svg.match(/viewBox="0 0 (\d+)/)?.[1]) || 41;
   const pixels = modules * CODE_SCALE;
   const img = new Image();
-  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sizedSvg(svg, pixels))}`;
   await img.decode();
   const canvas = make("canvas");
   canvas.width = pixels;
@@ -57,19 +66,26 @@ export async function codePng(svg) {
 
 /**
  * Each code block's PNG (`png`, `pixels`), drawn from the SVG the copy shows.
- * A code that can't be drawn is left out of the file.
+ * A code that can't be drawn is left out of the file, and counted in
+ * `codesMissing`, so the status line can say so (DK3-6).
  */
 export async function drawCodes(doc) {
+  let missing = 0;
   for (const b of doc.blocks) {
     if (b.type !== "code" || !b.svg) continue;
     try {
       Object.assign(b, await codePng(b.svg));
     } catch (err) {
+      missing += 1;
       console.error("Study Desk: a code to scan couldn't be drawn for the file", err);
     }
   }
+  if (missing) doc.codesMissing = missing;
   return doc;
 }
+
+/** What the status line adds when a code to scan was left out of a file (DK3-6). */
+export const CODES_MISSING = "A code to scan couldn’t be drawn, so the file leaves it out.";
 
 /** A file the reader's browser saves (its downloads), as the share file is saved. */
 export function download(bytes, type, name) {
@@ -156,6 +172,7 @@ export function createSaveMenu({ version, onChoose }) {
   }
   wrap.append(button, menu);
 
+  const live = () => items.filter((b) => !b.disabled && b.getAttribute("aria-disabled") !== "true");
   const outside = (e) => {
     if (!wrap.contains(/** @type {Node} */ (e.target))) close({ focus: false });
   };
@@ -167,7 +184,7 @@ export function createSaveMenu({ version, onChoose }) {
     menu.hidden = false;
     button.setAttribute("aria-expanded", "true");
     document.addEventListener("pointerdown", outside, true);
-    items[0]?.focus();
+    live()[0]?.focus();
   }
 
   function close({ focus = true } = {}) {
@@ -183,10 +200,12 @@ export function createSaveMenu({ version, onChoose }) {
     if ((e.key === "ArrowDown" || e.key === "ArrowUp") && menu.hidden) {
       e.preventDefault();
       open();
-      if (e.key === "ArrowUp") items.at(-1)?.focus();
+      if (e.key === "ArrowUp") live().at(-1)?.focus();
     }
   });
   menu.addEventListener("keydown", (e) => {
+    // A disabled item is passed over, as in every menu (DK3-7); none is today.
+    const items = live();
     const i = items.indexOf(/** @type {HTMLButtonElement} */ (document.activeElement));
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();

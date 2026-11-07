@@ -18,8 +18,21 @@
 //      as strings, since fractional digits and offsets can differ. An exact
 //      tie goes to the optional `tiebreak` (a sync service passes its revision
 //      order); with none, the LOCAL copy stays and nothing is written.
+//      ONE EXCEPTION, the format's only field-level rule (audit 3 DI3-3;
+//      BVJ's decision 2, 2026-11-07; merge vectors version 5, for BDR to
+//      review): two copies of a bookmark that both carry `placedAt` and
+//      `editedAt` merge by group. The place (BOOKMARK_PLACE_FIELDS: book,
+//      chapter, verses, contentVersion, with `placedAt`) comes from the copy
+//      whose `placedAt` is later, everything else from the copy whose
+//      `editedAt` is later, and `modified` and `client` from the copy whose
+//      `modified` is later; a tie in any stamp is settled as rule a settles
+//      one. A bookmark that moves as the reader reads is written every two
+//      seconds, so by the whole record a rename, a label or "Move as I read"
+//      turned off elsewhere always lost to the next move. A copy without
+//      both stamps merges by rule a as before.
 //   clamp. A record arriving from the other side whose `modified` (or, for a
-//      trash record, `deletedAt`, or the `modified` of the copy it holds) is
+//      trash record, `deletedAt`, or the `modified` of the copy it holds; or,
+//      for a bookmark, `placedAt` or `editedAt`) is
 //      later than the cap is treated as the cap, and the copy written carries
 //      the clamped value. The cap is `now`, or the other side's `exported`
 //      time when that is earlier (an export file's own time: nothing in a file
@@ -89,7 +102,7 @@
 // A end with the same records, apart from the places the rules name as
 // one-sided: the local copy staying on an exact tie, clamping, and skipping.
 
-import { emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
+import { BOOKMARK_PLACE_FIELDS, emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
 
 /* ── Times ───────────────────────────────────────────────────────────── */
 
@@ -153,6 +166,11 @@ function clamped(r, cap, capMs, tolerance) {
   const late = (t) => instant(t) > capMs + tolerance;
   let out = r;
   if (late(out.modified)) out = { ...out, modified: cap };
+  if (out.kind === "bookmark") {
+    // Its group stamps too, or a place or an edit from the future would win every later argument.
+    if (late(out.placedAt)) out = { ...out, placedAt: cap };
+    if (late(out.editedAt)) out = { ...out, editedAt: cap };
+  }
   if (out.kind === "trash") {
     if (late(out.deletedAt)) out = { ...out, deletedAt: cap };
     // The copy a trash record holds too, or a held copy from the future would
@@ -172,24 +190,60 @@ function clamped(r, cap, capMs, tolerance) {
  */
 const bothTrash = (x, y) => x.kind === "trash" && y.kind === "trash";
 
+/** A bookmark carrying both group stamps (rule a's exception). */
+const stampedBookmark = (r) => r.kind === "bookmark" && parses(r.placedAt) && parses(r.editedAt);
+
+/**
+ * Two stamped copies of one bookmark, merged by group: the place from the
+ * later `placedAt`, the rest from the later `editedAt`, `modified` and
+ * `client` from the later `modified`. `onTie(x, y)` is the copy a tie goes
+ * to, the same rule the whole-record pick uses, so the groups and the
+ * record settle ties alike. Per-field maxima with one tie rule, so three
+ * copies merge to the same bookmark in any order.
+ */
+function mergeBookmark(x, y, onTie) {
+  const later = (field) => {
+    const dx = instant(x[field]);
+    const dy = instant(y[field]);
+    return dx > dy ? x : dy > dx ? y : onTie(x, y);
+  };
+  const place = later("placedAt");
+  const edit = later("editedAt");
+  const whole = later("modified");
+  if (place === edit && edit === whole) return place;
+  const out = { ...edit };
+  for (const f of BOOKMARK_PLACE_FIELDS) {
+    if (f in place) out[f] = place[f];
+    else delete out[f];
+  }
+  out.placedAt = place.placedAt;
+  out.modified = whole.modified;
+  if ("client" in whole) out.client = whole.client;
+  else delete out.client;
+  return out;
+}
+
 /** Two copies of one id from the same input: later wins, a tie the smaller JSON. */
 function pickWithin(x, y) {
   if (bothTrash(x, y)) return collapseTrash([x, y].sort((a, b) => (canonical(a) <= canonical(b) ? -1 : 1)));
+  const smaller = (p, q) => (canonical(p) <= canonical(q) ? p : q);
+  if (stampedBookmark(x) && stampedBookmark(y)) return mergeBookmark(x, y, smaller);
   const dx = instant(x.modified);
   const dy = instant(y.modified);
   if (dx !== dy) return dx > dy ? x : y;
-  return canonical(x) <= canonical(y) ? x : y;
+  return smaller(x, y);
 }
 
 /** A local and an arriving copy of one id: later wins; a tie, `tiebreak`, else local. */
 function pickAcross(local, incoming, tiebreak) {
   if (bothTrash(local, incoming)) return collapseTrash([local, incoming]);
+  const onTie = (l, i) => ((tiebreak ? tiebreak(l, i) : 0) < 0 ? i : l);
+  if (stampedBookmark(local) && stampedBookmark(incoming)) return mergeBookmark(local, incoming, onTie);
   const dl = instant(local.modified);
   const di = instant(incoming.modified);
   if (dl > di) return local;
   if (di > dl) return incoming;
-  const t = tiebreak ? tiebreak(local, incoming) : 0;
-  return t < 0 ? incoming : local;
+  return onTie(local, incoming);
 }
 
 function dedupe(records, pick) {

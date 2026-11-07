@@ -51,17 +51,17 @@
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
   ARRANGEMENTS,
+  NEEDS_TEXT,
   HANDLE,
   KINDS,
   LAYOUT_KEY,
   MIN_HEIGHT,
   addPane,
+  addWhy,
   addPaneNeeds,
   applyArrangement,
   arrangementOf,
   arrivalLayout,
-  addBeside,
-  addBesideNeeds,
   closePane,
   dropZone,
   evenOut,
@@ -69,19 +69,18 @@ import {
   fitSizes,
   isFollower,
   kindLabel,
+  leavesReading,
   needs,
-  neighborIn,
   nodeAt,
-  pathTo,
   openKind,
   openLitBeside,
   openingLayout,
   originalLayout,
   panes,
   readSaved,
+  regionNames,
   resize,
   setActive,
-  setKind,
   setPin,
   setPlace,
   showIntroIn,
@@ -91,9 +90,13 @@ import {
   setPaneSheet,
   showSheet,
   splitPane,
+  sizingFor,
   swapPanes,
+  whyText,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
+import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
+import { bookKeyToLabel } from "../../data/books.js";
 import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
@@ -106,7 +109,7 @@ import { createDeskTour } from "./desk-tour.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
-import { turnOffMarks, turnOnMarks } from "./reading-display.js";
+import { marksRemembered, turnOffMarks, turnOnMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { initBookmarkFollow } from "./bookmark-follow.js";
 import { showPausedBar } from "./bookmark-stop.js";
@@ -114,14 +117,9 @@ import { DESK_PAGE } from "../../lib/desk-bookmarks.mjs";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
-import { initUndo, showUndo } from "./undo-bar.js";
+import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
-
-const NEEDS_TEXT = {
-  wider: "Needs a wider window",
-  taller: "Needs a taller window",
-  larger: "Needs a larger window",
-};
+import { createKindMenu } from "./kind-menu.js";
 
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -148,14 +146,6 @@ const ICON_LOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" s
 const ICON_UNLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" /></svg>`;
-
-// A pane's "Move" items, in the order the menu lists them (E25).
-const MOVES = [
-  { direction: "left", label: "Move left" },
-  { direction: "right", label: "Move right" },
-  { direction: "up", label: "Move up" },
-  { direction: "down", label: "Move down" },
-];
 
 // "Greek, The LIT, and My Notes": the Oxford comma, as the site writes lists.
 const LIST = new Intl.ListFormat("en-US", { type: "conjunction" });
@@ -670,7 +660,9 @@ async function start() {
     refreshFull();
     document.addEventListener("fullscreenchange", refreshFull);
     fullItem.addEventListener("click", () => {
-      closeTitleMenu({ focus: false });
+      // Focus goes back to the title, so a refused request (announced below)
+      // doesn't leave it on the page's body (LV3-4).
+      closeTitleMenu();
       if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
       else {
         document.documentElement.requestFullscreen?.().catch(() =>
@@ -722,7 +714,9 @@ async function start() {
     ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
     notebookItem, tourItem, helpItem,
   ];
-  const topItems = () => (tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
+  // A disabled line is passed over by the arrow keys, Home and End, as in
+  // every menu (DK3-7; BVJ, 2026-11-07): its reason is drawn beside it.
+  const topItems = () => enabled(tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
 
   const DIRECTIONS = [
     { id: "column", label: "Add column" },
@@ -733,16 +727,15 @@ async function start() {
   const addRoom = () => panesBox.getBoundingClientRect();
 
   /** Why a direction can't take a pane, for the hint; null when it can. */
-  function addWhy(direction) {
+  function directionWhy(direction) {
     const { width, height } = addRoom();
-    const why = addPaneNeeds(layout, direction, width, height);
-    return why === "full" ? "Four is the most" : why ? NEEDS_TEXT[why] : null;
+    return whyText(addPaneNeeds(layout, direction, width, height));
   }
 
   function refreshAdd() {
-    const reasons = DIRECTIONS.map((d) => addWhy(d.id));
-    if (!reasons.every(Boolean)) return setDisabled(addItem, null);
-    setDisabled(addItem, reasons.includes("Four is the most") ? "Four is the most" : NEEDS_TEXT.larger);
+    const { width, height } = addRoom();
+    const reasons = DIRECTIONS.map((d) => addPaneNeeds(layout, d.id, width, height));
+    setDisabled(addItem, addWhy(reasons));
   }
 
   /** Draw the flyout's step: column or row, then the kinds replacing them. */
@@ -768,7 +761,7 @@ async function start() {
     } else {
       for (const d of DIRECTIONS) {
         const b = item(d.label);
-        setDisabled(b, addWhy(d.id));
+        setDisabled(b, directionWhy(d.id));
         b.addEventListener("click", () => {
           if (b.getAttribute("aria-disabled") === "true") return;
           addStep = d.id;
@@ -818,7 +811,7 @@ async function start() {
     titleMenu.hidden = false;
     titleButton.setAttribute("aria-expanded", "true");
     const items = topItems();
-    (enabled(items)[0] ?? items[0]).focus();
+    items[0]?.focus();
   }
 
   function closeTitleMenu({ focus = true } = {}) {
@@ -909,7 +902,9 @@ async function start() {
   // (fit). The layout keeps the reader's own sizes, so a narrow window
   // squeezes the panes only while it is narrow (BA61).
   let drawn = layout.root;
-  let kindMenu = null; // the open "show in this pane" menu, if any
+  // The pane menu (kind-menu.js). It reads the layout through `getLayout`,
+  // since `layout` is replaced on every change.
+  const kindMenu = createKindMenu({ getLayout: () => layout, panesBox, paneEls, commit, announce, sizePane });
 
   function save() {
     if (layoutFrozen) return;
@@ -921,15 +916,40 @@ async function start() {
     writeKey(writeSaved(saved));
   }
 
+  /**
+   * Leaving Reading by any way at all (Add pane, a drag, a pane's kind, a
+   * link's sheet or introduction, as well as the Layout window) turns back on
+   * the marks it turned off (DK3-2; BVJ, 2026-11-07). The Layout window does
+   * it itself, to name them in its own message; this catches the rest, and
+   * finds nothing remembered after the window. Run before the panes are drawn
+   * so they come up right; not while the tour is changing the layout.
+   */
+  function leaveReading(before, next = layout) {
+    if (layoutFrozen || !leavesReading(before, next) || !marksRemembered()) return null;
+    const marks = turnOnMarks();
+    return marks.names.length ? marks : null;
+  }
+
+  /** Say that leaving Reading turned its marks back on, with Undo for both. */
+  function tellMarks(marks, before) {
+    showUndo(`Left Reading: turned on ${LIST.format(marks.names)}.`, () => {
+      marks.undo();
+      commit(before);
+    });
+  }
+
   /** Take a new layout: kept at once, and drawn (or only re-marked). */
   function commit(next, { draw: redraw = true } = {}) {
     if (next === layout) return;
+    const before = layout;
     layout = next;
+    const marks = leaveReading(before);
     save();
     if (redraw) draw();
     else mark();
     follow();
     tellFollower();
+    if (marks) tellMarks(marks, before);
   }
 
   /** The passage a pane shows now: a LIT pane's own, a following pane's own or the shared one. */
@@ -1007,7 +1027,7 @@ async function start() {
       rec = { el: section, head, body, kindButton, lead, pin, close, kind: null, inst: null, at: null };
       paneEls.set(pane.id, rec);
 
-      kindButton.addEventListener("click", () => openKindMenu(pane.id, kindButton));
+      kindButton.addEventListener("click", () => kindMenu.open(pane.id, kindButton));
       pin.addEventListener("click", () => {
         const now = findPane(layout.root, pane.id);
         // A pane that stays put keeps the passage it shows; let go, it
@@ -1111,14 +1131,16 @@ async function start() {
   function mark() {
     const all = panes(layout.root);
     const lits = all.filter((p) => p.kind === "lit").length;
+    const regions = regionNames(layout);
     for (const pane of all) {
       const rec = paneEls.get(pane.id);
       if (!rec) continue;
       const name = kindLabel(pane.kind);
       rec.kindButton.querySelector(".desk-pane__name").textContent = name;
       rec.kindButton.setAttribute("aria-label", `${name} pane: show something else here, or move it`);
-      // The region is named by its kind alone; the instruction stays on the button (DK-7).
-      rec.el.setAttribute("aria-label", name);
+      // The region is named by its kind, and its place where the kind repeats
+      // (DK3-8); the instruction stays on the button (DK-7).
+      rec.el.setAttribute("aria-label", regions.get(pane.id) ?? name);
       const leading = pane.kind === "lit" && lits > 1 && layout.active === pane.id;
       rec.lead.hidden = !leading;
       rec.el.classList.toggle("desk-pane--leading", leading);
@@ -1139,311 +1161,10 @@ async function start() {
     }
   }
 
-  // ---- "show in this pane" ----
-
-  function closeKindMenu({ focus = true } = {}) {
-    if (!kindMenu) return;
-    const { menuEl, button, fly } = kindMenu;
-    clearTimeout(flyTimer);
-    kindMenu = null;
-    fly?.el.remove();
-    menuEl.remove();
-    button.setAttribute("aria-expanded", "false");
-    if (focus) button.focus();
-  }
-
-  // The pane menu's Add pane, Move and Size are flyouts beside it, as the title
-  // menu's Add pane is: hover opens one without taking focus, a click or the
-  // right arrow moves into it. A flyout is a sibling of the menu, not a child,
-  // since the menu scrolls and would clip it.
-  let flyTimer = 0;
-
-  const flyButtons = (flyEl) => Array.from(flyEl.querySelectorAll("button")).filter((b) => b.getAttribute("aria-disabled") !== "true");
-
-  function closeFly({ focus = false } = {}) {
-    const fly = kindMenu?.fly;
-    if (!fly) return;
-    fly.el.remove();
-    fly.trigger.setAttribute("aria-expanded", "false");
-    kindMenu.fly = null;
-    if (focus) fly.trigger.focus({ preventScroll: true });
-  }
-
-  function closeFlyLater() {
-    clearTimeout(flyTimer);
-    flyTimer = setTimeout(() => {
-      if (kindMenu?.fly && !kindMenu.fly.el.contains(document.activeElement)) closeFly();
-    }, 250);
-  }
-
-  function openFly(def, trigger, { focus = true } = {}) {
-    if (!kindMenu) return;
-    clearTimeout(flyTimer);
-    const current = kindMenu.fly;
-    if (current?.trigger === trigger) {
-      if (focus) flyButtons(current.el)[0]?.focus({ preventScroll: true });
-      return;
-    }
-    closeFly();
-    const flyEl = el("div", "desk-pane__menu desk-pane__fly");
-    flyEl.setAttribute("role", "menu");
-    flyEl.setAttribute("aria-label", def.name);
-    def.build(flyEl, null);
-    kindMenu.head.append(flyEl);
-    // Beside the menu, level with its line; on the other side where the
-    // window's edge is in the way, and kept inside the window below.
-    const m = kindMenu.menuEl.getBoundingClientRect();
-    const t = trigger.getBoundingClientRect();
-    const edge = 8;
-    let left = m.right + 2;
-    if (left + flyEl.offsetWidth > window.innerWidth - edge) left = m.left - flyEl.offsetWidth - 2;
-    flyEl.style.left = `${Math.max(edge, left)}px`;
-    flyEl.style.top = `${Math.max(edge, Math.min(t.top - 4, window.innerHeight - edge - flyEl.offsetHeight))}px`;
-    flyEl.addEventListener("mouseenter", () => clearTimeout(flyTimer));
-    flyEl.addEventListener("mouseleave", closeFlyLater);
-    flyEl.addEventListener("keydown", (e) => {
-      const live = flyButtons(flyEl);
-      const i = live.indexOf(document.activeElement);
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault();
-        live[(i + (e.key === "ArrowDown" ? 1 : live.length - 1)) % live.length]?.focus();
-      } else if (e.key === "Home" || e.key === "End") {
-        e.preventDefault();
-        live[e.key === "Home" ? 0 : live.length - 1]?.focus();
-      } else if (e.key === "ArrowLeft" || e.key === "Escape") {
-        // One step back: from the kinds to the directions, then out of the flyout.
-        e.preventDefault();
-        e.stopPropagation();
-        if (flyEl.dataset.step) {
-          def.build(flyEl, null);
-          flyButtons(flyEl)[0]?.focus();
-        } else {
-          closeFly({ focus: true });
-        }
-      } else if (e.key === "Tab") {
-        closeKindMenu({ focus: false });
-      }
-    });
-    trigger.setAttribute("aria-expanded", "true");
-    kindMenu.fly = { el: flyEl, trigger };
-    if (focus) flyButtons(flyEl)[0]?.focus({ preventScroll: true });
-  }
-
-  let paneHintCount = 0;
-
-  function openKindMenu(id, button) {
-    const wasOpen = kindMenu?.button === button;
-    closeKindMenu({ focus: false });
-    if (wasOpen) return;
-    const pane = findPane(layout.root, id);
-    const menuEl = el("div", "desk-pane__menu");
-    menuEl.setAttribute("role", "menu");
-    menuEl.setAttribute("aria-label", "Pane options");
-    // The kinds are radios and the moves plain items, so each has a group of
-    // its own with its own name.
-    const kinds = el("div", "desk-pane__menu-group");
-    kinds.setAttribute("role", "group");
-    kinds.setAttribute("aria-label", "Show in this pane");
-    menuEl.append(kinds);
-    for (const k of KINDS) {
-      const item = el("button", "desk-pane__menu-item", k.label);
-      item.type = "button";
-      item.setAttribute("role", "menuitemradio");
-      item.setAttribute("aria-checked", String(k.kind === pane.kind));
-      item.tabIndex = -1;
-      item.addEventListener("click", () => {
-        closeKindMenu();
-        commit(setKind(layout, id, k.kind));
-        announce(`This pane now shows ${k.label}.`);
-      });
-      kinds.append(item);
-    }
-    const head = button.closest(".desk-pane__head");
-    // A line of the menu or its flyouts: a label, and under it, greyed, the
-    // reason it can't be used (as the title menu draws one).
-    const menuItem = (label, why) => {
-      const b = el("button", "desk-pane__menu-item");
-      b.type = "button";
-      b.setAttribute("role", "menuitem");
-      b.tabIndex = -1;
-      b.append(el("span", "desk-title__label", label));
-      if (why) {
-        const hint = el("span", "desk-title__hint", why);
-        hint.id = `deskPaneHint-${id}-${++paneHintCount}`;
-        b.append(hint);
-        b.setAttribute("aria-disabled", "true");
-        b.setAttribute("aria-describedby", hint.id);
-      }
-      return b;
-    };
-
-    // Move this pane (E25): the keyboard's way to do what dragging does. It
-    // swaps places with the pane beside it, so "Move left" is only offered
-    // where there is one; the panes are asked where they are drawn.
-    const rects = panes(layout.root).map((p) => {
-      const r = paneEls.get(p.id)?.el.getBoundingClientRect();
-      return r ? { id: p.id, left: r.left, top: r.top, right: r.right, bottom: r.bottom } : null;
-    }).filter(Boolean);
-    const moves = MOVES.map((m) => ({ ...m, other: neighborIn(rects, id, m.direction) })).filter((m) => m.other);
-    const buildMove = (fly) => {
-      for (const m of moves) {
-        const b = menuItem(m.label);
-        b.addEventListener("click", () => {
-          const name = kindLabel(findPane(layout.root, id)?.kind);
-          const other = kindLabel(findPane(layout.root, m.other)?.kind);
-          closeKindMenu();
-          commit(swapPanes(layout, id, m.other));
-          announce(`${name} moved ${m.direction}, swapping with ${other}.`);
-        });
-        fly.append(b);
-      }
-    };
-
-    // Add a pane beside this one: the flyout asks which side, then, in the same
-    // flyout, the kind, and the others scoot over (addBeside).
-    const { width, height } = panesBox.getBoundingClientRect();
-    const SIDES = [
-      { id: "left", label: "To the left", said: "to the left" },
-      { id: "right", label: "To the right", said: "to the right" },
-      { id: "above", label: "Above", said: "above" },
-      { id: "below", label: "Below", said: "below" },
-    ];
-    const sideWhy = (s) => {
-      const why = addBesideNeeds(layout, id, s, width, height);
-      return why === "full" ? "Four is the most" : why ? NEEDS_TEXT[why] : null;
-    };
-    const buildAdd = (fly, side) => {
-      fly.replaceChildren();
-      if (side) fly.dataset.step = side; else delete fly.dataset.step;
-      if (!side) {
-        for (const s of SIDES) {
-          const b = menuItem(s.label, sideWhy(s.id));
-          b.addEventListener("click", () => {
-            if (b.getAttribute("aria-disabled") === "true") return;
-            buildAdd(fly, s.id);
-            fly.children[1]?.focus();
-          });
-          fly.append(b);
-        }
-        return;
-      }
-      const label = SIDES.find((s) => s.id === side).label;
-      const back = menuItem(`‹ ${label}`);
-      back.addEventListener("click", () => { buildAdd(fly, null); fly.children[0]?.focus(); });
-      fly.append(back);
-      for (const k of KINDS) {
-        const b = menuItem(k.label);
-        b.addEventListener("click", () => {
-          const next = addBeside(layout, id, side, k.kind, width, height);
-          closeKindMenu();
-          if (next === layout) return;
-          commit(next);
-          announce(`Added a pane ${SIDES.find((x) => x.id === side).said} showing ${k.label}.`);
-        });
-        fly.append(b);
-      }
-    };
-    const addReasons = SIDES.map((s) => sideWhy(s.id));
-    const addWhy = addReasons.every(Boolean) ? (addReasons.includes("Four is the most") ? "Four is the most" : NEEDS_TEXT.larger) : null;
-
-    // Size this pane (DK-8): the click-only way to do what dragging a line
-    // does, for a reader who can't drag. Each step is a tenth of the split.
-    const sizes = SIZINGS.map((z) => ({ ...z, at: sizingFor(id, z) })).filter((z) => z.at);
-    const buildSize = (fly) => {
-      for (const z of sizes) {
-        const b = menuItem(z.label);
-        b.addEventListener("click", () => {
-          closeKindMenu();
-          sizePane(id, z);
-        });
-        fly.append(b);
-      }
-    };
-
-    // The three are lines of the menu that open flyouts.
-    const flyDefs = [
-      { name: "Add pane", build: buildAdd, why: addWhy },
-      ...(moves.length ? [{ name: "Move", build: buildMove }] : []),
-      ...(sizes.length ? [{ name: "Size", build: buildSize }] : []),
-    ];
-    const triggers = new Map();
-    const line = el("div", "desk-pane__menu-line");
-    line.setAttribute("role", "separator");
-    menuEl.append(line);
-    for (const def of flyDefs) {
-      const b = menuItem(def.name, def.why);
-      b.classList.add("desk-pane__menu-item--fly");
-      b.setAttribute("aria-haspopup", "menu");
-      b.setAttribute("aria-expanded", "false");
-      const more = el("span", "desk-title__more");
-      more.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-        <path d="M9 6l6 6-6 6" /></svg>`;
-      b.append(more);
-      b.addEventListener("click", () => {
-        if (b.getAttribute("aria-disabled") !== "true") openFly(def, b);
-      });
-      triggers.set(b, def);
-      menuEl.append(b);
-    }
-    menuEl.addEventListener("mouseover", (e) => {
-      const b = e.target instanceof Element ? e.target.closest("button") : null;
-      if (!b) return;
-      const def = triggers.get(b);
-      if (def && b.getAttribute("aria-disabled") !== "true") openFly(def, b, { focus: false });
-      else closeFlyLater();
-    });
-    menuEl.addEventListener("mouseleave", closeFlyLater);
-    const items = Array.from(menuEl.querySelectorAll("button"));
-    menuEl.addEventListener("keydown", (e) => {
-      const live = items.filter((b) => b.getAttribute("aria-disabled") !== "true");
-      const i = live.indexOf(document.activeElement);
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault();
-        const n = live.length;
-        live[(i + (e.key === "ArrowDown" ? 1 : n - 1)) % n].focus();
-      } else if (e.key === "Home" || e.key === "End") {
-        e.preventDefault();
-        live[e.key === "Home" ? 0 : live.length - 1].focus();
-      } else if (e.key === "ArrowRight" && triggers.has(document.activeElement)) {
-        e.preventDefault();
-        if (document.activeElement.getAttribute("aria-disabled") !== "true") openFly(triggers.get(document.activeElement), document.activeElement);
-      } else if (e.key === "Escape") {
-        e.stopPropagation();
-        closeKindMenu();
-      } else if (e.key === "Tab") {
-        closeKindMenu({ focus: false });
-      }
-    });
-    head.append(menuEl);
-    placeKindMenu(menuEl, button);
-    button.setAttribute("aria-expanded", "true");
-    kindMenu = { menuEl, button, head, fly: null };
-    (items.find((it) => it.getAttribute("aria-checked") === "true") ?? items[0]).focus({ preventScroll: true });
-  }
-
-  // "Make this pane wider" and its kin: which way a step goes along which kind of split.
-  const SIZINGS = [
-    { label: "Make this pane wider", split: "columns", grow: true, word: "wide" },
-    { label: "Make this pane narrower", split: "columns", grow: false, word: "wide" },
-    { label: "Make this pane taller", split: "rows", grow: true, word: "tall" },
-    { label: "Make this pane shorter", split: "rows", grow: false, word: "tall" },
-  ];
-
-  /** The nearest split round a pane that runs the way a sizing needs: its path and the pane's place in it. */
-  function sizingFor(id, z) {
-    const at = pathTo(layout.root, id);
-    if (!at) return null;
-    for (let d = at.length - 1; d >= 0; d--) {
-      const path = at.slice(0, d);
-      const node = nodeAt(layout.root, path);
-      if (node?.split === z.split) return { path, index: at[d], count: node.children.length };
-    }
-    return null;
-  }
+  // ---- "show in this pane": kind-menu.js; the size step it asks for ----
 
   function sizePane(id, z) {
-    const at = sizingFor(id, z);
+    const at = sizingFor(layout.root, id, z);
     const box = at && panesBox.querySelector(`.desk-split[data-path="${at.path.join(".")}"]`);
     if (!at || !box) return;
     const r = box.getBoundingClientRect();
@@ -1460,39 +1181,7 @@ async function start() {
     announce(`${kindLabel(findPane(layout.root, id)?.kind)} is now ${share} percent of the ${z.word === "wide" ? "width" : "height"} here.`);
   }
 
-  /**
-   * The menu is placed on the screen, not in its pane (BA122): the panes box
-   * scrolls, so a menu hanging below a bottom-row pane's header was cut off
-   * at its foot. It opens below the button where it fits in the window,
-   * above where only that fits, and otherwise on the roomier side,
-   * scrolling. Anything that scrolls or resizes under it closes it.
-   */
-  function placeKindMenu(menuEl, button) {
-    const r = button.getBoundingClientRect();
-    const gap = 2;
-    const edge = 8;
-    const height = menuEl.offsetHeight;
-    const below = window.innerHeight - r.bottom - gap - edge;
-    const above = r.top - gap - edge;
-    const down = height <= below || (height > above && below >= above);
-    if (height > (down ? below : above)) menuEl.style.maxHeight = `${Math.max(down ? below : above, 0)}px`;
-    menuEl.style.top = down ? `${r.bottom + gap}px` : `${Math.max(edge, r.top - gap - Math.min(height, above))}px`;
-    const left = Math.min(r.left, window.innerWidth - menuEl.offsetWidth - edge);
-    menuEl.style.left = `${Math.max(edge, left)}px`;
-  }
-
-  // A scroll anywhere but in the menu itself (the page, the panes box, a
-  // pane), or a new window size, would leave it beside nothing.
-  const kindMenuMoved = (e) => {
-    if (kindMenu && !(e.type === "scroll" && (kindMenu.menuEl.contains(e.target) || kindMenu.fly?.el.contains(e.target)))) closeKindMenu({ focus: false });
-  };
-  window.addEventListener("scroll", kindMenuMoved, { capture: true, passive: true });
-  window.addEventListener("resize", kindMenuMoved);
-
   document.addEventListener("pointerdown", (e) => {
-    if (kindMenu && !kindMenu.menuEl.contains(e.target) && !kindMenu.fly?.el.contains(e.target) && e.target !== kindMenu.button && !kindMenu.button.contains(e.target)) {
-      closeKindMenu({ focus: false });
-    }
     if (!wrap.contains(e.target) && !inTour(e.target)) {
       closeTitleMenu({ focus: false });
       closeMenu({ focus: false });
@@ -1802,6 +1491,7 @@ async function start() {
   // else a new one beside the active pane. A sheet that isn't in this
   // notebook is ignored without a word. The parameter is stripped either way,
   // so a reload doesn't pull the pane back.
+  const arrivedAs = layout; // before a sheet or an introduction in the address moves panes
   const wanted = new URLSearchParams(location.search).get("sheet");
   if (wanted !== null) {
     try {
@@ -1825,6 +1515,7 @@ async function start() {
   // ?place= at its chapter 1) shows it in a Book Intro pane: one already open,
   // else a new one beside the active pane where the width holds it, as ?sheet=
   // does. Stripped either way.
+  let introNoRoom = "";
   const introBook = parseIntroParam(new URLSearchParams(location.search).get("intro"));
   if (new URLSearchParams(location.search).has("intro")) {
     try {
@@ -1833,13 +1524,18 @@ async function start() {
       history.replaceState(history.state, "", url);
     } catch (_) {}
     if (introBook) {
-      const next = showIntroIn(layout, introBook, panesBox.getBoundingClientRect().width).layout;
-      if (next !== layout) {
-        layout = next;
+      const result = showIntroIn(layout, introBook, panesBox.getBoundingClientRect().width);
+      if (result.layout !== layout) {
+        layout = result.layout;
         save();
       }
+      // No room for the pane: say so, as the Search pane does (DK3-3; BVJ,
+      // 2026-11-07), once the panes are drawn.
+      if (result.outcome === "none") introNoRoom = introMoveMessage(result, bookKeyToLabel(introBook));
     }
   }
+  // A sheet or an introduction may have opened a pane beside Reading's one.
+  const arrivalMarks = leaveReading(arrivedAs);
 
   // `/` (keyboard-shortcuts.js): the first Search pane's field, or the one
   // holding focus, else a new Search pane beside the active pane; with no room
@@ -1868,6 +1564,8 @@ async function start() {
 
   fitHeight();
   draw();
+  if (arrivalMarks) tellMarks(arrivalMarks, arrivedAs);
+  else if (introNoRoom) showNotice(introNoRoom);
 
   // ---- the Study Desk tour (E24) ----
 

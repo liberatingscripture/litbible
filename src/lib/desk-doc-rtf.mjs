@@ -68,7 +68,10 @@ const PARA = {
   note: ["\\li240\\sa60\\f0\\fs20", 20],
   quote: ["\\li720\\ri720\\sa120\\f0\\fs24", 24],
   rule: [`\\sa120\\brdrb\\brdrs\\brdrw15\\brsp20\\brdrcf${GRAY}\\f0\\fs24`, 24],
-  ruled: [`\\sb360\\brdrb\\brdrs\\brdrw10\\brsp20\\brdrcf${GRAY}\\brdrbtw\\brdrs\\brdrw10\\brsp20\\brdrcf${GRAY}\\f0\\fs24`, 24],
+  // Each line an exact 32pt tall, the .docx's 18pt above a line of text, with
+  // no space before: LibreOffice drops \sb from the second paragraph of a run
+  // ruled alike, which spaced the lines unevenly (DK3-10).
+  ruled: [`\\sb0\\sa0\\sl-640\\slmult0\\brdrb\\brdrs\\brdrw10\\brsp20\\brdrcf${GRAY}\\brdrbtw\\brdrs\\brdrw10\\brsp20\\brdrcf${GRAY}\\f0\\fs24`, 24],
   answer: ["\\keepn\\li240\\sa60\\b\\f0\\fs24", 24],
   code: ["\\keepn\\qr\\sa0\\f0\\fs24", 24],
   caption: ["\\qr\\sa120\\f2\\fs14", 14],
@@ -129,14 +132,19 @@ function para(kind, runs = [], { align = null, indent = false, extra = "" } = {}
 // A heading or tag that is plain text: spaces as a browser shows them, and Greek or Hebrew marked.
 const textRuns = (text) => docRuns([{ t: "text", text: text ?? "" }]);
 
-function listRtf(b, depth = 0) {
+/** A quotation's indent on each side, in twips, as `quote` sets it. */
+const QUOTE_INDENT = 720;
+
+function listRtf(b, depth = 0, quoted = false) {
   let out = "";
   let n = 0;
   for (const item of b.items) {
     const marker = b.ordered ? `${++n}.` : ["•", "◦", "▪"][depth % 3];
-    const left = 720 + 360 * depth;
-    out += `\\pard\\plain\\sa60\\f0\\fs24\\fi-360\\li${left}\\tx${left} ${rtfEscape(marker)}\\tab ${runsRtf(docRuns(item.inlines), BASE_HALF_POINTS)}\\par\n`;
-    for (const list of item.lists) out += listRtf(list, depth + 1);
+    // Inside a quotation the list keeps the quotation's margins (DK3-4).
+    const left = (quoted ? QUOTE_INDENT : 0) + 720 + 360 * depth;
+    const right = quoted ? `\\ri${QUOTE_INDENT}` : "";
+    out += `\\pard\\plain\\sa60\\f0\\fs24\\fi-360\\li${left}${right}\\tx${left} ${rtfEscape(marker)}\\tab ${runsRtf(docRuns(item.inlines), BASE_HALF_POINTS)}\\par\n`;
+    for (const list of item.lists) out += listRtf(list, depth + 1, quoted);
   }
   return out;
 }
@@ -188,7 +196,7 @@ function body(blocks, quoted = false, width = 0) {
       case "para": out += para(quoted ? "quote" : "normal", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "quote": out += body(b.blocks, true, width); break;
       case "box": out += boxRtf(body(b.blocks, quoted, width), width); break;
-      case "list": out += listRtf(b); break;
+      case "list": out += listRtf(b, 0, quoted); break;
       case "rule": out += para("rule"); break;
       case "note": out += para("note", [{ text: b.label, sup: true }, { text: " " }, ...docRuns(b.inlines)]); break;
       case "answer": out += para("answer", textRuns("Answer")); break;

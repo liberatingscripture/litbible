@@ -77,7 +77,7 @@ import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelMap, labelsOf, liveLabels } from "../../lib/desk-labels.mjs";
-import { describeCounts, filterRecords, followTarget, groupRecords, kindsPresent, listable } from "../../lib/desk-notebook.mjs";
+import { describeCounts, filterRecords, followTarget, groupRecords, kindsPresent, listable, withoutSheets } from "../../lib/desk-notebook.mjs";
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import {
   kindName,
@@ -201,6 +201,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
     <p class="desk-mine__whatsnew" hidden><a href="/notebook/#whats-new"></a></p>
     <p class="desk-mine__changed" hidden></p>
+    <p class="sr-only" role="status" data-mine-status></p>
     <p class="desk-mine__count" hidden></p>
     <p class="desk-mine__here" hidden></p>
     <button type="button" class="desk-mine__all" hidden></button>
@@ -236,18 +237,43 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const kindSelect = el.querySelector(`#deskMineKind${n}`);
   const countLine = el.querySelector(".desk-mine__count");
   const hereLine = el.querySelector(".desk-mine__here");
+  // Narrowing the list says how much is left through a live region that is
+  // always in the page (NB3-5; the Search pane's way, DK-2). Only a change the
+  // reader made speaks (`refilter`), and a burst of typing speaks once; the
+  // visible count line is not itself live, or opening the tab would read it.
+  const statusEl = el.querySelector("[data-mine-status]");
+  let speak = false;
+  let statusTimer = 0;
+  const tell = (text) => {
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => {
+      statusEl.textContent = "";
+      statusEl.textContent = text;
+    }, 600);
+  };
+  /** Redraw after the reader changed what narrows the list, and say what is left. */
+  const refilter = () => {
+    speak = true;
+    render();
+  };
   // The rows of the list; headings sit among them.
   const rowsOf = () => list.querySelectorAll(":scope > .desk-item");
   const rowOf = (id) => list.querySelector(`:scope > .desk-item[data-id="${CSS.escape(id)}"]`);
-  queryBox.addEventListener("input", () => {
+  // Typing fires `input`; the browser's own clear (Escape, or the field's x)
+  // fires `search` and `change` and no `input` (LV3-1), which left the list
+  // filtered by words the field no longer held. Each draws only when the
+  // words actually changed, so `change` on blur costs nothing.
+  const takeQuery = () => {
+    if (query === queryBox.value) return;
     query = queryBox.value;
-    render();
-  });
+    refilter();
+  };
+  for (const type of ["input", "search", "change"]) queryBox.addEventListener(type, takeQuery);
   kindSelect.addEventListener("change", () => {
     kindFilter = kindSelect.value || null;
     // A colour only means something among highlights.
     if (kindFilter && kindFilter !== "highlight") colorFilter = null;
-    render();
+    refilter();
   });
   allButton.addEventListener("click", () => {
     if (getSetting("listFull") === "full") {
@@ -265,13 +291,14 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     radio.addEventListener("change", () => {
       if (!radio.checked) return;
       scope = radio.value;
-      render();
+      refilter();
     });
   }
 
   let shown = []; // the records the list shows now, in its order
   let following = null; // the passage /desk's LIT pane is at (follow)
   let followedOnce = false;
+  let hereReady = false; // the first drawing is not announced
 
   /**
    * /desk: make sure the records on this passage are in view. The row looked
@@ -306,7 +333,15 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       following?.bookKey && following.chapter ? passageLabel({ bookKey: following.bookKey, chapter: following.chapter }) : "";
     const say = Boolean(label) && shown.length > 0 && !hit?.here;
     hereLine.hidden = !say;
-    if (say) hereLine.textContent = `${narrowed ? "Nothing shown" : "Nothing kept"} in ${label}.`;
+    if (say) {
+      const line = `${narrowed ? "Nothing shown" : "Nothing kept"} in ${label}.`;
+      // Said when it changes, as the LIT pane moves to a chapter holding none
+      // (NB3-5); the same line drawn again is not.
+      if (hereLine.textContent !== line) {
+        hereLine.textContent = line;
+        if (hereReady) tell(line);
+      }
+    }
   }
 
   let renderSeq = 0;
@@ -330,8 +365,12 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       return;
     }
     const everyRecord = await store.all(); // once a render: a clone of every sheet too (DK-5)
-    const everything =
-      scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(everyRecord);
+    // Sheets are not notes: they have a list and a page of their own (LV3-3,
+    // BVJ 2026-11-07), so nothing below sees them, and every count, filter,
+    // label choice and empty line agrees about what this list holds.
+    const everything = withoutSheets(
+      scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(everyRecord),
+    );
     if (seq !== renderSeq) return; // a newer render has started
     // Pins have a group of their own, and a reading place another client kept
     // is not listed (E9: only what the reader marked); nor is a label, which
@@ -398,6 +437,10 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
             : scope === "chapter"
               ? pageScope.empty
               : "Nothing kept yet.";
+    if (speak) {
+      speak = false;
+      tell(countLine.hidden ? (empty.hidden ? "" : empty.textContent) : countLine.textContent);
+    }
     // A save that redrew the list took the button the open Labels… popover
     // belongs to; point it at the one that replaced it, so closing it returns
     // focus there.
@@ -428,6 +471,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       followedOnce = true;
       follow(following);
     }
+    hereReady = true;
     afterRender();
   }
 
@@ -454,7 +498,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         // Pressing the colour that is already chosen lets go of it.
         b.addEventListener("click", () => {
           colorFilter = choice === "all" || choice === colorFilter ? null : choice;
-          render();
+          refilter();
         });
         return b;
       }),
@@ -479,7 +523,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         // Pressing the label that is already chosen lets go of it.
         b.addEventListener("click", () => {
           labelFilter = l.id === "all" || l.id === labelFilter ? null : l.id;
-          render();
+          refilter();
         });
         return b;
       }),

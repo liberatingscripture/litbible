@@ -104,7 +104,7 @@ const WITHOUT_V2 = assembleChapter(GONE);
 /* ── The kinds ───────────────────────────────────────────────────────── */
 
 test("the kinds of notice", () => {
-  assert.deepEqual([...NOTICE_KINDS], ["changed", "verse", "lost", "reworded", "whole"]);
+  assert.deepEqual([...NOTICE_KINDS], ["changed", "verse", "lost", "reworded", "whole", "moved"]);
   assert.ok(Object.isFrozen(NOTICE_KINDS));
 });
 
@@ -158,9 +158,57 @@ test("a record on the same text, on older text, or on text the page can't order 
 test("a mark whose words are still found carries no notice", () => {
   assert.equal(noticeOf(OLD, noteOn("does not boast")), null);
   assert.equal(noticeOf(OLD, highlightOn("does not boast")), null);
-  // Elsewhere in the chapter ("moved") is still the reader's words.
-  assert.equal(noticeOf(MOVED, noteOn("does not boast")), null);
-  assert.equal(noticeOf(MOVED, highlightOn("does not boast")), null);
+});
+
+test("spec 4: a mark whose words were found in another verse, while its own still stands, says so (audit 3 DI3-2)", () => {
+  // The verse boundary moved: the words begin in verse 1 now, and verse 2 is still there.
+  for (const make of [noteOn, highlightOn]) {
+    const record = make("does not boast");
+    const notice = noticeOf(MOVED, record);
+    assert.equal(notice.kind, "moved");
+    assert.equal(notice.status, "moved");
+    assert.equal(MOVED.text.slice(notice.start, notice.end), "does not boast");
+    assert.equal(notice.foundVerse, 1);
+    assert.equal(notice.foundEndVerse, 1);
+    assert.equal(notice.now, "it is not arrogant.", "today's text of the record's own verse");
+  }
+  // Matthew 23's shape: the mark's verse reworded, the same formula kept in another verse.
+  const formula = chapterOf("Watch out, fakers, because you shut the door.", "Watch out, fakers, because you wander far.", "Watch out, fakers, because you are like tombs.");
+  const later = chapterOf("Things won't end well for you, because you shut the door.", "Watch out, fakers, because you wander far.", "Things won't end well for you, because you are like tombs.");
+  const start = formula.text.lastIndexOf("out, fakers,");
+  const q = quoteFields(formula, start, start + "out, fakers,".length);
+  const mark = createRecord("note", { ...where, ...q, verseCopy: verseCopyFor(formula, q.verse, q.endVerse), verseCopyAsOf: before, body: "mine", marker: "note" }, { ...made, id: nextId() });
+  assert.equal(mark.verse, 3);
+  const notice = noticeOf(later, mark);
+  assert.equal(notice.kind, "moved");
+  assert.equal(notice.foundVerse, 2);
+  // Its verses gone: a move, but nothing to say against them.
+  const gone = noteOn("does not boast", { verse: 9, endVerse: 9 });
+  assert.equal(placeRecord(MOVED, gone).status, "moved");
+  assert.equal(noticeOf(MOVED, gone), null);
+  // A page on older text than the record says nothing, as for every notice.
+  assert.equal(noticeOf(MOVED, noteOn("does not boast", { contentVersion: LATER })), null);
+});
+
+test("noticeWords and Keep for a move: the mark takes the verses its words are in now", () => {
+  const record = noteOn("does not boast");
+  const notice = noticeOf(MOVED, record);
+  assert.deepEqual(noticeWords(notice, record, "Romans 8:2"), {
+    title: "Your words moved",
+    text: "The words you marked are now in verse 1. You marked them in verse 2, which still stands with other words. Your note is shown on verse 1 for now.",
+    keep: "Keep on verse 1",
+  });
+  const range = noticeWords({ kind: "moved", foundVerse: 3, foundEndVerse: 4 }, { kind: "highlight", verse: 1, endVerse: 2 }, "Romans 8:1–2");
+  assert.equal(range.text, "The words you marked are now in verses 3–4. You marked them in verses 1–2, which still stands with other words. Your highlight is shown on verses 3–4 for now.");
+  assert.equal(range.keep, "Keep on verses 3–4");
+  const out = planKeep({ text: MOVED, record, notice, now: NOW, ctx });
+  assert.deepEqual([out.verse, out.endVerse], [1, 1]);
+  assert.equal(out.quote.exact, "does not boast");
+  assert.equal(out.verseCopy, verseCopyFor(MOVED, 1, 1));
+  assert.equal(out.verseCopyAsOf, NOW);
+  assert.equal(out.contentVersion, VERSION);
+  assert.equal(out.body, "mine");
+  assert.equal(noticeOf(MOVED, out), null, "kept, the mark is found and carries no notice");
 });
 
 test("words still found carry no notice even when the verse around them was reworded", () => {

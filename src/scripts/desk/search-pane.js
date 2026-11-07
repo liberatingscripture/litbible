@@ -413,6 +413,16 @@ export function createSearchPane({ paneId, env, getPlace }) {
     if (!searchable(q)) return tooShort();
     timer = window.setTimeout(() => run(q), DEBOUNCE);
   });
+  // The browser's own clear (Escape, the field's x) sends `search` and no
+  // `input` (LV3-1), which left the last results under an empty field. A
+  // `search` with words in the field is Enter, which the submit below handles.
+  input.addEventListener("search", () => {
+    if (input.value.trim()) return;
+    clearTimeout(timer);
+    greekState = { lemmaId: null, exact: false };
+    showModeFor(typeSel, input.value);
+    empty();
+  });
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -1133,12 +1143,22 @@ export function createSearchPane({ paneId, env, getPlace }) {
       g.append(label);
     }
     if (!res.total) {
-      // A word with occurrences and no verses means the shard didn't load.
-      if (sel && sel.count > 0 && !greekState.exact) {
+      // The search says when the word's verses didn't load (it used to be
+      // guessed, and not at all under "Exact form only": GK3-9).
+      if (res.failed) {
         g.append(make("p", "desk-search__readback", "The verses couldn’t be loaded."), retryButton(q));
         return "The verses couldn’t be loaded.";
       }
-      g.append(make("p", "desk-search__readback", "This exact form doesn’t occur. Clear “Exact form only” to see every form."));
+      // Nothing loaded wrongly: the exact form, or the book chosen, has none.
+      g.append(
+        make(
+          "p",
+          "desk-search__readback",
+          greekState.exact
+            ? "This exact form doesn’t occur. Clear “Exact form only” to see every form."
+            : "No occurrences in the selected book.",
+        ),
+      );
       return "";
     }
     if (sel?.lemma.normalize("NFC") === gk.ARTICLE && !greekState.exact) {

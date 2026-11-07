@@ -2,6 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ARRANGEMENTS,
+  FULL_TEXT,
+  NEEDS_TEXT,
+  SIZINGS,
+  addWhy,
+  sizingFor,
+  whyText,
+  leavesReading,
+  regionNames,
   addPane,
   addPaneNeeds,
   HANDLE,
@@ -1744,4 +1752,80 @@ test("E53: showIntroIn with no room changes nothing, and with no LIT pane moves 
   assert.equal(r.outcome, "opened");
   assert.equal(r.layout.place, "romans 1");
   assert.equal(showIntroIn(narrow, "notabook", 1200, 600).outcome, "none");
+});
+
+// ---- Audit 3, session 3 ---------------------------------------------------
+
+test("FULL_TEXT names the limit in words, from MAX_PANES (CP3-4)", () => {
+  assert.equal(MAX_PANES, 4);
+  assert.equal(FULL_TEXT, "Four is the most");
+});
+
+test("leavesReading: any way out of one LIT pane counts, not only a Layout row (DK3-2)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  assert.equal(arrangementOf(reading), "reading");
+  const added = addPane(reading, "column", "mine", 1600, 900);
+  assert.notEqual(added, reading);
+  assert.equal(leavesReading(reading, added), true, "Add pane");
+  assert.equal(leavesReading(reading, setKind(reading, reading.root.pane.id, "mine")), true, "the one pane shown as another kind");
+  assert.equal(leavesReading(reading, applyArrangement(reading, "cols-2")), true, "a Layout row");
+  assert.equal(leavesReading(reading, setPlace(reading, "john 4")), false, "a move within Reading");
+  assert.equal(leavesReading(added, reading), false, "coming into Reading");
+  assert.equal(leavesReading(originalLayout(), applyArrangement(originalLayout(), "cols-3")), false, "never in Reading");
+});
+
+test("regionNames: a kind open twice is told apart by its place (DK3-8)", () => {
+  const three = applyArrangement(originalLayout("john 3"), "cols-3");
+  const ids = panes(three.root).map((p) => p.id);
+  let l = setKind(three, ids[0], "lit");
+  l = setKind(l, ids[1], "lit");
+  l = setKind(l, ids[2], "mine");
+  const names = regionNames(l);
+  assert.deepEqual(panes(l.root).map((p) => names.get(p.id)), ["The LIT, 1 of 2", "The LIT, 2 of 2", "My Notes"]);
+  const one = regionNames(originalLayout());
+  assert.deepEqual([...one.values()], ["The LIT", "My Notes"], "a kind open once is named by its kind alone");
+});
+
+// ---- Audit 3, session 6 (LG3-3): the pane menu's rules, out of desk-page.js ----
+
+test("whyText: FULL_TEXT for full, the window words for a size, null for none (LG3-3)", () => {
+  assert.equal(whyText("full"), FULL_TEXT);
+  assert.equal(whyText("wider"), "Needs a wider window");
+  assert.equal(whyText("taller"), "Needs a taller window");
+  assert.equal(whyText("larger"), "Needs a larger window");
+  assert.equal(whyText(null), null);
+  assert.equal(whyText(undefined), null);
+  assert.equal(whyText("something new"), null, "an unknown reason says nothing rather than undefined");
+  assert.equal(Object.keys(NEEDS_TEXT).join(), "wider,taller,larger");
+});
+
+test("addWhy: a line is grayed only when every side is refused (LG3-3)", () => {
+  assert.equal(addWhy([null, null]), null, "nothing refused");
+  assert.equal(addWhy([null, "wider"]), null, "one side open keeps the line usable");
+  assert.equal(addWhy(["wider", "taller"]), NEEDS_TEXT.larger, "every side short of room");
+  assert.equal(addWhy(["full", "full"]), FULL_TEXT);
+  assert.equal(addWhy(["wider", "full", "taller", "larger"]), FULL_TEXT, "any full wins over room");
+});
+
+test("sizingFor: the nearest split round a pane that runs the way asked (LG3-3)", () => {
+  const widen = SIZINGS.find((z) => z.label === "Make this pane wider");
+  const taller = SIZINGS.find((z) => z.label === "Make this pane taller");
+  const root = cols([0.5, 0.5], leaf("a", "lit"), rows([0.4, 0.6], leaf("b", "mine"), leaf("c", "verse")));
+  // b sits in a column split (the root) and a row split.
+  assert.deepEqual(sizingFor(root, "a", widen), { path: [], index: 0, count: 2 });
+  assert.deepEqual(sizingFor(root, "b", widen), { path: [], index: 1, count: 2 }, "up past the rows to the columns");
+  assert.deepEqual(sizingFor(root, "c", taller), { path: [1], index: 1, count: 2 });
+  assert.equal(sizingFor(root, "a", taller), null, "no rows round a, so it can't be made taller");
+  assert.equal(sizingFor(root, "nope", widen), null, "a pane that isn't there");
+  assert.equal(sizingFor(leaf("only", "lit"), "only", widen), null, "the only pane");
+});
+
+test("SIZINGS: four steps, two per kind of split, each way (LG3-3)", () => {
+  assert.equal(SIZINGS.length, 4);
+  for (const split of ["columns", "rows"]) {
+    const of = SIZINGS.filter((z) => z.split === split);
+    assert.deepEqual(of.map((z) => z.grow).sort(), [false, true]);
+    assert.equal(new Set(of.map((z) => z.word)).size, 1);
+  }
+  assert.deepEqual([...new Set(SIZINGS.map((z) => z.word))].sort(), ["tall", "wide"]);
 });

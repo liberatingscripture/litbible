@@ -1,8 +1,11 @@
 // src/scripts/desk/shell.js
 //
-// The Study Desk, as loaded by desk-gate.js on a computer with the preview
-// switched on (STUDY-DESK.md, phase 1b). Everything the desk needs comes in
-// through here, so none of it reaches a reader who hasn't switched it on.
+// The Study Desk on a reading page, stage two: loaded and started by the
+// first stage (first-stage.js, which desk-gate.js loads on a computer with
+// the preview switched on) once there is something to draw or the reader
+// reaches for the Notebook (Audit 3, LG3-2). Everything the Notebook needs
+// comes in through here, so none of it reaches a reader who hasn't switched
+// the desk on, and a reader with nothing kept gets it only on asking.
 
 import { onFootnote } from "../../lib/desk-records.mjs";
 import { recordHref, recordReference } from "../../lib/desk-store-core.mjs";
@@ -27,7 +30,6 @@ import { initProseActions } from "./prose-actions.js";
 import { initPins } from "./pins.js";
 import { initBookmarkFollow } from "./bookmark-follow.js";
 import { showPausedBar } from "./bookmark-stop.js";
-import { fitGlossaryTitles } from "./glossary-titles.js";
 import { createTour } from "./tour.js";
 import { initCommands } from "./commands.js";
 import { createPrintNotes } from "./print-notes.js";
@@ -63,12 +65,11 @@ function goToVerse(record) {
 // keeps working; before it, there is no Notebook for the narrowed column and
 // the buttons to belong to, so the page stands down (BA29).
 let panelUp = false;
+// What the first stage needs once the Notebook is up: the panel's API.
+let api = null;
 
-async function start() {
+async function start({ handOver }) {
   addDeskStyle();
-  // First, before the notebook opens, so the glossary's headings settle as
-  // early as they can.
-  if (document.querySelector(".glossary-entries")) fitGlossaryTitles();
 
   let store = null;
   let storeError = null;
@@ -140,6 +141,9 @@ async function start() {
   const printNotes = createPrintNotes({ store });
   // "Print with room to write" (N9): the blank version, which reads no notebook.
   const printRoom = createPrintRoom();
+  // The first stage's tab gives way in the same task as the panel's own is
+  // placed, so nothing paints between and nothing moves.
+  handOver?.();
   const panel = createPanel({
     store,
     printNotes,
@@ -159,6 +163,7 @@ async function start() {
     showInText: store ? showInText : null,
   });
   panelUp = true;
+  api = { panel };
   // "Print ▸" in the verse menu and the selection panel (E40).
   const printPart = createPrintPart({ store, printNotes });
   initActions({ store, ctx, showVerse: panel.showVerse, printPart });
@@ -174,9 +179,22 @@ async function start() {
   if (store) createHighlights({ store });
   // A chapter opened from /desk's Print menu prints itself (print-link.js).
   initPrintLink({ printNotes, printRoom });
+  return api;
 }
 
-start().catch((err) => {
-  console.error("Study Desk: the notebook didn't start", err);
-  if (!panelUp) standDown();
-});
+/**
+ * Start the Notebook (once). Resolves with `{ panel }` once it is up, even if
+ * something after the panel failed (that is only logged), or null when it
+ * failed before the panel was built, in which case the page has stood down.
+ * `handOver` is the first stage's: it takes its own tab away just before the
+ * panel draws its own.
+ */
+let started = null;
+export function startShell({ handOver = null } = {}) {
+  started ??= start({ handOver }).catch((err) => {
+    console.error("Study Desk: the notebook didn't start", err);
+    if (!panelUp) standDown();
+    return api;
+  });
+  return started;
+}

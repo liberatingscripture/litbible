@@ -334,8 +334,10 @@ export function initPins({ store, ctx, desk = false }) {
     li.classList.add("desk-fn");
     // Add a note (M11), beside Pin. The reader's notes on this footnote sit in
     // the margin beside it (notes-margin.js), not under it. Pin and Add a note
-    // share one row after the note, which the left margin holds (E49).
-    li.append(footnotePills(label, [button, addNoteButton(li.id, label)]));
+    // share one row after the note, which the left margin holds (E49). "Add a
+    // note" comes first in the document, so it is drawn outside and Pin nearest
+    // the footnote, and Tab runs the way the eye does (BVJ, 2026-11-07).
+    li.append(footnotePills(label, [addNoteButton(li.id, label), button]));
   }
   initFootnotePills(document.querySelector(".footnotes-wrap ol.footnotes"));
 

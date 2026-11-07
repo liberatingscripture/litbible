@@ -57,6 +57,20 @@ class StubElement {
     node.parent = this.parent;
     this.parent.children.splice(this.parent.children.indexOf(this), 0, node);
   }
+  insertBefore(node, ref) {
+    node.remove();
+    node.parent = this;
+    const at = ref ? this.children.indexOf(ref) : -1;
+    if (at < 0) this.children.push(node);
+    else this.children.splice(at, 0, node);
+    return node;
+  }
+  replaceWith(node) {
+    const parent = this.parent;
+    parent.insertBefore(node, this);
+    this.remove();
+  }
+  removeAttribute(k) { delete this.attrs[k]; }
   replaceChildren(...kids) {
     this.children = [];
     this.text = "";
@@ -330,4 +344,72 @@ test("a word that is also a command is quoted in the field, and the card keeps t
   byKey("w0").dispatch("input", { type: "input" });
   assert.equal(field.value, '"perfect"');
   assert.equal(byKey("w0").value, "perfect");
+});
+
+test("GK3-2: typing in a card's word box keeps the very box being typed in", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "πίστις.gen, Χριστός";
+  openGreekCommands({ field, focus: false });
+  await settle();
+  const first = byKey("w0");
+  const second = byKey("w1");
+  second.value = "Χριστός/Ἰησοῦς";
+  second.dispatch("input", { type: "input" });
+  await settle();
+  assert.equal(field.value, "πίστις.gen, Χριστός/Ἰησοῦς");
+  assert.equal(byKey("w0"), first, "the first card's box is the same node");
+  assert.equal(byKey("w1"), second, "and so is the one typed in");
+  assert.equal(second.isConnected, true);
+  assert.equal(second.value, "Χριστός/Ἰησοῦς");
+  assert.equal(windowEl().findAll((e) => e.dataset.key === "w1").length, 1, "never a second box");
+  // What a card shows below the box still follows what is typed.
+  const code = windowEl().findAll((e) => e.classes.has("greek-card__code")).map((e) => e.textContent);
+  assert.ok(code.includes("Χριστός/Ἰησοῦς"));
+});
+
+test("GK3-2: removing a card keeps the others' boxes and draws them for their new places", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "πίστις.gen, Χριστός, Ἰησοῦς";
+  openGreekCommands({ field, focus: false });
+  await settle();
+  byKey("x0").dispatch("click", { detail: 0 });
+  assert.equal(field.value, "Χριστός, Ἰησοῦς");
+  assert.equal(byKey("w0").value, "Χριστός");
+  assert.equal(byKey("w1").value, "Ἰησοῦς");
+  assert.equal(byKey("w2"), undefined);
+  assert.equal(windowEl().findAll((e) => e.classes.has("greek-card")).length, 2);
+});
+
+test("GK3-15: a space typed in a card is left out and the card says so", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  openGreekCommands({ field, focus: false });
+  byKey("w0").value = "holy spirit";
+  byKey("w0").dispatch("input", { type: "input" });
+  assert.equal(field.value, "holyspirit");
+  assert.equal(byKey("w0").value, "holyspirit");
+  const notes = windowEl().findAll((e) => e.classes.has("greek-card__line") && /space or a symbol/.test(e.textContent));
+  assert.equal(notes.length, 1);
+});
+
+test("GK3-5: plain Latin words in the field are cards, with a line saying how they are read", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "pistis Christos";
+  openGreekCommands({ field, focus: false });
+  assert.equal(byKey("w0").value, "pistis");
+  assert.equal(byKey("w1").value, "Christos");
+  assert.equal(windowEl().findAll((e) => e.classes.has("greek-builder__plain")).length, 1);
+  assert.equal(byKey("again"), undefined, "nothing to start over");
+  await settle();
+  byKey("g0").dispatch("click", { detail: 0 });
+  assert.equal(windowEl().findAll((e) => e.classes.has("greek-builder__plain")).length, 0, "a choice makes it the builder's own search");
+});
+
+test("GK3-7: a search over 300 characters is said so and the field is left as typed", () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  field.value = "λόγος/".repeat(60) + "θεός.gen";
+  const before = field.value;
+  openGreekCommands({ field, focus: false });
+  assert.equal(byKey("w0"), undefined);
+  assert.match(windowEl().findAll((e) => e.classes.has("greek-builder__why"))[0].textContent, /at most 300 characters/);
+  assert.equal(field.value, before);
 });

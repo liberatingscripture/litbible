@@ -20,14 +20,15 @@
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { verseCount } from "../data/verse-counts.js";
 import { canEdit, editRecord } from "./desk-records.mjs";
-import { canFollowMore, cleanBookmarkName } from "./desk-bookmarks.mjs";
+import { canFollowMore, cleanBookmarkName, MAX_FOLLOWING } from "./desk-bookmarks.mjs";
 import { bookmarksOn, followChoices, planSave } from "./desk-store-core.mjs";
+import { numberWord } from "./desk-wording.mjs";
 
 /** Said when the bookmark being changed is no longer in the notebook. */
 export const BOOKMARK_GONE = "That bookmark has been deleted.";
 
 /** Said when the notebook filled up with bookmarks that move while one was being edited. */
-export const FOLLOW_LIMIT_REACHED = "Six of your bookmarks already move as you read. Turn that off on one of them first.";
+export const FOLLOW_LIMIT_REACHED = `${numberWord(MAX_FOLLOWING, { capital: true })} of your bookmarks already move as you read. Turn that off on one of them first.`;
 
 /** Said when a newer version of the Study Desk wrote the bookmark. */
 export const BOOKMARK_NEWER = "That bookmark was made by a newer version and can’t be changed here.";

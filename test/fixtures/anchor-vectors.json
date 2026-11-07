@@ -1,10 +1,11 @@
 {
  "spec": "STUDY-DESK-FORMAT.md",
- "specVersion": 3,
+ "specVersion": 4,
  "contextLength": 32,
  "minContext": 8,
  "changedGrowth": 16,
  "changedLimit": "a changed region is at most 2 × exact's length + changedGrowth",
+ "moved": "spec version 4: a moved result carries outsideVerses, true when the verse the words now begin in lies outside the anchor's verses while those verses still exist; such a move carries the change notice, and one inside them, or whose verses are gone, stays silent",
  "offsets": "UTF-16 code units into a chapter's anchor text (verse texts joined by one space)",
  "generatedBy": "npm run build:anchor-vectors (scripts/build-anchor-vectors.mjs)",
  "normalize": [
@@ -1059,6 +1060,63 @@
     "36": "The one who places their trust in the Son has agelong life, but the one who refuses to be persuaded by the Son will not see life; instead, God’s anger stays on them.”"
    },
    "text": "There was a man, one of the Pharisees, named Nicodemus, who was a leader among the Judeans. He came to Jesus in the night. “Rabbi,” he said, “We understand that you have come as a teacher from God; no one is able to produce the signs that you do unless God is with them.” “Truly, truly I’m telling you,” Jesus answered, “Unless someone is brought into being from above, they are not able to understand God’s Reign.” “How can a person be brought into being when they’re old?” Nicodemus said. “Can they go into their mother’s womb and come into being a second time?” “Truly, truly I’m telling you,” Jesus answered, “Unless someone is brought into being from water and from the Life-breath, they aren’t able to start participating in God’s Reign. Whatever has been brought into being from the body is a body, and whatever has been brought into being from the Life-breath is a life-breath. Don’t be shocked that I told you it’s necessary for you to be brought into being from above. The wind blows where it wants and you hear its sound, but you don’t see where it comes from or where it’s going. That’s how it is with everyone who has been brought into being by the Life-breath.” “How can these things happen?” Nicodemus asked him. “You are the teacher of Israel, but you don’t understand these things?” Jesus responded. “Truly, truly I’m telling you that we’re talking about what we have come to understand and we report what we’ve seen, but you don’t accept what we report. If you don’t trust what I’ve told you about things happening on the land, how will you trust it if I tell you about heavenly things? “No one has ascended to the heavens except the one who descended from the heavens, the Son of Humanity. Just like Moses raised up the snake in the wilderness, it’s necessary for the Son of Humanity to be raised up so that everyone who trusts him will have agelong life. You see, this is how God loved the whole world: God gave the One-of-a-kind Son so that everyone who places their trust in him would not be lost to death but would have agelong life. God did not send the Son to the whole world in order to put the whole world on trial but so the whole world would be liberated through him. The one who places their trust in him is not put on trial, but the one who does not trust has already been tried since they have not placed their trust in the name of God’s One-of-a-Kind Son. But this is the verdict: that the light spoke to the whole world and the people loved the darkness more than the light. It was because their actions were corrupt. For everyone who practices disreputable things hates the light and does not come near the light so that their actions won’t be exposed. But the one who behaves with integrity comes near the light so that their actions can be displayed because they have done them with God.” Afterward, Jesus and his students went to the land of Judea, and he spent time there with them and immersed people. John was also immersing people in Aenon near Salim because a lot of water was there, and people were coming and being immersed (This was when John had not yet been thrown in prison). Then, there came to be a debate between John’s students and a Judean about cleansing. So they came to John. “Rabbi,” they said to him, “The one who was with you across the Jordan, the one you have vouched for—look! He is immersing people, and everyone is going to him!” “A person can’t receive anything,” John responded, “unless it has been given to them from the heavens. You can already confirm for me that I said, ‘I am not the Christ,’ and instead I said, ‘I’m the one who was sent ahead of the one who is.’ The groom is the one who has the bride, and the groom’s friend who stands by and listens for him celebrates joyfully at the sound of the groom’s voice. So, this same joy has been made real for me. It’s necessary for him to become more prominent and me to become less prominent. The one who comes from above is higher than everything; the one from the land is from the land and speaks from the land. The one who comes from the heavens is higher than everything. He has seen and heard what he reports about this, and no one accepts his report. Whoever has accepted his report has fully endorsed that God is trustworthy. You see, God sent him to speak what comes from the mouth of God because he doesn’t give the Life-breath from an attitude of moderation. The Father loves the Son and has handed him everything. The one who places their trust in the Son has agelong life, but the one who refuses to be persuaded by the Son will not see life; instead, God’s anger stays on them.”"
+  },
+  {
+   "slug": "matthew-23@ff34f594",
+   "why": "as revision ff34f594 (2026-08-16) left it: the woe formula reworded in every verse but 15",
+   "paragraphs": [
+    "<p id=\"matthew-23-p1\"><span class=\"vglue\"><sup id=\"v1\" class=\"vn\">1</sup>&nbsp;Then</span> Jesus spoke to the crowds and his students:</p>",
+    "<p id=\"matthew-23-p2\"><span class=\"vglue\"><sup id=\"v2\" class=\"vn\">2</sup>&nbsp;“The</span> Bible Scholars and the Pharisees sit on Moses’ seat, <span class=\"vglue\"><sup id=\"v3\" class=\"vn\">3</sup>&nbsp;so</span> pay attention to whatever they tell you and do it. You see, they say things but don’t do them. <span class=\"vglue\"><sup id=\"v4\" class=\"vn\">4</sup>&nbsp;They</span> secure heavy loads, hard to carry, and put them on people’s shoulders, but they aren’t willing to lift a finger to move them.<sup class=\"fn-ref\"><a id=\"fnref-a\" href=\"#fn-a\" role=\"doc-noteref\">a</a></sup> <span class=\"vglue\"><sup id=\"v5\" class=\"vn\">5</sup>&nbsp;They</span> do their actions so that people will notice them; they display their phylacteries<sup class=\"fn-ref\"><a id=\"fnref-b\" href=\"#fn-b\" role=\"doc-noteref\">b</a></sup> and tassels<sup class=\"fn-ref\"><a id=\"fnref-c\" href=\"#fn-c\" role=\"doc-noteref\">c</a></sup> prominently. <span class=\"vglue\"><sup id=\"v6\" class=\"vn\">6</sup>&nbsp;They</span> care about<sup class=\"fn-ref\"><a id=\"fnref-d\" href=\"#fn-d\" role=\"doc-noteref\">d</a></sup> the spot for the highest status guest at dinners, the seat of honor in the synagogues, <span class=\"vglue\"><sup id=\"v7\" class=\"vn\">7</sup>&nbsp;elaborate</span> greetings of respect in public, and having people call them ‘My great one.’<sup class=\"fn-ref\"><a id=\"fnref-e\" href=\"#fn-e\" role=\"doc-noteref\">e</a></sup> <span class=\"vglue\"><sup id=\"v8\" class=\"vn\">8</sup>&nbsp;But</span> you shouldn’t be called ‘My great one’; there’s one teacher for all of you,<sup class=\"fn-ref\"><a id=\"fnref-f\" href=\"#fn-f\" role=\"doc-noteref\">f</a></sup> and you are all fellow students.<sup class=\"fn-ref\"><a id=\"fnref-g\" href=\"#fn-g\" role=\"doc-noteref\">g</a></sup> <span class=\"vglue\"><sup id=\"v9\" class=\"vn\">9</sup>&nbsp;And</span> you shouldn’t call an earthly authority your ‘father’ because there’s one heavenly Father for all of you. <span class=\"vglue\"><sup id=\"v10\" class=\"vn\">10</sup>&nbsp;Nor</span> should you be called ‘leader’ because the Messiah is your one leader. <span class=\"vglue\"><sup id=\"v11\" class=\"vn\">11</sup>&nbsp;Your</span> servants will be the most impressive among you. <span class=\"vglue\"><sup id=\"v12\" class=\"vn\">12</sup>&nbsp;So</span> whoever elevates themselves will be brought low, and whoever accepts a lower position will be elevated.</p>",
+    "<p id=\"matthew-23-p3\"><span class=\"vglue\"><sup id=\"v13\" class=\"vn\">13</sup>&nbsp;“Things</span> won’t end well for you<sup class=\"fn-ref\"><a id=\"fnref-h\" href=\"#fn-h\" role=\"doc-noteref\">h</a></sup> pretenders,<sup class=\"fn-ref\"><a id=\"fnref-i\" href=\"#fn-i\" role=\"doc-noteref\">i</a></sup>—O Bible Scholars and Pharisees—because you shut the entrance to the Heavenly Reign in people’s faces. In fact, you neither enter nor release others to enter.</p>",
+    "<p id=\"matthew-23-p4\"><span class=\"vglue\"><sup id=\"v15\" class=\"vn\">15</sup>&nbsp;</span><sup class=\"fn-ref\"><a id=\"fnref-j\" href=\"#fn-j\" role=\"doc-noteref\">j</a></sup> “You’d better watch out, fakers, Bible Scholars and Pharisees, because you wander dry places and sea to recruit one new follower, and when someone joins, you make them twice the child<sup class=\"fn-ref\"><a id=\"fnref-k\" href=\"#fn-k\" role=\"doc-noteref\">k</a></sup> of the Hinnom Valley<sup class=\"fn-ref\"><a id=\"fnref-l\" href=\"#fn-l\" role=\"doc-noteref\">l</a></sup> as you!</p>",
+    "<p id=\"matthew-23-p5\"><span class=\"vglue\"><sup id=\"v16\" class=\"vn\">16</sup>&nbsp;“Things</span> won’t end well for you, O blind guides who say, ‘Whoever swears by the temple—that’s nothing—but whoever swears by the gold of the temple, they owe what they swear.’ <span class=\"vglue\"><sup id=\"v17\" class=\"vn\">17</sup>&nbsp;You’re</span> shortsighted,<sup class=\"fn-ref\"><a id=\"fnref-m\" href=\"#fn-m\" role=\"doc-noteref\">m</a></sup> unable to see what’s right in front of you.<sup class=\"fn-ref\"><a id=\"fnref-n\" href=\"#fn-n\" role=\"doc-noteref\">n</a></sup> Which is more important, the gold or the temple that makes the gold sacred? <span class=\"vglue\"><sup id=\"v18\" class=\"vn\">18</sup>&nbsp;And</span> you say, ‘Whoever swears on the altar—that’s nothing—but whoever swears on the offering on top of it, they owe what they swear.’ <span class=\"vglue\"><sup id=\"v19\" class=\"vn\">19</sup>&nbsp;You</span> don’t see the truth! What’s more important, the offering or the altar that makes the offering sacred? <span class=\"vglue\"><sup id=\"v20\" class=\"vn\">20</sup>&nbsp;Therefore,</span> a person who swears by the altar swears on it and everything placed on it; <span class=\"vglue\"><sup id=\"v21\" class=\"vn\">21</sup>&nbsp;whoever</span> swears on the temple swears on it and on the One who dwells within it; <span class=\"vglue\"><sup id=\"v22\" class=\"vn\">22</sup>&nbsp;a</span> person who swears on the heavens swears on God’s throne and on the one who sits on it.</p>",
+    "<p id=\"matthew-23-p6\"><span class=\"vglue\"><sup id=\"v23\" class=\"vn\">23</sup>&nbsp;“Things</span> won’t end well for you pretenders—O Bible scholars and Pharisees—because you give an offering of a tenth of your mint, dill, and cumin while dismissing the weighty<sup class=\"fn-ref\"><a id=\"fnref-o\" href=\"#fn-o\" role=\"doc-noteref\">o</a></sup> things of Torah: justice, compassion, and faithfulness!<sup class=\"fn-ref\"><a id=\"fnref-p\" href=\"#fn-p\" role=\"doc-noteref\">p</a></sup> It’s essential to do these things—without neglecting the others. <span class=\"vglue\"><sup id=\"v24\" class=\"vn\">24</sup>&nbsp;Blind</span> guides, you strain out gnats but drink down a camel!</p>",
+    "<p id=\"matthew-23-p7\"><span class=\"vglue\"><sup id=\"v25\" class=\"vn\">25</sup>&nbsp;“Things</span> won’t end well for you pretenders—O Bible Scholars and Pharisees—because you clean the outside of the cup and dish, but inside they are robbery and devoid of self-restraint. <span class=\"vglue\"><sup id=\"v26\" class=\"vn\">26</sup>&nbsp;Blind</span> Pharisee, first clean the inside of the cup so that the outside can also get clean.</p>",
+    "<p id=\"matthew-23-p8\"><span class=\"vglue\"><sup id=\"v27\" class=\"vn\">27</sup>&nbsp;“Things</span> won’t end well for you pretenders—O Bible Scholars and Pharisees—because you’re like tombs with plaster exteriors which look beautiful on the outside, but inside they’re full of the bones of the dead and everything unclean. <span class=\"vglue\"><sup id=\"v28\" class=\"vn\">28</sup>&nbsp;Just</span> like them, you appear to people like you’re committed to doing everything right, yet inside you’re full of play-acting<sup class=\"fn-ref\"><a id=\"fnref-q\" href=\"#fn-q\" role=\"doc-noteref\">q</a></sup> and lack Torah.<sup class=\"fn-ref\"><a id=\"fnref-r\" href=\"#fn-r\" role=\"doc-noteref\">r</a></sup></p>",
+    "<p id=\"matthew-23-p9\"><span class=\"vglue\"><sup id=\"v29\" class=\"vn\">29</sup>&nbsp;“Things</span> won’t end well for you pretenders—O Bible Scholars and Pharisees—because you build tombs for prophets and decorate the tombstones of those who live justly,<sup class=\"fn-ref\"><a id=\"fnref-s\" href=\"#fn-s\" role=\"doc-noteref\">s</a></sup> <span class=\"vglue\"><sup id=\"v30\" class=\"vn\">30</sup>&nbsp;and</span> you say, ‘If we had lived in the days of our ancestors, we would not have participated in shedding the blood of the prophets.’ <span class=\"vglue\"><sup id=\"v31\" class=\"vn\">31</sup>&nbsp;Therefore,</span> you testify against yourselves that you are heirs<sup class=\"fn-ref\"><a id=\"fnref-t\" href=\"#fn-t\" role=\"doc-noteref\">t</a></sup> of those who murdered the prophets. <span class=\"vglue\"><sup id=\"v32\" class=\"vn\">32</sup>&nbsp;You</span> might as well complete the legacy<sup class=\"fn-ref\"><a id=\"fnref-u\" href=\"#fn-u\" role=\"doc-noteref\">u</a></sup> of your ancestors! <span class=\"vglue\"><sup id=\"v33\" class=\"vn\">33</sup>&nbsp;Snakes!</span> Children of vipers!<sup class=\"fn-ref\"><a id=\"fnref-v\" href=\"#fn-v\" role=\"doc-noteref\">v</a></sup> How could you escape from the justice enacted in the Hinnom Valley?<sup class=\"fn-ref\"><a id=\"fnref-w\" href=\"#fn-w\" role=\"doc-noteref\">w</a></sup> <span class=\"vglue\"><sup id=\"v34\" class=\"vn\">34</sup>&nbsp;Pay</span> attention! This is why I’m sending you prophets, teachers of wisdom, and Bible Scholars. You will crucify and kill some of them, and some of them you’ll whip in your synagogues and hunt them from town to town, <span class=\"vglue\"><sup id=\"v35\" class=\"vn\">35</sup>&nbsp;which</span> would bring on you all the blood of those who lived justly that was shed in the land from the blood of Abel, who lived justly, until the blood of Zechariah son of Barachiah,<sup class=\"fn-ref\"><a id=\"fnref-x\" href=\"#fn-x\" role=\"doc-noteref\">x</a></sup> whom you murdered between the temple and the altar. <span class=\"vglue\"><sup id=\"v36\" class=\"vn\">36</sup>&nbsp;Honestly,</span> I’m telling you, all these things will come to bear on this group.</p>",
+    "<p id=\"matthew-23-p10\"><span class=\"vglue\"><sup id=\"v37\" class=\"vn\">37</sup>&nbsp;“Jerusalem,</span> Jerusalem, you who kill the prophets and stone those who are sent to you!<sup class=\"fn-ref\"><a id=\"fnref-y\" href=\"#fn-y\" role=\"doc-noteref\">y</a></sup> I’ve wanted for so long to gather your children together like a hen gathers her chicks together under her wings,<sup class=\"fn-ref\"><a id=\"fnref-z\" href=\"#fn-z\" role=\"doc-noteref\">z</a></sup> but you didn’t want it. <span class=\"vglue\"><sup id=\"v38\" class=\"vn\">38</sup>&nbsp;Look</span> around! Your household is abandoned to be desolate. <span class=\"vglue\"><sup id=\"v39\" class=\"vn\">39</sup>&nbsp;You</span> see, I’m telling you, you won’t see me at all from now until you say, ‘Praised be the one who comes representing the Lord!’”<sup class=\"fn-ref\"><a id=\"fnref-aa\" href=\"#fn-aa\" role=\"doc-noteref\">aa</a></sup></p>"
+   ],
+   "verses": {
+    "1": "Then Jesus spoke to the crowds and his students:",
+    "2": "“The Bible Scholars and the Pharisees sit on Moses’ seat,",
+    "3": "so pay attention to whatever they tell you and do it. You see, they say things but don’t do them.",
+    "4": "They secure heavy loads, hard to carry, and put them on people’s shoulders, but they aren’t willing to lift a finger to move them.",
+    "5": "They do their actions so that people will notice them; they display their phylacteries and tassels prominently.",
+    "6": "They care about the spot for the highest status guest at dinners, the seat of honor in the synagogues,",
+    "7": "elaborate greetings of respect in public, and having people call them ‘My great one.’",
+    "8": "But you shouldn’t be called ‘My great one’; there’s one teacher for all of you, and you are all fellow students.",
+    "9": "And you shouldn’t call an earthly authority your ‘father’ because there’s one heavenly Father for all of you.",
+    "10": "Nor should you be called ‘leader’ because the Messiah is your one leader.",
+    "11": "Your servants will be the most impressive among you.",
+    "12": "So whoever elevates themselves will be brought low, and whoever accepts a lower position will be elevated.",
+    "13": "“Things won’t end well for you pretenders,—O Bible Scholars and Pharisees—because you shut the entrance to the Heavenly Reign in people’s faces. In fact, you neither enter nor release others to enter.",
+    "15": "“You’d better watch out, fakers, Bible Scholars and Pharisees, because you wander dry places and sea to recruit one new follower, and when someone joins, you make them twice the child of the Hinnom Valley as you!",
+    "16": "“Things won’t end well for you, O blind guides who say, ‘Whoever swears by the temple—that’s nothing—but whoever swears by the gold of the temple, they owe what they swear.’",
+    "17": "You’re shortsighted, unable to see what’s right in front of you. Which is more important, the gold or the temple that makes the gold sacred?",
+    "18": "And you say, ‘Whoever swears on the altar—that’s nothing—but whoever swears on the offering on top of it, they owe what they swear.’",
+    "19": "You don’t see the truth! What’s more important, the offering or the altar that makes the offering sacred?",
+    "20": "Therefore, a person who swears by the altar swears on it and everything placed on it;",
+    "21": "whoever swears on the temple swears on it and on the One who dwells within it;",
+    "22": "a person who swears on the heavens swears on God’s throne and on the one who sits on it.",
+    "23": "“Things won’t end well for you pretenders—O Bible scholars and Pharisees—because you give an offering of a tenth of your mint, dill, and cumin while dismissing the weighty things of Torah: justice, compassion, and faithfulness! It’s essential to do these things—without neglecting the others.",
+    "24": "Blind guides, you strain out gnats but drink down a camel!",
+    "25": "“Things won’t end well for you pretenders—O Bible Scholars and Pharisees—because you clean the outside of the cup and dish, but inside they are robbery and devoid of self-restraint.",
+    "26": "Blind Pharisee, first clean the inside of the cup so that the outside can also get clean.",
+    "27": "“Things won’t end well for you pretenders—O Bible Scholars and Pharisees—because you’re like tombs with plaster exteriors which look beautiful on the outside, but inside they’re full of the bones of the dead and everything unclean.",
+    "28": "Just like them, you appear to people like you’re committed to doing everything right, yet inside you’re full of play-acting and lack Torah.",
+    "29": "“Things won’t end well for you pretenders—O Bible Scholars and Pharisees—because you build tombs for prophets and decorate the tombstones of those who live justly,",
+    "30": "and you say, ‘If we had lived in the days of our ancestors, we would not have participated in shedding the blood of the prophets.’",
+    "31": "Therefore, you testify against yourselves that you are heirs of those who murdered the prophets.",
+    "32": "You might as well complete the legacy of your ancestors!",
+    "33": "Snakes! Children of vipers! How could you escape from the justice enacted in the Hinnom Valley?",
+    "34": "Pay attention! This is why I’m sending you prophets, teachers of wisdom, and Bible Scholars. You will crucify and kill some of them, and some of them you’ll whip in your synagogues and hunt them from town to town,",
+    "35": "which would bring on you all the blood of those who lived justly that was shed in the land from the blood of Abel, who lived justly, until the blood of Zechariah son of Barachiah, whom you murdered between the temple and the altar.",
+    "36": "Honestly, I’m telling you, all these things will come to bear on this group.",
+    "37": "“Jerusalem, Jerusalem, you who kill the prophets and stone those who are sent to you! I’ve wanted for so long to gather your children together like a hen gathers her chicks together under her wings, but you didn’t want it.",
+    "38": "Look around! Your household is abandoned to be desolate.",
+    "39": "You see, I’m telling you, you won’t see me at all from now until you say, ‘Praised be the one who comes representing the Lord!’”"
+   },
+   "text": "Then Jesus spoke to the crowds and his students: “The Bible Scholars and the Pharisees sit on Moses’ seat, so pay attention to whatever they tell you and do it. You see, they say things but don’t do them. They secure heavy loads, hard to carry, and put them on people’s shoulders, but they aren’t willing to lift a finger to move them. They do their actions so that people will notice them; they display their phylacteries and tassels prominently. They care about the spot for the highest status guest at dinners, the seat of honor in the synagogues, elaborate greetings of respect in public, and having people call them ‘My great one.’ But you shouldn’t be called ‘My great one’; there’s one teacher for all of you, and you are all fellow students. And you shouldn’t call an earthly authority your ‘father’ because there’s one heavenly Father for all of you. Nor should you be called ‘leader’ because the Messiah is your one leader. Your servants will be the most impressive among you. So whoever elevates themselves will be brought low, and whoever accepts a lower position will be elevated. “Things won’t end well for you pretenders,—O Bible Scholars and Pharisees—because you shut the entrance to the Heavenly Reign in people’s faces. In fact, you neither enter nor release others to enter. “You’d better watch out, fakers, Bible Scholars and Pharisees, because you wander dry places and sea to recruit one new follower, and when someone joins, you make them twice the child of the Hinnom Valley as you! “Things won’t end well for you, O blind guides who say, ‘Whoever swears by the temple—that’s nothing—but whoever swears by the gold of the temple, they owe what they swear.’ You’re shortsighted, unable to see what’s right in front of you. Which is more important, the gold or the temple that makes the gold sacred? And you say, ‘Whoever swears on the altar—that’s nothing—but whoever swears on the offering on top of it, they owe what they swear.’ You don’t see the truth! What’s more important, the offering or the altar that makes the offering sacred? Therefore, a person who swears by the altar swears on it and everything placed on it; whoever swears on the temple swears on it and on the One who dwells within it; a person who swears on the heavens swears on God’s throne and on the one who sits on it. “Things won’t end well for you pretenders—O Bible scholars and Pharisees—because you give an offering of a tenth of your mint, dill, and cumin while dismissing the weighty things of Torah: justice, compassion, and faithfulness! It’s essential to do these things—without neglecting the others. Blind guides, you strain out gnats but drink down a camel! “Things won’t end well for you pretenders—O Bible Scholars and Pharisees—because you clean the outside of the cup and dish, but inside they are robbery and devoid of self-restraint. Blind Pharisee, first clean the inside of the cup so that the outside can also get clean. “Things won’t end well for you pretenders—O Bible Scholars and Pharisees—because you’re like tombs with plaster exteriors which look beautiful on the outside, but inside they’re full of the bones of the dead and everything unclean. Just like them, you appear to people like you’re committed to doing everything right, yet inside you’re full of play-acting and lack Torah. “Things won’t end well for you pretenders—O Bible Scholars and Pharisees—because you build tombs for prophets and decorate the tombstones of those who live justly, and you say, ‘If we had lived in the days of our ancestors, we would not have participated in shedding the blood of the prophets.’ Therefore, you testify against yourselves that you are heirs of those who murdered the prophets. You might as well complete the legacy of your ancestors! Snakes! Children of vipers! How could you escape from the justice enacted in the Hinnom Valley? Pay attention! This is why I’m sending you prophets, teachers of wisdom, and Bible Scholars. You will crucify and kill some of them, and some of them you’ll whip in your synagogues and hunt them from town to town, which would bring on you all the blood of those who lived justly that was shed in the land from the blood of Abel, who lived justly, until the blood of Zechariah son of Barachiah, whom you murdered between the temple and the altar. Honestly, I’m telling you, all these things will come to bear on this group. “Jerusalem, Jerusalem, you who kill the prophets and stone those who are sent to you! I’ve wanted for so long to gather your children together like a hen gathers her chicks together under her wings, but you didn’t want it. Look around! Your household is abandoned to be desolate. You see, I’m telling you, you won’t see me at all from now until you say, ‘Praised be the one who comes representing the Lord!’”"
   }
  ],
  "resolve": [
@@ -1165,7 +1223,8 @@
     "status": "moved",
     "text": "bestowed with the laurel wreath",
     "start": 1230,
-    "end": 1261
+    "end": 1261,
+    "outsideVerses": true
    }
   },
   {
@@ -1388,7 +1447,64 @@
     "status": "moved",
     "text": "One-of-a-kind Son",
     "start": 1936,
-    "end": 1953
+    "end": 1953,
+    "outsideVerses": true
+   }
+  },
+  {
+   "why": "v4, moved outside its verses: Matthew 23's woe formula was reworded in every verse but 15 (ff34f594), so a mark on it in verse 27 lands on verse 15, which the reader must be told (audit 3 DI3-2)",
+   "madeOn": "matthew-23 at ff34f594^",
+   "chapter": "matthew-23@ff34f594",
+   "anchor": {
+    "verse": 27,
+    "endVerse": 27,
+    "exact": "watch out, fakers,",
+    "prefix": "n also get clean. “You’d better ",
+    "suffix": " Bible Scholars and Pharisees, b"
+   },
+   "expected": {
+    "status": "moved",
+    "text": "watch out, fakers,",
+    "start": 1309,
+    "end": 1327,
+    "outsideVerses": true
+   }
+  },
+  {
+   "why": "v4, moved outside its verses: the same formula marked in verse 13 lands on verse 15 too",
+   "madeOn": "matthew-23 at ff34f594^",
+   "chapter": "matthew-23@ff34f594",
+   "anchor": {
+    "verse": 13,
+    "endVerse": 13,
+    "exact": "watch out, fakers,",
+    "prefix": "will be elevated. “You’d better ",
+    "suffix": " Bible Scholars and Pharisees, b"
+   },
+   "expected": {
+    "status": "moved",
+    "text": "watch out, fakers,",
+    "start": 1309,
+    "end": 1327,
+    "outsideVerses": true
+   }
+  },
+  {
+   "why": "v4, moved with its verses gone: the anchor names verses the chapter no longer has, so there is nothing to say against them and the move is silent",
+   "chapter": "john-3",
+   "anchor": {
+    "verse": 90,
+    "endVerse": 90,
+    "exact": "One-of-a-kind Son",
+    "prefix": "d the whole world: God gave the ",
+    "suffix": " so that everyone who places the"
+   },
+   "expected": {
+    "status": "moved",
+    "text": "One-of-a-kind Son",
+    "start": 1936,
+    "end": 1953,
+    "outsideVerses": false
    }
   }
  ]

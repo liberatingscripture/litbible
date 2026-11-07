@@ -15,7 +15,7 @@
 // addresses at the foot say the same thing in words. The files carry them,
 // when the page shows them.
 
-import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHtml, docText } from "../../lib/desk-sheet-doc.mjs";
+import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHref, docHtml, docText } from "../../lib/desk-sheet-doc.mjs";
 
 const INLINE = new Set(["em", "strong", "u", "s", "sub", "a"]);
 const isList = (n) => n.nodeType === Node.ELEMENT_NODE && /^(ul|ol)$/i.test(n.tagName);
@@ -41,8 +41,15 @@ export function inlines(nodes) {
       continue;
     }
     if (tag === "sup") {
-      const text = n.textContent.trim();
-      if (text) out.push({ t: n.matches(".vn") ? "vn" : "fn", text });
+      // A verse number or a footnote letter is the copy's own; any other
+      // superscript is the reader's ("1st", "x²"), kept as raised words (DK3-5).
+      if (n.matches(".vn, .fn-ref, .sheet-copy__fnref")) {
+        const text = n.textContent.trim();
+        if (text) out.push({ t: n.matches(".vn") ? "vn" : "fn", text });
+      } else {
+        const kids = inlines(n.childNodes);
+        if (kids.length) out.push({ t: "sup", kids });
+      }
       continue;
     }
     if (n.matches(".vn-gap")) continue; // the verse number above carries its own space
@@ -53,8 +60,8 @@ export function inlines(nodes) {
         continue;
       }
       const href = n.getAttribute("href") ?? "";
-      const abs = href.startsWith("/") ? `https://litbible.net${href}` : href;
-      if (/^(https?:|mailto:)/.test(abs)) out.push({ t: "link", href: abs, kids });
+      const abs = docHref(href.startsWith("/") ? `https://litbible.net${href}` : href);
+      if (abs) out.push({ t: "link", href: abs, kids });
       else out.push(...kids);
       continue;
     }

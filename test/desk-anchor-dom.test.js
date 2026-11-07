@@ -182,7 +182,8 @@ test("the resolution vectors give the same offsets on the rendered page", () => 
   const vectors = JSON.parse(readFileSync(new URL("./fixtures/anchor-vectors.json", import.meta.url), "utf8"));
   const pages = new Map(
     vectors.chapters.map((c) => {
-      const [, bookKey, chapter] = c.slug.match(/^(.+)-(\d+)$/);
+      // A chapter kept as a past revision left it is keyed "<slug>@<rev>" (spec version 4's Matthew 23).
+      const [, bookKey, chapter] = c.slug.match(/^(.+)-(\d+)(?:@[0-9a-f]+)?$/);
       return [c.slug, pageAnchorText(studyBlocks({ bookKey, chapter: Number(chapter), paragraphs: c.paragraphs }))];
     }),
   );

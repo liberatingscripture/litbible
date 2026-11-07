@@ -64,13 +64,15 @@ const RULED_BORDER = 'fo:border-bottom="0.5pt solid #888888" fo:padding-bottom="
 /** The size each paragraph style sets its text at, for a run's relative size. */
 const STYLE_PT = { Heading_20_1: 20, Heading_20_2: 15, Heading_20_3: 13, Tag: 10, Note: 10, Foot: 10, Code_20_Caption: 7 };
 
-function listStyle(name, ordered) {
+/** A list's levels; `inset` moves every level in, for a list inside a quotation (inches). */
+function listStyle(name, ordered, inset = 0) {
   let levels = "";
   for (let l = 1; l <= 10; l++) {
+    const at = inset + 0.5 + 0.25 * (l - 1);
     const place =
       `<style:list-level-properties text:list-level-position-and-space-mode="label-alignment">` +
-      `<style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="${0.5 + 0.25 * (l - 1)}in" ` +
-      `fo:text-indent="-0.25in" fo:margin-left="${0.5 + 0.25 * (l - 1)}in"/></style:list-level-properties>`;
+      `<style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="${at}in" ` +
+      `fo:text-indent="-0.25in" fo:margin-left="${at}in"/></style:list-level-properties>`;
     levels += ordered
       ? `<text:list-level-style-number text:level="${l}" style:num-suffix="." style:num-format="${["1", "a", "i"][(l - 1) % 3]}">${place}</text:list-level-style-number>`
       : `<text:list-level-style-bullet text:level="${l}" text:bullet-char="${["•", "◦", "▪"][(l - 1) % 3]}">${place}</text:list-level-style-bullet>`;
@@ -116,9 +118,14 @@ function autoStyles(boxWidth) {
   const text = new Map();
   const para = new Map();
   let boxes = 0;
+  let quotedLists = false;
   return {
     box() {
       return ++boxes;
+    },
+    /** A list inside a quotation is drawn, so its list styles are written too. */
+    quotedList() {
+      quotedLists = true;
     },
     text(run, basePt) {
       const props = [];
@@ -138,23 +145,25 @@ function autoStyles(boxWidth) {
       if (!text.has(key)) text.set(key, `T${text.size + 1}`);
       return text.get(key);
     },
-    para(parent, { align = null, indent = false, flush = false } = {}) {
-      if (!align && !indent && !flush) return parent;
-      const key = `${parent}|${align}|${indent}|${flush}`;
-      if (!para.has(key)) para.set(key, { name: `P${para.size + 1}`, parent, align, indent, flush });
+    para(parent, { align = null, indent = false, flush = false, right = false } = {}) {
+      if (!align && !indent && !flush && !right) return parent;
+      const key = `${parent}|${align}|${indent}|${flush}|${right}`;
+      if (!para.has(key)) para.set(key, { name: `P${para.size + 1}`, parent, align, indent, flush, right });
       return para.get(key).name;
     },
     xml() {
       let out = "";
-      for (const { name, parent, align, indent, flush } of para.values()) {
+      for (const { name, parent, align, indent, flush, right } of para.values()) {
         const props = [];
         if (align && ALIGN[align]) props.push(`fo:text-align="${ALIGN[align]}"`);
         if (indent) props.push('fo:margin-left="0.33in"');
+        if (right) props.push(`fo:margin-right="${QUOTE_INSET}in"`);
         if (flush) props.push('fo:margin-top="0in"');
         out += `<style:style style:name="${name}" style:family="paragraph" style:parent-style-name="${parent}"><style:paragraph-properties ${props.join(" ")}/></style:style>`;
       }
       for (const [props, name] of text) out += `<style:style style:name="${name}" style:family="text"><style:text-properties ${props}/></style:style>`;
       out += listStyle("LB", false) + listStyle("LN", true);
+      if (quotedLists) out += listStyle("LBQ", false, QUOTE_INSET) + listStyle("LNQ", true, QUOTE_INSET);
       if (boxes) {
         // The key terms box (E57): a one-cell table at the text's full width, ruled all round.
         out +=
@@ -212,13 +221,19 @@ function h(ctx, level, runs, opts = {}) {
 // A heading or tag that is plain text: spaces as a browser shows them, and Greek or Hebrew marked.
 const textRuns = (text) => docRuns([{ t: "text", text: text ?? "" }]);
 
-function listXml(ctx, b, nested = false) {
-  const style = nested ? "" : ` text:style-name="${b.ordered ? "LN" : "LB"}"`;
+/** A quotation's indent on each side, in inches, as the Quote style sets it. */
+const QUOTE_INSET = 0.5;
+
+function listXml(ctx, b, nested = false, quoted = false) {
+  // Inside a quotation a list keeps the quotation's margins (DK3-4): list
+  // styles moved in by the quote's indent, and its right margin on each item.
+  if (quoted) ctx.styles.quotedList();
+  const style = nested ? "" : ` text:style-name="${b.ordered ? "LN" : "LB"}${quoted ? "Q" : ""}"`;
   let out = `<text:list${style}>`;
   for (const item of b.items) {
-    out += `<text:list-item>${p(ctx, "List_20_Paragraph", docRuns(item.inlines))}`;
+    out += `<text:list-item>${p(ctx, "List_20_Paragraph", docRuns(item.inlines), { right: quoted })}`;
     // A nested list of the other kind names its own style; one of the same kind takes the outer list's next level.
-    for (const list of item.lists) out += list.ordered === b.ordered ? listXml(ctx, list, true) : listXml(ctx, list, false);
+    for (const list of item.lists) out += listXml(ctx, list, list.ordered === b.ordered, quoted);
     out += "</text:list-item>";
   }
   return out + "</text:list>";
@@ -255,7 +270,7 @@ function body(ctx, blocks, quoted = false) {
           `${body(ctx, b.blocks, quoted) || p(ctx, "Standard")}</table:table-cell></table:table-row></table:table>`;
         break;
       }
-      case "list": out += listXml(ctx, b); break;
+      case "list": out += listXml(ctx, b, false, quoted); break;
       case "rule": out += p(ctx, "Rule"); break;
       case "note": out += p(ctx, "Note", [{ text: b.label, sup: true }, { text: " " }, ...docRuns(b.inlines)]); break;
       case "answer": out += p(ctx, "Answer", textRuns("Answer")); break;

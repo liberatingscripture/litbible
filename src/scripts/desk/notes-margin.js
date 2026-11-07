@@ -56,11 +56,12 @@ import {
   popoverPlace,
 } from "../../lib/desk-notes.mjs";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
-import { changedGlyph, drawnNotices, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
+import { changedGlyph, drawnNotices, flagText, markName, noticeFor, noticesFor, openNotice } from "./change-notice.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 import { escapeHtml } from "./dom.js";
+import { keepPillFocus } from "./footnote-pills.js";
 
 const LIT = "desk-note-words";
 // What a hovered, focused or opened note on a footnote puts on its footnote.
@@ -129,8 +130,13 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
    */
   function markFootnotes(items) {
     const mine = new Set(items.map((p) => p.footnote).filter(Boolean));
-    for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
-    for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
+    // The mark moves a footnote's pills between "⋯" and inline, hiding whichever
+    // control focus is on; keepPillFocus puts focus on the one now showing
+    // (NB3-3).
+    keepPillFocus(() => {
+      for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
+      for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
+    });
   }
 
   let frame = 0;
@@ -467,8 +473,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.type = "button";
       flag.className = "desk-flag desk-flag--inline";
       flag.setAttribute("aria-haspopup", "dialog");
-      flag.setAttribute("aria-label", `The wording changed under my note on ${whereOf(r)}. Review`);
-      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">Wording changed</span>`;
+      flag.setAttribute("aria-label", `${flagText(notice)} under my note on ${whereOf(r)}. Review`);
+      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">${flagText(notice)}</span>`;
       const foot = document.createElement("div");
       foot.className = "desk-note__foot";
       foot.append(flag, edit);
@@ -659,7 +665,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.type = "button";
       flag.className = "desk-flag desk-flag--row desk-note-pop__flag";
       flag.setAttribute("aria-haspopup", "dialog");
-      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text">Wording changed<span class="sr-only">.</span><span aria-hidden="true"> · </span>Review<span class="sr-only"> my note on ${escapeHtml(ref)}</span></span>`;
+      flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text">${flagText(notice)}<span class="sr-only">.</span><span aria-hidden="true"> · </span>Review<span class="sr-only"> my note on ${escapeHtml(ref)}</span></span>`;
       flag.addEventListener("click", (e) => {
         e.stopPropagation();
         review(record, anchor);

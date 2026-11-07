@@ -22,6 +22,8 @@
 // inside something just unhidden, often isn't announced. The caller decides
 // where focus goes.
 
+import { busy, isBusy } from "./focus-keep.js";
+
 let root = null;
 
 // Counts the notices shown. A button's action may put up a notice of its own
@@ -33,6 +35,7 @@ let shown = 0;
 export const CLOSE_AFTER_MS = 10_000;
 
 let clock = 0;
+let returnTo = null; // where focus was when the notice came up, for when the bar closes with focus in it
 let held = false; // the pointer is over the bar, or focus is in it
 
 /** The modifier the reader presses: ⌘ on a Mac, Ctrl elsewhere. For labels and the spoken notice. */
@@ -132,6 +135,7 @@ const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.",
  */
 export function showUndo(message, onAction, { label = "Undo" } = {}) {
   initUndo();
+  noteFocus();
   const mine = ++shown;
   const bar = root.querySelector(".desk-undo__bar");
   const text = root.querySelector(".desk-undo__text");
@@ -141,9 +145,16 @@ export function showUndo(message, onAction, { label = "Undo" } = {}) {
   fresh.className = "desk-undo__undo";
   fresh.setAttribute("aria-describedby", "deskUndoText");
   fresh.textContent = label;
-  root.querySelector(".desk-undo__undo").replaceWith(fresh);
+  const old = root.querySelector(".desk-undo__undo");
+  const hadFocus = document.activeElement === old;
+  old.replaceWith(fresh);
+  // A keyboard Undo that puts up a Redo keeps its place on the bar.
+  if (hadFocus) fresh.focus({ preventScroll: true });
   fresh.addEventListener("click", async () => {
-    fresh.disabled = true;
+    // aria-disabled, not disabled: the button is focused, and a focused button
+    // that is disabled loses focus in some browsers (NB3-8).
+    if (isBusy(fresh)) return;
+    const idle = busy(fresh);
     try {
       await onAction();
       if (shown === mine) {
@@ -155,7 +166,7 @@ export function showUndo(message, onAction, { label = "Undo" } = {}) {
       if (shown !== mine) return;
       text.textContent = `That couldn’t be ${label === "Redo" ? "redone" : "undone"}, so nothing changed. Try again.`;
       announce(text.textContent);
-      fresh.disabled = false;
+      idle();
     }
   });
   text.textContent = message;
@@ -176,6 +187,7 @@ export function showUndo(message, onAction, { label = "Undo" } = {}) {
  */
 export function showNotice(message) {
   initUndo();
+  noteFocus();
   shown++;
   const button = root.querySelector(".desk-undo__undo");
   // Replaced rather than hidden in place, so a press already under way can't
@@ -184,7 +196,9 @@ export function showNotice(message) {
   gone.type = "button";
   gone.className = "desk-undo__undo";
   gone.hidden = true;
+  const hadFocus = document.activeElement === button;
   button.replaceWith(gone);
+  if (hadFocus) root.querySelector(".desk-undo__close").focus({ preventScroll: true });
   root.querySelector(".desk-undo__text").textContent = message;
   root.querySelector(".desk-undo__bar").hidden = false;
   announce(message);
@@ -200,5 +214,35 @@ export function showNotice(message) {
 export function hideUndo(notice) {
   if (notice !== undefined && notice !== shown) return;
   clearTimeout(clock);
-  root?.querySelector(".desk-undo__bar")?.setAttribute("hidden", "");
+  const bar = root?.querySelector(".desk-undo__bar");
+  if (!bar) return;
+  const hadFocus = bar.contains(document.activeElement);
+  bar.setAttribute("hidden", "");
+  if (hadFocus) giveFocusBack();
+}
+
+/** Remember where focus is as a notice comes up (not in the bar, not on the page's body). */
+function noteFocus() {
+  const a = document.activeElement;
+  if (a && a !== document.body && !root.contains(a)) returnTo = a;
+  else if (!a || a === document.body) returnTo = null;
+}
+
+/**
+ * The bar closed with focus on one of its buttons (a keyboard Undo, or Close),
+ * which would leave focus on a hidden element and so on the page's body
+ * (NB3-8). It goes back to where it was when the notice came up if that is
+ * still showing, else to the page's main region, as the skip link does.
+ */
+function giveFocusBack() {
+  const back = returnTo;
+  returnTo = null;
+  if (back?.isConnected && back.getClientRects().length && !back.closest("[hidden]")) {
+    back.focus({ preventScroll: true });
+    if (document.activeElement === back) return;
+  }
+  const main = document.getElementById("main-content");
+  if (!main) return;
+  if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+  main.focus({ preventScroll: true });
 }

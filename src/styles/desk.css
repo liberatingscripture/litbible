@@ -1,7 +1,9 @@
 /* src/styles/desk.css
    The Study Desk's own styles: the Notebook panel in the margin, and the
-   undo bar.
-   src/scripts/desk/shell.js imports it as text (?inline) and adds it as a
+   undo bar. The rail and the minimized tab are in desk-tab.css, which the
+   desk's first stage adds alone (first-stage.js), so a reader with nothing
+   kept never downloads this file.
+   src/scripts/desk/boot.js imports it as text (?inline) and adds it as a
    <style>, so it loads only with the desk: a plain CSS import would be
    gathered into every page's stylesheet, dynamic import or not.
    What must hold before first paint (the Notebook buttons' visibility, the
@@ -12,22 +14,6 @@
    need no rules of their own here. */
 
 /* ── The rail and the panel ───────────────────────────────────── */
-
-/* The strip of right margin the panel lives in, placed by
-   src/scripts/desk/margin.js: from the top of the reading area to the end of
-   <main>, in document coordinates. It lets clicks through; only the panel
-   takes them. */
-.desk-rail {
-  position: absolute;
-  /* Above the page and Read View's sticky toolbar (70), below the shared
-     floating panels (1100) and the Display tray (2000). */
-  z-index: 900;
-  pointer-events: none;
-}
-
-.desk-rail[hidden] {
-  display: none;
-}
 
 /* A card in the margin. Sticky, so it starts level with the text and pins
    16px from the top of the window as the reader scrolls (EDGE in
@@ -57,54 +43,6 @@
    collapsed, only its tab shows. */
 .desk-rail--floating .desk-panel {
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-}
-
-.desk-rail--collapsed .desk-panel {
-  display: none;
-}
-
-/* The collapsed notebook: a tab at the window's edge, clear of the text
-   (TAB_WIDTH and TAB_EDGE in src/lib/desk-margin.mjs), starting level with
-   the page's heading and pinned 16px from the top as the reader scrolls,
-   like the panel it stands for. */
-.desk-tab {
-  display: none;
-}
-
-.desk-rail--collapsed .desk-tab {
-  position: sticky;
-  top: 16px;
-  box-sizing: border-box;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 0 14px;
-  pointer-events: auto;
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  font: inherit;
-  cursor: pointer;
-}
-
-.desk-tab:hover {
-  background: linear-gradient(rgba(var(--ink-rgb), 0.06), rgba(var(--ink-rgb), 0.06)) var(--surface-raised);
-}
-
-/* The word runs down the tab, reading from the top. */
-.desk-tab__label {
-  writing-mode: vertical-rl;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.desk-panel[hidden] {
-  display: none;
 }
 
 /* The panel takes focus as a landing point when it opens (so a screen
@@ -377,11 +315,9 @@ a.desk-item__ref:hover {
   display: none;
 }
 
-/* Neither prints (BA145): the rail is appended to <body>, outside what
-   print.css hides, and in a narrow window the Notebook floats over the
-   text; the undo bar is fixed and stays up for ten seconds after a delete. */
+/* The undo bar doesn't print (BA145): it is fixed and stays up for ten
+   seconds after a delete. The rail's own rule is in desk-tab.css. */
 @media print {
-  .desk-rail,
   .desk-undo__bar {
     display: none !important;
   }
@@ -810,6 +746,13 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 }
 
 .desk-verse__add[hidden] {
+  display: none;
+}
+
+/* "Skip to the Notebook" has nothing to skip to while the Display tray's
+   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
+   tab order. Both themes alike: no colors here. */
+html[data-desk-show="off"] .skip-link[data-desk-skip] {
   display: none;
 }
 
@@ -2343,7 +2286,8 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 /* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
    (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
    follows its note in the document, so reading and tab order are the note,
-   Pin, then "Add a note" wherever it is drawn.
+   "Add a note", then Pin wherever it is drawn, left to right and, in the
+   "⋯" stack, top to bottom.
      inline  (no attribute yet, or no room): a row on the note's line, as before;
      row     the two pills side by side in the left margin, level with the
              footnote's first line, right-aligned against the footnote;
@@ -2401,13 +2345,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   justify-content: flex-end;
 }
 
-/* Side by side, Pin is drawn nearest the footnote and "Add a note" outside it
-   (BVJ, 2026-11-06). Only the drawing flips: tab order stays note, Pin,
-   "Add a note", moving outward from the note. */
-.footnotes[data-desk-fn-pills="row"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
-  flex-direction: row-reverse;
-}
-
+/* Side by side, "Add a note" is drawn outside and Pin nearest the footnote
+   (BVJ, 2026-11-06). The document holds them in that order ("Add a note",
+   then Pin), so Tab runs left to right with no flipped drawing (BVJ,
+   2026-11-07; Audit 3, decision 13). */
 .footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-more {
   display: inline-flex;
 }
@@ -3645,11 +3586,12 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   cursor: pointer;
 }
 
-.desk-np__restore-all:hover:not(:disabled) {
+.desk-np__restore-all:hover:not(:disabled):not([aria-disabled="true"]) {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
-.desk-np__restore-all:disabled {
+.desk-np__restore-all:disabled,
+.desk-np__restore-all[aria-disabled="true"] {
   opacity: 0.6;
   cursor: default;
 }
@@ -4321,6 +4263,17 @@ html:has(.desk-greek__split--dragging) {
   color: rgba(var(--ink-rgb), 0.85);
 }
 
+/* What the lazy Greek search is doing or couldn't do (GK3-13). */
+.desk-greek__find-note {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.8);
+}
+
+.desk-greek__find-note:empty {
+  display: none;
+}
+
 .desk-greek__code {
   margin-left: 4px;
   color: rgba(var(--ink-rgb), 0.65);
@@ -4424,7 +4377,7 @@ html:has(.desk-greek__split--dragging) {
 }
 
 /* "Show sources" writes out what an abbreviation's hover text says (GK-12). */
-.desk-greek__sources {
+.desk-greek__show-sources {
   margin: 2px 0 4px;
   padding: 1px 8px;
   border: 1px solid rgba(var(--ink-rgb), 0.58);
@@ -4436,11 +4389,11 @@ html:has(.desk-greek__split--dragging) {
   cursor: pointer;
 }
 
-.desk-greek__sources[aria-pressed="true"] {
+.desk-greek__show-sources[aria-pressed="true"] {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
-.desk-greek__sources:focus-visible {
+.desk-greek__show-sources:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -5441,7 +5394,7 @@ html.desk-ws--moving * {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
-/* Placed on the screen by desk-page.js (placeKindMenu), clear of the panes
+/* Placed on the screen by kind-menu.js (placeKindMenu), clear of the panes
    box's scrolling, which cut it off below a bottom-row pane (BA122). */
 .desk-pane__menu {
   position: fixed;
@@ -5750,21 +5703,6 @@ html.desk-ws--moving * {
   margin: 10px 0 0;
   padding-top: 8px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.1);
-}
-
-/* What I've kept as a pane: the notebook page's list at the pane's size. */
-.desk-np--pane {
-  font-size: inherit;
-}
-
-.desk-np--pane .desk-np__h3 {
-  margin-top: 1.25rem;
-  font-size: 1.05rem;
-}
-
-.desk-np--pane .desk-np__h4 {
-  margin-top: 0.85rem;
-  font-size: 0.9375rem;
 }
 
 /* Where a dragged pane would land: half of the pane under the pointer. */
@@ -6749,6 +6687,12 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
     border: 3px solid Highlight;
   }
 
+  /* "Show sources", pressed: a tint draws nothing here. */
+  .desk-greek__show-sources[aria-pressed="true"] {
+    padding: 0 6px;
+    border: 3px solid Highlight;
+  }
+
   .desk-ws__shape[aria-pressed="true"] {
     padding: 6px 4px;
     border: 3px solid Highlight;
@@ -6975,10 +6919,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   background: var(--focus-ring);
 }
 
+/* In a narrow Sheet pane the controls go to a second row, right-aligned,
+   rather than squeezing the part's name and breaking "Show in the LIT" over
+   three lines (LV3-6). No control's label ever breaks. */
 .desk-sheet__module-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 2px 6px;
   margin-bottom: 4px;
   font-size: 0.8125rem;
 }
@@ -6997,8 +6945,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 .desk-sheet__module-tools {
   margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 2px;
+}
+
+.desk-sheet__module-tools > * {
+  white-space: nowrap;
 }
 
 .desk-sheet__leader {
