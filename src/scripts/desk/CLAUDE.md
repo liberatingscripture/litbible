@@ -525,7 +525,19 @@ against `dist/` is a later item.
        flag; one short word each so the line never wraps in the narrow list,
        with the fuller sentence as hover text; the words are an Opus agent's,
        who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
-       name and the switch). The verse menu lists "Edit bookmark…" right after
+       the verse, the name and the switch). **The form moves a bookmark to
+       another verse** (E46, 2026-11-05): a Verse field read as the Go to
+       passage field reads one (`parseReference`, then `bookmarkPlace`: a range
+       keeps its first verse, a chapter alone is verse 1, a verse past the
+       chapter's last is refused), sent only when the reader changed it, so a
+       move the follower made meanwhile is kept. It is the same one
+       `store.change` (`planBookmarkEdit`), an ordinary undoable edit, refused
+       with "John 3:5 already has a bookmark that stays put" when the verse
+       holds one of its kind (`roomAt`, `kindTakenAt`; the switch locks for the
+       typed verse as for its own), and it writes `verse`, `endVerse` and
+       `contentVersion` as a new bookmark gets them; other fields (`from`
+       included) are kept. Moving the bookmark this tab follows moves where it
+       rests (`restedAt`), and the next report is judged from there. The verse menu lists "Edit bookmark…" right after
        "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
        that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
        **A moving bookmark's margin mark jumps rather than glides**: its writes

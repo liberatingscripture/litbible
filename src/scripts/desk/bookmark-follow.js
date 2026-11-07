@@ -249,6 +249,23 @@ export function followBookmark(bookmark, href = null) {
   env?.followed(href);
 }
 
+/**
+ * The reader moved the bookmark this tab follows to another verse in its form
+ * (E46): its resting place goes with it, in whichever book that is, and the
+ * next report of where the reader is is judged from there, as a fresh follow's
+ * is (reading on from it moves it; anywhere else pauses it).
+ *
+ * @param {string} id
+ * @param {string} bookKey the book it is in now
+ */
+export function restedAt(id, bookKey) {
+  const mine = readFlag();
+  if (mine?.id !== id) return;
+  writeFlag({ ...mine, bookKey });
+  env?.followed(null);
+  syncBookmarkLines();
+}
+
 /** Whether `href` is this page, its hash aside. */
 function onThisPage(href) {
   try {
