@@ -4,7 +4,7 @@
 // script sets <html data-desk="on"> only on a computer and only where the
 // preview is switched on (?desk=on). The desk loads only there, and only on a
 // page with a reading column for its panel to sit beside (desk-frame.js).
-// Everywhere else this is the whole of the desk a reader downloads: the shell
+// Everywhere else this is the whole of the desk a reader downloads: the desk
 // is a dynamic import, which Vite splits into chunks of its own.
 
 import { readingSurface, standDown } from "./desk-frame.js";
@@ -37,15 +37,33 @@ if (!shellHere && !deskPageHere) {
   }
 }
 
+/**
+ * Load the desk's first stage and start it (`start()` on the module). If it
+ * doesn't load (offline, or an old page after a deploy) or throws as it
+ * starts, `stand` puts the page back to what it is without the desk, rather
+ * than keeping the narrowed column and Notebook buttons that do nothing
+ * (BA29). The first stage and the shell do the same for stage two.
+ * @param {() => Promise<{ start: () => unknown }>} importer
+ * @returns {Promise<void>}
+ */
+export function loadShell(importer, stand = standDown) {
+  return Promise.resolve()
+    .then(importer)
+    .then((m) => m.start())
+    .then(
+      () => {},
+      (err) => {
+        console.error("Study Desk: the desk didn't load", err);
+        stand();
+      },
+    );
+}
+
 if (shellHere) {
-  // Didn't load (offline, or an old page after a deploy): the page goes back
-  // to what it is without the desk, rather than keeping the narrowed column
-  // and Notebook buttons that do nothing (BA29). The shell does the same if
-  // the Notebook fails to start.
-  import("./desk/shell.js").catch((err) => {
-    console.error("Study Desk: the shell didn't load", err);
-    standDown();
-  });
+  // On a reading page the desk comes in two stages (Audit 3, LG3-2): the
+  // Notebook's tab and a look at the notebook first, and the shell
+  // (desk/shell.js) when there is something to draw or the reader asks.
+  loadShell(() => import("./desk/first-stage.js"));
 } else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-notebook-page]")) {
   // The notebook page (/notebook/) is not a reading surface: it has no panel
   // and its own module opens the notebook.

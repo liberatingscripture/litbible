@@ -53,9 +53,9 @@ import {
 import { isNoop, makeEntry } from "../../lib/desk-history.mjs";
 import { migrateRecord } from "../../lib/desk-records.mjs";
 
-const DB_NAME = "lit-desk";
+export const DB_NAME = "lit-desk";
 const DB_VERSION = 1;
-const RECORDS = "records";
+export const RECORDS = "records";
 const META = "meta";
 
 const request = (r) =>

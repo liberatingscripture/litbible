@@ -75,11 +75,16 @@ import { keepClearOfDock } from "../lit-panel.js";
  * @param {(state: { floating: boolean, collapsed: boolean }) => void} onChange
  *   told whenever the notebook starts or stops floating, or collapses or
  *   expands, including when a placement does it (a window narrowed under it)
+ * @param {{ widths?: boolean }} [options] `widths: false` leaves out the
+ *   dragged widths: the desk's first stage (first-stage.js) only ever shows
+ *   the minimized tab, which the widths never move.
  * @returns {{ show: (opts?: { expand?: boolean, remember?: boolean }) => void, hide: () => void,
  *   collapse: () => void, expand: (opts?: { remember?: boolean }) => void,
- *   state: () => { floating: boolean, collapsed: boolean } }}
+ *   state: () => { floating: boolean, collapsed: boolean }, destroy: () => void }}
+ *   `destroy` hides the rail, puts the column back and stops listening: the
+ *   first stage handing the page over to the panel's own rail.
  */
-export function createRail(panel, tab, onChange = () => {}) {
+export function createRail(panel, tab, onChange = () => {}, { widths: withWidths = true } = {}) {
   const root = document.documentElement;
   const main = document.querySelector("main");
   const surface = readingSurface();
@@ -111,7 +116,7 @@ export function createRail(panel, tab, onChange = () => {}) {
   const panelTitle = panel.querySelector(".desk-panel__title") ?? panel;
   // The draggable widths: Chapter View chapters only (the first surface).
   const studyColumn = surface === READING_SURFACES[0] ? columnEls[0] : null;
-  const widths = studyColumn ? createWidths({ column: studyColumn, panel, onChange: () => place() }) : null;
+  const widths = studyColumn && withWidths ? createWidths({ column: studyColumn, panel, onChange: () => place() }) : null;
   // The floating panel's left edge, which the reader drags to change its width.
   const floatEdge = createFloatResize(panel, () => place());
 
@@ -313,9 +318,10 @@ export function createRail(panel, tab, onChange = () => {}) {
   // Forgetting the widths re-places at once, inside the reset's
   // keepReadingPlace, so the reader's line holds through the reflow. A drag
   // places as it goes (widths.js).
-  document.addEventListener(WIDTHS_EVENT, (e) => {
+  const onWidths = (e) => {
     if (!e.detail?.kept && open) place();
-  });
+  };
+  document.addEventListener(WIDTHS_EVENT, onWidths);
   // The headings are measured by their fonts' capitals, so place again once
   // the web fonts are in.
   document.fonts?.ready.then(schedule);
@@ -323,18 +329,15 @@ export function createRail(panel, tab, onChange = () => {}) {
   // Scrolling moves the panel's top (natively, being sticky) until it pins,
   // and brings the rail's end into view at the footer; the height follows.
   let fitting = false;
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!open || collapsed || fitting) return;
-      fitting = true;
-      requestAnimationFrame(() => {
-        fitting = false;
-        fitHeight();
-      });
-    },
-    { passive: true },
-  );
+  const onScroll = () => {
+    if (!open || collapsed || fitting) return;
+    fitting = true;
+    requestAnimationFrame(() => {
+      fitting = false;
+      fitHeight();
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
 
   return {
     // `expand`: the reader asked to see it, so it opens expanded even in a
@@ -367,5 +370,15 @@ export function createRail(panel, tab, onChange = () => {}) {
       onChange({ floating, collapsed });
     },
     state: () => ({ floating, collapsed }),
+    destroy() {
+      open = false;
+      place();
+      observer.disconnect();
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("load", schedule);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener(WIDTHS_EVENT, onWidths);
+      rail.remove();
+    },
   };
 }

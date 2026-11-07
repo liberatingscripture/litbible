@@ -84,6 +84,26 @@ means each of these, in one change:
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
 
+**A reading page loads the desk in two stages** (BVJ, 2026-11-07, Audit 3
+decision 3; LG3-2). `desk-gate.js` loads `desk/first-stage.js`: the
+minimized tab (`notebook-tab.js`, styled by `desk-tab.css` alone), the
+glossary's heading fit, and one read of the notebook's `chapter` index
+(`peekNotebook`, `src/lib/desk-first-stage.mjs`, which never creates the
+database). The shell, `desk.css` and the rest come when the Notebook starts
+expanded, a bookmark follows, the address carries `greek`, `desk-tour` or
+`print`, this page has records to draw, or the reader reaches for the desk
+(the tab, Read View's button, the skip link, the Display tray, a verse number,
+a footnote letter or a selection); `lit:panel-actions`, `lit:footnote-actions`,
+`lit:desk-command`, `lit:desk-hide` and `lit:greek-word` arriving first are
+held and sent again, and a menu still open gets its rows late, moved as
+`showPanel` would place it. The shell's `handOver` removes the first stage's
+tab in the same task as the panel draws its own, so nothing moves. **A new
+startup listener in the shell needs the same**: held in `first-stage.js`, or a
+reason to load. The search box loads `notebook-search.js` on first focus, not
+with the page. Measured on `dist/john-3/` (gzipped, 2026-11-07): the desk's
+scripts were 130 KB on every load; now 10 KB with nothing kept and the
+Notebook minimized, and 129 KB once it opens (135 with the search box).
+
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
 engine). Decision for version 1: accept it. Output is re-sanitized to a
@@ -112,16 +132,18 @@ against `dist/` is a later item.
      a computer's (iPadOS reports a Mac; Chrome and Firefox on an Android
      tablet in desktop site mode report Linux) is told by its touch screen,
      and a Chromebook stays a computer (BA26).
-     **If the desk doesn't come up, the page stands down** (BA29): where the
-     shell fails to load (offline, an old page after a deploy) or fails
-     before the Notebook is built, `standDown()` (`desk-frame.js`, called by
-     the gate and the shell) takes the pre-paint stamps off, so the column
+     **If the desk doesn't come up, the page stands down** (BA29): where
+     either stage fails to load (offline, an old page after a deploy) or the
+     shell fails before the Notebook is built, `standDown()` (`desk-frame.js`,
+     called by the gate's `loadShell`, `loadStageTwo` and the shell) takes the
+     pre-paint stamps off, so the column
      and the hidden Notebook buttons are the reader's again. A failure after
      the Notebook is up is only logged. `createPanel` builds each tab on its
      own, so one that throws shows a line saying so and the rest work.
-  2. **Readers download none of it.** `desk-gate.js` imports
-     `src/scripts/desk/shell.js` only with `data-desk="on"`. The shell adds
-     `desk.css` itself as a `<style>` (`?inline`): **a plain CSS import is
+  2. **Readers download none of it.** `desk-gate.js` imports the desk only
+     with `data-desk="on"`, and on a reading page only its first stage
+     ("Launching", above). `boot.js` adds `desk.css` (and the first stage
+     `desk-tab.css`) as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one rule in
