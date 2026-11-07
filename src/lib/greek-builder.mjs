@@ -20,9 +20,19 @@
 // index (public/greek/search/occ/), so a noun offers no tense and, once
 // "genitive" is chosen, only the numbers and genders the word has in it.
 
-import { FILTERS, MAX_TERMS, codeFits, errorMessage, filterFor, isGreekCommandQuery, parseGreekQuery, resolveGreekQuery } from "./greek-query.mjs";
+import {
+  FILTERS,
+  MAX_TERMS,
+  codeFits,
+  errorMessage,
+  filterFor,
+  isGreekCommandQuery,
+  parseGreekQuery,
+  plainLatinWords,
+  resolveGreekQuery,
+} from "./greek-query.mjs";
 import { QUERY_AXES } from "./greek-commands-ui.mjs";
-import { OCC_STRIDE } from "./greek-search.mjs";
+import { OCC_STRIDE, hasGreek, parseStrong } from "./greek-search.mjs";
 
 export { MAX_TERMS as MAX_CARDS, QUERY_AXES as BUILDER_AXES };
 
@@ -38,11 +48,13 @@ export const emptyCard = () => ({ words: [], filters: [] });
 
 /**
  * What the builder shows for the field's text:
- *   { cards, gap, anyOrder }          the search it can show (no cards for an empty field)
+ *   { cards, gap, anyOrder, plain? }  the search it can show (no cards for an empty field)
  *   { cannot: "exact" | "plain" | "error", error? }
  *                                     a search it can't, which the field still runs
- * One bare word is a word card with no filters; plain words ("son of man")
- * are a word search of their own, not a construction, so they can't be shown.
+ * One bare word is a word card with no filters. Two or three plain Latin
+ * words are read as a construction (`plain: true`), as the field runs them
+ * when no single word fits; longer plain words ("son of the man") are a word
+ * search of their own, so they can't be shown.
  * A quoted word ("perfect".gen) is a card holding that word: quotes are how a
  * word that is also a command is written (see `writeCard`).
  */
@@ -53,15 +65,20 @@ export function readBuilder(raw) {
   if (!quoted && !/\s/.test(text) && !/[.,/*=~&]/.test(text)) {
     return { cards: [{ words: [text], filters: [] }], gap: 3, anyOrder: false };
   }
-  if (!quoted && !isGreekCommandQuery(text)) return { cannot: "plain" };
+  // Two or three plain Latin words are what the field runs as a construction
+  // when no single word fits them whole ("pistis Christos"); the builder reads
+  // them the same way (GK3-5, BVJ 2026-11-07), and says so (`plain`).
+  const plain = !quoted && !isGreekCommandQuery(text) && plainLatinWords(text);
+  if (!quoted && !plain && !isGreekCommandQuery(text)) return { cannot: "plain" };
   const parsed = parseGreekQuery(text);
   if (parsed.error) return { cannot: "error", error: parsed.error };
   if (parsed.terms.some((t) => t.exact)) return { cannot: "exact" };
-  return {
+  const read = {
     cards: parsed.terms.map((t) => ({ words: t.words ? [...t.words] : [], filters: [...t.filters] })),
     gap: parsed.gap,
     anyOrder: parsed.anyOrder,
   };
+  return plain ? { ...read, plain: true } : read;
 }
 
 /** The sentence under the builder for a search it can't show. */
@@ -132,6 +149,31 @@ export const cleanWord = (s) => String(s ?? "").replace(/[\s.,*=~&"“”]/g, ""
 /** The words a card's text box holds: "Ἰησοῦς/Χριστός" is two. */
 export const splitWords = (s) => usableWords(String(s ?? "").split("/").map(cleanWord).filter(Boolean));
 
+/**
+ * What a card's text box holds once typed in: { words, draft, note }. `draft`
+ * is what the box shows (a "/" waiting for the next word stays), and `note` a
+ * sentence when something typed was left out, since the reader would
+ * otherwise only see the text change (GK3-15): a space or symbol the notation
+ * uses, or a word that is also a command, which can't be joined with "/".
+ */
+export function readCardText(value) {
+  const text = String(value ?? "");
+  const stripped = text.replace(/[\s.,*=~&"“”]/g, "");
+  const parts = stripped.split("/").filter(Boolean);
+  const words = usableWords(parts);
+  const draft = words.join("/") + (words.length && text.trim().endsWith("/") ? "/" : "");
+  let note = "";
+  if (words.length < parts.length) {
+    note = "A word that is also a command can’t be joined with a slash, so it was left out. Quote it on its own, or use the field.";
+  } else if (stripped.length < text.trim().length) {
+    note = "A word here can’t hold a space or a symbol the search uses, so they were left out. Use “+ Then another word” for a second word.";
+  }
+  return { words, draft, note };
+}
+
+/** Whether any of a card's words is Latin text, which the LIT's own renderings (the glossary bridge) can name. */
+export const needsBridge = (words) => words.some((w) => !hasGreek(w) && !parseStrong(w));
+
 /* ── How close ───────────────────────────────────────────────────── */
 
 /** The "how close" choices; a gap typed in the field that none of them is gets one of its own. */
@@ -153,13 +195,13 @@ export function closenessOptions(gap) {
  * The lemmas a card's words name, from the index: { ids } or { error } (the
  * word isn't one the index knows) or { any: true } for no word at all.
  */
-export function resolveCard(index, card) {
+export function resolveCard(index, card, { bridge = null } = {}) {
   if (!card.words.length) return { any: true };
   const resolved = resolveGreekQuery(index, {
     terms: [{ words: card.words, exact: false, literal: false, filters: [] }],
     gap: 3,
     anyOrder: false,
-  });
+  }, { bridge });
   if (resolved.error) return { error: resolved.error };
   return { ids: resolved.terms[0].lemmaIds };
 }
