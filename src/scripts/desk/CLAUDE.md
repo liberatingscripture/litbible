@@ -1556,7 +1556,7 @@ against `dist/` is a later item.
        `data-tray-anchor=".desk-title__button"` (SiteHeader's `anchorOf`) hangs
        the tray from the title and returns focus there, because the menu
        closes as the tray opens. **New sheet…** (Audit 5, SH5-5) sits after
-       Add pane and acts at once: it uses the desk's Sheets pane, or adds one
+       Add pane and Layout… (BVJ, 2026-11-08; it was before Layout…) and acts at once: it uses the desk's Sheets pane, or adds one
        as a column (else a row), then sends `desk:sheet-new` with the pane's
        id, which the Sheets pane answers by opening its template chooser; it is
        disabled, with the reason beside it, only when there is no Sheets pane

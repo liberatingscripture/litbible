@@ -200,11 +200,12 @@ test("applyArrangement closes from the end when there are fewer slots", () => {
 });
 
 test("applyArrangement fills new slots with the first kind not open, in KINDS order", () => {
-  // From the original (lit, mine): the next two are verse then greek.
+  // From the original (lit, mine): the next two are verse then footnotes
+  // (BVJ's order, 2026-11-08; greek came third until then).
   const three = applyArrangement(originalLayout(), "cols-3");
   assert.deepEqual(kinds(three), ["lit", "mine", "verse"]);
   const four = applyArrangement(originalLayout(), "cols-4");
-  assert.deepEqual(kinds(four), ["lit", "mine", "verse", "greek"]);
+  assert.deepEqual(kinds(four), ["lit", "mine", "verse", "footnotes"]);
   // From My Notes alone: lit comes first in KINDS, then verse.
   const alone = mk(leaf("p1", "mine"));
   assert.deepEqual(kinds(applyArrangement(alone, "cols-3")), ["mine", "lit", "verse"]);
@@ -213,7 +214,7 @@ test("applyArrangement fills new slots with the first kind not open, in KINDS or
   assert.deepEqual(kinds(applyArrangement(lv, "cols-3")), ["lit", "verse", "mine"]);
   // The fill order is KINDS order.
   const order = KINDS.map((k) => k.kind);
-  assert.deepEqual(order.slice(0, 4), ["lit", "mine", "verse", "greek"]);
+  assert.deepEqual(order, ["lit", "mine", "verse", "footnotes", "intro", "greek", "sheet", "search"]);
 });
 
 test("applyArrangement gives new panes ids that are free and no pin", () => {

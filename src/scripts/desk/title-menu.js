@@ -1,7 +1,8 @@
 // src/scripts/desk/title-menu.js
 //
 // The /desk page's title is a menu (E15; BVJ, 2026-11-02): Add pane with its
-// flyout (E14), New sheet… (SH5-5), Layout…, Print…, Display options, Full screen (E43), then the
+// flyout (E14), Layout…, New sheet… (SH5-5; after Layout…, BVJ 2026-11-08),
+// Print…, Display options, Full screen (E43), then the
 // notebook page, Take the tour (E24) and Help. Taken out of desk-page.js's
 // `start()` (Audit 3, LG3-3, second sitting), as the pane menu was before it
 // (kind-menu.js), so the next bug in it means reading this file.
@@ -185,12 +186,12 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     tourLine.hidden = !getTour()?.lineWanted();
   }
   titleMenu.append(tourLine);
-  titleMenu.append(addSub, newSheetItem, layoutItem, printItem);
+  titleMenu.append(addSub, layoutItem, newSheetItem, printItem);
   if (displayItem) titleMenu.append(displayItem);
   if (fullItem) titleMenu.append(fullItem);
   titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
   const baseItems = [
-    addItem, newSheetItem, layoutItem, printItem,
+    addItem, layoutItem, newSheetItem, printItem,
     ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
     notebookItem, tourItem, helpItem,
   ];
