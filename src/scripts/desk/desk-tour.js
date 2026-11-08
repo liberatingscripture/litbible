@@ -2,7 +2,7 @@
 //
 // The Study Desk tour (STUDY-DESK-FIXES.md E24; BVJ, 2026-11-02): a tour of /desk
 // itself, apart from the notebook tour (tour.js), which stays on the chapter
-// pages. Seven cards in two parts (what is on the desk, then changing it), run
+// pages. Nine cards in two parts (what is on the desk, then changing it), run
 // by the same card as the notebook's (tour-runner.js), each beside the thing it
 // is about and each showing it working.
 //
@@ -35,7 +35,7 @@ import {
   DESK_TOUR_PARTS, DESK_TOUR_STEPS, TOUR_LINK, localDay, parseTourState, planTour,
   tourOffer, withLater, withNever, withOffered, withSeen,
 } from "../../lib/desk-first-use.mjs";
-import { addPane, addPaneNeeds, applyArrangement, arrangementOf, isFollower, needs, originalLayout, panes, setActive } from "../../lib/desk-layout.mjs";
+import { addPane, addPaneNeeds, applyArrangement, arrangementOf, isFollower, needs, originalLayout, panes, setActive, setKind } from "../../lib/desk-layout.mjs";
 import { createFloatWindow } from "../float-window.js";
 import { getDeskTourRaw, saveDeskTourList } from "./first-use.js";
 import { createTourRunner } from "./tour-runner.js";
@@ -51,12 +51,24 @@ const el = (tag, className, text) => {
   return e;
 };
 const today = () => localDay(new Date());
+/** Waits for `find()` to return something, up to `ms`, polling each frame. */
+const waitFor = (find, ms = 2000) =>
+  new Promise((resolve) => {
+    const end = performance.now() + ms;
+    const tick = () => {
+      const got = find();
+      if (got || performance.now() > end) resolve(got ?? null);
+      else requestAnimationFrame(tick);
+    };
+    tick();
+  });
 
 /**
  * @param {{ canKeep: boolean, getLayout: () => object, setLayout: (next: object) => void,
  *   freeze: (on: boolean) => void, paneEls: Map<string, object>, panesBox: HTMLElement,
  *   titleButton: HTMLElement, titleMenu: HTMLElement, addFly: HTMLElement,
  *   openTitleMenu: () => void, closeTitleMenu: (o?: object) => void, showAddKinds: (direction: string) => void,
+ *   newSheet: () => string | null,
  *   layoutMenu: HTMLElement, openLayoutMenu: () => void, closeLayoutMenu: (o?: object) => void,
  *   refreshLayoutMenu: () => void, shapeButtons: HTMLElement[],
  *   onLineChange?: () => void }} api
@@ -116,6 +128,28 @@ export function createDeskTour(api) {
       return { el: rec.pin, marks: [rec.pin] };
     },
 
+    // A Sheets pane shown (E59): a column where there is room, else the first
+    // pane that isn't the LIT turned to Sheets for the step. Its list is empty
+    // or the reader's own; nothing is opened or made.
+    async sheets() {
+      const layout = api.getLayout();
+      const { width, height } = room();
+      const before = new Set(panes(layout.root).map((p) => p.id));
+      let next = addPane(layout, "column", "sheet", width, height);
+      let id = next !== layout ? panes(next.root).find((p) => !before.has(p.id))?.id : null;
+      if (!id) {
+        const give = panes(layout.root).find((p) => p.kind !== "lit") ?? panes(layout.root)[0];
+        next = setKind(layout, give.id, "sheet");
+        id = give.id;
+      }
+      if (next !== layout) {
+        api.setLayout(next);
+        later(toBase);
+      }
+      const rec = api.paneEls.get(id);
+      return rec ? { el: rec.kindButton, marks: [rec.kindButton] } : null;
+    },
+
     async title() {
       api.openTitleMenu();
       later(() => api.closeTitleMenu({ focus: false }));
@@ -135,6 +169,21 @@ export function createDeskTour(api) {
       if (next !== api.getLayout()) api.setLayout(next);
       // Below the flyout, so the card leaves the menu it hangs from in view.
       return { el: api.addFly, marks: [api.addFly] };
+    },
+
+    // "New sheet…" done as the menu does it (E59): a Sheets pane added and its
+    // template chooser opened, the card beside the chooser. Choosing nothing,
+    // the step makes nothing; undoing it takes the pane away, chooser and all.
+    async newsheet() {
+      const paneId = api.newSheet();
+      later(toBase);
+      const rec = paneId ? api.paneEls.get(paneId) : null;
+      if (!rec) return null;
+      const chooser = await waitFor(() => {
+        const box = rec.el.querySelector(".desk-sheet__templates");
+        return box && !box.hidden ? box : null;
+      });
+      return chooser ? { el: chooser, marks: [chooser] } : { el: rec.kindButton, marks: [rec.kindButton] };
     },
 
     // The Layout window, and the first arrangement that fits applied.
@@ -163,6 +212,8 @@ export function createDeskTour(api) {
     const { width, height } = room();
     if (!panes(base.root).some((p) => isFollower(p.kind))) ids.delete("stay");
     if (addPaneNeeds(base, "column", width, height)) ids.delete("add");
+    // New sheet… needs room for a Sheets pane, a column or a row.
+    if (addPaneNeeds(base, "column", width, height) && addPaneNeeds(base, "row", width, height)) ids.delete("newsheet");
     return ids;
   }
 
@@ -240,7 +291,7 @@ export function createDeskTour(api) {
     offerWin.title.textContent = o.kind === "first" ? "Take a short tour of the Study Desk?" : "There’s something new in the tour.";
     offerText.textContent =
       o.kind === "first"
-        ? "It takes a minute and shows you the panes, the title menu, and the layouts. Nothing it does is saved."
+        ? "It takes a minute and shows you the panes, sheets, the title menu, and the layouts. Nothing it does is saved."
         : "Want a look at what’s new?";
     yes.textContent = o.kind === "first" ? "Take the tour now" : "Show me what’s new";
     offerWin.show();

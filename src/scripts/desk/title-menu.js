@@ -336,8 +336,8 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
       if (!addFly.contains(document.activeElement)) closeAddFly();
     }, 250);
   });
-  newSheetItem.addEventListener("click", () => {
-    if (newSheetItem.getAttribute("aria-disabled") === "true") return;
+  // Also the tour's (E59), which calls it without opening the menu.
+  function startNewSheet() {
     const { width, height } = addRoom();
     const layout = getLayout();
     let paneId = panes(layout.root).find((p) => p.kind === "sheet")?.id ?? null;
@@ -354,6 +354,11 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     // The Sheets pane listens and opens its template chooser (sheet-pane.js).
     if (paneId) document.dispatchEvent(new CustomEvent("desk:sheet-new", { detail: { paneId } }));
     announce("New sheet: choose a template.");
+    return paneId;
+  }
+  newSheetItem.addEventListener("click", () => {
+    if (newSheetItem.getAttribute("aria-disabled") === "true") return;
+    startNewSheet();
   });
   layoutItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); layoutWindow.open(); });
   printItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); printWindow.open(); });
@@ -396,5 +401,5 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     if (to instanceof Node && !wrap.contains(to) && !inTour(to)) closeTitleMenu({ focus: false });
   });
 
-  return { el: titleMenu, addFly, open: openTitleMenu, close: closeTitleMenu, showAddKinds, refreshTourLine };
+  return { el: titleMenu, addFly, open: openTitleMenu, close: closeTitleMenu, showAddKinds, newSheet: startNewSheet, refreshTourLine };
 }

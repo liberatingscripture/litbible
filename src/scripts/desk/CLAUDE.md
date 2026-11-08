@@ -883,7 +883,12 @@ against `dist/` is a later item.
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found
          it"). It switches the desk to `originalLayout` for the run, adds a LIT
-         pane (the flag that marks the leading one), presses a lock, opens the title menu, the
+         pane (the flag that marks the leading one), presses a lock, shows a
+         Sheets pane (a column, else the first pane that isn't the LIT turned to
+         Sheets; E59, BVJ 2026-11-08), opens the title menu, runs "New sheet…"
+         as the menu does (`titleMenu.newSheet`: a Sheets pane and its template
+         chooser, which the card sits beside; a `notebook` step, and left out
+         when neither a column nor a row fits), opens the
          Add pane flyout (adding a Footnotes column behind it) and the Layout
          window (applying an arrangement that fits), undoing each step before
          the next, and at the end commits the reader's own layout back. **What
@@ -1364,7 +1369,10 @@ against `dist/` is a later item.
        between parts from the gap between them** (BVJ, 2026-11-08): pointing
        at the space under a card (or tabbing to it) shows a line across it with
        an "Add" pill, lying over the cards so it takes no room
-       (`.desk-sheet__after`, hung from the card above), and the pill's menu
+       (`.desk-sheet__after`, hung from the card above; shown on hover, while
+       its menu is open, or on `:focus-visible`, never plain `:focus-within`,
+       since the form's × and the menu's Escape hand focus back to the pill
+       and a mouse user saw it stay until the next click), and the pill's menu
        adds the chosen part right after that card (`addPart(type, after)`), so
        a long sheet needn't be scrolled to its end. A "+" in the card's header
        was tried first and dropped the same day: it read as acting on that
@@ -1853,7 +1861,8 @@ against `dist/` is a later item.
      - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
        tested; every template's formatted text must already be in the
        sanitizer's canonical form). New sheet in the Sheets pane lists them,
-       each with a line naming its parts (`parts`), and the title menu's
+       each as its name and one line on what it is for (a second line
+       listing its parts was tried and dropped as noise, BVJ 2026-11-08), and the title menu's
        "New sheet…" opens the same list (a `desk:sheet-new` event naming the
        pane). **A template's parts hold no text, only structure and a
        prompt** (Audit 5, SH5-2; BVJ's brief): a text part is its heading

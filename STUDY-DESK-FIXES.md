@@ -1875,6 +1875,44 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   opens "The link is long because the whole sheet is in it," and the "Link
   copied" status says the same, so the length reads as the price of needing
   no server rather than as a glitch. The link itself is unchanged.
+- **E59, gap: the Study Desk tour says nothing about sheets.** BVJ
+  (2026-11-08): "the Desk tour should have at least one step about sheets,
+  maybe more than one." The seven steps covered panes, following, the lock,
+  the title menu, Add pane and Layout; a first-time leader left the tour not
+  knowing the desk makes handouts, which Audit 5 (SH5-5) had found of the
+  page itself. Status: **done 2026-11-08**: two steps. "Sheets" ends the
+  first part, with a Sheets pane shown for the step (a column where there is
+  room, else the My Notes pane turned to Sheets), and says what a sheet is
+  and what it is for. "New sheet" follows "The title menu" in the second
+  part: it runs "New sheet…" as the menu does, so a Sheets pane appears with
+  its template chooser open and the card beside the chooser, and names the
+  five templates; nothing is chosen, so nothing is made, and undoing the step
+  takes the pane away. Both leave nothing behind, like every other step. The
+  tour is nine steps; readers who finished the seven are offered the two as
+  "something new in the tour." The title menu step now names a new sheet
+  among the menu's items, and the offer says the tour shows sheets. Building
+  the step found a race in "New sheet…" itself: with no Sheets pane open, the
+  menu adds one and sends its event in the same tick, and the pane's own first
+  list render, a microtask later, superseded the chooser's, so the templates
+  stayed shut. The pane now leaves the screen to a request that came first.
+- **E60, rough: a sheet's part drags only by its grip, and the gap's "Add"
+  pill stays showing after use.** BVJ (2026-11-08), using the Sheets pane:
+  the ⠿ grip in a card's corner was the only handle, and after adding a part
+  from the gap between cards the pill stayed on screen until a click on an
+  unrelated card. The pill was shown on `:focus-within`, and the passage
+  form's × and the menu's Escape hand focus back to it, so a mouse user's
+  close left it lit. Status: **done 2026-11-08**: the whole header drags
+  (its buttons and the Leader only box keep their own job, and a press that
+  doesn't become a drag leaves the card undraggable, so dragging across a
+  part's text never carries the card off), the header's cursor says so, and
+  the pill shows on hover, while its menu is open, or on `:focus-visible`,
+  so keyboard focus still lights it and a mouse's doesn't. The help page
+  says "Drag a part by its header." **Also (same report):** of the add bar's
+  buttons only "+ For discussion" had a tooltip, and it ran too long to
+  show whole. Each button now says in a short line what it adds, as hover
+  text and as its description for a screen reader (`ADD_TIPS`), and For
+  discussion's is "Gather your question notes on these passages into a
+  section."
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

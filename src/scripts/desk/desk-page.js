@@ -1280,6 +1280,7 @@ async function start() {
     openTitleMenu: titleMenu.open,
     closeTitleMenu: titleMenu.close,
     showAddKinds: titleMenu.showAddKinds,
+    newSheet: titleMenu.newSheet,
     layoutMenu: menu,
     openLayoutMenu: openMenu,
     closeLayoutMenu: closeMenu,
