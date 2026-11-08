@@ -43,6 +43,12 @@ import {
   stepState,
   fitSize,
   hiddenTermsNote,
+  blankWords,
+  noteArrival,
+  partTimeWords,
+  planWords,
+  plannedTotal,
+  screenMinutes,
 } from "../../lib/desk-present.mjs";
 import { modulesForCopy } from "../../lib/desk-sheet-copy.mjs";
 import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
@@ -267,7 +273,9 @@ function createControl({ sheet, store, role, draw, say }) {
       else if (action.type === "notes") say("This screen has no footnotes.");
       return;
     }
-    apply(next, { why: action.type });
+    // A step that only brings a blank screen back is announced as that.
+    const movement = ["next", "prev", "first", "last", "go"].includes(action.type);
+    apply(next, { why: action.type === "blank" || (state.blank && movement) ? "blank" : action.type });
   }
 
   channel?.addEventListener("message", (e) => {
@@ -357,6 +365,7 @@ function announce(why, state, deck) {
     const n = state.revealed[i] ?? 0;
     return `Revealed: ${deck.words[i][n - 1] ?? ""}`;
   }
+  if (why === "blank") return blankWords(state.blank === true);
   if (why === "hide") return "Covered again.";
   if (why === "notes") return state.notes[i] ? "Footnotes shown." : "Footnotes hidden.";
   return "";
@@ -389,6 +398,9 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   const notes = button("Footnotes");
   notes.setAttribute("aria-keyshortcuts", "F");
   notes.title = "Show or hide this passage’s footnotes (F)";
+  const blankBtn = button("Blank");
+  blankBtn.setAttribute("aria-keyshortcuts", "B");
+  blankBtn.title = "Blank the screen to black, and bring it back (B or a period)";
   const presenter = button("Presenter view");
   presenter.title = "Open the presenter view in a window of its own: your notes, what comes next, and a clock";
   const full = button("Full screen");
@@ -407,7 +419,7 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
     control.setAttribute("aria-describedby", hint.id);
     return hint;
   });
-  strip.append(prev, next, reveal, notes, where, presenter, full, close);
+  strip.append(prev, next, reveal, notes, blankBtn, where, presenter, full, close);
   stage.append(frame, strip, live, ...hints);
 
   // Everything behind the presentation is out of reach while it is open.
@@ -452,6 +464,11 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
       notes.hidden = off.get(notes);
       notes.setAttribute("aria-pressed", String(state.notes[i] === true));
       where.textContent = screenCount(i, deck.screens.length);
+      const dark = state.blank === true;
+      stage.classList.toggle("is-blank", dark);
+      frame.inert = dark;
+      blankBtn.setAttribute("aria-pressed", String(dark));
+      blankBtn.textContent = dark ? "Show screen" : "Blank";
       const words = why === "remote" ? "" : announce(why, state, deck);
       if (words) live.say(words);
     },
@@ -474,6 +491,7 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   next.addEventListener("click", () => control.act({ type: "next" }));
   reveal.addEventListener("click", (e) => control.act({ type: e.shiftKey ? "hide" : "reveal" }));
   notes.addEventListener("click", () => control.act({ type: "notes" }));
+  blankBtn.addEventListener("click", () => control.act({ type: "blank" }));
 
   // A refusal is seen in the strip, where the screen count is, until the next
   // step redraws it, as well as heard through the one live region (CP-13).
@@ -712,8 +730,13 @@ export async function showPresenterView({ root, sheet, store }) {
   const clock = make("p", "present-presenter__clock");
   clock.setAttribute("role", "timer");
   clock.setAttribute("aria-label", "Time since the presentation began");
+  // The leader's own timing (parts with minutes): the presenter view only.
+  const plan = make("p", "present-presenter__plan");
+  const partTime = make("p", "present-presenter__part-time");
+  const planned = plannedTotal(sheet);
+  plan.hidden = partTime.hidden = true;
   const restart = button("Restart clock", "present-btn present-btn--quiet");
-  head.append(title, where, clock, restart);
+  head.append(title, where, clock, plan, partTime, restart);
 
   const status = make("p", "present-presenter__status");
   status.setAttribute("role", "status");
@@ -732,7 +755,13 @@ export async function showPresenterView({ root, sheet, store }) {
   hide.setAttribute("aria-keyshortcuts", "Shift+R");
   const notes = button("Footnotes");
   notes.setAttribute("aria-keyshortcuts", "F");
-  controls.append(prev, next, reveal, hide, notes);
+  const blankBtn = button("Blank the room’s screen");
+  blankBtn.setAttribute("aria-keyshortcuts", "B");
+  blankBtn.title = "Turn the room’s screen to black, and bring it back (B or a period)";
+  controls.append(prev, next, reveal, hide, notes, blankBtn);
+
+  const blankNote = make("p", "present-presenter__blank");
+  blankNote.hidden = true;
 
   const notesBox = make("section", "present-notes");
   notesBox.append(make("h2", "present-notes__title", "For the leader"));
@@ -740,22 +769,41 @@ export async function showPresenterView({ root, sheet, store }) {
   notesBox.append(notesBody);
 
   const keys = make("p", "present-presenter__keys",
-    "Keys, in either window: →, Page Down, or Space for the next step; ←, Page Up, or Shift+Space for the one before; Home and End for the first and last; R to reveal; Shift+R to cover again; F for footnotes.");
+    "Keys, in either window: →, Page Down, or Space for the next step; ←, Page Up, or Shift+Space for the one before; Home and End for the first and last; R to reveal; Shift+R to cover again; F for footnotes; B or a period to blank the room’s screen and bring it back (a step key brings it back too, without stepping).");
 
   const main = make("div", "present-presenter__main");
   const left = make("div", "present-presenter__now");
-  left.append(now.box, controls);
+  left.append(now.box, blankNote, controls);
   const right = make("div", "present-presenter__side");
   right.append(notesBox, upNext.box);
   main.append(left, right);
   root.replaceChildren(head, status, main, keys, live);
 
   let began = Date.now();
-  const tick = () => { clock.textContent = clockWords(Date.now() - began); };
+  // When the leader first arrived on each screen, for the part countdown.
+  let arrivals = {};
+  let current = null;
+  const tick = () => {
+    const nowMs = Date.now();
+    clock.textContent = clockWords(nowMs - began);
+    if (planned) {
+      plan.hidden = false;
+      plan.textContent = planWords(planned, nowMs - began);
+    }
+    const mins = current ? screenMinutes(current.deck.screens[current.state.screen]) : null;
+    const since = arrivals[current?.state.screen];
+    partTime.hidden = !(mins && since !== undefined);
+    if (!partTime.hidden) {
+      const t = partTimeWords(mins, nowMs - since);
+      partTime.textContent = `This part: ${t.text}`;
+      partTime.classList.toggle("is-over", t.over);
+    }
+  };
   tick();
   setInterval(tick, 1000);
   restart.addEventListener("click", () => {
     began = Date.now();
+    arrivals = current ? { [current.state.screen]: began } : {};
     tick();
   });
 
@@ -781,6 +829,15 @@ export async function showPresenterView({ root, sheet, store }) {
       if (!deck) return;
       const i = state.screen;
       const total = deck.screens.length;
+      arrivals = noteArrival(arrivals, i, Date.now());
+      current = { state, deck };
+      tick();
+      const dark = state.blank === true;
+      now.box.classList.toggle("is-blank", dark);
+      blankNote.hidden = !dark;
+      blankNote.textContent = dark ? "The room’s screen is blank. Press B to show it." : "";
+      blankBtn.setAttribute("aria-pressed", String(dark));
+      blankBtn.textContent = dark ? "Show the room’s screen" : "Blank the room’s screen";
       where.textContent = `${screenCount(i, total)}: ${screenTitle(deck.screens[i], deck.sheet)}`;
       now.show(deck.built[i].el);
       const after = deck.built[i + 1]?.el ?? null;
@@ -806,6 +863,7 @@ export async function showPresenterView({ root, sheet, store }) {
   reveal.addEventListener("click", () => control.act({ type: "reveal" }));
   hide.addEventListener("click", () => control.act({ type: "hide" }));
   notes.addEventListener("click", () => control.act({ type: "notes" }));
+  blankBtn.addEventListener("click", () => control.act({ type: "blank" }));
   document.addEventListener("keydown", (e) => {
     const action = keyAction(e);
     if (!action) return;
