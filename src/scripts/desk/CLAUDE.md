@@ -1893,7 +1893,11 @@ against `dist/` is a later item.
        deflate-raw JSON in base64url after `#share1.`, or the same data on
        the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
        last data line, ignores whitespace folded into it, and throws
-       "damaged" for one it can't read). The Share dialog's button for that
+       "damaged" for one it can't read). The dialog's note and the "Link
+       copied" status both say the link is long because the sheet is in it
+       (E58; BVJ, 2026-11-08: a first link read as a string of random
+       characters). A short link would need a hosted store, M14, deferred to
+       signed-in readers. The Share dialog's button for that
        file is "Export a Study Desk file (.md)" and the Sheets page's is
        "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
        `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;

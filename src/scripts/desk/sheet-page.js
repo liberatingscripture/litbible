@@ -621,10 +621,12 @@ function openShareDialog(sheet, opener) {
     scope = v;
     refresh();
   });
+  // The note says the link is long because the sheet is in it (E58; BVJ,
+  // 2026-11-08): a first link read as a few hundred random characters.
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
+    "The link is long because the whole sheet is in it: litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button(EXPORT_LABEL);
@@ -678,7 +680,7 @@ function openShareDialog(sheet, opener) {
   copyLink.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(link);
-      status.textContent = "Link copied. Paste it into an email or a message.";
+      status.textContent = "Link copied. It is long because the sheet is in it. Paste it into an email or a message.";
     } catch (_) {
       status.textContent = `Your browser didn’t allow the copy. Choose ${EXPORT_LABEL} instead.`;
     }
