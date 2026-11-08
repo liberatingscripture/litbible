@@ -452,7 +452,7 @@ against `dist/` is a later item.
      pill in the toolbar's right slot**, the old "Switch to Read View" pill's
      design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
      beside the Read View wrapper, which stays hidden while the preview is on):
-     "Open in the Study Desk," "Study Desk" where that pill shortened, an icon
+     "Open in Study Desk," "Study Desk" where that pill shortened, an icon
      alone on the phone-width compact toolbar. Its `?place=` is the chapter
      being read (`romans-8`), and on an introduction chapter 1 with
      `&intro=romans`, which opens a Book Intro pane beside it (E53), written
