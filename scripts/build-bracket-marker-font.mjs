@@ -32,6 +32,8 @@
  * Source: Noto Sans Math (SIL Open Font License), via the
  * @fontsource/noto-sans-math package — a devDependency used only by this
  * script, never shipped to the browser directly.
+ * The OFL text, with Noto Sans Math's copyright line, ships beside the output
+ * as public/fonts/bracket-markers-OFL.txt.
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -82,9 +84,19 @@ for (const cp of CODEPOINTS) {
   );
 }
 
+// The OFL asks a modified font to carry the original's copyright and license,
+// so the name table repeats the source's (read from it, not typed here); the
+// full text ships beside the output as public/fonts/bracket-markers-OFL.txt.
+const named = (key) => {
+  for (const table of Object.values(source.names)) if (table?.[key]?.en?.trim()) return table[key].en;
+  return undefined;
+};
 const subset = new opentype.Font({
   familyName: "LIT Bracket Markers",
   styleName: "Regular",
+  copyright: named("copyright"),
+  license: named("license") ?? "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
+  licenseURL: named("licenseURL") ?? "https://openfontlicense.org",
   unitsPerEm: source.unitsPerEm,
   ascender: source.ascender,
   descender: source.descender,

@@ -90,9 +90,19 @@ for (const cp of CODEPOINTS) {
   );
 }
 
+// The OFL asks a modified font to carry the original's copyright and license,
+// so the name table repeats the source's (read from it, not typed here); the
+// full text ships beside the output as public/fonts/text-critical-signs-OFL.txt.
+const named = (key) => {
+  for (const table of Object.values(source.names)) if (table?.[key]?.en?.trim()) return table[key].en;
+  return undefined;
+};
 const subset = new opentype.Font({
   familyName: "LIT Text-Critical Signs",
   styleName: "Regular",
+  copyright: named("copyright"),
+  license: named("license") ?? "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
+  licenseURL: named("licenseURL") ?? "https://openfontlicense.org",
   unitsPerEm: source.unitsPerEm,
   ascender: source.ascender,
   descender: source.descender,
