@@ -3,7 +3,7 @@
 // Present mode (STUDY-DESK.md, S6, M2, M3; "Order of work", 3j): a sheet shown
 // to a room, full screen, one part at a time, with the reveal, a code on its
 // first screen, and a presenter view in a second window. The rules only;
-// /sheets/ draws them (src/scripts/desk/sheet-present.js). Pure, so they can
+// /sheets/ draws them (src/scripts/desk/sheets/sheet-present.js). Pure, so they can
 // be tested without a page.
 //
 // Nothing here is stored. Where the room is (which screen, how much of each

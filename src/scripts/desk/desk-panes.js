@@ -40,7 +40,7 @@ import { createLitPane } from "./lit-pane.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
 import { createSearchPane } from "./search-pane.js";
-import { createSheetPane } from "./sheet-pane.js";
+import { createSheetPane } from "./sheets/sheet-pane.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";

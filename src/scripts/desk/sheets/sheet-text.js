@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-text.js
+// src/scripts/desk/sheets/sheet-text.js
 //
 // The formatted-text editor of the sheet editor on /desk (STUDY-DESK.md, D9;
 // "Order of work", 3f): a toolbar and a contenteditable area for a sheet's
@@ -37,7 +37,7 @@
 // for them. The named styles, text alignment, the horizontal line and
 // un-quoting edit the DOM directly, so the browser's undo steps over them.
 
-import { ALIGNMENTS, SPAN_STYLES, pastedSheetHtml, sanitizeSheetHtml } from "../../lib/desk-sheet-format.mjs";
+import { ALIGNMENTS, SPAN_STYLES, pastedSheetHtml, sanitizeSheetHtml } from "../../../lib/desk-sheet-format.mjs";
 
 const STYLE_KEYS = Object.keys(SPAN_STYLES);
 const SAVE_DELAY = 400;

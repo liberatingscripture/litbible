@@ -1253,7 +1253,7 @@ export function deskEnabled() {
  */
 export function loadDeskSheets() {
   if (!deskEnabled()) return null;
-  deskSheetsPromise ||= import("./desk/search-sheet.js").catch((err) => {
+  deskSheetsPromise ||= import("./desk/sheets/search-sheet.js").catch((err) => {
     console.error("Study Desk: search couldn't load its sheets", err);
     deskSheetsPromise = null;
     return null;

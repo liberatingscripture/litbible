@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-slides.js
+// src/scripts/desk/sheets/sheet-slides.js
 //
 // A sheet as slides (STUDY-DESK-FIXES.md, E37 phase B; BVJ, 2026-11-06), for
 // the Slides group of "Save as ▾" on /sheets/. Loaded by sheet-page.js only
@@ -20,16 +20,16 @@
 // 2026-11-07): saved from the participant version they carry no answers and
 // no Leader only parts, as the menu's "Participant version" line says.
 
-import { DOC_CREDIT, docRuns } from "../../lib/desk-sheet-doc.mjs";
-import { revealedWords, roomCodes } from "../../lib/desk-present.mjs";
-import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
-import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, deckSlides, slideBoxes, slideParagraphs, titlePoints } from "../../lib/desk-slides.mjs";
-import { qrSvg } from "../../lib/qr-svg.mjs";
+import { DOC_CREDIT, docRuns } from "../../../lib/desk-sheet-doc.mjs";
+import { revealedWords, roomCodes } from "../../../lib/desk-present.mjs";
+import { passageReference, sheetName } from "../../../lib/desk-sheet-passages.mjs";
+import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, deckSlides, slideBoxes, slideParagraphs, titlePoints } from "../../../lib/desk-slides.mjs";
+import { qrSvg } from "../../../lib/qr-svg.mjs";
 import { rich } from "./sheet-copy.js";
 import { prepareDeck } from "./sheet-present.js";
 import { codePng } from "./sheet-save.js";
 import { block, inlines } from "./sheet-word.js";
-import { make } from "./dom.js";
+import { make } from "../dom.js";
 
 /* ── Reading the screens ──────────────────────────────────────────────── */
 

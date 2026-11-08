@@ -6074,7 +6074,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 /* ── Sheet text: the formatted-text editor and how sheet html looks ───── */
 
-/* src/scripts/desk/sheet-text.js (the toolbar and the editable) and, scoped to
+/* src/scripts/desk/sheets/sheet-text.js (the toolbar and the editable) and, scoped to
    `.desk-rich`, the look of a sheet's sanitized html wherever it is shown,
    editor or read-only (src/lib/desk-sheet-format.mjs). A sheet stores NAMES
    (data-color="red", never a color), so what each name looks like is decided
@@ -8077,7 +8077,7 @@ mark.desk-print-mark {
   }
 }
 
-/* ── A sheet from a search or a topic (M5; desk/search-sheet.js) ──────── */
+/* ── A sheet from a search or a topic (M5; desk/sheets/search-sheet.js) ──────── */
 
 /* Quiet: a line of small text under a group's title, nothing above the
    results when the desk is off (the markup isn't there at all). */

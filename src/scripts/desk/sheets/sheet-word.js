@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-word.js
+// src/scripts/desk/sheets/sheet-word.js
 //
 // The copy on screen read into a document (STUDY-DESK.md, S9; E37), for the
 // "Copy" button on /sheets/ (E36 renamed it from "Copy for Word") and for the
@@ -15,7 +15,7 @@
 // addresses at the foot say the same thing in words. The files carry them,
 // when the page shows them.
 
-import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHref, docHtml, docText } from "../../lib/desk-sheet-doc.mjs";
+import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHref, docHtml, docText } from "../../../lib/desk-sheet-doc.mjs";
 
 const INLINE = new Set(["em", "strong", "u", "s", "sub", "a"]);
 const isList = (n) => n.nodeType === Node.ELEMENT_NODE && /^(ul|ol)$/i.test(n.tagName);

@@ -257,7 +257,7 @@ test("sheetHtmlForShow: strips a script and an onclick", () => {
 test("no desk script draws a sheet's stored html without sheetHtmlForShow (BA66)", () => {
   // The read-only Sheets pane once did `box.innerHTML = html`, and a sheet in
   // a newer format, never checked by validateSheet, ran its own script.
-  const dir = new URL("../src/scripts/desk/", import.meta.url);
+  const dir = new URL("../src/scripts/desk/sheets/", import.meta.url);
   const raw = /\.innerHTML\s*=(?!\s*sheetHtmlForShow\()[^;`"'\n]*\b(?:html|answer)\b/;
   assert.match("box.innerHTML = html ?? \"\";", raw, "the old line is caught");
   assert.match("box.innerHTML = m.answer;", raw);

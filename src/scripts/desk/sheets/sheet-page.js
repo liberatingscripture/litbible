@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-page.js
+// src/scripts/desk/sheets/sheet-page.js
 //
 // A sheet's own address, /sheets/ (STUDY-DESK.md, D9, "Phase 3a's answers",
 // 2; "Order of work", 3i). Loaded by desk-gate.js on a computer with the
@@ -50,7 +50,7 @@
 //   scrolls with the page. Nothing that saves: no Import, Copy, Save as, or
 //   link to the desk, and no paper, code or answer key choices.
 
-import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../lib/desk-sheet-copy.mjs";
+import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../../lib/desk-sheet-copy.mjs";
 import {
   MAX_SHARE_FILE_BYTES,
   QR_LINK_LIMIT,
@@ -62,22 +62,22 @@ import {
   shareFile,
   shareFileName,
   shareLink,
-} from "../../lib/desk-sheet-share.mjs";
-import { qrSvg } from "../../lib/qr-svg.mjs";
-import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
-import { isOwnTemplate } from "../../lib/desk-sheets.mjs";
-import { addDeskStyle, deskCtx as ctx } from "./boot.js";
-import { checkSummary } from "../../lib/desk-sheet-check.mjs";
-import { passageReference } from "../../lib/desk-sheet-passages.mjs";
-import { documentFileName } from "../../lib/desk-sheet-doc.mjs";
+} from "../../../lib/desk-sheet-share.mjs";
+import { qrSvg } from "../../../lib/qr-svg.mjs";
+import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
+import { isOwnTemplate } from "../../../lib/desk-sheets.mjs";
+import { addDeskStyle, deskCtx as ctx } from "../boot.js";
+import { checkSummary } from "../../../lib/desk-sheet-check.mjs";
+import { passageReference } from "../../../lib/desk-sheet-passages.mjs";
+import { documentFileName } from "../../../lib/desk-sheet-doc.mjs";
 import { copyChecks, copyLeaks, renderCopy } from "./sheet-copy.js";
-import { leakSentence } from "../../lib/desk-sheet-leaks.mjs";
-import { diffParagraph } from "./diff-view.js";
+import { leakSentence } from "../../../lib/desk-sheet-leaks.mjs";
+import { diffParagraph } from "../diff-view.js";
 import { openPresentation, showPresenterView } from "./sheet-present.js";
 import { CODES_MISSING, createSaveMenu, download, drawCodes, writerFor } from "./sheet-save.js";
 import { copyForWord, readCopy } from "./sheet-word.js";
-import { openStore } from "./store.js";
-import { make } from "./dom.js";
+import { openStore } from "../store.js";
+import { make } from "../dom.js";
 
 const PAPER_KEY = "lit-sheet-paper";
 // Whether the leader's version ends with an answer key: this browser's choice,

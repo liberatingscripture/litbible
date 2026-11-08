@@ -21,14 +21,14 @@ test("sheet-share-gate.js imports nothing of the desk statically", () => {
 
 test("sheet-share-gate.js loads the sheet page dynamically, and only on a phone or tablet", () => {
   const src = read("src/scripts/sheet-share-gate.js");
-  const at = src.indexOf('import("./desk/sheet-page.js")');
+  const at = src.indexOf('import("./desk/sheets/sheet-page.js")');
   assert.ok(at > 0, "the dynamic import is there");
-  assert.equal(src.indexOf('import("./desk/sheet-page.js")', at + 1), -1, "and only once");
+  assert.equal(src.indexOf('import("./desk/sheets/sheet-page.js")', at + 1), -1, "and only once");
   assert.ok(src.lastIndexOf("if (isAppPlatform(navigator)) {", at) > 0, "inside the phone branch");
 });
 
 test("sheet-page.js starts the desk's page only with the desk on, and exports the phone's way in", () => {
-  const src = read("src/scripts/desk/sheet-page.js");
+  const src = read("src/scripts/desk/sheets/sheet-page.js");
   assert.match(src, /\nif \(document\.documentElement\.dataset\.desk === "on"\) start\(\);\n/);
   assert.doesNotMatch(src, /\nstart\(\);/);
   assert.match(src, /export async function showSharedOnPhone\(root, fragment\) \{[\s\S]*?showShared\(root, null, fragment, \{ phone: true \}\)/);

@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-lit.js
+// src/scripts/desk/sheets/sheet-lit.js
 //
 // What a sheet knows about the LIT, in the Sheets pane (STUDY-DESK.md, "Order
 // of work", 3h): a passage's words with its blanks (S10) and the choice of
@@ -15,9 +15,9 @@
 // chapter's anchor text (desk-anchor-dom.mjs), the same measure a blank's
 // quote is stored in.
 
-import { offsetsToRange, pageAnchorText, rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
-import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
-import { BOOKS, bookKeyToLabel } from "../../data/books.js";
+import { offsetsToRange, pageAnchorText, rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
+import { LIT_CREDIT_LINE } from "../../../lib/lit-credit.mjs";
+import { BOOKS, bookKeyToLabel } from "../../../data/books.js";
 import {
   blankFromOffsets,
   blankHint,
@@ -41,14 +41,14 @@ import {
   traditionalWord,
   verseLabel,
   wordSpans,
-} from "../../lib/desk-sheet-lit.mjs";
-import { locatePassage, passageReference } from "../../lib/desk-sheet-passages.mjs";
-import { freshCopy, passageAsRecord, passageCheck } from "../../lib/desk-sheet-check.mjs";
-import { releaseNoteFor } from "../../lib/desk-change.mjs";
-import { loadChapterPage } from "./chapter-page.js";
-import { diffParagraph } from "./diff-view.js";
-import { loadReleaseNotes } from "./release-feed.js";
-import { make } from "./dom.js";
+} from "../../../lib/desk-sheet-lit.mjs";
+import { locatePassage, passageReference } from "../../../lib/desk-sheet-passages.mjs";
+import { freshCopy, passageAsRecord, passageCheck } from "../../../lib/desk-sheet-check.mjs";
+import { releaseNoteFor } from "../../../lib/desk-change.mjs";
+import { loadChapterPage } from "../chapter-page.js";
+import { diffParagraph } from "../diff-view.js";
+import { loadReleaseNotes } from "../release-feed.js";
+import { make } from "../dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 

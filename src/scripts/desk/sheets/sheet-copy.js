@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-copy.js
+// src/scripts/desk/sheets/sheet-copy.js
 //
 // A sheet drawn as one of its two copies (STUDY-DESK.md, S4; "Order of work",
 // 3i), for /sheets/ to show, print and copy. The leader's copy has
@@ -14,7 +14,7 @@
 // (sheet-lit.js's readPassage and passageWords), so the copy and the editor
 // can't disagree about which words a passage, a blank or a footnote covers.
 
-import { offsetsToRange, pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
+import { offsetsToRange, pageAnchorText } from "../../../lib/desk-anchor-dom.mjs";
 import {
   blankedTermsNote,
   chapterCodes,
@@ -23,16 +23,16 @@ import {
   modulesForCopy,
   printsOnPaper,
   sheetHtmlForShow,
-} from "../../lib/desk-sheet-copy.mjs";
-import { blankHint, blankWords, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
-import { blankCover, footnotesInPlay, plannedTotal } from "../../lib/desk-present.mjs";
-import { partialEnds, passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
-import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
-import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
-import { qrSvg } from "../../lib/qr-svg.mjs";
-import { answerKeyLine, answerKeyRows, findLeaks } from "../../lib/desk-sheet-leaks.mjs";
+} from "../../../lib/desk-sheet-copy.mjs";
+import { blankHint, blankWords, collectKeyTerms, footnoteRows, termForWords } from "../../../lib/desk-sheet-lit.mjs";
+import { blankCover, footnotesInPlay, plannedTotal } from "../../../lib/desk-present.mjs";
+import { partialEnds, passageReference, sheetName } from "../../../lib/desk-sheet-passages.mjs";
+import { newestVersion, textAsOfLine } from "../../../lib/desk-sheet-check.mjs";
+import { LIT_CREDIT_LINE } from "../../../lib/lit-credit.mjs";
+import { qrSvg } from "../../../lib/qr-svg.mjs";
+import { answerKeyLine, answerKeyRows, findLeaks } from "../../../lib/desk-sheet-leaks.mjs";
 import { locateBlanks, passageWords, readPassage, UNREAD_PASSAGE_ON_PAPER } from "./sheet-lit.js";
-import { make } from "./dom.js";
+import { make } from "../dom.js";
 
 /** Lines to write on: one ruled line each, as borders, which print where backgrounds don't. */
 function ruled(n) {

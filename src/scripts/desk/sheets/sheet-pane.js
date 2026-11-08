@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-pane.js
+// src/scripts/desk/sheets/sheet-pane.js
 //
 // The sheet editor, shown as /desk's Sheets pane (STUDY-DESK.md, S1; "Order of
 // work", 3f). A sheet is one record (STUDY-DESK-FORMAT.md, "Sheets (kind
@@ -48,10 +48,10 @@
 //   another tab, an undo) redraws only the modules it touched, and never the
 //   one being typed in.
 
-import { plannedTotal } from "../../lib/desk-present.mjs";
-import { canEdit } from "../../lib/desk-records.mjs";
-import { sheetHtmlForShow } from "../../lib/desk-sheet-copy.mjs";
-import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
+import { plannedTotal } from "../../../lib/desk-present.mjs";
+import { canEdit } from "../../../lib/desk-records.mjs";
+import { sheetHtmlForShow } from "../../../lib/desk-sheet-copy.mjs";
+import { MODULE_TYPES, SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
 import {
   addModule,
   createSheet,
@@ -67,9 +67,9 @@ import {
   setSheetFields,
   sheetTooBig,
   updateModule,
-} from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
-import { fitModules, notebookItems, partsFor } from "../../lib/desk-sheet-from-notes.mjs";
+} from "../../../lib/desk-sheets.mjs";
+import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
+import { fitModules, notebookItems, partsFor } from "../../../lib/desk-sheet-from-notes.mjs";
 import {
   passageFromOffsets,
   passageForReference,
@@ -81,20 +81,20 @@ import {
   samePassage,
   sheetName,
   sortSheets,
-} from "../../lib/desk-sheet-passages.mjs";
-import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
-import { recordReference } from "../../lib/desk-store-core.mjs";
-import { parseReference } from "../search-core.js";
-import { bookKeyToLabel } from "../../data/books.js";
-import { describeRefusal } from "../../lib/desk-sheet-ref-refusal.mjs";
-import { closePanel } from "../lit-panel.js";
-import { loadChapterPage } from "./chapter-page.js";
-import { undoEntry } from "./history.js";
+} from "../../../lib/desk-sheet-passages.mjs";
+import { rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
+import { recordReference } from "../../../lib/desk-store-core.mjs";
+import { parseReference } from "../../search-core.js";
+import { bookKeyToLabel } from "../../../data/books.js";
+import { describeRefusal } from "../../../lib/desk-sheet-ref-refusal.mjs";
+import { closePanel } from "../../lit-panel.js";
+import { loadChapterPage } from "../chapter-page.js";
+import { undoEntry } from "../history.js";
 import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./sheet-lit.js";
 import { createSheetText } from "./sheet-text.js";
-import { showUndo } from "./undo-bar.js";
-import { redraw } from "./focus-keep.js";
-import { make } from "./dom.js";
+import { showUndo } from "../undo-bar.js";
+import { redraw } from "../focus-keep.js";
+import { make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");

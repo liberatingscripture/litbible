@@ -98,7 +98,7 @@ import {
   verseHitHref,
   verseHitLabel,
 } from "../search-core.js";
-import { addTarget, onAddTarget } from "./sheet-pane.js";
+import { addTarget, onAddTarget } from "./sheets/sheet-pane.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 import { make } from "./dom.js";
