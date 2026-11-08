@@ -123,7 +123,8 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
 
   x.addEventListener("click", () => close("close"));
   el.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
+    // Escape while composing (a dead key, an IME) cancels the composition, not the window (GK6-8).
+    if (e.key !== "Escape" || e.isComposing) return;
     e.preventDefault();
     e.stopPropagation();
     close("close");

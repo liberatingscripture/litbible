@@ -2101,3 +2101,181 @@ single E number. The rule stays there; the story is here.
 - *E22, My Notes' follow:* before the `followTarget` change the pane stayed
   where it was in a chapter with nothing kept, which read as not following
   (the entry above has the full account).
+
+## Bookmarks: the long account (moved from the desk CLAUDE.md, 2026-11-08, LG6-1)
+
+The rules are condensed in `src/scripts/desk/CLAUDE.md` (rule 13, "Bookmarks, and Continue reading"); this is the text it had before the trim, kept for the stories and the exact wording of the reasons.
+
+     - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
+       `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
+       `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md E9).
+       **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22; the
+       word "ribbon" is for the note marker alone, E10). A `bookmark` record is
+       a verse, an optional `label` (its name, up to 40 characters, not
+       unique) and an optional `follow: true` ("Move as I read"), **with two
+       stamps beside `modified`, `placedAt` for its place and `editedAt` for
+       everything else** (`BOOKMARK_PLACE_FIELDS`; `createRecord` and
+       `editRecord` keep them, and the merge takes each group from the copy
+       whose stamp is newer, DI3-3), so a write of a bookmark goes through
+       `editRecord`, never a spread, and the follower writes the place
+       group alone. **A bookmark
+       stays on its verse unless that switch is on** (BVJ, 2026-11-02). The old
+       ribbon, a `place` with `ribbon: true`, is read as a bookmark that
+       follows by `migrateRecord` (same id, `name` to `label`), so nothing else
+       knows the old shape; the website never writes a `place`. A bookmark is a
+       row in the ordinary My Notes list and the notebook page's: its reference,
+       its name right under it, then a line "Bookmark · Stays put" / "Moves" /
+       "Following" (`bookmarkState`, bookmark-follow.js: following is this tab's
+       flag; one short word each so the line never wraps in the narrow list,
+       with the fuller sentence as hover text; the words are an Opus agent's,
+       who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
+       the verse, the name and the switch). **The form moves a bookmark to
+       another verse** (E46, 2026-11-05): a Verse field read as the Go to
+       passage field reads one (`parseReference`, then `bookmarkPlace`: a range
+       keeps its first verse, a chapter alone is verse 1, a verse past the
+       chapter's last is refused), sent only when the reader changed it, so a
+       move the follower made meanwhile is kept. It is the same one
+       `store.change` (`planBookmarkEdit`), an ordinary undoable edit, refused
+       with "John 3:5 already has a bookmark that stays put" when the verse
+       holds one of its kind (`roomAt`, `kindTakenAt`; the switch locks for the
+       typed verse as for its own), and it writes `verse`, `endVerse` and
+       `contentVersion` as a new bookmark gets them; other fields (`from`
+       included) are kept. Moving the bookmark this tab follows moves where it
+       rests (`restedAt`), and the next report is judged from there. **"Start
+       following now?"** (E47) shows under the switch while it is checked, and
+       only when this tab could start it (not while it follows this one, not
+       where the page doesn't follow the reader, not with six others moving);
+       otherwise a line says which. Checked at Save, the bookmark is saved and
+       then followed (`followBookmark`), even when nothing else changed, so a
+       new bookmark from the verse menu starts following with its first Save.
+       The verse menu lists "Edit bookmark…" right after
+       "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
+       that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
+       **A moving bookmark's margin mark jumps rather than glides**: its writes
+       are quiet (QUIET_KINDS), and the margin and Read View's marks (and on
+       /desk the My Notes and This verse rows and the verse numbers' names,
+       E28) redraw once
+       2.5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
+       catches up when the reading pauses; the follower writes at most every 2
+       seconds (`MOVE_EVERY_MS`), and the settle must stay longer than that gap
+       or steady scrolling redraws between writes. A move is a record write that syncs
+       (E45), so tell BDR if the write gap changes. "Add bookmark" in the verse menu and the
+       selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
+       counted); the limit and the write are one `store.change`
+       (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
+       not brought back. **"Continue reading" is the one place that isn't a
+       bookmark**: `lit_last_read` (last-read.js), never a record, shown with no
+       bookmark mark by `continue-reading.js` above My Notes' list and first on
+       the notebook page, and left out of My Notes while it names what is on
+       screen (`continueIsHere`; Audit 4, FU4-2). Read View's per-book places and other clients' places
+       aren't listed. `last-read.js` dispatches `lit:last-read` on every save
+       (nothing hears it unless the desk is on). **The C25 rule**: following a
+       moving bookmark's link (from either list) sets
+       `sessionStorage['lit-desk-follow']`, and while the reader stays in that
+       book in that tab the bookmark follows them (written without an undo
+       entry, as `bookmarkMove`); a page outside the book clears it, the shell's
+       `initBookmarkFollow` in a book and `desk-gate.js` on every page without
+       the shell but /desk (BA101, E28). **A bookmark moves only to where this page says the
+       reader is**: `pageLastRead()` and the `lit:last-read` event, never
+       `lit_last_read` in storage, which every tab shares and an earlier page
+       left (BA99, BA100). Following a link forgets where the reader was, and a
+       link to another page stops the page it leaves from moving the bookmark.
+       **Following a bookmark that stays put stops the moving one** (BVJ,
+       2026-11-04: it kept following and would have moved to the new place):
+       a plain click on any bookmark's link in either list either takes over
+       (`followBookmark`) or clears the flag (`stopFollowing`), and every row's
+       line redraws (`syncBookmarkLines`).
+       **A follow pauses rather than ends** (BVJ, 2026-11-04, after an Opus
+       design pass). The flag is `{ id, bookKey, tab, paused?, since?, told? }`.
+       Each report of where the reader is goes through `followStep`
+       (desk-bookmarks.mjs): within a chapter of where the bookmark sits (or of
+       the last place this page heard, for Read View's long scroll) it moves; a
+       far chapter, or another book (Matthew 28 to Mark 1 included), pauses it
+       where it was, and the reader is told once, in the undo bar, with "Move it
+       here" (`showPausedBar`; the move is an ordinary undoable edit and may cross
+       books); reading on from the bookmark resumes it. **The "last place this page heard"
+       that `followStep` allows for Read View's long scroll is the last report
+       the follower accepted**, set when a report is judged and never as it
+       arrives: a page that lands on a far verse (a link to `/luke-1/#v1`)
+       reports twice before the first judgment, and the second would count the
+       first as reading and move the bookmark instead of pausing it. Pages outside the book
+       (/search, /notebook) pause it too (`desk-gate.js`), and a pause
+       ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
+       storage). Rows say Following, Paused, Moves or Stays put.
+       **A following or paused bookmark rests at its verse and does not belong
+       to it** (`restingId`): the verse menu leaves it out of Remove and offers
+       "Leave it here" and Edit, and a verse holds **one bookmark that stays put
+       and one that moves** (`followChoices`, `planBookmark`; Edit and the form
+       lock "Move as I read" at the kind the verse lacks). Its mark is the red
+       outline; a bookmark that moves and isn't followed is solid red, and one
+       that stays put is gold (`bookmark-mark.js`). **The rows carry the same
+       colors** (E28; BVJ, 2026-11-06): `drawBookmarkLine` starts each
+       bookmark's state line with the glyph in its look (`bookmarkLook`, which
+       `markLook` reads too), in My Notes, This verse and the notebook page.
+       A follow that ends on a verse
+       already holding a bookmark of its kind is tolerated.
+       **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
+       `desk-page.js` runs the follower with `page: DESK_PAGE` and `place`, and
+       after every `commit` reports the leading pane's place (`hear`) or, when
+       another pane has become the leading one, `lead`, which pauses the follow
+       (`followStep`'s `newLead`). Other LIT panes never move it; the opening
+       place, a restore and the tour report nothing, and `lit:last-read` isn't
+       heard there. "Move it here" takes the leading pane's place at the press.
+       The pause bar is the ordinary undo bar, outside the panes.
+       **The verse menu and the selection panel group a verse's bookmarks in a
+       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and Edit
+       (`Remove bookmark “Advent”`, the name cut at 14 characters, the full name the
+       accessible name), Add a bookmark that moves or stays put, and for the resting
+       one "Leave it here". A verse with none keeps the one-press "Bookmark", and a
+       finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
+       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js`, styled by
+       `.lit-flyout*` in `global.css`, also builds every reader's "Copy text ▸" and
+       "Share ▸" rows and this file's "Print ▸" (rule 19). Desk code imports it;
+       shared code never imports desk code. Its behavior is
+       described in `src/scripts/CLAUDE.md`, "One set of actions, two ways in".
+       **"Stop following" and "Start following" are one
+       quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
+       `drawFollowLink`) under the state line of every bookmark with "Move as I
+       read" on, its label swapping with this tab's flag; not an On/Off switch,
+       since a follow is the tab's and the switch is the record's. In the verse
+       menu a moving bookmark has "Start following" beside "Edit bookmark…",
+       and the resting one's "Leave it here" is the stop. Stopping clears the
+       flag only: the bookmark stays where it last was with "Move as I read"
+       still on. Starting is `followBookmark` with no link, as opening it from
+       the list is apart from the navigation: the next report of where the
+       reader is decides (reading on from it moves it, anywhere else pauses it
+       with "Move it here"). It is offered only where the page follows the
+       reader (`followsHere`), so /notebook shows the stop alone.
+       **Every way the flag drops redraws the rows**
+       (`dropFlag`: another tab took it, it was deleted or turned off, a
+       back-forward restore), turning the switch off in the form stops it at
+       once, a Back or reload doesn't write verse 1 over the bookmark before
+       the scroll is restored, and a restored page reports its own last place
+       (`pageshow`). A row opened in place on a page that doesn't follow the
+       reader never starts a follow (`followsHere`); on /desk a moving
+       bookmark's row moves the leading LIT pane to it and then starts the
+       follow with no link (`tab-mine.js`), so the jump isn't taken as leaving
+       the page. **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
+       that stay put" once a list holds both (BVJ, 2026-11-04;
+       `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
+       both lists), and **a search's count names the kind when every notebook
+       hit is one** ("1 bookmark match"; `matchNouns`, else "notebook match"); the
+       group is always headed "My notebook", whatever it holds (E32;
+       `NOTEBOOK_GROUP_TITLE`; the tray, /search and the Search pane).
+       **A bookmark found in a notebook search opens like its row**
+       (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
+       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit):
+       /notebook and /search clear the flag, so Back into the book doesn't
+       resume it (the row's label shows the state); a move overtakes Undo of an
+       earlier edit once the reader has read on (`desk-history.mjs`'s overtaken
+       rule), and Delete then Undo resumes following only if they haven't
+       scrolled since; and the last move before the tab closes can be lost,
+       since Chrome drops a read-then-write made as a page closes (BA72).
+       **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
+       2026-10-29): Duplicate tab copies session storage, so the flag carries
+       the tab's token, and a page that loads with it asks on
+       `FOLLOW_TAB_CHANNEL` whether a live page holds that token; an answer makes
+       this tab the copy, which drops the flag. Following a link announces it,
+       and any other tab following that bookmark stops (`loseFollow`). The
+       follower's move is quiet on purpose: the margin mark isn't redrawn as it
+       moves, and takes its new place at the next redraw.

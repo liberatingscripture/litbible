@@ -14,15 +14,17 @@
 // (id, client, times, labels), each module's id, and the passages' comparison
 // copies (`verseCopy`, which hold scripture and are compared with nothing on
 // the other side). A participant share also leaves out the parts marked
-// Leader only, the questions' answers and every part of a type this version
-// doesn't know (whose fields it can't vouch for), so the link can go to the
-// room.
+// Leader only, the questions' answers, each part's planned minutes and the
+// editor's prompts, and every part of a type this version doesn't know (whose
+// fields it can't vouch for), so the link can go to the room.
 //
 // Opening one never trusts it: the data is decompressed with a ceiling (a
 // small link can't grow into something huge), parsed, rebuilt as a sheet
-// record with fresh ids, and put through the same check a sheet must pass to
-// be saved (validateSheet). Its formatted text is sanitized again when shown,
-// as every sheet's is (sheetHtmlForShow).
+// record with fresh ids, its formatted text sanitized (cleanSheetText), and
+// put through the same check a sheet must pass to be saved (validateSheet).
+// Sanitized first, so text written in a canonical form that differs in a
+// detail is rewritten, not refused (DI6-1). Its formatted text is sanitized
+// again when shown, as every sheet's is (sheetHtmlForShow).
 //
 // Pure apart from CompressionStream and DecompressionStream, which browsers
 // and Node both provide; no DOM, no storage. Each function that needs an id,
@@ -30,7 +32,7 @@
 
 import { bookKeyToLabel } from "../data/books.js";
 import { createRecord, validateRecord } from "./desk-records.mjs";
-import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS } from "./desk-sheet-format.mjs";
+import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText } from "./desk-sheet-format.mjs";
 
 /** The fragment's prefix: "share", then the share format's version, then a dot. */
 export const SHARE_PREFIX = "share1.";
@@ -70,6 +72,12 @@ const MAX_FRAGMENT_LENGTH = SHARE_PREFIX.length + Math.ceil(((MAX_JSON_BYTES + 4
 
 /** Module fields that never travel. */
 const DROP = new Set(["id", "verseCopy", "verseCopyAsOf"]);
+/**
+ * Module fields a participant share leaves out besides: a part's planned
+ * minutes (Audit 5, D #2) and the editor's prompts, which are for whoever
+ * edits the sheet and never print (SEC6-3, LG6-9).
+ */
+const PARTICIPANT_DROP = new Set(["minutes", "prompt", "answerPrompt"]);
 
 /* ── base64url ───────────────────────────────────────────────────────── */
 
@@ -155,9 +163,10 @@ export class ShareError extends Error {
 function plainModule(m, scope) {
   const out = {};
   for (const [k, v] of Object.entries(m)) if (!DROP.has(k) && v !== undefined) out[k] = v;
-  if (scope === "participant" && m.type === "question") out.answer = "";
-  // A part's planned minutes are the leader's (Audit 5, D #2).
-  if (scope === "participant") delete out.minutes;
+  if (scope === "participant") {
+    if (m.type === "question") out.answer = "";
+    for (const k of PARTICIPANT_DROP) delete out[k];
+  }
   return out;
 }
 
@@ -205,14 +214,34 @@ export async function shareLink(sheet, { origin, base = "/", ...opts } = {}) {
 
 /**
  * A line of the reader's own words for the file's Markdown half (DK3-12): a
- * star, underscore, backquote or backslash can't start emphasis or code, and
- * a line can't become a heading, a quotation or a list by how it begins.
+ * star, underscore, backquote or backslash can't start emphasis or code, a
+ * line can't become a heading, a quotation or a list by how it begins, and
+ * every `<` becomes `\<`, so typed HTML shows as text, as in the notebook's
+ * Markdown (escapeBody, BA41; SEC6-1). A `<!--` becomes `&lt;!--` instead,
+ * since `\<!--` would still read as a data line's opener (BA80). Linear in
+ * the text's length (SEC6-2): the line-start pattern has one run of spaces
+ * before the list stand-in and one after it, never two that trade characters.
  */
 export function markdownLine(text) {
   return String(text ?? "")
     .replace(/[\\`*_]/g, "\\$&")
+    .replace(/<(!--)?/g, (_, comment) => (comment ? "&lt;!--" : "\\<"))
     // At a line's start, or a list item's (plainText's stand-in, \u0001).
-    .replace(/^([ \t]*\u0001?[ \t]*)([#>+-]|\d+(?=[.)]))/gm, (_, space, mark) => (/\d/.test(mark) ? `${space}${mark}\\` : `${space}\\${mark}`));
+    .replace(/^([ \t]*)(\u0001[ \t]*)?([#>+-]|\d+(?=[.)]))/gm, (_, space, item = "", mark) =>
+      /\d/.test(mark) ? `${space}${item}${mark}\\` : `${space}${item}\\${mark}`,
+    );
+}
+
+/** `text` without the spaces and tabs that end its lines, in linear time (SEC6-2). */
+function trimLineEnds(text) {
+  return text
+    .split("\n")
+    .map((line) => {
+      let end = line.length;
+      while (end > 0 && (line[end - 1] === " " || line[end - 1] === "\t")) end--;
+      return line.slice(0, end);
+    })
+    .join("\n");
 }
 
 // Stand-ins for the list marks and rules plainText writes itself, so they
@@ -238,12 +267,13 @@ export function plainText(html) {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, "\"")
     .replace(/&amp;/g, "&");
-  return markdownLine(text)
+  const md = markdownLine(text)
     .replace(/\u0001/g, "- ")
     .replace(/\u0002/g, "---")
-    // A sheet's own text can't plant a data line in the file (BA80).
-    .replace(/<!--/g, "&lt;!--")
-    .replace(/[ \t]+\n/g, "\n")
+    // A sheet's own text can't plant a data line in the file (BA80). markdownLine
+    // already writes `<!--` this way; this holds whatever it does.
+    .replace(/<!--/g, "&lt;!--");
+  return trimLineEnds(md)
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
@@ -379,7 +409,9 @@ export function sheetFromShared(data, { now, client, id, newId = () => globalThi
     modules,
   };
   const contentVersion = typeof data.contentVersion === "string" ? data.contentVersion : "unversioned";
-  const sheet = createRecord("sheet", fields, { now, client, contentVersion, id: id ?? newId() });
+  // Sanitized before it is checked, as an import's sheets are (DI6-1), so the check refuses only
+  // what sanitizing can't mend (a field that isn't text, a limit passed).
+  const sheet = cleanSheetText(createRecord("sheet", fields, { now, client, contentVersion, id: id ?? newId() }));
   const problems = validateRecord(sheet);
   if (problems.length) throw new ShareError("invalid", problems.join("; "));
   return sheet;

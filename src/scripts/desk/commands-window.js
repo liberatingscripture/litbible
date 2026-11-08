@@ -146,7 +146,3 @@ export function closeCommandsWindow(reason = "page") {
   current?.win.close(reason);
 }
 
-/** Whether it is open. */
-export function commandsWindowOpen() {
-  return Boolean(current);
-}

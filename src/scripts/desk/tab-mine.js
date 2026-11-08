@@ -640,16 +640,19 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
 
   // One line above the list when the wording has changed under any of it.
   function drawChanged(records, notices) {
+    let changedN = 0;
     let moved = 0;
     let gone = 0;
     for (const r of records) {
       const n = notices.get(r.id);
       if (!n) continue;
       if (n.kind === "lost") gone++;
-      else moved++;
+      else if (n.kind === "moved") moved++;
+      else changedN++;
     }
     const parts = [];
-    if (moved) parts.push(`The wording has changed under ${moved} of these.`);
+    if (changedN) parts.push(`The wording has changed under ${changedN} of these.`);
+    if (moved) parts.push(`Words have moved under ${moved} of these.`);
     if (gone) parts.push(`${gone} of these ${gone === 1 ? "is" : "are"} not in the text any more.`);
     changed.hidden = parts.length === 0;
     changed.textContent = parts.join(" ");

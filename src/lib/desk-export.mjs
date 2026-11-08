@@ -698,8 +698,12 @@ export function planImport(local, incoming, ctx = {}) {
       skipped.push({ record: r, reason: "It is nested too deeply to be kept." });
       continue;
     }
-    // Brought up to date first, so a note with a renamed marker reads by its new name (E10).
-    let m = r && typeof r === "object" ? migrateRecord(r) : r;
+    // Brought up to date first, so a note with a renamed marker reads by its new name (E10), and a
+    // sheet's formatted text sanitized before anything judges it, the held copy in a trash record's
+    // too (DI6-1): a sheet saved in an older canonical form is rewritten, as editing rewrites it
+    // (DI3-6), never refused or, in the trash, kept without its words. The checks below still refuse
+    // what sanitizing can't mend.
+    let m = r && typeof r === "object" ? cleanIncoming(migrateRecord(r)) : r;
     // A trash record's held record is checked too, for the fields every record carries and, of a kind
     // this code knows, its own (DI-10, RC-1; a record it can't edit is judged by the common fields only).
     const held = m?.kind === "trash" && m.record != null && typeof m.record === "object" ? validateRecord(migrateRecord(m.record)) : [];
@@ -727,7 +731,7 @@ export function planImport(local, incoming, ctx = {}) {
             : []
         : [];
     if (bad.length) skipped.push({ record: r, reason: plainReason(bad), detail: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
-    else usable.push(cleanIncoming(m));
+    else usable.push(m);
   }
   const merged = mergeRecords(local, usable, { now: ctx.now, exported: ctx.exported, tiebreak: ctx.tiebreak });
   skipped.push(...merged.skipped);

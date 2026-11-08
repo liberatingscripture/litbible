@@ -12,20 +12,21 @@
 heading you need (BA42, 3j, N9, SEC-1) and read that section.
 
 **This file has a size cap** (`DESK_LIMIT` in `test/claude-docs.test.js`; BVJ,
-2026-11-07), meant to come down as it is trimmed. Rules, owner decisions and
-their reasons go here; the story of how an E number was decided and built goes
-under its entry in `STUDY-DESK-FIXES.md`, and a "Built on…" line goes nowhere.
+2026-11-07), meant to come down as it is trimmed (trimmed 2026-11-08, LG6-1;
+keep 8 KB or more of headroom). Rules, owner decisions and their reasons go
+here; the story of how an E number was decided and built goes under its entry
+in `STUDY-DESK-FIXES.md`, and a "Built on…" line goes nowhere.
 
 ## The records
 
 | Path | Purpose |
 |------|---------|
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1 to 3 (with 2a to 2c) are built behind the preview switch (`?desk=on`); nothing reader-facing is released. M10 was built and shelved, and N2, H2 and M4 are shelved for version 2 (2026-10-15). N8 (the hidden passage) is held on branches until after the Zoom; it is not released before phase 1 is completely done, and perhaps not until phases 1 to 3 are (BVJ, 2026-10-13). 1g (an interleaf for the Greek) is shelved for the future. Every idea, audit finding, owner decision, open question and BDR item is there with its ID, as are the two apps' replies (2026-10-04) and the talk-through list built from them. Read it before proposing or building any part of the desk, and update it when a decision changes. `STUDY-DESK-BRIEF-FOR-BDR.md` is the brief written for BDR's Claude about the apps' side; `STUDY-DESK-REPLY-TO-APPS.md` is the website's answer to both apps' replies (2026-10-05), and the last such document: since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the website's answers). |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1 to 3 are built behind the preview switch (`?desk=on`); nothing reader-facing is released. M10 was built and shelved; N2, H2 and M4 are shelved for version 2 (2026-10-15); N8 (the hidden passage) is held on branches until after the Zoom and not released before phase 1 is completely done (BVJ, 2026-10-13); 1g (an interleaf for the Greek) is shelved. Every idea, audit finding, owner decision, open question and BDR item is there with its ID. Read it before proposing or building any part of the desk, and update it when a decision changes. Since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the answers); the older `STUDY-DESK-BRIEF-FOR-BDR.md` and `STUDY-DESK-REPLY-TO-APPS.md` are the last such documents. |
 | `STUDY-DESK-FIXES.md` | **The Phase 5 log: the desk's bugs, rough spots, wording and wishes** (IDs **E1** onward), kept by BVJ's use of the preview, with the rules for adding an entry and the work-session grouping. It was a section of `STUDY-DESK.md` until 2026-11-05 and moved whole, so every "E9" or "E28" in this repo means an entry there. **A new bug or preference BVJ reports goes here as the next E number**, never into `STUDY-DESK.md`; where an entry settles a decision, say so in the entry. |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
-| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1 of the built Study Desk** (2026-10-20, commit `82af6a6`): findings BA1 to BA87, each with what happens, where and the fix, and the plan to fix them in phases FA1-a to FA1-t, each one session's work, plus the follow-up audit (FA1-u for the code it didn't reach, FA1-v on real devices), whose findings continue as BA88 onward (to BA153) and were planned in phases FA1-w onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
-| `STUDY-DESK-AUDIT-2.md` | **Audit 2 of the Study Desk** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors, with IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV` and `CP` (not renumbered into the BA series). The top matter holds the priority list, the decisions awaiting the owner and a "Status on main" table and the work sessions, tasks FA2-a to FA2-z in 11 sessions; each auditor's full report is an appendix (A to H), and Appendix I is the brief they were given, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships, as Audit 1 does. |
-| `STUDY-DESK-AUDIT-3.md` | **Audit 3 of the Study Desk** (2026-11-06, commit `60af379e`): 81 findings from eight auditors (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`), 80 after an Opus agent tried to disprove the highest. The top matter holds the priority list in three tiers, the decisions awaiting the owner, and six proposed work sessions; each report is an appendix (A to J), and Appendix K is the brief, so the audit can be repeated. Mark a finding fixed in its appendix entry as it ships. |
+| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1** (2026-10-20, commit `82af6a6`): findings BA1 to BA153, each with what happens, where and the fix, planned in phases FA1-a onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
+| `STUDY-DESK-AUDIT-2.md` | **Audit 2** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors (IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV`, `CP`), the priority list, the decisions awaiting the owner, a "Status on main" table and tasks FA2-a to FA2-z; reports are appendices A to H, the brief is Appendix I. Mark a finding fixed in its appendix entry as it ships. |
+| `STUDY-DESK-AUDIT-3.md` | **Audit 3** (2026-11-06, commit `60af379e`): 80 findings from eight auditors (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`), the priority list in three tiers, the decisions awaiting the owner and six proposed work sessions; reports are appendices A to J, the brief is K. Mark a finding fixed in its appendix entry as it ships. |
 | `STUDY-DESK-AUDIT-4.md` | **Audit 4, scoped** (2026-11-07, `4a5b7c3c`): security, first use, both tours and the preview's copy; IDs `SEC4`, `FU4`, `TR4`, `CP4`. Its fixes shipped with it; the rest are recommendations. |
 | `STUDY-DESK-AUDIT-5.md` | **Audit 5: Sheets** (2026-11-07, `19e263e5`): every template, part and command as a first-time ministry leader, ghost prompts for template text, and the comparable tools; IDs `SH5-`. Fixed and decided in #502 to #505. |
 | `STUDY-DESK-AUDIT-6.md` | **Audit 6** (2026-11-08, `5c9a31a6`): Part 1 repeats Audit 5 (`SH6`); Part 2 repeats Audits 1 to 3 (`SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, verified by `VER6`). Priority list and decisions on top, reports as appendices, briefs in I and J. Mark a finding fixed as it ships. |
@@ -71,21 +72,21 @@ means each of these, in one change:
    link, /desk, and an explicit "Show in Notebook" still work.
 2. `search-core.js`: `deskEnabled()` (the one read of the stamp for search),
    `greekSearchEnabled()`, `loadDeskSearch`, `loadDeskSheets`. Their callers
-   gate on them too: `search.js` (every `greekSearchEnabled()`, and the
-   Notebook and Greek groups at 324 to 386), `searchbar.js:644` (the "Notebook
-   actions" button), `SearchBar.astro:147`, `search.astro:67,99`.
-3. Direct readers of the stamp: `desk-gate.js` (five reads, at 12, 15, 49, 56
-   and 62), `desk-frame.js:95` (`DESK_ATTRS`, what `standDown` removes),
+   gate on them too: `search.js` (every `greekSearchEnabled()`, and its
+   Notebook and Greek groups), `searchbar.js` (the "Notebook actions" button),
+   `SearchBar.astro`, `search.astro`.
+3. Direct readers of the stamp: `desk-gate.js` (five reads),
+   `desk-frame.js` (`DESK_ATTRS`, what `standDown` removes),
    `keyboard-shortcuts.js` (`h`), `sheet-share-gate.js` (delete its "turn the
    desk on" link and the computer branch), `ScriptureLayout.astro`,
-   `read/[book].astro`, `SiteHeader.astro`, and `ReadMenu.astro` (`dataset.desk`
-   at 240, and the `html:not([data-desk])` rule at 551 that hides the E50 pill
-   in `ReadLayout.astro:40-51` when the preview is off).
+   `read/[book].astro`, `SiteHeader.astro`, and `ReadMenu.astro` (`dataset.desk`,
+   and the `html:not([data-desk])` rule that hides the E50 pill in
+   `ReadLayout.astro` when the preview is off).
 4. CSS written for "the preview is on": `global.css` (the hide rule, the 52/48
    measure and widths), `glossary.css` ("Readers keep the wide glossary until
    the desk is released"), `read-mode.css`, and the Read View card and pill
-   swaps: `pages/read.css:329-346` with the two cards in `read.astro:133`, and
-   `ScriptureLayout.astro:424-435`.
+   swaps: `pages/read.css` with the two cards in `read.astro`, and
+   `ScriptureLayout.astro`.
 5. The pages' preview copy and loading/off pairs: `desk.astro`, `notebook.astro`,
    `sheets.astro`, `desk/help.astro`, and the matching rules in
    `desk-page.css`, `notebook.css`, `sheets-page.css`. The "off" note must still
@@ -110,10 +111,9 @@ means each of these, in one change:
     and the `lit_last_read` records Read View writes. Read View itself goes,
     as "The rules" says. Delete `test/read-view-retirement.test.js`'s guard,
     "nothing in the site imports the retirement rules before the launch
-    cutover" (line 92), and rewrite its two neighbours, "with the preview on,
-    /read swaps the Read View card" (line 111) and "with the preview on, the
-    chapter picker's footer link opens the Study Desk" (line 125), to what
-    launch shows.
+    cutover", and rewrite its two neighbours, "with the preview on, /read swaps
+    the Read View card" and "with the preview on, the chapter picker's footer
+    link opens the Study Desk", to what launch shows.
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere. The
@@ -144,9 +144,14 @@ place it. The shell's `handOver` removes the first stage's tab in the same
 task as the panel draws its own, so nothing moves. **A new startup listener
 in the shell needs the same**: held in `first-stage.js`, or a reason to load.
 The search box loads `notebook-search.js` on first focus, not with the page.
-Measured on `dist/john-3/` (gzipped, 2026-11-07): the desk's scripts were
-130 KB on every load; now 14 KB with nothing kept and the Notebook minimized,
-the Display tray opened included, and 130 KB once it opens.
+Measured on `dist/john-3/` (gzipped, beyond the scripts a reading page
+already loads): 14 KB with nothing kept and the Notebook minimized, the
+Display tray opened included (2026-11-07; 14.6 KB on 2026-11-08), and the
+shell's closure about 138 KB once it opens (2026-11-08, LG6-4; 130 KB on
+2026-11-07, 124 KB at Audit 3). Re-measure at launch.
+**Stage one loads only `desk-tab.css`**, so a rule the first stage needs lives
+there, not in `desk.css`: the skip link's hiding rule and the Display tray's
+`.font-tray__hint` and `.font-tray__reset` (NB6-1, NB6-4).
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
 `sheet-text.js`'s `exec`; obsolete in the standards but shipped by every
@@ -156,7 +161,8 @@ record. **A stored sheet is valid only while its canonical form never
 changes**, so `test/fixtures/sheet-text-golden.json` (`npm run
 build:sheet-golden`) holds the sanitizer's output byte for byte, and
 `planSheetChange` edits over `cleanSheetText(current)`, so a drift becomes a
-one-time rewrite rather than a refusal (DI3-6). A replacement behind the `createSheetText` interface is a version 2
+one-time rewrite rather than a refusal (DI3-6). An import and an opened share
+likewise sanitize a sheet before checking it (DI6-1). A replacement behind the `createSheetText` interface is a version 2
 item; add a cross-browser golden-file test of the eight commands before it.
 A menu's `close()` takes the menu out of `openMenu` before removing it:
 removing the focused item fires blur, the editor's `focusout` closes menus
@@ -169,13 +175,11 @@ below the text, so clicking into a part grows the card downward instead of
 moving the words under the pointer, and a menu opens upward when the pane has
 no room below it (SH5-6).
 
-**Tests**: `npm run test:desk` runs the desk's files alone (`desk-*`, `greek-*`,
-`search-greek-*`, `anchor-text`; a new desk test takes one of those names or
-the glob misses it). `npm test` is still the gate before a PR.
-`test/desk-store.test.js` runs the real `store.js` against
+**Tests**: `npm run test:desk` (root `CLAUDE.md`) globs `desk-*`, `greek-*`,
+`search-greek-*` and `anchor-text`, so a new desk test takes one of those
+names. `test/desk-store.test.js` runs the real `store.js` against
 `fake-indexeddb`; `test/desk-storage-keys.test.js` holds `/privacy` to every
-storage key. Playwright is not a launch gate (BVJ, 2026-11-04); a smoke test
-against `dist/` is a later item.
+storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
 
 ## The rules
 
@@ -232,23 +236,20 @@ against `dist/` is a later item.
      is kept for the visit (`lit-desk-float-width`, named in /privacy) and
      "Reset widths" forgets it. It moves nothing else.
      **In the margin the reader can minimize it to the same tab** (»;
-     BVJ, 2026-10-09); minimized
-     is remembered (`lit-desk-min`), and Notebook or the tab restores it.
+     BVJ, 2026-10-09); minimized is remembered (`lit-desk-min`).
      **It starts open and minimized** (BVJ, 2026-10-13): `lit-desk-panel`
      is "closed" only once the reader closes it, and `lit-desk-min` is "0"
      only once they restore it, so an absent key means the default. The
-     notebook page lets the reader fix the start instead ("As I left it",
-     Minimized, Open, Closed; `lit-desk-start`), and `src/lib/desk-start.mjs`
-     is the one rule, which Layout.astro's pre-paint script repeats.
+     notebook page lets the reader fix the start instead (`lit-desk-start`),
+     and `src/lib/desk-start.mjs` is the one rule, which Layout.astro's
+     pre-paint script repeats.
      **Only the expanded notebook makes room** (BVJ, 2026-10-14): narrowing
-     the column (rule 4), the dragged widths and the column's move left all
-     happen only while it is expanded, so minimized, folded-because-floating
-     or closed, the column keeps 52 and moves only as far as the tab needs
-     to stay clear of the text (`placeFloating`), usually not at all. `<html data-desk-expanded>` is
+     the column (rule 4), the dragged widths and the column's move left happen
+     only while it is expanded; otherwise the column keeps 52 and moves only
+     as far as the tab needs (`placeFloating`). `<html data-desk-expanded>` is
      the switch, owned by `desk/margin.js` (`setExpanded`, inside
      `keepReadingPlace`) and stamped before paint when it starts expanded;
-     `data-desk-panel` still means open-or-minimized, for the dock and the
-     commands.
+     `data-desk-panel` still means open-or-minimized.
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: Chapter View chapters and intros,
      Read View, articles and the glossary, each with its column, its heading
@@ -262,8 +263,7 @@ against `dist/` is a later item.
      both.**
      Floating panels keep to `panelRoom()` (`src/scripts/desk-frame.js`):
      the window's width less `dockWidth()`, or the whole window where that
-     leaves under 300px, so beside a floating notebook dragged wide a panel
-     lies over it rather than shrinking to a sliver (BA27). A shared panel
+     leaves under 300px (BA27). A shared panel
      already open when the notebook grows under it is moved left, never
      closed, since it may be a note editor (`keepClearOfDock`, called from
      `margin.js`'s `place()`; BA28). Anything marked `[data-desk-dock]`
@@ -287,8 +287,7 @@ against `dist/` is a later item.
      BA30): the script repeats `firstPaint` (`desk-margin.mjs`), which works
      out the column's width from the reader's font and text size
      (`FIRST_PAINT`, held to global.css and ScriptureLayout.astro by
-     `test/desk-margin.test.js`) and the window less its scrollbar, which the
-     script measures, since the page's reserved gutter isn't there yet. Too
+     `test/desk-margin.test.js`) and the window less its scrollbar. Too
      narrow, the notebook floats and folds, and a stamp would have reflowed
      every chapter from 48 to 52; widths kept in a wider window are given way
      as `placeWithWidths` gives them, or left off. A change to the column's
@@ -349,17 +348,18 @@ against `dist/` is a later item.
      `notes-margin.js` draws), and the words a note hangs on are lit with
      the CSS Custom Highlight API. Copy text, the handout and the desk's
      anchor reader all read the verses off the page. Their face is Playpen
-     Sans (`@fontsource-variable/playpen-sans`, registered in `desk.css`
-     with its Latin, Latin-ext and Greek ranges, so it loads only with the
-     desk and only when a note uses it), or Inter on "Plain"; a reader's
-     Atkinson or OpenDyslexic choice wins through `html[data-font]` as
-     everywhere. Bookmarks show in the same `<aside>` as a red mark (gold if they stay put; see "Bookmarks, and Continue reading"), a trial
-     STUDY-DESK.md records, with their own switch (`data-desk-bookmarks`).
+     Sans (`@fontsource-variable/playpen-sans`, registered in `desk.css`, so
+     it loads only with the desk and only when a note uses it), or Inter on
+     "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
+     `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
+     (gold if they stay put; see "Bookmarks, and Continue reading"), with their
+     own switch (`data-desk-bookmarks`).
      **Bookmarks are the one piece of marginalia Read View shows**
-     (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool. The notes' settings (`data-desk-notes`,
-     `data-desk-note-font`, `data-desk-list` on `<html>`) have no pre-paint
-     script, since nothing of the desk paints before it loads. "Hide my
-     marks" (M1, key H; "Hide my notes" until 2026-10-29) is no setting of its own: it saves and turns off
+     (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
+     The notes' settings (`data-desk-notes`, `data-desk-note-font`,
+     `data-desk-list` on `<html>`) have no pre-paint script, since nothing of
+     the desk paints before it loads. "Hide my marks" (M1, key H) is no
+     setting of its own: it saves and turns off
      "Notes in the margin", "My bookmarks" and both views' "My highlights", and puts
      them back (`note-settings.js`). With "Notes in the margin" off, a footnote's
      popover lists none of the reader's notes either (`desk.css`, BA17),
@@ -375,8 +375,7 @@ against `dist/` is a later item.
      names the reader's bookmark and highlights and counts their notes on it
      ("Verse 18, bookmarked, highlighted yellow, 1 note of mine";
      `desk/verse-labels.js`, each kind only while its switch is on), the one
-     place a screen reader meets them in reading order, since an attribute
-     adds nothing to the scripture.
+     place a screen reader meets them in reading order.
      **Making a mark is announced** (BA18; `src/lib/desk-announce.mjs`):
      a note saved, a bookmark added and a highlight that touches no other
      color speak through `announce` in `undo-bar.js`, as deleting and undoing
@@ -590,15 +589,13 @@ against `dist/` is a later item.
        words that differ are an edit only when the note here is no newer
        (BA1); an entry whose id is held as trash or a tombstone is left out
        (BA2). Keep both when changing how a Markdown entry is read.
-       **Open plans again when pressed** (BA3): `planOpen` reads and plans
-       the file against `store.all()` at that moment, and if the outcome
-       (`sameOpen`) differs from the summary on screen, the new one is shown
-       and nothing is written. **A record dated by a clock running ahead
-       never beats what the notebook holds** (BA4, BA12; `desk-merge.mjs`'s
-       clamp, capped at a JSON file's `exported`), so opening one file twice
-       writes nothing the second time, on any day. The summary counts every
-       write the plan makes (BA11), so "Nothing to open" never sits beside
-       an active Open. **Two doors every record passes, whatever its schema**
+       **Open plans again when pressed** (BA3): `planOpen` plans against
+       `store.all()` at that moment, and if the outcome (`sameOpen`) differs
+       from the summary on screen, the new one is shown and nothing is written.
+       **A record dated by a clock running ahead never beats what the notebook
+       holds** (BA4, BA12; `desk-merge.mjs`'s clamp, capped at a JSON file's
+       `exported`), so opening one file twice writes nothing the second time.
+       The summary counts every write the plan makes (BA11). **Two doors every record passes, whatever its schema**
        (`validateRecord`'s common block, so the store and a future sync get
        them too): over 1 MB as JSON is refused (`MAX_RECORD_BYTES`, SEC3-1),
        since the kind-specific limits reach only records this code can edit;
@@ -608,10 +605,9 @@ against `dist/` is a later item.
        `META.lastExport` (`store.getMeta/setMeta`) is what the
        "last saved a copy" line and the reminder read.
      - **The trash can be restored from** (E12; BVJ, 2026-11-02): a Trash section
-       on the notebook page (`desk/trash-list.js`; `trashItems`, `daysLeft`,
-       `planRestore` and `planRestoreAll` in `desk-notebook.mjs`), each row the
-       ordinary `recordRow` with `trash:` set (when it was deleted, days left,
-       Restore only). **A restore is an ordinary, undoable change** (`store.change`
+       on the notebook page (`desk/trash-list.js`; `planRestore` and
+       `planRestoreAll` in `desk-notebook.mjs`), each row the ordinary
+       `recordRow` with `trash:` set. **A restore is an ordinary, undoable change** (`store.change`
        over the record and its trash record, so the history remembers it): it
        writes what `restoreFromTrash` says and adds no field or kind, so the
        format and `merge-vectors.json` are untouched. It is **refused, and left
@@ -628,182 +624,124 @@ against `dist/` is a later item.
        accents.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
-       `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md E9).
+       `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md
+       E9; the longer account of each rule is in its "Bookmarks" appendix).
        **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22; the
        word "ribbon" is for the note marker alone, E10). A `bookmark` record is
-       a verse, an optional `label` (its name, up to 40 characters, not
-       unique) and an optional `follow: true` ("Move as I read"), **with two
-       stamps beside `modified`, `placedAt` for its place and `editedAt` for
-       everything else** (`BOOKMARK_PLACE_FIELDS`; `createRecord` and
-       `editRecord` keep them, and the merge takes each group from the copy
-       whose stamp is newer, DI3-3), so a write of a bookmark goes through
-       `editRecord`, never a spread, and the follower writes the place
-       group alone. **A bookmark
-       stays on its verse unless that switch is on** (BVJ, 2026-11-02). The old
-       ribbon, a `place` with `ribbon: true`, is read as a bookmark that
-       follows by `migrateRecord` (same id, `name` to `label`), so nothing else
-       knows the old shape; the website never writes a `place`. A bookmark is a
-       row in the ordinary My Notes list and the notebook page's: its reference,
-       its name right under it, then a line "Bookmark · Stays put" / "Moves" /
-       "Following" (`bookmarkState`, bookmark-follow.js: following is this tab's
-       flag; one short word each so the line never wraps in the narrow list,
-       with the fuller sentence as hover text; the words are an Opus agent's,
-       who advised against "Smart" and "Static", BVJ 2026-11-04), and **Edit** (`bookmark-form.js`:
-       the verse, the name and the switch). **The form moves a bookmark to
-       another verse** (E46, 2026-11-05): a Verse field read as the Go to
-       passage field reads one (`parseReference`, then `bookmarkPlace`: a range
-       keeps its first verse, a chapter alone is verse 1, a verse past the
-       chapter's last is refused), sent only when the reader changed it, so a
-       move the follower made meanwhile is kept. It is the same one
-       `store.change` (`planBookmarkEdit`), an ordinary undoable edit, refused
-       with "John 3:5 already has a bookmark that stays put" when the verse
-       holds one of its kind (`roomAt`, `kindTakenAt`; the switch locks for the
-       typed verse as for its own), and it writes `verse`, `endVerse` and
-       `contentVersion` as a new bookmark gets them; other fields (`from`
-       included) are kept. Moving the bookmark this tab follows moves where it
-       rests (`restedAt`), and the next report is judged from there. **"Start
-       following now?"** (E47) shows under the switch while it is checked, and
-       only when this tab could start it (not while it follows this one, not
-       where the page doesn't follow the reader, not with six others moving);
-       otherwise a line says which. Checked at Save, the bookmark is saved and
-       then followed (`followBookmark`), even when nothing else changed, so a
-       new bookmark from the verse menu starts following with its first Save.
-       The verse menu lists "Edit bookmark…" right after
-       "Remove bookmark" once the verse has one, and **pressing "Bookmark" opens
-       that form at once** (BVJ, 2026-11-04; closing it leaves a plain bookmark).
-       **A moving bookmark's margin mark jumps rather than glides**: its writes
-       are quiet (QUIET_KINDS), and the margin and Read View's marks (and on
-       /desk the My Notes and This verse rows and the verse numbers' names,
-       E28) redraw once
-       2.5 seconds after the last move (`redrawAfterMove`, move-redraw.js), so it
-       catches up when the reading pauses; the follower writes at most every 2
-       seconds (`MOVE_EVERY_MS`), and the settle must stay longer than that gap
-       or steady scrolling redraws between writes. A move is a record write that syncs
-       (E45), so tell BDR if the write gap changes. "Add bookmark" in the verse menu and the
-       selection panel stays one press. **At most six bookmarks move at once** (plain ones are not
-       counted); the limit and the write are one `store.change`
-       (`planBookmarkEdit`, BA102), so a bookmark deleted meanwhile is reported,
-       not brought back. **"Continue reading" is the one place that isn't a
-       bookmark**: `lit_last_read` (last-read.js), never a record, shown with no
-       bookmark mark by `continue-reading.js` above My Notes' list and first on
+       a verse, an optional `label` (up to 40 characters, not unique) and an
+       optional `follow: true` ("Move as I read"), **with two stamps beside
+       `modified`, `placedAt` for its place and `editedAt` for everything else**
+       (`BOOKMARK_PLACE_FIELDS`; the merge takes each group from the copy whose
+       stamp is newer, DI3-3), so a bookmark is written through `editRecord`,
+       never a spread, and the follower writes the place group alone. **A
+       bookmark stays on its verse unless that switch is on** (BVJ,
+       2026-11-02). The old ribbon (`place` with `ribbon: true`) is read as a
+       bookmark that follows by `migrateRecord`; the website never writes a
+       `place`. A bookmark is a row in the ordinary My Notes list and the
+       notebook page's: reference, name, then a line "Bookmark · Stays put" /
+       "Moves" / "Following" (`bookmarkState`; one short word each so the line
+       never wraps, BVJ 2026-11-04), and **Edit** (`bookmark-form.js`).
+       **The form moves a bookmark to another verse** (E46): a Verse field read
+       as Go to passage reads one (`bookmarkPlace`: a range keeps its first
+       verse, a chapter alone is verse 1, a verse past the chapter's end is
+       refused), sent only when the reader changed it, so a move the follower
+       made meanwhile is kept. It is one `store.change` (`planBookmarkEdit`),
+       undoable, refused with "John 3:5 already has a bookmark that stays put"
+       when the verse holds one of its kind (`roomAt`, `kindTakenAt`), and
+       writes `verse`, `endVerse` and `contentVersion` as a new bookmark gets
+       them. **"Start following now?"** (E47) shows while the switch is
+       checked and only when this tab could start it; checked at Save, the
+       bookmark is saved and then followed (`followBookmark`). The verse menu
+       lists "Edit bookmark…" after "Remove bookmark", and **pressing
+       "Bookmark" opens that form at once** (BVJ, 2026-11-04). **A moving
+       bookmark's margin mark jumps rather than glides**: its writes are quiet
+       (QUIET_KINDS) and the marks redraw once 2.5 seconds after the last move
+       (`redrawAfterMove`); the follower writes at most every 2 seconds
+       (`MOVE_EVERY_MS`) and the settle must stay longer than that gap. A move
+       is a record write that syncs (E45), so tell BDR if the gap changes.
+       **At most six bookmarks move at once**, checked in the same
+       `store.change` as the write (BA102). **"Continue reading" is the one
+       place that isn't a bookmark**: `lit_last_read` (last-read.js), never a
+       record, shown by `continue-reading.js` above My Notes' list and first on
        the notebook page, and left out of My Notes while it names what is on
-       screen (`continueIsHere`; Audit 4, FU4-2). Read View's per-book places and other clients' places
-       aren't listed. `last-read.js` dispatches `lit:last-read` on every save
-       (nothing hears it unless the desk is on). **The C25 rule**: following a
-       moving bookmark's link (from either list) sets
-       `sessionStorage['lit-desk-follow']`, and while the reader stays in that
-       book in that tab the bookmark follows them (written without an undo
-       entry, as `bookmarkMove`); a page outside the book clears it, the shell's
-       `initBookmarkFollow` in a book and `desk-gate.js` on every page without
-       the shell but /desk (BA101, E28). **A bookmark moves only to where this page says the
-       reader is**: `pageLastRead()` and the `lit:last-read` event, never
-       `lit_last_read` in storage, which every tab shares and an earlier page
-       left (BA99, BA100). Following a link forgets where the reader was, and a
-       link to another page stops the page it leaves from moving the bookmark.
-       **Following a bookmark that stays put stops the moving one** (BVJ,
-       2026-11-04: it kept following and would have moved to the new place):
-       a plain click on any bookmark's link in either list either takes over
-       (`followBookmark`) or clears the flag (`stopFollowing`), and every row's
-       line redraws (`syncBookmarkLines`).
-       **A follow pauses rather than ends** (BVJ, 2026-11-04, after an Opus
-       design pass). The flag is `{ id, bookKey, tab, paused?, since?, told? }`.
-       Each report of where the reader is goes through `followStep`
-       (desk-bookmarks.mjs): within a chapter of where the bookmark sits (or of
-       the last place this page heard, for Read View's long scroll) it moves; a
-       far chapter, or another book (Matthew 28 to Mark 1 included), pauses it
-       where it was, and the reader is told once, in the undo bar, with "Move it
-       here" (`showPausedBar`; the move is an ordinary undoable edit and may cross
-       books); reading on from the bookmark resumes it. **The "last place this page heard"
-       that `followStep` allows for Read View's long scroll is the last report
-       the follower accepted**, set when a report is judged and never as it
-       arrives: a page that lands on a far verse (a link to `/luke-1/#v1`)
-       reports twice before the first judgment, and the second would count the
-       first as reading and move the bookmark instead of pausing it. Pages outside the book
-       (/search, /notebook) pause it too (`desk-gate.js`), and a pause
-       ends after 12 hours (`PAUSE_EXPIRES_MS`; a restored tab keeps its session
-       storage). Rows say Following, Paused, Moves or Stays put.
-       **A following or paused bookmark rests at its verse and does not belong
-       to it** (`restingId`): the verse menu leaves it out of Remove and offers
-       "Leave it here" and Edit, and a verse holds **one bookmark that stays put
-       and one that moves** (`followChoices`, `planBookmark`; Edit and the form
-       lock "Move as I read" at the kind the verse lacks). Its mark is the red
-       outline; a bookmark that moves and isn't followed is solid red, and one
-       that stays put is gold (`bookmark-mark.js`). **The rows carry the same
-       colors** (E28; BVJ, 2026-11-06): `drawBookmarkLine` starts each
-       bookmark's state line with the glyph in its look (`bookmarkLook`, which
-       `markLook` reads too), in My Notes, This verse and the notebook page.
-       A follow that ends on a verse
-       already holding a bookmark of its kind is tolerated.
+       screen (`continueIsHere`; FU4-2). **The C25 rule**: following a moving
+       bookmark's link sets `sessionStorage['lit-desk-follow']`, and while the
+       reader stays in that book in that tab the bookmark follows them (no undo
+       entry, as `bookmarkMove`); a page outside the book clears it.
+       **A bookmark moves only to where this page says the reader is**:
+       `pageLastRead()` and the `lit:last-read` event, never `lit_last_read` in
+       storage, which every tab shares (BA99, BA100). **Following a bookmark
+       that stays put stops the moving one** (BVJ, 2026-11-04): a plain click on
+       any bookmark's link either takes over (`followBookmark`) or clears the
+       flag (`stopFollowing`), and every line redraws (`syncBookmarkLines`).
+       **A follow pauses rather than ends** (BVJ, 2026-11-04). The flag is
+       `{ id, bookKey, tab, paused?, since?, told? }`; each report goes through
+       `followStep`: within a chapter of the bookmark (or of the last place the
+       follower accepted, for Read View's long scroll) it moves; a far chapter
+       or another book pauses it, and the reader is told once, in the undo bar,
+       with "Move it here" (`showPausedBar`, an ordinary undoable edit that may
+       cross books); reading on from the bookmark resumes it. **That "last
+       place" is the last report the follower accepted**, set when a report is
+       judged, never as it arrives: a page landing on a far verse reports twice
+       before the first judgment, and the second would count the first as
+       reading. Pages outside the book pause it too (`desk-gate.js`); a pause
+       ends after 12 hours (`PAUSE_EXPIRES_MS`). **A following or paused
+       bookmark rests at its verse and does not belong to it** (`restingId`):
+       the verse menu leaves it out of Remove and offers "Leave it here" and
+       Edit, and a verse holds **one bookmark that stays put and one that
+       moves** (`followChoices`, `planBookmark`). Marks: red outline for a
+       followed one, solid red for a mover not followed, gold for one that
+       stays put (`bookmark-mark.js`); **the rows carry the same colors** (E28;
+       BVJ, 2026-11-06: `drawBookmarkLine`, `bookmarkLook`). A follow that ends
+       on a verse already holding a bookmark of its kind is tolerated.
        **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
-       `desk-page.js` runs the follower with `page: DESK_PAGE` and `place`, and
-       after every `commit` reports the leading pane's place (`hear`) or, when
-       another pane has become the leading one, `lead`, which pauses the follow
-       (`followStep`'s `newLead`). Other LIT panes never move it; the opening
-       place, a restore and the tour report nothing, and `lit:last-read` isn't
-       heard there. "Move it here" takes the leading pane's place at the press.
-       The pause bar is the ordinary undo bar, outside the panes.
+       `desk-page.js` runs the follower with `page: DESK_PAGE` and reports the
+       leading pane's place (`hear`), or `lead` when another pane becomes the
+       leading one, which pauses the follow (`followStep`'s `newLead`). Other
+       LIT panes never move it; the opening place, a restore and the tour
+       report nothing. "Move it here" takes the leading pane's place at the
+       press.
        **The verse menu and the selection panel group a verse's bookmarks in a
-       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and Edit
-       (`Remove bookmark “Advent”`, the name cut at 14 characters, the full name the
-       accessible name), Add a bookmark that moves or stays put, and for the resting
-       one "Leave it here". A verse with none keeps the one-press "Bookmark", and a
+       "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
+       Edit (the name cut at 14 characters, the full name the accessible name),
+       Add a bookmark that moves or stays put, and for the resting one "Leave
+       it here". A verse with none keeps the one-press "Bookmark", and a
        finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
-       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js`, styled by
-       `.lit-flyout*` in `global.css`, also builds every reader's "Copy text ▸" and
-       "Share ▸" rows and this file's "Print ▸" (rule 19). Desk code imports it;
-       shared code never imports desk code. Its behavior is
-       described in `src/scripts/CLAUDE.md`, "One set of actions, two ways in".
-       **"Stop following" and "Start following" are one
-       quiet link** (BVJ, 2026-11-04 and E44, 2026-11-05; `bookmark-stop.js`,
-       `drawFollowLink`) under the state line of every bookmark with "Move as I
-       read" on, its label swapping with this tab's flag; not an On/Off switch,
-       since a follow is the tab's and the switch is the record's. In the verse
-       menu a moving bookmark has "Start following" beside "Edit bookmark…",
-       and the resting one's "Leave it here" is the stop. Stopping clears the
-       flag only: the bookmark stays where it last was with "Move as I read"
-       still on. Starting is `followBookmark` with no link, as opening it from
-       the list is apart from the navigation: the next report of where the
-       reader is decides (reading on from it moves it, anywhere else pauses it
-       with "Move it here"). It is offered only where the page follows the
-       reader (`followsHere`), so /notebook shows the stop alone.
-       **Every way the flag drops redraws the rows**
-       (`dropFlag`: another tab took it, it was deleted or turned off, a
-       back-forward restore), turning the switch off in the form stops it at
-       once, a Back or reload doesn't write verse 1 over the bookmark before
-       the scroll is restored, and a restored page reports its own last place
-       (`pageshow`). A row opened in place on a page that doesn't follow the
-       reader never starts a follow (`followsHere`); on /desk a moving
-       bookmark's row moves the leading LIT pane to it and then starts the
-       follow with no link (`tab-mine.js`), so the jump isn't taken as leaving
-       the page. **The Show menu splits bookmarks** into "Bookmarks that move" and "Bookmarks
-       that stay put" once a list holds both (BVJ, 2026-11-04;
-       `BOOKMARK_MOVES`/`BOOKMARK_STAYS`, `kindsPresent` and `filterRecords`, in
-       both lists), and **a search's count names the kind when every notebook
-       hit is one** ("1 bookmark match"; `matchNouns`, else "notebook match"); the
-       group is always headed "My notebook", whatever it holds (E32;
-       `NOTEBOOK_GROUP_TITLE`; the tray, /search and the Search pane).
-       **A bookmark found in a notebook search opens like its row**
-       (`openAsBookmark`, notebook-search.js: follow, or stop what was moving).
-       **Known and accepted** (BVJ, 2026-11-04, from an Opus audit):
-       /notebook and /search clear the flag, so Back into the book doesn't
-       resume it (the row's label shows the state); a move overtakes Undo of an
-       earlier edit once the reader has read on (`desk-history.mjs`'s overtaken
-       rule), and Delete then Undo resumes following only if they haven't
-       scrolled since; and the last move before the tab closes can be lost,
-       since Chrome drops a read-then-write made as a page closes (BA72).
-       **One tab follows a bookmark at a time** (BVJ's Duplicate tab check,
-       2026-10-29): Duplicate tab copies session storage, so the flag carries
-       the tab's token, and a page that loads with it asks on
-       `FOLLOW_TAB_CHANNEL` whether a live page holds that token; an answer makes
-       this tab the copy, which drops the flag. Following a link announces it,
-       and any other tab following that bookmark stops (`loseFollow`). The
-       follower's move is quiet on purpose: the margin mark isn't redrawn as it
-       moves, and takes its new place at the next redraw.
+       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js` also builds
+       every reader's "Copy text ▸" and "Share ▸" rows and this file's "Print
+       ▸" (rule 19). Desk code imports it; shared code never imports desk code.
+       **"Stop following" and "Start following" are one quiet link**
+       (`bookmark-stop.js`, `drawFollowLink`; BVJ, 2026-11-04 and E44) under
+       the state line of every bookmark with "Move as I read" on, its label
+       swapping with this tab's flag; not an On/Off switch, since a follow is
+       the tab's and the switch is the record's. Stopping clears the flag only.
+       Starting is `followBookmark` with no link: the next report decides. It
+       is offered only where the page follows the reader (`followsHere`), so
+       /notebook shows the stop alone; on /desk a moving bookmark's row moves
+       the leading LIT pane to it and then starts the follow (`tab-mine.js`).
+       **Every way the flag drops redraws the rows** (`dropFlag`), turning the
+       switch off in the form stops it at once, a Back or reload doesn't write
+       verse 1 over the bookmark before the scroll is restored, and a restored
+       page reports its own last place (`pageshow`). **The Show menu splits
+       bookmarks** into "Bookmarks that move" and "Bookmarks that stay put"
+       once a list holds both (BVJ, 2026-11-04), **a search's count names the
+       kind when every notebook hit is one** ("1 bookmark match"), the group is
+       always headed "My notebook" (E32), and **a bookmark found in a notebook
+       search opens like its row** (`openAsBookmark`).
+       **Known and accepted** (BVJ, 2026-11-04): /notebook and /search clear the
+       flag, so Back into the book doesn't resume it; a move overtakes Undo of
+       an earlier edit once the reader has read on, and Delete then Undo
+       resumes following only if they haven't scrolled since; the last move
+       before the tab closes can be lost (BA72). **One tab follows a bookmark at
+       a time** (BVJ, 2026-10-29): Duplicate tab copies session storage, so the
+       flag carries the tab's token and a loading page asks on
+       `FOLLOW_TAB_CHANNEL` whether a live page holds it; an answer makes this
+       tab the copy, which drops the flag. Following a link announces it, and
+       any other tab following that bookmark stops (`loseFollow`).
      - **The interleaf (N7) was built and set aside** (BVJ, 2026-10-13: it
-       repeats the margin and the panel, and breaks up the scripture). Its
-       code is on `claude/desk-1d-hidden` (commit 1f27b2e); revert aacdc92
-       to bring it back. `chapterBlocks()` in `page.js` is now just
-       `.chapter-paragraphs`' children, with no bands to skip.
+       repeats the margin and the panel, and breaks up the scripture). Its code
+       is on `claude/desk-1d-hidden` (commit 1f27b2e); revert aacdc92 to bring
+       it back.
      - **Search and commands**: the notebook reaches the search surfaces only
        through `loadDeskSearch()` in `search-core.js`, which imports
        `desk/notebook-search.js` (read-only IndexedDB) only with
@@ -838,20 +776,18 @@ against `dist/` is a later item.
        me later (also the ×, Escape, closing or minimizing the Notebook,
        and leaving the page; back on a later day), or Don't show this again.
        The window is `src/scripts/float-window.js`, which stays open through
-       clicks elsewhere and never takes `lit-panel.js`'s one slot.
-       The privacy page has a paragraph naming these keys and the notebook's
-       storage: keep it in step if a key or what is stored changes.
-       `/privacy`'s effective date was not bumped for it.
-       **The tour's steps act, and leave nothing behind** (BVJ,
-       2026-10-13): they open real menus, the note editor (in an example
-       mode that can't save), the panel's tabs and the search tray, and end
-       by undoing all of it, putting the Notebook back with `panel.js`'s
-       `snapshot`/`restore` and the scroll where it was. **It opens and
-       expands the Notebook with `remember: false`** (`open`, `showTab`, the
-       rail's `show` and `expand`), which writes none of its keys, since a
-       tour cut short by a reload or a link never reaches `restore` (BA33).
-       While it runs,
-       `data-desk-tour` on `<html>` makes `saveLastRead` record nothing. A
+       clicks elsewhere and never takes `lit-panel.js`'s one slot. The privacy
+       page names these keys and the notebook's storage: keep it in step if a
+       key or what is stored changes (its effective date was not bumped for
+       this). **The tour's steps act, and leave nothing behind** (BVJ,
+       2026-10-13): they open real menus, the note editor (in an example mode
+       that can't save), the panel's tabs and the search tray, and end by
+       undoing all of it (`panel.js`'s `snapshot`/`restore`, the scroll where
+       it was). **It opens and expands the Notebook with `remember: false`**
+       (`open`, `showTab`, the rail's `show` and `expand`), which writes none
+       of its keys, since a tour cut short by a reload or a link never reaches
+       `restore` (BA33). While it runs, `data-desk-tour` on `<html>` makes
+       `saveLastRead` record nothing. A
        new step that changes anything must undo it the same way (`later` in
        `tour.js`), and must never write a record. It won't start over a note
        editor holding unsaved words (`editorHolds`, BA37).
@@ -864,53 +800,47 @@ against `dist/` is a later item.
        on the chapter pages, and the **Study Desk tour** (`desk/desk-tour.js`)
        runs on /desk. Each has **its own steps, seen list and offer**:
        `TOUR_STEPS`/`lit-desk-tour` and `DESK_TOUR_STEPS`/`lit-desk-page-tour`
-       (`desk-first-use.mjs`; the helpers `parseTourState`, `tourOffer` and
-       `planTour` take the step list, defaulting to the notebook's), so
-       finishing one says nothing about the other and one "Don't show this
-       again" never silences both. Ids may not collide (a test holds it). **The
-       card, the way through the steps, placement and the ending are
-       `desk/tour-runner.js`**, shared; a tour brings `act(step)`, `finish` and
-       its `more` link. Keep the two in step when the card changes.
-       **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels
-       like a lot"; it was 14): Highlight and Bookmark are named in "Open the
-       menu", "Set the widths" is in the help page, and the notebook page and
-       where it's kept are one step (`kept`). The retired ids stay in a
-       reader's stored list and are ignored, so nobody is offered a new tour
-       for steps that went (tested). **Audit 4 (BVJ, 2026-11-07; TR4-2,
-       TR4-3): "Pin a footnote" runs in the Notebook part, right after "This
-       verse", and "Open the menu" leaves "Move as I read" to the help page
-       and the Edit bookmark form.**
+       (`desk-first-use.mjs`; `parseTourState`, `tourOffer` and `planTour` take
+       the step list), so finishing one says nothing about the other and one
+       "Don't show this again" never silences both. Ids may not collide (a test
+       holds it). **The card, the way through the steps, placement and the
+       ending are `desk/tour-runner.js`**, shared; a tour brings `act(step)`,
+       `finish` and its `more` link. Keep the two in step when the card changes.
+       **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels like a
+       lot"): the notebook page and where it's kept are one step (`kept`). The
+       retired ids stay in a reader's stored list and are ignored, so nobody is
+       offered a new tour for steps that went (tested). **Audit 4 (BVJ,
+       2026-11-07; TR4-2, TR4-3): "Pin a footnote" runs in the Notebook part,
+       right after "This verse", and "Open the menu" leaves "Move as I read" to
+       the help page and the Edit bookmark form.**
        - **The desk tour acts fully and writes nothing** (BVJ: "make sure
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found
          it"). It switches the desk to `originalLayout` for the run, adds a LIT
-         pane (the flag that marks the leading one), presses a lock, shows a
-         Sheets pane (a column, else the first pane that isn't the LIT turned to
-         Sheets; E59, BVJ 2026-11-08), opens the title menu, runs "New sheet…"
-         as the menu does (`titleMenu.newSheet`: a Sheets pane and its template
-         chooser, which the card sits beside; a `notebook` step, and left out
-         when neither a column nor a row fits), opens the
-         Add pane flyout (adding a Footnotes column behind it) and the Layout
-         window (applying an arrangement that fits), undoing each step before
-         the next, and at the end commits the reader's own layout back. **What
-         keeps that off disk is `layoutFrozen` in desk-page.js**: `save()`,
-         `writeKey`, the "When this page opens" radios and "Make this my
-         default" all do nothing while it is on, so a reload or closed tab
-         mid-tour leaves `lit-desk-layout` as it was (the BA33 trap; tested by
-         reloading mid-tour). A new step that changes anything goes through the
-         page's `commit` and is undone with `later`, never a direct write.
-         The menus' "click elsewhere" and `focusout` closers ignore the tour's
-         card (`inTour`), or taking focus to the card would close what a step
-         opened.
-       - **Offer**: a floating window (`float-window.js`, as the notebook's)
-         the first time /desk opens, 1.2 seconds after the panes draw: Take
-         the tour now, Remind me later (also ×, Escape, leaving), Don't show
-         this again. **Remind me later leaves a quiet line at the top of the
-         title menu** ("New to the Study Desk? Take the tour", and "Not now",
-         which is "never"), shown until the tour is taken or declined
-         (`lineWanted`, `declineLine`). The menu's own "Take the tour" item is
-         always there. `?desk-tour` on /desk starts it after load (the help page
-         links to it) and is stripped from the address.
+         pane, presses a lock, shows a Sheets pane (a column, else the first
+         pane that isn't the LIT turned to Sheets; E59, BVJ 2026-11-08), opens
+         the title menu, runs "New sheet…" as the menu does
+         (`titleMenu.newSheet`; a `notebook` step, left out when neither a
+         column nor a row fits), opens the Add pane flyout and the Layout window,
+         undoing each step before the next, and at the end commits the reader's
+         own layout back. **What keeps that off disk is `layoutFrozen` in
+         desk-page.js**: `save()`, `writeKey`, the "When this page opens" radios
+         and "Make this my default" all do nothing while it is on, so a reload or
+         closed tab mid-tour leaves `lit-desk-layout` as it was (the BA33 trap;
+         tested by reloading mid-tour). A new step that changes anything goes
+         through the page's `commit` and is undone with `later`, never a direct
+         write. The menus' "click elsewhere" and `focusout` closers ignore the
+         tour's card (`inTour`), or taking focus to the card would close what a
+         step opened.
+       - **Offer**: a floating window (`float-window.js`) the first time /desk
+         opens, 1.2 seconds after the panes draw: Take the tour now, Remind me
+         later (also ×, Escape, leaving), Don't show this again. **Remind me
+         later leaves a quiet line at the top of the title menu** ("New to the
+         Study Desk? Take the tour", and "Not now", which is "never"), shown
+         until the tour is taken or declined (`lineWanted`, `declineLine`). The
+         menu's own "Take the tour" item is always there. `?desk-tour` on /desk
+         starts it after load (the help page links to it) and is stripped from
+         the address.
        - **Privacy**: `lit-desk-page-tour` is named in /privacy's paragraph
          beside `lit-desk-tour`.
      - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
@@ -996,38 +926,31 @@ against `dist/` is a later item.
        `parsingQuery`. `test/search-greek-lazy.test.js` holds the split.
      - **One query never gets both English and Greek results** (BVJ,
        2026-10-13). A query with Greek letters or a Strong's number
-       (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save
-       the reader's own notes: under all types, the notebook's matches
-       come ahead of it (BA40, BVJ 2026-10-28) unless the reader unchecks
-       "My notes" (E11; a native checkbox, on a line of its own under the tray's
-       status for every Greek search, whether or not the Greek found
-       anything, and on /search in one box with "Search commands", inline in
-       the field's row and, under 960px, on a line under the field; shown
-       only with the desk loaded and the type "All types"; remembered as
-       `localStorage['lit-desk-greek-notes']` = "off", absent = on, named
-       in /privacy; the key and rule are `src/lib/desk-greek-notes.mjs`,
-       the storage reads in `notebook-search.js`, which the surfaces
-       already load lazily; English searches are not governed by it, and the
-       desk's Search pane has the same checkbox on its link row, right of
-       "See results on the search page", for a Greek search under all
-       types, BVJ 2026-11-04); every
-       other query gets exactly the pre-1h search, unless the reader picks
-       the type menu's "Greek" (injected by script, only with the gate on,
-       set apart by a rule, with its own line in the "i" tooltip),
-       which searches Latin text as a transliteration or a gloss. "All
-       results" keeps its name, and a **single Latin word that is also a
-       glossary term's Greek lemma** ("pistis") gets one line under the status,
-       "“pistis” is also a Greek word (πίστις). Search the Greek", whose link
-       sets the type to Greek (BVJ, 2026-11-04, after a mock of three options:
-       a relabel, this, and a separate English | Greek switch). The offer
-       lists no Greek itself, so a query still never gets English and Greek
-       together (2026-10-13). `greekOfferFor` (search-core.js) reads the
-       build's `public/search/greek-offers.json` (125 lemma keys, fetched only
-       with the gate on) and loads `greek-search.mjs` by a dynamic import for
-       `latinKeys`, never at the top; the tray, /search and the Search pane
-       each draw the line. /search
-       pages the Greek with the English verses' pager, in Bible order with
-       no sort control; the tray shows its own Greek group alone.
+       (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save the
+       reader's own notes: under all types, the notebook's matches come ahead
+       of it (BA40, BVJ 2026-10-28) unless the reader unchecks "My notes"
+       (E11; a native checkbox shown only with the desk loaded and the type
+       "All types": on a line under the tray's status for every Greek search,
+       on /search inline in the field's row (under 960px, on a line under the
+       field), and on the Search pane's link row, right of "See results on the
+       search page", BVJ 2026-11-04). It is remembered as
+       `localStorage['lit-desk-greek-notes']` = "off", absent = on, named in
+       /privacy; the rule is `src/lib/desk-greek-notes.mjs`, the reads are in
+       `notebook-search.js`; English searches are not governed by it. Every
+       other query gets exactly the pre-1h search, unless the reader picks the
+       type menu's "Greek" (injected by script, only with the gate on), which
+       searches Latin text as a transliteration or a gloss. "All results" keeps
+       its name, and a **single Latin word that is also a glossary term's Greek
+       lemma** ("pistis") gets one line under the status, "“pistis” is also a
+       Greek word (πίστις). Search the Greek", whose link sets the type to
+       Greek (BVJ, 2026-11-04, after a mock of three options). The offer lists
+       no Greek itself, so a query still never gets English and Greek
+       together. `greekOfferFor` (search-core.js) reads the build's
+       `public/search/greek-offers.json` (fetched only with the gate on) and
+       loads `greek-search.mjs` by a dynamic import for `latinKeys`, never at
+       the top; the tray, /search and the Search pane each draw the line.
+       /search pages the Greek with the English verses' pager, in Bible order
+       with no sort control; the tray shows its own Greek group alone.
      - **A typed Greek word that could be more than one is a question, never
        a guess** (BVJ, 2026-11-03, decision 9). 58 folded spellings are both a
        headword and a form of another word (ἡ: the article's form, εἰμί's, ὅς's
@@ -1154,47 +1077,41 @@ against `dist/` is a later item.
        examples where an empty search's results would be. Before adding a
        hint or a control to a search page, put it in the window
        (`src/scripts/greek-commands.js`).
-       **Its top is the search builder** (E5, BVJ 2026-11-02): a card for each word (up to
-       four), each with menus that list only what that word takes, a "+ Then
-       another word", and "How close" once there are two. **The search field
-       is the only record of the search**: the builder reads it with
-       `parseGreekQuery` on every change and writes it with `putSearch` (typed
-       when the field has focus, so undo works after a mouse press), and a card waiting for its word is the one thing it
-       holds that the field doesn't. **It accepts what the field accepts**
-       (BVJ, 2026-11-07): a card's word looks up the LIT's renderings through
-       the glossary bridge, and two or three plain Latin words are read as the
-       construction the field falls back to (`plain`, with a line saying so).
-       **A card's word box is made once and never replaced** while typed in
-       (the draw patches around it, `boxes`/`shown`), or a screen reader hears
-       a new control per letter and Ctrl+Z is lost. A search it can't show (`=` exact,
-       four or more plain words, one that doesn't read, over 300 characters) says so and leaves the
-       field alone, with "Start a new search". The rules are
-       `src/lib/greek-builder.mjs` (pure, tested); the drawing is
-       `src/scripts/greek-builder.js`. A word's choices are the parsings its
-       lemma's words take, read from the same shard the search uses
-       (`codeCounts`), so nothing new is built or fetched until a word is
-       typed, and a choice also narrows the others (θεός, once "genitive"
-       is chosen, offers only singular and masculine: its plural and feminine
-       forms aren't genitive). A word that is also a command ("perfect", "and") is
-       written quoted, and among several words it is left out, since a quote
-       can't sit inside "a/b". A press that finds the field changed behind its
-       back (Back, a "Did you mean") reads the field and does nothing else.
-       A choice already made
-       stays listed even when the word takes none of it, so it can be taken
-       off. The old list and examples sit under "Examples and all commands",
-       which an error pointing at a command opens. A builder search is a
-       Greek one, so writing one puts the page's type menu on "Greek" when
-       the text isn't plainly Greek already. Room is left for E6 (a "related
-       words" choice on a card); nothing is added for it. It is a `float-window.js` window,
+       **Its top is the search builder** (E5, BVJ 2026-11-02): a card for each
+       word (up to four), each with menus that list only what that word takes
+       (its lemma's parsings, read from the shard the search uses,
+       `codeCounts`, so nothing is built or fetched until a word is typed; a
+       choice also narrows the others), a "+ Then another word", and "How
+       close" once there are two. **The search field is the only record of the
+       search**: the builder reads it with `parseGreekQuery` on every change
+       and writes it with `putSearch` (typed when the field has focus, so undo
+       works after a mouse press); a card waiting for its word is the one
+       thing it holds that the field doesn't. **It accepts what the field
+       accepts** (BVJ, 2026-11-07): a card's word looks up the LIT's
+       renderings through the glossary bridge, and two or three plain Latin
+       words are read as the construction the field falls back to (`plain`,
+       with a line saying so). **A card's word box is made once and never
+       replaced** while typed in (`boxes`/`shown`), or a screen reader hears a
+       new control per letter and Ctrl+Z is lost. A search it can't show (`=`
+       exact, four or more plain words, one that doesn't read, over 300
+       characters) says so and leaves the field alone, with "Start a new
+       search". A word that is also a command ("perfect", "and") is written
+       quoted, and among several words it is left out, since a quote can't sit
+       inside "a/b". A press that finds the field changed behind its back
+       (Back, a "Did you mean") reads the field and does nothing else. A choice
+       already made stays listed even when the word takes none of it, so it can
+       be taken off. The rules are `src/lib/greek-builder.mjs` (pure, tested);
+       the drawing is `src/scripts/greek-builder.js`. The old list and examples
+       sit under "Examples and all commands", which an error pointing at a
+       command opens. A builder search is a Greek one, so writing one puts the
+       page's type menu on "Greek" when
+       the text isn't plainly Greek already. It is a `float-window.js` window,
        outside `lit-panel.js`'s one slot, so a footnote or preview opening
        never closes it. It opens from the tray, /search and /desk's Search
-       pane. (It once opened from the Greek tab's field too, until E7,
-       2026-11-02; its `source: "notebook"` placement and
-       `greek-commands.js`'s listener for `lit:notebook-state` are left over
-       from that, tested and unused, and `panel.js` no longer sends the
-       event.) A click finding its field gone closes it
-       too (BA114). What it announces is
-       meant to be heard: a command by its meaning (“Added: Within 3
+       pane (its `source: "notebook"` placement and `greek-commands.js`'s
+       listener for `lit:notebook-state` are left over from the Greek tab's
+       field, retired by E7; tested and unused). A click finding its field
+       gone closes it too (BA114). What it announces is meant to be heard: a command by its meaning (“Added: Within 3
        words.”), the builder's by the query it made (BA117).
        **What it puts in a field is typed, not set** (BA147): `typeInto`
        replaces only the changed span with `execCommand("insertText")`, so
@@ -1263,15 +1180,11 @@ against `dist/` is a later item.
        `deskPlaceHref`); the header's link is on the home page only. A new link
        into /desk that means to open at a passage uses this, never the layout key.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
-       2026-11-02). With the preview on, `/read`'s Read View card and the
-       chapter picker's "Open X in Read View" link become the Study Desk
-       (`.view-card--desk` in `read.css`; ReadMenu reads `data-desk`), and
-       the rest stays. `src/lib/read-view-retirement.mjs` (redirects, the
-       `#ch-N` and verse-anchor mapping, "Continue reading" records from
-       Read View read as Chapter View places) and
-       `src/scripts/read-view-redirect.js` are built and tested but imported
-       by nothing: work session 8c wires them in at launch, removes Read
-       View, and deletes the test that guards the gap.
+       2026-11-02): with the preview on, `/read`'s Read View card and the
+       chapter picker's "Open X in Read View" link become the Study Desk.
+       `src/lib/read-view-retirement.mjs` and `src/scripts/read-view-redirect.js`
+       are built and tested but imported by nothing; the launch change
+       ("Launching", item 11) wires them in.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
@@ -1292,13 +1205,10 @@ against `dist/` is a later item.
        else any, else a new one beside, moving the LIT to the book's chapter 1
        only when it is in another book (a pane that stays put moves alone).
        A Search pane's intro result and `/desk/?intro=romans` both use it.
-       **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02; the
-       "What I've kept" pane was folded into it): `tab-mine.js` has the
-       search ("Search my notebook"), "Show" by kind, a count in words, the
-       list in Bible order under a heading for each chapter once it spans
-       more than one, a "Labels…" button and chips on a row, and, on /desk,
-       follows the LIT pane. `kept-list.js` remains, but only the notebook
-       page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
+       **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02):
+       `tab-mine.js` (search, "Show" by kind, the list in Bible order under a
+       heading per chapter, labels, and on /desk it follows the LIT pane).
+       `kept-list.js` remains, but only the notebook page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
        2026-11-07): they have /sheets and the Sheets pane, and the notebook
        page's list still shows them as "Other items". A layout saved with the retired kind `kept` reads back
        as `mine` (`RETIRED_KINDS`, applied in `checkLayout`, so the last
@@ -1347,18 +1257,16 @@ against `dist/` is a later item.
        `desk/footnotes-view.js` (3e), and Sheets `desk/sheet-pane.js` (3f;
        the pane is "Sheets", BVJ 2026-11-08, "Sheet" until then),
        the sheet editor, with its formatted text in `desk/sheet-text.js`
-       (a paste or a drop from elsewhere is read by `pastedSheetHtml`,
-       which keeps what Google Docs, Word and web pages mean: headings and
-       lists inside a wrapper, Docs' bold and italic, Word's lists; BA68,
-       BA71, BA73. How a client reads a paste isn't in the format)
+       (a paste or a drop is read by `pastedSheetHtml`, which keeps what
+       Google Docs, Word and web pages mean; BA68, BA71, BA73; how a client
+       reads a paste isn't in the format)
        and what it knows about the LIT (3h: blanks, the footnote picker,
        the key terms box and the license card) in `desk/sheet-lit.js`,
        whose rules are `src/lib/desk-sheet-lit.mjs`. A passage's Blanks list
-       has one row per glossary term (all of that term's blanks, with "N
-       times, vv. …", one hint select that writes to each, and one × that
-       fills them all in) and one row per other blank, in order of first
-       occurrence; a blank that no longer prints or whose words changed keeps
-       its own row with its notice (`groupBlanks`, SH5-9). When a redraw
+       has one row per glossary term (all its blanks, one hint select, one ×)
+       and one row per other blank, in order of first occurrence; a blank that
+       no longer prints or whose words changed keeps its own row with its
+       notice (`groupBlanks`, SH5-9). When a redraw
        removes the control that had focus, focus goes to one that is always
        drawn ("Blank the selected words", the footnotes summary, the key
        terms note), never to the page (`restoreFocus`, SH5-10). A footnote
@@ -1375,21 +1283,23 @@ against `dist/` is a later item.
        since the form's × and the menu's Escape hand focus back to the pill
        and a mouse user saw it stay until the next click), and the pill's menu
        adds the chosen part right after that card (`addPart(type, after)`), so
-       a long sheet needn't be scrolled to its end. A "+" in the card's header
-       was tried first and dropped the same day: it read as acting on that
-       card, not the gap. "Passage…" opens the passage form under the card
+       a long sheet needn't be scrolled to its end. The pill's menu is
+       `desk/insert-menu.js` (Audit 6, LG6-2; `openInsertMenu`, with
+       `insertItems` and `insertMenuPlace` pure and tested), which takes the
+       pill, the card's name, whether the sheet has a key terms box, and
+       `onPick`/`onClose`; what a pick does stays in `sheet-pane.js`. (A "+" in
+       the card's header read as acting on that card, not the gap.) "Passage…" opens the passage form under the card
        (`openInlinePassage`), never the bar's at the sheet's end, which looked
        like a glitch; each passage it adds goes after the card and then after
        the one just added (`addPassage`'s `target`), and the form is put back
-       on its card after a redraw (`insertForm`). The bar's own buttons still
-       add after the part last worked in, else at the end. **My sheets lists
+       on its card after a redraw (`insertForm`). The bar's own buttons add
+       after the part last worked in, else at the end. **My sheets lists
        Duplicate beside Delete** (BVJ, 2026-11-04; `duplicateSheet` in
        `desk-sheets.mjs`): the same parts under fresh ids, "<title> (copy)"
-       (cut to the title limit), and everything else kept, so labels and a
-       passage's `verseCopy` carry and the copy is still checked against the
-       wording it was made on. It reads the sheet from the store at the click,
-       refuses a sheet of a newer format (the button is disabled), and opens
-       the copy. It adds no field or kind and changes no format. **"Save as
+       (cut to the title limit), everything else kept (a passage's
+       `verseCopy` carries, so the copy is still checked against the wording
+       it was made on). It reads the sheet from the store at the click and
+       refuses a sheet of a newer format (the button is disabled). **"Save as
        template" beside it** (Audit 5, D #1; `templateFromSheet`) writes a sheet
        record with `isTemplate: true` and no passages: listed apart as "My
        templates", offered in New sheet, and kept off every other list of
@@ -1453,9 +1363,9 @@ against `dist/` is a later item.
        numbers. **The scroller is positioned** for the same reason: a hidden
        number, letter or heading is a 1px absolute box (global.css), and with
        the pane's body as its containing block it stayed where the text was
-       first drawn, so with numbers off the location field read verse 1 and
-       a jump to a verse landed wrong. With numbers off the chapter headings
-       are hidden that way too (styles/CLAUDE.md, the Display tray's rule 6).
+       first drawn, so the location field read verse 1 and a jump landed
+       wrong. Chapter headings are hidden that way too (styles/CLAUDE.md, the
+       Display tray's rule 6).
        **Its bar has "Open on its page"** (E35): a link after the
        next-chapter arrow (`extra` in `passage-bar.js`, `OPEN_PAGE_ICON` in
        `glyphs.js`) to the chapter's page at the verse the field names
@@ -1548,21 +1458,17 @@ against `dist/` is a later item.
        screen** (E43; BVJ, 2026-11-06: the browser's own full screen only, no
        mode hiding the site header) presses the Fullscreen API on the whole
        page, reads "Full screen (F11)" ("⌃⌘F" on a Mac) and "Exit full screen"
-       only for a full screen it entered, since F11's is invisible to the page
-       (`fullscreenElement` stays null); no line where the API is missing, and
-       a refusal is announced with the key to use instead. Escape is the
-       browser's way out, and in full screen the page never hears that press,
-       so with a menu open the first press leaves full screen and the second
-       closes the menu (accepted, not worked around). Each visit needs a
-       click: browsers refuse full screen on load, so it can't be a saved
-       preference. The Browser pane never answers the request, so check it in
-       a real browser. My notebook page and Help open
+       only for a full screen it entered, since F11's is invisible to the page;
+       no line where the API is missing, and a refusal names the key to use
+       instead. With a menu open in full screen the first Escape leaves full
+       screen and the second closes the menu (accepted). Each visit needs a
+       click, so it can't be a saved preference. The Browser pane never
+       answers the request: check it in a real browser. My notebook page and Help open
        in a new tab, since they leave the desk; **Take the tour starts the
        Study Desk tour in place** (a button, E24; see "Two tours" under rule 13). **There is no Settings window and no
-       "Where my notebook is kept" item** (BVJ, 2026-11-02): the Notebook's other
-       settings are margin switches that mean nothing here, or already live in
-       Display options and Layout, and "where it is kept" would only link to a
-       section of the notebook page. **Layout and Print left
+       "Where my notebook is kept" item** (BVJ, 2026-11-02): the other
+       settings mean nothing here or already live in Display options and
+       Layout. **Layout and Print left
        the bar**: their windows are the same ones, hung centered under the
        title. **Display options is the header's own Aa button moved into the
        menu whole**, so the shared tray's listeners stay on it;
@@ -1586,8 +1492,8 @@ against `dist/` is a later item.
        `addPaneNeeds` says why one can't be added: `FULL_TEXT`, "Four is the
        most" built from `MAX_PANES` (D9; compare the reason, never the words)
        or "Needs a wider/taller/larger window" (the 280 by 160 floor). The
-       item is disabled, not hidden, with the reason beside it, and a
-       direction that doesn't fit is disabled inside the flyout. The menu is
+       item is disabled, not hidden, with the reason beside it, as is a
+       direction that doesn't fit. The menu is
        `role="menu"` (arrows, Home and End, which pass over a disabled
        line in every desk menu, and a disabled line's reason is also the
        menu's description, so a screen reader hears it
@@ -1873,8 +1779,8 @@ against `dist/` is a later item.
      - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
        tested; every template's formatted text must already be in the
        sanitizer's canonical form). New sheet in the Sheets pane lists them,
-       each as its name and one line on what it is for (a second line
-       listing its parts was tried and dropped as noise, BVJ 2026-11-08), and the title menu's
+       each as its name and one line on what it is for (no second line listing
+       its parts, BVJ 2026-11-08), and the title menu's
        "New sheet…" opens the same list (a `desk:sheet-new` event naming the
        pane). **A template's parts hold no text, only structure and a
        prompt** (Audit 5, SH5-2; BVJ's brief): a text part is its heading
@@ -1897,13 +1803,12 @@ against `dist/` is a later item.
        goes after the part last worked in (`insertIndex` in `sheet-pane.js`),
        but **a passage goes where the sheet says, not where the leader last
        clicked** (SH5-3): after the part last worked in only when that part
-       is itself a passage, else after the sheet's last passage, or on a
-       sheet with none, after the template's reading part
-       (`passageInsertIndex`), else at the end (BA69). **A sheet never marks
+       is itself a passage, else after the sheet's last passage, else after
+       the template's reading part (`passageInsertIndex`), else at the end
+       (BA69). **A sheet never marks
        which part is the reading**: it is found by its heading ("Reading",
-       "Read", "The text"; `readingPart`), and a renamed one isn't, which
-       only sends a passage to the end. Sheets made before 2026-11-07 keep
-       the template text they were made with.
+       "Read", "The text"; `readingPart`); a renamed one isn't, which only
+       sends a passage to the end.
      - **A sheet from a search or a topic** (M5) keeps desk code out of
        search.js: /search announces every hit (not just the page on screen)
        with a `lit:search-results` event on `document` and calls
@@ -1916,7 +1821,8 @@ against `dist/` is a later item.
      - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;
        format in STUDY-DESK-FORMAT.md, "Sharing a sheet"): the sheet, less
        its ids and comparison copies (and, for a participant share, its
-       Leader only parts, answers and parts of unknown types), as
+       Leader only parts, answers, planned minutes, prompts, and parts of
+       unknown types), as
        deflate-raw JSON in base64url after `#share1.`, or the same data on
        the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
        last data line, ignores whitespace folded into it, and throws

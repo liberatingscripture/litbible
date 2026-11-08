@@ -89,7 +89,10 @@ export function cannotSay(read) {
     case "plain":
       return "This is an ordinary word search, so there is nothing to build. Start a new search to build one.";
     case "error":
-      return `${errorMessage(read.error).text} Fix it in the field, or start a new search here.`;
+      // A too-long search already says to shorten it in the field (GK6-11).
+      return read.error?.kind === "tooLong"
+        ? `${errorMessage(read.error).text} Or start a new search here.`
+        : `${errorMessage(read.error).text} Fix it in the field, or start a new search here.`;
     default:
       return "";
   }
@@ -103,7 +106,7 @@ const shortcut = (f) => f.words[0];
 const COMMAND_WORD = /^(?:any|exact(?:ly)?|and|or|within|next|anywhere|order|first|second|third)$/i;
 
 /** Whether a word, written bare, would be read as a command and not as the word. */
-export const needsQuotes = (word) => /\s/.test(word) || COMMAND_WORD.test(word) || Boolean(filterFor(word));
+export const needsQuotes = (word) => /[\s.,/*=~&]/.test(word) || COMMAND_WORD.test(word) || Boolean(filterFor(word));
 
 /**
  * The words a card can hold. A quote can't sit inside "Ἰησοῦς/Χριστός", so a

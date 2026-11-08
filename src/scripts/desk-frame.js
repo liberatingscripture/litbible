@@ -102,13 +102,17 @@ const DESK_PROPS = ["--desk-measure", "--desk-width", "--desk-dock-width", "--de
  * shown the Notebook buttons, which then did nothing; with them gone the
  * page is the ordinary reader's page, its buttons hidden (global.css). Also
  * takes away the rail and the width handles, and the column's move left, in
- * case the Notebook got that far.
+ * case the Notebook got that far, and the tray rows stage one added.
  */
 export function standDown(doc = document) {
   const root = doc.documentElement;
   for (const a of DESK_ATTRS) root.removeAttribute(a);
   for (const p of DESK_PROPS) root.style.removeProperty(p);
   for (const el of doc.querySelectorAll(".desk-rail, .desk-gutters")) el.remove();
+  // The Display tray's Notebook rows and key lines (note-settings.js, added in
+  // stage one) would be switches that do nothing (NB6-2).
+  for (const el of doc.querySelectorAll("#fontTray [data-desk]")) el.remove();
+  doc.querySelector("#fontTray [aria-describedby='deskVerseNumbersHint']")?.removeAttribute("aria-describedby");
   const surface = readingSurface(doc);
   for (const sel of surface?.move ?? []) for (const el of doc.querySelectorAll(sel)) el.style.translate = "";
 }

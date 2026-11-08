@@ -107,11 +107,6 @@ export function coveredBlank(cover) {
   return { t: "blank", answer: null, hint: cover?.hint ?? "" };
 }
 
-/** A revealed blank's inline piece: its words, underlined and bold, as on the leader's paper copy. */
-export function revealedBlank(words) {
-  return { t: "blank", answer: words, hint: "" };
-}
-
 /* ── Length, and cutting a passage across slides ──────────────────────── */
 
 const inlineText = (nodes) =>

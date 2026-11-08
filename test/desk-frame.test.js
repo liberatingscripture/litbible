@@ -138,18 +138,24 @@ function deskPage(surface = ".scripture-layout--scripture .scripture-main") {
   const el = (name) => ({ name, style: { translate: "-40px 0" }, remove: () => removed.push(name) });
   const column = el("column");
   const extras = [el("rail"), el("gutters")];
+  const trayRows = [el("tray row"), el("tray key line")];
+  let described = true;
   const doc = {
     documentElement: {
       removeAttribute: (k) => attrs.delete(k),
       style: { removeProperty: (k) => props.delete(k) },
     },
-    querySelector: (sel) => (sel === surface ? column : null),
+    querySelector: (sel) => {
+      if (sel === "#fontTray [aria-describedby='deskVerseNumbersHint']") return { removeAttribute: () => { described = false; } };
+      return sel === surface ? column : null;
+    },
     querySelectorAll: (sel) => {
       if (sel === ".desk-rail, .desk-gutters") return extras;
+      if (sel === "#fontTray [data-desk]") return trayRows;
       return sel === surface ? [column] : [];
     },
   };
-  return { doc, attrs, props, removed, column };
+  return { doc, attrs, props, removed, column, described: () => described };
 }
 
 test("standDown puts the page back as it is without the desk", () => {
@@ -157,7 +163,8 @@ test("standDown puts the page back as it is without the desk", () => {
   standDown(page.doc);
   assert.deepEqual([...page.attrs.keys()], ["data-theme", "data-size"], "only the desk's own attributes go");
   assert.deepEqual([...page.props.keys()], ["color-scheme"], "only the desk's own properties go");
-  assert.deepEqual(page.removed, ["rail", "gutters"]);
+  assert.deepEqual(page.removed, ["rail", "gutters", "tray row", "tray key line"], "the tray's Notebook rows go too (NB6-2)");
+  assert.equal(page.described(), false, "and the verse-numbers box stops pointing at the removed hint");
   assert.equal(page.column.style.translate, "", "the column moves back");
 });
 

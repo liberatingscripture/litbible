@@ -180,7 +180,8 @@ export function isSimpleQuery(parsed) {
  * while there is nothing to search yet.
  */
 export function parseGreekQuery(raw) {
-  let q = String(raw ?? "").trim();
+  // Control characters become spaces: U+0001 is the private mark for a quoted word below (GK6-10).
+  let q = String(raw ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim();
   if (q.length > MAX_QUERY_LENGTH) return { error: { kind: "tooLong", length: q.length } };
   if (!q) return { terms: [], gap: 3, anyOrder: false };
 

@@ -215,12 +215,12 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       }
       // Where there is no margin at all ("none") there is no flag.
       if (mode === "full") {
-        for (const { record, range } of flagged) {
+        for (const { record, notice, range } of flagged) {
           const top = lineTop(range) + (lineHeight - FLAG) / 2;
           let lane = 0;
           while (spots.some((s) => s.lane === lane && Math.abs(s.top - top) < FLAG)) lane++;
           spots.push({ top, lane });
-          const flag = flagElement(record);
+          const flag = flagElement(record, notice);
           flag.style.top = `${top}px`;
           flag.style.left = `${box.left + sx - right - FLAG - lane * BOOKMARK_LANE}px`;
         }
@@ -353,7 +353,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
           continue;
         }
         if (record.kind === "highlight") {
-          const flag = flagElement(record);
+          const flag = flagElement(record, flagged.find((f) => f.record.id === record.id)?.notice);
           flag.style.top = `${l.y + (CIRCLE - FLAG) / 2}px`;
           flag.style.left = `${x + (CIRCLE - FLAG) / 2}px`;
           continue;
@@ -494,22 +494,22 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     // A dot on the circle says its wording has changed; the name says it in
     // words, so it is not told by the dot alone.
     const name = noteOpening(r, refOf(r)).replace(/:\s*$/, "");
-    b.setAttribute("aria-label", notice ? `${name}, the wording changed` : name);
+    b.setAttribute("aria-label", notice ? `${name}, ${flagText(notice).toLowerCase()}` : name);
     if (notice) b.classList.add("desk-circle--changed");
     b.innerHTML = glyph(r.marker);
     return b;
   }
 
   /** A highlight whose wording has changed, as a mark in the margin: the changed glyph, alone. */
-  function flagElement(r) {
+  function flagElement(r, notice) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "desk-flag desk-flag--mark";
     b.dataset.id = r.id;
     b.setAttribute("aria-haspopup", "dialog");
-    const label = `${markName(r)} on ${refOf(r)}: the wording changed. Review`;
+    const label = `${markName(r)} on ${refOf(r)}: ${flagText(notice).toLowerCase()}. Review`;
     b.setAttribute("aria-label", label);
-    b.title = `The wording changed under this ${markName(r).toLowerCase()}. Review`;
+    b.title = `${flagText(notice)} under this ${markName(r).toLowerCase()}. Review`;
     b.innerHTML = changedGlyph();
     aside.append(b);
     return b;

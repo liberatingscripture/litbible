@@ -108,7 +108,7 @@ export function createSheet({ title = "", subtitle = "", template = "blank", com
  */
 export function duplicateSheet(sheet, { now, client, contentVersion, id, newId = newIdDefault } = {}) {
   mustEdit(sheet);
-  const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, ...fields } = sheet;
+  const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, isTemplate: _t, ...fields } = sheet;
   const title = `${sheet.title?.trim() || "Untitled sheet"} (copy)`;
   const limit = SHEET_LIMITS.title;
   return createRecord(
@@ -126,6 +126,13 @@ const newIdDefault = newId;
 
 /** Whether a sheet record is one of the reader's own templates (`isTemplate`; Audit 5, D #1). */
 export const isOwnTemplate = (r) => r?.kind === "sheet" && r.isTemplate === true;
+
+/**
+ * Whether a template made from this sheet would hold any part: it keeps every
+ * part but the passages, so a sheet of passages alone would make an empty one
+ * (DK6-8).
+ */
+export const hasTemplateParts = (sheet) => sheet?.modules?.some((m) => m?.type !== "passage") === true;
 
 /**
  * The reader's sheet kept as a template of their own (Audit 5, section D, #1;
@@ -166,6 +173,7 @@ export function templateFromSheet(sheet, { now, client, contentVersion, id, newI
  */
 export function sheetFromTemplate(template, { now, client, contentVersion, id, newId = newIdDefault } = {}) {
   mustEdit(template);
+  if (!isOwnTemplate(template)) throw new Error("desk-sheets: a sheet starts only from one of the reader's own templates");
   const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, isTemplate: _t, ...fields } = template;
   return createRecord(
     "sheet",

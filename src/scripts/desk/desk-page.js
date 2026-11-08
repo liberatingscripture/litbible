@@ -1206,7 +1206,7 @@ async function start() {
 
   // ---- a book's introduction named in the address (E53) ----
 
-  // /desk/?intro=romans (an introduction page's "Open in the Study Desk", with
+  // /desk/?intro=romans (an introduction page's "Open in Study Desk", with
   // ?place= at its chapter 1) shows it in a Book Intro pane: one already open,
   // else a new one beside the active pane where the width holds it, as ?sheet=
   // does. Stripped either way.

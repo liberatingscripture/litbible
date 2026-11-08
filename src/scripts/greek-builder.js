@@ -143,6 +143,9 @@ export function createGreekBuilder({ put, announce }) {
         // A LIT rendering typed in a card reaches the Greek as it does in the
         // field, through the glossary bridge (GK3-4); null if it won't load.
         const bridge = needsBridge(words) ? await loadGreekBridge(base) : null;
+        // A bridge that wouldn't load is a failure to retry, not a verdict of
+        // "unknown" kept for the window's life (GK6-7).
+        if (needsBridge(words) && !bridge) throw new Error("the glossary bridge wouldn't load");
         const resolved = resolveCard(index, { words, filters: [] }, { bridge });
         if (resolved.error) {
           entry.status = "unknown";

@@ -144,3 +144,12 @@ test("the window opens and drags again after being closed mid-drag", () => {
   fire("pointerup");
   assert.deepEqual(moved, [{ left: 110, top: 120 }]);
 });
+
+test("GK6-8: Escape while composing leaves the window open", () => {
+  const { win } = make();
+  win.show();
+  win.el.dispatch("keydown", { key: "Escape", isComposing: true, preventDefault() {}, stopPropagation() {} });
+  assert.equal(win.isOpen(), true);
+  win.el.dispatch("keydown", { key: "Escape", preventDefault() {}, stopPropagation() {} });
+  assert.equal(win.isOpen(), false);
+});

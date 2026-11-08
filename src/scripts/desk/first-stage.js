@@ -120,6 +120,9 @@ async function drawAndWait({ where, state, importShell, leave }) {
   const skip = document.createElement("a");
   skip.href = "#deskPanel";
   skip.className = "skip-link";
+  // So desk-tab.css hides it while "Show the Notebook" is off, as panel.js's
+  // link is hidden (NB3-10; NB6-1), and the page-text readers pass it over.
+  skip.setAttribute("data-desk-skip", "");
   skip.textContent = "Skip to the Notebook";
   const firstSkip = document.querySelector("a.skip-link");
   if (firstSkip) firstSkip.after(skip);
@@ -160,10 +163,17 @@ async function drawAndWait({ where, state, importShell, leave }) {
     loading = loadStageTwo(importShell, {
       handOver,
       stand: () => {
+        const focused = tab === document.activeElement || skip === document.activeElement;
         teardown();
         rail.destroy();
         skip.remove();
         standDown();
+        // The pressed tab is gone: focus goes to the page's text, not <body> (NB6-2).
+        const main = focused && document.getElementById("main-content");
+        if (main) {
+          if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+          main.focus({ preventScroll: true });
+        }
       },
     }).then((api) => {
       up = true;

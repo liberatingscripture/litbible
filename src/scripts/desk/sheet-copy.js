@@ -499,9 +499,16 @@ export async function copyLeaks(sheet, article) {
   ];
   let texts = 0;
   let questions = 0;
+  // A part is named by its first words, as the leader wrote it; only one with
+  // no words falls back to a number (SH6-8).
+  const named = (kind, n, text) => {
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return `${kind} ${n}`;
+    return `the ${kind} “${words.slice(0, 6).join(" ")}${words.length > 6 ? "…" : ""}”`;
+  };
   for (const part of article.children) {
-    if (part.matches(".sheet-copy__text")) surfaces.push({ kind: "text", where: `text part ${++texts}`, text: printedWords(part) });
-    else if (part.matches(".sheet-copy__question")) surfaces.push({ kind: "question", where: `question ${++questions}`, text: printedWords(part) });
+    if (part.matches(".sheet-copy__text")) surfaces.push({ kind: "text", where: named("text part", ++texts, printedWords(part)), text: printedWords(part) });
+    else if (part.matches(".sheet-copy__question")) surfaces.push({ kind: "question", where: named("question", ++questions, printedWords(part)), text: printedWords(part) });
     else if (part.matches(".sheet-copy__passage")) {
       const passageId = part.dataset.module;
       const ref = part.querySelector(".sheet-copy__ref")?.textContent ?? "";

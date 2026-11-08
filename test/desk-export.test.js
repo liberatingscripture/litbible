@@ -456,6 +456,30 @@ test("planImport sanitizes a sheet's text whatever its format, in the trash too 
   assert.equal(planChanges(planImport(out.plan.put, file.records, { now: "2026-10-13T00:00:00.000Z" }).plan), false);
 });
 
+test("planImport sanitizes a sheet before it checks it, live or in the trash (DI6-1)", () => {
+  // A sheet of this code's format saved in another canonical form (as after a SHEET_FORMAT
+  // bump): <b> and <i> where today's form writes <strong> and <em>.
+  const drifted = "<p><b>bold</b> and <i>italic</i></p>";
+  const fields = { sheetFormat: 1, title: "Older form", subtitle: "", template: "blank", modules: [{ id: "t", type: "text", html: drifted }] };
+  const live = make("sheet", fields);
+  assert.notDeepEqual(validateRecord(live), [], "as stored, it fails the check");
+  const gone = planDelete(make("sheet", fields), { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+  const out = planImport([], [live, gone], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.skipped, []);
+  assert.deepEqual(out.warnings, [], "the deletion keeps its words");
+  const here = out.plan.put.find((r) => r.id === live.id);
+  assert.equal(here.modules[0].html, "<p><strong>bold</strong> and <em>italic</em></p>");
+  assert.deepEqual(validateRecord(here), []);
+  const held = out.plan.put.find((r) => r.kind === "trash").record;
+  assert.equal(held.modules[0].html, here.modules[0].html);
+  // What sanitizing can't mend is still refused.
+  const broken = make("sheet", { ...fields, modules: [{ id: "t", type: "text", html: 42 }] });
+  assert.equal(planImport([], [broken], { now: "2026-10-13T00:00:00.000Z" }).summary.skipped, 1);
+  // A module whose type is an Object.prototype name doesn't stop the import.
+  const odd = make("sheet", { ...fields, modules: [{ id: "t", type: "toString" }] });
+  assert.doesNotThrow(() => planImport([], [odd], { now: "2026-10-13T00:00:00.000Z" }));
+});
+
 /** `levels` objects nested one inside the next, the first being depth 1. */
 function nest(levels) {
   let v = {};
