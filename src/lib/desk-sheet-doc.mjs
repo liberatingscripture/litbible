@@ -4,7 +4,7 @@
 // the neutral model every way out of /sheets/ writes from, so Copy and the
 // files under "Save as" can't disagree about what the copy says. The DOM walk
 // that reads the copy on screen into this model is `readCopy` in
-// src/scripts/desk/sheet-word.js; this file is pure and tested.
+// src/scripts/desk/sheets/sheet-word.js; this file is pure and tested.
 //
 // The model is the copy's parts in order, as blocks, and each block's words
 // as a small tree of inline pieces. It keeps the copy's own shapes (a passage

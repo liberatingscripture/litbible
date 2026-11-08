@@ -365,12 +365,12 @@ test("the slides load only when chosen: the sheet page reaches none of them by a
       if (existsSync(to)) walk(to);
     }
   };
-  walk(join(root, "src/scripts/desk/sheet-page.js"));
-  for (const file of ["src/lib/desk-slides.mjs", "src/lib/desk-slides-pptx.mjs", "src/lib/desk-slides-odp.mjs", "src/scripts/desk/sheet-slides.js"]) {
+  walk(join(root, "src/scripts/desk/sheets/sheet-page.js"));
+  for (const file of ["src/lib/desk-slides.mjs", "src/lib/desk-slides-pptx.mjs", "src/lib/desk-slides-odp.mjs", "src/scripts/desk/sheets/sheet-slides.js"]) {
     assert.ok(!seen.has(file), `${file} is not in the sheet page's chunk`);
   }
-  const page = readFileSync(join(root, "src/scripts/desk/sheet-page.js"), "utf8");
+  const page = readFileSync(join(root, "src/scripts/desk/sheets/sheet-page.js"), "utf8");
   assert.ok(page.includes('import("./sheet-slides.js")'));
-  const save = readFileSync(join(root, "src/scripts/desk/sheet-save.js"), "utf8");
-  for (const file of ["desk-slides-pptx.mjs", "desk-slides-odp.mjs"]) assert.ok(save.includes(`import("../../lib/${file}")`));
+  const save = readFileSync(join(root, "src/scripts/desk/sheets/sheet-save.js"), "utf8");
+  for (const file of ["desk-slides-pptx.mjs", "desk-slides-odp.mjs"]) assert.ok(save.includes(`import("../../../lib/${file}")`));
 });

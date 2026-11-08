@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-save.js
+// src/scripts/desk/sheets/sheet-save.js
 //
 // "Save as ▾" on a sheet's page (STUDY-DESK-FIXES.md, E37; BVJ, 2026-11-06):
 // the version on screen as a document to open in another program. It follows
@@ -19,17 +19,17 @@
 // Escape closes it and gives focus back to the button, and a click outside
 // or a Tab out closes it.
 
-import { SAVE_GROUPS } from "../../lib/desk-sheet-doc.mjs";
-import { make } from "./dom.js";
+import { SAVE_GROUPS } from "../../../lib/desk-sheet-doc.mjs";
+import { make } from "../dom.js";
 
 /** Each format's writer, loaded when chosen: (doc, opts) => Promise<Uint8Array>. */
 const WRITERS = {
-  docx: () => import("../../lib/desk-doc-docx.mjs").then((m) => m.docxFile),
-  odt: () => import("../../lib/desk-doc-odt.mjs").then((m) => m.odtFile),
-  rtf: () => import("../../lib/desk-doc-rtf.mjs").then((m) => m.rtfFile),
+  docx: () => import("../../../lib/desk-doc-docx.mjs").then((m) => m.docxFile),
+  odt: () => import("../../../lib/desk-doc-odt.mjs").then((m) => m.odtFile),
+  rtf: () => import("../../../lib/desk-doc-rtf.mjs").then((m) => m.rtfFile),
   // Slides take the deck sheet-slides.js reads, not the document model.
-  pptx: () => import("../../lib/desk-slides-pptx.mjs").then((m) => m.pptxFile),
-  odp: () => import("../../lib/desk-slides-odp.mjs").then((m) => m.odpFile),
+  pptx: () => import("../../../lib/desk-slides-pptx.mjs").then((m) => m.pptxFile),
+  odp: () => import("../../../lib/desk-slides-odp.mjs").then((m) => m.odpFile),
 };
 
 /** How many pixels a module of a code to scan is drawn at in the PNG. */

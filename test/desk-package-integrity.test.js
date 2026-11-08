@@ -34,7 +34,7 @@ import { odpFile } from "../src/lib/desk-slides-odp.mjs";
 
 globalThis.Node ??= /** @type {any} */ ({ TEXT_NODE: 3, ELEMENT_NODE: 1 });
 globalThis.document ??= /** @type {any} */ (miniDocument);
-const { readCopy } = await import("../src/scripts/desk/sheet-word.js");
+const { readCopy } = await import("../src/scripts/desk/sheets/sheet-word.js");
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const GOLDEN = JSON.parse(readFileSync(join(root, "test/fixtures/sheet-copy-golden.json"), "utf8"));

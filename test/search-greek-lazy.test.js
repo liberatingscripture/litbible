@@ -46,7 +46,7 @@ for (const entry of ["src/scripts/search-core.js", "src/scripts/searchbar.js", "
 }
 
 // The credits are a short list of names and links, which the Greek tab shows.
-for (const entry of ["shell", "desk-page", "notebook-page", "sheet-page", "notebook-search", "search-sheet"]) {
+for (const entry of ["shell", "desk-page", "notebook-page", "sheets/sheet-page", "notebook-search", "sheets/search-sheet"]) {
   test(`desk/${entry}.js reaches none of the Greek search by a static import`, () => {
     const reached = staticClosure(`src/scripts/desk/${entry}.js`);
     for (const file of [...ENGINE.filter((f) => !f.endsWith("greek-credits.mjs")), "src/scripts/desk/greek-find.js"]) {

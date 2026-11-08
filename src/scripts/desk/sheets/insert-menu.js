@@ -1,4 +1,4 @@
-// src/scripts/desk/insert-menu.js
+// src/scripts/desk/sheets/insert-menu.js
 //
 // The menu under a sheet card's gap "Add" pill (BVJ, 2026-11-08): the parts
 // the add bar offers, each added right after that card, so a long sheet needn't
@@ -26,8 +26,8 @@
 //
 // Returns `{ close(refocus) }`.
 
-import { make } from "./dom.js";
-import { describeUnavailable } from "./menu-reasons.js";
+import { make } from "../dom.js";
+import { describeUnavailable } from "../menu-reasons.js";
 
 /**
  * The menu's lines, in order: label, part type, and for the key terms box

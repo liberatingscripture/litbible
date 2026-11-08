@@ -1,4 +1,4 @@
-// src/scripts/desk/search-sheet.js
+// src/scripts/desk/sheets/search-sheet.js
 //
 // "Make a sheet of these verses" on /search (STUDY-DESK.md, M5): the verses a
 // search found, or the chapters a topic names, gathered into a sheet. Reached
@@ -24,21 +24,21 @@
 // goes through the same store as every other change, so it is one undo entry.
 // Everything happens in this browser; nothing about the query is sent anywhere.
 
-import deskCss from "../../styles/desk.css?inline";
-import { canEdit } from "../../lib/desk-records.mjs";
-import { planSave, webClient } from "../../lib/desk-store-core.mjs";
+import deskCss from "../../../styles/desk.css?inline";
+import { canEdit } from "../../../lib/desk-records.mjs";
+import { planSave, webClient } from "../../../lib/desk-store-core.mjs";
 import {
   gatherMessage,
   passagesFromChapters,
   passagesFromVerses,
   roomOnSheet,
   searchSheetTitle,
-} from "../../lib/desk-sheet-gather.mjs";
-import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
-import { addModule, createSheet, isOwnTemplate, makeModule } from "../../lib/desk-sheets.mjs";
-import { createHistory, undoEntry } from "./history.js";
-import { openStore } from "./store.js";
-import { make } from "./dom.js";
+} from "../../../lib/desk-sheet-gather.mjs";
+import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
+import { addModule, createSheet, isOwnTemplate, makeModule } from "../../../lib/desk-sheets.mjs";
+import { createHistory, undoEntry } from "../history.js";
+import { openStore } from "../store.js";
+import { make } from "../dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const contentVersion = document.documentElement.dataset.contentVersion || "unversioned";

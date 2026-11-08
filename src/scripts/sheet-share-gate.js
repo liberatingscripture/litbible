@@ -31,7 +31,7 @@ if (typeof shared === "string" && shared && box && document.documentElement.data
   if (isAppPlatform(navigator)) {
     p.textContent = "Loading the sheet…";
     off?.replaceWith(p);
-    import("./desk/sheet-page.js")
+    import("./desk/sheets/sheet-page.js")
       .then((page) => page.showSharedOnPhone(box, shared))
       .catch((err) => {
         console.error("The shared sheet couldn't load", err);

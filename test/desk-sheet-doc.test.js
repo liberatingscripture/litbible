@@ -2,7 +2,7 @@
 //
 // A sheet's copy as a document (STUDY-DESK-FIXES.md, E37): the model
 // (src/lib/desk-sheet-doc.mjs) read from the copy on screen by
-// src/scripts/desk/sheet-word.js, Copy as its HTML and plain text writer,
+// src/scripts/desk/sheets/sheet-word.js, Copy as its HTML and plain text writer,
 // the hand-written zip (desk-zip.mjs), and the .docx, .odt and .rtf writers.
 //
 // Copy is held to what it put on the clipboard before it moved onto the
@@ -40,7 +40,7 @@ import { rtfEscape, rtfFile, rtfText } from "../src/lib/desk-doc-rtf.mjs";
 
 globalThis.Node ??= /** @type {any} */ ({ TEXT_NODE: 3, ELEMENT_NODE: 1 });
 globalThis.document ??= /** @type {any} */ (miniDocument);
-const { block, copyForWord, readCopy } = await import("../src/scripts/desk/sheet-word.js");
+const { block, copyForWord, readCopy } = await import("../src/scripts/desk/sheets/sheet-word.js");
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const GOLDEN = JSON.parse(readFileSync(join(root, "test/fixtures/sheet-copy-golden.json"), "utf8"));
@@ -582,13 +582,13 @@ function staticClosure(entry) {
 }
 
 test("the writers load only when chosen: the sheet page reaches none by a static import", () => {
-  const reached = staticClosure("src/scripts/desk/sheet-page.js");
+  const reached = staticClosure("src/scripts/desk/sheets/sheet-page.js");
   for (const file of ["desk-doc-docx.mjs", "desk-doc-odt.mjs", "desk-doc-rtf.mjs", "desk-zip.mjs"]) {
     assert.ok(!reached.has(`src/lib/${file}`), `${file} is not in the sheet page's chunk`);
   }
-  assert.ok(reached.has("src/scripts/desk/sheet-save.js"));
-  const save = readFileSync(join(root, "src/scripts/desk/sheet-save.js"), "utf8");
-  for (const file of ["desk-doc-docx.mjs", "desk-doc-odt.mjs", "desk-doc-rtf.mjs"]) assert.ok(save.includes(`import("../../lib/${file}")`));
+  assert.ok(reached.has("src/scripts/desk/sheets/sheet-save.js"));
+  const save = readFileSync(join(root, "src/scripts/desk/sheets/sheet-save.js"), "utf8");
+  for (const file of ["desk-doc-docx.mjs", "desk-doc-odt.mjs", "desk-doc-rtf.mjs"]) assert.ok(save.includes(`import("../../../lib/${file}")`));
 });
 
 /* ── Audit 3, session 3 ───────────────────────────────────────────────── */
@@ -676,7 +676,7 @@ test("a link's address is written as a valid URI in every writer (DK3-9)", () =>
 });
 
 test("a code's SVG is given a size before it is drawn, and a code left out is counted (DK3-6)", async () => {
-  const { CODES_MISSING, drawCodes, sizedSvg } = await import("../src/scripts/desk/sheet-save.js");
+  const { CODES_MISSING, drawCodes, sizedSvg } = await import("../src/scripts/desk/sheets/sheet-save.js");
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29"><rect width="29" height="29"/></svg>';
   assert.match(sizedSvg(svg, 232), /^<svg width="232" height="232" xmlns=/);
   assert.equal(sizedSvg('<svg width="10" viewBox="0 0 1 1"/>', 232), '<svg width="10" viewBox="0 0 1 1"/>', "one with a size keeps it");

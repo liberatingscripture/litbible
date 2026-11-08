@@ -4,7 +4,7 @@
 // the participant's copies hold (S4), the code printed for each chapter (S5),
 // how the key terms box reads where its words are blanked, the paper (Letter or
 // A4, C27), and how a sheet's own words are shown. The rules only; /sheets/
-// draws them (src/scripts/desk/sheet-copy.js). Pure, so the copies can be
+// draws them (src/scripts/desk/sheets/sheet-copy.js). Pure, so the copies can be
 // tested without a page.
 //
 // Nothing here is stored. A copy is worked out from the sheet record and

@@ -1,4 +1,4 @@
-// src/scripts/desk/sheet-present.js
+// src/scripts/desk/sheets/sheet-present.js
 //
 // Present mode (STUDY-DESK.md, S6, M2, M3; "Order of work", 3j), on a sheet's
 // own address. Loaded by sheet-page.js, which opens it from the copy's toolbar
@@ -49,11 +49,11 @@ import {
   planWords,
   plannedTotal,
   screenMinutes,
-} from "../../lib/desk-present.mjs";
-import { modulesForCopy } from "../../lib/desk-sheet-copy.mjs";
-import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
+} from "../../../lib/desk-present.mjs";
+import { modulesForCopy } from "../../../lib/desk-sheet-copy.mjs";
+import { passageReference, sheetName } from "../../../lib/desk-sheet-passages.mjs";
 import { codeFigure, keyTermsSection, presentPassage, printingBlanks, readAll, rich } from "./sheet-copy.js";
-import { make } from "./dom.js";
+import { make } from "../dom.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 

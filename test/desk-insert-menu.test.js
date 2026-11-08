@@ -1,8 +1,8 @@
-// The sheet gap pill's menu (src/scripts/desk/insert-menu.js; Audit 6, LG6-2):
+// The sheet gap pill's menu (src/scripts/desk/sheets/insert-menu.js; Audit 6, LG6-2):
 // its lines and where it is placed.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { insertItems, insertMenuPlace } from "../src/scripts/desk/insert-menu.js";
+import { insertItems, insertMenuPlace } from "../src/scripts/desk/sheets/insert-menu.js";
 
 test("the menu offers the add bar's parts, passage first", () => {
   assert.deepEqual(insertItems(false).map((x) => x.type), ["passage", "text", "question", "space", "pageBreak", "keyTerms"]);

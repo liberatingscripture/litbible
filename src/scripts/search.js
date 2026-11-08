@@ -1295,7 +1295,7 @@ function writeCountStatus() {
 }
 
 // The results on screen, for anything that works on all of them rather than
-// the page showing (the Study Desk's "make a sheet", desk/search-sheet.js).
+// the page showing (the Study Desk's "make a sheet", desk/sheets/search-sheet.js).
 // `verses` are every verse hit and `chapters` every chapter by topic, not just
 // the page on screen. Nothing here knows who listens.
 let lastResultsDetail = null;

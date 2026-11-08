@@ -2,7 +2,7 @@
 //
 // A sheet from a search or a topic (STUDY-DESK.md, M5): the verses a search
 // found, or the chapters a topic names, turned into the passages of a sheet.
-// Pure: no DOM, no storage, no fetching. The client (desk/search-sheet.js)
+// Pure: no DOM, no storage, no fetching. The client (desk/sheets/search-sheet.js)
 // hands over what the search found, and reads the last verse of each chapter
 // itself when a topic's chapters are wanted whole.
 //

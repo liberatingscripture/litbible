@@ -1,7 +1,7 @@
 /* =========================================================
    A sheet's own page (/sheets/; STUDY-DESK.md, phase 3i)
    =========================================================
-   The page's frame, its toolbar, and the copy (src/scripts/desk/sheet-copy.js)
+   The page's frame, its toolbar, and the copy (src/scripts/desk/sheets/sheet-copy.js)
    on screen and on paper. Only this page loads this file. The reader's own
    formatted words use `.desk-rich` from desk.css, which the page adds itself.
 
@@ -902,7 +902,7 @@
 }
 
 /* ── Present mode (3j; STUDY-DESK.md, S6, M2, M3) ─────────────────────────
-   The presentation (src/scripts/desk/sheet-present.js) covers the page and is
+   The presentation (src/scripts/desk/sheets/sheet-present.js) covers the page and is
    dark in either theme, since a projector's light floods a room: a near-black
    ground, cream words. Its colors are pinned here, never the theme's, and so
    is its focus ring (LIT Green, above the 4.58:1 it has on ink). The

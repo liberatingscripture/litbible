@@ -3,7 +3,7 @@
 // What a sheet knows about the LIT (STUDY-DESK.md, "Order of work", 3h): the
 // key terms box (S3), blanks (S10), which footnotes print and which would give
 // a blank away (C15), and the commercial-quotation check (S7). The rules only;
-// the sheet pane reads the chapters and draws (src/scripts/desk/sheet-lit.js).
+// the sheet pane reads the chapters and draws (src/scripts/desk/sheets/sheet-lit.js).
 // Pure: a chapter is anchor-core's shape ({ verses, spans, text }), built from
 // the chapter's Chapter View page by whoever has it, and the term data is that
 // page's own #term-lens-data.
