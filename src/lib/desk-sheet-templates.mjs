@@ -61,8 +61,22 @@ const question = (prompt, answerPrompt) =>
  */
 const READING_PROMPT = "Type the reference in the form below, or add the passage from the LIT pane’s verse numbers.";
 
+/**
+ * The group templates open with a part for the leader alone (Audit 5, section
+ * D, #4; BVJ, 2026-11-08): what to have ready and the ground rules to name.
+ * Leader only, so it prints on the leader's version and reaches the presenter
+ * view, never the participants' copy or the room.
+ */
+const beforeYouLead = () =>
+  part(
+    "Before you lead",
+    "For you alone: what to bring, and the ground rules you will name (listen well, what is shared stays here, nobody has to speak). Prints on the leader’s version only.",
+    { leaderOnly: true },
+  );
+
 const BUILDERS = {
   "bible-study": () => [
+    beforeYouLead(),
     part("Opening", "How you will begin: a welcome, a prayer, a moment of quiet."),
     part("Reading", READING_PROMPT),
     question("A first question for the group, such as “What word or phrase stands out to you?”"),
@@ -81,6 +95,7 @@ const BUILDERS = {
     makeModule("keyTerms"), // last, as in every other template (SH5-13)
   ],
   class: () => [
+    beforeYouLead(),
     part("Goals for this session", "What the class should know or be able to do by the end. One goal per line."),
     part("Reading", READING_PROMPT),
     part(
@@ -97,6 +112,7 @@ const BUILDERS = {
     part("Next time", "The reading for next time, and anything to bring."),
   ],
   "lectio-divina": () => [
+    beforeYouLead(),
     part("Read", "How to read: slowly, aloud if you can, noticing a word or phrase that catches you."),
     part("Reflect", "How to reflect: read it again and stay with that word or phrase, asking what it stirs."),
     makeModule("space", { lines: 6 }),

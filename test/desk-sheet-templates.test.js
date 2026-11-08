@@ -60,12 +60,22 @@ test("the blank template is one empty text module", () => {
 
 test("the class template keeps the background for the leader, and one answer prompt", () => {
   const mods = templateModules("class");
-  assert.equal(mods[2].leaderOnly, true);
-  assert.match(mods[2].prompt, /leader’s version only/);
-  assert.equal(mods[3].answer, "");
-  assert.match(mods[3].answerPrompt, /^Optional\./);
+  assert.equal(mods[3].leaderOnly, true);
+  assert.match(mods[3].prompt, /leader’s version only/);
   assert.equal(mods[4].answer, "");
-  assert.equal(mods[4].answerPrompt, undefined);
+  assert.match(mods[4].answerPrompt, /^Optional\./);
+  assert.equal(mods[5].answer, "");
+  assert.equal(mods[5].answerPrompt, undefined);
+});
+
+test("the group templates open with Before you lead, for the leader alone (Audit 5, D #4)", () => {
+  for (const id of ["bible-study", "class", "lectio-divina"]) {
+    const [first] = templateModules(id);
+    assert.equal(first.html, "<h2>Before you lead</h2>", id);
+    assert.equal(first.leaderOnly, true, id);
+    assert.match(first.prompt, /leader’s version only/, id);
+  }
+  for (const id of ["sermon", "blank"]) assert.notEqual(templateModules(id)[0].html, "<h2>Before you lead</h2>", id);
 });
 
 /* ── Structure and prompts, never text that prints (SH5-2) ───────────── */
