@@ -157,6 +157,16 @@ build:sheet-golden`) holds the sanitizer's output byte for byte, and
 `planSheetChange` edits over `cleanSheetText(current)`, so a drift becomes a
 one-time rewrite rather than a refusal (DI3-6). A replacement behind the `createSheetText` interface is a version 2
 item; add a cross-browser golden-file test of the eight commands before it.
+A menu's `close()` takes the menu out of `openMenu` before removing it:
+removing the focused item fires blur, the editor's `focusout` closes menus
+too, and in the other order the second `remove()` threw NotFoundError before
+`pick()` ran, so Paragraph style, Text alignment and Style applied nothing
+(Audit 5, SH5-1). **A part's toolbar shows only while its editor has focus**,
+or while one of its menus or its link form is open, or while a mouse press
+that moved focus away is still down (`desk-rich-editor--tools`); it is drawn
+below the text, so clicking into a part grows the card downward instead of
+moving the words under the pointer, and a menu opens upward when the pane has
+no room below it (SH5-6).
 
 **Tests**: `npm run test:desk` runs the desk's files alone (`desk-*`, `greek-*`,
 `search-greek-*`, `anchor-text`; a new desk test takes one of those names or
@@ -1336,7 +1346,15 @@ against `dist/` is a later item.
        BA71, BA73. How a client reads a paste isn't in the format)
        and what it knows about the LIT (3h: blanks, the footnote picker,
        the key terms box and the license card) in `desk/sheet-lit.js`,
-       whose rules are `src/lib/desk-sheet-lit.mjs`. **My sheets lists
+       whose rules are `src/lib/desk-sheet-lit.mjs`. A passage's Blanks list
+       has one row per glossary term (all of that term's blanks, with "N
+       times, vv. …", one hint select that writes to each, and one × that
+       fills them all in) and one row per other blank, in order of first
+       occurrence; a blank that no longer prints or whose words changed keeps
+       its own row with its notice (`groupBlanks`, SH5-9). When a redraw
+       removes the control that had focus, focus goes to one that is always
+       drawn ("Blank the selected words", the footnotes summary, the key
+       terms note), never to the page (`restoreFocus`, SH5-10). **My sheets lists
        Duplicate beside Delete** (BVJ, 2026-11-04; `duplicateSheet` in
        `desk-sheets.mjs`): the same parts under fresh ids, "<title> (copy)"
        (cut to the title limit), and everything else kept, so labels and a
@@ -1518,7 +1536,15 @@ against `dist/` is a later item.
        menu whole**, so the shared tray's listeners stay on it;
        `data-tray-anchor=".desk-title__button"` (SiteHeader's `anchorOf`) hangs
        the tray from the title and returns focus there, because the menu
-       closes as the tray opens. **Add pane** is a flyout to the right that
+       closes as the tray opens. **New sheet…** (Audit 5, SH5-5) sits after
+       Add pane and acts at once: it uses the desk's Sheet pane, or adds one
+       as a column (else a row), then sends `desk:sheet-new` with the pane's
+       id, which the Sheet pane answers by opening its template chooser; it is
+       disabled, with the reason beside it, only when there is no Sheet pane
+       and neither fits. Each kind in the Add pane flyout and in the pane
+       menu's two kind lists carries a one-line description under its name
+       (`about` in `KINDS`, `kindAbout`), greyed like a reason but not a
+       disabled line, and heard as the item's description. **Add pane** is a flyout to the right that
        asks "Add column" or "Add row", then (the kinds replace those two in
        the same flyout, with a "‹ Add column" row to go back) which kind of
        pane to show. A column is a full-height pane at the right edge of the
@@ -1597,6 +1623,17 @@ against `dist/` is a later item.
        about which words a passage, a blank or a footnote covers.
        `passageWords`' `keepNotes` keeps the printing footnotes' letters as
        plain superscripts.
+     - **A passage made from a selection says it is part of its verse**
+       (Audit 5, SH5-14): the card names it with `passageLabel` ("Romans 8:6
+       (part)", `desk-sheet-passages.mjs`), and the paper copy and present
+       screens put a "…" before the words when they open inside their verse
+       and after them when they close inside one (`partialEnds` reads that
+       from the located range against the verse's own span, never from the
+       words; `markOpenEnds` in `sheet-copy.js` draws them as `aria-hidden`
+       spans after the blanks, so they stay out of the anchor text blanks
+       locate by, and Copy, the saved files and the slides carry them);
+       `passageReference` stays plain for announcements, screen titles and
+       the copy's heading.
      - **The printed codes are `src/lib/qr-svg.mjs`**, shared with
        `build-apps-qr.mjs`; `qrcode-generator` is a runtime dependency for
        that reason, loaded only by the sheet page's chunk.
@@ -1749,7 +1786,10 @@ against `dist/` is a later item.
      "Present", or at once for `&view=present` (the Sheet pane's
      "Present…") and `&view=presenter` (the presenter view's window). Like
      the rest of the page it **never writes a record, and stores nothing**:
-     where the room is lives in the open windows. Five things to know:
+     where the room is lives in the open windows. An empty text or question
+     part (no words and no rule) has no screen, and an empty Leader only part
+     gives no note; a part with only a heading or a rule still shows
+     (`presentScreens`, SH5-8). Five things to know:
      - **`src/lib/desk-present.mjs` is the rules** (pure, tested): the
        screens (`presentScreens`: a start screen, then each passage, text,
        question and key terms box the room sees; a Leader only part goes to
@@ -1794,19 +1834,30 @@ against `dist/` is a later item.
      - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
        tested; every template's formatted text must already be in the
        sanitizer's canonical form). New sheet in the Sheet pane lists them,
-       and a new part goes after the part last worked in (`insertIndex` in
-       `sheet-pane.js`). A passage with none worked in goes after the last
-       passage, or on a sheet with none, after the template's reading part
-       (`passageInsertIndex`, `readingPart`), so it lands inside a template,
-       not after it, on a sheet made days ago too (BA69, BVJ 2026-10-27).
-       **A sheet never marks which part is the reading**: it is found by its
-       heading ("Reading", "Read", "The text"), and a renamed one isn't, which
-       only sends the passage to the end. **Template text never mentions the
-       editor's tools**, since every part prints and goes up in present mode
-       (BA70; the test checks): "Add the passage with + Passage…" is
-       `READING_HINT`, ghost text the editor draws in the reading part (a
-       `data-hint` `::after`, with `aria-description`) until there is a
-       passage. Sheets made before 2026-10-27 still hold the old sentence.
+       each with a line naming its parts (`parts`), and the title menu's
+       "New sheet…" opens the same list (a `desk:sheet-new` event naming the
+       pane). **A template's parts hold no text, only structure and a
+       prompt** (Audit 5, SH5-2; BVJ's brief): a text part is its heading
+       alone, a question is empty, and each carries `prompt` (a question's
+       answer `answerPrompt`), plain text the format keeps in its own field
+       (STUDY-DESK-FORMAT.md, "Modules"), which nothing prints, copies,
+       presents or counts. The editor shows an empty part's prompt as its
+       placeholder, and a part holding only its heading shows it under the
+       heading (a `data-hint` `::after`, with `aria-description`) until the
+       leader types there or a passage follows it; it never depends on whether
+       the sheet has a passage (SH5-4). **Template text never mentions the
+       editor's tools** (BA70; the test checks), so "Add the passage with
+       + Passage…" is the reading part's prompt, never its text. A new part
+       goes after the part last worked in (`insertIndex` in `sheet-pane.js`),
+       but **a passage goes where the sheet says, not where the leader last
+       clicked** (SH5-3): after the part last worked in only when that part
+       is itself a passage, else after the sheet's last passage, or on a
+       sheet with none, after the template's reading part
+       (`passageInsertIndex`), else at the end (BA69). **A sheet never marks
+       which part is the reading**: it is found by its heading ("Reading",
+       "Read", "The text"; `readingPart`), and a renamed one isn't, which
+       only sends a passage to the end. Sheets made before 2026-11-07 keep
+       the template text they were made with.
      - **A sheet from a search or a topic** (M5) keeps desk code out of
        search.js: /search announces every hit (not just the page on screen)
        with a `lit:search-results` event on `document` and calls

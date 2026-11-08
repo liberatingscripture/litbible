@@ -28,6 +28,15 @@ wording-changed notice can't be provoked without changing the text; both are uni
 IDs carry a 5 (`SH5-`) so they never collide with the earlier audits'. Severity: High, Medium,
 Low, Nit, Observation.
 
+**Status (2026-11-07, same day):** on BVJ's instruction to implement everything that needed no
+decision of theirs, SH5-1 to SH5-14 shipped on this audit's branch, with SH5-17's small things except
+the page break's Leader only box and the "fill in" wording; SH5-15 (shared reader code) and SH5-16
+(BVJ's call on the give-away flag) stay open. The ghost prompts took section B's Design 2, an optional
+`prompt` field, chosen by Claude under that instruction and reversible; Lectio divina's movement
+lines became prompts too, under the rule that no field starts with text. The toolbar (SH5-6) is drawn
+below the focused part, so clicking into a part grows the card downward instead of moving the words
+under the pointer. Each fix is marked on its finding.
+
 ## Bottom line
 
 **One real bug, and it is a bad one: three of the editor's menus do nothing.** Choosing a
@@ -58,7 +67,7 @@ every part (SH5-6), and a handful of focus and default-value details (SH5-7 to S
 
 ## A. Findings (`SH5`)
 
-#### SH5-1 · High · bug · the Paragraph style, Text alignment, and Style menus apply nothing
+#### SH5-1 · High · bug · the Paragraph style, Text alignment, and Style menus apply nothing · FIXED (2026-11-07)
 
 What happens: in any part's toolbar, open Paragraph style and choose Heading (mouse or keyboard):
 the menu closes, the text stays a paragraph, the toolbar still says "Paragraph," and focus falls
@@ -111,7 +120,7 @@ The keyboard path runs the same handler. Still to do with the fix: try each of t
 Chrome, Firefox, and Safari (the desk's unit tests run without a DOM), and log it as the next E
 number in `STUDY-DESK-FIXES.md` when it ships.
 
-#### SH5-2 · Medium · design · the templates hold real text where prompts belong (BVJ's brief)
+#### SH5-2 · Medium · design · the templates hold real text where prompts belong (BVJ's brief) · FIXED (2026-11-07)
 
 What happens: four of the five templates fill their parts with sentences a leader is meant to
 replace. Left as they are, they print on both versions and appear on the room's screen. Seen on
@@ -127,7 +136,7 @@ other half of that entry.
 
 Fix: section B.
 
-#### SH5-3 · Medium · design · a passage lands wherever the leader last clicked, not where the sheet says
+#### SH5-3 · Medium · design · a passage lands wherever the leader last clicked, not where the sheet says · FIXED (2026-11-07)
 
 What happens: on a fresh template a passage goes under the reading part (Reading, Read, The text),
 as the ghost hint there promises. But `insertIndex` puts a new part after the part last focused or
@@ -144,7 +153,7 @@ after the last passage, or into the reading part while the sheet has none, or at
 questions, spaces, and page breaks keep the current rule, which is right for them. Announce the
 place as now ("added after Romans 8:1–4").
 
-#### SH5-4 · Medium · design · the reading hint keys on the sheet, not on the part
+#### SH5-4 · Medium · design · the reading hint keys on the sheet, not on the part · FIXED (2026-11-07)
 
 What happens: the hint "Add the passage with + Passage, or from the LIT pane's verse numbers."
 shows under the reading heading until the sheet has any passage. Two wrong moments follow. Type a
@@ -157,7 +166,7 @@ Fix: show the hint while the reading part holds nothing but its heading and no p
 directly after it; hide it once the leader types in that part. With section B's design, this hint
 becomes that part's prompt and follows the same rule as every other prompt.
 
-#### SH5-5 · Medium · first use · a new leader has no path to a sheet
+#### SH5-5 · Medium · first use · a new leader has no path to a sheet · FIXED (2026-11-07)
 
 What happens: /desk opens on the LIT beside My Notes. Nothing on the screen says sheet, handout,
 print, or present. The way in is the title menu, then "Add pane," then "Add column" or "Add row,"
@@ -172,7 +181,7 @@ template chooser in one step; a one-line description under each kind in the Add 
 kinds menu already has room, and the help page has the sentences); and a tour step that adds a
 Sheet pane. The pane's empty-state sentence can also name /sheets/ for printing.
 
-#### SH5-6 · Medium · design · a formatting toolbar on every part
+#### SH5-6 · Medium · design · a formatting toolbar on every part · FIXED (2026-11-07)
 
 What happens: every text part and both fields of every question draw the full toolbar (Paragraph
 style, B, I, U, S, superscript, subscript, link, two lists, indent, outdent, alignment, Style, rule,
@@ -186,7 +195,7 @@ pinned above the parts list), with the same buttons; a part without focus shows 
 toolbar's roving tabindex and `aria-controls` already point at one editable at a time, so the
 change is mostly where it is drawn. Keep the "Answer (leader's version only)" label.
 
-#### SH5-7 · Low · design · a question added with "+ Question" has no lines to write on
+#### SH5-7 · Low · design · a question added with "+ Question" has no lines to write on · FIXED (2026-11-07)
 
 What happens: the templates' questions have "Lines to write on 3"; a question added with the button
 starts at 0, so on the participant version it prints as a bare question with nowhere to write
@@ -195,7 +204,7 @@ unless the leader notices the number field.
 Fix: start a new question at 3 lines, the templates' value (`DEFAULTS.question` in
 `desk-sheets.mjs` and `questionHtml`'s caller in the discussion rules already pass 3).
 
-#### SH5-8 · Low · design · an empty part gets a blank screen in Present
+#### SH5-8 · Low · design · an empty part gets a blank screen in Present · FIXED (2026-11-07)
 
 What happens: an empty text or question part (one added and never filled, as a leader will do)
 becomes a screen of its own: screen 6 of my presentation was a black screen with nothing on it. On
@@ -203,7 +212,7 @@ paper an empty question prints nothing, so the two disagree.
 
 Fix: `presentScreens` skips a text or question part whose html is empty, as the paper copy does.
 
-#### SH5-9 · Low · design · blanks are listed one row per occurrence
+#### SH5-9 · Low · design · blanks are listed one row per occurrence · FIXED (2026-11-07)
 
 What happens: blanking "self-preservation" (four times in Romans 8:1–4) makes four rows, each with
 the same hint select and its own ×, interleaved in reading order with the other terms' rows. With
@@ -214,7 +223,7 @@ Fix: group a term's blanks under one row (the term, "4 times," one hint select, 
 row per phrase blank; or at least order rows by term. The record needs no change (the hint is
 written to each blank as now).
 
-#### SH5-10 · Low · accessibility · focus falls away after several actions
+#### SH5-10 · Low · accessibility · focus falls away after several actions · FIXED (2026-11-07)
 
 What happens: after × on a blank's row, focus goes to the page body; after "+ Space" or
 "+ Page break," focus lands on the new card's "Leader only" checkbox rather than its own field or
@@ -225,7 +234,7 @@ Fix: after removing a blank, focus the next blank's × or the Blanks heading; af
 or page break, focus the lines field (space) or the card's Move up button (page break); after an
 import or a gather, focus the status line or the "Open it on the Study Desk" link.
 
-#### SH5-11 · Low · first use · the "+ Passage" field doesn't take focus
+#### SH5-11 · Low · first use · the "+ Passage" field doesn't take focus · FIXED (2026-11-07)
 
 What happens: pressing "+ Passage" opens the reference field at the bottom of the parts list, but
 focus stays on the button, so the leader must click again before typing. The template chooser and
@@ -233,7 +242,7 @@ the link form both focus their first control.
 
 Fix: focus the reference field when the form opens.
 
-#### SH5-12 · Low · layout · a blank's custom hint pushes its × onto a new line
+#### SH5-12 · Low · layout · a blank's custom hint pushes its × onto a new line · FIXED (2026-11-07)
 
 What happens: with "My own hint…" chosen, the row holds the words, the verse, the select, the text
 field, and the ×; at the pane's width the × wraps to a line of its own under the row.
@@ -241,7 +250,7 @@ field, and the ×; at the pane's width the × wraps to a line of its own under t
 Fix: let the text field take the row's remaining width and keep the × in the row, or put the hint
 field on a second line by design.
 
-#### SH5-13 · Low · design · the Sermon template's key terms box sits in the middle
+#### SH5-13 · Low · design · the Sermon template's key terms box sits in the middle · FIXED (2026-11-07)
 
 What happens: the Sermon preparation template orders The text, First reading, Key terms box,
 Context, The good news here, Outline, For the congregation. On paper the box prints between the
@@ -249,7 +258,7 @@ preacher's first notes and the context section; every other template puts it nea
 
 Fix: move the box after "For the congregation," or before "Outline."
 
-#### SH5-14 · Low · design · a passage made from a selection prints as a bare fragment
+#### SH5-14 · Low · design · a passage made from a selection prints as a bare fragment · FIXED (2026-11-07)
 
 What happens: a selection added from the LIT pane becomes a passage headed by its verse ("Romans
 8:6") with only the selected words ("death, but the thought pattern of the"). The card gives no sign
@@ -273,7 +282,7 @@ blank anyway. Right by design when the hint is the traditional word; when the le
 hint," a footnote naming the traditional word does give the answer away. BVJ's call whether the
 flag should widen in that case.
 
-#### SH5-17 · Nit · small things seen along the way
+#### SH5-17 · Nit · small things seen along the way · PARTLY FIXED (2026-11-07)
 
 - "+ Key terms box," when the sheet has one, is disabled with its reason only in the title and the
   accessible description; a word beside it ("already on the sheet") would say so to the eye.

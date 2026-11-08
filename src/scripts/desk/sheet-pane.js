@@ -69,6 +69,7 @@ import {
   passageForReference,
   passageFromRecord,
   passageInsertIndex,
+  passageLabel,
   passageFromVerses,
   passageReference,
   samePassage,
@@ -869,7 +870,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     grip.title = "Drag to move";
     grip.textContent = "⠿";
     const label = make("span", "desk-sheet__module-name", known ? TYPE_NAMES[m.type] : "Made by a newer version of the LIT");
-    if (m.type === "passage") label.textContent = passageReference(m);
+    if (m.type === "passage") label.textContent = passageLabel(m);
     head.append(grip, label);
 
     const tools = make("div", "desk-sheet__module-tools");
