@@ -5350,7 +5350,12 @@ apps want a sheet merged part by part before this is built.
 2. The editor on `/sheets` (done 2026-11-08: Edit and New sheet… load
    `sheets/sheet-page-edit.js`, the editor's second host; Done and "‹ All
    sheets" return to the page's own views).
-3. Two tabs: the line, and the question on opening.
+3. Two tabs: the line, and the question on opening (done 2026-11-08:
+   `src/lib/desk-sheet-tabs.mjs` and `sheets/sheet-tabs.js`). The question
+   needs no heartbeat after all: the opening tab asks and waits 400 ms for an
+   editing tab to answer, so nothing is remembered that a crashed tab could
+   leave behind. BDR's answer on merging a sheet part by part (Part 4) is
+   still open; it bears on Phase 4's sync, not on two tabs.
 4. The ways in (Part 2).
 5. The header as C (Part 3), with its details settled first.
 

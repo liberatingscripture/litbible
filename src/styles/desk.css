@@ -6787,6 +6787,35 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   margin: 6px 0;
 }
 
+/* Two tabs on one sheet (S12, part 4): the question before editing, and the
+   line under a part whose saved text another tab changed. */
+.desk-sheet__ask {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+}
+
+.desk-sheet__ask-text,
+.desk-sheet__conflict-text {
+  margin: 0 0 8px;
+}
+
+.desk-sheet__ask-row,
+.desk-sheet__conflict-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desk-sheet__conflict {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+  font-size: 0.875rem;
+}
+
 .desk-sheet__btn {
   padding: 4px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);

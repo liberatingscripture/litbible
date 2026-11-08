@@ -1227,6 +1227,17 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     flush() {
       if (dirty) emit();
     },
+    /**
+     * The text as it stands, taken as reported: for a caller that saves it
+     * itself (Keep mine, when another tab changed the part; S12, part 4).
+     */
+    take() {
+      clearTimeout(timer);
+      timer = 0;
+      dirty = false;
+      last = canon(editable.innerHTML);
+      return last;
+    },
     /** Report a pending change and let go of the page's listeners. */
     destroy() {
       if (dirty) emit();

@@ -94,6 +94,8 @@ import { loadChapterPage } from "../chapter-page.js";
 import { undoEntry } from "../history.js";
 import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./sheet-lit.js";
 import { createSheetText } from "./sheet-text.js";
+import { addEditor, editedElsewhere } from "./sheet-tabs.js";
+import { changedUnderReader } from "../../../lib/desk-sheet-tabs.mjs";
 import { showUndo } from "../undo-bar.js";
 import { redraw } from "../focus-keep.js";
 import { make } from "../dom.js";
@@ -264,7 +266,7 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
  *   contentVersion: () => string, addPassage: (fields: object, target?: object | null) => Promise<false | { message: string, again: boolean }>,
  *   newSheet: () => Promise<void>, startFrom: (template: string | object) => void, destroy: () => void }}
  */
-export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null }) {
+export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null, onCancel = null }) {
   const el = make("div", "desk-sheet");
   const live = make("p", "sr-only");
   live.setAttribute("aria-live", "polite");
@@ -487,8 +489,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    * Read the sheet again, for a change made elsewhere, and redraw what moved.
    * Also run when the tab comes back into view, since a frozen tab, or one
    * without BroadcastChannel, never hears another tab's save (BA129).
+   * `origin` is the store's: "this-tab" is another Sheets pane here.
    */
-  async function refresh() {
+  async function refresh(origin = "other-tab") {
     if (!sheet || draft) return;
     await saving;
     if (!sheet) return;
@@ -508,7 +511,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (json(record) === json(sheet)) return;
     sheet = record;
     onSheetChange();
-    draw();
+    draw(origin === "this-tab" ? "pane" : "tab");
   }
 
   // ---- the list of sheets ----
@@ -762,8 +765,54 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       toList();
       return;
     }
+    // Another tab editing this sheet: ask before showing the editor (S12,
+    // part 4; BVJ, 2026-11-08). Cancel leaves things as they were: the
+    // host's own view of the sheet, else the list.
+    if (canEdit(record) && (await editedElsewhere(id))) {
+      if (n !== seq || destroyed) return;
+      if (!(await askContinue(n))) {
+        if (n !== seq || destroyed) return;
+        if (onCancel) onCancel(id);
+        else toList({ focus: `open-${id}` });
+        return;
+      }
+      if (n !== seq || destroyed) return;
+      try {
+        record = (await store.get(id)) ?? record; // as it stands after the wait
+      } catch (_) {}
+      if (n !== seq || destroyed) return;
+    }
     setSheet(id);
-    showSheet(record, { focusTitle });
+    showSheet(record, { focusTitle: focusTitle || asked.has(n) });
+  }
+
+  /** The views that asked the question, whose title then takes focus from Continue. */
+  const asked = new Set();
+
+  /** "Already open in another tab": resolves true for Continue, false for Cancel. */
+  function askContinue(n) {
+    asked.add(n);
+    return new Promise((resolve) => {
+      const box = make("div", "desk-sheet__ask");
+      const text = make("p", "desk-sheet__ask-text", "This sheet is already open in another tab. Continue here?");
+      text.id = `deskSheetAsk-${idSuffix}`;
+      box.setAttribute("role", "group");
+      box.setAttribute("aria-labelledby", text.id);
+      const go = button("Continue", "desk-sheet__btn desk-sheet__btn--primary");
+      const no = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
+      const hint = describe(go, "Changes made in either tab show in the other.");
+      go.addEventListener("click", () => resolve(true));
+      no.addEventListener("click", () => resolve(false));
+      box.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        e.preventDefault();
+        resolve(false);
+      });
+      const row = make("div", "desk-sheet__ask-row");
+      row.append(go, no);
+      box.append(text, row, hint);
+      redraw(content, [box], { fallback: () => go, force: true });
+    });
   }
 
   /** Show a new sheet without writing it (SH6-7); `persistDraft` writes it. */
@@ -924,8 +973,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     for (const b of pills) b.tabIndex = owner(b) === gapStop ? 0 : -1;
   }
 
-  /** Bring the page in line with `sheet`, keeping every card that hasn't changed. */
-  function draw() {
+  /**
+   * Bring the page in line with `sheet`, keeping every card that hasn't
+   * changed. `from` is where a change being drawn was made, for the line on a
+   * part typed in meanwhile: "pane" for another Sheets pane in this tab, else
+   * another tab.
+   */
+  function draw(from = "tab") {
     if (!sheet || !moduleList) return;
     closeInsertMenu(); // its pill is about to be redrawn or gone (DK6-2)
     if (titleInput && document.activeElement !== titleInput) titleInput.value = sheet.title ?? "";
@@ -948,7 +1002,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
           card.inst.update(m);
           card.json = now;
         } else if (card.inst?.hasFocus?.()) {
-          card.json = now; // the reader is typing here; their next save wins
+          // The reader is typing here, so the card keeps their words, and a
+          // line says the saved text moved under them (S12, part 4).
+          if (card.inst.fields && changedUnderReader(card.json, m)) showConflict(card, m, from);
+          card.json = now;
         } else {
           card.inst?.destroy?.();
           card.el.remove();
@@ -1029,6 +1086,55 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     } else {
       moduleList.parentNode.querySelector(".desk-sheet__none")?.remove();
     }
+  }
+
+  /**
+   * The line on a part whose saved text another tab (or pane) changed while
+   * the reader was typing in it (S12, part 4; BVJ, 2026-11-08): the card
+   * keeps the reader's words, and the line offers the other version. Under
+   * the part's text, so the words being typed don't move. A later change
+   * from there only updates which version "Show that version" shows.
+   */
+  function showConflict(card, m, from) {
+    card.theirs = m;
+    if (card.conflict) return;
+    const id = m.id;
+    const line = make("div", "desk-sheet__conflict");
+    const words = make("p", "desk-sheet__conflict-text", from === "pane" ? "Changed in another Sheets pane." : "Changed in another tab.");
+    words.id = `deskSheetConflict-${idSuffix}-${id}`;
+    line.setAttribute("role", "group");
+    line.setAttribute("aria-labelledby", words.id);
+    const show = button("Show that version", "desk-sheet__btn desk-sheet__btn--quiet");
+    const keep = button("Keep mine", "desk-sheet__btn desk-sheet__btn--quiet");
+    const fields = () => Object.entries(card.inst?.fields ?? {});
+    show.addEventListener("click", () => {
+      const theirs = card.theirs;
+      clearConflict(card);
+      for (const [f, ed] of fields()) ed.setHtml(theirs[f] ?? "");
+      // Written again, since this tab's typing may have saved over it already.
+      const put = Object.fromEntries(fields().map(([f]) => [f, theirs[f] ?? ""]));
+      change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Showing the other version." });
+      card.inst?.focus?.();
+    });
+    keep.addEventListener("click", () => {
+      clearConflict(card);
+      const put = Object.fromEntries(fields().map(([f, ed]) => [f, ed.take()]));
+      change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Kept your version." });
+      card.inst?.focus?.();
+    });
+    const row = make("div", "desk-sheet__conflict-row");
+    row.append(show, keep);
+    line.append(words, row);
+    card.conflict = line;
+    const zone = card.el.querySelector(":scope > .desk-sheet__after");
+    card.el.insertBefore(line, zone);
+    say(`${headingOf(m) ?? card.name}: ${words.textContent.toLowerCase()} Show that version, or keep yours.`);
+  }
+
+  function clearConflict(card) {
+    card.conflict?.remove();
+    card.conflict = null;
+    card.theirs = null;
   }
 
   function flushAll() {
@@ -1340,7 +1446,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       box.removeAttribute("aria-description");
     });
     card.append(ed.el);
-    return ed;
+    // The fields typed into, for the line when another tab changes them (S12, part 4).
+    return Object.assign(ed, { fields: { html: ed } });
   }
 
   function readOnlyRich(card, html) {
@@ -1385,7 +1492,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const answerLabel = make("p", "desk-sheet__field-label", "Answer (leader’s version only)");
     answerLabel.setAttribute("aria-hidden", "true");
     card.append(q.el, answerLabel, a.el, lines.el);
-    return group(q, a, lines);
+    return Object.assign(group(q, a, lines), { fields: { html: q, answer: a } });
   }
 
   function spaceCard(card, m) {
@@ -1835,9 +1942,11 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
 
   // ---- changes made elsewhere ----
 
-  const unsubscribe = store.subscribe((ids) => {
-    if (sheet && ids?.includes?.(sheet.id)) refresh();
+  const unsubscribe = store.subscribe((ids, origin) => {
+    if (sheet && ids?.includes?.(sheet.id)) refresh(origin);
   });
+  // Another tab opening this sheet asks whether one is editing it (S12, part 4).
+  const stopCounting = addEditor(() => (sheet && !draft ? sheet.id : null));
   const onVisible = () => {
     // Hidden comes first when a tab closes; this starts the saves, and
     // onPagehide makes sure of them (BA72).
@@ -1887,6 +1996,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       destroyed = true;
       seq++;
       unsubscribe();
+      stopCounting();
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("pageshow", onVisible);
       window.removeEventListener("pagehide", onPagehide);
