@@ -54,6 +54,7 @@ From the root's project tree.
                      #   a search's or topic's passages (desk-sheet-gather),
                      #   what it takes from the notebook (desk-sheet-from-notes),
                      #   sharing it by link or file (desk-sheet-share),
+                     #   two tabs editing it (desk-sheet-tabs),
                      #   and its copies on paper (desk-sheet-copy, with
                      #   qr-svg.mjs, the one QR drawing), as a document
                      #   (desk-sheet-doc, the model Copy and the files

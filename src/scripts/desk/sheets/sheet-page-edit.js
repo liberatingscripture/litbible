@@ -11,6 +11,8 @@
 // - **The page's own list and versions stand in for the editor's**: "‹ All
 //   sheets" goes to the page's list (`onList`), and Done back to the sheet's
 //   versions (`onDone`), where the pane has "Present…" and "Print or share…".
+//   Cancel, when another tab is editing the sheet, goes back to its versions
+//   too (`onCancel`; S12, part 4).
 // - **Ctrl+Z and the undo bar** start with the first editor, before it can
 //   write anything; the page never writes a record before then.
 // - Nothing here is a pane's: no LIT pane to show a passage in, and no "Add
@@ -29,11 +31,11 @@ import { make } from "../dom.js";
  *
  * @param {{ root: HTMLElement, store: object, ctx: () => object, id?: string | null,
  *   template?: string | object | null, onSaved: (id: string) => void,
- *   onList: () => void, onDone: (id: string) => void }} options
+ *   onList: () => void, onDone: (id: string) => void, onCancel: (id: string) => void }} options
  *   `onSaved` is told the sheet's id once it has one, for the address.
  * @returns {{ destroy: () => void }}
  */
-export function editSheet({ root, store, ctx, id = null, template = null, onSaved, onList, onDone }) {
+export function editSheet({ root, store, ctx, id = null, template = null, onSaved, onList, onDone, onCancel }) {
   initUndo();
   createHistory({ store, ctx });
   let shown = id;
@@ -48,6 +50,7 @@ export function editSheet({ root, store, ctx, id = null, template = null, onSave
     },
     onList,
     onDone,
+    onCancel,
   });
   root.replaceChildren(make("h1", "sr-only", "Edit a sheet"), editor.el);
   root.classList.add("sheets-page--editing");

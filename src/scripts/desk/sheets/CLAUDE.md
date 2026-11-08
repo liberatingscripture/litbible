@@ -59,7 +59,27 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Done button
   go to the page's own list and versions instead of the editor's list and
   its "Present…" and "Print or share…", and it uses the exported
-  `templateChooser` for the list's "New sheet…". The editor's formatted text is in `desk/sheets/sheet-text.js`
+  `templateChooser` for the list's "New sheet…". **Two tabs on one sheet**
+  (S12, part 4; BVJ, 2026-11-08; rules in `src/lib/desk-sheet-tabs.mjs`,
+  page side `sheet-tabs.js`): every change is planned over the record as
+  read (BA129), so edits to different parts in two tabs both keep, and each
+  tab redraws what the other saved. **A part the reader is typing in is
+  never redrawn**; when its saved text moves under them (`changedUnderReader`,
+  its html or answer), `showConflict` puts a line under the part: "Changed
+  in another tab." ("…another Sheets pane." when the store's notice came
+  from this tab), with "Show that version" (loads it and writes it again,
+  since this tab's typing may already have saved over it) and "Keep mine"
+  (writes the card's words now, through `take()` on its editors). Only cards
+  whose instance carries `fields` (text and question) get it. **Opening a
+  sheet asks first when another tab is editing it** (`openSheet`): it sends
+  `who` on one BroadcastChannel and waits `ASK_WAIT_MS` for a `here` from a
+  tab whose editor shows that sheet (`addEditor`); with one, it shows "This
+  sheet is already open in another tab. Continue here?" in place of the
+  editor. Cancel is the host's `onCancel` (the page's versions, by
+  `replaceState`) or the editor's list. There is no heartbeat: nothing is
+  remembered between questions, so a crashed or frozen tab only fails to
+  answer, and a tab printing or presenting holds no editor and never answers.
+  A new sheet (a draft, a duplicate) has nobody to ask. The editor's formatted text is in `desk/sheets/sheet-text.js`
   (a paste or a drop is read by `pastedSheetHtml`, which keeps what
   Google Docs, Word and web pages mean; BA68, BA71, BA73; how a client
   reads a paste isn't in the format)

@@ -958,6 +958,12 @@ async function route(root, store, { template = null, focus = null } = {}) {
       onSaved: (sheetId) => history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(sheetId)}&view=edit`),
       onList: () => go(`${BASE}sheets/`, "list"),
       onDone: (sheetId) => go(`${BASE}sheets/?id=${encodeURIComponent(sheetId)}`, "edit"),
+      // Not editing after all: the versions, in place of the edit address,
+      // so Back doesn't ask again.
+      onCancel: (sheetId) => {
+        history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(sheetId)}`);
+        route(root, store, { focus: "edit" });
+      },
     });
     document.title = "Edit a sheet | Liberation and Inclusion Translation";
     return;
