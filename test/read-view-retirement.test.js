@@ -126,6 +126,6 @@ test("with the preview on, the chapter picker's footer link opens the Study Desk
   const menu = readFileSync("src/components/ReadMenu.astro", "utf8");
   assert.match(menu, /dataset\.desk === "on"/);
   assert.match(menu, /"\/desk\/\?place=" \+ crossViewKey \+ "-1"/);
-  assert.match(menu, / in the Study Desk →/);
+  assert.match(menu, / in Study Desk →/);
   assert.match(menu, / in Read View →/, "everyone else keeps Read View");
 });

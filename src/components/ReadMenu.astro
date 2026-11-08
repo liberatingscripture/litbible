@@ -242,7 +242,7 @@ const fallbackHref =
             // (E8, 8b). The address is desk-passage.mjs's deskPlaceHref, written
             // out because shared reader code never imports desk code.
             a.href = "/desk/?place=" + crossViewKey + "-1";
-            a.textContent = "Open " + label(crossViewKey) + " in the Study Desk →";
+            a.textContent = "Open " + label(crossViewKey) + " in Study Desk →";
           } else {
             a.href = "/read/" + crossViewKey;
             a.textContent =
@@ -532,6 +532,8 @@ const fallbackHref =
       align-items: center;
       justify-content: center;
       gap: 8px;
+      /* The same floor as .read-menu__trigger, so the two pills match. */
+      min-width: 245px;
       padding: 10px 18px;
       font-size: 16px;
       font-weight: 500;

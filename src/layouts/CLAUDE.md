@@ -22,7 +22,7 @@
   keeps the stacked toolbar, whose search field works on its own.
   The toolbar's right slot holds two pills in `.reading-view-right` wrappers,
   one at a time: "Switch to Read View" (chapters only) and, with the Study Desk
-  preview on, "Open in the Study Desk" (chapters and introductions; E50, rule 10
+  preview on, "Open in Study Desk" (chapters and introductions; E50, rule 10
   in `src/scripts/desk/CLAUDE.md`). Both use the `.reading-view-pill` look and
   the `rvp-full`/`rvp-short` labels, so every width rule above covers both.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
