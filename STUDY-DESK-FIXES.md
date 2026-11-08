@@ -972,7 +972,7 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   sheet to reuse as the base of the next one, such as last Lent's study, was
   a copy-by-hand job. **Built 2026-11-04:** "Duplicate" beside "Delete" on each
   row of My sheets (`duplicateSheet`, `desk-sheets.mjs`, pure and tested;
-  `duplicate` in `desk/sheet-pane.js`). The copy is a new sheet with the same
+  `duplicate` in `desk/sheets/sheet-pane.js`). The copy is a new sheet with the same
   parts under fresh ids and the title "<title> (copy)" ("Untitled sheet
   (copy)" for an untitled one; cut to the 200-character limit, still ending in
   "(copy)"); labels, a passage's `verseCopy` and any field or part this code
@@ -1307,14 +1307,14 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   Print, then “Save as PDF” in the print window", beside Save as's own "PDF…"
   line, so a reader who wants a PDF now finds it from either place.
   **Phase A built 2026-11-06** (`claude/desk-phase5-e28`). Copy and the files
-  read the copy on screen into **one model** (`readCopy`, `desk/sheet-word.js`;
+  read the copy on screen into **one model** (`readCopy`, `desk/sheets/sheet-word.js`;
   the model and Copy's HTML and text writers in `src/lib/desk-sheet-doc.mjs`),
   so they can't disagree; Copy is now that model's HTML writer, held
   byte-identical to the old code by `test/fixtures/sheet-copy-golden.json` (and
   checked so on all 260 chapters before the old walk went). The writers are
   `desk-doc-docx.mjs`, `desk-doc-odt.mjs` and `desk-doc-rtf.mjs` over
   `desk-zip.mjs`, each pure and loaded by a dynamic import only when chosen
-  (`desk/sheet-save.js`, which also draws the menu and the codes as PNGs from
+  (`desk/sheets/sheet-save.js`, which also draws the menu and the codes as PNGs from
   `qrSvg`, left out when codes are off). Every file ends with
   `LIT_CREDIT_LINE` as its last paragraph and carries it in its properties.
   Files are named "Romans 8 study (leader).docx". `test/desk-sheet-doc.test.js`
@@ -1348,7 +1348,7 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   **"Slides"** group: PowerPoint (.pptx), OpenDocument slides (.odp), and
   "PDF…", which prints one slide to a 13.333 by 7.5 inch landscape page and says
   to choose "Save as PDF". **The slides are present mode's screens**:
-  `desk/sheet-slides.js` runs `prepareDeck` (`sheet-present.js`) and reads each
+  `desk/sheets/sheet-slides.js` runs `prepareDeck` (`sheet-present.js`) and reads each
   screen off the stage, a passage twice (no blanks revealed, then all through
   it), so a file shows exactly what present mode shows, the hint and the
   traditional word on a covered blank included; they are the room's, so the

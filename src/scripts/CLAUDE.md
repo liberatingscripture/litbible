@@ -2,7 +2,8 @@
 
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
-> in this directory. The Study Desk's own rules are in `desk/CLAUDE.md`.
+> in this directory. The Study Desk's own rules are in `desk/CLAUDE.md`,
+> and the Sheets' in `desk/sheets/CLAUDE.md`.
 > Cross-references such as "below" or "rule 15" were written when all of
 > this was one file, so they may point into another area file; the root's
 > index says which file holds each section.
@@ -31,7 +32,8 @@ From the root's project tree.
                      #   greek-commands, the Greek search commands window,
                      #   whose top is greek-builder, the menu-based search
                      #   builder);
-                     #   desk-gate + desk/, the Study Desk preview, and
+                     #   desk-gate + desk/, the Study Desk preview (its
+                     #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;
                      #   see "The Study Desk preview" below)
 ```
