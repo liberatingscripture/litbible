@@ -315,7 +315,7 @@ async function openPanel(bar) {
     const pick = button("", "desk-gather__sheet");
     pick.append(make("span", "desk-gather__sheet-name", sheetName(sheet)));
     const n = sheet.modules?.length ?? 0;
-    // What the Sheet pane's list shows, so two sheets with one title can be told apart.
+    // What the Sheets pane's list shows, so two sheets with one title can be told apart.
     const modified = sheet.modified ? new Date(sheet.modified) : null;
     const meta = [
       sheet.subtitle,

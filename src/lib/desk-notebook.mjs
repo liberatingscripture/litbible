@@ -85,7 +85,7 @@ export function listable(records) {
 
 /**
  * What My Notes lists: not a sheet, which is a page of its own with a list on
- * /sheets and in the Sheet pane (LV3-3, BVJ 2026-11-07). The notebook page's
+ * /sheets and in the Sheets pane (LV3-3, BVJ 2026-11-07). The notebook page's
  * "What I've kept" still lists sheets, as "Other items".
  */
 export function withoutSheets(records) {

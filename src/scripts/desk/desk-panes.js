@@ -380,7 +380,7 @@ function goToRecord(env) {
  *   getSheet: () => string | null, setSheet: (id: string | null) => void }} pane
  *   `get` and `set` are the passage the pane shows (desk-page.js): for a LIT
  *   pane, `set` is where its reader now is. `getSheet` and `setSheet` are the
- *   sheet a Sheet pane shows.
+ *   sheet a Sheets pane shows.
  * @returns {{ destroy: () => void, setPassage?: (passage: object) => void,
  *   keep?: () => () => void }}
  */

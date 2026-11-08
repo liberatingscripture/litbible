@@ -29,7 +29,7 @@
 //   one model (readCopy in sheet-word.js), so they can't disagree.
 // - **Present** (3j): the sheet shown to a room, full screen, with the reveal
 //   and a presenter view (sheet-present.js). `&view=present` opens it
-//   straight away (the Sheet pane's "Present…"), and `&view=presenter` is the
+//   straight away (the Sheets pane's "Present…"), and `&view=presenter` is the
 //   presenter view's own window.
 // - **Share…** (3k, S8): the sheet in a link's fragment or in a file
 //   (desk-sheet-share.mjs), the whole sheet or the participant copy's parts.
@@ -208,7 +208,7 @@ async function showList(root, store) {
   intro.append(
     document.createTextNode("Each sheet here can be printed as a leader’s version or a participant’s version, copied, or saved as a document for Word or another program. Sheets are made and changed on "),
     desk,
-    document.createTextNode(", in a Sheet pane."),
+    document.createTextNode(", in a Sheets pane."),
   );
   root.append(intro, openFileRow(root, store));
   if (!sheets.length) {
@@ -523,7 +523,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   });
 
   await draw();
-  // Opened to present (the Sheet pane's "Present…"): full screen waits for
+  // Opened to present (the Sheets pane's "Present…"): full screen waits for
   // the leader's first click, which a browser requires.
   if (view === "present") startPresenting({ fullscreen: false });
 }

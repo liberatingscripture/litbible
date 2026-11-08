@@ -1,6 +1,6 @@
 // src/scripts/desk/sheet-lit.js
 //
-// What a sheet knows about the LIT, in the Sheet pane (STUDY-DESK.md, "Order
+// What a sheet knows about the LIT, in the Sheets pane (STUDY-DESK.md, "Order
 // of work", 3h): a passage's words with its blanks (S10) and the choice of
 // which footnotes print, flagging any that would give a blank away (C15); the
 // key terms box, filled in from the sheet's passages (S3); and the license

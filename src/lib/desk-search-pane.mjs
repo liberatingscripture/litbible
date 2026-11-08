@@ -13,7 +13,7 @@
 // - a glossary result opens in the pane, an article result in a new tab, and
 //   a verse or topic result moves the LIT pane; an intro result shows in a
 //   Book Intro pane (E53, 2026-11-06; it opened in a new tab before);
-// - results can go on an open Sheet pane's sheet.
+// - results can go on an open Sheets pane's sheet.
 
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { hasGreek } from "./greek-detect.mjs";

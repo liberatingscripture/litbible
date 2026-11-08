@@ -22,9 +22,9 @@
 // - `getTour()` the Study Desk tour, or null before it is made.
 // - `inTour(node)` whether a node is in the tour's card, which the closers
 //   must not count as elsewhere.
-// - New sheet… needs nothing more: it adds or finds a Sheet pane through
+// - New sheet… needs nothing more: it adds or finds a Sheets pane through
 //   `getLayout`, `commit` and `panesBox`, then sends `desk:sheet-new` (with the
-//   pane's id) for the Sheet pane to open its template chooser.
+//   pane's id) for the Sheets pane to open its template chooser.
 // - `layoutWindow`, `printWindow`: `{ open(), close({ focus }) }` for the two
 //   windows the menu's Layout… and Print… lines open, and which opening the
 //   menu closes.
@@ -103,7 +103,7 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
   // Sheet is a kind of pane. It acts at once (no flyout): it uses the Sheet
   // pane the desk already has, or adds one the way Add pane would (a column,
   // else a row), then asks that pane to open its template chooser. Disabled,
-  // with the reason beside it, only when there is no Sheet pane and neither a
+  // with the reason beside it, only when there is no Sheets pane and neither a
   // column nor a row can be added.
   const newSheetItem = item("New sheet…");
 
@@ -350,7 +350,7 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     }
     closeTitleMenu();
     if (next !== layout) commit(next);
-    // The Sheet pane listens and opens its template chooser (sheet-pane.js).
+    // The Sheets pane listens and opens its template chooser (sheet-pane.js).
     if (paneId) document.dispatchEvent(new CustomEvent("desk:sheet-new", { detail: { paneId } }));
     announce("New sheet: choose a template.");
   });

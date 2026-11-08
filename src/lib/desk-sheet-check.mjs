@@ -16,7 +16,7 @@
 // note is (desk-change.mjs): the rest of the verse doesn't print.
 //
 // Pure: the chapter is anchor-core's shape ({ verses, spans, text }), built by
-// whoever has the page. Nothing here writes a record; the Sheet pane writes
+// whoever has the page. Nothing here writes a record; the Sheets pane writes
 // what `freshCopy` returns when the reader keeps the new wording.
 
 import { compareContentVersions, verseCopyFor } from "./desk-records.mjs";

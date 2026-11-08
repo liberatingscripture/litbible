@@ -35,10 +35,13 @@ the page break's Leader only box and the "fill in" wording; SH5-15 (shared reade
 widens to a traditional word the hint doesn't show (SH5-16), the drag onto a term is fixed in the
 shared lens (SH5-15), Lectio divina keeps prompts rather than printed lines, the page break loses
 its Leader only box, and "fill in" stays with a help paragraph (SH5-17). The same day BVJ asked for
-a way to add a part between parts without scrolling to the add bar: every card's header gained a
-"+" that opens a menu of the bar's parts and adds the chosen one right after that card ("Passage…"
-opens the bar's reference form and marks the card as where the passage goes). Nothing in this audit
-is open. The ghost prompts took section B's Design 2, an optional
+a way to add a part between parts without scrolling to the add bar. A "+" in every card's header
+was the first answer and BVJ sent it back the same day: it didn't say it added *after* that card,
+sitting at the top made that worse, and its "Passage…" opened the bar's form at the sheet's end,
+which felt like a glitch. Now the space between two parts shows a line with an "Add" pill when
+pointed at (BVJ's suggestion; it lies over the cards and takes no room), the pill's menu adds the
+chosen part right there, and "Passage…" opens the passage form under the part above. The pane is
+also renamed "Sheets" (it was "Sheet"). Nothing in this audit is open. The ghost prompts took section B's Design 2, an optional
 `prompt` field, chosen by Claude under that instruction and reversible; Lectio divina's movement
 lines became prompts too, under the rule that no field starts with text. The toolbar (SH5-6) is drawn
 below the focused part, so clicking into a part grows the card downward instead of moving the words
