@@ -5345,7 +5345,8 @@ apps want a sheet merged part by part before this is built.
 ### Order of work
 
 0. Move the Sheets code and give it its own CLAUDE.md (agreed).
-1. Separate the editor from the pane (no visible change).
+1. Separate the editor from the pane (no visible change; done 2026-11-08:
+   `sheets/sheet-editor.js`, which `sheet-pane.js` wraps).
 2. The editor on `/sheets`.
 3. Two tabs: the line, and the question on opening.
 4. The ways in (Part 2).

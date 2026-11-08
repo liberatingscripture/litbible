@@ -16,8 +16,8 @@
 // - the LIT text is lit-pane.js, the whole corpus in one scroll (3e);
 // - Footnotes is footnotes-view.js, the chapter's notes with the reader's
 //   verse marked (X11; 3e);
-// - Sheet is sheet-pane.js, the sheet editor (S1; 3f), showing the sheet the
-//   layout names for it, or the list of sheets;
+// - Sheet is sheet-pane.js, the sheet editor (S1; 3f; sheet-editor.js) in a
+//   pane, showing the sheet the layout names for it, or the list of sheets;
 // - Search is search-pane.js, the site's search with results that move the
 //   LIT pane (3m). It stands alone, and keeps nothing of a search;
 // - Book Intro is intro-pane.js, the introduction to the book the LIT pane is

@@ -265,7 +265,7 @@ test("no desk script draws a sheet's stored html without sheetHtmlForShow (BA66)
     const src = readFileSync(new URL(name, dir), "utf8");
     assert.doesNotMatch(src, raw, name);
   }
-  assert.match(readFileSync(new URL("sheet-pane.js", dir), "utf8"), /innerHTML = sheetHtmlForShow\(html\)/);
+  assert.match(readFileSync(new URL("sheet-editor.js", dir), "utf8"), /innerHTML = sheetHtmlForShow\(html\)/);
 });
 
 test("sheetHtmlForShow: strips the attack from a sheet in a newer format (BA66)", () => {

@@ -2,7 +2,7 @@
 //
 // The menu under a sheet card's gap "Add" pill (BVJ, 2026-11-08): the parts
 // the add bar offers, each added right after that card, so a long sheet needn't
-// be scrolled to its end. Taken out of sheet-pane.js's `createSheetPane`
+// be scrolled to its end. Taken out of the sheet editor (now sheet-editor.js)
 // (Audit 6, LG6-2), as kind-menu.js and title-menu.js were out of
 // desk-page.js's `start()`, so the next bug in it means reading this file, not
 // 1,600 lines of shared locals.

@@ -42,8 +42,19 @@ no room below it (SH5-6).
 Part of desk rule 18 (phases 3c to 3g, /desk); the rest of it, the panes
 and the layout, is in `src/scripts/desk/CLAUDE.md`.
 
-- **The Sheets pane is `sheet-pane.js`** (3f; the pane is "Sheets", BVJ 2026-11-08,
-  "Sheet" until then), the sheet editor, with its formatted text in `desk/sheets/sheet-text.js`
+- **The sheet editor is `sheet-editor.js`, and the Sheets pane is
+  `sheet-pane.js`, the editor in a pane** (3f; the pane is "Sheets", BVJ
+  2026-11-08, "Sheet" until then; split for S12, part 1, step 1, so another
+  page can hold the editor). **The editor knows nothing of panes**: its host
+  hands in which sheet it shows (`getSheet`, `setSheet`; the pane's are the
+  layout's `setPaneSheet`), an `idSuffix` for its element ids (the pane's id),
+  `showPassage`, and `onSheetChange`, and it returns `sheet`, `persist`,
+  `addPassage` and `newSheet` for the host to call. **What only a pane has
+  stays in `sheet-pane.js`**: the list of open panes behind `addTarget` and
+  `onAddTarget` ("Add to sheet" in the LIT pane's menus and the Search pane's
+  add buttons), and the title menu's `desk:sheet-new`, which names a pane and
+  calls its editor's `newSheet`. A new feature of the editor goes in
+  `sheet-editor.js`, never in a host. The editor's formatted text is in `desk/sheets/sheet-text.js`
   (a paste or a drop is read by `pastedSheetHtml`, which keeps what
   Google Docs, Word and web pages mean; BA68, BA71, BA73; how a client
   reads a paste isn't in the format)
@@ -75,7 +86,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `desk/sheets/insert-menu.js` (Audit 6, LG6-2; `openInsertMenu`, with
   `insertItems` and `insertMenuPlace` pure and tested), which takes the
   pill, the card's name, whether the sheet has a key terms box, and
-  `onPick`/`onClose`; what a pick does stays in `sheet-pane.js`. (A "+" in
+  `onPick`/`onClose`; what a pick does stays in `sheet-editor.js`. (A "+" in
   the card's header read as acting on that card, not the gap.) "Passage…" opens the passage form under the card
   (`openInlinePassage`), never the bar's at the sheet's end, which looked
   like a glitch; each passage it adds goes after the card and then after
@@ -272,7 +283,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   heading alone prints, a template's own included, as a cue
   (`printsOnPaper`; BVJ, 2026-11-08, SH6-3). **A new sheet is written
   with its first change**, not when its template is picked (SH6-7;
-  `draft`, `persistDraft` in `sheet-pane.js`); Print, Present and an add
+  `draft`, `persistDraft` in `sheet-editor.js`); Print, Present and an add
   from another pane or /search (`addTarget().ready`) write it first.
   The editor shows an empty part's prompt as its
   placeholder, and a part holding only its heading shows it under the
@@ -287,7 +298,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   `readingPart(sheet)` while the sheet has no passage and no other form
   is open, without focus or scrolling; × or Escape closes it until the
   sheet is opened again (`readingDismissed`). A new part
-  goes after the part last worked in (`insertIndex` in `sheet-pane.js`),
+  goes after the part last worked in (`insertIndex` in `sheet-editor.js`),
   but **a passage goes where the sheet says, not where the leader last
   clicked** (SH5-3): after the part last worked in only when that part
   is itself a passage, else after the sheet's last passage, else after
