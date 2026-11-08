@@ -41,6 +41,14 @@
 //   Study Desk file" (BVJ, 2026-11-06; "Import a shared file" until then). Shown like the reader's own, read only, with "Import into my
 //   notebook", which saves it as a new sheet of theirs. A participant share offers
 //   the participant copy only.
+// - **A shared sheet on a phone or tablet** (BVJ, 2026-11-08, Audit 6 NB6-8,
+//   from a mock): the one way the desk's code reaches a phone.
+//   sheet-share-gate.js imports this file there for a shared link alone and
+//   calls `showSharedOnPhone`, which never opens the notebook. The sheet is
+//   shown to read, with Present (no presenter view; taps step it), Print and
+//   Share… (the phone's share sheet, with the same link) in one row that
+//   scrolls with the page. Nothing that saves: no Import, Copy, Save as, or
+//   link to the desk, and no paper, code or answer key choices.
 
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../lib/desk-sheet-copy.mjs";
 import {
@@ -285,7 +293,7 @@ function openFileRow(root, store) {
   return row;
 }
 
-async function showShared(root, store, fragment) {
+async function showShared(root, store, fragment, { phone = false } = {}) {
   let opened;
   try {
     opened = await openShare(fragment, ctx());
@@ -298,7 +306,7 @@ async function showShared(root, store, fragment) {
     if (store) root.append(openFileRow(root, store));
     return;
   }
-  await drawSheet(root, { sheet: opened.sheet, store, shared: opened.scope });
+  await drawSheet(root, { sheet: opened.sheet, store, shared: opened.scope, phone, fragment });
 }
 
 async function showSheet(root, store, id, view = null) {
@@ -328,7 +336,7 @@ async function showSheet(root, store, id, view = null) {
  * of a sheet someone shared ("leader" or "participant"), which is shown read
  * only with "Import into my notebook"; absent for the reader's own.
  */
-async function drawSheet(root, { sheet, store, view = null, shared = null }) {
+async function drawSheet(root, { sheet, store, view = null, shared = null, phone = false, fragment = null }) {
   const id = sheet.id;
   const copies = shared === "participant" ? ["participant"] : COPIES;
   let copy = copies[0];
@@ -339,13 +347,14 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
 
   const bar = make("div", "sheets-page__bar");
   bar.setAttribute("role", "group");
-  bar.setAttribute("aria-label", "Version, paper, and printing");
+  bar.setAttribute("aria-label", phone ? "Version, presenting, printing, and sharing" : "Version, paper, and printing");
   const back = make("a", "sheets-page__back", "‹ My sheets");
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit on the Study Desk");
   edit.href = `${BASE}desk/?sheet=${encodeURIComponent(id)}`;
   const links = make("div", "sheets-page__links");
-  links.append(back);
+  // A phone has no sheets of its own to go back to, and no desk (NB6-8).
+  if (!phone) links.append(back);
   if (!shared) links.append(edit);
 
   const copyChoice = choices("sheet-copy", "Version", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
@@ -380,7 +389,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   keyBox.append(keyInput, document.createTextNode(" Add an answer key"));
   keyBox.title = "End the leader’s version with each passage’s blanks and their answers, to print or save";
   keyBox.hidden = copy !== "leader";
-  const hints = [describe(keyInput, "Ends the leader’s version with each passage’s blanks and their answers, to print or save."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
+  // A phone gets none of these choices, so none of their descriptions (SH6-11).
+  const hints = phone ? [] : [describe(keyInput, "Ends the leader’s version with each passage’s blanks and their answers, to print or save."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
   const present = button("Present");
@@ -393,23 +403,32 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   word.title = "Copy this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages";
   const status = make("span", "sheets-page__status");
   status.setAttribute("role", "status");
-  const share = button("Share…");
-  share.title = "Send this sheet to someone as a link or a file";
-  // Present is hidden and Share left out on a shared sheet, so theirs are not written (SH6-11).
+  const share = button("Share…", phone ? "desk-sheet__btn desk-sheet__btn--primary" : "desk-sheet__btn");
+  share.title = phone ? "Send this sheet’s link with your phone’s share sheet" : "Send this sheet to someone as a link or a file";
+  if (phone) print.classList.remove("desk-sheet__btn--primary");
+  // Present is hidden and Share left out on a shared sheet, so theirs are not
+  // written (SH6-11); a phone shows both, and has no Copy.
   hints.push(
-    ...(shared ? [] : [describe(present, "Shows this sheet to a room, full screen, one part at a time.")]),
-    describe(word, "Copies this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages."),
-    ...(shared ? [] : [describe(share, "Sends this sheet to someone as a link or a file.")]),
+    ...(shared && !phone ? [] : [describe(present, "Shows this sheet to a room, full screen, one part at a time.")]),
+    ...(phone ? [] : [describe(word, "Copies this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages.")]),
+    ...(shared && !phone ? [] : [describe(share, phone ? "Sends this sheet’s link with your phone’s share sheet." : "Sends this sheet to someone as a link or a file.")]),
   );
   // Save as (E37) follows the Version choice, as Print and Copy do.
   const save = createSaveMenu({ version: () => COPY_NAMES[copy], onChoose: (item) => saveAs(item) });
   // Presenting needs the presenter view's window to find the sheet, so a
   // shared one is copied into the desk first.
-  if (shared) present.hidden = true;
-  actions.append(present, print, word, save.el);
+  // A phone presents without the presenter view, so it needs no saved copy.
+  if (shared && !phone) present.hidden = true;
+  if (phone) actions.append(present, print, share);
+  else actions.append(present, print, word, save.el);
   if (!shared) actions.append(share);
   actions.append(status);
-  bar.append(links, copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
+  if (phone) {
+    root.classList.add("sheets-page--phone");
+    bar.append(...(copies.length > 1 ? [copyChoice] : []), actions, ...hints);
+  } else {
+    bar.append(links, copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
+  }
 
   const paperBox = make("div", "sheets-page__paper");
   // S2's notice. A shared sheet carries no comparison copies (desk-sheet-share),
@@ -419,8 +438,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   // The "what prints" notice, for the participant version.
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
-  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared)] : []), bar, checkBox, leaksBox, paperBox);
-  share.addEventListener("click", () => openShareDialog(sheet, share));
+  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
+  share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say) : openShareDialog(sheet, share)));
 
   let current = null;
   let seq = 0;
@@ -462,6 +481,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
       sheet,
       store,
       fullscreen,
+      touch: phone,
       onClose: () => {
         presenting = null;
         if (!root.contains(document.activeElement)) present.focus();
@@ -613,13 +633,42 @@ function drawLeaks(box, leaks) {
   box.replaceChildren(head, list);
 }
 
-/** "Shared with you", with "Import into my notebook". */
-function sharedBanner(root, sheet, store, scope) {
+/**
+ * On a phone, Share… hands the same link to the phone's share sheet (NB6-8),
+ * so a participant share stays one. Where there is no share sheet, it copies
+ * the link instead.
+ */
+async function sharePhone(sheet, fragment, say) {
+  const url = `${location.origin}${BASE}sheets/#${fragment}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: sheetName(sheet), url });
+      return;
+    } catch (err) {
+      if (err?.name === "AbortError") return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    say("Link copied. Paste it into a message or an email.");
+  } catch (_) {
+    say("Your browser didn’t allow sharing or copying. Forward the message that held this link instead.");
+  }
+}
+
+/** "Shared with you", with "Import into my notebook" (on a computer). */
+function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
   const box = make("div", "sheets-page__shared");
   box.setAttribute("role", "region");
   box.setAttribute("aria-label", "A shared sheet");
   const p = make("p");
   const strong = make("strong", null, "Shared with you. ");
+  if (phone) {
+    // Nothing on a phone saves a sheet (NB6-8): the banner only says where to.
+    p.append(strong, document.createTextNode("To keep a copy or change it, open this link on a computer."));
+    box.append(p);
+    return box;
+  }
   p.append(
     strong,
     document.createTextNode(
@@ -681,7 +730,7 @@ function openShareDialog(sheet, opener) {
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link is long because the whole sheet is in it: litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
+    "The link is long because the whole sheet is in it: litbible.net never sees or stores it. Anyone who has the link can open it (on a phone to read, present, or print it, or on a computer to keep it too), and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button(EXPORT_LABEL);
@@ -795,4 +844,16 @@ async function start() {
   else await showList(root, store);
 }
 
-start();
+/**
+ * A shared sheet on a phone or tablet (NB6-8): read from the link, shown
+ * without the notebook, which is never opened. Called by sheet-share-gate.js.
+ */
+export async function showSharedOnPhone(root, fragment) {
+  addDeskStyle();
+  root.classList.add("sheets-page__root");
+  await showShared(root, null, fragment, { phone: true });
+}
+
+// desk-gate.js loads this file only with the desk on; a phone imports it for
+// showSharedOnPhone alone.
+if (document.documentElement.dataset.desk === "on") start();

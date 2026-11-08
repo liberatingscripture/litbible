@@ -1059,11 +1059,12 @@ Not confirmed live (no browser): the forced-colors finding and the screen-reader
 **Fix** "The “Open in Study Desk” button". Also stale: the comment at `desk-page.js:1209`.
 **Confidence** High.
 
-#### NB6-8 · Low · copy · NEW · NO CHANGE (BVJ, 2026-11-08)
+#### NB6-8 · Low · copy · NEW · NO CHANGE to the wording; a shared sheet now opens on a phone (BVJ, 2026-11-08)
 **Where** `src/pages/notebook.astro:32`, `src/pages/desk.astro:48`, `src/pages/sheets.astro:72`.
 **What happens** The desk-off message says the preview "isn't switched on in this browser". On a phone or tablet (which the site decided never gets the desk, memory: website study tools are desktop-only) it cannot be switched on, and the reader is sent here by the help page and by shared sheet links. The message suggests a setting that does not exist for them and points to nothing (the apps). Owner call on wording; see Questions.
 **Confidence** High on the facts; the copy is the owner's.
 **Decision (BVJ, 2026-11-08)** A phone or tablet has no reason to reach a desk page, so the wording stays. The one exception is a shared sheet's link, where anything leading somewhere a phone can't go must be hidden from sighted and screen-reader users alike. Checked: a phone opening a shared link gets only `sheet-share-gate.js`'s "Sheets open on a computer" line and "Copy the link"; the header's Study Desk link and every desk control render only under `html[data-desk]`, which a phone never gets. Nothing to hide today; a phone can't view the shared sheet itself.
+**Then (BVJ, 2026-11-08, from a mock, layout A)** a phone or tablet opening a shared link sees the sheet: the Version choice (on a leader share), then Present, Print and Share… in one row that scrolls with the page, and a banner saying a computer is where to keep or change it. Present has no presenter view; the strip is a bar along the bottom, and a tap on the left third goes back while one anywhere else reveals the next blank or goes on. Share… hands the same link to the phone's share sheet. Nothing saves (no Import, Copy, Save as or desk link), and the notebook is never opened. `sheet-share-gate.js` imports `sheet-page.js` dynamically for this alone.
 
 #### NB6-9 · Nit · longevity · NEW · FIXED (2026-11-08)
 **Where** `src/styles/desk.css:2758-2767` (`.desk-home-card__options`, `__option`).

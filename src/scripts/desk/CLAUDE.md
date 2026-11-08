@@ -1825,9 +1825,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        Leader only parts, answers, planned minutes, prompts, and parts of
        unknown types), as
        deflate-raw JSON in base64url after `#share1.`, or the same data on
-       the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
-       last data line, ignores whitespace folded into it, and throws
-       "damaged" for one it can't read). The dialog's note and the "Link
+       the last line of a `.lit-sheet.md` file (`fragmentInFile`). The dialog's note and the "Link
        copied" status both say the link is long because the sheet is in it
        (E58). A short link would need a hosted store, M14, deferred to
        signed-in readers. The Share dialog's button for that
@@ -1835,8 +1833,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
        `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;
        the reader-facing name of a `.lit-sheet.md` file is "a Study Desk file
-       (.md)" wherever it is mentioned. The dialog's note also says a PDF comes
-       from Print ("Save as PDF"). Opening one decompresses with a
+       (.md)" wherever it is mentioned. Opening one decompresses with a
        ceiling, rebuilds the record with fresh ids, drops the comparison
        copies again and refuses it unless `validateRecord` passes. **The
        fragment must never reach a server or the analytics beacon**: an
@@ -1850,10 +1847,12 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        timing names. Keep `SHARE_PREFIX` and the inline
        script in step.
      - **Where the desk doesn't run**, `src/scripts/sheet-share-gate.js`
-       (loaded by /sheets/ for everyone, small) says what to do with a
-       shared link: on a phone or tablet, copy the link to send to a
-       computer; on a computer without the preview, a link that switches it
-       on (`?desk=on#share1.…`, a new page, so the fragment is taken again).
+       (loaded by /sheets/ for everyone, small) handles a shared link. **On a
+       phone or tablet it shows the sheet** (NB6-8): a dynamic import of
+       `sheet-page.js`'s `showSharedOnPhone`, the one way desk code reaches a
+       phone, with no notebook opened and nothing that saves (Present with
+       taps and no presenter view, Print, Share…); a test holds the gate. On a
+       computer without the preview, a link turns it on (`?desk=on#share1.…`).
        A shared sheet shows read only until "Import into my notebook", which saves
        it as a new sheet (`copyOfShared`) and turns the page into that
        sheet's own address. No storage key is added.
