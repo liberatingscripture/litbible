@@ -1874,8 +1874,14 @@ against `dist/` is a later item.
        heading (a `data-hint` `::after`, with `aria-description`) until the
        leader types there or a passage follows it; it never depends on whether
        the sheet has a passage (SH5-4). **Template text never mentions the
-       editor's tools** (BA70; the test checks), so "Add the passage with
-       + Passage…" is the reading part's prompt, never its text. A new part
+       editor's tools** (BA70; the test checks), so "Type the reference in
+       the form below…" is the reading part's prompt, never its text. **The
+       reading part's passage form is open from the start** (BVJ, 2026-11-08:
+       the part "should already act as if the user has clicked the add
+       passage on it"): `draw()` opens `openInlinePassage` under
+       `readingPart(sheet)` while the sheet has no passage and no other form
+       is open, without focus or scrolling; × or Escape closes it until the
+       sheet is opened again (`readingDismissed`). A new part
        goes after the part last worked in (`insertIndex` in `sheet-pane.js`),
        but **a passage goes where the sheet says, not where the leader last
        clicked** (SH5-3): after the part last worked in only when that part

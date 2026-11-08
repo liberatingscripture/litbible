@@ -1913,6 +1913,16 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   text and as its description for a screen reader (`ADD_TIPS`), and For
   discussion's is "Gather your question notes on these passages into a
   section."
+- **E61, wish: a template's Reading part should already offer the passage
+  form.** BVJ (2026-11-08): the part "should already act as if the user has
+  clicked the add passage on it." Its prompt sent the leader to the add bar
+  or the LIT pane. Status: **done 2026-11-08**: on a sheet with no passage,
+  the passage form (the one the gap's "Passage…" opens) is open under the
+  reading part when the sheet is drawn, without taking focus or scrolling;
+  a passage typed there lands after the part, as BA69 promised, and the
+  form stays for the next. × or Escape closes it until the sheet is opened
+  again. The prompt now reads "Type the reference in the form below, or add
+  the passage from the LIT pane’s verse numbers."
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

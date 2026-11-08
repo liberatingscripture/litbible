@@ -132,7 +132,7 @@ test("no template's text tells the reader about the editor, since it prints (BA7
 test("the reading part's prompt says how to add the passage (BA70, SH5-4)", () => {
   for (const id of ["bible-study", "sermon", "class"]) {
     const reading = readingPart({ modules: templateModules(id) });
-    assert.match(reading.prompt, /\+ Passage/, id);
+    assert.match(reading.prompt, /form below/, id); // the form is open under the part (E61)
     assert.match(reading.html, /^<h2>[^<]+<\/h2>$/, id);
   }
 });

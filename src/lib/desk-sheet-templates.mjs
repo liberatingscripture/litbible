@@ -54,8 +54,12 @@ const part = (heading, prompt, extra = {}) => makeModule("text", { html: `<h2>${
 const question = (prompt, answerPrompt) =>
   makeModule("question", { html: "", answer: "", lines: 3, prompt, ...(answerPrompt ? { answerPrompt } : {}) });
 
-/** The prompt of every template's reading part, until it holds a passage (BA70). */
-const READING_PROMPT = "Add the passage with + Passage, or from the LIT pane’s verse numbers.";
+/**
+ * The prompt of every template's reading part, until a passage follows it
+ * (BA70). The passage form is already open under the part on a sheet with no
+ * passage (BVJ, 2026-11-08), so the prompt points at it.
+ */
+const READING_PROMPT = "Type the reference in the form below, or add the passage from the LIT pane’s verse numbers.";
 
 const BUILDERS = {
   "bible-study": () => [

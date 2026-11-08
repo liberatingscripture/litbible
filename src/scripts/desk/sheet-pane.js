@@ -63,7 +63,7 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
   passageFromOffsets,
@@ -267,6 +267,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   // goes (moved on past each one added, so several land in order), and `el`
   // the form, put back on the card whenever the card is drawn again.
   let insertForm = null;
+  // The reading part whose form, opened by itself, the leader closed with ×
+  // or Escape on this sheet, so it stays closed until the sheet is opened again.
+  let readingDismissed = null;
   let destroyed = false;
   let seq = 0; // bumped when the pane switches between the list and a sheet
   const now = () => new Date().toISOString();
@@ -667,6 +670,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     targetChanged();
     lastModule = null;
     closeInsertForm(false);
+    readingDismissed = null;
     readOnly = !canEdit(record);
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
@@ -817,6 +821,16 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         box.removeAttribute("aria-description");
       }
     });
+    // A template's reading part acts as if "+ Passage" were already pressed
+    // on it (BVJ, 2026-11-08): while the sheet has no passage, the passage
+    // form is open under it, without taking focus or scrolling. It stays once
+    // the first passage is added, for the next, as the pill's form does, and
+    // × or Escape closes it until the sheet is opened again.
+    if (!readOnly && !insertForm) {
+      const reading = readingPart(sheet);
+      const card = reading && readingDismissed !== reading.id ? cards.get(reading.id) : null;
+      if (card) openInlinePassage(reading, card.name, { focus: false, scroll: false, auto: true });
+    }
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
@@ -1258,7 +1272,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * one just added, so several land in order. One such form at a time; its ×
    * or Escape closes it and returns focus to the card's pill.
    */
-  function openInlinePassage(m, name) {
+  function openInlinePassage(m, name, { focus = true, scroll = true, auto = false } = {}) {
     closeInsertForm(false);
     const card = cards.get(m.id)?.el;
     if (!card) return;
@@ -1280,17 +1294,18 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       e.stopPropagation();
       closeInsertForm(true);
     });
-    insertForm = { after: m.id, target: { after: m.id }, el };
+    insertForm = { after: m.id, target: { after: m.id }, el, auto };
     const zone = card.querySelector(":scope > .desk-sheet__after");
     if (zone) zone.before(el);
     else card.append(el);
-    openPassageForm(form, insertForm.target);
-    el.scrollIntoView({ block: "nearest" });
+    openPassageForm(form, insertForm.target, { focus });
+    if (scroll) el.scrollIntoView({ block: "nearest" });
   }
 
   function closeInsertForm(refocus) {
     if (!insertForm) return;
-    const { after, el } = insertForm;
+    const { after, el, auto } = insertForm;
+    if (auto && refocus) readingDismissed = after;
     insertForm = null;
     el.remove();
     if (refocus) cards.get(after)?.el.querySelector(".desk-sheet__after-btn")?.focus();
@@ -1386,7 +1401,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * `target` ({ after: id }) is where a card's form puts the passages it adds;
    * the bar's form has none and adds after the part last worked in.
    */
-  async function openPassageForm(form, target = null) {
+  async function openPassageForm(form, target = null, { focus = true } = {}) {
     form.replaceChildren();
     const line = make("form", "desk-sheet__ref");
     const input = make("input");
@@ -1430,7 +1445,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       if (result) input.value = "";
     });
     form.append(line, problem, note);
-    input.focus(); // the field takes focus as the form opens (SH5-11)
+    if (focus) input.focus(); // the field takes focus as the form opens (SH5-11), unless it opened by itself
 
     // From the notebook: its notes, highlights and bookmarks, newest first.
     const fromBook = make("div", "desk-sheet__from");
