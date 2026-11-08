@@ -7334,6 +7334,23 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   font-weight: 600;
 }
 
+/* The reader's own templates (Audit 5, D #1): a heading over their rows in
+   the chooser, and their own list under My sheets. */
+.desk-sheet__own-head {
+  margin: 4px 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-sheet__own {
+  margin-top: 20px;
+}
+
+.desk-sheet__own .desk-sheet__list-title {
+  margin-bottom: 8px;
+}
+
 /* ── What a sheet knows about the LIT (3h; sheet-lit.js) ─────────────── */
 
 /* A quiet warning: amber-brown on the light surface, a light amber on the dark

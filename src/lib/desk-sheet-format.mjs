@@ -1026,6 +1026,7 @@ export function validateSheet(r) {
   need(typeof r?.subtitle === "string" && chars(r.subtitle) <= SHEET_LIMITS.subtitle, `subtitle is not text of at most ${SHEET_LIMITS.subtitle} characters`);
   need(nonEmpty(r?.template), "template is empty");
   need(r?.commercial == null || typeof r.commercial === "boolean", "commercial is not true or false");
+  need(r?.isTemplate == null || typeof r.isTemplate === "boolean", "isTemplate is not true or false");
 
   if (!Array.isArray(r?.modules)) {
     problems.push("modules is not a list");

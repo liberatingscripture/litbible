@@ -28,6 +28,9 @@ import {
   addModule,
   createSheet,
   duplicateSheet,
+  isOwnTemplate,
+  sheetFromTemplate,
+  templateFromSheet,
   makeModule,
   moveModule,
   planSheetChange,
@@ -1539,4 +1542,42 @@ test("duplicateSheet: an id and a source of ids may be given", () => {
   const dup = duplicateSheet(sampleSheet(), { ...ctx, now: T2, id: "fixed-id", newId: () => `m${++n}` });
   assert.equal(dup.id, "fixed-id");
   assert.deepEqual(dup.modules.map((m) => m.id), ["m1", "m2"]);
+});
+
+/* ── The reader's own templates (Audit 5, section D, #1) ─────────────── */
+
+test("templateFromSheet: the parts but the passages, fresh ids, no subtitle, marked as a template", () => {
+  const src = { ...sampleSheet(), template: "bible-study" };
+  const before = JSON.parse(JSON.stringify(src));
+  const t = templateFromSheet(src, { ...ctx, now: T2 });
+  assert.equal(t.isTemplate, true);
+  assert.ok(isOwnTemplate(t));
+  assert.ok(!isOwnTemplate(src));
+  assert.notEqual(t.id, src.id);
+  assert.equal(t.title, "Romans 8 study");
+  assert.equal(t.subtitle, "");
+  assert.equal(t.template, "bible-study");
+  assert.deepEqual(t.modules.map((m) => m.type), ["text"]);
+  assert.notEqual(t.modules[0].id, src.modules[0].id);
+  assert.equal(t.modules[0].html, "<p>Welcome</p>");
+  assert.deepEqual(t.extra, { kept: true });
+  assert.deepEqual(validateRecord(t), []);
+  assert.deepEqual(src, before);
+});
+
+test("sheetFromTemplate: a sheet again, with fresh ids, its title, and no isTemplate", () => {
+  const t = templateFromSheet(sampleSheet(), { ...ctx, now: T2 });
+  const s = sheetFromTemplate(t, { ...ctx, now: T1 });
+  assert.equal(s.isTemplate, undefined);
+  assert.ok(!isOwnTemplate(s));
+  assert.notEqual(s.id, t.id);
+  assert.equal(s.title, t.title);
+  assert.equal(s.created, T1);
+  assert.notEqual(s.modules[0].id, t.modules[0].id);
+  assert.deepEqual(validateRecord(s), []);
+});
+
+test("isTemplate must be true or false", () => {
+  const t = { ...sampleSheet(), isTemplate: "yes" };
+  assert.ok(validateRecord(t).some((p) => /isTemplate/.test(p)));
 });
