@@ -319,7 +319,9 @@ traditional word by design, and the leader chooses whether it is on the sheet.
   (an original and an imported copy) can't be told apart there. The subtitle or the changed date,
   as the Sheet pane's list shows them, would do.
 - The template chooser describes each template in one line; a short list of its parts would set
-  expectations better ("Opening · Reading · 3 questions · Key terms · Closing").
+  expectations better ("Opening · Reading · 3 questions · Key terms · Closing"). **Added, then
+  dropped (BVJ, 2026-11-08):** to a new reader the list read as noise, almost a mistake, since the
+  description already says what the sheet holds in words. The one line stays.
 - "Fill in" is the verb for undoing a blank in every label and announcement; "unblank" is what a
   leader will look for first. Keep "fill in" if BVJ prefers it, but add it to the help page.
   *Kept (BVJ, 2026-11-08):* "fill in" stays, and /desk/help gains a Blanks paragraph that says how

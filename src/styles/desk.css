@@ -6975,6 +6975,11 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   gap: 2px 6px;
   margin-bottom: 4px;
   font-size: 0.8125rem;
+  cursor: grab; /* the whole header drags the part (BVJ, 2026-11-08) */
+}
+
+.desk-sheet__module-head .desk-sheet__module-tools {
+  cursor: auto;
 }
 
 .desk-sheet__grip {
@@ -7077,11 +7082,15 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   transition: opacity 0.12s;
 }
 
+/* Shown under the pointer, while its menu is open, or on keyboard focus:
+   `:focus-visible`, not `:focus-within`, because the passage form's × and
+   the menu's Escape hand focus back to the pill, and with a mouse that left
+   it showing until the next click elsewhere (BVJ, 2026-11-08). */
 .desk-sheet__after:hover::before,
-.desk-sheet__after:focus-within::before,
+.desk-sheet__after:has(:focus-visible)::before,
 .desk-sheet__after:has([aria-expanded="true"])::before,
 .desk-sheet__after:hover .desk-sheet__after-btn,
-.desk-sheet__after:focus-within .desk-sheet__after-btn,
+.desk-sheet__after-btn:focus-visible,
 .desk-sheet__after-btn[aria-expanded="true"] {
   opacity: 1;
 }

@@ -18,8 +18,10 @@ const ctx = { client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d" };
 test("the templates are the five, in order", () => {
   assert.deepEqual(TEMPLATES.map((t) => t.id), ["bible-study", "sermon", "class", "lectio-divina", "blank"]);
   for (const t of TEMPLATES) {
-    assert.ok(t.name && t.description && t.parts, t.id);
-    assert.doesNotMatch(`${t.name} ${t.description} ${t.parts}`, /—|"|'/, `${t.id} copy uses an em dash or straight quote`);
+    assert.ok(t.name && t.description, t.id);
+    // The parts line under the description was dropped (BVJ, 2026-11-08).
+    assert.equal(t.parts, undefined, t.id);
+    assert.doesNotMatch(`${t.name} ${t.description}`, /—|"|'/, `${t.id} copy uses an em dash or straight quote`);
   }
 });
 
@@ -104,15 +106,6 @@ test("the sermon template's key terms box is last (SH5-13)", () => {
   const mods = templateModules("sermon");
   assert.equal(mods.at(-1).type, "keyTerms");
   assert.equal(mods.filter((m) => m.type === "keyTerms").length, 1);
-});
-
-test("each template's parts line matches what it holds", () => {
-  for (const { id, parts } of TEMPLATES) {
-    const mods = templateModules(id);
-    const questions = mods.filter((m) => m.type === "question").length;
-    if (questions) assert.match(parts, new RegExp(`${questions} questions`), id);
-    assert.equal(/Key terms/.test(parts), mods.some((m) => m.type === "keyTerms"), id);
-  }
 });
 
 test("an unknown template throws", () => {

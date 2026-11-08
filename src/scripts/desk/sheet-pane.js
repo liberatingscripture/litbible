@@ -41,7 +41,8 @@
 //   after the last passage, or on a sheet with none, after the template's
 //   reading part, so it lands under "Reading", not after "Closing" (BA69),
 //   else at the end.
-// - **Drag into order** by a module's grip, or Move up and Move down.
+// - **Drag into order** by a module's header (BVJ, 2026-11-08; the grip
+//   alone until then), or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
 //   another tab, an undo) redraws only the modules it touched, and never the
@@ -141,6 +142,18 @@ function describe(control, text) {
 }
 
 const json = (x) => JSON.stringify(x);
+
+// What each of the add bar's buttons adds, in a short line (BVJ, 2026-11-08:
+// only For discussion had a tooltip, and that one ran too long to show
+// whole): the button's hover text, and its description for a screen reader.
+const ADD_TIPS = Object.freeze({
+  passage: "Add a passage from the LIT by its reference, or from your notebook",
+  text: "Add a part for your own words",
+  question: "Add a question, with lines to write an answer on",
+  space: "Add blank lines to write on",
+  pageBreak: "Start a new page here when printed",
+  keyTerms: "Add a box listing the key terms in the sheet’s passages, filled in for you",
+});
 
 const dateWords = (iso) => {
   const d = new Date(iso);
@@ -547,8 +560,6 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const li = make("li");
       const b = button("", "desk-sheet__from-item desk-sheet__choice");
       b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
-      // What the sheet starts with, as a list of its parts (SH5-17).
-      if (t.parts) b.append(make("span", "desk-sheet__from-words", t.parts));
       b.addEventListener("click", () => newSheet(t.id));
       li.append(b);
       ul.append(li);
@@ -810,7 +821,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
       keyTermsButton.disabled = has;
-      keyTermsButton.title = has ? "A sheet has one key terms box" : "A box listing the key terms in the sheet’s passages, filled in for you";
+      keyTermsButton.title = has ? "A sheet has one key terms box, and this one has it" : ADD_TIPS.keyTerms;
       if (keyTermsHint) keyTermsHint.textContent = has ? "A sheet has one key terms box, and this one has it." : "A box listing the key terms in the sheet’s passages, filled in for you.";
       // The reason, for the eye too (SH5-17); hidden from a screen reader,
       // which hears it in the description above.
@@ -934,7 +945,16 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     else card.append(make("p", "desk-sheet__status", "This part was made by a newer version of the LIT. It is kept as it is; reload the page to see it."));
 
     if (!readOnly) {
-      grip.addEventListener("pointerdown", () => { card.draggable = true; });
+      // The whole header is the handle (BVJ, 2026-11-08), not the grip alone;
+      // its buttons and the Leader only box keep their own job. A press that
+      // doesn't become a drag ends with the card undraggable again, so a later
+      // drag across the part's text never carries the card off (pointerup
+      // doesn't fire once a drag starts; dragend covers that).
+      head.addEventListener("pointerdown", (e) => {
+        if (e.target.closest("button, input, label, a")) return;
+        card.draggable = true;
+        document.addEventListener("pointerup", () => { card.draggable = false; }, { once: true });
+      });
       card.addEventListener("dragend", () => { card.draggable = false; });
       // The gap under the card (BVJ, 2026-11-08): a zone over the space to the
       // next card, where a line with an "Add" pill appears under the pointer or
@@ -1283,8 +1303,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     row.setAttribute("aria-label", "Add to the sheet");
     const form = make("div", "desk-sheet__passage-form");
     form.hidden = true;
+    const hints = [];
     const add = (type, label) => {
       const b = button(`+ ${label}`);
+      b.title = ADD_TIPS[type];
+      // The key terms box's description changes with the sheet (keyTermsHint).
+      if (type !== "keyTerms") hints.push(describe(b, `${ADD_TIPS[type]}.`));
       b.addEventListener("click", () => {
         if (type === "passage") {
           form.hidden = !form.hidden;
@@ -1306,7 +1330,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     // N6: the notebook's notes marked as questions, on this sheet's passages,
     // in one go (one change, so one Ctrl+Z takes them all back).
     const discuss = button("+ For discussion");
-    discuss.title = "Gather your notes with the Question marker, on this sheet’s passages, into a section";
+    discuss.title = "Gather your question notes on these passages into a section";
     const discussHint = describe(discuss, "Gathers your notes with the Question marker, on this sheet’s passages, into a section.");
     const discussNote = make("p", "desk-sheet__empty");
     discussNote.hidden = true;
@@ -1353,7 +1377,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     keyTermsButton = row.lastChild;
     keyTermsHint = describe(keyTermsButton, "A box listing the key terms in the sheet’s passages, filled in for you.");
     form.id = `deskSheetPassage-${paneId}`;
-    bar.append(row, discussNote, form, discussHint, keyTermsHint);
+    bar.append(row, discussNote, form, ...hints, discussHint, keyTermsHint);
     return bar;
   }
 
@@ -1517,7 +1541,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   window.addEventListener("pageshow", onVisible);
   window.addEventListener("pagehide", onPagehide);
 
+  // The first view, a tick later. A request that came first keeps the screen:
+  // the title menu's "New sheet…" adds the pane and sends `desk:sheet-new` in
+  // the same tick, whose showList({ chooser: true }) this would otherwise
+  // supersede, leaving the list with its templates shut (E59, 2026-11-08).
   queueMicrotask(() => {
+    if (seq) return;
     const id = getSheet();
     if (id) openSheet(id);
     else showList();

@@ -11,38 +11,35 @@
 
 import { makeModule } from "./desk-sheets.mjs";
 
-/** The templates, in the order the chooser lists them. `parts` is the line
- * under the description that names what the sheet starts with (SH5-17). */
+/** The templates, in the order the chooser lists them: a name and one line
+ * saying what the sheet is for. A second line listing the parts ("Opening ·
+ * Reading · 3 questions…") was tried (SH5-17) and dropped (BVJ, 2026-11-08):
+ * to a new reader it read as noise, almost a mistake. */
 export const TEMPLATES = Object.freeze([
   Object.freeze({
     id: "bible-study",
     name: "Bible study",
     description: "An opening, the reading, questions to talk over, the key terms, and a closing.",
-    parts: "Opening · Reading · 3 questions · Key terms · Closing",
   }),
   Object.freeze({
     id: "sermon",
     name: "Sermon preparation",
     description: "Room for the text, first notes, context, an outline, and a word for the congregation.",
-    parts: "The text · First reading · Context · The good news here · Outline · For the congregation · Key terms",
   }),
   Object.freeze({
     id: "class",
     name: "Class session",
     description: "Goals, the reading, background for the leader, questions with answers, and what comes next.",
-    parts: "Goals · Reading · Background · 2 questions · Key terms · Next time",
   }),
   Object.freeze({
     id: "lectio-divina",
     name: "Lectio divina",
     description: "The four movements of a contemplative reading: read, reflect, pray, and rest.",
-    parts: "Read · Reflect · Pray · Rest, with space to write",
   }),
   Object.freeze({
     id: "blank",
     name: "Blank canvas",
     description: "One empty page with the full set of formatting, for a document of your own.",
-    parts: "One empty part",
   }),
 ]);
 
