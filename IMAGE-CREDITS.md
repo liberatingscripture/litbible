@@ -33,15 +33,12 @@ Each file name ends in its Pixabay id.
 | `schmidsi-holy-spirit-1412527.svg` | God always looks like Jesus | [Pixabay 1412527](https://pixabay.com/vectors/holy-spirit-1412527/) | Schmidsi |
 | `gdj-tree-7989436.svg` | Belovedness and belonging | [Pixabay 7989436](https://pixabay.com/vectors/tree-7989436/) | GDJ |
 
-The six PNG icons in `public/images/` (`accessibility`, `belonging`,
-`equity`, `faithfulness`, `gentleness`, `trauma-informed-care`) are the
-same six designs, which these SVGs replaced in February 2026. Nothing on
-the site uses them now.
 
 ## From Scopio (photographers not named in the files)
 
 Each carries Scopio's metadata (contact photographers@scop.io), but not the
-photographer's name or the photo's page.
+photographer's name or the photo's page. They were downloaded through a
+friend's Scopio account (BVJ, 2026-11-08).
 
 | File (`public/images/`) | What it shows | Where it is used |
 |---|---|---|
