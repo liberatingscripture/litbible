@@ -173,21 +173,98 @@ const dateWords = (iso) => {
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 };
 
+/**
+ * The list of templates New sheet opens in place (M9). Hidden until asked
+ * for; the first choice takes focus when it opens, and Cancel or Escape
+ * closes it and puts focus back on New sheet (`opener`). `mine` is the
+ * reader's own templates, offered after the built-in ones, and `onPick` is
+ * handed a built-in template's id or one of those records. /sheets/ shows it
+ * too, under its own "New sheet…" (S12, part 1, step 2).
+ */
+export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
+  const box = make("div", "desk-sheet__passage-form desk-sheet__templates");
+  box.id = `deskSheetTemplates-${idSuffix}`;
+  box.hidden = true;
+  box.setAttribute("role", "group");
+  box.setAttribute("aria-label", "Start a sheet from");
+  const ul = make("ul", "desk-sheet__from-list");
+  for (const t of TEMPLATES) {
+    const li = make("li");
+    const b = button("", "desk-sheet__from-item desk-sheet__choice");
+    b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
+    b.addEventListener("click", () => onPick(t.id));
+    li.append(b);
+    ul.append(li);
+  }
+  // The reader's own, after the built-in seven, under a heading of their own.
+  let own = null;
+  if (mine.length) {
+    own = make("div", "desk-sheet__own-templates");
+    const h = make("p", "desk-sheet__own-head", "Your templates");
+    h.id = `deskSheetOwnHead-${idSuffix}`;
+    const oul = make("ul", "desk-sheet__from-list");
+    oul.setAttribute("aria-labelledby", h.id);
+    for (const t of mine) {
+      const li = make("li");
+      const b = button("", "desk-sheet__from-item desk-sheet__choice");
+      const parts = t.modules?.length ?? 0;
+      b.append(
+        make("span", "desk-sheet__choice-name", sheetName(t)),
+        make("span", "desk-sheet__from-words", `${parts} ${parts === 1 ? "part" : "parts"}${t.modified ? `, changed ${dateWords(t.modified)}` : ""}`),
+      );
+      if (!canEdit(t)) b.disabled = true;
+      b.addEventListener("click", () => onPick(t));
+      li.append(b);
+      oul.append(li);
+    }
+    own.append(h, oul);
+  }
+  const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
+  const close = () => {
+    box.hidden = true;
+    opener.setAttribute("aria-expanded", "false");
+    opener.focus();
+  };
+  cancel.addEventListener("click", close);
+  box.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    e.preventDefault();
+    e.stopPropagation();
+    close();
+  });
+  box.append(ul, ...(own ? [own] : []), cancel);
+  box.toggle = () => {
+    if (box.hidden) {
+      box.hidden = false;
+      opener.setAttribute("aria-expanded", "true");
+      box.querySelector("button")?.focus();
+    } else {
+      close();
+    }
+  };
+  return box;
+}
+
 /* ── The editor ───────────────────────────────────────────────────────── */
 
 /**
  * @param {{ store: object | null, ctx: () => { client: string, contentVersion: string },
  *   idSuffix: string, getSheet: () => string | null, setSheet: (id: string | null) => void,
- *   showPassage?: ((passage: object) => void) | null, onSheetChange?: () => void }} options
+ *   showPassage?: ((passage: object) => void) | null, onSheetChange?: () => void,
+ *   onList?: (() => void) | null, onDone?: ((id: string) => void) | null }} options
  *   `getSheet` and `setSheet` are which sheet the editor shows, kept by the host;
  *   `idSuffix` keeps its element ids apart from another editor's on the page;
  *   `showPassage` moves the LIT pane to a passage, where there is one;
- *   `onSheetChange` is called whenever the sheet shown, or its record, changes.
+ *   `onSheetChange` is called whenever the sheet shown, or its record, changes;
+ *   `onList` is a host's own list of sheets, shown instead of the editor's
+ *   (/sheets/); `onDone` is a host's own view of the sheet, which a Done
+ *   button returns to once the sheet is saved, in place of "Present…" and
+ *   "Print or share…" (/sheets/?id=).
  * @returns {{ el: HTMLElement, sheet: () => object | null, persist: () => void,
  *   contentVersion: () => string, addPassage: (fields: object, target?: object | null) => Promise<false | { message: string, again: boolean }>,
- *   newSheet: () => Promise<void>, destroy: () => void }}
+ *   newSheet: () => Promise<void>, startFrom: (template: string | object) => void, destroy: () => void }}
  */
-export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {} }) {
+export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null }) {
   const el = make("div", "desk-sheet");
   const live = make("p", "sr-only");
   live.setAttribute("aria-live", "polite");
@@ -208,6 +285,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       contentVersion: () => ctx().contentVersion,
       addPassage: async () => false,
       async newSheet() {},
+      startFrom() {},
       destroy() {},
     };
   }
@@ -349,8 +427,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       if (n !== seq || destroyed) return false;
       if (made.gone) {
         // Deleted here or in another tab.
-        setSheet(null);
-        showList();
+        toList();
         return false;
       }
       if (made.refused) {
@@ -425,8 +502,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (n !== seq || destroyed || !sheet) return;
     if (record?.kind !== "sheet") {
       // Deleted here or in another tab.
-      setSheet(null);
-      showList();
+      toList();
       return;
     }
     if (json(record) === json(sheet)) return;
@@ -436,6 +512,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   }
 
   // ---- the list of sheets ----
+
+  /** Back to the sheets: the host's list where it has one, else the editor's. */
+  function toList(options) {
+    setSheet(null);
+    if (onList) onList();
+    else showList(options);
+  }
 
   async function showList({ focus = null, chooser: openChooser = false } = {}) {
     const n = ++seq;
@@ -472,7 +555,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const fresh = button("New sheet", "desk-sheet__btn desk-sheet__btn--primary");
     fresh.setAttribute("aria-expanded", "false");
     fresh.dataset.focusKey = "new-sheet";
-    const chooser = templateChooser(fresh, mine);
+    const chooser = templateChooser({ opener: fresh, mine, idSuffix, onPick: startFrom });
     fresh.setAttribute("aria-controls", chooser.id);
     fresh.addEventListener("click", () => chooser.toggle());
     head.append(h, fresh);
@@ -539,79 +622,18 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (openChooser && chooser.hidden) chooser.toggle();
   }
 
-  /**
-   * The list of templates New sheet opens in place (M9). Hidden until asked
-   * for; the first choice takes focus when it opens, and Cancel or Escape
-   * closes it and puts focus back on New sheet.
-   */
-  function templateChooser(opener, mine = []) {
-    const box = make("div", "desk-sheet__passage-form desk-sheet__templates");
-    box.id = `deskSheetTemplates-${idSuffix}`;
-    box.hidden = true;
-    box.setAttribute("role", "group");
-    box.setAttribute("aria-label", "Start a sheet from");
-    const ul = make("ul", "desk-sheet__from-list");
-    for (const t of TEMPLATES) {
-      const li = make("li");
-      const b = button("", "desk-sheet__from-item desk-sheet__choice");
-      b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
-      b.addEventListener("click", () => newSheet(t.id));
-      li.append(b);
-      ul.append(li);
-    }
-    // The reader's own, after the built-in seven, under a heading of their own.
-    let own = null;
-    if (mine.length) {
-      own = make("div", "desk-sheet__own-templates");
-      const h = make("p", "desk-sheet__own-head", "Your templates");
-      h.id = `deskSheetOwnHead-${idSuffix}`;
-      const oul = make("ul", "desk-sheet__from-list");
-      oul.setAttribute("aria-labelledby", h.id);
-      for (const t of mine) {
-        const li = make("li");
-        const b = button("", "desk-sheet__from-item desk-sheet__choice");
-        const parts = t.modules?.length ?? 0;
-        b.append(
-          make("span", "desk-sheet__choice-name", sheetName(t)),
-          make("span", "desk-sheet__from-words", `${parts} ${parts === 1 ? "part" : "parts"}${t.modified ? `, changed ${dateWords(t.modified)}` : ""}`),
-        );
-        if (!canEdit(t)) b.disabled = true;
-        b.addEventListener("click", () => newFromOwn(t));
-        li.append(b);
-        oul.append(li);
-      }
-      own.append(h, oul);
-    }
-    const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
-    const close = () => {
-      box.hidden = true;
-      opener.setAttribute("aria-expanded", "false");
-      opener.focus();
-    };
-    cancel.addEventListener("click", close);
-    box.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      e.preventDefault();
-      e.stopPropagation();
-      close();
-    });
-    box.append(ul, ...(own ? [own] : []), cancel);
-    box.toggle = () => {
-      if (box.hidden) {
-        box.hidden = false;
-        opener.setAttribute("aria-expanded", "true");
-        box.querySelector("button")?.focus();
-      } else {
-        close();
-      }
-    };
-    return box;
-  }
-
   /** Start a sheet from a built-in template; it is written with its first change (SH6-7). */
   function newSheet(template = "blank") {
     openDraft(createSheet({ template, modules: templateModules(template) }, opCtx()));
   }
+
+  /** A choice in the template chooser: a built-in template's id, or one of the reader's own. */
+  function startFrom(template) {
+    ++seq; // the first view is this one, even while an own template is read
+    if (typeof template === "string") newSheet(template);
+    else newFromOwn(template);
+  }
+  me.startFrom = startFrom;
 
   /**
    * The reader's own templates under the sheets (Audit 5, D #1): open one to
@@ -737,8 +759,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     } catch (_) {}
     if (n !== seq || destroyed) return;
     if (record?.kind !== "sheet") {
-      setSheet(null);
-      showList();
+      toList();
       return;
     }
     setSheet(id);
@@ -793,8 +814,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     back.addEventListener("click", async () => {
       flushAll();
       await saving;
-      setSheet(null);
-      showList({ focus: `open-${sheet?.id ?? ""}` });
+      toList({ focus: `open-${sheet?.id ?? ""}` });
     });
     status.textContent = "";
     // The sheet's own address prints, copies and shares it (3i, 3k), in a tab
@@ -818,7 +838,21 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       a.addEventListener("click", persistDraft);
       a.addEventListener("auxclick", persistDraft);
     }
-    header.append(back, present, print, status, printHint, presentHint);
+    if (onDone) {
+      // On the sheet's own page, its versions are the page itself (S12, part 1, step 2).
+      const done = button("Done", "desk-sheet__btn desk-sheet__btn--primary");
+      done.title = "Back to the leader and participant versions, to print, copy, or share";
+      const doneHint = describe(done, "Back to the leader and participant versions, to print, copy, or share.");
+      done.addEventListener("click", async () => {
+        flushAll();
+        persistDraft();
+        await saving;
+        if (!destroyed && sheet) onDone(sheet.id);
+      });
+      header.append(back, done, status, doneHint);
+    } else {
+      header.append(back, present, print, status, printHint, presentHint);
+    }
     wrap.append(header);
 
     if (readOnly) {
@@ -1821,8 +1855,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   queueMicrotask(() => {
     if (seq) return;
     const id = getSheet();
-    if (id) openSheet(id);
-    else showList();
+    // A host that opens the editor on a press (/sheets/'s Edit) has it start on the title.
+    if (id) openSheet(id, { focusTitle: Boolean(onDone) });
+    else toList();
   });
 
   // "New sheet…": back to the list, with the templates open and focus on the

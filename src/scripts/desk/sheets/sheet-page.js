@@ -2,14 +2,23 @@
 //
 // A sheet's own address, /sheets/ (STUDY-DESK.md, D9, "Phase 3a's answers",
 // 2; "Order of work", 3i). Loaded by desk-gate.js on a computer with the
-// preview switched on, when the page carries [data-sheet-page]. Sheets are
-// edited on /desk only; this page shows one, prints it and copies it, and
-// never writes a record:
+// preview switched on, when the page carries [data-sheet-page]. This page
+// shows a sheet, prints it and copies it, and writes a record only when the
+// reader edits one here (Edit, New sheet…) or imports a shared one:
 //
 // - `/sheets/` lists the reader's sheets; `/sheets/?id=<id>` shows one. The id
 //   is a random one that means nothing outside this browser's notebook.
+// - **Edit** (S12, part 1, step 2; BVJ, 2026-11-08, decision 1) turns the
+//   page into the sheet editor, `/sheets/?id=<id>&view=edit`, and Done turns
+//   it back; "Edit on the Study Desk" stays beside it for the fuller
+//   workspace. **New sheet…** on the list offers the templates and opens the
+//   new sheet in the editor. The editor's code (sheet-page-edit.js, which
+//   holds sheet-editor.js) is a dynamic import made only then, so a page
+//   opened to print or present never loads it. The page moves between its
+//   list, a sheet's versions and the editor in place, each with its own
+//   address, and Back and Forward move between them (`route`).
 // - **Leader copy or Participant copy** (S4), drawn by sheet-copy.js from
-//   today's text, and redrawn when the sheet changes on /desk in another tab.
+//   today's text, and redrawn when the sheet changes in another tab.
 // - **Paper**: US Letter or A4 (C27), guessed from the reader's languages
 //   until they choose, then kept in `localStorage['lit-sheet-paper']` (named in
 //   /privacy's paragraph). The page's own preview is drawn at that paper's width.
@@ -18,8 +27,8 @@
 // - **Checked before printing** (S2): a passage whose wording changed since it
 //   was added is named above the paper, with what moved, and the copy's foot
 //   says the day its text is from. The notice is for the screen only; the
-//   copy prints today's wording either way, and the new wording is kept on
-//   /desk, since this page never writes.
+//   copy prints today's wording either way, and the new wording is kept
+//   when the sheet is next opened in an editor (Edit, or on /desk).
 // - **Print**, which prints the copy on screen, and **Copy** (S9; E36 renamed
 //   it from "Copy for Word"), which puts the same copy on the clipboard as
 //   formatted text and as plain.
@@ -80,6 +89,10 @@ import { openStore } from "../store.js";
 import { make } from "../dom.js";
 
 const PAPER_KEY = "lit-sheet-paper";
+// Bumped whenever the page draws another view (`route`), so a view drawn
+// before stops listening for changes; and the editor while the page is one.
+let viewSeq = 0;
+let editing = null;
 // Whether the leader's version ends with an answer key: this browser's choice,
 // never part of the sheet record.
 const ANSWER_KEY = "lit-sheet-answer-key";
@@ -227,11 +240,11 @@ async function showList(root, store) {
   desk.href = `${BASE}desk/`;
   const intro = make("p", "sheets-page__intro");
   intro.append(
-    document.createTextNode("Each sheet here can be printed as a leader’s version or a participant’s version, copied, or saved as a document for Word or another program. Sheets are made and changed on "),
+    document.createTextNode("Each sheet here can be changed, printed as a leader’s version or a participant’s version, copied, or saved as a document for Word or another program. A Sheets pane on "),
     desk,
-    document.createTextNode(", in a Sheets pane."),
+    document.createTextNode(" has the fuller workspace, with the LIT beside the sheet."),
   );
-  root.append(intro, openFileRow(root, store));
+  root.append(intro, newSheetRow(root, store), openFileRow(root, store));
   if (!sheets.length) {
     root.append(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
     return;
@@ -247,6 +260,48 @@ async function showList(root, store) {
     ul.append(li);
   }
   root.append(ul);
+}
+
+/**
+ * "New sheet…" (S12, part 1, step 2): the templates, under the button, and
+ * the editor on the one chosen. The editor's code is fetched on the first press.
+ */
+function newSheetRow(root, store) {
+  const row = make("div", "sheets-page__new");
+  const fresh = button("New sheet…", "desk-sheet__btn desk-sheet__btn--primary");
+  fresh.setAttribute("aria-expanded", "false");
+  const status = make("span", "sheets-page__status");
+  status.setAttribute("role", "status");
+  let chooser = null;
+  let loading = false;
+  fresh.addEventListener("click", async () => {
+    if (!chooser) {
+      if (loading) return;
+      loading = true;
+      try {
+        const { newSheetChooser } = await import("./sheet-page-edit.js");
+        chooser = await newSheetChooser({
+          opener: fresh,
+          store,
+          onPick: (template) => {
+            history.pushState(null, "", `${BASE}sheets/?view=edit`);
+            route(root, store, { template });
+          },
+        });
+      } catch (err) {
+        console.error("Study Desk: the sheet editor didn’t load", err);
+        status.textContent = "The editor didn’t load. Check your connection, then try again.";
+        return;
+      } finally {
+        loading = false;
+      }
+      fresh.setAttribute("aria-controls", chooser.id);
+      row.append(chooser);
+    }
+    chooser.toggle();
+  });
+  row.append(fresh, status);
+  return row;
 }
 
 /** "Import a Study Desk file": a sheet someone saved with "Export a Study Desk file (.md)". */
@@ -338,6 +393,7 @@ async function showSheet(root, store, id, view = null) {
  */
 async function drawSheet(root, { sheet, store, view = null, shared = null, phone = false, fragment = null }) {
   const id = sheet.id;
+  const n0 = viewSeq;
   const copies = shared === "participant" ? ["participant"] : COPIES;
   let copy = copies[0];
   let paper = storedPaper() ?? defaultPaper(navigator.languages ?? [navigator.language]);
@@ -393,6 +449,14 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   const hints = phone ? [] : [describe(keyInput, "Ends the leader’s version with each passage’s blanks and their answers, to print or save."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
+  // Edit (S12, part 1, step 2): the page becomes the editor. The reader's
+  // own sheets only; a shared one is imported first.
+  const editHere = button("Edit", "desk-sheet__btn sheets-page__edit");
+  editHere.title = "Change this sheet here, on its own page";
+  editHere.addEventListener("click", () => {
+    history.pushState(null, "", `${BASE}sheets/?id=${encodeURIComponent(id)}&view=edit`);
+    route(root, store);
+  });
   const present = button("Present");
   present.title = "Show this sheet to a room, full screen, one part at a time";
   const print = button("Print", "desk-sheet__btn desk-sheet__btn--primary");
@@ -420,7 +484,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   // A phone presents without the presenter view, so it needs no saved copy.
   if (shared && !phone) present.hidden = true;
   if (phone) actions.append(present, print, share);
-  else actions.append(present, print, word, save.el);
+  else actions.append(...(shared ? [] : [editHere]), present, print, word, save.el);
   if (!shared) actions.append(share);
   actions.append(status);
   if (phone) {
@@ -563,7 +627,12 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   }
 
   // A change made on /desk in another tab shows here too.
-  if (!shared) store.subscribe(async (ids) => {
+  // Until the page draws another view (`route`).
+  const stop = shared ? null : store.subscribe(async (ids) => {
+    if (n0 !== viewSeq) {
+      stop?.();
+      return;
+    }
     if (!ids?.includes?.(sheet.id)) return;
     let next = null;
     try {
@@ -571,6 +640,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     } catch (_) {
       return;
     }
+    if (n0 !== viewSeq) return;
     if (next?.kind !== "sheet") {
       showSheet(root, store, id, view);
       return;
@@ -700,9 +770,9 @@ function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
     await drawSheet(root, { sheet: mine, store });
     const done = make("p", "sheets-page__shared");
     done.setAttribute("role", "status");
-    const open = make("a", null, "Open it on the Study Desk");
+    const open = make("a", null, "the Study Desk");
     open.href = `${BASE}desk/?sheet=${encodeURIComponent(mine.id)}`;
-    done.append(document.createTextNode("Copied into your notebook. "), open, document.createTextNode(" to change it."));
+    done.append(document.createTextNode("Copied into your notebook. Change it here with Edit, or on "), open, document.createTextNode("."));
     root.prepend(done);
     // The Import button is gone with the banner, so focus would fall to the top of the page (SH5-10).
     open.focus();
@@ -838,10 +908,66 @@ async function start() {
     root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "This browser isn’t letting the site keep a notebook, so there are no sheets to show. Private windows sometimes don’t. Open the site in a regular window to keep sheets."));
     return;
   }
-  const id = new URLSearchParams(location.search).get("id");
-  const view = new URLSearchParams(location.search).get("view");
+  // Back and Forward between the list, a sheet, its editor, and a file
+  // opened from the list. A shared link's fragment is the inline script's,
+  // which reloads the page for it.
+  addEventListener("popstate", () => route(root, store));
+  await route(root, store);
+}
+
+/**
+ * Draw the view the address names: the list, a sheet's versions, or the
+ * editor (`view=edit`, with the sheet's id, or `template`, a new sheet's,
+ * chosen under New sheet…).
+ */
+async function route(root, store, { template = null, focus = null } = {}) {
+  const n = ++viewSeq;
+  editing?.destroy();
+  editing = null;
+  const shared = history.state?.litSharedSheet;
+  if (typeof shared === "string" && shared) {
+    await showShared(root, store, shared);
+    return;
+  }
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  const view = params.get("view");
+  if (view === "edit" && (id || template)) {
+    let editSheet;
+    try {
+      ({ editSheet } = await import("./sheet-page-edit.js"));
+    } catch (err) {
+      console.error("Study Desk: the sheet editor didn’t load", err);
+      root.replaceChildren(make("h1", "sheets-page__title", "Sheets"), make("p", "sheets-page__empty", "The editor didn’t load. Check your connection, then reload the page."));
+      return;
+    }
+    if (n !== viewSeq) return;
+    // Focus goes where the editor's button pointed: the list's heading, or
+    // the sheet's Edit button.
+    const go = (address, focusOn) => {
+      history.pushState(null, "", address);
+      route(root, store, { focus: focusOn });
+    };
+    editing = editSheet({
+      root,
+      store,
+      ctx,
+      id,
+      template,
+      // A new sheet's address gains its id once it is saved.
+      onSaved: (sheetId) => history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(sheetId)}&view=edit`),
+      onList: () => go(`${BASE}sheets/`, "list"),
+      onDone: (sheetId) => go(`${BASE}sheets/?id=${encodeURIComponent(sheetId)}`, "edit"),
+    });
+    document.title = "Edit a sheet | Liberation and Inclusion Translation";
+    return;
+  }
   if (id) await showSheet(root, store, id, view);
   else await showList(root, store);
+  if (n !== viewSeq || !focus) return;
+  const to = root.querySelector(focus === "edit" ? ".sheets-page__edit" : ".sheets-page__title");
+  if (to && !to.matches("button")) to.tabIndex = -1;
+  to?.focus();
 }
 
 /**
