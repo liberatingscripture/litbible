@@ -5216,8 +5216,8 @@ By where a reader is when they want a sheet:
    item carries the page's `?place=` (and `&intro=`), as the toolbar's pill
    does, so the two never disagree. **The other ways into the desk are
    untouched**: the scripture toolbar's "Open in Study Desk" pill, `/read`'s
-   pill and the Notebook panel's lamp link. (Part 3 weighs how far the header
-   goes.)
+   pill and the Notebook panel's lamp link. With C chosen (Part 3), this menu
+   is the header's Study group.
 2. **The Notebook panel's Settings tab** gains "My sheets" beside "Open the
    notebook page." My Notes keeps listing no sheets (BVJ, 2026-11-07).
 3. **The verse menu and the selection panel on chapter pages** gain "Add to
@@ -5265,6 +5265,25 @@ they show for C: three short menus need about 735px, so the whole header
 holds down to 760px instead of folding at 1101px, and below that the phone
 menu shows the same groups under headings, so no menu nests inside another.
 
+**C is the direction** (BVJ, 2026-11-08, after the mock-ups: "Not gonna lie,
+I like C"). Details to settle when it is built, each shown in the mock-ups as
+a first guess:
+
+- What each group holds. The mock-ups put What's new (now only in the footer)
+  in About, and keep Commitments there rather than dropping it.
+- Group names: Learn, Study and About.
+- Whether a group's items carry a one-line description, as the mock-ups' Learn
+  and Study menus do.
+- Read Now stays a button of its own, outside the groups. "Continue reading"
+  stays where it is (the phone menu, the home page, /read).
+- The no-JS fallback row under 1101px (a plain list of every link, since a
+  menu needs JS) and the footer's list.
+- The header menus get the keyboard and screen-reader behavior every desk menu
+  has (`src/scripts/CLAUDE.md`, "One set of actions, two ways in": the arrow
+  keys, Home and End, Escape, `aria-expanded`), and a hover rule decided then.
+- Before the desk launches, Study shows only with the preview on; until then
+  a computer without it gets Learn and About alone.
+
 ### Part 4: two tabs on one sheet
 
 **Most of BVJ's first option already exists.** Every change applies to the
@@ -5307,7 +5326,8 @@ apps want a sheet merged part by part before this is built.
 ### Decisions (BVJ, 2026-11-08)
 
 1. `/sheets/?id=` opens as now, with an Edit button.
-2. The header waits on mock-ups of A, B and C (Part 3).
+2. The header: C, the links grouped into Learn, Study and About, chosen after
+   mock-ups of A, B and C (Part 3).
 3. "Add to sheet ▸" on chapter pages: yes.
 4. A sheet made from a search opens where the search was; each home offers
    the other.
@@ -5321,7 +5341,7 @@ apps want a sheet merged part by part before this is built.
 2. The editor on `/sheets`.
 3. Two tabs: the line, and the question on opening.
 4. The ways in (Part 2).
-5. The header (Part 3), once a mock-up is chosen.
+5. The header as C (Part 3), with its details settled first.
 
 Each is its own PR.
 
