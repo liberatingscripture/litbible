@@ -14,6 +14,7 @@
  *   search/parse.json           the parse groups and the number of words in each
  *   search/parse/<group>.json   every word of one kind (v-ad: aorist imperatives; n-g: nouns
  *                               in the genitive) in Bible order, for searches with no word
+ *                               (every search/ file carries `build`, a hash of them all; GK6-9)
  *   LICENSE.txt                 what each directory is built from, and its licence
  *
  * A website asset: it never moves under public/api/ (the apps don't read it).
@@ -47,6 +48,7 @@
  * resolved by guessing.
  */
 
+import { createHash } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -316,11 +318,24 @@ async function main() {
     return { brief: own?.gloss || null, senses };
   };
   const search = greekSearchIndex(docs, lemmaStrongs, BOOK_ORDER, glossesFor);
-  await writeJson(path.join(OUT, "search", "lemmas.json"), search.lemmas);
-  for (const [name, shard] of search.shards) await writeJson(path.join(OUT, "search", "occ", `${name}.json`), shard);
+  // Every search file names the build it belongs to (GK6-9): a lemma's id is
+  // its place in lemmas.json, and the shards and parse groups store ids, so a
+  // reader whose cache holds files from two builds must be able to tell. The
+  // stamp is a hash of the files' own content, so a rerun with nothing new
+  // keeps it, and with it every file.
+  const hash = createHash("sha256");
+  hash.update(json(search.lemmas));
+  for (const [name, shard] of search.shards) hash.update(`${name}\n${json(shard)}`);
+  hash.update(json(search.parseIndex));
+  for (const [name, group] of search.parseGroups) hash.update(`${name}\n${json(group)}`);
+  const build = hash.digest("hex").slice(0, 12);
+  const { lemmas: lemmaList, ...lemmasHead } = search.lemmas;
+  await writeJson(path.join(OUT, "search", "lemmas.json"), { ...lemmasHead, build, lemmas: lemmaList });
+  for (const [name, shard] of search.shards) await writeJson(path.join(OUT, "search", "occ", `${name}.json`), { build, ...shard });
   // search/ was removed whole above, so no group file from an earlier run is left behind.
-  await writeJson(path.join(OUT, "search", "parse.json"), search.parseIndex);
-  for (const [name, group] of search.parseGroups) await writeJson(path.join(OUT, "search", "parse", `${name}.json`), group);
+  const stamped = ({ format, ...rest }) => ({ format, build, ...rest });
+  await writeJson(path.join(OUT, "search", "parse.json"), stamped(search.parseIndex));
+  for (const [name, group] of search.parseGroups) await writeJson(path.join(OUT, "search", "parse", `${name}.json`), stamped(group));
 
   await fs.writeFile(path.join(OUT, "LICENSE.txt"), LICENSE_TEXT, "utf8");
 

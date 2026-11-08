@@ -43,6 +43,11 @@
 //                               occ: [book, chapter, verse, t, lemmaId, codeIndex, …] }
 // with `lemmaId` the lemma's place in lemmas.json and `codeIndex` into that
 // group's `codes`.
+//
+// Every one of these files carries `build`, a hash of build:greek's output
+// (GK6-9), since the ids are places in lemmas.json and the files are cached a
+// day: a shard or group from another build than the index (`sameBuild`) can
+// put another word's verses under a lemma, so it is never read with it.
 
 import { hasGreek, parseGreekParam, parseStrong } from "./greek-detect.mjs";
 import { levenshtein } from "./levenshtein.mjs";
@@ -259,7 +264,12 @@ export function prepareIndex(json) {
     for (const f of String(forms ?? "").split(" ")) if (f) push(byForm, f, id);
     for (const s of [strong, ...(also ?? [])]) if (s) push(byStrong, s, id);
   });
-  return { lemmas, byForm, byFold, byStrong, byKey, shards: json.shards ?? 64 };
+  return { lemmas, byForm, byFold, byStrong, byKey, shards: json.shards ?? 64, build: json.build ?? null };
+}
+
+/** Whether a search file (a shard, parse.json, a parse group) is from the index's build (GK6-9). */
+export function sameBuild(json, index) {
+  return (json?.build ?? null) === (index?.build ?? null);
 }
 
 /* ── The glossary bridge ─────────────────────────────────────────── */

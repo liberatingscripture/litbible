@@ -18,7 +18,7 @@ Nothing in the repo was changed while auditing; every finding is a recommendatio
 (`SH6`, `SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, `VER6`) so they never collide with earlier
 audits'. The full reports are the appendices.
 
-**Status (2026-11-08, same day):** on BVJ's instruction to fix everything that needs no decision of theirs, every such finding was fixed on `claude/desk-audit-6-fixes` and is marked on its entry. BVJ's calls followed the same day (`claude/desk-audit-6-decisions`): SH6-3 (a) to (c) fixed and (d) declined, SH6-7 and DK6-1 fixed, NB6-8 no change, GK6-2 fixed (the root `LICENSE` has a third class, OTHER MATERIAL). Left open: DI6-5 (with BDR), GK6-9 (needs a build change), and the rest of LG6-2 and LG6-3 (a later sitting each). SEC6-3's fix drops prompts from participant shares only; a leader share keeps them, and it is a one-line revert if BVJ wants prompts to travel. SH6-4's sentences name the book as the site writes it ("Psalms").
+**Status (2026-11-08, same day):** on BVJ's instruction to fix everything that needs no decision of theirs, every such finding was fixed on `claude/desk-audit-6-fixes` and is marked on its entry. BVJ's calls followed the same day (`claude/desk-audit-6-decisions`): SH6-3 (a) to (c) fixed and (d) declined, SH6-7 and DK6-1 fixed, NB6-8 no change, GK6-2 fixed (the root `LICENSE` has a third class, OTHER MATERIAL). Left open: DI6-5 (with BDR) and the rest of LG6-2 and LG6-3 (a later sitting each). SEC6-3's fix drops prompts from participant shares only; a leader share keeps them, and it is a one-line revert if BVJ wants prompts to travel. SH6-4's sentences name the book as the site writes it ("Psalms").
 
 ## Bottom line
 
@@ -1338,12 +1338,13 @@ Performance is fine: broadest queries (`*.sg`, four-term any-order `*.noun`) tak
 **Fix** `if (e.key !== "Escape" || e.isComposing) return;`.
 **Confidence** Medium.
 
-#### GK6-9 · Low · longevity · NEW · OPEN (needs a version stamp from build:greek and regenerated data)
+#### GK6-9 · Low · longevity · NEW · FIXED (2026-11-08: every search file carries `build`, and a mismatch is fetched again from the server)
 **Where** `public/_headers:72` (`/greek/*` cached a day, `must-revalidate`), `src/scripts/search-greek.js` (`loadGreekIndex`, `loadGreekOccurrences`, `loadGreekParseGroup`).
 **What happens** A lemma's id is its position in `lemmas.json`, and the shards and parse groups store those ids. After a `build:greek` re-run (a source updated, a lemma added) a returning reader can hold the old `lemmas.json` and fetch new shards, or the reverse, for up to a day; nothing checks. The result is the wrong word's verses under a lemma, with no error. BVJ chose the day (GK-9), so this is only the missing guard.
 **Evidence** Header file and loaders read; no stamp or format/hash check ties the files. Not reproduced.
 **Fix** Put a `build` stamp (the generator's date or a content hash) in `lemmas.json`, each shard and `parse.json`, and treat a mismatch as `failed`; or cache-bust with `?v=<stamp>` on the fetches.
 **Confidence** Medium.
+**Fixed (2026-11-08)** `build:greek` writes `build`, a 12-character hash of the whole search output, into `lemmas.json`, each shard, `parse.json` and each parse group (a rerun with nothing new keeps it, so nothing is rewritten). `search-greek.js` reads a shard, `parse.json` or a parse group only when its `build` is the index's (`sameBuild`); otherwise it counts the file as not loaded, the next load of the index drops every file the page holds and fetches each with `cache: "no-cache"` (a bodiless 304 where nothing changed), and the search runs once more (`freshGreek`). A mismatch that persists, a deploy still arriving, is reported as a failure, and the next search tries again. A lemma chosen from a list drawn before such a refetch is matched against the same query's new list, so at worst another of that query's own lemmas is shown, under its own name. Tests: `greek-audit6.test.js` (a stale shard, a stale index, a stale parse group, a mismatch that stays) and `greek-search.test.js` (every committed file carries the index's stamp).
 
 #### GK6-10 · Nit · bug · NEW · FIXED (2026-11-08)
 **Where** `src/lib/greek-query.mjs:~175-215` (`LITERAL = "\u0001"`, `keep`, and the `literals[Number(head.slice(1))]` reads).
