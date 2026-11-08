@@ -5150,7 +5150,7 @@ building yet"). BVJ asked three things the same day:
   other's edits, or ask ("this sheet is being edited in another tab: overwrite
   it or duplicate it?").
 
-The decisions are at the end. The work comes after the move of the Sheets
+BVJ's decisions on it are at the end. The work comes after the move of the Sheets
 code into `src/scripts/desk/sheets/` with its own CLAUDE.md (BVJ, 2026-11-08,
 option 1), which goes first.
 
@@ -5184,12 +5184,14 @@ pane on `/desk` or fills the `/sheets` page.
    being the target of "Add to sheet" from other panes (`addTarget`,
    `onAddTarget`), `showSheet`'s `keep`, and `desk:sheet-new` naming a pane.
    Nothing a reader sees changes in this step.
-2. **`/sheets/?id=<id>` opens the editor**, with Print, Present, Share and
-   Save as on its bar, and the leader's and participant's versions as a
-   preview (decision 1). `/sheets/` gains "New sheet…" with the templates. A
-   shared link stays read only until "Import into my notebook", as now. The
-   editor's code loads only when a sheet is edited (a dynamic import), so the
-   page stays light for printing and presenting.
+2. **`/sheets/?id=<id>` opens as now** (BVJ, 2026-11-08, decision 1): the
+   leader's or participant's version, to print, copy, save, present or share.
+   An **"Edit"** button beside them turns the page into the editor, and "Edit
+   on the Study Desk" stays beside it for the fuller workspace. `/sheets/`
+   gains "New sheet…" with the templates. A shared link stays read only until
+   "Import into my notebook", as now. The editor's code loads only when Edit
+   is pressed (a dynamic import), so the page stays light for printing and
+   presenting.
 3. **What the page lacks next to `/desk`**: no LIT pane to drag from, no
    Search pane, no My Notes beside the sheet. Passages come in through the
    reading part's reference form and "From my notes…", which both exist, and
@@ -5207,20 +5209,29 @@ pane on `/desk` or fills the `/sheets` page.
 
 By where a reader is when they want a sheet:
 
-1. **The header**: the Study Desk link becomes a small menu, shown on every
-   page with the desk on, not only the home page: Study Desk, My sheets, My
-   notebook, Help. Phones never get it, as now. (Part 3 weighs how far to go.)
+1. **The header**: the header's own "Study Desk" link (beside Aa, on the home
+   page alone, opening plain `/desk/`) becomes a small menu, shown on every
+   page with the desk on: Study Desk, My sheets, My notebook, Help. Phones
+   never get it, as now. On a chapter or an introduction its "Study Desk"
+   item carries the page's `?place=` (and `&intro=`), as the toolbar's pill
+   does, so the two never disagree. **The other ways into the desk are
+   untouched**: the scripture toolbar's "Open in Study Desk" pill, `/read`'s
+   pill and the Notebook panel's lamp link. (Part 3 weighs how far the header
+   goes.)
 2. **The Notebook panel's Settings tab** gains "My sheets" beside "Open the
    notebook page." My Notes keeps listing no sheets (BVJ, 2026-11-07).
 3. **The verse menu and the selection panel on chapter pages** gain "Add to
    sheet ▸" in the "My Notebook" row, as `/desk`'s LIT pane has it: the recent
    sheets and "New sheet…". It adds without leaving the page, and the undo bar
-   offers "Open the sheet" (decision 3).
-4. **`/search`'s "Make a sheet"** opens the new sheet on `/sheets` instead of
-   `/desk` (decision 4).
+   offers "Open the sheet" (BVJ, 2026-11-08, decision 3: yes).
+4. **A sheet made from a search opens where the search was** (BVJ,
+   2026-11-08, decision 4): from the `/search` page, on `/sheets`; from the
+   Search pane on `/desk`, in a Sheets pane there, as now.
 5. **`/notebook`** lists sheets in a section of their own, with "New sheet…",
    instead of under "Other items".
-6. **The Sheets pane on `/desk`** gains "Open on its own page".
+6. **Each home offers the other**: the Sheets pane on `/desk` gains "Open on
+   its own page", and `/sheets` keeps "Edit on the Study Desk" (BVJ,
+   2026-11-08).
 
 ### Part 3: the site's navigation
 
@@ -5243,9 +5254,16 @@ four pages more. Three ways to go, smallest first:
   desk's menus already have. The phone menu, the no-JS fallback row and the
   footer would all change with it.
 
-**Recommended: A now, B if the numbers support it, and C weighed at the
-desk's launch**, when the Study group would be for every computer reader and
-not one previewer.
+**Mock-ups of all three come before a decision** (BVJ, 2026-11-08). BVJ
+leans to C, which raises how the phone menu works with grouped menus (or
+whether it can), and what a computer gets in a narrowed browser window, where
+the header already folds into the phone menu below 1101px. The mock-ups
+(https://claude.ai/artifact/M8f7SdWTmdUBUj7PVxBKLN, private to BVJ) draw each
+version with the site's own header styles at 1280px, 960px (half a large
+monitor), 683px (half a laptop) and a phone, live, with their menus open. What
+they show for C: three short menus need about 735px, so the whole header
+holds down to 760px instead of folding at 1101px, and below that the phone
+menu shows the same groups under headings, so no menu nests inside another.
 
 ### Part 4: two tabs on one sheet
 
@@ -5271,32 +5289,39 @@ being typed in never redraws that part, nothing says so.
   goodbye. "Overwrite" wouldn't be needed as such, since saves are per part,
   so the choices would be "Edit here too", "Make a copy" and "Cancel".
 
-**Recommended: option 1 with that line, and no question on opening.** Once
-`/sheets` edits, keeping `/desk` in one tab and a sheet's page in another is
-a likely habit, and a question each time would nag. A quiet "Also open in
-another tab" beside the Saved status could tell the reader without stopping
-them. Phase 4's sync meets the same problem across devices: the merge keeps
+**Decided: option 1 with that line, and a question when a second tab starts
+editing** (BVJ, 2026-11-08). When a sheet's editor opens (a Sheets pane on
+`/desk`, or Edit on `/sheets`) while another tab is editing the same sheet,
+it asks before it shows the editor: "This sheet is already open in another
+tab. Continue here?", with Continue and Cancel. Cancel leaves the page as it
+was (the list in a pane, the versions on `/sheets`). Continuing gives two
+live tabs, kept in step as above. Only editing counts: a tab printing or
+presenting the sheet doesn't ask or get asked. That needs each editing tab to
+announce itself on a channel per sheet (present mode's `hello` and `bye`) and
+a heartbeat, since a tab that crashes never says `bye`, and a tab that has
+been in the background a long time may answer late, so the question waits
+briefly for answers and asks nothing when none comes. Phase 4's sync meets the same problem across devices: the merge keeps
 the newer copy of a whole sheet (`desk-merge.mjs`), so ask BDR whether the
 apps want a sheet merged part by part before this is built.
 
-### Decisions for BVJ
+### Decisions (BVJ, 2026-11-08)
 
-1. On `/sheets/?id=`, does your own sheet open ready to edit, with the two
-   versions as a preview, or open as now with an "Edit" button?
-2. The header: A, B or C, or A now and the rest later?
-3. "Add to sheet ▸" on chapter pages' verse menu and selection panel: yes or
-   no?
-4. `/search`'s "Make a sheet": open on `/sheets`, or stay on `/desk`?
-5. Two tabs: option 1 with the line, option 2, or both?
+1. `/sheets/?id=` opens as now, with an Edit button.
+2. The header waits on mock-ups of A, B and C (Part 3).
+3. "Add to sheet ▸" on chapter pages: yes.
+4. A sheet made from a search opens where the search was; each home offers
+   the other.
+5. Two tabs: live both ways, the line on a part changed elsewhere, and the
+   question when a second tab starts editing.
 
-### Order of work, once decided
+### Order of work
 
 0. Move the Sheets code and give it its own CLAUDE.md (agreed).
 1. Separate the editor from the pane (no visible change).
 2. The editor on `/sheets`.
-3. The two-tab line.
+3. Two tabs: the line, and the question on opening.
 4. The ways in (Part 2).
-5. The header (Part 3).
+5. The header (Part 3), once a mock-up is chosen.
 
 Each is its own PR.
 
