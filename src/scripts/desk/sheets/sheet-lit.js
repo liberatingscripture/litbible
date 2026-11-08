@@ -6,7 +6,7 @@
 // key terms box, filled in from the sheet's passages (S3); and the license
 // card with the commercial check (S7). The rules are
 // src/lib/desk-sheet-lit.mjs; this file reads the chapters and draws.
-// sheet-pane.js owns saving: each card here is handed `update(fields)` for its
+// sheet-editor.js owns saving: each card here is handed `update(fields)` for its
 // own module, and `getSheet()` for what the rest of the sheet holds.
 //
 // Everything is read from the chapter's Chapter View page (chapter-page.js), so
