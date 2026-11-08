@@ -55,6 +55,7 @@ import {
   setPaneSheet,
   setPin,
   showIntroIn,
+  sheetPaneFor,
   showSheet,
   setPlace,
   slotCount,
@@ -1841,4 +1842,38 @@ test("SH5-5: every kind carries one short description for the kind menus", () =>
     assert.ok(!/[—']/.test(k.about) && !/\.$/.test(k.about), `${k.kind}: ${k.about}`);
   }
   assert.equal(kindAbout("nothing-like-it"), "");
+});
+
+// The title menu's "New sheet…" (Audit 5, SH5-5): the pane it opens the
+// template chooser in (Audit 6, LG6-3).
+test("sheetPaneFor: an open Sheets pane is used, and the layout is the same object", () => {
+  const l = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "sheet")));
+  const got = sheetPaneFor(l, 1400, 800);
+  assert.equal(got.layout, l);
+  assert.equal(got.paneId, "p2");
+  const two = mk(cols([0.4, 0.3, 0.3], leaf("p1", "lit"), leaf("p2", "sheet"), leaf("p3", "sheet")));
+  assert.equal(sheetPaneFor(two, 100, 100).paneId, "p2", "the first one, even where nothing more fits");
+});
+
+test("sheetPaneFor: with none open, a Sheets pane is added as a column where one fits", () => {
+  const l = originalLayout("john 3:16");
+  const { layout, paneId } = sheetPaneFor(l, 1400, 800);
+  assert.equal(layout.root.split, "columns");
+  assert.deepEqual(kinds(layout), ["lit", "mine", "sheet"]);
+  assert.equal(findPane(layout.root, paneId)?.kind, "sheet");
+  assert.ok(!ids(l).includes(paneId), "a new pane's id");
+  assert.deepEqual(kinds(l), ["lit", "mine"], "the original is untouched");
+});
+
+test("sheetPaneFor: as a row where a column doesn't fit, and nothing where neither does", () => {
+  const l = originalLayout("john 3:16");
+  assert.ok(addPaneNeeds(l, "column", 700, 800), "the window is too narrow for a third column");
+  const { layout, paneId } = sheetPaneFor(l, 700, 800);
+  assert.equal(layout.root.split, "rows");
+  assert.equal(findPane(layout.root, paneId)?.kind, "sheet");
+  const none = sheetPaneFor(l, 700, 300);
+  assert.equal(none.layout, l);
+  assert.equal(none.paneId, null);
+  const full = applyArrangement(mk(leaf("p1", "lit")), "grid");
+  assert.deepEqual(sheetPaneFor(full, 4000, 4000), { layout: full, paneId: null }, "four panes is the most");
 });

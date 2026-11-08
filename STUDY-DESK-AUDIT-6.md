@@ -18,7 +18,7 @@ Nothing in the repo was changed while auditing; every finding is a recommendatio
 (`SH6`, `SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, `VER6`) so they never collide with earlier
 audits'. The full reports are the appendices.
 
-**Status (2026-11-08, same day):** on BVJ's instruction to fix everything that needs no decision of theirs, every such finding was fixed on `claude/desk-audit-6-fixes` and is marked on its entry. BVJ's calls followed the same day (`claude/desk-audit-6-decisions`): SH6-3 (a) to (c) fixed and (d) declined, SH6-7 and DK6-1 fixed, NB6-8 no change, GK6-2 fixed (the root `LICENSE` has a third class, OTHER MATERIAL). Left open: DI6-5 (with BDR) and the rest of LG6-2 and LG6-3 (a later sitting each). SEC6-3's fix drops prompts from participant shares only; a leader share keeps them, and it is a one-line revert if BVJ wants prompts to travel. SH6-4's sentences name the book as the site writes it ("Psalms").
+**Status (2026-11-08, same day):** on BVJ's instruction to fix everything that needs no decision of theirs, every such finding was fixed on `claude/desk-audit-6-fixes` and is marked on its entry. BVJ's calls followed the same day (`claude/desk-audit-6-decisions`): SH6-3 (a) to (c) fixed and (d) declined, SH6-7 and DK6-1 fixed, NB6-8 no change, GK6-2 fixed (the root `LICENSE` has a third class, OTHER MATERIAL). Left open: DI6-5, put to BDR in STUDY-DESK.md on 2026-11-08 with S12's question on merging a sheet part by part, and LG6-2, which takes one extraction a sitting (two made). LG6-3 was finished the same day. SEC6-3's fix drops prompts from participant shares only; a leader share keeps them, and it is a one-line revert if BVJ wants prompts to travel. SH6-4's sentences name the book as the site writes it ("Psalms").
 
 ## Bottom line
 
@@ -115,7 +115,7 @@ auditor's rating.
 | DK6-8, DI6-3 | "Save as template" on a passages-only sheet makes an empty template, and a sheet from it has no parts |
 | SEC6-3 (= DK6-6) | `prompt` and `answerPrompt` travel in participant shares, against `promptOk`'s comment; the format's share table doesn't say `minutes` is dropped |
 | DI6-1 | Import validates a sheet before sanitizing it; fix before any `SHEET_FORMAT` bump |
-| DI6-5 | A followed bookmark's move undoes its deletion on another device (for BDR) |
+| DI6-5 | A followed bookmark's move undoes its deletion on another device (for BDR; asked in STUDY-DESK.md, 2026-11-08) |
 | LG6-2 | Split `createSheetPane`, one extraction per sitting as LG3-3 did for `start()` |
 
 ### Tier 3: polish and nits
@@ -160,6 +160,8 @@ dead exports, the shell's measured size against the doc), and SH6-8 to SH6-11.
    reach. Keep, or change?
 6. **DI6-5, for BDR:** should a bookmark's move by a following device count as an edit that
    resurrects it after a delete elsewhere (rule b today), or should a delete win over a move?
+   Asked in STUDY-DESK.md ("2026-11-08: two questions for BDR"), with the website's
+   recommendation that a delete win over a move.
 7. Part 1's smaller questions (Appendix A, section F): whether a template of the reader's own
    carries the `commercial` flag, and whether Lectio divina's "Read" prompt should mention the
    passage form.
@@ -1446,19 +1448,21 @@ Side effect to know about: `npm run build` runs `fetch:podcast`, which rewrote t
 **Fix** Do a deliberate trim before the next desk session. The best candidates are the largest single rules, such as the bookmarks and "Continue reading" bullet under rule 13 and rule 18, which read as build history. Move their "why" paragraphs to `STUDY-DESK-FIXES.md` under their E entries, as Audit 3's note suggests. Then set the cap to the new size plus about 5 KB, not to 150 KB.
 **Confidence** High
 
-#### LG6-2 · Medium · longevity · NEW (extends LG3-3) · PARTLY (2026-11-08) (one extraction: the gap menu is insert-menu.js; createSheetPane 1,698 → 1,606 lines)
+#### LG6-2 · Medium · longevity · NEW (extends LG3-3) · PARTLY (2026-11-08) (two extractions: the gap menu is insert-menu.js, createSheetPane 1,698 → 1,606 lines; then the list view is my-sheets.js, createSheetEditor 1,738 → 1,589 lines)
 **Where** `src/scripts/desk/sheet-pane.js:253` `createSheetPane` (1,652 lines). The file is 1,904 lines. `sheet-text.js` `createSheetText` is 1,054 lines and `sheet-lit.js` `createPassageBody` is 351.
 **What happens** Audit 3's LG3-3 was about `start()` in `desk-page.js`. It is now 1,115 lines, down from 1,706, because the kind menu (`kind-menu.js`, 403 lines) and title menu (`title-menu.js`, 405 lines) were extracted. That fix worked. The same growth has moved to the Sheets pane. `createSheetPane` was 1,084 lines at Audit 3 and gained about 570. Audit 5 added the gap "Add" pill and its menu, the passage form in place, own templates (`ownTemplatesList`, `newFromOwn`, `saveAsTemplate`), minutes, the answer key and the key terms placement into this one closure. About 85% of the 1,904-line file is one function. A fix to one sub-feature (the list view, the editor, the template chooser) has to be reasoned about against shared closure state (`sheet`, `content`, `seq`, `destroyed`, `paneId`). Audit 3 named this as the commonest source of the "fix reached one path not its sibling" bug.
 **Evidence** `node scratchpad/audit6/lg6/fnsize.mjs` over `src/scripts/desk` and `src/lib/desk-*|greek-*`: 4,429 functions; 40 over 150 lines (36 at Audit 3), 63 over 100 (56). Top: `createSheetPane` 1652, `createGreekTab` 1123, `start` 1115, `createSearchPane` 1070, `createSheetText` 1054, `createMineTab` 809, `createNotesMargin` 690, `createPanel` 655. `git show 60af379e:src/scripts/desk/sheet-pane.js | wc -l` = 1287, now 1904 (+617).
 **Fix** Take the next extraction from the Sheets pane, as the kind menu was taken from `start()`. The template chooser with "My templates" (`templateChooser`, `ownTemplatesList`, `newFromOwn`, `saveAsTemplate`, about 150 lines) and the gap pill with its menu are the most self-contained. Hand them `{ store, opCtx, say, openSheet, showList }` as `kind-menu.js` takes `{ getLayout, commit, announce }`. One extraction per sitting.
 **Confidence** High on the numbers, Medium on the seams.
+**Partly fixed (2026-11-08)** Since this entry, S12 moved the editor out of the pane: `createSheetPane` is a 100-line host in `sheets/sheet-pane.js`, and the closure this entry describes is `createSheetEditor` in `sheets/sheet-editor.js` (1,738 lines on `e1ae0ffb`). Two extractions so far. First, the gap pill's menu became `sheets/insert-menu.js`. Second, the list view became `sheets/my-sheets.js` (264 lines): "My sheets" and "My templates", each row's Duplicate, Save as template and Delete (the two Delete handlers now one, `removeRow`), `listProblem`, and `templateChooser`, which /sheets/ imports from there. The editor hands it `listHost` (`store`, `opCtx`, `idSuffix`, `say`, `content`, `openSheet`, `startFrom`, `showList`), and `showList` keeps only clearing the sheet view and reading the records. `createSheetEditor` is now 1,589 lines. A later sitting takes the next extraction; the passage form (`openInlinePassage` and the bar's form) and "+ From my notes…" (`openFromNotes`) are the likeliest seams.
 
-#### LG6-3 · Low · longevity · NEW (follows LG3-9) · PARTLY (2026-11-08) (page-kind.js tested; kind-menu.js and title-menu.js need a fuller DOM stub, notebook-tab.js its ?inline import)
+#### LG6-3 · Low · longevity · NEW (follows LG3-9) · FIXED (2026-11-08) (page-kind.js tested; (a) was already covered; (b) is `sheetPaneFor`, tested)
 **Where** `src/scripts/desk/kind-menu.js` (403 lines), `title-menu.js` (405), `notebook-tab.js`, `page-kind.js`, `sheet-present.js` (882).
 **What happens** These have no test file that names them (`grep -l` over `test/` for each name: kind-menu 0, title-menu 0, notebook-tab 0, page-kind 0, sheet-present 0). The pure rules behind most of them are tested: `addWhy`, `sizingFor` and `addBeside` in `desk-layout.mjs`; `partTimeWords`, `moduleMinutes` and `screenMinutes` in `desk-present.test.js`; `templateFromSheet` and `sheetFromTemplate` in `desk-sheets.test.js`. What is untested is the wiring: the flyout open/close and focus return in the two menus, `title-menu.js`'s `newSheet` ("uses the pane, else adds one as a column, else a row, then sends `desk:sheet-new`"), the B and "." blank key's "un-blank without stepping" rule in `sheet-present.js`, and the PROSE_NOTES switch. These are exactly the paths Audit 5's follow-ups changed after the refactor. A DOM stub in the `panel-flyout.test.js` and `mini-dom.js` style would cover them.
 **Evidence** `grep -l` as above; `test/panel-flyout.test.js` and `test/desk-intro-text.test.js` exist and show the pattern.
 **Fix** Two small tests, in order of value: (a) the blank-key rule, by exporting the key handler's decision as a pure function in `desk-present.mjs` (`presentKey` is already there, so check whether it already returns the un-blank case and test that); (b) `title-menu`'s `newSheet` branching, with the same stub as `panel-flyout.test.js`.
 **Confidence** High that they are untested, Medium on their risk.
+**Fixed (2026-11-08)** (a) needed no new export: `stepState` already holds the rule ("a step while blank only brings the screen back"), and `desk-present.test.js` tests it with `presentKey`'s B and "." (the `blank` tests). (b) The title menu's choice of pane for "New sheet…" is now `sheetPaneFor` in `desk-layout.mjs` (the first Sheets pane, else a new column, else a new row, else none), which `title-menu.js`'s `startNewSheet` calls; `desk-layout.test.js` tests all four. What stays untested is DOM wiring only: the two menus' flyouts and focus return, `notebook-tab.js`, and `sheet-pane.js` answering `desk:sheet-new` for its own pane. The files now live under `sheets/` where they are Sheets code (S12, step 0).
 
 #### LG6-4 · Low · docs · NEW · FIXED (2026-11-08)
 **Where** `src/scripts/desk/CLAUDE.md`, "Launching", the two-stage paragraph ("Measured on `dist/john-3/` (gzipped, 2026-11-07): ... 14 KB now ... and 130 KB once it opens").
@@ -1644,7 +1648,7 @@ The regexes are quadratic, as stated: `ver6/share-prompts.mjs` timed `markdownLi
 #### LG6-1 · CONFIRMED, Medium · FIXED (2026-11-08)
 `wc -c src/scripts/desk/CLAUDE.md` is 153,369 against `DESK_LIMIT = 150 * 1024` = 153,600 (`test/claude-docs.test.js:25`): 231 bytes of headroom. `node --test test/claude-docs.test.js` passes today. The file was 143,226 bytes at the commit that set the cap (`git show c3c4ba5b:…`), so it has grown about 10 KB under a cap whose comment says it is "meant to come down … never to be raised". The first Audit 6 work session that adds a rule will fail CI, so Medium for maintainers is fair.
 
-#### LG6-2 · CONFIRMED, Medium · PARTLY (2026-11-08) (one extraction: the gap menu is insert-menu.js; createSheetPane 1,698 → 1,606 lines)
+#### LG6-2 · CONFIRMED, Medium · PARTLY (2026-11-08) (two extractions: the gap menu is insert-menu.js, createSheetPane 1,698 → 1,606 lines; then the list view is my-sheets.js, createSheetEditor 1,738 → 1,589 lines)
 `createSheetPane` runs from `sheet-pane.js:253` to the file's last line, 1904 (1,652 lines). The file was 1,287 lines at `60af379e`. This is the same shape as LG3-3, which Audit 3 left "partly open by design (one extraction per sitting)" (STUDY-DESK-AUDIT-3.md:297), now in a different function. It is a fair new finding in the KNOWN-OPEN LG3-3 family, and not a regression of anything.
 
 #### DI6 question 1 · A real finding: Low, compat / sync-readiness, for BDR and BVJ

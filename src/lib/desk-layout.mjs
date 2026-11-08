@@ -731,6 +731,23 @@ export function addPaneNeeds(layout, direction, width, height) {
   return needs(root, ok(width) ? width : Infinity, ok(height) ? height : Infinity);
 }
 
+/**
+ * Which Sheets pane the title menu's "New sheet…" opens its template chooser
+ * in (Audit 5, SH5-5; Audit 6, LG6-3): the first one open, else a new one
+ * added as a column, else as a row. `{ layout, paneId }`: the same layout
+ * object when a Sheets pane is already open, and `paneId` null, the layout
+ * unchanged, when neither side has room.
+ */
+export function sheetPaneFor(layout, width, height) {
+  const there = panes(layout.root).find((p) => p.kind === "sheet");
+  if (there) return { layout, paneId: there.id };
+  const direction = addPaneNeeds(layout, "column", width, height) ? "row" : "column";
+  const next = addPane(layout, direction, "sheet", width, height);
+  if (next === layout) return { layout, paneId: null };
+  const had = new Set(panes(layout.root).map((p) => p.id));
+  return { layout: next, paneId: panes(next.root).find((p) => !had.has(p.id))?.id ?? null };
+}
+
 /** What a menu says under a line that needs more room: "Needs a wider window" and its kin. */
 export const NEEDS_TEXT = {
   wider: "Needs a wider window",

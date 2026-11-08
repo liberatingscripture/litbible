@@ -32,6 +32,10 @@
 //   sheet opens a short list in place, and a choice makes the sheet. The
 //   title menu's "New sheet…" opens the same list (`newSheet`, which the
 //   pane calls on `desk:sheet-new`).
+// - **The list of sheets is my-sheets.js** (Audit 6, LG6-2): "My sheets" and
+//   "My templates", their rows' Duplicate, Save as template and Delete, and
+//   the template chooser. `showList` here clears the sheet view and hands it
+//   `listHost`.
 // - **A template's parts hold no text, only a prompt** (SH5-2): an empty
 //   part shows its module's `prompt` as the editor's placeholder, and a part
 //   holding only its heading shows it dimmed under the heading, until the
@@ -61,11 +65,8 @@ import { MODULE_TYPES, SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
 import {
   addModule,
   createSheet,
-  duplicateSheet,
-  hasTemplateParts,
   isOwnTemplate,
   sheetFromTemplate,
-  templateFromSheet,
   makeModule,
   moveModule,
   planSheetChange,
@@ -74,7 +75,7 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../../lib/desk-sheets.mjs";
-import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
+import { keyTermsPlacement, readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
 import { fitModules, notebookItems, partsFor } from "../../../lib/desk-sheet-from-notes.mjs";
 import {
   passageForReference,
@@ -83,7 +84,6 @@ import {
   passageLabel,
   passageReference,
   samePassage,
-  sheetName,
   sortSheets,
 } from "../../../lib/desk-sheet-passages.mjs";
 import { recordReference } from "../../../lib/desk-store-core.mjs";
@@ -100,6 +100,7 @@ import { showUndo } from "../undo-bar.js";
 import { redraw } from "../focus-keep.js";
 import { make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
+import { listProblem, mySheetsList } from "./my-sheets.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -169,83 +170,6 @@ const ADD_TIPS = Object.freeze({
   pageBreak: "Start a new page here when printed",
   keyTerms: "Add a box listing the key terms in the sheet’s passages, filled in for you",
 });
-
-const dateWords = (iso) => {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-};
-
-/**
- * The list of templates New sheet opens in place (M9). Hidden until asked
- * for; the first choice takes focus when it opens, and Cancel or Escape
- * closes it and puts focus back on New sheet (`opener`). `mine` is the
- * reader's own templates, offered after the built-in ones, and `onPick` is
- * handed a built-in template's id or one of those records. /sheets/ shows it
- * too, under its own "New sheet…" (S12, part 1, step 2).
- */
-export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
-  const box = make("div", "desk-sheet__passage-form desk-sheet__templates");
-  box.id = `deskSheetTemplates-${idSuffix}`;
-  box.hidden = true;
-  box.setAttribute("role", "group");
-  box.setAttribute("aria-label", "Start a sheet from");
-  const ul = make("ul", "desk-sheet__from-list");
-  for (const t of TEMPLATES) {
-    const li = make("li");
-    const b = button("", "desk-sheet__from-item desk-sheet__choice");
-    b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
-    b.addEventListener("click", () => onPick(t.id));
-    li.append(b);
-    ul.append(li);
-  }
-  // The reader's own, after the built-in seven, under a heading of their own.
-  let own = null;
-  if (mine.length) {
-    own = make("div", "desk-sheet__own-templates");
-    const h = make("p", "desk-sheet__own-head", "Your templates");
-    h.id = `deskSheetOwnHead-${idSuffix}`;
-    const oul = make("ul", "desk-sheet__from-list");
-    oul.setAttribute("aria-labelledby", h.id);
-    for (const t of mine) {
-      const li = make("li");
-      const b = button("", "desk-sheet__from-item desk-sheet__choice");
-      const parts = t.modules?.length ?? 0;
-      b.append(
-        make("span", "desk-sheet__choice-name", sheetName(t)),
-        make("span", "desk-sheet__from-words", `${parts} ${parts === 1 ? "part" : "parts"}${t.modified ? `, changed ${dateWords(t.modified)}` : ""}`),
-      );
-      if (!canEdit(t)) b.disabled = true;
-      b.addEventListener("click", () => onPick(t));
-      li.append(b);
-      oul.append(li);
-    }
-    own.append(h, oul);
-  }
-  const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
-  const close = () => {
-    box.hidden = true;
-    opener.setAttribute("aria-expanded", "false");
-    opener.focus();
-  };
-  cancel.addEventListener("click", close);
-  box.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-    e.preventDefault();
-    e.stopPropagation();
-    close();
-  });
-  box.append(ul, ...(own ? [own] : []), cancel);
-  box.toggle = () => {
-    if (box.hidden) {
-      box.hidden = false;
-      opener.setAttribute("aria-expanded", "true");
-      box.querySelector("button")?.focus();
-    } else {
-      close();
-    }
-  };
-  return box;
-}
 
 /* ── The editor ───────────────────────────────────────────────────────── */
 
@@ -523,6 +447,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     else showList(options);
   }
 
+  // What the list view (my-sheets.js) is handed: the editor's own pieces.
+  const listHost = { store, opCtx, idSuffix, say, content, openSheet, startFrom, showList };
+
   async function showList({ focus = null, chooser: openChooser = false } = {}) {
     const n = ++seq;
     sheet = null;
@@ -551,72 +478,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     // are listed apart, and New sheet offers them.
     const mine = sortSheets(all.filter(isOwnTemplate));
     all = all.filter((r) => !isOwnTemplate(r));
-    const list = make("div", "desk-sheet__list");
-    const head = make("div", "desk-sheet__list-head");
-    const h = make("h3", "desk-sheet__list-title", "My sheets");
-    h.tabIndex = -1;
-    const fresh = button("New sheet", "desk-sheet__btn desk-sheet__btn--primary");
-    fresh.setAttribute("aria-expanded", "false");
-    fresh.dataset.focusKey = "new-sheet";
-    const chooser = templateChooser({ opener: fresh, mine, idSuffix, onPick: startFrom });
-    fresh.setAttribute("aria-controls", chooser.id);
-    fresh.addEventListener("click", () => chooser.toggle());
-    head.append(h, fresh);
-    list.append(head, chooser);
-    if (!all.length) {
-      list.append(make("p", "desk-sheet__empty", "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Start one with New sheet, then add passages from the LIT pane’s verse numbers or by selecting words."));
-    } else {
-      const ul = make("ul", "desk-sheet__sheets");
-      for (const s of sortSheets(all)) {
-        const li = make("li", "desk-sheet__sheet");
-        const open = button("", "desk-sheet__open");
-        open.append(make("span", "desk-sheet__open-name", sheetName(s)));
-        const passages = s.modules?.filter((m) => m?.type === "passage").length ?? 0;
-        // An untitled sheet names its template, so two can be told apart (SH6-7).
-        const from = s.title?.trim() ? null : TEMPLATES.find((t) => t.id === s.template && t.id !== "blank")?.name;
-        const bits = [s.subtitle, from, `${passages} ${passages === 1 ? "passage" : "passages"}`, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean);
-        open.append(make("span", "desk-sheet__open-meta", bits.join(" · ")));
-        open.dataset.focusKey = `open-${s.id}`;
-        open.addEventListener("click", () => openSheet(s.id, { focusTitle: true }));
-        const dup = button("Duplicate", "desk-sheet__btn desk-sheet__btn--quiet");
-        dup.setAttribute("aria-label", `Duplicate ${sheetName(s)}`);
-        // A sheet of a newer sheet format can't be changed here, so it isn't copied either.
-        if (!canEdit(s)) {
-          dup.disabled = true;
-          dup.title = "Made with a newer version of the Study Desk, so it can’t be duplicated here.";
-        }
-        dup.addEventListener("click", () => duplicate(s));
-        const keep = button("Save as template", "desk-sheet__btn desk-sheet__btn--quiet");
-        keep.setAttribute("aria-label", `Save ${sheetName(s)} as a template`);
-        keep.title = "Keep this sheet’s parts, without its passages, as a template of your own that New sheet offers.";
-        if (!canEdit(s)) {
-          keep.disabled = true;
-          keep.title = "Made with a newer version of the Study Desk, so it can’t be kept as a template here.";
-        }
-        // A template is a sheet without its passages, so a sheet of passages alone would make an empty one (DK6-8).
-        if (canEdit(s) && !hasTemplateParts(s)) {
-          keep.disabled = true;
-          keep.title = "This sheet has only passages, and a template keeps everything but those. Add a part of your own first.";
-        }
-        keep.addEventListener("click", () => saveAsTemplate(s));
-        const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
-        del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
-        del.addEventListener("click", async () => {
-          const trash = await store.remove(s.id);
-          const entry = trash ? store.lastEntry() : null;
-          if (entry) showUndo(`${sheetName(s)} deleted.`, () => undoEntry(entry));
-          // The row below takes focus (else the one above, else New sheet).
-          const rows = Array.from(ul.querySelectorAll(".desk-sheet__open"));
-          const at = rows.indexOf(open);
-          const next = rows[at + 1] ?? rows[at - 1];
-          showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
-        });
-        li.append(open, dup, keep, del);
-        ul.append(li);
-      }
-      list.append(ul);
-    }
-    if (mine.length) list.append(ownTemplatesList(mine));
+    const { list, chooser, heading: h } = mySheetsList(listHost, { sheets: all, mine });
     const target = focus ? list.querySelector(`[data-focus-key="${CSS.escape(focus)}"]`) : null;
     const moved = redraw(content, [list], { fallback: () => target ?? h, force: Boolean(focus) });
     if (focus && moved) say(moved === target || moved === h ? "My sheets" : "");
@@ -638,43 +500,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   }
   me.startFrom = startFrom;
 
-  /**
-   * The reader's own templates under the sheets (Audit 5, D #1): open one to
-   * change it, or delete it. New sheet starts from them.
-   */
-  function ownTemplatesList(mine) {
-    const box = make("section", "desk-sheet__own");
-    const h = make("h3", "desk-sheet__list-title", "My templates");
-    h.id = `deskSheetOwn-${idSuffix}`;
-    box.setAttribute("aria-labelledby", h.id);
-    const ul = make("ul", "desk-sheet__sheets");
-    for (const t of mine) {
-      const li = make("li", "desk-sheet__sheet");
-      const open = button("", "desk-sheet__open");
-      open.append(make("span", "desk-sheet__open-name", sheetName(t)));
-      const parts = t.modules?.length ?? 0;
-      const bits = [`Template, ${parts} ${parts === 1 ? "part" : "parts"}`, t.modified ? `changed ${dateWords(t.modified)}` : ""];
-      open.append(make("span", "desk-sheet__open-meta", bits.filter(Boolean).join(" · ")));
-      open.dataset.focusKey = `open-${t.id}`;
-      open.addEventListener("click", () => openSheet(t.id, { focusTitle: true }));
-      const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
-      del.setAttribute("aria-label", `Delete the template ${sheetName(t)}`);
-      del.addEventListener("click", async () => {
-        const trash = await store.remove(t.id);
-        const entry = trash ? store.lastEntry() : null;
-        if (entry) showUndo(`Template ${sheetName(t)} deleted.`, () => undoEntry(entry));
-        const rows = Array.from(ul.querySelectorAll(".desk-sheet__open"));
-        const at = rows.indexOf(open);
-        const next = rows[at + 1] ?? rows[at - 1];
-        showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
-      });
-      li.append(open, del);
-      ul.append(li);
-    }
-    box.append(h, ul);
-    return box;
-  }
-
   /** Make a sheet from one of the reader's own templates and open it. */
   async function newFromOwn(template) {
     let s = null;
@@ -682,60 +507,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       s = sheetFromTemplate((await store.get(template.id)) ?? template, opCtx());
     } catch (err) {
       console.error("Study Desk: couldn't make a sheet from a template", err);
-      listProblem("The sheet couldn’t be made in this browser. Try again in a moment.");
+      listProblem(listHost, "The sheet couldn’t be made in this browser. Try again in a moment.");
       return;
     }
     openDraft(s);
-  }
-
-  /** Keep one of the reader's sheets as a template of their own (Audit 5, D #1). */
-  async function saveAsTemplate(source) {
-    let current = source;
-    let t = null;
-    try {
-      current = (await store.get(source.id)) ?? source;
-      t = templateFromSheet(current, opCtx());
-      await store.save(t);
-    } catch (err) {
-      console.error("Study Desk: couldn't keep a sheet as a template", err);
-      listProblem(sheetTooBig(err)
-        ? "That sheet is too big to keep as a template."
-        : "The template couldn’t be saved in this browser. Try again in a moment.");
-      return;
-    }
-    await showList({ focus: `open-${t.id}` });
-    say(`Saved ${sheetName(current)} as a template. New sheet now offers it.`);
-  }
-
-  /** A problem with the list's own actions, shown under its heading as well as heard (CP-13). */
-  function listProblem(text) {
-    const head = content.querySelector(".desk-sheet__list-head");
-    if (head) {
-      head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
-      head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
-    }
-    say(text);
-  }
-
-  /** Duplicate one of the reader's sheets (Audit 2, decision 12) and open the copy. */
-  async function duplicate(source) {
-    // The copy is made from the sheet as stored now, which another tab may have changed.
-    let current = source;
-    let copy = null;
-    try {
-      current = (await store.get(source.id)) ?? source;
-      copy = duplicateSheet(current, opCtx());
-      await store.save(copy);
-    } catch (err) {
-      console.error("Study Desk: couldn't duplicate a sheet", err);
-      const text = sheetTooBig(err)
-        ? "That sheet is too big to duplicate."
-        : "The sheet couldn’t be duplicated in this browser. Try again in a moment.";
-      listProblem(text);
-      return;
-    }
-    say(`Duplicated ${sheetName(current)}.`);
-    await openSheet(copy.id, { focusTitle: true });
   }
 
   // ---- one sheet ----
