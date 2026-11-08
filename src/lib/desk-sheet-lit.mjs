@@ -349,21 +349,48 @@ function shortWordsOf(text) {
  * The blanks a footnote would give away: those with a word whose stem the
  * footnote shares ("deviating" is given away by a note reading "people
  * characterized by deviation"), or a short content word the footnote uses
- * whole ("God", "joy", "law"; BA76). Errs toward flagging, since a flag only
- * asks the leader to decide (C15).
+ * whole ("God", "joy", "law"; BA76), or whose `telltale` (blankWords: the
+ * traditional word a hint doesn't show) the footnote names. Errs toward
+ * flagging, since a flag only asks the leader to decide (C15).
  *
  * @param {string} footnoteText
- * @param {{ exact: string }[]} blanks
+ * @param {{ exact: string, telltale?: string }[]} blanks
  */
 export function blanksGivenAway(footnoteText, blanks) {
   const inNote = wordsInOf(footnoteText);
   if (!inNote.stems.size && !inNote.shorts.size) return [];
-  return blanks.filter((b) => {
-    const inBlank = wordsInOf(b.exact);
-    for (const s of inBlank.stems) if (inNote.stems.has(s)) return true;
-    for (const w of inBlank.shorts) if (inNote.shorts.has(w)) return true;
-    return false;
-  });
+  return blanks.filter((b) => sharesWords(inNote, wordsInOf(b.exact)) || (!!b.telltale && sharesWords(inNote, wordsInOf(b.telltale))));
+}
+
+// Whether two texts' words (wordsInOf) share a stem or a short content word.
+function sharesWords(a, b) {
+  for (const s of b.stems) if (a.stems.has(s)) return true;
+  for (const w of b.shorts) if (a.shorts.has(w)) return true;
+  return false;
+}
+
+/**
+ * What a printed blank can be given away by (SH5-16): its words, and the
+ * traditional word of the glossary term they render when the hint beneath
+ * the blank does not already show it. With "No hint," a footnote reading
+ * "Traditionally, 'flesh'" beside a blank on "self-preservation" hands the
+ * answer over, so that word counts as the blank's too (`telltale`). With the
+ * traditional hint it is printed under the blank already, and a leader's own
+ * hint that names it says as much, so neither adds one. `b` is one of the
+ * passage's located blanks (locateBlanks) and `text` its chapter's anchor text.
+ *
+ * @param {{ blank: { hint?: string, hintText?: string }, start: number | null, end: number | null }} b
+ * @param {{ start: number, end: number, id: string }[]} marks the chapter's term marks
+ * @param {Record<string, { traditional: string }>} terms
+ * @returns {{ exact: string, telltale?: string }}
+ */
+export function blankWords(b, text, marks, terms) {
+  const exact = text.slice(b.start, b.end);
+  if (b.blank.hint === "traditional" || b.start == null) return { exact };
+  const term = termForWords(b.start, b.end, marks, terms);
+  if (!term) return { exact };
+  if (b.blank.hint === "custom" && blanksGivenAway(b.blank.hintText ?? "", [{ exact: term.traditional }]).length) return { exact };
+  return { exact, telltale: term.traditional };
 }
 
 // The stems and short words of each text, worked out once: every footnote of

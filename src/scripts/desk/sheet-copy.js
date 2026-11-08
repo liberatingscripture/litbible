@@ -23,7 +23,7 @@ import {
   modulesForCopy,
   sheetHtmlForShow,
 } from "../../lib/desk-sheet-copy.mjs";
-import { blankHint, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
+import { blankHint, blankWords, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
 import { blankCover, footnotesInPlay } from "../../lib/desk-present.mjs";
 import { partialEnds, passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
@@ -107,7 +107,7 @@ export function printingBlanks(modules, views) {
   for (const m of modules) {
     const view = views.get(m.id);
     if (m.type !== "passage" || !view?.ok) continue;
-    for (const b of locateBlanks(view, m)) if (b.prints) out.push({ exact: view.chapter.text.slice(b.start, b.end) });
+    for (const b of locateBlanks(view, m)) if (b.prints) out.push(blankWords(b, view.chapter.text, view.allMarks, view.terms));
   }
   return out;
 }

@@ -1354,7 +1354,20 @@ against `dist/` is a later item.
        its own row with its notice (`groupBlanks`, SH5-9). When a redraw
        removes the control that had focus, focus goes to one that is always
        drawn ("Blank the selected words", the footnotes summary, the key
-       terms note), never to the page (`restoreFocus`, SH5-10). **My sheets lists
+       terms note), never to the page (`restoreFocus`, SH5-10). A footnote
+       gives a blank away by using its words or by naming a traditional
+       word the blank's hint doesn't show (`blankWords`' `telltale`; SH5-16,
+       BVJ 2026-11-08), and the flag's sentence names that word. A page
+       break's card has no Leader only box (SH5-17): a break is on both
+       versions, though the format still allows the field. **Every card's
+       header has a "+"** (BVJ, 2026-11-08) opening a menu of the add bar's
+       parts, each added right after that card (`addPart(type, after)`), so a
+       long sheet needn't be scrolled to its end; "Passage…" opens the bar's
+       reference form and marks the card as where the passage goes
+       (`insertAfter`, honored by `insertIndex` ahead of the part last worked
+       in and let go of once the passage is added or another card is worked
+       in). The bar's own buttons still add after the part last worked in,
+       else at the end. **My sheets lists
        Duplicate beside Delete** (BVJ, 2026-11-04; `duplicateSheet` in
        `desk-sheets.mjs`): the same parts under fresh ids, "<title> (copy)"
        (cut to the title limit), and everything else kept, so labels and a

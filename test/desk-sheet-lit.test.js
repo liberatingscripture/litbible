@@ -12,6 +12,7 @@ import { assembleChapter, rangeOf } from "../src/lib/anchor-core.mjs";
 import {
   blankFromOffsets,
   blankHint,
+  blankWords,
   blanksGivenAway,
   booksToCheck,
   collectKeyTerms,
@@ -404,6 +405,47 @@ test("locateBlank: an endVerse before the blank's verse still searches the blank
   const r = locateBlank(chapter, blank, { start: s, end: e }, 1);
   assert.equal(r.status, "found");
   assert.equal(r.prints, true);
+});
+
+/* ── blankWords (SH5-16) ─────────────────────────────────────────────── */
+
+function locatedBlank(hint, hintText) {
+  const where = at(chapter, "deviation");
+  const blank = { id: "b", hint, ...(hint === "custom" ? { hintText } : {}) };
+  return { blank, start: where.start, end: where.end, prints: true };
+}
+
+test("blankWords: with no hint, the term's traditional word is the blank's telltale", () => {
+  const marks = marksFor(chapter, [{ text: "deviation", id: "hamartia" }]);
+  assert.deepEqual(blankWords(locatedBlank("none"), chapter.text, marks, TERMS), { exact: "deviation", telltale: "sin" });
+});
+
+test("blankWords: the traditional hint already shows the word, so no telltale", () => {
+  const marks = marksFor(chapter, [{ text: "deviation", id: "hamartia" }]);
+  assert.deepEqual(blankWords(locatedBlank("traditional"), chapter.text, marks, TERMS), { exact: "deviation" });
+});
+
+test("blankWords: a custom hint naming the traditional word drops the telltale, one that doesn't keeps it", () => {
+  const marks = marksFor(chapter, [{ text: "deviation", id: "hamartia" }]);
+  assert.deepEqual(blankWords(locatedBlank("custom", "the old word was Sin"), chapter.text, marks, TERMS), { exact: "deviation" });
+  assert.deepEqual(blankWords(locatedBlank("custom", "what we turn away from"), chapter.text, marks, TERMS), {
+    exact: "deviation",
+    telltale: "sin",
+  });
+});
+
+test("blankWords: words under no term mark, or a blank with no place, have no telltale", () => {
+  assert.deepEqual(blankWords(locatedBlank("none"), chapter.text, [], TERMS), { exact: "deviation" });
+  const marks = marksFor(chapter, [{ text: "deviation", id: "hamartia" }]);
+  const lost = { blank: { id: "b", hint: "none" }, start: null, end: null, prints: false };
+  assert.deepEqual(blankWords(lost, chapter.text, marks, TERMS), { exact: "" });
+});
+
+test("blanksGivenAway: a note naming the telltale gives the blank away; without one it doesn't", () => {
+  const withTelltale = { exact: "deviation", telltale: "sin" };
+  const without = { exact: "deviation" };
+  assert.deepEqual(blanksGivenAway("Traditionally, ‘sin’", [withTelltale, without]), [withTelltale]);
+  assert.deepEqual(blanksGivenAway("since the law", [withTelltale]), []);
 });
 
 /* ── overlapsBlank ───────────────────────────────────────────────────── */

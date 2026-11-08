@@ -284,9 +284,13 @@ function scheduleClose() {
 function wire(container, data, signal) {
   // Mouse hover. As with reference previews, a panel someone opened on
   // purpose (the verse menu, a footnote, the selection bar) is never
-  // replaced by one that merely passed under the pointer.
+  // replaced by one that merely passed under the pointer. A pointer with a
+  // button down is selecting, not reading: a drag that paused on a term
+  // before its release opened the card mid-drag, which cut the selection
+  // short and kept the selection panel from appearing (SH5-15). The same
+  // holds once the delay has run, so a selection made meanwhile is left be.
   container.addEventListener("pointerover", (e) => {
-    if (e.pointerType !== "mouse") return;
+    if (e.pointerType !== "mouse" || e.buttons) return;
     const hit = markOf(data, e.target);
     if (!hit) return;
     lightSiblings(container, data, hit.span, hit.mark, true);
@@ -295,7 +299,11 @@ function wire(container, data, signal) {
     if (p?.trigger && p.kind === "term" && p.trigger.dataset.mark === hit.span.dataset.mark) return;
     if (p && !(p.kind === "term" && p.hover)) return;
     clearTimeout(hoverTimer);
-    hoverTimer = setTimeout(() => openCard(container, data, hit.span, hit.mark, { hover: true }), OPEN_DELAY);
+    hoverTimer = setTimeout(() => {
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed) return;
+      openCard(container, data, hit.span, hit.mark, { hover: true });
+    }, OPEN_DELAY);
   }, { signal });
   container.addEventListener("pointerout", (e) => {
     if (e.pointerType !== "mouse") return;

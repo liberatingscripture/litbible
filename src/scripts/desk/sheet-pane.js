@@ -249,6 +249,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   let sheet = null; // the sheet shown, as last read or saved
   let lastModule = null; // the part last focused or clicked on this sheet
+  // The part a card's "+" menu chose "Passage…" after (BVJ, 2026-11-08): the
+  // add bar's form adds the next passage there, whatever kind of part it is,
+  // then lets go of it. Working in another card lets go of it too.
+  let insertAfter = null;
+  let passageButton = null;
   let destroyed = false;
   let seq = 0; // bumped when the pane switches between the list and a sheet
   const now = () => new Date().toISOString();
@@ -260,6 +265,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * passage; otherwise it goes where passageInsertIndex puts it (BA69, SH5-3).
    */
   const insertIndex = (s, { passage = false } = {}) => {
+    if (insertAfter) {
+      const chosen = s.modules.findIndex((x) => x.id === insertAfter);
+      if (chosen >= 0) return chosen + 1;
+    }
     const at = lastModule ? s.modules.findIndex((x) => x.id === lastModule) : -1;
     if (passage) return at >= 0 && s.modules[at]?.type === "passage" ? at + 1 : passageInsertIndex(s);
     return at >= 0 ? at + 1 : s.modules.length;
@@ -284,6 +293,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         announce: message,
         after: () => cards.get(mod.id)?.el.scrollIntoView({ block: "nearest" }),
       });
+      insertAfter = null;
       return ok && { message, again };
     },
   };
@@ -444,11 +454,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet = null;
     targetChanged();
     lastModule = null;
+    insertAfter = null;
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
     license = null;
     keyTermsButton = null;
     keyTermsHint = null;
+    passageButton = null;
     // The button just pressed is gone with the view it was in, so the list
     // names where focus goes (DK-3); "loading" holds it meanwhile.
     const loading = make("p", "desk-sheet__status", "Loading your sheets…");
@@ -642,6 +654,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet = record;
     targetChanged();
     lastModule = null;
+    insertAfter = null;
     readOnly = !canEdit(record);
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
@@ -862,8 +875,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     const card = make("div", `desk-sheet__module desk-sheet__module--${known ? m.type : "unknown"}`);
     card.setAttribute("role", "listitem");
     card.dataset.moduleId = m.id;
-    card.addEventListener("focusin", () => { lastModule = m.id; });
-    card.addEventListener("pointerdown", () => { lastModule = m.id; });
+    card.addEventListener("focusin", () => { lastModule = m.id; insertAfter = null; });
+    card.addEventListener("pointerdown", () => { lastModule = m.id; insertAfter = null; });
     const head = make("div", "desk-sheet__module-head");
     const grip = make("span", "desk-sheet__grip");
     grip.setAttribute("aria-hidden", "true");
@@ -878,7 +891,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     let up = null;
     let down = null;
     if (!readOnly) {
-      if (known) {
+      // A page break is on both versions: a break on the leader's printout
+      // alone is meaningful but puzzling in a box, so it isn't offered (SH5-17).
+      if (known && m.type !== "pageBreak") {
         const leader = make("label", "desk-sheet__leader");
         const box = make("input");
         box.type = "checkbox";
@@ -893,6 +908,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         leader.title = "Print and present this on the leader’s version only";
         tools.append(leader, describe(box, "Prints and presents this on the leader’s version only."));
       }
+      const insert = button("+", "desk-sheet__icon");
+      insert.setAttribute("aria-label", `Add a part after ${name}`);
+      insert.setAttribute("aria-haspopup", "menu");
+      insert.setAttribute("aria-expanded", "false");
+      insert.title = "Add a part here";
+      insert.addEventListener("click", () => openInsertMenu(insert, m, name));
+      tools.append(insert);
       up = button("↑", "desk-sheet__icon");
       up.setAttribute("aria-label", `Move ${name} up`);
       up.addEventListener("click", () => move(m.id, -1, up));
@@ -923,6 +945,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     return {
       el: card,
       inst,
+      name,
       json: "",
       head: headKey(m),
       setPosition(i, count) {
@@ -1079,6 +1102,129 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   // ---- adding ----
 
+  /**
+   * Adds a part of `type`: after the part `after` (a card's "+" menu; BVJ,
+   * 2026-11-08), else after the part last worked in, else at the end. The
+   * new part takes focus: a space's lines field, a page break's first Move
+   * button (SH5-10), otherwise its text.
+   */
+  function addPart(type, after = null) {
+    const mod = makeModule(type);
+    const where = (s) => {
+      const i = after ? s.modules.findIndex((x) => x.id === after) : -1;
+      return i >= 0 ? i + 1 : insertIndex(s);
+    };
+    const afterName = after ? cards.get(after)?.name : null;
+    const atEnd = !sheet || where(sheet) >= sheet.modules.length;
+    change((s) => addModule(s, mod, where(s), opCtx()), {
+      announce: `${TYPE_NAMES[type]} added${afterName ? ` after ${afterName}` : atEnd ? " at the end" : " after the part you were working in"}.`,
+      after: () => {
+        const c = cards.get(mod.id);
+        c?.el.scrollIntoView({ block: "nearest" });
+        if (type === "space") c?.el.querySelector(".desk-sheet__lines input")?.focus();
+        else if (type === "pageBreak") c?.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)")?.focus();
+        else c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+      },
+    });
+  }
+
+  /**
+   * The menu under a card's "+" (BVJ, 2026-11-08): the parts the add bar
+   * offers, each added right after this card, so a long sheet needn't be
+   * scrolled to its end. "Passage…" opens the add bar's reference form and
+   * marks this card as where the passage goes (`insertAfter`), since a
+   * passage needs a reference typed. One key terms box per sheet, as in the
+   * bar. Arrow keys move, Escape returns to the button, a click elsewhere closes.
+   */
+  function openInsertMenu(button, m, name) {
+    const menu = make("div", "desk-pane__menu desk-sheet__insert-menu");
+    menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-label", `Add a part after ${name}`);
+    menu.id = `deskSheetInsert-${paneId}-${m.id}`;
+    const hasTerms = !!sheet?.modules.some((x) => x?.type === "keyTerms");
+    const items = [];
+    // Removing the menu blurs its focused item, and the focusout below closes
+    // too, so the second close must find nothing to do before the first has
+    // removed anything, or remove() throws and the pick never runs (SH5-1).
+    let closed = false;
+    const close = (refocus) => {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener("pointerdown", outside, true);
+      menu.remove();
+      button.setAttribute("aria-expanded", "false");
+      button.removeAttribute("aria-controls");
+      if (refocus) button.focus();
+    };
+    const outside = (e) => { if (!menu.contains(e.target) && e.target !== button) close(false); };
+    const item = (label, type, { disabled = false, why = null } = {}) => {
+      const b = make("button", "desk-pane__menu-item");
+      b.type = "button";
+      b.tabIndex = -1;
+      b.setAttribute("role", "menuitem");
+      b.append(make("span", "desk-title__label", label));
+      if (disabled) {
+        const hint = make("span", "desk-title__hint", why);
+        hint.id = `${menu.id}-why`;
+        b.append(hint);
+        b.setAttribute("aria-disabled", "true");
+        b.setAttribute("aria-describedby", hint.id);
+      }
+      b.addEventListener("click", () => {
+        if (disabled) return;
+        close(false);
+        if (type === "passage") {
+          insertAfter = m.id;
+          if (passageButton && passageButton.getAttribute("aria-expanded") !== "true") passageButton.click();
+          const field = document.getElementById(`deskSheetPassage-${paneId}`)?.querySelector("input");
+          field?.scrollIntoView({ block: "nearest" });
+          field?.focus();
+          say(`Type the passage; it goes after ${name}.`);
+          return;
+        }
+        addPart(type, m.id);
+      });
+      menu.append(b);
+      items.push(b);
+      return b;
+    };
+    item("Passage…", "passage");
+    item("Your text", "text");
+    item("Question", "question");
+    item("Space to write", "space");
+    item("Page break", "pageBreak");
+    item("Key terms box", "keyTerms", { disabled: hasTerms, why: "already on the sheet" });
+    menu.addEventListener("keydown", (e) => {
+      const i = items.indexOf(document.activeElement);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus();
+      } else if (e.key === "Home" || e.key === "End") {
+        e.preventDefault();
+        items[e.key === "Home" ? 0 : items.length - 1].focus();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        close(true);
+      } else if (e.key === "Tab") {
+        close(false);
+      }
+    });
+    menu.addEventListener("focusout", (e) => { if (!menu.contains(e.relatedTarget)) close(false); });
+    document.body.append(menu);
+    const at = button.getBoundingClientRect();
+    const w = menu.offsetWidth;
+    const h = menu.offsetHeight;
+    const left = Math.max(8, Math.min(at.left, window.innerWidth - w - 8));
+    const top = at.bottom + h + 8 <= window.innerHeight ? at.bottom + 4 : Math.max(8, at.top - h - 4);
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    button.setAttribute("aria-expanded", "true");
+    button.setAttribute("aria-controls", menu.id);
+    document.addEventListener("pointerdown", outside, true);
+    items[0].focus();
+  }
+
   function addBar() {
     const bar = make("div", "desk-sheet__add");
     const row = make("div", "desk-sheet__add-row");
@@ -1095,24 +1241,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           if (!form.hidden) openPassageForm(form);
           return;
         }
-        const mod = makeModule(type);
-        const atEnd = !sheet || insertIndex(sheet) >= sheet.modules.length;
-        change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
-          announce: `${TYPE_NAMES[type]} added${atEnd ? " at the end" : " after the part you were working in"}.`,
-          after: () => {
-            const c = cards.get(mod.id);
-            c?.el.scrollIntoView({ block: "nearest" });
-            // A space's lines field, or a page break's first Move button,
-            // never its Leader only box (SH5-10).
-            if (type === "space") c?.el.querySelector(".desk-sheet__lines input")?.focus();
-            else if (type === "pageBreak") c?.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)")?.focus();
-            else c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
-          },
-        });
+        addPart(type);
       });
       if (type === "passage") {
         b.setAttribute("aria-expanded", "false");
         b.setAttribute("aria-controls", `deskSheetPassage-${paneId}`);
+        passageButton = b;
       }
       row.append(b);
     };

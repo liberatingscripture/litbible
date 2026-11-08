@@ -7029,6 +7029,13 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   cursor: default;
 }
 
+/* The card's "+" menu (BVJ, 2026-11-08): the parts the add bar offers, added
+   right after this part, so a long sheet needn't be scrolled to its end. Drawn
+   as a pane menu, without the room a radio's check takes. */
+.desk-sheet__insert-menu .desk-pane__menu-item {
+  padding-left: 10px;
+}
+
 /* A passage: the LIT's words, set apart from the reader's (format rule 2). */
 .desk-sheet__words {
   border-left: 3px solid var(--green);

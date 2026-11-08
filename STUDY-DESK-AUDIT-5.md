@@ -31,7 +31,14 @@ Low, Nit, Observation.
 **Status (2026-11-07, same day):** on BVJ's instruction to implement everything that needed no
 decision of theirs, SH5-1 to SH5-14 shipped on this audit's branch, with SH5-17's small things except
 the page break's Leader only box and the "fill in" wording; SH5-15 (shared reader code) and SH5-16
-(BVJ's call on the give-away flag) stay open. The ghost prompts took section B's Design 2, an optional
+(BVJ's call on the give-away flag) stayed open. **On 2026-11-08 BVJ decided the rest:** the flag
+widens to a traditional word the hint doesn't show (SH5-16), the drag onto a term is fixed in the
+shared lens (SH5-15), Lectio divina keeps prompts rather than printed lines, the page break loses
+its Leader only box, and "fill in" stays with a help paragraph (SH5-17). The same day BVJ asked for
+a way to add a part between parts without scrolling to the add bar: every card's header gained a
+"+" that opens a menu of the bar's parts and adds the chosen one right after that card ("Passage…"
+opens the bar's reference form and marks the card as where the passage goes). Nothing in this audit
+is open. The ghost prompts took section B's Design 2, an optional
 `prompt` field, chosen by Claude under that instruction and reversible; Lectio divina's movement
 lines became prompts too, under the rule that no field starts with text. The toolbar (SH5-6) is drawn
 below the focused part, so clicking into a part grows the card downward instead of moving the words
@@ -268,13 +275,19 @@ was.
 Fix: head the card "Romans 8:6 (part)" and print a fragment with leading and trailing ellipses when
 it starts or ends mid-verse; the stored `quote` already tells which.
 
-#### SH5-15 · Observation · a drag that ends on a key term opens the term card instead
+#### SH5-15 · Observation · a drag that ends on a key term opens the term card instead · FIXED (2026-11-08)
 
 In the LIT pane, a selection whose mouse-up lands on an underlined key term (frequent in Romans 8)
 opens the term lens card, and the selection panel with "Add to sheet" never appears. Shared reader
 code, not the sheets'; noted here because a leader gathering passages meets it often.
 
-#### SH5-16 · Observation · the give-away flag reads the LIT's words only
+*Fix (BVJ, 2026-11-08):* the cause was the lens's hover card, not its click. A drag that paused on
+the term for the hover delay before its release opened the card mid-drag, which cut the selection
+to its first word; the click handler already stood aside for a live selection. The lens now ignores
+a pointer with a button down and leaves a selection that formed during the delay alone
+(`term-lens.js`), so the selection panel appears as it does elsewhere. Chapter View shares the fix.
+
+#### SH5-16 · Observation · the give-away flag reads the LIT's words only · FIXED (2026-11-08)
 
 Blanking "self-preservation" did not flag footnotes a, b, and d ("Traditionally, 'flesh'"), since
 the rule matches the blanked words, not the traditional word, and that word is the hint beneath the
@@ -282,11 +295,21 @@ blank anyway. Right by design when the hint is the traditional word; when the le
 hint," a footnote naming the traditional word does give the answer away. BVJ's call whether the
 flag should widen in that case.
 
-#### SH5-17 · Nit · small things seen along the way · PARTLY FIXED (2026-11-07)
+*Fix (BVJ chose to widen it, 2026-11-08):* a printing blank now carries a `telltale`, the
+traditional word of the term its words render, when its hint does not already show that word: with
+"No hint" always, with a custom hint unless the hint names the word, never with the traditional hint
+(`blankWords` in `desk-sheet-lit.mjs`). A footnote naming the telltale is flagged like one that
+repeats the blank's words, in the editor, on paper, and in Present, and the flag's sentence names
+the word ("deviation," traditionally "sin"). The key terms box is unchanged: it prints the
+traditional word by design, and the leader chooses whether it is on the sheet.
+
+#### SH5-17 · Nit · small things seen along the way · FIXED (2026-11-07, 2026-11-08)
 
 - "+ Key terms box," when the sheet has one, is disabled with its reason only in the title and the
   accessible description; a word beside it ("already on the sheet") would say so to the eye.
 - A page break offers "Leader only" and Move; a leader-only page break is meaningful but odd.
+  *Dropped (BVJ, 2026-11-08):* a page break's card offers Move and Remove only; a break is on both
+  versions. The format still allows `leaderOnly` on one, and a sheet that has it keeps it.
 - Removing one of a term's blanks announces "“deviation” filled in again." while two remain blank.
 - The Share dialog opens with focus on its × rather than on "What to share."
 - The /search gather panel lists sheets by name and part count only; two sheets named "Come to me"
@@ -296,6 +319,8 @@ flag should widen in that case.
   expectations better ("Opening · Reading · 3 questions · Key terms · Closing").
 - "Fill in" is the verb for undoing a blank in every label and announcement; "unblank" is what a
   leader will look for first. Keep "fill in" if BVJ prefers it, but add it to the help page.
+  *Kept (BVJ, 2026-11-08):* "fill in" stays, and /desk/help gains a Blanks paragraph that says how
+  a blank is made, hinted, flagged, and filled in again.
 
 ### What worked well
 
