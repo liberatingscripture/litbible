@@ -374,3 +374,22 @@ test("the slides load only when chosen: the sheet page reaches none of them by a
   const save = readFileSync(join(root, "src/scripts/desk/sheets/sheet-save.js"), "utf8");
   for (const file of ["desk-slides-pptx.mjs", "desk-slides-odp.mjs"]) assert.ok(save.includes(`import("../../../lib/${file}")`));
 });
+
+test("the sheet editor loads only when chosen: the sheet page reaches it by a dynamic import alone (S12)", () => {
+  const seen = new Set();
+  const walk = (file) => {
+    const rel = relative(root, file).replaceAll("\\", "/");
+    if (seen.has(rel)) return;
+    seen.add(rel);
+    for (const m of readFileSync(file, "utf8").matchAll(STATIC_IMPORT)) {
+      const to = join(dirname(file), m[1] ?? m[2]);
+      if (existsSync(to)) walk(to);
+    }
+  };
+  walk(join(root, "src/scripts/desk/sheets/sheet-page.js"));
+  for (const file of ["src/scripts/desk/sheets/sheet-page-edit.js", "src/scripts/desk/sheets/sheet-editor.js", "src/scripts/desk/history.js"]) {
+    assert.ok(!seen.has(file), `${file} is not in the sheet page's chunk`);
+  }
+  const page = readFileSync(join(root, "src/scripts/desk/sheets/sheet-page.js"), "utf8");
+  assert.ok(page.includes('import("./sheet-page-edit.js")'));
+});

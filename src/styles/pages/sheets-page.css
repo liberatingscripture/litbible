@@ -596,6 +596,20 @@
   flex: 1 1 20rem;
 }
 
+/* "New sheet…" and its templates on the list (S12, part 1, step 2). */
+.sheets-page__new {
+  margin-block: 1rem 0.5rem;
+}
+
+.sheets-page__new .sheets-page__status {
+  margin-left: 0.75rem;
+}
+
+.sheets-page__new .desk-sheet__templates {
+  max-width: calc(60 * var(--ch));
+  margin-top: 0.5rem;
+}
+
 .sheets-page__open-file {
   display: flex;
   flex-wrap: wrap;

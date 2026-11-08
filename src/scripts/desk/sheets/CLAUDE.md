@@ -54,7 +54,12 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `onAddTarget` ("Add to sheet" in the LIT pane's menus and the Search pane's
   add buttons), and the title menu's `desk:sheet-new`, which names a pane and
   calls its editor's `newSheet`. A new feature of the editor goes in
-  `sheet-editor.js`, never in a host. The editor's formatted text is in `desk/sheets/sheet-text.js`
+  `sheet-editor.js`, never in a host. **The other host is
+  `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
+  19): it passes `onList` and `onDone`, so "‹ All sheets" and a Done button
+  go to the page's own list and versions instead of the editor's list and
+  its "Present…" and "Print or share…", and it uses the exported
+  `templateChooser` for the list's "New sheet…". The editor's formatted text is in `desk/sheets/sheet-text.js`
   (a paste or a drop is read by `pastedSheetHtml`, which keeps what
   Google Docs, Word and web pages mean; BA68, BA71, BA73; how a client
   reads a paste isn't in the format)
@@ -121,9 +126,21 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
 **Phase 3i is a sheet on paper** (STUDY-DESK.md, S4,
 S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
 `desk-gate.js` fills with `src/scripts/desk/sheets/sheet-page.js` when
-`[data-sheet-page]` is present. It shows, prints and copies a sheet and
-**never writes a record** (sheets are edited on /desk only; the Sheet
-pane's "Print or share…" opens it in a new tab). Six things to know:
+`[data-sheet-page]` is present. It shows, prints and copies a sheet (the
+Sheets pane's "Print or share…" opens it in a new tab), and **writes a
+record only in its editor or on "Import into my notebook"**. Seven things
+to know:
+- **Edit turns the page into the sheet editor** (S12, part 1, step 2; BVJ,
+  2026-11-08, decision 1): `/sheets/?id=<id>&view=edit`, and "New sheet…"
+  on the list opens a new sheet there from a template (`?view=edit` until
+  its first change writes it, then with its id). **`sheet-page-edit.js` is
+  a dynamic import, made only on Edit or New sheet…**, so a page opened to
+  print or present never loads the editor (tested in
+  `desk-slides.test.js`); it starts Ctrl+Z (`createHistory`) and the undo
+  bar with the first editor. The page draws its list, a sheet's versions
+  and the editor in place (`route`), each a history entry, and a view
+  drawn earlier stops listening for changes (`viewSeq`). A shared sheet
+  has no Edit until it is imported.
 - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
   modules each copy prints (`modulesForCopy`: the participant's leaves
   out Leader only), one code per chapter (`chapterCodes`, the address
@@ -210,8 +227,8 @@ pane's "Print or share…" opens it in a new tab). Six things to know:
 M3 and "Order of work", 3j), on the sheet's own page:
 `src/scripts/desk/sheets/sheet-present.js`, opened by sheet-page.js's
 "Present", or at once for `&view=present` (the Sheets pane's
-"Present…") and `&view=presenter` (the presenter view's window). Like
-the rest of the page it **never writes a record, and stores nothing**:
+"Present…") and `&view=presenter` (the presenter view's window). It
+**never writes a record, and stores nothing**:
 where the room is lives in the open windows. An empty text or question
 part (no words and no rule) has no screen, and an empty Leader only part
 gives no note; a part with only a heading or a rule still shows
