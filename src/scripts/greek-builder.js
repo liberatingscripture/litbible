@@ -76,6 +76,8 @@ export function createGreekBuilder({ put, announce }) {
   const root = make("div", "greek-builder");
   let field = null;
   let destroyed = false;
+  // True while a finished look-up draws its answer (see `load` and `infoFor`).
+  let settling = false;
   // What the builder shows: cards, and how close. Or `cannot`: a search it can't show.
   let state = { cards: [emptyCard()], gap: 3, anyOrder: false };
   let cannot = null;
@@ -166,7 +168,14 @@ export function createGreekBuilder({ put, announce }) {
       entry.status = "failed";
     }
     if (destroyed) return;
-    render();
+    // This draw only shows the answer: it retries no other failed look-up, or
+    // two failed words would retry each other without end (GK6-7).
+    settling = true;
+    try {
+      render();
+    } finally {
+      settling = false;
+    }
     speakLookup(words, entry);
   }
 
@@ -190,8 +199,9 @@ export function createGreekBuilder({ put, announce }) {
     if (!card.words.length) return { status: "any" };
     const key = card.words.join("/");
     let entry = info.get(key);
-    // A look-up that failed is shown once and tried again on the next draw.
-    if (entry?.status === "failed" && entry.shown) {
+    // A look-up that failed is shown once and tried again on the next draw the
+    // reader causes (not one a finished look-up causes; see `load`).
+    if (entry?.status === "failed" && entry.shown && !settling) {
       info.delete(key);
       entry = null;
     }
