@@ -41,7 +41,7 @@ sitting at the top made that worse, and its "Passage…" opened the bar's form a
 which felt like a glitch. Now the space between two parts shows a line with an "Add" pill when
 pointed at (BVJ's suggestion; it lies over the cards and takes no room), the pill's menu adds the
 chosen part right there, and "Passage…" opens the passage form under the part above. The pane is
-also renamed "Sheets" (it was "Sheet"). No finding in this audit is open; section D's recommendations were decided on 2026-11-08 and are marked there, with #3 and #5 still to talk through. The ghost prompts took section B's Design 2, an optional
+also renamed "Sheets" (it was "Sheet"). No finding in this audit is open; section D's recommendations were decided on 2026-11-08 and are marked there, with Discovery Bible Study and an inductive study (#3) still under discussion. The ghost prompts took section B's Design 2, an optional
 `prompt` field, chosen by Claude under that instruction and reversible; Lectio divina's movement
 lines became prompts too, under the rule that no field starts with text. The toolbar (SH5-6) is drawn
 below the focused part, so clicking into a part grows the card downward instead of moving the words
@@ -603,11 +603,16 @@ one place the Sheets sit near that line.
   sheets but don't edit them, so they keep the field and may ignore it.
   Per-part minutes don't print on paper or in the saved documents, only the
   total on the leader's version on screen and in print.
-- **#3, more templates and a question bank: to discuss** after this round
-  (BVJ). The words are the owner's.
+- **#3, more templates: the Swedish method built** (BVJ, 2026-11-08). Its
+  three signs are the headings of three parts, each with ruled space, so the
+  participants' copy carries the key; the explanations are prompts. The key
+  terms box starts after the reading, so each reader meets the passage first.
+  The video or podcast session is version 2. Discovery Bible Study and an
+  inductive study are still under discussion (BVJ asked for background).
 - **#4, Before you lead: built.** A Leader only part with a prompt opens the
   Bible study, Class session, and Lectio divina templates.
-- **#5, labels on questions and a starter bank**: with #3.
+- **#5, labels on questions and a starter bank: version 2** (BVJ,
+  2026-11-08).
 - **#6, credit-line placement as a choice: declined** (BVJ agreed): where
   the credit goes follows the license terms, so it stays fixed.
 - **#7, speaker notes in .pptx and .odp: already built** (the slides files,

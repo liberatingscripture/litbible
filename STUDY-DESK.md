@@ -5099,6 +5099,12 @@ be revisited for version 2.
   or saved as one link or file. Version 2 (BVJ, 2026-11-08).
 - **Start a sheet from a passage, with a finished example per template**
   (Audit 5, section D, #11). Version 2 (BVJ, 2026-11-08).
+- **A video or podcast session template** (Audit 5, section D, #3): a sheet
+  built around a video lesson, or around a Found in Translation episode.
+  Version 2 (BVJ, 2026-11-08).
+- **Labels on questions (Open, Consider, Apply) and a starter set of
+  questions per template** (Audit 5, section D, #5). Version 2 (BVJ,
+  2026-11-08).
 
 **Still open, for BVJ:**
 - **Which phase takes D10's version 1 part, a link to the Septuagint in

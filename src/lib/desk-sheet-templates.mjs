@@ -36,6 +36,12 @@ export const TEMPLATES = Object.freeze([
     name: "Lectio divina",
     description: "The four movements of a contemplative reading: read, reflect, pray, and rest.",
   }),
+  // The Swedish method (Audit 5, section D, #3; BVJ, 2026-11-08).
+  Object.freeze({
+    id: "swedish",
+    name: "Swedish method",
+    description: "Each person reads alone and marks a light, a question, and an arrow, then the group shares them.",
+  }),
   Object.freeze({
     id: "blank",
     name: "Blank canvas",
@@ -120,6 +126,22 @@ const BUILDERS = {
     makeModule("space", { lines: 6 }),
     part("Rest", "How to rest: let the words go, and rest in God’s presence for a few minutes."),
     makeModule("space", { lines: 4 }),
+  ],
+  // The three signs are the parts' headings, so the participants' copy carries
+  // the key: a heading is structure, and the explanation stays in the prompts.
+  swedish: () => [
+    beforeYouLead(),
+    part("Opening", "How you will begin, and how this works: the passage read aloud, a quiet time to read it alone and mark it, then sharing."),
+    part("Reading", READING_PROMPT),
+    makeModule("keyTerms"), // after the reading: each reader meets the passage first
+    part("Light: what shines out", "Something in the passage that shines out or brings light. Mark it, then note it here."),
+    makeModule("space", { lines: 3 }),
+    part("Question: what puzzles you", "Something you don’t understand, or want to ask about."),
+    makeModule("space", { lines: 3 }),
+    part("Arrow: what speaks to you", "Something that speaks to you personally, or to your life right now."),
+    makeModule("space", { lines: 3 }),
+    part("Sharing", "How the group will share: a round of lights, then questions, then arrows. Anyone may pass."),
+    part("Closing", "How you will end: a prayer, or a moment of quiet."),
   ],
   blank: () => [makeModule("text")],
 };

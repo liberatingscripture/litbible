@@ -15,8 +15,8 @@ import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../s
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d" };
 
-test("the templates are the five, in order", () => {
-  assert.deepEqual(TEMPLATES.map((t) => t.id), ["bible-study", "sermon", "class", "lectio-divina", "blank"]);
+test("the templates are the six, in order", () => {
+  assert.deepEqual(TEMPLATES.map((t) => t.id), ["bible-study", "sermon", "class", "lectio-divina", "swedish", "blank"]);
   for (const t of TEMPLATES) {
     assert.ok(t.name && t.description, t.id);
     // The parts line under the description was dropped (BVJ, 2026-11-08).
@@ -69,7 +69,7 @@ test("the class template keeps the background for the leader, and one answer pro
 });
 
 test("the group templates open with Before you lead, for the leader alone (Audit 5, D #4)", () => {
-  for (const id of ["bible-study", "class", "lectio-divina"]) {
+  for (const id of ["bible-study", "class", "lectio-divina", "swedish"]) {
     const [first] = templateModules(id);
     assert.equal(first.html, "<h2>Before you lead</h2>", id);
     assert.equal(first.leaderOnly, true, id);
@@ -216,4 +216,16 @@ test("keyTermsPlacement: the positions moveModule needs, against the passages on
   // no box, or nothing to place it against
   assert.equal(keyTermsPlacement({ modules: [reading, p1] }), null);
   assert.equal(keyTermsPlacement({ modules: [box, q] }), null);
+});
+
+test("the Swedish method: the three signs are headings, each with room to write, and the box after the reading", () => {
+  const mods = templateModules("swedish");
+  const heads = kinds(mods);
+  for (const sign of ["Light: what shines out", "Question: what puzzles you", "Arrow: what speaks to you"]) {
+    const at = heads.indexOf(sign);
+    assert.ok(at > 0, sign);
+    assert.equal(mods[at + 1].type, "space", sign);
+  }
+  assert.equal(keyTermsPlacement({ modules: mods }).side, "after");
+  assert.equal(readingPart({ modules: mods }).html, "<h2>Reading</h2>");
 });
