@@ -7,7 +7,10 @@
 // (sanitizeSheetHtml). A template is only a start: the sheet keeps the
 // template's id as its `template` field and nothing else of it, and every
 // part can be changed, moved or removed. Pure: no DOM, no storage, no clock;
-// the only randomness is makeModule's ids.
+// the only randomness is makeModule's ids. These are the built-in templates;
+// the reader's own (a sheet kept with `isTemplate`) are records, made and
+// started from in desk-sheets.mjs (templateFromSheet, sheetFromTemplate), and
+// the chooser lists them after these.
 
 import { makeModule } from "./desk-sheets.mjs";
 

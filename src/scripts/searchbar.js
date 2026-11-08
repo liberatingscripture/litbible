@@ -1020,8 +1020,9 @@ const _initSearchbars = async () => {
             return;
           }
           // The word's verses wouldn't load: not "no matches" (GK3-9).
-          if (greek?.selected && greek.failed) {
-            greekFailedStatus("The verses couldn’t be loaded.");
+          // Or the index or module wouldn't (a null result, GK6-1).
+          if (!greek || greek.failed) {
+            greekFailedStatus(greek?.selected ? "The verses couldn’t be loaded." : "The Greek search couldn’t be loaded.");
             renderActiveFilters();
             return;
           }

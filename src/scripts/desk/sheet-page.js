@@ -395,10 +395,11 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   status.setAttribute("role", "status");
   const share = button("Share…");
   share.title = "Send this sheet to someone as a link or a file";
+  // Present is hidden and Share left out on a shared sheet, so theirs are not written (SH6-11).
   hints.push(
-    describe(present, "Shows this sheet to a room, full screen, one part at a time."),
+    ...(shared ? [] : [describe(present, "Shows this sheet to a room, full screen, one part at a time.")]),
     describe(word, "Copies this version with its headings, italics, and notice, to paste into Word, Google Docs, or Pages."),
-    describe(share, "Sends this sheet to someone as a link or a file."),
+    ...(shared ? [] : [describe(share, "Sends this sheet to someone as a link or a file.")]),
   );
   // Save as (E37) follows the Version choice, as Print and Copy do.
   const save = createSaveMenu({ version: () => COPY_NAMES[copy], onChoose: (item) => saveAs(item) });
@@ -435,7 +436,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
         paperBox.replaceChildren(el);
         document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | Liberation and Inclusion Translation`;
         drawLeaks(leaksBox, []);
-        if (copy === "participant") {
+        if (copy === "participant" && !shared) {
+          // Never on a shared link: the notice names the answer (SH6-2).
           // Quiet and best effort: a failure here never costs the reader their copy.
           copyLeaks(sheet, el).then((leaks) => { if (n === seq) drawLeaks(leaksBox, leaks); }).catch((err) => console.error("Study Desk: the what-prints check didn't finish", err));
         }

@@ -57,8 +57,8 @@ export const GREEK_PARSE_FORMAT = 1;
 
 const COMBINING = /[̀-ͯ]/g;
 const NOT_GREEK = /[^α-ω]/g;
-/** Letter variants from math keyboards and copied pages: ϑ ϕ ϖ ϱ ϰ ϵ are θ φ π ρ κ ε (GK-15). */
-const COMPAT = { "ϑ": "θ", "ϕ": "φ", "ϖ": "π", "ϱ": "ρ", "ϰ": "κ", "ϵ": "ε" };
+/** Letter variants from math keyboards and copied pages: ϑ ϕ ϖ ϱ ϰ ϵ are θ φ π ρ κ ε (GK-15), and the Latin-1 micro sign µ (U+00B5, what some PDFs give for μ) is μ (GK6-4). */
+const COMPAT = { "ϑ": "θ", "ϕ": "φ", "ϖ": "π", "ϱ": "ρ", "ϰ": "κ", "ϵ": "ε", "µ": "μ" };
 
 /**
  * A Greek word as search compares it: accents, breathings, diaeresis and iota
@@ -73,7 +73,7 @@ export function foldGreek(s) {
     .toLowerCase()
     .replace(/ς/g, "σ")
     .replace(/ϲ/g, "σ")
-    .replace(/[ϑϕϖϱϰϵ]/g, (c) => COMPAT[c])
+    .replace(/[ϑϕϖϱϰϵµ]/g, (c) => COMPAT[c])
     .replace(NOT_GREEK, "");
 }
 
@@ -242,7 +242,7 @@ export function prepareIndex(json) {
     const fold = foldGreek(lemma);
     const key = greekKey(lemma);
     const item = {
-      id, lemma, strong: strong ?? null, gloss: gloss ?? "", translit: transliterate(lemma),
+      id, lemma, strong: strong ?? null, gloss: gloss ?? "", glossHead: "", translit: transliterate(lemma),
       count: count ?? 0, fold, key,
       glossWords: new Set([...words(gloss), ...words(brief)]),
       glossHeads: [glossHead(gloss), glossHead(brief)].filter(Boolean),
@@ -362,8 +362,17 @@ export function matchGreek(index, raw, { near = true, bridge = null, offerForms 
 
   if (hasGreek(q)) {
     if (/\s/.test(q)) return { ...none, kind: "greek" }; // one word at a time
-    const form = foldGreek(q);
+    // A Latin letter inside a Greek-looking word ("πίστις-gen", "πίστιs") would
+    // be dropped by the fold and a different word searched: no match instead (GK6-4).
+    if (/[a-z]/i.test(q)) return none;
+    let form = foldGreek(q);
     if (!form) return none;
+    // Capitals set iota adscript as a full letter (ΘΕΩΙ for θεῷ): when the word
+    // as folded is nothing, try it without that final ι (GK6-3).
+    if (!index.byFold.has(form) && !index.byForm.has(form) && /[αηω]ι$/.test(form)) {
+      const bare = form.slice(0, -1);
+      if (index.byFold.has(bare) || index.byForm.has(bare)) form = bare;
+    }
     const asLemma = index.byFold.get(form);
     const asForm = index.byForm.get(form) ?? [];
     if (asLemma && offerForms) {
@@ -393,7 +402,8 @@ export function matchGreek(index, raw, { near = true, bridge = null, offerForms 
   }
 
   const qWords = words(q);
-  if (!qWords.length || qWords.length > 3) return none;
+  // Three words, or more when the whole phrase is a LIT rendering (GK6-5).
+  if (!qWords.length || (qWords.length > 3 && !bridge?.byPhrase.has(qWords.join(" ")))) return none;
   const seen = new Set();
   const out = [];
   const add = (list) => {

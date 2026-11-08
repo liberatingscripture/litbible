@@ -27,17 +27,34 @@ const GRAMMATICAL = new Set(
     .split(" "),
 );
 
-const tokens = (text) => foldDiacritics(String(text ?? "")).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+// Hebrew points and cantillation marks are combining marks that \p{L} does not
+// match, so pointed Hebrew split into fragments and never met its unpointed
+// form (DK6-4); they are folded away with the Latin and Greek accents.
+const tokens = (text) =>
+  foldDiacritics(String(text ?? ""))
+    .replace(/[\u0591-\u05C7]/g, "")
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
 
-/** Whether the words of `phrase` appear in a row, whole, in `text`. */
-export function containsPhrase(text, phrase) {
+// A phrase's tokens, or null when it says nothing on its own.
+const wantOf = (phrase) => {
   const want = tokens(phrase);
-  if (!want.length || want.every((w) => GRAMMATICAL.has(w) || w.length < 2)) return false;
-  const have = tokens(text);
+  return !want.length || want.every((w) => GRAMMATICAL.has(w) || w.length < 2) ? null : want;
+};
+
+// Whether the already-tokenized `want` appears in a row in `have`.
+function hasRun(have, want) {
   for (let i = 0; i + want.length <= have.length; i++) {
     if (want.every((w, k) => have[i + k] === w)) return true;
   }
   return false;
+}
+
+/** Whether the words of `phrase` appear in a row, whole, in `text`. */
+export function containsPhrase(text, phrase) {
+  const want = wantOf(phrase);
+  return !!want && hasRun(tokens(text), want);
 }
 
 /**
@@ -50,17 +67,23 @@ export function containsPhrase(text, phrase) {
  *   what else prints: `where` is how a sentence names it ("question 2");
  *   a passage's surface is its unblanked words, a footnote's its own text
  *   (held against that passage's blanks only)
- * @returns {{ words: string, ref: string, where: string, kind: string }[]}
+ * @returns {{ words: string, ref: string, where: string, kind: string, telltale?: string }[]}
+ *   `telltale` is set when it was the traditional word, not the blank's own,
+ *   that printed
  */
 export function findLeaks(blanks, surfaces) {
   const out = [];
   const seen = new Set();
-  const add = (b, s) => {
+  const add = (b, s, viaTelltale = false) => {
     const key = `${foldDiacritics(b.exact).toLowerCase()}|${b.ref}|${s.where}`;
     if (seen.has(key)) return;
     seen.add(key);
-    out.push({ words: b.exact, ref: b.ref, where: s.where, kind: s.kind });
+    const leak = { words: b.exact, ref: b.ref, where: s.where, kind: s.kind };
+    if (viaTelltale) leak.telltale = b.telltale;
+    out.push(leak);
   };
+  // Each blank's phrases are tokenized once, and each surface once (DK6-3).
+  const wants = (blanks ?? []).map((b) => ({ b, exact: wantOf(b.exact), tell: b.telltale ? wantOf(b.telltale) : null }));
   for (const s of surfaces ?? []) {
     if (!s?.text) continue;
     if (s.kind === "footnote") {
@@ -68,9 +91,14 @@ export function findLeaks(blanks, surfaces) {
       for (const b of blanksGivenAway(s.text, mine)) add(b, s);
       continue;
     }
-    for (const b of blanks ?? []) {
+    const have = tokens(s.text);
+    for (const { b, exact, tell } of wants) {
       if (s.kind === "passage" && s.passageId === b.passageId) continue;
-      if (containsPhrase(s.text, b.exact)) add(b, s);
+      if (exact && hasRun(have, exact)) add(b, s);
+      // The traditional word a hint doesn't show gives the blank away just the
+      // same (DK6-5), as it does in a footnote. Not in a passage: its own
+      // verses carry that word as a matter of course.
+      else if (tell && s.kind !== "passage" && hasRun(have, tell)) add(b, s, true);
     }
   }
   return out;
@@ -78,7 +106,10 @@ export function findLeaks(blanks, surfaces) {
 
 /** One case as a sentence: “deviation,” blanked in Romans 3:23, also prints in question 2. */
 export function leakSentence(l) {
-  return `“${l.words},” blanked in ${l.ref}, also prints in ${l.where}.`;
+  // A period closes inside a closing quote, so a place named by a quotation takes it there.
+  const end = (w) => (w.endsWith("”") ? `${w.slice(0, -1)}.”` : `${w}.`);
+  if (l.telltale) return `“${l.words},” blanked in ${l.ref}, is given away by “${l.telltale}” in ${end(l.where)}`;
+  return `“${l.words},” blanked in ${l.ref}, also prints in ${end(l.where)}`;
 }
 
 /**

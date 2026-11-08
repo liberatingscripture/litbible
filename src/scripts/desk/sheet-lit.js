@@ -806,8 +806,9 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       if (r.givesAway.length) {
         // A blank whose hint doesn't show its traditional word is given away by
         // a note naming that word too (SH5-16), so the word is named with it.
-        const words = [...new Set(r.givesAway.map((b) => (b.telltale ? `${quoted(b.exact)}, traditionally ${quoted(b.telltale)}` : quoted(b.exact))))];
-        const which = words.join(", ");
+        const words = [...new Set(r.givesAway.map((b) => (b.telltale ? `${quoted(b.exact).slice(0, -1)},” traditionally ${quoted(b.telltale)}` : quoted(b.exact))))];
+        // A comma between two items goes inside the first one's closing quote.
+        const which = words.map((w, i) => (i < words.length - 1 ? (w.endsWith("”") ? `${w.slice(0, -1)},”` : `${w},`) : w)).join(" ");
         const a = words.length > 1 ? "blanks" : "a blank";
         li.append(make("p", "desk-sheet__flag", r.decided
           ? `Mentions ${a} (${which}).`

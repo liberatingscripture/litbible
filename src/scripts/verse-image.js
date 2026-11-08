@@ -229,12 +229,31 @@ function group(label, buttons) {
   return g;
 }
 
+let live = null;
+
+/**
+ * Say it through a live region that was in the page before the words are, since
+ * a status paragraph made and inserted in one moment is often not read, and
+ * focus has moved on to the Share row by then (NB6-6). A timeout rather than a
+ * frame: a frame never comes in a tab that isn't showing.
+ */
+function announce(text) {
+  if (!live || !live.isConnected) {
+    live = document.createElement("div");
+    live.className = "sr-only";
+    live.setAttribute("role", "status");
+    document.body.appendChild(live);
+  }
+  live.textContent = "";
+  setTimeout(() => { if (live) live.textContent = text; }, 50);
+}
+
 function note(text) {
   const p = document.createElement("p");
   p.className = "lit-image__note";
-  p.setAttribute("role", "status");
   p.tabIndex = -1;
   p.textContent = text;
+  announce(text);
   return p;
 }
 

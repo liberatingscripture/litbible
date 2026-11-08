@@ -306,14 +306,6 @@ export function daysLeft(trash, now = new Date().toISOString()) {
 }
 
 /**
- * Why a restore was refused. `missing` (the trash record is gone), `emptied`
- * (only its tombstone is left), `exists` (a live record already has the id),
- * `bookmark` (the verse already holds a bookmark of its kind, BA16) or `label` (a label of
- * that name is already kept; names are unique).
- */
-export const RESTORE_REFUSALS = Object.freeze(["missing", "emptied", "exists", "bookmark", "label"]);
-
-/**
  * Bring one record back from the trash, planned over the notebook as it is now
  * (`records`, read in the same transaction as the write): the record, under
  * its own id with a fresh `modified` (restoreFromTrash), and its trash record

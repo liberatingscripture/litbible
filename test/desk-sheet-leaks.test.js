@@ -74,3 +74,33 @@ test("the answer key lists each passage's blanks in order, with hints", () => {
   assert.equal(rows.length, 1);
   assert.equal(answerKeyLine(rows[0]), "Romans 3:23: 1. deviation (traditionally: sin); 2. glory");
 });
+
+test("Hebrew points do not defeat the check (DK6-4)", () => {
+  assert.equal(containsPhrase("שלום עליכם", "שָׁלוֹם"), true);
+  assert.equal(containsPhrase("שָׁלוֹם", "שלום"), true);
+});
+
+test("the traditional word a hint hides leaks from a title or question too (DK6-5)", () => {
+  const b = blank("self-preservation", { telltale: "flesh" });
+  const leaks = findLeaks([b], [
+    { kind: "title", where: "the title", text: "Life in the flesh" },
+    { kind: "question", where: "the question “What is flesh?”", text: "What is flesh?" },
+    { kind: "passage", where: "Romans 8:5", text: "flesh", passageId: "p1" },
+  ]);
+  assert.deepEqual(leaks.map((l) => l.where), ["the title", "the question “What is flesh?”"]);
+  assert.equal(leakSentence(leaks[0]), "“self-preservation,” blanked in Romans 3:23, is given away by “flesh” in the title.");
+});
+
+test("a place named by a quotation closes its period inside the quote (SH6-8)", () => {
+  const l = { words: "sin", ref: "Romans 3:23", where: "the text part “Note the word…”" };
+  assert.equal(leakSentence(l), "“sin,” blanked in Romans 3:23, also prints in the text part “Note the word….”");
+});
+
+test("many blanks against many surfaces stay quick (DK6-3)", () => {
+  const blanks = Array.from({ length: 200 }, (_, i) => blank(`word${i}x`));
+  const text = "lorem ipsum dolor ".repeat(600);
+  const surfaces = Array.from({ length: 100 }, (_, i) => ({ kind: "text", where: `t${i}`, text }));
+  const t = Date.now();
+  assert.deepEqual(findLeaks(blanks, surfaces), []);
+  assert.ok(Date.now() - t < 1500);
+});

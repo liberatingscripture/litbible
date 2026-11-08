@@ -189,6 +189,7 @@ export function planPurge(records, now) {
  * every listener then hears it.
  */
 export function changeMessage(ids, kinds = null) {
+  /** @type {{ v: number, ids: string[], kinds?: string[] }} */
   const message = { v: 1, ids: [...new Set(ids)] };
   if (Array.isArray(kinds)) message.kinds = [...kinds];
   return message;

@@ -66,6 +66,11 @@ make are listed in `STUDY-DESK.md` ("To be decided").
 | `contentVersion` | The `version` from `/api/version.json` the client had when the record was made, e.g. `v20261004.5d2c847d` |
 | `labels` | IDs of the reader's labels (M8); may be empty |
 
+Each is **required** of a live record (a trash record is judged as its kind
+section says): `labels` may be `[]` but not absent, and `client` and
+`contentVersion` are strings. The website skips a record without them when it
+opens a copy.
+
 **Times** (`created`, `modified`, a trash record's `deletedAt`) are written
 in UTC **with `Z`**, never an offset: `2026-10-26T14:03:09.512Z`. Fractions of
 a second are optional and may have any number of digits; the website writes
@@ -375,7 +380,7 @@ verses of its own):
 | `sheetFormat` | The version of this section the sheet was written in (1). A client that knows a lower number shows the sheet but won't edit it, so an older tab can't strip what it doesn't understand |
 | `title` | Plain text, up to 200 characters ("Freedom and the Life-breath") |
 | `subtitle` | Plain text, up to 200 characters, may be empty ("Thursday group · October 2, 2026") |
-| `template` | The template it was started from (`bible-study`, `sermon`, `class`, `lectio-divina`, `swedish`, `contextual`, `blank`, …). A record of where it came from, read by nothing that changes how it works: once made, every sheet is the same thing |
+| `template` | The template it was started from (`bible-study`, `sermon`, `class`, `lectio-divina`, `swedish`, `contextual`, `blank`, `search` (a sheet of passages made from a search), …). A record of where it came from, read by nothing that changes how it works: once made, every sheet is the same thing |
 | `commercial` | `true` when the reader has ticked "This is for a commercial project" (S7), which turns on the commercial-quotation check. Absent or `false` otherwise |
 | `isTemplate` | `true` when the record is one of the reader's own templates, not a sheet (added 2026-11-08, Audit 5, section D, #1): "Save as template" made it from a sheet, without the sheet's passages. Absent or `false` otherwise. A client that lists sheets leaves a template out of that list, or lists it apart as a template; a sheet made from it is an ordinary sheet whose `template` is the template's own `template`. A share never carries it |
 | `modules` | The sheet's contents, in order |
@@ -464,7 +469,8 @@ nothing, and its question is empty, each with a prompt saying what goes
 there. Since a prompt never prints, it may name the editor's tools ("Add
 the passage with + Passage"), which a part's own text never does. A
 client that doesn't show prompts keeps the fields whole, as it keeps any
-field it doesn't know (principle 6); it needn't write one.
+field it doesn't know (principle 6); it needn't write one. A leader share
+carries them; a participant share leaves them out (SEC6-3).
 
 A blank-canvas sheet is a sheet whose template is `blank` and starts with
 one empty `text` module; everything else about it is the same as any sheet.
@@ -495,7 +501,11 @@ same formatting and a merge never sees a change that isn't one. Every
 client sanitizes it **when it is saved and again when it is shown**,
 **whatever the sheet's `sheetFormat`**: a sheet in a newer format is shown
 read only, but its text is still drawn through the sanitizer, and the
-website sanitizes these fields on every sheet it imports (FA1, BA66). The
+website sanitizes these fields on every sheet it imports (FA1, BA66).
+**It sanitizes before it checks** (2026-11-08, DI6-1), on a backup it
+opens (a trash record's held sheet too) and on a shared sheet, so text
+saved in an older canonical form is rewritten, as editing rewrites it, never
+refused; the check that follows still refuses what sanitizing can't mend. The
 sanitizer keeps exactly the set below and nothing else; anything else is dropped,
 its text kept, and `<script>`, `<style>` and the like are dropped with
 their contents. The form:
@@ -573,7 +583,7 @@ anything else.
 |---|---|
 | `lit` | `"sheet"` |
 | `sheetFormat`, `title`, `subtitle`, `template`, `commercial` | As on the sheet (`commercial` only when true) |
-| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, no module of a type the sender doesn't know, and every question's `answer` empty) |
+| `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, no module of a type the sender doesn't know, every question's `answer` empty, and no module's `minutes`, `prompt` or `answerPrompt`) |
 | `contentVersion` | The sheet's own, so the receiver knows which text it was made on |
 | `modules` | The sheet's modules, each **without its `id`**, and passages without `verseCopy` and `verseCopyAsOf` |
 
@@ -585,8 +595,8 @@ client, times, labels). A
 receiver gives every module a fresh id, **drops `verseCopy` and
 `verseCopyAsOf` from every module whatever the share holds** (a shared sheet
 is never flagged as changed; BA82), and makes the sheet a record of its
-own, and refuses the share unless that record passes the sheet's check
-(`validateSheet`): formatted text must already be in the canonical form.
+own, sanitizes its formatted text, and refuses the share unless that record
+then passes the sheet's check (`validateSheet`; DI6-1).
 Decompressed data over twice the sheet's 512 KB limit is refused before it
 is read whole.
 

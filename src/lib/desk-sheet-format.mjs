@@ -376,7 +376,6 @@ function convert(nodes, out = []) {
   return out;
 }
 
-const isBlockName = (name) => name === "p" || name === "h2" || name === "h3" || name === "blockquote" || name === "ul" || name === "ol" || name === "li";
 const NOT_SPACE = /[^ \t\r\n\f]/;
 
 /** Whether nodes hold no break and no character but ASCII whitespace. */
@@ -913,7 +912,8 @@ export function cleanSheetText(r) {
   if (r?.kind !== "sheet" || !Array.isArray(r.modules)) return r;
   let changed = false;
   const modules = r.modules.map((m) => {
-    const fields = FORMATTED[m?.type];
+    // Own keys only: a module typed "toString" names no formatted fields (DI6-1 runs this before any check).
+    const fields = Object.hasOwn(FORMATTED, m?.type) ? FORMATTED[m.type] : null;
     if (!fields) return m;
     let out = m;
     for (const f of fields) {
@@ -939,7 +939,9 @@ const isInt = Number.isInteger;
  * Whether a module's optional prompt field is absent or a usable prompt: plain
  * text (never HTML, so no `<`) of at most SHEET_LIMITS.prompt characters. A
  * prompt is what the editor shows dimmed until the leader types, and nothing
- * prints, copies, shares or presents it (STUDY-DESK-FORMAT.md, "Modules").
+ * prints, copies or presents it. A leader share carries it, for whoever edits
+ * the copy; a participant share leaves it out (SEC6-3; STUDY-DESK-FORMAT.md,
+ * "Modules").
  */
 const promptOk = (v) => v == null || (typeof v === "string" && !v.includes("<") && chars(v) <= SHEET_LIMITS.prompt);
 const PROMPT_RULE = `is not plain text of at most ${SHEET_LIMITS.prompt} characters`;

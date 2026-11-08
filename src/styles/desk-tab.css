@@ -70,6 +70,47 @@
   letter-spacing: 0.02em;
 }
 
+/* "Skip to the Notebook" has nothing to skip to while the Display tray's
+   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
+   tab order. Here, not in desk.css, so stage one's link (Audit 6, NB6-1)
+   is hidden before the shell loads. No colors, so both themes alike. */
+html[data-desk-show="off"] .skip-link[data-desk-skip] {
+  display: none;
+}
+
+/* The Display tray's additions, added by note-settings.js in stage one (the
+   tray's own styles are in global.css). The one line under the Show group's
+   boxes, muted like the tray's list of keys. */
+.font-tray__hint {
+  margin: 6px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* "Reset widths" in the tray, shown only while the reader has set widths. The
+   look is the Edit button's (.desk-panel__reset, in desk.css). */
+.font-tray__reset {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.font-tray__reset:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.font-tray__reset[hidden] {
+  display: none;
+}
+
 /* The rail doesn't print (BA145): it is appended to <body>, outside what
    print.css hides, and in a narrow window the Notebook floats over the text. */
 @media print {

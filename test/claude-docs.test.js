@@ -18,10 +18,11 @@ const repo = fileURLToPath(new URL("..", import.meta.url));
 const ROOT_LIMIT = 40 * 1024;
 // The Study Desk's file loads whole the first time a session reads any file in
 // src/scripts/desk/, so it is capped too. Audit 3 (LG3-5) found it grown from
-// 77 KB to 136 KB in four days. This cap is meant to come down as the file is
-// trimmed further, never to be raised: rules, owner decisions and their
-// reasons go in that file; the story of how an E number was decided and built
-// goes under its entry in STUDY-DESK-FIXES.md.
+// 77 KB to 136 KB in four days. The cap is the ceiling as it stands (150 KB);
+// it is not a target, and it is lowered as the file is trimmed, never raised.
+// Rules, owner decisions and their reasons go in that file; the story of how
+// an E number was decided and built goes under its entry in
+// STUDY-DESK-FIXES.md.
 const DESK_LIMIT = 150 * 1024;
 const SKIP = new Set(["node_modules", ".git", ".claude", ".astro", "dist", ".morphgnt"]);
 

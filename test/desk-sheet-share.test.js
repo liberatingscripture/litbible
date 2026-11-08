@@ -128,10 +128,70 @@ async function fragmentOf(obj) {
 }
 
 test("a share whose data fails the sheet check is refused", async () => {
-  const bad = { ...sharedSheet(sample()), modules: [{ type: "text", html: "<script>alert(1)</script><p>x</p>" }] };
+  // Sanitizing can't mend formatted text that isn't text (DI6-1).
+  const bad = { ...sharedSheet(sample()), modules: [{ type: "text", html: 42 }] };
   await assert.rejects(openShare(await fragmentOf(bad), ctx), (e) => e.code === "invalid");
   await assert.rejects(openShare(await fragmentOf({ lit: "notes", modules: [] }), ctx), (e) => e.code === "not-a-sheet");
   await assert.rejects(openShare(await fragmentOf({ ...sharedSheet(sample()), sheetFormat: 99 }), ctx), (e) => e.code === "newer");
+});
+
+test("a share's formatted text is sanitized before it is checked (DI6-1)", async () => {
+  const drifted = {
+    ...sharedSheet(sample()),
+    modules: [
+      { type: "text", html: "<p><b>bold</b> and <i>italic</i></p><script>alert(1)</script>" },
+      { type: "question", html: "<p><b>Why?</b></p>", answer: "<p><i>Because.</i></p>", lines: 2 },
+    ],
+  };
+  const { sheet } = await openShare(await fragmentOf(drifted), ctx);
+  assert.equal(sheet.modules[0].html, "<p><strong>bold</strong> and <em>italic</em></p>");
+  assert.equal(sheet.modules[1].html, "<p><strong>Why?</strong></p>");
+  assert.equal(sheet.modules[1].answer, "<p><em>Because.</em></p>");
+  assert.deepEqual(validateRecord(sheet), []);
+});
+
+test("a participant share leaves out the editor's prompts; a leader share keeps them (SEC6-3)", () => {
+  const src = sample();
+  src.modules[0] = { ...src.modules[0], prompt: "How you will begin." };
+  src.modules[2] = { ...src.modules[2], prompt: "Ask it.", answerPrompt: "The answer you expect." };
+  const leader = sharedSheet(src, { scope: "leader" });
+  assert.equal(leader.modules[0].prompt, "How you will begin.");
+  assert.equal(leader.modules[2].answerPrompt, "The answer you expect.");
+  const part = sharedSheet(src, { scope: "participant" });
+  for (const m of part.modules) for (const k of ["prompt", "answerPrompt", "minutes"]) assert.equal(k in m, false, `${m.type} ${k}`);
+});
+
+test("the file writes a reader's < as text, never as HTML (SEC6-1)", async () => {
+  assert.equal(markdownLine("<b>hi</b> & <!-- x"), "\\<b>hi\\</b> & &lt;!-- x");
+  const s = createSheet(
+    {
+      title: "<img src=x onerror=alert(1)>",
+      subtitle: "<i>sub</i>",
+      modules: [makeModule("text", { html: "<p>&lt;script&gt;alert(1)&lt;/script&gt; and &lt;b&gt;bold&lt;/b&gt;</p>" }), makeModule("keyTerms")],
+    },
+    ctx,
+  );
+  assert.deepEqual(validateRecord(s), []);
+  const file = await shareFile(s);
+  const human = file.slice(0, file.lastIndexOf("<!-- lit-sheet"));
+  assert.doesNotMatch(human, /(^|[^\\])</, human);
+  assert.ok(human.startsWith("# \\<img src=x onerror=alert(1)>\n\\<i>sub\\</i>\n"), human.slice(0, 60));
+  assert.ok(human.includes("\\<script>alert(1)\\</script> and \\<b>bold\\</b>"));
+  assert.equal(fragmentInFile(file), await shareFragment(s));
+});
+
+test("plainText and markdownLine take linear time on runs of spaces and tabs (SEC6-2)", () => {
+  const time = (fn) => {
+    const t = performance.now();
+    fn();
+    return performance.now() - t;
+  };
+  const run = " \t".repeat(100000);
+  // Quadratic, these took seconds; linear, well under one.
+  assert.ok(time(() => markdownLine(run + "x")) < 1000);
+  assert.ok(time(() => plainText("<p>\n" + " ".repeat(200000) + "x</p>")) < 1000);
+  assert.equal(plainText("<p>a   </p><p>  # b</p>"), "a\n\n  \\# b", "trailing spaces go, a line's start is still escaped");
+  assert.equal(plainText("<ul><li>  - x</li></ul>"), "-   \\- x", "after a list item's mark too");
 });
 
 test("a decompression bomb is refused before it is read whole", async () => {

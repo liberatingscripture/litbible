@@ -749,25 +749,6 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   display: none;
 }
 
-/* "Skip to the Notebook" has nothing to skip to while the Display tray's
-   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
-   tab order. Both themes alike: no colors here. */
-html[data-desk-show="off"] .skip-link[data-desk-skip] {
-  display: none;
-}
-
-/* ── The Display tray's additions ────────────────────────────── */
-
-/* The one line under the Show group's boxes, muted
-   like the tray's list of keys. Added by note-settings.js; the tray's own
-   styles are in global.css. */
-.font-tray__hint {
-  margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
 /* ── Notes in the margin ─────────────────────────────────────── */
 
 /* src/scripts/desk/notes-margin.js places each note, in document
@@ -1257,6 +1238,23 @@ a.desk-verse__mention-ref:hover {
 ::highlight(desk-hl-pink),
 .desk-swatch[data-color="pink"] .desk-swatch__sample {
   background-color: var(--desk-hl-pink);
+}
+
+/* In forced colors (Windows contrast themes) the engine may drop a highlight's
+   tint, so each of the four colors and the words a note hangs on keep a dotted
+   underline, the one property a highlight allows that survives (NB6-5). The
+   colors themselves stay a tint in normal rendering (BVJ, 2026-10-09). */
+@media (forced-colors: active) {
+  ::highlight(desk-hl-yellow),
+  ::highlight(desk-hl-green),
+  ::highlight(desk-hl-blue),
+  ::highlight(desk-hl-pink),
+  ::highlight(desk-note-words) {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
 }
 
 /* The green verse numbers and footnote letters inside a highlight fell to 4.0
@@ -1801,11 +1799,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   }
 }
 
-/* "Reset widths", shown only while the reader has set widths: in the
-   panel's settings row, and in the Display tray after its hint. The look is
-   the Edit button's. */
-.desk-panel__reset,
-.font-tray__reset {
+/* "Reset widths", shown only while the reader has set widths, in the panel's
+   settings row. The look is the Edit button's. The Display tray's copy,
+   .font-tray__reset, is styled in desk-tab.css, which stage one loads. */
+.desk-panel__reset {
   padding: 5px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
@@ -1816,19 +1813,21 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   cursor: pointer;
 }
 
-.desk-panel__reset:hover,
-.font-tray__reset:hover {
+.desk-panel__reset:hover {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
-.desk-panel__reset[hidden],
-.font-tray__reset[hidden] {
+.desk-panel__reset[hidden] {
   display: none;
 }
 
-.font-tray__reset {
-  align-self: flex-start;
-  margin-top: 8px;
+/* A button the desk has made busy (focus-keep.js: aria-disabled, so focus
+   stays) looks it: Undo, and "Ask this browser to keep it" (NB6-10). The
+   panel's own busy buttons keep their own looks above. */
+.desk-undo__undo[aria-disabled="true"],
+.desk-panel__reset[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: progress;
 }
 
 /* ── Notes on a glossary entry or an article (N11) ─────────────── */
@@ -2752,16 +2751,6 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 }
 
 .desk-home-card__done {
-  margin-top: 10px;
-}
-
-.desk-home-card__options {
-  margin: 0 0 8px;
-  padding: 0;
-  list-style: none;
-}
-
-.desk-home-card__option + .desk-home-card__option {
   margin-top: 10px;
 }
 
@@ -7537,6 +7526,13 @@ select.desk-sheet__hint,
 .desk-sheet__blank .desk-sheet__icon {
   flex: none;
   margin-left: auto;
+}
+
+/* The select may give up width so the × stays on the row's first line instead
+   of wrapping alone between the row and the hint field (SH6-6). */
+.desk-sheet__blank select.desk-sheet__hint {
+  flex: 1 1 7rem;
+  max-width: 14rem;
 }
 
 .desk-sheet__blank .desk-sheet__problem {

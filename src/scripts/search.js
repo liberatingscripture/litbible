@@ -907,7 +907,9 @@ let greekSeq = 0;
  */
 async function fetchGreek(q, book, lemmaId, exact) {
   const opts = { bookKey: book, exactForm: exact };
-  const { searchGreekAuto } = await withGreek();
+  const mod = await withGreek();
+  if (!mod) throw new Error("the Greek search module wouldn’t load");
+  const { searchGreekAuto } = mod;
   let result = await searchGreekAuto(base, q, { ...opts, lemmaId });
   if (result.kind !== "commands" && !result.selected && result.lemmas.length) {
     result = await searchGreekAuto(base, q, { ...opts, lemmaId: result.lemmas[0].id });
@@ -1025,10 +1027,11 @@ function writeGreekStatus() {
   const word = greek.selected
     ? `<span lang="grc">${escapeHtml(greek.selected.lemma)}</span>`
     : "";
-  if (!greek.lemmas.length) {
+  // A file that wouldn’t load is checked first: with no lemmas it is not "no match" (GK6-1).
+  if (greek.failed) {
+    writeGreekFailed(greek.lemmas.length ? "The verses couldn’t be loaded." : "The Greek search couldn’t be loaded.");
+  } else if (!greek.lemmas.length) {
     statusEl.textContent = `No Greek words match “${c.displayQ}.”`;
-  } else if (greek.failed) {
-    writeGreekFailed("The verses couldn’t be loaded.");
   } else if (!greek.total) {
     statusEl.innerHTML = `No occurrences of ${word} in the selected book.`;
   } else {
@@ -1623,7 +1626,8 @@ async function runFullSearch() {
     const [greek, verseIndex, notebook] = await Promise.all([
       fetchGreek(q, book, greekChoice.lemmaId, greekChoice.exact).catch((err) => {
         console.warn("[search] Greek search failed:", err);
-        return null;
+        // The module itself wouldn’t load: a failure to retry, not "no match" (GK6-1).
+        return { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false, failed: true };
       }),
       loadVerseIndex(base),
       deskApi ? deskApi.search(q, { bookKey: book }).catch(() => null) : null,

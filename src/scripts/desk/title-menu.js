@@ -352,6 +352,9 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     closeTitleMenu();
     if (next !== layout) commit(next);
     // The Sheets pane listens and opens its template chooser (sheet-pane.js).
+    // This relies on `commit` having built the new pane, and so registered its
+    // listener, before it returns: a pane drawn lazily would miss the event,
+    // and the leader would see the list without the chooser (DK6-10).
     if (paneId) document.dispatchEvent(new CustomEvent("desk:sheet-new", { detail: { paneId } }));
     announce("New sheet: choose a template.");
     return paneId;

@@ -56,6 +56,7 @@ import {
   addModule,
   createSheet,
   duplicateSheet,
+  hasTemplateParts,
   isOwnTemplate,
   sheetFromTemplate,
   templateFromSheet,
@@ -84,6 +85,8 @@ import {
 import { rangeToOffsets } from "../../lib/desk-anchor-dom.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import { parseReference } from "../search-core.js";
+import { bookKeyToLabel } from "../../data/books.js";
+import { describeRefusal } from "../../lib/desk-sheet-ref-refusal.mjs";
 import { closePanel } from "../lit-panel.js";
 import { loadChapterPage } from "./chapter-page.js";
 import { undoEntry } from "./history.js";
@@ -92,6 +95,7 @@ import { createSheetText } from "./sheet-text.js";
 import { showUndo } from "./undo-bar.js";
 import { redraw } from "./focus-keep.js";
 import { make } from "./dom.js";
+import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -269,6 +273,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   let sheet = null; // the sheet shown, as last read or saved
   let lastModule = null; // the part last focused or clicked on this sheet
+  let insertMenu = null; // the gap pill's open menu: { close(refocus) } (DK6-2)
+  const closeInsertMenu = () => insertMenu?.close(false);
   // The passage form open under a card, from the gap's "Add" pill (BVJ,
   // 2026-11-08): `after` is that card's part, `target` where its next passage
   // goes (moved on past each one added, so several land in order), and `el`
@@ -398,7 +404,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       if (made.refused) {
         console.error("Study Desk: the sheet refused a change", made.refused);
         // Seen beside Saved as well as heard, as a failed save is (CP-13).
-        status.textContent = /holds at most \d+ modules/.test(made.refused.message ?? "") ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.` : "That change couldn’t be made, so the sheet is as it was. Reload the page, then try again.";
+        const why = made.refused.message ?? "";
+        status.textContent = /holds at most \d+ modules/.test(why)
+          ? `A sheet holds at most ${SHEET_LIMITS.modules} parts.`
+          : /at most one key terms/.test(why)
+            ? "A sheet has one key terms box, and it has one already."
+            : "That change couldn’t be made, so the sheet is as it was. Reload the page, then try again.";
         say(status.textContent);
         return false;
       }
@@ -479,6 +490,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet = null;
     targetChanged();
     lastModule = null;
+    closeInsertMenu();
     closeInsertForm(false);
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
@@ -540,6 +552,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           keep.disabled = true;
           keep.title = "Made with a newer version of the Study Desk, so it can’t be kept as a template here.";
         }
+        // A template is a sheet without its passages, so a sheet of passages alone would make an empty one (DK6-8).
+        if (canEdit(s) && !hasTemplateParts(s)) {
+          keep.disabled = true;
+          keep.title = "This sheet has only passages, and a template keeps everything but those. Add a part of your own first.";
+        }
         keep.addEventListener("click", () => saveAsTemplate(s));
         const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
         del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
@@ -587,7 +604,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       li.append(b);
       ul.append(li);
     }
-    // The reader's own, after the built-in five, under a heading of their own.
+    // The reader's own, after the built-in seven, under a heading of their own.
     let own = null;
     if (mine.length) {
       own = make("div", "desk-sheet__own-templates");
@@ -749,12 +766,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const text = sheetTooBig(err)
         ? "That sheet is too big to duplicate."
         : "The sheet couldn’t be duplicated in this browser. Try again in a moment.";
-      const head = content.querySelector(".desk-sheet__list-head");
-      if (head) {
-        head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
-        head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
-      }
-      say(text);
+      listProblem(text);
       return;
     }
     say(`Duplicated ${sheetName(current)}.`);
@@ -793,6 +805,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet = record;
     targetChanged();
     lastModule = null;
+    closeInsertMenu();
     closeInsertForm(false);
     readingDismissed = null;
     readOnly = !canEdit(record);
@@ -894,6 +907,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   /** Bring the page in line with `sheet`, keeping every card that hasn't changed. */
   function draw() {
     if (!sheet || !moduleList) return;
+    closeInsertMenu(); // its pill is about to be redrawn or gone (DK6-2)
     if (titleInput && document.activeElement !== titleInput) titleInput.value = sheet.title ?? "";
     if (subtitleInput && document.activeElement !== subtitleInput) subtitleInput.value = sheet.subtitle ?? "";
     if (plannedLine) {
@@ -1352,13 +1366,13 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * new part takes focus: a space's lines field, a page break's first Move
    * button (SH5-10), otherwise its text.
    */
-  function addPart(type, after = null) {
+  function addPart(type, after = null, called = null) {
     const mod = makeModule(type);
     const where = (s) => {
       const i = after ? s.modules.findIndex((x) => x.id === after) : -1;
       return i >= 0 ? i + 1 : insertIndex(s);
     };
-    const afterName = after ? cards.get(after)?.name : null;
+    const afterName = after ? called ?? cards.get(after)?.name : null;
     const atEnd = !sheet || where(sheet) >= sheet.modules.length;
     change((s) => addModule(s, mod, where(s), opCtx()), {
       announce: `${TYPE_NAMES[type]} added${afterName ? ` after ${afterName}` : atEnd ? " at the end" : " after the part you were working in"}.`,
@@ -1367,101 +1381,37 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         c?.el.scrollIntoView({ block: "nearest" });
         if (type === "space") c?.el.querySelector(".desk-sheet__lines input")?.focus();
         else if (type === "pageBreak") c?.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)")?.focus();
-        else c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+        else focusNewPart(c);
       },
     });
   }
 
   /**
-   * The menu under the gap's "Add" pill (BVJ, 2026-11-08): the parts the add
-   * bar offers, each added right after this card, so a long sheet needn't be
-   * scrolled to its end. "Passage…" opens the passage form under this card
-   * (`openInlinePassage`), since a passage needs a reference typed. One key
-   * terms box per sheet, as in the bar. Arrow keys move, Escape returns to
-   * the pill, a click elsewhere closes.
+   * Where a part just added takes focus (SH6-1): its text when it has an
+   * editor, else its first Move button. Never "the first input", which is the
+   * minutes box every header carries. (`inst.focus()` returns nothing, so a
+   * `??` chain after it would always run the fallback too.)
+   */
+  function focusNewPart(c) {
+    if (!c) return;
+    if (c.inst?.focus) c.inst.focus();
+    else (c.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)") ?? c.el.querySelector("[contenteditable], button"))?.focus();
+  }
+
+  /**
+   * The gap pill's menu (insert-menu.js): each part goes right after this
+   * card, and "Passage…" opens the passage form under it
+   * (`openInlinePassage`), since a passage needs a reference typed.
    */
   function openInsertMenu(button, m, name) {
-    const menu = make("div", "desk-pane__menu desk-sheet__insert-menu");
-    menu.setAttribute("role", "menu");
-    menu.setAttribute("aria-label", `Add a part after ${name}`);
-    menu.id = `deskSheetInsert-${paneId}-${m.id}`;
-    const hasTerms = !!sheet?.modules.some((x) => x?.type === "keyTerms");
-    const items = [];
-    // Removing the menu blurs its focused item, and the focusout below closes
-    // too, so the second close must find nothing to do before the first has
-    // removed anything, or remove() throws and the pick never runs (SH5-1).
-    let closed = false;
-    const close = (refocus) => {
-      if (closed) return;
-      closed = true;
-      document.removeEventListener("pointerdown", outside, true);
-      menu.remove();
-      button.setAttribute("aria-expanded", "false");
-      button.removeAttribute("aria-controls");
-      if (refocus) button.focus();
-    };
-    const outside = (e) => { if (!menu.contains(e.target) && e.target !== button) close(false); };
-    const item = (label, type, { disabled = false, why = null } = {}) => {
-      const b = make("button", "desk-pane__menu-item");
-      b.type = "button";
-      b.tabIndex = -1;
-      b.setAttribute("role", "menuitem");
-      b.append(make("span", "desk-title__label", label));
-      if (disabled) {
-        const hint = make("span", "desk-title__hint", why);
-        hint.id = `${menu.id}-why`;
-        b.append(hint);
-        b.setAttribute("aria-disabled", "true");
-        b.setAttribute("aria-describedby", hint.id);
-      }
-      b.addEventListener("click", () => {
-        if (disabled) return;
-        close(false);
-        if (type === "passage") {
-          openInlinePassage(m, name);
-          return;
-        }
-        addPart(type, m.id);
-      });
-      menu.append(b);
-      items.push(b);
-      return b;
-    };
-    item("Passage…", "passage");
-    item("Your text", "text");
-    item("Question", "question");
-    item("Space to write", "space");
-    item("Page break", "pageBreak");
-    item("Key terms box", "keyTerms", { disabled: hasTerms, why: "already on the sheet" });
-    menu.addEventListener("keydown", (e) => {
-      const i = items.indexOf(document.activeElement);
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault();
-        items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus();
-      } else if (e.key === "Home" || e.key === "End") {
-        e.preventDefault();
-        items[e.key === "Home" ? 0 : items.length - 1].focus();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
-        close(true);
-      } else if (e.key === "Tab") {
-        close(false);
-      }
+    insertMenu = openInsertMenuAt({
+      button,
+      id: `deskSheetInsert-${paneId}-${m.id}`,
+      name,
+      hasTerms: !!sheet?.modules.some((x) => x?.type === "keyTerms"),
+      onPick: (type) => (type === "passage" ? openInlinePassage(m, name) : addPart(type, m.id, name)),
+      onClose: (close) => { if (insertMenu?.close === close) insertMenu = null; },
     });
-    menu.addEventListener("focusout", (e) => { if (!menu.contains(e.relatedTarget)) close(false); });
-    document.body.append(menu);
-    const at = button.getBoundingClientRect();
-    const w = menu.offsetWidth;
-    const h = menu.offsetHeight;
-    const left = Math.max(8, Math.min(at.left, window.innerWidth - w - 8));
-    const top = at.bottom + h + 8 <= window.innerHeight ? at.bottom + 4 : Math.max(8, at.top - h - 4);
-    menu.style.left = `${left}px`;
-    menu.style.top = `${top}px`;
-    button.setAttribute("aria-expanded", "true");
-    button.setAttribute("aria-controls", menu.id);
-    document.addEventListener("pointerdown", outside, true);
-    items[0].focus();
   }
 
   /**
@@ -1475,7 +1425,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   function openInlinePassage(m, name, { focus = true, scroll = true, auto = false } = {}) {
     closeInsertForm(false);
     const card = cards.get(m.id)?.el;
-    if (!card) return;
+    if (!card) {
+      say(`That part is gone, so there is nowhere to add a passage after ${name}.`);
+      return;
+    }
     const el = make("div", "desk-sheet__insert-form");
     const head = make("div", "desk-sheet__insert-head");
     const title = make("p", "desk-sheet__insert-title", `Add a passage after ${name}`);
@@ -1688,7 +1641,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         after: () => {
           const c = cards.get(added[0]?.id);
           c?.el.scrollIntoView({ block: "nearest" });
-          c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+          focusNewPart(c);
         },
       });
     });
@@ -1722,9 +1675,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     line.addEventListener("submit", async (e) => {
       e.preventDefault();
       added(null);
-      const ref = parseReference(input.value.replace(/[–—]/g, "-"));
+      const typed = input.value.replace(/[–—]/g, "-");
+      const ref = parseReference(typed);
       if (!ref) {
-        problem.textContent = "That isn’t a reference the LIT can read. Try a book, a chapter, and verses, such as Romans 5:6–10.";
+        problem.textContent = describeRefusal(typed, { parse: parseReference, label: bookKeyToLabel })
+          ?? "That isn’t a reference the LIT can read. Try a book, a chapter, and verses, such as Romans 5:6–10.";
         return;
       }
       problem.textContent = "";
@@ -1866,7 +1821,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   });
 
   // "New sheet…" in the title menu, for this pane: back to the list, with
-  // the templates open and focus on the first.
+  // the templates open and focus on the first. Registered synchronously as
+  // the pane is built, because title-menu.js sends the event right after its
+  // commit; a pane built later would miss it (DK6-10).
   const onNewSheet = async (e) => {
     if (e.detail?.paneId !== paneId || destroyed) return;
     if (sheet) {
@@ -1888,6 +1845,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     el,
     destroy() {
       flushAll();
+      closeInsertMenu();
       destroyed = true;
       seq++;
       unsubscribe();

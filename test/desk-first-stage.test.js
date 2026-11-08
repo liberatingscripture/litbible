@@ -190,6 +190,20 @@ test("the first stage carries the tab's stylesheet and none of the shell, the st
   assert.ok(staticClosure("src/scripts/desk/shell.js").has("src/styles/desk-tab.css"));
 });
 
+test("what the first stage draws is styled by what it loads: the skip link, the tray's hint and Reset widths (Audit 6, NB6-1, NB6-4)", () => {
+  const read = (p) => readFileSync(join(root, p), "utf8");
+  const tabCss = read("src/styles/desk-tab.css");
+  const deskCss = read("src/styles/desk.css");
+  // The link carries the attribute its hiding rule keys on, and the rule is in the stylesheet stage one loads.
+  assert.match(read("src/scripts/desk/first-stage.js"), /skip\.setAttribute\("data-desk-skip", ""\)/);
+  assert.match(tabCss, /html\[data-desk-show="off"\] \.skip-link\[data-desk-skip\] \{/);
+  assert.doesNotMatch(deskCss, /\.skip-link\[data-desk-skip\]/);
+  for (const cls of ["font-tray__hint", "font-tray__reset"]) {
+    assert.match(tabCss, new RegExp(`\.${cls} \{`));
+    assert.doesNotMatch(deskCss, new RegExp(`\.${cls}\b`));
+  }
+});
+
 test("stage two that fails to load or to start stands the page down; one that starts doesn't", async () => {
   const quiet = console.error;
   console.error = () => {};

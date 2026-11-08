@@ -84,13 +84,13 @@ export function commandsLinkButton(label, open) {
   return b;
 }
 
-/** True when a query could name Greek: Greek letters, a Strong's number, or one to three Latin words. */
+/** True when a query could name Greek: Greek letters, a Strong's number, or one to four Latin words (four only for a LIT rendering, matchGreek). */
 export function couldBeGreek(raw) {
   const q = String(raw ?? "").trim();
   if (hasGreek(q) || parseStrong(q)) return true;
   if (q.length < 2) return false;
   const words = q.match(/[\p{L}]+/gu) ?? [];
-  return words.length > 0 && words.length <= 3;
+  return words.length > 0 && words.length <= 4;
 }
 
 let greekBridgePromise = null;
@@ -136,8 +136,13 @@ export function loadGreekIndex(base) {
 
 const greekShards = new Map();
 
-/** A lemma's occurrence entry from its shard ([forms, flat, parses]), or null. */
-export async function loadGreekOccurrences(base, index, id) {
+/**
+ * A lemma's occurrence entry from its shard ([forms, flat, parses]) and
+ * whether the shard itself failed to load: `{ entry: null, failed: false }`
+ * is a lemma the shard has no entry for, `failed: true` is a shard that
+ * wouldn't come (GK6-6).
+ */
+export async function loadGreekEntry(base, index, id) {
   const name = occShard(index, id);
   let p = greekShards.get(name);
   if (!p) {
@@ -151,7 +156,12 @@ export async function loadGreekOccurrences(base, index, id) {
     greekShards.set(name, p);
   }
   const shard = await p;
-  return shard?.[id] ?? null;
+  return { entry: shard?.[id] ?? null, failed: !shard };
+}
+
+/** A lemma's occurrence entry from its shard ([forms, flat, parses]), or null. */
+export async function loadGreekOccurrences(base, index, id) {
+  return (await loadGreekEntry(base, index, id)).entry;
 }
 
 /** A chapter's Greek (public/greek/text/<book>-<chapter>.json), or null. */
@@ -177,7 +187,7 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   const empty = { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false, failed: false };
   if (!couldBeGreek(raw)) return empty;
   const index = await loadGreekIndex(base);
-  if (!index) return empty;
+  if (!index) return { ...empty, failed: true };
   // The LIT's own renderings only matter to Latin text.
   const bridge = isGreekQuery(raw) ? null : await loadGreekBridge(base);
   let match;
@@ -193,15 +203,19 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
   // phase 2), and a term can govern several lemmas: count each lemma in those
   // verses, and drop one that never occurs there.
   const litKey = (h) => `${BOOK_ORDER.indexOf(h.book)}.${h.chapter}.${h.verse}`;
+  let litShardFailed = false;
   await Promise.all(
     lemmas
       .filter((l) => l.lit)
       .map(async (l) => {
         const keys = litVerseKeys(l.lit);
-        const entry = await loadGreekOccurrences(base, index, l.id);
+        const { entry, failed: shardFailed } = await loadGreekEntry(base, index, l.id);
+        // A shard that failed is not "never occurs there" (GK6-6): keep the lemma, say so.
+        if (shardFailed) litShardFailed = true;
         l.lit = { ...l.lit, counted: decodeOccurrences(entry, BOOK_ORDER).filter((h) => keys.has(litKey(h))).length };
       }),
   );
+  if (litShardFailed) return { ...empty, kind: match.kind, lemmas, form: match.form, query: match.query ?? null, failed: true };
   lemmas = [
     ...lemmas.filter((l) => l.lit?.counted > 0).sort((a, b) => b.lit.counted - a.lit.counted),
     ...lemmas.filter((l) => !l.lit),

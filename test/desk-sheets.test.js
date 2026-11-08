@@ -28,6 +28,7 @@ import {
   addModule,
   createSheet,
   duplicateSheet,
+  hasTemplateParts,
   isOwnTemplate,
   sheetFromTemplate,
   templateFromSheet,
@@ -1592,4 +1593,23 @@ test("minutes: absent, or a whole number from 1 to 240", () => {
   assert.deepEqual(validateRecord(withMinutes(10)), []);
   assert.deepEqual(validateRecord(withMinutes(240)), []);
   for (const bad of [0, 241, 2.5, "10"]) assert.ok(validateRecord(withMinutes(bad)).some((p) => /minutes/.test(p)), String(bad));
+});
+
+/* ── Audit 6 follow-ups (DK6-8) ──────────────────────────────────────── */
+
+test("hasTemplateParts: false for a sheet of passages alone", () => {
+  const s = sampleSheet();
+  assert.equal(hasTemplateParts(s), s.modules.some((m) => m.type !== "passage"));
+  assert.equal(hasTemplateParts({ ...s, modules: s.modules.filter((m) => m.type === "passage") }), false);
+  assert.equal(hasTemplateParts({ ...s, modules: [] }), false);
+});
+
+test("duplicateSheet of a template is a sheet, not another template", () => {
+  const t = templateFromSheet(sampleSheet(), { ...ctx, now: T2 });
+  const d = duplicateSheet(t, { ...ctx, now: T2 });
+  assert.equal(d.isTemplate, undefined);
+});
+
+test("sheetFromTemplate refuses a record that is not one of the reader's templates", () => {
+  assert.throws(() => sheetFromTemplate(sampleSheet(), { ...ctx, now: T1 }), /own templates/);
 });
