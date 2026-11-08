@@ -68,8 +68,8 @@ Which files are OTHER MATERIAL, not SOFTWARE and not CONTENT:
     The site's images. Those that are the project's own (the emblem,
     wordmark, app icon, and screenshots of the apps) are not licensed for
     reuse by this file. The rest are photographs and artwork from other
-    sources, used under those sources' own terms, which this file does not
-    restate.
+    sources, used under those sources' own terms; IMAGE-CREDITS.md lists
+    each one's source, creator and terms.
 
 Packages installed from npm (the @fontsource font faces, simple-icons, and
 the rest of package.json) are not in this repository, though the build
