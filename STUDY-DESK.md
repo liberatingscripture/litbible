@@ -212,7 +212,10 @@ are recorded so they aren't re-argued.
   **A sheet gathers your questions** (N6): "+ For discussion" in the Sheet
   pane adds a "For discussion" heading and one question per note marked
   with the question marker on the sheet's passages, in passage order, as
-  ordinary parts to edit, move or delete. Smaller calls for BVJ to judge
+  ordinary parts to edit, move or delete. **Replaced on 2026-11-08 by
+  "+ From my notes…"** (STUDY-DESK-FIXES.md, E62), a chooser over every
+  note, highlight and pinned footnote on the sheet's passages; BVJ: too few
+  readers mark questions for a button of its own. Smaller calls for BVJ to judge
   are in the decision log, "Phase 2c". Phase 2 is done. 3l, popping the
   notebook out, has since moved to version 2 (BVJ, 2026-10-21), so phase 3
   is done too.
@@ -800,7 +803,10 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **N6. Questions as their own kind.** Mark a note as a question; a sheet
   gathers them into a "For discussion" section in passage order. Borrowed
   (Logos Sermon Builder). Extra small. Proposed. **Built on the preview
-  2026-10-20** ("Order of work", 2c).
+  2026-10-20** ("Order of work", 2c). **Replaced 2026-11-08** by
+  "+ From my notes…" (E62), which offers every note, highlight and pinned
+  footnote on the sheet's passages; the question marker still tells a
+  Question part from Your text there.
 - **N7. The interleaf.** A Display tray switch that opens a ruled band after
   each paragraph holding your notes for it, like Edwards's blank leaves.
   Works in windows too narrow for the margin. **Bands open only when the

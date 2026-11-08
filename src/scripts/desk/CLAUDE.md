@@ -2016,8 +2016,17 @@ against `dist/` is a later item.
        hidden, and a change that moves a footnote between "⋯" and inline (the
        margin note's mark) runs inside `keepPillFocus`; the popover's own Pin and "Add a note" row, and /desk's panes, are
        unchanged. Read View has no footnotes, so it has none of this.
-     - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
-       (pure, tested) turns the notes marked `question` on a sheet's
-       passages into a heading and `question` modules, once; nothing links
-       them back to the notes. The Sheets pane's "+ For discussion" adds them
-       in one change.
+     - **A sheet takes notes, highlights and pinned footnotes from the
+       notebook as ordinary parts**: `src/lib/desk-sheet-from-notes.mjs`
+       (pure, tested) lists the records on a sheet's passages (everything,
+       newest first, on a sheet with none) and turns the chosen ones into
+       parts (a question note a `question`, any other note or a pinned
+       footnote a `text`, a highlight a `passage`); nothing links a part
+       back to its record. The Sheets pane's "+ From my notes…" is the
+       chooser (`openFromNotes`), adding the ticked ones in one change
+       (E62; BVJ, 2026-11-08). It replaced N6's "+ For discussion"
+       (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
+       gathered only the notes marked `question` under a heading: "The
+       options for sheets need to be more flexible than that, more useful to
+       more people."
+

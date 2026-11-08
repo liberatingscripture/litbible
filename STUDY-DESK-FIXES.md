@@ -1923,6 +1923,28 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   form stays for the next. × or Escape closes it until the sheet is opened
   again. The prompt now reads "Type the reference in the form below, or add
   the passage from the LIT pane’s verse numbers."
+- **E62, design: "+ For discussion" serves too few.** BVJ (2026-11-08), on
+  reading its new tooltip: "The percentage of people who will have added
+  notes, selected the question mark glyph, and then created a sheet, and
+  wanted to use those notes to guide discussion is probably going to be
+  really small. The options for sheets need to be more flexible than that,
+  more useful to more people." Three ways were put: a chooser over the whole
+  notebook, one button gathering every note, or dropping the button. BVJ
+  chose the chooser. Status: **done 2026-11-08**: "+ From my notes…" in the
+  add bar opens a list of the notebook's notes (any marker), highlights and
+  pinned footnotes on the sheet's passages, in passage order (everything,
+  newest first and capped at 60, while the sheet has no passage), each with
+  a box to tick and the record's words under its reference; "Add N parts"
+  brings them on in one change, so one Ctrl+Z takes them all back. A
+  question note becomes a Question part, any other note or a pinned
+  footnote Your text (the reference in bold, a footnote's words, then the
+  note's), a highlight a passage of its verses (its chapter is read first,
+  so part of a verse keeps its words). One already on the sheet is listed
+  but can't be ticked. `src/lib/desk-sheet-from-notes.mjs` (pure, tested)
+  took over `desk-sheet-discussion.mjs`'s overlap, order, escaping and
+  limit rules, and that module and its tests are gone; nothing else read
+  them. Bookmarks stay the passage form's business ("From my notebook"
+  there), since a bookmark is a place, not words.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

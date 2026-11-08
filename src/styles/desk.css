@@ -7292,6 +7292,34 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   color: rgba(var(--ink-rgb), 0.75);
 }
 
+/* "+ From my notes…" (E62): the notebook list's rows with a box to tick;
+   one already on the sheet is shown but can't be. */
+.desk-sheet__pick {
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+}
+
+.desk-sheet__pick input {
+  margin: 3px 0 0;
+}
+
+.desk-sheet__pick .desk-sheet__from-words {
+  grid-column: 2 / -1;
+}
+
+.desk-sheet__pick:has(input:disabled) {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.desk-sheet__pick:has(input:disabled):hover {
+  background: transparent;
+}
+
+.desk-sheet__from-notes .desk-sheet__add-row {
+  margin-top: 8px;
+}
+
 /* New sheet's list of templates (M9): the notebook list's rows, uncapped */
 .desk-sheet__templates {
   margin: 0 0 12px;

@@ -64,7 +64,7 @@ import {
   updateModule,
 } from "../../lib/desk-sheets.mjs";
 import { TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
-import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
+import { fitModules, notebookItems, partsFor } from "../../lib/desk-sheet-from-notes.mjs";
 import {
   passageFromOffsets,
   passageForReference,
@@ -116,6 +116,8 @@ const promptOf = (m, field) => (typeof m?.[field] === "string" ? m[field].trim()
 
 /** A text part holding one heading and nothing else. */
 const LONE_HEADING = /^<h[1-6]>[^<]*<\/h[1-6]>$/;
+/** A text part's opening heading ("Opening", "The text"), or null: what the gap's pill and its form call the part. */
+const headingOf = (m) => (m?.type === "text" && typeof m.html === "string" && /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html)?.[1]?.replace(/\s+/g, " ").trim()) || null;
 
 /**
  * The prompt a text part shows under its heading (SH5-2, SH5-4): its own
@@ -144,12 +146,13 @@ function describe(control, text) {
 const json = (x) => JSON.stringify(x);
 
 // What each of the add bar's buttons adds, in a short line (BVJ, 2026-11-08:
-// only For discussion had a tooltip, and that one ran too long to show
-// whole): the button's hover text, and its description for a screen reader.
+// only one button had a tooltip, and that one ran too long to show whole):
+// the button's hover text, and its description for a screen reader.
 const ADD_TIPS = Object.freeze({
   passage: "Add a passage from the LIT by its reference, or from your notebook",
   text: "Add a part for your own words",
   question: "Add a question, with lines to write an answer on",
+  fromNotes: "Bring your notes, highlights, and pinned footnotes onto the sheet, as parts you choose",
   space: "Add blank lines to write on",
   pageBreak: "Start a new page here when printed",
   keyTerms: "Add a box listing the key terms in the sheet’s passages, filled in for you",
@@ -829,7 +832,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (!readOnly && !insertForm) {
       const reading = readingPart(sheet);
       const card = reading && readingDismissed !== reading.id ? cards.get(reading.id) : null;
-      if (card) openInlinePassage(reading, card.name, { focus: false, scroll: false, auto: true });
+      if (card) openInlinePassage(reading, headingOf(reading) ?? card.name, { focus: false, scroll: false, auto: true });
     }
     license?.sheetChanged();
     if (keyTermsButton) {
@@ -915,6 +918,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
     const tools = make("div", "desk-sheet__module-tools");
     const name = label.textContent;
+    // What the gap's pill, its menu and its form call the part: a text part's
+    // heading when it has one ("Add a passage after Reading"), else its kind.
+    const called = headingOf(m) ?? name;
     let up = null;
     let down = null;
     if (!readOnly) {
@@ -978,11 +984,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       if (insertForm?.after === m.id) card.append(insertForm.el);
       const zone = make("div", "desk-sheet__after");
       const insert = button("+ Add", "desk-sheet__after-btn");
-      insert.setAttribute("aria-label", `Add a part after ${name}`);
+      insert.setAttribute("aria-label", `Add a part after ${called}`);
       insert.setAttribute("aria-haspopup", "menu");
       insert.setAttribute("aria-expanded", "false");
       insert.title = "Add a part here";
-      insert.addEventListener("click", () => openInsertMenu(insert, m, name));
+      insert.addEventListener("click", () => openInsertMenu(insert, m, called));
       zone.append(insert);
       card.append(zone);
     }
@@ -1342,58 +1348,156 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     add("passage", "Passage");
     add("text", "Your text");
     add("question", "Question");
-    // N6: the notebook's notes marked as questions, on this sheet's passages,
-    // in one go (one change, so one Ctrl+Z takes them all back).
-    const discuss = button("+ For discussion");
-    discuss.title = "Gather your question notes on these passages into a section";
-    const discussHint = describe(discuss, "Gathers your notes with the Question marker, on this sheet’s passages, into a section.");
-    const discussNote = make("p", "desk-sheet__empty");
-    discussNote.hidden = true;
-    discuss.addEventListener("click", async () => {
-      discussNote.hidden = true;
-      if (!sheet || !canEdit(sheet)) return;
-      let records = [];
-      try {
-        records = await store.all();
-      } catch (_) {}
-      const got = discussionModules(sheet, records);
-      let text;
-      if (!got.modules.length && got.dropped) {
-        text = `A sheet holds at most ${SHEET_LIMITS.modules} parts, so the questions didn’t fit.`;
-      } else if (!got.modules.length && got.already) {
-        text = "Your questions on these passages are already on the sheet.";
-      } else if (!got.modules.length) {
-        text = "None of your notes with the Question marker are on this sheet’s passages. To gather a note here, edit it and choose that marker.";
-      }
-      if (text) {
-        discussNote.textContent = text;
-        discussNote.hidden = false;
-        say(text);
+    // + From my notes… (E62; BVJ, 2026-11-08): a chooser over the notebook's
+    // notes, highlights and pinned footnotes on this sheet's passages, each
+    // brought on as a part. It took over from N6's "+ For discussion", which
+    // gathered only the notes marked as questions: too few readers' habit.
+    const fromNotes = button("+ From my notes…");
+    fromNotes.title = ADD_TIPS.fromNotes;
+    hints.push(describe(fromNotes, `${ADD_TIPS.fromNotes}.`));
+    const picker = make("div", "desk-sheet__passage-form desk-sheet__from-notes");
+    picker.id = `deskSheetFromNotes-${paneId}`;
+    picker.hidden = true;
+    picker.setAttribute("role", "group");
+    picker.setAttribute("aria-label", "From my notes");
+    fromNotes.setAttribute("aria-expanded", "false");
+    fromNotes.setAttribute("aria-controls", picker.id);
+    const closePicker = (refocus) => {
+      picker.hidden = true;
+      picker.replaceChildren();
+      fromNotes.setAttribute("aria-expanded", "false");
+      if (refocus) fromNotes.focus();
+    };
+    fromNotes.addEventListener("click", () => {
+      if (!picker.hidden) {
+        closePicker(false);
         return;
       }
-      const count = got.modules.filter((m) => m.type === "question").length;
-      const missed = got.dropped ? ` ${got.dropped} more didn’t fit.` : "";
-      // Worked out again on the sheet as saved, so questions another tab put
-      // on it meanwhile aren't added twice.
-      let added = got.modules;
-      change((s) => {
-        added = discussionModules(s, records).modules;
-        let at = insertIndex(s);
-        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
-      }, {
-        announce: `${count} ${count === 1 ? "question" : "questions"} added for discussion.${missed}`,
-        after: () => cards.get(added[0]?.id)?.el.scrollIntoView({ block: "nearest" }),
-      });
+      fromNotes.setAttribute("aria-expanded", "true");
+      openFromNotes(picker, closePicker);
     });
-    row.append(discuss);
+    picker.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      closePicker(true);
+    });
+    row.append(fromNotes);
     add("space", "Space");
     add("pageBreak", "Page break");
     add("keyTerms", "Key terms box");
     keyTermsButton = row.lastChild;
     keyTermsHint = describe(keyTermsButton, "A box listing the key terms in the sheet’s passages, filled in for you.");
     form.id = `deskSheetPassage-${paneId}`;
-    bar.append(row, discussNote, form, ...hints, discussHint, keyTermsHint);
+    bar.append(row, form, picker, ...hints, keyTermsHint);
     return bar;
+  }
+
+  /**
+   * The "+ From my notes…" chooser (E62): the notebook's notes, highlights and
+   * pinned footnotes on this sheet's passages (everything, newest first, on a
+   * sheet with none yet), each with a box to tick; "Add" brings the ticked
+   * ones on as parts in one change, so one Ctrl+Z takes them all back. A
+   * question becomes a Question part, a note or a pinned footnote Your text,
+   * a highlight a passage (its chapter is read first, so part of a verse
+   * keeps its words). What is already on the sheet is shown but can't be
+   * ticked. The parts go after the part last worked in, else at the end.
+   */
+  async function openFromNotes(box, close) {
+    box.hidden = false;
+    box.replaceChildren(make("p", "desk-sheet__from-title", "From my notes"), make("p", "desk-sheet__empty", "Looking in your notebook…"));
+    let records = [];
+    try {
+      records = await store.all();
+    } catch (_) {}
+    if (box.hidden || !sheet) return;
+    const items = notebookItems(sheet, records);
+    const hasPassages = sheet.modules.some((m) => m?.type === "passage");
+    box.replaceChildren(make("p", "desk-sheet__from-title", hasPassages ? "From my notes on this sheet’s passages" : "From my notes"));
+    const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
+    cancel.addEventListener("click", () => close(true));
+    if (!items.length) {
+      box.append(
+        make("p", "desk-sheet__empty", hasPassages
+          ? "None of your notes, highlights, or pinned footnotes fall on this sheet’s passages. Make one there, or add the passage they are on."
+          : "Notes, highlights, and pinned footnotes you make will be listed here, to bring onto a sheet."),
+        cancel,
+      );
+      cancel.focus();
+      return;
+    }
+    box.append(make("p", "desk-sheet__empty", "Tick what to bring. A question becomes a Question part, a note or a pinned footnote Your text, and a highlight a passage."));
+    const KIND = { question: "Question", note: "Note", highlight: "Highlight", footnote: "Footnote" };
+    const picks = new Map();
+    const go = button("Add", "desk-sheet__btn desk-sheet__btn--primary");
+    go.disabled = true;
+    const count = () => {
+      const k = picks.size;
+      go.textContent = k ? `Add ${k === 1 ? "1 part" : `${k} parts`}` : "Add";
+      go.disabled = !k;
+    };
+    const ul = make("ul", "desk-sheet__from-list");
+    items.forEach((it, i) => {
+      const li = make("li");
+      const label = make("label", "desk-sheet__from-item desk-sheet__pick");
+      const tick = make("input");
+      tick.type = "checkbox";
+      tick.disabled = it.onSheet;
+      label.append(tick, make("span", "desk-sheet__from-ref", recordReference(it.record)), make("span", "desk-sheet__from-kind", it.onSheet ? `${KIND[it.kind]} · on the sheet` : KIND[it.kind]));
+      if (it.words) label.append(make("span", "desk-sheet__from-words", it.words.length > 90 ? it.words.slice(0, 89) + "…" : it.words));
+      tick.addEventListener("change", () => {
+        if (tick.checked) picks.set(i, it);
+        else picks.delete(i);
+        count();
+      });
+      li.append(label);
+      ul.append(li);
+    });
+    const actions = make("div", "desk-sheet__add-row");
+    actions.append(go, cancel);
+    box.append(ul, actions);
+    ul.querySelector("input:not(:disabled)")?.focus();
+    go.addEventListener("click", async () => {
+      const chosen = [...picks.values()];
+      if (!chosen.length) return;
+      go.disabled = true;
+      // The highlights' chapters, so part of a verse keeps its words.
+      const chapters = new Map();
+      for (const it of chosen) {
+        if (it.kind !== "highlight") continue;
+        const key = `${it.record.bookKey} ${it.record.chapter}`;
+        if (chapters.has(key)) continue;
+        try {
+          const source = await loadChapterPage(it.record.bookKey, it.record.chapter);
+          chapters.set(key, source.textBox ? source.anchorText() : null);
+        } catch (_) {
+          chapters.set(key, null);
+        }
+      }
+      if (box.hidden || !sheet || !canEdit(sheet)) return;
+      const made = partsFor(chosen, { chapter: (r) => chapters.get(`${r.bookKey} ${r.chapter}`) ?? null, contentVersion: ctx().contentVersion });
+      const fit = fitModules(sheet, made);
+      if (!fit.modules.length) {
+        say(`A sheet holds at most ${SHEET_LIMITS.modules} parts, so nothing more fits.`);
+        go.disabled = false;
+        return;
+      }
+      close(false);
+      let added = fit.modules;
+      change((s) => {
+        // Fitted again on the sheet as saved, which another tab may have grown.
+        added = fitModules(s, fit.modules).modules;
+        let at = insertIndex(s);
+        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
+      }, {
+        announce: `${added.length === 1 ? "1 part" : `${added.length} parts`} added from your notes.${fit.dropped ? ` ${fit.dropped} more didn’t fit.` : ""}`,
+        after: () => {
+          const c = cards.get(added[0]?.id);
+          c?.el.scrollIntoView({ block: "nearest" });
+          c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+        },
+      });
+    });
   }
 
   /**
