@@ -24,11 +24,12 @@ import {
   sheetHtmlForShow,
 } from "../../lib/desk-sheet-copy.mjs";
 import { blankHint, blankWords, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
-import { blankCover, footnotesInPlay } from "../../lib/desk-present.mjs";
+import { blankCover, footnotesInPlay, plannedTotal } from "../../lib/desk-present.mjs";
 import { partialEnds, passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
+import { answerKeyLine, answerKeyRows, findLeaks } from "../../lib/desk-sheet-leaks.mjs";
 import { locateBlanks, passageWords, readPassage, UNREAD_PASSAGE_ON_PAPER } from "./sheet-lit.js";
 import { make } from "./dom.js";
 
@@ -163,6 +164,7 @@ function markOpenEnds(words, ends) {
 
 function passageSection(m, view, { copy, allBlanks, code }) {
   const section = make("section", "sheet-copy__passage");
+  section.dataset.module = m.id;
   const head = make("div", "sheet-copy__passage-head");
   head.append(make("h2", "sheet-copy__ref", passageReference(m)));
   if (m.leaderOnly) head.append(make("span", "sheet-copy__tag", "Leader only"));
@@ -359,10 +361,11 @@ export function codeFigure(code, caption = `Scan to read ${code.label}`) {
  * Draw a copy of the sheet.
  *
  * @param {object} sheet the sheet record
- * @param {{ copy: "leader" | "participant", codes?: boolean }} opts
+ * @param {{ copy: "leader" | "participant", codes?: boolean, answerKey?: boolean }} opts
+ *   `answerKey`: the leader's version ends with an "Answer key" (never the participant's)
  * @returns {Promise<HTMLElement>}
  */
-export async function renderCopy(sheet, { copy, codes = true }) {
+export async function renderCopy(sheet, { copy, codes = true, answerKey = false }) {
   const modules = modulesForCopy(sheet, copy);
   const views = await readAll(modules);
   const blanks = printingBlanks(modules, views);
@@ -373,7 +376,9 @@ export async function renderCopy(sheet, { copy, codes = true }) {
   article.setAttribute("aria-label", `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()}`);
   const head = make("header", "sheet-copy__head");
   head.append(make("h1", "sheet-copy__title", sheetName(sheet)));
-  head.append(make("p", "sheet-copy__subtitle", [sheet.subtitle?.trim(), COPY_NAMES[copy]].filter(Boolean).join(" · ")));
+  // The planned minutes are the leader's (Audit 5, D #2): their total is on that version alone.
+  const planned = copy === "leader" ? plannedTotal(sheet) : null;
+  head.append(make("p", "sheet-copy__subtitle", [sheet.subtitle?.trim(), COPY_NAMES[copy], planned ? `Planned ${planned} min` : ""].filter(Boolean).join(" · ")));
   article.append(head);
 
   for (const m of modules) {
@@ -404,6 +409,11 @@ export async function renderCopy(sheet, { copy, codes = true }) {
 
   if (!modules.length) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
 
+  if (answerKey && copy === "leader") {
+    const key = answerKeySection(modules, views);
+    if (key) article.append(key);
+  }
+
   const foot = make("footer", "sheet-copy__foot");
   foot.append(make("p", "sheet-copy__credit", LIT_CREDIT_LINE));
   if (chapters.length) foot.append(make("p", "sheet-copy__addresses", chapters.map((c) => c.printable).join(" · ")));
@@ -425,4 +435,88 @@ export async function copyChecks(sheet, copy) {
   const modules = modulesForCopy(sheet, copy).filter((m) => m.type === "passage");
   const views = await readAll(modules);
   return modules.map((m) => ({ m, check: views.get(m.id)?.ok ? views.get(m.id).check : null }));
+}
+
+/* ── The answer key, and the "what prints" check ────────────────────── */
+
+/**
+ * "Answer key", at the end of the leader's version when asked for (never
+ * stored on the sheet): each passage's blanks in order, with the hint beneath
+ * each. Null when no passage has a blank that prints.
+ */
+function answerKeySection(modules, views) {
+  const rows = answerKeyRows(
+    modules
+      .filter((m) => m.type === "passage" && views.get(m.id)?.ok)
+      .map((m) => {
+        const view = views.get(m.id);
+        return {
+          ref: passageReference(m),
+          blanks: locateBlanks(view, m)
+            .filter((b) => b.prints)
+            .sort((a, b) => a.start - b.start)
+            .map((b) => ({
+              answer: view.chapter.text.slice(b.start, b.end),
+              hint: blankHint(b.blank, b, view.allMarks, view.terms) ?? "",
+            })),
+        };
+      }),
+  );
+  if (!rows.length) return null;
+  const section = make("section", "sheet-copy__key");
+  section.append(make("h2", "sheet-copy__key-title", "Answer key"));
+  for (const row of rows) section.append(make("p", "sheet-copy__key-row", answerKeyLine(row)));
+  return section;
+}
+
+// A part's words as they print: no blank (its hint included), footnote letter or "…".
+function printedWords(el) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll(".sheet-blank, sup, .sheet-copy__ellipsis").forEach((x) => x.remove());
+  return clone.textContent;
+}
+
+/**
+ * Where a blank's words print again on the participant version (the "what
+ * prints" check, desk-sheet-leaks.mjs). `article` is that version as drawn.
+ * Returns [{ words, ref, where, kind }], empty when there is nothing to say.
+ */
+export async function copyLeaks(sheet, article) {
+  const modules = modulesForCopy(sheet, "participant");
+  const views = await readAll(modules);
+  const blanks = [];
+  for (const m of modules) {
+    const view = views.get(m.id);
+    if (m.type !== "passage" || !view?.ok) continue;
+    for (const b of locateBlanks(view, m)) {
+      if (b.prints) blanks.push({ passageId: m.id, ref: passageReference(m), ...blankWords(b, view.chapter.text, view.allMarks, view.terms) });
+    }
+  }
+  if (!blanks.length) return [];
+  const surfaces = [
+    { kind: "title", where: "the title", text: article.querySelector(".sheet-copy__title")?.textContent ?? "" },
+    { kind: "subtitle", where: "the subtitle", text: sheet.subtitle ?? "" },
+  ];
+  let texts = 0;
+  let questions = 0;
+  for (const part of article.children) {
+    if (part.matches(".sheet-copy__text")) surfaces.push({ kind: "text", where: `text part ${++texts}`, text: printedWords(part) });
+    else if (part.matches(".sheet-copy__question")) surfaces.push({ kind: "question", where: `question ${++questions}`, text: printedWords(part) });
+    else if (part.matches(".sheet-copy__passage")) {
+      const passageId = part.dataset.module;
+      const ref = part.querySelector(".sheet-copy__ref")?.textContent ?? "";
+      const words = part.querySelector(".sheet-copy__words");
+      if (words) surfaces.push({ kind: "passage", where: ref, text: printedWords(words), passageId });
+      for (const note of part.querySelectorAll(".sheet-copy__note")) {
+        const label = note.querySelector(".sheet-copy__note-label")?.textContent?.trim();
+        surfaces.push({
+          kind: "footnote",
+          where: `a footnote to ${ref}${label ? ` (${label})` : ""}`,
+          text: note.querySelector(".sheet-copy__note-text")?.textContent ?? "",
+          passageId,
+        });
+      }
+    }
+  }
+  return findLeaks(blanks, surfaces);
 }

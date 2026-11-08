@@ -124,6 +124,56 @@ export function duplicateSheet(sheet, { now, client, contentVersion, id, newId =
 
 const newIdDefault = newId;
 
+/** Whether a sheet record is one of the reader's own templates (`isTemplate`; Audit 5, D #1). */
+export const isOwnTemplate = (r) => r?.kind === "sheet" && r.isTemplate === true;
+
+/**
+ * The reader's sheet kept as a template of their own (Audit 5, section D, #1;
+ * BVJ, 2026-11-08): a new sheet record with `isTemplate: true`, the same
+ * title, no subtitle, and every part but the passages, under fresh ids. The
+ * passages go because they are the week's, where the rest (the opening, the
+ * questions' shape, the leader's notes, the prompts) is the leader's arc. A
+ * template is a sheet in every other way, so it is kept, trashed, backed up
+ * and synced as one; the editor opens it like any sheet, and New sheet lists
+ * it under the reader's own. Refuses a sheet of a newer format (canEdit).
+ *
+ * @param {object} sheet
+ * @param {{ now?: string, client: string, contentVersion?: string, id?: string, newId?: () => string }} ctx
+ */
+export function templateFromSheet(sheet, { now, client, contentVersion, id, newId = newIdDefault } = {}) {
+  mustEdit(sheet);
+  const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, ...fields } = sheet;
+  return createRecord(
+    "sheet",
+    {
+      ...fields,
+      subtitle: "",
+      isTemplate: true,
+      modules: sheet.modules.filter((m) => m?.type !== "passage").map((m) => ({ ...m, id: newId() })),
+    },
+    { now, client, contentVersion: contentVersion ?? cv, id: id ?? newId() },
+  );
+}
+
+/**
+ * A new sheet started from one of the reader's own templates: its parts under
+ * fresh ids, its title, and `template` kept as the template's own (where it
+ * first came from), with `isTemplate` gone. Refuses a template of a newer
+ * format (canEdit).
+ *
+ * @param {object} template a record isOwnTemplate accepts
+ * @param {{ now?: string, client: string, contentVersion?: string, id?: string, newId?: () => string }} ctx
+ */
+export function sheetFromTemplate(template, { now, client, contentVersion, id, newId = newIdDefault } = {}) {
+  mustEdit(template);
+  const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, isTemplate: _t, ...fields } = template;
+  return createRecord(
+    "sheet",
+    { ...fields, subtitle: "", modules: template.modules.map((m) => ({ ...m, id: newId() })) },
+    { now, client, contentVersion: contentVersion ?? cv, id: id ?? newId() },
+  );
+}
+
 /* ── Changing a sheet ────────────────────────────────────────────────── */
 
 function mustEdit(sheet) {

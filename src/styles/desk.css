@@ -7015,6 +7015,36 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   cursor: pointer;
 }
 
+/* A part's planned minutes (Audit 5, D #2): a narrow box before Leader only. */
+.desk-sheet__minutes {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 6px;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-sheet__minutes input {
+  width: 4.5em;
+  padding: 1px 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+
+.desk-sheet__minutes input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-sheet__planned {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
 .desk-sheet__icon {
   min-width: 26px;
   height: 26px;
@@ -7332,6 +7362,31 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 .desk-sheet__choice-name {
   font-weight: 600;
+}
+
+/* The reader's own templates (Audit 5, D #1): a heading over their rows in
+   the chooser, and their own list under My sheets. */
+.desk-sheet__own-head {
+  margin: 4px 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-sheet__own {
+  margin-top: 20px;
+}
+
+/* The key terms box's "Move before/after the reading" (BVJ, 2026-11-08). */
+.desk-sheet__terms-place {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
+.desk-sheet__own .desk-sheet__list-title {
+  margin-bottom: 8px;
 }
 
 /* ── What a sheet knows about the LIT (3h; sheet-lit.js) ─────────────── */

@@ -143,6 +143,7 @@ export function checkState(state, { kinds, blanks }) {
   const total = kinds.length;
   const out = initialState();
   if (!state || typeof state !== "object" || !total) return out;
+  if (state.blank === true) out.blank = true;
   const screen = Number(state.screen);
   out.screen = Number.isInteger(screen) ? Math.min(Math.max(screen, 0), total - 1) : 0;
   for (const [k, v] of Object.entries(state.revealed ?? {})) {
@@ -165,6 +166,12 @@ export function checkState(state, { kinds, blanks }) {
  * - `reveal`: the next hidden blank on this screen, in reading order; `hide`
  *   covers the last one revealed again.
  * - `notes`: the screen's footnotes up or down (passage screens only).
+ * - `blank`: the room's screen to plain black and back (the screen and the
+ *   reveal are untouched). While it is blank, a step to another screen
+ *   (`next`, `prev`, `first`, `last`, `go`) only brings the screen back and
+ *   does not move: the first press says "I'm back," the second steps.
+ *   Reveal, cover and footnotes still apply while blank, so a leader can
+ *   prepare behind the black.
  * An action that can't move anything returns the same state object, so a
  * caller can tell nothing changed.
  *
@@ -176,10 +183,13 @@ export function stepState(state, action, { kinds, blanks }) {
   const total = kinds.length;
   const i = state.screen;
   const go = (to) => {
+    if (state.blank) return unblanked(state);
     const next = Math.min(Math.max(to, 0), total - 1);
     return next === i ? state : { ...state, screen: next };
   };
   switch (action?.type) {
+    case "blank":
+      return state.blank ? unblanked(state) : { ...state, blank: true };
     case "next":
       return go(i + 1);
     case "prev":
@@ -215,10 +225,15 @@ export function stepState(state, action, { kinds, blanks }) {
   }
 }
 
+function unblanked(state) {
+  const { blank, ...rest } = state;
+  return rest;
+}
+
 /** Two states alike, field by field. */
 export function sameState(a, b) {
   if (a === b) return true;
-  if (!a || !b || a.screen !== b.screen) return false;
+  if (!a || !b || a.screen !== b.screen || (a.blank === true) !== (b.blank === true)) return false;
   const same = (x, y) => {
     const kx = Object.keys(x ?? {});
     const ky = Object.keys(y ?? {});
@@ -277,7 +292,8 @@ export function footnotesInPlay(rows) {
  * The action a key stands for, in both windows, or null. Arrows, Page Up and
  * Page Down (what a presentation clicker sends), Space and Shift+Space move
  * between screens; Home and End go to the first and last; R reveals and
- * Shift+R covers again; F puts the footnotes up and down. Up and Down are left
+ * Shift+R covers again; F puts the footnotes up and down; B or a period
+ * blanks the room's screen to black and brings it back. Up and Down are left
  * to scroll a screen too long to fit, and Escape to leave. A key held with
  * Ctrl, Alt or Cmd is the browser's.
  *
@@ -306,6 +322,11 @@ export function presentKey(e) {
     case "f":
     case "F":
       return e.shiftKey ? null : { type: "notes" };
+    case "b":
+    case "B":
+      return e.shiftKey ? null : { type: "blank" };
+    case ".":
+      return { type: "blank" };
     default:
       return null;
   }
@@ -385,3 +406,68 @@ export function hiddenTermsNote(n) {
 
 /** "Screen 3 of 8", as the presenter view and the announcement say it. */
 export const screenCount = (i, total) => `Screen ${i + 1} of ${total}`;
+
+/* ── Blank screen ────────────────────────────────────────────────────── */
+
+/** What is said when the room's screen goes black or comes back. */
+export const blankWords = (blank) =>
+  blank ? "The room’s screen is blank. Press B to show it." : "The room’s screen is showing again.";
+
+/* ── Planned minutes (the leader's own timing, presenter view only) ──── */
+
+export const MINUTES_MIN = 1;
+export const MINUTES_MAX = 240;
+
+/** A part's planned minutes: a whole number from 1 to 240, else null (anything else is ignored). */
+export function moduleMinutes(m) {
+  const n = m?.minutes;
+  return Number.isInteger(n) && n >= MINUTES_MIN && n <= MINUTES_MAX ? n : null;
+}
+
+function sumMinutes(parts) {
+  let sum = 0;
+  let any = false;
+  for (const m of parts) {
+    const n = moduleMinutes(m);
+    if (n) {
+      sum += n;
+      any = true;
+    }
+  }
+  return any ? sum : null;
+}
+
+/** The sheet's planned minutes: every part's, Leader only parts included; null when no part has any. */
+export function plannedTotal(sheet) {
+  return sumMinutes(sheet?.modules ?? []);
+}
+
+/**
+ * The minutes planned for a screen: its own part's, plus those of the Leader
+ * only parts that go with it (their time is spent while it is up, so the
+ * screens' minutes add up to `plannedTotal`). Null when none has any.
+ */
+export function screenMinutes(screen) {
+  return sumMinutes([screen?.module, ...(screen?.notes ?? [])]);
+}
+
+/**
+ * The time left in a part, or the overrun: { text: "4:05 left", over: false }
+ * or { text: "2:10 over", over: true }. `elapsedMs` is the time since the
+ * leader first arrived on the part.
+ */
+export function partTimeWords(minutes, elapsedMs) {
+  const left = minutes * 60000 - Math.max(0, Number(elapsedMs) || 0);
+  if (left >= 0) return { text: `${clockWords(Math.ceil(left / 1000) * 1000)} left`, over: false };
+  return { text: `${clockWords(-left)} over`, over: true };
+}
+
+/** "Planned 45 min · 12:30 in": the sheet's plan beside the time since the presentation began. */
+export function planWords(totalMinutes, elapsedMs) {
+  return `Planned ${totalMinutes} min · ${clockWords(elapsedMs)} in`;
+}
+
+/** Where each screen was first arrived at: the map with `screen` added at `now` unless it is already there. */
+export function noteArrival(arrivals, screen, now) {
+  return arrivals[screen] === undefined ? { ...arrivals, [screen]: now } : arrivals;
+}

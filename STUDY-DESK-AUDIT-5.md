@@ -41,7 +41,7 @@ sitting at the top made that worse, and its "Passage…" opened the bar's form a
 which felt like a glitch. Now the space between two parts shows a line with an "Add" pill when
 pointed at (BVJ's suggestion; it lies over the cards and takes no room), the pill's menu adds the
 chosen part right there, and "Passage…" opens the passage form under the part above. The pane is
-also renamed "Sheets" (it was "Sheet"). Nothing in this audit is open. The ghost prompts took section B's Design 2, an optional
+also renamed "Sheets" (it was "Sheet"). No finding in this audit is open; section D's recommendations were decided on 2026-11-08 and are marked there, and every item in it has its call. The ghost prompts took section B's Design 2, an optional
 `prompt` field, chosen by Claude under that instruction and reversible; Lectio divina's movement
 lines became prompts too, under the rule that no field starts with text. The toolbar (SH5-6) is drawn
 below the focused part, so clicking into a part grows the card downward instead of moving the words
@@ -583,6 +583,69 @@ one place the Sheets sit near that line.
     Started, Sefaria's "anatomy of a sheet," YouVersion's preview). Pairs with SH5-5 and SH5-11.
 12. **In Present**, where absent: a blank-screen key, jump-to-part thumbnails, and an offline-ready
     check before the meeting (PowerPoint, OpenLP, MediaShout's local files, Lectio 365's download).
+
+**BVJ's calls on these (2026-11-08)**, with what shipped on
+`claude/audit-5-landscape`:
+
+- **#1, Save as template: built.** "Save as template" on each row of My
+  sheets keeps the sheet's parts, without its passages, as a template of the
+  reader's own: a sheet record with `isTemplate: true` (STUDY-DESK-FORMAT.md,
+  "The sheet's own fields"), listed under "My templates" (open to change it,
+  or delete it), offered under "Your templates" in New sheet, and kept off
+  /sheets' list and the /search gather panel. It stays a Sheets pane action:
+  /sheets never edits.
+- **#2, minutes per part: built.** A part's optional `minutes` (1 to 240;
+  STUDY-DESK-FORMAT.md, "Modules"), set in a small box in each card's header;
+  the editor shows the total, the leader's version prints "Planned N min"
+  beside its name, and the presenter view counts each part down from the
+  leader's first arrival and shows "Planned N min · M:SS in." Never on the
+  participant's copy, the room's screen, or a participant share. The apps show
+  sheets but don't edit them, so they keep the field and may ignore it.
+  Per-part minutes don't print on paper or in the saved documents, only the
+  total on the leader's version on screen and in print.
+- **#3, more templates: the Swedish method built** (BVJ, 2026-11-08). Its
+  three signs are the headings of three parts, each with ruled space, so the
+  participants' copy carries the key; the explanations are prompts. The key
+  terms box starts after the reading, so each reader meets the passage first.
+  The video or podcast session is version 2. **Contextual Bible Study built
+  in place of Discovery Bible Study** (BVJ, 2026-11-08, after the
+  background on each): the Ujamaa Centre's movement from the group's own
+  reading, to a close reading (where the key terms box sits), to the
+  community's life and action. **The inductive study became Class
+  session's questions** (BVJ agreed): Observe, Interpret, and Apply, rather
+  than a template of its own.
+- **#4, Before you lead: built.** A Leader only part with a prompt opens the
+  Bible study, Class session, and Lectio divina templates.
+- **#5, labels on questions and a starter bank: version 2** (BVJ,
+  2026-11-08).
+- **#6, credit-line placement as a choice: declined** (BVJ agreed): where
+  the credit goes follows the license terms, so it stays fixed.
+- **#7, speaker notes in .pptx and .odp: already built** (the slides files,
+  2026-11-06: Leader only parts and answers go in the speaker notes).
+- **#8, a "what prints" check and an answer key: built.** On /sheets, the
+  participant's version shows a quiet notice when a blank's words also print
+  elsewhere on it (the title, a part, a question, another passage, or a
+  footnote the leader chose to print; `src/lib/desk-sheet-leaks.mjs`); it
+  never blocks printing. A blank's words repeated unblanked in the same
+  passage aren't reported. The leader's version has "Add an answer key"
+  (remembered per browser, not in the sheet), which ends it with each
+  passage's blanks in order; it reaches Print, Copy, and the .docx, .odt and
+  .rtf files, not the slides.
+- **#9, the key terms box before the reading: built as a choice per sheet**
+  (BVJ, 2026-11-08: "Definitely have it up front for class session.
+  Probably for Bible study also."). Both templates now start with the box
+  just before the reading, and the box's card has "Move before the reading"
+  or "Move after the reading" (`keyTermsPlacement` in
+  `desk-sheet-templates.mjs`), which places it against the reading part and
+  the first run of passages. Sermon preparation keeps it last (SH5-13).
+- **#10, a series; #11, start from a passage with examples: version 2**
+  (STUDY-DESK.md, "Version 2: deferred and shelved").
+- **#12, in Present: built in part.** B (or ".") blanks the room's screen to
+  black and back; a step key while it is blank only brings the screen back,
+  so a stray press can't skip a screen in the dark. The presenter view
+  shows the state and has a button for it. Thumbnails to jump between parts
+  were left out (Home, End and the arrows cover it), and so was an offline
+  check (the sheet is already on the leader's machine).
 
 ### Sources
 

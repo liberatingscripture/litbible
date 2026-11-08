@@ -57,11 +57,13 @@ import {
 } from "../../lib/desk-sheet-share.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
 import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
+import { isOwnTemplate } from "../../lib/desk-sheets.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { checkSummary } from "../../lib/desk-sheet-check.mjs";
 import { passageReference } from "../../lib/desk-sheet-passages.mjs";
 import { documentFileName } from "../../lib/desk-sheet-doc.mjs";
-import { copyChecks, renderCopy } from "./sheet-copy.js";
+import { copyChecks, copyLeaks, renderCopy } from "./sheet-copy.js";
+import { leakSentence } from "../../lib/desk-sheet-leaks.mjs";
 import { diffParagraph } from "./diff-view.js";
 import { openPresentation, showPresenterView } from "./sheet-present.js";
 import { CODES_MISSING, createSaveMenu, download, drawCodes, writerFor } from "./sheet-save.js";
@@ -70,6 +72,17 @@ import { openStore } from "./store.js";
 import { make } from "./dom.js";
 
 const PAPER_KEY = "lit-sheet-paper";
+// Whether the leader's version ends with an answer key: this browser's choice,
+// never part of the sheet record.
+const ANSWER_KEY = "lit-sheet-answer-key";
+
+function storedAnswerKey() {
+  try {
+    return localStorage.getItem(ANSWER_KEY) === "on";
+  } catch (_) {
+    return false;
+  }
+}
 /**
  * The Share dialog's file button (E37; BVJ, 2026-11-06: "export", to set it
  * apart from Save as). Its messages read it from here, so it changes in one place.
@@ -198,7 +211,7 @@ async function showList(root, store) {
   root.replaceChildren(make("h1", "sheets-page__title", "My sheets"));
   let sheets = [];
   try {
-    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet"));
+    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet" && !isOwnTemplate(r)));
   } catch (err) {
     console.error("Study Desk: couldn't read the sheets", err);
   }
@@ -321,6 +334,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   let copy = copies[0];
   let paper = storedPaper() ?? defaultPaper(navigator.languages ?? [navigator.language]);
   let codes = true;
+  let answerKey = storedAnswerKey();
   setPaper(paper);
 
   const bar = make("div", "sheets-page__bar");
@@ -353,7 +367,20 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   });
   codeBox.append(codeInput, document.createTextNode(" Show QR codes"));
   codeBox.title = "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
-  const hints = [describe(codeInput, "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
+  // "Add an answer key" belongs to the leader's version, so it shows there only.
+  const keyBox = make("label", "sheets-page__keybox");
+  const keyInput = make("input");
+  keyInput.type = "checkbox";
+  keyInput.checked = answerKey;
+  keyInput.addEventListener("change", () => {
+    answerKey = keyInput.checked;
+    try { localStorage.setItem(ANSWER_KEY, answerKey ? "on" : "off"); } catch (_) {}
+    draw();
+  });
+  keyBox.append(keyInput, document.createTextNode(" Add an answer key"));
+  keyBox.title = "End the leader’s version with each passage’s blanks and their answers, to print or save";
+  keyBox.hidden = copy !== "leader";
+  const hints = [describe(keyInput, "Ends the leader’s version with each passage’s blanks and their answers, to print or save."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
   const present = button("Present");
@@ -381,14 +408,17 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   actions.append(present, print, word, save.el);
   if (!shared) actions.append(share);
   actions.append(status);
-  bar.append(links, copyChoice, paperChoice, codeBox, actions, ...hints);
+  bar.append(links, copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
 
   const paperBox = make("div", "sheets-page__paper");
   // S2's notice. A shared sheet carries no comparison copies (desk-sheet-share),
   // so it never has one.
   const checkBox = make("section", "sheets-page__check");
   checkBox.hidden = true;
-  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared)] : []), bar, checkBox, paperBox);
+  // The "what prints" notice, for the participant version.
+  const leaksBox = make("section", "sheets-page__leaks");
+  leaksBox.hidden = true;
+  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared)] : []), bar, checkBox, leaksBox, paperBox);
   share.addEventListener("click", () => openShareDialog(sheet, share));
 
   let current = null;
@@ -397,12 +427,18 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   function draw() {
     const n = ++seq;
     paperBox.setAttribute("aria-busy", "true");
-    ready = renderCopy(sheet, { copy, codes })
+    keyBox.hidden = copy !== "leader";
+    ready = renderCopy(sheet, { copy, codes, answerKey })
       .then(async (el) => {
         if (n !== seq) return;
         current = el;
         paperBox.replaceChildren(el);
         document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | Liberation and Inclusion Translation`;
+        drawLeaks(leaksBox, []);
+        if (copy === "participant") {
+          // Quiet and best effort: a failure here never costs the reader their copy.
+          copyLeaks(sheet, el).then((leaks) => { if (n === seq) drawLeaks(leaksBox, leaks); }).catch((err) => console.error("Study Desk: the what-prints check didn't finish", err));
+        }
         if (shared) return;
         const checks = await copyChecks(sheet, copy);
         if (n === seq) drawCheck(checkBox, checks, edit.href);
@@ -556,6 +592,23 @@ function drawCheck(box, checks, deskHref) {
   link.href = deskHref;
   advice.append(link);
   box.replaceChildren(head, list, advice);
+}
+
+/**
+ * The "what prints" notice: where a blank's words print again on the
+ * participant version, one line each. Hidden when there is nothing to say;
+ * it never blocks printing or saving.
+ */
+function drawLeaks(box, leaks) {
+  box.hidden = !leaks.length;
+  if (!leaks.length) {
+    box.replaceChildren();
+    return;
+  }
+  const head = make("p", "sheets-page__leaks-head", leaks.length === 1 ? "A blank’s words also print elsewhere" : "Some blanks’ words also print elsewhere");
+  const list = make("ul", "sheets-page__leaks-list");
+  for (const l of leaks) list.append(make("li", null, leakSentence(l)));
+  box.replaceChildren(head, list);
 }
 
 /** "Shared with you", with "Import into my notebook". */

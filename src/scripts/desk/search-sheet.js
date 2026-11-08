@@ -35,7 +35,7 @@ import {
   searchSheetTitle,
 } from "../../lib/desk-sheet-gather.mjs";
 import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
-import { addModule, createSheet, makeModule } from "../../lib/desk-sheets.mjs";
+import { addModule, createSheet, isOwnTemplate, makeModule } from "../../lib/desk-sheets.mjs";
 import { createHistory, undoEntry } from "./history.js";
 import { openStore } from "./store.js";
 import { make } from "./dom.js";
@@ -298,7 +298,7 @@ async function openPanel(bar) {
   let sheets = [];
   try {
     const store = await notebook();
-    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet"));
+    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet" && !isOwnTemplate(r)));
   } catch (err) {
     console.error("Study Desk: couldn’t read the sheets", err);
     if (bar.panel === panel) {

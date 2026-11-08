@@ -1388,7 +1388,11 @@ against `dist/` is a later item.
        passage's `verseCopy` carry and the copy is still checked against the
        wording it was made on. It reads the sheet from the store at the click,
        refuses a sheet of a newer format (the button is disabled), and opens
-       the copy. It adds no field or kind and changes no format.
+       the copy. It adds no field or kind and changes no format. **"Save as
+       template" beside it** (Audit 5, D #1; `templateFromSheet`) writes a sheet
+       record with `isTemplate: true` and no passages: listed apart as "My
+       templates", offered in New sheet, and kept off every other list of
+       sheets (`isOwnTemplate`); a new list of sheets must filter it too.
      - **A chapter's address is built from a stored book key only through
        `chapterPath` / `isChapterAddress` (`desk-passage.mjs`)**, which refuse a
        book the LIT hasn't got or a chapter outside it. A record from a newer
@@ -1825,6 +1829,13 @@ against `dist/` is a later item.
        (`blankCover`), the state and its steps (`checkState`, `stepState`),
        the footnotes the reveal lets out (`screenFootnotes`), the keys
        (`presentKey`), `fitSize`, and the messages between windows.
+     - **Blank (B or ".") and planned minutes** (Audit 5 D #12 and #2): `blank`
+       is part of the shared state (so both windows agree; true or absent),
+       and a step key while blank only un-blanks, it does not step.
+       A part's optional `minutes` (integer 1 to 240, read by
+       `moduleMinutes`) drives the presenter view's countdown per screen
+       (`screenMinutes`, counted from first arrival) and "Planned N min · M:SS in";
+       never the room's screen.
      - **The reveal is the sheet's own blanks**, never a field of its own:
        a passage screen is drawn once by `presentPassage` in
        `desk/sheet-copy.js`, from the same reading as the paper copies, with

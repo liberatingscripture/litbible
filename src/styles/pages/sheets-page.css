@@ -415,6 +415,25 @@
   font-style: italic;
 }
 
+/* The leader's optional answer key, at the end of the leader version. */
+.sheet-copy__key {
+  margin-top: 18pt;
+  padding-top: 8pt;
+  border-top: 0.75pt solid #1d231c;
+  break-inside: avoid;
+}
+
+.sheet-copy__key-title {
+  margin: 0 0 4pt;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 13pt;
+  break-after: avoid;
+}
+
+.sheet-copy__key-row {
+  margin: 0 0 3pt;
+}
+
 .sheet-copy__break {
   margin: 18pt 0;
   border-top: 1px dashed #8a8e88;
@@ -491,6 +510,34 @@
 
 .sheets-page__check-advice {
   margin: 0;
+}
+
+/* The "what prints" notice (sheet-page.js's drawLeaks): the participant
+   version, when a blank's words print elsewhere on it. Quiet, screen only. */
+.sheets-page__leaks {
+  max-width: calc(60 * var(--ch));
+  margin: 0 0 1rem;
+  padding: 0.6rem 1rem;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.05);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.sheets-page__leaks-head {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.sheets-page__leaks-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.sheets-page__keybox {
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 /* ── Sharing (3k; STUDY-DESK.md, S8) ───────────────────────────────────
@@ -723,6 +770,7 @@
 
   .sheets-page__bar,
   .sheets-page__check,
+  .sheets-page__leaks,
   .sheets-page__shared,
   .sheets-page__title,
   .sheets-page__intro {
@@ -750,6 +798,7 @@
   .sheet-copy .desk-rich span[data-font="display"],
   .sheet-copy .sheet-copy__title,
   .sheet-copy .sheet-copy__ref,
+  .sheet-copy .sheet-copy__key-title,
   .sheet-copy .sheet-copy__terms-title {
     font-family: "Fraunces", "Fraunces Fallback", Georgia, serif !important;
   }
@@ -1244,6 +1293,38 @@ html[data-presenter] .sheets-page {
   margin: 0;
   font-size: 1.6rem;
   font-variant-numeric: tabular-nums;
+}
+
+.present-presenter__plan,
+.present-presenter__part-time {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted, inherit);
+}
+
+/* Past the planned time: quiet, not an alarm. */
+.present-presenter__part-time.is-over {
+  font-style: italic;
+}
+
+.present-presenter__blank {
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.75rem;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.present-preview.is-blank .present-preview__viewport {
+  opacity: 0.25;
+}
+
+/* Blank: the room's screen is plain black, the words gone. */
+.present-stage.is-blank {
+  background: #000;
+}
+
+.present-stage.is-blank .present-stage__frame {
+  visibility: hidden;
 }
 
 .present-presenter__status:empty {

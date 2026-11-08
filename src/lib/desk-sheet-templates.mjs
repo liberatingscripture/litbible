@@ -19,7 +19,7 @@ export const TEMPLATES = Object.freeze([
   Object.freeze({
     id: "bible-study",
     name: "Bible study",
-    description: "An opening, the reading, questions to talk over, the key terms, and a closing.",
+    description: "An opening, the key terms, the reading, questions to talk over, and a closing.",
   }),
   Object.freeze({
     id: "sermon",
@@ -29,12 +29,24 @@ export const TEMPLATES = Object.freeze([
   Object.freeze({
     id: "class",
     name: "Class session",
-    description: "Goals, the reading, background for the leader, questions with answers, and what comes next.",
+    description: "Goals, the reading, background for the leader, questions that observe, interpret, and apply, and what comes next.",
   }),
   Object.freeze({
     id: "lectio-divina",
     name: "Lectio divina",
     description: "The four movements of a contemplative reading: read, reflect, pray, and rest.",
+  }),
+  // The Swedish method (Audit 5, section D, #3; BVJ, 2026-11-08).
+  Object.freeze({
+    id: "swedish",
+    name: "Swedish method",
+    description: "Each person reads alone and marks a light, a question, and an arrow, then the group shares them.",
+  }),
+  // Contextual Bible Study, after the Ujamaa Centre's (Audit 5, section D, #3; BVJ, 2026-11-08).
+  Object.freeze({
+    id: "contextual",
+    name: "Contextual Bible Study",
+    description: "Begin from the group’s own life, read the passage closely, and decide together what to do in response.",
   }),
   Object.freeze({
     id: "blank",
@@ -61,14 +73,28 @@ const question = (prompt, answerPrompt) =>
  */
 const READING_PROMPT = "Type the reference in the form below, or add the passage from the LIT pane’s verse numbers.";
 
+/**
+ * The group templates open with a part for the leader alone (Audit 5, section
+ * D, #4; BVJ, 2026-11-08): what to have ready and the ground rules to name.
+ * Leader only, so it prints on the leader's version and reaches the presenter
+ * view, never the participants' copy or the room.
+ */
+const beforeYouLead = () =>
+  part(
+    "Before you lead",
+    "For you alone: what to bring, and the ground rules you will name (listen well, what is shared stays here, nobody has to speak). Prints on the leader’s version only.",
+    { leaderOnly: true },
+  );
+
 const BUILDERS = {
   "bible-study": () => [
+    beforeYouLead(),
     part("Opening", "How you will begin: a welcome, a prayer, a moment of quiet."),
+    makeModule("keyTerms"), // before the reading (BVJ, 2026-11-08); its card moves it after in one click
     part("Reading", READING_PROMPT),
     question("A first question for the group, such as “What word or phrase stands out to you?”"),
     question("A question about the passage, such as “What does it show about God, about people, and about the world?”"),
     question("A question that reaches into the week, such as “Where does this passage meet your life right now?”"),
-    makeModule("keyTerms"),
     part("Closing", "How you will end: a prayer, a blessing, or a word for the week ahead."),
   ],
   sermon: () => [
@@ -78,25 +104,29 @@ const BUILDERS = {
     part("The good news here", "What this passage offers the people who will hear it."),
     part("Outline", "Your outline, one line per movement: how you open, the text, the turn, the sending."),
     part("For the congregation", "One thing to carry into the week."),
-    makeModule("keyTerms"), // last, as in every other template (SH5-13)
+    makeModule("keyTerms"), // last (SH5-13); a sermon's notes come before its vocabulary
   ],
   class: () => [
+    beforeYouLead(),
     part("Goals for this session", "What the class should know or be able to do by the end. One goal per line."),
+    makeModule("keyTerms"), // before the reading: a class meets the words first (BVJ, 2026-11-08)
     part("Reading", READING_PROMPT),
     part(
       "Background",
       "Notes for you as leader: history, setting, and the words worth explaining. These print on the leader’s version only.",
       { leaderOnly: true },
     ),
+    // Observe, interpret, apply: the inductive study's steps (BVJ, 2026-11-08).
     question(
-      "A question about what happens in the passage.",
+      "Observe: a question about what the passage says, such as “Who is here, and what happens?”",
       "Optional. The answer you expect, or notes for you as leader. It prints only on the leader’s version.",
     ),
-    question("A question about the LIT’s wording, such as what a key term’s traditional word was."),
-    makeModule("keyTerms"),
+    question("Interpret: a question about what it means, such as why the LIT renders a key term as it does."),
+    question("Apply: a question about what it means for us, such as “What would change if we took this seriously?”"),
     part("Next time", "The reading for next time, and anything to bring."),
   ],
   "lectio-divina": () => [
+    beforeYouLead(),
     part("Read", "How to read: slowly, aloud if you can, noticing a word or phrase that catches you."),
     part("Reflect", "How to reflect: read it again and stay with that word or phrase, asking what it stirs."),
     makeModule("space", { lines: 6 }),
@@ -104,6 +134,40 @@ const BUILDERS = {
     makeModule("space", { lines: 6 }),
     part("Rest", "How to rest: let the words go, and rest in God’s presence for a few minutes."),
     makeModule("space", { lines: 4 }),
+  ],
+  // The three signs are the parts' headings, so the participants' copy carries
+  // the key: a heading is structure, and the explanation stays in the prompts.
+  swedish: () => [
+    beforeYouLead(),
+    part("Opening", "How you will begin, and how this works: the passage read aloud, a quiet time to read it alone and mark it, then sharing."),
+    part("Reading", READING_PROMPT),
+    makeModule("keyTerms"), // after the reading: each reader meets the passage first
+    part("Light: what shines out", "Something in the passage that shines out or brings light. Mark it, then note it here."),
+    makeModule("space", { lines: 3 }),
+    part("Question: what puzzles you", "Something you don’t understand, or want to ask about."),
+    makeModule("space", { lines: 3 }),
+    part("Arrow: what speaks to you", "Something that speaks to you personally, or to your life right now."),
+    makeModule("space", { lines: 3 }),
+    part("Sharing", "How the group will share: a round of lights, then questions, then arrows. Anyone may pass."),
+    part("Closing", "How you will end: a prayer, or a moment of quiet."),
+  ],
+  // The Ujamaa Centre's movement (Gerald West, South Africa): the group's own
+  // reading first, then a slow, critical reading of the text, then back to
+  // the community's life and to action. The key terms box belongs to the
+  // close reading, so it sits there rather than against the reading.
+  contextual: () => [
+    beforeYouLead(),
+    part("Opening", "How you will begin: a welcome, and the passage read aloud more than once, in more than one voice."),
+    part("Reading", READING_PROMPT),
+    question("A first question from the group’s own reading, such as “What is this passage about?”"),
+    part("Reading closely", "A slower reading: who is in the passage, who has power, and whose voice is missing."),
+    makeModule("keyTerms"),
+    question("A question about the people in the passage, such as “Who is here, and what do we learn about each?”"),
+    question("A question about power, such as “Who has power here, who is left out, and what does the passage do about it?”"),
+    part("Our context", "Back to the group’s own life: where this passage meets your community today."),
+    question("A question such as “Where do we see this in our community now?”"),
+    part("Action", "What the group will do in response, together or alone, and when you will come back to it."),
+    part("Closing", "How you will end: a prayer, a blessing, or a word for the week ahead."),
   ],
   blank: () => [makeModule("text")],
 };
@@ -113,6 +177,12 @@ const BUILDERS = {
 // sheet finds it by its heading; one the reader renames isn't found, and a
 // passage then goes at the end, as on any sheet (BA69).
 const READING_HEADINGS = new Set(["reading", "read", "the text", "the reading"]);
+
+const isReadingHeading = (m) => {
+  if (m?.type !== "text" || typeof m.html !== "string") return false;
+  const h = /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html);
+  return !!h && READING_HEADINGS.has(h[1].replace(/\s+/g, " ").trim().toLowerCase());
+};
 
 /**
  * The part a sheet's first passage belongs under: the first text part whose
@@ -127,12 +197,51 @@ const READING_HEADINGS = new Set(["reading", "read", "the text", "the reading"])
 export function readingPart(sheet) {
   const modules = sheet?.modules ?? [];
   if (modules.some((m) => m?.type === "passage")) return null;
-  for (const m of modules) {
-    if (m?.type !== "text" || typeof m.html !== "string") continue;
-    const h = /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html);
-    if (h && READING_HEADINGS.has(h[1].replace(/\s+/g, " ").trim().toLowerCase())) return m;
+  return modules.find(isReadingHeading) ?? null;
+}
+
+/**
+ * The reading on a sheet, as a span of module indexes: the first run of
+ * passages side by side, with the reading part just above it when there is
+ * one; with no passage yet, the reading part alone. Null when the sheet has
+ * neither.
+ *
+ * @param {object[]} modules
+ * @returns {{ start: number, end: number } | null}
+ */
+function readingSpan(modules) {
+  const first = modules.findIndex((m) => m?.type === "passage");
+  if (first < 0) {
+    const at = modules.findIndex(isReadingHeading);
+    return at < 0 ? null : { start: at, end: at };
   }
-  return null;
+  let end = first;
+  while (modules[end + 1]?.type === "passage") end++;
+  return { start: first > 0 && isReadingHeading(modules[first - 1]) ? first - 1 : first, end };
+}
+
+/**
+ * Where the key terms box sits against the reading, and the positions that
+ * would put it just before or just after (BVJ, 2026-11-08: a choice made
+ * sheet by sheet, from a button on the box's card). `side` is "before" or
+ * "after" when the box is right against the reading, else "elsewhere";
+ * `before` and `after` are the indexes to hand moveModule. Null when the
+ * sheet has no box, or no reading to place it against.
+ *
+ * @param {{ modules: object[] } | null} sheet
+ * @returns {{ side: "before" | "after" | "elsewhere", before: number, after: number } | null}
+ */
+export function keyTermsPlacement(sheet) {
+  const modules = sheet?.modules ?? [];
+  const from = modules.findIndex((m) => m?.type === "keyTerms");
+  if (from < 0) return null;
+  const rest = modules.filter((_, i) => i !== from);
+  const span = readingSpan(rest);
+  if (!span) return null;
+  // Indexes in `rest` are where the box lands once taken out and put back.
+  const before = span.start;
+  const after = span.end + 1;
+  return { side: from === before ? "before" : from === after ? "after" : "elsewhere", before, after };
 }
 
 /**

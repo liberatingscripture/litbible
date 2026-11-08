@@ -55,6 +55,7 @@ export const SHEET_LIMITS = Object.freeze({
   prompt: 200,
   questionLines: 20,
   spaceLines: 40,
+  minutes: 240,
 });
 
 /* ── The sanitizer ───────────────────────────────────────────────────── */
@@ -1026,6 +1027,7 @@ export function validateSheet(r) {
   need(typeof r?.subtitle === "string" && chars(r.subtitle) <= SHEET_LIMITS.subtitle, `subtitle is not text of at most ${SHEET_LIMITS.subtitle} characters`);
   need(nonEmpty(r?.template), "template is empty");
   need(r?.commercial == null || typeof r.commercial === "boolean", "commercial is not true or false");
+  need(r?.isTemplate == null || typeof r.isTemplate === "boolean", "isTemplate is not true or false");
 
   if (!Array.isArray(r?.modules)) {
     problems.push("modules is not a list");
@@ -1053,6 +1055,8 @@ export function validateSheet(r) {
     const here = `${at} (${m.type})`;
     const check = (ok, msg) => ok || problems.push(`${here}: ${msg}`);
     check(m.leaderOnly == null || typeof m.leaderOnly === "boolean", "leaderOnly is not true or false");
+    // A part's planned minutes (Audit 5, D #2): the leader's alone.
+    check(m.minutes == null || (isInt(m.minutes) && m.minutes >= 1 && m.minutes <= SHEET_LIMITS.minutes), `minutes is not a whole number from 1 to ${SHEET_LIMITS.minutes}`);
     switch (m.type) {
       case "passage":
         problems.push(...passageProblems(m, here));

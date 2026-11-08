@@ -209,17 +209,17 @@ const types = (modules) => modules.map((m) => (m.type === "text" ? m.html.match(
 
 test("passageInsertIndex: a new template's first passage goes under Reading, not after Closing", () => {
   const sheet = { modules: templateModules("bible-study") };
-  assert.equal(passageInsertIndex(sheet), 2);
-  assert.deepEqual(types(sheet.modules).slice(0, 2), ["Opening", "Reading"]);
+  assert.equal(passageInsertIndex(sheet), 4);
+  assert.deepEqual(types(sheet.modules).slice(0, 4), ["Before you lead", "Opening", "keyTerms", "Reading"]);
   assert.equal(passageInsertIndex({ modules: templateModules("sermon") }), 1);
-  assert.equal(passageInsertIndex({ modules: templateModules("lectio-divina") }), 1);
+  assert.equal(passageInsertIndex({ modules: templateModules("lectio-divina") }), 2);
 });
 
 test("passageInsertIndex: later passages follow the last one", () => {
   const modules = templateModules("bible-study");
   const p = makeModule("passage", { bookKey: "romans", chapter: 8, verse: 28, endVerse: 28 });
-  modules.splice(2, 0, p);
-  assert.equal(passageInsertIndex({ modules }), 3);
+  modules.splice(4, 0, p);
+  assert.equal(passageInsertIndex({ modules }), 5);
 });
 
 test("passageInsertIndex: at the end with no passage and no reading part", () => {

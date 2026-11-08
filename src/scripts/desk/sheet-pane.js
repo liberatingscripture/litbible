@@ -48,6 +48,7 @@
 //   another tab, an undo) redraws only the modules it touched, and never the
 //   one being typed in.
 
+import { plannedTotal } from "../../lib/desk-present.mjs";
 import { canEdit } from "../../lib/desk-records.mjs";
 import { sheetHtmlForShow } from "../../lib/desk-sheet-copy.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
@@ -55,6 +56,9 @@ import {
   addModule,
   createSheet,
   duplicateSheet,
+  isOwnTemplate,
+  sheetFromTemplate,
+  templateFromSheet,
   makeModule,
   moveModule,
   planSheetChange,
@@ -63,7 +67,7 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { fitModules, notebookItems, partsFor } from "../../lib/desk-sheet-from-notes.mjs";
 import {
   passageFromOffsets,
@@ -492,6 +496,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       console.error("Study Desk: couldn't read the sheets", err);
     }
     if (n !== seq || destroyed) return;
+    // The reader's own templates are sheet records too (Audit 5, D #1); they
+    // are listed apart, and New sheet offers them.
+    const mine = sortSheets(all.filter(isOwnTemplate));
+    all = all.filter((r) => !isOwnTemplate(r));
     const list = make("div", "desk-sheet__list");
     const head = make("div", "desk-sheet__list-head");
     const h = make("h3", "desk-sheet__list-title", "My sheets");
@@ -499,7 +507,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     const fresh = button("New sheet", "desk-sheet__btn desk-sheet__btn--primary");
     fresh.setAttribute("aria-expanded", "false");
     fresh.dataset.focusKey = "new-sheet";
-    const chooser = templateChooser(fresh);
+    const chooser = templateChooser(fresh, mine);
     fresh.setAttribute("aria-controls", chooser.id);
     fresh.addEventListener("click", () => chooser.toggle());
     head.append(h, fresh);
@@ -525,6 +533,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           dup.title = "Made with a newer version of the Study Desk, so it can’t be duplicated here.";
         }
         dup.addEventListener("click", () => duplicate(s));
+        const keep = button("Save as template", "desk-sheet__btn desk-sheet__btn--quiet");
+        keep.setAttribute("aria-label", `Save ${sheetName(s)} as a template`);
+        keep.title = "Keep this sheet’s parts, without its passages, as a template of your own that New sheet offers.";
+        if (!canEdit(s)) {
+          keep.disabled = true;
+          keep.title = "Made with a newer version of the Study Desk, so it can’t be kept as a template here.";
+        }
+        keep.addEventListener("click", () => saveAsTemplate(s));
         const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
         del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
         del.addEventListener("click", async () => {
@@ -537,11 +553,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           const next = rows[at + 1] ?? rows[at - 1];
           showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
         });
-        li.append(open, dup, del);
+        li.append(open, dup, keep, del);
         ul.append(li);
       }
       list.append(ul);
     }
+    if (mine.length) list.append(ownTemplatesList(mine));
     const target = focus ? list.querySelector(`[data-focus-key="${CSS.escape(focus)}"]`) : null;
     const moved = redraw(content, [list], { fallback: () => target ?? h, force: Boolean(focus) });
     if (focus && moved) say(moved === target || moved === h ? "My sheets" : "");
@@ -555,7 +572,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * for; the first choice takes focus when it opens, and Cancel or Escape
    * closes it and puts focus back on New sheet.
    */
-  function templateChooser(opener) {
+  function templateChooser(opener, mine = []) {
     const box = make("div", "desk-sheet__passage-form desk-sheet__templates");
     box.id = `deskSheetTemplates-${paneId}`;
     box.hidden = true;
@@ -570,6 +587,29 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       li.append(b);
       ul.append(li);
     }
+    // The reader's own, after the built-in five, under a heading of their own.
+    let own = null;
+    if (mine.length) {
+      own = make("div", "desk-sheet__own-templates");
+      const h = make("p", "desk-sheet__own-head", "Your templates");
+      h.id = `deskSheetOwnHead-${paneId}`;
+      const oul = make("ul", "desk-sheet__from-list");
+      oul.setAttribute("aria-labelledby", h.id);
+      for (const t of mine) {
+        const li = make("li");
+        const b = button("", "desk-sheet__from-item desk-sheet__choice");
+        const parts = t.modules?.length ?? 0;
+        b.append(
+          make("span", "desk-sheet__choice-name", sheetName(t)),
+          make("span", "desk-sheet__from-words", `${parts} ${parts === 1 ? "part" : "parts"}${t.modified ? `, changed ${dateWords(t.modified)}` : ""}`),
+        );
+        if (!canEdit(t)) b.disabled = true;
+        b.addEventListener("click", () => newFromOwn(t));
+        li.append(b);
+        oul.append(li);
+      }
+      own.append(h, oul);
+    }
     const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
     const close = () => {
       box.hidden = true;
@@ -583,7 +623,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       e.stopPropagation();
       close();
     });
-    box.append(ul, cancel);
+    box.append(ul, ...(own ? [own] : []), cancel);
     box.toggle = () => {
       if (box.hidden) {
         box.hidden = false;
@@ -613,6 +653,86 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       return;
     }
     await openSheet(s.id, { focusTitle: true });
+  }
+
+  /**
+   * The reader's own templates under the sheets (Audit 5, D #1): open one to
+   * change it, or delete it. New sheet starts from them.
+   */
+  function ownTemplatesList(mine) {
+    const box = make("section", "desk-sheet__own");
+    const h = make("h3", "desk-sheet__list-title", "My templates");
+    h.id = `deskSheetOwn-${paneId}`;
+    box.setAttribute("aria-labelledby", h.id);
+    const ul = make("ul", "desk-sheet__sheets");
+    for (const t of mine) {
+      const li = make("li", "desk-sheet__sheet");
+      const open = button("", "desk-sheet__open");
+      open.append(make("span", "desk-sheet__open-name", sheetName(t)));
+      const parts = t.modules?.length ?? 0;
+      const bits = [`Template, ${parts} ${parts === 1 ? "part" : "parts"}`, t.modified ? `changed ${dateWords(t.modified)}` : ""];
+      open.append(make("span", "desk-sheet__open-meta", bits.filter(Boolean).join(" · ")));
+      open.dataset.focusKey = `open-${t.id}`;
+      open.addEventListener("click", () => openSheet(t.id, { focusTitle: true }));
+      const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
+      del.setAttribute("aria-label", `Delete the template ${sheetName(t)}`);
+      del.addEventListener("click", async () => {
+        const trash = await store.remove(t.id);
+        const entry = trash ? store.lastEntry() : null;
+        if (entry) showUndo(`Template ${sheetName(t)} deleted.`, () => undoEntry(entry));
+        const rows = Array.from(ul.querySelectorAll(".desk-sheet__open"));
+        const at = rows.indexOf(open);
+        const next = rows[at + 1] ?? rows[at - 1];
+        showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
+      });
+      li.append(open, del);
+      ul.append(li);
+    }
+    box.append(h, ul);
+    return box;
+  }
+
+  /** Make a sheet from one of the reader's own templates and open it. */
+  async function newFromOwn(template) {
+    let s = null;
+    try {
+      s = sheetFromTemplate((await store.get(template.id)) ?? template, opCtx());
+      await store.save(s);
+    } catch (err) {
+      console.error("Study Desk: couldn't make a sheet from a template", err);
+      listProblem("The sheet couldn’t be made in this browser. Try again in a moment.");
+      return;
+    }
+    await openSheet(s.id, { focusTitle: true });
+  }
+
+  /** Keep one of the reader's sheets as a template of their own (Audit 5, D #1). */
+  async function saveAsTemplate(source) {
+    let current = source;
+    let t = null;
+    try {
+      current = (await store.get(source.id)) ?? source;
+      t = templateFromSheet(current, opCtx());
+      await store.save(t);
+    } catch (err) {
+      console.error("Study Desk: couldn't keep a sheet as a template", err);
+      listProblem(sheetTooBig(err)
+        ? "That sheet is too big to keep as a template."
+        : "The template couldn’t be saved in this browser. Try again in a moment.");
+      return;
+    }
+    await showList({ focus: `open-${t.id}` });
+    say(`Saved ${sheetName(current)} as a template. New sheet now offers it.`);
+  }
+
+  /** A problem with the list's own actions, shown under its heading as well as heard (CP-13). */
+  function listProblem(text) {
+    const head = content.querySelector(".desk-sheet__list-head");
+    if (head) {
+      head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
+      head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
+    }
+    say(text);
   }
 
   /** Duplicate one of the reader's sheets (Audit 2, decision 12) and open the copy. */
@@ -648,13 +768,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   let moduleList = null;
   let titleInput = null;
   let subtitleInput = null;
+  let plannedLine = null;
   let readOnly = false;
   let license = null;
   let keyTermsButton = null;
   let keyTermsHint = null;
 
   /** What a card's head shows, which an in-place update can't redraw. */
-  const headKey = (m) => json([m.type, m.leaderOnly === true, m.type === "passage" ? passageReference(m) : null]);
+  const headKey = (m) => json([m.type, m.leaderOnly === true, m.minutes ?? null, m.type === "passage" ? passageReference(m) : null]);
 
   async function openSheet(id, { focusTitle = false } = {}) {
     const n = ++seq;
@@ -715,6 +836,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (readOnly) {
       wrap.append(make("p", "desk-sheet__status", "This sheet was made by a newer version of the LIT. Reload the page to edit it."));
     }
+    if (isOwnTemplate(sheet)) {
+      wrap.append(make("p", "desk-sheet__status", "This is one of your templates. New sheet starts a sheet from it, so a change here reaches the next sheet made from it."));
+    }
 
     titleInput = make("input", "desk-sheet__title");
     titleInput.type = "text";
@@ -743,7 +867,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       input.addEventListener("blur", () => { if (timer) save(); });
       input.flush = () => { if (timer) save(); };
     }
-    wrap.append(titleInput, subtitleInput);
+    // The planned minutes' total (Audit 5, D #2), kept by draw().
+    plannedLine = make("p", "desk-sheet__planned");
+    plannedLine.hidden = true;
+    wrap.append(titleInput, subtitleInput, plannedLine);
 
     moduleList = make("div", "desk-sheet__modules");
     moduleList.setAttribute("role", "list");
@@ -769,6 +896,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (!sheet || !moduleList) return;
     if (titleInput && document.activeElement !== titleInput) titleInput.value = sheet.title ?? "";
     if (subtitleInput && document.activeElement !== subtitleInput) subtitleInput.value = sheet.subtitle ?? "";
+    if (plannedLine) {
+      const total = plannedTotal(sheet);
+      plannedLine.hidden = !total;
+      plannedLine.textContent = total ? `Planned time: ${total} min (leader’s version and presenter view only)` : "";
+    }
     const seen = new Set();
     sheet.modules.forEach((m, i) => {
       seen.add(m.id);
@@ -927,6 +1059,35 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       // A page break is on both versions: a break on the leader's printout
       // alone is meaningful but puzzling in a box, so it isn't offered (SH5-17).
       if (known && m.type !== "pageBreak") {
+        // Planned minutes (Audit 5, D #2): the leader's own, counted down in
+        // the presenter view and totaled on the leader's version. Saved on
+        // change, not on every keystroke, so a half-typed number isn't kept.
+        const mins = make("label", "desk-sheet__minutes");
+        const field = make("input");
+        field.type = "number";
+        field.min = "1";
+        field.max = String(SHEET_LIMITS.minutes);
+        field.step = "1";
+        field.inputMode = "numeric";
+        field.placeholder = "–";
+        field.value = m.minutes ?? "";
+        field.setAttribute("aria-label", `Minutes planned for ${called}`);
+        field.addEventListener("change", () => {
+          const n = field.value.trim() === "" ? undefined : Math.round(Number(field.value));
+          const ok = n === undefined || (Number.isFinite(n) && n >= 1 && n <= SHEET_LIMITS.minutes);
+          if (!ok) {
+            field.value = m.minutes ?? "";
+            say(`Minutes are a whole number from 1 to ${SHEET_LIMITS.minutes}.`);
+            return;
+          }
+          change((s) => updateModule(s, m.id, { minutes: n }, opCtx()), {
+            source: m.id,
+            announce: n ? `${called}: ${n} ${n === 1 ? "minute" : "minutes"} planned.` : `${called}: no time planned.`,
+          });
+        });
+        mins.append(field, make("span", null, "min"));
+        mins.title = "Minutes you plan for this part: counted down in the presenter view and totaled on the leader’s version";
+        tools.append(mins);
         const leader = make("label", "desk-sheet__leader");
         const box = make("input");
         box.type = "checkbox";
@@ -1055,8 +1216,41 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       getSheet: () => sheet,
       update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
     });
-    card.append(inst.el);
-    return inst;
+    // Before or after the reading, decided sheet by sheet in one click (BVJ,
+    // 2026-11-08): the group meets the words first, or the passage speaks
+    // first. Redrawn on every change, since a move doesn't rebuild the card.
+    const place = make("div", "desk-sheet__terms-place");
+    const placeButtons = () => {
+      const where = readOnly ? null : keyTermsPlacement(sheet);
+      const keep = place.contains(document.activeElement) ? document.activeElement.dataset.side : null;
+      place.replaceChildren();
+      place.hidden = !where;
+      if (!where) return;
+      for (const side of ["before", "after"]) {
+        if (where.side === side) continue;
+        const b = button(side === "before" ? "Move before the reading" : "Move after the reading", "desk-sheet__btn desk-sheet__btn--quiet");
+        b.dataset.side = side;
+        b.addEventListener("click", () => {
+          const to = keyTermsPlacement(sheet)?.[side];
+          if (to === undefined) return;
+          change((s) => moveModule(s, m.id, to, opCtx()), {
+            announce: side === "before" ? "Key terms box moved before the reading." : "Key terms box moved after the reading.",
+            after: () => place.querySelector("button")?.focus(),
+          });
+        });
+        place.append(b);
+      }
+      if (keep) (place.querySelector(`[data-side="${keep}"]`) ?? place.querySelector("button"))?.focus();
+    };
+    placeButtons();
+    card.append(place, inst.el);
+    return {
+      ...inst,
+      sheetChanged: () => {
+        placeButtons();
+        inst.sheetChanged?.();
+      },
+    };
   }
 
   function textField(m, field, label, placeholder) {

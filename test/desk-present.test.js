@@ -25,6 +25,13 @@ import {
   initialState,
   makeMessage,
   presentKey,
+  blankWords,
+  moduleMinutes,
+  plannedTotal,
+  screenMinutes,
+  partTimeWords,
+  planWords,
+  noteArrival,
   presentMessage,
   presentScreens,
   revealedWords,
@@ -841,4 +848,97 @@ test("hiddenTermsNote: nothing for none, then one or several terms waiting on th
   assert.equal(hiddenTermsNote(0), "");
   assert.equal(hiddenTermsNote(1), "One term is left blank until it is revealed.");
   assert.equal(hiddenTermsNote(3), "3 terms are left blank until they are revealed.");
+});
+
+/* ── Blank screen ────────────────────────────────────────────────────── */
+
+test("presentKey: B and a period blank the screen; Shift+B and held modifiers do not", () => {
+  assert.deepEqual(presentKey({ key: "b" }), { type: "blank" });
+  assert.deepEqual(presentKey({ key: "B" }), { type: "blank" });
+  assert.deepEqual(presentKey({ key: "." }), { type: "blank" });
+  assert.equal(presentKey({ key: "B", shiftKey: true }), null);
+  assert.equal(presentKey({ key: "b", ctrlKey: true }), null);
+  assert.equal(presentKey({ key: ".", metaKey: true }), null);
+});
+
+test("stepState: blank toggles and leaves the screen and the reveal alone", () => {
+  const start = { screen: 1, revealed: { 1: 2 }, notes: {} };
+  const dark = stepState(start, { type: "blank" }, SHAPE);
+  assert.equal(dark.blank, true);
+  assert.equal(dark.screen, 1);
+  assert.deepEqual(dark.revealed, { 1: 2 });
+  assert.deepEqual(stepState(dark, { type: "blank" }, SHAPE), start);
+});
+
+test("stepState: a step key while blank brings the screen back without moving", () => {
+  const dark = stepState({ screen: 1, revealed: {}, notes: {} }, { type: "blank" }, SHAPE);
+  for (const type of ["next", "prev", "first", "last"]) {
+    const back = stepState(dark, { type }, SHAPE);
+    assert.equal(back.blank, undefined);
+    assert.equal(back.screen, 1);
+  }
+  const moved = stepState(stepState(dark, { type: "next" }, SHAPE), { type: "next" }, SHAPE);
+  assert.equal(moved.screen, 2);
+});
+
+test("stepState: reveal still works while blank", () => {
+  const dark = stepState({ screen: 1, revealed: {}, notes: {} }, { type: "blank" }, SHAPE);
+  const next = stepState(dark, { type: "reveal" }, SHAPE);
+  assert.equal(next.blank, true);
+  assert.equal(next.revealed[1], 1);
+});
+
+test("checkState and sameState carry blank; only exactly true counts", () => {
+  assert.equal(checkState({ screen: 1, blank: true }, SHAPE).blank, true);
+  assert.equal("blank" in checkState({ screen: 1, blank: "yes" }, SHAPE), false);
+  assert.equal("blank" in checkState({ screen: 1, blank: false }, SHAPE), false);
+  assert.equal(sameState({ screen: 1, revealed: {}, notes: {} }, { screen: 1, revealed: {}, notes: {}, blank: true }), false);
+  assert.equal(sameState({ screen: 1, revealed: {}, notes: {}, blank: true }, { screen: 1, revealed: {}, notes: {}, blank: true }), true);
+});
+
+test("blankWords says which way it went", () => {
+  assert.match(blankWords(true), /blank/);
+  assert.match(blankWords(false), /showing again/);
+});
+
+/* ── Planned minutes ─────────────────────────────────────────────────── */
+
+test("moduleMinutes accepts only an integer from 1 to 240", () => {
+  assert.equal(moduleMinutes({ minutes: 1 }), 1);
+  assert.equal(moduleMinutes({ minutes: 240 }), 240);
+  for (const bad of [0, 241, -3, 2.5, "10", NaN, null, undefined, true]) assert.equal(moduleMinutes({ minutes: bad }), null);
+  assert.equal(moduleMinutes(null), null);
+  assert.equal(moduleMinutes({}), null);
+});
+
+test("plannedTotal sums every part, Leader only included, and is null with none", () => {
+  const sheet = { modules: [{ minutes: 10 }, { minutes: 5, leaderOnly: true }, { minutes: "x" }, { type: "text" }, { minutes: 300 }] };
+  assert.equal(plannedTotal(sheet), 15);
+  assert.equal(plannedTotal({ modules: [{ type: "text" }] }), null);
+  assert.equal(plannedTotal({}), null);
+});
+
+test("screenMinutes adds the Leader only parts that go with a screen", () => {
+  assert.equal(screenMinutes({ module: { minutes: 8 }, notes: [{ minutes: 2 }, {}] }), 10);
+  assert.equal(screenMinutes({ module: null, notes: [{ minutes: 3 }] }), 3);
+  assert.equal(screenMinutes({ module: {}, notes: [] }), null);
+});
+
+test("partTimeWords counts down, then shows the overrun", () => {
+  assert.deepEqual(partTimeWords(5, 0), { text: "5:00 left", over: false });
+  assert.deepEqual(partTimeWords(5, 60000), { text: "4:00 left", over: false });
+  assert.deepEqual(partTimeWords(5, 300000), { text: "0:00 left", over: false });
+  assert.deepEqual(partTimeWords(5, 300000 + 130000), { text: "2:10 over", over: true });
+  assert.deepEqual(partTimeWords(5, -50), { text: "5:00 left", over: false });
+});
+
+test("planWords reads the plan beside the time in", () => {
+  assert.equal(planWords(45, 750000), "Planned 45 min · 12:30 in");
+});
+
+test("noteArrival keeps the first arrival on a screen", () => {
+  const a = noteArrival({}, 2, 1000);
+  assert.deepEqual(a, { 2: 1000 });
+  assert.equal(noteArrival(a, 2, 5000), a);
+  assert.deepEqual(noteArrival(a, 3, 5000), { 2: 1000, 3: 5000 });
 });
