@@ -22,6 +22,7 @@ import {
   pageRule,
   paperName,
   plainBlank,
+  printsOnPaper,
   sheetHtmlForShow,
   verseUrl,
 } from "../src/lib/desk-sheet-copy.mjs";
@@ -65,6 +66,20 @@ test("modulesForCopy: a module of an unknown type prints on neither copy", () =>
     modulesForCopy(sheet, "participant").map((m) => m.type),
     ["text"],
   );
+});
+
+test("printsOnPaper: an empty text or question prints nothing; a heading alone still prints (SH6-3)", () => {
+  const p = (m, copy = "participant") => printsOnPaper(m, copy);
+  assert.equal(p({ type: "text", html: "" }), false);
+  assert.equal(p({ type: "text", html: "<p><br></p>", leaderOnly: true }, "leader"), false, "no tag alone");
+  assert.equal(p({ type: "text", html: "<h2>Closing</h2>", prompt: "A prayer" }), true, "a template heading is a cue");
+  assert.equal(p({ type: "text", html: "<hr>" }), true, "a rule counts");
+  assert.equal(p({ type: "question", html: "", lines: 3 }), false, "no lines without a question");
+  assert.equal(p({ type: "question", html: "<p>Why?</p>", lines: 3 }), true);
+  assert.equal(p({ type: "question", html: "", answer: "<p>Because</p>" }, "leader"), true, "the leader's answer shows");
+  assert.equal(p({ type: "question", html: "", answer: "<p>Because</p>" }), false);
+  assert.equal(p({ type: "space", lines: 4 }), true);
+  assert.equal(p({ type: "keyTerms" }), true, "the key terms box is judged by the copy");
 });
 
 test("modulesForCopy: null entries are skipped; an empty or missing sheet gives nothing", () => {

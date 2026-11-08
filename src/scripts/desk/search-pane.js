@@ -785,6 +785,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
     syncAdd();
     tell("");
     let outcome;
+    // A Sheets pane's new sheet is written first, if it hasn't been (SH6-7).
+    if (!made) target.ready?.();
     try {
       // Read and written in one transaction: another tab, or a Sheets pane,
       // may have changed the sheet since the button was drawn (BA130).
