@@ -7015,6 +7015,36 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   cursor: pointer;
 }
 
+/* A part's planned minutes (Audit 5, D #2): a narrow box before Leader only. */
+.desk-sheet__minutes {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 6px;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-sheet__minutes input {
+  width: 4.5em;
+  padding: 1px 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+
+.desk-sheet__minutes input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-sheet__planned {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
 .desk-sheet__icon {
   min-width: 26px;
   height: 26px;

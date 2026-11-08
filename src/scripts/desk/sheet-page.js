@@ -57,6 +57,7 @@ import {
 } from "../../lib/desk-sheet-share.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
 import { sheetName, sortSheets } from "../../lib/desk-sheet-passages.mjs";
+import { isOwnTemplate } from "../../lib/desk-sheets.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { checkSummary } from "../../lib/desk-sheet-check.mjs";
 import { passageReference } from "../../lib/desk-sheet-passages.mjs";
@@ -210,7 +211,7 @@ async function showList(root, store) {
   root.replaceChildren(make("h1", "sheets-page__title", "My sheets"));
   let sheets = [];
   try {
-    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet"));
+    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet" && !isOwnTemplate(r)));
   } catch (err) {
     console.error("Study Desk: couldn't read the sheets", err);
   }

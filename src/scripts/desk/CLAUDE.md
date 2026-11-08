@@ -1388,7 +1388,11 @@ against `dist/` is a later item.
        passage's `verseCopy` carry and the copy is still checked against the
        wording it was made on. It reads the sheet from the store at the click,
        refuses a sheet of a newer format (the button is disabled), and opens
-       the copy. It adds no field or kind and changes no format.
+       the copy. It adds no field or kind and changes no format. **"Save as
+       template" beside it** (Audit 5, D #1; `templateFromSheet`) writes a sheet
+       record with `isTemplate: true` and no passages: listed apart as "My
+       templates", offered in New sheet, and kept off every other list of
+       sheets (`isOwnTemplate`); a new list of sheets must filter it too.
      - **A chapter's address is built from a stored book key only through
        `chapterPath` / `isChapterAddress` (`desk-passage.mjs`)**, which refuse a
        book the LIT hasn't got or a chapter outside it. A record from a newer

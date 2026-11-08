@@ -5095,6 +5095,10 @@ be revisited for version 2.
   2026-10-30).
 - **D10's second part, the Greek and the Hebrew shown in the desk**:
   version 2 (BVJ, 2026-10-30). Its first part, a link, is version 1.
+- **A series of sheets** (Audit 5, section D, #10): several sheets shared
+  or saved as one link or file. Version 2 (BVJ, 2026-11-08).
+- **Start a sheet from a passage, with a finished example per template**
+  (Audit 5, section D, #11). Version 2 (BVJ, 2026-11-08).
 
 **Still open, for BVJ:**
 - **Which phase takes D10's version 1 part, a link to the Septuagint in

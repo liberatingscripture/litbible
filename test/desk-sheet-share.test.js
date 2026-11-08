@@ -72,6 +72,13 @@ test("a participant share drops Leader only parts and answers", () => {
   assert.equal(s.modules.find((m) => m.type === "passage").blanks.length, 1);
 });
 
+test("a part's planned minutes travel in a leader share only (Audit 5, D #2)", () => {
+  const src = sample();
+  src.modules[0] = { ...src.modules[0], minutes: 10 };
+  assert.equal(sharedSheet(src, { scope: "leader" }).modules[0].minutes, 10);
+  assert.equal("minutes" in sharedSheet(src, { scope: "participant" }).modules[0], false);
+});
+
 test("a link round-trips to a valid sheet with fresh ids", async () => {
   const original = sample();
   const link = await shareLink(original, { origin: "https://litbible.net" });

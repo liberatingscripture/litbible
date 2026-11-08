@@ -48,6 +48,7 @@
 //   another tab, an undo) redraws only the modules it touched, and never the
 //   one being typed in.
 
+import { plannedTotal } from "../../lib/desk-present.mjs";
 import { canEdit } from "../../lib/desk-records.mjs";
 import { sheetHtmlForShow } from "../../lib/desk-sheet-copy.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../lib/desk-sheet-format.mjs";
@@ -767,13 +768,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   let moduleList = null;
   let titleInput = null;
   let subtitleInput = null;
+  let plannedLine = null;
   let readOnly = false;
   let license = null;
   let keyTermsButton = null;
   let keyTermsHint = null;
 
   /** What a card's head shows, which an in-place update can't redraw. */
-  const headKey = (m) => json([m.type, m.leaderOnly === true, m.type === "passage" ? passageReference(m) : null]);
+  const headKey = (m) => json([m.type, m.leaderOnly === true, m.minutes ?? null, m.type === "passage" ? passageReference(m) : null]);
 
   async function openSheet(id, { focusTitle = false } = {}) {
     const n = ++seq;
@@ -865,7 +867,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       input.addEventListener("blur", () => { if (timer) save(); });
       input.flush = () => { if (timer) save(); };
     }
-    wrap.append(titleInput, subtitleInput);
+    // The planned minutes' total (Audit 5, D #2), kept by draw().
+    plannedLine = make("p", "desk-sheet__planned");
+    plannedLine.hidden = true;
+    wrap.append(titleInput, subtitleInput, plannedLine);
 
     moduleList = make("div", "desk-sheet__modules");
     moduleList.setAttribute("role", "list");
@@ -891,6 +896,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (!sheet || !moduleList) return;
     if (titleInput && document.activeElement !== titleInput) titleInput.value = sheet.title ?? "";
     if (subtitleInput && document.activeElement !== subtitleInput) subtitleInput.value = sheet.subtitle ?? "";
+    if (plannedLine) {
+      const total = plannedTotal(sheet);
+      plannedLine.hidden = !total;
+      plannedLine.textContent = total ? `Planned time: ${total} min (leader’s version and presenter view only)` : "";
+    }
     const seen = new Set();
     sheet.modules.forEach((m, i) => {
       seen.add(m.id);
@@ -1049,6 +1059,35 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       // A page break is on both versions: a break on the leader's printout
       // alone is meaningful but puzzling in a box, so it isn't offered (SH5-17).
       if (known && m.type !== "pageBreak") {
+        // Planned minutes (Audit 5, D #2): the leader's own, counted down in
+        // the presenter view and totaled on the leader's version. Saved on
+        // change, not on every keystroke, so a half-typed number isn't kept.
+        const mins = make("label", "desk-sheet__minutes");
+        const field = make("input");
+        field.type = "number";
+        field.min = "1";
+        field.max = String(SHEET_LIMITS.minutes);
+        field.step = "1";
+        field.inputMode = "numeric";
+        field.placeholder = "–";
+        field.value = m.minutes ?? "";
+        field.setAttribute("aria-label", `Minutes planned for ${called}`);
+        field.addEventListener("change", () => {
+          const n = field.value.trim() === "" ? undefined : Math.round(Number(field.value));
+          const ok = n === undefined || (Number.isFinite(n) && n >= 1 && n <= SHEET_LIMITS.minutes);
+          if (!ok) {
+            field.value = m.minutes ?? "";
+            say(`Minutes are a whole number from 1 to ${SHEET_LIMITS.minutes}.`);
+            return;
+          }
+          change((s) => updateModule(s, m.id, { minutes: n }, opCtx()), {
+            source: m.id,
+            announce: n ? `${called}: ${n} ${n === 1 ? "minute" : "minutes"} planned.` : `${called}: no time planned.`,
+          });
+        });
+        mins.append(field, make("span", null, "min"));
+        mins.title = "Minutes you plan for this part: counted down in the presenter view and totaled on the leader’s version";
+        tools.append(mins);
         const leader = make("label", "desk-sheet__leader");
         const box = make("input");
         box.type = "checkbox";

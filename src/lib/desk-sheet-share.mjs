@@ -156,6 +156,8 @@ function plainModule(m, scope) {
   const out = {};
   for (const [k, v] of Object.entries(m)) if (!DROP.has(k) && v !== undefined) out[k] = v;
   if (scope === "participant" && m.type === "question") out.answer = "";
+  // A part's planned minutes are the leader's (Audit 5, D #2).
+  if (scope === "participant") delete out.minutes;
   return out;
 }
 

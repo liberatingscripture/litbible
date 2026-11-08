@@ -24,7 +24,7 @@ import {
   sheetHtmlForShow,
 } from "../../lib/desk-sheet-copy.mjs";
 import { blankHint, blankWords, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
-import { blankCover, footnotesInPlay } from "../../lib/desk-present.mjs";
+import { blankCover, footnotesInPlay, plannedTotal } from "../../lib/desk-present.mjs";
 import { partialEnds, passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
@@ -376,7 +376,9 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   article.setAttribute("aria-label", `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()}`);
   const head = make("header", "sheet-copy__head");
   head.append(make("h1", "sheet-copy__title", sheetName(sheet)));
-  head.append(make("p", "sheet-copy__subtitle", [sheet.subtitle?.trim(), COPY_NAMES[copy]].filter(Boolean).join(" · ")));
+  // The planned minutes are the leader's (Audit 5, D #2): their total is on that version alone.
+  const planned = copy === "leader" ? plannedTotal(sheet) : null;
+  head.append(make("p", "sheet-copy__subtitle", [sheet.subtitle?.trim(), COPY_NAMES[copy], planned ? `Planned ${planned} min` : ""].filter(Boolean).join(" · ")));
   article.append(head);
 
   for (const m of modules) {
