@@ -29,7 +29,7 @@ export const TEMPLATES = Object.freeze([
   Object.freeze({
     id: "class",
     name: "Class session",
-    description: "Goals, the reading, background for the leader, questions with answers, and what comes next.",
+    description: "Goals, the reading, background for the leader, questions that observe, interpret, and apply, and what comes next.",
   }),
   Object.freeze({
     id: "lectio-divina",
@@ -41,6 +41,12 @@ export const TEMPLATES = Object.freeze([
     id: "swedish",
     name: "Swedish method",
     description: "Each person reads alone and marks a light, a question, and an arrow, then the group shares them.",
+  }),
+  // Contextual Bible Study, after the Ujamaa Centre's (Audit 5, section D, #3; BVJ, 2026-11-08).
+  Object.freeze({
+    id: "contextual",
+    name: "Contextual Bible Study",
+    description: "Begin from the group’s own life, read the passage closely, and decide together what to do in response.",
   }),
   Object.freeze({
     id: "blank",
@@ -110,11 +116,13 @@ const BUILDERS = {
       "Notes for you as leader: history, setting, and the words worth explaining. These print on the leader’s version only.",
       { leaderOnly: true },
     ),
+    // Observe, interpret, apply: the inductive study's steps (BVJ, 2026-11-08).
     question(
-      "A question about what happens in the passage.",
+      "Observe: a question about what the passage says, such as “Who is here, and what happens?”",
       "Optional. The answer you expect, or notes for you as leader. It prints only on the leader’s version.",
     ),
-    question("A question about the LIT’s wording, such as what a key term’s traditional word was."),
+    question("Interpret: a question about what it means, such as why the LIT renders a key term as it does."),
+    question("Apply: a question about what it means for us, such as “What would change if we took this seriously?”"),
     part("Next time", "The reading for next time, and anything to bring."),
   ],
   "lectio-divina": () => [
@@ -142,6 +150,24 @@ const BUILDERS = {
     makeModule("space", { lines: 3 }),
     part("Sharing", "How the group will share: a round of lights, then questions, then arrows. Anyone may pass."),
     part("Closing", "How you will end: a prayer, or a moment of quiet."),
+  ],
+  // The Ujamaa Centre's movement (Gerald West, South Africa): the group's own
+  // reading first, then a slow, critical reading of the text, then back to
+  // the community's life and to action. The key terms box belongs to the
+  // close reading, so it sits there rather than against the reading.
+  contextual: () => [
+    beforeYouLead(),
+    part("Opening", "How you will begin: a welcome, and the passage read aloud more than once, in more than one voice."),
+    part("Reading", READING_PROMPT),
+    question("A first question from the group’s own reading, such as “What is this passage about?”"),
+    part("Reading closely", "A slower reading: who is in the passage, who has power, and whose voice is missing."),
+    makeModule("keyTerms"),
+    question("A question about the people in the passage, such as “Who is here, and what do we learn about each?”"),
+    question("A question about power, such as “Who has power here, who is left out, and what does the passage do about it?”"),
+    part("Our context", "Back to the group’s own life: where this passage meets your community today."),
+    question("A question such as “Where do we see this in our community now?”"),
+    part("Action", "What the group will do in response, together or alone, and when you will come back to it."),
+    part("Closing", "How you will end: a prayer, a blessing, or a word for the week ahead."),
   ],
   blank: () => [makeModule("text")],
 };

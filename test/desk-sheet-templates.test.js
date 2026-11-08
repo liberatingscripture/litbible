@@ -15,8 +15,8 @@ import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../s
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d" };
 
-test("the templates are the six, in order", () => {
-  assert.deepEqual(TEMPLATES.map((t) => t.id), ["bible-study", "sermon", "class", "lectio-divina", "swedish", "blank"]);
+test("the templates are the seven, in order", () => {
+  assert.deepEqual(TEMPLATES.map((t) => t.id), ["bible-study", "sermon", "class", "lectio-divina", "swedish", "contextual", "blank"]);
   for (const t of TEMPLATES) {
     assert.ok(t.name && t.description, t.id);
     // The parts line under the description was dropped (BVJ, 2026-11-08).
@@ -69,7 +69,7 @@ test("the class template keeps the background for the leader, and one answer pro
 });
 
 test("the group templates open with Before you lead, for the leader alone (Audit 5, D #4)", () => {
-  for (const id of ["bible-study", "class", "lectio-divina", "swedish"]) {
+  for (const id of ["bible-study", "class", "lectio-divina", "swedish", "contextual"]) {
     const [first] = templateModules(id);
     assert.equal(first.html, "<h2>Before you lead</h2>", id);
     assert.equal(first.leaderOnly, true, id);
@@ -228,4 +228,18 @@ test("the Swedish method: the three signs are headings, each with room to write,
   }
   assert.equal(keyTermsPlacement({ modules: mods }).side, "after");
   assert.equal(readingPart({ modules: mods }).html, "<h2>Reading</h2>");
+});
+
+test("Class session's questions observe, interpret, and apply (BVJ, 2026-11-08)", () => {
+  const prompts = templateModules("class").filter((m) => m.type === "question").map((m) => m.prompt.split(":")[0]);
+  assert.deepEqual(prompts, ["Observe", "Interpret", "Apply"]);
+});
+
+test("Contextual Bible Study: the group's reading, a close reading with the key terms, then context and action", () => {
+  const heads = kinds(templateModules("contextual"));
+  const at = (h) => heads.indexOf(h);
+  assert.ok(at("Reading") < at("Reading closely"));
+  assert.ok(at("Reading closely") < at("keyTerms") && at("keyTerms") < at("Our context"));
+  assert.ok(at("Our context") < at("Action") && at("Action") < at("Closing"));
+  assert.equal(readingPart({ modules: templateModules("contextual") }).html, "<h2>Reading</h2>");
 });

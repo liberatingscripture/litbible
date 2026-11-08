@@ -375,7 +375,7 @@ verses of its own):
 | `sheetFormat` | The version of this section the sheet was written in (1). A client that knows a lower number shows the sheet but won't edit it, so an older tab can't strip what it doesn't understand |
 | `title` | Plain text, up to 200 characters ("Freedom and the Life-breath") |
 | `subtitle` | Plain text, up to 200 characters, may be empty ("Thursday group · October 2, 2026") |
-| `template` | The template it was started from (`bible-study`, `sermon`, `class`, `lectio-divina`, `swedish`, `blank`, …). A record of where it came from, read by nothing that changes how it works: once made, every sheet is the same thing |
+| `template` | The template it was started from (`bible-study`, `sermon`, `class`, `lectio-divina`, `swedish`, `contextual`, `blank`, …). A record of where it came from, read by nothing that changes how it works: once made, every sheet is the same thing |
 | `commercial` | `true` when the reader has ticked "This is for a commercial project" (S7), which turns on the commercial-quotation check. Absent or `false` otherwise |
 | `isTemplate` | `true` when the record is one of the reader's own templates, not a sheet (added 2026-11-08, Audit 5, section D, #1): "Save as template" made it from a sheet, without the sheet's passages. Absent or `false` otherwise. A client that lists sheets leaves a template out of that list, or lists it apart as a template; a sheet made from it is an ordinary sheet whose `template` is the template's own `template`. A share never carries it |
 | `modules` | The sheet's contents, in order |
