@@ -745,7 +745,7 @@ every week.
   open in Word, Obsidian or any text editor.
 - **Paper** (N9): print any chapter with a ruled margin.
 
-## The ideas (53)
+## The ideas (54)
 
 "New" means no Bible site or tool was found doing it; "Borrowed" names the
 source. Sizes run extra small to large. Status is BVJ's decision where one was
@@ -1045,6 +1045,11 @@ plan as a whole was accepted; nothing was declined except where stated).
   5,000+ notes, and an optional field in chapter JSON the apps read. **Decided
   2026-10-02: maybe a later project, not part of the first launch; in FIXLIST
   to consider.** The desk doesn't depend on it. Large. Content, not code.
+- **S12. Editing on the Sheets page.** A sheet worked on at `/sheets` as well
+  as in `/desk`'s Sheets pane, as search is both a page and a pane, with the
+  ways in from the rest of the site and what two tabs on one sheet do (BVJ,
+  2026-11-08). Planned, not started: see "S12. Editing on the Sheets page, and
+  the ways in" before "Decisions".
 - **M2. A presenter view on two screens.** The passage on the projector, and a
   second window on the laptop with the leader's notes, questions and what
   comes next. Chrome and Edge can place a window on a second screen (Window
@@ -5130,6 +5135,223 @@ be revisited for version 2.
 - Phase 4 was rewritten for plans A and B. Its "keep the blur off the apps
   until they honor it" (C7) is probably moot, since both apps committed to
   honor N8 in their first synced release (R6, A-R9).
+
+## S12. Editing on the Sheets page, and the ways in (planned 2026-11-08)
+
+**Planned, nothing built** (BVJ, 2026-11-08: "Plan it but don't start
+building yet"). BVJ asked three things the same day:
+
+- Could a sheet be worked on at `/sheets` itself, outside the desk, "much like
+  search is its own page, but also works in the desk"?
+- How would people get to the Sheets page from elsewhere on the site? That
+  may change how the site's navigation is organized, and "the current setup
+  is getting crowded."
+- With two tabs open on one sheet, either update each tab at once with the
+  other's edits, or ask ("this sheet is being edited in another tab: overwrite
+  it or duplicate it?").
+
+BVJ's decisions on it are at the end. The work comes after the move of the Sheets
+code into `src/scripts/desk/sheets/` with its own CLAUDE.md (BVJ, 2026-11-08,
+option 1), which goes first.
+
+### Where things stand
+
+- **`/sheets` never edits** (CLAUDE.md, desk rule 19). It lists the reader's
+  sheets and shows, prints, copies, saves, presents and shares one. Editing is
+  the Sheets pane on `/desk`, reached by "Edit on the Study Desk".
+- **The ways into `/sheets` today**: the notebook page's list (under "Other
+  items"), the Sheets pane's "Print or share…" and "Present…", and a shared
+  link. `/search`'s "Make a sheet of these verses" opens the new sheet on
+  `/desk`, not `/sheets`. Nothing in the header, the Notebook panel or the
+  verse menu leads there. "Add to sheet" is only in `/desk`'s LIT pane.
+- **The header**, at 1101px and wider: About, Commitments, Glossary, Podcast,
+  Articles, then Read Now with search, Aa and (on the home page only, with
+  the desk on) Study Desk under it. The phone menu has the same links plus
+  Support. The footer has 13. The desk adds four pages (`/desk`, `/notebook`,
+  `/sheets`, `/desk/help`), and only `/desk` is linked from a page's chrome:
+  the home page's header link, the scripture toolbar's pill and `/read`'s pill.
+
+### Part 1: the editor on `/sheets`
+
+**Search is the pattern.** Its rules live in shared modules
+(`search-core.js`), and `/search` and the Search pane are two surfaces over
+them. The Sheets pane's editor would become one module that either fills a
+pane on `/desk` or fills the `/sheets` page.
+
+1. **Separate the editor from the pane.** What only a pane has becomes
+   something the host passes in, as the Notebook's tabs take a `source` and an
+   `idSuffix` to work as panes: which sheet the pane holds (`setPaneSheet`),
+   being the target of "Add to sheet" from other panes (`addTarget`,
+   `onAddTarget`), `showSheet`'s `keep`, and `desk:sheet-new` naming a pane.
+   Nothing a reader sees changes in this step.
+2. **`/sheets/?id=<id>` opens as now** (BVJ, 2026-11-08, decision 1): the
+   leader's or participant's version, to print, copy, save, present or share.
+   An **"Edit"** button beside them turns the page into the editor, and "Edit
+   on the Study Desk" stays beside it for the fuller workspace. `/sheets/`
+   gains "New sheet…" with the templates. A shared link stays read only until
+   "Import into my notebook", as now. The editor's code loads only when Edit
+   is pressed (a dynamic import), so the page stays light for printing and
+   presenting.
+3. **What the page lacks next to `/desk`**: no LIT pane to drag from, no
+   Search pane, no My Notes beside the sheet. Passages come in through the
+   reading part's reference form and "From my notes…", which both exist, and
+   from "Add to sheet" on chapter pages (Part 2). "Open on the Study Desk"
+   stays for the fuller workspace.
+4. **What has to hold**: every change through `store.change` over the record
+   as read (`planSheetChange`), the `pagehide` save (BA72), Ctrl+Z and the
+   undo bar (`history.js` on the page), the inline script keeping a shared
+   fragment off the server, and the desktop-only rule.
+5. **What changes in the docs**: rule 19's "never writes a record", the Routes
+   row ("Never edits."), the help page's sentence, and the "Launching" list if
+   the header changes.
+
+### Part 2: the ways in
+
+By where a reader is when they want a sheet:
+
+1. **The header**: the header's own "Study Desk" link (beside Aa, on the home
+   page alone, opening plain `/desk/`) becomes a small menu, shown on every
+   page with the desk on: Study Desk, My sheets, My notebook, Help. Phones
+   never get it, as now. On a chapter or an introduction its "Study Desk"
+   item carries the page's `?place=` (and `&intro=`), as the toolbar's pill
+   does, so the two never disagree. **The other ways into the desk are
+   untouched**: the scripture toolbar's "Open in Study Desk" pill, `/read`'s
+   pill and the Notebook panel's lamp link. With C chosen (Part 3), this menu
+   is the header's Study group.
+2. **The Notebook panel's Settings tab** gains "My sheets" beside "Open the
+   notebook page." My Notes keeps listing no sheets (BVJ, 2026-11-07).
+3. **The verse menu and the selection panel on chapter pages** gain "Add to
+   sheet ▸" in the "My Notebook" row, as `/desk`'s LIT pane has it: the recent
+   sheets and "New sheet…". It adds without leaving the page, and the undo bar
+   offers "Open the sheet" (BVJ, 2026-11-08, decision 3: yes).
+4. **A sheet made from a search opens where the search was** (BVJ,
+   2026-11-08, decision 4): from the `/search` page, on `/sheets`; from the
+   Search pane on `/desk`, in a Sheets pane there, as now.
+5. **`/notebook`** lists sheets in a section of their own, with "New sheet…",
+   instead of under "Other items".
+6. **Each home offers the other**: the Sheets pane on `/desk` gains "Open on
+   its own page", and `/sheets` keeps "Edit on the Study Desk" (BVJ,
+   2026-11-08).
+
+### Part 3: the site's navigation
+
+The header holds five links, Read Now and three icons, and the desk brings
+four pages more. Three ways to go, smallest first:
+
+- **A. Change only the Study Desk link**: it becomes Part 2's menu and shows
+  on every page. The other links stay as they are. It fits the room under
+  Read Now that the link already uses.
+- **B. Move what readers rarely open out of the header**, Commitments say, to
+  About and the footer, as Support already is. Check Cloudflare's **page
+  views** for each page first, not its visits (CLAUDE.md, "Don't measure Read
+  View with Cloudflare's Visits view"; most of these pages are reached from
+  inside the site too).
+- **C. Group the header into a few menus**: Read (Read Now, Continue
+  reading), Learn (Glossary, Articles, Podcast), Study (Study Desk, My sheets,
+  My notebook) and About (About, Commitments, the collective, Support,
+  Contact). Clearest once the desk is released, but every link sits one press
+  deeper, and the header menus need the keyboard and screen-reader work the
+  desk's menus already have. The phone menu, the no-JS fallback row and the
+  footer would all change with it.
+
+**Mock-ups of all three come before a decision** (BVJ, 2026-11-08). BVJ
+leans to C, which raises how the phone menu works with grouped menus (or
+whether it can), and what a computer gets in a narrowed browser window, where
+the header already folds into the phone menu below 1101px. The mock-ups
+(https://claude.ai/artifact/M8f7SdWTmdUBUj7PVxBKLN, private to BVJ) draw each
+version with the site's own header styles at 1280px, 960px (half a large
+monitor), 683px (half a laptop) and a phone, live, with their menus open. What
+they show for C: three short menus need about 735px, so the whole header
+holds down to 760px instead of folding at 1101px, and below that the phone
+menu shows the same groups under headings, so no menu nests inside another.
+
+**C is the direction** (BVJ, 2026-11-08, after the mock-ups: "Not gonna lie,
+I like C"). Details to settle when it is built, each shown in the mock-ups as
+a first guess:
+
+- What each group holds. The mock-ups put What's new (now only in the footer)
+  in About, and keep Commitments there rather than dropping it.
+- Group names: Learn, Study and About.
+- Whether a group's items carry a one-line description, as the mock-ups' Learn
+  and Study menus do.
+- Read Now stays a button of its own, outside the groups. "Continue reading"
+  stays where it is (the phone menu, the home page, /read).
+- The no-JS fallback row under 1101px (a plain list of every link, since a
+  menu needs JS) and the footer's list.
+- The header menus get the keyboard and screen-reader behavior every desk menu
+  has (`src/scripts/CLAUDE.md`, "One set of actions, two ways in": the arrow
+  keys, Home and End, Escape, `aria-expanded`), and a hover rule decided then.
+- **It ships behind the desk's own preview gate** (BVJ, 2026-11-08: "the same
+  gate"): with `html[data-desk="on"]` a computer gets C's header, Study group
+  included, and without it today's header, both in the markup and chosen by
+  CSS from the pre-paint stamp, so nothing flashes. It launches with the desk
+  (add it to "Launching" in `src/scripts/desk/CLAUDE.md`). **The phone menu's
+  groups go live for everyone early** (BVJ: "Having just the part change on
+  mobile early is ok"), since phones never get the gate: the menu button's
+  menu shows Learn and About under headings, with no Study group, on phones and
+  in any window narrow enough to use it, while a computer's full header stays
+  as it is until launch.
+
+### Part 4: two tabs on one sheet
+
+**Most of BVJ's first option already exists.** Every change applies to the
+sheet as read in its own write (`planSheetChange`, BA129), tabs tell each
+other through the store's BroadcastChannel, and the Sheets pane redraws every
+part changed elsewhere except the one being typed in. So edits to different
+parts in two tabs both keep, and a part added, moved or deleted in one tab
+shows in the other within a moment.
+
+**The gap is one part typed in from both tabs.** Each save writes that whole
+part's text, so the later one replaces the other's words, and since the tab
+being typed in never redraws that part, nothing says so.
+
+- **Option 1, live both ways**, finished by a line on that part when its saved
+  text moves under the reader: "Changed in another tab. Show that version /
+  Keep mine." Merging two people's typing into one part letter by letter
+  would take a text-merging engine, which one reader with two tabs doesn't
+  need.
+- **Option 2, a question on opening**: "This sheet is open in another tab."
+  It needs each tab to announce itself (as present mode's windows do with
+  `hello` and `bye`) and a heartbeat, since a tab that crashes never says
+  goodbye. "Overwrite" wouldn't be needed as such, since saves are per part,
+  so the choices would be "Edit here too", "Make a copy" and "Cancel".
+
+**Decided: option 1 with that line, and a question when a second tab starts
+editing** (BVJ, 2026-11-08). When a sheet's editor opens (a Sheets pane on
+`/desk`, or Edit on `/sheets`) while another tab is editing the same sheet,
+it asks before it shows the editor: "This sheet is already open in another
+tab. Continue here?", with Continue and Cancel. Cancel leaves the page as it
+was (the list in a pane, the versions on `/sheets`). Continuing gives two
+live tabs, kept in step as above. Only editing counts: a tab printing or
+presenting the sheet doesn't ask or get asked. That needs each editing tab to
+announce itself on a channel per sheet (present mode's `hello` and `bye`) and
+a heartbeat, since a tab that crashes never says `bye`, and a tab that has
+been in the background a long time may answer late, so the question waits
+briefly for answers and asks nothing when none comes. Phase 4's sync meets the same problem across devices: the merge keeps
+the newer copy of a whole sheet (`desk-merge.mjs`), so ask BDR whether the
+apps want a sheet merged part by part before this is built.
+
+### Decisions (BVJ, 2026-11-08)
+
+1. `/sheets/?id=` opens as now, with an Edit button.
+2. The header: C, the links grouped into Learn, Study and About, chosen after
+   mock-ups of A, B and C (Part 3).
+3. "Add to sheet ▸" on chapter pages: yes.
+4. A sheet made from a search opens where the search was; each home offers
+   the other.
+5. Two tabs: live both ways, the line on a part changed elsewhere, and the
+   question when a second tab starts editing.
+
+### Order of work
+
+0. Move the Sheets code and give it its own CLAUDE.md (agreed).
+1. Separate the editor from the pane (no visible change).
+2. The editor on `/sheets`.
+3. Two tabs: the line, and the question on opening.
+4. The ways in (Part 2).
+5. The header as C (Part 3), with its details settled first.
+
+Each is its own PR.
 
 ## Decisions
 
