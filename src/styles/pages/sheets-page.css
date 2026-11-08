@@ -1246,6 +1246,38 @@ html[data-presenter] .sheets-page {
   font-variant-numeric: tabular-nums;
 }
 
+.present-presenter__plan,
+.present-presenter__part-time {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted, inherit);
+}
+
+/* Past the planned time: quiet, not an alarm. */
+.present-presenter__part-time.is-over {
+  font-style: italic;
+}
+
+.present-presenter__blank {
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.75rem;
+  border-left: 3px solid var(--green-text);
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+.present-preview.is-blank .present-preview__viewport {
+  opacity: 0.25;
+}
+
+/* Blank: the room's screen is plain black, the words gone. */
+.present-stage.is-blank {
+  background: #000;
+}
+
+.present-stage.is-blank .present-stage__frame {
+  visibility: hidden;
+}
+
 .present-presenter__status:empty {
   display: none;
 }
