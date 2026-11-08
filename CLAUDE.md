@@ -66,7 +66,8 @@ silent or expensive.
 - **A link that leaves the site opens in a new tab** with
   `rel="noopener noreferrer"`; a hand-written anchor in an `.astro` file needs
   both attributes itself.
-- **The Study Desk is downloaded only with `data-desk="on"`.** Shared reader
+- **The Study Desk is downloaded only with `data-desk="on"`**, save a shared
+  sheet's link opened on a phone (its viewer alone). Shared reader
   code never imports it statically: it dispatches events or makes a gated
   dynamic import. Read the desk file before touching a shared panel.
 - **`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md` and the

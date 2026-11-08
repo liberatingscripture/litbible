@@ -376,9 +376,13 @@ function announce(why, state, deck) {
 /**
  * Open the presentation over the page.
  *
- * @param {{ sheet: object, store: object, fullscreen?: boolean, onClose?: () => void }} opts
+ * `touch` is a phone or tablet presenting a shared sheet (NB6-8): no
+ * presenter view, the strip always showing, and taps that step it (the left
+ * third goes back; anywhere else reveals the next blank, then goes on).
+ *
+ * @param {{ sheet: object, store: object, fullscreen?: boolean, touch?: boolean, onClose?: () => void }} opts
  */
-export async function openPresentation({ sheet, store, fullscreen = true, onClose }) {
+export async function openPresentation({ sheet, store, fullscreen = true, touch = false, onClose }) {
   const stage = make("div", "present-stage");
   stage.setAttribute("role", "dialog");
   stage.setAttribute("aria-modal", "true");
@@ -412,14 +416,25 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   const hints = [
     [reveal, "Reveals the next blank. Shift+R covers it again."],
     [notes, "Shows or hides this passage’s footnotes."],
-    [presenter, "Opens the presenter view in a window of its own: your notes, what comes next, and a clock."],
+    ...(touch ? [] : [[presenter, "Opens the presenter view in a window of its own: your notes, what comes next, and a clock."]]),
   ].map(([control, text], i) => {
     const hint = make("span", "sr-only", text);
     hint.id = `presentHint${++presentHints}-${i}`;
     control.setAttribute("aria-describedby", hint.id);
     return hint;
   });
-  strip.append(prev, next, reveal, notes, blankBtn, where, presenter, full, close);
+  strip.append(prev, next, reveal, notes, blankBtn, where, ...(touch ? [] : [presenter]), full, close);
+  // On a phone the strip is a bar along the bottom, so its arrows are short,
+  // and the screen is fitted above it rather than under it.
+  if (touch) {
+    prev.textContent = "‹";
+    prev.setAttribute("aria-label", "Previous");
+    next.textContent = "›";
+    next.setAttribute("aria-label", "Next");
+    close.textContent = "×";
+    close.setAttribute("aria-label", "Close");
+  }
+  const clearStrip = () => { if (touch) frame.style.bottom = `${strip.offsetHeight}px`; };
   stage.append(frame, strip, live, ...hints);
 
   // Everything behind the presentation is out of reach while it is open.
@@ -430,6 +445,7 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   const opener = document.activeElement;
 
   let shownEl = null;
+  let unrevealed = 0; // blanks still covered on this screen, for a tap
   const control = createControl({
     sheet,
     store,
@@ -443,10 +459,12 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
         frame.replaceChildren(el);
         shownEl = el;
       }
+      clearStrip();
       fitScreen(el);
       const kind = deck.screens[i].kind;
       const blanks = deck.shape.blanks[i];
       const n = state.revealed[i] ?? 0;
+      unrevealed = Math.max(0, (blanks ?? 0) - n);
       // A control about to be disabled or hidden while it has focus would
       // drop focus to the page, out of the stage's keys (BA79): the stage
       // takes it first.
@@ -463,7 +481,8 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
       reveal.textContent = blanks ? `Reveal (${n} of ${blanks})` : "Reveal";
       notes.hidden = off.get(notes);
       notes.setAttribute("aria-pressed", String(state.notes[i] === true));
-      where.textContent = screenCount(i, deck.screens.length);
+      // A phone's bar has room for the numbers only.
+      where.textContent = touch ? `${i + 1} of ${deck.screens.length}` : screenCount(i, deck.screens.length);
       const dark = state.blank === true;
       stage.classList.toggle("is-blank", dark);
       frame.inert = dark;
@@ -481,11 +500,21 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
     stage.classList.add("is-awake");
     clearTimeout(idle);
     idle = setTimeout(() => {
+      if (touch) return; // no pointer to move on a phone, so the strip stays
       if (!strip.contains(document.activeElement) && !strip.matches(":hover")) stage.classList.remove("is-awake");
     }, 2500);
   };
   stage.addEventListener("pointermove", wake);
   strip.addEventListener("focusin", wake);
+  if (touch) {
+    stage.classList.add("present-stage--touch");
+    stage.addEventListener("click", (e) => {
+      if (!(e.target instanceof Element) || e.target.closest(".present-stage__strip, a, button, input")) return;
+      const r = stage.getBoundingClientRect();
+      if (e.clientX - r.left < r.width * 0.3) control.act({ type: "prev" });
+      else control.act({ type: unrevealed ? "reveal" : "next" });
+    });
+  }
 
   prev.addEventListener("click", () => control.act({ type: "prev" }));
   next.addEventListener("click", () => control.act({ type: "next" }));
@@ -517,6 +546,7 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
     else stage.requestFullscreen?.().catch(() => tell("This browser didn’t allow full screen. Use the browser’s own full screen command instead."));
   });
   stage.addEventListener("dblclick", (e) => {
+    if (touch) return; // two quick taps step twice; Full screen is in the strip
     if (e.target instanceof Element && e.target.closest(".present-stage__strip")) return;
     full.click();
   });
@@ -559,7 +589,10 @@ export async function openPresentation({ sheet, store, fullscreen = true, onClos
   };
   document.addEventListener("keydown", onKey, true);
 
-  const onResize = () => { if (shownEl) fitScreen(shownEl); };
+  const onResize = () => {
+    clearStrip();
+    if (shownEl) fitScreen(shownEl);
+  };
   window.addEventListener("resize", onResize);
   const onPagehide = () => control.close();
   window.addEventListener("pagehide", onPagehide);

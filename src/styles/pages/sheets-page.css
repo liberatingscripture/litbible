@@ -121,6 +121,38 @@
   font-size: 0.9rem;
 }
 
+/* A shared sheet on a phone or tablet (Audit 6, NB6-8; BVJ picked the mock's
+   layout A): the Version choice, then Present, Print and Share… sharing one
+   row under the banner, scrolling away with the page. */
+.sheets-page--phone .sheets-page__bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.sheets-page--phone .sheets-page__actions {
+  margin-left: 0;
+}
+
+.sheets-page--phone .sheets-page__actions .desk-sheet__btn {
+  flex: 1 1 0;
+  min-height: 44px;
+  font-size: 0.95rem;
+}
+
+.sheets-page--phone .sheets-page__status:empty {
+  display: none;
+}
+
+.sheets-page--phone .sheets-page__status {
+  flex-basis: 100%;
+}
+
+.sheets-page--phone .sheet-copy {
+  padding: 1.25rem 1rem;
+}
+
 /* ── The copy on screen: a sheet of paper ──────────────────────────────── */
 
 .sheets-page__paper {
@@ -1222,9 +1254,28 @@ html[data-presenting] body {
 }
 
 .present-stage.is-awake .present-stage__strip,
+.present-stage--touch .present-stage__strip,
 .present-stage__strip:focus-within,
 .present-stage__strip:hover {
   opacity: 1;
+}
+
+/* On a phone (NB6-8) the strip is a bar along the bottom, always showing;
+   sheet-present.js fits the screen above it. */
+.present-stage--touch .present-stage__strip {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  transform: none;
+  gap: 0.3rem;
+  padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom, 0px));
+  border-radius: 0;
+}
+
+.present-stage--touch .present-btn {
+  min-height: 40px;
+  padding: 0.3rem 0.6rem;
 }
 
 .present-stage__where {
