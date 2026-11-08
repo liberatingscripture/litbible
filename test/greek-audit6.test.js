@@ -71,12 +71,20 @@ test("GK6-12: a word with a notation symbol is written quoted", () => {
 const publicDir = (rel) => fileURLToPath(new URL(`../public/${rel}`, import.meta.url));
 let failing = new Set();
 let bridgeJson = null;
-globalThis.fetch = async (url) => {
+// GK6-9: a file whose cached copy is from another build. `cached` answers only
+// a fetch the cache may serve; `always` answers every fetch (a deploy arriving).
+let oldBuild = { cached: new Set(), always: new Set() };
+const fetched = [];
+globalThis.fetch = async (url, opts) => {
   const u = String(url).replace(/^\//, "");
+  fetched.push({ u, cache: opts?.cache ?? "default" });
   if (bridgeJson && u.includes("greek-bridge.json")) return { ok: true, status: 200, json: async () => bridgeJson };
   if ([...failing].some((f) => u.includes(f))) return { ok: false, status: 503, json: async () => ({}) };
+  const old = [...oldBuild.always].some((f) => u.includes(f)) || (!opts?.cache && [...oldBuild.cached].some((f) => u.includes(f)));
   try {
-    return { ok: true, status: 200, json: async () => JSON.parse(await readFile(publicDir(u), "utf8")) };
+    const json = JSON.parse(await readFile(publicDir(u), "utf8"));
+    if (old) json.build = "0123456789ab";
+    return { ok: true, status: 200, json: async () => json };
   } catch {
     return { ok: false, status: 404, json: async () => ({}) };
   }
@@ -106,4 +114,53 @@ test("GK6-6: a shard that will not load keeps a LIT-rendered lemma and says it f
   assert.equal(res.lemmas.length, 1);
   failing = new Set();
   bridgeJson = null;
+});
+
+// ── GK6-9: files from two builds are never read together ────────────────────
+
+// Each test takes its own copy of the module, so nothing is already loaded.
+let copies = 0;
+const freshModule = () => import(`../src/scripts/search-greek.js?gk69-${++copies}`);
+
+test("GK6-9: a cached shard from another build is fetched again from the server, and the search finds its verses", async () => {
+  const gk = await freshModule();
+  oldBuild = { cached: new Set(["occ/"]), always: new Set() };
+  fetched.length = 0;
+  const res = await gk.searchGreek("/", "πίστις");
+  assert.equal(res.failed, false);
+  assert.ok(res.hits.length > 200);
+  assert.ok(fetched.some((f) => f.u.includes("occ/") && f.cache === "no-cache"), "the shard is checked with the server");
+  assert.ok(fetched.some((f) => f.u.includes("lemmas.json") && f.cache === "no-cache"), "and the index with it");
+  oldBuild = { cached: new Set(), always: new Set() };
+});
+
+test("GK6-9: a cached lemmas.json from another build is fetched again, not read with the new shards", async () => {
+  const gk = await freshModule();
+  oldBuild = { cached: new Set(["lemmas.json"]), always: new Set() };
+  const res = await gk.searchGreek("/", "λόγος");
+  assert.equal(res.failed, false);
+  assert.equal(res.selected?.lemma, "λόγος");
+  assert.ok(res.hits.length > 300);
+  oldBuild = { cached: new Set(), always: new Set() };
+});
+
+test("GK6-9: a parse group from another build is fetched again for a command search", async () => {
+  const gk = await freshModule();
+  oldBuild = { cached: new Set(["parse/"]), always: new Set() };
+  const res = await gk.searchGreekAuto("/", "*.aor.impv");
+  assert.equal(res.failed, false);
+  assert.ok(res.hits.length > 0);
+  oldBuild = { cached: new Set(), always: new Set() };
+});
+
+test("GK6-9: files that stay from another build are a failure, tried twice and no more", async () => {
+  const gk = await freshModule();
+  oldBuild = { cached: new Set(), always: new Set(["occ/"]) };
+  fetched.length = 0;
+  const res = await gk.searchGreek("/", "πίστις");
+  assert.equal(res.failed, true);
+  assert.equal(res.hits.length, 0);
+  assert.equal(fetched.filter((f) => f.u.includes("occ/")).length, 2);
+  oldBuild = { cached: new Set(), always: new Set() };
+  assert.equal((await gk.searchGreek("/", "πίστις")).failed, false, "and the next search, the deploy arrived, works");
 });

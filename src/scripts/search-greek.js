@@ -26,6 +26,7 @@ import {
   parseStrong,
   prepareBridge,
   prepareIndex,
+  sameBuild,
 } from "../lib/greek-search.mjs";
 import {
   codeFits,
@@ -112,11 +113,55 @@ export function loadGreekBridge(base) {
   return greekBridgePromise;
 }
 
+// One build at a time (GK6-9). A lemma's id is its place in lemmas.json, the
+// shards and parse groups store ids, and public/_headers caches every Greek
+// file a day, so after build:greek is re-run a returning reader can hold
+// lemmas.json from one build and a shard from the other. Each file carries its
+// build's `build`; one from another build than the index is not read (it
+// counts as failed to load), and the next load of the index first drops every
+// file this page holds and has each one checked with the server from then on
+// (`cache: "no-cache"`, a bodiless 304 where nothing changed). A search that
+// met one runs once more that way (`freshGreek`); meeting one again, a deploy
+// still arriving, it reports the failure.
+let staleSeen = 0; // files met from another build than the index
+let renewedAt = 0; // staleSeen when this page's files were last dropped
+let revalidate = false;
+
+function greekFetch(url) {
+  return revalidate ? fetch(url, { cache: "no-cache" }) : fetch(url);
+}
+
+function renewIfStale() {
+  if (renewedAt === staleSeen) return;
+  renewedAt = staleSeen;
+  revalidate = true;
+  greekIndexPromise = null;
+  greekParseNamesPromise = null;
+  greekShards.clear();
+  greekParseGroups.clear();
+}
+
+/** Whether a file is from the index's build; if not, says so and counts it. */
+function fromIndexBuild(json, index, what) {
+  if (sameBuild(json, index)) return true;
+  staleSeen++;
+  console.warn(`[search] ${what} is from another build of the Greek data than lemmas.json; checking with the server.`);
+  return false;
+}
+
+/** Runs a search, and once more if it met a file from another build. */
+async function freshGreek(run) {
+  const before = staleSeen;
+  const res = await run();
+  return staleSeen === before ? res : run();
+}
+
 let greekIndexPromise = null;
 
 /** public/greek/search/lemmas.json, made ready to search; null on failure (retried next time). */
 export function loadGreekIndex(base) {
-  greekIndexPromise ||= fetch(`${base}greek/search/lemmas.json`)
+  renewIfStale();
+  greekIndexPromise ||= greekFetch(`${base}greek/search/lemmas.json`)
     .then((res) => {
       if (!res.ok) throw new Error(`lemmas.json missing (${res.status})`);
       return res.json();
@@ -140,13 +185,13 @@ const greekShards = new Map();
  * A lemma's occurrence entry from its shard ([forms, flat, parses]) and
  * whether the shard itself failed to load: `{ entry: null, failed: false }`
  * is a lemma the shard has no entry for, `failed: true` is a shard that
- * wouldn't come (GK6-6).
+ * wouldn't come (GK6-6) or came from another build than `index` (GK6-9).
  */
 export async function loadGreekEntry(base, index, id) {
   const name = occShard(index, id);
   let p = greekShards.get(name);
   if (!p) {
-    p = fetch(`${base}greek/search/occ/${name}.json`)
+    p = greekFetch(`${base}greek/search/occ/${name}.json`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .catch((err) => {
         console.warn("[search] Failed to load Greek occurrences:", err);
@@ -156,6 +201,7 @@ export async function loadGreekEntry(base, index, id) {
     greekShards.set(name, p);
   }
   const shard = await p;
+  if (shard && !fromIndexBuild(shard, index, `occ/${name}.json`)) return { entry: null, failed: true };
   return { entry: shard?.[id] ?? null, failed: !shard };
 }
 
@@ -183,7 +229,11 @@ export function loadGreekChapter(base, book, chapter) {
  * `bookKey` narrows the verses; `lemmaId` picks a lemma;
  * `exactForm` keeps only the form typed (Greek queries only).
  */
-export async function searchGreek(base, raw, { tray = false, near = true, bookKey = "", lemmaId = null, exactForm = false } = {}) {
+export function searchGreek(base, raw, options = {}) {
+  return freshGreek(() => searchGreekOnce(base, raw, options));
+}
+
+async function searchGreekOnce(base, raw, { tray = false, near = true, bookKey = "", lemmaId = null, exactForm = false } = {}) {
   const empty = { kind: null, lemmas: [], selected: null, hits: [], total: 0, form: null, otherForms: false, failed: false };
   if (!couldBeGreek(raw)) return empty;
   const index = await loadGreekIndex(base);
@@ -253,34 +303,38 @@ export async function searchGreek(base, raw, { tray = false, near = true, bookKe
 
 let greekParseNamesPromise = null;
 
-/** The parse groups' names (public/greek/search/parse.json), or null on failure (retried next time). */
-export function loadGreekParseNames(base) {
-  greekParseNamesPromise ||= fetch(`${base}greek/search/parse.json`)
+/**
+ * The parse groups' names (public/greek/search/parse.json), or null on failure
+ * (retried next time) or when the file is from another build than `index`.
+ */
+export async function loadGreekParseNames(base, index) {
+  greekParseNamesPromise ||= greekFetch(`${base}greek/search/parse.json`)
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
     .then((json) => {
       if (!json?.groups) throw new Error("parse.json is not the format this script reads");
-      return Object.keys(json.groups);
+      return { names: Object.keys(json.groups), build: json.build };
     })
     .catch((err) => {
       console.warn("[search] Failed to load the Greek parse groups:", err);
       greekParseNamesPromise = null;
       return null;
     });
-  return greekParseNamesPromise;
+  const got = await greekParseNamesPromise;
+  return got && fromIndexBuild(got, index, "parse.json") ? got.names : null;
 }
 
 const greekParseGroups = new Map();
 
-/** One parse group's words, decoded (greek-search.mjs decodeParseGroup), or null. */
-export function loadGreekParseGroup(base, name) {
+/** One parse group's words, decoded (greek-search.mjs decodeParseGroup), or null, as for loadGreekParseNames. */
+export async function loadGreekParseGroup(base, name, index) {
   let p = greekParseGroups.get(name);
   if (!p) {
-    p = fetch(`${base}greek/search/parse/${name}.json`)
+    p = greekFetch(`${base}greek/search/parse/${name}.json`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((json) => {
         const words = decodeParseGroup(json, BOOK_ORDER);
         if (!words) throw new Error("not the format this script reads");
-        return words;
+        return { words, build: json.build };
       })
       .catch((err) => {
         console.warn("[search] Failed to load a Greek parse group:", err);
@@ -289,7 +343,8 @@ export function loadGreekParseGroup(base, name) {
       });
     greekParseGroups.set(name, p);
   }
-  return p;
+  const got = await p;
+  return got && fromIndexBuild(got, index, `parse/${name}.json`) ? got.words : null;
 }
 
 /**
@@ -305,7 +360,11 @@ export function loadGreekParseGroup(base, name) {
  * a sentence), and `failed` is true when a file the search needs wouldn't
  * load. `bookKey` narrows the verses.
  */
-export async function searchGreekCommands(base, raw, { bookKey = "" } = {}) {
+export function searchGreekCommands(base, raw, options = {}) {
+  return freshGreek(() => searchGreekCommandsOnce(base, raw, options));
+}
+
+async function searchGreekCommandsOnce(base, raw, { bookKey = "" } = {}) {
   const out = {
     kind: "commands", resolved: null, hits: [], matchCount: 0, verseCount: 0, error: null, failed: false,
     lemmas: [], selected: null, total: 0, form: null, otherForms: false,
@@ -323,7 +382,7 @@ export async function searchGreekCommands(base, raw, { bookKey = "" } = {}) {
   if (resolved.error) return { ...out, error: resolved.error };
 
   const needsGroups = resolved.terms.some((t) => !t.lemmaIds);
-  const groupNames = needsGroups ? await loadGreekParseNames(base) : [];
+  const groupNames = needsGroups ? await loadGreekParseNames(base, index) : [];
   if (!groupNames) return { ...out, resolved, failed: true };
 
   let failed = false;
@@ -340,7 +399,7 @@ export async function searchGreekCommands(base, raw, { bookKey = "" } = {}) {
       return parts.flat();
     }
     const names = groupsForFilters(term.filters, groupNames);
-    const groups = await Promise.all(names.map((n) => loadGreekParseGroup(base, n)));
+    const groups = await Promise.all(names.map((n) => loadGreekParseGroup(base, n, index)));
     return groups.flatMap((g) => {
       if (!g) failed = true;
       return (g ?? []).filter(fits);

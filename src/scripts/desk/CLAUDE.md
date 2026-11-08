@@ -1105,6 +1105,12 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
+       **Every search file carries `build`**, a hash of that output (GK6-9),
+       since a lemma's id is its place in `lemmas.json` and the files are
+       cached a day: `search-greek.js` never reads a shard or parse group
+       from another build with the index, but drops what it holds, checks
+       every file with the server and runs the search once more
+       (`freshGreek`). A new loader of these files checks it too (`sameBuild`).
   18. **Phases 3c to 3g are /desk** (STUDY-DESK.md, D9
      and "Order of work", 3c to 3g): `src/pages/desk.astro`, which `desk-gate.js`
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is

@@ -35,6 +35,7 @@ import {
   splitCode,
   prepareBridge,
   prepareIndex,
+  sameBuild,
   transliterate,
   trayLemmas,
 } from "../src/lib/greek-search.mjs";
@@ -441,4 +442,18 @@ test("compatibility letters fold to the letters they stand for (GK-15)", () => {
   assert.equal(foldGreek("ϕίλος"), foldGreek("φίλος"));
   assert.equal(foldGreek("ϑεός"), "θεοσ");
   assert.equal(foldGreek("ϖνεῦμα ϱῆμα ϰύριος ϵγώ"), "πνευμαρημακυριοσεγω");
+});
+
+test("every search file names the same build as lemmas.json (GK6-9)", () => {
+  const index = prepareIndex(read("lemmas.json"));
+  assert.match(index.build, /^[0-9a-f]{12}$/);
+  const files = [
+    "parse.json",
+    ...readdirSync(fileURLToPath(new URL("../public/greek/search/occ/", import.meta.url))).map((f) => `occ/${f}`),
+    ...readdirSync(fileURLToPath(new URL("../public/greek/search/parse/", import.meta.url))).map((f) => `parse/${f}`),
+  ];
+  for (const f of files) assert.ok(sameBuild(read(f), index), f);
+  assert.equal(sameBuild({ build: "other" }, index), false);
+  assert.equal(sameBuild({}, index), false, "a file from before the stamp is another build");
+  assert.equal(sameBuild({}, prepareIndex({ format: 2, lemmas: [] })), true);
 });
