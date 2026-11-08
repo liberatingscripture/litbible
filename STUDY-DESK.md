@@ -5281,8 +5281,16 @@ a first guess:
 - The header menus get the keyboard and screen-reader behavior every desk menu
   has (`src/scripts/CLAUDE.md`, "One set of actions, two ways in": the arrow
   keys, Home and End, Escape, `aria-expanded`), and a hover rule decided then.
-- Before the desk launches, Study shows only with the preview on; until then
-  a computer without it gets Learn and About alone.
+- **It ships behind the desk's own preview gate** (BVJ, 2026-11-08: "the same
+  gate"): with `html[data-desk="on"]` a computer gets C's header, Study group
+  included, and without it today's header, both in the markup and chosen by
+  CSS from the pre-paint stamp, so nothing flashes. It launches with the desk
+  (add it to "Launching" in `src/scripts/desk/CLAUDE.md`). **The phone menu's
+  groups go live for everyone early** (BVJ: "Having just the part change on
+  mobile early is ok"), since phones never get the gate: the menu button's
+  menu shows Learn and About under headings, with no Study group, on phones and
+  in any window narrow enough to use it, while a computer's full header stays
+  as it is until launch.
 
 ### Part 4: two tabs on one sheet
 
