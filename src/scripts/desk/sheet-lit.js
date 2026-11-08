@@ -1,6 +1,6 @@
 // src/scripts/desk/sheet-lit.js
 //
-// What a sheet knows about the LIT, in the Sheet pane (STUDY-DESK.md, "Order
+// What a sheet knows about the LIT, in the Sheets pane (STUDY-DESK.md, "Order
 // of work", 3h): a passage's words with its blanks (S10) and the choice of
 // which footnotes print, flagging any that would give a blank away (C15); the
 // key terms box, filled in from the sheet's passages (S3); and the license
@@ -21,6 +21,7 @@ import { BOOKS, bookKeyToLabel } from "../../data/books.js";
 import {
   blankFromOffsets,
   blankHint,
+  blankWords,
   booksToCheck,
   collectKeyTerms,
   commercialShare,
@@ -738,13 +739,13 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     for (const x of getSheet()?.modules ?? []) {
       if (x?.type !== "passage" || !x.blanks?.length) continue;
       if (x.id === mod.id) {
-        for (const b of ownBlanks()) if (b.prints) out.push({ exact: view.chapter.text.slice(b.start, b.end), ref: passageReference(mod) });
+        for (const b of ownBlanks()) if (b.prints) out.push({ ...blankWords(b, view.chapter.text, view.allMarks, view.terms), ref: passageReference(mod) });
         continue;
       }
       const other = await readPassage(x);
       if (!other.ok) continue;
       for (const b of locateBlanks(other, x)) {
-        if (b.prints) out.push({ exact: other.chapter.text.slice(b.start, b.end), ref: passageReference(x) });
+        if (b.prints) out.push({ ...blankWords(b, other.chapter.text, other.allMarks, other.terms), ref: passageReference(x) });
       }
     }
     return out;
@@ -803,7 +804,9 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       label.append(box, text);
       li.append(label);
       if (r.givesAway.length) {
-        const words = [...new Set(r.givesAway.map((b) => quoted(b.exact)))];
+        // A blank whose hint doesn't show its traditional word is given away by
+        // a note naming that word too (SH5-16), so the word is named with it.
+        const words = [...new Set(r.givesAway.map((b) => (b.telltale ? `${quoted(b.exact)}, traditionally ${quoted(b.telltale)}` : quoted(b.exact))))];
         const which = words.join(", ");
         const a = words.length > 1 ? "blanks" : "a blank";
         li.append(make("p", "desk-sheet__flag", r.decided
@@ -992,7 +995,7 @@ async function commercialCounts(sheet) {
   const allBlanks = [];
   for (const { m, view } of read) {
     if (!view.ok) continue;
-    for (const b of locateBlanks(view, m)) if (b.prints) allBlanks.push({ exact: view.chapter.text.slice(b.start, b.end) });
+    for (const b of locateBlanks(view, m)) if (b.prints) allBlanks.push(blankWords(b, view.chapter.text, view.allMarks, view.terms));
   }
   for (const { m, view } of read) {
     passages.push(m);

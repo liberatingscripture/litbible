@@ -517,7 +517,7 @@ against `dist/` is a later item.
      whole transaction (BA5, BA13). **A sheet is changed over the record as
      read there** (`planSheetChange` in `desk-sheets.mjs`), never over a copy a
      pane or /search holds, which another tab may have saved past (BA129,
-     BA130); the Sheet pane's `sheet` moves only once a save lands, so a
+     BA130); the Sheets pane's `sheet` moves only once a save lands, so a
      failed one leaves it on the saved copy (BA128), though each save's
      transaction opens when the change is asked for, so saves land in order.
      **A closing page keeps its last typing** (BA72): on `pagehide` the pane
@@ -883,7 +883,12 @@ against `dist/` is a later item.
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found
          it"). It switches the desk to `originalLayout` for the run, adds a LIT
-         pane (the flag that marks the leading one), presses a lock, opens the title menu, the
+         pane (the flag that marks the leading one), presses a lock, shows a
+         Sheets pane (a column, else the first pane that isn't the LIT turned to
+         Sheets; E59, BVJ 2026-11-08), opens the title menu, runs "New sheet…"
+         as the menu does (`titleMenu.newSheet`: a Sheets pane and its template
+         chooser, which the card sits beside; a `notebook` step, and left out
+         when neither a column nor a row fits), opens the
          Add pane flyout (adding a Footnotes column behind it) and the Layout
          window (applying an arrangement that fits), undoing each step before
          the next, and at the end commits the reader's own layout back. **What
@@ -1293,7 +1298,7 @@ against `dist/` is a later item.
        more than one, a "Labels…" button and chips on a row, and, on /desk,
        follows the LIT pane. `kept-list.js` remains, but only the notebook
        page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
-       2026-11-07): they have /sheets and the Sheet pane, and the notebook
+       2026-11-07): they have /sheets and the Sheets pane, and the notebook
        page's list still shows them as "Other items". A layout saved with the retired kind `kept` reads back
        as `mine` (`RETIRED_KINDS`, applied in `checkLayout`, so the last
        layout and "My default" are both migrated); one that held both panes
@@ -1338,7 +1343,8 @@ against `dist/` is a later item.
        `sheet-text.js` keep their own `el`/`make`, which differ in how they
        treat a null text.
        The LIT pane is `desk/lit-pane.js`, Footnotes
-       `desk/footnotes-view.js` (3e), and Sheet `desk/sheet-pane.js` (3f),
+       `desk/footnotes-view.js` (3e), and Sheets `desk/sheet-pane.js` (3f;
+       the pane is "Sheets", BVJ 2026-11-08, "Sheet" until then),
        the sheet editor, with its formatted text in `desk/sheet-text.js`
        (a paste or a drop from elsewhere is read by `pastedSheetHtml`,
        which keeps what Google Docs, Word and web pages mean: headings and
@@ -1354,7 +1360,28 @@ against `dist/` is a later item.
        its own row with its notice (`groupBlanks`, SH5-9). When a redraw
        removes the control that had focus, focus goes to one that is always
        drawn ("Blank the selected words", the footnotes summary, the key
-       terms note), never to the page (`restoreFocus`, SH5-10). **My sheets lists
+       terms note), never to the page (`restoreFocus`, SH5-10). A footnote
+       gives a blank away by using its words or by naming a traditional
+       word the blank's hint doesn't show (`blankWords`' `telltale`; SH5-16,
+       BVJ 2026-11-08), and the flag's sentence names that word. A page
+       break's card has no Leader only box (SH5-17): a break is on both
+       versions, though the format still allows the field. **A part is added
+       between parts from the gap between them** (BVJ, 2026-11-08): pointing
+       at the space under a card (or tabbing to it) shows a line across it with
+       an "Add" pill, lying over the cards so it takes no room
+       (`.desk-sheet__after`, hung from the card above; shown on hover, while
+       its menu is open, or on `:focus-visible`, never plain `:focus-within`,
+       since the form's × and the menu's Escape hand focus back to the pill
+       and a mouse user saw it stay until the next click), and the pill's menu
+       adds the chosen part right after that card (`addPart(type, after)`), so
+       a long sheet needn't be scrolled to its end. A "+" in the card's header
+       was tried first and dropped the same day: it read as acting on that
+       card, not the gap. "Passage…" opens the passage form under the card
+       (`openInlinePassage`), never the bar's at the sheet's end, which looked
+       like a glitch; each passage it adds goes after the card and then after
+       the one just added (`addPassage`'s `target`), and the form is put back
+       on its card after a redraw (`insertForm`). The bar's own buttons still
+       add after the part last worked in, else at the end. **My sheets lists
        Duplicate beside Delete** (BVJ, 2026-11-04; `duplicateSheet` in
        `desk-sheets.mjs`): the same parts under fresh ids, "<title> (copy)"
        (cut to the title limit), and everything else kept, so labels and a
@@ -1478,12 +1505,12 @@ against `dist/` is a later item.
        is stored but the words a blank covers. "Add to
        sheet" reaches the LIT pane's menus through `lit:panel-actions`, as
        the "My Notebook" row does, which reads `book`, `chapter` and
-       `textFor` from the detail. Which sheet a Sheet pane shows is `sheet`
+       `textFor` from the detail. Which sheet a Sheets pane shows is `sheet`
        on its pane in the layout (`setPaneSheet`).
      - **The layout is `localStorage['lit-desk-layout']`**: the last
        layout, the reader's default and which opens the page, written on
        every change (the shared passage, each LIT pane's place and each
-       Sheet pane's sheet included) and checked on the way
+       Sheets pane's sheet included) and checked on the way
        back in (`checkLayout`). **"My default" is an arrangement, not a
        passage** (BVJ, 2026-10-26; BA53): it opens at the last place on the
        desk, or Continue reading's (`openingLayout`, `atPlace`), keeping its
@@ -1495,7 +1522,7 @@ against `dist/` is a later item.
        desk-page.js is `fitSizes` of the layout for the room there is, so a
        narrow window squeezes the panes without the squeeze being saved, and
        a line the reader moves starts from its drawn sizes. `/desk/?sheet=`
-       splits off a Sheet pane only where the width holds another column
+       splits off a Sheets pane only where the width holds another column
        (`showSheet`'s `width`, BA60).
      - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on
        Layout and SiteHeader), at every width: the emblem and "LIT Bible"
@@ -1537,10 +1564,10 @@ against `dist/` is a later item.
        `data-tray-anchor=".desk-title__button"` (SiteHeader's `anchorOf`) hangs
        the tray from the title and returns focus there, because the menu
        closes as the tray opens. **New sheet…** (Audit 5, SH5-5) sits after
-       Add pane and acts at once: it uses the desk's Sheet pane, or adds one
+       Add pane and Layout… (BVJ, 2026-11-08; it was before Layout…) and acts at once: it uses the desk's Sheets pane, or adds one
        as a column (else a row), then sends `desk:sheet-new` with the pane's
-       id, which the Sheet pane answers by opening its template chooser; it is
-       disabled, with the reason beside it, only when there is no Sheet pane
+       id, which the Sheets pane answers by opening its template chooser; it is
+       disabled, with the reason beside it, only when there is no Sheets pane
        and neither fits. Each kind in the Add pane flyout and in the pane
        menu's two kind lists carries a one-line description under its name
        (`about` in `KINDS`, `kindAbout`), greyed like a reason but not a
@@ -1617,7 +1644,7 @@ against `dist/` is a later item.
        `sheetHtmlForShow`, which sanitizes a sheet's formatted words again
        and links their references. **A new place that shows a sheet's
        formatted words uses it**, never `innerHTML` of the stored html.
-     - **`desk/sheet-copy.js` draws a copy from the Sheet pane's own reading**:
+     - **`desk/sheet-copy.js` draws a copy from the Sheets pane's own reading**:
        `readPassage`, `passageWords` and `locateBlanks` are exported from
        `sheet-lit.js` for it, so the editor and the paper can't disagree
        about which words a passage, a blank or a footnote covers.
@@ -1783,7 +1810,7 @@ against `dist/` is a later item.
   20. **Phase 3j is present mode** (STUDY-DESK.md, S6, M2,
      M3 and "Order of work", 3j), on the sheet's own page:
      `src/scripts/desk/sheet-present.js`, opened by sheet-page.js's
-     "Present", or at once for `&view=present` (the Sheet pane's
+     "Present", or at once for `&view=present` (the Sheets pane's
      "Present…") and `&view=presenter` (the presenter view's window). Like
      the rest of the page it **never writes a record, and stores nothing**:
      where the room is lives in the open windows. An empty text or question
@@ -1833,8 +1860,9 @@ against `dist/` is a later item.
      M5, M9, S8 and "Order of work", 3k). Four things to know:
      - **Templates** (M9) are `src/lib/desk-sheet-templates.mjs` (pure,
        tested; every template's formatted text must already be in the
-       sanitizer's canonical form). New sheet in the Sheet pane lists them,
-       each with a line naming its parts (`parts`), and the title menu's
+       sanitizer's canonical form). New sheet in the Sheets pane lists them,
+       each as its name and one line on what it is for (a second line
+       listing its parts was tried and dropped as noise, BVJ 2026-11-08), and the title menu's
        "New sheet…" opens the same list (a `desk:sheet-new` event naming the
        pane). **A template's parts hold no text, only structure and a
        prompt** (Audit 5, SH5-2; BVJ's brief): a text part is its heading
@@ -1846,8 +1874,14 @@ against `dist/` is a later item.
        heading (a `data-hint` `::after`, with `aria-description`) until the
        leader types there or a passage follows it; it never depends on whether
        the sheet has a passage (SH5-4). **Template text never mentions the
-       editor's tools** (BA70; the test checks), so "Add the passage with
-       + Passage…" is the reading part's prompt, never its text. A new part
+       editor's tools** (BA70; the test checks), so "Type the reference in
+       the form below…" is the reading part's prompt, never its text. **The
+       reading part's passage form is open from the start** (BVJ, 2026-11-08:
+       the part "should already act as if the user has clicked the add
+       passage on it"): `draw()` opens `openInlinePassage` under
+       `readingPart(sheet)` while the sheet has no passage and no other form
+       is open, without focus or scrolling; × or Escape closes it until the
+       sheet is opened again (`readingDismissed`). A new part
        goes after the part last worked in (`insertIndex` in `sheet-pane.js`),
        but **a passage goes where the sheet says, not where the leader last
        clicked** (SH5-3): after the part last worked in only when that part
@@ -1865,7 +1899,7 @@ against `dist/` is a later item.
        `desk/search-sheet.js` only with `data-desk="on"`. The passages
        (Bible order, neighbors joined, capped at the sheet's limit) are
        `src/lib/desk-sheet-gather.mjs`. "Open it on the Study Desk" is
-       `/desk/?sheet=<id>`, which desk-page.js shows in a Sheet pane
+       `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
        (`showSheet` in `desk-layout.mjs`) and strips from the address.
      - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;
        format in STUDY-DESK-FORMAT.md, "Sharing a sheet"): the sheet, less
@@ -1874,7 +1908,11 @@ against `dist/` is a later item.
        deflate-raw JSON in base64url after `#share1.`, or the same data on
        the last line of a `.lit-sheet.md` file (`fragmentInFile` takes the
        last data line, ignores whitespace folded into it, and throws
-       "damaged" for one it can't read). The Share dialog's button for that
+       "damaged" for one it can't read). The dialog's note and the "Link
+       copied" status both say the link is long because the sheet is in it
+       (E58; BVJ, 2026-11-08: a first link read as a string of random
+       characters). A short link would need a hosted store, M14, deferred to
+       signed-in readers. The Share dialog's button for that
        file is "Export a Study Desk file (.md)" and the Sheets page's is
        "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
        `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;
@@ -1913,7 +1951,7 @@ against `dist/` is a later item.
        not the build's UTC day). `readPassage` (`desk/sheet-lit.js`) carries the
        check as `check`, and the source's `contentVersion` (read off the
        fetched page's `<html>` by `chapter-page.js`).
-     - **The Sheet pane writes one thing the reader didn't ask for**: a
+     - **The Sheets pane writes one thing the reader didn't ask for**: a
        passage with no `verseCopy` (gathered on /search) takes one the first
        time the pane reads it, through `change(…, { quiet: true })`, which
        commits with `record: false` so Ctrl+Z never undoes it into a loop.
@@ -1978,8 +2016,17 @@ against `dist/` is a later item.
        hidden, and a change that moves a footnote between "⋯" and inline (the
        margin note's mark) runs inside `keepPillFocus`; the popover's own Pin and "Add a note" row, and /desk's panes, are
        unchanged. Read View has no footnotes, so it has none of this.
-     - **N6 writes ordinary sheet parts**: `src/lib/desk-sheet-discussion.mjs`
-       (pure, tested) turns the notes marked `question` on a sheet's
-       passages into a heading and `question` modules, once; nothing links
-       them back to the notes. The Sheet pane's "+ For discussion" adds them
-       in one change.
+     - **A sheet takes notes, highlights and pinned footnotes from the
+       notebook as ordinary parts**: `src/lib/desk-sheet-from-notes.mjs`
+       (pure, tested) lists the records on a sheet's passages (everything,
+       newest first, on a sheet with none) and turns the chosen ones into
+       parts (a question note a `question`, any other note or a pinned
+       footnote a `text`, a highlight a `passage`); nothing links a part
+       back to its record. The Sheets pane's "+ From my notes…" is the
+       chooser (`openFromNotes`), adding the ticked ones in one change
+       (E62; BVJ, 2026-11-08). It replaced N6's "+ For discussion"
+       (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
+       gathered only the notes marked `question` under a heading: "The
+       options for sheets need to be more flexible than that, more useful to
+       more people."
+

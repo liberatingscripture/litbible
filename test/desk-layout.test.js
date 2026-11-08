@@ -200,11 +200,12 @@ test("applyArrangement closes from the end when there are fewer slots", () => {
 });
 
 test("applyArrangement fills new slots with the first kind not open, in KINDS order", () => {
-  // From the original (lit, mine): the next two are verse then greek.
+  // From the original (lit, mine): the next two are verse then footnotes
+  // (BVJ's order, 2026-11-08; greek came third until then).
   const three = applyArrangement(originalLayout(), "cols-3");
   assert.deepEqual(kinds(three), ["lit", "mine", "verse"]);
   const four = applyArrangement(originalLayout(), "cols-4");
-  assert.deepEqual(kinds(four), ["lit", "mine", "verse", "greek"]);
+  assert.deepEqual(kinds(four), ["lit", "mine", "verse", "footnotes"]);
   // From My Notes alone: lit comes first in KINDS, then verse.
   const alone = mk(leaf("p1", "mine"));
   assert.deepEqual(kinds(applyArrangement(alone, "cols-3")), ["mine", "lit", "verse"]);
@@ -213,7 +214,7 @@ test("applyArrangement fills new slots with the first kind not open, in KINDS or
   assert.deepEqual(kinds(applyArrangement(lv, "cols-3")), ["lit", "verse", "mine"]);
   // The fill order is KINDS order.
   const order = KINDS.map((k) => k.kind);
-  assert.deepEqual(order.slice(0, 4), ["lit", "mine", "verse", "greek"]);
+  assert.deepEqual(order, ["lit", "mine", "verse", "footnotes", "intro", "greek", "sheet", "search"]);
 });
 
 test("applyArrangement gives new panes ids that are free and no pin", () => {
@@ -1057,7 +1058,7 @@ test("BA53: My default opens its arrangement at the last place on the desk, not 
   assert.equal(findPane(open.root, "p1").at, "john 3:16");
   assert.equal(findPane(open.root, "p2").at, "john 3:16");
   assert.deepEqual(findPane(open.root, "p4").pin, { at: "john 3:16" }, "Stay here is kept, at the reader's place");
-  assert.equal(findPane(open.root, "p3").sheet, "s1", "the Sheet pane keeps its sheet");
+  assert.equal(findPane(open.root, "p3").sheet, "s1", "the Sheets pane keeps its sheet");
   assert.equal(arrangementOf(open), "grid");
   assert.deepEqual(open.root.sizes, mine.root.sizes);
   assert.equal(findPane(mine.root, "p1").at, "romans 8:1", "the saved default is not mutated");
@@ -1419,14 +1420,14 @@ test("BA55: originalLayout given a place starts its LIT pane there", () => {
   }
 });
 
-// ---- the sheet a Sheet pane shows (3f) ----
+// ---- the sheet a Sheets pane shows (3f) ----
 
 const withSheetPane = () => {
   const layout = originalLayout();
   return setKind(layout, "p2", "sheet");
 };
 
-test("setPaneSheet sets and clears the sheet a Sheet pane shows, without mutating", () => {
+test("setPaneSheet sets and clears the sheet a Sheets pane shows, without mutating", () => {
   const l = withSheetPane();
   const before = structuredClone(l);
   const next = setPaneSheet(l, "p2", "sheet-1");
@@ -1445,13 +1446,13 @@ test("setPaneSheet leaves other kinds, and an unchanged sheet, alone", () => {
   assert.equal(setPaneSheet(l, "p2", ""), l, "an empty id is no sheet, which it already shows");
 });
 
-test("setKind drops a Sheet pane's sheet", () => {
+test("setKind drops a Sheets pane's sheet", () => {
   const l = setPaneSheet(withSheetPane(), "p2", "sheet-1");
   const next = setKind(l, "p2", "mine");
   assert.equal("sheet" in findPane(next.root, "p2"), false);
 });
 
-test("checkLayout keeps a Sheet pane's sheet and drops one anywhere else", () => {
+test("checkLayout keeps a Sheets pane's sheet and drops one anywhere else", () => {
   const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "sheet", sheet: "s-1" } }, { pane: { id: "p2", kind: "mine", sheet: "s-2" } })));
   assert.equal(findPane(l.root, "p1").sheet, "s-1");
   assert.equal("sheet" in findPane(l.root, "p2"), false);
@@ -1461,14 +1462,14 @@ test("checkLayout keeps a Sheet pane's sheet and drops one anywhere else", () =>
 
 // ---- showSheet (M5) ----------------------------------------------------------
 
-test("showSheet uses the first Sheet pane there is", () => {
+test("showSheet uses the first Sheets pane there is", () => {
   const l = setPaneSheet(withSheetPane(), "p2", "old");
   const next = showSheet(l, "new");
   assert.equal(findPane(next.root, "p2").sheet, "new");
   assert.equal(panes(next.root).length, panes(l.root).length);
 });
 
-test("showSheet splits a new Sheet pane beside the active pane", () => {
+test("showSheet splits a new Sheets pane beside the active pane", () => {
   const l = mk(cols([0.6, 0.4], leaf("p1", "lit"), leaf("p2", "mine")));
   const next = showSheet(l, "s-1");
   const all = panes(next.root);

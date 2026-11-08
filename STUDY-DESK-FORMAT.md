@@ -431,7 +431,11 @@ the leader has decided on: the footnote named as `footnotePin` names it (its
 verse, its full text, `n` among identical ones), never its letter, and
 `print` true or false. A footnote with no choice follows the default, which
 is worked out live: it prints, **unless it gives a blank away**, in which
-case it is flagged and left out until the leader decides. Select all and
+case it is flagged and left out until the leader decides. A footnote gives a
+blank away when it uses the blank's words, or (since 2026-11-08, audit 5's
+SH5-16) when it names the traditional word of the term the blank's words
+render and the blank's hint does not already show that word: a `hint` of
+`"none"`, or a `"custom"` hint without the word. Select all and
 Unselect all write a choice for every footnote in the passage. So a
 footnote added to the chapter later prints by default, and is still flagged
 if it gives a blank away. A choice whose footnote has gone is ignored.

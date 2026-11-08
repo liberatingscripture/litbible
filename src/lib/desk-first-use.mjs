@@ -447,6 +447,17 @@ export const DESK_TOUR_STEPS = [
         "The lock keeps a pane where it is while the LIT moves on, so a verse or a Greek word stays in view. Select it again to follow. It is on here only for the tour.",
     },
   },
+  // Sheets (E59; BVJ, 2026-11-08): what one is, with a Sheets pane shown.
+  {
+    id: "sheets",
+    part: 0,
+    since: "e59",
+    title: "Sheets",
+    body: {
+      default:
+        "A sheet is a handout you make here: passages from the LIT, your own words, questions, and blanks to fill in. Print it, present it to a room, or share it as a link or a file. A Sheets pane is shown here only for the tour.",
+    },
+  },
   {
     id: "title",
     part: 1,
@@ -454,7 +465,19 @@ export const DESK_TOUR_STEPS = [
     title: "The title menu",
     body: {
       default:
-        "“Study Desk” is a menu for the page itself: adding a pane, the layout, printing, and display options. Help for the Study Desk is here too.",
+        "“Study Desk” is a menu for the page itself: adding a pane, the layout, a new sheet, printing, and display options. Help for the Study Desk is here too.",
+    },
+  },
+  // How a sheet starts (E59): the title menu's "New sheet…" and its template chooser.
+  {
+    id: "newsheet",
+    part: 1,
+    since: "e59",
+    notebook: true,
+    title: "New sheet",
+    body: {
+      default:
+        "“New sheet…” in the title menu starts one. Choose a Bible study, sermon preparation, a class session, lectio divina, or a blank canvas, and the sheet opens with its parts ready to fill. Then add passages from the LIT pane’s verse numbers, or by selecting words. The chooser is open here only for the tour; nothing is made.",
     },
   },
   {

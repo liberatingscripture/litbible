@@ -30,7 +30,7 @@
 //   the following panes follow it; with no LIT pane open the place is chosen
 //   with their passage picker (3d). All are passage strings, "john 3:16"
 //   (desk-passage.mjs);
-// - a Sheet pane keeps which sheet it shows (`sheet`, a record id, 3f), or
+// - a Sheets pane keeps which sheet it shows (`sheet`, a record id, 3f), or
 //   none for its list of sheets;
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
@@ -49,21 +49,24 @@ export const MIN_HEIGHT = 160;
 export const HANDLE = 6;
 
 /**
- * Every kind of pane, in the order a new slot is filled with one not yet
- * open. `follows`: it follows the active LIT pane unless pinned. `about`: one
+ * Every kind of pane, in the order the menus list them and a new slot is
+ * filled with one not yet open (BVJ's order, 2026-11-08: the LIT's own
+ * company first, the Greek after it, then the two that stand alone).
+ * `follows`: it follows the active LIT pane unless pinned. `about`: one
  * short line under the label in the menus that list kinds (SH5-5), after the
- * help page's words for each. The page's registry (desk-panes.js) says what each one draws.
+ * help page's words for each; it says what the pane is on the desk, not what
+ * the site's pages do. The page's registry (desk-panes.js) says what each one draws.
  */
 export const KINDS = [
-  { kind: "lit", label: "The LIT", follows: false, about: "The text, a chapter at a time" },
+  { kind: "lit", label: "The LIT", follows: false, about: "The text; the other panes follow it" },
   { kind: "mine", label: "My Notes", follows: true, about: "What you have kept: notes, highlights, and bookmarks" },
   { kind: "verse", label: "This verse", follows: true, about: "Everything for the verse you are on" },
-  { kind: "greek", label: "Greek", follows: true, about: "The Greek text beside the LIT" },
   { kind: "footnotes", label: "Footnotes", follows: true, about: "The chapter’s footnotes as a list" },
   // A book's introduction (E53; BVJ, 2026-11-06): the book of the passage it
   // follows, so its place is a passage like the others' and only the book is read.
   { kind: "intro", label: "Book Intro", follows: true, about: "The book’s introduction" },
-  { kind: "sheet", label: "Sheet", follows: false, about: "A handout to print, present, or share" },
+  { kind: "greek", label: "Greek", follows: true, about: "The Greek text behind the LIT" },
+  { kind: "sheet", label: "Sheets", follows: false, about: "A handout to print, present, or share" },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
   // book menu offers "The book I’m reading" and keeps the book it was set to.
   { kind: "search", label: "Search", follows: false, about: "Scripture, the glossary, and your notes" },
@@ -518,7 +521,7 @@ export function setKind(layout, id, kind) {
   // A LIT pane's place is its own; a new one starts at the shared place
   // (settleActive gives it).
   delete pane.at;
-  // So is the sheet a Sheet pane shows (3f); another kind has none.
+  // So is the sheet a Sheets pane shows (3f); another kind has none.
   delete pane.sheet;
   return settleActive(next);
 }
@@ -565,8 +568,8 @@ export function setLitAt(layout, id, at) {
 }
 
 /**
- * The sheet a Sheet pane shows (3f): a sheet record's id, or null for the
- * pane's list of sheets. Unchanged for anything but a Sheet pane, or the
+ * The sheet a Sheets pane shows (3f): a sheet record's id, or null for the
+ * pane's list of sheets. Unchanged for anything but a Sheets pane, or the
  * sheet it already shows.
  */
 export function setPaneSheet(layout, id, sheetId) {
@@ -582,7 +585,7 @@ export function setPaneSheet(layout, id, sheetId) {
 
 /**
  * Show a sheet in the layout (M5, "Open it on the Study Desk"): in the first
- * Sheet pane there is, else in a new Sheet pane split beside the active pane
+ * Sheets pane there is, else in a new Sheets pane split beside the active pane
  * (or the first), else, with four panes already open or no room for another
  * column, in the last pane that isn't a LIT pane (the last of all when every
  * one is). `width` is the panes' width in pixels (BA60): the new pane is

@@ -26,7 +26,7 @@
 //   none, and the note line says which (`passageMoveMessage`); a small link
 //   beside the result opens its page in a new tab (`awayLink`).
 // - **Results can go on a sheet**: "Make a sheet of these verses" (a new sheet,
-//   shown in a Sheet pane) and, while a Sheet pane shows one, "Add these
+//   shown in a Sheets pane) and, while a Sheets pane shows one, "Add these
 //   verses to “…”" and a + on each verse, through the same rules and one
 //   transaction as /search's (desk-sheet-gather.mjs, search-sheet.js).
 // - **The Greek** (rules 15 and 17 of the desk's CLAUDE.md; only while
@@ -761,7 +761,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     return g;
   }
 
-  /** Show or hide the add controls by whether a Sheet pane shows a sheet. */
+  /** Show or hide the add controls by whether a Sheets pane shows a sheet. */
   function syncAdd() {
     if (!store) return;
     const t = addTarget();
@@ -786,7 +786,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     tell("");
     let outcome;
     try {
-      // Read and written in one transaction: another tab, or a Sheet pane,
+      // Read and written in one transaction: another tab, or a Sheets pane,
       // may have changed the sheet since the button was drawn (BA130).
       outcome = await store.change(async ({ get }) => {
         const now = new Date().toISOString();
@@ -828,7 +828,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     const entry = store.lastEntry();
     let text = gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: result.leftOut });
     // Its results stay on screen: this pane never gives its place to the sheet.
-    if (made && !env.showSheet(sheet.id, paneId)) text += " Open a Sheet pane to see it.";
+    if (made && !env.showSheet(sheet.id, paneId)) text += " Open a Sheets pane to see it.";
     if (entry) showUndo(text, () => undoEntry(entry));
     else tell(text);
   }

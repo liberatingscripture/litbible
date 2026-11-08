@@ -6774,7 +6774,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   }
 }
 
-/* ── The Sheet pane on /desk (3f; sheet-pane.js) ─────────────────────── */
+/* ── The Sheets pane on /desk (3f; sheet-pane.js) ─────────────────────── */
 
 /* Positioned, so the hidden hints that describe its buttons (.sr-only, which is
    absolute) are placed and clipped inside this scroller. Otherwise their
@@ -6948,6 +6948,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 }
 
 .desk-sheet__module {
+  position: relative; /* the gap zone below hangs from it */
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   border-radius: 10px;
   padding: 6px 10px 10px;
@@ -6964,7 +6965,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   background: var(--focus-ring);
 }
 
-/* In a narrow Sheet pane the controls go to a second row, right-aligned,
+/* In a narrow Sheets pane the controls go to a second row, right-aligned,
    rather than squeezing the part's name and breaking "Show in the LIT" over
    three lines (LV3-6). No control's label ever breaks. */
 .desk-sheet__module-head {
@@ -6974,6 +6975,11 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   gap: 2px 6px;
   margin-bottom: 4px;
   font-size: 0.8125rem;
+  cursor: grab; /* the whole header drags the part (BVJ, 2026-11-08) */
+}
+
+.desk-sheet__module-head .desk-sheet__module-tools {
+  cursor: auto;
 }
 
 .desk-sheet__grip {
@@ -7027,6 +7033,102 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 .desk-sheet__icon:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+/* The gap between parts (BVJ, 2026-11-08): a zone hung from each card over
+   the space to the next one (6px into each card, the top one's bottom padding
+   and the next one's top padding), where a line with an "Add" pill appears
+   under the pointer or on focus and lies over the cards, so it takes no room.
+   The pill's menu adds a part right there, and "Passage…" opens the passage
+   form under the card. The line is the drop marker's color. */
+.desk-sheet__after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -16px;
+  height: 22px;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.desk-sheet__after::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 50%;
+  border-top: 2px solid var(--focus-ring);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.desk-sheet__after-btn {
+  position: relative;
+  height: 22px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--green-deep);
+  color: #fff;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 22px;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+/* Shown under the pointer, while its menu is open, or on keyboard focus:
+   `:focus-visible`, not `:focus-within`, because the passage form's × and
+   the menu's Escape hand focus back to the pill, and with a mouse that left
+   it showing until the next click elsewhere (BVJ, 2026-11-08). */
+.desk-sheet__after:hover::before,
+.desk-sheet__after:has(:focus-visible)::before,
+.desk-sheet__after:has([aria-expanded="true"])::before,
+.desk-sheet__after:hover .desk-sheet__after-btn,
+.desk-sheet__after-btn:focus-visible,
+.desk-sheet__after-btn[aria-expanded="true"] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-sheet__after::before,
+  .desk-sheet__after-btn {
+    transition: none;
+  }
+}
+
+/* The pill's menu: the parts the add bar offers, drawn as a pane menu,
+   without the room a radio's check takes. */
+.desk-sheet__insert-menu .desk-pane__menu-item {
+  padding-left: 10px;
+}
+
+/* The passage form "Passage…" opens under a card. */
+.desk-sheet__insert-form {
+  margin-top: 10px;
+}
+
+.desk-sheet__insert-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.desk-sheet__insert-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__insert-form .desk-sheet__passage-form {
+  margin-top: 6px;
 }
 
 /* A passage: the LIT's words, set apart from the reader's (format rule 2). */
@@ -7188,6 +7290,34 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   grid-column: 1 / -1;
   font-size: 0.8125rem;
   color: rgba(var(--ink-rgb), 0.75);
+}
+
+/* "+ From my notes…" (E62): the notebook list's rows with a box to tick;
+   one already on the sheet is shown but can't be. */
+.desk-sheet__pick {
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+}
+
+.desk-sheet__pick input {
+  margin: 3px 0 0;
+}
+
+.desk-sheet__pick .desk-sheet__from-words {
+  grid-column: 2 / -1;
+}
+
+.desk-sheet__pick:has(input:disabled) {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.desk-sheet__pick:has(input:disabled):hover {
+  background: transparent;
+}
+
+.desk-sheet__from-notes .desk-sheet__add-row {
+  margin-top: 8px;
 }
 
 /* New sheet's list of templates (M9): the notebook list's rows, uncapped */

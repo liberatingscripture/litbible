@@ -52,7 +52,7 @@ From the root's project tree.
                      #   (desk-sheets) and its passages (desk-sheet-passages),
                      #   the templates it starts from (desk-sheet-templates),
                      #   a search's or topic's passages (desk-sheet-gather),
-                     #   the reader's questions on it (desk-sheet-discussion),
+                     #   what it takes from the notebook (desk-sheet-from-notes),
                      #   sharing it by link or file (desk-sheet-share),
                      #   and its copies on paper (desk-sheet-copy, with
                      #   qr-svg.mjs, the one QR drawing), as a document

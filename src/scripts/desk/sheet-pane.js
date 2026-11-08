@@ -1,6 +1,6 @@
 // src/scripts/desk/sheet-pane.js
 //
-// The sheet editor, shown as /desk's Sheet pane (STUDY-DESK.md, S1; "Order of
+// The sheet editor, shown as /desk's Sheets pane (STUDY-DESK.md, S1; "Order of
 // work", 3f). A sheet is one record (STUDY-DESK-FORMAT.md, "Sheets (kind
 // 9)"), changed only through src/lib/desk-sheets.mjs and saved like any other
 // record, so trash, undo (Ctrl+Z and the undo bar), merging and other tabs
@@ -41,7 +41,8 @@
 //   after the last passage, or on a sheet with none, after the template's
 //   reading part, so it lands under "Reading", not after "Closing" (BA69),
 //   else at the end.
-// - **Drag into order** by a module's grip, or Move up and Move down.
+// - **Drag into order** by a module's header (BVJ, 2026-11-08; the grip
+//   alone until then), or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
 //   another tab, an undo) redraws only the modules it touched, and never the
@@ -62,8 +63,8 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
-import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
+import { TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { fitModules, notebookItems, partsFor } from "../../lib/desk-sheet-from-notes.mjs";
 import {
   passageFromOffsets,
   passageForReference,
@@ -115,6 +116,8 @@ const promptOf = (m, field) => (typeof m?.[field] === "string" ? m[field].trim()
 
 /** A text part holding one heading and nothing else. */
 const LONE_HEADING = /^<h[1-6]>[^<]*<\/h[1-6]>$/;
+/** A text part's opening heading ("Opening", "The text"), or null: what the gap's pill and its form call the part. */
+const headingOf = (m) => (m?.type === "text" && typeof m.html === "string" && /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html)?.[1]?.replace(/\s+/g, " ").trim()) || null;
 
 /**
  * The prompt a text part shows under its heading (SH5-2, SH5-4): its own
@@ -142,6 +145,19 @@ function describe(control, text) {
 
 const json = (x) => JSON.stringify(x);
 
+// What each of the add bar's buttons adds, in a short line (BVJ, 2026-11-08:
+// only one button had a tooltip, and that one ran too long to show whole):
+// the button's hover text, and its description for a screen reader.
+const ADD_TIPS = Object.freeze({
+  passage: "Add a passage from the LIT by its reference, or from your notebook",
+  text: "Add a part for your own words",
+  question: "Add a question, with lines to write an answer on",
+  fromNotes: "Bring your notes, highlights, and pinned footnotes onto the sheet, as parts you choose",
+  space: "Add blank lines to write on",
+  pageBreak: "Start a new page here when printed",
+  keyTerms: "Add a box listing the key terms in the sheet’s passages, filled in for you",
+});
+
 const dateWords = (iso) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -149,7 +165,7 @@ const dateWords = (iso) => {
 
 /* ── "Add to sheet" in the LIT pane's menus ───────────────────────────── */
 
-// Every open Sheet pane, and the one last worked in, which a verse menu or
+// Every open Sheets pane, and the one last worked in, which a verse menu or
 // selection adds to.
 const openPanes = new Set();
 let lastUsed = null;
@@ -162,8 +178,8 @@ function targetPane() {
 }
 
 /**
- * The sheet "Add to sheet" adds to: the one in the Sheet pane last worked in,
- * else the first showing one, as `{ id, name }`; null when no Sheet pane shows
+ * The sheet "Add to sheet" adds to: the one in the Sheets pane last worked in,
+ * else the first showing one, as `{ id, name }`; null when no Sheets pane shows
  * a sheet. The Search pane's add buttons (3m) follow the same rule.
  */
 export function addTarget() {
@@ -188,7 +204,7 @@ function listenForPanels() {
     if (d.view !== "desk" || !d.book || !d.chapter) return;
     const pane = targetPane();
     if (!pane) return;
-    const heading = make("p", "lit-panel__subheading", "Sheet");
+    const heading = make("p", "lit-panel__subheading", "Sheets");
     const add = button(`Add to “${sheetName(pane.sheet())}”`, "lit-panel__btn");
     add.addEventListener("click", async () => {
       d.acting?.();
@@ -249,6 +265,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   let sheet = null; // the sheet shown, as last read or saved
   let lastModule = null; // the part last focused or clicked on this sheet
+  // The passage form open under a card, from the gap's "Add" pill (BVJ,
+  // 2026-11-08): `after` is that card's part, `target` where its next passage
+  // goes (moved on past each one added, so several land in order), and `el`
+  // the form, put back on the card whenever the card is drawn again.
+  let insertForm = null;
+  // The reading part whose form, opened by itself, the leader closed with ×
+  // or Escape on this sheet, so it stays closed until the sheet is opened again.
+  let readingDismissed = null;
   let destroyed = false;
   let seq = 0; // bumped when the pane switches between the list and a sheet
   const now = () => new Date().toISOString();
@@ -269,21 +293,28 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet: () => sheet,
     contentVersion: () => ctx().contentVersion,
     /**
-     * Add a passage after the part last worked in. Resolves false when it
-     * wasn't added, else { message, again }: the one message saying so, which
-     * is announced. Adding one already on the sheet adds it again and says so
-     * in that same message, never in a second one, and the caller shows it,
-     * so it is seen as well as heard (BA75).
+     * Add a passage after the part last worked in, or, given a `target`
+     * ({ after: id }, a card's passage form), right after that part; the
+     * target is moved on to the passage added, so the next lands after it.
+     * Resolves false when it wasn't added, else { message, again }: the one
+     * message saying so, which is announced. Adding one already on the sheet
+     * adds it again and says so in that same message, never in a second one,
+     * and the caller shows it, so it is seen as well as heard (BA75).
      */
-    addPassage: async (fields) => {
+    addPassage: async (fields, target = null) => {
       if (!sheet || !canEdit(sheet)) return false;
       const again = sheet.modules.some((m) => m.type === "passage" && samePassage(m, fields));
       const message = `${passageReference(fields)} added${again ? " again; it was already on the sheet" : ""}.`;
       const mod = makeModule("passage", fields);
-      const ok = await change((s) => addModule(s, mod, insertIndex(s, { passage: true }), opCtx()), {
+      const where = (s) => {
+        const i = target?.after ? s.modules.findIndex((x) => x.id === target.after) : -1;
+        return i >= 0 ? i + 1 : insertIndex(s, { passage: true });
+      };
+      const ok = await change((s) => addModule(s, mod, where(s), opCtx()), {
         announce: message,
         after: () => cards.get(mod.id)?.el.scrollIntoView({ block: "nearest" }),
       });
+      if (ok && target) target.after = mod.id;
       return ok && { message, again };
     },
   };
@@ -444,6 +475,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet = null;
     targetChanged();
     lastModule = null;
+    closeInsertForm(false);
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
     license = null;
@@ -534,8 +566,6 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const li = make("li");
       const b = button("", "desk-sheet__from-item desk-sheet__choice");
       b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
-      // What the sheet starts with, as a list of its parts (SH5-17).
-      if (t.parts) b.append(make("span", "desk-sheet__from-words", t.parts));
       b.addEventListener("click", () => newSheet(t.id));
       li.append(b);
       ul.append(li);
@@ -642,6 +672,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     sheet = record;
     targetChanged();
     lastModule = null;
+    closeInsertForm(false);
+    readingDismissed = null;
     readOnly = !canEdit(record);
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
@@ -767,6 +799,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     });
     for (const [id, card] of cards) {
       if (seen.has(id)) continue;
+      if (insertForm?.after === id) insertForm = null;
       card.inst?.destroy?.();
       card.el.remove();
       cards.delete(id);
@@ -791,11 +824,21 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         box.removeAttribute("aria-description");
       }
     });
+    // A template's reading part acts as if "+ Passage" were already pressed
+    // on it (BVJ, 2026-11-08): while the sheet has no passage, the passage
+    // form is open under it, without taking focus or scrolling. It stays once
+    // the first passage is added, for the next, as the pill's form does, and
+    // × or Escape closes it until the sheet is opened again.
+    if (!readOnly && !insertForm) {
+      const reading = readingPart(sheet);
+      const card = reading && readingDismissed !== reading.id ? cards.get(reading.id) : null;
+      if (card) openInlinePassage(reading, headingOf(reading) ?? card.name, { focus: false, scroll: false, auto: true });
+    }
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
       keyTermsButton.disabled = has;
-      keyTermsButton.title = has ? "A sheet has one key terms box" : "A box listing the key terms in the sheet’s passages, filled in for you";
+      keyTermsButton.title = has ? "A sheet has one key terms box, and this one has it" : ADD_TIPS.keyTerms;
       if (keyTermsHint) keyTermsHint.textContent = has ? "A sheet has one key terms box, and this one has it." : "A box listing the key terms in the sheet’s passages, filled in for you.";
       // The reason, for the eye too (SH5-17); hidden from a screen reader,
       // which hears it in the description above.
@@ -875,10 +918,15 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
     const tools = make("div", "desk-sheet__module-tools");
     const name = label.textContent;
+    // What the gap's pill, its menu and its form call the part: a text part's
+    // heading when it has one ("Add a passage after Reading"), else its kind.
+    const called = headingOf(m) ?? name;
     let up = null;
     let down = null;
     if (!readOnly) {
-      if (known) {
+      // A page break is on both versions: a break on the leader's printout
+      // alone is meaningful but puzzling in a box, so it isn't offered (SH5-17).
+      if (known && m.type !== "pageBreak") {
         const leader = make("label", "desk-sheet__leader");
         const box = make("input");
         box.type = "checkbox";
@@ -917,12 +965,37 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     else card.append(make("p", "desk-sheet__status", "This part was made by a newer version of the LIT. It is kept as it is; reload the page to see it."));
 
     if (!readOnly) {
-      grip.addEventListener("pointerdown", () => { card.draggable = true; });
+      // The whole header is the handle (BVJ, 2026-11-08), not the grip alone;
+      // its buttons and the Leader only box keep their own job. A press that
+      // doesn't become a drag ends with the card undraggable again, so a later
+      // drag across the part's text never carries the card off (pointerup
+      // doesn't fire once a drag starts; dragend covers that).
+      head.addEventListener("pointerdown", (e) => {
+        if (e.target.closest("button, input, label, a")) return;
+        card.draggable = true;
+        document.addEventListener("pointerup", () => { card.draggable = false; }, { once: true });
+      });
       card.addEventListener("dragend", () => { card.draggable = false; });
+      // The gap under the card (BVJ, 2026-11-08): a zone over the space to the
+      // next card, where a line with an "Add" pill appears under the pointer or
+      // on focus, so a part can be added right there. The passage form it
+      // opens sits in the card, before the zone, so the card holds it again
+      // after a redraw.
+      if (insertForm?.after === m.id) card.append(insertForm.el);
+      const zone = make("div", "desk-sheet__after");
+      const insert = button("+ Add", "desk-sheet__after-btn");
+      insert.setAttribute("aria-label", `Add a part after ${called}`);
+      insert.setAttribute("aria-haspopup", "menu");
+      insert.setAttribute("aria-expanded", "false");
+      insert.title = "Add a part here";
+      insert.addEventListener("click", () => openInsertMenu(insert, m, called));
+      zone.append(insert);
+      card.append(zone);
     }
     return {
       el: card,
       inst,
+      name,
       json: "",
       head: headKey(m),
       setPosition(i, count) {
@@ -1079,6 +1152,171 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   // ---- adding ----
 
+  /**
+   * Adds a part of `type`: after the part `after` (a card's "+" menu; BVJ,
+   * 2026-11-08), else after the part last worked in, else at the end. The
+   * new part takes focus: a space's lines field, a page break's first Move
+   * button (SH5-10), otherwise its text.
+   */
+  function addPart(type, after = null) {
+    const mod = makeModule(type);
+    const where = (s) => {
+      const i = after ? s.modules.findIndex((x) => x.id === after) : -1;
+      return i >= 0 ? i + 1 : insertIndex(s);
+    };
+    const afterName = after ? cards.get(after)?.name : null;
+    const atEnd = !sheet || where(sheet) >= sheet.modules.length;
+    change((s) => addModule(s, mod, where(s), opCtx()), {
+      announce: `${TYPE_NAMES[type]} added${afterName ? ` after ${afterName}` : atEnd ? " at the end" : " after the part you were working in"}.`,
+      after: () => {
+        const c = cards.get(mod.id);
+        c?.el.scrollIntoView({ block: "nearest" });
+        if (type === "space") c?.el.querySelector(".desk-sheet__lines input")?.focus();
+        else if (type === "pageBreak") c?.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)")?.focus();
+        else c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+      },
+    });
+  }
+
+  /**
+   * The menu under the gap's "Add" pill (BVJ, 2026-11-08): the parts the add
+   * bar offers, each added right after this card, so a long sheet needn't be
+   * scrolled to its end. "Passage…" opens the passage form under this card
+   * (`openInlinePassage`), since a passage needs a reference typed. One key
+   * terms box per sheet, as in the bar. Arrow keys move, Escape returns to
+   * the pill, a click elsewhere closes.
+   */
+  function openInsertMenu(button, m, name) {
+    const menu = make("div", "desk-pane__menu desk-sheet__insert-menu");
+    menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-label", `Add a part after ${name}`);
+    menu.id = `deskSheetInsert-${paneId}-${m.id}`;
+    const hasTerms = !!sheet?.modules.some((x) => x?.type === "keyTerms");
+    const items = [];
+    // Removing the menu blurs its focused item, and the focusout below closes
+    // too, so the second close must find nothing to do before the first has
+    // removed anything, or remove() throws and the pick never runs (SH5-1).
+    let closed = false;
+    const close = (refocus) => {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener("pointerdown", outside, true);
+      menu.remove();
+      button.setAttribute("aria-expanded", "false");
+      button.removeAttribute("aria-controls");
+      if (refocus) button.focus();
+    };
+    const outside = (e) => { if (!menu.contains(e.target) && e.target !== button) close(false); };
+    const item = (label, type, { disabled = false, why = null } = {}) => {
+      const b = make("button", "desk-pane__menu-item");
+      b.type = "button";
+      b.tabIndex = -1;
+      b.setAttribute("role", "menuitem");
+      b.append(make("span", "desk-title__label", label));
+      if (disabled) {
+        const hint = make("span", "desk-title__hint", why);
+        hint.id = `${menu.id}-why`;
+        b.append(hint);
+        b.setAttribute("aria-disabled", "true");
+        b.setAttribute("aria-describedby", hint.id);
+      }
+      b.addEventListener("click", () => {
+        if (disabled) return;
+        close(false);
+        if (type === "passage") {
+          openInlinePassage(m, name);
+          return;
+        }
+        addPart(type, m.id);
+      });
+      menu.append(b);
+      items.push(b);
+      return b;
+    };
+    item("Passage…", "passage");
+    item("Your text", "text");
+    item("Question", "question");
+    item("Space to write", "space");
+    item("Page break", "pageBreak");
+    item("Key terms box", "keyTerms", { disabled: hasTerms, why: "already on the sheet" });
+    menu.addEventListener("keydown", (e) => {
+      const i = items.indexOf(document.activeElement);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus();
+      } else if (e.key === "Home" || e.key === "End") {
+        e.preventDefault();
+        items[e.key === "Home" ? 0 : items.length - 1].focus();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        close(true);
+      } else if (e.key === "Tab") {
+        close(false);
+      }
+    });
+    menu.addEventListener("focusout", (e) => { if (!menu.contains(e.relatedTarget)) close(false); });
+    document.body.append(menu);
+    const at = button.getBoundingClientRect();
+    const w = menu.offsetWidth;
+    const h = menu.offsetHeight;
+    const left = Math.max(8, Math.min(at.left, window.innerWidth - w - 8));
+    const top = at.bottom + h + 8 <= window.innerHeight ? at.bottom + 4 : Math.max(8, at.top - h - 4);
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    button.setAttribute("aria-expanded", "true");
+    button.setAttribute("aria-controls", menu.id);
+    document.addEventListener("pointerdown", outside, true);
+    items[0].focus();
+  }
+
+  /**
+   * "Passage…" from the gap's "Add" pill (BVJ, 2026-11-08): the passage form
+   * opens under that card, not in the add bar at the sheet's end, so the
+   * leader isn't sent to the bottom to type a reference that lands in the
+   * middle. Each passage it adds goes right after the card, then after the
+   * one just added, so several land in order. One such form at a time; its ×
+   * or Escape closes it and returns focus to the card's pill.
+   */
+  function openInlinePassage(m, name, { focus = true, scroll = true, auto = false } = {}) {
+    closeInsertForm(false);
+    const card = cards.get(m.id)?.el;
+    if (!card) return;
+    const el = make("div", "desk-sheet__insert-form");
+    const head = make("div", "desk-sheet__insert-head");
+    const title = make("p", "desk-sheet__insert-title", `Add a passage after ${name}`);
+    title.id = `deskSheetInsertTitle-${paneId}-${m.id}`;
+    const close = button("×", "desk-sheet__icon");
+    close.setAttribute("aria-label", "Close");
+    close.addEventListener("click", () => closeInsertForm(true));
+    head.append(title, close);
+    const form = make("div", "desk-sheet__passage-form");
+    form.setAttribute("role", "group");
+    form.setAttribute("aria-labelledby", title.id);
+    el.append(head, form);
+    el.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      closeInsertForm(true);
+    });
+    insertForm = { after: m.id, target: { after: m.id }, el, auto };
+    const zone = card.querySelector(":scope > .desk-sheet__after");
+    if (zone) zone.before(el);
+    else card.append(el);
+    openPassageForm(form, insertForm.target, { focus });
+    if (scroll) el.scrollIntoView({ block: "nearest" });
+  }
+
+  function closeInsertForm(refocus) {
+    if (!insertForm) return;
+    const { after, el, auto } = insertForm;
+    if (auto && refocus) readingDismissed = after;
+    insertForm = null;
+    el.remove();
+    if (refocus) cards.get(after)?.el.querySelector(".desk-sheet__after-btn")?.focus();
+  }
+
   function addBar() {
     const bar = make("div", "desk-sheet__add");
     const row = make("div", "desk-sheet__add-row");
@@ -1086,8 +1324,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     row.setAttribute("aria-label", "Add to the sheet");
     const form = make("div", "desk-sheet__passage-form");
     form.hidden = true;
+    const hints = [];
     const add = (type, label) => {
       const b = button(`+ ${label}`);
+      b.title = ADD_TIPS[type];
+      // The key terms box's description changes with the sheet (keyTermsHint).
+      if (type !== "keyTerms") hints.push(describe(b, `${ADD_TIPS[type]}.`));
       b.addEventListener("click", () => {
         if (type === "passage") {
           form.hidden = !form.hidden;
@@ -1095,20 +1337,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           if (!form.hidden) openPassageForm(form);
           return;
         }
-        const mod = makeModule(type);
-        const atEnd = !sheet || insertIndex(sheet) >= sheet.modules.length;
-        change((s) => addModule(s, mod, insertIndex(s), opCtx()), {
-          announce: `${TYPE_NAMES[type]} added${atEnd ? " at the end" : " after the part you were working in"}.`,
-          after: () => {
-            const c = cards.get(mod.id);
-            c?.el.scrollIntoView({ block: "nearest" });
-            // A space's lines field, or a page break's first Move button,
-            // never its Leader only box (SH5-10).
-            if (type === "space") c?.el.querySelector(".desk-sheet__lines input")?.focus();
-            else if (type === "pageBreak") c?.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)")?.focus();
-            else c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
-          },
-        });
+        addPart(type);
       });
       if (type === "passage") {
         b.setAttribute("aria-expanded", "false");
@@ -1119,62 +1348,164 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     add("passage", "Passage");
     add("text", "Your text");
     add("question", "Question");
-    // N6: the notebook's notes marked as questions, on this sheet's passages,
-    // in one go (one change, so one Ctrl+Z takes them all back).
-    const discuss = button("+ For discussion");
-    discuss.title = "Gather your notes with the Question marker, on this sheet’s passages, into a section";
-    const discussHint = describe(discuss, "Gathers your notes with the Question marker, on this sheet’s passages, into a section.");
-    const discussNote = make("p", "desk-sheet__empty");
-    discussNote.hidden = true;
-    discuss.addEventListener("click", async () => {
-      discussNote.hidden = true;
-      if (!sheet || !canEdit(sheet)) return;
-      let records = [];
-      try {
-        records = await store.all();
-      } catch (_) {}
-      const got = discussionModules(sheet, records);
-      let text;
-      if (!got.modules.length && got.dropped) {
-        text = `A sheet holds at most ${SHEET_LIMITS.modules} parts, so the questions didn’t fit.`;
-      } else if (!got.modules.length && got.already) {
-        text = "Your questions on these passages are already on the sheet.";
-      } else if (!got.modules.length) {
-        text = "None of your notes with the Question marker are on this sheet’s passages. To gather a note here, edit it and choose that marker.";
-      }
-      if (text) {
-        discussNote.textContent = text;
-        discussNote.hidden = false;
-        say(text);
+    // + From my notes… (E62; BVJ, 2026-11-08): a chooser over the notebook's
+    // notes, highlights and pinned footnotes on this sheet's passages, each
+    // brought on as a part. It took over from N6's "+ For discussion", which
+    // gathered only the notes marked as questions: too few readers' habit.
+    const fromNotes = button("+ From my notes…");
+    fromNotes.title = ADD_TIPS.fromNotes;
+    hints.push(describe(fromNotes, `${ADD_TIPS.fromNotes}.`));
+    const picker = make("div", "desk-sheet__passage-form desk-sheet__from-notes");
+    picker.id = `deskSheetFromNotes-${paneId}`;
+    picker.hidden = true;
+    picker.setAttribute("role", "group");
+    picker.setAttribute("aria-label", "From my notes");
+    fromNotes.setAttribute("aria-expanded", "false");
+    fromNotes.setAttribute("aria-controls", picker.id);
+    const closePicker = (refocus) => {
+      picker.hidden = true;
+      picker.replaceChildren();
+      fromNotes.setAttribute("aria-expanded", "false");
+      if (refocus) fromNotes.focus();
+    };
+    fromNotes.addEventListener("click", () => {
+      if (!picker.hidden) {
+        closePicker(false);
         return;
       }
-      const count = got.modules.filter((m) => m.type === "question").length;
-      const missed = got.dropped ? ` ${got.dropped} more didn’t fit.` : "";
-      // Worked out again on the sheet as saved, so questions another tab put
-      // on it meanwhile aren't added twice.
-      let added = got.modules;
-      change((s) => {
-        added = discussionModules(s, records).modules;
-        let at = insertIndex(s);
-        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
-      }, {
-        announce: `${count} ${count === 1 ? "question" : "questions"} added for discussion.${missed}`,
-        after: () => cards.get(added[0]?.id)?.el.scrollIntoView({ block: "nearest" }),
-      });
+      fromNotes.setAttribute("aria-expanded", "true");
+      openFromNotes(picker, closePicker);
     });
-    row.append(discuss);
+    picker.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      closePicker(true);
+    });
+    row.append(fromNotes);
     add("space", "Space");
     add("pageBreak", "Page break");
     add("keyTerms", "Key terms box");
     keyTermsButton = row.lastChild;
     keyTermsHint = describe(keyTermsButton, "A box listing the key terms in the sheet’s passages, filled in for you.");
     form.id = `deskSheetPassage-${paneId}`;
-    bar.append(row, discussNote, form, discussHint, keyTermsHint);
+    bar.append(row, form, picker, ...hints, keyTermsHint);
     return bar;
   }
 
-  /** The "+ Passage" form: a typed reference, or a place from the notebook. */
-  async function openPassageForm(form) {
+  /**
+   * The "+ From my notes…" chooser (E62): the notebook's notes, highlights and
+   * pinned footnotes on this sheet's passages (everything, newest first, on a
+   * sheet with none yet), each with a box to tick; "Add" brings the ticked
+   * ones on as parts in one change, so one Ctrl+Z takes them all back. A
+   * question becomes a Question part, a note or a pinned footnote Your text,
+   * a highlight a passage (its chapter is read first, so part of a verse
+   * keeps its words). What is already on the sheet is shown but can't be
+   * ticked. The parts go after the part last worked in, else at the end.
+   */
+  async function openFromNotes(box, close) {
+    box.hidden = false;
+    box.replaceChildren(make("p", "desk-sheet__from-title", "From my notes"), make("p", "desk-sheet__empty", "Looking in your notebook…"));
+    let records = [];
+    try {
+      records = await store.all();
+    } catch (_) {}
+    if (box.hidden || !sheet) return;
+    const items = notebookItems(sheet, records);
+    const hasPassages = sheet.modules.some((m) => m?.type === "passage");
+    box.replaceChildren(make("p", "desk-sheet__from-title", hasPassages ? "From my notes on this sheet’s passages" : "From my notes"));
+    const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
+    cancel.addEventListener("click", () => close(true));
+    if (!items.length) {
+      box.append(
+        make("p", "desk-sheet__empty", hasPassages
+          ? "None of your notes, highlights, or pinned footnotes fall on this sheet’s passages. Make one there, or add the passage they are on."
+          : "Notes, highlights, and pinned footnotes you make will be listed here, to bring onto a sheet."),
+        cancel,
+      );
+      cancel.focus();
+      return;
+    }
+    box.append(make("p", "desk-sheet__empty", "Tick what to bring. A question becomes a Question part, a note or a pinned footnote Your text, and a highlight a passage."));
+    const KIND = { question: "Question", note: "Note", highlight: "Highlight", footnote: "Footnote" };
+    const picks = new Map();
+    const go = button("Add", "desk-sheet__btn desk-sheet__btn--primary");
+    go.disabled = true;
+    const count = () => {
+      const k = picks.size;
+      go.textContent = k ? `Add ${k === 1 ? "1 part" : `${k} parts`}` : "Add";
+      go.disabled = !k;
+    };
+    const ul = make("ul", "desk-sheet__from-list");
+    items.forEach((it, i) => {
+      const li = make("li");
+      const label = make("label", "desk-sheet__from-item desk-sheet__pick");
+      const tick = make("input");
+      tick.type = "checkbox";
+      tick.disabled = it.onSheet;
+      label.append(tick, make("span", "desk-sheet__from-ref", recordReference(it.record)), make("span", "desk-sheet__from-kind", it.onSheet ? `${KIND[it.kind]} · on the sheet` : KIND[it.kind]));
+      if (it.words) label.append(make("span", "desk-sheet__from-words", it.words.length > 90 ? it.words.slice(0, 89) + "…" : it.words));
+      tick.addEventListener("change", () => {
+        if (tick.checked) picks.set(i, it);
+        else picks.delete(i);
+        count();
+      });
+      li.append(label);
+      ul.append(li);
+    });
+    const actions = make("div", "desk-sheet__add-row");
+    actions.append(go, cancel);
+    box.append(ul, actions);
+    ul.querySelector("input:not(:disabled)")?.focus();
+    go.addEventListener("click", async () => {
+      const chosen = [...picks.values()];
+      if (!chosen.length) return;
+      go.disabled = true;
+      // The highlights' chapters, so part of a verse keeps its words.
+      const chapters = new Map();
+      for (const it of chosen) {
+        if (it.kind !== "highlight") continue;
+        const key = `${it.record.bookKey} ${it.record.chapter}`;
+        if (chapters.has(key)) continue;
+        try {
+          const source = await loadChapterPage(it.record.bookKey, it.record.chapter);
+          chapters.set(key, source.textBox ? source.anchorText() : null);
+        } catch (_) {
+          chapters.set(key, null);
+        }
+      }
+      if (box.hidden || !sheet || !canEdit(sheet)) return;
+      const made = partsFor(chosen, { chapter: (r) => chapters.get(`${r.bookKey} ${r.chapter}`) ?? null, contentVersion: ctx().contentVersion });
+      const fit = fitModules(sheet, made);
+      if (!fit.modules.length) {
+        say(`A sheet holds at most ${SHEET_LIMITS.modules} parts, so nothing more fits.`);
+        go.disabled = false;
+        return;
+      }
+      close(false);
+      let added = fit.modules;
+      change((s) => {
+        // Fitted again on the sheet as saved, which another tab may have grown.
+        added = fitModules(s, fit.modules).modules;
+        let at = insertIndex(s);
+        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
+      }, {
+        announce: `${added.length === 1 ? "1 part" : `${added.length} parts`} added from your notes.${fit.dropped ? ` ${fit.dropped} more didn’t fit.` : ""}`,
+        after: () => {
+          const c = cards.get(added[0]?.id);
+          c?.el.scrollIntoView({ block: "nearest" });
+          c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+        },
+      });
+    });
+  }
+
+  /**
+   * The "+ Passage" form: a typed reference, or a place from the notebook.
+   * `target` ({ after: id }) is where a card's form puts the passages it adds;
+   * the bar's form has none and adds after the part last worked in.
+   */
+  async function openPassageForm(form, target = null, { focus = true } = {}) {
     form.replaceChildren();
     const line = make("form", "desk-sheet__ref");
     const input = make("input");
@@ -1213,12 +1544,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         problem.textContent = found.problem;
         return;
       }
-      const result = await me.addPassage(found.fields);
+      const result = await me.addPassage(found.fields, target);
       added(result);
       if (result) input.value = "";
     });
     form.append(line, problem, note);
-    input.focus(); // the field takes focus as the form opens (SH5-11)
+    if (focus) input.focus(); // the field takes focus as the form opens (SH5-11), unless it opened by itself
 
     // From the notebook: its notes, highlights and bookmarks, newest first.
     const fromBook = make("div", "desk-sheet__from");
@@ -1252,7 +1583,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         } catch (_) {}
         const fields = passageFromRecord(r, chapter, ctx().contentVersion);
         added(null);
-        if (fields) added(await me.addPassage(fields));
+        if (fields) added(await me.addPassage(fields, target));
       });
       li.append(b);
       ul.append(li);
@@ -1329,7 +1660,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   window.addEventListener("pageshow", onVisible);
   window.addEventListener("pagehide", onPagehide);
 
+  // The first view, a tick later. A request that came first keeps the screen:
+  // the title menu's "New sheet…" adds the pane and sends `desk:sheet-new` in
+  // the same tick, whose showList({ chooser: true }) this would otherwise
+  // supersede, leaving the list with its templates shut (E59, 2026-11-08).
   queueMicrotask(() => {
+    if (seq) return;
     const id = getSheet();
     if (id) openSheet(id);
     else showList();

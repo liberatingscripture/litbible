@@ -452,7 +452,7 @@ the first of each term; **on by default**, with a **Key terms** box in the
 Display tray to turn it off; **Chapter View only**, never Read View, which is
 for immersion; and **no tab stops** (below). The pieces are
 `src/lib/term-lens.mjs` (pure, unit-tested), `term-lens-data.mjs` (its fs
-shell) and `src/scripts/term-lens.js`. Five rules:
+shell) and `src/scripts/term-lens.js`. Six rules:
 
 1. **It marks only what /glossary would show**: the gated records, minus any
    term whose glossary entry is a draft. A lens that marked more would make a
@@ -484,3 +484,10 @@ shell) and `src/scripts/term-lens.js`. Five rules:
    that one task, which drops the underline while the browser serializes;
    the copy itself stays the browser's (decision 4 under "Sharing a
    selection").
+6. **A pointer that is selecting never opens the card** (Study Desk audit 5,
+   SH5-15): `pointerover` with a button down is ignored, and the hover delay's
+   callback stands aside when a selection has formed meanwhile, as the click
+   handler already did for a live selection. Before this, a drag that paused on
+   a term before its release opened the card mid-drag, which cut the selection
+   to its first word and kept the selection panel from appearing; a leader
+   gathering passages in /desk's LIT pane met it on every underlined word.

@@ -29,7 +29,7 @@
 //   one model (readCopy in sheet-word.js), so they can't disagree.
 // - **Present** (3j): the sheet shown to a room, full screen, with the reveal
 //   and a presenter view (sheet-present.js). `&view=present` opens it
-//   straight away (the Sheet pane's "Present…"), and `&view=presenter` is the
+//   straight away (the Sheets pane's "Present…"), and `&view=presenter` is the
 //   presenter view's own window.
 // - **Share…** (3k, S8): the sheet in a link's fragment or in a file
 //   (desk-sheet-share.mjs), the whole sheet or the participant copy's parts.
@@ -208,7 +208,7 @@ async function showList(root, store) {
   intro.append(
     document.createTextNode("Each sheet here can be printed as a leader’s version or a participant’s version, copied, or saved as a document for Word or another program. Sheets are made and changed on "),
     desk,
-    document.createTextNode(", in a Sheet pane."),
+    document.createTextNode(", in a Sheets pane."),
   );
   root.append(intro, openFileRow(root, store));
   if (!sheets.length) {
@@ -523,7 +523,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null }) {
   });
 
   await draw();
-  // Opened to present (the Sheet pane's "Present…"): full screen waits for
+  // Opened to present (the Sheets pane's "Present…"): full screen waits for
   // the leader's first click, which a browser requires.
   if (view === "present") startPresenting({ fullscreen: false });
 }
@@ -621,10 +621,12 @@ function openShareDialog(sheet, opener) {
     scope = v;
     refresh();
   });
+  // The note says the link is long because the sheet is in it (E58; BVJ,
+  // 2026-11-08): a first link read as a few hundred random characters.
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link holds the sheet itself, so litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
+    "The link is long because the whole sheet is in it: litbible.net never sees or stores it. Anyone who has the link can open it on a computer, and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button(EXPORT_LABEL);
@@ -678,7 +680,7 @@ function openShareDialog(sheet, opener) {
   copyLink.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(link);
-      status.textContent = "Link copied. Paste it into an email or a message.";
+      status.textContent = "Link copied. It is long because the sheet is in it. Paste it into an email or a message.";
     } catch (_) {
       status.textContent = `Your browser didn’t allow the copy. Choose ${EXPORT_LABEL} instead.`;
     }

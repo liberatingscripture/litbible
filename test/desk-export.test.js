@@ -431,7 +431,7 @@ test("planImport carries unknown kinds and fields as they arrived", () => {
 
 test("planImport sanitizes a sheet's text whatever its format, in the trash too (BA66)", () => {
   // The audit's reproduction: a backup holding a sheet in a newer format,
-  // whose text would run a script when the read-only Sheet pane drew it.
+  // whose text would run a script when the read-only Sheets pane drew it.
   const evil = '<p>Read<img src=x onerror="alert(document.domain)"></p>';
   const fields = {
     sheetFormat: 2,

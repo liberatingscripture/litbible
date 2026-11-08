@@ -1860,6 +1860,91 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   add a key terms box: Bible study, Sermon and Class already hold one, and a
   sheet takes one, so the button is disabled with its reason only as hover text
   and for screen readers; Lectio divina has none. Not a bug (BVJ agreed).
+- **E58, rough: a shared sheet's link reads as a string of random
+  characters.** BVJ (2026-11-08), after sharing a sheet with BDR: the link
+  carried a couple of hundred characters after the `#`, which read as a
+  unique id taken to absurd lengths. It is the sheet itself (S8): the shared
+  sheet as JSON, compressed and written in base64url, so nothing is stored
+  anywhere and litbible.net never sees it. Measured the same day: a blank
+  sheet makes a link of about 220 characters, a fresh template 530 to 740,
+  a nine-part sheet about 560; a sheet heavy with typed text grows past that.
+  Tighter encoding would shave a tenth at best, since the JSON is already
+  compressed; the only real shortener is a hosted store (M14), which the
+  record keeps for signed-in readers, and there is no sign-in yet. Status:
+  **done 2026-11-08** (BVJ's choice: explain it): the Share dialog's note
+  opens "The link is long because the whole sheet is in it," and the "Link
+  copied" status says the same, so the length reads as the price of needing
+  no server rather than as a glitch. The link itself is unchanged.
+- **E59, gap: the Study Desk tour says nothing about sheets.** BVJ
+  (2026-11-08): "the Desk tour should have at least one step about sheets,
+  maybe more than one." The seven steps covered panes, following, the lock,
+  the title menu, Add pane and Layout; a first-time leader left the tour not
+  knowing the desk makes handouts, which Audit 5 (SH5-5) had found of the
+  page itself. Status: **done 2026-11-08**: two steps. "Sheets" ends the
+  first part, with a Sheets pane shown for the step (a column where there is
+  room, else the My Notes pane turned to Sheets), and says what a sheet is
+  and what it is for. "New sheet" follows "The title menu" in the second
+  part: it runs "New sheet…" as the menu does, so a Sheets pane appears with
+  its template chooser open and the card beside the chooser, and names the
+  five templates; nothing is chosen, so nothing is made, and undoing the step
+  takes the pane away. Both leave nothing behind, like every other step. The
+  tour is nine steps; readers who finished the seven are offered the two as
+  "something new in the tour." The title menu step now names a new sheet
+  among the menu's items, and the offer says the tour shows sheets. Building
+  the step found a race in "New sheet…" itself: with no Sheets pane open, the
+  menu adds one and sends its event in the same tick, and the pane's own first
+  list render, a microtask later, superseded the chooser's, so the templates
+  stayed shut. The pane now leaves the screen to a request that came first.
+- **E60, rough: a sheet's part drags only by its grip, and the gap's "Add"
+  pill stays showing after use.** BVJ (2026-11-08), using the Sheets pane:
+  the ⠿ grip in a card's corner was the only handle, and after adding a part
+  from the gap between cards the pill stayed on screen until a click on an
+  unrelated card. The pill was shown on `:focus-within`, and the passage
+  form's × and the menu's Escape hand focus back to it, so a mouse user's
+  close left it lit. Status: **done 2026-11-08**: the whole header drags
+  (its buttons and the Leader only box keep their own job, and a press that
+  doesn't become a drag leaves the card undraggable, so dragging across a
+  part's text never carries the card off), the header's cursor says so, and
+  the pill shows on hover, while its menu is open, or on `:focus-visible`,
+  so keyboard focus still lights it and a mouse's doesn't. The help page
+  says "Drag a part by its header." **Also (same report):** of the add bar's
+  buttons only "+ For discussion" had a tooltip, and it ran too long to
+  show whole. Each button now says in a short line what it adds, as hover
+  text and as its description for a screen reader (`ADD_TIPS`), and For
+  discussion's is "Gather your question notes on these passages into a
+  section."
+- **E61, wish: a template's Reading part should already offer the passage
+  form.** BVJ (2026-11-08): the part "should already act as if the user has
+  clicked the add passage on it." Its prompt sent the leader to the add bar
+  or the LIT pane. Status: **done 2026-11-08**: on a sheet with no passage,
+  the passage form (the one the gap's "Passage…" opens) is open under the
+  reading part when the sheet is drawn, without taking focus or scrolling;
+  a passage typed there lands after the part, as BA69 promised, and the
+  form stays for the next. × or Escape closes it until the sheet is opened
+  again. The prompt now reads "Type the reference in the form below, or add
+  the passage from the LIT pane’s verse numbers."
+- **E62, design: "+ For discussion" serves too few.** BVJ (2026-11-08), on
+  reading its new tooltip: "The percentage of people who will have added
+  notes, selected the question mark glyph, and then created a sheet, and
+  wanted to use those notes to guide discussion is probably going to be
+  really small. The options for sheets need to be more flexible than that,
+  more useful to more people." Three ways were put: a chooser over the whole
+  notebook, one button gathering every note, or dropping the button. BVJ
+  chose the chooser. Status: **done 2026-11-08**: "+ From my notes…" in the
+  add bar opens a list of the notebook's notes (any marker), highlights and
+  pinned footnotes on the sheet's passages, in passage order (everything,
+  newest first and capped at 60, while the sheet has no passage), each with
+  a box to tick and the record's words under its reference; "Add N parts"
+  brings them on in one change, so one Ctrl+Z takes them all back. A
+  question note becomes a Question part, any other note or a pinned
+  footnote Your text (the reference in bold, a footnote's words, then the
+  note's), a highlight a passage of its verses (its chapter is read first,
+  so part of a verse keeps its words). One already on the sheet is listed
+  but can't be ticked. `src/lib/desk-sheet-from-notes.mjs` (pure, tested)
+  took over `desk-sheet-discussion.mjs`'s overlap, order, escaping and
+  limit rules, and that module and its tests are gone; nothing else read
+  them. Bookmarks stay the passage form's business ("From my notebook"
+  there), since a bookmark is a place, not words.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

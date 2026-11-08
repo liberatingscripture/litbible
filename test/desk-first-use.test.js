@@ -295,7 +295,8 @@ test("each step knows its part and where the next part starts", () => {
 
 test("the Study Desk tour has its own steps, wording and parts", () => {
   const ids = DESK_TOUR_STEPS.map((s) => s.id);
-  assert.deepEqual(ids, ["panes", "mine", "sync", "stay", "title", "add", "layout"]);
+  // Sheets and New sheet joined on 2026-11-08 (E59; BVJ: the tour should have a step about sheets).
+  assert.deepEqual(ids, ["panes", "mine", "sync", "stay", "sheets", "title", "newsheet", "add", "layout"]);
   assert.equal(new Set(ids).size, ids.length);
   for (const s of DESK_TOUR_STEPS) {
     assert.ok(DESK_TOUR_PARTS[s.part], s.id);
@@ -358,14 +359,15 @@ test("the Study Desk tour's offer follows the same markers: later, never, new st
 test("planning the Study Desk tour numbers its steps, splits it in two parts and leaves out what can't be shown", () => {
   const all = new Set(DESK_TOUR_STEPS.map((s) => s.id));
   const plan = planTour({ available: all, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS });
-  assert.deepEqual(plan.map((s) => `${s.number} of ${s.of}`), ["1 of 7", "2 of 7", "3 of 7", "4 of 7", "5 of 7", "6 of 7", "7 of 7"]);
+  assert.deepEqual(plan.map((s) => `${s.number} of ${s.of}`), Array.from({ length: 9 }, (_, i) => `${i + 1} of 9`));
   assert.equal(plan[0].partName, "What’s on the desk");
-  assert.equal(plan[0].nextPart, 4);
-  assert.equal(plan[4].partName, "Changing the desk");
+  assert.equal(plan[0].nextPart, 5);
+  assert.equal(plan[5].partName, "Changing the desk");
   assert.equal(plan.at(-1).nextPart, null);
   // Where the browser keeps no notebook, My Notes is left out.
   const bare = planTour({ available: all, canKeep: false, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS });
-  assert.deepEqual(bare.map((s) => s.id), ["panes", "sync", "stay", "title", "add", "layout"]);
+  // My Notes and New sheet (a sheet is kept in the notebook) are left out.
+  assert.deepEqual(bare.map((s) => s.id), ["panes", "sync", "stay", "sheets", "title", "add", "layout"]);
   // A step whose target isn't there (no room for another pane) is left out.
   const cramped = new Set(all);
   cramped.delete("add");
