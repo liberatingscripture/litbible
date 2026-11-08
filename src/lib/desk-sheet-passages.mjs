@@ -12,7 +12,7 @@
 // (S2), never shown.
 
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
-import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
+import { makeAnchor, rangeOf, resolveAnchor, verseAt } from "./anchor-core.mjs";
 import { verseCopyFor } from "./desk-records.mjs";
 import { readingPart } from "./desk-sheet-templates.mjs";
 
@@ -20,6 +20,16 @@ import { readingPart } from "./desk-sheet-templates.mjs";
 export function passageReference(p) {
   const end = p.endVerse ?? p.verse;
   return `${bookKeyToLabel(p.bookKey)} ${p.chapter}:${p.verse}${end > p.verse ? "–" + end : ""}`;
+}
+
+/**
+ * What a card and a printed heading call a passage: its reference, plus
+ * " (part)" when it was made from a selection (it has a quote), so a fragment
+ * never reads as the whole verse. `passageReference` stays the plain form, for
+ * announcements, screen titles and the copy's own heading.
+ */
+export function passageLabel(p) {
+  return p.quote ? `${passageReference(p)} (part)` : passageReference(p);
 }
 
 /** The comparison copy every passage carries, when the chapter can give it. */
@@ -125,6 +135,26 @@ export function locatePassage(chapter, p) {
   if (p.quote?.exact) return resolveAnchor(chapter, { ...p.quote, verse: p.verse, endVerse });
   const r = rangeOf(chapter, p.verse, endVerse);
   return r ? { status: "found", start: r[0], end: r[1] } : { status: "lost", start: null, end: null };
+}
+
+/**
+ * Whether a located passage opens or closes inside a verse, for the marks
+ * ("…") a paper copy puts around a fragment. `at` is locatePassage's result
+ * against the same `chapter`. Only a passage with a quote can be partial; the
+ * answer comes from the verse's own span, never from the words. A start in the
+ * space between verses belongs to the next verse, so it is not mid-verse.
+ *
+ * @returns {{ start: boolean, end: boolean }}
+ */
+export function partialEnds(chapter, at, p) {
+  const none = { start: false, end: false };
+  if (!p?.quote?.exact || at?.start == null || at?.end == null) return none;
+  const first = chapter.spans.get(verseAt(chapter, at.start));
+  const last = chapter.spans.get(verseAt(chapter, Math.max(at.start, at.end - 1)));
+  return {
+    start: !!first && at.start > first[0] && at.start < first[1],
+    end: !!last && at.end > last[0] && at.end < last[1],
+  };
 }
 
 /**

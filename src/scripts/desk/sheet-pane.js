@@ -24,13 +24,23 @@
 //   license card with the commercial check. Those cards are told whenever the
 //   sheet changes (`sheetChanged`), since each reads the rest of the sheet.
 // - **New sheets start from a template** (M9; desk-sheet-templates.mjs): New
-//   sheet opens a short list in place, and a choice makes the sheet.
+//   sheet opens a short list in place, and a choice makes the sheet. The
+//   title menu's "New sheet…" opens the same list (`desk:sheet-new`).
+// - **A template's parts hold no text, only a prompt** (SH5-2): an empty
+//   part shows its module's `prompt` as the editor's placeholder, and a part
+//   holding only its heading shows it dimmed under the heading, until the
+//   leader types there (or, under a heading, a passage follows it). The
+//   prompt is the module's own field, which nothing prints, copies or
+//   presents, so the reading part's "Add the passage with + Passage" may
+//   name the editor's tools (BA70).
 // - **A new part goes right after the part last worked in** (last focused or
-//   clicked on this sheet), or at the end when there is none. A passage with
-//   none worked in goes after the last passage, or on a sheet with none,
-//   after the template's reading part, so it lands under "Reading", not
-//   after "Closing" (BA69). Until there is a passage, that part shows how to
-//   add one as ghost text the sheet never holds, so it can't print (BA70).
+//   clicked on this sheet), or at the end when there is none. **A passage
+//   goes where the sheet says, not where the leader last clicked** (SH5-3):
+//   right after the part last worked in only when that part is itself a
+//   passage, so a second passage follows the one being edited; otherwise
+//   after the last passage, or on a sheet with none, after the template's
+//   reading part, so it lands under "Reading", not after "Closing" (BA69),
+//   else at the end.
 // - **Drag into order** by a module's grip, or Move up and Move down.
 // - **Saves as you go**: every change is saved at once, typing a moment after
 //   it pauses. A change made elsewhere (another pane on the same sheet,
@@ -52,13 +62,14 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { READING_HINT, TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { TEMPLATES, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { discussionModules } from "../../lib/desk-sheet-discussion.mjs";
 import {
   passageFromOffsets,
   passageForReference,
   passageFromRecord,
   passageInsertIndex,
+  passageLabel,
   passageFromVerses,
   passageReference,
   samePassage,
@@ -98,6 +109,24 @@ function button(label, cls = "desk-sheet__btn") {
 }
 
 let hintCount = 0;
+
+/** A module's prompt field (`prompt` or `answerPrompt`), when it is usable text. */
+const promptOf = (m, field) => (typeof m?.[field] === "string" ? m[field].trim() : "");
+
+/** A text part holding one heading and nothing else. */
+const LONE_HEADING = /^<h[1-6]>[^<]*<\/h[1-6]>$/;
+
+/**
+ * The prompt a text part shows under its heading (SH5-2, SH5-4): its own
+ * `prompt` while its text is exactly one heading and the part after it isn't
+ * a passage (which fills it, as the reading part's passage does); else "".
+ * An empty part shows its prompt as the placeholder instead.
+ */
+function headingPrompt(m, next) {
+  if (m?.type !== "text" || typeof m.html !== "string" || !LONE_HEADING.test(m.html)) return "";
+  if (next?.type === "passage") return "";
+  return promptOf(m, "prompt");
+}
 
 /**
  * A sentence a control's `title` carries, given to a screen reader as well
@@ -226,13 +255,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   const opCtx = () => ({ now: now(), ...ctx() });
 
   /**
-   * Where a new part goes: after the part last worked in, else at the end,
-   * or for a passage where passageInsertIndex puts it (BA69).
+   * Where a new part goes: after the part last worked in, else at the end.
+   * A passage follows the part last worked in only when that part is a
+   * passage; otherwise it goes where passageInsertIndex puts it (BA69, SH5-3).
    */
   const insertIndex = (s, { passage = false } = {}) => {
     const at = lastModule ? s.modules.findIndex((x) => x.id === lastModule) : -1;
-    if (at >= 0) return at + 1;
-    return passage ? passageInsertIndex(s) : s.modules.length;
+    if (passage) return at >= 0 && s.modules[at]?.type === "passage" ? at + 1 : passageInsertIndex(s);
+    return at >= 0 ? at + 1 : s.modules.length;
   };
 
   const me = {
@@ -409,7 +439,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   // ---- the list of sheets ----
 
-  async function showList({ focus = null } = {}) {
+  async function showList({ focus = null, chooser: openChooser = false } = {}) {
     const n = ++seq;
     sheet = null;
     targetChanged();
@@ -483,6 +513,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     const target = focus ? list.querySelector(`[data-focus-key="${CSS.escape(focus)}"]`) : null;
     const moved = redraw(content, [list], { fallback: () => target ?? h, force: Boolean(focus) });
     if (focus && moved) say(moved === target || moved === h ? "My sheets" : "");
+    // The title menu's "New sheet…": the list, with the templates open and
+    // focus on the first.
+    if (openChooser && chooser.hidden) chooser.toggle();
   }
 
   /**
@@ -501,6 +534,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const li = make("li");
       const b = button("", "desk-sheet__from-item desk-sheet__choice");
       b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
+      // What the sheet starts with, as a list of its parts (SH5-17).
+      if (t.parts) b.append(make("span", "desk-sheet__from-words", t.parts));
       b.addEventListener("click", () => newSheet(t.id));
       li.append(b);
       ul.append(li);
@@ -737,27 +772,44 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       cards.delete(id);
     }
     for (const card of cards.values()) card.inst?.sheetChanged?.();
-    // How to add a passage, as ghost text in the reading part until the sheet
-    // has one (BA70). Only the editor shows it, so it never prints or goes up
-    // on a room's screen; aria-description gives it to a screen reader.
-    const reading = readOnly ? null : readingPart(sheet);
-    for (const [id, card] of cards) {
-      const box = card.el.querySelector(".desk-rich-editor > .desk-rich");
-      if (!box) continue;
-      if (id === reading?.id) {
-        box.dataset.hint = READING_HINT;
-        box.setAttribute("aria-description", READING_HINT);
-      } else if (box.dataset.hint) {
+    // A part's prompt under its lone heading (SH5-2, SH5-4): shown while the
+    // part holds only the heading and no passage follows it, gone once the
+    // leader types there. Only the editor shows it, so it never prints or
+    // goes up on a room's screen (BA70); aria-description gives it to a
+    // screen reader. An empty part's prompt is the editor's placeholder.
+    sheet.modules.forEach((m, i) => {
+      const box = cards.get(m.id)?.el.querySelector(".desk-rich-editor > .desk-rich");
+      if (!box) return;
+      const hint = readOnly ? "" : headingPrompt(m, sheet.modules[i + 1]);
+      if (hint) {
+        if (box.dataset.hint !== hint) {
+          box.dataset.hint = hint;
+          box.setAttribute("aria-description", hint);
+        }
+      } else if (box.hasAttribute("data-hint")) {
         delete box.dataset.hint;
         box.removeAttribute("aria-description");
       }
-    }
+    });
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
       keyTermsButton.disabled = has;
       keyTermsButton.title = has ? "A sheet has one key terms box" : "A box listing the key terms in the sheet’s passages, filled in for you";
       if (keyTermsHint) keyTermsHint.textContent = has ? "A sheet has one key terms box, and this one has it." : "A box listing the key terms in the sheet’s passages, filled in for you.";
+      // The reason, for the eye too (SH5-17); hidden from a screen reader,
+      // which hears it in the description above.
+      const next = keyTermsButton.nextElementSibling;
+      const why = next?.classList.contains("desk-title__hint") ? next : null;
+      if (has && !why) {
+        const span = make("span", "desk-title__hint", "already on the sheet");
+        span.setAttribute("aria-hidden", "true");
+        // In the row, beside its button rather than pushed to the row's end
+        // as in a menu, and dimmed as a menu's disabled line is.
+        keyTermsButton.after(span);
+      } else if (!has) {
+        why?.remove();
+      }
     }
     if (!sheet.modules.length) {
       // Beside the list, not in it: a list holds only list items (DK-16).
@@ -818,7 +870,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     grip.title = "Drag to move";
     grip.textContent = "⠿";
     const label = make("span", "desk-sheet__module-name", known ? TYPE_NAMES[m.type] : "Made by a newer version of the LIT");
-    if (m.type === "passage") label.textContent = passageReference(m);
+    if (m.type === "passage") label.textContent = passageLabel(m);
     head.append(grip, label);
 
     const tools = make("div", "desk-sheet__module-tools");
@@ -956,7 +1008,17 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   function textCard(card, m) {
     if (readOnly) return readOnlyRich(card, m.html);
-    const ed = textField(m, "html", "Your text", "A heading, instructions, a prayer, or anything else to print.");
+    const ed = textField(m, "html", "Your text", promptOf(m, "prompt") || "A heading, instructions, a prayer, or anything else to print.");
+    // The prompt under a heading goes with the first word typed after it,
+    // not only once that typing is saved and draw() runs (SH5-4).
+    const box = ed.el.querySelector(".desk-rich");
+    box?.addEventListener("input", () => {
+      if (!box.hasAttribute("data-hint")) return;
+      const heading = box.querySelector("h1, h2, h3, h4, h5, h6");
+      if (box.textContent.trim() === (heading?.textContent.trim() ?? "")) return;
+      delete box.dataset.hint;
+      box.removeAttribute("aria-description");
+    });
     card.append(ed.el);
     return ed;
   }
@@ -994,8 +1056,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       readOnlyRich(card, m.html);
       return null;
     }
-    const q = textField(m, "html", "Question", "A question for the group, such as “What surprised you here?”");
-    const a = textField(m, "answer", "Answer, on the leader’s version only", "Optional. An answer or notes for you as leader. It prints only on the leader’s version.");
+    const q = textField(m, "html", "Question", promptOf(m, "prompt") || "A question for the group, such as “What surprised you here?”");
+    const a = textField(m, "answer", "Answer, on the leader’s version only", promptOf(m, "answerPrompt") || "Optional. An answer or notes for you as leader. It prints only on the leader’s version.");
     const lines = linesField(m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on" });
     // The two editors look alike, and the answer's ghost text goes once it has
     // words, so it keeps a visible label (BVJ, 2026-11-06). The editor's own
@@ -1040,7 +1102,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
           after: () => {
             const c = cards.get(mod.id);
             c?.el.scrollIntoView({ block: "nearest" });
-            c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
+            // A space's lines field, or a page break's first Move button,
+            // never its Leader only box (SH5-10).
+            if (type === "space") c?.el.querySelector(".desk-sheet__lines input")?.focus();
+            else if (type === "pageBreak") c?.el.querySelector(".desk-sheet__module-tools .desk-sheet__icon[aria-label^=\"Move\"]:not(:disabled)")?.focus();
+            else c?.inst?.focus?.() ?? c?.el.querySelector("[contenteditable], input, button")?.focus();
           },
         });
       });
@@ -1152,6 +1218,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       if (result) input.value = "";
     });
     form.append(line, problem, note);
+    input.focus(); // the field takes focus as the form opens (SH5-11)
 
     // From the notebook: its notes, highlights and bookmarks, newest first.
     const fromBook = make("div", "desk-sheet__from");
@@ -1268,6 +1335,25 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     else showList();
   });
 
+  // "New sheet…" in the title menu, for this pane: back to the list, with
+  // the templates open and focus on the first.
+  const onNewSheet = async (e) => {
+    if (e.detail?.paneId !== paneId || destroyed) return;
+    if (sheet) {
+      flushAll();
+      await saving;
+      if (destroyed) return;
+      setSheet(null);
+      showList({ chooser: true });
+      return;
+    }
+    const chooser = content.querySelector(".desk-sheet__templates");
+    if (!chooser) showList({ chooser: true }); // the list is still loading
+    else if (chooser.hidden) chooser.toggle();
+    else chooser.querySelector("button")?.focus();
+  };
+  document.addEventListener("desk:sheet-new", onNewSheet);
+
   return {
     el,
     destroy() {
@@ -1276,6 +1362,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       seq++;
       unsubscribe();
       document.removeEventListener("visibilitychange", onVisible);
+      document.removeEventListener("desk:sheet-new", onNewSheet);
       window.removeEventListener("pageshow", onVisible);
       window.removeEventListener("pagehide", onPagehide);
       openPanes.delete(me);

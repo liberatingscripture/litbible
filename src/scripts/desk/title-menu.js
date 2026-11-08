@@ -1,7 +1,7 @@
 // src/scripts/desk/title-menu.js
 //
 // The /desk page's title is a menu (E15; BVJ, 2026-11-02): Add pane with its
-// flyout (E14), Layout…, Print…, Display options, Full screen (E43), then the
+// flyout (E14), New sheet… (SH5-5), Layout…, Print…, Display options, Full screen (E43), then the
 // notebook page, Take the tour (E24) and Help. Taken out of desk-page.js's
 // `start()` (Audit 3, LG3-3, second sitting), as the pane menu was before it
 // (kind-menu.js), so the next bug in it means reading this file.
@@ -22,6 +22,9 @@
 // - `getTour()` the Study Desk tour, or null before it is made.
 // - `inTour(node)` whether a node is in the tour's card, which the closers
 //   must not count as elsewhere.
+// - New sheet… needs nothing more: it adds or finds a Sheet pane through
+//   `getLayout`, `commit` and `panesBox`, then sends `desk:sheet-new` (with the
+//   pane's id) for the Sheet pane to open its template chooser.
 // - `layoutWindow`, `printWindow`: `{ open(), close({ focus }) }` for the two
 //   windows the menu's Layout… and Print… lines open, and which opening the
 //   menu closes.
@@ -31,7 +34,7 @@
 // tour points at; `showAddKinds` opens the flyout at its second step for the
 // tour; `refreshTourLine` redraws the quiet "Take the tour" line.
 
-import { KINDS, addPane, addPaneNeeds, addWhy, whyText } from "../../lib/desk-layout.mjs";
+import { KINDS, addPane, addPaneNeeds, addWhy, panes, whyText } from "../../lib/desk-layout.mjs";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { el } from "./dom.js";
 import { describeUnavailable } from "./menu-reasons.js";
@@ -95,6 +98,14 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
   const addSub = el("div", "desk-title__sub");
   addSub.append(addItem, addFly);
   const addFlyReasons = describeUnavailable(addFly, { id: "deskAddFlyWhy" });
+
+  // New sheet… (SH5-5): the way to a sheet for someone who doesn't yet know a
+  // Sheet is a kind of pane. It acts at once (no flyout): it uses the Sheet
+  // pane the desk already has, or adds one the way Add pane would (a column,
+  // else a row), then asks that pane to open its template chooser. Disabled,
+  // with the reason beside it, only when there is no Sheet pane and neither a
+  // column nor a row can be added.
+  const newSheetItem = item("New sheet…");
 
   const layoutItem = item("Layout…");
   layoutItem.setAttribute("aria-haspopup", "dialog");
@@ -174,12 +185,12 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     tourLine.hidden = !getTour()?.lineWanted();
   }
   titleMenu.append(tourLine);
-  titleMenu.append(addSub, layoutItem, printItem);
+  titleMenu.append(addSub, newSheetItem, layoutItem, printItem);
   if (displayItem) titleMenu.append(displayItem);
   if (fullItem) titleMenu.append(fullItem);
   titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
   const baseItems = [
-    addItem, layoutItem, printItem,
+    addItem, newSheetItem, layoutItem, printItem,
     ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
     notebookItem, tourItem, helpItem,
   ];
@@ -206,6 +217,8 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     const layout = getLayout();
     const reasons = DIRECTIONS.map((d) => addPaneNeeds(layout, d.id, width, height));
     setDisabled(addItem, addWhy(reasons));
+    const hasSheet = panes(layout.root).some((p) => p.kind === "sheet");
+    setDisabled(newSheetItem, hasSheet ? null : addWhy(reasons));
     titleReasons.refresh();
   }
 
@@ -218,6 +231,14 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
       addFly.append(back);
       for (const k of KINDS) {
         const b = item(k.label);
+        // The kind's one line, greyed under its name and heard as its description (SH5-5).
+        if (k.about) {
+          const about = el("span", "desk-title__hint desk-title__hint--about", k.about);
+          about.id = `deskTitleHint-${++hintCount}`;
+          about.setAttribute("aria-hidden", "true");
+          b.querySelector(".desk-title__label").after(about);
+          b.setAttribute("aria-describedby", about.id);
+        }
         b.addEventListener("click", () => {
           const { width, height } = addRoom();
           const direction = addStep;
@@ -313,6 +334,25 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
     addLeave = setTimeout(() => {
       if (!addFly.contains(document.activeElement)) closeAddFly();
     }, 250);
+  });
+  newSheetItem.addEventListener("click", () => {
+    if (newSheetItem.getAttribute("aria-disabled") === "true") return;
+    const { width, height } = addRoom();
+    const layout = getLayout();
+    let paneId = panes(layout.root).find((p) => p.kind === "sheet")?.id ?? null;
+    let next = layout;
+    if (!paneId) {
+      const direction = addPaneNeeds(layout, "column", width, height) ? "row" : "column";
+      next = addPane(layout, direction, "sheet", width, height);
+      if (next === layout) { closeTitleMenu(); return; }
+      const had = new Set(panes(layout.root).map((p) => p.id));
+      paneId = panes(next.root).find((p) => !had.has(p.id))?.id ?? null;
+    }
+    closeTitleMenu();
+    if (next !== layout) commit(next);
+    // The Sheet pane listens and opens its template chooser (sheet-pane.js).
+    if (paneId) document.dispatchEvent(new CustomEvent("desk:sheet-new", { detail: { paneId } }));
+    announce("New sheet: choose a template.");
   });
   layoutItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); layoutWindow.open(); });
   printItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); printWindow.open(); });

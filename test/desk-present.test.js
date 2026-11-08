@@ -130,6 +130,45 @@ test("presentScreens: a leader-only space or page break still becomes a note, ne
   assert.deepEqual(screens[1].notes, [space]);
 });
 
+test("presentScreens: an empty text or question part gets no screen (SH5-8)", () => {
+  const screens = presentScreens({
+    modules: [
+      { id: "a", type: "text", html: "<p>One</p>" },
+      { id: "b", type: "text", html: "" },
+      { id: "c", type: "question", html: "<p></p>", answer: "<p>Sample</p>" },
+      { id: "d", type: "question", html: "  <p> &nbsp; </p>" },
+      { id: "e", type: "text" },
+      { id: "f", type: "question", html: "<p>Why?</p>" },
+    ],
+  });
+  assert.deepEqual(
+    screens.map((s) => s.kind),
+    ["start", "text", "question"],
+  );
+  assert.deepEqual(screens.map((s) => s.module?.id ?? null), [null, "a", "f"]);
+});
+
+test("presentScreens: a text part with only a heading, or only a rule, still gets a screen", () => {
+  const screens = presentScreens({
+    modules: [
+      { id: "h", type: "text", html: "<h2>Welcome</h2>" },
+      { id: "r", type: "text", html: "<hr>" },
+      { id: "e", type: "text", html: "<p></p>" },
+    ],
+  });
+  assert.deepEqual(screens.map((s) => s.module?.id ?? null), [null, "h", "r"]);
+});
+
+test("presentScreens: an empty leader-only part is dropped, not made a note", () => {
+  const empty = { id: "n0", type: "text", html: "", leaderOnly: true };
+  const full = { id: "n1", type: "text", html: "<p>Say this</p>", leaderOnly: true };
+  const screens = presentScreens({
+    modules: [{ id: "t", type: "text", html: "x" }, empty, full],
+  });
+  assert.equal(screens.length, 2);
+  assert.deepEqual(screens[1].notes, [full]);
+});
+
 /* ── firstWords and screenTitle ──────────────────────────────────────── */
 
 test("firstWords: up to eight words, with an ellipsis when cut", () => {

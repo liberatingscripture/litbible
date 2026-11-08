@@ -52,6 +52,7 @@ export const SHEET_LIMITS = Object.freeze({
   title: 200,
   subtitle: 200,
   hintText: 100,
+  prompt: 200,
   questionLines: 20,
   spaceLines: 40,
 });
@@ -933,6 +934,15 @@ const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v)
 const nonEmpty = (v) => typeof v === "string" && v.length > 0;
 const isInt = Number.isInteger;
 
+/**
+ * Whether a module's optional prompt field is absent or a usable prompt: plain
+ * text (never HTML, so no `<`) of at most SHEET_LIMITS.prompt characters. A
+ * prompt is what the editor shows dimmed until the leader types, and nothing
+ * prints, copies, shares or presents it (STUDY-DESK-FORMAT.md, "Modules").
+ */
+const promptOk = (v) => v == null || (typeof v === "string" && !v.includes("<") && chars(v) <= SHEET_LIMITS.prompt);
+const PROMPT_RULE = `is not plain text of at most ${SHEET_LIMITS.prompt} characters`;
+
 function jsonBytes(r) {
   try {
     return new TextEncoder().encode(JSON.stringify(r)).length;
@@ -1049,11 +1059,14 @@ export function validateSheet(r) {
         break;
       case "text":
         check(typeof m.html === "string" && sanitizeSheetHtml(m.html) === m.html, "html is not in the sheet's formatted-text form");
+        check(promptOk(m.prompt), `prompt ${PROMPT_RULE}`);
         break;
       case "question":
         check(typeof m.html === "string" && sanitizeSheetHtml(m.html) === m.html, "html is not in the sheet's formatted-text form");
         check(typeof m.answer === "string" && sanitizeSheetHtml(m.answer) === m.answer, "answer is not in the sheet's formatted-text form");
         check(isInt(m.lines) && m.lines >= 0 && m.lines <= SHEET_LIMITS.questionLines, `lines is not a whole number from 0 to ${SHEET_LIMITS.questionLines}`);
+        check(promptOk(m.prompt), `prompt ${PROMPT_RULE}`);
+        check(promptOk(m.answerPrompt), `answerPrompt ${PROMPT_RULE}`);
         break;
       case "space":
         check(isInt(m.lines) && m.lines >= 1 && m.lines <= SHEET_LIMITS.spaceLines, `lines is not a whole number from 1 to ${SHEET_LIMITS.spaceLines}`);

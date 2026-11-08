@@ -50,22 +50,23 @@ export const HANDLE = 6;
 
 /**
  * Every kind of pane, in the order a new slot is filled with one not yet
- * open. `follows`: it follows the active LIT pane unless pinned. The page's
- * registry (desk-panes.js) says what each one draws.
+ * open. `follows`: it follows the active LIT pane unless pinned. `about`: one
+ * short line under the label in the menus that list kinds (SH5-5), after the
+ * help page's words for each. The page's registry (desk-panes.js) says what each one draws.
  */
 export const KINDS = [
-  { kind: "lit", label: "The LIT", follows: false },
-  { kind: "mine", label: "My Notes", follows: true },
-  { kind: "verse", label: "This verse", follows: true },
-  { kind: "greek", label: "Greek", follows: true },
-  { kind: "footnotes", label: "Footnotes", follows: true },
+  { kind: "lit", label: "The LIT", follows: false, about: "The text, a chapter at a time" },
+  { kind: "mine", label: "My Notes", follows: true, about: "What you have kept: notes, highlights, and bookmarks" },
+  { kind: "verse", label: "This verse", follows: true, about: "Everything for the verse you are on" },
+  { kind: "greek", label: "Greek", follows: true, about: "The Greek text beside the LIT" },
+  { kind: "footnotes", label: "Footnotes", follows: true, about: "The chapter’s footnotes as a list" },
   // A book's introduction (E53; BVJ, 2026-11-06): the book of the passage it
   // follows, so its place is a passage like the others' and only the book is read.
-  { kind: "intro", label: "Book Intro", follows: true },
-  { kind: "sheet", label: "Sheet", follows: false },
+  { kind: "intro", label: "Book Intro", follows: true, about: "The book’s introduction" },
+  { kind: "sheet", label: "Sheet", follows: false, about: "A handout to print, present, or share" },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
   // book menu offers "The book I’m reading" and keeps the book it was set to.
-  { kind: "search", label: "Search", follows: false },
+  { kind: "search", label: "Search", follows: false, about: "Scripture, the glossary, and your notes" },
 ];
 
 const KIND_INFO = new Map(KINDS.map((k) => [k.kind, k]));
@@ -84,6 +85,9 @@ export const isFollower = (kind) => Boolean(KIND_INFO.get(kind)?.follows);
 
 /** A kind's name for a reader, or the kind itself for one this code doesn't know. */
 export const kindLabel = (kind) => KIND_INFO.get(kind)?.label ?? kind;
+
+/** A kind's one-line description for the kind menus, or "" for a kind this code doesn't know. */
+export const kindAbout = (kind) => KIND_INFO.get(kind)?.about ?? "";
 
 // ---- arrangements ---------------------------------------------------------
 

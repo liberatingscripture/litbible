@@ -441,6 +441,19 @@ if it gives a blank away. A choice whose footnote has gone is ignored.
 | Field | Meaning |
 |---|---|
 | `html` | Formatted text, in the sanitized form below |
+| `prompt`, optional | Plain text, up to 200 characters, no `<` (added 2026-11-07, SH5-2): what the editor shows dimmed in the part while `html` is empty, or under the part's lone heading while it holds nothing else, until the leader types there |
+
+**A prompt is never part of the sheet's text** (`prompt` here, `prompt` and
+`answerPrompt` on a question; added 2026-11-07, Audit 5, SH5-2). It is
+plain text, never HTML, and the editor's alone: it is never printed,
+copied, saved into a document, presented, or counted (a part holding only
+a prompt is empty). A template's parts carry them, so no template holds
+text that would print: a template's text part is its heading alone, or
+nothing, and its question is empty, each with a prompt saying what goes
+there. Since a prompt never prints, it may name the editor's tools ("Add
+the passage with + Passage"), which a part's own text never does. A
+client that doesn't show prompts keeps the fields whole, as it keeps any
+field it doesn't know (principle 6); it needn't write one.
 
 A blank-canvas sheet is a sheet whose template is `blank` and starts with
 one empty `text` module; everything else about it is the same as any sheet.
@@ -452,6 +465,7 @@ one empty `text` module; everything else about it is the same as any sheet.
 | `html` | The question, formatted |
 | `answer` | Formatted, may be empty. Always the leader's only, whatever `leaderOnly` says |
 | `lines` | Ruled lines to write on beneath it, 0 to 20 |
+| `prompt`, `answerPrompt`, optional | Plain text, up to 200 characters each, no `<` (added 2026-11-07): what the editor shows dimmed in the empty question and the empty answer, as a text part's `prompt` |
 
 **`space`**: ruled space to write, `lines` 1 to 40, for a reflection or
 lectio divina's rest.

@@ -219,6 +219,88 @@ export function termForWords(start, end, marks, terms) {
   return null;
 }
 
+/**
+ * The blanks of one passage as the editor lists them (SH5-9): the blanks that
+ * render one glossary term share a row, so a key term blanked four times has
+ * one hint and one remove, not four. A blank with no term (words chosen by
+ * selection or keyboard), a blank that no longer prints, and one whose words
+ * changed since it was chosen (it carries a notice of its own) each keep a row
+ * of their own. Rows are in order of first occurrence in the passage; a blank
+ * that can't be found goes last, in the order given.
+ *
+ * `key` is stable across redraws, for the focus restore: `term-<id>` for a
+ * term's row, `blank-<id>` for a single. `hint` and `hintText` are the
+ * blanks' own when they agree and `hint: "mixed"` (no text) when they don't.
+ *
+ * @param {{ blank: { id: string, verse: number, hint?: string, hintText?: string },
+ *   start: number | null, end: number | null, prints: boolean, status?: string }[]} located
+ * @param {{ start: number, end: number, id: string }[]} marks the chapter's term marks
+ * @param {Record<string, { traditional: string }>} terms
+ * @returns {{ key: string, termId: string | null, blanks: object[], verses: number[],
+ *   hint: string, hintText: string }[]}
+ */
+export function groupBlanks(located, marks, terms) {
+  const rank = (b) => (b.start == null ? Infinity : b.start);
+  const ordered = located
+    .map((b, i) => [b, i])
+    .sort(([x, i], [y, j]) => {
+      const a = rank(x);
+      const b = rank(y);
+      if (a !== b) return a < b ? -1 : 1;
+      return x.blank.verse - y.blank.verse || i - j;
+    })
+    .map(([b]) => b);
+  const groups = [];
+  const byTerm = new Map();
+  for (const b of ordered) {
+    const term = b.prints && b.status !== "changed" ? termForWords(b.start, b.end, marks, terms) : null;
+    if (term && byTerm.has(term.id)) {
+      byTerm.get(term.id).blanks.push(b);
+      continue;
+    }
+    const group = { key: term ? `term-${term.id}` : `blank-${b.blank.id}`, termId: term ? term.id : null, blanks: [b] };
+    groups.push(group);
+    if (term) byTerm.set(term.id, group);
+  }
+  for (const g of groups) {
+    g.verses = [...new Set(g.blanks.map((b) => b.blank.verse))].sort((a, b) => a - b);
+    const signature = (x) => `${x.blank.hint ?? "none"}|${x.blank.hint === "custom" ? (x.blank.hintText ?? "") : ""}`;
+    const same = g.blanks.every((x) => signature(x) === signature(g.blanks[0]));
+    g.hint = same ? (g.blanks[0].blank.hint ?? "none") : "mixed";
+    g.hintText = same && g.hint === "custom" ? (g.blanks[0].blank.hintText ?? "") : "";
+  }
+  return groups;
+}
+
+/**
+ * How many blanks that render the glossary term `termId` stay blank once
+ * those with the ids in `removing` are filled in (SH5-17), for the sentence
+ * that announces a removal. Counts printing blanks only.
+ */
+export function termBlanksLeft(located, marks, terms, termId, removing) {
+  if (!termId) return 0;
+  const gone = new Set(removing);
+  return located.filter((b) => b.prints && !gone.has(b.blank.id) && termForWords(b.start, b.end, marks, terms)?.id === termId).length;
+}
+
+/**
+ * Verse numbers as a short label: "v. 2" for one, "vv. 2, 3" for several, a
+ * run of three or more as a range ("vv. 2–4, 7").
+ */
+export function verseLabel(verses) {
+  const list = [...new Set(verses)].sort((a, b) => a - b);
+  if (list.length <= 1) return `v. ${list[0] ?? ""}`.trim();
+  const parts = [];
+  for (let i = 0; i < list.length; ) {
+    let j = i;
+    while (j + 1 < list.length && list[j + 1] === list[j] + 1) j++;
+    if (j - i >= 2) parts.push(`${list[i]}–${list[j]}`);
+    else for (let k = i; k <= j; k++) parts.push(String(list[k]));
+    i = j + 1;
+  }
+  return `vv. ${parts.join(", ")}`;
+}
+
 /* ── Footnotes that give a blank away ───────────────────────────────── */
 
 // Stems are for words of MIN_LETTERS or more, and common ones never decide it:

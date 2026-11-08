@@ -600,6 +600,8 @@ function sharedBanner(root, sheet, store, scope) {
     open.href = `${BASE}desk/?sheet=${encodeURIComponent(mine.id)}`;
     done.append(document.createTextNode("Copied into your notebook. "), open, document.createTextNode(" to change it."));
     root.prepend(done);
+    // The Import button is gone with the banner, so focus would fall to the top of the page (SH5-10).
+    open.focus();
   });
   box.append(p, take, status);
   return box;
@@ -705,6 +707,8 @@ function openShareDialog(sheet, opener) {
     opener?.focus();
   });
   dialog.showModal();
+  // Open on the first choice, not the ×, so the dialog reads from "What to share" (SH5-17).
+  scopeChoice.querySelector("input")?.focus();
   refresh();
 }
 

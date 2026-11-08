@@ -25,7 +25,7 @@ import {
 } from "../../lib/desk-sheet-copy.mjs";
 import { blankHint, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
 import { blankCover, footnotesInPlay } from "../../lib/desk-present.mjs";
-import { passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
+import { partialEnds, passageReference, sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { newestVersion, textAsOfLine } from "../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../lib/lit-credit.mjs";
 import { qrSvg } from "../../lib/qr-svg.mjs";
@@ -114,6 +114,53 @@ export function printingBlanks(modules, views) {
 
 /* ── A passage ───────────────────────────────────────────────────────── */
 
+/**
+ * The marks of a fragment: "…" before the words when the passage opens inside
+ * its verse, after them when it closes inside one (`ends`, partialEnds). They
+ * are real spans, not generated content, so Copy, the saved files and the
+ * slides, which read the copy off the page, carry them. They are drawn after
+ * the blanks are placed, so they never touch the anchor text a blank locates
+ * by, and are `aria-hidden`, being decoration a screen reader needn't say.
+ * A blank is one unit, and footnote letters and verse numbers are skipped.
+ */
+function markOpenEnds(words, ends) {
+  if (!ends.start && !ends.end) return;
+  const units = [];
+  const walker = document.createTreeWalker(words, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.matches(".sheet-blank")) return NodeFilter.FILTER_ACCEPT;
+        return node.matches("sup") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
+      }
+      if (!node.nodeValue.trim() || node.parentElement.closest(".sheet-blank")) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  while (walker.nextNode()) units.push(walker.currentNode);
+  const mark = () => {
+    const span = make("span", "sheet-copy__ellipsis", "…");
+    span.setAttribute("aria-hidden", "true");
+    return span;
+  };
+  if (ends.end && units.length) {
+    const last = units.at(-1);
+    if (last.nodeType === Node.TEXT_NODE) {
+      const keep = last.nodeValue.trimEnd().length;
+      if (keep < last.nodeValue.length) last.splitText(keep);
+    }
+    last.after(mark());
+  }
+  if (ends.start && units.length) {
+    const first = units[0];
+    let at = first;
+    if (first.nodeType === Node.TEXT_NODE) {
+      const lead = first.nodeValue.length - first.nodeValue.trimStart().length;
+      if (lead) at = first.splitText(lead);
+    }
+    at.before(mark());
+  }
+}
+
 function passageSection(m, view, { copy, allBlanks, code }) {
   const section = make("section", "sheet-copy__passage");
   const head = make("div", "sheet-copy__passage-head");
@@ -135,6 +182,7 @@ function passageSection(m, view, { copy, allBlanks, code }) {
   }
   words.el.className = "sheet-copy__words chapter-paragraphs";
   applyBlanks(words, view, m, copy);
+  markOpenEnds(words.el, partialEnds(view.chapter, view.at, m));
   section.append(words.el);
 
   // The footnotes that print, beside their verses (the license keeps them
@@ -182,6 +230,7 @@ export function presentPassage(m, view, { allBlanks }) {
   if (!words) return { ok: false, message: UNREAD_PASSAGE_ON_PAPER };
   words.el.className = "present-screen__words chapter-paragraphs";
   applyBlanks(words, view, m, "present");
+  markOpenEnds(words.el, partialEnds(view.chapter, view.at, m));
   // The blanks' words as the anchor text reads them (what a footnote is
   // checked against), in reading order, which is the order they are revealed.
   const blanks = [...words.el.querySelectorAll(".sheet-blank--present")].map((el) => el.dataset.words ?? "");

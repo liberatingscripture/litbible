@@ -16,6 +16,8 @@ import { makeModule } from "../src/lib/desk-sheets.mjs";
 import { templateModules } from "../src/lib/desk-sheet-templates.mjs";
 import {
   locatePassage,
+  partialEnds,
+  passageLabel,
   passageForReference,
   passageFromOffsets,
   passageFromRecord,
@@ -39,6 +41,55 @@ const chapter = assembleChapter(
     [3, "All things came to be through it."],
   ]),
 );
+
+/* ── passageLabel, partialEnds ───────────────────────────────────────── */
+
+test("passageLabel: a whole-verse passage is its plain reference", () => {
+  const p = { bookKey: "romans", chapter: 8, verse: 6 };
+  assert.equal(passageLabel(p), "Romans 8:6");
+  assert.equal(passageLabel({ ...p, endVerse: 8 }), passageReference({ ...p, endVerse: 8 }));
+});
+
+test("passageLabel: a passage with a quote is marked as part of its verse", () => {
+  const p = { bookKey: "romans", chapter: 8, verse: 6, quote: { exact: "death", prefix: "", suffix: "" } };
+  assert.equal(passageLabel(p), "Romans 8:6 (part)");
+  assert.equal(passageReference(p), "Romans 8:6");
+});
+
+test("partialEnds: a passage with no quote is never partial", () => {
+  const p = { bookKey: "john", chapter: 1, verse: 1, endVerse: 2 };
+  assert.deepEqual(partialEnds(chapter, locatePassage(chapter, p), p), { start: false, end: false });
+});
+
+test("partialEnds: a quote in the middle of a verse is open at both ends", () => {
+  const p = passageFromOffsets(chapter, where, 7, 18); // "beginning"
+  const at = locatePassage(chapter, p);
+  assert.deepEqual(partialEnds(chapter, at, p), { start: true, end: true });
+});
+
+test("partialEnds: a quote from a verse's first word is open only at the end", () => {
+  const [s] = chapter.spans.get(2);
+  const p = passageFromOffsets(chapter, where, s, s + 8); // "The word"
+  assert.deepEqual(partialEnds(chapter, locatePassage(chapter, p), p), { start: false, end: true });
+});
+
+test("partialEnds: a quote to a verse's end is open only at the start", () => {
+  const [, e] = chapter.spans.get(2);
+  const p = passageFromOffsets(chapter, where, e - 8, e); // "with God."
+  assert.deepEqual(partialEnds(chapter, locatePassage(chapter, p), p), { start: true, end: false });
+});
+
+test("partialEnds: a quote across verses is judged at each end's own verse", () => {
+  const [, e1] = chapter.spans.get(1);
+  const [s2] = chapter.spans.get(2);
+  const p = passageFromOffsets(chapter, where, e1 - 5, s2 + 8);
+  assert.deepEqual(partialEnds(chapter, locatePassage(chapter, p), p), { start: true, end: true });
+});
+
+test("partialEnds: nothing located is not partial", () => {
+  const p = { bookKey: "john", chapter: 1, verse: 1, quote: { exact: "gone", prefix: "", suffix: "" } };
+  assert.deepEqual(partialEnds(chapter, { status: "lost", start: null, end: null }, p), { start: false, end: false });
+});
 
 /* ── passageReference ────────────────────────────────────────────────── */
 
