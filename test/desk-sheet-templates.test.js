@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { validateRecord } from "../src/lib/desk-records.mjs";
 import { SHEET_LIMITS, sanitizeSheetHtml } from "../src/lib/desk-sheet-format.mjs";
 import { createSheet, makeModule } from "../src/lib/desk-sheets.mjs";
-import { TEMPLATES, readingPart, templateModules } from "../src/lib/desk-sheet-templates.mjs";
+import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../src/lib/desk-sheet-templates.mjs";
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d" };
 
@@ -60,12 +60,12 @@ test("the blank template is one empty text module", () => {
 
 test("the class template keeps the background for the leader, and one answer prompt", () => {
   const mods = templateModules("class");
-  assert.equal(mods[3].leaderOnly, true);
-  assert.match(mods[3].prompt, /leader’s version only/);
-  assert.equal(mods[4].answer, "");
-  assert.match(mods[4].answerPrompt, /^Optional\./);
+  assert.equal(mods[4].leaderOnly, true);
+  assert.match(mods[4].prompt, /leader’s version only/);
   assert.equal(mods[5].answer, "");
-  assert.equal(mods[5].answerPrompt, undefined);
+  assert.match(mods[5].answerPrompt, /^Optional\./);
+  assert.equal(mods[6].answer, "");
+  assert.equal(mods[6].answerPrompt, undefined);
 });
 
 test("the group templates open with Before you lead, for the leader alone (Audit 5, D #4)", () => {
@@ -169,4 +169,51 @@ test("readingPart: a renamed heading, or a question part, isn't taken for it", (
   const spaced = makeModule("text", { html: "<h3> The  Reading </h3><p>Slowly.</p>" });
   assert.equal(readingPart({ modules: [renamed, spaced] }), spaced);
   assert.equal(readingPart(null), null);
+});
+
+/* ── The key terms box before or after the reading (BVJ, 2026-11-08) ─── */
+
+const kinds = (modules) => modules.map((m) => (m.type === "text" ? m.html.match(/^<h2>([^<]*)/)?.[1] ?? "text" : m.type));
+
+test("Bible study and Class session start with the box just before the reading; Sermon keeps it last", () => {
+  for (const id of ["bible-study", "class"]) {
+    const mods = templateModules(id);
+    const at = mods.findIndex((m) => m.type === "keyTerms");
+    assert.equal(kinds(mods)[at + 1], "Reading", id);
+    assert.equal(keyTermsPlacement({ modules: mods }).side, "before", id);
+  }
+  const sermon = templateModules("sermon");
+  assert.equal(sermon.at(-1).type, "keyTerms");
+  assert.equal(keyTermsPlacement({ modules: sermon }).side, "elsewhere");
+});
+
+test("keyTermsPlacement: the positions moveModule needs, against the passages once there are some", () => {
+  const box = makeModule("keyTerms");
+  const reading = makeModule("text", { html: "<h2>Reading</h2>" });
+  const p1 = makeModule("passage", { bookKey: "romans", chapter: 8, verse: 1, endVerse: 4 });
+  const p2 = makeModule("passage", { bookKey: "romans", chapter: 8, verse: 5, endVerse: 8 });
+  const q = makeModule("question");
+  const move = (modules, to) => {
+    const rest = modules.filter((m) => m !== box);
+    rest.splice(to, 0, box);
+    return rest;
+  };
+  // after the passages: moving before puts it above the reading heading
+  let mods = [reading, p1, p2, box, q];
+  let where = keyTermsPlacement({ modules: mods });
+  assert.equal(where.side, "after");
+  mods = move(mods, where.before);
+  assert.deepEqual(mods, [box, reading, p1, p2, q]);
+  where = keyTermsPlacement({ modules: mods });
+  assert.equal(where.side, "before");
+  assert.deepEqual(move(mods, where.after), [reading, p1, p2, box, q]);
+  // elsewhere, with no reading heading: against the first run of passages
+  mods = [box, q, p1, p2];
+  where = keyTermsPlacement({ modules: mods });
+  assert.equal(where.side, "elsewhere");
+  assert.deepEqual(move(mods, where.before), [q, box, p1, p2]);
+  assert.deepEqual(move(mods, where.after), [q, p1, p2, box]);
+  // no box, or nothing to place it against
+  assert.equal(keyTermsPlacement({ modules: [reading, p1] }), null);
+  assert.equal(keyTermsPlacement({ modules: [box, q] }), null);
 });

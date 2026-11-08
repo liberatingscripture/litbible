@@ -7377,6 +7377,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   margin-top: 20px;
 }
 
+/* The key terms box's "Move before/after the reading" (BVJ, 2026-11-08). */
+.desk-sheet__terms-place {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
 .desk-sheet__own .desk-sheet__list-title {
   margin-bottom: 8px;
 }

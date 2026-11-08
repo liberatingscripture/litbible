@@ -41,7 +41,7 @@ sitting at the top made that worse, and its "Passage…" opened the bar's form a
 which felt like a glitch. Now the space between two parts shows a line with an "Add" pill when
 pointed at (BVJ's suggestion; it lies over the cards and takes no room), the pill's menu adds the
 chosen part right there, and "Passage…" opens the passage form under the part above. The pane is
-also renamed "Sheets" (it was "Sheet"). No finding in this audit is open; section D's recommendations were decided on 2026-11-08 and are marked there, with #3, #5 and #9 still to talk through. The ghost prompts took section B's Design 2, an optional
+also renamed "Sheets" (it was "Sheet"). No finding in this audit is open; section D's recommendations were decided on 2026-11-08 and are marked there, with #3 and #5 still to talk through. The ghost prompts took section B's Design 2, an optional
 `prompt` field, chosen by Claude under that instruction and reversible; Lectio divina's movement
 lines became prompts too, under the rule that no field starts with text. The toolbar (SH5-6) is drawn
 below the focused part, so clicking into a part grows the card downward instead of moving the words
@@ -621,8 +621,13 @@ one place the Sheets sit near that line.
   (remembered per browser, not in the sheet), which ends it with each
   passage's blanks in order; it reaches Print, Copy, and the .docx, .odt and
   .rtf files, not the slides.
-- **#9, the key terms box before the reading: BVJ asked for the reasons
-  each way**; undecided.
+- **#9, the key terms box before the reading: built as a choice per sheet**
+  (BVJ, 2026-11-08: "Definitely have it up front for class session.
+  Probably for Bible study also."). Both templates now start with the box
+  just before the reading, and the box's card has "Move before the reading"
+  or "Move after the reading" (`keyTermsPlacement` in
+  `desk-sheet-templates.mjs`), which places it against the reading part and
+  the first run of passages. Sermon preparation keeps it last (SH5-13).
 - **#10, a series; #11, start from a passage with examples: version 2**
   (STUDY-DESK.md, "Version 2: deferred and shelved").
 - **#12, in Present: built in part.** B (or ".") blanks the room's screen to

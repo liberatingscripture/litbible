@@ -67,7 +67,7 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../lib/desk-sheets.mjs";
-import { TEMPLATES, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
+import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../../lib/desk-sheet-templates.mjs";
 import { fitModules, notebookItems, partsFor } from "../../lib/desk-sheet-from-notes.mjs";
 import {
   passageFromOffsets,
@@ -1216,8 +1216,41 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       getSheet: () => sheet,
       update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
     });
-    card.append(inst.el);
-    return inst;
+    // Before or after the reading, decided sheet by sheet in one click (BVJ,
+    // 2026-11-08): the group meets the words first, or the passage speaks
+    // first. Redrawn on every change, since a move doesn't rebuild the card.
+    const place = make("div", "desk-sheet__terms-place");
+    const placeButtons = () => {
+      const where = readOnly ? null : keyTermsPlacement(sheet);
+      const keep = place.contains(document.activeElement) ? document.activeElement.dataset.side : null;
+      place.replaceChildren();
+      place.hidden = !where;
+      if (!where) return;
+      for (const side of ["before", "after"]) {
+        if (where.side === side) continue;
+        const b = button(side === "before" ? "Move before the reading" : "Move after the reading", "desk-sheet__btn desk-sheet__btn--quiet");
+        b.dataset.side = side;
+        b.addEventListener("click", () => {
+          const to = keyTermsPlacement(sheet)?.[side];
+          if (to === undefined) return;
+          change((s) => moveModule(s, m.id, to, opCtx()), {
+            announce: side === "before" ? "Key terms box moved before the reading." : "Key terms box moved after the reading.",
+            after: () => place.querySelector("button")?.focus(),
+          });
+        });
+        place.append(b);
+      }
+      if (keep) (place.querySelector(`[data-side="${keep}"]`) ?? place.querySelector("button"))?.focus();
+    };
+    placeButtons();
+    card.append(place, inst.el);
+    return {
+      ...inst,
+      sheetChanged: () => {
+        placeButtons();
+        inst.sheetChanged?.();
+      },
+    };
   }
 
   function textField(m, field, label, placeholder) {

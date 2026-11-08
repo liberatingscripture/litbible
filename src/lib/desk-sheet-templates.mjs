@@ -19,7 +19,7 @@ export const TEMPLATES = Object.freeze([
   Object.freeze({
     id: "bible-study",
     name: "Bible study",
-    description: "An opening, the reading, questions to talk over, the key terms, and a closing.",
+    description: "An opening, the key terms, the reading, questions to talk over, and a closing.",
   }),
   Object.freeze({
     id: "sermon",
@@ -78,11 +78,11 @@ const BUILDERS = {
   "bible-study": () => [
     beforeYouLead(),
     part("Opening", "How you will begin: a welcome, a prayer, a moment of quiet."),
+    makeModule("keyTerms"), // before the reading (BVJ, 2026-11-08); its card moves it after in one click
     part("Reading", READING_PROMPT),
     question("A first question for the group, such as “What word or phrase stands out to you?”"),
     question("A question about the passage, such as “What does it show about God, about people, and about the world?”"),
     question("A question that reaches into the week, such as “Where does this passage meet your life right now?”"),
-    makeModule("keyTerms"),
     part("Closing", "How you will end: a prayer, a blessing, or a word for the week ahead."),
   ],
   sermon: () => [
@@ -92,11 +92,12 @@ const BUILDERS = {
     part("The good news here", "What this passage offers the people who will hear it."),
     part("Outline", "Your outline, one line per movement: how you open, the text, the turn, the sending."),
     part("For the congregation", "One thing to carry into the week."),
-    makeModule("keyTerms"), // last, as in every other template (SH5-13)
+    makeModule("keyTerms"), // last (SH5-13); a sermon's notes come before its vocabulary
   ],
   class: () => [
     beforeYouLead(),
     part("Goals for this session", "What the class should know or be able to do by the end. One goal per line."),
+    makeModule("keyTerms"), // before the reading: a class meets the words first (BVJ, 2026-11-08)
     part("Reading", READING_PROMPT),
     part(
       "Background",
@@ -108,7 +109,6 @@ const BUILDERS = {
       "Optional. The answer you expect, or notes for you as leader. It prints only on the leader’s version.",
     ),
     question("A question about the LIT’s wording, such as what a key term’s traditional word was."),
-    makeModule("keyTerms"),
     part("Next time", "The reading for next time, and anything to bring."),
   ],
   "lectio-divina": () => [
@@ -130,6 +130,12 @@ const BUILDERS = {
 // passage then goes at the end, as on any sheet (BA69).
 const READING_HEADINGS = new Set(["reading", "read", "the text", "the reading"]);
 
+const isReadingHeading = (m) => {
+  if (m?.type !== "text" || typeof m.html !== "string") return false;
+  const h = /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html);
+  return !!h && READING_HEADINGS.has(h[1].replace(/\s+/g, " ").trim().toLowerCase());
+};
+
 /**
  * The part a sheet's first passage belongs under: the first text part whose
  * opening heading is a template's reading heading, while the sheet holds no
@@ -143,12 +149,51 @@ const READING_HEADINGS = new Set(["reading", "read", "the text", "the reading"])
 export function readingPart(sheet) {
   const modules = sheet?.modules ?? [];
   if (modules.some((m) => m?.type === "passage")) return null;
-  for (const m of modules) {
-    if (m?.type !== "text" || typeof m.html !== "string") continue;
-    const h = /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html);
-    if (h && READING_HEADINGS.has(h[1].replace(/\s+/g, " ").trim().toLowerCase())) return m;
+  return modules.find(isReadingHeading) ?? null;
+}
+
+/**
+ * The reading on a sheet, as a span of module indexes: the first run of
+ * passages side by side, with the reading part just above it when there is
+ * one; with no passage yet, the reading part alone. Null when the sheet has
+ * neither.
+ *
+ * @param {object[]} modules
+ * @returns {{ start: number, end: number } | null}
+ */
+function readingSpan(modules) {
+  const first = modules.findIndex((m) => m?.type === "passage");
+  if (first < 0) {
+    const at = modules.findIndex(isReadingHeading);
+    return at < 0 ? null : { start: at, end: at };
   }
-  return null;
+  let end = first;
+  while (modules[end + 1]?.type === "passage") end++;
+  return { start: first > 0 && isReadingHeading(modules[first - 1]) ? first - 1 : first, end };
+}
+
+/**
+ * Where the key terms box sits against the reading, and the positions that
+ * would put it just before or just after (BVJ, 2026-11-08: a choice made
+ * sheet by sheet, from a button on the box's card). `side` is "before" or
+ * "after" when the box is right against the reading, else "elsewhere";
+ * `before` and `after` are the indexes to hand moveModule. Null when the
+ * sheet has no box, or no reading to place it against.
+ *
+ * @param {{ modules: object[] } | null} sheet
+ * @returns {{ side: "before" | "after" | "elsewhere", before: number, after: number } | null}
+ */
+export function keyTermsPlacement(sheet) {
+  const modules = sheet?.modules ?? [];
+  const from = modules.findIndex((m) => m?.type === "keyTerms");
+  if (from < 0) return null;
+  const rest = modules.filter((_, i) => i !== from);
+  const span = readingSpan(rest);
+  if (!span) return null;
+  // Indexes in `rest` are where the box lands once taken out and put back.
+  const before = span.start;
+  const after = span.end + 1;
+  return { side: from === before ? "before" : from === after ? "after" : "elsewhere", before, after };
 }
 
 /**
