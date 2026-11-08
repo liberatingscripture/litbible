@@ -4767,9 +4767,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      "Phase 2b"). S2's rules are `src/lib/desk-sheet-check.mjs` (pure,
      tested): the comparison is N3's `wordingChanged`, a quoted passage is
      judged on its own words only, and `freshCopy` is what Keep writes. The
-     Sheet pane's notice is `wordingNotice` in `desk/sheet-lit.js`; the
-     sheet page's is `drawCheck` in `desk/sheet-page.js`, with the checks
-     from `copyChecks` in `desk/sheet-copy.js`, which also prints the "Text
+     Sheet pane's notice is `wordingNotice` in `desk/sheets/sheet-lit.js`; the
+     sheet page's is `drawCheck` in `desk/sheets/sheet-page.js`, with the checks
+     from `copyChecks` in `desk/sheets/sheet-copy.js`, which also prints the "Text
      as of" line. The word diff both notices draw moved out of
      `change-notice.js` into `desk/diff-view.js`. N9 is
      `desk/print-room.js`, with its look beside M6's in `desk.css`. No key
@@ -4893,8 +4893,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      inside another page, and shown as /desk's sheet pane.
      **Built on the preview 2026-10-19** (decision log, "Phase 3f"): the
      verse tools take the pane as one more view (`attachVerseTools` in
-     `chapter-tools.js`); the editor is `desk/sheet-pane.js`, its formatted
-     text `desk/sheet-text.js`, and the passage rules
+     `chapter-tools.js`); the editor is `desk/sheets/sheet-pane.js`, its formatted
+     text `desk/sheets/sheet-text.js`, and the passage rules
      `src/lib/desk-sheet-passages.mjs`. Which sheet a Sheet pane shows is
      kept in the layout (`sheet`, in `lit-desk-layout`).
    - **3g. The reader's marks on /desk** (BVJ, 2026-10-19). Highlights,
@@ -4912,7 +4912,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      the license card with the commercial check (S7).
      **Built on the preview 2026-10-19** (decision log, "Phase 3h"): the
      rules are `src/lib/desk-sheet-lit.mjs` (pure, tested), and the cards
-     `desk/sheet-lit.js`, which the Sheet pane mounts for each passage, the
+     `desk/sheets/sheet-lit.js`, which the Sheet pane mounts for each passage, the
      key terms box and the license card. Nothing new is stored beyond what
      the format already had (`blanks`, `footnotes`, `omit`, `commercial`).
    - **3i. Paper and copies.** The sheet's own address, `/sheets/` (3a); leader and
@@ -4922,19 +4922,19 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      the app link files; the Word copy (S9); annotated printing (M6),
      which needs no sheet and can move earlier or later.
      **Built on the preview 2026-10-20** (decision log, "Phase 3i"):
-     `/sheets/` is `src/pages/sheets.astro` and `desk/sheet-page.js`; the
-     copies are drawn by `desk/sheet-copy.js` from the rules in
+     `/sheets/` is `src/pages/sheets.astro` and `desk/sheets/sheet-page.js`; the
+     copies are drawn by `desk/sheets/sheet-copy.js` from the rules in
      `src/lib/desk-sheet-copy.mjs`, the codes by `src/lib/qr-svg.mjs`
      (shared with the app announcement's code), and the Word copy by
-     `desk/sheet-word.js`. The paper is kept in `lit-sheet-paper`, named in
+     `desk/sheets/sheet-word.js`. The paper is kept in `lit-sheet-paper`, named in
      /privacy. M6 is `desk/print-notes.js` with its rules in
      `src/lib/desk-print-notes.mjs`.
    - **3j. Present mode.** S6 with the reveal, M3's code on its first
      screen, then M2's presenter view on two screens.
      **Built on the preview 2026-10-20** (decision log, "Phase 3j"): the
      rules are `src/lib/desk-present.mjs` (pure, tested), the screens and
-     the presenter view `desk/sheet-present.js`, drawn from the copies' own
-     reading of each chapter (`presentPassage` in `desk/sheet-copy.js`).
+     the presenter view `desk/sheets/sheet-present.js`, drawn from the copies' own
+     reading of each chapter (`presentPassage` in `desk/sheets/sheet-copy.js`).
      Nothing is stored and no key is added.
    - **3k. Getting started and sharing.** Sheets from a search or topic
      (M5), templates including the contemplative one (M9) and the blank
@@ -4945,11 +4945,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **Built on the preview 2026-10-20** (decision log, "Phase 3k"): the
      templates are `src/lib/desk-sheet-templates.mjs`; a search's or
      topic's passages `src/lib/desk-sheet-gather.mjs` with
-     `desk/search-sheet.js`, reached from /search only through the
+     `desk/sheets/search-sheet.js`, reached from /search only through the
      `lit:search-results` event and `loadDeskSheets()`; sharing
      `src/lib/desk-sheet-share.mjs` (format in STUDY-DESK-FORMAT.md,
      "Sharing a sheet"), with the shared view and the Share dialog in
-     `desk/sheet-page.js` and the phone's message in
+     `desk/sheets/sheet-page.js` and the phone's message in
      `src/scripts/sheet-share-gate.js`. No key is added.
    - **3l. Pop the notebook out (D4).** Last, decided once /desk exists.
      **Deferred to version 2** (BVJ, 2026-10-21; the version 2 list below).
@@ -5152,7 +5152,7 @@ building yet"). BVJ asked three things the same day:
 
 BVJ's decisions on it are at the end. The work comes after the move of the Sheets
 code into `src/scripts/desk/sheets/` with its own CLAUDE.md (BVJ, 2026-11-08,
-option 1), which goes first.
+option 1), which goes first (done 2026-11-08: `src/scripts/desk/sheets/`).
 
 ### Where things stand
 
