@@ -145,10 +145,9 @@ task as the panel draws its own, so nothing moves. **A new startup listener
 in the shell needs the same**: held in `first-stage.js`, or a reason to load.
 The search box loads `notebook-search.js` on first focus, not with the page.
 Measured on `dist/john-3/` (gzipped, beyond the scripts a reading page
-already loads): 14 KB with nothing kept and the Notebook minimized, the
-Display tray opened included (2026-11-07; 14.6 KB on 2026-11-08), and the
-shell's closure about 138 KB once it opens (2026-11-08, LG6-4; 130 KB on
-2026-11-07, 124 KB at Audit 3). Re-measure at launch.
+already loads): 14.6 KB with nothing kept and the Notebook minimized, the
+Display tray opened included, and the shell's closure about 138 KB once it
+opens (2026-11-08, LG6-4). Re-measure at launch.
 **Stage one loads only `desk-tab.css`**, so a rule the first stage needs lives
 there, not in `desk.css`: the skip link's hiding rule and the Display tray's
 `.font-tray__hint` and `.font-tray__reset` (NB6-1, NB6-4).
@@ -738,10 +737,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        `FOLLOW_TAB_CHANNEL` whether a live page holds it; an answer makes this
        tab the copy, which drops the flag. Following a link announces it, and
        any other tab following that bookmark stops (`loseFollow`).
-     - **The interleaf (N7) was built and set aside** (BVJ, 2026-10-13: it
-       repeats the margin and the panel, and breaks up the scripture). Its code
-       is on `claude/desk-1d-hidden` (commit 1f27b2e); revert aacdc92 to bring
-       it back.
+     - **The interleaf (N7) was set aside** (BVJ, 2026-10-13); revert aacdc92.
      - **Search and commands**: the notebook reaches the search surfaces only
        through `loadDeskSearch()` in `search-core.js`, which imports
        `desk/notebook-search.js` (read-only IndexedDB) only with
@@ -1108,9 +1104,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        the text isn't plainly Greek already. It is a `float-window.js` window,
        outside `lit-panel.js`'s one slot, so a footnote or preview opening
        never closes it. It opens from the tray, /search and /desk's Search
-       pane (its `source: "notebook"` placement and `greek-commands.js`'s
-       listener for `lit:notebook-state` are left over from the Greek tab's
-       field, retired by E7; tested and unused). A click finding its field
+       pane. A click finding its field
        gone closes it too (BA114). What it announces is meant to be heard: a command by its meaning (“Added: Within 3
        words.”), the builder's by the query it made (BA117).
        **What it puts in a field is typed, not set** (BA147): `typeInto`
@@ -1276,7 +1270,8 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        break's card has no Leader only box (SH5-17): a break is on both
        versions, though the format still allows the field. **A part is added
        between parts from the gap between them** (BVJ, 2026-11-08): pointing
-       at the space under a card (or tabbing to it) shows a line across it with
+       at the space under a card (or the keyboard: the pills are one Tab stop,
+       up and down arrows, Home and End move between them; DK6-1) shows a line across it with
        an "Add" pill, lying over the cards so it takes no room
        (`.desk-sheet__after`, hung from the card above; shown on hover, while
        its menu is open, or on `:focus-visible`, never plain `:focus-within`,
@@ -1461,8 +1456,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        only for a full screen it entered, since F11's is invisible to the page;
        no line where the API is missing, and a refusal names the key to use
        instead. With a menu open in full screen the first Escape leaves full
-       screen and the second closes the menu (accepted). Each visit needs a
-       click, so it can't be a saved preference. The Browser pane never
+       screen and the second closes the menu (accepted). The Browser pane never
        answers the request: check it in a real browser. My notebook page and Help open
        in a new tab, since they leave the desk; **Take the tour starts the
        Study Desk tour in place** (a button, E24; see "Two tours" under rule 13). **There is no Settings window and no
@@ -1787,7 +1781,14 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        alone, a question is empty, and each carries `prompt` (a question's
        answer `answerPrompt`), plain text the format keeps in its own field
        (STUDY-DESK-FORMAT.md, "Modules"), which nothing prints, copies,
-       presents or counts. The editor shows an empty part's prompt as its
+       presents or counts. **On paper an empty text or question part, an
+       empty key terms box and a lone Leader only tag print nothing**, while a
+       heading alone prints, a template's own included, as a cue
+       (`printsOnPaper`; BVJ, 2026-11-08, SH6-3). **A new sheet is written
+       with its first change**, not when its template is picked (SH6-7;
+       `draft`, `persistDraft` in `sheet-pane.js`); Print, Present and an add
+       from another pane or /search (`addTarget().ready`) write it first.
+       The editor shows an empty part's prompt as its
        placeholder, and a part holding only its heading shows it under the
        heading (a `data-hint` `::after`, with `aria-description`) until the
        leader types there or a passage follows it; it never depends on whether
@@ -1828,8 +1829,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        last data line, ignores whitespace folded into it, and throws
        "damaged" for one it can't read). The dialog's note and the "Link
        copied" status both say the link is long because the sheet is in it
-       (E58; BVJ, 2026-11-08: a first link read as a string of random
-       characters). A short link would need a hosted store, M14, deferred to
+       (E58). A short link would need a hosted store, M14, deferred to
        signed-in readers. The Share dialog's button for that
        file is "Export a Study Desk file (.md)" and the Sheets page's is
        "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in

@@ -191,8 +191,10 @@ function targetPane() {
  * a sheet. The Search pane's add buttons (3m) follow the same rule.
  */
 export function addTarget() {
-  const s = targetPane()?.sheet();
-  return s ? { id: s.id, name: sheetName(s) } : null;
+  const pane = targetPane();
+  const s = pane?.sheet();
+  // `ready` saves a new sheet not yet written (SH6-7); call it before writing to `id`.
+  return s ? { id: s.id, name: sheetName(s), ready: pane.persist } : null;
 }
 
 const targetListeners = new Set();
@@ -272,7 +274,16 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   }
 
   let sheet = null; // the sheet shown, as last read or saved
+  // A new sheet not yet written (Audit 6, SH6-7; BVJ, 2026-11-08): New sheet
+  // shows it and writes it with its first change, so comparing templates by
+  // opening them leaves no "Untitled sheet" behind. From then on it saves as
+  // any sheet does.
+  let draft = null;
   let lastModule = null; // the part last focused or clicked on this sheet
+  // The gap pills are one Tab stop for the whole sheet (Audit 6, DK6-1; BVJ,
+  // 2026-11-08): the pill under this part takes Tab, the others -1, and the
+  // up and down arrows, Home and End move between them (`syncGapStop`).
+  let gapStop = null;
   let insertMenu = null; // the gap pill's open menu: { close(refocus) } (DK6-2)
   const closeInsertMenu = () => insertMenu?.close(false);
   // The passage form open under a card, from the gap's "Add" pill (BVJ,
@@ -301,6 +312,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   const me = {
     sheet: () => sheet,
+    persist: () => persistDraft(),
     contentVersion: () => ctx().contentVersion,
     /**
      * Add a passage after the part last worked in, or, given a `target`
@@ -372,9 +384,14 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     if (destroyed || !sheet) return Promise.resolve(false);
     const n = seq;
     const id = sheet.id;
+    // A new sheet's first change writes it first, as its own undo step, so
+    // undoing the change leaves the sheet; should that write fail, the change
+    // is made over the unsaved sheet instead.
+    const base = draft;
+    persistDraft();
     const write = store.change(
       async ({ get }) => {
-        const plan = planSheetChange(await get(id), op);
+        const plan = planSheetChange((await get(id)) ?? base, op);
         if (plan.changed && !quiet) status.textContent = "Saving…";
         return plan;
       },
@@ -460,7 +477,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
    * without BroadcastChannel, never hears another tab's save (BA129).
    */
   async function refresh() {
-    if (!sheet) return;
+    if (!sheet || draft) return;
     await saving;
     if (!sheet) return;
     const n = seq;
@@ -488,6 +505,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   async function showList({ focus = null, chooser: openChooser = false } = {}) {
     const n = ++seq;
     sheet = null;
+    draft = null;
     targetChanged();
     lastModule = null;
     closeInsertMenu();
@@ -533,7 +551,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
         const open = button("", "desk-sheet__open");
         open.append(make("span", "desk-sheet__open-name", sheetName(s)));
         const passages = s.modules?.filter((m) => m?.type === "passage").length ?? 0;
-        const bits = [s.subtitle, `${passages} ${passages === 1 ? "passage" : "passages"}`, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean);
+        // An untitled sheet names its template, so two can be told apart (SH6-7).
+        const from = s.title?.trim() ? null : TEMPLATES.find((t) => t.id === s.template && t.id !== "blank")?.name;
+        const bits = [s.subtitle, from, `${passages} ${passages === 1 ? "passage" : "passages"}`, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean);
         open.append(make("span", "desk-sheet__open-meta", bits.join(" · ")));
         open.dataset.focusKey = `open-${s.id}`;
         open.addEventListener("click", () => openSheet(s.id, { focusTitle: true }));
@@ -653,23 +673,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     return box;
   }
 
-  async function newSheet(template = "blank") {
-    const s = createSheet({ template, modules: templateModules(template) }, opCtx());
-    try {
-      await store.save(s);
-    } catch (err) {
-      console.error("Study Desk: couldn't make a sheet", err);
-      // Shown under the list's heading as well as heard (CP-13).
-      const text = "The sheet couldn’t be made in this browser. Try again in a moment.";
-      const head = content.querySelector(".desk-sheet__list-head");
-      if (head) {
-        head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
-        head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));
-      }
-      say(text);
-      return;
-    }
-    await openSheet(s.id, { focusTitle: true });
+  /** Start a sheet from a built-in template; it is written with its first change (SH6-7). */
+  function newSheet(template = "blank") {
+    openDraft(createSheet({ template, modules: templateModules(template) }, opCtx()));
   }
 
   /**
@@ -714,13 +720,12 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     let s = null;
     try {
       s = sheetFromTemplate((await store.get(template.id)) ?? template, opCtx());
-      await store.save(s);
     } catch (err) {
       console.error("Study Desk: couldn't make a sheet from a template", err);
       listProblem("The sheet couldn’t be made in this browser. Try again in a moment.");
       return;
     }
-    await openSheet(s.id, { focusTitle: true });
+    openDraft(s);
   }
 
   /** Keep one of the reader's sheets as a template of their own (Audit 5, D #1). */
@@ -802,6 +807,36 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       return;
     }
     setSheet(id);
+    showSheet(record, { focusTitle });
+  }
+
+  /** Show a new sheet without writing it (SH6-7); `persistDraft` writes it. */
+  function openDraft(s) {
+    ++seq;
+    showSheet(s, { focusTitle: true });
+    draft = s;
+  }
+
+  /**
+   * Write the new sheet shown, if it hasn't been: on its first change, before
+   * another pane or /search adds to it, and before Print or Present open it in
+   * a tab of their own. The write's transaction opens here, so whatever is
+   * asked for after it, in any tab, reads the sheet.
+   */
+  function persistDraft() {
+    if (!draft) return;
+    const d = draft;
+    const n = seq;
+    draft = null;
+    store.save(d).then(
+      () => { if (n === seq && !destroyed && sheet?.id === d.id) setSheet(d.id); },
+      (err) => console.error("Study Desk: couldn't save a new sheet", err),
+    );
+  }
+
+  function showSheet(record, { focusTitle = false } = {}) {
+    draft = null;
+    gapStop = null;
     sheet = record;
     targetChanged();
     lastModule = null;
@@ -843,6 +878,11 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     present.rel = "noopener";
     present.title = "Show this sheet to a room, one part at a time, with a presenter view (opens in a new tab)";
     const presentHint = describe(present, "Shows this sheet to a room, one part at a time, with a presenter view.");
+    // A new sheet is written before its own address opens in a tab (SH6-7).
+    for (const a of [print, present]) {
+      a.addEventListener("click", persistDraft);
+      a.addEventListener("auxclick", persistDraft);
+    }
     header.append(back, present, print, status, printHint, presentHint);
     wrap.append(header);
 
@@ -889,7 +929,9 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     moduleList.setAttribute("role", "list");
     moduleList.setAttribute("aria-label", "The sheet’s parts");
     wireDrag(moduleList);
-    wrap.append(moduleList);
+    const gapKeys = make("span", "sr-only", "Up and down arrows move to the places between the other parts.");
+    gapKeys.id = `deskSheetGapKeys-${paneId}`;
+    wrap.append(gapKeys, moduleList);
     if (!readOnly) wrap.append(addBar());
     license = createLicenseCard({
       getSheet: () => sheet,
@@ -902,6 +944,15 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     });
     wrap.append(license.el);
     content.replaceChildren(wrap);
+  }
+
+  /** One gap pill takes Tab: the one last focused, else the first part's (DK6-1). */
+  function syncGapStop() {
+    const pills = [...(moduleList?.querySelectorAll(".desk-sheet__after-btn") ?? [])];
+    if (!pills.length) return;
+    const owner = (b) => b.closest(".desk-sheet__module")?.dataset.moduleId;
+    if (!pills.some((b) => owner(b) === gapStop)) gapStop = owner(pills[0]) ?? null;
+    for (const b of pills) b.tabIndex = owner(b) === gapStop ? 0 : -1;
   }
 
   /** Bring the page in line with `sheet`, keeping every card that hasn't changed. */
@@ -980,6 +1031,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       const card = reading && readingDismissed !== reading.id ? cards.get(reading.id) : null;
       if (card) openInlinePassage(reading, headingOf(reading) ?? card.name, { focus: false, scroll: false, auto: true });
     }
+    syncGapStop();
     license?.sheetChanged();
     if (keyTermsButton) {
       const has = sheet.modules.some((x) => x?.type === "keyTerms");
@@ -1163,7 +1215,25 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
       insert.setAttribute("aria-haspopup", "menu");
       insert.setAttribute("aria-expanded", "false");
       insert.title = "Add a part here";
+      insert.tabIndex = gapStop === m.id ? 0 : -1;
+      insert.setAttribute("aria-describedby", `deskSheetGapKeys-${paneId}`);
       insert.addEventListener("click", () => openInsertMenu(insert, m, called));
+      insert.addEventListener("focus", () => {
+        gapStop = m.id;
+        syncGapStop();
+      });
+      insert.addEventListener("keydown", (e) => {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        const pills = [...moduleList.querySelectorAll(".desk-sheet__after-btn")];
+        const i = pills.indexOf(insert);
+        const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: pills.length - 1 }[e.key];
+        if (to === undefined) return;
+        e.preventDefault();
+        const next = pills[Math.max(0, Math.min(pills.length - 1, to))];
+        gapStop = next?.closest(".desk-sheet__module")?.dataset.moduleId ?? gapStop;
+        syncGapStop();
+        next?.focus();
+      });
       zone.append(insert);
       card.append(zone);
     }

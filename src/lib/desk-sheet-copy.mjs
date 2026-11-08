@@ -15,7 +15,7 @@ import { bookKeyToLabel } from "../data/books.js";
 import { isChapterAddress } from "./desk-passage.mjs";
 import { printableUrl } from "./lit-credit.mjs";
 import { MODULE_TYPES, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
-import { blanksGivenAway } from "./desk-sheet-lit.mjs";
+import { blanksGivenAway, htmlToText } from "./desk-sheet-lit.mjs";
 import { linkScriptureRefs } from "./scripture-refs.mjs";
 import { openExternalLinks } from "./external-links.mjs";
 import { NOTE_LINKING } from "./desk-chains.mjs";
@@ -42,6 +42,30 @@ export function modulesForCopy(sheet, copy) {
   return (sheet?.modules ?? []).filter(
     (m) => m && MODULE_TYPES.includes(m.type) && (copy === "leader" || m.leaderOnly !== true),
   );
+}
+
+/**
+ * Whether a module has anything to put on paper (Audit 6, SH6-3; BVJ,
+ * 2026-11-08). A text part with no words and no rule prints nothing, so a
+ * Leader only tag never prints alone; a question with no words prints neither
+ * its tag nor its lines (Space is the part for lines), unless the leader's
+ * version has an answer to show under it. A part holding only a heading still
+ * prints, a template's untouched heading included (BVJ chose headings as cues).
+ * Present drops the same parts (`presentScreens`). An empty key terms box is
+ * the copy's to judge, since it depends on the passages (`keyTermsSection`).
+ *
+ * @param {object} m a module from modulesForCopy
+ * @param {"leader" | "participant"} copy
+ */
+export function printsOnPaper(m, copy) {
+  if (m?.type !== "text" && m?.type !== "question") return true;
+  if (hasWords(m.html)) return true;
+  return m.type === "question" && copy === "leader" && hasWords(m.answer);
+}
+
+function hasWords(html) {
+  const s = typeof html === "string" ? html : "";
+  return htmlToText(s).trim() !== "" || /<hr/i.test(s);
 }
 
 /** A chapter's address with a verse or range: "https://litbible.net/romans-8/#v1-4". */

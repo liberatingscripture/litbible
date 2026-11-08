@@ -18,7 +18,7 @@ Nothing in the repo was changed while auditing; every finding is a recommendatio
 (`SH6`, `SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, `VER6`) so they never collide with earlier
 audits'. The full reports are the appendices.
 
-**Status (2026-11-08, same day):** on BVJ's instruction to fix everything that needs no decision of theirs, every such finding was fixed on `claude/desk-audit-6-fixes` and is marked on its entry. Left open: SH6-3, SH6-7, DK6-1, GK6-2 and NB6-8 (BVJ's calls), DI6-5 (with BDR), GK6-9 (needs a build change), and the rest of LG6-2 and LG6-3 (a later sitting each). SEC6-3's fix drops prompts from participant shares only; a leader share keeps them, and it is a one-line revert if BVJ wants prompts to travel. SH6-4's sentences name the book as the site writes it ("Psalms").
+**Status (2026-11-08, same day):** on BVJ's instruction to fix everything that needs no decision of theirs, every such finding was fixed on `claude/desk-audit-6-fixes` and is marked on its entry. BVJ's calls followed the same day (`claude/desk-audit-6-decisions`): SH6-3 (a) to (c) fixed and (d) declined, SH6-7 and DK6-1 fixed, NB6-8 no change, GK6-2 fixed (the root `LICENSE` has a third class, OTHER MATERIAL). Left open: DI6-5 (with BDR), GK6-9 (needs a build change), and the rest of LG6-2 and LG6-3 (a later sitting each). SEC6-3's fix drops prompts from participant shares only; a leader share keeps them, and it is a one-line revert if BVJ wants prompts to travel. SH6-4's sentences name the book as the site writes it ("Psalms").
 
 ## Bottom line
 
@@ -304,7 +304,7 @@ comment that a shared page shows no leader-facing notices.
 
 **Confidence:** high.
 
-##### SH6-3 · Medium · design · a template's untouched parts print as bare headings, stray lines, and an empty box · NEW · OPEN: BVJ's decision
+##### SH6-3 · Medium · design · a template's untouched parts print as bare headings, stray lines, and an empty box · NEW · FIXED (a) to (c); (d) DECLINED (BVJ, 2026-11-08)
 
 **What happens:** make a Class session, add nothing, open Print or share. Participant version, top to bottom:
 "Goals for this session" (heading, nothing under it), "Key terms" with "None of the sheet's passages uses a key
@@ -333,6 +333,12 @@ then at least (a) to (c), and a sentence in the help page saying that a template
 nothing is typed under it.
 
 **Confidence:** high on what prints; the fix is a design choice.
+
+**Decision and fix (BVJ, 2026-11-08):** yes to (a) to (c), no to (d): a template's headings print as cues.
+`printsOnPaper` (`desk-sheet-copy.mjs`) drops an empty text or question part from paper (a question with
+no words keeps its place only on the leader's version when it has an answer), and `keyTermsSection`
+returns nothing on paper for an empty box. The help page says a template's headings print as cues and an
+empty question, key terms box or Leader only part prints nothing. SH6-10 stays as SH5-8 left it.
 
 ##### SH6-4 · Medium · usability · an Old Testament or multi-chapter reference is refused without saying why · NEW · FIXED (2026-11-08)
 
@@ -382,7 +388,7 @@ flex `li`, `sheet-lit.js` builds it with the field before the ×).
 
 **Confidence:** high.
 
-##### SH6-7 · Low · usability · every click on a template saves an "Untitled sheet", and the list never says which template · NEW · OPEN: BVJ's decision
+##### SH6-7 · Low · usability · every click on a template saves an "Untitled sheet", and the list never says which template · NEW · FIXED (BVJ's decision, 2026-11-08)
 
 **What happens:** "New sheet" then any template writes a sheet at once, so a leader who looks at two templates
 to compare them has two "Untitled sheet · 0 passages" rows; the origin began with seven of them. The row
@@ -390,6 +396,12 @@ shows the subtitle, passage count and date, never the template, so none can be t
 it. A template of the reader's own saved from an untitled sheet is listed as "Untitled sheet" too, and a sheet
 started from an own template takes the template's title, so "SH6 Bible study test" appeared twice in My sheets
 and twice in the /search gather panel (told apart there only by part count).
+
+**Decision and fix (BVJ, 2026-11-08):** don't save until the first edit, then autosave as before. New
+sheet (and a template of the reader's own) shows the sheet as a `draft` the pane holds; its first change
+writes it (`persistDraft`, its own undo step, then the change), as do Print, Present, and an add from the
+LIT pane or the Search pane (`addTarget().ready`). Leaving it untouched leaves nothing. An untitled
+sheet's row names its template ("Bible study · 0 passages").
 
 **Where:** `sheet-pane.js:639-656` (`newSheet` saves before any change), `:519-526` (the row's meta),
 `desk-sheets.mjs:167-175` (`sheetFromTemplate` keeps the title).
@@ -1047,10 +1059,11 @@ Not confirmed live (no browser): the forced-colors finding and the screen-reader
 **Fix** "The “Open in Study Desk” button". Also stale: the comment at `desk-page.js:1209`.
 **Confidence** High.
 
-#### NB6-8 · Low · copy · NEW · OPEN: BVJ's wording
+#### NB6-8 · Low · copy · NEW · NO CHANGE (BVJ, 2026-11-08)
 **Where** `src/pages/notebook.astro:32`, `src/pages/desk.astro:48`, `src/pages/sheets.astro:72`.
 **What happens** The desk-off message says the preview "isn't switched on in this browser". On a phone or tablet (which the site decided never gets the desk, memory: website study tools are desktop-only) it cannot be switched on, and the reader is sent here by the help page and by shared sheet links. The message suggests a setting that does not exist for them and points to nothing (the apps). Owner call on wording; see Questions.
 **Confidence** High on the facts; the copy is the owner's.
+**Decision (BVJ, 2026-11-08)** A phone or tablet has no reason to reach a desk page, so the wording stays. The one exception is a shared sheet's link, where anything leading somewhere a phone can't go must be hidden from sighted and screen-reader users alike. Checked: a phone opening a shared link gets only `sheet-share-gate.js`'s "Sheets open on a computer" line and "Copy the link"; the header's Study Desk link and every desk control render only under `html[data-desk]`, which a phone never gets. Nothing to hide today; a phone can't view the shared sheet itself.
 
 #### NB6-9 · Nit · longevity · NEW · FIXED (2026-11-08)
 **Where** `src/styles/desk.css:2758-2767` (`.desk-home-card__options`, `__option`).
@@ -1134,10 +1147,11 @@ Counts: 0 Critical, 0 High, 3 Medium, 5 Low, 2 Nit. The Medium items are a11y, u
 
 ### Findings
 
-#### DK6-1 · Medium · a11y · NEW · OPEN: BVJ's decision
+#### DK6-1 · Medium · a11y · NEW · FIXED (BVJ's decision, 2026-11-08)
 **Where** `src/scripts/desk/sheet-pane.js:1146-1153` (`buildCard`, the `.desk-sheet__after` zone and pill), `src/styles/desk.css:7097-7126` (`.desk-sheet__after-btn`, `opacity: 0`).
 **What happens** Every card gets its own "+ Add" pill. The pill is `opacity: 0` rather than `display: none`, so each one is a permanent Tab stop. On a 300-part sheet a keyboard user crosses 300 extra invisible stops on top of each card's own controls (Move up, Move down, Remove, minutes, Leader only, and the editor). Each stop is announced to a screen reader as "Add a part after X, menu button". Only the focused one becomes visible, so sighted keyboard users get a good signal. Screen-reader users get a list of 300 identical-purpose buttons and no roving or skip mechanism.
 **Evidence** Code and CSS read. `buildCard` appends the zone with a real `<button>` for every module, with no `tabindex=-1` and no roving arrangement.
+**Decision and fix (BVJ, 2026-11-08)** the roving group. The pills are one Tab stop per sheet (the last focused, else the first part's; `syncGapStop`), up and down arrows, Home and End move between them, a visually hidden line describes the keys, and the help page gives the keyboard route.
 **Fix** Make the pills a roving group per list (one tab stop, arrow keys between gaps), or at least give each card one "Add after this part" entry in its existing tools menu and keep the pill for pointer use (`tabindex="-1"`). Whichever is chosen, put the keyboard route in the help page.
 **Confidence** High.
 
@@ -1273,12 +1287,13 @@ Performance is fine: broadest queries (`*.sg`, four-term any-order `*.noun`) tak
 **Fix** Have `searchGreek` return `failed: true` when `loadGreekIndex` is null (one line), and let the tray and /search treat a null result from `withGreek()` as failed. Then the probes in `greek-find.js` and `search-pane.js` can go. Add the `g1.mjs` case to `test/search-greek-auto.test.js`.
 **Confidence** High.
 
-#### GK6-2 · Medium · docs · NEW · OPEN: BVJ's decision
+#### GK6-2 · Medium · docs · NEW · FIXED (BVJ's decision, 2026-11-08)
 **Where** `LICENSE:30-33` ("Everything not listed above is SOFTWARE under the MIT License"), against `public/greek/LICENSE.txt` and `src/lib/greek-credits.mjs`.
 **What happens** The root license has two classes, MIT software and CC BY-NC-ND content, and sweeps everything else into MIT. That literally covers `public/greek/` (about 41 MB of third-party data: SBLGNT CC BY, MorphGNT CC BY-SA 3.0 and derived `text/` CC BY-SA 4.0, UBS CC BY-SA 4.0, `lsj/` and `(ML)` entries CC BY-SA 4.0 from Perseus, STEP CC BY 4.0), `public/fonts/text-critical-signs.otf` (OFL, derived from Cardo; its notice is `public/fonts/text-critical-signs-OFL.txt`), and the glossary bridge. Someone reusing the repo under "MIT" would take ShareAlike data without its terms. The per-directory `LICENSE.txt` is correct; nothing at the root points to it. This is the attribution surface that matters for a public GitHub repo, which is separate from the site's credit lines.
 **Evidence** Read `LICENSE` in full: no mention of `public/greek`, SBLGNT, CC BY-SA, OFL or any third-party material (`grep -n -i "third\|SBLGNT\|OFL\|public/" LICENSE` returns nothing).
 **Fix** Add a third class to `LICENSE`: "THIRD-PARTY DATA AND FONTS, under their own licenses: `public/greek/` (see `public/greek/LICENSE.txt`), `public/fonts/text-critical-signs.otf` (SIL OFL 1.1, see its notice), the `@fontsource` faces, `src/data/alignment/`'s MorphGNT-derived fields if any," and say the MIT grant does not extend to them. Owner (BVJ) to approve the wording.
 **Confidence** High on the text; whether a lawyer wants more is not for me.
+**Decision and fix (BVJ, 2026-11-08)** made. `LICENSE` gains a third class, OTHER MATERIAL, outside both grants: `public/greek/` (its `LICENSE.txt` governs), the Greek words quoted in `src/data/alignment-words/`, the two subset fonts and the share-card fonts (OFL 1.1, each with its notice; `public/fonts/bracket-markers-OFL.txt` is new, since nothing carried Noto Sans Math's notice), the podcast feed snapshot, and the site's images; npm packages keep their own licenses. `CONTRIBUTING.md` says so in a sentence. Left for BVJ: the stock images have no credit record in the repo, and the two subset fonts' name tables carry no copyright (`text-critical-signs.otf` is also named "LIT Bracket Markers" inside).
 
 #### GK6-3 · Low · usability · NEW · FIXED (2026-11-08)
 **Where** `src/lib/greek-search.mjs:69-79` (`foldGreek`), consumed by `matchGreek`.
@@ -1301,7 +1316,7 @@ Performance is fine: broadest queries (`*.sg`, four-term any-order `*.noun`) tak
 **Fix** In `matchGreek`, allow up to the longest rendering's word count when `bridge.byPhrase.has(phrase)`; or look up the bridge before the 3-word cut.
 **Confidence** High.
 
-#### GK6-6 · Low · bug · KNOWN-OPEN (Audit 3 improvement, search-greek.js)
+#### GK6-6 · Low · bug · KNOWN-OPEN (Audit 3 improvement, search-greek.js) · FIXED (2026-11-08, #507: `loadGreekEntry` reports a failed shard)
 **Where** `src/scripts/search-greek.js:~188-201` (`searchGreek`, the `lemmas.filter((l) => l.lit?.counted > 0)` step) and `loadGreekOccurrences:~126`.
 **What happens** A Latin phrase that reaches lemmas through a LIT rendering counts each lemma's occurrences in the rendering's verses. If a shard fails to load, `loadGreekOccurrences` returns null, the count is 0, and the lemma is dropped as "never occurs there", so a transient network failure reads as "No Greek words match", not "couldn't load". Same family as GK6-1; it was listed as an improvement in Audit 3 and is unchanged.
 **Evidence** Code read (`decodeOccurrences(null)` returns `[]`). Not run: needs a shard failure on a bridge query.
@@ -1576,7 +1591,7 @@ Inflated: DK6-1, DK6-2, DK6-3, NB6-1, NB6-2, DI6-1 (each one step). Deflated: no
 
 ### Verdicts
 
-#### DK6-1 · CONFIRMED, Low (was Medium); partly DELIBERATE · OPEN: BVJ's decision
+#### DK6-1 · CONFIRMED, Low (was Medium); partly DELIBERATE · FIXED (BVJ's decision, 2026-11-08)
 Every editable card gets a real `<button>` "+ Add" (`sheet-pane.js:1146-1153`, `buildCard`), `opacity: 0` in `desk.css:7097-7113`, so it is a tab stop. That it is reachable by Tab is BVJ's design: the desk CLAUDE.md (around line 1369) says the line and pill show on "pointing at the space under a card (or tabbing to it)", and E60 kept `:focus-visible` so "keyboard focus still lights it". The severity is inflated: each card already has the minutes field, the Leader only box, ↑, ↓, × and the editor (six or more stops), so the pill adds one stop per card, not a wall of 300 identical ones. Each has its own name ("Add a part after <part>"), and the global `:focus-visible` ring draws on it. What stays true is that a screen-reader user hears one more button per part. Evidence: code read (`sheet-pane.js:1060-1153`, `global.css:401-404`). Correction to the Fix: a roving group is a design change to BVJ's 2026-11-08 decision, so put it to the owner as a question rather than a defect fix.
 
 #### DK6-2 · CONFIRMED, Low (was Medium) · FIXED (2026-11-08)
@@ -1603,7 +1618,7 @@ Standing the page down silently when either stage fails to load is the recorded 
 #### GK6-1 · CONFIRMED, Medium · FIXED (2026-11-08)
 `ver6/gk6-1.mjs` (my own fetch stub, `lemmas.json` answering 503) gives `πίστις` → `{kind:null, lemmas:0, failed:false}`, `G4102` → the same, and `πίστις.gen` → `{kind:"commands", failed:true}`. `searchGreek` returns `empty` with `failed: false` when the index is null (`search-greek.js:177-180`). /search's `writeGreekStatus` checks `!greek.lemmas.length` before `greek.failed` (`search.js:1028-1031`), so it says "No Greek words match “…”". The tray's failed branch requires `greek.selected` (`searchbar.js:1023`). So GK3-9's fix is incomplete for an index failure, as GK6 says. Medium stands: it says something false (the word isn't Greek) in a plausible offline or transient case. Correction to the Fix: also reorder `writeGreekStatus` so `failed` is checked before the empty-lemmas case.
 
-#### GK6-2 · CONFIRMED, Medium (owner's call); wider than stated · OPEN: BVJ's decision
+#### GK6-2 · CONFIRMED, Medium (owner's call); wider than stated · FIXED (BVJ's decision, 2026-11-08)
 The root `LICENSE` names two classes and says "Everything not listed above is SOFTWARE under the MIT License". It has no exception for `public/greek/` (whose own `LICENSE.txt` lists CC BY and CC BY-SA sources), `public/fonts/text-critical-signs.otf` (OFL, with its own notice), `public/fonts/bracket-markers.otf`, or `scripts/og/fonts/*.ttf` (with `OFL.txt` beside them). No prior audit raised it (grep of AUDIT-1 to 5 and FIXES). `git log -- LICENSE` shows it last changed in #248, before the Greek data landed. Correction: add the two fonts and the OG fonts to the list in the Fix. The glossary bridge is derived from the LIT's own glossary plus Greek lemmas, so it is not purely third-party; leave it out or have it described by the owner.
 
 #### DI6-1 · CONFIRMED, Low (was Medium); fix before the first canonical-form change · FIXED (2026-11-08)

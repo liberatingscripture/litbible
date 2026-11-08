@@ -1,7 +1,9 @@
 LIT Bible — Licensing
 =====================
 
-This repository holds two kinds of material under two different licenses.
+This repository holds three kinds of material. Two are the project's own,
+under two different licenses; the third is work by others, and other files
+that neither license covers, each under its own terms.
 
 1. SOFTWARE — the website's source code (Astro components, layouts, scripts,
    styles, build tooling, configuration). Licensed under the MIT License
@@ -29,8 +31,54 @@ Which files are CONTENT (CC BY-NC-ND 4.0), not SOFTWARE:
   - src/data/translation-commitments.json
   - any LIT translation text or editorial prose wherever else it appears
 
-Everything not listed above is SOFTWARE under the MIT License. The MIT grant
-below does NOT extend to the CONTENT.
+3. OTHER MATERIAL — work by others that the site builds on, and a few files
+   of the project's own that are under neither license above. Neither the
+   MIT grant nor the CC BY-NC-ND grant extends to any of it. Each item below
+   names the notice that states its terms; where a notice gives terms per
+   directory or per entry, the notice governs.
+
+Which files are OTHER MATERIAL, not SOFTWARE and not CONTENT:
+  - public/greek/                 The Greek New Testament data behind the
+    Study Desk's Greek tab and the Greek search: the SBL Greek New Testament
+    (SBLGNT), MorphGNT, MACULA Greek, the UBS Greek New Testament Dictionary,
+    and lexicons from STEPBible (Tyndale House Cambridge) with text from the
+    Perseus Digital Library. These are under Creative Commons Attribution
+    (CC BY) and Attribution-ShareAlike (CC BY-SA) licenses of several
+    versions; which license applies to which directory, and to which
+    entries within a directory, is stated in public/greek/LICENSE.txt, and
+    that notice governs. Nothing from the LIT is in these files.
+  - src/data/alignment-words/     Each record quotes the Greek words it
+    aligns, taken from the SBLGNT as MorphGNT tokenizes it; see the text/
+    section of public/greek/LICENSE.txt for both sources' terms. The LIT
+    verse text in the same files is CONTENT.
+  - public/fonts/text-critical-signs.otf
+    Six glyphs subset from Cardo, copyright David J. Perry. SIL Open Font
+    License 1.1; notice: public/fonts/text-critical-signs-OFL.txt
+  - public/fonts/bracket-markers.otf
+    Two glyphs subset from Noto Sans Math, copyright Google LLC. SIL Open
+    Font License 1.1; notice: public/fonts/bracket-markers-OFL.txt
+  - scripts/og/fonts/*.ttf        Fraunces and Inter, used to draw the share
+    cards. SIL Open Font License 1.1; notice: scripts/og/fonts/OFL.txt, with
+    the sources in scripts/og/fonts/README.md
+  - src/data/podcast-feed.xml     A snapshot of the Found in Translation
+    podcast's RSS feed as its host serves it. The podcast's own copyright
+    notice, carried in the file, applies.
+  - public/images/, public/assets/, _source-images/, and the favicon and
+    app-manifest icons at the top of public/
+    The site's images. Those that are the project's own (the emblem,
+    wordmark, app icon, and screenshots of the apps) are not licensed for
+    reuse by this file. The rest are photographs and artwork from other
+    sources, used under those sources' own terms, which this file does not
+    restate.
+
+Packages installed from npm (the @fontsource font faces, simple-icons, and
+the rest of package.json) are not in this repository, though the build
+copies parts of some into the site. Each keeps the license in its own
+package.
+
+Everything not listed under CONTENT or OTHER MATERIAL is SOFTWARE under the
+MIT License. The MIT grant below extends to neither the CONTENT nor the
+OTHER MATERIAL.
 
 ------------------------------------------------------------------------------
 MIT License (SOFTWARE only)

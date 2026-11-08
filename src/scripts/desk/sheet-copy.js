@@ -21,6 +21,7 @@ import {
   COPY_NAMES,
   keyTermsForCopy,
   modulesForCopy,
+  printsOnPaper,
   sheetHtmlForShow,
 } from "../../lib/desk-sheet-copy.mjs";
 import { blankHint, blankWords, collectKeyTerms, footnoteRows, termForWords } from "../../lib/desk-sheet-lit.mjs";
@@ -307,7 +308,7 @@ function questionSection(m, copy) {
   return section;
 }
 
-export function keyTermsSection(m, views, modules, copy, blanks) {
+export function keyTermsSection(m, views, modules, copy, blanks, { paper = false } = {}) {
   const section = make("section", "sheet-copy__terms");
   if (m.leaderOnly) section.append(make("span", "sheet-copy__tag", "Leader only"));
   section.append(make("h2", "sheet-copy__terms-title", "Key terms"));
@@ -319,6 +320,8 @@ export function keyTermsSection(m, views, modules, copy, blanks) {
     });
   const { terms, blanked } = keyTermsForCopy(collectKeyTerms(passages, m.omit ?? []), blanks, copy);
   if (!terms.length) {
+    // On paper an empty box prints nothing (Audit 6, SH6-3): the sentence is the editor's.
+    if (paper) return null;
     section.append(make("p", "sheet-copy__missing", "None of the sheet’s passages uses a key term."));
     return section;
   }
@@ -382,6 +385,7 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   article.append(head);
 
   for (const m of modules) {
+    if (!printsOnPaper(m, copy)) continue;
     if (m.type === "passage") {
       const code = codeFor.get(m.id);
       article.append(passageSection(m, views.get(m.id), { copy, allBlanks: blanks, code: code ? codeFigure(code) : null }));
@@ -398,7 +402,8 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
       section.append(ruled(m.lines ?? 4));
       article.append(section);
     } else if (m.type === "keyTerms") {
-      article.append(keyTermsSection(m, views, modules, copy, blanks));
+      const terms = keyTermsSection(m, views, modules, copy, blanks, { paper: true });
+      if (terms) article.append(terms);
     } else if (m.type === "pageBreak") {
       const br = make("div", "sheet-copy__break");
       br.setAttribute("role", "separator");
@@ -407,7 +412,7 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
     }
   }
 
-  if (!modules.length) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
+  if (!modules.some((m) => printsOnPaper(m, copy))) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
 
   if (answerKey && copy === "leader") {
     const key = answerKeySection(modules, views);
