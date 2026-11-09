@@ -59,7 +59,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Done button
   go to the page's own list and versions instead of the editor's list and
   its "Present…" and "Print or share…", and it uses the exported
-  `templateChooser` for the list's "New sheet…". **Two tabs on one sheet**
+  `templateChooser` for the list's "New sheet…". **The editor's own list
+  view is `my-sheets.js`** (Audit 6, LG6-2): "My sheets", "My templates",
+  each row's actions and `templateChooser`, handed the editor's pieces as
+  `listHost`; the editor keeps only clearing its sheet view first. **Two tabs on one sheet**
   (S12, part 4; BVJ, 2026-11-08; rules in `src/lib/desk-sheet-tabs.mjs`,
   page side `sheet-tabs.js`): every change is planned over the record as
   read (BA129), so edits to different parts in two tabs both keep, and each

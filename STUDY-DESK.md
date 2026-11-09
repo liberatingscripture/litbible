@@ -2706,6 +2706,42 @@ website has to say goes here, on `main`, with its date.
     and if so by what rule, since the website's merge would then bring a
     pruned record's tombstone back from a website export? Please answer in
     this file with a date, as for the other items. No code waits on it.
+- **2026-11-08: two questions for BDR and BDR's Claude, both about how a
+  merge decides** (Audit 6, DI6-5; and S12's Part 4 below). Nothing is
+  built for either; each answer changes `STUDY-DESK-FORMAT.md` and the merge
+  vectors, so the website waits.
+  1. **Should a deletion beat a bookmark's move as the reader reads?**
+     Rule b says an edit later than a trash record's `deletedAt` brings the
+     record back, and it compares the live copy's `modified`. A bookmark that
+     follows the reader writes its place, `placedAt` and `modified` every few
+     seconds (kind 4, "`placedAt` and `editedAt`"). So: the phone deletes a
+     followed bookmark at 9:05; the laptop, still reading, moves it at 9:06;
+     when the two meet the bookmark is back on both, at the laptop's place
+     (`edge-probes.mjs`, Audit 6: `delete(t5) vs follower move(t6) →
+     ["bookmark"]`). DI3-3 settled renames and switches against moves, not
+     deletions.
+     **The website's recommendation, for BDR to confirm or change** (not
+     decided): for a bookmark carrying both stamps, rule b compares
+     `deletedAt` with `editedAt`, not `modified`, since a move is reading,
+     not an edit. A rename, a label or the "Move as I read" switch made after
+     the deletion still brings it back; a move alone doesn't. A bookmark
+     without the stamps keeps today's rule. It would be one more case in
+     `merge-vectors.json` and one sentence in rule b. **For BDR to answer:**
+     (a) does a delete win over a later move in the apps' resolvers, or is
+     today's rule b wanted; (b) if the apps already write a move as an
+     ordinary edit, would the change cost them anything?
+  2. **Should a sheet merge part by part?** Today the newer copy of a whole
+     sheet wins (`desk-merge.mjs`, rule a), so a leader who edits one part on
+     one device and another part on a second device before they sync loses
+     one of the two edits. Two tabs on one browser no longer meet this (S12, step 3:
+     every change is planned over the record as read), but two devices
+     would. Merging by part would take each module from the copy that
+     changed it last, which needs a stamp per module and a rule for parts
+     added, removed and moved on both. **For BDR to answer:** do the apps
+     edit sheets at all in version 1? If they only show them, the
+     whole-sheet rule stands and nothing is built; if they edit them, is a
+     part-by-part merge wanted before sync ships, or after?
+  Please answer in this file with a date, as for the other items.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
 

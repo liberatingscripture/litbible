@@ -20,7 +20,8 @@
 
 import { createHistory } from "../history.js";
 import { initUndo } from "../undo-bar.js";
-import { createSheetEditor, templateChooser } from "./sheet-editor.js";
+import { createSheetEditor } from "./sheet-editor.js";
+import { templateChooser } from "./my-sheets.js";
 import { isOwnTemplate } from "../../../lib/desk-sheets.mjs";
 import { sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { make } from "../dom.js";

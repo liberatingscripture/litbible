@@ -24,7 +24,8 @@
 // - `inTour(node)` whether a node is in the tour's card, which the closers
 //   must not count as elsewhere.
 // - New sheet… needs nothing more: it adds or finds a Sheets pane through
-//   `getLayout`, `commit` and `panesBox`, then sends `desk:sheet-new` (with the
+//   `getLayout`, `commit` and `panesBox` (which pane is `sheetPaneFor`, in
+//   desk-layout.mjs), then sends `desk:sheet-new` (with the
 //   pane's id) for the Sheets pane to open its template chooser.
 // - `layoutWindow`, `printWindow`: `{ open(), close({ focus }) }` for the two
 //   windows the menu's Layout… and Print… lines open, and which opening the
@@ -35,7 +36,7 @@
 // tour points at; `showAddKinds` opens the flyout at its second step for the
 // tour; `refreshTourLine` redraws the quiet "Take the tour" line.
 
-import { KINDS, addPane, addPaneNeeds, addWhy, panes, whyText } from "../../lib/desk-layout.mjs";
+import { KINDS, addPane, addPaneNeeds, addWhy, panes, sheetPaneFor, whyText } from "../../lib/desk-layout.mjs";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { el } from "./dom.js";
 import { describeUnavailable } from "./menu-reasons.js";
@@ -340,16 +341,9 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
   function startNewSheet() {
     const { width, height } = addRoom();
     const layout = getLayout();
-    let paneId = panes(layout.root).find((p) => p.kind === "sheet")?.id ?? null;
-    let next = layout;
-    if (!paneId) {
-      const direction = addPaneNeeds(layout, "column", width, height) ? "row" : "column";
-      next = addPane(layout, direction, "sheet", width, height);
-      if (next === layout) { closeTitleMenu(); return; }
-      const had = new Set(panes(layout.root).map((p) => p.id));
-      paneId = panes(next.root).find((p) => !had.has(p.id))?.id ?? null;
-    }
+    const { layout: next, paneId } = sheetPaneFor(layout, width, height);
     closeTitleMenu();
+    if (!paneId) return;
     if (next !== layout) commit(next);
     // The Sheets pane listens and opens its template chooser (sheet-pane.js).
     // This relies on `commit` having built the new pane, and so registered its
