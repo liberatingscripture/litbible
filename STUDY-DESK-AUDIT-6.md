@@ -164,7 +164,12 @@ dead exports, the shell's measured size against the doc), and SH6-8 to SH6-11.
    recommendation that a delete win over a move.
 7. Part 1's smaller questions (Appendix A, section F): whether a template of the reader's own
    carries the `commercial` flag, and whether Lectio divina's "Read" prompt should mention the
-   passage form.
+   passage form. **Both answered (BVJ, 2026-11-08).** The `commercial` flag stays with the
+   template, and the help page now says so: only a reader who ticked it carries it, and that reader
+   is the one likeliest to make commercial material again. Lectio's four
+   prompts now suggest what the leader might write
+   ("Your words on how to read, such as “…”") instead of reading as the instructions themselves;
+   the "Read" prompt doesn't name the form, which opens right under it.
 
 ## What the orchestrator checked personally
 
@@ -456,6 +461,7 @@ heading by design (SH5-8); with SH6-3's rule (d) these would go.
   page in order meets two sentences about controls that aren't there (`sheet-page.js:398-411`).
 - "Save as template" keeps the sheet's `commercial` flag, so a template saved from a commercial sheet starts
   every later sheet with the commercial check on. Probably right; worth a line in the help page.
+  **Kept (BVJ, 2026-11-08), and the help page says so.**
 - The "–" placeholder in the minutes box and the word "min" are the only visible cue to what the box is; the
   accessible name is good ("Minutes planned for Opening"), and the hover text explains it, but a first-time
   leader reads "– min" as a mystery field in every header. A tooltip-free cue such as "Minutes" in the
@@ -633,10 +639,12 @@ while the pane is hidden), a mouse drag that ends on a key term (SH5-15), Firefo
    help page should say so and Present should show it too; if no, Space is the part for lines.
 3. SH6-7: should "New sheet" write a record before the first change? Seven abandoned untitled sheets in the
    origin suggest a leader compares templates by opening them.
-4. Should a template of the reader's own carry the `commercial` flag (it does)?
+4. Should a template of the reader's own carry the `commercial` flag (it does)? **Yes (BVJ,
+   2026-11-08):** it reaches only readers who ticked it; the help page says so.
 5. The Lectio divina template opens the passage form under "Read" because "Read" is a reading heading; its
    prompt talks about how to read, not about the form. Right as it is, or should Lectio's prompt mention the
-   passage too?
+   passage too? **Answered (BVJ, 2026-11-08):** the prompts should encourage the leader to write such
+   instructions, not supply them, so all four now read "Your words on how to …, such as “…”".
 
 ### G. Not covered
 
