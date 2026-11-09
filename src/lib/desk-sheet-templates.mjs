@@ -130,12 +130,12 @@ const BUILDERS = {
   ],
   "lectio-divina": () => [
     beforeYouLead(),
-    part("Read", "How to read: slowly, aloud if you can, noticing a word or phrase that catches you."),
-    part("Reflect", "How to reflect: read it again and stay with that word or phrase, asking what it stirs."),
+    part("Read", "Your words on how to read, such as “Read it slowly, aloud if you can, and notice a word or phrase that catches you.”"),
+    part("Reflect", "Your words on how to reflect, such as “Read it again and stay with that word or phrase. What does it stir in you?”"),
     makeModule("space", { lines: 6 }),
-    part("Pray", "How to pray: read it a third time and answer God in your own words, or with none."),
+    part("Pray", "Your words on how to pray, such as “Read it a third time, then answer God in your own words, or with none.”"),
     makeModule("space", { lines: 6 }),
-    part("Rest", "How to rest: let the words go, and rest in God’s presence for a few minutes."),
+    part("Rest", "Your words on how to rest, such as “Let the words go, and rest in God’s presence for a few minutes.”"),
     makeModule("space", { lines: 4 }),
   ],
   // The three signs are the parts' headings, so the participants' copy carries
