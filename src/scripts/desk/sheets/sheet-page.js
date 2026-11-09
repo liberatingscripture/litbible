@@ -244,7 +244,14 @@ async function showList(root, store) {
     desk,
     document.createTextNode(" has the fuller workspace, with the LIT beside the sheet."),
   );
-  root.append(intro, newSheetRow(root, store), openFileRow(root, store));
+  const newRow = newSheetRow(root, store);
+  root.append(intro, newRow, openFileRow(root, store));
+  // `/sheets/?new` (the notebook page's "New sheet…", S12, part 2) opens the
+  // templates at once, and the address goes back to the list's.
+  if (new URLSearchParams(location.search).has("new")) {
+    history.replaceState(history.state, "", `${BASE}sheets/`);
+    newRow.querySelector("button")?.click();
+  }
   if (!sheets.length) {
     root.append(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
     return;
@@ -948,12 +955,17 @@ async function route(root, store, { template = null, focus = null } = {}) {
       history.pushState(null, "", address);
       route(root, store, { focus: focusOn });
     };
+    // Sent from a Sheets pane's "Open on its own page": no two-tab question,
+    // and the marker leaves the address, so a reload asks as usual.
+    const fromDesk = params.get("from") === "desk";
+    if (fromDesk && id) history.replaceState(history.state, "", `${BASE}sheets/?id=${encodeURIComponent(id)}&view=edit`);
     editing = editSheet({
       root,
       store,
       ctx,
       id,
       template,
+      askFirst: !fromDesk,
       // A new sheet's address gains its id once it is saved.
       onSaved: (sheetId) => history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(sheetId)}&view=edit`),
       onList: () => go(`${BASE}sheets/`, "list"),

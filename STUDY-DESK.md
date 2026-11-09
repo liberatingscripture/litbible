@@ -5174,8 +5174,8 @@ be revisited for version 2.
 
 ## S12. Editing on the Sheets page, and the ways in (planned 2026-11-08)
 
-**Planned, nothing built** (BVJ, 2026-11-08: "Plan it but don't start
-building yet"). BVJ asked three things the same day:
+**Steps 0 to 4 built, step 5 (header C) not started** (2026-11-08; planned
+the same day, BVJ: "Plan it but don't start building yet"). BVJ asked three things the same day:
 
 - Could a sheet be worked on at `/sheets` itself, outside the desk, "much like
   search is its own page, but also works in the desk"?
@@ -5392,7 +5392,16 @@ apps want a sheet merged part by part before this is built.
    editing tab to answer, so nothing is remembered that a crashed tab could
    leave behind. BDR's answer on merging a sheet part by part (Part 4) is
    still open; it bears on Phase 4's sync, not on two tabs.
-4. The ways in (Part 2).
+4. The ways in (Part 2; done 2026-11-08: `sheets/sheet-add.js` and
+   `src/lib/desk-sheet-add.mjs`, the rest in `sheets/CLAUDE.md`, "The ways
+   in"). Ways 2 to 6 are built; way 1, the header's menu, is header C's Study
+   group and comes with step 5. Choices made in building it, for BVJ to
+   change if wanted: the flyout lists the five sheets changed last; "New
+   sheet" (no ellipsis, since it asks nothing) makes a blank sheet holding the
+   passage, named after it, rather than offering the templates; the flyout
+   is on Chapter View only, not Read View; "Open on its own page" in a Sheets
+   pane opens the editor on /sheets without the two-tab question, since the
+   reader sent it there; /notebook's "New sheet…" opens /sheets' templates.
 5. The header as C (Part 3), with its details settled first.
 
 Each is its own PR.

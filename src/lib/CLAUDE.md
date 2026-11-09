@@ -55,6 +55,7 @@ From the root's project tree.
                      #   what it takes from the notebook (desk-sheet-from-notes),
                      #   sharing it by link or file (desk-sheet-share),
                      #   two tabs editing it (desk-sheet-tabs),
+                     #   a chapter page's "Add to sheet" (desk-sheet-add),
                      #   and its copies on paper (desk-sheet-copy, with
                      #   qr-svg.mjs, the one QR drawing), as a document
                      #   (desk-sheet-doc, the model Copy and the files

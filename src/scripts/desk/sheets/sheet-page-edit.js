@@ -32,11 +32,13 @@ import { make } from "../dom.js";
  *
  * @param {{ root: HTMLElement, store: object, ctx: () => object, id?: string | null,
  *   template?: string | object | null, onSaved: (id: string) => void,
- *   onList: () => void, onDone: (id: string) => void, onCancel: (id: string) => void }} options
- *   `onSaved` is told the sheet's id once it has one, for the address.
+ *   onList: () => void, onDone: (id: string) => void, onCancel: (id: string) => void,
+ *   askFirst?: boolean }} options
+ *   `onSaved` is told the sheet's id once it has one, for the address;
+ *   `askFirst: false` opens it without the two-tab question (sent from a Sheets pane).
  * @returns {{ destroy: () => void }}
  */
-export function editSheet({ root, store, ctx, id = null, template = null, onSaved, onList, onDone, onCancel }) {
+export function editSheet({ root, store, ctx, id = null, template = null, onSaved, onList, onDone, onCancel, askFirst = true }) {
   initUndo();
   createHistory({ store, ctx });
   let shown = id;
@@ -52,6 +54,7 @@ export function editSheet({ root, store, ctx, id = null, template = null, onSave
     onList,
     onDone,
     onCancel,
+    askFirst,
   });
   root.replaceChildren(make("h1", "sr-only", "Edit a sheet"), editor.el);
   root.classList.add("sheets-page--editing");

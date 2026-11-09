@@ -86,7 +86,7 @@ export function listable(records) {
 /**
  * What My Notes lists: not a sheet, which is a page of its own with a list on
  * /sheets and in the Sheets pane (LV3-3, BVJ 2026-11-07). The notebook page's
- * "What I've kept" still lists sheets, as "Other items".
+ * "What I've kept" still lists sheets, under "Sheets" (S12).
  */
 export function withoutSheets(records) {
   return records.filter((r) => r?.kind !== "sheet");

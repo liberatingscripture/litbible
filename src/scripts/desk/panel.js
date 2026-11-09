@@ -151,12 +151,13 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   });
 
   // The Settings tab's content (BVJ, 2026-10-29): the settings, print buttons
-  // and links that were the foot of My Notes.
+  // and links that were the foot of My Notes. "My sheets" sits beside the
+  // notebook page (S12, part 2), since My Notes lists no sheets.
   const settingsEl = document.createElement("div");
   settingsEl.className = "desk-panel__settings-tab";
   settingsEl.innerHTML = `
     <div class="desk-panel__settings-slot"></div>
-    <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a></p>
+    <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a> · <a href="/sheets/">My sheets</a></p>
     <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook actions</button></p>
     <p class="desk-panel__kept"></p>
     <p class="desk-panel__persist" hidden></p>`;

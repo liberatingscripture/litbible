@@ -342,6 +342,19 @@ a.desk-item__ref:hover {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* "Open the sheet" beside Undo (S12): a link, so it reads as one. */
+.desk-undo__link {
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--green-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.desk-undo__link:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
 /* ── Notes in the list ───────────────────────────────────────── */
 
 /* A note's row: its glyph and words (a button that opens it in full for the
@@ -3447,6 +3460,22 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 .desk-np__h3 {
   margin: 1.75rem 0 0.25rem;
   font-size: 1.2rem;
+}
+
+/* The notebook page's Sheets section: New sheet… and All my sheets (S12). */
+.desk-np__sheet-links {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.desk-np__sheet-links a {
+  color: var(--green-text);
+}
+
+@media print {
+  .desk-np__sheet-links {
+    display: none;
+  }
 }
 
 .desk-np__h4 {
@@ -6913,12 +6942,20 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 }
 
 /* One sheet */
+/* Its links wrap whole onto a second line in a narrow pane (S12 added
+   "Open on its own page"), never word by word or off the pane's edge. */
 .desk-sheet__top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 2px 8px;
   margin: -4px -6px 8px;
+}
+
+.desk-sheet__top > a,
+.desk-sheet__top > button {
+  white-space: nowrap;
 }
 
 .desk-sheet__saved {

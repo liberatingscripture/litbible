@@ -428,9 +428,13 @@ function say(bar, text, { sheet = null, entry = null } = {}) {
   line.append(make("span", null, text));
   let target = null;
   if (sheet) {
-    const open = make("a", "desk-gather__link", "Open it on the Study Desk");
-    open.href = `${BASE}desk/?sheet=${encodeURIComponent(sheet.id)}`;
-    line.append(" ", open);
+    // It opens where the search was, on /sheets, and the Study Desk is
+    // offered beside it (S12, part 2; BVJ, 2026-11-08, decision 4).
+    const open = make("a", "desk-gather__link", "Open the sheet");
+    open.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`;
+    const desk = make("a", "desk-gather__link", "open it on the Study Desk");
+    desk.href = `${BASE}desk/?sheet=${encodeURIComponent(sheet.id)}`;
+    line.append(" ", open, ", or ", desk, ".");
     target = open;
     if (entry) {
       const undo = button("Undo", "desk-gather__btn desk-gather__btn--quiet");

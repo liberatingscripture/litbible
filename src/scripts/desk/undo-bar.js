@@ -130,13 +130,16 @@ const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.",
  *
  * @param {string} message
  * @param {() => unknown} onAction
- * @param {{ label?: string }} [options] the button's name; "Undo" by default
+ * @param {{ label?: string, link?: { label: string, href: string } | null }} [options]
+ *   `label` is the button's name, "Undo" by default; `link` puts a link after
+ *   it that opens in a new tab ("Open the sheet", S12), for this notice only
  * @returns {number} this notice's number, for hideUndo to take down just it
  */
-export function showUndo(message, onAction, { label = "Undo" } = {}) {
+export function showUndo(message, onAction, { label = "Undo", link = null } = {}) {
   initUndo();
   noteFocus();
   const mine = ++shown;
+  dropLink();
   const bar = root.querySelector(".desk-undo__bar");
   const text = root.querySelector(".desk-undo__text");
   // A fresh button each time, so an older notice's handler can't linger.
@@ -150,6 +153,19 @@ export function showUndo(message, onAction, { label = "Undo" } = {}) {
   old.replaceWith(fresh);
   // A keyboard Undo that puts up a Redo keeps its place on the bar.
   if (hadFocus) fresh.focus({ preventScroll: true });
+  if (link) {
+    const a = document.createElement("a");
+    a.className = "desk-undo__link";
+    a.href = link.href;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = link.label;
+    const tab = document.createElement("span");
+    tab.className = "sr-only";
+    tab.textContent = " (opens in a new tab)";
+    a.append(tab);
+    fresh.after(a);
+  }
   fresh.addEventListener("click", async () => {
     // aria-disabled, not disabled: the button is focused, and a focused button
     // that is disabled loses focus in some browsers (NB3-8).
@@ -189,6 +205,7 @@ export function showNotice(message) {
   initUndo();
   noteFocus();
   shown++;
+  dropLink();
   const button = root.querySelector(".desk-undo__undo");
   // Replaced rather than hidden in place, so a press already under way can't
   // act on a notice that is no longer its own.
@@ -219,6 +236,14 @@ export function hideUndo(notice) {
   const hadFocus = bar.contains(document.activeElement);
   bar.setAttribute("hidden", "");
   if (hadFocus) giveFocusBack();
+}
+
+/** Take away the last notice's link, if it had one; focus on it moves to Close. */
+function dropLink() {
+  const old = root.querySelector(".desk-undo__link");
+  if (!old) return;
+  if (document.activeElement === old) root.querySelector(".desk-undo__close").focus({ preventScroll: true });
+  old.remove();
 }
 
 /** Remember where focus is as a notice comes up (not in the bar, not on the page's body). */

@@ -149,6 +149,36 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `textFor` from the detail. Which sheet a Sheets pane shows is `sheet`
   on its pane in the layout (`setPaneSheet`).
 
+## The ways in (S12, part 2)
+
+Where a reader is when they want a sheet (BVJ, 2026-11-08, decisions 3 and 4).
+The header's Study group is part 3's, built with header C.
+
+- **"Add to sheet ▸" on a chapter page** (`sheet-add.js`, rules in
+  `src/lib/desk-sheet-add.mjs`): after Print in the verse menu and the
+  selection panel, Chapter View only (`d.view === "study"`; /desk's LIT pane
+  keeps the pane's own "Add to “…”" above). It lists the five sheets changed
+  last (`addMenuSheets`: no templates, newer formats or full sheets) and "New
+  sheet", which makes a blank sheet holding the passage, named after it. The
+  list is read once and again after a sheet changes (`store.byKind`), so the
+  row draws at once; a finger's chips get it flat. A pick is one
+  `store.change` over the sheet as read there (`planAddToSheet`; the passage
+  goes where `passageInsertIndex` says, since nobody is working in the
+  sheet), and the undo bar shows Undo with an "Open the sheet" link
+  (`showUndo`'s `link`, to `/sheets/?id=`).
+- **/search's sheet opens on /sheets**: the line after "Make a sheet of these
+  verses" says "Open the sheet, or open it on the Study Desk." (rule 21).
+- **/notebook lists sheets under "Sheets"** with "New sheet…" and "All my
+  sheets" (`kept-list.js`), shown too while nothing narrows the list. "New
+  sheet…" is `/sheets/?new`, which opens the list's templates at once and
+  drops the parameter. The Notebook's Settings tab links "My sheets" beside
+  the notebook page.
+- **Each home offers the other**: a Sheets pane's "Open on its own page" is
+  `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
+  the two-tab question for that first open (`askFirst: false`), since the
+  pane is the other tab and the reader sent it; the page drops the marker,
+  so a reload asks as usual. /sheets keeps "Edit on the Study Desk".
+
 ## Rule 19: a sheet on paper
 
 **Phase 3i is a sheet on paper** (STUDY-DESK.md, S4,
@@ -358,9 +388,10 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   `loadDeskSheets()` in `search-core.js`, which imports
   `desk/sheets/search-sheet.js` only with `data-desk="on"`. The passages
   (Bible order, neighbors joined, capped at the sheet's limit) are
-  `src/lib/desk-sheet-gather.mjs`. "Open it on the Study Desk" is
-  `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
-  (`showSheet` in `desk-layout.mjs`) and strips from the address.
+  `src/lib/desk-sheet-gather.mjs`. What it made opens where the search
+  was: "Open the sheet" is `/sheets/?id=<id>`, and "open it on the Study Desk" beside
+  it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
+  (`showSheet` in `desk-layout.mjs`) and strips from the address (S12).
 - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;
   format in STUDY-DESK-FORMAT.md, "Sharing a sheet"): the sheet, less
   its ids and comparison copies (and, for a participant share, its
