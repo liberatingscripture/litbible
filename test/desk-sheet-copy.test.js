@@ -261,11 +261,12 @@ test("no desk script draws a sheet's stored html without sheetHtmlForShow (BA66)
   const raw = /\.innerHTML\s*=(?!\s*sheetHtmlForShow\()[^;`"'\n]*\b(?:html|answer)\b/;
   assert.match("box.innerHTML = html ?? \"\";", raw, "the old line is caught");
   assert.match("box.innerHTML = m.answer;", raw);
-  for (const name of readdirSync(dir).filter((f) => /sheet.*\.js$/.test(f))) {
+  for (const name of readdirSync(dir).filter((f) => f.endsWith(".js"))) {
     const src = readFileSync(new URL(name, dir), "utf8");
     assert.doesNotMatch(src, raw, name);
   }
-  assert.match(readFileSync(new URL("sheet-editor.js", dir), "utf8"), /innerHTML = sheetHtmlForShow\(html\)/);
+  // A read-only part is drawn in part-cards.js (Audit 6, LG6-2).
+  assert.match(readFileSync(new URL("part-cards.js", dir), "utf8"), /innerHTML = sheetHtmlForShow\(html\)/);
 });
 
 test("sheetHtmlForShow: strips the attack from a sheet in a newer format (BA66)", () => {
