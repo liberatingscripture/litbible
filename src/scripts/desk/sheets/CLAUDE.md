@@ -25,7 +25,7 @@ build:sheet-golden`) holds the sanitizer's output byte for byte, and
 `planSheetChange` edits over `cleanSheetText(current)`, so a drift becomes a
 one-time rewrite rather than a refusal (DI3-6). An import and an opened share
 likewise sanitize a sheet before checking it (DI6-1). A replacement behind the `createSheetText` interface is a version 2
-item; add a cross-browser golden-file test of the eight commands before it.
+item; add a cross-browser golden-file test of the ten commands it calls before it.
 A menu's `close()` takes the menu out of `openMenu` before removing it:
 removing the focused item fires blur, the editor's `focusout` closes menus
 too, and in the other order the second `remove()` threw NotFoundError before
@@ -76,12 +76,15 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   page side `sheet-tabs.js`): every change is planned over the record as
   read (BA129), so edits to different parts in two tabs both keep, and each
   tab redraws what the other saved. **A part the reader is typing in is
-  never redrawn**; when its saved text moves under them (`changedUnderReader`,
-  its html or answer), `showConflict` puts a line under the part: "Changed
+  never redrawn**, field by field (`movedUnderReader`, Audit 8 SH8-2): a
+  field whose saved text moved and that the reader isn't in loads the other
+  tab's text at once; only the field being typed in keeps the reader's words,
+  and then `showConflict` puts a line under the part: "Changed
   in another tab." ("…another Sheets pane." when the store's notice came
   from this tab), with "Show that version" (loads it and writes it again,
   since this tab's typing may already have saved over it) and "Keep mine"
-  (writes the card's words now, through `take()` on its editors). Only cards
+  (writes only the fields that differ from the other version, `keptFields`,
+  so a field the reader never touched isn't reverted). Only cards
   whose instance carries `fields` (text and question) get it. **Opening a
   sheet asks first when another tab is editing it** (`openSheet`): it sends
   `who` on one BroadcastChannel and waits `ASK_WAIT_MS` for a `here` from a
@@ -91,7 +94,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `replaceState`) or the editor's list. There is no heartbeat: nothing is
   remembered between questions, so a crashed or frozen tab only fails to
   answer, and a tab printing or presenting holds no editor and never answers.
-  A new sheet (a draft, a duplicate) has nobody to ask. The editor's formatted text is in `desk/sheets/sheet-text.js`
+  A new sheet (a draft, a duplicate) has nobody to ask. Two tabs opening one
+  sheet at the same moment ask each other (a tab still asking answers `here`
+  marked `asking`), and of two that heard each other only the larger id asks
+  (DI8-8). The editor's formatted text is in `desk/sheets/sheet-text.js`
   (a paste or a drop is read by `pastedSheetHtml`, which keeps what
   Google Docs, Word and web pages mean; BA68, BA71, BA73; how a client
   reads a paste isn't in the format)
@@ -216,7 +222,7 @@ a notebook record, so with no store the tour never starts.
   and no editor until Edit (the static-import test guards it). **The offer's
   rules come by `import()` too**, 1.6 s after the draw: `desk-first-use.mjs`
   (which declares the three tour keys; `first-use.js` re-exports them) brings
-  `desk-layout.mjs` with it for the desk tour's "Add pane" card, 86 KB of
+  `desk-layout.mjs` with it for the desk tour's "Add pane" card, 49 KB of
   source that a page opened to print or present, or a phone showing a shared
   sheet, has no use for. The same goes for `last-read.js`, read for the tour's
   passage.
@@ -308,7 +314,9 @@ my notebook"**. Ten things to know:
   out of the page's chunk. A row's name is a link (`sheetHref`: a sheet's
   versions, a template's editor); Duplicate opens the copy in the editor;
   a row's action redraws the list with focus where the pane would put it
-  (`showList`'s `focusKey`), and a change from elsewhere redraws it too.
+  (`showList`'s `focusKey`), and a change from elsewhere redraws the rows
+  alone, off the page, swapped in only when they changed, so an open "New
+  sheet…" chooser, the scroll, and focus stay (SH8-1).
   Where the import fails the sheets are plain links, as before E64.
 - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
   modules each copy prints (`modulesForCopy`: the participant's leaves
@@ -340,7 +348,9 @@ my notebook"**. Ten things to know:
   that reason, loaded only by the sheet page's chunk.
 - **Copy** (`desk/sheets/sheet-word.js`; "Copy for Word" until E36) reads the copy on screen and
   writes HTML with inline styles plus plain text, so what is pasted is
-  what would print, codes aside. Its button carries the copy glyph (two
+  what would print, codes aside. The plain text numbers an ordered list and
+  indents a nested one, and each block of a footnote takes its own line
+  (GF8c-3, GF8c-7). Its button carries the copy glyph (two
   sheets, drawn in `sheet-page.js`'s `copyGlyph`, as the glossary's copy-link icon) and
   the accessible name "Copy this version to the clipboard".
 - **Save as ▾** (E37; BVJ, 2026-11-06) sits after Copy and saves the
@@ -577,8 +587,10 @@ Part of desk rule 23 (phase 2c); the rest of it, notes on a footnote, is in
   parts (a question note a `question`, any other note or a pinned
   footnote a `text`, a highlight a `passage`); nothing links a part
   back to its record. The Sheets pane's "+ From my notes…" is the
-  chooser (`openFromNotes`), adding the ticked ones in one change
-  (E62; BVJ, 2026-11-08). It replaced N6's "+ For discussion"
+  chooser (`openFromNotes`), adding the checked ones in one change
+  (E62; BVJ, 2026-11-08). Items already on the sheet can't be checked, and
+  the Add handler drops them again over the saved sheet (`notAlreadyOn`,
+  PC8B-1), so a second gathering never adds a part twice. It replaced N6's "+ For discussion"
   (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
   gathered only the notes marked `question` under a heading: "The
   options for sheets need to be more flexible than that, more useful to

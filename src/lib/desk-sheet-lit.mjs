@@ -14,6 +14,7 @@
 // a footnote choice stores the footnote's text, never its letter.
 
 import { BOOKS } from "../data/books.js";
+import { verseCount } from "../data/verse-counts.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { wordingKey } from "./desk-wording.mjs";
 import { foldDiacritics, stemWord } from "./word-stem.mjs";
@@ -505,7 +506,9 @@ export function htmlToText(html) {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&");
+    .replace(/&amp;/g, "&")
+    // Zero-width characters print nothing, so they are no words (GF8b-11).
+    .replace(/[​-‍⁠﻿]/g, "");
 }
 
 /**
@@ -556,7 +559,9 @@ export function completeBooks(passages, versesOf) {
       const covered = new Set();
       for (const p of passages) {
         if (p.bookKey !== book || p.chapter !== c) continue;
-        for (let v = p.verse; v <= (p.endVerse ?? p.verse); v++) covered.add(v);
+        // A passage runs no further than its chapter (GF8c-1).
+        const last = Math.min(p.endVerse ?? p.verse, verseCount(book, c));
+        for (let v = p.verse; v <= last; v++) covered.add(v);
       }
       whole = verses.every((v) => covered.has(v));
     }

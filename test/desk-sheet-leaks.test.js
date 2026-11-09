@@ -41,13 +41,14 @@ test("another passage that shows the words unblanked leaks; the blank's own pass
   assert.deepEqual(leaks.map((l) => l.where), ["Romans 5:12"]);
 });
 
-test("a footnote is held to the footnote rule, against its own passage's blanks", () => {
+test("a footnote is held to the footnote rule, against every blank on the sheet (GF8b-7)", () => {
   const surfaces = [
     { kind: "footnote", where: "footnote a of Romans 3:23", text: "Other people characterized by deviation.", passageId: "p1" },
     { kind: "footnote", where: "footnote a of Mark 1:1", text: "Other people characterized by deviation.", passageId: "p2" },
   ];
   const leaks = findLeaks([blank("deviating")], surfaces);
-  assert.deepEqual(leaks.map((l) => l.where), ["footnote a of Romans 3:23"]);
+  // blank() sits in p1; a footnote to another passage that names it is flagged too.
+  assert.deepEqual(leaks.map((l) => l.where), ["footnote a of Romans 3:23", "footnote a of Mark 1:1"]);
 });
 
 test("a footnote that names the traditional word the hint hides leaks", () => {

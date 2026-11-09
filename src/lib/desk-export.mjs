@@ -39,6 +39,7 @@
 // meant for other tools).
 
 import { BOOKS, BOOK_ABBREVIATIONS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
+import { verseCount } from "../data/verse-counts.js";
 import { LIT_CREDIT_LINE } from "./lit-credit.mjs";
 import { osisRef } from "./osis.mjs";
 import { labelMap, labelsOf } from "./desk-labels.mjs";
@@ -316,7 +317,9 @@ function bookByName() {
  * Testament this site has.
  */
 export function parseReference(text) {
-  const m = /^(.+?)\s+(\d+)(?:\s*:\s*(\d+)(?:\s*[–—-]\s*(\d+))?)?\s*$/.exec(String(text ?? "").trim());
+  // Runs of whitespace are made single first, so the pattern never backtracks
+  // across a long run of spaces (SEC8-1: 1.9 s on 80,000 of them).
+  const m = /^(.+?) (\d+)(?: ?: ?(\d+)(?: ?[–—-] ?(\d+))?)?$/.exec(String(text ?? "").trim().replace(/\s+/g, " "));
   if (!m) return null;
   const names = bookByName();
   const bookKey = names.get(names.fold(m[1]));
@@ -351,16 +354,18 @@ function readEntries(text) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (line.trim() === MD_END) break;
-    const heading = /^##\s+(.*\S)\s*$/.exec(line);
+    // Trimmed in code, not in the pattern: a line of spaces after "##" would make
+    // a pattern with two trailing runs quadratic (SEC8-1).
+    const heading = /^##\s+(.*)$/.exec(line)?.[1].trim();
     if (heading) {
       finish();
       const next = nextFilled[i];
-      if ((heading[1] === "Places" || heading[1] === "Labels") && !ID_COMMENT.test(next.trim())) {
-        section = heading[1];
+      if ((heading === "Places" || heading === "Labels") && !ID_COMMENT.test(next.trim())) {
+        section = heading;
         continue;
       }
       section = null;
-      at = { line: i + 1, heading: heading[1], id: null, modified: null, link: null, meta: null, quote: [], body: [], seenQuote: false, seenBody: false };
+      at = { line: i + 1, heading, id: null, modified: null, link: null, meta: null, quote: [], body: [], seenQuote: false, seenBody: false };
       continue;
     }
     if (section || !at) continue;
@@ -411,7 +416,8 @@ function instantOf(iso) {
  * newer than it is. Null when there is no header.
  */
 function savedAt(text) {
-  const head = /<!--\s*lit-notebook\b([^\n]*?)-->/.exec(text)?.[1] ?? "";
+  // The header is short; the bound keeps a line of repeated openers linear (SEC8-1).
+  const head = /<!--\s*lit-notebook\b([^\n]{0,500}?)-->/.exec(text)?.[1] ?? "";
   const full = instantOf(/·\s*(\d{4}-\d\d-\d\dT\S+)/.exec(head)?.[1]);
   if (full != null) return full;
   const minute = /saved\s+(\d{4}-\d\d-\d\d)\s+(\d\d:\d\d)/.exec(head);
@@ -497,6 +503,12 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
     }
     if (place.verse == null && !place.type) {
       problems.push(fail(e.line, `“${e.heading}” needs a verse, like “Romans 8:3.”`));
+      continue;
+    }
+    // A verse past the chapter's last is refused, as bookmarkPlace refuses it (GF8c-1).
+    const last = place.type ? 0 : verseCount(place.fields.bookKey, place.fields.chapter);
+    if (last > 0 && place.fields.endVerse > last) {
+      problems.push(fail(e.line, `“${e.heading}” couldn’t be added: ${bookKeyToLabel(place.fields.bookKey)} ${place.fields.chapter} has ${last} verses.`));
       continue;
     }
     const fields = {

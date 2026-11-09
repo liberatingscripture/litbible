@@ -39,6 +39,7 @@
 // empties the pane. Several panes may be open, each with its own search.
 
 import { canEdit } from "../../lib/desk-records.mjs";
+import { makeInert } from "../../lib/desk-inert.mjs";
 import { planSave } from "../../lib/desk-store-core.mjs";
 import {
   MIN_QUERY_LEN,
@@ -57,10 +58,11 @@ import {
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
 import { parsePassage, passageLabel } from "../../lib/desk-passage.mjs";
+import { planAddPassages } from "../../lib/desk-sheet-add.mjs";
 import { gatherMessage, passagesFromVerses, roomOnSheet, searchSheetTitle } from "../../lib/desk-sheet-gather.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { NOTEBOOK_GROUP_TITLE } from "../../lib/desk-search.mjs";
-import { addModule, createSheet, makeModule } from "../../lib/desk-sheets.mjs";
+import { createSheet, makeModule } from "../../lib/desk-sheets.mjs";
 import { creditHtml } from "../../lib/greek-credits.mjs";
 import {
   MODE_LABELS,
@@ -82,6 +84,7 @@ import {
   loadPagefind,
   loadTopicsIndex,
   loadVerseIndex,
+  VERSES_FAILED,
   makeStudyBookHref,
   makeStudyReferenceHref,
   normalizePhrase,
@@ -125,6 +128,15 @@ function button(label, cls = "desk-search__btn") {
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const STATUS_SEP = " • ";
 
+/** `decodeURIComponent` that leaves a malformed escape as it is, so one bad link can't stop an entry drawing. */
+function safeDecode(text) {
+  try {
+    return decodeURIComponent(text);
+  } catch (_) {
+    return text;
+  }
+}
+
 /** Open a link in a new tab, as every link that leaves /desk does. */
 function awayTab(a) {
   a.target = "_blank";
@@ -165,10 +177,12 @@ function loadGlossary() {
  * @param {{ paneId: string, env: object, getPlace: () => { bookKey: string } }} options
  *   `env` is desk-page.js's: `store`, `ctx`, `showPassage(passage, { beside })`,
  *   `showSheet(id)`, `showIntro(bookKey, { beside })` and `openGreekHit(hit, paneId)`. `getPlace` is the passage
- *   being read, for "The book I’m reading".
+ *   being read, for "The book I’m reading". `sheets` is where the add
+ *   buttons add: the open Sheets panes (`sheet-pane.js`) unless a test hands
+ *   in its own `{ addTarget, onAddTarget }`.
  * @returns {{ el: HTMLElement, focusField: () => void, destroy: () => void }}
  */
-export function createSearchPane({ paneId, env, getPlace }) {
+export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, onAddTarget } }) {
   const sfx = `-${paneId}`;
   const store = env.store ?? null;
   const el = make("div", "desk-search");
@@ -282,9 +296,13 @@ export function createSearchPane({ paneId, env, getPlace }) {
   results.append(jumpBox, groupsEl);
   const entryBox = make("div", "desk-search__entry");
   entryBox.hidden = true;
+  // The note line a passage link inside an open entry writes to: `top`, which
+  // holds `note`, is hidden while an entry shows (GF8a-6).
+  let entryNote = null;
   const top = make("div", "desk-search__top");
-  top.append(form, tools, linkRow, live, status, note, offerBox);
-  el.append(top, results, entryBox);
+  // `live` sits outside `top`, so it is still announced while an entry is open.
+  top.append(form, tools, linkRow, status, note, offerBox);
+  el.append(live, top, results, entryBox);
 
   // ---- state (none of it stored) ----
 
@@ -318,8 +336,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
     hear(text);
   };
   const tell = (text) => {
-    note.textContent = text;
-    note.hidden = !text;
+    const line = entryBox.hidden || !entryNote ? note : entryNote;
+    line.textContent = text;
+    line.hidden = !text;
     hear(text);
   };
 
@@ -381,7 +400,8 @@ export function createSearchPane({ paneId, env, getPlace }) {
     else tooShort();
   }
 
-  function empty() {
+  /** What no search on screen leaves behind: the offer, the page link, the notes switch, the note, the results. */
+  function clearSearch() {
     seq++;
     offerSeq++;
     offerBox.hidden = true;
@@ -391,15 +411,16 @@ export function createSearchPane({ paneId, env, getPlace }) {
     jumpBox.replaceChildren();
     groupsEl.replaceChildren();
     tell("");
+  }
+
+  function empty() {
+    clearSearch();
     say("");
     groupsEl.append(make("p", "desk-search__empty", "Type a word, a topic, or a reference."));
   }
 
   function tooShort() {
-    seq++;
-    last = null;
-    jumpBox.replaceChildren();
-    groupsEl.replaceChildren();
+    clearSearch();
     say(`Type ${MIN_QUERY_LEN} or more letters to search.`);
   }
 
@@ -488,11 +509,11 @@ export function createSearchPane({ paneId, env, getPlace }) {
   async function run(q) {
     const my = ++seq;
     showModeFor(typeSel, q);
+    closeEntry({ focus: false });
     tell("");
     syncOffer(q);
     showPageLink(q);
     syncNotes(false);
-    closeEntry({ focus: false });
     try {
       const jump = jumpOf(q);
       // A typed reference ignores the book filter, as the tray does.
@@ -552,6 +573,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
       const { hits: verseHits, correction } = verseIndex
         ? searchVerses(verseIndex, q, { bookKey: book })
         : { hits: [], correction: "" };
+      // A verse index that didn't load is not "no verses match" (GF8a-3).
+      const versesFailed = wantKeyword && !verseIndex;
+      if (versesFailed) tell(VERSES_FAILED);
 
       const extraSubjectItems = picked && fromIndex.length
         ? fromIndex.map((it) => topicsIndexSubjectItem({ url: it.url, title: it.url, meta: { title: titleOf(it.url) }, anchors: [] }))
@@ -571,6 +595,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
         article: article.map((it) => ({ title: it.d?.meta?.title || it.d.title || it.d.url, href: pickAnchorHref(it.d, it.locs) })),
         verses: verseHits,
         correction,
+        versesFailed,
         greek: null,
       };
       drawResults();
@@ -703,7 +728,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
       groupsEl.append(verseGroup(r));
       counts.push(`${plural(r.verses.length, "keyword match", "keyword matches")}${r.correction ? ` for “${r.correction}”` : ""}`);
     }
-    say(counts.length ? counts.join(STATUS_SEP) : r.jump ? "" : "No results.");
+    say(counts.length ? counts.join(STATUS_SEP) : r.jump ? "" : r.versesFailed ? VERSES_FAILED : "No results.");
     syncAdd();
     settleFocus();
   }
@@ -728,7 +753,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
       const add = button("", "desk-search__btn desk-search__sheet desk-search__add-all");
       add.hidden = true;
       add.addEventListener("click", () => {
-        const t = addTarget();
+        const t = sheets.addTarget();
         if (t) gather(r.verses.map(verseRef), t);
       });
       row.append(make1, add);
@@ -749,9 +774,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
         const plus = button("+", "desk-search__add");
         plus.setAttribute("aria-label", addVerseLabel(hit));
         // Rows from "Show more" are drawn after syncAdd has run.
-        plus.hidden = !addTarget() || busy;
+        plus.hidden = !sheets.addTarget() || busy;
         plus.addEventListener("click", () => {
-          const t = addTarget();
+          const t = sheets.addTarget();
           if (t) gather([verseRef(hit)], t);
         });
         li.append(plus);
@@ -764,7 +789,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   /** Show or hide the add controls by whether a Sheets pane shows a sheet. */
   function syncAdd() {
     if (!store) return;
-    const t = addTarget();
+    const t = sheets.addTarget();
     for (const b of el.querySelectorAll(".desk-search__add")) b.hidden = !t || busy;
     const all = el.querySelector(".desk-search__add-all");
     if (all) {
@@ -774,7 +799,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     }
     for (const b of el.querySelectorAll(".desk-search__sheet:not(.desk-search__add-all)")) b.disabled = busy;
   }
-  const offTarget = onAddTarget(syncAdd);
+  const offTarget = sheets.onAddTarget(syncAdd);
 
   /** Make the passages and write them: into a new sheet (`target` null) or the sheet `target` names. */
   async function gather(refs, target) {
@@ -785,9 +810,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
     syncAdd();
     tell("");
     let outcome;
-    // A Sheets pane's new sheet is written first, if it hasn't been (SH6-7).
-    if (!made) target.ready?.();
     try {
+      // A Sheets pane's new sheet is written first, if it hasn't been (SH6-7).
+      if (!made) target.ready?.();
       // Read and written in one transaction: another tab, or a Sheets pane,
       // may have changed the sheet since the button was drawn (BA130).
       outcome = await store.change(async ({ get }) => {
@@ -796,17 +821,19 @@ export function createSearchPane({ paneId, env, getPlace }) {
         if (!made && (existing?.kind !== "sheet" || !canEdit(existing))) return { gone: true };
         const result = passagesFromVerses(refs, { room: roomOnSheet(existing?.modules?.length ?? 0) });
         if (!result.passages.length) return { result };
-        let sheet;
         if (made) {
-          sheet = createSheet(
+          const sheet = createSheet(
             { title, template: "search", modules: result.passages.map((p) => makeModule("passage", p)) },
             { now, ...env.ctx() },
           );
-        } else {
-          sheet = existing;
-          for (const p of result.passages) sheet = addModule(sheet, makeModule("passage", p), undefined, { now, ...env.ctx() });
+          return { result, sheet, ...planSave(sheet) };
         }
-        return { result, sheet, ...planSave(sheet) };
+        // Over the editor's own rules: the sheet in today's canonical form, and
+        // each passage where `passageInsertIndex` puts it (SH8-3).
+        const plan = planAddPassages(existing, result.passages, { now, ...env.ctx() });
+        if (plan.gone) return { gone: true };
+        if (plan.refused) throw plan.refused;
+        return { result, ...plan };
       });
     } catch (err) {
       console.error("Study Desk: the sheet couldn’t be written", err);
@@ -816,23 +843,24 @@ export function createSearchPane({ paneId, env, getPlace }) {
       return;
     }
     busy = false;
-    if (destroyed) return;
-    syncAdd();
+    // A pane closed while the write ran still says what it did and offers Undo:
+    // the undo bar is the page's, not the pane's (GF8a-11).
+    if (!destroyed) syncAdd();
     if (outcome.gone) {
-      tell("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT. Start a new sheet instead.");
+      if (!destroyed) tell("That sheet couldn’t be changed. It may have been deleted or made by a newer version of the LIT. Start a new sheet instead.");
       return;
     }
     const { result, sheet } = outcome;
     if (!sheet) {
-      tell("There was no room to add anything to that sheet.");
+      if (!destroyed) tell("There was no room to add anything to that sheet.");
       return;
     }
     const entry = store.lastEntry();
     let text = gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: result.leftOut });
     // Its results stay on screen: this pane never gives its place to the sheet.
-    if (made && !env.showSheet(sheet.id, paneId)) text += " Open a Sheets pane to see it.";
+    if (made && !destroyed && !env.showSheet(sheet.id, paneId)) text += " Open a Sheets pane to see it.";
     if (entry) showUndo(text, () => undoEntry(entry));
-    else tell(text);
+    else if (!destroyed) tell(text);
   }
 
   // ---- links in the results ----
@@ -874,6 +902,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     if (entryBox.hidden) return;
     entryBox.hidden = true;
     entryBox.replaceChildren();
+    entryNote = null;
     top.hidden = false;
     results.hidden = false;
     results.scrollTop = resultsScroll;
@@ -892,8 +921,16 @@ export function createSearchPane({ paneId, env, getPlace }) {
     openLink.href = `${BASE}glossary/#${encodeURIComponent(id)}`;
     const bar = make("div", "desk-search__entry-bar");
     bar.append(back, openLink);
-    entryBox.replaceChildren(bar, make("p", "desk-search__status", "Loading the entry…"));
+    entryNote = make("p", "desk-search__note");
+    entryNote.hidden = true;
+    entryBox.replaceChildren(bar, entryNote, make("p", "desk-search__status", "Loading the entry…"));
     back.focus({ preventScroll: true });
+    // `bar` stays in the page, or focus on Back would be dropped; only what
+    // follows the note line is swapped (GF8a-5).
+    const below = (node) => {
+      while (entryNote.nextSibling) entryNote.nextSibling.remove();
+      entryBox.append(node);
+    };
     let entries;
     try {
       entries = await loadGlossary();
@@ -903,22 +940,22 @@ export function createSearchPane({ paneId, env, getPlace }) {
       const retry = button("Try again");
       retry.addEventListener("click", () => openEntry(id));
       fail.append(make("p", null, "The glossary couldn’t be loaded."), retry);
-      entryBox.replaceChildren(bar, fail);
+      below(fail);
       return;
     }
     if (n !== entrySeq) return;
     const source = entries.get(id);
     if (!source) {
-      entryBox.replaceChildren(bar, make("p", "desk-search__status", "That entry couldn’t be found."));
+      below(make("p", "desk-search__status", "That entry couldn’t be found."));
       return;
     }
-    const clone = document.importNode(source, true);
+    const clone = makeInert(document.importNode(source, true));
     clone.querySelector(".entry-link")?.remove(); // a copy-link button that needs the glossary's script
     for (const hidden of clone.querySelectorAll(".sr-only[aria-hidden]")) hidden.remove(); // search tokens, for Pagefind
     for (const withId of clone.querySelectorAll("[id]")) withId.removeAttribute("id");
     for (const a of clone.querySelectorAll("a[href]")) {
       const href = a.getAttribute("href");
-      const t = href.startsWith("#") ? { type: "glossary", id: decodeURIComponent(href.slice(1)) } : resultTarget(href);
+      const t = href.startsWith("#") ? { type: "glossary", id: safeDecode(href.slice(1)) } : resultTarget(href);
       if (t.type === "passage") a.classList.add("desk-search__link");
       else if (t.type === "glossary") a.dataset.entry = t.id;
       else awayTab(a);
@@ -937,7 +974,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
         showHere({ bookKey: t.bookKey, chapter: t.chapter, verse: t.verse });
       }
     });
-    entryBox.replaceChildren(bar, clone);
+    below(clone);
     entryBox.scrollTop = 0;
   }
 
@@ -949,7 +986,10 @@ export function createSearchPane({ paneId, env, getPlace }) {
 
   function openCommands(filter = null) {
     withCommands()
-      .then((m) => m.openGreekCommands({ field: input, filter, typeSelect: typeSel }))
+      .then((m) => {
+        if (destroyed) return; // closed while the commands window was loading (GF8a-12)
+        return m.openGreekCommands({ field: input, filter, typeSelect: typeSel });
+      })
       .catch((err) => console.error("Study Desk: the search commands couldn't load", err));
   }
 
@@ -1050,6 +1090,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
         fix.addEventListener("click", () => {
           input.value = gk.replaceWord(input.value, msg.replace, msg.suggest);
           input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.focus({ preventScroll: true }); // the button is about to be redrawn away (GF8a-9)
         });
         p.append(msg.text.slice(0, at), fix, msg.text.slice(at + msg.suggest.length));
       }
@@ -1172,8 +1213,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
       next.lang = "grc";
       next.addEventListener("click", () => {
         greekState = { lemmaId: null, exact: false };
-        input.value = ARTICLE_EXAMPLE;
+        input.value = gk.ARTICLE_EXAMPLE;
         input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus({ preventScroll: true }); // the button is about to be redrawn away (GF8a-9)
       });
       p.append(`${gk.articleLine(gk.versesIn(res.hits))} `, next, ".");
       g.append(p);

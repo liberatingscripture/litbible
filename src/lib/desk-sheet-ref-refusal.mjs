@@ -14,6 +14,7 @@
 
 import { HB_BOOKS } from "./sefaria-refs.mjs";
 import { APOCRYPHA } from "./ebible-refs.mjs";
+import { BOOKS } from "../data/books.js";
 
 const slug = (s) => String(s ?? "").toLowerCase().replace(/[^0-9a-z]/g, "");
 
@@ -48,6 +49,10 @@ export function describeRefusal(text, { parse, label }) {
     const first = parse(`${book} ${tail[0].match(/\d+/)[0]}`);
     if (first) {
       const name = label(first.bookKey);
+      // "Jude 3-5" is the ordinary way to cite a one-chapter book: the numbers are verses (GF8c-2).
+      if (BOOKS[first.bookKey] === 1) {
+        return `${name} has one chapter, so give its verses as ${name} 1:3–5.`;
+      }
       return `A passage is one chapter at a time. Add ${name} ${first.chapter} and then the next chapter, or give verses within one chapter, such as ${name} ${first.chapter}:3–12.`;
     }
   }

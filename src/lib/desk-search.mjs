@@ -238,8 +238,13 @@ export function matchNouns(hits) {
  */
 export const NOTEBOOK_GROUP_TITLE = "My notebook";
 
-/** The notebook page's address for a query (D2's "N more in your notebook"). */
+/**
+ * The notebook page's address for a query (D2's "N more in your notebook").
+ * The words ride in the fragment, which a browser never sends to the server,
+ * so a search of the reader's own notes leaves the device in no request
+ * (SEC8-3); the page reads them there and strips them.
+ */
 export function notebookSearchHref(query) {
   const q = String(query || "").trim();
-  return q ? `/notebook/?q=${encodeURIComponent(q)}` : "/notebook/";
+  return q ? `/notebook/#q=${encodeURIComponent(q)}` : "/notebook/";
 }

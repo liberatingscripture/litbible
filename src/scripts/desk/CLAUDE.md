@@ -138,8 +138,8 @@ decision 3; LG3-2). `desk-gate.js` loads `desk/first-stage.js`: the
 minimized tab (`notebook-tab.js`, styled by `desk-tab.css` alone), the
 glossary's heading fit, the Display tray's Notebook switches and H
 (`note-settings.js`, started once; BVJ, 2026-11-07: opening the tray must not
-load the desk, so that file imports only light modules, `undo-bar.js` and
-`page-kind.js`), and one read of the notebook's `chapter` index
+load the desk, so that file imports only light modules, `undo-bar.js`,
+`page-kind.js`, and `widths.js` with its two small imports), and one read of the notebook's `chapter` index
 (`peekNotebook`, `src/lib/desk-first-stage.mjs`, which never creates the
 database). "Show the Notebook" hides and restores the first stage's tab
 itself. The shell, `desk.css` and the rest come when the Notebook starts
@@ -169,6 +169,14 @@ file, its menus and toolbar) is in `src/scripts/desk/sheets/CLAUDE.md`.
 names. `test/desk-store.test.js` runs the real `store.js` against
 `fake-indexeddb`; `test/desk-storage-keys.test.js` holds `/privacy` to every
 storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
+**Test client code by driving it, not by reading its source** (Audit 8):
+`test/helpers/browser-env.mjs` installs a happy-dom window as globals and
+lets Node import the desk's browser modules (`import.meta.env`, stylesheet
+and JSON imports go through `vite-hooks.mjs`). Import it first, then the
+module with `await import(...)`, and assert on what the page shows, says,
+focuses or writes (`test/desk-audit8-dom-kept-list.test.js` is the model).
+A test that regex-matches source text passes when the behavior breaks; keep
+one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
 
 ## The rules
 
@@ -510,12 +518,22 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
      failed one leaves it on the saved copy (BA128), though each save's
      transaction opens when the change is asked for, so saves land in order.
      **A closing page keeps its last typing** (BA72): on `pagehide` the pane
-     writes what hasn't landed, applied to its own copy, through
+     writes what hasn't landed, applied to the newest copy it has heard of
+     (its own, or one another tab saved that `refresh` read while this tab's
+     saves were in flight; Audit 8, DI8-4), through
      `store.writeNow`, which writes before it returns, reads nothing,
      commits at once and first aborts any transaction still waiting on its
      read. Chrome keeps no other kind of write made while a page closes;
      a read-then-write save, or one queued behind it, is lost (tested
-     2026-10-27). Hidden only starts the ordinary saves; the note editor saves onto the note as it is at Save
+     2026-10-27). One race remains and is accepted: a part another tab saved
+     that this tab has not yet heard of can be written over at close.
+     **The store reopens after a version change** (DI8-5): another tab's
+     upgrade closes the connection, and the next call opens it again; after
+     an upgrade by a newer page, calls reject with `NOTEBOOK_UPGRADED`, and a
+     failed write says so to the reader rather than only the console. A failed
+     bookmark, highlight or pin write is told through `showNotice` (NB8-2), and
+     a button busy with a write is `aria-disabled`, not `disabled`, so focus
+     stays on it (NB8-8, BA79). Hidden only starts the ordinary saves; the note editor saves onto the note as it is at Save
      (`planEdit`), and refuses if anything but its words and marker changed
      meanwhile (BA6); and the keys stand down in text fields, selects, anywhere in a sheet's
      text editor (its toolbar too, where Ctrl+Z undoes the typing, BA74) and
@@ -533,7 +551,10 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
      BroadcastChannel message carries them too; one without them (an older tab)
      is heard by all. A view that draws where a bookmark is, or anything not yet checked,
      subscribes with no filter. **A view of marks leaves out sheets**
-     (`{ except: NO_CHAPTER_KINDS }`, DK-5): a sheet's autosave fires every
+     (`{ except: NO_CHAPTER_KINDS }`, DK-5; the reading page's marks, margin,
+     labels, pins and footnote notes leave out bookmark moves too, with
+     `{ except: [...NO_CHAPTER_KINDS, MOVE_KIND] }`, Audit 8 NB8-1; the
+     Notebook panel still hears moves): a sheet's autosave fires every
      few hundred milliseconds while typing and would re-read every chapter a
      LIT pane holds.
   12. **A mark whose words moved says so** (the change notice, N3).
@@ -577,7 +598,10 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        undo or revive**: each entry's id comment holds its `modified`, and
        words that differ are an edit only when the note here is no newer
        (BA1); an entry whose id is held as trash or a tombstone is left out
-       (BA2). Keep both when changing how a Markdown entry is read.
+       (BA2). Keep both when changing how a Markdown entry is read. A
+       heading whose verse runs past its chapter's last is refused (GF8c-1),
+       since the record format sets no upper bound and every loop over a
+       verse span would run that far; those loops clamp to the chapter too.
        **Open plans again when pressed** (BA3): `planOpen` plans against
        `store.all()` at that moment, and if the outcome (`sameOpen`) differs
        from the summary on screen, the new one is shown and nothing is written.
@@ -796,7 +820,9 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        tour's `start()` returns while `html[data-desk-tour]` is set** (TR7-6),
        so neither runs over the other. **The card, the way through the steps,
        placement and the ending are `desk/tour-runner.js`**, shared; a tour
-       brings `act(step)`, `finish` (waited for when it returns a promise,
+       brings `act(step, { live })` (an act that waits checks `live()` after
+       each await and stops once its run has ended; a `later` closer added
+       after the end runs at once, GF8b-5), `finish` (waited for when it returns a promise,
        before focus returns) and its `more` link. Keep the three in step when
        the card changes.
        **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels like a

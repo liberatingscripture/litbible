@@ -1651,7 +1651,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: a `test/ribbon-follow.test.js` with stubbed storage: after
     `followRibbon` and 50 ms, the ribbon is still at its own verse.
   - *E9*: not moot while a bookmark can follow the reader this way.
-  - Status: **Fixed in #405** (FA1-y). `followRibbon(ribbon, href)` sets the flag and forgets where the reader was; it doesn't read the stored record. A link within the page moves the ribbon at the page's next report of where the reader is, after the jump, and a link to another page stops this page listening, so its pagehide save isn't written either. The follower starts from `pageLastRead()` (last-read.js): what this page saved, never what storage holds. Tested in `test/ribbon-follow.test.js` (stubbed storage, events and store), and in the browser: a ribbon at Romans 8:30 opened from 8:2 stayed at 8:30 until the page reported the jump.
+  - Status: **Fixed in #405** (FA1-y). `followRibbon(ribbon, href)` sets the flag and forgets where the reader was; it doesn't read the stored record. A link within the page moves the ribbon at the page's next report of where the reader is, after the jump, and a link to another page stops this page listening, so its pagehide save isn't written either. The follower starts from `pageLastRead()` (last-read.js): what this page saved, never what storage holds. Tested in `test/ribbon-follow.test.js` (now `test/bookmark-follow.test.js`, renamed in #434; PC8C-1) (stubbed storage, events and store), and in the browser: a ribbon at Romans 8:30 opened from 8:2 stayed at 8:30 until the page reported the jump.
 - **BA100 (medium; reproduced). Arriving in Read View moves a following ribbon
   to another tab's place in that book.**
   - *What happens*: `positionOnPage` accepts any Read View record for the
@@ -1670,7 +1670,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: a `positionOnPage` test with a Read View record for another
     chapter, plus the follower test above.
   - *E9*: as BA99.
-  - Status: **Fixed in #405** (FA1-y), with BA99: arriving, the follower reads `pageLastRead()`, this page's own save, so another tab's Read View place in the book, or an older visit's, is never taken. `positionOnPage` is unchanged. Tested in `test/ribbon-follow.test.js`.
+  - Status: **Fixed in #405** (FA1-y), with BA99: arriving, the follower reads `pageLastRead()`, this page's own save, so another tab's Read View place in the book, or an older visit's, is never taken. `positionOnPage` is unchanged. Tested in `test/ribbon-follow.test.js` (now `test/bookmark-follow.test.js`, renamed in #434; PC8C-1).
 - **BA101 (medium; reproduced). A ribbon keeps following after the reader has
   left its book for a page without the Notebook.**
   - *What happens*: only `initRibbonFollow` clears the flag, and it runs in
@@ -1687,7 +1687,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: a test that loads the flag, a page without the shell, then a
     page in the book, and expects no write.
   - *E9*: moot only if the per-tab flag goes.
-  - Status: **Fixed in #405** (FA1-y). `desk-gate.js`, which every page runs, drops `lit-desk-ribbon` on any page where the shell won't load (the key is RIBBON_FLAG_KEY, written out so the gate stays small). `initRibbonFollow` drops it outside the book even when the notebook didn't open, and a page restored from the back-forward cache reads the flag again (`pageshow`), since the tab may have left the book meanwhile. Tested in `test/ribbon-follow.test.js`, and in the browser (the home page cleared it).
+  - Status: **Fixed in #405** (FA1-y). `desk-gate.js`, which every page runs, drops `lit-desk-ribbon` on any page where the shell won't load (the key is RIBBON_FLAG_KEY, written out so the gate stays small). `initRibbonFollow` drops it outside the book even when the notebook didn't open, and a page restored from the back-forward cache reads the flag again (`pageshow`), since the tab may have left the book meanwhile. Tested in `test/ribbon-follow.test.js` (now `test/bookmark-follow.test.js`, renamed in #434; PC8C-1), and in the browser (the home page cleared it).
 - **BA102 (low; reproduced). Renaming, moving and following read a ribbon in
   one step and write it in another.**
   - *What happens*:
@@ -1709,7 +1709,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Check*: tests with a fake store whose `get` waits, as in the
     reproduction.
   - *E9*: not moot; the same code becomes the bookmarks'.
-  - Status: **Fixed in #405** (FA1-y). All three are one `store.change` now. Rename, Move here and a new ribbon go through `src/lib/desk-ribbon-change.mjs` (`planRibbonRename`, `planRibbonMove`, `planRibbonCreate`, pure), which reads the ribbon in the transaction, writes nothing when it is gone, in the trash or no longer a ribbon (“That ribbon has been deleted.”), and checks the name and the six-ribbon limit against `all()`. Save is disabled while saving. The follower reads and writes its move in one `store.change` with `record: false`. Tested in `test/desk-ribbon-change.test.js` (a fake store whose reads wait) and `test/ribbon-follow.test.js` (a rename and a deletion landing between the follower's read and write), and in the browser (renaming a ribbon deleted meanwhile said so and brought nothing back).
+  - Status: **Fixed in #405** (FA1-y). All three are one `store.change` now. Rename, Move here and a new ribbon go through `src/lib/desk-ribbon-change.mjs` (`planRibbonRename`, `planRibbonMove`, `planRibbonCreate`, pure), which reads the ribbon in the transaction, writes nothing when it is gone, in the trash or no longer a ribbon (“That ribbon has been deleted.”), and checks the name and the six-ribbon limit against `all()`. Save is disabled while saving. The follower reads and writes its move in one `store.change` with `record: false`. Tested in `test/desk-ribbon-change.test.js` (now `test/desk-bookmark-change.test.js`, where the message reads “That bookmark has been deleted.”; PC8C-3) (a fake store whose reads wait) and `test/ribbon-follow.test.js` (a rename and a deletion landing between the follower's read and write), and in the browser (renaming a ribbon deleted meanwhile said so and brought nothing back).
 - **BA103 (low; reproduced). Stored book names like `constructor` pass as
   books.**
   - *What happens*: `loadLastRead` checks `BOOKS[r.book]`
@@ -1722,7 +1722,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
     `verse >= 1`.
   - *Check*: `loadLastRead` and `parseRibbonFlag` tests with those names.
   - *E9*: not moot.
-  - Status: **Fixed in #405** (FA1-y). `Object.hasOwn(BOOKS, …)` in `loadLastRead` and throughout `desk-places.mjs`, and `loadLastRead` requires a verse of 1 or more. Tested in `test/desk-places.test.js` (`constructor`, `toString` and `__proto__`).
+  - Status: **Fixed in #405** (FA1-y). `Object.hasOwn(BOOKS, …)` in `loadLastRead` and throughout `desk-places.mjs`, and `loadLastRead` requires a verse of 1 or more. Tested in `test/desk-places.test.js` (now `test/desk-bookmarks.test.js`, merged in #434; PC8C-2) (`constructor`, `toString` and `__proto__`).
 - **BA104 (low; traced). A verse in the address that isn't on the page is
   recorded as the reader's.**
   - *What happens*: `trackStudyView` saves `hashVerse()` without checking
@@ -1755,7 +1755,7 @@ that drive the real `ribbon-follow.js`, `last-read.js` and
   - *Fix*: cut by code point (`Array.from(s).slice(0, 40).join("")`).
   - *Check*: `cleanRibbonName("x".repeat(39) + "😀").isWellFormed()`.
   - *E9*: not moot while names are capped.
-  - Status: **Fixed in #405** (FA1-y). `cleanRibbonName` cuts at 40 code points (`Array.from`). Tested in `test/desk-places.test.js`.
+  - Status: **Fixed in #405** (FA1-y). `cleanRibbonName` cuts at 40 code points (`Array.from`). Tested in `test/desk-places.test.js` (now `test/desk-bookmarks.test.js`, merged in #434; PC8C-2).
 - **BA107 (low, performance; traced). A following ribbon redraws the notebook
   everywhere, and the Places group never unsubscribes.**
   - *What happens*: each move is a commit, which every view and every other

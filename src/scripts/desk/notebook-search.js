@@ -166,6 +166,7 @@ export function openCommands({ anchor = null, beside = null, opener = null, onRu
   ensureStyles();
   openCommandsWindow({
     list: commandList(),
+    refresh: commandList,
     run: (command) => runCommand(command.id),
     anchor,
     beside,

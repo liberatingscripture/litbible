@@ -101,11 +101,13 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
   else kind.textContent = nameOf(r);
   li.append(head, kind);
-  if (r.kind === "bookmark" && isFollowing(r)) kind.after(followLinkButton(r, ref), moveItHereButton(r, ref));
+  // A bookmark in the Trash is not in the notebook: nothing there starts, stops
+  // or moves a follow (NB8-13).
+  if (r.kind === "bookmark" && isFollowing(r) && !trash) kind.after(followLinkButton(r, ref), moveItHereButton(r, ref));
   // A bookmark that moves as the reader reads starts doing so from this link
   // (a modified click opens elsewhere and doesn't; E9); one that stays put
   // stops whatever was moving, since the reader has gone to it instead.
-  if (href && r.kind === "bookmark") {
+  if (href && r.kind === "bookmark" && !trash) {
     head.addEventListener("click", (e) => {
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
       if (isFollowing(r)) followBookmark(r, head.href);

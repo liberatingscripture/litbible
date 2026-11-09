@@ -134,6 +134,20 @@ function openDatabaseInTime() {
 }
 
 /**
+ * The name of the error every read and write rejects with once a newer page
+ * in another tab has upgraded the database past this page's DB_VERSION
+ * (Audit 8, DI8-5). Only a reload can open it again, so a caller that wants
+ * to say so tells it by this name.
+ */
+export const NOTEBOOK_UPGRADED = "NotebookUpgradedError";
+
+function upgradedElsewhere(cause) {
+  const err = new Error("desk-store: a newer page in another tab updated the notebook; reload this page", { cause });
+  err.name = NOTEBOOK_UPGRADED;
+  return err;
+}
+
+/**
  * Open the notebook. Rejects when this browser can't keep one (IndexedDB
  * missing or refused, as some private windows do); the panel says so.
  *
@@ -142,10 +156,37 @@ function openDatabaseInTime() {
  */
 export async function openStore({ ctx }) {
   if (!globalThis.indexedDB) throw new Error("desk-store: IndexedDB isn't available");
-  const db = await openDatabaseInTime();
   // A newer version of the site opening the database in another tab (a later
-  // DB_VERSION) waits for this one to let go.
-  db.onversionchange = () => db.close();
+  // DB_VERSION), or deleting it, waits for this one to let go. The next call
+  // here opens it again (DI8-5), as readonly-notebook.js does: that works
+  // after a deletion, and after an upgrade it fails with `NOTEBOOK_UPGRADED`,
+  // which reaches the caller as any failed write does. Until then every call
+  // threw on the closed connection, for the rest of the page's life.
+  let db = null;
+  let reopening = null;
+  const use = (conn) => {
+    conn.onversionchange = () => {
+      conn.close();
+      if (db === conn) db = null;
+    };
+    db = conn;
+    return conn;
+  };
+  use(await openDatabaseInTime());
+  // The connection, opened again when a version change closed it. Only then
+  // is there an await: with it open, each caller makes its transaction at
+  // once, so transactions keep the order they were asked for.
+  const reopen = () =>
+    (reopening ??= openDatabaseInTime().then(
+      (conn) => {
+        reopening = null;
+        return use(conn);
+      },
+      (err) => {
+        reopening = null;
+        throw err?.name === "VersionError" ? upgradedElsewhere(err) : err;
+      },
+    ));
 
   // A listener may ask for only the kinds of record it draws (BA107), so a
   // bookmark moving as the reader reads (MOVE_KIND) doesn't redraw a list of notes.
@@ -174,19 +215,19 @@ export async function openStore({ ctx }) {
   }
 
   const read = async (fn) => {
-    const tx = db.transaction(RECORDS, "readonly");
+    const tx = (db ?? (await reopen())).transaction(RECORDS, "readonly");
     return current(await request(fn(tx.objectStore(RECORDS))));
   };
 
   async function getMeta(key) {
-    const tx = db.transaction(META, "readonly");
+    const tx = (db ?? (await reopen())).transaction(META, "readonly");
     return request(tx.objectStore(META).get(key));
   }
 
   // Other tabs hear a meta change, so a line drawn from it (What's new's
   // "since your last visit") doesn't outlive it there (BA96).
   async function setMeta(key, value) {
-    const tx = db.transaction(META, "readwrite");
+    const tx = (db ?? (await reopen())).transaction(META, "readwrite");
     tx.objectStore(META).put(value, key);
     await committed(tx);
     channel?.postMessage(metaMessage(key));
@@ -217,7 +258,7 @@ export async function openStore({ ctx }) {
 
   async function apply(build, { record = true, kinds: heardAs = null } = {}) {
     if (typeof build !== "function" && !build.put.length && !build.remove.length) return build;
-    const tx = db.transaction(RECORDS, "readwrite");
+    const tx = (db ?? (await reopen())).transaction(RECORDS, "readwrite");
     const done = committed(tx);
     // Handled below; this keeps an abort from also reporting itself unhandled.
     done.catch(() => {});
@@ -350,12 +391,14 @@ export async function openStore({ ctx }) {
      * transaction still waiting for its read, so those are aborted first:
      * they could never finish, and the caller writes what they would have
      * (checked in Chrome, 2026-10-27). Not remembered for the history.
-     * Throws on a malformed record, as `commit` refuses one; returns whether
-     * anything was written.
+     * Throws on a malformed record, as `commit` refuses one, and where a
+     * version change closed the database (there is no time to open it again
+     * as the page closes); returns whether anything was written.
      */
     writeNow(plan) {
       const checked = planWrite(plan);
       if (!checked.put.length && !checked.remove.length) return false;
+      if (!db) throw new Error("desk-store: the notebook was closed for a newer page in another tab");
       for (const stuck of reading) {
         try {
           stuck.abort();

@@ -34,8 +34,9 @@ import {
   roomOnSheet,
   searchSheetTitle,
 } from "../../../lib/desk-sheet-gather.mjs";
+import { planAddPassages } from "../../../lib/desk-sheet-add.mjs";
 import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
-import { addModule, createSheet, isOwnTemplate, makeModule } from "../../../lib/desk-sheets.mjs";
+import { createSheet, isOwnTemplate, makeModule } from "../../../lib/desk-sheets.mjs";
 import { createHistory, undoEntry } from "../history.js";
 import { openStore } from "../store.js";
 import { make } from "../dom.js";
@@ -382,17 +383,19 @@ async function gather(bar, into) {
       if (!made && (target?.kind !== "sheet" || !canEdit(target))) return { gone: true };
       const result = passagesFor(roomOnSheet(target?.modules?.length ?? 0));
       if (!result.passages.length) return { result };
-      let sheet;
       if (made) {
-        sheet = createSheet(
+        const sheet = createSheet(
           { title, template: "search", modules: result.passages.map((p) => makeModule("passage", p)) },
           { now, ...ctx() },
         );
-      } else {
-        sheet = target;
-        for (const p of result.passages) sheet = addModule(sheet, makeModule("passage", p), undefined, { now, ...ctx() });
+        return { result, sheet, ...planSave(sheet) };
       }
-      return { result, sheet, ...planSave(sheet) };
+      // Over the editor's own rules: the sheet in today's canonical form, and
+      // each passage where `passageInsertIndex` puts it (SH8-3).
+      const plan = planAddPassages(target, result.passages, { now, ...ctx() });
+      if (plan.gone) return { gone: true };
+      if (plan.refused) throw plan.refused;
+      return { result, ...plan };
     });
   } catch (err) {
     console.error("Study Desk: the sheet couldn’t be made", err);

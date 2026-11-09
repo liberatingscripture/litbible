@@ -31,7 +31,7 @@
 import { findPin, pinFields } from "../../lib/desk-footnotes.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { onFootnote } from "../../lib/desk-records.mjs";
-import { forChapter, recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { forChapter, recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { currentPanel } from "../lit-panel.js";
 import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
 import { busy, isBusy } from "./focus-keep.js";
@@ -110,12 +110,13 @@ export function notesByFootnote(list, records) {
 /**
  * The element of this page's Footnotes list a note on a footnote sits on now,
  * or null: the note is another chapter's, the page has no such list, or the
- * footnote is lost. Chapter View only.
+ * footnote is lost. Chapter View only. A caller placing many notes reads the
+ * page's `footnoteList()` once and passes it as `known` (NB8-11).
  */
-export function footnoteElementFor(record) {
+export function footnoteElementFor(record, known = undefined) {
   const here = pageChapter();
   if (!here || here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
-  const list = footnoteList();
+  const list = known === undefined ? footnoteList() : known;
   if (!list) return null;
   const at = findPin(list, record);
   return at.id ? document.getElementById(at.id) : null;
@@ -312,7 +313,7 @@ export function initFootnoteNotes({ store, ctx }) {
   env = { store, ctx };
   // This tab's own changes and other tabs' alike, but not a place or a
   // bookmark moving as the reader reads, which writes every few seconds (BA107).
-  store.subscribe(() => refreshFootnoteNotes(), { except: QUIET_KINDS });
+  store.subscribe(() => refreshFootnoteNotes(), { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
   refreshFootnoteNotes();
 }
 

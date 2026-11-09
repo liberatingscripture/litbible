@@ -147,8 +147,9 @@ test("E46: a typed reference reads as one verse, the way Go to passage reads it"
   assert.equal(read("Jude 2").problem, "Jude has 1 chapter.");
   assert.equal(read("Romans 17:1").problem, "Romans has 16 chapters.");
   assert.equal(read("Romans 8:40").problem, "Romans 8 has 39 verses.");
-  // A gap inside a chapter is still inside it (verse-counts.js).
-  assert.ok(read("Matthew 17:21").place);
+  // A gap inside a chapter is inside its count (verse-counts.js), but the LIT has no verse there (GF8c-5).
+  assert.equal(read("Matthew 17:21").problem, "Matthew 17:21 isn’t in the LIT.");
+  assert.ok(read("Matthew 17:20").place);
 });
 
 test("E46: a bookmark moves to the verse asked for, its anchor rebuilt as a new bookmark's", async () => {

@@ -100,6 +100,7 @@ import { openPresentation, showPresenterView } from "./sheet-present.js";
 import { CODES_MISSING, createSaveMenu, download, drawCodes, writerFor } from "./sheet-save.js";
 import { copyForWord, readCopy } from "./sheet-word.js";
 import { openStore } from "../store.js";
+import { announce } from "../undo-bar.js";
 import { make } from "../dom.js";
 
 const PAPER_KEY = "lit-sheet-paper";
@@ -261,22 +262,7 @@ async function showList(root, store, { onPick = null, focusKey = null } = {}) {
   const n = viewSeq;
   document.title = "My sheets | Liberation and Inclusion Translation";
   root.replaceChildren(make("h1", "sheets-page__title", "My sheets"));
-  let all = [];
-  try {
-    all = (await store.all()).filter((r) => r.kind === "sheet");
-  } catch (err) {
-    console.error("Study Desk: couldn't read the sheets", err);
-  }
-  const sheets = sortSheets(all.filter((r) => !isOwnTemplate(r)));
-  const mine = sortSheets(all.filter(isOwnTemplate));
-  let rows = null;
-  if (sheets.length || mine.length) {
-    try {
-      rows = await import("./sheet-page-list.js");
-    } catch (err) {
-      console.error("Study Desk: the list's actions didn’t load", err);
-    }
-  }
+  const first = await readList(store);
   // Another view was drawn while the sheets were read.
   if (n !== viewSeq) return;
   const desk = make("a", null, "the Study Desk");
@@ -305,12 +291,90 @@ async function showList(root, store, { onPick = null, focusKey = null } = {}) {
     history.replaceState(history.state, "", `${BASE}sheets/`);
     fresh?.click();
   }
-  if (!sheets.length) root.append(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
-  // The list again, as it stands, with focus where the row's action says.
-  const redraw = (key) => {
-    ++viewSeq;
-    return showList(root, store, { onPick, focusKey: key });
+  // The rows, and the line for no sheets: the one part of the list a change
+  // elsewhere redraws (Audit 8, SH8-1). The rest stays as it is, so an open
+  // "New sheet…" chooser, a status line, and focus outside the rows are kept.
+  let shown = listRows(root, store, first, (key) => update(key));
+  let drawn = rowsHtml(shown);
+  root.append(...shown);
+  const focusOn = (key) => {
+    const to = (key && root.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)) || root.querySelector(".sheets-page__title");
+    if (to && !to.matches("a, button")) to.tabIndex = -1;
+    to?.focus();
   };
+  // The list again, as it stands, built off the page and put in place of the
+  // rows only when what they show moved: a sheet's text saved in another tab
+  // changes nothing here, so it redraws nothing, and the page is never
+  // emptied while the sheets are read. `key` is a row action's control to
+  // focus afterward. Focus on a row is kept by its control's own key (each
+  // row's link and buttons have one), or goes to the heading when that row
+  // is gone, never to the page.
+  let updates = 0;
+  async function update(key = null) {
+    const u = ++updates;
+    const data = await readList(store);
+    if (n !== viewSeq || u !== updates) return;
+    // A row action that worked takes down a problem an earlier one left (`listProblem`).
+    if (key) root.querySelector(".desk-sheet__made-not")?.remove();
+    const next = listRows(root, store, data, (k) => update(k));
+    const html = rowsHtml(next);
+    if (html === drawn) {
+      if (key) focusOn(key);
+      return;
+    }
+    const at = document.activeElement;
+    const inRows = shown.some((node) => node.contains(at));
+    const was = inRows ? (at.closest("[data-focus-key]")?.dataset.focusKey ?? null) : null;
+    shown[0].before(...next);
+    for (const node of shown) node.remove();
+    shown = next;
+    drawn = html;
+    if (key || inRows) focusOn(key ?? was);
+  }
+  // A sheet changed elsewhere (another tab, or Undo here). Until the page draws another view.
+  const stop = store.subscribe(() => {
+    if (n !== viewSeq) {
+      stop?.();
+      return;
+    }
+    update();
+  }, { kinds: ["sheet"] });
+  if (focusKey) focusOn(focusKey);
+}
+
+/** The reader's sheets and own templates, sorted, with the rows' module when there are any. */
+async function readList(store) {
+  let all = [];
+  try {
+    all = (await store.all()).filter((r) => r.kind === "sheet");
+  } catch (err) {
+    console.error("Study Desk: couldn't read the sheets", err);
+  }
+  const sheets = sortSheets(all.filter((r) => !isOwnTemplate(r)));
+  const mine = sortSheets(all.filter(isOwnTemplate));
+  let rows = null;
+  if (sheets.length || mine.length) {
+    try {
+      rows = await import("./sheet-page-list.js");
+    } catch (err) {
+      console.error("Study Desk: the list's actions didn’t load", err);
+    }
+  }
+  return { sheets, mine, rows };
+}
+
+/** What the list's rows show, to tell whether a change moved any of it (SH8-1). */
+const rowsHtml = (nodes) => nodes.map((node) => node.outerHTML).join("");
+
+/**
+ * The list's rows, not yet on the page: the line for no sheets, the sheets
+ * (with a Sheets pane's actions where sheet-page-list.js loaded, else plain
+ * links), and "My templates". Never empty, so the rows always have a place.
+ * `redraw(key)` is a row action's: the list again, focus on `key`.
+ */
+function listRows(root, store, { sheets, mine, rows }, redraw) {
+  const nodes = [];
+  if (!sheets.length) nodes.push(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
   if (rows) {
     const sheetHref = (r) => `${BASE}sheets/?id=${encodeURIComponent(r.id)}${isOwnTemplate(r) ? "&view=edit" : ""}`;
     const { list, own } = rows.pageListRows({
@@ -329,8 +393,8 @@ async function showList(root, store, { onPick = null, focusKey = null } = {}) {
       },
       redraw,
     });
-    if (list) root.append(list);
-    if (own) root.append(own);
+    if (list) nodes.push(list);
+    if (own) nodes.push(own);
   } else if (sheets.length) {
     const ul = make("ul", "sheets-page__list");
     for (const s of sheets) {
@@ -342,24 +406,9 @@ async function showList(root, store, { onPick = null, focusKey = null } = {}) {
       if (meta) li.append(make("span", "sheets-page__meta", meta));
       ul.append(li);
     }
-    root.append(ul);
+    nodes.push(ul);
   }
-  // A sheet changed elsewhere (another tab, or Undo here) redraws the list,
-  // keeping focus on the row it was on. Until the page draws another view.
-  const stop = store.subscribe(() => {
-    if (n !== viewSeq) {
-      stop?.();
-      return;
-    }
-    // A row's button has no key of its own: focus goes back to its row's name.
-    const at = document.activeElement;
-    const keyed = root.contains(at) ? at.closest("[data-focus-key]") ?? at.closest("li")?.querySelector("[data-focus-key]") : null;
-    redraw(keyed?.dataset.focusKey ?? null);
-  }, { kinds: ["sheet"] });
-  if (!focusKey) return;
-  const to = root.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`) ?? root.querySelector(".sheets-page__title");
-  if (to && !to.matches("a, button")) to.tabIndex = -1;
-  to?.focus();
+  return nodes;
 }
 
 /**
@@ -883,14 +932,18 @@ function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
     // From here the page is the reader's own copy, at its own address.
     history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(mine.id)}`);
     await drawSheet(root, { sheet: mine, store });
+    // Heard through `announce` below, not as a status of its own, so it isn't read twice.
     const done = make("p", "sheets-page__shared");
-    done.setAttribute("role", "status");
     const open = make("a", null, "the Study Desk");
     open.href = `${BASE}desk/?sheet=${encodeURIComponent(mine.id)}`;
     done.append(document.createTextNode("Copied into your notebook. Change it here with Edit, or on "), open, document.createTextNode("."));
     root.prepend(done);
     // The Import button is gone with the banner, so focus would fall to the top of the page (SH5-10).
     open.focus();
+    // A status line put in with its words already in it is seldom read out,
+    // and the focus move would speak over it, so the undo bar's live region,
+    // always in the page, says it (Audit 8, XA8-8).
+    announce("Copied into your notebook. Change it here with Edit, or on the Study Desk.");
   });
   box.append(p, take, status);
   return box;

@@ -30,7 +30,9 @@ test("a margin redraw that moves a footnote's pills keeps focus on one that show
 test("every list that filters by the search box hears the browser's own clear (LV3-1)", () => {
   for (const file of ["tab-mine.js", "kept-list.js"]) {
     const src = read(`${dir}${file}`);
-    assert.match(src, /for \(const type of \["input", "search", "change"\]\) queryBox\.addEventListener\(type, takeQuery\)/, file);
+    // Typing is debounced (NB8-4, GF8b-8); the browser's clear is drawn at once.
+    assert.match(src, /queryBox\.addEventListener\("input", \(\) => \{[\s\S]*?setTimeout\(takeQuery, QUERY_DELAY_MS\)/, file);
+    assert.match(src, /for \(const type of \["search", "change"\]\) queryBox\.addEventListener\(type, takeQuery\)/, file);
   }
   assert.match(read(`${dir}search-pane.js`), /input\.addEventListener\("search"/);
 });

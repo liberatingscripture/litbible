@@ -165,21 +165,33 @@ async function start({ handOver }) {
   panelUp = true;
   api = { panel };
   // "Print ▸" in the verse menu and the selection panel (E40).
-  const printPart = createPrintPart({ store, printNotes });
-  initActions({ store, ctx, showVerse: panel.showVerse, printPart });
-  initBookmarkFollow({ store, ctx, tell: showPausedBar });
-  initCommands({ panel, printNotes, printRoom });
-  initGreekLink({ panel });
-  initProseActions({ store, addNote });
+  // Each part starts on its own, as each tab of the panel does: one that fails
+  // is logged and the rest still start (NB8-10).
+  const printPart = tryStart("the Print menu in the verse menu", () => createPrintPart({ store, printNotes }));
+  tryStart("the verse menu rows", () => initActions({ store, ctx, showVerse: panel.showVerse, printPart }));
+  tryStart("the bookmark follower", () => initBookmarkFollow({ store, ctx, tell: showPausedBar }));
+  tryStart("the commands", () => initCommands({ panel, printNotes, printRoom }));
+  tryStart("the Greek link", () => initGreekLink({ panel }));
+  tryStart("the notes on articles", () => initProseActions({ store, addNote }));
   // The tour (D8): started by the reader, never by itself (tour.js).
-  createTour({ panel, canKeep: Boolean(store) });
-  if (store) createVerseLabels({ store });
+  tryStart("the tour", () => createTour({ panel, canKeep: Boolean(store) }));
+  if (store) tryStart("the verse labels", () => createVerseLabels({ store }));
   // Painted on a Chapter View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.
-  if (store) createHighlights({ store });
+  if (store) tryStart("the highlights", () => createHighlights({ store }));
   // A chapter opened from /desk's Print menu prints itself (print-link.js).
-  initPrintLink({ printNotes, printRoom });
+  tryStart("print from a link", () => initPrintLink({ printNotes, printRoom }));
   return api;
+}
+
+/** Run one start-up step; a failure is logged and the next step still runs. */
+function tryStart(what, fn) {
+  try {
+    return fn();
+  } catch (err) {
+    console.error(`Study Desk: ${what} didn't start`, err);
+    return null;
+  }
 }
 
 /**

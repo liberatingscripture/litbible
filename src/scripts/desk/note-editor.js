@@ -16,7 +16,7 @@
 // changed it since (BA6). If one did, or deleted it, nothing is written and the
 // editor stays open with the reader's words, saying so.
 
-import { MARKERS, createRecord, currentMarker, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
+import { MARKERS, MAX_NOTE_BODY, createRecord, currentMarker, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
 import { noteSavedMessage } from "../../lib/desk-announce.mjs";
 import { planEdit } from "../../lib/desk-store-core.mjs";
@@ -121,6 +121,9 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     </div>`;
 
   const body = panel.querySelector("textarea");
+  // The limit a note is kept under, so the browser stops a paste at it rather
+  // than the save failing with words the reader can't mend by retrying (NB8-7).
+  body.maxLength = MAX_NOTE_BODY;
   body.value = record?.body ?? "";
   const example = !editing && preview !== null;
   if (example) {
@@ -141,7 +144,9 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   const failed = (err) => {
     console.error("Study Desk: the note wasn't saved", err);
     error.hidden = false;
-    error.textContent = "The note couldn’t be saved in this browser. Your words are still here: copy them, then try again.";
+    error.textContent = /too long/i.test(err?.message ?? "")
+      ? `That note is too long to keep (over ${MAX_NOTE_BODY.toLocaleString("en-US")} characters). Shorten it, or split it into two notes.`
+      : "The note couldn’t be saved in this browser. Your words are still here: copy them, then try again.";
   };
 
   async function saveEdit(now) {
@@ -309,7 +314,9 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     sheet: false,
     onClose: () => {
       window.removeEventListener("beforeunload", leaving);
-      clearDraft();
+      // Only a real editor's draft: the tour's example editor holds none, and
+      // must not take away one the reader kept (GF8b-4).
+      if (draftKey) clearDraft();
       landFocus(place);
     },
     extra: {

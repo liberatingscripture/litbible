@@ -19,6 +19,7 @@
 
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { verseCount } from "../data/verse-counts.js";
+import { isVerseGap } from "../data/verse-gaps.js";
 import { canEdit, editRecord } from "./desk-records.mjs";
 import { canFollowMore, cleanBookmarkName, MAX_FOLLOWING } from "./desk-bookmarks.mjs";
 import { bookmarksOn, followChoices, planSave } from "./desk-store-core.mjs";
@@ -58,7 +59,8 @@ export function kindTakenAt(place, follow) {
  * "Rom 8"), as `{ place, problem }`. A bookmark is one verse, so a range keeps
  * its first, and a chapter alone is its verse 1, as a chapter opened at its
  * top is for a bookmark that follows (`positionOnPage`). A verse past the
- * chapter's last is refused, saying how many it has.
+ * chapter's last is refused, saying how many it has. A verse the LIT leaves out
+ * (a gap, as Matthew 17:21 is) is refused as the sheet's passage form refuses it.
  *
  * @param {{ bookKey: string, chapter: number, verse?: number | null } | null} ref
  * @returns {{ place: { bookKey: string, chapter: number, verse: number, endVerse: number } | null, problem: string | null }}
@@ -76,6 +78,9 @@ export function bookmarkPlace(ref) {
   const last = verseCount(bookKey, chapter);
   if (!Number.isInteger(verse) || verse < 1 || verse > last) {
     return { place: null, problem: `${book} ${chapter} has ${last} verses.` };
+  }
+  if (isVerseGap(bookKey, chapter, verse)) {
+    return { place: null, problem: `${placeLabel({ bookKey, chapter, verse })} isn’t in the LIT.` };
   }
   return { place: { bookKey, chapter, verse, endVerse: verse }, problem: null };
 }

@@ -148,8 +148,8 @@ test("a verse number names its highlights, colours first", () => {
   assert.equal(verseLabel(3, 0, null), "Verse 3", "and so does a null list");
   assert.equal(verseLabel(3, 0, ["yellow"]), "Verse 3, highlighted yellow");
   assert.equal(verseLabel(3, 0, ["yellow", "pink"]), "Verse 3, highlighted yellow and pink");
-  assert.equal(verseLabel(3, 0, ["yellow", "green", "pink"]), "Verse 3, highlighted yellow, green and pink", "no comma before the last and");
-  assert.equal(verseLabel(3, 0, ["yellow", "green", "blue", "pink"]), "Verse 3, highlighted yellow, green, blue and pink");
+  assert.equal(verseLabel(3, 0, ["yellow", "green", "pink"]), "Verse 3, highlighted yellow, green, and pink", "the Oxford comma before the last and");
+  assert.equal(verseLabel(3, 0, ["yellow", "green", "blue", "pink"]), "Verse 3, highlighted yellow, green, blue, and pink");
 });
 
 test("a verse number names its notes and its highlights together, colours first", () => {

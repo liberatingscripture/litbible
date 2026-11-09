@@ -51,10 +51,13 @@ export const waitFor = (find, ms = 2000) =>
 
 export function createTourRunner() {
   let run = null;
+  // Step tokens count across runs, so a step still opening from a tour that
+  // ended can never match a step of the tour started after it (DK8-9).
+  let tokens = 0;
 
   /**
    * @param {{ steps: object[], view?: string | null,
-   *   act: (step: object) => Promise<object | null>,
+   *   act: (step: object, { live }: { live: () => boolean }) => Promise<object | null>,
    *   finish?: () => void | Promise<void>, afterUndo?: () => void,
    *   more?: (step: object) => ({ href: string, text: string, external?: boolean } | null),
    *   returnTo?: HTMLElement | null, returnFallback?: () => (HTMLElement | null) }} options
@@ -142,7 +145,15 @@ export function createTourRunner() {
 
   // What a step opened, to undo before the next step and at the end.
   function later(fn) {
-    run?.undo.push(fn);
+    if (run) {
+      run.undo.push(fn);
+      return;
+    }
+    // Registered after the tour ended (a step that opened something once it
+    // had waited): nothing will undo it later, so it is undone now (GF8b-5).
+    try {
+      fn();
+    } catch (_) {}
   }
 
   function undoStep() {
@@ -160,7 +171,7 @@ export function createTourRunner() {
   function end() {
     if (!run) return;
     const { card, returnTo, returnFallback, scroll, finish } = run;
-    run.token++;
+    run.token = ++tokens;
     document.removeEventListener("keydown", onKey, true);
     window.removeEventListener("resize", queuePlace);
     window.removeEventListener("scroll", queuePlace);
@@ -211,7 +222,12 @@ export function createTourRunner() {
   async function go(i) {
     const step = run.steps[Math.max(0, Math.min(i, run.steps.length - 1))];
     run.index = run.steps.indexOf(step);
-    const token = ++run.token;
+    const token = (run.token = ++tokens);
+    const mine = run;
+    // For an act that opens something after an await: whether this step is
+    // still the one showing, so it opens nothing over a tour that has ended
+    // or moved on (GF8b-5).
+    const live = () => run === mine && token === mine.token;
     undoStep();
 
     const card = run.card;
@@ -239,7 +255,7 @@ export function createTourRunner() {
 
     let target = null;
     try {
-      target = (await run.act(step)) ?? null;
+      target = (await run.act(step, { live })) ?? null;
     } catch (err) {
       console.error("Study Desk: a tour step couldn't show itself", err);
     }

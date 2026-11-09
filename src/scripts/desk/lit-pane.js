@@ -434,7 +434,9 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       loadingDown = true;
       const i = hi + 1;
       const section = await render(i);
-      loadingDown = false;
+      // The flag belongs to this generation's load: a jump has reset it, and a
+      // late chapter must not clear a newer load's (DK8-5).
+      if (n === seq) loadingDown = false;
       if (n !== seq) return;
       if (!section) {
         // Shown at the foot, where the reader is headed; Try again redraws it.
@@ -454,7 +456,7 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       loadingUp = true;
       const i = lo - 1;
       const section = await render(i);
-      loadingUp = false;
+      if (n === seq) loadingUp = false;
       if (n !== seq) return;
       if (!section) {
         // Shown at the top, as the case below is at the foot, and held so the

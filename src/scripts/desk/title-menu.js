@@ -361,7 +361,8 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
   printItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); printWindow.open(); });
   // The tray's own listener (first on this button) has placed it under the title.
   displayItem?.addEventListener("click", () => closeTitleMenu({ focus: false }));
-  for (const link of links) link.addEventListener("click", () => closeTitleMenu({ focus: false }));
+  // Both open a new tab, so the title button takes focus back, not the page (DK8-4).
+  for (const link of links) link.addEventListener("click", () => closeTitleMenu());
 
   titleMenu.addEventListener("keydown", (e) => {
     const inFly = addFly.contains(document.activeElement);

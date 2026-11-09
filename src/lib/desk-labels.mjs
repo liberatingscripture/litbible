@@ -36,6 +36,11 @@ export function labelKey(name) {
     .toLocaleLowerCase();
 }
 
+/** A name that reads as nothing: empty, or only marks and invisible format characters (GF8c-9). */
+export function readsAsNothing(name) {
+  return labelKey(name).replace(/[\p{Cf}\s]/gu, "") === "";
+}
+
 /** The live label records, by name. */
 export function liveLabels(records) {
   return records
@@ -82,7 +87,7 @@ const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
  */
 export function planCreateLabel(records, name, ctx) {
   const clean = normalizeLabelName(name);
-  if (!clean) return fail("empty");
+  if (readsAsNothing(clean)) return fail("empty");
   const existing = findLabel(records, clean);
   if (existing) return fail("duplicate", { existing });
   const label = createRecord("label", { name: clean }, ctx);
@@ -94,7 +99,7 @@ export function planRenameLabel(records, id, name, ctx) {
   const label = records.find((r) => r?.kind === "label" && r.id === id);
   if (!label) return fail("missing");
   const clean = normalizeLabelName(name);
-  if (!clean) return fail("empty");
+  if (readsAsNothing(clean)) return fail("empty");
   const existing = findLabel(records, clean, id);
   if (existing) return fail("duplicate", { existing });
   if (!canEdit(label)) return fail("readonly");
@@ -124,7 +129,7 @@ export function planSetLabel(record, labelId, on, ctx) {
  */
 export function planNewLabelOn(records, record, name, ctx) {
   const clean = normalizeLabelName(name);
-  if (!clean) return fail("empty");
+  if (readsAsNothing(clean)) return fail("empty");
   const existing = findLabel(records, clean);
   const made = existing ? null : planCreateLabel(records, clean, ctx);
   const label = existing ?? made.label;

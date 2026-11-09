@@ -2113,7 +2113,7 @@ Totals:
 | `src/scripts/desk/chapter-page.js` | 157 | yes | yes | `test/desk-chapter-address.test.js` |
 | `src/scripts/desk/labels-ui.js` | 156 | **no** | no | (none) |
 | `src/lib/desk-search-pane.mjs` | 153 | yes | yes | `test/desk-search-pane.test.js` |
-| `src/lib/desk-sheet-discussion.mjs` | 150 | yes | yes | `test/desk-sheet-discussion.test.js` |
+| `src/lib/desk-sheet-discussion.mjs` (removed in #504; its successor is `desk-sheet-from-notes.mjs`, tested in `test/desk-sheet-from-notes.test.js`; PC8C-4) | 150 | yes | yes | `test/desk-sheet-discussion.test.js` (removed in #504) |
 | `src/lib/desk-passage.mjs` | 149 | yes | yes | `test/desk-chapter-address.test.js`, `test/desk-passage.test.js` |
 | `src/lib/desk-verse.mjs` | 149 | yes | yes | `test/desk-verse.test.js` |
 | `src/lib/desk-chains.mjs` | 142 | yes | yes | `test/desk-chains.test.js`, `test/desk-hostile-records.test.js` |

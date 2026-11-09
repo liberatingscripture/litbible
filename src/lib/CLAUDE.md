@@ -91,7 +91,10 @@ From the root's project tree.
                      #   search UIs, the Greek tab and build:greek),
                      #   greek-query.mjs (Greek search commands: parsing
                      #   and constructions, the readback, the commands
-                     #   list) + greek-commands-ui.mjs (its pure UI helpers)
+                     #   list) + greek-commands-ui.mjs (its pure UI helpers;
+                     #   its import of desk-greek.mjs is the one deliberate
+                     #   edge from shared code into a desk module, guarded by
+                     #   test/desk-gate-imports.test.js)
                      #   + greek-builder.mjs (the commands window's menu
                      #   builder: the field read and written, what each
                      #   word's menus offer),

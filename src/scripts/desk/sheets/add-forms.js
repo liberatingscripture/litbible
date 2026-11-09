@@ -20,7 +20,7 @@
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
 import { addModule } from "../../../lib/desk-sheets.mjs";
-import { fitModules, notebookItems, partsFor } from "../../../lib/desk-sheet-from-notes.mjs";
+import { fitModules, notAlreadyOn, notebookItems, partsFor } from "../../../lib/desk-sheet-from-notes.mjs";
 import { passageForReference, passageFromRecord } from "../../../lib/desk-sheet-passages.mjs";
 import { recordReference } from "../../../lib/desk-store-core.mjs";
 import { describeRefusal } from "../../../lib/desk-sheet-ref-refusal.mjs";
@@ -76,7 +76,7 @@ export async function openFromNotes(host, box, close) {
     cancel.focus();
     return;
   }
-  box.append(make("p", "desk-sheet__empty", "Tick what to bring. A question becomes a Question part, a note or a pinned footnote Your text, and a highlight a passage."));
+  box.append(make("p", "desk-sheet__empty", "Check what to bring. A question becomes a Question part, a note or a pinned footnote Your text, and a highlight a passage."));
   const KIND = { question: "Question", note: "Note", highlight: "Highlight", footnote: "Footnote" };
   const picks = new Map();
   const go = button("Add", "desk-sheet__btn desk-sheet__btn--primary");
@@ -130,8 +130,11 @@ export async function openFromNotes(host, box, close) {
     close(false);
     let added = fit.modules;
     host.change((s) => {
-      // Fitted again on the sheet as saved, which another tab may have grown.
-      added = fitModules(s, fit.modules).modules;
+      // Checked and fitted again on the sheet as saved, which another tab may
+      // have grown, or already put one of these on (PC8B-1).
+      const parts = partsFor(notAlreadyOn(s, records, chosen), { chapter: (r) => chapters.get(`${r.bookKey} ${r.chapter}`) ?? null, contentVersion: host.ctx().contentVersion });
+      added = fitModules(s, parts).modules;
+      if (!added.length) return s;
       let at = host.insertIndex(s);
       return added.reduce((acc, m) => addModule(acc, m, at++, host.opCtx()), s);
     }, {

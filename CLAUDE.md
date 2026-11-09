@@ -41,7 +41,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
 | `src/components/CLAUDE.md` | The announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
-| `src/pages/CLAUDE.md` | The podcast page's embeds |
+| `src/pages/CLAUDE.md` | The podcast page's embeds; the 404 page's address guessing |
 | `scripts/CLAUDE.md` | The build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
@@ -235,6 +235,7 @@ src/
                      #   source for book names
     verse-counts.js  # VERSE_COUNTS: the last verse number of every NT chapter, for
                      #   browser code with no chapter files (the desk's note linking)
+    verse-gaps.js    # VERSE_GAPS: the verse numbers the LIT leaves out (Matthew 17:21)
     podcast-feed.xml # Committed podcast snapshot (refreshed by fetch:podcast)
     podcastOverrides.json     # Manual episode metadata overrides
     release-notes.json        # "What's new" entries (auto-appended in CI)
@@ -327,7 +328,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; every section's content is data (`apps-sections`, `callouts`, `examples`, `seasons`), laid out in order by `components/apps/AppsPage.astro` and edited through the Apps Page Studio; scoped styles in `src/styles/pages/apps.css`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). Its embeds are three deliberately different shapes, and only the Apple one is derived at build: read `src/pages/CLAUDE.md` before touching them |
-| `/404` | `404.astro` | Not found. Its script reads the address with `resolveMistypedPath` (in `search-core.js`, the same parser as the search box), so a guessable scripture address lands on its page: `/John-3`, `/jn-3`, `/john-3-16`, `/john/3`, `/1-corinthians-13`, `/read/1-corinthians`. A known book with a chapter it doesn't have (`/john-30`) gets "Did you mean John?" instead of a redirect; anything else, and no JS, leaves the page as it was. |
+| `/404` | `404.astro` | Not found; a guessable scripture address lands on its page (`src/pages/CLAUDE.md`) |
 | others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and

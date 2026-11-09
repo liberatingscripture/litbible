@@ -65,7 +65,8 @@ export function printsOnPaper(m, copy) {
 
 function hasWords(html) {
   const s = typeof html === "string" ? html : "";
-  return htmlToText(s).trim() !== "" || /<hr/i.test(s);
+  // A zero-width space or joiner pasted in from a web page or Word is not a word (GF8b-11).
+  return htmlToText(s).replace(/[\u200B-\u200D\u2060\uFEFF]/g, "").trim() !== "" || /<hr/i.test(s);
 }
 
 /** A chapter's address with a verse or range: "https://litbible.net/romans-8/#v1-4". */

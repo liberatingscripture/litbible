@@ -113,6 +113,8 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
 const HIGHLIGHT_WORDS = 24;
 // A note on a footnote quotes this many words of the footnote.
 const FOOTNOTE_WORDS = 12;
+// How long typing in "Search my notebook" waits for the next key before the list is redrawn.
+const QUERY_DELAY_MS = 150;
 
 // Numbers each tab's ids, since /desk can show several My Notes panes.
 let seq = 0;
@@ -277,12 +279,21 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   // fires `search` and `change` and no `input` (LV3-1), which left the list
   // filtered by words the field no longer held. Each draws only when the
   // words actually changed, so `change` on blur costs nothing.
+  // Typing waits a moment for the next key before the list is redrawn, as a long
+  // notebook would be rebuilt on every character otherwise (NB8-4).
+  let queryTimer = 0;
   const takeQuery = () => {
+    window.clearTimeout(queryTimer);
+    queryTimer = 0;
     if (query === queryBox.value) return;
     query = queryBox.value;
     refilter();
   };
-  for (const type of ["input", "search", "change"]) queryBox.addEventListener(type, takeQuery);
+  queryBox.addEventListener("input", () => {
+    window.clearTimeout(queryTimer);
+    queryTimer = window.setTimeout(takeQuery, QUERY_DELAY_MS);
+  });
+  for (const type of ["search", "change"]) queryBox.addEventListener(type, takeQuery);
   kindSelect.addEventListener("change", () => {
     kindFilter = kindSelect.value || null;
     // A colour only means something among highlights.
@@ -932,11 +943,17 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     requestAnimationFrame(() => {
       const full = getSetting("listFull") === "full";
       let more = 0;
-      for (const row of list.querySelectorAll(".desk-item__note-row")) {
-        const caret = row.querySelector(".desk-item__more");
+      // Every read first, then every write: a write between two reads would
+      // force a layout of the whole list for each long note (NB8-4).
+      const rows = Array.from(list.querySelectorAll(".desk-item__note-row"), (row) => {
         const words = row.querySelector(".desk-item__words");
-        const open = row.classList.contains("desk-item__note-row--open");
-        const cut = words.scrollHeight > words.clientHeight + 1;
+        return {
+          caret: row.querySelector(".desk-item__more"),
+          open: row.classList.contains("desk-item__note-row--open"),
+          cut: words.scrollHeight > words.clientHeight + 1,
+        };
+      });
+      for (const { caret, open, cut } of rows) {
         caret.hidden = full || !(open || cut);
         if (full || cut) more++;
       }
@@ -967,6 +984,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   // Take the tab down, for a My Notes pane on /desk that closes (BA31).
   function destroy() {
     document.removeEventListener(SETTINGS_EVENT, markCut);
+    window.clearTimeout(queryTimer);
     continued.destroy();
   }
 

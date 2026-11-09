@@ -617,6 +617,13 @@ function foldToken(s) {
 let verseIndexPromise = null;
 
 /**
+ * What every search surface says when the verse index didn't load (it resolves
+ * null; the next search asks again), so a failed fetch is never read as "no
+ * results" (GF8a-3).
+ */
+export const VERSES_FAILED = "The verses couldn’t be searched just now. Search again in a moment.";
+
+/**
  * Load /search/verses.json once. Resolves to
  * { verses, vocab, formsByStem } —
  * verses: { bookKey: { chapter: ["verse 1 text", ...] } };

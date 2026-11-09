@@ -33,7 +33,7 @@
 // written until the reader chooses Keep or Delete there.
 
 import { onFootnote } from "../../lib/desk-records.mjs";
-import { recordReference, recordWhere, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { recordReference, recordWhere, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { FOLLOW_CHANGED } from "./bookmark-follow.js";
 import { markLook } from "./bookmark-mark.js";
 import { redrawAfterMove } from "./move-redraw.js";
@@ -694,6 +694,10 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         return { left: window.scrollX + Math.max(12, c.left), top: window.scrollY + top };
       },
     });
+    // An editor holding unsaved words kept the panel, and this popover was handed
+    // back unattached with no onClose to run: nothing opened, so nothing is
+    // marked expanded or lit (NB8-5).
+    if (!pop.isConnected) return;
     popId = record.id;
     popBind = (next) => {
       anchor = next;
@@ -748,8 +752,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   /* ── Keeping up with the page ────────────────────────────────────── */
 
-  // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
-  store.subscribe(load, { except: QUIET_KINDS });
+  // Not a place, a sheet (autosaved every few hundred milliseconds), or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107; NB8-1).
+  store.subscribe(load, { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
   // It catches up as a jump once the reader pauses, not a slide (move-redraw.js).
   redrawAfterMove(store, load);
   // The flag changing (a follow starts, pauses, stops) changes which mark is an outline.

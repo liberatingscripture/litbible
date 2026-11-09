@@ -28,7 +28,9 @@ import {
   seenMark,
   seenValue,
 } from "../../lib/desk-whats-new-view.mjs";
+import { MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { loadReleaseNotes } from "./release-feed.js";
+import { redrawAfterMove } from "./move-redraw.js";
 import { el } from "./dom.js";
 
 /** Where the section is, for the panel's line. */
@@ -219,6 +221,10 @@ export function mountWhatsNew(box, { store }) {
     }
   }
 
-  store.subscribe?.(() => draw());
+  // Not a place or a sheet (a sheet autosaves every few hundred milliseconds in
+  // another tab), and a bookmark moving as the reader reads is drawn once the
+  // reading pauses (GF8b-8).
+  store.subscribe?.(() => draw(), { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
+  if (store.subscribe) redrawAfterMove(store, () => draw());
   return draw();
 }

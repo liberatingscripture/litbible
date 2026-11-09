@@ -5,7 +5,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { FROM_NOTES_MAX, fitModules, itemKind, itemWords, noteHtml, notebookItems, partsFor } from "../src/lib/desk-sheet-from-notes.mjs";
+import { FROM_NOTES_MAX, fitModules, itemKind, itemWords, noteHtml, notAlreadyOn, notebookItems, partsFor } from "../src/lib/desk-sheet-from-notes.mjs";
 import { SHEET_LIMITS, sanitizeSheetHtml, validateSheet } from "../src/lib/desk-sheet-format.mjs";
 import { addModule, createSheet, makeModule } from "../src/lib/desk-sheets.mjs";
 
@@ -153,6 +153,24 @@ test("a note or footnote already on the sheet, or a highlight a passage covers e
   const sheet = sheetOf(passage("romans", 8, 1, 2), passage("romans", 8, 3, 20), makeModule("question", { html: noteHtml(q) }), makeModule("text", { html: noteHtml(p) }));
   const items = notebookItems(sheet, [q, h, h2, p, note({ id: "fresh", verse: 5 })]);
   assert.deepEqual(items.map((it) => [it.record.id, it.onSheet]), [["h", true], ["h2", false], ["q", true], ["p", true], ["fresh", false]]);
+});
+
+test("an item the sheet now holds is dropped again at Add (PC8B-1)", () => {
+  const q = question({ id: "q", body: "Why?" });
+  const n = note({ id: "n", verse: 5 });
+  const h = highlight({ id: "h", verse: 1, endVerse: 2 });
+  const records = [q, n, h];
+  const before = sheetOf(passage("romans", 8, 1, 2), passage("romans", 8, 3, 20));
+  const chosen = notebookItems(before, records).filter((it) => it.record.id !== "h");
+  assert.deepEqual(notAlreadyOn(before, records, chosen).map((it) => it.record.id), ["q", "n"]);
+  // another tab puts the question on the sheet while the chooser is open
+  const after = { ...before, modules: [...before.modules, makeModule("question", { html: noteHtml(q) })] };
+  assert.deepEqual(notAlreadyOn(after, records, chosen).map((it) => it.record.id), ["n"]);
+  assert.equal(partsFor(notAlreadyOn(after, records, chosen)).length, 1);
+  // a highlight's passage added from elsewhere is held too
+  const hItem = notebookItems(before, records).filter((it) => it.record.id === "h");
+  const withH = { ...before, modules: [...before.modules, passage("romans", 8, 1, 2)] };
+  assert.deepEqual(notAlreadyOn(withH, records, hItem), []);
 });
 
 /* ── The words a part gets ───────────────────────────────────────────── */

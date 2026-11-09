@@ -48,7 +48,7 @@ import { HIDE_EVENT, SETTINGS_EVENT, panelNoteControls } from "./note-settings.j
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { createPrintMenu } from "./print-menu.js";
 import { printPlain } from "./print-link.js";
-import { forChapter } from "../../lib/desk-store-core.mjs";
+import { NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
@@ -564,7 +564,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     button.type = "button";
     button.className = "desk-panel__print-button";
     button.textContent = "Print…";
-    button.setAttribute("aria-haspopup", "true");
+    // A disclosure, not a menu: it opens a passage field and three prints, so it
+    // says only whether it is open, and what it opens (XA8-11).
     button.setAttribute("aria-expanded", "false");
     button.setAttribute("aria-controls", "deskPrintMenuPanel");
     button.setAttribute("aria-describedby", "deskPrintHint");
@@ -638,8 +639,10 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   /* ── Keeping in step ────────────────────────────────────────────── */
 
   // Another tab's change, or this tab's own: either way the list is redrawn
-  // from the database, so every tab shows the same notebook.
-  store?.subscribe(() => render());
+  // from the database, so every tab shows the same notebook. Not a place or a
+  // sheet: My Notes lists neither, and a sheet autosaves every few hundred
+  // milliseconds in another tab (NB8-1). A bookmark moving is heard (NB8-3).
+  store?.subscribe(() => render(), { except: NO_CHAPTER_KINDS });
   // My Notes' What's new line reads the notebook's meta, which the notebook
   // page moves on when it is looked at, in any tab (BA96).
   store?.onMeta?.(() => render());

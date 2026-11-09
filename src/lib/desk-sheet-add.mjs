@@ -46,6 +46,24 @@ export function planAddToSheet(current, fields, ctx) {
 }
 
 /**
+ * A run of passages (a search's or topic's, gathered) added to `current` as
+ * the editor would add them: over the sheet in today's canonical form
+ * (`planSheetChange`), each where `passageInsertIndex` puts it, so the run
+ * lands after the sheet's last passage, in order, or under its reading part
+ * (SH8-3). Returns `planSheetChange`'s result.
+ *
+ * @param {object} current the sheet as read in the write's own transaction
+ * @param {object[]} passages passage fields, in the order to add them
+ */
+export function planAddPassages(current, passages, ctx) {
+  return planSheetChange(current, (s) => {
+    let next = s;
+    for (const fields of passages ?? []) next = addModule(next, makeModule("passage", fields), passageInsertIndex(next), ctx);
+    return next;
+  });
+}
+
+/**
  * "New sheet": a blank sheet holding the passage alone, named after it, so
  * the leader can find it in their list and rename it there.
  */

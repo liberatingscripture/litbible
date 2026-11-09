@@ -253,6 +253,9 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     exactBox.checked = false;
     query = next;
     run();
+    // The suggestion that was pressed is redrawn away: focus goes where an
+    // opened search puts it, on the way back to the text (GF8a-9).
+    backBtn.focus({ preventScroll: true });
   }
 
   function paintCommands(res, raw) {
@@ -400,11 +403,13 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     if (openHit && !(hit.book === here.bookKey && hit.chapter === here.chapter)) {
       close({ focus: false });
       openHit(hit);
+      // Unless the move put focus somewhere, the text has it (GF8a-9).
+      if (!document.activeElement || document.activeElement === document.body) focusText();
       return;
     }
     // Back to the text first, so the word is placed against the Greek's size.
     close({ focus: false });
-    await selectWord(hit.verse, hit.t, { focus: true });
+    if (!(await selectWord(hit.verse, hit.t, { focus: true }))) focusText();
   });
 
   return { open, close, isOpen };

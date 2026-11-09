@@ -16,6 +16,16 @@ Nothing in the code was changed; every finding is a recommendation. IDs carry an
 collide with earlier audits'. The full reports are the appendices, with their heading levels shifted
 down one; severities in this summary are the ones after verification (Appendix O).
 
+**Status (2026-11-09, same day):** on BVJ's instruction to start everything that needs no input of
+theirs, those findings were fixed on `claude/desk-audit-8-fixes` and each entry is marked **Fixed**,
+**Partly fixed**, **No change** or **Open**. Partly fixed, with what remains on the entry: DI8-4 (a
+change another tab saved but this tab hasn't heard can still be written over at close; documented),
+SH8-8, XA8-14, GF8a-3, GF8a-9, GF8b-9 and GF8c-1 (the format's ceiling on `endVerse` is for BVJ and
+BDR). Open for a decision: the eleven below, plus XA8-1 and XA8-12 (each needs a design first) and
+PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8-4, and a live check
+of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
+LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
+
 ## Bottom line
 
 **No Critical or High finding, in either phase.** After verification, **13 Medium**, 94 Low and 11
@@ -298,6 +308,8 @@ A record once stamped by a clock set ahead is unsyncable for ever, in both direc
 
 **Confidence** High.
 
+**Open (2026-11-09)** Decision 1, and a change to the format shared with the apps (BDR).
+
 #### DI8-2 · Medium · data-integrity · NEW
 Restoring, or undoing the deletion of, a record this client can't edit puts it back stamped older than its own deletion, so the deletion wins the next time the two meet.
 
@@ -310,6 +322,8 @@ Restoring, or undoing the deletion of, a record this client can't edit puts it b
 **Fix** Restamp the common fields only, which every client reads, and leave every other field untouched: `restoreFromTrash` and `restamped` set `modified` (and `client`) for an uneditable record too, through `laterThanAll`. Principle 6 is about fields the client doesn't understand; `modified` is the one field every client does. Put the rule in the format under kind 10's "Undo and redo" for BDR. Alternatively keep the record untouched and refuse to restore what can't be edited, with a sentence saying why; worse for the reader.
 
 **Confidence** High.
+
+**Open (2026-11-09)** Decision 2.
 
 #### DI8-3 · Medium · data-integrity · NEW
 Two trash records of one deletion holding two copies of a stamped bookmark keep whichever copy the merge order favours, so the trash's words differ between devices and a restore brings back different bookmarks.
@@ -324,6 +338,8 @@ Two trash records of one deletion holding two copies of a stamped bookmark keep 
 
 **Confidence** High.
 
+**Open (2026-11-09)** Decision 3.
+
 #### DI8-4 · Low · data-integrity · NEW
 Closing a tab writes the whole sheet from that tab's copy, so a part another tab saved moments before is silently overwritten.
 
@@ -336,6 +352,8 @@ Closing a tab writes the whole sheet from that tab's copy, so a part another tab
 **Fix** Narrow what `pagehide` may write: only parts this tab's pending ops touched. Build the plan as a module-level merge: start from `sheet`, apply the pending ops, and put a sheet whose other modules are taken from… there is nothing newer to take them from without a read, so the honest fix is to accept the race and say so in `sheets/CLAUDE.md` ("a part another tab saved in the last second can be lost when this tab closes"), or to make `refresh()` not wait on `saving` for an `other-tab` origin (update `sheet` first, redraw after the save lands), which closes most of the window. A title or subtitle typed in the other tab is overwritten the same way.
 
 **Confidence** High that it happens as described in `fake-indexeddb`; Medium on how often a real browser runs `pagehide` inside the window.
+
+**Partly fixed (2026-11-09)** `pagehide` writes over the newest copy this tab has heard of: its own, or one another tab saved that `refresh` read while this tab's own saves were in flight. A part another tab saved that this tab hasn't yet heard of can still be written over at close; the verifier preferred documenting that race, and the desk file's rule 11 and `onPagehide`'s comment now do. Tests: `test/desk-audit8-a-sheet-tabs.test.js`.
 
 #### DI8-5 · Low · longevity · NEW
 After a `versionchange` the store closes its connection and every later call throws for the rest of the page's life, with nothing told to the reader.
@@ -350,6 +368,8 @@ After a `versionchange` the store closes its connection and every later call thr
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** After a version change the store reopens on the next call; after an upgrade by a newer page, calls reject with `NOTEBOOK_UPGRADED`, `writeNow` throws a named error, and the editor's failure line tells the reader to reload, leaving their words on screen. Tests: `test/desk-audit8-a-store.test.js`.
+
 #### DI8-6 · Low · docs · NEW
 Three facts the website enforces are missing from the format, so an app built from the document alone writes records the website refuses.
 
@@ -362,6 +382,8 @@ Three facts the website enforces are missing from the format, so an app built fr
 **Fix** Three sentences in the format: under kind 2, "`marker` is required; a client with no icon writes `note`"; under "Fields every record carries", "`chapter`, `verse`, `endVerse` and `n` are integers, `verse ≥ 1`"; under kind 10, "a trash record needs only `id`, `kind`, `modified`, `deletedId` and `deletedAt` to be read, and its `record`, when present, is checked as a live record".
 
 **Confidence** High.
+
+**Fixed (2026-11-09)** The three facts are in `STUDY-DESK-FORMAT.md`: `marker` is required (kind 2), `chapter`, `verse`, `endVerse` and `n` are integers ("Fields every record carries"), and what a trash record must carry to be read (kind 10). For BDR to read.
 
 #### DI8-7 · Low · ui · NEW
 A card being typed in keeps a stale header (planned minutes, Leader only) when another tab changes those, for as long as the part's text stays as it is.
@@ -376,6 +398,8 @@ A card being typed in keeps a stale header (planned minutes, Leader only) when a
 
 **Confidence** Medium.
 
+**Fixed (2026-11-09)** A focused card's header redraws in place (`setHead`) when another tab changes its minutes or Leader only.
+
 #### DI8-8 · Low · usability · NEW
 Two tabs opening the same sheet within 400 ms never ask each other, since a tab counts as editing only once its editor is drawn.
 
@@ -388,6 +412,8 @@ Two tabs opening the same sheet within 400 ms never ask each other, since a tab 
 **Fix** Count a tab as "about to show" the sheet while it is asking: `addEditor`'s function returns `asking ?? sheet.id`, or `editingReply` answers a `who` for a sheet in `waiting` too (with the lower `tab` id yielding, so exactly one of the two asks). A test in `desk-sheet-tabs.test.js` for two simultaneous askers.
 
 **Confidence** Medium.
+
+**Fixed (2026-11-09)** A tab still asking answers a `who` about the same sheet with a `here` marked `asking`; of two tabs that heard each other, only the one with the larger id counts the answer, so exactly one shows the question. Tests: `test/desk-audit8-a-sheet-tabs.test.js`.
 
 ### Improvements
 
@@ -441,6 +467,8 @@ The trust boundaries hold. I found no script injection. The sheet sanitizer buil
 - **Fix**: for the heading, match `/^##[ \t]+(.*)$/` and trim in code, rejecting an empty title. For `savedAt`, read only the first line holding the opener: find it with `indexOf("<!--")` and a bounded slice, or use `/<!--[ \t]*lit-notebook\b([^\n]{0,500}?)-->/`. Add both shapes to the import tests with a time bound, as BA87's test does for the share file.
 - **Confidence**: High (reproduced in node; V8's regex engine is the browser's in Chrome).
 
+**Fixed (2026-11-09)** The heading pattern is linear (`/^##\s+(.*)$/`, trimmed in code), `savedAt`'s opener is bounded to 500 characters, and `parseReference`, also quadratic on a run of spaces, collapses whitespace first. Tests: 100 KB hostile lines, each under a second, in `test/desk-audit8-e-verse.test.js`.
+
 #### SEC8-2 · Low · security · REGRESSION SEC3-2 (incomplete)
 **The Search pane brings a glossary entry into the page without `makeInert`, the one fetched-page import the SEC3-2 scrub doesn't cover.**
 
@@ -450,6 +478,8 @@ The trust boundaries hold. I found no script injection. The sheet sanitizer buil
 - **Fix**: `const clone = makeInert(document.importNode(source, true));` (or scrub each entry once in `loadGlossary`), plus a line in `test/desk-inert.test.js` or `desk-search-pane.test.js` holding that every `DOMParser` user in `src/scripts/desk/` imports `makeInert`.
 - **Confidence**: High (code read; no exploit today, so Low).
 
+**Fixed (2026-11-09)** The Search pane's glossary entry goes through `makeInert`, and a malformed `#%` link decodes safely. Test: `test/desk-audit8-c-search-and-pages.test.js`.
+
 #### SEC8-3 · Low · privacy · NEW
 **"N more in your notebook" sends the reader's notebook search words to the server in the address.**
 
@@ -458,6 +488,8 @@ The trust boundaries hold. I found no script injection. The sheet sanitizer buil
 - **Evidence**: code read. This is how a GET with a query string works. It matches what `/search/?q=` already does for ordinary site search, which is why this is Low. But the desk's own promise (`/privacy`: "nothing about them is sent to the LIT Bible team or anywhere else") is about the notebook, and these are searches of it.
 - **Fix**: carry the words in the fragment (`/notebook/#q=…`; `notebook-page.js` reads `location.hash` and strips it the same way) or in `sessionStorage`, so they never form part of a request. Keep `?q=` readable for one release for old links.
 - **Confidence**: High for the request; Medium for what Cloudflare keeps (not checked against the dashboard).
+
+**Fixed (2026-11-09)** `notebookSearchHref` returns `/notebook/#q=…`, so the words ride in the fragment; `/notebook` reads the fragment (and still an old `?q=`), strips both, and listens for `hashchange`. Tests: `test/desk-search.test.js`.
 
 ### Sink table
 
@@ -545,6 +577,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High for focus, chooser and status loss (read directly); Medium for the scroll jump (it depends on the browser painting between the empty state and the rebuild, which an IndexedDB round trip makes likely).
 
+**Fixed (2026-11-09)** The /sheets list rebuilds its rows alone, off the page, and swaps them in only when they changed; the chooser, status lines, scroll and focus outside the rows stay, and each row button has its own focus key (focus goes to the h1 if its row is gone). Also LV8-1. Tests: `test/desk-audit8-a-sheets-list.test.js`.
+
 #### SH8-2 · Medium · data-integrity · NEW
 **"Keep mine" on a two-tab conflict writes every field of the card, reverting the other tab's change to a field the reader never touched.**
 
@@ -558,6 +592,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** Fields are handled one by one (`movedUnderReader`): a moved field the reader isn't in loads the other tab's text at once, and only the field being typed in gets the line; "Keep mine" writes only the fields that differ (`keptFields`). Tests: `test/desk-audit8-a-sheet-tabs.test.js`.
+
 #### SH8-3 · Low · bug · NEW
 **Passages gathered from /search (and /desk's Search pane) into an existing sheet are appended after its last part, around the editor's placement rule and its canonical-form rewrite.**
 
@@ -570,6 +606,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 **Fix** Give `desk-sheet-add.mjs` (or `desk-sheets.mjs`) one `planAddPassages(current, passages, ctx)` that runs through `planSheetChange` and places the run at `passageInsertIndex`, and call it from `sheet-add.js`, `search-sheet.js` and `search-pane.js`. (For the Search pane, the target editor's "part last worked in" is another option; the owner may prefer the same rule as a chapter page.)
 
 **Confidence** High that placement and the rewrite differ; the size of the usability cost depends on how often leaders gather into a template sheet.
+
+**Fixed (2026-11-09)** Both gathers add through `planAddPassages` (`desk-sheet-add.mjs`): over the sheet's canonical form, each passage where `passageInsertIndex` puts it. Tests: `test/desk-sheet-add.test.js`.
 
 #### SH8-4 · Low · bug · NEW
 **A card that saves its own change keeps its build-time state: a stale minutes value, a stale lines preview, and a stale header key that later rebuilds the card and drops focus.**
@@ -587,6 +625,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** `card.head` follows the card's own saves, the minutes field reverts to the stored value, and the lines preview follows the field.
+
 #### SH8-5 · Low · bug · NEW
 **Delete in a sheets list has no error handling: a failed delete is an unhandled rejection and the click appears to do nothing.**
 
@@ -599,6 +639,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 **Fix** Wrap the remove like its siblings: `listProblem(host, "The sheet couldn’t be deleted in this browser. Try again in a moment.")`, and disable the button while it runs, so a double press can't send two deletes.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)** A failed delete shows the list's problem line, and Delete is busy while it runs.
 
 #### SH8-6 · Low · a11y · NEW
 **The presenter view disables its focused button at the ends, dropping focus to the page (BA79's guard exists only on the stage).**
@@ -613,6 +655,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** With XA8-9: the presenter view's `draw` moves focus to Blank before it disables or hides the focused control, as the stage's BA79 guard does. Test: `test/desk-audit8-b-writers.test.js`.
+
 #### SH8-7 · Low · data-integrity · NEW
 **A title or subtitle renamed in another tab while this tab's field has focus stays stale after blur, and this tab's next keystroke there puts the old title back.**
 
@@ -624,6 +668,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** On blur, the title and subtitle show the stored value once saves land.
+
 #### SH8-8 · Nit · longevity · NEW
 **Three small loose ends.**
 - `sheet-editor.js:197–200`: the editor's `say` writes its live region in `requestAnimationFrame`, which never fires in a hidden tab. `undo-bar.js:118` uses a timeout for exactly this reason.
@@ -631,6 +677,8 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 - `sheet-tabs.js:192–205`: two editors in one tab asking about the same sheet at once (a /desk layout restoring two Sheets panes on one sheet) overwrite each other's `waiting` entry. Only the second hears an answer, so one pane asks and the other opens unasked.
 
 **Confidence** High (each read directly).
+
+**Partly fixed (2026-11-09)** `say` waits 50 ms with a timeout instead of a frame, and two editors in one tab asking about one sheet share one question. `sheets-page--editing`, which nothing reads, is left: it lives in `sheet-page-edit.js` too.
 
 ### Improvements
 
@@ -685,6 +733,8 @@ Every mark-drawing view on a reading page redraws on each sheet autosave heard f
 **Fix** Subscribe those six views with `{ except: NO_CHAPTER_KINDS }` (the panel needs `["place","sheet"]` too, since My Notes lists neither; keep `bookmarkMove` heard there, see NB8-3). One line each.
 **Confidence** High (code), Medium (size of the cost; not timed).
 
+**Fixed (2026-11-09)** The reading page's margin, highlights, verse labels, pins, footnote notes and read marks subscribe with `{ except: [...NO_CHAPTER_KINDS, MOVE_KIND] }`, the panel with `{ except: NO_CHAPTER_KINDS }`, so a sheet's autosave redraws none of them (LG8-3's sheet half). Tests: `test/desk-audit8-d-reading-pages.test.js`.
+
 #### NB8-2 · Medium · usability · NEW
 
 A bookmark, highlight or pin that fails to save says nothing
@@ -694,6 +744,8 @@ A bookmark, highlight or pin that fails to save says nothing
 **Evidence** Read; there is no `announce`, `showUndo` or inline error in the catch blocks. Audit 2 line 874 records that quota-exceeded was never driven.
 **Fix** In each catch, `announce`/`showUndo` one sentence in the editor's wording ("couldn’t be saved in this browser, so nothing changed"), and keep the menu open for bookmarks; for `onversionchange`, either set a flag the writers check ("This page is out of date. Reload it to keep notes.") or reopen the database.
 **Confidence** High (code); Medium on how often it happens.
+
+**Fixed (2026-11-09)** A failed bookmark, highlight or pin write says it couldn't be saved in this browser (`showNotice`), and the bookmark menu stays open. Test: `test/desk-audit8-d-reading-pages.test.js`.
 
 #### NB8-3 · Low · performance · NEW
 
@@ -705,6 +757,8 @@ My Notes redraws in full while the Notebook is minimized, which is the default
 **Fix** Draw My Notes and This verse only when `shown()`; when the Notebook expands, call `render()` once (the rail's `onChange` already runs on expand). Keep `MOVE_KIND` heard only while expanded.
 **Confidence** High (code), Low (impact; not timed with a large notebook).
 
+**Open (2026-11-09)** Decision 11.
+
 #### NB8-4 · Low · performance · NEW
 
 A long My Notes or "What I’ve kept" list is rebuilt, with a forced reflow per long note, on every change and every keystroke
@@ -714,6 +768,8 @@ A long My Notes or "What I’ve kept" list is rebuilt, with a forced reflow per 
 **Evidence** Read; `fillNoteWords` itself is fast (`bench-body.mjs`: 5,000 bodies in 34 ms).
 **Fix** In `markCut`, do all the reads first and the writes in a second loop. Debounce the search `render()` by about 150 ms. Past some count (a few hundred rows) show the first batch with "Show more".
 **Confidence** Medium (code), Low (felt impact; needs a browser with 1,000+ notes).
+
+**Fixed (2026-11-09)** `markCut` reads every row before writing, and the search box is debounced (150 ms). Paging is decision 7.
 
 #### NB8-5 · Low · bug · NEW
 
@@ -725,6 +781,8 @@ A margin circle pressed while the note editor holds unsaved words leaves the cir
 **Fix** In `openPopover`, `if (!pop.isConnected) return;` right after `showPanel`, before setting `popId`.
 **Confidence** High (code); confirm in a browser with a narrow window.
 
+**Fixed (2026-11-09)** `openPopover` returns when the popover is no longer in the page.
+
 #### NB8-6 · Low · usability · NEW
 
 Pressing "Hide my marks" a second time forgets what the first press remembered
@@ -734,6 +792,8 @@ Pressing "Hide my marks" a second time forgets what the first press remembered
 **Evidence** `hide-all.mjs` (copied output above), run against the real `note-settings.js` with a stub `document`.
 **Fix** When saving for hide, keep an existing saved "on" for any switch that is currently off, or refuse to overwrite while `HIDE_KEY` exists.
 **Confidence** High.
+
+**Open (2026-11-09)** Decision 11.
 
 #### NB8-7 · Low · usability · NEW
 
@@ -745,6 +805,8 @@ The note editor has no length limit and a body over 65,536 characters fails with
 **Fix** `textarea.maxLength = MAX_NOTE_BODY`, or in `failed()` say "That note is too long (over 65,536 characters). Shorten it, or split it into two notes." when the error mentions the body.
 **Confidence** High.
 
+**Fixed (2026-11-09)** The note field has `maxLength = MAX_NOTE_BODY`, and a note too long to keep gets its own sentence.
+
 #### NB8-8 · Low · a11y · NEW (leftover of NB3-8)
 
 Two more focused buttons become `disabled` and can lose focus
@@ -754,6 +816,8 @@ Two more focused buttons become `disabled` and can lose focus
 **Evidence** Read; `focus-keep.js` `busy`/`isBusy`.
 **Fix** Use `busy()`/`isBusy()` as `trash-list.js` does.
 **Confidence** Medium (browser behavior; check by pressing Keep with the keyboard while offline and reading `document.activeElement`).
+
+**Fixed (2026-11-09)** Keep and Delete on the change notice, and the bookmark form's Save, are `aria-disabled` while busy, so focus stays; `desk.css` gives them the busy look.
 
 #### NB8-9 · Low · bug · NEW
 
@@ -765,6 +829,8 @@ A Greek search result for the chapter on screen is swallowed if the shell fails 
 **Fix** On stand-down, if a `lit:greek-word` was taken, navigate to its link (`greekHref`) or at least show the search's own link behavior; or take the event only once the shell is up.
 **Confidence** High (code); narrow trigger.
 
+**Fixed (2026-11-09)** When the shell stands down, a held Greek result opens `?greek=…#vN`.
+
 #### NB8-10 · Low · robustness · NEW
 
 One failing initializer after the Notebook is up silently skips every one after it
@@ -775,6 +841,8 @@ One failing initializer after the Notebook is up silently skips every one after 
 **Fix** Run each initializer through a small `tryStart(name, fn)` that catches and logs, as `createPanel` does for tabs.
 **Confidence** Medium (no one-line trigger found, so a robustness gap rather than a seen bug).
 
+**Fixed (2026-11-09)** Each of the shell's start-up steps runs through `tryStart`, so one that throws doesn't stop the rest.
+
 #### NB8-11 · Low · performance · NEW
 
 `placed()` rebuilds the whole footnote list once per note on a footnote
@@ -783,6 +851,8 @@ One failing initializer after the Notebook is up silently skips every one after 
 **What happens** For each note on a footnote, `placed()` walks the chapter’s blocks and clones every footnote body again, then `findPin` re-normalizes every footnote’s text. `placed()` is called from `draw()` and from `syncLit()`, so also on each hover or focus of any margin note. A chapter with 30 notes on 40 footnotes does that 30 times per hover. The pure `findPin` part is small (`bench-findpin.mjs`: 4 ms for 60 records against 60 footnotes); the DOM walk and clones are the larger share and were not timed.
 **Fix** Read `footnoteList()` once at the top of `placed()` (as `text` already is) and pass it down.
 **Confidence** High (code), Low (size).
+
+**Fixed (2026-11-09)** `footnoteList()` is read once per `placed()`.
 
 #### NB8-12 · Low · a11y · KNOWN-OPEN (Audit 1, list "needing a real browser", `STUDY-DESK-AUDIT-1.md` line 2760)
 
@@ -794,6 +864,8 @@ Marker glyphs and bookmark marks may lose their colors, and with them the differ
 **Fix** Confirm in Edge with a contrast theme; if it collapses, give the glyphs `forced-color-adjust: none` inside a `forced-colors` block, or add a shape cue.
 **Confidence** Low.
 
+**Open (2026-11-09)** Needs a Windows contrast theme in a real browser.
+
 #### NB8-13 · Nit · bug · NEW
 
 Trash rows carry the live row’s bookmark link behavior
@@ -803,6 +875,8 @@ Trash rows carry the live row’s bookmark link behavior
 **Fix** Skip both when `trash` is set.
 **Confidence** High (code); trivial effect.
 
+**Fixed (2026-11-09)** A Trash row starts and stops no follow.
+
 #### NB8-14 · Nit · usability · NEW
 
 Enter during IME composition saves the bookmark form
@@ -811,6 +885,8 @@ Enter during IME composition saves the bookmark form
 **What happens** A reader typing a name with an input method presses Enter to confirm the composition; the form saves with the half-typed name. `note-editor.js` uses Ctrl+Enter and is not affected.
 **Fix** `if (e.key === "Enter" && !e.isComposing)`.
 **Confidence** Medium (not run with an IME).
+
+**Fixed (2026-11-09)** Enter during an IME composition doesn't save the form.
 
 ### Improvements
 
@@ -875,6 +951,8 @@ Renaming a label with the keyboard never closes the rename form (Enter saves but
 
 ---
 
+**Fixed (2026-11-09)** `back()` blurs the field before the redraw, so Enter closes the form and Escape cancels.
+
 #### DK8-2 · Medium · usability · NEW
 A scripture reference inside a footnote, on /desk, is a plain same-tab link, so one click leaves the workspace; the rule "a link that leaves the desk opens apart so the layout stays" (E34) is applied everywhere else.
 
@@ -889,6 +967,8 @@ A scripture reference inside a footnote, on /desk, is a plain same-tab link, so 
 **Confidence**: Medium-High (code read; not run in a browser).
 
 ---
+
+**Open (2026-11-09)** Decision 4.
 
 #### DK8-3 · Low · copy · NEW
 The Study Desk tour's "Reading in sync" card says there are two LIT panes "as here for the tour" in a window too narrow to add one, and the step is not dropped as "Add pane" is.
@@ -905,6 +985,8 @@ The Study Desk tour's "Reading in sync" card says there are two LIT panes "as he
 
 ---
 
+**Fixed (2026-11-09)** The "Reading in sync" step is dropped when there is no room to add a pane, as "Add pane" is.
+
 #### DK8-4 · Low · a11y · NEW
 Choosing "My notebook page" or "Help for the Study Desk" in /desk's title menu from the keyboard drops focus to the page body, so on coming back from the new tab a keyboard user starts again from the top of the page.
 
@@ -919,6 +1001,8 @@ Choosing "My notebook page" or "Help for the Study Desk" in /desk's title menu f
 **Confidence**: Medium-High (browser blur behavior on a hidden focused element is standard; not run).
 
 ---
+
+**Fixed (2026-11-09)**
 
 #### DK8-5 · Low · bug · NEW
 A late chapter load in the LIT pane can reset the "loading" flag of a newer load, after which a scroll starts a duplicate load and the chapter is added to the pane twice (same data-key, duplicate ids).
@@ -935,6 +1019,8 @@ A late chapter load in the LIT pane can reset the "loading" flag of a newer load
 
 ---
 
+**Fixed (2026-11-09)** A late load no longer resets a newer load's flag.
+
 #### DK8-6 · Low · docs · REGRESSION NB3-14
 The help page says the "Study Desk" button beside "Go to passage" is in Read View. It is on the /read landing page; Read View (`/read/<book>`) has no such button.
 
@@ -949,6 +1035,8 @@ The help page says the "Study Desk" button beside "Go to passage" is in Read Vie
 **Confidence**: High.
 
 ---
+
+**Fixed (2026-11-09)** The help page says "on the Read page", with a link to /read.
 
 #### DK8-7 · Low · copy · NEW
 "Delete everything" says it moves "every note, highlight, bookmark, and label" to the trash, but it trashes every record, including sheets, the reader's templates and other kinds; the confirmation counts them as "items".
@@ -965,6 +1053,8 @@ The help page says the "Study Desk" button beside "Go to passage" is in Read Vie
 
 ---
 
+**Open (2026-11-09)** Decision 8.
+
 #### DK8-8 · Low · docs · NEW
 The help page's Print paragraph implies the chapter on the page prints in place on /desk; on /desk every choice opens a new tab.
 
@@ -978,6 +1068,8 @@ The help page's Print paragraph implies the chapter on the page prints in place 
 
 ---
 
+**Fixed (2026-11-09)** The help page's Print paragraph says every choice on /desk opens a new tab.
+
 #### DK8-9 · Nit · longevity · NEW
 `tour-runner.js` step tokens are per run, so a step still opening from an ended tour can be mistaken for a step of a tour started right after.
 
@@ -988,6 +1080,8 @@ The help page's Print paragraph implies the chapter on the page prints in place 
 **Fix**: Use a module-level counter shared by all runs (`let tokens = 0; const token = ++tokens; run.token = token`).
 
 **Confidence**: Medium (read, not run).
+
+**Fixed (2026-11-09)** Step tokens come from a counter shared across runs.
 
 ### Improvements
 
@@ -1056,6 +1150,8 @@ For εἰμί/σύ/ἐγώ/οὗτος the extra numbers are real forms of the l
 
 **Confidence**: High on behavior; Medium on how many readers it affects (needs MACULA to count per-word tags; sources are not in this checkout).
 
+**Open (2026-11-09)** Decision 6.
+
 #### GK8-2 · Low · compat · NEW
 Enter, Tab and ArrowRight in the search tray and /search field ignore IME and dead-key composition
 
@@ -1069,6 +1165,8 @@ Enter, Tab and ArrowRight in the search tray and /search field ignore IME and de
 
 **Confidence**: Medium (code is certain; behavior per browser needs a live check with a Japanese IME and macOS Greek Polytonic).
 
+**Fixed (2026-11-09)** In the search tray and on /search (`isComposing`, or keyCode 229). The Search pane's field has no such handler.
+
 #### GK8-3 · Low · a11y · NEW
 Each apparatus note in the Greek tab is marked `lang="grc"` as a whole, though it is mostly Latin sigla
 
@@ -1080,6 +1178,8 @@ Each apparatus note in the Greek tab is marked `lang="grc"` as a whole, though i
 
 **Confidence**: High (code); the audible effect depends on the voice.
 
+**Fixed (2026-11-09)** Only the Greek runs of an apparatus note are marked `lang="grc"` (`appendLang`).
+
 #### GK8-4 · Low · a11y · NEW
 Shift+Arrow on a Greek word is taken, so the Greek cannot be selected by keyboard to copy
 
@@ -1090,6 +1190,8 @@ Shift+Arrow on a Greek word is taken, so the Greek cannot be selected by keyboar
 **Fix**: `if (... || e.shiftKey) return;` for the arrow keys, optionally offering "Copy this verse" as a button in the details for keyboard users.
 
 **Confidence**: High (code).
+
+**Fixed (2026-11-09)** Shift with an arrow (or Home and End) passes through, so the Greek can be selected by keyboard.
 
 #### GK8-5 · Low · docs · NEW
 Credit wording shown to readers is thinner than two sources ask for
@@ -1106,6 +1208,8 @@ Credit wording shown to readers is thinner than two sources ask for
 
 **Confidence**: Medium (wording read through a summarizing fetch of the READMEs; confirm in the repos).
 
+**Open (2026-11-09)** Decision 6.
+
 #### GK8-6 · Low · bug · NEW (Low confidence)
 Builder's `composing` flag can stay true and freeze the builder
 
@@ -1117,6 +1221,8 @@ Builder's `composing` flag can stay true and freeze the builder
 
 **Confidence**: Low (not reproduced; needs a live IME test). Would confirm by starting a composition in Word 2 and pressing Remove word 2 with the mouse.
 
+**Fixed (2026-11-09)** The `input` handler clears a stale `composing` unless the event is composing, and blur clears it. Not yet checked with a live IME.
+
 #### GK8-7 · Nit · longevity · NEW
 `greek-data.js` hard-codes the base `"/"` while `greek-find.js` uses `import.meta.env.BASE_URL`
 
@@ -1127,6 +1233,8 @@ Builder's `composing` flag can stay true and freeze the builder
 **Fix**: take one base constant for all three.
 
 **Confidence**: High; no present effect.
+
+**Fixed (2026-11-09)** `greek-data.js` builds its addresses from `import.meta.env.BASE_URL`.
 
 ### Improvements
 
@@ -1209,6 +1317,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Reuse DK-8's answer: add "Narrower / Wider" (and "Narrower notes / Wider text") buttons beside "Reset widths" in the Notebook's Settings tab and on the handle's focus, "Larger text / Larger entry" in the Greek tab's header or entry menu, and give floating windows a "Move to the other side" action. Because the text widths are the only ones that are Chapter View-specific, the Settings tab is the cheapest home.
 **Confidence** High on the facts, Medium on whether the owner wants to treat floating-window position as "functionality".
 
+**Open (2026-11-09)** A single-pointer alternative adds controls to reading pages, so it needs a design (and a mock) first.
+
 #### XA8-2 · Medium · a11y · NEW
 **Title: The sheet editor's text fields draw their edge at 22 to 25 percent ink, breaking the site's own BA144 rule and WCAG 1.4.11**
 **Where** `src/styles/desk.css:6331-6339` (`.desk-rich-editor` border `rgba(var(--ink-rgb), 0.22)`), `:7123-7131` (`.desk-sheet__minutes input` 0.25), `:7612-7623` (`select.desk-sheet__hint, .desk-sheet__hint-text` 0.25), `:7019-7040` (`.desk-sheet__title` and `__subtitle`: border transparent until hover or focus).
@@ -1216,6 +1326,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** `alpha.mjs`: ink 0.22 on #FAFAF8 about 1.5:1, 0.25 about 1.6:1, 0.58 = 3.98:1. Computed from the tokens in `global.css:115-160`.
 **Fix** `border: 1px solid var(--field-border)` on the three; for Title and Subtitle keep the quiet look but show `--field-border` as a bottom border (not transparent) so the field reads as a field. Remember the `/sheets` page pins `--ink-rgb` on paper (`styles/CLAUDE.md:339-342`): write `rgba(var(--ink-rgb), 0.58)` where a field sits on a pinned surface.
 **Confidence** High.
+
+**Fixed (2026-11-09)** The rich editor, minutes, hint select and hint text take `--field-border`; the title and subtitle get a `--field-border` bottom edge, full on hover and focus. Test: `test/desk-audit8-f-css.test.js`.
 
 #### XA8-3 · Medium · a11y · NEW
 **Title: Small secondary text falls below 4.5:1 on the cream page background and, in one case, everywhere**
@@ -1225,6 +1337,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Use 0.7 (5.16 on cream, 5.82 raised) for these four, the value 40 other rules already use; consider raising the three at 0.62 to 0.7 too, since they have no margin.
 **Confidence** High.
 
+**Fixed (2026-11-09)** The four lines are ink at 0.7 (5.16:1 on cream, 5.82:1 raised, 7.8:1 or more in dark), and so are `.desk-title__hint` and the editor's ghost prompt.
+
 #### XA8-4 · Medium · a11y · NEW
 **Title: "Move it here" and "Save as template" have accessible names that do not contain their visible words (2.5.3)**
 **Where** `src/scripts/desk/bookmark-stop.js:40-47` (`moveItHereButton`: text "Move it here", `aria-label` "Move the bookmark on John 3:16 to where I am reading"); `src/scripts/desk/sheets/my-sheets.js:195-197` (`sheetRow`: text "Save as template", `aria-label` "Save John 3 as a template").
@@ -1232,6 +1346,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** Read the two lines. The other 20-odd text-plus-aria-label buttons contain their text ("Duplicate X", "Delete X", "Edit note on X", "Unpin footnote X").
 **Fix** Put the visible words first: `Move it here, the bookmark on John 3:16` and `Save as template, John 3` (or give the button visible text and an `sr-only` suffix, as `notes-margin.js:650` does for Edit).
 **Confidence** High.
+
+**Fixed (2026-11-09)** The names are "Move it here, the bookmark on …" and "Save as template, …".
 
 #### XA8-5 · Medium · a11y · NEW
 **Title: The Paragraph style button's visible text changes but its accessible name does not (2.5.3, 4.1.2)**
@@ -1241,6 +1357,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** In `refresh`, set `aria-label` to `Paragraph style: ${currentBlockName()}` (visible word first would be `${name}` then the value; visible text "Heading" is then contained).
 **Confidence** High.
 
+**Fixed (2026-11-09)** The button's name becomes "Paragraph style: <current>" on each refresh.
+
 #### XA8-6 · Medium · a11y · NEW
 **Title: Present mode's Blank buttons change their label and set `aria-pressed`, so a screen reader says "Show screen, toggle button, pressed"**
 **Where** `src/scripts/desk/sheets/sheet-present.js:489-490` (stage: "Blank" becomes "Show screen") and `:872-873` (presenter view: "Blank the room's screen" becomes "Show the room's screen"), each with `aria-pressed` on the line above.
@@ -1248,6 +1366,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** Read both draw functions; `grep aria-pressed` shows these two are the only buttons that both flip text and set the state.
 **Fix** Keep the label fixed ("Blank the screen" / "Blank the room's screen") and let `aria-pressed` carry the state; or drop `aria-pressed` and keep the changing label (then it is not a toggle). The first matches the project's own precedent.
 **Confidence** High.
+
+**Open (2026-11-09)** Decision 11.
 
 #### XA8-7 · Medium · a11y · NEW
 **Title: The Sheets editor's styles (about 1,800 lines of `desk.css`) have no forced-colors rules, so several states disappear in Windows contrast themes**
@@ -1257,6 +1377,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** One block after the Sheets styles: pressed chip `border: 2px solid Highlight` (as `desk-greek__show-sources` at `:6755`); `.desk-sheet__drop` `border-top: 3px solid Highlight` instead of background; `.desk-rich-editor:focus-within { outline: 2px solid Highlight }`; `.desk-sheet__btn--primary { border: 2px solid ButtonText }`.
 **Confidence** Medium (reasoned from the forced-colors spec and the project's own rules; not rendered, so a Chrome forced-colors emulation pass should confirm).
 
+**Fixed (2026-11-09)** A forced-colors block after the Sheets rules covers the pressed chip, the drop line, the editor's focus, the primary button, the gap pill and the check meter. Not yet checked in a contrast theme.
+
 #### XA8-8 · Low · a11y · NEW
 **Title: After importing a shared sheet, a screen-reader user hears only "the Study Desk, link", never "Copied into your notebook"**
 **Where** `src/scripts/desk/sheets/sheet-page.js:884-893` (`sharedBanner`, the take handler).
@@ -1264,6 +1386,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** Read the handler; no other `say`/`announce` is called on this path.
 **Fix** Announce through an existing permanent region (`announce` from `undo-bar.js`, as `sheet-page-list.js` already imports) with the same words, in addition to the visible line.
 **Confidence** Medium.
+
+**Fixed (2026-11-09)** The import announces through `announce`, and the line lost its `role=status` so it isn't read twice.
 
 #### XA8-9 · Low · a11y · NEW
 **Title: In the presenter view, pressing Next, Previous, Reveal or Cover again can drop keyboard focus when it disables the button**
@@ -1273,6 +1397,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Before disabling, if `document.activeElement` is the button going off, move focus to the `controls` container (`tabindex=-1`) or the next enabled button, as the stage does.
 **Confidence** Medium (browser-dependent behavior; read, not run).
 
+**Fixed (2026-11-09)** With SH8-6.
+
 #### XA8-10 · Low · a11y · NEW
 **Title: Removing the last part of a sheet leaves keyboard focus nowhere**
 **Where** `src/scripts/desk/sheets/sheet-editor.js:1111-1122` (`removeCard`, `after`).
@@ -1280,6 +1406,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** Read `removeCard`; grep shows `moduleList` never gets a `tabIndex`.
 **Fix** Focus the "Nothing on this sheet yet" paragraph (give it `tabindex=-1`) or the add bar's first button; `desk-sheet__none` is created at `:909`.
 **Confidence** High.
+
+**Fixed (2026-11-09)** Removing the last part moves focus to the empty-sheet line (`tabindex=-1`).
 
 #### XA8-11 · Low · a11y · NEW
 **Title: The Notebook's "Print…" button advertises a menu but opens a form**
@@ -1289,6 +1417,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Remove `aria-haspopup`, or set `"dialog"` and give the region `role="dialog"` with a label as the `/desk` copy has.
 **Confidence** High.
 
+**Fixed (2026-11-09)** The Print button no longer has `aria-haspopup`; `aria-expanded` and `aria-controls` stay.
+
 #### XA8-12 · Low · ui · NEW
 **Title: In dark mode, a leader's own color-plus-highlight combinations can fall below 4.5:1**
 **Where** `src/styles/desk.css:6124-6160` (`--desk-rich-*` colors), `:1209-1230` (`--desk-hl-*` tints, used as the sheet's `data-mark`).
@@ -1296,6 +1426,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** `combos.mjs` (every 5 colors by 4 marks, both themes, both surfaces).
 **Fix** Lower the dark-mode yellow tint from 0.24 to about 0.16 or lighten the red, gray and blue by a step; or accept it as a user combination and note it in the help page.
 **Confidence** High on the numbers, Low on the impact.
+
+**Open (2026-11-09)** A leader's color choices: a design call.
 
 #### XA8-13 · Low · a11y · NEW
 **Title: The desk's inputs use the browser's default placeholder color, which is under 4.5:1 on the raised surface and in dark mode**
@@ -1305,6 +1437,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** `::placeholder { color: rgba(var(--ink-rgb), 0.7); opacity: 1 }` once in `global.css` for `.desk-*` fields.
 **Confidence** Low (confirm: DevTools computed `::placeholder` color in both themes).
 
+**Fixed (2026-11-09)** A `::placeholder` rule for the desk's fields: ink at 0.7 with `opacity: 1` (5.16:1 on cream, 7.8:1 or more in dark). Also LV8-3.
+
 #### XA8-14 · Low · a11y · NEW
 **Title: A floating Notebook and the fixed undo bar can cover the element that has keyboard focus (2.4.11)**
 **Where** `src/styles/desk.css:44` (`.desk-rail--floating .desk-panel`), `:294-312` (`.desk-undo__bar`, `position: fixed; bottom: 20px`, z-index 950); no `scroll-padding` outside menus (`desk.css:5867`).
@@ -1313,6 +1447,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** `html[data-desk-panel] { scroll-padding-bottom: 72px }` while a notice shows, and an Escape handler on the bar.
 **Confidence** Low (needs a browser at 640 CSS px).
 
+**Partly fixed (2026-11-09)** `scroll-padding-bottom` while the undo bar shows. The floating Notebook covers the page sideways, which scroll padding can't help.
+
 #### XA8-15 · Low · usability · NEW
 **Title: Disabled row buttons explain themselves only in a `title`, which a keyboard or touch user never sees**
 **Where** `src/scripts/desk/sheets/my-sheets.js:190-205` (Duplicate and Save as template `disabled` with `title` reasons: "Made with a newer version...", "This sheet has only passages...").
@@ -1320,6 +1456,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Evidence** Read; `grep "title = " my-sheets.js`.
 **Fix** Use `aria-disabled="true"` plus an `sr-only` description (and the existing `busy` pattern) so the control is focusable and described, or print the reason under the row.
 **Confidence** High.
+
+**Fixed (2026-11-09)** Unavailable row buttons are `aria-disabled`, with the reason in visually hidden text and a click guard.
 
 ### Improvements
 
@@ -1384,6 +1522,8 @@ The gate's runtime conditions are untested: removing the `data-desk="on"` test f
 
 **Confidence** High (the survivors are measured).
 
+**Fixed (2026-11-09)** `test/desk-audit8-h-gate.test.js` runs the gate with the stamp unset, off, empty or another value and fails if any branch loads the desk; `deskPageHere` is covered too. Each test was shown to fail under its mutation.
+
 #### LG8-2 · Medium · performance · NEW
 
 My Notes on `/desk` and the notebook page draw one row per record with no limit, and the /desk pane redraws every row whenever a LIT pane gains or drops a chapter.
@@ -1397,6 +1537,8 @@ My Notes on `/desk` and the notebook page draw one row per record with no limit,
 **Fix** Draw the first 200 rows with a "Show N more" button (keep the count line and filters on the full list), or give the list `content-visibility: auto` with `contain-intrinsic-size` per row; skip the redraw in `onDeskChapters` when the chapter set that moved holds no record of the pane's list.
 
 **Confidence** Medium. The code path is certain; the cost needs one timing: seed 5,000 notes, open `/desk`, and time `tab.render()` and a LIT scroll across a chapter boundary in the Performance panel.
+
+**Open (2026-11-09)** Decision 7.
 
 #### LG8-3 · Low · performance · NEW
 
@@ -1412,6 +1554,8 @@ The Notebook panel subscribes to every store notice with no filter, so a followi
 
 **Confidence** Medium on the code path; Low on the felt cost.
 
+Its sheet half is fixed with NB8-1 (2026-11-09).
+
 #### LG8-4 · Low · performance · NEW (a residual of DK6-3)
 
 The print check is still O(surfaces × blanks × tokens): a 300-passage sheet with 10 blanks each freezes the page for about 4 seconds when the participant version is drawn.
@@ -1425,6 +1569,8 @@ The print check is still O(surfaces × blanks × tokens): a 300-passage sheet wi
 **Fix** Build one `Set` of tokens per surface (already tokenized) and test a blank's first token against it before `hasRun`, as DK6-3's "optional prefilter" said; with it the scan is about S × B set lookups (about 2.7 million for the 4-second case, tens of milliseconds).
 
 **Confidence** High (measured); Low that any real sheet gets there.
+
+**Fixed (2026-11-09)** `findLeaks` tokenizes each surface once and checks a first-word set before scanning. An equivalence test is in `test/desk-audit8-b-writers.test.js`.
 
 #### LG8-5 · Low · longevity · NEW
 
@@ -1442,6 +1588,8 @@ Four guards survive deliberate breakage, one of them a rule the shared format st
 **Fix** Add to `anchor-vectors.json` a case with two occurrences of equal score and assert the first (the apps pick it up from the fixture); one `desk-merge` test with a record 4 minutes past `exported` in a file; one `desk-export` test for a backup with no `records`; one `desk-inert` test with `style="background:url(x)"`.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)** `test/desk-audit8-h-guards.test.js` covers A5, M2, I4 and N4, each shown to fail under its mutation; `test/desk-inert.test.js` now checks the `div` rather than the parser's wrapper.
 
 #### LG8-6 · Low · longevity · NEW
 
@@ -1497,6 +1645,8 @@ A shared sheet opened on an iPhone older than iOS 16.4 fails with a message that
 
 **Confidence** Medium (reasoned from the specifications; not run on iOS 16.3).
 
+**Open (2026-11-09)** Decision 10.
+
 #### LG8-10 · Low · performance · NEW
 
 Typing in the search box, with the desk on, downloads the whole of `desk.css` (as a JavaScript string) just to style a few result rows, and so does the phone's shared-sheet viewer.
@@ -1529,6 +1679,8 @@ A few claims in the desk docs and comments have drifted, and one deliberate exce
 **Fix** Correct the two numbers, add `widths.js` to the stage-one sentence, add the Greek edge to the desk file's rule 15 or `src/lib/CLAUDE.md`'s module map.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)** The two numbers are corrected, the stage-one sentence names `widths.js`, and `src/lib/CLAUDE.md` records the Greek edge.
 
 #### LG8-12 · Nit · bug · NEW
 
@@ -1797,6 +1949,8 @@ Tour card has no visible focus ring on the step it takes focus.
 
 **Confidence:** High that the rule suppresses the ring and that the card is focused on each step. Medium on the user impact, since the card is a dialog and screen-reader focus is unaffected.
 
+**Fixed (2026-11-09)** `.desk-tour:focus:not(:focus-visible) { outline: none }`, so the ring shows after a keyboard move.
+
 #### MH8-2 · Low · longevity · NEW
 
 Shared Greek search code imports a desk module statically.
@@ -1811,6 +1965,8 @@ Shared Greek search code imports a desk module statically.
 
 **Confidence:** High on the facts (import, consumers, dist chunk). Medium on severity, since the size cost is about 3 KB.
 
+**No change (2026-11-09)** A recorded exception (LG8-11), now named in `src/lib/CLAUDE.md`.
+
 #### MH8-3 · Low · docs · NEW
 
 Root CLAUDE.md is 277 bytes under its size cap.
@@ -1824,6 +1980,8 @@ Root CLAUDE.md is 277 bytes under its size cap.
 **Fix:** Move a block of the root file's detail into the area file that owns it (the longest root tables, "Routing" and "Important Files", are the first candidates to check against the area files), so the root file has room again. Do not raise the cap, which the test's own comment forbids.
 
 **Confidence:** High.
+
+**Fixed (2026-11-09)** The /404 row's detail moved to `src/pages/CLAUDE.md`.
 
 ### Improvements
 
@@ -2113,6 +2271,8 @@ Clicking the suggested "ὁ, θεός" in the Search pane throws a ReferenceErro
 
 **Confidence**: High.
 
+**Fixed (2026-11-09)** `gk.ARTICLE_EXAMPLE`. Test: `test/desk-audit8-c-search-and-pages.test.js`.
+
 #### GF8a-2 · Medium · usability · NEW
 On /notebook, a failed write in Labels, "Delete everything" or "Empty the trash now" says nothing, and the last button stays disabled.
 
@@ -2125,6 +2285,8 @@ On /notebook, a failed write in Labels, "Delete everything" or "Empty the trash 
 **Fix**: wrap `writeOver` calls (or `writeOver` itself) so a rejection returns `{ ok: false, reason: "failed" }`; add `failed: "That couldn’t be saved in this browser, so nothing changed. Try again."` to `labelMessages`; for the two danger buttons re-enable the confirm button and announce the same sentence (for the trash, "Nothing was wiped").
 
 **Confidence**: High (mechanism); the exact failure triggers are plausible but untested.
+
+**Fixed (2026-11-09)** `writeOver` catches a failed write: Labels say it couldn't be saved, and the two buttons come back with a line saying so.
 
 #### GF8a-3 · Medium · usability · NEW
 A verse index that fails to load makes a keyword search say "No results." (Search pane; the tray and /search share the pattern).
@@ -2139,6 +2301,8 @@ A verse index that fails to load makes a keyword search say "No results." (Searc
 
 **Confidence**: High (code); Medium on how often readers hit it.
 
+**Partly fixed (2026-11-09)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. No Try again button.
+
 #### GF8a-4 · Low · ui · NEW
 Backspacing a query below three letters leaves the Greek offer, the "See results on the search page" link and the "My notes" box from the old query on screen.
 
@@ -2151,6 +2315,8 @@ Backspacing a query below three letters leaves the Greek offer, the "See results
 **Fix**: have `tooShort` do what `empty` does for the offer, link row, notes switch and note (`offerSeq++`, hide `offerBox` and `pageLine`, `syncNotes(false)`, `tell("")`); factor the shared resets into one helper.
 
 **Confidence**: High.
+
+**Fixed (2026-11-09)** `tooShort` and `empty` share `clearSearch()`.
 
 #### GF8a-5 · Low · a11y · NEW
 Opening a glossary entry in the Search pane throws away keyboard focus when the entry arrives.
@@ -2165,6 +2331,8 @@ Opening a glossary entry in the Search pane throws away keyboard focus when the 
 
 **Confidence**: Medium (browser behavior unrun).
 
+**Fixed (2026-11-09)** The entry's bar stays; only what follows it is replaced.
+
 #### GF8a-6 · Low · a11y · NEW
 A passage link clicked inside an open glossary entry moves the LIT pane but its confirmation goes to a hidden live region.
 
@@ -2177,6 +2345,8 @@ A passage link clicked inside an open glossary entry moves the LIT pane but its 
 **Fix**: give the entry view its own polite region and note line (or move `live` out of `top`), and route `tell` there while `entryBox` is showing.
 
 **Confidence**: High (mechanism).
+
+**Fixed (2026-11-09)** The live region is outside the hidden part, and the entry has its own note line.
 
 #### GF8a-7 · Low · bug · NEW
 The Notebook actions window lists what was true when it opened, and it stays open.
@@ -2191,6 +2361,8 @@ The Notebook actions window lists what was true when it opened, and it stays ope
 
 **Confidence**: High.
 
+**Fixed (2026-11-09)** The window redraws on `desk:settings` and on the panel's changes.
+
 #### GF8a-8 · Low · a11y · NEW
 Choosing a row in the Notebook actions window can leave keyboard focus on `<body>`.
 
@@ -2203,6 +2375,8 @@ Choosing a row in the Notebook actions window can leave keyboard focus on `<body
 **Fix**: on `"command"` also focus `opener` when it is still connected and focus is on `<body>` after the command ran (`queueMicrotask`/`requestAnimationFrame`), or always for the Settings-tab and /search openers.
 
 **Confidence**: Medium.
+
+**Fixed (2026-11-09)** After a command, focus goes back to the opener if it fell to the page.
 
 #### GF8a-9 · Low · a11y · NEW
 In the Greek search, the suggestion buttons ("Did you mean", the article example) and a chosen verse drop keyboard focus on the redraw.
@@ -2217,6 +2391,8 @@ In the Greek search, the suggestion buttons ("Did you mean", the article example
 
 **Confidence**: Medium (focus fixup is browser behavior).
 
+**Partly fixed (2026-11-09)** The suggestion buttons put focus back in the field, and Greek find's suggestion and a refused word keep it; after a chosen verse it is restored only if it fell to the page.
+
 #### GF8a-10 · Low · a11y · NEW
 Escape in the label rename field cancels the rename while an IME or dead-key composition is open.
 
@@ -2229,6 +2405,8 @@ Escape in the label rename field cancels the rename while an IME or dead-key com
 **Fix**: first line `if (e.key === "Escape" && !e.isComposing)`.
 
 **Confidence**: High (code), Medium (browser event details).
+
+**Fixed (2026-11-09)**
 
 #### GF8a-11 · Low · bug · NEW
 Closing the Search pane while "Make a sheet of these verses" is writing leaves the sheet created with no message and no Undo; a throw in `target.ready()` jams the buttons.
@@ -2243,6 +2421,8 @@ Closing the Search pane while "Make a sheet of these verses" is writing leaves t
 
 **Confidence**: High (code).
 
+**Fixed (2026-11-09)** A pane closed during a gather still shows the undo bar, and `ready()` runs inside the `try`.
+
 #### GF8a-12 · Low · bug · NEW
 The commands window can open for a pane that closed while it was loading.
 
@@ -2255,6 +2435,8 @@ The commands window can open for a pane that closed while it was loading.
 **Fix**: in `openCommands`'s `.then`, return if `destroyed`.
 
 **Confidence**: Low (not exercised; BA114's behavior on a detached field not traced).
+
+**Fixed (2026-11-09)**
 
 ### Improvements
 
@@ -2331,6 +2513,8 @@ The license card's commercial check re-announces itself in full on every autosav
 
 **Confidence** Medium (code read; not heard in a screen reader).
 
+**Fixed (2026-11-09)** The live region is rewritten only when the counts change. Test: `test/desk-audit8-b-writers.test.js`.
+
 #### GF8b-2 · Low · bug · NEW
 
 Unticking the commercial box while a count is still running puts the check back under the unticked box.
@@ -2344,6 +2528,8 @@ Unticking the commercial box while a count is still running puts the check back 
 **Fix** `++seq` in the unchecked branch.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)**
 
 #### GF8b-3 · Medium · a11y · NEW (follow-up to DK-1, which added the word cursor, "not yet browser-checked")
 
@@ -2359,6 +2545,8 @@ The keyboard word cursor is a focusable `role="group"` whose label promises arro
 
 **Confidence** Low (needs a screen-reader pass to confirm either way).
 
+**Open (2026-11-09)** Needs a screen reader.
+
 #### GF8b-4 · Low · data-integrity · NEW
 
 The tour's example note editor deletes the reader's saved note draft when it closes.
@@ -2372,6 +2560,8 @@ The tour's example note editor deletes the reader's saved note draft when it clo
 **Fix** In `onClose`, clear only when `draftKey` is set (`if (draftKey) clearDraft()`), or only when the stored draft's key equals this editor's.
 
 **Confidence** High on the code path; the scenario is narrow.
+
+**Fixed (2026-11-09)** Only a real editor clears the saved draft.
 
 #### GF8b-5 · Low · bug · NEW
 
@@ -2387,6 +2577,8 @@ If the reader skips or presses Escape while a tour step is still opening, that s
 
 **Confidence** Medium.
 
+**Fixed (2026-11-09)** `later()` after a run ends runs the closer at once, and each act gets `{ live }` and stops after an await once its run has ended (`tour.js`).
+
 #### GF8b-6 · Low · ui · NEW
 
 Many notes on one verse stack without limit, past the end of the chapter, and widen the page.
@@ -2400,6 +2592,8 @@ Many notes on one verse stack without limit, past the end of the chapter, and wi
 **Fix** Past a cap (say five notes within one line's reach, or when the stack would pass the text's bottom), show the rest as one "N more notes" control that opens the panel's This verse tab; or clamp `y` to the column's bottom and fall back to the circles' packing.
 
 **Confidence** Medium on the stacking (run); Low on the page growth (needs a browser).
+
+**Open (2026-11-09)** Decision 7.
 
 #### GF8b-7 · Low · usability · NEW
 
@@ -2415,6 +2609,8 @@ The "what prints" check looks for a blank's answer in a footnote only against th
 
 **Confidence** Medium.
 
+**Fixed (2026-11-09)** A footnote surface is checked against every blank, as `sheetBlanks` already assumes; `test/desk-sheet-leaks.test.js` follows.
+
 #### GF8b-8 · Low · performance · NEW
 
 A large notebook redraws in full on every keystroke of "Search my notebook", and What's new redraws on every write by another tab.
@@ -2428,6 +2624,8 @@ A large notebook redraws in full on every keystroke of "Search my notebook", and
 **Fix** Debounce the query (150 ms) and keep the last `store.all()` for filter-only changes; subscribe What's new with `{ except: NO_CHAPTER_KINDS }` (and `QUIET_KINDS` if a bookmark move should not redraw it).
 
 **Confidence** Low (no browser; sizes are estimates).
+
+**Fixed (2026-11-09)** The kept list is debounced and reuses its last read for filter changes; What's new ignores sheets and places and redraws once reading pauses.
 
 #### GF8b-9 · Low · performance · NEW
 
@@ -2443,6 +2641,8 @@ On a large sheet every redraw of the editor repeats work proportional to the squ
 
 **Confidence** Low.
 
+**Partly fixed (2026-11-09)** `drawNotes` has its own sequence guard. Working out the sheet's printing blanks once per change, in the editor, is not done.
+
 #### GF8b-10 · Low · bug · NEW
 
 Keep and Delete on a change notice close whatever panel is open when they finish, and a failure after the card was closed is invisible.
@@ -2456,6 +2656,8 @@ Keep and Delete on a change notice close whatever panel is open when they finish
 **Fix** Close only if `currentPanel()?.el === panel`; on a failure with the card gone, use the undo bar's notice channel; give `liveVersion` an `AbortSignal.timeout`.
 
 **Confidence** High on the code path; the scenario needs a slow network or store.
+
+**Fixed (2026-11-09)** Keep and Delete close only their own card and ignore presses while working, a later failure goes to `showNotice`, and the version fetch times out after 8 seconds.
 
 #### GF8b-11 · Low · usability · NEW
 
@@ -2471,6 +2673,8 @@ An empty text part holding only a zero-width space still prints, with its Leader
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** `hasWords` and `htmlToText` drop zero-width characters.
+
 #### GF8b-12 · Low · compat · NEW (Low confidence)
 
 Leader-only parts between two page breaks leave two adjacent breaks on the participant version.
@@ -2485,6 +2689,8 @@ Leader-only parts between two page breaks leave two adjacent breaks on the parti
 
 **Confidence** Low (needs a print preview in each browser).
 
+**Open (2026-11-09)** Decision 11.
+
 #### GF8b-13 · Nit · copy · NEW
 
 A share of 50.4% shows as "50%" yet is marked over the limit.
@@ -2496,6 +2702,8 @@ A share of 50.4% shows as "50%" yet is marked over the limit.
 **Fix** Show one decimal when the rounded value is 50 and `over` differs, or round up when over.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)** Over the limit, a share that rounds to 50 shows a tenth (50.1%).
 
 ### Improvements
 
@@ -2579,6 +2787,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
+**Partly fixed (2026-11-09)** Every loop clamps to the chapter's last verse (`span()` in `desk-verse.mjs`, `lastCounted` in `verse-labels.js`, `blockForVerse`, `completeBooks`), and the Markdown import refuses a verse past its chapter. A ceiling in `validateRecord` and the sheet format is a change to the shared format: for BVJ and BDR. Tests: `test/desk-audit8-e-verse.test.js`.
+
 #### GF8c-2 · Medium · usability · NEW
 **For Philemon, 2 John, 3 John and Jude, the passage form's refusal (SH6-4) tells the leader to "add Jude 3 and then the next chapter… such as Jude 3:3–12".**
 
@@ -2592,6 +2802,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** One-chapter books get "Jude has one chapter, so give its verses as Jude 1:3–5." Test: `test/desk-sheet-ref-refusal.test.js`.
+
 #### GF8c-3 · Low · data-integrity · NEW
 **Copy and Save as (.docx, .odt, .rtf) run the 1 Corinthians 11 chiasm footnote together as one line and drop the bold the LIT's footnotes use.**
 
@@ -2604,6 +2816,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 **Fix** In `inlines()`, map `b` to `strong` and `i` to `em`. For a block element inside a footnote body, either emit `{ t: "br" }` between blocks or read the note with `block()` into its own blocks. The handout's rule ("a note's own blocks each take a line", `src/scripts/CLAUDE.md`) is the precedent.
 
 **Confidence** High (code read plus model run; not opened in Word).
+
+**Fixed (2026-11-09)** `inlines()` keeps `b` and `i` as bold and italic and breaks between `div` and `p` blocks, so every writer gets the chiasm's lines.
 
 #### GF8c-4 · Low · bug · NEW
 **The "what prints" check misses a blank on a possessive or contraction when the base word prints elsewhere: a blank on "God’s" is not reported against a question asking "What does God want?".**
@@ -2622,6 +2836,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
+**Open (2026-11-09)** Decision 11.
+
 #### GF8c-5 · Low · data-integrity · NEW
 **Edit bookmark accepts any of the 11 verse numbers the LIT doesn't have (Matthew 17:21 and others), so a bookmark is stored on a verse that isn't on the page.**
 
@@ -2634,6 +2850,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 **Fix** Keep a committed list of the gaps beside `VERSE_COUNTS`, which the browser can read without chapter files, and have `bookmarkPlace` refuse them as `passageForReference` does, or move to the verse before.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)** `src/data/verse-gaps.js` lists the 11 gaps (checked against the chapter files by `test/desk-audit8-e-verse.test.js`), and `bookmarkPlace` refuses them.
 
 #### GF8c-6 · Low · bug · NEW
 **A long list in a text or question part is never cut across slides, so a sermon outline overflows its .pptx and .odp slide. DK3-1's cutting covers paragraphs and quotations, not lists.**
@@ -2648,6 +2866,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High on the deck; Medium on how each app renders the overflow.
 
+**Fixed (2026-11-09)** `splitList` cuts a long list between its top-level items, numbering carried on. A single item with a long nested list is still not cut.
+
 #### GF8c-7 · Low · copy · NEW
 **Copy's plain-text flavor numbers every item of a numbered list "1." and loses nesting.**
 
@@ -2661,6 +2881,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** `docText` numbers an ordered list and indents a nested one.
+
 #### GF8c-8 · Low · copy · NEW
 **A Chapter View verse number's accessible name lists three or more highlight colors without the Oxford comma ("highlighted yellow, green and pink").**
 
@@ -2673,6 +2895,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 **Fix** Use `joinList` from `desk-whats-new-view.mjs` (or the same rule) and update the two test lines and the docstring.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)**
 
 #### GF8c-9 · Low · usability · NEW
 **A label whose name reads as nothing (a lone combining mark, a zero-width space, a word joiner, a soft hyphen) is created, and the duplicate check skips it, so several invisible labels can exist. A bookmark name is cut inside an emoji sequence.**
@@ -2692,6 +2916,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
+**Fixed (2026-11-09)** A name that reads as nothing (with `\p{Cf}` and spaces removed) is empty, and bookmark names are cut by grapheme. Tests: `test/desk-audit8-e-labels.test.js`.
+
 #### GF8c-10 · Nit · copy · NEW
 **`noteOpening` adds its comma after a quote that ends in a closing quotation mark or a dash: "My note on ‘said, “Come and see.”,’ John 1:39:" and "‘Is it I, Lord?”,’".**
 
@@ -2702,6 +2928,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 **Fix** Strip the trailing comma rule when the quote ends in `”`, `’` or a dash, and treat `?”` and `!”` like `?` and `!`. This is heard by screen readers only, which mostly skip punctuation, hence Nit.
 
 **Confidence** High.
+
+**Fixed (2026-11-09)**
 
 ### Improvements
 
@@ -2760,6 +2988,8 @@ The /sheets list rebuilds on every autosave made in another tab: it closes an op
 **Fix**: redraw only when the set of sheets, a title or a modified time actually changes (compare a signature before rebuilding), skip the redraw while a chooser is open or focus is inside the list, and restore focus by button key (`duplicate-<id>`) rather than the row link.
 **Confidence**: High.
 
+**Fixed (2026-11-09)** With SH8-1.
+
 #### LV8-2 · Medium · data-integrity · NEW
 Typing in a tab that shows "Changed in another tab." silently overwrites the other tab's words, and the notice is not announced.
 **Where**: `src/scripts/desk/sheets/sheet-pane.js` / `part-cards.js` `showConflict` (documented in `sheets/CLAUDE.md` ~line 80 as accepted: "this tab's typing may already have saved over it").
@@ -2767,6 +2997,8 @@ Typing in a tab that shows "Changed in another tab." silently overwrites the oth
 **Evidence**: IndexedDB read after each step; `getAttribute('role')`="group", `aria-live`=null; `status: []`.
 **Fix**: make the notice `role="status"` (polite) or announce it through the page's announcer; consider holding the other tab's text out of the next save until the reader picks Keep mine or Show that version (or saving a merge), not overwrite on the first keystroke.
 **Confidence**: High on behavior; whether the overwrite is acceptable is an owner call (it is described in the design record).
+
+**No change (2026-11-09)** BVJ's rule (2026-11-08), as the verifier found. SH8-2's fix narrows it: only the field being typed in now keeps this tab's words.
 
 #### LV8-3 · Low · a11y · NEW
 Placeholder text in the sheet editor is the browser default gray and misses 4.5:1 in both themes.
@@ -2776,6 +3008,8 @@ Placeholder text in the sheet editor is the browser default gray and misses 4.5:
 **Fix**: set `::placeholder { color: var(--...) }` using the ghost prompt's token with both dark selectors.
 **Confidence**: High.
 
+**Fixed (2026-11-09)** With XA8-13.
+
 #### LV8-4 · Low · ui · NEW
 The /desk title menu runs 38px past the right edge at 1000px, clipping its text and adding a horizontal page scrollbar.
 **Where**: `.desk-ws__menu.desk-title__menu` (`title-menu.js`, `desk.css`).
@@ -2783,6 +3017,8 @@ The /desk title menu runs 38px past the right edge at 1000px, clipping its text 
 **Evidence**: rect scan of `body *` against `clientWidth`; screenshot showed items clipped at the right.
 **Fix**: right-align the menu to its button or clamp its left to `innerWidth - width - gutter`.
 **Confidence**: Medium (seen only at this window size).
+
+**Open (2026-11-09)** The source gives no reason for the overflow; it needs measuring in a browser at 1000px.
 
 #### LV8-5 · Low · ui · NEW
 In a narrow Sheets pane (306px) the "My sheets" rows are wider than the pane and the pane scrolls sideways.
@@ -2792,6 +3028,8 @@ In a narrow Sheets pane (306px) the "My sheets" rows are wider than the pane and
 **Fix**: let the button row wrap (`flex-wrap`).
 **Confidence**: Medium.
 
+**Fixed (2026-11-09)** Under 24rem the row's buttons wrap under its name (a container query).
+
 #### LV8-6 · Low · ui · NEW
 The Notebook tour leaves a Greek word open.
 **Where**: the notebook tour's Greek step (`desk/tour.js`, rule 13 says a tour "ends by undoing all of it").
@@ -2799,6 +3037,8 @@ The Notebook tour leaves a Greek word open.
 **Evidence**: screenshots before and after (first-tour replay); no other state was changed by me in between.
 **Fix**: close the word entry in the tour's `later`/restore for the Greek step.
 **Confidence**: Medium (I did not retry on a clean profile).
+
+**Fixed (2026-11-09)** The Greek step registers a closer that shuts the Greek tab.
 
 #### LV8-7 · Low · performance · NEW
 A shared sheet on a phone downloads the desk's store and boot code with the viewer, about 380 KB raw in 18 modules.
@@ -2815,10 +3055,14 @@ The print check's diff can show more "Added" text than "Removed".
 **Fix**: trim unchanged context from both sides, or label the extra words as context.
 **Confidence**: Low (needs a real wording revision to confirm).
 
+**No change (2026-11-09)** Not a bug: the diff is right for a real revision; the case seen came from a hand-edited stored copy.
+
 #### LV8-9 · Nit · usability · NEW
 "Save as template" on the sheets list acts at once with no confirmation, moves focus to the sheet's own link, and the template reports "12 parts" for a 13-part sheet.
 **Where**: `sheet-page-list.js`. The status line ("Saved LV8 Thursday group as a template. New sheet now offers it.") is announced, and Delete has Ctrl+Z, so this is only a note. The 12 vs 13 difference may be a part a template drops (a page break, or the passage); I did not confirm which.
 **Confidence**: Low.
+
+**No change (2026-11-09)** Not a miscount: a template drops passages, so a 13-part sheet with one passage makes 12 parts.
 
 ### Confirmed or refuted
 
@@ -3070,6 +3314,8 @@ Node checks run: 48 KB of `<a ` sanitizes in 6 ms (BA67); a hostile pane id retu
 
 No other still-open item that is real and absent from the fresh pass was found. See "Still open by decision" for items that are open on purpose.
 
+**Fixed (2026-11-09)** "Check what to bring."
+
 ### Caught by both (earlier item → Audit 8)
 
 | Earlier | Audit 8 | Note |
@@ -3185,12 +3431,16 @@ Counts: about 95 items checked. Holds 88; regressed 0; still open 2 (below; neit
 **Fix**: in the Add handler's `host.change`, drop chosen items now on the sheet `s` (recompute `onSheet` with `notebookItems(s, records)`), or move the filter into `partsFor`/`fitModules` so it is testable; add a test beside line 148.
 **Confidence**: Medium (a narrow two-tab race; the weaker guard and the missing test are certain).
 
+**Fixed (2026-11-09)** The Add handler re-checks over the saved sheet (`notAlreadyOn`). Test: `test/desk-sheet-from-notes.test.js`.
+
 #### PC8B-2 · Low · data-integrity · KNOWN-OPEN DI6-5
 **Where**: `src/lib/desk-merge.mjs:382` (rule b: `instant(live.modified) > instant(survivor.deletedAt)` removes the deletion); `src/scripts/desk/bookmark-follow.js` (a follower's move writes `modified`).
 **What happens**: a bookmark that follows the reader writes `modified` every few seconds, so a deletion made on one device is undone when it meets a laptop still reading: the bookmark returns at the laptop's place. Audit 6 asked BDR (STUDY-DESK.md, "2026-11-08: two questions for BDR", line 2709) and recommended that, for a stamped bookmark, rule b compare `deletedAt` with `editedAt`. No answer is recorded; STUDY-DESK.md line 5073 still lists it among "BDR's open answers that touch the record format". The rule is unchanged in the code. Question 2 of the same entry (should a sheet merge part by part) is also unanswered.
 **Evidence**: the comparison as quoted; no `editedAt` branch in `desk-merge.mjs`. Audit 6's `edge-probes.mjs` result (`delete(t5) vs follower move(t6) → ["bookmark"]`) was not re-run, but the code path is the same.
 **Fix**: BDR's answer, then one merge-vector case and one sentence in the format's rule b. Nothing to build before then.
 **Confidence**: High that it stands. It is an open question for BDR, so treat it as a decision to chase, not a defect to patch. DI8-1 (a clock set ahead) is the sibling Audit 6 asked in the same breath, and the fresh pass has it.
+
+**Open (2026-11-09)** Still with BDR.
 
 ### Caught by both
 
@@ -3380,6 +3630,8 @@ No failing test, so no failure is quoted.
 **Fix**: point the citations at `test/bookmark-follow.test.js`.
 **Confidence**: High.
 
+**Fixed (2026-11-09)** The citations in Audits 1 and 2 name the new file.
+
 #### PC8C-2 · Low · stale test citation · BA103, BA106 (STUDY-DESK-AUDIT-1.md:1725, 1758)
 
 **Where**: the status lines for BA103 and BA106 in `STUDY-DESK-AUDIT-1.md`, which say "Tested in `test/desk-places.test.js`".
@@ -3387,6 +3639,8 @@ No failing test, so no failure is quoted.
 **Evidence**: `git log --all --diff-filter=D -- test/desk-places.test.js` gives `6243ea05`. Titles grepped in the current tree.
 **Fix**: point the citations at `test/desk-bookmarks.test.js`.
 **Confidence**: High for the file move. Medium for the 40-point assertion.
+
+**Fixed (2026-11-09)**
 
 #### PC8C-3 · Low · stale test citation · BA102 (STUDY-DESK-AUDIT-1.md:1712)
 
@@ -3396,6 +3650,8 @@ No failing test, so no failure is quoted.
 **Fix**: point the citation at `test/desk-bookmark-change.test.js` and quote the bookmark wording.
 **Confidence**: High.
 
+**Fixed (2026-11-09)**
+
 #### PC8C-4 · Low · stale test citation · file-to-test coverage table (STUDY-DESK-AUDIT-3.md:2026, 2083, 2116)
 
 **Where**: three rows of the Audit 3 coverage table, which cite `test/desk-sheet-discussion.test.js` for `src/lib/desk-sheet-discussion.mjs`.
@@ -3403,6 +3659,8 @@ No failing test, so no failure is quoted.
 **Evidence**: `git show --stat 713d5640` lists `desk-sheet-discussion.test.js` and `desk-sheet-discussion.mjs` as deleted, and `desk-sheet-from-notes` as added.
 **Fix**: update the three rows to `desk-sheet-from-notes`. Check the re-gather behavior separately.
 **Confidence**: High for the stale rows. Low for whether the re-gather behavior is covered.
+
+**Fixed (2026-11-09)** Audit 3's row for the removed module names its successor.
 
 ### Not reached
 

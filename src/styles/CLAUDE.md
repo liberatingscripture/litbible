@@ -341,6 +341,9 @@
   pinned surface writes `rgba(var(--ink-rgb), 0.58)` itself. The `/contact`
   and `/app-support` fields (`contact.css`, `.field`) take it too, beside
   their shadow (BVJ, 2026-10-29), since their fill is only 1.28:1 on cream.
+  The desk's placeholders are ink at 0.7 (`::placeholder` in `desk.css`;
+  5.2:1 on cream, Audit 8 XA8-13), since the browser's default gray fails
+  4.5:1, and its small secondary text is 0.7 too (XA8-3).
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

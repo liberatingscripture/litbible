@@ -137,22 +137,26 @@ export function createTour({ panel, canKeep = true }) {
   /* ── What the steps do ────────────────────────────────────────── */
 
   // The verse menu, opened as a reader opens it: a click on its number.
-  async function openVerseMenu() {
+  // `live` says whether the run that asked is still going: a step that waited
+  // for a frame after the tour ended opens nothing over the page (GF8b-5).
+  async function openVerseMenu(live) {
     if (!state.verse) return null;
     closePanel();
     await bringIntoView(state.verse);
+    if (!live()) return null;
     state.verse.click();
     await frame();
-    return currentPanel()?.el ?? null;
+    return live() ? currentPanel()?.el ?? null : null;
   }
 
   // A selection of a few words, as a reader would make one, and the panel it
   // opens.
-  async function selectWords() {
+  async function selectWords(live) {
     const paras = textParagraphs().filter((p) => p.textContent.trim().length > 40);
     const p = paras.find(inView) ?? paras[0];
     if (!p) return null;
     await bringIntoView(p);
+    if (!live()) return null;
     const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, {
       acceptNode: (n) =>
         n.nodeValue.trim().length > 24 && !n.parentElement.closest("sup, .sr-only, [aria-hidden='true']")
@@ -191,7 +195,7 @@ export function createTour({ panel, canKeep = true }) {
       closePanel();
     });
     await wait(SETTLE_MS);
-    return currentPanel()?.el ?? null;
+    return live() ? currentPanel()?.el ?? null : null;
   }
 
   // An example note in the margin, drawn by the tour beside `line` where the
@@ -230,13 +234,14 @@ export function createTour({ panel, canKeep = true }) {
   // What a step opens is undone by `later`, before the next step and at the
   // end.
   const STEPS = {
-    async actions() {
-      const el = view === "study" ? await openVerseMenu() : await selectWords();
+    async actions(live) {
+      const el = view === "study" ? await openVerseMenu(live) : await selectWords(live);
       return el ? { el, side: "right", marks: [] } : state.verse ? { el: state.verse, marks: [] } : null;
     },
 
-    async note() {
-      const menu = view === "study" ? await openVerseMenu() : await selectWords();
+    async note(live) {
+      const menu = view === "study" ? await openVerseMenu(live) : await selectWords(live);
+      if (!live()) return null;
       const add = byText(menu, "Add a note");
       if (!add) return menu ? { el: menu, side: "right" } : null;
       setEditorPreview(EXAMPLE_NOTE);
@@ -246,32 +251,36 @@ export function createTour({ panel, canKeep = true }) {
         setEditorPreview(null);
       }
       await frame();
+      if (!live()) return null;
       const editor = currentPanel()?.el;
       return editor ? { el: editor, side: "right", marks: [] } : null;
     },
 
-    async margin() {
+    async margin(live) {
       closePanel();
       const real = Array.from(document.querySelectorAll("aside.desk-notes .desk-note")).find((e) => visible(e) && inView(e));
       if (real) return { el: real, side: "left" };
       const line = view === "study" ? state.verse : textParagraphs().find(inView) ?? textParagraphs()[0];
       await bringIntoView(line);
+      if (!live()) return null;
       const demo = exampleNote(line);
       // Below the note, in the margin, rather than beside it over the text.
       return demo ? { el: demo } : column() && { el: column(), side: "right" };
     },
 
-    async pin() {
+    async pin(live) {
       closePanel();
       const refs = Array.from(document.querySelectorAll(".chapter-paragraphs .fn-ref a")).filter(visible);
       const after = refs.find((a) => state.verse && state.verse.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING);
       const ref = refs.find(inView) ?? after ?? refs[0];
       if (!ref) return null;
       await bringIntoView(ref);
+      if (!live()) return null;
       ref.click();
-      await frame();
-      const pop = currentPanel()?.el;
       later(() => closePanel());
+      await frame();
+      if (!live()) return null;
+      const pop = currentPanel()?.el;
       // The Pin button is a thumbtack with no words (E18), so it is found by its mark.
       const pin = pop?.querySelector("button[data-desk-pin]");
       return pop ? { el: pop, side: "right", marks: pin ? [pin] : [] } : { el: ref, marks: [] };
@@ -292,8 +301,12 @@ export function createTour({ panel, canKeep = true }) {
 
     async greek() {
       closePanel();
-      if (panel.showGreekWord) await panel.showGreekWord(verseNumber(), firstWord(), { focus: false, remember: false });
-      else panel.showTab("greek", { focus: false, remember: false });
+      if (panel.showGreekWord) {
+        await panel.showGreekWord(verseNumber(), firstWord(), { focus: false, remember: false });
+        // The word it chose is let go again, so the tab reads as it did before
+        // the tour (LV8-6): the entry's own close button.
+        later(() => panel.el.querySelector(".desk-greek__close")?.click());
+      } else panel.showTab("greek", { focus: false, remember: false });
       return { el: panel.el, side: "left", marks: tabButton("greek") };
     },
 
@@ -304,7 +317,7 @@ export function createTour({ panel, canKeep = true }) {
       return { el: panel.el, side: "left", marks: visible(hide) ? [hide] : [] };
     },
 
-    async search() {
+    async search(live) {
       closePanel();
       const input = document.getElementById("site-search-input");
       if (!visible(input)) return null;
@@ -315,6 +328,7 @@ export function createTour({ panel, canKeep = true }) {
       // the tray is opened only once that click is over; opened within it,
       // it shut at once and the step showed an empty box.
       await frame();
+      if (!live()) return null;
       // ">" lists the box's commands, the one thing a reader with an empty
       // notebook can be shown. The commands are the box's desk part, loaded
       // on its first focus (searchbar.js listens for focusin), and once it
@@ -329,6 +343,7 @@ export function createTour({ panel, canKeep = true }) {
         root?.querySelector(".searchbar__close")?.click();
       });
       await wait(200);
+      if (!live()) return null;
       // Beside the box, not under it, where the card would cover the list.
       return { el: input, side: "right", marks: [input] };
     },
@@ -382,7 +397,7 @@ export function createTour({ panel, canKeep = true }) {
     runner.start({
       steps,
       view,
-      act: (step) => STEPS[step.id]?.() ?? null,
+      act: (step, { live = () => true } = {}) => STEPS[step.id]?.(live) ?? null,
       more: (step) => (step.id === "kept" ? { href: WAYS_HREF, text: "Ways to keep your notebook" } : null),
       afterUndo: () => {
         closePanel();
