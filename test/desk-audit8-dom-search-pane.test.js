@@ -286,3 +286,67 @@ test("GF8a-12: the same click, with the pane still open, does open the commands 
   await settle(20);
   assert.equal(document.querySelector("[data-greek-commands]"), null);
 });
+
+// ---- adding to an open sheet (the pane's `sheets` option stands in for a Sheets pane) ----
+
+const { createSheet, makeModule } = await import("../src/lib/desk-sheets.mjs");
+const { passagesFromVerses } = await import("../src/lib/desk-sheet-gather.mjs");
+
+/** A pane whose add target is `target`, over a store holding `sheet`; `writes` gets each plan. */
+async function addView(sheet, target) {
+  const writes = [];
+  const store = {
+    change: async (build) => {
+      const plan = await build({ get: async (id) => (id === sheet.id ? sheet : null) });
+      writes.push(plan);
+      return plan;
+    },
+    lastEntry: () => ({ id: "entry" }),
+  };
+  for (const old of document.querySelectorAll(".desk-search")) old.remove();
+  document.documentElement.dataset.desk = "off";
+  const pane = createSearchPane({
+    paneId: `t${++n}`,
+    env: { store, ctx: () => ({ client: "web/test", contentVersion: "v1" }), showPassage: () => "moved", showIntro: () => ({ outcome: "shown" }), showSheet: () => true, openGreekHit: () => {} },
+    getPlace: () => ({ bookKey: "john" }),
+    sheets: { addTarget: () => target, onAddTarget: () => () => {} },
+  });
+  document.body.append(pane.el);
+  const $ = (sel) => pane.el.querySelector(sel);
+  pickKind($("select[aria-label='Kind of result']"), "keyword");
+  type($("input[type=search]"), "loved");
+  await answered($);
+  return { pane, $, writes };
+}
+
+test("SH8-3: verses added to an open sheet go after its last passage, not after its closing part", async () => {
+  const [romans] = passagesFromVerses([{ bookKey: "romans", chapter: 8, verse: 1 }]).passages;
+  const sheet = createSheet(
+    { title: "Study", modules: [makeModule("text", { html: "<p>Opening</p>" }), makeModule("passage", romans), makeModule("text", { html: "<p>Closing</p>" })] },
+    { now: "2026-11-09T12:00:00.000Z", client: "web/test", contentVersion: "v1" },
+  );
+  const { $, writes } = await addView(sheet, { id: sheet.id, name: "Study", ready: () => {} });
+  const all = await until(() => { const b = $(".desk-search__add-all"); return b && !b.hidden && b; });
+  click(all);
+  await until(() => writes.length);
+  const modules = writes[0].sheet.modules;
+  assert.deepEqual(modules.map((m) => m.type), ["text", "passage", "passage", "text"]);
+  assert.equal(modules[2].bookKey, "john", "John 3:16 follows Romans 8, before Closing");
+});
+
+test("GF8a-11: an add target whose ready() throws says so and leaves the buttons working", async () => {
+  const sheet = createSheet({ title: "Study", modules: [] }, { now: "2026-11-09T12:00:00.000Z", client: "web/test", contentVersion: "v1" });
+  const error = console.error;
+  console.error = () => {};
+  try {
+    const { $, writes } = await addView(sheet, { id: sheet.id, name: "Study", ready: () => { throw new Error("unwritten"); } });
+    const all = await until(() => { const b = $(".desk-search__add-all"); return b && !b.hidden && b; });
+    click(all);
+    await until(() => /couldn’t be saved/.test($(".desk-search__note")?.textContent ?? ""));
+    assert.equal(writes.length, 0, "nothing was written");
+    assert.equal(all.disabled, false, "the add button works again");
+    assert.equal($(".desk-search__sheet:not(.desk-search__add-all)").disabled, false, "and so does Make a sheet");
+  } finally {
+    console.error = error;
+  }
+});

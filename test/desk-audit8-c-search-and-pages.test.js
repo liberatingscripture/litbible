@@ -15,7 +15,6 @@ import { notebookSearchHref } from "../src/lib/desk-search.mjs";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 
-const PANE = read("src/scripts/desk/search-pane.js");
 
 test("GF8a-3: searchbar.js and /search tell a failed verse index from no results", () => {
   // The Search pane's is driven (desk-audit8-dom-search-pane.test.js); these two
@@ -29,21 +28,16 @@ test("GF8a-3: searchbar.js and /search tell a failed verse index from no results
   }
 });
 
-test("SH8-3: both gathers add through the editor's placement and canonical-form rule", () => {
-  // The pane's "make a sheet" path is driven; the add-to-a-sheet path needs a
-  // Sheets pane to supply a target (sheet-pane.js's addTarget), which is not built here.
-  for (const file of ["src/scripts/desk/search-pane.js", "src/scripts/desk/sheets/search-sheet.js"]) {
+test("SH8-3: /search's gather adds through the editor's placement and canonical-form rule", () => {
+  // The Search pane's add is driven (desk-audit8-dom-search-pane.test.js);
+  // /search's search-sheet.js is a page script that runs on load.
+  for (const file of ["src/scripts/desk/sheets/search-sheet.js"]) {
     const text = read(file);
     // planAddPassages (desk-sheet-add.mjs, tested there) plans over the canonical
     // form and places each passage by passageInsertIndex.
     assert.match(text, /planAddPassages\(/, `${file} adds through planAddPassages`);
     assert.ok(!/addModule\([^)]*undefined/.test(text), `${file} no longer appends after the last part`);
   }
-});
-
-test("GF8a-11: a throwing ready() of the add target is caught, inside the try", () => {
-  const gather = PANE.slice(PANE.indexOf("async function gather"), PANE.indexOf("// ---- links in the results ----"));
-  assert.ok(gather.indexOf("try {") < gather.indexOf("target.ready?.()"), "ready() runs inside the try");
 });
 
 test("GF8a-9: choosing a Greek word from the find's suggestions gives focus back to the text", () => {

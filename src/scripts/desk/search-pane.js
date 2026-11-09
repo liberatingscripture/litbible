@@ -177,10 +177,12 @@ function loadGlossary() {
  * @param {{ paneId: string, env: object, getPlace: () => { bookKey: string } }} options
  *   `env` is desk-page.js's: `store`, `ctx`, `showPassage(passage, { beside })`,
  *   `showSheet(id)`, `showIntro(bookKey, { beside })` and `openGreekHit(hit, paneId)`. `getPlace` is the passage
- *   being read, for "The book I’m reading".
+ *   being read, for "The book I’m reading". `sheets` is where the add
+ *   buttons add: the open Sheets panes (`sheet-pane.js`) unless a test hands
+ *   in its own `{ addTarget, onAddTarget }`.
  * @returns {{ el: HTMLElement, focusField: () => void, destroy: () => void }}
  */
-export function createSearchPane({ paneId, env, getPlace }) {
+export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, onAddTarget } }) {
   const sfx = `-${paneId}`;
   const store = env.store ?? null;
   const el = make("div", "desk-search");
@@ -751,7 +753,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
       const add = button("", "desk-search__btn desk-search__sheet desk-search__add-all");
       add.hidden = true;
       add.addEventListener("click", () => {
-        const t = addTarget();
+        const t = sheets.addTarget();
         if (t) gather(r.verses.map(verseRef), t);
       });
       row.append(make1, add);
@@ -772,9 +774,9 @@ export function createSearchPane({ paneId, env, getPlace }) {
         const plus = button("+", "desk-search__add");
         plus.setAttribute("aria-label", addVerseLabel(hit));
         // Rows from "Show more" are drawn after syncAdd has run.
-        plus.hidden = !addTarget() || busy;
+        plus.hidden = !sheets.addTarget() || busy;
         plus.addEventListener("click", () => {
-          const t = addTarget();
+          const t = sheets.addTarget();
           if (t) gather([verseRef(hit)], t);
         });
         li.append(plus);
@@ -787,7 +789,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
   /** Show or hide the add controls by whether a Sheets pane shows a sheet. */
   function syncAdd() {
     if (!store) return;
-    const t = addTarget();
+    const t = sheets.addTarget();
     for (const b of el.querySelectorAll(".desk-search__add")) b.hidden = !t || busy;
     const all = el.querySelector(".desk-search__add-all");
     if (all) {
@@ -797,7 +799,7 @@ export function createSearchPane({ paneId, env, getPlace }) {
     }
     for (const b of el.querySelectorAll(".desk-search__sheet:not(.desk-search__add-all)")) b.disabled = busy;
   }
-  const offTarget = onAddTarget(syncAdd);
+  const offTarget = sheets.onAddTarget(syncAdd);
 
   /** Make the passages and write them: into a new sheet (`target` null) or the sheet `target` names. */
   async function gather(refs, target) {
