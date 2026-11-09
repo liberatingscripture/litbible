@@ -53,19 +53,19 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/opendyslexic": "^5.3.0",
-    "astro": "^7.4.4",
+    "astro": "^7.4.7",
     "qrcode-generator": "^2.0.4",
     "simple-icons": "^16.36.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/markdown-remark": "7.3.5",
+    "@astrojs/markdown-remark": "7.3.6",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/noto-sans-math": "^5.3.0",
     "fake-indexeddb": "^6.2.7",
     "jsonc-parser": "^3.3.1",
     "opentype.js": "^2.0.0",
-    "pagefind": "^1.5.2",
+    "pagefind": "^1.6.0",
     "sharp": "^0.35.5",
     "typescript": "^6.0.3"
   }
