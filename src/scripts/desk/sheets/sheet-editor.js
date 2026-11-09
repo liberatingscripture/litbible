@@ -40,6 +40,11 @@
 //   LG6-2): they read a reference or the notebook and draw their choices;
 //   where a part goes, and the change that adds it, are handed in as
 //   `addHost`.
+// - **The add bar is add-bar.js, and each card's body is part-cards.js**
+//   (Audit 6, LG6-2): the bar's buttons and the two forms under it, and a
+//   passage, text, question, space or key terms body with the header's
+//   minutes and Leader only. The card around a body (`buildCard`: its Move
+//   and Remove, dragging, the gap's pill) stays here, handing `cardHost`.
 // - **A template's parts hold no text, only a prompt** (SH5-2): an empty
 //   part shows its module's `prompt` as the editor's placeholder, and a part
 //   holding only its heading shows it dimmed under the heading, until the
@@ -64,7 +69,6 @@
 
 import { plannedTotal } from "../../../lib/desk-present.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
-import { sheetHtmlForShow } from "../../../lib/desk-sheet-copy.mjs";
 import { MODULE_TYPES, SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
 import {
   addModule,
@@ -79,7 +83,7 @@ import {
   sheetTooBig,
   updateModule,
 } from "../../../lib/desk-sheets.mjs";
-import { keyTermsPlacement, readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
+import { readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
 import {
   passageInsertIndex,
   passageLabel,
@@ -88,8 +92,7 @@ import {
   sortSheets,
 } from "../../../lib/desk-sheet-passages.mjs";
 import { undoEntry } from "../history.js";
-import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./sheet-lit.js";
-import { createSheetText } from "./sheet-text.js";
+import { createLicenseCard } from "./sheet-lit.js";
 import { addEditor, editedElsewhere } from "./sheet-tabs.js";
 import { changedUnderReader } from "../../../lib/desk-sheet-tabs.mjs";
 import { showUndo } from "../undo-bar.js";
@@ -97,7 +100,9 @@ import { redraw } from "../focus-keep.js";
 import { make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 import { listProblem, mySheetsList } from "./my-sheets.js";
-import { openFromNotes, openPassageForm } from "./add-forms.js";
+import { openPassageForm } from "./add-forms.js";
+import { createAddBar } from "./add-bar.js";
+import { cardBody, cardTools, promptOf } from "./part-cards.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -121,9 +126,6 @@ export function button(label, cls = "desk-sheet__btn") {
 
 let hintCount = 0;
 
-/** A module's prompt field (`prompt` or `answerPrompt`), when it is usable text. */
-const promptOf = (m, field) => (typeof m?.[field] === "string" ? m[field].trim() : "");
-
 /** A text part holding one heading and nothing else. */
 const LONE_HEADING = /^<h[1-6]>[^<]*<\/h[1-6]>$/;
 /** A text part's opening heading ("Opening", "The text"), or null: what the gap's pill and its form call the part. */
@@ -146,7 +148,7 @@ function headingPrompt(m, next) {
  * (CP-9): a hidden span the control is described by, which the caller puts
  * in the page. The title stays, for a mouse.
  */
-function describe(control, text) {
+export function describe(control, text) {
   const hint = make("span", "sr-only", text);
   hint.id = `deskSheetHint${++hintCount}`;
   control.setAttribute("aria-describedby", hint.id);
@@ -154,19 +156,6 @@ function describe(control, text) {
 }
 
 const json = (x) => JSON.stringify(x);
-
-// What each of the add bar's buttons adds, in a short line (BVJ, 2026-11-08:
-// only one button had a tooltip, and that one ran too long to show whole):
-// the button's hover text, and its description for a screen reader.
-const ADD_TIPS = Object.freeze({
-  passage: "Add a passage from the LIT by its reference, or from your notebook",
-  text: "Add a part for your own words",
-  question: "Add a question, with lines to write an answer on",
-  fromNotes: "Bring your notes, highlights, and pinned footnotes onto the sheet, as parts you choose",
-  space: "Add blank lines to write on",
-  pageBreak: "Start a new page here when printed",
-  keyTerms: "Add a box listing the key terms in the sheet’s passages, filled in for you",
-});
 
 /* ── The editor ───────────────────────────────────────────────────────── */
 
@@ -458,8 +447,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     for (const card of cards.values()) card.inst?.destroy?.();
     cards.clear();
     license = null;
-    keyTermsButton = null;
-    keyTermsHint = null;
+    addBarView = null;
     // The button just pressed is gone with the view it was in, so the list
     // names where focus goes (DK-3); "loading" holds it meanwhile.
     const loading = make("p", "desk-sheet__status", "Loading your sheets…");
@@ -526,6 +514,16 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     insertIndex,
     focusNewPart,
   };
+  // What a card's body and header controls (part-cards.js) are handed.
+  const cardHost = {
+    readOnly: () => readOnly,
+    sheet: () => sheet,
+    change,
+    opCtx,
+    say,
+    idSuffix,
+    showPassage,
+  };
   let header = null;
   let moduleList = null;
   let titleInput = null;
@@ -533,8 +531,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let plannedLine = null;
   let readOnly = false;
   let license = null;
-  let keyTermsButton = null;
-  let keyTermsHint = null;
+  let addBarView = null; // the add bar under the parts (add-bar.js)
 
   /** What a card's head shows, which an in-place update can't redraw. */
   const headKey = (m) => json([m.type, m.leaderOnly === true, m.minutes ?? null, m.type === "passage" ? passageReference(m) : null]);
@@ -735,7 +732,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const gapKeys = make("span", "sr-only", "Up and down arrows move to the places between the other parts.");
     gapKeys.id = `deskSheetGapKeys-${idSuffix}`;
     wrap.append(gapKeys, moduleList);
-    if (!readOnly) wrap.append(addBar());
+    if (!readOnly) {
+      addBarView = createAddBar({ addPart, addHost, idSuffix });
+      wrap.append(addBarView.el);
+    }
     license = createLicenseCard({
       getSheet: () => sheet,
       readOnly,
@@ -844,25 +844,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     }
     syncGapStop();
     license?.sheetChanged();
-    if (keyTermsButton) {
-      const has = sheet.modules.some((x) => x?.type === "keyTerms");
-      keyTermsButton.disabled = has;
-      keyTermsButton.title = has ? "A sheet has one key terms box, and this one has it" : ADD_TIPS.keyTerms;
-      if (keyTermsHint) keyTermsHint.textContent = has ? "A sheet has one key terms box, and this one has it." : "A box listing the key terms in the sheet’s passages, filled in for you.";
-      // The reason, for the eye too (SH5-17); hidden from a screen reader,
-      // which hears it in the description above.
-      const next = keyTermsButton.nextElementSibling;
-      const why = next?.classList.contains("desk-title__hint") ? next : null;
-      if (has && !why) {
-        const span = make("span", "desk-title__hint", "already on the sheet");
-        span.setAttribute("aria-hidden", "true");
-        // In the row, beside its button rather than pushed to the row's end
-        // as in a menu, and dimmed as a menu's disabled line is.
-        keyTermsButton.after(span);
-      } else if (!has) {
-        why?.remove();
-      }
-    }
+    addBarView?.sheetChanged(sheet);
     if (!sheet.modules.length) {
       // Beside the list, not in it: a list holds only list items (DK-16).
       if (!moduleList.parentNode.querySelector(".desk-sheet__none")) {
@@ -982,52 +964,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     let up = null;
     let down = null;
     if (!readOnly) {
-      // A page break is on both versions: a break on the leader's printout
-      // alone is meaningful but puzzling in a box, so it isn't offered (SH5-17).
-      if (known && m.type !== "pageBreak") {
-        // Planned minutes (Audit 5, D #2): the leader's own, counted down in
-        // the presenter view and totaled on the leader's version. Saved on
-        // change, not on every keystroke, so a half-typed number isn't kept.
-        const mins = make("label", "desk-sheet__minutes");
-        const field = make("input");
-        field.type = "number";
-        field.min = "1";
-        field.max = String(SHEET_LIMITS.minutes);
-        field.step = "1";
-        field.inputMode = "numeric";
-        field.placeholder = "–";
-        field.value = m.minutes ?? "";
-        field.setAttribute("aria-label", `Minutes planned for ${called}`);
-        field.addEventListener("change", () => {
-          const n = field.value.trim() === "" ? undefined : Math.round(Number(field.value));
-          const ok = n === undefined || (Number.isFinite(n) && n >= 1 && n <= SHEET_LIMITS.minutes);
-          if (!ok) {
-            field.value = m.minutes ?? "";
-            say(`Minutes are a whole number from 1 to ${SHEET_LIMITS.minutes}.`);
-            return;
-          }
-          change((s) => updateModule(s, m.id, { minutes: n }, opCtx()), {
-            source: m.id,
-            announce: n ? `${called}: ${n} ${n === 1 ? "minute" : "minutes"} planned.` : `${called}: no time planned.`,
-          });
-        });
-        mins.append(field, make("span", null, "min"));
-        mins.title = "Minutes you plan for this part: counted down in the presenter view and totaled on the leader’s version";
-        tools.append(mins);
-        const leader = make("label", "desk-sheet__leader");
-        const box = make("input");
-        box.type = "checkbox";
-        box.checked = m.leaderOnly === true;
-        box.addEventListener("change", () => {
-          change((s) => updateModule(s, m.id, { leaderOnly: box.checked || undefined }, opCtx()), {
-            source: m.id,
-            announce: box.checked ? `${name}: on the leader’s version only.` : `${name}: on every version.`,
-          });
-        });
-        leader.append(box, make("span", null, "Leader only"));
-        leader.title = "Print and present this on the leader’s version only";
-        tools.append(leader, describe(box, "Prints and presents this on the leader’s version only."));
-      }
+      if (known) tools.append(...cardTools(cardHost, m, { name, called }));
       up = button("↑", "desk-sheet__icon");
       up.setAttribute("aria-label", `Move ${name} up`);
       up.addEventListener("click", () => move(m.id, -1, up));
@@ -1042,14 +979,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     head.append(tools);
     card.append(head);
 
-    let inst = null;
-    if (m.type === "passage") inst = passageCard(card, m);
-    else if (m.type === "text") inst = textCard(card, m);
-    else if (m.type === "question") inst = questionCard(card, m);
-    else if (m.type === "space") inst = spaceCard(card, m);
-    else if (m.type === "pageBreak") card.append(make("div", "desk-sheet__break", "A new page starts here when printed."));
-    else if (m.type === "keyTerms") inst = keyTermsCard(card, m);
-    else card.append(make("p", "desk-sheet__status", "This part was made by a newer version of the LIT. It is kept as it is; reload the page to see it."));
+    const inst = cardBody(cardHost, card, m);
 
     if (!readOnly) {
       // The whole header is the handle (BVJ, 2026-11-08), not the grip alone;
@@ -1131,162 +1061,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
         (next ? cards.get(next.id)?.el.querySelector("button") : moduleList)?.focus?.();
       },
     });
-  }
-
-  function passageCard(card, m) {
-    const body = make("div");
-    card.append(body);
-    if (showPassage) {
-      const go = button("Show in the LIT", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__show");
-      go.addEventListener("click", () => showPassage({ bookKey: m.bookKey, chapter: m.chapter, verse: m.verse }));
-      card.querySelector(".desk-sheet__module-tools").prepend(go);
-    }
-    const inst = createPassageBody({
-      m,
-      readOnly,
-      getSheet: () => sheet,
-      update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
-      fill: (fields) => change((s) => updateModule(s, m.id, fields, opCtx()), { quiet: true }),
-      say,
-    });
-    body.replaceWith(inst.el);
-    return inst;
-  }
-
-  function keyTermsCard(card, m) {
-    const inst = createKeyTermsBody({
-      m,
-      readOnly,
-      getSheet: () => sheet,
-      update: (fields, announce) => change((s) => updateModule(s, m.id, fields, opCtx()), { announce }),
-    });
-    // Before or after the reading, decided sheet by sheet in one click (BVJ,
-    // 2026-11-08): the group meets the words first, or the passage speaks
-    // first. Redrawn on every change, since a move doesn't rebuild the card.
-    const place = make("div", "desk-sheet__terms-place");
-    const placeButtons = () => {
-      const where = readOnly ? null : keyTermsPlacement(sheet);
-      const keep = place.contains(document.activeElement) ? document.activeElement.dataset.side : null;
-      place.replaceChildren();
-      place.hidden = !where;
-      if (!where) return;
-      for (const side of ["before", "after"]) {
-        if (where.side === side) continue;
-        const b = button(side === "before" ? "Move before the reading" : "Move after the reading", "desk-sheet__btn desk-sheet__btn--quiet");
-        b.dataset.side = side;
-        b.addEventListener("click", () => {
-          const to = keyTermsPlacement(sheet)?.[side];
-          if (to === undefined) return;
-          change((s) => moveModule(s, m.id, to, opCtx()), {
-            announce: side === "before" ? "Key terms box moved before the reading." : "Key terms box moved after the reading.",
-            after: () => place.querySelector("button")?.focus(),
-          });
-        });
-        place.append(b);
-      }
-      if (keep) (place.querySelector(`[data-side="${keep}"]`) ?? place.querySelector("button"))?.focus();
-    };
-    placeButtons();
-    card.append(place, inst.el);
-    return {
-      ...inst,
-      sheetChanged: () => {
-        placeButtons();
-        inst.sheetChanged?.();
-      },
-    };
-  }
-
-  function textField(m, field, label, placeholder) {
-    return createSheetText({
-      html: m[field] ?? "",
-      label,
-      placeholder,
-      idPrefix: `deskSheet-${idSuffix}-${m.id}-${field}`,
-      onChange: (html) => change((s) => updateModule(s, m.id, { [field]: html }, opCtx()), { source: m.id }),
-    });
-  }
-
-  /** Several editors and fields as one card's instance. */
-  function group(...insts) {
-    return {
-      focus: () => insts[0]?.focus?.(),
-      hasFocus: () => insts.some((i) => i.hasFocus?.()),
-      flush: () => insts.forEach((i) => i.flush?.()),
-      destroy: () => insts.forEach((i) => i.destroy?.()),
-    };
-  }
-
-  function textCard(card, m) {
-    if (readOnly) return readOnlyRich(card, m.html);
-    const ed = textField(m, "html", "Your text", promptOf(m, "prompt") || "A heading, instructions, a prayer, or anything else to print.");
-    // The prompt under a heading goes with the first word typed after it,
-    // not only once that typing is saved and draw() runs (SH5-4).
-    const box = ed.el.querySelector(".desk-rich");
-    box?.addEventListener("input", () => {
-      if (!box.hasAttribute("data-hint")) return;
-      const heading = box.querySelector("h1, h2, h3, h4, h5, h6");
-      if (box.textContent.trim() === (heading?.textContent.trim() ?? "")) return;
-      delete box.dataset.hint;
-      box.removeAttribute("aria-description");
-    });
-    card.append(ed.el);
-    // The fields typed into, for the line when another tab changes them (S12, part 4).
-    return Object.assign(ed, { fields: { html: ed } });
-  }
-
-  function readOnlyRich(card, html) {
-    const box = make("div", "desk-rich");
-    // A read-only sheet is one in a newer format, which validateSheet never
-    // checked, so its html is drawn only through the sanitizer (BA66).
-    box.innerHTML = sheetHtmlForShow(html);
-    card.append(box);
-    return null;
-  }
-
-  function linesField(m, { min, max, label }) {
-    const wrap = make("label", "desk-sheet__lines");
-    const input = make("input");
-    input.type = "number";
-    input.min = String(min);
-    input.max = String(max);
-    input.value = String(m.lines ?? min);
-    input.disabled = readOnly;
-    input.addEventListener("change", () => {
-      const n = Math.round(Number(input.value));
-      if (!Number.isFinite(n)) return;
-      const lines = Math.min(max, Math.max(min, n));
-      input.value = String(lines);
-      change((s) => updateModule(s, m.id, { lines }, opCtx()), { source: m.id });
-    });
-    wrap.append(make("span", null, label), input);
-    return { el: wrap, hasFocus: () => document.activeElement === input };
-  }
-
-  function questionCard(card, m) {
-    if (readOnly) {
-      readOnlyRich(card, m.html);
-      return null;
-    }
-    const q = textField(m, "html", "Question", promptOf(m, "prompt") || "A question for the group, such as “What surprised you here?”");
-    const a = textField(m, "answer", "Answer, on the leader’s version only", promptOf(m, "answerPrompt") || "Optional. An answer or notes for you as leader. It prints only on the leader’s version.");
-    const lines = linesField(m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on" });
-    // The two editors look alike, and the answer's ghost text goes once it has
-    // words, so it keeps a visible label (BVJ, 2026-11-06). The editor's own
-    // accessible name already says this, so the label is hidden from it.
-    const answerLabel = make("p", "desk-sheet__field-label", "Answer (leader’s version only)");
-    answerLabel.setAttribute("aria-hidden", "true");
-    card.append(q.el, answerLabel, a.el, lines.el);
-    return Object.assign(group(q, a, lines), { fields: { html: q, answer: a } });
-  }
-
-  function spaceCard(card, m) {
-    const lines = linesField(m, { min: 1, max: SHEET_LIMITS.spaceLines, label: "Lines to write on" });
-    const ruled = make("div", "desk-sheet__ruled");
-    ruled.style.setProperty("--lines", String(Math.min(m.lines ?? 4, 6)));
-    ruled.setAttribute("aria-hidden", "true");
-    card.append(lines.el, ruled);
-    return lines;
   }
 
   // ---- adding ----
@@ -1393,82 +1167,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     insertForm = null;
     el.remove();
     if (refocus) cards.get(after)?.el.querySelector(".desk-sheet__after-btn")?.focus();
-  }
-
-  function addBar() {
-    const bar = make("div", "desk-sheet__add");
-    const row = make("div", "desk-sheet__add-row");
-    row.setAttribute("role", "group");
-    row.setAttribute("aria-label", "Add to the sheet");
-    const form = make("div", "desk-sheet__passage-form");
-    form.hidden = true;
-    const hints = [];
-    const add = (type, label) => {
-      const b = button(`+ ${label}`);
-      b.title = ADD_TIPS[type];
-      // The key terms box's description changes with the sheet (keyTermsHint).
-      if (type !== "keyTerms") hints.push(describe(b, `${ADD_TIPS[type]}.`));
-      b.addEventListener("click", () => {
-        if (type === "passage") {
-          form.hidden = !form.hidden;
-          b.setAttribute("aria-expanded", String(!form.hidden));
-          if (!form.hidden) openPassageForm(addHost, form);
-          return;
-        }
-        addPart(type);
-      });
-      if (type === "passage") {
-        b.setAttribute("aria-expanded", "false");
-        b.setAttribute("aria-controls", `deskSheetPassage-${idSuffix}`);
-      }
-      row.append(b);
-    };
-    add("passage", "Passage");
-    add("text", "Your text");
-    add("question", "Question");
-    // + From my notes… (E62; BVJ, 2026-11-08): a chooser over the notebook's
-    // notes, highlights and pinned footnotes on this sheet's passages, each
-    // brought on as a part. It took over from N6's "+ For discussion", which
-    // gathered only the notes marked as questions: too few readers' habit.
-    const fromNotes = button("+ From my notes…");
-    fromNotes.title = ADD_TIPS.fromNotes;
-    hints.push(describe(fromNotes, `${ADD_TIPS.fromNotes}.`));
-    const picker = make("div", "desk-sheet__passage-form desk-sheet__from-notes");
-    picker.id = `deskSheetFromNotes-${idSuffix}`;
-    picker.hidden = true;
-    picker.setAttribute("role", "group");
-    picker.setAttribute("aria-label", "From my notes");
-    fromNotes.setAttribute("aria-expanded", "false");
-    fromNotes.setAttribute("aria-controls", picker.id);
-    const closePicker = (refocus) => {
-      picker.hidden = true;
-      picker.replaceChildren();
-      fromNotes.setAttribute("aria-expanded", "false");
-      if (refocus) fromNotes.focus();
-    };
-    fromNotes.addEventListener("click", () => {
-      if (!picker.hidden) {
-        closePicker(false);
-        return;
-      }
-      fromNotes.setAttribute("aria-expanded", "true");
-      openFromNotes(addHost, picker, closePicker);
-    });
-    picker.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      e.preventDefault();
-      e.stopPropagation();
-      closePicker(true);
-    });
-    row.append(fromNotes);
-    add("space", "Space");
-    add("pageBreak", "Page break");
-    add("keyTerms", "Key terms box");
-    keyTermsButton = row.lastChild;
-    keyTermsHint = describe(keyTermsButton, "A box listing the key terms in the sheet’s passages, filled in for you.");
-    form.id = `deskSheetPassage-${idSuffix}`;
-    bar.append(row, form, picker, ...hints, keyTermsHint);
-    return bar;
   }
 
   // ---- dragging into order ----
