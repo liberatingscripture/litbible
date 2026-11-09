@@ -5045,6 +5045,73 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    changes the `bookmark` and `place` record kinds, so it **touches the
    apps' sync** and BDR's Claude is told (see E9 and the 2026-10-22
    decision). Medium.
+6. **Launch** (BVJ, 2026-11-08): what comes right before the launch, the
+   launch itself, and what follows it. Gathered 2026-11-08 from this file,
+   `STUDY-DESK-FIXES.md`, the audits and the desk's `CLAUDE.md`; anything
+   found later that belongs at or near launch goes here too.
+
+   **Before launch**
+   - **What's new names new site features** (BVJ, 2026-11-08). Today
+     `/release-notes` and its feed record only changes to the text
+     (`text_updated`, `footnote_added`, `glossary_updated` and the rest,
+     drawn from the content diff), so the Study Desk, the Sheets or a new
+     header would never appear there, though header C's About menu
+     describes the page as "Changes to the text and the site." To build
+     before launch, so the desk's arrival is its first entry: a way to
+     write a feature entry by hand (the automation can't see one in a
+     diff), how it shows beside the text changes and in the page's kind
+     filter, and whether it goes in the feed. **The apps read that feed**
+     (`scripts/CLAUDE.md`, release-notes automation), so ask BDR before
+     adding a kind to it; a site-only list beside it is the fallback.
+   - **Trusted readers first.** Phase 5 planned a round of trusted readers
+     given `?desk=on` before release. Choose who and for how long; their
+     reports go to `STUDY-DESK-FIXES.md` like BVJ's, through "Tell us
+     what's missing" (M12) or directly.
+   - **The rest of the real-device audit** (FA1-v): the Windows half is
+     done (BA146 to BA153); a Mac with Safari, VoiceOver, two screens and a
+     touchscreen computer remain. It needs BVJ's own machines.
+   - **BDR's open answers that touch the record format**: DI6-5, and
+     whether the apps want a sheet merged part by part (S12, Part 4). They
+     bear on Phase 4's sync more than on the launch, but settle them before
+     the format is frozen for syncing.
+   - **The announcement.** M12 decided on a line in the release notes and
+     the newsletter at launch (the newsletter is written in Brevo). Decide
+     whether the site's one announcement popover, now the apps' launch,
+     changes to the Study Desk for a while; it never shows over scripture
+     (`src/components/CLAUDE.md`), and a desk announcement would have to
+     skip phones and tablets, which never get the desk.
+   - **Optional housekeeping**: move this file's settled phases into an
+     archive file (Audit 3's note; it is read only by grep), and give the
+     README a short "The Study Desk" section (launch item 10 names the
+     README).
+
+   **At launch** (one change: the "Launching" list in
+   `src/scripts/desk/CLAUDE.md`, items 1 to 12, then its grep)
+   - The pre-paint stamp stops requiring the preview; `?desk=on`,
+     `?desk=off` and `lit-desk-preview` retire, and `/privacy` drops the
+     key. There is no opt-out of the desk; "Show the Notebook" in the
+     Display tray is the compromise.
+   - What goes live with the stamp: Greek search for every computer
+     (`greekSearchEnabled()`), the 52 and 48 reading measures (C9),
+     header C, and the pages' preview copy.
+   - Read View's retirement (8c): the redirects, the `/read/[book].astro`
+     rewrite, the sitemap, Continue reading's Read View records, and its
+     code, copy and docs. Tag the last commit that has Read View.
+   - Indexing for `/desk` and its help (`/notebook` and `/sheets` stay
+     noindex), release notes, `llms.txt`, README, and the CLAUDE.md
+     "preview" wording.
+   - Re-measure the first stage's weight on `dist/john-3/` (14.6 KB
+     gzipped on 2026-11-08).
+
+   **After launch**
+   - **Header C on tablets**: tablets never get the stamp, so they keep
+     the five plain links unless that changes ("Launching", item 12).
+   - **Old links**: check Cloudflare for 404s and for `/read/<book>`
+     traffic landing through the redirects in the first weeks.
+   - **Phase 5 opens to everyone**: released readers' reports join the log,
+     and the pass over what has piled up decides what is fixed first.
+   - **Phase 4, sync with the apps**, follows on its own schedule; the apps
+     announce sync once in their What's New (the Zoom's item 5).
 
 **Any time, independent of all of it**: both apps link to the license terms
 (BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1). (/read opening
@@ -5411,7 +5478,9 @@ apps want a sheet merged part by part before this is built.
      LIT, Translation commitments, Liberating Scripture Collective, What’s
      new, then Support and Contact). Read Now stays its own button.
    - **Descriptions**: one line under Learn's and Study's links and under
-     What’s new, as drawn.
+     What’s new, as drawn, with BVJ's wording for Articles ("Digging deeper
+     into scripture") and Study Desk ("…sheets, and more"). What’s new
+     names site features only once Phase 6's item is built.
    - **Keys and hover**: each group is a disclosure (a button with
      `aria-expanded` over plain links), with the desk menus' keys: Arrow Down
      or Up opens it at the first or last link, the arrows, Home and End move,
