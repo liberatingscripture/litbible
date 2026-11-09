@@ -210,6 +210,9 @@ export function createDeskTour(api) {
     const { width, height } = room();
     if (!panes(base.root).some((p) => isFollower(p.kind))) ids.delete("stay");
     if (addPaneNeeds(base, "column", width, height)) ids.delete("add");
+    // "Reading in sync" shows the second LIT pane's flag, so it needs the column
+    // that pane is added in; its card says two panes are open "as here" (DK8-3).
+    if (addPaneNeeds(base, "column", width, height)) ids.delete("sync");
     // New sheet… needs room for a Sheets pane, a column or a row.
     if (addPaneNeeds(base, "column", width, height) && addPaneNeeds(base, "row", width, height)) ids.delete("newsheet");
     return ids;

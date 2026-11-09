@@ -15,6 +15,20 @@
 
 /* ── The rail and the panel ───────────────────────────────────── */
 
+/* A placeholder is text under WCAG 1.4.3. The browsers' own gray is about
+   4.4:1 on the raised surface and 3.5:1 on cream (3.6 to 4.2:1 in dark), so
+   the desk's fields say it in the ink at 0.7, the value the small secondary
+   lines use (5.2:1 on cream, 5.8:1 raised, 6.6:1 or more in dark; XA8-13,
+   LV8-3). One rule reaches every field inside or carrying a desk class, and
+   none of the site's own (the footer's newsletter box, the contact form). */
+[class*="desk-"] input::placeholder,
+[class*="desk-"] textarea::placeholder,
+input[class*="desk-"]::placeholder,
+textarea[class*="desk-"]::placeholder {
+  color: rgba(var(--ink-rgb), 0.7);
+  opacity: 1;
+}
+
 /* A card in the margin. Sticky, so it starts level with the text and pins
    16px from the top of the window as the reader scrolls (EDGE in
    src/lib/desk-margin.mjs, the same gap it keeps from the window's right
@@ -205,7 +219,7 @@ a.desk-item__ref:hover {
 
 .desk-item__kind {
   grid-column: 1;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), 0.7);
   font-size: 0.8125rem;
 }
 
@@ -313,6 +327,13 @@ a.desk-item__ref:hover {
 
 .desk-undo__bar[hidden] {
   display: none;
+}
+
+/* While the bar is up (fixed, 20px from the bottom, about 52px tall), a
+   focused element scrolls clear of it instead of to the window's edge under
+   it (XA8-14, WCAG 2.4.11). */
+html:has(.desk-undo__bar:not([hidden])) {
+  scroll-padding-bottom: 84px;
 }
 
 /* The undo bar doesn't print (BA145): it is fixed and stays up for ten
@@ -1618,6 +1639,14 @@ a.desk-item__highlight:hover {
   cursor: not-allowed;
 }
 
+/* The bookmark form's Save while a write is under way: it stays focusable, so
+   it says aria-disabled rather than disabled (Audit 8). */
+.desk-bookmark-form .desk-editor__save[aria-disabled="true"] {
+  opacity: 0.45;
+  filter: none;
+  cursor: progress;
+}
+
 .desk-editor__actions .desk-editor__delete {
   margin-right: auto;
 }
@@ -2180,13 +2209,20 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   cursor: pointer;
 }
 
-.desk-notice__actions button:hover:not(:disabled) {
+.desk-notice__actions button:hover:not(:disabled):not([aria-disabled="true"]) {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-notice__actions button:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* Keep and Delete stay focusable while a write is under way, so they say
+   aria-disabled rather than disabled (Audit 8). */
+.desk-notice__actions button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: progress;
 }
 
 .desk-notice__actions .desk-notice__delete {
@@ -2200,7 +2236,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   font-weight: 600;
 }
 
-.desk-notice__actions .desk-notice__keep:hover:not(:disabled) {
+.desk-notice__actions .desk-notice__keep:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--green-deep);
   filter: brightness(1.1);
 }
@@ -2977,7 +3013,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 
 .desk-cmds__hint {
   font-size: 0.75rem;
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 /* The tour: a small card beside its target. */
@@ -3007,7 +3043,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   }
 }
 
-.desk-tour:focus {
+.desk-tour:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -4944,12 +4980,12 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-sheet__add-row .desk-title__hint {
   margin-left: 0;
   align-self: center;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 .desk-title__hint--about {
   margin-left: 0;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), 0.7);
   font-weight: 400;
   white-space: normal;
   max-width: 22em;
@@ -6333,7 +6369,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
   background: var(--surface-input, var(--surface-raised));
   color: var(--text);
@@ -6649,7 +6685,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   top: 10px;
   left: 12px;
   right: 12px;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), 0.7);
   pointer-events: none;
 }
 
@@ -6661,7 +6697,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   content: attr(data-hint) / "";
   display: block;
   margin-top: 0.5em;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), 0.7);
   font-style: italic;
   pointer-events: none;
   user-select: none;
@@ -6876,7 +6912,8 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   border-color: transparent;
 }
 
-.desk-sheet__btn:disabled {
+.desk-sheet__btn:disabled,
+.desk-sheet__btn[aria-disabled="true"] {
   opacity: 0.5;
   cursor: default;
   background: transparent;
@@ -6982,6 +7019,30 @@ a.desk-sheet__open {
   }
 }
 
+/* In a pane too narrow for the buttons' columns (a third of a 1000px window,
+   about 290px), the three buttons' longest words alone are wider than the
+   row, and the pane scrolled sideways (LV8-5, Audit 8). The list measures its
+   own width, and below it a row is a flex row that wraps: the name takes the
+   first line and the buttons sit together under it. */
+@supports (container-type: inline-size) {
+  .desk-sheet__sheets {
+    container: deskSheets / inline-size;
+  }
+
+  @container deskSheets (max-width: 24rem) {
+    .desk-sheet__sheet {
+      display: flex;
+      flex-wrap: wrap;
+      grid-template-columns: none;
+      padding-bottom: 6px;
+    }
+
+    .desk-sheet__sheet > .desk-sheet__open {
+      flex: 1 1 100%;
+    }
+  }
+}
+
 /* One sheet */
 /* Its links wrap whole onto a second line in a narrow pane (S12 added
    "Open on its own page"), never word by word or off the pane's edge. */
@@ -7001,7 +7062,7 @@ a.desk-sheet__open {
 
 .desk-sheet__saved {
   font-size: 0.75rem;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 .desk-sheet__title,
@@ -7010,6 +7071,8 @@ a.desk-sheet__open {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid transparent;
+  /* The quiet look keeps no box, but a field needs an edge (XA8-2, BA144). */
+  border-bottom-color: var(--field-border);
   border-radius: 6px;
   background: transparent;
   color: var(--text);
@@ -7033,7 +7096,7 @@ a.desk-sheet__open {
 .desk-sheet__subtitle:hover,
 .desk-sheet__title:focus,
 .desk-sheet__subtitle:focus {
-  border-color: rgba(var(--ink-rgb), 0.2);
+  border-color: var(--field-border);
   background: var(--surface-input);
 }
 
@@ -7123,7 +7186,7 @@ a.desk-sheet__open {
 .desk-sheet__minutes input {
   width: 4.5em;
   padding: 1px 4px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--field-border);
   border-radius: 4px;
   background: transparent;
   color: var(--text);
@@ -7409,7 +7472,7 @@ a.desk-sheet__open {
 
 .desk-sheet__from-kind {
   font-size: 0.75rem;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 .desk-sheet__from-words {
@@ -7614,7 +7677,7 @@ select.desk-sheet__hint,
   min-width: 0;
   max-width: 100%;
   padding: 2px 6px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--field-border);
   border-radius: 6px;
   background: var(--surface-input);
   color: var(--text);
@@ -7872,6 +7935,63 @@ p.desk-sheet__flag {
   inset: 0;
   pointer-events: none;
   background-image: linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--ink-rgb), 0.5) calc(50% - 1px), rgba(var(--ink-rgb), 0.5) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+/* The Sheets editor's states in forced colors (Windows contrast themes;
+   XA8-7, Audit 8). Forced colors replaces background, border color and
+   box-shadow with its palette, so each state that was said only by one of
+   those is said again in a border or an outline in a system color, the way
+   the blocks above do it. Padding is lessened by a border's extra width so
+   nothing shifts. It comes after every Sheets rule it overrides. */
+@media (forced-colors: active) {
+  /* A blanked key term's chip: a green tint, a green border and a weight
+     become the weight alone, so the pressed chip gets a Highlight border. */
+  .desk-sheet__chip[aria-pressed="true"] {
+    padding: 1px 9px;
+    border: 2px solid Highlight;
+  }
+
+  /* The drag's insertion line is a background, which draws nothing. */
+  .desk-sheet__drop {
+    height: 0;
+    background: none;
+    border-top: 3px solid Highlight;
+  }
+
+  /* The editor's focus signal is its border's color, which is forced. */
+  .desk-rich-editor:focus-within {
+    outline: 2px solid Highlight;
+  }
+
+  /* Primary and quiet buttons differ by fill, which is forced: the primary
+     one takes a thicker edge. */
+  .desk-sheet__btn--primary {
+    padding: 3px 9px;
+    border: 2px solid ButtonText;
+  }
+
+  /* The gap's pill is a fill with no border, so it would be bare text. */
+  .desk-sheet__after-btn {
+    box-sizing: border-box;
+    border: 1px solid ButtonText;
+    line-height: 20px;
+  }
+
+  /* The check's meter is two backgrounds: the track gets an edge, the fill
+     the selection color, and a fill over the limit the text color (the line
+     above it says which, in words). */
+  .desk-sheet__meter {
+    border: 1px solid ButtonText;
+  }
+
+  .desk-sheet__meter > span {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .desk-sheet__meter > span.is-over {
+    background: ButtonText;
+  }
 }
 
 /* ── M6: Print with my notes ─────────────────────────────────── */

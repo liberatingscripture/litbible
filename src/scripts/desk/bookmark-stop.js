@@ -41,7 +41,9 @@ export function moveItHereButton(bookmark, where = "") {
   b.type = "button";
   b.className = "desk-item__stop";
   b.textContent = "Move it here";
-  b.setAttribute("aria-label", `Move the bookmark${where ? ` on ${where}` : ""} to where I am reading`);
+  // The visible words first, so "click Move it here" finds it (2.5.3; XA8-4); the
+  // rest tells one row's button from another's.
+  b.setAttribute("aria-label", `Move it here, the bookmark${where ? ` on ${where}` : ""}`);
   b.dataset.bookmarkMove = bookmark.id;
   b.hidden = !isPausedHere(bookmark.id);
   b.addEventListener("click", async (e) => {

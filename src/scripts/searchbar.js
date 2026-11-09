@@ -27,6 +27,7 @@ import {
   bucketSearchResults,
   pickAnchorHref,
   loadVerseIndex,
+  VERSES_FAILED,
   searchVerses,
   rankVerseHits,
   verseHitLabel,
@@ -1126,6 +1127,8 @@ const _initSearchbars = async () => {
 
         const verseIndex = versePromise ? await versePromise : null;
         if (mySeq !== searchSeq) return;
+        // An index that didn't load is not "no verses match" (GF8a-3).
+        const versesFailed = Boolean(versePromise) && !verseIndex;
 
         const notebook = notebookPromise ? await notebookPromise : null;
         if (mySeq !== searchSeq) return;
@@ -1220,7 +1223,8 @@ const _initSearchbars = async () => {
           parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
         if (showA && aCount)
           parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
-        if (showK && (kCount || !(hasJump || commands.length)))
+        if (showK && versesFailed) parts.push(VERSES_FAILED);
+        else if (showK && (kCount || !(hasJump || commands.length)))
           parts.push(
             `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
@@ -1253,7 +1257,7 @@ const _initSearchbars = async () => {
           (showA ? aCount : 0) +
           (showI ? iCount : 0) +
           (showK ? kCount : 0);
-        if (totalCount === 0 && !hasJump) {
+        if (totalCount === 0 && !hasJump && !versesFailed) {
           if (qPhrase && qPhrase.includes(" ")) {
             const words = qPhrase
               .split(/\s+/)
@@ -1488,6 +1492,9 @@ const _initSearchbars = async () => {
     });
 
     input.addEventListener("keydown", (e) => {
+      // A key that is part of an IME or dead-key composition is the
+      // composition's, not a completion or a submit (GK8-2).
+      if (e.isComposing || e.keyCode === 229) return;
       if (
         (e.key === "Tab" || e.key === "ArrowRight") &&
         !e.metaKey &&

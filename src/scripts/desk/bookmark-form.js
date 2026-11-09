@@ -27,6 +27,7 @@ import {
   restingId,
   stopFollowing,
 } from "./bookmark-follow.js";
+import { busy as holdButton, isBusy } from "./focus-keep.js";
 import { undoEntry } from "./history.js";
 import { announce, showUndo } from "./undo-bar.js";
 
@@ -188,8 +189,10 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
   async function save() {
     // One save at a time: a second press while the first is writing would be
     // a second change over the same bookmark.
-    if (saveButton.disabled) return;
-    saveButton.disabled = true;
+    // aria-disabled, not disabled, so the key that pressed it keeps focus when the
+    // save fails and the form stays (NB8-8).
+    if (isBusy(saveButton)) return;
+    const release = holdButton(saveButton);
     error.hidden = true;
     // The bookmark is read, the limit checked, and the write made in one
     // transaction (BA102): the form's copy is from when it opened, and another
@@ -215,13 +218,13 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
       console.error("Study Desk: the bookmark wasn't saved", err);
       error.hidden = false;
       error.textContent = "The bookmark couldn’t be saved in this browser. Try again.";
-      saveButton.disabled = false;
+      release();
       return;
     }
     if (outcome?.problem) {
       error.hidden = false;
       error.textContent = outcome.problem;
-      saveButton.disabled = false;
+      release();
       return;
     }
     // Checked and still offered: the follow starts once the bookmark is saved
@@ -254,7 +257,8 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
   panel.querySelector(".lit-panel__close").addEventListener("click", closePanel);
   for (const input of [verseInput, nameInput]) {
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+      // Not while an input method is composing: Enter there confirms the word (NB8-14).
+      if (e.key === "Enter" && !e.isComposing) {
         e.preventDefault();
         save();
       }

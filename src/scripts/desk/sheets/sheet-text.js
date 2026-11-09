@@ -903,6 +903,7 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
   let indentButton = null;
   let outdentButton = null;
   let blockLabel = null;
+  let blockButton = null;
 
   function addTool(button) {
     tools.push(button);
@@ -948,15 +949,14 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     { label: "Subheading", value: "h3" },
     { label: "Quotation", value: "quote" },
   ];
-  addTool(
-    menuButton({
-      name: "Paragraph style",
-      content: blockLabel,
-      groups: [{ items: BLOCKS }],
-      isChecked: (_g, item) => item.label === currentBlockName(),
-      pick: (_g, item) => act(() => setBlock(item.value)),
-    }),
-  );
+  blockButton = menuButton({
+    name: "Paragraph style",
+    content: blockLabel,
+    groups: [{ items: BLOCKS }],
+    isChecked: (_g, item) => item.label === currentBlockName(),
+    pick: (_g, item) => act(() => setBlock(item.value)),
+  });
+  addTool(blockButton);
   separator();
 
   // 2. Bold, italic, underline, strikethrough
@@ -1092,6 +1092,8 @@ export function createSheetText({ html, label, placeholder, idPrefix, onChange }
     indentButton.setAttribute("aria-disabled", String(!inList));
     outdentButton.setAttribute("aria-disabled", String(!inList));
     blockLabel.textContent = currentBlockName();
+    // The visible word is in the name, whatever it says now (2.5.3; XA8-5).
+    blockButton.setAttribute("aria-label", `Paragraph style: ${blockLabel.textContent}`);
   }
 
   function onSelectionChange() {

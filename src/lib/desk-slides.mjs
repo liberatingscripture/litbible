@@ -228,6 +228,33 @@ function cutSentences(b, max) {
   return pieces;
 }
 
+/**
+ * A list longer than `max` cut between its top-level items into lists of about
+ * `max` each, an ordered one carrying on its numbering (`start`; GF8c-6). An
+ * item is never cut inside, nested lists with it.
+ */
+function splitList(b, max) {
+  const lists = [];
+  let items = [];
+  let size = 0;
+  let from = b.start ?? 1;
+  const close = () => {
+    if (!items.length) return;
+    lists.push({ ...b, items, ...(b.ordered ? { start: from } : {}) });
+    from += items.length;
+    items = [];
+    size = 0;
+  };
+  for (const item of b.items) {
+    const n = blockLength({ type: "list", items: [item] });
+    if (items.length && size + n > max) close();
+    items.push(item);
+    size += n;
+  }
+  close();
+  return lists;
+}
+
 /** A paragraph cut before the chosen verse numbers (by their order, so both forms of a passage cut alike). */
 function cutAt(b, chosen) {
   const cuts = verseCuts(b.inlines);
@@ -261,6 +288,8 @@ export function splitPassage(revealed, covered = null, max = SLIDE_CHARS) {
         if (!cs && blockLength(piece) > max) for (const s of cutSentences(piece, max)) pairs.push([s, null]);
         else pairs.push([piece, cs ? cs[k] : null]);
       });
+    } else if (!covered && b.type === "list" && blockLength(b) > max) {
+      for (const piece of splitList(b, max)) pairs.push([piece, null]);
     } else if (!covered && b.blocks && blockLength(b) > max) {
       for (const g of splitBlocks(b.blocks, max)) pairs.push([{ ...b, blocks: g }, null]);
     } else pairs.push([b, c]);
@@ -428,7 +457,7 @@ export function slideParagraphs(blocks, { toRuns = slideRuns } = {}) {
   const out = [];
   const textRuns = (text) => toRuns([{ t: "text", text: text ?? "" }]);
   const list = (b, level, quoted = false) => {
-    let n = 0;
+    let n = (b.start ?? 1) - 1; // a list cut across slides carries on its numbering
     for (const item of b.items) {
       n += 1;
       out.push({

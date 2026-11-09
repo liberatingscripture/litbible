@@ -55,19 +55,26 @@ export const MOVE_EVERY_MS = 2000;
 /* ── Naming and following ────────────────────────────────────────────── */
 
 /**
- * A bookmark's name as it is kept: whitespace tidied, cut at BOOKMARK_NAME_MAX.
- * Empty is a bookmark with no name, which is allowed; names are the reader's
- * own words and need not differ.
+ * A bookmark's name as it is kept: whitespace tidied, cut at BOOKMARK_NAME_MAX
+ * code points. The cut falls between graphemes, so an emoji sequence or a flag
+ * at the limit is never split in two (GF8c-9); a grapheme that would take the
+ * name past the limit goes whole. Empty is a bookmark with no name, which is
+ * allowed; names are the reader's own words and need not differ.
  */
 export function cleanBookmarkName(raw) {
   const tidy = String(raw ?? "")
     .replace(/\s+/g, " ")
     .trim();
-  // Cut by code point, so an emoji at the limit is never split in two.
-  return Array.from(tidy)
-    .slice(0, BOOKMARK_NAME_MAX)
-    .join("")
-    .trim();
+  const segments = new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(tidy);
+  let kept = "";
+  let count = 0;
+  for (const { segment } of segments) {
+    const n = Array.from(segment).length;
+    if (count + n > BOOKMARK_NAME_MAX) break;
+    kept += segment;
+    count += n;
+  }
+  return kept.trim();
 }
 
 /** A bookmark with "Move as I read" on. */

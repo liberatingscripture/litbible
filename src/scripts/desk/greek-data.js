@@ -10,6 +10,9 @@
 import { fetchGreekChapter } from "../greek-chapters.js";
 import { lsjShard, stepShard, ubsShard } from "../../lib/desk-greek.mjs";
 
+// The site's base path, as greek-find.js reads it, so the Greek files load under a sub-path too (GK8-7).
+const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
+
 const cache = new Map();
 
 function load(url) {
@@ -27,14 +30,14 @@ function load(url) {
 
 /** One chapter's Greek: { paragraphs, lemmas, apparatus, borrowed?, title? }. */
 export function loadChapterGreek(bookKey, chapter) {
-  return fetchGreekChapter("/", bookKey, chapter); // shared with the Greek search (GK-20)
+  return fetchGreekChapter(BASE, bookKey, chapter); // shared with the Greek search (GK-20)
 }
 
 /** A UBS entry by its MainId, or null when the dictionary has none. */
 export async function loadUbsEntry(mainId) {
   const nn = ubsShard(mainId);
   if (nn == null) return null;
-  const shard = await load(`/greek/ubs/${nn}.json`);
+  const shard = await load(`${BASE}greek/ubs/${nn}.json`);
   return shard[mainId] ?? null;
 }
 
@@ -42,7 +45,7 @@ export async function loadUbsEntry(mainId) {
 export async function loadStepEntries(strong) {
   const nn = stepShard(strong);
   if (nn == null) return [];
-  const shard = await load(`/greek/step/${nn}.json`);
+  const shard = await load(`${BASE}greek/step/${nn}.json`);
   return shard[strong] ?? [];
 }
 
@@ -50,7 +53,7 @@ export async function loadStepEntries(strong) {
 export async function loadLsjEntries(strong) {
   const nnn = lsjShard(strong);
   if (nnn == null) return [];
-  const shard = await load(`/greek/lsj/${nnn}.json`);
+  const shard = await load(`${BASE}greek/lsj/${nnn}.json`);
   return shard[strong] ?? [];
 }
 

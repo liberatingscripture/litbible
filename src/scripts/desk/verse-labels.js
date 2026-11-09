@@ -30,8 +30,9 @@
 // plain "Verse N" for whatever is hidden, so nothing on the page mentions what
 // the reader chose not to see.
 
+import { verseCount } from "../../data/verse-counts.js";
 import { onFootnote } from "../../lib/desk-records.mjs";
-import { forChapter, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { forChapter, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { FOLLOW_CHANGED, restingId } from "./bookmark-follow.js";
 import { bookmarkedVerses, highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
@@ -76,13 +77,25 @@ export function createVerseLabels({ store }) {
     apply();
   }
 
-  // Not a place or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107).
-  store.subscribe(refresh, { except: QUIET_KINDS });
+  // Not a place, a sheet (autosaved every few hundred milliseconds), or a bookmark moving as the reader reads (MOVE_KIND): it writes every few seconds (BA107; NB8-1).
+  store.subscribe(refresh, { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
   window.addEventListener(FOLLOW_CHANGED, refresh);
   document.addEventListener(SETTINGS_EVENT, apply);
   refresh();
 
   return { refresh };
+}
+
+/**
+ * The last verse a record is counted on: its end, but no further than its
+ * chapter goes. A record is valid with any end at or past its start, and a
+ * range of twenty million verses (a hand-edited copy, a crafted backup) would
+ * otherwise hold the page in this loop on every change (GF8c-1).
+ */
+export function lastCounted(r) {
+  const end = Number.isInteger(r.endVerse) ? Math.max(r.verse, r.endVerse) : r.verse;
+  const chapterEnd = verseCount(r.bookKey, r.chapter);
+  return chapterEnd > 0 ? Math.max(r.verse, Math.min(end, chapterEnd)) : r.verse;
 }
 
 /**
@@ -103,8 +116,7 @@ function noticeCounts(records) {
     if (notice.kind === "lost") continue;
     const r = shown.find((x) => x.id === id);
     if (!Number.isInteger(r?.verse)) continue;
-    const last = Number.isInteger(r.endVerse) ? Math.max(r.verse, r.endVerse) : r.verse;
-    for (let v = r.verse; v <= last; v++) counts.set(v, (counts.get(v) ?? 0) + 1);
+    for (let v = r.verse, last = lastCounted(r); v <= last; v++) counts.set(v, (counts.get(v) ?? 0) + 1);
   }
   return counts;
 }

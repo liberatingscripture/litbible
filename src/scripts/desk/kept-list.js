@@ -31,6 +31,9 @@ import { nameOf, recordRow } from "./record-rows.js";
 import { showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 
+// How long typing in "Search my notebook" waits for the next key before the list is redrawn.
+const QUERY_DELAY_MS = 150;
+
 /**
  * @param {{ store: object, ctx: () => object, idPrefix?: string,
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null }} options
@@ -77,10 +80,29 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   // panel can be pointed at the new button when a save redraws the list.
   let activeRow = null;
 
-  async function render() {
+  // The notebook as the last draw read it, so a change of search or filter alone
+  // redraws without reading every record again (GF8b-8). Any other draw reads afresh.
+  let lastRecords = null;
+  // A full read still in flight: a filter change waits for it rather than
+  // drawing the older records and dropping the newer read.
+  let reading = null;
+
+  async function render({ reuse = false } = {}) {
     const seq = ++renderSeq;
-    const records = await store.all();
+    let records;
+    if (reuse && lastRecords && !reading) records = lastRecords;
+    else if (reuse && reading) records = await reading;
+    else {
+      const read = store.all();
+      reading = read;
+      try {
+        records = await read;
+      } finally {
+        if (reading === read) reading = null;
+      }
+    }
     if (seq !== renderSeq) return;
+    lastRecords = records;
     const all = listable(records);
     const labels = labelMap(records);
     drawControls(all, records);
@@ -136,7 +158,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
         }
         b.addEventListener("click", () => {
           filters.color = choice === "all" || choice === filters.color ? null : choice;
-          render();
+          render({ reuse: true });
         });
         return b;
       }),
@@ -269,21 +291,30 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
 
   // The browser's own clear (Escape, the field's x) fires `search` and
   // `change` and no `input` (LV3-1), so all three are heard.
+  // Typing waits a moment for the next key (GF8b-8): a long notebook would
+  // be redrawn on every character otherwise.
+  let queryTimer = 0;
   const takeQuery = () => {
+    window.clearTimeout(queryTimer);
+    queryTimer = 0;
     if (filters.query === queryBox.value) return;
     filters.query = queryBox.value;
-    render();
+    render({ reuse: true });
   };
-  for (const type of ["input", "search", "change"]) queryBox.addEventListener(type, takeQuery);
+  queryBox.addEventListener("input", () => {
+    window.clearTimeout(queryTimer);
+    queryTimer = window.setTimeout(takeQuery, QUERY_DELAY_MS);
+  });
+  for (const type of ["search", "change"]) queryBox.addEventListener(type, takeQuery);
   kindSelect.addEventListener("change", () => {
     filters.kind = kindSelect.value || null;
     // A color only means something among highlights.
     if (filters.kind && filters.kind !== "highlight") filters.color = null;
-    render();
+    render({ reuse: true });
   });
   labelSelect.addEventListener("change", () => {
     filters.labelId = labelSelect.value || null;
-    render();
+    render({ reuse: true });
   });
 
   function setQuery(text) {

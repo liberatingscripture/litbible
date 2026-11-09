@@ -3,7 +3,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  changedUnderReader,
   editingMessage,
   editingReply,
   readEditingMessage,
@@ -31,18 +30,9 @@ test("a tab answers for the sheets its editors show, and counts answers about th
   assert.equal(editingReply(null, { tab: "tab-a" }), null);
 });
 
-test("the line shows only when a part's typed fields moved", () => {
-  const drawn = JSON.stringify({ id: "m1", type: "question", html: "<p>Why?</p>", answer: "" });
-  assert.equal(changedUnderReader(drawn, { id: "m1", type: "question", html: "<p>Why?</p>", minutes: 5 }), false);
-  assert.equal(changedUnderReader(drawn, { id: "m1", type: "question", html: "<p>Why not?</p>" }), true);
-  assert.equal(changedUnderReader(drawn, { id: "m1", type: "question", html: "<p>Why?</p>", answer: "<p>Because</p>" }), true);
-  assert.equal(changedUnderReader("", { html: "x" }), false, "a card never drawn");
-  assert.equal(changedUnderReader("{not json", { html: "x" }), false);
-});
-
 test("the sheet editor asks before editing and draws the line", () => {
   const src = readFileSync(new URL("../src/scripts/desk/sheets/sheet-editor.js", import.meta.url), "utf8");
   assert.match(src, /await editedElsewhere\(id\)/);
-  assert.match(src, /changedUnderReader\(card\.json, m\)/);
+  assert.match(src, /movedUnderReader\(/);
   assert.match(src, /addEditor\(/);
 });

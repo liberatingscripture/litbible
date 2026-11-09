@@ -34,7 +34,7 @@
 
 import { createRecord } from "../../lib/desk-records.mjs";
 import { pinFields, placePins } from "../../lib/desk-footnotes.mjs";
-import { recordReference, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import {
   addNoteButton,
@@ -47,7 +47,7 @@ import { busy, isBusy } from "./focus-keep.js";
 import { focusPin, footnotePills, initFootnotePills } from "./footnote-pills.js";
 import { undoEntry } from "./history.js";
 import { pageChapter } from "./page.js";
-import { announce, showUndo } from "./undo-bar.js";
+import { announce, showNotice, showUndo } from "./undo-bar.js";
 
 /** What the buttons need: the notebook, what a write is stamped with, the card's "Show" button. */
 let env = null;
@@ -182,6 +182,7 @@ export function pinButton(id, label, where = pageChapter()) {
       await toggle(id, label, at);
     } catch (err) {
       console.error("Study Desk: the footnote couldn't be pinned or unpinned", err);
+      showNotice("The pin couldn’t be saved in this browser, so nothing changed. Try again.");
     } finally {
       done();
       paint(button);
@@ -373,7 +374,7 @@ export function initPins({ store, ctx, desk = false }) {
 
   // This tab's own changes and other tabs' alike, but not a place or a
   // bookmark moving as the reader reads, which writes every few seconds (BA107).
-  store.subscribe(() => refreshPins(), { except: QUIET_KINDS });
+  store.subscribe(() => refreshPins(), { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
   refreshPins();
 
   return { reveal: revealFootnote, canReveal: canRevealFootnote };

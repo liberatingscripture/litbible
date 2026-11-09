@@ -322,7 +322,10 @@ export function createGreekBuilder({ put, announce }) {
       commit(false, false);
     };
     input.addEventListener("input", (e) => {
-      if (e.isComposing || composing) return;
+      // An input event outside a composition means none is pending, so a flag
+      // left set (a compositionend that never came) is cleared here (GK8-6).
+      if (e.isComposing) return;
+      composing = false;
       typed();
     });
     input.addEventListener("compositionstart", () => {
@@ -331,6 +334,10 @@ export function createGreekBuilder({ put, announce }) {
     input.addEventListener("compositionend", () => {
       composing = false;
       typed();
+    });
+    // Leaving the box ends whatever was being composed in it (GK8-6).
+    input.addEventListener("blur", () => {
+      composing = false;
     });
     return input;
   }

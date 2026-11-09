@@ -58,7 +58,7 @@ import { createSheetAdd } from "./sheets/sheet-add.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
-import { announce, showUndo } from "./undo-bar.js";
+import { announce, showNotice, showUndo } from "./undo-bar.js";
 
 export function initActions({ store, ctx, showVerse = null, printPart = null }) {
   if (!store) return;
@@ -148,6 +148,9 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
         await work(btn);
       } catch (err) {
         console.error("Study Desk: the bookmark couldn't be changed", err);
+        // Said in the bar, as the editor says it in its own place (NB8-2). The
+        // menu stays open, so the press can be tried again.
+        showNotice("That couldn’t be saved in this browser, so nothing changed. Try again.");
         busy = false;
         btn.removeAttribute("aria-disabled");
       }
@@ -502,6 +505,7 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
       }
     } catch (err) {
       console.error("Study Desk: couldn't change the highlight", err);
+      showNotice("The highlight couldn’t be saved in this browser, so nothing changed. Try again.");
     } finally {
       busy = false;
       closePanel();

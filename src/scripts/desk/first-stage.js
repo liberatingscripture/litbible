@@ -168,6 +168,14 @@ async function drawAndWait({ where, state, importShell, leave }) {
         rail.destroy();
         skip.remove();
         standDown();
+        // A Greek result taken from the search box was held for a shell that
+        // isn't coming: follow its link as the box would have, to the verse
+        // (NB8-9). Any other held event had no link of its own.
+        const word = held.splice(0).filter((e) => e.type === "lit:greek-word").pop()?.detail;
+        if (Number.isInteger(word?.verse) && Number.isInteger(word?.t)) {
+          window.location.assign(`${window.location.pathname}?greek=${word.verse}.${word.t}#v${word.verse}`);
+          return;
+        }
         // The pressed tab is gone: focus goes to the page's text, not <body> (NB6-2).
         const main = focused && document.getElementById("main-content");
         if (main) {

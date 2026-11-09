@@ -53,8 +53,10 @@ test("makeInert strips handlers, styles, resource attributes and every address t
   assert.equal(links[2].getAttribute("rel"), "noopener noreferrer");
   assert.equal(links[2].getAttribute("class"), "sefaria-ref");
   assert.equal(links[3].getAttribute("href"), null);
-  assert.equal(root.getAttribute("onclick"), null);
-  assert.equal(root.getAttribute("style"), null);
+  // The div, not the parser's wrapper, which never had them (Audit 8, LG8-5).
+  const div = root.querySelector("div");
+  assert.equal(div.getAttribute("onclick"), null);
+  assert.equal(div.getAttribute("style"), null);
   assert.equal(root.querySelector("td").getAttribute("background"), null);
   const span = root.querySelector("span");
   assert.equal(span.getAttribute("data-verse"), "3");

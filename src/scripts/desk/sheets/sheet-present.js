@@ -879,6 +879,17 @@ export async function showPresenterView({ root, sheet, store }) {
       notesBody.replaceChildren(leaderNotes(state, deck));
       const blanks = deck.shape.blanks[i];
       const n = state.revealed[i] ?? 0;
+      // As on the stage (BA79): a control about to be disabled or hidden while it
+      // has focus would drop focus to the page, so one that stays takes it first
+      // (SH8-6, XA8-9). The Blank button is always there.
+      const off = new Map([
+        [prev, i === 0],
+        [next, i === total - 1],
+        [reveal, n >= blanks || !blanks],
+        [hide, !n || !blanks],
+        [notes, deck.screens[i].kind !== "passage" || !deck.rows[i].length],
+      ]);
+      if (off.get(document.activeElement)) blankBtn.focus({ preventScroll: true });
       prev.disabled = i === 0;
       next.disabled = i === total - 1;
       reveal.disabled = n >= blanks;

@@ -26,11 +26,12 @@
 // list without the editor (the page loads it by import(), with the history).
 
 import { canEdit } from "../../../lib/desk-records.mjs";
-import { duplicateSheet, hasTemplateParts, sheetTooBig, templateFromSheet } from "../../../lib/desk-sheets.mjs";
+import { duplicateSheet, hasTemplateParts, isOwnTemplate, sheetTooBig, templateFromSheet } from "../../../lib/desk-sheets.mjs";
 import { TEMPLATES } from "../../../lib/desk-sheet-templates.mjs";
 import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { undoEntry } from "../history.js";
 import { showUndo } from "../undo-bar.js";
+import { busy, isBusy } from "../focus-keep.js";
 import { make } from "../dom.js";
 
 // The editor's own `button`, kept here so this file never imports the editor.
@@ -184,32 +185,51 @@ export function sheetRow(host, s, ul) {
   const bits = [s.subtitle, from, `${passages} ${passages === 1 ? "passage" : "passages"}`, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean);
   open.append(make("span", "desk-sheet__open-meta", bits.join(" · ")));
   open.dataset.focusKey = `open-${s.id}`;
+  // Each button has a key of its own, so a list drawn again keeps focus on
+  // the button it was on, not its row's name (Audit 8, SH8-1).
   const dup = button("Duplicate", "desk-sheet__btn desk-sheet__btn--quiet");
   dup.setAttribute("aria-label", `Duplicate ${sheetName(s)}`);
+  dup.dataset.focusKey = `duplicate-${s.id}`;
+  const hints = [];
   // A sheet of a newer sheet format can't be changed here, so it isn't copied either.
-  if (!canEdit(s)) {
-    dup.disabled = true;
-    dup.title = "Made with a newer version of the Study Desk, so it can’t be duplicated here.";
-  }
-  dup.addEventListener("click", () => duplicate(host, s));
+  if (!canEdit(s)) hints.push(unavailable(host, dup, "Made with a newer version of the Study Desk, so it can’t be duplicated here."));
+  dup.addEventListener("click", () => {
+    if (!isBusy(dup)) duplicate(host, s);
+  });
+  // The visible words first, so a voice command naming the button finds it (Audit 8, XA8-4).
   const keep = button("Save as template", "desk-sheet__btn desk-sheet__btn--quiet");
-  keep.setAttribute("aria-label", `Save ${sheetName(s)} as a template`);
+  keep.setAttribute("aria-label", `Save as template, ${sheetName(s)}`);
+  keep.dataset.focusKey = `template-${s.id}`;
   keep.title = "Keep this sheet’s parts, without its passages, as a template of your own that New sheet offers.";
-  if (!canEdit(s)) {
-    keep.disabled = true;
-    keep.title = "Made with a newer version of the Study Desk, so it can’t be kept as a template here.";
-  }
+  if (!canEdit(s)) hints.push(unavailable(host, keep, "Made with a newer version of the Study Desk, so it can’t be kept as a template here."));
   // A template is a sheet without its passages, so a sheet of passages alone would make an empty one (DK6-8).
-  if (canEdit(s) && !hasTemplateParts(s)) {
-    keep.disabled = true;
-    keep.title = "This sheet has only passages, and a template keeps everything but those. Add a part of your own first.";
-  }
-  keep.addEventListener("click", () => saveAsTemplate(host, s));
+  else if (!hasTemplateParts(s)) hints.push(unavailable(host, keep, "This sheet has only passages, and a template keeps everything but those. Add a part of your own first."));
+  keep.addEventListener("click", () => {
+    if (!isBusy(keep)) saveAsTemplate(host, s);
+  });
   const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
   del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
-  del.addEventListener("click", () => removeRow(host, s, `${sheetName(s)} deleted.`, ul, open));
-  li.append(open, dup, keep, del);
+  del.dataset.focusKey = `delete-${s.id}`;
+  del.addEventListener("click", () => removeRow(host, s, `${sheetName(s)} deleted.`, ul, open, del));
+  li.append(open, dup, keep, del, ...hints);
   return li;
+}
+
+/**
+ * A row's button that can't be used for this sheet, with the reason (Audit 8,
+ * XA8-15): `aria-disabled` rather than `disabled`, so a keyboard reaches it
+ * and a screen reader hears why, as a description, and the title says it to a
+ * mouse. Its click handler stands down (`isBusy`). Returns the description,
+ * for the row.
+ */
+function unavailable(host, b, reason) {
+  busy(b);
+  b.title = reason;
+  const hint = make("span", "sr-only", reason);
+  // Named by the button's key, so the same list drawn twice is the same markup (SH8-1).
+  hint.id = `deskSheetWhy-${host.idSuffix}-${b.dataset.focusKey}`;
+  b.setAttribute("aria-describedby", hint.id);
+  return hint;
 }
 
 /**
@@ -232,7 +252,8 @@ export function ownTemplatesList(host, mine) {
     open.dataset.focusKey = `open-${t.id}`;
     const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
     del.setAttribute("aria-label", `Delete the template ${sheetName(t)}`);
-    del.addEventListener("click", () => removeRow(host, t, `Template ${sheetName(t)} deleted.`, ul, open));
+    del.dataset.focusKey = `delete-${t.id}`;
+    del.addEventListener("click", () => removeRow(host, t, `Template ${sheetName(t)} deleted.`, ul, open, del));
     li.append(open, del);
     ul.append(li);
   }
@@ -242,10 +263,22 @@ export function ownTemplatesList(host, mine) {
 
 /**
  * Delete a sheet or template from its row, with Undo. The row below takes
- * focus (else the one above, else New sheet).
+ * focus (else the one above, else New sheet). A delete that fails says so,
+ * as Duplicate and Save as template do, and the button stands down while one
+ * is under way, so a second press can't send another (Audit 8, SH8-5).
  */
-async function removeRow(host, record, said, ul, open) {
-  const trash = await host.store.remove(record.id);
+async function removeRow(host, record, said, ul, open, del) {
+  if (isBusy(del)) return;
+  const done = busy(del);
+  let trash = null;
+  try {
+    trash = await host.store.remove(record.id);
+  } catch (err) {
+    console.error("Study Desk: couldn't delete a sheet", err);
+    done();
+    listProblem(host, `The ${isOwnTemplate(record) ? "template" : "sheet"} couldn’t be deleted in this browser. Try again in a moment.`);
+    return;
+  }
   const entry = trash ? host.store.lastEntry() : null;
   if (entry) showUndo(said, () => undoEntry(entry));
   const rows = Array.from(ul.querySelectorAll(".desk-sheet__open"));

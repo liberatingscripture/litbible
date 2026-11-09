@@ -4204,7 +4204,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        Notes, Show This verse, Hide or Show my notes, Open the notebook
        page, Save a copy, Ways to keep your notebook, Take the tour; `>`
        lists them. **Defaults**: the tray shows 4 notebook matches then "N
-       more in your notebook" (`/notebook/?q=…`), /search shows 10 then
+       more in your notebook" (`/notebook/#q=…` since Audit 8 SEC8-3, so the words stay out of the request; `?q=` is still read), /search shows 10 then
        "Show N more"; in the tray the commands come first, then the
        notebook, then the rest; on /search the notebook group is at the top
        with its jump link after "verses"; both show only under "All

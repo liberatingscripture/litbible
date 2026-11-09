@@ -13,13 +13,20 @@
 // caller (desk-store-core's forChapter).
 
 import { COLORS } from "./desk-records.mjs";
+import { verseCount } from "../data/verse-counts.js";
 
 /** A record's verses as { from, to }, or null for one with no verse to speak of. */
 function span(record) {
   const from = record?.verse;
   if (typeof from !== "number" || !Number.isFinite(from)) return null;
   const end = record.endVerse;
-  const to = typeof end === "number" && Number.isFinite(end) ? Math.max(from, end) : from;
+  let to = typeof end === "number" && Number.isFinite(end) ? Math.max(from, end) : from;
+  // A range runs no further than its chapter (GF8c-1): a copy can carry an end
+  // verse in the millions, and every caller loops once per verse. A record on a
+  // chapter the New Testament doesn't have covers its first verse only.
+  const last = verseCount(record.bookKey, record.chapter);
+  if (last > 0) to = Math.max(from, Math.min(to, last));
+  else if (record.bookKey != null) to = from;
   return { from, to };
 }
 
@@ -112,10 +119,11 @@ export function bookmarkedVerses(records, { except = null } = {}) {
   return verses;
 }
 
-/** "yellow", "yellow and pink", "yellow, green and pink": no comma before the last "and". */
+/** "yellow", "yellow and pink", "yellow, green, and pink": the Oxford comma (BVJ, 2026-10-14). */
 function joinWords(words) {
   if (words.length < 2) return words.join("");
-  return `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+  if (words.length === 2) return words.join(" and ");
+  return `${words.slice(0, -1).join(", ")}, and ${words[words.length - 1]}`;
 }
 
 /**

@@ -32,8 +32,13 @@ export const COMMANDS_LEAD =
   "Type “>” in the search box to list these, or type the first words of one, such as “hide marks.” Select one here to run it.";
 export const COMMANDS_MORE = "More appear when you are reading a chapter.";
 
-/** The open window: { win, anchor, beside, opener }, or null. */
+/** The open window: { win, anchor, beside, opener, refresh, runCommand, stop }, or null. */
 let current = null;
+
+// What the list says depends on the page ("Hide my marks" or "Show my marks",
+// "Open the Notebook" only while it is closed), and the window stays open while
+// the reader changes either, so it is drawn again then (GF8a-7).
+const SETTINGS_EVENT = "desk:settings";
 
 function row(command, run) {
   const el = make(command.href ? "a" : "button", "desk-cmds__row");
@@ -94,6 +99,28 @@ function place(el) {
 
 const onPageHide = () => closeCommandsWindow("page");
 
+/** Draw the list again from `refresh()`, keeping focus on the same row when it was on one. */
+function redraw() {
+  if (!current?.refresh) return;
+  const body = current.win.body;
+  const rows = [...body.querySelectorAll(".desk-cmds__row")];
+  const at = rows.indexOf(document.activeElement);
+  draw(body, current.refresh(), current.runCommand);
+  if (at >= 0) body.querySelectorAll(".desk-cmds__row")[at]?.focus({ preventScroll: true });
+}
+
+/** Watch for what changes the list while the window is open; returns the stop. */
+function watch() {
+  const again = redraw;
+  document.addEventListener(SETTINGS_EVENT, again);
+  const seen = new MutationObserver(again);
+  seen.observe(document.documentElement, { attributes: true, attributeFilter: ["data-desk-panel"] });
+  return () => {
+    document.removeEventListener(SETTINGS_EVENT, again);
+    seen.disconnect();
+  };
+}
+
 /**
  * Open the window, or refresh it if it is open.
  * @param {{ list: { here: { id: string, name: string, href: string | null, hint: string }[], more: number },
@@ -105,8 +132,10 @@ const onPageHide = () => closeCommandsWindow("page");
  *   Notebook's panel, which it sits to the left of. `opener` is the control that
  *   opened it, which takes focus back when the window is closed with its ×.
  *   `onRun` hears that a command was chosen (the tray closes itself).
+ *   `refresh`, when given, returns the list again: the window draws it anew when
+ *   a setting or the Notebook's open state changes while it is up.
  */
-export function openCommandsWindow({ list, run, anchor = null, beside = null, opener = null, onRun = () => {} }) {
+export function openCommandsWindow({ list, run, anchor = null, beside = null, opener = null, onRun = () => {}, refresh = null }) {
   const runCommand = (command) => {
     run(command);
     onRun();
@@ -115,6 +144,9 @@ export function openCommandsWindow({ list, run, anchor = null, beside = null, op
     current.anchor = anchor;
     current.beside = beside;
     current.opener = opener;
+    current.refresh = refresh;
+    current.runCommand = runCommand;
+    if (refresh && !current.stop) current.stop = watch();
     draw(current.win.body, list, runCommand);
     current.win.reposition();
     current.win.title.focus({ preventScroll: true });
@@ -131,11 +163,21 @@ export function openCommandsWindow({ list, run, anchor = null, beside = null, op
     onClose: (reason) => {
       const was = current;
       current = null;
+      was?.stop?.();
       window.removeEventListener("pagehide", onPageHide);
       if (reason === "close" && was?.opener?.isConnected) was.opener.focus({ preventScroll: true });
+      // A chosen command takes the window away with focus inside it. Unless the
+      // command moved focus itself, the opener has it back (GF8a-8).
+      if (reason === "command" && was?.opener) {
+        setTimeout(() => {
+          const at = document.activeElement;
+          if (was.opener.isConnected && (!at || at === document.body)) was.opener.focus({ preventScroll: true });
+        }, 0);
+      }
     },
   });
-  current = { win, anchor, beside, opener };
+  current = { win, anchor, beside, opener, refresh, runCommand };
+  if (refresh) current.stop = watch();
   draw(win.body, list, runCommand);
   window.addEventListener("pagehide", onPageHide);
   win.show();

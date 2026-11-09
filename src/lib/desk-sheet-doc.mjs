@@ -222,7 +222,7 @@ export function docText(doc) {
       else inline(n.kids);
     }
   };
-  const block = (b) => {
+  const block = (b, depth = 0) => {
     switch (b.type) {
       case "title":
       case "subtitle": return text.push(b.text);
@@ -234,17 +234,17 @@ export function docText(doc) {
         inline(b.inlines);
         return flush();
       case "quote":
-      case "box": return b.blocks.forEach(block);
+      case "box": return b.blocks.forEach((x) => block(x));
       case "list":
-        for (const item of b.items) {
+        for (const [at, item] of b.items.entries()) {
           const before = line;
           line = "";
           inline(item.inlines);
           const t = line.trim();
           line = before;
           flush();
-          if (t) text.push(`${b.ordered ? "1." : "•"} ${t}`);
-          item.lists.forEach(block);
+          if (t) text.push(`${"  ".repeat(depth)}${b.ordered ? `${at + 1}.` : "•"} ${t}`); // numbered and nested as on paper (GF8c-7)
+          item.lists.forEach((l) => block(l, depth + 1));
         }
         return;
       case "rule":
@@ -263,7 +263,7 @@ export function docText(doc) {
       default: return; // code
     }
   };
-  doc.blocks.forEach(block);
+  doc.blocks.forEach((b) => block(b));
   return text.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
 }
 

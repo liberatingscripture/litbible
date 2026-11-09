@@ -6,6 +6,7 @@ import {
   addMenuSheets,
   addedMessage,
   newSheetWithPassage,
+  planAddPassages,
   planAddToSheet,
 } from "../src/lib/desk-sheet-add.mjs";
 import { SHEET_LIMITS } from "../src/lib/desk-sheet-format.mjs";
@@ -44,6 +45,16 @@ test("a passage goes after the sheet's last passage, as a valid sheet", () => {
   assert.deepEqual(plan.sheet.modules.map((m) => m.type), ["text", "passage", "passage", "question"]);
   assert.equal(plan.sheet.modules[2].bookKey, "john");
   assert.deepEqual(plan.put, [plan.sheet]);
+  assert.deepEqual(validateRecord(plan.sheet), []);
+});
+
+test("a gathered run of passages goes after the last passage, in order, as a valid sheet (SH8-3)", () => {
+  const s = createSheet({ title: "Study", modules: [makeModule("text"), makeModule("passage", { bookKey: "mark", chapter: 1, verse: 1, endVerse: 1 }), makeModule("question")] }, ctx);
+  const run = [john316, { bookKey: "romans", chapter: 8, verse: 1, endVerse: 2 }, { bookKey: "acts", chapter: 2, verse: 1, endVerse: 1 }];
+  const plan = planAddPassages(s, run, ctx);
+  assert.equal(plan.changed, true);
+  assert.deepEqual(plan.sheet.modules.map((m) => m.type), ["text", "passage", "passage", "passage", "passage", "question"]);
+  assert.deepEqual(plan.sheet.modules.slice(2, 5).map((m) => m.bookKey), ["john", "romans", "acts"]);
   assert.deepEqual(validateRecord(plan.sheet), []);
 });
 

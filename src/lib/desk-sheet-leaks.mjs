@@ -66,7 +66,7 @@ export function containsPhrase(text, phrase) {
  *           where: string, text: string, passageId?: string }[]} surfaces
  *   what else prints: `where` is how a sentence names it ("question 2");
  *   a passage's surface is its unblanked words, a footnote's its own text
- *   (held against that passage's blanks only)
+ *   (held against every blank on the sheet, as the editor's flag is)
  * @returns {{ words: string, ref: string, where: string, kind: string, telltale?: string }[]}
  *   `telltale` is set when it was the traditional word, not the blank's own,
  *   that printed
@@ -87,18 +87,23 @@ export function findLeaks(blanks, surfaces) {
   for (const s of surfaces ?? []) {
     if (!s?.text) continue;
     if (s.kind === "footnote") {
-      const mine = (blanks ?? []).filter((b) => b.passageId === s.passageId);
-      for (const b of blanksGivenAway(s.text, mine)) add(b, s);
+      // Held against every blank on the sheet, as the editor's flag is (GF8b-7):
+      // a footnote anywhere could give one away. `where` still names its own passage.
+      for (const b of blanksGivenAway(s.text, blanks ?? [])) add(b, s);
       continue;
     }
     const have = tokens(s.text);
+    // A phrase can only be in a row if its first word is anywhere: one set lookup
+    // keeps a long sheet from scanning every token for every blank (LG8-4).
+    const seenWords = new Set(have);
+    const runs = (want) => seenWords.has(want[0]) && hasRun(have, want);
     for (const { b, exact, tell } of wants) {
       if (s.kind === "passage" && s.passageId === b.passageId) continue;
-      if (exact && hasRun(have, exact)) add(b, s);
+      if (exact && runs(exact)) add(b, s);
       // The traditional word a hint doesn't show gives the blank away just the
       // same (DK6-5), as it does in a footnote. Not in a passage: its own
       // verses carry that word as a matter of course.
-      else if (tell && s.kind !== "passage" && hasRun(have, tell)) add(b, s, true);
+      else if (tell && s.kind !== "passage" && runs(tell)) add(b, s, true);
     }
   }
   return out;

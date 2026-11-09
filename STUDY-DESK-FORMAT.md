@@ -100,6 +100,11 @@ A record about the text also carries **where**:
 | `chapter` | Chapter number |
 | `verse`, `endVerse` | The first and last verse it touches |
 
+`chapter`, `verse`, `endVerse` and a footnote's `n` are JSON integers, never
+strings (`3`, not `"3"`), with `verse` 1 or more and `endVerse`, when present,
+no less than `verse`. The website refuses a record that breaks this as out of
+range (audit 8 DI8-6).
+
 OSIS (`Rom.8.3`) is derived from these for the W3C export, using a table
 generated from `src/data/books.js` (A-F9). It's never stored.
 
@@ -126,7 +131,8 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      ribbon` and `star → emphasis` (merge vector
      `migrate-an-old-star-marker-reads-as-emphasis`). **BDR, please list
      every marker name either app has ever written**, so the website reads
-     them all;
+     them all. **`marker` is required** (audit 8 DI8-6): a note without one
+     is refused, so a client that shows a note with no icon writes `note`;
    - `quote`, optional: a note on a whole verse has none;
    - `verseCopy`, `verseCopyAsOf`.
 
@@ -269,6 +275,14 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     The website names the field `deletedKind`, beside `deletedId` and
     `deletedAt` (built 2026-10-12; a trash record written before then takes
     the kind of the record it holds).
+
+    **What a trash record must carry to be read** (audit 8 DI8-6): only
+    `id`, `kind`, `modified`, `deletedId` and `deletedAt`. The other common
+    fields (`labels`, `client`, `contentVersion`, `created`) are written as
+    for any record but not required of a trash record, and `deletedKind` may
+    be absent (the kind of the record it holds is taken, as above). Its
+    `record`, when present, is checked as a live record of its kind, as the
+    next paragraph says.
 
     **A deletion whose held copy can't be read is kept as its tombstone**
     (audit 3 DI3-4; BVJ's decision 8, 2026-11-07; **for BDR to confirm**).

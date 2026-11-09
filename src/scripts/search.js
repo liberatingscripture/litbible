@@ -26,6 +26,7 @@ import {
   getMatchLocations,
   pickAnchorHref,
   loadVerseIndex,
+  VERSES_FAILED,
   searchVerses,
   rankVerseHits,
   verseHitHref,
@@ -1287,11 +1288,13 @@ function writeCountStatus() {
   if (!c) return;
   const total = c.baseTotal;
   const count = `${total} result${total === 1 ? "" : "s"} for “${c.displayQ}”`;
-  setStatus(
+  const said =
     c.keywordCorrection && c.keywordTotal
       ? `${count} (showing verses for “${c.keywordCorrection}”)`
-      : count,
-  );
+      : count;
+  // The period goes inside a closing quote (American style).
+  const ended = said.endsWith("”") ? `${said.slice(0, -1)}.”` : `${said}.`;
+  setStatus(c.versesFailed ? `${ended} ${VERSES_FAILED}` : said);
 }
 
 // The results on screen, for anything that works on all of them rather than
@@ -1372,10 +1375,12 @@ function renderFromCache() {
     // no line at all: the banner above already offers its jump.
     statusEl.innerHTML = parsedJump
       ? ""
-      : `No results for “${escapeHtml(displayQ)}.”`;
+      : lastSearchCache.versesFailed
+        ? VERSES_FAILED
+        : `No results for “${escapeHtml(displayQ)}.”`;
     hideResultGroups();
     renderActiveFiltersFull();
-    if (parsedJump) return;
+    if (parsedJump || lastSearchCache.versesFailed) return;
 
     const qNorm = normalizePhrase(displayQ);
     if (qNorm.includes(" ")) {
@@ -1761,6 +1766,8 @@ async function runFullSearch() {
   // back in Bible order; __relevanceRank carries the rankVerseHits order so
   // the Relevance/Book-order sort toggle keeps both meanings.
   const verseIndex = versePromise ? await versePromise : null;
+  // An index that didn't load is not "no verses match" (GF8a-3).
+  const versesFailed = Boolean(versePromise) && !verseIndex;
 
   // The reader's notebook, when the Study Desk is on (D2): searched here in
   // the browser, and nothing about the query leaves the computer.
@@ -1802,6 +1809,7 @@ async function runFullSearch() {
     introMatchesRaw,
     keywordMatchesRaw: keywordCards,
     keywordCorrection,
+    versesFailed,
     notebook,
     deskApi,
   };
@@ -1865,6 +1873,8 @@ if (input) {
   });
   input.addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
+    // The Enter that commits an IME or dead-key composition is not a search (GK8-2).
+    if (e.isComposing || e.keyCode === 229) return;
     updateFromControls({ resetPage: true, push: true });
   });
 }

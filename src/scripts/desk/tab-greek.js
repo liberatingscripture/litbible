@@ -494,9 +494,11 @@ export function createGreekTab({
       // A note opens with its own verse ("8:1 " or "13 "), which the label
       // already says; only that is dropped.
       const lead = new RegExp(`^(?:${here.chapter}:)?${verse}\\s+`);
+      // The note is mostly Latin sigla (WH, Treg, NA28, RP), so only its Greek
+      // runs are marked, through appendLang (GK8-3).
       for (const note of notes) {
-        const n = make("span", "desk-greek__app-note", note.replace(lead, ""));
-        n.lang = "grc";
+        const n = make("span", "desk-greek__app-note");
+        appendLang(n, note.replace(lead, ""));
         body.append(n);
       }
       li.append(body);
@@ -810,7 +812,9 @@ export function createGreekTab({
 
   scroller.addEventListener("keydown", (e) => {
     const word = e.target.closest?.(".desk-greek__w");
-    if (!word || e.ctrlKey || e.metaKey || e.altKey) return;
+    // Shift passes through, so a reader can extend a selection of the Greek by
+    // keyboard and copy it (GK8-4).
+    if (!word || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
     // The keys are the Greek's own, so the text doesn't scroll by itself.
     e.preventDefault();

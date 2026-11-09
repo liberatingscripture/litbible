@@ -33,10 +33,17 @@ export const promptOf = (m, field) => (typeof m?.[field] === "string" ? m[field]
  * a break on the leader's printout alone is meaningful but puzzling in a
  * box, so it isn't offered (SH5-17). `name` is the card's kind, `called`
  * what the gap names the part (a text part's heading, else its kind).
+ * Returns the controls (`els`) and `update(m)`, which shows a newer copy of
+ * the part in them without rebuilding the card (Audit 8, DI8-7): another
+ * tab's change to the minutes or Leader only while focus is in the card. A
+ * minutes field being typed in keeps what is typed.
  */
 export function cardTools(host, m, { name, called }) {
-  if (m.type === "pageBreak") return [];
+  if (m.type === "pageBreak") return { els: [], update() {} };
   const { change, opCtx, say } = host;
+  // The part as the sheet holds it now, not as it was when the card was built
+  // (SH8-4): the card isn't rebuilt for its own changes.
+  const now = () => host.sheet()?.modules.find((x) => x.id === m.id) ?? m;
   // Planned minutes: the leader's own, counted down in the presenter view
   // and totaled on the leader's version. Saved on change, not on every
   // keystroke, so a half-typed number isn't kept.
@@ -54,7 +61,7 @@ export function cardTools(host, m, { name, called }) {
     const n = field.value.trim() === "" ? undefined : Math.round(Number(field.value));
     const ok = n === undefined || (Number.isFinite(n) && n >= 1 && n <= SHEET_LIMITS.minutes);
     if (!ok) {
-      field.value = m.minutes ?? "";
+      field.value = now().minutes ?? "";
       say(`Minutes are a whole number from 1 to ${SHEET_LIMITS.minutes}.`);
       return;
     }
@@ -62,6 +69,14 @@ export function cardTools(host, m, { name, called }) {
       source: m.id,
       announce: n ? `${called}: ${n} ${n === 1 ? "minute" : "minutes"} planned.` : `${called}: no time planned.`,
     });
+  });
+  // update() leaves the field alone while it has focus, so a field left
+  // without an edit shows what is stored, which another tab may have changed.
+  let edited = false;
+  field.addEventListener("input", () => { edited = true; });
+  field.addEventListener("blur", () => {
+    if (!edited) field.value = now().minutes ?? "";
+    edited = false;
   });
   mins.append(field, make("span", null, "min"));
   mins.title = "Minutes you plan for this part: counted down in the presenter view and totaled on the leader’s version";
@@ -77,7 +92,13 @@ export function cardTools(host, m, { name, called }) {
   });
   leader.append(box, make("span", null, "Leader only"));
   leader.title = "Print and present this on the leader’s version only";
-  return [mins, leader, describe(box, "Prints and presents this on the leader’s version only.")];
+  return {
+    els: [mins, leader, describe(box, "Prints and presents this on the leader’s version only.")],
+    update(next) {
+      if (document.activeElement !== field) field.value = next.minutes ?? "";
+      box.checked = next.leaderOnly === true;
+    },
+  };
 }
 
 /**
@@ -163,13 +184,38 @@ function keyTermsCard(host, card, m) {
   };
 }
 
+/**
+ * One of a part's typed fields. Besides the editor's own methods it keeps
+ * `shown()`, the text it last loaded or saved, which the two-tab rules compare
+ * with the stored text field by field (Audit 8, SH8-2): a field that moved
+ * in another tab while the reader types in the field beside it is loaded at
+ * once, never saved back over. Typing not yet saved can only be there while
+ * the editor has focus, since leaving it saves at once (sheet-text.js).
+ */
 function textField(host, m, field, label, placeholder) {
-  return createSheetText({
-    html: m[field] ?? "",
+  let shown = m[field] ?? "";
+  const ed = createSheetText({
+    html: shown,
     label,
     placeholder,
     idPrefix: `deskSheet-${host.idSuffix}-${m.id}-${field}`,
-    onChange: (html) => host.change((s) => updateModule(s, m.id, { [field]: html }, host.opCtx()), { source: m.id }),
+    onChange: (html) => {
+      shown = html;
+      host.change((s) => updateModule(s, m.id, { [field]: html }, host.opCtx()), { source: m.id });
+    },
+  });
+  const { setHtml, take } = ed;
+  return Object.assign(ed, {
+    setHtml(next) {
+      setHtml(next);
+      shown = next ?? "";
+    },
+    // Keep mine saves what it takes (sheet-editor.js's showConflict).
+    take() {
+      shown = take();
+      return shown;
+    },
+    shown: () => shown,
   });
 }
 
@@ -210,7 +256,7 @@ function readOnlyRich(card, html) {
   return null;
 }
 
-function linesField(host, m, { min, max, label }) {
+function linesField(host, m, { min, max, label, onLines = null }) {
   const wrap = make("label", "desk-sheet__lines");
   const input = make("input");
   input.type = "number";
@@ -223,6 +269,7 @@ function linesField(host, m, { min, max, label }) {
     if (!Number.isFinite(n)) return;
     const lines = Math.min(max, Math.max(min, n));
     input.value = String(lines);
+    onLines?.(lines);
     host.change((s) => updateModule(s, m.id, { lines }, host.opCtx()), { source: m.id });
   });
   wrap.append(make("span", null, label), input);
@@ -247,9 +294,11 @@ function questionCard(host, card, m) {
 }
 
 function spaceCard(host, card, m) {
-  const lines = linesField(host, m, { min: 1, max: SHEET_LIMITS.spaceLines, label: "Lines to write on" });
   const ruled = make("div", "desk-sheet__ruled");
-  ruled.style.setProperty("--lines", String(Math.min(m.lines ?? 4, 6)));
+  // The preview follows the field, since the card that changed it isn't rebuilt (SH8-4).
+  const preview = (n) => ruled.style.setProperty("--lines", String(Math.min(n ?? 4, 6)));
+  const lines = linesField(host, m, { min: 1, max: SHEET_LIMITS.spaceLines, label: "Lines to write on", onLines: preview });
+  preview(m.lines);
   ruled.setAttribute("aria-hidden", "true");
   card.append(lines.el, ruled);
   return lines;

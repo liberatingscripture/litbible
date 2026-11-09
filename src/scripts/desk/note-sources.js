@@ -37,7 +37,7 @@ import { onFootnote, placeRecord, proseTarget } from "../../lib/desk-records.mjs
 import { currentSlug, forChapter, forProse } from "../../lib/desk-store-core.mjs";
 import articleSlugs from "../../data/article-slugs.json";
 import { footnoteElementFor } from "./footnote-notes.js";
-import { chapterBlocks, chapterText, pageChapter } from "./page.js";
+import { chapterBlocks, chapterText, footnoteList, pageChapter } from "./page.js";
 
 // PROSE_NOTES and prosePage live in page-kind.js, which the first stage
 // carries (note-settings.js reads them); the rest of the desk imports them here.
@@ -76,11 +76,13 @@ export function studySource() {
     placed(records) {
       const text = chapterText();
       const out = [];
+      let footnotes; // the page's footnotes, read once per drawing and only if a note is on one (NB8-11)
       for (const r of records) {
         if (onFootnote(r)) {
           // Beside its footnote, found as a pin is. A lost one is left out,
           // as a note whose words are lost is.
-          const li = footnoteElementFor(r);
+          if (footnotes === undefined) footnotes = footnoteList();
+          const li = footnoteElementFor(r, footnotes);
           if (!li) continue;
           const range = document.createRange();
           range.selectNodeContents(li.querySelector(".fn-body") ?? li);

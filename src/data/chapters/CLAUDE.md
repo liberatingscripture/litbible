@@ -484,4 +484,8 @@ silent.
 Ten published chapters have gaps: Matthew 17:21, 18:11, 23:14; Mark 7:16,
 9:44, 9:46, 11:26, 15:28; Luke 17:36, 23:17; John 5:4. Regenerate that list rather
 than trusting this sentence — scan every `indexed !== false` chapter for
-missing `id="vN"` markers.
+missing `id="vN"` markers. The same list is committed as `src/data/verse-gaps.js`
+for browser code with no chapter files (the desk refuses a bookmark on a gap),
+and `test/desk-audit8-e-verse.test.js` fails when a published chapter's gaps
+no longer match it, so a new gap, or a chapter published with one, means
+updating that file.

@@ -17,7 +17,12 @@ const TAB = globalThis.crypto?.randomUUID?.() ?? `tab-${Date.now().toString(36)}
 let channel = null;
 /** Each editor in this tab, as a function returning the sheet id it shows (or null). */
 const editors = new Set();
-/** The questions this tab is waiting on: sheet id → the function an answer calls. */
+/**
+ * The questions this tab is waiting on: sheet id → { heard, answer, done }:
+ * the tabs asking about the same sheet whose `who` it answered (DI8-8), the
+ * function an answer calls, and the question's promise, which a second editor
+ * here asking about that sheet meanwhile shares (Audit 8, SH8-8).
+ */
 const waiting = new Map();
 
 function open() {
@@ -25,13 +30,20 @@ function open() {
   channel = new BroadcastChannel(EDITING_CHANNEL);
   channel.onmessage = (e) => {
     const msg = readEditingMessage(e.data);
+    if (!msg) return;
     const showing = [...editors].map((fn) => fn()).filter(Boolean);
-    for (const asking of [null, ...waiting.keys()]) {
-      const reply = editingReply(msg, { tab: TAB, showing, asking });
-      if (reply === "answer") channel.postMessage(editingMessage("here", TAB, msg.sheet));
-      if (reply === "count") waiting.get(asking)?.();
-      if (reply) break;
+    if (editingReply(msg, { tab: TAB, showing }) === "answer") {
+      channel.postMessage(editingMessage("here", TAB, msg.sheet));
+      return;
     }
+    const ask = waiting.get(msg.sheet);
+    if (!ask) return;
+    const reply = editingReply(msg, { tab: TAB, asking: msg.sheet, heard: [...ask.heard] });
+    if (reply === "answer-asking") {
+      ask.heard.add(msg.tab);
+      channel.postMessage(editingMessage("here", TAB, msg.sheet, { asking: true }));
+    }
+    if (reply === "count") ask.answer();
   };
   return channel;
 }
@@ -49,20 +61,26 @@ export function addEditor(showing) {
 
 /**
  * Whether another tab's editor shows the sheet `id`: asks, and resolves true
- * on the first answer or false once none has come in ASK_WAIT_MS.
+ * on the first answer or false once none has come in ASK_WAIT_MS. Two editors
+ * here asking about one sheet at once share the question.
  */
 export function editedElsewhere(id) {
   const ch = open();
   if (!ch) return Promise.resolve(false);
-  return new Promise((resolve) => {
-    const done = (answer) => {
+  const already = waiting.get(id);
+  if (already) return already.done;
+  let ask;
+  const done = new Promise((resolve) => {
+    const finish = (answer) => {
       clearTimeout(timer);
-      if (waiting.get(id) === heard) waiting.delete(id);
+      if (waiting.get(id) === ask) waiting.delete(id);
       resolve(answer);
     };
-    const heard = () => done(true);
-    const timer = setTimeout(() => done(false), ASK_WAIT_MS);
-    waiting.set(id, heard);
-    ch.postMessage(editingMessage("who", TAB, id));
+    const timer = setTimeout(() => finish(false), ASK_WAIT_MS);
+    ask = { heard: new Set(), answer: () => finish(true) };
   });
+  ask.done = done;
+  waiting.set(id, ask);
+  ch.postMessage(editingMessage("who", TAB, id));
+  return done;
 }

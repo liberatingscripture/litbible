@@ -171,6 +171,20 @@ export function partsFor(items, { chapter = () => null, contentVersion = null, l
 }
 
 /**
+ * The chosen items less any the sheet now holds. The chooser's own box is
+ * disabled for these, but its list was read when it opened: a note put on the
+ * sheet from another tab (or by an undo) since would be added twice (PC8B-1).
+ *
+ * @param {object} sheet the sheet as it is now saved
+ * @param {object[]} records the notebook's records
+ * @param {{ record: object }[]} chosen
+ */
+export function notAlreadyOn(sheet, records, chosen) {
+  const held = new Set(notebookItems(sheet, records).filter((it) => it.onSheet).map((it) => it.record));
+  return (chosen ?? []).filter((it) => !held.has(it.record));
+}
+
+/**
  * The modules that fit the sheet's limit, and how many didn't.
  *
  * @param {object} sheet a record of kind "sheet"

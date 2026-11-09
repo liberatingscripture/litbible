@@ -43,6 +43,10 @@ import { el } from "./dom.js";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
+// What a write that the browser refused says (quota, a database closed by
+// another tab's upgrade), as labels-ui.js says it (GF8a-2).
+const WRITE_FAILED = "That couldn’t be saved in this browser, so nothing changed. Try again.";
+
 // How the Notebook panel starts on each page (src/lib/desk-start.mjs; BVJ,
 // 2026-10-13): kept as the reader chooses, and "As I left it" stores nothing.
 function mountStartChoice(box) {
@@ -203,6 +207,7 @@ async function start() {
     duplicate: "You already have a label with that name.",
     readonly: "That label was saved by a newer version, so it can’t be changed here.",
     missing: "That label isn’t in the notebook any more.",
+    failed: WRITE_FAILED,
   };
   const sayLabel = (message) => {
     labelError.hidden = !message;
@@ -258,12 +263,16 @@ async function start() {
       input.focus();
       input.select();
       const back = async () => {
+        // The list is not redrawn around a focused field (drawLabels), so the
+        // form lets go of focus first, or it would stay on screen (DK8-1).
+        if (document.activeElement === input) input.blur();
         await render();
         labelList.querySelector(`[data-id="${CSS.escape(label.id)}"] .desk-item__edit`)?.focus();
       };
       cancel.addEventListener("click", back);
       form.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
+        // Escape ends an IME or dead-key composition first (GF8a-10).
+        if (e.key === "Escape" && !e.isComposing) {
           e.stopPropagation();
           back();
         }
@@ -315,6 +324,7 @@ async function start() {
       none: "There is nothing to delete.",
       question: (n) => `Are you sure? This deletes ${plural(n, "item", "items")} from this browser.`,
       confirm: "Delete everything",
+      failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
       run: deleteEverything,
     });
     drawAsk(danger.trash, {
@@ -325,6 +335,7 @@ async function start() {
       question: (n) =>
         `Are you sure? The words of ${plural(n, "deleted item", "deleted items")} will be gone for good. This can’t be undone.`,
       confirm: "Empty the trash now",
+      failed: "That couldn’t be saved in this browser, so nothing was wiped. Try again.",
       run: emptyTrash,
     });
   }
@@ -355,7 +366,10 @@ async function start() {
       yes.type = "button";
       const no = el("button", "", "Cancel");
       no.type = "button";
-      group.append(text, yes, no);
+      const failed = el("p", "desk-np__error");
+      failed.setAttribute("role", "alert");
+      failed.hidden = true;
+      group.append(text, failed, yes, no);
       state.box.replaceChildren(group);
       // Cancel first: the safe answer is the one under the reader's hand.
       no.focus();
@@ -367,7 +381,14 @@ async function start() {
       yes.addEventListener("click", async () => {
         yes.disabled = true;
         state.asking = false;
-        await spec.run();
+        if ((await spec.run()) === false) {
+          // Nothing was written: the question stays, with the reason, ready to ask again (GF8a-2).
+          state.asking = true;
+          failed.textContent = spec.failed;
+          failed.hidden = false;
+          yes.disabled = false;
+          yes.focus();
+        }
       });
     });
     state.box.replaceChildren(ask);
@@ -383,21 +404,28 @@ async function start() {
    */
   async function writeOver(make, { record = true } = {}) {
     let made;
-    await store.change(
-      async ({ all }) => {
-        made = make(await all());
-        const plan = made?.plan ?? made;
-        const none = !plan || made.ok === false || !(plan.put?.length || plan.remove?.length);
-        return none ? null : planWrite(plan);
-      },
-      { record },
-    );
+    try {
+      await store.change(
+        async ({ all }) => {
+          made = make(await all());
+          const plan = made?.plan ?? made;
+          const none = !plan || made.ok === false || !(plan.put?.length || plan.remove?.length);
+          return none ? null : planWrite(plan);
+        },
+        { record },
+      );
+    } catch (err) {
+      // The transaction aborted: nothing was written, and the reader is told (GF8a-2).
+      console.error("Study Desk: the notebook write failed", err);
+      return { ok: false, reason: "failed" };
+    }
     return made;
   }
 
   async function deleteEverything() {
     const plan = await writeOver((records) => planDeleteEverything(records, ctx()));
-    if (!plan.remove.length) return;
+    if (plan.reason === "failed") return false;
+    if (!plan.remove.length) return true;
     const entry = store.lastEntry();
     await render();
     const message = `Everything deleted: ${plural(plan.remove.length, "item", "items")} moved to the trash.`;
@@ -407,28 +435,44 @@ async function start() {
       await undoEntry(entry);
       await render();
     });
+    return true;
   }
 
   async function emptyTrash() {
     // Not remembered for undo: undoing it would bring back what it was for.
     const plan = await writeOver((records) => planEmptyTrashNow(records), { record: false });
-    if (!plan.put.length) return;
+    if (plan.reason === "failed") return false;
+    if (!plan.put.length) return true;
     await render();
     announce(`The trash is empty. The words of ${plural(plan.put.length, "item", "items")} are gone.`);
     trashBox.querySelector("p")?.setAttribute("tabindex", "-1");
     trashBox.querySelector("p")?.focus();
+    return true;
   }
 
-  // Search's "more in your notebook" link arrives with the words (?q=…).
-  // They go into the filter and out of the address, so the reader's search
-  // isn't kept in the history or a bookmark of the page (SEC4-1).
-  const url = new URL(window.location.href);
-  const asked = url.searchParams.get("q");
-  if (asked) kept.setQuery(asked);
-  if (url.searchParams.has("q")) {
-    url.searchParams.delete("q");
-    history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
-  }
+  // Search's "more in your notebook" link arrives with the words in the
+  // fragment (#q=…), which a browser never sends to the server (SEC8-3); an
+  // older link carries them as ?q=…, still read for now. They go into the
+  // filter and out of the address, so the reader's search isn't kept in the
+  // history or a bookmark of the page (SEC4-1).
+  const takeAsked = () => {
+    const url = new URL(window.location.href);
+    const fromHash = askedInHash(url.hash);
+    const fromQuery = url.searchParams.get("q");
+    const asked = fromHash ?? fromQuery;
+    if (asked) kept.setQuery(asked);
+    if (fromHash !== null || url.searchParams.has("q")) {
+      url.searchParams.delete("q");
+      history.replaceState(history.state, "", `${url.pathname}${url.search}${fromHash !== null ? "" : url.hash}`);
+    }
+  };
+  takeAsked();
+  // The link followed again from this very page changes only the fragment, and
+  // the list is already drawn, so it is filtered again here.
+  window.addEventListener("hashchange", () => {
+    takeAsked();
+    kept.render({ reuse: true });
+  });
 
   // A bookmark that moves as the reader reads writes every few seconds, and
   // says so (MOVE_KIND), so it isn't a reason to redraw the page under a reader
@@ -449,6 +493,16 @@ async function start() {
   // percent-encoding (#%E0) names no part and is left alone (SEC4-2).
   const target = window.location.hash && document.getElementById(partId(window.location.hash.slice(1)));
   if (target) target.scrollIntoView({ block: "start" });
+}
+
+/** The words in an address's `#q=…` fragment, or null when it holds none (or isn't valid percent-encoding). */
+function askedInHash(hash) {
+  if (!String(hash).startsWith("#q=")) return null;
+  try {
+    return decodeURIComponent(hash.slice(3));
+  } catch {
+    return "";
+  }
 }
 
 function partId(fragment) {

@@ -2191,7 +2191,7 @@ Ranking of untested modules by size x store writes x storage x shared-page hooks
 
 ### Improvements
 
-- Add `npm run test:desk` (`node --test test/desk-*.test.js test/greek-*.test.js test/ribbon-follow.test.js test/release-feed.test.js test/float-window.test.js`): the desk's tests live under three name patterns, so a desk edit has no obvious fast loop.
+- Add `npm run test:desk` (`node --test test/desk-*.test.js test/greek-*.test.js test/ribbon-follow.test.js test/release-feed.test.js test/float-window.test.js`; `ribbon-follow` is `bookmark-follow` since #434, PC8C-1): the desk's tests live under three name patterns, so a desk edit has no obvious fast loop.
 - Add a README section "The Study Desk (preview)" (README.md mentions it once): what it is, `?desk=on`, where the docs are.
 - Put the launch checklist below into `STUDY-DESK.md` so launch day is a list, not an investigation.
 - A per-tab lazy `import()` would take roughly 65 KB gzipped off the first desk load (LG-10).

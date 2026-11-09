@@ -98,8 +98,9 @@ import {
 import { undoEntry } from "../history.js";
 import { createLicenseCard } from "./sheet-lit.js";
 import { addEditor, editedElsewhere } from "./sheet-tabs.js";
-import { changedUnderReader } from "../../../lib/desk-sheet-tabs.mjs";
+import { keptFields, movedUnderReader, newerSheet } from "../../../lib/desk-sheet-tabs.mjs";
 import { showUndo } from "../undo-bar.js";
+import { NOTEBOOK_UPGRADED } from "../store.js";
 import { redraw } from "../focus-keep.js";
 import { make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
@@ -194,9 +195,11 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   const content = make("div", "desk-sheet__content");
   el.append(live, content);
 
+  // A timeout, not a frame, which never comes in a tab that isn't showing
+  // (Audit 8, SH8-8; undo-bar.js's `announce` waits the same way).
   const say = (text) => {
     live.textContent = "";
-    requestAnimationFrame(() => { live.textContent = text; });
+    setTimeout(() => { live.textContent = text; }, 50);
   };
 
   if (!store) {
@@ -217,6 +220,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   }
 
   let sheet = null; // the sheet shown, as last read or saved
+  // The newest copy of it read for another tab's change, possibly ahead of
+  // `sheet` while this tab's own saves are still landing: what a closing page
+  // writes over (Audit 8, DI8-4; `onPagehide`).
+  let heard = null;
   // A new sheet not yet written (Audit 6, SH6-7; BVJ, 2026-11-08): New sheet
   // shows it and writes it with its first change, so comparing templates by
   // opening them leaves no "Untitled sheet" behind. From then on it saves as
@@ -379,7 +386,12 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       if (source && made.changed) {
         const card = cards.get(source);
         const m = sheet.modules.find((x) => x.id === source);
-        if (card && m) card.json = json(m);
+        // Its head shows the change already (minutes, Leader only), so its key
+        // follows, or the next change would rebuild the card (SH8-4).
+        if (card && m) {
+          card.json = json(m);
+          card.head = headKey(m);
+        }
       }
       if (moved) draw();
       if (!made.changed) return true;
@@ -409,7 +421,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (source) {
       const card = cards.get(source);
       const m = sheet.modules.find((x) => x.id === source);
-      if (card && m) card.json = json(m);
+      if (card && m) {
+        card.json = json(m);
+        card.head = headKey(m);
+      }
     }
     draw();
     after?.();
@@ -422,6 +437,14 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    * (BA128).
    */
   function failed(err, source) {
+    // A newer Study Desk opened the notebook in another tab (Audit 8, DI8-5):
+    // trying again can't help until a reload, and the words stay on screen,
+    // not taken back, so they can be copied first.
+    if (err?.name === NOTEBOOK_UPGRADED) {
+      status.textContent = "Not saved: a newer Study Desk opened in another tab. Copy anything you need from here, then reload this page.";
+      say(status.textContent);
+      return;
+    }
     status.textContent = sheetTooBig(err)
       ? `Not saved: this sheet is too big to save (${SHEET_LIMITS.bytes / 1024} KB). Remove some text or blanks.`
       : source && cards.has(source)
@@ -446,6 +469,18 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    */
   async function refresh(origin = "other-tab") {
     if (!sheet || draft) return;
+    // While this tab's saves are landing, the sheet is read at once too, for
+    // `heard` alone (DI8-4): a read waits only for the writes asked before it,
+    // so it holds them, and a closing page then writes over the other tab's
+    // change rather than a copy from before it. `sheet` still waits for this
+    // tab's saves, so a failed one leaves it on the last saved copy (BA128).
+    if (pending.size) {
+      const n = seq;
+      try {
+        const early = await store.get(sheet.id);
+        if (n === seq && early?.kind === "sheet") heard = newerSheet(heard, early);
+      } catch (_) {}
+    }
     await saving;
     if (!sheet) return;
     const n = seq;
@@ -482,6 +517,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   async function showList({ focus = null, chooser: openChooser = false } = {}) {
     const n = ++seq;
     sheet = null;
+    heard = null;
     draft = null;
     onSheetChange();
     lastModule = null;
@@ -577,8 +613,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let license = null;
   let addBarView = null; // the add bar under the parts (add-bar.js)
 
-  /** What a card's head shows, which an in-place update can't redraw. */
+  /** What a card's head shows, which a body's in-place update doesn't redraw. */
   const headKey = (m) => json([m.type, m.leaderOnly === true, m.minutes ?? null, m.type === "passage" ? passageReference(m) : null]);
+  /** The part of it the head can't redraw in place (`setHead` shows the rest). */
+  const fixedKey = (m) => json([m.type, m.type === "passage" ? passageReference(m) : null]);
 
   async function openSheet(id, { focusTitle = false } = {}) {
     const n = ++seq;
@@ -674,6 +712,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     draft = null;
     gapStop = null;
     sheet = record;
+    heard = null;
     onSheetChange();
     lastModule = null;
     closeInsertMenu();
@@ -765,17 +804,32 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       input.value = sheet[field] ?? "";
       input.disabled = readOnly;
       let timer = null;
+      // Whether this field's last save landed: after one that failed, the field
+      // holds the only copy of the reader's words, so leaving it keeps them.
+      let lastSaved = true;
       const save = () => {
         clearTimeout(timer);
         timer = null;
         const value = input.value;
-        change((s) => setSheetFields(s, { [field]: value }, opCtx()));
+        change((s) => setSheetFields(s, { [field]: value }, opCtx())).then((ok) => { lastSaved = ok !== false; });
       };
       input.addEventListener("input", () => {
         clearTimeout(timer);
         timer = setTimeout(save, TITLE_DELAY);
       });
-      input.addEventListener("blur", () => { if (timer) save(); });
+      // draw() leaves the field alone while it has focus, so on leaving it the
+      // field shows the stored title, which another tab may have renamed
+      // meanwhile; otherwise the next letter typed would put the old one back
+      // (Audit 8, SH8-7). Once this tab's saves have landed, so its own
+      // typing is in `sheet`.
+      input.addEventListener("blur", () => {
+        if (timer) save();
+        else {
+          saving.then(() => {
+            if (lastSaved && input.isConnected && document.activeElement !== input && sheet) input.value = sheet[field] ?? "";
+          });
+        }
+      });
       input.flush = () => { if (timer) save(); };
     }
     // The planned minutes' total (Audit 5, D #2), kept by draw().
@@ -838,6 +892,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       let card = cards.get(m.id);
       const now = json(m);
       if (card && card.json !== now) {
+        // Planned minutes and Leader only are shown in place, so a card isn't
+        // rebuilt for them, nor left showing older ones while focus is in it
+        // (Audit 8, DI8-7, SH8-4). Its kind and passage are drawn only once.
+        if (card.head !== headKey(m) && card.fixed === fixedKey(m)) {
+          card.setHead?.(m);
+          card.head = headKey(m);
+        }
         if (card.inst?.update && card.head === headKey(m)) {
           // Passages and the key terms box redraw their own body in place, so
           // a blank or a footnote choice keeps the card, its open lists and
@@ -845,9 +906,18 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
           card.inst.update(m);
           card.json = now;
         } else if (card.inst?.hasFocus?.()) {
-          // The reader is typing here, so the card keeps their words, and a
-          // line says the saved text moved under them (S12, part 4).
-          if (card.inst.fields && changedUnderReader(card.json, m)) showConflict(card, m, from);
+          // The reader is in this card, so it keeps their words. Field by
+          // field (SH8-2): one that moved and isn't being typed in takes the
+          // stored text now, and one being typed in keeps the reader's words
+          // under a line saying its saved text moved (S12, part 4).
+          const fields = Object.entries(card.inst.fields ?? {});
+          const { load, conflict } = movedUnderReader(
+            fields.map(([name, ed]) => ({ name, shown: ed.shown(), busy: ed.hasFocus() })),
+            m,
+          );
+          for (const f of load) card.inst.fields[f].setHtml(m[f] ?? "");
+          // A line already up shows this newest version from now on.
+          if (conflict.length || card.conflict) showConflict(card, m, from);
           card.json = now;
         } else {
           card.inst?.destroy?.();
@@ -906,7 +976,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (!sheet.modules.length) {
       // Beside the list, not in it: a list holds only list items (DK-16).
       if (!moduleList.parentNode.querySelector(".desk-sheet__none")) {
-        moduleList.before(make("p", "desk-sheet__none", "Nothing on this sheet yet. Add a passage or your own text below."));
+        const none = make("p", "desk-sheet__none", "Nothing on this sheet yet. Add a passage or your own text below.");
+        none.tabIndex = -1; // where focus goes when the last part is removed (XA8-10)
+        moduleList.before(none);
       }
     } else {
       moduleList.parentNode.querySelector(".desk-sheet__none")?.remove();
@@ -942,9 +1014,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       card.inst?.focus?.();
     });
     keep.addEventListener("click", () => {
+      const theirs = card.theirs;
       clearConflict(card);
-      const put = Object.fromEntries(fields().map(([f, ed]) => [f, ed.take()]));
-      change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Kept your version." });
+      // Only the fields whose words here differ from the other version's, so
+      // one this tab never changed doesn't put older words back (SH8-2).
+      const put = keptFields(Object.fromEntries(fields().map(([f, ed]) => [f, ed.take()])), theirs);
+      if (Object.keys(put).length) change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Kept your version." });
+      else say("Kept your version.");
       card.inst?.focus?.();
     });
     const row = make("div", "desk-sheet__conflict-row");
@@ -975,11 +1051,17 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    * landed is applied to this pane's copy and written at once (`writeNow`),
    * without the read. Not for a page going into the back-forward cache
    * (`persisted`), which keeps running its saves when it comes back.
+   *
+   * The copy is the newest this tab has heard of (`heard`, DI8-4), so a part
+   * another tab saved while this tab's own saves were landing is kept. A
+   * change another tab saved in the moment before this one closes, before
+   * this tab has read it, can still be written over: only a read would find
+   * it, and a closing page gets none back.
    */
   function onPagehide(e) {
     flushAll();
     if (e.persisted || destroyed || readOnly || !sheet || !pending.size) return;
-    let next = sheet;
+    let next = newerSheet(sheet, heard?.id === sheet.id ? heard : null);
     let plan = null;
     for (const asked of pending) {
       if (asked.id !== sheet.id) continue;
@@ -1021,8 +1103,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const called = headingOf(m) ?? name;
     let up = null;
     let down = null;
+    let setHead = null;
     if (!readOnly) {
-      if (known) tools.append(...cardTools(cardHost, m, { name, called }));
+      if (known) {
+        const own = cardTools(cardHost, m, { name, called });
+        tools.append(...own.els);
+        setHead = own.update;
+      }
       up = button("↑", "desk-sheet__icon");
       up.setAttribute("aria-label", `Move ${name} up`);
       up.addEventListener("click", () => move(m.id, -1, up));
@@ -1091,6 +1178,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       name,
       json: "",
       head: headKey(m),
+      fixed: fixedKey(m),
+      setHead,
       setPosition(i, count) {
         if (up) up.disabled = i === 0;
         if (down) down.disabled = i === count - 1;
@@ -1117,7 +1206,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
         const entry = example ? null : store.lastEntry();
         if (entry) showUndo(`${name} removed from the sheet.`, () => undoEntry(entry));
         const next = sheet.modules[Math.min(at, sheet.modules.length - 1)];
-        (next ? cards.get(next.id)?.el.querySelector("button") : moduleList)?.focus?.();
+        // With the last part gone, the line saying the sheet is empty takes
+        // focus (XA8-10); the list itself can't.
+        (next ? cards.get(next.id)?.el.querySelector("button") : moduleList?.parentNode?.querySelector(".desk-sheet__none"))?.focus?.();
       },
     });
   }

@@ -21,6 +21,15 @@ test("a range across chapters says to add one chapter at a time", () => {
   assert.match(why("John 3:16–4:2"), /one chapter at a time. Add John 3 and/);
 });
 
+test("a one-chapter book is told to give verses, never the next chapter (GF8c-2)", () => {
+  for (const t of ["Jude 3-5", "Philemon 4-7", "2 John 1-3", "3 John 2-4", "Jude 1:3-2:1"]) {
+    const m = why(t);
+    assert.match(m, /has one chapter, so give its verses as .+ 1:3–5\./, t);
+    assert.doesNotMatch(m, /next chapter/, t);
+  }
+  assert.match(why("Jude 3-5"), /^Jude has one chapter/);
+});
+
 test("anything else keeps the form's own sentence", () => {
   assert.equal(why("blorp"), null);
   assert.equal(why("Romans"), null);

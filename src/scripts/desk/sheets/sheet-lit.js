@@ -751,11 +751,13 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     return out;
   }
 
+  let notesSeq = 0; // two overlapping calls must not finish out of order (GF8b-9)
   async function drawNotes() {
     const n = seq;
+    const mine = ++notesSeq;
     const inputs = notesInputs();
     const blanks = await sheetBlanks();
-    if (gone || n !== seq || !view) return;
+    if (gone || n !== seq || mine !== notesSeq || !view) return;
     notesDrawn = inputs;
     const focusKey = notesBox.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
     const rows = footnoteRows(view.list, view.footnoteIds, mod.footnotes, blanks);
@@ -1074,13 +1076,18 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
 
   let seq = 0;
   let lastKey = "";
+  // The counts last drawn. The check is a live region, so it is rebuilt only when the
+  // result differs: every autosave changes the modules, but rarely the numbers (GF8b-1).
+  let drawnResult = "";
   async function render() {
     const sheet = getSheet();
     if (!sheet) return;
     box.checked = sheet.commercial === true;
     if (!box.checked) {
+      ++seq; // a count still running must not draw under the unticked box (GF8b-2)
       check.replaceChildren();
       lastKey = "";
+      drawnResult = "";
       return;
     }
     const key = JSON.stringify([sheet.title, sheet.subtitle, sheet.modules]);
@@ -1090,6 +1097,9 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
     if (!check.childElementCount) check.append(make("p", "desk-sheet__status", "Checking the sheet against the commercial terms…"));
     const c = await commercialCounts(sheet);
     if (n !== seq) return;
+    const result = JSON.stringify(c);
+    if (result === drawnResult && check.querySelector("ul")) return;
+    drawnResult = result;
     check.replaceChildren();
     const list = make("ul", "desk-sheet__check-list");
     const item = (text, bad) => {
@@ -1099,7 +1109,9 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
     if (c.share == null) {
       item("Nothing on the sheet to count yet.", false);
     } else {
-      const pct = Math.round(c.share * 100);
+      let pct = Math.round(c.share * 100);
+      // 50.4% is over the limit but rounds to "50%": show a tenth so the red has a reason (GF8b-13).
+      if (c.over && pct <= 50) pct = Math.ceil(c.share * 1000) / 10;
       item(
         `LIT material: ${c.lit.toLocaleString("en-US")} of ${plural(c.total, "word")} (${pct}%). ` +
           (c.over ? "The commercial terms allow at most 50%." : "That’s within the 50% the commercial terms allow."),

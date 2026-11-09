@@ -40,7 +40,7 @@ import { proseAnchorText } from "../../lib/desk-prose-anchor.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { canEdit, compareContentVersions, onFootnote, proseTarget } from "../../lib/desk-records.mjs";
 import { planSave, recordReference, takeOff, recordWhere } from "../../lib/desk-store-core.mjs";
-import { closePanel, showPanel } from "../lit-panel.js";
+import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
@@ -49,7 +49,8 @@ import { loadedChapterPage } from "./chapter-page.js";
 import { chapterTextFor, footnoteList, pageChapter } from "./page.js";
 import { diffParagraph } from "./diff-view.js";
 import { loadReleaseNotes } from "./release-feed.js";
-import { announce, showUndo } from "./undo-bar.js";
+import { busy as holdButton } from "./focus-keep.js";
+import { announce, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 
 /** The content version of the text this page is showing. */
@@ -242,7 +243,10 @@ export function flagButton(record, notice, open) {
 /** The newest published version, for two publishes on one day; null when it can't be had. */
 async function liveVersion() {
   try {
-    const res = await fetch("/api/version.json", { cache: "no-store" });
+    // Bounded, so Keep's buttons aren't held for as long as a stalled request
+    // hangs (GF8b-10); a browser without AbortSignal.timeout waits as it did.
+    const signal = typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(8000) : undefined;
+    const res = await fetch("/api/version.json", { cache: "no-store", signal });
     if (!res.ok) return null;
     const body = await res.json();
     return typeof body?.version === "string" ? body.version : null;
@@ -395,27 +399,46 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   panel.append(actions);
 
   const buttons = [...actions.querySelectorAll("button")];
+  // aria-disabled, not disabled: the button just pressed keeps focus when the
+  // work fails and the card stays (NB8-8; focus-keep.js). Presses are ignored
+  // while the work runs.
+  let working = false;
+  let release = [];
   const busy = (on) => {
-    for (const b of buttons) b.disabled = on;
+    working = on;
+    if (on) release = buttons.map(holdButton);
+    else {
+      for (const undo of release) undo();
+      release = [];
+    }
+  };
+  // The card may have been closed, or another panel opened, while the work ran:
+  // only this card is closed by its own result (GF8b-10).
+  const stillOpen = () => currentPanel()?.el === panel;
+  const leave = () => {
+    if (stillOpen()) closePanel();
   };
   const fail = (message) => {
+    busy(false);
+    // A card that is gone has nowhere to say it: the bar tells the reader.
+    if (!stillOpen()) return void showNotice(message);
     error.hidden = false;
     error.textContent = message;
-    busy(false);
   };
 
   async function doKeep() {
+    if (working) return;
     busy(true);
     error.hidden = true;
     try {
       // The record as it is now, and its notice worked out again: the card may
       // have been open while something else changed it.
       const fresh = await store.get(record.id);
-      if (!fresh || fresh.kind === "trash") return closePanel();
+      if (!fresh || fresh.kind === "trash") return leave();
       const textOf = textReader();
       const text = textOf(fresh);
       const current = noticeIn(fresh, text);
-      if (!current) return closePanel();
+      if (!current) return leave();
       if (!(await keepAllowed(fresh))) {
         return fail("This page is older than your mark. Reload the page, then try again.");
       }
@@ -434,7 +457,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
       // The change this made, read at once: the undo button, like Ctrl+Z,
       // takes back exactly this one (history.js).
       const entry = store.lastEntry();
-      closePanel();
+      leave();
       const said = `Kept your ${noun} on ${where}.`;
       if (entry) showUndo(said, () => undoEntry(entry));
       else announce(said);
@@ -446,12 +469,13 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   }
 
   async function doDelete() {
+    if (working) return;
     busy(true);
     error.hidden = true;
     try {
       const trash = await store.remove(record.id);
       const entry = trash ? store.lastEntry() : null;
-      closePanel();
+      leave();
       if (entry) {
         showUndo(isPin ? `Footnote on ${ref} unpinned.` : `${markName(record)} on ${where} ${takeOff(record.kind)[1]}.`, () => undoEntry(entry));
       }
@@ -465,6 +489,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   keep?.addEventListener("click", doKeep);
   del.addEventListener("click", doDelete);
   show?.addEventListener("click", () => {
+    if (working) return;
     closePanel();
     showInText.go(record);
     onDone?.("show", record);

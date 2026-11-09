@@ -18,18 +18,32 @@
 import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHref, docHtml, docText } from "../../../lib/desk-sheet-doc.mjs";
 
 const INLINE = new Set(["em", "strong", "u", "s", "sub", "a"]);
+// <b> and <i> are what the chapters' own footnotes use (GF8c-3).
+const ALIAS = { b: "strong", i: "em" };
+const BLOCKISH = new Set(["div", "p"]);
 const isList = (n) => n.nodeType === Node.ELEMENT_NODE && /^(ul|ol)$/i.test(n.tagName);
 
 /** A node list's inline pieces (the model's inline tree). */
 export function inlines(nodes) {
   const out = [];
+  let ownBreak = false; // the last thing out is a break this function added after a block
   for (const n of nodes) {
+    if (ownBreak && !(n.nodeType === Node.ELEMENT_NODE && BLOCKISH.has(n.tagName.toLowerCase()))) ownBreak = false;
     if (n.nodeType === Node.TEXT_NODE) {
       out.push({ t: "text", text: n.nodeValue });
       continue;
     }
     if (n.nodeType !== Node.ELEMENT_NODE) continue;
-    const tag = n.tagName.toLowerCase();
+    let tag = n.tagName.toLowerCase();
+    if (ALIAS[tag]) tag = ALIAS[tag];
+    if (BLOCKISH.has(tag)) {
+      // A note's own blocks each take a line, as on paper (the 1 Corinthians 11 chiasm).
+      if (out.length && out[out.length - 1].t !== "br") out.push({ t: "br" });
+      out.push(...inlines(n.childNodes));
+      if (out.length && out[out.length - 1].t !== "br") out.push({ t: "br" });
+      ownBreak = true;
+      continue;
+    }
     if (n.matches(".sheet-blank")) {
       const answer = n.querySelector(".sheet-blank__line")?.textContent ?? "";
       const leader = n.matches(".sheet-blank--leader") && answer.trim();
@@ -67,6 +81,7 @@ export function inlines(nodes) {
     }
     if (tag === "span") {
       const kids = inlines(n.childNodes);
+      if (n.matches(".chiasm-key")) kids.push({ t: "text", text: " " }); // "A:" and its words are two spans
       const style = {};
       if (DOC_COLORS[n.dataset.color]) style.color = n.dataset.color;
       if (DOC_MARKS[n.dataset.mark]) style.mark = n.dataset.mark;
@@ -77,6 +92,7 @@ export function inlines(nodes) {
     }
     out.push(...inlines(n.childNodes));
   }
+  if (ownBreak && out[out.length - 1]?.t === "br") out.pop();
   return out;
 }
 

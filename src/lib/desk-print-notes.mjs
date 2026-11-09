@@ -93,7 +93,11 @@ export function printHeading(record, ref, how = "here") {
  */
 export function blockForVerse(blockVerses, verse, endVerse = verse) {
   if (!Number.isInteger(verse)) return null;
-  const last = Number.isInteger(endVerse) && endVerse >= verse ? endVerse : verse;
+  // No verse past the page's last is on the page, so the range stops there (GF8c-1):
+  // a note on 5 to 20000000 costs no more than one on 5 to 9.
+  let top = verse;
+  for (const vs of blockVerses) for (const v of vs) if (v > top) top = v;
+  const last = Math.min(Number.isInteger(endVerse) && endVerse >= verse ? endVerse : verse, top);
   for (let v = verse; v <= last; v++) {
     const at = blockVerses.findIndex((vs) => vs.includes(v));
     if (at >= 0) return at;

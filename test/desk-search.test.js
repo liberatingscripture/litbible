@@ -86,7 +86,7 @@ test("a snippet is parts to draw: the match marked, the cut shown, no HTML made"
 });
 
 test("the notebook page's address carries the query", () => {
-  assert.equal(notebookSearchHref("grace & peace"), "/notebook/?q=grace%20%26%20peace");
+  assert.equal(notebookSearchHref("grace & peace"), "/notebook/#q=grace%20%26%20peace");
   assert.equal(notebookSearchHref("  "), "/notebook/");
 });
 

@@ -15,6 +15,12 @@
 //   editor, so it neither asks nor answers.
 // - Several editors in one tab (two Sheets panes) share its `tab` id, and a
 //   tab never counts its own answers.
+// - **Two tabs opening one sheet at once ask each other** (Audit 8, DI8-8):
+//   a tab still asking answers a `who` about the same sheet with a `here`
+//   marked `asking`. When each heard the other's `who`, only the tab with the
+//   larger id counts the other's answer, so exactly one of the two shows the
+//   question; when only one heard (the other began
+//   asking after the first `who` went by), the one that didn't hear counts it.
 
 /** The channel every sheet editor listens on; each message names its sheet. */
 export const EDITING_CHANNEL = "lit-sheet-editing";
@@ -24,52 +30,91 @@ export const ASK_WAIT_MS = 400;
 
 const VERSION = 1;
 
-/** A message to send: `who` (is anyone editing `sheet`?) or `here` (this tab is). */
-export function editingMessage(type, tab, sheet) {
-  return { v: VERSION, type, tab, sheet };
+/**
+ * A message to send: `who` (is anyone editing `sheet`?) or `here` (this tab
+ * is). A `here` from a tab that is itself still asking carries `asking`.
+ */
+export function editingMessage(type, tab, sheet, { asking = false } = {}) {
+  return asking && type === "here" ? { v: VERSION, type, tab, sheet, asking: true } : { v: VERSION, type, tab, sheet };
 }
 
 /**
  * A message another tab sent, checked: { type: "who" | "here", tab, sheet },
- * or null for anything else.
+ * with `asking: true` on a `here` from a tab still asking, or null for
+ * anything else.
  */
 export function readEditingMessage(data) {
   if (!data || typeof data !== "object" || data.v !== VERSION) return null;
   if (data.type !== "who" && data.type !== "here") return null;
   const ok = (s) => typeof s === "string" && s.length > 0 && s.length <= 200;
   if (!ok(data.tab) || !ok(data.sheet)) return null;
-  return { type: data.type, tab: data.tab, sheet: data.sheet };
+  const msg = { type: data.type, tab: data.tab, sheet: data.sheet };
+  if (data.type === "here" && data.asking === true) msg.asking = true;
+  return msg;
 }
 
 /**
  * What a tab does with a message it heard: "answer" a `who` about the sheet
- * one of its editors shows (`showing`, the ids it shows), "count" a `here`
- * about the sheet it is asking after (`asking`), else null. Its own messages
- * are never answered or counted.
+ * one of its editors shows (`showing`, the ids it shows); "answer-asking" a
+ * `who` about the sheet it is itself asking after (`asking`), so two tabs
+ * opening it together don't both miss each other (DI8-8); "count" a `here`
+ * about the sheet it is asking after, else null. A `here` marked `asking` is
+ * counted unless this tab heard that tab's `who` too (`heard`, the tabs whose
+ * `who` it answered while asking) and has the smaller id, so of two tabs that
+ * heard each other only the one with the larger id asks. Its own messages are never answered or
+ * counted.
  */
-export function editingReply(msg, { tab, showing = [], asking = null }) {
+export function editingReply(msg, { tab, showing = [], asking = null, heard = [] }) {
   if (!msg || msg.tab === tab) return null;
   if (msg.type === "who" && showing.includes(msg.sheet)) return "answer";
-  if (msg.type === "here" && msg.sheet === asking) return "count";
+  if (msg.type === "who" && msg.sheet === asking) return "answer-asking";
+  if (msg.type === "here" && msg.sheet === asking) {
+    if (msg.asking && heard.includes(msg.tab) && tab < msg.tab) return null;
+    return "count";
+  }
   return null;
 }
 
 /**
- * Whether a part's saved text moved under the reader: the card was drawn or
- * last saved as `drawn` (its module as JSON), the store now holds `stored`,
- * and focus is in the card. A part whose text fields are the same (only its
- * minutes, say, moved) needs no line.
+ * A part's typed fields when its saved text moved while focus was in its
+ * card (Audit 8, SH8-2): each of `fields` is { name, shown, busy }, `shown`
+ * the text that field last loaded or saved and `busy` whether the reader is
+ * in it (focus, or typing not yet saved). A field whose stored text is what
+ * it shows is left alone; one that moved and isn't busy is loaded with the
+ * stored text (`load`), since nothing the reader typed there is lost; one
+ * that moved while busy keeps the reader's words and gets the line
+ * (`conflict`). So the line is only ever about the field being typed in, and
+ * a field the other tab changed beside it shows that change at once.
+ *
+ * @returns {{ load: string[], conflict: string[] }}
  */
-export function changedUnderReader(drawn, stored) {
-  if (!drawn || !stored) return false;
-  let before;
-  try {
-    before = JSON.parse(drawn);
-  } catch {
-    return false;
+export function movedUnderReader(fields, stored) {
+  const load = [];
+  const conflict = [];
+  for (const { name, shown, busy } of fields) {
+    if ((stored?.[name] ?? "") === (shown ?? "")) continue;
+    (busy ? conflict : load).push(name);
   }
-  return TEXT_FIELDS.some((f) => (before?.[f] ?? "") !== (stored?.[f] ?? ""));
+  return { load, conflict };
 }
 
-/** A part's fields typed into, which the line is about. */
-export const TEXT_FIELDS = ["html", "answer"];
+/**
+ * Which of a part's fields "Keep mine" writes (SH8-2): those whose text in
+ * this tab (`mine`, field → html) differs from the other tab's (`theirs`, the
+ * module), never every field, so a field this tab didn't change can't put an
+ * older text back over the other tab's.
+ */
+export function keptFields(mine, theirs) {
+  return Object.fromEntries(Object.entries(mine).filter(([f, html]) => html !== (theirs?.[f] ?? "")));
+}
+
+/**
+ * The newer of two copies of one sheet (by `modified`, which every write
+ * steps past the one it replaces), or the one there is; `a` when the two
+ * aren't copies of one sheet. A closing tab writes
+ * what hasn't landed over the newest copy it has heard of (Audit 8, DI8-4).
+ */
+export function newerSheet(a, b) {
+  if (!a || !b || a.id !== b.id) return a ?? b ?? null;
+  return Date.parse(b.modified) > Date.parse(a.modified) ? b : a;
+}
