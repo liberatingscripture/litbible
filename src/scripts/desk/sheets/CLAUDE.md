@@ -62,7 +62,11 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `templateChooser` for the list's "New sheet…". **The editor's own list
   view is `my-sheets.js`** (Audit 6, LG6-2): "My sheets", "My templates",
   each row's actions and `templateChooser`, handed the editor's pieces as
-  `listHost`; the editor keeps only clearing its sheet view first. **The passage form and "+ From my notes…" are
+  `listHost`; the editor keeps only clearing its sheet view first. **/sheets'
+  list draws its rows with the same `sheetRow` and `ownTemplatesList`** (E64),
+  so a sheet has the same actions in both places; `my-sheets.js` keeps its own
+  `button` and imports nothing of the editor's, so it stays light enough for
+  the page (rule 19). **The passage form and "+ From my notes…" are
   `add-forms.js`** (LG6-2): they draw their choices and call back through
   `addHost`, so where a part goes and the change that adds it stay the
   editor's. **The add bar is `add-bar.js` and a card's body
@@ -283,8 +287,8 @@ S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
 `desk-gate.js` fills with `src/scripts/desk/sheets/sheet-page.js` when
 `[data-sheet-page]` is present. It shows, prints and copies a sheet (the
 Sheets pane's "Print or share…" opens it in a new tab), and **writes a
-record only in its editor or on "Import into my notebook"**. Seven things
-to know:
+record only in its editor, from its list's row actions, or on "Import into
+my notebook"**. Ten things to know:
 - **Edit turns the page into the sheet editor** (S12, part 1, step 2; BVJ,
   2026-11-08, decision 1): `/sheets/?id=<id>&view=edit`, and "New sheet…"
   on the list opens a new sheet there from a template (`?view=edit` until
@@ -296,6 +300,16 @@ to know:
   and the editor in place (`route`), each a history entry, and a view
   drawn earlier stops listening for changes (`viewSeq`). A shared sheet
   has no Edit until it is imported.
+- **The list has a Sheets pane's rows** (E64; BVJ, 2026-11-09): Duplicate,
+  Save as template and Delete on each sheet, and "My templates" after the
+  sheets, from `my-sheets.js` through `sheet-page-list.js`, which the page
+  reaches **only by `import()`** when it draws the list: the rows bring the
+  history (Ctrl+Z, and the undo bar's Undo for a deletion), which a test holds
+  out of the page's chunk. A row's name is a link (`sheetHref`: a sheet's
+  versions, a template's editor); Duplicate opens the copy in the editor;
+  a row's action redraws the list with focus where the pane would put it
+  (`showList`'s `focusKey`), and a change from elsewhere redraws it too.
+  Where the import fails the sheets are plain links, as before E64.
 - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
   modules each copy prints (`modulesForCopy`: the participant's leaves
   out Leader only), one code per chapter (`chapterCodes`, the address

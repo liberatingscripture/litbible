@@ -984,7 +984,8 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   button's place beside Delete and the "(copy)" wording are right, and an
   untitled sheet copies. The button is in the Sheet pane's My sheets list
   only: **/sheets stays read-only** (its list has no Delete either, and the
-  page never writes a record), which BVJ accepted. The look turned up a bug
+  page never writes a record), which BVJ accepted. (Undone by E64, 2026-11-09,
+  once S12 had given the page an editor.) The look turned up a bug
   that wasn't Duplicate's: with a Sheet pane open /desk's panes box grew a
   scrollbar of its own showing empty space under the panes, because the
   sheet's hidden hints (`.sr-only`, absolute) escaped its scroller (the Greek
@@ -1986,6 +1987,26 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   card names full screen and the notebook page, the notebook tour's menu card
   names "Add to sheet," each /desk tour refuses to start over a running one,
   and the help page counts three tours.
+- **E64, rough: the Sheets page's list has no Duplicate, Save as template or
+  Delete.** BVJ (2026-11-09), from /sheets: "I noticed the /sheets page doesn't
+  have the duplicate, save as template, and delete buttons. Shouldn't it?" E27
+  kept the page read-only on purpose (it never wrote a record, and BVJ accepted
+  that), but S12 gave it an editor and "New sheet…", so the reason was gone and
+  nothing went back to the list. It didn't list the reader's own templates
+  either, so one couldn't be opened or deleted there. Status: **done
+  2026-11-09**: each sheet has the three buttons, in columns, and "My
+  templates" follows the sheets, both drawn by the Sheets pane's own code
+  (`sheetRow`, `ownTemplatesList` in `sheets/my-sheets.js`), so the two lists
+  can't drift apart. A row's name stays a link (a sheet's versions; a
+  template's editor, since it has no passages to print). Duplicate opens the
+  copy in the page's editor with its title focused, as the pane does; Save as
+  template redraws the list on the new template; Delete has Undo and Ctrl+Z.
+  The page loads the rows by `import()` (`sheets/sheet-page-list.js`), since
+  they bring the history, which a page opened to print or present has no use
+  for, and `my-sheets.js` keeps its own `button` so drawing the list never
+  loads the editor (`test/desk-sheet-page-list.test.js`). The list now
+  redraws when a sheet changes elsewhere (another tab, or Undo), keeping focus
+  on the row it was on.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

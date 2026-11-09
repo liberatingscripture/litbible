@@ -4,10 +4,13 @@
 // 2; "Order of work", 3i). Loaded by desk-gate.js on a computer with the
 // preview switched on, when the page carries [data-sheet-page]. This page
 // shows a sheet, prints it and copies it, and writes a record only when the
-// reader edits one here (Edit, New sheet…) or imports a shared one:
+// reader edits one here (Edit, New sheet…), uses a list row's Duplicate, Save
+// as template or Delete, or imports a shared one:
 //
-// - `/sheets/` lists the reader's sheets; `/sheets/?id=<id>` shows one. The id
-//   is a random one that means nothing outside this browser's notebook.
+// - `/sheets/` lists the reader's sheets, each with a Sheets pane's row
+//   actions, and their own templates under "My templates" (E64; the rows come
+//   by import(), see `showList`); `/sheets/?id=<id>` shows one. The id is a
+//   random one that means nothing outside this browser's notebook.
 // - **Edit** (S12, part 1, step 2; BVJ, 2026-11-08, decision 1) turns the
 //   page into the sheet editor, `/sheets/?id=<id>&view=edit`, and Done turns
 //   it back; "Edit on the Study Desk" stays beside it for the fuller
@@ -245,17 +248,34 @@ async function copyToClipboard({ html, text }) {
 /**
  * The list. `onPick` is the Sheets tour's (E63): its "New sheet…" starts the
  * tour's sheet from the template chosen instead of opening the editor at a
- * new address.
+ * new address. `focusKey` names the control to focus once it is drawn (a
+ * row's `data-focus-key`), after a row's action redraws the list.
+ *
+ * Each sheet has Duplicate, Save as template and Delete, and the reader's own
+ * templates are listed under "My templates" (E64), as in a Sheets pane: the
+ * rows are sheet-page-list.js's, loaded by import() so the history they need
+ * stays out of a page opened to print or present. Where that fails to load,
+ * the sheets are plain links, as before.
  */
-async function showList(root, store, { onPick = null } = {}) {
+async function showList(root, store, { onPick = null, focusKey = null } = {}) {
   const n = viewSeq;
   document.title = "My sheets | Liberation and Inclusion Translation";
   root.replaceChildren(make("h1", "sheets-page__title", "My sheets"));
-  let sheets = [];
+  let all = [];
   try {
-    sheets = sortSheets((await store.all()).filter((r) => r.kind === "sheet" && !isOwnTemplate(r)));
+    all = (await store.all()).filter((r) => r.kind === "sheet");
   } catch (err) {
     console.error("Study Desk: couldn't read the sheets", err);
+  }
+  const sheets = sortSheets(all.filter((r) => !isOwnTemplate(r)));
+  const mine = sortSheets(all.filter(isOwnTemplate));
+  let rows = null;
+  if (sheets.length || mine.length) {
+    try {
+      rows = await import("./sheet-page-list.js");
+    } catch (err) {
+      console.error("Study Desk: the list's actions didn’t load", err);
+    }
   }
   // Another view was drawn while the sheets were read.
   if (n !== viewSeq) return;
@@ -273,28 +293,73 @@ async function showList(root, store, { onPick = null } = {}) {
   tour.addEventListener("click", async () => (await pageTour(root, store))?.start());
   intro.append(document.createTextNode(" "), tour);
   const newRow = newSheetRow(root, store, { onPick });
+  // A row's action that fails says so under this row (`listProblem`), and
+  // focus comes here when Delete takes the last row.
+  newRow.dataset.listProblems = "";
+  const fresh = newRow.querySelector("button");
+  if (fresh) fresh.dataset.focusKey = "new-sheet";
   root.append(intro, newRow, openFileRow(root, store));
   // `/sheets/?new` (the notebook page's "New sheet…", S12, part 2) opens the
   // templates at once, and the address goes back to the list's.
   if (!onPick && new URLSearchParams(location.search).has("new")) {
     history.replaceState(history.state, "", `${BASE}sheets/`);
-    newRow.querySelector("button")?.click();
+    fresh?.click();
   }
-  if (!sheets.length) {
-    root.append(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
-    return;
+  if (!sheets.length) root.append(make("p", "sheets-page__empty", "You haven’t made a sheet yet."));
+  // The list again, as it stands, with focus where the row's action says.
+  const redraw = (key) => {
+    ++viewSeq;
+    return showList(root, store, { onPick, focusKey: key });
+  };
+  if (rows) {
+    const sheetHref = (r) => `${BASE}sheets/?id=${encodeURIComponent(r.id)}${isOwnTemplate(r) ? "&view=edit" : ""}`;
+    const { list, own } = rows.pageListRows({
+      store,
+      ctx,
+      root,
+      sheets,
+      mine,
+      // A sheet's name opens its versions, a template's its editor, since a
+      // template has no passages to print.
+      href: sheetHref,
+      // Duplicate opens the copy in the editor, its title focused, as a Sheets pane does.
+      openEditor: (id) => {
+        history.pushState(null, "", `${BASE}sheets/?id=${encodeURIComponent(id)}&view=edit`);
+        route(root, store);
+      },
+      redraw,
+    });
+    if (list) root.append(list);
+    if (own) root.append(own);
+  } else if (sheets.length) {
+    const ul = make("ul", "sheets-page__list");
+    for (const s of sheets) {
+      const li = make("li");
+      const a = make("a", "sheets-page__sheet", sheetName(s));
+      a.href = `${BASE}sheets/?id=${encodeURIComponent(s.id)}`;
+      li.append(a);
+      const meta = [s.subtitle, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean).join(" · ");
+      if (meta) li.append(make("span", "sheets-page__meta", meta));
+      ul.append(li);
+    }
+    root.append(ul);
   }
-  const ul = make("ul", "sheets-page__list");
-  for (const s of sheets) {
-    const li = make("li");
-    const a = make("a", "sheets-page__sheet", sheetName(s));
-    a.href = `${BASE}sheets/?id=${encodeURIComponent(s.id)}`;
-    li.append(a);
-    const meta = [s.subtitle, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean).join(" · ");
-    if (meta) li.append(make("span", "sheets-page__meta", meta));
-    ul.append(li);
-  }
-  root.append(ul);
+  // A sheet changed elsewhere (another tab, or Undo here) redraws the list,
+  // keeping focus on the row it was on. Until the page draws another view.
+  const stop = store.subscribe(() => {
+    if (n !== viewSeq) {
+      stop?.();
+      return;
+    }
+    // A row's button has no key of its own: focus goes back to its row's name.
+    const at = document.activeElement;
+    const keyed = root.contains(at) ? at.closest("[data-focus-key]") ?? at.closest("li")?.querySelector("[data-focus-key]") : null;
+    redraw(keyed?.dataset.focusKey ?? null);
+  }, { kinds: ["sheet"] });
+  if (!focusKey) return;
+  const to = root.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`) ?? root.querySelector(".sheets-page__title");
+  if (to && !to.matches("a, button")) to.tabIndex = -1;
+  to?.focus();
 }
 
 /**

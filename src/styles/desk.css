@@ -6943,6 +6943,11 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   text-decoration: underline;
 }
 
+/* On /sheets/ a row's name is a link (E64), drawn as the pane's button. */
+a.desk-sheet__open {
+  text-decoration: none;
+}
+
 .desk-sheet__open-name {
   font-weight: 600;
 }

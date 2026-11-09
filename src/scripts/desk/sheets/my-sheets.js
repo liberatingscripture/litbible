@@ -6,7 +6,9 @@
 // Delete, the reader's own templates under it ("My templates"), and the
 // template chooser New sheet opens, which /sheets/ uses too. It draws the
 // list and acts on its rows; what the editor shows, and when, stays the
-// editor's, handed in as `host`:
+// editor's, handed in as `host`. /sheets/'s own list draws its rows with
+// `sheetRow` and `ownTemplatesList` too (through sheet-page-list.js), so a
+// sheet has the same actions on the page as in a Sheets pane. The host:
 //
 // - `store`, `opCtx` and `idSuffix`, as the editor has them;
 // - `say(text)`, the editor's live region;
@@ -14,7 +16,14 @@
 // - `openSheet(id, options)`, `startFrom(template)` and `showList(options)`,
 //   the editor's own, which a row's action ends in;
 // - `onTour`, the host's way to start the Sheets tour (E63), or null: the
-//   Sheets pane passes it, and /sheets/, which has no tour, doesn't.
+//   Sheets pane passes it, and /sheets/' editor doesn't;
+// - `sheetHref(record)`, optional: where a row's name links to. /sheets/
+//   passes it, so a row is a link (a sheet's versions, a template's editor)
+//   rather than a button calling `openSheet`;
+// - `headingTag`, optional: "My templates"' heading, "h3" unless given.
+//
+// It imports nothing of the editor's, so /sheets/ can load it to draw its
+// list without the editor (the page loads it by import(), with the history).
 
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { duplicateSheet, hasTemplateParts, sheetTooBig, templateFromSheet } from "../../../lib/desk-sheets.mjs";
@@ -23,9 +32,13 @@ import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { undoEntry } from "../history.js";
 import { showUndo } from "../undo-bar.js";
 import { make } from "../dom.js";
-// The editor imports this file too; `button` is a function declaration, so
-// the cycle is safe whichever file loads first.
-import { button } from "./sheet-editor.js";
+
+// The editor's own `button`, kept here so this file never imports the editor.
+function button(label, cls = "desk-sheet__btn") {
+  const b = make("button", cls, label);
+  b.type = "button";
+  return b;
+}
 
 const dateWords = (iso) => {
   const d = new Date(iso);
@@ -144,10 +157,26 @@ export function mySheetsList(host, { sheets, mine }) {
   return { list, chooser, heading };
 }
 
+/**
+ * A row's name and line: a link where the host gives an address
+ * (`sheetHref`, on /sheets/), else a button that opens the record here.
+ */
+function opener(host, record) {
+  const href = host.sheetHref?.(record);
+  if (href) {
+    const a = make("a", "desk-sheet__open");
+    a.href = href;
+    return a;
+  }
+  const b = button("", "desk-sheet__open");
+  b.addEventListener("click", () => host.openSheet(record.id, { focusTitle: true }));
+  return b;
+}
+
 /** One sheet's row: open it, Duplicate, Save as template, Delete. */
-function sheetRow(host, s, ul) {
+export function sheetRow(host, s, ul) {
   const li = make("li", "desk-sheet__sheet");
-  const open = button("", "desk-sheet__open");
+  const open = opener(host, s);
   open.append(make("span", "desk-sheet__open-name", sheetName(s)));
   const passages = s.modules?.filter((m) => m?.type === "passage").length ?? 0;
   // An untitled sheet names its template, so two can be told apart (SH6-7).
@@ -155,7 +184,6 @@ function sheetRow(host, s, ul) {
   const bits = [s.subtitle, from, `${passages} ${passages === 1 ? "passage" : "passages"}`, s.modified ? `changed ${dateWords(s.modified)}` : ""].filter(Boolean);
   open.append(make("span", "desk-sheet__open-meta", bits.join(" · ")));
   open.dataset.focusKey = `open-${s.id}`;
-  open.addEventListener("click", () => host.openSheet(s.id, { focusTitle: true }));
   const dup = button("Duplicate", "desk-sheet__btn desk-sheet__btn--quiet");
   dup.setAttribute("aria-label", `Duplicate ${sheetName(s)}`);
   // A sheet of a newer sheet format can't be changed here, so it isn't copied either.
@@ -188,21 +216,20 @@ function sheetRow(host, s, ul) {
  * The reader's own templates under the sheets (Audit 5, D #1): open one to
  * change it, or delete it. New sheet starts from them.
  */
-function ownTemplatesList(host, mine) {
+export function ownTemplatesList(host, mine) {
   const box = make("section", "desk-sheet__own");
-  const h = make("h3", "desk-sheet__list-title", "My templates");
+  const h = make(host.headingTag ?? "h3", "desk-sheet__list-title", "My templates");
   h.id = `deskSheetOwn-${host.idSuffix}`;
   box.setAttribute("aria-labelledby", h.id);
   const ul = make("ul", "desk-sheet__sheets");
   for (const t of mine) {
     const li = make("li", "desk-sheet__sheet");
-    const open = button("", "desk-sheet__open");
+    const open = opener(host, t);
     open.append(make("span", "desk-sheet__open-name", sheetName(t)));
     const parts = t.modules?.length ?? 0;
     const bits = [`Template, ${parts} ${parts === 1 ? "part" : "parts"}`, t.modified ? `changed ${dateWords(t.modified)}` : ""];
     open.append(make("span", "desk-sheet__open-meta", bits.filter(Boolean).join(" · ")));
     open.dataset.focusKey = `open-${t.id}`;
-    open.addEventListener("click", () => host.openSheet(t.id, { focusTitle: true }));
     const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
     del.setAttribute("aria-label", `Delete the template ${sheetName(t)}`);
     del.addEventListener("click", () => removeRow(host, t, `Template ${sheetName(t)} deleted.`, ul, open));
@@ -267,9 +294,13 @@ async function duplicate(host, source) {
   await host.openSheet(copy.id, { focusTitle: true });
 }
 
-/** A problem with the list's own actions, shown under its heading as well as heard (CP-13). */
+/**
+ * A problem with the list's own actions, shown under its heading as well as
+ * heard (CP-13). On /sheets/ it goes under the row marked
+ * `data-list-problems` (the page's "New sheet…").
+ */
 export function listProblem(host, text) {
-  const head = host.content.querySelector(".desk-sheet__list-head");
+  const head = host.content.querySelector(".desk-sheet__list-head, [data-list-problems]");
   if (head) {
     head.parentElement.querySelector(".desk-sheet__made-not")?.remove();
     head.after(make("p", "desk-sheet__status desk-sheet__made-not", text));

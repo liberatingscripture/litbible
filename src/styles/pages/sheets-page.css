@@ -64,6 +64,27 @@
   opacity: 0.75;
 }
 
+/* The list's rows and "My templates" are a Sheets pane's (desk.css,
+   .desk-sheet__sheets; E64), with Duplicate, Save as template and Delete in
+   columns. The plain list above is the fallback where they don't load.
+   Wider than the plain list, for the three buttons. */
+.sheets-page__sheets,
+.sheets-page__root .desk-sheet__own {
+  max-width: calc(72 * var(--ch));
+}
+
+.sheets-page__sheets {
+  margin-top: 1.5rem;
+}
+
+.sheets-page__root .desk-sheet__own {
+  margin-top: 2rem;
+}
+
+.sheets-page__root .desk-sheet__own .desk-sheet__list-title {
+  font-size: 1.25rem;
+}
+
 /* ── The toolbar ───────────────────────────────────────────────────────── */
 
 .sheets-page__bar {
