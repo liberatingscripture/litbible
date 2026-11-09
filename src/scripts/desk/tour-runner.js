@@ -1,10 +1,11 @@
 // src/scripts/desk/tour-runner.js
 //
-// What the two tours share (E24, BVJ 2026-11-02): the card, the way through its
+// What the tours share (E24, BVJ 2026-11-02): the card, the way through its
 // steps, where it sits beside what a step points at, and how a tour ends. The
-// notebook tour (tour.js, on a chapter page) and the Study Desk tour
-// (desk-tour.js, on /desk) each bring their own steps and their own acts; this
-// does not know what either one opens.
+// notebook tour (tour.js, on a chapter page), the Study Desk tour
+// (desk-tour.js, on /desk) and the Sheets tour (sheets/sheet-tour.js, on /desk
+// too; E63) each bring their own steps and their own acts; this does not know
+// what any of them opens.
 //
 // A step's `act(step)` opens whatever the step shows and returns where its card
 // goes: `{ el, side?, marks? }`, or null for a card in the middle. `el` places
@@ -32,13 +33,29 @@ const EDGE = 12;
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
+/**
+ * Waits for `find()` to return something, up to `ms`, polling each frame:
+ * for a step whose target is drawn a moment after it acts (a template chooser,
+ * a list read from the notebook, a passage's blanks). Both /desk tours use it.
+ */
+export const waitFor = (find, ms = 2000) =>
+  new Promise((resolve) => {
+    const end = performance.now() + ms;
+    const tick = () => {
+      const got = find();
+      if (got || performance.now() > end) resolve(got ?? null);
+      else requestAnimationFrame(tick);
+    };
+    tick();
+  });
+
 export function createTourRunner() {
   let run = null;
 
   /**
    * @param {{ steps: object[], view?: string | null,
    *   act: (step: object) => Promise<object | null>,
-   *   finish?: () => void, afterUndo?: () => void,
+   *   finish?: () => void | Promise<void>, afterUndo?: () => void,
    *   more?: (step: object) => ({ href: string, text: string, external?: boolean } | null),
    *   returnTo?: HTMLElement | null, returnFallback?: () => (HTMLElement | null) }} options
    *   `steps` is a planned tour (`planTour`). `view` picks a step's wording.
@@ -60,7 +77,9 @@ export function createTourRunner() {
       afterUndo,
       more,
       index: 0,
-      returnTo: returnTo ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null),
+      // Nothing focused (a tour started by its address) is `body`, which is no
+      // place to return to: the fallback takes over then (Audit 7, TR7-9).
+      returnTo: returnTo ?? (document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null),
       returnFallback,
       scroll: { x: window.scrollX, y: window.scrollY },
       undo: [],
@@ -152,12 +171,18 @@ export function createTourRunner() {
     // Everything back as the tour found it: the caller's page first (the
     // Notebook's width can move the text), then the place on the page, then
     // focus.
+    // A `finish` that returns a promise (the Sheets page's, which redraws
+    // what its address names) is waited for, so focus lands on the view that
+    // stays, never on one about to be replaced (TR7-9).
+    let done;
     try {
-      finish();
+      done = finish();
     } catch (err) {
       console.error("Study Desk: the tour couldn’t put the page back", err);
     }
-    requestAnimationFrame(() => {
+    Promise.resolve(done).catch((err) => {
+      console.error("Study Desk: the tour couldn’t put the page back", err);
+    }).then(() => requestAnimationFrame(() => {
       window.scrollTo({ left: scroll.x, top: scroll.y, behavior: "instant" });
       // Back to where the reader was if that is still showing, else the
       // tour's own fallback: the card is gone, and focus on it would drop to
@@ -178,7 +203,7 @@ export function createTourRunner() {
       setTimeout(() => {
         if (!run) document.documentElement.removeAttribute("data-desk-tour");
       }, 900);
-    });
+    }));
   }
 
   /* ── One step ─────────────────────────────────────────────────── */

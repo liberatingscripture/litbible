@@ -1945,6 +1945,47 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   limit rules, and that module and its tests are gone; nothing else read
   them. Bookmarks stay the passage form's business ("From my notebook"
   there), since a bookmark is a place, not words.
+- **E63, wish: a tour for the Sheets.** BVJ (2026-11-09): "I think a third
+  tour for Sheets is warranted, though it will likely be shorter. The other two
+  may need updates at this point since things have developed." The desk tour's
+  two sheet steps (E59) say what a sheet is and how one starts, and stop there;
+  a first-time leader still left not knowing the parts, the passage and its
+  blanks, or where printing and presenting are. Status: **done 2026-11-09**:
+  eight cards in two parts, on /desk in a Sheets pane (`sheets/sheet-tour.js`;
+  the steps are `SHEET_TOUR_STEPS`). "Making a sheet" shows the list, the
+  template chooser, the parts, a passage added from the LIT pane's verse menu,
+  its blanks and footnotes, and the add bar with "From my notes…"; "Using a
+  sheet" shows how a sheet is printed ("Print or share…") and presented
+  ("Present…"). **It writes nothing, not even
+  its own sheet**: the layout is frozen as in the desk tour, and the sheet is
+  the editor's new example mode (`setExample`, `endExample`), whose changes
+  live in memory and are dropped when the tour ends, so even "Print or
+  share…" and "Present…" save nothing. The passage is the leading LIT pane's
+  chapter from the verse it is at. **Four ways in on /desk:** `?sheet-tour`
+  (the help page links it), "Take the Sheets tour" at the foot of the Sheets
+  pane's list, a link on the desk tour's "Sheets" card, and an offer in a
+  window beside the Sheets pane the first time one shows. The seen list is
+  `lit-desk-sheet-tour`, named in /privacy. **It runs on /sheets as well**
+  (BVJ, 2026-11-09, after the first round on PR #522): since header C's Study
+  menu and S12's ways in, a reader can meet the Sheets on the Sheets page
+  first, so the tour acts on that page's list, editor and versions view; an
+  offer there that sent readers to /desk was weighed and declined. One core
+  (`sheets/sheet-tour.js`) takes a host, the desk's (`sheet-tour-desk.js`) or
+  the page's (built in `sheet-page.js`, loaded only when the tour starts or is
+  offered); the page's ways in are `/sheets/?sheet-tour`, a "Take the Sheets
+  tour" button after the list's intro, and the offer. **The seen list is one
+  for both pages** (BVJ's ask), so taking, postponing or declining the tour
+  on either counts on both and a tour of new steps is offered once. The
+  page's versions view can be drawn for an unsaved sheet (`demo` mode in
+  `drawSheet`), which is how "Print or share" and "Present" show a sheet that
+  was never written. The runner waits for a `finish` that returns a
+  promise before it returns focus, since the page's redraw is async (TR7-9's
+  second case). **The other two tours were
+  adjusted in the same pass** (STUDY-DESK-AUDIT-7.md, TR7-1 to TR7-6, TR7-9): "New
+  sheet" no longer counts five templates (there are seven), the title menu's
+  card names full screen and the notebook page, the notebook tour's menu card
+  names "Add to sheet," each /desk tour refuses to start over a running one,
+  and the help page counts three tours.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

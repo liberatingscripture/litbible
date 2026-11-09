@@ -2789,7 +2789,8 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 }
 
 .desk-tour__skip,
-.desk-home__tour {
+.desk-home__tour,
+.desk-sheet__tour {
   padding: 4px 6px;
   border: 0;
   background: transparent;
@@ -6898,6 +6899,16 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 .desk-sheet__list-title {
   margin: 0;
   font-size: 1rem;
+}
+
+/* "Take the Sheets tour" at the foot of the list (E63): the quiet green link
+   of the Notebook's "Take the tour", lined up with the list's left edge. */
+.desk-sheet__tour-line {
+  margin: 14px 0 0;
+}
+
+.desk-sheet__tour-line .desk-sheet__tour {
+  padding-left: 0;
 }
 
 .desk-sheet__sheets {

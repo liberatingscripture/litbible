@@ -34,6 +34,7 @@ in `STUDY-DESK-FIXES.md`, and a "Built on…" line goes nowhere.
 | `STUDY-DESK-AUDIT-4.md` | **Audit 4, scoped** (2026-11-07, `4a5b7c3c`): security, first use, both tours and the preview's copy; IDs `SEC4`, `FU4`, `TR4`, `CP4`. Its fixes shipped with it; the rest are recommendations. |
 | `STUDY-DESK-AUDIT-5.md` | **Audit 5: Sheets** (2026-11-07, `19e263e5`): every template, part and command as a first-time ministry leader, ghost prompts for template text, and the comparable tools; IDs `SH5-`. Fixed and decided in #502 to #505. |
 | `STUDY-DESK-AUDIT-6.md` | **Audit 6** (2026-11-08, `5c9a31a6`): Part 1 repeats Audit 5 (`SH6`); Part 2 repeats Audits 1 to 3 (`SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, verified by `VER6`). Priority list and decisions on top, reports as appendices, briefs in I and J. Mark a finding fixed as it ships. |
+| `STUDY-DESK-AUDIT-7.md` | **Audit 7, scoped: the tours** (2026-11-09, `81937298`): both tours re-read against today's UI, and the third, the Sheets tour (E63); IDs `TR7`. |
 
 **Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
 and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and
@@ -50,8 +51,8 @@ From the root's routing table.
 |-------|------|---------|
 | `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk/help` | `desk/help.astro` (`desk-help.css`) | **One help page for the whole desk** (the Notebook, /desk, sheets, the Greek; BVJ, 2026-11-07). `/notebook/help/` redirects to it (`redirects` in `astro.config.mjs`; the static redirect page drops a `#fragment`, so link `HELP_HREF`/`WAYS_HREF`, never the old address). A static page that reads without the desk: noindex, out of the sitemap (`desk/help` in the filter) and Pagefind. **A feature that adds a pane, a menu item, or a sheet tool gets its sentence there**; counts come from `MAX_PANES`, `MAX_FOLLOWING`, `TRASH_DAYS`, never typed |
-| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). `&view=edit` is the sheet editor on the page (S12; Edit, and New sheet… on the list). Same treatment as `/desk`. See rules 19 and 21 in `sheets/CLAUDE.md` |
+| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The Study Desk preview", rule 18 |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). `&view=edit` is the sheet editor on the page (S12; Edit, and New sheet… on the list). `?sheet-tour` starts the Sheets tour. Same treatment as `/desk`. See rules 19 and 21 in `sheets/CLAUDE.md` |
 
 ## Launching
 
@@ -780,20 +781,26 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        tour leaves out the `notebook` steps of `TOUR_STEPS` (`canKeep`), and
        the shell stamps `html[data-desk-no-notebook]`, which the search box's
        command context reads as `keeps` (BA34).
-     - **Two tours** (E24; BVJ, 2026-11-02): the notebook tour (`tour.js`) stays
-       on the chapter pages, and the **Study Desk tour** (`desk/desk-tour.js`)
-       runs on /desk. Each has **its own steps, seen list and offer**:
-       `TOUR_STEPS`/`lit-desk-tour` and `DESK_TOUR_STEPS`/`lit-desk-page-tour`
-       (`desk-first-use.mjs`; `parseTourState`, `tourOffer` and `planTour` take
-       the step list), so finishing one says nothing about the other and one
-       "Don't show this again" never silences both. Ids may not collide (a test
-       holds it). **The card, the way through the steps, placement and the
-       ending are `desk/tour-runner.js`**, shared; a tour brings `act(step)`,
-       `finish` and its `more` link. Keep the two in step when the card changes.
+     - **Three tours** (E24, E63; BVJ, 2026-11-02, 2026-11-09): the notebook
+       tour (`tour.js`) stays on the chapter pages; the **Study Desk tour**
+       (`desk/desk-tour.js`) and the **Sheets tour** (`sheets/sheet-tour.js`,
+       its rules in `sheets/CLAUDE.md`) run on /desk, and the Sheets tour on
+       /sheets too (its page host is in `sheets/sheet-page.js`). Each has
+       **its own steps, seen list and offer**: `TOUR_STEPS`/`lit-desk-tour`,
+       `DESK_TOUR_STEPS`/`lit-desk-page-tour` and
+       `SHEET_TOUR_STEPS`/`lit-desk-sheet-tour` (`desk-first-use.mjs`;
+       `parseTourState`, `tourOffer` and `planTour` take the step list), so
+       finishing one says nothing about the others and no "Don't show this
+       again" silences two. Ids may not collide (a test holds it). **Each /desk
+       tour's `start()` returns while `html[data-desk-tour]` is set** (TR7-6),
+       so neither runs over the other. **The card, the way through the steps,
+       placement and the ending are `desk/tour-runner.js`**, shared; a tour
+       brings `act(step)`, `finish` (waited for when it returns a promise,
+       before focus returns) and its `more` link. Keep the three in step when
+       the card changes.
        **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels like a
        lot"): the notebook page and where it's kept are one step (`kept`). The
-       retired ids stay in a reader's stored list and are ignored, so nobody is
-       offered a new tour for steps that went (tested). **Audit 4 (BVJ,
+       retired ids in a stored list are ignored (tested). **Audit 4 (BVJ,
        2026-11-07; TR4-2, TR4-3): "Pin a footnote" runs in the Notebook part,
        right after "This verse", and "Open the menu" leaves "Move as I read" to
        the help page and the Edit bookmark form.**
@@ -824,9 +831,9 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
          until the tour is taken or declined (`lineWanted`, `declineLine`). The
          menu's own "Take the tour" item is always there. `?desk-tour` on /desk
          starts it after load (the help page links to it) and is stripped from
-         the address.
-       - **Privacy**: `lit-desk-page-tour` is named in /privacy's paragraph
-         beside `lit-desk-tour`.
+         the address; `?sheet-tour` does the same for the Sheets tour.
+       - **Privacy**: `lit-desk-page-tour` and `lit-desk-sheet-tour` are named
+         in /privacy's paragraph beside `lit-desk-tour`.
      - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
        after the Zoom) on branches `claude/desk-1d-hidden` and
        `claude/desk-1d-search`; it is not in this tree, so nothing here
@@ -1397,7 +1404,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        screen and the second closes the menu (accepted). The Browser pane never
        answers the request: check it in a real browser. My notebook page and Help open
        in a new tab, since they leave the desk; **Take the tour starts the
-       Study Desk tour in place** (a button, E24; see "Two tours" under rule 13). **There is no Settings window and no
+       Study Desk tour in place** (a button, E24; see "Three tours" under rule 13). **There is no Settings window and no
        "Where my notebook is kept" item** (BVJ, 2026-11-02): the other
        settings mean nothing here or already live in Display options and
        Layout. **Layout and Print left

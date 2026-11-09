@@ -12,7 +12,9 @@
 // - `say(text)`, the editor's live region;
 // - `content`, the element the list is drawn in, which a problem is shown in;
 // - `openSheet(id, options)`, `startFrom(template)` and `showList(options)`,
-//   the editor's own, which a row's action ends in.
+//   the editor's own, which a row's action ends in;
+// - `onTour`, the host's way to start the Sheets tour (E63), or null: the
+//   Sheets pane passes it, and /sheets/, which has no tour, doesn't.
 
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { duplicateSheet, hasTemplateParts, sheetTooBig, templateFromSheet } from "../../../lib/desk-sheets.mjs";
@@ -129,6 +131,16 @@ export function mySheetsList(host, { sheets, mine }) {
     list.append(ul);
   }
   if (mine.length) list.append(ownTemplatesList(host, mine));
+  // The standing way into the Sheets tour (E63): a quiet link at the foot,
+  // since the title menu's "Take the tour" is the Study Desk tour's and the
+  // Sheets tour has no line there.
+  if (host.onTour) {
+    const line = make("p", "desk-sheet__tour-line");
+    const tour = button("Take the Sheets tour", "desk-sheet__tour");
+    tour.addEventListener("click", () => host.onTour());
+    line.append(tour);
+    list.append(line);
+  }
   return { list, chooser, heading };
 }
 

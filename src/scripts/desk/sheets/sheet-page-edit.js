@@ -3,7 +3,8 @@
 // The sheet editor on the Sheets page (STUDY-DESK.md, S12, part 1, step 2):
 // /sheets/'s host for sheet-editor.js, as sheet-pane.js is /desk's.
 // sheet-page.js imports this file only when the reader presses Edit or New
-// sheet…, so the page stays light for printing and presenting.
+// sheet…, or when the Sheets tour wants its editor (E63), so the page stays
+// light for printing and presenting.
 //
 // - **Which sheet it edits is the address**: `/sheets/?id=<id>&view=edit`. A
 //   new sheet isn't written until its first change (SH6-7), so it has no id
@@ -36,7 +37,9 @@ import { make } from "../dom.js";
  *   askFirst?: boolean }} options
  *   `onSaved` is told the sheet's id once it has one, for the address;
  *   `askFirst: false` opens it without the two-tab question (sent from a Sheets pane).
- * @returns {{ destroy: () => void }}
+ * @returns {{ destroy: () => void, editor: object }}
+ *   `editor` is the sheet editor itself, for the Sheets tour (E63), which
+ *   turns it to its example mode and starts the tour's sheet in it.
  */
 export function editSheet({ root, store, ctx, id = null, template = null, onSaved, onList, onDone, onCancel, askFirst = true }) {
   initUndo();
@@ -61,6 +64,7 @@ export function editSheet({ root, store, ctx, id = null, template = null, onSave
   // Chosen before the editor's first view, which then stays out of the way.
   if (template) editor.startFrom(template);
   return {
+    editor,
     destroy() {
       editor.destroy();
       root.classList.remove("sheets-page--editing");

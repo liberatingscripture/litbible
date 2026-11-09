@@ -100,6 +100,7 @@ import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { createDeskTour } from "./desk-tour.js";
+import { createDeskSheetTour } from "./sheets/sheet-tour-desk.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
@@ -568,6 +569,8 @@ async function start() {
 
   // Built below, once the panes box and `announce` exist (title-menu.js).
   let tour = null; // the Study Desk tour, made once the panes exist (below)
+  let sheetTour = null; // the Sheets tour (E63), made with it
+  let sheetOfferTimer = 0;
 
   // ---- the panes ----
 
@@ -640,11 +643,27 @@ async function start() {
     layout = next;
     const marks = leaveReading(before);
     save();
-    if (redraw) draw();
-    else mark();
+    if (redraw) {
+      draw();
+      offerSheetTour();
+    } else mark();
     follow();
     tellFollower();
     if (marks) tellMarks(marks, before);
+  }
+
+  /**
+   * The Sheets tour's offer (E63), asked for 1.6 seconds after a draw that
+   * leaves a Sheets pane on the desk (past the Study Desk tour's 1.2 at load,
+   * which comes first), and never while a tour has the layout frozen. The
+   * tour checks the rest when the time comes.
+   */
+  function offerSheetTour() {
+    if (!panes(layout.root).some((p) => p.kind === "sheet")) return;
+    clearTimeout(sheetOfferTimer);
+    sheetOfferTimer = setTimeout(() => {
+      if (!layoutFrozen) sheetTour?.maybeOffer();
+    }, 1600);
   }
 
   /** The passage a pane shows now: a LIT pane's own, a following pane's own or the shared one. */
@@ -1288,18 +1307,53 @@ async function start() {
     shapeButtons,
     onLineChange: titleMenu.refreshTourLine,
   });
-  const wantsTour = new URLSearchParams(location.search).has("desk-tour");
-  if (wantsTour) {
+
+  // ---- the Sheets tour (E63) ----
+
+  // Started from `?sheet-tour` on the address (the help page links to it),
+  // "Take the Sheets tour" at the foot of a Sheets pane's list
+  // (`desk:sheet-tour`), the Study Desk tour's Sheets card, or its offer. Like
+  // the Study Desk tour it acts through the page's own pieces and freezes the
+  // layout's saving while it runs (sheets/sheet-tour.js, through its desk
+  // host, sheets/sheet-tour-desk.js).
+  sheetTour = createDeskSheetTour({
+    canKeep: Boolean(store),
+    getLayout: () => layout,
+    setLayout: (next) => commit(next),
+    freeze: (on) => { layoutFrozen = on; },
+    closeMenus: () => {
+      titleMenu.close({ focus: false });
+      closeMenu({ focus: false });
+    },
+    paneEls,
+    panesBox,
+    // Where the tour's passage comes from: the first LIT pane's place, else the shared one.
+    litPassage: () => {
+      const lit = panes(layout.root).find((p) => p.kind === "lit");
+      return lit ? passageOf(lit.id) : parsePassage(layout.place);
+    },
+    otherOffer: () => tour.offering(),
+  });
+  document.addEventListener("desk:sheet-tour", () => sheetTour.start());
+
+  const params = new URLSearchParams(location.search);
+  const wantsTour = params.has("desk-tour");
+  const wantsSheetTour = params.has("sheet-tour");
+  if (wantsTour || wantsSheetTour) {
     try {
       const url = new URL(location.href);
       url.searchParams.delete("desk-tour");
+      url.searchParams.delete("sheet-tour");
       history.replaceState(history.state, "", url);
     } catch (_) {}
-    // Once the panes have settled, as the notebook tour waits for its panel.
-    setTimeout(() => tour.start(), 600);
+    // Once the panes have settled, as the notebook tour waits for its panel;
+    // neither tour's offer then.
+    setTimeout(() => (wantsTour ? tour : sheetTour).start(), 600);
   } else {
     // The first time /desk opens, an offer; a window the reader can put off.
     setTimeout(() => tour.maybeOffer(), 1200);
+    // The Sheets tour's, when the desk opens with a Sheets pane.
+    offerSheetTour();
   }
 }
 

@@ -179,6 +179,103 @@ The header's Study group is part 3's, built with header C.
   pane is the other tab and the reader sent it; the page drops the marker,
   so a reload asks as usual. /sheets keeps "Edit on the Study Desk".
 
+## The Sheets tour (E63)
+
+The third tour (BVJ, 2026-11-09; the shared tour rules are in the desk file,
+"Three tours" under rule 13). **It runs on /desk, in a Sheets pane, and on
+/sheets**, acting on that page's list, editor and versions view (BVJ,
+2026-11-09): since header C's Study menu and the ways in above, a reader can
+meet the Sheets on the Sheets page first, and an offer there that sent them
+to /desk was weighed and declined. The eight steps are the same on both,
+`SHEET_TOUR_STEPS` in `desk-first-use.mjs`, in two parts ("Making a sheet,"
+"Using a sheet"): `list`, `templates`, `parts`, `passage`, `blanks`, `words`,
+then `print` and `present`, ids unchanged; five (`list`, `templates`,
+`passage`, `print`, `present`) carry a `page` wording, picked by
+`stepBody(step, host.view)`. Every step is `notebook: true`, since a sheet is
+a notebook record, so with no store the tour never starts.
+
+- **One core, two hosts.** `sheet-tour.js` is host-agnostic: the steps' order,
+  `ensureSheet`, `ensurePassage`, the offer window, the seen list, and the
+  runner (`desk/tour-runner.js`). It asks a **host** for what is
+  page-specific (`view`, `canKeep`, `begin`, `editor`, `showList`,
+  `openChooser`, `passage`, `where`, `finish`, `returnFallback`, `placeOffer`,
+  `working`, `canOffer`, `otherOffer`; `verseMenu` and `control` on /desk,
+  `versions` on /sheets; the header of `sheet-tour.js` says what each takes
+  and returns) and **imports nothing from `lit-panel.js`,
+  `sheet-pane.js` or `desk-layout.mjs`**, which are the desk's and would pull
+  the editor into the Sheets page's graph (a test holds it). The desk host is
+  `sheet-tour-desk.js` (`createDeskSheetTour(api)`, which `desk-page.js`
+  imports); the page host is built inside `sheet-page.js`, which owns `route`,
+  `showList`, `drawSheet` and `editing`. **`sheet-page.js` reaches
+  `sheet-tour.js` only by `import()`**, after it has drawn the list or a
+  sheet's versions: a page opened to print or present loads none of the tour,
+  and no editor until Edit (the static-import test guards it). **The offer's
+  rules come by `import()` too**, 1.6 s after the draw: `desk-first-use.mjs`
+  (which declares the three tour keys; `first-use.js` re-exports them) brings
+  `desk-layout.mjs` with it for the desk tour's "Add pane" card, 86 KB of
+  source that a page opened to print or present, or a phone showing a shared
+  sheet, has no use for. The same goes for `last-read.js`, read for the tour's
+  passage.
+- **It writes nothing, not even its own sheet**, on either page. **The tour's
+  sheet is the editor's example mode** (`setExample`, `endExample` on
+  `createSheetEditor`): `change` applies an op in memory and says nothing, and
+  `persistDraft` returns at once, so "Print or share…," "Present…," and "Open
+  on its own page" write nothing either. **A new step that changes the sheet
+  goes through `change` in example mode and is undone by dropping the draft
+  at the end, never by a write.** A step's `later` undoes only what the step
+  opened (the chooser, the verse menu). A host hands an editor it has just
+  made to the core's `onMade` in the same tick, and the core turns example
+  mode on and starts the sheet there, before the editor's first-view
+  microtask would call `onList`.
+- **On /desk** the page's `freeze` keeps the layout off disk, as for the desk
+  tour; `finish` ends the example, restores the reader's layout, and ends it
+  once more for a pane the layout shares. `passage` opens the LIT pane's verse
+  menu as a reader does; its Sheets row exists only for the pane that counts
+  as the target (`lastUsed` in `sheet-pane.js`), so the host makes the tour's
+  pane the target with `useAsTarget(editor)`, exported for this alone, and the
+  pane returns its `editor` for the same reason. The passage is the leading LIT
+  pane's chapter from the verse it is at (`litPassage`), two verses.
+- **On /sheets the tour never changes the address or history.** It draws its
+  own views into `root` and ends with `route()`, which redraws whatever the
+  address names. **One editor instance** (`editSheet` in `sheet-page-edit.js`,
+  which returns `{ destroy, editor }`) **stays alive across the tour's views**,
+  its sheet living in it, and only `finish` destroys it: the list and the
+  versions view detach it, and the host's `editor()` puts it back. **`finish`
+  returns `route()`'s promise**, and the runner waits for a `finish` that
+  returns one before it returns focus, so focus lands on the view that stays,
+  never on one about to be replaced (TR7-9). The list's
+  `newSheetRow` takes an `onPick`, which starts the tour's sheet from the
+  picked template in that editor instead of routing. There is no verse menu,
+  so `passage` shows the Reading part's passage form, with the chapter from
+  `loadLastRead()` (else John 3:16). `print` and `present` draw the versions
+  view for the unsaved sheet: **`drawSheet`'s `demo` mode** leaves out the
+  shared banner and the links row ("‹ My sheets," "Edit on the Study Desk,"
+  which leave the tour, the second naming an unsaved id), makes "Edit" return
+  to the tour's editor, and skips the `history.replaceState` when Present
+  closes; everything else works as for a reader's sheet and writes no record.
+  **One accepted edge**: Present's presenter window cannot find an unsaved
+  sheet, so a reader who opens it has gone off the tour's script.
+- **The offer** is a `float-window.js` window, 1.6 s after a draw, only with a
+  store, no tour running (`html[data-desk-tour]`, desk), no other offer up
+  (the Study Desk tour's, on /desk), the layout unfrozen (desk), and
+  `tourOffer` saying there is something to offer. It sits beside the Sheets
+  pane; on /sheets, beside the page's content (right, else left, else over its
+  top right corner), and only after the **list or a sheet's versions** is drawn
+  (not the editor, a shared sheet, `view=present` or `presenter`, and never on
+  a phone). **One seen list serves both pages**: `lit-desk-sheet-tour` is read
+  and written by both hosts, so taking the tour, "Remind me later" or "Don't
+  show this again" on either counts on both, and a tour of new steps is offered
+  once. The title menu has no quiet line for it.
+- **Ways in**: on /desk, `?sheet-tour` (`SHEET_TOUR_LINK`, stripped, 600 ms
+  after the panes), "Take the Sheets tour" at the foot of the Sheets pane's
+  list (`mySheetsList`, only when the host passes `onTour`, which /sheets'
+  editor does not), the offer, and the desk tour's "Sheets" card. On /sheets,
+  `/sheets/?sheet-tour` (`SHEET_TOUR_PAGE_LINK`, stripped with
+  `history.replaceState`, 600 ms after the first route, no offer then), a quiet
+  "Take the Sheets tour" button after the list's intro paragraph, and the offer.
+- **The key** is `lit-desk-sheet-tour` (`SHEET_TOUR_KEY`, declared in
+  `desk-first-use.mjs`), the desk tour's shape; /privacy names it.
+
 ## Rule 19: a sheet on paper
 
 **Phase 3i is a sheet on paper** (STUDY-DESK.md, S4,

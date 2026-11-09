@@ -32,6 +32,24 @@ export const TOUR_LINK = "/john-3/?desk-tour";
 /** The start of the Study Desk tour: `?desk-tour` on /desk starts it after load. */
 export const DESK_TOUR_LINK = "/desk/?desk-tour";
 
+/** The start of the Sheets tour (E63): `?sheet-tour` on /desk starts it after load. */
+export const SHEET_TOUR_LINK = "/desk/?sheet-tour";
+
+/** The Sheets tour on the Sheets page, which runs it too (E63): `?sheet-tour` on /sheets. */
+export const SHEET_TOUR_PAGE_LINK = "/sheets/?sheet-tour";
+
+/**
+ * Where each tour keeps its seen list, in this browser (first-use.js reads and
+ * writes them, and re-exports these names). Declared here, in the pure rules,
+ * so the Sheets page can ask whether to offer its tour without loading
+ * first-use.js or the tour (E63).
+ */
+export const TOUR_KEY = "lit-desk-tour";
+/** The Study Desk tour's own list (E24), the same shape as the notebook tour's. */
+export const DESK_TOUR_KEY = "lit-desk-page-tour";
+/** The Sheets tour's own list (E63), the same shape again, one for both pages it runs on. */
+export const SHEET_TOUR_KEY = "lit-desk-sheet-tour";
+
 const DAY_MS = 86_400_000;
 
 /** A stored choice, or null when there isn't a valid one. */
@@ -145,6 +163,10 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  * cover, so the first card is five lines; and "Pin a footnote" runs in the
  * Notebook part, right after "This verse", whose tab lists the footnotes it
  * pins, rather than before the Notebook has been shown. Still 10 steps.
+ *
+ * Audit 7 (TR7-3, 2026-11-09): "Open the menu" names “Add to sheet”, which
+ * PR #520 put in Chapter View's verse menu and selection panel after Print.
+ * Read View has none, so its wording is unchanged.
  */
 export const TOUR_STEPS = [
   {
@@ -156,7 +178,7 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. “Add to sheet” puts the verse on one of your sheets.",
       read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
@@ -447,7 +469,9 @@ export const DESK_TOUR_STEPS = [
         "The lock keeps a pane where it is while the LIT moves on, so a verse or a Greek word stays in view. Select it again to follow. It is on here only for the tour.",
     },
   },
-  // Sheets (E59; BVJ, 2026-11-08): what one is, with a Sheets pane shown.
+  // Sheets (E59; BVJ, 2026-11-08): what one is, with a Sheets pane shown. Its
+  // link opens the Sheets tour (Audit 7, TR7-5), as My Notes' opens the
+  // notebook tour.
   {
     id: "sheets",
     part: 0,
@@ -457,7 +481,10 @@ export const DESK_TOUR_STEPS = [
       default:
         "A sheet is a handout you make here: passages from the LIT, your own words, questions, and blanks to fill in. Print it, present it to a room, or share it as a link or a file. A Sheets pane is shown here only for the tour.",
     },
+    more: "See one made, printed, and presented: the Sheets tour",
   },
+  // Full screen (E43) and My notebook page joined the menu after this card
+  // was written (Audit 7, TR7-2).
   {
     id: "title",
     part: 1,
@@ -465,10 +492,12 @@ export const DESK_TOUR_STEPS = [
     title: "The title menu",
     body: {
       default:
-        "“Study Desk” is a menu for the page itself: adding a pane, the layout, a new sheet, printing, and display options. Help for the Study Desk is here too.",
+        "“Study Desk” is a menu for the page itself: adding a pane, the layout, a new sheet, printing, display options, and full screen. Your notebook page, this tour, and help for the Study Desk are here too.",
     },
   },
-  // How a sheet starts (E59): the title menu's "New sheet…" and its template chooser.
+  // How a sheet starts (E59): the title menu's "New sheet…" and its template
+  // chooser. It names no count of templates (Audit 7, TR7-1: it listed five
+  // when there were seven), so it needn't follow the template module.
   {
     id: "newsheet",
     part: 1,
@@ -477,7 +506,7 @@ export const DESK_TOUR_STEPS = [
     title: "New sheet",
     body: {
       default:
-        "“New sheet…” in the title menu starts one. Choose a Bible study, sermon preparation, a class session, lectio divina, or a blank canvas, and the sheet opens with its parts ready to fill. Then add passages from the LIT pane’s verse numbers, or by selecting words. The chooser is open here only for the tour; nothing is made.",
+        "“New sheet…” in the title menu starts one. Choose a template, from a Bible study to lectio divina, or a blank canvas, and the sheet opens with its parts ready to fill. The chooser is open here only for the tour; nothing is made.",
     },
   },
   {
@@ -498,6 +527,131 @@ export const DESK_TOUR_STEPS = [
     body: {
       default:
         "Choose an arrangement and your panes move into it. Grayed ones need a bigger window. “Make this my default” keeps one for next time. An arrangement is applied here only for the tour.",
+    },
+  },
+];
+
+/* ── The Sheets tour (E63) ───────────────────────────────────────── */
+
+/**
+ * The Sheets tour's parts. It runs on /desk, in a Sheets pane
+ * (desk/sheets/sheet-tour.js; BVJ, 2026-11-09: "a third tour for Sheets is
+ * warranted, though it will likely be shorter"), and is a tour of its own,
+ * as the Study Desk tour is: its own steps, its own seen list
+ * (`lit-desk-sheet-tour`, the same shape) and its own offer.
+ */
+export const SHEET_TOUR_PARTS = ["Making a sheet", "Using a sheet"];
+
+/**
+ * The steps, in order. Like the Study Desk tour's they have no `views`, and
+ * they act on the real page and leave nothing behind: the sheet the tour shows
+ * is made in memory and never written. Every step is `notebook`, since a sheet
+ * is a notebook record: where the browser keeps none there is no tour. The ids
+ * may not collide with the other two tours' (a test holds it).
+ *
+ * It runs on /desk and on the Sheets page (BVJ, 2026-11-09), the same eight
+ * steps under the same ids, so one seen list serves both. `default` is the
+ * desk's wording, and `page` the Sheets page's where the two differ: the page
+ * has no LIT pane, and its versions view stands for the pane's "Print or
+ * share…" and "Present…" (stepBody(step, "page")).
+ */
+export const SHEET_TOUR_STEPS = [
+  {
+    id: "list",
+    part: 0,
+    since: "e63",
+    notebook: true,
+    title: "My sheets",
+    body: {
+      default:
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A Sheets pane is shown here only for the tour.",
+      page:
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, or open a file someone sent you with “Import a Study Desk file.”",
+    },
+  },
+  {
+    id: "templates",
+    part: 0,
+    since: "e63",
+    notebook: true,
+    title: "Start from a template",
+    body: {
+      default:
+        "“New sheet” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you save as a template is offered here too. Nothing is written until your first change, so you can open each and look.",
+      page:
+        "“New sheet…” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you save as a template is offered here too. Nothing is written until your first change, so you can open each and look.",
+    },
+  },
+  {
+    id: "parts",
+    part: 0,
+    since: "e63",
+    notebook: true,
+    title: "The parts",
+    body: {
+      default:
+        "A sheet is a column of parts. A template’s start empty, with dimmed words saying what goes in each; those never print. Drag a part by its header to move it, and × removes it. In the header, “Leader only” keeps a part off the participant’s version, and the box beside it plans its minutes. This sheet is the tour’s, and is never saved.",
+    },
+  },
+  {
+    id: "passage",
+    part: 0,
+    since: "e63",
+    notebook: true,
+    title: "Add a passage",
+    body: {
+      default:
+        "In the LIT pane, a verse’s menu adds the verse to the sheet you are working on, and selected words add just those words. Or type a reference in the form under “Reading.” On a chapter page, the verse menu has “Add to sheet” as well.",
+      page:
+        "Type a reference in the form under “Reading,” or choose one of your notes, highlights, or bookmarks listed beneath it. On the Study Desk, a verse’s menu in the LIT pane adds the verse to the sheet you are working on, and on a chapter page the verse menu has “Add to sheet.”",
+    },
+  },
+  {
+    id: "blanks",
+    part: 0,
+    since: "e63",
+    notebook: true,
+    title: "Blanks and footnotes",
+    body: {
+      default:
+        "A passage shows today’s wording of the LIT, and the sheet says when it changes. Under “Blanks,” choose a key term, or select words and “Blank the selected words,” to leave a gap for the group to fill in, with a hint beneath it if you like. “Footnotes” chooses which of the LIT’s notes print. A passage was added here for the tour.",
+    },
+  },
+  {
+    id: "words",
+    part: 0,
+    since: "e63",
+    notebook: true,
+    title: "Your own words, and more",
+    body: {
+      default:
+        "The row under the parts adds the rest: your text, a question with lines to write on (and an answer on the leader’s version), space, a page break, and a key terms box filled in from the passages. “From my notes…” brings your notes, highlights, and pinned footnotes on these passages onto the sheet. Point between two parts, and an “Add” pill puts one right there.",
+    },
+  },
+  {
+    id: "print",
+    part: 1,
+    since: "e63",
+    notebook: true,
+    title: "Print or share",
+    body: {
+      default:
+        "“Print or share…” opens the sheet’s own page in a new tab. There you choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, and print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file.",
+      page:
+        "“Done” brings a sheet to its own page, this one. Choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, then print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file. “Edit” goes back to the parts.",
+    },
+  },
+  {
+    id: "present",
+    part: 1,
+    since: "e63",
+    notebook: true,
+    title: "Present",
+    body: {
+      default:
+        "“Present…” shows the sheet to a room, full screen, one part at a time, with a passage’s blanks uncovered as you choose. A presenter view on your own screen keeps your notes and the minutes you planned, and stays in step with the room.",
+      page:
+        "“Present” shows the sheet to a room, full screen, one part at a time, with a passage’s blanks uncovered as you choose. A presenter view on your own screen keeps your notes and the minutes you planned, and stays in step with the room.",
     },
   },
 ];

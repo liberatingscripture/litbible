@@ -340,7 +340,8 @@ function mountSheet(body, env, pane) {
     showPassage: env.showPassage,
   });
   body.append(sheet.el);
-  return { destroy: () => sheet.destroy() };
+  // The editor, for the Sheets tour (E63), which acts through it.
+  return { destroy: () => sheet.destroy(), editor: sheet.editor };
 }
 
 function mountSearch(body, env, pane) {
@@ -382,7 +383,8 @@ function goToRecord(env) {
  *   pane, `set` is where its reader now is. `getSheet` and `setSheet` are the
  *   sheet a Sheets pane shows.
  * @returns {{ destroy: () => void, setPassage?: (passage: object) => void,
- *   keep?: () => () => void }}
+ *   keep?: () => () => void, editor?: object }}
+ *   `editor` is a Sheets pane's sheet editor (sheet-editor.js).
  */
 export function mountPane(kind, body, env, pane) {
   body.classList.remove("desk-pane__body--fill");

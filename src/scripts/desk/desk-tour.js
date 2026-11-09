@@ -30,15 +30,20 @@
 //
 // "Seen" is its own list, `lit-desk-page-tour` (first-use.js), in the notebook
 // tour's shape, so finishing one tour says nothing about the other.
+//
+// /desk has a second tour, the Sheets tour (sheets/sheet-tour.js, E63), with a
+// runner of its own, so each refuses to start while any tour is running
+// (`data-desk-tour` on <html>; Audit 7, TR7-6), and either one starting takes
+// the other's offer down. The Sheets card's link opens that tour (TR7-5).
 
 import {
-  DESK_TOUR_PARTS, DESK_TOUR_STEPS, TOUR_LINK, localDay, parseTourState, planTour,
+  DESK_TOUR_PARTS, DESK_TOUR_STEPS, SHEET_TOUR_LINK, TOUR_LINK, localDay, parseTourState, planTour,
   tourOffer, withLater, withNever, withOffered, withSeen,
 } from "../../lib/desk-first-use.mjs";
 import { addPane, addPaneNeeds, applyArrangement, arrangementOf, isFollower, needs, originalLayout, panes, setActive, setKind } from "../../lib/desk-layout.mjs";
 import { createFloatWindow } from "../float-window.js";
 import { getDeskTourRaw, saveDeskTourList } from "./first-use.js";
-import { createTourRunner } from "./tour-runner.js";
+import { createTourRunner, waitFor } from "./tour-runner.js";
 
 // The arrangements the Layout step tries, best demonstration first: more than
 // two panes, so it shows the window doing something the Add pane step didn't.
@@ -51,17 +56,10 @@ const el = (tag, className, text) => {
   return e;
 };
 const today = () => localDay(new Date());
-/** Waits for `find()` to return something, up to `ms`, polling each frame. */
-const waitFor = (find, ms = 2000) =>
-  new Promise((resolve) => {
-    const end = performance.now() + ms;
-    const tick = () => {
-      const got = find();
-      if (got || performance.now() > end) resolve(got ?? null);
-      else requestAnimationFrame(tick);
-    };
-    tick();
-  });
+/** Whether a tour is running on this page, this one or the Sheets tour (the runner sets it). */
+const touring = () => document.documentElement.hasAttribute("data-desk-tour");
+/** A card's link to another tour: My Notes' to the notebook tour, Sheets' to the Sheets tour. */
+const MORE_LINKS = { mine: TOUR_LINK, sheets: SHEET_TOUR_LINK };
 
 /**
  * @param {{ canKeep: boolean, getLayout: () => object, setLayout: (next: object) => void,
@@ -220,7 +218,8 @@ export function createDeskTour(api) {
   /* ── Starting and ending ──────────────────────────────────────── */
 
   function start({ only = null } = {}) {
-    if (runner.running()) return;
+    // Not over the Sheets tour, whose run this runner doesn't know (TR7-6).
+    if (runner.running() || touring()) return;
     offerWin.close("take");
     const mine = api.getLayout();
     const base = originalLayout(mine.place);
@@ -240,7 +239,7 @@ export function createDeskTour(api) {
     runner.start({
       steps,
       act: (step) => STEPS[step.id]?.() ?? null,
-      more: (step) => (step.more ? { href: TOUR_LINK, text: step.more, external: true } : null),
+      more: (step) => (step.more && MORE_LINKS[step.id] ? { href: MORE_LINKS[step.id], text: step.more, external: true } : null),
       returnTo: api.titleButton,
       // The reader's own layout back, then saving on again.
       finish: () => {
@@ -279,9 +278,16 @@ export function createDeskTour(api) {
 
   let offer = null; // { kind, ids } while the offer is up
 
+  // A tour starting takes the offer down: the Sheets tour, from its link in a
+  // Sheets pane, while this offer is still up. It was written as "later" when
+  // it was shown, so it comes back on a later day as if put off.
+  new MutationObserver(() => {
+    if (offer && touring()) offerWin.close("tour");
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-desk-tour"] });
+
   /** The offer is made when /desk has opened and nothing is in the way. */
   function maybeOffer() {
-    if (offer || runner.running()) return;
+    if (offer || runner.running() || touring()) return;
     const o = tourOffer(getDeskTourRaw(), { today: today(), steps: DESK_TOUR_STEPS });
     if (!o.kind) return;
     // Until it's answered, an offer shown counts as "remind me later," so
@@ -337,5 +343,6 @@ export function createDeskTour(api) {
     api.onLineChange?.();
   }
 
-  return { start, maybeOffer, lineWanted, declineLine, running: runner.running };
+  // `offering` is for the Sheets tour's offer, which waits while this one is up.
+  return { start, maybeOffer, lineWanted, declineLine, running: runner.running, offering: () => Boolean(offer) };
 }
