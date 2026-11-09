@@ -36,6 +36,10 @@
 //   "My templates", their rows' Duplicate, Save as template and Delete, and
 //   the template chooser. `showList` here clears the sheet view and hands it
 //   `listHost`.
+// - **The passage form and "+ From my notes…" are add-forms.js** (Audit 6,
+//   LG6-2): they read a reference or the notebook and draw their choices;
+//   where a part goes, and the change that adds it, are handed in as
+//   `addHost`.
 // - **A template's parts hold no text, only a prompt** (SH5-2): an empty
 //   part shows its module's `prompt` as the editor's placeholder, and a part
 //   holding only its heading shows it dimmed under the heading, until the
@@ -76,21 +80,13 @@ import {
   updateModule,
 } from "../../../lib/desk-sheets.mjs";
 import { keyTermsPlacement, readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
-import { fitModules, notebookItems, partsFor } from "../../../lib/desk-sheet-from-notes.mjs";
 import {
-  passageForReference,
-  passageFromRecord,
   passageInsertIndex,
   passageLabel,
   passageReference,
   samePassage,
   sortSheets,
 } from "../../../lib/desk-sheet-passages.mjs";
-import { recordReference } from "../../../lib/desk-store-core.mjs";
-import { parseReference } from "../../search-core.js";
-import { bookKeyToLabel } from "../../../data/books.js";
-import { describeRefusal } from "../../../lib/desk-sheet-ref-refusal.mjs";
-import { loadChapterPage } from "../chapter-page.js";
 import { undoEntry } from "../history.js";
 import { createKeyTermsBody, createLicenseCard, createPassageBody } from "./sheet-lit.js";
 import { createSheetText } from "./sheet-text.js";
@@ -101,6 +97,7 @@ import { redraw } from "../focus-keep.js";
 import { make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 import { listProblem, mySheetsList } from "./my-sheets.js";
+import { openFromNotes, openPassageForm } from "./add-forms.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -516,6 +513,19 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   // ---- one sheet ----
 
   const cards = new Map(); // module id → { el, json, inst }
+  // What the passage form and "+ From my notes…" (add-forms.js) are handed.
+  const addHost = {
+    store,
+    ctx,
+    opCtx,
+    say,
+    cards,
+    sheet: () => sheet,
+    addPassage: (fields, target) => me.addPassage(fields, target),
+    change,
+    insertIndex,
+    focusNewPart,
+  };
   let header = null;
   let moduleList = null;
   let titleInput = null;
@@ -1372,7 +1382,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const zone = card.querySelector(":scope > .desk-sheet__after");
     if (zone) zone.before(el);
     else card.append(el);
-    openPassageForm(form, insertForm.target, { focus });
+    openPassageForm(addHost, form, insertForm.target, { focus });
     if (scroll) el.scrollIntoView({ block: "nearest" });
   }
 
@@ -1402,7 +1412,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
         if (type === "passage") {
           form.hidden = !form.hidden;
           b.setAttribute("aria-expanded", String(!form.hidden));
-          if (!form.hidden) openPassageForm(form);
+          if (!form.hidden) openPassageForm(addHost, form);
           return;
         }
         addPart(type);
@@ -1442,7 +1452,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
         return;
       }
       fromNotes.setAttribute("aria-expanded", "true");
-      openFromNotes(picker, closePicker);
+      openFromNotes(addHost, picker, closePicker);
     });
     picker.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
@@ -1459,206 +1469,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     form.id = `deskSheetPassage-${idSuffix}`;
     bar.append(row, form, picker, ...hints, keyTermsHint);
     return bar;
-  }
-
-  /**
-   * The "+ From my notes…" chooser (E62): the notebook's notes, highlights and
-   * pinned footnotes on this sheet's passages (everything, newest first, on a
-   * sheet with none yet), each with a box to tick; "Add" brings the ticked
-   * ones on as parts in one change, so one Ctrl+Z takes them all back. A
-   * question becomes a Question part, a note or a pinned footnote Your text,
-   * a highlight a passage (its chapter is read first, so part of a verse
-   * keeps its words). What is already on the sheet is shown but can't be
-   * ticked. The parts go after the part last worked in, else at the end.
-   */
-  async function openFromNotes(box, close) {
-    box.hidden = false;
-    box.replaceChildren(make("p", "desk-sheet__from-title", "From my notes"), make("p", "desk-sheet__empty", "Looking in your notebook…"));
-    let records = [];
-    try {
-      records = await store.all();
-    } catch (_) {}
-    if (box.hidden || !sheet) return;
-    const items = notebookItems(sheet, records);
-    const hasPassages = sheet.modules.some((m) => m?.type === "passage");
-    box.replaceChildren(make("p", "desk-sheet__from-title", hasPassages ? "From my notes on this sheet’s passages" : "From my notes"));
-    const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
-    cancel.addEventListener("click", () => close(true));
-    if (!items.length) {
-      box.append(
-        make("p", "desk-sheet__empty", hasPassages
-          ? "None of your notes, highlights, or pinned footnotes fall on this sheet’s passages. Make one there, or add the passage they are on."
-          : "Notes, highlights, and pinned footnotes you make will be listed here, to bring onto a sheet."),
-        cancel,
-      );
-      cancel.focus();
-      return;
-    }
-    box.append(make("p", "desk-sheet__empty", "Tick what to bring. A question becomes a Question part, a note or a pinned footnote Your text, and a highlight a passage."));
-    const KIND = { question: "Question", note: "Note", highlight: "Highlight", footnote: "Footnote" };
-    const picks = new Map();
-    const go = button("Add", "desk-sheet__btn desk-sheet__btn--primary");
-    go.disabled = true;
-    const count = () => {
-      const k = picks.size;
-      go.textContent = k ? `Add ${k === 1 ? "1 part" : `${k} parts`}` : "Add";
-      go.disabled = !k;
-    };
-    const ul = make("ul", "desk-sheet__from-list");
-    items.forEach((it, i) => {
-      const li = make("li");
-      const label = make("label", "desk-sheet__from-item desk-sheet__pick");
-      const tick = make("input");
-      tick.type = "checkbox";
-      tick.disabled = it.onSheet;
-      label.append(tick, make("span", "desk-sheet__from-ref", recordReference(it.record)), make("span", "desk-sheet__from-kind", it.onSheet ? `${KIND[it.kind]} · on the sheet` : KIND[it.kind]));
-      if (it.words) label.append(make("span", "desk-sheet__from-words", it.words.length > 90 ? it.words.slice(0, 89) + "…" : it.words));
-      tick.addEventListener("change", () => {
-        if (tick.checked) picks.set(i, it);
-        else picks.delete(i);
-        count();
-      });
-      li.append(label);
-      ul.append(li);
-    });
-    const actions = make("div", "desk-sheet__add-row");
-    actions.append(go, cancel);
-    box.append(ul, actions);
-    ul.querySelector("input:not(:disabled)")?.focus();
-    go.addEventListener("click", async () => {
-      const chosen = [...picks.values()];
-      if (!chosen.length) return;
-      go.disabled = true;
-      // The highlights' chapters, so part of a verse keeps its words.
-      const chapters = new Map();
-      for (const it of chosen) {
-        if (it.kind !== "highlight") continue;
-        const key = `${it.record.bookKey} ${it.record.chapter}`;
-        if (chapters.has(key)) continue;
-        try {
-          const source = await loadChapterPage(it.record.bookKey, it.record.chapter);
-          chapters.set(key, source.textBox ? source.anchorText() : null);
-        } catch (_) {
-          chapters.set(key, null);
-        }
-      }
-      if (box.hidden || !sheet || !canEdit(sheet)) return;
-      const made = partsFor(chosen, { chapter: (r) => chapters.get(`${r.bookKey} ${r.chapter}`) ?? null, contentVersion: ctx().contentVersion });
-      const fit = fitModules(sheet, made);
-      if (!fit.modules.length) {
-        say(`A sheet holds at most ${SHEET_LIMITS.modules} parts, so nothing more fits.`);
-        go.disabled = false;
-        return;
-      }
-      close(false);
-      let added = fit.modules;
-      change((s) => {
-        // Fitted again on the sheet as saved, which another tab may have grown.
-        added = fitModules(s, fit.modules).modules;
-        let at = insertIndex(s);
-        return added.reduce((acc, m) => addModule(acc, m, at++, opCtx()), s);
-      }, {
-        announce: `${added.length === 1 ? "1 part" : `${added.length} parts`} added from your notes.${fit.dropped ? ` ${fit.dropped} more didn’t fit.` : ""}`,
-        after: () => {
-          const c = cards.get(added[0]?.id);
-          c?.el.scrollIntoView({ block: "nearest" });
-          focusNewPart(c);
-        },
-      });
-    });
-  }
-
-  /**
-   * The "+ Passage" form: a typed reference, or a place from the notebook.
-   * `target` ({ after: id }) is where a card's form puts the passages it adds;
-   * the bar's form has none and adds after the part last worked in.
-   */
-  async function openPassageForm(form, target = null, { focus = true } = {}) {
-    form.replaceChildren();
-    const line = make("form", "desk-sheet__ref");
-    const input = make("input");
-    input.type = "text";
-    input.placeholder = "A reference, such as John 3:16–18";
-    input.setAttribute("aria-label", "Passage to add");
-    const go = make("button", "desk-sheet__btn", "Add");
-    go.type = "submit";
-    const problem = make("p", "desk-sheet__problem");
-    problem.setAttribute("role", "alert");
-    // A passage added again says so here, where the reader added it (BA75);
-    // the pane's live region has already announced it.
-    const note = make("p", "desk-sheet__empty");
-    note.hidden = true;
-    const added = (result) => {
-      note.hidden = !result?.again;
-      note.textContent = result?.again ? result.message : "";
-    };
-    line.append(input, go);
-    line.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      added(null);
-      const typed = input.value.replace(/[–—]/g, "-");
-      const ref = parseReference(typed);
-      if (!ref) {
-        problem.textContent = describeRefusal(typed, { parse: parseReference, label: bookKeyToLabel })
-          ?? "That isn’t a reference the LIT can read. Try a book, a chapter, and verses, such as Romans 5:6–10.";
-        return;
-      }
-      problem.textContent = "";
-      let chapter = null;
-      try {
-        const source = await loadChapterPage(ref.bookKey, ref.chapter);
-        chapter = source.textBox ? source.anchorText() : null;
-      } catch (_) {}
-      const found = passageForReference(chapter, ref, ctx().contentVersion);
-      if (found.problem) {
-        problem.textContent = found.problem;
-        return;
-      }
-      const result = await me.addPassage(found.fields, target);
-      added(result);
-      if (result) input.value = "";
-    });
-    form.append(line, problem, note);
-    if (focus) input.focus(); // the field takes focus as the form opens (SH5-11), unless it opened by itself
-
-    // From the notebook: its notes, highlights and bookmarks, newest first.
-    const fromBook = make("div", "desk-sheet__from");
-    fromBook.append(make("p", "desk-sheet__from-title", "From my notebook"));
-    form.append(fromBook);
-    let records = [];
-    try {
-      records = (await store.all())
-        .filter((r) => ["note", "highlight", "bookmark"].includes(r.kind) && r.bookKey && Number.isInteger(r.verse))
-        .sort((a, b) => String(b.modified ?? "").localeCompare(String(a.modified ?? "")))
-        .slice(0, 40);
-    } catch (_) {}
-    if (!records.length) {
-      fromBook.append(make("p", "desk-sheet__empty", "Notes, highlights, and bookmarks you make will be listed here."));
-      return;
-    }
-    const ul = make("ul", "desk-sheet__from-list");
-    const KIND = { note: "Note", highlight: "Highlight", bookmark: "Bookmark" };
-    for (const r of records) {
-      const li = make("li");
-      const b = button("", "desk-sheet__from-item");
-      const kind = r.kind === "note" && r.marker === "question" ? "Question" : KIND[r.kind];
-      b.append(make("span", "desk-sheet__from-ref", recordReference(r)), make("span", "desk-sheet__from-kind", kind));
-      const words = r.kind === "note" ? r.body : r.quote?.exact;
-      if (words) b.append(make("span", "desk-sheet__from-words", words.length > 90 ? words.slice(0, 89) + "…" : words));
-      b.addEventListener("click", async () => {
-        let chapter = null;
-        try {
-          const source = await loadChapterPage(r.bookKey, r.chapter);
-          chapter = source.textBox ? source.anchorText() : null;
-        } catch (_) {}
-        const fields = passageFromRecord(r, chapter, ctx().contentVersion);
-        added(null);
-        if (fields) added(await me.addPassage(fields, target));
-      });
-      li.append(b);
-      ul.append(li);
-    }
-    fromBook.append(ul);
   }
 
   // ---- dragging into order ----
