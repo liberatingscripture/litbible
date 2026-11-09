@@ -6941,6 +6941,31 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   color: rgba(var(--ink-rgb), 0.7);
 }
 
+/* The rows' buttons line up in columns down the whole list, whatever a
+   sheet's title or line says: the list is one grid and each row takes its
+   tracks (subgrid), so a column is as wide as its widest button and a label
+   that has to wrap in a narrow pane wraps in every row alike. The title keeps
+   a floor so the buttons never squeeze it to nothing. My templates has only
+   Delete, so its list has two columns. Without subgrid, the rows stay flex. */
+@supports (grid-template-columns: subgrid) {
+  .desk-sheet__sheets {
+    display: grid;
+    grid-template-columns: minmax(min(10rem, 40%), 1fr) repeat(3, auto);
+    column-gap: 6px;
+  }
+
+  .desk-sheet__sheets:not(:has(> li > :nth-child(3))) {
+    grid-template-columns: minmax(min(10rem, 40%), 1fr) auto;
+  }
+
+  .desk-sheet__sheet {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: center;
+  }
+}
+
 /* One sheet */
 /* Its links wrap whole onto a second line in a narrow pane (S12 added
    "Open on its own page"), never word by word or off the pane's edge. */
