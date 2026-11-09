@@ -590,7 +590,7 @@ export const SHEET_TOUR_STEPS = [
     title: "The parts",
     body: {
       default:
-        "A sheet is a column of parts. A template’s start empty, with dimmed words saying what goes in each; those never print. Drag a part by its header to move it, and × removes it. In the header, “Leader only” keeps a part off the participant’s version, and the box beside it plans its minutes. This sheet is the tour’s, and is never saved.",
+        "A sheet is a column of parts. A template’s parts start empty, with dimmed words saying what goes in each; those never print. Drag a part by its header to move it, and × removes it. In the header, “Leader only” keeps a part off the participant’s version, and the box beside it plans its minutes. This sheet is the tour’s, and is never saved.",
     },
   },
   {
