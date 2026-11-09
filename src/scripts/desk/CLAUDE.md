@@ -35,6 +35,7 @@ in `STUDY-DESK-FIXES.md`, and a "Built on…" line goes nowhere.
 | `STUDY-DESK-AUDIT-5.md` | **Audit 5: Sheets** (2026-11-07, `19e263e5`): every template, part and command as a first-time ministry leader, ghost prompts for template text, and the comparable tools; IDs `SH5-`. Fixed and decided in #502 to #505. |
 | `STUDY-DESK-AUDIT-6.md` | **Audit 6** (2026-11-08, `5c9a31a6`): Part 1 repeats Audit 5 (`SH6`); Part 2 repeats Audits 1 to 3 (`SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, verified by `VER6`). Priority list and decisions on top, reports as appendices, briefs in I and J. Mark a finding fixed as it ships. |
 | `STUDY-DESK-AUDIT-7.md` | **Audit 7, scoped: the tours** (2026-11-09, `81937298`): both tours re-read against today's UI, and the third, the Sheets tour (E63); IDs `TR7`. |
+| `STUDY-DESK-AUDIT-8.md` | **Audit 8, the final full audit** (2026-11-09, `15986b6e`): a fresh-eyes pass by fourteen auditors (IDs `DI8`, `SEC8`, `SH8`, `NB8`, `DK8`, `GK8`, `XA8`, `LG8`, `CP8`, `MH8`, `GF8a` to `GF8c`, `LV8`), verified by `VER8`, then a spot-check of Audits 1 to 7 and the E log (`PC8A` to `PC8C`). Mark a finding fixed as it ships. |
 
 **Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
 and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and
