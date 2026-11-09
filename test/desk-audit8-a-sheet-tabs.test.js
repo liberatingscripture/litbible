@@ -10,11 +10,13 @@
 //   showing the old words; now the rules work field by field.
 // - DI8-4: a closing tab writes over the newest copy it has heard of.
 // The page side, sheet-tabs.js, runs here as two tabs: the module imported
-// twice (each with its own tab id) over a BroadcastChannel stand-in.
+// twice (each with its own tab id) over a BroadcastChannel stand-in. The
+// editor's side of these rules (and SH8-4, SH8-7, SH8-8, XA8-10, DI8-5) is
+// driven in desk-audit8-dom-sheets-tabs.test.js and
+// desk-audit8-dom-sheets-editor.test.js.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import {
   ASK_WAIT_MS,
   editingMessage,
@@ -130,24 +132,4 @@ test("a closing tab writes over the newer of its saved copy and the one it heard
   assert.equal(newerSheet(saved, null), saved);
   assert.equal(newerSheet(null, heard), heard);
   assert.equal(newerSheet(saved, { ...heard, id: "other" }), saved, "another sheet's copy is never taken");
-});
-
-test("the editor works field by field, and its closing write and heads follow the rules", () => {
-  const src = readFileSync(new URL("../src/scripts/desk/sheets/sheet-editor.js", import.meta.url), "utf8");
-  assert.match(src, /movedUnderReader\(/);
-  assert.match(src, /keptFields\(/);
-  assert.match(src, /let next = newerSheet\(sheet, heard\?\.id === sheet\.id \? heard : null\);/);
-  // SH8-4 and DI8-7: a card's own save keeps its head key, and a head is redrawn in place.
-  assert.match(src, /card\.json = json\(m\);\s*card\.head = headKey\(m\);/);
-  assert.match(src, /card\.setHead\?\.\(m\);/);
-  // SH8-8: the live region doesn't wait for a frame, which a hidden tab never draws.
-  assert.doesNotMatch(src, /requestAnimationFrame\(\(\) => \{ live\.textContent/);
-  // XA8-10: with the last part removed, the empty sheet's line takes focus.
-  assert.match(src, /none\.tabIndex = -1/);
-  // DI8-5: a save the upgraded notebook refused says to reload, and leaves the words to copy.
-  assert.match(src, /if \(err\?\.name === NOTEBOOK_UPGRADED\) \{[^}]*reload this page[^}]*return;\s*\}/);
-  const cards = readFileSync(new URL("../src/scripts/desk/sheets/part-cards.js", import.meta.url), "utf8");
-  // SH8-4: the minutes field puts back what the sheet holds now, and the space's preview follows its field.
-  assert.match(cards, /field\.value = now\(\)\.minutes \?\? "";/);
-  assert.match(cards, /onLines\?\.\(lines\);/);
 });

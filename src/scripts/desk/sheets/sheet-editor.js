@@ -887,6 +887,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       plannedLine.textContent = total ? `Planned time: ${total} min (leader’s version and presenter view only)` : "";
     }
     const seen = new Set();
+    let headFocus = null;
     sheet.modules.forEach((m, i) => {
       seen.add(m.id);
       let card = cards.get(m.id);
@@ -920,6 +921,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
           if (conflict.length || card.conflict) showConflict(card, m, from);
           card.json = now;
         } else {
+          // Focus in the card's header (its minutes, Leader only, Move or
+          // Remove) goes to the same control in the rebuilt card, so another
+          // tab's change doesn't drop it to the page.
+          headFocus = focusedHeadControl(card.el);
           card.inst?.destroy?.();
           card.el.remove();
           card = null;
@@ -932,6 +937,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       }
       card.setPosition(i, sheet.modules.length);
       if (moduleList.children[i] !== card.el) moduleList.insertBefore(card.el, moduleList.children[i] ?? null);
+      if (headFocus != null) {
+        headControls(card.el)[headFocus]?.focus();
+        headFocus = null;
+      }
     });
     for (const [id, card] of cards) {
       if (seen.has(id)) continue;
@@ -1076,6 +1085,17 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     } catch (err) {
       console.error("Study Desk: the sheet couldn’t be saved as the page closed", err);
     }
+  }
+
+  /** The controls in a card's header, in order. */
+  function headControls(cardEl) {
+    return [...(cardEl.querySelector(".desk-sheet__module-head")?.querySelectorAll("button, input, select, a[href]") ?? [])];
+  }
+
+  /** Which of a card's header controls has focus, by its place, or null. */
+  function focusedHeadControl(cardEl) {
+    const at = headControls(cardEl).indexOf(document.activeElement);
+    return at < 0 ? null : at;
   }
 
   // ---- a module's card ----

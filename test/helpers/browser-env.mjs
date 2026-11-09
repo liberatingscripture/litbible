@@ -69,3 +69,32 @@ export function resetDom(url = "http://localhost/") {
   document.body.innerHTML = "";
   window.happyDOM.setURL(url);
 }
+
+// happy-dom's canvas has no 2d context; the desk measures text with one
+// (margin.js). A stub whose measurements are all zero is enough where a test
+// is not about layout.
+const canvasProto = window.HTMLCanvasElement?.prototype;
+if (canvasProto) {
+  canvasProto.getContext = function getContext() {
+    return {
+      font: "",
+      measureText: (t) => ({ width: String(t).length * 8, fontBoundingBoxAscent: 0, actualBoundingBoxAscent: 0 }),
+      fillRect() {},
+      clearRect() {},
+    };
+  };
+}
+
+// Node's BroadcastChannel keeps the process alive until closed; the desk opens
+// one and never closes it (a page's channel lives as long as the page), so a
+// test file that imports such a module would never exit. Unreferenced, it
+// doesn't hold the process.
+if (typeof globalThis.BroadcastChannel === "function") {
+  const RealChannel = globalThis.BroadcastChannel;
+  globalThis.BroadcastChannel = class extends RealChannel {
+    constructor(name) {
+      super(name);
+      this.unref?.();
+    }
+  };
+}

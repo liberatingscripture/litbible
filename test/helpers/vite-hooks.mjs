@@ -10,6 +10,11 @@
 const ENV = '({ BASE_URL: "/", MODE: "test", DEV: false, PROD: true, SSR: false })';
 
 export async function resolve(specifier, context, next) {
+  // Pagefind is a build output (dist/pagefind/), imported by absolute path; a
+  // test sets globalThis.__pagefind = { search(query) } to answer it.
+  if (/\/pagefind\/pagefind\.js$/.test(specifier)) {
+    return { url: "data:text/javascript,export const search = (...a) => globalThis.__pagefind.search(...a);", shortCircuit: true };
+  }
   if (/\.css(\?.*)?$/.test(specifier) || /\?(raw|inline|url)$/.test(specifier)) {
     return { url: "data:text/javascript,export default %22%22;", shortCircuit: true };
   }
@@ -22,7 +27,7 @@ export async function resolve(specifier, context, next) {
 
 export async function load(url, context, next) {
   const result = await next(url, context);
-  if (url.startsWith("file:") && /\/src\/.*\.(m?js|ts)$/.test(url) && result.source != null) {
+  if (url.startsWith("file:") && /\/src\/.*\.(m?js|ts)(\?.*)?$/.test(url) && result.source != null) {
     const text = String(result.source);
     if (text.includes("import.meta.env")) {
       return { ...result, source: text.replaceAll("import.meta.env", ENV), shortCircuit: true };

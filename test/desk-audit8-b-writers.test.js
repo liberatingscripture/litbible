@@ -81,29 +81,13 @@ test("a long list is cut across slides between its items, numbering carried on (
   assert.equal(splitBlocks([{ type: "list", ordered: true, items: items.slice(0, 3) }], 560).length, 1);
 });
 
-/* ── DOM code that node can't run: held by what its source does ───────── */
+/* ── Copy in DOM code, held by its source ─────────────────────────────── */
+// The presenter view's focus (SH8-6, XA8-9), the Paragraph style button's
+// name (XA8-5) and the commercial check (GF8b-1, GF8b-2, GF8b-13) are driven
+// in desk-audit8-dom-sheets-output.test.js.
 
 import { readFileSync } from "node:fs";
 const src = (f) => readFileSync(new URL(`../src/scripts/desk/sheets/${f}`, import.meta.url), "utf8");
-
-test("the presenter view moves focus before it disables or hides a focused control (SH8-6, XA8-9)", () => {
-  const s = src("sheet-present.js");
-  const draw = s.slice(s.indexOf("function showPresenterView") >= 0 ? s.indexOf("function showPresenterView") : s.indexOf("showPresenterView"));
-  assert.match(draw, /off\.get\(document\.activeElement\)\) blankBtn\.focus/);
-  assert.ok(draw.indexOf("blankBtn.focus") < draw.indexOf("prev.disabled = i === 0"));
-});
-
-test("the Paragraph style button's name carries its visible word (XA8-5)", () => {
-  assert.match(src("sheet-text.js"), /blockButton\.setAttribute\("aria-label", `Paragraph style: \$\{blockLabel\.textContent\}`\)/);
-});
-
-test("the commercial check redraws only when its numbers change, and an unticked box stops a running count (GF8b-1, GF8b-2, GF8b-13)", () => {
-  const s = src("sheet-lit.js");
-  const card = s.slice(s.indexOf("export function createLicenseCard"));
-  assert.match(card, /if \(result === drawnResult && check\.querySelector\("ul"\)\) return;/);
-  assert.match(card, /if \(!box\.checked\) \{\s*\+\+seq;/);
-  assert.match(card, /if \(c\.over && pct <= 50\) pct = Math\.ceil\(c\.share \* 1000\) \/ 10;/);
-});
 
 test("the notebook chooser's words are American (PC8A-1)", () => {
   const s = src("add-forms.js");

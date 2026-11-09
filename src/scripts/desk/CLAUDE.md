@@ -169,6 +169,14 @@ file, its menus and toolbar) is in `src/scripts/desk/sheets/CLAUDE.md`.
 names. `test/desk-store.test.js` runs the real `store.js` against
 `fake-indexeddb`; `test/desk-storage-keys.test.js` holds `/privacy` to every
 storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
+**Test client code by driving it, not by reading its source** (Audit 8):
+`test/helpers/browser-env.mjs` installs a happy-dom window as globals and
+lets Node import the desk's browser modules (`import.meta.env`, stylesheet
+and JSON imports go through `vite-hooks.mjs`). Import it first, then the
+module with `await import(...)`, and assert on what the page shows, says,
+focuses or writes (`test/desk-audit8-dom-kept-list.test.js` is the model).
+A test that regex-matches source text passes when the behavior breaks; keep
+one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
 
 ## The rules
 
