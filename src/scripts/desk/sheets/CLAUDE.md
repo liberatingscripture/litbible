@@ -62,7 +62,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `templateChooser` for the list's "New sheet…". **The editor's own list
   view is `my-sheets.js`** (Audit 6, LG6-2): "My sheets", "My templates",
   each row's actions and `templateChooser`, handed the editor's pieces as
-  `listHost`; the editor keeps only clearing its sheet view first. **Two tabs on one sheet**
+  `listHost`; the editor keeps only clearing its sheet view first. **The passage form and "+ From my notes…" are
+  `add-forms.js`** (LG6-2): they draw their choices and call back through
+  `addHost`, so where a part goes and the change that adds it stay the
+  editor's. **Two tabs on one sheet**
   (S12, part 4; BVJ, 2026-11-08; rules in `src/lib/desk-sheet-tabs.mjs`,
   page side `sheet-tabs.js`): every change is planned over the record as
   read (BA129), so edits to different parts in two tabs both keep, and each
