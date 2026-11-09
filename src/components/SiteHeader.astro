@@ -8,7 +8,8 @@ import SearchBar from "./SearchBar.astro";
 // the header, on pages with no search box of their own (see Layout's
 // pageSearch). Without JS the icon is a plain link to /search.
 // The Study Desk link beside "Aa" is on the home page only (deskLink; BVJ,
-// 2026-11-06, E50). Scripture pages and /read carry their own pill in the page
+// 2026-11-06, E50), and only where header C's groups don't show (a window
+// under 760px, or OpenDyslexic's earlier fold): the Study group replaces it. Scripture pages and /read carry their own pill in the page
 // (ScriptureLayout's toolbar, ReadMenu's row), and no other page has one. The
 // name is written out beside the glyph so the new tool can be found. It is
 // hidden by global.css unless <html data-desk> is set (a computer with the
@@ -20,7 +21,56 @@ import SearchBar from "./SearchBar.astro";
 // menu and moves Aa into it (E15), so Aa is in the markup but leaves the bar
 // once the desk is up.
 // No nav row and no search.
-const { class: className = "", scriptureControls, headerSearch = false, deskTitle, deskLink = false } = Astro.props;
+// deskHref: where the Study group's "Study Desk" goes. A chapter or an
+// introduction passes its toolbar pill's address (?place=, and &intro=), so
+// the two never disagree; every other page opens plain /desk/.
+const { class: className = "", scriptureControls, headerSearch = false, deskTitle, deskLink = false, deskHref = "/desk/" } = Astro.props;
+
+// The header's groups (S12 step 5, header C; STUDY-DESK.md, BVJ 2026-11-08).
+// A computer with the desk preview on gets them as three menus in place of
+// the five links below; global.css chooses from the pre-paint data-desk
+// stamp, so nothing flashes. The phone menu shows them under headings for
+// everyone (BVJ: "Having just the part change on mobile early is ok"), with
+// Study only when the desk is on. `phone: false` keeps a link off the phone
+// menu, which has room for fewer. `desc` is the line under a menu link.
+// The Study group launches with the desk (src/scripts/desk/CLAUDE.md,
+// "Launching").
+type NavLink = { href: string; label: string; short?: string; desc?: string; sep?: boolean; phone?: boolean };
+type NavGroup = { key: string; label: string; desk?: boolean; links: NavLink[] };
+const NAV_GROUPS: NavGroup[] = [
+  {
+    key: "learn",
+    label: "Learn",
+    links: [
+      { href: "/glossary", label: "Glossary", desc: "Key words and how the LIT renders them" },
+      { href: "/articles", label: "Articles", desc: "Teaching on the translation" },
+      { href: "/found-in-translation-podcast", label: "Podcast", desc: "Found in Translation" },
+    ],
+  },
+  {
+    key: "study",
+    label: "Study",
+    desk: true,
+    links: [
+      { href: deskHref, label: "Study Desk", desc: "Panes for the text, your notes, the Greek, and sheets" },
+      { href: "/sheets/", label: "My sheets", desc: "Handouts for a group: edit, print, present, share" },
+      { href: "/notebook/", label: "My notebook", desc: "Everything you’ve kept" },
+      { href: "/desk/help/", label: "Help for the Study Desk", sep: true, phone: false },
+    ],
+  },
+  {
+    key: "about",
+    label: "About",
+    links: [
+      { href: "/about", label: "About the LIT" },
+      { href: "/translation-commitments", label: "Translation commitments", short: "Commitments" },
+      { href: "/liberating-scripture-collective", label: "Liberating Scripture Collective", phone: false },
+      { href: "/release-notes", label: "What’s new", desc: "Changes to the text and the site", phone: false },
+      { href: "/support", label: "Support", sep: true },
+      { href: "/contact", label: "Contact" },
+    ],
+  },
+];
 
 // Text size steps. The visible letters are the usual abbreviations; the
 // radios carry the words for screen readers.
@@ -69,11 +119,39 @@ const SIZE_OPTIONS = [
     {!deskTitle && (
     <nav class="site-nav" aria-label="Primary">
       <ul class="site-nav__list">
-        <li><a href="/about">About</a></li>
-        <li><a href="/translation-commitments">Commitments</a></li>
-        <li><a href="/glossary">Glossary</a></li>
-        <li><a href="/found-in-translation-podcast">Podcast</a></li>
-        <li><a href="/articles">Articles</a></li>
+        {/* Today's links, for a computer without the desk preview. */}
+        <li class="site-nav__plain"><a href="/about">About</a></li>
+        <li class="site-nav__plain"><a href="/translation-commitments">Commitments</a></li>
+        <li class="site-nav__plain"><a href="/glossary">Glossary</a></li>
+        <li class="site-nav__plain"><a href="/found-in-translation-podcast">Podcast</a></li>
+        <li class="site-nav__plain"><a href="/articles">Articles</a></li>
+        {/* Header C's menus, for a computer with it (header-menus.js). A
+            menu needs JS, and so does the desk stamp that shows them. */}
+        {NAV_GROUPS.map((group) => (
+          <li class={`site-nav__group${group.desk ? " site-nav__group--desk" : ""}`} data-nav-group>
+            <button
+              type="button"
+              class="site-nav__group-btn"
+              aria-expanded="false"
+              aria-controls={`navMenu-${group.key}`}
+            >{group.label}<span class="site-nav__caret" aria-hidden="true">▾</span></button>
+            <ul class="site-nav__menu" id={`navMenu-${group.key}`} hidden>
+              {group.links.map((link, i) => (
+                <>
+                  {link.sep && <li class="site-nav__menu-sep" role="separator"></li>}
+                  <li>
+                    <a
+                      href={link.href}
+                      aria-describedby={link.desc ? `navMenu-${group.key}-${i}` : undefined}
+                    >{link.label}{link.desc && (
+                      <span class="site-nav__menu-desc" id={`navMenu-${group.key}-${i}`}>{link.desc}</span>
+                    )}</a>
+                  </li>
+                </>
+              ))}
+            </ul>
+          </li>
+        ))}
 
         <li class="site-nav__cta-item">
           <a href="/read" class="site-header__cta"><span>Read Now</span></a>
@@ -379,12 +457,19 @@ const SIZE_OPTIONS = [
         {headerSearch && (
           <a href="/search" class="menu-overlay__search" data-search-toggle>Search</a>
         )}
-        <a href="/about">About</a>
-        <a href="/translation-commitments">Commitments</a>
-        <a href="/glossary">Glossary</a>
-        <a href="/found-in-translation-podcast">Podcast</a>
-        <a href="/articles">Articles</a>
-        <a href="/support">Support</a>
+        {/* The groups under headings, with no menu inside the menu. */}
+        {NAV_GROUPS.map((group) => (
+          <div
+            class={`menu-overlay__group${group.desk ? " menu-overlay__group--desk" : ""}`}
+            role="group"
+            aria-labelledby={`menuGroup-${group.key}`}
+          >
+            <p class="menu-overlay__heading" id={`menuGroup-${group.key}`}>{group.label}</p>
+            {group.links.filter((link) => link.phone !== false).map((link) => (
+              <a href={link.href}>{link.short ?? link.label}</a>
+            ))}
+          </div>
+        ))}
 
         {/* Filled and shown by last-read.js for a returning reader */}
         <a href="/read/" class="menu-overlay__continue" data-continue-menu hidden>
@@ -400,6 +485,7 @@ const SIZE_OPTIONS = [
     import "../scripts/header-search.js";
     import "../scripts/keyboard-shortcuts.js";
     import "../scripts/desk-gate.js";
+    import "../scripts/header-menus.js";
   </script>
 
   <script>

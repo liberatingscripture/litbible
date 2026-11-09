@@ -5174,7 +5174,7 @@ be revisited for version 2.
 
 ## S12. Editing on the Sheets page, and the ways in (planned 2026-11-08)
 
-**Steps 0 to 4 built, step 5 (header C) not started** (2026-11-08; planned
+**Steps 0 to 5 built** (2026-11-08; planned
 the same day, BVJ: "Plan it but don't start building yet"). BVJ asked three things the same day:
 
 - Could a sheet be worked on at `/sheets` itself, outside the desk, "much like
@@ -5402,7 +5402,35 @@ apps want a sheet merged part by part before this is built.
    is on Chapter View only, not Read View; "Open on its own page" in a Sheets
    pane opens the editor on /sheets without the two-tab question, since the
    reader sent it there; /notebook's "New sheet…" opens /sheets' templates.
-5. The header as C (Part 3), with its details settled first.
+5. The header as C (Part 3; built 2026-11-08: `SiteHeader.astro`'s
+   `NAV_GROUPS`, `src/scripts/header-menus.js`, the "Header C" rules in
+   `global.css`). Way 1 of Part 2 is its Study group. The details were taken
+   from the mock-ups as they stood, for BVJ to change if wanted:
+   - **The groups**: Learn (Glossary, Articles, Podcast), Study (Study Desk,
+     My sheets, My notebook, then Help for the Study Desk) and About (About the
+     LIT, Translation commitments, Liberating Scripture Collective, What’s
+     new, then Support and Contact). Read Now stays its own button.
+   - **Descriptions**: one line under Learn's and Study's links and under
+     What’s new, as drawn.
+   - **Keys and hover**: each group is a disclosure (a button with
+     `aria-expanded` over plain links), with the desk menus' keys: Arrow Down
+     or Up opens it at the first or last link, the arrows, Home and End move,
+     Escape closes it to its button. It opens on a press, never on hover,
+     since a pointer crossing the header to Read Now would open menus on its
+     way.
+   - **Widths**: with the groups the header holds down to 760px, as the
+     mock-ups measured; OpenDyslexic keeps its fold at 1400px. Study Desk
+     carries `?place=` (and `&intro=`) on a chapter or an introduction, as
+     the toolbar's pill does, and the home page's Study Desk button gives way
+     to the Study group wherever the groups show.
+   - **The phone menu** shows Learn and About under headings for every
+     reader now, and Study with the desk on (a narrow computer window). It
+     lists fewer: Learn's three, then About the LIT, Commitments, Support and
+     Contact (Contact is new to it; the collective and What’s new are left
+     to the footer). A 375×667 phone holds it all; a 320×568 one scrolls a
+     little when Continue reading shows, as the old list did.
+   - **Left as they were**: the no-JS row under 1101px (the groups need JS,
+     and so does the desk stamp that shows them) and the footer.
 
 Each is its own PR.
 

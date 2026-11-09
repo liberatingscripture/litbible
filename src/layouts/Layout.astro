@@ -34,6 +34,9 @@ const {
   // The Study Desk's own header (/desk): the page's title, centered, in
   // place of the nav, and no search (SiteHeader's deskTitle).
   deskTitle,
+  // Where the header's Study group sends "Study Desk": a chapter or an
+  // introduction passes its toolbar pill's ?place= address (ScriptureLayout).
+  deskHref,
 } = Astro.props;
 
 // The header's Study Desk link is on the home page only (BVJ, 2026-11-06,
@@ -207,7 +210,7 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskLink={deskLink} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

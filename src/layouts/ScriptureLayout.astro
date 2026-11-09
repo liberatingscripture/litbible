@@ -119,6 +119,7 @@ if (headerKind === "chapter") {
 // being read (E8's ?place=), and on a book's introduction at chapter 1 with
 // the introduction in a Book Intro pane beside it (E53's ?intro=). The pill is
 // in the markup for every reader and shown by CSS only with the desk preview on.
+// The header's Study group takes the same address, so the two never disagree.
 const deskPlaceChapter = headerKind === "chapter" ? (headerChapter ?? 1) : 1;
 const deskPlaceHref =
   headerKind === "intro"
@@ -131,7 +132,7 @@ const deskPlaceLabel =
 const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent
