@@ -84,7 +84,9 @@
   under `@media (hover: hover) and (pointer: fine)` the `.menu-overlay` panel
   slides in from the right over a lighter scrim, a narrow desktop window
   included. Touch screens keep the full-screen menu. The header stays above
-  the scrim, so the toggle is the close button.
+  the scrim, so the toggle is the close button. Either way the menu lists
+  header C's groups under headings (`.menu-overlay__group`, S12 step 5), its
+  Study group only with `html[data-desk]`.
 - **Text size, line spacing, verse numbers, footnote letters and key terms
   are the rest of the Display tray**, and follow the font's pattern exactly:
   an attribute on `<html>` stamped before first paint by `Layout.astro`,

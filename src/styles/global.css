@@ -853,6 +853,195 @@ body:has(.site-header--green) .skip-link {
   }
 }
 
+/* ---------------------------------------------------------
+   Header C: the links grouped into Learn, Study and About (S12 step 5;
+   STUDY-DESK.md, BVJ 2026-11-08). Behind the desk preview's own gate: a
+   computer with html[data-desk] gets the three menus in place of the five
+   links, and every other reader today's links. The stamp is set before first
+   paint (Layout.astro), so the header never flashes from one to the other.
+   The menus are header-menus.js. Launches with the desk.
+--------------------------------------------------------- */
+html:not([data-desk]) .site-nav__group,
+html[data-desk] .site-nav__plain {
+  display: none;
+}
+
+.site-nav__group {
+  position: relative;
+}
+
+/* The group's button takes the nav links' look. */
+.site-nav__group-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.site-nav__caret {
+  margin-left: 5px;
+  letter-spacing: 0;
+}
+
+.site-nav__group-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-strong);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 520ms ease-in-out;
+}
+
+.site-nav__group-btn:hover::after,
+.site-nav__group-btn[aria-expanded="true"]::after {
+  transform: scaleX(1);
+}
+
+.site-nav__group-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* The menu is its own raised surface, so it takes back the theme's tokens
+   from the green header's pins on __inner (its ink text, ink ring and ink
+   rgb would be wrong on a dark menu). */
+.site-nav__menu {
+  --text: var(--ink);
+  --text-strong: var(--black);
+  --ink-rgb: 29, 35, 28;
+  --focus-ring: var(--green-text);
+  position: absolute;
+  top: calc(100% + 12px);
+  left: -12px;
+  z-index: 50;
+  min-width: 270px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  white-space: normal;
+  text-align: left;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .site-nav__menu {
+    --text: #F0F0F0;
+    --text-strong: #F7F7F7;
+    --ink-rgb: 240, 240, 240;
+  }
+}
+
+:root[data-theme="dark"] .site-nav__menu {
+  --text: #F0F0F0;
+  --text-strong: #F7F7F7;
+  --ink-rgb: 240, 240, 240;
+}
+
+.site-nav__menu[hidden] {
+  display: none;
+}
+
+/* While one is open the header stacks above the page, as it does for the
+   search strip, so the Notebook panel in the margin can't paint over it. */
+.site-header:has(.site-nav__menu:not([hidden])) {
+  z-index: 1000;
+}
+
+.site-nav__menu a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.site-nav__menu a:hover,
+.site-nav__menu a:focus-visible {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.site-nav__menu-desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(var(--ink-rgb), 0.72);
+}
+
+.site-nav__menu-sep {
+  margin: 6px 8px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+}
+
+/* The Study group is the home page's Study Desk button now (Part 2's way
+   1), so the button gives way wherever the groups show. */
+@media (min-width: 1101px) {
+  html[data-desk] .site-header__desk {
+    display: none;
+  }
+}
+
+/* Three short menus need about 735px, so with them the whole header holds
+   down to 760px instead of folding into the menu button at 1100px. Search
+   and Aa stay in the row's own pair here, as below 1101px today.
+   OpenDyslexic keeps its own fold at 1400px (the reader-font section). */
+@media (min-width: 760px) and (max-width: 1100px) {
+  html[data-desk]:not([data-font="dyslexic"]) .site-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  html[data-desk]:not([data-font="dyslexic"]) .site-nav {
+    display: flex;
+  }
+
+  html[data-desk]:not([data-font="dyslexic"]) .site-nav__list {
+    gap: 18px;
+  }
+
+  html[data-desk]:not([data-font="dyslexic"]) .site-nav__cta-item {
+    margin-left: 8px;
+  }
+
+  html[data-desk]:not([data-font="dyslexic"]) .site-nav__cta-item > a.site-header__cta {
+    padding: 10px 16px;
+  }
+
+  html[data-desk]:not([data-font="dyslexic"]) .site-header__menu-toggle,
+  html[data-desk]:not([data-font="dyslexic"]) .site-header__desk {
+    display: none;
+  }
+
+  html[data-desk]:not([data-font="dyslexic"]) .site-header__title .title-truncatable {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav__group-btn::after {
+    transition: none;
+  }
+}
+
 /* The strip it opens, under the header's top row. A raised band of its own,
    so the default focus ring and text colours hold on the green home header
    too. While it's open the header stacks above the page, so the results tray
@@ -1602,6 +1791,43 @@ html.menu-open body {
 
 .menu-overlay .menu-overlay__nav a.menu-overlay__continue[hidden] {
   display: none;
+}
+
+/* The phone menu's groups (header C): a heading over each group's links,
+   never a menu inside the menu. Live for every reader (BVJ, 2026-11-08);
+   the Study group only with the desk preview on. The links are smaller than
+   the old flat list's so ten of them and three headings fit a phone. */
+.menu-overlay__group {
+  display: grid;
+  gap: clamp(4px, 1.4vh, 12px);
+  justify-items: inherit;
+}
+
+html:not([data-desk]) .menu-overlay__group--desk {
+  display: none;
+}
+
+.menu-overlay__heading {
+  margin: 0;
+  color: var(--green);
+  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.menu-overlay .menu-overlay__group a {
+  font-size: 1.6rem;
+}
+
+/* Short phones: a 375×667 holds the whole menu, Continue included, and a
+   320×568 holds it with Search but scrolls a little once Continue shows, as
+   the flat list did. */
+@media (max-height: 700px) {
+  .menu-overlay .menu-overlay__group a {
+    font-size: 1.3rem;
+  }
 }
 
 /* The two buttons read as a pair, so Read Now drops its own lead-in. */
@@ -3992,7 +4218,8 @@ body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--i
 }
 /* The header's "Study Desk" links go to /desk, so they need no reading column.
    They are on the home page only now (BVJ, 2026-11-06, E50; SiteHeader's
-   deskLink), and never in the desk's own header, which is already there. The
+   deskLink), give way to header C's Study group wherever it shows, and are
+   never in the desk's own header, which is already there. The
    scripture toolbar's and /read's Study Desk pills are plain links too, shown
    by their own rules (ScriptureLayout, ReadMenu) with the preview on. Only the
    buttons that open the panel (Read View's toolbar) are held to the reading

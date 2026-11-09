@@ -20,6 +20,8 @@ From the root's project tree.
                      #   last-read + continue-reading, "Continue reading";
                      #   term-lens, the Chapter View term underline and card;
                      #   header-search, the header's search strip;
+                     #   header-menus, header C's Learn, Study and About
+                     #   menus (a computer with the desk preview on);
                      #   keyboard-shortcuts; verse-image, which draws and
                      #   hands on "Share image"; panel-flyout, the one
                      #   flyout row the panels share; glossary-entry-links, the

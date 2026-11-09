@@ -118,6 +118,9 @@ means each of these, in one change:
     cutover", and rewrite its two neighbours, "with the preview on, /read swaps
     the Read View card" and "with the preview on, the chapter picker's footer
     link opens the Study Desk", to what launch shows.
+12. **Header C** (S12 step 5) goes live with the flip by itself: its rules
+    read `html[data-desk]`, which item 1 keeps. Decide then whether tablets,
+    which never get the stamp, keep the five plain links (`.site-nav__plain`).
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere. The
@@ -1162,7 +1165,8 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        a link never forces an arrangement, Reading included). desk-page.js saves the move
        and strips the parameter. On a chapter or intro page the toolbar's
        "Study Desk" pill carries the chapter (`ScriptureLayout.astro`, its
-       `deskPlaceHref`); the header's link is on the home page only. A new link
+       `deskPlaceHref`), and so does the header's Study group, which `Layout.astro`
+       is handed as `deskHref`. A new link
        into /desk that means to open at a passage uses this, never the layout key.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
        2026-11-02): with the preview on, `/read`'s Read View card and the
