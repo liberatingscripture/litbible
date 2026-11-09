@@ -3,7 +3,7 @@
 // "What I've kept": every record in the notebook, filtered by words, kind,
 // highlight color and label, with a count in words, in Bible order under a
 // heading for each book and chapter, then notes on glossary entries and on
-// articles, pinned footnotes and anything else. Each row edits, labels or
+// articles, pinned footnotes, sheets (with New sheet…) and anything else. Each row edits, labels or
 // deletes its record (record-rows.js), and a deletion offers the undo bar.
 //
 // Drawn on the notebook page (notebook-page.js, phase 1d) and as a pane on
@@ -196,6 +196,19 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       section.append(ul);
       return section;
     };
+    // The Sheets section (S12): its sheets, New sheet… and All my sheets.
+    function sheetsGroup(sheets) {
+      const section = sheets.length ? group("Sheets", 3, sheets) : el("section", "desk-np__group");
+      if (!sheets.length) section.append(el("h3", "desk-np__h3", "Sheets"));
+      const links = el("p", "desk-np__sheet-links");
+      const fresh = el("a", null, "New sheet…");
+      fresh.href = "/sheets/?new";
+      const every = el("a", null, "All my sheets");
+      every.href = "/sheets/";
+      links.append(fresh, " · ", every);
+      section.querySelector("h3").after(links);
+      return section;
+    }
     const groups = groupRecords(shown);
     for (const book of groups.books) {
       const section = el("section", "desk-np__book");
@@ -206,7 +219,12 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     if (groups.glossary.length) out.push(group("Notes on glossary entries", 3, groups.glossary));
     if (groups.articles.length) out.push(group("Notes on articles", 3, groups.articles));
     if (groups.pins.length) out.push(group("Pinned footnotes", 3, groups.pins));
-    if (groups.other.length) out.push(group("Other items", 3, groups.other));
+    // Sheets have a section of their own, with New sheet… (S12, part 2), shown
+    // too while nothing narrows the list, so it is a way to start one.
+    const sheets = groups.other.filter((r) => r.kind === "sheet");
+    const other = groups.other.filter((r) => r.kind !== "sheet");
+    if (sheets.length || !active) out.push(sheetsGroup(sheets));
+    if (other.length) out.push(group("Other items", 3, other));
     lists.replaceChildren(...out);
   }
 

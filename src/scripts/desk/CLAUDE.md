@@ -421,7 +421,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
      the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) **Settings is the last tab, on every page**
-     (BVJ, 2026-10-29): the switches, print buttons, "Open the notebook page",
+     (BVJ, 2026-10-29): the switches, print buttons, "Open the notebook page" and "My sheets",
      the tour and help links and where the notebook is kept, which were My
      Notes' foot. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
      "Close the Notebook" command, Escape and the Read View toolbar's Notebook
@@ -1195,7 +1195,7 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        heading per chapter, labels, and on /desk it follows the LIT pane).
        `kept-list.js` remains, but only the notebook page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
        2026-11-07): they have /sheets and the Sheets pane, and the notebook
-       page's list still shows them as "Other items". A layout saved with the retired kind `kept` reads back
+       page's list shows them under "Sheets" (S12). A layout saved with the retired kind `kept` reads back
        as `mine` (`RETIRED_KINDS`, applied in `checkLayout`, so the last
        layout and "My default" are both migrated); one that held both panes
        keeps two My Notes panes. A new feature of the notebook's list goes in

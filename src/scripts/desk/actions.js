@@ -26,6 +26,8 @@
 //     View's verse menu) or the selected words (either view's selection panel),
 //     plainly, with my notes, or with room to write. Its flyout is the shared
 //     one (panel-flyout.js), as Bookmark's is.
+//   - "Add to sheet ▸" after Print, in Chapter View only (S12, part 2;
+//     sheets/sheet-add.js): the reader's sheets and New sheet.
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
@@ -52,6 +54,7 @@ import { openBookmarkForm } from "./bookmark-form.js";
 import { followsHere, isPausedHere, restingId } from "./bookmark-follow.js";
 import { startFollowingNow, stopFollowingNow } from "./bookmark-stop.js";
 import { openNoteEditor } from "./note-editor.js";
+import { createSheetAdd } from "./sheets/sheet-add.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
@@ -60,6 +63,7 @@ import { announce, showUndo } from "./undo-bar.js";
 export function initActions({ store, ctx, showVerse = null, printPart = null }) {
   if (!store) return;
   const here = pageChapter();
+  const sheetRow = createSheetAdd({ store, ctx });
 
   document.addEventListener("lit:panel-actions", (e) => {
     const d = e.detail;
@@ -100,6 +104,9 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
     // "Print ▸" right after Bookmark (E40): this verse or selection on paper.
     const printBox = printRow(d, where);
     if (printBox) d.append(printBox);
+    // "Add to sheet ▸" right after it (S12): Chapter View only.
+    const sheetBox = sheetRow(d, where);
+    if (sheetBox) d.append(sheetBox);
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter

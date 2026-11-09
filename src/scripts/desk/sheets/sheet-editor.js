@@ -171,12 +171,13 @@ const json = (x) => JSON.stringify(x);
  *   `onList` is a host's own list of sheets, shown instead of the editor's
  *   (/sheets/); `onDone` is a host's own view of the sheet, which a Done
  *   button returns to once the sheet is saved, in place of "Present…" and
- *   "Print or share…" (/sheets/?id=).
+ *   "Print or share…" (/sheets/?id=). `askFirst: false` skips the two-tab
+ *   question for the first sheet opened (the pane's "Open on its own page").
  * @returns {{ el: HTMLElement, sheet: () => object | null, persist: () => void,
  *   contentVersion: () => string, addPassage: (fields: object, target?: object | null) => Promise<false | { message: string, again: boolean }>,
  *   newSheet: () => Promise<void>, startFrom: (template: string | object) => void, destroy: () => void }}
  */
-export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null, onCancel = null }) {
+export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null, onCancel = null, askFirst = true }) {
   const el = make("div", "desk-sheet");
   const live = make("p", "sr-only");
   live.setAttribute("aria-live", "polite");
@@ -550,7 +551,11 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     // Another tab editing this sheet: ask before showing the editor (S12,
     // part 4; BVJ, 2026-11-08). Cancel leaves things as they were: the
     // host's own view of the sheet, else the list.
-    if (canEdit(record) && (await editedElsewhere(id))) {
+    // Not when the reader sent it here from a Sheets pane ("Open on its own
+    // page"): that tab is the other one, and they meant it.
+    const ask = askFirst;
+    askFirst = true;
+    if (ask && canEdit(record) && (await editedElsewhere(id))) {
       if (n !== seq || destroyed) return;
       if (!(await askContinue(n))) {
         if (n !== seq || destroyed) return;
@@ -664,8 +669,17 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     present.rel = "noopener";
     present.title = "Show this sheet to a room, one part at a time, with a presenter view (opens in a new tab)";
     const presentHint = describe(present, "Shows this sheet to a room, one part at a time, with a presenter view.");
+    // The editor on the sheet's own page (S12, part 2: each home offers the
+    // other). `from=desk` tells that page this pane sent it, so it doesn't ask.
+    const ownPage = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Open on its own page");
+    ownPage.append(make("span", "sr-only", " (opens in a new tab)"));
+    ownPage.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=edit&from=desk`;
+    ownPage.target = "_blank";
+    ownPage.rel = "noopener";
+    ownPage.title = "Edit this sheet on the Sheets page, on its own (opens in a new tab)";
+    const ownHint = describe(ownPage, "Edits this sheet on the Sheets page, on its own.");
     // A new sheet is written before its own address opens in a tab (SH6-7).
-    for (const a of [print, present]) {
+    for (const a of [print, present, ownPage]) {
       a.addEventListener("click", persistDraft);
       a.addEventListener("auxclick", persistDraft);
     }
@@ -682,7 +696,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       });
       header.append(back, done, status, doneHint);
     } else {
-      header.append(back, present, print, status, printHint, presentHint);
+      header.append(back, present, print, ownPage, status, printHint, presentHint, ownHint);
     }
     wrap.append(header);
 

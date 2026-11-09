@@ -309,6 +309,7 @@ export async function openStore({ ctx }) {
     get: (id) => read((s) => s.get(id)),
     all: () => read((s) => s.getAll()),
     byChapter: (bookKey, chapter) => read((s) => s.index("chapter").getAll([bookKey, chapter])),
+    byKind: (kind) => read((s) => s.index("kind").getAll(kind)),
 
     /**
      * Small facts about this notebook that aren't records (when a copy was last
