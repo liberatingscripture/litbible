@@ -55,7 +55,7 @@ export function createTourRunner() {
   /**
    * @param {{ steps: object[], view?: string | null,
    *   act: (step: object) => Promise<object | null>,
-   *   finish?: () => void, afterUndo?: () => void,
+   *   finish?: () => void | Promise<void>, afterUndo?: () => void,
    *   more?: (step: object) => ({ href: string, text: string, external?: boolean } | null),
    *   returnTo?: HTMLElement | null, returnFallback?: () => (HTMLElement | null) }} options
    *   `steps` is a planned tour (`planTour`). `view` picks a step's wording.
@@ -171,12 +171,18 @@ export function createTourRunner() {
     // Everything back as the tour found it: the caller's page first (the
     // Notebook's width can move the text), then the place on the page, then
     // focus.
+    // A `finish` that returns a promise (the Sheets page's, which redraws
+    // what its address names) is waited for, so focus lands on the view that
+    // stays, never on one about to be replaced (TR7-9).
+    let done;
     try {
-      finish();
+      done = finish();
     } catch (err) {
       console.error("Study Desk: the tour couldn’t put the page back", err);
     }
-    requestAnimationFrame(() => {
+    Promise.resolve(done).catch((err) => {
+      console.error("Study Desk: the tour couldn’t put the page back", err);
+    }).then(() => requestAnimationFrame(() => {
       window.scrollTo({ left: scroll.x, top: scroll.y, behavior: "instant" });
       // Back to where the reader was if that is still showing, else the
       // tour's own fallback: the card is gone, and focus on it would drop to
@@ -197,7 +203,7 @@ export function createTourRunner() {
       setTimeout(() => {
         if (!run) document.documentElement.removeAttribute("data-desk-tour");
       }, 900);
-    });
+    }));
   }
 
   /* ── One step ─────────────────────────────────────────────────── */

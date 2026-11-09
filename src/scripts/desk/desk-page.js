@@ -100,7 +100,7 @@ import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { createDeskTour } from "./desk-tour.js";
-import { createSheetTour } from "./sheets/sheet-tour.js";
+import { createDeskSheetTour } from "./sheets/sheet-tour-desk.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
@@ -1314,8 +1314,9 @@ async function start() {
   // "Take the Sheets tour" at the foot of a Sheets pane's list
   // (`desk:sheet-tour`), the Study Desk tour's Sheets card, or its offer. Like
   // the Study Desk tour it acts through the page's own pieces and freezes the
-  // layout's saving while it runs (sheets/sheet-tour.js).
-  sheetTour = createSheetTour({
+  // layout's saving while it runs (sheets/sheet-tour.js, through its desk
+  // host, sheets/sheet-tour-desk.js).
+  sheetTour = createDeskSheetTour({
     canKeep: Boolean(store),
     getLayout: () => layout,
     setLayout: (next) => commit(next),

@@ -58,6 +58,17 @@
 //   Share… (the phone's share sheet, with the same link) in one row that
 //   scrolls with the page. Nothing that saves: no Import, Copy, Save as, or
 //   link to the desk, and no paper, code or answer key choices.
+// - **The Sheets tour runs here too** (STUDY-DESK-FIXES.md E63; BVJ,
+//   2026-11-09), acting on this page's own list, editor and versions view
+//   through the host at the end of this file (`tourHost`). The tour itself is
+//   sheet-tour.js, reached only by `import()`: when the list or a sheet's
+//   versions is drawn and the seen list says there is something to offer, or
+//   when the reader starts it ("Take the Sheets tour" in the list's intro,
+//   `/sheets/?sheet-tour`). The rules that decide the offer
+//   (`desk-first-use.mjs`) come by `import()` too, 1.6 s after the draw: with
+//   them comes `desk-layout.mjs`, and neither is any use to a page opened to
+//   print or present, or to a phone showing a shared sheet. It never changes
+//   the address or history, and ends with `route()`.
 
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../../lib/desk-sheet-copy.mjs";
 import {
@@ -93,6 +104,10 @@ const PAPER_KEY = "lit-sheet-paper";
 // before stops listening for changes; and the editor while the page is one.
 let viewSeq = 0;
 let editing = null;
+// The Sheets tour (E63), made the first time it is offered or started, and
+// the wait before its offer.
+let sheetTour = null;
+let tourOfferTimer = 0;
 // Whether the leader's version ends with an answer key: this browser's choice,
 // never part of the sheet record.
 const ANSWER_KEY = "lit-sheet-answer-key";
@@ -227,7 +242,13 @@ async function copyToClipboard({ html, text }) {
   }
 }
 
-async function showList(root, store) {
+/**
+ * The list. `onPick` is the Sheets tour's (E63): its "New sheet…" starts the
+ * tour's sheet from the template chosen instead of opening the editor at a
+ * new address.
+ */
+async function showList(root, store, { onPick = null } = {}) {
+  const n = viewSeq;
   document.title = "My sheets | Liberation and Inclusion Translation";
   root.replaceChildren(make("h1", "sheets-page__title", "My sheets"));
   let sheets = [];
@@ -236,6 +257,8 @@ async function showList(root, store) {
   } catch (err) {
     console.error("Study Desk: couldn't read the sheets", err);
   }
+  // Another view was drawn while the sheets were read.
+  if (n !== viewSeq) return;
   const desk = make("a", null, "the Study Desk");
   desk.href = `${BASE}desk/`;
   const intro = make("p", "sheets-page__intro");
@@ -244,11 +267,16 @@ async function showList(root, store) {
     desk,
     document.createTextNode(" has the fuller workspace, with the LIT beside the sheet."),
   );
-  const newRow = newSheetRow(root, store);
+  // The Sheets tour (E63), here as in a Sheets pane's list: a quiet link,
+  // which loads the tour and starts it.
+  const tour = button("Take the Sheets tour", "desk-sheet__tour");
+  tour.addEventListener("click", async () => (await pageTour(root, store))?.start());
+  intro.append(document.createTextNode(" "), tour);
+  const newRow = newSheetRow(root, store, { onPick });
   root.append(intro, newRow, openFileRow(root, store));
   // `/sheets/?new` (the notebook page's "New sheet…", S12, part 2) opens the
   // templates at once, and the address goes back to the list's.
-  if (new URLSearchParams(location.search).has("new")) {
+  if (!onPick && new URLSearchParams(location.search).has("new")) {
     history.replaceState(history.state, "", `${BASE}sheets/`);
     newRow.querySelector("button")?.click();
   }
@@ -272,8 +300,9 @@ async function showList(root, store) {
 /**
  * "New sheet…" (S12, part 1, step 2): the templates, under the button, and
  * the editor on the one chosen. The editor's code is fetched on the first press.
+ * `onPick` takes the choice instead (the Sheets tour's, E63).
  */
-function newSheetRow(root, store) {
+function newSheetRow(root, store, { onPick = null } = {}) {
   const row = make("div", "sheets-page__new");
   const fresh = button("New sheet…", "desk-sheet__btn desk-sheet__btn--primary");
   fresh.setAttribute("aria-expanded", "false");
@@ -290,10 +319,10 @@ function newSheetRow(root, store) {
         chooser = await newSheetChooser({
           opener: fresh,
           store,
-          onPick: (template) => {
+          onPick: onPick ?? ((template) => {
             history.pushState(null, "", `${BASE}sheets/?view=edit`);
             route(root, store, { template });
-          },
+          }),
         });
       } catch (err) {
         console.error("Study Desk: the sheet editor didn’t load", err);
@@ -397,8 +426,17 @@ async function showSheet(root, store, id, view = null) {
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
  * only with "Import into my notebook"; absent for the reader's own.
+ *
+ * `demo` is the Sheets tour's (E63): the versions of the tour's sheet, which
+ * is never saved, drawn as for the reader's own. It leaves out the links row
+ * ("‹ My sheets" and "Edit on the Study Desk" leave the tour, and the second
+ * names an id no notebook holds), its Edit returns to the tour's editor
+ * (`demo.onEdit`) without touching the address, and nothing here writes a
+ * record: Print, Copy, Save as, Share and Present work on the sheet in hand.
+ * The presenter view's window reads the sheet from the notebook, so it can't
+ * find this one; a reader who opens it has left the tour's script.
  */
-async function drawSheet(root, { sheet, store, view = null, shared = null, phone = false, fragment = null }) {
+async function drawSheet(root, { sheet, store, view = null, shared = null, phone = false, fragment = null, demo = null }) {
   const id = sheet.id;
   const n0 = viewSeq;
   const copies = shared === "participant" ? ["participant"] : COPIES;
@@ -461,6 +499,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   const editHere = button("Edit", "desk-sheet__btn sheets-page__edit");
   editHere.title = "Change this sheet here, on its own page";
   editHere.addEventListener("click", () => {
+    if (demo) {
+      demo.onEdit();
+      return;
+    }
     history.pushState(null, "", `${BASE}sheets/?id=${encodeURIComponent(id)}&view=edit`);
     route(root, store);
   });
@@ -498,7 +540,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     root.classList.add("sheets-page--phone");
     bar.append(...(copies.length > 1 ? [copyChoice] : []), actions, ...hints);
   } else {
-    bar.append(links, copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
+    bar.append(...(demo ? [] : [links]), copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
   }
 
   const paperBox = make("div", "sheets-page__paper");
@@ -509,7 +551,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   // The "what prints" notice, for the participant version.
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
-  root.replaceChildren(...(shared ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
+  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
   share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say) : openShareDialog(sheet, share)));
 
   let current = null;
@@ -556,7 +598,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
       onClose: () => {
         presenting = null;
         if (!root.contains(document.activeElement)) present.focus();
-        if (new URLSearchParams(location.search).get("view")) {
+        if (!demo && new URLSearchParams(location.search).get("view")) {
           history.replaceState(history.state, "", `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`);
         }
       },
@@ -635,7 +677,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
 
   // A change made on /desk in another tab shows here too.
   // Until the page draws another view (`route`).
-  const stop = shared ? null : store.subscribe(async (ids) => {
+  // The tour's sheet (`demo`) is in no notebook, so nothing changes it there.
+  const stop = shared || demo ? null : store.subscribe(async (ids) => {
     if (n0 !== viewSeq) {
       stop?.();
       return;
@@ -906,6 +949,16 @@ async function start() {
   } catch (err) {
     console.error("Study Desk: the notebook didn’t open", err);
   }
+  // `/sheets/?sheet-tour` (the help page's link) starts the Sheets tour once
+  // the page is drawn (E63), and leaves the address.
+  const wantsTour = new URLSearchParams(location.search).has("sheet-tour");
+  if (wantsTour) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("sheet-tour");
+      history.replaceState(history.state, "", url);
+    } catch (_) {}
+  }
   const shared = history.state?.litSharedSheet;
   if (typeof shared === "string" && shared) {
     await showShared(root, store, shared);
@@ -919,16 +972,21 @@ async function start() {
   // opened from the list. A shared link's fragment is the inline script's,
   // which reloads the page for it.
   addEventListener("popstate", () => route(root, store));
-  await route(root, store);
+  // Started by the address: no offer then, and the tour 600 ms after the
+  // first view, as on /desk.
+  await route(root, store, { offer: !wantsTour });
+  if (wantsTour) setTimeout(async () => (await pageTour(root, store))?.start(), 600);
 }
 
 /**
  * Draw the view the address names: the list, a sheet's versions, or the
  * editor (`view=edit`, with the sheet's id, or `template`, a new sheet's,
- * chosen under New sheet…).
+ * chosen under New sheet…). The list and a sheet's versions may bring the
+ * Sheets tour's offer (`offer: false` holds it back).
  */
-async function route(root, store, { template = null, focus = null } = {}) {
+async function route(root, store, { template = null, focus = null, offer = true } = {}) {
   const n = ++viewSeq;
+  clearTimeout(tourOfferTimer);
   editing?.destroy();
   editing = null;
   const shared = history.state?.litSharedSheet;
@@ -982,10 +1040,266 @@ async function route(root, store, { template = null, focus = null } = {}) {
   }
   if (id) await showSheet(root, store, id, view);
   else await showList(root, store);
+  // Not over a presentation, nor where no sheet was found.
+  if (n === viewSeq && offer && view !== "present" && view !== "presenter" && tourViewShown(root)) offerTourLater(root, store);
   if (n !== viewSeq || !focus) return;
   const to = root.querySelector(focus === "edit" ? ".sheets-page__edit" : ".sheets-page__title");
   if (to && !to.matches("button")) to.tabIndex = -1;
   to?.focus();
+}
+
+/* ── The Sheets tour on this page (E63) ─────────────────────────────────── */
+
+/**
+ * The Sheets tour, loaded and made the first time it is offered or started;
+ * null when it didn't load. Its host is this page's (`tourHost`).
+ */
+async function pageTour(root, store) {
+  if (!sheetTour) {
+    let createSheetTour;
+    try {
+      ({ createSheetTour } = await import("./sheet-tour.js"));
+    } catch (err) {
+      console.error("Study Desk: the Sheets tour didn’t load", err);
+      return null;
+    }
+    sheetTour ??= createSheetTour({ host: tourHost(root, store) });
+  }
+  return sheetTour;
+}
+
+/** The list or a sheet's own versions on the page: where the tour may be offered. */
+const tourViewShown = (root) =>
+  !editing && !root.querySelector(":scope > .sheets-page__shared") &&
+  Boolean(root.querySelector(":scope > .sheets-page__new, :scope > .sheets-page__bar"));
+
+/**
+ * The tour's offer, 1.6 seconds after the list or a sheet's versions is
+ * drawn, when the seen list (one for both pages) says there is something to
+ * offer. The rules are loaded then (they bring `desk-layout.mjs` with them,
+ * which the page has no other use for), and the tour only if they say so.
+ * Another view drawn meanwhile (`route`) cancels it, and the tour checks the
+ * rest when it comes.
+ */
+function offerTourLater(root, store) {
+  clearTimeout(tourOfferTimer);
+  tourOfferTimer = setTimeout(async () => {
+    let rules;
+    try {
+      rules = await import("../../../lib/desk-first-use.mjs");
+    } catch (err) {
+      console.error("Study Desk: the Sheets tour’s rules didn’t load", err);
+      return;
+    }
+    let raw = null;
+    try {
+      raw = localStorage.getItem(rules.SHEET_TOUR_KEY);
+    } catch (_) {
+      return;
+    }
+    if (!rules.tourOffer(raw, { today: rules.localDay(new Date()), steps: rules.SHEET_TOUR_STEPS }).kind) return;
+    (await pageTour(root, store))?.maybeOffer();
+  }, 1600);
+}
+
+/**
+ * The Sheets tour's host on this page (E63; the tour and the host's methods
+ * are described in sheet-tour.js). It acts on the page's own list, editor and
+ * versions view, and **never changes the address or history**: it draws its
+ * views into `root`, each a view of the page's (`viewSeq`), so one still being
+ * drawn, or a view's listener, stops when another is drawn; at the end
+ * `route()` draws whatever the address names. Its one editor stays alive
+ * across its views, the tour's sheet living in it, held in `editing` so a
+ * route (Back, or the end) takes it down; the list and the versions view take
+ * it off the page, and `editor()` puts it back. Nothing here writes a record:
+ * the editor is in example mode, and the versions view is `drawSheet`'s `demo`.
+ */
+function tourHost(root, store) {
+  let tourEditing = null; // { destroy, editor }, the tour's editor view, while it lives
+  let tourRow = null; // the tour's list's "New sheet…" row, while it is on the page
+  let shown = null; // the versions view drawn for the tour's sheet: { el, marks, present, sheet }
+  let pick = null; // the tour's template pick, for every list it draws
+  const nextView = () => ++viewSeq;
+  const editTitle = () => {
+    document.title = "Edit a sheet | Liberation and Inclusion Translation";
+  };
+
+  const host = {
+    view: "page",
+    canKeep: Boolean(store),
+
+    // The reader's own editor, if the page showed one, is put away (its typing
+    // is saved by its own destroy, the reader's write), and no offer comes.
+    begin({ onPick }) {
+      clearTimeout(tourOfferTimer);
+      pick = onPick;
+      editing?.destroy();
+      editing = null;
+      nextView();
+      return true;
+    },
+
+    async editor({ onMade = null, live = null, show = true } = {}) {
+      if (!tourEditing || editing !== tourEditing) {
+        let editSheet;
+        try {
+          ({ editSheet } = await import("./sheet-page-edit.js"));
+        } catch (err) {
+          console.error("Study Desk: the sheet editor didn’t load", err);
+          return null;
+        }
+        if (live && !live()) return null;
+        if (!tourEditing || editing !== tourEditing) {
+          nextView();
+          editing?.destroy();
+          shown = null;
+          tourRow = null;
+          tourEditing = editing = editSheet({
+            root,
+            store,
+            ctx,
+            id: null,
+            template: null,
+            // Its sheet is never saved, so it never has an address.
+            onSaved: () => {},
+            // "‹ All sheets" and Done go to the tour's own list and versions.
+            onList: () => host.showList(),
+            onDone: () => host.versions(tourEditing.editor),
+            onCancel: () => {},
+          });
+          editTitle();
+          // In the same tick, before the editor's first view would draw the page's list.
+          onMade?.(tourEditing.editor);
+          return tourEditing.editor;
+        }
+      }
+      const { editor } = tourEditing;
+      if (show && !editor.el.isConnected) {
+        nextView();
+        shown = null;
+        tourRow = null;
+        root.replaceChildren(make("h1", "sr-only", "Edit a sheet"), editor.el);
+        root.classList.add("sheets-page--editing");
+        editTitle();
+      }
+      return editor;
+    },
+
+    // The page's own list, whose "New sheet…" starts the tour's sheet.
+    async showList({ onPick = null } = {}) {
+      nextView();
+      shown = null;
+      root.classList.remove("sheets-page--editing");
+      await showList(root, store, { onPick: onPick ?? pick });
+      const row = root.querySelector(":scope > .sheets-page__new");
+      tourRow = row;
+      const fresh = row?.querySelector("button");
+      return row ? { el: row, side: "right", marks: fresh ? [fresh] : [] } : null;
+    },
+
+    // That list's chooser, opened as its button opens it (which loads the
+    // editor's code). `waitFor` is the tour's, so this page carries no copy.
+    async openChooser({ onPick = null, live = null, waitFor } = {}) {
+      if (!tourRow?.isConnected) await host.showList({ onPick });
+      const row = tourRow;
+      if (!row?.isConnected || (live && !live())) return null;
+      const open = () => {
+        const box = row.querySelector(".desk-sheet__templates");
+        return box && !box.hidden ? box : null;
+      };
+      if (!open()) row.querySelector("button")?.click();
+      const chooser = await waitFor(open);
+      if (!chooser) return null;
+      return {
+        el: chooser,
+        side: "right",
+        marks: [chooser],
+        undo: () => {
+          if (chooser.isConnected && !chooser.hidden) chooser.toggle();
+        },
+      };
+    },
+
+    /**
+     * The versions view of the tour's sheet, drawn unless it is on the page
+     * already. `drawSheet` puts its bar in the root before it first waits, so
+     * the bar is there at once; the copy follows.
+     */
+    versions(editor) {
+      const sheet = editor?.sheet();
+      if (!sheet) return null;
+      if (shown?.el.isConnected && shown.sheet === sheet) return shown;
+      nextView();
+      tourRow = null;
+      root.classList.remove("sheets-page--editing");
+      drawSheet(root, { sheet, store, demo: { onEdit: () => host.editor() } }).catch((err) =>
+        console.error("Study Desk: the tour’s sheet couldn’t be drawn", err),
+      );
+      const bar = root.querySelector(":scope > .sheets-page__bar");
+      if (!bar) return null;
+      const actions = bar.querySelector(".sheets-page__actions");
+      const version = bar.querySelector("input[name='sheet-copy']")?.closest("fieldset") ?? null;
+      const present = Array.from(actions?.querySelectorAll("button") ?? []).find((b) => b.textContent.trim() === "Present") ?? null;
+      shown = { el: bar, marks: [version, actions].filter(Boolean), present, sheet };
+      return shown;
+    },
+
+    // Continue reading's chapter, from its verse, else John 3:16. Its reader
+    // is a reading page's module, loaded here only for the tour.
+    async passage() {
+      let r = null;
+      try {
+        const { loadLastRead } = await import("../../last-read.js");
+        r = loadLastRead();
+      } catch (_) {}
+      return r ? { bookKey: r.book, chapter: r.chapter, verse: r.verse ?? null } : { bookKey: "john", chapter: 3, verse: 16 };
+    },
+
+    // The tour's editor taken down, and the page back to what its address names.
+    finish() {
+      editing?.destroy();
+      editing = null;
+      tourEditing = null;
+      tourRow = null;
+      shown = null;
+      route(root, store);
+    },
+
+    returnFallback() {
+      const title = root.querySelector(".sheets-page__title");
+      if (title) {
+        title.tabIndex = -1;
+        return title;
+      }
+      return root.querySelector("button");
+    },
+
+    /**
+     * Beside the page's content: to its right where there is room, else to
+     * its left, else over its top right corner.
+     */
+    placeOffer(w) {
+      const box = root.getBoundingClientRect();
+      const GAP = 12;
+      const EDGE = 8;
+      const width = Math.min(300, innerWidth - 2 * EDGE);
+      w.style.width = `${width}px`;
+      w.style.top = `${Math.max(EDGE, box.top)}px`;
+      if (box.right + GAP + width <= innerWidth - EDGE) w.style.left = `${box.right + GAP}px`;
+      else if (box.left - GAP - width >= EDGE) w.style.left = `${box.left - GAP - width}px`;
+      else w.style.left = `${Math.max(EDGE, Math.min(box.right, innerWidth - EDGE) - width)}px`;
+    },
+
+    // Focus in something the reader types in, which the offer leaves alone.
+    working() {
+      const at = document.activeElement;
+      return at instanceof HTMLElement && (at.isContentEditable || at.matches("input, textarea, select"));
+    },
+
+    canOffer: () => tourViewShown(root),
+    otherOffer: () => false,
+  };
+  return host;
 }
 
 /**

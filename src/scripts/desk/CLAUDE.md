@@ -52,7 +52,7 @@ From the root's routing table.
 | `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk/help` | `desk/help.astro` (`desk-help.css`) | **One help page for the whole desk** (the Notebook, /desk, sheets, the Greek; BVJ, 2026-11-07). `/notebook/help/` redirects to it (`redirects` in `astro.config.mjs`; the static redirect page drops a `#fragment`, so link `HELP_HREF`/`WAYS_HREF`, never the old address). A static page that reads without the desk: noindex, out of the sitemap (`desk/help` in the filter) and Pagefind. **A feature that adds a pane, a menu item, or a sheet tool gets its sentence there**; counts come from `MAX_PANES`, `MAX_FOLLOWING`, `TRASH_DAYS`, never typed |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The Study Desk preview", rule 18 |
-| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). `&view=edit` is the sheet editor on the page (S12; Edit, and New sheet… on the list). Same treatment as `/desk`. See rules 19 and 21 in `sheets/CLAUDE.md` |
+| `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). `&view=edit` is the sheet editor on the page (S12; Edit, and New sheet… on the list). `?sheet-tour` starts the Sheets tour. Same treatment as `/desk`. See rules 19 and 21 in `sheets/CLAUDE.md` |
 
 ## Launching
 
@@ -784,8 +784,9 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
      - **Three tours** (E24, E63; BVJ, 2026-11-02, 2026-11-09): the notebook
        tour (`tour.js`) stays on the chapter pages; the **Study Desk tour**
        (`desk/desk-tour.js`) and the **Sheets tour** (`sheets/sheet-tour.js`,
-       its rules in `sheets/CLAUDE.md`) run on /desk. Each has **its own steps,
-       seen list and offer**: `TOUR_STEPS`/`lit-desk-tour`,
+       its rules in `sheets/CLAUDE.md`) run on /desk, and the Sheets tour on
+       /sheets too (its page host is in `sheets/sheet-page.js`). Each has
+       **its own steps, seen list and offer**: `TOUR_STEPS`/`lit-desk-tour`,
        `DESK_TOUR_STEPS`/`lit-desk-page-tour` and
        `SHEET_TOUR_STEPS`/`lit-desk-sheet-tour` (`desk-first-use.mjs`;
        `parseTourState`, `tourOffer` and `planTour` take the step list), so
@@ -794,7 +795,9 @@ storage key. Playwright is not a launch gate (BVJ, 2026-11-04).
        tour's `start()` returns while `html[data-desk-tour]` is set** (TR7-6),
        so neither runs over the other. **The card, the way through the steps,
        placement and the ending are `desk/tour-runner.js`**, shared; a tour
-       brings `act(step)`, `finish` and its `more` link. Keep the three in step when the card changes.
+       brings `act(step)`, `finish` (waited for when it returns a promise,
+       before focus returns) and its `more` link. Keep the three in step when
+       the card changes.
        **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels like a
        lot"): the notebook page and where it's kept are one step (`kept`). The
        retired ids in a stored list are ignored (tested). **Audit 4 (BVJ,

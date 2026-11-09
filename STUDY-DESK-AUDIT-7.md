@@ -23,7 +23,8 @@ screen and a notebook page, the verse menu has "Add to sheet"), the help page st
 could be started over the other (TR7-6).
 
 **A third tour, for the Sheets (E63).** BVJ's call, and a short one: eight cards in two parts, run on
-/desk in a Sheets pane. It acts on the real page and writes nothing, not even the sheet it makes (section D).
+/desk in a Sheets pane and on the Sheets page (/sheets), acting on each real page. It writes nothing, not
+even the sheet it makes (section D).
 
 ## A. What changed under the tours
 
@@ -92,8 +93,8 @@ View has no Add to sheet.
 
 **"The tours" says "There are two," and the Study Desk paragraph says only "adds a pane and tries a
 layout."** Since E59 it also shows a Sheets pane and the template chooser. The section now counts three,
-describes the Study Desk tour as it runs, and adds the Sheets tour with its link; the Sheets section's first
-paragraph points to it.
+describes the Study Desk tour as it runs, and adds the Sheets tour with a link to each page it runs on; the
+Sheets section's first paragraph points to it.
 
 #### TR7-5 · Low · design · desk tour · FIXED
 
@@ -119,7 +120,11 @@ notebook page's, which the card names. Left as it is; the Sheets tour covers she
 (`?desk-tour` on a chapter, `?sheet-tour` on /desk) that is `body`, which "is showing", so the fallback
 (the Notebook's tab or panel, the Sheets pane's name) was never used. Found in the live run of the Sheets
 tour; the runner now treats `body` as no place to return to. The Study Desk tour was never affected, since
-it names its title button.
+it names its title button. **A second case on /sheets**: the page's `finish` redraws what the address names
+asynchronously, and the runner returned focus a frame after calling it, so the fallback found a control of
+the view about to be replaced and focus dropped to `body` once it was. The runner now waits for a `finish`
+that returns a promise before it returns focus; the other two tours' return nothing, so nothing changes for
+them.
 
 #### TR7-8 · observation
 
@@ -132,23 +137,32 @@ last section.
 ## D. The Sheets tour (E63)
 
 **Where:** on /desk, in a Sheets pane, run by the shared `desk/tour-runner.js` like the Study Desk tour,
-not on /sheets: the LIT pane's "Add to" row and "Open on its own page" are only on /desk, and the desk
-tour's "New sheet…" already sends people here.
+and on /sheets, acting on that page's list, editor and versions view. The first version ran on /desk only
+(the LIT pane's "Add to" row and "Open on its own page" are only there, and the desk tour's "New sheet…"
+sends people there). BVJ (2026-11-09) then asked for the page too: since header C's Study menu and S12's
+ways in ("My sheets" in the menu and on /notebook, "Open the sheet" from "Add to sheet ▸" and /search), the
+Sheets page is a reader's first meeting with the Sheets, so the tour must be there and act there. An offer on
+/sheets that sent readers to `/desk/?sheet-tour` was weighed and declined. The tour is one core
+(`sheets/sheet-tour.js`) with two hosts: the desk's (`sheets/sheet-tour-desk.js`) and the page's, built in
+`sheets/sheet-page.js`.
 
 **What:** eight cards in two parts, "Making a sheet" and "Using a sheet" (`SHEET_TOUR_STEPS`,
 `SHEET_TOUR_PARTS` in `src/lib/desk-first-use.mjs`; `sheets/sheet-tour.js`). Every step is `notebook: true`,
 since a sheet is a notebook record, so with no store the tour never starts.
 
-| # | id | Part | Card | Shows |
-|---|----|------|------|-------|
-| 1 | `list` | 1 | My sheets | the Sheets pane's list; marks "New sheet" |
-| 2 | `templates` | 1 | Start from a template | the chooser, open; marks it |
-| 3 | `parts` | 1 | The parts | a tour-only sheet from the Bible study template; marks the first card's minutes and Leader only |
-| 4 | `passage` | 1 | Add a passage | the LIT pane's verse menu on a verse; marks its "Add to “…”" row (falls back to the Reading part's passage form) |
-| 5 | `blanks` | 1 | Blanks and footnotes | a passage added in memory; marks "Blank the selected words" and the notes summary |
-| 6 | `words` | 1 | Your own words, and more | the add bar |
-| 7 | `print` | 2 | Print or share | the header's "Print or share…" link |
-| 8 | `present` | 2 | Present | the header's "Present…" link |
+| # | id | Part | Card | Shows on /desk | Shows on /sheets |
+|---|----|------|------|----------------|------------------|
+| 1 | `list` | 1 | My sheets | the Sheets pane's list; marks "New sheet" | the page's own list; marks its "New sheet…" button |
+| 2 | `templates` | 1 | Start from a template | the chooser, open; marks it | the list's chooser, open; picking a template starts the tour's sheet in its editor, not a route |
+| 3 | `parts` | 1 | The parts | a tour-only sheet from the Bible study template; marks the first card's minutes and Leader only | the same, in the page's editor view |
+| 4 | `passage` | 1 | Add a passage | the LIT pane's verse menu on a verse; marks its "Add to “…”" row (falls back to the Reading part's passage form) | no verse menu: the Reading part's passage form, `page` wording |
+| 5 | `blanks` | 1 | Blanks and footnotes | a passage added in memory; marks "Blank the selected words" and the notes summary | the same |
+| 6 | `words` | 1 | Your own words, and more | the add bar | the same |
+| 7 | `print` | 2 | Print or share | the header's "Print or share…" link | the versions view drawn for the tour's sheet; marks the Version choice and the actions |
+| 8 | `present` | 2 | Present | the header's "Present…" link | the same view; marks the bar's Present button |
+
+Five cards carry a second wording for the page (`stepBody(step, "page")`): `list`, `templates`, `passage`,
+`print`, `present`. The others read the same on both.
 
 **Rules, as for the desk tour:**
 - **It writes nothing, not even its sheet.** At the start it closes the title and Layout menus, freezes the
@@ -156,18 +170,31 @@ since a sheet is a notebook record, so with no store the tour never starts.
   pane that is not the LIT turned to Sheets, as the desk tour's "Sheets" step does); at the end it drops
   the tour's sheet, puts the reader's layout back, and unfreezes. The sheet is the editor's **example mode**
   (`setExample`, `endExample` in `sheet-editor.js`): changes apply in memory, `persistDraft` returns at once,
-  so even "Print or share…" and "Present…" write nothing.
+  so even "Print or share…" and "Present…" write nothing. On /sheets the tour never changes the address or
+  history: it draws its own views into the page and ends by redrawing what the address names; one editor
+  instance stays alive across those views and is destroyed only at the end. The versions view can be drawn
+  for the unsaved sheet because `drawSheet` has a `demo` mode (no shared banner, no links row that would leave
+  the tour, "Edit" back to the tour's editor). One edge is accepted: Present's presenter window cannot find
+  an unsaved sheet.
 - **Steps are self-sufficient**, so Back, "Skip this part" and a start at any card work: a step starts the
   tour's sheet and its passage if they are missing. A step's `later` undoes only what it opened.
 - **The passage is the leading LIT pane's chapter** from the verse it is at, two verses, read as the pane
   reads it. Offline, the card goes beside the sheet.
 - **Seen list:** `lit-desk-sheet-tour`, the same shape as the other two; every step is marked seen as the run
-  starts. A reader done with both other tours is a first-time reader of this one.
+  starts. A reader done with both other tours is a first-time reader of this one. **One list serves both
+  pages** (BVJ's ask): taking the tour, "Remind me later" or "Don't show this again" on either page counts on
+  both, and a tour of new steps is offered once.
 
-**Ways in:** `?sheet-tour` on /desk (the help page links it); "Take the Sheets tour" at the foot of the
-Sheets pane's list (not on /sheets); the offer, a window beside the Sheets pane the first time one is on
-screen with no tour running and the Study Desk tour's offer not up; and the desk tour's "Sheets" card
-(TR7-5). Not the title menu (that "Take the tour" is the Study Desk's) and not a search command.
+**Ways in, on /desk:** `?sheet-tour` (the help page links it); "Take the Sheets tour" at the foot of the
+Sheets pane's list; the offer, a window beside the Sheets pane the first time one is on screen with no tour
+running and the Study Desk tour's offer not up; and the desk tour's "Sheets" card (TR7-5). Not the title
+menu (that "Take the tour" is the Study Desk's) and not a search command. **On /sheets:** `/sheets/?sheet-tour`
+(stripped from the address); a "Take the Sheets tour" button after the list's intro paragraph; and the offer,
+beside the page's content 1.6 s after the list or a sheet's versions is drawn (never in the editor, on a
+shared sheet, in present mode, or on a phone). The page loads none of the tour's code, nor the rules that
+decide the offer (`desk-first-use.mjs`, which brings `desk-layout.mjs` with it), until one of these asks or
+the 1.6 s passes, so a page opened to print or present is as light as before: its static imports are
+exactly what they were before this audit.
 
 **Privacy:** `lit-desk-sheet-tour` is named in /privacy's list after `lit-desk-page-tour`.
 
@@ -202,8 +229,52 @@ layout key and the sheet store read before and after each run:
   verse on one of your sheets."; card 9's box held ">" with ten commands listed; at the end the
   box was empty, the tray shut, the Notebook's three keys unchanged, and focus on the Notebook
   (the fallback, not `body`).
-- The help page renders three tour links (`/john-3/?desk-tour`, `/desk/?desk-tour`,
-  `/desk/?sheet-tour` twice); `npm test` passes 3,368 tests (9 new).
+- The help page renders four tour links (`/john-3/?desk-tour`, `/desk/?desk-tour`, `/desk/?sheet-tour`,
+  and, since the second round, `/sheets/?sheet-tour` twice); `npm test` passed 3,368 tests after the
+  first round (9 new).
+
+**The second round, on /sheets** (the same browser, 2026-11-09, a 1234 px window; the layout key and the
+sheet store read before and after each run):
+
+- **From the offer, on the list**: the offer came up 1.6 s after the list drew, over the content's top
+  right corner (the column runs from 98 to 1120 px, so neither side has the 360 px a window beside it
+  needs: the rule's third placement), and showing it wrote `later` to `lit-desk-sheet-tour`. "Take the
+  tour now" ran the eight cards on the page's own views, with the address `/sheets/` untouched throughout:
+  the list with "New sheet…" marked; the chooser open beside its card; the Bible study sheet in the page's
+  editor (the title "Edit a sheet"), its first part's minutes and Leader only marked; the passage form under
+  Reading; John 3:1–2 (Continue reading's chapter, from verse 1) added in memory, with "Blank the selected
+  words" marked; the add bar; the versions view of the unsaved sheet, drawn with the Version choice, the
+  paper, the codes, the answer key, Edit, Present, Print, Copy, Save as and Share, and without the links
+  row or a banner (`demo`); then the Present button. Done drew the list, left the address alone, put focus
+  on the "My sheets" heading, scrolled back to the top, and the store held fifteen sheets and the layout key
+  341 bytes, as before.
+- **`/sheets/?sheet-tour`**: the parameter stripped, no offer, card 1 up 600 ms after the list. Lectio
+  divina picked in card 2 became the tour's sheet (its "Before you lead", "Read", "Reflect"), and card 3 kept
+  it; Back from card 7 re-attached the same editor with its passage; Escape at card 6 drew the list, focus
+  on the heading, the store unchanged.
+- **The intro's "Take the Sheets tour"** started the tour; it wears the pane's quiet link (13 px, 4 by 6 px
+  padding, inline after the paragraph).
+- **The offer on a sheet's versions view** came up the same way over the content's corner; "Remind me later"
+  wrote `later`. With the key cleared again, `view=edit` and `view=present` got no offer.
+- **The other two tours after the runner change**: `/desk/?desk-tour` and `/john-3/?desk-tour`, skipped
+  from card 1, each took the card down, cleared `data-desk-tour` and returned focus (the title; the
+  Notebook). On /desk the Sheets tour's first-time offer then came up beside the Sheets pane, as a desk with
+  a Sheets pane and an unseen tour gets it.
+- **The Sheets tour on /desk, `/desk/?sheet-tour`**, re-run on the core through its desk host: the tour
+  layout (the LIT, My Notes, Sheets), the list, the chooser, the Bible study sheet, the LIT pane's menu on
+  John 3:16 with "Add to “Untitled sheet”", John 3:16–17 with its blanks, the add bar, "Print or share…",
+  "Present…"; Done put the three-pane layout back with the Sheets pane on its list, the layout key and the
+  store unchanged, focus on the Sheets pane's name.
+- **Found in this round and fixed before it shipped**: the end-of-tour focus on /sheets (TR7-9's second
+  case), and the page's static import of the offer's rules, which brought `desk-first-use.mjs` and
+  `desk-layout.mjs` (86 KB of source) into the chunk a phone's shared-sheet viewer and a print page load;
+  both now come by `import()` in the 1.6 s timer, and the page's static graph is the 53 modules it was.
+- **Seen and accepted**: on the page the card lies over the editor's column on cards 3 to 6 whenever the
+  window is under about 1680 px (the column is 958 px wide and centered, so a side needs 360 px), and on
+  card 3 it can cover part of the first part's header; the marks still show, a wide screen has the room,
+  and on /desk the card sits beside the pane. The runner's placement is the three tours', so this is left
+  as it is.
+- `npm test` passes 3,373 tests (5 new in this round); `npm run check` finds no errors; the build passes.
 
 One trap for the next auditor: a ref click in the pane scrolls its target to the viewport's center
 first, and in the Sheets pane's scroller that opened a sheet instead of pressing the link

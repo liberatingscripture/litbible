@@ -33,18 +33,17 @@
 
 import { liveRecords } from "../../lib/desk-store-core.mjs";
 import {
-  BACKUP_HREF, CONTACT_HREF, HELP_HREF, SAFARI_LINE, WAYS_HREF,
+  BACKUP_HREF, CONTACT_HREF, DESK_TOUR_KEY, HELP_HREF, SAFARI_LINE, SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
   isDesktopSafari, readHome, readLastExport, reminderDue, reminderText,
   localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
 } from "../../lib/desk-first-use.mjs";
 import { createFloatWindow } from "../float-window.js";
 
 const HOME_KEY = "lit-desk-home";
-export const TOUR_KEY = "lit-desk-tour";
-/** The Study Desk tour's own list (E24), the same shape as the notebook tour's. */
-export const DESK_TOUR_KEY = "lit-desk-page-tour";
-/** The Sheets tour's own list (E63), the same shape again. */
-export const SHEET_TOUR_KEY = "lit-desk-sheet-tour";
+// The three tours' keys are declared with their rules in desk-first-use.mjs,
+// so the Sheets page can ask whether to offer its tour without loading this
+// file (E63); they are this file's to read and write, under the same names.
+export { DESK_TOUR_KEY, SHEET_TOUR_KEY, TOUR_KEY };
 export const COMMAND_EVENT = "lit:desk-command";
 
 /* ── What is kept in this browser ─────────────────────────────────── */

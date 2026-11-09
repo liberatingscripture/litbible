@@ -9,7 +9,8 @@ import assert from "node:assert/strict";
 
 import {
   DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE,
-  SHEET_TOUR_LINK, SHEET_TOUR_PARTS, SHEET_TOUR_STEPS, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
+  DESK_TOUR_KEY, SHEET_TOUR_KEY, SHEET_TOUR_LINK, SHEET_TOUR_PAGE_LINK, SHEET_TOUR_PARTS, SHEET_TOUR_STEPS,
+  TOUR_KEY, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
   agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
   reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
@@ -414,8 +415,34 @@ test("the Sheets tour has its own eight steps, wording and parts", () => {
   assert.deepEqual(SHEET_TOUR_STEPS.map((s) => s.part), [...SHEET_TOUR_STEPS.map((s) => s.part)].sort());
 });
 
-test("the Sheets tour has an address of its own on /desk", () => {
+test("the Sheets tour has an address of its own on /desk, and one on the Sheets page", () => {
   assert.equal(SHEET_TOUR_LINK, "/desk/?sheet-tour");
+  assert.equal(SHEET_TOUR_PAGE_LINK, "/sheets/?sheet-tour");
+});
+
+test("the Sheets tour has the Sheets page's wording where the two pages differ (E63)", () => {
+  const differs = ["list", "templates", "passage", "print", "present"];
+  for (const s of SHEET_TOUR_STEPS) {
+    const page = stepBody(s, "page");
+    assert.ok(page.length > 20, s.id);
+    assert.doesNotMatch(page, /[—"']/, s.id);
+    // The page has no Sheets pane of the tour's.
+    assert.doesNotMatch(page, /A Sheets pane is shown here only for the tour/, s.id);
+    if (differs.includes(s.id)) assert.notEqual(page, stepBody(s, "desk"), s.id);
+    else assert.equal(page, stepBody(s, "desk"), s.id);
+    // On /desk every step reads its default.
+    assert.equal(stepBody(s, "desk"), s.body.default, s.id);
+  }
+});
+
+test("the tours' keys are declared with their rules, and first-use.js hands on the same ones", async () => {
+  assert.equal(TOUR_KEY, "lit-desk-tour");
+  assert.equal(DESK_TOUR_KEY, "lit-desk-page-tour");
+  assert.equal(SHEET_TOUR_KEY, "lit-desk-sheet-tour");
+  const firstUse = await import("../src/scripts/desk/first-use.js");
+  assert.equal(firstUse.TOUR_KEY, TOUR_KEY);
+  assert.equal(firstUse.DESK_TOUR_KEY, DESK_TOUR_KEY);
+  assert.equal(firstUse.SHEET_TOUR_KEY, SHEET_TOUR_KEY);
 });
 
 test("planning the Sheets tour numbers its eight steps in two parts, and with no notebook there is none", () => {

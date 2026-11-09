@@ -35,6 +35,21 @@ export const DESK_TOUR_LINK = "/desk/?desk-tour";
 /** The start of the Sheets tour (E63): `?sheet-tour` on /desk starts it after load. */
 export const SHEET_TOUR_LINK = "/desk/?sheet-tour";
 
+/** The Sheets tour on the Sheets page, which runs it too (E63): `?sheet-tour` on /sheets. */
+export const SHEET_TOUR_PAGE_LINK = "/sheets/?sheet-tour";
+
+/**
+ * Where each tour keeps its seen list, in this browser (first-use.js reads and
+ * writes them, and re-exports these names). Declared here, in the pure rules,
+ * so the Sheets page can ask whether to offer its tour without loading
+ * first-use.js or the tour (E63).
+ */
+export const TOUR_KEY = "lit-desk-tour";
+/** The Study Desk tour's own list (E24), the same shape as the notebook tour's. */
+export const DESK_TOUR_KEY = "lit-desk-page-tour";
+/** The Sheets tour's own list (E63), the same shape again, one for both pages it runs on. */
+export const SHEET_TOUR_KEY = "lit-desk-sheet-tour";
+
 const DAY_MS = 86_400_000;
 
 /** A stored choice, or null when there isn't a valid one. */
@@ -533,6 +548,12 @@ export const SHEET_TOUR_PARTS = ["Making a sheet", "Using a sheet"];
  * is made in memory and never written. Every step is `notebook`, since a sheet
  * is a notebook record: where the browser keeps none there is no tour. The ids
  * may not collide with the other two tours' (a test holds it).
+ *
+ * It runs on /desk and on the Sheets page (BVJ, 2026-11-09), the same eight
+ * steps under the same ids, so one seen list serves both. `default` is the
+ * desk's wording, and `page` the Sheets page's where the two differ: the page
+ * has no LIT pane, and its versions view stands for the pane's "Print or
+ * share…" and "Present…" (stepBody(step, "page")).
  */
 export const SHEET_TOUR_STEPS = [
   {
@@ -544,6 +565,8 @@ export const SHEET_TOUR_STEPS = [
     body: {
       default:
         "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A Sheets pane is shown here only for the tour.",
+      page:
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, or open a file someone sent you with “Import a Study Desk file.”",
     },
   },
   {
@@ -555,6 +578,8 @@ export const SHEET_TOUR_STEPS = [
     body: {
       default:
         "“New sheet” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you save as a template is offered here too. Nothing is written until your first change, so you can open each and look.",
+      page:
+        "“New sheet…” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you save as a template is offered here too. Nothing is written until your first change, so you can open each and look.",
     },
   },
   {
@@ -577,6 +602,8 @@ export const SHEET_TOUR_STEPS = [
     body: {
       default:
         "In the LIT pane, a verse’s menu adds the verse to the sheet you are working on, and selected words add just those words. Or type a reference in the form under “Reading.” On a chapter page, the verse menu has “Add to sheet” as well.",
+      page:
+        "Type a reference in the form under “Reading,” or choose one of your notes, highlights, or bookmarks listed beneath it. On the Study Desk, a verse’s menu in the LIT pane adds the verse to the sheet you are working on, and on a chapter page the verse menu has “Add to sheet.”",
     },
   },
   {
@@ -610,6 +637,8 @@ export const SHEET_TOUR_STEPS = [
     body: {
       default:
         "“Print or share…” opens the sheet’s own page in a new tab. There you choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, and print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file.",
+      page:
+        "“Done” brings a sheet to its own page, this one. Choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, then print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file. “Edit” goes back to the parts.",
     },
   },
   {
@@ -621,6 +650,8 @@ export const SHEET_TOUR_STEPS = [
     body: {
       default:
         "“Present…” shows the sheet to a room, full screen, one part at a time, with a passage’s blanks uncovered as you choose. A presenter view on your own screen keeps your notes and the minutes you planned, and stays in step with the room.",
+      page:
+        "“Present” shows the sheet to a room, full screen, one part at a time, with a passage’s blanks uncovered as you choose. A presenter view on your own screen keeps your notes and the minutes you planned, and stays in step with the room.",
     },
   },
 ];
