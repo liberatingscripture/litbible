@@ -1,10 +1,11 @@
 // src/scripts/desk/tour-runner.js
 //
-// What the two tours share (E24, BVJ 2026-11-02): the card, the way through its
+// What the tours share (E24, BVJ 2026-11-02): the card, the way through its
 // steps, where it sits beside what a step points at, and how a tour ends. The
-// notebook tour (tour.js, on a chapter page) and the Study Desk tour
-// (desk-tour.js, on /desk) each bring their own steps and their own acts; this
-// does not know what either one opens.
+// notebook tour (tour.js, on a chapter page), the Study Desk tour
+// (desk-tour.js, on /desk) and the Sheets tour (sheets/sheet-tour.js, on /desk
+// too; E63) each bring their own steps and their own acts; this does not know
+// what any of them opens.
 //
 // A step's `act(step)` opens whatever the step shows and returns where its card
 // goes: `{ el, side?, marks? }`, or null for a card in the middle. `el` places
@@ -31,6 +32,22 @@ const EDGE = 12;
 
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+
+/**
+ * Waits for `find()` to return something, up to `ms`, polling each frame:
+ * for a step whose target is drawn a moment after it acts (a template chooser,
+ * a list read from the notebook, a passage's blanks). Both /desk tours use it.
+ */
+export const waitFor = (find, ms = 2000) =>
+  new Promise((resolve) => {
+    const end = performance.now() + ms;
+    const tick = () => {
+      const got = find();
+      if (got || performance.now() > end) resolve(got ?? null);
+      else requestAnimationFrame(tick);
+    };
+    tick();
+  });
 
 export function createTourRunner() {
   let run = null;
@@ -60,7 +77,9 @@ export function createTourRunner() {
       afterUndo,
       more,
       index: 0,
-      returnTo: returnTo ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null),
+      // Nothing focused (a tour started by its address) is `body`, which is no
+      // place to return to: the fallback takes over then (Audit 7, TR7-9).
+      returnTo: returnTo ?? (document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null),
       returnFallback,
       scroll: { x: window.scrollX, y: window.scrollY },
       undo: [],

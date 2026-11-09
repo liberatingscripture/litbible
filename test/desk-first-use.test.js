@@ -8,7 +8,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
+  DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE,
+  SHEET_TOUR_LINK, SHEET_TOUR_PARTS, SHEET_TOUR_STEPS, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
   agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
   reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
@@ -313,9 +314,12 @@ test("the Study Desk tour has its own steps, wording and parts", () => {
   assert.match(stepBody(DESK_TOUR_STEPS[2], null), /follow the LIT pane\. Move through the LIT, and they move with it\. With two LIT panes open, as here for the tour, the one you selected most recently is marked with a flag\.$/);
 });
 
-test("the two tours share no step id, so each one's list means only its own", () => {
+test("the three tours share no step id, so each one's list means only its own", () => {
   const notebook = new Set(TOUR_STEPS.map((s) => s.id));
   for (const s of DESK_TOUR_STEPS) assert.ok(!notebook.has(s.id), s.id);
+  // The Sheets tour (E63) joined them on 2026-11-09.
+  const desk = new Set(DESK_TOUR_STEPS.map((s) => s.id));
+  for (const s of SHEET_TOUR_STEPS) assert.ok(!notebook.has(s.id) && !desk.has(s.id), s.id);
 });
 
 test("the Study Desk tour has an address of its own, beside the notebook tour's", () => {
@@ -372,6 +376,67 @@ test("planning the Study Desk tour numbers its steps, splits it in two parts and
   const cramped = new Set(all);
   cramped.delete("add");
   assert.ok(!planTour({ available: cramped, steps: DESK_TOUR_STEPS, parts: DESK_TOUR_PARTS }).some((s) => s.id === "add"));
+});
+
+test("Audit 7's wording: the desk tour's cards name what the page has now, and the notebook tour's first names Add to sheet", () => {
+  const desk = (id) => DESK_TOUR_STEPS.find((s) => s.id === id);
+  // TR7-5: the Sheets card links the Sheets tour, as My Notes links the notebook tour.
+  assert.equal(desk("sheets").more, "See one made, printed, and presented: the Sheets tour");
+  assert.ok(desk("mine").more);
+  // TR7-1: seven templates since Audit 5, so the card lists none of them in full.
+  assert.doesNotMatch(stepBody(desk("newsheet"), null), /sermon preparation, a class session/);
+  // TR7-2: Full screen (E43) and My notebook page are in the title menu.
+  assert.match(stepBody(desk("title"), null), /full screen/);
+  assert.match(stepBody(desk("title"), null), /Your notebook page/);
+  // TR7-3: "Add to sheet" in Chapter View's verse menu (PR #520); Read View has none.
+  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add to sheet”/);
+  assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add to sheet/);
+});
+
+/* ── The Sheets tour (E63) ── */
+
+test("the Sheets tour has its own eight steps, wording and parts", () => {
+  const ids = SHEET_TOUR_STEPS.map((s) => s.id);
+  assert.deepEqual(ids, ["list", "templates", "parts", "passage", "blanks", "words", "print", "present"]);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.deepEqual(SHEET_TOUR_PARTS, ["Making a sheet", "Using a sheet"]);
+  for (const s of SHEET_TOUR_STEPS) {
+    assert.ok(SHEET_TOUR_PARTS[s.part], s.id);
+    assert.ok(stepBody(s, null).length > 20, s.id);
+    // Reader-facing prose: no em dashes, no straight quotes.
+    for (const text of [s.title, s.more ?? "", ...Object.values(s.body)]) assert.doesNotMatch(text, /[—"']/, s.id);
+    assert.ok(s.id !== "never" && !s.id.startsWith("later:") && !s.id.startsWith("offered"), s.id);
+    // A sheet is a notebook record: no notebook, no tour.
+    assert.equal(s.notebook, true, s.id);
+    assert.equal(s.views, undefined, s.id);
+  }
+  // Parts run in order, never interleaved.
+  assert.deepEqual(SHEET_TOUR_STEPS.map((s) => s.part), [...SHEET_TOUR_STEPS.map((s) => s.part)].sort());
+});
+
+test("the Sheets tour has an address of its own on /desk", () => {
+  assert.equal(SHEET_TOUR_LINK, "/desk/?sheet-tour");
+});
+
+test("planning the Sheets tour numbers its eight steps in two parts, and with no notebook there is none", () => {
+  const all = new Set(SHEET_TOUR_STEPS.map((s) => s.id));
+  const plan = planTour({ available: all, steps: SHEET_TOUR_STEPS, parts: SHEET_TOUR_PARTS });
+  assert.deepEqual(plan.map((s) => `${s.number} of ${s.of}`), Array.from({ length: 8 }, (_, i) => `${i + 1} of 8`));
+  assert.equal(plan[0].partName, "Making a sheet");
+  assert.equal(plan[0].nextPart, 6);
+  assert.equal(plan[6].partName, "Using a sheet");
+  assert.equal(plan.at(-1).nextPart, null);
+  assert.deepEqual(planTour({ available: all, canKeep: false, steps: SHEET_TOUR_STEPS, parts: SHEET_TOUR_PARTS }), []);
+});
+
+test("the Sheets tour's offer is its own: a reader done with both other tours is a first-time reader of it", () => {
+  const both = JSON.stringify([...TOUR_STEPS, ...DESK_TOUR_STEPS].map((s) => s.id));
+  assert.equal(tourOffer(both, { steps: SHEET_TOUR_STEPS }).kind, "first");
+  const done = JSON.stringify(SHEET_TOUR_STEPS.map((s) => s.id));
+  assert.equal(tourOffer(done, { steps: SHEET_TOUR_STEPS }).kind, null);
+  // And its list says nothing about theirs.
+  assert.equal(tourOffer(done, { steps: DESK_TOUR_STEPS }).kind, "first");
+  assert.equal(tourOffer(done).kind, "first");
 });
 
 test("the notebook tour was cut from 14 steps to 10 (BVJ, 2026-11-02), and retired ids offer nothing", () => {

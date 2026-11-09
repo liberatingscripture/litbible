@@ -43,6 +43,8 @@ const HOME_KEY = "lit-desk-home";
 export const TOUR_KEY = "lit-desk-tour";
 /** The Study Desk tour's own list (E24), the same shape as the notebook tour's. */
 export const DESK_TOUR_KEY = "lit-desk-page-tour";
+/** The Sheets tour's own list (E63), the same shape again. */
+export const SHEET_TOUR_KEY = "lit-desk-sheet-tour";
 export const COMMAND_EVENT = "lit:desk-command";
 
 /* ── What is kept in this browser ─────────────────────────────────── */
@@ -71,6 +73,15 @@ export function getDeskTourRaw() {
 
 export function saveDeskTourList(list) {
   try { localStorage.setItem(DESK_TOUR_KEY, JSON.stringify(list)); } catch (_) {}
+}
+
+/** The Sheets tour's raw state (desk/sheets/sheet-tour.js reads and writes it through these). */
+export function getSheetTourRaw() {
+  try { return localStorage.getItem(SHEET_TOUR_KEY); } catch (_) { return null; }
+}
+
+export function saveSheetTourList(list) {
+  try { localStorage.setItem(SHEET_TOUR_KEY, JSON.stringify(list)); } catch (_) {}
 }
 
 /** Ask for the tour, as the search box's "tour" command does. */

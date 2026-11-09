@@ -66,6 +66,10 @@
 //   it pauses. A change made elsewhere (another pane on the same sheet,
 //   another tab, an undo) redraws only the modules it touched, and never the
 //   one being typed in.
+// - **Except in the Sheets tour's example mode** (E63; `setExample`,
+//   `endExample`; sheets/sheet-tour.js): there a change is made in memory and
+//   the sheet stays an unwritten draft, which nothing writes (`persistDraft`
+//   does nothing), so the sheet the tour shows goes when it ends.
 
 import { plannedTotal } from "../../../lib/desk-present.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
@@ -173,11 +177,17 @@ const json = (x) => JSON.stringify(x);
  *   button returns to once the sheet is saved, in place of "Present…" and
  *   "Print or share…" (/sheets/?id=). `askFirst: false` skips the two-tab
  *   question for the first sheet opened (the pane's "Open on its own page").
+ *   `onTour` starts the Sheets tour, and puts its link at the foot of the
+ *   list (the Sheets pane's; /sheets/ passes none).
  * @returns {{ el: HTMLElement, sheet: () => object | null, persist: () => void,
  *   contentVersion: () => string, addPassage: (fields: object, target?: object | null) => Promise<false | { message: string, again: boolean }>,
- *   newSheet: () => Promise<void>, startFrom: (template: string | object) => void, destroy: () => void }}
+ *   newSheet: () => Promise<void>, startFrom: (template: string | object) => void,
+ *   showList: (options?: { focus?: string | null, chooser?: boolean }) => Promise<void>,
+ *   setExample: (on: boolean) => void, endExample: () => void, destroy: () => void }}
+ *   `showList` shows the list of sheets in place; `setExample` and `endExample`
+ *   are the Sheets tour's (E63).
  */
-export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null, onCancel = null, askFirst = true }) {
+export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, showPassage = null, onSheetChange = () => {}, onList = null, onDone = null, onCancel = null, onTour = null, askFirst = true }) {
   const el = make("div", "desk-sheet");
   const live = make("p", "sr-only");
   live.setAttribute("aria-live", "polite");
@@ -199,6 +209,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       addPassage: async () => false,
       async newSheet() {},
       startFrom() {},
+      async showList() {},
+      setExample() {},
+      endExample() {},
       destroy() {},
     };
   }
@@ -209,6 +222,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   // opening them leaves no "Untitled sheet" behind. From then on it saves as
   // any sheet does.
   let draft = null;
+  // The Sheets tour's example mode (E63): changes are made in memory and
+  // nothing is written (`setExample`).
+  let example = false;
   let lastModule = null; // the part last focused or clicked on this sheet
   // The gap pills are one Tab stop for the whole sheet (Audit 6, DK6-1; BVJ,
   // 2026-11-08): the pill under this part takes Tab, the others -1, and the
@@ -308,6 +324,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   // after another; only this pane's bookkeeping waits its turn.
   function change(op, { announce = null, after = null, source = null, quiet = false } = {}) {
     if (destroyed || !sheet) return Promise.resolve(false);
+    if (example) return Promise.resolve(changeInMemory(op, { after, source }));
     const n = seq;
     const id = sheet.id;
     // A new sheet's first change writes it first, as its own undo step, so
@@ -375,6 +392,31 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   }
 
   /**
+   * A change in the Sheets tour's example mode (E63; `setExample`): planned
+   * over the sheet shown, which stays an unwritten draft, and drawn. Nothing
+   * is saved, said, or put in the history, so the tour's sheet goes when it
+   * ends. True when it was made (or changed nothing), false when the sheet
+   * refused it.
+   */
+  function changeInMemory(op, { after = null, source = null } = {}) {
+    const plan = planSheetChange(sheet, op);
+    if (plan.gone || plan.refused) return false;
+    if (!plan.sheet || !plan.changed) return true;
+    sheet = plan.sheet;
+    draft = sheet;
+    onSheetChange();
+    // As when a save lands: the card that made the change already shows it.
+    if (source) {
+      const card = cards.get(source);
+      const m = sheet.modules.find((x) => x.id === source);
+      if (card && m) card.json = json(m);
+    }
+    draw();
+    after?.();
+    return true;
+  }
+
+  /**
    * A save failed, so nothing of it was kept: say why, and put the part that
    * made it back to its saved text, so the page shows what a reload would
    * (BA128).
@@ -435,7 +477,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   }
 
   // What the list view (my-sheets.js) is handed: the editor's own pieces.
-  const listHost = { store, opCtx, idSuffix, say, content, openSheet, startFrom, showList };
+  const listHost = { store, opCtx, idSuffix, say, content, openSheet, startFrom, showList, onTour };
 
   async function showList({ focus = null, chooser: openChooser = false } = {}) {
     const n = ++seq;
@@ -485,6 +527,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     else newFromOwn(template);
   }
   me.startFrom = startFrom;
+  me.showList = showList;
 
   /** Make a sheet from one of the reader's own templates and open it. */
   async function newFromOwn(template) {
@@ -616,7 +659,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    * asked for after it, in any tab, reads the sheet.
    */
   function persistDraft() {
-    if (!draft) return;
+    // The Sheets tour's sheet is never written (E63).
+    if (!draft || example) return;
     const d = draft;
     const n = seq;
     draft = null;
@@ -1069,7 +1113,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const at = sheet.modules.findIndex((x) => x.id === id);
     change((s) => removeModule(s, id, opCtx()), {
       after: () => {
-        const entry = store.lastEntry();
+        // In the tour's example mode nothing was written, so the last entry is another change's.
+        const entry = example ? null : store.lastEntry();
         if (entry) showUndo(`${name} removed from the sheet.`, () => undoEntry(entry));
         const next = sheet.modules[Math.min(at, sheet.modules.length - 1)];
         (next ? cards.get(next.id)?.el.querySelector("button") : moduleList)?.focus?.();
@@ -1282,6 +1327,35 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (!chooser) showList({ chooser: true }); // the list is still loading
     else if (chooser.hidden) chooser.toggle();
     else chooser.querySelector("button")?.focus();
+  };
+
+  /**
+   * The Sheets tour's example mode (E63; sheets/sheet-tour.js). While it is
+   * on, a change is made in memory (`changeInMemory`) and the sheet shown is
+   * never written: not by its first change, and not by "Print or share…",
+   * "Present…", "Open on its own page" or an add from another pane, whose
+   * `persistDraft` does nothing. Typing still waiting for its delay is saved
+   * first, since it is the reader's.
+   */
+  me.setExample = (on) => {
+    if (on && !example) flushAll();
+    example = Boolean(on);
+  };
+
+  /**
+   * The tour is over: its sheet is dropped unwritten, and the editor shows
+   * what the host says, as the first view does. Safe to call again, which
+   * the tour does once the reader's layout is back.
+   */
+  me.endExample = () => {
+    example = false;
+    draft = null;
+    if (destroyed) return;
+    const id = getSheet();
+    ++seq;
+    if (id) openSheet(id);
+    else if (onList) toList();
+    else showList();
   };
 
   return {

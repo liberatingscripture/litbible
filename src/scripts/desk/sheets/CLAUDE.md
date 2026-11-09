@@ -179,6 +179,49 @@ The header's Study group is part 3's, built with header C.
   pane is the other tab and the reader sent it; the page drops the marker,
   so a reload asks as usual. /sheets keeps "Edit on the Study Desk".
 
+## The Sheets tour (E63)
+
+The third tour (BVJ, 2026-11-09; the shared tour rules are in the desk file,
+"Three tours" under rule 13). It runs on /desk in a Sheets pane, not on
+/sheets, since the LIT pane's "Add to" row and "Open on its own page" exist
+only there. `sheet-tour.js` (`createSheetTour(api)`: `start`, `maybeOffer`,
+`running`, `offering`) acts through `desk/tour-runner.js`; its eight steps are
+`SHEET_TOUR_STEPS` in `desk-first-use.mjs`, in two parts ("Making a sheet,"
+"Using a sheet"): `list`, `templates`, `parts`, `passage`, `blanks`, `words`,
+then `print` and `present`. Every step is `notebook: true`, since a sheet is a
+notebook record, so with no store the tour never starts.
+
+- **It writes nothing, not even its own sheet.** The page's `freeze` keeps the
+  layout off disk, as for the desk tour, and **the tour's sheet is the
+  editor's example mode** (`setExample`, `endExample` on `createSheetEditor`):
+  `change` applies an op in memory and says nothing, and `persistDraft` returns
+  at once, so "Print or share…," "Present…," and "Open on its own page" write
+  nothing either. `finish` ends the example, restores the reader's layout, and
+  ends it once more for a pane the layout shares. **A new step that changes the
+  sheet goes through `change` in example mode and is undone by dropping the
+  draft at the end, never by a write.** A step's `later` undoes only what the
+  step opened (the chooser, the verse menu).
+- **Steps are self-sufficient**: Back, "Skip this part" and a start at any card
+  must work, so a step starts the tour's sheet (`startFrom("bible-study")`) and
+  its passage when they are missing. The passage is the leading LIT pane's
+  chapter from the verse it is at (`litPassage`), two verses.
+- **`passage` opens the LIT pane's verse menu as a reader does.** Its Sheets
+  row exists only for the pane that counts as the target (`lastUsed` in
+  `sheet-pane.js`), so the tour makes its pane the target with
+  `useAsTarget(editor)`, exported for this alone; the pane returns its
+  `editor` for the same reason.
+- **The offer** is a `float-window.js` window beside the Sheets pane, 1.6 s
+  after a draw leaves one on screen, and only with a store, no tour running
+  (`html[data-desk-tour]`), the Study Desk tour's offer not up, and the layout
+  unfrozen. The title menu has no quiet line for it; the list's link is the
+  standing way in.
+- **Four ways in**: `?sheet-tour` on /desk (`SHEET_TOUR_LINK`, stripped, 600 ms
+  after the panes); "Take the Sheets tour" at the foot of the Sheets pane's
+  list (`mySheetsList`, only when the host passes `onTour`, so never on
+  /sheets); the offer; and the desk tour's "Sheets" card.
+- **The key** is `lit-desk-sheet-tour` (`SHEET_TOUR_KEY` in `first-use.js`), the
+  desk tour's shape; /privacy names it.
+
 ## Rule 19: a sheet on paper
 
 **Phase 3i is a sheet on paper** (STUDY-DESK.md, S4,

@@ -12,6 +12,9 @@
 //   its `paneId`), which opens that pane's template chooser.
 // - **Which sheet it shows is the layout's** (`setPaneSheet`, handed in by
 //   desk-panes.js as `getSheet` and `setSheet`), and its ids carry its pane id.
+// - **"Take the Sheets tour"** at the foot of its list sends `desk:sheet-tour`
+//   (E63), which desk-page.js answers; the tour itself is sheet-tour.js, and
+//   `useAsTarget` is its, so the LIT pane's menu offers its pane's sheet.
 
 import {
   passageFromOffsets,
@@ -51,6 +54,17 @@ export function addTarget() {
 
 const targetListeners = new Set();
 const targetChanged = () => { for (const fn of targetListeners) fn(); };
+
+/**
+ * Make this pane's editor the one "Add to sheet" adds to, as working in it
+ * does: for the Sheets tour (E63), which opens the LIT pane's verse menu
+ * without the reader having touched its pane.
+ */
+export function useAsTarget(editor) {
+  if (!openPanes.has(editor)) return;
+  lastUsed = editor;
+  targetChanged();
+}
 
 /** Called when the sheet `addTarget` names may have changed; returns the way to stop. */
 export function onAddTarget(fn) {
@@ -106,7 +120,8 @@ function listenForPanels() {
  *   showPassage?: ((passage: object) => void) | null }} options
  *   `getSheet` and `setSheet` are which sheet the pane shows, kept by the page;
  *   `showPassage` moves the LIT pane to a passage, where there is one.
- * @returns {{ el: HTMLElement, destroy: () => void }}
+ * @returns {{ el: HTMLElement, destroy: () => void, editor: object }}
+ *   `editor` is the sheet editor, for the Sheets tour (sheet-tour.js).
  */
 export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPassage = null }) {
   const editor = createSheetEditor({
@@ -117,9 +132,10 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
     setSheet,
     showPassage,
     onSheetChange: targetChanged,
+    onTour: () => document.dispatchEvent(new CustomEvent("desk:sheet-tour", { detail: { paneId } })),
   });
   // A browser keeping no notebook shows a line and nothing to add to.
-  if (!store) return { el: editor.el, destroy() {} };
+  if (!store) return { el: editor.el, destroy() {}, editor };
 
   openPanes.add(editor);
   listenForPanels();
@@ -136,6 +152,7 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
 
   return {
     el: editor.el,
+    editor,
     destroy() {
       editor.destroy();
       document.removeEventListener("desk:sheet-new", onNewSheet);
