@@ -56,7 +56,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   calls its editor's `newSheet`. A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
-  19): it passes `onList` and `onDone`, so "‹ All sheets" and a Done button
+  19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
   go to the page's own list and versions instead of the editor's list and
   its "Present…" and "Print or share…", and it uses the exported
   `templateChooser` for the list's "New sheet…". **The editor's own list
@@ -204,7 +204,7 @@ The header's Study group is part 3's, built with header C.
   `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
   the two-tab question for that first open (`askFirst: false`), since the
   pane is the other tab and the reader sent it; the page drops the marker,
-  so a reload asks as usual. /sheets keeps "Edit on the Study Desk".
+  so a reload asks as usual. /sheets keeps "Edit in Study Desk".
 
 ## The Sheets tour (E63)
 
@@ -276,7 +276,7 @@ a notebook record, so with no store the tour never starts.
   so `passage` shows the Reading part's passage form, with the chapter from
   `loadLastRead()` (else John 3:16). `print` and `present` draw the versions
   view for the unsaved sheet: **`drawSheet`'s `demo` mode** leaves out the
-  shared banner and the links row ("‹ My sheets," "Edit on the Study Desk,"
+  shared banner and the links row ("‹ My sheets," "Edit in Study Desk,"
   which leave the tour, the second naming an unsaved id), makes "Edit" return
   to the tour's editor, and skips the `history.replaceState` when Present
   closes; everything else works as for a reader's sheet and writes no record.

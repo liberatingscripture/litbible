@@ -476,7 +476,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      only under `html[data-desk]` by their own rules. **No other page has a
      Study Desk button in the header**: articles, the glossary, Read View,
      /notebook and /sheets reach the desk by other routes (the Notebook panel's
-     lamp link, /sheets' "Edit on the Study Desk", /notebook's "Open the
+     lamp link, /sheets' "Edit in Study Desk", /notebook's "Open the
      Study Desk" under its title, `notebook-page.js`). The desk's own header hides it, being there already. The Chapter View "Switch to Read View"
      pill is hidden while the preview is on.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the

@@ -7085,6 +7085,14 @@ a.desk-sheet__open {
   white-space: nowrap;
 }
 
+/* The saved line and Close, together at the right edge of the sheet's own page. */
+.desk-sheet__top-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
 .desk-sheet__saved {
   font-size: 0.75rem;
   color: rgba(var(--ink-rgb), 0.7);

@@ -80,7 +80,7 @@ async function start() {
   root.classList.add("desk-np");
   // The way back to /desk (BVJ, 2026-11-06): the header's Study Desk link is
   // on the home page only since E50, and this page is one of the desk's own,
-  // as /sheets is with its "Edit on the Study Desk".
+  // as /sheets is with its "Edit in Study Desk".
   const back = el("a", "notebook-page__desk", "Open the Study Desk");
   back.href = `${String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/")}desk/`;
   const backLine = el("p", "notebook-page__desk-line");

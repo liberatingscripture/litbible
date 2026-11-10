@@ -88,10 +88,11 @@ test("the Sheets page starts the tour from its address, and draws the tour's she
   const page = code("src/scripts/desk/sheets/sheet-page.js");
   assert.match(page, /"sheet-tour"/);
   // `drawSheet` takes `demo`: no shared banner, no links row ("‹ My sheets",
-  // "Edit on the Study Desk"), and Edit back to the tour's editor.
+  // "Edit in Study Desk"), and Edit back to the tour's editor.
   assert.match(page, /async function drawSheet\(root, \{[^}]*\bdemo = null \}\)/);
   assert.match(page, /shared && !demo \? \[sharedBanner\(/);
-  assert.match(page, /\.\.\.\(demo \? \[\] : \[links\]\)/);
+  assert.match(page, /\.\.\.\(demo \? \[\] : \[back\]\)/);
+  assert.match(page, /\.\.\.\(demo \|\| shared \? \[\] : \[edit\]\)/);
   assert.match(page, /if \(demo\) \{\s*demo\.onEdit\(\);\s*return;\s*\}/);
   // The tour's host never writes the address or history.
   const host = page.slice(page.indexOf("function tourHost("), page.indexOf("export async function showSharedOnPhone"));
