@@ -9,10 +9,8 @@
 // shares their screen must not put their notes on it.
 
 import { PRINT_ASK_KEY, PRINT_PARAM, parsePrintParam, printWasAsked } from "../../lib/desk-print-notes.mjs";
-import { allHidden } from "./note-settings.js";
 import { pageChapter } from "./page.js";
 import { printFonts } from "./print-notes.js";
-import { showNotice } from "./undo-bar.js";
 
 /**
  * The chapter or book on this page, printed plainly (print.css's look, in
@@ -46,11 +44,6 @@ export function initPrintLink({ printNotes, printRoom }) {
   url.searchParams.delete(PRINT_PARAM);
   history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
   if (!kind || !takeAsk(`${url.pathname}?${PRINT_PARAM}=${kind}`)) return;
-
-  if (kind === "notes" && allHidden()) {
-    showNotice("Not printed, because “Hide my marks” is on. Turn it off to print with your notes.");
-    return;
-  }
 
   const go = async () => {
     try {

@@ -759,7 +759,7 @@ My Notes redraws in full while the Notebook is minimized, which is the default
 **Fix** Draw My Notes and This verse only when `shown()`; when the Notebook expands, call `render()` once (the rail's `onChange` already runs on expand). Keep `MOVE_KIND` heard only while expanded.
 **Confidence** High (code), Low (impact; not timed with a large notebook).
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** A minimized Notebook no longer draws My Notes or This verse: `render` in `panel.js` returns unless the panel is expanded, both tabs' `visible` follow `shown()`, and the rail's change callback renders once when it expands, so bookmark moves cost nothing while it is folded.
 
 #### NB8-4 · Low · performance · NEW
 
@@ -795,7 +795,7 @@ Pressing "Hide my marks" a second time forgets what the first press remembered
 **Fix** When saving for hide, keep an existing saved "on" for any switch that is currently off, or refuse to overwrite while `HIDE_KEY` exists.
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** `setHideAll` now keeps the first hide's record: a hide that finds one keeps a saved "on" for any switch it had, so Show restores everything the first hide saw on.
 
 #### NB8-7 · Low · usability · NEW
 
@@ -1098,8 +1098,8 @@ The help page's Print paragraph implies the chapter on the page prints in place 
 ### Questions for the owner
 
 1. **Footnote references on /desk** (DK8-2): should a plain click on a scripture reference in a footnote open a new tab (the E34 rule) or move the LIT pane, as it does in the Book Intro pane? Either is a small change; the two behaviors should not differ between panes.
-2. **Continue reading**: reading in the LIT pane on /desk never writes `lit_last_read` (only the layout key moves), so the notebook page's "Continue reading" and My Notes' "Continue reading" line, in a Study Desk pane or elsewhere, stay at the last chapter-page read even while the reader works on /desk. Intended? (Nothing in `src/scripts/desk/CLAUDE.md` or the E log said either way that I found.)
-3. **"Hide my marks" and printing**: the verse menu's and the selection panel's "with my notes" stand down while it is on (`print-part.js:79-86`), and so does a print asked for by address (`print-link.js:50`); the whole-chapter "Print with my notes" from the Notebook's Settings tab, and the `>print` command, print the notes anyway (`print-notes.js` header: the screen switches "do not apply"). Both read as decisions; is the difference meant?
+2. **Continue reading**: reading in the LIT pane on /desk never writes `lit_last_read` (only the layout key moves), so the notebook page's "Continue reading" and My Notes' "Continue reading" line, in a Study Desk pane or elsewhere, stay at the last chapter-page read even while the reader works on /desk. Intended? (Nothing in `src/scripts/desk/CLAUDE.md` or the E log said either way that I found.) **Decided (2026-11-10): reading on /desk updates Continue reading, as Chapter View does (the leading LIT pane, throttled, never a draft); fixed.**
+3. **"Hide my marks" and printing**: the verse menu's and the selection panel's "with my notes" stand down while it is on (`print-part.js:79-86`), and so does a print asked for by address (`print-link.js:50`); the whole-chapter "Print with my notes" from the Notebook's Settings tab, and the `>print` command, print the notes anyway (`print-notes.js` header: the screen switches "do not apply"). Both read as decisions; is the difference meant? **Decided (2026-11-10): anything that says "with my notes" prints them; Hide my marks is about the screen only; fixed.**
 4. **"Delete everything" and sheets** (DK8-7): is trashing the sheets and templates with the notes intended, or should sheets be a separate button?
 
 ### What held up

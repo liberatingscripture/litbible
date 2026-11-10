@@ -1588,8 +1588,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        on the selection's verses (not on footnotes) after it under "My notes".
        Highlights are not tinted in a selection print. Both put a "John 3:16–18
        (LIT)" heading first (the page's own title is hidden under
-       `html[data-desk-part]`). **"With my notes" stands down while "Hide my marks"
-       is on**, with the same notice print-link.js gives. It is offered only where
+       `html[data-desk-part]`). **"With my notes" prints the notes even while "Hide my marks"
+       is on** (BVJ, 2026-11-10; Hide is about the screen only). It is offered only where
        the browser keeps a notebook, which is where the My Notebook rows exist at
        all, so there the whole Print ▸ row is absent.
      - **One Print menu, on /desk and in the Notebook** (E16; BVJ,
@@ -1612,7 +1612,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (SEC-4): it leaves a one-time mark for that address
        (`localStorage['lit-desk-print-ask']`, `printWasAsked`, good for a
        minute), so a link from a chat or a shared sheet only opens the chapter,
-       and with notes it stands down, saying so, while "Hide my marks" is on. A
+       and with notes it prints them whatever "Hide my marks" says (BVJ, 2026-11-10). A
        new way to ask for such a print must leave the mark. **This page's own chapter prints in
        place**, with no new tab, as the Notebook's buttons always did. /desk's
        is "Print…" in the page-title menu (E15, below); the

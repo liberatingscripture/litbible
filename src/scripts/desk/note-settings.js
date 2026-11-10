@@ -105,7 +105,14 @@ export function allHidden() {
  */
 export function setHideAll(hide, { from = null } = {}) {
   if (hide) {
-    const saved = Object.fromEntries(HIDDEN_BY_M1.map((name) => [name, getSetting(name)]));
+    // The first hide's memory wins (NB8-6): hiding again with a record already
+    // kept, after turning one switch back on, must not make Show bring back
+    // only that one. A switch the first hide saw on stays on in the record.
+    let before = null;
+    try { before = JSON.parse(localStorage.getItem(HIDE_KEY) || "null"); } catch (_) {}
+    const saved = Object.fromEntries(
+      HIDDEN_BY_M1.map((name) => [name, before?.[name] === "on" ? "on" : getSetting(name)]),
+    );
     try { localStorage.setItem(HIDE_KEY, JSON.stringify(saved)); } catch (_) {}
     for (const name of HIDDEN_BY_M1) setSetting(name, "off");
   } else {

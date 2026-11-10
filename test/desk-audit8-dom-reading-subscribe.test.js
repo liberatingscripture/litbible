@@ -133,8 +133,16 @@ test("NB8-1: the Notebook panel ignores sheets and places, but hears a bookmark 
   chapterPage();
   const store = countingStore();
   const { createPanel } = await import("../src/scripts/desk/panel.js");
-  createPanel({ store, ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
+  const panel = createPanel({ store, ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
   await settle(20);
+  // Minimized (NB8-3): nothing is drawn, a bookmark move included.
+  const open = panel.snapshot();
+  panel.restore({ ...open, hidden: false, collapsed: true });
+  assert.equal(panel.isOpen(), false);
+  assert.equal(await readsAfter(store, [MOVE_KIND]), 0, "a minimized Notebook ignores a bookmark move (NB8-3)");
+  panel.restore({ ...open, hidden: false, collapsed: false });
+  await settle(20);
+  assert.ok(panel.isOpen());
   assert.equal(await readsAfter(store, ["sheet"]), 0, "a sheet autosave redraws nothing");
   assert.equal(await readsAfter(store, ["place"]), 0, "a place redraws nothing");
   assert.ok((await readsAfter(store, [MOVE_KIND])) > 0, "a bookmark move redraws My Notes (NB8-3)");

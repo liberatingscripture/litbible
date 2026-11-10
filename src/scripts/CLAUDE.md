@@ -506,7 +506,9 @@ notice there or nowhere.
   it. Draft chapters are never recorded. `ContinueReading.astro` (home title
   block, top of /read) and a button in the phone menu offer it back, hidden
   until a record exists, so no JS or no storage means nothing renders; the ×
-  forgets it everywhere. Each save also dispatches a `lit:last-read` window
+  forgets it everywhere. The Study Desk's LIT pane on /desk writes it too
+  (`desk/desk-last-read.js`, through `saveLastRead`: the leading pane's place,
+  `view: "study"`, after 500 ms, never a draft; BVJ, 2026-11-10). Each save also dispatches a `lit:last-read` window
   event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
 - **Read View lands on a link instantly, then holds it.** `/read/<book>` is
