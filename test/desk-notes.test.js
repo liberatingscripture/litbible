@@ -174,9 +174,9 @@ test("a note's opening puts the comma inside the closing quote, in place of a pe
   );
 });
 
-test("a note on a footnote opens by naming the footnote, not words of the verse", () => {
-  const onFn = { kind: "note", footnote: "The Greek sarx means flesh here.", body: "mine", marker: "note" };
-  assert.equal(noteOpening(onFn, "Romans 8:3"), "My note on a footnote, Romans 8:3: ");
+test("a note left on a footnote (withdrawn by E79) opens as a note on whole verses", () => {
+  const left = { kind: "note", footnote: "The Greek sarx means flesh here.", body: "mine", marker: "note" };
+  assert.equal(noteOpening(left, "Romans 8:3"), "My note on Romans 8:3: ");
 });
 
 test("every note marker has the name a reader sees, and the ribbon is called Ribbon (E10)", () => {

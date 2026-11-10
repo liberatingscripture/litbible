@@ -162,7 +162,15 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      (found, moved, changed or lost), never by its verse's wording. Keep
      rewrites `footnote`, the verse and `n`, as for a pin. The apps carry it
      untouched until they show it (principle 6); one that reads it as a note
-     on the verse loses nothing, since the fields stay;
+     on the verse loses nothing, since the fields stay. **Withdrawn**
+     (BVJ, 2026-11-10; STUDY-DESK-FIXES.md, E79): the website no longer
+     makes or shows a note on a footnote, and the apps need not build one.
+     `footnote` and `n` on a note stay reserved and are carried untouched
+     (principle 6): the website reads such a note as a note on its verse,
+     as the paragraph above already lets an app do, and its validator no
+     longer checks them. **BDR, please confirm the apps never wrote one;**
+     if they did, those notes now show on the website as notes on the
+     verse;
    - a **glossary term**, given by `glossaryId` with no verse (N2);
    - **provisionally** (N11; the website's proposal for draft 2, built on its
      preview 2026-10-08): a **glossary entry's own text**, given by
@@ -1148,7 +1156,8 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   they don't know.
 - ~~**Notes on a footnote** (M11; kind 2)~~: the fields (`footnote` and `n`,
   as kind 11 has them; built on the preview 2026-10-20) **confirmed by BDR,
-  2026-10-23**.
+  2026-10-23**. Withdrawn on 2026-11-10 (E79): the website neither makes
+  nor shows one, and the fields are only carried.
 - ~~Whether reading places sync (kind 5)~~: **not in version 1** (BVJ,
   2026-10-29; maybe in version 2). See kind 5.
 - ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under

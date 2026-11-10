@@ -239,14 +239,12 @@ test("notesCiting tolerates a missing notebook", () => {
   assert.deepEqual(notesCiting(undefined, { bookKey: "romans", chapter: 8, verse: 28 }), []);
 });
 
-test("notesCiting lists a note on a footnote that cites its own verse, but not a verse note that does (BA20)", () => {
-  const onFootnote = note("fn", "romans", 8, 3, "See Romans 8:3", {
+test("notesCiting: a note left on a footnote (withdrawn by E79) sits on its verse, so citing that verse is no chain", () => {
+  const left = note("fn", "romans", 8, 3, "See Romans 8:3", {
     footnote: "Greek sarx, flesh; the whole self.",
     n: 2,
     marker: "note",
   });
   const verseNote = note("vn", "romans", 8, 3, "See Romans 8:3", { marker: "note" });
-  const hits = notesCiting([onFootnote, verseNote], { bookKey: "romans", chapter: 8, verse: 3 });
-  assert.deepEqual(hits.map((h) => h.record.id), ["fn"]);
-  assert.deepEqual(hits[0].ref, { bookKey: "romans", chapter: 8, from: 3, to: 3 });
+  assert.deepEqual(notesCiting([left, verseNote], { bookKey: "romans", chapter: 8, verse: 3 }), []);
 });

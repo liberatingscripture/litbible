@@ -21,7 +21,7 @@
 //   - Each kind becomes one part: a note marked `question` a `question`
 //     module (its reference in bold, then the words, with lines to write
 //     on), any other note or a pinned footnote a `text` module (the
-//     reference in bold, a footnote's own words, then the note's), and a
+//     reference in bold, then the note's words or the footnote's), and a
 //     highlight a `passage` module of its verses (part of a verse kept as
 //     the passage's quote, as passageFromRecord does).
 //   - A note or footnote whose text is already a module's on the sheet is
@@ -73,17 +73,15 @@ function paragraphsOf(text) {
 
 /**
  * A note's or pinned footnote's formatted text: its reference in bold, then
- * its words; a footnote's own words come first, in a paragraph of their own,
- * when the record is on a footnote. Always `sanitizeSheetHtml` of itself.
+ * its words (the note's, or the pinned footnote's). Always
+ * `sanitizeSheetHtml` of itself.
  *
  * @param {object} record a note or footnotePin on verses
  * @returns {string}
  */
 export function noteHtml(record) {
   const ref = escapeHtml(recordReference(record));
-  const footnote = typeof record?.footnote === "string" ? paragraphsOf(record.footnote) : [];
-  const words = record?.kind === "footnotePin" ? [] : paragraphsOf(record?.body);
-  const parts = [...footnote, ...words];
+  const parts = record?.kind === "footnotePin" ? paragraphsOf(record.footnote) : paragraphsOf(record?.body);
   const html = parts.length
     ? parts.map((p, i) => `<p>${i === 0 && ref ? `<strong>${ref}</strong> ` : ""}${p}</p>`).join("")
     : `<p><strong>${ref}</strong></p>`;

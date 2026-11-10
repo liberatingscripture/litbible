@@ -36,20 +36,14 @@
 // the glossary and articles have none to pin.
 
 import { createRecord } from "../../lib/desk-records.mjs";
-import { pinFields, placePins } from "../../lib/desk-footnotes.mjs";
+import { findPin, pinFields, placePins } from "../../lib/desk-footnotes.mjs";
 import { recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
-import {
-  addNoteButton,
-  footnoteElementFor,
-  footnoteListFor,
-  footnoteNotes,
-  initFootnoteNotes,
-} from "./footnote-notes.js";
 import { busy, isBusy } from "./focus-keep.js";
-import { focusPin, footnotePills, initFootnotePills } from "./footnote-pills.js";
+import { footnotePills, initFootnotePills } from "./footnote-pills.js";
 import { undoEntry } from "./history.js";
-import { pageChapter } from "./page.js";
+import { footnoteList, pageChapter } from "./page.js";
+import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
 import { announce, showNotice, showUndo } from "./undo-bar.js";
 import { setTip } from "../tip.js";
 
@@ -67,8 +61,23 @@ const whereOf = (button) => ({ bookKey: button.dataset.deskPinBook, chapter: Num
 
 /* ── Reading the notebook ────────────────────────────────────────── */
 
-/** A chapter's footnotes as the pin rules read them: the page's own, else its fetched page's. Null if unavailable. */
-const listFor = footnoteListFor;
+/** A chapter's footnotes as the pin rules read them, if they can be had at once: the page's own, else a fetched page already read. */
+function listNow(where) {
+  const here = pageChapter();
+  if (here && here.bookKey === where.bookKey && here.chapter === where.chapter) return footnoteList();
+  return loadedChapterPage(where.bookKey, where.chapter)?.footnoteList() ?? null;
+}
+
+/** The same, fetching the chapter's page when it isn't the page's own and hasn't been read. Null if unavailable. */
+async function listFor(where) {
+  const now = listNow(where);
+  if (now) return now;
+  try {
+    return (await loadChapterPage(where.bookKey, where.chapter)).footnoteList();
+  } catch (_) {
+    return null;
+  }
+}
 
 /** This chapter's pins and where each is in the footnotes as the page has them. */
 async function placedPins(where) {
@@ -197,12 +206,18 @@ export function pinButton(id, label, where = pageChapter()) {
 /* ── Showing a pin on the page ───────────────────────────────────── */
 
 /**
- * The footnote a pin sits on in this chapter now, as findPin says, or null.
- * Chapter View only. It answers for a note on a footnote (M11) too, which names
- * its footnote the same way.
+ * The footnote a pin sits on in this chapter now, as findPin says, or null:
+ * the pin is another chapter's, the page has no Footnotes list, or the
+ * footnote is lost. Chapter View only.
  */
 function footnoteOf(record) {
-  return env ? footnoteElementFor(record) : null;
+  if (!env) return null;
+  const here = pageChapter();
+  if (!here || here.bookKey !== record.bookKey || here.chapter !== record.chapter) return null;
+  const list = footnoteList();
+  if (!list) return null;
+  const at = findPin(list, record);
+  return at.id ? document.getElementById(at.id) : null;
 }
 
 /**
@@ -257,7 +272,7 @@ function drawFlag(li, entry, notice) {
         restoreFocus: trigger,
         onDone: async () => {
           await refreshPins();
-          focusPin(li);
+          li.querySelector(".desk-pin")?.focus({ preventScroll: true });
         },
       }),
     ),
@@ -329,27 +344,23 @@ export async function refreshPins() {
 export function initPins({ store, ctx, desk = false }) {
   if (!store || !(desk || pageChapter())) return null;
   env = { store, ctx };
-  initFootnoteNotes({ store, ctx });
 
   for (const li of document.querySelectorAll(".footnotes-wrap ol.footnotes > li[id]")) {
     const label = li.querySelector(".footnote-backlink")?.textContent.trim() ?? "";
     const button = pinButton(li.id, label);
     if (!button) continue;
     li.classList.add("desk-fn");
-    // Add a note (M11), beside Pin. The reader's notes on this footnote sit in
-    // the margin beside it (notes-margin.js), not under it. Pin and Add a note
-    // share one row after the note, which the left margin holds (E49). "Add a
-    // note" comes first in the document, so it is drawn outside and Pin nearest
-    // the footnote, and Tab runs the way the eye does (BVJ, 2026-11-07).
-    li.append(footnotePills(label, [addNoteButton(li.id, label), button]));
+    // Pin goes after the note, in the left margin where there is room (E49).
+    // "Add a note" sat beside it until notes on a footnote were removed (BVJ,
+    // 2026-11-10, E79).
+    li.append(footnotePills(button));
   }
   initFootnotePills(document.querySelector(".footnotes-wrap ol.footnotes"));
 
   // chapter-tools.js offers the popover before placing it, and so does /desk's
   // LIT pane, which names its chapter in the detail (`book`, `chapter`). The
   // Pin button shares the line "See in footnotes" has, so the popover grows no
-  // taller; Add a note (M11) goes beside Pin, and the reader's notes on this
-  // footnote, at most two, under that line.
+  // taller.
   document.addEventListener("lit:footnote-actions", (e) => {
     const { panel, note, ref, book, chapter } = e.detail ?? {};
     if (!panel || !note?.id) return;
@@ -358,21 +369,14 @@ export function initPins({ store, ctx, desk = false }) {
     if (!button) return;
     const row = document.createElement("div");
     row.className = "desk-pin-row";
-    const actions = document.createElement("span");
-    actions.className = "desk-fn-actions";
-    actions.append(button);
-    const add = addNoteButton(note.id, ref?.textContent.trim() ?? "", where);
-    if (add) actions.append(add);
     const jump = panel.querySelector(".lit-panel__jump");
     if (jump) {
       jump.replaceWith(row);
-      row.append(jump, actions);
+      row.append(jump, button);
     } else {
-      row.append(actions);
+      row.append(button);
       panel.append(row);
     }
-    const mine = footnoteNotes(note.id, where, { compact: true });
-    if (mine) row.after(mine);
   });
 
   // This tab's own changes and other tabs' alike, but not a place or a

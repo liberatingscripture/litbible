@@ -96,13 +96,9 @@ test("markLinks names each mark with its verse link, once, grouped by place", ()
 
 const luke = (kind, verse = 4) => ({ kind, bookKey: "luke", chapter: 24, verse });
 
-test("markLinks names a note on a footnote apart from a note on the verse (BA90)", () => {
-  const onFootnote = { kind: "note", footnote: "Some words.", n: "a", bookKey: "luke", chapter: 24, verse: 4 };
-  assert.deepEqual(markLinks([onFootnote]), [{ text: "your note on a footnote in Luke 24:4", href: "/luke-24/#v4" }]);
-  assert.deepEqual(markLinks([luke("note"), onFootnote]), [
-    { text: "your note on Luke 24:4", href: "/luke-24/#v4" },
-    { text: "your note on a footnote in Luke 24:4", href: "/luke-24/#v4" },
-  ]);
+test("markLinks: a note left on a footnote (withdrawn by E79) is a note on its verse", () => {
+  const left = { kind: "note", footnote: "Some words.", n: "a", bookKey: "luke", chapter: 24, verse: 4 };
+  assert.deepEqual(markLinks([luke("note"), left]), [{ text: "your note on Luke 24:4", href: "/luke-24/#v4" }]);
 });
 
 test("markLinks: one item, and nothing at all", () => {

@@ -12,19 +12,24 @@ import { readFileSync } from "node:fs";
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const dir = "src/scripts/desk/";
 
-test("margin pills: the document holds Add a note before Pin, and nothing draws them reversed (decision 13)", () => {
-  const pins = read(`${dir}pins.js`);
-  assert.match(pins, /footnotePills\(label, \[addNoteButton\(li\.id, label\), button\]\)/);
-  const css = read("src/styles/desk.css");
-  const pillRules = css.match(/\.desk-fn-pills[^{]*\{[^}]*\}/g) ?? [];
-  assert.ok(pillRules.length > 0);
-  for (const rule of pillRules) assert.doesNotMatch(rule, /row-reverse|column-reverse/, rule);
+test("notes on a footnote are gone from the desk (BVJ, 2026-11-10, E79)", () => {
+  // The popover, the Footnotes list, This verse and the Footnotes pane each had
+  // "Add a note" beside Pin, and footnote-notes.js listed the notes under a
+  // footnote. Neither the way to make one nor the code that showed one is left.
+  assert.throws(() => read(`${dir}footnote-notes.js`), /ENOENT/);
+  for (const file of ["pins.js", "footnotes-view.js", "tab-verse.js", "footnote-pills.js", "notes-margin.js", "note-sources.js", "note-editor.js"]) {
+    const src = read(`${dir}${file}`);
+    assert.doesNotMatch(src, /addNoteButton|footnoteNotes|onFootnote|desk-fn-add\b|Add a note on footnote/, file);
+  }
+  assert.match(read(`${dir}pins.js`), /footnotePills\(button\)/);
+  assert.doesNotMatch(read("src/lib/desk-records.mjs"), /export function onFootnote/);
 });
 
-test("a margin redraw that moves a footnote's pills keeps focus on one that shows (NB3-3)", () => {
-  const margin = read(`${dir}notes-margin.js`);
-  assert.match(margin, /keepPillFocus\(\(\) => \{[\s\S]*data-desk-fn-margin/);
-  assert.match(read(`${dir}footnote-pills.js`), /export function keepPillFocus/);
+test("the Footnotes list's Pin has no ⋯ fold to lose focus behind (NB3-3, until E79)", () => {
+  // With one pill and no margin notes beside a footnote, nothing hides Pin,
+  // so no focus rescue is needed.
+  assert.doesNotMatch(read(`${dir}footnote-pills.js`), /desk-fn-more|keepPillFocus|pillsHome/);
+  assert.doesNotMatch(read("src/styles/desk.css"), /desk-fn-more|data-desk-fn-pills="more"|\.desk-fnn\b/);
 });
 
 test("every list that filters by the search box hears the browser's own clear (LV3-1)", () => {

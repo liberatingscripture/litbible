@@ -631,9 +631,9 @@ test("no sentence the history makes holds an em dash; a verse range takes an en 
   assert.equal(sentences[0], "Note on Romans 8:3–5 added.");
 });
 
-test("describeEntry: a note on a footnote added reads as a footnote in its verse", () => {
+test("describeEntry: a note left on a footnote (withdrawn by E79) reads as a note on its verse", () => {
   const r = note({ bookKey: "romans", chapter: 8, verse: 3 }, { footnote: "The Greek sarx means flesh here." });
-  assert.equal(describeEntry(entryFor({ put: [r], remove: [] })), "Note on a footnote in Romans 8:3 added.");
+  assert.equal(describeEntry(entryFor({ put: [r], remove: [] })), "Note on Romans 8:3 added.");
 });
 
 /* ── Undoing an add, and a copy of the notebook saved in between (BA7) ─ */

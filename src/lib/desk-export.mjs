@@ -149,7 +149,7 @@ function targetOf(r) {
   }
   if (r.quote?.exact) {
     selector.push({ type: "TextQuoteSelector", exact: r.quote.exact, prefix: r.quote.prefix ?? "", suffix: r.quote.suffix ?? "" });
-  } else if ((r.kind === "footnotePin" || r.kind === "note") && r.footnote) {
+  } else if (r.kind === "footnotePin" && r.footnote) {
     selector.push({ type: "TextQuoteSelector", exact: r.footnote });
   }
   return selector.length ? { source, selector } : { source };
@@ -238,12 +238,8 @@ function kindLine(r) {
   switch (r.kind) {
     case "highlight":
       return r.color ? `Highlight (${r.color})` : "Highlight";
-    case "note": {
-      // A note on a footnote (M11) says so, and Markdown won't make a new one,
-      // since a heading names the verse and not which of its footnotes.
-      const word = typeof r.footnote === "string" ? "Note on a footnote" : "Note";
-      return r.marker && r.marker !== "note" ? `${word} (${currentMarker(r.marker)})` : word;
-    }
+    case "note":
+      return r.marker && r.marker !== "note" ? `Note (${currentMarker(r.marker)})` : "Note";
     default:
       return kindName(r.kind);
   }
@@ -255,7 +251,7 @@ function entryMarkdown(r, labels) {
   if (address) lines.push(address);
   const names = labelsOf(r, labels).map((l) => l.name);
   lines.push([kindLine(r), dateOf(r.created), ...(names.length ? [`Labels: ${names.join(", ")}`] : [])].join(" · "));
-  const quoted = r.kind === "footnotePin" || (r.kind === "note" && r.footnote) ? r.footnote : r.quote?.exact;
+  const quoted = r.kind === "footnotePin" ? r.footnote : r.quote?.exact;
   if (quoted) {
     lines.push("", ...String(quoted).replace(/\r\n?/g, "\n").split("\n").map((l) => `> ${l}`.trimEnd()));
   }
@@ -332,6 +328,9 @@ export function parseReference(text) {
 
 /* ── Reading a file ──────────────────────────────────────────────────── */
 
+// "Note on a footnote" is what a copy saved before 2026-11-10 (E79) wrote for
+// a note on a footnote. It is still read, so such an entry is refused as a kind
+// Markdown can't add, rather than taken for a note on its verse.
 const KIND_WORD = /^(Highlight|Note on a footnote|Note|Bookmark|Pinned footnote|Hidden passage)\b(?:\s*\(([^)]*)\))?/;
 
 /** One `##` entry of a Markdown file, as written. */

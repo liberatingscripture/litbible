@@ -2298,6 +2298,28 @@ tap areas (`global.css`, never under 24px).
   Share stay first. Whether Print and Add to sheet go behind one “More” row
   was not taken up and stays open.
 
+**BVJ, 2026-11-10** (after the conventions pass)
+
+- **E79, design: no more notes on a footnote.** BVJ (2026-11-10): “Let's
+  actually remove the ability to add notes on footnotes,” and, asked
+  whether to keep the ones already made: “I'm the only one using it so
+  far. Any notes on footnotes can be deleted.” This reverses M11
+  (STUDY-DESK.md). Status: **done 2026-11-10**, in PR #539:
+  “Add a note” is gone from beside Pin in all four places (the popover a
+  footnote letter opens, Chapter View's Footnotes list, This verse, and
+  /desk's Footnotes pane), and with it the Footnotes list's “⋯” fold (E49's
+  `more` mode), which existed only to hold two pills where one fitted; Pin
+  now sits in the margin or on the note's line. Everything that showed,
+  printed, noticed, named or placed a note on a footnote was deleted
+  (`desk/footnote-notes.js`, `onFootnote`, `recordWhere`, the pin-style
+  notice and Keep for notes, the margin and print placement beside a
+  footnote, the “On a footnote” line in My Notes, the sheet and export
+  forms). The footnote target is withdrawn from the format (kind 2): a
+  note left from before keeps its `footnote` and `n` untouched and reads
+  as a note on the verse that holds the letter, where BVJ can delete it.
+  A Markdown copy saved before then still has its “Note on a footnote”
+  entries refused rather than read as verse notes.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

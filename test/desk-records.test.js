@@ -25,7 +25,6 @@ import {
   emptyTrashRecord,
   mayRewriteAnchor,
   migrateRecord,
-  onFootnote,
   placeRecord,
   proseTarget,
   quoteFields,
@@ -396,36 +395,21 @@ test("a footnotePin needs its verse and the footnote's text, never its letter", 
   assert.ok(validateRecord({ ...pin, verse: undefined }).length > 0);
 });
 
-test("a note on a footnote names its footnote by text, and is told apart from a verse note and a pin", () => {
-  const onFn = createRecord(
+test("a note left on a footnote (M11, withdrawn by E79) is still valid, and an edit keeps its fields untouched", () => {
+  // Notes on a footnote were removed (BVJ, 2026-11-10). One made before reads
+  // as a note on its verse; `footnote` and `n` are carried, never checked.
+  const left = createRecord(
     "note",
-    { bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh; the whole self.", body: "mine", marker: "note" },
+    { bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh; the whole self.", n: 2, body: "mine", marker: "note" },
     ctx,
   );
-  assert.deepEqual(validateRecord(onFn), []);
-  assert.equal(onFootnote(onFn), true);
-  assert.deepEqual(validateRecord({ ...onFn, n: 2 }), []);
-  const verseNote = createRecord("note", { bookKey: "romans", chapter: 8, verse: 3, body: "mine", marker: "note" }, ctx);
-  assert.equal(onFootnote(verseNote), false, "a note on a verse");
-  const pinned = createRecord("footnotePin", { bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx." }, ctx);
-  assert.equal(onFootnote(pinned), false, "a pinned footnote is a pin, not a note");
-  assert.equal(onFootnote(null), false);
-});
-
-test("a note on a footnote needs its footnote's text, a positive n, no quote, and one target", () => {
-  const onFn = createRecord(
-    "note",
-    { bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh; the whole self.", body: "mine", marker: "note" },
-    ctx,
-  );
-  assert.ok(validateRecord({ ...onFn, footnote: "" }).includes("footnote is empty"));
-  assert.ok(validateRecord({ ...onFn, n: 0 }).includes("n is not a positive integer"));
-  const quoted = validateRecord({ ...onFn, quote: { exact: "Greek", prefix: "", suffix: "" } });
-  assert.ok(quoted.includes("a note on a footnote has no quote"), quoted.join("; "));
-  const two = validateRecord({ ...onFn, glossaryEntry: "x" });
-  assert.ok(two.includes("a note has one target"), two.join("; "));
-  const { verse: _v, ...noVerse } = onFn;
-  assert.ok(validateRecord(noVerse).some((p) => p.startsWith("verse")), "it still needs its verse");
+  assert.deepEqual(validateRecord(left), []);
+  const edited = editRecord(left, { body: "mine, edited" }, { now: "2026-11-10T12:00:00.000Z", client: "web" });
+  assert.equal(edited.footnote, left.footnote);
+  assert.equal(edited.n, 2);
+  assert.deepEqual(validateRecord(edited), []);
+  const { verse: _v, ...noVerse } = left;
+  assert.ok(validateRecord(noVerse).some((p) => p.startsWith("verse")), "it still needs its verse, as any note on verses does");
 });
 
 /* ── E9: a ribbon reads as a bookmark that moves as the reader reads ─── */

@@ -9,7 +9,7 @@
 // The reference is the one the page names the place by ("Romans 8:3",
 // "Romans 8:4–5", "a footnote in Romans 8:3"), as the bar's notices use it.
 
-/** After a note is saved, new or edited. `where` is recordWhere's sentence part. */
+/** After a note is saved, new or edited. `where` is recordReference's answer. */
 export function noteSavedMessage(where) {
   return `Note saved on ${where}.`;
 }

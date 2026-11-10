@@ -647,8 +647,8 @@ rule 19. S2, in three things:
 
 ## Rule 23: a sheet takes notes from the notebook
 
-Part of desk rule 23 (phase 2c); the rest of it, notes on a footnote, is in
-`src/scripts/desk/CLAUDE.md`.
+Part of desk rule 23 (phase 2c); the rest of it, pinned footnotes' Pin (notes
+on a footnote were removed, E79), is in `src/scripts/desk/CLAUDE.md`.
 
 - **A sheet takes notes, highlights and pinned footnotes from the
   notebook as ordinary parts**: `src/lib/desk-sheet-from-notes.mjs`

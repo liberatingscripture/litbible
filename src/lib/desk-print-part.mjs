@@ -77,8 +77,7 @@ export const SELECTION_NOTES_TITLE = "My Notes";
 
 /**
  * The notes a part prints: live notes on its verses (the caller has already
- * limited the records to the chapter), a note on a footnote included when its
- * footnote's verse is among them.
+ * limited the records to the chapter).
  */
 export function notesForPart(records, start, end) {
   return records.filter((r) => r?.kind === "note" && onVerses(r, start, end));

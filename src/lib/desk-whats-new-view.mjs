@@ -13,7 +13,7 @@
 // as new, and so does one the drafter folded into the day already seen (BA92).
 
 import { isNewChange, markVerses, seenMark } from "./desk-whats-new.mjs";
-import { recordHref, recordWhere } from "./desk-store-core.mjs";
+import { recordHref, recordReference } from "./desk-store-core.mjs";
 
 /** The notebook meta key holding the day the reader last looked. */
 export const SEEN_KEY = "whatsNewSeen";
@@ -70,8 +70,7 @@ export function joinList(items) {
  * The reader's marks named in a sentence, one entry for each place they sit,
  * with its link. Marks at one place share it: `{ text: "your note, highlight,
  * and bookmark on Luke 24:4", href: "/luke-24/#v4" }`, not the verse said
- * three times. A note on a footnote is its own place, "your note on a footnote
- * in Luke 24:4" (recordWhere), never merged with a note on the verse (BA90).
+ * three times.
  * Places and the kinds within a place keep the order first seen;
  * marks that read the same ("your highlight on Romans 4:7" twice) come out
  * once. Join the entries with `listSeparator`.
@@ -80,7 +79,7 @@ export function markLinks(records) {
   const places = new Map();
   for (const r of records ?? []) {
     const name = MARK_NAMES[r.kind] ?? (r.kind === "place" ? "place" : "mark");
-    const where = recordWhere(r);
+    const where = recordReference(r);
     let place = places.get(where);
     if (!place) {
       place = { names: [], href: recordHref(r) };
