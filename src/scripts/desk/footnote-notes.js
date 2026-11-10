@@ -41,6 +41,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { fillNoteWords } from "./note-words.js";
 import { footnoteList, pageChapter } from "./page.js";
 import { escapeHtml } from "./dom.js";
+import { setTip } from "../tip.js";
 
 /** What the buttons need: the notebook and what a write is stamped with. */
 let env = null;
@@ -157,12 +158,13 @@ export function addNoteButton(id, label, where = pageChapter()) {
   // Looks as Pin does (desk.css), and is hidden from print the same way.
   // A glyph, as Pin is (E18): the plain note marker the note window shows
   // (BVJ, 2026-11-06; "+ Note" until then), in the text's own color. The name,
-  // and the hover text, say what it does and which footnote.
+  // and the shared tooltip, say what it does and which footnote. "Note" beside
+  // the glyph shows where a list has room, as Pin's word does (E72).
   button.className = "desk-pin desk-pin--glyph desk-fn-add";
   button.dataset.deskFnAdd = id;
-  button.innerHTML = glyph("note", "desk-fn-add__glyph");
+  button.innerHTML = `${glyph("note", "desk-fn-add__glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span>`;
   button.setAttribute("aria-label", `Add a note on footnote ${label}`);
-  button.title = `Add a note on footnote ${label}`;
+  setTip(button, `Add a note on footnote ${label}`);
   button.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (isBusy(button)) return;

@@ -43,6 +43,19 @@ export const OPEN_PAGE_ICON = `<svg viewBox="0 0 24 24" width="16" height="16" f
   <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>`;
 
 /**
+ * The same icon after a worded link's label, saying to the eye that it opens
+ * a new tab (E71), as its words "(opens in a new tab)" say to a screen reader.
+ * Decorative: the caller keeps those words in the link.
+ */
+export function newTabMark() {
+  const mark = document.createElement("span");
+  mark.className = "desk-newtab";
+  mark.setAttribute("aria-hidden", "true");
+  mark.innerHTML = OPEN_PAGE_ICON;
+  return mark;
+}
+
+/**
  * The previous and next chevrons on the passage steps (the passage bar, the
  * Book Intro pane and This verse), at `size` pixels. Decorative: the button
  * names its step.

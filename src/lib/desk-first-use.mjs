@@ -256,7 +256,7 @@ export const TOUR_STEPS = [
     title: "Pin a footnote",
     body: {
       default:
-        "Select a footnote letter, then the thumbtack button, “Pin footnote,” to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
+        "Select a footnote letter, then the thumbtack button, “Pin footnote” (it fills in once pinned), to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
     },
   },
   {
@@ -497,19 +497,19 @@ export const DESK_TOUR_STEPS = [
     },
     more: "See one made, printed, and presented: the Sheets tour",
   },
-  // Full screen (E43) and My notebook page joined the menu after this card
-  // was written (Audit 7, TR7-2).
+  // The commands moved out of the title menu into a row under the header
+  // (E68, 2026-11-10), so this card is new since then and offered again.
   {
     id: "title",
     part: 1,
-    since: "e24",
-    title: "The title menu",
+    since: "e68",
+    title: "The commands",
     body: {
       default:
-        "“Study Desk” is a menu for the page itself: adding a pane, the layout, a new sheet, printing, display options, and full screen. Your notebook page, this tour, and help for the Study Desk are here too.",
+        "Under the header: Add pane, Layout, New sheet, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, your notebook page, and this tour.",
     },
   },
-  // How a sheet starts (E59): the title menu's "New sheet…" and its template
+  // How a sheet starts (E59): the command row's "New sheet…" and its template
   // chooser. It names no count of templates (Audit 7, TR7-1: it listed five
   // when there were seven), so it needn't follow the template module.
   {
@@ -520,7 +520,7 @@ export const DESK_TOUR_STEPS = [
     title: "New sheet",
     body: {
       default:
-        "“New sheet…” in the title menu starts one. Choose a template, from a Bible study to lectio divina, or a blank canvas, and the sheet opens with its parts ready to fill. The chooser is open here only for the tour; nothing is made.",
+        "“New sheet…” under the header starts one. Choose a template, from a Bible study to lectio divina, or a blank canvas, and the sheet opens with its parts ready to fill. The chooser is open here only for the tour; nothing is made.",
     },
   },
   {
@@ -650,9 +650,9 @@ export const SHEET_TOUR_STEPS = [
     title: "Print or share",
     body: {
       default:
-        "“Print or share…” opens the sheet’s own page in a new tab. There you choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, and print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file.",
+        "“Print or share” opens the sheet’s own page in a new tab. There you choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, and print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file.",
       page:
-        "“Done” brings a sheet to its own page, this one. Choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, then print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file. “Edit” goes back to the parts.",
+        "“Close” brings a sheet to its own page, this one. Choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, then print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file. “Edit” goes back to the parts.",
     },
   },
   {
@@ -663,8 +663,6 @@ export const SHEET_TOUR_STEPS = [
     title: "Present",
     body: {
       default:
-        "“Present…” shows the sheet to a room, full screen, one part at a time, with a passage’s blanks uncovered as you choose. A presenter view on your own screen keeps your notes and the minutes you planned, and stays in step with the room.",
-      page:
         "“Present” shows the sheet to a room, full screen, one part at a time, with a passage’s blanks uncovered as you choose. A presenter view on your own screen keeps your notes and the minutes you planned, and stays in step with the room.",
     },
   },

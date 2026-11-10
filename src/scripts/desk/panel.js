@@ -58,6 +58,7 @@ import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { DESK_STAGE } from "../../lib/desk-first-use.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
+import { setTip } from "../tip.js";
 
 const TAB_KEY = "lit-desk-tab";
 
@@ -153,15 +154,29 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   // The Settings tab's content (BVJ, 2026-10-29): the settings, print buttons
   // and links that were the foot of My Notes. "My sheets" sits beside the
-  // notebook page (S12, part 2), since My Notes lists no sheets.
+  // notebook page (S12, part 2), since My Notes lists no sheets. Three small
+  // headings give it an order (E75, 2026-11-10): what the page shows, keeping
+  // and printing the notebook, and help. The switches come from
+  // note-settings.js, the keeping lines and the help links from first-use.js;
+  // each is put under its heading here, and a group left empty is taken off.
   const settingsEl = document.createElement("div");
   settingsEl.className = "desk-panel__settings-tab";
   settingsEl.innerHTML = `
-    <div class="desk-panel__settings-slot"></div>
-    <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a> · <a href="/sheets/">My sheets</a></p>
-    <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook actions</button></p>
-    <p class="desk-panel__kept"></p>
-    <p class="desk-panel__persist" hidden></p>`;
+    <section class="desk-panel__group desk-panel__group--show" aria-labelledby="deskSettingsShow">
+      <h3 class="desk-panel__group-title" id="deskSettingsShow">Show</h3>
+      <div class="desk-panel__settings-slot"></div>
+    </section>
+    <section class="desk-panel__group" aria-labelledby="deskSettingsKeep">
+      <h3 class="desk-panel__group-title" id="deskSettingsKeep">Keep and print</h3>
+      <div class="desk-panel__print-slot"></div>
+      <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a> · <a href="/sheets/">My sheets</a></p>
+      <p class="desk-panel__kept"></p>
+      <p class="desk-panel__persist" hidden></p>
+    </section>
+    <section class="desk-panel__group desk-panel__group--help" aria-labelledby="deskSettingsHelp">
+      <h3 class="desk-panel__group-title" id="deskSettingsHelp">Help</h3>
+      <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook actions</button></p>
+    </section>`;
 
   // E31: a line on this tab for the commands the search box understands. It
   // opens the Commands window (commands-window.js, through the search module
@@ -252,8 +267,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
       <span class="desk-panel__badge">${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}</span>
-      <a class="desk-panel__desk" href="/desk/" aria-label="Open the Study Desk" title="Open the Study Desk">${ICON_DESK}</a>
-      <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook" title="Minimize">${ICON_COLLAPSE}</button>
+      <a class="desk-panel__desk" href="/desk/" aria-label="Open the Study Desk">${ICON_DESK}</a>
+      <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook">${ICON_COLLAPSE}</button>
     </div>
     ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(
       (t) =>
@@ -281,6 +296,10 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   tabs.get("mine").body.prepend(firstUse.card);
   settingsEl.querySelector(".desk-panel__kept").replaceWith(firstUse.foot);
+  // The tour, help and feedback links go under Help (E75); the foot keeps the
+  // lines about where the notebook is kept.
+  const footLinks = firstUse.foot.querySelector(".desk-home__links");
+  if (footLinks) settingsEl.querySelector(".desk-panel__group--help").append(footLinks);
 
   let activeTab = TABS[0].id;
   try {
@@ -422,6 +441,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     e.stopPropagation();
     expand();
   });
+  // Glyphs with no words: the shared tooltip, on hover and on keyboard focus (E72).
+  setTip(panel.querySelector(".desk-panel__desk"), "Open the Study Desk");
+  setTip(panel.querySelector(".desk-panel__collapse"), "Minimize the Notebook");
   panel.querySelector(".desk-panel__collapse").addEventListener("click", collapse);
 
   // Escape minimizes the panel when focus is in it and nothing floating is open
@@ -539,20 +561,24 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // none there). "Hide my marks" (M1)
   // goes with any of them.
   const slot = settingsEl.querySelector(".desk-panel__settings-slot");
+  const printSlot = settingsEl.querySelector(".desk-panel__print-slot");
   if (here) {
     const controls = panelNoteControls();
     // The widths the reader dragged, Chapter View's alone (widths.js).
     controls.append(resetWidthsButton("desk-panel__reset"));
-    controls.append(...printBox());
     slot.replaceWith(controls);
+    printSlot.replaceWith(...printBox());
   }
   else if (inReadView) {
-    const controls = panelNoteControls({ notes: false });
-    controls.append(...printBox());
-    slot.replaceWith(controls);
+    slot.replaceWith(panelNoteControls({ notes: false }));
+    printSlot.replaceWith(...printBox());
   }
   else if (prose) slot.replaceWith(panelNoteControls({ bookmarks: false }));
   else slot.remove();
+  printSlot.remove(); // still there where nothing printed into it
+  // A page with no switches has no "Show" group (E75).
+  const showGroup = settingsEl.querySelector(".desk-panel__group--show");
+  if (showGroup.children.length < 2) showGroup.remove();
 
   /**
    * One "Print…" button and the line that says what it does (the line is the

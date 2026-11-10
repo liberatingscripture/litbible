@@ -29,6 +29,8 @@ From the root's project tree.
                      #   its selection panel; panel-pieces, what every
                      #   panel is built from; keep-reading-place,
                      #   which holds the reader's line through a reflow;
+                     #   tip, the one tooltip for icon-only controls
+                     #   (setTip; hover and keyboard focus, never `title`);
                      #   float-window, a window that stays open until
                      #   answered or closed (the desk's tour offer, and
                      #   greek-commands, the Greek search commands window,

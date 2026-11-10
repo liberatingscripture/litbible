@@ -8,7 +8,7 @@
 //   the one last worked in is the target of the LIT pane's verse menu and
 //   selection ("Add to sheet", offered while a sheet is open) and of the
 //   Search pane's add buttons (`addTarget`, `onAddTarget`).
-// - **The title menu's "New sheet…" names a pane** (`desk:sheet-new` with
+// - **The command row's "New sheet…" names a pane** (`desk:sheet-new` with
 //   its `paneId`), which opens that pane's template chooser.
 // - **Which sheet it shows is the layout's** (`setPaneSheet`, handed in by
 //   desk-panes.js as `getSheet` and `setSheet`), and its ids carry its pane id.
@@ -144,8 +144,8 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   editor.el.addEventListener("pointerdown", () => { lastUsed = editor; targetChanged(); });
   editor.el.addEventListener("focusin", () => { lastUsed = editor; targetChanged(); });
 
-  // "New sheet…" in the title menu, for this pane. Registered synchronously
-  // as the pane is built, because title-menu.js sends the event right after
+  // "New sheet…" in the command row (E68), for this pane. Registered synchronously
+  // as the pane is built, because command-row.js sends the event right after
   // its commit; a pane built later would miss it (DK6-10).
   const onNewSheet = (e) => {
     if (e.detail?.paneId === paneId) editor.newSheet();

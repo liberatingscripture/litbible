@@ -92,7 +92,7 @@ import {
 } from "../../lib/desk-layout.mjs";
 import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
-import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
 import { createDeskLastRead } from "./desk-last-read.js";
@@ -117,6 +117,8 @@ import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 import { createKindMenu } from "./kind-menu.js";
 import { createTitleMenu } from "./title-menu.js";
+import { createCommandRow } from "./command-row.js";
+import { setTip } from "../tip.js";
 
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -135,7 +137,9 @@ const ICON_FLAG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" s
   <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><path d="M4 22v-7" /></svg>`;
 
 // A pane's "Stay here": a closed lock when it stays, an open one when it
-// follows the LIT pane. (The thumbtack is the footnote Pin's alone, pins.js.)
+// follows the LIT pane, and the pressed tint the footnote Pin takes (E67),
+// since an open and a closed lock differ by a few pixels at 14px. (The
+// thumbtack is the footnote Pin's alone, pins.js.)
 const ICON_LOCK = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>`;
@@ -356,10 +360,9 @@ async function start() {
 
   // ---- the title menu ----
 
-  // The page's title is a menu (E15; BVJ, 2026-11-02) gathering what the bar
-  // held: Add pane (E14), Layout, Print and Display options, then the tour and
-  // the help page. The Layout and Print windows below open under the title, as
-  // they opened under their buttons, and Escape in one returns focus to it.
+  // The page's title is a menu (E15; BVJ, 2026-11-02). Since E68 it holds
+  // what the command row doesn't (title-menu.js): Display options, Full
+  // screen, the notebook page, the tour and feedback.
   const bar = document.querySelector("[data-desk-header-tools]") ?? el("div", "desk-ws__bar");
   const titleHost = document.querySelector(".site-header__page-title");
   const wrap = el("div", "desk-title");
@@ -382,6 +385,14 @@ async function start() {
     bar.append(wrap);
   }
 
+  // The command row under the header (E68): Add pane, Layout…, New sheet…,
+  // Print… and Help, worded and in view (command-row.js, built below once
+  // the panes box exists). The Layout and Print windows hang from it, each
+  // under its own button, and Escape in one returns focus to that button.
+  const cmdRow = el("div");
+  let commands = null;
+  const homeOf = (win) => (win === "print" ? commands?.printButton : commands?.layoutButton) ?? titleButton;
+
   // ---- the Layout window ----
 
   const menu = el("div", "desk-ws__menu");
@@ -402,7 +413,7 @@ async function start() {
       <button type="button" data-ws-make-default>Make this my default</button>
       <button type="button" data-ws-reset>Reset to the original layout</button>
     </div>`;
-  wrap.append(menu);
+  cmdRow.append(menu);
 
   const shapesBox = menu.querySelector(".desk-ws__shapes");
   const shapeButtons = ARRANGEMENTS.map((a) => {
@@ -485,15 +496,17 @@ async function start() {
   }
 
   function openMenu() {
+    closePrintMenu({ focus: false });
     refreshMenu();
     menu.hidden = false;
+    commands?.hang(menu, commands.layoutButton);
     (shapesBox.querySelector('[aria-pressed="true"]') ?? shapeButtons[0]).focus();
   }
 
   function closeMenu({ focus = true } = {}) {
     if (menu.hidden) return;
     menu.hidden = true;
-    if (focus) titleButton.focus();
+    if (focus) homeOf("layout").focus();
   }
 
   menu.addEventListener("keydown", (e) => {
@@ -504,7 +517,7 @@ async function start() {
   // it to the click.
   menu.addEventListener("focusout", (e) => {
     const to = e.relatedTarget;
-    if (to instanceof Node && !menu.contains(to) && !wrap.contains(to) && !inTour(to)) closeMenu({ focus: false });
+    if (to instanceof Node && !menu.contains(to) && !cmdRow.contains(to) && !inTour(to)) closeMenu({ focus: false });
   });
 
   // ---- the Print menu ----
@@ -520,7 +533,7 @@ async function start() {
   printMenu.setAttribute("aria-label", "Print");
   printMenu.tabIndex = -1;
   printMenu.hidden = true;
-  wrap.append(printMenu);
+  cmdRow.append(printMenu);
 
   /** The chapter to start from: the leading LIT pane's, else the shared place. */
   function printChapter() {
@@ -542,13 +555,14 @@ async function start() {
     closeMenu({ focus: false });
     printContents.open();
     printMenu.hidden = false;
+    commands?.hang(printMenu, commands.printButton);
     printContents.focusTarget().focus?.();
   }
 
   function closePrintMenu({ focus = true } = {}) {
     if (printMenu.hidden) return;
     printMenu.hidden = true;
-    if (focus) titleButton.focus();
+    if (focus) homeOf("print").focus();
   }
 
   printMenu.addEventListener("keydown", (e) => {
@@ -559,14 +573,14 @@ async function start() {
   // window as it does from inside (DK-13). These windows are popups that close
   // when focus leaves them (BA63), not modal dialogs, so there is no trap to
   // wrap Tab (RC-7); the title button is the one control focus can go back to.
-  wrap.addEventListener("keydown", (e) => {
+  cmdRow.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || e.defaultPrevented) return;
     if (!menu.hidden) { e.stopPropagation(); closeMenu(); }
     else if (!printMenu.hidden) { e.stopPropagation(); closePrintMenu(); }
   });
   printMenu.addEventListener("focusout", (e) => {
     const to = e.relatedTarget;
-    if (to instanceof Node && !printMenu.contains(to) && !wrap.contains(to) && !inTour(to)) closePrintMenu({ focus: false });
+    if (to instanceof Node && !printMenu.contains(to) && !cmdRow.contains(to) && !inTour(to)) closePrintMenu({ focus: false });
   });
 
   // ---- the title menu ----
@@ -588,8 +602,8 @@ async function start() {
   const status = el("p", "sr-only");
   status.setAttribute("role", "status");
   const announce = (text) => { status.textContent = ""; requestAnimationFrame(() => { status.textContent = text; }); };
-  if (bar.isConnected) root.append(panesBox, status);
-  else root.append(bar, panesBox, status);
+  if (bar.isConnected) root.append(cmdRow, panesBox, status);
+  else root.append(bar, cmdRow, panesBox, status);
 
   const paneEls = new Map(); // id → { el, body, kind, inst, ... }
   // The tree as drawn: the layout's, with sizes fitted to the room there is
@@ -603,7 +617,12 @@ async function start() {
   // layout and the tour when it needs them, since both are replaced later,
   // and opens and closes the Layout and Print windows above through these.
   const titleMenu = createTitleMenu({
-    wrap, titleButton, getLayout: () => layout, panesBox, commit, announce, getTour: () => tour, inTour,
+    wrap, titleButton, announce, getTour: () => tour, inTour,
+    layoutWindow: { open: openMenu, close: closeMenu },
+    printWindow: { open: openPrintMenu, close: closePrintMenu },
+  });
+  commands = createCommandRow({
+    row: cmdRow, getLayout: () => layout, panesBox, commit, announce, inTour,
     layoutWindow: { open: openMenu, close: closeMenu },
     printWindow: { open: openPrintMenu, close: closePrintMenu },
   });
@@ -731,18 +750,30 @@ async function start() {
       lead.innerHTML = ICON_FLAG;
       lead.setAttribute("role", "img");
       lead.setAttribute("aria-label", "Leading pane: My Notes, This verse, Greek, Footnotes, and Book Intro follow it");
-      lead.title = "Leading: My Notes, This verse, Greek, Footnotes, and Book Intro follow this pane";
+      setTip(lead, "Leading: My Notes, This verse, Greek, Footnotes, and Book Intro follow this pane");
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
-      // A glyph with no words; mark() paints the lock and sets its name.
-      pin.innerHTML = ICON_UNLOCK;
+      // A glyph, and "Stay here" beside it where the header is wide enough
+      // (E72; desk.css's container query); mark() paints the lock and sets
+      // its name. The word is the name already, so it is hidden from a screen
+      // reader, which hears aria-label.
+      const pinGlyph = el("span", "desk-pane__pin-glyph");
+      pinGlyph.innerHTML = ICON_UNLOCK;
+      const pinWord = el("span", "desk-pane__pin-word", "Stay here");
+      pinWord.setAttribute("aria-hidden", "true");
+      pin.append(pinGlyph, pinWord);
+      // Where a My Notes pane is (E69): the passage it follows, or the one it
+      // stays on, in muted type after its name. The other following kinds
+      // name theirs in their own passage or book bar.
+      const at = el("span", "desk-pane__at");
+      at.hidden = true;
       const close = el("button", "desk-pane__close");
       close.type = "button";
       close.innerHTML = ICON_CLOSE;
-      head.append(grip, h2, lead, pin, close);
+      head.append(grip, h2, at, lead, pin, close);
       const body = el("div", "desk-pane__body");
       section.append(head, body);
-      rec = { el: section, head, body, kindButton, lead, pin, close, kind: null, inst: null, at: null };
+      rec = { el: section, head, body, kindButton, lead, pin, close, place: at, kind: null, inst: null, at: null };
       paneEls.set(pane.id, rec);
 
       kindButton.addEventListener("click", () => kindMenu.open(pane.id, kindButton));
@@ -847,6 +878,7 @@ async function start() {
 
   /** The parts of each pane's header that change without redrawing. */
   function mark() {
+    commands?.refresh();
     const all = panes(layout.root);
     const lits = all.filter((p) => p.kind === "lit").length;
     const regions = regionNames(layout);
@@ -865,17 +897,24 @@ async function start() {
       rec.pin.hidden = !isFollower(pane.kind);
       rec.pin.setAttribute("aria-pressed", String(Boolean(pane.pin)));
       // Pressed means it stays, so the lock is closed. The name is "Stay here"
-      // either way (aria-pressed carries the state); the tooltip says what a
-      // press does now.
+      // either way (aria-pressed carries the state), and the tooltip says the
+      // state too, never the press to come (E67: it read "Follow the LIT pane"
+      // while pressed, which named one thing and showed another).
       rec.pin.setAttribute("aria-label", "Stay here");
-      rec.pin.title = pane.pin ? "Follow the LIT pane" : "Stay here";
+      setTip(rec.pin, pane.pin ? "Stay here (on)" : "Stay here");
       const locked = Boolean(pane.pin);
       if (rec.pin.dataset.locked !== String(locked)) {
         rec.pin.dataset.locked = String(locked);
-        rec.pin.innerHTML = locked ? ICON_LOCK : ICON_UNLOCK;
+        rec.pin.firstElementChild.innerHTML = locked ? ICON_LOCK : ICON_UNLOCK;
       }
+      // My Notes names the chapter it is on (E69); its rows already say
+      // which verse each record is on, so the verse isn't repeated here.
+      const where = pane.kind === "mine" ? passageLabel({ ...passageOf(pane.id), verse: null }) : "";
+      if (rec.place.textContent !== where) rec.place.textContent = where;
+      rec.place.hidden = !where;
       rec.close.hidden = all.length <= 1;
       rec.close.setAttribute("aria-label", `Close the ${name.replace(/^The /, "")} pane`);
+      setTip(rec.close, `Close the ${name.replace(/^The /, "")} pane`);
     }
   }
 
@@ -900,10 +939,12 @@ async function start() {
   }
 
   document.addEventListener("pointerdown", (e) => {
-    if (!wrap.contains(e.target) && !inTour(e.target)) {
-      titleMenu.close({ focus: false });
-      closeMenu({ focus: false });
-      closePrintMenu({ focus: false });
+    if (!inTour(e.target)) {
+      if (!wrap.contains(e.target)) titleMenu.close({ focus: false });
+      if (!cmdRow.contains(e.target)) {
+        closeMenu({ focus: false });
+        closePrintMenu({ focus: false });
+      }
     }
   });
 
@@ -1299,11 +1340,13 @@ async function start() {
     panesBox,
     titleButton,
     titleMenu: titleMenu.el,
-    addFly: titleMenu.addFly,
+    commandRow: cmdRow,
+    addMenu: commands.addMenu,
     openTitleMenu: titleMenu.open,
     closeTitleMenu: titleMenu.close,
-    showAddKinds: titleMenu.showAddKinds,
-    newSheet: titleMenu.newSheet,
+    showAddKinds: commands.showAddKinds,
+    closeAdd: commands.closeAdd,
+    newSheet: commands.newSheet,
     layoutMenu: menu,
     openLayoutMenu: openMenu,
     closeLayoutMenu: closeMenu,
@@ -1327,7 +1370,9 @@ async function start() {
     freeze: (on) => { layoutFrozen = on; },
     closeMenus: () => {
       titleMenu.close({ focus: false });
+      commands.closeAdd();
       closeMenu({ focus: false });
+      closePrintMenu({ focus: false });
     },
     paneEls,
     panesBox,

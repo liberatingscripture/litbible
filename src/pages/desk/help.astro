@@ -4,7 +4,7 @@
 // the Greek. It was /notebook/help/ (that address redirects here). A static
 // page that reads without the desk: it is noindex, out of the sitemap
 // (astro.config.mjs), and (as every generic page) out of Pagefind. The
-// Notebook's foot, the first-time choice, the tours and /desk's title menu
+// Notebook's foot, the first-time choice, the tours and /desk's command row
 // link here.
 import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { DESK_STAGE, FEEDBACK_HREF, FEEDBACK_LABEL } from "../../lib/desk-first-use.mjs";
@@ -63,7 +63,7 @@ import "../../styles/pages/desk-help.css";
         </ul>
         <p>
           Each kind has a short description under its name in the menus. “New
-          sheet…” in the title menu starts a sheet at once: it opens a Sheets pane
+          sheet…” under the page’s header starts a sheet at once: it opens a Sheets pane
           (or uses the one you have) and asks which template to begin from.
         </p>
         <ul>
@@ -78,16 +78,23 @@ import "../../styles/pages/desk-help.css";
           and Greek follow the place of the leading LIT pane (Book Intro follows its
           book). The lock in a pane’s header, “Stay here,” keeps that pane where it
           is while the others move on; press it again and the pane follows again.
+          While it is on, the lock is closed and tinted green, and in a wide pane
+          the words “Stay here” sit beside it. A My Notes pane names the chapter
+          it is on after its name.
+        </p>
+        <p>
+          <strong>The commands.</strong> A row under the page’s header holds “Add
+          pane,” “Layout…,” “New sheet…,” “Print…,” and “Help.” “Add pane” asks for a
+          column (a full-height pane at the right edge) or a row (a full-width pane
+          along the bottom), then for the kind. It is grayed out, with the reason in
+          its tooltip, when there are already {MAX_PANES} panes or the window is too
+          small to give a new one room.
         </p>
         <p>
           <strong>The title menu.</strong> “Study Desk ▾” in the page’s header opens a
-          menu for the page itself: “Add pane,” “Layout…,” “New sheet…,” “Print…,” “Display
-          options,” “Full screen,” “My Notebook page,” “Take the tour,” and “Help for
-          the Study Desk.” “Add pane” asks for a column (a full-height pane at the
-          right edge) or a row (a full-width pane along the bottom), then for the
-          kind. It is grayed out, with the reason beside it, when there are already
-          {MAX_PANES} panes or the window is too small to give a new one room.
-          “Full screen” uses the browser’s own full screen, and Escape leaves it.
+          menu for the rest: “Display options,” “Full screen,” “My Notebook page,”
+          “Take the tour,” and the feedback link. “Full screen” uses the browser’s
+          own full screen, and Escape leaves it.
         </p>
         <p>
           <strong>Each pane’s menu.</strong> Select a pane’s name to show something
@@ -183,8 +190,9 @@ import "../../styles/pages/desk-help.css";
           × beside it in the list, which puts the words back.
         </p>
         <p>
-          <strong>Print, Present, and Share.</strong> “Print or share…” and
-          “Present…” in a Sheets pane open the sheet’s own page in a new tab.
+          <strong>Print, Present, and Share.</strong> “Print or share” and
+          “Present” in a Sheets pane open the sheet’s own page in a new tab
+          (the small arrow out of a box after a label means that).
           “Edit” there changes the sheet on that page, and “Close” brings you back;
           “Edit in Study Desk” opens it in a Sheets pane, with the LIT beside
           it, and a Sheets pane’s “Open on its own page” edits it on the Sheets
@@ -271,12 +279,13 @@ import "../../styles/pages/desk-help.css";
         <h2 id="footnote-pins">Pinned footnotes, and notes on a footnote</h2>
         <p>
           Beside each footnote are two small buttons: a thumbtack to pin it
-          (“Pin footnote 3,” and “Unpin footnote 3” once it is pinned, when the
-          thumbtack is struck through) and the note’s own icon, “Add a note on
-          footnote 3.” They are in a chapter’s Footnotes list, in the popover a
-          footnote letter opens, in the Notebook’s “This verse” tab, and in the
-          Study Desk’s Footnotes pane. Read View has no footnotes, so it has no
-          buttons.
+          (“Pin footnote 3”), which is filled and tinted green while the footnote
+          is pinned, and pressing it again unpins it; and the note’s own icon, “Add
+          a note on footnote 3.” In a chapter’s Footnotes list, the Notebook’s “This
+          verse” tab, and the Study Desk’s Footnotes pane they carry the words “Pin”
+          and “Note” too; in the popover a footnote letter opens they are icons
+          alone, and pointing at one, or reaching it with Tab, shows its name. Read
+          View has no footnotes, so it has no buttons.
         </p>
         <p>
           A pinned footnote is kept under “Pinned footnotes” in “My Notes,” with its

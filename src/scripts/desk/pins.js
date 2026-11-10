@@ -4,12 +4,15 @@
 // wherever a footnote is read on a Chapter View chapter, in the popover a
 // footnote letter opens and on each note in the Footnotes list at the foot of
 // the page, and in the Notebook's "This verse" tab. "Pinned footnotes" in the
-// panel (tab-mine.js) lists them. The button is a glyph, not words (BVJ,
-// 2026-10-30, E18): a thumbtack to pin, the same thumbtack struck through to
-// unpin, named "Pin footnote 3" / "Unpin footnote 3" and given a tooltip. The
+// panel (tab-mine.js) lists them. The button is a glyph (E18) that shows its
+// state, not the press to come (E67; BDR via BVJ, 2026-11-10, reversing E18's
+// struck-through "unpin" glyph): one thumbtack, outlined while the footnote is
+// not pinned and filled and tinted once it is, always named "Pin footnote 3"
+// with `aria-pressed` carrying the state, as the pane lock does. The
 // thumbtack means pinning a footnote and nothing else on the desk (a pane's
 // "Stay here" is a lock). The panel's list is headed "Pinned footnotes", as
-// in the two apps.
+// in the two apps; its rows keep the word "Unpin", a command on a list of
+// pinned things.
 //
 // The rules (what a pin keeps, how it is found again, when it carries a change
 // notice) are src/lib/desk-footnotes.mjs and desk-change.mjs, pure and
@@ -48,6 +51,7 @@ import { focusPin, footnotePills, initFootnotePills } from "./footnote-pills.js"
 import { undoEntry } from "./history.js";
 import { pageChapter } from "./page.js";
 import { announce, showNotice, showUndo } from "./undo-bar.js";
+import { setTip } from "../tip.js";
 
 /** What the buttons need: the notebook, what a write is stamped with, the card's "Show" button. */
 let env = null;
@@ -125,31 +129,26 @@ async function toggle(id, label, where) {
 
 /* ── The button ──────────────────────────────────────────────────── */
 
-// A thumbtack (stroke only, in the text's own color, so it follows the theme
-// and forced colors), and the same with a diagonal line through it.
+// A thumbtack in the text's own color (currentColor), so it follows the theme
+// and forced colors. One glyph for both states (E67): the stylesheet fills it
+// and tints the pill while `aria-pressed` is true.
 const ICON_PIN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z" /></svg>`;
+  <path class="desk-pin__head" d="M8 3h8l-1 6 3 4H6l3-4z" /><path d="M12 17v5" /></svg>`;
 
-const ICON_UNPIN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z" /><path d="M3 3l18 18" /></svg>`;
-
-/** Set a button's glyph, name and tooltip from whether its footnote is pinned. */
+/** Set a button's state and tooltip from whether its footnote is pinned. */
 function paint(button) {
   const pinned = Boolean(current.get(keyOf(whereOf(button)))?.has(button.dataset.deskPin));
-  const name = `${pinned ? "Unpin" : "Pin"} footnote ${button.dataset.deskPinLabel}`;
-  if (button.dataset.deskPinned !== String(pinned)) {
-    button.dataset.deskPinned = String(pinned);
-    button.innerHTML = pinned ? ICON_UNPIN : ICON_PIN;
-  }
+  const name = `Pin footnote ${button.dataset.deskPinLabel}`;
+  button.setAttribute("aria-pressed", String(pinned));
   // No visible words, so the label is the name; the letter says which footnote.
+  // The name stays put (aria-pressed is the state); the tooltip adds it in words.
   button.setAttribute("aria-label", name);
-  button.title = name;
+  setTip(button, pinned ? `${name} (pinned)` : name);
 }
 
 /**
- * A Pin / Unpin button for a footnote, kept in step with the notebook for as
+ * A Pin button for a footnote, kept in step with the notebook for as
  * long as it is in the document. `id` is the note's id in its chapter's page
  * (`fn-a`) and `label` its letter, which names it for a screen reader and is
  * never stored. `where` is the chapter, `{ bookKey, chapter }`: the page's own
@@ -171,6 +170,10 @@ export function pinButton(id, label, where = pageChapter()) {
   button.dataset.deskPinLabel = label;
   button.dataset.deskPinBook = at.bookKey;
   button.dataset.deskPinChapter = String(at.chapter);
+  // The word shows where a list has room for it (E72: the Footnotes list, the
+  // Footnotes pane, This verse); the popover keeps the glyph alone. It never
+  // names the button, which is "Pin footnote 3" (aria-label).
+  button.innerHTML = `${ICON_PIN}<span class="desk-pin__word" aria-hidden="true">Pin</span>`;
   paint(button);
   // A chapter nothing has read yet (a pane's, on /desk) doesn't know its pins.
   if (!current.has(keyOf(at))) load(at).then(() => paint(button));

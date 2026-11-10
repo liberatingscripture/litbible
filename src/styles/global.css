@@ -749,16 +749,17 @@ body:has(.site-header--green) .skip-link {
    Accessibility font toggle + tray
    ========================================================= */
 
-/* Desktop: search and Aa float below READ NOW, out of flow so nav height is
-   unchanged */
+/* Desktop: search and Aa sit in the header's row, after READ NOW (E76,
+   2026-11-10). They floated below it, out of the header's flow, so they hung
+   over the top of every page and two pages padded themselves to clear them. */
 .site-nav__cta-item {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .site-header__nav-tools {
-  position: absolute;
-  top: calc(100% + 28px);
-  right: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3434,6 +3435,35 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 
 .lit-flyout__menu[hidden] {
   display: none;
+}
+
+/* src/scripts/tip.js: the one tooltip for icon-only controls (E72), shown on
+   hover and on keyboard focus. Inverted from the page (the text color as its
+   fill), so it reads as a label in both themes; fixed to the window, above
+   the panels and flyouts it explains. */
+.lit-tip {
+  position: fixed;
+  z-index: 1200;
+  box-sizing: border-box;
+  max-width: min(280px, calc(100vw - 16px));
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--surface);
+  font: 500 0.75rem/1.35 Inter, "Inter Fallback", system-ui, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+}
+
+.lit-tip[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .lit-tip {
+    border-color: CanvasText;
+  }
 }
 
 .lit-flyout__menu .lit-panel__btn {

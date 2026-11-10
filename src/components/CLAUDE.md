@@ -24,7 +24,8 @@
   2. never on a link shared into scripture (`#v16`, a range `#v16-17`, a part
      anchor `#john-8-p9`, a Read View verse `#john-3-v16`);
   3. never on `/apps`, its own CTA destination, or `/privacy`, which people
-     open to read terms rather than to be pitched to (`SUPPRESSED_PATHS`);
+     open to read terms rather than to be pitched to, nor on `/notebook` or
+     `/desk/help`, opened mid-task (E73; `SUPPRESSED_PATHS`);
   4. **never over scripture**: a Chapter View chapter or intro, or Read View
      (owner, 2026-09-28). A reader who chose a passage came to read it. An
      announcement can opt out with `{ overScripture: true }`.

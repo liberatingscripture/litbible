@@ -386,9 +386,11 @@ test("Audit 7's wording: the desk tour's cards name what the page has now, and t
   assert.ok(desk("mine").more);
   // TR7-1: seven templates since Audit 5, so the card lists none of them in full.
   assert.doesNotMatch(stepBody(desk("newsheet"), null), /sermon preparation, a class session/);
-  // TR7-2: Full screen (E43) and My notebook page are in the title menu.
+  // TR7-2: Full screen (E43) and My notebook page are in the title menu; E68:
+  // the card names the command row first.
+  assert.match(stepBody(desk("title"), null), /^Under the header: Add pane, Layout, New sheet, Print, and Help\./);
   assert.match(stepBody(desk("title"), null), /full screen/);
-  assert.match(stepBody(desk("title"), null), /Your notebook page/);
+  assert.match(stepBody(desk("title"), null), /your notebook page/);
   // TR7-3: "Add to sheet" in Chapter View's verse menu (PR #520); Read View has none.
   assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add to sheet”/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add to sheet/);
@@ -430,7 +432,8 @@ test("the Sheets tour has an address of its own on /desk, and one on the Sheets 
 });
 
 test("the Sheets tour has the Sheets page's wording where the two pages differ (E63)", () => {
-  const differs = ["list", "templates", "passage", "print", "present"];
+  // "present" read alike once the Sheets pane's "Present…" lost its ellipsis (E71).
+  const differs = ["list", "templates", "passage", "print"];
   for (const s of SHEET_TOUR_STEPS) {
     const page = stepBody(s, "page");
     assert.ok(page.length > 20, s.id);
