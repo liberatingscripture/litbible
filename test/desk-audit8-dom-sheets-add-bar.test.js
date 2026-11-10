@@ -28,10 +28,10 @@ const named = (bar, text) => [...bar.el.querySelectorAll("button")].find((b) => 
 test("imported on its own, the bar draws all seven buttons and each add button asks for its part", () => {
   const { bar, added } = makeBar();
   const labels = [...bar.el.querySelectorAll(".desk-sheet__add-row > button")].map((b) => b.textContent);
-  assert.deepEqual(labels, ["+ Passage", "+ Your text", "+ Question", "+ From my notes…", "+ Space", "+ Page break", "+ Key terms box"]);
+  assert.deepEqual(labels, ["+ Passage", "+ Your text", "+ Question", "+ From my notes…", "+ Space to write", "+ Page break", "+ Key terms box"]);
   named(bar, "+ Your text").click();
   named(bar, "+ Question").click();
-  named(bar, "+ Space").click();
+  named(bar, "+ Space to write").click();
   named(bar, "+ Page break").click();
   named(bar, "+ Key terms box").click();
   assert.deepEqual(added, ["text", "question", "space", "pageBreak", "keyTerms"]);
