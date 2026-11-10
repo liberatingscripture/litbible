@@ -2027,6 +2027,188 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   accessible name, the announcement and the help page. No record changes (the
   type is `text`).
 
+**The conventions pass of 2026-11-10** (E67 to E78. BDR, after using the
+preview, said it "needs to adhere to some established 'humans will be using
+this' design conventions. I got lost very easily," with more recommendations
+to come; E67 is BDR's example. BVJ then asked Claude to research current
+conventions and suggest improvements, sitewide, changing nothing. **Every
+entry below is a proposal: none is decided and none is started.** E67, E68,
+and E72 would each reverse a call BVJ already made, named in the entry. How it
+was done: two research passes, then a walk through Chapter View, the
+Notebook, /desk, /sheets, and /notebook on `main` at `9431deb9`, at 1440 by
+900 and at phone width. **How far to trust it:** the general conventions come
+from pages that were opened and read, listed below. The comparison with other
+Bible tools is thin: only Bible Gateway's, Blue Letter Bible's, and STEP's
+help pages opened; what is said of Logos, Sefaria, YouVersion, Olive Tree, and
+Kindle is from search summaries and general knowledge, and no published
+usability study of any of them was found. Material 3's and Apple's own
+guideline pages would not load. BDR's further recommendations take the next E
+numbers as they arrive.)
+
+Sources, by the short names the entries use:
+[APG button](https://www.w3.org/WAI/ARIA/apg/patterns/button/),
+[NN/g state switch](https://www.nngroup.com/articles/state-switch-buttons/),
+[Android icon buttons](https://developer.android.com/develop/ui/compose/components/icon-button),
+[NN/g hidden navigation](https://www.nngroup.com/articles/hamburger-menus/),
+[NN/g new tabs](https://www.nngroup.com/articles/new-browser-windows-and-tabs/),
+[Microsoft menus](https://learn.microsoft.com/en-us/windows/win32/uxguide/cmd-menus),
+[NN/g icons](https://www.nngroup.com/articles/icon-usability/),
+[NN/g tooltips](https://www.nngroup.com/articles/tooltip-guidelines/),
+[NN/g overlays](https://www.nngroup.com/articles/mobile-instructional-overlay/),
+[WCAG 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html),
+[WCAG 1.4.13](https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html).
+
+**Already in line with convention, so nothing is proposed:** the undo bar in
+place of "Are you sure?" dialogs, empty states that say what to do next, the
+pane menu's one-line description of each kind, the Keyboard switch for
+single-key shortcuts, the Move menu beside pane dragging, tabs that mark the
+selected one two ways, and the verse numbers' and footnote letters' enlarged
+tap areas (`global.css`, never under 24px).
+
+- **E67, rough: the footnote's pin shows what a press will do, which reads as
+  its state.** BDR (2026-11-10), relayed by BVJ: "When active it shows a
+  slashed pin, and no other change to button. So it is showing 'what will
+  happen if you touch this' which simultaneously suggests 'this is not
+  pinned.'" BDR's fix: let the button show its state, filled or empty, and
+  never a slashed pin. Today's button is what E18 specified (`pins.js`,
+  `ICON_PIN` and `ICON_UNPIN`; the name flips between "Pin footnote a" and
+  "Unpin footnote a"; no `aria-pressed`), so **taking this reverses E18.**
+  What the sources say: APG button allows either a constant label with
+  `aria-pressed` or a changing label without it, so today's button is
+  accessible and the trouble is for the eye. Android icon buttons shows a
+  toggle filled when selected and outlined when not. NN/g state switch accepts
+  an unlabeled icon that shows the next state, but names that lone icon as
+  the ambiguous case. The pane lock (E21) already shows its state (a closed
+  lock, `aria-pressed`, a fixed name), so the desk's two toggles disagree.
+  Proposal: one thumbtack, outlined when not pinned and filled and tinted
+  when pinned, named "Pin footnote a" with `aria-pressed`, in the popover,
+  the Footnotes list, and This verse. My Notes' rows keep the word "Unpin,"
+  which is a command on a list of pinned things. The lock takes the same
+  pressed tint: an open and a closed lock differ by a few pixels at 14px, and
+  its tooltip flips to the action ("Follow the LIT pane") while its name
+  stays "Stay here." Status: open (proposed, not decided).
+- **E68, rough: on /desk every command is behind a menu.** Claude's pass
+  (2026-11-10). Add pane, Layout, New sheet, Print, Display options, the tour,
+  and Help are all under the page title, "Study Desk ▾", and the site's own
+  navigation is under the hamburger, so a first look at the page shows panes
+  and no commands. NN/g hidden navigation measured this on desktop: hidden
+  navigation was used in 27% of cases against 48% to 50% for visible, and
+  people were at least 39% slower. Proposal: a slim row of worded buttons
+  under the header (Add pane, Layout, New sheet, Print, Help), the title menu
+  keeping the rest. **This reverses E15's choice:** BVJ picked "everything in
+  the title" from three mocks (2026-11-02), and this is close to the second,
+  the menu added with the bar unchanged. Status: open (proposed, not
+  decided).
+- **E69, rough: a pane's header doesn't say what it is showing.** Claude's
+  pass (2026-11-10). The header is the kind ("My Notes ▾"), the lock, and ×.
+  That a pane follows the LIT pane is carried by the lock glyph alone, and
+  the passage it is on shows only where the pane's body happens to name it;
+  an empty My Notes names none. Logos marks linked panels with a link-set
+  letter and Sefaria's side panel is opened from, and headed by, the passage
+  (search summaries, not opened pages). Proposal: a following pane's header
+  carries the passage in muted type ("My Notes · John 3"), and a pane that
+  stays put carries its own. Check each follower kind before building, since
+  This verse and the Greek already open with the passage. Status: open
+  (proposed, not decided).
+- **E70, wording: the notebook page has four names.** Claude's pass
+  (2026-11-10). "My Notebook" in the header's Study menu (`SiteHeader.astro`),
+  "Notebook" as the page's heading (`notebook.astro`), "My Notebook page" in
+  the title menu (`title-menu.js`), and "Open the notebook page" in the
+  Settings tab (`panel.js`). The verse menu's group is also headed "My
+  Notebook," and the panel is "the Notebook" (the naming rule in the desk's
+  CLAUDE.md, BA138 and BA139), so a newcomer meets one word for a panel, a
+  page, and a menu group. Proposal: one name for the page, used in all four
+  places, chosen by BVJ. Status: open (proposed, not decided).
+- **E71, rough: a link that opens a new tab doesn't look like one.** Claude's
+  pass (2026-11-10). In the Sheets pane, "Present…", "Print or share…", and
+  "Open on its own page" open new tabs, as do the title menu's "My Notebook
+  page" and "Help for the Study Desk." Each says so in its accessible name or
+  tooltip, and nothing says so to the eye. NN/g new tabs accepts new tabs
+  from a hub the reader will return to, which the desk is, and asks for a
+  visible signal first. Microsoft menus keeps the ellipsis for a command that
+  needs more information before it acts, so "Present…" reads as "a dialog
+  follows." Proposal: the LIT pane's "Open on its page" glyph
+  (`OPEN_PAGE_ICON`) after each of these labels, and the ellipsis kept only
+  where a window or chooser opens (Layout…, Print…, New sheet…). Status: open
+  (proposed, not decided).
+- **E72, rough: icon-only buttons explain themselves only through `title`.**
+  Claude's pass (2026-11-10). The Notebook's lamp (Open the Study Desk), the
+  popover's pin and add-note glyphs, the pane lock, a sheet part's arrows,
+  and the phone toolbar's Read View glyph have no words. Where one has a
+  tooltip it is the browser's own (`title`, set about 80 times in
+  `src/scripts/`), which never shows on keyboard focus or on touch and is
+  slow on hover; a sheet part's arrows have none. NN/g icons
+  finds only a few icons universally read (home, print, the magnifier) and
+  recommends a visible label; NN/g tooltips asks that a tooltip show on focus
+  as well as hover; WCAG 1.4.13 sets what a custom one must do (dismissible,
+  hoverable, persistent). Proposal: one shared tooltip for icon-only
+  controls, shown on hover and focus, and words beside the glyph wherever
+  there is room (the Footnotes list's pills, a wide pane's header). **Words
+  beside the glyph would reverse part of E18, E21, and the 2026-11-06 change
+  of "+ Note" to a glyph,** which chose glyphs for quiet; the tooltip alone
+  reverses nothing. Status: open (proposed, not decided).
+- **E73, rough: an offer opens over a task.** Claude's pass (2026-11-10). Two
+  cases seen. The app announcement opened over /notebook/:
+  `announcement-gate.js` keeps it off scripture, /desk, and /sheets
+  (`SCRIPTURE_SURFACES`) and off /apps and /privacy (`SUPPRESSED_PATHS`), and
+  /notebook/ and /desk/help/ are in neither. And the Study Desk tour's offer,
+  at the top right of /desk, covered the My Notes pane's lock and × (three
+  columns at 1440 by 900). NN/g overlays, a study of phone apps, found people
+  dismiss an instructional overlay quickly and remember little of it.
+  Proposal: add `[data-notebook-page]` and
+  the help page to the gate; open the tour offer clear of any pane header
+  (the bottom right), or lead with the quiet line the title menu already
+  has. Status: open (proposed, not decided).
+- **E74, rough: the first pin opens the Notebook and re-wraps the text.**
+  Claude's pass (2026-11-10). In the preview's own browser profile, where the
+  "kept in this browser" card had never been answered, pressing Pin in a
+  footnote's popover expanded the minimized Notebook, and the text re-wrapped
+  under the open popover (the column narrows from 52 to 48 while the Notebook
+  is expanded). Seen once, and the cause was not
+  traced (the first-use card is the likely one). A small press that moves the
+  whole page is a surprise; the conventional answer is a quiet confirmation
+  where the reader is looking, as the undo bar gives for an unpin. To settle:
+  whether the first record should expand the Notebook at all, or the tab
+  should carry a mark until the reader opens it. Status: open (proposed, not
+  decided).
+- **E75, rough: the Notebook's Settings tab has no order to it.** Claude's
+  pass (2026-11-10). In one run it holds three checkboxes and a two-way
+  choice (the marks), "Hide my marks," a Print… button with a line of help,
+  links styled unlike one another ("Notebook actions" and "Take the tour"
+  underlined; "Open the notebook page," "My sheets," and "Help" not), the
+  reminder checkbox, where the notebook is kept, the
+  feedback link, and "Ask this browser to keep it." Proposal: three small
+  headings (Show, Keep and print, Help) and one link style. Status: open
+  (proposed, not decided).
+- **E76, rough: Aa and the search button hang under the header.** Claude's
+  pass (2026-11-10). **Sitewide, not the desk's:** above 1100px
+  `.site-header__nav-tools` is positioned under "Read Now," outside the
+  header's row (`global.css`), so the two utilities float over the top of
+  each page. E52 was one symptom (/sheets' toolbar ran under them, fixed by
+  padding the page), and /notebook pads itself the same way. The convention
+  is utilities in the header's row, after the navigation. If BVJ takes this
+  up it belongs in `FIXLIST.md`; it is logged here because this pass found it
+  and E52 is its neighbor. Status: open (proposed, not decided).
+- **E77, rough: a few controls are under 24px tall.** Claude's pass
+  (2026-11-10), measured in the preview: the popover's Pin and "Add a note"
+  are 32 by 20, a sheet's "Add a part here" is 55 by 22, and its minutes
+  field is 59 by 23. WCAG 2.5.8 asks for 24 by 24, and these pass only by its
+  spacing exception. E49 placed the Footnotes list's pills and did not set
+  the popover's size. Proposal: a 24px minimum height on all three. Every
+  other desk control measured on /desk was 24px or more. Status: open
+  (proposed, not decided).
+- **E78, rough: the verse menu is eight rows with the desk on.** Claude's pass
+  (2026-11-10), **the least certain entry here.** Copy text, Share image,
+  then under "My Notebook": Add a note, Add bookmark, Print, Add to sheet,
+  Highlight, and Show in Notebook. Opened on John 3:3 it covered the header
+  and part of the chapter's title, though it drags and has a ×. Reading apps
+  are said to lead with highlight colors and a note and to keep the rest
+  behind "more" (search summaries only). Microsoft menus asks for the most
+  used commands first and groups of seven or fewer, which the menu meets. To
+  settle from BVJ's and BDR's own use, not from this entry: which rows are
+  pressed most, and whether Print and Add to sheet belong behind one "More"
+  row. Status: open (proposed, not decided).
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
