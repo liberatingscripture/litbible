@@ -2032,8 +2032,9 @@ preview, said it "needs to adhere to some established 'humans will be using
 this' design conventions. I got lost very easily," with more recommendations
 to come; E67 is BDR's example. BVJ then asked Claude to research current
 conventions and suggest improvements, sitewide, changing nothing. **Every
-entry below is a proposal: none is decided and none is started.** E67, E68,
-and E72 would each reverse a call BVJ already made, named in the entry. How it
+entry below was a proposal; BVJ asked for all twelve to be started
+(2026-11-10), and each entry's status says what was built.** E67, E68, and
+E72 each reverse a call BVJ had made, named in the entry. How it
 was done: two research passes, then a walk through Chapter View, the
 Notebook, /desk, /sheets, and /notebook on `main` at `9431deb9`, at 1440 by
 900 and at phone width. **How far to trust it:** the general conventions come
@@ -2086,7 +2087,12 @@ tap areas (`global.css`, never under 24px).
   which is a command on a list of pinned things. The lock takes the same
   pressed tint: an open and a closed lock differ by a few pixels at 14px, and
   its tooltip flips to the action ("Follow the LIT pane") while its name
-  stays "Stay here." Status: open (proposed, not decided).
+  stays "Stay here." Status: **done 2026-11-10** (BVJ: “Start E67 to E78”), as
+  proposed: one thumbtack, outlined, then filled and tinted green while
+  pinned, always named “Pin footnote a” with `aria-pressed`, wherever a Pin is
+  drawn; My Notes' rows keep “Unpin.” The lock takes the same tint, and its
+  tooltip now says its state (“Stay here (on)”), not the press to come. This
+  reverses E18's struck-through glyph.
 - **E68, rough: on /desk every command is behind a menu.** Claude's pass
   (2026-11-10). Add pane, Layout, New sheet, Print, Display options, the tour,
   and Help are all under the page title, "Study Desk ▾", and the site's own
@@ -2097,8 +2103,13 @@ tap areas (`global.css`, never under 24px).
   under the header (Add pane, Layout, New sheet, Print, Help), the title menu
   keeping the rest. **This reverses E15's choice:** BVJ picked "everything in
   the title" from three mocks (2026-11-02), and this is close to the second,
-  the menu added with the bar unchanged. Status: open (proposed, not
-  decided).
+  the menu added with the bar unchanged. Status: **done 2026-11-10**:
+  `command-row.js` draws Add pane ▾, Layout…, New sheet…, Print… and Help (new
+  tab) under the header, and the title menu keeps Display options, Full
+  screen, My Notebook page, Take the tour and feedback. The Layout and Print
+  windows hang under their own buttons and give focus back to them. The desk
+  tour's “The title menu” card became “The commands” (`since: "e68"`, so it is
+  offered again). This reverses E15.
 - **E69, rough: a pane's header doesn't say what it is showing.** Claude's
   pass (2026-11-10). The header is the kind ("My Notes ▾"), the lock, and ×.
   That a pane follows the LIT pane is carried by the lock glyph alone, and
@@ -2108,8 +2119,12 @@ tap areas (`global.css`, never under 24px).
   (search summaries, not opened pages). Proposal: a following pane's header
   carries the passage in muted type ("My Notes · John 3"), and a pane that
   stays put carries its own. Check each follower kind before building, since
-  This verse and the Greek already open with the passage. Status: open
-  (proposed, not decided).
+  This verse and the Greek already open with the passage. Status: **done
+  2026-11-10**, scoped by the check the entry asked for: This verse, Greek and
+  Footnotes name their passage in their passage bar, and Book Intro its book
+  in its own, so only My Notes lacked one. Its header now names its chapter in
+  muted type after its name (“My Notes John 3”), the followed chapter or the
+  one it stays on.
 - **E70, wording: the notebook page has four names.** Claude's pass
   (2026-11-10). "My Notebook" in the header's Study menu (`SiteHeader.astro`),
   "Notebook" as the page's heading (`notebook.astro`), "My Notebook page" in
@@ -2118,7 +2133,12 @@ tap areas (`global.css`, never under 24px).
   Notebook," and the panel is "the Notebook" (the naming rule in the desk's
   CLAUDE.md, BA138 and BA139), so a newcomer meets one word for a panel, a
   page, and a menu group. Proposal: one name for the page, used in all four
-  places, chosen by BVJ. Status: open (proposed, not decided).
+  places, chosen by BVJ. Status: **done 2026-11-10**: BVJ chose “My
+  Notebook.” The page's title and heading, the title menu, the Settings
+  tab's link (“My Notebook · My sheets”), the commands window (“Open My
+  Notebook”), the help page, and the tour card all say it; the header's
+  Study menu already did. The panel stays “the Notebook” and the tab “My
+  Notes.”
 - **E71, rough: a link that opens a new tab doesn't look like one.** Claude's
   pass (2026-11-10). In the Sheets pane, "Present…", "Print or share…", and
   "Open on its own page" open new tabs, as do the title menu's "My Notebook
@@ -2129,8 +2149,14 @@ tap areas (`global.css`, never under 24px).
   needs more information before it acts, so "Present…" reads as "a dialog
   follows." Proposal: the LIT pane's "Open on its page" glyph
   (`OPEN_PAGE_ICON`) after each of these labels, and the ellipsis kept only
-  where a window or chooser opens (Layout…, Print…, New sheet…). Status: open
-  (proposed, not decided).
+  where a window or chooser opens (Layout…, Print…, New sheet…). Status:
+  **done 2026-11-10**: the open-page mark (`newTabMark` in `glyphs.js`)
+  follows “Print or share,” “Present,” and “Open on its own page” in the
+  Sheets pane, “My Notebook page” and the feedback line in the title menu, and
+  Help in the command row. “Print or share…” and “Present…” lost their
+  ellipsis; Layout…, Print… and New sheet… keep theirs. The Sheets tour and
+  the help page follow, and the Sheets tour's page card named “Done,” which is
+  “Close” since #534, so that was corrected too.
 - **E72, rough: icon-only buttons explain themselves only through `title`.**
   Claude's pass (2026-11-10). The Notebook's lamp (Open the Study Desk), the
   popover's pin and add-note glyphs, the pane lock, a sheet part's arrows,
@@ -2146,7 +2172,19 @@ tap areas (`global.css`, never under 24px).
   there is room (the Footnotes list's pills, a wide pane's header). **Words
   beside the glyph would reverse part of E18, E21, and the 2026-11-06 change
   of "+ Note" to a glyph,** which chose glyphs for quiet; the tooltip alone
-  reverses nothing. Status: open (proposed, not decided).
+  reverses nothing. Status: **done 2026-11-10**: `src/scripts/tip.js`
+  (`setTip`) is the shared tooltip: on hover after 350 ms and at once on
+  keyboard focus, never on touch, dismissed by Escape, hoverable, and
+  `aria-hidden` (the name already says it). It is on the Notebook's lamp and
+  Minimize, the popover's Pin and Add a note, This verse's add, the pane lock,
+  × and flag, and a sheet part's ↑ ↓ ×. Words beside the glyph: “Pin” and
+  “Note” in the Footnotes list, the Footnotes pane and This verse (the list
+  still picks row, “⋯”, or inline by measuring, and kept row at 1440 by 900),
+  and “Stay here” beside the lock in a pane header wider than 26rem. The
+  popover keeps glyphs alone. The phone toolbar's Read View glyph is
+  unchanged: a finger gets no tooltip, and F3's one-row toolbar has no room
+  for its word. The words reverse part of E18, E21, and the 2026-11-06 glyph
+  for “+ Note.”
 - **E73, rough: an offer opens over a task.** Claude's pass (2026-11-10). Two
   cases seen. The app announcement opened over /notebook/:
   `announcement-gate.js` keeps it off scripture, /desk, and /sheets
@@ -2158,7 +2196,11 @@ tap areas (`global.css`, never under 24px).
   Proposal: add `[data-notebook-page]` and
   the help page to the gate; open the tour offer clear of any pane header
   (the bottom right), or lead with the quiet line the title menu already
-  has. Status: open (proposed, not decided).
+  has. Status: **done 2026-11-10**: `/notebook` and `/desk/help` are in
+  `SUPPRESSED_PATHS` (paths, since `[data-notebook-page]` is on the page for
+  everyone); the Study Desk tour's offer opens at the bottom right of the
+  panes, and the Sheets tour's on /desk sits level with its pane's foot, clear
+  of the next pane's lock and ×.
 - **E74, rough: the first pin opens the Notebook and re-wraps the text.**
   Claude's pass (2026-11-10). In the preview's own browser profile, where the
   "kept in this browser" card had never been answered, pressing Pin in a
@@ -2169,8 +2211,21 @@ tap areas (`global.css`, never under 24px).
   whole page is a surprise; the conventional answer is a quiet confirmation
   where the reader is looking, as the undo bar gives for an unpin. To settle:
   whether the first record should expand the Notebook at all, or the tab
-  should carry a mark until the reader opens it. Status: open (proposed, not
-  decided).
+  should carry a mark until the reader opens it. Status: **done 2026-11-10**
+  (BVJ took Claude's recommendation): the first record no longer opens the
+  Notebook. It puts a green dot on the tab and the header's toggles (named
+  “New: where your notebook is kept” to a screen reader) until the Notebook
+  is opened, and the undo bar offers “Open the Notebook,” which opens it
+  on My Notes, where the card is. When the bar already holds an undo, the
+  offer is left out and the dot alone remains. The dot is Highlight in
+  forced colors. The
+  cause, as traced: it was the first-use card: the first record a visit
+  writes while “kept in this browser” is unanswered fires `store.onEntry` in
+  `first-use.js`, which calls `reveal()`, and `revealPanel()` in `panel.js`
+  opens the Notebook so the card is met (once per page load). Opening it takes
+  the column from 52 to 48, so the text re-wraps under the popover. Once the
+  card is answered it never happened again, which is why BVJ's own browser
+  didn't show it.
 - **E75, rough: the Notebook's Settings tab has no order to it.** Claude's
   pass (2026-11-10). In one run it holds three checkboxes and a two-way
   choice (the marks), "Hide my marks," a Print… button with a line of help,
@@ -2178,8 +2233,12 @@ tap areas (`global.css`, never under 24px).
   underlined; "Open the notebook page," "My sheets," and "Help" not), the
   reminder checkbox, where the notebook is kept, the
   feedback link, and "Ask this browser to keep it." Proposal: three small
-  headings (Show, Keep and print, Help) and one link style. Status: open
-  (proposed, not decided).
+  headings (Show, Keep and print, Help) and one link style. Status: **done
+  2026-11-10**: three headings, Show (the switches), Keep and print (Print…,
+  the notebook page and My sheets, the reminder, where it is kept, “Ask this
+  browser to keep it”), and Help (Notebook actions, the tour, Help, feedback),
+  and one link style (the text green, underlined, regular weight). A page with
+  no switches has no Show group.
 - **E76, rough: Aa and the search button hang under the header.** Claude's
   pass (2026-11-10). **Sitewide, not the desk's:** above 1100px
   `.site-header__nav-tools` is positioned under "Read Now," outside the
@@ -2188,15 +2247,20 @@ tap areas (`global.css`, never under 24px).
   padding the page), and /notebook pads itself the same way. The convention
   is utilities in the header's row, after the navigation. If BVJ takes this
   up it belongs in `FIXLIST.md`; it is logged here because this pass found it
-  and E52 is its neighbor. Status: open (proposed, not decided).
+  and E52 is its neighbor. Status: **done 2026-11-10**:
+  `.site-header__nav-tools` sits in the header's row after Read Now, and
+  /sheets' extra top padding (E52's) is gone. The row fits at 1101px and
+  1440px with no sideways scroll. Logged in `FIXLIST.md` too.
 - **E77, rough: a few controls are under 24px tall.** Claude's pass
   (2026-11-10), measured in the preview: the popover's Pin and "Add a note"
   are 32 by 20, a sheet's "Add a part here" is 55 by 22, and its minutes
   field is 59 by 23. WCAG 2.5.8 asks for 24 by 24, and these pass only by its
   spacing exception. E49 placed the Footnotes list's pills and did not set
   the popover's size. Proposal: a 24px minimum height on all three. Every
-  other desk control measured on /desk was 24px or more. Status: open
-  (proposed, not decided).
+  other desk control measured on /desk was 24px or more. Status: **done
+  2026-11-10**: every Pin and Add a note pill (the popover's now 32 by 24) and
+  the Footnotes list's “⋯” are 24px tall at least, the gap's “+ Add” is 24px,
+  and the minutes field 24px at least.
 - **E78, rough: the verse menu is eight rows with the desk on.** Claude's pass
   (2026-11-10), **the least certain entry here.** Copy text, Share image,
   then under "My Notebook": Add a note, Add bookmark, Print, Add to sheet,
@@ -2207,7 +2271,11 @@ tap areas (`global.css`, never under 24px).
   used commands first and groups of seven or fewer, which the menu meets. To
   settle from BVJ's and BDR's own use, not from this entry: which rows are
   pressed most, and whether Print and Add to sheet belong behind one "More"
-  row. Status: open (proposed, not decided).
+  row. Status: **order settled by BVJ, nothing changed** (2026-11-10): “As far
+  as the menu order, e-readers start with markup options yes, but I think LIT
+  Bible users will be more likely to use the copy buttons.” Copy text and
+  Share stay first. Whether Print and Add to sheet go behind one “More” row
+  was not taken up and stays open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

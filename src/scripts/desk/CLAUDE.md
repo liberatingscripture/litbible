@@ -481,9 +481,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
      the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (A Versions tab, and API.bible with it, is
      deferred indefinitely: not in version 1, BVJ 2026-10-11.) **Settings is the last tab, on every page**
-     (BVJ, 2026-10-29): the switches, print buttons, "Open the notebook page" and "My sheets",
-     the tour and help links and where the notebook is kept, which were My
-     Notes' foot. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
+     (BVJ, 2026-10-29), in three groups under small headings (E75): Show (the
+     switches), Keep and print (Print…, the notebook page and "My sheets",
+     where the notebook is kept), and Help (Notebook actions, the tour, help,
+     feedback), with one link style; panel.js puts each module's part under
+     its heading. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
      "Close the Notebook" command, Escape and the Read View toolbar's Notebook
      button minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
      start; "Hide my marks" and H fold it to its tab and un-hiding opens it
@@ -518,7 +520,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      notebook") or the feature as a whole. "My Notes" is the tab and the
      /desk pane kind only; the margin's switch and its region are "Notes in
      the margin," and This verse's subhead stays "My notes," naming the
-     reader's notes on that verse.
+     reader's notes on that verse. **The /notebook page is "My Notebook"**
+     wherever it is named (E70, BVJ 2026-11-10).
      **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
      "the notebook preview"); "Delete" is for what the reader typed or named
      (notes, labels, sheets) and "Remove" for marks on the text (bookmarks,
@@ -839,7 +842,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        statement with a reminder checkbox and "Got it" until phase 4 gives a
        second place to choose (BVJ, 2026-11-07, FU4-1; `localStorage['lit-desk-home']`), the foot's reminder and Safari
        line, and the tour (`lit-desk-tour`, which also holds the offer's
-       markers: `later:<date>` and `never`). **The tour is offered in a
+       markers: `later:<date>` and `never`). **The card is pointed to, never
+       opened onto the reader** (E74, BVJ 2026-11-10): the first record a visit
+       writes while it is unanswered puts a dot on the Notebook's tab and
+       toggles (`data-desk-nudge`, cleared once the Notebook is open) and offers
+       “Open the Notebook” in the undo bar, unless the bar holds another
+       undo. Opening it unasked re-wrapped the text under the popover.
+       **The tour is offered in a
        window beside the Notebook** (BVJ, 2026-10-14), the first time it is
        expanded with the home question answered: Take the tour now, Remind
        me later (also the ×, Escape, closing or minimizing the Notebook,
@@ -895,10 +904,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
          the end of the tour, it should put everything back the way it found
          it"). It switches the desk to `originalLayout` for the run, adds a LIT
          pane, presses a lock, shows a Sheets pane (a column, else the first
-         pane that isn't the LIT turned to Sheets; E59, BVJ 2026-11-08), opens
-         the title menu, runs "New sheet…" as the menu does
-         (`titleMenu.newSheet`; a `notebook` step, left out when neither a
-         column nor a row fits), opens the Add pane flyout and the Layout window,
+         pane that isn't the LIT turned to Sheets; E59, BVJ 2026-11-08), points
+         at the command row, runs "New sheet…" as the row does
+         (`commands.newSheet`; a `notebook` step, left out when neither a
+         column nor a row fits), opens the Add pane menu and the Layout window,
          undoing each step before the next, and at the end commits the reader's
          own layout back. **What keeps that off disk is `layoutFrozen` in
          desk-page.js**: `save()`, `writeKey`, the "When this page opens" radios
@@ -910,7 +919,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
          tour's card (`inTour`), or taking focus to the card would close what a
          step opened.
        - **Offer**: a floating window (`float-window.js`) the first time /desk
-         opens, 1.2 seconds after the panes draw: Take the tour now, Remind me
+         opens, 1.2 seconds after the panes draw, at the panes' bottom right,
+         clear of every pane header (E73; the Sheets tour's sits level with its
+         pane's foot): Take the tour now, Remind me
          later (also ×, Escape, leaving), Don't show this again. **Remind me
          later leaves a quiet line at the top of the title menu** ("New to the
          Study Desk? Take the tour", and "Not now", which is "never"), shown
@@ -1488,63 +1499,50 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on
        Layout and SiteHeader), at every width: the emblem and "LIT Bible"
        as the home link, "Study Desk" centered as the page's h1, then the
-       menu button (Aa is gone from the bar: see "The title menu" below).
+       menu button (Aa is gone from the bar: see "The command row" below).
        No nav row and no search; the Display tray carries
        Chapter View's "Show" switches (`scriptureControls="study"`), which
        reach the LIT pane's text. Search is a pane (below).
-     - **The title menu** (E15 and E14; BVJ, 2026-11-02). The h1's text
-       is a button, `Study Desk ▾` (`.desk-title`; desk-page.js swaps the
-       heading for a wrapper holding the h1 and the menus so the windows take
-       the header's type, not the heading's, and `title-menu.js` builds the
-       menu and its Add pane flyout from what `start()` hands it, as
-       `kind-menu.js` does: `getLayout`, `commit`, the two windows and the
-       tour, read when wanted). Its menu holds Add
-       pane, Layout…, Print…, Display options, Full screen, then My notebook
-       page, Take the tour and Help (one divider before the three). **Full
-       screen** (E43; BVJ, 2026-11-06: the browser's own full screen only, no
-       mode hiding the site header) presses the Fullscreen API on the whole
-       page, reads "Full screen (F11)" ("⌃⌘F" on a Mac) and "Exit full screen"
-       only for a full screen it entered, since F11's is invisible to the page;
-       no line where the API is missing, and a refusal names the key to use
-       instead. With a menu open in full screen the first Escape leaves full
-       screen and the second closes the menu (accepted). The Browser pane never
-       answers the request: check it in a real browser. My notebook page and Help open
-       in a new tab, since they leave the desk; **Take the tour starts the
-       Study Desk tour in place** (a button, E24; see "Three tours" under rule 13). **There is no Settings window and no
-       "Where my notebook is kept" item** (BVJ, 2026-11-02): the other
-       settings mean nothing here or already live in Display options and
-       Layout. **Layout and Print left
-       the bar**: their windows are the same ones, hung centered under the
-       title. **Display options is the header's own Aa button moved into the
-       menu whole**, so the shared tray's listeners stay on it;
-       `data-tray-anchor=".desk-title__button"` (SiteHeader's `anchorOf`) hangs
-       the tray from the title and returns focus there, because the menu
-       closes as the tray opens. **New sheet…** (Audit 5, SH5-5) sits after
-       Add pane and Layout… (BVJ, 2026-11-08; it was before Layout…) and acts at once: it uses the desk's Sheets pane, or adds one
-       as a column (else a row), then sends `desk:sheet-new` with the pane's
-       id, which the Sheets pane answers by opening its template chooser; it is
-       disabled, with the reason beside it, only when there is no Sheets pane
-       and neither fits. Each kind in the Add pane flyout and in the pane
-       menu's two kind lists carries a one-line description under its name
-       (`about` in `KINDS`, `kindAbout`), greyed like a reason but not a
-       disabled line, and heard as the item's description. **Add pane** is a flyout to the right that
-       asks "Add column" or "Add row", then (the kinds replace those two in
-       the same flyout, with a "‹ Add column" row to go back) which kind of
-       pane to show. A column is a full-height pane at the right edge of the
-       page and a row a full-width pane along the bottom (`addPane`, pure in
-       desk-layout.mjs; the others keep their proportions and the newcomer
-       takes an even share); the new LIT pane starts at the shared place.
-       `addPaneNeeds` says why one can't be added: `FULL_TEXT`, "Four is the
-       most" built from `MAX_PANES` (D9; compare the reason, never the words)
-       or "Needs a wider/taller/larger window" (the 280 by 160 floor). The
-       item is disabled, not hidden, with the reason beside it, as is a
-       direction that doesn't fit. The menu is
-       `role="menu"` (arrows, Home and End, which pass over a disabled
-       line in every desk menu, and a disabled line's reason is also the
-       menu's description, so a screen reader hears it
-       (`menu-reasons.js`), as `src/scripts/CLAUDE.md` says; Right opens the flyout, Left or
-       Escape steps back); Escape from the Layout or Print window returns
-       focus to the title button. `/notebook` and `/sheets` have no title menu.
+     - **The command row and the title menu** (E68, 2026-11-10, reversing
+       E15's "everything in the title"). Under the header, `command-row.js`
+       draws worded buttons: Add pane ▾, Layout…, New sheet…, Print… and Help
+       (new tab), since hidden commands are found far less (NN/g). The h1's
+       text is a button, `Study Desk ▾` (`.desk-title`; desk-page.js swaps the
+       heading for a wrapper so the menu takes the header's type), and
+       `title-menu.js` holds the rest: Display options, Full screen, then My
+       Notebook, Take the tour and feedback (one divider before the
+       three). **Full screen** (E43; BVJ, 2026-11-06: the browser's own only)
+       presses the Fullscreen API on the whole page, reads "Full screen (F11)"
+       ("⌃⌘F" on a Mac) and "Exit full screen" only for a full screen it
+       entered, since F11's is invisible to the page; no line where the API is
+       missing, and a refusal names the key. With a menu open in full screen
+       the first Escape leaves full screen (accepted). The Browser pane never
+       answers the request: check it in a real browser. **Take the tour
+       starts the Study Desk tour in place** (E24; "Three tours" under rule
+       13). **There is no Settings window and no "Where my notebook is kept"
+       item** (BVJ, 2026-11-02). **Display options is the header's own Aa
+       button moved into the menu whole**, so the tray's listeners stay on
+       it; `data-tray-anchor=".desk-title__button"` hangs the tray from the
+       title. **The Layout and Print windows hang from the row**, each under
+       its own button (`hang`), and Escape returns focus to that button.
+       **New sheet…** (Audit 5, SH5-5) acts at once: it uses the desk's Sheets
+       pane, or adds one as a column (else a row), then sends
+       `desk:sheet-new` with the pane's id, which the pane answers by opening
+       its template chooser. **Add pane** is a menu button whose menu asks "Add
+       column" or "Add row", then which kind (the kinds replace those two,
+       with a "‹ Add column" line to go back); each kind, here and in the pane
+       menu, carries a one-line description (`about` in `KINDS`), heard as the
+       item's description. A column is a full-height pane at the right edge, a
+       row a full-width pane along the bottom (`addPane`, pure in
+       desk-layout.mjs). `addPaneNeeds` says why one can't be added:
+       `FULL_TEXT`, "Four is the most" from `MAX_PANES` (compare the reason,
+       never the words) or "Needs a wider/taller/larger window" (the 280 by
+       160 floor). Add pane and New sheet… are disabled, not hidden, with the
+       reason in their tooltip and description; a direction that doesn't fit
+       shows its reason beside it. Both menus are `role="menu"` (arrows, Home
+       and End pass over a disabled line, whose reason is also the menu's
+       description, `menu-reasons.js`); in Add pane's, Left or Escape steps
+       back. `/notebook` and `/sheets` have neither.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
        LIT's license line; the rest of the footer is hidden by
        `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its
@@ -1661,14 +1659,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        and with notes it prints them whatever "Hide my marks" says (BVJ, 2026-11-10). A
        new way to ask for such a print must leave the mark. **This page's own chapter prints in
        place**, with no new tab, as the Notebook's buttons always did. /desk's
-       is "Print…" in the page-title menu (E15, below); the
+       is "Print…" in the command row (E68, below); the
        Notebook's is one "Print…" button at the foot of the Settings tab
        (`panel.js`'s `printBox`, Chapter View chapters and Read View), opening the
        menu in place under it. **In Read View the menu has no picker** and
        prints the book on the page in place (the plain choice reads "The
        book"): a book is what Read View prints, and picking a chapter is Study
        View's and /desk's. The host owns the button, Escape and focus; the
-       menu's `onChoose` closes it. The page-title menu opens this same menu.
+       menu's `onChoose` closes it. The command row opens this same menu.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        choice right after it in the Print menu, and the command
        `print-with-room`. `desk/print-room.js` only stamps
@@ -1706,10 +1704,18 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the plain note marker's glyph (BVJ, 2026-11-06; it read "+ Note" until
        then), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
        which `pins.js` and the tabs and pane call). This verse's own add button (`tab-verse.js`,
-       "Add a note on this verse") is the same glyph pill. **Pin is a glyph, not
-       words** (E18): a thumbtack to pin, struck through to unpin, and the
-       thumbtack means that and nothing else; a pane's "Stay here" on /desk
-       is a lock (E21). The same file draws the reader's notes under a
+       "Add a note on this verse") is the same glyph pill. **Pin shows its
+       state, not the press to come** (E67, reversing E18's struck-through
+       glyph): one thumbtack, outlined, then filled and tinted green while
+       pinned, always named "Pin footnote a" with `aria-pressed`; the pane
+       lock (E21) takes the same tint. The thumbtack means pinning and nothing
+       else. **Glyph controls carry the shared tooltip** (`setTip`,
+       `src/scripts/tip.js`, E72; shown on hover and keyboard focus, never on
+       touch, `aria-hidden` since the name says it), never `title`; and the
+       words "Pin" and "Note" show beside the glyphs in the lists (the
+       Footnotes list, the Footnotes pane, This verse), not the popover. A
+       pane header wider than 26rem shows "Stay here" beside its lock, and My
+       Notes' header names its chapter (E69). The same file draws the reader's notes under a
        footnote (`footnoteNotes`). Both sit beside `.fn-body`, never in it, so a footnote's text, the
        handout and `footnoteList()` read only the footnote. The margin
        places such a note beside its footnote's `li` (`note-sources.js`)

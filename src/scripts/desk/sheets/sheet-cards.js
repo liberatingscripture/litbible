@@ -19,6 +19,7 @@ import { movedUnderReader } from "../../../lib/desk-sheet-tabs.mjs";
 import { passageLabel, passageReference } from "../../../lib/desk-sheet-passages.mjs";
 import { buttons, make } from "../dom.js";
 import { cardBody, cardTools, promptOf } from "./part-cards.js";
+import { setTip } from "../../tip.js";
 
 const button = buttons("desk-sheet__btn");
 
@@ -144,14 +145,18 @@ export function createSheetCards(host) {
         tools.append(...own.els);
         setHead = own.update;
       }
+      // Glyphs with no words, so each has the shared tooltip (E72).
       up = button("↑", "desk-sheet__icon");
       up.setAttribute("aria-label", `Move ${name} up`);
+      setTip(up, "Move up");
       up.addEventListener("click", () => host.move(m.id, -1, up));
       down = button("↓", "desk-sheet__icon");
       down.setAttribute("aria-label", `Move ${name} down`);
+      setTip(down, "Move down");
       down.addEventListener("click", () => host.move(m.id, 1, down));
       const remove = button("×", "desk-sheet__icon");
       remove.setAttribute("aria-label", `Remove ${name}`);
+      setTip(remove, "Remove");
       remove.addEventListener("click", () => host.remove(m.id, name));
       tools.append(up, down, remove);
     }

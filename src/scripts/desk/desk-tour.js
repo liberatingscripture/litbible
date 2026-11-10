@@ -64,9 +64,9 @@ const MORE_LINKS = { mine: TOUR_LINK, sheets: SHEET_TOUR_LINK };
 /**
  * @param {{ canKeep: boolean, getLayout: () => object, setLayout: (next: object) => void,
  *   freeze: (on: boolean) => void, paneEls: Map<string, object>, panesBox: HTMLElement,
- *   titleButton: HTMLElement, titleMenu: HTMLElement, addFly: HTMLElement,
+ *   titleButton: HTMLElement, titleMenu: HTMLElement, commandRow: HTMLElement, addMenu: HTMLElement,
  *   openTitleMenu: () => void, closeTitleMenu: (o?: object) => void, showAddKinds: (direction: string) => void,
- *   newSheet: () => string | null,
+ *   closeAdd: () => void, newSheet: () => string | null,
  *   layoutMenu: HTMLElement, openLayoutMenu: () => void, closeLayoutMenu: (o?: object) => void,
  *   refreshLayoutMenu: () => void, shapeButtons: HTMLElement[],
  *   onLineChange?: () => void }} api
@@ -148,25 +148,24 @@ export function createDeskTour(api) {
       return rec ? { el: rec.kindButton, marks: [rec.kindButton] } : null;
     },
 
+    // The command row under the header (E68), and the title button that
+    // holds the rest.
     async title() {
-      api.openTitleMenu();
-      later(() => api.closeTitleMenu({ focus: false }));
-      return { el: api.titleMenu, side: "right", marks: [api.titleMenu] };
+      return { el: api.commandRow, marks: [api.commandRow, api.titleButton] };
     },
 
-    // The flyout at its second step, and a Footnotes pane added behind it.
+    // The Add pane menu at its second step, and a Footnotes pane added behind it.
     async add() {
-      api.openTitleMenu();
       api.showAddKinds("column");
       later(() => {
-        api.closeTitleMenu({ focus: false });
+        api.closeAdd();
         toBase();
       });
       const { width, height } = room();
       const next = addPane(api.getLayout(), "column", "footnotes", width, height);
       if (next !== api.getLayout()) api.setLayout(next);
-      // Below the flyout, so the card leaves the menu it hangs from in view.
-      return { el: api.addFly, marks: [api.addFly] };
+      // Beside the menu, so the card leaves the button it hangs from in view.
+      return { el: api.addMenu, marks: [api.addMenu] };
     },
 
     // "New sheet…" done as the menu does it (E59): a Sheets pane added and its
@@ -236,6 +235,7 @@ export function createDeskTour(api) {
     api.onLineChange?.();
     state = { mine, base };
     api.closeTitleMenu({ focus: false });
+    api.closeAdd?.();
     api.closeLayoutMenu({ focus: false });
     api.freeze(true);
     api.setLayout(base);
@@ -300,7 +300,7 @@ export function createDeskTour(api) {
     offerWin.title.textContent = o.kind === "first" ? "Take a short tour of the Study Desk?" : "There’s something new in the tour.";
     offerText.textContent =
       o.kind === "first"
-        ? "It takes a minute and shows you the panes, sheets, the title menu, and the layouts. Nothing it does is saved."
+        ? "It takes a minute and shows you the panes, sheets, the commands, and the layouts. Nothing it does is saved."
         : "Want a look at what’s new?";
     yes.textContent = o.kind === "first" ? "Take the tour now" : "Show me what’s new";
     offerWin.show();
@@ -308,11 +308,15 @@ export function createDeskTour(api) {
   }
 
   /** Near the top right of the panes, out of the way of the title and its menus. */
+  // At the bottom right of the panes, clear of every pane's header (E73: at
+  // the top right it covered a pane's lock and ×).
   function placeOffer(w) {
     const GAP = 16;
     const width = Math.min(300, innerWidth - 2 * GAP);
-    const top = Math.max(GAP, room().top + GAP);
-    w.style.width = `${width}px`;
+    w.style.width = `${width}px`; // first, since its height follows from it
+    const box = room();
+    const bottom = Math.min(innerHeight, box.bottom) - GAP;
+    const top = Math.max(GAP, box.top + GAP, bottom - w.offsetHeight);
     w.style.left = `${innerWidth - width - GAP}px`;
     w.style.top = `${top}px`;
   }

@@ -213,9 +213,10 @@ export function createDeskSheetTour(api) {
     },
 
     /**
-     * Beside the Sheets pane, its top level with the pane's: to the left where
-     * there is room, else to the right, else over the pane's top, centered, as
-     * the notebook tour's offer sits beside the Notebook.
+     * Beside the Sheets pane, its foot level with the pane's: to the left where
+     * there is room, else to the right, else over the pane under its header,
+     * centered. Level with the pane's top it covered the next pane's header,
+     * its lock and × (E73).
      */
     placeOffer(w) {
       const p = sheetsPane()?.getBoundingClientRect();
@@ -223,8 +224,9 @@ export function createDeskSheetTour(api) {
       const GAP = 12;
       const EDGE = 8;
       const width = Math.min(300, innerWidth - 2 * EDGE);
-      w.style.width = `${width}px`;
-      w.style.top = `${Math.max(EDGE, p.top)}px`;
+      w.style.width = `${width}px`; // first, since its height follows from it
+      const foot = Math.min(innerHeight, p.bottom) - GAP;
+      w.style.top = `${Math.max(EDGE, p.top + 56, foot - w.offsetHeight)}px`;
       if (p.left - GAP - width >= EDGE) {
         w.style.left = `${p.left - GAP - width}px`;
       } else if (p.right + GAP + width <= innerWidth - EDGE) {

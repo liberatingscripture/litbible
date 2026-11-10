@@ -52,6 +52,7 @@ import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { pinButton } from "./pins.js";
 import { showUndo } from "./undo-bar.js";
+import { setTip } from "../tip.js";
 
 // A highlight's words are shown in part, as in My Notes: about this many.
 const HIGHLIGHT_WORDS = 24;
@@ -117,7 +118,7 @@ export function createVerseTab({
       <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My Notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
-      <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse" title="Add a note on this verse">${glyph("note", "desk-fn-add__glyph")}</button>
+      <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-fn-add__glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
     </section>
     <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseChainsTitle${idSuffix}">Notes that cite this verse</h4>
@@ -133,6 +134,7 @@ export function createVerseTab({
   const mine = el.querySelector(".desk-verse__mine");
   const empty = el.querySelector(".desk-verse__empty");
   const add = el.querySelector(".desk-verse__add");
+  setTip(add, "Add a note on this verse");
   const chainsSection = el.querySelector(".desk-verse__chains");
   const mentions = el.querySelector(".desk-verse__mentions");
   const steps = Array.from(el.querySelectorAll(".desk-verse__step"));

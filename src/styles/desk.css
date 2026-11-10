@@ -301,6 +301,41 @@ a.desk-item__ref:hover {
   margin: 0;
 }
 
+/* Three small headings give the tab an order (E75): Show, Keep and print,
+   Help, each group a little apart from the next. */
+.desk-panel__group + .desk-panel__group {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+}
+
+.desk-panel__group-title {
+  margin: 0 0 8px;
+  /* The panel's own face, not the site's display serif for headings. */
+  font-family: inherit;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.desk-panel__group .desk-panel__print {
+  margin: 0 0 10px;
+}
+
+/* One link style across the tab (E75; they were underlined and not, bold and
+   not): the text green, underlined, at the tab's weight. */
+.desk-panel__settings-tab :is(.desk-panel__page a, .desk-panel__commands .greek-cmd-link, .desk-home__links a, .desk-home__links .desk-home__tour, .desk-home__safari a) {
+  padding: 0;
+  color: var(--green-text);
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.desk-panel__group--help .desk-home__links {
+  margin-top: 6px !important;
+}
+
 /* ── The undo bar ──────────────────────────────────────────────── */
 
 /* Centred under the reading column (margin.js sets --desk-bar-center), so
@@ -2289,17 +2324,47 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   cursor: default;
 }
 
-/* The footnote Pin / Unpin is a thumbtack glyph (E18): same pill, the icon in
-   the text's own color (currentColor), so dark mode and forced colors follow. */
+/* The footnote Pin is a thumbtack glyph (E18): same pill, the icon in the
+   text's own color (currentColor), so dark mode and forced colors follow.
+   24px tall at least, WCAG 2.5.8's size without leaning on its spacing
+   exception (E77; they were 20px). */
 .desk-pin--glyph {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  min-height: 24px;
   padding: 2px 8px;
 }
 
 .desk-pin--glyph svg {
   display: block;
+  flex: none;
+}
+
+/* It shows its state, not the press to come (E67): outlined while the
+   footnote isn't pinned, the thumbtack filled and the pill tinted once it is.
+   The pane lock takes the same tint (.desk-pane__pin). */
+.desk-pin[aria-pressed="true"] {
+  border-color: var(--green-text);
+  background: rgba(var(--ink-rgb), 0.06);
+  color: var(--green-text);
+}
+
+.desk-pin[aria-pressed="true"] .desk-pin__head {
+  fill: currentColor;
+}
+
+/* The word beside the glyph ("Pin", "Note") shows where a list has room for
+   it (E72): the Footnotes list, the Footnotes pane and This verse. The
+   popover keeps the glyph alone, with the shared tooltip. */
+.desk-pin__word {
+  display: none;
+}
+
+:is(.desk-fn-pills, .desk-fns__item, .desk-verse__fn, .desk-verse__section) .desk-pin__word {
+  display: inline;
 }
 
 /* "Add a note" is the plain note marker (BVJ, 2026-11-06), at the thumbtack's
@@ -2367,7 +2432,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-height: 22px;
+  min-height: 24px;
   margin: 0;
   padding: 0 9px;
   border: 1px solid rgba(var(--ink-rgb), 0.22);
@@ -2393,9 +2458,9 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   z-index: 2;
   right: calc(100% + 14px);
   /* Centered on the footnote's first line: half of (line height less the
-     pills' 22px). The line height is .fn-body's, with the Display tray's
-     extra leading. */
-  top: calc(((1.6 + var(--reading-leading-extra, 0)) * 1em - 22px) / 2);
+     pills' 24px, E77). The line height is .fn-body's, with the Display
+     tray's extra leading. */
+  top: calc(((1.6 + var(--reading-leading-extra, 0)) * 1em - 24px) / 2);
   justify-content: flex-end;
 }
 
@@ -4727,9 +4792,9 @@ html[data-desk-workspace] .desk-page__notice {
   left: 0;
 }
 
-/* The windows hang centered under the page's title, which is the menu button
-   (E15), and the title menu's flyout beside it. */
-.desk-title .desk-ws__menu {
+/* The title menu hangs centered under the page's title, which is its button
+   (E15); the command row's windows share the look (E68). */
+:is(.desk-title, .desk-cmdrow) .desk-ws__menu {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -4826,6 +4891,21 @@ html[data-desk-workspace] .desk-page__notice {
   white-space: nowrap;
 }
 
+/* The open-page mark after a worded link that opens a new tab (E71;
+   glyphs.js, newTabMark): the LIT pane's "Open on its page" icon, at the
+   label's size. */
+.desk-newtab {
+  display: inline-flex;
+  margin-left: 0.3em;
+  vertical-align: -0.1em;
+  opacity: 0.8;
+}
+
+.desk-newtab svg {
+  width: 0.9em;
+  height: 0.9em;
+}
+
 .desk-title__hint {
   margin-left: auto;
   font-size: 0.8125rem;
@@ -4869,10 +4949,6 @@ html[data-desk-workspace] .desk-page__notice {
   background: rgba(var(--ink-rgb), 0.12);
 }
 
-.desk-title__sub {
-  position: relative;
-}
-
 /* The quiet line at the top of the title menu while the Study Desk tour hasn't
    been taken or put off for good (E24, desk-tour.js). */
 .desk-title__line {
@@ -4901,30 +4977,83 @@ html[data-desk-workspace] .desk-page__notice {
   font-size: 0.8125rem;
 }
 
-/* Column and row, then the kinds of pane, in one panel beside the menu. */
-.desk-title .desk-title__fly {
-  top: -6px;
-  left: calc(100% + 6px);
-  right: auto;
+/* The command row under /desk's header (E68; command-row.js): worded,
+   quiet buttons, the title menu keeping the rest. The Layout and Print
+   windows hang from it, each under its own button (`hang`, which sets
+   `left`), and Add pane's menu under Add pane. */
+.desk-cmdrow {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.desk-cmdrow__sub {
+  position: relative;
+}
+
+.desk-cmdrow__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-sizing: border-box;
+  min-height: 30px;
+  margin: 0;
+  padding: 4px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: 500 0.875rem/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.desk-cmdrow__btn:hover,
+.desk-cmdrow__btn[aria-expanded="true"] {
+  border-color: rgba(var(--ink-rgb), 0.4);
+  background: rgba(var(--ink-rgb), 0.07);
+  color: var(--text);
+}
+
+.desk-cmdrow__btn[aria-disabled="true"] {
+  border-color: rgba(var(--ink-rgb), 0.14);
+  color: rgba(var(--ink-rgb), 0.62);
+  cursor: default;
+}
+
+.desk-cmdrow__btn[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.desk-cmdrow__btn svg {
+  display: block;
+}
+
+/* The windows open under their buttons, not centered under the title. */
+.desk-cmdrow .desk-ws__menu {
+  left: 0;
   transform: none;
-  width: 210px;
+}
+
+/* Column and row, then the kinds of pane, in one menu under Add pane; a
+   reason sits under its choice, so it stays narrow. */
+.desk-cmdrow .desk-cmdrow__menu {
+  width: min(250px, calc(100vw - 32px));
   padding: 6px;
 }
 
-/* A reason sits under its choice here, so the flyout stays narrow. */
-.desk-title__fly .desk-title__item {
+.desk-cmdrow__menu .desk-title__item {
   flex-wrap: wrap;
   gap: 0 10px;
 }
 
-.desk-title__fly .desk-title__hint {
+.desk-cmdrow__menu .desk-title__hint {
   flex-basis: 100%;
   margin-left: 0;
-}
-
-.desk-title .desk-title__fly--left {
-  left: auto;
-  right: calc(100% + 6px);
 }
 
 .desk-ws__shapes {
@@ -5268,6 +5397,26 @@ html.desk-ws--moving * {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* Where a My Notes pane is (E69): the chapter, muted, after the pane's name,
+   cut short rather than pushing the lock and × out of a narrow header. */
+.desk-pane__at {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.desk-pane__at[hidden] {
+  display: none;
+}
+
+.desk-pane__head > .desk-pane__title {
+  flex: none;
+}
+
 /* The leading LIT pane's flag: a glyph and no words, as the lock is. */
 .desk-pane__lead {
   /* The lock's own box, so the flag sits exactly where the lock does on the
@@ -5311,13 +5460,46 @@ html.desk-ws--moving * {
   display: block;
 }
 
+.desk-pane__pin-glyph {
+  display: inline-flex;
+}
+
+/* "Stay here" beside the lock where the header has room (E72); a narrow
+   pane keeps the glyph alone, with the shared tooltip. */
+.desk-pane__pin-word {
+  display: none;
+  font: 500 0.8125rem/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+@supports (container-type: inline-size) {
+  .desk-pane__head {
+    container: deskPaneHead / inline-size;
+  }
+
+  @container deskPaneHead (min-width: 26rem) {
+    .desk-pane__pin {
+      gap: 5px;
+      width: auto;
+      padding: 0 10px 0 8px;
+    }
+
+    .desk-pane__pin-word {
+      display: inline;
+    }
+  }
+}
+
 .desk-pane__pin:hover {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* Pressed: the footnote Pin's tint (E67), since an open and a closed lock
+   differ by a few pixels at 14px. */
 .desk-pane__pin[aria-pressed="true"] {
   border-color: var(--green-text);
   background: rgba(var(--ink-rgb), 0.06);
+  color: var(--green-text);
 }
 
 .desk-pane__close {
@@ -6474,6 +6656,13 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
     border: 3px solid Highlight;
   }
 
+  /* A pinned footnote's pill: the filled thumbtack stays (it is drawn in
+     currentColor), and the edge says it too. */
+  .desk-pin[aria-pressed="true"] {
+    padding: 0 6px;
+    border: 3px solid Highlight;
+  }
+
   /* The Footnotes pane draws its 3px bar on every row (the transparent one
      too), so only the current row's is in a color. */
   .desk-fns__item {
@@ -6819,8 +7008,11 @@ a.desk-sheet__open {
   color: rgba(var(--ink-rgb), 0.75);
 }
 
+/* 24px tall at least (E77; it was 23). */
 .desk-sheet__minutes input {
+  box-sizing: border-box;
   width: 4.5em;
+  min-height: 24px;
   padding: 1px 4px;
   border: 1px solid var(--field-border);
   border-radius: 4px;
@@ -6870,8 +7062,8 @@ a.desk-sheet__open {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -16px;
-  height: 22px;
+  bottom: -17px;
+  height: 24px;
   z-index: 1;
   display: flex;
   justify-content: center;
@@ -6889,18 +7081,19 @@ a.desk-sheet__open {
   transition: opacity 0.12s;
 }
 
+/* 24px tall, WCAG 2.5.8's minimum (E77; it was 22). */
 .desk-sheet__after-btn {
   position: relative;
-  height: 22px;
+  height: 24px;
   padding: 0 10px;
   border: 0;
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--green-deep);
   color: #fff;
   font: inherit;
   font-size: 0.75rem;
   font-weight: 600;
-  line-height: 22px;
+  line-height: 24px;
   white-space: nowrap;
   cursor: pointer;
   opacity: 0;

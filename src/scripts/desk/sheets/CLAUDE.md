@@ -52,13 +52,13 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `addPassage` and `newSheet` for the host to call. **What only a pane has
   stays in `sheet-pane.js`**: the list of open panes behind `addTarget` and
   `onAddTarget` ("Add to sheet" in the LIT pane's menus and the Search pane's
-  add buttons), and the title menu's `desk:sheet-new`, which names a pane and
+  add buttons), and the command row's `desk:sheet-new` (E68), which names a pane and
   calls its editor's `newSheet`. A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
   go to the page's own list and versions instead of the editor's list and
-  its "Present…" and "Print or share…", and it uses the exported
+  its "Present" and "Print or share", and it uses the exported
   `templateChooser` for the list's "New sheet…". **The editor's own list
   view is `my-sheets.js`** (Audit 6, LG6-2): "My sheets", "My templates",
   each row's actions and `templateChooser`, handed the editor's pieces as
@@ -256,7 +256,7 @@ a notebook record, so with no store the tour never starts.
 - **It writes nothing, not even its own sheet**, on either page. **The tour's
   sheet is the editor's example mode** (`setExample`, `endExample` on
   `createSheetEditor`): `change` applies an op in memory and says nothing, and
-  `persistDraft` returns at once, so "Print or share…," "Present…," and "Open
+  `persistDraft` returns at once, so "Print or share," "Present," and "Open
   on its own page" write nothing either. **A new step that changes the sheet
   goes through `change` in example mode and is undone by dropping the draft
   at the end, never by a write.** A step's `later` undoes only what the step
@@ -319,7 +319,7 @@ a notebook record, so with no store the tour never starts.
 S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
 `desk-gate.js` fills with `src/scripts/desk/sheets/sheet-page.js` when
 `[data-sheet-page]` is present. It shows, prints and copies a sheet (the
-Sheets pane's "Print or share…" opens it in a new tab), and **writes a
+Sheets pane's "Print or share" opens it in a new tab), and **writes a
 record only in its editor, from its list's row actions, or on "Import into
 my notebook"**. Ten things to know:
 - **Edit turns the page into the sheet editor** (S12, part 1, step 2; BVJ,
@@ -433,7 +433,7 @@ my notebook"**. Ten things to know:
 M3 and "Order of work", 3j), on the sheet's own page:
 `src/scripts/desk/sheets/sheet-present.js`, opened by sheet-page.js's
 "Present", or at once for `&view=present` (the Sheets pane's
-"Present…") and `&view=presenter` (the presenter view's window). It
+"Present") and `&view=presenter` (the presenter view's window). It
 **never writes a record, and stores nothing**:
 where the room is lives in the open windows. An empty text or question
 part (no words and no rule) has no screen, and an empty Leader only part
@@ -494,7 +494,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   tested; every template's formatted text must already be in the
   sanitizer's canonical form). New sheet in the Sheets pane lists them,
   each as its name and one line on what it is for (no second line listing
-  its parts, BVJ 2026-11-08), and the title menu's
+  its parts, BVJ 2026-11-08), and the command row's
   "New sheet…" opens the same list (a `desk:sheet-new` event naming the
   pane). **A template's parts hold no text, only structure and a
   prompt** (Audit 5, SH5-2; BVJ's brief): a text part is its heading

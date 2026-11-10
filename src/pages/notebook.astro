@@ -9,18 +9,20 @@ import "../styles/pages/notebook.css";
  * Study Desk preview is switched on (?desk=on), on a computer. For everyone
  * else, and with JS off, this is the whole page: a short note saying the
  * notebook is part of a preview. noindex, out of the sitemap (astro.config.mjs)
- * and out of Pagefind (Layout's default).
+ * and out of Pagefind (Layout's default). Its name is "My Notebook" wherever
+ * it is named (E70, BVJ 2026-11-10): this heading, the header's Study menu,
+ * /desk's title menu and the Notebook's Settings tab.
  */
 ---
 
 <Layout
-  title="Notebook | Liberation and Inclusion Translation"
+  title="My Notebook | Liberation and Inclusion Translation"
   description="Your notebook on the LIT Bible: your notes, highlights, and bookmarks in one place."
   robotsNoindex={true}
   hideFooterNewsletter={true}
 >
   <div class="notebook-page">
-    <h1 class="notebook-page__title">Notebook</h1>
+    <h1 class="notebook-page__title">My Notebook</h1>
     <div data-notebook-page>
       <!-- With the preview on, the page says it is loading rather than that the
            preview is off, until the desk's code replaces both (BA153). -->

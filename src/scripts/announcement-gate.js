@@ -12,7 +12,9 @@
 //     (#v16-17), part of a verse (#john-8-p9), a Read View verse
 //     (#john-3-v16)
 //   - never on /apps or /privacy, which people open to act on or to read
-//     terms, not to be pitched to
+//     terms, not to be pitched to, nor on the Study Desk's notebook page or
+//     its help page (E73, 2026-11-10), which people open in the middle of a
+//     task
 //   - never over scripture: a Chapter View chapter or intro, or Read View.
 //     A reader who chose a passage came to read it (audit F5). /desk
 //     counts too, since its panes hold the text (STUDY-DESK.md, D9), and
@@ -23,7 +25,7 @@
 // with the Android banner, say) is passed in as `skip`, so nothing about one
 // announcement is written into the slot itself.
 
-const SUPPRESSED_PATHS = /^\/(apps|privacy)\/?$/;
+const SUPPRESSED_PATHS = /^\/(apps|privacy|notebook|desk\/help)\/?$/;
 const VERSE_LINK = /^#(?:v\d+(?:-\d+)?|[0-9a-z]+-\d+-[pv]\d+)$/;
 const SCRIPTURE_SURFACES = ".scripture-layout--scripture, .scripture-layout--intro, .rm-page, [data-desk-page], [data-sheet-page]";
 

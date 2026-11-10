@@ -732,7 +732,7 @@ export function addPaneNeeds(layout, direction, width, height) {
 }
 
 /**
- * Which Sheets pane the title menu's "New sheet…" opens its template chooser
+ * Which Sheets pane the command row's "New sheet…" opens its template chooser
  * in (Audit 5, SH5-5; Audit 6, LG6-3): the first one open, else a new one
  * added as a column, else as a row. `{ layout, paneId }`: the same layout
  * object when a Sheets pane is already open, and `paneId` null, the layout

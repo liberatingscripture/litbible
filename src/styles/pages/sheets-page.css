@@ -17,16 +17,6 @@
   margin: 0 auto;
 }
 
-/* Over 1100px the header's search and Aa buttons float below
-   READ NOW, out of the header's flow (global.css, .site-header__nav-tools), so
-   the page leaves them room, as the notebook page's top padding does; the
-   toolbar ran under them (BVJ, 2026-11-06). */
-@media (min-width: 1101px) {
-  .sheets-page {
-    padding-top: 3.5rem;
-  }
-}
-
 .sheets-page__title {
   margin: 0 0 1rem;
 }

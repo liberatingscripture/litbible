@@ -106,8 +106,9 @@ function link(href, text) {
 /**
  * @param {{ store: object | null, reveal?: () => void,
  *   panelEl?: () => HTMLElement | null, panelShown?: () => boolean }} options
- *   `reveal` asks the panel to show itself (once the reader first writes
- *   something and has not yet answered); `panelEl` and `panelShown` say
+ *   `reveal` asks the panel to point the reader to itself, a mark on its tab
+ *   and an offer in the bar (E74), once the reader first writes something
+ *   and has not yet answered; `panelEl` and `panelShown` say
  *   where the panel is and whether it is expanded, for the tour offer.
  * @returns {{ card: HTMLElement, foot: HTMLElement,
  *   refresh: (opts?: { shown?: boolean }) => Promise<void>,
@@ -357,8 +358,9 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     if (e.key === HOME_KEY) refresh();
   });
 
-  // The first write the reader makes this visit, with no answer yet: show
-  // the panel so the card is met (once, so it never nags).
+  // The first write the reader makes this visit, with no answer yet: point
+  // the reader to the panel, where the card is (once, so it never nags). It
+  // no longer opens the panel itself (E74): that moved the text.
   let revealed = false;
   store?.onEntry(() => {
     if (revealed || getHome()) return;

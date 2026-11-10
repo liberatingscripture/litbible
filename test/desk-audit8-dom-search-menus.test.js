@@ -39,7 +39,8 @@ function titleMenu() {
   return { menu, wrap, titleButton };
 }
 
-for (const [name, text] of [["My Notebook page", "notebook"], ["Help for the Study Desk", "help"], ["Send feedback on the preview", "feedback"]]) {
+// Help moved to the command row under the header (E68); its test is below.
+for (const [name, text] of [["My Notebook", "notebook"], ["Send feedback on the preview", "feedback"]]) {
   test(`DK8-4: choosing "${name}" (a new-tab link) closes the menu and gives focus back to the title button`, () => {
     const { menu, titleButton } = titleMenu();
     click(titleButton);
@@ -54,6 +55,66 @@ for (const [name, text] of [["My Notebook page", "notebook"], ["Help for the Stu
     assert.equal(titleButton.getAttribute("aria-expanded"), "false");
   });
 }
+
+// ---- the command row (E68) ----
+
+const { createCommandRow } = await import("../src/scripts/desk/command-row.js");
+
+function commandRow() {
+  document.body.innerHTML = `<div id="row"></div><div id="panes"></div>`;
+  const panesBox = document.getElementById("panes");
+  // A desk-sized room, so Add pane is available.
+  panesBox.getBoundingClientRect = () => ({ left: 0, top: 0, right: 1400, bottom: 800, width: 1400, height: 800 });
+  const layout = originalLayout();
+  const opened = [];
+  const row = createCommandRow({
+    row: document.getElementById("row"),
+    getLayout: () => layout,
+    panesBox,
+    commit: () => {},
+    announce: () => {},
+    inTour: () => false,
+    layoutWindow: { open: () => opened.push("layout"), close() {} },
+    printWindow: { open: () => opened.push("print"), close() {} },
+  });
+  return { row, opened };
+}
+
+test("E68: the command row holds Add pane, Layout…, New sheet…, Print… and Help, in words", () => {
+  const { row } = commandRow();
+  const words = [...row.el.querySelectorAll(".desk-cmdrow__label")].map((n) => n.textContent);
+  assert.deepEqual(words, ["Add pane", "Layout…", "New sheet…", "Print…", "Help"]);
+  const help = row.el.querySelector("a.desk-cmdrow__btn");
+  assert.equal(help.target, "_blank");
+  assert.ok(help.textContent.includes("(opens in a new tab)"), "the new tab is said in words too");
+  assert.ok(help.querySelector(".desk-newtab"), "and to the eye (E71)");
+});
+
+test("E68: Layout… and Print… open their windows", () => {
+  const { row, opened } = commandRow();
+  click(row.layoutButton);
+  click(row.printButton);
+  assert.deepEqual(opened, ["layout", "print"]);
+});
+
+test("E68: Add pane opens its menu at column or row, then the kinds; Escape steps back, then closes onto the button", () => {
+  const { row } = commandRow();
+  click(row.addButton);
+  assert.equal(row.addMenu.hidden, false);
+  assert.equal(row.addButton.getAttribute("aria-expanded"), "true");
+  const first = row.addMenu.querySelector("[role=menuitem]");
+  same(document.activeElement, first, "focus is on the first line");
+  assert.equal(first.textContent.trim().startsWith("Add column"), true);
+  click(first);
+  assert.ok(row.addMenu.textContent.includes("‹ Add column"), "the kinds, with a way back");
+  const esc = () => row.addMenu.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+  document.activeElement.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+  assert.ok(!row.addMenu.textContent.includes("‹ Add column"), "back at column or row");
+  assert.equal(row.addMenu.hidden, false);
+  esc();
+  assert.equal(row.addMenu.hidden, true);
+  same(document.activeElement, row.addButton, "focus is back on Add pane");
+});
 
 // ---- the Notebook actions window ----
 

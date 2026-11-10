@@ -30,7 +30,7 @@
 //   sheet changes (`sheetChanged`), since each reads the rest of the sheet.
 // - **New sheets start from a template** (M9; desk-sheet-templates.mjs): New
 //   sheet opens a short list in place, and a choice makes the sheet. The
-//   title menu's "New sheet…" opens the same list (`newSheet`, which the
+//   command row's "New sheet…" opens the same list (`newSheet`, which the
 //   pane calls on `desk:sheet-new`).
 // - **The list of sheets is my-sheets.js** (Audit 6, LG6-2): "My sheets" and
 //   "My templates", their rows' Duplicate, Save as template and Delete, and
@@ -113,6 +113,7 @@ import { listProblem, mySheetsList } from "./my-sheets.js";
 import { openPassageForm } from "./add-forms.js";
 import { createAddBar } from "./add-bar.js";
 import { TYPE_NAMES, createSheetCards, headingOf } from "./sheet-cards.js";
+import { newTabMark } from "../glyphs.js";
 
 const button = buttons("desk-sheet__btn");
 
@@ -497,7 +498,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const target = focus ? list.querySelector(`[data-focus-key="${CSS.escape(focus)}"]`) : null;
     const moved = redraw(content, [list], { fallback: () => target ?? h, force: Boolean(focus) });
     if (focus && moved) say(moved === target || moved === h ? "My sheets" : "");
-    // The title menu's "New sheet…": the list, with the templates open and
+    // The command row's "New sheet…": the list, with the templates open and
     // focus on the first.
     if (openChooser && chooser.hidden) chooser.toggle();
   }
@@ -677,16 +678,18 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     });
     status.textContent = "";
     // The sheet's own address prints, copies and shares it (3i, 3k), in a tab
-    // of its own so the desk stays as it is.
-    const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or share…");
-    print.append(make("span", "sr-only", " (opens in a new tab)"));
+    // of its own so the desk stays as it is. Each of the three says so to the
+    // eye with the open-page mark, and none carries an ellipsis, which
+    // promises a window or a chooser here, not a page (E71).
+    const print = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Print or share");
+    print.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
     print.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`;
     print.target = "_blank";
     print.rel = "noopener";
     print.title = "Open the leader and participant versions, to print, copy into Word, or share (opens in a new tab)";
     const printHint = describe(print, "The leader and participant versions, to print, copy into Word, or share.");
-    const present = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Present…");
-    present.append(make("span", "sr-only", " (opens in a new tab)"));
+    const present = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Present");
+    present.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
     present.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=present`;
     present.target = "_blank";
     present.rel = "noopener";
@@ -695,7 +698,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     // The editor on the sheet's own page (S12, part 2: each home offers the
     // other). `from=desk` tells that page this pane sent it, so it doesn't ask.
     const ownPage = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Open on its own page");
-    ownPage.append(make("span", "sr-only", " (opens in a new tab)"));
+    ownPage.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
     ownPage.href = `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}&view=edit&from=desk`;
     ownPage.target = "_blank";
     ownPage.rel = "noopener";
@@ -1034,7 +1037,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   window.addEventListener("pagehide", onPagehide);
 
   // The first view, a tick later. A request that came first keeps the screen:
-  // the title menu's "New sheet…" adds the pane and sends `desk:sheet-new` in
+  // the command row's "New sheet…" adds the pane and sends `desk:sheet-new` in
   // the same tick, whose showList({ chooser: true }) this would otherwise
   // supersede, leaving the list with its templates shut (E59, 2026-11-08).
   queueMicrotask(() => {

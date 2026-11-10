@@ -118,3 +118,36 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
     display: none !important;
   }
 }
+
+/* The first record written while "kept in this browser" is unanswered marks
+   the tab and the Notebook buttons until the panel is opened (E74; panel.js,
+   nudgePanel). A dot in the text green; in forced colors, Highlight, since a
+   background alone draws nothing there. */
+.desk-tab[data-desk-nudge],
+[data-desk-toggle][data-desk-nudge] {
+  position: relative;
+}
+
+.desk-rail--collapsed .desk-tab[data-desk-nudge] {
+  position: sticky;
+}
+
+.desk-tab[data-desk-nudge]::after,
+[data-desk-toggle][data-desk-nudge]::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-text);
+}
+
+@media (forced-colors: active) {
+  .desk-tab[data-desk-nudge]::after,
+  [data-desk-toggle][data-desk-nudge]::after {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

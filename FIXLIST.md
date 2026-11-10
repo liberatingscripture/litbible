@@ -2028,3 +2028,9 @@ Details for each item are in the artifact (https://claude.ai/artifact/4ghJK72rd2
   `LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, `public/llms-full.txt`.
   Still to do outside this repo: link the notice from the iOS/Android apps
   (BDR) and from the Study Desk when it exists.
+- [x] **The header's search and Aa sit in its row** (2026-11-10;
+  STUDY-DESK-FIXES.md E76). Above 1100px they had hung under "Read Now," out
+  of the header's flow, over the top of every page, and /sheets padded itself
+  to clear them (E52). DONE: `.site-header__nav-tools` is in the row after
+  Read Now (`global.css`), and /sheets' extra top padding is gone. Measured at
+  1101px and 1440px: the row fits with no sideways scroll.
