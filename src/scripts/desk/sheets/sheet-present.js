@@ -482,8 +482,9 @@ export async function openPresentation({ sheet, store, fullscreen = true, touch 
       const dark = state.blank === true;
       stage.classList.toggle("is-blank", dark);
       frame.inert = dark;
+      // A fixed label and a pressed state, as the Greek tab's (GK3-8): a label
+      // that flipped as well read "Show screen, pressed" (XA8-6).
       blankBtn.setAttribute("aria-pressed", String(dark));
-      blankBtn.textContent = dark ? "Show screen" : "Blank";
       const words = why === "remote" ? "" : announce(why, state, deck);
       if (words) live.say(words);
     },
@@ -866,7 +867,6 @@ export async function showPresenterView({ root, sheet, store }) {
       blankNote.hidden = !dark;
       blankNote.textContent = dark ? "The room’s screen is blank. Press B to show it." : "";
       blankBtn.setAttribute("aria-pressed", String(dark));
-      blankBtn.textContent = dark ? "Show the room’s screen" : "Blank the room’s screen";
       where.textContent = `${screenCount(i, total)}: ${screenTitle(deck.screens[i], deck.sheet)}`;
       now.show(deck.built[i].el);
       const after = deck.built[i + 1]?.el ?? null;

@@ -199,7 +199,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
     collapsing two page breaks left by removed leader-only parts (GF8b-12); whether "God" gives away
     a blank on "God's" (GF8c-4); the presenter's toggle signal (XA8-6); a group per verse for Greek
     words read by a screen reader (XA8 question 3); and whether "off" means hidden rather than erased
-    (SEC8 question 2).
+    (SEC8 question 2). **Decided (2026-11-10): fix NB8-6, NB8-3, GF8b-12, GF8c-4 and XA8-6; /desk reading writes Continue reading; “with my notes” always prints them; the Greek words wait for the screen-reader pass (GF8b-3); the off switch is moot, since the desk will have none at release. Fixed.**
 
 ## Phase 2: the earlier audits, re-checked
 
@@ -1369,7 +1369,7 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Keep the label fixed ("Blank the screen" / "Blank the room's screen") and let `aria-pressed` carry the state; or drop `aria-pressed` and keep the changing label (then it is not a toggle). The first matches the project's own precedent.
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** Decision 11 (BVJ): both Blank buttons keep their label (“Blank”, “Blank the room’s screen”) and `aria-pressed` alone says the room is dark, as the Greek tab's toggle does (GK3-8); the pressed style was already drawn. A step in `test/desk-audit8-dom-sheets-output.test.js`.
 
 #### XA8-7 · Medium · a11y · NEW
 **Title: The Sheets editor's styles (about 1,800 lines of `desk.css`) have no forced-colors rules, so several states disappear in Windows contrast themes**

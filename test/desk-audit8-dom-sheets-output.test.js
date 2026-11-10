@@ -158,5 +158,11 @@ test("the presenter view moves focus to Blank before it disables the focused Nex
   prev.focus();
   while (!prev.disabled) prev.click();
   assert.ok(document.activeElement === blank, "Previous went off at the first screen, and focus went to Blank first");
+  // XA8-6: the label stays put and the pressed state says whether the room is dark.
+  assert.equal(blank.getAttribute("aria-pressed"), "false");
+  blank.click();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(blank.getAttribute("aria-pressed"), "true");
+  assert.equal(blank.textContent, "Blank the room’s screen");
   window.dispatchEvent(new Event("pagehide")); // closes its channel
 });
