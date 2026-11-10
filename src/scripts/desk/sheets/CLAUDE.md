@@ -107,7 +107,11 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   has one row per glossary term (all its blanks, one hint select, one ×)
   and one row per other blank, in order of first occurrence; a blank that
   no longer prints or whose words changed keeps its own row with its
-  notice (`groupBlanks`, SH5-9). When a redraw
+  notice (`groupBlanks`, SH5-9). **A blank comes off three ways** (E65): the
+  row's ×, "Fill in the selected words" beside "Blank the selected words"
+  (`blanksTouching`: every blank the selection reaches, whole), and Enter on
+  words the keyboard cursor holds that are already blank. **The free-text part
+  is "Text"** everywhere (E66; it was "Your text"). When a redraw
   removes the control that had focus, focus goes to one that is always
   drawn ("Blank the selected words", the footnotes summary, the key
   terms note), never to the page (`restoreFocus`, SH5-10). A footnote

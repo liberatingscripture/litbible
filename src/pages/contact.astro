@@ -112,6 +112,15 @@ import "../styles/pages/contact.css";
           const form = document.querySelector("form[data-contact-form]");
           if (!form) return;
 
+          // From the Study Desk's "Send feedback" link: start the message, so
+          // it says what it is about when it reaches the inbox.
+          const about = new URLSearchParams(location.search).get("about");
+          const box = form.querySelector('textarea[name="message"]');
+          if (about === "study-desk" && box && !box.value) {
+            box.value = "About the Study Desk: ";
+            box.setSelectionRange(box.value.length, box.value.length);
+          }
+
           const status = form.querySelector(".contact-status");
           const button = form.querySelector('button[type="submit"]');
 

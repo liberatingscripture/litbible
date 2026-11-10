@@ -39,7 +39,7 @@ function titleMenu() {
   return { menu, wrap, titleButton };
 }
 
-for (const [name, text] of [["My notebook page", "notebook"], ["Help for the Study Desk", "help"]]) {
+for (const [name, text] of [["My notebook page", "notebook"], ["Help for the Study Desk", "help"], ["Send feedback on the preview", "feedback"]]) {
   test(`DK8-4: choosing "${name}" (a new-tab link) closes the menu and gives focus back to the title button`, () => {
     const { menu, titleButton } = titleMenu();
     click(titleButton);

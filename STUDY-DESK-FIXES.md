@@ -2007,6 +2007,25 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   loads the editor (`test/desk-sheet-page-list.test.js`). The list now
   redraws when a sheet changes elsewhere (another tab, or Undo), keeping focus
   on the row it was on.
+- **E65, rough: a blank can't be taken off from the passage.** BVJ
+  (2026-11-09), on a passage card in the Sheets: "No way to unselect text for
+  blanking out. Undo works if you just blanked it, but what about later? How do
+  you remove the “blank”?" The only way was the × beside the blank's row in the
+  list under the passage, which a reader looking at the words never found.
+  Status: **done 2026-11-09**: "Fill in the selected words" sits beside "Blank
+  the selected words" and fills in every blank the selection touches (a blank is
+  one unit; `blanksTouching`, `desk-sheet-lit.mjs`), and Enter on words the
+  keyboard cursor holds that are already blank fills them in instead of
+  refusing. The row's × gained a "Fill in again" tooltip, and the empty note,
+  the keyboard hint and the help page say all three ways.
+- **E66, wording: "Your text" on every text card.** BVJ (2026-11-09): "The
+  “Your text” on every card in Sheets is confusing. It would only make sense if
+  it was as opposed to something else, but they all say it." The name was meant
+  against the LIT's Passage, but every sheet is the leader's words except its
+  passages, so the contrast never showed. Status: **done 2026-11-09**: the part
+  is "Text" in the card's header, the add bar, the gap's Add menu, the field's
+  accessible name, the announcement and the help page. No record changes (the
+  type is `text`).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

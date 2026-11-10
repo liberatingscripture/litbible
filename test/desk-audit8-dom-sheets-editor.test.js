@@ -217,7 +217,7 @@ test("the editor's announcements don't wait for a frame, which a hidden tab neve
   try {
     setField(minutesOf(card(part)), "5");
     await until(() => el.querySelector("[aria-live]").textContent, 3000, "the announcement");
-    assert.equal(el.querySelector("[aria-live]").textContent, "Your text: 5 minutes planned.");
+    assert.equal(el.querySelector("[aria-live]").textContent, "Text: 5 minutes planned.");
   } finally {
     window.requestAnimationFrame = globalThis.requestAnimationFrame = raf;
   }

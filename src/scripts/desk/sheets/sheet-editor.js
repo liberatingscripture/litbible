@@ -113,7 +113,7 @@ const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 const TYPE_NAMES = {
   passage: "Passage",
-  text: "Your text",
+  text: "Text",
   question: "Question",
   space: "Space to write",
   keyTerms: "Key terms box",

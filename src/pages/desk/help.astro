@@ -7,6 +7,7 @@
 // Notebook's foot, the first-time choice, the tours and /desk's title menu
 // link here.
 import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
+import { DESK_STAGE, FEEDBACK_HREF, FEEDBACK_LABEL } from "../../lib/desk-first-use.mjs";
 import { MAX_PANES } from "../../lib/desk-layout.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import Layout from "../../layouts/Layout.astro";
@@ -130,12 +131,13 @@ import "../../styles/pages/desk-help.css";
           of these verses” on the search page opens what it made on the Sheets
           page, with the Study Desk offered beside it. The notebook page lists
           your sheets under their own heading, and the Notebook’s Settings tab
-          links “My sheets.” “+ Your text,”
+          links “My sheets.” “+ Text,”
           “+ Question,” “+ Space,” “+ Page break,” and “+ Key terms box” add the
           other parts, and “+ From my notes…” lists your notes, highlights, and
           pinned footnotes on its passages (everything, until it has a passage)
-          to bring on as parts: a question becomes a Question, a note or a
-          footnote Your text, a highlight a passage. Point at the space between two parts and an
+          to bring on as parts: a question note becomes a Question part, any other
+          note or a pinned footnote becomes a Text part, and a highlight becomes a
+          passage. Point at the space between two parts and an
           “Add” pill appears on a line there. From the keyboard, the pills are
           one stop in the Tab order: tab to one, then use the up and down arrows
           (or Home and End) to move between the gaps. The pill adds a part at that
@@ -176,8 +178,9 @@ import "../../styles/pages/desk-help.css";
           the term’s traditional word, or your own. A footnote that would give a
           blank away, by using its words or by naming a traditional word the hint
           does not show, is held back until you decide whether it prints. To
-          remove a blank, choose “Fill in … again” beside it, which puts the words
-          back.
+          remove a blank, select its words in the passage and choose “Fill in the
+          selected words,” or press Enter on them with the keyboard, or choose the
+          × beside it in the list, which puts the words back.
         </p>
         <p>
           <strong>Print, Present, and Share.</strong> “Print or share…” and
@@ -509,11 +512,14 @@ import "../../styles/pages/desk-help.css";
       </section>
 
       <section aria-labelledby="missing">
-        <h2 id="missing">Tell us what’s missing</h2>
+        <h2 id="missing">Send feedback</h2>
         <p>
-          The site deliberately doesn’t measure who uses what, so we only hear what
-          you tell us. If the Study Desk is missing something, or something is
-          confusing, <a href="/contact/">write to us</a>.
+          The Study Desk is in {DESK_STAGE}, and the site deliberately doesn’t
+          measure who uses what, so we only hear what you tell us. If something is
+          broken, confusing, or missing,
+          <a href={FEEDBACK_HREF} target="_blank" rel="noopener noreferrer">{FEEDBACK_LABEL.toLowerCase()}</a>
+          (it opens the contact form in a new tab). The same link is in the Study
+          Desk menu on the desk page and at the foot of the Notebook’s Settings tab.
         </p>
       </section>
 

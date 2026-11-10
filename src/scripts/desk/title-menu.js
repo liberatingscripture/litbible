@@ -37,7 +37,7 @@
 // tour; `refreshTourLine` redraws the quiet "Take the tour" line.
 
 import { KINDS, addPane, addPaneNeeds, addWhy, panes, sheetPaneFor, whyText } from "../../lib/desk-layout.mjs";
-import { HELP_HREF } from "../../lib/desk-first-use.mjs";
+import { FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { el } from "./dom.js";
 import { describeUnavailable } from "./menu-reasons.js";
 
@@ -165,8 +165,10 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
   tourItem.addEventListener("click", () => { closeTitleMenu({ focus: false }); getTour()?.start(); });
   const helpItem = item("Help for the Study Desk", "a");
   helpItem.href = HELP_HREF;
+  const feedbackItem = item(FEEDBACK_LABEL, "a");
+  feedbackItem.href = FEEDBACK_HREF;
   // Each leaves the desk, so they open beside it.
-  const links = [notebookItem, helpItem];
+  const links = [notebookItem, helpItem, feedbackItem];
   for (const link of links) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -190,11 +192,11 @@ export function createTitleMenu({ wrap, titleButton, getLayout, panesBox, commit
   titleMenu.append(addSub, layoutItem, newSheetItem, printItem);
   if (displayItem) titleMenu.append(displayItem);
   if (fullItem) titleMenu.append(fullItem);
-  titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem);
+  titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, helpItem, feedbackItem);
   const baseItems = [
     addItem, layoutItem, newSheetItem, printItem,
     ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
-    notebookItem, tourItem, helpItem,
+    notebookItem, tourItem, helpItem, feedbackItem,
   ];
   // A disabled line is passed over by the arrow keys, Home and End, as in
   // every menu (DK3-7; BVJ, 2026-11-07): its reason is drawn beside it.
