@@ -24,7 +24,6 @@
 // goes through the same store as every other change, so it is one undo entry.
 // Everything happens in this browser; nothing about the query is sent anywhere.
 
-import deskCss from "../../../styles/desk.css?inline";
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { planSave, webClient } from "../../../lib/desk-store-core.mjs";
 import {
@@ -41,6 +40,7 @@ import { createHistory, undoEntry } from "../history.js";
 import { openStore } from "../store.js";
 import { buttons, make } from "../dom.js";
 import { plural } from "../desk-text.js";
+import { addSearchStyle } from "../search-style.js";
 
 const button = buttons("desk-gather__btn");
 
@@ -52,15 +52,10 @@ const ctx = () => ({ client: webClient(contentVersion), contentVersion });
 
 const verseKey = (r) => `${r.bookKey} ${r.chapter}:${r.verse}`;
 
-// The desk's styles come with this file, as notebook-search.js does: /search
-// isn't a page the desk's shell runs on. A second copy would change nothing.
-function ensureStyles() {
-  if (document.querySelector("style[data-desk], style[data-desk-search]")) return;
-  const style = document.createElement("style");
-  style.setAttribute("data-desk-search", "");
-  style.textContent = deskCss;
-  document.head.append(style);
-}
+// The bar's styles come with this file, as notebook-search.js's do: /search
+// isn't a page the desk's shell runs on (desk-search.css, through
+// search-style.js; all of desk.css until LG8-10).
+const ensureStyles = addSearchStyle;
 
 /** A verse result's address: "/john-3#v16" is John 3:16. */
 function refOfLink(href) {

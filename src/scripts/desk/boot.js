@@ -10,6 +10,7 @@
 // every reader download the desk's styles.
 import deskCss from "../../styles/desk.css?inline";
 import { addTabStyle } from "./notebook-tab.js";
+import { addSearchStyle } from "./search-style.js";
 import { webClient } from "../../lib/desk-store-core.mjs";
 // Previews for the references in a reader's notes (N4). Chapter View, intros,
 // articles and the glossary load it already; Read View and the notebook page
@@ -20,9 +21,14 @@ import "../ref-preview.js";
 // the file system and so can't be imported here).
 const contentVersion = document.documentElement.dataset.contentVersion || "unversioned";
 
-/** Add the desk's stylesheets to the page, once each: the tab's (which the first stage may have added already) and the rest. */
+/**
+ * Add the desk's stylesheets to the page, once each: the tab's (which the
+ * first stage may have added already), the search rows' (desk-search.css,
+ * which /search adds by itself; LG8-10), and the rest.
+ */
 export function addDeskStyle() {
   addTabStyle();
+  addSearchStyle();
   if (document.querySelector("style[data-desk]")) return;
   const style = document.createElement("style");
   style.dataset.desk = "";

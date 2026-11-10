@@ -9,7 +9,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const css = readFileSync(new URL("../src/styles/desk.css", import.meta.url), "utf8");
+// desk-search.css holds the search rows' rules since LG8-10; read as one sheet.
+const css = ["desk.css", "desk-search.css"]
+  .map((f) => readFileSync(new URL(`../src/styles/${f}`, import.meta.url), "utf8"))
+  .join("\n");
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
