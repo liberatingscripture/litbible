@@ -580,7 +580,9 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   phone or tablet it shows the sheet** (NB6-8): a dynamic import of
   `sheet-page.js`'s `showSharedOnPhone`, the one way desk code reaches a
   phone, with no notebook opened and nothing that saves (Present with
-  taps and no presenter view, Print, Share…); a test holds the gate. On a
+  taps and no presenter view, Print, Share…); a test holds the gate. It brings `desk-sheet-view.css`
+  alone, never `desk.css` or `boot.js` (LG8-10; "Launching" in the desk
+  file). On a
   computer without the preview, a link turns it on (`?desk=on#share1.…`).
   A shared sheet shows read only until "Import into my notebook", which saves
   it as a new sheet (`copyOfShared`) and turns the page into that

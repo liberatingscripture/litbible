@@ -1251,29 +1251,10 @@ a.desk-verse__mention-ref:hover {
    per colour, an underline or a bar in the margin, was tried and dropped as
    too much, and an underline would meet the term lens’s. The colour is
    named in words wherever a reader asks: the verse number, This verse, and
-   My Notes. The tint carries the reader’s text colour unchanged. */
-:root {
-  --desk-hl-yellow: rgba(255, 210, 0, 0.36);
-  --desk-hl-green: rgba(160, 210, 40, 0.36);
-  --desk-hl-blue: rgba(70, 150, 255, 0.26);
-  --desk-hl-pink: rgba(255, 95, 165, 0.24);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --desk-hl-yellow: rgba(255, 210, 0, 0.24);
-    --desk-hl-green: rgba(160, 210, 40, 0.22);
-    --desk-hl-blue: rgba(90, 160, 255, 0.26);
-    --desk-hl-pink: rgba(255, 95, 165, 0.24);
-  }
-}
-
-:root[data-theme="dark"] {
-  --desk-hl-yellow: rgba(255, 210, 0, 0.24);
-  --desk-hl-green: rgba(160, 210, 40, 0.22);
-  --desk-hl-blue: rgba(90, 160, 255, 0.26);
-  --desk-hl-pink: rgba(255, 95, 165, 0.24);
-}
+   My Notes. The tint carries the reader’s text colour unchanged. The tints
+   themselves (--desk-hl-*) are in desk-sheet-view.css, since a sheet's
+   backgrounds are the same tints and a phone showing a shared sheet loads
+   that file alone (Audit 8, LG8-10). */
 
 /* On the page, through the CSS Custom Highlight API (highlights.js), so the
    scripture’s text and markup are never touched. One named highlight per
@@ -6038,221 +6019,11 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
    Fonts never use !important: global.css forces the reader's own Atkinson or
    OpenDyslexic choice with !important under html[data-font], so it beats these
    and a named font only shows for a reader on the default fonts. Sizes are in
-   em, so they follow the reader's own text size. */
+   em, so they follow the reader's own text size.
 
-/* The five text colors and the four backgrounds. Each text color is at least
-   4.5:1 on the notebook's surface in its theme (light #FAFAF8 and cream
-   #E1DFD9; dark #1d1d1f and #161617), and in dark mode on each of the four
-   backgrounds too, since a leader can give a word both (Audit 8, XA8-12; BVJ,
-   2026-11-10): the dark red, blue and gray were lightened a step for that
-   (red on yellow was 3.99:1), and test/desk-rich-colors.test.js checks every
-   pair. The backgrounds are the notebook's own highlight tints (--desk-hl-*,
-   "Highlights" in this file), so a sheet's yellow is the reader's yellow. Redefined in BOTH dark blocks (the OS preference and
-   the explicit override), like every theme token. */
-:root {
-  --desk-rich-red: #b3261e;
-  --desk-rich-blue: #1d4fb8;
-  --desk-rich-green: #0f6b33;
-  --desk-rich-purple: #6b3fa0;
-  --desk-rich-gray: #595e57;
-  --desk-rich-mark-yellow: var(--desk-hl-yellow);
-  --desk-rich-mark-green: var(--desk-hl-green);
-  --desk-rich-mark-blue: var(--desk-hl-blue);
-  --desk-rich-mark-pink: var(--desk-hl-pink);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --desk-rich-red: #ff9f97;
-    --desk-rich-blue: #93b9ff;
-    --desk-rich-green: #5fd58a;
-    --desk-rich-purple: #c9a7ff;
-    --desk-rich-gray: #b6bab4;
-  }
-}
-
-:root[data-theme="dark"] {
-  --desk-rich-red: #ff9f97;
-  --desk-rich-blue: #93b9ff;
-  --desk-rich-green: #5fd58a;
-  --desk-rich-purple: #c9a7ff;
-  --desk-rich-gray: #b6bab4;
-}
-
-/* The text itself. `.desk-rich` is the editable and also what a read-only
-   display wears. */
-.desk-rich {
-  position: relative;
-  box-sizing: border-box;
-  min-width: 0;
-  color: var(--text);
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-
-.desk-rich > :first-child {
-  margin-top: 0;
-}
-
-.desk-rich > :last-child {
-  margin-bottom: 0;
-}
-
-.desk-rich p {
-  margin: 0 0 0.7em;
-}
-
-.desk-rich h2,
-.desk-rich h3 {
-  margin: 1em 0 0.4em;
-  color: var(--text-strong);
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.desk-rich h2 {
-  font-size: 1.35em;
-}
-
-.desk-rich h3 {
-  font-size: 1.12em;
-}
-
-.desk-rich blockquote {
-  margin: 0.9em 0;
-  padding: 0.1em 0 0.1em 0.9em;
-  border-left: 3px solid rgba(var(--ink-rgb), 0.28);
-  color: rgba(var(--ink-rgb), 0.86);
-  font-style: italic;
-}
-
-.desk-rich blockquote > :last-child {
-  margin-bottom: 0;
-}
-
-.desk-rich ul,
-.desk-rich ol {
-  margin: 0 0 0.7em;
-  padding-left: 1.5em;
-}
-
-.desk-rich li {
-  margin: 0.15em 0;
-}
-
-.desk-rich li > ul,
-.desk-rich li > ol {
-  margin: 0.15em 0 0.15em;
-}
-
-.desk-rich hr {
-  height: 0;
-  margin: 1.1em 0;
-  border: 0;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.35);
-}
-
-.desk-rich a {
-  color: var(--link);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.desk-rich sup,
-.desk-rich sub {
-  line-height: 0;
-}
-
-/* Alignment: left, the default, is no attribute. */
-.desk-rich [data-align="center"] {
-  text-align: center;
-}
-
-.desk-rich [data-align="right"] {
-  text-align: right;
-}
-
-.desk-rich [data-align="justify"] {
-  text-align: justify;
-  hyphens: auto;
-}
-
-/* The named styles. The samples in the editor's Style menu
-   (.desk-rich-sample, and the font names set in their own face) share the
-   font, color and background rules; they have no sizes. */
-:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="sans"] {
-  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
-}
-
-:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="serif"] {
-  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
-}
-
-:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="display"] {
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-}
-
-:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="handwriting"] {
-  font-family: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
-}
-
-:is(.desk-rich span, .desk-rich-sample, .desk-rich-menu__text)[data-font="atkinson"] {
-  font-family: "Atkinson Hyperlegible Next Variable", Inter, system-ui, sans-serif;
-}
-
-.desk-rich span[data-size="small"] {
-  font-size: 0.85em;
-}
-
-.desk-rich span[data-size="large"] {
-  font-size: 1.25em;
-}
-
-.desk-rich span[data-size="larger"] {
-  font-size: 1.5em;
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-color="red"] {
-  color: var(--desk-rich-red);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-color="blue"] {
-  color: var(--desk-rich-blue);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-color="green"] {
-  color: var(--desk-rich-green);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-color="purple"] {
-  color: var(--desk-rich-purple);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-color="gray"] {
-  color: var(--desk-rich-gray);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-mark="yellow"] {
-  background-color: var(--desk-rich-mark-yellow);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-mark="green"] {
-  background-color: var(--desk-rich-mark-green);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-mark="blue"] {
-  background-color: var(--desk-rich-mark-blue);
-}
-
-:is(.desk-rich span, .desk-rich-sample)[data-mark="pink"] {
-  background-color: var(--desk-rich-mark-pink);
-}
-
-.desk-rich span[data-mark] {
-  border-radius: 2px;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
+   How sheet html looks (the colors, `.desk-rich` and its named styles) is
+   desk-sheet-view.css, since a phone showing a shared sheet loads that file
+   alone (Audit 8, LG8-10); the editor's own look follows here. */
 
 /* ── The editor ──────────────────────────────────────────────── */
 
@@ -6774,42 +6545,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   font-size: 0.875rem;
 }
 
-.desk-sheet__btn {
-  padding: 4px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 0.8125rem;
-  cursor: pointer;
-}
-
-.desk-sheet__btn:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.desk-sheet__btn--primary {
-  background: var(--green-deep);
-  border-color: var(--green-deep);
-  color: #fff;
-}
-
-.desk-sheet__btn--primary:hover {
-  background: var(--green-deep);
-  filter: brightness(1.1);
-}
-
-.desk-sheet__btn--quiet {
-  border-color: transparent;
-}
-
-.desk-sheet__btn:disabled,
-.desk-sheet__btn[aria-disabled="true"] {
-  opacity: 0.5;
-  cursor: default;
-  background: transparent;
-}
+/* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10). */
 
 .desk-sheet :is(button, input, select, summary, a):focus-visible {
   outline: 2px solid var(--focus-ring);
@@ -7863,12 +7599,7 @@ p.desk-sheet__flag {
     outline: 2px solid Highlight;
   }
 
-  /* Primary and quiet buttons differ by fill, which is forced: the primary
-     one takes a thicker edge. */
-  .desk-sheet__btn--primary {
-    padding: 3px 9px;
-    border: 2px solid ButtonText;
-  }
+  /* The primary button's thicker edge is in desk-sheet-view.css (LG8-10). */
 
   /* The gap's pill is a fill with no border, so it would be bare text. */
   .desk-sheet__after-btn {

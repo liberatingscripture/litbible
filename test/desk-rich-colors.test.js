@@ -1,7 +1,7 @@
 // A sheet's text colors against its highlights (Audit 8, XA8-12; BVJ,
 // 2026-11-10). A leader can give a word both a color and a highlight, so in
 // dark mode every pair must still reach 4.5:1 (WCAG 1.4.3), on the raised
-// surface the editor sits on and on the page's own. Read from desk.css itself,
+// surface the editor sits on and on the page's own. Read from the stylesheet itself,
 // so a later change to a color or a tint is checked here too. Light mode is
 // checked on the raised surface, where the editor sits.
 
@@ -9,7 +9,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const css = readFileSync(new URL("../src/styles/desk.css", import.meta.url), "utf8");
+// The colors and tints are desk-sheet-view.css's since Audit 8, LG8-10.
+const css = readFileSync(new URL("../src/styles/desk-sheet-view.css", import.meta.url), "utf8");
 const COLORS = ["red", "blue", "green", "purple", "gray"];
 const MARKS = ["yellow", "green", "blue", "pink"];
 
