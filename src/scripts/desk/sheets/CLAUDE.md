@@ -64,9 +64,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   each row's actions and `templateChooser`, handed the editor's pieces as
   `listHost`; the editor keeps only clearing its sheet view first. **/sheets'
   list draws its rows with the same `sheetRow` and `ownTemplatesList`** (E64),
-  so a sheet has the same actions in both places; `my-sheets.js` keeps its own
-  `button` and imports nothing of the editor's, so it stays light enough for
-  the page (rule 19). **The passage form and "+ From my notes…" are
+  so a sheet has the same actions in both places; `my-sheets.js` imports nothing of the editor's
+  (its `button` comes from `dom.js`, as every module's does), so it stays
+  light enough for the page (rule 19). No module imports `sheet-editor.js`
+  for a helper, which keeps the editor out of an import cycle (LG8-6). **The passage form and "+ From my notes…" are
   `add-forms.js`** (LG6-2): they draw their choices and call back through
   `addHost`, so where a part goes and the change that adds it stay the
   editor's. **The add bar is `add-bar.js` and a card's body

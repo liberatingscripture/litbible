@@ -166,7 +166,7 @@ const elsewhere = (store, id, op) => store.change(async ({ get }) => planSheetCh
 const rowNames = (root) => [...root.querySelectorAll(".desk-sheet__open-name")].map((n) => n.textContent);
 
 test("on /sheets/, a save elsewhere that changes no row leaves the list as it is: the chooser open, focus in it (SH8-1)", async () => {
-  const { root, other, one } = await sheetsPage();
+  const { root, other, one, two } = await sheetsPage();
   const fresh = [...root.querySelectorAll("button")].find((b) => b.textContent === "New sheet…");
   fresh.click();
   await until(() => root.querySelector(".desk-sheet__templates:not([hidden])"), 5000, "the template chooser");
@@ -174,9 +174,13 @@ test("on /sheets/, a save elsewhere that changes no row leaves the list as it is
   const pick = chooser.querySelector("button");
   assert.ok(document.activeElement === pick, "the first template has focus");
   const rows = [...root.querySelectorAll(".desk-sheet__sheet")];
-  // Another tab types in a part: nothing a row shows moves.
-  const part = one.modules[0].id;
-  await elsewhere(other, one.id, (s) => updateModule(s, part, { html: "<p>Other words</p>" }, opCtx()));
+  // Another tab types in a part of the sheet listed first: nothing a row
+  // shows moves. (The list is newest first, so a change to the other sheet
+  // would move its row to the top, which is a change to the rows.)
+  const top = new URL(rows[0].querySelector("a.desk-sheet__open").href).searchParams.get("id");
+  const edited = [one, two].find((s) => s.id === top);
+  const part = edited.modules[0].id;
+  await elsewhere(other, edited.id, (s) => updateModule(s, part, { html: "<p>Other words</p>" }, opCtx()));
   await settle(150);
   assert.ok(root.contains(chooser) && !chooser.hidden, "the chooser is still open");
   assert.ok(document.activeElement === pick, "focus stayed on the template");

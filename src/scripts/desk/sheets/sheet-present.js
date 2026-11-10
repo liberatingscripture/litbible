@@ -53,19 +53,15 @@ import {
 import { modulesForCopy } from "../../../lib/desk-sheet-copy.mjs";
 import { passageReference, sheetName } from "../../../lib/desk-sheet-passages.mjs";
 import { codeFigure, keyTermsSection, presentPassage, printingBlanks, readAll, rich } from "./sheet-copy.js";
-import { make } from "../dom.js";
+import { buttons, make } from "../dom.js";
+
+const button = buttons("present-btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 // The virtual screen a preview is laid out on in the presenter view, then
 // scaled to fit its frame: a 16:9 projector.
 const VIRTUAL = { width: 1600, height: 900 };
-
-function button(label, cls = "present-btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
 
 const sheetUrl = (id, view) => `${BASE}sheets/?id=${encodeURIComponent(id)}${view ? `&view=${view}` : ""}`;
 

@@ -60,14 +60,12 @@ export function editSheet({ root, store, ctx, id = null, template = null, onSave
     askFirst,
   });
   root.replaceChildren(make("h1", "sr-only", "Edit a sheet"), editor.el);
-  root.classList.add("sheets-page--editing");
   // Chosen before the editor's first view, which then stays out of the way.
   if (template) editor.startFrom(template);
   return {
     editor,
     destroy() {
       editor.destroy();
-      root.classList.remove("sheets-page--editing");
     },
   };
 }

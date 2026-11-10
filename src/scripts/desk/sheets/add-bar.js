@@ -13,11 +13,10 @@
 // It returns `el` and `sheetChanged(sheet)`, which the editor calls on every
 // draw, since a sheet holds one key terms box and its button says so.
 
-import { make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
 import { openFromNotes, openPassageForm } from "./add-forms.js";
-// The editor imports this file too; `button` and `describe` are function
-// declarations, so the cycle is safe whichever file loads first.
-import { button, describe } from "./sheet-editor.js";
+
+const button = buttons("desk-sheet__btn");
 
 // What each of the add bar's buttons adds, in a short line (BVJ, 2026-11-08:
 // only one button had a tooltip, and that one ran too long to show whole):

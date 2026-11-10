@@ -40,8 +40,8 @@ import { mountWhatsNew } from "./whats-new.js";
 import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import { el } from "./dom.js";
+import { plural } from "./desk-text.js";
 
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // What a write that the browser refused says (quota, a database closed by
 // another tab's upgrade), as labels-ui.js says it (GF8a-2).

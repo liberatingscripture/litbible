@@ -1271,7 +1271,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        not search it. `content-visibility` was tried and fixed
        the layout only. A new reader of a pane's text that
        needs it drawn (a rect, a selection) must handle a parked chapter.
-       **`desk/dom.js` holds `make`/`el` and `escapeHtml`** (LG-13): import them,
+       **`desk/dom.js` holds `make`/`el`, `escapeHtml`, `buttons(cls)` (a
+       module's `button` maker) and `describe`** (LG-13, LG8-6, LG8-7), and
+       `desk/desk-text.js` `plural` and `dateWords`, `desk/record-words.js` a
+       record's `nameOf`, `colorOf` and `highlightedWords`: import them,
        don't write another copy. `announce` and `say` are not shared on purpose
        (the copies differ), and `first-use.js`, `desk-tour.js` and
        `sheet-text.js` keep their own `el`/`make`, which differ in how they

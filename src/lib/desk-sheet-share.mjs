@@ -31,7 +31,7 @@
 // a clock or a client takes them from the caller's `ctx`, as createRecord does.
 
 import { bookKeyToLabel } from "../data/books.js";
-import { createRecord, validateRecord } from "./desk-records.mjs";
+import { createRecord, newId as freshId, validateRecord } from "./desk-records.mjs";
 import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText } from "./desk-sheet-format.mjs";
 
 /** The fragment's prefix: "share", then the share format's version, then a dot. */
@@ -388,7 +388,7 @@ export async function openShare(fragment, ctx) {
 }
 
 /** The shared sheet `data` as a sheet record with fresh ids. Throws a ShareError. */
-export function sheetFromShared(data, { now, client, id, newId = () => globalThis.crypto.randomUUID() } = {}) {
+export function sheetFromShared(data, { now, client, id, newId = freshId } = {}) {
   if (data?.lit !== "sheet" || !Array.isArray(data.modules)) throw new ShareError("not-a-sheet");
   if (!Number.isInteger(data.sheetFormat) || data.sheetFormat < 1) throw new ShareError("invalid", "sheetFormat");
   if (data.sheetFormat > SHEET_FORMAT) throw new ShareError("newer");
@@ -422,7 +422,7 @@ export function sheetFromShared(data, { now, client, id, newId = () => globalThi
  * id and fresh times, made by this client, so it is a new sheet in their
  * notebook and the sender's is untouched.
  */
-export function copyOfShared(sheet, { now, client, contentVersion, id, newId = () => globalThis.crypto.randomUUID() } = {}) {
+export function copyOfShared(sheet, { now, client, contentVersion, id, newId = freshId } = {}) {
   const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, labels: _l, ...fields } = sheet;
   return createRecord("sheet", { ...fields, modules: fields.modules.map((m) => ({ ...m, id: newId() })) }, {
     now,

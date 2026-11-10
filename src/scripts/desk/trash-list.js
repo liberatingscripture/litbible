@@ -27,8 +27,8 @@ import { recordRow } from "./record-rows.js";
 import { showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
+import { plural } from "./desk-text.js";
 
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /** Why a restore was refused, as a sentence. */
 const REFUSED = {

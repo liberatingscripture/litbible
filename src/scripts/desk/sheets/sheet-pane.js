@@ -23,8 +23,10 @@ import {
 } from "../../../lib/desk-sheet-passages.mjs";
 import { rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
 import { closePanel } from "../../lit-panel.js";
-import { make } from "../dom.js";
-import { button, createSheetEditor } from "./sheet-editor.js";
+import { buttons, make } from "../dom.js";
+import { createSheetEditor } from "./sheet-editor.js";
+
+const button = buttons("desk-sheet__btn");
 
 /* ── "Add to sheet" in the LIT pane's menus ───────────────────────────── */
 

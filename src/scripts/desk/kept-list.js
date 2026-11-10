@@ -27,7 +27,8 @@ import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
-import { nameOf, recordRow } from "./record-rows.js";
+import { recordRow } from "./record-rows.js";
+import { nameOf } from "./record-words.js";
 import { showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 

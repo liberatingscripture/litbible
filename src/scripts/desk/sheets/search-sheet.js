@@ -39,7 +39,10 @@ import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { createSheet, isOwnTemplate, makeModule } from "../../../lib/desk-sheets.mjs";
 import { createHistory, undoEntry } from "../history.js";
 import { openStore } from "../store.js";
-import { make } from "../dom.js";
+import { buttons, make } from "../dom.js";
+import { plural } from "../desk-text.js";
+
+const button = buttons("desk-gather__btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const contentVersion = document.documentElement.dataset.contentVersion || "unversioned";
@@ -47,13 +50,6 @@ const ctx = () => ({ client: webClient(contentVersion), contentVersion });
 
 /* ── Small helpers ───────────────────────────────────────────────────── */
 
-function button(label, cls = "desk-gather__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
-
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const verseKey = (r) => `${r.bookKey} ${r.chapter}:${r.verse}`;
 
 // The desk's styles come with this file, as notebook-search.js does: /search

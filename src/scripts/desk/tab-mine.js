@@ -103,6 +103,7 @@ import { continueSection } from "./continue-reading.js";
 import { pageChapter } from "./page.js";
 import { readBook } from "./page-kind.js";
 import { showUndo } from "./undo-bar.js";
+import { colorOf, highlightedWords, nameOf } from "./record-words.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
@@ -118,34 +119,6 @@ const QUERY_DELAY_MS = 150;
 
 // Numbers each tab's ids, since /desk can show several My Notes panes.
 let seq = 0;
-
-/** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
-function colorOf(r) {
-  return r?.kind === "highlight" && COLORS.includes(r.color) ? r.color : null;
-}
-
-/** What a reader calls a record's kind: "Yellow highlight", or the plain kind name. */
-function nameOf(r) {
-  const color = colorOf(r);
-  return color ? `${color[0].toUpperCase()}${color.slice(1)} highlight` : kindName(r.kind);
-}
-
-/**
- * A highlight's words as the page shows them: a swatch wrapped round a sample,
- * which desk.css gives the colour's tint and underline. A colour the format
- * doesn't know gets plain text.
- */
-function highlightedWords(color, words) {
-  if (!color) return document.createTextNode(words);
-  const swatch = document.createElement("span");
-  swatch.className = "desk-swatch";
-  swatch.dataset.color = color;
-  const sample = document.createElement("span");
-  sample.className = "desk-swatch__sample";
-  sample.textContent = words;
-  swatch.append(sample);
-  return swatch;
-}
 
 /**
  * @param {{ store: object | null, storeError: unknown,

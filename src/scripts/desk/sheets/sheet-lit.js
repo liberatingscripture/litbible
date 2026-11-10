@@ -48,29 +48,14 @@ import { releaseNoteFor } from "../../../lib/desk-change.mjs";
 import { loadChapterPage } from "../chapter-page.js";
 import { diffParagraph } from "../diff-view.js";
 import { loadReleaseNotes } from "../release-feed.js";
-import { make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
+import { plural } from "../desk-text.js";
+import { newId } from "../../../lib/desk-records.mjs";
+
+const button = buttons("desk-sheet__btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
-function button(label, cls = "desk-sheet__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
-
-let hintCount = 0;
-
-/**
- * A sentence a control's `title` carries, given to a screen reader as well
- * (CP-9): a hidden span the control is described by, which the caller puts
- * in the page. The title stays, for a mouse.
- */
-function describe(control, text) {
-  const hint = make("span", "sr-only", text);
-  hint.id = `deskSheetLitHint${++hintCount}`;
-  control.setAttribute("aria-describedby", hint.id);
-  return hint;
-}
 
 /**
  * Puts focus back on the control a redraw replaced (SH5-10). A control that is
@@ -83,7 +68,6 @@ function restoreFocus(root, key, fallback = null) {
   (find(key) ?? (fallback ? find(fallback) : null))?.focus();
 }
 
-const plural = (n, one, many = `${one}s`) => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
 const quoted = (words) => `“${words.length > 60 ? words.slice(0, 59) + "…" : words}”`;
 
 /* ── Reading a passage from its chapter ──────────────────────────────── */
@@ -190,6 +174,60 @@ export async function readPassage(m) {
 /** The passage's blanks, each with where it is today. */
 export function locateBlanks(view, m) {
   return (m.blanks ?? []).map((b) => ({ blank: b, ...locateBlank(view.chapter, b, view.at, m.endVerse ?? m.verse) }));
+}
+
+// ---- a sheet's printing blanks, worked out once per change (GF8b-9) ----
+
+// Every passage card's footnote list needs every blank on the sheet that
+// prints, since a footnote anywhere could give one away. Each card used to
+// work that list out for itself on every save, reading every other passage:
+// quadratic in the passages with blanks. It is worked out once for a given
+// set of passages with blanks, and the cards share it.
+
+const blankKeys = new WeakMap(); // a sheet record → the key of its passages with blanks
+/** What a sheet's printing blanks depend on: its passages that have blanks. */
+function blanksKey(sheet) {
+  if (!sheet) return "[]";
+  let key = blankKeys.get(sheet);
+  if (key == null) {
+    key = JSON.stringify((sheet.modules ?? []).filter((x) => x?.type === "passage" && x.blanks?.length));
+    blankKeys.set(sheet, key);
+  }
+  return key;
+}
+
+let blanksMemo = { key: null, promise: null };
+/**
+ * Every blank on the sheet that prints, as its words and the passage's
+ * reference. A list that met a passage it couldn't read isn't kept, so the
+ * next change reads that passage again.
+ */
+function sheetPrintingBlanks(sheet) {
+  const key = blanksKey(sheet);
+  if (blanksMemo.key === key) return blanksMemo.promise;
+  const memo = { key, promise: null };
+  memo.promise = (async () => {
+    const out = [];
+    let complete = true;
+    for (const x of sheet?.modules ?? []) {
+      if (x?.type !== "passage" || !x.blanks?.length) continue;
+      const v = await readPassage(x);
+      if (!v.ok) {
+        complete = false;
+        continue;
+      }
+      for (const b of locateBlanks(v, x)) {
+        if (b.prints) out.push({ ...blankWords(b, v.chapter.text, v.allMarks, v.terms), ref: passageReference(x) });
+      }
+    }
+    if (!complete && blanksMemo === memo) blanksMemo = { key: null, promise: null };
+    return out;
+  })();
+  memo.promise.catch(() => {
+    if (blanksMemo === memo) blanksMemo = { key: null, promise: null };
+  });
+  blanksMemo = memo;
+  return memo.promise;
 }
 
 /* ── The passage's words ─────────────────────────────────────────────── */
@@ -367,8 +405,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
   // choices, and every passage on the sheet with blanks. A save that changes
   // neither (typing in a text part, say) leaves the list as it is, since
   // working it out holds every footnote against every blank (BA133).
-  const notesInputs = () =>
-    JSON.stringify([mod.footnotes ?? [], (getSheet()?.modules ?? []).filter((x) => x?.type === "passage" && x.blanks?.length)]);
+  const notesInputs = () => `${JSON.stringify(mod.footnotes ?? [])}\n${blanksKey(getSheet())}`;
   let notesDrawn = null;
 
   async function render() {
@@ -459,7 +496,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     for (const [s, e] of spans) {
       if (overlapsBlank(located, s, e) || fresh.some((b) => b.s < e && s < b.e)) continue;
       const term = termForWords(s, e, view.allMarks, view.terms);
-      fresh.push({ s, e, blank: blankFromOffsets(view.chapter, s, e, { id: crypto.randomUUID(), hint: term ? "traditional" : "none" }) });
+      fresh.push({ s, e, blank: blankFromOffsets(view.chapter, s, e, { id: newId(), hint: term ? "traditional" : "none" }) });
     }
     if (!fresh.length) {
       refuse("Those words are already blank.");
@@ -733,30 +770,12 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
 
   // ---- which footnotes print ----
 
-  /** Every blank on the sheet that prints, as its words: a footnote anywhere could give one away. */
-  async function sheetBlanks() {
-    const out = [];
-    for (const x of getSheet()?.modules ?? []) {
-      if (x?.type !== "passage" || !x.blanks?.length) continue;
-      if (x.id === mod.id) {
-        for (const b of ownBlanks()) if (b.prints) out.push({ ...blankWords(b, view.chapter.text, view.allMarks, view.terms), ref: passageReference(mod) });
-        continue;
-      }
-      const other = await readPassage(x);
-      if (!other.ok) continue;
-      for (const b of locateBlanks(other, x)) {
-        if (b.prints) out.push({ ...blankWords(b, other.chapter.text, other.allMarks, other.terms), ref: passageReference(x) });
-      }
-    }
-    return out;
-  }
-
   let notesSeq = 0; // two overlapping calls must not finish out of order (GF8b-9)
   async function drawNotes() {
     const n = seq;
     const mine = ++notesSeq;
     const inputs = notesInputs();
-    const blanks = await sheetBlanks();
+    const blanks = await sheetPrintingBlanks(getSheet());
     if (gone || n !== seq || mine !== notesSeq || !view) return;
     notesDrawn = inputs;
     const focusKey = notesBox.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;

@@ -46,7 +46,7 @@
 //     verses, colours and every other field still count; a stamp alone
 //     isn't a change anyone made.
 
-import { canEdit, laterThanAll, trashRecord } from "./desk-records.mjs";
+import { canEdit, laterThanAll, newId as freshId, trashRecord } from "./desk-records.mjs";
 import { deepEqual, kindName, takeOff, liveRecords, recordWhere, touched } from "./desk-store-core.mjs";
 
 /** How many changes one page visit remembers. */
@@ -100,7 +100,7 @@ function lookup(states) {
  * `after` is what the plan left: its record for an id it puts, null for one
  * it removes (a removal wins if a plan did both, as it does when written).
  */
-export function makeEntry(plan, before, id, { newId = () => globalThis.crypto.randomUUID() } = {}) {
+export function makeEntry(plan, before, id, { newId = freshId } = {}) {
   const was = lookup(before);
   const put = new Map((plan.put ?? []).map((r) => [r.id, r]));
   const gone = new Set(plan.remove ?? []);

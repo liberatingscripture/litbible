@@ -101,7 +101,10 @@ import { CODES_MISSING, createSaveMenu, download, drawCodes, writerFor } from ".
 import { copyForWord, readCopy } from "./sheet-word.js";
 import { openStore } from "../store.js";
 import { announce } from "../undo-bar.js";
-import { make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
+import { dateWords } from "../desk-text.js";
+
+const button = buttons("desk-sheet__btn");
 
 const PAPER_KEY = "lit-sheet-paper";
 // Bumped whenever the page draws another view (`route`), so a view drawn
@@ -132,12 +135,6 @@ const EXPORT_LABEL = "Export a Study Desk file (.md)";
 const IMPORT_LABEL = "Import a Study Desk file";
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
-function button(label, cls = "desk-sheet__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
-
 /**
  * The copy glyph the site's copy controls use: two sheets, as the glossary's
  * copy-link icon draws them (glossary.astro), without its chain. Drawn with
@@ -166,24 +163,6 @@ function copyGlyph() {
   return svg;
 }
 
-let hintCount = 0;
-
-/**
- * A sentence a control's `title` carries, given to a screen reader as well
- * (CP-9): a hidden span the control is described by, which the caller puts
- * in the page. The title stays, for a mouse.
- */
-function describe(control, text) {
-  const hint = make("span", "sr-only", text);
-  hint.id = `sheetsPageHint${++hintCount}`;
-  control.setAttribute("aria-describedby", hint.id);
-  return hint;
-}
-
-const dateWords = (iso) => {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-};
 
 function storedPaper() {
   try {
@@ -1297,7 +1276,6 @@ function tourHost(root, store) {
         shown = null;
         tourRow = null;
         root.replaceChildren(make("h1", "sr-only", "Edit a sheet"), editor.el);
-        root.classList.add("sheets-page--editing");
         editTitle();
       }
       return editor;
@@ -1307,7 +1285,6 @@ function tourHost(root, store) {
     async showList({ onPick = null } = {}) {
       nextView();
       shown = null;
-      root.classList.remove("sheets-page--editing");
       await showList(root, store, { onPick: onPick ?? pick });
       const row = root.querySelector(":scope > .sheets-page__new");
       tourRow = row;
@@ -1349,7 +1326,6 @@ function tourHost(root, store) {
       if (shown?.el.isConnected && shown.sheet === sheet) return shown;
       nextView();
       tourRow = null;
-      root.classList.remove("sheets-page--editing");
       drawSheet(root, { sheet, store, demo: { onEdit: () => host.editor() } }).catch((err) =>
         console.error("Study Desk: the tour’s sheet couldn’t be drawn", err),
       );

@@ -142,8 +142,21 @@ function bookmarkStamps(record, changedKeys, modified) {
   };
 }
 
-function newId() {
-  return globalThis.crypto.randomUUID();
+/**
+ * A new id: a random (version 4) UUID. `crypto.randomUUID` exists only in a
+ * secure context (HTTPS or localhost), so a page served over plain http (a
+ * dev server opened from a phone on the network) builds one from
+ * `getRandomValues`, which every context has (Audit 8, LG8-12). Every new id
+ * the desk makes comes from here.
+ */
+export function newId() {
+  const c = globalThis.crypto;
+  if (typeof c?.randomUUID === "function") return c.randomUUID();
+  const b = c.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
 }
 
 /**
