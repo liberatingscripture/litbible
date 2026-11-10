@@ -120,7 +120,12 @@ export function announce(message) {
 }
 
 /** What the bar says when its button has done its work and put up nothing else. */
-const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.", "Show bookmarks": "Bookmarks showing.", "Move it here": "Moved." };
+const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.", "Show bookmarks": "Bookmarks showing.", "Move it here": "Moved.", "Open the Notebook": "The Notebook is open." };
+
+/** Whether the bar is up now, with a notice a newer one would replace (E74 never does). */
+export function barShowing() {
+  return Boolean(root && !root.querySelector(".desk-undo__bar")?.hidden);
+}
 
 /**
  * Show the bar for one change, with a button that takes it back or does it

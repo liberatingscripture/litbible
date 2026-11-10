@@ -45,13 +45,16 @@ test("Escape in a search field that holds words clears it and does not fold the 
   assert.ok(clear > 0 && fold > clear, "the search-field check comes before collapse()");
 });
 
-test("the Notebook's reveal folds the panel without moving focus (NB3-9)", () => {
+// The reveal that NB3-9 kept from moving focus no longer opens the panel at
+// all (E74): the first write marks the tab and offers it in the bar.
+test("E74: the first write marks the Notebook and offers it, and never opens it or moves focus itself", () => {
   const src = read(`${dir}panel.js`);
-  const reveal = src
-    .slice(src.indexOf("function revealPanel"), src.indexOf("function expand"))
-    .replace(/\/\/.*$/gm, "");
-  assert.match(reveal, /rail\.collapse\(\)/);
-  assert.doesNotMatch(reveal, /[^.]collapse\(\)/);
+  assert.match(src, /reveal: \(\) => nudgePanel\(\)/);
+  const nudge = src.slice(src.indexOf("function nudgePanel"), src.indexOf("function setNudge")).replace(/\/\/.*$/gm, "");
+  const before = nudge.slice(0, nudge.indexOf("showUndo("));
+  assert.doesNotMatch(before, /\bopen\(|expand\(|rail\.|\.focus\(/, "nothing opens, expands or takes focus before the reader presses");
+  assert.match(before, /barShowing\(\)/, "a record's own Undo is never replaced");
+  assert.match(src, /if \(shown\(\)\) setNudge\(false\);/, "the mark goes once the panel is open");
 });
 
 test("a hand fold or expand cancels what Hide my marks remembered (NB3-7)", () => {

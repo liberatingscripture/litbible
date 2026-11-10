@@ -59,6 +59,7 @@ import { DESK_STAGE } from "../../lib/desk-first-use.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
 import { setTip } from "../tip.js";
+import { barShowing, showUndo } from "./undo-bar.js";
 
 const TAB_KEY = "lit-desk-tab";
 
@@ -147,7 +148,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // the panel the first time the reader writes something with no answer yet.
   const firstUse = createFirstUse({
     store,
-    reveal: () => revealPanel(),
+    reveal: () => nudgePanel(),
     panelEl: () => panel,
     panelShown: () => shown(),
   });
@@ -169,7 +170,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <section class="desk-panel__group" aria-labelledby="deskSettingsKeep">
       <h3 class="desk-panel__group-title" id="deskSettingsKeep">Keep and print</h3>
       <div class="desk-panel__print-slot"></div>
-      <p class="desk-panel__page"><a href="/notebook/">Open the notebook page</a> · <a href="/sheets/">My sheets</a></p>
+      <p class="desk-panel__page"><a href="/notebook/">My Notebook</a> · <a href="/sheets/">My sheets</a></p>
       <p class="desk-panel__kept"></p>
       <p class="desk-panel__persist" hidden></p>
     </section>
@@ -348,6 +349,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   function syncToggles() {
     for (const t of toggles) t.setAttribute("aria-expanded", String(shown()));
+    // The first-write mark (E74) goes once the reader has the panel open.
+    if (shown()) setNudge(false);
     // The tour offer opens beside it the first time it is shown, and closes
     // with it.
     firstUse.panelChanged();
@@ -407,12 +410,39 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   });
 
   /** Show the panel without taking focus, and folded to its tab where it would float over the text. */
-  function revealPanel() {
+  /**
+   * The first record a visit writes while "kept in this browser" is
+   * unanswered (first-use.js). The Notebook used to open itself here, so the
+   * card was met, and opening it narrowed the column under the reader's press
+   * (E74; BVJ, 2026-11-10). Now its tab and toggles carry a mark until the
+   * panel is opened, and the bar offers to open it, unless the bar is showing
+   * something of the record's own (an Undo), which it never replaces.
+   */
+  function nudgePanel() {
     if (shown()) return;
-    open(null, { focus: false });
-    // Folded without taking focus (NB3-9): `collapse()` would move it to the
-    // tab, off the verse number the editor just gave it back to.
-    if (rail.state().floating) rail.collapse();
+    setNudge(true);
+    setTimeout(() => {
+      if (shown() || barShowing()) return;
+      // It opens on My Notes, where the card is, whatever tab was last open.
+      showUndo("Your notebook is kept in this browser. See how to keep a copy.", () => {
+        selectTab("mine", { remember: false });
+        if (panel.hidden) open(null);
+        else expand();
+      }, { label: "Open the Notebook" });
+    }, 600);
+  }
+
+  /** The mark on the tab and the Notebook buttons (E74), and what it says to a screen reader. */
+  function setNudge(on) {
+    for (const t of [tab, ...toggles]) {
+      if (on) {
+        t.setAttribute("data-desk-nudge", "");
+        t.setAttribute("aria-description", "New: where your notebook is kept");
+      } else if (t.hasAttribute("data-desk-nudge")) {
+        t.removeAttribute("data-desk-nudge");
+        t.removeAttribute("aria-description");
+      }
+    }
   }
 
   function expand() {

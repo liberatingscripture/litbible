@@ -40,7 +40,7 @@ function titleMenu() {
 }
 
 // Help moved to the command row under the header (E68); its test is below.
-for (const [name, text] of [["My Notebook page", "notebook"], ["Send feedback on the preview", "feedback"]]) {
+for (const [name, text] of [["My Notebook", "notebook"], ["Send feedback on the preview", "feedback"]]) {
   test(`DK8-4: choosing "${name}" (a new-tab link) closes the menu and gives focus back to the title button`, () => {
     const { menu, titleButton } = titleMenu();
     click(titleButton);

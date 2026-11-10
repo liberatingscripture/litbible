@@ -2133,8 +2133,12 @@ tap areas (`global.css`, never under 24px).
   Notebook," and the panel is "the Notebook" (the naming rule in the desk's
   CLAUDE.md, BA138 and BA139), so a newcomer meets one word for a panel, a
   page, and a menu group. Proposal: one name for the page, used in all four
-  places, chosen by BVJ. Status: open, waiting on BVJ's choice of one name;
-  nothing renamed.
+  places, chosen by BVJ. Status: **done 2026-11-10**: BVJ chose “My
+  Notebook.” The page's title and heading, the title menu, the Settings
+  tab's link (“My Notebook · My sheets”), the commands window (“Open My
+  Notebook”), the help page, and the tour card all say it; the header's
+  Study menu already did. The panel stays “the Notebook” and the tab “My
+  Notes.”
 - **E71, rough: a link that opens a new tab doesn't look like one.** Claude's
   pass (2026-11-10). In the Sheets pane, "Present…", "Print or share…", and
   "Open on its own page" open new tabs, as do the title menu's "My Notebook
@@ -2207,14 +2211,21 @@ tap areas (`global.css`, never under 24px).
   whole page is a surprise; the conventional answer is a quiet confirmation
   where the reader is looking, as the undo bar gives for an unpin. To settle:
   whether the first record should expand the Notebook at all, or the tab
-  should carry a mark until the reader opens it. Status: cause traced, nothing
-  changed, waiting on BVJ. It is the first-use card: the first record a visit
+  should carry a mark until the reader opens it. Status: **done 2026-11-10**
+  (BVJ took Claude's recommendation): the first record no longer opens the
+  Notebook. It puts a green dot on the tab and the header's toggles (named
+  “New: where your notebook is kept” to a screen reader) until the Notebook
+  is opened, and the undo bar offers “Open the Notebook,” which opens it
+  on My Notes, where the card is. When the bar already holds an undo, the
+  offer is left out and the dot alone remains. The dot is Highlight in
+  forced colors. The
+  cause, as traced: it was the first-use card: the first record a visit
   writes while “kept in this browser” is unanswered fires `store.onEntry` in
   `first-use.js`, which calls `reveal()`, and `revealPanel()` in `panel.js`
   opens the Notebook so the card is met (once per page load). Opening it takes
   the column from 52 to 48, so the text re-wraps under the popover. Once the
-  card is answered it never happens again, which is why BVJ's own browser
-  doesn't show it.
+  card is answered it never happened again, which is why BVJ's own browser
+  didn't show it.
 - **E75, rough: the Notebook's Settings tab has no order to it.** Claude's
   pass (2026-11-10). In one run it holds three checkboxes and a two-way
   choice (the marks), "Hide my marks," a Print… button with a line of help,

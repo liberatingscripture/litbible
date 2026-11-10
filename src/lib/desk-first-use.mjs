@@ -299,10 +299,10 @@ export const TOUR_STEPS = [
     views: ["study", "read", "prose"],
     since: "1d",
     notebook: true,
-    title: "The notebook page, and where it’s kept",
+    title: "My Notebook, and where it’s kept",
     body: {
       default:
-        "“Open the notebook page” shows everything you’ve kept in one place, where you can sort it with labels and save a copy of your notebook or open one. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last saved a copy.",
+        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels and save a copy of your notebook or open one. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last saved a copy.",
     },
   },
 ];
@@ -506,7 +506,7 @@ export const DESK_TOUR_STEPS = [
     title: "The commands",
     body: {
       default:
-        "Under the header: Add pane, Layout, New sheet, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, your notebook page, and this tour.",
+        "Under the header: Add pane, Layout, New sheet, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, My Notebook, and this tour.",
     },
   },
   // How a sheet starts (E59): the command row's "New sheet…" and its template

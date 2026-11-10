@@ -85,7 +85,7 @@ export const COMMANDS = Object.freeze([
   },
   {
     id: "notebook-page",
-    name: () => "Open the notebook page",
+    name: () => "Open My Notebook",
     keywords: ["everything", "all"],
     needs: null,
     href: "/notebook/",

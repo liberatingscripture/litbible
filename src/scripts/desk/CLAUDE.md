@@ -488,7 +488,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      notebook") or the feature as a whole. "My Notes" is the tab and the
      /desk pane kind only; the margin's switch and its region are "Notes in
      the margin," and This verse's subhead stays "My notes," naming the
-     reader's notes on that verse.
+     reader's notes on that verse. **The /notebook page is "My Notebook"**
+     wherever it is named (E70, BVJ 2026-11-10).
      **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
      "the notebook preview"); "Delete" is for what the reader typed or named
      (notes, labels, sheets) and "Remove" for marks on the text (bookmarks,
@@ -808,7 +809,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        statement with a reminder checkbox and "Got it" until phase 4 gives a
        second place to choose (BVJ, 2026-11-07, FU4-1; `localStorage['lit-desk-home']`), the foot's reminder and Safari
        line, and the tour (`lit-desk-tour`, which also holds the offer's
-       markers: `later:<date>` and `never`). **The tour is offered in a
+       markers: `later:<date>` and `never`). **The card is pointed to, never
+       opened onto the reader** (E74, BVJ 2026-11-10): the first record a visit
+       writes while it is unanswered puts a dot on the Notebook's tab and
+       toggles (`data-desk-nudge`, cleared once the Notebook is open) and offers
+       “Open the Notebook” in the undo bar, unless the bar holds another
+       undo. Opening it unasked re-wrapped the text under the popover.
+       **The tour is offered in a
        window beside the Notebook** (BVJ, 2026-10-14), the first time it is
        expanded with the home question answered: Take the tour now, Remind
        me later (also the ×, Escape, closing or minimizing the Notebook,
@@ -1468,7 +1475,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        text is a button, `Study Desk ▾` (`.desk-title`; desk-page.js swaps the
        heading for a wrapper so the menu takes the header's type), and
        `title-menu.js` holds the rest: Display options, Full screen, then My
-       Notebook page, Take the tour and feedback (one divider before the
+       Notebook, Take the tour and feedback (one divider before the
        three). **Full screen** (E43; BVJ, 2026-11-06: the browser's own only)
        presses the Fullscreen API on the whole page, reads "Full screen (F11)"
        ("⌃⌘F" on a Mac) and "Exit full screen" only for a full screen it

@@ -390,7 +390,7 @@ test("Audit 7's wording: the desk tour's cards name what the page has now, and t
   // the card names the command row first.
   assert.match(stepBody(desk("title"), null), /^Under the header: Add pane, Layout, New sheet, Print, and Help\./);
   assert.match(stepBody(desk("title"), null), /full screen/);
-  assert.match(stepBody(desk("title"), null), /your notebook page/);
+  assert.match(stepBody(desk("title"), null), /My Notebook/);
   // TR7-3: "Add to sheet" in Chapter View's verse menu (PR #520); Read View has none.
   assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add to sheet”/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add to sheet/);

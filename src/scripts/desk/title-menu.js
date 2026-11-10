@@ -87,7 +87,8 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   // The notebook's page (BVJ, 2026-11-02). No Settings window, and no "where
   // it is kept" item (it would only link to a section of that page): nothing
   // else of the Notebook's settings applies here.
-  const notebookItem = item("My Notebook page", "a");
+  // "My Notebook," its one name everywhere (E70).
+  const notebookItem = item("My Notebook", "a");
   notebookItem.href = "/notebook/";
   // The Study Desk tour runs here, in place (E24); the notebook's runs on a
   // chapter page and starts from the Notebook's foot and the help page.
