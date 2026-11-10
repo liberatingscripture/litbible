@@ -9,11 +9,11 @@
 // top of the pane's own scroll.
 //
 // Nothing here adds to the scripture. With a notebook (3g) each note carries
-// the Pin / Unpin button it has in This verse and in Chapter View's Footnotes
-// list (pins.js), under the note, with Add a note beside it (M11) and the
-// reader's notes on that footnote under both, in full (footnote-notes.js),
-// then the flag a rewritten pinned note gets; pins.js draws the flags, since
-// it already follows the notebook.
+// the Pin button it has in This verse and in Chapter View's Footnotes list
+// (pins.js), under the note, and under it any notes the reader has on that
+// footnote (M11), in full (footnote-notes.js; none can be added since
+// 2026-11-10, E79), then the flag a rewritten pinned note gets; pins.js draws
+// the flags, since it already follows the notebook.
 // The list scrolls inside the pane (its nearest scrolling ancestor), never the
 // page.
 //
@@ -22,7 +22,7 @@
 
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import { routeFootnoteLinks } from "./footnote-links.js";
-import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
+import { footnoteNotes } from "./footnote-notes.js";
 import { pinButton, refreshPins } from "./pins.js";
 
 const TOP_GAP = 8; // px between the pane's top edge and the first note shown
@@ -94,16 +94,10 @@ export function createFootnotesView({ idSuffix = "", onVerse = null, store = nul
           routeFootnoteLinks(clone, showPassage);
           li.append(clone);
         }
-        // Pin / Unpin, as under the note in the Footnotes list.
+        // Pin, as under the note in the Footnotes list.
         const where = { bookKey: source.bookKey, chapter: source.chapter };
         const pin = store ? pinButton(id, letter, where) : null;
-        const add = store ? addNoteButton(id, letter, where) : null;
-        if (pin || add) {
-          const actions = document.createElement("div");
-          actions.className = "desk-fn-actions";
-          actions.append(...[pin, add].filter(Boolean));
-          li.append(actions);
-        }
+        if (pin) li.append(pin);
         const mine = store ? footnoteNotes(id, where) : null;
         if (mine) li.append(mine);
         list.append(li);

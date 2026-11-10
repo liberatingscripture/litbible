@@ -205,7 +205,8 @@ are recorded so they aren't re-argued.
   and questions for discussion. **A note can be on a footnote** (M11):
   "Add a note" beside Pin in a footnote's popover, in Study View's
   Footnotes list, in the Notebook's "This verse" tab and in /desk's
-  Footnotes pane. The note names its footnote as a pin does (its verse and
+  Footnotes pane (adding one removed 2026-11-10, STUDY-DESK-FIXES.md,
+  E79). The note names its footnote as a pin does (its verse and
   its words, never its letter), sits in the margin beside the footnote at
   the foot of the page, is listed under the footnote wherever the footnote
   is shown, and carries the change notice when the footnote is rewritten.
@@ -906,7 +907,12 @@ plan as a whole was accepted; nothing was declined except where stated).
 - **M11. Notes on a footnote.** A note attaches to a footnote by quoting its
   words, not its letter, so it survives relabeling; N3's notice applies when
   the footnote is rewritten. New. Medium. **Decided: yes.** **Built on the
-  preview 2026-10-20** ("Order of work", 2c).
+  preview 2026-10-20** ("Order of work", 2c). **Adding one was removed
+  2026-11-10** (BVJ: “Let's actually remove the ability to add notes on
+  footnotes”; STUDY-DESK-FIXES.md, E79): no "Add a note" beside Pin
+  anywhere. A note already on a footnote still shows, edits, prints and
+  carries its notice, since the record (kind 2) stays valid for the apps
+  and for backups.
 
 ### Places and bookmarks
 

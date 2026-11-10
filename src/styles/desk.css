@@ -2356,9 +2356,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   fill: currentColor;
 }
 
-/* The word beside the glyph ("Pin", "Note") shows where a list has room for
-   it (E72): the Footnotes list, the Footnotes pane and This verse. The
-   popover keeps the glyph alone, with the shared tooltip. */
+/* The word beside the glyph ("Pin", and "Note" on This verse's own add
+   button) shows where a list has room for it (E72): the Footnotes list, the
+   Footnotes pane and This verse. The popover keeps the glyph alone, with the
+   shared tooltip. */
 .desk-pin__word {
   display: none;
 }
@@ -2367,9 +2368,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   display: inline;
 }
 
-/* "Add a note" is the plain note marker (BVJ, 2026-11-06), at the thumbtack's
-   size; glyph() gives its svg no size of its own. */
-.desk-fn-add__glyph {
+/* This verse's "Add a note on this verse" is the plain note marker (BVJ,
+   2026-11-06), at the thumbtack's size; glyph() gives its svg no size of its
+   own. */
+.desk-verse__add-glyph {
   width: 14px;
   height: 14px;
 }
@@ -2404,99 +2406,29 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 /* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
    (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
-   follows its note in the document, so reading and tab order are the note,
-   "Add a note", then Pin wherever it is drawn, left to right and, in the
-   "⋯" stack, top to bottom.
-     inline  (no attribute yet, or no room): a row on the note's line, as before;
-     row     the two pills side by side in the left margin, level with the
-             footnote's first line, right-aligned against the footnote;
-     more    one "⋯" pill there that opens the two stacked under it.
+   holds its Pin and follows its note in the document, so reading and tab
+   order are the note, then Pin, wherever it is drawn.
+     inline  (no attribute yet, or no room): on the note's line, as before;
+     row     in the left margin, level with the footnote's first line,
+             right-aligned against the footnote.
    A footnote with a margin note beside it (data-desk-fn-margin) stays inline,
-   since a margin note sits in that same margin. */
+   since a margin note sits in that same margin. Until E79 (2026-11-10) "Add a
+   note" sat beside Pin, and a "more" mode folded the two behind a "⋯". */
 .desk-fn-pills {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 4px;
 }
 
-.desk-fn-pills__group {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.desk-fn-more {
-  display: none;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-height: 24px;
-  margin: 0;
-  padding: 0 9px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.74);
-  cursor: pointer;
-}
-
-.desk-fn-more:hover,
-.desk-fn-more[aria-expanded="true"] {
-  border-color: rgba(var(--ink-rgb), 0.4);
-  background: rgba(var(--ink-rgb), 0.08);
-  color: var(--text);
-}
-
-.desk-fn-more svg {
-  display: block;
-}
-
-.footnotes:is([data-desk-fn-pills="row"], [data-desk-fn-pills="more"]) > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills {
+.footnotes[data-desk-fn-pills="row"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills {
   position: absolute;
   z-index: 2;
   right: calc(100% + 14px);
   /* Centered on the footnote's first line: half of (line height less the
-     pills' 24px, E77). The line height is .fn-body's, with the Display
+     pill's 24px, E77). The line height is .fn-body's, with the Display
      tray's extra leading. */
   top: calc(((1.6 + var(--reading-leading-extra, 0)) * 1em - 24px) / 2);
   justify-content: flex-end;
-}
-
-/* Side by side, "Add a note" is drawn outside and Pin nearest the footnote
-   (BVJ, 2026-11-06). The document holds them in that order ("Add a note",
-   then Pin), so Tab runs left to right with no flipped drawing (BVJ,
-   2026-11-07; Audit 3, decision 13). */
-.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-more {
-  display: inline-flex;
-}
-
-/* Closed, the stack is hidden from sight, focus and screen readers (it is
-   still laid out, so the list can measure its pills); open, it hangs under the
-   "⋯" with its right edge level with it. */
-.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills > .desk-fn-pills__group {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: 4px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 14px;
-  background: var(--surface-raised);
-  visibility: hidden;
-}
-
-.footnotes[data-desk-fn-pills="more"] > li.desk-fn:not([data-desk-fn-margin]) > .desk-fn-pills[data-open] > .desk-fn-pills__group {
-  visibility: visible;
-}
-
-@media (forced-colors: active) {
-  .desk-fn-more {
-    border-color: ButtonBorder;
-    color: ButtonText;
-  }
 }
 
 /* The popover: "See in footnotes" at one end of its last line, Pin at the other. */
@@ -2561,30 +2493,9 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 /* ── Notes on a footnote (M11) ──────────────────────────────────── */
 
-/* src/scripts/desk/footnote-notes.js. "Add a note" looks as Pin does (they
-   share .desk-pin). Where a surface has the two side by side they sit in one
-   .desk-fn-actions row, so a grid or a popover sees one item. */
-.desk-fn-actions {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 6px;
-}
-
-.desk-verse__fn .desk-fn-actions,
-.desk-fns__item .desk-fn-actions {
-  justify-self: start;
-}
-
-.desk-verse__fn .desk-fn-actions {
-  grid-column: 2;
-}
-
-.desk-fns__item .desk-fn-actions {
-  grid-column: 1 / -1;
-}
-
-/* The reader's notes on one footnote: the marker, the words, Edit. */
+/* src/scripts/desk/footnote-notes.js. None can be added since E79
+   (2026-11-10); one made before, by an app, or restored from a backup still
+   shows. The reader's notes on one footnote: the marker, the words, Edit. */
 .desk-fnn {
   min-width: 0;
   margin-top: 4px;
@@ -2702,7 +2613,6 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
 @media print {
   .desk-pin,
   .desk-fn-pills,
-  .desk-fn-actions,
   .desk-fnn,
   .desk-fn__flag {
     display: none !important;

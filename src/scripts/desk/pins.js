@@ -39,15 +39,9 @@ import { createRecord } from "../../lib/desk-records.mjs";
 import { pinFields, placePins } from "../../lib/desk-footnotes.mjs";
 import { recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
-import {
-  addNoteButton,
-  footnoteElementFor,
-  footnoteListFor,
-  footnoteNotes,
-  initFootnoteNotes,
-} from "./footnote-notes.js";
+import { footnoteElementFor, footnoteListFor, footnoteNotes, initFootnoteNotes } from "./footnote-notes.js";
 import { busy, isBusy } from "./focus-keep.js";
-import { focusPin, footnotePills, initFootnotePills } from "./footnote-pills.js";
+import { footnotePills, initFootnotePills } from "./footnote-pills.js";
 import { undoEntry } from "./history.js";
 import { pageChapter } from "./page.js";
 import { announce, showNotice, showUndo } from "./undo-bar.js";
@@ -257,7 +251,7 @@ function drawFlag(li, entry, notice) {
         restoreFocus: trigger,
         onDone: async () => {
           await refreshPins();
-          focusPin(li);
+          li.querySelector(".desk-pin")?.focus({ preventScroll: true });
         },
       }),
     ),
@@ -336,20 +330,19 @@ export function initPins({ store, ctx, desk = false }) {
     const button = pinButton(li.id, label);
     if (!button) continue;
     li.classList.add("desk-fn");
-    // Add a note (M11), beside Pin. The reader's notes on this footnote sit in
-    // the margin beside it (notes-margin.js), not under it. Pin and Add a note
-    // share one row after the note, which the left margin holds (E49). "Add a
-    // note" comes first in the document, so it is drawn outside and Pin nearest
-    // the footnote, and Tab runs the way the eye does (BVJ, 2026-11-07).
-    li.append(footnotePills(label, [addNoteButton(li.id, label), button]));
+    // Pin goes after the note, in the left margin where there is room (E49).
+    // A note on this footnote (M11) sits in the margin beside it
+    // (notes-margin.js), not under it. "Add a note" sat beside Pin until
+    // notes on a footnote could no longer be added (BVJ, 2026-11-10, E79).
+    li.append(footnotePills(button));
   }
   initFootnotePills(document.querySelector(".footnotes-wrap ol.footnotes"));
 
   // chapter-tools.js offers the popover before placing it, and so does /desk's
   // LIT pane, which names its chapter in the detail (`book`, `chapter`). The
   // Pin button shares the line "See in footnotes" has, so the popover grows no
-  // taller; Add a note (M11) goes beside Pin, and the reader's notes on this
-  // footnote, at most two, under that line.
+  // taller, and the reader's notes on this footnote (M11), at most two, go
+  // under that line.
   document.addEventListener("lit:footnote-actions", (e) => {
     const { panel, note, ref, book, chapter } = e.detail ?? {};
     if (!panel || !note?.id) return;
@@ -358,17 +351,12 @@ export function initPins({ store, ctx, desk = false }) {
     if (!button) return;
     const row = document.createElement("div");
     row.className = "desk-pin-row";
-    const actions = document.createElement("span");
-    actions.className = "desk-fn-actions";
-    actions.append(button);
-    const add = addNoteButton(note.id, ref?.textContent.trim() ?? "", where);
-    if (add) actions.append(add);
     const jump = panel.querySelector(".lit-panel__jump");
     if (jump) {
       jump.replaceWith(row);
-      row.append(jump, actions);
+      row.append(jump, button);
     } else {
-      row.append(actions);
+      row.append(button);
       panel.append(row);
     }
     const mine = footnoteNotes(note.id, where, { compact: true });

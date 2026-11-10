@@ -29,10 +29,11 @@
 //
 // The footnotes are copied from the page's own footnote list, so they read
 // exactly as they do there, links included, and each carries the Pin button
-// it has there (pins.js), an Add a note button beside it (M11), and under it
-// the reader's notes on that footnote, in full (footnote-notes.js); those are
-// left out of "My notes" below, which is about the verse's own words. Nothing
-// here adds to or changes the scripture on the page.
+// it has there (pins.js) and under it any notes the reader has on that
+// footnote (M11), in full (footnote-notes.js; none can be added since
+// 2026-11-10, E79); those are left out of "My notes" below, which is about
+// the verse's own words. Nothing here adds to or changes the scripture on the
+// page.
 
 import { notesCiting } from "../../lib/desk-chains.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
@@ -44,7 +45,7 @@ import { verseAtReadingLine } from "../last-read.js";
 import { drawBookmarkLine } from "./bookmark-follow.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { chevronIcons, glyph } from "./glyphs.js";
-import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
+import { footnoteNotes } from "./footnote-notes.js";
 import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
 import { routeFootnoteLinks } from "./footnote-links.js";
@@ -118,7 +119,7 @@ export function createVerseTab({
       <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My Notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
-      <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-fn-add__glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
+      <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-verse__add-glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
     </section>
     <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseChainsTitle${idSuffix}">Notes that cite this verse</h4>
@@ -306,17 +307,11 @@ export function createVerseTab({
       letter.className = "desk-verse__fn-label";
       letter.textContent = label;
       li.append(letter, clone);
-      // Pin / Unpin, as under the note in the Footnotes list, with Add a note
-      // beside it, then the reader's notes on this footnote.
+      // Pin, as under the note in the Footnotes list, then the reader's notes
+      // on this footnote.
       const where = { bookKey: here.bookKey, chapter: here.chapter };
       const pin = store ? pinButton(id, label, where) : null;
-      const add = store ? addNoteButton(id, label, where) : null;
-      if (pin || add) {
-        const actions = document.createElement("div");
-        actions.className = "desk-fn-actions";
-        actions.append(...[pin, add].filter(Boolean));
-        li.append(actions);
-      }
+      if (pin) li.append(pin);
       const mine = store ? footnoteNotes(id, where) : null;
       if (mine) li.append(mine);
       items.push(li);

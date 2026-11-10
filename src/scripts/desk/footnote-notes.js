@@ -6,42 +6,41 @@
 // `n` among identical ones), never by its letter, so findPin
 // (src/lib/desk-footnotes.mjs) finds it again however the letters shift. The
 // pure rules (the record, the change notice, the words) are in src/lib; this
-// file is the pieces of page that make and show such notes:
+// file is the pieces of page that show such notes.
 //
-//   - "Add a note" beside Pin, under each note in Chapter View's Footnotes list,
-//     in the popover a footnote letter opens, in the Notebook's "This verse"
-//     tab and in /desk's Footnotes pane;
+// **The website no longer makes them** (BVJ, 2026-11-10; STUDY-DESK-FIXES.md,
+// E79): the "Add a note" button that sat beside every Pin is gone. A note on a
+// footnote made before then, or by an app, or restored from a backup, is still
+// a valid record, so it is still shown, edited and deleted here:
+//
 //   - the reader's notes on a footnote, listed under it where there is room
-//     (the tab and the pane, in full) or in two compact rows with "and N more
-//     in My Notes" (the popover);
+//     (This verse and /desk's Footnotes pane, in full) or in two compact rows
+//     with "and N more in My Notes" (the popover), each with Edit;
 //   - the footnote element a note sits beside on Chapter View, for the margin
 //     (note-sources.js), "Show in the footnotes" and printing.
 //
-// Like pins.js, nothing here touches the footnote's text: buttons and lists sit
-// beside `.fn-body`, never inside it, so the popover, the handout and the
-// desk's own reading of a footnote (page.js footnoteList) copy only the
-// footnote. Lists are found in the document by their `data-desk-fnn` attribute
-// whenever the notebook changes, so a popover that has closed or a tab that has
-// redrawn leaves nothing to clean up.
+// Like pins.js, nothing here touches the footnote's text: lists sit beside
+// `.fn-body`, never inside it, so the popover, the handout and the desk's own
+// reading of a footnote (page.js footnoteList) copy only the footnote. Lists
+// are found in the document by their `data-desk-fnn` attribute whenever the
+// notebook changes, so a popover that has closed or a tab that has redrawn
+// leaves nothing to clean up.
 //
 // The notes of a chapter are kept in memory (`cache`), read again on every
 // change to the notebook, so the popover, which is placed the moment it opens,
 // can draw its rows at once instead of growing after it has been positioned.
 
-import { findPin, pinFields } from "../../lib/desk-footnotes.mjs";
+import { findPin } from "../../lib/desk-footnotes.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter, recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { currentPanel } from "../lit-panel.js";
 import { loadChapterPage, loadedChapterPage } from "./chapter-page.js";
-import { busy, isBusy } from "./focus-keep.js";
-import { pillsHome } from "./footnote-pills.js";
 import { glyph } from "./glyphs.js";
 import { openNoteEditor } from "./note-editor.js";
 import { fillNoteWords } from "./note-words.js";
 import { footnoteList, pageChapter } from "./page.js";
 import { escapeHtml } from "./dom.js";
-import { setTip } from "../tip.js";
 
 /** What the buttons need: the notebook and what a write is stamped with. */
 let env = null;
@@ -123,61 +122,12 @@ export function footnoteElementFor(record, known = undefined) {
   return at.id ? document.getElementById(at.id) : null;
 }
 
-/* ── Making and editing a note ───────────────────────────────────── */
+/* ── Editing a note ──────────────────────────────────────────────── */
 
 /** Where the editor opens from a button: beside the panel the button is in, if it is in one (the popover is replaced by the editor). */
 function openedFrom(button) {
   const panel = button.closest(".lit-panel") ? currentPanel() : null;
-  // A button behind a footnote's "⋯" (E49) hands back the "⋯", which stays.
-  const home = pillsHome(button);
-  return { trigger: panel?.trigger ?? home, restoreFocus: panel ? panel.restoreFocus ?? null : home };
-}
-
-/** Open the editor on a new note for the footnote with this id in this chapter. */
-async function addNote(id, where, button) {
-  const list = await footnoteListFor(where);
-  if (!list || !list.some((f) => f.id === id)) return;
-  const draft = { bookKey: where.bookKey, chapter: where.chapter, ...pinFields(list, id) };
-  const { trigger, restoreFocus } = openedFrom(button);
-  openNoteEditor({ trigger, store: env.store, ctx: env.ctx, ref: recordReference(draft), draft, restoreFocus });
-}
-
-/**
- * An "Add a note" button for a footnote. `id` is the footnote's id in its
- * chapter's page (`fn-a`) and `label` its letter, which names it for a screen
- * reader and is never stored. `where` is the chapter, `{ bookKey, chapter }`:
- * the page's own by default, a pane's on /desk. Null where there is no notebook.
- *
- * @returns {HTMLButtonElement | null}
- */
-export function addNoteButton(id, label, where = pageChapter()) {
-  if (!env || !where?.bookKey || !where.chapter) return null;
-  const at = { bookKey: where.bookKey, chapter: where.chapter };
-  const button = document.createElement("button");
-  button.type = "button";
-  // Looks as Pin does (desk.css), and is hidden from print the same way.
-  // A glyph, as Pin is (E18): the plain note marker the note window shows
-  // (BVJ, 2026-11-06; "+ Note" until then), in the text's own color. The name,
-  // and the shared tooltip, say what it does and which footnote. "Note" beside
-  // the glyph shows where a list has room, as Pin's word does (E72).
-  button.className = "desk-pin desk-pin--glyph desk-fn-add";
-  button.dataset.deskFnAdd = id;
-  button.innerHTML = `${glyph("note", "desk-fn-add__glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span>`;
-  button.setAttribute("aria-label", `Add a note on footnote ${label}`);
-  setTip(button, `Add a note on footnote ${label}`);
-  button.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    if (isBusy(button)) return;
-    const done = busy(button);
-    try {
-      await addNote(id, at, button);
-    } catch (err) {
-      console.error("Study Desk: the note on a footnote couldn't be started", err);
-    } finally {
-      done();
-    }
-  });
-  return button;
+  return { trigger: panel?.trigger ?? button, restoreFocus: panel ? panel.restoreFocus ?? null : button };
 }
 
 /** Open the editor on an existing note on a footnote. */

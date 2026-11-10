@@ -1,142 +1,43 @@
 // src/scripts/desk/footnote-pills.js
 //
-// Where a footnote's Pin (pins.js) and "Add a note" (footnote-notes.js) sit in
-// Chapter View's Footnotes list (STUDY-DESK-FIXES.md, E49; BVJ, 2026-11-06).
-// The rule is src/lib/desk-footnote-pills.mjs (pure, unit-tested); this builds
-// the row and applies the answer, the way margin.js does for the Notebook.
+// Where a footnote's Pin (pins.js) sits in Chapter View's Footnotes list
+// (STUDY-DESK-FIXES.md, E49; BVJ, 2026-11-06). The rule is
+// src/lib/desk-footnote-pills.mjs (pure, unit-tested); this builds the pill's
+// holder and applies the answer, the way margin.js does for the Notebook.
 //
 // Each footnote gets one `.desk-fn-pills` after its `.fn-body`, so reading
-// order and tab order are the note, then "Add a note", then its Pin, wherever they
-// are drawn: left to right in a row (Pin nearest the footnote), top to bottom in
-// the "⋯" stack, with no reversed drawing to part Tab from the eye (BVJ,
-// 2026-11-07). The list carries `data-desk-fn-pills="row" | "more" | "inline"`
-// (desk.css draws each):
-//   row     the two pills in the left margin, level with the footnote's first line;
-//   more    one "⋯" pill there, a disclosure button that opens Pin and "Add a note"
-//           stacked under it; Escape, a click elsewhere or focus leaving closes it;
+// order and tab order are the note, then its Pin, wherever Pin is drawn. The
+// list carries `data-desk-fn-pills="row" | "inline"` (desk.css draws each):
+//   row     Pin in the left margin, level with the footnote's first line;
 //   inline  on the note's line, on its right, as before E49.
 // A footnote with one of the reader's margin notes beside it (notes-margin.js
 // sets `data-desk-fn-margin` on it) takes the inline placement, since a margin
-// note sits in the same left margin.
+// note sits in the same left margin. Moving between the two only moves Pin, so
+// focus on it is never lost.
 //
-// Nothing here adds text to the scripture or to the footnote: the pills sit
-// beside `.fn-body`, never in it.
+// Until 2026-11-10 "Add a note" sat beside Pin and a third mode folded the two
+// behind one "⋯" button; notes on a footnote can no longer be added (BVJ,
+// 2026-11-10; STUDY-DESK-FIXES.md, E79), and one pill has nothing to fold.
+//
+// Nothing here adds text to the scripture or to the footnote: Pin sits beside
+// `.fn-body`, never in it.
 
-import { PILL_GAP, footnotePillMode } from "../../lib/desk-footnote-pills.mjs";
+import { footnotePillMode } from "../../lib/desk-footnote-pills.mjs";
 
 const ATTR = "data-desk-fn-pills";
-let counter = 0;
-
-const DOTS = `<svg viewBox="0 0 16 4" width="16" height="4" fill="currentColor" aria-hidden="true"
-  focusable="false"><circle cx="2" cy="2" r="1.5" /><circle cx="8" cy="2" r="1.5" /><circle cx="14" cy="2" r="1.5" /></svg>`;
-
-/** The pill row whose stack is open now, if any. */
-const openRow = () => document.querySelector(".desk-fn-pills[data-open]");
-
-function setOpen(wrap, on) {
-  wrap.toggleAttribute("data-open", on);
-  wrap.querySelector(".desk-fn-more")?.setAttribute("aria-expanded", String(on));
-}
 
 /**
- * The row of pills for one footnote: a "⋯" button (shown only in "more") and
- * the group holding Pin and "Add a note".
+ * The holder for one footnote's Pin.
  *
- * @param {string} label the footnote's letter, which names the "⋯" button
- * @param {Array<HTMLElement | null>} buttons "Add a note", then Pin, in the order
- *   they are to be read and tabbed (a null is skipped)
+ * @param {HTMLElement} pin the footnote's Pin button
  * @returns {HTMLElement}
  */
-export function footnotePills(label, buttons) {
+export function footnotePills(pin) {
   const wrap = document.createElement("div");
   wrap.className = "desk-fn-pills";
-  const group = document.createElement("span");
-  group.className = "desk-fn-pills__group";
-  group.id = `desk-fn-pills-${++counter}`;
-  group.append(...buttons.filter(Boolean));
-
-  const more = document.createElement("button");
-  more.type = "button";
-  more.className = "desk-fn-more";
-  more.setAttribute("aria-label", `Actions for footnote ${label}`);
-  more.setAttribute("aria-expanded", "false");
-  more.setAttribute("aria-controls", group.id);
-  more.title = `Actions for footnote ${label}`;
-  more.innerHTML = DOTS;
-  more.addEventListener("click", () => {
-    const on = !wrap.hasAttribute("data-open");
-    const other = openRow();
-    if (other && other !== wrap) setOpen(other, false);
-    setOpen(wrap, on);
-  });
-
-  // Choosing Pin or "Add a note" closes the stack and keeps focus on the "⋯" (the
-  // buttons under it are hidden again), before their own handlers run.
-  group.addEventListener(
-    "click",
-    () => {
-      if (!wrap.hasAttribute("data-open")) return;
-      setOpen(wrap, false);
-      more.focus({ preventScroll: true });
-    },
-    true,
-  );
-  // Focus leaving for somewhere else closes it. (A null relatedTarget is the
-  // window losing focus, which leaves it alone.)
-  wrap.addEventListener("focusout", (e) => {
-    if (e.relatedTarget && !wrap.contains(e.relatedTarget)) setOpen(wrap, false);
-  });
-
-  wrap.append(more, group);
+  wrap.append(pin);
   return wrap;
 }
-
-/**
- * Where focus and an editor's trigger belong for a pill: the pill itself, or
- * the "⋯" when its list is in "more", since the pill is hidden again once the
- * stack closes.
- *
- * @param {HTMLElement} button Pin or "Add a note"
- */
-export function pillsHome(button) {
-  const wrap = button.closest(".desk-fn-pills");
-  const more = wrap?.querySelector(".desk-fn-more");
-  if (!more) return button;
-  const inMore =
-    wrap.closest(".footnotes")?.getAttribute(ATTR) === "more" && !wrap.closest("li")?.hasAttribute("data-desk-fn-margin");
-  return inMore ? more : button;
-}
-
-/**
- * Run a change that may move a footnote's pills between the "⋯" and the
- * note's line (the margin note that takes the left margin, or gives it back),
- * and keep focus on a control that is showing afterward (NB3-3). Focus on a
- * control the change hides would drop to the page's body. Focus on the "⋯"
- * goes to "Add a note", since a note is what just arrived; on a pill that is
- * now behind the "⋯", to the "⋯".
- *
- * @param {() => void} change
- */
-export function keepPillFocus(change) {
-  const active = document.activeElement;
-  const li = active instanceof Element && active.closest(".desk-fn-pills") ? active.closest("li") : null;
-  if (!li) return change();
-  change();
-  // Hidden either way: display none ("⋯" gone) or a closed stack's visibility.
-  if (!active.isConnected || (active.getClientRects().length && getComputedStyle(active).visibility !== "hidden")) return;
-  const target = active.classList.contains("desk-fn-more")
-    ? li.querySelector(".desk-fn-add") ?? li.querySelector(".desk-pin")
-    : pillsHome(active);
-  target?.focus({ preventScroll: true });
-}
-
-/** Put focus on a footnote's Pin, or on its "⋯" where the Pin is behind it. */
-export function focusPin(li) {
-  const pin = li.querySelector(".desk-pin:not(.desk-fn-add)");
-  if (pin) pillsHome(pin).focus({ preventScroll: true });
-}
-
-let started = false;
 
 /**
  * Measure the Footnotes list and keep its mode current, on load and whenever
@@ -151,22 +52,18 @@ export function initFootnotePills(list) {
   list.dataset.deskFnPillsInit = "";
 
   const measure = () => {
-    let row;
-    let stack;
-    for (const group of list.querySelectorAll(".desk-fn-pills__group")) {
-      const widths = Array.from(group.children, (el) => el.getBoundingClientRect().width);
-      if (widths.length && widths.every((w) => w > 0)) {
-        row = widths.reduce((a, b) => a + b, 0) + PILL_GAP * (widths.length - 1);
-        stack = Math.max(...widths);
+    let width;
+    for (const pin of list.querySelectorAll(".desk-fn-pills > .desk-pin")) {
+      const w = pin.getBoundingClientRect().width;
+      if (w > 0) {
+        width = w;
         break;
       }
     }
-    // The list's left edge is the margin the pills have: the column as the
-    // page has it now, moved or not.
-    const mode = footnotePillMode({ free: list.getBoundingClientRect().left, row, stack });
-    if (list.getAttribute(ATTR) === mode) return;
-    list.setAttribute(ATTR, mode);
-    if (mode !== "more") for (const wrap of list.querySelectorAll(".desk-fn-pills[data-open]")) setOpen(wrap, false);
+    // The list's left edge is the margin Pin has: the column as the page has
+    // it now, moved or not.
+    const mode = footnotePillMode({ free: list.getBoundingClientRect().left, width });
+    if (list.getAttribute(ATTR) !== mode) list.setAttribute(ATTR, mode);
   };
 
   let frame = 0;
@@ -184,20 +81,5 @@ export function initFootnotePills(list) {
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
-  });
-
-  if (started) return;
-  started = true;
-  // A click elsewhere, or Escape, closes an open stack.
-  document.addEventListener("pointerdown", (e) => {
-    const open = openRow();
-    if (open && !open.contains(e.target)) setOpen(open, false);
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape" || e.defaultPrevented) return;
-    const open = openRow();
-    if (!open) return;
-    if (open.contains(document.activeElement)) open.querySelector(".desk-fn-more")?.focus({ preventScroll: true });
-    setOpen(open, false);
   });
 }

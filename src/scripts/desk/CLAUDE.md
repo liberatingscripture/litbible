@@ -1599,8 +1599,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
   21. **Phase 3k, getting started and sharing** (templates, share links): in that file too.
   22. **Phase 2b, a sheet checked before printing**: in that file too.
   23. **Phase 2c is notes on a footnote and questions for discussion**
-     (STUDY-DESK.md, M11, N6 and "Order of work", 2c).
-     Three things to know:
+     (STUDY-DESK.md, M11, N6 and "Order of work", 2c). **The website no
+     longer offers to add a note on a footnote** (BVJ, 2026-11-10;
+     STUDY-DESK-FIXES.md, E79), but the record stays valid (the apps may
+     write one, and old ones and backups hold them), so everything that
+     reads, shows, edits, prints, notices or merges one stays. Don't
+     reintroduce an "Add a note" beside Pin. Four things to know:
      - **A note on a footnote is a `note` with a pin's fields**
        (`footnote`, `n` and the letter's verse; no `quote`, no
        `verseCopy`), told apart by `onFootnote` in `desk-records.mjs`. It is
@@ -1614,47 +1618,41 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      note citing its own verse is a chain like any other, so `notesCiting`
      (`desk-chains.mjs`) lists it rather than treating it as sitting on
      that verse (BA20).
-     - **`desk/footnote-notes.js` is its page side**: an "Add a note" button,
-       the plain note marker's glyph (BVJ, 2026-11-06), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
-       which `pins.js` and the tabs and pane call). This verse's own add button (`tab-verse.js`,
-       "Add a note on this verse") is the same glyph pill. **Pin shows its
-       state, not the press to come** (E67, reversing E18's struck-through
-       glyph): one thumbtack, outlined, then filled and tinted green while
-       pinned, always named "Pin footnote a" with `aria-pressed`; the pane
-       lock (E21) takes the same tint. The thumbtack means pinning and nothing
-       else. **Glyph controls carry the shared tooltip** (`setTip`,
-       `src/scripts/tip.js`, E72; shown on hover and keyboard focus, never on
-       touch, `aria-hidden` since the name says it), never `title`; and the
-       words "Pin" and "Note" show beside the glyphs in the lists (the
-       Footnotes list, the Footnotes pane, This verse), not the popover. A
-       pane header wider than 26rem shows "Stay here" beside its lock, and My
-       Notes' header names its chapter (E69). The same file draws the reader's notes under a
-       footnote (`footnoteNotes`). Both sit beside `.fn-body`, never in it, so a footnote's text, the
-       handout and `footnoteList()` read only the footnote. The margin
-       places such a note beside its footnote's `li` (`note-sources.js`)
-       and marks the `li` instead of lighting verse words.
-     - **In the Footnotes list, Pin and "Add a note" sit in the left margin**
-       (BVJ, 2026-11-06, E49; `desk/footnote-pills.js`, the rule in
-       `src/lib/desk-footnote-pills.mjs`, pure and tested). `initPins` puts
-       both in one `.desk-fn-pills` after each footnote's `.fn-body`, in the
-       order "Add a note", then Pin, so reading and tab order are the drawn
-       order everywhere (left to right, top to bottom in the "⋯" stack): never
-       `row-reverse` (BVJ, 2026-11-07). The list measures its own left edge (on load, resize,
-       `desk:column-moved`, the Display tray's size, face and text width, and
-       fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
-       by side, Pin nearest the footnote, BVJ 2026-11-06; nothing grows),
-       **`more`** (one "⋯" disclosure button that opens the two stacked;
-       Escape, a click elsewhere or focus leaving closes it, and choosing either
-       returns focus to the "⋯"), or **`inline`** (the pre-E49 placement on
-       the note's line), by the pills' measured widths (sizes in E49).
-       **A footnote with one of the reader's
-       margin notes beside it takes `inline`** whatever the list's mode:
-       `notes-margin.js` sets `data-desk-fn-margin` on it, because the margin
-       notes (full or circles) are in the same left margin, level with the
-       footnote. Print hides the pills as before. Code that restores focus to
-       a pill must use `pillsHome(button)`, since a pill behind a closed "⋯" is
-       hidden, and a change that moves a footnote between "⋯" and inline (the
-       margin note's mark) runs inside `keepPillFocus`; the popover's own Pin and "Add a note" row, and /desk's panes, are
-       unchanged. Read View has no footnotes, so it has none of this.
+     - **`desk/footnote-notes.js` is its page side**: it draws the reader's
+       notes under a footnote (`footnoteNotes`, each with Edit), in full in
+       This verse and the Footnotes pane and two compact rows in the popover,
+       beside `.fn-body`, never in it, so a footnote's text, the handout and
+       `footnoteList()` read only the footnote. The margin places such a note
+       beside its footnote's `li` (`note-sources.js`) and marks the `li`
+       instead of lighting verse words. **Pin shows its state, not the press
+       to come** (E67, reversing E18's struck-through glyph): one thumbtack,
+       outlined, then filled and tinted green while pinned, always named "Pin
+       footnote a" with `aria-pressed`; the pane lock (E21) takes the same
+       tint. The thumbtack means pinning and nothing else. **Glyph controls
+       carry the shared tooltip** (`setTip`, `src/scripts/tip.js`, E72; shown
+       on hover and keyboard focus, never on touch, `aria-hidden` since the
+       name says it), never `title`; the word "Pin" shows beside the glyph in
+       the lists (the Footnotes list, the Footnotes pane, This verse), not the
+       popover, as "Note" does on This verse's "Add a note on this verse"
+       (`tab-verse.js`). A pane header wider than 26rem shows "Stay here"
+       beside its lock, and My Notes' header names its chapter (E69).
+     - **In the Footnotes list, Pin sits in the left margin** (BVJ,
+       2026-11-06, E49; `desk/footnote-pills.js`, the rule in
+       `src/lib/desk-footnote-pills.mjs`, pure and tested). `initPins` puts it
+       in a `.desk-fn-pills` after each footnote's `.fn-body`, so reading and
+       tab order are the note, then Pin. The list measures its own left edge
+       (on load, resize, `desk:column-moved`, the Display tray's size, face
+       and text width, and fonts loading) and sets `data-desk-fn-pills`:
+       **`row`** (Pin in the margin, level with the footnote's first line) or
+       **`inline`** (the pre-E49 placement on the note's line). **A footnote
+       with one of the reader's margin notes beside it takes `inline`**
+       whatever the list's mode: `notes-margin.js` sets
+       `data-desk-fn-margin` on it, because the margin notes (full or
+       circles) are in the same left margin. That only moves Pin, so focus
+       stays on it. Until E79 "Add a note" sat beside Pin and a third mode,
+       `more`, folded the two behind a "⋯" (with `keepPillFocus` and
+       `pillsHome` to rescue focus); all of that went with it. Print hides
+       Pin as before; the popover's own Pin and /desk's panes are unchanged.
+       Read View has no footnotes, so it has none of this.
      - **A sheet takes notes, highlights and pinned footnotes from the
        notebook as ordinary parts**: in `src/scripts/desk/sheets/CLAUDE.md`, rule 23.

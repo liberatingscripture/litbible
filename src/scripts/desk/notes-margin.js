@@ -64,7 +64,6 @@ import { glyph } from "./glyphs.js";
 import { fillNoteWords, onLink } from "./note-words.js";
 import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js";
 import { escapeHtml } from "./dom.js";
-import { keepPillFocus } from "./footnote-pills.js";
 
 const LIT = "desk-note-words";
 // What a hovered, focused or opened note on a footnote puts on its footnote.
@@ -128,18 +127,15 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
   /**
    * A footnote with a note drawn beside it here has that margin taken, so its
-   * Pin and "+ Note" take their place on its line instead (footnote-pills.js,
-   * E49). Marks exactly the footnotes of `items` and unmarks the rest.
+   * Pin takes its place on its line instead (footnote-pills.js, E49). Marks
+   * exactly the footnotes of `items` and unmarks the rest. The mark only moves
+   * Pin, never hides it, so focus on it stays put (NB3-3 needed more while a
+   * "⋯" could hide it, until E79).
    */
   function markFootnotes(items) {
     const mine = new Set(items.map((p) => p.footnote).filter(Boolean));
-    // The mark moves a footnote's pills between "⋯" and inline, hiding whichever
-    // control focus is on; keepPillFocus puts focus on the one now showing
-    // (NB3-3).
-    keepPillFocus(() => {
-      for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
-      for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
-    });
+    for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
+    for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
   }
 
   let frame = 0;

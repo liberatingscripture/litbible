@@ -2298,6 +2298,24 @@ tap areas (`global.css`, never under 24px).
   Share stay first. Whether Print and Add to sheet go behind one “More” row
   was not taken up and stays open.
 
+**BVJ, 2026-11-10** (after the conventions pass)
+
+- **E79, design: no more notes on a footnote.** BVJ (2026-11-10): “Let's
+  actually remove the ability to add notes on footnotes.” This reverses
+  M11's “Decided: yes” for adding one (STUDY-DESK.md, M11). Status: **done
+  2026-11-10**: “Add a note” is gone from beside Pin in all four places
+  (the popover a footnote letter opens, Chapter View's Footnotes list, This
+  verse, and /desk's Footnotes pane), and with it the Footnotes list's
+  “⋯” fold (E49's `more` mode), which existed only to hold two pills where
+  one fitted; Pin now sits in the margin or on the note's line. A note
+  already on a footnote is kept and still shows beside its footnote, in
+  My Notes, in print and on a sheet, with Edit, Delete and its change
+  notice, because the record (kind 2 with a footnote target) stays valid:
+  BDR confirmed its fields on 2026-10-23, the apps may write one, and a
+  backup may hold one. The help page's “Pinned footnotes” section says so.
+  Claude's call, for BVJ to overrule: keeping those notes rather than
+  hiding or deleting them, since the request was about adding.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
