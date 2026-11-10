@@ -751,7 +751,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     }
     if (onDone) {
       // On the sheet's own page, its versions are the page itself (S12, part 1, step 2).
-      const done = button("Done", "desk-sheet__btn desk-sheet__btn--primary");
+      // "Close" at the right edge, beside the saved line, still green (BVJ,
+      // 2026-11-10; it was "Done" in the middle of the row).
+      const done = button("Close", "desk-sheet__btn desk-sheet__btn--primary");
       done.title = "Back to the leader and participant versions, to print, copy, or share";
       const doneHint = describe(done, "Back to the leader and participant versions, to print, copy, or share.");
       done.addEventListener("click", async () => {
@@ -760,7 +762,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
         await saving;
         if (!destroyed && sheet) onDone(sheet.id);
       });
-      header.append(back, done, status, doneHint);
+      const end = make("span", "desk-sheet__top-end");
+      end.append(status, done);
+      header.append(back, end, doneHint);
     } else {
       header.append(back, present, print, ownPage, status, printHint, presentHint, ownHint);
     }

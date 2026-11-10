@@ -13,7 +13,7 @@
 //   random one that means nothing outside this browser's notebook.
 // - **Edit** (S12, part 1, step 2; BVJ, 2026-11-08, decision 1) turns the
 //   page into the sheet editor, `/sheets/?id=<id>&view=edit`, and Done turns
-//   it back; "Edit on the Study Desk" stays beside it for the fuller
+//   it back; "Edit in Study Desk" stays beside it for the fuller
 //   workspace. **New sheet…** on the list offers the templates and opens the
 //   new sheet in the editor. The editor's code (sheet-page-edit.js, which
 //   holds sheet-editor.js) is a dynamic import made only then, so a page
@@ -522,7 +522,7 @@ async function showSheet(root, store, id, view = null) {
  *
  * `demo` is the Sheets tour's (E63): the versions of the tour's sheet, which
  * is never saved, drawn as for the reader's own. It leaves out the links row
- * ("‹ My sheets" and "Edit on the Study Desk" leave the tour, and the second
+ * ("‹ My sheets" and "Edit in Study Desk" leave the tour, and the second
  * names an id no notebook holds), its Edit returns to the tour's editor
  * (`demo.onEdit`) without touching the address, and nothing here writes a
  * record: Print, Copy, Save as, Share and Present work on the sheet in hand.
@@ -544,12 +544,11 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   bar.setAttribute("aria-label", phone ? "Version, presenting, printing, and sharing" : "Version, paper, and printing");
   const back = make("a", "sheets-page__back", "‹ My sheets");
   back.href = `${BASE}sheets/`;
-  const edit = make("a", "sheets-page__back", "Edit on the Study Desk");
+  const edit = make("a", "sheets-page__back", "Edit in Study Desk");
   edit.href = `${BASE}desk/?sheet=${encodeURIComponent(id)}`;
-  const links = make("div", "sheets-page__links");
-  // A phone has no sheets of its own to go back to, and no desk (NB6-8).
-  if (!phone) links.append(back);
-  if (!shared) links.append(edit);
+  // "Edit in Study Desk" sits at the end of the buttons' row, the corner
+  // beside Edit (BVJ, 2026-11-10); "‹ My sheets" leads the choices' row.
+  edit.classList.add("sheets-page__desk-link");
 
   const copyChoice = choices("sheet-copy", "Version", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
     copy = v;
@@ -589,7 +588,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   const actions = make("div", "sheets-page__actions");
   // Edit (S12, part 1, step 2): the page becomes the editor. The reader's
   // own sheets only; a shared one is imported first.
-  const editHere = button("Edit", "desk-sheet__btn sheets-page__edit");
+  // The row's one emphasized button (BVJ, 2026-11-10): Edit leaves this page's
+  // job (reading and printing) for the editor, so it is the one that stands
+  // out. Print and the rest are alike.
+  const editHere = button("Edit", "desk-sheet__btn desk-sheet__btn--primary sheets-page__edit");
   editHere.title = "Change this sheet here, on its own page";
   editHere.addEventListener("click", () => {
     if (demo) {
@@ -601,7 +603,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   });
   const present = button("Present");
   present.title = "Show this sheet to a room, full screen, one part at a time";
-  const print = button("Print", "desk-sheet__btn desk-sheet__btn--primary");
+  const print = button("Print");
   const word = button("Copy");
   word.prepend(copyGlyph());
   // The visible "Copy" opens the name, so a screen reader says what is copied.
@@ -611,7 +613,6 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   status.setAttribute("role", "status");
   const share = button("Share…", phone ? "desk-sheet__btn desk-sheet__btn--primary" : "desk-sheet__btn");
   share.title = phone ? "Send this sheet’s link with your phone’s share sheet" : "Send this sheet to someone as a link or a file";
-  if (phone) print.classList.remove("desk-sheet__btn--primary");
   // Present is hidden and Share left out on a shared sheet, so theirs are not
   // written (SH6-11); a phone shows both, and has no Copy.
   hints.push(
@@ -642,7 +643,13 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     root.classList.add("sheets-page--phone");
     bar.append(...(copies.length > 1 ? [copyChoice] : []), ...(phoneScopeChoice ? [phoneScopeChoice] : []), actions, ...hints);
   } else {
-    bar.append(...(demo ? [] : [links]), copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
+    // Two rows: what to show (the choices, QR codes among them), then what to
+    // do with it (the buttons, and the desk link at their end).
+    const choiceRow = make("div", "sheets-page__row");
+    choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice, codeBox, keyBox);
+    const doRow = make("div", "sheets-page__row");
+    doRow.append(actions, ...(demo || shared ? [] : [edit]));
+    bar.append(choiceRow, doRow, ...hints);
   }
 
   const paperBox = make("div", "sheets-page__paper");
