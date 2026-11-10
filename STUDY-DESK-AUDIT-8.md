@@ -26,7 +26,7 @@ PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8
 of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
 LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
 
-**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all marks and Delete all sheets). Still open: decisions 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
+**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all notes and marks, and Delete all sheets). Still open: decisions 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
 
 ## Bottom line
 
@@ -187,7 +187,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
 7. **Scale (LG8-2, GF8b-6):** page My Notes on /desk and `/notebook`, or keep them unpaged? Cap many
    notes on one verse into "N more," or let the margin stack?
 8. **"Delete everything" (DK8-7):** is trashing sheets and templates with the notes intended, or
-   should sheets have their own button? Either way the sentence should say what it moves. **Decided (2026-11-10): two buttons, Delete all marks and Delete all sheets; fixed.**
+   should sheets have their own button? Either way the sentence should say what it moves. **Decided (2026-11-10): two buttons, “Delete all notes and marks” and “Delete all sheets” (labels on Fable’s advice, no third button); fixed.**
 9. **Copy names (CP8 Rule 7, Rule 6):** "My Notes" or "My notes," "My Notebook" or "My notebook,"
    "Your templates" or "My templates," "Space" or "Space to write," and whether "Study Desk preview"
    stays in reader-facing text until release.

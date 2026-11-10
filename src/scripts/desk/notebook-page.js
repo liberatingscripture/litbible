@@ -147,13 +147,13 @@ async function start() {
       <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete in bulk</h2>
       <p>Each moves what it names in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring it back until you leave the page, or restore it from the Trash above. The trash keeps each item for ${TRASH_DAYS} days, then only a record that it was deleted.</p>
       <div class="desk-np__danger">
-        <h3 class="desk-np__h3">Delete all marks</h3>
+        <h3 class="desk-np__h3">Delete all notes and marks</h3>
         <p>Every note, highlight, bookmark, pinned footnote, and label. Your sheets and templates stay.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Delete all sheets</h3>
-        <p>Every sheet, and your own templates. Your notes, highlights, bookmarks, and labels stay.</p>
+        <p>Every sheet, and your own templates. Your notes and marks stay.</p>
         <div data-np-delete-sheets-box></div>
       </div>
       <div class="desk-np__danger">
@@ -330,19 +330,20 @@ async function start() {
     drawAsk(danger.delete, {
       count: counts.marks,
       ready: (n) => n > 0,
-      button: "Delete all marks…",
-      none: "There are no marks to delete.",
-      question: (n) => `Are you sure? This deletes ${plural(n, "item", "items")} from this browser. Your sheets stay.`,
-      confirm: "Delete all marks",
+      button: "Delete all notes and marks…",
+      none: "There are no notes or marks to delete.",
+      question: (n) =>
+        `Are you sure? This moves ${plural(n, "item", "items")} (every note, highlight, bookmark, pinned footnote, and label) to the trash. Your sheets and templates stay.`,
+      confirm: "Delete all notes and marks",
       failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
-      run: () => deleteInBulk(planDeleteMarks, (n) => `All marks deleted: ${plural(n, "item", "items")} moved to the trash.`),
+      run: () => deleteInBulk(planDeleteMarks, (n) => `All notes and marks deleted: ${plural(n, "item", "items")} moved to the trash.`),
     });
     drawAsk(danger.sheets, {
       count: counts.sheets,
       ready: (n) => n > 0,
       button: "Delete all sheets…",
       none: "There are no sheets to delete.",
-      question: (n) => `Are you sure? This deletes ${plural(n, "sheet", "sheets")} (templates included) from this browser. Your marks stay.`,
+      question: (n) => `Are you sure? This moves ${plural(n, "sheet", "sheets")} (templates included) to the trash. Your notes and marks stay.`,
       confirm: "Delete all sheets",
       failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
       run: () => deleteInBulk(planDeleteSheets, (n) => `All sheets deleted: ${plural(n, "sheet", "sheets")} moved to the trash.`),

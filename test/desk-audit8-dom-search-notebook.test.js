@@ -103,12 +103,12 @@ test("GF8a-2: a refused label write says so and changes nothing", quiet(async ()
   }
 }));
 
-test("GF8a-2: a refused \"Delete all marks\" write says so and gives the confirm button back", quiet(async () => {
+test("GF8a-2: a refused \"Delete all notes and marks\" write says so and gives the confirm button back", quiet(async () => {
   await openPage();
   await addLabel("Hope");
   const box = q("[data-np-delete-box]");
   click(box.querySelector("button"));
-  const yes = button(box, "Delete all marks");
+  const yes = button(box, "Delete all notes and marks");
   assert.ok(yes, "the question is asked");
   const restore = refuseWrites();
   try {
@@ -131,7 +131,7 @@ test("GF8a-2: a refused \"Empty the trash now\" write says so and gives the conf
   // Move it to the trash, so there is something to empty.
   const del = q("[data-np-delete-box]");
   click(del.querySelector("button"));
-  click(button(del, "Delete all marks"));
+  click(button(del, "Delete all notes and marks"));
   await until(() => q("[data-np-trash-box] button")?.textContent === "Empty the trash now…");
   const box = q("[data-np-trash-box]");
   click(box.querySelector("button"));
@@ -224,14 +224,14 @@ const liveKinds = async () => {
   return (await store.all()).filter((r) => r.kind !== "trash").map((r) => r.kind).sort();
 };
 
-test("decision 8: \"Delete all marks\" trashes notes and labels and leaves the sheets", async () => {
+test("decision 8: \"Delete all notes and marks\" trashes notes and labels and leaves the sheets", async () => {
   await openPage(undefined, { seed: [aSheet(), aNote()] });
   await addLabel("Hope");
   const box = q("[data-np-delete-box]");
-  assert.equal(box.querySelector("button").textContent, "Delete all marks…");
+  assert.equal(box.querySelector("button").textContent, "Delete all notes and marks…");
   click(box.querySelector("button"));
   assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 items/);
-  click(button(box, "Delete all marks"));
+  click(button(box, "Delete all notes and marks"));
   await until(() => box.querySelector(".desk-np__none"));
   assert.deepEqual(await liveKinds(), ["sheet"]);
   assert.equal(q("[data-np-delete-sheets-box] button").textContent, "Delete all sheets…", "the sheets can still be deleted");

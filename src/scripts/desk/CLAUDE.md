@@ -633,7 +633,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        deletion. "Empty the trash now" stays under Delete in bulk and isn't
        undoable. **Delete in bulk is two buttons** (Audit 8 decision 8, BVJ
        2026-11-10; one "Delete everything" until then, which trashed sheets
-       without saying so): "Delete all marks" (every record but sheets) and
+       without saying so): "Delete all notes and marks" (every record but sheets) and
        "Delete all sheets" (sheets and the reader's templates), each one
        undoable step (`planDeleteMarks`, `planDeleteSheets`).
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,

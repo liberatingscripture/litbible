@@ -7,7 +7,7 @@
 // filter narrows them, how the counts read in words, and the two bulk
 // deletions at the page's foot. Pure: no storage, no DOM.
 //
-// "Delete all marks" and "Delete all sheets" (Delete everything until Audit 8
+// "Delete all notes and marks" and "Delete all sheets" (Delete everything until Audit 8
 // decision 8) each trash their records in one plan, so each is one
 // undoable step and the 30 days of the trash still apply. "Empty the trash
 // now" is the shared-computer button: it drops the content of every trash
@@ -258,7 +258,7 @@ export function planDeleteEverything(records, ctx, { which = "all" } = {}) {
 
 /**
  * The notebook page's two bulk deletions (Audit 8 decision 8; BVJ,
- * 2026-11-10): "Delete all marks" takes every record but sheets (notes,
+ * 2026-11-10): "Delete all notes and marks" takes every record but sheets (notes,
  * highlights, bookmarks, pinned footnotes, labels, and any kind this code
  * doesn't know), and "Delete all sheets" takes the sheets and the reader's
  * own templates, which are sheets too. Each is one undoable step, as

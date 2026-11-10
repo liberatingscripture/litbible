@@ -132,7 +132,7 @@ test("planDeleteEverything trashes every live record, whole, in one valid plan",
   assert.doesNotThrow(() => planWrite(plan));
 });
 
-test("Delete all marks takes every record but sheets; Delete all sheets takes the sheets alone (decision 8)", () => {
+test("Delete all notes and marks takes every record but sheets; Delete all sheets takes the sheets alone (decision 8)", () => {
   const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
   const l = make("label", { name: "L" });
   const unknown = { ...a, id: nextId(), kind: "future" };
