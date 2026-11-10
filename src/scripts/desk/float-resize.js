@@ -10,16 +10,21 @@
 // Like the margin's handles (widths.js), nothing shows at rest: the pointer
 // on the edge gets the resize cursor and a small grip beside it, and a
 // hairline shows while dragging. It is a focusable separator the arrow keys
-// move (left widens, right narrows), so it isn't mouse-only. The width is kept
+// move (left widens, right narrows), so it isn't mouse-only, and a press that
+// doesn't move, or Enter, opens its menu of steps (line-menu.js; XA8-1), for a
+// reader who can click but not drag. The width is kept
 // in sessionStorage for the visit and forgotten by "Reset widths".
 //
 // The handle is a child of the panel, so it sticks and scrolls with it.
 // margin.js shows it only while the panel floats expanded.
 
 import { dragFloatEdge, floatBounds } from "../../lib/desk-margin.mjs";
-import { WIDTHS_EVENT, keepFloatWidth } from "./widths.js";
+import { WIDTHS_EVENT, keepFloatWidth, keptAny, resetWidths } from "./widths.js";
+import { clickOrDrag, closeLineMenu, isMenuKey, toggleLineMenu } from "./line-menu.js";
 
 const STEP = 16;
+// A step of its menu: three of the arrow key's.
+const MENU_STEP = 3 * STEP;
 
 /**
  * @param {HTMLElement} panel the Notebook panel
@@ -65,37 +70,50 @@ export function createFloatResize(panel, onChange) {
     e.preventDefault(); // no text selection
     const start = widthNow();
     const x0 = e.clientX;
-    try {
-      handle.setPointerCapture(e.pointerId);
-    } catch (_) {
-      /* a synthetic event has no live pointer */
-    }
-    handle.classList.add("desk-panel__edge--dragging");
-    const move = (ev) => set(dragFloatEdge({ width: start, dx: ev.clientX - x0, viewport }));
-    const end = () => {
-      handle.removeEventListener("pointermove", move);
-      handle.removeEventListener("pointerup", end);
-      handle.removeEventListener("pointercancel", end);
-      handle.classList.remove("desk-panel__edge--dragging");
-    };
-    handle.addEventListener("pointermove", move);
-    handle.addEventListener("pointerup", end);
-    handle.addEventListener("pointercancel", end);
+    clickOrDrag(handle, e, {
+      move: (ev) => {
+        handle.classList.add("desk-panel__edge--dragging");
+        set(dragFloatEdge({ width: start, dx: ev.clientX - x0, viewport }));
+      },
+      end: () => handle.classList.remove("desk-panel__edge--dragging"),
+      click: (ev) => openMenu({ x: ev.clientX, y: ev.clientY }),
+    });
   });
 
-  // Left widens and right narrows, as the edge itself moves; Shift takes bigger steps.
+  // Left widens and right narrows, as the edge itself moves; Shift takes
+  // bigger steps. Enter or Space opens the menu.
   handle.addEventListener("keydown", (e) => {
+    if (isMenuKey(e)) {
+      e.preventDefault();
+      openMenu(null);
+      return;
+    }
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
     e.preventDefault();
     const dx = (e.shiftKey ? 5 : 1) * STEP * (e.key === "ArrowLeft" ? -1 : 1);
     set(dragFloatEdge({ width: widthNow(), dx, viewport }));
   });
 
+  // The click-only way to do what dragging does (XA8-1).
+  function openMenu(at) {
+    toggleLineMenu(handle, {
+      label: "Notebook width",
+      more: "Wider Notebook",
+      less: "Narrower Notebook",
+      step: (dir) => set(dragFloatEdge({ width: widthNow(), dx: -dir * MENU_STEP, viewport })),
+      reset: { label: "Reset widths", run: resetWidths, shown: keptAny },
+      at,
+    });
+  }
+
   return {
     update({ visible, width, viewport: v }) {
       viewport = v;
       handle.hidden = !visible;
-      if (!visible) return;
+      if (!visible) {
+        closeLineMenu(handle);
+        return;
+      }
       const { min, max } = floatBounds(v);
       handle.setAttribute("aria-valuemin", String(min));
       handle.setAttribute("aria-valuemax", String(max));

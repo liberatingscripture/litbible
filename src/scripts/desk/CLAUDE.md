@@ -308,6 +308,20 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      before first paint as `data-desk-widths` with `--desk-measure` and
      `--desk-width`, and global.css sets the column's measure and right
      margin from them.
+     **Every line a reader can drag also works by click** (Audit 8, XA8-1;
+     BVJ, 2026-11-10; WCAG 2.5.7, which a keyboard alternative doesn't
+     meet): the two margin lines, the floating notebook's edge and the Greek
+     tab's line open a small menu of steps ("Wider text", "Narrower
+     Notebook", "Larger entry", and the line's reset) when pressed and
+     released without moving, or on Enter or Space (`desk/line-menu.js`).
+     Nothing new shows at rest. Steps keep the menu open and disable at the
+     line's own `aria-valuemin`/`aria-valuemax`, so **a new draggable line
+     keeps its ARIA values current and uses `clickOrDrag` and
+     `toggleLineMenu`**; a press only writes a width once it moves past
+     `CLICK_SLOP`. A floating window's grip (`float-window.js`) is the same
+     idea for moving: a button, "Move to the other side," with arrow keys.
+     The /desk page's pane lines had theirs already (DK-8: the pane menu's
+     Size).
      **The glossary also becomes a reading page** then (the end of
      `pages/glossary.css`): one column at the reading width, with the
      scripture pages' type sizes, all scaling with the Display tray's text
@@ -942,7 +956,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        entry is draggable** (BVJ, 2026-10-17), the entry taking a quarter to
        three quarters of their room (`src/lib/desk-greek-split.mjs`, pure and
        tested; the handle is in `tab-greek.js`, sized by CSS flex ratios on
-       `--desk-greek-split`). Shown only while a word is open; kept in
+       `--desk-greek-split`). A click or Enter on it opens its menu
+       (XA8-1), whose "Let the entry size itself" replaced the double click
+       and Enter that reset it. Shown only while a word is open; kept in
        `sessionStorage['lit-desk-greek-split']` for the visit, forgotten by
        "Reset widths" (only its `kept: false` event, `forgetsSplit`, so the
        line still moves where storage is blocked, BA113), and named in
