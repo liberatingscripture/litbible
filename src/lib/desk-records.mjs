@@ -232,6 +232,15 @@ export function editRecord(record, changes, { now, client, exact = false } = {})
 }
 
 /**
+ * How far past the clock a time may be and still count as now (DI-8): two
+ * devices' clocks differ by seconds, and an edit made on a phone two seconds
+ * fast must not be dropped as "from the future". A time further ahead than
+ * this is a clock that ran ahead. The merge reads it for times it receives
+ * (desk-merge.mjs re-exports it), and `laterThan` for times it steps past.
+ */
+export const CLOCK_TOLERANCE_MS = 5 * 60_000;
+
+/**
  * `now`, unless that is no later than the version being replaced: then one
  * millisecond past it, so an edit always outranks what it was made over, even
  * on a clock that runs behind (DI-8, a hybrid-clock step). One rule for every
@@ -239,16 +248,26 @@ export function editRecord(record, changes, { now, client, exact = false } = {})
  * deletion past the record it deletes, a restore past the deletion it undoes,
  * and an undo past everything it puts back over (laterThanAll). A time that
  * won't parse is ignored.
+ *
+ * **A stamp never steps more than CLOCK_TOLERANCE_MS past the clock** (Audit
+ * 8, DI8-1; BVJ 2026-11-10). A version stamped further ahead than that was
+ * made by a clock running ahead, and every other copy holds it clamped to
+ * when it arrived, so stepping past it would keep the record "ahead"
+ * everywhere for ever: its edits and deletions dropped in both directions.
+ * Over such a version the stamp is `now`, which outranks the clamped copies
+ * and lets the record heal. `clock` is the device's own time, which
+ * `laterThanAll` keeps while `now` steps.
  */
-export function laterThan(previous, now) {
+export function laterThan(previous, now, clock = now) {
   const before = typeof previous === "string" ? Date.parse(previous) : NaN;
   if (Number.isNaN(before) || Date.parse(now) > before) return now;
+  if (before > Date.parse(clock) + CLOCK_TOLERANCE_MS) return now;
   return new Date(before + 1).toISOString();
 }
 
 /** `now` stepped past every one of `previous` that parses (see laterThan). */
 export function laterThanAll(now, ...previous) {
-  return previous.reduce((at, p) => laterThan(p, at), now);
+  return previous.reduce((at, p) => laterThan(p, at, now), now);
 }
 
 /* ── Deleting (item 20, rule c) ──────────────────────────────────────── */
@@ -294,16 +313,20 @@ export function trashRecord(record, { now, client, contentVersion, id } = {}) {
  * as well as past the record's own `modified` (laterThanAll; DI3-1), since
  * rule b keeps the deletion over a restore whose stamp is no later than
  * `deletedAt`. A record this code can't edit (an unknown kind, a newer
- * schema) comes back exactly as it was deleted, per principle 6. Null when
- * the trash record has been emptied and holds only its tombstone.
+ * schema) comes back with only the fields every client reads restamped,
+ * `modified` and `client`, and every other field as it was deleted (principle
+ * 6 is about fields a client doesn't understand; Audit 8 DI8-2, BVJ
+ * 2026-11-10): left as it was, its `modified` is older than the deletion, so
+ * the deletion won again wherever the two met. Null when the trash record has
+ * been emptied and holds only its tombstone.
  */
 export function restoreFromTrash(trash, { now, client } = {}) {
   if (trash?.kind !== "trash") throw new Error("desk-records: not a trash record");
   if (!trash.record) return null;
   // A held record that isn't the one deleted would overwrite another (DI-10).
   if (trash.record.id !== trash.deletedId) return null;
-  if (!canEdit(trash.record)) return trash.record;
   const modified = laterThanAll(now ?? new Date().toISOString(), trash.record.modified, trash.deletedAt);
+  if (!canEdit(trash.record)) return { ...trash.record, modified, ...(client ? { client } : {}) };
   return {
     ...trash.record,
     modified,

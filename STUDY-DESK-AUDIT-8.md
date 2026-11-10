@@ -308,7 +308,7 @@ A record once stamped by a clock set ahead is unsyncable for ever, in both direc
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 1, and a change to the format shared with the apps (BDR).
+**Fixed (2026-11-10)** Decision 1: clamp (BVJ). `laterThan` never steps more than `CLOCK_TOLERANCE_MS` past the device's own clock (now in `desk-records.mjs`, re-exported by `desk-merge.mjs`); over a version further ahead the stamp is `now`, and `laterThanAll` judges each version against the clock. A device whose clock moved back more than five minutes past its own earlier stamp is the same case and now stamps `now` too. For BDR: the rule is in the format's "Room for skew" bullet; rules a to c and the vectors are unchanged. Tests: `test/desk-audit8-j-stamps.test.js` (the healing walked through the merge).
 
 #### DI8-2 · Medium · data-integrity · NEW
 Restoring, or undoing the deletion of, a record this client can't edit puts it back stamped older than its own deletion, so the deletion wins the next time the two meet.
@@ -323,7 +323,7 @@ Restoring, or undoing the deletion of, a record this client can't edit puts it b
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 2.
+**Fixed (2026-11-10)** Decision 2: restamp (BVJ). `restoreFromTrash` and the history's `restamped` give a record this code can't edit a fresh `modified` and `client`, stepped past its deletion, and leave every other field as it was. For BDR: under kind 10's "Undo and redo on the website". Tests: `test/desk-audit8-j-stamps.test.js`, and the earlier "exactly as it was" tests updated.
 
 #### DI8-3 · Medium · data-integrity · NEW
 Two trash records of one deletion holding two copies of a stamped bookmark keep whichever copy the merge order favours, so the trash's words differ between devices and a restore brings back different bookmarks.

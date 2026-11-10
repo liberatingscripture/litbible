@@ -25,7 +25,9 @@
 //     well as past the put-back record's own, so it outranks that change even
 //     on a clock running behind the one that made it (laterThanAll; audit 3
 //     DI3-1). A record this code
-//     can't edit comes back exactly as it was (principle 6). A trash record
+//     can't edit comes back as it was with only `modified` and `client`
+//     restamped, the fields every client reads (principle 6; Audit 8 DI8-2).
+//     A trash record
 //     put back is the deletion made again, so its `deletedAt` moves to the
 //     same time: a copy of the notebook saved in between holds the record
 //     the undo brought back, and an old `deletedAt` would lose to it (BA7).
@@ -139,8 +141,8 @@ export function pushEntry(stack, entry, limit = HISTORY_LIMIT) {
 const timesOf = (r) => (r ? [r.modified, r.deletedAt, r.placedAt, r.editedAt, r.record?.modified] : []);
 
 /**
- * A record put back by an undo or a redo: stamped with the reader's act, unless
- * it isn't ours to stamp, and stepped past `replaced`, the records it goes
+ * A record put back by an undo or a redo: stamped with the reader's act (only
+ * `modified` and `client` when it isn't ours to edit), and stepped past `replaced`, the records it goes
  * back over, so it outranks that change wherever the copies meet (DI3-1). A
  * trash record is a deletion made again, now.
  */
@@ -148,7 +150,9 @@ function restamped(record, replaced, { now, client } = {}) {
   const at = laterThanAll(now ?? new Date().toISOString(), ...timesOf(record), ...replaced.flatMap(timesOf));
   const by = client ? { client } : {};
   if (record.kind === "trash") return { ...snapshot(record), modified: at, deletedAt: at, ...by };
-  if (!canEdit(record)) return snapshot(record);
+  // A record this code can't edit gets only the fields every client reads
+  // restamped, so it outranks the change it takes back too (DI8-2).
+  if (!canEdit(record)) return { ...snapshot(record), modified: at, ...by };
   // An undo puts the whole bookmark back, so both of its group stamps move with it.
   const stamps = record.kind === "bookmark" ? { placedAt: at, editedAt: at } : {};
   return { ...snapshot(record), modified: at, ...by, ...stamps };

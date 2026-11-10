@@ -288,7 +288,10 @@ test("planRestore leaves a label id that names nothing, and a record this code c
   assert.deepEqual(planRestore([withGone], withGone.id, ctx).record.labels, ["no-such-label"]);
   const newer = { ...note({ bookKey: "romans", chapter: 8, verse: 3 }), schema: 99 };
   const t = trashed(newer, T);
-  assert.deepEqual(planRestore([t], t.id, { ...ctx, now: NOW }).record, newer);
+  // Only the fields every client reads are restamped (DI8-2).
+  const back = planRestore([t], t.id, { ...ctx, now: NOW }).record;
+  assert.deepEqual({ ...back, modified: newer.modified, client: newer.client }, newer);
+  assert.ok(Date.parse(back.modified) > Date.parse(t.deletedAt), "stamped past its deletion");
 });
 
 test("planRestoreAll restores the lot, judging each over those before it, and says what stayed", () => {

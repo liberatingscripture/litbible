@@ -102,7 +102,7 @@
 // A end with the same records, apart from the places the rules name as
 // one-sided: the local copy staying on an exact tie, clamping, and skipping.
 
-import { BOOKMARK_PLACE_FIELDS, emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
+import { BOOKMARK_PLACE_FIELDS, CLOCK_TOLERANCE_MS, emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
 
 /* ── Times ───────────────────────────────────────────────────────────── */
 
@@ -154,12 +154,8 @@ function problemWith(r) {
   return null;
 }
 
-/**
- * How far past `now` a time may be and still count as `now` (DI-8): two devices' clocks differ by seconds, and an edit made on a phone
- * two seconds fast must not be dropped as "from the future". A time further
- * ahead than this is the clock running ahead, as before.
- */
-export const CLOCK_TOLERANCE_MS = 5 * 60_000;
+/** How far past `now` a time may be and still count as `now` (DI-8); the rule lives in desk-records.mjs, beside `laterThan`. */
+export { CLOCK_TOLERANCE_MS };
 
 /** The record with its times no later than the cap, give or take the tolerance (the same object if they are). */
 function clamped(r, cap, capMs, tolerance) {
