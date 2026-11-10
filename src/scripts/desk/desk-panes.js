@@ -416,7 +416,10 @@ export function mountPane(kind, body, env, pane) {
     const offMeta = env.store?.onMeta?.(() => tab.render()); // What's new's line (BA96)
     // Its rows' wording is judged only where a LIT pane shows their chapter,
     // so it is drawn again when the panes' chapters change (BA121).
-    const offChapters = onDeskChapters(() => tab.render());
+    // A chapter holding none of its records changes nothing it draws (LG8-2).
+    const offChapters = onDeskChapters((changed) => {
+      if (tab.touchesChapters(changed)) tab.render();
+    });
     return {
       setPassage: (p) => tab.follow(p),
       destroy: () => {

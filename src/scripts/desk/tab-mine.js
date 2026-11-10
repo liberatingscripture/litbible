@@ -78,7 +78,20 @@ import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelMap, labelsOf, liveLabels } from "../../lib/desk-labels.mjs";
-import { describeCounts, filterRecords, followTarget, groupRecords, kindsPresent, listable, withoutSheets } from "../../lib/desk-notebook.mjs";
+import {
+  LIST_PAGE_SIZE,
+  chapterKeysOf,
+  describeCounts,
+  filterRecords,
+  followTarget,
+  groupRecords,
+  kindsPresent,
+  listable,
+  moreRowsText,
+  pageRows,
+  pagedEntries,
+  withoutSheets,
+} from "../../lib/desk-notebook.mjs";
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import {
   kindName,
@@ -243,6 +256,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   /** Redraw after the reader changed what narrows the list, and say what is left. */
   const refilter = () => {
     speak = true;
+    revealed = LIST_PAGE_SIZE; // a new filter or query starts at the first page again
     render();
   };
   // The rows of the list; headings sit among them.
@@ -294,6 +308,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   let shown = []; // the records the list shows now, in its order
+  let revealed = LIST_PAGE_SIZE; // how many rows the reader has asked to see (LG8-2)
+  let lastKeys = null; // the chapters the last list's records sit on, for onDeskChapters
   let followedOnce = false;
   let hereReady = false; // the first drawing is not announced
 
@@ -310,6 +326,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     markHere();
     if (!p?.bookKey || !list.isConnected) return;
     const hit = followTarget(shown, p);
+    if (hit) reveal(hit.record);
     const row = hit ? rowOf(hit.record.id) : null;
     const box = row ? scroller(el) : null;
     if (!box) return;
@@ -340,6 +357,62 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         if (hereReady) tell(line);
       }
     }
+  }
+
+  // What the list has drawn, so "Show N more" adds rows without rebuilding
+  // the ones there (LG8-2).
+  let paint = null;
+  const moreItem = document.createElement("li");
+  moreItem.className = "desk-mine__more";
+  moreItem.setAttribute("role", "presentation");
+  const moreButton = document.createElement("button");
+  moreButton.type = "button";
+  moreButton.className = "desk-mine__more-button";
+  moreItem.append(moreButton);
+  moreButton.addEventListener("click", () => {
+    if (!paint) return;
+    const { next } = pageRows(shown.length, revealed);
+    revealed = paint.rows + next;
+    const first = drawMore(true);
+    // Focus goes to the first row just shown, so a keyboard reader carries on from there.
+    first?.querySelector(".desk-item__ref")?.focus({ preventScroll: false });
+    tell(`${next} more shown. ${paint.rows} of ${shown.length} listed.`);
+  });
+
+  /**
+   * Draw the rows up to `revealed` that are not drawn yet, and keep the button
+   * at the foot while any are left. Returns the first new row.
+   */
+  function drawMore(keepOpen) {
+    const { shown: rows, left, next } = pageRows(shown.length, revealed);
+    const entries = pagedEntries(paint.sections, rows);
+    const fresh = entries.slice(paint.entries.length);
+    paint.entries = entries;
+    paint.rows = rows;
+    moreItem.remove();
+    const nodes = fresh.map((e) =>
+      e.type === "heading" ? headingFor(e.title) : rowFor(e.record, paint.notices.get(e.record.id), paint.labelsById),
+    );
+    list.append(...nodes);
+    if (left > 0) {
+      moreButton.textContent = moreRowsText(next);
+      moreButton.setAttribute("aria-label", `${moreRowsText(next)} of the ${left} not yet listed`);
+      list.append(moreItem);
+    }
+    if (keepOpen) {
+      markHere();
+      markCut();
+    }
+    return nodes.find((n) => n.classList.contains("desk-item")) ?? null;
+  }
+
+  /** /desk's follow: make sure the row for `record` is drawn, adding pages as needed. */
+  function reveal(record) {
+    if (!paint || rowOf(record.id)) return;
+    const at = shown.findIndex((r) => r.id === record.id);
+    if (at < 0) return;
+    revealed = Math.max(revealed, at + 1);
+    drawMore(true);
   }
 
   let renderSeq = 0;
@@ -415,13 +488,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (groups.glossary.length) sections.push({ title: "Notes on glossary entries", records: groups.glossary });
     if (groups.articles.length) sections.push({ title: "Notes on articles", records: groups.articles });
     if (groups.other.length) sections.push({ title: "Other items", records: groups.other });
-    const nodes = [];
-    for (const section of sections) {
-      if (sections.length > 1) nodes.push(headingFor(section.title));
-      nodes.push(...section.records.map((r) => rowFor(r, notices.get(r.id), labelsById)));
-    }
-    list.replaceChildren(...nodes);
+    // Only the first page of rows is drawn, then "Show N more" (LG8-2); the
+    // counts, filters and `shown` still cover the whole list.
     shown = sections.flatMap((section) => section.records);
+    lastKeys = chapterKeysOf([...records, ...pins]);
+    paint = { sections, notices, labelsById, entries: [], rows: 0 };
+    list.replaceChildren();
+    drawMore(false);
     markHere();
     pinBox.hidden = pins.length === 0;
     pinList.replaceChildren(...pins.map((r) => pinRowFor(r, notices.get(r.id), labelsById)));
@@ -962,7 +1035,19 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     continued.destroy();
   }
 
-  return { el, render, follow, destroy };
+  /**
+   * Whether the chapters in `keys` ("john 3") concern this list: a record's
+   * wording is judged only where a LIT pane shows its chapter, so a pane
+   * gaining or losing a chapter holding none of the list's records changes
+   * nothing here (LG8-2). True before the first drawing.
+   */
+  function touchesChapters(keys) {
+    if (!lastKeys || !keys) return true;
+    for (const k of keys) if (lastKeys.has(k)) return true;
+    return false;
+  }
+
+  return { el, render, follow, destroy, touchesChapters };
 }
 
 /** The nearest ancestor that scrolls vertically, or null. */

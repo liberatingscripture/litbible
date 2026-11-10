@@ -356,6 +356,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
+     **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
+     `layoutCapped` folds the rest, and any starting below the text's foot, into
+     one "N more notes" button that opens This verse (`showVerse`); no This verse
+     tab, no cap.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
      The notes' settings (`data-desk-notes`, `data-desk-note-font`,
@@ -1248,7 +1252,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        else any, else a new one beside, moving the LIT to the book's chapter 1
        only when it is in another book (a pane that stays put moves alone).
        A Search pane's intro result and `/desk/?intro=romans` both use it.
-       **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02):
+       **Long My Notes and notebook lists page** (LG8-2, BVJ, 2026-11-10): 200
+       rows, then "Show N more" (`LIST_PAGE_SIZE`, `pageRows`, `pagedEntries`,
+       `desk-notebook.mjs`), by rows not groups, so a heading shows only with a
+       row. Counts and filters cover the whole list; a filter resets to a page;
+       `follow` reveals the row it needs. A pane's `onDeskChapters` redraw skips
+       chapters holding none of its records (`touchesChapters`).
+     **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02):
        `tab-mine.js` (search, "Show" by kind, the list in Bible order under a
        heading per chapter, labels, and on /desk it follows the LIT pane).
        `kept-list.js` remains, but only the notebook page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,

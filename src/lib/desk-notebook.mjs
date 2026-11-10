@@ -395,3 +395,62 @@ export function planRestoreAll(records, ctx) {
   }
   return { plan: { put, remove }, restored: put.length, skipped, movesNoMore };
 }
+
+/* ── Paging a long list (Audit 8, LG8-2) ─────────────────────────────── */
+
+/**
+ * How many rows a notebook list draws before "Show N more" (BVJ, 2026-11-10).
+ * A reader with thousands of notes would otherwise get thousands of rows,
+ * each with a link and several buttons, on every redraw.
+ */
+export const LIST_PAGE_SIZE = 200;
+
+/**
+ * How much of a list of `total` rows is drawn when the reader has asked for
+ * `revealed` of them (never fewer than one page): `shown` rows, `left` still
+ * to show, and `next` the rows the button would add (a page at most).
+ */
+export function pageRows(total, revealed = LIST_PAGE_SIZE, { size = LIST_PAGE_SIZE } = {}) {
+  const t = Math.max(0, Math.floor(total) || 0);
+  const shown = Math.min(t, Math.max(size, Math.floor(revealed) || 0));
+  const left = t - shown;
+  return { shown, left, next: Math.min(size, left) };
+}
+
+/** The button's words: "Show 200 more", "Show 37 more". */
+export function moreRowsText(next) {
+  return `Show ${next} more`;
+}
+
+/**
+ * The drawn part of a list laid out in sections: `sections` are
+ * `{ title, records }` in order, `rows` how many rows are drawn, in all. Returns
+ * a flat list of `{ type: "heading", title }` and `{ type: "row", record }`.
+ * Paging is by rows, so a heading appears only when a row of its section is
+ * drawn, and the drawn part of a longer limit starts with every entry of a
+ * shorter one (a redraw to show more can add to what is there). Headings are
+ * left out when `headings` is false (one section, nothing to tell apart).
+ */
+export function pagedEntries(sections, rows, { headings = sections.length > 1 } = {}) {
+  const out = [];
+  let left = Math.max(0, rows);
+  for (const section of sections) {
+    if (left <= 0) break;
+    if (!section.records.length) continue;
+    if (headings) out.push({ type: "heading", title: section.title });
+    for (const record of section.records.slice(0, left)) out.push({ type: "row", record });
+    left -= Math.min(left, section.records.length);
+  }
+  return out;
+}
+
+/**
+ * `${bookKey} ${chapter}` for each record that sits on a chapter: what a view
+ * that judges records against a LIT pane's text needs to know a chapter
+ * gained or lost its pane concerns it (LG8-2).
+ */
+export function chapterKeysOf(records) {
+  const keys = new Set();
+  for (const r of records) if (r?.bookKey && r.chapter != null) keys.add(`${r.bookKey} ${r.chapter}`);
+  return keys;
+}

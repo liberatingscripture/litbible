@@ -951,6 +951,31 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
+/* "3 more notes": the rest of a stack past five on one line (GF8b-6). It
+   opens This verse. The ink tokens follow the theme, so no dark rule. */
+.desk-note__more {
+  position: absolute;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 2px 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: 0.8125rem/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-note__more:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-note__more:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 /* No room for notes in full: each as its glyph in a circle, level with its
    first word, lifting slightly on hover. */
 .desk-circle {
@@ -8899,4 +8924,37 @@ mark.desk-print-mark {
     padding: 1em 0;
     color: #000;
   }
+}
+
+/* "Show 200 more" at the foot of a long list (LG8-2). */
+.desk-mine__more {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+
+.desk-mine__more-button,
+.desk-np__more {
+  padding: 6px 14px;
+  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: 0.875rem/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.desk-np__more {
+  margin: 8px 0 0;
+}
+
+.desk-mine__more-button:hover,
+.desk-np__more:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+.desk-mine__more-button:focus-visible,
+.desk-np__more:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }

@@ -49,7 +49,10 @@ import {
   notesInTheWay,
   circlesPerRow,
   layoutCircles,
+  layoutCapped,
   layoutFull,
+  moreNotesName,
+  moreNotesText,
   marginMode,
   noteOpening,
   noteWidth,
@@ -84,7 +87,7 @@ const FLAG = 18;
  *   needs (change-notice.js).
  * @returns {{ reveal(id: string): void, canReveal(record: object): boolean } | null}
  */
-export function createNotesMargin({ store, source, onEdit, ctx = null, showInText = null }) {
+export function createNotesMargin({ store, source, onEdit, ctx = null, showInText = null, showVerse = null }) {
   if (!store || !source) return null;
   const textBox = source.textBox;
 
@@ -246,19 +249,55 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     if (mode === "full") {
       const width = noteWidth(box.left, box.width);
       const left = box.left + sx - NOTE_GAP - width;
-      const els = items.map(({ record }) => {
+      const allEls = items.map(({ record }) => {
         const el = noteElement(record, noticed.get(record.id));
         el.style.left = `${left}px`;
         el.style.width = `${width}px`;
         aside.append(el);
         return el;
       });
+      const noteLine = parseFloat(getComputedStyle(allEls[0] ?? aside).lineHeight) || 22;
+      // Past a few notes stacked from one line, or past the text's foot, the
+      // rest fold into one "N more notes" button that opens This verse
+      // (GF8b-6). Without a This verse tab there is nothing to open, so
+      // every note is drawn.
+      const plan = layoutCapped(
+        items.map(({ record, range }) => ({
+          id: record.id,
+          verse: record.verse,
+          top: lineTop(range),
+          lineHeight,
+          noteLine,
+          height: 0,
+        })),
+        showVerse ? { bottom: textBox.getBoundingClientRect().bottom + sy } : { maxStack: Infinity },
+      );
+      const folded = new Set(plan.more.flatMap((m) => m.ids));
+      const moreEls = plan.more.map((m) => {
+        const ref = refOf(items.find((p) => p.record.id === m.ids[0]).record);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "desk-note__more";
+        btn.dataset.id = m.id;
+        btn.dataset.verse = String(m.verse);
+        btn.setAttribute("aria-label", moreNotesName(m.count, ref, m.sameVerse));
+        btn.textContent = moreNotesText(m.count);
+        btn.style.left = `${left}px`;
+        btn.style.width = `${width}px`;
+        btn.addEventListener("click", () => showVerse?.(m.verse));
+        aside.append(btn);
+        return btn;
+      });
+      allEls.forEach((el) => {
+        if (folded.has(el.dataset.id)) el.remove();
+      });
+      const shownItems = items.filter((p) => !folded.has(p.record.id));
+      const els = [...allEls.filter((el) => !folded.has(el.dataset.id)), ...moreEls];
       const byId = new Map(els.map((el) => [el.dataset.id, el]));
-      const noteLine = parseFloat(getComputedStyle(els[0] ?? aside).lineHeight) || 22;
       // A flagged note's foot (its flag, and Edit beside it) is always there,
       // under the words, so it counts toward the note's height.
       const footOf = (el) => el.querySelector(".desk-note__foot")?.offsetHeight ?? 0;
-      const wholeHeight = (el) => el.querySelector(".desk-note__toggle").scrollHeight + footOf(el);
+      const wholeHeight = (el) => (el.querySelector(".desk-note__toggle")?.scrollHeight ?? el.offsetHeight) + footOf(el);
       // layoutFull knows nothing of a flag's foot, which a flagged note
       // always shows under its first line. Where that foot would run into the
       // note below, the note below starts lower, and what is cut is worked
@@ -280,13 +319,22 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       const lay = () =>
         clearFeet(
           layoutFull(
-            items.map(({ record, range }, i) => ({
+            [...shownItems.map(({ record, range }) => ({
               id: record.id,
+              verse: record.verse,
               top: lineTop(range),
               lineHeight,
               noteLine,
-              height: wholeHeight(els[i]),
+              height: wholeHeight(byId.get(record.id)),
             })),
+            ...plan.more.map((m) => ({
+              id: m.id,
+              verse: m.verse,
+              top: lineTop(items.find((p) => p.record.id === m.ids[0]).range),
+              lineHeight,
+              noteLine,
+              height: noteLine,
+            }))],
           ),
         );
       let laid = lay();
@@ -312,7 +360,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       for (const l of laid) {
         const el = byId.get(l.id);
         el.style.top = `${l.y - 3}px`;
-        if (l.cut) {
+        if (l.cut && !el.classList.contains("desk-note__more")) {
           // The last line that shows fades out, so a cut note never reads as
           // whole (BVJ, 2026-10-07): downward over that line when two or
           // more fit, and toward its end when only one does, since fading a

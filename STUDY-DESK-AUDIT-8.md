@@ -1540,7 +1540,7 @@ My Notes on `/desk` and the notebook page draw one row per record with no limit,
 
 **Confidence** Medium. The code path is certain; the cost needs one timing: seed 5,000 notes, open `/desk`, and time `tab.render()` and a LIT scroll across a chapter boundary in the Performance panel.
 
-**Open (2026-11-09)** Decision 7.
+**Fixed (2026-11-10)** Decision 7. My Notes (`tab-mine.js`) and the notebook page list (`kept-list.js`) draw 200 rows and then a "Show N more" button (`LIST_PAGE_SIZE`, `pageRows`, `pagedEntries` in `desk-notebook.mjs`); My Notes appends the next batch without rebuilding the rows drawn, a filter or query resets to a page, and a store redraw keeps what was revealed. The /desk My Notes pane skips the `onDeskChapters` redraw when the chapters that came or went hold none of its records (`touchesChapters`).
 
 #### LG8-3 · Low · performance · NEW
 
@@ -2603,7 +2603,7 @@ Many notes on one verse stack without limit, past the end of the chapter, and wi
 
 **Confidence** Medium on the stacking (run); Low on the page growth (needs a browser).
 
-**Open (2026-11-09)** Decision 7.
+**Fixed (2026-11-10)** Decision 7. `layoutCapped` (`desk-notes.mjs`) draws at most five notes per stack (and none starting below the text's foot) and stands one "N more notes" button in for the rest, which opens This verse at that verse through the panel's `showVerse` (`notes-margin.js`, `.desk-note__more` in `desk.css`); with no This verse tab every note is drawn as before.
 
 #### GF8b-7 · Low · usability · NEW
 
