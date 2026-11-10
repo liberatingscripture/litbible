@@ -6185,9 +6185,12 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 /* The five text colors and the four backgrounds. Each text color is at least
    4.5:1 on the notebook's surface in its theme (light #FAFAF8 and cream
-   #E1DFD9; dark #1d1d1f and #161617). The backgrounds are the notebook's own
-   highlight tints (--desk-hl-*, "Highlights" in this file), so a sheet's yellow
-   is the reader's yellow. Redefined in BOTH dark blocks (the OS preference and
+   #E1DFD9; dark #1d1d1f and #161617), and in dark mode on each of the four
+   backgrounds too, since a leader can give a word both (Audit 8, XA8-12; BVJ,
+   2026-11-10): the dark red, blue and gray were lightened a step for that
+   (red on yellow was 3.99:1), and test/desk-rich-colors.test.js checks every
+   pair. The backgrounds are the notebook's own highlight tints (--desk-hl-*,
+   "Highlights" in this file), so a sheet's yellow is the reader's yellow. Redefined in BOTH dark blocks (the OS preference and
    the explicit override), like every theme token. */
 :root {
   --desk-rich-red: #b3261e;
@@ -6203,20 +6206,20 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --desk-rich-red: #ff8a80;
-    --desk-rich-blue: #8cb4ff;
+    --desk-rich-red: #ff9f97;
+    --desk-rich-blue: #93b9ff;
     --desk-rich-green: #5fd58a;
     --desk-rich-purple: #c9a7ff;
-    --desk-rich-gray: #a9aea7;
+    --desk-rich-gray: #b6bab4;
   }
 }
 
 :root[data-theme="dark"] {
-  --desk-rich-red: #ff8a80;
-  --desk-rich-blue: #8cb4ff;
+  --desk-rich-red: #ff9f97;
+  --desk-rich-blue: #93b9ff;
   --desk-rich-green: #5fd58a;
   --desk-rich-purple: #c9a7ff;
-  --desk-rich-gray: #a9aea7;
+  --desk-rich-gray: #b6bab4;
 }
 
 /* The text itself. `.desk-rich` is the editable and also what a read-only
