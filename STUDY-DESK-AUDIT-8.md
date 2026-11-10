@@ -2699,7 +2699,7 @@ Leader-only parts between two page breaks leave two adjacent breaks on the parti
 
 **Confidence** Low (needs a print preview in each browser).
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** Decision 11 (BVJ): `renderCopy` skips a page break that would follow another or open the copy, and drops one that would end it, so the paper copy and the documents made from it keep one. Present and slides skip breaks already. `test/desk-audit8-dom-sheet-copy-breaks.test.js`.
 
 #### GF8b-13 · Nit · copy · NEW
 
