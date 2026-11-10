@@ -1006,6 +1006,55 @@ test("wordSpans lists the words of a passage for the keyboard cursor (DK-1)", as
   assert.deepEqual(wordSpans("", 0, 0), []);
 });
 
+// Two wrapped lines of boxes, 100px wide a word, 20px a line, 30px apart:
+//   line 0:  w0 [0-100]  w1 [110-210]  w2 [220-320]
+//   line 1:  w3 [0-100]  w4 [110-150]
+//   line 2:  w5 [0-60]
+const box = (left, right, line) => ({ left, right, top: line * 30, bottom: line * 30 + 20 });
+const BOXES = [box(0, 100, 0), box(110, 210, 0), box(220, 320, 0), box(0, 100, 1), box(110, 150, 1), box(0, 60, 2)];
+
+test("Up and Down move by line, keeping the column the run began at", async () => {
+  const { wordOnLine, wordLines } = await import("../src/lib/desk-sheet-lit.mjs");
+  assert.deepEqual(wordLines(BOXES).lines, [[0, 1, 2], [3, 4], [5]]);
+  // From w2 (center 270) down: the line below stops at w4, the nearest across.
+  assert.equal(wordOnLine(BOXES, 2, 1, 270), 4);
+  // Down again with the same goal stays as near as the short line allows.
+  assert.equal(wordOnLine(BOXES, 4, 1, 270), 5);
+  // Up from w5 with the goal column still 270 returns to w4, then w2.
+  assert.equal(wordOnLine(BOXES, 5, -1, 270), 4);
+  assert.equal(wordOnLine(BOXES, 4, -1, 270), 2);
+  // A word inside the goal column wins over a nearer edge.
+  assert.equal(wordOnLine(BOXES, 1, 1, 50), 3);
+  // Past the first or last line: the first or last word.
+  assert.equal(wordOnLine(BOXES, 1, -1, 160), 0);
+  assert.equal(wordOnLine(BOXES, 5, 1, 30), 5);
+  // With no layout it steps a word at a time, within the list.
+  assert.equal(wordOnLine([null, null, null], 1, 1, 0), 2);
+  assert.equal(wordOnLine([null, null, null], 2, 1, 0), 2);
+});
+
+test("wordAtPoint finds the word under the pointer, else the nearest", async () => {
+  const { wordAtPoint } = await import("../src/lib/desk-sheet-lit.mjs");
+  assert.equal(wordAtPoint(BOXES, 150, 10), 1);
+  // In the gap between lines 0 and 1 (y 21), the nearer line, line 0.
+  assert.equal(wordAtPoint(BOXES, 150, 21), 1);
+  assert.equal(wordAtPoint(BOXES, 105, 40), 3);
+  // Right of the last word on a line is that line's last word; below everything, the last line.
+  assert.equal(wordAtPoint(BOXES, 900, 40), 4);
+  assert.equal(wordAtPoint(BOXES, 10, 500), 5);
+  assert.equal(wordAtPoint([], 1, 1), null);
+});
+
+test("wordsTouching turns a chosen run of text into the cursor's words", async () => {
+  const { wordSpans, wordsTouching } = await import("../src/lib/desk-sheet-lit.mjs");
+  const text = "the quick brown fox";
+  const list = wordSpans(text, 0, text.length);
+  assert.deepEqual(wordsTouching(list, 4, 9), [1, 1]);
+  assert.deepEqual(wordsTouching(list, 6, 12), [1, 2]);
+  assert.deepEqual(wordsTouching(list, 0, text.length), [0, 3]);
+  assert.equal(wordsTouching(list, 3, 4), null);
+});
+
 /* ── groupBlanks / verseLabel / termBlanksLeft (SH5-9, SH5-17) ──────── */
 
 // Four blanks of "sin" (marks 0-3, 10-13, 30-33, 50-53) and a phrase blank.

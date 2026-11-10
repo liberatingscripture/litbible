@@ -186,6 +186,118 @@ export function wordSpans(text, start, end) {
   return out;
 }
 
+/**
+ * The word cursor's geometry (pure, so it is tested without a layout engine).
+ * `rects` holds one box for each word of `wordSpans`, as the page draws it
+ * ({ left, right, top, bottom }, or null where a word has none). A line is a
+ * run of words whose vertical middle falls inside the line's own band, in
+ * reading order, which is how a wrapped paragraph and a poem's broken lines
+ * both come out right. Returns the words' indexes, a line at a time, and which
+ * line each word is on.
+ */
+export function wordLines(rects) {
+  const lines = [];
+  const lineOf = [];
+  let band = null;
+  rects.forEach((r, i) => {
+    if (!r) {
+      lineOf[i] = lines.length ? lines.length - 1 : -1;
+      if (lines.length) lines[lines.length - 1].push(i);
+      return;
+    }
+    const mid = (r.top + r.bottom) / 2;
+    if (!band || mid < band.top || mid > band.bottom) {
+      band = { top: r.top, bottom: r.bottom };
+      lines.push([]);
+    } else {
+      band.top = Math.min(band.top, r.top);
+      band.bottom = Math.max(band.bottom, r.bottom);
+    }
+    lines[lines.length - 1].push(i);
+    lineOf[i] = lines.length - 1;
+  });
+  return { lines, lineOf };
+}
+
+/** How far a point `x` is from a box's left and right edges (0 inside). */
+function across(r, x) {
+  if (!r) return Infinity;
+  return x < r.left ? r.left - x : x > r.right ? x - r.right : 0;
+}
+
+/** The word of `line` (indexes) nearest across to `x`; the first of a tie. */
+function nearestAcross(rects, line, x) {
+  let best = line[0];
+  let bestD = Infinity;
+  for (const i of line) {
+    const d = across(rects[i], x);
+    if (d < bestD) {
+      best = i;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+/**
+ * The word an Up (`dir` -1) or Down (+1) arrow moves to from word `from`: on
+ * the line above or below, the one nearest across to `goalX` (the column the
+ * reader started the run of up and down presses at, so a short line doesn't
+ * drag the cursor left for good). Past the first or last line it goes to the
+ * first or last word, as a text field's arrows do. With no layout to read (no
+ * box for `from`) it steps a word.
+ */
+export function wordOnLine(rects, from, dir, goalX) {
+  const last = rects.length - 1;
+  if (!rects[from]) return Math.max(0, Math.min(last, from + dir));
+  const { lines, lineOf } = wordLines(rects);
+  const to = lineOf[from] + dir;
+  if (to < 0) return 0;
+  if (to >= lines.length) return last;
+  return nearestAcross(rects, lines[to], goalX);
+}
+
+/**
+ * The word under a point, or the nearest one: the line whose band is nearest
+ * `y` (the gaps between lines belong to a neighbor), then the word nearest
+ * across. Null when there are no boxes at all.
+ */
+export function wordAtPoint(rects, x, y) {
+  const { lines } = wordLines(rects);
+  let line = null;
+  let lineD = Infinity;
+  for (const ln of lines) {
+    const boxes = ln.map((i) => rects[i]).filter(Boolean);
+    if (!boxes.length) continue;
+    const top = Math.min(...boxes.map((r) => r.top));
+    const bottom = Math.max(...boxes.map((r) => r.bottom));
+    const d = y < top ? top - y : y > bottom ? y - bottom : 0;
+    if (d < lineD) {
+      line = ln;
+      lineD = d;
+    }
+  }
+  return line ? nearestAcross(rects, line, x) : null;
+}
+
+/**
+ * The words a chosen run of chapter text [start, end) touches, as the first
+ * and last word's indexes in `list` (wordSpans' pairs), or null when it
+ * touches none (punctuation alone). A mouse selection becomes the keyboard
+ * cursor this way, so the arrows carry on from it.
+ */
+export function wordsTouching(list, start, end) {
+  let lo = -1;
+  let hi = -1;
+  list.forEach(([s, e], i) => {
+    if (e > start && s < end) {
+      if (lo < 0) lo = i;
+      hi = i;
+    }
+  });
+  return lo < 0 ? null : [lo, hi];
+}
+
 /** Whether chapter text [start, end) overlaps any of the located blanks. */
 export function overlapsBlank(located, start, end) {
   return located.some((b) => b.start != null && b.start < end && start < b.end);

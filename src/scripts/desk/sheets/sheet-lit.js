@@ -41,7 +41,10 @@ import {
   termMarkOffsets,
   traditionalWord,
   verseLabel,
+  wordAtPoint,
+  wordOnLine,
   wordSpans,
+  wordsTouching,
 } from "../../../lib/desk-sheet-lit.mjs";
 import { locatePassage, passageReference } from "../../../lib/desk-sheet-passages.mjs";
 import { freshCopy, passageAsRecord, passageCheck } from "../../../lib/desk-sheet-check.mjs";
@@ -431,7 +434,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
     box.append(words.el);
     if (!readOnly && words.base != null) {
-      box.append(make("p", "desk-sheet__hint", "With the keyboard: Tab to the passage, move by word with the arrow keys (Shift extends), and press Enter to blank, or to fill in words that are already blank."));
+      box.append(make("p", "desk-sheet__hint", "Click a word, double-click it, or drag across words to choose them. With the keyboard: Tab to the passage, move by word with the left and right arrows and by line with up and down (Shift extends), and press Enter to blank, or to fill in words that are already blank."));
       armWordCursor();
     }
     if (v.check.state === "changed") {
@@ -510,16 +513,15 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     const sel = window.getSelection();
     const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
     if (blankNote) blankNote.hidden = true;
-    if (!range || range.collapsed || !words?.el.contains(range.commonAncestorContainer) || words.base == null) {
+    const picked = range && !range.collapsed && words?.el.contains(range.commonAncestorContainer) && words.base != null;
+    const offsets = picked ? rangeToOffsets(pageAnchorText(words.el.children), range) : null;
+    // A click in the passage lights a word without selecting it; that word counts.
+    const held = offsets ? null : shownCursorSpan();
+    if (!offsets && !held) {
       refuse("Select words in this passage first, then choose “Blank the selected words.”");
       return;
     }
-    const offsets = rangeToOffsets(pageAnchorText(words.el.children), range);
-    if (!offsets) {
-      refuse("Select words in this passage first, then choose “Blank the selected words.”");
-      return;
-    }
-    let [s, e] = wholeWords(view.chapter.text, words.base + offsets[0], words.base + offsets[1]);
+    let [s, e] = wholeWords(view.chapter.text, ...(offsets ? [words.base + offsets[0], words.base + offsets[1]] : held));
     s = Math.max(s, view.at.start);
     e = Math.min(e, view.at.end);
     sel.removeAllRanges();
@@ -547,12 +549,13 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       range && !range.collapsed && words?.el.contains(range.commonAncestorContainer) && words.base != null
         ? rangeToOffsets(pageAnchorText(words.el.children), range)
         : null;
-    if (!offsets) {
+    const held = offsets ? null : shownCursorSpan();
+    if (!offsets && !held) {
       refuse("Select blanked words in this passage first, then choose “Fill in the selected words.”");
       return;
     }
     sel.removeAllRanges();
-    fillIn(words.base + offsets[0], words.base + offsets[1]);
+    fillIn(...(offsets ? [words.base + offsets[0], words.base + offsets[1]] : held));
   }
 
   // ---- the word cursor (DK-1) ----
@@ -572,8 +575,18 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     return [list[lo][0], list[hi][1], hi - lo + 1];
   }
 
+  let cursorShown = false; // the cursor's words are lit, so they are what the buttons act on
+
   function clearCursor() {
+    cursorShown = false;
     if (typeof CSS !== "undefined" && CSS.highlights) CSS.highlights.delete(CURSOR_HIGHLIGHT);
+  }
+
+  /** The words the cursor holds while it is showing, as chapter offsets, else null. */
+  function shownCursorSpan() {
+    if (!cursorShown) return null;
+    const span = cursorSpan(cursorList());
+    return span ? [span[0], span[1]] : null;
   }
 
   function drawCursor(list) {
@@ -586,7 +599,46 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     range.setStart(r.startContainer, r.startOffset);
     range.setEnd(r.endContainer, r.endOffset);
     CSS.highlights.set(CURSOR_HIGHLIGHT, new Highlight(range));
+    cursorShown = true;
     (range.startContainer.parentElement ?? words.el).scrollIntoView?.({ block: "nearest" });
+  }
+
+  // Where each word is drawn now, for Up and Down and for the mouse. A word
+  // that wraps has several boxes; the first is where it starts.
+  function wordBoxes(list) {
+    const own = pageAnchorText(words.el.children);
+    return list.map(([s, e]) => {
+      const r = offsetsToRange(own, s - words.base, e - words.base);
+      if (!r) return null;
+      const range = document.createRange();
+      range.setStart(r.startContainer, r.startOffset);
+      range.setEnd(r.endContainer, r.endOffset);
+      const box = range.getClientRects()[0] ?? range.getBoundingClientRect();
+      return box && (box.width || box.height) ? { left: box.left, right: box.right, top: box.top, bottom: box.bottom } : null;
+    });
+  }
+
+  /**
+   * The words a mouse selection inside the passage touches, as { lo, hi,
+   * backward }, or null. The selection is the browser's own; the cursor is
+   * made from it (and a mouse selection is snapped out to whole words) so the
+   * mouse and the keyboard carry on from one another.
+   */
+  function selectedWords(list) {
+    const sel = window.getSelection();
+    const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+    if (!range || range.collapsed || !words.el.contains(range.commonAncestorContainer)) return null;
+    const off = rangeToOffsets(pageAnchorText(words.el.children), range);
+    const hit = off ? wordsTouching(list, words.base + off[0], words.base + off[1]) : null;
+    if (!hit) return null;
+    const back = document.createRange();
+    try {
+      back.setStart(sel.anchorNode, sel.anchorOffset);
+      back.setEnd(sel.focusNode, sel.focusOffset);
+    } catch {
+      return { lo: hit[0], hi: hit[1], backward: false };
+    }
+    return { lo: hit[0], hi: hit[1], backward: back.collapsed };
   }
 
   function armWordCursor() {
@@ -594,34 +646,95 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     w.tabIndex = 0;
     w.dataset.focusKey = "passage-words";
     w.setAttribute("role", "group");
-    w.setAttribute("aria-label", "Passage text. Use the arrow keys to move by word, Shift to choose more words, and Enter to blank the chosen words, or to fill them in again if they are already blank.");
+    w.setAttribute("aria-label", "Passage text. Use the arrow keys to move by word or line, Shift to choose more words, and Enter to blank the chosen words, or to fill them in again if they are already blank. With a mouse, click to place the cursor, double-click a word, or drag across words to choose them.");
+    let pressing = false; // the mouse is down in the passage: the press decides the cursor
+    let goalX = null; // the column an Up or Down run keeps to
+    const said = (list) => {
+      const [s, en, n] = cursorSpan(list);
+      say(`${n > 1 ? `${n} words: ` : ""}“${view.chapter.text.slice(s, en)}”`);
+    };
     w.addEventListener("focus", () => {
+      if (pressing) return;
       const list = cursorList();
       if (!list.length) return;
       if (!cur || cur.a >= list.length || cur.b >= list.length) cur = { a: 0, b: 0 };
       drawCursor(list);
     });
     w.addEventListener("blur", clearCursor);
+    w.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      pressing = true;
+      goalX = null;
+      document.addEventListener(
+        "mouseup",
+        (up) => {
+          pressing = false;
+          const list = cursorList();
+          if (!list.length || !w.isConnected) return;
+          const chosen = selectedWords(list);
+          if (chosen) {
+            // A drag or a double-click: whole words, shown as the browser's selection.
+            cur = chosen.backward ? { a: chosen.hi, b: chosen.lo } : { a: chosen.lo, b: chosen.hi };
+            const span = cursorSpan(list);
+            const r = offsetsToRange(pageAnchorText(w.children), span[0] - words.base, span[1] - words.base);
+            const sel = window.getSelection();
+            if (r && sel) {
+              const range = document.createRange();
+              range.setStart(r.startContainer, r.startOffset);
+              range.setEnd(r.endContainer, r.endOffset);
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+            clearCursor();
+            said(list);
+            return;
+          }
+          // A click: the cursor goes to the word clicked (Shift extends from where it was).
+          if (!w.contains(up.target)) return;
+          const at = wordAtPoint(wordBoxes(list), up.clientX, up.clientY);
+          if (at == null) return;
+          const keep = cur && cur.a < list.length && cur.b < list.length ? cur.a : at;
+          cur = { a: up.shiftKey ? keep : at, b: at };
+          window.getSelection()?.removeAllRanges();
+          if (document.activeElement !== w) w.focus({ preventScroll: true });
+          drawCursor(list);
+          said(list);
+        },
+        { once: true },
+      );
+    });
     w.addEventListener("keydown", (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const list = cursorList();
       if (!list.length) return;
+      // The mouse's selection becomes the cursor, so the arrows carry on from it.
+      const chosen = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter", " ", "Escape"].includes(e.key) ? selectedWords(list) : null;
+      if (chosen) {
+        cur = chosen.backward ? { a: chosen.hi, b: chosen.lo } : { a: chosen.lo, b: chosen.hi };
+        window.getSelection()?.removeAllRanges();
+        drawCursor(list);
+      }
       if (!cur) cur = { a: 0, b: 0 };
       const last = list.length - 1;
-      const said = () => {
-        const [s, en, n] = cursorSpan(list);
-        say(`${n > 1 ? `${n} words: ` : ""}“${view.chapter.text.slice(s, en)}”`);
-      };
       let move = null;
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") move = Math.min(last, cur.b + 1);
-      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") move = Math.max(0, cur.b - 1);
-      else if (e.key === "Home") move = 0;
+      let vertical = false;
+      if (e.key === "ArrowRight") move = Math.min(last, cur.b + 1);
+      else if (e.key === "ArrowLeft") move = Math.max(0, cur.b - 1);
+      else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        // By line: the word above or below, in the same column as the run began.
+        const boxes = wordBoxes(list);
+        const box = boxes[cur.b];
+        if (goalX == null && box) goalX = (box.left + box.right) / 2;
+        move = wordOnLine(boxes, cur.b, e.key === "ArrowDown" ? 1 : -1, goalX ?? 0);
+        vertical = true;
+      } else if (e.key === "Home") move = 0;
       else if (e.key === "End") move = last;
+      if (!vertical) goalX = null;
       if (move != null) {
         e.preventDefault();
         cur = { a: e.shiftKey ? cur.a : move, b: move };
         drawCursor(list);
-        said();
+        said(list);
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         const span = cursorSpan(list);
