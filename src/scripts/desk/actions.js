@@ -59,6 +59,9 @@ import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSet
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
 import { announce, showNotice, showUndo } from "./undo-bar.js";
+import { buttons } from "./dom.js";
+
+const button = buttons("lit-panel__btn");
 
 export function initActions({ store, ctx, showVerse = null, printPart = null }) {
   if (!store) return;
@@ -528,12 +531,4 @@ function verseNumberOf(range, verse) {
 function shownName(name, max = 14) {
   const letters = Array.from(name);
   return `“${letters.length > max ? `${letters.slice(0, max).join("").trimEnd()}…` : name}”`;
-}
-
-function button(label) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "lit-panel__btn";
-  b.textContent = label;
-  return b;
 }

@@ -21,6 +21,9 @@ import {
   groupRecords,
   kindsPresent,
   planDeleteEverything,
+  planDeleteMarks,
+  planDeleteSheets,
+  bulkCounts,
   planEmptyTrashNow,
   planRestore,
   planRestoreAll,
@@ -127,6 +130,19 @@ test("planDeleteEverything trashes every live record, whole, in one valid plan",
   const held = plan.put.find((t) => t.deletedId === unknown.id);
   assert.deepEqual(held.record, unknown);
   assert.doesNotThrow(() => planWrite(plan));
+});
+
+test("Delete all notes and marks takes every record but sheets; Delete all sheets takes the sheets alone (decision 8)", () => {
+  const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const l = make("label", { name: "L" });
+  const unknown = { ...a, id: nextId(), kind: "future" };
+  const sheet = { ...a, id: nextId(), kind: "sheet" };
+  const oldTrash = { id: "t0", kind: "trash", deletedId: "gone", deletedAt: "2026-09-01T00:00:00.000Z" };
+  const all = [a, l, unknown, sheet, oldTrash];
+  assert.deepEqual(bulkCounts(all), { marks: 3, sheets: 1 });
+  assert.deepEqual(planDeleteMarks(all, ctx).remove.sort(), [a.id, l.id, unknown.id].sort());
+  assert.deepEqual(planDeleteSheets(all, ctx).remove, [sheet.id]);
+  assert.doesNotThrow(() => planWrite(planDeleteSheets(all, ctx)));
 });
 
 test("emptyNow drops the held record at once and keeps the tombstone", () => {
@@ -288,7 +304,10 @@ test("planRestore leaves a label id that names nothing, and a record this code c
   assert.deepEqual(planRestore([withGone], withGone.id, ctx).record.labels, ["no-such-label"]);
   const newer = { ...note({ bookKey: "romans", chapter: 8, verse: 3 }), schema: 99 };
   const t = trashed(newer, T);
-  assert.deepEqual(planRestore([t], t.id, { ...ctx, now: NOW }).record, newer);
+  // Only the fields every client reads are restamped (DI8-2).
+  const back = planRestore([t], t.id, { ...ctx, now: NOW }).record;
+  assert.deepEqual({ ...back, modified: newer.modified, client: newer.client }, newer);
+  assert.ok(Date.parse(back.modified) > Date.parse(t.deletedAt), "stamped past its deletion");
 });
 
 test("planRestoreAll restores the lot, judging each over those before it, and says what stayed", () => {

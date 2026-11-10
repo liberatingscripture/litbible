@@ -17,6 +17,9 @@ import { flyoutRow } from "../../panel-flyout.js";
 import { undoEntry } from "../history.js";
 import { chapterTextFor } from "../page.js";
 import { showNotice, showUndo } from "../undo-bar.js";
+import { buttons } from "../dom.js";
+
+const button = buttons("lit-panel__btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -141,12 +144,4 @@ export function createSheetAdd({ store, ctx }) {
       link: { label: "Open the sheet", href: `${BASE}sheets/?id=${encodeURIComponent(outcome.sheet.id)}` },
     });
   }
-}
-
-function button(label) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "lit-panel__btn";
-  b.textContent = label;
-  return b;
 }

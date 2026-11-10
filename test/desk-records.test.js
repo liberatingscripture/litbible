@@ -209,10 +209,12 @@ test("restoreFromTrash brings the record back with modified moved, since undoing
   assert.deepEqual(back.quote, h.quote);
 });
 
-test("restoreFromTrash returns a record it can't edit exactly as it was deleted", () => {
+test("restoreFromTrash brings back a record it can't edit with only `modified` and `client` restamped (DI8-2)", () => {
   const alien = { ...highlight(), kind: "voiceMemo", audio: "…" };
   const t = trashRecord(alien, trashCtx);
-  assert.equal(restoreFromTrash(t, { now: "2026-10-07T00:00:00.000Z" }), alien);
+  const back = restoreFromTrash(t, { now: "2026-10-07T00:00:00.000Z", client: "web/restore" });
+  assert.deepEqual(back, { ...alien, modified: "2026-10-07T00:00:00.000Z", client: "web/restore" });
+  assert.ok(back.modified > t.deletedAt, "the restore outranks its deletion");
   assert.throws(() => restoreFromTrash(highlight(), ctx));
 });
 

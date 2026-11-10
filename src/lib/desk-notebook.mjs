@@ -7,7 +7,8 @@
 // filter narrows them, how the counts read in words, and the two bulk
 // deletions at the page's foot. Pure: no storage, no DOM.
 //
-// "Delete everything" trashes every live record in one plan, so it is one
+// "Delete all notes and marks" and "Delete all sheets" (Delete everything until Audit 8
+// decision 8) each trash their records in one plan, so each is one
 // undoable step and the 30 days of the trash still apply. "Empty the trash
 // now" is the shared-computer button: it drops the content of every trash
 // record at once, as emptyTrashRecord does at 30 days, and keeps each
@@ -131,7 +132,7 @@ export function filterRecords(records, { query = "", kind = null, color = null, 
       if (!(r.kind === "bookmark" && r.follow !== true)) return false;
     } else if (kind && r.kind !== kind) return false;
     if (color && !(r.kind === "highlight" && r.color === color)) return false;
-    if (labelId && !(r.labels ?? []).includes(labelId)) return false;
+    if (labelId && !(r.labels ?? []).some((id) => id === labelId || labels.get(id)?.id === labelId)) return false;
     if (!words.length) return true;
     const hay = searchText(r, labels);
     return words.every((w) => hay.includes(w));
@@ -243,15 +244,39 @@ export function describeCounts(records) {
  * code doesn't know, are trashed whole (trashRecord keeps all their fields),
  * so one undo brings the lot back.
  */
-export function planDeleteEverything(records, ctx) {
+export function planDeleteEverything(records, ctx, { which = "all" } = {}) {
   const put = [];
   const remove = [];
   for (const r of records) {
     if (!r || r.kind === "trash" || typeof r.id !== "string") continue;
+    if (which !== "all" && (which === "sheets") !== (r.kind === "sheet")) continue;
     put.push(trashRecord(r, ctx));
     remove.push(r.id);
   }
   return { put, remove };
+}
+
+/**
+ * The notebook page's two bulk deletions (Audit 8 decision 8; BVJ,
+ * 2026-11-10): "Delete all notes and marks" takes every record but sheets (notes,
+ * highlights, bookmarks, pinned footnotes, labels, and any kind this code
+ * doesn't know), and "Delete all sheets" takes the sheets and the reader's
+ * own templates, which are sheets too. Each is one undoable step, as
+ * Delete everything was.
+ */
+export const planDeleteMarks = (records, ctx) => planDeleteEverything(records, ctx, { which: "marks" });
+export const planDeleteSheets = (records, ctx) => planDeleteEverything(records, ctx, { which: "sheets" });
+
+/** How many records each bulk deletion would take: { marks, sheets }. */
+export function bulkCounts(records) {
+  let marks = 0;
+  let sheets = 0;
+  for (const r of records) {
+    if (!r || r.kind === "trash" || typeof r.id !== "string") continue;
+    if (r.kind === "sheet") sheets++;
+    else marks++;
+  }
+  return { marks, sheets };
 }
 
 /**
@@ -369,4 +394,63 @@ export function planRestoreAll(records, ctx) {
     held = [...held.filter((r) => r.id !== trash.id), ...done.plan.put];
   }
   return { plan: { put, remove }, restored: put.length, skipped, movesNoMore };
+}
+
+/* ── Paging a long list (Audit 8, LG8-2) ─────────────────────────────── */
+
+/**
+ * How many rows a notebook list draws before "Show N more" (BVJ, 2026-11-10).
+ * A reader with thousands of notes would otherwise get thousands of rows,
+ * each with a link and several buttons, on every redraw.
+ */
+export const LIST_PAGE_SIZE = 200;
+
+/**
+ * How much of a list of `total` rows is drawn when the reader has asked for
+ * `revealed` of them (never fewer than one page): `shown` rows, `left` still
+ * to show, and `next` the rows the button would add (a page at most).
+ */
+export function pageRows(total, revealed = LIST_PAGE_SIZE, { size = LIST_PAGE_SIZE } = {}) {
+  const t = Math.max(0, Math.floor(total) || 0);
+  const shown = Math.min(t, Math.max(size, Math.floor(revealed) || 0));
+  const left = t - shown;
+  return { shown, left, next: Math.min(size, left) };
+}
+
+/** The button's words: "Show 200 more", "Show 37 more". */
+export function moreRowsText(next) {
+  return `Show ${next} more`;
+}
+
+/**
+ * The drawn part of a list laid out in sections: `sections` are
+ * `{ title, records }` in order, `rows` how many rows are drawn, in all. Returns
+ * a flat list of `{ type: "heading", title }` and `{ type: "row", record }`.
+ * Paging is by rows, so a heading appears only when a row of its section is
+ * drawn, and the drawn part of a longer limit starts with every entry of a
+ * shorter one (a redraw to show more can add to what is there). Headings are
+ * left out when `headings` is false (one section, nothing to tell apart).
+ */
+export function pagedEntries(sections, rows, { headings = sections.length > 1 } = {}) {
+  const out = [];
+  let left = Math.max(0, rows);
+  for (const section of sections) {
+    if (left <= 0) break;
+    if (!section.records.length) continue;
+    if (headings) out.push({ type: "heading", title: section.title });
+    for (const record of section.records.slice(0, left)) out.push({ type: "row", record });
+    left -= Math.min(left, section.records.length);
+  }
+  return out;
+}
+
+/**
+ * `${bookKey} ${chapter}` for each record that sits on a chapter: what a view
+ * that judges records against a LIT pane's text needs to know a chapter
+ * gained or lost its pane concerns it (LG8-2).
+ */
+export function chapterKeysOf(records) {
+  const keys = new Set();
+  for (const r of records) if (r?.bookKey && r.chapter != null) keys.add(`${r.bookKey} ${r.chapter}`);
+  return keys;
 }

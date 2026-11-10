@@ -105,7 +105,14 @@ export function allHidden() {
  */
 export function setHideAll(hide, { from = null } = {}) {
   if (hide) {
-    const saved = Object.fromEntries(HIDDEN_BY_M1.map((name) => [name, getSetting(name)]));
+    // The first hide's memory wins (NB8-6): hiding again with a record already
+    // kept, after turning one switch back on, must not make Show bring back
+    // only that one. A switch the first hide saw on stays on in the record.
+    let before = null;
+    try { before = JSON.parse(localStorage.getItem(HIDE_KEY) || "null"); } catch (_) {}
+    const saved = Object.fromEntries(
+      HIDDEN_BY_M1.map((name) => [name, before?.[name] === "on" ? "on" : getSetting(name)]),
+    );
     try { localStorage.setItem(HIDE_KEY, JSON.stringify(saved)); } catch (_) {}
     for (const name of HIDDEN_BY_M1) setSetting(name, "off");
   } else {
@@ -249,7 +256,7 @@ function noteControls(classes) {
   const seg = document.createElement("div");
   seg.className = classes.seg;
   seg.setAttribute("role", "radiogroup");
-  seg.setAttribute("aria-label", "My notes’ lettering");
+  seg.setAttribute("aria-label", "My Notes’ lettering");
   seg.innerHTML = ["handwriting", "plain"]
     .map(
       (v) => `<label class="${classes.segOption}">
@@ -347,7 +354,7 @@ function injectIntoTray() {
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";
-  row.innerHTML = `<legend class="font-tray__legend">My notes’ lettering</legend>`;
+  row.innerHTML = `<legend class="font-tray__legend">My Notes’ lettering</legend>`;
   seg.removeAttribute("role");
   seg.removeAttribute("aria-label");
   row.append(seg);
@@ -374,7 +381,7 @@ function injectProseShow() {
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";
-  row.innerHTML = `<legend class="font-tray__legend">My notes’ lettering</legend>`;
+  row.innerHTML = `<legend class="font-tray__legend">My Notes’ lettering</legend>`;
   seg.removeAttribute("role");
   seg.removeAttribute("aria-label");
   row.append(seg);

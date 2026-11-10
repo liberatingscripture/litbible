@@ -2,6 +2,7 @@
 //   GK8-3  only Greek runs of an apparatus note carry lang="grc", not the whole note
 //   GK8-4  Shift+Arrow is not taken, so a reader can extend a selection of the
 //          Greek by keyboard; the plain arrows still move between words
+//   GK8-1  a word's Strong's button names the word's own number
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -70,4 +71,19 @@ test("GK8-4: Shift+Arrow is left to the browser; the plain arrow moves to the ne
   const plain = press(first, {});
   assert.equal(plain.defaultPrevented, true, "the plain arrow is the tab's own");
   assert.notEqual(document.activeElement, first, "and moves to another word");
+});
+
+test("GK8-1: a word's Strong's button names the word's own number, else its lemma's", async () => {
+  const t = await tab();
+  const strongOf = async (verse, wordT) => {
+    assert.equal(await t.selectWord(verse, wordT), true);
+    await settle(10);
+    return t.el.querySelector(".desk-greek__strong")?.textContent;
+  };
+  // John 3:1's Ἦν is εἰμί (G2076), which MACULA tags G2258.
+  assert.equal(await strongOf(1, 1), "Strong’s G2258");
+  // A word with no number of its own shows its lemma's.
+  const doc = JSON.parse(readFileSync(new URL("greek/text/john-3.json", greekRoot), "utf8"));
+  const plain = doc.paragraphs.flat().find((w) => w.length === 9 && w[5] >= 0 && doc.lemmas[w[5]][1]);
+  assert.equal(await strongOf(plain[0], plain[1]), `Strong’s ${doc.lemmas[plain[5]][1]}`);
 });

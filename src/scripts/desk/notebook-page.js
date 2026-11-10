@@ -12,8 +12,9 @@
 // count in words, and the records in Bible order); What's new for you (whats-new.js: the
 // release notes that touched their verses); Labels (make, rename, delete); Save a
 // copy and Open a copy (export-import.js); Trash, where a deleted item can be
-// restored for its 30 days (trash-list.js; E12); and Delete everything, with the
-// shared-computer button "Empty the trash now".
+// restored for its 30 days (trash-list.js; E12); and Delete in bulk: "Delete
+// all marks", "Delete all sheets" (Audit 8 decision 8; one "Delete everything"
+// until 2026-11-10) and the shared-computer button "Empty the trash now".
 //
 // It keeps in step with the other tabs (store.subscribe). Every write goes
 // through the store, so Ctrl+Z undoes it, and a deletion offers the undo bar.
@@ -26,7 +27,7 @@ import {
   planDeleteLabel,
   planRenameLabel,
 } from "../../lib/desk-labels.mjs";
-import { planDeleteEverything, planEmptyTrashNow, trashHeld } from "../../lib/desk-notebook.mjs";
+import { bulkCounts, planDeleteMarks, planDeleteSheets, planEmptyTrashNow, trashHeld } from "../../lib/desk-notebook.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountBackup } from "./export-import.js";
 import { createHistory, undoEntry } from "./history.js";
@@ -40,8 +41,8 @@ import { mountWhatsNew } from "./whats-new.js";
 import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import { el } from "./dom.js";
+import { plural } from "./desk-text.js";
 
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // What a write that the browser refused says (quota, a database closed by
 // another tab's upgrade), as labels-ui.js says it (GF8a-2).
@@ -109,7 +110,7 @@ async function start() {
       <a href="#panel">The Notebook panel</a>
       <a href="#backup">Save a copy</a>
       <a href="#trash">Trash</a>
-      <a href="#delete-everything">Delete everything</a>
+      <a href="#delete-everything">Delete in bulk</a>
     </nav>
     <section class="desk-np__section" id="continue" data-np-continue></section>
     <section class="desk-np__section" id="kept" aria-labelledby="deskNpKeptTitle">
@@ -143,10 +144,17 @@ async function start() {
       <div data-np-trash-list></div>
     </section>
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">
-      <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete everything</h2>
+      <h2 class="desk-np__h2" id="deskNpDeleteTitle">Delete in bulk</h2>
+      <p>Each moves what it names in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring it back until you leave the page, or restore it from the Trash above. The trash keeps each item for ${TRASH_DAYS} days, then only a record that it was deleted.</p>
       <div class="desk-np__danger">
-        <p>Moves every note, highlight, bookmark, and label in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring them back until you leave the page, or restore them from the Trash above. The trash keeps each one for ${TRASH_DAYS} days, then only a record that it was deleted.</p>
+        <h3 class="desk-np__h3">Delete all notes and marks</h3>
+        <p>Every note, highlight, bookmark, pinned footnote, and label. Your sheets and templates stay.</p>
         <div data-np-delete-box></div>
+      </div>
+      <div class="desk-np__danger">
+        <h3 class="desk-np__h3">Delete all sheets</h3>
+        <p>Every sheet, and your own templates. Your notes and marks stay.</p>
+        <div data-np-delete-sheets-box></div>
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Empty the trash now</h3>
@@ -165,6 +173,7 @@ async function start() {
   const trashList = createTrashList({ store, ctx, announce: (message) => announce(message), onChange: () => render() });
   q("[data-np-trash-list]").replaceWith(trashList.el);
   const deleteBox = q("[data-np-delete-box]");
+  const deleteSheetsBox = q("[data-np-delete-sheets-box]");
   const trashBox = q("[data-np-trash-box]");
   const statusEl = q("[data-np-status]");
 
@@ -305,27 +314,39 @@ async function start() {
     return li;
   }
 
-  /* ── Delete everything, and the trash ─────────────────────────── */
+  /* ── Delete in bulk, and the trash ───────────────────────────── */
 
-  // Two buttons that each ask again, on the page, before they act. Redrawn
+  // Three buttons that each ask again, on the page, before they act. Redrawn
   // only to bring a count up to date, never while the question is showing.
   const danger = {
     delete: { box: deleteBox, asking: false },
+    sheets: { box: deleteSheetsBox, asking: false },
     trash: { box: trashBox, asking: false },
   };
 
   function drawDanger(records) {
-    const live = records.filter((r) => r && r.kind !== "trash");
+    const counts = bulkCounts(records);
     const held = trashHeld(records);
     drawAsk(danger.delete, {
-      count: live.length,
+      count: counts.marks,
       ready: (n) => n > 0,
-      button: "Delete everything…",
-      none: "There is nothing to delete.",
-      question: (n) => `Are you sure? This deletes ${plural(n, "item", "items")} from this browser.`,
-      confirm: "Delete everything",
+      button: "Delete all notes and marks…",
+      none: "There are no notes or marks to delete.",
+      question: (n) =>
+        `Are you sure? This moves ${plural(n, "item", "items")} (every note, highlight, bookmark, pinned footnote, and label) to the trash. Your sheets and templates stay.`,
+      confirm: "Delete all notes and marks",
       failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
-      run: deleteEverything,
+      run: () => deleteInBulk(planDeleteMarks, (n) => `All notes and marks deleted: ${plural(n, "item", "items")} moved to the trash.`),
+    });
+    drawAsk(danger.sheets, {
+      count: counts.sheets,
+      ready: (n) => n > 0,
+      button: "Delete all sheets…",
+      none: "There are no sheets to delete.",
+      question: (n) => `Are you sure? This moves ${plural(n, "sheet", "sheets")} (templates included) to the trash. Your notes and marks stay.`,
+      confirm: "Delete all sheets",
+      failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
+      run: () => deleteInBulk(planDeleteSheets, (n) => `All sheets deleted: ${plural(n, "sheet", "sheets")} moved to the trash.`),
     });
     drawAsk(danger.trash, {
       count: held,
@@ -422,13 +443,13 @@ async function start() {
     return made;
   }
 
-  async function deleteEverything() {
-    const plan = await writeOver((records) => planDeleteEverything(records, ctx()));
+  async function deleteInBulk(planFor, said) {
+    const plan = await writeOver((records) => planFor(records, ctx()));
     if (plan.reason === "failed") return false;
     if (!plan.remove.length) return true;
     const entry = store.lastEntry();
     await render();
-    const message = `Everything deleted: ${plural(plan.remove.length, "item", "items")} moved to the trash.`;
+    const message = said(plan.remove.length);
     announce(message);
     kept.focusCount();
     if (entry) showUndo(message, async () => {
@@ -478,7 +499,7 @@ async function start() {
   // says so (MOVE_KIND), so it isn't a reason to redraw the page under a reader
   // who is typing or has a menu open (BA107). A reading place another client
   // kept is quiet too, except that two things here count places, as items:
-  // "Delete everything"'s number and whether there is anything to delete. A new
+  // the bulk deletions' numbers and whether there is anything to delete. A new
   // place changes those, so a place the last draw hadn't seen draws again;
   // moving one doesn't, and deleting one arrives with its trash record, which
   // isn't excepted.

@@ -1092,8 +1092,12 @@ html[data-desk] .site-nav__plain {
    2026-10-21), at every width: brand | the page's title, centered | the
    desk's tools, Aa and the menu button. The two outer columns share what's
    left equally, so the title sits on the window's center line. It spans the
-   window, as the panes below it do, so its edges line up with theirs. */
-.site-header--desk .site-header__inner {
+   window, as the panes below it do, so its edges line up with theirs.
+   The selector outranks the narrower windows' header grids (the 1100px fold
+   and the desk's own 760–1100px rule above), which took the third column
+   away and pushed the title, and the menu hung under it, off the right edge
+   (Audit 8, LV8-4). */
+html .site-header.site-header--desk .site-header__inner {
   max-width: none;
   padding-left: 16px;
   padding-right: 16px;

@@ -105,3 +105,17 @@ test("many blanks against many surfaces stay quick (DK6-3)", () => {
   assert.deepEqual(findLeaks(blanks, surfaces), []);
   assert.ok(Date.now() - t < 1500);
 });
+
+test("GF8c-4: a blank on a possessive is given away by its word alone, and not the other way round only", () => {
+  assert.equal(containsPhrase("Who is God?", "God’s"), true);
+  assert.equal(containsPhrase("Jesus Christ", "Christ’s"), true);
+  assert.equal(containsPhrase("What does God want?", "God's love"), false, "the rest of the phrase must still be there");
+  assert.equal(containsPhrase("What does God love?", "God’s love"), true);
+  assert.equal(containsPhrase("God’s love", "God"), true);
+  assert.equal(containsPhrase("Who is Godson?", "God’s"), false, "whole words only");
+  const leaks = findLeaks(
+    [{ passageId: "p1", ref: "Romans 3:23", exact: "God’s" }],
+    [{ kind: "question", where: "question 1", text: "What does God want?" }],
+  );
+  assert.deepEqual(leaks.map((l) => l.where), ["question 1"]);
+});

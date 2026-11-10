@@ -121,7 +121,7 @@ export function greekNotesSwitch() {
   box.type = "checkbox";
   box.checked = greekNotesOn();
   box.dataset.greekNotes = "";
-  label.append(box, document.createTextNode("My notes"));
+  label.append(box, document.createTextNode("My Notes"));
   return label;
 }
 

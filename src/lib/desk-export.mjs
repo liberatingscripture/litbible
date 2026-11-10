@@ -275,7 +275,7 @@ export function toMarkdown(records, { exported = isoNow() } = {}) {
   const labels = labelMap(live);
   const entries = live.filter((r) => isAnnotated(r) && r.kind !== "place");
   const places = live.filter((r) => r.kind === "place");
-  const labelRecords = [...labels.values()];
+  const labelRecords = [...new Set(labels.values())]; // a label kept as two records is listed once
   const out = [MD_TITLE, `<!-- ${BACKUP_FORMAT} ${BACKUP_VERSION} · saved ${clock(exported)} · ${exported} -->`];
   for (const r of entries) out.push("", entryMarkdown(r, labels));
   if (places.length) {

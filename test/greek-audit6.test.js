@@ -9,7 +9,7 @@ import { parseGreekQuery } from "../src/lib/greek-query.mjs";
 import { cannotSay, needsQuotes, writeCard } from "../src/lib/greek-builder.mjs";
 
 const index = prepareIndex({
-  format: 2,
+  format: 3,
   shards: 64,
   lemmas: [
     ["θεός", "G2316", "God", 1317, "θεοσ θεον θεου θεω θεε"],

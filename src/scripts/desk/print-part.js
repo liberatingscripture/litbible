@@ -34,17 +34,12 @@ import {
   planVerses,
 } from "../../lib/desk-print-part.mjs";
 import { forChapter } from "../../lib/desk-store-core.mjs";
-import { allHidden } from "./note-settings.js";
 import { noteElement, printFonts, surface } from "./print-notes.js";
 import { printLook } from "./print-look.js";
-import { showNotice } from "./undo-bar.js";
 
 const SKIP = "data-desk-print-skip";
 const PART = "data-desk-part";
 const EXTRA = "data-desk-print-extra";
-
-/** What a Hide-my-marks reader is told when notes are asked for. */
-export const HIDDEN_NOTICE = "Not printed, because “Hide my marks” is on. Turn it off to print with your notes.";
 
 /** Hides `el` on paper; the returned list collects the undos. */
 function skipper(undo) {
@@ -78,12 +73,9 @@ export function createPrintPart({ store, printNotes }) {
   /** True when `kind` may go ahead; otherwise says why not. */
   function allowed(kind) {
     if (kind !== "notes") return true;
-    if (!store || !printNotes) return false;
-    if (allHidden()) {
-      showNotice(HIDDEN_NOTICE);
-      return false;
-    }
-    return true;
+    // "Hide my marks" is about the screen only (BVJ, 2026-11-10): a print that
+    // says "with my notes" prints them.
+    return Boolean(store && printNotes);
   }
 
   async function printVerses(kind, { start, end, ref }) {

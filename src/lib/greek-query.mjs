@@ -37,7 +37,7 @@
 // number, gender and degree.
 
 import { FILTERS, codeFits, filterFor } from "./greek-detect.mjs";
-import { foldGreek, hasGreek, matchGreek, parseGroup } from "./greek-search.mjs";
+import { foldGreek, hasGreek, matchGreek, parseGroup, strongCount } from "./greek-search.mjs";
 import { levenshtein } from "./levenshtein.mjs";
 
 export { FILTERS, codeFits, filterFor };
@@ -291,7 +291,9 @@ export function parseGreekQuery(raw) {
  * can be (ἦν is εἰμί or ὅς), a lemma typed directly alone, a Strong's
  * number's lemmas, and for Latin text an exact transliteration or a gloss
  * that is the word (the tray's rule, trayLemmas). Adds to each term
- *   lemmaIds: [id] | null (any word), form: folded form for "=", and
+ *   lemmaIds: [id] | null (any word), form: folded form for "=",
+ *   strongs: { id: [number, …] } for a lemma reached only by Strong's
+ *     numbers, whose words count only where tagged with one (GK8-1), and
  *   shown: what the readback names it by.
  * Returns { terms, gap, anyOrder } or { error }.
  */
@@ -305,6 +307,8 @@ export function resolveGreekQuery(index, parsed, { bridge = null } = {}) {
     }
     const ids = [];
     const shown = [];
+    const strongs = {}; // id -> numbers, for a lemma only a Strong's number reached
+    const whole = new Set(); // ids a word reached as a whole lemma
     let form = null;
     for (const w of term.words) {
       const match = matchGreek(index, w, { near: false, bridge });
@@ -324,11 +328,26 @@ export function resolveGreekQuery(index, parsed, { bridge = null } = {}) {
       if (!found.length) {
         return { error: term.nearFilter ? { kind: "near", word: w, near: term.nearFilter } : { kind: "unknown", word: w } };
       }
-      for (const m of found) if (!ids.includes(m.id)) ids.push(m.id);
-      shown.push({ word: w, lemmas: found.map((m) => index.lemmas[m.id].lemma), gloss: match.kind === "latin" && !found.some((m) => m.how === "translit") ? w : null });
+      // A number that leaves out some of a lemma's words keeps the ones it
+      // tags (GK8-1), and the readback says so.
+      const leavesOut = (id) => match.kind === "strong" && !term.exact && strongCount(index.lemmas[id], match.strong) < index.lemmas[id].count;
+      for (const m of found) {
+        if (!ids.includes(m.id)) ids.push(m.id);
+        if (leavesOut(m.id)) (strongs[m.id] ??= []).push(match.strong);
+        else whole.add(m.id);
+      }
+      const partial = found.some((m) => leavesOut(m.id));
+      shown.push({
+        word: w,
+        lemmas: found.map((m) => index.lemmas[m.id].lemma),
+        gloss: match.kind === "latin" && !found.some((m) => m.how === "translit") ? w : null,
+        tagged: partial ? match.strong : null,
+      });
     }
+    for (const id of whole) delete strongs[id];
     const { nearFilter, ...rest } = term;
-    terms.push({ ...rest, lemmaIds: ids, form, shown, altIds: formFallbackIds(index, term, ids) });
+    const more = Object.keys(strongs).length ? { strongs } : {};
+    terms.push({ ...rest, lemmaIds: ids, form, shown, ...more, altIds: formFallbackIds(index, term, ids) });
   }
   return { ...parsed, terms };
 }
@@ -555,6 +574,7 @@ function describeTerm(term, lead, greek, text) {
       .map((s) => {
         const names = term.exact ? [s.word] : s.lemmas;
         const g = names.map(greek).join(text(" or "));
+        if (s.tagged && !term.exact) return `${g}${text(` tagged ${s.tagged}`)}`;
         return s.gloss ? `${g}${text(` (“${s.gloss}”)`)}` : g;
       })
       .join(text(" or "));

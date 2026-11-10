@@ -27,6 +27,7 @@ import {
   prepareBridge,
   prepareIndex,
   sameBuild,
+  strongView,
 } from "../lib/greek-search.mjs";
 import {
   codeFits,
@@ -168,6 +169,10 @@ export function loadGreekIndex(base) {
     })
     .then((json) => {
       const index = prepareIndex(json);
+      // A lemmas.json of another format is one cached from an older build:
+      // counted as such, so the next load checks it with the server (GK8-1's
+      // format 3 met a day-old format 2).
+      if (!index && Number.isInteger(json?.format)) staleSeen++;
       if (!index) throw new Error("lemmas.json is not the format this script reads");
       return index;
     })
@@ -248,7 +253,10 @@ async function searchGreekOnce(base, raw, { tray = false, near = true, bookKey =
     match = matchGreek(index, raw, { near, bridge, offerForms: true });
     found = match.lemmas;
   }
-  let lemmas = found.map((m) => ({ ...index.lemmas[m.id], how: m.how, lit: m.lit ?? null }));
+  // A Strong's number finds only the words tagged with it (GK8-1): each lemma
+  // is counted, and its verses kept, by those words alone.
+  const strongs = match.kind === "strong" ? [match.strong] : null;
+  let lemmas = found.map((m) => ({ ...strongView(index.lemmas[m.id], strongs), how: m.how, lit: m.lit ?? null }));
   // A LIT rendering names a term's verses, not its words (until alignment
   // phase 2), and a term can govern several lemmas: count each lemma in those
   // verses, and drop one that never occurs there.
@@ -282,7 +290,7 @@ async function searchGreekOnce(base, raw, { tray = false, near = true, bookKey =
   out.otherForms = hasOtherForms(entry, match.form);
   // Found by a LIT rendering: only the verses where the LIT renders it so.
   const litKeys = selected.lit ? litVerseKeys(selected.lit) : null;
-  const decoded = decodeOccurrences(entry, BOOK_ORDER, { bookKey, form }).filter(
+  const decoded = decodeOccurrences(entry, BOOK_ORDER, { bookKey, form, strongs, primary: selected.strong }).filter(
     (h) => !litKeys || litKeys.has(litKey(h)),
   );
   out.hits = decoded.map((h) => ({
@@ -393,7 +401,9 @@ async function searchGreekCommandsOnce(base, raw, { bookKey = "" } = {}) {
         term.lemmaIds.map(async (id) => {
           const entry = await loadGreekOccurrences(base, index, id);
           if (!entry) failed = true;
-          return decodeOccurrences(entry, BOOK_ORDER, { form: term.form, bookKey: book }).filter(fits);
+          // A lemma reached only by a Strong's number keeps the words tagged with it (GK8-1).
+          const strongs = term.strongs?.[id] ?? null;
+          return decodeOccurrences(entry, BOOK_ORDER, { form: term.form, bookKey: book, strongs, primary: index.lemmas[id].strong }).filter(fits);
         }),
       );
       return parts.flat();

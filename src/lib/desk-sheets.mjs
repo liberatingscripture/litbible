@@ -17,7 +17,7 @@
 //   - Formatted text is sanitized here as it is saved (sanitizeSheetHtml),
 //     so what reaches the store is already in the canonical form.
 
-import { canEdit, createRecord, editRecord } from "./desk-records.mjs";
+import { canEdit, createRecord, editRecord, newId } from "./desk-records.mjs";
 import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
 import { planSave } from "./desk-store-core.mjs";
 
@@ -38,10 +38,6 @@ function sanitizeFields(fields) {
   const out = { ...fields };
   for (const f of FORMATTED) if (typeof out[f] === "string") out[f] = sanitizeSheetHtml(out[f]);
   return out;
-}
-
-function newId() {
-  return globalThis.crypto.randomUUID();
 }
 
 /** Whether two JSON values are the same. */

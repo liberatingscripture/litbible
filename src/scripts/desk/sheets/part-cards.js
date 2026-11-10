@@ -19,10 +19,9 @@ import { moveModule, updateModule } from "../../../lib/desk-sheets.mjs";
 import { keyTermsPlacement } from "../../../lib/desk-sheet-templates.mjs";
 import { createKeyTermsBody, createPassageBody } from "./sheet-lit.js";
 import { createSheetText } from "./sheet-text.js";
-import { make } from "../dom.js";
-// The editor imports this file too; `button` and `describe` are function
-// declarations, so the cycle is safe whichever file loads first.
-import { button, describe } from "./sheet-editor.js";
+import { buttons, describe, make } from "../dom.js";
+
+const button = buttons("desk-sheet__btn");
 
 /** A module's prompt field (`prompt` or `answerPrompt`), when it is usable text. */
 export const promptOf = (m, field) => (typeof m?.[field] === "string" ? m[field].trim() : "");

@@ -51,10 +51,18 @@ function hasRun(have, want) {
   return false;
 }
 
-/** Whether the words of `phrase` appear in a row, whole, in `text`. */
+// The phrase without its possessives, or null when it has none: a blank on
+// "God’s" is given away by a question asking "What does God want?" (GF8c-4;
+// BVJ, 2026-11-10), since the apostrophe splits off an "s" no question repeats.
+const baseOf = (phrase) => {
+  const base = String(phrase ?? "").replace(/(\p{L})['’]s(?![\p{L}\p{N}])/gu, "$1");
+  return base === String(phrase ?? "") ? null : wantOf(base);
+};
+
+/** Whether the words of `phrase` appear in a row, whole, in `text` (a possessive also matches its word alone). */
 export function containsPhrase(text, phrase) {
-  const want = wantOf(phrase);
-  return !!want && hasRun(tokens(text), want);
+  const have = tokens(text);
+  return [wantOf(phrase), baseOf(phrase)].some((want) => !!want && hasRun(have, want));
 }
 
 /**
@@ -83,7 +91,7 @@ export function findLeaks(blanks, surfaces) {
     out.push(leak);
   };
   // Each blank's phrases are tokenized once, and each surface once (DK6-3).
-  const wants = (blanks ?? []).map((b) => ({ b, exact: wantOf(b.exact), tell: b.telltale ? wantOf(b.telltale) : null }));
+  const wants = (blanks ?? []).map((b) => ({ b, exact: wantOf(b.exact), base: baseOf(b.exact), tell: b.telltale ? wantOf(b.telltale) : null }));
   for (const s of surfaces ?? []) {
     if (!s?.text) continue;
     if (s.kind === "footnote") {
@@ -97,9 +105,9 @@ export function findLeaks(blanks, surfaces) {
     // keeps a long sheet from scanning every token for every blank (LG8-4).
     const seenWords = new Set(have);
     const runs = (want) => seenWords.has(want[0]) && hasRun(have, want);
-    for (const { b, exact, tell } of wants) {
+    for (const { b, exact, base, tell } of wants) {
       if (s.kind === "passage" && s.passageId === b.passageId) continue;
-      if (exact && runs(exact)) add(b, s);
+      if ((exact && runs(exact)) || (base && runs(base))) add(b, s);
       // The traditional word a hint doesn't show gives the blank away just the
       // same (DK6-5), as it does in a footnote. Not in a passage: its own
       // verses carry that word as a matter of course.

@@ -129,7 +129,16 @@ async function start({ handOver }) {
     },
   };
   margin = store
-    ? createNotesMargin({ store, onEdit: edit, source: studySource() ?? proseSource(), ctx, showInText })
+    ? createNotesMargin({
+        store,
+        onEdit: edit,
+        source: studySource() ?? proseSource(),
+        ctx,
+        showInText,
+        // The panel is built after the margin; "N more notes" opens This verse
+        // through it once it is up (GF8b-6).
+        showVerse: (verse) => api?.panel?.showVerse?.(verse),
+      })
     : null;
   readMarks = store && !margin ? createReadMarks({ store }) : null;
   // Before the panel: its tabs ask for Pin buttons as they draw.

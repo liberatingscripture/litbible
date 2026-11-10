@@ -1286,10 +1286,11 @@ test("a sheet is deleted to the trash and brought back whole, and an undo outlas
   assert.equal(undo.record.modified, T2);
   assert.deepEqual({ ...undo.record, modified: s.modified, client: s.client }, s);
   assert.doesNotThrow(() => planWrite(undo));
-  // A sheet of a newer format comes back exactly as it was deleted.
+  // A sheet of a newer format comes back as it was deleted, with only the
+  // fields every client reads restamped, so the restore outranks the deletion (DI8-2).
   const newer = { ...s, sheetFormat: 2, futureField: 1 };
   const back = planUndo(planDelete(newer, { ...ctx, now: T1, id: nextId() }).trash, { now: T2, client: "web/2026.11" });
-  assert.deepEqual(back.record, newer);
+  assert.deepEqual(back.record, { ...newer, modified: T2, client: "web/2026.11" });
 });
 
 function makePassageModule() {

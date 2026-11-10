@@ -107,7 +107,12 @@ means each of these, in one change:
    Highlight and its switch says so (`highlightsSupported`). Mac Safari and
    Firefox passes are still open from Audit 1's FA1-v. `CompressionStream`
    (Safari 16.4) is inside that floor, so Save as and Share a sheet need no
-   fallback.
+   fallback. **A shared sheet's phone viewer has its own floor, Safari 16.4
+   (iOS 16.4)** (BVJ, 2026-11-10, Audit 8 LG8-9): the first with a regular
+   expression lookbehind (the reference linker's) and `CompressionStream`.
+   `sheet-share-gate.js` asks `viewerSupported()` before it imports the
+   viewer, and below the floor says the browser is too old, never to check
+   the connection.
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
 11. **Read View's retirement (8c)** ships in the same change as the flip
@@ -351,6 +356,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
+     **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
+     `layoutCapped` folds the rest, and any starting below the text's foot, into
+     one "N more notes" button that opens This verse (`showVerse`); no This verse
+     tab, no cap.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
      The notes' settings (`data-desk-notes`, `data-desk-note-font`,
@@ -630,11 +639,22 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        six already move. A dead label id on a restored note is left (not drawn).
        **`makeEntry` allots no `undoTrash` for a record the change took out of the
        trash**, or undoing a restore would leave two trash records for one
-       deletion. "Empty the trash now" stays under Delete everything and isn't
-       undoable.
+       deletion. "Empty the trash now" stays under Delete in bulk and isn't
+       undoable. **Delete in bulk is two buttons** (Audit 8 decision 8, BVJ
+       2026-11-10; one "Delete everything" until then, which trashed sheets
+       without saying so): "Delete all notes and marks" (every record but sheets) and
+       "Delete all sheets" (sheets and the reader's templates), each one
+       undoable step (`planDeleteMarks`, `planDeleteSheets`).
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
        applied from the notebook page, names unique ignoring case and
-       accents.
+       accents. **Two label records with one name are one label** (BVJ,
+       2026-11-10, Audit 8 decision 3): two devices can each make "Sermon
+       prep" before they meet, and nothing is rewritten when they do. Every
+       read joins them (`labelGroups`: the oldest record's id, the name as
+       last written), and renaming, deleting or taking the label off an item
+       acts on every id of it (`labelIds`). Anything new that reads labels
+       goes through `liveLabels`, `labelMap` or `labelsOf`, never the raw
+       records, or the label shows twice.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
        `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md
@@ -987,8 +1007,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        holds the 58.
      - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
        any form and accent (folded by `foldGreek`, which `build:greek` also
-       uses for the index), a Strong's number (a lemma's other MACULA numbers
-       too, so G1510 finds εἰμί), a transliteration compared by key
+       uses for the index), a Strong's number (**the words tagged with it,
+       never whole lemmas**: a word carries its lemma's number unless MACULA
+       tags it otherwise, so G1510 finds 105 words of εἰμί and G3596 one of
+       πᾶς; GK8-1, BVJ 2026-11-10), a transliteration compared by key
        (`greekKey`/`latinKeys`: agreuō = agreuo, Christos = xristos), or an
        English gloss. Glosses are the lemma's own, STEPBible's brief one
        (πίστις is "to believe in" in UBS's commonest sense, "faith" there)
@@ -1137,8 +1159,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Its two keys, `localStorage['lit-greek-commands']` (opened once) and
        `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
        /privacy's paragraph.
-     - **The data is format 2 of `public/greek/search/`**: each lemma's
-       shard entry is `[forms, flat, parses]` with six numbers a word, and
+     - **The data is format 3 of `public/greek/search/`**: each lemma's
+       shard entry is `[forms, flat, parses, others?]` with six numbers a
+       word, `others` the words tagged with another Strong's number by place
+       (`also` in `lemmas.json` counts them; a `text/` word carries the
+       number as a tenth field, read by the tab's Strong's button), and
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.
@@ -1223,12 +1248,22 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        an `a.sref` in it moves the LIT pane (`env.showPassage`), and the pane
        **holds its book while the LIT shows the passage it sent**, until the
        LIT moves to any other book; every other link opens a new tab.
+       A scripture reference in a footnote on /desk follows the same rule (the
+       Footnotes pane, This verse as a pane, the LIT pane's footnote popover;
+       `footnote-links.js`; Audit 8, DK8-2; BVJ 2026-11-10), and any other link
+       in a footnote opens a new tab.
        `showIntroIn` (`desk-layout.mjs`) is the one rule for showing a book's
        introduction from outside the pane: a following Book Intro pane first,
        else any, else a new one beside, moving the LIT to the book's chapter 1
        only when it is in another book (a pane that stays put moves alone).
        A Search pane's intro result and `/desk/?intro=romans` both use it.
-       **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02):
+       **Long My Notes and notebook lists page** (LG8-2, BVJ, 2026-11-10): 200
+       rows, then "Show N more" (`LIST_PAGE_SIZE`, `pageRows`, `pagedEntries`,
+       `desk-notebook.mjs`), by rows not groups, so a heading shows only with a
+       row. Counts and filters cover the whole list; a filter resets to a page;
+       `follow` reveals the row it needs. A pane's `onDeskChapters` redraw skips
+       chapters holding none of its records (`touchesChapters`).
+     **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02):
        `tab-mine.js` (search, "Show" by kind, the list in Bible order under a
        heading per chapter, labels, and on /desk it follows the LIT pane).
        `kept-list.js` remains, but only the notebook page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
@@ -1271,7 +1306,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        not search it. `content-visibility` was tried and fixed
        the layout only. A new reader of a pane's text that
        needs it drawn (a rect, a selection) must handle a parked chapter.
-       **`desk/dom.js` holds `make`/`el` and `escapeHtml`** (LG-13): import them,
+       **`desk/dom.js` holds `make`/`el`, `escapeHtml`, `buttons(cls)` (a
+       module's `button` maker) and `describe`** (LG-13, LG8-6, LG8-7), and
+       `desk/desk-text.js` `plural` and `dateWords`, `desk/record-words.js` a
+       record's `nameOf`, `colorOf` and `highlightedWords`: import them,
        don't write another copy. `announce` and `say` are not shared on purpose
        (the copies differ), and `first-use.js`, `desk-tour.js` and
        `sheet-text.js` keep their own `el`/`make`, which differ in how they
@@ -1555,8 +1593,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        on the selection's verses (not on footnotes) after it under "My notes".
        Highlights are not tinted in a selection print. Both put a "John 3:16–18
        (LIT)" heading first (the page's own title is hidden under
-       `html[data-desk-part]`). **"With my notes" stands down while "Hide my marks"
-       is on**, with the same notice print-link.js gives. It is offered only where
+       `html[data-desk-part]`). **"With my notes" prints the notes even while "Hide my marks"
+       is on** (BVJ, 2026-11-10; Hide is about the screen only). It is offered only where
        the browser keeps a notebook, which is where the My Notebook rows exist at
        all, so there the whole Print ▸ row is absent.
      - **One Print menu, on /desk and in the Notebook** (E16; BVJ,
@@ -1579,7 +1617,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (SEC-4): it leaves a one-time mark for that address
        (`localStorage['lit-desk-print-ask']`, `printWasAsked`, good for a
        minute), so a link from a chat or a shared sheet only opens the chapter,
-       and with notes it stands down, saying so, while "Hide my marks" is on. A
+       and with notes it prints them whatever "Hide my marks" says (BVJ, 2026-11-10). A
        new way to ask for such a print must leave the mark. **This page's own chapter prints in
        place**, with no new tab, as the Notebook's buttons always did. /desk's
        is "Print…" in the page-title menu (E15, below); the

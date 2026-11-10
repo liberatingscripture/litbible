@@ -147,6 +147,10 @@ const share = instrument(shareSource, [
     'import { isAppPlatform } from "../lib/app-platform.mjs";',
     `import { isAppPlatform } from ${JSON.stringify(pathToFileURL(join(root, "src/lib/app-platform.mjs")).href)};`,
   ],
+  [
+    'import { viewerSupported } from "../lib/sheet-viewer-floor.mjs";',
+    `import { viewerSupported } from ${JSON.stringify(pathToFileURL(join(root, "src/lib/sheet-viewer-floor.mjs")).href)};`,
+  ],
 ]);
 
 const PHONE = { userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)", maxTouchPoints: 5 };

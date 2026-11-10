@@ -255,7 +255,17 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    the labels on them. The website
    calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
    unique ignoring case and accents: a new label matching an old one reuses
-   it.
+   it. **Two label records with one name are one label** (BVJ, 2026-11-10,
+   Audit 8 decision 3, for BDR): two devices that each made "Sermon prep"
+   before they met keep both records, and a merge changes neither, nor the
+   ids on any record. A client joins them where it reads them: it shows one
+   label, under the id of the record with the earliest `created` (ties by
+   id) and with the `name` of the one with the latest `modified` (ties by
+   id), so every device shows the same label from the same records.
+   Renaming it renames every record of it; deleting it deletes every record
+   of it and takes all their ids off the records carrying them; taking it
+   off one record takes every one of its ids off. An app that shows labels
+   separately is not wrong about the data, only shows the name twice.
 9. **`sheet`** (S1–S10, M9, D9): one document the reader builds, for a
    study group, a sermon, a class or anything else. **The website's
    proposal of 2026-10-18 (phase 3b), approved by BVJ the same day.** The apps carry it
@@ -312,11 +322,17 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 
     **Undo and redo on the website** (audit FA1-d, BA7, 2026-10-26; for BDR,
     since a sync would carry what they write). Undoing is the reader acting,
-    so every record an undo or redo puts back gets a fresh `modified` (one of
-    a kind or schema it can't edit comes back exactly as it was), and a
+    so every record an undo or redo puts back gets a fresh `modified`, and a
     trash record put back also gets a fresh `deletedAt`: it is the deletion
     made again, and a copy of the notebook saved in between holds the record
     the undo brought back, which an old `deletedAt` would lose to (rule b).
+    **A record of a kind or schema the client can't edit is restamped too**
+    (Audit 8 DI8-2, BVJ 2026-11-10; **the apps need the same**), on an undo
+    or redo and on a restore from the trash: only `modified` and `client`,
+    the fields every client reads, and every other field as it was
+    (principle 6 is about the fields a client doesn't understand). Left
+    unstamped, it was older than its own deletion, so rule b took it away
+    again wherever the two copies met.
     **Undoing an add deletes through the trash** rather than removing the
     record outright, so a copy saved before the undo can't bring it back as
     new; a redo removes that trash record again. The apps need only the
@@ -939,6 +955,16 @@ deletion made in between, every time (BA4). So:
   `b-a-deletion-stamped-past-the-record-it-deletes-stands` and
   `b-a-restore-stamped-past-the-deletion-it-undoes-stands` (each with an
   `-other-way` twin) show the stamps that result.
+  **A stamp never steps more than five minutes past the client's own clock**
+  (Audit 8 DI8-1, BVJ 2026-11-10; **the apps need the same bound**): when the
+  version a stamp would step past is further ahead of the clock than the
+  five minutes above, the stamp is plain `now`. Such a version was made by a
+  clock that ran ahead (a dead battery, a virtual machine, a misset travel
+  clock), and every other copy holds it clamped to when it arrived, so
+  stepping past it kept the record "ahead" for ever: its edits, deletion and
+  undo were dropped in both directions, and the other side's deletion lost
+  to it under rule b. Stamped `now`, the next change outranks the clamped
+  copies and the record heals. Rules a to c and the vectors don't change.
 - **One trash id, two copies** (DI-3): merged field-wise, as the collapse
   rule does across ids: the later `deletedAt`, the later `modified`, and the
   held record with the later `modified`. A trash record whose held record has
@@ -955,6 +981,20 @@ deletion made in between, every time (BA4). So:
   the store's tiebreak). Rules b and c read the bookmark's `modified` as
   before. The five `a-bookmark-` and `clamp-a-bookmark-` cases show it,
   including an app's copy without the stamps merging whole.
+  **A bookmark held by a deletion merges by group too** (Audit 8 DI8-3;
+  merge vectors version 6, 2026-11-10; BVJ's decision, for BDR to review):
+  two trash records for one deletion that both hold stamped copies, and a
+  live stamped copy meeting a deletion that holds one (rule b, when the
+  deletion stands), give the held copy each group's later version, as above.
+  Before, the trash kept one whole copy by `modified` alone, so a rename on
+  one device and a move on another left the two trashes holding different
+  bookmarks, and a restore brought back a different one on each. A tie in
+  a group's stamp goes to the copy whose fields in that group sort first as
+  canonical JSON (the place: `placedAt` and the place fields; the edit:
+  every other field but `modified` and `client`; the whole: `modified` and
+  `client`), never to whichever copy arrived, so the trash settles alike in
+  any order. Cases `collapse-two-held-copies-of-a-bookmark-merge-by-group`
+  and `b-a-deletion-keeps-the-live-bookmark-s-newer-group`.
 - **A record that had to be clamped never beats anything the receiving side
   holds**: it is dropped when that side has a record with its id or a
   deletion of it, or, for a trash record, the record it deletes or another

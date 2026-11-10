@@ -26,9 +26,13 @@ export const GREEK_LICENSE_HREF = "/greek/LICENSE.txt";
 /** The Greek tab's "Sources and licenses": [label, href] each. */
 export const SOURCES = [
   ["SBL Greek New Testament (SBLGNT), © 2010 Society of Biblical Literature and Logos Bible Software, CC BY 4.0", SBLGNT],
-  ["Dictionary forms and parsing: MorphGNT, CC BY-SA 3.0", MORPHGNT],
+  ["Dictionary forms and parsing: MorphGNT: SBLGNT Edition, ed. J. K. Tauber, CC BY-SA 3.0", MORPHGNT],
   ["Parsing for John 7:53–8:11 and Romans 16:25–27: MACULA Greek, Clear Bible, CC BY 4.0", MACULA],
-  ["UBS Dictionary of the Greek New Testament, United Bible Societies, CC BY-SA 4.0", UBS],
+  // The credit line UBS asks for, verbatim (ubs-open-license README; GK8-5, BVJ 2026-11-10).
+  [
+    "UBS Dictionary of New Testament Greek, © United Bible Societies, 2023. Adapted from Semantic Dictionary of Biblical Greek: © United Bible Societies 2018–2023, which is adapted from Greek-English Lexicon of the New Testament: Based on Semantic Domains, Eds. J P Louw, Eugene Albert Nida © United Bible Societies 1988, 1989. CC BY-SA 4.0",
+    UBS,
+  ],
   ["STEP Bible: brief lexicon (TBESG), Tyndale House Cambridge, CC BY 4.0, reformatted", STEP],
   ["Full LSJ, and the Middle Liddell entries marked (ML) in the brief lexicon: Perseus Digital Library, Tufts University, edited by STEP Bible, CC BY-SA 4.0, reformatted", PERSEUS],
 ];
@@ -37,7 +41,8 @@ export const SOURCES = [
  * The credit under a group of Greek search results, as parts: a string is
  * text, `{ text, href }` a link. The search index draws on every source the
  * tab lists but the LSJ: MACULA gives the Strong's numbers and two passages'
- * parsing, and most glosses a result can match are STEP Bible's brief ones.
+ * parsing, and most glosses a result can match are STEP Bible's brief ones,
+ * some of them Perseus's Middle Liddell (GK8-5).
  */
 export const SEARCH_CREDIT = [
   "Greek: ",
@@ -48,8 +53,10 @@ export const SEARCH_CREDIT = [
   { text: "MACULA Greek", href: MACULA },
   "; glosses: ",
   { text: "UBS", href: UBS },
-  " and ",
+  ", ",
   { text: "STEP Bible", href: STEP },
+  ", and ",
+  { text: "Perseus", href: PERSEUS },
   " (",
   { text: "licenses", href: GREEK_LICENSE_HREF },
   ").",

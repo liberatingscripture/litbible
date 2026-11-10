@@ -53,19 +53,15 @@ import {
 import { modulesForCopy } from "../../../lib/desk-sheet-copy.mjs";
 import { passageReference, sheetName } from "../../../lib/desk-sheet-passages.mjs";
 import { codeFigure, keyTermsSection, presentPassage, printingBlanks, readAll, rich } from "./sheet-copy.js";
-import { make } from "../dom.js";
+import { buttons, make } from "../dom.js";
+
+const button = buttons("present-btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 // The virtual screen a preview is laid out on in the presenter view, then
 // scaled to fit its frame: a 16:9 projector.
 const VIRTUAL = { width: 1600, height: 900 };
-
-function button(label, cls = "present-btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
 
 const sheetUrl = (id, view) => `${BASE}sheets/?id=${encodeURIComponent(id)}${view ? `&view=${view}` : ""}`;
 
@@ -486,8 +482,9 @@ export async function openPresentation({ sheet, store, fullscreen = true, touch 
       const dark = state.blank === true;
       stage.classList.toggle("is-blank", dark);
       frame.inert = dark;
+      // A fixed label and a pressed state, as the Greek tab's (GK3-8): a label
+      // that flipped as well read "Show screen, pressed" (XA8-6).
       blankBtn.setAttribute("aria-pressed", String(dark));
-      blankBtn.textContent = dark ? "Show screen" : "Blank";
       const words = why === "remote" ? "" : announce(why, state, deck);
       if (words) live.say(words);
     },
@@ -870,7 +867,6 @@ export async function showPresenterView({ root, sheet, store }) {
       blankNote.hidden = !dark;
       blankNote.textContent = dark ? "The room’s screen is blank. Press B to show it." : "";
       blankBtn.setAttribute("aria-pressed", String(dark));
-      blankBtn.textContent = dark ? "Show the room’s screen" : "Blank the room’s screen";
       where.textContent = `${screenCount(i, total)}: ${screenTitle(deck.screens[i], deck.sheet)}`;
       now.show(deck.built[i].el);
       const after = deck.built[i + 1]?.el ?? null;

@@ -839,18 +839,23 @@ const isEmptyField = (v) => v == null || v === "" || (Array.isArray(v) && !v.len
  * the lemma, with the folded forms its words take and, in 64 shards, where each
  * word is and how it parses. Words with no lemma are skipped.
  *
+ * A lemma's Strong's number is its words' unless a word carries its own
+ * (buildBook's tenth field, GK8-1): those words are listed in the lemma's
+ * shard entry by number, as places in its list of words, and the lemma's
+ * entry in lemmas.json names each such number with how many words carry it
+ * (`also`), so a search for a number finds only the words tagged with it.
+ *
  * Also the parse groups (parseGroup): for a search with no word in it, every
  * word of one kind in Bible order, naming its lemma by id. A word's code is
  * its part of speech and parsing joined ("N-----GSF-"); a word with no part
  * of speech is in no group.
  *
  * @param {object[]} docs  the built chapter documents, in Bible order
- * @param {Map<string,string[]>} strongs  strongsByLemma(pairs)
  * @param {string[]} bookOrder  BOOK_ORDER
  * @returns {{lemmas: object, shards: Map<string, object>, parseIndex: object,
  *            parseGroups: Map<string, object>, report: object}}
  */
-export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({})) {
+export function greekSearchIndex(docs, bookOrder, glossesFor = () => ({})) {
   const report = { strongDiffers: [], glossDiffers: [], noLemma: 0, words: 0 };
   const byLemma = new Map(); // lemma -> { strong, gloss, count, folded, exact, occ, codes }
   const groups = new Map(); // group -> { codes, words: [book, chapter, verse, t, lemma, codeIndex, …] }
@@ -868,7 +873,10 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
         const lemma = nfc(lemmaRaw);
         let e = byLemma.get(lemma);
         if (!e) {
-          e = { strong: strong ?? null, gloss: gloss ?? null, ubsId: doc.lemmas[li][2] ?? null, count: 0, folded: new Set(), exact: [], codes: [], occ: [] };
+          e = {
+            strong: strong ?? null, gloss: gloss ?? null, ubsId: doc.lemmas[li][2] ?? null, count: 0,
+            folded: new Set(), exact: [], codes: [], occ: [], others: new Map(),
+          };
           byLemma.set(lemma, e);
         }
         if (!checked.has(li)) {
@@ -880,6 +888,13 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
         let fi = e.exact.indexOf(text);
         if (fi < 0) fi = e.exact.push(text) - 1;
         e.folded.add(searchFold(text));
+        // A word tagged with another number than its lemma's: its place in the lemma's words.
+        const own = word[9];
+        if (own && own !== e.strong) {
+          let places = e.others.get(own);
+          if (!places) e.others.set(own, (places = []));
+          places.push(e.count);
+        }
         e.count++;
         const code = `${word[6] ?? ""}${word[7] ?? ""}`;
         let ci = e.codes.indexOf(code);
@@ -904,7 +919,9 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
   const ids = new Map(names.map((lemma, id) => [lemma, id]));
   names.forEach((lemma, id) => {
     const e = byLemma.get(lemma);
-    const also = (strongs.get(lemma) ?? []).filter((k) => k !== e.strong);
+    // Most words first, the lower number on a tie, so the order doesn't depend on reading order.
+    const others = [...e.others].sort((a, b) => b[1].length - a[1].length || strongDigits(a[0]) - strongDigits(b[0]));
+    const also = others.map(([key, places]) => [key, places.length]);
     const { brief = null, senses = [] } = glossesFor(lemma, e.strong, e.ubsId) ?? {};
     // Each other gloss by its head ("to trust (in)" is "trust"), so a search
     // matches a whole gloss, never a word inside one ("faith" in "father of
@@ -921,7 +938,9 @@ export function greekSearchIndex(docs, strongs, bookOrder, glossesFor = () => ({
     // Trailing empty fields are left off; the reader treats a missing one as empty.
     while (entry.length > 5 && isEmptyField(entry[entry.length - 1])) entry.pop();
     lemmas.push(entry);
-    shards.get(searchShardName(id))[id] = [e.exact, e.occ, e.codes];
+    const shard = [e.exact, e.occ, e.codes];
+    if (others.length) shard.push(Object.fromEntries(others));
+    shards.get(searchShardName(id))[id] = shard;
   });
   const parseGroups = new Map();
   const counts = {};
@@ -1088,7 +1107,20 @@ function runs(numbers) {
 }
 
 /**
- * Builds every chapter file of one book.
+ * A word's Strong's number when it is not its lemma's: MACULA's number for the
+ * word (`tagged`, as MACULA writes it), or null when MACULA gave it none or
+ * the same number as the lemma (`lemmaStrong`).
+ */
+export function wordStrong(tagged, lemmaStrong) {
+  const key = strongKey(tagged);
+  return key && key !== lemmaStrong ? key : null;
+}
+
+/**
+ * Builds every chapter file of one book. A word is
+ *   [verse, t, text, pre, post, lemma, pos, parse, sense, strong?]
+ * with `strong` present only where the word's own Strong's number differs from
+ * its lemma's (wordStrong).
  *
  * @param {object} a
  * @param {string} a.bookKey
@@ -1098,6 +1130,9 @@ function runs(numbers) {
  * @param {(chapter:number, verse:number) => object[]|undefined} a.morphVerse  MorphGNT tokens
  * @param {(chapter:number, verse:number) => object[]|undefined} a.maculaVerse MACULA SBLGNT rows
  * @param {(chapter:number, verse:number) => object[]|undefined} a.nestleVerse MACULA Nestle 1904 rows
+ * @param {(chapter:number, verse:number) => (string|null)[]|null} [a.pairedStrongs]
+ *        MACULA's Strong's number for each of the verse's MorphGNT tokens, in
+ *        token order, where pairMaculaWithMorph paired the verse; else null
  * @param {Map<string,string>} a.hints   posHints
  * @param {ReturnType<typeof makeLemmaResolver>} a.resolveLemma
  * @param {(entry:object) => Map<string, {pos:number,sense:number}[]>} a.ubsRefs  ubsSenseRefs, cached
@@ -1137,7 +1172,7 @@ export function buildBook(a) {
     };
     paras.forEach((words, p) => {
       for (const w of words) {
-        takeVerse(w.verse, { paragraph: p, ...w, t: 0, lemma: null, pos: null, parse: null, strong: null, sense: null });
+        takeVerse(w.verse, { paragraph: p, ...w, t: 0, lemma: null, pos: null, parse: null, strong: null, tagged: null, sense: null });
       }
     });
 
@@ -1152,10 +1187,13 @@ export function buildBook(a) {
           report.mismatches.push(`${where}: ${why}`);
           continue;
         }
+        const own = a.pairedStrongs?.(chapter, verse) ?? null;
         vrows.forEach((r, i) => {
           r.lemma = nfc(tokens[i].lemma);
           r.pos = tokens[i].pos;
           r.parse = tokens[i].parse;
+          // Kept apart from `strong`, which names a borrowed word's lemma's number.
+          r.tagged = own?.[i] ?? null;
         });
         report.wordsFromMorphgnt += vrows.length;
         continue;
@@ -1268,7 +1306,7 @@ export function buildBook(a) {
     if (chapter === 1 && a.sbl.title) doc.title = nfc(a.sbl.title);
     doc.paragraphs = [];
     for (const r of rows) {
-      (doc.paragraphs[r.paragraph] ??= []).push([
+      const word = [
         r.verse,
         r.t,
         nfc(r.text),
@@ -1278,7 +1316,13 @@ export function buildBook(a) {
         r.lemma ? r.pos : null,
         r.lemma ? r.parse : null,
         r.sense,
-      ]);
+      ];
+      // The word's own Strong's number, only where MACULA tags this word with
+      // another number than its lemma's (GK8-1): ἦν is G2258, αὐτοῦ sometimes
+      // G848. Everywhere else the lemma's number is the word's.
+      const own = r.lemma ? wordStrong(r.tagged ?? r.strong, lemmas[lemmaIndex.get(r.lemma)][1]) : null;
+      if (own) word.push(own);
+      (doc.paragraphs[r.paragraph] ??= []).push(word);
     }
     doc.lemmas = lemmas;
     doc.apparatus = apparatusRows.map((r) => [r.verse, r.notes]);

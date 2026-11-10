@@ -405,6 +405,11 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
       const terms = keyTermsSection(m, views, modules, copy, blanks, { paper: true });
       if (terms) article.append(terms);
     } else if (m.type === "pageBreak") {
+      // One break where removed parts left two, and none before the first part
+      // (GF8b-12): a Leader only part between two breaks leaves both on the
+      // participant's version, and some browsers print a blank page for that.
+      const last = article.lastElementChild;
+      if (last === head || last?.classList.contains("sheet-copy__break")) continue;
       const br = make("div", "sheet-copy__break");
       br.setAttribute("role", "separator");
       br.setAttribute("aria-label", "Page break");
@@ -412,7 +417,9 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
     }
   }
 
-  if (!modules.some((m) => printsOnPaper(m, copy))) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
+  // Nor one after the last part.
+  if (article.lastElementChild?.classList.contains("sheet-copy__break")) article.lastElementChild.remove();
+  if (article.lastElementChild === head) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
 
   if (answerKey && copy === "leader") {
     const key = answerKeySection(modules, views);

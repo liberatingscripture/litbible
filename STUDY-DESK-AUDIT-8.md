@@ -26,6 +26,8 @@ PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8
 of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
 LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
 
+**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all notes and marks, and Delete all sheets). Still open: decisions 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
+
 ## Bottom line
 
 **No Critical or High finding, in either phase.** After verification, **13 Medium**, 94 Low and 11
@@ -166,38 +168,38 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
 
 1. **DI8-1: should a stamp ever step more than five minutes past the client's own clock?** Bounding
    it changes the format's "Room for skew" for BDR. Proposed: clamp, and treat a stored stamp far in
-   the future as now.
+   the future as now. **Decided (2026-11-10): clamp; fixed.**
 2. **DI8-2: may the website restamp `modified` and `client` when a reader restores, or undoes the
    deletion of, a record it can't edit?** The format says such a record "comes back exactly as it
    was," which means the restore loses to the deletion the next time they meet. (VER8 notes the E log
-   says a restore outranks a deletion, which is false for these records.)
-3. **DI8-3 and labels with one name on two devices:** fold them at merge, or list both?
+   says a restore outranks a deletion, which is false for these records.) **Decided (2026-11-10): restamp; fixed.**
+3. **DI8-3 and labels with one name on two devices:** fold them at merge, or list both? **Decided (2026-11-10): merge. Bookmarks merge by group; two labels with one name are one label, joined where they are read; fixed.**
 4. **DK8-2: a scripture reference in a footnote on /desk:** open a new tab (E34's rule for links that
    leave the desk), or move the LIT pane, as the Book Intro pane does? Either is small; the panes
-   should agree.
+   should agree. **Decided (2026-11-10): move the LIT pane; fixed.**
 5. **The Share dialog starts on "Everything, for another leader"** (SEC8 question 1), though its own
    note says "send the participant's version when you're unsure." And on a phone, Share… forwards a
    leader link as it came, with no participant choice (SH8 question). Should both default to, or
-   offer, the participant's version?
+   offer, the participant's version? **Decided (2026-11-10): the participant's version, in the dialog and on a phone; fixed.**
 6. **GK8-1 and GK8-5: Strong's numbers and the Greek credits.** Keep the lemma-wide match, or narrow
    the three mis-tag cases (G848, G1519, G3596)? Use the UBS repository's requested credit wording and
-   name MorphGNT's editor, or keep the shorter lines?
+   name MorphGNT's editor, or keep the shorter lines? **Decided (2026-11-10): match by each word's own number, and use the requested credits; fixed.**
 7. **Scale (LG8-2, GF8b-6):** page My Notes on /desk and `/notebook`, or keep them unpaged? Cap many
-   notes on one verse into "N more," or let the margin stack?
+   notes on one verse into "N more," or let the margin stack? **Decided (2026-11-10): page at 200 with “Show N more”, and fold a margin stack past five into “N more notes”; fixed.**
 8. **"Delete everything" (DK8-7):** is trashing sheets and templates with the notes intended, or
-   should sheets have their own button? Either way the sentence should say what it moves.
+   should sheets have their own button? Either way the sentence should say what it moves. **Decided (2026-11-10): two buttons, “Delete all notes and marks” and “Delete all sheets” (labels on Fable’s advice, no third button); fixed.**
 9. **Copy names (CP8 Rule 7, Rule 6):** "My Notes" or "My notes," "My Notebook" or "My notebook,"
    "Your templates" or "My templates," "Space" or "Space to write," and whether "Study Desk preview"
-   stays in reader-facing text until release.
+   stays in reader-facing text until release. **Decided (2026-11-10): My Notes, My Notebook, My templates, Space to write, From my notes, Display options; Study Desk preview stays; and the .md files are named for what they hold, decided the same day: a shared sheet's is “a sheet file (.md)” (“Export a sheet file (.md)”, “Import a sheet file”) and the notebook's copy stays “Markdown.” Fixed.**
 10. **The phone viewer's floor (LG8-9):** is Safari 16.4 (iOS 16.4) the intended floor? Older iPhones
-    fail with a message that blames the connection.
+    fail with a message that blames the connection. **Decided (2026-11-10): yes; the message now says the browser is too old; fixed.**
 11. **Smaller ones**, each in its report: Hide my marks pressed twice (NB8-6); whether the minimized
     Notebook should draw My Notes at all (NB8-3); /desk reading never updating "Continue reading"
     (DK8 question 2); "Hide my marks" and the Notebook's Print with my notes (DK8 question 3);
     collapsing two page breaks left by removed leader-only parts (GF8b-12); whether "God" gives away
     a blank on "God's" (GF8c-4); the presenter's toggle signal (XA8-6); a group per verse for Greek
     words read by a screen reader (XA8 question 3); and whether "off" means hidden rather than erased
-    (SEC8 question 2).
+    (SEC8 question 2). **Decided (2026-11-10): fix NB8-6, NB8-3, GF8b-12, GF8c-4 and XA8-6; /desk reading writes Continue reading; “with my notes” always prints them; the Greek words wait for the screen-reader pass (GF8b-3); the off switch is moot, since the desk will have none at release. Fixed.**
 
 ## Phase 2: the earlier audits, re-checked
 
@@ -308,7 +310,7 @@ A record once stamped by a clock set ahead is unsyncable for ever, in both direc
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 1, and a change to the format shared with the apps (BDR).
+**Fixed (2026-11-10)** Decision 1: clamp (BVJ). `laterThan` never steps more than `CLOCK_TOLERANCE_MS` past the device's own clock (now in `desk-records.mjs`, re-exported by `desk-merge.mjs`); over a version further ahead the stamp is `now`, and `laterThanAll` judges each version against the clock. A device whose clock moved back more than five minutes past its own earlier stamp is the same case and now stamps `now` too. For BDR: the rule is in the format's "Room for skew" bullet; rules a to c and the vectors are unchanged. Tests: `test/desk-audit8-j-stamps.test.js` (the healing walked through the merge).
 
 #### DI8-2 · Medium · data-integrity · NEW
 Restoring, or undoing the deletion of, a record this client can't edit puts it back stamped older than its own deletion, so the deletion wins the next time the two meet.
@@ -323,7 +325,7 @@ Restoring, or undoing the deletion of, a record this client can't edit puts it b
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 2.
+**Fixed (2026-11-10)** Decision 2: restamp (BVJ). `restoreFromTrash` and the history's `restamped` give a record this code can't edit a fresh `modified` and `client`, stepped past its deletion, and leave every other field as it was. For BDR: under kind 10's "Undo and redo on the website". Tests: `test/desk-audit8-j-stamps.test.js`, and the earlier "exactly as it was" tests updated.
 
 #### DI8-3 · Medium · data-integrity · NEW
 Two trash records of one deletion holding two copies of a stamped bookmark keep whichever copy the merge order favours, so the trash's words differ between devices and a restore brings back different bookmarks.
@@ -338,7 +340,7 @@ Two trash records of one deletion holding two copies of a stamped bookmark keep 
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 3.
+**Fixed (2026-11-10)** Decision 3: merge by group (BVJ). `collapseTrash` merges every held stamped bookmark by group (`mergeBookmarks`), and rule b merges a live stamped copy into the held one when the deletion stands. A group's tie goes to the copy whose fields in that group sort first, so the trash settles alike in any order: a fuzz of 3,000 histories of three copies, with and without a live one, gave the same result in every order (1,313 and 1,262 depended on order before). Merge vectors version 6, two cases, and the format's "A bookmark merges by group" bullet, for BDR. The other half of decision 3, labels made on two devices with one name, was decided the same day: merge. Nothing is rewritten at merge; `desk-labels.mjs` joins them where they are read (the oldest record's id, the name as last written), and rename, delete and taking a label off act on every id of it. The format's kind 8 says so, for BDR.
 
 #### DI8-4 · Low · data-integrity · NEW
 Closing a tab writes the whole sheet from that tab's copy, so a part another tab saved moments before is silently overwritten.
@@ -427,7 +429,7 @@ Two tabs opening the same sheet within 400 ms never ask each other, since a tab 
 
 1. DI8-2: may the website restamp `modified` and `client` on a record it otherwise can't edit when the reader restores or undoes its deletion? The format says such a record "comes back exactly as it was"; keeping that sentence means the restore cannot survive meeting the deletion again.
 2. DI8-1: should a stamp ever step more than five minutes past the client's own clock? Bounding it changes the format's "Room for skew" bullet for BDR.
-3. Labels made on two devices with one name: fold them at merge, or list both?
+3. Labels made on two devices with one name: fold them at merge, or list both? **Decided (2026-11-10): merge (one label, joined where read).**
 
 ### What held up
 
@@ -678,7 +680,7 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High (each read directly).
 
-**Partly fixed (2026-11-09)** `say` waits 50 ms with a timeout instead of a frame, and two editors in one tab asking about one sheet share one question. `sheets-page--editing`, which nothing reads, is left: it lives in `sheet-page-edit.js` too.
+**Fixed (2026-11-09, 2026-11-10)** `say` waits 50 ms with a timeout instead of a frame, and two editors in one tab asking about one sheet share one question. `sheets-page--editing`, which nothing read, is gone from `sheet-page-edit.js` and `sheet-page.js` (2026-11-10).
 
 ### Improvements
 
@@ -757,7 +759,7 @@ My Notes redraws in full while the Notebook is minimized, which is the default
 **Fix** Draw My Notes and This verse only when `shown()`; when the Notebook expands, call `render()` once (the rail's `onChange` already runs on expand). Keep `MOVE_KIND` heard only while expanded.
 **Confidence** High (code), Low (impact; not timed with a large notebook).
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** A minimized Notebook no longer draws My Notes or This verse: `render` in `panel.js` returns unless the panel is expanded, both tabs' `visible` follow `shown()`, and the rail's change callback renders once when it expands, so bookmark moves cost nothing while it is folded.
 
 #### NB8-4 · Low · performance · NEW
 
@@ -793,7 +795,7 @@ Pressing "Hide my marks" a second time forgets what the first press remembered
 **Fix** When saving for hide, keep an existing saved "on" for any switch that is currently off, or refuse to overwrite while `HIDE_KEY` exists.
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** `setHideAll` now keeps the first hide's record: a hide that finds one keeps a saved "on" for any switch it had, so Show restores everything the first hide saw on.
 
 #### NB8-7 · Low · usability · NEW
 
@@ -864,7 +866,7 @@ Marker glyphs and bookmark marks may lose their colors, and with them the differ
 **Fix** Confirm in Edge with a contrast theme; if it collapses, give the glyphs `forced-color-adjust: none` inside a `forced-colors` block, or add a shape cue.
 **Confidence** Low.
 
-**Open (2026-11-09)** Needs a Windows contrast theme in a real browser.
+**No change (2026-11-10)** Checked with Chromium's forced-colors emulation (the engine Edge uses for a Windows contrast theme), light and dark: Chromium doesn't force SVG `fill` and `stroke`, so the seven markers and the three bookmark looks keep their own colors and stay distinct. Firefox's contrast mode was not checked.
 
 #### NB8-13 · Nit · bug · NEW
 
@@ -968,7 +970,7 @@ A scripture reference inside a footnote, on /desk, is a plain same-tab link, so 
 
 ---
 
-**Open (2026-11-09)** Decision 4.
+**Fixed (2026-11-10)** Decision 4 (BVJ, 2026-11-10): a footnote's scripture reference on /desk behaves as the Book Intro pane's does. A plain click moves the LIT pane through `env.showPassage`; a modified click keeps the browser's default; any other link in a footnote opens in a new tab. One helper, `desk/footnote-links.js` (`routeFootnoteLinks`), serves the Footnotes pane, This verse as a /desk pane (the Notebook's tab on Chapter View is unchanged) and the LIT pane's footnote popover. Test: `test/desk-audit8-dom-footnote-links.test.js`.
 
 #### DK8-3 · Low · copy · NEW
 The Study Desk tour's "Reading in sync" card says there are two LIT panes "as here for the tour" in a window too narrow to add one, and the step is not dropped as "Add pane" is.
@@ -1053,7 +1055,7 @@ The help page says the "Study Desk" button beside "Go to passage" is in Read Vie
 
 ---
 
-**Open (2026-11-09)** Decision 8.
+**Fixed (2026-11-10)** Decision 8: two buttons (BVJ). /notebook's "Delete everything" is now "Delete in bulk" with "Delete all marks…" (every record but sheets: notes, highlights, bookmarks, pinned footnotes, labels, and kinds this code doesn't know) and "Delete all sheets…" (sheets and the reader's templates), each saying what it leaves and each one undoable step (`planDeleteMarks`, `planDeleteSheets`, `bulkCounts` in `desk-notebook.mjs`); "Empty the trash now" stays beside them. The help page's section says the same. BVJ was unsure of the two labels; they are a one-line change in `notebook-page.js`. Tests: `test/desk-notebook.test.js`, `test/desk-audit8-dom-search-notebook.test.js`.
 
 #### DK8-8 · Low · docs · NEW
 The help page's Print paragraph implies the chapter on the page prints in place on /desk; on /desk every choice opens a new tab.
@@ -1096,8 +1098,8 @@ The help page's Print paragraph implies the chapter on the page prints in place 
 ### Questions for the owner
 
 1. **Footnote references on /desk** (DK8-2): should a plain click on a scripture reference in a footnote open a new tab (the E34 rule) or move the LIT pane, as it does in the Book Intro pane? Either is a small change; the two behaviors should not differ between panes.
-2. **Continue reading**: reading in the LIT pane on /desk never writes `lit_last_read` (only the layout key moves), so the notebook page's "Continue reading" and My Notes' "Continue reading" line, in a Study Desk pane or elsewhere, stay at the last chapter-page read even while the reader works on /desk. Intended? (Nothing in `src/scripts/desk/CLAUDE.md` or the E log said either way that I found.)
-3. **"Hide my marks" and printing**: the verse menu's and the selection panel's "with my notes" stand down while it is on (`print-part.js:79-86`), and so does a print asked for by address (`print-link.js:50`); the whole-chapter "Print with my notes" from the Notebook's Settings tab, and the `>print` command, print the notes anyway (`print-notes.js` header: the screen switches "do not apply"). Both read as decisions; is the difference meant?
+2. **Continue reading**: reading in the LIT pane on /desk never writes `lit_last_read` (only the layout key moves), so the notebook page's "Continue reading" and My Notes' "Continue reading" line, in a Study Desk pane or elsewhere, stay at the last chapter-page read even while the reader works on /desk. Intended? (Nothing in `src/scripts/desk/CLAUDE.md` or the E log said either way that I found.) **Decided (2026-11-10): reading on /desk updates Continue reading, as Chapter View does (the leading LIT pane, throttled, never a draft); fixed.**
+3. **"Hide my marks" and printing**: the verse menu's and the selection panel's "with my notes" stand down while it is on (`print-part.js:79-86`), and so does a print asked for by address (`print-link.js:50`); the whole-chapter "Print with my notes" from the Notebook's Settings tab, and the `>print` command, print the notes anyway (`print-notes.js` header: the screen switches "do not apply"). Both read as decisions; is the difference meant? **Decided (2026-11-10): anything that says "with my notes" prints them; Hide my marks is about the screen only; fixed.**
 4. **"Delete everything" and sheets** (DK8-7): is trashing the sheets and templates with the notes intended, or should sheets be a separate button?
 
 ### What held up
@@ -1150,7 +1152,7 @@ For εἰμί/σύ/ἐγώ/οὗτος the extra numbers are real forms of the l
 
 **Confidence**: High on behavior; Medium on how many readers it affects (needs MACULA to count per-word tags; sources are not in this checkout).
 
-**Open (2026-11-09)** Decision 6.
+**Fixed (2026-11-10)** Option (a): `build:greek` now writes each word's own Strong's number where MACULA's tag differs from its lemma's (a tenth field in `text/`, and per lemma a side list of word places in its `occ/` shard, counted in `lemmas.json`'s `also`; search index format 3), and a Strong's search, a Strong's word in a command, the builder's menus and the Greek tab's Strong's button (now the word's own number) keep only the words carrying that number. Words found against the committed data, before and after: G3596 1,247 → 2 (ὁδοιπορέω's one and πᾶς's one), G1519 4,499 → 1,765 (εἰς and 3 words of ἐν), G848 5,890 → 397 (394 of αὐτός, 3 of ἑαυτοῦ), G1510 2,458 → 105; a lemma's own number keeps every word not tagged otherwise (G846 finds 5,163 of αὐτός's 5,557), and a line or readback reached through another number says "tagged G848."
 
 #### GK8-2 · Low · compat · NEW
 Enter, Tab and ArrowRight in the search tray and /search field ignore IME and dead-key composition
@@ -1208,7 +1210,7 @@ Credit wording shown to readers is thinner than two sources ask for
 
 **Confidence**: Medium (wording read through a summarizing fetch of the READMEs; confirm in the repos).
 
-**Open (2026-11-09)** Decision 6.
+**Fixed (2026-11-10)** Decision 6 (BVJ): the Greek tab and `LICENSE.txt` carry UBS's requested credit line verbatim (read from the ubs-open-license README) and name MorphGNT as "MorphGNT: SBLGNT Edition, ed. J. K. Tauber", as its README's citation does; the one-line search credit names Perseus beside UBS and STEP Bible. The SBLGNT's license is CC BY 4.0 (LogosBible/SBLGNT's README, v1.1 of 2022-12-19); MorphGNT's README still says EULA because it predates that.
 
 #### GK8-6 · Low · bug · NEW (Low confidence)
 Builder's `composing` flag can stay true and freeze the builder
@@ -1367,7 +1369,7 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Keep the label fixed ("Blank the screen" / "Blank the room's screen") and let `aria-pressed` carry the state; or drop `aria-pressed` and keep the changing label (then it is not a toggle). The first matches the project's own precedent.
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** Decision 11 (BVJ): both Blank buttons keep their label (“Blank”, “Blank the room’s screen”) and `aria-pressed` alone says the room is dark, as the Greek tab's toggle does (GK3-8); the pressed style was already drawn. A step in `test/desk-audit8-dom-sheets-output.test.js`.
 
 #### XA8-7 · Medium · a11y · NEW
 **Title: The Sheets editor's styles (about 1,800 lines of `desk.css`) have no forced-colors rules, so several states disappear in Windows contrast themes**
@@ -1377,7 +1379,7 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** One block after the Sheets styles: pressed chip `border: 2px solid Highlight` (as `desk-greek__show-sources` at `:6755`); `.desk-sheet__drop` `border-top: 3px solid Highlight` instead of background; `.desk-rich-editor:focus-within { outline: 2px solid Highlight }`; `.desk-sheet__btn--primary { border: 2px solid ButtonText }`.
 **Confidence** Medium (reasoned from the forced-colors spec and the project's own rules; not rendered, so a Chrome forced-colors emulation pass should confirm).
 
-**Fixed (2026-11-09)** A forced-colors block after the Sheets rules covers the pressed chip, the drop line, the editor's focus, the primary button, the gap pill and the check meter. Not yet checked in a contrast theme.
+**Fixed (2026-11-09)** A forced-colors block after the Sheets rules covers the pressed chip, the drop line, the editor's focus, the primary button, the gap pill and the check meter. Checked 2026-11-10 with Chromium's forced-colors emulation, light and dark: the editor's fields and focus ring, the pressed chip against a plain one, primary against quiet, the meter's fill and over-limit fill, and the drop line all show.
 
 #### XA8-8 · Low · a11y · NEW
 **Title: After importing a shared sheet, a screen-reader user hears only "the Study Desk, link", never "Copied into your notebook"**
@@ -1538,7 +1540,7 @@ My Notes on `/desk` and the notebook page draw one row per record with no limit,
 
 **Confidence** Medium. The code path is certain; the cost needs one timing: seed 5,000 notes, open `/desk`, and time `tab.render()` and a LIT scroll across a chapter boundary in the Performance panel.
 
-**Open (2026-11-09)** Decision 7.
+**Fixed (2026-11-10)** Decision 7. My Notes (`tab-mine.js`) and the notebook page list (`kept-list.js`) draw 200 rows and then a "Show N more" button (`LIST_PAGE_SIZE`, `pageRows`, `pagedEntries` in `desk-notebook.mjs`); My Notes appends the next batch without rebuilding the rows drawn, a filter or query resets to a page, and a store redraw keeps what was revealed. The /desk My Notes pane skips the `onDeskChapters` redraw when the chapters that came or went hold none of its records (`touchesChapters`).
 
 #### LG8-3 · Low · performance · NEW
 
@@ -1603,6 +1605,8 @@ The Sheets editor and the three modules split out of it import each other (a sta
 
 **Confidence** High.
 
+**Fixed (2026-11-10)** `button` (as `buttons(cls)`, each module naming its usual class once) and `describe` are in `dom.js`; `part-cards.js`, `add-bar.js`, `add-forms.js` and `sheet-pane.js` import nothing from the editor for a helper, so the cycle is gone. `test/desk-audit8-i-maintenance.test.js` runs Tarjan over `src/scripts` and `src/lib` and fails on any static cycle (shown to fail with one put back).
+
 #### LG8-7 · Low · longevity · NEW
 
 Helpers that Audit 2 centralised in `dom.js` have been copied again, byte for byte so far.
@@ -1616,6 +1620,8 @@ Helpers that Audit 2 centralised in `dom.js` have been copied again, byte for by
 **Fix** `dom.js` gets `button`; a small `desk-text.js` gets `dateWords` and `plural`; `tab-mine.js` imports `colorOf`, `nameOf` and `highlightedWords` from `record-rows.js` (export them). The /sheets page's light-loading reason for `my-sheets.js`'s own `button` goes away once `button` is in `dom.js`, which is already in the page's graph.
 
 **Confidence** High.
+
+**Fixed (2026-11-10)** The ten `button` copies use `dom.js`'s `buttons` (`record-rows.js`'s, another shape, stays); the three `describe` copies are `dom.js`'s, with one counter; `plural` and `dateWords` are `desk-text.js`'s (`plural` now writes 1,204 with a comma everywhere, as `sheet-lit.js`'s did); `colorOf`, `nameOf` and `highlightedWords` are `record-words.js`'s, whose comment says a tint only. Tests: `test/desk-audit8-i-maintenance.test.js`.
 
 #### LG8-8 · Medium · longevity · KNOWN-OPEN LG-13
 
@@ -1631,6 +1637,8 @@ Most of the client wiring has no unit test: 59 of 102 modules in `src/scripts/de
 
 **Confidence** High on the count; Medium on which split is safest (a closure's shared state was not traced).
 
+**Partly fixed (2026-11-10)** `test/helpers/browser-env.mjs` is the DOM stub, and the Audit 8 DOM suites since the audit leave 32 of 104 client modules named by no test (59 of 102 at the audit). Five more suites drive `undo-bar.js`, `passage-bar.js`, `labels-ui.js`, `continue-reading.js` and `sheets/add-bar.js` (imported first, so the LG8-6 cycle can't hide). The split of `createSheetEditor` and of `desk-page.js`'s `start()` is not started.
+
 #### LG8-9 · Low · compat · NEW
 
 A shared sheet opened on an iPhone older than iOS 16.4 fails with a message that blames the connection.
@@ -1645,7 +1653,7 @@ A shared sheet opened on an iPhone older than iOS 16.4 fails with a message that
 
 **Confidence** Medium (reasoned from the specifications; not run on iOS 16.3).
 
-**Open (2026-11-09)** Decision 10.
+**Fixed (2026-11-10)** Decision 10 (BVJ): Safari 16.4 is the phone viewer's floor, stated in the desk file's browser floor. `sheet-share-gate.js` asks `viewerSupported()` (`src/lib/sheet-viewer-floor.mjs`: `DecompressionStream` and a lookbehind) before it imports the viewer, and below the floor says “This browser is too old to open a shared sheet,” with the link to copy. `xmlEscape` drops lone surrogates with a callback instead of a lookbehind.
 
 #### LG8-10 · Low · performance · NEW
 
@@ -1695,6 +1703,8 @@ A few claims in the desk docs and comments have drifted, and one deliberate exce
 **Fix** One `newId()` in `desk-records.mjs` (it already has one at `:146`) used by all; the fallback `crypto.getRandomValues` form.
 
 **Confidence** High.
+
+**Fixed (2026-11-10)** `newId` (`desk-records.mjs`, exported) makes every new record, module, blank and history id, with a `getRandomValues` version 4 UUID where `randomUUID` is missing; `desk-sheets.mjs`, `desk-history.mjs`, `desk-sheet-share.mjs` and `sheet-lit.js` use it. The tab and window tokens already had fallbacks and are left. Test: `test/desk-audit8-i-maintenance.test.js`.
 
 ### Improvements
 
@@ -2301,7 +2311,7 @@ A verse index that fails to load makes a keyword search say "No results." (Searc
 
 **Confidence**: High (code); Medium on how often readers hit it.
 
-**Partly fixed (2026-11-09)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. No Try again button.
+**Partly fixed (2026-11-09, 2026-11-10)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. The Search pane also shows "The verses couldn’t be loaded." and Try again where the verses would be, as its Greek failures do (2026-11-10; test in `test/desk-audit8-dom-search-pane.test.js`). The tray and /search, which are every reader's search, have no Try again button.
 
 #### GF8a-4 · Low · ui · NEW
 Backspacing a query below three letters leaves the Greek offer, the "See results on the search page" link and the "My notes" box from the old query on screen.
@@ -2593,7 +2603,7 @@ Many notes on one verse stack without limit, past the end of the chapter, and wi
 
 **Confidence** Medium on the stacking (run); Low on the page growth (needs a browser).
 
-**Open (2026-11-09)** Decision 7.
+**Fixed (2026-11-10)** Decision 7. `layoutCapped` (`desk-notes.mjs`) draws at most five notes per stack (and none starting below the text's foot) and stands one "N more notes" button in for the rest, which opens This verse at that verse through the panel's `showVerse` (`notes-margin.js`, `.desk-note__more` in `desk.css`); with no This verse tab every note is drawn as before.
 
 #### GF8b-7 · Low · usability · NEW
 
@@ -2641,7 +2651,7 @@ On a large sheet every redraw of the editor repeats work proportional to the squ
 
 **Confidence** Low.
 
-**Partly fixed (2026-11-09)** `drawNotes` has its own sequence guard. Working out the sheet's printing blanks once per change, in the editor, is not done.
+**Fixed (2026-11-09, 2026-11-10)** `drawNotes` has its own sequence guard, and the sheet's printing blanks are worked out once per change of its passages with blanks (`sheetPrintingBlanks` in `sheet-lit.js`, keyed by those passages and shared by every card; a list that met a passage it couldn't read is not kept), so a blank change reads each passage once, not once per card. Test: `test/desk-audit8-dom-sheets-blanks.test.js`.
 
 #### GF8b-10 · Low · bug · NEW
 
@@ -2689,7 +2699,7 @@ Leader-only parts between two page breaks leave two adjacent breaks on the parti
 
 **Confidence** Low (needs a print preview in each browser).
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** Decision 11 (BVJ): `renderCopy` skips a page break that would follow another or open the copy, and drops one that would end it, so the paper copy and the documents made from it keep one. Present and slides skip breaks already. `test/desk-audit8-dom-sheet-copy-breaks.test.js`.
 
 #### GF8b-13 · Nit · copy · NEW
 
@@ -2836,7 +2846,7 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** Decision 11 (BVJ): `containsPhrase` and `findLeaks` also try a blank's words without their possessive “’s”, so a blank on “God’s” is flagged against “What does God want?”. Footnotes were already flagged both ways (`blanksGivenAway` compares stems).
 
 #### GF8c-5 · Low · data-integrity · NEW
 **Edit bookmark accepts any of the 11 verse numbers the LIT doesn't have (Matthew 17:21 and others), so a bookmark is stored on a verse that isn't on the page.**
@@ -3018,7 +3028,7 @@ The /desk title menu runs 38px past the right edge at 1000px, clipping its text 
 **Fix**: right-align the menu to its button or clamp its left to `innerWidth - width - gutter`.
 **Confidence**: Medium (seen only at this window size).
 
-**Open (2026-11-09)** The source gives no reason for the overflow; it needs measuring in a browser at 1000px.
+**Fixed (2026-11-10)** Measured in Chromium at 1000px: the title sat at the right edge, not centered, because the 1100px header fold and the desk's own 760–1100px header rule replaced the desk header's three-column grid (`global.css`), and the menu, centered under the title, ran 23px past the window. The desk header's rule now outranks both, so the title is centered at every width, as its comment says, and the menu fits (checked at 700, 900, 1000, 1100, 1280 and 1400px, and in Atkinson and OpenDyslexic).
 
 #### LV8-5 · Low · ui · NEW
 In a narrow Sheets pane (306px) the "My sheets" rows are wider than the pane and the pane scrolls sideways.

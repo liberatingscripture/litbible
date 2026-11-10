@@ -114,6 +114,92 @@ export function layoutFull(items, { gap = STACK_GAP, maxLines = NOTE_LINES } = {
   });
 }
 
+/** How many notes one stack shows before the rest fold into "N more notes" (GF8b-6). */
+export const STACK_MAX = 5;
+
+/**
+ * The words on a "more notes" control: "3 more notes", "1 more note".
+ * @param {number} n
+ */
+export function moreNotesText(n) {
+  return `${n} more ${n === 1 ? "note" : "notes"}`;
+}
+
+/**
+ * The name a screen reader hears on that control: "3 more notes on John 3:16",
+ * or "from John 3:16" when the folded notes sit on more than one verse.
+ * `ref` is the first folded note's reference.
+ */
+export function moreNotesName(n, ref, sameVerse = true) {
+  return `${moreNotesText(n)} ${sameVerse ? "on" : "from"} ${ref}`;
+}
+
+/**
+ * layoutFull for a margin that must not run on without end (GF8b-6, BVJ
+ * 2026-11-10). A stack is a run of notes each pushed below the last by
+ * sharing its line. Past `maxStack` notes in one stack, or where a note would
+ * start below `bottom` (the text column's foot, same coordinates as `top`),
+ * the rest are not drawn; one control stands in for them, level with the
+ * stack's end, and opens This verse. Each item also gives its `verse`.
+ *
+ * Returns `shown`, layoutFull's answer for the notes drawn and the controls
+ * (a control's id is `more:<n>`, its height one `noteLine`), and `more`, one
+ * entry per control: its `id`, the folded note ids, their `count`, the first
+ * one's `verse` and whether they all `sameVerse`.
+ */
+export function layoutCapped(items, { gap = STACK_GAP, maxLines = NOTE_LINES, maxStack = STACK_MAX, bottom = Infinity } = {}) {
+  const sorted = [...items].sort((a, b) => a.top - b.top);
+  const kept = [];
+  const more = [];
+  let floor = -Infinity;
+  let run = 0; // notes shown in this stack
+  let folding = null; // the control being filled, once this stack has overflowed
+  let pastFold = null; // the control for notes past the text's foot
+  for (const it of sorted) {
+    const natural = it.top + (it.lineHeight - it.noteLine) / 2;
+    const pushed = natural < floor;
+    if (!pushed) {
+      run = 0;
+      folding = null;
+    }
+    const y = pushed ? floor : natural;
+    const past = y + it.noteLine > bottom;
+    if (folding || run >= maxStack || past) {
+      // Notes past the text's foot all join the one control there, whichever stack they began.
+      if (past && !folding && pastFold) folding = pastFold;
+      if (!folding) {
+        folding = { id: `more:${more.length}`, top: it.top, ids: [], verses: [], noteLine: it.noteLine, lineHeight: it.lineHeight };
+        more.push(folding);
+      }
+      if (past) pastFold = folding;
+      folding.ids.push(it.id);
+      folding.verses.push(it.verse);
+      continue;
+    }
+    kept.push(it);
+    run++;
+    floor = y + it.noteLine + gap;
+  }
+  const controls = more.map((m) => ({
+    id: m.id,
+    top: m.top,
+    lineHeight: m.lineHeight,
+    noteLine: m.noteLine,
+    height: m.noteLine,
+  }));
+  const shown = layoutFull([...kept, ...controls], { gap, maxLines });
+  return {
+    shown,
+    more: more.map((m) => ({
+      id: m.id,
+      ids: m.ids,
+      count: m.ids.length,
+      verse: m.verses[0],
+      sameVerse: m.verses.every((v) => v === m.verses[0]),
+    })),
+  };
+}
+
 /**
  * Circles, top to bottom. Each item gives its first word's line `top` and
  * `lineHeight`. `perRow` is how many circles fit side by side. Returns each

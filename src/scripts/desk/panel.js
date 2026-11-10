@@ -192,7 +192,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
             },
           } : null,
           inReadView,
-          visible: () => visible() && activeTab === "mine",
+          // Drawn only while expanded: a minimized Notebook would rebuild its list on every
+          // change, a bookmark's moves every two seconds included (NB8-3).
+          visible: () => shown() && activeTab === "mine",
           afterRender: () => { renderPersistence(); firstUse.refresh({ shown: true }); },
           onEdit,
           goHere,
@@ -211,7 +213,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
               }, {
                 store,
                 here,
-                visible: () => visible() && activeTab === "verse",
+                visible: () => shown() && activeTab === "verse",
                 panelOpen: visible,
                 onEdit,
                 onAddNote,
@@ -309,6 +311,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const rail = createRail(panel, tab, (state) => {
     if (!foldingByHide) foldedByHide = false;
     syncToggles();
+    if (!state.collapsed) render();
     // Focus follows the panel: off it as it folds away, unless the window
     // narrowing did that and focus was elsewhere.
     if (state.collapsed && panel.contains(document.activeElement)) tab.focus({ preventScroll: true });
@@ -483,7 +486,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   /** Draw the tab that is showing. */
   function render() {
-    if (panel.hidden) return;
+    // Not while folded to its tab: nobody can see it, and the rail draws it
+    // once when it expands (NB8-3).
+    if (!shown()) return;
     tabs.get(activeTab).view.render();
   }
 

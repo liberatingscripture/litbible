@@ -45,12 +45,12 @@
 //   presenter view's own window.
 // - **Share…** (3k, S8): the sheet in a link's fragment or in a file
 //   (desk-sheet-share.mjs), the whole sheet or the participant copy's parts.
-//   The file is "Export a Study Desk file (.md)" (EXPORT_LABEL; E37 renamed it from
-//   "Save as a file"), so "Save as" means only a document for another program.
+//   The file is "Export a sheet file (.md)" (EXPORT_LABEL; E37 renamed it from
+//   "Save as a file", Audit 8 decision 9 from "a Study Desk file"), so "Save as" means only a document for another program.
 // - **A shared sheet**: `/sheets/#share1.<data>`, whose fragment the page's
 //   inline script has already moved into history.state.litSharedSheet before
 //   the analytics beacon could read the address, or a file opened with "Import a
-//   Study Desk file" (BVJ, 2026-11-06; "Import a shared file" until then). Shown like the reader's own, read only, with "Import into my
+//   sheet file" (BVJ, 2026-11-06, 2026-11-10; "Import a shared file" until then). Shown like the reader's own, read only, with "Import into my
 //   notebook", which saves it as a new sheet of theirs. A participant share offers
 //   the participant copy only.
 // - **A shared sheet on a phone or tablet** (BVJ, 2026-11-08, Audit 6 NB6-8,
@@ -101,7 +101,10 @@ import { CODES_MISSING, createSaveMenu, download, drawCodes, writerFor } from ".
 import { copyForWord, readCopy } from "./sheet-word.js";
 import { openStore } from "../store.js";
 import { announce } from "../undo-bar.js";
-import { make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
+import { dateWords } from "../desk-text.js";
+
+const button = buttons("desk-sheet__btn");
 
 const PAPER_KEY = "lit-sheet-paper";
 // Bumped whenever the page draws another view (`route`), so a view drawn
@@ -127,16 +130,10 @@ function storedAnswerKey() {
  * The Share dialog's file button (E37; BVJ, 2026-11-06: "export", to set it
  * apart from Save as). Its messages read it from here, so it changes in one place.
  */
-const EXPORT_LABEL = "Export a Study Desk file (.md)";
+const EXPORT_LABEL = "Export a sheet file (.md)";
 /** The button on /sheets/ that opens such a file (BVJ, 2026-11-06, pairing with Export). */
-const IMPORT_LABEL = "Import a Study Desk file";
+const IMPORT_LABEL = "Import a sheet file";
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
-
-function button(label, cls = "desk-sheet__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
 
 /**
  * The copy glyph the site's copy controls use: two sheets, as the glossary's
@@ -166,24 +163,6 @@ function copyGlyph() {
   return svg;
 }
 
-let hintCount = 0;
-
-/**
- * A sentence a control's `title` carries, given to a screen reader as well
- * (CP-9): a hidden span the control is described by, which the caller puts
- * in the page. The title stays, for a mouse.
- */
-function describe(control, text) {
-  const hint = make("span", "sr-only", text);
-  hint.id = `sheetsPageHint${++hintCount}`;
-  control.setAttribute("aria-describedby", hint.id);
-  return hint;
-}
-
-const dateWords = (iso) => {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-};
 
 function storedPaper() {
   try {
@@ -454,11 +433,11 @@ function newSheetRow(root, store, { onPick = null } = {}) {
   return row;
 }
 
-/** "Import a Study Desk file": a sheet someone saved with "Export a Study Desk file (.md)". */
+/** "Import a sheet file": a sheet someone saved with "Export a sheet file (.md)". */
 function openFileRow(root, store) {
   const row = make("p", "sheets-page__open-file");
   const pick = button(IMPORT_LABEL);
-  pick.title = "Open a sheet someone sent you as a Study Desk file (.md)";
+  pick.title = "Open a sheet someone sent you as a sheet file (.md)";
   const input = make("input");
   input.type = "file";
   input.accept = ".md,.markdown,.txt,text/markdown,text/plain";
@@ -650,9 +629,18 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   else actions.append(...(shared ? [] : [editHere]), present, print, word, save.el);
   if (!shared) actions.append(share);
   actions.append(status);
+  // A leader link forwarded from a phone goes as the participant's version
+  // unless the reader says otherwise (BVJ, 2026-11-10, Audit 8 decision 5).
+  let phoneScope = "participant";
+  const phoneScopeChoice = phone && shared === "leader"
+    ? choices("sheet-phone-share-scope", "Share", [
+        ["participant", "The participant’s version, without answers or Leader only parts"],
+        ["leader", "Everything, for another leader"],
+      ], phoneScope, (v) => { phoneScope = v; })
+    : null;
   if (phone) {
     root.classList.add("sheets-page--phone");
-    bar.append(...(copies.length > 1 ? [copyChoice] : []), actions, ...hints);
+    bar.append(...(copies.length > 1 ? [copyChoice] : []), ...(phoneScopeChoice ? [phoneScopeChoice] : []), actions, ...hints);
   } else {
     bar.append(...(demo ? [] : [links]), copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
   }
@@ -666,7 +654,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
   root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
-  share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say) : openShareDialog(sheet, share)));
+  share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say, { received: shared, chosen: phoneScope }) : openShareDialog(sheet, share)));
 
   let current = null;
   let seq = 0;
@@ -868,12 +856,25 @@ function drawLeaks(box, leaks) {
 }
 
 /**
- * On a phone, Share… hands the same link to the phone's share sheet (NB6-8),
- * so a participant share stays one. Where there is no share sheet, it copies
+ * On a phone, Share… hands a link to the phone's share sheet (NB6-8). A
+ * participant link is forwarded as it came, so a participant share stays one.
+ * A leader link is forwarded as the participant's version unless the reader
+ * chose "Everything" (BVJ, 2026-11-10, Audit 8 decision 5); that version is
+ * made by shareLink, never by hand. Where there is no share sheet, it copies
  * the link instead.
  */
-async function sharePhone(sheet, fragment, say) {
-  const url = `${location.origin}${BASE}sheets/#${fragment}`;
+async function sharePhone(sheet, fragment, say, { received, chosen }) {
+  let url = `${location.origin}${BASE}sheets/#${fragment}`;
+  if (received === "leader" && chosen === "participant") {
+    try {
+      url = await shareLink(sheet, { origin: location.origin, base: BASE, scope: "participant" });
+    } catch (err) {
+      console.error("Study Desk: couldn't make the participant's link", err);
+      say("The participant’s link couldn’t be made in this browser.");
+      return;
+    }
+  }
+
   if (navigator.share) {
     try {
       await navigator.share({ title: sheetName(sheet), url });
@@ -955,10 +956,13 @@ function openShareDialog(sheet, opener) {
   dialog.setAttribute("aria-labelledby", "sheet-share-title");
   const h = make("h2", null, "Share this sheet");
   h.id = "sheet-share-title";
-  let scope = "leader";
+  // The participant's version is the default, so a leader who is unsure and
+  // presses Copy link sends no answers or Leader only parts (BVJ, 2026-11-10,
+  // Audit 8 decision 5).
+  let scope = "participant";
   const scopeChoice = choices("sheet-share-scope", "What to share", [
-    ["leader", "Everything, for another leader"],
     ["participant", "The participant’s version, without answers or Leader only parts"],
+    ["leader", "Everything, for another leader"],
   ], scope, (v) => {
     scope = v;
     refresh();
@@ -972,13 +976,13 @@ function openShareDialog(sheet, opener) {
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button(EXPORT_LABEL);
-  saveFile.title = `A Study Desk file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page`;
-  const saveFileHint = describe(saveFile, `A Study Desk file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page.`);
+  saveFile.title = `A sheet file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page`;
+  const saveFileHint = describe(saveFile, `A sheet file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page.`);
   // Save as is the other kind of file (E37), and a PDF comes from Print: say where both are.
   const fileNote = make(
     "p",
     "sheets-page__dialog-note",
-    `A Study Desk file (.md) opens on another computer with “${IMPORT_LABEL}” on the Sheets page. To open the sheet in Word or another program, use Save as. For a PDF, choose Print, then “Save as PDF” in the print window.`,
+    `A sheet file (.md) opens on another computer with “${IMPORT_LABEL}” on the Sheets page. To open the sheet in Word or another program, use Save as. For a PDF, choose Print, then “Save as PDF” in the print window.`,
   );
   const status = make("p", "sheets-page__status");
   status.setAttribute("role", "status");
@@ -1297,7 +1301,6 @@ function tourHost(root, store) {
         shown = null;
         tourRow = null;
         root.replaceChildren(make("h1", "sr-only", "Edit a sheet"), editor.el);
-        root.classList.add("sheets-page--editing");
         editTitle();
       }
       return editor;
@@ -1307,7 +1310,6 @@ function tourHost(root, store) {
     async showList({ onPick = null } = {}) {
       nextView();
       shown = null;
-      root.classList.remove("sheets-page--editing");
       await showList(root, store, { onPick: onPick ?? pick });
       const row = root.querySelector(":scope > .sheets-page__new");
       tourRow = row;
@@ -1349,7 +1351,6 @@ function tourHost(root, store) {
       if (shown?.el.isConnected && shown.sheet === sheet) return shown;
       nextView();
       tourRow = null;
-      root.classList.remove("sheets-page--editing");
       drawSheet(root, { sheet, store, demo: { onEdit: () => host.editor() } }).catch((err) =>
         console.error("Study Desk: the tour’s sheet couldn’t be drawn", err),
       );

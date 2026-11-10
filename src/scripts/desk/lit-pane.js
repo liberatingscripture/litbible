@@ -53,6 +53,7 @@ import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
 import { attachVerseTools } from "../chapter-tools.js";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
+import { routeFootnoteLinks } from "./footnote-links.js";
 import { footnotePanel } from "../panel-pieces.js";
 import "../ref-preview.js";
 import { attachTermLens } from "../term-lens.js";
@@ -89,7 +90,7 @@ const PARK_NEAR = 2;
  * @returns {{ el: HTMLElement, goTo: (passage: object) => void,
  *   keep: () => () => void, destroy: () => void }}
  */
-export function createLitPane({ paneId, start, drafts, onPlace }) {
+export function createLitPane({ paneId, start, drafts, onPlace, showPassage = null }) {
   const units = corpusUnits(drafts);
   const el = make("div", "desk-lit");
   // The passage on its own page, at the verse the field names (E35): a new
@@ -604,6 +605,11 @@ export function createLitPane({ paneId, start, drafts, onPlace }) {
       label: `Footnote ${letter}, ${where}`,
       body: source.footnoteBody(a.dataset.fn),
     });
+    // The popover belongs to the place the pane is leaving, so it closes first.
+    routeFootnoteLinks(panel, showPassage && ((passage) => {
+      closePanel();
+      showPassage(passage);
+    }));
     // The same offer Chapter View's popover makes, naming the chapter since a
     // pane holds many; only pins.js listens (3g), and only with a notebook.
     document.dispatchEvent(
