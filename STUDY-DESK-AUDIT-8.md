@@ -2846,7 +2846,7 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 11.
+**Fixed (2026-11-10)** Decision 11 (BVJ): `containsPhrase` and `findLeaks` also try a blank's words without their possessive “’s”, so a blank on “God’s” is flagged against “What does God want?”. Footnotes were already flagged both ways (`blanksGivenAway` compares stems).
 
 #### GF8c-5 · Low · data-integrity · NEW
 **Edit bookmark accepts any of the 11 verse numbers the LIT doesn't have (Matthew 17:21 and others), so a bookmark is stored on a verse that isn't on the page.**
