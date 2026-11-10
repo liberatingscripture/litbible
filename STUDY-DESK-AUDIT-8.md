@@ -185,7 +185,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
    the three mis-tag cases (G848, G1519, G3596)? Use the UBS repository's requested credit wording and
    name MorphGNT's editor, or keep the shorter lines?
 7. **Scale (LG8-2, GF8b-6):** page My Notes on /desk and `/notebook`, or keep them unpaged? Cap many
-   notes on one verse into "N more," or let the margin stack?
+   notes on one verse into "N more," or let the margin stack? **Decided (2026-11-10): page at 200 with “Show N more”, and fold a margin stack past five into “N more notes”; fixed.**
 8. **"Delete everything" (DK8-7):** is trashing sheets and templates with the notes intended, or
    should sheets have their own button? Either way the sentence should say what it moves. **Decided (2026-11-10): two buttons, “Delete all notes and marks” and “Delete all sheets” (labels on Fable’s advice, no third button); fixed.**
 9. **Copy names (CP8 Rule 7, Rule 6):** "My Notes" or "My notes," "My Notebook" or "My notebook,"
