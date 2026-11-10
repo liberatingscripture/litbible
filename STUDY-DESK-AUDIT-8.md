@@ -183,7 +183,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
    offer, the participant's version? **Decided (2026-11-10): the participant's version, in the dialog and on a phone; fixed.**
 6. **GK8-1 and GK8-5: Strong's numbers and the Greek credits.** Keep the lemma-wide match, or narrow
    the three mis-tag cases (G848, G1519, G3596)? Use the UBS repository's requested credit wording and
-   name MorphGNT's editor, or keep the shorter lines?
+   name MorphGNT's editor, or keep the shorter lines? **Decided (2026-11-10): match by each word's own number, and use the requested credits; fixed.**
 7. **Scale (LG8-2, GF8b-6):** page My Notes on /desk and `/notebook`, or keep them unpaged? Cap many
    notes on one verse into "N more," or let the margin stack? **Decided (2026-11-10): page at 200 with “Show N more”, and fold a margin stack past five into “N more notes”; fixed.**
 8. **"Delete everything" (DK8-7):** is trashing sheets and templates with the notes intended, or
