@@ -5605,6 +5605,13 @@ html.desk-ws--moving * {
   border-top: 1px solid rgba(var(--ink-rgb), 0.12);
 }
 
+/* The menu a resize line opens when clicked (line-menu.js, XA8-1). It opens
+   on reading pages too, so it sits above the Notebook (800), its lines (790)
+   and floating windows (955), under the tour (960). */
+.desk-line-menu {
+  z-index: 958;
+}
+
 .desk-ws button:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;

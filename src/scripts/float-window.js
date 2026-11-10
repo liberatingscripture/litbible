@@ -11,6 +11,13 @@
 // It is a non-modal dialog: focus moves to its title when it opens, nothing
 // is trapped, and Escape inside it, or its ×, closes it.
 //
+// Its grip is a button, "Move to the other side" (Audit 8, XA8-1; BVJ,
+// 2026-11-10): a click (a press that doesn't drag) moves the window to the
+// window's other side, at the same height, and its arrow keys move it 16px a
+// press (64 with Shift). So a reader who can't drag, or has no pointer at all,
+// can still move a window off the text it covers. Dragging by the header,
+// grip included, works as before.
+//
 // The caller places it (`place`, called again on scroll and resize until the
 // reader drags it), fills `body`, and hears how it closed through
 // `onClose(reason)`: "close" (the × or Escape) or whatever reason the
@@ -23,6 +30,9 @@
 // pages use it too.
 
 const EDGE = 8;
+// A press that moves less than this is a click, not a drag.
+const SLOP = 4;
+const KEY_STEP = 16;
 
 let seq = 0;
 
@@ -46,9 +56,11 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
 
   const header = document.createElement("div");
   header.className = "lit-panel__header lit-panel__header--drag";
-  const grip = document.createElement("span");
-  grip.className = "lit-panel__grip";
-  grip.setAttribute("aria-hidden", "true");
+  const grip = document.createElement("button");
+  grip.type = "button";
+  grip.className = "lit-panel__grip lit-window__move";
+  grip.setAttribute("aria-label", "Move to the other side");
+  grip.title = "Move to the other side, or drag to move";
   const label = document.createElement("p");
   label.className = "lit-panel__heading";
   label.textContent = heading;
@@ -88,16 +100,34 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
     clamp();
   }
 
+  // A drag that ended on the grip mustn't also count as its click.
+  let suppressClick = false;
+
+  /** Put the window at `left`, `top` (kept inside the window) and report it. */
+  function moveTo(left, top) {
+    dragged = true;
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    clamp();
+    const at = el.getBoundingClientRect();
+    onMoved({ left: at.left, top: at.top });
+  }
+
   // Dragged by the header, as the verse menu is; once moved, it stays where
   // it was put rather than following the page.
   header.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0 || e.target.closest("button")) return;
+    if (e.button !== 0 || (e.target.closest?.("button") && !grip.contains(e.target))) return;
     e.preventDefault();
     const r = el.getBoundingClientRect();
     const x0 = e.clientX;
     const y0 = e.clientY;
+    let moving = false;
+    suppressClick = false;
     el.classList.add("lit-panel--dragging");
     const move = (ev) => {
+      if (!moving && Math.hypot(ev.clientX - x0, ev.clientY - y0) < SLOP) return;
+      moving = true;
+      suppressClick = true;
       dragged = true;
       el.style.left = `${r.left + ev.clientX - x0}px`;
       el.style.top = `${r.top + ev.clientY - y0}px`;
@@ -110,7 +140,7 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
       removeEventListener("pointercancel", up);
       endDrag = null;
       // A window closed mid-drag has no place left to report.
-      if (report && open && dragged) {
+      if (report && open && moving) {
         const at = el.getBoundingClientRect();
         onMoved({ left: at.left, top: at.top });
       }
@@ -119,6 +149,25 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
     addEventListener("pointermove", move);
     addEventListener("pointerup", up);
     addEventListener("pointercancel", up);
+  });
+
+  // The grip's click: across to the other side, at the same height.
+  grip.addEventListener("click", () => {
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    }
+    const r = el.getBoundingClientRect();
+    const onLeft = r.left + r.width / 2 < innerWidth / 2;
+    moveTo(onLeft ? innerWidth - r.width - EDGE : EDGE, r.top);
+  });
+  grip.addEventListener("keydown", (e) => {
+    const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    if (!d) return;
+    e.preventDefault();
+    const step = (e.shiftKey ? 4 : 1) * KEY_STEP;
+    const r = el.getBoundingClientRect();
+    moveTo(r.left + d[0] * step, r.top + d[1] * step);
   });
 
   x.addEventListener("click", () => close("close"));

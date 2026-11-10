@@ -153,3 +153,56 @@ test("GK6-8: Escape while composing leaves the window open", () => {
   win.el.dispatch("keydown", { key: "Escape", preventDefault() {}, stopPropagation() {} });
   assert.equal(win.isOpen(), false);
 });
+
+// XA8-1: the grip is a button, "Move to the other side", for a reader who
+// can click but not drag, or has no pointer.
+const grip = (header) => header.children[0];
+const key = (k, shiftKey = false) => ({ key: k, shiftKey, preventDefault() {} });
+
+test("XA8-1: the grip is a named button", () => {
+  const { header } = make();
+  assert.equal(grip(header).tag, "button");
+  assert.equal(grip(header).attrs["aria-label"], "Move to the other side");
+});
+
+test("XA8-1: a click on the grip moves the window across, at the same height", () => {
+  const { win, header, moved } = make();
+  win.show();
+  // At left 100 (width 200) in a 1000px window it is on the left side.
+  grip(header).dispatch("click", {});
+  assert.deepEqual(moved, [{ left: 792, top: 100 }]);
+  grip(header).dispatch("click", {});
+  assert.deepEqual(moved.at(-1), { left: 8, top: 100 });
+});
+
+test("XA8-1: a drag that ends on the grip is not also its click", () => {
+  const { win, header, moved } = make();
+  win.show();
+  startDrag(header);
+  moveTo(win, 250, 210);
+  fire("pointerup");
+  grip(header).dispatch("click", {});
+  assert.deepEqual(moved, [{ left: 200, top: 200 }]);
+});
+
+test("XA8-1: a press that barely moves is a click, not a drag", () => {
+  const { win, header, moved } = make();
+  win.show();
+  startDrag(header);
+  moveTo(win, 152, 111);
+  fire("pointerup");
+  assert.deepEqual(moved, [], "no drag was reported");
+  grip(header).dispatch("click", {});
+  assert.deepEqual(moved, [{ left: 792, top: 100 }]);
+});
+
+test("XA8-1: the grip's arrow keys move the window, Shift by more", () => {
+  const { win, header, moved } = make();
+  win.show();
+  grip(header).dispatch("keydown", key("ArrowDown"));
+  assert.deepEqual(moved.at(-1), { left: 100, top: 116 });
+  grip(header).dispatch("keydown", key("ArrowRight", true));
+  assert.deepEqual(moved.at(-1), { left: 164, top: 116 });
+  grip(header).dispatch("keydown", key("Tab"));
+  assert.equal(moved.length, 2, "other keys pass");
+});
