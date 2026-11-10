@@ -192,7 +192,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
    "Your templates" or "My templates," "Space" or "Space to write," and whether "Study Desk preview"
    stays in reader-facing text until release. **Decided (2026-11-10): My Notes, My Notebook, My templates, Space to write, From my notes, Display options; Study Desk preview stays; the .md file's name still open. Fixed.**
 10. **The phone viewer's floor (LG8-9):** is Safari 16.4 (iOS 16.4) the intended floor? Older iPhones
-    fail with a message that blames the connection.
+    fail with a message that blames the connection. **Decided (2026-11-10): yes; the message now says the browser is too old; fixed.**
 11. **Smaller ones**, each in its report: Hide my marks pressed twice (NB8-6); whether the minimized
     Notebook should draw My Notes at all (NB8-3); /desk reading never updating "Continue reading"
     (DK8 question 2); "Hide my marks" and the Notebook's Print with my notes (DK8 question 3);
@@ -1653,7 +1653,7 @@ A shared sheet opened on an iPhone older than iOS 16.4 fails with a message that
 
 **Confidence** Medium (reasoned from the specifications; not run on iOS 16.3).
 
-**Open (2026-11-09)** Decision 10.
+**Fixed (2026-11-10)** Decision 10 (BVJ): Safari 16.4 is the phone viewer's floor, stated in the desk file's browser floor. `sheet-share-gate.js` asks `viewerSupported()` (`src/lib/sheet-viewer-floor.mjs`: `DecompressionStream` and a lookbehind) before it imports the viewer, and below the floor says “This browser is too old to open a shared sheet,” with the link to copy. `xmlEscape` drops lone surrogates with a callback instead of a lookbehind.
 
 #### LG8-10 · Low · performance · NEW
 

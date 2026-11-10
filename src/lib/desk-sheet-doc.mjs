@@ -395,7 +395,9 @@ export const DOC_CREDIT = LIT_CREDIT_LINE;
 export function xmlEscape(s) {
   return String(s)
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, "")
-    .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "")
+    // A lone surrogate goes, a pair stays. No lookbehind: the phone viewer
+    // loads this file, and Safari before 16.4 can't parse one (LG8-9).
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g, (m) => (m.length === 2 ? m : ""))
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

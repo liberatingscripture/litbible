@@ -16,6 +16,10 @@
 // still never reaches a server.
 
 import { isAppPlatform } from "../lib/app-platform.mjs";
+import { viewerSupported } from "../lib/sheet-viewer-floor.mjs";
+
+const OFFLINE = "The sheet couldn’t load. Check your connection and reload the page, or copy the link to open it later.";
+const TOO_OLD = "This browser is too old to open a shared sheet. Update it, or copy the link and open it on a computer.";
 
 const shared = history.state?.litSharedSheet;
 const box = document.querySelector("[data-sheet-page]");
@@ -31,12 +35,16 @@ if (typeof shared === "string" && shared && box && document.documentElement.data
   if (isAppPlatform(navigator)) {
     p.textContent = "Loading the sheet…";
     off?.replaceWith(p);
-    import("./desk/sheets/sheet-page.js")
-      .then((page) => page.showSharedOnPhone(box, shared))
-      .catch((err) => {
-        console.error("The shared sheet couldn't load", err);
-        couldNotLoad();
-      });
+    if (!viewerSupported()) {
+      couldNotLoad(TOO_OLD);
+    } else {
+      import("./desk/sheets/sheet-page.js")
+        .then((page) => page.showSharedOnPhone(box, shared))
+        .catch((err) => {
+          console.error("The shared sheet couldn't load", err);
+          couldNotLoad(viewerSupported() ? OFFLINE : TOO_OLD);
+        });
+    }
   } else {
     const on = document.createElement("a");
     on.href = `${location.pathname}?desk=on#${shared}`;
@@ -49,9 +57,9 @@ if (typeof shared === "string" && shared && box && document.documentElement.data
     off?.replaceWith(p);
   }
 
-  /** The phone's way out when the sheet's code didn't load: reload, or take the link elsewhere. */
-  function couldNotLoad() {
-    p.textContent = "The sheet couldn’t load. Check your connection and reload the page, or copy the link to open it later.";
+  /** The phone's way out when the sheet's code didn't load: reload or update, or take the link elsewhere. */
+  function couldNotLoad(why) {
+    p.textContent = why;
     const copy = document.createElement("button");
     copy.type = "button";
     copy.className = "sheets-page__copy-link";

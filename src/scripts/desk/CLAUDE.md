@@ -107,7 +107,12 @@ means each of these, in one change:
    Highlight and its switch says so (`highlightsSupported`). Mac Safari and
    Firefox passes are still open from Audit 1's FA1-v. `CompressionStream`
    (Safari 16.4) is inside that floor, so Save as and Share a sheet need no
-   fallback.
+   fallback. **A shared sheet's phone viewer has its own floor, Safari 16.4
+   (iOS 16.4)** (BVJ, 2026-11-10, Audit 8 LG8-9): the first with a regular
+   expression lookbehind (the reference linker's) and `CompressionStream`.
+   `sheet-share-gate.js` asks `viewerSupported()` before it imports the
+   viewer, and below the floor says the browser is too old, never to check
+   the connection.
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
 11. **Read View's retirement (8c)** ships in the same change as the flip
