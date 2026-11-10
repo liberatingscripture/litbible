@@ -53,7 +53,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   stays in `sheet-pane.js`**: the list of open panes behind `addTarget` and
   `onAddTarget` ("Add to sheet" in the LIT pane's menus and the Search pane's
   add buttons), and the command row's `desk:sheet-new` (E68), which names a pane and
-  calls its editor's `newSheet`. A new feature of the editor goes in
+  calls its editor's `newSheet`. The Search pane's add buttons read the
+  target the same way as “Add to sheet” and write in one `store.change`, and
+  `showSheet`'s `keep` stops that pane giving its own place to the sheet it
+  just made (moved from desk rule 18, the Search pane). A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
@@ -82,7 +85,23 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `sheet-conflict.js`** (Audit 8, LG8-8; `askContinue`, `showConflict`,
   `clearConflict`), handed the editor's `content`, `idSuffix`, `change`,
   `opCtx` and `say`; when to ask and when to draw the line stay the
-  editor's. **Two tabs on one sheet**
+  editor's. **A sheet is changed over the record as read** in one
+  `store.change` (`planSheetChange` in `desk-sheets.mjs`; desk rule 11,
+  from which this moved), never over a copy a pane or /search holds, which
+  another tab may have saved past (BA129, BA130); the Sheets pane's `sheet`
+  moves only once a save lands, so a failed one leaves it on the saved copy
+  (BA128), though each save's transaction opens when the change is asked
+  for, so saves land in order. **A closing page keeps its last typing**
+  (BA72): a tab going hidden only starts the ordinary saves, and on
+  `pagehide` the pane
+  writes what hasn't landed, applied to the newest copy it has heard of
+  (its own, or one another tab saved: a change message carries a saved
+  sheet whole, and `refresh` reads it too; Audit 8, DI8-4), through
+  `store.writeNow` (desk rule 11), since a read-then-write save made while
+  a page closes is lost. One race remains and is accepted (BVJ,
+  2026-11-10): a part another tab saved in the instant before this one
+  closes, whose message hasn't arrived, can be written over at close.
+  **Two tabs on one sheet**
   (S12, part 4; BVJ, 2026-11-08; rules in `src/lib/desk-sheet-tabs.mjs`,
   page side `sheet-tabs.js`): every change is planned over the record as
   read (BA129), so edits to different parts in two tabs both keep, and each
@@ -580,9 +599,23 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   phone or tablet it shows the sheet** (NB6-8): a dynamic import of
   `sheet-page.js`'s `showSharedOnPhone`, the one way desk code reaches a
   phone, with no notebook opened and nothing that saves (Present with
-  taps and no presenter view, Print, Share…); a test holds the gate. It brings `desk-sheet-view.css`
-  alone, never `desk.css` or `boot.js` (LG8-10; "Launching" in the desk
-  file). On a
+  taps and no presenter view, Print, Share…); a test holds the gate.
+  **It loads only `desk-sheet-view.css`, never `desk.css` or `boot.js`**
+  (Audit 8, LG8-10; moved from the desk file's "Launching", which lists the
+  other stages' stylesheets): the highlight tints, a sheet's formatted text
+  (`.desk-rich` and its colors) and the sheets' buttons
+  (`.desk-sheet__btn`), added by `showSharedOnPhone` through
+  `sheet-view-style.js` and by `boot.js` ahead of `desk.css`. So
+  `sheet-page.js` never imports `boot.js` statically: it reads the desk's
+  context from `desk-ctx.js`, and a computer's sheet page loads `boot.js` by
+  `import()` at the start of `start()`. A rule a phone's shared sheet needs
+  goes in `desk-sheet-view.css`; `test/desk-sheet-view-styles.test.js` holds
+  it. **Its browser floor is Safari 16.4 (iOS 16.4)** (BVJ, 2026-11-10,
+  Audit 8 LG8-9; item 9 of the desk file's launch list): the first with a
+  regular expression lookbehind (the reference linker's) and
+  `CompressionStream`. `sheet-share-gate.js` asks `viewerSupported()` before
+  it imports the viewer, and below the floor says the browser is too old,
+  never to check the connection. On a
   computer without the preview, a link turns it on (`?desk=on#share1.…`).
   A shared sheet shows read only until "Import into my notebook", which saves
   it as a new sheet (`copyOfShared`) and turns the page into that

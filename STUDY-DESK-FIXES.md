@@ -142,6 +142,15 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   *Build notes (moved from the desk's CLAUDE.md, 2026-11-07):* The search
   builder was mocked first and then built on Claude's recommendation (BVJ,
   2026-11-02).
+  *The builder's details (moved from the desk's CLAUDE.md, rule 17,
+  2026-11-10):* each card's menus list its lemma's parsings, and a choice
+  also narrows the others; there is a "+ Then another word", and "How close"
+  once there are two words. A search it can't show (`=` exact, four or more
+  plain words, one that doesn't read, over 300 characters) says so and
+  leaves the field alone, with "Start a new search". A word that is also a
+  command ("perfect", "and") is written quoted, and among several words it
+  is left out, since a quote can't sit inside "a/b". A choice already made
+  stays listed even when the word takes none of it, so it can be taken off.
 - **E6, wish: search a word family, not just one lemma.** BVJ
   (2026-10-16): `hamartia.noun/verb` finds no verbs, `hamartano.noun/verb`
   no nouns, and `hamartia.adj` no ἁμαρτωλός. Checked against the committed
@@ -920,6 +929,12 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   covers or the menu names them: Print, Display options, the Search and Sheet
   panes, the start radios. See `src/scripts/desk/CLAUDE.md`, rule 13, "Two
   tours".
+  *The desk tour's steps, as the desk's CLAUDE.md listed them until
+  2026-11-10:* it adds a LIT pane, presses a lock, shows a Sheets pane (a
+  column, else the first pane that isn't the LIT turned to Sheets; E59, BVJ
+  2026-11-08), points at the command row, runs "New sheet…" as the row does
+  (`commands.newSheet`; a `notebook` step, left out when neither a column
+  nor a row fits), and opens the Add pane menu and the Layout window.
 - **E25, rough: how panes behave when dragged.** BVJ (2026-11-02). The drag
   behavior of panes (today: a pane's header is the handle, dropping on an
   edge of another splits it, shown before the drop, a drop that leaves a pane
@@ -1697,6 +1712,12 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   pane on John 3: side by side at 1366px, the "⋯" at 760px (it opens the two
   stacked, Tab reaches Pin, Escape closes it and returns focus), in-line at
   600px.
+  *The thresholds as the desk's CLAUDE.md gave them (moved from rule 23,
+  2026-11-10):* `row` needs the two pills and the 4px gap plus 14px and an
+  8px window edge; `more` needs the wider pill plus the same 14 and 8 (about
+  118px and 78px in Inter; OpenDyslexic needs more). Side by side, "Add a
+  note" sits outside Pin and the pair is right-aligned 14px from the
+  footnote, level with its first line; the "⋯" is `aria-expanded`.
 
 - **E50, rough: the Study Desk button, where it is and where it shows.**
   BVJ (2026-11-05), "not totally satisfied with the current version." The

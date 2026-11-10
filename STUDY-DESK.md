@@ -892,7 +892,14 @@ plan as a whole was accepted; nothing was declined except where stated).
     lists everything, as on any page that isn't a chapter. A reader's
     existing notes on them are kept: export, import, the merge and
     /notebook carry and list them unchanged, and the format still
-    describes them. Version 2 turns the switch back on.
+    describes them. Version 2 turns the switch back on. Built, it worked so
+    (moved from `src/scripts/desk/CLAUDE.md`, 2026-11-10): the same margin as
+    Chapter View, `note-sources.js` saying what a page's notes sit beside
+    and how each is found (a chapter's verses, or an entry's or article's
+    own text through `src/lib/desk-prose-anchor.mjs`), and
+    `prose-actions.js` offering "Add a note" on a selection there (on the
+    glossary, as the "My Notebook" row of every reader's selection panel,
+    with "Note on this entry" for the whole entry).
 - **M6. Print my annotated chapter or book.** A chapter, or a whole book from
   Read View, printed with your notes in the margin and highlights shown. N9
   is the blank version. New. Small. **Decided: yes.** **Built on the preview 2026-10-20** ("Order of work", 3i).
