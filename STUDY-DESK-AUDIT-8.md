@@ -26,6 +26,8 @@ PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8
 of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
 LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
 
+**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3's bookmark half; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all marks and Delete all sheets). Still open: decisions 3's label half, 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
+
 ## Bottom line
 
 **No Critical or High finding, in either phase.** After verification, **13 Medium**, 94 Low and 11
@@ -166,26 +168,26 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
 
 1. **DI8-1: should a stamp ever step more than five minutes past the client's own clock?** Bounding
    it changes the format's "Room for skew" for BDR. Proposed: clamp, and treat a stored stamp far in
-   the future as now.
+   the future as now. **Decided (2026-11-10): clamp; fixed.**
 2. **DI8-2: may the website restamp `modified` and `client` when a reader restores, or undoes the
    deletion of, a record it can't edit?** The format says such a record "comes back exactly as it
    was," which means the restore loses to the deletion the next time they meet. (VER8 notes the E log
-   says a restore outranks a deletion, which is false for these records.)
-3. **DI8-3 and labels with one name on two devices:** fold them at merge, or list both?
+   says a restore outranks a deletion, which is false for these records.) **Decided (2026-11-10): restamp; fixed.**
+3. **DI8-3 and labels with one name on two devices:** fold them at merge, or list both? **Decided (2026-11-10) for bookmarks: merge by group; fixed. Labels still open.**
 4. **DK8-2: a scripture reference in a footnote on /desk:** open a new tab (E34's rule for links that
    leave the desk), or move the LIT pane, as the Book Intro pane does? Either is small; the panes
-   should agree.
+   should agree. **Decided (2026-11-10): move the LIT pane; fixed.**
 5. **The Share dialog starts on "Everything, for another leader"** (SEC8 question 1), though its own
    note says "send the participant's version when you're unsure." And on a phone, Share… forwards a
    leader link as it came, with no participant choice (SH8 question). Should both default to, or
-   offer, the participant's version? **Decided (2026-11-10):** the participant's version, in the dialog and on a phone.
+   offer, the participant's version? **Decided (2026-11-10): the participant's version, in the dialog and on a phone; fixed.**
 6. **GK8-1 and GK8-5: Strong's numbers and the Greek credits.** Keep the lemma-wide match, or narrow
    the three mis-tag cases (G848, G1519, G3596)? Use the UBS repository's requested credit wording and
    name MorphGNT's editor, or keep the shorter lines?
 7. **Scale (LG8-2, GF8b-6):** page My Notes on /desk and `/notebook`, or keep them unpaged? Cap many
    notes on one verse into "N more," or let the margin stack?
 8. **"Delete everything" (DK8-7):** is trashing sheets and templates with the notes intended, or
-   should sheets have their own button? Either way the sentence should say what it moves.
+   should sheets have their own button? Either way the sentence should say what it moves. **Decided (2026-11-10): two buttons, Delete all marks and Delete all sheets; fixed.**
 9. **Copy names (CP8 Rule 7, Rule 6):** "My Notes" or "My notes," "My Notebook" or "My notebook,"
    "Your templates" or "My templates," "Space" or "Space to write," and whether "Study Desk preview"
    stays in reader-facing text until release.
