@@ -46,7 +46,7 @@ async function chapterText(bookKey, chapter) {
  * pinned footnotes on this sheet's passages (everything, newest first, on a
  * sheet with none yet), each with a box to tick; "Add" brings the ticked
  * ones on as parts in one change, so one Ctrl+Z takes them all back. A
- * question becomes a Question part, a note or a pinned footnote Your text,
+ * question becomes a Question part, any other note or a pinned footnote becomes a Text part,
  * a highlight a passage (its chapter is read first, so part of a verse
  * keeps its words). What is already on the sheet is shown but can't be
  * ticked. The parts go after the part last worked in, else at the end.
@@ -75,7 +75,7 @@ export async function openFromNotes(host, box, close) {
     cancel.focus();
     return;
   }
-  box.append(make("p", "desk-sheet__empty", "Check what to bring. A question becomes a Question part, a note or a pinned footnote becomes Your text, and a highlight becomes a passage."));
+  box.append(make("p", "desk-sheet__empty", "Check what to bring. A question note becomes a Question part, any other note or a pinned footnote becomes a Text part, and a highlight becomes a passage."));
   const KIND = { question: "Question", note: "Note", highlight: "Highlight", footnote: "Footnote" };
   const picks = new Map();
   const go = button("Add", "desk-sheet__btn desk-sheet__btn--primary");

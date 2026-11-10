@@ -8,10 +8,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE,
+  CONTACT_HREF, DESK_STAGE, DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE,
   DESK_TOUR_KEY, SHEET_TOUR_KEY, SHEET_TOUR_LINK, SHEET_TOUR_PAGE_LINK, SHEET_TOUR_PARTS, SHEET_TOUR_STEPS,
   TOUR_KEY, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
-  agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
+  FEEDBACK_HREF, FEEDBACK_LABEL, agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
   reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
 
@@ -392,6 +392,15 @@ test("Audit 7's wording: the desk tour's cards name what the page has now, and t
   // TR7-3: "Add to sheet" in Chapter View's verse menu (PR #520); Read View has none.
   assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add to sheet”/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add to sheet/);
+});
+
+/* ── The feedback invitation (Phase 6) ── */
+
+test("the feedback invitation names the stage and opens the contact form about the desk", () => {
+  assert.equal(DESK_STAGE, "preview", "the label changes to beta at the public launch, in this one constant");
+  assert.equal(FEEDBACK_LABEL, `Send feedback on the ${DESK_STAGE}`);
+  assert.ok(FEEDBACK_HREF.startsWith(CONTACT_HREF));
+  assert.equal(new URL(FEEDBACK_HREF, "https://litbible.net").searchParams.get("about"), "study-desk");
 });
 
 /* ── The Sheets tour (E63) ── */

@@ -26,6 +26,20 @@ export const HELP_HREF = "/desk/help/";
 export const WAYS_HREF = "/desk/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
 
+/**
+ * Which stage the Study Desk is in, as a reader is told (STUDY-DESK.md, Phase
+ * 6; BVJ, 2026-11-09): "preview" while invited readers test it, "beta" from
+ * the public launch, and none once the apps can sync. One constant, so the
+ * change at launch is one edit.
+ */
+export const DESK_STAGE = "preview";
+
+/** The contact form, opened about the Study Desk (it starts the message for the sender). */
+export const FEEDBACK_HREF = `${CONTACT_HREF}?about=study-desk`;
+
+/** The invitation's words, the same in the Notebook's Settings tab, the title menu and the help page. */
+export const FEEDBACK_LABEL = `Send feedback on the ${DESK_STAGE}`;
+
 /** The start of the notebook tour from a chapter page: `?desk-tour` starts it after load. */
 export const TOUR_LINK = "/john-3/?desk-tour";
 

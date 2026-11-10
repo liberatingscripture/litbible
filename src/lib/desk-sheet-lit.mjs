@@ -192,6 +192,16 @@ export function overlapsBlank(located, start, end) {
 }
 
 /**
+ * The blanks that cover any of the words from `start` to `end`, for filling
+ * words in again from a selection (BVJ, 2026-11-09: a blank could be removed
+ * only from the list below the passage, which no one looked for). A blank is
+ * one unit, so a selection touching part of it fills in all of it.
+ */
+export function blanksTouching(located, start, end) {
+  return located.filter((b) => b.start != null && b.start < end && start < b.end);
+}
+
+/**
  * The hint printed beneath a blank, or null for none: the leader's own words,
  * or "traditionally sin" for the glossary term the blanked words render,
  * looked up from today's term data so it never goes stale (format, "blank").

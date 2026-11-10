@@ -230,7 +230,7 @@ function group(...insts) {
 
 function textCard(host, card, m) {
   if (host.readOnly()) return readOnlyRich(card, m.html);
-  const ed = textField(host, m, "html", "Your text", promptOf(m, "prompt") || "A heading, instructions, a prayer, or anything else to print.");
+  const ed = textField(host, m, "html", "Text", promptOf(m, "prompt") || "A heading, instructions, a prayer, or anything else to print.");
   // The prompt under a heading goes with the first word typed after it,
   // not only once that typing is saved and draw() runs (SH5-4).
   const box = ed.el.querySelector(".desk-rich");

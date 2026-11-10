@@ -55,6 +55,7 @@ import { createMineTab } from "./tab-mine.js";
 import { notebookTab } from "./notebook-tab.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
+import { DESK_STAGE } from "../../lib/desk-first-use.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
 
@@ -250,7 +251,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   panel.innerHTML = `
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
-      <span class="desk-panel__badge">Preview</span>
+      <span class="desk-panel__badge">${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}</span>
       <a class="desk-panel__desk" href="/desk/" aria-label="Open the Study Desk" title="Open the Study Desk">${ICON_DESK}</a>
       <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook" title="Minimize">${ICON_COLLAPSE}</button>
     </div>

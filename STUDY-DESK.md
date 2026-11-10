@@ -5050,6 +5050,38 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    `STUDY-DESK-FIXES.md`, the audits and the desk's `CLAUDE.md`; anything
    found later that belongs at or near launch goes here too.
 
+   **Three stages: invite-only preview, public beta, full launch** (BVJ,
+   2026-11-09). The launch is not one step.
+   1. **Invite-only preview, before launch.** The trusted readers below
+      (`?desk=on`) test it. The Notebook carries the label **“preview”**
+      while it lasts.
+   2. **Public beta, the launch.** The stamp stops requiring the preview
+      (the "At launch" list below) and every computer gets the desk, and
+      the label changes from “preview” to **“beta”**. **The public beta
+      does not wait for app syncing**: Phase 4 need not be ready.
+   3. **Full launch, later.** The label goes and the desk is announced as
+      finished only **when the apps are fully ready to sync**, so Phase 4
+      gates this stage and no earlier one.
+
+   **A way to give feedback in both labelled stages**: an invitation
+   somewhere visible (where is open; the Notebook's Settings tab, the
+   desk's title menu and the help page are the candidates) that opens the
+   contact form, so a tester or a beta reader can report a problem or a
+   wish. It builds on M12, "Tell us what's missing," and reports join
+   `STUDY-DESK-FIXES.md` as before. To build before the preview opens:
+   the label itself (one constant, so the change to “beta” is one edit),
+   where it shows (the Notebook's tab and heading, the /desk title,
+   /notebook and /sheets), and the invitation.
+   **Built 2026-11-09 for the preview stage**: one constant, `DESK_STAGE`
+   in `desk-first-use.mjs` ("preview"; the Notebook's badge, the invitation's
+   words and the help page read it, so the change to "beta" is one edit, and
+   the badge needs hiding when it goes), and one link, `FEEDBACK_HREF`
+   (`/contact/?about=study-desk`, which starts the message "About the Study
+   Desk: " so the inbox shows what it is about; the Worker is unchanged). It
+   is in all three places BVJ chose: the title menu's last line, the foot of
+   the Notebook's Settings tab (replacing "Tell us what's missing"), and the
+   help page's "Send feedback" section. It opens in a new tab.
+
    **Before launch**
    - **What's new names new site features** (BVJ, 2026-11-08). Today
      `/release-notes` and its feed record only changes to the text
@@ -5087,6 +5119,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
 
    **At launch** (one change: the "Launching" list in
    `src/scripts/desk/CLAUDE.md`, items 1 to 12, then its grep)
+   - **It is the public beta** (stage 2 above): the label reads “beta,”
+     and the "full launch" waits for the apps' sync.
    - The pre-paint stamp stops requiring the preview; `?desk=on`,
      `?desk=off` and `lit-desk-preview` retire, and `/privacy` drops the
      key. There is no opt-out of the desk; "Show the Notebook" in the
@@ -5112,6 +5146,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      and the pass over what has piled up decides what is fixed first.
    - **Phase 4, sync with the apps**, follows on its own schedule; the apps
      announce sync once in their What's New (the Zoom's item 5).
+     **Phase 4 is also what ends the beta** (stage 3 above): the label
+     comes off when the apps can sync.
 
 **Any time, independent of all of it**: both apps link to the license terms
 (BDR's item 11: Android in 1.3, iOS in 2.0, 2.0.1 or 2.1). (/read opening

@@ -22,6 +22,7 @@ import {
   blankFromOffsets,
   blankHint,
   blankWords,
+  blanksTouching,
   booksToCheck,
   collectKeyTerms,
   commercialShare,
@@ -430,7 +431,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
     box.append(words.el);
     if (!readOnly && words.base != null) {
-      box.append(make("p", "desk-sheet__hint", "With the keyboard: Tab to the passage, move by word with the arrow keys (Shift extends), and press Enter to blank."));
+      box.append(make("p", "desk-sheet__hint", "With the keyboard: Tab to the passage, move by word with the arrow keys (Shift extends), and press Enter to blank, or to fill in words that are already blank."));
       armWordCursor();
     }
     if (v.check.state === "changed") {
@@ -525,6 +526,35 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     addBlanks([[s, e]]);
   }
 
+  /** Fill in again every blank the span touches (a blank is one unit). */
+  function fillIn(s, e) {
+    const hit = blanksTouching(ownBlanks(), s, e);
+    if (!hit.length) {
+      refuse("None of the selected words are blank.");
+      return;
+    }
+    const ids = new Set(hit.map((b) => b.blank.id));
+    const words = hit.map((b) => view.chapter.text.slice(b.start, b.end));
+    const label = hit.length > 1 ? `${hit.length} blanks` : quoted(words[0]);
+    setBlanks((mod.blanks ?? []).filter((x) => !ids.has(x.id)), `${label} filled in again.`);
+  }
+
+  function fillInSelection() {
+    const sel = window.getSelection();
+    const range = sel?.rangeCount ? sel.getRangeAt(0) : null;
+    if (blankNote) blankNote.hidden = true;
+    const offsets =
+      range && !range.collapsed && words?.el.contains(range.commonAncestorContainer) && words.base != null
+        ? rangeToOffsets(pageAnchorText(words.el.children), range)
+        : null;
+    if (!offsets) {
+      refuse("Select blanked words in this passage first, then choose “Fill in the selected words.”");
+      return;
+    }
+    sel.removeAllRanges();
+    fillIn(words.base + offsets[0], words.base + offsets[1]);
+  }
+
   // ---- the word cursor (DK-1) ----
   // A keyboard reader chooses words without a selection: the passage takes
   // focus, the arrows move a cursor by word (Shift extends it), Enter blanks
@@ -564,7 +594,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     w.tabIndex = 0;
     w.dataset.focusKey = "passage-words";
     w.setAttribute("role", "group");
-    w.setAttribute("aria-label", "Passage text. Use the arrow keys to move by word, Shift to choose more words, and Enter to blank the chosen words.");
+    w.setAttribute("aria-label", "Passage text. Use the arrow keys to move by word, Shift to choose more words, and Enter to blank the chosen words, or to fill them in again if they are already blank.");
     w.addEventListener("focus", () => {
       const list = cursorList();
       if (!list.length) return;
@@ -595,7 +625,11 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         const span = cursorSpan(list);
-        if (span) addBlanks([[span[0], span[1]]]);
+        if (!span) return;
+        // Enter on words that are already blank fills them in again.
+        const covered = list.slice(Math.min(cur.a, cur.b), Math.max(cur.a, cur.b) + 1).every(([ws, we]) => overlapsBlank(ownBlanks(), ws, we));
+        if (covered) fillIn(span[0], span[1]);
+        else addBlanks([[span[0], span[1]]]);
       } else if (e.key === "Escape" && cur.a !== cur.b) {
         cur = { a: cur.b, b: cur.b };
         drawCursor(list);
@@ -617,6 +651,12 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       pick.addEventListener("mousedown", (e) => e.preventDefault());
       pick.addEventListener("click", blankSelection);
       head.append(pick, describe(pick, "Leaves the words you’ve selected in this passage blank on the participant’s version."));
+      const unpick = button("Fill in the selected words");
+      unpick.dataset.focusKey = "fill-in-selection";
+      unpick.title = "Show again the blanked words you’ve selected in this passage";
+      unpick.addEventListener("mousedown", (e) => e.preventDefault());
+      unpick.addEventListener("click", fillInSelection);
+      head.append(unpick, describe(unpick, "Shows again the blanked words you’ve selected in this passage, on the participant’s version too."));
     }
     blankNote = make("p", "desk-sheet__empty");
     blankNote.hidden = true;
@@ -659,7 +699,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
 
     if (!located.length) {
-      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. Select words in the passage, then choose “Blank the selected words.” A blank leaves those words out of the participant’s version and shows them on the leader’s."));
+      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. Select words in the passage, then choose “Blank the selected words.” (To show blanked words again, select them and choose “Fill in the selected words.”) A blank leaves those words out of the participant’s version and shows them on the leader’s."));
       return;
     }
     const ul = make("ul", "desk-sheet__blank-list");
@@ -743,6 +783,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       });
       const remove = button("×", "desk-sheet__icon");
       remove.dataset.focusKey = `remove-${suffix}`;
+      remove.title = "Fill in again";
       remove.setAttribute("aria-label", members.length > 1 ? `Fill in ${quoted(words)} again, all ${members.length} times` : `Fill in ${quoted(words)} again`);
       remove.addEventListener("click", () => {
         // A row fills in all of its blanks. A blank of a term kept apart from the

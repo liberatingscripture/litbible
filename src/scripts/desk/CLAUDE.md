@@ -57,6 +57,12 @@ From the root's routing table.
 
 ## Launching
 
+**The launch is the public beta, not the full launch** (BVJ, 2026-11-09;
+STUDY-DESK.md, Phase 6): the invite-only testing carries a "preview" label on
+the Notebook, the flip below makes it "beta" and needs no app syncing, and the
+label comes off only when the apps can sync. A feedback invitation to the
+contact form shows through both labelled stages.
+
 (Audit 2, LG-3 and LG-4; BVJ, 2026-11-04.) The pre-paint script stamps the
 preview in one place, but about a dozen others read it. Flipping the default
 means each of these, in one change:

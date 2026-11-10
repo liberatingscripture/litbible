@@ -33,7 +33,7 @@
 
 import { liveRecords } from "../../lib/desk-store-core.mjs";
 import {
-  BACKUP_HREF, CONTACT_HREF, DESK_TOUR_KEY, HELP_HREF, SAFARI_LINE, SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
+  BACKUP_HREF, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, SAFARI_LINE, SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
   isDesktopSafari, readHome, readLastExport, reminderDue, reminderText,
   localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
 } from "../../lib/desk-first-use.mjs";
@@ -306,7 +306,12 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   const tour = el("button", "desk-home__tour", "Take the tour");
   tour.type = "button";
   tour.addEventListener("click", () => requestTour());
-  links.append(tour, link(HELP_HREF, "Help"), link(CONTACT_HREF, "Tell us what’s missing"));
+  // The preview's invitation (Phase 6): it opens beside the page, so the reader
+  // keeps what they were looking at while they describe it.
+  const feedback = link(FEEDBACK_HREF, FEEDBACK_LABEL);
+  feedback.target = "_blank";
+  feedback.rel = "noopener noreferrer";
+  links.append(tour, link(HELP_HREF, "Help"), feedback);
 
   // Without a notebook, only the links (`hidden` wouldn't do for the remind
   // box: .desk-setting sets its display).

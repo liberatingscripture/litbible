@@ -40,7 +40,7 @@ export function insertItems(hasTerms) {
   const line = (label, type, disabled = false, why = null) => ({ label, type, disabled, why });
   return [
     line("Passage…", "passage"),
-    line("Your text", "text"),
+    line("Text", "text"),
     line("Question", "question"),
     line("Space to write", "space"),
     line("Page break", "pageBreak"),

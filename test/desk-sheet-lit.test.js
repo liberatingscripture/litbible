@@ -26,6 +26,7 @@ import {
   keyTermLine,
   locateBlank,
   marksInRange,
+  blanksTouching,
   overlapsBlank,
   setFootnoteChoices,
   telltaleStems,
@@ -460,6 +461,17 @@ test("overlapsBlank: half-open overlap, ignoring blanks with no place", () => {
   assert.equal(overlapsBlank(located, 20, 25), false);
   assert.equal(overlapsBlank(located, 19, 25), true);
   assert.equal(overlapsBlank([], 0, 100), false);
+});
+
+test("blanksTouching: every blank a span reaches, whole, none for blanks with no place", () => {
+  const a = { start: 10, end: 20, blank: { id: "a" } };
+  const b = { start: 30, end: 40, blank: { id: "b" } };
+  const lost = { start: null, end: null, blank: { id: "c" } };
+  const located = [a, b, lost];
+  assert.deepEqual(blanksTouching(located, 15, 18), [a]);
+  assert.deepEqual(blanksTouching(located, 5, 35), [a, b]);
+  assert.deepEqual(blanksTouching(located, 20, 30), []);
+  assert.deepEqual(blanksTouching([], 0, 100), []);
 });
 
 /* ── blankHint / termForWords ────────────────────────────────────────── */
