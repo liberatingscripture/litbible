@@ -605,7 +605,11 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
       label: `Footnote ${letter}, ${where}`,
       body: source.footnoteBody(a.dataset.fn),
     });
-    routeFootnoteLinks(panel, showPassage);
+    // The popover belongs to the place the pane is leaving, so it closes first.
+    routeFootnoteLinks(panel, showPassage && ((passage) => {
+      closePanel();
+      showPassage(passage);
+    }));
     // The same offer Chapter View's popover makes, naming the chapter since a
     // pane holds many; only pins.js listens (3g), and only with a notebook.
     document.dispatchEvent(
