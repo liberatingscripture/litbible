@@ -89,7 +89,13 @@ import {
 import { qrSvg } from "../../../lib/qr-svg.mjs";
 import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { isOwnTemplate } from "../../../lib/desk-sheets.mjs";
-import { addDeskStyle, deskCtx as ctx } from "../boot.js";
+// Not boot.js, which brings all of desk.css: a phone showing a shared sheet
+// adds only the sheets' look, and a computer loads boot.js in `start()`
+// (Audit 8, LG8-10). boot.js's reference previews come along here directly.
+import { deskCtx as ctx } from "../desk-ctx.js";
+import { addSheetViewStyle } from "./sheet-view-style.js";
+import { standDown } from "../../desk-frame.js";
+import "../../ref-preview.js";
 import { checkSummary } from "../../../lib/desk-sheet-check.mjs";
 import { passageReference } from "../../../lib/desk-sheet-passages.mjs";
 import { documentFileName } from "../../../lib/desk-sheet-doc.mjs";
@@ -1070,7 +1076,15 @@ function openShareDialog(sheet, opener) {
 async function start() {
   const root = document.querySelector("[data-sheet-page]");
   if (!root) return;
-  addDeskStyle();
+  // All of the desk's styles: the list, the editor and the tour need them.
+  // desk-gate.js starts this download beside this file's.
+  try {
+    (await import("../boot.js")).addDeskStyle();
+  } catch (err) {
+    console.error("Study Desk: the desk's styles didn't load", err);
+    standDown(); // the page's "Loading" line gives way to its note (BA153)
+    return;
+  }
   root.classList.add("sheets-page__root");
   let store = null;
   try {
@@ -1433,7 +1447,7 @@ function tourHost(root, store) {
  * without the notebook, which is never opened. Called by sheet-share-gate.js.
  */
 export async function showSharedOnPhone(root, fragment) {
-  addDeskStyle();
+  addSheetViewStyle();
   root.classList.add("sheets-page__root");
   await showShared(root, null, fragment, { phone: true });
 }

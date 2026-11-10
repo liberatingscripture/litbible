@@ -79,6 +79,9 @@ if (shellHere) {
   });
 } else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-sheet-page]")) {
   // A sheet's own address (/sheets/, 3i): shown, printed and copied, never edited.
+  // The desk's styles are a download of their own there (LG8-10), asked for
+  // here too so it runs beside the page's; sheet-page.js handles a failure.
+  import("./desk/boot.js").catch(() => {});
   import("./desk/sheets/sheet-page.js").catch((err) => {
     console.error("Study Desk: the sheet page didn't load", err);
     standDown(); // its "Loading" line gives way to the note again (BA153)

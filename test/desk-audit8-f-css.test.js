@@ -9,8 +9,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-// desk-search.css holds the search rows' rules since LG8-10; read as one sheet.
-const css = ["desk.css", "desk-search.css"]
+// desk-search.css holds the search rows' rules and desk-sheet-view.css a
+// sheet's text and buttons since LG8-10; read as one sheet.
+const css = ["desk.css", "desk-search.css", "desk-sheet-view.css"]
   .map((f) => readFileSync(new URL(`../src/styles/${f}`, import.meta.url), "utf8"))
   .join("\n");
 
@@ -86,7 +87,9 @@ test("the Sheets editor's states have forced-colors rules (XA8-7)", () => {
   assert.match(block, /\.desk-sheet__chip\[aria-pressed="true"\]\s*\{[^}]*border:\s*2px solid Highlight/);
   assert.match(block, /\.desk-sheet__drop\s*\{[^}]*border-top:\s*3px solid Highlight/);
   assert.match(block, /\.desk-rich-editor:focus-within\s*\{[^}]*outline:\s*2px solid Highlight/);
-  assert.match(block, /\.desk-sheet__btn--primary\s*\{[^}]*border:\s*2px solid ButtonText/);
+  // The primary button's edge is with the buttons, in desk-sheet-view.css (LG8-10).
+  const view = readFileSync(new URL("../src/styles/desk-sheet-view.css", import.meta.url), "utf8");
+  assert.match(view, /@media \(forced-colors: active\) \{\s*\.desk-sheet__btn--primary\s*\{[^}]*border:\s*2px solid ButtonText/);
   assert.match(block, /\.desk-sheet__after-btn\s*\{[^}]*border:\s*1px solid ButtonText/);
   assert.match(block, /\.desk-sheet__meter > span\s*\{[^}]*background:\s*Highlight/);
 });

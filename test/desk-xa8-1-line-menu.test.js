@@ -145,6 +145,9 @@ test("the menu: a step at its end is disabled with its reason, and the menu says
   const [larger, smaller] = m.menu.querySelectorAll('[role="menuitem"]');
   assert.equal(larger.hasAttribute("aria-disabled"), false);
   larger.click();
+  // The menu reads the line again two frames after a step, and one settle
+  // waits one frame, so under a loaded test run one was sometimes too few.
+  await settle(5);
   await settle(5);
   assert.equal(larger.getAttribute("aria-disabled"), "true", "at the top, Larger is disabled");
   assert.match(larger.textContent, /goes no further/);

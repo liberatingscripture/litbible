@@ -179,6 +179,15 @@ adds it beside `desk.css`. They used to add all of `desk.css` (about 200 KB,
 as a JavaScript string) on the first focus of the search box, on any page,
 for those few rows. A rule for those rows goes in `desk-search.css`;
 `test/desk-search-styles.test.js` holds both halves.
+**A shared sheet on a phone loads only `desk-sheet-view.css`** (Audit 8,
+LG8-10): the highlight tints, a sheet's formatted text (`.desk-rich` and
+its colors) and the sheets' buttons (`.desk-sheet__btn`), added by
+`showSharedOnPhone` through `sheets/sheet-view-style.js` and by `boot.js`
+ahead of `desk.css`. So `sheet-page.js` never imports `boot.js`
+statically: it reads the desk's context from `desk-ctx.js`, and a
+computer's sheet page loads `boot.js` by `import()` at the start of
+`start()`. A rule a phone's shared sheet needs goes in
+`desk-sheet-view.css`; `test/desk-sheet-view-styles.test.js` holds it.
 
 **The sheet editor** (`document.execCommand`, its canonical form and golden
 file, its menus and toolbar) is in `src/scripts/desk/sheets/CLAUDE.md`.
@@ -224,7 +233,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
   2. **Readers download none of it.** `desk-gate.js` imports the desk only
      with `data-desk="on"`, and on a reading page only its first stage
      ("Launching", above). `boot.js` adds `desk.css` (and the first stage
-     `desk-tab.css`, the search `desk-search.css`) as a `<style>` (`?inline`): **a plain CSS import is
+     `desk-tab.css`, the search `desk-search.css`, a phone's shared sheet
+     `desk-sheet-view.css`) as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one rule in
