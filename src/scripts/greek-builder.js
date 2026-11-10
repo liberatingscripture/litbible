@@ -20,7 +20,7 @@
 
 import { loadGreekBridge, loadGreekIndex, loadGreekOccurrences } from "./search-greek.js";
 import { errorMessage } from "../lib/greek-query.mjs";
-import { hasGreek, lemmaLine } from "../lib/greek-search.mjs";
+import { hasGreek, lemmaLine, strongView } from "../lib/greek-search.mjs";
 import {
   AXIS_LABELS,
   MAX_CARDS,
@@ -154,11 +154,14 @@ export function createGreekBuilder({ put, announce }) {
           entry.message = errorMessage(resolved.error).text;
         } else {
           const rows = new Map();
-          entry.lemmas = resolved.ids.map((id) => index.lemmas[id]);
+          // A lemma a Strong's number reached counts only the words tagged with it (GK8-1).
+          const strongsOf = (id) => resolved.strongs?.[id] ?? null;
+          entry.lemmas = resolved.ids.map((id) => strongView(index.lemmas[id], strongsOf(id)));
           for (const id of resolved.ids) {
             const shard = await loadGreekOccurrences(base, index, id);
             if (!shard) throw new Error("no occurrences");
-            for (const [code, n] of codeCounts(shard)) rows.set(code, (rows.get(code) ?? 0) + n);
+            const only = { strongs: strongsOf(id), primary: index.lemmas[id].strong };
+            for (const [code, n] of codeCounts(shard, only)) rows.set(code, (rows.get(code) ?? 0) + n);
           }
           entry.rows = [...rows].map(([code, n]) => ({ code, n }));
           entry.status = "ready";

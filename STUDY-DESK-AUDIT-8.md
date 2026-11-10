@@ -1152,7 +1152,7 @@ For εἰμί/σύ/ἐγώ/οὗτος the extra numbers are real forms of the l
 
 **Confidence**: High on behavior; Medium on how many readers it affects (needs MACULA to count per-word tags; sources are not in this checkout).
 
-**Open (2026-11-09)** Decision 6.
+**Fixed (2026-11-10)** Option (a): `build:greek` now writes each word's own Strong's number where MACULA's tag differs from its lemma's (a tenth field in `text/`, and per lemma a side list of word places in its `occ/` shard, counted in `lemmas.json`'s `also`; search index format 3), and a Strong's search, a Strong's word in a command, the builder's menus and the Greek tab's Strong's button (now the word's own number) keep only the words carrying that number. Words found against the committed data, before and after: G3596 1,247 → 2 (ὁδοιπορέω's one and πᾶς's one), G1519 4,499 → 1,765 (εἰς and 3 words of ἐν), G848 5,890 → 397 (394 of αὐτός, 3 of ἑαυτοῦ), G1510 2,458 → 105; a lemma's own number keeps every word not tagged otherwise (G846 finds 5,163 of αὐτός's 5,557), and a line or readback reached through another number says "tagged G848."
 
 #### GK8-2 · Low · compat · NEW
 Enter, Tab and ArrowRight in the search tray and /search field ignore IME and dead-key composition

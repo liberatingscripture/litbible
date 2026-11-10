@@ -32,7 +32,7 @@ import {
   resolveGreekQuery,
 } from "./greek-query.mjs";
 import { QUERY_AXES } from "./greek-commands-ui.mjs";
-import { OCC_STRIDE, hasGreek, parseStrong } from "./greek-search.mjs";
+import { OCC_STRIDE, hasGreek, parseStrong, strongFilter } from "./greek-search.mjs";
 
 export { MAX_TERMS as MAX_CARDS, QUERY_AXES as BUILDER_AXES };
 
@@ -195,8 +195,10 @@ export function closenessOptions(gap) {
 /* ── What a word takes ───────────────────────────────────────────── */
 
 /**
- * The lemmas a card's words name, from the index: { ids } or { error } (the
- * word isn't one the index knows) or { any: true } for no word at all.
+ * The lemmas a card's words name, from the index: { ids, strongs } or { error }
+ * (the word isn't one the index knows) or { any: true } for no word at all.
+ * `strongs` is resolveGreekQuery's: for a lemma only a Strong's number
+ * reached, the numbers its words must carry (GK8-1), else absent.
  */
 export function resolveCard(index, card, { bridge = null } = {}) {
   if (!card.words.length) return { any: true };
@@ -206,15 +208,22 @@ export function resolveCard(index, card, { bridge = null } = {}) {
     anyOrder: false,
   }, { bridge });
   if (resolved.error) return { error: resolved.error };
-  return { ids: resolved.terms[0].lemmaIds };
+  const { lemmaIds, strongs } = resolved.terms[0];
+  return strongs ? { ids: lemmaIds, strongs } : { ids: lemmaIds };
 }
 
-/** How often a lemma's words take each code: Map(code → number), from its shard entry. */
-export function codeCounts(entry) {
+/**
+ * How often a lemma's words take each code: Map(code → number), from its shard
+ * entry. With `strongs`, only the words carrying one of those numbers count,
+ * `primary` being the lemma's own (strongFilter).
+ */
+export function codeCounts(entry, { strongs = null, primary = null } = {}) {
   const counts = new Map();
   if (!Array.isArray(entry)) return counts;
   const [, flat = [], codes = []] = entry;
+  const carries = strongFilter(entry, strongs, primary);
   for (let i = 0; i + OCC_STRIDE - 1 < flat.length; i += OCC_STRIDE) {
+    if (carries && !carries(i / OCC_STRIDE)) continue;
     const code = codes[flat[i + 5]];
     if (code) counts.set(code, (counts.get(code) ?? 0) + 1);
   }

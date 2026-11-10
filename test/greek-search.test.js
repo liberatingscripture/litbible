@@ -42,11 +42,11 @@ import {
 import { BOOK_ORDER } from "../src/data/books.js";
 
 const fake = prepareIndex({
-  format: 2,
+  format: 3,
   shards: 64,
   lemmas: [
     ["λόγος", "G3056", "word, speech", 330, "λογοσ λογον λογου"],
-    ["πίστις", "G4102", "faith, trust", 243, "πιστισ πιστιν πιστει", ["G9999"]],
+    ["πίστις", "G4102", "faith, trust", 243, "πιστισ πιστιν πιστει", [["G9999", 5]]],
     ["πιστός", "G4103", "faithful", 67, "πιστοσ πιστον"],
     ["Χριστός", "G5547", "Christ", 529, "χριστοσ χριστον"],
     ["ἀγαπάω", "G25", "to love", 143, "αγαπαω αγαπα αγαπασ"],
@@ -170,7 +170,7 @@ test("the tray shows only an exact transliteration or a gloss that is the query,
   assert.equal(matchForTray(fake, "G4102").lemmas.length, 1);
 
   const four = prepareIndex({
-    format: 2,
+    format: 3,
     lemmas: ["λέγε", "λήγε", "λέγη", "λήγη"].map((l, i) => [l, null, null, 10 - i, foldGreek(l)]),
   });
   assert.equal(matchGreek(four, "lege").lemmas.length, 4);
@@ -178,11 +178,13 @@ test("the tray shows only an exact transliteration or a gloss that is the query,
 });
 
 test("prepareIndex refuses anything that is not the current format", () => {
-  assert.equal(GREEK_SEARCH_FORMAT, 2);
+  assert.equal(GREEK_SEARCH_FORMAT, 3);
   assert.equal(prepareIndex(null), null);
   assert.equal(prepareIndex({ format: 1, lemmas: [] }), null);
-  assert.equal(prepareIndex({ format: 2 }), null);
-  assert.ok(prepareIndex({ format: 2, lemmas: [] }));
+  // Format 2's `also` held numbers alone, which reached whole lemmas (GK8-1).
+  assert.equal(prepareIndex({ format: 2, lemmas: [] }), null);
+  assert.equal(prepareIndex({ format: 3 }), null);
+  assert.ok(prepareIndex({ format: 3, lemmas: [] }));
 });
 
 // ── occurrences and links ────────────────────────────────────────────────────
@@ -455,5 +457,5 @@ test("every search file names the same build as lemmas.json (GK6-9)", () => {
   for (const f of files) assert.ok(sameBuild(read(f), index), f);
   assert.equal(sameBuild({ build: "other" }, index), false);
   assert.equal(sameBuild({}, index), false, "a file from before the stamp is another build");
-  assert.equal(sameBuild({}, prepareIndex({ format: 2, lemmas: [] })), true);
+  assert.equal(sameBuild({}, prepareIndex({ format: 3, lemmas: [] })), true);
 });

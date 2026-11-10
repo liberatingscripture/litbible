@@ -38,6 +38,7 @@ import {
   strongByLemma,
   strongKey,
   strongsByLemma,
+  wordStrong,
   tokenizeApparatusGreek,
   ubsEntryShard,
   ubsLemmaIndex,
@@ -436,6 +437,8 @@ test("a book builds into chapter files: words, lemma table, senses, and the repo
     morphVerse: (c, v) => morphVerses[`${c}:${v}`],
     maculaVerse: () => undefined,
     nestleVerse: () => undefined,
+    // MACULA's number for each token: ἀρχή's own, none, and another (GK8-1).
+    pairedStrongs: (c, v) => ({ "1:1": ["746", null, "G2098a"], "1:2": ["G5613"] })[`${c}:${v}`] ?? null,
     hints: new Map(),
     resolveLemma,
     ubsRefs: ubsSenseRefs,
@@ -447,6 +450,9 @@ test("a book builds into chapter files: words, lemma table, senses, and the repo
   assert.equal(chapter1.title, "ΚΑΤΑ ΜΑΡΚΟΝ");
   assert.deepEqual(chapter1.paragraphs[0][0], [1, 1, "Ἀρχὴ", "", " ", 0, "N-", "----NSF-", 0]);
   assert.deepEqual(chapter1.paragraphs[0][1].slice(0, 5), [1, 2, "τοῦ", "⸀", " "]);
+  // A word carries its own Strong's number only where it isn't its lemma's.
+  assert.equal(chapter1.paragraphs[0][1].length, 9);
+  assert.equal(chapter1.paragraphs[0][2][9], "G2098");
   assert.equal(chapter1.paragraphs[0].map((x) => x[3] + x[2] + x[4]).join(""), "Ἀρχὴ ⸀τοῦ εὐαγγελίου. Καθὼς. ");
   // The disagreeing verse is reported and carries no lemma, never a guess.
   assert.deepEqual(chapter1.paragraphs[0][3].slice(1), [1, "Καθὼς", "", ". ", -1, null, null, null]);
@@ -456,6 +462,15 @@ test("a book builds into chapter files: words, lemma table, senses, and the repo
   assert.deepEqual(chapter1.apparatus, [[1, ["1 note one"]]]);
   assert.equal(chapter1.borrowed, undefined);
   assert.equal(report.senses.assigned, 1);
+});
+
+test("wordStrong keeps a word's number only where it differs from its lemma's", () => {
+  assert.equal(wordStrong("G848", "G846"), "G848");
+  assert.equal(wordStrong("0848", "G846"), "G848");
+  assert.equal(wordStrong("G846", "G846"), null);
+  assert.equal(wordStrong("846a", "G846"), null);
+  assert.equal(wordStrong("", "G846"), null);
+  assert.equal(wordStrong(null, "G846"), null);
 });
 
 // ── the lemma gloss ──────────────────────────────────────────────────────────
@@ -528,28 +543,35 @@ test("strongsByLemma lists every number, most common first, the lower on a tie",
 });
 
 test("the search index: lemma order, counts, folded forms, also, shards, no-lemma words", () => {
-  // word: [verse, t, text, pre, post, lemmaIndex, pos, parse, sense]
-  const w = (verse, t, text, lemma, parse = "----NSM-") => [verse, t, text, "", " ", lemma, "N-", parse, null];
+  // word: [verse, t, text, pre, post, lemmaIndex, pos, parse, sense, strong?]
+  const w = (verse, t, text, lemma, parse = "----NSM-", strong = null) => {
+    const word = [verse, t, text, "", " ", lemma, "N-", parse, null];
+    return strong ? [...word, strong] : word;
+  };
   const docs = [
     {
       book: "matthew", chapter: 1,
       lemmas: [["λόγος", "G3056", null, "word"], ["Ἀβραάμ", "G11", null, null]],
-      paragraphs: [[w(1, 1, "λόγος", 0), w(1, 2, "Μωϋσῆς", -1), w(2, 1, "Ἀβραάμ", 1)], [w(2, 2, "λόγοι", 0, "----NPM-")]],
+      paragraphs: [
+        [w(1, 1, "λόγος", 0, undefined, "G10"), w(1, 2, "Μωϋσῆς", -1), w(2, 1, "Ἀβραάμ", 1)],
+        [w(2, 2, "λόγοι", 0, "----NPM-", "G9")],
+      ],
     },
     {
       book: "john", chapter: 3,
       lemmas: [["λόγος", "G3056", null, "word"]],
-      paragraphs: [[w(5, 7, "Λόγον", 0), w(5, 8, "Μωσῆς", null), w(5, 9, "λόγος", 0)]],
+      paragraphs: [[w(5, 7, "Λόγον", 0, undefined, "G3056"), w(5, 8, "Μωσῆς", null), w(5, 9, "λόγος", 0, undefined, "G10")]],
     },
   ];
-  const strongs = new Map([["λόγος", ["G3056", "G9", "G10"]], ["Ἀβραάμ", ["G11"]]]);
-  const { lemmas, shards, report } = greekSearchIndex(docs, strongs, ["matthew", "mark", "luke", "john"]);
+  const { lemmas, shards, report } = greekSearchIndex(docs, ["matthew", "mark", "luke", "john"]);
 
-  assert.equal(lemmas.format, 2);
+  assert.equal(lemmas.format, 3);
   assert.equal(lemmas.shards, 64);
   // Code-point order: "Ἀ" (U+1F08) sorts before "λ" (U+03BB)? No: U+03BB < U+1F08.
   assert.deepEqual(lemmas.lemmas.map((e) => e[0]), ["λόγος", "Ἀβραάμ"]);
-  assert.deepEqual(lemmas.lemmas[0], ["λόγος", "G3056", "word", 4, "λογον λογοι λογοσ".split(" ").sort().join(" "), ["G9", "G10"]]);
+  // `also` is each other number its words carry, with how many, most first
+  // (GK8-1); a word naming its lemma's own number counts as the lemma's.
+  assert.deepEqual(lemmas.lemmas[0], ["λόγος", "G3056", "word", 4, "λογον λογοι λογοσ".split(" ").sort().join(" "), [["G10", 2], ["G9", 1]]]);
   assert.deepEqual(lemmas.lemmas[1], ["Ἀβραάμ", "G11", null, 1, "αβρααμ"]); // no 'also' element at all
   assert.equal(lemmas.lemmas[1].length, 5);
   assert.deepEqual(report, { strongDiffers: [], glossDiffers: [], noLemma: 2, words: 5 });
@@ -562,6 +584,8 @@ test("the search index: lemma order, counts, folded forms, also, shards, no-lemm
       // book, chapter, verse, t, form, parse: six numbers a word
       [0, 1, 1, 1, 0, 0, 0, 1, 2, 2, 1, 1, 3, 3, 5, 7, 2, 0, 3, 3, 5, 9, 0, 0],
       ["N-----NSM-", "N-----NPM-"],
+      // The words tagged with another number, by their place in the list above.
+      { G10: [0, 3], G9: [1] },
     ],
   });
   assert.deepEqual(shards.get("01"), { 1: [["Ἀβραάμ"], [0, 1, 2, 1, 0, 0], ["N-----NSM-"]] });
@@ -574,7 +598,7 @@ test("the search index reports a lemma whose Strong's number or gloss differs be
     { book: "john", chapter: 1, lemmas: [["α", "G1", null, "a"]], paragraphs: [[w(0)]] },
     { book: "john", chapter: 2, lemmas: [["α", "G2", null, "b"]], paragraphs: [[w(0)]] },
   ];
-  const { report } = greekSearchIndex(docs, new Map(), ["john"]);
+  const { report } = greekSearchIndex(docs, ["john"]);
   assert.equal(report.strongDiffers.length, 1);
   assert.equal(report.glossDiffers.length, 1);
 });
@@ -616,7 +640,7 @@ test("the search index also groups every word by its parsing, in Bible order", (
       ]],
     },
   ];
-  const { lemmas, shards, parseIndex, parseGroups } = greekSearchIndex(docs, new Map(), ["matthew"]);
+  const { lemmas, shards, parseIndex, parseGroups } = greekSearchIndex(docs, ["matthew"]);
   // λέγω, λόγος and καί sort by code point: καί, λέγω, λόγος.
   assert.deepEqual(lemmas.lemmas.map((e) => e[0]), ["καί", "λέγω", "λόγος"]);
 
@@ -656,7 +680,7 @@ test("a word with no part of speech is searchable by lemma but in no parse group
     lemmas: [["α", "G1", null, null]],
     paragraphs: [[[1, 1, "α", "", " ", 0, null, null, null]]],
   }];
-  const { shards, parseGroups, parseIndex } = greekSearchIndex(docs, new Map(), ["john"]);
+  const { shards, parseGroups, parseIndex } = greekSearchIndex(docs, ["john"]);
   assert.deepEqual(shards.get("00")[0], [["α"], [0, 1, 1, 1, 0, 0], [""]]);
   assert.equal(parseGroups.size, 0);
   assert.deepEqual(parseIndex, { format: 1, groups: {} });

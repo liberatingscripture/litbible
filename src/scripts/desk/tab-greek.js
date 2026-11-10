@@ -27,7 +27,7 @@ import { GREEK_LICENSE_HREF, SOURCES } from "../../lib/greek-credits.mjs";
 import { parsingQuery } from "../../lib/greek-detect.mjs";
 import {
   W, borrowedFor, firstWordOf, flattenWords, indexOfWord, joinAnd, moveFrom, nearestVerse, noteVerseFor, orderSenses,
-  langRuns, renderingsIn, splitSigns, termsForLemma, versesOf,
+  langRuns, renderingsIn, splitSigns, termsForLemma, versesOf, wordStrong,
 } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import {
@@ -1034,11 +1034,14 @@ export function createGreekTab({
     // The parsing in words only: the code beside it is MorphGNT's raw string, not for the ear.
     announce.append(said, ". ", inWords || "No parsing for this word.");
 
-    // Dictionary form, short gloss and Strong's number.
+    // Dictionary form, short gloss and Strong's number: the word's own, which
+    // is its lemma's unless MACULA tags this word otherwise (ἦν is G2258 under
+    // εἰμί; GK8-1), so the search it starts finds this word.
     lemmaLine.replaceChildren();
     lemmaLine.hidden = !lemma;
     if (lemma) {
-      const [form, strong, , gloss] = lemma;
+      const [form, lemmaStrong, , gloss] = lemma;
+      const strong = wordStrong(w, lemmaStrong);
       const f = make("span", "desk-greek__lemma-form");
       f.lang = "grc";
       f.append(starter(form, form, () => openFind({ query: form, prefer: form })));

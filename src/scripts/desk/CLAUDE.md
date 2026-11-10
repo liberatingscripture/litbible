@@ -1007,8 +1007,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        holds the 58.
      - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
        any form and accent (folded by `foldGreek`, which `build:greek` also
-       uses for the index), a Strong's number (a lemma's other MACULA numbers
-       too, so G1510 finds εἰμί), a transliteration compared by key
+       uses for the index), a Strong's number (**the words tagged with it,
+       never whole lemmas**: a word carries its lemma's number unless MACULA
+       tags it otherwise, so G1510 finds 105 words of εἰμί and G3596 one of
+       πᾶς; GK8-1, BVJ 2026-11-10), a transliteration compared by key
        (`greekKey`/`latinKeys`: agreuō = agreuo, Christos = xristos), or an
        English gloss. Glosses are the lemma's own, STEPBible's brief one
        (πίστις is "to believe in" in UBS's commonest sense, "faith" there)
@@ -1157,8 +1159,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Its two keys, `localStorage['lit-greek-commands']` (opened once) and
        `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
        /privacy's paragraph.
-     - **The data is format 2 of `public/greek/search/`**: each lemma's
-       shard entry is `[forms, flat, parses]` with six numbers a word, and
+     - **The data is format 3 of `public/greek/search/`**: each lemma's
+       shard entry is `[forms, flat, parses, others?]` with six numbers a
+       word, `others` the words tagged with another Strong's number by place
+       (`also` in `lemmas.json` counts them; a `text/` word carries the
+       number as a tenth field, read by the tab's Strong's button), and
        `parse.json` with `parse/<group>.json` holds every word by its
        parsing, named by `parseGroup` (`greek-search.mjs`, shared by build
        and client). Rebuild with `npm run build:greek`, never by hand.

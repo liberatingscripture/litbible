@@ -10,7 +10,8 @@
  *   lsj/<NNN>.json              STEPBible's formatted LSJ, in 128 shards
  *   search/lemmas.json          the Greek search index: every lemma, its forms, Strong's
  *                               numbers and gloss (format in src/lib/greek-search.mjs)
- *   search/occ/<NN>.json        where each lemma's words are, and how they parse, in 64 shards
+ *   search/occ/<NN>.json        where each lemma's words are, how they parse, and which carry
+ *                               another Strong's number than the lemma's (GK8-1), in 64 shards
  *   search/parse.json           the parse groups and the number of words in each
  *   search/parse/<group>.json   every word of one kind (v-ad: aorist imperatives; n-g: nouns
  *                               in the genitive) in Bible order, for searches with no word
@@ -82,7 +83,7 @@ import {
   stepEntries,
   stepShard,
   strongByLemma,
-  strongsByLemma,
+  strongKey,
   ubsEntryShard,
   ubsLemmaIndex,
   ubsSenseRefs,
@@ -195,20 +196,23 @@ async function main() {
 
   // ---- the bridges between sources
   // MACULA's SBLGNT words, paired with MorphGNT's wherever a verse agrees:
-  // that gives each lemma its Strong's number, and teaches the part-of-speech
-  // hints for the borrowed passages.
+  // that gives each lemma its Strong's number, each word the number MACULA
+  // tags it with (GK8-1), and teaches the part-of-speech hints for the
+  // borrowed passages.
   const pairs = [];
+  const pairedStrongs = new Map(); // MorphGNT ref -> MACULA's number for each token
   let verseDisagree = 0;
   for (const [ref, tokens] of morph.tokensByRef) {
     const [osis, chapter, verse] = ref.split(".");
     const bookKey = Object.keys(OSIS_BOOKS).find((k) => OSIS_BOOKS[k] === osis);
     const code = MACULA_BOOKS[BOOK_ORDER.indexOf(bookKey)];
     const got = pairMaculaWithMorph(macula.get(`${code} ${chapter}:${verse}`), tokens);
-    if (got) pairs.push(...got);
-    else verseDisagree++;
+    if (got) {
+      pairs.push(...got);
+      pairedStrongs.set(ref, got.map(([m]) => strongKey(m.strong)));
+    } else verseDisagree++;
   }
   const lemmaStrong = strongByLemma(pairs);
-  const lemmaStrongs = strongsByLemma(pairs);
   const hints = posHints(pairs.map(([m, t]) => [m, t.pos]));
   let posAgree = 0;
   let parseAgree = 0;
@@ -253,6 +257,7 @@ async function main() {
       sbl: parseSblXml(await readText(path.join(sblDir, sblFile(bookKey)))),
       apparatus: parseApparatusXml(await readText(path.join(appDir, sblFile(bookKey)))),
       morphVerse: (c, v) => morph.tokensByRef.get(`${osis}.${c}.${v}`),
+      pairedStrongs: (c, v) => pairedStrongs.get(`${osis}.${c}.${v}`) ?? null,
       maculaVerse: (c, v) => macula.get(`${code} ${c}:${v}`),
       nestleVerse: (c, v) => nestle.get(`${code} ${c}:${v}`),
       hints,
@@ -317,7 +322,7 @@ async function main() {
     const senses = (ubsWritten.get(ubsId)?.senses ?? []).flatMap((x) => x.glosses ?? []);
     return { brief: own?.gloss || null, senses };
   };
-  const search = greekSearchIndex(docs, lemmaStrongs, BOOK_ORDER, glossesFor);
+  const search = greekSearchIndex(docs, BOOK_ORDER, glossesFor);
   // Every search file names the build it belongs to (GK6-9): a lemma's id is
   // its place in lemmas.json, and the shards and parse groups store ids, so a
   // reader whose cache holds files from two builds must be able to tell. The
@@ -385,7 +390,8 @@ async function main() {
       `missing from LSJ: ${lacking(lsjAll).length} ${sample(lacking(lsjAll), 20).join(" ")}`,
     "",
     `search index: ${searchLemmas.length} lemmas, ${search.report.words} words (${search.report.noLemma} with no lemma skipped); ` +
-      `${searchLemmas.filter((e) => e[5]?.length).length} lemmas with other Strong's numbers; ` +
+      `${searchLemmas.filter((e) => e[5]?.length).length} lemmas with other Strong's numbers, ` +
+      `on ${searchLemmas.reduce((n, e) => n + (e[5] ?? []).reduce((m, [, c]) => m + c, 0), 0)} words; ` +
       `Strong's differing between chapters: ${search.report.strongDiffers.length} ${sample(search.report.strongDiffers, 5).join("; ")}; ` +
       `gloss differing between chapters: ${search.report.glossDiffers.length} ${sample(search.report.glossDiffers, 5).join("; ")}`,
     "",
