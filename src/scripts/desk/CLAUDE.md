@@ -556,14 +556,15 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      transaction opens when the change is asked for, so saves land in order.
      **A closing page keeps its last typing** (BA72): on `pagehide` the pane
      writes what hasn't landed, applied to the newest copy it has heard of
-     (its own, or one another tab saved that `refresh` read while this tab's
-     saves were in flight; Audit 8, DI8-4), through
+     (its own, or one another tab saved: a change message carries a saved
+     sheet whole, and `refresh` reads it too; Audit 8, DI8-4), through
      `store.writeNow`, which writes before it returns, reads nothing,
      commits at once and first aborts any transaction still waiting on its
      read. Chrome keeps no other kind of write made while a page closes;
      a read-then-write save, or one queued behind it, is lost (tested
      2026-10-27). One race remains and is accepted: a part another tab saved
-     that this tab has not yet heard of can be written over at close.
+     in the instant before this one closes, whose message hasn't arrived,
+     can be written over at close.
      **The store reopens after a version change** (DI8-5): another tab's
      upgrade closes the connection, and the next call opens it again; after
      an upgrade by a newer page, calls reject with `NOTEBOOK_UPGRADED`, and a

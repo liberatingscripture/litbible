@@ -123,3 +123,24 @@ test("a closing tab writes over the copy another tab saved while its own save wa
   assert.equal(saved.modules[0].html, "<p>one, mine</p>", "this tab's typing is kept");
   assert.equal(saved.modules[1].html, "<p>two, theirs</p>", "the other tab's part is not written over");
 });
+
+test("a closing tab keeps the other tab's part from the message alone, before any read lands (DI8-4)", async () => {
+  const one = makeModule("text", { html: "<p>one</p>" });
+  const two = makeModule("text", { html: "<p>two</p>" });
+  // This tab's saves and its reads are both slow, so the close comes before
+  // either: what it knows of the other tab's change is only what the message carried.
+  const slow = Object.create(here);
+  slow.change = (...args) => new Promise((r) => setTimeout(r, 400)).then(() => here.change(...args));
+  const { sheet, card } = await editorOn([one, two], { store: slow });
+  slow.get = (...args) => new Promise((r) => setTimeout(r, 400)).then(() => here.get(...args));
+  const first = fieldsOf(card(one))[0];
+  type(first, "<p>one, mine</p>");
+  first.blur();
+  await elsewhere(sheet.id, (s) => updateModule(s, two.id, { html: "<p>two, theirs</p>" }, opCtx()));
+  await settle(60);
+  window.dispatchEvent(new Event("pagehide"));
+  await settle(600);
+  const saved = await here.get(sheet.id);
+  assert.equal(saved.modules[0].html, "<p>one, mine</p>", "this tab's typing is kept");
+  assert.equal(saved.modules[1].html, "<p>two, theirs</p>", "the other tab's part, known from its message, is kept");
+});

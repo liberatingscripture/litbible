@@ -631,3 +631,17 @@ test("a verse holds one bookmark that stays put and one that moves; the one bein
   assert.deepEqual(plan.remove, [moves.id]);
   assert.equal(planUnbookmark([stays, moves], HERE, context, { id: moves.id, except: moves.id }), null, "the resting one is never removed from the verse menu, and nothing else goes with it");
 });
+
+test("a change message carries a saved sheet whole, and only a sheet it names (DI8-4)", async () => {
+  const { readChangeSheets } = await import("../src/lib/desk-store-core.mjs");
+  const sheet = { id: "s", kind: "sheet", modified: "2026-11-10T00:00:00.000Z" };
+  const note = { id: "n", kind: "note" };
+  const m = changeMessage(["s", "n"], ["sheet", "note"], [sheet, note]);
+  assert.deepEqual(m.sheets, [sheet], "a note isn't carried");
+  assert.deepEqual(readChangeSheets(structuredClone(m)), [sheet]);
+  assert.equal("sheets" in changeMessage(["n"], ["note"], [note]), false, "no field when no sheet was saved");
+  assert.deepEqual(readChangeSheets(changeMessage(["n"])), []);
+  assert.deepEqual(readChangeSheets({ v: 1, ids: ["x"], sheets: [sheet] }), [], "a sheet the message doesn't name is ignored");
+  assert.deepEqual(readChangeSheets({ v: 1, ids: ["s"], sheets: [{ ...sheet, kind: "note" }] }), []);
+  assert.deepEqual(readChangeSheets({ v: 2, ids: ["s"], sheets: [sheet] }), []);
+});
