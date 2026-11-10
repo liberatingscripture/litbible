@@ -50,6 +50,12 @@
 // global.css from the same values) GAP before it, nothing moved by a
 // translate. Where they don't fit at all, the ordinary placement takes over.
 //
+// Floating and expanded, it would hide a link or a footnote reference that
+// keyboard focus reaches under it, and no scrolling brings that out (the
+// panel covers the page sideways). So when focus lands on something the
+// panel hides, the notebook folds to its tab, as Escape folds it, without
+// remembering the fold (Audit 8, XA8-14; WCAG 2.4.11).
+//
 // Only loaded on a page with a reading column (desk-gate.js checks
 // readingSurface first).
 
@@ -84,6 +90,23 @@ import { keepClearOfDock } from "../lit-panel.js";
  *   `destroy` hides the rail, puts the column back and stops listening: the
  *   first stage handing the page over to the panel's own rail.
  */
+/**
+ * Whether the rail hides `el`: the topmost thing at the middle of its box is
+ * the rail's (XA8-14). Hit-tested rather than compared box to box, so
+ * whatever lies over the notebook (a shared panel, a floating window, the
+ * undo bar) counts as on top of it, and the rail's empty part, which takes
+ * no pointer, counts as nothing.
+ * @param {Element} el
+ * @param {Element} rail
+ */
+export function railHides(el, rail) {
+  if (!(el instanceof Element) || rail.contains(el)) return false;
+  const r = el.getBoundingClientRect();
+  if (!r.width && !r.height) return false;
+  const hit = document.elementFromPoint?.(r.left + r.width / 2, r.top + r.height / 2);
+  return !!hit && rail.contains(hit);
+}
+
 export function createRail(panel, tab, onChange = () => {}, { widths: withWidths = true } = {}) {
   const root = document.documentElement;
   const main = document.querySelector("main");
@@ -339,6 +362,27 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
   };
   window.addEventListener("scroll", onScroll, { passive: true });
 
+  /** Fold to the tab; `remember: false` for a fold the reader didn't ask for. */
+  function fold(remember = true) {
+    if (collapsed) return;
+    collapsed = true;
+    keepMinimized(true, remember);
+    place();
+    onChange({ floating, collapsed });
+  }
+
+  // Focus landing under the floating panel folds it (XA8-14). Checked a
+  // frame later, once the browser has scrolled the focused element into view.
+  const onFocusIn = (e) => {
+    if (!open || !floating || collapsed) return;
+    const target = e.target;
+    requestAnimationFrame(() => {
+      if (!open || !floating || collapsed || document.activeElement !== target) return;
+      if (railHides(target, rail)) fold(false);
+    });
+  };
+  document.addEventListener("focusin", onFocusIn);
+
   return {
     // `expand`: the reader asked to see it, so it opens expanded even in a
     // narrow window. Restoring it on a new page doesn't.
@@ -354,13 +398,7 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       open = false;
       place();
     },
-    collapse() {
-      if (collapsed) return;
-      collapsed = true;
-      keepMinimized(true);
-      place();
-      onChange({ floating, collapsed });
-    },
+    collapse: () => fold(),
     expand({ remember = true } = {}) {
       if (!collapsed) return;
       collapsed = false;
@@ -378,6 +416,7 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       window.removeEventListener("load", schedule);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener(WIDTHS_EVENT, onWidths);
+      document.removeEventListener("focusin", onFocusIn);
       rail.remove();
     },
   };

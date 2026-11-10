@@ -87,3 +87,16 @@ test("GK8-1: a word's Strong's button names the word's own number, else its lemm
   const plain = doc.paragraphs.flat().find((w) => w.length === 9 && w[5] >= 0 && doc.lemmas[w[5]][1]);
   assert.equal(await strongOf(plain[0], plain[1]), `Strong’s ${doc.lemmas[plain[5]][1]}`);
 });
+
+test("GF8a-9: a word a moved-to chapter can't find leaves focus in the Greek text, not on the page", async () => {
+  // /desk's Greek pane, moved to another chapter by a search result, selects
+  // the result's word there; when it can't (desk-panes.js), it asks the tab
+  // for focusText, which puts focus on the text's roving word.
+  const t = await tab();
+  document.body.focus();
+  assert.equal(await t.selectWord(99, 99, { focus: true }), false, "no such word");
+  assert.equal(t.focusText(), true);
+  assert.ok(document.activeElement?.classList.contains("desk-greek__w"), "a Greek word has focus");
+  const panes = readFileSync(new URL("../src/scripts/desk/desk-panes.js", import.meta.url), "utf8");
+  assert.match(panes, /if \(!ok && n === seq && focusFell\(\)\) picked\.focusText\(\);/);
+});

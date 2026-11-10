@@ -288,13 +288,7 @@ export function createGreekTab({
           here,
           selectWord: selectWordHere,
           openHit,
-          // Focus goes back to the selected word, else the roving one.
-          focusText: () => {
-            const b = buttons[selected ?? rover];
-            if (!b) return false;
-            b.focus({ preventScroll: true });
-            return true;
-          },
+          focusText,
         });
         return find;
       })
@@ -832,6 +826,14 @@ export function createGreekTab({
     return true;
   }
 
+  /** Focus on the selected word, else the roving one; false when the text has none. */
+  function focusText() {
+    const b = buttons[selected ?? rover];
+    if (!b) return false;
+    b.focus({ preventScroll: true });
+    return true;
+  }
+
   /** The same, for a caller from outside: an open search gives the text back first. */
   function selectWord(verse, t, opts) {
     closeFind({ focus: false });
@@ -1324,5 +1326,5 @@ export function createGreekTab({
     cancelAnimationFrame(splitFrame);
   }
 
-  return { el, render, selectWord, goToVerse, settle, destroy };
+  return { el, render, selectWord, focusText, goToVerse, settle, destroy };
 }

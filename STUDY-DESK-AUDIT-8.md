@@ -26,7 +26,7 @@ PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8
 of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
 LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
 
-**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default), 6 (GK8-1 and GK8-5: Strong's numbers per word, and the requested Greek credits; Greek search index format 3), 7 (My Notes paged at 200, margin stacks folded past five), 8 (Delete all notes and marks, and Delete all sheets), 9 (one name per thing in reader copy), 10 (the phone viewer's Safari 16.4 floor) and 11 (the smaller ones), so no decision is left. XA8-1 is fixed too, by click, and XA8-12, by lighter dark-mode text colors (BVJ's choices, 2026-11-10). Still open: PC8B-2 and GF8c-1's ceiling in the shared format (with BDR), GF8b-3 (a screen reader), GK8-6 (a live IME), and the phone viewer's half of LG8-10 (the search's half is fixed). Partly fixed, with what remains on each entry: DI8-4, GF8a-3, GF8a-9, XA8-14 and LG8-8.
+**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default), 6 (GK8-1 and GK8-5: Strong's numbers per word, and the requested Greek credits; Greek search index format 3), 7 (My Notes paged at 200, margin stacks folded past five), 8 (Delete all notes and marks, and Delete all sheets), 9 (one name per thing in reader copy), 10 (the phone viewer's Safari 16.4 floor) and 11 (the smaller ones), so no decision is left. XA8-1 is fixed too, by click, and XA8-12, by lighter dark-mode text colors (BVJ's choices, 2026-11-10). Still open: PC8B-2 and GF8c-1's ceiling in the shared format (with BDR), GF8b-3 (a screen reader), GK8-6 (a live IME), and the phone viewer's half of LG8-10 (the search's half is fixed). GF8a-3, GF8a-9 and XA8-14 are fixed, and DI8-4 is narrowed as far as a closing page allows (2026-11-10). Partly fixed: LG8-8 (the editor's other-tab group is split out; the cards and `desk-page.js`'s follower are not).
 
 ## Bottom line
 
@@ -356,6 +356,8 @@ Closing a tab writes the whole sheet from that tab's copy, so a part another tab
 **Confidence** High that it happens as described in `fake-indexeddb`; Medium on how often a real browser runs `pagehide` inside the window.
 
 **Partly fixed (2026-11-09)** `pagehide` writes over the newest copy this tab has heard of: its own, or one another tab saved that `refresh` read while this tab's own saves were in flight. A part another tab saved that this tab hasn't yet heard of can still be written over at close; the verifier preferred documenting that race, and the desk file's rule 11 and `onPagehide`'s comment now do. Tests: `test/desk-audit8-a-sheet-tabs.test.js`.
+
+**Narrowed (2026-11-10)** A change message carries a saved sheet whole (`changeMessage`'s `sheets`, `readChangeSheets` in `desk-store-core.mjs`), and the editor takes it as `heard` the moment it arrives, so a close no longer waits on a read that queues behind this tab's own saves. A closing page can't read, so the race can't close entirely: a part another tab saved in the instant before the close, whose message hasn't arrived, can still be written over; rule 11 says so. Tests: `test/desk-audit8-dom-sheets-tabs.test.js` (the close comes before any read lands) and `test/desk-store-core.test.js`.
 
 #### DI8-5 · Low · longevity · NEW
 After a `versionchange` the store closes its connection and every later call throws for the rest of the page's life, with nothing told to the reader.
@@ -1451,6 +1453,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 
 **Partly fixed (2026-11-09)** `scroll-padding-bottom` while the undo bar shows. The floating Notebook covers the page sideways, which scroll padding can't help.
 
+**Fixed (2026-11-10)** Focus landing on something the floating, expanded Notebook hides folds it to its tab, as Escape does, without remembering the fold (`railHides` in `margin.js`: the topmost thing at the middle of the focused element's box is the rail's, so whatever lies over the Notebook counts as on top). Test: `test/desk-xa8-14-focus-under-notebook.test.js`.
+
 #### XA8-15 · Low · usability · NEW
 **Title: Disabled row buttons explain themselves only in a `title`, which a keyboard or touch user never sees**
 **Where** `src/scripts/desk/sheets/my-sheets.js:190-205` (Duplicate and Save as template `disabled` with `title` reasons: "Made with a newer version...", "This sheet has only passages...").
@@ -1638,6 +1642,8 @@ Most of the client wiring has no unit test: 59 of 102 modules in `src/scripts/de
 **Confidence** High on the count; Medium on which split is safest (a closure's shared state was not traced).
 
 **Partly fixed (2026-11-10)** `test/helpers/browser-env.mjs` is the DOM stub, and the Audit 8 DOM suites since the audit leave 32 of 104 client modules named by no test (59 of 102 at the audit). Five more suites drive `undo-bar.js`, `passage-bar.js`, `labels-ui.js`, `continue-reading.js` and `sheets/add-bar.js` (imported first, so the LG8-6 cycle can't hide). The split of `createSheetEditor` and of `desk-page.js`'s `start()` is not started.
+
+**Partly fixed (2026-11-10)** The first split of `createSheetEditor` is made: the other-tab group, the two-tab question (`askContinue`) and the "Changed in another tab" line (`showConflict`, `clearConflict`), is `sheets/sheet-conflict.js`, driven by `test/desk-audit8-dom-sheet-conflict.test.js`; when to ask and when to draw the line stay in the editor. Still open: `buildSheet`/`buildCard`/`draw` as a `sheet-cards.js`, and `desk-page.js`'s follower (`tellFollower`, `startMove`). 29 of 109 client modules are named by no test.
 
 #### LG8-9 · Low · compat · NEW
 
@@ -2315,6 +2321,8 @@ A verse index that fails to load makes a keyword search say "No results." (Searc
 
 **Partly fixed (2026-11-09, 2026-11-10)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. The Search pane also shows "The verses couldn’t be loaded." and Try again where the verses would be, as its Greek failures do (2026-11-10; test in `test/desk-audit8-dom-search-pane.test.js`). The tray and /search, which are every reader's search, have no Try again button.
 
+**Fixed (2026-11-10)** The tray and /search put Try again after the line too, as their Greek failures do (`appendRetry` in `searchbar.js` and `search.js`), on a count and on a search that found nothing; the loader forgets the failure, so the same search asks again. Test: `test/desk-audit8-c-search-and-pages.test.js` (both are page scripts that run on load).
+
 #### GF8a-4 · Low · ui · NEW
 Backspacing a query below three letters leaves the Greek offer, the "See results on the search page" link and the "My notes" box from the old query on screen.
 
@@ -2404,6 +2412,8 @@ In the Greek search, the suggestion buttons ("Did you mean", the article example
 **Confidence**: Medium (focus fixup is browser behavior).
 
 **Partly fixed (2026-11-09)** The suggestion buttons put focus back in the field, and Greek find's suggestion and a refused word keep it; after a chosen verse it is restored only if it fell to the page.
+
+**Fixed (2026-11-10)** On /desk, a result in another chapter moves the Greek pane, whose old text goes with the focus; when the new chapter can't find the result's word, focus goes to the Greek text (the tab's `focusText`, now on its API) if it is still on the page. Test: `test/desk-audit8-dom-greek-tab.test.js`.
 
 #### GF8a-10 · Low · a11y · NEW
 Escape in the label rename field cancels the rename while an IME or dead-key composition is open.

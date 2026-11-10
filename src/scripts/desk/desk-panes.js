@@ -190,6 +190,9 @@ function mountVerse(body, env, pane) {
   };
 }
 
+/** Whether focus has fallen to the page, with nothing holding it. */
+const focusFell = () => !document.activeElement || document.activeElement === document.body;
+
 function mountGreek(body, env, pane) {
   const { bar, content } = followFrame(body, pane, true);
   let chapter = null;
@@ -244,7 +247,12 @@ function mountGreek(body, env, pane) {
     if (n !== seq || !word) return;
     const w = word;
     word = null;
-    tab.selectWord(w.verse, w.t, { focus: true });
+    // The result chosen took focus with it when the old chapter went, so a
+    // word that can't be found here leaves it in the text rather than on the
+    // page (Audit 8, GF8a-9).
+    const picked = tab;
+    const ok = await picked.selectWord(w.verse, w.t, { focus: true });
+    if (!ok && n === seq && focusFell()) picked.focusText();
   }
 
   queueMicrotask(() => show(pane.get()));

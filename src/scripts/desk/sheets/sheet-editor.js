@@ -45,6 +45,10 @@
 //   passage, text, question, space or key terms body with the header's
 //   minutes and Leader only. The card around a body (`buildCard`: its Move
 //   and Remove, dragging, the gap's pill) stays here, handing `cardHost`.
+// - **Another tab on the same sheet** (S12, part 4): the question asked
+//   before opening it and the line on a part changed under the reader's
+//   typing are sheets/sheet-conflict.js (Audit 8, LG8-8); when to ask and
+//   when to draw the line stay here (`openSheet`, `draw`).
 // - **A template's parts hold no text, only a prompt** (SH5-2): an empty
 //   part shows its module's `prompt` as the editor's placeholder, and a part
 //   holding only its heading shows it dimmed under the heading, until the
@@ -85,7 +89,6 @@ import {
   removeModule,
   setSheetFields,
   sheetTooBig,
-  updateModule,
 } from "../../../lib/desk-sheets.mjs";
 import { readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
 import {
@@ -98,7 +101,8 @@ import {
 import { undoEntry } from "../history.js";
 import { createLicenseCard } from "./sheet-lit.js";
 import { addEditor, editedElsewhere } from "./sheet-tabs.js";
-import { keptFields, movedUnderReader, newerSheet } from "../../../lib/desk-sheet-tabs.mjs";
+import { askContinue as askContinueView, showConflict as showConflictLine } from "./sheet-conflict.js";
+import { movedUnderReader, newerSheet } from "../../../lib/desk-sheet-tabs.mjs";
 import { showUndo } from "../undo-bar.js";
 import { NOTEBOOK_UPGRADED } from "../store.js";
 import { redraw } from "../focus-keep.js";
@@ -640,30 +644,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   /** The views that asked the question, whose title then takes focus from Continue. */
   const asked = new Set();
 
-  /** "Already open in another tab": resolves true for Continue, false for Cancel. */
+  /** "Already open in another tab" (sheet-conflict.js): true for Continue, false for Cancel. */
   function askContinue(n) {
     asked.add(n);
-    return new Promise((resolve) => {
-      const box = make("div", "desk-sheet__ask");
-      const text = make("p", "desk-sheet__ask-text", "This sheet is already open in another tab. Continue here?");
-      text.id = `deskSheetAsk-${idSuffix}`;
-      box.setAttribute("role", "group");
-      box.setAttribute("aria-labelledby", text.id);
-      const go = button("Continue", "desk-sheet__btn desk-sheet__btn--primary");
-      const no = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
-      const hint = describe(go, "Changes made in either tab show in the other.");
-      go.addEventListener("click", () => resolve(true));
-      no.addEventListener("click", () => resolve(false));
-      box.addEventListener("keydown", (e) => {
-        if (e.key !== "Escape") return;
-        e.preventDefault();
-        resolve(false);
-      });
-      const row = make("div", "desk-sheet__ask-row");
-      row.append(go, no);
-      box.append(text, row, hint);
-      redraw(content, [box], { fallback: () => go, force: true });
-    });
+    return askContinueView({ content, idSuffix });
   }
 
   /** Show a new sheet without writing it (SH6-7); `persistDraft` writes it. */
@@ -981,57 +965,9 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     }
   }
 
-  /**
-   * The line on a part whose saved text another tab (or pane) changed while
-   * the reader was typing in it (S12, part 4; BVJ, 2026-11-08): the card
-   * keeps the reader's words, and the line offers the other version. Under
-   * the part's text, so the words being typed don't move. A later change
-   * from there only updates which version "Show that version" shows.
-   */
+  /** The line on a part another tab changed under the reader's typing (sheet-conflict.js). */
   function showConflict(card, m, from) {
-    card.theirs = m;
-    if (card.conflict) return;
-    const id = m.id;
-    const line = make("div", "desk-sheet__conflict");
-    const words = make("p", "desk-sheet__conflict-text", from === "pane" ? "Changed in another Sheets pane." : "Changed in another tab.");
-    words.id = `deskSheetConflict-${idSuffix}-${id}`;
-    line.setAttribute("role", "group");
-    line.setAttribute("aria-labelledby", words.id);
-    const show = button("Show that version", "desk-sheet__btn desk-sheet__btn--quiet");
-    const keep = button("Keep mine", "desk-sheet__btn desk-sheet__btn--quiet");
-    const fields = () => Object.entries(card.inst?.fields ?? {});
-    show.addEventListener("click", () => {
-      const theirs = card.theirs;
-      clearConflict(card);
-      for (const [f, ed] of fields()) ed.setHtml(theirs[f] ?? "");
-      // Written again, since this tab's typing may have saved over it already.
-      const put = Object.fromEntries(fields().map(([f]) => [f, theirs[f] ?? ""]));
-      change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Showing the other version." });
-      card.inst?.focus?.();
-    });
-    keep.addEventListener("click", () => {
-      const theirs = card.theirs;
-      clearConflict(card);
-      // Only the fields whose words here differ from the other version's, so
-      // one this tab never changed doesn't put older words back (SH8-2).
-      const put = keptFields(Object.fromEntries(fields().map(([f, ed]) => [f, ed.take()])), theirs);
-      if (Object.keys(put).length) change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Kept your version." });
-      else say("Kept your version.");
-      card.inst?.focus?.();
-    });
-    const row = make("div", "desk-sheet__conflict-row");
-    row.append(show, keep);
-    line.append(words, row);
-    card.conflict = line;
-    const zone = card.el.querySelector(":scope > .desk-sheet__after");
-    card.el.insertBefore(line, zone);
-    say(`${headingOf(m) ?? card.name}: ${words.textContent.toLowerCase()} Show that version, or keep yours.`);
-  }
-
-  function clearConflict(card) {
-    card.conflict?.remove();
-    card.conflict = null;
-    card.theirs = null;
+    showConflictLine(card, m, from, { idSuffix, label: headingOf(m) ?? card.name, change, opCtx, say });
   }
 
   function flushAll() {
@@ -1048,11 +984,12 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    * without the read. Not for a page going into the back-forward cache
    * (`persisted`), which keeps running its saves when it comes back.
    *
-   * The copy is the newest this tab has heard of (`heard`, DI8-4), so a part
-   * another tab saved while this tab's own saves were landing is kept. A
-   * change another tab saved in the moment before this one closes, before
-   * this tab has read it, can still be written over: only a read would find
-   * it, and a closing page gets none back.
+   * The copy is the newest this tab has heard of (`heard`, DI8-4): the one
+   * another tab's message carried, or one read since, so a part another tab
+   * saved while this tab's own saves were landing is kept. A change another
+   * tab saved in the instant before this one closes, whose message hasn't
+   * arrived, can still be written over: only a read would find it, and a
+   * closing page gets none back.
    */
   function onPagehide(e) {
     flushAll();
@@ -1382,8 +1319,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
 
   // ---- changes made elsewhere ----
 
-  const unsubscribe = store.subscribe((ids, origin) => {
-    if (sheet && ids?.includes?.(sheet.id)) refresh(origin);
+  const unsubscribe = store.subscribe((ids, origin, _kinds, sheets) => {
+    if (!sheet || !ids?.includes?.(sheet.id)) return;
+    // The other tab's message carries the sheet it saved (DI8-4): known here
+    // at once, for a close that comes before the read below lands.
+    const saved = origin === "other-tab" && !draft ? sheets?.find?.((r) => r.id === sheet.id) : null;
+    if (saved) heard = newerSheet(heard, saved);
+    refresh(origin);
   });
   // Another tab opening this sheet asks whether one is editing it (S12, part 4).
   const stopCounting = addEditor(() => (sheet && !draft ? sheet.id : null));

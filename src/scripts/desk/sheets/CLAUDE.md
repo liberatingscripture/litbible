@@ -72,7 +72,12 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `addHost`, so where a part goes and the change that adds it stay the
   editor's. **The add bar is `add-bar.js` and a card's body
   `part-cards.js`** (LG6-2; with the header's minutes and Leader only, given
-  `cardHost`); `buildCard`, the card around the body, stays in the editor. **Two tabs on one sheet**
+  `cardHost`); `buildCard`, the card around the body, stays in the editor.
+  **The two-tab question and the "Changed in another tab" line are
+  `sheet-conflict.js`** (Audit 8, LG8-8; `askContinue`, `showConflict`,
+  `clearConflict`), handed the editor's `content`, `idSuffix`, `change`,
+  `opCtx` and `say`; when to ask and when to draw the line stay the
+  editor's. **Two tabs on one sheet**
   (S12, part 4; BVJ, 2026-11-08; rules in `src/lib/desk-sheet-tabs.mjs`,
   page side `sheet-tabs.js`): every change is planned over the record as
   read (BA129), so edits to different parts in two tabs both keep, and each
