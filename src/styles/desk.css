@@ -3821,7 +3821,7 @@ html[data-desk-notes="off"] .lit-panel .desk-fnn {
   filter: brightness(1.15);
 }
 
-/* Delete everything, and the trash. Fixed fills with white text, so they read the same in both themes. */
+/* Delete in bulk, and the trash. Fixed fills with white text, so they read the same in both themes. */
 .desk-np__danger {
   margin: 0 0 1.5rem;
   max-width: calc(60 * var(--ch));

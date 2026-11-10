@@ -630,8 +630,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        six already move. A dead label id on a restored note is left (not drawn).
        **`makeEntry` allots no `undoTrash` for a record the change took out of the
        trash**, or undoing a restore would leave two trash records for one
-       deletion. "Empty the trash now" stays under Delete everything and isn't
-       undoable.
+       deletion. "Empty the trash now" stays under Delete in bulk and isn't
+       undoable. **Delete in bulk is two buttons** (Audit 8 decision 8, BVJ
+       2026-11-10; one "Delete everything" until then, which trashed sheets
+       without saying so): "Delete all marks" (every record but sheets) and
+       "Delete all sheets" (sheets and the reader's templates), each one
+       undoable step (`planDeleteMarks`, `planDeleteSheets`).
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
        applied from the notebook page, names unique ignoring case and
        accents.

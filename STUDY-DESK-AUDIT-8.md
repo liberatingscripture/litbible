@@ -1053,7 +1053,7 @@ The help page says the "Study Desk" button beside "Go to passage" is in Read Vie
 
 ---
 
-**Open (2026-11-09)** Decision 8.
+**Fixed (2026-11-10)** Decision 8: two buttons (BVJ). /notebook's "Delete everything" is now "Delete in bulk" with "Delete all marks…" (every record but sheets: notes, highlights, bookmarks, pinned footnotes, labels, and kinds this code doesn't know) and "Delete all sheets…" (sheets and the reader's templates), each saying what it leaves and each one undoable step (`planDeleteMarks`, `planDeleteSheets`, `bulkCounts` in `desk-notebook.mjs`); "Empty the trash now" stays beside them. The help page's section says the same. BVJ was unsure of the two labels; they are a one-line change in `notebook-page.js`. Tests: `test/desk-notebook.test.js`, `test/desk-audit8-dom-search-notebook.test.js`.
 
 #### DK8-8 · Low · docs · NEW
 The help page's Print paragraph implies the chapter on the page prints in place on /desk; on /desk every choice opens a new tab.

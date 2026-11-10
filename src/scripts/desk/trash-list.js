@@ -9,7 +9,7 @@
 //
 // A restore is an ordinary change: it is remembered for Ctrl+Z and offers the
 // undo bar, and undoing it puts the same trash record back (desk-history.mjs).
-// "Empty the trash now" is not here; it stays under Delete everything, since
+// "Empty the trash now" is not here; it stays under Delete in bulk, since
 // it is the opposite act.
 
 import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";

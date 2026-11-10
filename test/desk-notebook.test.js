@@ -21,6 +21,9 @@ import {
   groupRecords,
   kindsPresent,
   planDeleteEverything,
+  planDeleteMarks,
+  planDeleteSheets,
+  bulkCounts,
   planEmptyTrashNow,
   planRestore,
   planRestoreAll,
@@ -127,6 +130,19 @@ test("planDeleteEverything trashes every live record, whole, in one valid plan",
   const held = plan.put.find((t) => t.deletedId === unknown.id);
   assert.deepEqual(held.record, unknown);
   assert.doesNotThrow(() => planWrite(plan));
+});
+
+test("Delete all marks takes every record but sheets; Delete all sheets takes the sheets alone (decision 8)", () => {
+  const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const l = make("label", { name: "L" });
+  const unknown = { ...a, id: nextId(), kind: "future" };
+  const sheet = { ...a, id: nextId(), kind: "sheet" };
+  const oldTrash = { id: "t0", kind: "trash", deletedId: "gone", deletedAt: "2026-09-01T00:00:00.000Z" };
+  const all = [a, l, unknown, sheet, oldTrash];
+  assert.deepEqual(bulkCounts(all), { marks: 3, sheets: 1 });
+  assert.deepEqual(planDeleteMarks(all, ctx).remove.sort(), [a.id, l.id, unknown.id].sort());
+  assert.deepEqual(planDeleteSheets(all, ctx).remove, [sheet.id]);
+  assert.doesNotThrow(() => planWrite(planDeleteSheets(all, ctx)));
 });
 
 test("emptyNow drops the held record at once and keeps the tombstone", () => {

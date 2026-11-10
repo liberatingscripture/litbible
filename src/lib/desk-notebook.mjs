@@ -7,7 +7,8 @@
 // filter narrows them, how the counts read in words, and the two bulk
 // deletions at the page's foot. Pure: no storage, no DOM.
 //
-// "Delete everything" trashes every live record in one plan, so it is one
+// "Delete all marks" and "Delete all sheets" (Delete everything until Audit 8
+// decision 8) each trash their records in one plan, so each is one
 // undoable step and the 30 days of the trash still apply. "Empty the trash
 // now" is the shared-computer button: it drops the content of every trash
 // record at once, as emptyTrashRecord does at 30 days, and keeps each
@@ -243,15 +244,39 @@ export function describeCounts(records) {
  * code doesn't know, are trashed whole (trashRecord keeps all their fields),
  * so one undo brings the lot back.
  */
-export function planDeleteEverything(records, ctx) {
+export function planDeleteEverything(records, ctx, { which = "all" } = {}) {
   const put = [];
   const remove = [];
   for (const r of records) {
     if (!r || r.kind === "trash" || typeof r.id !== "string") continue;
+    if (which !== "all" && (which === "sheets") !== (r.kind === "sheet")) continue;
     put.push(trashRecord(r, ctx));
     remove.push(r.id);
   }
   return { put, remove };
+}
+
+/**
+ * The notebook page's two bulk deletions (Audit 8 decision 8; BVJ,
+ * 2026-11-10): "Delete all marks" takes every record but sheets (notes,
+ * highlights, bookmarks, pinned footnotes, labels, and any kind this code
+ * doesn't know), and "Delete all sheets" takes the sheets and the reader's
+ * own templates, which are sheets too. Each is one undoable step, as
+ * Delete everything was.
+ */
+export const planDeleteMarks = (records, ctx) => planDeleteEverything(records, ctx, { which: "marks" });
+export const planDeleteSheets = (records, ctx) => planDeleteEverything(records, ctx, { which: "sheets" });
+
+/** How many records each bulk deletion would take: { marks, sheets }. */
+export function bulkCounts(records) {
+  let marks = 0;
+  let sheets = 0;
+  for (const r of records) {
+    if (!r || r.kind === "trash" || typeof r.id !== "string") continue;
+    if (r.kind === "sheet") sheets++;
+    else marks++;
+  }
+  return { marks, sheets };
 }
 
 /**
