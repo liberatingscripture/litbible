@@ -1635,6 +1635,8 @@ Most of the client wiring has no unit test: 59 of 102 modules in `src/scripts/de
 
 **Confidence** High on the count; Medium on which split is safest (a closure's shared state was not traced).
 
+**Partly fixed (2026-11-10)** `test/helpers/browser-env.mjs` is the DOM stub, and the Audit 8 DOM suites since the audit leave 32 of 104 client modules named by no test (59 of 102 at the audit). Five more suites drive `undo-bar.js`, `passage-bar.js`, `labels-ui.js`, `continue-reading.js` and `sheets/add-bar.js` (imported first, so the LG8-6 cycle can't hide). The split of `createSheetEditor` and of `desk-page.js`'s `start()` is not started.
+
 #### LG8-9 · Low · compat · NEW
 
 A shared sheet opened on an iPhone older than iOS 16.4 fails with a message that blames the connection.
