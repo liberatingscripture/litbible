@@ -10,9 +10,9 @@
 // footnotes, the records that sit on a verse. Which changes count: a
 // change to a verse's wording (text_updated) and a change to a footnote on
 // it (footnote_added, footnote_updated). A chapter's metadata and an intro,
-// glossary or article change are not "your verses". A pinned footnote and a
-// note on a footnote (M11) sit on a footnote, not on its verse's words, so only
-// the footnote changes touch them (BA90; desk rule 23).
+// glossary or article change are not "your verses". A pinned footnote sits
+// on a footnote, not on its verse's words, so only the footnote changes touch
+// it (BA90).
 //
 // "Since your last visit" is a day (YYYY-MM-DD) the caller keeps, with how
 // many changes that day's publish held when the reader looked ("2026-10-26+3",
@@ -23,7 +23,6 @@
 // on top of is not news to them.
 
 import { changeVerses, textDay } from "./desk-change.mjs";
-import { onFootnote } from "./desk-records.mjs";
 import { entryIds } from "./release-notes-view.mjs";
 
 /** The change types that touch a verse a reader may have marked. */
@@ -34,9 +33,9 @@ const ON_A_VERSE = new Set(["note", "highlight", "bookmark", "footnotePin", "pla
 /** The change types that touch a mark on a footnote rather than on the words. */
 const FOOTNOTE_CHANGE_TYPES = new Set(["footnote_added", "footnote_updated"]);
 
-/** Whether a mark sits on one of a verse's footnotes: a pin, or a note on a footnote. */
+/** Whether a mark sits on one of a verse's footnotes: a pinned footnote. */
 export function onAFootnote(record) {
-  return record?.kind === "footnotePin" || onFootnote(record);
+  return record?.kind === "footnotePin";
 }
 
 /** A mark's verses as { bookKey, chapter, from, to }, or null. */

@@ -29,23 +29,19 @@
 //
 // The footnotes are copied from the page's own footnote list, so they read
 // exactly as they do there, links included, and each carries the Pin button
-// it has there (pins.js) and under it any notes the reader has on that
-// footnote (M11), in full (footnote-notes.js; none can be added since
-// 2026-11-10, E79); those are left out of "My notes" below, which is about
-// the verse's own words. Nothing here adds to or changes the scripture on the
-// page.
+// it has there (pins.js). Nothing here adds to or changes the scripture on
+// the page.
 
 import { notesCiting } from "../../lib/desk-chains.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS, onFootnote, verseCopyFor } from "../../lib/desk-records.mjs";
-import { forChapter, recordHref, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
+import { forChapter, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { drawBookmarkLine } from "./bookmark-follow.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { chevronIcons, glyph } from "./glyphs.js";
-import { footnoteNotes } from "./footnote-notes.js";
 import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
 import { routeFootnoteLinks } from "./footnote-links.js";
@@ -187,7 +183,7 @@ export function createVerseTab({
     if (n !== seq) return; // a newer render has started
     // A note on a footnote shows under its footnote above, not on the verse.
     const on = recordsOnVerse(records, v).filter(
-      (r) => (r.kind === "note" && !onFootnote(r)) || r.kind === "bookmark" || r.kind === "highlight",
+      (r) => r.kind === "note" || r.kind === "bookmark" || r.kind === "highlight",
     );
     notices = store && ctx ? noticesFor(on) : new Map();
     mine.replaceChildren(...on.map(itemFor));
@@ -209,7 +205,7 @@ export function createVerseTab({
     const li = document.createElement("li");
     li.className = "desk-verse__mention";
     // "a footnote in Romans 8:3" for a note on a footnote (rule 23; BA20).
-    const where = recordWhere(r);
+    const where = recordReference(r);
     const lead = document.createElement("p");
     lead.className = "desk-verse__mention-lead";
     lead.append("Mentioned in your note on ");
@@ -307,13 +303,9 @@ export function createVerseTab({
       letter.className = "desk-verse__fn-label";
       letter.textContent = label;
       li.append(letter, clone);
-      // Pin, as under the note in the Footnotes list, then the reader's notes
-      // on this footnote.
-      const where = { bookKey: here.bookKey, chapter: here.chapter };
-      const pin = store ? pinButton(id, label, where) : null;
+      // Pin, as under the note in the Footnotes list.
+      const pin = store ? pinButton(id, label, { bookKey: here.bookKey, chapter: here.chapter }) : null;
       if (pin) li.append(pin);
-      const mine = store ? footnoteNotes(id, where) : null;
-      if (mine) li.append(mine);
       items.push(li);
     }
     fnList.replaceChildren(...items);

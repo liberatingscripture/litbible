@@ -63,8 +63,6 @@ export function editorHolds(message) {
  * @param {string} options.ref "Romans 8:1"
  * @param {object} [options.record] an existing note, to edit
  * @param {object} [options.draft] a new note's place: bookKey, chapter, verse, endVerse, quote;
- *   or, for a note on a footnote (M11), bookKey, chapter, verse, footnote and
- *   perhaps n (desk-footnotes' pinFields), with no quote;
  *   or, for a note on a glossary entry or an article (N11, provisional),
  *   glossaryEntry or article, targetTitle, and quote
  * @param {Element} [options.restoreFocus]
@@ -86,19 +84,16 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   panel.classList.add("lit-panel--menu", "desk-editor");
   panel.setAttribute("data-desk-editor", "");
 
-  // A note on a footnote (M11) shows the footnote, not words of the verse, and
-  // says so in its caption. The text is cut to a few lines by CSS.
-  const onFn = typeof place.footnote === "string";
-  const words = onFn ? place.footnote : place.quote?.exact;
-  const where = onFn ? `a footnote in ${ref}` : ref;
+  const words = place.quote?.exact;
+  const where = ref;
   panel.innerHTML = `
     <div class="lit-panel__header">
       <p class="lit-panel__heading" id="deskEditorTitle${n}">${editing ? "Edit note" : "New note"}</p>
       <button type="button" class="lit-panel__close" aria-label="Close">×</button>
     </div>
     <figure class="desk-editor__quote">
-      ${words ? `<blockquote${onFn ? ` class="desk-editor__footnote"` : ""}>${escapeHtml(onFn ? words : shortQuote(words, 24))}</blockquote>` : ""}
-      <figcaption>${escapeHtml(onFn ? `Footnote in ${ref}` : ref)}</figcaption>
+      ${words ? `<blockquote>${escapeHtml(shortQuote(words, 24))}</blockquote>` : ""}
+      <figcaption>${escapeHtml(ref)}</figcaption>
     </figure>
     <fieldset class="desk-editor__markers">
       <legend>Marker: <span class="desk-editor__marker-name">${MARKER_NAMES[marker]}</span></legend>
@@ -191,22 +186,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     const now = new Date().toISOString();
     if (editing) return saveEdit(now);
     let next;
-    if (onFn) {
-      // No quote and no verse copy: the footnote's own words are what it hangs on.
-      next = createRecord(
-        "note",
-        {
-          bookKey: draft.bookKey,
-          chapter: draft.chapter,
-          verse: draft.verse,
-          footnote: draft.footnote,
-          ...(draft.n ? { n: draft.n } : {}),
-          body: body.value,
-          marker,
-        },
-        { now, ...ctx() },
-      );
-    } else if (proseTarget(draft)) {
+    if (proseTarget(draft)) {
       const { type, id } = proseTarget(draft);
       next = createRecord(
         "note",
@@ -347,7 +327,9 @@ const DRAFT_KEY = "lit-desk-note-draft";
 function draftKeyFor(record, draft) {
   if (record) return `edit:${record.id}`;
   const d = draft ?? {};
-  return `new:${JSON.stringify([d.bookKey, d.chapter, d.verse, d.endVerse, d.footnote, d.n, d.glossaryEntry, d.article])}`;
+  // The two nulls held a note on a footnote's `footnote` and `n` until E79
+  // (2026-11-10); they stay so a draft saved before then still matches.
+  return `new:${JSON.stringify([d.bookKey, d.chapter, d.verse, d.endVerse, null, null, d.glossaryEntry, d.article])}`;
 }
 
 function readDraft(key) {
@@ -376,13 +358,13 @@ function saidSaved(where) {
  * button it came from may be hidden (the margin's Edit shows only while its
  * note is hovered or focused, and the editor took the focus away) or gone (a
  * redraw, or the note was deleted), so `closePanel`'s return finds nothing:
- * focus then goes to the verse number the note sits on. A note on a footnote
- * or a glossary entry or an article has none, and is left to its caller.
+ * focus then goes to the verse number the note sits on. A note on a glossary
+ * entry or an article has none, and is left to its caller.
  */
 function landFocus(place) {
   const now = document.activeElement;
   if (now && now !== document.body) return;
-  if (typeof place.footnote === "string" || !Number.isInteger(place.verse)) return;
+  if (!Number.isInteger(place.verse)) return;
   document.getElementById(`v${place.verse}`)?.focus({ preventScroll: true });
 }
 

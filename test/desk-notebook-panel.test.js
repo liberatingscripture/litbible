@@ -12,23 +12,24 @@ import { readFileSync } from "node:fs";
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const dir = "src/scripts/desk/";
 
-test("no surface offers to add a note on a footnote (BVJ, 2026-11-10, E79)", () => {
+test("notes on a footnote are gone from the desk (BVJ, 2026-11-10, E79)", () => {
   // The popover, the Footnotes list, This verse and the Footnotes pane each had
-  // "Add a note" beside Pin. Notes on a footnote made before still show
-  // (footnoteNotes), so only the way to make one is gone.
-  for (const file of ["pins.js", "footnote-notes.js", "footnotes-view.js", "tab-verse.js", "footnote-pills.js"]) {
+  // "Add a note" beside Pin, and footnote-notes.js listed the notes under a
+  // footnote. Neither the way to make one nor the code that showed one is left.
+  assert.throws(() => read(`${dir}footnote-notes.js`), /ENOENT/);
+  for (const file of ["pins.js", "footnotes-view.js", "tab-verse.js", "footnote-pills.js", "notes-margin.js", "note-sources.js", "note-editor.js"]) {
     const src = read(`${dir}${file}`);
-    assert.doesNotMatch(src, /addNoteButton|desk-fn-add\b|Add a note on footnote/, file);
+    assert.doesNotMatch(src, /addNoteButton|footnoteNotes|onFootnote|desk-fn-add\b|Add a note on footnote/, file);
   }
   assert.match(read(`${dir}pins.js`), /footnotePills\(button\)/);
-  assert.match(read(`${dir}footnote-notes.js`), /export function footnoteNotes/);
+  assert.doesNotMatch(read("src/lib/desk-records.mjs"), /export function onFootnote/);
 });
 
 test("the Footnotes list's Pin has no ⋯ fold to lose focus behind (NB3-3, until E79)", () => {
-  // With one pill, the margin note's mark only moves Pin between the margin
-  // and the note's line; nothing hides it, so no focus rescue is needed.
+  // With one pill and no margin notes beside a footnote, nothing hides Pin,
+  // so no focus rescue is needed.
   assert.doesNotMatch(read(`${dir}footnote-pills.js`), /desk-fn-more|keepPillFocus|pillsHome/);
-  assert.doesNotMatch(read("src/styles/desk.css"), /desk-fn-more|data-desk-fn-pills="more"/);
+  assert.doesNotMatch(read("src/styles/desk.css"), /desk-fn-more|data-desk-fn-pills="more"|\.desk-fnn\b/);
 });
 
 test("every list that filters by the search box hears the browser's own clear (LV3-1)", () => {

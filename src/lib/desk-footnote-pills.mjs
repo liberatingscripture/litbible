@@ -13,14 +13,11 @@
 //   "inline"  it doesn't: Pin stays on the note's line, on its right (where
 //             it sat before E49).
 //
-// Until 2026-11-10 "Add a note" sat beside Pin, and a third mode, "more",
-// folded the two behind one "⋯" pill where only one fitted. Notes on a
-// footnote can no longer be added (BVJ, 2026-11-10; STUDY-DESK-FIXES.md,
-// E79), and one pill has nothing to fold.
-//
-// A footnote with one of the reader's margin notes beside it is drawn
-// "inline" whatever the list's mode, since a margin note sits in that same
-// left margin; that case is a class in desk.css and needs no rule here.
+// Until 2026-11-10 "Add a note" sat beside Pin, a third mode, "more", folded
+// the two behind one "⋯" pill where only one fitted, and a footnote with a
+// margin note beside it kept Pin inline. Notes on a footnote were removed
+// then (BVJ, 2026-11-10; STUDY-DESK-FIXES.md, E79), and one pill has nothing
+// to fold.
 
 /** Between Pin's right edge and the footnote (the letter). */
 export const PILL_OFFSET = 14;

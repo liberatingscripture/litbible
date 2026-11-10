@@ -235,31 +235,29 @@ test("whatsNewForYou finds the real feed's changes to Romans 4:7, Galatians 3:27
   }
 });
 
-// A note on a footnote and a pinned footnote sit on a footnote, not on the
-// verse's words (BA90; desk rule 23).
-const noteOnFootnote = { id: "nf", kind: "note", footnote: "Because he wrote it.", n: "a", bookKey: "romans", chapter: 4, verse: 7 };
+// A pinned footnote sits on a footnote, not on the verse's words (BA90).
 const pin = { id: "pin", kind: "footnotePin", bookKey: "romans", chapter: 4, verse: 7 };
 const plainNote = { id: "pn", kind: "note", bookKey: "romans", chapter: 4, verse: 7 };
 
-test("onAFootnote is true for a pinned footnote and a note on a footnote, and nothing else", () => {
-  assert.equal(onAFootnote(noteOnFootnote), true);
+test("onAFootnote is true for a pinned footnote, and nothing else", () => {
   assert.equal(onAFootnote(pin), true);
+  // A note left on a footnote (withdrawn by E79) is a note on its verse.
+  assert.equal(onAFootnote({ ...plainNote, footnote: "Because he wrote it." }), false);
   assert.equal(onAFootnote(plainNote), false);
   assert.equal(onAFootnote({ kind: "highlight", bookKey: "romans", chapter: 4, verse: 7 }), false);
   assert.equal(onAFootnote(null), false);
 });
 
-test("a wording change does not touch a note on a footnote or a pinned footnote", () => {
+test("a wording change does not touch a pinned footnote", () => {
   const wording = romans4("Romans 4:6–9 — text updated");
-  assert.deepEqual(marksTouched(wording, [noteOnFootnote]), []);
   assert.deepEqual(marksTouched(wording, [pin]), []);
-  assert.deepEqual(marksTouched(wording, [noteOnFootnote, pin, plainNote]).map((r) => r.id), ["pn"]);
+  assert.deepEqual(marksTouched(wording, [pin, plainNote]).map((r) => r.id), ["pn"]);
 });
 
-test("footnote_added and footnote_updated touch a note on a footnote and a pinned footnote", () => {
+test("footnote_added and footnote_updated touch a pinned footnote", () => {
   for (const type of ["footnote_added", "footnote_updated"]) {
     const change = romans4("Romans 4:6–9 — footnote h updated", type);
-    assert.deepEqual(marksTouched(change, [noteOnFootnote, pin]).map((r) => r.id), ["nf", "pin"], type);
+    assert.deepEqual(marksTouched(change, [pin]).map((r) => r.id), ["pin"], type);
   }
 });
 

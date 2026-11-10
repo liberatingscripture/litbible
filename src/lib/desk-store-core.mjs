@@ -398,15 +398,6 @@ export function recordReference(r) {
   return r.endVerse && r.endVerse !== r.verse ? `${base}:${r.verse}–${r.endVerse}` : `${base}:${r.verse}`;
 }
 
-/**
- * Where a record is, as a sentence names it: recordReference's answer, except
- * for a note on a footnote (M11), which is "a footnote in Romans 8:3", since
- * the verse alone would call it a note on the verse.
- */
-export function recordWhere(r) {
-  const ref = recordReference(r);
-  return ref && r?.kind === "note" && typeof r.footnote === "string" ? `a footnote in ${ref}` : ref;
-}
 
 /**
  * The Chapter View link for a record on the text, in the format's address form

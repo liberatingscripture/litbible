@@ -25,19 +25,15 @@
 //                   prose page has none)
 //   placed(records) each record with its words as a live Range; a record not
 //                   on the page (lost, or in an entry the glossary's filter
-//                   hides) is left out. A note on a footnote (M11) is placed
-//                   beside its footnote in the Footnotes list: its range is
-//                   that footnote's words and `footnote` is the list item,
-//                   which the margin marks in place of lighting verse words
+//                   hides) is left out
 //   owns(record)    whether a note is one of this page's
 
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import { placeProse, proseAnchorText } from "../../lib/desk-prose-anchor.mjs";
-import { onFootnote, placeRecord, proseTarget } from "../../lib/desk-records.mjs";
+import { placeRecord, proseTarget } from "../../lib/desk-records.mjs";
 import { currentSlug, forChapter, forProse } from "../../lib/desk-store-core.mjs";
 import articleSlugs from "../../data/article-slugs.json";
-import { footnoteElementFor } from "./footnote-notes.js";
-import { chapterBlocks, chapterText, footnoteList, pageChapter } from "./page.js";
+import { chapterBlocks, chapterText, pageChapter } from "./page.js";
 
 // PROSE_NOTES and prosePage live in page-kind.js, which the first stage
 // carries (note-settings.js reads them); the rest of the desk imports them here.
@@ -76,19 +72,7 @@ export function studySource() {
     placed(records) {
       const text = chapterText();
       const out = [];
-      let footnotes; // the page's footnotes, read once per drawing and only if a note is on one (NB8-11)
       for (const r of records) {
-        if (onFootnote(r)) {
-          // Beside its footnote, found as a pin is. A lost one is left out,
-          // as a note whose words are lost is.
-          if (footnotes === undefined) footnotes = footnoteList();
-          const li = footnoteElementFor(r, footnotes);
-          if (!li) continue;
-          const range = document.createRange();
-          range.selectNodeContents(li.querySelector(".fn-body") ?? li);
-          out.push({ record: r, range, footnote: li });
-          continue;
-        }
         const at = placeRecord(text, r);
         if (at.status === "lost" || at.start == null) continue;
         const pts = offsetsToRange(text, at.start, at.end);

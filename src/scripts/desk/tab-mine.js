@@ -75,7 +75,7 @@
 // line says so, and the list shows the nearest records instead of staying put.
 
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
+import { COLORS, canEdit } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelMap, labelsOf, liveLabels } from "../../lib/desk-labels.mjs";
 import {
@@ -99,7 +99,6 @@ import {
   recordHref,
   recordReadHref,
   recordReference,
-  recordWhere,
   takeOff,
 } from "../../lib/desk-store-core.mjs";
 import { currentPanel } from "../lit-panel.js";
@@ -125,8 +124,6 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
 
 // The words of a highlight shown in the list: about this many.
 const HIGHLIGHT_WORDS = 24;
-// A note on a footnote quotes this many words of the footnote.
-const FOOTNOTE_WORDS = 12;
 // How long typing in "Search my notebook" waits for the next key before the list is redrawn.
 const QUERY_DELAY_MS = 150;
 
@@ -785,16 +782,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         else stopFollowing();
       });
     }
-    // A note on a footnote (M11) says so, and quotes the footnote's opening
-    // words; it is still a note, and the reference above still names the
-    // verse that holds the footnote's letter.
-    const on = onFootnote(r) ? recordWhere(r) : ref;
-    if (onFootnote(r)) {
-      const line = document.createElement("p");
-      line.className = "desk-item__on-fn";
-      line.textContent = `On a footnote: “${shortQuote(r.footnote, FOOTNOTE_WORDS)}”`;
-      li.append(line);
-    }
+    const on = ref;
     if (r.kind === "note") {
       // Led by its marker, at two lines unless hovered, focused, opened by
       // its caret (kept open for this visit), or the list shows notes in
@@ -1018,7 +1006,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     // button, like Ctrl+Z, takes back exactly this one (history.js).
     const entry = store.lastEntry();
     await render({ focusIndex: index });
-    const ref = recordWhere(r);
+    const ref = recordReference(r);
     showUndo(`${nameOf(r)}${ref ? ` on ${ref}` : ""} ${takeOff(r.kind)[1]}.`, async () => {
       await undoEntry(entry);
       await render();

@@ -126,10 +126,9 @@ test("nothing in, nothing out", () => {
   assert.deepEqual(planNotes([]), { rows: [], strays: [] });
 });
 
-test("a note on a footnote quotes the footnote's opening words in print", () => {
-  const onFn = { kind: "note", footnote: "The Greek sarx means flesh, body, and the self in Paul.", body: "mine", marker: "note" };
-  assert.equal(printHeading(onFn, "Romans 8:3").quote, "The Greek sarx means flesh, body, and the…");
-  assert.equal(printHeading({ kind: "note", footnote: "The Greek sarx means flesh." }, "Romans 8:3").quote, "The Greek sarx means flesh.", "a short footnote is whole");
+test("a note left on a footnote (withdrawn by E79) prints as a note on whole verses, quoting nothing", () => {
+  const left = { kind: "note", footnote: "The Greek sarx means flesh, body, and the self in Paul.", body: "mine", marker: "note" };
+  assert.equal(printHeading(left, "Romans 8:3").quote, "");
 });
 
 test("a printed highlight wraps each run once, in text order, inside its node (BA146)", () => {

@@ -25,7 +25,6 @@
 // reader's next move), and nothing is written or stored.
 
 import { handoutHtml } from "../../lib/handout-rich.mjs";
-import { onFootnote } from "../../lib/desk-records.mjs";
 import {
   SELECTION_NOTES_TITLE,
   citedFootnoteIds,
@@ -176,7 +175,7 @@ export function createPrintPart({ store, printNotes }) {
               put();
               throw err;
             }
-            const mine = notesForPart(records, start, end).filter((r) => !onFootnote(r));
+            const mine = notesForPart(records, start, end);
             if (mine.length) {
               const section = document.createElement("section");
               section.className = "desk-print-strays";

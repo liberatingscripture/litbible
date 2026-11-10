@@ -1040,62 +1040,21 @@ test("noticeWords: a pinned footnote is named as one, never as a note or highlig
   assert.match(lost.text, /Romans 8:5/);
 });
 
-/* ── Notes on a footnote (M11) ───────────────────────────────────────── */
+/* ── A note left on a footnote (M11, withdrawn by E79) ───────────────── */
 
-const onFootnoteNote = (extra = {}) =>
+// Notes on a footnote were removed (BVJ, 2026-11-10). One left from before
+// carries `footnote` (and maybe `n`) untouched and reads as a note on its
+// verse: the pin rules no longer judge it.
+const leftOnFootnote = (extra = {}) =>
   createRecord("note", { ...where, verse: 5, footnote: PIN_TEXT, body: "mine", marker: "note", ...extra }, { ...made, id: nextId() });
 
-test("pinNotice: a note on a footnote whose footnote is still there carries no notice", () => {
-  assert.equal(pinNotice([fn("fn-a", 5, PIN_TEXT)], onFootnoteNote(), VERSION), null);
-});
-
-test("pinNotice: a note on a footnote whose footnote was rewritten is 'changed', with the fields Keep would write", () => {
-  const now = "The Greek reads sarx, which can mean flesh, body, or human nature.";
-  const list = [fn("fn-a", 4, "Another note."), fn("fn-b", 5, now)];
-  const notice = pinNotice(list, onFootnoteNote(), VERSION);
-  assert.equal(notice.kind, "changed");
-  assert.equal(notice.id, "fn-b");
-  assert.equal(notice.before, PIN_TEXT);
-  assert.equal(notice.now, now);
-  assert.deepEqual(notice.fields, { verse: 5, footnote: now });
-});
-
-test("pinNotice: a note on a footnote whose footnote is gone is 'lost'", () => {
-  const notice = pinNotice([fn("fn-a", 5, "Something quite different entirely.")], onFootnoteNote(), VERSION);
-  assert.equal(notice.kind, "lost");
-  assert.equal(notice.fields, null);
-  assert.equal(pinNotice([], onFootnoteNote(), VERSION).kind, "lost");
-});
-
-test("planKeep: Keep moves a changed note on a footnote to the note found, keeps its body and marker, and drops a stale n", () => {
-  const now = "The Greek reads sarx, which can mean flesh, body, or human nature.";
-  const list = [fn("fn-b", 5, now)];
-  const record = onFootnoteNote({ n: 2, marker: "question", body: "Why this word?" });
-  const notice = pinNotice(list, record, VERSION);
-  const kept = planKeep({ text: null, record, notice, now: NOW, ctx });
-  assert.equal(kept.footnote, now);
-  assert.equal(kept.verse, 5);
-  assert.ok(!("n" in kept), "n belonged to the old twins");
-  assert.equal(kept.body, "Why this word?");
-  assert.equal(kept.marker, "question");
-  assert.equal(kept.id, record.id);
-  assert.equal(kept.modified, NOW, "principle 4: the reader acted");
-  assert.deepEqual(validateRecord(kept), []);
-});
-
-test("noticeWords: a note on a footnote is named as one, never as a pin or a verse note", () => {
+test("pinNotice judges pins only: a note left on a footnote carries no pin notice, even when that footnote was rewritten", () => {
   const list = [fn("fn-b", 5, "The Greek reads sarx, which can mean flesh, body, or human nature.")];
-  const changed = noticeWords(pinNotice(list, onFootnoteNote(), VERSION), onFootnoteNote(), "Romans 8:5");
-  assert.equal(changed.title, "The wording changed");
-  assert.equal(changed.keep, "Keep on the new wording");
-  assert.match(changed.text, /The footnote your note is on/);
-  const lost = noticeWords(pinNotice([], onFootnoteNote(), VERSION), onFootnoteNote(), "Romans 8:5");
-  assert.equal(lost.keep, null);
-  assert.match(lost.text, /Romans 8:5/);
+  assert.equal(pinNotice(list, leftOnFootnote(), VERSION), null);
+  assert.equal(pinNotice([], leftOnFootnote(), VERSION), null);
 });
 
-test("changeNotice: a note on a footnote is not a mark on verses, so it carries no verse notice", () => {
-  // Verse 2 was rewritten in REWRITTEN, so a verse mark there would get a notice.
-  assert.equal(noticeOf(REWRITTEN, onFootnoteNote({ verse: 2 })), null);
-  assert.equal(noticeOf(WITHOUT_V2, onFootnoteNote({ verse: 2 })), null);
+test("changeNotice: a note left on a footnote is a whole-verse note with no verse copy, so a rewrite of its verse says nothing", () => {
+  // Verse 2 was rewritten in REWRITTEN; with no verseCopy there is nothing to compare.
+  assert.equal(noticeOf(REWRITTEN, leftOnFootnote({ verse: 2 })), null);
 });

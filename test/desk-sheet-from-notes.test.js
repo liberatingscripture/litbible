@@ -181,9 +181,9 @@ test("a note's text is its reference in bold, then the words", () => {
   assert.equal(noteHtml(note({ body: "" })), "<p><strong>Romans 8:3</strong></p>");
 });
 
-test("a pinned footnote's text is the footnote's words; a note on a footnote has those first, then its own", () => {
+test("a pinned footnote's text is the footnote's words; a note left on a footnote (withdrawn by E79) is its own words alone", () => {
   assert.equal(noteHtml(pin({ footnote: "On “flesh.”" })), "<p><strong>Romans 8:3</strong> On “flesh.”</p>");
-  assert.equal(noteHtml(note({ footnote: "On “flesh.”", body: "Worth saying aloud." })), "<p><strong>Romans 8:3</strong> On “flesh.”</p><p>Worth saying aloud.</p>");
+  assert.equal(noteHtml(note({ footnote: "On “flesh.”", body: "Worth saying aloud." })), "<p><strong>Romans 8:3</strong> Worth saying aloud.</p>");
 });
 
 test("the body is escaped, never read as markup", () => {

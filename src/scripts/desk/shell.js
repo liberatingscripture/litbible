@@ -7,7 +7,6 @@
 // comes in through here, so none of it reaches a reader who hasn't switched
 // the desk on, and a reader with nothing kept gets it only on asking.
 
-import { onFootnote } from "../../lib/desk-records.mjs";
 import { recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { openStore } from "./store.js";
@@ -104,21 +103,17 @@ async function start({ handOver }) {
   // What the change notice's "Show in the text" does (change-notice.js): a
   // note in the margin, a highlight to its verse, a pinned footnote to its
   // note in the Footnotes list, a glossary or article note in its margin, and
-  // in Read View the verse in the book. A note on a footnote (M11) goes to
-  // its margin note, which sits beside the footnote in the Footnotes list;
-  // where there is no margin it is shown as a pin is. `can` says whether
-  // this page can, so the card offers the button only then.
+  // in Read View the verse in the book. `can` says whether this page can, so
+  // the card offers the button only then.
   const showInText = {
     can: (r) =>
       r.kind === "footnotePin"
         ? Boolean(pins?.canReveal(r))
-        : onFootnote(r)
-          ? Boolean(pins?.canReveal(r)) && (margin ? margin.canReveal(r) : true)
-          : margin
-            ? (r.kind === "note" ? margin.canReveal(r) : onThisChapter(r))
-            : Boolean(readMarks?.canReveal(r)),
+        : margin
+          ? (r.kind === "note" ? margin.canReveal(r) : onThisChapter(r))
+          : Boolean(readMarks?.canReveal(r)),
     go: (r) => {
-      if (r.kind === "footnotePin" || (onFootnote(r) && !margin)) {
+      if (r.kind === "footnotePin") {
         pins?.reveal(r);
       } else if (margin) {
         if (r.kind === "note") margin.reveal(r.id);
@@ -162,9 +157,7 @@ async function start({ handOver }) {
     onAddNote: store ? addNote : null,
     goHere: here
       ? {
-          // On Chapter View a note on a footnote can be shown only while its
-          // footnote is there; Read View has no footnotes and goes to the verse.
-          can: (r) => here.canReveal(r) && (!margin || !onFootnote(r) || Boolean(pins?.canReveal(r))),
+          can: (r) => here.canReveal(r),
           go: (r) => (margin ? margin.reveal(r.id) : readMarks.reveal(r)),
         }
       : null,

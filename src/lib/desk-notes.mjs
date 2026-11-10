@@ -264,12 +264,9 @@ export function shortQuote(text, words = 10) {
  * inside the closing quote, the American way (BA136): it takes the place of
  * a period that ends the quoted words, and a question mark, an exclamation
  * point, a closing quotation mark or a dash keeps its place and takes no comma. A note on whole verses, with no
- * quote, names only the reference, and one on a footnote says so: "My note
- * on a footnote, Romans 8:3: ".
+ * quote, names only the reference.
  */
 export function noteOpening(record, ref) {
-  // A note on a footnote (M11) names the footnote, not words of the verse.
-  if (record?.kind === "note" && typeof record.footnote === "string") return `My note on a footnote, ${ref}: `;
   const q = record?.quote?.exact ? shortQuote(record.quote.exact).replace(/[.,;:]+$/, "") : "";
   if (!q) return `My note on ${ref}: `;
   return /[?!”’—–-]$/.test(q) ? `My note on ‘${q}’ ${ref}: ` : `My note on ‘${q},’ ${ref}: `;

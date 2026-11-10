@@ -10,10 +10,8 @@
 //
 // Nothing here adds to the scripture. With a notebook (3g) each note carries
 // the Pin button it has in This verse and in Chapter View's Footnotes list
-// (pins.js), under the note, and under it any notes the reader has on that
-// footnote (M11), in full (footnote-notes.js; none can be added since
-// 2026-11-10, E79), then the flag a rewritten pinned note gets; pins.js draws
-// the flags, since it already follows the notebook.
+// (pins.js), under the note, then the flag a rewritten pinned note gets;
+// pins.js draws the flags, since it already follows the notebook.
 // The list scrolls inside the pane (its nearest scrolling ancestor), never the
 // page.
 //
@@ -22,7 +20,6 @@
 
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import { routeFootnoteLinks } from "./footnote-links.js";
-import { footnoteNotes } from "./footnote-notes.js";
 import { pinButton, refreshPins } from "./pins.js";
 
 const TOP_GAP = 8; // px between the pane's top edge and the first note shown
@@ -95,11 +92,8 @@ export function createFootnotesView({ idSuffix = "", onVerse = null, store = nul
           li.append(clone);
         }
         // Pin, as under the note in the Footnotes list.
-        const where = { bookKey: source.bookKey, chapter: source.chapter };
-        const pin = store ? pinButton(id, letter, where) : null;
+        const pin = store ? pinButton(id, letter, { bookKey: source.bookKey, chapter: source.chapter }) : null;
         if (pin) li.append(pin);
-        const mine = store ? footnoteNotes(id, where) : null;
-        if (mine) li.append(mine);
         list.append(li);
         items.push({ li, verse });
       }

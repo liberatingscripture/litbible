@@ -10,14 +10,12 @@
 // list carries `data-desk-fn-pills="row" | "inline"` (desk.css draws each):
 //   row     Pin in the left margin, level with the footnote's first line;
 //   inline  on the note's line, on its right, as before E49.
-// A footnote with one of the reader's margin notes beside it (notes-margin.js
-// sets `data-desk-fn-margin` on it) takes the inline placement, since a margin
-// note sits in the same left margin. Moving between the two only moves Pin, so
-// focus on it is never lost.
+// Moving between the two only moves Pin, so focus on it is never lost.
 //
-// Until 2026-11-10 "Add a note" sat beside Pin and a third mode folded the two
-// behind one "⋯" button; notes on a footnote can no longer be added (BVJ,
-// 2026-11-10; STUDY-DESK-FIXES.md, E79), and one pill has nothing to fold.
+// Until 2026-11-10 "Add a note" sat beside Pin, a third mode folded the two
+// behind one "⋯" button, and a footnote with a margin note beside it kept Pin
+// on its line; notes on a footnote were removed then (BVJ, 2026-11-10;
+// STUDY-DESK-FIXES.md, E79), and one pill has nothing to fold.
 //
 // Nothing here adds text to the scripture or to the footnote: Pin sits beside
 // `.fn-body`, never in it.

@@ -61,7 +61,7 @@ export function standing(at) {
 
 /**
  * What heads a printed note: its reference, the words it hangs on in short
- * (none for a note on whole verses; a footnote's for a note on one), and a line saying so when the wording
+ * (none for a note on whole verses), and a line saying so when the wording
  * has moved. `how` is `standing`'s answer. A moved note prints beside the
  * verse its words are in now, as the screen draws it, under its own
  * reference, so the line says where it went.
@@ -69,9 +69,7 @@ export function standing(at) {
  * @returns {{ ref: string, quote: string, warning: string }}
  */
 export function printHeading(record, ref, how = "here") {
-  // A note on a footnote (M11) quotes the footnote's opening words.
-  const exact = typeof record?.quote?.exact === "string" ? record.quote.exact
-    : record?.kind === "note" && typeof record.footnote === "string" ? record.footnote : "";
+  const exact = typeof record?.quote?.exact === "string" ? record.quote.exact : "";
   const warning =
     how === "changed" ? CHANGED_NOTE : how === "moved" ? MOVED_NOTE : how === "lost" ? (exact ? LOST_NOTE : LOST_VERSE_NOTE) : "";
   return {

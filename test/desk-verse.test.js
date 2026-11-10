@@ -182,11 +182,9 @@ test("no changed marks, or a missing count, add nothing to the label", () => {
   assert.equal(verseLabel(3, 0, [], -1), "Verse 3", "a negative count is none");
 });
 
-test("a note on a footnote is about the footnote, so it counts for no verse", () => {
-  const onFn = { id: "f", kind: "note", bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh." };
-  const counts = noteCounts([onFn, note("a", 3)]);
-  assert.equal(counts.get(3), 1, "only the verse note counts");
-  assert.equal(noteCounts([onFn]).size, 0);
+test("a note left on a footnote (withdrawn by E79) counts on its verse, as any note on verses does", () => {
+  const left = { id: "f", kind: "note", bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh." };
+  assert.equal(noteCounts([left, note("a", 3)]).get(3), 2);
 });
 
 test("a bookmarked verse says so, right after its number (BA22)", () => {

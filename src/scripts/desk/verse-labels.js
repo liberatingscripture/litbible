@@ -31,7 +31,6 @@
 // the reader chose not to see.
 
 import { verseCount } from "../../data/verse-counts.js";
-import { onFootnote } from "../../lib/desk-records.mjs";
 import { forChapter, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { FOLLOW_CHANGED, restingId } from "./bookmark-follow.js";
 import { bookmarkedVerses, highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
@@ -108,7 +107,7 @@ export function lastCounted(r) {
 function noticeCounts(records) {
   const shown = records.filter(
     (r) =>
-      (r.kind === "note" && !onFootnote(r) && getSetting("notes") === "on") ||
+      (r.kind === "note" && getSetting("notes") === "on") ||
       (r.kind === "highlight" && getSetting("highlights") === "on"),
   );
   const counts = new Map();

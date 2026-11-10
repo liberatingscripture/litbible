@@ -744,16 +744,19 @@ const footnoteNote = make("note", {
 });
 const plainFootnoteNote = make("note", { bookKey: "romans", chapter: 8, verse: 3, footnote: FOOTNOTE, body: "Just a note.", marker: "note" });
 
-test("the Markdown file names a note on a footnote, and quotes the footnote", () => {
+test("a note left on a footnote (withdrawn by E79) is written to Markdown as a note on its verse", () => {
   const md = toMarkdown([footnoteNote, plainFootnoteNote], opts);
   assert.match(md, /^## Romans 8:3$/m);
-  assert.match(md, /^Note on a footnote \(question\) · 2026-09-12$/m);
-  assert.match(md, /^Note on a footnote · 2026-09-12$/m);
-  assert.ok(md.includes(`> ${FOOTNOTE}`), "the footnote's text is the quoted line");
+  assert.match(md, /^Note \(question\) · 2026-09-12$/m);
+  assert.match(md, /^Note · 2026-09-12$/m);
+  assert.ok(!md.includes(`> ${FOOTNOTE}`), "the footnote's text is not quoted as if it were the verse's");
 });
 
-test("a note on a footnote read from a file with no matching id is refused, not made into a verse note", () => {
-  const back = parseImport(toMarkdown([footnoteNote], opts), { local: [], ctx });
+test("a file saved before E79 with a note on a footnote and no matching id is refused, not made into a verse note", () => {
+  // Such a copy wrote "Note on a footnote" and quoted the footnote.
+  const old = toMarkdown([footnoteNote], opts).replace(/^Note \(question\)/m, "Note on a footnote (question)");
+  assert.match(old, /^Note on a footnote \(question\)/m);
+  const back = parseImport(old, { local: [], ctx });
   assert.equal(back.records.length, 0, "no verse note comes of it");
   assert.equal(back.problems.length, 1);
   assert.match(back.problems[0].message, /note on a footnote/);
@@ -772,11 +775,11 @@ test("a note on a footnote whose id is in the notebook still takes an edit to it
   assert.equal(edited.modified, now);
 });
 
-test("the Web Annotation of a note on a footnote targets the footnote's text", () => {
+test("the Web Annotation of a note left on a footnote (withdrawn by E79) targets its verse, not the footnote's text", () => {
   const c = webAnnotationCollection([footnoteNote], opts);
   const a = c.first.items.find((x) => x.lit.record.id === footnoteNote.id);
   assert.equal(a.motivation, "questioning");
-  assert.deepEqual(a.target.selector.at(-1), { type: "TextQuoteSelector", exact: FOOTNOTE });
+  assert.ok(a.target.selector.every((s) => s.type !== "TextQuoteSelector"));
 });
 
 /* ── Merging and opening a copy (BA3, BA4, BA11) ───────────────────────── */

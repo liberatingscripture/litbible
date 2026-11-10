@@ -40,7 +40,6 @@ import {
   recordHref,
   recordReadHref,
   recordReference,
-  recordWhere,
   touched,
   webClient,
 } from "../src/lib/desk-store-core.mjs";
@@ -343,15 +342,9 @@ test("currentSlug stops at a loop instead of running forever", () => {
   assert.equal(currentSlug("x", {}), "x");
 });
 
-test("a note on a footnote reads as 'a footnote in' its verse; anything else reads as recordReference", () => {
-  const onFn = { kind: "note", bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh." };
-  assert.equal(recordWhere(onFn), "a footnote in Romans 8:3");
-  const verseNote = { kind: "note", bookKey: "romans", chapter: 8, verse: 3 };
-  assert.equal(recordWhere(verseNote), recordReference(verseNote));
-  assert.equal(recordWhere(verseNote), "Romans 8:3");
-  const entryNote = { kind: "note", glossaryEntry: "flesh-body", targetTitle: "Flesh" };
-  assert.equal(recordWhere(entryNote), recordReference(entryNote));
-  assert.equal(recordWhere(entryNote), "Glossary: Flesh");
+test("a note left on a footnote (withdrawn by E79) is named by its verse, as any note on verses is", () => {
+  const left = { kind: "note", bookKey: "romans", chapter: 8, verse: 3, footnote: "Greek sarx, flesh." };
+  assert.equal(recordReference(left), "Romans 8:3");
 });
 
 /* ── planEdit (BA6) ──────────────────────────────────────────────────── */

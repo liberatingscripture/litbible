@@ -12,12 +12,11 @@
 // build-up is deliberately plain: the page decides what happens when a button
 // is pressed (`actions`), this only draws.
 
-import { canEdit, onFootnote } from "../../lib/desk-records.mjs";
+import { canEdit } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
-import { shortQuote } from "../../lib/desk-notes.mjs";
-import { kindName, recordHref, takeOff, recordReference, recordWhere } from "../../lib/desk-store-core.mjs";
+import { kindName, recordHref, takeOff, recordReference } from "../../lib/desk-store-core.mjs";
 import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
 import { glyph } from "./glyphs.js";
@@ -60,9 +59,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   const isSheet = r.kind === "sheet";
   const ref = isSheet ? sheetName(r) : recordReference(r);
   const href = isSheet ? `/sheets/?id=${encodeURIComponent(r.id)}` : recordHref(r);
-  // A note on a footnote (M11) is "on a footnote in Romans 8:3", not on the verse.
-  const where = recordWhere(r);
-  const subject = isSheet ? `sheet “${sheetName(r)}”` : `${nameOf(r).toLowerCase()}${where ? ` on ${where}` : ""}`;
+  const subject = isSheet ? `sheet “${sheetName(r)}”` : `${nameOf(r).toLowerCase()}${ref ? ` on ${ref}` : ""}`;
 
   const head = document.createElement(href ? "a" : "span");
   head.className = "desk-item__ref";
@@ -93,14 +90,6 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
       else stopFollowing();
     });
   }
-  // It says what it is on, and quotes the footnote's opening words.
-  if (onFootnote(r)) {
-    const line = document.createElement("p");
-    line.className = "desk-item__on-fn";
-    line.textContent = `On a footnote: “${shortQuote(r.footnote, 12)}”`;
-    li.append(line);
-  }
-
   // The reader's words. Always text.
   if (r.kind === "note") {
     const words = document.createElement("p");

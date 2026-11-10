@@ -11,10 +11,6 @@
 // audit C24), positioned beside the text, and the words a note hangs on are
 // lit with the CSS Custom Highlight API, which marks text without touching it.
 //
-// A note on a footnote (M11) sits beside its footnote in the Footnotes list at
-// the foot of the page instead, and what it lights is that list item (a class,
-// not the Custom Highlight, which would mark verse words).
-//
 // For a screen reader, each note opens with the words it hangs on, hidden
 // from view ("My note on ‘nothing is now a verdict,’ Romans 8:1: ").
 //
@@ -32,8 +28,7 @@
 // the Notebook's lists name it anyway). Each opens the card. Nothing is
 // written until the reader chooses Keep or Delete there.
 
-import { onFootnote } from "../../lib/desk-records.mjs";
-import { recordReference, recordWhere, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
+import { recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { FOLLOW_CHANGED } from "./bookmark-follow.js";
 import { markLook } from "./bookmark-mark.js";
 import { redrawAfterMove } from "./move-redraw.js";
@@ -66,8 +61,6 @@ import { SETTINGS_EVENT, getSetting, highlightSetting } from "./note-settings.js
 import { escapeHtml } from "./dom.js";
 
 const LIT = "desk-note-words";
-// What a hovered, focused or opened note on a footnote puts on its footnote.
-const FN_LIT = "desk-fn--noted";
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -124,19 +117,6 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   }
 
   /* ── Drawing ─────────────────────────────────────────────────────── */
-
-  /**
-   * A footnote with a note drawn beside it here has that margin taken, so its
-   * Pin takes its place on its line instead (footnote-pills.js, E49). Marks
-   * exactly the footnotes of `items` and unmarks the rest. The mark only moves
-   * Pin, never hides it, so focus on it stays put (NB3-3 needed more while a
-   * "⋯" could hide it, until E79).
-   */
-  function markFootnotes(items) {
-    const mine = new Set(items.map((p) => p.footnote).filter(Boolean));
-    for (const li of document.querySelectorAll("li[data-desk-fn-margin]")) if (!mine.has(li)) li.removeAttribute("data-desk-fn-margin");
-    for (const li of mine) li.setAttribute("data-desk-fn-margin", "");
-  }
 
   let frame = 0;
   function schedule() {
@@ -228,7 +208,6 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
 
     aside.hidden = mode === "none" && !aside.childElementCount;
     if (mode === "none") {
-      markFootnotes([]);
       if (popId) {
         const gone = popId;
         closePanel();
@@ -239,7 +218,6 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       return;
     }
     const items = notesOn ? placed() : [];
-    markFootnotes(items);
     const noticed = noticesFor(items.map((p) => p.record));
 
     if (mode === "full") {
@@ -431,11 +409,11 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
    * Focus was on a note's control and the drawing left no such control (the
    * note was deleted, or is no longer drawn): it goes to the verse the note
    * sat on, else the next note, so it never drops to the page (BA21). A note
-   * on a footnote or on a glossary entry or article has no verse number to go to.
+   * on a glossary entry or article has no verse number to go to.
    */
   function focusGone(id, nextId) {
     const r = known.get(id);
-    const verse = r && Number.isInteger(r.verse) && !onFootnote(r) ? document.getElementById(`v${r.verse}`) : null;
+    const verse = r && Number.isInteger(r.verse) ? document.getElementById(`v${r.verse}`) : null;
     const next = nextId
       ? aside.querySelector(
           `.desk-note[data-id="${CSS.escape(nextId)}"] .desk-note__hit, .desk-circle[data-id="${CSS.escape(nextId)}"]`,
@@ -470,11 +448,6 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     return recordReference(r);
   }
 
-  /** Where a note is, as a sentence says it: "Romans 8:3", or "a footnote in Romans 8:3". */
-  function whereOf(r) {
-    return recordWhere(r);
-  }
-
   function noteElement(r, notice = null) {
     const el = document.createElement("div");
     el.className = "desk-note";
@@ -506,7 +479,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     const edit = document.createElement("button");
     edit.type = "button";
     edit.className = "desk-note__edit";
-    edit.innerHTML = `Edit<span class="sr-only"> my note on ${escapeHtml(whereOf(r))}</span>`;
+    edit.innerHTML = `Edit<span class="sr-only"> my note on ${escapeHtml(refOf(r))}</span>`;
     el.append(toggle);
     if (notice) {
       // Its wording has changed: a flag under the words, with Edit beside it
@@ -517,7 +490,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       flag.type = "button";
       flag.className = "desk-flag desk-flag--inline";
       flag.setAttribute("aria-haspopup", "dialog");
-      flag.setAttribute("aria-label", `${flagText(notice)} under my note on ${whereOf(r)}. Review`);
+      flag.setAttribute("aria-label", `${flagText(notice)} under my note on ${refOf(r)}. Review`);
       flag.innerHTML = `${changedGlyph()}<span class="desk-flag__text" aria-hidden="true">${flagText(notice)}</span>`;
       const foot = document.createElement("div");
       foot.className = "desk-note__foot";
@@ -591,13 +564,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     // are hidden, since its words are then all that shows where it is (BA19).
     const notesOn = getSetting("notes") === "on";
     const lit = ids.size ? placed().filter((p) => ids.has(p.record.id) && (notesOn || flash.has(p.record.id))) : [];
-    // A note on a footnote lights its footnote (a class on the list item),
-    // never verse words.
-    const marked = new Set(lit.map((p) => p.footnote).filter(Boolean));
-    for (const li of document.querySelectorAll(`.${FN_LIT}`)) if (!marked.has(li)) li.classList.remove(FN_LIT);
-    for (const li of marked) li.classList.add(FN_LIT);
     if (!supportsHighlight) return;
-    const ranges = lit.filter((p) => !p.footnote).map((p) => p.range);
+    const ranges = lit.map((p) => p.range);
     if (ranges.length) CSS.highlights.set(LIT, new Highlight(...ranges));
     else CSS.highlights.delete(LIT);
   }
@@ -682,7 +650,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   /* ── A circle's note, opened like a footnote ─────────────────────── */
 
   function openPopover(record, circle) {
-    const ref = whereOf(record);
+    const ref = refOf(record);
     // The circle the popover belongs to now: a redraw replaces it (keepPopover).
     let anchor = circle;
     const pop = document.createElement("div");
@@ -776,12 +744,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       const holder = aside.querySelector(`[data-id="${CSS.escape(id)}"]`);
       if (!holder) {
         // The notes are hidden, so the margin holds none: focus goes to
-        // where the marked words are, the verse number they start in, or
-        // the footnote's first link (BA19).
-        const to = at.footnote
-          ? at.footnote.querySelector("a[href], button")
-          : document.getElementById(`v${at.record.verse}`);
-        to?.focus({ preventScroll: true });
+        // where the marked words are, the verse number they start in (BA19).
+        document.getElementById(`v${at.record.verse}`)?.focus({ preventScroll: true });
         return;
       }
       if (holder.classList.contains("desk-circle")) {
@@ -807,10 +771,6 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   document.addEventListener(SETTINGS_EVENT, schedule);
   document.fonts?.addEventListener?.("loadingdone", schedule);
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(textBox);
-  // A note on a footnote sits beside the Footnotes list, far below the text,
-  // which moves whenever anything above it changes height (Go deeper opening,
-  // a late font): so the whole page's height is watched too.
-  if (window.ResizeObserver && document.querySelector(".footnotes-wrap")) new ResizeObserver(schedule).observe(document.body);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
