@@ -1210,7 +1210,7 @@ Credit wording shown to readers is thinner than two sources ask for
 
 **Confidence**: Medium (wording read through a summarizing fetch of the READMEs; confirm in the repos).
 
-**Open (2026-11-09)** Decision 6.
+**Fixed (2026-11-10)** Decision 6 (BVJ): the Greek tab and `LICENSE.txt` carry UBS's requested credit line verbatim (read from the ubs-open-license README) and name MorphGNT as "MorphGNT: SBLGNT Edition, ed. J. K. Tauber", as its README's citation does; the one-line search credit names Perseus beside UBS and STEP Bible. The SBLGNT's license is CC BY 4.0 (LogosBible/SBLGNT's README, v1.1 of 2022-12-19); MorphGNT's README still says EULA because it predates that.
 
 #### GK8-6 · Low · bug · NEW (Low confidence)
 Builder's `composing` flag can stay true and freeze the builder

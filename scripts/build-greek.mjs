@@ -404,19 +404,23 @@ text/
   The text is the SBL Greek New Testament (SBLGNT), edited by Michael W.
   Holmes, copyright 2010 Society of Biblical Literature and Logos Bible
   Software, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/;
-  https://sblgnt.com). Lemmas and parsing are from MorphGNT's SBLGNT
-  (https://github.com/morphgnt/sblgnt), CC BY-SA 3.0, with Strong's numbers
-  and the parsing of John 7:53-8:11 and Romans 16:25-27 from MACULA Greek
+  https://sblgnt.com). Lemmas and parsing are from MorphGNT: SBLGNT Edition,
+  ed. J. K. Tauber (https://github.com/morphgnt/sblgnt), CC BY-SA 3.0, with
+  Strong's numbers and the parsing of John 7:53-8:11 and Romans 16:25-27
+  from MACULA Greek
   (Clear Bible, https://github.com/Clear-Bible/macula-greek), CC BY 4.0. The
   Greek of Romans 16:25-27 is from the SBLGNT apparatus.
   Sense numbers point into the UBS dictionary below.
   This directory is licensed CC BY-SA 4.0.
 
 ubs/
-  Entries of the UBS Greek New Testament Dictionary (United Bible Societies,
-  CC BY-SA 4.0), built from the semantic-domain dictionary based on Louw and
-  Nida. Inline markup is reduced to plain text. This directory is licensed
-  CC BY-SA 4.0.
+  Entries of the UBS Dictionary of New Testament Greek, © United Bible
+  Societies, 2023. Adapted from Semantic Dictionary of Biblical Greek:
+  © United Bible Societies 2018-2023, which is adapted from Greek-English
+  Lexicon of the New Testament: Based on Semantic Domains, Eds. J P Louw,
+  Eugene Albert Nida © United Bible Societies 1988, 1989. CC BY-SA 4.0
+  (https://github.com/ubsicap/ubs-open-license). Inline markup is reduced to
+  plain text. This directory is licensed CC BY-SA 4.0.
 
 step/
   The Translators Brief lexicon of Extended Strongs for Greek (TBESG), from

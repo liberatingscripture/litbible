@@ -16,7 +16,7 @@ test("every link in the search credit points at the license or at a source the G
 });
 
 test("the credit's plain text names every source in one line", () => {
-  assert.equal(creditText(), "Greek: SBLGNT; parsing: MorphGNT and MACULA Greek; glosses: UBS and STEP Bible (licenses).");
+  assert.equal(creditText(), "Greek: SBLGNT; parsing: MorphGNT and MACULA Greek; glosses: UBS, STEP Bible, and Perseus (licenses).");
 });
 
 test("creditHtml escapes text and opens only outside links in a new tab (BA47)", () => {
