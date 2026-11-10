@@ -233,3 +233,41 @@ test("focus in a text part's header stays on its control when another tab's chan
   const field = minutesOf(card(part));
   assert.ok(document.activeElement === field, "focus is on the rebuilt card's minutes field, not the page");
 });
+
+// ---- teardown and the tour's example mode (Audit 8, LG8-8) ----
+
+test("a destroyed editor lets go: another tab's change draws nothing", async () => {
+  const one = makeModule("text", { html: "<p>one</p>" });
+  const { sheet, el } = await editorOn([one]);
+  const shown = el.querySelector(`[data-module-id="${one.id}"] .desk-rich`);
+  editor.destroy();
+  editor = null;
+  await other.change(async ({ get }) => planSheetChange(await get(sheet.id), (s) => updateModule(s, one.id, { html: "<p>theirs</p>" }, opCtx())));
+  await settle(200);
+  assert.equal(shown.textContent, "one", "the old editor didn't redraw");
+});
+
+test("example mode changes the sheet on screen and writes nothing; endExample shows the stored sheet again", async () => {
+  const one = makeModule("text", { html: "<p>one</p>" });
+  const { sheet, el } = await editorOn([one]);
+  const stored = JSON.stringify(await here.get(sheet.id));
+  editor.setExample(true);
+  const title = el.querySelector(".desk-sheet__title");
+  title.focus();
+  title.value = "Tour title";
+  title.dispatchEvent(new Event("input", { bubbles: true }));
+  title.blur();
+  await settle(700);
+  assert.equal(JSON.stringify(await here.get(sheet.id)), stored, "nothing written");
+  editor.endExample();
+  const back = await (async () => {
+    const end = Date.now() + 3000;
+    while (Date.now() < end) {
+      const t = editor.el.querySelector(".desk-sheet__title");
+      if (t && t !== title) return t;
+      await settle(10);
+    }
+    return null;
+  })();
+  assert.equal(back?.value, "Study", "the stored title is back");
+});

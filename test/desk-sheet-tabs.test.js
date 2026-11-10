@@ -33,6 +33,8 @@ test("a tab answers for the sheets its editors show, and counts answers about th
 test("the sheet editor asks before editing and draws the line", () => {
   const src = readFileSync(new URL("../src/scripts/desk/sheets/sheet-editor.js", import.meta.url), "utf8");
   assert.match(src, /await editedElsewhere\(id\)/);
-  assert.match(src, /movedUnderReader\(/);
   assert.match(src, /addEditor\(/);
+  // The cards are sheet-cards.js since Audit 8, LG8-8; the line is drawn there.
+  const cards = readFileSync(new URL("../src/scripts/desk/sheets/sheet-cards.js", import.meta.url), "utf8");
+  assert.match(cards, /movedUnderReader\(/);
 });
