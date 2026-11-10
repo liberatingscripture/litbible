@@ -523,7 +523,12 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   the last line of a `.lit-sheet.md` file (`fragmentInFile`). The dialog's note and the "Link
   copied" status both say the link is long because the sheet is in it
   (E58). A short link would need a hosted store, M14, deferred to
-  signed-in readers. The Share dialog's button for that
+  signed-in readers. **The participant's version is the default** (BVJ,
+  2026-11-10, Audit 8 decision 5): the Share dialog opens on it, with
+  "Everything, for another leader" second, and on a phone "Share…" on a
+  leader link forwards the participant's version (made by `shareLink`, never
+  by hand) unless the reader picks Everything, which forwards the link as it
+  came; a participant link is forwarded as it came, with no choice. The Share dialog's button for that
   file is "Export a Study Desk file (.md)" and the Sheets page's is
   "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
   `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;

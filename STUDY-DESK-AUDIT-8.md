@@ -178,7 +178,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
 5. **The Share dialog starts on "Everything, for another leader"** (SEC8 question 1), though its own
    note says "send the participant's version when you're unsure." And on a phone, Share… forwards a
    leader link as it came, with no participant choice (SH8 question). Should both default to, or
-   offer, the participant's version?
+   offer, the participant's version? **Decided (2026-11-10):** the participant's version, in the dialog and on a phone.
 6. **GK8-1 and GK8-5: Strong's numbers and the Greek credits.** Keep the lemma-wide match, or narrow
    the three mis-tag cases (G848, G1519, G3596)? Use the UBS repository's requested credit wording and
    name MorphGNT's editor, or keep the shorter lines?

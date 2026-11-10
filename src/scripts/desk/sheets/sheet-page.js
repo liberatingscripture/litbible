@@ -629,9 +629,18 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   else actions.append(...(shared ? [] : [editHere]), present, print, word, save.el);
   if (!shared) actions.append(share);
   actions.append(status);
+  // A leader link forwarded from a phone goes as the participant's version
+  // unless the reader says otherwise (BVJ, 2026-11-10, Audit 8 decision 5).
+  let phoneScope = "participant";
+  const phoneScopeChoice = phone && shared === "leader"
+    ? choices("sheet-phone-share-scope", "Share", [
+        ["participant", "The participant’s version, without answers or Leader only parts"],
+        ["leader", "Everything, for another leader"],
+      ], phoneScope, (v) => { phoneScope = v; })
+    : null;
   if (phone) {
     root.classList.add("sheets-page--phone");
-    bar.append(...(copies.length > 1 ? [copyChoice] : []), actions, ...hints);
+    bar.append(...(copies.length > 1 ? [copyChoice] : []), ...(phoneScopeChoice ? [phoneScopeChoice] : []), actions, ...hints);
   } else {
     bar.append(...(demo ? [] : [links]), copyChoice, paperChoice, codeBox, keyBox, actions, ...hints);
   }
@@ -645,7 +654,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
   root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
-  share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say) : openShareDialog(sheet, share)));
+  share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say, { received: shared, chosen: phoneScope }) : openShareDialog(sheet, share)));
 
   let current = null;
   let seq = 0;
@@ -847,12 +856,25 @@ function drawLeaks(box, leaks) {
 }
 
 /**
- * On a phone, Share… hands the same link to the phone's share sheet (NB6-8),
- * so a participant share stays one. Where there is no share sheet, it copies
+ * On a phone, Share… hands a link to the phone's share sheet (NB6-8). A
+ * participant link is forwarded as it came, so a participant share stays one.
+ * A leader link is forwarded as the participant's version unless the reader
+ * chose "Everything" (BVJ, 2026-11-10, Audit 8 decision 5); that version is
+ * made by shareLink, never by hand. Where there is no share sheet, it copies
  * the link instead.
  */
-async function sharePhone(sheet, fragment, say) {
-  const url = `${location.origin}${BASE}sheets/#${fragment}`;
+async function sharePhone(sheet, fragment, say, { received, chosen }) {
+  let url = `${location.origin}${BASE}sheets/#${fragment}`;
+  if (received === "leader" && chosen === "participant") {
+    try {
+      url = await shareLink(sheet, { origin: location.origin, base: BASE, scope: "participant" });
+    } catch (err) {
+      console.error("Study Desk: couldn't make the participant's link", err);
+      say("The participant’s link couldn’t be made in this browser.");
+      return;
+    }
+  }
+
   if (navigator.share) {
     try {
       await navigator.share({ title: sheetName(sheet), url });
@@ -934,10 +956,13 @@ function openShareDialog(sheet, opener) {
   dialog.setAttribute("aria-labelledby", "sheet-share-title");
   const h = make("h2", null, "Share this sheet");
   h.id = "sheet-share-title";
-  let scope = "leader";
+  // The participant's version is the default, so a leader who is unsure and
+  // presses Copy link sends no answers or Leader only parts (BVJ, 2026-11-10,
+  // Audit 8 decision 5).
+  let scope = "participant";
   const scopeChoice = choices("sheet-share-scope", "What to share", [
-    ["leader", "Everything, for another leader"],
     ["participant", "The participant’s version, without answers or Leader only parts"],
+    ["leader", "Everything, for another leader"],
   ], scope, (v) => {
     scope = v;
     refresh();
