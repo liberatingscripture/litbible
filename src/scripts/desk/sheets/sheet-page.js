@@ -45,12 +45,12 @@
 //   presenter view's own window.
 // - **Share…** (3k, S8): the sheet in a link's fragment or in a file
 //   (desk-sheet-share.mjs), the whole sheet or the participant copy's parts.
-//   The file is "Export a Study Desk file (.md)" (EXPORT_LABEL; E37 renamed it from
-//   "Save as a file"), so "Save as" means only a document for another program.
+//   The file is "Export a sheet file (.md)" (EXPORT_LABEL; E37 renamed it from
+//   "Save as a file", Audit 8 decision 9 from "a Study Desk file"), so "Save as" means only a document for another program.
 // - **A shared sheet**: `/sheets/#share1.<data>`, whose fragment the page's
 //   inline script has already moved into history.state.litSharedSheet before
 //   the analytics beacon could read the address, or a file opened with "Import a
-//   Study Desk file" (BVJ, 2026-11-06; "Import a shared file" until then). Shown like the reader's own, read only, with "Import into my
+//   sheet file" (BVJ, 2026-11-06, 2026-11-10; "Import a shared file" until then). Shown like the reader's own, read only, with "Import into my
 //   notebook", which saves it as a new sheet of theirs. A participant share offers
 //   the participant copy only.
 // - **A shared sheet on a phone or tablet** (BVJ, 2026-11-08, Audit 6 NB6-8,
@@ -130,9 +130,9 @@ function storedAnswerKey() {
  * The Share dialog's file button (E37; BVJ, 2026-11-06: "export", to set it
  * apart from Save as). Its messages read it from here, so it changes in one place.
  */
-const EXPORT_LABEL = "Export a Study Desk file (.md)";
+const EXPORT_LABEL = "Export a sheet file (.md)";
 /** The button on /sheets/ that opens such a file (BVJ, 2026-11-06, pairing with Export). */
-const IMPORT_LABEL = "Import a Study Desk file";
+const IMPORT_LABEL = "Import a sheet file";
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 /**
@@ -433,11 +433,11 @@ function newSheetRow(root, store, { onPick = null } = {}) {
   return row;
 }
 
-/** "Import a Study Desk file": a sheet someone saved with "Export a Study Desk file (.md)". */
+/** "Import a sheet file": a sheet someone saved with "Export a sheet file (.md)". */
 function openFileRow(root, store) {
   const row = make("p", "sheets-page__open-file");
   const pick = button(IMPORT_LABEL);
-  pick.title = "Open a sheet someone sent you as a Study Desk file (.md)";
+  pick.title = "Open a sheet someone sent you as a sheet file (.md)";
   const input = make("input");
   input.type = "file";
   input.accept = ".md,.markdown,.txt,text/markdown,text/plain";
@@ -976,13 +976,13 @@ function openShareDialog(sheet, opener) {
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button(EXPORT_LABEL);
-  saveFile.title = `A Study Desk file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page`;
-  const saveFileHint = describe(saveFile, `A Study Desk file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page.`);
+  saveFile.title = `A sheet file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page`;
+  const saveFileHint = describe(saveFile, `A sheet file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page.`);
   // Save as is the other kind of file (E37), and a PDF comes from Print: say where both are.
   const fileNote = make(
     "p",
     "sheets-page__dialog-note",
-    `A Study Desk file (.md) opens on another computer with “${IMPORT_LABEL}” on the Sheets page. To open the sheet in Word or another program, use Save as. For a PDF, choose Print, then “Save as PDF” in the print window.`,
+    `A sheet file (.md) opens on another computer with “${IMPORT_LABEL}” on the Sheets page. To open the sheet in Word or another program, use Save as. For a PDF, choose Print, then “Save as PDF” in the print window.`,
   );
   const status = make("p", "sheets-page__status");
   status.setAttribute("role", "status");

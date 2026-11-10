@@ -146,7 +146,7 @@ export const SHARE_ERRORS = Object.freeze({
   "not-a-sheet": "This link or file doesn’t hold a sheet from the Study Desk.",
   newer: "This sheet was shared from a newer version of the LIT. Reload the page to try again.",
   invalid: "This sheet couldn’t be read. Ask for it again.",
-  "no-data": "This file doesn’t hold a shared sheet. A shared sheet’s file is a Study Desk file (.md), one saved with “Export a Study Desk file (.md).”",
+  "no-data": "This file doesn’t hold a shared sheet. A shared sheet’s file is a sheet file (.md), one saved with “Export a sheet file (.md).”",
 });
 
 export class ShareError extends Error {
@@ -325,7 +325,7 @@ export async function shareFile(sheet, opts = {}) {
   const head = [`# ${markdownLine(shared.title.trim()) || "Untitled sheet"}`];
   if (shared.subtitle.trim()) head.push(markdownLine(shared.subtitle.trim()));
   const how =
-    "A sheet from the Study Desk on litbible.net. To open it, go to https://litbible.net/sheets/ on a computer and choose “Import a Study Desk file.” The passages are read from the LIT when it is opened, so they are named here, not quoted.";
+    "A sheet from the Study Desk on litbible.net. To open it, go to https://litbible.net/sheets/ on a computer and choose “Import a sheet file.” The passages are read from the LIT when it is opened, so they are named here, not quoted.";
   return [...head, "", how, "", ...describeModules(shared.modules).flatMap((b) => [b, ""]), `<!-- lit-sheet ${fragment} -->`, ""].join("\n");
 }
 

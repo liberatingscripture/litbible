@@ -566,7 +566,7 @@ export const SHEET_TOUR_STEPS = [
       default:
         "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A Sheets pane is shown here only for the tour.",
       page:
-        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a Study Desk file.”",
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a sheet file.”",
     },
   },
   {

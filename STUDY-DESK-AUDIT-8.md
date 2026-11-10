@@ -190,7 +190,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
    should sheets have their own button? Either way the sentence should say what it moves. **Decided (2026-11-10): two buttons, “Delete all notes and marks” and “Delete all sheets” (labels on Fable’s advice, no third button); fixed.**
 9. **Copy names (CP8 Rule 7, Rule 6):** "My Notes" or "My notes," "My Notebook" or "My notebook,"
    "Your templates" or "My templates," "Space" or "Space to write," and whether "Study Desk preview"
-   stays in reader-facing text until release. **Decided (2026-11-10): My Notes, My Notebook, My templates, Space to write, From my notes, Display options; Study Desk preview stays; the .md file's name still open. Fixed.**
+   stays in reader-facing text until release. **Decided (2026-11-10): My Notes, My Notebook, My templates, Space to write, From my notes, Display options; Study Desk preview stays; and the .md files are named for what they hold, decided the same day: a shared sheet's is “a sheet file (.md)” (“Export a sheet file (.md)”, “Import a sheet file”) and the notebook's copy stays “Markdown.” Fixed.**
 10. **The phone viewer's floor (LG8-9):** is Safari 16.4 (iOS 16.4) the intended floor? Older iPhones
     fail with a message that blames the connection. **Decided (2026-11-10): yes; the message now says the browser is too old; fixed.**
 11. **Smaller ones**, each in its report: Hide my marks pressed twice (NB8-6); whether the minimized

@@ -529,11 +529,14 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   leader link forwards the participant's version (made by `shareLink`, never
   by hand) unless the reader picks Everything, which forwards the link as it
   came; a participant link is forwarded as it came, with no choice. The Share dialog's button for that
-  file is "Export a Study Desk file (.md)" and the Sheets page's is
-  "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
-  `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;
-  the reader-facing name of a `.lit-sheet.md` file is "a Study Desk file
-  (.md)" wherever it is mentioned. Opening one decompresses with a
+  file is "Export a sheet file (.md)" and the Sheets page's is
+  "Import a sheet file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
+  `sheet-page.js`; BVJ, 2026-11-06; "a Study Desk file" until Audit 8
+  decision 9, 2026-11-10), so "Save as" names only a document;
+  the reader-facing name of a `.lit-sheet.md` file is "a sheet file
+  (.md)" wherever it is mentioned. The notebook's own copy in that format
+  stays "Markdown" beside its two JSON formats: the two files share an
+  extension and nothing else, so each is named for what it holds. Opening one decompresses with a
   ceiling, rebuilds the record with fresh ids, drops the comparison
   copies again and refuses it unless `validateRecord` passes. **The
   fragment must never reach a server or the analytics beacon**: an
