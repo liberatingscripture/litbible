@@ -3,8 +3,8 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory. It governs the desk's code wherever it lives, including `src/lib/desk-*.mjs`, the /desk, /notebook and /sheets pages, `desk.css` and `public/greek/`; read it before touching any of them.
-> The Sheets' own rules (the Sheets pane, /sheets, present mode, templates,
-> sharing) are in `sheets/CLAUDE.md`, beside their code; it keeps this file's
+> The Sheets' own rules (the Sheets pane and its editor, /sheets, present
+> mode, templates, sharing) are in `sheets/CLAUDE.md`, beside their code; it keeps this file's
 > rule numbers 18 to 23 in its headings.
 > Cross-references such as "below" or "rule 15" were written when all of
 > this was one file, so they may point into another area file; the root's
@@ -15,42 +15,40 @@
 heading you need (BA42, 3j, N9, SEC-1) and read that section.
 
 **This file has a size cap** (`DESK_LIMIT` in `test/claude-docs.test.js`; BVJ,
-2026-11-07), meant to come down as it is trimmed (trimmed 2026-11-08, LG6-1,
-and lowered to 130 KB when the Sheets moved to `sheets/CLAUDE.md`;
-keep 8 KB or more of headroom). Rules, owner decisions and their reasons go
-here; the story of how an E number was decided and built goes under its entry
-in `STUDY-DESK-FIXES.md`, and a "Built on…" line goes nowhere.
+2026-11-07), lowered as it is trimmed, never raised; keep 8 KB or more of
+headroom. Rules, owner decisions and their reasons go here; the story of how
+an E number or an audit finding was decided and built goes under its entry in
+`STUDY-DESK-FIXES.md` or the audit file, Sheets material goes in
+`sheets/CLAUDE.md` (no cap), and a "Built on…" line goes nowhere.
 
 ## The records
 
 | Path | Purpose |
 |------|---------|
-| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, places, highlights and sheets on desktop, with optional account sync shared with the apps). Phases 1 to 3 are built behind the preview switch (`?desk=on`); nothing reader-facing is released. M10 was built and shelved; N2, H2 and M4 are shelved for version 2 (2026-10-15); N8 (the hidden passage) is held on branches until after the Zoom and not released before phase 1 is completely done (BVJ, 2026-10-13); 1g (an interleaf for the Greek) is shelved. Every idea, audit finding, owner decision, open question and BDR item is there with its ID. Read it before proposing or building any part of the desk, and update it when a decision changes. Since 2026-10-07 BDR's Claude reads this repo directly, so the website answers by updating `STUDY-DESK.md` on `main` (its section "One notebook, three homes" holds BDR's sync proposal and the answers); the older `STUDY-DESK-BRIEF-FOR-BDR.md` and `STUDY-DESK-REPLY-TO-APPS.md` are the last such documents. |
-| `STUDY-DESK-FIXES.md` | **The Phase 5 log: the desk's bugs, rough spots, wording and wishes** (IDs **E1** onward), kept by BVJ's use of the preview, with the rules for adding an entry and the work-session grouping. It was a section of `STUDY-DESK.md` until 2026-11-05 and moved whole, so every "E9" or "E28" in this repo means an entry there. **A new bug or preference BVJ reports goes here as the next E number**, never into `STUDY-DESK.md`; where an entry settles a decision, say so in the entry. |
+| `STUDY-DESK.md` | **The planning and decision record for the Study Desk** (notes, bookmarks, highlights and sheets on desktop, with optional account sync shared with the apps): every idea, owner decision, open question and BDR item with its ID, and what is shelved (M10, N2, H2, M4, 1g; "Version 2: deferred and shelved"). Phases 1 to 3 are built behind the preview switch (`?desk=on`); nothing reader-facing is released. Read it before proposing or building any part of the desk, and update it when a decision changes. **BDR's Claude reads this repo** (since 2026-10-07), so the website answers by updating `STUDY-DESK.md` on `main` ("One notebook, three homes" holds BDR's sync proposal and the answers); `STUDY-DESK-BRIEF-FOR-BDR.md` and `STUDY-DESK-REPLY-TO-APPS.md` were the last hand-sent documents. |
+| `STUDY-DESK-FIXES.md` | **The Phase 5 log: the desk's bugs, rough spots, wording and wishes** (IDs **E1** onward), kept by BVJ's use of the preview, with the rules for adding an entry and the work-session grouping. Every "E9" or "E28" in this repo means an entry there. **A new bug or preference BVJ reports goes here as the next E number**, never into `STUDY-DESK.md`; where an entry settles a decision, say so in the entry. |
 | `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
-| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1** (2026-10-20, commit `82af6a6`): findings BA1 to BA153, each with what happens, where and the fix, planned in phases FA1-a onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one, and mark each finding's status there as it ships. STUDY-DESK.md keeps the decisions. |
-| `STUDY-DESK-AUDIT-2.md` | **Audit 2** (2026-11-03, commit `a57e155d`): 111 findings from eight read-only auditors (IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV`, `CP`), the priority list, the decisions awaiting the owner, a "Status on main" table and tasks FA2-a to FA2-z; reports are appendices A to H, the brief is Appendix I. Mark a finding fixed in its appendix entry as it ships. |
-| `STUDY-DESK-AUDIT-3.md` | **Audit 3** (2026-11-06, commit `60af379e`): 80 findings from eight auditors (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`), the priority list in three tiers, the decisions awaiting the owner and six proposed work sessions; reports are appendices A to J, the brief is K. Mark a finding fixed in its appendix entry as it ships. |
+| `STUDY-DESK-AUDIT-1.md` | **Full Audit 1** (2026-10-20, commit `82af6a6`): findings BA1 to BA153, planned in phases FA1-a onward (done through FA1-ae). Read its "How to work a phase on a Pro account" before starting one. STUDY-DESK.md keeps the decisions. |
+| `STUDY-DESK-AUDIT-2.md` | **Audit 2** (2026-11-03, commit `a57e155d`): 111 findings (IDs `SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV`, `CP`), a "Status on main" table and tasks FA2-a to FA2-z; reports are appendices A to H, the brief I. |
+| `STUDY-DESK-AUDIT-3.md` | **Audit 3** (2026-11-06, commit `60af379e`): 80 findings (IDs `SEC3`, `DI3`, `NB3`, `DK3`, `GK3`, `LG3`, `LV3`, `CP3`); reports are appendices A to J, the brief K. |
 | `STUDY-DESK-AUDIT-4.md` | **Audit 4, scoped** (2026-11-07, `4a5b7c3c`): security, first use, both tours and the preview's copy; IDs `SEC4`, `FU4`, `TR4`, `CP4`. Its fixes shipped with it; the rest are recommendations. |
 | `STUDY-DESK-AUDIT-5.md` | **Audit 5: Sheets** (2026-11-07, `19e263e5`): every template, part and command as a first-time ministry leader, ghost prompts for template text, and the comparable tools; IDs `SH5-`. Fixed and decided in #502 to #505. |
-| `STUDY-DESK-AUDIT-6.md` | **Audit 6** (2026-11-08, `5c9a31a6`): Part 1 repeats Audit 5 (`SH6`); Part 2 repeats Audits 1 to 3 (`SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, verified by `VER6`). Priority list and decisions on top, reports as appendices, briefs in I and J. Mark a finding fixed as it ships. |
+| `STUDY-DESK-AUDIT-6.md` | **Audit 6** (2026-11-08, `5c9a31a6`): Part 1 repeats Audit 5 (`SH6`); Part 2 repeats Audits 1 to 3 (`SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`, verified by `VER6`). Reports are appendices, the briefs I and J. |
 | `STUDY-DESK-AUDIT-7.md` | **Audit 7, scoped: the tours** (2026-11-09, `81937298`): both tours re-read against today's UI, and the third, the Sheets tour (E63); IDs `TR7`. |
-| `STUDY-DESK-AUDIT-8.md` | **Audit 8, the final full audit** (2026-11-09, `15986b6e`): a fresh-eyes pass by fourteen auditors (IDs `DI8`, `SEC8`, `SH8`, `NB8`, `DK8`, `GK8`, `XA8`, `LG8`, `CP8`, `MH8`, `GF8a` to `GF8c`, `LV8`), verified by `VER8`, then a spot-check of Audits 1 to 7 and the E log (`PC8A` to `PC8C`). Mark a finding fixed as it ships. |
+| `STUDY-DESK-AUDIT-8.md` | **Audit 8, the final full audit** (2026-11-09, `15986b6e`): a fresh-eyes pass by fourteen auditors (IDs `DI8`, `SEC8`, `SH8`, `NB8`, `DK8`, `GK8`, `XA8`, `LG8`, `CP8`, `MH8`, `GF8a` to `GF8c`, `LV8`), verified by `VER8`, then a spot-check of Audits 1 to 7 and the E log (`PC8A` to `PC8C`). |
 
-**Each future full audit of the Study Desk is its own file**, `STUDY-DESK-AUDIT-3.md`
-and on, as the first two are (BVJ, 2026-11-05): findings with their own IDs and
-statuses, never added to `STUDY-DESK.md` or `STUDY-DESK-FIXES.md`. A fix
-BVJ asks for from an audit is marked in the audit file; a bug or preference BVJ
-raises in daily use goes in `STUDY-DESK-FIXES.md`. Give the new file a row in the
-table above and a mention in the root `CLAUDE.md`'s Important Files row.
+**Each full audit of the Study Desk is its own file** (BVJ, 2026-11-05):
+findings with their own IDs and statuses, never added to `STUDY-DESK.md` or
+`STUDY-DESK-FIXES.md`. A finding is marked fixed in its entry in the audit
+file as it ships; a bug or preference BVJ raises in daily use goes in
+`STUDY-DESK-FIXES.md`. Give a new audit file a row in the table above and a
+mention in the root `CLAUDE.md`'s Important Files row.
 
 ## Routes
 
-From the root's routing table.
-
 | Route | File | Purpose |
 |-------|------|---------|
-| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap and Pagefind; empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap (a `notebook/` prefix rule in `astro.config.mjs`) and Pagefind (Layout's default); empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
 | `/desk/help` | `desk/help.astro` (`desk-help.css`) | **One help page for the whole desk** (the Notebook, /desk, sheets, the Greek; BVJ, 2026-11-07). `/notebook/help/` redirects to it (`redirects` in `astro.config.mjs`; the static redirect page drops a `#fragment`, so link `HELP_HREF`/`WAYS_HREF`, never the old address). A static page that reads without the desk: noindex, out of the sitemap (`desk/help` in the filter) and Pagefind. **A feature that adds a pane, a menu item, or a sheet tool gets its sentence there**; counts come from `MAX_PANES`, `MAX_FOLLOWING`, `TRASH_DAYS`, never typed |
 | `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The Study Desk preview", rule 18 |
 | `/sheets` | `sheets.astro` | A sheet's own address (3i): `/sheets/` lists the reader's sheets, `/sheets/?id=<id>` shows one as a leader’s or participant’s version, to print or copy, or presents it to a room (3j; `&view=present`, and `&view=presenter` for the presenter view's window). `/sheets/#share1.<data>` is a sheet someone shared (3k). `&view=edit` is the sheet editor on the page (S12; Edit, and New sheet… on the list). `?sheet-tour` starts the Sheets tour. Same treatment as `/desk`. See rules 19 and 21 in `sheets/CLAUDE.md` |
@@ -113,12 +111,8 @@ means each of these, in one change:
    Highlight and its switch says so (`highlightsSupported`). Mac Safari and
    Firefox passes are still open from Audit 1's FA1-v. `CompressionStream`
    (Safari 16.4) is inside that floor, so Save as and Share a sheet need no
-   fallback. **A shared sheet's phone viewer has its own floor, Safari 16.4
-   (iOS 16.4)** (BVJ, 2026-11-10, Audit 8 LG8-9): the first with a regular
-   expression lookbehind (the reference linker's) and `CompressionStream`.
-   `sheet-share-gate.js` asks `viewerSupported()` before it imports the
-   viewer, and below the floor says the browser is too old, never to check
-   the connection.
+   fallback. **A shared sheet's phone viewer has its own floor, Safari 16.4**
+   (LG8-9; `sheets/CLAUDE.md`, rule 21).
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
 11. **Read View's retirement (8c)** ships in the same change as the flip
@@ -175,22 +169,10 @@ there, not in `desk.css`: the skip link's hiding rule and the Display tray's
 `notebook-search.js` and `sheets/search-sheet.js` add it through
 `search-style.js` (the "My notebook" and "Commands" groups, the Notebook
 actions window, the bar that makes a sheet from a search), and `boot.js`
-adds it beside `desk.css`. They used to add all of `desk.css` (about 200 KB,
-as a JavaScript string) on the first focus of the search box, on any page,
-for those few rows. A rule for those rows goes in `desk-search.css`;
+adds it beside `desk.css`. A rule for those rows goes in `desk-search.css`;
 `test/desk-search-styles.test.js` holds both halves.
-**A shared sheet on a phone loads only `desk-sheet-view.css`** (Audit 8,
-LG8-10): the highlight tints, a sheet's formatted text (`.desk-rich` and
-its colors) and the sheets' buttons (`.desk-sheet__btn`), added by
-`showSharedOnPhone` through `sheets/sheet-view-style.js` and by `boot.js`
-ahead of `desk.css`. So `sheet-page.js` never imports `boot.js`
-statically: it reads the desk's context from `desk-ctx.js`, and a
-computer's sheet page loads `boot.js` by `import()` at the start of
-`start()`. A rule a phone's shared sheet needs goes in
-`desk-sheet-view.css`; `test/desk-sheet-view-styles.test.js` holds it.
-
-**The sheet editor** (`document.execCommand`, its canonical form and golden
-file, its menus and toolbar) is in `src/scripts/desk/sheets/CLAUDE.md`.
+**A shared sheet on a phone loads only `desk-sheet-view.css`** (LG8-10;
+`sheets/CLAUDE.md`, rule 21).
 
 **Tests**: `npm run test:desk` (root `CLAUDE.md`) globs `desk-*`, `greek-*`,
 `search-greek-*` and `anchor-text`, so a new desk test takes one of those
@@ -232,9 +214,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      own, so one that throws shows a line saying so and the rest work.
   2. **Readers download none of it.** `desk-gate.js` imports the desk only
      with `data-desk="on"`, and on a reading page only its first stage
-     ("Launching", above). `boot.js` adds `desk.css` (and the first stage
-     `desk-tab.css`, the search `desk-search.css`, a phone's shared sheet
-     `desk-sheet-view.css`) as a `<style>` (`?inline`): **a plain CSS import is
+     ("Launching", above). `boot.js` adds `desk.css` (and each lighter stage's
+     own sheet) as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one rule in
@@ -343,7 +324,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      **The glossary also becomes a reading page** then (the end of
      `pages/glossary.css`): one column at the reading width, with the
      scripture pages' type sizes, all scaling with the Display tray's text
-     size. Readers keep the wide glossary until the desk is released.
+     size.
      A heading with several options takes only the break it needs
      (`desk/glossary-titles.js`, measured): its options on the heading's
      line, or together on a line of their own, and each on its own line
@@ -441,7 +422,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      "My highlights" is on (off by default), and only then offers Highlight.
      The switch is one setting with two controls, the Notebook panel's and a
      "My highlights" box in the Display tray's Show group (injected by
-     `note-settings.js` only with the desk on; BVJ, 2026-10-21), on Study
+     `note-settings.js` only with the desk on; BVJ, 2026-10-21), on Chapter
      View chapters, in Read View (its own setting) and on /desk, where it is
      the only desk switch the tray gets and is Chapter View's setting.
   8. **Notes on a glossary entry or an article** (N11) are **out of
@@ -459,13 +440,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      My Notes and /notebook list them, and the editor still opens them.
      Version 2 turns the switch back on, restores the three steps' "prose"
      view (their wording is still there) and the test of it in
-     `desk-first-use.test.js`. Built, it worked so: the same margin as
-     Chapter View, `note-sources.js` saying what a page's notes sit beside
-     and how each is found (a chapter's verses, or an entry's or article's
-     own text through `src/lib/desk-prose-anchor.mjs`), and
-     `prose-actions.js` offering "Add a note" on a selection there (on the
-     glossary, as the "My Notebook" row of every reader's selection panel,
-     with "Note on this entry" for the whole entry).
+     `desk-first-use.test.js`; how it worked is under N11 in `STUDY-DESK.md`.
   9. **Pinned footnotes** (`desk/pins.js`, rules in
      `src/lib/desk-footnotes.mjs`) reach the footnote popover the same way
      as rule 6: `chapter-tools.js` dispatches `lit:footnote-actions` with
@@ -479,8 +454,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      and "Greek" (`desk/tab-greek.js`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
-     the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (A Versions tab, and API.bible with it, is
-     deferred indefinitely: not in version 1, BVJ 2026-10-11.) **Settings is the last tab, on every page**
+     the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (No Versions tab, and no API.bible:
+     deferred indefinitely, BVJ 2026-10-11.) **Settings is the last tab, on every page**
      (BVJ, 2026-10-29), in three groups under small headings (E75): Show (the
      switches), Keep and print (Print…, the notebook page and "My sheets",
      where the notebook is kept), and Help (Notebook actions, the tour, help,
@@ -497,22 +472,20 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      the desk on). **Scripture pages, chapters and book introductions, put a
      pill in the toolbar's right slot**, the old "Switch to Read View" pill's
      design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
-     beside the Read View wrapper, which stays hidden while the preview is on):
-     "Open in Study Desk," "Study Desk" where that pill shortened, an icon
-     alone on the phone-width compact toolbar. Its `?place=` is the chapter
+     beside the Read View wrapper, which stays hidden while the preview is on;
+     its labels are E50's). Its `?place=` is the chapter
      being read (`romans-8`), and on an introduction chapter 1 with
      `&intro=romans`, which opens a Book Intro pane beside it (E53), written
      out in the layout because shared reader code never imports
      `desk-passage.mjs`. **/read has a "Study Desk"
      pill matching "Go to passage"** (`.read-menu__desk`, passed into
-     `ReadMenu`'s slot by `ReadLayout`, the two centered on one row), linking
+     `ReadMenu`'s slot by `ReadLayout`), linking
      to plain `/desk/`. Both pills are in the markup for everyone and shown
      only under `html[data-desk]` by their own rules. **No other page has a
      Study Desk button in the header**: articles, the glossary, Read View,
      /notebook and /sheets reach the desk by other routes (the Notebook panel's
      lamp link, /sheets' "Edit in Study Desk", /notebook's "Open the
-     Study Desk" under its title, `notebook-page.js`). The desk's own header hides it, being there already. The Chapter View "Switch to Read View"
-     pill is hidden while the preview is on.
+     Study Desk" under its title, `notebook-page.js`). The desk's own header hides it, being there already.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
@@ -561,30 +534,20 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      notebook holds (deleting, restoring, the purge, a history step, the note
      editor's save, every change to a sheet) reads and writes in **one**
      transaction through `store.change`, and any write that throws aborts the
-     whole transaction (BA5, BA13). **A sheet is changed over the record as
-     read there** (`planSheetChange` in `desk-sheets.mjs`), never over a copy a
-     pane or /search holds, which another tab may have saved past (BA129,
-     BA130); the Sheets pane's `sheet` moves only once a save lands, so a
-     failed one leaves it on the saved copy (BA128), though each save's
-     transaction opens when the change is asked for, so saves land in order.
-     **A closing page keeps its last typing** (BA72): on `pagehide` the pane
-     writes what hasn't landed, applied to the newest copy it has heard of
-     (its own, or one another tab saved: a change message carries a saved
-     sheet whole, and `refresh` reads it too; Audit 8, DI8-4), through
-     `store.writeNow`, which writes before it returns, reads nothing,
+     whole transaction (BA5, BA13). **A write made while a page closes is
+     `store.writeNow`** (BA72), which writes before it returns, reads nothing,
      commits at once and first aborts any transaction still waiting on its
-     read. Chrome keeps no other kind of write made while a page closes;
-     a read-then-write save, or one queued behind it, is lost (tested
-     2026-10-27). One race remains and is accepted (BVJ, 2026-11-10): a part
-     another tab saved in the instant before this one closes, whose message
-     hasn't arrived, can be written over at close.
+     read: Chrome keeps no other kind of write made then, and a
+     read-then-write save, or one queued behind it, is lost (tested
+     2026-10-27). How a sheet is changed (`planSheetChange`, BA128 to BA130)
+     and the Sheets pane's write at close are in `sheets/CLAUDE.md`, rule 18.
      **The store reopens after a version change** (DI8-5): another tab's
      upgrade closes the connection, and the next call opens it again; after
      an upgrade by a newer page, calls reject with `NOTEBOOK_UPGRADED`, and a
      failed write says so to the reader rather than only the console. A failed
      bookmark, highlight or pin write is told through `showNotice` (NB8-2), and
      a button busy with a write is `aria-disabled`, not `disabled`, so focus
-     stays on it (NB8-8, BA79). Hidden only starts the ordinary saves; the note editor saves onto the note as it is at Save
+     stays on it (NB8-8, BA79). The note editor saves onto the note as it is at Save
      (`planEdit`), and refuses if anything but its words and marker changed
      meanwhile (BA6); and the keys stand down in text fields, selects, anywhere in a sheet's
      text editor (its toolbar too, where Ctrl+Z undoes the typing, BA74) and
@@ -626,15 +589,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `description`, and one naming no verse as the whole chapter, BA98),
      fetched only when a notice opens. A highlight carrying
      a notice is never merged or trimmed (`placeHighlights`).
-  13. **Phase 1d is the notebook around the marks** (built 2026-10-12).
-     - **The notebook page**, `/notebook/` (`pages/notebook.astro`): noindex,
-       out of the sitemap (one `notebook/` prefix rule in `astro.config.mjs`;
-       its help is `/desk/help/`, see Routes) and out of Pagefind (Layout's
-       default). `desk-gate.js` loads `desk/notebook-page.js` when
+  13. **Phase 1d is the notebook around the marks**.
+     - **The notebook page**, `/notebook/` (`pages/notebook.astro`; Routes):
+       `desk-gate.js` loads `desk/notebook-page.js` when
        `[data-notebook-page]` is present; the page isn't a reading surface,
-       so it has no panel, and without the preview it shows only a short
-       note. **/notebook/, /desk/ and /sheets/ hide that note under
-       `html[data-desk="on"]`** and show “Loading the Study Desk…” until
+       so it has no panel. **/notebook/, /desk/ and /sheets/ hide their
+       no-preview note under `html[data-desk="on"]`** and show “Loading the Study Desk…” until
        the desk's code replaces both (BA153); if that code fails to load,
        the gate's `standDown()` takes the stamp off and the note is back.
        /notebook/ prints as the list of what is kept (BVJ, 2026-10-29;
@@ -683,8 +643,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        trash**, or undoing a restore would leave two trash records for one
        deletion. "Empty the trash now" stays under Delete in bulk and isn't
        undoable. **Delete in bulk is two buttons** (Audit 8 decision 8, BVJ
-       2026-11-10; one "Delete everything" until then, which trashed sheets
-       without saying so): "Delete all notes and marks" (every record but sheets) and
+       2026-11-10): "Delete all notes and marks" (every record but sheets) and
        "Delete all sheets" (sheets and the reader's templates), each one
        undoable step (`planDeleteMarks`, `planDeleteSheets`).
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
@@ -712,19 +671,15 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        bookmark stays on its verse unless that switch is on** (BVJ,
        2026-11-02). The old ribbon (`place` with `ribbon: true`) is read as a
        bookmark that follows by `migrateRecord`; the website never writes a
-       `place`. A bookmark is a row in the ordinary My Notes list and the
-       notebook page's: reference, name, then a line "Bookmark · Stays put" /
-       "Moves" / "Following" (`bookmarkState`; one short word each so the line
-       never wraps, BVJ 2026-11-04), and **Edit** (`bookmark-form.js`).
-       **The form moves a bookmark to another verse** (E46): a Verse field read
-       as Go to passage reads one (`bookmarkPlace`: a range keeps its first
-       verse, a chapter alone is verse 1, a verse past the chapter's end is
-       refused), sent only when the reader changed it, so a move the follower
-       made meanwhile is kept. It is one `store.change` (`planBookmarkEdit`),
-       undoable, refused with "John 3:5 already has a bookmark that stays put"
-       when the verse holds one of its kind (`roomAt`, `kindTakenAt`), and
-       writes `verse`, `endVerse` and `contentVersion` as a new bookmark gets
-       them. **"Start following now?"** (E47) shows while the switch is
+       `place`. A bookmark is a row in My Notes and the notebook page's list,
+       its state line one short word ("Stays put", "Moves", "Following";
+       `bookmarkState`) so it never wraps (BVJ, 2026-11-04), with **Edit**
+       (`bookmark-form.js`). **The form moves a bookmark to another verse**
+       (E46; `bookmarkPlace`), sent only when the reader changed it, so a move
+       the follower made meanwhile is kept. It is one undoable `store.change`
+       (`planBookmarkEdit`), refused when the verse holds one of its kind
+       (`roomAt`, `kindTakenAt`), and writes `verse`, `endVerse` and
+       `contentVersion` as a new bookmark gets them. **"Start following now?"** (E47) shows while the switch is
        checked and only when this tab could start it; checked at Save, the
        bookmark is saved and then followed (`followBookmark`). The verse menu
        lists "Edit bookmark…" after "Remove bookmark", and **pressing
@@ -778,8 +733,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        press.
        **The verse menu and the selection panel group a verse's bookmarks in a
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
-       Edit (the name cut at 14 characters, the full name the accessible name),
-       Add a bookmark that moves or stays put, and for the resting one "Leave
+       Edit, Add a bookmark that moves or stays put, and for the resting one "Leave
        it here". A verse with none keeps the one-press "Bookmark", and a
        finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
        2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js` also builds
@@ -797,12 +751,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        **Every way the flag drops redraws the rows** (`dropFlag`), turning the
        switch off in the form stops it at once, a Back or reload doesn't write
        verse 1 over the bookmark before the scroll is restored, and a restored
-       page reports its own last place (`pageshow`). **The Show menu splits
-       bookmarks** into "Bookmarks that move" and "Bookmarks that stay put"
-       once a list holds both (BVJ, 2026-11-04), **a search's count names the
-       kind when every notebook hit is one** ("1 bookmark match"), the group is
-       always headed "My notebook" (E32), and **a bookmark found in a notebook
-       search opens like its row** (`openAsBookmark`).
+       page reports its own last place (`pageshow`). **A bookmark found in a
+       notebook search opens like its row** (`openAsBookmark`); the Show menu
+       and a search's count name bookmarks by kind (BVJ, 2026-11-04; the
+       appendix has the words), and the group is always "My notebook" (E32).
        **Known and accepted** (BVJ, 2026-11-04): /notebook and /search clear the
        flag, so Back into the book doesn't resume it; a move overtakes Undo of
        an earlier edit once the reader has read on, and Delete then Undo
@@ -820,15 +772,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `data-desk="on"`; commands (`desk-commands.mjs`, `desk/commands.js`)
        travel as one `lit:desk-command` event with a single listener. Keep
        desk code out of the two search UIs themselves.
-       **The Notebook actions window** (E31, reworked 2026-11-06) lists those
+       **The Notebook actions window** (E31) lists those
        commands (`listCommands` in `desk-commands.mjs`: what a ">" in the box
        offers on this page, and a line saying more appear on a chapter page).
        It is desk code (`desk/commands-window.js`), a `float-window.js`
        window like the Greek's and the tour offer, styled in `desk-search.css`, and
-       **it is kept apart from the Greek "Search commands" window by BVJ's
-       choice**: the two were one window for a day and BVJ did not want them
-       combined, so don't put desk commands in `greek-commands.js` or Greek
-       ones here. A row runs its command and closes the window, as the box
+       **it is kept apart from the Greek "Search commands" window** (BVJ's
+       choice, after a day as one window), so don't put desk commands in
+       `greek-commands.js` or Greek ones here. A row runs its command and closes the window, as the box
        does; link commands are plain links. It has three ways in, each a
        quiet "Notebook actions" link (named apart from the Greek's "Search commands", since the two sit side by side on /search, and not "prompts", which reads as AI or as reflection questions; BVJ 2026-11-06): the tray's footer row (`SearchBar.astro`), a
        link in /search's field row with the desk on (the "Search commands"
@@ -856,8 +807,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        The window is `src/scripts/float-window.js`, which stays open through
        clicks elsewhere and never takes `lit-panel.js`'s one slot. The privacy
        page names these keys and the notebook's storage: keep it in step if a
-       key or what is stored changes (its effective date was not bumped for
-       this). **The tour's steps act, and leave nothing behind** (BVJ,
+       key or what is stored changes. **The tour's steps act, and leave nothing behind** (BVJ,
        2026-10-13): they open real menus, the note editor (in an example mode
        that can't save), the panel's tabs and the search tray, and end by
        undoing all of it (`panel.js`'s `snapshot`/`restore`, the scroll where
@@ -895,21 +845,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the card changes.
        **The notebook tour is 10 steps** (BVJ, 2026-11-02: "14 steps feels like a
        lot"): the notebook page and where it's kept are one step (`kept`). The
-       retired ids in a stored list are ignored (tested). **Audit 4 (BVJ,
-       2026-11-07; TR4-2, TR4-3): "Pin a footnote" runs in the Notebook part,
-       right after "This verse", and "Open the menu" leaves "Move as I read" to
-       the help page and the Edit bookmark form.**
+       retired ids in a stored list are ignored (tested). Its order and
+       wording follow Audit 4 (TR4-2, TR4-3; BVJ, 2026-11-07).
        - **The desk tour acts fully and writes nothing** (BVJ: "make sure
          everything is in the default layout, then begin the demonstration. At
          the end of the tour, it should put everything back the way it found
-         it"). It switches the desk to `originalLayout` for the run, adds a LIT
-         pane, presses a lock, shows a Sheets pane (a column, else the first
-         pane that isn't the LIT turned to Sheets; E59, BVJ 2026-11-08), points
-         at the command row, runs "New sheet…" as the row does
-         (`commands.newSheet`; a `notebook` step, left out when neither a
-         column nor a row fits), opens the Add pane menu and the Layout window,
-         undoing each step before the next, and at the end commits the reader's
-         own layout back. **What keeps that off disk is `layoutFrozen` in
+         it"). It switches the desk to `originalLayout` for the run, acts out
+         each of `DESK_TOUR_STEPS` (the list is under E24), undoing each step
+         before the next, and at the end commits the reader's own layout back. **What keeps that off disk is `layoutFrozen` in
          desk-page.js**: `save()`, `writeKey`, the "When this page opens" radios
          and "Make this my default" all do nothing while it is on, so a reload or
          closed tab mid-tour leaves `lit-desk-layout` as it was (the BA33 trap;
@@ -932,12 +875,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        - **Privacy**: `lit-desk-page-tour` and `lit-desk-sheet-tour` are named
          in /privacy's paragraph beside `lit-desk-tour`.
      - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
-       after the Zoom) on branches `claude/desk-1d-hidden` and
+       after the Zoom, and not released before phase 1 is completely done,
+       2026-10-13) on branches `claude/desk-1d-hidden` and
        `claude/desk-1d-search`; it is not in this tree, so nothing here
        should assume a `hidden` record is honoured (an imported one shows as
        "Other items").
   14. **Phase 1f is the Greek tab** (STUDY-DESK.md,
-     "Order of work", 1f). Three things to know before touching it:
+     "Order of work", 1f). Before touching it:
      - **Its data is committed, not built.** `npm run build:greek` reads
        clones kept outside the repo (`GREEK_SOURCES_DIR`: SBL's SBLGNT 1.2
        with its apparatus, MACULA Greek, the UBS dictionary, STEPBible's
@@ -987,8 +931,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        three quarters of their room (`src/lib/desk-greek-split.mjs`, pure and
        tested; the handle is in `tab-greek.js`, sized by CSS flex ratios on
        `--desk-greek-split`). A click or Enter on it opens its menu
-       (XA8-1), whose "Let the entry size itself" replaced the double click
-       and Enter that reset it. Shown only while a word is open; kept in
+       (XA8-1), whose "Let the entry size itself" resets it. Shown only while a word is open; kept in
        `sessionStorage['lit-desk-greek-split']` for the visit, forgotten by
        "Reset widths" (only its `kept: false` event, `forgetsSplit`, so the
        line still moves where storage is blocked, BA113), and named in
@@ -1000,7 +943,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
        (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120).
   15. **Phase 1h is searching the Greek** (STUDY-DESK.md,
-     "Order of work", 1h). Six things to know:
+     "Order of work", 1h).
      - **It is ordinary site search, gated until launch.** Only while
        `greekSearchEnabled()` in `search-core.js` is true, which today is
        the preview's `data-desk="on"`; without it nothing under `greek/`
@@ -1019,11 +962,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save the
        reader's own notes: under all types, the notebook's matches come ahead
        of it (BA40, BVJ 2026-10-28) unless the reader unchecks "My notes"
-       (E11; a native checkbox shown only with the desk loaded and the type
-       "All types": on a line under the tray's status for every Greek search,
-       on /search inline in the field's row (under 960px, on a line under the
-       field), and on the Search pane's link row, right of "See results on the
-       search page", BVJ 2026-11-04). It is remembered as
+       (E11: a checkbox shown only with the desk loaded and the type "All
+       types", in the tray, /search and the Search pane). It is remembered as
        `localStorage['lit-desk-greek-notes']` = "off", absent = on, named in
        /privacy; the rule is `src/lib/desk-greek-notes.mjs`, the reads are in
        `notebook-search.js`; English searches are not governed by it. Every
@@ -1033,7 +973,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        its name, and a **single Latin word that is also a glossary term's Greek
        lemma** ("pistis") gets one line under the status, "“pistis” is also a
        Greek word (πίστις). Search the Greek", whose link sets the type to
-       Greek (BVJ, 2026-11-04, after a mock of three options). The offer lists
+       Greek (BVJ, 2026-11-04). The offer lists
        no Greek itself, so a query still never gets English and Greek
        together. `greekOfferFor` (search-core.js) reads the build's
        `public/search/greek-offers.json` (fetched only with the gate on) and
@@ -1108,10 +1048,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (search snippets, fields and accessible names stay plain text). A
        link can't sit inside a button, so a note row's own control is
        stretched over the row behind its words.
-       **The note is linked in the linker's note mode** (stricter lists, any
-       case and short names, `data-end` spans, and verse counts from
-       `src/data/verse-counts.js`; BA89, BA94; `src/lib/CLAUDE.md`, “Scripture
-       references link at render”), and “Mentioned in your note on…” lists the
+       **The note is linked in the linker's note mode** (BA89, BA94;
+       `src/lib/CLAUDE.md`, “Scripture references link at render”), and “Mentioned in your note on…” lists the
        citing notes in `byPlace` order, Bible order then when made (BA93).
      - **What's new for you** (`src/lib/desk-whats-new.mjs`) reads the
        release notes through the change notice's `changeVerses`, so the
@@ -1170,11 +1108,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        hint or a control to a search page, put it in the window
        (`src/scripts/greek-commands.js`).
        **Its top is the search builder** (E5, BVJ 2026-11-02): a card for each
-       word (up to four), each with menus that list only what that word takes
-       (its lemma's parsings, read from the shard the search uses,
-       `codeCounts`, so nothing is built or fetched until a word is typed; a
-       choice also narrows the others), a "+ Then another word", and "How
-       close" once there are two. **The search field is the only record of the
+       word (up to four), whose menus list only what that word takes
+       (`codeCounts`, from the shard the search uses, so nothing is fetched
+       until a word is typed). **The search field is the only record of the
        search**: the builder reads it with `parseGreekQuery` on every change
        and writes it with `putSearch` (typed when the field has focus, so undo
        works after a mouse press); a card waiting for its word is the one
@@ -1184,15 +1120,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        words are read as the construction the field falls back to (`plain`,
        with a line saying so). **A card's word box is made once and never
        replaced** while typed in (`boxes`/`shown`), or a screen reader hears a
-       new control per letter and Ctrl+Z is lost. A search it can't show (`=`
-       exact, four or more plain words, one that doesn't read, over 300
-       characters) says so and leaves the field alone, with "Start a new
-       search". A word that is also a command ("perfect", "and") is written
-       quoted, and among several words it is left out, since a quote can't sit
-       inside "a/b". A press that finds the field changed behind its back
-       (Back, a "Did you mean") reads the field and does nothing else. A choice
-       already made stays listed even when the word takes none of it, so it can
-       be taken off. The rules are `src/lib/greek-builder.mjs` (pure, tested);
+       new control per letter and Ctrl+Z is lost. A search it can't show says
+       so and leaves the field alone, and a press that finds the field changed
+       behind its back (Back, a "Did you mean") reads the field and does
+       nothing else. The rules are `src/lib/greek-builder.mjs` (pure, tested);
        the drawing is `src/scripts/greek-builder.js`. The old list and examples
        sit under "Examples and all commands", which an error pointing at a
        command opens. A builder search is a Greek one, so writing one puts the
@@ -1230,15 +1161,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
-     Six things to know:
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
        dragging a pane over another (`pane-move.js`), where `dropZone` says an edge band
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
-       E25, BVJ 2026-11-02, the drop box names which; over nothing a pane can
-       land on, a label by the pointer says so and a drop announces "not
-       moved," 2026-11-04), and `neighborIn`
+       E25, BVJ 2026-11-02), and `neighborIn`
        for the pane menu's Move left, right, up, and down (the keyboard's
        swap; only a pane touching this one counts). **The pane menu is the
        kinds plus three flyout lines, Add pane, Move and Size** (BVJ,
@@ -1281,10 +1209,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        into /desk that means to open at a passage uses this, never the layout key.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
        2026-11-02): with the preview on, `/read`'s Read View card and the
-       chapter picker's "Open X in Read View" link become the Study Desk.
-       `src/lib/read-view-retirement.mjs` and `src/scripts/read-view-redirect.js`
-       are built and tested but imported by nothing; the launch change
-       ("Launching", item 11) wires them in.
+       chapter picker's "Open X in Read View" link become the Study Desk; the
+       rest is built, tested and imported by nothing until "Launching", item 11.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
@@ -1316,9 +1242,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `follow` reveals the row it needs. A pane's `onDeskChapters` redraw skips
        chapters holding none of its records (`touchesChapters`).
      **There is one notes pane, My Notes** (E17, BVJ, 2026-11-02):
-       `tab-mine.js` (search, "Show" by kind, the list in Bible order under a
-       heading per chapter, labels, and on /desk it follows the LIT pane).
-       `kept-list.js` remains, but only the notebook page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
+       `tab-mine.js`. `kept-list.js` remains, but only the notebook page draws it. **My Notes lists no sheets** (`withoutSheets`, BVJ,
        2026-11-07): they have /sheets and the Sheets pane, and the notebook
        page's list shows them under "Sheets" (S12). A layout saved with the retired kind `kept` reads back
        as `mine` (`RETIRED_KINDS`, applied in `checkLayout`, so the last
@@ -1367,8 +1291,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `sheet-text.js` keep their own `el`/`make`, which differ in how they
        treat a null text.
        The LIT pane is `desk/lit-pane.js`, Footnotes
-       `desk/footnotes-view.js` (3e), and Sheets `desk/sheets/sheet-pane.js` (3f;
-       the pane is "Sheets", BVJ 2026-11-08, "Sheet" until then), whose rules
+       `desk/footnotes-view.js` (3e), and Sheets `desk/sheets/sheet-pane.js` (3f),
+       whose rules
        (the editor, blanks, the gap's Add menu, Duplicate and templates) are in
        `src/scripts/desk/sheets/CLAUDE.md`, rule 18.
      - **A chapter's address is built from a stored book key only through
@@ -1433,11 +1357,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        first drawn, so the location field read verse 1 and a jump landed
        wrong. Chapter headings are hidden that way too (styles/CLAUDE.md, the
        Display tray's rule 6).
-       **Its bar has "Open on its page"** (E35): a link after the
-       next-chapter arrow (`extra` in `passage-bar.js`, `OPEN_PAGE_ICON` in
-       `glyphs.js`) to the chapter's page at the verse the field names
-       (`showPlace`, which every move of the field goes through), in a new
-       tab, as the chapter headings' links also open.
+       **Its bar has "Open on its page"** (E35; `extra` in `passage-bar.js`):
+       the chapter's page at the verse the field names (`showPlace`, which
+       every move of the field goes through), in a new tab, as the chapter
+       headings' links do.
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);
@@ -1458,9 +1381,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        one is cancelled, so it never opens another /desk (BA126). No
        reader's notes or bookmarks beside the pane's text, by BVJ's choice
        (3g, kept in E28, though the leading pane now moves a following
-       bookmark and the rows carry its colors): My Notes is a following pane that scrolls its list so the
-       records on the passage being read are in view (`follow` in
-       `tab-mine.js`), and a record's reference moves the LIT pane there.
+       bookmark and the rows carry its colors): My Notes follows instead
+       ("My Notes' follow", above).
      - **The reader's marks reach the LIT pane through `page.js`** (3g): each
        pane registers its text (`addDeskText`), `deskChapterBoxes()` lists
        every chapter the panes show (twice when two panes show it), and
@@ -1499,7 +1421,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The desk has its own header** (BVJ, 2026-10-21; `deskTitle` on
        Layout and SiteHeader), at every width: the emblem and "LIT Bible"
        as the home link, "Study Desk" centered as the page's h1, then the
-       menu button (Aa is gone from the bar: see "The command row" below).
+       menu button.
        No nav row and no search; the Display tray carries
        Chapter View's "Show" switches (`scriptureControls="study"`), which
        reach the LIT pane's text. Search is a pane (below).
@@ -1529,8 +1451,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        pane, or adds one as a column (else a row), then sends
        `desk:sheet-new` with the pane's id, which the pane answers by opening
        its template chooser. **Add pane** is a menu button whose menu asks "Add
-       column" or "Add row", then which kind (the kinds replace those two,
-       with a "‹ Add column" line to go back); each kind, here and in the pane
+       column" or "Add row", then which kind; each kind, here and in the pane
        menu, carries a one-line description (`about` in `KINDS`), heard as the
        item's description. A column is a full-height pane at the right edge, a
        row a full-width pane along the bottom (`addPane`, pure in
@@ -1578,11 +1499,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the fetched /glossary/ page into the pane; an article opens in a
        new tab, and an intro shows in a Book Intro pane (E53; `env.showIntro`,
        `introMoveMessage`), with the small link beside it for its page. A Greek result goes through `env.openGreekHit`, and
-       every Greek group carries `creditHtml` (rule 14). Adding to a sheet
-       reads the target from `addTarget` and `onAddTarget` (`sheet-pane.js`),
-       the same rule as “Add to sheet,” and writes in one `store.change`.
-       `showSheet`'s `keep` stops the pane giving its own place to the sheet
-       it just made. `/` reaches it as a `lit:desk-search` event from
+       every Greek group carries `creditHtml` (rule 14). Its add buttons are
+       the Sheets' (`addTarget`; `sheets/CLAUDE.md`, rule 18). `/` reaches it as a `lit:desk-search` event from
        `keyboard-shortcuts.js`, which imports nothing of the desk.
   19. **Phase 3i, a sheet on paper** (/sheets): in `src/scripts/desk/sheets/CLAUDE.md`.
      Its printing that needs no sheet stays here, since its code is `desk/print-*.js`:
@@ -1596,7 +1514,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        so no reader of the page sees it), wraps each highlighted run in a
        print-only `mark.desk-print-mark--<colour>`, and undoes all of it on
        `afterprint`, joining every split text node back into the original
-       node. **A superscript the highlight holds whole (a footnote letter, a
+       node. **Every print "with my notes" includes them even while "Hide my
+       marks" is on** (BVJ, 2026-11-10; Hide is about the screen only). **A superscript the highlight holds whole (a footnote letter, a
        verse number) is moved into a mark of its own, never marked inside**
        (BVJ, 2026-10-29): a mark inside the raised letter is tinted only as
        tall as the letter, which notched the band at every letter. **Not Custom Highlights**: Firefox prints a copy of the page that
@@ -1607,13 +1526,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **Print ▸ in the verse menu and the selection panel** (E40; BVJ, 2026-11-06):
        a flyout after Bookmark in the "My Notebook" rows (`printRow` in
        `desk/actions.js`; a finger's chips get the three items flat under a "Print"
-       subheading). Verse menu: "This verse" ("These verses" for a range), each
-       "…with my notes" and "…with room to write"; selection panel: "This
-       selection…", the same three. Chapter View's verse menu and either view's
+       subheading). Chapter View's verse menu and either view's
        selection panel only: not /desk's LIT pane (a print there would need a
        new-tab route like the Print menu's), and not the glossary. The labels come
-       from `partChoices` (`src/lib/desk-print-part.mjs`, pure and tested, with
-       `onVerses`, `planVerses`, `citedFootnoteIds`, `notesForPart`); the page side
+       from `partChoices` (`src/lib/desk-print-part.mjs`, pure and tested); the page side
        is `desk/print-part.js`, through `printLook` so the one-at-a-time rule and
        the take-away on `afterprint` hold. **Verses are hidden, not copied**: the
        blocks, verse spans and footnotes a print leaves out get
@@ -1632,8 +1548,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        on the selection's verses (not on footnotes) after it under "My notes".
        Highlights are not tinted in a selection print. Both put a "John 3:16–18
        (LIT)" heading first (the page's own title is hidden under
-       `html[data-desk-part]`). **"With my notes" prints the notes even while "Hide my marks"
-       is on** (BVJ, 2026-11-10; Hide is about the screen only). It is offered only where
+       `html[data-desk-part]`). It is offered only where
        the browser keeps a notebook, which is where the My Notebook rows exist at
        all, so there the whole Print ▸ row is absent.
      - **One Print menu, on /desk and in the Notebook** (E16; BVJ,
@@ -1641,7 +1556,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        each choice does for the chapter picked is `printMenuState`
        (`desk-print-notes.mjs`, pure, tested), so the two homes can't drift
        apart. It is a **chapter picker**, the passage field the panes use
-       (`passage-bar.js`: "John 3", "Rom 8", the arrows across the books), then
+       (`passage-bar.js`), then
        three choices: the chapter plainly, with my notes, with room to write
        (`PRINT_KINDS`). The picker starts at a chapter given by the host each
        time the menu opens (on /desk the leading LIT pane's, else the shared
@@ -1655,8 +1570,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        which has no text, prints nothing). **Only the menu's press prints**
        (SEC-4): it leaves a one-time mark for that address
        (`localStorage['lit-desk-print-ask']`, `printWasAsked`, good for a
-       minute), so a link from a chat or a shared sheet only opens the chapter,
-       and with notes it prints them whatever "Hide my marks" says (BVJ, 2026-11-10). A
+       minute), so a link from a chat or a shared sheet only opens the chapter. A
        new way to ask for such a print must leave the mark. **This page's own chapter prints in
        place**, with no new tab, as the Notebook's buttons always did. /desk's
        is "Print…" in the command row (E68, below); the
@@ -1664,9 +1578,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`panel.js`'s `printBox`, Chapter View chapters and Read View), opening the
        menu in place under it. **In Read View the menu has no picker** and
        prints the book on the page in place (the plain choice reads "The
-       book"): a book is what Read View prints, and picking a chapter is Study
-       View's and /desk's. The host owns the button, Escape and focus; the
-       menu's `onChoose` closes it. The command row opens this same menu.
+       book"): a book is what Read View prints, and picking a chapter is
+       Chapter View's and /desk's. The host owns the button, Escape and focus;
+       the menu's `onChoose` closes it.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        choice right after it in the Print menu, and the command
        `print-with-room`. `desk/print-room.js` only stamps
@@ -1701,8 +1615,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      (`desk-chains.mjs`) lists it rather than treating it as sitting on
      that verse (BA20).
      - **`desk/footnote-notes.js` is its page side**: an "Add a note" button,
-       the plain note marker's glyph (BVJ, 2026-11-06; it read "+ Note" until
-       then), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
+       the plain note marker's glyph (BVJ, 2026-11-06), named "Add a note on footnote 3", beside every Pin (`addNoteButton`,
        which `pins.js` and the tabs and pane call). This verse's own add button (`tab-verse.js`,
        "Add a note on this verse") is the same glyph pill. **Pin shows its
        state, not the press to come** (E67, reversing E18's struck-through
@@ -1729,17 +1642,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `row-reverse` (BVJ, 2026-11-07). The list measures its own left edge (on load, resize,
        `desk:column-moved`, the Display tray's size, face and text width, and
        fonts loading) and sets `data-desk-fn-pills`: **`row`** (both pills side
-       by side, Pin nearest the footnote and "Add a note" outside it (BVJ,
-       2026-11-06), right-aligned
-       14px from the footnote, level with its first
-       line, nothing grows), **`more`** (one "⋯" disclosure button there,
-       `aria-expanded`, that opens Pin and "Add a note" stacked under it; Escape, a
-       click elsewhere or focus leaving closes it, and choosing either returns
-       focus to the "⋯"), or **`inline`** (the pre-E49 placement on the note's
-       line). The thresholds use the pills' measured widths: `row` needs the
-       two pills and the 4px gap plus 14px and an 8px window edge; `more`
-       needs the wider pill plus the same 14 and 8 (about 118px and 78px in
-       Inter; OpenDyslexic needs more). **A footnote with one of the reader's
+       by side, Pin nearest the footnote, BVJ 2026-11-06; nothing grows),
+       **`more`** (one "⋯" disclosure button that opens the two stacked;
+       Escape, a click elsewhere or focus leaving closes it, and choosing either
+       returns focus to the "⋯"), or **`inline`** (the pre-E49 placement on
+       the note's line), by the pills' measured widths (sizes in E49).
+       **A footnote with one of the reader's
        margin notes beside it takes `inline`** whatever the list's mode:
        `notes-margin.js` sets `data-desk-fn-margin` on it, because the margin
        notes (full or circles) are in the same left margin, level with the
