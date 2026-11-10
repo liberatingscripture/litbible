@@ -72,7 +72,12 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `addHost`, so where a part goes and the change that adds it stay the
   editor's. **The add bar is `add-bar.js` and a card's body
   `part-cards.js`** (LG6-2; with the header's minutes and Leader only, given
-  `cardHost`); `buildCard`, the card around the body, stays in the editor.
+  `cardHost`). **The card around the body is `sheet-cards.js`** (Audit 8,
+  LG8-8): its Move and Remove, the gap's pill and its keys, dragging, and
+  `draw`'s part that keeps the cards in line with the sheet without
+  rebuilding one being typed in; what a move, a removal or the gap's menu
+  does, and the sheet's header, title and add bar, stay in the editor.
+  `TYPE_NAMES` and `headingOf` live there, so nothing imports the editor.
   **The two-tab question and the "Changed in another tab" line are
   `sheet-conflict.js`** (Audit 8, LG8-8; `askContinue`, `showConflict`,
   `clearConflict`), handed the editor's `content`, `idSuffix`, `change`,

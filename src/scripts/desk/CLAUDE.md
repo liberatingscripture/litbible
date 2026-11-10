@@ -562,9 +562,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      commits at once and first aborts any transaction still waiting on its
      read. Chrome keeps no other kind of write made while a page closes;
      a read-then-write save, or one queued behind it, is lost (tested
-     2026-10-27). One race remains and is accepted: a part another tab saved
-     in the instant before this one closes, whose message hasn't arrived,
-     can be written over at close.
+     2026-10-27). One race remains and is accepted (BVJ, 2026-11-10): a part
+     another tab saved in the instant before this one closes, whose message
+     hasn't arrived, can be written over at close.
      **The store reopens after a version change** (DI8-5): another tab's
      upgrade closes the connection, and the next call opens it again; after
      an upgrade by a newer page, calls reject with `NOTEBOOK_UPGRADED`, and a
@@ -757,7 +757,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        BVJ, 2026-11-06: `drawBookmarkLine`, `bookmarkLook`). A follow that ends
        on a verse already holding a bookmark of its kind is tolerated.
        **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
-       `desk-page.js` runs the follower with `page: DESK_PAGE` and reports the
+       `desk-lead.js` (for `desk-page.js`) runs the follower with `page: DESK_PAGE` and reports the
        leading pane's place (`hear`), or `lead` when another pane becomes the
        leading one, which pauses the follow (`followStep`'s `newLead`). Other
        LIT panes never move it; the opening place, a restore and the tour
@@ -1213,7 +1213,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
-       dragging a pane over another, where `dropZone` says an edge band
+       dragging a pane over another (`pane-move.js`), where `dropZone` says an edge band
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
        E25, BVJ 2026-11-02, the drop box names which; over nothing a pane can
        land on, a label by the pointer says so and a drop announces "not
