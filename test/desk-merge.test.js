@@ -40,7 +40,7 @@ function shuffled(items, seed) {
 }
 
 test("the vectors are well formed", () => {
-  assert.equal(vectors.version, 6);
+  assert.equal(vectors.version, 7);
   assert.ok(vectors.cases.length >= 15);
   const names = vectors.cases.map((c) => c.name);
   assert.equal(new Set(names).size, names.length, "case names are unique");

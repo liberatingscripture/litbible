@@ -32,7 +32,7 @@
 import { BOOKS } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { BOOKMARK_NAME_MAX } from "./desk-bookmarks.mjs";
-import { SHEET_FORMAT, validateSheet } from "./desk-sheet-format.mjs";
+import { MAX_VERSE, SHEET_FORMAT, validateSheet } from "./desk-sheet-format.mjs";
 
 /** The format version this code writes. */
 export const SCHEMA_VERSION = 1;
@@ -465,6 +465,8 @@ export function validateRecord(r) {
     need(Number.isInteger(r.chapter) && r.chapter >= 1 && r.chapter <= (BOOKS[r.bookKey] ?? 0), "chapter is out of range");
     need(Number.isInteger(r.verse) && r.verse >= 1, "verse is not a positive integer");
     need(r.endVerse == null || (Number.isInteger(r.endVerse) && r.endVerse >= r.verse), "endVerse comes before verse");
+    // A ceiling on both ends, which no chapter reaches (GF8c-1; MAX_VERSE).
+    need(!(r.verse > MAX_VERSE) && !(r.endVerse > MAX_VERSE), `a verse is past ${MAX_VERSE}, more than any chapter has`);
   }
   if (r.quote != null) {
     const q = r.quote;

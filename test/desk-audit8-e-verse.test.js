@@ -170,3 +170,26 @@ test("GF8c-5: the gap list is the one the published chapters carry (checked agai
   }
   assert.deepEqual(listed, found, "src/data/verse-gaps.js matches the chapter files");
 });
+
+// GF8c-1's ceiling in the format (BVJ's direction 2026-11-10, for BDR to
+// review): no record or sheet passage names a verse past MAX_VERSE, at either end.
+test("GF8c-1: a record or a sheet passage past verse 200 is refused, and one at 200 passes", async () => {
+  const { createRecord, validateRecord } = await import("../src/lib/desk-records.mjs");
+  const { MAX_VERSE, validateSheet } = await import("../src/lib/desk-sheet-format.mjs");
+  const { createSheet, makeModule } = await import("../src/lib/desk-sheets.mjs");
+  assert.equal(MAX_VERSE, 200);
+  const at = { now: "2026-11-10T12:00:00.000Z", ...ctx };
+  const note = (verse, endVerse) =>
+    createRecord("note", { bookKey: "john", chapter: 3, verse, endVerse, body: "x", marker: "note" }, at);
+  const past = /a verse is past 200/;
+  assert.deepEqual(validateRecord(note(16, 200)), []);
+  assert.ok(validateRecord(note(16, HUGE)).some((p) => past.test(p)), "a huge end verse");
+  assert.ok(validateRecord(note(201, 201)).some((p) => past.test(p)), "a start verse past the ceiling");
+  const bookmark = createRecord("bookmark", { bookKey: "john", chapter: 3, verse: 16, endVerse: 20000000 }, at);
+  assert.ok(validateRecord(bookmark).some((p) => past.test(p)), "a bookmark too");
+
+  const sheet = (endVerse) =>
+    createSheet({ modules: [makeModule("passage", { bookKey: "jude", chapter: 1, verse: 1, endVerse })] }, at);
+  assert.deepEqual(validateSheet(sheet(200)).filter((p) => past.test(p)), []);
+  assert.ok(validateSheet(sheet(10000000)).some((p) => past.test(p)), "a sheet's passage");
+});

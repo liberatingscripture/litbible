@@ -2710,6 +2710,13 @@ website has to say goes here, on `main`, with its date.
   merge decides** (Audit 6, DI6-5; and S12's Part 4 below). Nothing is
   built for either; each answer changes `STUDY-DESK-FORMAT.md` and the merge
   vectors, so the website waits.
+  **Update, 2026-11-10: both are settled on the website's side, for BDR to
+  review** (BVJ: "pick your recommendation, go with it, and mark it in the
+  docs for BDR to review"; Audit 8 PC8B-2). Question 1 is built as
+  recommended below, in merge vectors version 7; question 2 stands as the
+  whole-sheet rule, with nothing built. Both are marked **for BDR to
+  review** in `STUDY-DESK-FORMAT.md`; an answer from BDR that changes either
+  changes the website to match.
   1. **Should a deletion beat a bookmark's move as the reader reads?**
      Rule b says an edit later than a trash record's `deletedAt` brings the
      record back, and it compares the live copy's `modified`. A bookmark that
@@ -2730,6 +2737,9 @@ website has to say goes here, on `main`, with its date.
      (a) does a delete win over a later move in the apps' resolvers, or is
      today's rule b wanted; (b) if the apps already write a move as an
      ordinary edit, would the change cost them anything?
+     **Built 2026-11-10 as recommended** (merge vectors version 7;
+     `STUDY-DESK-FORMAT.md`, "Clocks", "A move as the reader reads doesn't
+     undo a deletion"). (a) and (b) still stand for BDR to answer.
   2. **Should a sheet merge part by part?** Today the newer copy of a whole
      sheet wins (`desk-merge.mjs`, rule a), so a leader who edits one part on
      one device and another part on a second device before they sync loses
@@ -2741,6 +2751,12 @@ website has to say goes here, on `main`, with its date.
      edit sheets at all in version 1? If they only show them, the
      whole-sheet rule stands and nothing is built; if they edit them, is a
      part-by-part merge wanted before sync ships, or after?
+     **Gone with, 2026-11-10: the whole-sheet rule stands for version 1**
+     (the website's recommendation). A part-by-part merge needs a stamp per
+     part and rules for parts added, removed and moved on two devices, which
+     is a format change worth making only if the apps edit sheets; two tabs
+     of one browser are already safe (S12). If BDR says the apps edit sheets
+     in version 1, it is designed then, before sync ships.
   Please answer in this file with a date, as for the other items.
 - Everything else in the proposal (the remaining Zoom items, the sequence)
   waits on the Zoom.
@@ -5102,10 +5118,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **The rest of the real-device audit** (FA1-v): the Windows half is
      done (BA146 to BA153); a Mac with Safari, VoiceOver, two screens and a
      touchscreen computer remain. It needs BVJ's own machines.
-   - **BDR's open answers that touch the record format**: DI6-5, and
-     whether the apps want a sheet merged part by part (S12, Part 4). They
-     bear on Phase 4's sync more than on the launch, but settle them before
-     the format is frozen for syncing.
+   - **BDR's review of what the website settled for the record format**
+     (2026-11-10, at BVJ's direction): DI6-5 (a move no longer undoes a
+     deletion, merge vectors version 7), the whole-sheet merge kept for
+     version 1 (S12, Part 4), and GF8c-1's ceiling of 200 on a verse
+     number. They bear on Phase 4's sync more than on the launch, but
+     settle them before the format is frozen for syncing.
    - **The announcement.** M12 decided on a line in the release notes and
      the newsletter at launch (the newsletter is written in Brevo). Decide
      whether the site's one announcement popover, now the apps' launch,

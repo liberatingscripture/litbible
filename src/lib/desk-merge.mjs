@@ -57,6 +57,13 @@
 //      edit), the trash record takes the newer copy, so an undo or a restore
 //      from the trash brings back the reader's last words. Same principle as
 //      rule 6's "newer content", and the same proposal (2026-10-12).
+//      A bookmark carrying both stamps is edited at its `editedAt`, not its
+//      `modified` (Audit 8 PC8B-2, = DI6-5; merge vectors version 7; BVJ's
+//      direction 2026-11-10, for BDR to review): a move as the reader reads
+//      is reading, not an edit, so a deletion made on one device stands
+//      against a laptop still reading it elsewhere. A rename, a label or the
+//      "Move as I read" switch after the deletion still brings it back, and
+//      so do a restore and an undo, which stamp `editedAt` too.
 //   c. 30 days in the trash, then a tombstone kept forever, so a stale backup
 //      can't revive a deleted record. A tombstone keeps `deletedAt`, which is
 //      all rule b compares, so it blocks a stale live record exactly as the
@@ -188,6 +195,8 @@ const bothTrash = (x, y) => x.kind === "trash" && y.kind === "trash";
 
 /** A bookmark carrying both group stamps (rule a's exception). */
 const stampedBookmark = (r) => r.kind === "bookmark" && parses(r.placedAt) && parses(r.editedAt);
+/** When rule b counts a live record as edited: a stamped bookmark's `editedAt`, since its moves aren't edits (PC8B-2). */
+const editTime = (r) => (stampedBookmark(r) ? r.editedAt : r.modified);
 
 /**
  * Two stamped copies of one bookmark, merged by group: the place from the
@@ -415,7 +424,7 @@ function combine(local, incoming, { now, exported, tiebreak } = {}) {
     // Rules b and c: the later action wins, and equal times mean the deletion stands.
     const live = merged.get(deletedId);
     if (live && live.kind !== "trash") {
-      if (instant(live.modified) > instant(survivor.deletedAt)) merged.delete(survivor.id);
+      if (instant(editTime(live)) > instant(survivor.deletedAt)) merged.delete(survivor.id);
       else {
         merged.delete(deletedId);
         if (holds(survivor) && stampedBookmark(live) && stampedBookmark(survivor.record)) {
