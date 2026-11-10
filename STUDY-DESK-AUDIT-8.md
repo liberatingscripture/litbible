@@ -338,7 +338,7 @@ Two trash records of one deletion holding two copies of a stamped bookmark keep 
 
 **Confidence** High.
 
-**Open (2026-11-09)** Decision 3.
+**Fixed (2026-11-10)** Decision 3: merge by group (BVJ). `collapseTrash` merges every held stamped bookmark by group (`mergeBookmarks`), and rule b merges a live stamped copy into the held one when the deletion stands. A group's tie goes to the copy whose fields in that group sort first, so the trash settles alike in any order: a fuzz of 3,000 histories of three copies, with and without a live one, gave the same result in every order (1,313 and 1,262 depended on order before). Merge vectors version 6, two cases, and the format's "A bookmark merges by group" bullet, for BDR. The other half of decision 3, labels made on two devices with one name (fold them at merge, or list both), is still open.
 
 #### DI8-4 · Low · data-integrity · NEW
 Closing a tab writes the whole sheet from that tab's copy, so a part another tab saved moments before is silently overwritten.

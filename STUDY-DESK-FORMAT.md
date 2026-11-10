@@ -971,6 +971,20 @@ deletion made in between, every time (BA4). So:
   the store's tiebreak). Rules b and c read the bookmark's `modified` as
   before. The five `a-bookmark-` and `clamp-a-bookmark-` cases show it,
   including an app's copy without the stamps merging whole.
+  **A bookmark held by a deletion merges by group too** (Audit 8 DI8-3;
+  merge vectors version 6, 2026-11-10; BVJ's decision, for BDR to review):
+  two trash records for one deletion that both hold stamped copies, and a
+  live stamped copy meeting a deletion that holds one (rule b, when the
+  deletion stands), give the held copy each group's later version, as above.
+  Before, the trash kept one whole copy by `modified` alone, so a rename on
+  one device and a move on another left the two trashes holding different
+  bookmarks, and a restore brought back a different one on each. A tie in
+  a group's stamp goes to the copy whose fields in that group sort first as
+  canonical JSON (the place: `placedAt` and the place fields; the edit:
+  every other field but `modified` and `client`; the whole: `modified` and
+  `client`), never to whichever copy arrived, so the trash settles alike in
+  any order. Cases `collapse-two-held-copies-of-a-bookmark-merge-by-group`
+  and `b-a-deletion-keeps-the-live-bookmark-s-newer-group`.
 - **A record that had to be clamped never beats anything the receiving side
   holds**: it is dropped when that side has a record with its id or a
   deletion of it, or, for a trash record, the record it deletes or another
