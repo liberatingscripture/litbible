@@ -38,6 +38,17 @@ import { BOOKS } from "../data/books.js";
 /** The version of the sheet section of the format this code writes. */
 export const SHEET_FORMAT = 1;
 
+/**
+ * The highest verse number a record or a sheet's passage may name, at either
+ * end (Audit 8 GF8c-1; BVJ's direction 2026-11-10, for BDR to review). No
+ * chapter in either testament reaches it (the New Testament's longest has
+ * 80 verses, Psalm 119 has 176), so it never depends on the text's verse
+ * counts, and it keeps a crafted or mistaken "John 3:16–20000000" from
+ * making every reader of the range loop twenty million times. Where verses
+ * are read, they are clamped to the chapter too.
+ */
+export const MAX_VERSE = 200;
+
 export const MODULE_TYPES = Object.freeze(["passage", "text", "question", "space", "keyTerms", "pageBreak"]);
 
 export const HINTS = Object.freeze(["none", "traditional", "custom"]);
@@ -964,6 +975,7 @@ function passageProblems(m, at) {
   need(isInt(m.chapter) && m.chapter >= 1 && m.chapter <= (knownBook ? BOOKS[m.bookKey] : 0), "chapter is out of range");
   need(isInt(m.verse) && m.verse >= 1, "verse is not a positive integer");
   need(m.endVerse == null || (isInt(m.endVerse) && m.endVerse >= m.verse), "endVerse comes before verse");
+  need(!(m.verse > MAX_VERSE) && !(m.endVerse > MAX_VERSE), `a verse is past ${MAX_VERSE}, more than any chapter has`);
   if (m.quote != null) {
     need(isObject(m.quote), "quote is not an object");
     if (isObject(m.quote)) {

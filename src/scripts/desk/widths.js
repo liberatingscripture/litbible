@@ -11,7 +11,9 @@
 // The pointer in a gap gets the resize cursor and a small grip beside it,
 // and a hairline shows only while dragging. Each handle is a focusable
 // separator the arrow keys move a character at a time (the ARIA
-// window-splitter pattern), so it isn't mouse-only.
+// window-splitter pattern), so it isn't mouse-only. A press that doesn't move,
+// or Enter, opens its menu of steps (line-menu.js; XA8-1), for a reader who
+// can click but not drag.
 //
 // What is kept is the LIT's measure and the notebook's width, in
 // sessionStorage (lit-desk-measure, lit-desk-width), so every page and reload
@@ -35,6 +37,7 @@ import {
 } from "../../lib/desk-margin.mjs";
 import { clampSplit } from "../../lib/desk-greek-split.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
+import { clickOrDrag, closeLineMenu, isMenuKey, toggleLineMenu } from "./line-menu.js";
 
 const MEASURE_KEY = "lit-desk-measure";
 const WIDTH_KEY = "lit-desk-width";
@@ -104,6 +107,11 @@ export function resetWidths() {
   document.dispatchEvent(new CustomEvent(WIDTHS_EVENT, { detail: { kept: false } }));
 }
 
+/** Whether any width the reader dragged is kept for this visit. */
+export function keptAny() {
+  return Boolean(keptWidths()) || keptFloatWidth() !== null || keptGreekSplit() !== null;
+}
+
 /**
  * A "Reset widths" button that shows only while widths are kept. `className`
  * is the host's own button style (the panel's foot, the Display tray).
@@ -114,7 +122,7 @@ export function resetWidthsButton(className) {
   b.className = className;
   b.textContent = "Reset widths";
   const sync = () => {
-    b.hidden = !keptWidths() && keptFloatWidth() === null && keptGreekSplit() === null;
+    b.hidden = !keptAny();
   };
   sync();
   document.addEventListener(WIDTHS_EVENT, sync);
@@ -240,31 +248,48 @@ export function createWidths({ column, panel, onChange }) {
       e.preventDefault(); // no text selection
       const start = startingWidths();
       const x0 = e.clientX;
-      try {
-        h.setPointerCapture(e.pointerId);
-      } catch (_) {
-        /* a synthetic event has no live pointer */
-      }
-      h.classList.add("desk-gutter--dragging");
-      const move = (ev) => set(next(which, start, ev.clientX - x0));
-      const end = () => {
-        h.removeEventListener("pointermove", move);
-        h.removeEventListener("pointerup", end);
-        h.removeEventListener("pointercancel", end);
-        h.classList.remove("desk-gutter--dragging");
-      };
-      h.addEventListener("pointermove", move);
-      h.addEventListener("pointerup", end);
-      h.addEventListener("pointercancel", end);
+      clickOrDrag(h, e, {
+        move: (ev) => {
+          h.classList.add("desk-gutter--dragging");
+          set(next(which, start, ev.clientX - x0));
+        },
+        end: () => h.classList.remove("desk-gutter--dragging"),
+        click: (ev) => openMenu(which, h, { x: ev.clientX, y: ev.clientY }),
+      });
     });
 
-    // A character at a time with the arrow keys, ten with Shift.
+    // A character at a time with the arrow keys, ten with Shift; Enter or
+    // Space opens the menu.
     h.addEventListener("keydown", (e) => {
+      if (isMenuKey(e)) {
+        e.preventDefault();
+        openMenu(which, h, null);
+        return;
+      }
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
       e.preventDefault();
       const { ch } = measures();
       const step = (e.shiftKey ? 10 : 1) * ch * (e.key === "ArrowLeft" ? -1 : 1);
       set(next(which, startingWidths(), step));
+    });
+  }
+
+  // The click-only way to do what dragging does (XA8-1): four characters a
+  // step. On the text's line, dragging right narrows the text; on the
+  // Notebook's, dragging right narrows the Notebook.
+  const MENU_STEP = 4;
+  function openMenu(which, h, at) {
+    const text = which === "text";
+    toggleLineMenu(h, {
+      label: text ? "Text width" : "Notebook width",
+      more: text ? "Wider text" : "Wider Notebook",
+      less: text ? "Narrower text" : "Narrower Notebook",
+      step: (dir) => {
+        const { ch } = measures();
+        set(next(which, startingWidths(), -dir * MENU_STEP * ch));
+      },
+      reset: { label: "Reset widths", run: () => keepReadingPlace(resetWidths), shown: keptAny },
+      at,
     });
   }
 
@@ -306,6 +331,8 @@ export function createWidths({ column, panel, onChange }) {
 
   function hideHandles() {
     gutters.hidden = true;
+    closeLineMenu(textEdge);
+    closeLineMenu(bookEdge);
   }
 
   return { layout, apply, clear, placeHandles, hideHandles };

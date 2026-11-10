@@ -26,6 +26,13 @@ test("GF8a-3: searchbar.js and /search tell a failed verse index from no results
     assert.match(text, /\bVERSES_FAILED\b/, `${file} says it`);
     assert.match(text, /versesFailed/, `${file} notices it`);
   }
+  // And each offers Try again after it, as their Greek failures do (2026-11-10):
+  // loadVerseIndex forgets a failure, so the same search asks again.
+  assert.match(read("src/scripts/searchbar.js"), /if \(showK && versesFailed\) appendRetry\(\);/);
+  const page = read("src/scripts/search.js");
+  assert.match(page, /if \(c\.versesFailed\) appendRetry\(\);/, "with a count");
+  assert.match(page, /if \(!parsedJump && lastSearchCache\.versesFailed\) appendRetry\(\);/, "with nothing found");
+  assert.match(core, /promise = null|verseIndexPromise = null/, "the loader forgets a failure");
 });
 
 test("SH8-3: /search's gather adds through the editor's placement and canonical-form rule", () => {

@@ -47,6 +47,7 @@ import {
   planWrite,
   readChangeKinds,
   readChangeMessage,
+  readChangeSheets,
   readMetaMessage,
   touched,
 } from "../../lib/desk-store-core.mjs";
@@ -191,7 +192,7 @@ export async function openStore({ ctx }) {
   // A listener may ask for only the kinds of record it draws (BA107), so a
   // bookmark moving as the reader reads (MOVE_KIND) doesn't redraw a list of notes.
   const listeners = listenerSet();
-  const notify = (ids, origin, kinds) => listeners.notify(ids, origin, kinds);
+  const notify = (ids, origin, kinds, sheets) => listeners.notify(ids, origin, kinds, sheets);
   const metaListeners = new Set();
   const notifyMeta = (key, origin) => {
     for (const fn of metaListeners) {
@@ -208,7 +209,7 @@ export async function openStore({ ctx }) {
     channel = new BroadcastChannel(CHANNEL);
     channel.onmessage = (e) => {
       const ids = readChangeMessage(e.data);
-      if (ids) notify(ids, "other-tab", readChangeKinds(e.data));
+      if (ids) notify(ids, "other-tab", readChangeKinds(e.data), readChangeSheets(e.data));
       const key = readMetaMessage(e.data);
       if (key) notifyMeta(key, "other-tab");
     };
@@ -300,7 +301,7 @@ export async function openStore({ ctx }) {
     // A followed bookmark's move says what it is (MOVE_KIND), so the views that
     // would redraw for any bookmark can stay quiet about it (E9).
     const kinds = heardAs ?? changeKinds(plan, before);
-    channel?.postMessage(changeMessage(ids, kinds));
+    channel?.postMessage(changeMessage(ids, kinds, plan.put));
     if (record) {
       const entry = makeEntry(plan, new Map(ids.map((id, i) => [id, current(before[i])])), entryId());
       // A change that left the notebook as it found it isn't worth undoing,
@@ -413,7 +414,7 @@ export async function openStore({ ctx }) {
       for (const id of checked.remove) objects.delete(id);
       tx.commit?.();
       // No read before it, so a removal's kind isn't known (changeKinds says so).
-      channel?.postMessage(changeMessage(touched(checked), changeKinds(checked)));
+      channel?.postMessage(changeMessage(touched(checked), changeKinds(checked), checked.put));
       return true;
     },
 

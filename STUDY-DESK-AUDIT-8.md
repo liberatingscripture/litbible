@@ -26,7 +26,7 @@ PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8
 of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
 LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
 
-**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all notes and marks, and Delete all sheets). Still open: decisions 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
+**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default), 6 (GK8-1 and GK8-5: Strong's numbers per word, and the requested Greek credits; Greek search index format 3), 7 (My Notes paged at 200, margin stacks folded past five), 8 (Delete all notes and marks, and Delete all sheets), 9 (one name per thing in reader copy), 10 (the phone viewer's Safari 16.4 floor) and 11 (the smaller ones), so no decision is left. XA8-1 is fixed too, by click, and XA8-12, by lighter dark-mode text colors (BVJ's choices, 2026-11-10). Still open: GF8b-3 (a screen reader) and GK8-6 (a live IME). PC8B-2 (with the sheet merge question beside it) and GF8c-1's ceiling are settled on the website's recommendations at BVJ's direction and built, for BDR to review (merge vectors version 7; a verse ceiling of 200). LG8-10 is fixed for the phone's shared-sheet viewer too, which brings a stylesheet of its own instead of desk.css. GF8a-3, GF8a-9 and XA8-14 are fixed, and DI8-4 is narrowed as far as a closing page allows and closed as accepted (BVJ, 2026-11-10). LG8-8 is fixed too: the editor's other-tab group and cards, and `desk-page.js`'s follower and pane drag, are modules of their own with tests.
 
 ## Bottom line
 
@@ -356,6 +356,10 @@ Closing a tab writes the whole sheet from that tab's copy, so a part another tab
 **Confidence** High that it happens as described in `fake-indexeddb`; Medium on how often a real browser runs `pagehide` inside the window.
 
 **Partly fixed (2026-11-09)** `pagehide` writes over the newest copy this tab has heard of: its own, or one another tab saved that `refresh` read while this tab's own saves were in flight. A part another tab saved that this tab hasn't yet heard of can still be written over at close; the verifier preferred documenting that race, and the desk file's rule 11 and `onPagehide`'s comment now do. Tests: `test/desk-audit8-a-sheet-tabs.test.js`.
+
+**Narrowed (2026-11-10)** A change message carries a saved sheet whole (`changeMessage`'s `sheets`, `readChangeSheets` in `desk-store-core.mjs`), and the editor takes it as `heard` the moment it arrives, so a close no longer waits on a read that queues behind this tab's own saves. A closing page can't read, so the race can't close entirely: a part another tab saved in the instant before the close, whose message hasn't arrived, can still be written over; rule 11 says so. Tests: `test/desk-audit8-dom-sheets-tabs.test.js` (the close comes before any read lands) and `test/desk-store-core.test.js`.
+
+**Closed, accepted (BVJ, 2026-11-10)** What remains needs two tabs editing one sheet (the editor asks before the second opens it), a save in one, and a close of the other within the few milliseconds before that save's message arrives. Not pursued: a copy of every sheet in localStorage (sheets reach 512 KB, beside the site's settings), and a safety net in the tab that stays open offering to put back words a close wrote over.
 
 #### DI8-5 · Low · longevity · NEW
 After a `versionchange` the store closes its connection and every later call throws for the rest of the page's life, with nothing told to the reader.
@@ -1319,7 +1323,7 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Reuse DK-8's answer: add "Narrower / Wider" (and "Narrower notes / Wider text") buttons beside "Reset widths" in the Notebook's Settings tab and on the handle's focus, "Larger text / Larger entry" in the Greek tab's header or entry menu, and give floating windows a "Move to the other side" action. Because the text widths are the only ones that are Chapter View-specific, the Settings tab is the cheapest home.
 **Confidence** High on the facts, Medium on whether the owner wants to treat floating-window position as "functionality".
 
-**Open (2026-11-09)** A single-pointer alternative adds controls to reading pages, so it needs a design (and a mock) first.
+**Fixed (2026-11-10)** BVJ chose "click the line" from a sketch of two directions (the other was Narrower and Wider buttons in the Notebook's Settings tab). Each draggable line (the two margin lines, the floating Notebook's edge, the Greek tab's line) opens a small menu when pressed and released without moving, or on Enter or Space: "Wider text" and "Narrower text," "Wider Notebook" and "Narrower Notebook," "Larger entry" and "Smaller entry," and the line's reset. The steps keep the menu open and are disabled, with the reason, at the line's ends. Nothing new shows at rest. A press now writes a width only once it moves, where a click used to store the widths as they stood. The Greek line's double click and Enter reset are now the menu's "Let the entry size itself." A floating window's grip is a button, "Move to the other side," with arrow keys too, which also answers the 2.1.1 half. The help page's Widths paragraph says how. Code: `src/scripts/desk/line-menu.js`, `widths.js`, `float-resize.js`, `tab-greek.js`, `src/scripts/float-window.js`. Tests: `test/desk-xa8-1-line-menu.test.js`, `test/float-window.test.js`.
 
 #### XA8-2 · Medium · a11y · NEW
 **Title: The sheet editor's text fields draw their edge at 22 to 25 percent ink, breaking the site's own BA144 rule and WCAG 1.4.11**
@@ -1429,7 +1433,7 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** Lower the dark-mode yellow tint from 0.24 to about 0.16 or lighten the red, gray and blue by a step; or accept it as a user combination and note it in the help page.
 **Confidence** High on the numbers, Low on the impact.
 
-**Open (2026-11-09)** A leader's color choices: a design call.
+**Fixed (2026-11-10)** BVJ chose to lighten the text colors rather than fade the yellow (which would have parted a sheet's yellow from the reader's highlights and still left red on green, at 4.48:1, which this entry missed). In both dark blocks, red #ff8a80 → #ff9f97, blue #8cb4ff → #93b9ff, gray #a9aea7 → #b6bab4; green and purple were already clear. Every dark pair is now at least 4.6:1 on both surfaces, and the highlights are unchanged. Present mode keeps its own colors on its own ground (worst pair 3.47:1, on large text, where 3:1 is the bar). Test: `test/desk-rich-colors.test.js`, which reads desk.css and checks every color on every highlight in both themes, and that the two dark blocks agree.
 
 #### XA8-13 · Low · a11y · NEW
 **Title: The desk's inputs use the browser's default placeholder color, which is under 4.5:1 on the raised surface and in dark mode**
@@ -1450,6 +1454,8 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Confidence** Low (needs a browser at 640 CSS px).
 
 **Partly fixed (2026-11-09)** `scroll-padding-bottom` while the undo bar shows. The floating Notebook covers the page sideways, which scroll padding can't help.
+
+**Fixed (2026-11-10)** Focus landing on something the floating, expanded Notebook hides folds it to its tab, as Escape does, without remembering the fold (`railHides` in `margin.js`: the topmost thing at the middle of the focused element's box is the rail's, so whatever lies over the Notebook counts as on top). Test: `test/desk-xa8-14-focus-under-notebook.test.js`.
 
 #### XA8-15 · Low · usability · NEW
 **Title: Disabled row buttons explain themselves only in a `title`, which a keyboard or touch user never sees**
@@ -1639,6 +1645,10 @@ Most of the client wiring has no unit test: 59 of 102 modules in `src/scripts/de
 
 **Partly fixed (2026-11-10)** `test/helpers/browser-env.mjs` is the DOM stub, and the Audit 8 DOM suites since the audit leave 32 of 104 client modules named by no test (59 of 102 at the audit). Five more suites drive `undo-bar.js`, `passage-bar.js`, `labels-ui.js`, `continue-reading.js` and `sheets/add-bar.js` (imported first, so the LG8-6 cycle can't hide). The split of `createSheetEditor` and of `desk-page.js`'s `start()` is not started.
 
+**Partly fixed (2026-11-10)** The first split of `createSheetEditor` is made: the other-tab group, the two-tab question (`askContinue`) and the "Changed in another tab" line (`showConflict`, `clearConflict`), is `sheets/sheet-conflict.js`, driven by `test/desk-audit8-dom-sheet-conflict.test.js`; when to ask and when to draw the line stay in the editor. Still open: `buildSheet`/`buildCard`/`draw` as a `sheet-cards.js`, and `desk-page.js`'s follower (`tellFollower`, `startMove`). 29 of 109 client modules are named by no test.
+
+**Fixed (2026-11-10)** The rest of the split is made, each piece with a DOM suite of its own: `sheets/sheet-cards.js` is the card around a part (Move, Remove, the gap's pill and its keys, dragging) and `draw`'s part that keeps the cards in line with the sheet (`test/desk-audit8-dom-sheet-cards.test.js`); `desk-lead.js` is what the leading LIT pane reports, to a following bookmark and Continue reading (`test/desk-audit8-dom-desk-lead.test.js`); `pane-move.js` is dragging a pane by its header (`test/desk-audit8-dom-pane-move.test.js`). `buildSheet` stays in the editor: it is the sheet's header, title and add bar, wired to the editor's saves, and moving it would hand a second module most of the closure. `sheet-editor.js` is 1,111 lines (1,481 before Audit 8's splits) and `desk-page.js` 1,211. The editor's teardown and the tour's example mode have smoke tests (`test/desk-audit8-dom-sheets-editor.test.js`), as `margin.js` has in the XA8-14 suite. 29 of 112 client modules are still named by no test, most of them small; the larger (`kind-menu.js`, `print-notes.js`, `tab-verse.js`, `footnote-notes.js`) are the next candidates.
+
 #### LG8-9 · Low · compat · NEW
 
 A shared sheet opened on an iPhone older than iOS 16.4 fails with a message that blames the connection.
@@ -1668,6 +1678,10 @@ Typing in the search box, with the desk on, downloads the whole of `desk.css` (a
 **Fix** Cut the CSS the search rows need into `desk-search.css` (or reuse `desk-tab.css`'s approach), keep the full sheet for the shell and `/desk`. Worth doing only if the launch measurements (a re-measure of stage one is on the desk file's own launch list) show the first search matters.
 
 **Confidence** High on the sizes; Low on whether it matters (one-time and cached).
+
+**Fixed (2026-11-10)** for the search, on BVJ's word. The search rows' rules (the "My notebook" and "Commands" groups, the Notebook actions window, the gather bar) moved out of desk.css into `src/styles/desk-search.css`, about 6.7 KB, which `notebook-search.js` and `sheets/search-sheet.js` add through `desk/search-style.js` and `boot.js` adds beside desk.css. Measured on a production build against the commit before: the first search's closure went from 206.4 KB raw (51.3 gzip, 43.8 brotli) to 88.7 KB raw (31.3 gzip, 27.5 brotli), and the gather bar's from 204.4 KB to 86.7 KB; desk pages are unchanged. The phone's shared-sheet viewer still loads all of desk.css through `boot.js`, since a sheet is drawn with the desk's own rules; splitting those out is a larger job, worth it only if the viewer's load is measured as slow. Test: `test/desk-search-styles.test.js` (neither search module reaches desk.css; the rows' rules live in desk-search.css alone).
+
+**Fixed (2026-11-10)** for the phone's viewer too, on BVJ's word. Measured in the browser at phone size with a test share link (the viewer, Present, the participant's version and Share…), the viewer used three things from desk.css: the highlight tints (`--desk-hl-*`), a sheet's formatted text (`.desk-rich` and its `--desk-rich-*` colors, light and dark), and the sheets' buttons (`.desk-sheet__btn`, with its forced-colors edge). Those moved into `src/styles/desk-sheet-view.css`, about 8 KB, which `showSharedOnPhone` adds through `sheets/sheet-view-style.js` and `boot.js` adds before desk.css. `sheet-page.js` no longer imports `boot.js`: it takes the desk's context from the new `desk/desk-ctx.js` (which `boot.js` re-exports), imports `ref-preview.js` itself, and a computer's sheet page loads `boot.js` by `import()` at the start of `start()`, which `desk-gate.js` begins fetching beside it. Measured on a production build: the viewer's static graph went from 24 files, 408.0 KB raw (125.6 gzip, 110.9 brotli) to 21 files, 285.6 KB raw (103.9 gzip, 92.4 brotli), and no longer reaches desk.css, which now lives only in `boot`'s chunk. Checked on the sheet's own page, the /sheets/ list and the whole of /desk (1,928 elements, light and dark) by putting HEAD's desk.css back in place of the two stylesheets: no computed style changed, so moving the rules ahead of desk.css changed no cascade. Test: `test/desk-sheet-view-styles.test.js` (the viewer reaches desk-sheet-view.css and none of desk.css, desk-search.css, desk-tab.css or boot.js; the moved rules live in desk-sheet-view.css alone). Seen while checking and not changed: at 375px the Share choice “The participant’s version, without answers or…” runs past the edge of its box on the phone viewer.
 
 #### LG8-11 · Low · docs · NEW
 
@@ -2313,6 +2327,8 @@ A verse index that fails to load makes a keyword search say "No results." (Searc
 
 **Partly fixed (2026-11-09, 2026-11-10)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. The Search pane also shows "The verses couldn’t be loaded." and Try again where the verses would be, as its Greek failures do (2026-11-10; test in `test/desk-audit8-dom-search-pane.test.js`). The tray and /search, which are every reader's search, have no Try again button.
 
+**Fixed (2026-11-10)** The tray and /search put Try again after the line too, as their Greek failures do (`appendRetry` in `searchbar.js` and `search.js`), on a count and on a search that found nothing; the loader forgets the failure, so the same search asks again. Test: `test/desk-audit8-c-search-and-pages.test.js` (both are page scripts that run on load).
+
 #### GF8a-4 · Low · ui · NEW
 Backspacing a query below three letters leaves the Greek offer, the "See results on the search page" link and the "My notes" box from the old query on screen.
 
@@ -2402,6 +2418,8 @@ In the Greek search, the suggestion buttons ("Did you mean", the article example
 **Confidence**: Medium (focus fixup is browser behavior).
 
 **Partly fixed (2026-11-09)** The suggestion buttons put focus back in the field, and Greek find's suggestion and a refused word keep it; after a chosen verse it is restored only if it fell to the page.
+
+**Fixed (2026-11-10)** On /desk, a result in another chapter moves the Greek pane, whose old text goes with the focus; when the new chapter can't find the result's word, focus goes to the Greek text (the tab's `focusText`, now on its API) if it is still on the page. Test: `test/desk-audit8-dom-greek-tab.test.js`.
 
 #### GF8a-10 · Low · a11y · NEW
 Escape in the label rename field cancels the rename while an IME or dead-key composition is open.
@@ -2798,6 +2816,8 @@ Counts: Critical 0, High 0, Medium 2, Low 7, Nit 1.
 **Confidence** High.
 
 **Partly fixed (2026-11-09)** Every loop clamps to the chapter's last verse (`span()` in `desk-verse.mjs`, `lastCounted` in `verse-labels.js`, `blockForVerse`, `completeBooks`), and the Markdown import refuses a verse past its chapter. A ceiling in `validateRecord` and the sheet format is a change to the shared format: for BVJ and BDR. Tests: `test/desk-audit8-e-verse.test.js`.
+
+**Fixed (2026-11-10), for BDR to review**, at BVJ's direction to go with Claude's recommendation: a record's or a sheet passage's `verse` and `endVerse` may not pass 200 (`MAX_VERSE` in `src/lib/desk-sheet-format.mjs`, checked by `validateRecord` and the passage check). A fixed number rather than the chapter's count, so the format never depends on the text's verse counts and an app needs no table to apply it; no chapter of either testament reaches it (80 in the New Testament, 176 in Psalm 119). Recorded in `STUDY-DESK-FORMAT.md` under “Fields every record carries”, with the question for BDR. Test: `test/desk-audit8-e-verse.test.js` (200 passes; 201 and 20,000,000 are refused, for a note, a bookmark and a sheet's passage).
 
 #### GF8c-2 · Medium · usability · NEW
 **For Philemon, 2 John, 3 John and Jude, the passage form's refusal (SH6-4) tells the leader to "add Jude 3 and then the next chapter… such as Jude 3:3–12".**
@@ -3451,6 +3471,8 @@ Counts: about 95 items checked. Holds 88; regressed 0; still open 2 (below; neit
 **Confidence**: High that it stands. It is an open question for BDR, so treat it as a decision to chase, not a defect to patch. DI8-1 (a clock set ahead) is the sibling Audit 6 asked in the same breath, and the fresh pass has it.
 
 **Open (2026-11-09)** Still with BDR.
+
+**Fixed (2026-11-10), for BDR to review**, at BVJ's direction to go with the website's recommendation. Rule b counts a bookmark carrying `placedAt` and `editedAt` as edited at its `editedAt` (`editTime` in `src/lib/desk-merge.mjs`), so a followed bookmark's move no longer undoes a deletion; the trash holds the moved place, so a restore brings it back where the reader had got to. A rename, a label, the “Move as I read” switch, a restore or an undo after the deletion still revives it, since each stamps `editedAt` (`desk-records.mjs`, `desk-history.mjs`). Merge vectors version 7 adds `b-a-followed-bookmark-s-move-leaves-its-deletion-standing` (and its `-other-way` twin) and `b-a-bookmark-renamed-after-its-deletion-comes-back`; no earlier case changed. Recorded in `STUDY-DESK-FORMAT.md` (“Clocks”) and `STUDY-DESK.md` (the 2026-11-08 questions), with BDR's two questions kept open there. The same entry's question 2 (merging a sheet part by part) is settled as the whole-sheet rule for version 1, also for BDR to review.
 
 ### Caught by both
 

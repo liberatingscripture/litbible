@@ -72,7 +72,17 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `addHost`, so where a part goes and the change that adds it stay the
   editor's. **The add bar is `add-bar.js` and a card's body
   `part-cards.js`** (LG6-2; with the header's minutes and Leader only, given
-  `cardHost`); `buildCard`, the card around the body, stays in the editor. **Two tabs on one sheet**
+  `cardHost`). **The card around the body is `sheet-cards.js`** (Audit 8,
+  LG8-8): its Move and Remove, the gap's pill and its keys, dragging, and
+  `draw`'s part that keeps the cards in line with the sheet without
+  rebuilding one being typed in; what a move, a removal or the gap's menu
+  does, and the sheet's header, title and add bar, stay in the editor.
+  `TYPE_NAMES` and `headingOf` live there, so nothing imports the editor.
+  **The two-tab question and the "Changed in another tab" line are
+  `sheet-conflict.js`** (Audit 8, LG8-8; `askContinue`, `showConflict`,
+  `clearConflict`), handed the editor's `content`, `idSuffix`, `change`,
+  `opCtx` and `say`; when to ask and when to draw the line stay the
+  editor's. **Two tabs on one sheet**
   (S12, part 4; BVJ, 2026-11-08; rules in `src/lib/desk-sheet-tabs.mjs`,
   page side `sheet-tabs.js`): every change is planned over the record as
   read (BA129), so edits to different parts in two tabs both keep, and each
@@ -570,7 +580,9 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   phone or tablet it shows the sheet** (NB6-8): a dynamic import of
   `sheet-page.js`'s `showSharedOnPhone`, the one way desk code reaches a
   phone, with no notebook opened and nothing that saves (Present with
-  taps and no presenter view, Print, Share…); a test holds the gate. On a
+  taps and no presenter view, Print, Share…); a test holds the gate. It brings `desk-sheet-view.css`
+  alone, never `desk.css` or `boot.js` (LG8-10; "Launching" in the desk
+  file). On a
   computer without the preview, a link turns it on (`?desk=on#share1.…`).
   A shared sheet shows read only until "Import into my notebook", which saves
   it as a new sheet (`copyOfShared`) and turns the page into that

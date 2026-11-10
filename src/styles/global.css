@@ -3592,6 +3592,32 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   background-size: 5px 5px;
 }
 
+/* A floating window's grip is a button, "Move to the other side" (XA8-1):
+   the same dots, in a 24px target, still the header's drag handle. */
+.lit-window__move {
+  box-sizing: content-box;
+  padding: 4px 7px;
+  margin: -4px -5px -4px -7px;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  background-origin: content-box;
+  background-clip: content-box;
+  cursor: grab;
+}
+
+.lit-window__move:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+@media (forced-colors: active) {
+  .lit-window__move {
+    forced-color-adjust: none;
+    background-image: radial-gradient(circle, ButtonText 1.3px, transparent 1.6px);
+  }
+}
+
 .lit-panel__header .lit-panel__heading {
   flex: 1 1 auto;
 }

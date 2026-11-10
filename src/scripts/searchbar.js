@@ -672,15 +672,20 @@ const _initSearchbars = async () => {
     // names and links as the Greek tab's sources (greek-credits.mjs).
     const greekCredit = () => `<p class="searchbar__credit">${gk.creditHtml(escapeHtml)}</p>`;
 
-    /** A Greek file wouldn’t load: say so, with a way to ask again (GK3-9; the loaders forget a failure). */
-    function greekFailedStatus(text) {
-      status.textContent = `${text} `;
+    /** A Try again button at the end of the status line: the same search, run afresh. */
+    function appendRetry() {
       const retry = document.createElement("button");
       retry.type = "button";
       retry.className = "greek-cmd-link";
       retry.textContent = "Try again";
       retry.addEventListener("click", () => runSearch(input.value.trim()));
-      status.append(retry);
+      status.append(" ", retry);
+    }
+
+    /** A Greek file wouldn’t load: say so, with a way to ask again (GK3-9; the loaders forget a failure). */
+    function greekFailedStatus(text) {
+      status.textContent = text;
+      appendRetry();
     }
 
     function renderGreekCommandsGroup(greek, q, bookKey) {
@@ -1230,6 +1235,9 @@ const _initSearchbars = async () => {
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
           );
         status.textContent = parts.join(sep);
+        // The verse index wouldn’t load, and loadVerseIndex forgets a failure,
+        // so asking again can work (Audit 8, GF8a-3).
+        if (showK && versesFailed) appendRetry();
 
         renderGroups({
           glossary: glossaryItems,

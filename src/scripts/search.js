@@ -1011,13 +1011,22 @@ function appendGreekRows(from, to, token) {
  * the loaders forget what failed, so the same search runs afresh (GK3-9).
  */
 function writeGreekFailed(text) {
-  statusEl.textContent = `${text} `;
+  statusEl.textContent = text;
+  appendRetry();
+}
+
+/**
+ * A Try again button at the end of the status line: the same search, run
+ * afresh. For a Greek file and for the verse index (Audit 8, GF8a-3), whose
+ * loaders both forget a failure.
+ */
+function appendRetry() {
   const retry = document.createElement("button");
   retry.type = "button";
   retry.className = "greek-cmd-link";
   retry.textContent = "Try again";
   retry.addEventListener("click", () => updateFromControls({ resetPage: false }));
-  statusEl.append(retry);
+  statusEl.append(" ", retry);
 }
 
 /** The status line of a Greek search: the count alone. */
@@ -1295,6 +1304,7 @@ function writeCountStatus() {
   // The period goes inside a closing quote (American style).
   const ended = said.endsWith("”") ? `${said.slice(0, -1)}.”` : `${said}.`;
   setStatus(c.versesFailed ? `${ended} ${VERSES_FAILED}` : said);
+  if (c.versesFailed) appendRetry();
 }
 
 // The results on screen, for anything that works on all of them rather than
@@ -1378,6 +1388,7 @@ function renderFromCache() {
       : lastSearchCache.versesFailed
         ? VERSES_FAILED
         : `No results for “${escapeHtml(displayQ)}.”`;
+    if (!parsedJump && lastSearchCache.versesFailed) appendRetry();
     hideResultGroups();
     renderActiveFiltersFull();
     if (parsedJump || lastSearchCache.versesFailed) return;

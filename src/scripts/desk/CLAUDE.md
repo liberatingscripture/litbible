@@ -171,6 +171,23 @@ opens (2026-11-08, LG6-4). Re-measure at launch.
 **Stage one loads only `desk-tab.css`**, so a rule the first stage needs lives
 there, not in `desk.css`: the skip link's hiding rule and the Display tray's
 `.font-tray__hint` and `.font-tray__reset` (NB6-1, NB6-4).
+**The search loads only `desk-search.css`** (Audit 8, LG8-10), the same way:
+`notebook-search.js` and `sheets/search-sheet.js` add it through
+`search-style.js` (the "My notebook" and "Commands" groups, the Notebook
+actions window, the bar that makes a sheet from a search), and `boot.js`
+adds it beside `desk.css`. They used to add all of `desk.css` (about 200 KB,
+as a JavaScript string) on the first focus of the search box, on any page,
+for those few rows. A rule for those rows goes in `desk-search.css`;
+`test/desk-search-styles.test.js` holds both halves.
+**A shared sheet on a phone loads only `desk-sheet-view.css`** (Audit 8,
+LG8-10): the highlight tints, a sheet's formatted text (`.desk-rich` and
+its colors) and the sheets' buttons (`.desk-sheet__btn`), added by
+`showSharedOnPhone` through `sheets/sheet-view-style.js` and by `boot.js`
+ahead of `desk.css`. So `sheet-page.js` never imports `boot.js`
+statically: it reads the desk's context from `desk-ctx.js`, and a
+computer's sheet page loads `boot.js` by `import()` at the start of
+`start()`. A rule a phone's shared sheet needs goes in
+`desk-sheet-view.css`; `test/desk-sheet-view-styles.test.js` holds it.
 
 **The sheet editor** (`document.execCommand`, its canonical form and golden
 file, its menus and toolbar) is in `src/scripts/desk/sheets/CLAUDE.md`.
@@ -216,7 +233,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
   2. **Readers download none of it.** `desk-gate.js` imports the desk only
      with `data-desk="on"`, and on a reading page only its first stage
      ("Launching", above). `boot.js` adds `desk.css` (and the first stage
-     `desk-tab.css`) as a `<style>` (`?inline`): **a plain CSS import is
+     `desk-tab.css`, the search `desk-search.css`, a phone's shared sheet
+     `desk-sheet-view.css`) as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one rule in
@@ -308,6 +326,20 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      before first paint as `data-desk-widths` with `--desk-measure` and
      `--desk-width`, and global.css sets the column's measure and right
      margin from them.
+     **Every line a reader can drag also works by click** (Audit 8, XA8-1;
+     BVJ, 2026-11-10; WCAG 2.5.7, which a keyboard alternative doesn't
+     meet): the two margin lines, the floating notebook's edge and the Greek
+     tab's line open a small menu of steps ("Wider text", "Narrower
+     Notebook", "Larger entry", and the line's reset) when pressed and
+     released without moving, or on Enter or Space (`desk/line-menu.js`).
+     Nothing new shows at rest. Steps keep the menu open and disable at the
+     line's own `aria-valuemin`/`aria-valuemax`, so **a new draggable line
+     keeps its ARIA values current and uses `clickOrDrag` and
+     `toggleLineMenu`**; a press only writes a width once it moves past
+     `CLICK_SLOP`. A floating window's grip (`float-window.js`) is the same
+     idea for moving: a button, "Move to the other side," with arrow keys.
+     The /desk page's pane lines had theirs already (DK-8: the pane menu's
+     Size).
      **The glossary also becomes a reading page** then (the end of
      `pages/glossary.css`): one column at the reading width, with the
      scripture pages' type sizes, all scaling with the Display tray's text
@@ -537,14 +569,15 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      transaction opens when the change is asked for, so saves land in order.
      **A closing page keeps its last typing** (BA72): on `pagehide` the pane
      writes what hasn't landed, applied to the newest copy it has heard of
-     (its own, or one another tab saved that `refresh` read while this tab's
-     saves were in flight; Audit 8, DI8-4), through
+     (its own, or one another tab saved: a change message carries a saved
+     sheet whole, and `refresh` reads it too; Audit 8, DI8-4), through
      `store.writeNow`, which writes before it returns, reads nothing,
      commits at once and first aborts any transaction still waiting on its
      read. Chrome keeps no other kind of write made while a page closes;
      a read-then-write save, or one queued behind it, is lost (tested
-     2026-10-27). One race remains and is accepted: a part another tab saved
-     that this tab has not yet heard of can be written over at close.
+     2026-10-27). One race remains and is accepted (BVJ, 2026-11-10): a part
+     another tab saved in the instant before this one closes, whose message
+     hasn't arrived, can be written over at close.
      **The store reopens after a version change** (DI8-5): another tab's
      upgrade closes the connection, and the next call opens it again; after
      an upgrade by a newer page, calls reject with `NOTEBOOK_UPGRADED`, and a
@@ -737,7 +770,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        BVJ, 2026-11-06: `drawBookmarkLine`, `bookmarkLook`). A follow that ends
        on a verse already holding a bookmark of its kind is tolerated.
        **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
-       `desk-page.js` runs the follower with `page: DESK_PAGE` and reports the
+       `desk-lead.js` (for `desk-page.js`) runs the follower with `page: DESK_PAGE` and reports the
        leading pane's place (`hear`), or `lead` when another pane becomes the
        leading one, which pauses the follow (`followStep`'s `newLead`). Other
        LIT panes never move it; the opening place, a restore and the tour
@@ -791,7 +824,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        commands (`listCommands` in `desk-commands.mjs`: what a ">" in the box
        offers on this page, and a line saying more appear on a chapter page).
        It is desk code (`desk/commands-window.js`), a `float-window.js`
-       window like the Greek's and the tour offer, styled in `desk.css`, and
+       window like the Greek's and the tour offer, styled in `desk-search.css`, and
        **it is kept apart from the Greek "Search commands" window by BVJ's
        choice**: the two were one window for a day and BVJ did not want them
        combined, so don't put desk commands in `greek-commands.js` or Greek
@@ -953,7 +986,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        entry is draggable** (BVJ, 2026-10-17), the entry taking a quarter to
        three quarters of their room (`src/lib/desk-greek-split.mjs`, pure and
        tested; the handle is in `tab-greek.js`, sized by CSS flex ratios on
-       `--desk-greek-split`). Shown only while a word is open; kept in
+       `--desk-greek-split`). A click or Enter on it opens its menu
+       (XA8-1), whose "Let the entry size itself" replaced the double click
+       and Enter that reset it. Shown only while a word is open; kept in
        `sessionStorage['lit-desk-greek-split']` for the visit, forgotten by
        "Reset widths" (only its `kept: false` event, `forgetsSplit`, so the
        line still moves where storage is blocked, BA113), and named in
@@ -1199,7 +1234,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
-       dragging a pane over another, where `dropZone` says an edge band
+       dragging a pane over another (`pane-move.js`), where `dropZone` says an edge band
        splits it (`splitPane`) and the middle swaps the two (`swapPanes`;
        E25, BVJ 2026-11-02, the drop box names which; over nothing a pane can
        land on, a label by the pointer says so and a drop announces "not

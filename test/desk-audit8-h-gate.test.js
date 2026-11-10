@@ -109,14 +109,16 @@ test("desk not on, on a reading surface: nothing loads and the follow flag is pa
   }
 });
 
-for (const [marker, module] of [
+for (const [marker, module, also = []] of [
   ["notebook", "./desk/notebook-page.js"],
   ["desk", "./desk/desk-page.js"],
-  ["sheet", "./desk/sheets/sheet-page.js"],
+  // The sheet page's desk styles are a download of their own (LG8-10), asked
+  // for beside it, since a phone showing a shared sheet loads the page without them.
+  ["sheet", "./desk/sheets/sheet-page.js", ["./desk/boot.js"]],
 ]) {
-  test(`desk on, on the ${marker} page: only ${module} loads`, async () => {
+  test(`desk on, on the ${marker} page: only ${module} loads${also.length ? `, with ${also.join(", ")}` : ""}`, async () => {
     const r = await gateOn({ desk: "on", marker });
-    assert.deepEqual(r.asked, [module]);
+    assert.deepEqual(r.asked, [...also, module]);
     // /desk follows the reader itself, so the gate leaves the flag; the other pages don't follow.
     assert.equal(r.paused, marker !== "desk");
   });

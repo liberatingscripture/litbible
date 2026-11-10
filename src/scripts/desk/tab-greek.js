@@ -39,6 +39,7 @@ import {
   splitFromPointer,
 } from "../../lib/desk-greek-split.mjs";
 import { WIDTHS_EVENT, keepGreekSplit, keptGreekSplit } from "./widths.js";
+import { clickOrDrag, isMenuKey, toggleLineMenu } from "./line-menu.js";
 import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
@@ -287,13 +288,7 @@ export function createGreekTab({
           here,
           selectWord: selectWordHere,
           openHit,
-          // Focus goes back to the selected word, else the roving one.
-          focusText: () => {
-            const b = buttons[selected ?? rover];
-            if (!b) return false;
-            b.focus({ preventScroll: true });
-            return true;
-          },
+          focusText,
         });
         return find;
       })
@@ -831,6 +826,14 @@ export function createGreekTab({
     return true;
   }
 
+  /** Focus on the selected word, else the roving one; false when the text has none. */
+  function focusText() {
+    const b = buttons[selected ?? rover];
+    if (!b) return false;
+    b.focus({ preventScroll: true });
+    return true;
+  }
+
   /** The same, for a caller from outside: an open search gives the text back first. */
   function selectWord(verse, t, opts) {
     closeFind({ focus: false });
@@ -929,29 +932,19 @@ export function createGreekTab({
   splitter.addEventListener("pointerdown", (e) => {
     if (e.button !== 0) return;
     e.preventDefault();
-    try {
-      splitter.setPointerCapture(e.pointerId);
-    } catch (_) {
-      /* a synthetic event has no live pointer */
-    }
-    splitter.classList.add("desk-greek__split--dragging");
-    const move = (ev) => {
-      const next = splitFromPointer({
-        y: ev.clientY,
-        top: visibleScroller().getBoundingClientRect().top,
-        bottom: details.getBoundingClientRect().bottom,
-      });
-      if (next != null) setShare(next);
-    };
-    const end = () => {
-      splitter.removeEventListener("pointermove", move);
-      splitter.removeEventListener("pointerup", end);
-      splitter.removeEventListener("pointercancel", end);
-      splitter.classList.remove("desk-greek__split--dragging");
-    };
-    splitter.addEventListener("pointermove", move);
-    splitter.addEventListener("pointerup", end);
-    splitter.addEventListener("pointercancel", end);
+    clickOrDrag(splitter, e, {
+      move: (ev) => {
+        splitter.classList.add("desk-greek__split--dragging");
+        const next = splitFromPointer({
+          y: ev.clientY,
+          top: visibleScroller().getBoundingClientRect().top,
+          bottom: details.getBoundingClientRect().bottom,
+        });
+        if (next != null) setShare(next);
+      },
+      end: () => splitter.classList.remove("desk-greek__split--dragging"),
+      click: (ev) => openSplitMenu({ x: ev.clientX, y: ev.clientY }),
+    });
   });
 
   // The grip sits beside the pointer, at its place along the line.
@@ -960,9 +953,15 @@ export function createGreekTab({
   });
 
   // The line moves with the arrow: Up raises it (the entry grows), Down
-  // lowers it. Shift takes bigger steps, Home and End go to the bounds, and
-  // Enter or a double click lets the entry size itself again.
+  // lowers it. Shift takes bigger steps, and Home and End go to the bounds.
+  // Enter or Space opens the line's menu, whose last line lets the entry size
+  // itself again (it was Enter and a double click until XA8-1).
   splitter.addEventListener("keydown", (e) => {
+    if (isMenuKey(e)) {
+      e.preventDefault();
+      openSplitMenu(null);
+      return;
+    }
     const now = share ?? measuredShare();
     const step = (e.shiftKey ? 5 : 1) * SPLIT_STEP;
     let next = null;
@@ -970,15 +969,27 @@ export function createGreekTab({
     else if (e.key === "ArrowDown") next = now - step;
     else if (e.key === "Home") next = MAX_SPLIT;
     else if (e.key === "End") next = MIN_SPLIT;
-    else if (e.key === "Enter") {
-      e.preventDefault();
-      setShare(null);
-      return;
-    } else return;
+    else return;
     e.preventDefault();
     setShare(clampSplit(next));
   });
-  splitter.addEventListener("dblclick", () => setShare(null));
+
+  // The click-only way to do what dragging does (XA8-1): two arrow steps a
+  // press, a tenth of the room.
+  function openSplitMenu(at) {
+    // Its limits are read from the line's value, which the entry sizing
+    // itself leaves unset.
+    writeSplitValue(share ?? measuredShare());
+    toggleLineMenu(splitter, {
+      label: "Entry size",
+      more: "Larger entry",
+      less: "Smaller entry",
+      step: (dir) => setShare(clampSplit((share ?? measuredShare()) + dir * 2 * SPLIT_STEP)),
+      reset: { label: "Let the entry size itself", run: () => setShare(null), shown: () => share != null },
+      at,
+      along: "horizontal",
+    });
+  }
 
   /* ── The word's details ────────────────────────────────────────── */
 
@@ -1315,5 +1326,5 @@ export function createGreekTab({
     cancelAnimationFrame(splitFrame);
   }
 
-  return { el, render, selectWord, goToVerse, settle, destroy };
+  return { el, render, selectWord, focusText, goToVerse, settle, destroy };
 }

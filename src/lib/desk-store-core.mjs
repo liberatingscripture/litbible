@@ -188,11 +188,23 @@ export function planPurge(records, now) {
  * records it doesn't draw (BA107). `kinds` null or absent means "unknown", and
  * every listener then hears it.
  */
-export function changeMessage(ids, kinds = null) {
-  /** @type {{ v: number, ids: string[], kinds?: string[] }} */
+export function changeMessage(ids, kinds = null, put = null) {
+  /** @type {{ v: number, ids: string[], kinds?: string[], sheets?: object[] }} */
   const message = { v: 1, ids: [...new Set(ids)] };
   if (Array.isArray(kinds)) message.kinds = [...kinds];
+  // A sheet saved goes with the message whole (Audit 8, DI8-4): a tab
+  // closing with typing not yet saved writes over the newest copy it knows,
+  // and hearing it here is sooner than reading it back, which waits for that
+  // tab's own saves to land. A tab running older code ignores the field.
+  const sheets = Array.isArray(put) ? put.filter((r) => r?.kind === "sheet") : [];
+  if (sheets.length) message.sheets = sheets;
   return message;
+}
+
+/** The sheets a change message carries whole (DI8-4), or [] when it carries none. */
+export function readChangeSheets(data) {
+  if (!readChangeMessage(data) || !Array.isArray(data.sheets)) return [];
+  return data.sheets.filter((r) => r?.kind === "sheet" && typeof r.id === "string" && data.ids.includes(r.id));
 }
 
 /** The ids a message names, or null for anything this code didn't send. */
@@ -295,8 +307,9 @@ export function listenerSet() {
       entries.add(entry);
       return () => entries.delete(entry);
     },
-    notify(ids, origin, kinds = null) {
-      for (const { fn, filter } of entries) if (hearsChange(filter, kinds)) fn(ids, origin, kinds);
+    // `sheets`: the sheets another tab's message carried whole (DI8-4).
+    notify(ids, origin, kinds = null, sheets = []) {
+      for (const { fn, filter } of entries) if (hearsChange(filter, kinds)) fn(ids, origin, kinds, sheets);
     },
   };
 }

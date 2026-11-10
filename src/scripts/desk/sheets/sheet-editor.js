@@ -43,8 +43,14 @@
 // - **The add bar is add-bar.js, and each card's body is part-cards.js**
 //   (Audit 6, LG6-2): the bar's buttons and the two forms under it, and a
 //   passage, text, question, space or key terms body with the header's
-//   minutes and Leader only. The card around a body (`buildCard`: its Move
-//   and Remove, dragging, the gap's pill) stays here, handing `cardHost`.
+//   minutes and Leader only. The card around a body (its Move and Remove,
+//   dragging, the gap's pill) and keeping the cards in line with the sheet
+//   are sheets/sheet-cards.js (Audit 8, LG8-8), handed what they need from
+//   here; what a move, a removal or the gap's menu does stays here.
+// - **Another tab on the same sheet** (S12, part 4): the question asked
+//   before opening it and the line on a part changed under the reader's
+//   typing are sheets/sheet-conflict.js (Audit 8, LG8-8); when to ask and
+//   when to draw the line stay here (`openSheet`, `draw`).
 // - **A template's parts hold no text, only a prompt** (SH5-2): an empty
 //   part shows its module's `prompt` as the editor's placeholder, and a part
 //   holding only its heading shows it dimmed under the heading, until the
@@ -73,7 +79,7 @@
 
 import { plannedTotal } from "../../../lib/desk-present.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
-import { MODULE_TYPES, SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
+import { SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
 import {
   addModule,
   createSheet,
@@ -85,12 +91,10 @@ import {
   removeModule,
   setSheetFields,
   sheetTooBig,
-  updateModule,
 } from "../../../lib/desk-sheets.mjs";
 import { readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
 import {
   passageInsertIndex,
-  passageLabel,
   passageReference,
   samePassage,
   sortSheets,
@@ -98,7 +102,8 @@ import {
 import { undoEntry } from "../history.js";
 import { createLicenseCard } from "./sheet-lit.js";
 import { addEditor, editedElsewhere } from "./sheet-tabs.js";
-import { keptFields, movedUnderReader, newerSheet } from "../../../lib/desk-sheet-tabs.mjs";
+import { askContinue as askContinueView, showConflict as showConflictLine } from "./sheet-conflict.js";
+import { newerSheet } from "../../../lib/desk-sheet-tabs.mjs";
 import { showUndo } from "../undo-bar.js";
 import { NOTEBOOK_UPGRADED } from "../store.js";
 import { redraw } from "../focus-keep.js";
@@ -107,43 +112,16 @@ import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 import { listProblem, mySheetsList } from "./my-sheets.js";
 import { openPassageForm } from "./add-forms.js";
 import { createAddBar } from "./add-bar.js";
-import { cardBody, cardTools, promptOf } from "./part-cards.js";
-import { setTip } from "../../tip.js";
+import { TYPE_NAMES, createSheetCards, headingOf } from "./sheet-cards.js";
 import { newTabMark } from "../glyphs.js";
 
 const button = buttons("desk-sheet__btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
-const TYPE_NAMES = {
-  passage: "Passage",
-  text: "Text",
-  question: "Question",
-  space: "Space to write",
-  keyTerms: "Key terms box",
-  pageBreak: "Page break",
-};
-
 /** How long typing in the title waits before it is saved. */
 const TITLE_DELAY = 500;
 
-
-/** A text part holding one heading and nothing else. */
-const LONE_HEADING = /^<h[1-6]>[^<]*<\/h[1-6]>$/;
-/** A text part's opening heading ("Opening", "The text"), or null: what the gap's pill and its form call the part. */
-const headingOf = (m) => (m?.type === "text" && typeof m.html === "string" && /^<h[1-6]>([^<]*)<\/h[1-6]>/.exec(m.html)?.[1]?.replace(/\s+/g, " ").trim()) || null;
-
-/**
- * The prompt a text part shows under its heading (SH5-2, SH5-4): its own
- * `prompt` while its text is exactly one heading and the part after it isn't
- * a passage (which fills it, as the reading part's passage does); else "".
- * An empty part shows its prompt as the placeholder instead.
- */
-function headingPrompt(m, next) {
-  if (m?.type !== "text" || typeof m.html !== "string" || !LONE_HEADING.test(m.html)) return "";
-  if (next?.type === "passage") return "";
-  return promptOf(m, "prompt");
-}
 
 const json = (x) => JSON.stringify(x);
 
@@ -218,10 +196,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   // nothing is written (`setExample`).
   let example = false;
   let lastModule = null; // the part last focused or clicked on this sheet
-  // The gap pills are one Tab stop for the whole sheet (Audit 6, DK6-1; BVJ,
-  // 2026-11-08): the pill under this part takes Tab, the others -1, and the
-  // up and down arrows, Home and End move between them (`syncGapStop`).
-  let gapStop = null;
   let insertMenu = null; // the gap pill's open menu: { close(refocus) } (DK6-2)
   const closeInsertMenu = () => insertMenu?.close(false);
   // The passage form open under a card, from the gap's "Add" pill (BVJ,
@@ -373,10 +347,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
         const m = sheet.modules.find((x) => x.id === source);
         // Its head shows the change already (minutes, Leader only), so its key
         // follows, or the next change would rebuild the card (SH8-4).
-        if (card && m) {
-          card.json = json(m);
-          card.head = headKey(m);
-        }
+        if (card && m) sheetCards.settled(m.id, m);
       }
       if (moved) draw();
       if (!made.changed) return true;
@@ -406,10 +377,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (source) {
       const card = cards.get(source);
       const m = sheet.modules.find((x) => x.id === source);
-      if (card && m) {
-        card.json = json(m);
-        card.head = headKey(m);
-      }
+      if (card && m) sheetCards.settled(source, m);
     }
     draw();
     after?.();
@@ -508,8 +476,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     lastModule = null;
     closeInsertMenu();
     closeInsertForm(false);
-    for (const card of cards.values()) card.inst?.destroy?.();
-    cards.clear();
+    sheetCards.clear();
     license = null;
     addBarView = null;
     // The button just pressed is gone with the view it was in, so the list
@@ -589,6 +556,22 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     idSuffix,
     showPassage,
   };
+  // The cards themselves (sheet-cards.js), handed what a card needs from here.
+  const sheetCards = createSheetCards({
+    cards,
+    cardHost,
+    idSuffix,
+    sheet: () => sheet,
+    readOnly: () => readOnly,
+    insertForm: () => insertForm,
+    forgetForm: () => { insertForm = null; },
+    worked: (id) => { lastModule = id; },
+    move,
+    moveTo: (id, to) => change((s) => moveModule(s, id, to, opCtx()), { announce: `Moved to ${to + 1} of ${sheet.modules.length}.` }),
+    remove: removeCard,
+    openInsertMenu,
+    showConflict,
+  });
   let header = null;
   let moduleList = null;
   let titleInput = null;
@@ -597,11 +580,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let readOnly = false;
   let license = null;
   let addBarView = null; // the add bar under the parts (add-bar.js)
-
-  /** What a card's head shows, which a body's in-place update doesn't redraw. */
-  const headKey = (m) => json([m.type, m.leaderOnly === true, m.minutes ?? null, m.type === "passage" ? passageReference(m) : null]);
-  /** The part of it the head can't redraw in place (`setHead` shows the rest). */
-  const fixedKey = (m) => json([m.type, m.type === "passage" ? passageReference(m) : null]);
 
   async function openSheet(id, { focusTitle = false } = {}) {
     const n = ++seq;
@@ -642,30 +620,10 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   /** The views that asked the question, whose title then takes focus from Continue. */
   const asked = new Set();
 
-  /** "Already open in another tab": resolves true for Continue, false for Cancel. */
+  /** "Already open in another tab" (sheet-conflict.js): true for Continue, false for Cancel. */
   function askContinue(n) {
     asked.add(n);
-    return new Promise((resolve) => {
-      const box = make("div", "desk-sheet__ask");
-      const text = make("p", "desk-sheet__ask-text", "This sheet is already open in another tab. Continue here?");
-      text.id = `deskSheetAsk-${idSuffix}`;
-      box.setAttribute("role", "group");
-      box.setAttribute("aria-labelledby", text.id);
-      const go = button("Continue", "desk-sheet__btn desk-sheet__btn--primary");
-      const no = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
-      const hint = describe(go, "Changes made in either tab show in the other.");
-      go.addEventListener("click", () => resolve(true));
-      no.addEventListener("click", () => resolve(false));
-      box.addEventListener("keydown", (e) => {
-        if (e.key !== "Escape") return;
-        e.preventDefault();
-        resolve(false);
-      });
-      const row = make("div", "desk-sheet__ask-row");
-      row.append(go, no);
-      box.append(text, row, hint);
-      redraw(content, [box], { fallback: () => go, force: true });
-    });
+    return askContinueView({ content, idSuffix });
   }
 
   /** Show a new sheet without writing it (SH6-7); `persistDraft` writes it. */
@@ -695,7 +653,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
 
   function showSheet(record, { focusTitle = false } = {}) {
     draft = null;
-    gapStop = null;
     sheet = record;
     heard = null;
     onSheetChange();
@@ -704,8 +661,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     closeInsertForm(false);
     readingDismissed = null;
     readOnly = !canEdit(record);
-    for (const card of cards.values()) card.inst?.destroy?.();
-    cards.clear();
+    sheetCards.clear();
     buildSheet();
     draw();
     if (focusTitle) titleInput?.focus();
@@ -828,10 +784,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     plannedLine.hidden = true;
     wrap.append(titleInput, subtitleInput, plannedLine);
 
-    moduleList = make("div", "desk-sheet__modules");
-    moduleList.setAttribute("role", "list");
-    moduleList.setAttribute("aria-label", "The sheet’s parts");
-    wireDrag(moduleList);
+    moduleList = sheetCards.makeList();
     const gapKeys = make("span", "sr-only", "Up and down arrows move to the places between the other parts.");
     gapKeys.id = `deskSheetGapKeys-${idSuffix}`;
     wrap.append(gapKeys, moduleList);
@@ -852,20 +805,11 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     content.replaceChildren(wrap);
   }
 
-  /** One gap pill takes Tab: the one last focused, else the first part's (DK6-1). */
-  function syncGapStop() {
-    const pills = [...(moduleList?.querySelectorAll(".desk-sheet__after-btn") ?? [])];
-    if (!pills.length) return;
-    const owner = (b) => b.closest(".desk-sheet__module")?.dataset.moduleId;
-    if (!pills.some((b) => owner(b) === gapStop)) gapStop = owner(pills[0]) ?? null;
-    for (const b of pills) b.tabIndex = owner(b) === gapStop ? 0 : -1;
-  }
-
   /**
    * Bring the page in line with `sheet`, keeping every card that hasn't
-   * changed. `from` is where a change being drawn was made, for the line on a
-   * part typed in meanwhile: "pane" for another Sheets pane in this tab, else
-   * another tab.
+   * changed (sheet-cards.js). `from` is where a change being drawn was made,
+   * for the line on a part typed in meanwhile: "pane" for another Sheets pane
+   * in this tab, else another tab.
    */
   function draw(from = "tab") {
     if (!sheet || !moduleList) return;
@@ -877,89 +821,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       plannedLine.hidden = !total;
       plannedLine.textContent = total ? `Planned time: ${total} min (leader’s version and presenter view only)` : "";
     }
-    const seen = new Set();
-    let headFocus = null;
-    sheet.modules.forEach((m, i) => {
-      seen.add(m.id);
-      let card = cards.get(m.id);
-      const now = json(m);
-      if (card && card.json !== now) {
-        // Planned minutes and Leader only are shown in place, so a card isn't
-        // rebuilt for them, nor left showing older ones while focus is in it
-        // (Audit 8, DI8-7, SH8-4). Its kind and passage are drawn only once.
-        if (card.head !== headKey(m) && card.fixed === fixedKey(m)) {
-          card.setHead?.(m);
-          card.head = headKey(m);
-        }
-        if (card.inst?.update && card.head === headKey(m)) {
-          // Passages and the key terms box redraw their own body in place, so
-          // a blank or a footnote choice keeps the card, its open lists and
-          // the reader's focus.
-          card.inst.update(m);
-          card.json = now;
-        } else if (card.inst?.hasFocus?.()) {
-          // The reader is in this card, so it keeps their words. Field by
-          // field (SH8-2): one that moved and isn't being typed in takes the
-          // stored text now, and one being typed in keeps the reader's words
-          // under a line saying its saved text moved (S12, part 4).
-          const fields = Object.entries(card.inst.fields ?? {});
-          const { load, conflict } = movedUnderReader(
-            fields.map(([name, ed]) => ({ name, shown: ed.shown(), busy: ed.hasFocus() })),
-            m,
-          );
-          for (const f of load) card.inst.fields[f].setHtml(m[f] ?? "");
-          // A line already up shows this newest version from now on.
-          if (conflict.length || card.conflict) showConflict(card, m, from);
-          card.json = now;
-        } else {
-          // Focus in the card's header (its minutes, Leader only, Move or
-          // Remove) goes to the same control in the rebuilt card, so another
-          // tab's change doesn't drop it to the page.
-          headFocus = focusedHeadControl(card.el);
-          card.inst?.destroy?.();
-          card.el.remove();
-          card = null;
-        }
-      }
-      if (!card) {
-        card = buildCard(m);
-        card.json = now;
-        cards.set(m.id, card);
-      }
-      card.setPosition(i, sheet.modules.length);
-      if (moduleList.children[i] !== card.el) moduleList.insertBefore(card.el, moduleList.children[i] ?? null);
-      if (headFocus != null) {
-        headControls(card.el)[headFocus]?.focus();
-        headFocus = null;
-      }
-    });
-    for (const [id, card] of cards) {
-      if (seen.has(id)) continue;
-      if (insertForm?.after === id) insertForm = null;
-      card.inst?.destroy?.();
-      card.el.remove();
-      cards.delete(id);
-    }
-    for (const card of cards.values()) card.inst?.sheetChanged?.();
-    // A part's prompt under its lone heading (SH5-2, SH5-4): shown while the
-    // part holds only the heading and no passage follows it, gone once the
-    // leader types there. Only the editor shows it, so it never prints or
-    // goes up on a room's screen (BA70); aria-description gives it to a
-    // screen reader. An empty part's prompt is the editor's placeholder.
-    sheet.modules.forEach((m, i) => {
-      const box = cards.get(m.id)?.el.querySelector(".desk-rich-editor > .desk-rich");
-      if (!box) return;
-      const hint = readOnly ? "" : headingPrompt(m, sheet.modules[i + 1]);
-      if (hint) {
-        if (box.dataset.hint !== hint) {
-          box.dataset.hint = hint;
-          box.setAttribute("aria-description", hint);
-        }
-      } else if (box.hasAttribute("data-hint")) {
-        delete box.dataset.hint;
-        box.removeAttribute("aria-description");
-      }
-    });
+    sheetCards.draw(from);
     // A template's reading part acts as if "+ Passage" were already pressed
     // on it (BVJ, 2026-11-08): while the sheet has no passage, the passage
     // form is open under it, without taking focus or scrolling. It stays once
@@ -970,72 +832,13 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       const card = reading && readingDismissed !== reading.id ? cards.get(reading.id) : null;
       if (card) openInlinePassage(reading, headingOf(reading) ?? card.name, { focus: false, scroll: false, auto: true });
     }
-    syncGapStop();
     license?.sheetChanged();
     addBarView?.sheetChanged(sheet);
-    if (!sheet.modules.length) {
-      // Beside the list, not in it: a list holds only list items (DK-16).
-      if (!moduleList.parentNode.querySelector(".desk-sheet__none")) {
-        const none = make("p", "desk-sheet__none", "Nothing on this sheet yet. Add a passage or your own text below.");
-        none.tabIndex = -1; // where focus goes when the last part is removed (XA8-10)
-        moduleList.before(none);
-      }
-    } else {
-      moduleList.parentNode.querySelector(".desk-sheet__none")?.remove();
-    }
   }
 
-  /**
-   * The line on a part whose saved text another tab (or pane) changed while
-   * the reader was typing in it (S12, part 4; BVJ, 2026-11-08): the card
-   * keeps the reader's words, and the line offers the other version. Under
-   * the part's text, so the words being typed don't move. A later change
-   * from there only updates which version "Show that version" shows.
-   */
+  /** The line on a part another tab changed under the reader's typing (sheet-conflict.js). */
   function showConflict(card, m, from) {
-    card.theirs = m;
-    if (card.conflict) return;
-    const id = m.id;
-    const line = make("div", "desk-sheet__conflict");
-    const words = make("p", "desk-sheet__conflict-text", from === "pane" ? "Changed in another Sheets pane." : "Changed in another tab.");
-    words.id = `deskSheetConflict-${idSuffix}-${id}`;
-    line.setAttribute("role", "group");
-    line.setAttribute("aria-labelledby", words.id);
-    const show = button("Show that version", "desk-sheet__btn desk-sheet__btn--quiet");
-    const keep = button("Keep mine", "desk-sheet__btn desk-sheet__btn--quiet");
-    const fields = () => Object.entries(card.inst?.fields ?? {});
-    show.addEventListener("click", () => {
-      const theirs = card.theirs;
-      clearConflict(card);
-      for (const [f, ed] of fields()) ed.setHtml(theirs[f] ?? "");
-      // Written again, since this tab's typing may have saved over it already.
-      const put = Object.fromEntries(fields().map(([f]) => [f, theirs[f] ?? ""]));
-      change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Showing the other version." });
-      card.inst?.focus?.();
-    });
-    keep.addEventListener("click", () => {
-      const theirs = card.theirs;
-      clearConflict(card);
-      // Only the fields whose words here differ from the other version's, so
-      // one this tab never changed doesn't put older words back (SH8-2).
-      const put = keptFields(Object.fromEntries(fields().map(([f, ed]) => [f, ed.take()])), theirs);
-      if (Object.keys(put).length) change((s) => updateModule(s, id, put, opCtx()), { source: id, announce: "Kept your version." });
-      else say("Kept your version.");
-      card.inst?.focus?.();
-    });
-    const row = make("div", "desk-sheet__conflict-row");
-    row.append(show, keep);
-    line.append(words, row);
-    card.conflict = line;
-    const zone = card.el.querySelector(":scope > .desk-sheet__after");
-    card.el.insertBefore(line, zone);
-    say(`${headingOf(m) ?? card.name}: ${words.textContent.toLowerCase()} Show that version, or keep yours.`);
-  }
-
-  function clearConflict(card) {
-    card.conflict?.remove();
-    card.conflict = null;
-    card.theirs = null;
+    showConflictLine(card, m, from, { idSuffix, label: headingOf(m) ?? card.name, change, opCtx, say });
   }
 
   function flushAll() {
@@ -1052,11 +855,12 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
    * without the read. Not for a page going into the back-forward cache
    * (`persisted`), which keeps running its saves when it comes back.
    *
-   * The copy is the newest this tab has heard of (`heard`, DI8-4), so a part
-   * another tab saved while this tab's own saves were landing is kept. A
-   * change another tab saved in the moment before this one closes, before
-   * this tab has read it, can still be written over: only a read would find
-   * it, and a closing page gets none back.
+   * The copy is the newest this tab has heard of (`heard`, DI8-4): the one
+   * another tab's message carried, or one read since, so a part another tab
+   * saved while this tab's own saves were landing is kept. A change another
+   * tab saved in the instant before this one closes, whose message hasn't
+   * arrived, can still be written over: only a read would find it, and a
+   * closing page gets none back.
    */
   function onPagehide(e) {
     flushAll();
@@ -1076,130 +880,6 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     } catch (err) {
       console.error("Study Desk: the sheet couldn’t be saved as the page closed", err);
     }
-  }
-
-  /** The controls in a card's header, in order. */
-  function headControls(cardEl) {
-    return [...(cardEl.querySelector(".desk-sheet__module-head")?.querySelectorAll("button, input, select, a[href]") ?? [])];
-  }
-
-  /** Which of a card's header controls has focus, by its place, or null. */
-  function focusedHeadControl(cardEl) {
-    const at = headControls(cardEl).indexOf(document.activeElement);
-    return at < 0 ? null : at;
-  }
-
-  // ---- a module's card ----
-
-  function buildCard(m) {
-    const known = MODULE_TYPES.includes(m.type);
-    const card = make("div", `desk-sheet__module desk-sheet__module--${known ? m.type : "unknown"}`);
-    card.setAttribute("role", "listitem");
-    card.dataset.moduleId = m.id;
-    card.addEventListener("focusin", () => { lastModule = m.id; });
-    card.addEventListener("pointerdown", () => { lastModule = m.id; });
-    const head = make("div", "desk-sheet__module-head");
-    const grip = make("span", "desk-sheet__grip");
-    grip.setAttribute("aria-hidden", "true");
-    grip.title = "Drag to move";
-    grip.textContent = "⠿";
-    const label = make("span", "desk-sheet__module-name", known ? TYPE_NAMES[m.type] : "Made by a newer version of the LIT");
-    if (m.type === "passage") label.textContent = passageLabel(m);
-    head.append(grip, label);
-
-    const tools = make("div", "desk-sheet__module-tools");
-    const name = label.textContent;
-    // What the gap's pill, its menu and its form call the part: a text part's
-    // heading when it has one ("Add a passage after Reading"), else its kind.
-    const called = headingOf(m) ?? name;
-    let up = null;
-    let down = null;
-    let setHead = null;
-    if (!readOnly) {
-      if (known) {
-        const own = cardTools(cardHost, m, { name, called });
-        tools.append(...own.els);
-        setHead = own.update;
-      }
-      // Glyphs with no words, so each has the shared tooltip (E72).
-      up = button("↑", "desk-sheet__icon");
-      up.setAttribute("aria-label", `Move ${name} up`);
-      setTip(up, "Move up");
-      up.addEventListener("click", () => move(m.id, -1, up));
-      down = button("↓", "desk-sheet__icon");
-      down.setAttribute("aria-label", `Move ${name} down`);
-      setTip(down, "Move down");
-      down.addEventListener("click", () => move(m.id, 1, down));
-      const remove = button("×", "desk-sheet__icon");
-      remove.setAttribute("aria-label", `Remove ${name}`);
-      setTip(remove, "Remove");
-      remove.addEventListener("click", () => removeCard(m.id, name));
-      tools.append(up, down, remove);
-    }
-    head.append(tools);
-    card.append(head);
-
-    const inst = cardBody(cardHost, card, m);
-
-    if (!readOnly) {
-      // The whole header is the handle (BVJ, 2026-11-08), not the grip alone;
-      // its buttons and the Leader only box keep their own job. A press that
-      // doesn't become a drag ends with the card undraggable again, so a later
-      // drag across the part's text never carries the card off (pointerup
-      // doesn't fire once a drag starts; dragend covers that).
-      head.addEventListener("pointerdown", (e) => {
-        if (e.target.closest("button, input, label, a")) return;
-        card.draggable = true;
-        document.addEventListener("pointerup", () => { card.draggable = false; }, { once: true });
-      });
-      card.addEventListener("dragend", () => { card.draggable = false; });
-      // The gap under the card (BVJ, 2026-11-08): a zone over the space to the
-      // next card, where a line with an "Add" pill appears under the pointer or
-      // on focus, so a part can be added right there. The passage form it
-      // opens sits in the card, before the zone, so the card holds it again
-      // after a redraw.
-      if (insertForm?.after === m.id) card.append(insertForm.el);
-      const zone = make("div", "desk-sheet__after");
-      const insert = button("+ Add", "desk-sheet__after-btn");
-      insert.setAttribute("aria-label", `Add a part after ${called}`);
-      insert.setAttribute("aria-haspopup", "menu");
-      insert.setAttribute("aria-expanded", "false");
-      insert.title = "Add a part here";
-      insert.tabIndex = gapStop === m.id ? 0 : -1;
-      insert.setAttribute("aria-describedby", `deskSheetGapKeys-${idSuffix}`);
-      insert.addEventListener("click", () => openInsertMenu(insert, m, called));
-      insert.addEventListener("focus", () => {
-        gapStop = m.id;
-        syncGapStop();
-      });
-      insert.addEventListener("keydown", (e) => {
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-        const pills = [...moduleList.querySelectorAll(".desk-sheet__after-btn")];
-        const i = pills.indexOf(insert);
-        const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: pills.length - 1 }[e.key];
-        if (to === undefined) return;
-        e.preventDefault();
-        const next = pills[Math.max(0, Math.min(pills.length - 1, to))];
-        gapStop = next?.closest(".desk-sheet__module")?.dataset.moduleId ?? gapStop;
-        syncGapStop();
-        next?.focus();
-      });
-      zone.append(insert);
-      card.append(zone);
-    }
-    return {
-      el: card,
-      inst,
-      name,
-      json: "",
-      head: headKey(m),
-      fixed: fixedKey(m),
-      setHead,
-      setPosition(i, count) {
-        if (up) up.disabled = i === 0;
-        if (down) down.disabled = i === count - 1;
-      },
-    };
   }
 
   function move(id, by, from) {
@@ -1334,64 +1014,15 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (refocus) cards.get(after)?.el.querySelector(".desk-sheet__after-btn")?.focus();
   }
 
-  // ---- dragging into order ----
-
-  function wireDrag(list) {
-    let dragging = null;
-    const marker = make("div", "desk-sheet__drop");
-    marker.setAttribute("aria-hidden", "true");
-    const indexAt = (y) => {
-      const items = [...list.querySelectorAll(":scope > .desk-sheet__module")];
-      for (let i = 0; i < items.length; i++) {
-        const r = items[i].getBoundingClientRect();
-        if (y < r.top + r.height / 2) return { i, before: items[i] };
-      }
-      return { i: items.length, before: null };
-    };
-    list.addEventListener("dragstart", (e) => {
-      const card = e.target.closest?.(".desk-sheet__module");
-      if (!card || !card.draggable) return;
-      dragging = card.dataset.moduleId;
-      card.classList.add("is-dragging");
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", passageOrName(dragging));
-    });
-    list.addEventListener("dragover", (e) => {
-      if (!dragging) return;
-      e.preventDefault();
-      const { before } = indexAt(e.clientY);
-      if (before) list.insertBefore(marker, before);
-      else list.append(marker);
-    });
-    const end = () => {
-      marker.remove();
-      list.querySelector(".is-dragging")?.classList.remove("is-dragging");
-      dragging = null;
-    };
-    list.addEventListener("drop", (e) => {
-      if (!dragging) return;
-      e.preventDefault();
-      const id = dragging;
-      marker.remove();
-      const { i } = indexAt(e.clientY);
-      const from = sheet.modules.findIndex((x) => x.id === id);
-      end();
-      if (from < 0) return;
-      const to = i > from ? i - 1 : i;
-      change((s) => moveModule(s, id, to, opCtx()), { announce: `Moved to ${to + 1} of ${sheet.modules.length}.` });
-    });
-    list.addEventListener("dragend", end);
-  }
-
-  const passageOrName = (id) => {
-    const m = sheet?.modules.find((x) => x.id === id);
-    return m?.type === "passage" ? passageReference(m) : TYPE_NAMES[m?.type] ?? "";
-  };
-
   // ---- changes made elsewhere ----
 
-  const unsubscribe = store.subscribe((ids, origin) => {
-    if (sheet && ids?.includes?.(sheet.id)) refresh(origin);
+  const unsubscribe = store.subscribe((ids, origin, _kinds, sheets) => {
+    if (!sheet || !ids?.includes?.(sheet.id)) return;
+    // The other tab's message carries the sheet it saved (DI8-4): known here
+    // at once, for a close that comes before the read below lands.
+    const saved = origin === "other-tab" && !draft ? sheets?.find?.((r) => r.id === sheet.id) : null;
+    if (saved) heard = newerSheet(heard, saved);
+    refresh(origin);
   });
   // Another tab opening this sheet asks whether one is editing it (S12, part 4).
   const stopCounting = addEditor(() => (sheet && !draft ? sheet.id : null));
@@ -1477,7 +1108,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("pageshow", onVisible);
       window.removeEventListener("pagehide", onPagehide);
-      for (const card of cards.values()) card.inst?.destroy?.();
+      sheetCards.clear();
     },
   };
 }

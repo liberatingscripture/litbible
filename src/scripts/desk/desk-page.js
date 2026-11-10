@@ -41,7 +41,9 @@
 //   every commit that moves the leading pane's place reports it (`hear`), and
 //   one that makes another pane the leading one reports it as a new lead
 //   (`lead`), which pauses the follow. Other LIT panes never move it, the
-//   page's opening place isn't reported, and the tour reports nothing.
+//   page's opening place isn't reported, and the tour reports nothing. That
+//   reporting is desk-lead.js, and dragging a pane by its header is
+//   pane-move.js (Audit 8, LG8-8); `start()` hands each the layout.
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
@@ -59,7 +61,6 @@ import {
   arrangementOf,
   arrivalLayout,
   closePane,
-  dropZone,
   evenOut,
   findPane,
   fitSizes,
@@ -85,9 +86,7 @@ import {
   setLitAt,
   setPaneSheet,
   showSheet,
-  splitPane,
   sizingFor,
-  swapPanes,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
 import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
@@ -95,7 +94,6 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
-import { createDeskLastRead } from "./desk-last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
@@ -107,9 +105,6 @@ import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
 import { marksRemembered, turnOffMarks, turnOnMarks } from "./reading-display.js";
 import { openBookmarkForm } from "./bookmark-form.js";
-import { initBookmarkFollow } from "./bookmark-follow.js";
-import { showPausedBar } from "./bookmark-stop.js";
-import { DESK_PAGE } from "../../lib/desk-bookmarks.mjs";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
@@ -119,6 +114,8 @@ import { createKindMenu } from "./kind-menu.js";
 import { createTitleMenu } from "./title-menu.js";
 import { createCommandRow } from "./command-row.js";
 import { setTip } from "../tip.js";
+import { createLeadReporter } from "./desk-lead.js";
+import { startPaneMove } from "./pane-move.js";
 
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -323,40 +320,12 @@ async function start() {
   let layout = arrivalPlace ? arrivalLayout(saved, arrivalPlace, reading) : openingLayout(saved, reading);
   if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
 
-  // ---- a bookmark that moves as the reader reads (E28) ----
+  // ---- what the leading LIT pane tells the page (desk-lead.js) ----
 
-  // The leading LIT pane and its place, in last-read's shape; null with no
-  // LIT pane leading.
-  const leadingPane = () => {
-    const pane = findPane(layout.root, layout.active);
-    return pane?.kind === "lit" ? pane : null;
-  };
-  const leadingPosition = () => {
-    const pane = leadingPane();
-    const p = pane ? parsePassage(litPlace(layout, pane.id)) : null;
-    return p ? { book: p.bookKey, chapter: p.chapter, verse: p.verse ?? null, view: "desk" } : null;
-  };
-  const follower = initBookmarkFollow({ store, ctx, tell: showPausedBar, page: DESK_PAGE, place: leadingPosition });
-  // What the follower was last told: nothing at load, since the place the
-  // panes open at isn't reading (and a chapter alone would mean verse 1).
-  let toldLead = leadingPane()?.id ?? null;
-  let toldAt = toldLead ? litPlace(layout, toldLead) : null;
-  // Reading in the leading LIT pane is what Continue reading offers back.
-  const deskLastRead = createDeskLastRead(drafts);
-  /** After a commit: report the leading pane's place, or a new leading pane. */
-  function tellFollower() {
-    if (layoutFrozen) return; // the tour's panes aren't the reader's reading
-    const id = leadingPane()?.id ?? null;
-    const at = id ? litPlace(layout, id) : null;
-    if (id === toldLead && at === toldAt) return;
-    const newLead = id !== toldLead;
-    toldLead = id;
-    toldAt = at;
-    if (id) deskLastRead.note(leadingPosition());
-    if (!id || !follower) return;
-    if (newLead) follower.lead(leadingPosition());
-    else follower.hear(leadingPosition());
-  }
+  // A bookmark that moves as the reader reads (E28) and Continue reading
+  // follow the leading LIT pane; told after each commit.
+  const leading = createLeadReporter({ store, ctx, drafts, getLayout: () => layout, frozen: () => layoutFrozen });
+  const tellFollower = leading.tell;
 
   // ---- the title menu ----
 
@@ -1069,132 +1038,10 @@ async function start() {
       });
   }
 
-  // ---- dragging a pane to split another ----
-
-  // What the drop box says each zone does (E25). `kind` is the target pane's.
-  const DROP_TEXT = {
-    swap: (kind) => `Swap with ${kind}`,
-    left: (kind) => `Left of ${kind}`,
-    right: (kind) => `Right of ${kind}`,
-    top: (kind) => `Above ${kind}`,
-    bottom: (kind) => `Below ${kind}`,
-  };
+  // ---- dragging a pane to split another (pane-move.js) ----
 
   function startMove(e, movingId) {
-    if (e.button !== 0 || e.target.closest("button, .desk-pane__menu")) return;
-    if (panes(layout.root).length < 2) return;
-    const head = e.currentTarget;
-    const x0 = e.clientX;
-    const y0 = e.clientY;
-    let moving = false;
-    let pick = null; // { zone, targetId }: the drop shown now, if it would work
-    let seen = null; // { zone, targetId }: the zone the pointer is in, for dropZone to hold
-    head.setPointerCapture(e.pointerId);
-    // What dropping on a zone of a pane would make, from the layout as it is
-    // now: a swap always fits (each slot keeps its size), a split may not.
-    const plan = (zone, targetId) => {
-      const swap = zone === "swap";
-      const next = swap ? swapPanes(layout, movingId, targetId) : splitPane(layout, targetId, zone, movingId);
-      const box = panesBox.getBoundingClientRect();
-      const why = next === layout ? "larger" : swap ? null : needs(next.root, box.width, box.height);
-      return { swap, next, why };
-    };
-    const stop = () => {
-      head.removeEventListener("pointermove", move);
-      head.removeEventListener("pointerup", up);
-      head.removeEventListener("pointercancel", cancel);
-      document.removeEventListener("keydown", key, true);
-      drop.hidden = true;
-      miss.hidden = true;
-      document.documentElement.classList.remove("desk-ws--moving");
-      paneEls.get(movingId)?.el.classList.remove("desk-pane--moving");
-    };
-    const move = (ev) => {
-      if (!moving) {
-        if (Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
-        moving = true;
-        document.documentElement.classList.add("desk-ws--moving");
-        paneEls.get(movingId)?.el.classList.add("desk-pane--moving");
-      }
-      const target = document.elementsFromPoint(ev.clientX, ev.clientY)
-        .map((n) => n.closest?.(".desk-pane"))
-        .find((n) => n && panesBox.contains(n));
-      if (!target || target.dataset.paneId === movingId) {
-        drop.hidden = true;
-        pick = null;
-        seen = null;
-        // Nothing here to land on: say so beside the pointer.
-        const box = panesBox.getBoundingClientRect();
-        miss.textContent = "Drop on another pane to move this one";
-        miss.style.left = `${ev.clientX - box.left + 14}px`;
-        miss.style.top = `${ev.clientY - box.top + 14}px`;
-        miss.hidden = false;
-        return;
-      }
-      miss.hidden = true;
-      const rect = target.getBoundingClientRect();
-      const targetId = target.dataset.paneId;
-      const held = seen?.targetId === targetId ? seen.zone : null;
-      const zone = dropZone(rect.width, rect.height, ev.clientX - rect.left, ev.clientY - rect.top, held);
-      seen = { zone, targetId };
-      const { swap, why } = plan(zone, targetId);
-      const box = panesBox.getBoundingClientRect();
-      pick = why ? null : { zone, targetId };
-      // A swap shows the whole target, the pane the dragged one will take
-      // the place of; a split shows the half it will take.
-      const half = {
-        swap: [rect.left, rect.top, rect.width, rect.height],
-        left: [rect.left, rect.top, rect.width / 2, rect.height],
-        right: [rect.left + rect.width / 2, rect.top, rect.width / 2, rect.height],
-        top: [rect.left, rect.top, rect.width, rect.height / 2],
-        bottom: [rect.left, rect.top + rect.height / 2, rect.width, rect.height / 2],
-      }[zone];
-      Object.assign(drop.style, {
-        left: `${half[0] - box.left}px`,
-        top: `${half[1] - box.top}px`,
-        width: `${half[2]}px`,
-        height: `${half[3]}px`,
-      });
-      drop.classList.toggle("desk-ws__drop--refused", Boolean(why));
-      drop.classList.toggle("desk-ws__drop--swap", swap);
-      const name = kindLabel(findPane(layout.root, targetId)?.kind);
-      // The words sit on a chip of their own, or the pane's text under the
-      // box's faint tint would run through them.
-      drop.replaceChildren(el("span", "desk-ws__drop-label", why
-        ? (NEEDS_TEXT[why] ? `No room here (${NEEDS_TEXT[why].toLowerCase()})` : "No room here")
-        : DROP_TEXT[zone](name)));
-      drop.hidden = false;
-    };
-    const up = () => {
-      stop();
-      if (!moving) return;
-      // A drop that lands nowhere (or where there is no room; the box said why)
-      // changes nothing: say so, since the panes look the same as before.
-      if (!pick) {
-        announce(`${kindLabel(findPane(layout.root, movingId)?.kind)} not moved.`);
-        return;
-      }
-      // Planned again from the layout as it is now, not as it was at the last
-      // pointer move: a pane's place (a scroll, say) may have been saved
-      // since, and committing the old tree would undo it.
-      const { swap, next, why } = plan(pick.zone, pick.targetId);
-      if (why) return;
-      const name = kindLabel(findPane(layout.root, movingId)?.kind);
-      const other = swap && kindLabel(findPane(layout.root, pick.targetId)?.kind);
-      commit(next);
-      announce(swap ? `${name} swapped with ${other}.` : `${name} moved.`);
-    };
-    const cancel = () => stop();
-    const key = (ev) => {
-      if (ev.key !== "Escape") return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      stop();
-    };
-    head.addEventListener("pointermove", move);
-    head.addEventListener("pointerup", up);
-    head.addEventListener("pointercancel", cancel);
-    document.addEventListener("keydown", key, true);
+    startPaneMove(e, movingId, { getLayout: () => layout, panesBox, paneEls, drop, miss, commit, announce });
   }
 
   // ---- the page's height ----
