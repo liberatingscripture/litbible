@@ -26,3 +26,31 @@ export const el = make;
 export function escapeHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 }
+
+/**
+ * A `button` maker with its module's usual class (Audit 8, LG8-7): each module
+ * says once which class its buttons wear, and gets `button(label, cls?)`.
+ * `type` is "button", so none of them ever submits a form by accident.
+ */
+export function buttons(defaultClass) {
+  return (label, cls = defaultClass) => {
+    const b = make("button", cls, label);
+    b.type = "button";
+    return b;
+  };
+}
+
+let hintCount = 0;
+
+/**
+ * A sentence a control's `title` carries, given to a screen reader as well
+ * (CP-9): a hidden span the control is described by, which the caller puts
+ * in the page. The title stays, for a mouse. One counter for every module, so
+ * two editors on one page never share an id.
+ */
+export function describe(control, text) {
+  const hint = make("span", "sr-only", text);
+  hint.id = `deskHint${++hintCount}`;
+  control.setAttribute("aria-describedby", hint.id);
+  return hint;
+}

@@ -125,6 +125,6 @@ test("a count names the kind when every notebook hit is one kind, else the noteb
   assert.deepEqual(matchNouns([]), ["notebook match", "notebook matches"]);
 });
 
-test("the notebook group is always headed My notebook, whatever it holds", () => {
-  assert.equal(NOTEBOOK_GROUP_TITLE, "My notebook");
+test("the notebook group is always headed My Notebook, whatever it holds", () => {
+  assert.equal(NOTEBOOK_GROUP_TITLE, "My Notebook");
 });

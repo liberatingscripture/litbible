@@ -102,12 +102,14 @@ import { keptFields, movedUnderReader, newerSheet } from "../../../lib/desk-shee
 import { showUndo } from "../undo-bar.js";
 import { NOTEBOOK_UPGRADED } from "../store.js";
 import { redraw } from "../focus-keep.js";
-import { make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 import { listProblem, mySheetsList } from "./my-sheets.js";
 import { openPassageForm } from "./add-forms.js";
 import { createAddBar } from "./add-bar.js";
 import { cardBody, cardTools, promptOf } from "./part-cards.js";
+
+const button = buttons("desk-sheet__btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -123,13 +125,6 @@ const TYPE_NAMES = {
 /** How long typing in the title waits before it is saved. */
 const TITLE_DELAY = 500;
 
-export function button(label, cls = "desk-sheet__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
-
-let hintCount = 0;
 
 /** A text part holding one heading and nothing else. */
 const LONE_HEADING = /^<h[1-6]>[^<]*<\/h[1-6]>$/;
@@ -146,18 +141,6 @@ function headingPrompt(m, next) {
   if (m?.type !== "text" || typeof m.html !== "string" || !LONE_HEADING.test(m.html)) return "";
   if (next?.type === "passage") return "";
   return promptOf(m, "prompt");
-}
-
-/**
- * A sentence a control's `title` carries, given to a screen reader as well
- * (CP-9): a hidden span the control is described by, which the caller puts
- * in the page. The title stays, for a mouse.
- */
-export function describe(control, text) {
-  const hint = make("span", "sr-only", text);
-  hint.id = `deskSheetHint${++hintCount}`;
-  control.setAttribute("aria-describedby", hint.id);
-  return hint;
 }
 
 const json = (x) => JSON.stringify(x);

@@ -73,7 +73,7 @@ export function partHeading(ref) {
 }
 
 /** The title over the notes printed after a selection's words. */
-export const SELECTION_NOTES_TITLE = "My notes";
+export const SELECTION_NOTES_TITLE = "My Notes";
 
 /**
  * The notes a part prints: live notes on its verses (the caller has already

@@ -15,26 +15,35 @@
 //            commonest first, and the search asks; marks never decide it.
 //            In a command a lemma typed directly is that lemma alone.
 //   strong   G plus digits (also g4102, strong:4102, Strong's 4102, G04102).
+//            Finds the words tagged with that number, and only those: a word's
+//            number is its lemma's unless its shard entry says otherwise
+//            (GK8-1), so G1510 finds the words of εἰμί MACULA tags G1510, and
+//            G3596 finds ὁδοιπορέω and the one word of πᾶς tagged so.
 //   latin    other text, tried both as a transliteration of a lemma
 //            (agreuō = agreuo, Christos = Khristos = xristos) and as an
 //            English lexicon gloss ("faith" finds πίστις).
 //
-// The index (public/greek/search/lemmas.json, format 2) is
-//   { format: 2, shards: 64, lemmas: [entry, …] }
+// The index (public/greek/search/lemmas.json, format 3) is
+//   { format: 3, shards: 64, lemmas: [entry, …] }
 // where an entry is
 //   [lemma, strong | null, gloss | null, count, forms, also?, brief?, senses?]
 // `forms` is the lemma's folded forms joined by spaces, `also` the other
-// Strong's numbers MACULA gives its words, `brief` STEPBible's brief gloss
+// Strong's numbers MACULA tags some of its words with, each with how many
+// ([["G848", 394]], most words first; format 2 had the numbers alone, and a
+// search for one reached every word of the lemma), `brief` STEPBible's brief gloss
 // where it differs from `gloss` (πίστις: "to believe in", brief "faith"), and
 // `senses` the heads (glossHead) of every other UBS sense gloss, joined by "|". Trailing empty fields are left off. An entry's place in
 // the list is its id. Occurrences are in public/greek/search/occ/<id % shards>.json:
-//   { "<id>": [[form, …], [book, chapter, verse, t, formIndex, parseIndex, …], [code, …]] }
+//   { "<id>": [[form, …], [book, chapter, verse, t, formIndex, parseIndex, …], [code, …], others?] }
 // with `book` an index into BOOK_ORDER, `formIndex` into that list of exact
 // forms and `parseIndex` into the list of codes, in Bible order. A code is
 // MorphGNT's part of speech and parsing joined, ten characters ("N-----GSF-"):
 // two for the part of speech, then person, tense, voice, mood, case, number,
 // gender and degree, a dash for what a word lacks. Each lemma lists only the
-// codes its own words take, in order of first appearance.
+// codes its own words take, in order of first appearance. `others`, only for
+// a lemma with `also`, lists the words tagged with another number than the
+// lemma's: { "G848": [place, …] }, a place counting the lemma's words from 0
+// in the order of the flat list. Every other word carries the lemma's number.
 //
 // A search with no word in it ("every aorist imperative") has the parse groups:
 // every word of one kind in one file, in Bible order, found by parseGroup.
@@ -54,7 +63,7 @@ import { levenshtein } from "./levenshtein.mjs";
 
 export { hasGreek, parseGreekParam, parseStrong };
 
-export const GREEK_SEARCH_FORMAT = 2;
+export const GREEK_SEARCH_FORMAT = 3;
 /** The format of search/parse.json and of each search/parse/<group>.json. */
 export const GREEK_PARSE_FORMAT = 1;
 
@@ -249,6 +258,8 @@ export function prepareIndex(json) {
     const item = {
       id, lemma, strong: strong ?? null, gloss: gloss ?? "", glossHead: "", translit: transliterate(lemma),
       count: count ?? 0, fold, key,
+      // The other numbers some of its words are tagged with, and how many words each.
+      also: new Map((also ?? []).filter((x) => Array.isArray(x) && x[0]).map(([s, n]) => [s, n ?? 0])),
       glossWords: new Set([...words(gloss), ...words(brief)]),
       glossHeads: [glossHead(gloss), glossHead(brief)].filter(Boolean),
       senseHeads: new Set(String(senses ?? "").split("|").filter(Boolean)),
@@ -262,9 +273,50 @@ export function prepareIndex(json) {
     push(byFold, fold, id);
     push(byKey, key, id);
     for (const f of String(forms ?? "").split(" ")) if (f) push(byForm, f, id);
-    for (const s of [strong, ...(also ?? [])]) if (s) push(byStrong, s, id);
+    for (const s of [strong, ...item.also.keys()]) if (s) push(byStrong, s, id);
   });
   return { lemmas, byForm, byFold, byStrong, byKey, shards: json.shards ?? 64, build: json.build ?? null };
+}
+
+/* ── Strong's numbers, word by word (GK8-1) ──────────────────────── */
+
+/**
+ * How many of a lemma's words (a prepareIndex item) carry a Strong's number:
+ * those tagged with it, or for the lemma's own number every word not tagged
+ * with another.
+ */
+export function strongCount(item, strong) {
+  if (!item || !strong) return 0;
+  if (strong !== item.strong) return item.also?.get(strong) ?? 0;
+  let others = 0;
+  for (const n of item.also?.values() ?? []) others += n;
+  return Math.max(0, item.count - others);
+}
+
+/**
+ * A lemma item as a search by Strong's numbers finds it: `count` is its words
+ * carrying any of `strongs`, and `tagged` names the numbers when none is the
+ * lemma's own ("G848"), for lemmaLine. The item itself when `strongs` is empty.
+ */
+export function strongView(item, strongs) {
+  if (!item || !strongs?.length) return item;
+  const count = strongs.reduce((n, s) => n + strongCount(item, s), 0);
+  const tagged = strongs.includes(item.strong) ? null : strongs.join(" or ");
+  return { ...item, count, tagged };
+}
+
+/**
+ * Which of a lemma's words carry one of `strongs`, from its shard entry: a
+ * test on a word's place in the lemma's list, or null to keep every word
+ * (no numbers asked for). `primary` is the lemma's own number.
+ */
+export function strongFilter(entry, strongs, primary) {
+  if (!strongs?.length) return null;
+  const others = (Array.isArray(entry) && entry[3]) || {};
+  const tagged = new Map();
+  for (const [s, places] of Object.entries(others)) for (const p of places) tagged.set(p, s);
+  const want = new Set(strongs);
+  return (place) => want.has(tagged.get(place) ?? primary);
 }
 
 /** Whether a search file (a shard, parse.json, a parse group) is from the index's build (GK6-9). */
@@ -345,7 +397,10 @@ const byCount = (index) => (a, b) =>
 /**
  * What a query finds:
  *   { kind, lemmas: [{ id, how }], form }
- * `kind` is "greek", "strong", "latin" or null (nothing to search). `how` says
+ * `kind` is "greek", "strong", "latin" or null (nothing to search); a
+ * "strong" match also names its `strong`, the number its words must carry
+ * (decodeOccurrences' `strongs`), and puts first the lemma with the most
+ * words tagged with it. `how` says
  * why each lemma matched: "lemma" (the lemma itself was typed), "form",
  * "strong", "translit", "near" (a transliteration one or two letters off),
  * "gloss" (its gloss or brief gloss) or "sense" (another UBS sense's gloss).
@@ -407,8 +462,12 @@ export function matchGreek(index, raw, { near = true, bridge = null, offerForms 
 
   const strong = parseStrong(q);
   if (strong) {
-    const ids = index.byStrong.get(strong) ?? [];
-    return { kind: "strong", form: null, lemmas: ids.map((id) => ({ id, how: "strong" })).sort(byCount(index)) };
+    // By how many words carry the number, not the lemma's size (GK8-1); on a
+    // tie, the lemma whose own number it is.
+    const n = (id) => strongCount(index.lemmas[id], strong);
+    const own = (id) => (index.lemmas[id].strong === strong ? 1 : 0);
+    const ids = [...(index.byStrong.get(strong) ?? [])].sort((a, b) => n(b) - n(a) || own(b) - own(a) || a - b);
+    return { kind: "strong", form: null, strong, lemmas: ids.map((id) => ({ id, how: "strong" })) };
   }
 
   const qWords = words(q);
@@ -522,17 +581,20 @@ export function decodeParseGroup(json, bookKeys) {
  * A lemma's occurrences from its shard entry, as
  * [{ book, chapter, verse, t, form, pos, parse }] in Bible order. `bookKeys` is
  * BOOK_ORDER. `bookKey` keeps one book; `form` (a folded form) keeps only the
- * words of that form.
+ * words of that form; `strongs` (Strong's numbers) keeps only the words that
+ * carry one of them, `primary` being the lemma's own number (strongFilter).
  */
-export function decodeOccurrences(entry, bookKeys, { bookKey = "", form = null } = {}) {
+export function decodeOccurrences(entry, bookKeys, { bookKey = "", form = null, strongs = null, primary = null } = {}) {
   if (!Array.isArray(entry)) return [];
   const [forms, flat, codes = []] = entry;
   const keep = form ? new Set(forms.map((f, i) => (foldGreek(f) === form ? i : -1)).filter((i) => i >= 0)) : null;
+  const carries = strongFilter(entry, strongs, primary);
   const out = [];
   for (let i = 0; i + OCC_STRIDE - 1 < flat.length; i += OCC_STRIDE) {
     const book = bookKeys[flat[i]];
     if (bookKey && book !== bookKey) continue;
     if (keep && !keep.has(flat[i + 4])) continue;
+    if (carries && !carries(i / OCC_STRIDE)) continue;
     out.push({
       book, chapter: flat[i + 1], verse: flat[i + 2], t: flat[i + 3], form: forms[flat[i + 4]],
       ...splitCode(codes[flat[i + 5]]),
@@ -558,7 +620,11 @@ export function greekHref({ book, chapter, verse, t }) {
   return `/${book}-${chapter}/?greek=${verse}.${t}#v${verse}`;
 }
 
-/** One line for a lemma: "πίστις · pistis · G4102 · faith · 243 times". */
+/**
+ * One line for a lemma: "πίστις · pistis · G4102 · faith · 243 times". Found
+ * by a Strong's number that isn't its own (strongView), the line says which
+ * and counts only those words: "αὐτός · autos · G846 · he · tagged G848 · 394 times".
+ */
 export function lemmaLine(item) {
   const times = (n) => `${n} time${n === 1 ? "" : "s"}`;
   return [
@@ -566,6 +632,7 @@ export function lemmaLine(item) {
     item.translit,
     item.strong,
     item.shortGloss,
+    item.tagged ? `tagged ${item.tagged}` : null,
     // Found by a LIT rendering: how often it occurs in the verses so rendered
     // (counted by searchGreek, which knows the occurrences).
     item.lit

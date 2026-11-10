@@ -47,6 +47,7 @@ import { chevronIcons, glyph } from "./glyphs.js";
 import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
 import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
+import { routeFootnoteLinks } from "./footnote-links.js";
 import { undoEntry } from "./history.js";
 import { chapterText } from "./page.js";
 import { pinButton } from "./pins.js";
@@ -69,19 +70,22 @@ const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
  *   greek?: { open(verse: number, t: number): void } | null,
  *   source?: { textBox: Element | null, footnoteBody: (id: string) => Element | null,
  *     anchorText: () => object } | null,
- *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null }} options
+ *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null,
+ *   showPassage?: ((passage: object) => unknown) | null }} options
  *   `ctx` and `showInText` are what the change notice's card needs; `greek`
  *   opens the Greek tab at a word. On /desk the chapter isn't the page's:
  *   `source` reads it from the chapter's fetched Chapter View page
  *   (chapter-page.js), `startVerse` is where it opens, and `idSuffix` keeps
  *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
- *   so the panes that share a passage move together.
+ *   so the panes that share a passage move together. `showPassage` is passed
+ *   only by the /desk pane: a plain click on a scripture reference in a
+ *   footnote moves the LIT pane (footnote-links.js).
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
  *   focusHeading: () => void, destroy: () => void }}
  */
 export function createVerseTab({
   store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
-  greek = null, source = null, startVerse = null, idSuffix = "", onVerse = null,
+  greek = null, source = null, startVerse = null, idSuffix = "", onVerse = null, showPassage = null,
 }) {
   const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
   const footnoteBody = source
@@ -110,7 +114,7 @@ export function createVerseTab({
       <ol class="desk-verse__fn-list"></ol>
     </section>
     <section class="desk-verse__section" aria-labelledby="deskVerseMineTitle${idSuffix}">
-      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My notes</h4>
+      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My Notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse" title="Add a note on this verse">${glyph("note", "desk-fn-add__glyph")}</button>
@@ -293,6 +297,7 @@ export function createVerseTab({
       clone.removeAttribute("id");
       for (const withId of clone.querySelectorAll("[id]")) withId.removeAttribute("id");
       clone.className = "desk-verse__fn-body";
+      routeFootnoteLinks(clone, showPassage);
       const li = document.createElement("li");
       li.className = "desk-verse__fn";
       const letter = document.createElement("span");

@@ -104,8 +104,11 @@ import {
 import { addTarget, onAddTarget } from "./sheets/sheet-pane.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
-import { make } from "./dom.js";
+import { buttons, make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
+import { plural } from "./desk-text.js";
+
+const button = buttons("desk-search__btn");
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -119,13 +122,6 @@ const withCommands = () => import("../greek-commands.js").then((m) => (commands 
 const DEBOUNCE = 120; // as the tray
 const CHOICES = 10; // Greek words offered at a time
 
-function button(label, cls = "desk-search__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
-
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const STATUS_SEP = " • ";
 
 /** `decodeURIComponent` that leaves a malformed escape as it is, so one bad link can't stop an entry drawing. */
@@ -727,6 +723,13 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     if (shows("keyword") && r.verses.length) {
       groupsEl.append(verseGroup(r));
       counts.push(`${plural(r.verses.length, "keyword match", "keyword matches")}${r.correction ? ` for “${r.correction}”` : ""}`);
+    }
+    if (shows("keyword") && r.versesFailed) {
+      // The verses weren't searched (GF8a-3): say so where they would be, with
+      // the way to ask again, as the Greek's failures do.
+      const g = group(MODE_LABELS.keyword, "keyword");
+      g.append(make("p", "desk-search__readback", "The verses couldn’t be loaded."), retryButton(r.q));
+      groupsEl.append(g);
     }
     say(counts.length ? counts.join(STATUS_SEP) : r.jump ? "" : r.versesFailed ? VERSES_FAILED : "No results.");
     syncAdd();

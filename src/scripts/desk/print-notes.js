@@ -37,8 +37,9 @@
 // "Hide my marks") do not apply: the reader asked for notes on paper, and
 // Read View hides highlights by default only so the book reads straight
 // through. Plain printing (Ctrl+P) is untouched and stays the text and its
-// footnotes. A print asked for by an address is another matter: print-link.js
-// holds that one back while "Hide my marks" is on.
+// footnotes. Every print that says "with my notes" prints them, the verse
+// menu's, the selection panel's, and one asked for by an address included
+// (BVJ, 2026-11-10): "Hide my marks" is about the screen only.
 
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import { markerName } from "../../lib/desk-notes.mjs";

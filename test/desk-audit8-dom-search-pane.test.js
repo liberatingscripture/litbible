@@ -117,14 +117,22 @@ const same = (a, b, message) => assert.ok(a === b, message ?? "not the same elem
 
 test("GF8a-3: a verse index that fails to load is not reported as no results", async () => {
   net.verses = "fail";
-  const { $, input, typeSel } = mount();
+  const { pane, $, input, typeSel } = mount();
   pickKind(typeSel, "keyword");
   type(input, "loved");
   const said = await answered($);
   assert.equal(said, VERSES_FAILED);
   assert.notEqual(said, "No results.");
   assert.equal($(".desk-search__note").textContent, VERSES_FAILED, "the note line says it too");
+  // Where the verses would be, a line and Try again, which searches afresh once
+  // the index loads.
+  const retry = [...pane.el.querySelectorAll("button")].find((b) => b.textContent === "Try again");
+  assert.ok(retry, "a Try again button");
   net.verses = "ok";
+  click(retry);
+  await until(() => statusOf($) !== VERSES_FAILED && statusOf($) !== "Searching…" && statusOf($));
+  assert.match(statusOf($), /keyword match/);
+  assert.ok(![...pane.el.querySelectorAll("button")].some((b) => b.textContent === "Try again"), "Try again is gone");
 });
 
 test("GF8a-3: with the index loaded, a match is counted and a miss still reads No results", async () => {

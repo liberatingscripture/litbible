@@ -17,10 +17,11 @@
 // The list scrolls inside the pane (its nearest scrolling ancestor), never the
 // page.
 //
-// createFootnotesView({ idSuffix, onVerse, store }) → { el, show(source, verse) },
+// createFootnotesView({ idSuffix, onVerse, store, showPassage }) → { el, show(source, verse) },
 // where source is what loadChapterPage resolves to (chapter-page.js).
 
 import { passageLabel } from "../../lib/desk-passage.mjs";
+import { routeFootnoteLinks } from "./footnote-links.js";
 import { addNoteButton, footnoteNotes } from "./footnote-notes.js";
 import { pinButton, refreshPins } from "./pins.js";
 
@@ -35,7 +36,7 @@ function scroller(el) {
   return null;
 }
 
-export function createFootnotesView({ idSuffix = "", onVerse = null, store = null } = {}) {
+export function createFootnotesView({ idSuffix = "", onVerse = null, store = null, showPassage = null } = {}) {
   const el = document.createElement("section");
   el.className = "desk-fns";
   const headId = `desk-fns-title${idSuffix}`;
@@ -90,6 +91,7 @@ export function createFootnotesView({ idSuffix = "", onVerse = null, store = nul
           clone.removeAttribute("id");
           for (const withId of clone.querySelectorAll("[id]")) withId.removeAttribute("id");
           clone.className = "desk-fns__body";
+          routeFootnoteLinks(clone, showPassage);
           li.append(clone);
         }
         // Pin / Unpin, as under the note in the Footnotes list.

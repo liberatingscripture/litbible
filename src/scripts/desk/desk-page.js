@@ -95,6 +95,7 @@ import { bookKeyToLabel } from "../../data/books.js";
 import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
+import { createDeskLastRead } from "./desk-last-read.js";
 import { initActions } from "./actions.js";
 import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
@@ -336,6 +337,8 @@ async function start() {
   // panes open at isn't reading (and a chapter alone would mean verse 1).
   let toldLead = leadingPane()?.id ?? null;
   let toldAt = toldLead ? litPlace(layout, toldLead) : null;
+  // Reading in the leading LIT pane is what Continue reading offers back.
+  const deskLastRead = createDeskLastRead(drafts);
   /** After a commit: report the leading pane's place, or a new leading pane. */
   function tellFollower() {
     if (layoutFrozen) return; // the tour's panes aren't the reader's reading
@@ -345,6 +348,7 @@ async function start() {
     const newLead = id !== toldLead;
     toldLead = id;
     toldAt = at;
+    if (id) deskLastRead.note(leadingPosition());
     if (!id || !follower) return;
     if (newLead) follower.lead(leadingPosition());
     else follower.hear(leadingPosition());

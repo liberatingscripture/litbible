@@ -64,9 +64,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   each row's actions and `templateChooser`, handed the editor's pieces as
   `listHost`; the editor keeps only clearing its sheet view first. **/sheets'
   list draws its rows with the same `sheetRow` and `ownTemplatesList`** (E64),
-  so a sheet has the same actions in both places; `my-sheets.js` keeps its own
-  `button` and imports nothing of the editor's, so it stays light enough for
-  the page (rule 19). **The passage form and "+ From my notes…" are
+  so a sheet has the same actions in both places; `my-sheets.js` imports nothing of the editor's
+  (its `button` comes from `dom.js`, as every module's does), so it stays
+  light enough for the page (rule 19). No module imports `sheet-editor.js`
+  for a helper, which keeps the editor out of an import cycle (LG8-6). **The passage form and "+ From my notes…" are
   `add-forms.js`** (LG6-2): they draw their choices and call back through
   `addHost`, so where a part goes and the change that adds it stay the
   editor's. **The add bar is `add-bar.js` and a card's body
@@ -526,12 +527,20 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   the last line of a `.lit-sheet.md` file (`fragmentInFile`). The dialog's note and the "Link
   copied" status both say the link is long because the sheet is in it
   (E58). A short link would need a hosted store, M14, deferred to
-  signed-in readers. The Share dialog's button for that
-  file is "Export a Study Desk file (.md)" and the Sheets page's is
-  "Import a Study Desk file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
-  `sheet-page.js`; BVJ, 2026-11-06), so "Save as" names only a document;
-  the reader-facing name of a `.lit-sheet.md` file is "a Study Desk file
-  (.md)" wherever it is mentioned. Opening one decompresses with a
+  signed-in readers. **The participant's version is the default** (BVJ,
+  2026-11-10, Audit 8 decision 5): the Share dialog opens on it, with
+  "Everything, for another leader" second, and on a phone "Share…" on a
+  leader link forwards the participant's version (made by `shareLink`, never
+  by hand) unless the reader picks Everything, which forwards the link as it
+  came; a participant link is forwarded as it came, with no choice. The Share dialog's button for that
+  file is "Export a sheet file (.md)" and the Sheets page's is
+  "Import a sheet file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
+  `sheet-page.js`; BVJ, 2026-11-06; "a Study Desk file" until Audit 8
+  decision 9, 2026-11-10), so "Save as" names only a document;
+  the reader-facing name of a `.lit-sheet.md` file is "a sheet file
+  (.md)" wherever it is mentioned. The notebook's own copy in that format
+  stays "Markdown" beside its two JSON formats: the two files share an
+  extension and nothing else, so each is named for what it holds. Opening one decompresses with a
   ceiling, rebuilds the record with fresh ids, drops the comparison
   copies again and refuses it unless `validateRecord` passes. **The
   fragment must never reach a server or the analytics beacon**: an

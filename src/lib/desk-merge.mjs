@@ -102,7 +102,7 @@
 // A end with the same records, apart from the places the rules name as
 // one-sided: the local copy staying on an exact tie, clamping, and skipping.
 
-import { BOOKMARK_PLACE_FIELDS, emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
+import { BOOKMARK_PLACE_FIELDS, CLOCK_TOLERANCE_MS, emptyTrashRecord, migrateRecord } from "./desk-records.mjs";
 
 /* ── Times ───────────────────────────────────────────────────────────── */
 
@@ -154,12 +154,8 @@ function problemWith(r) {
   return null;
 }
 
-/**
- * How far past `now` a time may be and still count as `now` (DI-8): two devices' clocks differ by seconds, and an edit made on a phone
- * two seconds fast must not be dropped as "from the future". A time further
- * ahead than this is the clock running ahead, as before.
- */
-export const CLOCK_TOLERANCE_MS = 5 * 60_000;
+/** How far past `now` a time may be and still count as `now` (DI-8); the rule lives in desk-records.mjs, beside `laterThan`. */
+export { CLOCK_TOLERANCE_MS };
 
 /** The record with its times no later than the cap, give or take the tolerance (the same object if they are). */
 function clamped(r, cap, capMs, tolerance) {
@@ -207,9 +203,38 @@ function mergeBookmark(x, y, onTie) {
     const dy = instant(y[field]);
     return dx > dy ? x : dy > dx ? y : onTie(x, y);
   };
-  const place = later("placedAt");
-  const edit = later("editedAt");
-  const whole = later("modified");
+  return fromGroups(later("placedAt"), later("editedAt"), later("modified"));
+}
+
+/**
+ * Stamped copies of one bookmark held by trash records, merged by group
+ * (Audit 8 DI8-3; vectors version 6). A tie in a group's stamp goes to the
+ * copy whose fields in that group sort first as JSON, which a copy merged
+ * earlier carries unchanged, so the trash settles the same whichever order
+ * its copies meet in, pairwise or all at once.
+ */
+const GROUP_OF = {
+  placedAt: (r) => [r.placedAt, ...BOOKMARK_PLACE_FIELDS.map((f) => r[f])],
+  editedAt: (r) => {
+    const rest = { ...r };
+    for (const f of [...BOOKMARK_PLACE_FIELDS, "placedAt", "modified", "client"]) delete rest[f];
+    return rest;
+  },
+  modified: (r) => [r.modified, r.client],
+};
+function mergeBookmarks(copies) {
+  const latest = (field) =>
+    copies.reduce((a, b) => {
+      const da = instant(a[field]);
+      const db = instant(b[field]);
+      if (da !== db) return da > db ? a : b;
+      return canonical(GROUP_OF[field](a)) <= canonical(GROUP_OF[field](b)) ? a : b;
+    });
+  return fromGroups(latest("placedAt"), latest("editedAt"), latest("modified"));
+}
+
+/** The bookmark with its place from `place`, the rest from `edit`, and `modified` and `client` from `whole`. */
+function fromGroups(place, edit, whole) {
   if (place === edit && edit === whole) return place;
   const out = { ...edit };
   for (const f of BOOKMARK_PLACE_FIELDS) {
@@ -223,10 +248,13 @@ function mergeBookmark(x, y, onTie) {
   return out;
 }
 
+/** Of two copies, the one whose canonical JSON sorts first: the merge's order-free tie rule. */
+const smallerJson = (p, q) => (canonical(p) <= canonical(q) ? p : q);
+
 /** Two copies of one id from the same input: later wins, a tie the smaller JSON. */
 function pickWithin(x, y) {
   if (bothTrash(x, y)) return collapseTrash([x, y].sort((a, b) => (canonical(a) <= canonical(b) ? -1 : 1)));
-  const smaller = (p, q) => (canonical(p) <= canonical(q) ? p : q);
+  const smaller = smallerJson;
   if (stampedBookmark(x) && stampedBookmark(y)) return mergeBookmark(x, y, smaller);
   const dx = instant(x.modified);
   const dy = instant(y.modified);
@@ -276,6 +304,14 @@ function collapseTrash(group) {
   if (donor && donor !== survivor) {
     out.record = donor.record;
     if (donor.deletedKind != null) out.deletedKind = donor.deletedKind;
+  }
+  // Held copies of a stamped bookmark merge by group, as live ones do (Audit 8
+  // DI8-3; vectors version 6): a rename on one device and a move on another
+  // both survive in the trash, whichever copy the order above favored.
+  const held = group.filter(holds).map((t) => t.record);
+  if (held.length > 1 && held.every(stampedBookmark)) {
+    const record = mergeBookmarks(held);
+    if (record !== out.record) out.record = record;
   }
   return out;
 }
@@ -382,7 +418,11 @@ function combine(local, incoming, { now, exported, tiebreak } = {}) {
       if (instant(live.modified) > instant(survivor.deletedAt)) merged.delete(survivor.id);
       else {
         merged.delete(deletedId);
-        if (!holds(survivor) || instant(live.modified) > instant(survivor.record.modified)) {
+        if (holds(survivor) && stampedBookmark(live) && stampedBookmark(survivor.record)) {
+          // The deletion keeps the live copy's newer groups too (DI8-3).
+          const record = mergeBookmarks([survivor.record, live]);
+          if (record !== survivor.record) merged.set(survivor.id, { ...survivor, record, deletedKind: live.kind });
+        } else if (!holds(survivor) || instant(live.modified) > instant(survivor.record.modified)) {
           merged.set(survivor.id, { ...survivor, record: live, deletedKind: live.kind });
         }
       }

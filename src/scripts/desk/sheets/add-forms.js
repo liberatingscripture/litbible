@@ -27,10 +27,9 @@ import { describeRefusal } from "../../../lib/desk-sheet-ref-refusal.mjs";
 import { parseReference } from "../../search-core.js";
 import { bookKeyToLabel } from "../../../data/books.js";
 import { loadChapterPage } from "../chapter-page.js";
-import { make } from "../dom.js";
-// The editor imports this file too; `button` is a function declaration, so
-// the cycle is safe whichever file loads first.
-import { button } from "./sheet-editor.js";
+import { buttons, make } from "../dom.js";
+
+const button = buttons("desk-sheet__btn");
 
 /** A chapter's anchor text, or null when it can't be read. */
 async function chapterText(bookKey, chapter) {
@@ -199,7 +198,7 @@ export async function openPassageForm(host, form, target = null, { focus = true 
 
   // From the notebook: its notes, highlights and bookmarks, newest first.
   const fromBook = make("div", "desk-sheet__from");
-  fromBook.append(make("p", "desk-sheet__from-title", "From my notebook"));
+  fromBook.append(make("p", "desk-sheet__from-title", "From my notes"));
   form.append(fromBook);
   let records = [];
   try {

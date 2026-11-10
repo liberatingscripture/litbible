@@ -40,7 +40,7 @@ function shuffled(items, seed) {
 }
 
 test("the vectors are well formed", () => {
-  assert.equal(vectors.version, 5);
+  assert.equal(vectors.version, 6);
   assert.ok(vectors.cases.length >= 15);
   const names = vectors.cases.map((c) => c.name);
   assert.equal(new Set(names).size, names.length, "case names are unique");
@@ -324,8 +324,12 @@ test("an edit always outranks the version it was made over, even on a clock runn
   // The deletion steps past the record (.001), and the restore past the deletion (.002): DI3-1.
   const trash = trashForAudit2(record, { ...A2, now: "2026-11-04T12:00:00.000Z" });
   assert.equal(trash.deletedAt, "2026-11-04T12:00:00.001Z");
-  const restored = restoreForAudit2(trash, { now: "2026-11-04T11:00:00.000Z" });
+  const restored = restoreForAudit2(trash, { now: "2026-11-04T11:56:00.000Z" });
   assert.equal(restored.modified, "2026-11-04T12:00:00.002Z");
+  // Past the five minutes of skew the stamp is the clock's own (DI8-1): a
+  // version an hour ahead was made by a clock running ahead, which no step
+  // past it could ever let heal.
+  assert.equal(restoreForAudit2(trash, { now: "2026-11-04T11:00:00.000Z" }).modified, "2026-11-04T11:00:00.000Z");
 });
 
 test("a file's `exported` time with an offset caps in the format's own form (DI-12)", () => {

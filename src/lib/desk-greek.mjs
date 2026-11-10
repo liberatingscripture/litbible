@@ -8,14 +8,19 @@
 //
 // A word is the array the Greek files carry (public/greek/text/, written by
 // scripts/build-greek.mjs):
-//   [verse, t, text, pre, post, lemma, pos, parse, sense]
-// Joining pre + text + post over a chapter's words gives SBL's text.
+//   [verse, t, text, pre, post, lemma, pos, parse, sense, strong?]
+// Joining pre + text + post over a chapter's words gives SBL's text. `strong`
+// is there only where MACULA tags the word with another Strong's number than
+// its lemma's (ἦν is G2258 under εἰμί's G2076; GK8-1); wordStrong reads it.
 
 /** The text-critical signs the SBLGNT puts before and after words. */
 export const SIGNS = "⸀⸁⸂⸃⸄⸅";
 
 /** Where each part of a word sits in its array. */
-export const W = { verse: 0, t: 1, text: 2, pre: 3, post: 4, lemma: 5, pos: 6, parse: 7, sense: 8 };
+export const W = { verse: 0, t: 1, text: 2, pre: 3, post: 4, lemma: 5, pos: 6, parse: 7, sense: 8, strong: 9 };
+
+/** A word's own Strong's number: its own where it has one, else its lemma's (`lemmaStrong`). */
+export const wordStrong = (w, lemmaStrong) => w?.[W.strong] || lemmaStrong || null;
 
 /** Every word of a chapter in reading order, each with its paragraph and place. */
 export function flattenWords(paragraphs) {

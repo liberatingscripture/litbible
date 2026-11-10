@@ -2,7 +2,7 @@
 //
 // The add bar under a sheet's parts (Audit 6, LG6-2, taken out of
 // `createSheetEditor` as add-forms.js was): "+ Passage", "+ Text",
-// "+ Question", "+ From my notes…", "+ Space", "+ Page break" and "+ Key
+// "+ Question", "+ From my notes…", "+ Space to write", "+ Page break" and "+ Key
 // terms box", with the passage form and the notes chooser it opens below the
 // row. What a button adds, and where, stay the editor's, handed in as `host`:
 //
@@ -13,11 +13,10 @@
 // It returns `el` and `sheetChanged(sheet)`, which the editor calls on every
 // draw, since a sheet holds one key terms box and its button says so.
 
-import { make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
 import { openFromNotes, openPassageForm } from "./add-forms.js";
-// The editor imports this file too; `button` and `describe` are function
-// declarations, so the cycle is safe whichever file loads first.
-import { button, describe } from "./sheet-editor.js";
+
+const button = buttons("desk-sheet__btn");
 
 // What each of the add bar's buttons adds, in a short line (BVJ, 2026-11-08:
 // only one button had a tooltip, and that one ran too long to show whole):
@@ -102,7 +101,7 @@ export function createAddBar({ addPart, addHost, idSuffix }) {
     closePicker(true);
   });
   row.append(fromNotes);
-  add("space", "Space");
+  add("space", "Space to write");
   add("pageBreak", "Page break");
   const keyTermsButton = add("keyTerms", "Key terms box");
   const keyTermsHint = describe(keyTermsButton, KEY_TERMS_HINT);

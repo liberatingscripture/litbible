@@ -37,8 +37,14 @@ async function until(fn, tries = 100) {
   throw new Error("timed out waiting for the page");
 }
 
-async function openPage(url = "http://localhost/notebook/") {
+async function openPage(url = "http://localhost/notebook/", { seed = [] } = {}) {
   globalThis.indexedDB = new IDBFactory();
+  if (seed.length) {
+    // Records already kept when the page opens, written through the real store.
+    const { openStore } = await import(`../src/scripts/desk/store.js?seed=${n}`);
+    const store = await openStore({ ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
+    await store.commit({ put: seed, remove: [] }, { record: false });
+  }
   for (const fn of hashListeners.splice(0)) window.removeEventListener("hashchange", fn);
   resetDom(url);
   document.documentElement.dataset.contentVersion = "v1";
@@ -97,12 +103,12 @@ test("GF8a-2: a refused label write says so and changes nothing", quiet(async ()
   }
 }));
 
-test("GF8a-2: a refused \"Delete everything\" write says so and gives the confirm button back", quiet(async () => {
+test("GF8a-2: a refused \"Delete all notes and marks\" write says so and gives the confirm button back", quiet(async () => {
   await openPage();
   await addLabel("Hope");
   const box = q("[data-np-delete-box]");
   click(box.querySelector("button"));
-  const yes = button(box, "Delete everything");
+  const yes = button(box, "Delete all notes and marks");
   assert.ok(yes, "the question is asked");
   const restore = refuseWrites();
   try {
@@ -125,7 +131,7 @@ test("GF8a-2: a refused \"Empty the trash now\" write says so and gives the conf
   // Move it to the trash, so there is something to empty.
   const del = q("[data-np-delete-box]");
   click(del.querySelector("button"));
-  click(button(del, "Delete everything"));
+  click(button(del, "Delete all notes and marks"));
   await until(() => q("[data-np-trash-box] button")?.textContent === "Empty the trash now…");
   const box = q("[data-np-trash-box]");
   click(box.querySelector("button"));
@@ -203,4 +209,41 @@ test("SEC8-3: an older ?q= link is still read and stripped", async () => {
   await openPage("http://localhost/notebook/?q=light");
   assert.equal(q("input[type=search]").value, "light");
   assert.equal(window.location.search, "");
+});
+
+/* ── Delete in bulk: marks and sheets apart (Audit 8 decision 8) ── */
+
+const { createRecord } = await import("../src/lib/desk-records.mjs");
+const { createSheet } = await import("../src/lib/desk-sheets.mjs");
+const seedCtx = { now: "2026-11-09T12:00:00.000Z", client: "web/test", contentVersion: "v1" };
+const aSheet = () => createSheet({ title: "Advent study" }, seedCtx);
+const aNote = () => createRecord("note", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16, body: "grace", marker: "note" }, seedCtx);
+const liveKinds = async () => {
+  const { openStore } = await import(`../src/scripts/desk/store.js?check=${n}`);
+  const store = await openStore({ ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
+  return (await store.all()).filter((r) => r.kind !== "trash").map((r) => r.kind).sort();
+};
+
+test("decision 8: \"Delete all notes and marks\" trashes notes and labels and leaves the sheets", async () => {
+  await openPage(undefined, { seed: [aSheet(), aNote()] });
+  await addLabel("Hope");
+  const box = q("[data-np-delete-box]");
+  assert.equal(box.querySelector("button").textContent, "Delete all notes and marks…");
+  click(box.querySelector("button"));
+  assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 items/);
+  click(button(box, "Delete all notes and marks"));
+  await until(() => box.querySelector(".desk-np__none"));
+  assert.deepEqual(await liveKinds(), ["sheet"]);
+  assert.equal(q("[data-np-delete-sheets-box] button").textContent, "Delete all sheets…", "the sheets can still be deleted");
+});
+
+test("decision 8: \"Delete all sheets\" trashes the sheets and leaves the marks", async () => {
+  await openPage(undefined, { seed: [aSheet(), aSheet(), aNote()] });
+  const box = q("[data-np-delete-sheets-box]");
+  click(box.querySelector("button"));
+  assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 sheets/);
+  click(button(box, "Delete all sheets"));
+  await until(() => box.querySelector(".desk-np__none"));
+  assert.equal(box.querySelector(".desk-np__none").textContent, "There are no sheets to delete.");
+  assert.deepEqual(await liveKinds(), ["note"]);
 });

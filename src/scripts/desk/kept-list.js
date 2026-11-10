@@ -15,19 +15,23 @@ import { COLORS } from "../../lib/desk-records.mjs";
 import { recordReference, takeOff, recordWhere } from "../../lib/desk-store-core.mjs";
 import { labelCounts, labelMap, liveLabels } from "../../lib/desk-labels.mjs";
 import {
+  LIST_PAGE_SIZE,
   colorsPresent,
   describeCounts,
   filterRecords,
   groupRecords,
   kindsPresent,
   listable,
+  moreRowsText,
+  pageRows,
 } from "../../lib/desk-notebook.mjs";
 import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
-import { nameOf, recordRow } from "./record-rows.js";
+import { recordRow } from "./record-rows.js";
+import { nameOf } from "./record-words.js";
 import { showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 
@@ -87,7 +91,12 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   // drawing the older records and dropping the newer read.
   let reading = null;
 
+  // How many rows the reader has asked to see; a change of search or filter
+  // (a `reuse` draw) starts at the first page again, any other redraw keeps it (LG8-2).
+  let revealed = LIST_PAGE_SIZE;
+
   async function render({ reuse = false } = {}) {
+    if (reuse) revealed = LIST_PAGE_SIZE;
     const seq = ++renderSeq;
     let records;
     if (reuse && lastRecords && !reading) records = lastRecords;
@@ -231,7 +240,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       section.querySelector("h3").after(links);
       return section;
     }
-    const groups = groupRecords(shown);
+    const groups = pageGroups(groupRecords(shown), pageRows(shown.length, revealed).shown);
     for (const book of groups.books) {
       const section = el("section", "desk-np__book");
       section.append(el("h3", "desk-np__h3", book.label));
@@ -247,7 +256,45 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     const other = groups.other.filter((r) => r.kind !== "sheet");
     if (sheets.length || !active) out.push(sheetsGroup(sheets));
     if (other.length) out.push(group("Other items", 3, other));
+    const { left, next } = pageRows(shown.length, revealed);
+    if (left > 0) {
+      const more = el("button", "desk-np__more", moreRowsText(next));
+      more.type = "button";
+      more.setAttribute("aria-label", `${moreRowsText(next)} of the ${left} not yet listed`);
+      more.addEventListener("click", () => {
+        const before = pageRows(shown.length, revealed).shown;
+        revealed = before + next;
+        drawList(shown, all, labels);
+        // The first row just shown takes focus, so a keyboard reader carries on from there.
+        const g = groupRecords(shown);
+        const flat = [...g.books.flatMap((b) => b.chapters.flatMap((c) => c.records)), ...g.glossary, ...g.articles, ...g.pins, ...g.other];
+        const first = flat[before];
+        const row = first ? lists.querySelector(`[data-id="${CSS.escape(first.id)}"]`) : null;
+        (row?.querySelector(".desk-item__ref") ?? row)?.focus?.({ preventScroll: false });
+      });
+      out.push(more);
+    }
     lists.replaceChildren(...out);
+  }
+
+  /** `groups` cut to its first `rows` rows, in the order they are drawn: books, then glossary, articles, pins, other. */
+  function pageGroups(groups, rows) {
+    let left = rows;
+    const take = (records) => {
+      const part = records.slice(0, Math.max(0, left));
+      left -= part.length;
+      return part;
+    };
+    const books = [];
+    for (const book of groups.books) {
+      const chapters = [];
+      for (const chapter of book.chapters) {
+        const records = take(chapter.records);
+        if (records.length) chapters.push({ ...chapter, records });
+      }
+      if (chapters.length) books.push({ ...book, chapters });
+    }
+    return { ...groups, books, glossary: take(groups.glossary), articles: take(groups.articles), pins: take(groups.pins), other: take(groups.other) };
   }
 
   function focusCount() {
@@ -320,6 +367,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   function setQuery(text) {
     queryBox.value = text;
     filters.query = text;
+    revealed = LIST_PAGE_SIZE;
   }
 
   return { el: root, render, setQuery, focusCount };

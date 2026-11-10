@@ -256,13 +256,15 @@ test("redoPlan is inversePlan from the other side: it puts the edited note back,
   assert.equal(again.put[0].modified, T3);
 });
 
-test("a record this code can't edit comes back exactly as it was, unstamped", () => {
-  const newer = { ...note({ bookKey: "romans", chapter: 8, verse: 3 }), schema: 2, extra: { kept: true } };
+test("a record this code can't edit comes back as it was, with only `modified` and `client` restamped (DI8-2)", () => {
+  const newer = { ...note({ bookKey: "romans", chapter: 8, verse: 3 }), schema: 2, extra: { kept: true }, client: "ios/1" };
   const plan = planDelete(newer, { ...ctx, now: T1, id: nextId() });
   const entry = makeEntry(plan, new Map([[newer.id, newer]]), "e");
   const undo = inversePlan(entry, { now: T2, client: ctx.client });
-  assert.deepEqual(undo.put[0], newer);
-  assert.equal(undo.put[0].modified, T0);
+  assert.deepEqual(undo.put[0], { ...newer, modified: T2, client: ctx.client });
+  // Stamped past the deletion it takes back, so the undo stands where the two meet.
+  const deletion = plan.put.find((r) => r.kind === "trash");
+  assert.ok(Date.parse(undo.put[0].modified) > Date.parse(deletion.deletedAt));
 });
 
 test("a missing clock or client is not invented: the clock is read, the client left as it was", () => {

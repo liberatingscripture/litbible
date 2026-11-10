@@ -121,18 +121,25 @@ export function deskTextsListed() {
  * Call `fn` when the set of chapters the LIT panes show has changed, at most
  * once a frame: for a view that judges records against the text only where a
  * pane shows their chapter (chapterTextFor), and draws nothing else from the
- * panes (BA121). Returns what stops it.
+ * panes (BA121). `fn` is given the set of "book chapter" keys that came or
+ * went. Returns what stops it.
  */
 export function onDeskChapters(fn) {
   const shown = () => [...new Set(deskChapterBoxes().map((c) => `${c.bookKey} ${c.chapter}`))].sort().join("|");
+  const set = () => new Set(deskChapterBoxes().map((c) => `${c.bookKey} ${c.chapter}`));
   let last = shown();
+  let lastSet = set();
   let frame = 0;
   const check = () => {
     frame = 0;
     const now = shown();
     if (now === last) return;
     last = now;
-    fn();
+    // The chapters that came or went, for a view that can tell they do not concern it.
+    const nowSet = set();
+    const changed = new Set([...nowSet].filter((k) => !lastSet.has(k)).concat([...lastSet].filter((k) => !nowSet.has(k))));
+    lastSet = nowSet;
+    fn(changed);
   };
   const heard = () => {
     if (!frame) frame = requestAnimationFrame(check);

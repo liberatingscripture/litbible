@@ -12,7 +12,7 @@
 // build-up is deliberately plain: the page decides what happens when a button
 // is pressed (`actions`), this only draws.
 
-import { COLORS, canEdit, onFootnote } from "../../lib/desk-records.mjs";
+import { canEdit, onFootnote } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelsOf } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
@@ -22,28 +22,7 @@ import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-foll
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
-
-/** A highlight's colour if the format knows it; null for anything else, which is shown plainly. */
-const colorOf = (r) => (r?.kind === "highlight" && COLORS.includes(r.color) ? r.color : null);
-
-/** What a reader calls a record's kind: "Yellow highlight", or the plain kind name. */
-export function nameOf(r) {
-  const color = colorOf(r);
-  return color ? `${color[0].toUpperCase()}${color.slice(1)} highlight` : kindName(r.kind);
-}
-
-/** A highlight's words wearing its colour, as the page and the panel show them. */
-function highlightedWords(color, words) {
-  if (!color) return document.createTextNode(words);
-  const swatch = document.createElement("span");
-  swatch.className = "desk-swatch";
-  swatch.dataset.color = color;
-  const sample = document.createElement("span");
-  sample.className = "desk-swatch__sample";
-  sample.textContent = words;
-  swatch.append(sample);
-  return swatch;
-}
+import { colorOf, highlightedWords, nameOf } from "./record-words.js";
 
 const button = (className, text, label, onClick) => {
   const b = document.createElement("button");

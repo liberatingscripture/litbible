@@ -32,19 +32,10 @@ import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { undoEntry } from "../history.js";
 import { showUndo } from "../undo-bar.js";
 import { busy, isBusy } from "../focus-keep.js";
-import { make } from "../dom.js";
+import { buttons, make } from "../dom.js";
+import { dateWords } from "../desk-text.js";
 
-// The editor's own `button`, kept here so this file never imports the editor.
-function button(label, cls = "desk-sheet__btn") {
-  const b = make("button", cls, label);
-  b.type = "button";
-  return b;
-}
-
-const dateWords = (iso) => {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-};
+const button = buttons("desk-sheet__btn");
 
 /**
  * The list of templates New sheet opens in place (M9). Hidden until asked
@@ -73,7 +64,7 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
   let own = null;
   if (mine.length) {
     own = make("div", "desk-sheet__own-templates");
-    const h = make("p", "desk-sheet__own-head", "Your templates");
+    const h = make("p", "desk-sheet__own-head", "My templates");
     h.id = `deskSheetOwnHead-${idSuffix}`;
     const oul = make("ul", "desk-sheet__from-list");
     oul.setAttribute("aria-labelledby", h.id);

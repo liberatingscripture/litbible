@@ -31,7 +31,7 @@
 // a clock or a client takes them from the caller's `ctx`, as createRecord does.
 
 import { bookKeyToLabel } from "../data/books.js";
-import { createRecord, validateRecord } from "./desk-records.mjs";
+import { createRecord, newId as freshId, validateRecord } from "./desk-records.mjs";
 import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText } from "./desk-sheet-format.mjs";
 
 /** The fragment's prefix: "share", then the share format's version, then a dot. */
@@ -146,7 +146,7 @@ export const SHARE_ERRORS = Object.freeze({
   "not-a-sheet": "This link or file doesn’t hold a sheet from the Study Desk.",
   newer: "This sheet was shared from a newer version of the LIT. Reload the page to try again.",
   invalid: "This sheet couldn’t be read. Ask for it again.",
-  "no-data": "This file doesn’t hold a shared sheet. A shared sheet’s file is a Study Desk file (.md), one saved with “Export a Study Desk file (.md).”",
+  "no-data": "This file doesn’t hold a shared sheet. A shared sheet’s file is a sheet file (.md), one saved with “Export a sheet file (.md).”",
 });
 
 export class ShareError extends Error {
@@ -325,7 +325,7 @@ export async function shareFile(sheet, opts = {}) {
   const head = [`# ${markdownLine(shared.title.trim()) || "Untitled sheet"}`];
   if (shared.subtitle.trim()) head.push(markdownLine(shared.subtitle.trim()));
   const how =
-    "A sheet from the Study Desk on litbible.net. To open it, go to https://litbible.net/sheets/ on a computer and choose “Import a Study Desk file.” The passages are read from the LIT when it is opened, so they are named here, not quoted.";
+    "A sheet from the Study Desk on litbible.net. To open it, go to https://litbible.net/sheets/ on a computer and choose “Import a sheet file.” The passages are read from the LIT when it is opened, so they are named here, not quoted.";
   return [...head, "", how, "", ...describeModules(shared.modules).flatMap((b) => [b, ""]), `<!-- lit-sheet ${fragment} -->`, ""].join("\n");
 }
 
@@ -388,7 +388,7 @@ export async function openShare(fragment, ctx) {
 }
 
 /** The shared sheet `data` as a sheet record with fresh ids. Throws a ShareError. */
-export function sheetFromShared(data, { now, client, id, newId = () => globalThis.crypto.randomUUID() } = {}) {
+export function sheetFromShared(data, { now, client, id, newId = freshId } = {}) {
   if (data?.lit !== "sheet" || !Array.isArray(data.modules)) throw new ShareError("not-a-sheet");
   if (!Number.isInteger(data.sheetFormat) || data.sheetFormat < 1) throw new ShareError("invalid", "sheetFormat");
   if (data.sheetFormat > SHEET_FORMAT) throw new ShareError("newer");
@@ -422,7 +422,7 @@ export function sheetFromShared(data, { now, client, id, newId = () => globalThi
  * id and fresh times, made by this client, so it is a new sheet in their
  * notebook and the sender's is untouched.
  */
-export function copyOfShared(sheet, { now, client, contentVersion, id, newId = () => globalThis.crypto.randomUUID() } = {}) {
+export function copyOfShared(sheet, { now, client, contentVersion, id, newId = freshId } = {}) {
   const { id: _i, kind: _k, schema: _s, created: _c, modified: _m, client: _cl, contentVersion: cv, labels: _l, ...fields } = sheet;
   return createRecord("sheet", { ...fields, modules: fields.modules.map((m) => ({ ...m, id: newId() })) }, {
     now,

@@ -193,7 +193,7 @@ export const TOUR_STEPS = [
     body: {
       study:
         "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. “Add to sheet” puts the verse on one of your sheets.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in Display options.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },
@@ -580,7 +580,7 @@ export const SHEET_TOUR_STEPS = [
       default:
         "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A Sheets pane is shown here only for the tour.",
       page:
-        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a Study Desk file.”",
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a sheet file.”",
     },
   },
   {

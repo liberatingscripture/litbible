@@ -11,7 +11,7 @@
 // changes (another tab, an undo), and the record is read fresh before each
 // write, so a stale popover can't overwrite a newer edit.
 
-import { liveLabels, planNewLabelOn, planSetLabel } from "../../lib/desk-labels.mjs";
+import { labelIds, labelMap, liveLabels, planNewLabelOn, planSetLabel } from "../../lib/desk-labels.mjs";
 import { kindName, planWrite } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
 
@@ -69,7 +69,8 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
     const record = records.find((r) => r.id === recordId);
     if (!record) return closePanel();
     const labels = liveLabels(records);
-    const had = new Set(record.labels ?? []);
+    const shownAs = labelMap(records);
+    const had = new Set((record.labels ?? []).map((id) => shownAs.get(id)?.id ?? id));
     const focused = list.contains(document.activeElement) ? document.activeElement.dataset.labelId : null;
     none.hidden = labels.length > 0;
     list.hidden = labels.length === 0;
@@ -88,20 +89,21 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
         text.textContent = l.name;
         row.append(box, text);
         li.append(row);
-        box.addEventListener("change", () => toggle(l.id, box));
+        const ids = labelIds(records, l.id);
+        box.addEventListener("change", () => toggle(l.id, box, ids));
         return li;
       }),
     );
     if (focused) list.querySelector(`[data-label-id="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
   }
 
-  async function toggle(labelId, box) {
+  async function toggle(labelId, box, ids) {
     say(null);
     let done;
     try {
       // Read and written together, so another tab's edit isn't overwritten (DI-9).
       await store.change(async ({ get }) => {
-        done = planSetLabel(await get(recordId), labelId, box.checked, ctx());
+        done = planSetLabel(await get(recordId), labelId, box.checked, ctx(), ids);
         return done.ok ? planWrite(done.plan) : null;
       });
       if (!done.ok) {
