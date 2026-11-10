@@ -120,7 +120,19 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   word the blank's hint doesn't show (`blankWords`' `telltale`; SH5-16,
   BVJ 2026-11-08), and the flag's sentence names that word. A page
   break's card has no Leader only box (SH5-17): a break is on both
-  versions, though the format still allows the field. **A part is added
+  versions, though the format still allows the field. **Choosing the words to blank**
+  (BVJ, 2026-11-09): the keyboard's word cursor (`armWordCursor`, DK-1) moves
+  by word with Left and Right and by line with Up and Down (`wordOnLine`,
+  `desk-sheet-lit.mjs`: the word on the next line nearest the column the run of
+  presses began at, read from the words' drawn boxes, so it needs a layout
+  engine and is tested with plain boxes). A click puts the cursor on the word
+  under the pointer (`wordAtPoint`; Shift extends); a double-click or a drag
+  leaves the browser's own selection, snapped out to whole words on mouse-up
+  (`wordsTouching`). **Either way the keyboard carries on from there**: its
+  first arrow, Enter or Escape turns the selection into the cursor
+  (`selectedWords`) and drops the selection. "Blank the selected words" and
+  "Fill in the selected words" act on the selection, else on a cursor that is
+  lit (`shownCursorSpan`). **A part is added
   between parts from the gap between them** (BVJ, 2026-11-08): pointing
   at the space under a card (or the keyboard: the pills are one Tab stop,
   up and down arrows, Home and End move between them; DK6-1) shows a line across it with
