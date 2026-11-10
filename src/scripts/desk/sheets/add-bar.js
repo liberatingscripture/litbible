@@ -2,7 +2,7 @@
 //
 // The add bar under a sheet's parts (Audit 6, LG6-2, taken out of
 // `createSheetEditor` as add-forms.js was): "+ Passage", "+ Your text",
-// "+ Question", "+ From my notes…", "+ Space", "+ Page break" and "+ Key
+// "+ Question", "+ From my notes…", "+ Space to write", "+ Page break" and "+ Key
 // terms box", with the passage form and the notes chooser it opens below the
 // row. What a button adds, and where, stay the editor's, handed in as `host`:
 //
@@ -101,7 +101,7 @@ export function createAddBar({ addPart, addHost, idSuffix }) {
     closePicker(true);
   });
   row.append(fromNotes);
-  add("space", "Space");
+  add("space", "Space to write");
   add("pageBreak", "Page break");
   const keyTermsButton = add("keyTerms", "Key terms box");
   const keyTermsHint = describe(keyTermsButton, KEY_TERMS_HINT);

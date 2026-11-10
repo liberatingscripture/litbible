@@ -1189,7 +1189,7 @@ function showGreekNotebook() {
   // "My notes" unchecked (E11): the Greek alone.
   if (!deskApi.greekNotesOn()) return;
   groupNotebook.hidden = false;
-  groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My notebook";
+  groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My Notebook";
   deskApi.renderPageGroup(notebookEl, notebook);
 }
 
@@ -1452,7 +1452,7 @@ function renderFromCache() {
 
   if (showNotebook && deskApi) {
     groupNotebook.hidden = false;
-    groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My notebook";
+    groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My Notebook";
     deskApi.renderPageGroup(notebookEl, notebook);
   } else {
     groupNotebook.hidden = true;

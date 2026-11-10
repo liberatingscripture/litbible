@@ -236,7 +236,7 @@ export function matchNouns(hits) {
  * 2026-11-05). The shared reader pages (search.js, search.astro) carry the same
  * string literally, since they can't import desk code.
  */
-export const NOTEBOOK_GROUP_TITLE = "My notebook";
+export const NOTEBOOK_GROUP_TITLE = "My Notebook";
 
 /**
  * The notebook page's address for a query (D2's "N more in your notebook").

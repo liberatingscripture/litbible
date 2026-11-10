@@ -179,7 +179,7 @@ export const TOUR_STEPS = [
     body: {
       study:
         "Select a verse number to open its menu. The “My Notebook” row is yours: “Add a note,” “Add bookmark,” and “Highlight.” Select any words instead, and the same row works on just those words. “Add to sheet” puts the verse on one of your sheets.",
-      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in the Display tray.",
+      read: "Select any words. The panel that opens has a “My Notebook” row: “Add bookmark,” and “Highlight” while “My highlights” is on in Display options.",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
   },

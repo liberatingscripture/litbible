@@ -249,7 +249,7 @@ function noteControls(classes) {
   const seg = document.createElement("div");
   seg.className = classes.seg;
   seg.setAttribute("role", "radiogroup");
-  seg.setAttribute("aria-label", "My notes’ lettering");
+  seg.setAttribute("aria-label", "My Notes’ lettering");
   seg.innerHTML = ["handwriting", "plain"]
     .map(
       (v) => `<label class="${classes.segOption}">
@@ -347,7 +347,7 @@ function injectIntoTray() {
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";
-  row.innerHTML = `<legend class="font-tray__legend">My notes’ lettering</legend>`;
+  row.innerHTML = `<legend class="font-tray__legend">My Notes’ lettering</legend>`;
   seg.removeAttribute("role");
   seg.removeAttribute("aria-label");
   row.append(seg);
@@ -374,7 +374,7 @@ function injectProseShow() {
   const row = document.createElement("fieldset");
   row.className = "font-tray__row";
   row.dataset.desk = "";
-  row.innerHTML = `<legend class="font-tray__legend">My notes’ lettering</legend>`;
+  row.innerHTML = `<legend class="font-tray__legend">My Notes’ lettering</legend>`;
   seg.removeAttribute("role");
   seg.removeAttribute("aria-label");
   row.append(seg);

@@ -64,7 +64,7 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
   let own = null;
   if (mine.length) {
     own = make("div", "desk-sheet__own-templates");
-    const h = make("p", "desk-sheet__own-head", "Your templates");
+    const h = make("p", "desk-sheet__own-head", "My templates");
     h.id = `deskSheetOwnHead-${idSuffix}`;
     const oul = make("ul", "desk-sheet__from-list");
     oul.setAttribute("aria-labelledby", h.id);

@@ -75,7 +75,7 @@ export async function openFromNotes(host, box, close) {
     cancel.focus();
     return;
   }
-  box.append(make("p", "desk-sheet__empty", "Check what to bring. A question becomes a Question part, a note or a pinned footnote Your text, and a highlight a passage."));
+  box.append(make("p", "desk-sheet__empty", "Check what to bring. A question becomes a Question part, a note or a pinned footnote becomes Your text, and a highlight becomes a passage."));
   const KIND = { question: "Question", note: "Note", highlight: "Highlight", footnote: "Footnote" };
   const picks = new Map();
   const go = button("Add", "desk-sheet__btn desk-sheet__btn--primary");
@@ -198,7 +198,7 @@ export async function openPassageForm(host, form, target = null, { focus = true 
 
   // From the notebook: its notes, highlights and bookmarks, newest first.
   const fromBook = make("div", "desk-sheet__from");
-  fromBook.append(make("p", "desk-sheet__from-title", "From my notebook"));
+  fromBook.append(make("p", "desk-sheet__from-title", "From my notes"));
   form.append(fromBook);
   let records = [];
   try {
