@@ -255,7 +255,17 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    the labels on them. The website
    calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
    unique ignoring case and accents: a new label matching an old one reuses
-   it.
+   it. **Two label records with one name are one label** (BVJ, 2026-11-10,
+   Audit 8 decision 3, for BDR): two devices that each made "Sermon prep"
+   before they met keep both records, and a merge changes neither, nor the
+   ids on any record. A client joins them where it reads them: it shows one
+   label, under the id of the record with the earliest `created` (ties by
+   id) and with the `name` of the one with the latest `modified` (ties by
+   id), so every device shows the same label from the same records.
+   Renaming it renames every record of it; deleting it deletes every record
+   of it and takes all their ids off the records carrying them; taking it
+   off one record takes every one of its ids off. An app that shows labels
+   separately is not wrong about the data, only shows the name twice.
 9. **`sheet`** (S1–S10, M9, D9): one document the reader builds, for a
    study group, a sermon, a class or anything else. **The website's
    proposal of 2026-10-18 (phase 3b), approved by BVJ the same day.** The apps carry it

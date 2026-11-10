@@ -638,7 +638,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        undoable step (`planDeleteMarks`, `planDeleteSheets`).
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
        applied from the notebook page, names unique ignoring case and
-       accents.
+       accents. **Two label records with one name are one label** (BVJ,
+       2026-11-10, Audit 8 decision 3): two devices can each make "Sermon
+       prep" before they meet, and nothing is rewritten when they do. Every
+       read joins them (`labelGroups`: the oldest record's id, the name as
+       last written), and renaming, deleting or taking the label off an item
+       acts on every id of it (`labelIds`). Anything new that reads labels
+       goes through `liveLabels`, `labelMap` or `labelsOf`, never the raw
+       records, or the label shows twice.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
        `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md

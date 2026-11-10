@@ -132,7 +132,7 @@ export function filterRecords(records, { query = "", kind = null, color = null, 
       if (!(r.kind === "bookmark" && r.follow !== true)) return false;
     } else if (kind && r.kind !== kind) return false;
     if (color && !(r.kind === "highlight" && r.color === color)) return false;
-    if (labelId && !(r.labels ?? []).includes(labelId)) return false;
+    if (labelId && !(r.labels ?? []).some((id) => id === labelId || labels.get(id)?.id === labelId)) return false;
     if (!words.length) return true;
     const hay = searchText(r, labels);
     return words.every((w) => hay.includes(w));

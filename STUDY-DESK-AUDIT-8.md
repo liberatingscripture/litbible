@@ -26,7 +26,7 @@ PC8B-2 (with BDR). Open for a real browser or screen reader: NB8-12, GF8b-3, LV8
 of XA8-7, GK8-6 and LV8-5. Not started, as larger maintenance: LG8-6 (the editor's import cycle),
 LG8-7 (the copied `button` helpers), LG8-8 (KNOWN-OPEN LG-13), LG8-10 and LG8-12.
 
-**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3's bookmark half; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all marks and Delete all sheets). Still open: decisions 3's label half, 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
+**Status (2026-11-10):** the second day's work, on `claude/quirky-hopper-vwuk8i`. Fixed with no decision needed: LG8-6, LG8-7 and LG8-12 (shared helpers, the import cycle, one id maker), SH8-8's and GF8b-9's remainders, LV8-4 (the /desk header's grid), and the Search pane's Try again for GF8a-3; checked in Chromium's forced-colors emulation: NB8-12 (no change needed) and XA8-7. LG8-8 is partly fixed (DOM tests for more modules; the editor's split not started). Decided by BVJ and fixed: decisions 1 to 3 (DI8-1, DI8-2, DI8-3 for bookmarks, and labels with one name joined as one; format and merge vectors version 6, for BDR), 4 (DK8-2: a footnote's reference moves the LIT pane), 5 (the participant's version by default) and 8 (Delete all marks and Delete all sheets). Still open: decisions 6, 7, 9, 10 and 11, XA8-1 and XA8-12 (designs), PC8B-2 (BDR), GF8b-3 (a screen reader), LG8-10.
 
 ## Bottom line
 
@@ -173,7 +173,7 @@ stale test citations (PC8C-1 to PC8C-4) and "Tick what to bring" (PC8A-1).
    deletion of, a record it can't edit?** The format says such a record "comes back exactly as it
    was," which means the restore loses to the deletion the next time they meet. (VER8 notes the E log
    says a restore outranks a deletion, which is false for these records.) **Decided (2026-11-10): restamp; fixed.**
-3. **DI8-3 and labels with one name on two devices:** fold them at merge, or list both? **Decided (2026-11-10) for bookmarks: merge by group; fixed. Labels still open.**
+3. **DI8-3 and labels with one name on two devices:** fold them at merge, or list both? **Decided (2026-11-10): merge. Bookmarks merge by group; two labels with one name are one label, joined where they are read; fixed.**
 4. **DK8-2: a scripture reference in a footnote on /desk:** open a new tab (E34's rule for links that
    leave the desk), or move the LIT pane, as the Book Intro pane does? Either is small; the panes
    should agree. **Decided (2026-11-10): move the LIT pane; fixed.**
@@ -340,7 +340,7 @@ Two trash records of one deletion holding two copies of a stamped bookmark keep 
 
 **Confidence** High.
 
-**Fixed (2026-11-10)** Decision 3: merge by group (BVJ). `collapseTrash` merges every held stamped bookmark by group (`mergeBookmarks`), and rule b merges a live stamped copy into the held one when the deletion stands. A group's tie goes to the copy whose fields in that group sort first, so the trash settles alike in any order: a fuzz of 3,000 histories of three copies, with and without a live one, gave the same result in every order (1,313 and 1,262 depended on order before). Merge vectors version 6, two cases, and the format's "A bookmark merges by group" bullet, for BDR. The other half of decision 3, labels made on two devices with one name (fold them at merge, or list both), is still open.
+**Fixed (2026-11-10)** Decision 3: merge by group (BVJ). `collapseTrash` merges every held stamped bookmark by group (`mergeBookmarks`), and rule b merges a live stamped copy into the held one when the deletion stands. A group's tie goes to the copy whose fields in that group sort first, so the trash settles alike in any order: a fuzz of 3,000 histories of three copies, with and without a live one, gave the same result in every order (1,313 and 1,262 depended on order before). Merge vectors version 6, two cases, and the format's "A bookmark merges by group" bullet, for BDR. The other half of decision 3, labels made on two devices with one name, was decided the same day: merge. Nothing is rewritten at merge; `desk-labels.mjs` joins them where they are read (the oldest record's id, the name as last written), and rename, delete and taking a label off act on every id of it. The format's kind 8 says so, for BDR.
 
 #### DI8-4 · Low · data-integrity · NEW
 Closing a tab writes the whole sheet from that tab's copy, so a part another tab saved moments before is silently overwritten.
@@ -429,7 +429,7 @@ Two tabs opening the same sheet within 400 ms never ask each other, since a tab 
 
 1. DI8-2: may the website restamp `modified` and `client` on a record it otherwise can't edit when the reader restores or undoes its deletion? The format says such a record "comes back exactly as it was"; keeping that sentence means the restore cannot survive meeting the deletion again.
 2. DI8-1: should a stamp ever step more than five minutes past the client's own clock? Bounding it changes the format's "Room for skew" bullet for BDR.
-3. Labels made on two devices with one name: fold them at merge, or list both?
+3. Labels made on two devices with one name: fold them at merge, or list both? **Decided (2026-11-10): merge (one label, joined where read).**
 
 ### What held up
 

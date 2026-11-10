@@ -388,7 +388,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     // back to All, as the colour does.
     const labels = liveLabels(everyRecord);
     if (seq !== renderSeq) return;
-    const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).includes(l.id)));
+    const shownAs = labelMap(everyRecord);
+    const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).some((id) => shownAs.get(id)?.id === l.id)));
     if (labelFilter && !inUse.some((l) => l.id === labelFilter)) labelFilter = null;
     drawLabels(inUse);
     const kinds = kindsPresent(marks);
