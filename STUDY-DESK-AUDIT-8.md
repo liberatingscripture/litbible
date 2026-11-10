@@ -678,7 +678,7 @@ Counts: Critical 0 · High 0 · Medium 2 · Low 5 · Nit 1.
 
 **Confidence** High (each read directly).
 
-**Partly fixed (2026-11-09)** `say` waits 50 ms with a timeout instead of a frame, and two editors in one tab asking about one sheet share one question. `sheets-page--editing`, which nothing reads, is left: it lives in `sheet-page-edit.js` too.
+**Fixed (2026-11-09, 2026-11-10)** `say` waits 50 ms with a timeout instead of a frame, and two editors in one tab asking about one sheet share one question. `sheets-page--editing`, which nothing read, is gone from `sheet-page-edit.js` and `sheet-page.js` (2026-11-10).
 
 ### Improvements
 
@@ -864,7 +864,7 @@ Marker glyphs and bookmark marks may lose their colors, and with them the differ
 **Fix** Confirm in Edge with a contrast theme; if it collapses, give the glyphs `forced-color-adjust: none` inside a `forced-colors` block, or add a shape cue.
 **Confidence** Low.
 
-**Open (2026-11-09)** Needs a Windows contrast theme in a real browser.
+**No change (2026-11-10)** Checked with Chromium's forced-colors emulation (the engine Edge uses for a Windows contrast theme), light and dark: Chromium doesn't force SVG `fill` and `stroke`, so the seven markers and the three bookmark looks keep their own colors and stay distinct. Firefox's contrast mode was not checked.
 
 #### NB8-13 · Nit · bug · NEW
 
@@ -1377,7 +1377,7 @@ No `combobox`, `listbox` or `grid` exists anywhere in the desk (grep of every `r
 **Fix** One block after the Sheets styles: pressed chip `border: 2px solid Highlight` (as `desk-greek__show-sources` at `:6755`); `.desk-sheet__drop` `border-top: 3px solid Highlight` instead of background; `.desk-rich-editor:focus-within { outline: 2px solid Highlight }`; `.desk-sheet__btn--primary { border: 2px solid ButtonText }`.
 **Confidence** Medium (reasoned from the forced-colors spec and the project's own rules; not rendered, so a Chrome forced-colors emulation pass should confirm).
 
-**Fixed (2026-11-09)** A forced-colors block after the Sheets rules covers the pressed chip, the drop line, the editor's focus, the primary button, the gap pill and the check meter. Not yet checked in a contrast theme.
+**Fixed (2026-11-09)** A forced-colors block after the Sheets rules covers the pressed chip, the drop line, the editor's focus, the primary button, the gap pill and the check meter. Checked 2026-11-10 with Chromium's forced-colors emulation, light and dark: the editor's fields and focus ring, the pressed chip against a plain one, primary against quiet, the meter's fill and over-limit fill, and the drop line all show.
 
 #### XA8-8 · Low · a11y · NEW
 **Title: After importing a shared sheet, a screen-reader user hears only "the Study Desk, link", never "Copied into your notebook"**
@@ -1603,6 +1603,8 @@ The Sheets editor and the three modules split out of it import each other (a sta
 
 **Confidence** High.
 
+**Fixed (2026-11-10)** `button` (as `buttons(cls)`, each module naming its usual class once) and `describe` are in `dom.js`; `part-cards.js`, `add-bar.js`, `add-forms.js` and `sheet-pane.js` import nothing from the editor for a helper, so the cycle is gone. `test/desk-audit8-i-maintenance.test.js` runs Tarjan over `src/scripts` and `src/lib` and fails on any static cycle (shown to fail with one put back).
+
 #### LG8-7 · Low · longevity · NEW
 
 Helpers that Audit 2 centralised in `dom.js` have been copied again, byte for byte so far.
@@ -1616,6 +1618,8 @@ Helpers that Audit 2 centralised in `dom.js` have been copied again, byte for by
 **Fix** `dom.js` gets `button`; a small `desk-text.js` gets `dateWords` and `plural`; `tab-mine.js` imports `colorOf`, `nameOf` and `highlightedWords` from `record-rows.js` (export them). The /sheets page's light-loading reason for `my-sheets.js`'s own `button` goes away once `button` is in `dom.js`, which is already in the page's graph.
 
 **Confidence** High.
+
+**Fixed (2026-11-10)** The ten `button` copies use `dom.js`'s `buttons` (`record-rows.js`'s, another shape, stays); the three `describe` copies are `dom.js`'s, with one counter; `plural` and `dateWords` are `desk-text.js`'s (`plural` now writes 1,204 with a comma everywhere, as `sheet-lit.js`'s did); `colorOf`, `nameOf` and `highlightedWords` are `record-words.js`'s, whose comment says a tint only. Tests: `test/desk-audit8-i-maintenance.test.js`.
 
 #### LG8-8 · Medium · longevity · KNOWN-OPEN LG-13
 
@@ -1695,6 +1699,8 @@ A few claims in the desk docs and comments have drifted, and one deliberate exce
 **Fix** One `newId()` in `desk-records.mjs` (it already has one at `:146`) used by all; the fallback `crypto.getRandomValues` form.
 
 **Confidence** High.
+
+**Fixed (2026-11-10)** `newId` (`desk-records.mjs`, exported) makes every new record, module, blank and history id, with a `getRandomValues` version 4 UUID where `randomUUID` is missing; `desk-sheets.mjs`, `desk-history.mjs`, `desk-sheet-share.mjs` and `sheet-lit.js` use it. The tab and window tokens already had fallbacks and are left. Test: `test/desk-audit8-i-maintenance.test.js`.
 
 ### Improvements
 
@@ -2301,7 +2307,7 @@ A verse index that fails to load makes a keyword search say "No results." (Searc
 
 **Confidence**: High (code); Medium on how often readers hit it.
 
-**Partly fixed (2026-11-09)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. No Try again button.
+**Partly fixed (2026-11-09, 2026-11-10)** `VERSES_FAILED` (`search-core.js`) replaces "No results." in the Search pane, the tray and /search; the next search retries by itself. The Search pane also shows "The verses couldn’t be loaded." and Try again where the verses would be, as its Greek failures do (2026-11-10; test in `test/desk-audit8-dom-search-pane.test.js`). The tray and /search, which are every reader's search, have no Try again button.
 
 #### GF8a-4 · Low · ui · NEW
 Backspacing a query below three letters leaves the Greek offer, the "See results on the search page" link and the "My notes" box from the old query on screen.
@@ -2641,7 +2647,7 @@ On a large sheet every redraw of the editor repeats work proportional to the squ
 
 **Confidence** Low.
 
-**Partly fixed (2026-11-09)** `drawNotes` has its own sequence guard. Working out the sheet's printing blanks once per change, in the editor, is not done.
+**Fixed (2026-11-09, 2026-11-10)** `drawNotes` has its own sequence guard, and the sheet's printing blanks are worked out once per change of its passages with blanks (`sheetPrintingBlanks` in `sheet-lit.js`, keyed by those passages and shared by every card; a list that met a passage it couldn't read is not kept), so a blank change reads each passage once, not once per card. Test: `test/desk-audit8-dom-sheets-blanks.test.js`.
 
 #### GF8b-10 · Low · bug · NEW
 
@@ -3018,7 +3024,7 @@ The /desk title menu runs 38px past the right edge at 1000px, clipping its text 
 **Fix**: right-align the menu to its button or clamp its left to `innerWidth - width - gutter`.
 **Confidence**: Medium (seen only at this window size).
 
-**Open (2026-11-09)** The source gives no reason for the overflow; it needs measuring in a browser at 1000px.
+**Fixed (2026-11-10)** Measured in Chromium at 1000px: the title sat at the right edge, not centered, because the 1100px header fold and the desk's own 760–1100px header rule replaced the desk header's three-column grid (`global.css`), and the menu, centered under the title, ran 23px past the window. The desk header's rule now outranks both, so the title is centered at every width, as its comment says, and the menu fits (checked at 700, 900, 1000, 1100, 1280 and 1400px, and in Atkinson and OpenDyslexic).
 
 #### LV8-5 · Low · ui · NEW
 In a narrow Sheets pane (306px) the "My sheets" rows are wider than the pane and the pane scrolls sideways.
