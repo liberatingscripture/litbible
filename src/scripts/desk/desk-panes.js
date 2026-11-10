@@ -159,6 +159,7 @@ function mountVerse(body, env, pane) {
       source,
       startVerse: p.verse,
       idSuffix: `-${pane.id}`,
+      showPassage: env.showPassage,
       onVerse: (verse) => {
         shown = verse;
         pane.set({ ...p, verse });
@@ -301,6 +302,7 @@ function mountFootnotes(body, env, pane) {
     view = createFootnotesView({
       idSuffix: `-${pane.id}`,
       store: env.store,
+      showPassage: env.showPassage,
       // A note's verse leads back: the LIT pane this pane follows goes there.
       onVerse: (verse) => pane.set({ ...p, verse }),
     });
@@ -317,7 +319,7 @@ function mountFootnotes(body, env, pane) {
 
 function mountLit(body, env, pane) {
   body.classList.add("desk-pane__body--fill");
-  const lit = createLitPane({ paneId: pane.id, start: pane.get(), drafts: env.drafts, onPlace: pane.set });
+  const lit = createLitPane({ paneId: pane.id, start: pane.get(), drafts: env.drafts, onPlace: pane.set, showPassage: env.showPassage });
   body.append(lit.el);
   return { setPassage: (p) => lit.goTo(p), keep: () => lit.keep(), destroy: () => lit.destroy() };
 }

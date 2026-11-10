@@ -968,7 +968,7 @@ A scripture reference inside a footnote, on /desk, is a plain same-tab link, so 
 
 ---
 
-**Open (2026-11-09)** Decision 4.
+**Fixed (2026-11-10)** Decision 4 (BVJ, 2026-11-10): a footnote's scripture reference on /desk behaves as the Book Intro pane's does. A plain click moves the LIT pane through `env.showPassage`; a modified click keeps the browser's default; any other link in a footnote opens in a new tab. One helper, `desk/footnote-links.js` (`routeFootnoteLinks`), serves the Footnotes pane, This verse as a /desk pane (the Notebook's tab on Chapter View is unchanged) and the LIT pane's footnote popover. Test: `test/desk-audit8-dom-footnote-links.test.js`.
 
 #### DK8-3 · Low · copy · NEW
 The Study Desk tour's "Reading in sync" card says there are two LIT panes "as here for the tour" in a window too narrow to add one, and the step is not dropped as "Add pane" is.

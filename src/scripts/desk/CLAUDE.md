@@ -1223,6 +1223,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        an `a.sref` in it moves the LIT pane (`env.showPassage`), and the pane
        **holds its book while the LIT shows the passage it sent**, until the
        LIT moves to any other book; every other link opens a new tab.
+       A scripture reference in a footnote on /desk follows the same rule (the
+       Footnotes pane, This verse as a pane, the LIT pane's footnote popover;
+       `footnote-links.js`; Audit 8, DK8-2; BVJ 2026-11-10), and any other link
+       in a footnote opens a new tab.
        `showIntroIn` (`desk-layout.mjs`) is the one rule for showing a book's
        introduction from outside the pane: a following Book Intro pane first,
        else any, else a new one beside, moving the LIT to the book's chapter 1
