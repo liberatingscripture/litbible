@@ -104,6 +104,20 @@ A record about the text also carries **where**:
 strings (`3`, not `"3"`), with `verse` 1 or more and `endVerse`, when present,
 no less than `verse`. The website refuses a record that breaks this as out of
 range (audit 8 DI8-6).
+**Neither `verse` nor `endVerse` may pass 200** (Audit 8 GF8c-1; BVJ's
+direction 2026-11-10, going with Claude's recommendation; **for BDR to
+review**), in a record or in a sheet's passage (`MAX_VERSE` in
+`src/lib/desk-sheet-format.mjs`). No chapter in either testament reaches it
+(the New Testament's longest has 80 verses, Psalm 119 has 176), so the
+ceiling never depends on the text's verse counts and an app can apply it
+without them. Without it a crafted or mistaken "John 3:16–20000000" (a
+backup, an edited Markdown copy, an app bug) was valid, and every reader that
+walks a range verse by verse froze the page for seconds or ran out of room. A
+record past it is refused as out of range at import, and should be at sync.
+The website also clamps a range to its chapter's last verse wherever it walks
+one, which the apps may want to do too. **For BDR to answer:** is 200 right
+for the apps, or would they rather bound `endVerse` by the chapter's own
+count (which the website's Markdown import already does)?
 
 OSIS (`Rom.8.3`) is derived from these for the W3C export, using a table
 generated from `src/data/books.js` (A-F9). It's never stored.
@@ -443,7 +457,7 @@ LIT" in the editor. Fields a client doesn't know are kept the same way.
 
 | Field | Meaning |
 |---|---|
-| `bookKey`, `chapter`, `verse`, `endVerse` | The verses. One chapter per passage; a reading that crosses a chapter is two passages |
+| `bookKey`, `chapter`, `verse`, `endVerse` | The verses. One chapter per passage; a reading that crosses a chapter is two passages. Neither verse passes 200, as for a record (GF8c-1, under "Fields every record carries") |
 | `quote`, optional | When the passage starts or ends inside a verse (added from a selection): the anchor of the words it covers, as for a highlight. Absent for whole verses |
 | `verseCopy`, `verseCopyAsOf` | The verses' anchor text when added (comparison only, rule 1), and the content version it was read from (the website writes the version, where a note's `verseCopyAsOf` is a time; a reader takes the day from either). Absent when the passage was added without its chapter to hand (gathered from a search); the website's editor then takes a copy the first time it reads the passage |
 | `blanks` | Words left blank on the participant's copy (S10). May be empty |
@@ -906,8 +920,9 @@ and a `modified` in the future is clamped on **every** arrival, not once,
 and never beats what the receiving side holds (under "A clock running ahead"
 below).
 An edit later than a trash record's `deletedAt` brings the record back
-(rule b). The older of two versions of a note is discarded, like any other
-kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
+(rule b; for a bookmark carrying `placedAt` and `editedAt`, its `editedAt`, so
+a move as the reader reads isn't an edit: version 7, below). The older of
+two versions of a note is discarded, like any other kind's (BVJ, going with BDR, 2026-10-09), so a conflicting note leaves no
 second copy.
 
 **Three details the website settled while building the merge** (2026-10-12,
@@ -978,8 +993,8 @@ deletion made in between, every time (BA4). So:
   `editedAt` (kind 4), the place comes from the later `placedAt`, the rest
   from the later `editedAt`, and `modified` and `client` from the later
   `modified`, each tie settled as rule a settles one (the local copy, or
-  the store's tiebreak). Rules b and c read the bookmark's `modified` as
-  before. The five `a-bookmark-` and `clamp-a-bookmark-` cases show it,
+  the store's tiebreak). Rule c reads the bookmark's `modified` as before;
+  rule b reads its `editedAt` (version 7, below). The five `a-bookmark-` and `clamp-a-bookmark-` cases show it,
   including an app's copy without the stamps merging whole.
   **A bookmark held by a deletion merges by group too** (Audit 8 DI8-3;
   merge vectors version 6, 2026-11-10; BVJ's decision, for BDR to review):
@@ -995,6 +1010,25 @@ deletion made in between, every time (BA4). So:
   `client`), never to whichever copy arrived, so the trash settles alike in
   any order. Cases `collapse-two-held-copies-of-a-bookmark-merge-by-group`
   and `b-a-deletion-keeps-the-live-bookmark-s-newer-group`.
+  **A move as the reader reads doesn't undo a deletion** (Audit 8 PC8B-2,
+  which is Audit 6's DI6-5; merge vectors version 7, 2026-11-10; BVJ's
+  direction to go with the website's recommendation, **for BDR to
+  review**): under rule b, a bookmark carrying both stamps counts as edited
+  at its `editedAt`, not its `modified`. A followed bookmark writes its place
+  every few seconds, so a deletion made on the phone was undone as soon as it
+  met a laptop still reading, and the bookmark came back at the laptop's
+  place. Now the deletion stands, and the trash holds the moved place (by
+  group, as above), so a restore brings it back where the reader had got
+  to. A rename, a label, the "Move as I read" switch, a restore or an undo
+  made after the deletion still brings it back, since each stamps
+  `editedAt`. A bookmark without both stamps keeps the old rule. Until the
+  apps adopt it, a website and an app can disagree about such a bookmark:
+  the website keeps it deleted where the app revives it. Cases
+  `b-a-followed-bookmark-s-move-leaves-its-deletion-standing` (with its
+  `-other-way` twin) and `b-a-bookmark-renamed-after-its-deletion-comes-back`.
+  **For BDR to answer:** (a) is this the rule the apps want, or should
+  rule b stay as it was; (b) do the apps write a move as an ordinary edit,
+  stamping `editedAt`, which would undo the change for their bookmarks?
 - **A record that had to be clamped never beats anything the receiving side
   holds**: it is dropped when that side has a record with its id or a
   deletion of it, or, for a trash record, the record it deletes or another
