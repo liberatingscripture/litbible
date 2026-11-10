@@ -15,7 +15,6 @@
 // What the reader wrote is only ever drawn as text (nodes built with
 // textContent), never as HTML.
 
-import deskCss from "../../styles/desk.css?inline";
 import { isDeskCommandQuery, listCommands, matchCommands } from "../../lib/desk-commands.mjs";
 import {
   GREEK_NOTES_KEY,
@@ -28,6 +27,7 @@ import { followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { openCommandsWindow } from "./commands-window.js";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { readRecords } from "./readonly-notebook.js";
+import { addSearchStyle } from "./search-style.js";
 
 export { isDeskCommandQuery };
 
@@ -39,15 +39,9 @@ const PAGE_LIMIT = 10;
 /* ── Styles ──────────────────────────────────────────────────────────── */
 
 // /search and the home page's search strip aren't pages the shell runs on, so
-// the desk's styles come in with this file; on a reading surface the shell has
-// them already. A second copy would change nothing.
-function ensureStyles() {
-  if (document.querySelector("style[data-desk], style[data-desk-search]")) return;
-  const style = document.createElement("style");
-  style.setAttribute("data-desk-search", "");
-  style.textContent = deskCss;
-  document.head.append(style);
-}
+// the rows' own small stylesheet comes with this file (search-style.js; it was
+// all of desk.css until LG8-10). On a desk page boot.js has added it already.
+const ensureStyles = addSearchStyle;
 
 // "Hide my marks" (M1) as it stands in the saved settings. note-settings.js
 // has the same test over the attributes it stamps on <html>, but it runs only

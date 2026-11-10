@@ -171,6 +171,14 @@ opens (2026-11-08, LG6-4). Re-measure at launch.
 **Stage one loads only `desk-tab.css`**, so a rule the first stage needs lives
 there, not in `desk.css`: the skip link's hiding rule and the Display tray's
 `.font-tray__hint` and `.font-tray__reset` (NB6-1, NB6-4).
+**The search loads only `desk-search.css`** (Audit 8, LG8-10), the same way:
+`notebook-search.js` and `sheets/search-sheet.js` add it through
+`search-style.js` (the "My notebook" and "Commands" groups, the Notebook
+actions window, the bar that makes a sheet from a search), and `boot.js`
+adds it beside `desk.css`. They used to add all of `desk.css` (about 200 KB,
+as a JavaScript string) on the first focus of the search box, on any page,
+for those few rows. A rule for those rows goes in `desk-search.css`;
+`test/desk-search-styles.test.js` holds both halves.
 
 **The sheet editor** (`document.execCommand`, its canonical form and golden
 file, its menus and toolbar) is in `src/scripts/desk/sheets/CLAUDE.md`.
@@ -216,7 +224,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
   2. **Readers download none of it.** `desk-gate.js` imports the desk only
      with `data-desk="on"`, and on a reading page only its first stage
      ("Launching", above). `boot.js` adds `desk.css` (and the first stage
-     `desk-tab.css`) as a `<style>` (`?inline`): **a plain CSS import is
+     `desk-tab.css`, the search `desk-search.css`) as a `<style>` (`?inline`): **a plain CSS import is
      gathered into every page's stylesheet by Astro even from a dynamic
      import**, which is how the first build shipped it to everyone. The
      Notebook buttons are in every page's markup, hidden by one rule in
@@ -802,7 +810,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        commands (`listCommands` in `desk-commands.mjs`: what a ">" in the box
        offers on this page, and a line saying more appear on a chapter page).
        It is desk code (`desk/commands-window.js`), a `float-window.js`
-       window like the Greek's and the tour offer, styled in `desk.css`, and
+       window like the Greek's and the tour offer, styled in `desk-search.css`, and
        **it is kept apart from the Greek "Search commands" window by BVJ's
        choice**: the two were one window for a day and BVJ did not want them
        combined, so don't put desk commands in `greek-commands.js` or Greek
