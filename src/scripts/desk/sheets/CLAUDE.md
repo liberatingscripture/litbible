@@ -37,6 +37,33 @@ below the text, so clicking into a part grows the card downward instead of
 moving the words under the pointer, and a menu opens upward when the pane has
 no room below it (SH5-6).
 
+## How the Sheets look: four layers (E89)
+
+**The list of sheets, the template chooser and the editor are built from
+four layers, in the Sheets pane and on /sheets alike** (BVJ, 2026-11-11:
+nothing may be "the same color as the page background"). The tokens and the
+reasoning are at the head of "The Sheets pane on /desk" in `desk.css`:
+- **Ground** (`--sheet-ground`): /sheets' page, and the Sheets pane's body,
+  which takes the same color so the two homes match.
+- **Card** (`--sheet-card`, `--sheet-card-edge`): a part, a row of the list,
+  the chooser, a form. A form inside a part's card is a section of it, in
+  the card's color with the card's edge; **nothing inside a card takes the
+  ground's color** (BVJ, 2026-11-11).
+- **Field** (`--sheet-field`, edged with `--field-border`): anything typed in
+  or chosen from.
+- **Control** (`--sheet-control`, edged with `--field-border`): every
+  `.desk-sheet__btn` but the primary, the chips, the template choices. In
+  light no fill here differs from a card by more than 1.05:1, so **the edge
+  is what makes a control, and a new one needs it** (3:1 on the ground and on
+  a card, both themes). Glyph buttons (`.desk-sheet__icon`) and the primary
+  button keep their own looks.
+A new part, form or control in these areas takes these tokens rather than
+`--surface-raised`, `--surface-input` or a faint ink edge. The button rule is
+scoped in `desk.css` (`:is(.desk-sheet, .sheets-page__new,
+.sheets-page__open-file, .desk-sheet__sheets)`), so `desk-sheet-view.css`, a
+sheet's versions view and the phone's shared sheet keep their own look;
+`test/desk-audit8-f-css.test.js` holds the layers.
+
 ## Rule 18: the Sheets pane
 
 Part of desk rule 18 (phases 3c to 3g, /desk); the rest of it, the panes

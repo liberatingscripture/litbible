@@ -2620,6 +2620,47 @@ tap areas (`global.css`, never under 24px).
   it out of the tab order and from screen readers), so choosing a version
   never rewraps the row or moves the paper. A phone has none of these
   choices and is unchanged.
+- **E89, design: the Sheets' fields, cards and controls stand apart from
+  the page.** BVJ (2026-11-11), of the list of sheets, the template chooser
+  and the editor: “Several areas have fields, cards, and controls with the
+  same color as the page background. That's not good styling.” An Opus pass,
+  with license to decide (“It can make the changes it thinks are best”),
+  limited to styling in those areas. Found: in the Sheets pane every part,
+  field and form was the pane's own `#FAFAF8` (dark `#1d1d1f`), so a part was
+  told from the pane by a 14% hairline alone; on /sheets the fields matched
+  their cards; buttons, chips and the key terms box's buttons had a 25% ink
+  edge (about 1.6:1) or none (the quiet ones); the template choices and the
+  list's rows were bare text between rules; the title and subtitle were a
+  bottom line on the page's color. Status: **built 2026-11-11**, for review.
+  One treatment in four layers, in both homes (`desk.css`, “The Sheets' four
+  layers”; the rule is in `src/scripts/desk/sheets/CLAUDE.md`): **ground**,
+  the page, and the Sheets pane's body now the same (cream; the darkest page
+  in dark), so the pane and /sheets look alike; **cards** (a part, each sheet
+  in the list, the chooser, a form) raised with a hairline, a form inside a
+  part a section of that card in its color (first drawn inset in the
+  ground's color; BVJ: “Having the passage card share the page background
+  isn't right”); **fields** (title, subtitle, a part's
+  text, minutes, the reference, a hint) white in light and a step below the
+  card in dark (`#161617`, a surface the rich text colors are already checked
+  on), each with `--field-border`; **controls** (every sheet button but the
+  primary, the key term chips, each template choice) white in light, a
+  lighter step in dark, with a `--field-border` edge, since in light no fill
+  here differs from a card by more than 1.05:1. Measured: control and field
+  edges 3.0:1 on the cream ground and 3.9:1 on a card in light, 5.5:1 or more
+  in dark; text 12:1 or more on fields and controls, dimmed text 5.2:1 or more
+  on the ground. The license section takes the “what prints” notice's look
+  (as E86 gives the template's description). Two small layout changes made
+  for the new edges: the list's rows are separate cards 8px apart, and in a
+  narrow pane “Blank the selected words” and “Fill in the selected words”
+  wrap whole onto lines of their own rather than breaking over four lines.
+  Left alone on purpose: the glyph buttons (↑ ↓ × and the grip), which read
+  by their glyph; the passage's words; the Add pill; and, being outside the
+  three areas, a sheet's versions view (its Present, Print, Copy, Save as and
+  Share… keep the faint edge, for BVJ to decide), the paper, present mode,
+  and the phone's shared sheet (`desk-sheet-view.css` is unchanged: the
+  button rule is scoped in `desk.css`). Forced colors couldn't be emulated in
+  the Browser pane; every card, field and control now has a border, which
+  forced colors keeps.
 - **E90, design: present mode's start screen shows one QR code.** BVJ
   (2026-11-11), on a sheet's start screen with four codes side by side:
   “Having several QR codes right next to each is not practical. Phones

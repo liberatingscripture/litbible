@@ -30,10 +30,38 @@ test("the Sheets editor's text fields take --field-border (XA8-2, BA144)", () =>
     assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
   }
   assert.match(rule("select.desk-sheet__hint,\n.desk-sheet__hint-text"), /border:\s*1px solid var\(--field-border\)/);
-  // Title and Subtitle keep the quiet look but never lose their edge.
-  const quiet = rule(".desk-sheet__title,\n.desk-sheet__subtitle");
-  assert.match(quiet, /border-bottom-color:\s*var\(--field-border\)/);
-  assert.match(rule(".desk-sheet__title:hover,\n.desk-sheet__subtitle:hover,\n.desk-sheet__title:focus,\n.desk-sheet__subtitle:focus"), /border-color:\s*var\(--field-border\)/);
+  // Title and Subtitle are fields like the rest since E89: a whole edge and
+  // a fill of their own, never the page's (they had a bottom line only).
+  const title = rule(".desk-sheet__title,\n.desk-sheet__subtitle");
+  assert.match(title, /border:\s*1px solid var\(--field-border\)/);
+  assert.match(title, /background:\s*var\(--sheet-field\)/);
+});
+
+test("the Sheets' fields, cards and controls stand apart from their ground (E89)", () => {
+  // Fields take the field fill, never the card's or the page's.
+  for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input", ".desk-sheet__lines input", ".desk-sheet__ref input"]) {
+    assert.match(rule(sel), /background:\s*var\(--sheet-field\)/, sel);
+  }
+  // Cards take the card fill and edge.
+  for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form"]) {
+    const r = rule(sel);
+    assert.match(r, /background:\s*var\(--sheet-card\)/, sel);
+    assert.match(r, /border:\s*1px solid var\(--sheet-card-edge\)/, sel);
+  }
+  // Nothing inside a part's card takes the page's color (BVJ, 2026-11-11).
+  assert.doesNotMatch(css, /\.desk-sheet__module [^{}]*\{[^}]*var\(--sheet-ground\)/);
+  // Controls take a 3:1 edge: the template choices, the chips, and every
+  // sheet button in the three surfaces but the primary one.
+  for (const sel of [".desk-sheet__choice", ".desk-sheet__chip"]) {
+    assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
+  }
+  assert.match(css, /:is\(\.desk-sheet, \.sheets-page__new, \.sheets-page__open-file, \.desk-sheet__sheets\) \.desk-sheet__btn:not\(\.desk-sheet__btn--primary\) \{[^}]*border:\s*1px solid var\(--field-border\)/);
+  // The pane's body is the ground /sheets' page is.
+  assert.match(rule(".desk-pane .desk-sheet"), /background:\s*var\(--sheet-ground\)/);
+  // The layers' dark values are declared in both dark blocks.
+  for (const dark of ["--sheet-ground: var(--page-bg);", "--sheet-field: var(--surface);", "--sheet-control: rgba(var(--ink-rgb), 0.07);"]) {
+    assert.equal(css.split(dark).length - 1, 2, dark);
+  }
 });
 
 test("small secondary text takes ink 0.7, 4.5:1 or more on cream and raised (XA8-3)", () => {
