@@ -637,6 +637,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   if (phone) actions.append(present, print, share);
   else actions.append(...(shared ? [] : [editHere]), present, print, word, save.el);
   if (!shared) actions.append(share);
+  // The answer key's box ends the buttons' row (E88; BVJ, 2026-11-11), never a
+  // row of its own: it keeps its place while hidden (see the stylesheet), so
+  // choosing a version moves nothing. A phone has none of these choices.
+  if (!phone) actions.append(keyBox);
   actions.append(status);
   // A leader link forwarded from a phone goes as the participant's version
   // unless the reader says otherwise (BVJ, 2026-11-10, Audit 8 decision 5).
@@ -652,9 +656,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     bar.append(...(copies.length > 1 ? [copyChoice] : []), ...(phoneScopeChoice ? [phoneScopeChoice] : []), actions, ...hints);
   } else {
     // Two rows: what to show (the choices, QR codes among them), then what to
-    // do with it (the buttons, and the desk link at their end).
+    // do with it (the buttons, the answer key's box after them, and the desk
+    // link at the end).
     const choiceRow = make("div", "sheets-page__row");
-    choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice, codeBox, keyBox);
+    choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice, codeBox);
     const doRow = make("div", "sheets-page__row");
     doRow.append(actions, ...(demo || shared ? [] : [edit]));
     bar.append(choiceRow, doRow, ...hints);

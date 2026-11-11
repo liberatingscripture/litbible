@@ -35,6 +35,7 @@ import {
   presentMessage,
   presentScreens,
   revealedWords,
+  roomAddresses,
   roomCodes,
   sameState,
   screenCount,
@@ -57,7 +58,7 @@ const passage = (id, bookKey, chapter, verse, endVerse, extra = {}) => ({
 
 test("constants: shown types, code cap and message version", () => {
   assert.deepEqual([...SHOWN_TYPES], ["passage", "text", "question", "keyTerms"]);
-  assert.equal(ROOM_CODES_MAX, 4);
+  assert.equal(ROOM_CODES_MAX, 1);
   assert.equal(MESSAGE_VERSION, 1);
 });
 
@@ -236,7 +237,7 @@ test("screenTitle: key terms, and an unknown or missing screen", () => {
 
 /* ── roomCodes ───────────────────────────────────────────────────────── */
 
-test("roomCodes: one code per chapter, in the order the sheet first quotes it", () => {
+test("roomCodes: the first chapter gets the code, the rest are named, in the order the sheet first quotes them (E90)", () => {
   const sheet = {
     modules: [
       passage("a", "romans", 8, 1, 4),
@@ -248,9 +249,12 @@ test("roomCodes: one code per chapter, in the order the sheet first quotes it", 
   const { codes, more } = roomCodes(sheet);
   assert.deepEqual(
     codes.map((c) => c.key),
-    ["romans-8", "john-3", "romans-9"],
+    ["romans-8"],
   );
-  assert.deepEqual(more, []);
+  assert.deepEqual(
+    more.map((c) => c.key),
+    ["john-3", "romans-9"],
+  );
   assert.equal(codes[0].url, "https://litbible.net/romans-8/#v1-4");
   assert.equal(codes[0].moduleId, "a");
 });
@@ -273,12 +277,21 @@ test("roomCodes: capped at ROOM_CODES_MAX with the rest in `more`", () => {
   assert.equal(codes.length, ROOM_CODES_MAX);
   assert.deepEqual(
     codes.map((c) => c.chapter),
-    [1, 2, 3, 4],
+    [1],
   );
   assert.deepEqual(
     more.map((c) => c.chapter),
-    [5, 6],
+    [2, 3, 4, 5, 6],
   );
+});
+
+test("roomAddresses: one chapter is its address, several say the code opens one and list every chapter (E90)", () => {
+  const mods = [passage("a", "romans", 1, 1, 1), passage("b", "john", 3, 1, 1)];
+  const one = roomCodes({ modules: [mods[0]] });
+  assert.equal(roomAddresses(one.codes, one.more), "litbible.net/romans-1");
+  const two = roomCodes({ modules: mods });
+  assert.equal(roomAddresses(two.codes, two.more), "Every chapter: litbible.net/romans-1 · litbible.net/john-3");
+  assert.equal(roomAddresses([], []), "");
 });
 
 test("roomCodes: a different cap, and a sheet with no passages", () => {

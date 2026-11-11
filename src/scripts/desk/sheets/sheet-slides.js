@@ -21,7 +21,7 @@
 // no Leader only parts, as the menu's "Participant version" line says.
 
 import { DOC_CREDIT, docRuns } from "../../../lib/desk-sheet-doc.mjs";
-import { revealedWords, roomCodes } from "../../../lib/desk-present.mjs";
+import { revealedWords, roomAddresses, roomCodes } from "../../../lib/desk-present.mjs";
 import { passageReference, sheetName } from "../../../lib/desk-sheet-passages.mjs";
 import { SLIDE, SLIDE_FONTS, SLIDE_LOOK, SLIDE_PT, bodyPoints, deckSlides, slideBoxes, slideParagraphs, titlePoints } from "../../../lib/desk-slides.mjs";
 import { qrSvg } from "../../../lib/qr-svg.mjs";
@@ -150,7 +150,7 @@ export async function readSlides(sheet, { participant = false } = {}) {
         title: sheetName(sheet),
         subtitle: sheet.subtitle?.trim() ?? "",
         codes: drawn.codes,
-        addresses: [...codes, ...more].map((c) => c.printable).join(" · "),
+        addresses: roomAddresses(codes, more),
         notes,
       });
       continue;

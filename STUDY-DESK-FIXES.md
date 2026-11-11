@@ -2590,6 +2590,53 @@ tap areas (`global.css`, never under 24px).
     is in each chapter page's term data, and the glossary feed has only
     each entry's one `traditional`. An app that printed a sheet's hints
     would need it served first (STUDY-DESK-FORMAT.md, “blank”).
+- **E86, design: the template's description looks like a message from the
+  app.** BVJ (2026-11-11): “The sheet description message that can be
+  dismissed should be styled so that it's clear it's not just part of the
+  sheet. Right now it shares the same background as the page. Style it more
+  like the picture attached,” the picture being /sheets' “what prints”
+  notice. Status: **fixed 2026-11-11**: E84's description (`.desk-sheet__about`
+  in `desk.css`) takes that notice's look (`.sheets-page__leaks`): a tint of
+  ink at 0.05, a 3px `--green-text` rule down the left edge, rounded right
+  corners and padding, the × kept at the top right inside the box. Its words
+  keep their size and wording. In forced colors, where a background draws
+  nothing, the box takes a `CanvasText` outline with the thicker left rule.
+- **E87, design: Leader only before the minutes.** BVJ (2026-11-11): “swap
+  the location of the minutes field and the Leader Only checkbox.” Status:
+  **fixed 2026-11-11**: each part's header tools now read Leader only, the
+  minutes field, then Move up, Move down and Remove (`cardTools` in
+  `part-cards.js`), in the tab order too. The Sheets tour's “Leader only…
+  and the box beside it plans its minutes” already read that way.
+- **E88, design: "Add an answer key" sits in the buttons' row.** BVJ
+  (2026-11-11): “the link that pops up sometimes about including an answer
+  key should be in the same row as the Edit, Save, print buttons, rather
+  than appearing on its own row and shifting everything down.” (It is the
+  checkbox on /sheets, shown on the leader's version only.) Status: **fixed
+  2026-11-11**: `keyBox` moved from the Version, Paper and QR codes row to
+  the end of `.sheets-page__actions` in `sheet-page.js`, after Share… and
+  before the status line, so the tab order runs from the buttons to it.
+  Hidden on the participant's version it keeps its place
+  (`.sheets-page__keybox[hidden]` is `visibility: hidden`, which also takes
+  it out of the tab order and from screen readers), so choosing a version
+  never rewraps the row or moves the paper. A phone has none of these
+  choices and is unchanged.
+- **E90, design: present mode's start screen shows one QR code.** BVJ
+  (2026-11-11), on a sheet's start screen with four codes side by side:
+  “Having several QR codes right next to each is not practical. Phones
+  automatically scan the first one they contact,” and, when Claude
+  recommended one code for the first chapter with the others named by their
+  addresses: “Yes, address all those issues.” Status: **fixed 2026-11-11**:
+  `ROOM_CODES_MAX` is 1, so `roomCodes` gives the first chapter's code and
+  the rest in `more`. The screen draws that code larger (8em, it was
+  5.2em) under "Scan to follow along," captioned with its chapter, and the
+  line of addresses beneath names every chapter, beginning “Every chapter:”
+  when the sheet reads more than one (`roomAddresses`). The presenter's note
+  says “code” and, for several chapters, which one it opens. The title slide
+  (PowerPoint, OpenDocument and the slides' PDF, which share `slideBoxes`)
+  places one larger code and sits the title a little higher to make room.
+  Paper is unchanged: a printed copy keeps a code beside each chapter's
+  passage. No control for showing another chapter's code was added; that
+  stays an undecided later step.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

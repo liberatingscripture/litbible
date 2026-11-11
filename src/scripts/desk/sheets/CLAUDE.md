@@ -528,7 +528,7 @@ gives no note; a part with only a heading or a rule still shows
   screens (`presentScreens`: a start screen, then each passage, text,
   question and key terms box the room sees; a Leader only part goes to
   the presenter view with the screen before it), the room's codes on the
-  start screen (`roomCodes`, S5's codes, at most four), a blank's cover
+  start screen (`roomCodes`: S5's code for the first chapter only, the rest named by `roomAddresses`; E90), a blank's cover
   (`blankCover`), the state and its steps (`checkState`, `stepState`),
   the footnotes the reveal lets out (`screenFootnotes`), the keys
   (`presentKey`), `fitSize`, and the messages between windows.
@@ -583,8 +583,10 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   above a sheet's parts** (E84; BVJ, 2026-11-10: the chooser's line is gone
   by the time the parts are on screen): each built-in template's `about`
   (who it is for, how a session moves, what lands on the page; none for
-  Blank canvas), dimmed, between the subtitle and the first part, with a ×
-  that hides it on that sheet. `templateAbout(sheet)` decides, and **only
+  Blank canvas), between the subtitle and the first part, with a × that
+  hides it on that sheet. **It is drawn as a notice from the app, never as
+  the sheet's own words** (E86): the tint, green left rule and rounded right
+  corners of /sheets' “what prints” notice, so keep it that way. `templateAbout(sheet)` decides, and **only
   while the sheet still has the template's parts**, in order, by type and
   heading, passages left out: a sheet keeps nothing of its template but
   the id, which a sheet from one of the reader's own templates carries

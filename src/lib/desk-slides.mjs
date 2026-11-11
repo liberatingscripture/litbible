@@ -538,22 +538,26 @@ export function slideBoxes(slide) {
   const width = SLIDE.inchWidth - 2 * side;
   if (slide.kind === "start") {
     const codes = slide.codes?.length ?? 0;
-    const titleY = codes ? 0.9 : 1.9;
-    const codeSize = codes > 2 ? 1.45 : 1.7;
+    // One code (E90), so it is drawn larger, with the title and subtitle a
+    // little higher to make room; several keep their row.
+    const one = codes === 1;
+    const titleY = one ? 0.6 : codes ? 0.9 : 1.9;
+    const codeSize = one ? 2.2 : codes > 2 ? 1.45 : 1.7;
     const gap = 0.5;
     const rowWidth = codes * codeSize + (codes - 1) * gap;
+    const codeY = one ? 3.2 : 3.65;
     return {
       title: { x: side, y: titleY, w: width, h: 1.35 },
       subtitle: { x: side, y: titleY + 1.4, w: width, h: 0.6 },
-      follow: { x: side, y: 3.15, w: width, h: 0.45 },
+      follow: { x: side, y: codeY - 0.5, w: width, h: 0.45 },
       codes: Array.from({ length: codes }, (_, i) => ({
         x: (SLIDE.inchWidth - rowWidth) / 2 + i * (codeSize + gap),
-        y: 3.65,
+        y: codeY,
         w: codeSize,
         h: codeSize,
-        label: { x: (SLIDE.inchWidth - rowWidth) / 2 + i * (codeSize + gap) - 0.3, y: 3.7 + codeSize, w: codeSize + 0.6, h: 0.35 },
+        label: { x: (SLIDE.inchWidth - rowWidth) / 2 + i * (codeSize + gap) - 0.3, y: codeY + codeSize + 0.05, w: codeSize + 0.6, h: 0.35 },
       })),
-      addresses: { x: side, y: codes ? 5.85 : 4.3, w: width, h: 0.4 },
+      addresses: { x: side, y: codes ? codeY + codeSize + 0.45 : 4.3, w: width, h: 0.6 },
       credit: { x: side, y: 6.75, w: width, h: 0.45 },
     };
   }

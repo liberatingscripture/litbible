@@ -35,6 +35,7 @@ import {
   presentMessage,
   presentScreens,
   revealedWords,
+  roomAddresses,
   roomCodes,
   sameState,
   screenCount,
@@ -109,8 +110,7 @@ function buildScreen(screen, i, { sheet, views, room, allBlanks }) {
       const row = make("div", "present-screen__code-row");
       for (const c of codes) row.append(codeFigure(c, c.label));
       box.append(row);
-      const addresses = [...codes, ...more].map((c) => c.printable).join(" · ");
-      box.append(make("p", "present-screen__addresses", addresses));
+      box.append(make("p", "present-screen__addresses", roomAddresses(codes, more)));
       body.append(box);
     }
     return plain;
@@ -689,10 +689,13 @@ function leaderNotes(state, deck) {
   const m = screen.module;
 
   if (screen.kind === "start") {
-    const { codes } = roomCodes(deck.sheet);
+    const { codes, more } = roomCodes(deck.sheet);
     out.append(make("p", null, codes.length
-      ? "The room can scan the codes on this screen to read along in the LIT app or on litbible.net."
-      : "This sheet has no passages, so there are no QR codes."));
+      ? "The room can scan the code on this screen to read along in the LIT app or on litbible.net."
+      : "This sheet has no passages, so there is no QR code."));
+    if (codes.length && more.length) {
+      out.append(make("p", null, `The code opens ${codes[0].label}. The other chapters are named by their addresses beneath it.`));
+    }
   }
 
   const words = deck.words[i] ?? [];
