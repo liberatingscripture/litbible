@@ -347,16 +347,25 @@ test("paperName: the two papers pass, anything else is null", () => {
 test("PAPERS: the two papers and their sizes", () => {
   assert.equal(PAPERS.letter.name, "US Letter");
   assert.equal(PAPERS.a4.name, "A4");
+  // The screen's pages (sheet-pages.js) are laid out at these heights.
+  assert.equal(PAPERS.letter.height, "11in");
+  assert.equal(PAPERS.a4.height, "297mm");
 });
 
 test("pageRule: a4 gives A4", () => {
   const rule = pageRule("a4");
   assert.ok(rule.includes("size: A4"), rule);
-  assert.equal(rule, "@page { size: A4; margin: 18mm; }");
+  assert.ok(rule.startsWith("@page { size: A4; margin: 18mm; "), rule);
+});
+
+test("pageRule: page 1's number centered at the foot, the rest's at the top right", () => {
+  const rule = pageRule("letter");
+  assert.match(rule, /^@page \{[^@]*@top-right \{ content: counter\(page\);/);
+  assert.match(rule, /@page :first \{ @top-right \{ content: none; \} @bottom-center \{ content: counter\(page\);[^}]*\} \}$/);
 });
 
 test("pageRule: letter gives letter, and a bad value falls back to letter", () => {
-  assert.equal(pageRule("letter"), "@page { size: letter; margin: 0.75in; }");
+  assert.ok(pageRule("letter").startsWith("@page { size: letter; margin: 0.75in; "));
   assert.equal(pageRule("bogus"), pageRule("letter"));
   assert.equal(pageRule(undefined), pageRule("letter"));
 });

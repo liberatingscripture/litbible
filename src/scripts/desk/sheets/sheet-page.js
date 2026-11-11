@@ -100,6 +100,7 @@ import { checkSummary } from "../../../lib/desk-sheet-check.mjs";
 import { passageReference } from "../../../lib/desk-sheet-passages.mjs";
 import { documentFileName } from "../../../lib/desk-sheet-doc.mjs";
 import { copyChecks, copyLeaks, renderCopy } from "./sheet-copy.js";
+import { paginate } from "./sheet-pages.js";
 import { leakSentence } from "../../../lib/desk-sheet-leaks.mjs";
 import { diffParagraph } from "../diff-view.js";
 import { openPresentation, showPresenterView } from "./sheet-present.js";
@@ -564,6 +565,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     paper = v;
     setPaper(v);
     try { localStorage.setItem(PAPER_KEY, v); } catch (_) {}
+    layOutPages();
   });
   const codeBox = make("label", "sheets-page__codes");
   const codeInput = make("input");
@@ -681,6 +683,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
         if (n !== seq) return;
         current = el;
         paperBox.replaceChildren(el);
+        layOutPages();
         document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | Liberation and Inclusion Translation`;
         drawLeaks(leaksBox, []);
         if (copy === "participant" && !shared) {
@@ -700,6 +703,38 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
         if (n === seq) paperBox.removeAttribute("aria-busy");
       });
     return ready;
+  }
+
+  // The copy as pages of the chosen paper, as a word processor's print layout
+  // shows them (sheet-pages.js; BVJ, 2026-11-10). A computer only: a phone's
+  // column is no paper's width. Laid out again when the fonts arrive, the
+  // paper changes or the column's width does, since each moves the lines.
+  let pagesFor = 0;
+  function layOutPages() {
+    if (phone || !current) return;
+    const el = current;
+    const n = ++pagesFor;
+    (document.fonts?.ready ?? Promise.resolve()).then(() => {
+      if (n !== pagesFor || el !== current || !el.isConnected) return;
+      paginate(el, PAPERS[paper]);
+    });
+  }
+  if (!phone && typeof ResizeObserver === "function") {
+    let width = 0;
+    let wait = 0;
+    const watch = new ResizeObserver(([entry]) => {
+      if (!paperBox.isConnected) {
+        watch.disconnect();
+        return;
+      }
+      const w = Math.round(entry.contentRect.width);
+      if (w === width) return;
+      width = w;
+      clearTimeout(wait);
+      wait = setTimeout(layOutPages, 150);
+    });
+    watch.observe(paperBox);
+    document.fonts?.addEventListener?.("loadingdone", () => { if (paperBox.isConnected) layOutPages(); });
   }
 
   let presenting = null;

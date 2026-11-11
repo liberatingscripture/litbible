@@ -16,6 +16,7 @@
 // when the page shows them.
 
 import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHref, docHtml, docText } from "../../../lib/desk-sheet-doc.mjs";
+import { unpaged } from "./sheet-pages.js";
 
 const INLINE = new Set(["em", "strong", "u", "s", "sub", "a"]);
 // <b> and <i> are what the chapters' own footnotes use (GF8c-3).
@@ -139,6 +140,8 @@ export function block(node, out, poetry = false) {
  * @returns {{ title: string, blocks: object[] }}
  */
 export function readCopy(article) {
+  // The screen's page spacers (sheet-pages.js) are no part of the copy.
+  article = unpaged(article);
   const blocks = [];
   let title = "";
   const tag = (section) => {

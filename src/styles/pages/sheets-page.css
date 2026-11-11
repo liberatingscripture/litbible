@@ -214,6 +214,55 @@
   --desk-rich-mark-pink: rgba(255, 95, 165, 0.24);
 }
 
+/* Print layout (BVJ, 2026-11-10): on a computer the copy is laid out as pages
+   of the chosen paper (sheet-pages.js), one under another with a gap, as a
+   word processor shows a document. The sheets are the copy's background, its
+   height a whole number of them; the drop shadow follows the sheets' edges, not
+   the box's, so each page casts its own. Spacers push what would cross a page's
+   foot to the next page's top; on paper they are gone (below). */
+.sheet-copy[data-paged] {
+  background: repeating-linear-gradient(
+    to bottom,
+    #fff 0,
+    #fff var(--sheet-page-height),
+    transparent var(--sheet-page-height),
+    transparent calc(var(--sheet-page-height) + var(--sheet-page-gap))
+  );
+  box-shadow: none;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.22));
+  position: relative;
+}
+
+/* Page numbers as they print (pageRule): page 1's centered in the bottom
+   margin, the rest at the top right in the top margin. The script sets each
+   one's middle. */
+.sheet-page-number {
+  position: absolute;
+  right: var(--sheet-paper-margin, 0.75in);
+  transform: translateY(-50%);
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-size: 9pt;
+  line-height: 1;
+  color: #595e57;
+  pointer-events: none;
+}
+
+.sheet-page-number--first {
+  right: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* The page break is the gap itself now, so its marker takes no room. */
+.sheet-copy[data-paged] .sheet-copy__break {
+  margin: 0;
+  border: 0;
+}
+
+.sheet-copy[data-paged] .sheet-copy__break::before {
+  display: none;
+}
+
 .sheet-copy a,
 .sheet-copy .desk-rich a {
   color: #0f6b33;
@@ -848,6 +897,18 @@
     width: auto;
     padding: 0;
     box-shadow: none;
+  }
+
+  /* The screen's pages give way to the printer's own. */
+  .sheet-copy[data-paged] {
+    height: auto !important;
+    background: none;
+    filter: none;
+  }
+
+  .sheet-page-gap,
+  .sheet-page-number {
+    display: none !important;
   }
 
   /* print.css sets every font to the serif and every color to black; a

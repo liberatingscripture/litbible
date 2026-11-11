@@ -16,7 +16,7 @@
 // as its stand-in, and Cardo for Greek and Hebrew. LIT_CREDIT_LINE is the
 // final paragraph and the document's comment (\doccomm).
 
-import { DOC_BOX, DOC_COLORS, DOC_CREDIT, DOC_FONTS, DOC_MARKS, DOC_PAPERS, CODE_CM, docRuns } from "./desk-sheet-doc.mjs";
+import { DOC_BOX, DOC_COLORS, DOC_CREDIT, DOC_FONTS, DOC_MARKS, DOC_PAGE_NUMBER, DOC_PAPERS, CODE_CM, docRuns, pageNumberAt } from "./desk-sheet-doc.mjs";
 
 const BASE_HALF_POINTS = 24;
 const ALIGN = { left: "\\ql", center: "\\qc", right: "\\qr", justify: "\\qj" };
@@ -228,6 +228,23 @@ function body(blocks, quoted = false, width = 0) {
 }
 
 /**
+ * Page numbers as the printed copy has them: page 1's centered in its own
+ * footer (\titlepg), every later page's at the right of the header, each a
+ * PAGE field in the middle of the margin. The first page's header is empty,
+ * so it doesn't fall back to the later pages'.
+ */
+function pageNumbers(margin) {
+  const at = pageNumberAt(margin);
+  const number = (align) =>
+    `\\pard\\plain\\${align}\\sb0\\sa0\\f2\\fs${DOC_PAGE_NUMBER.pt * 2}\\cf${colorIndex(DOC_PAGE_NUMBER.color)} ` +
+    "{\\field{\\*\\fldinst PAGE}{\\fldrslt 1}}\\par";
+  return (
+    `\\sectd\\titlepg\\headery${at}\\footery${at}\n` +
+    `{\\headerr ${number("qr")}}\n{\\headerf \\pard\\plain\\par}\n{\\footerf ${number("qc")}}\n`
+  );
+}
+
+/**
  * The .rtf as text.
  *
  * @param {{ title: string, blocks: object[] }} doc the model (readCopy)
@@ -239,6 +256,7 @@ export function rtfText(doc, { title = doc.title, version = "", paper = "letter"
     HEADER +
     `{\\info{\\title ${rtfEscape(title)}}${version ? `{\\subject ${rtfEscape(version)}}` : ""}{\\doccomm ${rtfEscape(DOC_CREDIT)}}}\n` +
     `\\paperw${page.width}\\paperh${page.height}\\margl${page.margin}\\margr${page.margin}\\margt${page.margin}\\margb${page.margin}\\widowctrl\n` +
+    pageNumbers(page.margin) +
     body(doc.blocks, false, page.width - 2 * page.margin) +
     para("foot", textRuns(DOC_CREDIT)) +
     "}\n"

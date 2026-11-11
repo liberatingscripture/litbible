@@ -415,6 +415,16 @@ export const DOC_PAPERS = Object.freeze({
   a4: Object.freeze({ width: 11906, height: 16838, margin: 1020, odf: { width: "210mm", height: "297mm", margin: "18mm" } }),
 });
 
+/**
+ * Page numbers, as the printed copy has them (BVJ, 2026-11-10; pageRule in
+ * desk-sheet-copy.mjs): page 1's centered in the bottom margin, every later
+ * page's at the top right, in 9pt Inter gray. `line` is the number's line in
+ * twips; `pageNumberAt(margin)` is how far its line sits from the paper's
+ * edge, so it is centered in the margin and the text area is the copy's.
+ */
+export const DOC_PAGE_NUMBER = Object.freeze({ pt: 9, color: "#595e57", line: 216 });
+export const pageNumberAt = (margin) => Math.round((margin - DOC_PAGE_NUMBER.line) / 2);
+
 /** The fonts the files name (never embed): the print face, then what stands in. */
 export const DOC_FONTS = Object.freeze({
   text: "Crimson Text",
