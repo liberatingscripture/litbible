@@ -530,7 +530,9 @@ notice there or nowhere.
   2026-09-28): `/` search (a Search pane on /desk), `g` Go to passage, and
   ← → or `[` `]` for the
   previous and next chapter (Chapter View's top Previous/Next, found by their
-  `rel="prev"` / `rel="next"`, or the neighbouring `#ch-N` in Read View).
+  `rel="prev"` / `rel="next"`, the neighbouring `#ch-N` in Read View, or on
+  /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
+  passage bar's arrow of the pane holding focus, else the leading LIT pane).
   `h` is the Study Desk's "Hide my marks" and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.

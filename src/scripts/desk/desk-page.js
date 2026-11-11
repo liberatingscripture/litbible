@@ -1168,6 +1168,32 @@ async function start() {
     paneEls.get(made?.id)?.inst?.focusField();
   });
 
+  // ← → and [ ] (keyboard-shortcuts.js): the previous or next chapter in the
+  // pane being read, as its passage bar's arrows would move it. That is the
+  // pane holding focus where it has a passage bar (a LIT pane there is the
+  // leading one already, since working in it makes it lead), else the leading
+  // LIT pane, else the first pane that follows (with no LIT pane, the
+  // following panes share one passage). A step past Matthew 1 or Revelation 22
+  // is taken and does nothing, as the bar's disabled arrow does.
+  document.addEventListener("lit:desk-chapter", (e) => {
+    const dir = e.detail?.step < 0 ? "-1" : "1";
+    const stepOf = (id) => paneEls.get(id)?.el.querySelector(`.desk-passage__step[data-step="${dir}"]`) ?? null;
+    const all = panes(layout.root);
+    const holding = all.find((p) => paneEls.get(p.id)?.el.contains(document.activeElement));
+    const leading = findPane(layout.root, layout.active)?.kind === "lit" ? layout.active : null;
+    const id = [holding?.id, leading, ...all.filter((p) => isFollower(p.kind) && !p.pin).map((p) => p.id)]
+      .find((candidate) => candidate && stepOf(candidate));
+    const button = id ? stepOf(id) : null;
+    if (!button) return;
+    e.preventDefault();
+    if (button.getAttribute("aria-disabled") === "true") return;
+    // The arrow's title names where it goes ("John 4"); said, since nothing
+    // else tells a screen reader the pane moved.
+    const to = button.title;
+    button.click();
+    if (to) announce(to);
+  });
+
   fitHeight();
   draw();
   if (arrivalMarks) tellMarks(arrivalMarks, arrivedAs);

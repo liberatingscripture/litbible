@@ -5,7 +5,8 @@
 //              /desk, a Search pane)
 //   g          Go to passage, where the page has the picker
 //   ← → [ ]    previous and next chapter: Chapter View's Previous/Next links,
-//              or the neighbouring chapter in Read View
+//              the neighbouring chapter in Read View, or on /desk the pane
+//              being read (the leading LIT pane)
 //   h          hide or show my marks, where the Study Desk is on (M1)
 //
 // On by default, with a "Keyboard shortcuts" box in the Display tray to turn
@@ -98,6 +99,14 @@ function goToChapter(step) {
   if (link) {
     link.click();
     return true;
+  }
+  // /desk has no Previous/Next of the page: the pane being read steps, as its
+  // passage bar's arrows would. Only where the desk is on; the page that
+  // listens is the desk's, so nothing of the desk is imported here.
+  if (document.documentElement.hasAttribute("data-desk")) {
+    const ev = new CustomEvent("lit:desk-chapter", { cancelable: true, detail: { step } });
+    document.dispatchEvent(ev);
+    if (ev.defaultPrevented) return true;
   }
   // Read View: the whole book is on the page, so move to the next chapter
   // heading. The picker's root tracks which chapter is being read.
