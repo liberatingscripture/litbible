@@ -2361,6 +2361,15 @@ tap areas (`global.css`, never under 24px).
   is pinned. The popover's Pin, This verse and /desk's Footnotes pane are
   unchanged, and they, the tour and the help page are how a reader who
   never points at the list learns of pinning.
+- **E83, bug: the text-width line covered the right edge of a footnote's
+  Pin.** Found by Claude while checking E82 (2026-11-10): with the Notebook
+  expanded, the line dragged to set the text's width started 6px outside
+  the column and was 18px wide, so it lay over the last 8px of every Pin in
+  the Footnotes list, and a click there opened the line's menu instead of
+  pinning. BVJ: “make the small fix.” Status: **fixed 2026-11-10**: the
+  line is 12px wide and lies wholly inside the column's left padding,
+  between Pin and the text (`TEXT_HANDLE` in `desk-margin.mjs`, held to
+  both by a test).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

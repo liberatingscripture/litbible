@@ -16,9 +16,9 @@ import {
   EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MAX_WIDTH, MIN_HEIGHT, MIN_MEASURE, MIN_WIDTH, TAB_EDGE, TAB_GAP, TAB_WIDTH,
   dragFloatEdge, dragNotebookEdge, dragTextEdge, firstPaint, floatBounds, floatWidth, nextCollapsed, panelHeight, placeFloating, placeInMargin,
   placeWithWidths, widestMeasure, widthsFromLayout,
-  KEEP_LEFT,
+  KEEP_LEFT, TEXT_HANDLE,
 } from "../src/lib/desk-margin.mjs";
-import { PIN_MARGIN } from "../src/lib/desk-footnote-pills.mjs";
+import { PILL_OFFSET, PIN_MARGIN } from "../src/lib/desk-footnote-pills.mjs";
 
 /** A column `width` wide, centred in a page `viewport` wide, moved left by `shift`. */
 function centred(viewport, width, shift = 0) {
@@ -588,6 +588,15 @@ test("firstPaint: the default font and size float the notebook below about 935px
 // footnote's Pin as a thumbtack alone.
 test("KEEP_LEFT is the thumbtack's margin, less the column's own padding", () => {
   assert.equal(KEEP_LEFT, PIN_MARGIN - FIRST_PAINT.pad / 2);
+});
+
+// E83: the line took the clicks meant for the right edge of a footnote's Pin.
+test("E83: the text-width line lies between a footnote's Pin and the text", () => {
+  const textStart = FIRST_PAINT.pad / 2; // from the column's left edge
+  const pinRight = textStart - PILL_OFFSET;
+  assert.ok(TEXT_HANDLE.inset >= pinRight, "it starts at or after Pin's right edge");
+  assert.ok(TEXT_HANDLE.inset + TEXT_HANDLE.width <= textStart, "and ends before the text");
+  assert.ok(TEXT_HANDLE.width >= 12, "and is still wide enough to take hold of");
 });
 
 test("E81: the column never moves further left than keepLeft allows", () => {
