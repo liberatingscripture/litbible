@@ -292,13 +292,32 @@ test("roomCodes: a different cap, and a sheet with no passages", () => {
 
 /* ── blankCover ──────────────────────────────────────────────────────── */
 
-test("blankCover: the traditional hint with a term shows the traditional word, lowercased", () => {
-  assert.deepEqual(blankCover({ hint: "traditional" }, { traditional: "Hell" }), { kind: "word", text: "hell" });
+// `term` is termForWords' for the blanked words: its `traditional` is ready to
+// show (lowercase and without the glossary's [2], or a name with its capital),
+// and null where the verse leaves a choice among `choices`.
+test("blankCover: the traditional hint with a term shows the blanked words' traditional word", () => {
+  assert.deepEqual(blankCover({ hint: "traditional" }, { traditional: "hell", choices: ["hell"] }), { kind: "word", text: "hell" });
+  assert.deepEqual(blankCover({ hint: "traditional" }, { traditional: " believe ", choices: ["believe"] }), { kind: "word", text: "believe" });
 });
 
-test("blankCover: the traditional word loses its [2] disambiguator", () => {
-  assert.deepEqual(blankCover({ hint: "traditional" }, { traditional: "Good [2]" }), { kind: "word", text: "good" });
-  assert.deepEqual(blankCover({ hint: "traditional" }, { traditional: "Good[12]" }), { kind: "word", text: "good" });
+test("blankCover: a name keeps its capital (E85)", () => {
+  assert.deepEqual(blankCover({ hint: "traditional" }, { traditional: "Satan", choices: ["Satan"] }), { kind: "word", text: "Satan" });
+});
+
+test("blankCover: a verse that leaves the word in doubt shows a line, and the word once the leader picks one (E85)", () => {
+  const open = { id: "trust", traditional: null, choices: ["faith", "believe"] };
+  assert.deepEqual(blankCover({ hint: "traditional" }, open), { kind: "line", hint: null });
+  // The pick is stored as the leader's own hint, and covers the blank as a traditional word does.
+  assert.deepEqual(blankCover({ hint: "custom", hintText: "traditionally believe" }, open), { kind: "word", text: "believe" });
+  assert.deepEqual(blankCover({ hint: "custom", hintText: " traditionally faith " }, open), { kind: "word", text: "faith" });
+  // Any other words are the leader's own hint, beneath a line.
+  assert.deepEqual(blankCover({ hint: "custom", hintText: "think of belief" }, open), { kind: "line", hint: "think of belief" });
+  // With no choice to make, the same words are the leader's own hint too.
+  const settled = { id: "trust", traditional: "believe", choices: ["believe"] };
+  assert.deepEqual(blankCover({ hint: "custom", hintText: "traditionally believe" }, settled), {
+    kind: "line",
+    hint: "traditionally believe",
+  });
 });
 
 test("blankCover: the traditional hint with no term (or an empty one) falls back to a line", () => {

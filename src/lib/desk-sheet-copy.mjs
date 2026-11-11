@@ -15,7 +15,7 @@ import { bookKeyToLabel } from "../data/books.js";
 import { isChapterAddress } from "./desk-passage.mjs";
 import { printableUrl } from "./lit-credit.mjs";
 import { MODULE_TYPES, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
-import { blanksGivenAway, htmlToText } from "./desk-sheet-lit.mjs";
+import { blanksGivenAway, hintIsAnswer, htmlToText } from "./desk-sheet-lit.mjs";
 import { linkScriptureRefs } from "./scripture-refs.mjs";
 import { openExternalLinks } from "./external-links.mjs";
 import { NOTE_LINKING } from "./desk-chains.mjs";
@@ -114,10 +114,15 @@ export function chapterCodes(modules) {
  * The key terms box as a copy prints it. On the participant's copy a rendering
  * that would give a blank away prints as a blank too, by the rule the footnote
  * picker uses (a shared word stem, desk-sheet-lit's blanksGivenAway), and the
- * box says how many terms are left blank. The leader's copy prints every
- * rendering. Omitted terms are left out of both.
+ * box says how many terms are left blank. A traditional word that is itself
+ * one of the renderings left blank goes with it (the LIT keeps "faithful" and
+ * "demon", and "traditionally faithful" beside the blank would print its
+ * answer; E85, desk-sheet-lit's hintIsAnswer): only the word itself, since
+ * any other traditional word is the clue the box is for. The leader's copy
+ * prints every rendering and word. Omitted terms are left out of both.
  *
  * @param {{ id: string, renderings: string[], traditional: string, greek: string, omitted?: boolean }[]} terms
+ *   collectKeyTerms': `traditional` is the term's words, " / " between
  * @param {{ exact: string }[]} blanks the blanks that print on this copy
  * @param {"leader" | "participant"} copy
  * @returns {{ terms: { id: string, renderings: { text: string, blank: boolean }[], traditional: string, greek: string }[], blanked: number }}
@@ -131,8 +136,15 @@ export function keyTermsForCopy(terms, blanks, copy) {
       text,
       blank: copy === "participant" && blanksGivenAway(text, blanks ?? []).length > 0,
     }));
-    if (renderings.some((r) => r.blank)) blanked += 1;
-    out.push({ id: t.id, renderings, traditional: t.traditional, greek: t.greek });
+    const hidden = renderings.filter((r) => r.blank);
+    if (hidden.length) blanked += 1;
+    const traditional = hidden.length
+      ? String(t.traditional ?? "")
+          .split(" / ")
+          .filter((word) => !hidden.some((r) => hintIsAnswer(word, r.text)))
+          .join(" / ")
+      : t.traditional;
+    out.push({ id: t.id, renderings, traditional, greek: t.greek });
   }
   return { terms: out, blanked };
 }

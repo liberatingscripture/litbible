@@ -19,16 +19,20 @@ import {
   commercialShare,
   completeBooks,
   countWords,
+  flaggedWord,
   footnoteKey,
   footnoteRows,
   groupBlanks,
+  hintIsAnswer,
   htmlToText,
   keyTermLine,
   locateBlank,
   marksInRange,
   blanksTouching,
   overlapsBlank,
+  pickedChoice,
   setFootnoteChoices,
+  startingHint,
   telltaleStems,
   termBlanksLeft,
   termForWords,
@@ -272,23 +276,46 @@ test("collectKeyTerms: a mark whose id has no term info is skipped", () => {
 
 /* ── keyTermLine ─────────────────────────────────────────────────────── */
 
-test("keyTermLine: rendering, traditionally the lowercased traditional, then the Greek", () => {
+// keyTermLine prints one of collectKeyTerms' terms, whose traditional word is
+// ready to print: lowercase, or with the capital the word list gives a name.
+test("keyTermLine: rendering, traditionally the traditional word, then the Greek", () => {
   assert.equal(
-    keyTermLine({ renderings: ["self-preservation"], traditional: "Flesh", greek: "sarx" }),
+    keyTermLine({ renderings: ["self-preservation"], traditional: "flesh", greek: "sarx" }),
     "self-preservation, traditionally flesh, sarx",
   );
 });
 
 test("keyTermLine: several renderings are joined with a slash", () => {
   assert.equal(
-    keyTermLine({ renderings: ["self-preservation", "family"], traditional: "Flesh", greek: "sarx" }),
+    keyTermLine({ renderings: ["self-preservation", "family"], traditional: "flesh", greek: "sarx" }),
     "self-preservation / family, traditionally flesh, sarx",
   );
 });
 
 test("keyTermLine: leaves out a missing traditional or Greek", () => {
   assert.equal(keyTermLine({ renderings: ["x"], traditional: "", greek: "" }), "x");
-  assert.equal(keyTermLine({ renderings: ["x"], traditional: "Sin", greek: "" }), "x, traditionally sin");
+  assert.equal(keyTermLine({ renderings: ["x"], traditional: "sin", greek: "" }), "x, traditionally sin");
+});
+
+test("keyTermLine: a name keeps the capital collectKeyTerms hands it (E85)", () => {
+  assert.equal(
+    keyTermLine({ renderings: ["the Adversary"], traditional: "Satan", greek: "Satanas" }),
+    "the Adversary, traditionally Satan, Satanas",
+  );
+});
+
+test("collectKeyTerms: an entry's heading is lowercased, and a name in the page's list keeps its capital (E85)", () => {
+  const ch = assembleChapter(new Map([[1, "Sin gives way when the Adversary falls."]]));
+  // A page with no list: the heading, lowercase, as before.
+  const plain = collectKeyTerms([{ chapter: ch, marks: [{ ...at(ch, "Sin"), id: "hamartia" }], terms: TERMS }]);
+  assert.equal(keyTermLine(plain[0]), "Sin, traditionally sin, hamartia");
+  // The list spells the name; the mark's own word and the entry's fallback agree on it.
+  const terms = { adversary: { traditional: "Satan", greek: "Satanas", title: "Adversary", words: [["Satan", "Satanas"]] } };
+  const where = at(ch, "the Adversary");
+  const held = collectKeyTerms([{ chapter: ch, marks: [{ ...where, id: "adversary", w: [0] }], terms }]);
+  assert.equal(keyTermLine(held[0]), "the Adversary, traditionally Satan, Satanas");
+  const silent = collectKeyTerms([{ chapter: ch, marks: [{ ...where, id: "adversary" }], terms }]);
+  assert.equal(keyTermLine(silent[0]), "the Adversary, traditionally Satan, Satanas");
 });
 
 /* ── blankFromOffsets ────────────────────────────────────────────────── */
@@ -515,7 +542,8 @@ test("termForWords: the first overlapping mark with a traditional wins", () => {
   ]);
   const { start } = at(chapter, "deviation");
   const end = at(chapter, "from the way").end;
-  assert.deepEqual(termForWords(start, end, marks, TERMS), { id: "sarx", traditional: "flesh" });
+  // A page that says nothing of the verse's Greek gives the entry's own word.
+  assert.deepEqual(termForWords(start, end, marks, TERMS), { id: "sarx", traditional: "flesh", choices: ["flesh"] });
 });
 
 test("termForWords: null when nothing overlaps or terms are missing", () => {
@@ -1145,4 +1173,293 @@ test("termBlanksLeft: counts the term's other printing blanks", () => {
   assert.equal(termBlanksLeft(located, GMARKS, TERMS, "hamartia", ["s1"]), 2);
   assert.equal(termBlanksLeft(located, GMARKS, TERMS, "hamartia", ["s1", "s2", "s3"]), 0);
   assert.equal(termBlanksLeft(located, GMARKS, TERMS, null, ["s1"]), 0);
+});
+
+/* ── E85: each word of a term's family has its own traditional word ──── */
+
+// One entry governs a family of Greek words, each with its own pair in
+// `words`, and a mark says which of them its verse holds (`w`, indexes into
+// `words`): what the page's #term-lens-data carries (term-words.mjs).
+const FAMILY = {
+  trust: {
+    traditional: "Faith",
+    greek: "pistis",
+    title: "Trust",
+    lemmas: ["πίστις", "πιστός", "πιστεύω"],
+    words: [["faith", "pistis"], ["faithful", "pistos"], ["believe", "pisteuo"]],
+  },
+  sin: {
+    traditional: "Sin",
+    greek: "hamartia",
+    title: "Deviation",
+    lemmas: ["ἁμαρτία", "ἁμαρτάνω", "ἁμαρτωλός"],
+    words: [["sin", "hamartia"], ["sin", "hamartano"], ["sinner", "hamartolos"]],
+  },
+};
+const famChapter = assembleChapter(
+  new Map([
+    [1, "Their trust was counted to them."],
+    [2, "Whoever trusted was kept."],
+    [3, "The one who trusts has confidence."],
+    [4, "Those deviating keep on straying."],
+  ]),
+);
+/** A mark on `text` in the family chapter, with the family words its verse holds. */
+const fam = (text, id, w) => ({ ...at(famChapter, text), id, ...(w ? { w } : {}) });
+/** A printing blank on `text` there. */
+const famBlank = (id, text, verse, blank = {}) => ({
+  blank: { id, verse, hint: "traditional", ...blank },
+  ...at(famChapter, text),
+  prints: true,
+  status: "found",
+});
+
+test("termMarkOffsets: a mark's family words come along, and only where the page gives them (E85)", () => {
+  const ch = assembleChapter(new Map([[1, "Whoever trusted kept trust."]]));
+  const data = {
+    marks: [
+      { v: 1, text: "trusted", k: 0, id: "trust", w: [2] },
+      { v: 1, text: "trust", k: 1, id: "trust" },
+    ],
+  };
+  const marks = termMarkOffsets(ch, data);
+  assert.deepEqual(marks.map((m) => ch.text.slice(m.start, m.end)), ["trusted", "trust"]);
+  assert.deepEqual(marks[0].w, [2]);
+  assert.equal("w" in marks[1], false);
+});
+
+test("termForWords: the traditional word is the Greek word's own, not the entry's (E85)", () => {
+  const marks = [fam("trust", "trust", [0]), fam("trusted", "trust", [2])];
+  const noun = at(famChapter, "trust");
+  const verb = at(famChapter, "trusted");
+  assert.deepEqual(termForWords(noun.start, noun.end, marks, FAMILY), { id: "trust", traditional: "faith", choices: ["faith"] });
+  assert.deepEqual(termForWords(verb.start, verb.end, marks, FAMILY), { id: "trust", traditional: "believe", choices: ["believe"] });
+});
+
+test("termForWords: family words sharing a traditional word leave no choice; ones that differ leave it open (E85)", () => {
+  const marks = [fam("deviating", "sin", [0, 1]), fam("straying", "sin", [1, 2])];
+  const same = at(famChapter, "deviating");
+  const differ = at(famChapter, "straying");
+  assert.deepEqual(termForWords(same.start, same.end, marks, FAMILY), { id: "sin", traditional: "sin", choices: ["sin"] });
+  assert.deepEqual(termForWords(differ.start, differ.end, marks, FAMILY), { id: "sin", traditional: null, choices: ["sin", "sinner"] });
+});
+
+test("blankHint: the traditional hint is the blank's own word, and nothing where the verse leaves a choice (E85)", () => {
+  const marks = [fam("trusted", "trust", [2]), fam("trusts", "trust", [0, 2])];
+  const hint = { hint: "traditional" };
+  assert.equal(blankHint(hint, at(famChapter, "trusted"), marks, FAMILY), "traditionally believe");
+  assert.equal(blankHint(hint, at(famChapter, "trusts"), marks, FAMILY), null);
+  // The word a leader picks there is kept as their own hint.
+  assert.equal(
+    blankHint({ hint: "custom", hintText: "traditionally believe" }, at(famChapter, "trusts"), marks, FAMILY),
+    "traditionally believe",
+  );
+});
+
+test("groupBlanks: a term's blanks on different words of its family get a row each (E85)", () => {
+  const marks = [
+    fam("trust", "trust", [0]),
+    fam("trusted", "trust", [2]),
+    fam("trusts", "trust", [0, 2]),
+    fam("confidence", "trust", [0, 2]),
+  ];
+  const located = [
+    famBlank("d", "confidence", 3),
+    famBlank("a", "trust", 1),
+    famBlank("c", "trusts", 3),
+    famBlank("b", "trusted", 2),
+  ];
+  const groups = groupBlanks(located, marks, FAMILY);
+  // The entry's own word keeps the plain key; another word is named in it. A
+  // choice still to make is each blank's own: "trusts" and "confidence" are
+  // in one verse and may render different words of the family.
+  assert.deepEqual(groups.map((g) => g.key), ["term-trust", "term-trust-believe", "blank-c", "blank-d"]);
+  assert.deepEqual(groups.map((g) => g.termId), ["trust", "trust", "trust", "trust"]);
+  assert.deepEqual(groups.map((g) => g.traditional), ["faith", "believe", null, null]);
+  assert.deepEqual(groups.map((g) => g.choices), [["faith"], ["believe"], ["faith", "believe"], ["faith", "believe"]]);
+  assert.deepEqual(groups.map((g) => g.blanks.map((b) => b.blank.id)), [["a"], ["b"], ["c"], ["d"]]);
+});
+
+test("groupBlanks: blanks that share another word of the family share its row (E85)", () => {
+  const ch = assembleChapter(new Map([[1, "She trusted and he trusted too."]]));
+  const first = at(ch, "trusted", 0);
+  const second = at(ch, "trusted", 1);
+  const marks = [{ ...first, id: "trust", w: [2] }, { ...second, id: "trust", w: [2] }];
+  const blank = (id, where) => ({ blank: { id, verse: 1, hint: "traditional" }, ...where, prints: true, status: "found" });
+  const groups = groupBlanks([blank("a", first), blank("b", second)], marks, FAMILY);
+  assert.deepEqual(groups.map((g) => [g.key, g.traditional, g.blanks.length]), [["term-trust-believe", "believe", 2]]);
+});
+
+test("groupBlanks: a blank under no term has no word and no choices (E85)", () => {
+  const groups = groupBlanks([famBlank("x", "counted", 1, { hint: "none" })], [], FAMILY);
+  assert.deepEqual(groups.map((g) => [g.key, g.termId, g.traditional, g.choices]), [["blank-x", null, null, []]]);
+});
+
+test("blankWords: the word a traditional hint shows, and the one no hint hides, is the blank's own (E85)", () => {
+  const marks = [fam("trusted", "trust", [2])];
+  assert.deepEqual(blankWords(famBlank("b", "trusted", 2), famChapter.text, marks, FAMILY), { exact: "trusted" });
+  // With no hint, its entry's own word tells as well: the glossary and most
+  // notes name the whole family by it.
+  assert.deepEqual(blankWords(famBlank("b", "trusted", 2, { hint: "none" }), famChapter.text, marks, FAMILY), {
+    exact: "trusted",
+    telltale: "believe",
+    also: "faith",
+  });
+});
+
+test("blankWords: the entry's own word is added only where it is not the blank's, and a hint naming it drops it (E85)", () => {
+  const marks = [fam("trust", "trust", [0]), fam("trusted", "trust", [2])];
+  // The blank's own word is the entry's: nothing to add.
+  assert.deepEqual(blankWords(famBlank("a", "trust", 1, { hint: "none" }), famChapter.text, marks, FAMILY), {
+    exact: "trust",
+    telltale: "faith",
+  });
+  // A leader's hint naming the entry's word shows it, and hides the blank's own still.
+  const entryNamed = famBlank("b", "trusted", 2, { hint: "custom", hintText: "a word about faith" });
+  assert.deepEqual(blankWords(entryNamed, famChapter.text, marks, FAMILY), { exact: "trusted", telltale: "believe" });
+  // One naming the blank's own word says as much as a traditional hint.
+  const ownNamed = famBlank("b", "trusted", 2, { hint: "custom", hintText: "often “believed”" });
+  assert.deepEqual(blankWords(ownNamed, famChapter.text, marks, FAMILY), { exact: "trusted" });
+  // One naming neither hides both.
+  const neither = famBlank("b", "trusted", 2, { hint: "custom", hintText: "relied on" });
+  assert.deepEqual(blankWords(neither, famChapter.text, marks, FAMILY), { exact: "trusted", telltale: "believe", also: "faith" });
+});
+
+test("blankWords: a name's capital never makes the entry's word look like another (E85)", () => {
+  const ch = assembleChapter(new Map([[1, "Then the Adversary left."]]));
+  const terms = { adversary: { traditional: "Satan", greek: "Satanas", words: [["Satan", "Satanas"]] } };
+  const where = at(ch, "the Adversary");
+  const marks = [{ ...where, id: "adversary", w: [0] }];
+  const blank = { blank: { id: "b", verse: 1, hint: "none" }, ...where, prints: true, status: "found" };
+  assert.deepEqual(blankWords(blank, ch.text, marks, terms), { exact: "the Adversary", telltale: "Satan" });
+  // And its row keeps the plain key, being the entry's own word.
+  const groups = groupBlanks([blank], marks, terms);
+  assert.deepEqual(groups.map((g) => [g.key, g.traditional]), [["term-adversary", "Satan"]]);
+});
+
+test("blanksGivenAway: the entry's own word gives a blank away as its own traditional word does (E85)", () => {
+  const blank = { exact: "trusted", telltale: "believe", also: "faith" };
+  assert.deepEqual(blanksGivenAway("Traditionally, ‘believed’", [blank]), [blank]);
+  assert.deepEqual(blanksGivenAway("See the glossary entry for “faith”", [blank]), [blank]);
+  assert.deepEqual(blanksGivenAway("Or ‘relied on’", [blank]), []);
+});
+
+test("blanksGivenAway: a phrase tells by its own word, never by the small word that carries it (E85)", () => {
+  const mercy = { exact: "shows compassion", telltale: "have mercy" };
+  assert.deepEqual(blanksGivenAway("Traditionally, ‘mercy’", [mercy]), [mercy]);
+  assert.deepEqual(blanksGivenAway("Or ‘is merciful’", [mercy]), [mercy]);
+  assert.deepEqual(blanksGivenAway("Those who have nothing", [mercy]), []);
+  const peace = { exact: "make peace", telltale: "make atonement/be merciful" };
+  assert.deepEqual(blanksGivenAway("Or ‘atonement’", [peace]), [peace]);
+  assert.deepEqual(blanksGivenAway("Or ‘merciful to me’", [peace]), [peace]);
+  // "Makes" names nothing of "make atonement": it would flag every note that says so.
+  assert.deepEqual(blanksGivenAway("God makes all things new", [{ exact: "reconciles", telltale: "make atonement/be merciful" }]), []);
+  const others = [
+    { exact: "exploits", telltale: "commit sexual immorality" },
+    { exact: "reveres", telltale: "worship/show godliness" },
+    { exact: "celebrate", telltale: "call blessed" },
+  ];
+  assert.deepEqual(blanksGivenAway("They commit to showing up when called", others), []);
+  assert.deepEqual(blanksGivenAway("Or ‘blessed’", others), [others[2]]);
+  assert.deepEqual(blanksGivenAway("Or ‘godliness’", others), [others[1]]);
+  assert.deepEqual(blanksGivenAway("Often ‘immorality’", others), [others[0]]);
+});
+
+test("flaggedWord: the flag names the blank's own traditional word, or its entry's where that is what the note names (E85)", () => {
+  const blank = { exact: "trusted", telltale: "believe", also: "faith" };
+  assert.deepEqual(flaggedWord("Traditionally, ‘believed’", blank), { word: "believe", entry: false });
+  assert.deepEqual(flaggedWord("See the glossary entry for “faith”", blank), { word: "faith", entry: true });
+  // A note naming both, or the blank's own words, is the blank's own word's.
+  assert.deepEqual(flaggedWord("‘Believe’ and ‘faith’ are one word in Greek", blank), { word: "believe", entry: false });
+  assert.deepEqual(flaggedWord("They trusted and held to their faith", blank), { word: "believe", entry: false });
+  // No entry word beside it: the telltale, whole, as before.
+  assert.deepEqual(flaggedWord("Or ‘in faith’", { exact: "trusts", telltale: "faith / believe" }), { word: "faith / believe", entry: false });
+  // A blank with no traditional word to hide names none.
+  assert.equal(flaggedWord("deviation", { exact: "deviation" }), null);
+  assert.equal(flaggedWord("deviation", null), null);
+});
+
+test("hintIsAnswer: a traditional word that is the blanked word itself would print the answer (E85)", () => {
+  assert.equal(hintIsAnswer("faithful", "faithful"), true);
+  assert.equal(hintIsAnswer("demon", "Demon"), true);
+  assert.equal(hintIsAnswer("Satan", "satan"), true);
+  // Either side of a slashed word is the word.
+  assert.equal(hintIsAnswer("forgive/leave", "leave"), true);
+  assert.equal(hintIsAnswer("forgive/leave", "let go"), false);
+  // Only the word itself: another form of it is what a hint is for.
+  assert.equal(hintIsAnswer("faith", "faithfulness"), false);
+  assert.equal(hintIsAnswer("demon", "demons"), false);
+  assert.equal(hintIsAnswer("heaven", "the heavens"), false);
+  assert.equal(hintIsAnswer("believe", "trusted"), false);
+  assert.equal(hintIsAnswer(null, "trusted"), false);
+  assert.equal(hintIsAnswer("faith", ""), false);
+});
+
+test("startingHint: a new key-term blank starts with its traditional word, unless there is none to give or it is the answer (E85)", () => {
+  assert.equal(startingHint("trusted", { id: "trust", traditional: "believe", choices: ["believe"] }), "traditional");
+  // The LIT keeps the traditional word: the hint would be the answer.
+  assert.equal(startingHint("faithful", { id: "trust", traditional: "faithful", choices: ["faithful"] }), "none");
+  assert.equal(startingHint("Faithful", { id: "trust", traditional: "faithful", choices: ["faithful"] }), "none");
+  // A selection that takes in more than the word is not that word.
+  assert.equal(startingHint("faithful God", { id: "trust", traditional: "faithful", choices: ["faithful"] }), "traditional");
+  // A verse that leaves the word in doubt, and words under no term.
+  assert.equal(startingHint("trusts", { id: "trust", traditional: null, choices: ["faith", "believe"] }), "none");
+  assert.equal(startingHint("counted", null), "none");
+});
+
+test("pickedChoice: a pick stored as the leader's own hint is read back as the word picked (E85)", () => {
+  const open = { id: "trust", traditional: null, choices: ["faith", "believe"] };
+  assert.equal(pickedChoice({ hint: "custom", hintText: "traditionally believe" }, open), "believe");
+  assert.equal(pickedChoice({ hint: "custom", hintText: "  traditionally faith " }, open), "faith");
+  // The leader's own words, however near, are their own hint.
+  assert.equal(pickedChoice({ hint: "custom", hintText: "traditionally believed" }, open), null);
+  assert.equal(pickedChoice({ hint: "custom", hintText: "believe" }, open), null);
+  assert.equal(pickedChoice({ hint: "custom" }, open), null);
+  // Only a custom hint holds a pick, and only where there is a choice to make.
+  assert.equal(pickedChoice({ hint: "traditional" }, open), null);
+  assert.equal(pickedChoice({ hint: "none", hintText: "traditionally believe" }, open), null);
+  const settled = { id: "trust", traditional: "believe", choices: ["believe"] };
+  assert.equal(pickedChoice({ hint: "custom", hintText: "traditionally believe" }, settled), null);
+  assert.equal(pickedChoice({ hint: "custom", hintText: "traditionally believe" }, null), null);
+  assert.equal(pickedChoice(null, open), null);
+  // A name's capital is part of the word picked.
+  const names = { id: "hell", traditional: null, choices: ["Gehenna/hell", "hell/Hades"] };
+  assert.equal(pickedChoice({ hint: "custom", hintText: "traditionally hell/Hades" }, names), "hell/Hades");
+});
+
+test("blankWords: with a choice still to make, any of the family's words tells, traditional hint or not (E85)", () => {
+  const marks = [fam("trusts", "trust", [0, 2])];
+  const none = blankWords(famBlank("b", "trusts", 3, { hint: "none" }), famChapter.text, marks, FAMILY);
+  assert.deepEqual(none, { exact: "trusts", telltale: "faith / believe" });
+  // A traditional hint prints nothing there, so it hides neither word.
+  assert.deepEqual(blankWords(famBlank("b", "trusts", 3), famChapter.text, marks, FAMILY), none);
+  // A leader's hint naming one of them says as much.
+  const picked = famBlank("b", "trusts", 3, { hint: "custom", hintText: "traditionally believe" });
+  assert.deepEqual(blankWords(picked, famChapter.text, marks, FAMILY), { exact: "trusts" });
+  // Either word in a note gives the blank away; another word doesn't.
+  assert.deepEqual(blanksGivenAway("Traditionally, ‘believes’", [none]), [none]);
+  assert.deepEqual(blanksGivenAway("Or ‘in faith’", [none]), [none]);
+  assert.deepEqual(blanksGivenAway("Or ‘relies on’", [none]), []);
+});
+
+test("collectKeyTerms: the traditional word and the Greek are those of the words the passages hold (E85)", () => {
+  const passage = (marks) => ({ chapter: famChapter, terms: FAMILY, marks });
+  // Only the verb: its own pair, not the entry's "faith" and "pistis".
+  const verb = collectKeyTerms([passage([fam("trusted", "trust", [2])])]);
+  assert.equal(keyTermLine(verb[0]), "trusted, traditionally believe, pisteuo");
+  // Both: each once, in order of first use.
+  const both = collectKeyTerms([passage([fam("trust", "trust", [0]), fam("trusted", "trust", [2])])]);
+  assert.equal(keyTermLine(both[0]), "trust / trusted, traditionally faith / believe, pistis / pisteuo");
+  // A verse holding two words of the family adds both: the box lists the
+  // term's words, and need not say which rendering goes with which.
+  const two = collectKeyTerms([passage([fam("trusts", "trust", [0, 2])])]);
+  assert.equal(keyTermLine(two[0]), "trusts, traditionally faith / believe, pistis / pisteuo");
+  const mixed = collectKeyTerms([passage([fam("trusted", "trust", [2]), fam("trusts", "trust", [0, 2])])]);
+  assert.equal(keyTermLine(mixed[0]), "trusted / trusts, traditionally believe / faith, pisteuo / pistis");
+  // Two family words with one traditional word: the word once, both spellings.
+  const half = collectKeyTerms([passage([fam("deviating", "sin", [0, 1])])]);
+  assert.equal(keyTermLine(half[0]), "deviating, traditionally sin, hamartia / hamartano");
+  // Marks that say nothing of their verses keep the entry's own words.
+  const silent = collectKeyTerms([passage([fam("trusts", "trust")])]);
+  assert.equal(keyTermLine(silent[0]), "trusts, traditionally faith, pistis");
 });

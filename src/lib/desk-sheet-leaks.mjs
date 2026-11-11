@@ -17,6 +17,7 @@
 // about when a footnote gives a blank away.
 
 import { blanksGivenAway } from "./desk-sheet-lit.mjs";
+import { tellingForms } from "./term-words.mjs";
 import { foldDiacritics } from "./word-stem.mjs";
 
 // Words that say nothing on their own: a blank on "the" is not a leak
@@ -68,8 +69,9 @@ export function containsPhrase(text, phrase) {
 /**
  * Every place a blank's words print on the participant version.
  *
- * @param {{ passageId: string, ref: string, exact: string, telltale?: string }[]} blanks
- *   the blanks that print, with the passage each is in
+ * @param {{ passageId: string, ref: string, exact: string, telltale?: string, also?: string }[]} blanks
+ *   the blanks that print, with the passage each is in (`telltale` and `also`
+ *   are desk-sheet-lit's blankWords')
  * @param {{ kind: "title" | "subtitle" | "text" | "question" | "passage" | "footnote",
  *           where: string, text: string, passageId?: string }[]} surfaces
  *   what else prints: `where` is how a sentence names it ("question 2");
@@ -77,21 +79,34 @@ export function containsPhrase(text, phrase) {
  *   (held against every blank on the sheet, as the editor's flag is)
  * @returns {{ words: string, ref: string, where: string, kind: string, telltale?: string }[]}
  *   `telltale` is set when it was the traditional word, not the blank's own,
- *   that printed
+ *   that printed, and names that word: of a blank's several ("faith /
+ *   believe", "gehenna/hell"; a slash offers alternatives), the one found
  */
 export function findLeaks(blanks, surfaces) {
   const out = [];
   const seen = new Set();
-  const add = (b, s, viaTelltale = false) => {
+  const add = (b, s, telltale = null) => {
     const key = `${foldDiacritics(b.exact).toLowerCase()}|${b.ref}|${s.where}`;
     if (seen.has(key)) return;
     seen.add(key);
     const leak = { words: b.exact, ref: b.ref, where: s.where, kind: s.kind };
-    if (viaTelltale) leak.telltale = b.telltale;
+    if (telltale) leak.telltale = telltale;
     out.push(leak);
   };
   // Each blank's phrases are tokenized once, and each surface once (DK6-3).
-  const wants = (blanks ?? []).map((b) => ({ b, exact: wantOf(b.exact), base: baseOf(b.exact), tell: b.telltale ? wantOf(b.telltale) : null }));
+  // A telltale's alternatives are each a phrase of their own (E85): "faith /
+  // believe" in a row is found nowhere, and either word alone gives it away.
+  // So is a phrase's telling word without the ones that carry it ("mercy"
+  // for "have mercy"), and the entry's own word (`also`), which told before
+  // each Greek word had its own and still does.
+  const wants = (blanks ?? []).map((b) => ({
+    b,
+    exact: wantOf(b.exact),
+    base: baseOf(b.exact),
+    tells: [...tellingForms(b.telltale), ...tellingForms(b.also)]
+      .map((word) => ({ word, want: wantOf(word) }))
+      .filter((t) => t.want),
+  }));
   for (const s of surfaces ?? []) {
     if (!s?.text) continue;
     if (s.kind === "footnote") {
@@ -105,13 +120,18 @@ export function findLeaks(blanks, surfaces) {
     // keeps a long sheet from scanning every token for every blank (LG8-4).
     const seenWords = new Set(have);
     const runs = (want) => seenWords.has(want[0]) && hasRun(have, want);
-    for (const { b, exact, base, tell } of wants) {
+    for (const { b, exact, base, tells } of wants) {
       if (s.kind === "passage" && s.passageId === b.passageId) continue;
-      if ((exact && runs(exact)) || (base && runs(base))) add(b, s);
+      if ((exact && runs(exact)) || (base && runs(base))) {
+        add(b, s);
+        continue;
+      }
       // The traditional word a hint doesn't show gives the blank away just the
       // same (DK6-5), as it does in a footnote. Not in a passage: its own
       // verses carry that word as a matter of course.
-      else if (tell && s.kind !== "passage" && runs(tell)) add(b, s, true);
+      if (s.kind === "passage") continue;
+      const tell = tells.find((t) => runs(t.want));
+      if (tell) add(b, s, tell.word);
     }
   }
   return out;

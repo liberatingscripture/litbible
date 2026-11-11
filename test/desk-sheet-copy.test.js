@@ -228,6 +228,34 @@ test("keyTermsForCopy: keeps traditional and greek, and tolerates missing lists"
   assert.deepEqual(keyTermsForCopy(null, null, "participant"), { terms: [], blanked: 0 });
 });
 
+test("keyTermsForCopy: a traditional word that is itself a blanked rendering is left out on the participant copy (E85)", () => {
+  // The LIT keeps "faithful": beside its blank, "traditionally faithful" would print the answer.
+  const terms = [{ id: "trust", renderings: ["trust", "faithful"], traditional: "faith / faithful", greek: "pistis / pistos" }];
+  const participant = keyTermsForCopy(terms, [{ exact: "faithful" }], "participant").terms[0];
+  assert.deepEqual(participant.renderings, [{ text: "trust", blank: false }, { text: "faithful", blank: true }]);
+  assert.equal(participant.traditional, "faith");
+  assert.equal(participant.greek, "pistis / pistos");
+  // The leader's copy, and a participant's with that word not blanked, print every word.
+  assert.equal(keyTermsForCopy(terms, [{ exact: "faithful" }], "leader").terms[0].traditional, "faith / faithful");
+  assert.equal(keyTermsForCopy(terms, [{ exact: "counted" }], "participant").terms[0].traditional, "faith / faithful");
+  // The only word: nothing is left to print after the blank but the Greek.
+  const only = [{ id: "demon", renderings: ["demon"], traditional: "demon", greek: "daimonion" }];
+  assert.equal(keyTermsForCopy(only, [{ exact: "demon" }], "participant").terms[0].traditional, "");
+  // Either side of a slashed word is the word.
+  const slashed = [{ id: "forgive", renderings: ["leave"], traditional: "forgive/leave", greek: "aphiemi" }];
+  assert.equal(keyTermsForCopy(slashed, [{ exact: "leave" }], "participant").terms[0].traditional, "");
+});
+
+test("keyTermsForCopy: any other traditional word stays beside a blank, being the clue the box is for (E85)", () => {
+  const { terms } = keyTermsForCopy(TERMS, [{ exact: "deviating" }], "participant");
+  assert.equal(terms.find((t) => t.id === "hamartia").traditional, "sin");
+  // Another form of the blanked word is not the word itself.
+  const plural = [{ id: "demon", renderings: ["demons"], traditional: "demon", greek: "daimonion" }];
+  const got = keyTermsForCopy(plural, [{ exact: "demons" }], "participant").terms[0];
+  assert.deepEqual(got.renderings, [{ text: "demons", blank: true }]);
+  assert.equal(got.traditional, "demon");
+});
+
 /* ── blankedTermsNote ────────────────────────────────────────────────── */
 
 test("blankedTermsNote: none gives no line", () => {

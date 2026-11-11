@@ -92,6 +92,58 @@ test("the traditional word a hint hides leaks from a title or question too (DK6-
   assert.equal(leakSentence(leaks[0]), "“self-preservation,” blanked in Romans 3:23, is given away by “flesh” in the title.");
 });
 
+test("each alternative of a slashed traditional word gives the blank away, and the sentence names the one found (E85)", () => {
+  // A blank whose verse holds two words of its term's family could be either.
+  const leaks = findLeaks([blank("trusts", { telltale: "faith / believe" })], [
+    { kind: "title", where: "the title", text: "What we believe" },
+    { kind: "question", where: "question 1", text: "Where is faith in this?" },
+    { kind: "text", where: "text part 1", text: "Nothing of the kind" },
+  ]);
+  assert.deepEqual(leaks.map((l) => [l.where, l.telltale]), [["the title", "believe"], ["question 1", "faith"]]);
+  assert.equal(leakSentence(leaks[0]), "“trusts,” blanked in Romans 3:23, is given away by “believe” in the title.");
+  // A word the list writes with a slash is read the same way: "Gehenna hell" in a row is found nowhere.
+  const valley = blank("Hinnom Valley", { telltale: "Gehenna/hell" });
+  const hell = findLeaks([valley], [{ kind: "title", where: "the title", text: "Heaven and hell" }]);
+  assert.deepEqual(hell.map((l) => l.telltale), ["hell"]);
+  const gehenna = findLeaks([valley], [{ kind: "question", where: "question 3", text: "Where was gehenna?" }]);
+  assert.equal(leakSentence(gehenna[0]), "“Hinnom Valley,” blanked in Romans 3:23, is given away by “Gehenna” in question 3.");
+});
+
+test("the entry's own word gives away a blank on another word of its family (E85)", () => {
+  // "trusted" renders pisteuo, traditionally "believe"; a question about "faith" tells just the same.
+  const trusted = blank("trusted", { telltale: "believe", also: "faith" });
+  const leaks = findLeaks([trusted], [
+    { kind: "question", where: "question 1", text: "What is faith?" },
+    { kind: "title", where: "the title", text: "What we believe" },
+    { kind: "text", where: "text part 1", text: "Nothing of the kind" },
+    { kind: "passage", where: "Romans 4:5", text: "faith counted", passageId: "p1" },
+  ]);
+  assert.deepEqual(leaks.map((l) => [l.where, l.telltale]), [["question 1", "faith"], ["the title", "believe"]]);
+  assert.equal(leakSentence(leaks[0]), "“trusted,” blanked in Romans 3:23, is given away by “faith” in question 1.");
+});
+
+test("a phrase's telling word gives the blank away without the small word that carries it (E85)", () => {
+  // "have mercy" in a row is rare in a question; "mercy" is what tells, and "have" tells nothing.
+  const mercy = findLeaks([blank("shows compassion", { telltale: "have mercy" })], [
+    { kind: "question", where: "question 2", text: "Where do you see mercy here?" },
+    { kind: "title", where: "the title", text: "What we have" },
+  ]);
+  assert.deepEqual(mercy.map((l) => [l.where, l.telltale]), [["question 2", "mercy"]]);
+  const peace = blank("make peace", { telltale: "make atonement/be merciful" });
+  const found = findLeaks([peace], [
+    { kind: "title", where: "the title", text: "A day of atonement" },
+    { kind: "question", where: "question 1", text: "Who is merciful?" },
+    { kind: "text", where: "text part 1", text: "What will you make of it, and be?" },
+  ]);
+  assert.deepEqual(found.map((l) => [l.where, l.telltale]), [["the title", "atonement"], ["question 1", "merciful"]]);
+  // The phrase as written is still found, and named whole.
+  const whole = findLeaks([blank("violates the marriage covenant", { telltale: "commit adultery", also: "adultery" })], [
+    { kind: "title", where: "the title", text: "You shall not commit adultery" },
+    { kind: "question", where: "question 1", text: "What counts as adultery?" },
+  ]);
+  assert.deepEqual(whole.map((l) => l.telltale), ["commit adultery", "adultery"]);
+});
+
 test("a place named by a quotation closes its period inside the quote (SH6-8)", () => {
   const l = { words: "sin", ref: "Romans 3:23", where: "the text part “Note the word…”" };
   assert.equal(leakSentence(l), "“sin,” blanked in Romans 3:23, also prints in the text part “Note the word….”");

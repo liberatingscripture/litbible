@@ -11,6 +11,13 @@
 //   Also rendered: body (65), family (10), …
 //   a link to the glossary entry
 //
+// The traditional word and the Greek are those of the Greek word the verse
+// holds, not the entry's for every mark: "trusted" reads "Traditionally
+// believe · Greek pisteuo", though its entry is Faith, pistis. Where the verse
+// holds more than one word of the entry's family and they differ, that half
+// names each of them, "faith or believe", since nothing says which the
+// rendering renders (src/lib/term-words.mjs).
+//
 // The marks come from the page (term-lens-data.mjs writes #term-lens-data at
 // build): each is "the kth case-insensitive occurrence of this text in verse
 // v". Located here by walking the verse's text, skipping verse numbers and
@@ -29,6 +36,7 @@
 // attaches the one Chapter View page it finds on load, and /desk's LIT pane
 // attaches each chapter it fetches through the same export.
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
+import { markOrigin } from "../lib/term-words.mjs";
 
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
@@ -223,19 +231,28 @@ function buildCard(container, data, span, mark) {
   const body = document.createElement("div");
   body.className = "lit-panel__body";
 
+  // This mark's own traditional word and Greek word (term-words.mjs), which
+  // are the entry's only where the verse holds the entry's own word. A verse
+  // holding family words that differ gives each: "faith or believe".
+  const from = markOrigin(term, mark);
   const origin = document.createElement("p");
   origin.className = "term-card__origin";
-  const same = term.traditional.toLowerCase() === word.toLowerCase();
-  if (!same) {
+  const listed = (words) => {
+    words.forEach((w, i) => {
+      if (i) origin.append(words.length === 2 ? " or " : i === words.length - 1 ? ", or " : ", ");
+      const em = document.createElement("em");
+      em.textContent = w;
+      origin.append(em);
+    });
+  };
+  const same = from.traditional.length === 1 && from.traditional[0].toLowerCase() === word.toLowerCase();
+  if (from.traditional.length && !same) {
     origin.append("Traditionally ");
-    const t = document.createElement("em");
-    t.textContent = term.traditional.toLowerCase();
-    origin.append(t, " · ");
+    listed(from.traditional);
+    origin.append(" · ");
   }
   origin.append("Greek ");
-  const g = document.createElement("em");
-  g.textContent = term.greek;
-  origin.append(g);
+  listed(from.greek);
   body.appendChild(origin);
 
   const others = term.renderings.filter((r) => r.form.toLowerCase() !== mark.form.toLowerCase()).slice(0, 4);

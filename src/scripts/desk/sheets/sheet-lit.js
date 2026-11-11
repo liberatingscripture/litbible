@@ -28,6 +28,7 @@ import {
   commercialShare,
   completeBooks,
   countWords,
+  flaggedWord,
   footnoteRows,
   groupBlanks,
   htmlToText,
@@ -35,11 +36,13 @@ import {
   locateBlank,
   marksInRange,
   overlapsBlank,
+  pickedChoice,
   setFootnoteChoices,
+  startingHint,
   termForWords,
   termBlanksLeft,
   termMarkOffsets,
-  traditionalWord,
+  traditionalHint,
   verseLabel,
   wordAtPoint,
   wordOnLine,
@@ -499,8 +502,12 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     const fresh = [];
     for (const [s, e] of spans) {
       if (overlapsBlank(located, s, e) || fresh.some((b) => b.s < e && s < b.e)) continue;
+      // A key term starts with its traditional word beneath, where the verse
+      // leaves no doubt which that is; where it holds more than one word of
+      // the term's family, the leader chooses in the list, and where the word
+      // is the blanked word itself, the hint would be the answer (E85).
       const term = termForWords(s, e, view.allMarks, view.terms);
-      fresh.push({ s, e, blank: blankFromOffsets(view.chapter, s, e, { id: newId(), hint: term ? "traditional" : "none" }) });
+      fresh.push({ s, e, blank: blankFromOffsets(view.chapter, s, e, { id: newId(), hint: startingHint(view.chapter.text.slice(s, e), term) }) });
     }
     if (!fresh.length) {
       refuse("Those words are already blank.");
@@ -788,22 +795,41 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       row.setAttribute("aria-label", "Blank a key term");
       row.append(make("span", "desk-sheet__hint-label", "Key terms:"));
       for (const [id, marks] of byTerm) {
-        const term = view.terms[id];
         const word = view.chapter.text.slice(marks[0].start, marks[0].end);
         const blanked = marks.every((mk) => overlapsBlank(located, mk.start, mk.end));
+        // What goes beneath: each use's own traditional word (E85), which is
+        // one word for the whole term only where every use renders the same
+        // Greek word. A use whose verse leaves that in doubt gets no hint
+        // until the leader picks one in the list, and a use whose traditional
+        // word is the word itself gets none, since it would be the answer.
+        const uses = marks.map((mk) => {
+          const term = termForWords(mk.start, mk.end, view.allMarks, view.terms);
+          return { word: term?.traditional ?? null, starts: startingHint(view.chapter.text.slice(mk.start, mk.end), term) };
+        });
+        const many = marks.length > 1;
+        const unsure = uses.filter((u) => !u.word).length;
+        const same = uses.filter((u) => u.word && u.starts === "none").length;
+        const hinted = uses.filter((u) => u.starts === "traditional").map((u) => u.word);
+        const one = hinted.length === marks.length && new Set(hinted).size === 1 ? hinted[0] : null;
+        const times = many ? ` (${marks.length} times)` : "";
         const chip = button(word, "desk-sheet__chip");
         chip.dataset.focusKey = `term-${id}`;
         chip.setAttribute("aria-pressed", String(blanked));
-        chip.title = blanked
-          ? `Fill in “${word}” again`
-          : `Blank “${word}”${marks.length > 1 ? ` (${marks.length} times)` : ""} with “traditionally ${traditionalWord(term)}” beneath`;
+        if (blanked) chip.title = `Fill in “${word}” again`;
+        else if (one) chip.title = `Blank “${word}”${times} with “${traditionalHint(one)}” beneath`;
+        else if (unsure === marks.length) chip.title = `Blank “${word}”${times} and choose ${many ? "their hints" : "its hint"} in the list below`;
+        else if (same === marks.length) chip.title = `Blank “${word}”${times} with no hint, since the traditional word is the same`;
+        else chip.title = `Blank “${word}”${times}, each with its own traditional word beneath where it has one to show`;
         const chipHint = describe(chip, `${chip.title}.`);
         chip.addEventListener("click", () => {
           if (blanked) {
             const keep = located.filter((b) => !marks.some((mk) => b.start != null && b.start < mk.end && mk.start < b.end));
             setBlanks(keep.map((b) => b.blank), `“${word}” filled in again.`);
           } else {
-            addBlanks(marks.map((mk) => [mk.start, mk.end]), `“${word}” blanked${marks.length > 1 ? ` ${marks.length} times` : ""}.`);
+            const which = !many ? "it" : unsure === marks.length ? "them" : unsure === 1 ? "one of them" : `${unsure} of them`;
+            const choose = unsure ? ` Choose a hint for ${which} in the list below.` : "";
+            const plain = !unsure && same === marks.length ? " No hint beneath, since the traditional word is the same." : "";
+            addBlanks(marks.map((mk) => [mk.start, mk.end]), `“${word}” blanked${many ? ` ${marks.length} times` : ""}.${choose}${plain}`);
           }
         });
         row.append(chip, chipHint);
@@ -816,16 +842,17 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       return;
     }
     const ul = make("ul", "desk-sheet__blank-list");
-    // One row for each key term (every time it is blanked), one for each other
-    // blank, in order of first occurrence in the passage (SH5-9).
+    // One row for each key term's blanks that share a traditional word, one for
+    // each other blank, in order of first occurrence in the passage (SH5-9, E85).
     for (const group of groupBlanks(located, view.allMarks, view.terms)) ul.append(blankRow(group, located));
     blanksBox.append(ul);
   }
 
   /**
-   * One row of the list: a glossary term's blanks together, or a single blank
-   * (words chosen by hand, one that no longer prints, one whose words changed).
-   * Every change a row makes is made to each of its blanks.
+   * One row of the list: a glossary term's blanks that render one traditional
+   * word together, or a single blank (words chosen by hand, one that no longer
+   * prints, one whose words changed). Every change a row makes is made to each
+   * of its blanks.
    */
   function blankRow(group, located) {
     const { blanks: members } = group;
@@ -840,9 +867,17 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     const ref = make("span", "desk-sheet__blank-words", quoted(words));
     li.append(ref);
     li.append(make("span", "desk-sheet__blank-verse", members.length > 1 ? `${members.length} times, ${verseLabel(group.verses)}` : verseLabel(group.verses)));
-    const term = group.termId ? view.terms[group.termId] : null;
-    const suffix = group.termId ? `term-${group.termId}` : first.blank.id;
+    // A term's row is named by its key, since a term can have a row for each
+    // traditional word its blanks render (E85).
+    const suffix = group.termId ? group.key : first.blank.id;
     const blank = first.blank;
+    // The traditional word is the one for the Greek word these blanks render
+    // (E85). Where their verse holds more than one word of the term's family,
+    // nothing says which it is, so each is offered and the one picked is kept
+    // as the leader's own hint: the record has nowhere else to say which.
+    const PICK = "word:";
+    const picks = group.termId && !group.traditional ? group.choices : [];
+    const picked = group.termId ? pickedChoice({ hint: group.hint, hintText: group.hintText }, group) : null;
     if (!readOnly) {
       const select = make("select", "desk-sheet__hint");
       select.dataset.focusKey = `hint-${suffix}`;
@@ -853,13 +888,17 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         select.append(o);
       };
       opt("none", "No hint");
-      if (term || group.hint === "traditional") opt("traditional", term ? `traditionally ${traditionalWord(term)}` : "The traditional word");
+      if (group.traditional) opt("traditional", traditionalHint(group.traditional));
+      else if (!group.termId && group.hint === "traditional") opt("traditional", "The traditional word");
+      for (const word of picks) opt(`${PICK}${word}`, traditionalHint(word));
       opt("custom", "My own hint…");
       if (group.hint === "mixed") {
         opt("mixed", "Different hints");
         select.lastChild.disabled = true;
       }
-      select.value = group.hint;
+      // A traditional hint on blanks that have a choice to make prints nothing.
+      if (picked) select.value = `${PICK}${picked}`;
+      else select.value = group.hint === "traditional" && picks.length ? "none" : group.hint;
       li.append(select);
       const custom = make("input", "desk-sheet__hint-text");
       custom.type = "text";
@@ -868,7 +907,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       custom.placeholder = "A hint to print beneath";
       custom.dataset.focusKey = `hint-text-${suffix}`;
       custom.setAttribute("aria-label", `Your hint beneath ${quoted(words)}`);
-      custom.hidden = group.hint !== "custom";
+      custom.hidden = group.hint !== "custom" || !!picked;
       li.append(custom);
       // The same hint goes to every blank in the row.
       const save = (fields) => {
@@ -881,10 +920,23 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         setBlanks(blanks);
       };
       select.addEventListener("change", () => {
+        if (select.value.startsWith(PICK)) {
+          save({ hint: "custom", hintText: traditionalHint(select.value.slice(PICK.length)) });
+          return;
+        }
         if (select.value === "custom") {
           custom.hidden = false;
+          // Start from the traditional word, selected: it is a dictionary form
+          // and the usual word, so "believe" may want to be "believed", or
+          // another word where this verse is traditionally read differently.
+          if (!custom.value.trim() && group.traditional) custom.value = traditionalHint(group.traditional);
           custom.focus();
-          if (custom.value.trim()) save({ hint: "custom", hintText: custom.value.trim() });
+          custom.select();
+          // A word picked from the menu is this text already: saving it again
+          // would only redraw the row with the menu back on that word and the
+          // field hidden, so the field waits for the leader to change it.
+          const text = custom.value.trim();
+          if (text && !(group.hint === "custom" && text === group.hintText)) save({ hint: "custom", hintText: text });
           return;
         }
         save({ hint: select.value });
@@ -916,6 +968,11 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
     if (!first.prints) {
       li.append(make("p", "desk-sheet__problem", "These words can no longer be found in the passage, so this blank won’t print."));
+    } else if (!readOnly && picks.length && group.hint === "traditional") {
+      // The blank asks for the traditional word and its verse can't say which
+      // that is (a sheet made before E85, or a verse revised since): say why
+      // nothing prints, rather than drop the hint in silence.
+      li.append(make("p", "desk-sheet__problem", "This verse has more than one Greek word of this key term, so no hint prints here until you choose its traditional word from the menu."));
     } else if (first.status === "changed") {
       li.append(make("p", "desk-sheet__problem", `The blanked words have changed since you chose them (they were ${quoted(blank.exact)}), so this blank covers the closest match.`));
     }
@@ -980,8 +1037,16 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       li.append(label);
       if (r.givesAway.length) {
         // A blank whose hint doesn't show its traditional word is given away by
-        // a note naming that word too (SH5-16), so the word is named with it.
-        const words = [...new Set(r.givesAway.map((b) => (b.telltale ? `${quoted(b.exact).slice(0, -1)},” traditionally ${quoted(b.telltale)}` : quoted(b.exact))))];
+        // a note naming that word too (SH5-16), so the word is named with it:
+        // the blank's own, or its key term's where that is the one the note
+        // names (“trusted” by a note that says only “faith,” E85).
+        const named = (b) => {
+          const flag = flaggedWord(r.text, b);
+          if (!flag) return quoted(b.exact);
+          const blank = `${quoted(b.exact).slice(0, -1)},”`;
+          return flag.entry ? `${blank} whose key term is traditionally ${quoted(flag.word)}` : `${blank} traditionally ${quoted(flag.word)}`;
+        };
+        const words = [...new Set(r.givesAway.map(named))];
         // A comma between two items goes inside the first one's closing quote.
         const which = words.map((w, i) => (i < words.length - 1 ? (w.endsWith("”") ? `${w.slice(0, -1)},”` : `${w},`) : w)).join(" ");
         const a = words.length > 1 ? "blanks" : "a blank";
