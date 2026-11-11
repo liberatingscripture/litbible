@@ -134,10 +134,50 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   and what it knows about the LIT (3h: blanks, the footnote picker,
   the key terms box and the license card) in `desk/sheets/sheet-lit.js`,
   whose rules are `src/lib/desk-sheet-lit.mjs`. A passage's Blanks list
-  has one row per glossary term (all its blanks, one hint select, one ×)
-  and one row per other blank, in order of first occurrence; a blank that
-  no longer prints or whose words changed keeps its own row with its
-  notice (`groupBlanks`, SH5-9). **A blank comes off three ways** (E65): the
+  has one row for each glossary term's blanks that share a traditional word
+  (one hint select, one ×) and one row per other blank, in order of first
+  occurrence; a blank that no longer prints or whose words changed keeps
+  its own row with its notice (`groupBlanks`, SH5-9). **A “traditionally …”
+  hint is the word for the Greek word the blank renders, not its entry's
+  for every blank** (E85; BVJ, 2026-11-11): “trusted” is hinted
+  “traditionally believe,” though its entry is Faith, so a term blanked on
+  two words of its family has a row for each. The words are `LEMMA_WORDS`
+  and the rule is `src/lib/term-words.mjs`, both shared with the term
+  lens's card (`src/data/alignment/CLAUDE.md`, the term lens's rule 7), so
+  a sheet and the page can't name different words. Where a verse holds two
+  family words whose traditional words differ, `hint: "traditional"` prints
+  nothing, a new blank there starts with no hint, and its menu offers each
+  word; the one picked is stored as a custom hint, since the format has
+  nowhere else to say which. Such a blank keeps a row of its own, because
+  two in one verse can render different words (“just” and “justness” in
+  Romans 4:5). “My own hint…” starts from the traditional word, selected,
+  because that word is a dictionary form and no claim about the verse. The
+  Key terms box lists every word of the family its passages' verses hold
+  (`collectKeyTerms`), and the give-away checks read any of a blank's
+  possible words (`blankWords`' `telltale`, alternatives joined by “ / ”,
+  which `findLeaks` reads one by one). After an independent review
+  (2026-11-11): the entry's own word still tells (`blankWords`' `also`,
+  "faith" beside "believe"), a phrase tells by its own word and never by
+  the verb that carries it (`tellingForms`, `tellingText`: "mercy" for
+  "have mercy"), and a footnote's flag names the word the note uses
+  (`flaggedWord`). A stored traditional hint on a verse with a choice shows
+  a line in its row saying why nothing prints; the word picked is read back
+  by `pickedChoice` (the menu shows it chosen, present mode's `blankCover`
+  covers the blank with it). A new blank whose traditional word is the
+  blanked word itself ("faithful," "demon") starts with no hint, which
+  would be the answer (`startingHint`, `hintIsAnswer`); its menu still
+  offers the word, and the participant's Key terms box leaves that word
+  out beside its blank (`keyTermsForCopy`). **A word on the checks' common
+  list tells only where it is cited** (E85; `commonTells` in
+  `desk-sheet-lit.mjs`): “just” and “very being” are renderings, so a
+  footnote gives such a blank away where it sets the word in quotation
+  marks (“Or ‘is just’”) and not where it says it in passing (255 notes say
+  “not just” or “just as”), and the participant's Key terms box leaves such
+  a rendering blank beside a blank that is it or a form of it
+  (`blanksToldByRendering`). A common word that only carries a blank's
+  telling word (“with” in “cooperate with”) tells nothing. A flagged note
+  is left out until the leader decides, so widen this only after running
+  it over every footnote. **A blank comes off three ways** (E65): the
   row's ×, "Fill in the selected words" beside "Blank the selected words"
   (`blanksTouching`: every blank the selection reaches, whole), and Enter on
   words the keyboard cursor holds that are already blank. **The free-text part

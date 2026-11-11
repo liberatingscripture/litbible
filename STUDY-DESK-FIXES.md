@@ -2398,6 +2398,198 @@ tap areas (`global.css`, never under 24px).
   description. The wording is Claude's; “needs no expert in the room” and
   “suits a new group, or one where few people speak” (Swedish method) are
   characterizations for BVJ to check.
+- **E85, bug: a blank's “traditionally …” hint, and the key term card on
+  every chapter page, named the entry's word for every word of its family.**
+  BVJ (2026-11-10): “the blanks on key terms with hints doesn't really work.
+  The hints are just the primary gloss of the traditional rendering of a
+  Greek word, but words are rendered differently in different places, and
+  it's also not responsive to part of speech.” A glossary entry governs a
+  family of Greek words and names one (`traditional: Faith`, `greek:
+  pistis`), and that pair was printed under, and on the card of, every
+  marked word: “traditionally faith” beneath “trusted,” which renders
+  *pisteuo*. **Measured over the 4,405 marked words in the text**: 66% sit
+  on the Greek word their entry names; 31% on another word of its family
+  (*pisteuo* 196, *aphiemi* 146, *sozo* 94); 3% in a verse holding two
+  family words that differ. Of the first group, about 1 in 9 sit where a
+  literal traditional translation (the Berean Interlinear) prints another
+  English word than the glossary's (holy/“saints” 39, soul/“life” 19,
+  Gentiles/“nations” 20). So about 4 hints in 10 misfit. BVJ's own example,
+  sarx as “people,” is of that second kind, and shows why no rule settles
+  it: at Luke 3:6 and Galatians 2:16 the Berean keeps “flesh,” BVJ's own
+  notes say “Traditionally, ‘all flesh’” and “‘flesh,’” and “people” is the
+  NIV's. **Decided** (BVJ, 2026-11-11, “Yes, both”): fix the word family
+  now, on the sheets and the card together; the per-verse word is set aside
+  (below). Status: **built 2026-11-11, for review.**
+  - **What it does.** `LEMMA_WORDS` (`scripts/lib/glossary-lemmas.mjs`)
+    gives each of the 125 Greek words the 47 entries govern its own
+    traditional word and Latin spelling. At build, each mark in a page's
+    term data is stamped with the family words its verse holds, read from
+    `public/greek/text/`; only the choice among the owner's own words goes
+    on the page. `src/lib/term-words.mjs` is the one rule both readers
+    share. **The card** reads “Traditionally believe · Greek pisteuo” on
+    “trusted.” For every reader, 1,888 of the 4,405 cards (43%) now read
+    differently: 1,441 name another word, 186 only lose the glossary's
+    “[1]” or “[2]” (“good [1]” on *kalos*), 138 only gain a capital
+    (“Gentiles,” “Satan”), and 123 list candidates (next bullet). **A
+    sheet's** “traditionally …” hint is the blank's own word; the Blanks
+    list has a row for each traditional word a term's blanks render; “My
+    own hint…” starts from that word, selected; and the Key terms box
+    lists the words its passages actually hold (“trusted, traditionally
+    believe, pisteuo”). The give-away checks follow, which also catches
+    what they missed: a footnote reading “Traditionally, ‘believed’”
+    beside a blank on “trusted” was not flagged while the telltale was
+    “faith.”
+  - **A verse with several family words that differ** (115 marks, 2.6%,
+    differ on the traditional word, and 8 more on the Greek alone; Romans
+    3:26 has *dikaiosune*, *dikaios* and *dikaioo*): nothing says which
+    the rendering renders until alignment phase 2 links words, and nothing
+    guesses. **The card names each**: “Traditionally faith or believe ·
+    Greek pistis or pisteuo.” It first kept the entry's own pair there,
+    which named a Greek word the verse doesn't hold in 16 of the 123
+    (“Greek dikaiosune” on “just” at Galatians 3:11); the review below
+    caught it. A sheet prints no hint, a new blank starts with none, and
+    its menu offers each word (“traditionally righteous,” “traditionally
+    justify”); the one picked is stored as the leader's own hint, so the
+    record format takes no new field (STUDY-DESK-FORMAT.md, “blank,” says
+    so for the apps), and it is read back as a pick: the menu shows it
+    chosen, and present mode covers the blank with the word. A blank that
+    already asked for the traditional word says in its row why nothing
+    prints. Each such blank keeps its own row, since two in one verse can
+    want different words, and the Key terms box lists both words for the
+    verse.
+  - **Hints that would be the answer.** The LIT keeps the traditional word
+    in places (“faithful” 41 times, “unclean,” “demon,” “clean,” “spirit”),
+    and there the corrected hint is the blanked word itself: 182 marks
+    (172 where the word is the same, 10 where it is one side of a slash),
+    where the entry's word was the answer in 101 before. A new blank there
+    starts with no hint, and its chip says why; the menu still offers the
+    word. The Key terms box on the participant's version follows: a
+    traditional word that is itself a rendering left blank there goes with
+    it (“______, pistos,” where it printed “______, traditionally
+    faithful, pistos”). Only the word itself counts: “faithfulness” under
+    “traditionally faith,” “the heavens” under “heaven” and “demons” under
+    “demon” are left as they were, the first two being the contrast a hint
+    is for. Claude's call, for BVJ to confirm.
+  - **The words, for BVJ to confirm: they are Claude's draft.** Lowercase
+    dictionary forms, with a capital where Bibles print one (Satan,
+    Gentiles, Savior, Almighty, Baptist, Gehenna/hell, hell/Hades). The
+    judgment calls: *hilasterion* “mercy seat” (from BVJ's own notes) and
+    *hilaskomai* “make atonement/be merciful”; *baptismos*
+    “washing/baptism”; *kakia* “malice”; *katharismos* and *katharotes*
+    “purification”; *koinonos* “partner/partaker,” *koinoneo* “share,”
+    *sunkoinonos* “fellow partaker,” *sunkoinoneo* “have fellowship with”;
+    *sarkinos* and *sarkikos* “carnal/fleshly”; *eusebes* “devout”;
+    *porne* “prostitute,” *pornos* “sexually immoral”; *nomikos* “lawyer”;
+    *eleemosune* “alms”; *latreia* “service”; *psuchikos* “natural”;
+    *akatharsia* “impurity”; *makarizo* “call blessed”; *hupokrinomai*
+    “pretend.” **A slash offers two words where one would mislead**:
+    *aphiemi* “forgive/leave” (a literal translation has it as “leave” 54
+    times and “forgive” 46 of 143, and “forgive” alone stood on “leave
+    your gift there,” Matthew 5:24), *charizomai* “forgive/grant,”
+    *eusebeo* “worship/show godliness,” *anistemi* “rise/raise,”
+    *blasphemeo* “blaspheme/slander,” *blasphemos*
+    “blasphemous/blasphemer,” *exomologeo* “confess/praise,” *hagiasmos*
+    “sanctification/holiness,” *dikaioma* “requirement/righteous act,”
+    and *moichalis* “adulterous/adulteress.” Each was held against the
+    Berean Interlinear's commonest word for the lemma.
+  - **Also decided in the building, for BVJ to confirm.** (1) **The Key
+    terms box follows**, though only hints and the card were asked for: a
+    sheet hinting “traditionally believe” above a box reading “trusted,
+    traditionally faith” would have contradicted itself. (2) **The Greek
+    is spelled as the glossary spells it**, no macrons, u for upsilon. (3)
+    The card no longer shows the glossary's disambiguator. (4) **The
+    entry's own word still gives a blank away** beside the blank's own
+    (“faith” in a question, beside a blank that is traditionally
+    “believe”), and a phrase gives one away by its telling word, never by
+    the verb that carries it (“mercy” for “have mercy”; a note saying
+    “makes” flags nothing of “make atonement”). A footnote's flag names
+    the word the note uses (“whose key term is traditionally ‘faith’”).
+  - **Reviewed** by an Opus agent (2026-11-11), which read the list
+    against the Berean's word in every marked verse and the code against
+    its tests. Taken: the card's candidates; the entry's own word and the
+    phrase rule in the give-away checks (`findLeaks` wanted the telltale
+    as an exact run, so “commit adultery” had stopped flagging what
+    “adultery” used to); the row's line for a stored traditional hint; the
+    picked word in present mode; the capitals; and eleven of the slashes
+    above. Declined: its objection to “worship/show godliness” (the ESV
+    has it at 1 Timothy 5:4), and keeping both candidates as tells after a
+    leader picks one (the pick settles it). Its count of 27 cards naming a
+    word the verse lacks is 16 by Claude's.
+  - **Found in the browser check, and fixed: renderings made of common
+    words** (BVJ, 2026-11-11: “address all those issues”). The give-away
+    checks pass over a list of common words, so that a note saying “that”
+    flags nothing, and “just,” “very,” and “being” are on it. A blank on
+    “just” (66 marked words), “very being” (30), or “being” (5) therefore
+    had no word to be matched by: the participant's Key terms box printed
+    “just” beside its own blank, and a note reading “Or ‘just’” printed
+    unflagged. This is older than E85 (the list is phase 3h's) and showed
+    when the test sheet blanked Romans 3:26. “Just” can't come off the
+    list: 255 of the 5,768 footnotes say “not just” or “just as.” Two
+    rules now, one function (`commonTells`, `desk-sheet-lit.mjs`). **In
+    the Key terms box** a rendering is a term's word, never said in
+    passing, so one made of common words is left blank beside a blank that
+    is it or a form of it (“just” beside “justness,” either way round).
+    **In a footnote** a common word counts only where the note sets it in
+    quotation marks, which is how a note cites a rendering: “Or ‘is just’”
+    gives away a blank on “just” or “justness,” and “it’s not just about”
+    does not. A common word that only carries a blank's telling word tells
+    nothing (“with” in “cooperate with,” “your” in “transformation of your
+    mind”); the first draft flagged those, and a run over every footnote
+    caught it. With every marked word of a chapter blanked, 30 notes are
+    newly flagged, each citing “just,” “being,” or “very being”; a flagged
+    note is left out until the leader decides, as any is. Present mode's
+    key terms screen follows the box. Claude's rule, for BVJ to confirm.
+  - **Not done, and why: the per-verse word.** “Holy” still stands where
+    Bibles print “saints,” and *aphiemi* can only say “forgive/leave.”
+    **Measured after the fix**, against the Berean Interlinear's word for
+    that Greek word in that verse: 506 of the 4,281 marks with one family
+    word (11.8%) still differ, beside the 115 left to a choice. By word:
+    *kakos* “bad” 45 of 46 (“evil”), *hagios* “holy” 42 of 157 (“saints”),
+    *aphiemi* 40 of 146, *psuche* “soul” 36 of 80 (“life”), *hupotasso*
+    “submit” 34 of 38 (“subject”), *ethnos* “Gentiles” 31 of 95
+    (“nations”), *charis* 19, *kalos* 17, *paraptoma* “transgression” 17
+    of 19 (“trespass”), *pistos* 14, *sozo* 14. The honest fix is a
+    “traditional here” word on each alignment
+    record, decided in review in groups (“holy → saints, 39 verses”), with
+    BVJ's footnotes and the Berean Interlinear as suggestions. Neither can
+    supply it unattended: only 15% of marks carry a “Traditionally, ‘…’”
+    note, and reading them by rule goes wrong (the note on “norms” at
+    1 Corinthians 15:56 yields “sin”); the Berean would put another
+    translation's choice on LIT sheets under the word “traditionally.”
+    Licensing, checked 2026-11-11 at the publishers' pages: the Berean
+    Bible is public domain since 2023-04-30 and reaches us through MACULA
+    (CC BY 4.0, already credited on the Greek tab); the World English Bible
+    is public domain too, but follows the Byzantine text and prints
+    “assembly” and “Good News,” so it is the wrong yardstick. Open until
+    BVJ takes it up.
+  - **Noticed in the entries, reported and not changed** (they are BVJ's;
+    fixing one means changing its line in the list in the same change, or
+    `test/term-words.test.js` fails). **Six entries' `greek` names a
+    different word than their `traditional` translates, or an inflected
+    form.** The list keeps each spelling on that word's own line, so a
+    mark on it shows it still, and a mark on another word of the family
+    now shows its own: `devil-false-accuser` “diabolon” (the accusative of
+    *diabolos*), `defiled-common` “koine” (the feminine of *koinos*),
+    `salvation-liberation` “soterios” beside “Salvation” (*soteria*, whose
+    marks now read “salvation · soteria”), `baptism-immersion` “baptizo”
+    beside “Baptism” (*baptisma*; the verb's marks now read “baptize ·
+    baptizo”), `forgiveness-letting-go` “aphiemi” beside “Forgiveness”
+    (*aphesis*; the verb's marks read “forgive/leave · aphiemi”), and
+    `trespass-shortfall` “paraptoma” beside “Transgression.” **Headwords
+    that part from what Bibles print**, which the list follows because an
+    entry's word must stand on its line: *kakos* “Bad” (“evil” in 45 of
+    its 46 marked verses), *paraptoma* “Transgression” (“trespass” in 17
+    of 19; “transgression” is *parabasis*), *hilasmos* “Atonement”
+    (“propitiation” in both of its verses), *koinos* “Defiled/Profane”
+    (“unclean” or “common” in 5 of 8), *hupotasso* “Submit” (a form of
+    “subject” in nearly all of its 38), *ethnos* “Gentiles” (“nation” or
+    “nations” in a third),
+    *psuche* “Soul” (“life” in 45%), and *katharos* “Clean” (“pure” in 9
+    of 17).
+  - **Open, for BDR.** Nothing under `/api/` carries the per-word data: it
+    is in each chapter page's term data, and the glossary feed has only
+    each entry's one `traditional`. An app that printed a sheet's hints
+    would need it served first (STUDY-DESK-FORMAT.md, “blank”).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

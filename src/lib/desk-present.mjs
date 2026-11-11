@@ -12,7 +12,7 @@
 // (`presentMessage`), never as a record.
 
 import { MODULE_TYPES } from "./desk-sheet-format.mjs";
-import { htmlToText, traditionalWord } from "./desk-sheet-lit.mjs";
+import { htmlToText, pickedChoice } from "./desk-sheet-lit.mjs";
 import { passageReference, sheetName } from "./desk-sheet-passages.mjs";
 import { chapterCodes, modulesForCopy } from "./desk-sheet-copy.mjs";
 
@@ -105,19 +105,28 @@ export function roomCodes(sheet, max = ROOM_CODES_MAX) {
  * How a blank looks on the screen before it is revealed (S6). A blank whose
  * hint is the traditional word shows that word, the reveal then putting the
  * LIT's rendering in its place; any other blank is a line, with the leader's
- * own hint beneath it when there is one.
+ * own hint beneath it when there is one. The word is the blanked words' own
+ * (termForWords: the traditional word of the Greek word they render, E85),
+ * so a verse that leaves it in doubt shows a line until the leader picks a
+ * word, and the word picked then covers the blank as any traditional word
+ * does (pickedChoice), though the record keeps it as the leader's own hint.
  *
  * @param {{ hint?: string, hintText?: string }} blank
- * @param {{ traditional?: string } | null} term the glossary term the blanked words carry, if any
+ * @param {{ traditional: string | null, choices: string[] } | null} term
+ *   termForWords' for the blanked words, if they carry a glossary term
  * @returns {{ kind: "word", text: string } | { kind: "line", hint: string | null }}
  */
 export function blankCover(blank, term) {
   if (blank?.hint === "traditional") {
-    const word = traditionalWord(term);
+    const word = String(term?.traditional ?? "").trim();
     if (word) return { kind: "word", text: word };
     return { kind: "line", hint: null };
   }
-  if (blank?.hint === "custom") return { kind: "line", hint: blank.hintText?.trim() || null };
+  if (blank?.hint === "custom") {
+    const picked = pickedChoice(blank, term);
+    if (picked) return { kind: "word", text: picked };
+    return { kind: "line", hint: blank.hintText?.trim() || null };
+  }
   return { kind: "line", hint: null };
 }
 

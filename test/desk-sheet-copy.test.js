@@ -228,6 +228,57 @@ test("keyTermsForCopy: keeps traditional and greek, and tolerates missing lists"
   assert.deepEqual(keyTermsForCopy(null, null, "participant"), { terms: [], blanked: 0 });
 });
 
+test("keyTermsForCopy: a traditional word that is itself a blanked rendering is left out on the participant copy (E85)", () => {
+  // The LIT keeps "faithful": beside its blank, "traditionally faithful" would print the answer.
+  const terms = [{ id: "trust", renderings: ["trust", "faithful"], traditional: "faith / faithful", greek: "pistis / pistos" }];
+  const participant = keyTermsForCopy(terms, [{ exact: "faithful" }], "participant").terms[0];
+  assert.deepEqual(participant.renderings, [{ text: "trust", blank: false }, { text: "faithful", blank: true }]);
+  assert.equal(participant.traditional, "faith");
+  assert.equal(participant.greek, "pistis / pistos");
+  // The leader's copy, and a participant's with that word not blanked, print every word.
+  assert.equal(keyTermsForCopy(terms, [{ exact: "faithful" }], "leader").terms[0].traditional, "faith / faithful");
+  assert.equal(keyTermsForCopy(terms, [{ exact: "counted" }], "participant").terms[0].traditional, "faith / faithful");
+  // The only word: nothing is left to print after the blank but the Greek.
+  const only = [{ id: "demon", renderings: ["demon"], traditional: "demon", greek: "daimonion" }];
+  assert.equal(keyTermsForCopy(only, [{ exact: "demon" }], "participant").terms[0].traditional, "");
+  // Either side of a slashed word is the word.
+  const slashed = [{ id: "forgive", renderings: ["leave"], traditional: "forgive/leave", greek: "aphiemi" }];
+  assert.equal(keyTermsForCopy(slashed, [{ exact: "leave" }], "participant").terms[0].traditional, "");
+});
+
+test("keyTermsForCopy: any other traditional word stays beside a blank, being the clue the box is for (E85)", () => {
+  const { terms } = keyTermsForCopy(TERMS, [{ exact: "deviating" }], "participant");
+  assert.equal(terms.find((t) => t.id === "hamartia").traditional, "sin");
+  // Another form of the blanked word is not the word itself.
+  const plural = [{ id: "demon", renderings: ["demons"], traditional: "demon", greek: "daimonion" }];
+  const got = keyTermsForCopy(plural, [{ exact: "demons" }], "participant").terms[0];
+  assert.deepEqual(got.renderings, [{ text: "demons", blank: true }]);
+  assert.equal(got.traditional, "demon");
+});
+
+test("keyTermsForCopy: a rendering made of common words is left blank beside its blank (E85)", () => {
+  // "Just" and "very being" are on the give-away checks' common list, so no
+  // shared stem ever hid them: the box printed "just" beside the blank on it.
+  const terms = [
+    { id: "just", renderings: ["just", "justness"], traditional: "righteous / righteousness", greek: "dikaios / dikaiosune" },
+    { id: "being", renderings: ["very being"], traditional: "soul", greek: "psuche" },
+    { id: "slander", renderings: ["being slandered"], traditional: "blaspheme", greek: "blasphemeo" },
+  ];
+  const blankOf = (blanks, id) => keyTermsForCopy(terms, blanks, "participant").terms.find((t) => t.id === id).renderings.map((r) => r.blank);
+  // A blank on either form hides both: one is the other's stem.
+  assert.deepEqual(blankOf([{ exact: "just" }], "just"), [true, true]);
+  assert.deepEqual(blankOf([{ exact: "justness" }], "just"), [true, true]);
+  assert.deepEqual(blankOf([{ exact: "very being" }], "being"), [true]);
+  assert.equal(keyTermsForCopy(terms, [{ exact: "just" }, { exact: "very being" }], "participant").blanked, 2);
+  // A common word that only carries another blank's words hides nothing.
+  assert.deepEqual(blankOf([{ exact: "just judgment" }], "just"), [false, false]);
+  assert.deepEqual(blankOf([{ exact: "human being" }], "being"), [false]);
+  assert.deepEqual(blankOf([{ exact: "very being" }], "slander"), [false]);
+  assert.deepEqual(blankOf([{ exact: "their faithfulness" }], "just"), [false, false]);
+  // The leader's version prints them all.
+  for (const t of keyTermsForCopy(terms, [{ exact: "just" }], "leader").terms) for (const r of t.renderings) assert.equal(r.blank, false);
+});
+
 /* ── blankedTermsNote ────────────────────────────────────────────────── */
 
 test("blankedTermsNote: none gives no line", () => {

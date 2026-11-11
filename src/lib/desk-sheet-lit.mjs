@@ -17,18 +17,23 @@ import { BOOKS } from "../data/books.js";
 import { verseCount } from "../data/verse-counts.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { wordingKey } from "./desk-wording.mjs";
+import {
+  markChoices,
+  ownTraditional,
+  tellingText,
+  traditionalChoices,
+  traditionalHint,
+  traditionalWord,
+  wordAlternatives,
+} from "./term-words.mjs";
 import { foldDiacritics, stemWord } from "./word-stem.mjs";
 
 /* ── Key terms ──────────────────────────────────────────────────────── */
 
-/**
- * A term's traditional word as a sheet prints it: lowercase, without the
- * glossary's own disambiguator ("Good [2]" is "good"), which tells two entries
- * apart on /glossary and means nothing on a handout.
- */
-export function traditionalWord(term) {
-  return String(term?.traditional ?? "").replace(/\s*\[\d+\]\s*$/, "").toLowerCase();
-}
+// An entry's traditional word as a sheet prints it ("Good [2]" is "good"),
+// and a traditional word as a hint: both are term-words.mjs's, which the term
+// lens's card shares, so a sheet and the page can't say different words.
+export { traditionalHint, traditionalWord };
 
 /**
  * The term lens's marks for one chapter as [start, end) offsets in the
@@ -37,11 +42,13 @@ export function traditionalWord(term) {
  * finds it in the verse's anchor text, which reads the verse the way the lens
  * does (verse numbers and footnote letters out, spacing collapsed). As on the
  * page, two marks claiming the same words keep the first, and a mark whose
- * text isn't where the build said is skipped, never guessed.
+ * text isn't where the build said is skipped, never guessed. `w`, the words
+ * of the term's family the mark's verse holds (term-words.mjs), comes along
+ * where the page gives it.
  *
  * @param {{ text: string, spans: Map<number, [number, number]> }} chapter
- * @param {{ marks?: { v: number, text: string, k: number, id: string, form?: string, g?: number }[] } | null} termData
- * @returns {{ start: number, end: number, id: string, v: number, g?: number }[]}
+ * @param {{ marks?: { v: number, text: string, k: number, id: string, form?: string, g?: number, w?: number[] }[] } | null} termData
+ * @returns {{ start: number, end: number, id: string, v: number, g?: number, w?: number[] }[]}
  */
 export function termMarkOffsets(chapter, termData) {
   const out = [];
@@ -60,7 +67,10 @@ export function termMarkOffsets(chapter, termData) {
     const start = range[0] + at;
     const end = start + needle.length;
     if (out.some((m) => start < m.end && m.start < end)) continue;
-    out.push(mark.g === undefined ? { start, end, id: mark.id, v: mark.v } : { start, end, id: mark.id, v: mark.v, g: mark.g });
+    const placed = { start, end, id: mark.id, v: mark.v };
+    if (mark.g !== undefined) placed.g = mark.g;
+    if (Array.isArray(mark.w)) placed.w = mark.w;
+    out.push(placed);
   }
   return out.sort((a, b) => a.start - b.start);
 }
@@ -79,13 +89,25 @@ export function marksInRange(marks, start, end) {
  * term lens's card. Renderings repeat once each, compared without case; the
  * first casing met is kept.
  *
- * @param {{ chapter: { text: string }, marks: { start: number, end: number, id: string, g?: number }[],
- *   terms: Record<string, { traditional: string, greek: string, title?: string }> }[]} passages
+ * `traditional` and `greek` are the words of the Greek words the passages'
+ * verses actually hold, each once, in order of first use and joined with
+ * " / ": "trusted" alone gives "believe" and "pisteuo", not its entry's
+ * "faith" and "pistis" (term-words.mjs). A verse with two words of the family
+ * adds both, since the box lists a term's words and need not say which
+ * rendering goes with which. A term whose marks say nothing of their verses
+ * keeps its entry's words.
+ *
+ * @param {{ chapter: { text: string }, marks: { start: number, end: number, id: string, g?: number, w?: number[] }[],
+ *   terms: Record<string, { traditional: string, greek: string, title?: string, words?: [string, string][] }> }[]} passages
  * @param {string[]} [omit] glossary ids the leader took out
  * @returns {{ id: string, renderings: string[], traditional: string, greek: string, title: string, omitted: boolean }[]}
  */
 export function collectKeyTerms(passages, omit = []) {
   const byId = new Map();
+  const own = new Map();
+  const add = (list, word) => {
+    if (word && !list.includes(word)) list.push(word);
+  };
   for (const { chapter, marks, terms } of passages) {
     const seenGroups = new Set();
     for (const m of marks) {
@@ -107,26 +129,39 @@ export function collectKeyTerms(passages, omit = []) {
         term = {
           id: m.id,
           renderings: [],
-          traditional: traditionalWord(info),
+          traditional: ownTraditional(info),
           greek: info.greek ?? "",
           title: info.title ?? "",
           omitted: omit.includes(m.id),
         };
         byId.set(m.id, term);
+        own.set(m.id, { traditional: [], greek: [] });
       }
       if (!term.renderings.some((r) => r.toLowerCase() === words.toLowerCase())) term.renderings.push(words);
+      const held = own.get(m.id);
+      for (const choice of markChoices(info, m)) {
+        add(held.traditional, choice.traditional);
+        add(held.greek, choice.greek);
+      }
     }
+  }
+  for (const term of byId.values()) {
+    const held = own.get(term.id);
+    if (held.traditional.length) term.traditional = held.traditional.join(" / ");
+    if (held.greek.length) term.greek = held.greek.join(" / ");
   }
   return [...byId.values()];
 }
 
 /**
  * One term as the box prints it: "self-preservation, traditionally flesh,
- * sarx" (S3). Several renderings are joined with " / ".
+ * sarx" (S3). Several renderings are joined with " / ". `term` is one of
+ * collectKeyTerms', whose `traditional` is ready to print (a name keeps its
+ * capital: "the Adversary, traditionally Satan, Satanas").
  */
 export function keyTermLine(term) {
   const parts = [term.renderings.join(" / ")];
-  if (term.traditional) parts.push(`traditionally ${traditionalWord(term)}`);
+  if (term.traditional) parts.push(traditionalHint(term.traditional));
   if (term.greek) parts.push(term.greek);
   return parts.join(", ");
 }
@@ -315,52 +350,102 @@ export function blanksTouching(located, start, end) {
 
 /**
  * The hint printed beneath a blank, or null for none: the leader's own words,
- * or "traditionally sin" for the glossary term the blanked words render,
- * looked up from today's term data so it never goes stale (format, "blank").
- * A traditional hint whose words no longer carry a term prints nothing.
+ * or "traditionally believe", the traditional word for the Greek word the
+ * blanked words render, looked up from today's term data so it never goes
+ * stale (format, "blank"). It is that Greek word's own, not its glossary
+ * entry's for every blank (E85). A traditional hint prints nothing where the
+ * words no longer carry a term, or where their verse holds more than one word
+ * of the term's family with different traditional words: nothing says which
+ * the blank renders, so the leader chooses one (the editor then stores it as
+ * their own hint).
  *
  * @param {{ start: number, end: number } | null} at where the blank is now
- * @param {{ start: number, end: number, id: string }[]} marks the chapter's term marks
- * @param {Record<string, { traditional: string }>} terms
+ * @param {{ start: number, end: number, id: string, w?: number[] }[]} marks the chapter's term marks
+ * @param {Record<string, { traditional: string, words?: [string, string][] }>} terms
  */
 export function blankHint(blank, at, marks, terms) {
   if (blank.hint === "custom") return blank.hintText?.trim() || null;
   if (blank.hint !== "traditional" || at?.start == null) return null;
   const term = termForWords(at.start, at.end, marks, terms);
-  return term ? `traditionally ${term.traditional}` : null;
+  return term?.traditional ? traditionalHint(term.traditional) : null;
 }
 
 /**
  * The glossary term the words [start, end) carry, from the first mark they
- * overlap: { id, traditional } or null, `traditional` as traditionalWord gives it.
+ * overlap, with the traditional word of the Greek word they render
+ * (term-words.mjs): { id, traditional, choices } or null. `choices` are the
+ * traditional words the mark could carry: one where its verse leaves no doubt,
+ * and then `traditional` is it; several where the verse holds more than one
+ * word of the term's family, and then `traditional` is null.
+ *
+ * @returns {{ id: string, traditional: string | null, choices: string[] } | null}
  */
 export function termForWords(start, end, marks, terms) {
   for (const m of marksInRange(marks, start, end)) {
     const t = terms?.[m.id];
-    if (t?.traditional) return { id: m.id, traditional: traditionalWord(t) };
+    if (!t?.traditional) continue;
+    const choices = traditionalChoices(t, m);
+    return { id: m.id, traditional: choices.length === 1 ? choices[0] : null, choices };
   }
   return null;
 }
 
 /**
- * The blanks of one passage as the editor lists them (SH5-9): the blanks that
- * render one glossary term share a row, so a key term blanked four times has
- * one hint and one remove, not four. A blank with no term (words chosen by
- * selection or keyboard), a blank that no longer prints, and one whose words
- * changed since it was chosen (it carries a notice of its own) each keep a row
- * of their own. Rows are in order of first occurrence in the passage; a blank
- * that can't be found goes last, in the order given.
+ * Whether a traditional word is the blanked words themselves, compared
+ * without case. The LIT keeps the traditional word in places ("faithful",
+ * "demon", "clean"), and a hint naming it there would print the answer
+ * beneath its own blank. Either side of a slashed word counts ("leave" under
+ * "forgive/leave"). Only the word itself: "faithfulness" under "faith" is the
+ * contrast a hint is for.
  *
- * `key` is stable across redraws, for the focus restore: `term-<id>` for a
- * term's row, `blank-<id>` for a single. `hint` and `hintText` are the
- * blanks' own when they agree and `hint: "mixed"` (no text) when they don't.
+ * @param {string | null | undefined} word a traditional word (termForWords')
+ * @param {string} exact the blanked words
+ */
+export function hintIsAnswer(word, exact) {
+  const answer = String(exact ?? "").trim().toLowerCase();
+  return !!answer && wordAlternatives(word).some((alternative) => alternative.toLowerCase() === answer);
+}
+
+/**
+ * The hint a new blank starts with (S10, E85): "traditional" where its words
+ * carry a key term, their verse leaves no doubt which traditional word is
+ * theirs, and that word is not the answer itself; otherwise "none". The row's
+ * menu still offers the word, for a leader who wants it there.
+ *
+ * @param {string} exact the words to blank
+ * @param {{ traditional: string | null } | null | undefined} term termForWords' for them
+ * @returns {"traditional" | "none"}
+ */
+export function startingHint(exact, term) {
+  return term?.traditional && !hintIsAnswer(term.traditional, exact) ? "traditional" : "none";
+}
+
+/**
+ * The blanks of one passage as the editor lists them (SH5-9): the blanks that
+ * render one glossary term with one traditional word share a row, so a key
+ * term blanked four times has one hint and one remove, not four. A term whose
+ * blanks render different words of its family ("trust" for pistis, "trusted"
+ * for pisteuo) has a row for each, since one hint can't be true of both (E85).
+ * A blank with no term (words chosen by selection or keyboard), a blank that
+ * no longer prints, one whose words changed since it was chosen (it carries a
+ * notice of its own), and one whose verse leaves its traditional word to be
+ * chosen each keep a row of their own. Rows are in order of first occurrence
+ * in the passage; a blank that can't be found goes last, in the order given.
+ *
+ * `key` is stable across redraws, for the focus restore: `term-<id>` for the
+ * row of a term's own word, `term-<id>-<word>` for another word's, and
+ * `blank-<id>` for a single. `hint` and `hintText` are the blanks' own when
+ * they agree and `hint: "mixed"` (no text) when they don't. `termId`,
+ * `traditional` and `choices` are termForWords' for the row's blanks: a
+ * single with a choice to make has its term and choices and no `traditional`,
+ * and any other single has none of the three.
  *
  * @param {{ blank: { id: string, verse: number, hint?: string, hintText?: string },
  *   start: number | null, end: number | null, prints: boolean, status?: string }[]} located
- * @param {{ start: number, end: number, id: string }[]} marks the chapter's term marks
- * @param {Record<string, { traditional: string }>} terms
- * @returns {{ key: string, termId: string | null, blanks: object[], verses: number[],
- *   hint: string, hintText: string }[]}
+ * @param {{ start: number, end: number, id: string, w?: number[] }[]} marks the chapter's term marks
+ * @param {Record<string, { traditional: string, words?: [string, string][] }>} terms
+ * @returns {{ key: string, termId: string | null, traditional: string | null, choices: string[],
+ *   blanks: object[], verses: number[], hint: string, hintText: string }[]}
  */
 export function groupBlanks(located, marks, terms) {
   const rank = (b) => (b.start == null ? Infinity : b.start);
@@ -374,16 +459,30 @@ export function groupBlanks(located, marks, terms) {
     })
     .map(([b]) => b);
   const groups = [];
-  const byTerm = new Map();
+  const byRow = new Map();
   for (const b of ordered) {
     const term = b.prints && b.status !== "changed" ? termForWords(b.start, b.end, marks, terms) : null;
-    if (term && byTerm.has(term.id)) {
-      byTerm.get(term.id).blanks.push(b);
+    if (!term) {
+      groups.push({ key: `blank-${b.blank.id}`, termId: null, traditional: null, choices: [], blanks: [b] });
       continue;
     }
-    const group = { key: term ? `term-${term.id}` : `blank-${b.blank.id}`, termId: term ? term.id : null, blanks: [b] };
+    // A choice still to make is each blank's own: two blanks in one verse can
+    // render different words of the family ("just" and "justness" in Romans
+    // 4:5), so one menu for both could only be right for one of them.
+    if (!term.traditional) {
+      groups.push({ key: `blank-${b.blank.id}`, termId: term.id, traditional: null, choices: term.choices, blanks: [b] });
+      continue;
+    }
+    // The entry's own word keeps the plain key; another word of the family
+    // is named in it.
+    const key = term.traditional.toLowerCase() === traditionalWord(terms?.[term.id]) ? `term-${term.id}` : `term-${term.id}-${term.traditional}`;
+    if (byRow.has(key)) {
+      byRow.get(key).blanks.push(b);
+      continue;
+    }
+    const group = { key, termId: term.id, traditional: term.traditional, choices: term.choices, blanks: [b] };
     groups.push(group);
-    if (term) byTerm.set(term.id, group);
+    byRow.set(key, group);
   }
   for (const g of groups) {
     g.verses = [...new Set(g.blanks.map((b) => b.blank.verse))].sort((a, b) => a - b);
@@ -468,21 +567,140 @@ function shortWordsOf(text) {
   return shorts;
 }
 
+// Every content word of a text, the common ones included: the long words'
+// stems, the short ones whole, the grammatical ones left out.
+function everyStem(text) {
+  const out = new Set();
+  for (const raw of wordsOf(text)) {
+    if (raw.length < 2 || SHORT_FUNCTION.has(raw)) continue;
+    out.add(raw.length < MIN_LETTERS ? raw : stemWord(raw));
+  }
+  return out;
+}
+
+// A text's words as the comparisons read them. `commonOnly` marks a text whose
+// every content word is on the common list ("just," "very being," two of the
+// LIT's renderings): it has nothing for `stems` or `shorts` to match by, so it
+// is matched whole instead (commonTells; E85).
+function readWords(text) {
+  const stems = telltaleStems(text);
+  const shorts = shortWordsOf(text);
+  const every = everyStem(text);
+  return { stems, shorts, every, commonOnly: !stems.size && !shorts.size && every.size > 0 };
+}
+
+// What a text sets in quotation marks, each quotation's words apart: how a
+// note cites a rendering ("Or ‘is just’"). An apostrophe inside a word is no
+// closing mark, and of a quotation within a quotation the inner one is read.
+const QUOTED = /[‘“]([^‘’“”]{1,80})[’”]/g;
+function quotationsOf(text) {
+  const plain = text.replace(/(\p{L})’(?=\p{L})/gu, "$1'");
+  return [...plain.matchAll(QUOTED)].map((m) => readWords(m[1]));
+}
+
+const allIn = (words, set) => {
+  for (const s of words) if (!set.has(s)) return false;
+  return true;
+};
+
+// Whether a quotation or a rendering (`shown`) tells on a blank (`own`) by
+// common words, which sharesWords never reads. A blank of common words alone
+// is told on by anything shown that holds them all (‘is just,’ ‘makes
+// justness’) or, itself common words alone, is held by it (‘being’ beside a
+// blank on "very being," and not ‘being made right’). Any other blank is told
+// on only by common words that are one of its telling words: ‘just’ tells on
+// "justness," and ‘with’ tells nothing of "cooperate with," whose "with" only
+// carries it.
+function commonTells(shown, own) {
+  if (own.commonOnly) return allIn(own.every, shown.every) || (shown.commonOnly && allIn(shown.every, own.every));
+  return shown.commonOnly && allIn(shown.every, own.stems);
+}
+
 /**
  * The blanks a footnote would give away: those with a word whose stem the
  * footnote shares ("deviating" is given away by a note reading "people
  * characterized by deviation"), or a short content word the footnote uses
- * whole ("God", "joy", "law"; BA76), or whose `telltale` (blankWords: the
- * traditional word a hint doesn't show) the footnote names. Errs toward
- * flagging, since a flag only asks the leader to decide (C15).
+ * whole ("God", "joy", "law"; BA76), or whose `telltale` or `also`
+ * (blankWords: the traditional words a hint doesn't show) the footnote names.
+ * Of a traditional word that is a phrase, the telling words count and the
+ * ones that carry them don't (`tellingText`): "have mercy" is named by
+ * "mercy," and a note saying "makes" names nothing of "make atonement." Errs
+ * toward flagging, since a flag only asks the leader to decide (C15).
+ *
+ * A common word decides nothing said in passing, and counts where a note
+ * sets it in quotation marks, which is how a note cites a rendering (E85).
+ * "Just" is one of the LIT's renderings and 255 notes say "not just" or "just
+ * as," so a blank on "just" or "justness" is given away by "Or ‘is just’" and
+ * not by "it's not just about" (`commonTells` has the rule). Until E85's
+ * browser check a blank on "just" or "very being" had no word to be matched
+ * by, and the notes citing it printed unflagged.
  *
  * @param {string} footnoteText
- * @param {{ exact: string, telltale?: string }[]} blanks
+ * @param {{ exact: string, telltale?: string, also?: string }[]} blanks
  */
 export function blanksGivenAway(footnoteText, blanks) {
   const inNote = wordsInOf(footnoteText);
-  if (!inNote.stems.size && !inNote.shorts.size) return [];
-  return blanks.filter((b) => sharesWords(inNote, wordsInOf(b.exact)) || (!!b.telltale && sharesWords(inNote, wordsInOf(b.telltale))));
+  if (!inNote.stems.size && !inNote.shorts.size && !inNote.quotes.length) return [];
+  return blanks.filter((b) => {
+    const own = wordsInOf(b.exact);
+    return (
+      sharesWords(inNote, own) ||
+      sharesWords(inNote, wordsInOf(tellsOf(b))) ||
+      inNote.quotes.some((q) => commonTells(q, own))
+    );
+  });
+}
+
+/**
+ * The blanks a key term's rendering would give away printed beside them (the
+ * participant's Key terms box): blanksGivenAway's, and those it tells on by
+ * common words (`commonTells`). A rendering is a term's word, never said in
+ * passing, so it is read as a quotation is: the box leaves "just" blank
+ * beside a blank on "just" or "justness," and "very being" beside its own.
+ * Before E85's browser check it printed them there (101 marked words are one
+ * of the two).
+ *
+ * @param {string} rendering
+ * @param {{ exact: string, telltale?: string, also?: string }[]} blanks
+ */
+export function blanksToldByRendering(rendering, blanks) {
+  const told = new Set(blanksGivenAway(rendering, blanks));
+  const shown = wordsInOf(rendering);
+  return blanks.filter((b) => told.has(b) || commonTells(shown, wordsInOf(b.exact)));
+}
+
+// A blank's traditional words as one text for the comparison: its own and
+// its entry's (blankWords), without the words that only carry them. Worked
+// out once a blank: every footnote is held against every blank (BA133).
+const tellsCache = new WeakMap();
+function tellsOf(b) {
+  let text = tellsCache.get(b);
+  if (text === undefined) {
+    text = tellingText([b.telltale, b.also].filter(Boolean).join(" / "));
+    tellsCache.set(b, text);
+  }
+  return text;
+}
+
+/**
+ * The traditional word a footnote's flag names beside a blank (SH5-16), and
+ * whose it is: the blank's own (`telltale`), or its entry's (`also`) where
+ * the footnote names that and neither the blank's words nor its own
+ * traditional word, since that is then what gave the blank away. Null for a
+ * blank with no traditional word to hide.
+ *
+ * @param {string} footnoteText
+ * @param {{ exact: string, telltale?: string, also?: string }} b one of blankWords'
+ * @returns {{ word: string, entry: boolean } | null}
+ */
+export function flaggedWord(footnoteText, b) {
+  if (!b?.telltale) return null;
+  if (b.also) {
+    const inNote = wordsInOf(footnoteText);
+    const names = (text) => sharesWords(inNote, wordsInOf(text));
+    if (!names(b.exact) && !names(tellingText(b.telltale)) && names(tellingText(b.also))) return { word: b.also, entry: true };
+  }
+  return { word: b.telltale, entry: false };
 }
 
 // Whether two texts' words (wordsInOf) share a stem or a short content word.
@@ -494,29 +712,65 @@ function sharesWords(a, b) {
 
 /**
  * What a printed blank can be given away by (SH5-16): its words, and the
- * traditional word of the glossary term they render when the hint beneath
- * the blank does not already show it. With "No hint," a footnote reading
+ * traditional word of the Greek word they render when the hint beneath the
+ * blank does not already show it. With "No hint," a footnote reading
  * "Traditionally, 'flesh'" beside a blank on "self-preservation" hands the
  * answer over, so that word counts as the blank's too (`telltale`). With the
  * traditional hint it is printed under the blank already, and a leader's own
- * hint that names it says as much, so neither adds one. `b` is one of the
- * passage's located blanks (locateBlanks) and `text` its chapter's anchor text.
+ * hint that names it says as much, so neither adds one. Where the verse holds
+ * several words of the term's family, any of their traditional words tells:
+ * the telltale is all of them, " / " between (a slash offers alternatives,
+ * `wordAlternatives`), and a traditional hint there prints nothing, so it
+ * hides none of them.
+ *
+ * `also` is the entry's own traditional word where the blank's is another
+ * ("faith" beside "believe"): the word the glossary and most notes use for
+ * the whole family, which gave such a blank away before each Greek word had
+ * its own (E85), and still does. It is matched with the telltale and never
+ * shown as the blank's word. `b` is one of the passage's located blanks
+ * (locateBlanks) and `text` its chapter's anchor text.
  *
  * @param {{ blank: { hint?: string, hintText?: string }, start: number | null, end: number | null }} b
- * @param {{ start: number, end: number, id: string }[]} marks the chapter's term marks
- * @param {Record<string, { traditional: string }>} terms
- * @returns {{ exact: string, telltale?: string }}
+ * @param {{ start: number, end: number, id: string, w?: number[] }[]} marks the chapter's term marks
+ * @param {Record<string, { traditional: string, words?: [string, string][] }>} terms
+ * @returns {{ exact: string, telltale?: string, also?: string }}
  */
 export function blankWords(b, text, marks, terms) {
   const exact = text.slice(b.start, b.end);
-  if (b.blank.hint === "traditional" || b.start == null) return { exact };
+  if (b.start == null) return { exact };
   const term = termForWords(b.start, b.end, marks, terms);
-  if (!term) return { exact };
-  if (b.blank.hint === "custom" && blanksGivenAway(b.blank.hintText ?? "", [{ exact: term.traditional }]).length) return { exact };
-  return { exact, telltale: term.traditional };
+  if (!term || !term.choices.length) return { exact };
+  if (b.blank.hint === "traditional" && term.traditional) return { exact };
+  const telltale = term.choices.join(" / ");
+  const own = ownTraditional(terms?.[term.id]);
+  let also = own && !term.choices.some((c) => c.toLowerCase() === own.toLowerCase()) ? own : null;
+  if (b.blank.hint === "custom") {
+    // A leader's hint that names a word shows it, so that word hides nothing.
+    const names = (word) => blanksGivenAway(b.blank.hintText ?? "", [{ exact: tellingText(word) }]).length > 0;
+    if (names(telltale)) return { exact };
+    if (also && names(also)) also = null;
+  }
+  return also ? { exact, telltale, also } : { exact, telltale };
 }
 
-// The stems and short words of each text, worked out once: every footnote of
+/**
+ * The word a leader picked for a blank whose verse leaves its traditional
+ * word in doubt, or null. The editor stores the pick as the blank's own hint
+ * ("traditionally believe"), the record having nowhere else to say which,
+ * and this reads it back, so a picked word behaves as a traditional hint
+ * does (the editor's menu, present mode's cover).
+ *
+ * @param {{ hint?: string, hintText?: string } | null | undefined} blank
+ * @param {{ traditional: string | null, choices: string[] } | null | undefined} term termForWords'
+ * @returns {string | null}
+ */
+export function pickedChoice(blank, term) {
+  if (blank?.hint !== "custom" || !term || term.traditional) return null;
+  const text = blank.hintText?.trim();
+  return (term.choices ?? []).find((word) => traditionalHint(word) === text) ?? null;
+}
+
+// The words of each text (readWords) and of its quotations, worked out once: every footnote of
 // every passage is held against every blank on the sheet on each redraw, so the
 // same few thousand blank words were being stemmed again per footnote, per
 // passage (BA133). Bounded, and private, so no caller can change a cached set.
@@ -528,7 +782,7 @@ function wordsInOf(text) {
   let words = wordsCache.get(key);
   if (!words) {
     if (wordsCache.size >= WORDS_CACHE_LIMIT) wordsCache.clear();
-    words = { stems: telltaleStems(key), shorts: shortWordsOf(key) };
+    words = { ...readWords(key), quotes: quotationsOf(key) };
     wordsCache.set(key, words);
   }
   return words;

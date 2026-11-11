@@ -479,10 +479,30 @@ A **blank** is `{ id, verse, exact, prefix, suffix, hint, hintText }`: the
 words blanked, found like any quote (`verse` is the verse they start in), and
 the hint printed beneath:
 - `hint: "none"`: just the blank;
-- `hint: "traditional"`: the traditional word for the glossary term the
-  blanked words render ("traditionally sin"), looked up from today's term
-  lens data when printed, so it never goes stale. Offered only where a term
-  is marked;
+- `hint: "traditional"`: the traditional word for the Greek word the
+  blanked words render ("traditionally believe" under a blank on "trusted"),
+  looked up from today's term lens data when printed, so it never goes
+  stale. It is that Greek word's own, not its glossary entry's for every
+  blank (since 2026-11-11, STUDY-DESK-FIXES.md E85: an entry governs a family
+  of Greek words and names one, which was the wrong word for a third of the
+  marked words). Offered only where a term is marked and its verse leaves no
+  doubt which word of the family the blank renders. Where the verse holds
+  more than one, with different traditional words, a `"traditional"` hint
+  prints nothing; the website's editor offers each word there and stores the
+  one picked as a `"custom"` hint ("traditionally believe"), so the record
+  takes no new field. The word prints as the website's list spells it,
+  lowercase but for a name ("traditionally Satan"). Where it is the blanked
+  word itself (the LIT keeps "faithful" and "demon"), the website's editor
+  starts a new blank with `"none"`, since the hint would be the answer; a
+  `"traditional"` hint a leader sets there still prints.
+  **Where the words are**: on the website only, in each chapter page's term
+  data (`#term-lens-data`: a mark's `w` names the words of its term's family
+  that its verse holds, and the term's `words` gives each one's traditional
+  word), built from `LEMMA_WORDS` in `scripts/lib/glossary-lemmas.mjs` and
+  the Greek text. **Nothing under `/api/` carries them.** The glossary feed
+  has each entry's one `traditional`, which is the word this hint stopped
+  using, so an app that prints a sheet's hints needs this data served first
+  (open, for BDR; STUDY-DESK-FIXES.md, E85);
 - `hint: "custom"`: the leader's own `hintText`, plain text up to 100
   characters.
 
@@ -498,9 +518,20 @@ verse, its full text, `n` among identical ones), never its letter, and
 is worked out live: it prints, **unless it gives a blank away**, in which
 case it is flagged and left out until the leader decides. A footnote gives a
 blank away when it uses the blank's words, or (since 2026-11-08, audit 5's
-SH5-16) when it names the traditional word of the term the blank's words
-render and the blank's hint does not already show that word: a `hint` of
-`"none"`, or a `"custom"` hint without the word. Select all and
+SH5-16) when it names the traditional word of the Greek word the blank's
+words render (any of them, where the verse leaves the word in doubt) and
+the blank's hint does not already show that word: a `hint` of `"none"`, a
+`"traditional"` hint that prints nothing, or a `"custom"` hint without the
+word. The glossary entry's own traditional word counts beside it ("faith"
+for a blank that is traditionally "believe"), as the word most notes use for
+the whole family; and of a traditional word that is a phrase, only its
+telling word counts ("mercy" for "have mercy," never "have"). A word too
+common to tell anything said in passing ("just," "very," "being," "their";
+the website's list is `COMMON` in `src/lib/desk-sheet-lit.mjs`) counts only
+where the footnote sets it in quotation marks, as a note cites a rendering,
+and only against a blank whose answer is that word or a form of it: "Or ‘is
+just’" gives away a blank on "just" or "justness," and "it’s not just
+about" gives nothing away (since 2026-11-11, E85). Select all and
 Unselect all write a choice for every footnote in the passage. So a
 footnote added to the chapter later prints by default, and is still flagged
 if it gives a blank away. A choice whose footnote has gone is ignored.
@@ -542,7 +573,10 @@ lectio divina's rest.
 
 **`keyTerms`**: the key terms box (S3). Its terms are worked out live from
 the sheet's passages. `omit` lists the glossary ids the leader took out, may
-be empty. At most one per sheet.
+be empty. At most one per sheet. Each term prints its renderings in those
+passages, then the traditional word and the Greek of the Greek words their
+verses hold ("trusted, traditionally believe, pisteuo"; since 2026-11-11,
+E85), from the same website-only term data as a blank's `"traditional"` hint.
 
 **`pageBreak`**: a new page when printed. Nothing else.
 

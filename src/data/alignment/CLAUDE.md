@@ -446,13 +446,14 @@ shows where a term appears reads it too, rather than restating the table above.
 Every use of a glossary term in a Chapter View chapter carries a quiet dotted
 underline, and hovering one with a mouse (350 ms) or tapping it opens a card
 in the shared panel: the word as printed, "Traditionally *flesh* · Greek
-*sarx*", up to four other renderings with their corpus counts, and a link to
+*sarx*" (the mark's own Greek word and its traditional word, rule 7), up to
+four other renderings with their corpus counts, and a link to
 the glossary entry. Four owner decisions (2026-09-28): **every use**, not just
 the first of each term; **on by default**, with a **Key terms** box in the
 Display tray to turn it off; **Chapter View only**, never Read View, which is
 for immersion; and **no tab stops** (below). The pieces are
 `src/lib/term-lens.mjs` (pure, unit-tested), `term-lens-data.mjs` (its fs
-shell) and `src/scripts/term-lens.js`. Six rules:
+shell), `term-words.mjs` (rule 7) and `src/scripts/term-lens.js`. Seven rules:
 
 1. **It marks only what /glossary would show**: the gated records, minus any
    term whose glossary entry is a draft. A lens that marked more would make a
@@ -491,3 +492,49 @@ shell) and `src/scripts/term-lens.js`. Six rules:
    a term before its release opened the card mid-drag, which cut the selection
    to its first word and kept the selection panel from appearing; a leader
    gathering passages in /desk's LIT pane met it on every underlined word.
+7. **The card names the mark's own Greek word, not its entry's for every
+   mark** (BVJ, 2026-11-11; STUDY-DESK-FIXES.md, E85). An entry governs a
+   family of Greek words (`glossary-lemmas.mjs`) and names one of them
+   (`traditional: Faith`, `greek: pistis`). A third of the marks sit on
+   another, so "Traditionally faith · Greek pistis" stood on "trusted," which
+   renders *pisteuo* and is traditionally "believe." Three pieces fix it:
+   - **`LEMMA_WORDS`**, beside the lemma map, gives every family word its
+     own traditional word and Latin spelling. Editorial, and the owner's to
+     correct. Each entry's own `traditional` and `greek` must stand on one
+     of its lines (the traditional word compared without case, since the
+     list is lowercase but for the names Bibles capitalize: "Satan,"
+     "Gentiles," "Savior"), so a mark on the entry's own word reads as it
+     always did; `test/term-words.test.js` holds that, so **an entry's word
+     and its line change together**. The list's own rules are in its
+     header: a slash offers two words where one would mislead
+     ("forgive/leave"), and a phrase leans only on the verbs in
+     `term-words.mjs`'s `CARRIERS` ("have mercy," "make atonement"), which
+     the same test holds, since a sheet's give-away checks set those verbs
+     aside.
+   - **At build, `termLensFor` reads the chapter's Greek**
+     (`public/greek/text/`) and stamps each mark with the family words its
+     verse holds (`w`, indexes into the term's `lemmas` and `words`). Only
+     the choice among the owner's own words goes on the page, never a
+     lemma. **That test's sweep fails if the Greek files stop being read**:
+     the page would otherwise go back to the entries' words in silence.
+   - **`src/lib/term-words.mjs`** (pure, shared with the Study Desk's
+     sheets, whose hints and Key terms box read the same words) is the
+     rule. One family word in the verse is the mark's. Where several
+     differ (123 marks), nothing says which the rendering renders until
+     phase 2 links words, and **nobody guesses, the entry's own word
+     included**: that half of the card names each, "Traditionally faith or
+     believe · Greek pistis or pisteuo" (`markOrigin` returns lists). The
+     entry's pair was tried there first and named a word the verse doesn't
+     hold in 16 of them ("Greek dikaiosune" on Galatians 3:11's "just"). A
+     sheet offers the candidates to its leader instead. The entry's own
+     pair is only for a mark whose page says nothing of its verse.
+
+   The word is the usual traditional one for the Greek word, in dictionary
+   form, and makes no claim about a verse ("holy" stands where many Bibles
+   print "saints"; *aphiemi* can only say "forgive/leave"). Held against
+   the Berean Interlinear's word in each marked verse, about one in eight
+   still differs (506 of the 4,281 marks with one family word, 2026-11-11;
+   the figures by word are under E85). A per-verse word would be a reviewed
+   field on the alignment record, with the owner's footnotes and a
+   public-domain interlinear as suggestions: weighed under E85 and set
+   aside, not built.

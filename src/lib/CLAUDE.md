@@ -38,7 +38,10 @@ From the root's project tree.
                      #   /release-notes and its RSS feed present the JSON),
                      #   alignment-gate.mjs (the one display gate for the
                      #   alignment dataset), term-lens.mjs + term-lens-data.mjs
-                     #   (the term lens and its fs shell), go-deeper.mjs +
+                     #   (the term lens and its fs shell), term-words.mjs
+                     #   (which traditional word and Greek word stand behind
+                     #   one key-term mark; the lens's card and the Study
+                     #   Desk's sheets share it), go-deeper.mjs +
                      #   go-deeper-data.ts ("Go deeper" and its build shell),
                      #   verse-image.mjs (the design and typesetting behind
                      #   "Share image"), anchor-core.mjs + desk-*.mjs (the
