@@ -2344,6 +2344,23 @@ tap areas (`global.css`, never under 24px).
   narrow window, a large text size), the Footnotes list is indented by
   what is missing, so Pin is still on the left and inside the window
   (Claude's call, since nothing else keeps it left there).
+- **E82, design: Pin shows only for the footnote the reader is at.** BVJ
+  (2026-11-10): “I don't like how cluttered the page looks with all those
+  pins buttons running down the column beside the footnotes… What if the
+  pin buttons were invisible until the mouse hovers or focus is on either
+  the button or the footnote row? When pinned, the active button could
+  persist.” Two mocks were shown: only the row under the pointer, or the
+  whole list faintly while the pointer is in it. BVJ chose the first. A
+  bare thumbtack above the column as a clue was BVJ's own doubt (“That last
+  part may not be a good idea”) and was left out: it would look like a
+  control and do nothing. Status: **done 2026-11-10**, in `desk.css` alone:
+  in Chapter View's Footnotes list a Pin is drawn only while the pointer is
+  over its footnote or the button, while focus is on or in the footnote
+  (so Tab still reaches every Pin, and “See in footnotes” shows the one it
+  lands on), for a footnote a link landed on, and always once the footnote
+  is pinned. The popover's Pin, This verse and /desk's Footnotes pane are
+  unchanged, and they, the tour and the help page are how a reader who
+  never points at the list learns of pinning.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

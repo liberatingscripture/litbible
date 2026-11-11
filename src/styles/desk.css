@@ -2424,7 +2424,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .footnotes > li.desk-fn > .desk-fn-pills {
   position: absolute;
   z-index: 2;
-  right: calc(100% + 14px);
+  /* The 14px between Pin and the footnote is padding, not a gap, so the
+     pointer stays over the footnote's row on its way to Pin (E82). */
+  right: 100%;
+  padding-right: 14px;
   /* Centered on the footnote's first line: half of (line height less the
      pill's 24px, E77). The line height is .fn-body's, with the Display
      tray's extra leading. */
@@ -2434,6 +2437,44 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 .footnotes[data-desk-fn-pills="glyph"] > li.desk-fn > .desk-fn-pills .desk-pin__word {
   display: none;
+}
+
+/* Pin shows only for the footnote the reader is at (BVJ, 2026-11-10; E82): a
+   column of buttons down the margin cluttered the page. It appears while the
+   pointer is over the footnote's row or Pin itself, while focus is on the
+   footnote or anything in it (Pin included, so Tab still finds every one;
+   "See in footnotes" puts focus on the note), and for a footnote a link
+   landed on. A pinned footnote's Pin always shows: it says the note is
+   pinned. Hidden by opacity alone, so it keeps its place, its size (which
+   footnote-pills.js measures) and its tab stop. */
+.footnotes > li.desk-fn > .desk-fn-pills > .desk-pin {
+  opacity: 0;
+  /* It waits a moment before going: with the Notebook expanded, the line that
+     sets the text's width (.desk-gutter--text) lies between the row and Pin,
+     and the pointer crossing it is over neither. */
+  transition: opacity 120ms ease-out 400ms;
+}
+
+.footnotes > li.desk-fn:hover > .desk-fn-pills > .desk-pin,
+.footnotes > li.desk-fn:focus-within > .desk-fn-pills > .desk-pin,
+.footnotes > li.desk-fn:target > .desk-fn-pills > .desk-pin,
+.footnotes > li.desk-fn > .desk-fn-pills > .desk-pin[aria-pressed="true"] {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+/* No fade, but the same wait. */
+@media (prefers-reduced-motion: reduce) {
+  .footnotes > li.desk-fn > .desk-fn-pills > .desk-pin {
+    transition-duration: 0s;
+  }
+}
+
+/* A screen with no pointer that hovers has no way to bring Pin out. */
+@media (hover: none) {
+  .footnotes > li.desk-fn > .desk-fn-pills > .desk-pin {
+    opacity: 1;
+  }
 }
 
 ol.footnotes[data-desk-fn-pills] {
