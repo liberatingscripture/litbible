@@ -4843,9 +4843,10 @@ html[data-desk-workspace] .desk-page__notice {
   min-height: 30px;
   margin: 0;
   padding: 4px 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  /* A control (E89): its own fill and a 3:1 edge, never the page's color. */
+  border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: transparent;
+  background: var(--desk-control);
   color: var(--text);
   font: 500 0.875rem/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
   text-decoration: none;
@@ -4855,19 +4856,18 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-cmdrow__btn:hover,
 .desk-cmdrow__btn[aria-expanded="true"] {
-  border-color: rgba(var(--ink-rgb), 0.4);
-  background: rgba(var(--ink-rgb), 0.07);
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
   color: var(--text);
 }
 
 .desk-cmdrow__btn[aria-disabled="true"] {
-  border-color: rgba(var(--ink-rgb), 0.14);
+  border-color: rgba(var(--ink-rgb), 0.3);
   color: rgba(var(--ink-rgb), 0.62);
   cursor: default;
 }
 
 .desk-cmdrow__btn[aria-disabled="true"]:hover {
-  background: transparent;
+  background: var(--desk-control);
 }
 
 .desk-cmdrow__btn svg {
@@ -5290,9 +5290,10 @@ html.desk-ws--moving * {
   height: 30px;
   margin-left: auto;
   padding: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  /* A control (E89): its own fill and a 3:1 edge, never the pane's color. */
+  border: 1px solid var(--field-border);
   border-radius: 999px;
-  background: transparent;
+  background: var(--desk-control);
   color: var(--text);
   cursor: pointer;
 }
@@ -5332,7 +5333,7 @@ html.desk-ws--moving * {
 }
 
 .desk-pane__pin:hover {
-  background: rgba(var(--ink-rgb), 0.08);
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.08), rgba(var(--ink-rgb), 0.08));
 }
 
 /* Pressed: the footnote Pin's tint (E67), since an open and a closed lock
@@ -5521,7 +5522,7 @@ html.desk-ws--moving * {
   padding: 5px 9px;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: var(--surface-raised, transparent);
+  background: var(--desk-field); /* a field's own fill, not the pane's (E89) */
   color: var(--text);
   font: inherit;
   font-weight: 600;
@@ -6057,7 +6058,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   min-width: 0;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: var(--surface-input, var(--surface-raised));
+  background: var(--desk-field); /* a field on its card (E89) */
   color: var(--text);
 }
 
@@ -6524,6 +6525,55 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 /* ── The Sheets pane on /desk (3f; sheet-pane.js) ─────────────────────── */
 
+/* The desk's layers (E89; BVJ, 2026-11-11: "fields, cards, and controls
+   with the same color as the page background"). The list of sheets, the
+   template chooser and the editor, in the Sheets pane and on /sheets, a
+   sheet's versions view, /desk's command row and the panes' bars are built
+   from these, each a step apart from whatever it sits on:
+   - card: a part, a row of the list, the chooser, a form (one inside a part
+     included), with a hairline edge; a container, so no 3:1 is owed. On
+     /sheets' cream page it is the raised #FAFAF8. In the Sheets pane, whose
+     body is a pane's own #FAFAF8 like every other pane's (BVJ: "the
+     background of the sheets pane should match the other panes"), it is a
+     step darker, #ecebe8, 1.14:1 from the pane (dark: #262628, a step above
+     the pane's #1d1d1f); BVJ chose that from three mocks (tinted cards,
+     outlines only, outlines with tinted fields).
+   - field: anything typed in or chosen from. Paper white in light, below
+     the card in dark (#161617, a surface the rich text colors are checked
+     on, desk-sheet-view.css), always with --field-border.
+   - control: a button, a chip, a template choice. White in light, a lighter
+     step in dark, and always a --field-border edge, since white differs
+     from #FAFAF8 by 1.04:1, so the edge is what says "button" (3:1 or more
+     on every surface here, both themes).
+   The primary button (Deep Green) and the glyph buttons (the arrows, ×,
+   ▾, the grip) keep their own looks. */
+:root {
+  --desk-card: var(--surface-raised);
+  --desk-pane-card: #ecebe8;
+  --desk-card-edge: rgba(var(--ink-rgb), 0.16);
+  --desk-field: var(--white);
+  --desk-control: var(--white);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk-pane-card: #262628;
+    --desk-field: var(--surface);
+    --desk-control: rgba(var(--ink-rgb), 0.07);
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk-pane-card: #262628;
+  --desk-field: var(--surface);
+  --desk-control: rgba(var(--ink-rgb), 0.07);
+}
+
+/* In the Sheets pane the cards take the pane's card color (E89). */
+.desk-pane .desk-sheet {
+  --desk-card: var(--desk-pane-card);
+}
+
 /* Positioned, so the hidden hints that describe its buttons (.sr-only, which is
    absolute) are placed and clipped inside this scroller. Otherwise their
    containing block was the pane, past the scroller's clipping, and each one
@@ -6575,7 +6625,20 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   font-size: 0.875rem;
 }
 
-/* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10). */
+/* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10).
+   In the Sheets pane and anywhere on /sheets (the list, the chooser, the
+   editor, a sheet's versions view) every one but the primary is a control
+   (E89): a fill and a 3:1 edge, quiet ones included. Scoped here, so a
+   phone's shared sheet, which loads that file alone, keeps its look.
+   The hover's tint is an image over the fill, so it works on either theme's. */
+:is(.desk-sheet, .sheets-page) .desk-sheet__btn:not(.desk-sheet__btn--primary) {
+  border: 1px solid var(--field-border);
+  background-color: var(--desk-control);
+}
+
+:is(.desk-sheet, .sheets-page) .desk-sheet__btn:not(.desk-sheet__btn--primary, :disabled, [aria-disabled="true"]):hover {
+  background-image: linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
+}
 
 .desk-sheet :is(button, input, select, summary, a):focus-visible {
   outline: 2px solid var(--focus-ring);
@@ -6612,11 +6675,16 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   padding: 0;
 }
 
+/* Each sheet is a card (E89), a gap between them rather than a rule. */
 .desk-sheet__sheet {
   display: flex;
   align-items: center;
   gap: 6px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+  margin-bottom: 8px;
+  padding: 2px 10px 2px 6px;
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
 }
 
 .desk-sheet__open {
@@ -6662,7 +6730,11 @@ a.desk-sheet__open {
   .desk-sheet__sheets {
     display: grid;
     grid-template-columns: minmax(min(10rem, 40%), 1fr) repeat(3, auto);
-    column-gap: 6px;
+    gap: 8px 6px;
+  }
+
+  .desk-sheet__sheets > .desk-sheet__sheet {
+    margin-bottom: 0;
   }
 
   .desk-sheet__sheets:not(:has(> li > :nth-child(3))) {
@@ -6692,7 +6764,7 @@ a.desk-sheet__open {
       display: flex;
       flex-wrap: wrap;
       grid-template-columns: none;
-      padding-bottom: 6px;
+      padding: 2px 8px 8px;
     }
 
     .desk-sheet__sheet > .desk-sheet__open {
@@ -6736,16 +6808,17 @@ a.desk-sheet__open {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid transparent;
-  /* The quiet look keeps no box, but a field needs an edge (XA8-2, BA144). */
-  border-bottom-color: var(--field-border);
+  /* Fields like every other (E89): a fill and a whole edge. Until then a
+     bottom line on the page's own color (XA8-2, BA144). */
+  border: 1px solid var(--field-border);
   border-radius: 6px;
-  background: transparent;
+  background: var(--desk-field);
   color: var(--text);
-  padding: 2px 6px;
+  padding: 4px 8px;
 }
 
 .desk-sheet__title {
+  margin-bottom: 6px;
   font-family: "Fraunces", Georgia, serif;
   font-size: 1.5rem;
   font-weight: 600;
@@ -6758,14 +6831,6 @@ a.desk-sheet__open {
   color: rgba(var(--ink-rgb), 0.8);
 }
 
-.desk-sheet__title:hover,
-.desk-sheet__subtitle:hover,
-.desk-sheet__title:focus,
-.desk-sheet__subtitle:focus {
-  border-color: var(--field-border);
-  background: var(--surface-input);
-}
-
 .desk-sheet__modules {
   display: flex;
   flex-direction: column;
@@ -6774,10 +6839,10 @@ a.desk-sheet__open {
 
 .desk-sheet__module {
   position: relative; /* the gap zone below hangs from it */
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 10px;
   padding: 6px 10px 10px;
-  background: var(--surface-raised);
+  background: var(--desk-card);
 }
 
 .desk-sheet__module.is-dragging {
@@ -6858,7 +6923,7 @@ a.desk-sheet__open {
   padding: 1px 4px;
   border: 1px solid var(--field-border);
   border-radius: 4px;
-  background: transparent;
+  background: var(--desk-field);
   color: var(--text);
   font: inherit;
 }
@@ -7086,7 +7151,7 @@ a.desk-sheet__open {
   padding: 2px 4px;
   border: 1px solid var(--field-border);
   border-radius: 6px;
-  background: var(--surface-input);
+  background: var(--desk-field);
   color: var(--text);
 }
 
@@ -7118,11 +7183,26 @@ a.desk-sheet__open {
   gap: 6px;
 }
 
+/* "+ Key terms box" and its "already on the sheet" (add-bar.js): one item
+   of the row, the note beside the button or, where the row is too narrow,
+   directly under it (E89). */
+.desk-sheet__add-pair {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+
+/* A form is a card (E89): on the ground (the add bar's, the chooser) and
+   inside a part's card alike ("Passage…" from the gap, the reading part's),
+   where it is a section of that card, never the page's color (BVJ,
+   2026-11-11). */
 .desk-sheet__passage-form {
   margin-top: 10px;
   padding: 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 10px;
+  background: var(--desk-card);
 }
 
 .desk-sheet__ref {
@@ -7137,7 +7217,7 @@ a.desk-sheet__open {
   padding: 4px 8px;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: var(--surface-input);
+  background: var(--desk-field);
   color: var(--text);
 }
 
@@ -7230,8 +7310,27 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__templates .desk-sheet__from-list {
+  display: grid;
+  gap: 6px;
   max-height: none;
   margin-bottom: 8px;
+}
+
+/* Each template is a control (E89), with the gap between rather than a rule. */
+.desk-sheet__choice {
+  padding: 8px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background-color: var(--desk-control);
+}
+
+.desk-sheet__choice:hover:not(:disabled) {
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
+}
+
+.desk-sheet__choice:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .desk-sheet__choice-name {
@@ -7307,12 +7406,19 @@ a.desk-sheet__open {
   margin-top: 10px;
 }
 
+/* In a narrow pane its buttons go to a line of their own, whole, rather than
+   breaking their labels over four lines inside their edges (E89). */
 .desk-sheet__lit-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px 8px;
   margin-bottom: 6px;
+}
+
+.desk-sheet__lit-head .desk-sheet__btn {
+  white-space: nowrap;
 }
 
 .desk-sheet__lit-title {
@@ -7334,11 +7440,12 @@ a.desk-sheet__open {
   color: rgba(var(--ink-rgb), 0.7);
 }
 
+/* A control (E89): the edge and fill of the sheets' buttons. */
 .desk-sheet__chip {
   padding: 2px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--field-border);
   border-radius: 999px;
-  background: transparent;
+  background: var(--desk-control);
   color: var(--text);
   font: inherit;
   font-size: 0.8125rem;
@@ -7346,7 +7453,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__chip:hover {
-  background: rgba(var(--ink-rgb), 0.07);
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
 }
 
 .desk-sheet__chip[aria-pressed="true"] {
@@ -7394,7 +7501,7 @@ select.desk-sheet__hint,
   padding: 2px 6px;
   border: 1px solid var(--field-border);
   border-radius: 6px;
-  background: var(--surface-input);
+  background: var(--desk-field);
   color: var(--text);
   font: inherit;
   font-size: 0.8125rem;
@@ -7582,11 +7689,14 @@ p.desk-sheet__flag {
   color: var(--green-text);
 }
 
-/* The license card */
+/* The license card: a notice, so the look of /sheets' "what prints" notice
+   (.sheets-page__leaks) and the template's description (E89). */
 .desk-sheet__license {
   margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.2);
+  padding: 10px 12px;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.05);
 }
 
 .desk-sheet__license-title {

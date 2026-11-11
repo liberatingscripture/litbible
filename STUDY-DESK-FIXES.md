@@ -2620,6 +2620,56 @@ tap areas (`global.css`, never under 24px).
   it out of the tab order and from screen readers), so choosing a version
   never rewraps the row or moves the paper. A phone has none of these
   choices and is unchanged.
+- **E89, design: the Sheets' fields, cards and controls stand apart from
+  the page.** BVJ (2026-11-11), of the list of sheets, the template chooser
+  and the editor: “Several areas have fields, cards, and controls with the
+  same color as the page background. That's not good styling.” An Opus pass,
+  with license to decide (“It can make the changes it thinks are best”),
+  limited at first to styling in those areas. Found: in the Sheets pane every
+  part, field and form was the pane's own `#FAFAF8` (dark `#1d1d1f`), so a
+  part was told from the pane by a 14% hairline alone; on /sheets the fields
+  matched their cards; buttons, chips and the key terms box's buttons had a
+  25% ink edge (about 1.6:1) or none (the quiet ones); the template choices
+  and the list's rows were bare text between rules; the title and subtitle
+  were a bottom line on the page's color. Status: **built 2026-11-11**, for
+  review. Three layers, each a step apart from what it sits on (`desk.css`,
+  “The desk's layers”; the rule is in `src/scripts/desk/sheets/CLAUDE.md`):
+  **cards** (a part, each sheet in the list, the chooser, a form) with a
+  hairline, `#FAFAF8` on /sheets' cream page and, in the Sheets pane, a step
+  darker than the pane, `#ecebe8` (dark `#262628`); **fields** (title,
+  subtitle, a part's text, minutes, the reference, a hint) white in light and
+  `#161617` in dark, a surface the rich text colors are already checked on,
+  each with `--field-border`; **controls** (every sheet button but the
+  primary, the key term chips, each template choice) white in light, a
+  lighter step in dark, with a `--field-border` edge, since white differs
+  from `#FAFAF8` by 1.04:1. Three corrections from BVJ in review: a form
+  inside a part was first inset in the page's color (“Having the passage
+  card share the page background isn't right”), now the card's own; the
+  Sheets pane's body was first the page's cream, so both homes matched (“the
+  background of the sheets pane should match the other panes”), now a
+  pane's color, with the pane's cards tinted, which BVJ chose from three
+  mocks in the Browser pane (tinted cards; outlines only; outlines with
+  tinted fields); and BVJ asked for the same control look on a sheet's
+  versions view (Present, Print, Copy, Save as, Share…) and on /desk's
+  command row (“I found more controls that take the page background
+  color”), so a sweep for controls drawn in the color behind them also took
+  in the passage field in each pane's bar and its “Stay here” lock. Measured:
+  control and field edges 3.0:1 on the cream page, 3.4:1 on a pane's card
+  and 3.9:1 on a raised card or pane in light, 5.0:1 or more in dark; text
+  12:1 or more on fields and controls, dimmed text 5.2:1 or more on every
+  surface. The template's description and the License card keep the “what
+  prints” notice's look (BVJ: “should keep their current style”). Layout
+  changes made for the new edges: the list's rows are separate cards 8px
+  apart; in a narrow pane “Blank the selected words” and “Fill in the
+  selected words” wrap whole onto lines of their own; and “+ Key terms box”
+  and its “already on the sheet” are one group in the add row (BVJ: it
+  “should always be to the right or directly below the control”), the one
+  markup change. Left alone on purpose: the glyph buttons (↑ ↓ × ▾ ‹ › and
+  the grip), which read by their glyph; the passage's words; the Add pill;
+  the paper, present mode, the Share dialog, and the phone's shared sheet
+  (`desk-sheet-view.css` is unchanged: the button rule is scoped in
+  `desk.css`). Forced colors couldn't be emulated in the Browser pane; every
+  card, field and control now has a border, which forced colors keeps.
 - **E90, design: present mode's start screen shows one QR code.** BVJ
   (2026-11-11), on a sheet's start screen with four codes side by side:
   “Having several QR codes right next to each is not practical. Phones

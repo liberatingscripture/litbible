@@ -37,6 +37,41 @@ below the text, so clicking into a part grows the card downward instead of
 moving the words under the pointer, and a menu opens upward when the pane has
 no room below it (SH5-6).
 
+## How the Sheets look: three layers (E89)
+
+**The list of sheets, the template chooser, the editor and a sheet's
+versions view are built from three layers, each a step apart from what it
+sits on, in the Sheets pane and on /sheets alike** (BVJ, 2026-11-11: nothing
+may be "the same color as the page background"). /desk's command row and the
+panes' passage field and lock take the same field and control looks. The
+tokens and the reasoning are at the head of "The Sheets pane on /desk" in
+`desk.css`:
+- **Card** (`--desk-card`, `--desk-card-edge`): a part, a row of the list,
+  the chooser, a form. `#FAFAF8` on /sheets' cream page; **in the Sheets
+  pane, whose body keeps a pane's own color like every other pane's, the
+  cards take `--desk-pane-card`**, a step darker (BVJ chose it from three
+  mocks). A form inside a part's card is a section of it, in the card's
+  color with the card's edge; **nothing inside a card takes the page's
+  color** (BVJ, 2026-11-11).
+- **Field** (`--desk-field`, edged with `--field-border`): anything typed in
+  or chosen from.
+- **Control** (`--desk-control`, edged with `--field-border`): every
+  `.desk-sheet__btn` but the primary, the chips, the template choices, the
+  command row's buttons, the panes' lock. In light white differs from
+  `#FAFAF8` by 1.04:1, so **the edge is what makes a control, and a new one
+  needs it** (3:1 on every surface here, both themes). Glyph buttons
+  (`.desk-sheet__icon`, a pane's × and ▾) and the primary button keep their
+  own looks.
+The template's description and the License card are notices, not cards:
+the “what prints” notice's tint and green rule (BVJ: keep them so). A new
+part, form or control in these areas takes these tokens rather than
+`--surface-raised`, `--surface-input` or a faint ink edge, and a note that
+belongs to a control wraps with it in one group (the add row's
+`.desk-sheet__add-pair`). The sheet button rule is scoped in `desk.css`
+(`:is(.desk-sheet, .sheets-page)`), so `desk-sheet-view.css` and the phone's
+shared sheet keep their own look; `test/desk-audit8-f-css.test.js` holds the
+layers.
+
 ## Rule 18: the Sheets pane
 
 Part of desk rule 18 (phases 3c to 3g, /desk); the rest of it, the panes
