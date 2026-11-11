@@ -6873,6 +6873,35 @@ a.desk-sheet__open {
   color: rgba(var(--ink-rgb), 0.75);
 }
 
+/* The template's description above the parts (E84): the prompts' dimmed ink,
+   upright, since it is read as a paragraph. Screen only by nature: it is the
+   editor's, which never prints. */
+.desk-sheet__about {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 10px 0 2px;
+  padding: 0 2px;
+}
+
+.desk-sheet__about[hidden] {
+  display: none;
+}
+
+.desk-sheet__about-words {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(var(--ink-rgb), 0.75);
+}
+
+.desk-sheet__about-words strong {
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.85);
+}
+
 .desk-sheet__icon {
   min-width: 26px;
   height: 26px;

@@ -17,39 +17,52 @@ import { makeModule } from "./desk-sheets.mjs";
 /** The templates, in the order the chooser lists them: a name and one line
  * saying what the sheet is for. A second line listing the parts ("Opening ·
  * Reading · 3 questions…") was tried (SH5-17) and dropped (BVJ, 2026-11-08):
- * to a new reader it read as noise, almost a mistake. */
+ * to a new reader it read as noise, almost a mistake.
+ *
+ * `about` is the longer account the sheet editor shows above a sheet started
+ * from the template (E84; BVJ, 2026-11-10): who it is for, how a session with
+ * it moves, and what lands on the page, since the chooser's line is gone by
+ * the time the parts are on screen. The chooser never shows it. Blank canvas
+ * has none. What it counts ("three questions", "the first part is for you
+ * alone") is held to the builders by test/desk-sheet-templates.test.js. */
 export const TEMPLATES = Object.freeze([
   Object.freeze({
     id: "bible-study",
     name: "Bible study",
     description: "An opening, the key terms, the reading, questions to talk over, and a closing.",
+    about: "A plan for a small group meeting around one passage. You welcome the group, introduce the key terms, read together, and then talk through three questions that move from first impressions, to what the passage shows, to the week ahead. Each question leaves room to write, and the first part is for you alone.",
   }),
   Object.freeze({
     id: "sermon",
     name: "Sermon preparation",
     description: "Room for the text, first notes, context, an outline, and a word for the congregation.",
+    about: "A working document for the preacher, not a handout. It follows the path from the text to the pulpit: what you notice first, the context, the good news for the people who will hear it, and then an outline and one thing for them to carry home. The key terms come last, as a reference.",
   }),
   Object.freeze({
     id: "class",
     name: "Class session",
     description: "Goals, the reading, background for the leader, questions that observe, interpret, and apply, and what comes next.",
+    about: "A lesson plan for teaching a passage. It opens with your goals, meets the key terms before the reading, and then asks three questions in order: what the passage says, what it means, and what it means for us. Your background notes and expected answers print on the leader’s version only.",
   }),
   Object.freeze({
     id: "lectio-divina",
     name: "Lectio divina",
     description: "The four movements of a contemplative reading: read, reflect, pray, and rest.",
+    about: "A slow, prayerful reading for one person or a group, with no questions to answer. The passage is read three times, and each of the four movements has your words of guidance and room to write. The first part is for you alone.",
   }),
   // The Swedish method (Audit 5, section D, #3; BVJ, 2026-11-08).
   Object.freeze({
     id: "swedish",
     name: "Swedish method",
     description: "Each person reads alone and marks a light, a question, and an arrow, then the group shares them.",
+    about: "A study that needs no expert in the room. Everyone reads the passage alone and marks three things (a light, a question, and an arrow), writes a note under each, and then the group shares them in rounds. It suits a new group, or one where few people speak.",
   }),
   // Contextual Bible Study, after the Ujamaa Centre's (Audit 5, section D, #3; BVJ, 2026-11-08).
   Object.freeze({
     id: "contextual",
     name: "Contextual Bible Study",
     description: "Begin from the group’s own life, read the passage closely, and decide together what to do in response.",
+    about: "A study that starts and ends with the group’s own community. The group gives its first reading, then reads again slowly, asking who has power and whose voice is missing, and then returns to its own life and decides what to do. It closes with an action the group will come back to.",
   }),
   Object.freeze({
     id: "blank",
@@ -174,6 +187,54 @@ const BUILDERS = {
   ],
   blank: () => [makeModule("text")],
 };
+
+/** A text part's opening heading as plain words, lowercased; "" when it has none. */
+const headingWords = (m) => {
+  if (m?.type !== "text" || typeof m.html !== "string") return "";
+  const h = /^<h[1-6]>(.*?)<\/h[1-6]>/.exec(m.html);
+  return h ? h[1].replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().toLowerCase() : "";
+};
+
+/**
+ * A sheet's shape: each part's type, and a text part's heading, in order.
+ * Passages are left out, since adding the reading is using the template, not
+ * reshaping it.
+ */
+const shapeOf = (modules) =>
+  (modules ?? [])
+    .filter((m) => m?.type !== "passage")
+    .map((m) => `${m?.type}:${headingWords(m)}`)
+    .join("|");
+
+const SHAPES = new Map();
+const templateShape = (id) => {
+  if (!SHAPES.has(id)) SHAPES.set(id, shapeOf(BUILDERS[id]()));
+  return SHAPES.get(id);
+};
+
+/**
+ * The description the editor shows above a sheet (E84): its template's name
+ * and `about`, or null. Only while the description is still true of the
+ * sheet: a built-in template that has one, on a sheet (not one of the
+ * reader's templates) whose parts are still the template's, in order, by
+ * type and heading. What is typed into a part, and the passages added, don't
+ * count; a part added, removed, moved or renamed does, and undoing that
+ * brings the description back, since nothing about it is stored.
+ *
+ * A sheet started from one of the reader's own templates keeps the built-in
+ * template's id (sheetFromTemplate), so the id alone can't tell the two
+ * apart; the shape can, and where the reader's template kept the shape the
+ * description is as true of it.
+ *
+ * @param {{ template?: string, isTemplate?: boolean, modules?: object[] } | null} sheet
+ * @returns {{ name: string, about: string } | null}
+ */
+export function templateAbout(sheet) {
+  if (!sheet || sheet.isTemplate) return null;
+  const t = TEMPLATES.find((x) => x.id === sheet.template);
+  if (!t?.about || !Object.hasOwn(BUILDERS, t.id)) return null;
+  return shapeOf(sheet.modules) === templateShape(t.id) ? { name: t.name, about: t.about } : null;
+}
 
 // The headings a template gives the part its passage belongs under. A sheet
 // keeps no mark of which part that is, only its template's id, so a reopened
