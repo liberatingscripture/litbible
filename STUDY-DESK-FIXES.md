@@ -2620,6 +2620,23 @@ tap areas (`global.css`, never under 24px).
   it out of the tab order and from screen readers), so choosing a version
   never rewraps the row or moves the paper. A phone has none of these
   choices and is unchanged.
+- **E90, design: present mode's start screen shows one QR code.** BVJ
+  (2026-11-11), on a sheet's start screen with four codes side by side:
+  “Having several QR codes right next to each is not practical. Phones
+  automatically scan the first one they contact,” and, when Claude
+  recommended one code for the first chapter with the others named by their
+  addresses: “Yes, address all those issues.” Status: **fixed 2026-11-11**:
+  `ROOM_CODES_MAX` is 1, so `roomCodes` gives the first chapter's code and
+  the rest in `more`. The screen draws that code larger (8em, it was
+  5.2em) under "Scan to follow along," captioned with its chapter, and the
+  line of addresses beneath names every chapter, beginning “Every chapter:”
+  when the sheet reads more than one (`roomAddresses`). The presenter's note
+  says “code” and, for several chapters, which one it opens. The title slide
+  (PowerPoint, OpenDocument and the slides' PDF, which share `slideBoxes`)
+  places one larger code and sits the title a little higher to make room.
+  Paper is unchanged: a printed copy keeps a code beside each chapter's
+  passage. No control for showing another chapter's code was added; that
+  stays an undecided later step.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

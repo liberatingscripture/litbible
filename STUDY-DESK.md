@@ -7498,10 +7498,14 @@ recommendations, for BVJ to confirm or change:
     been revealed on any screen, and says so: "One term is left blank until
     it is revealed." (Paper's line sends the room to the leader copy.)
   - **The room's code** (M3): the first screen shows the sheet's name and
-    subtitle, "Scan to follow along," and S5's code for each chapter (at
-    most four, any more named in words), large enough to scan across a
-    room, with the chapters' addresses beneath. It isn't repeated on later
-    screens.
+    subtitle, "Scan to follow along," and S5's code for **one** chapter, the
+    first the sheet reads (BVJ, 2026-11-11, E90: a phone scans the first
+    code it sees, so several side by side don't work), large enough to scan
+    across a room and captioned with the chapter's name, with every
+    chapter's address beneath ("Every chapter:" when there are several).
+    The title slide of a saved deck and the slides' PDF do the same. A
+    printed copy keeps a code beside each chapter's passage. It isn't
+    repeated on later screens.
   - **The controls on the room's screen** are a strip along the bottom that
     shows when the pointer moves or a control has focus, and hides with the
     pointer after two and a half seconds: Previous, Next, Reveal (with "1 of

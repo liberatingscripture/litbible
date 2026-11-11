@@ -19,8 +19,12 @@ import { chapterCodes, modulesForCopy } from "./desk-sheet-copy.mjs";
 /** The parts that get a screen of their own. A space to write and a page break are paper's. */
 export const SHOWN_TYPES = Object.freeze(["passage", "text", "question", "keyTerms"]);
 
-/** The most codes the first screen shows (M3); the rest are named in words. */
-export const ROOM_CODES_MAX = 4;
+/**
+ * The most codes the first screen shows (M3): one (E90; BVJ, 2026-11-11: a phone
+ * scans the first code it sees, so several side by side don't work). The other
+ * chapters are named by their addresses.
+ */
+export const ROOM_CODES_MAX = 1;
 
 /** The version of the messages the two windows send each other. */
 export const MESSAGE_VERSION = 1;
@@ -90,15 +94,30 @@ export function screenTitle(screen, sheet) {
 }
 
 /**
- * The codes the start screen shows (M3): S5's code for each chapter the room
- * reads, in the order the sheet first quotes it, at most `ROOM_CODES_MAX`.
- * `more` is the chapters past that, which the screen names in words only.
+ * The code the start screen shows (M3, E90): S5's code for the first chapter
+ * the room reads, in the order the sheet first quotes it (at most
+ * `ROOM_CODES_MAX`, which is one). `more` is the chapters past that, which the
+ * screen names by their addresses only.
  *
  * @returns {{ codes: ReturnType<typeof chapterCodes>, more: ReturnType<typeof chapterCodes> }}
  */
 export function roomCodes(sheet, max = ROOM_CODES_MAX) {
   const all = chapterCodes(modulesForCopy(sheet, "participant"));
   return { codes: all.slice(0, max), more: all.slice(max) };
+}
+
+/**
+ * The line of addresses under the start screen's code (and on its title slide):
+ * the chapter the code opens and every other, by address. When the sheet reads
+ * more than the code's chapter the line says "Every chapter:", so it is plain
+ * the code opens one and the rest are reached by their addresses.
+ *
+ * @param {ReturnType<typeof chapterCodes>} codes
+ * @param {ReturnType<typeof chapterCodes>} more
+ */
+export function roomAddresses(codes, more) {
+  const all = [...codes, ...more].map((c) => c.printable).join(" · ");
+  return more.length ? `Every chapter: ${all}` : all;
 }
 
 /**

@@ -528,7 +528,7 @@ gives no note; a part with only a heading or a rule still shows
   screens (`presentScreens`: a start screen, then each passage, text,
   question and key terms box the room sees; a Leader only part goes to
   the presenter view with the screen before it), the room's codes on the
-  start screen (`roomCodes`, S5's codes, at most four), a blank's cover
+  start screen (`roomCodes`: S5's code for the first chapter only, the rest named by `roomAddresses`; E90), a blank's cover
   (`blankCover`), the state and its steps (`checkState`, `stepState`),
   the footnotes the reveal lets out (`screenFootnotes`), the keys
   (`presentKey`), `fitSize`, and the messages between windows.

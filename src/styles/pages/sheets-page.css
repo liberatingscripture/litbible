@@ -1121,10 +1121,10 @@ html[data-presenting] body {
   gap: 0.8em;
 }
 
-/* Big enough to scan from the back of a room. */
+/* Big enough to scan from the back of a room: one code (E90), so it can be. */
 .present-screen .sheet-copy__code {
   float: none;
-  width: 5.2em;
+  width: 8em;
   margin: 0;
   font-size: 1em;
   text-align: center;
