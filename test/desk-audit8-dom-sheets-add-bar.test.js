@@ -27,7 +27,7 @@ const named = (bar, text) => [...bar.el.querySelectorAll("button")].find((b) => 
 
 test("imported on its own, the bar draws all seven buttons and each add button asks for its part", () => {
   const { bar, added } = makeBar();
-  const labels = [...bar.el.querySelectorAll(".desk-sheet__add-row > button")].map((b) => b.textContent);
+  const labels = [...bar.el.querySelectorAll(".desk-sheet__add-row button")].map((b) => b.textContent);
   assert.deepEqual(labels, ["+ Passage", "+ Text", "+ Question", "+ From my notes…", "+ Space to write", "+ Page break", "+ Key terms box"]);
   named(bar, "+ Text").click();
   named(bar, "+ Question").click();
@@ -39,7 +39,7 @@ test("imported on its own, the bar draws all seven buttons and each add button a
 
 test("every button has a hover line and a description a screen reader can reach", () => {
   const { bar } = makeBar();
-  for (const b of bar.el.querySelectorAll(".desk-sheet__add-row > button")) {
+  for (const b of bar.el.querySelectorAll(".desk-sheet__add-row button")) {
     assert.ok(b.title, `${b.textContent} has a tooltip`);
     const ids = (b.getAttribute("aria-describedby") ?? "").split(" ").filter(Boolean);
     assert.ok(ids.length, `${b.textContent} is described`);
@@ -74,6 +74,9 @@ test("a sheet holds one key terms box: the button is disabled with the reason, a
   assert.match(btn.title, /one key terms box/);
   assert.equal(bar.el.querySelectorAll(".desk-title__hint").length, 1);
   assert.equal(btn.nextElementSibling.textContent, "already on the sheet");
+  // It wraps with its button, never alone onto the next line (E89).
+  assert.ok(btn.parentElement.classList.contains("desk-sheet__add-pair"));
+  assert.equal(btn.parentElement.parentElement, bar.el.querySelector(".desk-sheet__add-row"));
   bar.sheetChanged(sheetWith("keyTerms")); // drawn again: no second reason
   assert.equal(bar.el.querySelectorAll(".desk-title__hint").length, 1);
   bar.sheetChanged(sheetWith("passage"));

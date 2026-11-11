@@ -4843,9 +4843,10 @@ html[data-desk-workspace] .desk-page__notice {
   min-height: 30px;
   margin: 0;
   padding: 4px 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  /* A control (E89): its own fill and a 3:1 edge, never the page's color. */
+  border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: transparent;
+  background: var(--desk-control);
   color: var(--text);
   font: 500 0.875rem/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
   text-decoration: none;
@@ -4855,19 +4856,18 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-cmdrow__btn:hover,
 .desk-cmdrow__btn[aria-expanded="true"] {
-  border-color: rgba(var(--ink-rgb), 0.4);
-  background: rgba(var(--ink-rgb), 0.07);
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
   color: var(--text);
 }
 
 .desk-cmdrow__btn[aria-disabled="true"] {
-  border-color: rgba(var(--ink-rgb), 0.14);
+  border-color: rgba(var(--ink-rgb), 0.3);
   color: rgba(var(--ink-rgb), 0.62);
   cursor: default;
 }
 
 .desk-cmdrow__btn[aria-disabled="true"]:hover {
-  background: transparent;
+  background: var(--desk-control);
 }
 
 .desk-cmdrow__btn svg {
@@ -5290,9 +5290,10 @@ html.desk-ws--moving * {
   height: 30px;
   margin-left: auto;
   padding: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.2);
+  /* A control (E89): its own fill and a 3:1 edge, never the pane's color. */
+  border: 1px solid var(--field-border);
   border-radius: 999px;
-  background: transparent;
+  background: var(--desk-control);
   color: var(--text);
   cursor: pointer;
 }
@@ -5332,7 +5333,7 @@ html.desk-ws--moving * {
 }
 
 .desk-pane__pin:hover {
-  background: rgba(var(--ink-rgb), 0.08);
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.08), rgba(var(--ink-rgb), 0.08));
 }
 
 /* Pressed: the footnote Pin's tint (E67), since an open and a closed lock
@@ -5521,7 +5522,7 @@ html.desk-ws--moving * {
   padding: 5px 9px;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: var(--surface-raised, transparent);
+  background: var(--desk-field); /* a field's own fill, not the pane's (E89) */
   color: var(--text);
   font: inherit;
   font-weight: 600;
@@ -6057,7 +6058,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   min-width: 0;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: var(--sheet-field); /* a field on its card (E89) */
+  background: var(--desk-field); /* a field on its card (E89) */
   color: var(--text);
 }
 
@@ -6524,45 +6525,53 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 /* ── The Sheets pane on /desk (3f; sheet-pane.js) ─────────────────────── */
 
-/* The Sheets' four layers (E89; BVJ, 2026-11-11: "fields, cards, and
-   controls with the same color as the page background"). The list of sheets,
-   the template chooser and the editor, in the Sheets pane and on /sheets
-   alike, are built from these and nothing else:
-   - ground: what the sheet sits on. /sheets' page, and the Sheets pane's
-     body, which takes the same color so both homes look alike (cream; the
-     darkest page in dark mode).
-   - card: a part, a row of the list, the chooser, a form. Raised, with a
-     hairline edge; a container, so no 3:1 is owed.
-   - field: anything typed in or chosen from (title, subtitle, a part's text,
-     minutes, the reference, a hint). Paper white in light, a step below the
-     card in dark (#161617, a surface the rich text colors are checked on,
-     desk-sheet-view.css), always with --field-border.
+/* The desk's layers (E89; BVJ, 2026-11-11: "fields, cards, and controls
+   with the same color as the page background"). The list of sheets, the
+   template chooser and the editor, in the Sheets pane and on /sheets, a
+   sheet's versions view, /desk's command row and the panes' bars are built
+   from these, each a step apart from whatever it sits on:
+   - card: a part, a row of the list, the chooser, a form (one inside a part
+     included), with a hairline edge; a container, so no 3:1 is owed. On
+     /sheets' cream page it is the raised #FAFAF8. In the Sheets pane, whose
+     body is a pane's own #FAFAF8 like every other pane's (BVJ: "the
+     background of the sheets pane should match the other panes"), it is a
+     step darker, #ecebe8, 1.14:1 from the pane (dark: #262628, a step above
+     the pane's #1d1d1f); BVJ chose that from three mocks (tinted cards,
+     outlines only, outlines with tinted fields).
+   - field: anything typed in or chosen from. Paper white in light, below
+     the card in dark (#161617, a surface the rich text colors are checked
+     on, desk-sheet-view.css), always with --field-border.
    - control: a button, a chip, a template choice. White in light, a lighter
-     step in dark, and always a --field-border edge, since in light no fill
-     here differs from a card by more than 1.05:1, so the edge is what says
-     "button" (3:1 or more on every ground and card, both themes).
+     step in dark, and always a --field-border edge, since white differs
+     from #FAFAF8 by 1.04:1, so the edge is what says "button" (3:1 or more
+     on every surface here, both themes).
    The primary button (Deep Green) and the glyph buttons (the arrows, ×,
-   the grip) keep their own looks. */
+   ▾, the grip) keep their own looks. */
 :root {
-  --sheet-ground: var(--surface);
-  --sheet-card: var(--surface-raised);
-  --sheet-card-edge: rgba(var(--ink-rgb), 0.16);
-  --sheet-field: var(--white);
-  --sheet-control: var(--white);
+  --desk-card: var(--surface-raised);
+  --desk-pane-card: #ecebe8;
+  --desk-card-edge: rgba(var(--ink-rgb), 0.16);
+  --desk-field: var(--white);
+  --desk-control: var(--white);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --sheet-ground: var(--page-bg);
-    --sheet-field: var(--surface);
-    --sheet-control: rgba(var(--ink-rgb), 0.07);
+    --desk-pane-card: #262628;
+    --desk-field: var(--surface);
+    --desk-control: rgba(var(--ink-rgb), 0.07);
   }
 }
 
 :root[data-theme="dark"] {
-  --sheet-ground: var(--page-bg);
-  --sheet-field: var(--surface);
-  --sheet-control: rgba(var(--ink-rgb), 0.07);
+  --desk-pane-card: #262628;
+  --desk-field: var(--surface);
+  --desk-control: rgba(var(--ink-rgb), 0.07);
+}
+
+/* In the Sheets pane the cards take the pane's card color (E89). */
+.desk-pane .desk-sheet {
+  --desk-card: var(--desk-pane-card);
 }
 
 /* Positioned, so the hidden hints that describe its buttons (.sr-only, which is
@@ -6577,11 +6586,6 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   overflow-y: auto;
   padding: 12px 16px 32px;
   box-sizing: border-box;
-}
-
-/* The pane's body is the ground, as /sheets' page is (E89). */
-.desk-pane .desk-sheet {
-  background: var(--sheet-ground);
 }
 
 .desk-sheet__status,
@@ -6622,16 +6626,17 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 }
 
 /* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10).
-   In the list, the chooser and the editor every one but the primary is a
-   control (E89): a fill and a 3:1 edge, quiet ones included. Scoped here, so
-   a sheet's versions view and a phone's shared sheet keep that file's look.
+   In the Sheets pane and anywhere on /sheets (the list, the chooser, the
+   editor, a sheet's versions view) every one but the primary is a control
+   (E89): a fill and a 3:1 edge, quiet ones included. Scoped here, so a
+   phone's shared sheet, which loads that file alone, keeps its look.
    The hover's tint is an image over the fill, so it works on either theme's. */
-:is(.desk-sheet, .sheets-page__new, .sheets-page__open-file, .desk-sheet__sheets) .desk-sheet__btn:not(.desk-sheet__btn--primary) {
+:is(.desk-sheet, .sheets-page) .desk-sheet__btn:not(.desk-sheet__btn--primary) {
   border: 1px solid var(--field-border);
-  background-color: var(--sheet-control);
+  background-color: var(--desk-control);
 }
 
-:is(.desk-sheet, .sheets-page__new, .sheets-page__open-file, .desk-sheet__sheets) .desk-sheet__btn:not(.desk-sheet__btn--primary, :disabled, [aria-disabled="true"]):hover {
+:is(.desk-sheet, .sheets-page) .desk-sheet__btn:not(.desk-sheet__btn--primary, :disabled, [aria-disabled="true"]):hover {
   background-image: linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
 }
 
@@ -6677,9 +6682,9 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   gap: 6px;
   margin-bottom: 8px;
   padding: 2px 10px 2px 6px;
-  border: 1px solid var(--sheet-card-edge);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 10px;
-  background: var(--sheet-card);
+  background: var(--desk-card);
 }
 
 .desk-sheet__open {
@@ -6807,7 +6812,7 @@ a.desk-sheet__open {
      bottom line on the page's own color (XA8-2, BA144). */
   border: 1px solid var(--field-border);
   border-radius: 6px;
-  background: var(--sheet-field);
+  background: var(--desk-field);
   color: var(--text);
   padding: 4px 8px;
 }
@@ -6834,10 +6839,10 @@ a.desk-sheet__open {
 
 .desk-sheet__module {
   position: relative; /* the gap zone below hangs from it */
-  border: 1px solid var(--sheet-card-edge);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 10px;
   padding: 6px 10px 10px;
-  background: var(--sheet-card);
+  background: var(--desk-card);
 }
 
 .desk-sheet__module.is-dragging {
@@ -6918,7 +6923,7 @@ a.desk-sheet__open {
   padding: 1px 4px;
   border: 1px solid var(--field-border);
   border-radius: 4px;
-  background: var(--sheet-field);
+  background: var(--desk-field);
   color: var(--text);
   font: inherit;
 }
@@ -7146,7 +7151,7 @@ a.desk-sheet__open {
   padding: 2px 4px;
   border: 1px solid var(--field-border);
   border-radius: 6px;
-  background: var(--sheet-field);
+  background: var(--desk-field);
   color: var(--text);
 }
 
@@ -7178,6 +7183,16 @@ a.desk-sheet__open {
   gap: 6px;
 }
 
+/* "+ Key terms box" and its "already on the sheet" (add-bar.js): one item
+   of the row, the note beside the button or, where the row is too narrow,
+   directly under it (E89). */
+.desk-sheet__add-pair {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+
 /* A form is a card (E89): on the ground (the add bar's, the chooser) and
    inside a part's card alike ("Passage…" from the gap, the reading part's),
    where it is a section of that card, never the page's color (BVJ,
@@ -7185,9 +7200,9 @@ a.desk-sheet__open {
 .desk-sheet__passage-form {
   margin-top: 10px;
   padding: 10px;
-  border: 1px solid var(--sheet-card-edge);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 10px;
-  background: var(--sheet-card);
+  background: var(--desk-card);
 }
 
 .desk-sheet__ref {
@@ -7202,7 +7217,7 @@ a.desk-sheet__open {
   padding: 4px 8px;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background: var(--sheet-field);
+  background: var(--desk-field);
   color: var(--text);
 }
 
@@ -7306,11 +7321,11 @@ a.desk-sheet__open {
   padding: 8px 12px;
   border: 1px solid var(--field-border);
   border-radius: 8px;
-  background-color: var(--sheet-control);
+  background-color: var(--desk-control);
 }
 
 .desk-sheet__choice:hover:not(:disabled) {
-  background: var(--sheet-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
 }
 
 .desk-sheet__choice:disabled {
@@ -7430,7 +7445,7 @@ a.desk-sheet__open {
   padding: 2px 10px;
   border: 1px solid var(--field-border);
   border-radius: 999px;
-  background: var(--sheet-control);
+  background: var(--desk-control);
   color: var(--text);
   font: inherit;
   font-size: 0.8125rem;
@@ -7438,7 +7453,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__chip:hover {
-  background: var(--sheet-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
 }
 
 .desk-sheet__chip[aria-pressed="true"] {
@@ -7486,7 +7501,7 @@ select.desk-sheet__hint,
   padding: 2px 6px;
   border: 1px solid var(--field-border);
   border-radius: 6px;
-  background: var(--sheet-field);
+  background: var(--desk-field);
   color: var(--text);
   font: inherit;
   font-size: 0.8125rem;

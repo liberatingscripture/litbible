@@ -34,32 +34,36 @@ test("the Sheets editor's text fields take --field-border (XA8-2, BA144)", () =>
   // a fill of their own, never the page's (they had a bottom line only).
   const title = rule(".desk-sheet__title,\n.desk-sheet__subtitle");
   assert.match(title, /border:\s*1px solid var\(--field-border\)/);
-  assert.match(title, /background:\s*var\(--sheet-field\)/);
+  assert.match(title, /background:\s*var\(--desk-field\)/);
 });
 
-test("the Sheets' fields, cards and controls stand apart from their ground (E89)", () => {
-  // Fields take the field fill, never the card's or the page's.
-  for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input", ".desk-sheet__lines input", ".desk-sheet__ref input"]) {
-    assert.match(rule(sel), /background:\s*var\(--sheet-field\)/, sel);
+test("the desk's fields, cards and controls stand apart from what they sit on (E89)", () => {
+  // Fields take the field fill, never the card's, the pane's or the page's.
+  for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input", ".desk-sheet__lines input", ".desk-sheet__ref input", ".desk-passage__field"]) {
+    assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
   }
   // Cards take the card fill and edge.
   for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form"]) {
     const r = rule(sel);
-    assert.match(r, /background:\s*var\(--sheet-card\)/, sel);
-    assert.match(r, /border:\s*1px solid var\(--sheet-card-edge\)/, sel);
+    assert.match(r, /background:\s*var\(--desk-card\)/, sel);
+    assert.match(r, /border:\s*1px solid var\(--desk-card-edge\)/, sel);
   }
-  // Nothing inside a part's card takes the page's color (BVJ, 2026-11-11).
-  assert.doesNotMatch(css, /\.desk-sheet__module [^{}]*\{[^}]*var\(--sheet-ground\)/);
-  // Controls take a 3:1 edge: the template choices, the chips, and every
-  // sheet button in the three surfaces but the primary one.
-  for (const sel of [".desk-sheet__choice", ".desk-sheet__chip"]) {
+  // The Sheets pane keeps a pane's own color (BVJ, 2026-11-11), so there its
+  // cards take a color of their own; nothing paints the pane's body.
+  assert.match(rule(".desk-pane .desk-sheet"), /--desk-card:\s*var\(--desk-pane-card\)/);
+  assert.doesNotMatch(rule(".desk-pane .desk-sheet"), /background/);
+  // Controls take a 3:1 edge: the template choices, the chips, the command
+  // row, the panes' lock, and every sheet button in the Sheets pane and on
+  // /sheets but the primary one.
+  for (const sel of [".desk-sheet__choice", ".desk-sheet__chip", ".desk-cmdrow__btn", ".desk-pane__pin"]) {
     assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
   }
-  assert.match(css, /:is\(\.desk-sheet, \.sheets-page__new, \.sheets-page__open-file, \.desk-sheet__sheets\) \.desk-sheet__btn:not\(\.desk-sheet__btn--primary\) \{[^}]*border:\s*1px solid var\(--field-border\)/);
-  // The pane's body is the ground /sheets' page is.
-  assert.match(rule(".desk-pane .desk-sheet"), /background:\s*var\(--sheet-ground\)/);
+  for (const sel of [".desk-cmdrow__btn", ".desk-pane__pin"]) {
+    assert.match(rule(sel), /background:\s*var\(--desk-control\)/, sel);
+  }
+  assert.match(css, /:is\(\.desk-sheet, \.sheets-page\) \.desk-sheet__btn:not\(\.desk-sheet__btn--primary\) \{[^}]*border:\s*1px solid var\(--field-border\)/);
   // The layers' dark values are declared in both dark blocks.
-  for (const dark of ["--sheet-ground: var(--page-bg);", "--sheet-field: var(--surface);", "--sheet-control: rgba(var(--ink-rgb), 0.07);"]) {
+  for (const dark of ["--desk-pane-card: #262628;", "--desk-field: var(--surface);", "--desk-control: rgba(var(--ink-rgb), 0.07);"]) {
     assert.equal(css.split(dark).length - 1, 2, dark);
   }
 });

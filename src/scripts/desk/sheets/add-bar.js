@@ -104,6 +104,12 @@ export function createAddBar({ addPart, addHost, idSuffix }) {
   add("space", "Space to write");
   add("pageBreak", "Page break");
   const keyTermsButton = add("keyTerms", "Key terms box");
+  // The button and its "already on the sheet" wrap as one (E89; BVJ,
+  // 2026-11-11): the note sits to its right, or under it, never alone at the
+  // start of the next line, where it read as nobody's.
+  const keyTermsPair = make("span", "desk-sheet__add-pair");
+  keyTermsButton.replaceWith(keyTermsPair);
+  keyTermsPair.append(keyTermsButton);
   const keyTermsHint = describe(keyTermsButton, KEY_TERMS_HINT);
   form.id = `deskSheetPassage-${idSuffix}`;
   bar.append(row, form, picker, ...hints, keyTermsHint);
