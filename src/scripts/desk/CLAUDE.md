@@ -880,8 +880,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        branches `claude/desk-1d-hidden` and `claude/desk-1d-search`, which
        Phase 6 deletes before launch with the few lines here that name the
        kind (STUDY-DESK.md, "Before launch"). Don't revive or build on
-       them; nothing here should assume a `hidden` record is honoured (an
-       imported one shows as "Other items").
+       them. No `hidden` record was ever written, so none needs handling.
   14. **Phase 1f is the Greek tab** (STUDY-DESK.md,
      "Order of work", 1f). Before touching it:
      - **Its data is committed, not built.** `npm run build:greek` reads

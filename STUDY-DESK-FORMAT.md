@@ -186,9 +186,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    included. **The note to self is `body`**, as a note's words are (the
    website's proposal, 2026-10-26, for BDR to confirm). **The website won't
    include the hidden passage** (BVJ, 2026-11-10, open to discussion with
-   BDR), so it never writes this kind; its export reads `body` and, failing
-   that, `note`, so a record written either way is kept. Whether the kind
-   stays in the format is BDR's call, since the apps may still want it.
+   BDR). It was never switched on, so no record of this kind exists, and the
+   kind leaves the format before launch (STUDY-DESK.md, Phase 6) unless that
+   discussion brings it back.
 4. **`bookmark`** (B2; E9)
    - a verse;
    - an optional `label`: the bookmark's name, up to 40 characters. Names

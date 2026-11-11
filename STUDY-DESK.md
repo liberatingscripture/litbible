@@ -5147,9 +5147,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      (`desk-store-core.mjs`), "Hidden passage" from `KIND_WORD`
      (`desk-export.mjs`), the hidden-passage handling in `desk-notebook.mjs`
      and the tests that name it, and the pointers in this file and the desk's
-     `CLAUDE.md`. An imported `hidden` record must still be kept, as any
-     kind the website doesn't know is. Whether the kind leaves
-     `STUDY-DESK-FORMAT.md` is BDR's answer, since the apps share it.
+     `CLAUDE.md`, and the `hidden` kind in `STUDY-DESK-FORMAT.md`. No
+     `hidden` record was ever written (the feature was never switched on),
+     so there is nothing to migrate or keep.
    - **The announcement.** M12 decided on a line in the release notes and
      the newsletter at launch (the newsletter is written in Brevo). Decide
      whether the site's one announcement popover, now the apps' launch,
@@ -6666,9 +6666,9 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
 - **The code stays for now** and is deleted before launch (Phase 6,
   "Before launch"): the two held branches, `claude/desk-1d-hidden` and
   `claude/desk-1d-search`, and the few lines on `main` that name the kind.
-- **The `hidden` record kind stays in `STUDY-DESK-FORMAT.md`** until BDR has
-  answered, since the format is shared with the apps. The website writes
-  none, and an imported one is kept as a kind it doesn't show.
+- **No `hidden` record exists anywhere**: the feature was never switched on,
+  so nothing was ever written. The kind leaves `STUDY-DESK-FORMAT.md` with
+  the code, unless BDR's discussion brings it back.
 
 ### 2026-11-02 (E9 built: Bookmarks are one feature)
 
