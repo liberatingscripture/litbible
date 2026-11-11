@@ -6840,7 +6840,8 @@ a.desk-sheet__open {
   cursor: pointer;
 }
 
-/* A part's planned minutes (Audit 5, D #2): a narrow box before Leader only. */
+/* A part's planned minutes (Audit 5, D #2): a narrow box after Leader only
+   (E87 swapped them, so the tools read Leader only, minutes, then Move). */
 .desk-sheet__minutes {
   display: inline-flex;
   align-items: center;
@@ -6873,15 +6874,30 @@ a.desk-sheet__open {
   color: rgba(var(--ink-rgb), 0.75);
 }
 
-/* The template's description above the parts (E84): the prompts' dimmed ink,
-   upright, since it is read as a paragraph. Screen only by nature: it is the
+/* The template's description above the parts (E84): a message from the app,
+   not the sheet's own words (E86; BVJ, 2026-11-11: "styled so that it's clear
+   it's not just part of the sheet"). It takes the look of /sheets' "what
+   prints" notice (`.sheets-page__leaks`): a tint a little darker than the
+   page, a green rule down the left edge, rounded right corners. Upright,
+   since it is read as a paragraph. Screen only by nature: it is the
    editor's, which never prints. */
 .desk-sheet__about {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 10px 0 2px;
-  padding: 0 2px;
+  margin: 10px 0 6px;
+  padding: 0.5rem 0.4rem 0.5rem 0.85rem;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.05);
+}
+
+/* A background draws nothing in forced colors, so the rule marks the box. */
+@media (forced-colors: active) {
+  .desk-sheet__about {
+    border: 1px solid CanvasText;
+    border-left-width: 3px;
+  }
 }
 
 .desk-sheet__about[hidden] {

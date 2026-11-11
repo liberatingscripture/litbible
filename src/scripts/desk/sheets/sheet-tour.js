@@ -241,7 +241,7 @@ export function createSheetTour({ host }) {
     },
 
     // The tour's sheet, beside its first part, with that part's header tools
-    // (its minutes and Leader only) marked.
+    // (its Leader only and minutes) marked.
     async parts(live) {
       const ed = await ensureSheet(live);
       if (!ed) return live() ? where() : null;

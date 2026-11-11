@@ -103,6 +103,16 @@ test("a minutes value out of range goes back to what is stored, not to what the 
   assert.equal(field.value, "10");
 });
 
+test("a part's tools read Leader only, then minutes, then Move, in tab order too (E87)", async () => {
+  const part = makeModule("text", { html: "<p>Words</p>" });
+  const { card } = await editorOn([part]);
+  const tools = [...card(part).querySelector(".desk-sheet__module-tools").children];
+  const at = (sel) => tools.findIndex((n) => n.matches(sel) || n.querySelector(sel));
+  assert.ok(at(".desk-sheet__leader") >= 0 && at(".desk-sheet__minutes") >= 0 && at(".desk-sheet__icon") >= 0);
+  assert.ok(at(".desk-sheet__leader") < at(".desk-sheet__minutes"), "Leader only comes before the minutes");
+  assert.ok(at(".desk-sheet__minutes") < at(".desk-sheet__icon"), "and the minutes before Move");
+});
+
 test("a minutes field left without typing shows what another tab stored meanwhile (SH8-4, DI8-7)", async () => {
   // A key terms box is drawn in place (`update`), so its head keeps focus.
   const box = makeModule("keyTerms", { minutes: 5 });

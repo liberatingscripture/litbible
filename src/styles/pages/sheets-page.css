@@ -635,6 +635,15 @@
 .sheets-page__keybox {
   white-space: nowrap;
   cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+/* Hidden on the participant's version, it still holds its place (E88): a row
+   that gains and loses a box wrapped it onto a line of its own and moved the
+   paper. visibility keeps it out of the tab order and from screen readers. */
+.sheets-page__keybox[hidden] {
+  display: inline;
+  visibility: hidden;
 }
 
 /* ── Sharing (3k; STUDY-DESK.md, S8) ───────────────────────────────────

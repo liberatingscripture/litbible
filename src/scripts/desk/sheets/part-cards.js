@@ -92,7 +92,7 @@ export function cardTools(host, m, { name, called }) {
   leader.append(box, make("span", null, "Leader only"));
   leader.title = "Print and present this on the leader’s version only";
   return {
-    els: [mins, leader, describe(box, "Prints and presents this on the leader’s version only.")],
+    els: [leader, mins, describe(box, "Prints and presents this on the leader’s version only.")],
     update(next) {
       if (document.activeElement !== field) field.value = next.minutes ?? "";
       box.checked = next.leaderOnly === true;
