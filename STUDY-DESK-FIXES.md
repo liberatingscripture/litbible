@@ -2319,6 +2319,15 @@ tap areas (`global.css`, never under 24px).
   as a note on the verse that holds the letter, where BVJ can delete it.
   A Markdown copy saved before then still has its “Note on a footnote”
   entries refused rather than read as verse notes.
+- **E80, bug: the Footnotes list had no Pin buttons until the Notebook was
+  opened.** BVJ (2026-11-10): “The pin buttons on footnotes don't appear
+  until a user clicks on the notebook tab at least once.” The buttons are
+  the shell's (`pins.js`), and since the two-stage load (LG3-2) nothing
+  brought the shell for a reader who only scrolled to the notes on a chapter
+  with nothing kept. Status: **fixed 2026-11-10**: the first stage loads the
+  shell when the chapter's Footnotes list comes within a screen of the
+  window (`first-stage.js`, an IntersectionObserver), so the buttons are
+  there on arrival by scrolling, “See in footnotes,” or a link to a note.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

@@ -21,6 +21,8 @@
 //     or turns "Show the Notebook" on where the Notebook starts expanded;
 //   - the reader starts toward a menu the desk adds to: a verse number or a
 //     footnote letter pressed or focused, or words selected (a head start);
+//   - the chapter's Footnotes list comes within a screen of the window,
+//     where every note gets its Pin button (pins.js);
 //   - an event the desk answers arrives first: `lit:panel-actions`,
 //     `lit:footnote-actions`, `lit:desk-command`, `lit:greek-word`. Each is
 //     held and sent again once the shell is
@@ -258,6 +260,22 @@ async function drawAndWait({ where, state, importShell, leave }) {
       const el = node instanceof Element ? node : node.parentElement;
       if (el?.closest(".chapter-paragraphs, [data-rm-text]")) want();
     });
+  }
+
+  // The Footnotes list, where the shell puts a Pin on every note (pins.js):
+  // loaded as the list nears the window, a screen ahead, so the buttons are
+  // there when the reader arrives by scrolling, "See in footnotes," or a link
+  // to a note. Nothing else says the reader is headed there.
+  const notes = where?.chapter ? document.querySelector(".footnotes-wrap ol.footnotes") : null;
+  if (notes && typeof IntersectionObserver === "function") {
+    const near = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((en) => en.isIntersecting)) want();
+      },
+      { rootMargin: "100% 0px" },
+    );
+    near.observe(notes);
+    listeners.push(() => near.disconnect());
   }
 
   // Events the shell answers, held until it does.

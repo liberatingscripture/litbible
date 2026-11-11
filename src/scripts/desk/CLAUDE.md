@@ -151,7 +151,8 @@ itself. The shell, `desk.css` and the rest come when the Notebook starts
 expanded, a bookmark follows, the address carries `greek`, `desk-tour` or
 `print`, this page has records to draw, or the reader reaches for the
 Notebook (the tab, Read View's button, the skip link, a verse number, a
-footnote letter or a selection); `lit:panel-actions`, `lit:footnote-actions`,
+footnote letter or a selection), or the Footnotes list nears the window
+(its Pin buttons are the shell's, E80); `lit:panel-actions`, `lit:footnote-actions`,
 `lit:desk-command` and `lit:greek-word` arriving first are held and sent
 again, and a menu still open gets its rows late, moved as `showPanel` would
 place it. The shell's `handOver` removes the first stage's tab in the same
