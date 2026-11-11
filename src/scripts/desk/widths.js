@@ -29,6 +29,7 @@
 import {
   MIN_MEASURE,
   MIN_WIDTH,
+  KEEP_LEFT,
   dragNotebookEdge,
   dragTextEdge,
   placeWithWidths,
@@ -152,6 +153,8 @@ export function createWidths({ column, panel, onChange }) {
     return {
       viewport: root.clientWidth,
       parentLeft: parent.getBoundingClientRect().left + parseFloat(ps.paddingLeft || "0"),
+      // Room for a footnote's Pin, which the widths never take (E81).
+      keepLeft: KEEP_LEFT,
       ch: probe.getBoundingClientRect().width / 100 || 10,
       pad: parseFloat(cs.paddingLeft || "0") + parseFloat(cs.paddingRight || "0"),
     };

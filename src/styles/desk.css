@@ -2376,10 +2376,9 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   height: 14px;
 }
 
-/* The Footnotes list: the note and its buttons on one line, so the list grows
-   no taller; a flag, when the note was rewritten, takes the line below. This
-   is the "inline" placement (E49), which the left margin replaces where it has
-   room: see "The pills in the left margin" below. */
+/* The Footnotes list: the note, and a flag on the line below when the note
+   was rewritten. Pin sits in the left margin: see "The pills in the left
+   margin" below. */
 .footnotes > li.desk-fn {
   position: relative;
   display: flex;
@@ -2407,20 +2406,22 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 /* src/scripts/desk/footnote-pills.js sets data-desk-fn-pills on the list
    (rules: src/lib/desk-footnote-pills.mjs). Each footnote's `.desk-fn-pills`
    holds its Pin and follows its note in the document, so reading and tab
-   order are the note, then Pin, wherever it is drawn.
-     inline  (no attribute yet, or no room): on the note's line, as before;
-     row     in the left margin, level with the footnote's first line,
-             right-aligned against the footnote.
-   Until E79 (2026-11-10) "Add a note" sat beside Pin, a "more" mode folded
-   the two behind a "⋯", and a footnote with a margin note beside it
-   (data-desk-fn-margin) kept Pin inline. */
+   order are the note, then Pin. Pin is always in the left margin, level with
+   the footnote's first line and right-aligned against the footnote, never on
+   the note's right (BVJ, 2026-11-10; E81):
+     row    the thumbtack and the word "Pin";
+     glyph  the thumbtack alone, where the margin is too tight for the word.
+   The margin is kept at least that wide (desk-margin.mjs, `keepLeft`); where
+   the window itself leaves less, the list is indented by what is missing.
+   Until E79 (2026-11-10) "Add a note" sat beside Pin and a "more" mode folded
+   the two behind a "⋯"; until E81 a tight margin put Pin on the note's line. */
 .desk-fn-pills {
   display: flex;
   flex: none;
   align-items: center;
 }
 
-.footnotes[data-desk-fn-pills="row"] > li.desk-fn > .desk-fn-pills {
+.footnotes > li.desk-fn > .desk-fn-pills {
   position: absolute;
   z-index: 2;
   right: calc(100% + 14px);
@@ -2429,6 +2430,14 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
      tray's extra leading. */
   top: calc(((1.6 + var(--reading-leading-extra, 0)) * 1em - 24px) / 2);
   justify-content: flex-end;
+}
+
+.footnotes[data-desk-fn-pills="glyph"] > li.desk-fn > .desk-fn-pills .desk-pin__word {
+  display: none;
+}
+
+ol.footnotes[data-desk-fn-pills] {
+  padding-left: var(--desk-fn-indent, 0px);
 }
 
 /* The popover: "See in footnotes" at one end of its last line, Pin at the other. */
@@ -2502,6 +2511,10 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
   .footnotes > li.desk-fn {
     display: block !important;
+  }
+
+  ol.footnotes[data-desk-fn-pills] {
+    padding-left: 0 !important;
   }
 }
 

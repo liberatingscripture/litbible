@@ -1628,12 +1628,17 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        tab order are the note, then Pin. The list measures its own left edge
        (on load, resize, `desk:column-moved`, the Display tray's size, face
        and text width, and fonts loading) and sets `data-desk-fn-pills`:
-       **`row`** (Pin in the margin, level with the footnote's first line) or
-       **`inline`** (the pre-E49 placement on the note's line). Until E79
-       "Add a note" sat beside Pin, a `more` mode folded the two behind a "⋯"
-       (with `keepPillFocus` and `pillsHome` to rescue focus), and a margin
-       note beside a footnote kept Pin inline (`data-desk-fn-margin`); all of
-       that went with it. Print hides Pin; the popover's own Pin and /desk's
+       **`row`** (the thumbtack and "Pin", level with the footnote's first
+       line) or **`glyph`** (the thumbtack alone, where the margin is tight).
+       **Pin never moves to the note's right, and the left margin never gets
+       too narrow for the thumbtack** (BVJ, 2026-11-10, E81): on a chapter the
+       column keeps `KEEP_LEFT` (`desk-margin.mjs`) on its left, which
+       `placeInMargin`, `placeFloating`, `placeWithWidths`, `widestMeasure`,
+       `firstPaint` and the pre-paint script all take as `keepLeft`, so a new
+       placement needs it too. Where the window itself leaves less, the list
+       is indented by what is missing (`--desk-fn-indent`). Until E79
+       "Add a note" sat beside Pin and a `more` mode folded the two behind a
+       "⋯"; until E81 a tight margin put Pin on the note's line (`inline`). Print hides Pin; the popover's own Pin and /desk's
        panes are unchanged. Read View has no footnotes, so it has none of this.
      - **A sheet takes notes, highlights and pinned footnotes from the
        notebook as ordinary parts**: in `src/scripts/desk/sheets/CLAUDE.md`, rule 23.
