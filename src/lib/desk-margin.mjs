@@ -351,6 +351,17 @@ export const FIRST_PAINT = {
 export const KEEP_LEFT = FIRST_PAINT.keepLeft;
 
 /**
+ * The line the reader drags or presses to set the text's width (widths.js):
+ * where it starts, in px from the column's left edge, and how wide it is. It
+ * lies wholly inside the column's left padding, between a footnote's Pin,
+ * whose right edge is 2px inside the column (half of `pad` less
+ * PILL_OFFSET), and the text, so it covers neither (E83). Until then it
+ * started 6px outside the column, 18px wide, and took the clicks meant for
+ * the last 8px of Pin. test/desk-margin.test.js holds it to both.
+ */
+export const TEXT_HANDLE = { inset: 2, width: 12 };
+
+/**
  * What the first placement will make of a Chapter View page opening with the
  * notebook expanded: whether it stays expanded (`expanded`; it folds where
  * the margin can't hold it even with the column moved), and the widths to
