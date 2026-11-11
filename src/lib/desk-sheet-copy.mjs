@@ -159,10 +159,10 @@ export function sheetHtmlForShow(html) {
 
 /* ── Paper ──────────────────────────────────────────────────────────── */
 
-/** The two papers a sheet prints on (C27), with their margins. */
+/** The two papers a sheet prints on (C27), with their margins; `height` lays out the screen's pages. */
 export const PAPERS = Object.freeze({
-  letter: Object.freeze({ name: "US Letter", size: "letter", margin: "0.75in", width: "8.5in" }),
-  a4: Object.freeze({ name: "A4", size: "A4", margin: "18mm", width: "210mm" }),
+  letter: Object.freeze({ name: "US Letter", size: "letter", margin: "0.75in", width: "8.5in", height: "11in" }),
+  a4: Object.freeze({ name: "A4", size: "A4", margin: "18mm", width: "210mm", height: "297mm" }),
 });
 
 // Where Letter is the usual paper: the United States and Canada, and the parts
@@ -193,11 +193,19 @@ export function defaultPaper(locales) {
 /** A remembered paper name, or null when it isn't one. */
 export const paperName = (value) => (Object.hasOwn(PAPERS, value) ? value : null);
 
-/** The @page rule for a paper. */
+/**
+ * The @page rules for a paper: its size and margins, and its page numbers
+ * (BVJ, 2026-11-10): page 1's centered in the bottom margin, every later
+ * page's at the top right, as the screen's pages show them (sheet-pages.js).
+ * A browser without page-margin boxes prints none.
+ */
 export function pageRule(paper) {
   const p = PAPERS[paperName(paper) ?? "letter"];
-  return `@page { size: ${p.size}; margin: ${p.margin}; }`;
+  return `@page { size: ${p.size}; margin: ${p.margin}; @top-right { ${PAGE_NUMBER} } } ` +
+    `@page :first { @top-right { content: none; } @bottom-center { ${PAGE_NUMBER} } }`;
 }
+
+const PAGE_NUMBER = 'content: counter(page); font-family: "Inter", system-ui, sans-serif; font-size: 9pt; color: #595e57;';
 
 /* ── Plain text (the Word copy's second flavor) ─────────────────────── */
 

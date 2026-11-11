@@ -9,7 +9,8 @@
 // lists that each count from 1 (every text:list restarts unless told to
 // continue), ruled lines as borders that don't join (style:join-border),
 // highlights as a background, links, and codes to scan as PNG. The paper is
-// the page layout. Fonts are named, never embedded: Crimson Text with Georgia
+// the page layout, and the page numbers are its master pages' (page 1's
+// centered in the footer, every later page's at the top right). Fonts are named, never embedded: Crimson Text with Georgia
 // declared beside it, and Cardo for Greek and Hebrew. ODF has no run
 // direction: Hebrew is marked as Hebrew (its complex-script language), and the
 // reading program's bidirectional algorithm sets it right to left.
@@ -18,7 +19,7 @@
 //
 // The zip's first entry is `mimetype`, stored, as ODF requires.
 
-import { CODE_CM, DOC_BOX, DOC_CREDIT, DOC_FONTS, DOC_PAPERS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
+import { CODE_CM, DOC_BOX, DOC_CREDIT, DOC_FONTS, DOC_PAGE_NUMBER, DOC_PAPERS, docDate, docRuns, pageNumberAt, xmlEscape as x } from "./desk-sheet-doc.mjs";
 import { zipFiles } from "./desk-zip.mjs";
 
 export const ODT_MIME = "application/vnd.oasis.opendocument.text";
@@ -81,7 +82,8 @@ function listStyle(name, ordered, inset = 0) {
 }
 
 function stylesXml(paper) {
-  const page = (DOC_PAPERS[paper] ?? DOC_PAPERS.letter).odf;
+  const sheet = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
+  const page = sheet.odf;
   return (
     `${XML}<office:document-styles ${NS} office:version="1.2">${FONT_FACES}<office:styles>` +
     `<style:default-style style:family="paragraph"><style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0.08in" fo:line-height="110%"/>` +
@@ -103,11 +105,47 @@ function stylesXml(paper) {
     pStyle("Code", "Code to scan", { p: 'fo:text-align="end" fo:margin-bottom="0in" fo:keep-with-next="always"' }) +
     pStyle("Code_20_Caption", "Code caption", { p: 'fo:text-align="end"', t: `style:font-name="${DOC_FONTS.small}" ${size(7)}` }) +
     pStyle("Foot", "Sheet foot", { p: 'fo:margin-bottom="0.04in"', t: size(10) }) +
-    `</office:styles><office:automatic-styles><style:page-layout style:name="pm1"><style:page-layout-properties ` +
+    pStyle("Page_20_Number", "Page number", {
+      parent: null,
+      p: 'fo:margin-top="0in" fo:margin-bottom="0in" fo:line-height="100%" fo:text-align="end"',
+      t: `style:font-name="${DOC_FONTS.small}" ${size(DOC_PAGE_NUMBER.pt)} fo:color="${DOC_PAGE_NUMBER.color}"`,
+    }) +
+    pStyle("Page_20_Number_20_First", "Page number, first page", { parent: "Page_20_Number", p: 'fo:text-align="center"' }) +
+    `</office:styles><office:automatic-styles>` +
+    pageLayout("pm1", page, sheet, "footer") +
+    pageLayout("pm2", page, sheet, "header") +
+    `</office:automatic-styles><office:master-styles>` +
+    // Page numbers as the printed copy has them. A document opens on the
+    // master page named Standard, so that is the first page's (its number
+    // centered in the footer), and it hands every later page to the next.
+    `<style:master-page style:name="Standard" style:page-layout-name="pm1" style:next-style-name="Later_20_Pages">` +
+    `<style:footer><text:p text:style-name="Page_20_Number_20_First">${PAGE_FIELD}</text:p></style:footer></style:master-page>` +
+    `<style:master-page style:name="Later_20_Pages" style:display-name="Later pages" style:page-layout-name="pm2">` +
+    `<style:header><text:p text:style-name="Page_20_Number">${PAGE_FIELD}</text:p></style:header></style:master-page>` +
+    `</office:master-styles></office:document-styles>`
+  );
+}
+
+const PAGE_FIELD = '<text:page-number text:select-page="current">1</text:page-number>';
+
+/**
+ * A page layout with the page number's header or footer in one margin. The
+ * text area is the copy's: the number's line sits in the middle of that margin
+ * (pageNumberAt), and the space from it to the text makes up the rest.
+ */
+function pageLayout(name, page, sheet, where) {
+  const inch = (twips) => `${(twips / 1440).toFixed(4)}in`;
+  const at = pageNumberAt(sheet.margin);
+  const gap = sheet.margin - at - DOC_PAGE_NUMBER.line;
+  const near = where === "header" ? "top" : "bottom";
+  const far = where === "header" ? "bottom" : "top";
+  return (
+    `<style:page-layout style:name="${name}"><style:page-layout-properties ` +
     `fo:page-width="${page.width}" fo:page-height="${page.height}" style:print-orientation="portrait" ` +
-    `fo:margin-top="${page.margin}" fo:margin-bottom="${page.margin}" fo:margin-left="${page.margin}" fo:margin-right="${page.margin}"/>` +
-    `</style:page-layout></office:automatic-styles><office:master-styles>` +
-    `<style:master-page style:name="Standard" style:page-layout-name="pm1"/></office:master-styles></office:document-styles>`
+    `fo:margin-${near}="${inch(at)}" fo:margin-${far}="${page.margin}" fo:margin-left="${page.margin}" fo:margin-right="${page.margin}"/>` +
+    `<style:${where}-style><style:header-footer-properties fo:min-height="${inch(DOC_PAGE_NUMBER.line)}" ` +
+    `fo:margin-${where === "header" ? "bottom" : "top"}="${inch(gap)}" style:dynamic-spacing="false"/></style:${where}-style>` +
+    `</style:page-layout>`
   );
 }
 

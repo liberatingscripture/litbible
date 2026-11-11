@@ -439,9 +439,35 @@ my notebook"**. Ten things to know:
 - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
   guessed from the reader's languages until chosen), named in /privacy's
   paragraph. Its `@page` rule is added as the page's last style, after
-  print.css. On screen the copy is a white sheet of that width in either
+  print.css. On screen the copy is white paper of that width in either
   theme, and `sheets-page.css` lets the reader's named fonts, colors and
   backgrounds print, which print.css otherwise turns to black serif.
+  **On a computer the copy shows as pages, a print layout** (BVJ,
+  2026-11-10; `sheet-pages.js`, never on a phone): sheets of the paper's
+  height (`PAPERS`' `height`) one under another, drawn as the copy's
+  background. It stays one element: empty `aria-hidden` spacers
+  (`.sheet-page-gap`) push what would cross a page's foot to the next
+  page's top, before a block or before the first word of the crossing line,
+  following print's rules (a page break, `break-inside: avoid` parts moving
+  whole, headings kept with what follows). Laid out again when fonts load,
+  the paper changes or the column's width does. **Anything that reads the
+  copy goes through `unpaged`** (as `readCopy` does), or a file carries the
+  gaps; print hides the spacers and lets the printer paginate.
+  **Page numbers** (BVJ, 2026-11-10): page 1's centered in the bottom
+  margin, every later page's at the top right. On paper they are `pageRule`'s
+  page-margin boxes (`@bottom-center` on `:first`, `@top-right` after;
+  a browser without margin boxes prints none), and the slides' print empties
+  that rule, so slides carry none. On screen `paginate` draws the same
+  (`.sheet-page-number`, `aria-hidden`, removed by `unpaged`). **The saved
+  files number pages the same way**, from `DOC_PAGE_NUMBER` and
+  `pageNumberAt` (`desk-sheet-doc.mjs`), each in its own form: the .docx a
+  first-page footer and a default header (`w:titlePg`, with an empty first
+  header so page 1 doesn't fall back to the default's), the .odt two master
+  pages (Standard is page 1's, since a document opens on it, and hands on to
+  "Later pages"), the .rtf `\titlepg` with `\headerr`, `\headerf` and
+  `\footerf`. Each keeps the copy's text area, its number centered in the
+  margin. Checked in Word and LibreOffice (2026-11-10); a change here wants
+  the same check, since a test only reads the XML.
 - **Printing without a sheet** (M6 with my notes, Print ▸ in the verse menu,
   the one Print menu, N9 with room to write) stays in `src/scripts/desk/CLAUDE.md`,
   rule 19, since its code is `desk/print-*.js`.

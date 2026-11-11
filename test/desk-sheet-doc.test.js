@@ -252,6 +252,9 @@ test(".docx: its parts in order, each well-formed, each named in the content typ
     "word/styles.xml",
     "word/numbering.xml",
     "word/fontTable.xml",
+    "word/header1.xml",
+    "word/header2.xml",
+    "word/footer1.xml",
     "word/_rels/document.xml.rels",
     "word/media/code1.png",
   ]);
@@ -359,6 +362,31 @@ test(".docx: the credit line is the last paragraph and in the file's properties;
   assert.equal(W(doc, "pgSz")[0].attrs["w:w"], "11906");
 });
 
+test(".docx: page 1's number centered at its foot, every later page's at the top right", () => {
+  const parts = docxParts(leaderDoc(), { paper: "letter", date: 0 });
+  const part = (name) => parseXml(parts.find((p) => p.name === name).data);
+  const doc = part("word/document.xml");
+  const rels = findAll(parseXml(parts.find((p) => p.name === "word/_rels/document.xml.rels").data), "Relationship");
+  const target = (ref) => rels.find((r) => r.attrs.Id === ref.attrs["r:id"]).attrs.Target;
+  const refs = (kind) => Object.fromEntries(W(doc, kind).map((r) => [r.attrs["w:type"], target(r)]));
+  assert.deepEqual(refs("headerReference"), { default: "header1.xml", first: "header2.xml" });
+  assert.deepEqual(refs("footerReference"), { first: "footer1.xml" });
+  assert.equal(W(doc, "titlePg").length, 1, "the first page has its own header and footer");
+
+  const field = (name) => findAll(part(`word/${name}`), "w:fldSimple");
+  const align = (name) => W(part(`word/${name}`), "jc")[0]?.attrs["w:val"];
+  assert.equal(field("header1.xml")[0].attrs["w:instr"], " PAGE ");
+  assert.equal(align("header1.xml"), "right");
+  assert.equal(field("footer1.xml")[0].attrs["w:instr"], " PAGE ");
+  assert.equal(align("footer1.xml"), "center");
+  assert.equal(field("header2.xml").length, 0, "page 1's header is empty");
+  // The number's line in the middle of the 0.75in margin; the text area unchanged.
+  const mar = W(doc, "pgMar")[0].attrs;
+  assert.equal(mar["w:top"], "1080");
+  assert.equal(mar["w:header"], "432");
+  assert.equal(mar["w:footer"], "432");
+});
+
 test(".docx: a copy with no foot still ends with the credit line", () => {
   const parts = docxParts({ title: "Bare", blocks: [{ type: "title", text: "Bare" }] }, { date: 0 });
   const doc = parseXml(parts.find((p) => p.name === "word/document.xml").data);
@@ -431,6 +459,26 @@ test(".odt: headings, lists, raised verse numbers, footnotes, Greek, Hebrew and 
   assert.equal(page.attrs["fo:page-width"], "210mm");
 });
 
+test(".odt: page 1's number centered in its footer, every later page's at the top right", async () => {
+  const entries = unzip(await odtFile(leaderDoc(), { date: 0 }));
+  const styles = xmlOf(entries, "styles.xml");
+  const masters = findAll(styles, "style:master-page");
+  const first = masters.find((m) => m.attrs["style:name"] === "Standard");
+  assert.equal(first.attrs["style:next-style-name"], "Later_20_Pages", "a document opens on Standard, then hands on");
+  const later = masters.find((m) => m.attrs["style:name"] === "Later_20_Pages");
+  assert.equal(findAll(first, "style:header").length, 0);
+  assert.equal(findAll(findAll(first, "style:footer")[0], "text:page-number").length, 1);
+  assert.equal(findAll(later, "style:footer").length, 0);
+  assert.equal(findAll(findAll(later, "style:header")[0], "text:page-number").length, 1);
+  const para = (name) => findAll(styles, "style:style").find((s) => s.attrs["style:name"] === name);
+  assert.equal(findAll(para("Page_20_Number"), "style:paragraph-properties")[0].attrs["fo:text-align"], "end");
+  assert.equal(findAll(para("Page_20_Number_20_First"), "style:paragraph-properties")[0].attrs["fo:text-align"], "center");
+  // Each layout keeps the copy's 0.75in on the side without a number.
+  const layout = (name) => findAll(findAll(styles, "style:page-layout").find((l) => l.attrs["style:name"] === name), "style:page-layout-properties")[0].attrs;
+  assert.equal(layout(first.attrs["style:page-layout-name"])["fo:margin-top"], "0.75in");
+  assert.equal(layout(later.attrs["style:page-layout-name"])["fo:margin-bottom"], "0.75in");
+});
+
 /* ── .rtf ─────────────────────────────────────────────────────────────── */
 
 /** Braces balanced, once escaped ones are set aside. */
@@ -480,6 +528,15 @@ test(".rtf: headings, lists, raised verse numbers, footnotes, links, and the cre
   const lastPara = rtf.trimEnd().split("\\par\n").at(-2);
   assert.ok(lastPara.endsWith(`{${LIT_CREDIT_LINE}}`), lastPara);
   assert.ok(!rtf.includes("javascript"));
+});
+
+test(".rtf: page 1's number centered in its footer, every later page's at the top right", () => {
+  const rtf = rtfText(leaderDoc(), { paper: "letter" });
+  assert.match(rtf, /\\sectd\\titlepg\\headery432\\footery432\n/);
+  assert.match(rtf, /\{\\headerr \\pard\\plain\\qr[^{]*\{\\field\{\\\*\\fldinst PAGE\}/);
+  assert.match(rtf, /\{\\footerf \\pard\\plain\\qc[^{]*\{\\field\{\\\*\\fldinst PAGE\}/);
+  assert.match(rtf, /\{\\headerf \\pard\\plain\\par\}/, "page 1's header is empty");
+  assert.ok(balanced(rtf));
 });
 
 test(".rtf: a nested ordered list counts in letters, then roman numerals, then decimal again", () => {

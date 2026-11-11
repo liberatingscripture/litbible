@@ -19,6 +19,9 @@
 //   - Fonts named, never embedded (BVJ, 2026-11-06): Crimson Text, with
 //     Georgia as its stand-in, and Cardo for Greek and Hebrew. Hebrew runs are
 //     marked right to left (`w:rtl`) with a Hebrew language.
+//   - Page numbers as the printed copy has them: page 1's centered in a
+//     first-page footer (w:titlePg), every later page's at the right of the
+//     default header, each a PAGE field, set in the middle of the margin.
 //   - LIT_CREDIT_LINE as the final paragraph, and in the file's properties:
 //     its description (core.xml) and a custom "Rights" property. Word's core
 //     properties have no rights field, and an element outside their schema
@@ -27,7 +30,7 @@
 // Word refuses a file over small faults, so the order of every element inside
 // w:pPr and w:rPr below is the schema's order. Keep it when adding one.
 
-import { CODE_CM, DOC_BOX, DOC_CREDIT, DOC_FONTS, DOC_PAPERS, docDate, docRuns, xmlEscape as x } from "./desk-sheet-doc.mjs";
+import { CODE_CM, DOC_BOX, DOC_CREDIT, DOC_FONTS, DOC_PAGE_NUMBER, DOC_PAPERS, docDate, docRuns, pageNumberAt, xmlEscape as x } from "./desk-sheet-doc.mjs";
 import { zipFiles } from "./desk-zip.mjs";
 
 const NS = {
@@ -57,6 +60,9 @@ const CONTENT_TYPES = `${XML}<Types xmlns="http://schemas.openxmlformats.org/pac
 <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
 <Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>
 <Override PartName="/word/fontTable.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/>
+<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
+<Override PartName="/word/header2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
+<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
 <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
 <Override PartName="/docProps/custom.xml" ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml"/>
 </Types>`;
@@ -103,6 +109,24 @@ ${pStyle("CodeCaption", "Code caption", { p: '<w:jc w:val="right"/>', r: `<w:rFo
 ${pStyle("Foot", "Sheet foot", { p: '<w:spacing w:after="60"/>', r: '<w:sz w:val="20"/><w:szCs w:val="20"/>' })}
 <w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:rPr><w:color w:val="1D4FB8"/><w:u w:val="single"/></w:rPr></w:style>
 </w:styles>`;
+
+/**
+ * A header or footer part: `root` is "hdr" or "ftr", `align` where the page
+ * number goes, or null for an empty one (the first page's header, so it
+ * doesn't fall back to the default header's number).
+ */
+function headerFooter(root, align) {
+  const half = DOC_PAGE_NUMBER.pt * 2;
+  const number = align
+    ? `<w:fldSimple w:instr=" PAGE "><w:r><w:rPr><w:rFonts w:ascii="${DOC_FONTS.small}" w:hAnsi="${DOC_FONTS.small}"/>` +
+      `<w:color w:val="${hex(DOC_PAGE_NUMBER.color)}"/><w:sz w:val="${half}"/><w:szCs w:val="${half}"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple>`
+    : "";
+  return (
+    `${XML}<w:${root} xmlns:w="${NS.w}" xmlns:r="${NS.r}"><w:p><w:pPr>` +
+    `<w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>${align ? `<w:jc w:val="${align}"/>` : ""}` +
+    `</w:pPr>${number}</w:p></w:${root}>`
+  );
+}
 
 /** The size each paragraph style sets its text at, in half-points, for a run's relative size. */
 const STYLE_SIZE = { Heading1: 40, Heading2: 30, Heading3: 26, PartTag: 20, Footnote: 20, Foot: 20, CodeCaption: 14 };
@@ -294,6 +318,9 @@ export function docxParts(doc, { title = doc.title, version = "", paper = "lette
     { id: "rId1", type: "styles", target: "styles.xml" },
     { id: "rId2", type: "numbering", target: "numbering.xml" },
     { id: "rId3", type: "fontTable", target: "fontTable.xml" },
+    { id: "rId4", type: "header", target: "header1.xml" },
+    { id: "rId5", type: "header", target: "header2.xml" },
+    { id: "rId6", type: "footer", target: "footer1.xml" },
   ];
   const media = [];
   const numbers = [];
@@ -319,11 +346,17 @@ export function docxParts(doc, { title = doc.title, version = "", paper = "lette
 
   const page = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
   ctx.textWidth = page.width - 2 * page.margin;
+  const at = pageNumberAt(page.margin);
   const content =
     body(ctx, doc.blocks) +
     paragraph(ctx, { style: "Foot", runs: textRuns(DOC_CREDIT) }) +
-    `<w:sectPr><w:pgSz w:w="${page.width}" w:h="${page.height}"/>` +
-    `<w:pgMar w:top="${page.margin}" w:right="${page.margin}" w:bottom="${page.margin}" w:left="${page.margin}" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>`;
+    // The page numbers: the default header's on every page but the first, whose
+    // own header is empty and whose footer holds its number (w:titlePg).
+    '<w:sectPr><w:headerReference w:type="default" r:id="rId4"/><w:headerReference w:type="first" r:id="rId5"/>' +
+    '<w:footerReference w:type="first" r:id="rId6"/>' +
+    `<w:pgSz w:w="${page.width}" w:h="${page.height}"/>` +
+    `<w:pgMar w:top="${page.margin}" w:right="${page.margin}" w:bottom="${page.margin}" w:left="${page.margin}" w:header="${at}" w:footer="${at}" w:gutter="0"/>` +
+    "<w:titlePg/></w:sectPr>";
   const document =
     `${XML}<w:document xmlns:w="${NS.w}" xmlns:r="${NS.r}" xmlns:wp="${NS.wp}" xmlns:a="${NS.a}" xmlns:pic="${NS.pic}">` +
     `<w:body>${content}</w:body></w:document>`;
@@ -367,6 +400,9 @@ export function docxParts(doc, { title = doc.title, version = "", paper = "lette
     { name: "word/styles.xml", data: STYLES },
     { name: "word/numbering.xml", data: numbering },
     { name: "word/fontTable.xml", data: FONT_TABLE },
+    { name: "word/header1.xml", data: headerFooter("hdr", "right") },
+    { name: "word/header2.xml", data: headerFooter("hdr", null) },
+    { name: "word/footer1.xml", data: headerFooter("ftr", "center") },
     { name: "word/_rels/document.xml.rels", data: documentRels },
     ...media,
   ];
