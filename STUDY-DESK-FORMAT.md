@@ -184,10 +184,11 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    to show it, with an optional note to self. While the record exists, every
    client keeps those verses hidden everywhere they appear, screen readers
    included. **The note to self is `body`**, as a note's words are (the
-   website's proposal, 2026-10-26, for BDR to confirm). The website's hidden
-   passage is built but held off `main`, so nothing writes this kind yet; its
-   export reads `body` and, failing that, `note`, so a record written either
-   way is kept.
+   website's proposal, 2026-10-26, for BDR to confirm). **The website won't
+   include the hidden passage** (BVJ, 2026-11-10, open to discussion with
+   BDR). It was never switched on, so no record of this kind exists, and the
+   kind leaves the format before launch (STUDY-DESK.md, Phase 6) unless that
+   discussion brings it back.
 4. **`bookmark`** (B2; E9)
    - a verse;
    - an optional `label`: the bookmark's name, up to 40 characters. Names

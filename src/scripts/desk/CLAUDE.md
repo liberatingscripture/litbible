@@ -875,12 +875,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
          the address; `?sheet-tour` does the same for the Sheets tour.
        - **Privacy**: `lit-desk-page-tour` and `lit-desk-sheet-tour` are named
          in /privacy's paragraph beside `lit-desk-tour`.
-     - **N8, the hidden passage, is built but held** (BVJ, 2026-10-12, until
-       after the Zoom, and not released before phase 1 is completely done,
-       2026-10-13) on branches `claude/desk-1d-hidden` and
-       `claude/desk-1d-search`; it is not in this tree, so nothing here
-       should assume a `hidden` record is honoured (an imported one shows as
-       "Other items").
+     - **N8, the hidden passage, is not included** (BVJ, 2026-11-10; open
+       to discussion if BDR really wants it). It was built and held on
+       branches `claude/desk-1d-hidden` and `claude/desk-1d-search`, which
+       Phase 6 deletes before launch with the few lines here that name the
+       kind (STUDY-DESK.md, "Before launch"). Don't revive or build on
+       them. No `hidden` record was ever written, so none needs handling.
   14. **Phase 1f is the Greek tab** (STUDY-DESK.md,
      "Order of work", 1f). Before touching it:
      - **Its data is committed, not built.** `npm run build:greek` reads

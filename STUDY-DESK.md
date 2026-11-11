@@ -3233,7 +3233,9 @@ recommendations, none decided:**
 16. **What readers call the synced marks, and whether "Study Desk" stays:**
     **decided 2026-10-09** by BVJ: the names stay, and differ on purpose.
     Off the Zoom's list.
-17. **The hidden passage**, at length (BDR, 2026-10-09). Still for the Zoom.
+17. **The hidden passage**, at length (BDR, 2026-10-09). Still for the Zoom,
+    but only if BDR really wants it: BVJ decided on 2026-11-10 not to
+    include it ("Decisions", 2026-11-10).
 Items 14 to 17 are described under "BDR's answers and requests (2026-10-09)",
 and BVJ's answers under "The website's answers to the proposal".
 
@@ -4312,7 +4314,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        a /privacy change notifies the LSC repo for review by the existing
        workflow.
      - **N8, the hidden passage: built, then held** (BVJ, 2026-10-12;
-       "Decisions"). It is on two branches and not in this change:
+       "Decisions"), **then not included** (BVJ, 2026-11-10; open to
+       discussion with BDR, and the code below is deleted before launch,
+       Phase 6). It is on two branches and not in this change:
        `claude/desk-1d-hidden` (commit 0c95d7d, on top of the interleaf
        commit 1f27b2e, so **reviving it means rebasing it onto main without
        1f27b2e**, or reviving the interleaf too, since it edits
@@ -5136,6 +5140,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      version 1 (S12, Part 4), and GF8c-1's ceiling of 200 on a verse
      number. They bear on Phase 4's sync more than on the launch, but
      settle them before the format is frozen for syncing.
+   - **Delete the hidden passage's code** (N8; BVJ decided 2026-11-10 not
+     to include it, unless BDR makes the case for it before then). Delete
+     the branches `claude/desk-1d-hidden` and `claude/desk-1d-search`, local
+     and on `origin`; on `main`, drop the `hidden` name from `kindName`
+     (`desk-store-core.mjs`), "Hidden passage" from `KIND_WORD`
+     (`desk-export.mjs`), the hidden-passage handling in `desk-notebook.mjs`
+     and the tests that name it, and the pointers in this file and the desk's
+     `CLAUDE.md`, and the `hidden` kind in `STUDY-DESK-FORMAT.md`. No
+     `hidden` record was ever written (the feature was never switched on),
+     so there is nothing to migrate or keep.
    - **The announcement.** M12 decided on a line in the release notes and
      the newsletter at launch (the newsletter is written in Brevo). Decide
      whether the site's one announcement popover, now the apps' launch,
@@ -5284,8 +5298,10 @@ be revisited for version 2.
 - **Which phase takes D10's version 1 part, a link to the Septuagint in
   English** (BVJ, 2026-10-30): not yet placed. E23, the fix it builds on,
   is in phase 5's log.
-- **N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15). It
-  stays in 1d until then.
+- ~~**N8, the hidden passage**: undecided until the Zoom (BVJ, 2026-10-15).~~
+  **Decided 2026-11-10: not included** (BVJ), open to discussion if BDR
+  really wants it; its code is deleted before launch (Phase 6). See
+  "Decisions", 2026-11-10.
 - **Whether `glossaryId` (N2) and `markRule` (H2) stay in the format as
   reserved kinds**: can be decided later, when version 2 is planned. The
   format keeps kinds it doesn't know either way, so the freeze doesn't
@@ -6277,6 +6293,7 @@ Phase 1d was built the same day ("Order of work", 1d). One decision from BVJ:
   `claude/desk-1d-search` (commit a933c55). Nothing about it ships, and the
   help page and privacy paragraph don't mention it. The 2026-10-01 decision
   (blur, one click to show) stands as the design if it goes ahead.
+  **Settled 2026-11-10: it doesn't** (see that day's decision).
 - Saving live into a chosen file (D1) still waits on T3, as planned.
 - Everything else 1d chose where nothing was decided is a recommendation,
   listed under "Order of work", 1d, and "Still open".
@@ -6636,6 +6653,22 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-11-10 (N8, the hidden passage, not included)
+
+- **The hidden passage (N8) is not in the Study Desk** (BVJ, 2026-11-10:
+  "I think I've decided not to include the hidden passage feature"). This
+  settles what the 2026-10-12 decision held, and it was never released, so
+  no reader loses anything.
+- **Open to discussion with BDR**, if BDR really wants it in the apps or on
+  the website. That conversation is the Zoom's item 17, which stays on the
+  list for that reason only; without it the decision stands.
+- **The code stays for now** and is deleted before launch (Phase 6,
+  "Before launch"): the two held branches, `claude/desk-1d-hidden` and
+  `claude/desk-1d-search`, and the few lines on `main` that name the kind.
+- **No `hidden` record exists anywhere**: the feature was never switched on,
+  so nothing was ever written. The kind leaves `STUDY-DESK-FORMAT.md` with
+  the code, unless BDR's discussion brings it back.
 
 ### 2026-11-02 (E9 built: Bookmarks are one feature)
 
