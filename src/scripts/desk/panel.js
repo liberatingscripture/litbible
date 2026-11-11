@@ -55,6 +55,7 @@ import { createMineTab } from "./tab-mine.js";
 import { notebookTab } from "./notebook-tab.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
+import { deskPlaceHref } from "../../lib/desk-passage.mjs";
 import { DESK_STAGE } from "../../lib/desk-first-use.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
@@ -109,6 +110,14 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const greekHere = here ?? greekChapter();
   const toggles = Array.from(document.querySelectorAll("button[data-desk-toggle]"));
   const inReadView = Boolean(document.querySelector("[data-rm-root]"));
+
+  // The header's Study Desk link goes where the toolbar's "Open in Study Desk"
+  // does: the page's chapter in the LIT pane (or, on an introduction, the
+  // introduction beside chapter 1). That pill's own address is the one source,
+  // so the two never disagree; a page without it (Read View, say) uses its chapter.
+  const deskHref =
+    document.querySelector(".reading-view-right--desk a.reading-view-pill")?.getAttribute("href") ??
+    (here ? deskPlaceHref(here) : "/desk/");
 
   const panel = document.createElement("aside");
   panel.id = "deskPanel";
@@ -268,7 +277,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <div class="desk-panel__head">
       <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
       <span class="desk-panel__badge">${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}</span>
-      <a class="desk-panel__desk" href="/desk/" aria-label="Open the Study Desk">${ICON_DESK}</a>
+      <a class="desk-panel__desk" href="${escapeHtml(deskHref)}" aria-label="Open the Study Desk">${ICON_DESK}</a>
       <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook">${ICON_COLLAPSE}</button>
     </div>
     ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(

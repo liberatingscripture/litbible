@@ -1204,8 +1204,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        a link never forces an arrangement, Reading included). desk-page.js saves the move
        and strips the parameter. On a chapter or intro page the toolbar's
        "Study Desk" pill carries the chapter (`ScriptureLayout.astro`, its
-       `deskPlaceHref`), and so does the header's Study group, which `Layout.astro`
-       is handed as `deskHref`. A new link
+       `deskPlaceHref`), and so do the header's Study group, which `Layout.astro`
+       is handed as `deskHref`, and the Notebook panel's header link, which
+       reads the pill's address (BVJ, 2026-11-10: all three behave alike). A new link
        into /desk that means to open at a passage uses this, never the layout key.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
        2026-11-02): with the preview on, `/read`'s Read View card and the
