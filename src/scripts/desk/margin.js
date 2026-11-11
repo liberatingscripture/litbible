@@ -61,6 +61,7 @@
 
 import {
   EDGE,
+  KEEP_LEFT,
   TAB_EDGE,
   TAB_WIDTH,
   nextCollapsed,
@@ -255,7 +256,9 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       box = { left: lay.panelLeft, width: lay.width, shift: 0 };
     } else {
       widths?.clear();
-      const m = { viewport, column: columnBox(), main: main.getBoundingClientRect(), shift };
+      // A chapter keeps room on its left for a footnote's Pin (E81).
+      const keepLeft = studyColumn ? KEEP_LEFT : 0;
+      const m = { viewport, column: columnBox(), main: main.getBoundingClientRect(), shift, keepLeft };
       const at = placeInMargin(m);
       floating = at.over;
       collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening, minimized });

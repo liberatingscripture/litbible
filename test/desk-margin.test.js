@@ -16,7 +16,9 @@ import {
   EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MAX_WIDTH, MIN_HEIGHT, MIN_MEASURE, MIN_WIDTH, TAB_EDGE, TAB_GAP, TAB_WIDTH,
   dragFloatEdge, dragNotebookEdge, dragTextEdge, firstPaint, floatBounds, floatWidth, nextCollapsed, panelHeight, placeFloating, placeInMargin,
   placeWithWidths, widestMeasure, widthsFromLayout,
+  KEEP_LEFT,
 } from "../src/lib/desk-margin.mjs";
+import { PIN_MARGIN } from "../src/lib/desk-footnote-pills.mjs";
 
 /** A column `width` wide, centred in a page `viewport` wide, moved left by `shift`. */
 function centred(viewport, width, shift = 0) {
@@ -567,7 +569,7 @@ test("firstPaint stamps the notebook expanded exactly where placeInMargin keeps 
   for (const ch of chs) {
     const width = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
     for (let viewport = 600; viewport <= 1800; viewport += 3) {
-      const at = placeInMargin(centred(viewport, width));
+      const at = placeInMargin({ ...centred(viewport, width), keepLeft: KEEP_LEFT });
       const fp = firstPaint({ viewport, ch });
       assert.equal(fp.expanded, !at.over, `${ch} ${viewport}`);
       assert.equal(fp.widths, null);
@@ -575,10 +577,46 @@ test("firstPaint stamps the notebook expanded exactly where placeInMargin keeps 
   }
 });
 
-test("firstPaint: the default font and size float the notebook below about 897px (the browser's own boundary)", () => {
+// 897px until E81, when the column began keeping KEEP_LEFT (38px) on its left.
+test("firstPaint: the default font and size float the notebook below about 935px", () => {
   const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
-  assert.equal(firstPaint({ viewport: 897, ch }).expanded, false);
-  assert.equal(firstPaint({ viewport: 898, ch }).expanded, true);
+  assert.equal(firstPaint({ viewport: 935, ch }).expanded, false);
+  assert.equal(firstPaint({ viewport: 936, ch }).expanded, true);
+});
+
+// E81 (BVJ, 2026-11-10): the left margin never gets too narrow for a
+// footnote's Pin as a thumbtack alone.
+test("KEEP_LEFT is the thumbtack's margin, less the column's own padding", () => {
+  assert.equal(KEEP_LEFT, PIN_MARGIN - FIRST_PAINT.pad / 2);
+});
+
+test("E81: the column never moves further left than keepLeft allows", () => {
+  for (let viewport = 500; viewport <= 1600; viewport += 7) {
+    for (const width of [560, 620, 700]) {
+      const m = { ...centred(viewport, width), keepLeft: KEEP_LEFT };
+      const start = m.column.left;
+      for (const at of [placeInMargin(m), placeFloating(m)]) {
+        // Moved only where it started with more than the margin, and never past it.
+        if (start <= KEEP_LEFT) assert.equal(at.shift, 0, `${viewport} ${width}`);
+        else assert.ok(start - at.shift >= KEEP_LEFT - 0.5, `${viewport} ${width}`);
+      }
+    }
+  }
+});
+
+test("E81: the reader's widths leave keepLeft beside the column", () => {
+  const ch = 11.35548;
+  for (let viewport = 700; viewport <= 1800; viewport += 13) {
+    for (const kept of [{ measure: 72, width: 600 }, { measure: 48, width: 300 }, { measure: 36, width: 280 }]) {
+      const m = { viewport, parentLeft: 0, ch, pad: 32, keepLeft: KEEP_LEFT };
+      const lay = placeWithWidths({ ...m, ...kept });
+      if (!lay.over) assert.ok(lay.columnLeft >= KEEP_LEFT - 1, JSON.stringify({ viewport, kept, lay }));
+      // The text's line can't be dragged wider than that either.
+      const widest = widestMeasure({ ...m, width: lay.width });
+      const dragged = placeWithWidths({ ...m, measure: Math.max(36, widest), width: lay.width });
+      if (!dragged.over) assert.ok(dragged.columnLeft >= KEEP_LEFT - 1, JSON.stringify({ viewport, kept, dragged }));
+    }
+  }
 });
 
 test("firstPaint keeps the widths placeWithWidths would apply, and none where they don't fit", () => {
@@ -588,7 +626,7 @@ test("firstPaint keeps the widths placeWithWidths would apply, and none where th
   for (const ch of chs) {
     for (const kept of kepts) {
       for (let viewport = 600; viewport <= 1800; viewport += 11) {
-        const lay = placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, ...kept });
+        const lay = placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, keepLeft: KEEP_LEFT, ...kept });
         const fp = firstPaint({ viewport, ch, kept });
         const where = JSON.stringify({ ch, kept, viewport });
         if (lay.over) {

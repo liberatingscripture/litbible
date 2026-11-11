@@ -2328,6 +2328,22 @@ tap areas (`global.css`, never under 24px).
   shell when the chapter's Footnotes list comes within a screen of the
   window (`first-stage.js`, an IntersectionObserver), so the buttons are
   there on arrival by scrolling, “See in footnotes,” or a link to a note.
+- **E81, design: Pin stays on the left of its footnote.** BVJ (2026-11-10):
+  “I think the pin buttons should never move to the righthand side. They
+  can condense by removing the word 'pin' if there's not enough room. The
+  lefthand column should not be allowed to get narrow enough that the
+  button with just a pin glyph won't fit.” This retires E49's `inline`
+  placement. Status: **done 2026-11-10**: the Footnotes list has two modes,
+  `row` (the thumbtack and “Pin”) and `glyph` (the thumbtack alone, where
+  the margin is too tight for the word), both in the left margin. On a
+  chapter the column keeps 38px on its left (`KEEP_LEFT`: the 54px the
+  thumbtack needs, less the column's own 16px of padding) whatever the
+  Notebook or the reader's dragged widths ask, so at the default font and
+  size the expanded Notebook floats below about 935px where it was 897px.
+  Where the window itself leaves less than that with nothing moved (a
+  narrow window, a large text size), the Footnotes list is indented by
+  what is missing, so Pin is still on the left and inside the window
+  (Claude's call, since nothing else keeps it left there).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

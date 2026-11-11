@@ -53,11 +53,13 @@ export const MIN_HEIGHT = 240;
  * @param {{ left: number }} m.main <main>'s box
  * @param {number} [m.shift] how far the column is moved left already, so its
  *   unmoved position can be worked out
+ * @param {number} [m.keepLeft] the margin the column keeps on its left
+ *   however far it moves (KEEP_LEFT on a chapter, for the footnotes' Pin)
  * @returns {{ left: number, width: number, shift: number, over: boolean }}
  *   the panel's left edge and width, how far left the column should be moved,
  *   and whether the panel lies over the text
  */
-export function placeInMargin({ viewport, column, main, shift = 0 }) {
+export function placeInMargin({ viewport, column, main, shift = 0, keepLeft = 0 }) {
   // Where the column would be with nothing moved.
   const left = column.left + shift;
   const right = column.right + shift;
@@ -68,7 +70,7 @@ export function placeInMargin({ viewport, column, main, shift = 0 }) {
   }
 
   const need = MIN_WIDTH - room;
-  const canMove = Math.max(0, left - main.left);
+  const canMove = Math.max(0, left - main.left - keepLeft);
   const move = Math.min(need, canMove);
   const width = Math.min(MIN_WIDTH, Math.max(0, viewport - 2 * EDGE));
   return {
@@ -122,12 +124,12 @@ export const TAB_GAP = 8;
  * @returns {{ panel: { left: number, width: number },
  *   tab: { left: number, width: number }, shift: number, tabOver: boolean }}
  */
-export function placeFloating({ viewport, column, main, shift = 0, width: kept = null }) {
+export function placeFloating({ viewport, column, main, shift = 0, width: kept = null, keepLeft = 0 }) {
   const left = column.left + shift;
   const right = column.right + shift;
   const tabLeft = viewport - TAB_EDGE - TAB_WIDTH;
   const need = Math.max(0, right + TAB_GAP - tabLeft);
-  const move = Math.min(need, Math.max(0, left - main.left));
+  const move = Math.min(need, Math.max(0, left - main.left - keepLeft));
   const width = floatWidth(viewport, kept);
   return {
     panel: { left: viewport - EDGE - width, width },
@@ -218,13 +220,15 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
  *   adds to measure × ch
  * @param {number} m.measure the LIT's measure the reader kept
  * @param {number} m.width the notebook's width the reader kept
+ * @param {number} [m.keepLeft] the margin the column keeps on its left
+ *   (KEEP_LEFT), which the widths never take
  * @returns {{ over: boolean, measure: number, width: number, panelLeft: number,
  *   columnLeft: number, columnRight: number }}
  */
-export function placeWithWidths({ viewport, parentLeft, ch, pad, measure, width }) {
+export function placeWithWidths({ viewport, parentLeft, ch, pad, measure, width, keepLeft = 0 }) {
   let m = clamp(measure, MIN_MEASURE, MAX_MEASURE);
   let w = Math.max(MIN_WIDTH, width);
-  const room = viewport - EDGE - GAP - parentLeft; // for the column and the notebook
+  const room = viewport - EDGE - GAP - parentLeft - keepLeft; // for the column and the notebook
   let short = m * ch + pad + w - room;
   if (short > 0) {
     const give = Math.min(short, w - MIN_WIDTH);
@@ -294,12 +298,13 @@ export function dragNotebookEdge({ measure, width, dx, ch }) {
 
 /**
  * The widest the LIT's measure can be, with this notebook, before the notes'
- * margin is gone.
+ * margin is down to `keepLeft`.
  *
- * @param {{ viewport: number, parentLeft: number, ch: number, pad: number, width: number }} m
+ * @param {{ viewport: number, parentLeft: number, ch: number, pad: number, width: number,
+ *   keepLeft?: number }} m
  */
-export function widestMeasure({ viewport, parentLeft, ch, pad, width }) {
-  return round(Math.min(MAX_MEASURE, (viewport - EDGE - GAP - parentLeft - width - pad) / ch));
+export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft = 0 }) {
+  return round(Math.min(MAX_MEASURE, (viewport - EDGE - GAP - parentLeft - keepLeft - width - pad) / ch));
 }
 
 /* ── Before first paint ─────────────────────────────────────────────── */
@@ -329,7 +334,21 @@ export const FIRST_PAINT = {
   ch: { "": 0.63086, dyslexic: 0.5, atkinson: 0.648 },
   // --reading-scale, by data-size (global.css; "" is Medium)
   scale: { "": 1, sm: 16 / 18, lg: 20 / 18, xl: 23 / 18 },
+  // KEEP_LEFT below: the margin the column keeps on its left. PIN_MARGIN
+  // (desk-footnote-pills.mjs, 54) less half of `pad`, written out because
+  // Layout.astro imports this file and shared code imports no other desk
+  // module; test/desk-margin.test.js holds the two together.
+  keepLeft: 38,
 };
+
+/**
+ * The margin a Chapter View column keeps on its left, whatever the Notebook
+ * and the reader's widths ask of it (BVJ, 2026-11-10; E81): enough for a
+ * footnote's Pin as a thumbtack alone (PIN_MARGIN), measured from the
+ * column's box, whose text starts half its padding in. The placements above
+ * take it as `keepLeft`; margin.js and widths.js pass it on a chapter.
+ */
+export const KEEP_LEFT = FIRST_PAINT.keepLeft;
 
 /**
  * What the first placement will make of a Chapter View page opening with the
@@ -348,13 +367,14 @@ export const FIRST_PAINT = {
  * @returns {{ expanded: boolean, widths: { measure: number, width: number } | null }}
  */
 export function firstPaint({ viewport, ch, kept = null }) {
-  const lay = kept ? placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, ...kept }) : null;
+  const keepLeft = FIRST_PAINT.keepLeft;
+  const lay = kept ? placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, keepLeft, ...kept }) : null;
   if (lay && !lay.over) return { expanded: true, widths: { measure: lay.measure, width: lay.width } };
   // placeInMargin's test, with the column centered and free to move left to
-  // the window's edge: the panel's room on the right plus the column's left
-  // margin must hold MIN_WIDTH.
+  // the margin it keeps (keepLeft): the panel's room on the right plus the
+  // rest of the column's left margin must hold MIN_WIDTH.
   const column = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
-  return { expanded: viewport - EDGE - GAP - column >= MIN_WIDTH, widths: null };
+  return { expanded: viewport - EDGE - GAP - keepLeft - column >= MIN_WIDTH, widths: null };
 }
 
 // Measures are kept to a tenth: enough for a smooth drag, short in storage.
