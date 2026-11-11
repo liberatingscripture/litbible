@@ -1636,7 +1636,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `placeInMargin`, `placeFloating`, `placeWithWidths`, `widestMeasure`,
        `firstPaint` and the pre-paint script all take as `keepLeft`, so a new
        placement needs it too. Where the window itself leaves less, the list
-       is indented by what is missing (`--desk-fn-indent`). Until E79
+       is indented by what is missing (`--desk-fn-indent`). **A Pin there
+       shows only for the footnote the reader is at** (BVJ, 2026-11-10, E82;
+       `desk.css`): on hover of the row or the button, focus on or in the
+       footnote, `:target`, and always while pinned; hidden by opacity, so it
+       keeps its tab stop. No clue is drawn above the column. Until E79
        "Add a note" sat beside Pin and a `more` mode folded the two behind a
        "⋯"; until E81 a tight margin put Pin on the note's line (`inline`). Print hides Pin; the popover's own Pin and /desk's
        panes are unchanged. Read View has no footnotes, so it has none of this.

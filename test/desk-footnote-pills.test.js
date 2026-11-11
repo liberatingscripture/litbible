@@ -81,3 +81,25 @@ test("desk.css never draws Pin on the note's line", () => {
   assert.equal(/data-desk-fn-pills="inline"/.test(css), false);
   assert.match(css, /\.footnotes > li\.desk-fn > \.desk-fn-pills \{\s*position: absolute;/);
 });
+
+// E82 (BVJ, 2026-11-10): Pin is out of sight until the reader is at its
+// footnote. A CSS rule, which happy-dom can't lay out, so the stylesheet is read.
+test("E82: Pin shows on hover, focus, a link's target and while pinned, and is hidden by opacity alone", () => {
+  const css = readFileSync(new URL("../src/styles/desk.css", import.meta.url), "utf8");
+  const pin = "\\.footnotes > li\\.desk-fn";
+  assert.match(css, new RegExp(`\\n${pin} > \\.desk-fn-pills > \\.desk-pin \\{\\s*opacity: 0;`));
+  // It waits before hiding, so the pointer can cross the text-width line to reach it.
+  assert.match(css, /transition: opacity 120ms ease-out 400ms;/);
+  const shown = new RegExp(
+    `${pin}:hover > \\.desk-fn-pills > \\.desk-pin,\\s*` +
+      `${pin}:focus-within > \\.desk-fn-pills > \\.desk-pin,\\s*` +
+      `${pin}:target > \\.desk-fn-pills > \\.desk-pin,\\s*` +
+      `${pin} > \\.desk-fn-pills > \\.desk-pin\\[aria-pressed="true"\\] \\{\\s*opacity: 1;`,
+  );
+  assert.match(css, shown);
+  // Never taken out of the tab order or the layout.
+  const block = css.slice(css.indexOf("/* Pin shows only for the footnote"), css.indexOf("/* The popover:"));
+  assert.equal(/display:\s*none|visibility:\s*hidden/.test(block), false);
+  // The space between Pin and its footnote belongs to the row's hover.
+  assert.match(css, /\.footnotes > li\.desk-fn > \.desk-fn-pills \{[^}]*right: 100%;\s*padding-right: 14px;/);
+});
