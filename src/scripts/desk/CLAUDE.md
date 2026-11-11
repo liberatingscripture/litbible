@@ -1502,7 +1502,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `introMoveMessage`), with the small link beside it for its page. A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Its add buttons are
        the Sheets' (`addTarget`; `sheets/CLAUDE.md`, rule 18). `/` reaches it as a `lit:desk-search` event from
-       `keyboard-shortcuts.js`, which imports nothing of the desk.
+       `keyboard-shortcuts.js`, which imports nothing of the desk; ← → and
+       `[` `]` come the same way as `lit:desk-chapter`, a press of the passage
+       bar's arrow in the pane being read.
   19. **Phase 3i, a sheet on paper** (/sheets): in `src/scripts/desk/sheets/CLAUDE.md`.
      Its printing that needs no sheet stays here, since its code is `desk/print-*.js`:
      - **Printing with my notes (M6) needs no sheet**: "Print with my notes"

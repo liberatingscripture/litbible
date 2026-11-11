@@ -2687,6 +2687,22 @@ tap areas (`global.css`, never under 24px).
   Paper is unchanged: a printed copy keeps a code beside each chapter's
   passage. No control for showing another chapter's code was added; that
   stays an undecided later step.
+- **E91, bug: ← and → don't change chapter on /desk.** BVJ (2026-11-11):
+  the Display tray lists the arrows as “Previous or next chapter,” and they
+  work on scripture pages, “but it doesn't actually work with the LIT pane on
+  /desk.” Cause: `keyboard-shortcuts.js` stepped only by Chapter View's
+  Previous/Next links or Read View's `#ch-N` headings, and /desk has
+  neither. Status: **fixed 2026-11-11**: on a page with the desk on and no
+  Previous/Next of its own, ← → and `[` `]` send `lit:desk-chapter`, as `/`
+  sends `lit:desk-search`, so the shared file still imports nothing of the
+  desk. `desk-page.js` answers by pressing the passage bar's arrow of the
+  pane holding focus (a LIT pane there leads already, since working in it
+  makes it lead), else the leading LIT pane's, else the first following
+  pane's when no LIT pane is open, and says the new chapter (“John 4”) for a
+  screen reader. Past Matthew 1 or Revelation 22 the key is taken and does
+  nothing, as the bar's disabled arrow does. The keys still stand down in
+  the passage field and the other controls that own them, and with the
+  Keyboard switch off. The help page's /desk section names the keys.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
