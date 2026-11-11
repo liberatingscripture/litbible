@@ -1365,6 +1365,37 @@ test("blanksGivenAway: a phrase tells by its own word, never by the small word t
   assert.deepEqual(blanksGivenAway("Often ‘immorality’", others), [others[0]]);
 });
 
+test("blanksGivenAway: a common word counts where a note quotes it, never in passing (E85)", () => {
+  const just = { exact: "just" };
+  const justness = { exact: "justness" };
+  // 255 notes say "just" in passing; "just" is also one of the LIT's renderings.
+  assert.deepEqual(blanksGivenAway("It’s not just about one person, just as the prophets said", [just, justness]), []);
+  assert.deepEqual(blanksGivenAway("Or ‘just.’ Traditionally, ‘righteous.’", [just, justness]), [just, justness]);
+  assert.deepEqual(blanksGivenAway("Or ‘is just’ or ‘promotes justice’", [just]), [just]);
+  assert.deepEqual(blanksGivenAway("Literally, ‘does/makes justness’", [just]), [just]);
+  assert.deepEqual(blanksGivenAway("Literally something like “our being-calculated-as-just”", [just]), [just]);
+  // Double marks, and a quotation inside one.
+  assert.deepEqual(blanksGivenAway("often paired with “just”", [justness]), [justness]);
+  assert.deepEqual(blanksGivenAway("“He said, ‘just’”", [just]), [just]);
+  // An apostrophe inside a word does not end the quotation.
+  assert.deepEqual(blanksGivenAway("Or ‘God’s just one’", [just]), [just]);
+});
+
+test("blanksGivenAway: a blank of common words is told on whole, and a carrying word tells nothing (E85)", () => {
+  const being = { exact: "very being" };
+  assert.deepEqual(blanksGivenAway("here as ‘very being’", [being]), [being]);
+  assert.deepEqual(blanksGivenAway("A better single word might be ‘being.’", [being]), [being]);
+  assert.deepEqual(blanksGivenAway("Or ‘being made right’", [being]), []);
+  assert.deepEqual(blanksGivenAway("their very being was at stake", [being]), []);
+  // A quoted common word that only carries a blank's telling word names nothing of it.
+  assert.deepEqual(blanksGivenAway("Or ‘in’ or ‘with’", [{ exact: "cooperate with" }]), []);
+  assert.deepEqual(blanksGivenAway("all instances of ‘you’ and ‘your’ are singular", [{ exact: "transformation of your mind" }]), []);
+  assert.deepEqual(blanksGivenAway("Or ‘their own’", [{ exact: "their faithfulness" }]), []);
+  assert.deepEqual(blanksGivenAway("Or ‘being’", [{ exact: "well-being" }]), []);
+  // Nothing but grammatical words in the marks matches nothing.
+  assert.deepEqual(blanksGivenAway("the verb ‘to be’", [being, { exact: "just" }, { exact: "is" }]), []);
+});
+
 test("flaggedWord: the flag names the blank's own traditional word, or its entry's where that is what the note names (E85)", () => {
   const blank = { exact: "trusted", telltale: "believe", also: "faith" };
   assert.deepEqual(flaggedWord("Traditionally, ‘believed’", blank), { word: "believe", entry: false });

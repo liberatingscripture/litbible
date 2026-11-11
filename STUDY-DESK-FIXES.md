@@ -2515,6 +2515,30 @@ tap areas (`global.css`, never under 24px).
     has it at 1 Timothy 5:4), and keeping both candidates as tells after a
     leader picks one (the pick settles it). Its count of 27 cards naming a
     word the verse lacks is 16 by Claude's.
+  - **Found in the browser check, and fixed: renderings made of common
+    words** (BVJ, 2026-11-11: “address all those issues”). The give-away
+    checks pass over a list of common words, so that a note saying “that”
+    flags nothing, and “just,” “very,” and “being” are on it. A blank on
+    “just” (66 marked words), “very being” (30), or “being” (5) therefore
+    had no word to be matched by: the participant's Key terms box printed
+    “just” beside its own blank, and a note reading “Or ‘just’” printed
+    unflagged. This is older than E85 (the list is phase 3h's) and showed
+    when the test sheet blanked Romans 3:26. “Just” can't come off the
+    list: 255 of the 5,768 footnotes say “not just” or “just as.” Two
+    rules now, one function (`commonTells`, `desk-sheet-lit.mjs`). **In
+    the Key terms box** a rendering is a term's word, never said in
+    passing, so one made of common words is left blank beside a blank that
+    is it or a form of it (“just” beside “justness,” either way round).
+    **In a footnote** a common word counts only where the note sets it in
+    quotation marks, which is how a note cites a rendering: “Or ‘is just’”
+    gives away a blank on “just” or “justness,” and “it’s not just about”
+    does not. A common word that only carries a blank's telling word tells
+    nothing (“with” in “cooperate with,” “your” in “transformation of your
+    mind”); the first draft flagged those, and a run over every footnote
+    caught it. With every marked word of a chapter blanked, 30 notes are
+    newly flagged, each citing “just,” “being,” or “very being”; a flagged
+    note is left out until the leader decides, as any is. Present mode's
+    key terms screen follows the box. Claude's rule, for BVJ to confirm.
   - **Not done, and why: the per-verse word.** “Holy” still stands where
     Bibles print “saints,” and *aphiemi* can only say “forgive/leave.”
     **Measured after the fix**, against the Berean Interlinear's word for

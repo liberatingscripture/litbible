@@ -256,6 +256,29 @@ test("keyTermsForCopy: any other traditional word stays beside a blank, being th
   assert.equal(got.traditional, "demon");
 });
 
+test("keyTermsForCopy: a rendering made of common words is left blank beside its blank (E85)", () => {
+  // "Just" and "very being" are on the give-away checks' common list, so no
+  // shared stem ever hid them: the box printed "just" beside the blank on it.
+  const terms = [
+    { id: "just", renderings: ["just", "justness"], traditional: "righteous / righteousness", greek: "dikaios / dikaiosune" },
+    { id: "being", renderings: ["very being"], traditional: "soul", greek: "psuche" },
+    { id: "slander", renderings: ["being slandered"], traditional: "blaspheme", greek: "blasphemeo" },
+  ];
+  const blankOf = (blanks, id) => keyTermsForCopy(terms, blanks, "participant").terms.find((t) => t.id === id).renderings.map((r) => r.blank);
+  // A blank on either form hides both: one is the other's stem.
+  assert.deepEqual(blankOf([{ exact: "just" }], "just"), [true, true]);
+  assert.deepEqual(blankOf([{ exact: "justness" }], "just"), [true, true]);
+  assert.deepEqual(blankOf([{ exact: "very being" }], "being"), [true]);
+  assert.equal(keyTermsForCopy(terms, [{ exact: "just" }, { exact: "very being" }], "participant").blanked, 2);
+  // A common word that only carries another blank's words hides nothing.
+  assert.deepEqual(blankOf([{ exact: "just judgment" }], "just"), [false, false]);
+  assert.deepEqual(blankOf([{ exact: "human being" }], "being"), [false]);
+  assert.deepEqual(blankOf([{ exact: "very being" }], "slander"), [false]);
+  assert.deepEqual(blankOf([{ exact: "their faithfulness" }], "just"), [false, false]);
+  // The leader's version prints them all.
+  for (const t of keyTermsForCopy(terms, [{ exact: "just" }], "leader").terms) for (const r of t.renderings) assert.equal(r.blank, false);
+});
+
 /* ── blankedTermsNote ────────────────────────────────────────────────── */
 
 test("blankedTermsNote: none gives no line", () => {

@@ -15,7 +15,7 @@ import { bookKeyToLabel } from "../data/books.js";
 import { isChapterAddress } from "./desk-passage.mjs";
 import { printableUrl } from "./lit-credit.mjs";
 import { MODULE_TYPES, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
-import { blanksGivenAway, hintIsAnswer, htmlToText } from "./desk-sheet-lit.mjs";
+import { blanksToldByRendering, hintIsAnswer, htmlToText } from "./desk-sheet-lit.mjs";
 import { linkScriptureRefs } from "./scripture-refs.mjs";
 import { openExternalLinks } from "./external-links.mjs";
 import { NOTE_LINKING } from "./desk-chains.mjs";
@@ -113,8 +113,10 @@ export function chapterCodes(modules) {
 /**
  * The key terms box as a copy prints it. On the participant's copy a rendering
  * that would give a blank away prints as a blank too, by the rule the footnote
- * picker uses (a shared word stem, desk-sheet-lit's blanksGivenAway), and the
- * box says how many terms are left blank. A traditional word that is itself
+ * picker uses (a shared word stem, desk-sheet-lit's blanksGivenAway) and one
+ * more for the renderings that rule can't see, the ones made of common words
+ * ("just," "very being"; blanksToldByRendering), and the box says how many
+ * terms are left blank. A traditional word that is itself
  * one of the renderings left blank goes with it (the LIT keeps "faithful" and
  * "demon", and "traditionally faithful" beside the blank would print its
  * answer; E85, desk-sheet-lit's hintIsAnswer): only the word itself, since
@@ -134,7 +136,7 @@ export function keyTermsForCopy(terms, blanks, copy) {
     if (t.omitted) continue;
     const renderings = t.renderings.map((text) => ({
       text,
-      blank: copy === "participant" && blanksGivenAway(text, blanks ?? []).length > 0,
+      blank: copy === "participant" && blanksToldByRendering(text, blanks ?? []).length > 0,
     }));
     const hidden = renderings.filter((r) => r.blank);
     if (hidden.length) blanked += 1;

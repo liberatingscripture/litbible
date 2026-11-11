@@ -525,7 +525,13 @@ the blank's hint does not already show that word: a `hint` of `"none"`, a
 word. The glossary entry's own traditional word counts beside it ("faith"
 for a blank that is traditionally "believe"), as the word most notes use for
 the whole family; and of a traditional word that is a phrase, only its
-telling word counts ("mercy" for "have mercy," never "have"). Select all and
+telling word counts ("mercy" for "have mercy," never "have"). A word too
+common to tell anything said in passing ("just," "very," "being," "their";
+the website's list is `COMMON` in `src/lib/desk-sheet-lit.mjs`) counts only
+where the footnote sets it in quotation marks, as a note cites a rendering,
+and only against a blank whose answer is that word or a form of it: "Or ‘is
+just’" gives away a blank on "just" or "justness," and "it’s not just
+about" gives nothing away (since 2026-11-11, E85). Select all and
 Unselect all write a choice for every footnote in the passage. So a
 footnote added to the chapter later prints by default, and is still flagged
 if it gives a blank away. A choice whose footnote has gone is ignored.

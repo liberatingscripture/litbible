@@ -167,7 +167,17 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   blanked word itself ("faithful," "demon") starts with no hint, which
   would be the answer (`startingHint`, `hintIsAnswer`); its menu still
   offers the word, and the participant's Key terms box leaves that word
-  out beside its blank (`keyTermsForCopy`). **A blank comes off three ways** (E65): the
+  out beside its blank (`keyTermsForCopy`). **A word on the checks' common
+  list tells only where it is cited** (E85; `commonTells` in
+  `desk-sheet-lit.mjs`): “just” and “very being” are renderings, so a
+  footnote gives such a blank away where it sets the word in quotation
+  marks (“Or ‘is just’”) and not where it says it in passing (255 notes say
+  “not just” or “just as”), and the participant's Key terms box leaves such
+  a rendering blank beside a blank that is it or a form of it
+  (`blanksToldByRendering`). A common word that only carries a blank's
+  telling word (“with” in “cooperate with”) tells nothing. A flagged note
+  is left out until the leader decides, so widen this only after running
+  it over every footnote. **A blank comes off three ways** (E65): the
   row's ×, "Fill in the selected words" beside "Blank the selected words"
   (`blanksTouching`: every blank the selection reaches, whole), and Enter on
   words the keyboard cursor holds that are already blank. **The free-text part

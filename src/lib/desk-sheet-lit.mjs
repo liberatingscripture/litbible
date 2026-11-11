@@ -567,6 +567,55 @@ function shortWordsOf(text) {
   return shorts;
 }
 
+// Every content word of a text, the common ones included: the long words'
+// stems, the short ones whole, the grammatical ones left out.
+function everyStem(text) {
+  const out = new Set();
+  for (const raw of wordsOf(text)) {
+    if (raw.length < 2 || SHORT_FUNCTION.has(raw)) continue;
+    out.add(raw.length < MIN_LETTERS ? raw : stemWord(raw));
+  }
+  return out;
+}
+
+// A text's words as the comparisons read them. `commonOnly` marks a text whose
+// every content word is on the common list ("just," "very being," two of the
+// LIT's renderings): it has nothing for `stems` or `shorts` to match by, so it
+// is matched whole instead (commonTells; E85).
+function readWords(text) {
+  const stems = telltaleStems(text);
+  const shorts = shortWordsOf(text);
+  const every = everyStem(text);
+  return { stems, shorts, every, commonOnly: !stems.size && !shorts.size && every.size > 0 };
+}
+
+// What a text sets in quotation marks, each quotation's words apart: how a
+// note cites a rendering ("Or ‘is just’"). An apostrophe inside a word is no
+// closing mark, and of a quotation within a quotation the inner one is read.
+const QUOTED = /[‘“]([^‘’“”]{1,80})[’”]/g;
+function quotationsOf(text) {
+  const plain = text.replace(/(\p{L})’(?=\p{L})/gu, "$1'");
+  return [...plain.matchAll(QUOTED)].map((m) => readWords(m[1]));
+}
+
+const allIn = (words, set) => {
+  for (const s of words) if (!set.has(s)) return false;
+  return true;
+};
+
+// Whether a quotation or a rendering (`shown`) tells on a blank (`own`) by
+// common words, which sharesWords never reads. A blank of common words alone
+// is told on by anything shown that holds them all (‘is just,’ ‘makes
+// justness’) or, itself common words alone, is held by it (‘being’ beside a
+// blank on "very being," and not ‘being made right’). Any other blank is told
+// on only by common words that are one of its telling words: ‘just’ tells on
+// "justness," and ‘with’ tells nothing of "cooperate with," whose "with" only
+// carries it.
+function commonTells(shown, own) {
+  if (own.commonOnly) return allIn(own.every, shown.every) || (shown.commonOnly && allIn(shown.every, own.every));
+  return shown.commonOnly && allIn(shown.every, own.stems);
+}
+
 /**
  * The blanks a footnote would give away: those with a word whose stem the
  * footnote shares ("deviating" is given away by a note reading "people
@@ -578,13 +627,46 @@ function shortWordsOf(text) {
  * "mercy," and a note saying "makes" names nothing of "make atonement." Errs
  * toward flagging, since a flag only asks the leader to decide (C15).
  *
+ * A common word decides nothing said in passing, and counts where a note
+ * sets it in quotation marks, which is how a note cites a rendering (E85).
+ * "Just" is one of the LIT's renderings and 255 notes say "not just" or "just
+ * as," so a blank on "just" or "justness" is given away by "Or ‘is just’" and
+ * not by "it's not just about" (`commonTells` has the rule). Until E85's
+ * browser check a blank on "just" or "very being" had no word to be matched
+ * by, and the notes citing it printed unflagged.
+ *
  * @param {string} footnoteText
  * @param {{ exact: string, telltale?: string, also?: string }[]} blanks
  */
 export function blanksGivenAway(footnoteText, blanks) {
   const inNote = wordsInOf(footnoteText);
-  if (!inNote.stems.size && !inNote.shorts.size) return [];
-  return blanks.filter((b) => sharesWords(inNote, wordsInOf(b.exact)) || sharesWords(inNote, wordsInOf(tellsOf(b))));
+  if (!inNote.stems.size && !inNote.shorts.size && !inNote.quotes.length) return [];
+  return blanks.filter((b) => {
+    const own = wordsInOf(b.exact);
+    return (
+      sharesWords(inNote, own) ||
+      sharesWords(inNote, wordsInOf(tellsOf(b))) ||
+      inNote.quotes.some((q) => commonTells(q, own))
+    );
+  });
+}
+
+/**
+ * The blanks a key term's rendering would give away printed beside them (the
+ * participant's Key terms box): blanksGivenAway's, and those it tells on by
+ * common words (`commonTells`). A rendering is a term's word, never said in
+ * passing, so it is read as a quotation is: the box leaves "just" blank
+ * beside a blank on "just" or "justness," and "very being" beside its own.
+ * Before E85's browser check it printed them there (101 marked words are one
+ * of the two).
+ *
+ * @param {string} rendering
+ * @param {{ exact: string, telltale?: string, also?: string }[]} blanks
+ */
+export function blanksToldByRendering(rendering, blanks) {
+  const told = new Set(blanksGivenAway(rendering, blanks));
+  const shown = wordsInOf(rendering);
+  return blanks.filter((b) => told.has(b) || commonTells(shown, wordsInOf(b.exact)));
 }
 
 // A blank's traditional words as one text for the comparison: its own and
@@ -688,7 +770,7 @@ export function pickedChoice(blank, term) {
   return (term.choices ?? []).find((word) => traditionalHint(word) === text) ?? null;
 }
 
-// The stems and short words of each text, worked out once: every footnote of
+// The words of each text (readWords) and of its quotations, worked out once: every footnote of
 // every passage is held against every blank on the sheet on each redraw, so the
 // same few thousand blank words were being stemmed again per footnote, per
 // passage (BA133). Bounded, and private, so no caller can change a cached set.
@@ -700,7 +782,7 @@ function wordsInOf(text) {
   let words = wordsCache.get(key);
   if (!words) {
     if (wordsCache.size >= WORDS_CACHE_LIMIT) wordsCache.clear();
-    words = { stems: telltaleStems(key), shorts: shortWordsOf(key) };
+    words = { ...readWords(key), quotes: quotationsOf(key) };
     wordsCache.set(key, words);
   }
   return words;
