@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { validateRecord } from "../src/lib/desk-records.mjs";
 import { SHEET_LIMITS, sanitizeSheetHtml } from "../src/lib/desk-sheet-format.mjs";
 import { createSheet, makeModule } from "../src/lib/desk-sheets.mjs";
-import { TEMPLATES, keyTermsPlacement, readingPart, templateModules } from "../src/lib/desk-sheet-templates.mjs";
+import { TEMPLATES, keyTermsPlacement, readingPart, templateAbout, templateModules } from "../src/lib/desk-sheet-templates.mjs";
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261012.1a2b3c4d" };
 
@@ -242,4 +242,105 @@ test("Contextual Bible Study: the group's reading, a close reading with the key 
   assert.ok(at("Reading closely") < at("keyTerms") && at("keyTerms") < at("Our context"));
   assert.ok(at("Our context") < at("Action") && at("Action") < at("Closing"));
   assert.equal(readingPart({ modules: templateModules("contextual") }).html, "<h2>Reading</h2>");
+});
+
+// The description the editor shows above a sheet (E80).
+
+const fresh = (id) => createSheet({ template: id, modules: templateModules(id) }, ctx);
+const headingsOf = (id) =>
+  templateModules(id)
+    .filter((m) => m.type === "text")
+    .map((m) => /^<h2>(.*?)<\/h2>/.exec(m.html)?.[1] ?? "");
+const count = (id, type) => templateModules(id).filter((m) => m.type === type).length;
+
+test("every template but the blank canvas has a description, in the site’s own style", () => {
+  for (const t of TEMPLATES) {
+    if (t.id === "blank") {
+      assert.equal(t.about, undefined);
+      continue;
+    }
+    assert.ok(t.about?.length > t.description.length, `${t.id} has a longer description for the editor`);
+    assert.doesNotMatch(t.about, /—|"|'/, `${t.id} uses an em dash or straight quote`);
+    assert.match(t.about, /\.$/, `${t.id} ends with a period`);
+  }
+});
+
+test("what a description counts is what its template holds", () => {
+  const about = (id) => TEMPLATES.find((t) => t.id === id).about;
+  const first = (id) => templateModules(id)[0];
+  const termsBeforeReading = (id) => {
+    const mods = templateModules(id);
+    return mods.findIndex((m) => m.type === "keyTerms") < mods.indexOf(readingPart({ modules: mods }));
+  };
+
+  assert.match(about("bible-study"), /three questions/);
+  assert.equal(count("bible-study", "question"), 3);
+  assert.match(about("bible-study"), /the first part is for you alone/);
+  assert.equal(first("bible-study").leaderOnly, true);
+  assert.match(about("bible-study"), /introduce the key terms, read together/);
+  assert.ok(termsBeforeReading("bible-study"));
+
+  assert.match(about("sermon"), /The key terms come last/);
+  assert.equal(templateModules("sermon").at(-1).type, "keyTerms");
+
+  assert.match(about("class"), /three questions/);
+  assert.equal(count("class", "question"), 3);
+  assert.match(about("class"), /key terms before the reading/);
+  assert.ok(termsBeforeReading("class"));
+  const cl = templateModules("class");
+  assert.ok(cl.some((m) => m.type === "text" && m.leaderOnly && /Background/.test(m.html)));
+  assert.ok(cl.some((m) => m.type === "question" && m.answerPrompt));
+
+  assert.match(about("lectio-divina"), /four movements/);
+  assert.deepEqual(headingsOf("lectio-divina").slice(1), ["Read", "Reflect", "Pray", "Rest"]);
+  assert.match(about("lectio-divina"), /no questions to answer/);
+  assert.equal(count("lectio-divina", "question"), 0);
+  assert.match(about("lectio-divina"), /The first part is for you alone/);
+  assert.equal(first("lectio-divina").leaderOnly, true);
+
+  assert.match(about("swedish"), /three things \(a light, a question, and an arrow\)/);
+  assert.deepEqual(
+    headingsOf("swedish").filter((h) => /^(Light|Question|Arrow):/.test(h)).map((h) => h.split(":")[0]),
+    ["Light", "Question", "Arrow"],
+  );
+  assert.ok(headingsOf("swedish").includes("Sharing"));
+
+  assert.match(about("contextual"), /closes with an action/);
+  assert.deepEqual(headingsOf("contextual").slice(-2), ["Action", "Closing"]);
+});
+
+test("a sheet new from a template has its description; the blank canvas and other sheets have none", () => {
+  for (const t of TEMPLATES) {
+    const got = templateAbout(fresh(t.id));
+    if (t.id === "blank") assert.equal(got, null);
+    else assert.deepEqual(got, { name: t.name, about: t.about });
+  }
+  assert.equal(templateAbout(null), null);
+  assert.equal(templateAbout(createSheet({ template: "search", modules: [makeModule("text")] }, ctx)), null);
+  // A name from an object’s prototype is no template.
+  assert.equal(templateAbout(createSheet({ template: "constructor", modules: [makeModule("text")] }, ctx)), null);
+});
+
+test("the description stays while the sheet is filled in, and goes once it is reshaped", () => {
+  const sheet = fresh("bible-study");
+  const at = (i, fields) => ({ ...sheet, modules: sheet.modules.map((m, j) => (j === i ? { ...m, ...fields } : m)) });
+
+  // Typing under a heading, writing a question, and adding the passage are using it.
+  assert.ok(templateAbout(at(1, { html: "<h2>Opening</h2><p>Welcome, everyone.</p>" })));
+  assert.ok(templateAbout(at(4, { html: "<p>What stands out?</p>" })));
+  const passage = makeModule("passage", { bookKey: "john", chapter: 3, verse: 16, endVerse: 17 });
+  assert.ok(templateAbout({ ...sheet, modules: [...sheet.modules.slice(0, 4), passage, ...sheet.modules.slice(4)] }));
+  // A heading set in bold is the same heading.
+  assert.ok(templateAbout(at(1, { html: "<h2><strong>Opening</strong></h2>" })));
+
+  // A part removed, added, moved or renamed makes it another sheet.
+  assert.equal(templateAbout({ ...sheet, modules: sheet.modules.slice(1) }), null);
+  assert.equal(templateAbout({ ...sheet, modules: [...sheet.modules, makeModule("question", { html: "" })] }), null);
+  const moved = [...sheet.modules];
+  moved.push(moved.shift());
+  assert.equal(templateAbout({ ...sheet, modules: moved }), null);
+  assert.equal(templateAbout(at(1, { html: "<h2>Welcome</h2>" })), null);
+
+  // One of the reader’s own templates is not a sheet.
+  assert.equal(templateAbout({ ...sheet, isTemplate: true }), null);
 });

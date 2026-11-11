@@ -2319,6 +2319,34 @@ tap areas (`global.css`, never under 24px).
   as a note on the verse that holds the letter, where BVJ can delete it.
   A Markdown copy saved before then still has its “Note on a footnote”
   entries refused rather than read as verse notes.
+- **E80, design: a sheet says what its template is for.** BVJ (2026-11-10):
+  “when I'm trying to use them, I have a hard time conceptualizing it as a
+  whole because it's spread out and the shape of it is not immediately
+  clear,” and, of the place: “in the sheet editor, not the template list.”
+  A first mock reused the chooser's one sentence; BVJ: “the description
+  needs a bit more. Just a list of its parts is helpful but not as much as
+  I'd hoped.” So each built-in template has a second, longer text (`about`
+  in `desk-sheet-templates.mjs`): who it is for, how a session with it
+  moves, and what lands on the page. The chooser keeps its short line (the
+  parts line dropped on 2026-11-08 stays dropped). Status: **built
+  2026-11-10**, for review. The editor shows it dimmed between the
+  subtitle and the first part, with a × that hides it **on that sheet**
+  (BVJ: “per sheet”), remembered in the notebook's own settings in this
+  browser (the store's meta value `sheetAboutHidden`), so nothing is added
+  to the sheet record, a share, or /privacy's list of keys. It never
+  prints, copies, shares or presents. Two things Claude decided in the
+  building, for BVJ to confirm: (1) **it shows only while the sheet still
+  has the template's parts**, in order, by type and heading
+  (`templateAbout`); typing in a part and adding passages keep it, while
+  adding, removing, moving or renaming a part takes it away, and Undo
+  brings it back. A sheet keeps only its template's id, which a sheet made
+  from one of the reader's own templates carries too, so the id alone
+  would have shown “three questions” over a sheet with none; (2) the
+  trailing “Change, move, or remove any part,” which BVJ was undecided
+  about, is left out, the paragraph being long enough. Blank canvas has no
+  description. The wording is Claude's; “needs no expert in the room” and
+  “suits a new group, or one where few people speak” (Swedish method) are
+  characterizations for BVJ to check.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

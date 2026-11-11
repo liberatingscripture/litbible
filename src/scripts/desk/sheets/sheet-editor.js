@@ -92,7 +92,7 @@ import {
   setSheetFields,
   sheetTooBig,
 } from "../../../lib/desk-sheets.mjs";
-import { readingPart, templateModules } from "../../../lib/desk-sheet-templates.mjs";
+import { readingPart, templateAbout, templateModules } from "../../../lib/desk-sheet-templates.mjs";
 import {
   passageInsertIndex,
   passageReference,
@@ -114,8 +114,14 @@ import { openPassageForm } from "./add-forms.js";
 import { createAddBar } from "./add-bar.js";
 import { TYPE_NAMES, createSheetCards, headingOf } from "./sheet-cards.js";
 import { newTabMark } from "../glyphs.js";
+import { setTip } from "../../tip.js";
 
 const button = buttons("desk-sheet__btn");
+
+// The notebook meta value naming the sheets whose template description the
+// reader has hidden (E80), newest last, and how many it keeps.
+const ABOUT_HIDDEN_KEY = "sheetAboutHidden";
+const ABOUT_HIDDEN_MAX = 500;
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -577,6 +583,43 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let titleInput = null;
   let subtitleInput = null;
   let plannedLine = null;
+  // The template's description above the parts (E80), kept by draw().
+  let aboutBox = null;
+  let aboutWords = null;
+  // The sheets whose description the reader has hidden: a notebook setting
+  // of this browser (the store's meta, like "last saved a copy"), never part
+  // of the sheet, so the record format and a share are untouched.
+  let aboutHidden = new Set();
+  Promise.resolve(store.getMeta?.(ABOUT_HIDDEN_KEY))
+    .then((ids) => {
+      if (!Array.isArray(ids) || destroyed) return;
+      aboutHidden = new Set([...ids.filter((id) => typeof id === "string"), ...aboutHidden]);
+      drawAbout();
+    })
+    .catch(() => {});
+
+  /** Show the sheet's template description, or none (templateAbout decides which sheets have one). */
+  function drawAbout() {
+    if (!aboutBox) return;
+    const about = sheet && !aboutHidden.has(sheet.id) ? templateAbout(sheet) : null;
+    aboutBox.hidden = !about;
+    if (!about) return;
+    const name = make("strong", "", `${about.name}.`);
+    aboutWords.replaceChildren(name, ` ${about.about}`);
+  }
+
+  /** Hide the description on this sheet, here and when it is opened again. */
+  function hideAbout() {
+    if (!sheet) return;
+    aboutHidden.add(sheet.id);
+    drawAbout();
+    titleInput?.focus(); // the button is gone; focus stays in the sheet
+    say("Description hidden.");
+    // The Sheets tour writes nothing (E63), so there it is hidden for the run alone.
+    if (example) return;
+    const kept = [...aboutHidden].slice(-ABOUT_HIDDEN_MAX);
+    Promise.resolve(store.setMeta?.(ABOUT_HIDDEN_KEY, kept)).catch(() => {});
+  }
   let readOnly = false;
   let license = null;
   let addBarView = null; // the add bar under the parts (add-bar.js)
@@ -782,7 +825,20 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     // The planned minutes' total (Audit 5, D #2), kept by draw().
     plannedLine = make("p", "desk-sheet__planned");
     plannedLine.hidden = true;
-    wrap.append(titleInput, subtitleInput, plannedLine);
+    // What the sheet's template is for and how a session with it moves
+    // (E80; BVJ, 2026-11-10), dimmed like the parts' prompts, until the
+    // reader hides it on this sheet or reshapes the sheet. Never printed,
+    // copied, shared or presented: it is the editor's, not the sheet's.
+    aboutBox = make("div", "desk-sheet__about");
+    aboutBox.setAttribute("role", "note");
+    aboutBox.hidden = true;
+    aboutWords = make("p", "desk-sheet__about-words");
+    const hide = button("×", "desk-sheet__icon");
+    hide.setAttribute("aria-label", "Hide this description");
+    setTip(hide, "Hide this description");
+    hide.addEventListener("click", hideAbout);
+    aboutBox.append(aboutWords, hide);
+    wrap.append(titleInput, subtitleInput, plannedLine, aboutBox);
 
     moduleList = sheetCards.makeList();
     const gapKeys = make("span", "sr-only", "Up and down arrows move to the places between the other parts.");
@@ -821,6 +877,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       plannedLine.hidden = !total;
       plannedLine.textContent = total ? `Planned time: ${total} min (leader’s version and presenter view only)` : "";
     }
+    drawAbout();
     sheetCards.draw(from);
     // A template's reading part acts as if "+ Passage" were already pressed
     // on it (BVJ, 2026-11-08): while the sheet has no passage, the passage

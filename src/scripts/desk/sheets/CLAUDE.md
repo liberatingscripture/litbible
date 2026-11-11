@@ -513,7 +513,21 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   tested; every template's formatted text must already be in the
   sanitizer's canonical form). New sheet in the Sheets pane lists them,
   each as its name and one line on what it is for (no second line listing
-  its parts, BVJ 2026-11-08), and the command row's
+  its parts, BVJ 2026-11-08). **The editor shows a longer description
+  above a sheet's parts** (E80; BVJ, 2026-11-10: the chooser's line is gone
+  by the time the parts are on screen): each built-in template's `about`
+  (who it is for, how a session moves, what lands on the page; none for
+  Blank canvas), dimmed, between the subtitle and the first part, with a ×
+  that hides it on that sheet. `templateAbout(sheet)` decides, and **only
+  while the sheet still has the template's parts**, in order, by type and
+  heading, passages left out: a sheet keeps nothing of its template but
+  the id, which a sheet from one of the reader's own templates carries
+  too, so a reshaped sheet must not be told it has “three questions.”
+  Nothing about it is stored on the sheet: hidden sheets are the store's
+  meta value `sheetAboutHidden` (ids, newest last), and the tour's example
+  mode writes not even that. **A change to a template's parts changes its
+  `about` with it**; `test/desk-sheet-templates.test.js` holds what each
+  one counts. The command row's
   "New sheet…" opens the same list (a `desk:sheet-new` event naming the
   pane). **A template's parts hold no text, only structure and a
   prompt** (Audit 5, SH5-2; BVJ's brief): a text part is its heading
