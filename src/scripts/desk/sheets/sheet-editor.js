@@ -119,7 +119,7 @@ import { setTip } from "../../tip.js";
 const button = buttons("desk-sheet__btn");
 
 // The notebook meta value naming the sheets whose template description the
-// reader has hidden (E80), newest last, and how many it keeps.
+// reader has hidden (E84), newest last, and how many it keeps.
 const ABOUT_HIDDEN_KEY = "sheetAboutHidden";
 const ABOUT_HIDDEN_MAX = 500;
 
@@ -583,7 +583,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let titleInput = null;
   let subtitleInput = null;
   let plannedLine = null;
-  // The template's description above the parts (E80), kept by draw().
+  // The template's description above the parts (E84), kept by draw().
   let aboutBox = null;
   let aboutWords = null;
   // The sheets whose description the reader has hidden: a notebook setting
@@ -826,7 +826,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     plannedLine = make("p", "desk-sheet__planned");
     plannedLine.hidden = true;
     // What the sheet's template is for and how a session with it moves
-    // (E80; BVJ, 2026-11-10), dimmed like the parts' prompts, until the
+    // (E84; BVJ, 2026-11-10), dimmed like the parts' prompts, until the
     // reader hides it on this sheet or reshapes the sheet. Never printed,
     // copied, shared or presented: it is the editor's, not the sheet's.
     aboutBox = make("div", "desk-sheet__about");

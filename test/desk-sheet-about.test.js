@@ -1,4 +1,4 @@
-// The template's description in the sheet editor (E80; BVJ, 2026-11-10),
+// The template's description in the sheet editor (E84; BVJ, 2026-11-10),
 // driven in a browser DOM over the real notebook store on fake-indexeddb: a
 // sheet started from a built-in template shows what the template is for above
 // its parts, the reader hides it per sheet, and that is remembered in the

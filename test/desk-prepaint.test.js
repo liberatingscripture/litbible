@@ -243,17 +243,18 @@ function chPx({ font = "", size = "", rootPx = 16 } = {}) {
 }
 
 test("in a window too narrow for the margin, the notebook isn't stamped expanded (BA25)", () => {
-  // 280 + 16 + 24 + 48 × 0.63086 × 18 + 32 ≈ 897.06 at the default font and size,
-  // the width at which the notebook was seen to float in the browser.
-  assert.deepEqual(run({ stored: expandedStart, viewport: 897 }).attrs, { "data-desk": "on", "data-desk-panel": "open" });
-  assert.deepEqual(run({ stored: expandedStart, viewport: 898 }).attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  // 280 + 16 + 24 + 38 + 48 × 0.63086 × 18 + 32 ≈ 935.06 at the default font and
+  // size: the notebook, its edge and gap, the margin the column keeps on its
+  // left for a footnote's Pin (E81; 897 before it), and the column.
+  assert.deepEqual(run({ stored: expandedStart, viewport: 935 }).attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(run({ stored: expandedStart, viewport: 936 }).attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   // What counts is the width less the scrollbar, which the script measures.
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 897, scrollbar: 0 }).attrs, false);
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 898, scrollbar: 0 }).attrs, true);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 935, scrollbar: 0 }).attrs, false);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 936, scrollbar: 0 }).attrs, true);
   // A larger text size widens the column, so a half-screen window floats it.
   const lg = { "data-size": "lg" };
   assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 945, html: lg }).attrs, false);
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 985, html: lg }).attrs, true);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 1000, html: lg }).attrs, true);
 });
 
 test("widths kept in a wider window are given way as widths.js gives them, or left off (BA30)", () => {

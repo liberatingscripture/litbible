@@ -29,6 +29,8 @@
 import {
   MIN_MEASURE,
   MIN_WIDTH,
+  KEEP_LEFT,
+  TEXT_HANDLE,
   dragNotebookEdge,
   dragTextEdge,
   placeWithWidths,
@@ -152,6 +154,8 @@ export function createWidths({ column, panel, onChange }) {
     return {
       viewport: root.clientWidth,
       parentLeft: parent.getBoundingClientRect().left + parseFloat(ps.paddingLeft || "0"),
+      // Room for a footnote's Pin, which the widths never take (E81).
+      keepLeft: KEEP_LEFT,
       ch: probe.getBoundingClientRect().width / 100 || 10,
       pad: parseFloat(cs.paddingLeft || "0") + parseFloat(cs.paddingRight || "0"),
     };
@@ -303,10 +307,11 @@ export function createWidths({ column, panel, onChange }) {
     gutters.style.top = `${top}px`;
     gutters.style.height = `${Math.max(0, height)}px`;
     const sx = window.scrollX;
-    // Between the margin notes, which end 8px left of the column's box, and
-    // the text, which starts 16px inside it.
-    textEdge.style.left = `${col.left + sx - 6}px`;
-    textEdge.style.width = "18px";
+    // Inside the column's padding: right of the margin notes, which end 8px
+    // left of the column's box, and of a footnote's Pin, which ends 2px
+    // inside it (E83), and left of the text, which starts 16px inside it.
+    textEdge.style.left = `${col.left + sx + TEXT_HANDLE.inset}px`;
+    textEdge.style.width = `${TEXT_HANDLE.width}px`;
     // From just inside the column's padding to the notebook.
     bookEdge.style.left = `${col.right + sx - 6}px`;
     bookEdge.style.width = `${Math.max(12, panelLeft - col.right + 6)}px`;

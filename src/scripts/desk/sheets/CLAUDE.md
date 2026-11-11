@@ -514,7 +514,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   sanitizer's canonical form). New sheet in the Sheets pane lists them,
   each as its name and one line on what it is for (no second line listing
   its parts, BVJ 2026-11-08). **The editor shows a longer description
-  above a sheet's parts** (E80; BVJ, 2026-11-10: the chooser's line is gone
+  above a sheet's parts** (E84; BVJ, 2026-11-10: the chooser's line is gone
   by the time the parts are on screen): each built-in template's `about`
   (who it is for, how a session moves, what lands on the page; none for
   Blank canvas), dimmed, between the subtitle and the first part, with a ×

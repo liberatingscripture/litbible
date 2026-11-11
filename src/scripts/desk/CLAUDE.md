@@ -151,7 +151,8 @@ itself. The shell, `desk.css` and the rest come when the Notebook starts
 expanded, a bookmark follows, the address carries `greek`, `desk-tour` or
 `print`, this page has records to draw, or the reader reaches for the
 Notebook (the tab, Read View's button, the skip link, a verse number, a
-footnote letter or a selection); `lit:panel-actions`, `lit:footnote-actions`,
+footnote letter or a selection), or the Footnotes list nears the window
+(its Pin buttons are the shell's, E80); `lit:panel-actions`, `lit:footnote-actions`,
 `lit:desk-command` and `lit:greek-word` arriving first are held and sent
 again, and a menu still open gets its rows late, moved as `showPanel` would
 place it. The shell's `handOver` removes the first stage's tab in the same
@@ -1627,12 +1628,21 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        tab order are the note, then Pin. The list measures its own left edge
        (on load, resize, `desk:column-moved`, the Display tray's size, face
        and text width, and fonts loading) and sets `data-desk-fn-pills`:
-       **`row`** (Pin in the margin, level with the footnote's first line) or
-       **`inline`** (the pre-E49 placement on the note's line). Until E79
-       "Add a note" sat beside Pin, a `more` mode folded the two behind a "⋯"
-       (with `keepPillFocus` and `pillsHome` to rescue focus), and a margin
-       note beside a footnote kept Pin inline (`data-desk-fn-margin`); all of
-       that went with it. Print hides Pin; the popover's own Pin and /desk's
+       **`row`** (the thumbtack and "Pin", level with the footnote's first
+       line) or **`glyph`** (the thumbtack alone, where the margin is tight).
+       **Pin never moves to the note's right, and the left margin never gets
+       too narrow for the thumbtack** (BVJ, 2026-11-10, E81): on a chapter the
+       column keeps `KEEP_LEFT` (`desk-margin.mjs`) on its left, which
+       `placeInMargin`, `placeFloating`, `placeWithWidths`, `widestMeasure`,
+       `firstPaint` and the pre-paint script all take as `keepLeft`, so a new
+       placement needs it too. Where the window itself leaves less, the list
+       is indented by what is missing (`--desk-fn-indent`). **A Pin there
+       shows only for the footnote the reader is at** (BVJ, 2026-11-10, E82;
+       `desk.css`): on hover of the row or the button, focus on or in the
+       footnote, `:target`, and always while pinned; hidden by opacity, so it
+       keeps its tab stop. No clue is drawn above the column. Until E79
+       "Add a note" sat beside Pin and a `more` mode folded the two behind a
+       "⋯"; until E81 a tight margin put Pin on the note's line (`inline`). Print hides Pin; the popover's own Pin and /desk's
        panes are unchanged. Read View has no footnotes, so it has none of this.
      - **A sheet takes notes, highlights and pinned footnotes from the
        notebook as ordinary parts**: in `src/scripts/desk/sheets/CLAUDE.md`, rule 23.

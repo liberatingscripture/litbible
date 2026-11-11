@@ -244,7 +244,7 @@ test("Contextual Bible Study: the group's reading, a close reading with the key 
   assert.equal(readingPart({ modules: templateModules("contextual") }).html, "<h2>Reading</h2>");
 });
 
-// The description the editor shows above a sheet (E80).
+// The description the editor shows above a sheet (E84).
 
 const fresh = (id) => createSheet({ template: id, modules: templateModules(id) }, ctx);
 const headingsOf = (id) =>

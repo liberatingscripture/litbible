@@ -20,7 +20,7 @@ import { makeModule } from "./desk-sheets.mjs";
  * to a new reader it read as noise, almost a mistake.
  *
  * `about` is the longer account the sheet editor shows above a sheet started
- * from the template (E80; BVJ, 2026-11-10): who it is for, how a session with
+ * from the template (E84; BVJ, 2026-11-10): who it is for, how a session with
  * it moves, and what lands on the page, since the chooser's line is gone by
  * the time the parts are on screen. The chooser never shows it. Blank canvas
  * has none. What it counts ("three questions", "the first part is for you
@@ -213,7 +213,7 @@ const templateShape = (id) => {
 };
 
 /**
- * The description the editor shows above a sheet (E80): its template's name
+ * The description the editor shows above a sheet (E84): its template's name
  * and `about`, or null. Only while the description is still true of the
  * sheet: a built-in template that has one, on a sheet (not one of the
  * reader's templates) whose parts are still the template's, in order, by

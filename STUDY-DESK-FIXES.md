@@ -2319,7 +2319,58 @@ tap areas (`global.css`, never under 24px).
   as a note on the verse that holds the letter, where BVJ can delete it.
   A Markdown copy saved before then still has its “Note on a footnote”
   entries refused rather than read as verse notes.
-- **E80, design: a sheet says what its template is for.** BVJ (2026-11-10):
+- **E80, bug: the Footnotes list had no Pin buttons until the Notebook was
+  opened.** BVJ (2026-11-10): “The pin buttons on footnotes don't appear
+  until a user clicks on the notebook tab at least once.” The buttons are
+  the shell's (`pins.js`), and since the two-stage load (LG3-2) nothing
+  brought the shell for a reader who only scrolled to the notes on a chapter
+  with nothing kept. Status: **fixed 2026-11-10**: the first stage loads the
+  shell when the chapter's Footnotes list comes within a screen of the
+  window (`first-stage.js`, an IntersectionObserver), so the buttons are
+  there on arrival by scrolling, “See in footnotes,” or a link to a note.
+- **E81, design: Pin stays on the left of its footnote.** BVJ (2026-11-10):
+  “I think the pin buttons should never move to the righthand side. They
+  can condense by removing the word 'pin' if there's not enough room. The
+  lefthand column should not be allowed to get narrow enough that the
+  button with just a pin glyph won't fit.” This retires E49's `inline`
+  placement. Status: **done 2026-11-10**: the Footnotes list has two modes,
+  `row` (the thumbtack and “Pin”) and `glyph` (the thumbtack alone, where
+  the margin is too tight for the word), both in the left margin. On a
+  chapter the column keeps 38px on its left (`KEEP_LEFT`: the 54px the
+  thumbtack needs, less the column's own 16px of padding) whatever the
+  Notebook or the reader's dragged widths ask, so at the default font and
+  size the expanded Notebook floats below about 935px where it was 897px.
+  Where the window itself leaves less than that with nothing moved (a
+  narrow window, a large text size), the Footnotes list is indented by
+  what is missing, so Pin is still on the left and inside the window
+  (Claude's call, since nothing else keeps it left there).
+- **E82, design: Pin shows only for the footnote the reader is at.** BVJ
+  (2026-11-10): “I don't like how cluttered the page looks with all those
+  pins buttons running down the column beside the footnotes… What if the
+  pin buttons were invisible until the mouse hovers or focus is on either
+  the button or the footnote row? When pinned, the active button could
+  persist.” Two mocks were shown: only the row under the pointer, or the
+  whole list faintly while the pointer is in it. BVJ chose the first. A
+  bare thumbtack above the column as a clue was BVJ's own doubt (“That last
+  part may not be a good idea”) and was left out: it would look like a
+  control and do nothing. Status: **done 2026-11-10**, in `desk.css` alone:
+  in Chapter View's Footnotes list a Pin is drawn only while the pointer is
+  over its footnote or the button, while focus is on or in the footnote
+  (so Tab still reaches every Pin, and “See in footnotes” shows the one it
+  lands on), for a footnote a link landed on, and always once the footnote
+  is pinned. The popover's Pin, This verse and /desk's Footnotes pane are
+  unchanged, and they, the tour and the help page are how a reader who
+  never points at the list learns of pinning.
+- **E83, bug: the text-width line covered the right edge of a footnote's
+  Pin.** Found by Claude while checking E82 (2026-11-10): with the Notebook
+  expanded, the line dragged to set the text's width started 6px outside
+  the column and was 18px wide, so it lay over the last 8px of every Pin in
+  the Footnotes list, and a click there opened the line's menu instead of
+  pinning. BVJ: “make the small fix.” Status: **fixed 2026-11-10**: the
+  line is 12px wide and lies wholly inside the column's left padding,
+  between Pin and the text (`TEXT_HANDLE` in `desk-margin.mjs`, held to
+  both by a test).
+- **E84, design: a sheet says what its template is for.** BVJ (2026-11-10):
   “when I'm trying to use them, I have a hard time conceptualizing it as a
   whole because it's spread out and the shape of it is not immediately
   clear,” and, of the place: “in the sheet editor, not the template list.”
