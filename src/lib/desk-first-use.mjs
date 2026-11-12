@@ -628,7 +628,7 @@ export const SHEET_TOUR_STEPS = [
     title: "Blanks and footnotes",
     body: {
       default:
-        "A passage shows today’s wording of the LIT, and the sheet says when it changes. Under “Blanks,” choose a key term, or select words and “Blank the selected words,” to leave a gap for the group to fill in, with a hint beneath it if you like. “Footnotes” chooses which of the LIT’s notes print. A passage was added here for the tour.",
+        "A passage shows today’s wording of the LIT, and the sheet says when it changes. Under “Fill in the blank,” choose a key term, or select words and “Blank,” to leave a gap for the group to fill in, with a hint beneath it if you like. “Footnotes” chooses which of the LIT’s notes print. A passage was added here for the tour.",
     },
   },
   {

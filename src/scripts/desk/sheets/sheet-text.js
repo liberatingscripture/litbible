@@ -56,7 +56,9 @@ const STYLE_DEFAULTS = { font: ["Default", 0], size: ["Normal", 1], color: ["Def
 const ALIGN_LABELS = { center: "Center", right: "Right", justify: "Justified" };
 
 const ICONS = {
-  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  // Two open links joined by a bar, level like the toolbar's other line icons.
+  // (Half-drawn arcs on the diagonal read as a squiggle at 16px.)
+  link: '<path d="M10 7H7a5 5 0 0 0 0 10h3M14 7h3a5 5 0 0 1 0 10h-3M8 12h8"/>',
   ul: '<circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/><path d="M9 6h12M9 12h12M9 18h12"/>',
   ol: '<text x="1" y="8" font-size="7" fill="currentColor" stroke="none">1</text><text x="1" y="14" font-size="7" fill="currentColor" stroke="none">2</text><text x="1" y="20" font-size="7" fill="currentColor" stroke="none">3</text><path d="M9 6h12M9 12h12M9 18h12"/>',
   indent: '<path d="M3 5h18M12 10h9M12 14h9M3 19h18"/><path d="M3 9l4 3-4 3z" fill="currentColor"/>',
