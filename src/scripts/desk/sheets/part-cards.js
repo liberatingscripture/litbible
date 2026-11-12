@@ -282,13 +282,23 @@ function questionCard(host, card, m) {
   }
   const q = textField(host, m, "html", "Question", promptOf(m, "prompt") || "A question for the group, such as “What surprised you here?”");
   const a = textField(host, m, "answer", "Answer, on the leader’s version only", promptOf(m, "answerPrompt") || "Optional. An answer or notes for you as leader. It prints only on the leader’s version.");
-  const lines = linesField(host, m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on" });
+  // The ruled lines the paper prints under the question, drawn under the
+  // field and following it, as a space's are, so the card shows they are
+  // there (E104; up to six drawn, none at 0).
+  const ruled = make("div", "desk-sheet__ruled");
+  ruled.setAttribute("aria-hidden", "true");
+  const preview = (n) => {
+    ruled.hidden = !n;
+    ruled.style.setProperty("--lines", String(Math.min(n ?? 0, 6)));
+  };
+  const lines = linesField(host, m, { min: 0, max: SHEET_LIMITS.questionLines, label: "Lines to write on", onLines: preview });
+  preview(m.lines);
   // The two editors look alike, and the answer's ghost text goes once it has
   // words, so it keeps a visible label (BVJ, 2026-11-06). The editor's own
   // accessible name already says this, so the label is hidden from it.
   const answerLabel = make("p", "desk-sheet__field-label", "Answer (leader’s version only)");
   answerLabel.setAttribute("aria-hidden", "true");
-  card.append(q.el, answerLabel, a.el, lines.el);
+  card.append(q.el, answerLabel, a.el, lines.el, ruled);
   return Object.assign(group(q, a, lines), { fields: { html: q, answer: a } });
 }
 
