@@ -394,7 +394,11 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
     } else if (m.type === "text") {
       const section = make("section", "sheet-copy__text");
       if (m.leaderOnly) section.append(make("span", "sheet-copy__tag", "Leader only"));
-      section.append(rich(m.html));
+      const body = rich(m.html);
+      section.append(body);
+      // A part that ends in a heading ("Reading", "Discussion") introduces the
+      // part after it, so the two never part at a page's foot (E99).
+      if (endsInHeading(body)) section.classList.add("sheet-copy__text--heads");
       article.append(section);
     } else if (m.type === "question") {
       article.append(questionSection(m, copy));
@@ -423,11 +427,6 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   if (article.lastElementChild?.classList.contains("sheet-copy__break")) article.lastElementChild.remove();
   if (article.lastElementChild === head) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
 
-  if (answerKey && copy === "leader") {
-    const key = answerKeySection(modules, views);
-    if (key) article.append(key);
-  }
-
   const foot = make("footer", "sheet-copy__foot");
   foot.append(make("p", "sheet-copy__credit", LIT_CREDIT_LINE));
   if (chapters.length) foot.append(make("p", "sheet-copy__addresses", chapters.map((c) => c.printable).join(" · ")));
@@ -436,7 +435,21 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   const asOf = textAsOfLine(newest, read.find((v) => v.contentVersion === newest)?.contentUpdated);
   if (asOf) foot.append(make("p", "sheet-copy__as-of", asOf));
   article.append(foot);
+
+  // The key is a page of its own (E100), so it follows the foot: the sheet
+  // ends with its credit, and the key's page holds the key alone.
+  if (answerKey && copy === "leader") {
+    const key = answerKeySection(modules, views);
+    if (key) article.append(key);
+  }
   return article;
+}
+
+// Whether a part's text ends in a heading, past any empty lines after it.
+function endsInHeading(box) {
+  let el = box.lastElementChild;
+  while (el && el.tagName === "P" && !el.textContent.trim()) el = el.previousElementSibling;
+  return !!el && (el.tagName === "H2" || el.tagName === "H3");
 }
 
 /**

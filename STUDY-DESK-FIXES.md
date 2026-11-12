@@ -2825,6 +2825,49 @@ tap areas (`global.css`, never under 24px).
   footnote list's labels are bold to match. Present mode keeps its own.
   Anchor text never counts a footnote letter, so blanks and the word cursor
   are unaffected.
+- **E99, bug: a heading could end a page with its text on the next.** BVJ
+  (2026-11-11): “it shouldn't be possible for a header to be at the bottom
+  of the page with the body text it goes with at the top of the next page;
+  if that's going to be the situation, then it should be pushed to the next
+  page with its body text.” Two causes. The keep-together rules sat inside
+  `@media print`, so the screen's pages (`sheet-pages.js`, which reads them
+  from computed styles) never saw them; and nothing kept a heading in a
+  part's text, or a text part that is only a heading (a template's
+  “Reading”), with what follows. Status: **fixed 2026-11-11**: the rules
+  are outside `@media print` (break-* does nothing on a continuous screen),
+  joined by `.desk-rich` h2 and h3, and by `.sheet-copy__text--heads`,
+  which `renderCopy` puts on a text part ending in a heading (past empty
+  lines). `startNextPage` looks for a heading past the edge of the box the
+  moving text opens (a passage's first line, a list's first item), carries a
+  floated code beside it, and is used too when a block starts in the bottom
+  margin. Checked in the Browser pane by sweeping a filler's height through a
+  page and a half in 6px steps: no heading ended a page, where with the
+  rules switched off 59 did. Paper not checked by PDF; Chrome honors the
+  same `break-after: avoid`.
+- **E100, design: the answer key always prints as a page of its own.** BVJ
+  (2026-11-11): “Whatever it ends up displaying, it should always print as
+  its own separate page.” Status: **done 2026-11-11**: `.sheet-copy__key`
+  is `break-before: page` (outside `@media print`, so the screen's pages
+  start it on a new page too; `placeAll` treats a computed `page` as a page
+  break), it comes after the sheet's foot so the credit ends the sheet
+  rather than heading the key's page, and Copy and Save as put a page break
+  before it. Its rule and space above are gone. What the key shows is
+  still open: BVJ found it “less than helpful right now. It just duplicates
+  what is already shown in the blanks on the leader version, and the
+  numbers don't correspond to anything obvious.”
+- **E101, wish: a text size for the sheet in its editor, apart from the
+  Display tray.** BVJ (2026-11-11): “It should be possible to adjust the
+  font size in the editor sheetwide; the text size in the page display
+  controls don't do anything on the page in the sheet editor. Either they
+  should work or they should be removed.” Then: “It should be a separate
+  control from the page display settings,” and “The page display settings
+  would affect the page text, not the sheet fields.” So two things: the
+  Display tray's text size should size the editor page's own words (its
+  labels, buttons and notes), which keep fixed sizes today, and a control of
+  the editor's own sizes the sheet's fields (title, subtitle, the parts'
+  text). Only a passage's words follow the tray today. Status: **open**;
+  Claude's first pass scaled the fields with the tray, which this reverses,
+  and the design is with BVJ.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

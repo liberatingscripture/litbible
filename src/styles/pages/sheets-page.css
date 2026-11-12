@@ -553,19 +553,47 @@
   font-style: italic;
 }
 
-/* The leader's optional answer key, at the end of the leader version. */
-.sheet-copy__key {
-  margin-top: 18pt;
-  padding-top: 8pt;
-  border-top: 0.75pt solid #1d231c;
+/* What stays together on paper, and on the screen's pages too: these sit
+   outside @media print because sheet-pages.js lays the screen's pages out
+   from their computed values (a continuous screen ignores break-*). A
+   heading never ends a page with its text on the next (E99): a passage's
+   reference, the key terms' title, a heading in a part's text, and a text
+   part that ends in a heading (`--heads`, from renderCopy), which introduces
+   the part after it. */
+.sheet-copy__passage-head,
+.sheet-copy__ref,
+.sheet-copy__terms-title,
+.sheet-copy__key-title,
+.sheet-copy .desk-rich :is(h2, h3),
+.sheet-copy__text--heads {
+  break-after: avoid;
+}
+
+/* A passage's footnotes may run onto the next page, but never start one:
+   the first stays with the verses it explains. */
+.sheet-copy__notes {
+  break-before: avoid;
+}
+
+.sheet-copy__question,
+.sheet-copy__terms,
+.sheet-copy__code,
+.sheet-copy__note,
+.sheet-copy__foot {
   break-inside: avoid;
+}
+
+/* The leader's optional answer key, after the sheet's foot: always a page of
+   its own (E100), on paper, on the screen's pages and in a Word file. */
+.sheet-copy__key {
+  margin-top: 0;
+  break-before: page;
 }
 
 .sheet-copy__key-title {
   margin: 0 0 4pt;
   font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
   font-size: 13pt;
-  break-after: avoid;
 }
 
 .sheet-copy__key-row {
@@ -1028,26 +1056,6 @@
 
   .sheet-copy__break::before {
     display: none;
-  }
-
-  .sheet-copy__passage-head,
-  .sheet-copy__ref,
-  .sheet-copy__terms-title {
-    break-after: avoid;
-  }
-
-  /* A passage's footnotes may run onto the next page, but never start one:
-     the first stays with the verses it explains. */
-  .sheet-copy__notes {
-    break-before: avoid;
-  }
-
-  .sheet-copy__question,
-  .sheet-copy__terms,
-  .sheet-copy__code,
-  .sheet-copy__note,
-  .sheet-copy__foot {
-    break-inside: avoid;
   }
 }
 

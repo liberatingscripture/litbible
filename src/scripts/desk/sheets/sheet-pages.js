@@ -100,13 +100,24 @@ export function paginate(article, paper) {
     s.style.height = `${Math.max(0, target - box(s).top)}px`;
   }
 
-  /** Move `el` to the top of the next page, taking a heading that must stay with it. */
+  /**
+   * Move `el` to the top of the next page, taking what must stay with it: a
+   * heading before it (break-after: avoid), found past the edge of a box `el`
+   * opens (a part's text that begins with a list, a passage's first line), and
+   * a floated figure beside it (a passage's code). E99.
+   */
   function startNextPage(el, page) {
     let first = el;
-    for (let i = 0; i < 2; i++) {
-      const prev = first.previousElementSibling;
-      if (!prev || prev.classList.contains(SPACER) || getComputedStyle(prev).breakAfter !== "avoid") break;
-      if (pageOf(box(prev).top) !== page) break;
+    for (let i = 0; i < 4; i++) {
+      let lead = first;
+      let prev = lead.previousElementSibling;
+      while (!prev && lead.parentNode && lead.parentNode !== article) {
+        lead = lead.parentNode;
+        prev = lead.previousElementSibling;
+      }
+      if (!prev || prev.classList.contains(SPACER) || pageOf(box(prev).top) !== page) break;
+      const style = getComputedStyle(prev);
+      if (style.float === "none" && style.breakAfter !== "avoid") break;
       first = prev;
     }
     // A heading already first on its page can't take what follows with it.
@@ -177,8 +188,9 @@ export function paginate(article, paper) {
     let b = box(el);
     if (!b.height) return false; // nothing to move; a forced break waits for the next block
     let page = pageOf(b.top);
-    if (b.top >= textBottom(page) - EPS || (forced && b.top > textTop(page) + 1)) {
-      pushTo(el, textTop(page + 1), false);
+    if (forced && b.top > textTop(page) + 1) pushTo(el, textTop(page + 1), false);
+    else if (b.top >= textBottom(page) - EPS) startNextPage(el, page);
+    if (b.top !== box(el).top) {
       b = box(el);
       page = pageOf(b.top);
     }
@@ -207,6 +219,8 @@ export function paginate(article, paper) {
         brk = true;
         continue;
       }
+      // A block that always starts a page (the answer key, E100).
+      if (getComputedStyle(el).breakBefore === "page") brk = true;
       if (place(el, brk)) brk = false;
     }
   }

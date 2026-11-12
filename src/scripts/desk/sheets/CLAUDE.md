@@ -529,7 +529,14 @@ my notebook"**. Eleven things to know:
   (`.sheet-page-gap`) push what would cross a page's foot to the next
   page's top, before a block or before the first word of the crossing line,
   following print's rules (a page break, `break-inside: avoid` parts moving
-  whole, headings kept with what follows). Laid out again when fonts load,
+  whole, headings kept with what follows). **Those rules sit outside
+  `@media print`** in `sheets-page.css` (E99), since `paginate` reads them
+  from computed styles and a screen never sees a print-only rule; break-*
+  does nothing on a continuous screen, so they cost nothing there. A heading
+  never ends a page: a text part ending in one is `.sheet-copy__text--heads`
+  (`renderCopy`), and `startNextPage` finds a heading past the edge of the
+  box the moving text opens. The answer key is `break-before: page` and
+  follows the foot (E100). Laid out again when fonts load,
   the paper changes or the column's width does. **Anything that reads the
   copy goes through `unpaged`** (as `readCopy` does), or a file carries the
   gaps; print hides the spacers and lets the printer paginate.

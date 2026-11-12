@@ -211,7 +211,9 @@ export function readCopy(article) {
       if (note) block(note, box.blocks);
       blocks.push(box);
     } else if (part.matches(".sheet-copy__key")) {
-      // The leader's optional answer key: a heading, then a line per passage.
+      // The leader's optional answer key: a page of its own (E100), a
+      // heading, then a line per passage.
+      blocks.push({ type: "break" });
       blocks.push({ type: "section", text: part.querySelector(".sheet-copy__key-title")?.textContent ?? "Answer key" });
       for (const row of part.querySelectorAll(".sheet-copy__key-row")) blocks.push({ type: "para", inlines: inlines(row.childNodes) });
     } else if (part.matches(".sheet-copy__break")) {
