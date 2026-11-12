@@ -285,7 +285,7 @@ function noteControls(classes) {
 /**
  * The controls in the Display tray's Show group: all of them on a Chapter View
  * chapter, only "My bookmarks", "My highlights" and "Hide my marks" in
- * Read View, which shows no notes, and "My highlights" alone on /desk. Also H
+ * Read View, which shows no notes, and none on /desk (E108). Also H
  * and Ctrl+Z in the tray's list of keys, and on a chapter a line under the Show group saying that a selection
  * reaches the same actions as a verse number (audit C10: hiding the numbers
  * mustn't hide the way in), and "Reset widths" while the reader has dragged
@@ -309,18 +309,10 @@ function injectIntoTray() {
   const show = checks?.closest("fieldset");
   const study = Boolean(document.querySelector("#fontTray [data-terms-check]") && document.querySelector(".chapter-paragraphs"));
   const read = vn?.getAttribute("data-vn-view") === "read";
-  // /desk shows Chapter View's text in its LIT panes but no margin: of the desk's
-  // switches only "My highlights" means anything there, so that alone is added
-  // (BVJ, 2026-10-21). It is Chapter View's setting, as the panes' highlights are.
-  const deskPage = Boolean(
-    document.querySelector("[data-desk-page]") && vn?.getAttribute("data-vn-view") === "study",
-  );
-  if (deskPage && checks) {
-    const { lights } = noteControls(TRAY_CLASSES);
-    lights.dataset.desk = "";
-    checks.append(lights);
-    return;
-  }
+  // /desk's tray has no Show group to add to: "My highlights," the one desk
+  // switch that means anything there, is on each LIT pane's bar with the
+  // other marks, and is that pane's own (E108; lit-show.js). "Hide my marks"
+  // still hides the highlights in every pane (lit-marks.js).
   const prose = !study && !read && prosePage();
   if (prose) {
     injectProseShow();

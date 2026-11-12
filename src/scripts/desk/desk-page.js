@@ -67,12 +67,14 @@ import {
   isFollower,
   kindLabel,
   leavesReading,
+  marksTurned,
   needs,
   nodeAt,
   openKind,
   openLitBeside,
   openingLayout,
   originalLayout,
+  paneHides,
   panes,
   readSaved,
   regionNames,
@@ -84,11 +86,13 @@ import {
   placeFor,
   litPlace,
   setLitAt,
+  setPaneMark,
   setPaneSheet,
   showSheet,
   sizingFor,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
+import { markNames } from "../../lib/desk-lit-marks.mjs";
 import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
 import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
@@ -103,7 +107,7 @@ import { createDeskSheetTour } from "./sheets/sheet-tour-desk.js";
 import { mountPane } from "./desk-panes.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
-import { marksRemembered, turnOffMarks, turnOnMarks } from "./reading-display.js";
+import { undoOldReading } from "./lit-marks.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { initPins } from "./pins.js";
@@ -195,6 +199,8 @@ async function start() {
   if (!root) return;
   addDeskStyle();
   initNoteSettings();
+  // A Reading left on from before each pane kept its own marks (E108).
+  undoOldReading();
   initUndo();
 
   let store = null;
@@ -398,21 +404,20 @@ async function start() {
       const next = applyArrangement(layout, a.id);
       const stays = new Set(panes(next.root).map((p) => p.id));
       const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
-      // Reading also clears the marks off the text, and leaving it puts back
-      // the ones it cleared (reading-display.js), before the panes are drawn
-      // so they come up right.
-      const marks = a.id === "reading" ? turnOffMarks() : arrangementOf(before) === "reading" ? turnOnMarks() : null;
-      commit(next);
+      // Reading also clears the marks off its pane's text, and leaving it
+      // puts back the ones it cleared. Both are in the layout itself
+      // (readingLayout, desk-layout.mjs), so this only names them, and Undo
+      // is the layout as it was.
+      const turned = marksTurned(before, next);
+      const marks = markNames(a.id === "reading" ? turned.off : arrangementOf(before) === "reading" ? turned.on : []);
+      commit(next, { quiet: true });
       // A smaller layout closes panes from the end: say which, and offer to
       // bring them back (DK-9). The bar announces itself.
       const said = [`Layout: ${a.label}.`];
       if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
-      if (marks?.names.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks.names)}.`);
+      if (marks.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks)}.`);
       if (said.length > 1) {
-        showUndo(said.join(" "), () => {
-          marks?.undo();
-          commit(before);
-        });
+        showUndo(said.join(" "), () => commit(before, { quiet: true }));
       } else announce(`Layout: ${a.label}.`);
       closeMenu();
     });
@@ -436,10 +441,13 @@ async function start() {
     announce("This layout is now your default.");
   });
   menu.querySelector("[data-ws-reset]").addEventListener("click", () => {
-    // The panes go back; the reader's place stays (BA55).
-    const marks = arrangementOf(layout) === "reading" ? turnOnMarks() : null;
-    commit(originalLayout(layout.place));
-    announce(`Back to the original layout: the LIT beside My Notes.${marks?.names.length ? ` Turned on ${LIST.format(marks.names)}.` : ""}`);
+    // The panes go back; the reader's place stays (BA55). The original
+    // layout's LIT pane shows every mark, which is said on the way out of
+    // Reading, where they were off.
+    const next = originalLayout(layout.place);
+    const marks = arrangementOf(layout) === "reading" ? markNames(marksTurned(layout, next).on) : [];
+    commit(next, { quiet: true });
+    announce(`Back to the original layout: the LIT beside My Notes.${marks.length ? ` Turned on ${LIST.format(marks)}.` : ""}`);
     closeMenu();
   });
 
@@ -609,31 +617,29 @@ async function start() {
   /**
    * Leaving Reading by any way at all (Add pane, a drag, a pane's kind, a
    * link's sheet or introduction, as well as the Layout window) turns back on
-   * the marks it turned off (DK3-2; BVJ, 2026-11-07). The Layout window does
-   * it itself, to name them in its own message; this catches the rest, and
-   * finds nothing remembered after the window. Run before the panes are drawn
-   * so they come up right; not while the tour is changing the layout.
+   * the marks it turned off (DK3-2; BVJ, 2026-11-07). The layout does that
+   * itself, whatever changed it (desk-layout.mjs, settleActive); this is the
+   * names of the marks that came back, for the page to say, or null. The
+   * Layout window says them in its own message (`quiet`), and nothing is said
+   * while the tour is changing the layout.
    */
   function leaveReading(before, next = layout) {
-    if (layoutFrozen || !leavesReading(before, next) || !marksRemembered()) return null;
-    const marks = turnOnMarks();
-    return marks.names.length ? marks : null;
+    if (layoutFrozen || !leavesReading(before, next)) return null;
+    const names = markNames(marksTurned(before, next).on);
+    return names.length ? names : null;
   }
 
   /** Say that leaving Reading turned its marks back on, with Undo for both. */
-  function tellMarks(marks, before) {
-    showUndo(`Left Reading: turned on ${LIST.format(marks.names)}.`, () => {
-      marks.undo();
-      commit(before);
-    });
+  function tellMarks(names, before) {
+    showUndo(`Left Reading: turned on ${LIST.format(names)}.`, () => commit(before, { quiet: true }));
   }
 
-  /** Take a new layout: kept at once, and drawn (or only re-marked). */
-  function commit(next, { draw: redraw = true } = {}) {
+  /** Take a new layout: kept at once, and drawn (or only re-marked). `quiet`: the caller says what leaving Reading did. */
+  function commit(next, { draw: redraw = true, quiet = false } = {}) {
     if (next === layout) return;
     const before = layout;
     layout = next;
-    const marks = leaveReading(before);
+    const marks = quiet ? null : leaveReading(before);
     save();
     if (redraw) {
       draw();
@@ -787,6 +793,9 @@ async function start() {
         set: (passage) => setPassageOf(pane.id, passage),
         getSheet: () => findPane(layout.root, pane.id)?.sheet ?? null,
         setSheet: (sheetId) => commit(setPaneSheet(layout, pane.id, sheetId), { draw: false }),
+        // What a LIT pane's text shows is its own (E108), kept with it here.
+        getHide: () => paneHides(layout, pane.id),
+        setMark: (id, on) => commit(setPaneMark(layout, pane.id, id, on), { draw: false }),
       });
     }
     return rec;
@@ -858,6 +867,9 @@ async function start() {
     for (const pane of all) {
       const rec = paneEls.get(pane.id);
       if (!rec) continue;
+      // What a LIT pane's text shows, from the layout (its "Show," Reading,
+      // an undo): the pane does nothing when it already shows this.
+      if (pane.kind === "lit") rec.inst?.setMarks?.(paneHides(layout, pane.id));
       const name = kindLabel(pane.kind);
       rec.kindButton.querySelector(".desk-pane__name").textContent = name;
       rec.kindButton.setAttribute("aria-label", `${name} pane: show something else here, or move it`);

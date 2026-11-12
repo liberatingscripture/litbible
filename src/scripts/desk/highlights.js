@@ -26,6 +26,7 @@ import { offsetsToRange, pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { COLORS, placeRecord } from "../../lib/desk-records.mjs";
 import { forChapter, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { SETTINGS_EVENT, getSetting, highlightSetting, highlightsSupported } from "./note-settings.js";
+import { highlightsShownIn } from "./lit-marks.js";
 import { watchLitRecords } from "./lit-records.js";
 import { chapterTextFor, pageChapter, readBook } from "./page.js";
 
@@ -72,6 +73,11 @@ export function createHighlights({ store }) {
   }
 
   function draw() {
+    // This view's own switch (note-settings.js).
+    if (getSetting(highlightSetting()) !== "on") {
+      clear();
+      return;
+    }
     const texts = new Map(); // chapter -> its text, read once for this drawing and dropped
     paint(
       records.map((r) => {
@@ -94,8 +100,9 @@ export function createHighlights({ store }) {
 
 /**
  * /desk's LIT panes (3g): every chapter they show, in every pane showing it,
- * read through lit-records.js. Chapter View's setting decides whether they're
- * shown, since the panes are Chapter View's text.
+ * read through lit-records.js. Each pane's own "Show" decides whether its
+ * text carries them (E108; lit-marks.js), so one pane can show a chapter's
+ * highlights beside another that doesn't; "Hide my marks" hides them in all.
  */
 function deskHighlights(store) {
   let entries = [];
@@ -103,7 +110,7 @@ function deskHighlights(store) {
     paint(
       entries.flatMap(({ box, records }) => {
         const mine = records.filter((r) => r.kind === "highlight");
-        if (!mine.length) return [];
+        if (!mine.length || !highlightsShownIn(box)) return [];
         const text = pageAnchorText(box.children); // read fresh, once per box per drawing
         return mine.map((record) => ({ text, record }));
       }),
@@ -129,10 +136,6 @@ function clear() {
  * One CSS Custom Highlight per colour holds every range of that colour.
  */
 function paint(items) {
-  if (getSetting(highlightSetting()) !== "on") {
-    clear();
-    return;
-  }
   const byColor = new Map();
   for (const { text, record: r } of items) {
     if (!COLORS.includes(r.color) || !text) continue; // a chapter this page doesn't show (a draft in Read View)

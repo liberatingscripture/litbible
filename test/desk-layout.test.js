@@ -62,7 +62,11 @@ import {
   splitPane,
   swapPanes,
   writeSaved,
+  marksTurned,
+  paneHides,
+  setPaneMark,
 } from "../src/lib/desk-layout.mjs";
+import { LIT_MARKS, MARK_IDS, markList, markNames } from "../src/lib/desk-lit-marks.mjs";
 
 // ---- helpers --------------------------------------------------------------
 
@@ -1950,4 +1954,191 @@ test("sheetPaneFor: as a row where a column doesn't fit, and nothing where neith
   assert.equal(none.paneId, null);
   const full = applyArrangement(mk(leaf("p1", "lit")), "grid");
   assert.deepEqual(sheetPaneFor(full, 4000, 4000), { layout: full, paneId: null }, "four panes is the most");
+});
+
+// ---- what a LIT pane's text shows (E108) --------------------------------------
+
+const hides = (layout, id) => paneHides(layout, id);
+const twoLits = () => {
+  const l = mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "lit", pin: null, at: "john 3" } }, { pane: { id: "p2", kind: "lit", pin: null, at: "romans 8" } }), "p1");
+  l.place = "john 3";
+  return l;
+};
+
+test("the marks are four, and a list of them is checked", () => {
+  assert.deepEqual(MARK_IDS, ["vn", "fn", "terms", "highlights"]);
+  assert.deepEqual(LIT_MARKS.map((m) => m.label), ["Verse and chapter numbers", "Footnote letters", "Key terms", "My highlights"]);
+  assert.deepEqual(markList(["highlights", "vn", "vn", "later", 3]), ["vn", "highlights"], "known ids, once each, in the table's order");
+  for (const bad of [null, undefined, "vn", { vn: true }, 4]) assert.deepEqual(markList(bad), [], JSON.stringify(bad));
+  assert.deepEqual(markNames(["terms", "vn"]), ["verse numbers", "key terms"]);
+});
+
+test("each LIT pane keeps its own marks: one changes and the other doesn't (E108)", () => {
+  const l = twoLits();
+  assert.deepEqual(hides(l, "p1"), [], "a pane shows everything until told otherwise");
+  const a = setPaneMark(l, "p1", "vn", false);
+  const b = setPaneMark(a, "p2", "terms", false);
+  const c = setPaneMark(b, "p1", "fn", false);
+  assert.deepEqual(hides(c, "p1"), ["vn", "fn"]);
+  assert.deepEqual(hides(c, "p2"), ["terms"]);
+  assert.deepEqual(hides(l, "p1"), [], "the layout it came from is untouched");
+  // On again: the field goes when nothing is hidden.
+  const d = setPaneMark(setPaneMark(c, "p1", "vn", true), "p1", "fn", true);
+  assert.equal("hide" in findPane(d.root, "p1"), false);
+  assert.deepEqual(hides(d, "p2"), ["terms"]);
+});
+
+test("setPaneMark changes nothing for a mark already so, a mark it doesn't know, or a pane that isn't the LIT", () => {
+  const l = setPaneMark(originalLayout("john 3"), "p1", "vn", false);
+  assert.equal(setPaneMark(l, "p1", "vn", false), l);
+  assert.equal(setPaneMark(l, "p1", "fn", true), l);
+  assert.equal(setPaneMark(l, "p1", "numbers", false), l);
+  assert.equal(setPaneMark(l, "p2", "vn", false), l, "My Notes has no such switch");
+  assert.equal(setPaneMark(l, "nope", "vn", false), l);
+  assert.deepEqual(hides(l, "p2"), []);
+});
+
+test("a pane's marks travel with it, and go when it shows another kind", () => {
+  const l = setPaneMark(twoLits(), "p2", "fn", false);
+  assert.deepEqual(hides(swapPanes(l, "p1", "p2"), "p2"), ["fn"], "moved");
+  assert.deepEqual(hides(applyArrangement(l, "rows-2"), "p2"), ["fn"], "another arrangement");
+  assert.deepEqual(hides(setLitAt(l, "p2", "mark 1"), "p2"), ["fn"], "scrolled");
+  assert.deepEqual(hides(closePane(l, "p1"), "p2"), ["fn"], "its neighbor closed");
+  const back = setKind(setKind(l, "p2", "greek"), "p2", "lit");
+  assert.deepEqual(hides(back, "p2"), [], "a new LIT pane shows everything");
+  assert.equal("hide" in findPane(back.root, "p2"), false);
+});
+
+test("a saved layout keeps each pane's marks, and only marks it knows", () => {
+  const l = setPaneMark(setPaneMark(twoLits(), "p1", "highlights", false), "p2", "vn", false);
+  const saved = readSaved(writeSaved({ last: l, mine: l, start: "default" }));
+  assert.deepEqual(hides(saved.last, "p1"), ["highlights"]);
+  assert.deepEqual(hides(saved.last, "p2"), ["vn"]);
+  assert.deepEqual(hides(openingLayout(saved, "mark 1"), "p2"), ["vn"], "My default keeps them, at a new place");
+  const odd = checkLayout({
+    root: cols([0.5, 0.5], { pane: { id: "p1", kind: "lit", pin: null, hide: ["terms", "x", "terms", 7] } }, { pane: { id: "p2", kind: "mine", pin: null, hide: ["vn"] } }),
+    active: "p1",
+  });
+  assert.deepEqual(findPane(odd.root, "p1").hide, ["terms"]);
+  assert.equal("hide" in findPane(odd.root, "p2"), false, "only a LIT pane has them");
+  for (const bad of ["vn", { vn: 1 }, 5, null]) {
+    assert.equal("hide" in checkLayout({ root: { pane: { id: "p1", kind: "lit", pin: null, hide: bad } }, active: "p1" }).root.pane, false, JSON.stringify(bad));
+  }
+});
+
+// ---- Reading turns its pane's marks off, and back on when it ends ----------------
+
+test("choosing Reading turns its pane's four marks off and lists the ones it turned off", () => {
+  const from = setPaneMark(originalLayout("john 3"), "p1", "terms", false);
+  const reading = readingLayout(from);
+  assert.deepEqual(hides(reading, "p1"), MARK_IDS);
+  assert.deepEqual(reading.root.pane.readingHid, ["vn", "fn", "highlights"], "key terms were off already");
+  assert.deepEqual(marksTurned(from, reading), { on: [], off: ["vn", "fn", "highlights"] });
+  assert.deepEqual(hides(from, "p1"), ["terms"], "the layout it came from is untouched");
+});
+
+test("Reading takes the active LIT pane's marks, and a second LIT pane's are closed with it", () => {
+  const l = setPaneMark(twoLits(), "p2", "vn", false);
+  const reading = readingLayout({ ...l, active: "p2" });
+  assert.deepEqual(ids(reading), ["p2"]);
+  assert.deepEqual(reading.root.pane.readingHid, ["fn", "terms", "highlights"]);
+});
+
+test("Reading from a layout with no LIT pane turns all four off in the new one", () => {
+  const from = { root: leaf("a", "mine"), active: null, place: "john 3:16" };
+  const reading = readingLayout(from);
+  assert.deepEqual(reading.root.pane.hide, MARK_IDS);
+  assert.deepEqual(reading.root.pane.readingHid, MARK_IDS);
+  assert.deepEqual(marksTurned(from, reading).off, MARK_IDS, "a pane that wasn't there showed everything");
+});
+
+test("leaving Reading turns back on what Reading turned off, by every way out", () => {
+  const from = setPaneMark(originalLayout("john 3"), "p1", "terms", false);
+  const reading = readingLayout(from);
+  const id = reading.root.pane.id;
+  for (const [name, next] of [
+    ["One pane", applyArrangement(reading, "one")],
+    ["Two columns", applyArrangement(reading, "cols-2")],
+    ["Add pane", addPane(reading, "column", "mine", 1600, 900)],
+    ["a drag", splitPane(reading, id, "right", newPane(reading, "greek"))],
+    ["a link's sheet", showSheet(reading, "sheet-1", 1600)],
+  ]) {
+    assert.equal(leavesReading(reading, next), true, name);
+    assert.deepEqual(hides(next, id), ["terms"], `${name}: the reader's own choice stays off`);
+    assert.equal("readingHid" in findPane(next.root, id), false, `${name}: the list is forgotten`);
+    assert.deepEqual(marksTurned(reading, next), { on: ["vn", "fn", "highlights"], off: [] }, name);
+  }
+  assert.deepEqual(reading.root.pane.readingHid, ["vn", "fn", "highlights"], "none of it changed the layout it started from");
+  assert.deepEqual(hides(reading, id), MARK_IDS);
+});
+
+test("a mark turned back on by hand in Reading stays on, and one turned off there stays off", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  const id = reading.root.pane.id;
+  const shown = setPaneMark(reading, id, "fn", true);
+  assert.equal(arrangementOf(shown), "reading", "Show doesn't end Reading");
+  assert.deepEqual(hides(shown, id), ["vn", "terms", "highlights"]);
+  const left = applyArrangement(shown, "cols-2");
+  assert.deepEqual(hides(left, id), []);
+  assert.deepEqual(marksTurned(shown, left).on, ["vn", "terms", "highlights"], "footnote letters were on already");
+});
+
+test("a second press of Reading adds to what is remembered, never replaces it (LV3-2)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  const id = reading.root.pane.id;
+  const again = readingLayout(reading);
+  assert.deepEqual(again.root.pane.readingHid, MARK_IDS, "finding all four off, it forgets none");
+  assert.deepEqual(marksTurned(reading, again), { on: [], off: [] });
+  // One turned on by hand, then Reading once more: off again, and remembered with the rest.
+  const third = readingLayout(setPaneMark(reading, id, "fn", true));
+  assert.deepEqual(hides(third, id), MARK_IDS);
+  assert.deepEqual(marksTurned(setPaneMark(reading, id, "fn", true), third).off, ["fn"]);
+  assert.deepEqual(hides(applyArrangement(third, "one"), id), []);
+});
+
+test("Reading's pane shown as another kind takes its marks with it, and nothing is said", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  const id = reading.root.pane.id;
+  const notes = setKind(reading, id, "mine");
+  assert.equal(leavesReading(reading, notes), true);
+  assert.equal("hide" in findPane(notes.root, id), false);
+  assert.equal("readingHid" in findPane(notes.root, id), false);
+  assert.deepEqual(marksTurned(reading, notes), { on: [], off: [] });
+});
+
+test("Reset from Reading names what the original layout's LIT pane shows again", () => {
+  const reading = readingLayout(setPaneMark(originalLayout("john 3"), "p1", "terms", false));
+  assert.deepEqual(marksTurned(reading, originalLayout("john 3")).on, MARK_IDS);
+  const other = readingLayout({ root: { pane: { id: "p7", kind: "lit", pin: null, at: "john 3" } }, active: "p7", place: "john 3" });
+  assert.deepEqual(marksTurned(other, originalLayout("john 3")).on, MARK_IDS, "a pane of another id: the new leading LIT pane stands in");
+});
+
+test("a saved Reading layout keeps its marks off and what to turn back on", () => {
+  const reading = readingLayout(setPaneMark(originalLayout("john 3"), "p1", "terms", false));
+  const saved = readSaved(writeSaved({ last: reading, mine: null, start: "last" }));
+  assert.deepEqual(saved.last.root.pane.hide, MARK_IDS);
+  assert.deepEqual(saved.last.root.pane.readingHid, ["vn", "fn", "highlights"]);
+  assert.deepEqual(hides(applyArrangement(saved.last, "cols-2"), "p1"), ["terms"]);
+  // A list left on a layout that isn't Reading is ended as it is read.
+  const stale = checkLayout({ root: { pane: { id: "p1", kind: "lit", pin: null, hide: ["vn", "fn"], readingHid: ["vn"] } }, active: "p1" });
+  assert.deepEqual(stale.root.pane.hide, ["fn"]);
+  assert.equal("readingHid" in stale.root.pane, false);
+});
+
+test("a Reading layout saved before panes kept their marks opens with its pane's off, to come back", () => {
+  // It had them off through Chapter View's switches; its pane lists nothing.
+  const old = checkLayout({ root: { pane: { id: "p1", kind: "lit", pin: null, at: "john 3" } }, active: "p1", reading: true, place: "john 3" });
+  assert.equal(arrangementOf(old), "reading");
+  assert.deepEqual(old.root.pane.hide, MARK_IDS);
+  assert.deepEqual(hides(applyArrangement(old, "cols-2"), "p1"), [], "all four come back when Reading ends");
+  // One made since lists something, and is read as it stands: the reader had
+  // turned every mark back on by hand, or had them all off before Reading.
+  const allOn = setPaneMark(setPaneMark(setPaneMark(setPaneMark(readingLayout(originalLayout("john 3")), "p1", "vn", true), "p1", "fn", true), "p1", "terms", true), "p1", "highlights", true);
+  assert.deepEqual(hides(checkLayout(JSON.parse(JSON.stringify(allOn))), "p1"), []);
+  const offBefore = readingLayout(setPaneMark(setPaneMark(setPaneMark(setPaneMark(originalLayout("john 3"), "p1", "vn", false), "p1", "fn", false), "p1", "terms", false), "p1", "highlights", false));
+  const read = checkLayout(JSON.parse(JSON.stringify(offBefore)));
+  assert.equal("readingHid" in read.root.pane, false);
+  assert.deepEqual(hides(applyArrangement(read, "cols-2"), "p1"), MARK_IDS, "the reader's own choice, kept");
+  // One LIT pane that isn't Reading is left alone.
+  assert.equal("hide" in checkLayout({ root: { pane: { id: "p1", kind: "lit", pin: null } }, active: "p1" }).root.pane, false);
 });

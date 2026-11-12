@@ -132,7 +132,15 @@
   5. **Scripture pages pass `scriptureControls`** down through the layouts:
      `"study"` from a chapter page with text, `"read"` from `/read/<book>`
      (numbers only, since Read View prints no footnote letters). Other
-     pages don't show the "Show" group at all.
+     pages don't show the "Show" group at all, /desk included: each LIT
+     pane there has its own four switches on its bar (`desk/lit-show.js`,
+     E108), which mark up that pane alone. **These three attributes on
+     `<html>` are Chapter View's and never reach a LIT pane**: the rules
+     keyed on them in `global.css` leave out a text that carries
+     `data-own-marks`, as each chapter in a LIT pane does, and `desk.css`
+     hides the same things by the pane's own attributes
+     (`.desk-lit[data-vn="off"]`). A new rule keyed on the page's switch
+     needs the same `:not([data-own-marks])`.
   6. **Verse numbers are one setting per view** (owner, 2026-09-30). Every
      other setting is the reader's everywhere; what a page shows depends on
      what the page is for. They were one switch at first, so hiding

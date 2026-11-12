@@ -34,9 +34,15 @@
 //   none for its list of sheets;
 // - a layout the reader chose as Reading says so (`reading: true`, E107), for
 //   as long as it is one LIT pane; any other way to one LIT pane is One pane;
+// - a LIT pane keeps what its text shows (E108; desk-lit-marks.mjs): `hide`,
+//   the marks its "Show" turned off, absent while it shows them all. Each
+//   pane has its own, so two LIT panes can differ. Reading turns its pane's
+//   off and lists the ones it turned off on the pane (`readingHid`), which
+//   come back on when Reading ends, whatever ends it;
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
 
+import { MARK_IDS, markList } from "./desk-lit-marks.mjs";
 import { parsePassage } from "./desk-passage.mjs";
 
 export const MAX_PANES = 4;
@@ -280,6 +286,12 @@ export function originalLayout(place = null) {
  */
 function settleActive(layout) {
   if (layout.reading !== undefined && !isReading(layout)) delete layout.reading;
+  // The marks Reading turned off come back with it (E8; DK3-2). The tree may
+  // be shared with the layout this one was made from, so it is copied first.
+  if (!isReading(layout) && panes(layout.root).some((p) => p.readingHid)) {
+    layout.root = clone(layout.root);
+    endReading(layout.root);
+  }
   const lits = panes(layout.root).filter((p) => p.kind === "lit");
   if (!lits.some((p) => p.id === layout.active)) {
     const next = lits[0] ?? null;
@@ -288,6 +300,26 @@ function settleActive(layout) {
   }
   if (layout.place) placeLitPanes(layout.root, layout.place);
   return layout;
+}
+
+/** Set the marks a pane hides: a checked list, or no field for none. Mutates `pane`. */
+function setHide(pane, ids) {
+  const list = markList(ids);
+  if (list.length) pane.hide = list;
+  else delete pane.hide;
+}
+
+/**
+ * Reading is over: a LIT pane gets back the marks Reading turned off, those
+ * still off (one the reader turned back on by hand is on already), and the
+ * list is forgotten. Mutates `root`.
+ */
+function endReading(root) {
+  for (const p of panes(root)) {
+    if (!p.readingHid) continue;
+    if (p.kind === "lit") setHide(p, markList(p.hide).filter((id) => !p.readingHid.includes(id)));
+    delete p.readingHid;
+  }
 }
 
 /**
@@ -336,6 +368,12 @@ export function applyArrangement(layout, id) {
  * one (else the first, else a new one at the shared place), with its place kept. The other panes close; nothing of theirs is
  * lost but their position, since a layout holds no records. The layout is
  * marked `reading`, which is what makes it Reading and not One pane (E107).
+ *
+ * Reading is the text with nothing between the reader and the words (BVJ,
+ * 2026-11-04), so the pane's four marks go off, and the ones this turned off
+ * are listed on the pane (`readingHid`) to come back when Reading ends
+ * (settleActive). Choosing Reading again adds to that list, never replaces it
+ * (LV3-2): a second press finds the marks off already and would forget them.
  */
 export function readingLayout(layout) {
   const all = panes(layout.root);
@@ -344,6 +382,12 @@ export function readingLayout(layout) {
   const pane = lit ? clone(lit) : newPane(layout, "lit");
   pane.pin = null;
   if (!lit && layout.place) pane.at = layout.place;
+  const hidden = markList(pane.hide);
+  const earlier = isReading(layout) ? markList(pane.readingHid) : [];
+  const turnedOff = markList([...earlier, ...MARK_IDS.filter((id) => !hidden.includes(id))]);
+  pane.hide = [...MARK_IDS];
+  if (turnedOff.length) pane.readingHid = turnedOff;
+  else delete pane.readingHid;
   return settleActive({ ...layout, root: { pane }, active: pane.id, reading: true });
 }
 
@@ -540,6 +584,9 @@ export function setKind(layout, id, kind) {
   delete pane.at;
   // So is the sheet a Sheets pane shows (3f); another kind has none.
   delete pane.sheet;
+  // And what a LIT pane's text shows (E108): a new one shows everything.
+  delete pane.hide;
+  delete pane.readingHid;
   return settleActive(next);
 }
 
@@ -598,6 +645,48 @@ export function setPaneSheet(layout, id, sheetId) {
   if (want) p.sheet = want;
   else delete p.sheet;
   return next;
+}
+
+/** The marks a LIT pane hides (desk-lit-marks.mjs), in the table's order; none for any other pane. */
+export function paneHides(layout, id) {
+  const pane = findPane(layout?.root, id);
+  return pane?.kind === "lit" ? markList(pane.hide) : [];
+}
+
+/**
+ * Show or hide one mark in one LIT pane ("Show" on its bar, E108). Unchanged
+ * for another kind of pane, a mark the table lacks, or a mark already so.
+ */
+export function setPaneMark(layout, id, mark, on) {
+  const pane = findPane(layout?.root, id);
+  if (pane?.kind !== "lit" || !MARK_IDS.includes(mark)) return layout;
+  const hidden = markList(pane.hide);
+  if (hidden.includes(mark) === !on) return layout;
+  const next = clone(layout);
+  setHide(findPane(next.root, id), on ? hidden.filter((m) => m !== mark) : [...hidden, mark]);
+  return next;
+}
+
+/**
+ * What a change of layout did to the marks of the LIT pane being read, as
+ * mark ids: the ones it turned on and the ones it turned off. The pane is
+ * `before`'s leading LIT pane, found again by its id in `next`; where it is
+ * gone or no longer the LIT, `next`'s leading one stands in (Reset's new
+ * pane), and a pane `before` never had counts as having shown everything.
+ * For the sentence that says what entering or leaving Reading did.
+ */
+export function marksTurned(before, next) {
+  const lead = (layout) => {
+    const active = findPane(layout?.root, layout?.active);
+    return active?.kind === "lit" ? active : panes(layout?.root).find((p) => p.kind === "lit") ?? null;
+  };
+  const from = lead(before);
+  const same = from ? findPane(next?.root, from.id) : null;
+  const to = same?.kind === "lit" ? same : lead(next);
+  if (!to) return { on: [], off: [] };
+  const was = from ? markList(from.hide) : [];
+  const now = markList(to.hide);
+  return { on: was.filter((m) => !now.includes(m)), off: now.filter((m) => !was.includes(m)) };
 }
 
 /**
@@ -1030,7 +1119,7 @@ const PANE_ID = /^p\d{1,3}$/;
  * this code doesn't know are kept, for a pane from a later version. Anything
  * else is null, and the caller falls back. The Reading mark is kept only as
  * `true` on one LIT pane (E107); one LIT pane saved before layouts carried it
- * reads as One pane.
+ * reads as One pane. A LIT pane keeps the marks it hides (E108).
  */
 export function checkLayout(value) {
   if (!value || typeof value !== "object") return null;
@@ -1049,6 +1138,13 @@ export function checkLayout(value) {
       // A LIT pane's place that isn't a passage is dropped, so the shared
       // place (or Continue reading) stands in for it.
       if (kind === "lit" && parsePassage(node.pane.at)) kept.at = node.pane.at;
+      // What a LIT pane's text hides (E108), and what Reading turned off in
+      // it: only marks the table has. settleActive ends a Reading that isn't.
+      if (kind === "lit") {
+        setHide(kept, node.pane.hide);
+        const readingHid = markList(node.pane.readingHid);
+        if (readingHid.length) kept.readingHid = readingHid;
+      }
       if (kind === "sheet" && typeof node.pane.sheet === "string" && node.pane.sheet) kept.sheet = node.pane.sheet;
       return { pane: kept };
     }
@@ -1072,6 +1168,16 @@ export function checkLayout(value) {
   // Set before settleActive, which gives it to any LIT pane without a place
   // (BA52); one that isn't a passage is dropped, so it isn't passed on.
   if (parsePassage(value.place)) layout.place = value.place;
+  // A Reading layout saved before a pane kept its own marks (E108) had them
+  // off through Chapter View's switches, and its pane lists nothing. It opens
+  // with the pane's four off, all to come back when Reading ends, which is
+  // what it was. (One made since always lists something: what it hides, or
+  // what Reading turned off.)
+  const only = layout.root.pane;
+  if (isReading(layout) && !only.hide && !only.readingHid) {
+    only.hide = [...MARK_IDS];
+    only.readingHid = [...MARK_IDS];
+  }
   return settleActive(layout);
 }
 

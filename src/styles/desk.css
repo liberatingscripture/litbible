@@ -5573,6 +5573,126 @@ html.desk-ws--moving * {
   display: none;
 }
 
+/* "Show" at the end of the LIT pane's bar (lit-show.js, E108): a worded
+   button in the command row's look, the height of the bar's arrows, opening
+   the menu of what the text carries. It adds no height above the text. */
+.desk-lit__show {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 30px;
+  margin: 0 0 0 2px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: var(--desk-control);
+  color: var(--text);
+  font: 500 0.875rem/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.desk-lit__show:hover,
+.desk-lit__show[aria-expanded="true"] {
+  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
+}
+
+.desk-lit__show svg {
+  display: block;
+}
+
+.desk-lit__show-glyph {
+  display: none;
+}
+
+/* The bar's field gives way before "Show" wraps under it in a narrow pane. */
+.desk-lit .desk-passage__field {
+  flex-basis: 4rem;
+}
+
+/* A bar under 22rem (a LIT pane among three or four columns) keeps the room
+   for its passage: "Show" is an eye there, the size of the arrows, with the
+   shared tooltip naming it (E72's rule for "Stay here", the other way round). */
+@supports (container-type: inline-size) {
+  .desk-lit > .desk-passage {
+    container: deskLitBar / inline-size;
+  }
+
+  @container deskLitBar (max-width: 22rem) {
+    .desk-lit__show {
+      justify-content: center;
+      width: 30px;
+      padding: 0;
+    }
+
+    .desk-lit__show-glyph {
+      display: inline-flex;
+    }
+
+    .desk-lit__show-word,
+    .desk-lit__show-caret {
+      display: none;
+    }
+  }
+}
+
+/* Its menu: four checkboxes, on <body> and fixed under the button. Above the
+   panes and the page's header, under floating windows and the tour. */
+.desk-lit-show {
+  z-index: 900;
+  font: 400 0.9375rem/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
+}
+
+.desk-lit-show__item,
+.desk-lit-show__item[aria-checked="true"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 8px;
+  padding: 6px 12px 6px 8px;
+  background-image: none;
+  font-weight: 400;
+}
+
+/* The box is drawn in the text's color, so it holds in both themes and in
+   forced colors; the tick shows only while the item is checked. */
+.desk-lit-show__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--field-border);
+  border-radius: 4px;
+  color: var(--text);
+}
+
+.desk-lit-show__box svg {
+  display: block;
+  visibility: hidden;
+}
+
+.desk-lit-show__item[aria-checked="true"] .desk-lit-show__box {
+  border-color: var(--text);
+}
+
+.desk-lit-show__item[aria-checked="true"] .desk-lit-show__box svg {
+  visibility: visible;
+}
+
+.desk-lit-show__item .desk-title__hint {
+  flex-basis: 100%;
+  margin-left: 24px;
+}
+
+.desk-lit-show__item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
 .desk-dp__content {
   flex: 1 1 auto;
   min-height: 0;
@@ -5824,18 +5944,17 @@ html.desk-ws--moving * {
   text-decoration: underline;
 }
 
-/* With verse numbers off (the Display tray, or the Reading arrangement), the
-   chapters run together as one text, so a chapter's heading makes no break
-   (E29; BVJ, 2026-11-05). It is hidden the way a hidden verse number is: out
-   of the flow, so it adds no height, and still a heading, a link and a focus
-   stop. With focus it shows over the start of its chapter rather than
-   pushing the text down. Chapter View's own pages keep theirs. */
-html[data-vn="off"] .desk-lit__heading {
+/* What a LIT pane's text shows is the pane's own (E108; BVJ, 2026-11-12):
+   its "Show" (and the Reading arrangement) stamps data-vn, data-fn and
+   data-terms "off" on the pane, so two panes side by side can differ. The
+   page's own switches, Chapter View's, never reach this text: its boxes
+   carry data-own-marks, which global.css's rules leave out. Numbers and
+   letters are hidden as Chapter View hides them (global.css): clipped, never
+   removed, since each is a control and a place a link lands, back in view
+   while it has keyboard focus. Highlights are highlights.js's. */
+.desk-lit[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible),
+.desk-lit[data-fn="off"] .chapter-paragraphs sup.fn-ref:not(:focus-within) {
   position: absolute;
-  margin: 0;
-}
-
-html[data-vn="off"] .desk-lit__heading:not(:focus-within) {
   width: 1px;
   height: 1px;
   margin: -1px;
@@ -5846,7 +5965,38 @@ html[data-vn="off"] .desk-lit__heading:not(:focus-within) {
   white-space: nowrap;
 }
 
-html[data-vn="off"] .desk-lit__heading:focus-within {
+.desk-lit[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible) + .vn-gap {
+  display: none;
+}
+
+.desk-lit[data-terms="off"] .chapter-paragraphs .term {
+  text-decoration: none;
+  cursor: auto;
+}
+
+/* With verse numbers off (the pane's own "Show", or the Reading arrangement), the
+   chapters run together as one text, so a chapter's heading makes no break
+   (E29; BVJ, 2026-11-05). It is hidden the way a hidden verse number is: out
+   of the flow, so it adds no height, and still a heading, a link and a focus
+   stop. With focus it shows over the start of its chapter rather than
+   pushing the text down. Chapter View's own pages keep theirs. */
+.desk-lit[data-vn="off"] .desk-lit__heading {
+  position: absolute;
+  margin: 0;
+}
+
+.desk-lit[data-vn="off"] .desk-lit__heading:not(:focus-within) {
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.desk-lit[data-vn="off"] .desk-lit__heading:focus-within {
   z-index: 1;
   padding: 2px 8px;
   border-radius: 6px;

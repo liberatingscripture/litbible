@@ -80,8 +80,9 @@ From the root's project tree.
                      #   (desk-greek); /desk's panes and their
                      #   layouts (desk-layout), the passages they show
                      #   (desk-passage), the search pane's rules
-                     #   (desk-search-pane), and the LIT pane's corpus and
-                     #   text (desk-corpus, desk-lit-text)), greek-parse.mjs (MorphGNT's parsing
+                     #   (desk-search-pane), and the LIT pane's corpus,
+                     #   text and what each pane's text shows (desk-corpus,
+                     #   desk-lit-text, desk-lit-marks)), greek-parse.mjs (MorphGNT's parsing
                      #   codes in words, shared with the phase 2 tool),
                      #   read-view-retirement.mjs (Read View's launch
                      #   redirects and saved-place rules; dormant until

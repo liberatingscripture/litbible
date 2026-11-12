@@ -327,9 +327,18 @@ function mountFootnotes(body, env, pane) {
 
 function mountLit(body, env, pane) {
   body.classList.add("desk-pane__body--fill");
-  const lit = createLitPane({ paneId: pane.id, start: pane.get(), drafts: env.drafts, onPlace: pane.set, showPassage: env.showPassage });
+  const lit = createLitPane({
+    paneId: pane.id,
+    start: pane.get(),
+    drafts: env.drafts,
+    onPlace: pane.set,
+    showPassage: env.showPassage,
+    // What its text shows is the pane's own, kept in the layout (E108).
+    hide: pane.getHide(),
+    onMark: pane.setMark,
+  });
   body.append(lit.el);
-  return { setPassage: (p) => lit.goTo(p), keep: () => lit.keep(), destroy: () => lit.destroy() };
+  return { setPassage: (p) => lit.goTo(p), keep: () => lit.keep(), setMarks: (hide) => lit.setMarks(hide), destroy: () => lit.destroy() };
 }
 
 function mountIntro(body, env, pane) {

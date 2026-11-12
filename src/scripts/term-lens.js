@@ -30,6 +30,8 @@
 // information for keyboard and screen-reader readers.
 //
 // The Display tray's "Key terms" box turns it off (html[data-terms="off"]).
+// A text with switches of its own (/desk's LIT pane, one set per pane) hands
+// attachTermLens an `off` to ask instead.
 //
 // Everything per chapter lives behind attachTermLens(container, data), so a
 // page can hold several chapters at once, each with its own data: this module
@@ -158,9 +160,9 @@ function placeMarks(container, data) {
 
 /* ── The card ───────────────────────────────────────────────────────── */
 
-function markOf(data, el) {
+function markOf(data, el, off = lensOff) {
   const span = el?.closest?.(".term");
-  if (!span || lensOff()) return null;
+  if (!span || off()) return null;
   const mark = data.marks[Number(span.dataset.mark)];
   return mark ? { span, mark } : null;
 }
@@ -298,7 +300,7 @@ function scheduleClose() {
   }, CLOSE_DELAY);
 }
 
-function wire(container, data, signal) {
+function wire(container, data, signal, off) {
   // Mouse hover. As with reference previews, a panel someone opened on
   // purpose (the verse menu, a footnote, the selection bar) is never
   // replaced by one that merely passed under the pointer. A pointer with a
@@ -308,7 +310,7 @@ function wire(container, data, signal) {
   // holds once the delay has run, so a selection made meanwhile is left be.
   container.addEventListener("pointerover", (e) => {
     if (e.pointerType !== "mouse" || e.buttons) return;
-    const hit = markOf(data, e.target);
+    const hit = markOf(data, e.target, off);
     if (!hit) return;
     lightSiblings(container, data, hit.span, hit.mark, true);
     clearTimeout(closeTimer);
@@ -324,7 +326,7 @@ function wire(container, data, signal) {
   }, { signal });
   container.addEventListener("pointerout", (e) => {
     if (e.pointerType !== "mouse") return;
-    const hit = markOf(data, e.target);
+    const hit = markOf(data, e.target, off);
     if (!hit || hit.span.contains(e.relatedTarget)) return;
     lightSiblings(container, data, hit.span, hit.mark, false);
     clearTimeout(hoverTimer);
@@ -333,7 +335,7 @@ function wire(container, data, signal) {
 
   // A tap (or a click that selects nothing) opens it as a dialog.
   container.addEventListener("click", (e) => {
-    const hit = markOf(data, e.target);
+    const hit = markOf(data, e.target, off);
     if (!hit) return;
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed) return;
@@ -363,12 +365,13 @@ function wire(container, data, signal) {
  * chapters on one page never mix. The hover timers and the panel are shared,
  * since lit-panel.js shows one panel at a time. Returns { destroy }, which
  * takes the handlers off again (the marks stay, and a container taken out of
- * the page needs no cleanup).
+ * the page needs no cleanup). `off`, when given, says whether this text's
+ * lens is off, in place of the page's switch.
  */
-export function attachTermLens(container, data) {
+export function attachTermLens(container, data, { off } = {}) {
   placeMarks(container, data);
   const controller = new AbortController();
-  wire(container, data, controller.signal);
+  wire(container, data, controller.signal, off);
   return { destroy: () => controller.abort() };
 }
 
