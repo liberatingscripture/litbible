@@ -213,12 +213,12 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   telling word (“with” in “cooperate with”) tells nothing. A flagged note
   is left out until the leader decides, so widen this only after running
   it over every footnote. **A blank comes off three ways** (E65): the
-  row's ×, "Fill in the selected words" beside "Blank the selected words"
+  row's ×, "Unblank" beside "Blank"
   (`blanksTouching`: every blank the selection reaches, whole), and Enter on
   words the keyboard cursor holds that are already blank. **The free-text part
   is "Text"** everywhere (E66; it was "Your text"). When a redraw
   removes the control that had focus, focus goes to one that is always
-  drawn ("Blank the selected words", the footnotes summary, the key
+  drawn ("Blank", the footnotes summary, the key
   terms note), never to the page (`restoreFocus`, SH5-10). A footnote
   gives a blank away by using its words or by naming a traditional
   word the blank's hint doesn't show (`blankWords`' `telltale`; SH5-16,
@@ -234,8 +234,8 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   leaves the browser's own selection, snapped out to whole words on mouse-up
   (`wordsTouching`). **Either way the keyboard carries on from there**: its
   first arrow, Enter or Escape turns the selection into the cursor
-  (`selectedWords`) and drops the selection. "Blank the selected words" and
-  "Fill in the selected words" act on the selection, else on a cursor that is
+  (`selectedWords`) and drops the selection. "Blank" and
+  "Unblank" act on the selection, else on a cursor that is
   lit (`shownCursorSpan`). **A part is added
   between parts from the gap between them** (BVJ, 2026-11-08): pointing
   at the space under a card (or the keyboard: the pills are one Tab stop,

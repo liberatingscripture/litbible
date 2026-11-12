@@ -2703,6 +2703,30 @@ tap areas (`global.css`, never under 24px).
   nothing, as the bar's disabled arrow does. The keys still stand down in
   the passage field and the other controls that own them, and with the
   Keyboard switch off. The help page's /desk section names the keys.
+- **E92, design and wording: the blanks row.** BVJ (2026-11-11): in the
+  sheet editor, “the ‘blank the selected words’ and ‘fill in the selected
+  words’ buttons should be left-justified instead of spread out across the
+  row,” and the row's label “seems vague and the latter two seem
+  cumbersome.” Names were proposed by Fable (asked at BVJ's suggestion) and
+  BVJ chose them: “Yes, rename them.” Status: **done 2026-11-11**: the
+  buttons sit together right after the label (`.desk-sheet__lit-head`,
+  `justify-content: flex-start`; a narrow pane still wraps them whole, E89).
+  The label is “Fill in the blank,” naming what the row makes; the buttons
+  are “Blank” and “Unblank,” plain opposites with no “selected,” since
+  they act on the keyboard's word cursor too and their descriptions say
+  “chosen.” Every other place that used “fill in” to mean taking a blank off
+  says “unblank” now (the list's ×, a blanked key term's chip, the
+  announcements, the keyboard hint), so “fill in” means only what the group
+  does. The empty line puts the action first and names the key terms only
+  where their row is drawn. The Sheets tour, its blanks step, and the help
+  page follow.
+- **E93, design: the sheet toolbar's link icon.** BVJ (2026-11-11): “The
+  link icon is weird. It needs to be redesigned.” It was two half-drawn
+  arcs on the diagonal, which read as a squiggle at 16px. Status: **done
+  2026-11-11**: two open links joined by a bar, level like the toolbar's
+  list and alignment icons (`ICONS.link` in `sheet-text.js`). Chosen from
+  three drawn side by side at 16px and 48px; two whole links interlocked on
+  the diagonal read well large but closed into a knot at toolbar size.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

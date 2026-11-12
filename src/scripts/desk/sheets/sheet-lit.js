@@ -437,7 +437,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
     box.append(words.el);
     if (!readOnly && words.base != null) {
-      box.append(make("p", "desk-sheet__hint", "Click a word, double-click it, or drag across words to choose them. With the keyboard: Tab to the passage, move by word with the left and right arrows and by line with up and down (Shift extends), and press Enter to blank, or to fill in words that are already blank."));
+      box.append(make("p", "desk-sheet__hint", "Click a word, double-click it, or drag across words to choose them. With the keyboard: Tab to the passage, move by word with the left and right arrows and by line with up and down (Shift extends), and press Enter to blank them, or to unblank words that are already blank."));
       armWordCursor();
     }
     if (v.check.state === "changed") {
@@ -525,7 +525,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     // A click in the passage lights a word without selecting it; that word counts.
     const held = offsets ? null : shownCursorSpan();
     if (!offsets && !held) {
-      refuse("Select words in this passage first, then choose “Blank the selected words.”");
+      refuse("Select words in this passage first, then choose “Blank.”");
       return;
     }
     let [s, e] = wholeWords(view.chapter.text, ...(offsets ? [words.base + offsets[0], words.base + offsets[1]] : held));
@@ -535,17 +535,17 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     addBlanks([[s, e]]);
   }
 
-  /** Fill in again every blank the span touches (a blank is one unit). */
+  /** Unblank every blank the span touches (a blank is one unit). */
   function fillIn(s, e) {
     const hit = blanksTouching(ownBlanks(), s, e);
     if (!hit.length) {
-      refuse("None of the selected words are blank.");
+      refuse("None of the chosen words are blank.");
       return;
     }
     const ids = new Set(hit.map((b) => b.blank.id));
     const words = hit.map((b) => view.chapter.text.slice(b.start, b.end));
     const label = hit.length > 1 ? `${hit.length} blanks` : quoted(words[0]);
-    setBlanks((mod.blanks ?? []).filter((x) => !ids.has(x.id)), `${label} filled in again.`);
+    setBlanks((mod.blanks ?? []).filter((x) => !ids.has(x.id)), `${label} unblanked.`);
   }
 
   function fillInSelection() {
@@ -558,7 +558,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         : null;
     const held = offsets ? null : shownCursorSpan();
     if (!offsets && !held) {
-      refuse("Select blanked words in this passage first, then choose “Fill in the selected words.”");
+      refuse("Select blanked words in this passage first, then choose “Unblank.”");
       return;
     }
     sel.removeAllRanges();
@@ -762,21 +762,21 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     markBlanks(located);
     blanksBox.replaceChildren();
     const head = make("div", "desk-sheet__lit-head");
-    head.append(make("span", "desk-sheet__lit-title", "Blanks"));
+    head.append(make("span", "desk-sheet__lit-title", "Fill in the blank"));
     if (!readOnly) {
-      const pick = button("Blank the selected words");
+      const pick = button("Blank");
       pick.dataset.focusKey = "blank-selection";
-      pick.title = "Leave the words you’ve selected in this passage blank on the participant’s version";
+      pick.title = "Leave the words you’ve chosen in this passage blank on the participant’s version";
       // Keep the selection: pressing the button would otherwise clear it first.
       pick.addEventListener("mousedown", (e) => e.preventDefault());
       pick.addEventListener("click", blankSelection);
-      head.append(pick, describe(pick, "Leaves the words you’ve selected in this passage blank on the participant’s version."));
-      const unpick = button("Fill in the selected words");
+      head.append(pick, describe(pick, "Leaves the words you’ve chosen in this passage blank on the participant’s version."));
+      const unpick = button("Unblank");
       unpick.dataset.focusKey = "fill-in-selection";
-      unpick.title = "Show again the blanked words you’ve selected in this passage";
+      unpick.title = "Print the blanked words you’ve chosen in this passage in full again";
       unpick.addEventListener("mousedown", (e) => e.preventDefault());
       unpick.addEventListener("click", fillInSelection);
-      head.append(unpick, describe(unpick, "Shows again the blanked words you’ve selected in this passage, on the participant’s version too."));
+      head.append(unpick, describe(unpick, "Prints the blanked words you’ve chosen in this passage in full again, on the participant’s version too."));
     }
     blankNote = make("p", "desk-sheet__empty");
     blankNote.hidden = true;
@@ -815,7 +815,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         const chip = button(word, "desk-sheet__chip");
         chip.dataset.focusKey = `term-${id}`;
         chip.setAttribute("aria-pressed", String(blanked));
-        if (blanked) chip.title = `Fill in “${word}” again`;
+        if (blanked) chip.title = `Unblank “${word}”`;
         else if (one) chip.title = `Blank “${word}”${times} with “${traditionalHint(one)}” beneath`;
         else if (unsure === marks.length) chip.title = `Blank “${word}”${times} and choose ${many ? "their hints" : "its hint"} in the list below`;
         else if (same === marks.length) chip.title = `Blank “${word}”${times} with no hint, since the traditional word is the same`;
@@ -824,7 +824,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         chip.addEventListener("click", () => {
           if (blanked) {
             const keep = located.filter((b) => !marks.some((mk) => b.start != null && b.start < mk.end && mk.start < b.end));
-            setBlanks(keep.map((b) => b.blank), `“${word}” filled in again.`);
+            setBlanks(keep.map((b) => b.blank), `“${word}” unblanked.`);
           } else {
             const which = !many ? "it" : unsure === marks.length ? "them" : unsure === 1 ? "one of them" : `${unsure} of them`;
             const choose = unsure ? ` Choose a hint for ${which} in the list below.` : "";
@@ -838,7 +838,11 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
 
     if (!located.length) {
-      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : "No blanks yet. Select words in the passage, then choose “Blank the selected words.” (To show blanked words again, select them and choose “Fill in the selected words.”) A blank leaves those words out of the participant’s version and shows them on the leader’s."));
+      // The key terms row, when there is one, sits above this line.
+      const how = byTerm.size
+        ? "Select words in the passage and choose “Blank,” or choose a key term above."
+        : "Select words in the passage and choose “Blank.”";
+      blanksBox.append(make("p", "desk-sheet__empty", readOnly ? "No blanks." : `No blanks yet. ${how} Blanked words print as a gap on the participant’s version and in full on the leader’s.`));
       return;
     }
     const ul = make("ul", "desk-sheet__blank-list");
@@ -948,17 +952,17 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       });
       const remove = button("×", "desk-sheet__icon");
       remove.dataset.focusKey = `remove-${suffix}`;
-      remove.title = "Fill in again";
-      remove.setAttribute("aria-label", members.length > 1 ? `Fill in ${quoted(words)} again, all ${members.length} times` : `Fill in ${quoted(words)} again`);
+      remove.title = "Unblank";
+      remove.setAttribute("aria-label", members.length > 1 ? `Unblank ${quoted(words)}, all ${members.length} times` : `Unblank ${quoted(words)}`);
       remove.addEventListener("click", () => {
-        // A row fills in all of its blanks. A blank of a term kept apart from the
+        // A row unblanks all of its blanks. A blank of a term kept apart from the
         // term's row (its words changed) can leave others blank, and the
         // sentence says how many (SH5-17).
         const termId = group.termId ?? (first.prints ? termForWords(first.start, first.end, view.allMarks, view.terms)?.id : null) ?? null;
         const left = termBlanksLeft(located, view.allMarks, view.terms, termId, ids);
         setBlanks(
           (mod.blanks ?? []).filter((x) => !ids.has(x.id)),
-          `${quoted(words)} filled in again${left ? `; ${left} still blank.` : "."}`,
+          `${quoted(words)} unblanked${left ? `; ${left} still blank.` : "."}`,
         );
       });
       li.append(remove);

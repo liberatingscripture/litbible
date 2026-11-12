@@ -7407,12 +7407,13 @@ a.desk-sheet__open {
 }
 
 /* In a narrow pane its buttons go to a line of their own, whole, rather than
-   breaking their labels over four lines inside their edges (E89). */
+   breaking their labels over four lines inside their edges (E89). The
+   buttons sit together after the label, not spread across the row. */
 .desk-sheet__lit-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 6px 8px;
   margin-bottom: 6px;
 }
@@ -7422,6 +7423,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__lit-title {
+  margin-right: 4px;
   font-size: 0.8125rem;
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.85);

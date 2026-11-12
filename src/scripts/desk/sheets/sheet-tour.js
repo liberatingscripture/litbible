@@ -267,8 +267,8 @@ export function createSheetTour({ host }) {
       return { el: form, side: "left", marks: [form] };
     },
 
-    // A passage added for the tour, beside its blanks, with "Blank the
-    // selected words" and the footnotes' summary marked. Offline (no chapter
+    // A passage added for the tour, beside its blanks, with "Blank" and the
+    // footnotes' summary marked. Offline (no chapter
     // read, so no blanks), beside the passage itself.
     async blanks(live) {
       const ed = await ensureSheet(live);
@@ -284,7 +284,7 @@ export function createSheetTour({ host }) {
       }
       const summary = await waitFor(() => card.querySelector(".desk-sheet__notes-summary"), 1000);
       if (!live()) return null;
-      const blank = Array.from(box.querySelectorAll("button")).find((b) => b.textContent.trim() === "Blank the selected words");
+      const blank = Array.from(box.querySelectorAll("button")).find((b) => b.textContent.trim() === "Blank");
       bring(ed, box);
       return { el: box, side: "left", marks: [blank, summary ?? card.querySelector(".desk-sheet__notes")].filter(Boolean) };
     },
