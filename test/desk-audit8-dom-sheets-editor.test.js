@@ -150,6 +150,20 @@ test("a space's ruled preview follows its lines field (SH8-4)", async () => {
   assert.equal(ruled.style.getPropertyValue("--lines"), "2");
 });
 
+test("a question's ruled preview follows its lines field and hides at 0 (E104)", async () => {
+  const q = makeModule("question", { lines: 3 });
+  const { card } = await editorOn([q]);
+  const ruled = card(q).querySelector(".desk-sheet__ruled");
+  assert.ok(ruled, "the card draws the lines it prints");
+  assert.equal(ruled.hidden, false);
+  assert.equal(ruled.style.getPropertyValue("--lines"), "3");
+  setField(card(q).querySelector(".desk-sheet__lines input"), "0");
+  assert.equal(ruled.hidden, true, "no lines, no preview");
+  setField(card(q).querySelector(".desk-sheet__lines input"), "12");
+  assert.equal(ruled.hidden, false);
+  assert.equal(ruled.style.getPropertyValue("--lines"), "6", "drawn up to six");
+});
+
 test("another tab's minutes and Leader only show in the head of a part being typed in (DI8-7)", async () => {
   const part = makeModule("text", { html: "<p>Words</p>" });
   const { sheet, card } = await editorOn([part]);

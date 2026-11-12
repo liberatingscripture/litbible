@@ -2937,6 +2937,13 @@ tap areas (`global.css`, never under 24px).
   label 0.5rem from its first choice (the radio's own left margin taken
   off), and “Edit in Study Desk” is 1.25rem further from Share…. At 1100px
   the checkboxes still sit beside the rows.
+- **E104, rough spot: a question's lines to write on were easy to miss in
+  the editor.** BVJ (2026-11-11): the participant's version prints lines
+  under a question, but “there's nothing to indicate its presence in the
+  editor.” The “Lines to write on” number was there, a small field under
+  the answer box. Status: **done 2026-11-11**: the question card draws the
+  ruled lines under that field, as a space's card does (up to six, none at
+  0), following the number as it changes.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
