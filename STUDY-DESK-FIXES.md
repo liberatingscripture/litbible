@@ -3025,8 +3025,8 @@ tap areas (`global.css`, never under 24px).
   a menu inside another menu is a surefire way to have people never use
   those options. I'd like to move the things that are only relevant to the
   LIT pane onto the pane itself.” The Display tray opens from “Study Desk ▾,”
-  then “Display options” (E15, kept by E68). Status: **built 2026-11-12**
-  (branch `claude/lit-pane-show`, not yet merged). What was sorted: of the
+  then “Display options” (E15, kept by E68). Status: **done 2026-11-12**
+  (PR #560). What was sorted: of the
   tray's groups on /desk, only “Show” (verse numbers, footnote letters, key
   terms, My highlights) reaches the LIT pane alone; the font and theme set
   every pane, text size and line spacing also set the Greek and Book Intro
