@@ -811,6 +811,13 @@
   flex: 1 1 20rem;
 }
 
+/* The line after an import is one sentence with a link in it. As a flex row
+   its text, link and period were three items: a gap before the link and the
+   period alone on a line (E105). */
+.sheets-page__shared--line {
+  display: block;
+}
+
 /* "New sheet…" and its templates on the list (S12, part 1, step 2). */
 .sheets-page__new {
   margin-block: 1rem 0.5rem;

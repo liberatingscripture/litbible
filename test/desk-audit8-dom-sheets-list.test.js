@@ -216,9 +216,11 @@ test("importing a shared sheet on /sheets/ is announced through the undo bar's r
   })();
   take.click();
   await until(() => document.querySelector("[data-undo-live]")?.textContent, 5000, "the announcement");
-  assert.equal(document.querySelector("[data-undo-live]").textContent, "Copied into your notebook. Change it here with Edit, or on the Study Desk.");
+  assert.equal(document.querySelector("[data-undo-live]").textContent, "Copied into your notebook. Change it here with Edit, or in the Study Desk.");
   assert.ok(!root.contains(document.querySelector("[data-undo-live]")), "the region was already in the page, outside the view");
   const line = [...root.querySelectorAll("p.sheets-page__shared")].find((p) => p.textContent.startsWith("Copied"));
   assert.ok(line, "the line is still shown");
   assert.equal(line.getAttribute("role"), null, "and isn't a second live region");
+  assert.equal(line.textContent, "Copied into your notebook. Change it here with Edit, or in the Study Desk.");
+  assert.ok(line.classList.contains("sheets-page__shared--line"), "drawn as a sentence, not the banner's flex row (E105)");
 });
