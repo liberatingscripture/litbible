@@ -2978,14 +2978,14 @@ tap areas (`global.css`, never under 24px).
   How: `desk-page.js`'s `draw()` stamps `data-desk-reading` on `.desk-ws`
   whenever the layout is one LIT pane (`arrangementOf`, so a reader who
   closes down to one LIT pane gets it too, as the Layout window shows Reading
-  pressed), and one rule in `desk.css` does the rest. The floor is a
+  pressed; E107 narrowed this to the layout chosen as Reading), and one rule
+  in `desk.css` does the rest. The floor is a
   container query on the text column, in the column's own em, so the Display
   tray's text size is counted. The browser draws the hyphens; the text is
   untouched. Known limits, told to BVJ: a browser breaks lines one at a time,
   so an occasional loose line remains; which words split is each browser's
   dictionary's call; and Chrome fetches its dictionary on first use.
-  Status: **built 2026-11-11** on `claude/reading-justify`, awaiting BVJ's
-  look. Checked in headless Chrome against the built pages, since **the
+  Status: **done 2026-11-12** (PR #557). Checked in headless Chrome against the built pages, since **the
   app's Browser pane has no hyphenation dictionary** and draws the justified
   text with no hyphens at all: on Romans 7 and 8, 9% of lines end in a hyphen,
   never more than two in a row, and the word gaps wider than twice a normal
@@ -2995,7 +2995,30 @@ tap areas (`global.css`, never under 24px).
   the browser's default (17% of lines, three in a row) and stricter ones
   (wider gaps for few hyphens saved); `text-wrap: pretty` did not help in
   Chrome. The reader's line holds within 3px going into Reading and out.
-  Firefox and Safari are not checked. (proposed by Claude, 2026-11-02; a grouping of the open
+  Firefox and Safari are not checked.
+- **E107, wish: Reading and One pane are told apart.** BVJ (2026-11-12),
+  after E106: “Is there a way to differentiate reading layout and single
+  pane layout for this?” Until now they were one thing: any layout of one
+  LIT pane was Reading, so “One pane” over the LIT, or closing the other
+  panes, also justified the text and showed Reading pressed, and a reader
+  had no way to keep one plain LIT pane. Status: **built 2026-11-12** on
+  `claude/reading-vs-one-pane`: a layout carries `reading: true` only when
+  the reader chose the Reading row (`readingLayout`, `desk-layout.mjs`).
+  `settleActive`, which every change to the panes or their kinds ends in,
+  takes the mark off a layout that is no longer one LIT pane, and every
+  other Layout row takes it off too, so one LIT pane reached another way
+  (One pane, closing the rest, a pane's kind changed and changed back) is
+  “One pane”: left-aligned, the marks as the reader has them, and “One
+  pane” pressed in the Layout window. Choosing One pane while in Reading
+  leaves Reading and turns its marks back on, as any way out does. The mark
+  is saved with the layout (`checkLayout` keeps it only as `true` on one LIT
+  pane), so the last layout and “My default” open as Reading. The page
+  needed no change, since it asks `arrangementOf`. No migration (the
+  preview has one user): one LIT pane saved before this opens as One pane,
+  with whatever marks Reading had turned off still off until Reading is
+  chosen once more or they are switched on in Display options.
+
+**Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
 and E22, so those sessions run one after another; the Greek search work and
