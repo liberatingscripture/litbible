@@ -1054,17 +1054,19 @@ function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
     history.replaceState(null, "", `${BASE}sheets/?id=${encodeURIComponent(mine.id)}`);
     await drawSheet(root, { sheet: mine, store });
     // Heard through `announce` below, not as a status of its own, so it isn't read twice.
-    const done = make("p", "sheets-page__shared");
+    // A sentence, not the banner's row of pieces: `--line` keeps its words,
+    // link and period running as text (E105).
+    const done = make("p", "sheets-page__shared sheets-page__shared--line");
     const open = make("a", null, "the Study Desk");
     open.href = `${BASE}desk/?sheet=${encodeURIComponent(mine.id)}`;
-    done.append(document.createTextNode("Copied into your notebook. Change it here with Edit, or on "), open, document.createTextNode("."));
+    done.append(document.createTextNode("Copied into your notebook. Change it here with Edit, or in "), open, document.createTextNode("."));
     root.prepend(done);
     // The Import button is gone with the banner, so focus would fall to the top of the page (SH5-10).
     open.focus();
     // A status line put in with its words already in it is seldom read out,
     // and the focus move would speak over it, so the undo bar's live region,
     // always in the page, says it (Audit 8, XA8-8).
-    announce("Copied into your notebook. Change it here with Edit, or on the Study Desk.");
+    announce("Copied into your notebook. Change it here with Edit, or in the Study Desk.");
   });
   box.append(p, take, status);
   return box;

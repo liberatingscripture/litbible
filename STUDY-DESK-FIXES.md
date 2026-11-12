@@ -2944,6 +2944,14 @@ tap areas (`global.css`, never under 24px).
   the answer box. Status: **done 2026-11-11**: the question card draws the
   ruled lines under that field, as a space's card does (up to six, none at
   0), following the number as it changes.
+- **E105, rough spot: the line after importing a shared sheet.** BVJ
+  (2026-11-11, testing a share link in Edge): “Copied into your notebook.
+  Change it here with Edit, or on the Study Desk” showed an extra space
+  before the link and its period alone on a second line, and should say
+  “in.” The line reused the shared-sheet banner's class, a flex row, so its
+  text, link and period were three flex items. Status: **done 2026-11-11**:
+  the line is `.sheets-page__shared--line`, plain text, and reads “or in
+  the Study Desk,” in the announcement too.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
