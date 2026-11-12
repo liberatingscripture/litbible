@@ -1363,7 +1363,8 @@ download of <file>") or say the browser may ask where to save.
    longer opens the panel on Study View? Keyboard-only readers lost their early
    route (NB-4) and a closed panel lost its reopen (NB-1).
 4. **Should the Notebook follow the Display tray's text size?** (See
-   Improvements.)
+   Improvements.) **Answered: yes** (BVJ, 2026-11-12, with line spacing;
+   STUDY-DESK-FIXES.md, E109).
 5. **Unsaved words.** Is discarding on Escape and Cancel deliberate (NB-2), or
    should the editor warn or keep a draft?
 

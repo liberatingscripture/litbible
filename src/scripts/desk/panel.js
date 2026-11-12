@@ -275,8 +275,10 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   panel.innerHTML = `
     <div class="desk-panel__head">
-      <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
-      <span class="desk-panel__badge">${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}</span>
+      <div class="desk-panel__name">
+        <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
+        <span class="desk-panel__badge">${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}</span>
+      </div>
       <a class="desk-panel__desk" href="${escapeHtml(deskHref)}" aria-label="Open the Study Desk">${ICON_DESK}</a>
       <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook">${ICON_COLLAPSE}</button>
     </div>

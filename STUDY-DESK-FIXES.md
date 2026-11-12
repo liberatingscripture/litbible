@@ -2902,7 +2902,7 @@ tap areas (`global.css`, never under 24px).
     toolbar's buttons grow while its row of choices didn't (“nothing in
     the row above that”), so the whole page follows it now, not only the
     editor. In /desk's Sheets pane the tray changes neither, as in every
-    other pane.
+    other pane (until E109, which has every pane follow the tray).
   - Checked in the Browser pane: at the tray's largest the editor's
     controls went from 13 to 16.6px with the fields unchanged, and at 16
     points the paper's text went from 16 to 21.3px across three pages.
@@ -3092,6 +3092,71 @@ tap areas (`global.css`, never under 24px).
   for BVJ to weigh: four small toggles laid out on the bar itself (no
   click to see them) were considered and not built, since they crowd the
   passage field in a narrow pane and put four more marks above the text.
+- **E109, bug: the text size reached some panes and not others.** BVJ
+  (2026-11-12): “Changing the font size in the page's display settings on
+  /desk affects some panes but not all, and I think the This verse pane it
+  only affects some of the sections.” Measured in the Browser pane, Medium
+  against Extra large: the LIT's and a Book Intro's text grew, and the
+  Greek pane's words and apparatus notes; in This verse only the verse's
+  Greek line did, its English, footnotes, and Go deeper staying put; My
+  Notes, Footnotes, Search, and Sheets did not change at all, nor any
+  pane's bar. The panes' styles set their sizes in rem, and only the
+  reading text multiplied by the tray's scale (what E101 and E108 recorded
+  as “as in every other pane” was this, not a decision).
+  Status: **fixed 2026-11-12** (PR #561): on /desk every pane follows the tray, as
+  the whole /sheets page does (E101): each pane's words, its bar and menus,
+  the command row, the Layout and Print windows, and the undo bar. Every
+  size `desk.css` and `desk-search.css` set in rem multiplies by
+  `--desk-ui`, which is the tray's scale on the desk page and unset
+  elsewhere, and a test fails on a size that doesn't. In the Sheets pane the
+  pane's own words follow and the sheet's fields keep the sheet's Text size,
+  a passage's words included. Checked at all four sizes in every pane kind:
+  each pane's text steps 16 : 18 : 20 : 23 together, once (the LIT's text is
+  not scaled twice), with nothing outside its pane at four columns of 286px
+  in Inter and OpenDyslexic at Extra large.
+  Claude's choices, open to BVJ: the bars, menus, and command row grow with
+  the words, since on /sheets BVJ wanted the toolbar's rows to grow
+  together; and the verse menu, the selection panel, and the note editor
+  that opens from them keep the site's size, since they are the same panels
+  as on a chapter page, where the tray has never sized them.
+  Noticed then, and put to BVJ: **line spacing** reached only the LIT's
+  and a Book Intro's text (not the Greek, which E108's note and the help
+  page's “for every pane” said it did); and **the Notebook panel beside a
+  chapter** had the same split (its Greek words followed the tray, the
+  rest didn't), which was Audit 2's question 4, never answered. BVJ, the
+  same day: “Fix the line spacing and notebook panel.” **Done 2026-11-12**:
+  - **Line spacing reaches every pane.** “Roomy” adds its quarter line to
+    every block of running text (`--desk-leading`, added to each line
+    height of 1.4 or more in `desk.css` and `desk-search.css`): the verse
+    and its footnotes in This verse, the Footnotes list, the Greek text,
+    its apparatus and a word's entry, My Notes' rows, search results, and
+    the Sheets pane's own notes. Titles, one-line labels, and buttons keep
+    their line, and a pane's header and passage bar keep their height. A
+    sheet's fields keep the sheet's own spacing, as they keep its size.
+  - **The Notebook panel follows both**, text size and line spacing, in all
+    four of its tabs, wherever the panel shows. It sets the two variables
+    on itself, so nothing else on a chapter page changes: the margin notes'
+    small buttons, the minimized tab, the undo bar, and the verse menu keep
+    their sizes, and so does `/notebook`.
+  - **Two things the larger words broke, fixed with it.** The panel is 280
+    to 440px wide whatever the text size, and its header could not hold
+    “Notebook,” the PREVIEW badge, and its two buttons at Extra large (or,
+    in OpenDyslexic, at any size in a 280px panel, where the minimize
+    button already sat 39px outside the panel before this change). The
+    name and badge now share one clipped row, so the badge drops out
+    whole and the buttons stay. And a pill of choices (Handwriting /
+    Plain, the lexicon switch, My Notes' scope) stacks its choices where a
+    line can't hold them, instead of clipping the last.
+  Checked in the Browser pane: Normal against Roomy in every pane kind
+  (each block of text 0.25 roomier, the bars' heights unchanged); the
+  panel's four tabs in Inter at Medium and Extra large at its own width,
+  and at 280px in Inter and Atkinson at Extra large and in OpenDyslexic at
+  Medium and Extra large (the two buttons always 13px inside its edge,
+  nothing clipped in any tab); and four 286px panes at a time at Extra
+  large and Roomy in Inter and OpenDyslexic (every kind but Book Intro).
+  Left as it was, for BVJ to weigh: the tray's line spacing does not reach
+  the /sheets page (its text size does, E101), and the Notebook's
+  minimized tab at the window's edge keeps its size.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
