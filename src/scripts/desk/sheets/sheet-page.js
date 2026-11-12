@@ -246,7 +246,7 @@ async function showList(root, store, { onPick = null, focusKey = null } = {}) {
   desk.href = `${BASE}desk/`;
   const intro = make("p", "sheets-page__intro");
   intro.append(
-    document.createTextNode("Each sheet here can be changed, printed as a leader’s version or a participant’s version, copied, or saved as a document for Word or another program. A Sheets pane on "),
+    document.createTextNode("Each sheet here can be changed, printed as a leader’s version or a participant’s version, copied, or saved as a document for Word or another program. A Sheets pane in "),
     desk,
     document.createTextNode(" has the fuller workspace, with the LIT beside the sheet."),
   );
@@ -952,7 +952,7 @@ function drawCheck(box, checks, deskHref) {
     list.append(li);
   }
   const advice = make("p", "sheets-page__check-advice", `${summary.advice} `);
-  const link = make("a", null, "Open it on the Study Desk");
+  const link = make("a", null, "Open it in the Study Desk");
   link.href = deskHref;
   advice.append(link);
   box.replaceChildren(head, list, advice);

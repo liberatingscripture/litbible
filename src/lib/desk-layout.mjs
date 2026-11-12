@@ -584,7 +584,7 @@ export function setPaneSheet(layout, id, sheetId) {
 }
 
 /**
- * Show a sheet in the layout (M5, "Open it on the Study Desk"): in the first
+ * Show a sheet in the layout (M5, "Open it in the Study Desk"): in the first
  * Sheets pane there is, else in a new Sheets pane split beside the active pane
  * (or the first), else, with four panes already open or no room for another
  * column, in the last pane that isn't a LIT pane (the last of all when every

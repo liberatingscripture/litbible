@@ -136,7 +136,7 @@ function footnotePositions(source, chapter) {
  */
 export const UNREAD_PASSAGE = "This passage couldn’t be read from the chapter.";
 export const UNREAD_PASSAGE_STEP = `${UNREAD_PASSAGE} Try adding these verses again from the LIT pane, then remove this passage.`;
-export const UNREAD_PASSAGE_ON_PAPER = `${UNREAD_PASSAGE} On the Study Desk, try adding these verses to the sheet again, then remove this passage.`;
+export const UNREAD_PASSAGE_ON_PAPER = `${UNREAD_PASSAGE} In the Study Desk, try adding these verses to the sheet again, then remove this passage.`;
 
 /**
  * A passage module read against today's chapter: { ok: true, source, chapter,

@@ -261,7 +261,7 @@ async function start() {
     commit(placed, { draw: false });
     return "placed";
   };
-  // A new sheet shown in a Sheets pane, as "Open it on the Study Desk" does
+  // A new sheet shown in a Sheets pane, as "Open it in the Study Desk" does
   // (M5): from the Search pane's "Make a sheet of these verses". That pane and
   // the LIT panes keep their places; false when no other pane could show it.
   const showSheetPane = (sheetId, keep) => {
@@ -1091,7 +1091,7 @@ async function start() {
     if (arrivalPlace) save();
   }
 
-  // ---- a sheet named in the address (M5: "Open it on the Study Desk") ----
+  // ---- a sheet named in the address (M5: "Open it in the Study Desk") ----
 
   // /desk/?sheet=<id> shows that sheet in a Sheets pane: the first one open,
   // else a new one beside the active pane. A sheet that isn't in this

@@ -497,7 +497,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      reader's notes on that verse. **The /notebook page is "My Notebook"**
      wherever it is named (E70, BVJ 2026-11-10).
      **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
-     "the notebook preview"); "Delete" is for what the reader typed or named
+     "the notebook preview"), and a reader works "in the Study Desk," never
+     "on" it (BVJ, 2026-11-11, E105; "on the Study Desk page" is the page); "Delete" is for what the reader typed or named
      (notes, labels, sheets) and "Remove" for marks on the text (bookmarks,
      highlights), both from `takeOff(kind)` in `desk-store-core.mjs`; in a
      button "copy" means a saved file, so a sheet's leader and participant
