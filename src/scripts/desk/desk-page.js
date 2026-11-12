@@ -834,6 +834,10 @@ async function start() {
     // which resets its scrolling (BA51), so each is noted first; and moving
     // an element blurs it, so the focus is put back after too.
     const putBack = Array.from(paneEls.values(), (rec) => (rec.el.isConnected ? keepScroll(rec) : null));
+    // Reading sets the LIT as a page of a book, justified and hyphenated
+    // (desk.css; E106). The rewrap moves every line, so the stamp goes on
+    // after each pane's place is noted and before it is put back.
+    root.toggleAttribute("data-desk-reading", arrangementOf(layout) === "reading");
     fit();
     const focused = panesBox.contains(document.activeElement) ? document.activeElement : null;
     const tree = build(drawn, []);
