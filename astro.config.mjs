@@ -73,5 +73,12 @@ export default defineConfig({
   ],
   vite: {
     cacheDir: path.join(os.tmpdir(), 'litbible-vite-cache'),
+    // Sessions keep their worktrees under .claude/worktrees/, each a whole
+    // copy of the repo with its own dist/. Watching them made the dev server
+    // crawl dozens of copies at start (two minutes, and a content-config
+    // timeout) and reload on another session's build.
+    server: {
+      watch: { ignored: ['**/.claude/**'] },
+    },
   },
 });
