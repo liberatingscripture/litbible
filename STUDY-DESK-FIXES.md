@@ -3001,8 +3001,8 @@ tap areas (`global.css`, never under 24px).
   pane layout for this?” Until now they were one thing: any layout of one
   LIT pane was Reading, so “One pane” over the LIT, or closing the other
   panes, also justified the text and showed Reading pressed, and a reader
-  had no way to keep one plain LIT pane. Status: **built 2026-11-12** on
-  `claude/reading-vs-one-pane`: a layout carries `reading: true` only when
+  had no way to keep one plain LIT pane. Status: **done 2026-11-12**
+  (PR #558): a layout carries `reading: true` only when
   the reader chose the Reading row (`readingLayout`, `desk-layout.mjs`).
   `settleActive`, which every change to the panes or their kinds ends in,
   takes the mark off a layout that is no longer one LIT pane, and every
