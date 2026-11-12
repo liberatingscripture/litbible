@@ -438,7 +438,9 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       return;
     }
     view = v;
-    words = passageWords(v, mod);
+    // Every footnote letter in the passage shows, so the Footnotes list below
+    // can be matched to the words; paintNotes marks the ones that print (E98).
+    words = passageWords(v, mod, { keepNotes: new Set(v.footnoteIds) });
     const box = make("div", "desk-sheet__passage-text");
     if (!words) {
       box.append(make("p", "desk-sheet__status", readOnly ? UNREAD_PASSAGE : UNREAD_PASSAGE_STEP));
@@ -1015,6 +1017,11 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
   function paintNotes(blanks, inputs, focusKey) {
     notesDrawn = inputs;
     const rows = footnoteRows(view.list, view.footnoteIds, mod.footnotes, blanks);
+    // The letters in the words say which footnotes print, as the list does.
+    const prints = new Set(rows.filter((r) => r.print).map((r) => r.id));
+    words?.el?.querySelectorAll("sup.fn-ref[data-note]").forEach((sup) => {
+      sup.classList.toggle("desk-sheet__fnref--off", !prints.has(sup.dataset.note));
+    });
     const printing = rows.filter((r) => r.print).length;
     const flagged = rows.filter((r) => r.givesAway.length && !r.decided).length;
     notesBox.replaceChildren();

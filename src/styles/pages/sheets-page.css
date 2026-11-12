@@ -388,9 +388,13 @@
   all: unset;
 }
 
+/* A printing footnote's letter: upright, bold and a size up from the verse
+   numbers, so it is found at a glance (E98; BVJ, 2026-11-11: small and
+   italic, it was hard to see). */
 .sheet-copy__fnref {
-  font-size: 0.65em;
-  font-style: italic;
+  padding: 0 1px;
+  font-size: 0.75em;
+  font-weight: 700;
   font-variant-ligatures: none;
 }
 
@@ -416,7 +420,7 @@
 
 .sheet-copy__note-label {
   flex: none;
-  font-style: italic;
+  font-weight: 700; /* as the letter in the words (E98) */
   font-variant-ligatures: none;
 }
 

@@ -7128,6 +7128,25 @@ a.desk-sheet__open {
   content: none;
 }
 
+/* Footnote letters (E98; BVJ, 2026-11-11: they were hard to see): every
+   footnote in the passage shows its letter, in Chapter View's bold green
+   while it prints and muted while it doesn't, as the Footnotes list below
+   says. Plain text, not a link: the list is where a footnote is chosen. */
+.desk-sheet__words sup.fn-ref {
+  padding: 0 1px;
+  font-size: 0.75em;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 0;
+  color: var(--green-text, #0f6b33);
+  font-variant-ligatures: none;
+}
+
+.desk-sheet__words sup.fn-ref.desk-sheet__fnref--off {
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
 /* A field's visible name where a part holds two editors alike (the question's
    answer). */
 .desk-sheet__field-label {
