@@ -16,6 +16,7 @@ import {
   blanksGivenAway,
   booksToCheck,
   collectKeyTerms,
+  commercialFindings,
   commercialShare,
   completeBooks,
   countWords,
@@ -907,6 +908,41 @@ test("commercialShare: over only when strictly above half", () => {
   assert.equal(commercialShare(51, 49).over, true);
   assert.equal(commercialShare(10, 0).over, true);
   assert.equal(commercialShare(0, 10).over, false);
+});
+
+/* ── commercialFindings (S7's sentences, shared by the License card and E94) ── */
+
+const counts = (lit, own, extra = {}) => ({ ...commercialShare(lit, own), whole: [], notesOff: 0, blanks: 0, ...extra });
+
+test("commercialFindings: an empty sheet says so and is not over", () => {
+  assert.deepEqual(commercialFindings(counts(0, 0)), [{ kind: "empty", text: "Nothing on the sheet to count yet.", over: false }]);
+});
+
+test("commercialFindings: a share within the terms is one line, not over", () => {
+  const [f, ...rest] = commercialFindings(counts(300, 700));
+  assert.equal(rest.length, 0);
+  assert.deepEqual(f, { kind: "share", pct: 30, over: false, text: "LIT material: 300 of 1,000 words (30%). That’s within the 50% the commercial terms allow." });
+});
+
+test("commercialFindings: a share just over half shows a tenth (GF8b-13)", () => {
+  const [f] = commercialFindings(counts(126, 124));
+  assert.equal(f.pct, 50.4);
+  assert.equal(f.over, true);
+  assert.equal(f.text, "LIT material: 126 of 250 words (50.4%). The commercial terms allow at most 50%.");
+});
+
+test("commercialFindings: a complete book, footnotes off, and blanks are each over, in the card's order", () => {
+  const found = commercialFindings(counts(10, 90, { whole: ["philemon"], notesOff: 1, blanks: 2 }));
+  assert.deepEqual(found.map((f) => [f.kind, f.over]), [["share", false], ["whole", true], ["notes", true], ["blanks", true]]);
+  assert.equal(found[1].text, "These passages quote all of Philemon. The commercial terms don’t cover a complete book of the Bible.");
+  assert.equal(found[2].text, "1 footnote in these passages is set not to print. The commercial terms ask that footnotes be kept with the verses they reference.");
+  assert.equal(found[3].text, "This sheet leaves 2 blanks. The commercial terms ask that the text be quoted as written; blanks are part of the noncommercial terms.");
+});
+
+test("commercialFindings: plural footnotes and a single blank read as such", () => {
+  const found = commercialFindings(counts(10, 90, { notesOff: 3, blanks: 1 }));
+  assert.match(found[1].text, /^3 footnotes in these passages are set not to print\./);
+  assert.match(found[2].text, /^This sheet leaves 1 blank\./);
 });
 
 /* ── booksToCheck / completeBooks ────────────────────────────────────── */

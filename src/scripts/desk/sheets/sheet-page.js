@@ -100,6 +100,8 @@ import { checkSummary } from "../../../lib/desk-sheet-check.mjs";
 import { passageReference } from "../../../lib/desk-sheet-passages.mjs";
 import { documentFileName } from "../../../lib/desk-sheet-doc.mjs";
 import { copyChecks, copyLeaks, renderCopy } from "./sheet-copy.js";
+import { commercialCounts } from "./sheet-lit.js";
+import { createCommercialGate } from "./commercial-confirm.js";
 import { paginate } from "./sheet-pages.js";
 import { leakSentence } from "../../../lib/desk-sheet-leaks.mjs";
 import { diffParagraph } from "../diff-view.js";
@@ -674,13 +676,22 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
   root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
-  share.addEventListener("click", () => (phone ? sharePhone(sheet, fragment, say, { received: shared, chosen: phoneScope }) : openShareDialog(sheet, share)));
+  // A sheet marked commercial asks before it leaves the page when it goes
+  // beyond the commercial terms, and never blocks (E94; commercial-confirm.js).
+  // A shared sheet and the tour's are not the reader's project.
+  const commercial = shared || demo ? null : createCommercialGate({ getSheet: () => sheet, counts: commercialCounts });
+  const cleared = (opener, verb) => (commercial ? commercial.ask(opener, verb) : Promise.resolve(true));
+  share.addEventListener("click", async () => {
+    if (phone) return sharePhone(sheet, fragment, say, { received: shared, chosen: phoneScope });
+    if (await cleared(share, "Share")) openShareDialog(sheet, share);
+  });
 
   let current = null;
   let seq = 0;
   let ready = Promise.resolve();
   function draw() {
     const n = ++seq;
+    commercial?.refresh();
     paperBox.setAttribute("aria-busy", "true");
     keyBox.hidden = copy !== "leader";
     ready = renderCopy(sheet, { copy, codes, answerKey })
@@ -760,14 +771,19 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     });
     await presenting;
   };
-  present.addEventListener("click", () => startPresenting({ fullscreen: true }));
+  present.addEventListener("click", async () => {
+    if (await cleared(present, "Present")) startPresenting({ fullscreen: true });
+  });
 
   const printCopy = async () => {
     await ready;
     window.print();
   };
-  print.addEventListener("click", printCopy);
+  print.addEventListener("click", async () => {
+    if (await cleared(print, "Print")) await printCopy();
+  });
   word.addEventListener("click", async () => {
+    if (!(await cleared(word, "Copy"))) return;
     await ready;
     if (!current) return;
     const ok = await copyToClipboard(copyForWord(current));
@@ -782,6 +798,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
 
   /** A Save as item: a file of the version on screen, or Print for a PDF. */
   async function saveAs(item) {
+    if (!(await cleared(save.el.querySelector("button"), "Save"))) return;
     if (item.slides) return saveSlides(item);
     if (item.print) {
       // Said before the print window opens, since it holds the page until closed.
@@ -858,7 +875,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   await draw();
   // Opened to present (the Sheets pane's "Present…"): full screen waits for
   // the leader's first click, which a browser requires.
-  if (view === "present") startPresenting({ fullscreen: false });
+  if (view === "present") {
+    if (await cleared(present, "Present")) startPresenting({ fullscreen: false });
+    else if (!demo) history.replaceState(history.state, "", `${BASE}sheets/?id=${encodeURIComponent(sheet.id)}`);
+  }
 }
 
 /**

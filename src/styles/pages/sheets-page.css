@@ -745,6 +745,16 @@
   gap: 0.5rem;
 }
 
+/* The commercial confirmation's findings (E94): the License card's sentences. */
+.sheets-page__commercial-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.sheets-page__commercial-list li + li {
+  margin-top: 0.35rem;
+}
+
 .sheets-page__dialog .sheets-page__status {
   min-height: 1.5em;
   margin: 0.5rem 0 0;
