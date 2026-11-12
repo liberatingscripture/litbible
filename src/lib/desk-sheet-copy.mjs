@@ -26,6 +26,16 @@ export const COPIES = Object.freeze(["leader", "participant"]);
 /** What each copy is called, on the page and on paper: "versions" to the reader (Audit 2, CP-11; the mock said "Participant copy"). */
 export const COPY_NAMES = Object.freeze({ leader: "Leader version", participant: "Participant version" });
 
+/**
+ * What the paper itself calls each copy, in its subtitle (BVJ, 2026-11-11):
+ * "Leader copy" reads more naturally on a printed sheet, and the participant's
+ * is the default, so it carries no label. Everything else (the Version choice,
+ * the page's title, Save as, Copy's status) keeps COPY_NAMES. Copy and the
+ * saved files read the subtitle off the copy on screen, so they say what the
+ * paper says.
+ */
+export const PAPER_NAMES = Object.freeze({ leader: "Leader copy", participant: "" });
+
 /** The site's address for codes and the foot of a copy: the apex host (STUDY-DESK-FORMAT.md, "Addresses"). */
 export const SITE = "https://litbible.net";
 

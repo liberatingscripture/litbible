@@ -92,7 +92,7 @@ test("the Sheets page starts the tour from its address, and draws the tour's she
   assert.match(page, /async function drawSheet\(root, \{[^}]*\bdemo = null \}\)/);
   assert.match(page, /shared && !demo \? \[sharedBanner\(/);
   assert.match(page, /\.\.\.\(demo \? \[\] : \[back\]\)/);
-  assert.match(page, /\.\.\.\(demo \|\| shared \? \[\] : \[edit\]\)/);
+  assert.match(page, /if \(!phone && !demo && !shared\) actions\.append\(edit\);/);
   assert.match(page, /if \(demo\) \{\s*demo\.onEdit\(\);\s*return;\s*\}/);
   // The tour's host never writes the address or history.
   const host = page.slice(page.indexOf("function tourHost("), page.indexOf("export async function showSharedOnPhone"));

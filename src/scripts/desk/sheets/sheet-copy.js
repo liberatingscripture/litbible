@@ -19,6 +19,7 @@ import {
   blankedTermsNote,
   chapterCodes,
   COPY_NAMES,
+  PAPER_NAMES,
   keyTermsForCopy,
   modulesForCopy,
   printsOnPaper,
@@ -381,7 +382,8 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   head.append(make("h1", "sheet-copy__title", sheetName(sheet)));
   // The planned minutes are the leader's (Audit 5, D #2): their total is on that version alone.
   const planned = copy === "leader" ? plannedTotal(sheet) : null;
-  head.append(make("p", "sheet-copy__subtitle", [sheet.subtitle?.trim(), COPY_NAMES[copy], planned ? `Planned ${planned} min` : ""].filter(Boolean).join(" · ")));
+  const subtitle = [sheet.subtitle?.trim(), PAPER_NAMES[copy], planned ? `Planned ${planned} min` : ""].filter(Boolean).join(" · ");
+  if (subtitle) head.append(make("p", "sheet-copy__subtitle", subtitle));
   article.append(head);
 
   for (const m of modules) {

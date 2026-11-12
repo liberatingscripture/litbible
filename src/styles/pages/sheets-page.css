@@ -88,8 +88,24 @@
   font-size: 0.95rem;
 }
 
-/* Two rows (BVJ, 2026-11-10): the choices (version, paper, QR codes), then the
-   buttons with the desk link in their corner. */
+/* On a computer, two rows and a column (BVJ, 2026-11-11): the choices
+   (version, paper), then the buttons with the desk link after Share…; the
+   right-hand column holds Show QR codes over Add an answer key, each level
+   with its row, their boxes one above the other. The hints are absolutely
+   positioned (.sr-only), so they take no cell. Show QR codes keeps to the
+   choices' first line, so a narrow window or a wide font that wraps them
+   doesn't leave it floating between two lines. */
+.sheets-page__bar--grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.sheets-page__bar--grid > .sheets-page__codes {
+  align-self: start;
+}
+
 .sheets-page__row {
   display: flex;
   flex-wrap: wrap;
@@ -98,7 +114,7 @@
 }
 
 .sheets-page__desk-link {
-  margin-left: auto;
+  margin-left: 0.5rem;
 }
 
 .sheets-page__back {
@@ -635,12 +651,11 @@
 .sheets-page__keybox {
   white-space: nowrap;
   cursor: pointer;
-  margin-left: 0.5rem;
 }
 
-/* Hidden on the participant's version, it still holds its place (E88): a row
-   that gains and loses a box wrapped it onto a line of its own and moved the
-   paper. visibility keeps it out of the tab order and from screen readers. */
+/* Hidden on the participant's version, it still holds its cell (E88): a bar
+   that gains and loses a box moved the paper. visibility keeps it out of the
+   tab order and from screen readers. */
 .sheets-page__keybox[hidden] {
   display: inline;
   visibility: hidden;
