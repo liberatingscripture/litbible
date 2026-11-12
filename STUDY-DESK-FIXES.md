@@ -3103,7 +3103,7 @@ tap areas (`global.css`, never under 24px).
   pane's bar. The panes' styles set their sizes in rem, and only the
   reading text multiplied by the tray's scale (what E101 and E108 recorded
   as “as in every other pane” was this, not a decision).
-  Status: **fixed 2026-11-12**: on /desk every pane follows the tray, as
+  Status: **fixed 2026-11-12** (PR #561): on /desk every pane follows the tray, as
   the whole /sheets page does (E101): each pane's words, its bar and menus,
   the command row, the Layout and Print windows, and the undo bar. Every
   size `desk.css` and `desk-search.css` set in rem multiplies by
