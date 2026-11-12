@@ -6597,12 +6597,14 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 }
 
 /* Two tabs on one sheet (S12, part 4): the question before editing, and the
-   line under a part whose saved text another tab changed. */
+   line under a part whose saved text another tab changed. The question is a
+   card (E89), never the page's or the pane's color. */
 .desk-sheet__ask {
   margin: 16px 0;
   padding: 12px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 8px;
+  background: var(--desk-card);
 }
 
 .desk-sheet__ask-text,

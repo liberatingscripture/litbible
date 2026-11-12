@@ -43,7 +43,7 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
     assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
   }
   // Cards take the card fill and edge.
-  for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form"]) {
+  for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form", ".desk-sheet__ask"]) {
     const r = rule(sel);
     assert.match(r, /background:\s*var\(--desk-card\)/, sel);
     assert.match(r, /border:\s*1px solid var\(--desk-card-edge\)/, sel);

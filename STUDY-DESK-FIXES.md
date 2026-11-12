@@ -2671,6 +2671,14 @@ tap areas (`global.css`, never under 24px).
   (`desk-sheet-view.css` is unchanged: the button rule is scoped in
   `desk.css`). Forced colors couldn't be emulated in the Browser pane; every
   card, field and control now has a border, which forced colors keeps.
+  One card was missed: the question shown when a sheet is already open in
+  another tab (“Continue here?”), drawn only when a second tab asks, had an
+  edge and no fill, so it took the page's color (BVJ, 2026-11-11, with a
+  screenshot). Status: **fixed 2026-11-11**: `.desk-sheet__ask` takes the card
+  layer (`--desk-card`, `--desk-card-edge`), so it is `#FAFAF8` on /sheets'
+  page and the pane's card color in the Sheets pane; the layers test holds it.
+  A sweep of the Sheets' stylesheets for any other box with an edge and no
+  fill found only forced-colors rules and present mode's tags.
 - **E90, design: present mode's start screen shows one QR code.** BVJ
   (2026-11-11), on a sheet's start screen with four codes side by side:
   “Having several QR codes right next to each is not practical. Phones
