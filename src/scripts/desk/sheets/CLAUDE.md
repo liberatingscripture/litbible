@@ -299,7 +299,7 @@ The header's Study group is part 3's, built with header C.
   sheet), and the undo bar shows Undo with an "Open the sheet" link
   (`showUndo`'s `link`, to `/sheets/?id=`).
 - **/search's sheet opens on /sheets**: the line after "Make a sheet of these
-  verses" says "Open the sheet, or open it on the Study Desk." (rule 21).
+  verses" says "Open the sheet, or open it in the Study Desk." (rule 21).
 - **/notebook lists sheets under "Sheets"** with "New sheet…" and "All my
   sheets" (`kept-list.js`), shown too while nothing narrows the list. "New
   sheet…" is `/sheets/?new`, which opens the list's templates at once and
@@ -736,7 +736,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   `desk/sheets/search-sheet.js` only with `data-desk="on"`. The passages
   (Bible order, neighbors joined, capped at the sheet's limit) are
   `src/lib/desk-sheet-gather.mjs`. What it made opens where the search
-  was: "Open the sheet" is `/sheets/?id=<id>`, and "open it on the Study Desk" beside
+  was: "Open the sheet" is `/sheets/?id=<id>`, and "open it in the Study Desk" beside
   it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
   (`showSheet` in `desk-layout.mjs`) and strips from the address (S12).
 - **Sharing** (S8) is `src/lib/desk-sheet-share.mjs` (pure, tested;

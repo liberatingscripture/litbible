@@ -187,6 +187,6 @@ export function checkSummary(items) {
     headline: one
       ? `The wording of ${changed[0]} has changed since you added it.`
       : `The wording of ${listReferences(changed)} has changed since you added them.`,
-    advice: "The sheet prints today’s wording. Check your blanks, questions, and notes against it, then keep the new wording on the Study Desk.",
+    advice: "The sheet prints today’s wording. Check your blanks, questions, and notes against it, then keep the new wording in the Study Desk.",
   };
 }

@@ -580,7 +580,7 @@ export const SHEET_TOUR_STEPS = [
       default:
         "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A Sheets pane is shown here only for the tour.",
       page:
-        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in a Sheets pane on the Study Desk, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a sheet file.”",
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in the Study Desk’s Sheets pane, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a sheet file.”",
     },
   },
   {
@@ -617,7 +617,7 @@ export const SHEET_TOUR_STEPS = [
       default:
         "In the LIT pane, a verse’s menu adds the verse to the sheet you are working on, and selected words add just those words. Or type a reference in the form under “Reading.” On a chapter page, the verse menu has “Add to sheet” as well.",
       page:
-        "Type a reference in the form under “Reading,” or choose one of your notes, highlights, or bookmarks listed beneath it. On the Study Desk, a verse’s menu in the LIT pane adds the verse to the sheet you are working on, and on a chapter page the verse menu has “Add to sheet.”",
+        "Type a reference in the form under “Reading,” or choose one of your notes, highlights, or bookmarks listed beneath it. In the Study Desk, a verse’s menu in the LIT pane adds the verse to the sheet you are working on, and on a chapter page the verse menu has “Add to sheet.”",
     },
   },
   {

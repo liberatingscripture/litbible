@@ -2952,6 +2952,12 @@ tap areas (`global.css`, never under 24px).
   text, link and period were three flex items. Status: **done 2026-11-11**:
   the line is `.sheets-page__shared--line`, plain text, and reads “or in
   the Study Desk,” in the announcement too.
+  **This settles a rule** (BVJ, 2026-11-11: “'in' is the rule”): a reader
+  works *in* the Study Desk, so every reader-facing “on the Study Desk” became
+  “in”: /sheets' intro and “Open it in the Study Desk,” the sheet-from-search
+  line, the Sheets tour's list and passage steps, the wording check's advice,
+  the unread-passage notice and the help page's tour link. “On the Study Desk
+  page” (the page), “switch on” and the desk tour's “What’s on the desk” stay.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
