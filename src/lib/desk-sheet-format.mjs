@@ -69,6 +69,23 @@ export const SHEET_LIMITS = Object.freeze({
   minutes: 240,
 });
 
+/**
+ * The sizes a sheet's text may print at, in points (E101; BVJ, 2026-11-11):
+ * the sheet's own `textSize`, absent for the standard 12. Everything the
+ * paper prints scales by `size / 12` (`sheetTextScale`), as do Copy and Save
+ * as and the sheet's fields in the editor; present mode keeps its own sizes.
+ */
+export const SHEET_TEXT_SIZES = Object.freeze([11, 12, 14, 16, 18]);
+export const SHEET_TEXT_SIZE = 12;
+
+/** A sheet's text size in points: its `textSize`, or the standard 12 when absent or not one of the sizes. */
+export function sheetTextSize(sheet) {
+  return SHEET_TEXT_SIZES.includes(sheet?.textSize) ? sheet.textSize : SHEET_TEXT_SIZE;
+}
+
+/** How much a sheet's text is scaled from the standard size (1 at 12 pt). */
+export const sheetTextScale = (sheet) => sheetTextSize(sheet) / SHEET_TEXT_SIZE;
+
 /* ── The sanitizer ───────────────────────────────────────────────────── */
 
 /**
@@ -1042,6 +1059,7 @@ export function validateSheet(r) {
   need(nonEmpty(r?.template), "template is empty");
   need(r?.commercial == null || typeof r.commercial === "boolean", "commercial is not true or false");
   need(r?.isTemplate == null || typeof r.isTemplate === "boolean", "isTemplate is not true or false");
+  need(r?.textSize == null || SHEET_TEXT_SIZES.includes(r.textSize), `textSize is not one of ${SHEET_TEXT_SIZES.join(", ")}`);
 
   if (!Array.isArray(r?.modules)) {
     problems.push("modules is not a list");

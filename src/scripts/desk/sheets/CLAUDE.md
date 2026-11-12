@@ -416,7 +416,7 @@ S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
 `[data-sheet-page]` is present. It shows, prints and copies a sheet (the
 Sheets pane's "Print or share" opens it in a new tab), and **writes a
 record only in its editor, from its list's row actions, or on "Import into
-my notebook"**. Eleven things to know:
+my notebook"**. Twelve things to know:
 - **Edit turns the page into the sheet editor** (S12, part 1, step 2; BVJ,
   2026-11-08, decision 1): `/sheets/?id=<id>&view=edit`, and "New sheet…"
   on the list opens a new sheet there from a template (`?view=edit` until
@@ -517,6 +517,24 @@ my notebook"**. Eleven things to know:
   otherwise), all put back on `afterprint`. **In an .odp, never give
   `presentation:notes` (or the master's notes) a `draw:style-name`**:
   Impress paints the slides with it, which turned the dark ground white.
+- **A sheet has a text size of its own, apart from the Display tray**
+  (E101; BVJ, 2026-11-11: “The page display settings would affect the page
+  text, not the sheet fields”). The sheet's `textSize` (11, 12, 14, 16 or
+  18 points; absent at the standard 12; `SHEET_TEXT_SIZES`, `sheetTextSize`
+  in `desk-sheet-format.mjs`) is set from the editor's “Text size” select
+  and becomes **`--sheet-text-scale`** (size / 12): on the editor's sheet
+  view it scales the title, subtitle, `.desk-rich` text and a passage's
+  words; on `.sheet-copy` (`renderCopy`) it scales every paper size but the
+  page numbers, and `readCopy` hands it to the writers as `doc.size`, so
+  Copy and the .docx, .odt and .rtf files print at it (page numbers
+  unscaled there too). Present mode and the slides keep their own sizes.
+  **The Display tray's size is `--sheet-ui`**, set on `.sheets-page` from
+  `--reading-scale` and multiplied into the editor's own labels, buttons,
+  menus and notes (`desk.css`, the sheet button rule in
+  `desk-sheet-view.css`), never a sheet field; elsewhere (/desk's Sheets
+  pane, the phone's shared sheet) it is unset and counts as 1. A new
+  editor control sizes its text `calc(Xrem * var(--sheet-ui, 1))`, and a
+  new sheet field or paper part multiplies by `--sheet-text-scale`.
 - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
   guessed from the reader's languages until chosen), named in /privacy's
   paragraph. Its `@page` rule is added as the page's last style, after

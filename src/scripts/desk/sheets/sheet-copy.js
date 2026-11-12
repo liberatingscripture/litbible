@@ -31,6 +31,7 @@ import { partialEnds, passageReference, sheetName } from "../../../lib/desk-shee
 import { newestVersion, textAsOfLine } from "../../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../../lib/lit-credit.mjs";
 import { qrSvg } from "../../../lib/qr-svg.mjs";
+import { sheetTextScale, sheetTextSize } from "../../../lib/desk-sheet-format.mjs";
 import { answerKeyLine, answerKeyRows, findLeaks } from "../../../lib/desk-sheet-leaks.mjs";
 import { locateBlanks, passageWords, readPassage, UNREAD_PASSAGE_ON_PAPER } from "./sheet-lit.js";
 import { make } from "../dom.js";
@@ -378,6 +379,10 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
 
   const article = make("article", `sheet-copy sheet-copy--${copy}`);
   article.setAttribute("aria-label", `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()}`);
+  // The sheet's text size (E101): every size the paper sets is multiplied by
+  // this, and Copy and Save as read the points from the dataset.
+  article.style.setProperty("--sheet-text-scale", String(sheetTextScale(sheet)));
+  article.dataset.textSize = String(sheetTextSize(sheet));
   const head = make("header", "sheet-copy__head");
   head.append(make("h1", "sheet-copy__title", sheetName(sheet)));
   // The planned minutes are the leader's (Audit 5, D #2): their total is on that version alone.

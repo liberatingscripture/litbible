@@ -29,7 +29,8 @@ test("the Sheets editor's text fields take --field-border (XA8-2, BA144)", () =>
   for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input"]) {
     assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
   }
-  assert.match(rule("select.desk-sheet__hint,\n.desk-sheet__hint-text"), /border:\s*1px solid var\(--field-border\)/);
+  // The sheet's Text size select (E101) is a field like the hint's.
+  assert.match(rule("select.desk-sheet__hint,\nselect.desk-sheet__size-select,\n.desk-sheet__hint-text"), /border:\s*1px solid var\(--field-border\)/);
   // Title and Subtitle are fields like the rest since E89: a whole edge and
   // a fill of their own, never the page's (they had a bottom line only).
   const title = rule(".desk-sheet__title,\n.desk-sheet__subtitle");

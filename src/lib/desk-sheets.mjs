@@ -18,7 +18,7 @@
 //     so what reaches the store is already in the canonical form.
 
 import { canEdit, createRecord, editRecord, newId } from "./desk-records.mjs";
-import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
+import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, SHEET_TEXT_SIZE, SHEET_TEXT_SIZES, cleanSheetText, sanitizeSheetHtml } from "./desk-sheet-format.mjs";
 import { planSave } from "./desk-store-core.mjs";
 
 /** The fields a new module of each type starts with (besides its `id` and `type`). */
@@ -259,16 +259,27 @@ export function updateModule(sheet, moduleId, changes, ctx) {
   return withModules(sheet, sheet.modules.map((m, i) => (i === at ? next : m)), ctx);
 }
 
-const SHEET_FIELDS = ["title", "subtitle", "commercial"];
+const SHEET_FIELDS = ["title", "subtitle", "commercial", "textSize"];
 
-/** The sheet with a new title, subtitle or commercial setting; the sheet itself when none differs. */
+/**
+ * The sheet with a new title, subtitle, commercial setting or text size; the
+ * sheet itself when none differs. A text size of 12, the standard, or null
+ * takes the field away (E101), so a sheet at the standard size carries none.
+ */
 export function setSheetFields(sheet, changes, ctx) {
   mustEdit(sheet);
   for (const f of Object.keys(changes)) {
     if (!SHEET_FIELDS.includes(f)) throw new Error(`desk-sheets: "${f}" isn't a field to set here (${SHEET_FIELDS.join(", ")})`);
   }
-  if (Object.keys(changes).every((f) => same(changes[f], sheet[f]))) return sheet;
-  return editRecord(sheet, changes, ctx);
+  const standard = "textSize" in changes && (changes.textSize == null || changes.textSize === SHEET_TEXT_SIZE);
+  if ("textSize" in changes && !standard && !SHEET_TEXT_SIZES.includes(changes.textSize)) {
+    throw new Error(`desk-sheets: a text size is one of ${SHEET_TEXT_SIZES.join(", ")}`);
+  }
+  const wanted = standard ? { ...changes, textSize: undefined } : changes;
+  if (Object.keys(wanted).every((f) => same(wanted[f], sheet[f]))) return sheet;
+  const next = editRecord(sheet, wanted, ctx);
+  if (standard) delete next.textSize;
+  return next;
 }
 
 /**

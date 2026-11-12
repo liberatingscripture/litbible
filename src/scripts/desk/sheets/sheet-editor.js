@@ -79,7 +79,7 @@
 
 import { plannedTotal } from "../../../lib/desk-present.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
-import { SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
+import { SHEET_LIMITS, SHEET_TEXT_SIZE, SHEET_TEXT_SIZES, sheetTextScale, sheetTextSize } from "../../../lib/desk-sheet-format.mjs";
 import {
   addModule,
   createSheet,
@@ -582,6 +582,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let moduleList = null;
   let titleInput = null;
   let subtitleInput = null;
+  let sizeSelect = null;
+  let sheetView = null;
   let plannedLine = null;
   // The template's description above the parts (E84), kept by draw().
   let aboutBox = null;
@@ -712,6 +714,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
 
   function buildSheet() {
     const wrap = make("div", "desk-sheet__sheet-view");
+    sheetView = wrap;
     header = make("div", "desk-sheet__top");
     const back = button("‹ All sheets", "desk-sheet__btn desk-sheet__btn--quiet");
     back.addEventListener("click", async () => {
@@ -838,7 +841,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     setTip(hide, "Hide this description");
     hide.addEventListener("click", hideAbout);
     aboutBox.append(aboutWords, hide);
-    wrap.append(titleInput, subtitleInput, plannedLine, aboutBox);
+    wrap.append(titleInput, subtitleInput, sizeRow(), plannedLine, aboutBox);
 
     moduleList = sheetCards.makeList();
     const gapKeys = make("span", "sr-only", "Up and down arrows move to the places between the other parts.");
@@ -862,6 +865,35 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   }
 
   /**
+   * The sheet's text size (E101; BVJ, 2026-11-11): how big the whole sheet
+   * prints, and so how big its title, subtitle and parts' text are here. Apart
+   * from the Display tray's text size, which sizes this page's own words.
+   */
+  function sizeRow() {
+    const row = make("div", "desk-sheet__size");
+    const label = make("label", "desk-sheet__size-label", "Text size");
+    sizeSelect = make("select", "desk-sheet__size-select");
+    sizeSelect.id = `deskSheetSize-${idSuffix}`;
+    label.htmlFor = sizeSelect.id;
+    for (const pt of SHEET_TEXT_SIZES) {
+      const note = pt === SHEET_TEXT_SIZE ? " (standard)" : pt === SHEET_TEXT_SIZES.at(-1) ? " (large print)" : "";
+      const o = make("option", null, `${pt} pt${note}`);
+      o.value = String(pt);
+      sizeSelect.append(o);
+    }
+    sizeSelect.value = String(sheetTextSize(sheet));
+    sizeSelect.disabled = readOnly;
+    const hint = describe(sizeSelect, "How big the whole sheet prints: its title, passages, and text.");
+    setTip(sizeSelect, "How big the whole sheet prints");
+    sizeSelect.addEventListener("change", () => {
+      const pt = Number(sizeSelect.value);
+      change((s) => setSheetFields(s, { textSize: pt }, opCtx()), { announce: `Text size ${pt} points.` });
+    });
+    row.append(label, sizeSelect, hint);
+    return row;
+  }
+
+  /**
    * Bring the page in line with `sheet`, keeping every card that hasn't
    * changed (sheet-cards.js). `from` is where a change being drawn was made,
    * for the line on a part typed in meanwhile: "pane" for another Sheets pane
@@ -872,6 +904,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     closeInsertMenu(); // its pill is about to be redrawn or gone (DK6-2)
     if (titleInput && document.activeElement !== titleInput) titleInput.value = sheet.title ?? "";
     if (subtitleInput && document.activeElement !== subtitleInput) subtitleInput.value = sheet.subtitle ?? "";
+    if (sizeSelect) sizeSelect.value = String(sheetTextSize(sheet));
+    sheetView?.style.setProperty("--sheet-text-scale", String(sheetTextScale(sheet)));
     if (plannedLine) {
       const total = plannedTotal(sheet);
       plannedLine.hidden = !total;

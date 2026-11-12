@@ -2873,9 +2873,26 @@ tap areas (`global.css`, never under 24px).
   Display tray's text size should size the editor page's own words (its
   labels, buttons and notes), which keep fixed sizes today, and a control of
   the editor's own sizes the sheet's fields (title, subtitle, the parts'
-  text). Only a passage's words follow the tray today. Status: **open**;
-  Claude's first pass scaled the fields with the tray, which this reverses,
-  and the design is with BVJ.
+  text). Only a passage's words followed the tray. Claude's first pass
+  scaled the fields with the tray, which this reversed. BVJ picked a
+  mocked control (“Yes, build it”) and said the size prints (“It prints”).
+  Status: **done 2026-11-11**:
+  - **Text size**, a select under the subtitle (11, 12 standard, 14, 16,
+    18 large print), is the sheet's own `textSize` (absent at 12; format
+    doc, “The sheet's own fields”), set by `setSheetFields`, kept by
+    Duplicate and Save as template, and carried by a share.
+  - In the editor it scales the title, subtitle, the parts' text and a
+    passage's words (`--sheet-text-scale`). On paper it scales everything
+    the copy prints but the page numbers, and Copy and the .docx, .odt and
+    .rtf files print at it. Present mode and the slides keep their own
+    sizes.
+  - The Display tray's text size reaches everything else in /sheets'
+    editor (labels, buttons, menus, notes; `--sheet-ui`) and never a
+    sheet field. In /desk's Sheets pane the tray changes neither, as in
+    every other pane.
+  - Checked in the Browser pane: at the tray's largest the editor's
+    controls went from 13 to 16.6px with the fields unchanged, and at 16
+    points the paper's text went from 16 to 21.3px across three pages.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

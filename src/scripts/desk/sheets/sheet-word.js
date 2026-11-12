@@ -137,7 +137,7 @@ export function block(node, out, poetry = false) {
  * The copy on screen as the document model (desk-sheet-doc.mjs).
  *
  * @param {HTMLElement} article a copy from renderCopy
- * @returns {{ title: string, blocks: object[] }}
+ * @returns {{ title: string, blocks: object[], size: number }} `size`: the sheet's text size in points (E101)
  */
 export function readCopy(article) {
   // The screen's page spacers (sheet-pages.js) are no part of the copy.
@@ -229,7 +229,7 @@ export function readCopy(article) {
       block(part, blocks);
     }
   }
-  return { title, blocks };
+  return { title, blocks, size: Number(article.dataset.textSize) || 12 };
 }
 
 /**

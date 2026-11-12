@@ -196,7 +196,10 @@ export function docHtml(doc) {
     }
   };
   doc.blocks.forEach(block);
-  return `<meta charset="utf-8"><div style="font-family:Georgia,'Times New Roman',serif">${html.join("\n")}</div>`;
+  // A sheet at another text size than the standard says so (E101); the rest
+  // of its sizes are relative to this.
+  const size = doc.size && doc.size !== 12 ? `;font-size:${doc.size}pt` : "";
+  return `<meta charset="utf-8"><div style="font-family:Georgia,'Times New Roman',serif${size}">${html.join("\n")}</div>`;
 }
 
 /**

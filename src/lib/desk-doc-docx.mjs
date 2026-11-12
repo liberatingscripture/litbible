@@ -44,6 +44,12 @@ const NS = {
 const REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
 const BASE_HALF_POINTS = 24; // 12pt
+
+/** A run size in half-points, times the sheet's scale. */
+const sz = (halfPoints, scale = 1) => {
+  const v = Math.round(halfPoints * scale);
+  return `<w:sz w:val="${v}"/><w:szCs w:val="${v}"/>`;
+};
 const EMU_PER_CM = 360000;
 const ALIGN = { left: "left", center: "center", right: "right", justify: "both" };
 const BULLETS = ["•", "◦", "▪"];
@@ -89,24 +95,25 @@ const pStyle = (id, name, { p = "", r = "", next = null, based = "Normal" } = {}
 
 const RULED = '<w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="888888"/><w:between w:val="single" w:sz="4" w:space="1" w:color="888888"/></w:pBdr><w:spacing w:before="360" w:after="0"/>';
 
-const STYLES = `${XML}<w:styles xmlns:w="${NS.w}">
-<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="${DOC_FONTS.text}" w:hAnsi="${DOC_FONTS.text}" w:eastAsia="${DOC_FONTS.text}" w:cs="${DOC_FONTS.ancient}"/><w:sz w:val="${BASE_HALF_POINTS}"/><w:szCs w:val="${BASE_HALF_POINTS}"/><w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="he-IL"/></w:rPr></w:rPrDefault>
+/** The styles part, every text size times `scale`, the sheet's text size over 12 (E101). */
+const stylesXml = (scale = 1) => `${XML}<w:styles xmlns:w="${NS.w}">
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="${DOC_FONTS.text}" w:hAnsi="${DOC_FONTS.text}" w:eastAsia="${DOC_FONTS.text}" w:cs="${DOC_FONTS.ancient}"/>${sz(BASE_HALF_POINTS, scale)}<w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="he-IL"/></w:rPr></w:rPrDefault>
 <w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
 <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>
-${pStyle("Heading1", "heading 1", { next: "Normal", p: '<w:keepNext/><w:spacing w:before="0" w:after="120"/><w:outlineLvl w:val="0"/>', r: '<w:b/><w:bCs/><w:sz w:val="40"/><w:szCs w:val="40"/>' })}
-${pStyle("Heading2", "heading 2", { next: "Normal", p: '<w:keepNext/><w:spacing w:before="280" w:after="80"/><w:outlineLvl w:val="1"/>', r: '<w:b/><w:bCs/><w:sz w:val="30"/><w:szCs w:val="30"/>' })}
-${pStyle("Heading3", "heading 3", { next: "Normal", p: '<w:keepNext/><w:spacing w:before="200" w:after="60"/><w:outlineLvl w:val="2"/>', r: '<w:b/><w:bCs/><w:sz w:val="26"/><w:szCs w:val="26"/>' })}
+${pStyle("Heading1", "heading 1", { next: "Normal", p: '<w:keepNext/><w:spacing w:before="0" w:after="120"/><w:outlineLvl w:val="0"/>', r: `<w:b/><w:bCs/>${sz(40, scale)}` })}
+${pStyle("Heading2", "heading 2", { next: "Normal", p: '<w:keepNext/><w:spacing w:before="280" w:after="80"/><w:outlineLvl w:val="1"/>', r: `<w:b/><w:bCs/>${sz(30, scale)}` })}
+${pStyle("Heading3", "heading 3", { next: "Normal", p: '<w:keepNext/><w:spacing w:before="200" w:after="60"/><w:outlineLvl w:val="2"/>', r: `<w:b/><w:bCs/>${sz(26, scale)}` })}
 ${pStyle("Subtitle", "Subtitle", { next: "Normal", r: '<w:i/><w:iCs/><w:color w:val="555555"/>' })}
-${pStyle("PartTag", "Part tag", { p: '<w:keepNext/>', r: '<w:i/><w:iCs/><w:sz w:val="20"/><w:szCs w:val="20"/>' })}
-${pStyle("Footnote", "Sheet footnote", { p: '<w:ind w:left="240"/>', r: '<w:sz w:val="20"/><w:szCs w:val="20"/>' })}
+${pStyle("PartTag", "Part tag", { p: '<w:keepNext/>', r: `<w:i/><w:iCs/>${sz(20, scale)}` })}
+${pStyle("Footnote", "Sheet footnote", { p: '<w:ind w:left="240"/>', r: `${sz(20, scale)}` })}
 ${pStyle("Quote", "Quote", { p: '<w:ind w:left="720" w:right="720"/>' })}
 ${pStyle("ListParagraph", "List Paragraph", { p: '<w:spacing w:after="60"/><w:contextualSpacing/>' })}
 ${pStyle("Rule", "Rule", { p: '<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="888888"/></w:pBdr>' })}
 ${pStyle("Ruled", "Lines to write on", { p: RULED })}
 ${pStyle("Answer", "Answer", { p: '<w:keepNext/><w:ind w:left="240"/>', r: "<w:b/><w:bCs/>" })}
 ${pStyle("CodeArt", "Code to scan", { p: '<w:keepNext/><w:spacing w:after="0"/><w:jc w:val="right"/>' })}
-${pStyle("CodeCaption", "Code caption", { p: '<w:jc w:val="right"/>', r: `<w:rFonts w:ascii="${DOC_FONTS.small}" w:hAnsi="${DOC_FONTS.small}"/><w:sz w:val="14"/><w:szCs w:val="14"/>` })}
-${pStyle("Foot", "Sheet foot", { p: '<w:spacing w:after="60"/>', r: '<w:sz w:val="20"/><w:szCs w:val="20"/>' })}
+${pStyle("CodeCaption", "Code caption", { p: '<w:jc w:val="right"/>', r: `<w:rFonts w:ascii="${DOC_FONTS.small}" w:hAnsi="${DOC_FONTS.small}"/>${sz(14, scale)}` })}
+${pStyle("Foot", "Sheet foot", { p: '<w:spacing w:after="60"/>', r: `${sz(20, scale)}` })}
 <w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:rPr><w:color w:val="1D4FB8"/><w:u w:val="single"/></w:rPr></w:style>
 </w:styles>`;
 
@@ -166,7 +173,7 @@ function paragraph(ctx, { style = null, runs = [], align = null, indent = 0, rig
   if (flush) p.push('<w:spacing w:before="0"/>');
   if (indent || right) p.push(`<w:ind w:left="${indent}"${right ? ` w:right="${right}"` : ""}${hanging ? ` w:hanging="${hanging}"` : ""}/>`);
   if (align && ALIGN[align]) p.push(`<w:jc w:val="${ALIGN[align]}"/>`);
-  const size = STYLE_SIZE[style] ?? BASE_HALF_POINTS;
+  const size = Math.round((STYLE_SIZE[style] ?? BASE_HALF_POINTS) * (ctx.scale ?? 1));
   let body = pre;
   let link = null; // the open hyperlink: { href, runs }
   const close = () => {
@@ -325,6 +332,8 @@ export function docxParts(doc, { title = doc.title, version = "", paper = "lette
   const media = [];
   const numbers = [];
   const ctx = {
+    // The sheet's text size (E101): every text size is scaled by it.
+    scale: (doc.size ?? 12) / 12,
     drawings: 0,
     rel(type, target) {
       const found = rels.find((r) => r.type === type && r.target === target);
@@ -397,7 +406,7 @@ export function docxParts(doc, { title = doc.title, version = "", paper = "lette
     { name: "docProps/core.xml", data: core },
     { name: "docProps/custom.xml", data: custom },
     { name: "word/document.xml", data: document },
-    { name: "word/styles.xml", data: STYLES },
+    { name: "word/styles.xml", data: stylesXml(ctx.scale) },
     { name: "word/numbering.xml", data: numbering },
     { name: "word/fontTable.xml", data: FONT_TABLE },
     { name: "word/header1.xml", data: headerFooter("hdr", "right") },
