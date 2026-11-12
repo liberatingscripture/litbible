@@ -133,13 +133,22 @@ const TYPE_LABEL: Record<string, string> = {
     {/* With the Study Desk preview on (html[data-desk="on"]), the Study Desk card
         takes the Read View card's slot; read.css swaps them, so nothing shifts (E8, 8b). */}
     <div class="views-grid">
+      {/* With the preview on, this card's heading and link take the wording they
+          keep after launch (E33, BVJ 2026-11-11); read.css swaps the spans. */}
       <div class="view-card">
-        <h3 class="view-card__title">Chapter View</h3>
+        <h3 class="view-card__title">
+          <span class="view-card__copy--public">Chapter View</span><span
+            class="view-card__copy--desk">Scripture pages</span>
+        </h3>
         <p class="view-card__desc">
           One chapter at a time, with its footnotes, key terms, and linked
           references. Nothing to set up, and it works on any device.
         </p>
-        <a href="/matthew-5" class="view-card__link">Try Chapter View &rarr;</a>
+        <a href="/matthew-5" class="view-card__link"
+          ><span class="view-card__copy--public">Try Chapter View</span><span
+            class="view-card__copy--desk">View Scripture page</span
+          > &rarr;</a
+        >
       </div>
 
       <div class="view-card view-card--read">

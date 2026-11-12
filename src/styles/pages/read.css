@@ -341,6 +341,17 @@ html[data-desk="on"] .view-card--read {
   display: none;
 }
 
+/* The chapter card's heading and link, likewise: "Chapter View" without the
+   preview, the wording it keeps after launch with it (E33). */
+.view-card__copy--desk,
+html[data-desk="on"] .view-card__copy--public {
+  display: none;
+}
+
+html[data-desk="on"] .view-card__copy--desk {
+  display: inline;
+}
+
 /* The "Available now" badge moves from the apps card to the Study Desk card with
    the preview on (BVJ, 2026-11-02). */
 html[data-desk="on"] .view-card__badge--apps {

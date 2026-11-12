@@ -274,7 +274,10 @@ sign of a feature: log it, and move it when it's clear where it belongs).
     and Read View rule, the desk's rules) and README.
   - **Chapter View's name goes** (E33, BVJ 2026-11-06): what is left of it
     becomes descriptive ("on its scripture page"), and the /read card's
-    description, not its heading, says how it differs.
+    description, not its heading, says how it differs. The card's own
+    heading and link already read "Scripture pages" and "View Scripture
+    page →" behind the preview (2026-11-11): drop its `--public` spans and
+    the two `.view-card__copy` rules in `read.css`.
   - **Tag the last commit with Read View** before removing it, as the way
     back.
   **Open, for BVJ:**
@@ -1229,7 +1232,13 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   card's description carries the difference, so its heading needn't ("Scripture
   Pages" was BVJ's suggestion; the words are settled at 8c). The root CLAUDE.md's
   "Call them 'Chapter View' and 'Read View'" rule goes with Read View. Added to
-  8c's list under E8. Status: **decided; done at 8c.**
+  8c's list under E8. Status: **decided; done at 8c.** **The /read card went
+  ahead of 8c, behind the preview (BVJ, 2026-11-11):** with the preview on,
+  its heading reads "Scripture pages" and its link "View Scripture page →";
+  without it, still "Chapter View" and "Try Chapter View →" (`read.astro`
+  carries both, and `read.css` swaps them on `data-desk="on"`). At 8c the
+  "Chapter View" spans and their two rules go. The other "Chapter View"
+  mentions still wait for 8c.
 
 - **E34, rough: a Search pane result's link to the passage goes to the
   scripture page, not the LIT pane.** BVJ (2026-11-05), from the Search pane on
