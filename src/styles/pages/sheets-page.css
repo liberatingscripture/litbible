@@ -88,22 +88,45 @@
   font-size: 0.95rem;
 }
 
-/* On a computer, two rows and a column (BVJ, 2026-11-11): the choices
-   (version, paper), then the buttons with the desk link after Share…; the
-   right-hand column holds Show QR codes over Add answer key, each level
-   with its row, their boxes one above the other. The hints are absolutely
-   positioned (.sr-only), so they take no cell. Show QR codes keeps to the
-   choices' first line, so a narrow window or a wide font that wraps them
-   doesn't leave it floating between two lines. */
-.sheets-page__bar--grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+/* On a computer (BVJ, 2026-11-11): the choices (version, paper), then the
+   buttons with the desk link after Share…, and beside them the checkboxes,
+   Show QR codes over Add answer key, each level with its row and their
+   boxes one above the other. The two checkboxes are one group, so nothing
+   pulls them apart; its gap is what sets Add answer key level with the
+   buttons. The rows take the room they need on one line (max-content); when
+   the bar can't hold that and the group too, the group wraps to a row of its
+   own under them, rather than standing at the right while the rows wrap
+   around it. The hints are absolutely positioned (.sr-only), so they lay
+   out nothing. */
+.sheets-page__bar--computer {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: 0.75rem 1rem;
 }
 
-.sheets-page__bar--grid > .sheets-page__codes {
-  align-self: start;
+.sheets-page__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1 1 auto;
+  width: max-content;
+  max-width: 100%;
+}
+
+.sheets-page__checks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1em;
+}
+
+/* On a row of its own (lineUpChecks in sheet-page.js), the two sit side by
+   side, wrapping only where even that is too narrow. */
+.sheets-page__checks--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
 }
 
 .sheets-page__row {
@@ -111,10 +134,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem 1.5rem;
-}
-
-.sheets-page__desk-link {
-  margin-left: 0.5rem;
 }
 
 .sheets-page__back {

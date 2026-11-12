@@ -2775,6 +2775,17 @@ tap areas (`global.css`, never under 24px).
   `COPY_NAMES`. A phone's shared sheet keeps its layout. After the merge
   BVJ added: “Making it say "Add answer key" instead of "Add an answer
   key" would help with space”; the checkbox and the help page say so now.
+  Then, of a narrowed window where the rows wrapped round the checkboxes and
+  pulled them apart: “the checkbox options should stay the same position
+  relative to each other,” and when the bar is narrower still the pair
+  “should become one of the rows of controls,” side by side “unless, of
+  course it's so narrow that they won't fit.” The two are one group now
+  (`.sheets-page__checks`) beside the rows (`.sheets-page__main`, sized to
+  its rows on one line), and the bar wraps it under them when both don't
+  fit; there `lineUpChecks` (`sheet-page.js`, a ResizeObserver judging in
+  the stacked layout) sets them side by side, and they wrap only where that
+  is too narrow. “Edit in Study Desk” lost its extra left margin, which
+  indented it when it wrapped to a line of its own.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

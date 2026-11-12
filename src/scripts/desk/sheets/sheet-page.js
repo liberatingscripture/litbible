@@ -525,6 +525,30 @@ async function showSheet(root, store, id, view = null) {
 }
 
 /**
+ * The bar's two checkboxes (BVJ, 2026-11-11): stacked beside the rows while
+ * the bar holds both, and side by side on a row of their own once the group
+ * has wrapped under the rows (flex-wrap lets them wrap again where even that
+ * is too narrow). A flex item can't tell CSS it wrapped, so this measures,
+ * always in the stacked layout, which is the one that decides whether the
+ * group fits beside the rows; so the class can't flip back and forth. Runs
+ * whenever the bar changes size, and stops once the bar leaves the page.
+ */
+function lineUpChecks(bar, rows, checks) {
+  const SIDE = "sheets-page__checks--row";
+  const judge = () => {
+    checks.classList.remove(SIDE);
+    if (checks.offsetTop > rows.offsetTop + 1) checks.classList.add(SIDE);
+  };
+  if (typeof ResizeObserver !== "function") return;
+  const watch = new ResizeObserver(() => {
+    if (!bar.isConnected) return watch.disconnect();
+    judge();
+  });
+  watch.observe(bar);
+  document.fonts?.ready.then(() => bar.isConnected && judge());
+}
+
+/**
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
  * only with "Import into my notebook"; absent for the reader's own.
@@ -657,15 +681,23 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     // Two rows and a column (BVJ, 2026-11-11): what to show (the choices),
     // then what to do with it (the buttons, the desk link after Share…), and
     // the two checkboxes stacked at the right, Show QR codes level with the
-    // choices and Add answer key under it, their boxes in line. The answer
-    // key's box keeps its cell while hidden (E88; see the stylesheet), so
-    // choosing a version moves nothing.
-    bar.classList.add("sheets-page__bar--grid");
+    // choices and Add answer key under it, their boxes in line. The two are
+    // one group, so they stay together, and where the bar is too narrow for
+    // the rows and the group side by side, the group becomes a row of its own
+    // under them, its two boxes side by side unless they don't fit (BVJ,
+    // 2026-11-11). The answer key's box keeps its place while hidden (E88;
+    // see the stylesheet), so choosing a version moves nothing.
+    bar.classList.add("sheets-page__bar--computer");
     const choiceRow = make("div", "sheets-page__row");
     choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice);
     const doRow = make("div", "sheets-page__row");
     doRow.append(actions);
-    bar.append(choiceRow, codeBox, doRow, keyBox, ...hints);
+    const rows = make("div", "sheets-page__main");
+    rows.append(choiceRow, doRow);
+    const checks = make("div", "sheets-page__checks");
+    checks.append(codeBox, keyBox);
+    bar.append(rows, checks, ...hints);
+    lineUpChecks(bar, rows, checks);
   }
 
   const paperBox = make("div", "sheets-page__paper");
