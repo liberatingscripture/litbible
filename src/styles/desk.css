@@ -5859,7 +5859,8 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   line-height: calc(1.75 + var(--reading-leading-extra, 0));
 }
 
-/* Reading (one LIT pane; desk-page.js stamps data-desk-reading) sets the
+/* Reading (the layout chosen as Reading, not any one LIT pane, E107;
+   desk-page.js stamps data-desk-reading) sets the
    prose as a page of a book: justified, with the browser's own hyphenation
    keeping the word spaces even (E106; BVJ, 2026-11-11). Three limits:
    - Poetry keeps its lines: a blockquote's paragraphs are left alone.

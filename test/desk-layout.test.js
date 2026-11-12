@@ -144,9 +144,9 @@ test("there are eleven arrangements and none of them is four rows", () => {
 test("every arrangement round-trips through applyArrangement and arrangementOf", () => {
   for (const a of ARRANGEMENTS) {
     const l = applyArrangement(originalLayout(), a.id);
-    // One pane over a LIT pane is the Reading arrangement: one shape, told
-    // apart by the pane's kind.
-    assert.equal(arrangementOf(l), a.id === "one" ? "reading" : a.id, a.id);
+    // Reading and One pane are one shape, and both keep the LIT pane here:
+    // the layout's `reading` mark tells them apart (E107).
+    assert.equal(arrangementOf(l), a.id, a.id);
     assert.equal(panes(l.root).length, slotCount(a.id), a.id);
     assert.equal(new Set(ids(l)).size, ids(l).length, `${a.id} has unique ids`);
     assert.ok(l.active === null || findPane(l.root, l.active)?.kind === "lit", a.id);
@@ -157,7 +157,7 @@ test("round-trips from a four-pane layout too", () => {
   const four = applyArrangement(originalLayout(), "grid");
   for (const a of ARRANGEMENTS) {
     const l = applyArrangement(four, a.id);
-    assert.equal(arrangementOf(l), a.id === "one" ? "reading" : a.id, a.id);
+    assert.equal(arrangementOf(l), a.id, a.id);
     assert.equal(panes(l.root).length, slotCount(a.id), a.id);
   }
 });
@@ -1649,6 +1649,80 @@ test("Reading from a layout with no LIT pane opens one at the shared place", () 
 
 test("One pane over something that isn't the LIT is not Reading", () => {
   assert.equal(arrangementOf({ root: leaf("a", "mine"), active: null }), "one");
+  assert.equal(arrangementOf({ root: leaf("a", "mine"), active: null, reading: true }), "one", "whatever the mark says");
+});
+
+// ---- Reading and One pane are told apart (E107) --------------------------------
+
+test("One pane over the LIT is One pane, not Reading (E107)", () => {
+  const l = applyArrangement(originalLayout("john 3"), "one");
+  assert.deepEqual(kinds(l), ["lit"]);
+  assert.equal(arrangementOf(l), "one");
+  assert.equal("reading" in l, false);
+});
+
+test("Reading is the layout chosen as Reading, and One pane over it ends it (E107)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  assert.equal(reading.reading, true);
+  const one = applyArrangement(reading, "one");
+  assert.deepEqual(ids(one), ids(reading), "the same pane");
+  assert.equal(arrangementOf(one), "one");
+  assert.equal("reading" in one, false);
+  assert.equal(leavesReading(reading, one), true);
+  assert.equal(leavesReading(one, applyArrangement(one, "reading")), false, "and back in");
+  assert.equal(arrangementOf(reading), "reading", "the layout it came from is untouched");
+});
+
+test("closing down to one LIT pane never brings Reading back (E107)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  const id = reading.root.pane.id;
+  const added = addPane(reading, "column", "mine", 1600, 900);
+  assert.equal("reading" in added, false);
+  const closed = closePane(added, panes(added.root).find((p) => p.kind === "mine").id);
+  assert.deepEqual(kinds(closed), ["lit"]);
+  assert.equal(arrangementOf(closed), "one");
+  // A pane split off it and closed again, and the one pane shown as another
+  // kind and back.
+  const split = splitPane(reading, id, "right", newPane(reading, "greek"));
+  assert.equal("reading" in split, false);
+  assert.equal(arrangementOf(closePane(split, panes(split.root).find((p) => p.kind === "greek").id)), "one");
+  assert.equal(arrangementOf(setKind(setKind(reading, id, "mine"), id, "lit")), "one");
+  assert.equal(arrangementOf(reading), "reading", "none of it changed the layout it started from");
+});
+
+test("Reading lasts through a move of its place (E107)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  const id = reading.root.pane.id;
+  for (const [name, l] of [
+    ["setPlace", setPlace(reading, "john 4")],
+    ["setLitAt", setLitAt(reading, id, "romans 8:16")],
+    ["setActive", setActive(reading, id)],
+  ]) assert.equal(arrangementOf(l), "reading", name);
+});
+
+test("a saved Reading layout opens as Reading, at a link's place too (E107)", () => {
+  const reading = readingLayout(originalLayout("john 3"));
+  const saved = readSaved(writeSaved({ last: reading, mine: reading, start: "last" }));
+  assert.equal(arrangementOf(saved.last), "reading");
+  assert.equal(arrangementOf(openingLayout(saved, "mark 1")), "reading");
+  const arrived = arrivalLayout(saved, "romans 8", "mark 1");
+  assert.equal(arrangementOf(arrived), "reading");
+  assert.equal(arrived.root.pane.at, "romans 8");
+  assert.equal(arrangementOf(openingLayout({ ...saved, start: "default" }, "mark 1")), "reading", "as My default");
+});
+
+test("checkLayout keeps the Reading mark only as true on one LIT pane (E107)", () => {
+  const lit = { root: leaf("p1", "lit"), active: "p1" };
+  assert.equal(arrangementOf(checkLayout({ ...lit, reading: true })), "reading");
+  assert.equal(arrangementOf(checkLayout(lit)), "one", "one LIT pane saved before layouts carried the mark");
+  for (const bad of ["true", 1, {}, null, false]) {
+    assert.equal("reading" in checkLayout({ ...lit, reading: bad }), false, JSON.stringify(bad));
+  }
+  const mine = checkLayout({ root: leaf("p1", "mine"), active: null, reading: true });
+  assert.equal("reading" in mine, false, "not on another kind");
+  const two = checkLayout({ ...originalLayout(), reading: true });
+  assert.equal("reading" in two, false, "not on two panes");
+  assert.equal(arrangementOf(two), "cols-2");
 });
 
 test("a link with a place: no saved layout opens the original layout there, not Reading", () => {
@@ -1764,7 +1838,7 @@ test("FULL_TEXT names the limit in words, from MAX_PANES (CP3-4)", () => {
   assert.equal(FULL_TEXT, "Four is the most");
 });
 
-test("leavesReading: any way out of one LIT pane counts, not only a Layout row (DK3-2)", () => {
+test("leavesReading: any way out of Reading counts, not only a Layout row (DK3-2)", () => {
   const reading = readingLayout(originalLayout("john 3"));
   assert.equal(arrangementOf(reading), "reading");
   const added = addPane(reading, "column", "mine", 1600, 900);

@@ -32,6 +32,8 @@
 //   (desk-passage.mjs);
 // - a Sheets pane keeps which sheet it shows (`sheet`, a record id, 3f), or
 //   none for its list of sheets;
+// - a layout the reader chose as Reading says so (`reading: true`, E107), for
+//   as long as it is one LIT pane; any other way to one LIT pane is One pane;
 // - the original layout is the LIT text beside My Notes, 60/40, and the
 //   layout is kept in this browser.
 
@@ -103,8 +105,9 @@ const rows = (...children) => ({ split: "rows", children });
  * (left to right, then top to bottom) by `applyArrangement`.
  */
 export const ARRANGEMENTS = [
-  // Reading (E8): one LIT pane, whatever else was open. It is the way into the
-  // desk for a reader who wants to read, and what a first visit by link opens.
+  // Reading (E8): one LIT pane, whatever else was open, for a reader who wants
+  // to read. It is One pane's shape; the layout's `reading` mark, set by
+  // choosing this row, tells the two apart (E107).
   { id: "reading", label: "Reading", shape: P },
   { id: "one", label: "One pane", shape: P },
   { id: "cols-2", label: "Two columns", shape: cols(P, P) },
@@ -165,15 +168,21 @@ export function pathTo(node, id, path = []) {
 export function arrangementOf(layout) {
   const sig = (n) => (n.pane || n.slot ? "p" : `${n.split}(${n.children.map(sig).join(",")})`);
   const s = sig(layout.root);
-  // Reading and One pane are one shape; the pane's kind tells them apart.
-  if (layout.root.pane) return layout.root.pane.kind === "lit" ? "reading" : "one";
+  // Reading and One pane are one shape. Reading is the one the reader chose
+  // as Reading (E107; BVJ, 2026-11-12): one LIT pane reached any other way
+  // (One pane, closing the rest, a pane's kind) is One pane, with the text
+  // and the Display tray's marks left as they are.
+  if (layout.root.pane) return isReading(layout) ? "reading" : "one";
   return ARRANGEMENTS.find((a) => sig(a.shape) === s)?.id ?? null;
 }
 
+/** Whether a layout is Reading: one LIT pane that carries the mark. */
+const isReading = (layout) => layout.reading === true && layout.root?.pane?.kind === "lit";
+
 /**
- * Whether a change of layout leaves Reading: from one LIT pane to anything
- * else (more panes, or the one pane showing another kind). Every way out
- * counts, not only the Layout window's rows (DK3-2).
+ * Whether a change of layout leaves Reading: from Reading to anything else
+ * (more panes, the one pane showing another kind, or One pane chosen over
+ * it). Every way out counts, not only the Layout window's rows (DK3-2).
  */
 export const leavesReading = (before, next) =>
   Boolean(before?.root && next?.root) && arrangementOf(before) === "reading" && arrangementOf(next) !== "reading";
@@ -264,9 +273,13 @@ export function originalLayout(place = null) {
 /**
  * The active LIT pane, settled: kept if it is still a LIT pane, else the
  * first one. A newly active pane brings its place with it, so the following
- * panes move to where its reader is.
+ * panes move to where its reader is. Every change to the panes or their kinds
+ * ends here, so this is also where Reading ends (E107): its mark comes off a
+ * layout that is no longer one LIT pane, and closing back down to one never
+ * brings it back.
  */
 function settleActive(layout) {
+  if (layout.reading !== undefined && !isReading(layout)) delete layout.reading;
   const lits = panes(layout.root).filter((p) => p.kind === "lit");
   if (!lits.some((p) => p.id === layout.active)) {
     const next = lits[0] ?? null;
@@ -291,7 +304,8 @@ function placeLitPanes(root, place) {
  * Change to an arrangement from the menu. The open panes keep their reading
  * order and their pins; a pane the arrangement has no room for is closed
  * from the end; an empty slot gets the first kind not yet open (My Notes
- * again once every kind is). Sizes start even.
+ * again once every kind is). Sizes start even. Any row but Reading ends
+ * Reading, One pane over the LIT included (E107).
  */
 export function applyArrangement(layout, id) {
   const arrangement = ARRANGEMENT_BY_ID.get(id);
@@ -312,13 +326,16 @@ export function applyArrangement(layout, id) {
     shape.slot
       ? { pane: fill() }
       : { split: shape.split, sizes: even(shape.children.length), children: shape.children.map(build) };
-  return settleActive({ ...layout, root: normalize(build(arrangement.shape)) });
+  const next = { ...layout, root: normalize(build(arrangement.shape)) };
+  delete next.reading;
+  return settleActive(next);
 }
 
 /**
  * The Reading arrangement (E8): a single LIT pane, the active one if there is
  * one (else the first, else a new one at the shared place), with its place kept. The other panes close; nothing of theirs is
- * lost but their position, since a layout holds no records.
+ * lost but their position, since a layout holds no records. The layout is
+ * marked `reading`, which is what makes it Reading and not One pane (E107).
  */
 export function readingLayout(layout) {
   const all = panes(layout.root);
@@ -327,7 +344,7 @@ export function readingLayout(layout) {
   const pane = lit ? clone(lit) : newPane(layout, "lit");
   pane.pin = null;
   if (!lit && layout.place) pane.at = layout.place;
-  return settleActive({ ...layout, root: { pane }, active: pane.id });
+  return settleActive({ ...layout, root: { pane }, active: pane.id, reading: true });
 }
 
 /**
@@ -1011,7 +1028,9 @@ const PANE_ID = /^p\d{1,3}$/;
  * A layout read back from storage, checked: a tree of one to four panes
  * with ids of nextId's form (each once), string kinds, and well-formed splits. Kinds
  * this code doesn't know are kept, for a pane from a later version. Anything
- * else is null, and the caller falls back.
+ * else is null, and the caller falls back. The Reading mark is kept only as
+ * `true` on one LIT pane (E107); one LIT pane saved before layouts carried it
+ * reads as One pane.
  */
 export function checkLayout(value) {
   if (!value || typeof value !== "object") return null;
@@ -1049,6 +1068,7 @@ export function checkLayout(value) {
   const root = check(value.root, 0);
   if (!root || ids.size > MAX_PANES) return null;
   const layout = { root: normalize(root), active: typeof value.active === "string" ? value.active : null };
+  if (value.reading === true) layout.reading = true; // settleActive drops it off anything but one LIT pane
   // Set before settleActive, which gives it to any LIT pane without a place
   // (BA52); one that isn't a passage is dropped, so it isn't passed on.
   if (parsePassage(value.place)) layout.place = value.place;

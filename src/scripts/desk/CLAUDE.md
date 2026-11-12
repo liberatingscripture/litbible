@@ -1189,8 +1189,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        arrangement or kind goes there, never in the page.
      - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02): "Reading" is the
        first row of the Layout window, one LIT pane (`readingLayout`); it is
-       One pane's shape, so `arrangementOf` tells them apart by the pane's
-       kind. **Choosing it also turns off verse numbers, footnote letters, key
+       One pane's shape, told apart by the layout's `reading` mark (E107; BVJ,
+       2026-11-12), which only that row sets and `settleActive` drops, so one
+       LIT pane reached any other way is One pane. **Choosing it also turns off verse numbers, footnote letters, key
        terms, and highlights** (BVJ, 2026-11-04; `reading-display.js`), and
        **leaving Reading by any way** (a row, Reset, Add pane, a drag, a
        pane's kind, a link's `?sheet=` or `?intro=`; `leavesReading`, run in
