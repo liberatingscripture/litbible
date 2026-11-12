@@ -2802,6 +2802,16 @@ tap areas (`global.css`, never under 24px).
   `preventScroll`, since it is drawn where it was (a fallback to another
   control still scrolls to it). Checked in the Browser pane: the page and
   the box stay put and keep focus.
+- **E97, design: the passage card's footnotes are easy to miss.** BVJ
+  (2026-11-11): “it's really easy to miss the footnotes section in the
+  passage card in the sheet editor.” It was one line of small text at the
+  card's foot with the browser's disclosure triangle, reading as text, not
+  a control. Claude mocked it live in the Browser pane; BVJ: “Yes, build
+  it.” Status: **done 2026-11-11**: the section sits under a rule, and its
+  summary is a button in the control layer (E89: `--desk-control`, edged
+  with `--field-border`) reading “Footnotes: 8 of 10 print” with a chevron
+  that turns when it opens, as Save as's does (`.desk-sheet__notes` in
+  `desk.css`). The give-away flag still shows inside it.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

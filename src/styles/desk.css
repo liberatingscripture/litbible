@@ -7568,18 +7568,49 @@ select.desk-sheet__hint,
   color: rgba(var(--ink-rgb), 0.78);
 }
 
-/* Which footnotes print */
+/* Which footnotes print. A section of the card under a rule, opened by a
+   button in the control layer (E89) with a chevron, as Save as is (E97; BVJ,
+   2026-11-11: as a line of small text with the browser's triangle it was
+   easy to miss). */
 .desk-sheet__notes {
-  margin-top: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.15);
   font-size: 0.8125rem;
 }
 
 .desk-sheet__notes-summary {
-  display: list-item;
+  display: inline-block;
+  list-style: none;
+  padding: 4px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  background: var(--desk-control);
   cursor: pointer;
   font-size: 0.8125rem;
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__notes-summary::-webkit-details-marker {
+  display: none;
+}
+
+.desk-sheet__notes-summary::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px 0 10px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  vertical-align: 0.2em;
+  transform: rotate(45deg);
+}
+
+.desk-sheet__notes[open] > .desk-sheet__notes-summary::after {
+  vertical-align: -0.05em;
+  transform: rotate(-135deg);
 }
 
 .desk-sheet__notes-summary .desk-sheet__flag {
