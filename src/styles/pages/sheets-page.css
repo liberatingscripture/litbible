@@ -94,9 +94,10 @@
    boxes one above the other. The two checkboxes are one group, so nothing
    pulls them apart; its gap is what sets Add answer key level with the
    buttons. The rows take the room they need on one line (max-content); when
-   the bar can't hold that and the group too, the group wraps to a row of its
-   own under them, rather than standing at the right while the rows wrap
-   around it. The hints are absolutely positioned (.sr-only), so they lay
+   the bar can't hold that and the group too, it becomes a row of its own
+   between the choices and the buttons (lineUpChecks in sheet-page.js moves
+   it there), rather than standing at the right while the rows wrap around
+   it. The hints are absolutely positioned (.sr-only), so they lay
    out nothing. */
 .sheets-page__bar--computer {
   flex-direction: row;
@@ -121,8 +122,9 @@
   gap: 1em;
 }
 
-/* On a row of its own (lineUpChecks in sheet-page.js), the two sit side by
-   side, wrapping only where even that is too narrow. */
+/* On a row of its own (lineUpChecks in sheet-page.js), between the choices
+   and the buttons, the two sit side by side, wrapping only where even that
+   is too narrow. */
 .sheets-page__checks--row {
   flex-direction: row;
   flex-wrap: wrap;

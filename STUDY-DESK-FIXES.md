@@ -2782,9 +2782,10 @@ tap areas (`global.css`, never under 24px).
   course it's so narrow that they won't fit.” The two are one group now
   (`.sheets-page__checks`) beside the rows (`.sheets-page__main`, sized to
   its rows on one line), and the bar wraps it under them when both don't
-  fit; there `lineUpChecks` (`sheet-page.js`, a ResizeObserver judging in
-  the stacked layout) sets them side by side, and they wrap only where that
-  is too narrow. “Edit in Study Desk” lost its extra left margin, which
+  fit; then `lineUpChecks` (`sheet-page.js`, a ResizeObserver judging with
+  the group beside the rows) moves it between the choices and the buttons
+  (BVJ: “it shouldn't go below the buttons”), side by side, wrapping only
+  where that is too narrow. “Edit in Study Desk” lost its extra left margin, which
   indented it when it wrapped to a line of its own.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open

@@ -526,18 +526,30 @@ async function showSheet(root, store, id, view = null) {
 
 /**
  * The bar's two checkboxes (BVJ, 2026-11-11): stacked beside the rows while
- * the bar holds both, and side by side on a row of their own once the group
- * has wrapped under the rows (flex-wrap lets them wrap again where even that
- * is too narrow). A flex item can't tell CSS it wrapped, so this measures,
- * always in the stacked layout, which is the one that decides whether the
- * group fits beside the rows; so the class can't flip back and forth. Runs
- * whenever the bar changes size, and stops once the bar leaves the page.
+ * the bar holds both, and otherwise a row of their own, side by side, between
+ * the choices and the buttons (never below the buttons), wrapping only where
+ * even that is too narrow. The group moves into the column of rows for that,
+ * so the tab order follows what is seen, and a box that had focus keeps it.
+ * A flex item can't tell CSS it wrapped, so this measures, always with the
+ * group beside the rows (the layout that decides whether it fits there), so
+ * it can't flip back and forth. Runs whenever the bar changes size, and stops
+ * once the bar leaves the page.
  */
 function lineUpChecks(bar, rows, checks) {
-  const SIDE = "sheets-page__checks--row";
+  const ROW = "sheets-page__checks--row";
+  const buttons = rows.lastElementChild;
+  const place = (parent, before) => {
+    if (checks.parentNode === parent && checks.nextSibling === before) return;
+    const focused = checks.contains(document.activeElement) ? document.activeElement : null;
+    parent.insertBefore(checks, before);
+    if (focused && document.activeElement !== focused) focused.focus({ preventScroll: true });
+  };
   const judge = () => {
-    checks.classList.remove(SIDE);
-    if (checks.offsetTop > rows.offsetTop + 1) checks.classList.add(SIDE);
+    place(bar, rows.nextSibling);
+    checks.classList.remove(ROW);
+    if (checks.offsetTop <= rows.offsetTop + 1) return;
+    checks.classList.add(ROW);
+    place(rows, buttons);
   };
   if (typeof ResizeObserver !== "function") return;
   const watch = new ResizeObserver(() => {
@@ -684,8 +696,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     // choices and Add answer key under it, their boxes in line. The two are
     // one group, so they stay together, and where the bar is too narrow for
     // the rows and the group side by side, the group becomes a row of its own
-    // under them, its two boxes side by side unless they don't fit (BVJ,
-    // 2026-11-11). The answer key's box keeps its place while hidden (E88;
+    // between the choices and the buttons, its two boxes side by side unless
+    // they don't fit (BVJ, 2026-11-11; lineUpChecks). The answer key's box keeps its place while hidden (E88;
     // see the stylesheet), so choosing a version moves nothing.
     bar.classList.add("sheets-page__bar--computer");
     const choiceRow = make("div", "sheets-page__row");
