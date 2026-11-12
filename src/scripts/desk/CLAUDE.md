@@ -1197,7 +1197,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `commit`; BVJ, 2026-11-07, DK3-2) turns back on only the ones Reading
        turned off (remembered under `lit-desk-reading-off`) and that are
        still off. A second press of Reading adds to that list, never
-       replaces it (LV3-2). The undo bar names them either way and Undo reverses them. The LIT pane's reading
+       replaces it (LV3-2). The undo bar names them either way and Undo reverses them.
+       **In Reading the prose is justified and hyphenated** (E106; BVJ,
+       2026-11-11), by CSS alone: `draw()` stamps `data-desk-reading` on
+       `.desk-ws` after each pane's place is noted and before it is put back,
+       and the rule (`desk.css`) leaves out poetry, the two accessibility
+       fonts, and a column under 22em (about 45 characters). The LIT pane's reading
        line and the shared `keepReadingPlace` line are both 10% down, as
        Continue reading's (`LINE` in `lit-pane.js`). `/desk/?place=romans-8` (`parsePlaceParam`; also `romans-8:16`,
        `romans-8-v16`) is what a link to the desk carries: whatever the page

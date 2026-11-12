@@ -2967,8 +2967,35 @@ tap areas (`global.css`, never under 24px).
   line, the Sheets tour's list and passage steps, the wording check's advice,
   the unread-passage notice and the help page's tour link. “On the Study Desk
   page” (the page), “switch on” and the desk tour's “What’s on the desk” stay.
-
-**Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
+- **E106, wish: Reading sets the text justified, with hyphenation.** BVJ
+  (2026-11-11) asked what it would take for the Reading layout to have
+  “fully justified text and auto-rendered hyphenation of words at line breaks
+  to make the word spacing correct,” then chose all three of Claude's
+  recommendations: it comes with Reading (no switch, nothing stored, so
+  /privacy is unchanged); Atkinson and OpenDyslexic readers keep the ragged
+  edge and whole words; and a column under about 45 characters a line stays
+  left-aligned. Poetry keeps its lines.
+  How: `desk-page.js`'s `draw()` stamps `data-desk-reading` on `.desk-ws`
+  whenever the layout is one LIT pane (`arrangementOf`, so a reader who
+  closes down to one LIT pane gets it too, as the Layout window shows Reading
+  pressed), and one rule in `desk.css` does the rest. The floor is a
+  container query on the text column, in the column's own em, so the Display
+  tray's text size is counted. The browser draws the hyphens; the text is
+  untouched. Known limits, told to BVJ: a browser breaks lines one at a time,
+  so an occasional loose line remains; which words split is each browser's
+  dictionary's call; and Chrome fetches its dictionary on first use.
+  Status: **built 2026-11-11** on `claude/reading-justify`, awaiting BVJ's
+  look. Checked in headless Chrome against the built pages, since **the
+  app's Browser pane has no hyphenation dictionary** and draws the justified
+  text with no hyphens at all: on Romans 7 and 8, 9% of lines end in a hyphen,
+  never more than two in a row, and the word gaps wider than twice a normal
+  space fall from 11% (justified, no hyphens) to 5%. 1 Peter 1 and 2, with
+  longer words, ran to 19% of lines and three in a row in one paragraph;
+  Chrome has no cap on hyphens in a row. The limits `6 3 3` beat
+  the browser's default (17% of lines, three in a row) and stricter ones
+  (wider gaps for few hyphens saved); `text-wrap: pretty` did not help in
+  Chrome. The reader's line holds within 3px going into Reading and out.
+  Firefox and Safari are not checked. (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
 and E22, so those sessions run one after another; the Greek search work and
