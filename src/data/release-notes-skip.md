@@ -267,3 +267,12 @@ an obvious typo, not news for readers. The drafter had already written eleven
 were deleted from `release-notes.json` by hand rather than kept out with this
 file in the same commit. The entry's other rows (the eight *epistrepho* notes
 and Luke 24) stand.
+
+## 2026-11-11 — Luke 20's “Scripture scholars” topic lowercased
+
+One `topics` label, no scripture text: `Scripture scholars` → `scripture
+scholars` on Luke 20, matching its own verses and the corpus's other people-group
+topics (“lead priests,” “tax collectors,” “elders”). It is the last piece of an
+unmerged 2026-09-10 branch (`claude/lowercase-scripture-scholars`) whose verse
+changes reached `main` through PR #261, when Luke was brought into line with the
+revised Word master. A casing fix to a tag is not news for readers.
