@@ -579,7 +579,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   });
   codeBox.append(codeInput, document.createTextNode(" Show QR codes"));
   codeBox.title = "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
-  // "Add an answer key" belongs to the leader's version, so it shows there only.
+  // "Add answer key" belongs to the leader's version, so it shows there only.
   const keyBox = make("label", "sheets-page__keybox");
   const keyInput = make("input");
   keyInput.type = "checkbox";
@@ -589,7 +589,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     try { localStorage.setItem(ANSWER_KEY, answerKey ? "on" : "off"); } catch (_) {}
     draw();
   });
-  keyBox.append(keyInput, document.createTextNode(" Add an answer key"));
+  keyBox.append(keyInput, document.createTextNode(" Add answer key"));
   keyBox.title = "End the leader’s version with each passage’s blanks and their answers, to print or save";
   keyBox.hidden = copy !== "leader";
   // A phone gets none of these choices, so none of their descriptions (SH6-11).
@@ -657,7 +657,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     // Two rows and a column (BVJ, 2026-11-11): what to show (the choices),
     // then what to do with it (the buttons, the desk link after Share…), and
     // the two checkboxes stacked at the right, Show QR codes level with the
-    // choices and Add an answer key under it, their boxes in line. The answer
+    // choices and Add answer key under it, their boxes in line. The answer
     // key's box keeps its cell while hidden (E88; see the stylesheet), so
     // choosing a version moves nothing.
     bar.classList.add("sheets-page__bar--grid");

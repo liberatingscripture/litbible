@@ -2772,7 +2772,9 @@ tap areas (`global.css`, never under 24px).
   saved files read the subtitle off the paper, so they follow; present
   mode and the slides never named the version. The Version choice, the
   page's title, Copy's status and the saved files' properties keep
-  `COPY_NAMES`. A phone's shared sheet keeps its layout.
+  `COPY_NAMES`. A phone's shared sheet keeps its layout. After the merge
+  BVJ added: “Making it say "Add answer key" instead of "Add an answer
+  key" would help with space”; the checkbox and the help page say so now.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

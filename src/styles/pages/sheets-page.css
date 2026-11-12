@@ -90,7 +90,7 @@
 
 /* On a computer, two rows and a column (BVJ, 2026-11-11): the choices
    (version, paper), then the buttons with the desk link after Share…; the
-   right-hand column holds Show QR codes over Add an answer key, each level
+   right-hand column holds Show QR codes over Add answer key, each level
    with its row, their boxes one above the other. The hints are absolutely
    positioned (.sr-only), so they take no cell. Show QR codes keeps to the
    choices' first line, so a narrow window or a wide font that wraps them
