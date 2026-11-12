@@ -166,7 +166,9 @@ Casing does not affect search but must be consistent across chapters:
 > Humanity, Son of Man, Spirit of Truth, Sukkot, The-One-Who-Is, Torah, Word
 > (capital W for logos/Conversation).
 
-Other people groups are lowercase unless the word begins the tag.
+Other people groups are lowercase, first word included (“lead priests,”
+“tax collectors,” “scripture scholars”). A proper noun or adjective inside
+one keeps its capital (“Bible scholars,” “Zoroastrian scholars”).
 
 ## Two things not to "fix"
 
