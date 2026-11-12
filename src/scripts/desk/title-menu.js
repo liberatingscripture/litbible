@@ -45,7 +45,9 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   };
   // Aa is the Display tray's own button, moved here whole so the tray's
   // listeners stay on it. It hangs the tray from the title (SiteHeader's
-  // data-tray-anchor), since this menu closes as the tray opens.
+  // data-tray-anchor), since this menu closes as the tray opens. The tray
+  // holds only what reaches every pane; what marks up the LIT text is on the
+  // LIT pane's bar (E108, lit-show.js), not behind this menu.
   const displayItem = document.querySelector(".site-header__actions [data-font-toggle]");
   if (displayItem) {
     displayItem.className = "desk-title__item";

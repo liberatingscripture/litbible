@@ -18,10 +18,10 @@ import { chevronIcons } from "./glyphs.js";
 const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons();
 
 /**
- * @param {{ id: string, set: (passage: object) => void, extra?: HTMLElement }} options
+ * @param {{ id: string, set: (passage: object) => void, extra?: HTMLElement | HTMLElement[] }} options
  *   `id` keeps the field's id apart from other panes'; `extra` is a control
- *   of the pane's own, put after the next-chapter arrow (the LIT pane's
- *   "Open on its page", E35).
+ *   of the pane's own, or several in order, put after the next-chapter arrow
+ *   (the LIT pane's "Open on its page", E35, and its "Show", E108).
  * @returns {{ el: HTMLElement, update: (passage: object) => void }}
  */
 export function createPassageBar({ id, set, extra = null }) {
@@ -40,7 +40,7 @@ export function createPassageBar({ id, set, extra = null }) {
   const field = el.querySelector(".desk-passage__field");
   const error = el.querySelector(".desk-passage__error");
   const steps = Array.from(el.querySelectorAll(".desk-passage__step"));
-  if (extra) error.before(extra);
+  if (extra) error.before(...[extra].flat());
 
   let current = null;
 

@@ -19,9 +19,12 @@ import "../styles/pages/desk-page.css";
  * names, as a chapter page does.
  *
  * Its header is the desk's own (BVJ, 2026-10-21; SiteHeader's deskTitle): the
- * page's title sits there, centered, and is the menu holding Add pane,
- * Layout, Print and Display options (E15), and the Display tray carries
- * Chapter View's "Show" switches, which reach the LIT pane's text.
+ * page's title sits there, centered, and is the menu holding Display options
+ * and the rest (E15, E68). The Display tray has no "Show" group here (no
+ * `scriptureControls`): the switches that mark up the LIT text are on each
+ * LIT pane's own bar, one set a pane (E108; lit-show.js). Layout.astro's
+ * pre-paint script still stamps Chapter View's on <html> here as on every
+ * page, and a pane's text leaves them alone (global.css, data-own-marks).
  * The source-text notice follows the panes, as it follows every page that
  * prints the translation, so the page scrolls: desk-page.js grows the panes
  * as the header scrolls away, and the notice comes up after them.
@@ -35,7 +38,6 @@ const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
   robotsNoindex={true}
   hideFooterNewsletter={true}
   deskTitle="Study Desk"
-  scriptureControls="study"
 >
   <div class="desk-page">
     <div id="hbq-description" hidden>Formatted as Hebrew and Semitic poetry with indented parallel lines</div>

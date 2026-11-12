@@ -424,8 +424,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      The switch is one setting with two controls, the Notebook panel's and a
      "My highlights" box in the Display tray's Show group (injected by
      `note-settings.js` only with the desk on; BVJ, 2026-10-21), on Chapter
-     View chapters, in Read View (its own setting) and on /desk, where it is
-     the only desk switch the tray gets and is Chapter View's setting.
+     View chapters and in Read View (its own setting). On /desk each LIT
+     pane has its own (rule 18, E108).
   8. **Notes on a glossary entry or an article** (N11) are **out of
      version 1** (BVJ, 2026-10-29; maybe version 2), and **switched off,
      not removed**: `PROSE_NOTES` in `desk/page-kind.js` is `false`, so
@@ -1191,14 +1191,15 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        first row of the Layout window, one LIT pane (`readingLayout`); it is
        One pane's shape, told apart by the layout's `reading` mark (E107; BVJ,
        2026-11-12), which only that row sets and `settleActive` drops, so one
-       LIT pane reached any other way is One pane. **Choosing it also turns off verse numbers, footnote letters, key
-       terms, and highlights** (BVJ, 2026-11-04; `reading-display.js`), and
-       **leaving Reading by any way** (a row, Reset, Add pane, a drag, a
-       pane's kind, a link's `?sheet=` or `?intro=`; `leavesReading`, run in
-       `commit`; BVJ, 2026-11-07, DK3-2) turns back on only the ones Reading
-       turned off (remembered under `lit-desk-reading-off`) and that are
-       still off. A second press of Reading adds to that list, never
-       replaces it (LV3-2). The undo bar names them either way and Undo reverses them.
+       LIT pane reached any other way is One pane. **Choosing it also turns
+       off its pane's verse numbers, footnote letters, key terms, and
+       highlights** (BVJ, 2026-11-04; `readingLayout`), and **leaving
+       Reading by any way** (a row, Reset, Add pane, a drag, a pane's kind,
+       a link's `?sheet=` or `?intro=`; `settleActive`; BVJ, 2026-11-07,
+       DK3-2) turns back on only those it turned off (the pane's
+       `readingHid`) that are still off. A second press adds to that list,
+       never replaces it (LV3-2). The undo bar names them, and Undo
+       reverses them.
        **In Reading the prose is justified and hyphenated** (E106; BVJ,
        2026-11-11), by CSS alone: `draw()` stamps `data-desk-reading` on
        `.desk-ws` after each pane's place is noted and before it is put back,
@@ -1360,7 +1361,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the line (`--desk-lit-below`, BA57), so the last verses reach it.
        **The verse at the line is read from the verses' `[data-verse]`
        spans, never their numbers** (`placeNow`, `keep`, `indexAtLine` in
-       `desk-lit-text.mjs`; E29), since the Display tray may hide the
+       `desk-lit-text.mjs`; E29), since "Show" may hide the
        numbers. **The scroller is positioned** for the same reason: a hidden
        number, letter or heading is a 1px absolute box (global.css), and with
        the pane's body as its containing block it stayed where the text was
@@ -1371,6 +1372,15 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the chapter's page at the verse the field names (`showPlace`, which
        every move of the field goes through), in a new tab, as the chapter
        headings' links do.
+       **What marks up the LIT text is set on the pane, never in a menu's
+       menu** (E108; BVJ, 2026-11-12): "Show ▾" ends the bar
+       (`lit-show.js`) with four checkboxes: numbers, footnote letters, key
+       terms, My highlights. **Each LIT pane
+       keeps its own**: `hide` on its pane in the layout
+       (`desk-lit-marks.mjs`), stamped on its element (`lit-marks.js`,
+       `desk.css`). Its text carries `data-own-marks`, so Chapter View's
+       switches never reach it; "Hide my marks" still hides every pane's
+       highlights. A switch for one pane kind goes on that pane's bar.
        Only the reader's own scrolling reports a new place, so panes
        never chase each other. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);
@@ -1432,9 +1442,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Layout and SiteHeader), at every width: the emblem and "LIT Bible"
        as the home link, "Study Desk" centered as the page's h1, then the
        menu button.
-       No nav row and no search; the Display tray carries
-       Chapter View's "Show" switches (`scriptureControls="study"`), which
-       reach the LIT pane's text. Search is a pane (below).
+       No nav row and no search (a pane, below). The Display tray has no
+       "Show" group here (no `scriptureControls`; E108).
      - **The command row and the title menu** (E68, 2026-11-10, reversing
        E15's "everything in the title"). Under the header, `command-row.js`
        draws worded buttons: Add pane ▾, Layout…, New sheet…, Print… and Help

@@ -3095,9 +3095,11 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
    rather than removed: it stays in the tab order and reappears while it has
    keyboard focus, the skip-link pattern. The .vn-gap after a number is its
    no-break space (chapter-html.ts), which goes with it. Read View has its
-   own rule (read-mode.css), and strips footnote letters at build. */
-html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible),
-html[data-fn="off"] .chapter-paragraphs sup.fn-ref:not(:focus-within) {
+   own rule (read-mode.css), and strips footnote letters at build.
+   A text with switches of its own is left to them ([data-own-marks]: the
+   Study Desk's LIT pane, where each pane sets its own; desk.css). */
+html[data-vn="off"] .chapter-paragraphs:not([data-own-marks]) sup.vn:not(:focus-visible),
+html[data-fn="off"] .chapter-paragraphs:not([data-own-marks]) sup.fn-ref:not(:focus-within) {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -3109,7 +3111,7 @@ html[data-fn="off"] .chapter-paragraphs sup.fn-ref:not(:focus-within) {
   white-space: nowrap;
 }
 
-html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible) + .vn-gap {
+html[data-vn="off"] .chapter-paragraphs:not([data-own-marks]) sup.vn:not(:focus-visible) + .vn-gap {
   display: none;
 }
 
@@ -3131,7 +3133,7 @@ html[data-vn="off"] .chapter-paragraphs sup.vn:not(:focus-visible) + .vn-gap {
   text-decoration-color: currentColor;
 }
 
-html[data-terms="off"] .chapter-paragraphs .term {
+html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   text-decoration: none;
   cursor: auto;
 }

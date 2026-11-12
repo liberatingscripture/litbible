@@ -45,8 +45,15 @@
 //   the same `lit:footnote-actions` event Chapter View's does (pins.js).
 //   Nothing of the reader's sits beside the text (BVJ, 2026-10-19): notes
 //   and bookmarks are in My Notes, which follows this pane.
+// - **What the text shows is the pane's own** (E108; BVJ, 2026-11-12):
+//   verse and chapter numbers, footnote letters, key terms and highlights,
+//   each turned on or off by "Show" on this pane's bar, for this pane alone.
+//   The layout keeps the list with the pane (desk-layout.mjs, `hide`); the
+//   pane stamps it on its element (lit-marks.js), where desk.css and the
+//   highlights read it, and holds its verse through the rewrap.
 
 import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
+import { markList } from "../../lib/desk-lit-marks.mjs";
 import { indexAtLine, litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
 import { checkPassage, passageLabel, sameChapter } from "../../lib/desk-passage.mjs";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
@@ -60,6 +67,9 @@ import { attachTermLens } from "../term-lens.js";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
+import { stampMarks } from "./lit-marks.js";
+import { createShowButton } from "./lit-show.js";
+import { SETTINGS_EVENT } from "./note-settings.js";
 import { make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
 
@@ -83,16 +93,24 @@ const PARK_NEAR = 2;
 
 /**
  * @param {{ paneId: string, start: object, drafts: Record<string, number[]>,
- *   onPlace: (passage: object) => void }} options
+ *   onPlace: (passage: object) => void, hide?: string[],
+ *   onMark?: (id: string, on: boolean) => void }} options
  *   `start` is the passage it opens at; `drafts` the draft chapters of each
  *   book (desk.astro writes them at build); `onPlace` hears where the
- *   reader is, and every passage the picker or the reader asks for.
+ *   reader is, and every passage the picker or the reader asks for. `hide`
+ *   is the marks this pane's text opens without (desk-lit-marks.mjs), and
+ *   `onMark` hears each change its "Show" asks for: the page keeps it with
+ *   the pane in the layout and hands the new list back through `setMarks`.
+ *   Without `onMark` the pane keeps its own.
  * @returns {{ el: HTMLElement, goTo: (passage: object) => void,
- *   keep: () => () => void, destroy: () => void }}
+ *   keep: () => () => void, setMarks: (hide: string[]) => void,
+ *   destroy: () => void }}
  */
-export function createLitPane({ paneId, start, drafts, onPlace, showPassage = null }) {
+export function createLitPane({ paneId, start, drafts, onPlace, showPassage = null, hide = [], onMark = null }) {
   const units = corpusUnits(drafts);
   const el = make("div", "desk-lit");
+  let hidden = markList(hide); // the marks this pane's text doesn't show
+  stampMarks(el, hidden);
   // The passage on its own page, at the verse the field names (E35): a new
   // tab, as every link that leaves the desk opens, so the layout stays. The
   // headings link the same pages, but a heading isn't seen as a button.
@@ -101,13 +119,23 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
   openPage.rel = "noopener noreferrer";
   openPage.title = "Open on its page";
   openPage.innerHTML = OPEN_PAGE_ICON;
+  // What the text carries (E108): verse and chapter numbers, footnote letters,
+  // key terms and the reader's highlights, set on the pane they change, for
+  // this pane alone.
+  const show = createShowButton({
+    isOn: (id) => !hidden.includes(id),
+    set: (id, on) => {
+      if (onMark) onMark(id, on);
+      else setMarks(on ? hidden.filter((m) => m !== id) : [...hidden, id]);
+    },
+  });
   const bar = createPassageBar({
     id: paneId,
     set: (p) => {
       goTo(p, { force: true });
       tell(p);
     },
-    extra: openPage,
+    extra: [openPage, show.el],
   });
   /** The field and the link to the page both name `p`. */
   function showPlace(p) {
@@ -265,6 +293,8 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
     section.setAttribute("role", "group");
     section.setAttribute("aria-labelledby", h.id);
     const box = make("div", "chapter-paragraphs");
+    // The pane's own switches mark this text, never the page's (global.css).
+    box.dataset.ownMarks = "";
     const blocks = Array.from(source.textBox.children, (b) => document.importNode(b, true));
     prepareLitBlocks(blocks, litPrefix(paneId, u.bookKey, chapter));
     box.append(...blocks);
@@ -272,7 +302,7 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
     // A letter opens its note in a panel, as on Chapter View (BA126).
     for (const fn of box.querySelectorAll(".fn-ref a")) fn.setAttribute("aria-haspopup", "dialog");
     section.append(h, box);
-    if (source.termData) lenses.push(attachTermLens(box, source.termData));
+    if (source.termData) lenses.push(attachTermLens(box, source.termData, { off: () => hidden.includes("terms") }));
     return section;
   }
 
@@ -635,16 +665,40 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
   });
   ro.observe(scroller);
 
+  /**
+   * What this pane's text shows: `list` is the marks it hides now (its
+   * "Show", or the Reading arrangement). Verse numbers or footnote letters
+   * going or coming rewrap every chapter above the reading line without a new
+   * size, so the verse noted there is put back as a new size puts it back,
+   * in this task, and the text is never seen to jump.
+   */
+  function setMarks(list) {
+    const next = markList(list);
+    if (next.length === hidden.length && next.every((id, i) => id === hidden[i])) return;
+    hidden = next;
+    stampMarks(el, hidden);
+    show.sync();
+    // Highlights and the verse numbers' names are drawn by others
+    // (highlights.js, verse-labels.js), which redraw on a setting's change.
+    document.dispatchEvent(new CustomEvent(SETTINGS_EVENT, { detail: { name: "paneMarks", paneId } }));
+    if (destroyed || !scroller.clientHeight) return;
+    held?.back();
+    note();
+    fill();
+  }
+
   queueMicrotask(() => goTo(start, { force: true }));
 
   return {
     el,
     goTo,
     keep,
+    setMarks,
     destroy() {
       destroyed = true;
       seq++;
       ro.disconnect();
+      show.destroy();
       if (frame) cancelAnimationFrame(frame);
       clearTimeout(stubWait);
       for (const l of lenses.splice(0)) l?.destroy?.();

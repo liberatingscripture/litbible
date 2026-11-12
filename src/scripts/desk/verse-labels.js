@@ -36,6 +36,7 @@ import { FOLLOW_CHANGED, restingId } from "./bookmark-follow.js";
 import { bookmarkedVerses, highlightColors, noteCounts, verseLabel } from "../../lib/desk-verse.mjs";
 import { noticesFor } from "./change-notice.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
+import { highlightsShownIn } from "./lit-marks.js";
 import { watchLitRecords } from "./lit-records.js";
 import { pageChapter } from "./page.js";
 
@@ -49,8 +50,9 @@ export function createVerseLabels({ store }) {
   // /desk's LIT panes (3g): each chapter they show, from its own records.
   if (document.querySelector("[data-desk-page]")) {
     let entries = [];
+    // Each pane's own "Show" says whether its text carries highlights (E108).
     const applyAll = () => {
-      for (const { box, records } of entries) label(box, records);
+      for (const { box, records } of entries) label(box, records, highlightsShownIn(box));
     };
     const watch = watchLitRecords({
       store,
@@ -68,7 +70,7 @@ export function createVerseLabels({ store }) {
   if (!here || !textBox) return null;
 
   let records = []; // this chapter's live records
-  const apply = () => label(textBox, records);
+  const apply = () => label(textBox, records, getSetting("highlights") === "on");
 
   /** Read the notebook again, then relabel. */
   async function refresh() {
@@ -100,15 +102,15 @@ export function lastCounted(r) {
 /**
  * How many of the marks being shown carry a change notice, on each verse
  * they cover: notes while "Notes in the margin" is on, highlights while "My
- * highlights" is. A lost mark isn't counted. A note on a footnote (M11) is
+ * highlights" is (`lights`). A lost mark isn't counted. A note on a footnote (M11) is
  * about the footnote, not the verse (noteCounts leaves it out too), so its
  * notice is not counted here either.
  */
-function noticeCounts(records) {
+function noticeCounts(records, lights) {
   const shown = records.filter(
     (r) =>
       (r.kind === "note" && getSetting("notes") === "on") ||
-      (r.kind === "highlight" && getSetting("highlights") === "on"),
+      (r.kind === "highlight" && lights),
   );
   const counts = new Map();
   for (const [id, notice] of noticesFor(shown)) {
@@ -120,12 +122,15 @@ function noticeCounts(records) {
   return counts;
 }
 
-/** Set every verse number's name in `textBox` from its chapter's records and the "Notes in the margin" and "My highlights" switches. */
-function label(textBox, records) {
+/**
+ * Set every verse number's name in `textBox` from its chapter's records and the "Notes in the margin" and "My highlights" switches.
+ * `lights`: whether this text shows highlights (the page's switch, or on /desk the pane's own).
+ */
+function label(textBox, records, lights) {
   const counts = getSetting("notes") === "on" ? noteCounts(records) : new Map();
-  const colors = getSetting("highlights") === "on" ? highlightColors(records) : new Map();
+  const colors = lights ? highlightColors(records) : new Map();
   const marked = getSetting("bookmarks") === "on" ? bookmarkedVerses(records, { except: restingId() }) : new Set();
-  const changed = noticeCounts(records);
+  const changed = noticeCounts(records, lights);
   for (const sup of textBox.querySelectorAll("sup.vn")) {
     // chapter-tools.js makes it a button at init; one it hasn't reached yet
     // is left for it, and picked up on the next refresh.

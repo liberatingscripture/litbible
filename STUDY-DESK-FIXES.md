@@ -3016,7 +3016,82 @@ tap areas (`global.css`, never under 24px).
   needed no change, since it asks `arrangementOf`. No migration (the
   preview has one user): one LIT pane saved before this opens as One pane,
   with whatever marks Reading had turned off still off until Reading is
-  chosen once more or they are switched on in Display options.
+  chosen once more or they are switched on in Display options (since E108,
+  in the LIT pane's “Show”).
+- **E108, rough: the LIT text's switches were a menu inside a menu.** BVJ
+  (2026-11-12): “Right now, in /desk, the display controls are in the page
+  menu, including things that only affect the LIT pane, such as whether to
+  show or hide chapter and verse numbers and footnote marks… I think burying
+  a menu inside another menu is a surefire way to have people never use
+  those options. I'd like to move the things that are only relevant to the
+  LIT pane onto the pane itself.” The Display tray opens from “Study Desk ▾,”
+  then “Display options” (E15, kept by E68). Status: **built 2026-11-12**
+  (branch `claude/lit-pane-show`, not yet merged). What was sorted: of the
+  tray's groups on /desk, only “Show” (verse numbers, footnote letters, key
+  terms, My highlights) reaches the LIT pane alone; the font and theme set
+  every pane, text size and line spacing also set the Greek and Book Intro
+  panes, and the keyboard switch is the page's, so those stay in the tray. What was
+  built: a worded “Show ▾” button at the end of every LIT pane's bar, after
+  “Open on its page” (`lit-show.js`), opening one small menu of four
+  checkboxes that stays open as they are pressed (in a bar under 22rem,
+  a LIT pane among three or four columns, the button is an eye with the
+  shared tooltip, so the passage field keeps its room); the tray on /desk has no
+  “Show” group any more (`desk.astro` passes no `scriptureControls`; “My
+  highlights” is no longer injected there). The first is labeled “Verse and
+  chapter numbers,” Read View's label, since in the LIT pane the chapter
+  headings go with the numbers (E29); Claude's choice, open to BVJ. As
+  first built, the settings were unchanged: the reader's, shared by every
+  LIT pane and by a chapter page's tray. The pane also holds its verse at
+  the reading line when numbers or letters come or go, which the tray could
+  not do on /desk, since its `keepReadingPlace` scrolls the window and not
+  the pane.
+  BVJ, on seeing it (2026-11-12): “That should apply to every layout,
+  including Reading.” It does, since the button belongs to the LIT pane and
+  a layout only says which panes there are: checked in all twelve Layout
+  rows in Chrome, and in Reading “Show” opens with the four off and turns
+  any of them back on without leaving Reading (a second press of Reading
+  takes them off again; leaving turns back on only what Reading turned off
+  and is still off). A test holds both. BVJ confirmed that reading of it
+  (2026-11-12: “You understood my request about the Reading layout
+  correctly. Keep it”): Reading goes on turning its marks off by itself.
+  BVJ again, the same day: “Different LIT panes open at the same time
+  should be able to have different settings active simultaneously.” **So
+  the four switches are each pane's own.** A LIT pane's record in the
+  layout lists the marks it hides (`hide`; `src/lib/desk-lit-marks.mjs` is
+  the table, `setPaneMark` the change), so they are kept in
+  `lit-desk-layout` with the last layout and “My default,” travel with the
+  pane through every rearrangement, and go when the pane shows another
+  kind; a new LIT pane shows all four. The pane stamps them on its own
+  element (`.desk-lit[data-vn="off"]` and the rest; `lit-marks.js`), which
+  `desk.css` reads; key terms ask the pane (`attachTermLens`'s `off`), and
+  highlights and the verse numbers' names are drawn pane by pane
+  (`highlightsShownIn`). Chapter View's switches on `<html>` are the
+  chapter pages' alone now: a pane's text carries `data-own-marks`, which
+  `global.css`'s four rules leave out, so the desk neither follows them nor
+  changes them. Reading works on its own pane: `readingLayout` turns that
+  pane's four off and lists the ones it turned off on the pane
+  (`readingHid`), and `settleActive` turns those back on when Reading ends,
+  whatever ends it. `reading-display.js` is gone, and Undo is the layout as
+  it was. “Hide my
+  marks” (H) still hides highlights in every pane; while it does, checking
+  “My highlights” in a pane's Show brings highlights back, the
+  most-recent-action rule of `note-settings.js`. Claude's choices, open to
+  BVJ: a new LIT pane starts with everything showing (not copying the
+  chapter pages' settings or a neighboring pane's), “Reset to the original
+  layout” shows everything again, and the button is named “Show in this
+  pane.” A layout saved before this has no `hide`, so its panes show
+  everything. One cleanup, since Chapter View's switches are the live
+  site's: a Reading left on from before had turned those off and listed
+  them under `lit-desk-reading-off`, so the page reads that list once, turns
+  them back on for the chapter pages and removes the key (`undoOldReading`;
+  /privacy names it as read once), and `checkLayout` opens that saved
+  Reading with its pane's four off, as it looked. Checked in Chrome with two
+  LIT panes on Romans 8: different marks side by side, a highlight drawn in
+  one and not the other, a key term's card in one only, the verse held as a
+  switch flips, Reading and back, and a reload. Left
+  for BVJ to weigh: four small toggles laid out on the bar itself (no
+  click to see them) were considered and not built, since they crowd the
+  passage field in a narrow pane and put four more marks above the text.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
