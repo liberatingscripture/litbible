@@ -459,6 +459,22 @@ my notebook"**. Twelve things to know:
   about which words a passage, a blank or a footnote covers.
   `passageWords`' `keepNotes` keeps the printing footnotes' letters as
   plain superscripts.
+- **The answer key is the group's, on the participant's version** (E102;
+  BVJ, 2026-11-11, Fable's option B): “Add answer key” shows only on the
+  participant's version of the reader's own sheet (never a shared one), is
+  off by default and **never remembered**, so a key can't ride along on the
+  next handout. Checked, `renderCopy` appends `section.sheet-copy__key`
+  after the foot: “Answer key,” the sheet's name, then per passage a
+  heading and a list, one line per verse (“v. 35: hungry, stranger” in the
+  files; `answerKeyGroups` and `answerKeyLine` in `desk-sheet-leaks.mjs`),
+  answers in reading order, no blank numbers or hints, and the credit line
+  last. A sheet with no printing blanks gets no key. A note under the
+  toolbar says the key prints as the last page. **It never leaves the
+  paper**: present mode, the slides and a share link don't carry it, and
+  the “what prints” check (`copyLeaks`) reads only the sheet's own parts.
+  In Copy and the files the sheet's credit stays where it is and the key's
+  page carries the `credit: true` line the writers put last (`readCopy`'s
+  `keyAfter`).
 - **A passage made from a selection says it is part of its verse**
   (Audit 5, SH5-14): the card names it with `passageLabel` ("Romans 8:6
   (part)", `desk-sheet-passages.mjs`), and the paper copy and present

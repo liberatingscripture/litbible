@@ -2859,10 +2859,10 @@ tap areas (`global.css`, never under 24px).
   start it on a new page too; `placeAll` treats a computed `page` as a page
   break), it comes after the sheet's foot so the credit ends the sheet
   rather than heading the key's page, and Copy and Save as put a page break
-  before it. Its rule and space above are gone. What the key shows is
-  still open: BVJ found it “less than helpful right now. It just duplicates
-  what is already shown in the blanks on the leader version, and the
-  numbers don't correspond to anything obvious.”
+  before it. Its rule and space above are gone. BVJ found what it showed
+  “less than helpful right now. It just duplicates what is already shown in
+  the blanks on the leader version, and the numbers don't correspond to
+  anything obvious.” E102 settled that.
 - **E101, wish: a text size for the sheet in its editor, apart from the
   Display tray.** BVJ (2026-11-11): “It should be possible to adjust the
   font size in the editor sheetwide; the text size in the page display
@@ -2900,6 +2900,43 @@ tap areas (`global.css`, never under 24px).
     The toolbar's row of choices went from 15.2 to 19.4px and the
     presenter view's title, clock and notes grew with it, while the
     paper and the room's previews stayed the same.
+- **E102, design: what the answer key is for.** Following E100, BVJ: “I'm
+  not sure about the key. I could see an argument for all three options.
+  Ask Fable.” The three were A, answers with their verses on the leader's
+  version (one glanceable page for the front of the room or a substitute,
+  but still what the leader already has); B, a key for the group on the
+  participant's version; and C, removing it. Fable recommended B as “the
+  only option that gives someone information they do not already have”:
+  someone who missed a week, self-study or homeschool use, classes that
+  fill in the blanks first and check afterward, and people who couldn't
+  keep up in the room. BVJ: “Yes, build B.” Status: **done 2026-11-11**:
+  - “Add answer key” moved to the participant's version of the reader's
+    own sheet (never a shared one), off by default and **no longer
+    remembered** (`lit-sheet-answer-key` is gone, and from /privacy), so a
+    key can't ride along on the next handout by accident. The label stayed
+    “Add answer key”; “for the group” wrapped the toolbar at 1100px.
+  - Checked, a line under the toolbar says the key prints as the last page
+    and to hold it back if the group should fill in the blanks first.
+  - The key page: “Answer key,” the sheet's name, then each passage's
+    reference with one line per verse (“v. 35 hungry, stranger”, a real
+    list; “v. 35: hungry, stranger” in Copy and the files), answers in
+    reading order, no blank numbers and no hints, and the credit line at
+    its foot. A sheet with no blanks gets no key.
+  - Present mode, the slides and share links never carry it, and the “what
+    prints” check skips it. The help page says so.
+  - Checked in the Browser pane on a three-page sheet: the key drew as page
+    4 with the toolbar's note, the leader's version hid the box, and the
+    .docx and .odt put a page break before it with the sheet's credit in
+    place and the key's last.
+- **E103, rough spot: the /sheets toolbar's groups didn't read as groups.**
+  BVJ (2026-11-11): “it's not immediately visually clear that Version,
+  Leader version, and Participant version go together and that Paper, US
+  Letter, and A4 go together… And adding more space between the buttons and
+  the Edit in Study Desk link would help too.” Status: **done 2026-11-11**:
+  the two groups sit 2.5rem apart and a group's own choices 0.75rem, its
+  label 0.5rem from its first choice (the radio's own left margin taken
+  off), and “Edit in Study Desk” is 1.25rem further from Share…. At 1100px
+  the checkboxes still sit beside the rows.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

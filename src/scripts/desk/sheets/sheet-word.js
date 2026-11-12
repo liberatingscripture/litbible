@@ -17,6 +17,7 @@
 
 import { DOC_COLORS, DOC_MARKS, DOC_SIZES, docHref, docHtml, docText } from "../../../lib/desk-sheet-doc.mjs";
 import { unpaged } from "./sheet-pages.js";
+import { answerKeyLine } from "../../../lib/desk-sheet-leaks.mjs";
 
 const INLINE = new Set(["em", "strong", "u", "s", "sub", "a"]);
 // <b> and <i> are what the chapters' own footnotes use (GF8c-3).
@@ -211,18 +212,37 @@ export function readCopy(article) {
       if (note) block(note, box.blocks);
       blocks.push(box);
     } else if (part.matches(".sheet-copy__key")) {
-      // The leader's optional answer key: a page of its own (E100), a
-      // heading, then a line per passage.
+      // The group's answer key (E102): a page of its own (E100), the sheet's
+      // name, then each passage's reference and a list of its verses'
+      // answers, and the credit, so the page can be handed out by itself.
+      // The files write the credit last whatever the foot holds, which puts
+      // it here; Copy writes it in place.
       blocks.push({ type: "break" });
       blocks.push({ type: "section", text: part.querySelector(".sheet-copy__key-title")?.textContent ?? "Answer key" });
-      for (const row of part.querySelectorAll(".sheet-copy__key-row")) blocks.push({ type: "para", inlines: inlines(row.childNodes) });
+      const name = part.querySelector(".sheet-copy__key-sheet")?.textContent ?? "";
+      if (name) blocks.push({ type: "para", inlines: [{ t: "em", kids: [{ t: "text", text: name }] }] });
+      for (const ref of part.querySelectorAll(".sheet-copy__key-ref")) {
+        blocks.push({ type: "heading", level: 3, inlines: [{ t: "text", text: ref.textContent }] });
+        const list = ref.nextElementSibling;
+        const items = [...(list?.querySelectorAll(".sheet-copy__key-row") ?? [])].map((row) => ({
+          inlines: [{ t: "text", text: answerKeyLine({ verse: row.dataset.verse, answers: [row.querySelector(".sheet-copy__key-words")?.textContent ?? ""] }) }],
+          lists: [],
+        }));
+        if (items.length) blocks.push({ type: "list", ordered: false, items });
+      }
+      const credit = part.querySelector(".sheet-copy__key-credit");
+      if (credit) blocks.push({ type: "foot", inlines: inlines(credit.childNodes), credit: true });
     } else if (part.matches(".sheet-copy__break")) {
       blocks.push({ type: "break" });
     } else if (part.matches(".sheet-copy__foot")) {
       blocks.push({ type: "gap" });
+      // With an answer key after it, the sheet's own credit is an ordinary
+      // line of its foot, so the files write it here as well as on the key's
+      // page (E102); otherwise they write the credit once, at the end.
+      const keyAfter = !!part.parentElement?.querySelector(":scope > .sheet-copy__key");
       for (const p of part.children) {
         const foot = { type: "foot", inlines: inlines(p.childNodes) };
-        if (p.matches(".sheet-copy__credit")) foot.credit = true;
+        if (p.matches(".sheet-copy__credit") && !keyAfter) foot.credit = true;
         blocks.push(foot);
       }
     } else if (part.matches(".sheet-copy__missing")) {

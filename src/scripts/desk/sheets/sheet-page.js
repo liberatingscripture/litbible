@@ -124,17 +124,6 @@ let editing = null;
 // the wait before its offer.
 let sheetTour = null;
 let tourOfferTimer = 0;
-// Whether the leader's version ends with an answer key: this browser's choice,
-// never part of the sheet record.
-const ANSWER_KEY = "lit-sheet-answer-key";
-
-function storedAnswerKey() {
-  try {
-    return localStorage.getItem(ANSWER_KEY) === "on";
-  } catch (_) {
-    return false;
-  }
-}
 /**
  * The Share dialog's file button (E37; BVJ, 2026-11-06: "export", to set it
  * apart from Save as). Its messages read it from here, so it changes in one place.
@@ -581,7 +570,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   let copy = copies[0];
   let paper = storedPaper() ?? defaultPaper(navigator.languages ?? [navigator.language]);
   let codes = true;
-  let answerKey = storedAnswerKey();
+  // The group's answer key (E102) starts off on every page view and is never
+  // remembered, so a key checked once for a home-study handout never rides
+  // along on the next sheet a leader prints and hands out.
+  let answerKey = false;
   setPaper(paper);
 
   const bar = make("div", "sheets-page__bar");
@@ -615,21 +607,26 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   });
   codeBox.append(codeInput, document.createTextNode(" Show QR codes"));
   codeBox.title = "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
-  // "Add answer key" belongs to the leader's version, so it shows there only.
+  // The group's answer key (E102; BVJ, 2026-11-11, Fable's option B) belongs
+  // to the participant's version, so it shows there only, and only for the
+  // reader's own sheet: a shared link's reader never makes one.
   const keyBox = make("label", "sheets-page__keybox");
   const keyInput = make("input");
   keyInput.type = "checkbox";
   keyInput.checked = answerKey;
   keyInput.addEventListener("change", () => {
     answerKey = keyInput.checked;
-    try { localStorage.setItem(ANSWER_KEY, answerKey ? "on" : "off"); } catch (_) {}
     draw();
   });
+  // "Add answer key" as before (E95): it shows only on the participant's
+  // version, which says whose key it is, and a longer label pushed the
+  // checkboxes off the toolbar's side at ordinary widths.
   keyBox.append(keyInput, document.createTextNode(" Add answer key"));
-  keyBox.title = "End the leader’s version with each passage’s blanks and their answers, to print or save";
-  keyBox.hidden = copy !== "leader";
+  keyBox.title = "A last page with each blank’s answer by verse, to hand out once the blanks are filled in";
+  const keyOffered = () => copy === "participant" && !shared;
+  keyBox.hidden = !keyOffered();
   // A phone gets none of these choices, so none of their descriptions (SH6-11).
-  const hints = phone ? [] : [describe(keyInput, "Ends the leader’s version with each passage’s blanks and their answers, to print or save."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
+  const hints = phone ? [] : [describe(keyInput, "Adds a last page with each blank’s answer by verse, to hand out once the blanks are filled in."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
   // Edit (S12, part 1, step 2): the page becomes the editor. The reader's
@@ -720,7 +717,11 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   // The "what prints" notice, for the participant version.
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
-  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
+  // While the group's answer key is on the paper, a quiet line says where it
+  // prints (E102), since a leader who prints and staples hands it out.
+  const keyNote = make("p", "sheets-page__key-note", "The answer key prints as the last page. Hold it back if you want the group to fill in the blanks first.");
+  keyNote.hidden = true;
+  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, keyNote, paperBox);
   // A sheet marked commercial asks before it leaves the page when it goes
   // beyond the commercial terms, and never blocks (E94; commercial-confirm.js).
   // A shared sheet and the tour's are not the reader's project.
@@ -738,12 +739,13 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     const n = ++seq;
     commercial?.refresh();
     paperBox.setAttribute("aria-busy", "true");
-    keyBox.hidden = copy !== "leader";
-    ready = renderCopy(sheet, { copy, codes, answerKey })
+    keyBox.hidden = !keyOffered();
+    ready = renderCopy(sheet, { copy, codes, answerKey: answerKey && keyOffered() })
       .then(async (el) => {
         if (n !== seq) return;
         current = el;
         paperBox.replaceChildren(el);
+        keyNote.hidden = !el.querySelector(":scope > .sheet-copy__key");
         layOutPages();
         document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | Liberation and Inclusion Translation`;
         drawLeaks(leaksBox, []);

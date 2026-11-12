@@ -1,7 +1,7 @@
 // src/lib/desk-sheet-leaks.mjs
 //
 // The "what prints" check of the participant version (STUDY-DESK-AUDIT-5.md,
-// recommendation 8; BVJ, 2026-11-08), and the answer key's rows. Pure.
+// recommendation 8; BVJ, 2026-11-08), and the answer key's rows (E102). Pure.
 //
 // Leader only parts and a question's answer already stay off the participant
 // version by design. What can still hand an answer over is a blank's own words
@@ -146,19 +146,35 @@ export function leakSentence(l) {
 }
 
 /**
- * The answer key's rows: each passage with blanks that print, its blanks in
- * order. A hint is what the participant sees beneath the blank.
+ * The answer key's groups (E102; BVJ, 2026-11-11, Fable's option B): the
+ * key is the group's, the last page of the participant's version, so each
+ * answer is found by the verse it is in, which the sheet already prints. A
+ * passage with no blank that prints is left out; within one, a verse's
+ * answers share its line in reading order. No numbers and no hints: the
+ * hint is under the blank already.
  *
- * @param {{ ref: string, blanks: { answer: string, hint?: string }[] }[]} passages
+ * @param {{ ref: string, blanks: { verse: number, start: number, answer: string }[] }[]} passages
+ * @returns {{ ref: string, verses: { verse: number, answers: string[] }[] }[]}
  */
-export function answerKeyRows(passages) {
-  return (passages ?? [])
-    .map((p) => ({ ref: p.ref, blanks: (p.blanks ?? []).filter((b) => String(b.answer ?? "").trim()) }))
-    .filter((p) => p.blanks.length);
+export function answerKeyGroups(passages) {
+  const out = [];
+  for (const p of passages ?? []) {
+    const blanks = (p.blanks ?? [])
+      .map((b) => ({ ...b, answer: String(b.answer ?? "").trim().replace(/\s+/g, " ") }))
+      .filter((b) => b.answer && Number.isInteger(b.verse))
+      .sort((a, b) => a.start - b.start);
+    const verses = [];
+    for (const b of blanks) {
+      const last = verses.at(-1);
+      if (last && last.verse === b.verse) last.answers.push(b.answer);
+      else verses.push({ verse: b.verse, answers: [b.answer] });
+    }
+    if (verses.length) out.push({ ref: p.ref, verses });
+  }
+  return out;
 }
 
-/** One passage's row as a line: “Romans 3:23: 1. deviation (hint); 2. …” */
-export function answerKeyLine(row) {
-  const parts = row.blanks.map((b, i) => `${i + 1}. ${b.answer.trim()}${b.hint ? ` (${b.hint})` : ""}`);
-  return `${row.ref}: ${parts.join("; ")}`;
+/** A verse's line of the key, as Copy and the files write it: "v. 35: hungry, stranger". */
+export function answerKeyLine({ verse, answers }) {
+  return `v. ${verse}: ${answers.join(", ")}`;
 }

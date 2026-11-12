@@ -598,6 +598,7 @@
 .sheet-copy__ref,
 .sheet-copy__terms-title,
 .sheet-copy__key-title,
+.sheet-copy__key-ref,
 .sheet-copy .desk-rich :is(h2, h3),
 .sheet-copy__text--heads {
   break-after: avoid;
@@ -617,21 +618,57 @@
   break-inside: avoid;
 }
 
-/* The leader's optional answer key, after the sheet's foot: always a page of
-   its own (E100), on paper, on the screen's pages and in a Word file. */
+/* The group's answer key (E102), after the sheet's foot on the participant's
+   version: always a page of its own (E100), on paper, on the screen's pages
+   and in a Word file. Its title, the sheet's name, then each passage's
+   reference over a list of verses and their answers, in two columns. */
 .sheet-copy__key {
   margin-top: 0;
   break-before: page;
 }
 
 .sheet-copy__key-title {
-  margin: 0 0 4pt;
+  margin: 0 0 2pt;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: calc(16pt * var(--sheet-text-scale, 1));
+}
+
+.sheet-copy__key-sheet {
+  margin: 0 0 14pt;
+  font-style: italic;
+}
+
+.sheet-copy__key-ref {
+  margin: 12pt 0 4pt;
   font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
   font-size: calc(13pt * var(--sheet-text-scale, 1));
 }
 
+.sheet-copy__key-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .sheet-copy__key-row {
+  display: grid;
+  grid-template-columns: 4.5em 1fr;
   margin: 0 0 3pt;
+  break-inside: avoid;
+}
+
+.sheet-copy__key-verse {
+  color: #595e57;
+}
+
+/* The key's own credit, ruled off as the sheet's foot is, since the page
+   may be handed out by itself. */
+.sheet-copy__key-credit {
+  margin: 20pt 0 0;
+  padding-top: 6pt;
+  border-top: 0.5pt solid #1d231c;
+  font-size: calc(8.5pt * var(--sheet-text-scale, 1));
+  line-height: 1.35;
 }
 
 .sheet-copy__break {
@@ -713,7 +750,9 @@
 }
 
 /* The "what prints" notice (sheet-page.js's drawLeaks): the participant
-   version, when a blank's words print elsewhere on it. Quiet, screen only. */
+   version, when a blank's words print elsewhere on it. Quiet, screen only.
+   The answer key's note (E102) is the same quiet notice. */
+.sheets-page__key-note,
 .sheets-page__leaks {
   max-width: calc(60 * var(--ch));
   margin: 0 0 1rem;
@@ -740,9 +779,9 @@
   cursor: pointer;
 }
 
-/* Hidden on the participant's version, it still holds its cell (E88): a bar
-   that gains and loses a box moved the paper. visibility keeps it out of the
-   tab order and from screen readers. */
+/* Hidden on the leader's version and on a shared sheet (E102), it still
+   holds its cell (E88): a bar that gains and loses a box moved the paper.
+   visibility keeps it out of the tab order and from screen readers. */
 .sheets-page__keybox[hidden] {
   display: inline;
   visibility: hidden;
@@ -1003,6 +1042,7 @@
   .sheets-page__bar,
   .sheets-page__check,
   .sheets-page__leaks,
+  .sheets-page__key-note,
   .sheets-page__shared,
   .sheets-page__title,
   .sheets-page__intro {
@@ -1043,6 +1083,7 @@
   .sheet-copy .sheet-copy__title,
   .sheet-copy .sheet-copy__ref,
   .sheet-copy .sheet-copy__key-title,
+  .sheet-copy .sheet-copy__key-ref,
   .sheet-copy .sheet-copy__terms-title {
     font-family: "Fraunces", "Fraunces Fallback", Georgia, serif !important;
   }
