@@ -2744,7 +2744,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: transparent;
   color: var(--green-text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -4749,7 +4749,7 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-title__hint {
   margin-left: auto;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   white-space: nowrap;
 }
 
@@ -6074,7 +6074,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   gap: 2px;
   padding: 4px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.14);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: 1.2;
 }
 
@@ -6178,7 +6178,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   padding: 4px 8px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.14);
   color: rgba(var(--ink-rgb), 0.8);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 .desk-rich-status:empty {
@@ -6261,7 +6261,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   flex: 1 0 100%;
   margin: 0;
   color: var(--desk-rich-red);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 /* The menus open under their button, or above it, over the text, where the
@@ -6280,7 +6280,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   border-radius: 8px;
   background: var(--surface-raised);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
 }
 
 .desk-rich-menu__group {
@@ -6297,7 +6297,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 .desk-rich-menu__label {
   padding: 2px 8px 2px 26px;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -6351,7 +6351,8 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   min-height: 7em;
   padding: 10px 12px;
   border-radius: 7px;
-  font-size: 1rem;
+  /* The sheet's own text size (E101), set on the sheet by the editor. */
+  font-size: calc(1rem * var(--sheet-text-scale, 1));
   outline: 0;
 }
 
@@ -6588,21 +6589,30 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   box-sizing: border-box;
 }
 
+/* On /sheets the Display tray's text size reaches the editor's own words,
+   its labels, buttons and notes (E101; BVJ, 2026-11-11: "The page display
+   settings would affect the page text, not the sheet fields"), through
+   --sheet-ui, which every size in this part of the file multiplies by.
+   sheets-page.css sets it; in /desk's Sheets pane it stays 1, as every
+   other pane's words do. The sheet's own text follows --sheet-text-scale. */
+
 .desk-sheet__status,
 .desk-sheet__empty,
 .desk-sheet__none {
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
   margin: 6px 0;
 }
 
 /* Two tabs on one sheet (S12, part 4): the question before editing, and the
-   line under a part whose saved text another tab changed. */
+   line under a part whose saved text another tab changed. The question is a
+   card (E89), never the page's or the pane's color. */
 .desk-sheet__ask {
   margin: 16px 0;
   padding: 12px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid var(--desk-card-edge);
   border-radius: 8px;
+  background: var(--desk-card);
 }
 
 .desk-sheet__ask-text,
@@ -6622,7 +6632,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
   padding: 8px 10px;
   border-left: 3px solid var(--green-text);
   background: rgba(var(--ink-rgb), 0.05);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
 }
 
 /* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10).
@@ -6656,7 +6666,7 @@ html[data-vn="off"] .desk-lit__heading:focus-within {
 
 .desk-sheet__list-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--sheet-ui, 1));
 }
 
 /* "Take the Sheets tour" at the foot of the list (E63): the quiet green link
@@ -6716,7 +6726,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__open-meta {
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
@@ -6799,7 +6809,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__saved {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
@@ -6820,15 +6830,32 @@ a.desk-sheet__open {
 .desk-sheet__title {
   margin-bottom: 6px;
   font-family: "Fraunces", Georgia, serif;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--sheet-text-scale, 1));
   font-weight: 600;
 }
 
 .desk-sheet__subtitle {
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--sheet-text-scale, 1));
   margin-bottom: 12px;
   color: rgba(var(--ink-rgb), 0.8);
+}
+
+/* The sheet's text size (E101): how big the whole sheet prints. Its title,
+   subtitle, parts' text and passages follow it here through
+   --sheet-text-scale, which the editor sets on the sheet; the Display tray's
+   text size is the page's own words', never these. */
+.desk-sheet__size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 14px;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
+}
+
+.desk-sheet__size-label {
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.72);
 }
 
 .desk-sheet__modules {
@@ -6864,7 +6891,7 @@ a.desk-sheet__open {
   align-items: center;
   gap: 2px 6px;
   margin-bottom: 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: grab; /* the whole header drags the part (BVJ, 2026-11-08) */
 }
 
@@ -6935,7 +6962,7 @@ a.desk-sheet__open {
 
 .desk-sheet__planned {
   margin: 4px 0 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -6973,7 +7000,7 @@ a.desk-sheet__open {
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
   line-height: 1.5;
   color: rgba(var(--ink-rgb), 0.75);
 }
@@ -7042,7 +7069,7 @@ a.desk-sheet__open {
   background: var(--green-deep);
   color: #fff;
   font: inherit;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   font-weight: 600;
   line-height: 24px;
   white-space: nowrap;
@@ -7091,7 +7118,7 @@ a.desk-sheet__open {
 .desk-sheet__insert-title {
   flex: 1 1 auto;
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.85);
 }
@@ -7104,13 +7131,13 @@ a.desk-sheet__open {
 .desk-sheet__words {
   border-left: 3px solid var(--green);
   padding-left: 12px;
-  font-size: calc(1em * var(--reading-scale, 1));
+  font-size: calc(1em * var(--sheet-text-scale, 1));
 }
 
 .desk-sheet__words p,
 .desk-sheet__words blockquote {
   margin: 0 0 8px;
-  line-height: calc(1.65 + var(--reading-leading-extra, 0));
+  line-height: 1.65;
 }
 
 /* Plain numbers here: a passage on a sheet has no verse menu. */
@@ -7128,11 +7155,30 @@ a.desk-sheet__open {
   content: none;
 }
 
+/* Footnote letters (E98; BVJ, 2026-11-11: they were hard to see): every
+   footnote in the passage shows its letter, in Chapter View's bold green
+   while it prints and muted while it doesn't, as the Footnotes list below
+   says. Plain text, not a link: the list is where a footnote is chosen. */
+.desk-sheet__words sup.fn-ref {
+  padding: 0 1px;
+  font-size: 0.75em;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 0;
+  color: var(--green-text, #0f6b33);
+  font-variant-ligatures: none;
+}
+
+.desk-sheet__words sup.fn-ref.desk-sheet__fnref--off {
+  font-weight: 600;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
 /* A field's visible name where a part holds two editors alike (the question's
    answer). */
 .desk-sheet__field-label {
   margin: 10px 0 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.72);
 }
@@ -7142,7 +7188,7 @@ a.desk-sheet__open {
   align-items: center;
   gap: 6px;
   margin-top: 6px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 .desk-sheet__lines input {
@@ -7164,7 +7210,7 @@ a.desk-sheet__open {
 .desk-sheet__break {
   border-top: 2px dashed rgba(var(--ink-rgb), 0.3);
   padding-top: 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
@@ -7223,7 +7269,7 @@ a.desk-sheet__open {
 
 .desk-sheet__problem {
   margin: 6px 0 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: var(--desk-rich-red, #b3261e);
 }
 
@@ -7233,7 +7279,7 @@ a.desk-sheet__open {
 
 .desk-sheet__from-title {
   margin: 12px 0 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
 }
 
@@ -7256,7 +7302,7 @@ a.desk-sheet__open {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
   text-align: left;
   cursor: pointer;
 }
@@ -7266,13 +7312,13 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__from-kind {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
 .desk-sheet__from-words {
   grid-column: 1 / -1;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -7341,7 +7387,7 @@ a.desk-sheet__open {
    the chooser, and their own list under My sheets. */
 .desk-sheet__own-head {
   margin: 4px 0 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.75);
 }
@@ -7424,7 +7470,7 @@ a.desk-sheet__open {
 
 .desk-sheet__lit-title {
   margin-right: 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.85);
 }
@@ -7438,7 +7484,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__hint-label {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
@@ -7450,7 +7496,7 @@ a.desk-sheet__open {
   background: var(--desk-control);
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: pointer;
 }
 
@@ -7482,7 +7528,7 @@ a.desk-sheet__open {
   gap: 4px 8px;
   padding: 6px 0;
   border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 .desk-sheet__blank-words {
@@ -7493,10 +7539,11 @@ a.desk-sheet__open {
 
 .desk-sheet__blank-verse {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
 }
 
 select.desk-sheet__hint,
+select.desk-sheet__size-select,
 .desk-sheet__hint-text {
   min-width: 0;
   max-width: 100%;
@@ -7506,7 +7553,7 @@ select.desk-sheet__hint,
   background: var(--desk-field);
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 /* "My own hint…" opens its field on a line of its own under the row, the
@@ -7544,7 +7591,7 @@ select.desk-sheet__hint,
   border-left: 3px solid var(--green-text);
   border-radius: 0 8px 8px 0;
   background: rgba(var(--ink-rgb), 0.04);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: 1.45;
 }
 
@@ -7568,18 +7615,49 @@ select.desk-sheet__hint,
   color: rgba(var(--ink-rgb), 0.78);
 }
 
-/* Which footnotes print */
+/* Which footnotes print. A section of the card under a rule, opened by a
+   button in the control layer (E89) with a chevron, as Save as is (E97; BVJ,
+   2026-11-11: as a line of small text with the browser's triangle it was
+   easy to miss). */
 .desk-sheet__notes {
-  margin-top: 10px;
-  font-size: 0.8125rem;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.15);
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 .desk-sheet__notes-summary {
-  display: list-item;
+  display: inline-block;
+  list-style: none;
+  padding: 4px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  background: var(--desk-control);
   cursor: pointer;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.85);
+}
+
+.desk-sheet__notes-summary::-webkit-details-marker {
+  display: none;
+}
+
+.desk-sheet__notes-summary::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px 0 10px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  vertical-align: 0.2em;
+  transform: rotate(45deg);
+}
+
+.desk-sheet__notes[open] > .desk-sheet__notes-summary::after {
+  vertical-align: -0.05em;
+  transform: rotate(-135deg);
 }
 
 .desk-sheet__notes-summary .desk-sheet__flag {
@@ -7588,7 +7666,7 @@ select.desk-sheet__hint,
 }
 
 .desk-sheet__flag {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   color: var(--desk-sheet-warn);
 }
 
@@ -7628,7 +7706,7 @@ p.desk-sheet__flag {
 
 .desk-sheet__note-text {
   min-width: 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: 1.45;
   color: rgba(var(--ink-rgb), 0.85);
 }
@@ -7641,7 +7719,7 @@ p.desk-sheet__flag {
 /* The key terms box */
 .desk-sheet__lit-note {
   margin: 4px 0 8px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: 1.45;
   color: rgba(var(--ink-rgb), 0.75);
 }
@@ -7659,7 +7737,7 @@ p.desk-sheet__flag {
   gap: 8px;
   padding: 6px 0;
   border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
 /* Dimmed, but still 4.5:1 or more in both themes (BA143). */
@@ -7687,7 +7765,7 @@ p.desk-sheet__flag {
 
 .desk-sheet__term-link {
   flex: none;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--sheet-ui, 1));
   color: var(--green-text);
 }
 
@@ -7703,7 +7781,7 @@ p.desk-sheet__flag {
 
 .desk-sheet__license-title {
   margin: 0 0 4px;
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--sheet-ui, 1));
 }
 
 .desk-sheet__credit {
@@ -7715,7 +7793,7 @@ p.desk-sheet__flag {
   align-items: center;
   gap: 8px;
   margin: 6px 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: pointer;
 }
 
@@ -7723,7 +7801,7 @@ p.desk-sheet__flag {
   list-style: none;
   margin: 6px 0;
   padding: 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: 1.45;
 }
 

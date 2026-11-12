@@ -32,7 +32,7 @@
 
 import { bookKeyToLabel } from "../data/books.js";
 import { createRecord, newId as freshId, validateRecord } from "./desk-records.mjs";
-import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, cleanSheetText } from "./desk-sheet-format.mjs";
+import { MODULE_TYPES, SHEET_FORMAT, SHEET_LIMITS, SHEET_TEXT_SIZE, SHEET_TEXT_SIZES, cleanSheetText, sheetTextSize } from "./desk-sheet-format.mjs";
 
 /** The fragment's prefix: "share", then the share format's version, then a dot. */
 export const SHARE_PREFIX = "share1.";
@@ -195,6 +195,8 @@ export function sharedSheet(sheet, { scope = "leader" } = {}) {
     modules,
   };
   if (sheet.commercial === true) out.commercial = true;
+  // The size the sheet prints at travels with it (E101); absent is the standard.
+  if (sheetTextSize(sheet) !== SHEET_TEXT_SIZE) out.textSize = sheetTextSize(sheet);
   return out;
 }
 
@@ -406,6 +408,8 @@ export function sheetFromShared(data, { now, client, id, newId = freshId } = {})
     subtitle: typeof data.subtitle === "string" ? data.subtitle : "",
     template: typeof data.template === "string" && data.template ? data.template : "blank",
     commercial: data.commercial === true,
+    // A size this code doesn't offer is dropped, not refused: the sheet still opens.
+    ...(SHEET_TEXT_SIZES.includes(data.textSize) && data.textSize !== SHEET_TEXT_SIZE ? { textSize: data.textSize } : {}),
     modules,
   };
   const contentVersion = typeof data.contentVersion === "string" ? data.contentVersion : "unversioned";

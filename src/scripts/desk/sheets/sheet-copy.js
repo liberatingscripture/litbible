@@ -31,7 +31,8 @@ import { partialEnds, passageReference, sheetName } from "../../../lib/desk-shee
 import { newestVersion, textAsOfLine } from "../../../lib/desk-sheet-check.mjs";
 import { LIT_CREDIT_LINE } from "../../../lib/lit-credit.mjs";
 import { qrSvg } from "../../../lib/qr-svg.mjs";
-import { answerKeyLine, answerKeyRows, findLeaks } from "../../../lib/desk-sheet-leaks.mjs";
+import { sheetTextScale, sheetTextSize } from "../../../lib/desk-sheet-format.mjs";
+import { answerKeyGroups, findLeaks } from "../../../lib/desk-sheet-leaks.mjs";
 import { locateBlanks, passageWords, readPassage, UNREAD_PASSAGE_ON_PAPER } from "./sheet-lit.js";
 import { make } from "../dom.js";
 
@@ -366,7 +367,8 @@ export function codeFigure(code, caption = `Scan to read ${code.label}`) {
  *
  * @param {object} sheet the sheet record
  * @param {{ copy: "leader" | "participant", codes?: boolean, answerKey?: boolean }} opts
- *   `answerKey`: the leader's version ends with an "Answer key" (never the participant's)
+ *   `answerKey`: the participant's version ends with the group's answer key,
+ *   a page of its own (E102; never the leader's, which shows every answer)
  * @returns {Promise<HTMLElement>}
  */
 export async function renderCopy(sheet, { copy, codes = true, answerKey = false }) {
@@ -378,6 +380,10 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
 
   const article = make("article", `sheet-copy sheet-copy--${copy}`);
   article.setAttribute("aria-label", `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()}`);
+  // The sheet's text size (E101): every size the paper sets is multiplied by
+  // this, and Copy and Save as read the points from the dataset.
+  article.style.setProperty("--sheet-text-scale", String(sheetTextScale(sheet)));
+  article.dataset.textSize = String(sheetTextSize(sheet));
   const head = make("header", "sheet-copy__head");
   head.append(make("h1", "sheet-copy__title", sheetName(sheet)));
   // The planned minutes are the leader's (Audit 5, D #2): their total is on that version alone.
@@ -394,7 +400,11 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
     } else if (m.type === "text") {
       const section = make("section", "sheet-copy__text");
       if (m.leaderOnly) section.append(make("span", "sheet-copy__tag", "Leader only"));
-      section.append(rich(m.html));
+      const body = rich(m.html);
+      section.append(body);
+      // A part that ends in a heading ("Reading", "Discussion") introduces the
+      // part after it, so the two never part at a page's foot (E99).
+      if (endsInHeading(body)) section.classList.add("sheet-copy__text--heads");
       article.append(section);
     } else if (m.type === "question") {
       article.append(questionSection(m, copy));
@@ -423,11 +433,6 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   if (article.lastElementChild?.classList.contains("sheet-copy__break")) article.lastElementChild.remove();
   if (article.lastElementChild === head) article.append(make("p", "sheet-copy__missing", "Nothing on this version yet."));
 
-  if (answerKey && copy === "leader") {
-    const key = answerKeySection(modules, views);
-    if (key) article.append(key);
-  }
-
   const foot = make("footer", "sheet-copy__foot");
   foot.append(make("p", "sheet-copy__credit", LIT_CREDIT_LINE));
   if (chapters.length) foot.append(make("p", "sheet-copy__addresses", chapters.map((c) => c.printable).join(" · ")));
@@ -436,7 +441,22 @@ export async function renderCopy(sheet, { copy, codes = true, answerKey = false 
   const asOf = textAsOfLine(newest, read.find((v) => v.contentVersion === newest)?.contentUpdated);
   if (asOf) foot.append(make("p", "sheet-copy__as-of", asOf));
   article.append(foot);
+
+  // The key is a page of its own (E100), so it follows the foot: the sheet
+  // ends with its credit, and the key's page holds the key alone, with its
+  // own credit, since it may be handed out apart from the sheet.
+  if (answerKey && copy === "participant") {
+    const key = answerKeySection(sheet, modules, views);
+    if (key) article.append(key);
+  }
   return article;
+}
+
+// Whether a part's text ends in a heading, past any empty lines after it.
+function endsInHeading(box) {
+  let el = box.lastElementChild;
+  while (el && el.tagName === "P" && !el.textContent.trim()) el = el.previousElementSibling;
+  return !!el && (el.tagName === "H2" || el.tagName === "H3");
 }
 
 /**
@@ -454,12 +474,15 @@ export async function copyChecks(sheet, copy) {
 /* ── The answer key, and the "what prints" check ────────────────────── */
 
 /**
- * "Answer key", at the end of the leader's version when asked for (never
- * stored on the sheet): each passage's blanks in order, with the hint beneath
- * each. Null when no passage has a blank that prints.
+ * The group's answer key (E102; BVJ, 2026-11-11, Fable's option B), at the
+ * end of the participant's version when asked for and never stored on the
+ * sheet: the sheet's name, then each passage's reference and a line per
+ * verse holding a blank that prints, its answers in reading order, then the
+ * credit. A list, so a screen reader hears "Verse 35: hungry, stranger".
+ * Null when no passage has a blank that prints.
  */
-function answerKeySection(modules, views) {
-  const rows = answerKeyRows(
+function answerKeySection(sheet, modules, views) {
+  const groups = answerKeyGroups(
     modules
       .filter((m) => m.type === "passage" && views.get(m.id)?.ok)
       .map((m) => {
@@ -468,18 +491,27 @@ function answerKeySection(modules, views) {
           ref: passageReference(m),
           blanks: locateBlanks(view, m)
             .filter((b) => b.prints)
-            .sort((a, b) => a.start - b.start)
-            .map((b) => ({
-              answer: view.chapter.text.slice(b.start, b.end),
-              hint: blankHint(b.blank, b, view.allMarks, view.terms) ?? "",
-            })),
+            .map((b) => ({ verse: b.blank.verse, start: b.start, answer: view.chapter.text.slice(b.start, b.end) })),
         };
       }),
   );
-  if (!rows.length) return null;
+  if (!groups.length) return null;
   const section = make("section", "sheet-copy__key");
-  section.append(make("h2", "sheet-copy__key-title", "Answer key"));
-  for (const row of rows) section.append(make("p", "sheet-copy__key-row", answerKeyLine(row)));
+  section.append(make("h2", "sheet-copy__key-title", "Answer key"), make("p", "sheet-copy__key-sheet", sheetName(sheet)));
+  for (const group of groups) {
+    section.append(make("h3", "sheet-copy__key-ref", group.ref));
+    const list = make("ul", "sheet-copy__key-list");
+    for (const { verse, answers } of group.verses) {
+      const row = make("li", "sheet-copy__key-row");
+      row.dataset.verse = String(verse);
+      const label = make("span", "sheet-copy__key-verse", `v. ${verse}`);
+      label.setAttribute("aria-hidden", "true");
+      row.append(label, make("span", "sr-only", `Verse ${verse}: `), make("span", "sheet-copy__key-words", answers.join(", ")));
+      list.append(row);
+    }
+    section.append(list);
+  }
+  section.append(make("p", "sheet-copy__key-credit", LIT_CREDIT_LINE));
   return section;
 }
 

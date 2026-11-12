@@ -73,7 +73,10 @@ const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 function restoreFocus(root, key, fallback = null) {
   if (!key) return;
   const find = (k) => root.querySelector(`[data-focus-key="${CSS.escape(k)}"]`);
-  (find(key) ?? (fallback ? find(fallback) : null))?.focus();
+  // The same control, drawn again where it was: the page stays put (E96).
+  const same = find(key);
+  if (same) return same.focus({ preventScroll: true });
+  (fallback ? find(fallback) : null)?.focus();
 }
 
 const quoted = (words) => `“${words.length > 60 ? words.slice(0, 59) + "…" : words}”`;
@@ -418,7 +421,13 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
 
   async function render() {
     const n = ++seq;
-    const v = await readPassage(mod);
+    // The footnote list's blanks are worked out before anything is replaced,
+    // so the list is drawn with the rest and a footnote box that had focus is
+    // there to take it back. Drawn after, the box was missing when focus was
+    // restored, which went to "Blank" above the passage and scrolled the
+    // page up to it, and the list stood empty for a moment (E96).
+    const inputs = notesInputs();
+    const [v, blanks] = await Promise.all([readPassage(mod), sheetPrintingBlanks(getSheet())]);
     if (gone || n !== seq) return;
     const focusKey = el.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
     blankRanges.delete(el);
@@ -429,7 +438,9 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
       return;
     }
     view = v;
-    words = passageWords(v, mod);
+    // Every footnote letter in the passage shows, so the Footnotes list below
+    // can be matched to the words; paintNotes marks the ones that print (E98).
+    words = passageWords(v, mod, { keepNotes: new Set(v.footnoteIds) });
     const box = make("div", "desk-sheet__passage-text");
     if (!words) {
       box.append(make("p", "desk-sheet__status", readOnly ? UNREAD_PASSAGE : UNREAD_PASSAGE_STEP));
@@ -456,7 +467,8 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     notesBox.addEventListener("toggle", () => { notesOpen = notesBox.open; });
     el.replaceChildren(box, blanksBox, notesBox);
     drawBlanks();
-    drawNotes();
+    ++notesSeq; // a list still being worked out is out of date now
+    paintNotes(blanks, inputs, null);
     // A removed blank's row is gone: focus goes to the button that makes one.
     restoreFocus(el, focusKey, "blank-selection");
   }
@@ -993,9 +1005,23 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     const inputs = notesInputs();
     const blanks = await sheetPrintingBlanks(getSheet());
     if (gone || n !== seq || mine !== notesSeq || !view) return;
-    notesDrawn = inputs;
     const focusKey = notesBox.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
+    paintNotes(blanks, inputs, focusKey);
+  }
+
+  /**
+   * Draws the footnote list from the sheet's printing blanks. `focusKey` is
+   * the control to give focus back to; render passes none, since it restores
+   * focus over the whole card once the list is drawn.
+   */
+  function paintNotes(blanks, inputs, focusKey) {
+    notesDrawn = inputs;
     const rows = footnoteRows(view.list, view.footnoteIds, mod.footnotes, blanks);
+    // The letters in the words say which footnotes print, as the list does.
+    const prints = new Set(rows.filter((r) => r.print).map((r) => r.id));
+    words?.el?.querySelectorAll("sup.fn-ref[data-note]").forEach((sup) => {
+      sup.classList.toggle("desk-sheet__fnref--off", !prints.has(sup.dataset.note));
+    });
     const printing = rows.filter((r) => r.print).length;
     const flagged = rows.filter((r) => r.givesAway.length && !r.decided).length;
     notesBox.replaceChildren();

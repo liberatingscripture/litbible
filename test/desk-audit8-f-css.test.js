@@ -29,7 +29,8 @@ test("the Sheets editor's text fields take --field-border (XA8-2, BA144)", () =>
   for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input"]) {
     assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
   }
-  assert.match(rule("select.desk-sheet__hint,\n.desk-sheet__hint-text"), /border:\s*1px solid var\(--field-border\)/);
+  // The sheet's Text size select (E101) is a field like the hint's.
+  assert.match(rule("select.desk-sheet__hint,\nselect.desk-sheet__size-select,\n.desk-sheet__hint-text"), /border:\s*1px solid var\(--field-border\)/);
   // Title and Subtitle are fields like the rest since E89: a whole edge and
   // a fill of their own, never the page's (they had a bottom line only).
   const title = rule(".desk-sheet__title,\n.desk-sheet__subtitle");
@@ -43,7 +44,7 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
     assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
   }
   // Cards take the card fill and edge.
-  for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form"]) {
+  for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form", ".desk-sheet__ask"]) {
     const r = rule(sel);
     assert.match(r, /background:\s*var\(--desk-card\)/, sel);
     assert.match(r, /border:\s*1px solid var\(--desk-card-edge\)/, sel);

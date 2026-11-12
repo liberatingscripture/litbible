@@ -436,6 +436,7 @@ verses of its own):
 | `template` | The template it was started from (`bible-study`, `sermon`, `class`, `lectio-divina`, `swedish`, `contextual`, `blank`, `search` (a sheet of passages made from a search), …). A record of where it came from, read by nothing that changes how it works: once made, every sheet is the same thing |
 | `commercial` | `true` when the reader has ticked "This is for a commercial project" (S7), which turns on the commercial-quotation check. Absent or `false` otherwise |
 | `isTemplate` | `true` when the record is one of the reader's own templates, not a sheet (added 2026-11-08, Audit 5, section D, #1): "Save as template" made it from a sheet, without the sheet's passages. Absent or `false` otherwise. A client that lists sheets leaves a template out of that list, or lists it apart as a template; a sheet made from it is an ordinary sheet whose `template` is the template's own `template`. A share never carries it |
+| `textSize` | The size the sheet's text prints at, in points: 11, 14, 16 or 18 (added 2026-11-11, E101). Absent means 12, the standard, and a sheet set back to 12 drops the field. Everything the paper prints scales by `textSize / 12`, and so do the files made from it; a client showing the sheet on a screen for a room or on a phone may ignore it. Any other value fails the check |
 | `modules` | The sheet's contents, in order |
 
 A sheet is at most **512 KB** as JSON (CloudKit's records stop at 1 MB, and
@@ -669,7 +670,7 @@ anything else.
 | Field | Meaning |
 |---|---|
 | `lit` | `"sheet"` |
-| `sheetFormat`, `title`, `subtitle`, `template`, `commercial` | As on the sheet (`commercial` only when true) |
+| `sheetFormat`, `title`, `subtitle`, `template`, `commercial`, `textSize` | As on the sheet (`commercial` only when true, `textSize` only when not 12). A `textSize` the client doesn't offer is dropped, and the sheet opens at the standard size |
 | `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, no module of a type the sender doesn't know, every question's `answer` empty, and no module's `minutes`, `prompt` or `answerPrompt`) |
 | `contentVersion` | The sheet's own, so the receiver knows which text it was made on |
 | `modules` | The sheet's modules, each **without its `id`**, and passages without `verseCopy` and `verseCopyAsOf` |

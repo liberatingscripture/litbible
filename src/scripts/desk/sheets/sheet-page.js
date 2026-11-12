@@ -124,17 +124,6 @@ let editing = null;
 // the wait before its offer.
 let sheetTour = null;
 let tourOfferTimer = 0;
-// Whether the leader's version ends with an answer key: this browser's choice,
-// never part of the sheet record.
-const ANSWER_KEY = "lit-sheet-answer-key";
-
-function storedAnswerKey() {
-  try {
-    return localStorage.getItem(ANSWER_KEY) === "on";
-  } catch (_) {
-    return false;
-  }
-}
 /**
  * The Share dialog's file button (E37; BVJ, 2026-11-06: "export", to set it
  * apart from Save as). Its messages read it from here, so it changes in one place.
@@ -525,6 +514,42 @@ async function showSheet(root, store, id, view = null) {
 }
 
 /**
+ * The bar's two checkboxes (BVJ, 2026-11-11): stacked beside the rows while
+ * the bar holds both, and otherwise a row of their own, side by side, between
+ * the choices and the buttons (never below the buttons), wrapping only where
+ * even that is too narrow. The group moves into the column of rows for that,
+ * so the tab order follows what is seen, and a box that had focus keeps it.
+ * A flex item can't tell CSS it wrapped, so this measures, always with the
+ * group beside the rows (the layout that decides whether it fits there), so
+ * it can't flip back and forth. Runs whenever the bar changes size, and stops
+ * once the bar leaves the page.
+ */
+function lineUpChecks(bar, rows, checks) {
+  const ROW = "sheets-page__checks--row";
+  const buttons = rows.lastElementChild;
+  const place = (parent, before) => {
+    if (checks.parentNode === parent && checks.nextSibling === before) return;
+    const focused = checks.contains(document.activeElement) ? document.activeElement : null;
+    parent.insertBefore(checks, before);
+    if (focused && document.activeElement !== focused) focused.focus({ preventScroll: true });
+  };
+  const judge = () => {
+    place(bar, rows.nextSibling);
+    checks.classList.remove(ROW);
+    if (checks.offsetTop <= rows.offsetTop + 1) return;
+    checks.classList.add(ROW);
+    place(rows, buttons);
+  };
+  if (typeof ResizeObserver !== "function") return;
+  const watch = new ResizeObserver(() => {
+    if (!bar.isConnected) return watch.disconnect();
+    judge();
+  });
+  watch.observe(bar);
+  document.fonts?.ready.then(() => bar.isConnected && judge());
+}
+
+/**
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
  * only with "Import into my notebook"; absent for the reader's own.
@@ -545,7 +570,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   let copy = copies[0];
   let paper = storedPaper() ?? defaultPaper(navigator.languages ?? [navigator.language]);
   let codes = true;
-  let answerKey = storedAnswerKey();
+  // The group's answer key (E102) starts off on every page view and is never
+  // remembered, so a key checked once for a home-study handout never rides
+  // along on the next sheet a leader prints and hands out.
+  let answerKey = false;
   setPaper(paper);
 
   const bar = make("div", "sheets-page__bar");
@@ -579,21 +607,26 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   });
   codeBox.append(codeInput, document.createTextNode(" Show QR codes"));
   codeBox.title = "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
-  // "Add an answer key" belongs to the leader's version, so it shows there only.
+  // The group's answer key (E102; BVJ, 2026-11-11, Fable's option B) belongs
+  // to the participant's version, so it shows there only, and only for the
+  // reader's own sheet: a shared link's reader never makes one.
   const keyBox = make("label", "sheets-page__keybox");
   const keyInput = make("input");
   keyInput.type = "checkbox";
   keyInput.checked = answerKey;
   keyInput.addEventListener("change", () => {
     answerKey = keyInput.checked;
-    try { localStorage.setItem(ANSWER_KEY, answerKey ? "on" : "off"); } catch (_) {}
     draw();
   });
-  keyBox.append(keyInput, document.createTextNode(" Add an answer key"));
-  keyBox.title = "End the leader’s version with each passage’s blanks and their answers, to print or save";
-  keyBox.hidden = copy !== "leader";
+  // "Add answer key" as before (E95): it shows only on the participant's
+  // version, which says whose key it is, and a longer label pushed the
+  // checkboxes off the toolbar's side at ordinary widths.
+  keyBox.append(keyInput, document.createTextNode(" Add answer key"));
+  keyBox.title = "A last page with each blank’s answer by verse, to hand out once the blanks are filled in";
+  const keyOffered = () => copy === "participant" && !shared;
+  keyBox.hidden = !keyOffered();
   // A phone gets none of these choices, so none of their descriptions (SH6-11).
-  const hints = phone ? [] : [describe(keyInput, "Ends the leader’s version with each passage’s blanks and their answers, to print or save."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
+  const hints = phone ? [] : [describe(keyInput, "Adds a last page with each blank’s answer by verse, to hand out once the blanks are filled in."), describe(codeInput,"A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net.")];
 
   const actions = make("div", "sheets-page__actions");
   // Edit (S12, part 1, step 2): the page becomes the editor. The reader's
@@ -657,15 +690,23 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     // Two rows and a column (BVJ, 2026-11-11): what to show (the choices),
     // then what to do with it (the buttons, the desk link after Share…), and
     // the two checkboxes stacked at the right, Show QR codes level with the
-    // choices and Add an answer key under it, their boxes in line. The answer
-    // key's box keeps its cell while hidden (E88; see the stylesheet), so
-    // choosing a version moves nothing.
-    bar.classList.add("sheets-page__bar--grid");
+    // choices and Add answer key under it, their boxes in line. The two are
+    // one group, so they stay together, and where the bar is too narrow for
+    // the rows and the group side by side, the group becomes a row of its own
+    // between the choices and the buttons, its two boxes side by side unless
+    // they don't fit (BVJ, 2026-11-11; lineUpChecks). The answer key's box keeps its place while hidden (E88;
+    // see the stylesheet), so choosing a version moves nothing.
+    bar.classList.add("sheets-page__bar--computer");
     const choiceRow = make("div", "sheets-page__row");
     choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice);
     const doRow = make("div", "sheets-page__row");
     doRow.append(actions);
-    bar.append(choiceRow, codeBox, doRow, keyBox, ...hints);
+    const rows = make("div", "sheets-page__main");
+    rows.append(choiceRow, doRow);
+    const checks = make("div", "sheets-page__checks");
+    checks.append(codeBox, keyBox);
+    bar.append(rows, checks, ...hints);
+    lineUpChecks(bar, rows, checks);
   }
 
   const paperBox = make("div", "sheets-page__paper");
@@ -676,7 +717,11 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   // The "what prints" notice, for the participant version.
   const leaksBox = make("section", "sheets-page__leaks");
   leaksBox.hidden = true;
-  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, paperBox);
+  // While the group's answer key is on the paper, a quiet line says where it
+  // prints (E102), since a leader who prints and staples hands it out.
+  const keyNote = make("p", "sheets-page__key-note", "The answer key prints as the last page. Hold it back if you want the group to fill in the blanks first.");
+  keyNote.hidden = true;
+  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, keyNote, paperBox);
   // A sheet marked commercial asks before it leaves the page when it goes
   // beyond the commercial terms, and never blocks (E94; commercial-confirm.js).
   // A shared sheet and the tour's are not the reader's project.
@@ -694,12 +739,13 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     const n = ++seq;
     commercial?.refresh();
     paperBox.setAttribute("aria-busy", "true");
-    keyBox.hidden = copy !== "leader";
-    ready = renderCopy(sheet, { copy, codes, answerKey })
+    keyBox.hidden = !keyOffered();
+    ready = renderCopy(sheet, { copy, codes, answerKey: answerKey && keyOffered() })
       .then(async (el) => {
         if (n !== seq) return;
         current = el;
         paperBox.replaceChildren(el);
+        keyNote.hidden = !el.querySelector(":scope > .sheet-copy__key");
         layOutPages();
         document.title = `${sheetName(sheet)}, ${COPY_NAMES[copy].toLowerCase()} | Liberation and Inclusion Translation`;
         drawLeaks(leaksBox, []);

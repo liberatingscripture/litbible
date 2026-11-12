@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { answerKeyLine, answerKeyRows, containsPhrase, findLeaks, leakSentence } from "../src/lib/desk-sheet-leaks.mjs";
+import { answerKeyGroups, answerKeyLine, containsPhrase, findLeaks, leakSentence } from "../src/lib/desk-sheet-leaks.mjs";
 
 const blank = (exact, extra = {}) => ({ passageId: "p1", ref: "Romans 3:23", exact, ...extra });
 
@@ -66,14 +66,35 @@ test("nothing to report gives an empty list, and a repeat is reported once", () 
   assert.equal(twice.length, 1);
 });
 
-test("the answer key lists each passage's blanks in order, with hints", () => {
-  const rows = answerKeyRows([
-    { ref: "Romans 3:23", blanks: [{ answer: "deviation", hint: "traditionally: sin" }, { answer: "glory" }] },
+test("the group's answer key gives each passage's answers by verse, in reading order (E102)", () => {
+  const groups = answerKeyGroups([
+    {
+      ref: "Matthew 25:31–46",
+      blanks: [
+        { verse: 35, start: 900, answer: "stranger" },
+        { verse: 31, start: 40, answer: "renown" },
+        { verse: 35, start: 880, answer: "hungry" },
+        { verse: 40, start: 1500, answer: "  least   of these " },
+      ],
+    },
     { ref: "John 3:16", blanks: [] },
-    { ref: "Mark 1:1", blanks: [{ answer: "  " }] },
+    { ref: "Mark 1:1", blanks: [{ verse: 1, start: 0, answer: "  " }] },
+    { ref: "James 2:14–17", blanks: [{ verse: 17, start: 300, answer: "dead" }, { verse: 14, start: 10, answer: "trust" }] },
   ]);
-  assert.equal(rows.length, 1);
-  assert.equal(answerKeyLine(rows[0]), "Romans 3:23: 1. deviation (traditionally: sin); 2. glory");
+  assert.deepEqual(groups, [
+    {
+      ref: "Matthew 25:31–46",
+      verses: [
+        { verse: 31, answers: ["renown"] },
+        { verse: 35, answers: ["hungry", "stranger"] },
+        { verse: 40, answers: ["least of these"] },
+      ],
+    },
+    { ref: "James 2:14–17", verses: [{ verse: 14, answers: ["trust"] }, { verse: 17, answers: ["dead"] }] },
+  ]);
+  assert.equal(answerKeyLine(groups[0].verses[1]), "v. 35: hungry, stranger");
+  assert.deepEqual(answerKeyGroups([]), []);
+  assert.deepEqual(answerKeyGroups(undefined), []);
 });
 
 test("Hebrew points do not defeat the check (DK6-4)", () => {

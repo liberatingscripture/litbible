@@ -263,7 +263,7 @@
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: pointer;
 }
 

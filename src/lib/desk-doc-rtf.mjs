@@ -19,6 +19,15 @@
 import { DOC_BOX, DOC_COLORS, DOC_CREDIT, DOC_FONTS, DOC_MARKS, DOC_PAGE_NUMBER, DOC_PAPERS, CODE_CM, docRuns, pageNumberAt } from "./desk-sheet-doc.mjs";
 
 const BASE_HALF_POINTS = 24;
+
+// The sheet's text size over 12 (E101), for the one document rtfText is
+// writing: set at its start and put back at its end. Every text size but the
+// page number's and the box's hairline gap is multiplied by it. `sized` scales
+// the \fsN in this file's own constant strings, which hold no reader's text.
+let scale = 1;
+const hp = (halfPoints) => Math.round(halfPoints * scale);
+const sized = (rtf) => (scale === 1 ? rtf : rtf.replace(/\\fs(\d+)/g, (_, n) => `\\fs${hp(Number(n))}`));
+
 const ALIGN = { left: "\\ql", center: "\\qc", right: "\\qr", justify: "\\qj" };
 const GRAY = 1;
 const LINK = 2;
@@ -126,7 +135,7 @@ function runsRtf(runs, halfPoints) {
 function para(kind, runs = [], { align = null, indent = false, extra = "" } = {}) {
   const [start, halfPoints] = PARA[kind];
   const a = align && ALIGN[align] ? ALIGN[align] : "";
-  return `\\pard\\plain${start}${a}${indent ? "\\li480" : ""}${extra} ${runsRtf(runs, halfPoints)}\\par\n`;
+  return `\\pard\\plain${sized(start)}${a}${indent ? "\\li480" : ""}${extra} ${runsRtf(runs, hp(halfPoints))}\\par\n`;
 }
 
 // A heading or tag that is plain text: spaces as a browser shows them, and Greek or Hebrew marked.
@@ -155,7 +164,7 @@ function listRtf(b, depth = 0, quoted = false) {
     // Inside a quotation the list keeps the quotation's margins (DK3-4).
     const left = (quoted ? QUOTE_INDENT : 0) + 720 + 360 * depth;
     const right = quoted ? `\\ri${QUOTE_INDENT}` : "";
-    out += `\\pard\\plain\\sa60\\f0\\fs24\\fi-360\\li${left}${right}\\tx${left} ${rtfEscape(marker)}\\tab ${runsRtf(docRuns(item.inlines), BASE_HALF_POINTS)}\\par\n`;
+    out += `\\pard\\plain\\sa60\\f0\\fs${hp(24)}\\fi-360\\li${left}${right}\\tx${left} ${rtfEscape(marker)}\\tab ${runsRtf(docRuns(item.inlines), hp(BASE_HALF_POINTS))}\\par\n`;
     for (const list of item.lists) out += listRtf(list, depth + 1, quoted);
   }
   return out;
@@ -175,7 +184,7 @@ function codeRtf(b) {
   const twips = Math.round((CODE_CM / 2.54) * 1440);
   const px = b.pixels ?? 0;
   const pict = `{\\pict\\pngblip\\picw${px}\\pich${px}\\picwgoal${twips}\\pichgoal${twips}\n${hexOf(b.png)}}`;
-  return `\\pard\\plain${PARA.code[0]} ${pict}\\par\n` + para("caption", textRuns(b.caption));
+  return `\\pard\\plain${sized(PARA.code[0])} ${pict}\\par\n` + para("caption", textRuns(b.caption));
 }
 
 /**
@@ -247,13 +256,22 @@ function pageNumbers(margin) {
 /**
  * The .rtf as text.
  *
- * @param {{ title: string, blocks: object[] }} doc the model (readCopy)
+ * @param {{ title: string, blocks: object[], size?: number }} doc the model (readCopy)
  * @param {{ title?: string, version?: string, paper?: "letter" | "a4" }} [opts]
  */
 export function rtfText(doc, { title = doc.title, version = "", paper = "letter" } = {}) {
   const page = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
+  scale = (doc.size ?? 12) / 12;
+  try {
+    return rtfDocument(doc, title, version, page);
+  } finally {
+    scale = 1;
+  }
+}
+
+function rtfDocument(doc, title, version, page) {
   return (
-    HEADER +
+    sized(HEADER) +
     `{\\info{\\title ${rtfEscape(title)}}${version ? `{\\subject ${rtfEscape(version)}}` : ""}{\\doccomm ${rtfEscape(DOC_CREDIT)}}}\n` +
     `\\paperw${page.width}\\paperh${page.height}\\margl${page.margin}\\margr${page.margin}\\margt${page.margin}\\margb${page.margin}\\widowctrl\n` +
     pageNumbers(page.margin) +

@@ -47,9 +47,10 @@ panes' passage field and lock take the same field and control looks. The
 tokens and the reasoning are at the head of "The Sheets pane on /desk" in
 `desk.css`:
 - **Card** (`--desk-card`, `--desk-card-edge`): a part, a row of the list,
-  the chooser, a form. `#FAFAF8` on /sheets' cream page; **in the Sheets
-  pane, whose body keeps a pane's own color like every other pane's, the
-  cards take `--desk-pane-card`**, a step darker (BVJ chose it from three
+  the chooser, a form, the two-tab question ("Continue here?"). `#FAFAF8`
+  on /sheets' cream page; **in the Sheets pane, whose body keeps a pane's
+  own color like every other pane's, the cards take `--desk-pane-card`**,
+  a step darker (BVJ chose it from three
   mocks). A form inside a part's card is a section of it, in the card's
   color with the card's edge; **nothing inside a card takes the page's
   color** (BVJ, 2026-11-11).
@@ -415,7 +416,7 @@ S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
 `[data-sheet-page]` is present. It shows, prints and copies a sheet (the
 Sheets pane's "Print or share" opens it in a new tab), and **writes a
 record only in its editor, from its list's row actions, or on "Import into
-my notebook"**. Eleven things to know:
+my notebook"**. Twelve things to know:
 - **Edit turns the page into the sheet editor** (S12, part 1, step 2; BVJ,
   2026-11-08, decision 1): `/sheets/?id=<id>&view=edit`, and "New sheet…"
   on the list opens a new sheet there from a template (`?view=edit` until
@@ -458,6 +459,22 @@ my notebook"**. Eleven things to know:
   about which words a passage, a blank or a footnote covers.
   `passageWords`' `keepNotes` keeps the printing footnotes' letters as
   plain superscripts.
+- **The answer key is the group's, on the participant's version** (E102;
+  BVJ, 2026-11-11, Fable's option B): “Add answer key” shows only on the
+  participant's version of the reader's own sheet (never a shared one), is
+  off by default and **never remembered**, so a key can't ride along on the
+  next handout. Checked, `renderCopy` appends `section.sheet-copy__key`
+  after the foot: “Answer key,” the sheet's name, then per passage a
+  heading and a list, one line per verse (“v. 35: hungry, stranger” in the
+  files; `answerKeyGroups` and `answerKeyLine` in `desk-sheet-leaks.mjs`),
+  answers in reading order, no blank numbers or hints, and the credit line
+  last. A sheet with no printing blanks gets no key. A note under the
+  toolbar says the key prints as the last page. **It never leaves the
+  paper**: present mode, the slides and a share link don't carry it, and
+  the “what prints” check (`copyLeaks`) reads only the sheet's own parts.
+  In Copy and the files the sheet's credit stays where it is and the key's
+  page carries the `credit: true` line the writers put last (`readCopy`'s
+  `keyAfter`).
 - **A passage made from a selection says it is part of its verse**
   (Audit 5, SH5-14): the card names it with `passageLabel` ("Romans 8:6
   (part)", `desk-sheet-passages.mjs`), and the paper copy and present
@@ -516,6 +533,29 @@ my notebook"**. Eleven things to know:
   otherwise), all put back on `afterprint`. **In an .odp, never give
   `presentation:notes` (or the master's notes) a `draw:style-name`**:
   Impress paints the slides with it, which turned the dark ground white.
+- **A sheet has a text size of its own, apart from the Display tray**
+  (E101; BVJ, 2026-11-11: “The page display settings would affect the page
+  text, not the sheet fields”). The sheet's `textSize` (11, 12, 14, 16 or
+  18 points; absent at the standard 12; `SHEET_TEXT_SIZES`, `sheetTextSize`
+  in `desk-sheet-format.mjs`) is set from the editor's “Text size” select
+  and becomes **`--sheet-text-scale`** (size / 12): on the editor's sheet
+  view it scales the title, subtitle, `.desk-rich` text and a passage's
+  words; on `.sheet-copy` (`renderCopy`) it scales every paper size but the
+  page numbers, and `readCopy` hands it to the writers as `doc.size`, so
+  Copy and the .docx, .odt and .rtf files print at it (page numbers
+  unscaled there too). Present mode and the slides keep their own sizes.
+  **The Display tray's size is `--sheet-ui`**, set on `.sheets-page` from
+  `--reading-scale`, which also sets the page's own size from it, so the
+  whole /sheets page follows the tray (BVJ, 2026-11-11: the toolbar's
+  buttons grew and its row of choices didn't): the list, the toolbar, the
+  notices and dialogs, the editor's labels, buttons, menus and notes
+  (`desk.css`, the sheet button rule in `desk-sheet-view.css`) and the
+  presenter view, a phone's shared sheet included. Never a sheet field, the
+  paper or the room's screen (the stage and the presenter's previews). In
+  /desk's Sheets pane it is unset and counts as 1. A size set in rem on the
+  page multiplies by `--sheet-ui` (`test/desk-sheet-text-size.test.js`
+  holds sheets-page.css to it), and a new sheet field or paper part
+  multiplies by `--sheet-text-scale`.
 - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
   guessed from the reader's languages until chosen), named in /privacy's
   paragraph. Its `@page` rule is added as the page's last style, after
@@ -529,7 +569,14 @@ my notebook"**. Eleven things to know:
   (`.sheet-page-gap`) push what would cross a page's foot to the next
   page's top, before a block or before the first word of the crossing line,
   following print's rules (a page break, `break-inside: avoid` parts moving
-  whole, headings kept with what follows). Laid out again when fonts load,
+  whole, headings kept with what follows). **Those rules sit outside
+  `@media print`** in `sheets-page.css` (E99), since `paginate` reads them
+  from computed styles and a screen never sees a print-only rule; break-*
+  does nothing on a continuous screen, so they cost nothing there. A heading
+  never ends a page: a text part ending in one is `.sheet-copy__text--heads`
+  (`renderCopy`), and `startNextPage` finds a heading past the edge of the
+  box the moving text opens. The answer key is `break-before: page` and
+  follows the foot (E100). Laid out again when fonts load,
   the paper changes or the column's width does. **Anything that reads the
   copy goes through `unpaged`** (as `readCopy` does), or a file carries the
   gaps; print hides the spacers and lets the printer paginate.

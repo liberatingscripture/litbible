@@ -81,21 +81,23 @@ function listStyle(name, ordered, inset = 0) {
   return `<text:list-style style:name="${name}">${levels}</text:list-style>`;
 }
 
-function stylesXml(paper) {
+/** The styles part; every text size but the page number's times `scale`, the sheet's text size over 12 (E101). */
+function stylesXml(paper, scale = 1) {
+  const at = (pt) => size(Math.round(pt * scale * 10) / 10);
   const sheet = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
   const page = sheet.odf;
   return (
     `${XML}<office:document-styles ${NS} office:version="1.2">${FONT_FACES}<office:styles>` +
     `<style:default-style style:family="paragraph"><style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0.08in" fo:line-height="110%"/>` +
-    `<style:text-properties style:font-name="${DOC_FONTS.text}" ${size(BASE_PT)} fo:language="en" fo:country="US" ` +
+    `<style:text-properties style:font-name="${DOC_FONTS.text}" ${at(BASE_PT)} fo:language="en" fo:country="US" ` +
     `style:font-name-complex="${DOC_FONTS.ancient}" style:language-complex="he" style:country-complex="IL"/></style:default-style>` +
     pStyle("Standard", "Standard", { parent: null }) +
-    pStyle("Heading_20_1", "Heading 1", { next: "Standard", outline: 1, p: 'fo:margin-bottom="0.08in" fo:keep-with-next="always"', t: `${bold} ${size(20)}` }) +
-    pStyle("Heading_20_2", "Heading 2", { next: "Standard", outline: 2, p: 'fo:margin-top="0.19in" fo:margin-bottom="0.06in" fo:keep-with-next="always"', t: `${bold} ${size(15)}` }) +
-    pStyle("Heading_20_3", "Heading 3", { next: "Standard", outline: 3, p: 'fo:margin-top="0.14in" fo:margin-bottom="0.04in" fo:keep-with-next="always"', t: `${bold} ${size(13)}` }) +
+    pStyle("Heading_20_1", "Heading 1", { next: "Standard", outline: 1, p: 'fo:margin-bottom="0.08in" fo:keep-with-next="always"', t: `${bold} ${at(20)}` }) +
+    pStyle("Heading_20_2", "Heading 2", { next: "Standard", outline: 2, p: 'fo:margin-top="0.19in" fo:margin-bottom="0.06in" fo:keep-with-next="always"', t: `${bold} ${at(15)}` }) +
+    pStyle("Heading_20_3", "Heading 3", { next: "Standard", outline: 3, p: 'fo:margin-top="0.14in" fo:margin-bottom="0.04in" fo:keep-with-next="always"', t: `${bold} ${at(13)}` }) +
     pStyle("Subtitle", "Subtitle", { next: "Standard", t: `${italic} fo:color="#555555"` }) +
-    pStyle("Tag", "Part tag", { p: 'fo:keep-with-next="always"', t: `${italic} ${size(10)}` }) +
-    pStyle("Note", "Sheet footnote", { p: 'fo:margin-left="0.17in"', t: size(10) }) +
+    pStyle("Tag", "Part tag", { p: 'fo:keep-with-next="always"', t: `${italic} ${at(10)}` }) +
+    pStyle("Note", "Sheet footnote", { p: 'fo:margin-left="0.17in"', t: at(10) }) +
     pStyle("Quote", "Quotations", { p: 'fo:margin-left="0.5in" fo:margin-right="0.5in"' }) +
     pStyle("List_20_Paragraph", "List Paragraph", { p: 'fo:margin-bottom="0.04in"' }) +
     pStyle("Rule", "Rule", { p: 'fo:border-bottom="0.75pt solid #888888" fo:padding-bottom="0.02in"' }) +
@@ -103,8 +105,8 @@ function stylesXml(paper) {
     pStyle("Answer", "Answer", { p: 'fo:margin-left="0.17in" fo:keep-with-next="always"', t: bold }) +
     pStyle("Break", "Page break", { p: 'fo:break-before="page"' }) +
     pStyle("Code", "Code to scan", { p: 'fo:text-align="end" fo:margin-bottom="0in" fo:keep-with-next="always"' }) +
-    pStyle("Code_20_Caption", "Code caption", { p: 'fo:text-align="end"', t: `style:font-name="${DOC_FONTS.small}" ${size(7)}` }) +
-    pStyle("Foot", "Sheet foot", { p: 'fo:margin-bottom="0.04in"', t: size(10) }) +
+    pStyle("Code_20_Caption", "Code caption", { p: 'fo:text-align="end"', t: `style:font-name="${DOC_FONTS.small}" ${at(7)}` }) +
+    pStyle("Foot", "Sheet foot", { p: 'fo:margin-bottom="0.04in"', t: at(10) }) +
     pStyle("Page_20_Number", "Page number", {
       parent: null,
       p: 'fo:margin-top="0in" fo:margin-bottom="0in" fo:line-height="100%" fo:text-align="end"',
@@ -247,13 +249,13 @@ function runsXml(ctx, runs, basePt) {
 
 function p(ctx, style, runs = [], opts = {}) {
   const name = ctx.styles.para(style, opts);
-  return `<text:p text:style-name="${name}">${runsXml(ctx, runs, STYLE_PT[style] ?? BASE_PT)}</text:p>`;
+  return `<text:p text:style-name="${name}">${runsXml(ctx, runs, (STYLE_PT[style] ?? BASE_PT) * ctx.scale)}</text:p>`;
 }
 
 function h(ctx, level, runs, opts = {}) {
   const style = `Heading_20_${level}`;
   const name = ctx.styles.para(style, opts);
-  return `<text:h text:style-name="${name}" text:outline-level="${level}">${runsXml(ctx, runs, STYLE_PT[style])}</text:h>`;
+  return `<text:h text:style-name="${name}" text:outline-level="${level}">${runsXml(ctx, runs, STYLE_PT[style] * ctx.scale)}</text:h>`;
 }
 
 // A heading or tag that is plain text: spaces as a browser shows them, and Greek or Hebrew marked.
@@ -336,7 +338,8 @@ function body(ctx, blocks, quoted = false) {
  */
 export function odtParts(doc, { title = doc.title, version = "", paper = "letter", date = Date.now() } = {}) {
   const sheet = DOC_PAPERS[paper] ?? DOC_PAPERS.letter;
-  const ctx = { styles: autoStyles(`${((sheet.width - 2 * sheet.margin) / 1440).toFixed(3)}in`), images: [] };
+  // The sheet's text size (E101): every text size is scaled by it.
+  const ctx = { styles: autoStyles(`${((sheet.width - 2 * sheet.margin) / 1440).toFixed(3)}in`), images: [], scale: (doc.size ?? 12) / 12 };
   const text = body(ctx, doc.blocks) + p(ctx, "Foot", textRuns(DOC_CREDIT));
   const content =
     `${XML}<office:document-content ${NS} office:version="1.2">${FONT_FACES}` +
@@ -366,7 +369,7 @@ export function odtParts(doc, { title = doc.title, version = "", paper = "letter
     { name: "mimetype", data: ODT_MIME, store: true },
     { name: "META-INF/manifest.xml", data: manifest },
     { name: "content.xml", data: content },
-    { name: "styles.xml", data: stylesXml(paper) },
+    { name: "styles.xml", data: stylesXml(paper, ctx.scale) },
     { name: "meta.xml", data: meta },
     ...ctx.images,
   ];
