@@ -2727,6 +2727,29 @@ tap areas (`global.css`, never under 24px).
   list and alignment icons (`ICONS.link` in `sheet-text.js`). Chosen from
   three drawn side by side at 16px and 48px; two whole links interlocked on
   the diagonal read well large but closed into a knot at toolbar size.
+- **E94, design: the commercial check asks before a sheet leaves the
+  page.** BVJ (2026-11-11): “I know we decided to have the commercial
+  checkbox be a warning but not block, but maybe that should change.” S7's
+  check showed only in the editor's License card, and the Sheets page,
+  where Print, Copy, Save as, Share, and Present are, never mentioned it,
+  so a sheet marked commercial could go out past every line of it unseen.
+  Claude advised against a block (the box is the reader's own word, so a
+  block stops only the honest, who would untick it and lose the guidance;
+  the 50% is of the whole work, which one sheet may be a part of; and
+  written permission allows more) and proposed a confirmation; BVJ chose
+  it (“Yes, add it”). Status: **done 2026-11-11**: on the Sheets page, a
+  sheet marked “This is for a commercial project” whose check finds
+  anything beyond the terms asks first, in a dialog listing those findings
+  in the License card's own words (`commercialFindings` in
+  `desk-sheet-lit.mjs`, which the card now reads too), with a link to
+  contact the LIT and one to the terms, and “Print anyway” (or Copy, Save,
+  Share, Present) beside Cancel, which has focus. A sheet within the terms,
+  or not marked commercial, is never asked. Going ahead holds for the page
+  view until the counts change, so printing and then copying asks once. A
+  failed count goes ahead, and a shared sheet or the Sheets tour's is never
+  asked. `&view=present` asks before presenting, and Cancel drops the
+  parameter. Ctrl+P on the page still prints without asking (a browser
+  can't hold a print it didn't start). Rules: `sheets/commercial-confirm.js`.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

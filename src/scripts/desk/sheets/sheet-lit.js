@@ -17,7 +17,7 @@
 
 import { offsetsToRange, pageAnchorText, rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
 import { LIT_CREDIT_LINE } from "../../../lib/lit-credit.mjs";
-import { BOOKS, bookKeyToLabel } from "../../../data/books.js";
+import { BOOKS } from "../../../data/books.js";
 import {
   blankFromOffsets,
   blankHint,
@@ -25,6 +25,7 @@ import {
   blanksTouching,
   booksToCheck,
   collectKeyTerms,
+  commercialFindings,
   commercialShare,
   completeBooks,
   countWords,
@@ -1229,7 +1230,7 @@ async function keyTermWords(sheet) {
  * the key terms box) against the reader's own (title, subtitle, text and
  * questions). Parts marked Leader only, and answers, are left out.
  */
-async function commercialCounts(sheet) {
+export async function commercialCounts(sheet) {
   let lit = 0;
   let own = countWords(sheet.title) + countWords(sheet.subtitle);
   let blanks = 0;
@@ -1344,36 +1345,19 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
     drawnResult = result;
     check.replaceChildren();
     const list = make("ul", "desk-sheet__check-list");
-    const item = (text, bad) => {
-      const li = make("li", bad ? "is-over" : "is-ok", text);
+    // The sentences are commercialFindings', which the confirmation before a
+    // commercial sheet leaves /sheets reads too (E94), so the two never differ.
+    for (const f of commercialFindings(c)) {
+      const li = make("li", f.over ? "is-over" : "is-ok", f.text);
+      if (f.kind === "share") {
+        const meter = make("div", "desk-sheet__meter");
+        meter.setAttribute("aria-hidden", "true");
+        const fill = make("span", f.over ? "is-over" : null);
+        fill.style.width = `${Math.min(100, f.pct)}%`;
+        meter.append(fill);
+        li.append(meter);
+      }
       list.append(li);
-    };
-    if (c.share == null) {
-      item("Nothing on the sheet to count yet.", false);
-    } else {
-      let pct = Math.round(c.share * 100);
-      // 50.4% is over the limit but rounds to "50%": show a tenth so the red has a reason (GF8b-13).
-      if (c.over && pct <= 50) pct = Math.ceil(c.share * 1000) / 10;
-      item(
-        `LIT material: ${c.lit.toLocaleString("en-US")} of ${plural(c.total, "word")} (${pct}%). ` +
-          (c.over ? "The commercial terms allow at most 50%." : "That’s within the 50% the commercial terms allow."),
-        c.over,
-      );
-      const meter = make("div", "desk-sheet__meter");
-      meter.setAttribute("aria-hidden", "true");
-      const fill = make("span", c.over ? "is-over" : null);
-      fill.style.width = `${Math.min(100, pct)}%`;
-      meter.append(fill);
-      list.lastChild.append(meter);
-    }
-    for (const book of c.whole) {
-      item(`These passages quote all of ${bookKeyToLabel(book)}. The commercial terms don’t cover a complete book of the Bible.`, true);
-    }
-    if (c.notesOff) {
-      item(`${plural(c.notesOff, "footnote")} in these passages ${c.notesOff === 1 ? "is" : "are"} set not to print. The commercial terms ask that footnotes be kept with the verses they reference.`, true);
-    }
-    if (c.blanks) {
-      item(`This sheet leaves ${plural(c.blanks, "blank")}. The commercial terms ask that the text be quoted as written; blanks are part of the noncommercial terms.`, true);
     }
     check.append(list);
     const foot = make("p", "desk-sheet__lit-note");

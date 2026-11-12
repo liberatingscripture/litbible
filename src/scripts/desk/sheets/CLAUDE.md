@@ -415,7 +415,7 @@ S5, S9, C27 and "Order of work", 3i): `src/pages/sheets.astro`, which
 `[data-sheet-page]` is present. It shows, prints and copies a sheet (the
 Sheets pane's "Print or share" opens it in a new tab), and **writes a
 record only in its editor, from its list's row actions, or on "Import into
-my notebook"**. Ten things to know:
+my notebook"**. Eleven things to know:
 - **Edit turns the page into the sheet editor** (S12, part 1, step 2; BVJ,
   2026-11-08, decision 1): `/sheets/?id=<id>&view=edit`, and "New sheet…"
   on the list opens a new sheet there from a template (`?view=edit` until
@@ -543,6 +543,17 @@ my notebook"**. Ten things to know:
   `\footerf`. Each keeps the copy's text area, its number centered in the
   margin. Checked in Word and LibreOffice (2026-11-10); a change here wants
   the same check, since a test only reads the XML.
+- **A commercial sheet asks before it leaves the page, and never blocks**
+  (E94; BVJ, 2026-11-11; `commercial-confirm.js`). S7's check lives in the
+  editor's License card, so the page asks again at Print, Copy, Save as,
+  Share, and Present (and `&view=present`), only for a sheet marked
+  commercial whose check finds something beyond the terms. The dialog lists
+  `commercialFindings` (`desk-sheet-lit.mjs`), the card's own sentences, so
+  a change of wording is made there once. A block was weighed and declined:
+  the box is the reader's own word, the 50% is of the whole work, and
+  written permission allows more. Going ahead holds for the page view until
+  the counts change; a failed count goes ahead. A new way for a sheet to
+  leave the page goes through `cleared(opener, verb)` in `drawSheet`.
 - **Printing without a sheet** (M6 with my notes, Print ▸ in the verse menu,
   the one Print menu, N9 with room to write) stays in `src/scripts/desk/CLAUDE.md`,
   rule 19, since its code is `desk/print-*.js`.

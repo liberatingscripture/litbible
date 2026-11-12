@@ -13,7 +13,7 @@
 // terms the leader took out, a blank stores its words and their context, and
 // a footnote choice stores the footnote's text, never its letter.
 
-import { BOOKS } from "../data/books.js";
+import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { verseCount } from "../data/verse-counts.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { wordingKey } from "./desk-wording.mjs";
@@ -896,6 +896,49 @@ export function commercialShare(lit, own) {
   const total = lit + own;
   const share = total ? lit / total : null;
   return { lit, own, total, share, over: share != null && share > COMMERCIAL_LIT_LIMIT };
+}
+
+/**
+ * The commercial check's findings, in the order the License card lists them:
+ * the share of LIT material first (`kind: "share"`, with its `pct`; absent on
+ * an empty sheet, which gets `kind: "empty"`), then a complete book, footnotes
+ * set not to print, and blanks. `over` marks what goes past the commercial
+ * terms; the confirmation before a commercial sheet leaves the page (E94) asks
+ * about those alone, in the card's own words.
+ *
+ * @param {{ lit: number, total: number, share: number | null, over: boolean,
+ *   whole: string[], notesOff: number, blanks: number }} c commercialCounts' result
+ * @returns {{ kind: string, text: string, over: boolean, pct?: number }[]}
+ */
+export function commercialFindings(c) {
+  const out = [];
+  if (c.share == null) {
+    out.push({ kind: "empty", text: "Nothing on the sheet to count yet.", over: false });
+  } else {
+    let pct = Math.round(c.share * 100);
+    // 50.4% is over the limit but rounds to "50%": show a tenth so the red has a reason (GF8b-13).
+    if (c.over && pct <= 50) pct = Math.ceil(c.share * 1000) / 10;
+    out.push({
+      kind: "share",
+      pct,
+      over: c.over,
+      text:
+        `LIT material: ${c.lit.toLocaleString("en-US")} of ${c.total.toLocaleString("en-US")} ${c.total === 1 ? "word" : "words"} (${pct}%). ` +
+        (c.over ? "The commercial terms allow at most 50%." : "That’s within the 50% the commercial terms allow."),
+    });
+  }
+  for (const book of c.whole ?? []) {
+    out.push({ kind: "whole", over: true, text: `These passages quote all of ${bookKeyToLabel(book)}. The commercial terms don’t cover a complete book of the Bible.` });
+  }
+  if (c.notesOff) {
+    const n = c.notesOff;
+    out.push({ kind: "notes", over: true, text: `${n.toLocaleString("en-US")} ${n === 1 ? "footnote" : "footnotes"} in these passages ${n === 1 ? "is" : "are"} set not to print. The commercial terms ask that footnotes be kept with the verses they reference.` });
+  }
+  if (c.blanks) {
+    const n = c.blanks;
+    out.push({ kind: "blanks", over: true, text: `This sheet leaves ${n.toLocaleString("en-US")} ${n === 1 ? "blank" : "blanks"}. The commercial terms ask that the text be quoted as written; blanks are part of the noncommercial terms.` });
+  }
+  return out;
 }
 
 /**

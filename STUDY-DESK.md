@@ -1022,7 +1022,10 @@ plan as a whole was accepted; nothing was declined except where stated).
   quotations amount to a complete book. BVJ's original instruction: "The
   meter should be absent or subtle and maybe only toggled on when someone
   checks a box for 'working on a project for commercial use?' or something
-  like that." New. Small. **Decided: hidden unless commercial.**
+  like that." New. Small. **Decided: hidden unless commercial.** **Changed
+  2026-11-11 (STUDY-DESK-FIXES.md, E94)**: still never a block, but a sheet
+  marked commercial that goes beyond the terms now asks before Print, Copy,
+  Save as, Share, or Present on its page, listing what goes beyond.
 - **S8. Share without a server.** A file (the Markdown export carries the
   sheet's data) or a link (the whole sheet after the #, which browsers never
   send to a server). Test first: a developer traced Cloudflare's analytics
