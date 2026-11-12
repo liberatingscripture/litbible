@@ -2787,6 +2787,21 @@ tap areas (`global.css`, never under 24px).
   (BVJ: “it shouldn't go below the buttons”), side by side, wrapping only
   where that is too narrow. “Edit in Study Desk” lost its extra left margin, which
   indented it when it wrapped to a line of its own.
+- **E96, bug: checking a footnote's box scrolled the editor up to the
+  passage.** BVJ (2026-11-11): “In the sheet editor, I checked a footnote
+  box, and it autoscrolled up to the passage. It shouldn't do that.” A
+  change to the sheet redraws the passage card, and the footnote list was
+  drawn after it, once the sheet's printing blanks were worked out
+  (`drawNotes`, asynchronous). So when the card gave focus back, the box
+  wasn't there yet, focus fell back to “Blank” above the passage, and
+  focusing it scrolled the page up; the list also stood empty for that
+  moment. Status: **fixed 2026-11-11**: `render` in `sheet-lit.js` works
+  out the blanks with the passage, before replacing anything, and draws the
+  list in the same step (`paintNotes`), so the box is there to take focus
+  back; and `restoreFocus` gives focus back to the same control with
+  `preventScroll`, since it is drawn where it was (a fallback to another
+  control still scrolls to it). Checked in the Browser pane: the page and
+  the box stay put and keep focus.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
