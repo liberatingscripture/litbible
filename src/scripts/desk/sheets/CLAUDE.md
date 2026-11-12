@@ -551,8 +551,11 @@ my notebook"**. Twelve things to know:
   notices and dialogs, the editor's labels, buttons, menus and notes
   (`desk.css`, the sheet button rule in `desk-sheet-view.css`) and the
   presenter view, a phone's shared sheet included. Never a sheet field, the
-  paper or the room's screen (the stage and the presenter's previews). In
-  /desk's Sheets pane it is unset and counts as 1. A size set in rem on the
+  paper or the room's screen (the stage and the presenter's previews).
+  /desk's Sheets pane has it too (E109, set with `--desk-ui` in `desk.css`),
+  so the pane's own words follow the tray like every other pane's, its line
+  spacing too (`--desk-leading`, which the /sheets page does not have); a
+  passage's words there are set from the root, as on /sheets. A size set in rem on the
   page multiplies by `--sheet-ui` (`test/desk-sheet-text-size.test.js`
   holds sheets-page.css to it), and a new sheet field or paper part
   multiplies by `--sheet-text-scale`.

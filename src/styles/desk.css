@@ -48,8 +48,15 @@ textarea[class*="desk-"]::placeholder {
   border-radius: 14px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  font-size: 0.9375rem;
-  line-height: 1.5;
+  /* The panel follows the Display tray's text size and line spacing, as the
+     text beside it and the margin notes do (E109; BVJ, 2026-11-12, answering
+     Audit 2's question 4). It sets the two here, for itself: every size and
+     line height inside multiplies or adds them, as on /desk. Its width is the
+     margin's, in px, so larger words wrap; the tabs wrap to a second row. */
+  --desk-ui: var(--reading-scale, 1);
+  --desk-leading: var(--reading-leading-extra, 0);
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 /* Where the margin can't hold it, it floats (BVJ, 2026-10-07): expanded, it
@@ -74,11 +81,34 @@ textarea[class*="desk-"]::placeholder {
   padding: 14px 12px 10px 16px;
 }
 
+/* The name and its badge share what the two buttons leave. The panel's words
+   follow the Display tray's text size (E109), so the row can ask for more
+   than a narrow panel has, sooner still in OpenDyslexic. Then the badge
+   wraps to a second line, which the row's height clips: it goes whole, the
+   name stays where it was (and is cut short only if it alone can't fit), and
+   the two buttons never leave the panel. The row is the buttons' height. */
+.desk-panel__name {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  gap: 0 8px;
+  min-width: 0;
+  height: 36px;
+  overflow: hidden;
+}
+
 .desk-panel__title {
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
-  font-size: 1.0625rem;
+  overflow: hidden;
+  font-size: calc(1.0625rem * var(--desk-ui, 1));
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 36px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .desk-panel__badge {
@@ -86,7 +116,7 @@ textarea[class*="desk-"]::placeholder {
   border: 1px solid rgba(var(--ink-rgb), 0.3);
   border-radius: 999px;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem * var(--desk-ui, 1));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -154,7 +184,7 @@ textarea[class*="desk-"]::placeholder {
   background: transparent;
   color: rgba(var(--ink-rgb), 0.72);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   font-weight: 600;
   cursor: pointer;
 }
@@ -220,7 +250,7 @@ a.desk-item__ref:hover {
 .desk-item__kind {
   grid-column: 1;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* A bookmark's name: directly under its reference, above the line that says
@@ -243,7 +273,7 @@ a.desk-item__ref:hover {
   background: none;
   color: var(--green-text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   cursor: pointer;
 }
@@ -275,7 +305,7 @@ a.desk-item__ref:hover {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -294,7 +324,7 @@ a.desk-item__ref:hover {
 .desk-panel__settings-tab {
   padding: 10px 16px 14px;
   color: rgba(var(--ink-rgb), 0.72);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-panel__settings-tab p {
@@ -314,7 +344,7 @@ a.desk-item__ref:hover {
   /* The panel's own face, not the site's display serif for headings. */
   font-family: inherit;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -357,7 +387,7 @@ a.desk-item__ref:hover {
   background: var(--surface-raised);
   color: var(--text);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-undo__bar[hidden] {
@@ -488,7 +518,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   background: transparent;
   color: var(--green-text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -575,15 +605,24 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   accent-color: var(--green-text);
 }
 
+/* A pill of two or three choices on one line. Where a line can't hold them
+   (a narrow panel at a large text size, sooner in OpenDyslexic; E109) they
+   stack, each the pill's whole width, instead of the last being clipped. The
+   radius is more than half a line's height, so one line is still a pill, and
+   a stack gets rounded corners rather than a lens. */
 .desk-seg {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 999px;
+  border-radius: calc(1em + 4px);
   overflow: hidden;
 }
 
 .desk-seg__option {
   position: relative;
+  flex: 1 1 auto;
+  text-align: center;
   cursor: pointer;
 }
 
@@ -620,7 +659,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
    size are set here. */
 .desk-mine__scope {
   margin: 10px 4px 2px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* ── The This verse tab ──────────────────────────────────────── */
@@ -676,7 +715,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 .desk-verse__ref {
   flex: 1;
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--desk-ui, 1));
   font-weight: 600;
   text-align: center;
 }
@@ -690,8 +729,8 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 /* The verse, a little larger than the panel's own text. */
 .desk-verse__text {
   margin: 4px 4px 12px;
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: calc(1rem * var(--desk-ui, 1));
+  line-height: calc(1.6 + var(--desk-leading, 0));
 }
 
 .desk-verse__section {
@@ -704,7 +743,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   /* The panel's own face, not the site's display serif for headings. */
   font-family: inherit;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -720,8 +759,8 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
   grid-template-columns: auto 1fr;
   gap: 8px;
   margin-bottom: 8px;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-verse__fn-label {
@@ -804,7 +843,7 @@ html[data-desk-list="full"] .desk-item__note .desk-item__words {
 .desk-verse__empty {
   margin: 4px 0 8px;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 /* "Add a note" on this verse: the note marker in the footnotes' pill (.desk-pin
@@ -892,7 +931,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   font-weight: var(--desk-note-weight, 400);
   /* 16px at the default text size, up from 15 (BVJ, 2026-10-13). */
   font-size: calc(1rem * var(--reading-scale, 1));
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
@@ -972,7 +1011,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   border-radius: 6px;
   background: transparent;
   color: var(--text);
-  font: 0.8125rem/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: calc(0.8125rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
   cursor: pointer;
 }
 
@@ -997,7 +1036,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   border-radius: 8px;
   background: transparent;
   color: var(--text);
-  font: 0.8125rem/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: calc(0.8125rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
   text-align: left;
   cursor: pointer;
 }
@@ -1200,7 +1239,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 .desk-verse__mention-lead {
   margin: 0;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-verse__mention-ref {
@@ -1230,7 +1269,7 @@ a.desk-verse__mention-ref:hover {
   width: min(300px, calc(100vw - 32px));
   font-family: var(--desk-note-font, "Playpen Sans", Inter, system-ui, sans-serif);
   font-weight: var(--desk-note-weight, 500);
-  line-height: 1.5;
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-note-pop .desk-note__glyph {
@@ -1255,7 +1294,7 @@ a.desk-verse__mention-ref:hover {
 
 .desk-note-pop__ref {
   color: rgba(var(--ink-rgb), 0.65);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
 .desk-note-pop .desk-note__edit {
@@ -1363,7 +1402,7 @@ a.desk-verse__mention-ref:hover {
 
 .desk-swatch__sample {
   padding: 2px 3px 3px;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--desk-ui, 1));
 }
 
 span.desk-swatch {
@@ -1407,7 +1446,7 @@ span.desk-swatch {
   align-items: center;
   padding-inline: 8px 6px;
   color: var(--text, inherit);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--desk-ui, 1));
 }
 
 .desk-hl-row .desk-swatch {
@@ -1487,7 +1526,7 @@ a.desk-item__highlight:hover {
   flex-wrap: wrap;
   gap: 6px;
   margin: 10px 4px 2px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-mine__colors[hidden] {
@@ -1521,7 +1560,7 @@ a.desk-item__highlight:hover {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -1549,7 +1588,7 @@ a.desk-item__highlight:hover {
 .desk-editor__quote figcaption {
   margin-top: 2px;
   color: rgba(var(--ink-rgb), 0.65);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-editor__markers {
@@ -1561,7 +1600,7 @@ a.desk-item__highlight:hover {
 .desk-editor__markers legend {
   padding: 0;
   margin-bottom: 4px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -1623,7 +1662,7 @@ a.desk-item__highlight:hover {
   background: var(--surface-input, var(--surface-raised));
   color: var(--text);
   font: inherit;
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
   resize: vertical;
 }
 
@@ -1635,7 +1674,7 @@ a.desk-item__highlight:hover {
 .desk-editor__error {
   margin: 6px 0 0;
   color: var(--text);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -1653,7 +1692,7 @@ a.desk-item__highlight:hover {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -1892,7 +1931,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -1924,7 +1963,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -1962,7 +2001,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   border-radius: 6px;
   background: transparent;
   color: rgba(var(--ink-rgb), 0.74);
-  font: 0.75rem/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: calc(0.75rem * var(--desk-ui, 1))/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
   text-align: left;
   cursor: pointer;
 }
@@ -2060,7 +2099,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   padding: 3px 10px 3px 8px;
   border: 1px solid rgba(var(--ink-rgb), 0.22);
   border-radius: 999px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-flag--row:hover {
@@ -2076,7 +2115,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .desk-mine__changed {
   margin: 10px 4px 2px;
   color: var(--text);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-mine__changed[hidden] {
@@ -2098,13 +2137,13 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   align-items: center;
   gap: 2px 7px;
   margin-top: 2px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
 .desk-notice .lit-panel__heading {
   color: var(--text);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-notice__glyph {
@@ -2149,7 +2188,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 .desk-notice__when {
   color: rgba(var(--ink-rgb), 0.72);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-notice__when[hidden] {
@@ -2163,7 +2202,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .desk-notice p.desk-notice__label {
   margin-top: 8px;
   color: rgba(var(--ink-rgb), 0.72);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -2180,7 +2219,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   border-left: 3px solid var(--green-text);
   border-radius: 0 8px 8px 0;
   background: rgba(var(--ink-rgb), 0.05);
-  line-height: 1.5;
+  line-height: calc(1.5 + var(--desk-leading, 0));
   overflow-wrap: anywhere;
 }
 
@@ -2210,14 +2249,14 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .desk-notice p.desk-notice__marked {
   margin-top: 8px;
   color: rgba(var(--ink-rgb), 0.78);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   overflow-wrap: anywhere;
 }
 
 .desk-notice__error {
   margin: 6px 0 0;
   color: var(--text);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -2246,7 +2285,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -2308,7 +2347,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   border-radius: 999px;
   background: transparent;
   color: rgba(var(--ink-rgb), 0.74);
-  font: 0.75rem/1.5 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: calc(0.75rem * var(--desk-ui, 1))/1.5 Inter, "Inter Fallback", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -2520,7 +2559,7 @@ ol.footnotes[data-desk-fn-pills] {
   /* The panel's own face, not the site's display serif for headings. */
   font-family: inherit;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -2630,7 +2669,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-bookmark-form__hint {
   margin: 0 0 10px 26px;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* "Start following now?" (E47): under the switch it belongs to, and gone
@@ -2646,7 +2685,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-bookmark-form__start-note {
   margin: 0 0 10px 26px;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* ── 1d: first use (the first-time choice, the foot, the tour) ── */
@@ -2670,7 +2709,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-home-card__title {
   margin: 0 0 6px;
   font-family: inherit;
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
   font-weight: 700;
   line-height: 1.3;
 }
@@ -2684,8 +2723,8 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-home-card__more,
 .desk-home-card__safari {
   margin: 0 0 8px;
-  font-size: 0.8125rem;
-  line-height: 1.45;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
 .desk-home-card__note {
@@ -2724,7 +2763,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -2744,7 +2783,9 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: transparent;
   color: var(--green-text);
   font: inherit;
-  font-size: calc(0.8125rem * var(--sheet-ui, 1));
+  /* One rule for two places: the Sheets tour link follows /sheets' scale,
+     the Notebook's own tour link the panel's. */
+  font-size: calc(0.8125rem * var(--sheet-ui, var(--desk-ui, 1)));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -2784,8 +2825,8 @@ html[data-desk-list="full"] .desk-item__pin-text {
    .lit-window rules are in global.css, with the shared panels'. */
 .desk-offer__lead {
   margin: 0 0 12px;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
   color: rgba(var(--ink-rgb), 0.78);
 }
 
@@ -2801,7 +2842,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   padding: 7px 14px;
   border-radius: 8px;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   font-weight: 600;
   cursor: pointer;
 }
@@ -2834,7 +2875,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: transparent;
   color: var(--green-text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -2852,8 +2893,8 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: var(--surface-raised);
   color: var(--text);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
-  font-size: 0.9375rem;
-  line-height: 1.45;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
   opacity: 0;
 }
 
@@ -2874,7 +2915,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-tour__count {
   margin: 0 0 2px;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2883,7 +2924,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-tour__title {
   margin: 0 0 6px;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--desk-ui, 1));
   font-weight: 700;
 }
 
@@ -2985,7 +3026,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-mine__field--grow {
@@ -3001,7 +3042,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: var(--surface-raised, transparent);
   color: var(--text);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-mine__field input:focus-visible,
@@ -3015,7 +3056,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-mine__here {
   margin: 8px 4px 0;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* A chapter's heading among the rows. */
@@ -3028,7 +3069,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   /* The panel's own face, not the site's display serif for headings. */
   font-family: inherit;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -3048,7 +3089,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: none;
   color: var(--green-text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   cursor: pointer;
 }
@@ -3059,7 +3100,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   flex-wrap: wrap;
   gap: 6px;
   margin: 10px 4px 2px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-mine__labels[hidden] {
@@ -3122,7 +3163,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   padding: 1px 9px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
   color: rgba(var(--ink-rgb), 0.8);
 }
 
@@ -3135,7 +3176,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-labels__for {
   margin: 0 0 8px;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-labels__list {
@@ -3196,7 +3237,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-labels__error {
   margin: 8px 0 0;
   color: var(--text);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-labels__error[hidden] {
@@ -3205,8 +3246,8 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 /* The notebook page. */
 .desk-np {
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: calc(1rem * var(--desk-ui, 1));
+  line-height: calc(1.55 + var(--desk-leading, 0));
 }
 
 .desk-np__intro {
@@ -3252,7 +3293,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-np__note {
   margin-top: 8px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-np__section {
@@ -3261,18 +3302,18 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-np__h2 {
   margin: 0 0 0.75rem;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--desk-ui, 1));
 }
 
 .desk-np__h3 {
   margin: 1.75rem 0 0.25rem;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--desk-ui, 1));
 }
 
 /* The notebook page's Sheets section: New sheet… and All my sheets (S12). */
 .desk-np__sheet-links {
   margin: 0 0 0.5rem;
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-np__sheet-links a {
@@ -3287,7 +3328,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-np__h4 {
   margin: 1.1rem 0 0.1rem;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--desk-ui, 1));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -3303,7 +3344,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-np__field[hidden] {
@@ -3334,7 +3375,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-np__count {
   margin: 0.5rem 0 0;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-np__group .desk-list {
@@ -3369,7 +3410,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   padding-left: 10px;
   border-left: 2px solid rgba(var(--ink-rgb), 0.2);
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
   overflow-wrap: anywhere;
 }
 
@@ -3409,7 +3450,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   grid-column: 1 / -1;
   margin: 6px 0 0;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-np__restore-all {
@@ -3501,7 +3542,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 
 .desk-np__label-used {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-np__rename {
@@ -3534,7 +3575,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
 .desk-backup__about {
   flex: 1 1 16rem;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-backup__last {
@@ -3679,7 +3720,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   flex: 1;
   margin: 0;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -3698,7 +3739,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -3764,15 +3805,15 @@ html[data-desk-list="full"] .desk-item__pin-text {
   padding: 8px 10px;
   border-left: 3px solid var(--green-text);
   background: rgba(var(--ink-rgb), 0.05);
-  font-size: 0.8125rem;
-  line-height: 1.45;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
 .desk-greek__p {
   margin: 0 0 0.8em;
   font-family: var(--serif);
   font-size: calc(1.125rem * var(--reading-scale, 1));
-  line-height: 1.6;
+  line-height: calc(1.6 + var(--desk-leading, 0));
 }
 
 /* Verse numbers, small like Chapter View's. */
@@ -3832,7 +3873,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   margin: 0 0 6px;
   font-family: inherit;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -3841,8 +3882,8 @@ html[data-desk-list="full"] .desk-item__pin-text {
   margin-top: 14px;
   padding-top: 10px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-  font-size: 0.8125rem;
-  line-height: 1.5;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-greek__app-intro,
@@ -3907,7 +3948,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   display: block;
   font-family: var(--serif);
   font-size: calc(1rem * var(--reading-scale, 1));
-  line-height: 1.5;
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-greek__back {
@@ -3915,7 +3956,7 @@ html[data-desk-list="full"] .desk-item__pin-text {
   justify-self: start;
   margin-top: 2px;
   padding: 2px 8px;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
 .desk-greek__sources-list {
@@ -4038,8 +4079,8 @@ html:has(.desk-greek__split--dragging) {
   padding: 8px 4px 12px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.2);
   background: var(--surface-raised);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-greek__details p {
@@ -4065,7 +4106,7 @@ html:has(.desk-greek__split--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 1.125rem;
+  font-size: calc(1.125rem * var(--desk-ui, 1));
   line-height: 1;
   cursor: pointer;
 }
@@ -4087,7 +4128,7 @@ html:has(.desk-greek__split--dragging) {
   margin: 0;
   padding-right: 36px;
   font-family: var(--serif);
-  font-size: 1.375rem;
+  font-size: calc(1.375rem * var(--desk-ui, 1));
   font-weight: 600;
   line-height: 1.3;
 }
@@ -4103,7 +4144,7 @@ html:has(.desk-greek__split--dragging) {
 /* What the lazy Greek search is doing or couldn't do (GK3-13). */
 .desk-greek__find-note {
   margin: 4px 0 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   color: rgba(var(--ink-rgb), 0.8);
 }
 
@@ -4115,31 +4156,31 @@ html:has(.desk-greek__split--dragging) {
   margin-left: 4px;
   color: rgba(var(--ink-rgb), 0.65);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
   white-space: nowrap;
 }
 
 .desk-greek__lemma-form {
   font-family: var(--serif);
-  font-size: 1.0625rem;
+  font-size: calc(1.0625rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
 .desk-greek__strong {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__from,
 .desk-greek__muted,
 .desk-greek__caveat {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__switch {
   margin: 4px 0 8px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__lex {
@@ -4150,7 +4191,7 @@ html:has(.desk-greek__split--dragging) {
   margin: 8px 0 4px;
   font-family: inherit;
   color: var(--green-text);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 700;
 }
 
@@ -4168,7 +4209,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__sense-head {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__glosses {
@@ -4179,7 +4220,7 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__comment summary {
   cursor: pointer;
   color: var(--green-text);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__comment p {
@@ -4195,7 +4236,7 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__entry-body {
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-greek__entry-body abbr[title] {
@@ -4206,7 +4247,7 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__credit {
   margin: 10px 0 0;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__credit a {
@@ -4222,7 +4263,7 @@ html:has(.desk-greek__split--dragging) {
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -4237,12 +4278,12 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__entry-body .lex-cite {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__entry-body .lex-ref {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__lsj {
@@ -4302,7 +4343,7 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__back--text {
   margin: 0;
   padding: 4px 10px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* "Back to the text" and "See results on the search page", side by side at the top. */
@@ -4317,18 +4358,18 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__find-status {
   margin: 0 0 8px;
   color: rgba(var(--ink-rgb), 0.85);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-greek__found {
   margin: 0 0 8px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-greek__found [lang="grc"],
 .desk-greek__choice [lang="grc"] {
   font-family: var(--serif);
-  font-size: 1.0625rem;
+  font-size: calc(1.0625rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -4350,8 +4391,8 @@ html:has(.desk-greek__split--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
-  line-height: 1.4;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
   text-align: left;
   cursor: pointer;
 }
@@ -4371,7 +4412,7 @@ html:has(.desk-greek__split--dragging) {
   align-items: center;
   gap: 6px;
   margin: 0 0 8px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-greek__exact[hidden] {
@@ -4396,8 +4437,8 @@ html:has(.desk-greek__split--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.9375rem;
-  line-height: 1.4;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -4409,12 +4450,12 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__hit-ref {
   color: rgba(var(--ink-rgb), 0.8);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__hit-form {
   font-family: var(--serif);
-  font-size: 1.125rem;
+  font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__choices-more,
@@ -4426,7 +4467,7 @@ html:has(.desk-greek__split--dragging) {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -4443,7 +4484,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__find-page {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-greek__find-page[hidden] {
@@ -4488,7 +4529,7 @@ html:has(.desk-greek__split--dragging) {
   margin: 0;
   font-family: var(--serif);
   font-size: calc(1.0625rem * var(--reading-scale, 1));
-  line-height: 1.55;
+  line-height: calc(1.55 + var(--desk-leading, 0));
 }
 
 .desk-verse__gw {
@@ -4510,7 +4551,7 @@ html:has(.desk-greek__split--dragging) {
    panel's one line. */
 .desk-mine__whatsnew {
   margin: 10px 4px 2px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-mine__whatsnew a {
@@ -4547,7 +4588,7 @@ html:has(.desk-greek__split--dragging) {
   border-radius: 999px;
   background: var(--green-deep);
   color: #fff;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -4569,7 +4610,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-wn__marks {
   margin: 2px 0 0;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -4599,6 +4640,41 @@ html:has(.desk-greek__split--dragging) {
 
 html[data-desk-workspace] {
   overflow-anchor: none;
+  /* The Display tray's text size reaches every pane (E109; BVJ, 2026-11-12:
+     it "affects some panes but not all"), as it reaches the whole /sheets
+     page (E101): each pane's own words, its bar and menus, and the row of
+     commands above the panes. Every size this file sets in rem multiplies by
+     --desk-ui (test/desk-text-size.test.js holds it to that), which is the
+     tray's scale here and unset, so 1, on every other page: the Notebook
+     panel beside a chapter and the /notebook page keep their sizes. A pane
+     sets its size once (.desk-pane); the LIT's and a Book Intro's text
+     inherit it. The Sheets pane's own words follow through --sheet-ui; a
+     sheet's fields keep the sheet's own Text size (--sheet-text-scale).
+     The tray's line spacing reaches every pane the same way: --desk-leading
+     is what "Roomy" adds, and every block of running text here adds it to
+     its line height (a line height of 1.4 or more; the same test). Titles,
+     one-line labels and controls keep theirs, and so do a pane's bars. The
+     Notebook panel beside a chapter sets both for itself (.desk-panel). */
+  --desk-ui: var(--reading-scale, 1);
+  --sheet-ui: var(--reading-scale, 1);
+  --desk-leading: var(--reading-leading-extra, 0);
+}
+
+/* The verse menu and the selection panel are every page's, at the site's
+   size and spacing; the rows the desk adds to them stay that way too. */
+html[data-desk-workspace] .lit-panel {
+  --desk-ui: 1;
+  --desk-leading: 0;
+}
+
+/* A bar is controls, not running text: a pane's header and passage bar, and
+   the Notebook panel's header and tabs, keep their line whatever the tray's
+   line spacing, so a bar's height never moves with it. */
+.desk-pane__head,
+.desk-passage,
+.desk-panel__head,
+.desk-panel__tabs {
+  line-height: 1.5;
 }
 
 html[data-desk-workspace] .site-footer {
@@ -4647,7 +4723,7 @@ html[data-desk-workspace] .desk-page__notice {
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   border-radius: 12px;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-ws__menu[hidden] {
@@ -4703,7 +4779,7 @@ html[data-desk-workspace] .desk-page__notice {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
   font-weight: 400;
   letter-spacing: normal;
   line-height: 1.3;
@@ -4808,14 +4884,14 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-title__line-go {
   color: var(--green-text);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-title__line-no {
   width: auto;
   padding: 4px 10px;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 /* The command row under /desk's header (E68; command-row.js): worded,
@@ -4848,7 +4924,7 @@ html[data-desk-workspace] .desk-page__notice {
   border-radius: 8px;
   background: var(--desk-control);
   color: var(--text);
-  font: 500 0.875rem/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 500 calc(0.875rem * var(--desk-ui, 1))/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -4914,7 +4990,7 @@ html[data-desk-workspace] .desk-page__notice {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: 1.25;
   text-align: center;
   cursor: pointer;
@@ -4952,7 +5028,7 @@ html[data-desk-workspace] .desk-page__notice {
    the dimmed button's own text, to 4.5:1 (BA143). */
 .desk-ws__shape-needs {
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
 .desk-ws__shape-needs:empty {
@@ -4962,7 +5038,7 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-ws__menu-note {
   margin: 10px 2px;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-ws__start {
@@ -5017,7 +5093,7 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-print-menu__message {
   margin: 0 2px 8px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-print-menu__message[hidden] {
@@ -5064,8 +5140,8 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-print-menu__note {
   margin: 8px 2px 0;
   color: rgba(var(--ink-rgb), 0.72);
-  font-size: 0.75rem;
-  line-height: 1.4;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
 }
 
 /* In the Notebook's Settings tab the menu opens in place under the button. */
@@ -5087,7 +5163,7 @@ html[data-desk-workspace] .desk-page__notice {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -5185,8 +5261,8 @@ html.desk-ws--moving * {
   color: var(--text);
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   border-radius: 12px;
-  font-size: 0.9375rem;
-  line-height: 1.5;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-pane--leading {
@@ -5215,7 +5291,7 @@ html.desk-ws--moving * {
 
 .desk-pane__title {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--desk-ui, 1));
   font-weight: 700;
   line-height: 1.2;
 }
@@ -5245,7 +5321,7 @@ html.desk-ws--moving * {
   min-width: 0;
   overflow: hidden;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -5310,7 +5386,7 @@ html.desk-ws--moving * {
    pane keeps the glyph alone, with the shared tooltip. */
 .desk-pane__pin-word {
   display: none;
-  font: 500 0.8125rem/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 500 calc(0.8125rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
   white-space: nowrap;
 }
 
@@ -5566,7 +5642,7 @@ html.desk-ws--moving * {
 .desk-passage__error {
   flex-basis: 100%;
   margin: 2px 0 0;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-passage__error[hidden] {
@@ -5588,7 +5664,7 @@ html.desk-ws--moving * {
   border-radius: 8px;
   background: var(--desk-control);
   color: var(--text);
-  font: 500 0.875rem/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 500 calc(0.875rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -5641,7 +5717,7 @@ html.desk-ws--moving * {
    panes and the page's header, under floating windows and the tour. */
 .desk-lit-show {
   z-index: 900;
-  font: 400 0.9375rem/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 400 calc(0.9375rem * var(--desk-ui, 1))/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
 }
 
 .desk-lit-show__item,
@@ -5725,7 +5801,7 @@ html.desk-ws--moving * {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -5746,7 +5822,7 @@ html.desk-ws--moving * {
 
 .desk-chapter__rows dt {
   margin-bottom: 2px;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -5775,7 +5851,7 @@ html.desk-ws--moving * {
 }
 
 .desk-chapter__rows .go-deeper__platforms {
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-chapter__rows .go-deeper__more {
@@ -5784,7 +5860,7 @@ html.desk-ws--moving * {
 
 .desk-chapter__rows summary {
   width: fit-content;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   color: var(--link);
   cursor: pointer;
 }
@@ -5846,7 +5922,7 @@ html.desk-ws--moving * {
   background: var(--surface-raised);
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.3);
   color: var(--text);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
   font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
@@ -5861,7 +5937,7 @@ html.desk-ws--moving * {
   border-radius: 999px;
   background: var(--surface-raised);
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.16);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 /* The LIT pane on /desk (phase 3e; src/scripts/desk/lit-pane.js): Study
@@ -5923,7 +5999,8 @@ html.desk-ws--moving * {
   /* Room below Revelation 22, so its last verses can reach the reading line.
      lit-pane.js sets --desk-lit-below to the part of the pane below that line. */
   padding-bottom: var(--desk-lit-below, 40vh);
-  font-size: calc(1em * var(--reading-scale, 1));
+  /* No size of its own: the pane's, which carries the Display tray's text
+     size (--desk-ui on .desk-pane), so the scale is counted once. */
 }
 
 .desk-lit__heading {
@@ -6065,14 +6142,14 @@ html.desk-ws--moving * {
   /* The panel's own face, not the site's display serif for headings. */
   font-family: inherit;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
 .desk-fns__none {
   margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
@@ -6092,8 +6169,8 @@ html.desk-ws--moving * {
   margin-bottom: 8px;
   padding: 4px 6px 4px 8px;
   border-left: 3px solid transparent;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
 .desk-fns__item--current {
@@ -6115,7 +6192,7 @@ html.desk-ws--moving * {
   background: transparent;
   color: rgba(var(--ink-rgb), 0.7);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -6174,7 +6251,7 @@ html.desk-ws--moving * {
 .desk-intro__article {
   max-width: var(--reading-width);
   margin: 0 auto;
-  font-size: calc(1em * var(--reading-scale, 1));
+  /* The pane's size, as .desk-lit__text. */
 }
 
 .desk-intro__title {
@@ -6773,8 +6850,9 @@ html.desk-ws--moving * {
    its labels, buttons and notes (E101; BVJ, 2026-11-11: "The page display
    settings would affect the page text, not the sheet fields"), through
    --sheet-ui, which every size in this part of the file multiplies by.
-   sheets-page.css sets it; in /desk's Sheets pane it stays 1, as every
-   other pane's words do. The sheet's own text follows --sheet-text-scale. */
+   sheets-page.css sets it, and /desk's Sheets pane has it too (E109), as
+   every other pane's words follow the tray there. The sheet's own text
+   follows --sheet-text-scale. */
 
 .desk-sheet__status,
 .desk-sheet__empty,
@@ -7181,7 +7259,7 @@ a.desk-sheet__open {
   min-width: 0;
   margin: 0;
   font-size: calc(0.875rem * var(--sheet-ui, 1));
-  line-height: 1.5;
+  line-height: calc(1.5 + var(--desk-leading, 0));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -7312,6 +7390,14 @@ a.desk-sheet__open {
   border-left: 3px solid var(--green);
   padding-left: 12px;
   font-size: calc(1em * var(--sheet-text-scale, 1));
+}
+
+/* In a pane the words would inherit the pane's size, which follows the
+   Display tray (E109). They are the sheet's, so they are set from the root,
+   as sheets-page.css sets them on /sheets: the pane's 15px at the sheet's
+   standard size, whatever the tray says. */
+.desk-pane .desk-sheet__words {
+  font-size: calc(0.9375rem * var(--sheet-text-scale, 1));
 }
 
 .desk-sheet__words p,
@@ -7772,7 +7858,7 @@ select.desk-sheet__size-select,
   border-radius: 0 8px 8px 0;
   background: rgba(var(--ink-rgb), 0.04);
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
 .desk-sheet__changed > p {
@@ -7887,7 +7973,7 @@ p.desk-sheet__flag {
 .desk-sheet__note-text {
   min-width: 0;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
   color: rgba(var(--ink-rgb), 0.85);
 }
 
@@ -7900,7 +7986,7 @@ p.desk-sheet__flag {
 .desk-sheet__lit-note {
   margin: 4px 0 8px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
   color: rgba(var(--ink-rgb), 0.75);
 }
 
@@ -7940,7 +8026,7 @@ p.desk-sheet__flag {
 
 .desk-sheet__term-line {
   min-width: 0;
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
 .desk-sheet__term-link {
@@ -7982,7 +8068,7 @@ p.desk-sheet__flag {
   margin: 6px 0;
   padding: 0;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  line-height: 1.45;
+  line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
 .desk-sheet__check-list li {
@@ -8090,7 +8176,7 @@ p.desk-sheet__flag {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -8101,8 +8187,8 @@ p.desk-sheet__flag {
 .desk-panel__print .desk-panel__print-hint {
   margin: 6px 0 0;
   color: rgba(var(--ink-rgb), 0.72);
-  font-size: 0.75rem;
-  line-height: 1.4;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
 }
 
 /* What src/scripts/desk/print-notes.js adds for one print: an <aside> after
@@ -8412,7 +8498,7 @@ mark.desk-print-mark {
   background: var(--surface-raised, transparent);
   color: var(--text);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-search__input {
@@ -8432,7 +8518,7 @@ mark.desk-print-mark {
   flex: 1 1 0;
   height: 30px;
   padding: 2px 6px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-overflow: ellipsis;
 }
 
@@ -8449,7 +8535,7 @@ mark.desk-print-mark {
 .desk-search__empty {
   margin: 6px 0 0;
   color: rgba(var(--ink-rgb), 0.75);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-search__linkrow {
@@ -8463,7 +8549,7 @@ mark.desk-print-mark {
 .desk-search__page,
 .desk-search__notes {
   margin: 6px 0 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-search__page[hidden],
@@ -8507,7 +8593,7 @@ mark.desk-print-mark {
      reads the same in every pane: Inter, 13px, semibold, mixed case (BVJ,
      2026-11-04). It was small caps, which no other pane's headings were. */
   font-family: Inter, "Inter Fallback", system-ui, sans-serif;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.7);
 }
@@ -8536,8 +8622,8 @@ mark.desk-print-mark {
   padding: 6px;
   border-radius: 6px;
   color: var(--text);
-  font-size: 0.9375rem;
-  line-height: 1.4;
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
   text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -8554,12 +8640,12 @@ mark.desk-print-mark {
 .desk-search__kind {
   margin-left: 8px;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
 .desk-search__ref {
   color: rgba(var(--ink-rgb), 0.85);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
@@ -8576,7 +8662,7 @@ mark.desk-print-mark {
 
 .desk-search__greek-form {
   font-family: var(--serif);
-  font-size: 1.125rem;
+  font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
 .desk-search__btn {
@@ -8586,7 +8672,7 @@ mark.desk-print-mark {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
@@ -8686,7 +8772,7 @@ mark.desk-print-mark {
 .desk-search__found,
 .desk-search__readback {
   margin: 0 0 8px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-search__choices {
@@ -8704,7 +8790,7 @@ mark.desk-print-mark {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-align: left;
   cursor: pointer;
 }
@@ -8717,7 +8803,7 @@ mark.desk-print-mark {
 .desk-search__exact {
   display: block;
   margin: 0 0 8px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-search__help {
@@ -8731,7 +8817,7 @@ mark.desk-print-mark {
 .desk-search__credit {
   margin: 6px 0 0;
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
 .desk-search__credit a {
@@ -8763,7 +8849,7 @@ mark.desk-print-mark {
 
 .desk-search__entry .entry-title {
   margin: 0 0 8px;
-  font-size: 1.125rem;
+  font-size: calc(1.125rem * var(--desk-ui, 1));
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -8786,7 +8872,7 @@ mark.desk-print-mark {
 
 .desk-search__entry .entry-occurrences {
   margin-top: 12px;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-search__entry .entry-occurrences a {
@@ -8828,7 +8914,7 @@ mark.desk-print-mark {
   border-radius: 6px;
   background: transparent;
   color: var(--text);
-  font: 0.875rem/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: calc(0.875rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
   cursor: pointer;
 }
 

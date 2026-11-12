@@ -1483,6 +1483,53 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        and End pass over a disabled line, whose reason is also the menu's
        description, `menu-reasons.js`); in Add pane's, Left or Escape steps
        back. `/notebook` and `/sheets` have neither.
+     - **The Display tray's text size and line spacing reach every pane,
+       and the Notebook panel beside a chapter** (E109; BVJ, 2026-11-12:
+       the size “affects some panes but not all,” then “Fix the line spacing
+       and notebook panel,” which answers Audit 2's question 4). On /desk
+       that is each pane's words, its bar and menus, the command row, the
+       Layout and Print windows and the undo bar, as on the whole /sheets
+       page (E101); in the panel, everything inside it. Until then only the
+       LIT's and a Book Intro's text and the Greek's words followed either.
+       Two variables carry them, set on `html[data-desk-workspace]` and on
+       `.desk-panel` and nowhere else (`/notebook`, margin notes' buttons
+       and the minimized tab keep their sizes): **`--desk-ui`** is
+       `--reading-scale`, and **every size `desk.css` and `desk-search.css`
+       set in rem multiplies by `var(--desk-ui, 1)`**, a `font:` shorthand
+       included; **`--desk-leading`** is `--reading-leading-extra` (what
+       “Roomy” adds), and **every block of running text adds
+       `var(--desk-leading, 0)` to its line height**, which means a line
+       height of 1.4 or more: a title, a one-line label and a control are
+       tighter and keep theirs. `test/desk-text-size.test.js` fails on a rule
+       that doesn't, so a new one does the same. Five things to keep:
+       1. **A pane sets its size once**, on `.desk-pane`. `.desk-lit__text`
+          and `.desk-intro__article` set none, or the scale is squared.
+       2. **A bar keeps its line** (`.desk-pane__head`, `.desk-passage`,
+          `.desk-panel__head`, `.desk-panel__tabs` set a plain 1.5), so its
+          height never moves with line spacing. A control down in a pane's
+          content that sets no line height of its own inherits the roomier
+          one and stands a few pixels taller.
+       3. **The Sheets pane's own words follow through `--sheet-ui`**, set
+          in the same rule; a sheet's fields keep the sheet's Text size, and
+          a passage's words are set from the root in a pane
+          (`.desk-pane .desk-sheet__words`) for that reason. The tray's
+          line spacing does not reach the /sheets page itself.
+       4. **The verse menu, the selection panel and the note editor are
+          `.lit-panel`s**, every page's at the site's size, so on /desk
+          both variables are reset inside one and the rows the desk adds
+          match the rows around them. The Display tray and tooltips are the
+          site's too.
+       5. **Larger words must never push a control out of a fixed width.**
+          The panel is 280 to 440px whatever the size, so its header's name
+          and badge share one clipped row (`.desk-panel__name`): the badge
+          wraps out of sight whole, and the Study Desk link and the
+          minimize button stay (in OpenDyslexic they left a 280px panel
+          even before this). Its tabs wrap to more rows, and a `.desk-seg`
+          pill stacks its choices. The 280 by 160 pane floor is unchanged:
+          at the largest size in OpenDyslexic a 286px pane's bar shortens
+          the passage field and the My Notes chapter, as it was built to.
+          Check a new row of controls at Extra large in OpenDyslexic at
+          280px.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
        LIT's license line; the rest of the footer is hidden by
        `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its

@@ -107,6 +107,15 @@
      default by `--reading-scale` (16 / 18 / 20 / 23px at the 18px body size)
      and adds `--reading-leading-extra` to its own line-height, so Medium and
      Normal change nothing. The rest of the site is left to browser zoom.
+     **The Study Desk follows the size whole**, its own words and controls
+     included, through a variable set from `--reading-scale` only where it
+     applies: the /sheets page (`--sheet-ui`, E101), and /desk's panes and
+     the Notebook panel beside a chapter (`--desk-ui`, E109, with
+     `--desk-leading` for line spacing, which /sheets does not follow). The
+     rules are in `src/scripts/desk/sheets/CLAUDE.md` and
+     `src/scripts/desk/CLAUDE.md`; a size added to `desk.css` in rem
+     multiplies by one of them, and a block of text there adds
+     `--desk-leading` to its line height.
   2. **Size goes on the same element as the column's width**, so the width
      (in `--ch`, an em fraction) grows with the text and a line keeps its
      length in characters. Putting the size on the paragraphs instead would
