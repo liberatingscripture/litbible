@@ -555,8 +555,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit in Study Desk");
   edit.href = `${BASE}desk/?sheet=${encodeURIComponent(id)}`;
-  // "Edit in Study Desk" sits at the end of the buttons' row, the corner
-  // beside Edit (BVJ, 2026-11-10); "‹ My sheets" leads the choices' row.
+  // "Edit in Study Desk" follows Share… in the buttons' row (BVJ,
+  // 2026-11-11); "‹ My sheets" leads the choices' row.
   edit.classList.add("sheets-page__desk-link");
 
   const copyChoice = choices("sheet-copy", "Version", copies.map((c) => [c, COPY_NAMES[c]]), copy, (v) => {
@@ -639,10 +639,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   if (phone) actions.append(present, print, share);
   else actions.append(...(shared ? [] : [editHere]), present, print, word, save.el);
   if (!shared) actions.append(share);
-  // The answer key's box ends the buttons' row (E88; BVJ, 2026-11-11), never a
-  // row of its own: it keeps its place while hidden (see the stylesheet), so
-  // choosing a version moves nothing. A phone has none of these choices.
-  if (!phone) actions.append(keyBox);
+  if (!phone && !demo && !shared) actions.append(edit);
   actions.append(status);
   // A leader link forwarded from a phone goes as the participant's version
   // unless the reader says otherwise (BVJ, 2026-11-10, Audit 8 decision 5).
@@ -657,14 +654,18 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     root.classList.add("sheets-page--phone");
     bar.append(...(copies.length > 1 ? [copyChoice] : []), ...(phoneScopeChoice ? [phoneScopeChoice] : []), actions, ...hints);
   } else {
-    // Two rows: what to show (the choices, QR codes among them), then what to
-    // do with it (the buttons, the answer key's box after them, and the desk
-    // link at the end).
+    // Two rows and a column (BVJ, 2026-11-11): what to show (the choices),
+    // then what to do with it (the buttons, the desk link after Share…), and
+    // the two checkboxes stacked at the right, Show QR codes level with the
+    // choices and Add an answer key under it, their boxes in line. The answer
+    // key's box keeps its cell while hidden (E88; see the stylesheet), so
+    // choosing a version moves nothing.
+    bar.classList.add("sheets-page__bar--grid");
     const choiceRow = make("div", "sheets-page__row");
-    choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice, codeBox);
+    choiceRow.append(...(demo ? [] : [back]), copyChoice, paperChoice);
     const doRow = make("div", "sheets-page__row");
-    doRow.append(actions, ...(demo || shared ? [] : [edit]));
-    bar.append(choiceRow, doRow, ...hints);
+    doRow.append(actions);
+    bar.append(choiceRow, codeBox, doRow, keyBox, ...hints);
   }
 
   const paperBox = make("div", "sheets-page__paper");

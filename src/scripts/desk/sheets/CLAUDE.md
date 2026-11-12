@@ -447,6 +447,11 @@ my notebook"**. Eleven things to know:
   `sheetHtmlForShow`, which sanitizes a sheet's formatted words again
   and links their references. **A new place that shows a sheet's
   formatted words uses it**, never `innerHTML` of the stored html.
+  **The paper names its version by `PAPER_NAMES`** (E95; BVJ,
+  2026-11-11): “Leader copy” in the subtitle, and nothing for the
+  participant's, the default. Every other place that names a version (the
+  Version choice, the page's title, Copy's status, a saved file's
+  properties) keeps `COPY_NAMES`, “Leader version.”
 - **`desk/sheets/sheet-copy.js` draws a copy from the Sheets pane's own reading**:
   `readPassage`, `passageWords` and `locateBlanks` are exported from
   `sheet-lit.js` for it, so the editor and the paper can't disagree

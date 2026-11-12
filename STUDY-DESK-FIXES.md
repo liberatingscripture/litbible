@@ -2619,7 +2619,8 @@ tap areas (`global.css`, never under 24px).
   (`.sheets-page__keybox[hidden]` is `visibility: hidden`, which also takes
   it out of the tab order and from screen readers), so choosing a version
   never rewraps the row or moves the paper. A phone has none of these
-  choices and is unchanged.
+  choices and is unchanged. Moved again the same day by E95, under Show QR
+  codes.
 - **E89, design: the Sheets' fields, cards and controls stand apart from
   the page.** BVJ (2026-11-11), of the list of sheets, the template chooser
   and the editor: “Several areas have fields, cards, and controls with the
@@ -2750,6 +2751,28 @@ tap areas (`global.css`, never under 24px).
   asked. `&view=present` asks before presenting, and Cancel drops the
   parameter. Ctrl+P on the page still prints without asking (a browser
   can't hold a print it didn't start). Rules: `sheets/commercial-confirm.js`.
+- **E95, design and wording: the Sheets page's toolbar and the paper's
+  version label.** BVJ (2026-11-11), with a screenshot of the toolbar:
+  “"Add an Answer Key" should fall directly below "Show QR codes" with the
+  check boxes horizontally aligned. The Edit in Study Desk link can move to
+  where "Add an Answer Key" currently sits.” Then: “on the printed sheet
+  "Leader copy" reads more naturally than "Leader version". It can stay
+  "Leader version" everywhere else,” and “For the printed participant
+  versions, they don't need to be labeled. They are considered the default
+  version,” counting the copy on the page as the printed sheet, as well as
+  what is printed and presented. Status: **done 2026-11-11**: on a
+  computer the bar is a two-column grid (`.sheets-page__bar--grid`): the
+  choices, then the buttons with “Edit in Study Desk” after Share…, and at
+  the right Show QR codes over Add an answer key, their boxes in line. The
+  answer key's box still keeps its cell while hidden (E88), so choosing a
+  version moves nothing, and Show QR codes keeps to the choices' first line
+  if they wrap. The paper's subtitle reads from `PAPER_NAMES`
+  (`desk-sheet-copy.mjs`): “Leader copy,” and nothing for the participant's,
+  whose subtitle line is left out when nothing else is on it. Copy and the
+  saved files read the subtitle off the paper, so they follow; present
+  mode and the slides never named the version. The Version choice, the
+  page's title, Copy's status and the saved files' properties keep
+  `COPY_NAMES`. A phone's shared sheet keeps its layout.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
