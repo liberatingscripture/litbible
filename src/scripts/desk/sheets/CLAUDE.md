@@ -529,12 +529,17 @@ my notebook"**. Twelve things to know:
   Copy and the .docx, .odt and .rtf files print at it (page numbers
   unscaled there too). Present mode and the slides keep their own sizes.
   **The Display tray's size is `--sheet-ui`**, set on `.sheets-page` from
-  `--reading-scale` and multiplied into the editor's own labels, buttons,
-  menus and notes (`desk.css`, the sheet button rule in
-  `desk-sheet-view.css`), never a sheet field; elsewhere (/desk's Sheets
-  pane, the phone's shared sheet) it is unset and counts as 1. A new
-  editor control sizes its text `calc(Xrem * var(--sheet-ui, 1))`, and a
-  new sheet field or paper part multiplies by `--sheet-text-scale`.
+  `--reading-scale`, which also sets the page's own size from it, so the
+  whole /sheets page follows the tray (BVJ, 2026-11-11: the toolbar's
+  buttons grew and its row of choices didn't): the list, the toolbar, the
+  notices and dialogs, the editor's labels, buttons, menus and notes
+  (`desk.css`, the sheet button rule in `desk-sheet-view.css`) and the
+  presenter view, a phone's shared sheet included. Never a sheet field, the
+  paper or the room's screen (the stage and the presenter's previews). In
+  /desk's Sheets pane it is unset and counts as 1. A size set in rem on the
+  page multiplies by `--sheet-ui` (`test/desk-sheet-text-size.test.js`
+  holds sheets-page.css to it), and a new sheet field or paper part
+  multiplies by `--sheet-text-scale`.
 - **The paper is `localStorage['lit-sheet-paper']`** (Letter or A4,
   guessed from the reader's languages until chosen), named in /privacy's
   paragraph. Its `@page` rule is added as the page's last style, after

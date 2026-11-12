@@ -15,10 +15,14 @@
   padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 2rem) 5rem;
   max-width: calc(90 * var(--ch));
   margin: 0 auto;
-  /* The Display tray's text size reaches the sheet editor's own words here,
-     its labels, buttons and notes (E101; desk.css multiplies them by this),
-     and never the sheet's text, which follows the sheet's own Text size. */
+  /* The Display tray's text size reaches this page's own words (E101): the
+     list, the toolbar, the notices and dialogs, and the sheet editor's
+     labels, buttons and notes (desk.css multiplies them by this). Never the
+     sheet's text or the paper, which follow the sheet's own Text size, and
+     never the room's screen. Text that sets no size inherits the scaled
+     size; a size set in rem multiplies by --sheet-ui itself. */
   --sheet-ui: var(--reading-scale, 1);
+  font-size: calc(1em * var(--sheet-ui, 1));
 }
 
 /* What the editor doesn't size inherits this, so it grows with the tray too;
@@ -64,7 +68,7 @@
 }
 
 .sheets-page__meta {
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--sheet-ui, 1));
   opacity: 0.75;
 }
 
@@ -86,7 +90,7 @@
 }
 
 .sheets-page__root .desk-sheet__own .desk-sheet__list-title {
-  font-size: 1.25rem;
+  font-size: calc(1.25rem * var(--sheet-ui, 1));
 }
 
 /* ── The toolbar ───────────────────────────────────────────────────────── */
@@ -99,7 +103,7 @@
   padding: 0.75rem 1rem;
   border-radius: 10px;
   background: var(--surface-raised);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--sheet-ui, 1));
 }
 
 /* On a computer (BVJ, 2026-11-11): the choices (version, paper), then the
@@ -185,7 +189,7 @@
 }
 
 .sheets-page__status {
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--sheet-ui, 1));
 }
 
 /* A shared sheet on a phone or tablet (Audit 6, NB6-8; BVJ picked the mock's
@@ -205,7 +209,7 @@
 .sheets-page--phone .sheets-page__actions .desk-sheet__btn {
   flex: 1 1 0;
   min-height: 44px;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--sheet-ui, 1));
 }
 
 .sheets-page--phone .sheets-page__status:empty {
@@ -667,7 +671,7 @@
 .sheets-page__check-head {
   margin: 0 0 0.5rem;
   font-family: inherit;
-  font-size: 1.05rem;
+  font-size: calc(1.05rem * var(--sheet-ui, 1));
   font-weight: 700;
   letter-spacing: normal;
   line-height: 1.4;
@@ -701,7 +705,7 @@
   border-left: 3px solid var(--green-text);
   border-radius: 0 8px 8px 0;
   background: rgba(var(--ink-rgb), 0.05);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--sheet-ui, 1));
   line-height: 1.5;
 }
 
@@ -790,7 +794,7 @@
 .sheets-page__dialog h2 {
   margin: 0 0 0.75rem;
   padding-right: 2.25rem;
-  font-size: 1.25rem;
+  font-size: calc(1.25rem * var(--sheet-ui, 1));
 }
 
 /* The corner close (×); the dialog is positioned, so it holds it. */
@@ -817,7 +821,7 @@
 
 .sheets-page__dialog-note {
   margin: 0 0 0.75rem;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
   opacity: 0.85;
 }
 
@@ -854,7 +858,7 @@
 
 .sheets-page__share-code figcaption {
   margin-top: 0.35rem;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
 }
 
 .sheets-page__copy-link {
@@ -913,7 +917,7 @@
   background: var(--surface-raised);
   color: var(--text);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--sheet-ui, 1));
 }
 
 .sheets-page__save-menu[hidden] {
@@ -935,7 +939,7 @@
 .sheets-page__save-head {
   margin: 0;
   padding: 4px 10px 2px;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.72);
 }
 
@@ -967,7 +971,7 @@
 }
 
 .sheets-page__save-hint {
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.72);
 }
 
@@ -1504,7 +1508,7 @@ html[data-presenter] .sheets-page {
 
 .present-presenter__title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--sheet-ui, 1));
 }
 
 .present-presenter__where {
@@ -1514,7 +1518,7 @@ html[data-presenter] .sheets-page {
 
 .present-presenter__clock {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: calc(1.6rem * var(--sheet-ui, 1));
   font-variant-numeric: tabular-nums;
 }
 
@@ -1645,12 +1649,12 @@ html[data-presenter] .sheets-page {
 
 .present-notes__title {
   margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--sheet-ui, 1));
 }
 
 .present-notes__head {
   margin: 0.75rem 0 0.25rem;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--sheet-ui, 1));
 }
 
 .present-notes__blanks {
@@ -1680,14 +1684,14 @@ html[data-presenter] .sheets-page {
   padding: 0 0.35rem;
   border: 1px solid rgba(var(--ink-rgb), 0.4);
   border-radius: 3px;
-  font-size: 0.7rem;
+  font-size: calc(0.7rem * var(--sheet-ui, 1));
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 .present-presenter__keys {
   margin: 1.25rem 0 0;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--sheet-ui, 1));
   color: rgba(var(--ink-rgb), 0.75);
 }
 

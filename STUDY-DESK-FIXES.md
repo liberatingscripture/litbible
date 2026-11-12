@@ -2886,13 +2886,20 @@ tap areas (`global.css`, never under 24px).
     the copy prints but the page numbers, and Copy and the .docx, .odt and
     .rtf files print at it. Present mode and the slides keep their own
     sizes.
-  - The Display tray's text size reaches everything else in /sheets'
-    editor (labels, buttons, menus, notes; `--sheet-ui`) and never a
-    sheet field. In /desk's Sheets pane the tray changes neither, as in
-    every other pane.
+  - The Display tray's text size reaches the rest of the /sheets page
+    (`--sheet-ui`): the list, the toolbar, notices, dialogs, the editor's
+    labels, buttons, menus and notes, and the presenter view. Never a
+    sheet field, the paper or the room's screen. BVJ then saw the
+    toolbar's buttons grow while its row of choices didn't (“nothing in
+    the row above that”), so the whole page follows it now, not only the
+    editor. In /desk's Sheets pane the tray changes neither, as in every
+    other pane.
   - Checked in the Browser pane: at the tray's largest the editor's
     controls went from 13 to 16.6px with the fields unchanged, and at 16
     points the paper's text went from 16 to 21.3px across three pages.
+    The toolbar's row of choices went from 15.2 to 19.4px and the
+    presenter view's title, clock and notes grew with it, while the
+    paper and the room's previews stayed the same.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

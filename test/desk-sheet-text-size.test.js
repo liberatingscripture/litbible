@@ -136,3 +136,19 @@ test("the saved files scale their text by the size, and leave page numbers alone
   assert.match(docHtml(doc(16)), /font-size:16pt/);
   assert.doesNotMatch(docHtml(doc()), /font-size:12pt/);
 });
+
+test("on /sheets every size the page sets for its own words follows the Display tray", async () => {
+  // The paper and the room's screen keep their own sizes; everything else on
+  // the page (the list, the toolbar, notices, dialogs, the presenter view)
+  // multiplies by --sheet-ui, or inherits the page's scaled size (E101).
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync(new URL("../src/styles/pages/sheets-page.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(css, /\.sheets-page\s*\{[^}]*--sheet-ui:\s*var\(--reading-scale, 1\);[^}]*font-size:\s*calc\(1em \* var\(--sheet-ui, 1\)\)/);
+  const ownSizes = /sheet-copy|sheet-blank|sheet-page|present-stage|present-screen|present-preview|present-btn/;
+  const fixed = [];
+  for (const [, sel, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const size = body.match(/font-size:\s*[0-9.]+(?:rem|px|pt)\s*;/);
+    if (size && !ownSizes.test(sel)) fixed.push(`${sel.trim()} ${size[0]}`);
+  }
+  assert.deepEqual(fixed, []);
+});
