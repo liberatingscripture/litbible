@@ -421,6 +421,19 @@
   The desk's placeholders are ink at 0.7 (`::placeholder` in `desk.css`;
   5.2:1 on cream, Audit 8 XA8-13), since the browser's default gray fails
   4.5:1, and its small secondary text is 0.7 too (XA8-3).
+- **The Study Desk's buttons are four kinds** (E126; BVJ, 2026-11-12):
+  primary (Deep Green, white words, at most one per pane or view, edged in
+  dark themes with the text green at 70%), ordinary (`--desk-control` with a
+  `--field-border` edge, a shadow at rest, a 1px lift on hover, sunk when
+  pressed), toggle, and the quiet and glyph buttons, which keep their own
+  looks. One rule per kind ends `desk.css`. Its tokens, every shadow with a
+  dark pair in both dark selectors, are in its "The desk's layers" and
+  repeated in `desk-search.css`, which /search loads alone. Under
+  `prefers-reduced-motion` the lift and the transitions are zeroed by token
+  and the shadows stay. A disabled button keeps its edge and says so in its
+  words (ink at 0.7, or the text green on a disabled primary, 4.5:1 or more
+  on every surface), never by fading it with `opacity`. The inventory is in
+  `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

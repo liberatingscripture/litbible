@@ -26,10 +26,14 @@
 //   none (or takes another pane's place, E127), and the note line says which
 //   (`passageMoveMessage`; the undo bar and the notice say the rest); a small link
 //   beside the result opens its page in a new tab (`awayLink`).
-// - **Results can go on a sheet**: "Make a sheet of these verses" (a new sheet,
-//   shown in a Sheets pane) and, while a Sheets pane shows one, "Add these
-//   verses to “…”" and a + on each verse, through the same rules and one
-//   transaction as /search's (desk-sheet-gather.mjs, search-sheet.js).
+// - **Results can go on a sheet** (E117; BVJ, 2026-11-12, option A): every
+//   verse has a box, and a strip under the group's title holds the box that
+//   checks them all, a count line and the buttons: "New sheet of 3 verses"
+//   (shown in a Sheets pane by E127's rule) and, while a Sheets pane shows a
+//   sheet, "Add 3 verses to “…”" before it, the primary. Nothing checked adds
+//   nothing: the buttons stay focusable, aria-disabled, described by the
+//   line. A + on each verse adds that one. The same rules and one transaction
+//   as /search's (desk-sheet-gather.mjs, search-sheet.js), in the same words.
 // - **The Greek** (rules 15 and 17 of the desk's CLAUDE.md; only while
 //   greekSearchEnabled()): one query never gets both English and Greek. It is
 //   searchGreekAuto, said back as the Greek tab says it, with the credit under
@@ -46,8 +50,10 @@ import {
   MIN_QUERY_LEN,
   PAGE,
   READING,
-  addAllLabel,
+  BIBLE_ORDER,
+  addCheckedLabel,
   addVerseLabel,
+  newSheetLabel,
   bookFilterFor,
   bookOptions,
   longEnoughQuery,
@@ -64,7 +70,16 @@ import {
 } from "../../lib/desk-search-pane.mjs";
 import { parsePassage, passageLabel } from "../../lib/desk-passage.mjs";
 import { planAddPassages } from "../../lib/desk-sheet-add.mjs";
-import { gatherMessage, passagesFromVerses, roomOnSheet, searchSheetTitle } from "../../lib/desk-sheet-gather.mjs";
+import {
+  checkAllLabel,
+  checkedLine,
+  checkedSaid,
+  gatherMessage,
+  includeLabel,
+  passagesFromVerses,
+  roomOnSheet,
+  searchSheetTitle,
+} from "../../lib/desk-sheet-gather.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { NOTEBOOK_GROUP_TITLE } from "../../lib/desk-search.mjs";
 import { createSheet, makeModule } from "../../lib/desk-sheets.mjs";
@@ -113,8 +128,16 @@ import { showUndo } from "./undo-bar.js";
 import { buttons, make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
 import { plural } from "./desk-text.js";
+import { setTip } from "../tip.js";
 
 const button = buttons("desk-search__btn");
+
+/** Bible order's glyph: an arrow down beside lines growing shorter. */
+const SORT_ICON =
+  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4v16M3 16l4 4 4-4M14 6h7M14 12h5M14 18h3"/></svg>';
+
+/** A verse hit's key among the checked ones, as desk-sheet-gather.mjs keys a verse. */
+const hitKey = (hit) => `${hit.bookKey} ${hit.chapter}:${hit.verse}`;
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -325,6 +348,8 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   let resultsScroll = 0;
   let openedFrom = null; // the result that opened the glossary entry, to give focus back
   let busy = false; // a sheet is being written
+  const checked = new Set(); // the verses checked for the strip (hitKey), for one query
+  let checkedFor = null; // the query they belong to
 
   let topics = null; // loadTopicsIndex's, once
   let deskPart = null; // the notebook's search, once loaded
@@ -714,6 +739,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   function drawResults() {
     const r = last;
     if (!r) return;
+    keepChecks(r);
     groupsEl.replaceChildren();
     const counts = [];
     const nCount = r.notebook?.total ?? 0;
@@ -755,33 +781,60 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
 
   // ---- verses, and the sheet ----
 
+  /**
+   * Checks belong to a query, and a check on a verse the results no longer
+   * hold (the book filter changed them) is dropped, so the count never
+   * counts what a press wouldn't add (BA132, as /search).
+   */
+  function keepChecks(r) {
+    if (r.q !== checkedFor) {
+      checked.clear();
+      checkedFor = r.q;
+      return;
+    }
+    const here = new Set(r.verses.map(hitKey));
+    for (const key of checked) if (!here.has(key)) checked.delete(key);
+  }
+
+  /** The checked verses, in the order the search found them. */
+  const checkedRefs = () => (last?.verses ?? []).filter((h) => checked.has(hitKey(h))).map(verseRef);
+
   function verseGroup(r) {
     const g = group(MODE_LABELS.keyword, "keyword");
-    const row = make("div", "desk-search__bar");
-    const sort = button("Bible order", "desk-search__btn desk-search__btn--quiet");
+    // Bible order: small, at the right of the title line, a toggle (E117).
+    const title = g.querySelector(".desk-search__group-title");
+    const head = make("div", "desk-search__group-head");
+    title.replaceWith(head);
+    const sort = button(null, "desk-search__btn desk-search__sort");
+    sort.innerHTML = SORT_ICON;
+    sort.append(BIBLE_ORDER);
     sort.setAttribute("aria-pressed", String(sortBible));
     sort.addEventListener("click", () => {
       sortBible = !sortBible;
       drawResults();
       // The redraw replaced this button, so focus goes to the new one.
-      groupsEl.querySelector("[data-group='keyword'] [aria-pressed]")?.focus({ preventScroll: true });
+      groupsEl.querySelector("[data-group='keyword'] .desk-search__sort")?.focus({ preventScroll: true });
     });
-    row.append(sort);
-    if (store) {
-      const make1 = button("Make a sheet of these verses", "desk-search__btn desk-search__sheet");
-      make1.addEventListener("click", () => gather(r.verses.map(verseRef), null));
-      const add = button("", "desk-search__btn desk-search__sheet desk-search__add-all");
-      add.hidden = true;
-      add.addEventListener("click", () => {
-        const t = sheets.addTarget();
-        if (t) gather(r.verses.map(verseRef), t);
-      });
-      row.append(make1, add);
-    }
-    g.append(row);
+    head.append(title, sort);
+    if (store) g.append(pickStrip(r));
     const hits = sortBible ? r.verses : rankVerseHits(r.verses);
     paged(g, hits, (hit) => {
       const li = make("li", "desk-search__row desk-search__row--verse");
+      if (store) {
+        const key = hitKey(hit);
+        const box = make("input", "desk-search__check");
+        box.type = "checkbox";
+        box.dataset.key = key;
+        box.checked = checked.has(key);
+        box.setAttribute("aria-label", includeLabel(verseHitLabel(hit)));
+        box.addEventListener("change", () => {
+          if (box.checked) checked.add(key);
+          else checked.delete(key);
+          syncPick({ said: true });
+        });
+        li.classList.toggle("desk-search__row--picked", box.checked);
+        li.append(box);
+      }
       const a = resultLink(verseHitHref(hit));
       a.append(make("span", "desk-search__ref", verseHitLabel(hit)));
       const text = make("span", "desk-search__text");
@@ -806,20 +859,136 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     return g;
   }
 
-  /** Show or hide the add controls by whether a Sheets pane shows a sheet. */
-  function syncAdd() {
+  /**
+   * The strip under the title (E117): the box that checks every verse, the
+   * line ("3 of 40 checked." and Clear checks, or with none checked how to
+   * check them), and the buttons, which `syncAdd` names. Sticky in the
+   * results while the group is in view.
+   */
+  function pickStrip(r) {
+    const total = r.verses.length;
+    const strip = make("div", "desk-search__pick");
+    const all = make("input", "desk-search__check-all");
+    all.type = "checkbox";
+    all.setAttribute("aria-label", checkAllLabel(total));
+    const line = make("p", "desk-search__pick-line");
+    line.id = `deskSearchPick${sfx}`;
+    const clear = button("Clear checks", "desk-search__pick-clear");
+    line.append(make("span", "desk-search__pick-count"), make("span", "desk-search__pick-text"), clear);
+    const actions = make("div", "desk-search__pick-actions");
+    const add = stripButton("desk-search__btn desk-search__btn--primary desk-search__sheet desk-search__sheet--add");
+    add.hidden = true;
+    const fresh = stripButton("desk-search__btn desk-search__sheet desk-search__sheet--new");
+    actions.append(add, fresh);
+    strip.append(all, line, actions);
+
+    all.addEventListener("change", () => {
+      if (all.checked) for (const h of r.verses) checked.add(hitKey(h));
+      else checked.clear();
+      syncPick({ said: true });
+    });
+    clear.addEventListener("click", () => {
+      checked.clear();
+      syncPick({ said: true });
+      // Clear checks hides itself, so focus goes to the box beside it.
+      all.focus({ preventScroll: true });
+    });
+    add.addEventListener("click", () => {
+      if (refused(add)) return;
+      const t = sheets.addTarget();
+      if (t) gather(checkedRefs(), t);
+    });
+    // A new sheet opens in a Sheets pane by E127's one rule (`gather`).
+    fresh.addEventListener("click", () => {
+      if (refused(fresh)) return;
+      gather(checkedRefs(), null);
+    });
+    syncPick({ strip });
+    return strip;
+  }
+
+  /** A strip button: its label, over invisible copies of the longest it can read. */
+  function stripButton(cls) {
+    const b = button(null, cls);
+    b.append(make("span", "desk-search__label"));
+    return b;
+  }
+
+  /**
+   * Name a strip button. `room` is the labels it may read at other counts,
+   * held under it so its width never moves; the accessible name is the whole
+   * label, which a long sheet name cuts with "…" only on screen, and `tip`
+   * puts it in the tooltip too.
+   */
+  function nameStripButton(b, label, room, tip = false) {
+    b.querySelector(".desk-search__label").textContent = label;
+    for (const old of b.querySelectorAll(".desk-search__label-room")) old.remove();
+    for (const text of room) {
+      const ghost = make("span", "desk-search__label-room", text);
+      ghost.setAttribute("aria-hidden", "true");
+      b.append(ghost);
+    }
+    b.setAttribute("aria-label", label);
+    if (tip) setTip(b, label);
+  }
+
+  /** A press on a strip button that can't act: nothing is added, and with none checked it says why. */
+  function refused(b) {
+    if (b.getAttribute("aria-disabled") !== "true") return false;
+    if (!busy && !checked.size) hear(checkedLine(0, last?.verses.length ?? 0).text);
+    return true;
+  }
+
+  /** The strip's box, line and row marks, from the checks; `said` speaks the count, once per change. */
+  function syncPick({ said = false, strip = el.querySelector(".desk-search__pick") } = {}) {
+    if (!strip || !last) return;
+    const total = last.verses.length;
+    const k = checked.size;
+    const all = strip.querySelector(".desk-search__check-all");
+    all.checked = k > 0 && k === total;
+    all.indeterminate = k > 0 && k < total;
+    const { count, text } = checkedLine(k, total);
+    strip.querySelector(".desk-search__pick-count").textContent = count;
+    strip.querySelector(".desk-search__pick-text").textContent = text;
+    strip.querySelector(".desk-search__pick-clear").hidden = k === 0;
+    strip.classList.toggle("desk-search__pick--some", k > 0);
+    for (const box of el.querySelectorAll(".desk-search__check")) {
+      const on = checked.has(box.dataset.key);
+      box.checked = on;
+      box.closest(".desk-search__row")?.classList.toggle("desk-search__row--picked", on);
+    }
+    syncAdd(strip);
+    if (said) hear(checkedSaid(k, total));
+  }
+
+  /**
+   * The add controls, by whether a Sheets pane shows a sheet: the rows' +,
+   * and the strip's "Add … to “…”" (the primary then) beside "New sheet of …"
+   * (the primary when it stands alone). Disabled while a write runs and while
+   * nothing is checked, then described by the strip's line.
+   */
+  function syncAdd(strip = el.querySelector(".desk-search__pick")) {
     if (!store) return;
     const t = sheets.addTarget();
     for (const b of el.querySelectorAll(".desk-search__add")) b.hidden = !t || busy;
-    const all = el.querySelector(".desk-search__add-all");
-    if (all) {
-      all.hidden = !t;
-      if (t) all.textContent = addAllLabel(t.name, last?.verses.length ?? 0);
-      all.disabled = busy;
+    if (!strip || !last) return;
+    const total = last.verses.length;
+    const k = checked.size;
+    const add = strip.querySelector(".desk-search__sheet--add");
+    const fresh = strip.querySelector(".desk-search__sheet--new");
+    add.hidden = !t;
+    if (t) nameStripButton(add, addCheckedLabel(t.name, k, total), [addCheckedLabel(t.name, 0, total), addCheckedLabel(t.name, total, total)], true);
+    nameStripButton(fresh, newSheetLabel(k, total), [newSheetLabel(0, total), newSheetLabel(total, total)]);
+    fresh.classList.toggle("desk-search__btn--primary", !t);
+    const reason = strip.querySelector(".desk-search__pick-line").id;
+    for (const b of [add, fresh]) {
+      if (busy || !k) b.setAttribute("aria-disabled", "true");
+      else b.removeAttribute("aria-disabled");
+      if (!k) b.setAttribute("aria-describedby", reason);
+      else b.removeAttribute("aria-describedby");
     }
-    for (const b of el.querySelectorAll(".desk-search__sheet:not(.desk-search__add-all)")) b.disabled = busy;
   }
-  const offTarget = sheets.onAddTarget(syncAdd);
+  const offTarget = sheets.onAddTarget(() => syncAdd());
 
   /** Make the passages and write them: into a new sheet (`target` null) or the sheet `target` names. */
   async function gather(refs, target) {

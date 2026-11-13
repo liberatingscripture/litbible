@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import {
   PAGE,
   READING,
-  addAllLabel,
+  BIBLE_ORDER,
+  addCheckedLabel,
   addVerseLabel,
+  newSheetLabel,
   bookFilterFor,
   bookOptions,
   longEnoughQuery,
@@ -114,9 +116,25 @@ test("add controls: names and labels", () => {
   const hit = { bookKey: "john", chapter: 3, verse: 16, text: "x", runs: [] };
   assert.deepEqual(verseRef(hit), { bookKey: "john", chapter: 3, verse: 16 });
   assert.equal(addVerseLabel(hit), "Add John 3:16 to the sheet");
-  assert.equal(addAllLabel("Faith", 1), "Add this verse to “Faith”");
-  assert.equal(addAllLabel("Faith", 5), "Add these verses to “Faith”");
-  assert.equal(addAllLabel("The “big” one", 2), "Add these verses to “The ‘big’ one”");
+});
+
+test("E117: the strip's buttons carry the count, and never say “0 verses”", () => {
+  assert.equal(addCheckedLabel("Faith", 3, 40), "Add 3 verses to “Faith”");
+  assert.equal(addCheckedLabel("Faith", 1, 40), "Add 1 verse to “Faith”");
+  assert.equal(addCheckedLabel("Faith", 40, 40), "Add all 40 verses to “Faith”");
+  assert.equal(addCheckedLabel("Faith", 0, 40), "Add checked verses to “Faith”");
+  assert.equal(addCheckedLabel("The “big” one", 2, 9), "Add 2 verses to “The ‘big’ one”");
+  assert.equal(addCheckedLabel("Faith", 1, 1), "Add 1 verse to “Faith”", "one verse of one is still one verse, not “all 1”");
+  assert.equal(newSheetLabel(3, 40), "New sheet of 3 verses");
+  assert.equal(newSheetLabel(1, 40), "New sheet of 1 verse");
+  assert.equal(newSheetLabel(40, 40), "New sheet of all 40 verses");
+  assert.equal(newSheetLabel(0, 40), "New sheet of checked verses");
+  assert.equal(newSheetLabel(1200, 1500), "New sheet of 1,200 verses", "a long count is grouped");
+  for (const k of [0, 1, 2, 40]) {
+    assert.doesNotMatch(addCheckedLabel("X", k, 40), /\b0 verses/);
+    assert.doesNotMatch(newSheetLabel(k, 40), /\b0 verses/);
+  }
+  assert.equal(BIBLE_ORDER, "Bible order");
 });
 
 test("nextPage: 20 at a time", () => {

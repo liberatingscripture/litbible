@@ -13,11 +13,13 @@
 // - a glossary result opens in the pane, an article result in a new tab, and
 //   a verse or topic result moves the LIT pane; an intro result shows in a
 //   Book Intro pane (E53, 2026-11-06; it opened in a new tab before);
-// - results can go on an open Sheets pane's sheet.
+// - results can go on an open Sheets pane's sheet: the checked ones, from the
+//   strip under the verse group's title (E117), or one with a row's +.
 
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { hasGreek } from "./greek-detect.mjs";
 import { kindLabel } from "./desk-layout.mjs";
+import { checkedVerses } from "./desk-sheet-gather.mjs";
 
 /** The shortest query searched as the tray does (a Greek query has no minimum). */
 export const MIN_QUERY_LEN = 3;
@@ -107,14 +109,30 @@ export const verseRef = (hit) => ({ bookKey: hit.bookKey, chapter: hit.chapter, 
 /** The name of a verse row's + button. */
 export const addVerseLabel = (hit) => `Add ${bookKeyToLabel(hit.bookKey)} ${hit.chapter}:${hit.verse} to the sheet`;
 
-/**
- * The button that adds every verse found to the sheet showing, named by it.
- * The sheet's name is in curly quotes, any quotes inside it turned single.
+/*
+ * The strip's buttons (E117; BVJ, 2026-11-12, option A): what they say for
+ * `k` of `total` verses checked, in /search's words (`checkedVerses`,
+ * desk-sheet-gather.mjs), so each place teaches the other. With none checked
+ * they say "checked verses", never "0 verses", and are disabled with the
+ * strip's line as their reason.
  */
-export function addAllLabel(name, count) {
+
+/**
+ * The strip's main button while a Sheets pane shows a sheet: "Add 3 verses to
+ * “Romans 8 study”". The sheet's name is in curly quotes, any quotes inside
+ * it turned single. A long name is cut with "…" by the stylesheet only, so
+ * the accessible name stays whole.
+ */
+export function addCheckedLabel(name, k, total) {
   const quoted = String(name ?? "").replace(/“/g, "‘").replace(/”/g, "’");
-  return `Add ${count === 1 ? "this verse" : "these verses"} to “${quoted}”`;
+  return `Add ${k > 0 ? checkedVerses(k, total) : "checked verses"} to “${quoted}”`;
 }
+
+/** "New sheet of 3 verses": the main button with no sheet showing, the second beside "Add" otherwise. */
+export const newSheetLabel = (k, total) => `New sheet of ${k > 0 ? checkedVerses(k, total) : "checked verses"}`;
+
+/** "Bible order", the verse group's sort, a toggle on its title line (E117). */
+export const BIBLE_ORDER = "Bible order";
 
 /** How many of `total` rows show after one more page, and how many remain hidden. */
 export function nextPage(shown, total, page = PAGE) {
