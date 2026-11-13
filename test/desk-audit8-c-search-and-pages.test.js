@@ -77,6 +77,6 @@ test("DK8-3: the Study Desk tour drops the sync step where its second LIT pane c
 test("DK8-6 and DK8-8: the help page names the Read page and says every Print choice opens a tab", () => {
   const help = read("src/pages/desk/help.astro");
   assert.ok(!/“Go to passage” in Read View/.test(help));
-  assert.match(help, /Each choice opens the\s+chapter in a new tab and prints there/);
+  assert.match(help, /Each choice opens the\s+chapter in a new tab and prints\s+there/);
   assert.ok(!help.includes("A chapter other than"));
 });

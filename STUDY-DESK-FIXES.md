@@ -3486,7 +3486,20 @@ says so; where BVJ was wondering, nothing is decided.)
   `pages/desk-help.css`). The desk links into it by anchor (`HELP_HREF`,
   `WAYS_HREF` and others), so those keep working, and every feature keeps
   its sentence (the Routes table's rule). Best done after E111 to E126 are
-  built, so it describes them as they are. Status: open.
+  built, so it describes them as they are. **Built for BVJ's review**
+  (2026-11-13, branch `claude/e125-help`, not yet approved): eight parts in
+  the order a reader meets them (Getting started, Marking what you read, The
+  Study Desk page, Sheets, The Greek, Search and commands, Keeping your
+  notebook, Send feedback), each a few topics under task-shaped headings; a
+  contents list of the parts and topics, beside the text and in view while
+  it scrolls on a wide window, above it on a narrow one with “Back to
+  contents” after each part; shorter paragraphs and lists; no script and no
+  folded text. All sixteen old ids are kept on the headings that hold their
+  topics. Copy brought up to date: the verse menu's order (E112), This
+  chapter and Everything (E119), the caret (E118), the panel's pages and
+  “>tour” (E124), the Reading links (E114), “Matthew intro” (E123), the
+  Search pane's link (E115), checked verses (E116, E117), “Cancel” (E121),
+  and the rule for a full desk (E127). Status: built, awaiting BVJ.
 - **E126, design: a look for every button on the panes.** BVJ (2026-11-12),
   widening E117's question about the Search pane's buttons: “That would apply
   to all buttons on panes. There are some (like ‘New Sheet’) that a different
