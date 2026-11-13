@@ -14,6 +14,7 @@
 
 import { closePanel, panelMaxWidth } from "./lit-panel.js";
 import { panelRoom } from "./desk-frame.js";
+import { flyoutRow } from "./panel-flyout.js";
 
 // The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
 // Both panels take their layout from it, not from the screen width: a finger
@@ -99,6 +100,50 @@ export function panelRow(...items) {
   if (kept.length === 2) row.classList.add("lit-panel__row--halves");
   row.append(...kept);
   return row;
+}
+
+/**
+ * The copy and share rows of the verse menu and the selection panel, which
+ * offer the same actions under the same names (E39, BVJ 2026-11-06).
+ *
+ * A finger's chip layout stays flat: the three copies in one row, then
+ * "Share text…" and "Share image…". A mouse or the keyboard gets rows: "Copy
+ * text" (a press copies the text, as it always did; its chevron, "More ways to
+ * copy", or hover or the right arrow open a flyout of Copy text, Copy link and
+ * Copy with footnotes) and "Share" (a flyout of "Share text…", where there is a
+ * share sheet, and "Share image…", whose questions replace it inside the
+ * flyout, which stays open; closing it puts the button back). With no share
+ * sheet the second row is just "Share image…".
+ *
+ * @param {{ touch: boolean,
+ *   copies: [string, () => unknown][],
+ *   shareBtn: HTMLButtonElement | null,
+ *   image: HTMLElement,
+ *   pointerFocus?: boolean }} o `copies` is [label, run] for Copy text, Copy
+ *   link and Copy with footnotes; `image` is an imageStep.
+ * @returns {HTMLElement[]}
+ */
+export function actionRows({ touch, copies, shareBtn, image, pointerFocus = true }) {
+  const buttons = copies.map(([label, run]) => menuButton(label, run));
+  if (touch) return [panelRow(...buttons), panelRow(shareBtn, image)];
+
+  const copyRow = flyoutRow("Copy text", buttons, {
+    main: menuButton(copies[0][0], copies[0][1]),
+    moreLabel: "More ways to copy",
+    pointerFocus,
+  });
+  if (!shareBtn) return [copyRow, panelRow(image)];
+
+  // The image step lives in the flyout, its first button ("Share image…") the
+  // flyout's second item; the questions, and a failure's reason, replace that
+  // button in place (E111). Closing the flyout puts the button back. A failed
+  // image leaves Share text… above its reason, and the step takes focus (NB3-2).
+  image.itemRole = "menuitem";
+  const shareRow = flyoutRow("Share", [shareBtn, image], {
+    pointerFocus,
+    onClose: () => image.reset(),
+  });
+  return [copyRow, shareRow];
 }
 
 // Word characters for snapping. An apostrophe or hyphen counts only between

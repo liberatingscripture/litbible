@@ -181,6 +181,8 @@ function swap(step, build, after = () => {}) {
   const next = () => {
     step.replaceChildren(...build());
     step.inert = false;
+    // A step held in a menu (the Share flyout) makes its buttons menu items.
+    if (step.itemRole) for (const b of step.querySelectorAll("button")) b.setAttribute("role", step.itemRole);
     if (hadFocus) /** @type {HTMLElement | null} */ (step.querySelector("button, [tabindex]"))?.focus();
     if (!reduceMotion()) {
       step.animate(
@@ -258,7 +260,7 @@ function note(text) {
 }
 
 /**
- * The "Share image" step for a panel (named "Make an image" until E39).
+ * The "Share image…" step for a panel (named "Make an image" until E39).
  *
  * @param {object} o
  * @param {() => {text: string, ref: string, url: string, shareText: string}} o.content
@@ -281,8 +283,13 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
   const made = {}; // size → Blob, for the chosen look
   let making = null;
 
-  const start = stepButton("Share image");
+  // The ellipsis says it opens questions (E111); the final "one more tap"
+  // button below is the share itself and has none.
+  const START = "Share image…";
+  const start = stepButton(START);
+  let gen = 0; // bumped by reset(), so a slow begin() doesn't land after it
   const begin = async () => {
+    const mine = ++gen;
     onStart();
     // Marks a step past its first button, for a panel that shares its row
     // with Share text… (the chip layout gives the row over to the questions).
@@ -291,16 +298,28 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
     start.textContent = "Preparing…";
     start.setAttribute("aria-busy", "true");
     await loadAssets();
+    if (mine !== gen) return;
     fitting = sizesThatFit(what.text);
     if (!fitting.length) return fail("Too long for an image. Try fewer verses.");
     swap(step, lookStep);
   };
   start.addEventListener("click", begin);
   step.appendChild(start);
-  // A caller that puts the first press somewhere else (the mouse layout's
-  // "Share ▸" flyout holds "Share image") shows the step and calls this.
   step.begin = begin;
   step.onFail = null;
+  // Back to the first button, for a flyout that closed mid-question (E111):
+  // opening it again shows "Share image…" again.
+  step.reset = () => {
+    if (step.firstChild === start && !step.classList.contains("lit-image--open")) return;
+    gen++;
+    for (const k of Object.keys(made)) delete made[k];
+    making = null;
+    step.classList.remove("lit-image--open");
+    start.textContent = START;
+    start.removeAttribute("aria-busy");
+    step.replaceChildren(start);
+    step.inert = false;
+  };
 
   // No image: say why, and give back the row the questions took over (the
   // chip layout's Share text…, or the caller's Share row), so Share text… is
