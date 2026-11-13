@@ -3195,11 +3195,11 @@ tap areas (`global.css`, never under 24px).
   unchanged with the gate off. Left as they were: margin notes' buttons and
   the minimized tab.
 
-**BVJ's pass of 2026-11-12** (E111 to E129; from a Word document of BVJ's
+**BVJ's pass of 2026-11-12** (E111 to E130; from a Word document of BVJ's
 with seven screenshots, logged in its order, plus three items BVJ added in
 chat the same day: the search bar's Read View jump, folded into E114, the
 help page, E125, and a look for the panes' buttons, E126; E127 came from
-a question in chat, and E128 and E129 came in chat during wave 2.
+a question in chat, and E128 to E130 came in chat during wave 2.
 Wave 1 is #563 to #567. Where the code answers a question, the entry
 says so; where BVJ was wondering, nothing is decided.)
 
@@ -3605,6 +3605,28 @@ says so; where BVJ was wondering, nothing is decided.)
   font among them. Only the editor shows prompts (nothing prints, copies or
   presents them), and the Sheets tour's example sheet shows the same.
   Status: open, for mocks.
+- **E130, wording: “Chapter View” becomes “Scripture page” everywhere.**
+  BVJ (2026-11-12, in chat, after “Continue reading · Chapter View” showed
+  in My Notes on /desk): “it still says ‘Chapter View’. That should be
+  replaced everywhere with Scripture page(s).” The form is the one /read's
+  Study Desk card already uses, capitalized (“Scripture pages,” “View
+  Scripture page”). The scope is E20's rename's (#440), which made “Study
+  View” “Chapter View”:
+  - every string a reader sees or hears: the search tray's and /search's
+    jump links and keys line, the chapter picker's footer in Read View,
+    Read View's switch and its label, /read's public card, Continue
+    reading's line (`VIEW_NAMES`, `desk-bookmarks.mjs`), This chapter's
+    link, the LIT pane's “Open in Chapter View,” the help page, the tours
+    and the commands;
+  - the tests, the comments, and the CLAUDE docs, the root's naming rule
+    (“Call them ‘Chapter View’ and ‘Read View’…”) included.
+  Code and storage names stay (`view: "study"`, `scriptureControls`
+  “study”), and the records (`STUDY-DESK.md`, this file, the audits) keep
+  the old name, as they kept “Study View.” A label is reworded where a
+  plain swap reads badly (a view is “in,” a page is “on”), and the build
+  lists every new label for BVJ. Read View keeps its name until it retires
+  at launch. Built after E114 merges, since both change the tray's and
+  /search's labels. Status: open, decided.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
