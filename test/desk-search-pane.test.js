@@ -14,6 +14,9 @@ import {
   passageMoveMessage,
   resultTarget,
   introMoveMessage,
+  noWayLinkLabel,
+  noWayMessage,
+  replacedMessage,
   verseRef,
 } from "../src/lib/desk-search-pane.mjs";
 
@@ -27,7 +30,8 @@ test("pageLinkText: the link to /search says what it does before and after a sea
 test("passageMoveMessage: says which LIT pane took the passage (E34)", () => {
   assert.equal(passageMoveMessage("moved", "John 3:16"), "The LIT pane moved to John 3:16.");
   assert.equal(passageMoveMessage("opened", "John 3:16"), "A LIT pane opened at John 3:16.");
-  assert.match(passageMoveMessage("placed", "John 3:16"), /no room for a LIT pane to show John 3:16/);
+  assert.equal(passageMoveMessage("placed", "John 3:16"), "", "the notice says it (E127)");
+  assert.equal(passageMoveMessage("replaced", "John 3:16"), "", "the undo bar says it (E127)");
   assert.equal(passageMoveMessage(null, "John 3:16"), "");
 });
 
@@ -67,7 +71,8 @@ test("introMoveMessage says what an intro result did (E53)", () => {
     introMoveMessage({ outcome: "opened", moved: "romans 1" }, "Romans", "Romans 1"),
     "A Book Intro pane opened at Romans. The LIT moved to Romans 1.",
   );
-  assert.match(introMoveMessage({ outcome: "none", moved: null }, "Romans"), /no room for a Book Intro pane/);
+  assert.equal(introMoveMessage({ outcome: "none", moved: null }, "Romans"), "", "the notice says it (E127)");
+  assert.equal(introMoveMessage({ outcome: "replaced", moved: null }, "Romans"), "");
   assert.equal(introMoveMessage(null, "Romans"), "");
 });
 
@@ -119,4 +124,43 @@ test("nextPage: 20 at a time", () => {
   assert.deepEqual(nextPage(0, 45), { shown: 20, hidden: 25 });
   assert.deepEqual(nextPage(40, 45), { shown: 45, hidden: 0 });
   assert.deepEqual(nextPage(0, 3), { shown: 3, hidden: 0 });
+});
+
+test("E127: replacedMessage names each kind as its menu does, and what else happened", () => {
+  assert.equal(replacedMessage("intro", "greek"), "Book Intro shown in place of Greek.");
+  assert.equal(replacedMessage("sheet", "verse"), "Sheets shown in place of This verse.");
+  assert.equal(replacedMessage("search", "footnotes"), "Search shown in place of Footnotes.");
+  assert.equal(replacedMessage("greek", "mine"), "Greek shown in place of My Notes.");
+  assert.equal(replacedMessage("lit", "greek", { at: "John 3:16" }), "The LIT shown at John 3:16 in place of Greek.");
+  assert.equal(
+    replacedMessage("intro", "greek", { extra: "The LIT moved to Romans 1." }),
+    "Book Intro shown in place of Greek. The LIT moved to Romans 1.",
+  );
+});
+
+test("E127: noWayMessage says why and both ways on, and names the search only when it asked", () => {
+  assert.equal(
+    noWayMessage("intro", "full", { search: true }),
+    "There’s no room for a Book Intro pane, and no pane can make way: LIT panes, panes set to “Stay here,” and this search keep their places. Close a pane and try again, or open the introduction on its page.",
+  );
+  assert.equal(
+    noWayMessage("search", "full"),
+    "There’s no room for a Search pane, and no pane can make way: LIT panes and panes set to “Stay here” keep their places. Close a pane and try again, or use the search page.",
+  );
+  assert.match(noWayMessage("greek", "window", { search: true }), /^There’s no room for a Greek pane in a window this size, and no pane can make way: .*Make the window larger or close a pane and try again, or open the word on its page\.$/);
+  for (const kind of ["lit", "intro", "sheet", "greek", "search"]) {
+    for (const reason of ["full", "window"]) {
+      const text = noWayMessage(kind, reason);
+      assert.match(text, /close a pane and try again, or /i, `${kind} ${reason}: both ways`);
+      assert.doesNotMatch(text, /—/);
+    }
+  }
+});
+
+test("E127: noWayLinkLabel names the page", () => {
+  assert.equal(noWayLinkLabel("lit", "John 3:16"), "Open John 3:16");
+  assert.equal(noWayLinkLabel("intro", "Romans"), "Open the Romans introduction");
+  assert.equal(noWayLinkLabel("sheet"), "Open the sheet");
+  assert.equal(noWayLinkLabel("greek"), "Open the Greek word");
+  assert.equal(noWayLinkLabel("search"), "Open the search page");
 });

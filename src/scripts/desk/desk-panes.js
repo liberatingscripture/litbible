@@ -416,8 +416,8 @@ function mineScope(pane) {
  *   onEdit: ((record: object, trigger: Element) => void) | null,
  *   ctx: () => { client: string, contentVersion: string },
  *   openGreekWord: (passage: object, t: number) => void,
- *   showPassage: (passage: object, options?: { beside?: string }) => "moved" | "opened" | "placed" | null,
- *   showSheet: (sheetId: string, keep?: string) => boolean,
+ *   showPassage: (passage: object, options?: { beside?: string, quiet?: boolean }) => "moved" | "opened" | "replaced" | "placed" | null,
+ *   showSheet: (sheetId: string, keep?: string) => { outcome: string, replaced: object | null, reason: string | null, changed: boolean, undoLayout: () => void },
  *   showIntro: (bookKey: string, options?: { beside?: string }) => { outcome: string, moved: string | null },
  *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env

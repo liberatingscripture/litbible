@@ -158,19 +158,7 @@ export function showUndo(message, onAction, { label = "Undo", link = null } = {}
   old.replaceWith(fresh);
   // A keyboard Undo that puts up a Redo keeps its place on the bar.
   if (hadFocus) fresh.focus({ preventScroll: true });
-  if (link) {
-    const a = document.createElement("a");
-    a.className = "desk-undo__link";
-    a.href = link.href;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.textContent = link.label;
-    const tab = document.createElement("span");
-    tab.className = "sr-only";
-    tab.textContent = " (opens in a new tab)";
-    a.append(tab);
-    fresh.after(a);
-  }
+  if (link) fresh.after(linkEl(link));
   fresh.addEventListener("click", async () => {
     // aria-disabled, not disabled: the button is focused, and a focused button
     // that is disabled loses focus in some browsers (NB3-8).
@@ -200,13 +188,29 @@ export function showUndo(message, onAction, { label = "Undo", link = null } = {}
   return mine;
 }
 
+/** A link for the bar: opens in a new tab, and says so to a screen reader. */
+function linkEl(link) {
+  const a = document.createElement("a");
+  a.className = "desk-undo__link";
+  a.href = link.href;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.textContent = link.label;
+  const tab = document.createElement("span");
+  tab.className = "sr-only";
+  tab.textContent = " (opens in a new tab)";
+  a.append(tab);
+  return a;
+}
+
 /**
  * Show the bar with just a notice and the close button: for a change that
  * can't be taken back or done again (it was overtaken), which a sighted
  * reader who pressed Ctrl+Z needs to see. Returns the notice's number, as
- * showUndo does.
+ * showUndo does. `link` puts a link after the words, as showUndo's does (E127:
+ * "or open it on its page").
  */
-export function showNotice(message) {
+export function showNotice(message, { link = null } = {}) {
   initUndo();
   noteFocus();
   shown++;
@@ -220,6 +224,7 @@ export function showNotice(message) {
   gone.hidden = true;
   const hadFocus = document.activeElement === button;
   button.replaceWith(gone);
+  if (link) gone.after(linkEl(link));
   if (hadFocus) root.querySelector(".desk-undo__close").focus({ preventScroll: true });
   root.querySelector(".desk-undo__text").textContent = message;
   root.querySelector(".desk-undo__bar").hidden = false;
