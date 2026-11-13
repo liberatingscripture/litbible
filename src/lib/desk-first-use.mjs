@@ -1,8 +1,9 @@
 // src/lib/desk-first-use.mjs
 //
 // The rules behind the notebook's first use (STUDY-DESK.md, phase 1d): the
-// first-time choice of where the notebook lives (D6), the reminder to save a
-// copy and the plain line for Safari (C18), and the tour (D8). Pure: no DOM,
+// first-time choice of where the notebook lives (D6), the reminder to back up
+// (its rules are in desk-reminder.mjs, re-exported here) and the plain line
+// for Safari (C18), and the tour (D8). Pure: no DOM,
 // no storage, and the clock is always handed in, so every rule here is tested
 // with a fixed `now` (test/desk-first-use.test.js). The code that draws the
 // cards and the foot is src/scripts/desk/first-use.js, and the tour's is
@@ -10,16 +11,15 @@
 //
 // Until an account or file option is decided (T3, plan A or C), the choice has
 // two answers and neither mentions sync: the notebook stays in this browser,
-// with or without a reminder to save a copy now and then.
+// with or without a reminder to back up now and then.
 
 import { MAX_PANES } from "./desk-layout.mjs";
 import { numberWord } from "./desk-wording.mjs";
 
+export * from "./desk-reminder.mjs";
+
 /** Where the notebook lives. No choice yet behaves as "browser" and shows the card. */
 export const HOMES = ["browser", "browser-remind"];
-
-/** A copy older than this many days (or none, with records to lose) is nagged about. */
-export const REMIND_AFTER_DAYS = 7;
 
 export const BACKUP_HREF = "/notebook/#backup";
 export const HELP_HREF = "/desk/help/";
@@ -64,70 +64,15 @@ export const DESK_TOUR_KEY = "lit-desk-page-tour";
 /** The Sheets tour's own list (E63), the same shape again, one for both pages it runs on. */
 export const SHEET_TOUR_KEY = "lit-desk-sheet-tour";
 
-const DAY_MS = 86_400_000;
-
 /** A stored choice, or null when there isn't a valid one. */
 export function readHome(value) {
   return HOMES.includes(value) ? value : null;
 }
 
-export const wantsReminder = (home) => home === "browser-remind";
-
-/**
- * When a copy was last saved, as an ISO string, or null. The notebook page
- * writes it (META key `lastExport`); a stray shape reads as "never" rather
- * than breaking the foot.
- */
-export function readLastExport(value) {
-  const iso = typeof value === "string" ? value : value && typeof value.at === "string" ? value.at : null;
-  return iso && Number.isFinite(Date.parse(iso)) ? iso : null;
-}
-
-/** Whole days from `iso` to `now`; 0 for a time in the future; null when `iso` is not a time. */
-export function daysSince(iso, now) {
-  const then = Date.parse(iso ?? "");
-  if (!Number.isFinite(then)) return null;
-  return Math.max(0, Math.floor((now.getTime() - then) / DAY_MS));
-}
-
-const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-
-/** "today", "yesterday", "3 days ago". */
-export function agoPhrase(days) {
-  if (days === 0) return "today";
-  if (days === 1) return "yesterday";
-  return `${plural(days, "day")} ago`;
-}
-
-/** The foot's plain statement of when a copy was last saved. */
-export function savedLine(lastExport, now) {
-  const days = daysSince(readLastExport(lastExport), now);
-  return days === null ? "No copy saved yet." : `Last saved a copy ${agoPhrase(days)}.`;
-}
-
-/**
- * Whether the foot should remind the reader to save a copy: they asked to be
- * reminded, there is something to lose, and the last copy is a week old or
- * there is none.
- */
-export function reminderDue({ home, lastExport, now, hasRecords }) {
-  if (!wantsReminder(home) || !hasRecords) return false;
-  const days = daysSince(readLastExport(lastExport), now);
-  return days === null || days >= REMIND_AFTER_DAYS;
-}
-
-/** What the reminder says: "It’s been 9 days since you saved a copy." */
-export function reminderText(lastExport, now) {
-  const days = daysSince(readLastExport(lastExport), now);
-  return days === null
-    ? "You haven’t saved a copy yet."
-    : `It’s been ${plural(days, "day")} since you saved a copy.`;
-}
-
 /* ── Safari (C18) ─────────────────────────────────────────────────── */
 
 export const SAFARI_LINE =
-  "Safari can clear a site’s stored data after seven days of using Safari without visiting the site, so save a copy now and then.";
+  "Safari can clear a site’s stored data after seven days of using Safari without visiting the site, so back up your notebook now and then.";
 
 /**
  * Desktop Safari: "Safari/" and "Version/" in the user agent, and none of the
@@ -302,7 +247,7 @@ export const TOUR_STEPS = [
     title: "My Notebook, and where it’s kept",
     body: {
       default:
-        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels and save a copy of your notebook or open one. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last saved a copy.",
+        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels and back up your notebook or merge a backup into it. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
     },
   },
 ];

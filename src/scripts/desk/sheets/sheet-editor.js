@@ -589,7 +589,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let aboutBox = null;
   let aboutWords = null;
   // The sheets whose description the reader has hidden: a notebook setting
-  // of this browser (the store's meta, like "last saved a copy"), never part
+  // of this browser (the store's meta, like "last backed up"), never part
   // of the sheet, so the record format and a share are untouched.
   let aboutHidden = new Set();
   Promise.resolve(store.getMeta?.(ABOUT_HIDDEN_KEY))

@@ -64,7 +64,7 @@ html[data-desk="on"] .notebook-page__off {
    screen (BA152; BVJ, 2026-10-29): the notes, highlights, bookmarks, pinned
    footnotes and Continue reading, each under its heading. What only works on a screen
    goes: the page's links to its sections, the search and filters, What's
-   new, Labels, the panel setting, Save a copy and Delete in bulk, and
+   new, Labels, the panel setting, Back up and Delete in bulk, and
    every button, field and form in the lists. */
 @media print {
   [data-notebook-page] :is(

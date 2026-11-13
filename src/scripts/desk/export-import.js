@@ -1,74 +1,34 @@
 // src/scripts/desk/export-import.js
 //
-// "Save a copy" and "Open a copy" on the notebook page (STUDY-DESK.md, D1 and
-// the export every plan needs). Three files can be saved (src/lib/desk-export.mjs
-// says what each is for), and a file the reader chooses is read and shown as a
-// plain summary before anything is written: what is new, what would change,
-// what stays as it is here, and anything left out with its line number. Only
-// Open writes, in one store.change (read, planned and written together, DI-9), so it is one step in the undo history and
-// the undo bar offers it back. Open plans again against the notebook as it is
-// then, since the summary may have stood open while notes changed here, in
-// another tab or by Keep: if the outcome differs, it shows the new one and
-// writes nothing until pressed again (audit BA3).
+// "Back up your notebook" and "Merge a backup into this notebook" on the
+// notebook page (STUDY-DESK.md, D1 and the export every plan needs; the words
+// are E113's). Three files can be saved (src/lib/desk-export.mjs says what
+// each is for; only the full JSON file is "a backup", the others sit under
+// "Other formats"), and a file the reader chooses is read and shown as a plain
+// summary before anything is written: what is new, what would change, what
+// stays as it is here, and anything left out with its line number. Only Merge
+// writes, in one store.change (read, planned and written together, DI-9), so
+// it is one step in the undo history and the undo bar offers it back. Merge
+// plans again against the notebook as it is then, since the summary may have
+// stood open while notes changed here, in another tab or by Keep: if the
+// outcome differs, it shows the new one and writes nothing until pressed again
+// (audit BA3).
 //
-// Nothing is uploaded: the file is made and read in the browser. The time of
-// the last copy is kept in the notebook's meta ("lastExport", an ISO string)
-// so the page, and a reminder elsewhere, can say how long ago it was.
+// Nothing is uploaded: the file is made and read in the browser (by
+// backup-file.js, which the reminder's "Back up now" shares). The time of the
+// last backup is kept in the notebook's meta ("lastExport", an ISO string) so
+// the page, and the reminder, can say how long ago it was.
 
-import {
-  describeLastExport,
-  exportFilename,
-  planChanges,
-  planOpen,
-  sameOpen,
-  toBackupJson,
-  toMarkdown,
-  toWebAnnotation,
-} from "../../lib/desk-export.mjs";
+import { describeLastExport, planChanges, planOpen, sameOpen } from "../../lib/desk-export.mjs";
 import { planWrite } from "../../lib/desk-store-core.mjs";
+import { FORMATS, LAST_EXPORT_KEY, saveFile } from "./backup-file.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
-export const LAST_EXPORT_KEY = "lastExport";
+export { LAST_EXPORT_KEY };
 
-/** The largest file Open a copy reads (SEC-6): far past any real notebook, short of freezing the tab. */
+/** The largest file Merge a backup reads (SEC-6): far past any real notebook, short of freezing the tab. */
 const MAX_FILE_BYTES = 50_000_000;
-
-const FORMATS = [
-  {
-    id: "markdown",
-    label: "Markdown",
-    about: "For reading and editing. Opens in any text editor, and words you change there come back when you open the file here.",
-    make: toMarkdown,
-    type: "text/markdown;charset=utf-8",
-  },
-  {
-    id: "webAnnotation",
-    label: "Web Annotation (JSON)",
-    about: "For other study tools. Your marks on the text in the W3C’s standard shape.",
-    make: toWebAnnotation,
-    type: "application/json;charset=utf-8",
-  },
-  {
-    id: "backup",
-    label: "Full backup (JSON)",
-    about: "Everything the notebook keeps, exactly as it is, for restoring it completely.",
-    make: toBackupJson,
-    type: "application/json;charset=utf-8",
-  },
-];
-
-/** Hand a file to the browser to save. */
-function download(name, text, type) {
-  const url = URL.createObjectURL(new Blob([text], { type }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
 
 /**
  * Build the section's contents inside `el`.
@@ -78,15 +38,18 @@ function download(name, text, type) {
  */
 export function mountBackup(el, { store, ctx }) {
   el.innerHTML = `
-    <h2 class="desk-np__h2" id="deskBackupTitle">Save a copy</h2>
-    <p>A copy is a file you keep yourself. Your notebook stays in this browser, and a browser can lose it, so save a copy now and then.</p>
+    <h2 class="desk-np__h2" id="deskBackupTitle">Back up your notebook</h2>
+    <p>A backup is a file you keep yourself. Your notebook stays in this browser, and a browser can lose it, so back up your notebook now and then.</p>
     <p class="desk-backup__last" data-backup-last></p>
-    <ul class="desk-backup__formats"></ul>
-    <h3 class="desk-np__h3" id="deskOpenTitle">Open a copy</h3>
-    <p>Choose a file saved from here. You will see what it would do before anything changes, and nothing is deleted because it is missing from the file.</p>
+    <ul class="desk-backup__formats" data-backup-main></ul>
+    <h3 class="desk-np__h3" id="deskOtherTitle">Other formats</h3>
+    <p>These are for reading, editing, or other tools. They aren’t backups, and the notebook page can’t restore everything from them.</p>
+    <ul class="desk-backup__formats" data-backup-other></ul>
+    <h3 class="desk-np__h3" id="deskOpenTitle">Merge a backup into this notebook</h3>
+    <p>Adds what the backup holds to this notebook, keeping the newer copy of anything that’s in both. Nothing here is removed, and anything deleted since the backup stays deleted.</p>
     <p class="desk-backup__pick">
       <label class="desk-backup__file">
-        <span class="desk-backup__file-button">Open a copy…</span>
+        <span class="desk-backup__file-button">Merge a backup…</span>
         <input class="sr-only" type="file" accept=".md,.markdown,.json,.jsonld,text/markdown,application/json" data-backup-file />
       </label>
     </p>
@@ -98,7 +61,8 @@ export function mountBackup(el, { store, ctx }) {
   const status = el.querySelector("[data-backup-status]");
   const result = el.querySelector("[data-backup-result]");
   const file = el.querySelector("[data-backup-file]");
-  const formats = el.querySelector(".desk-backup__formats");
+  const mainFormats = el.querySelector("[data-backup-main]");
+  const otherFormats = el.querySelector("[data-backup-other]");
 
   async function showLast() {
     let at = null;
@@ -114,25 +78,17 @@ export function mountBackup(el, { store, ctx }) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "desk-backup__save";
-    b.textContent = `Save ${f.label}`;
+    b.textContent = f.button;
     const about = document.createElement("span");
     about.className = "desk-backup__about";
     about.textContent = f.about;
     li.append(b, about);
-    formats.append(li);
+    (f.id === "backup" ? mainFormats : otherFormats).append(li);
     b.addEventListener("click", async () => {
-      const exported = new Date().toISOString();
-      const records = await store.all();
-      const text = f.make(records, { exported, contentVersion: ctx().contentVersion });
-      download(exportFilename(f.id, exported), text, f.type);
-      try {
-        await store.setMeta?.(LAST_EXPORT_KEY, exported);
-      } catch (err) {
-        console.error("Study Desk: the time of the copy wasn’t kept", err);
-      }
+      const { name } = await saveFile({ store, ctx, format: f });
       status.textContent = "";
       // A page can't see a cancelled save dialog, so it says only that the download began (NB-19).
-      setTimeout(() => (status.textContent = `Started the download of ${exportFilename(f.id, exported)}. Your browser may ask where to keep it.`), 50);
+      setTimeout(() => (status.textContent = `Started the download of ${name}. Your browser may ask where to keep it.`), 50);
       showLast();
     });
   }
@@ -157,13 +113,13 @@ export function mountBackup(el, { store, ctx }) {
     if (!chosen) return;
     let text;
     if (chosen.size > MAX_FILE_BYTES) {
-      return showResult({ message: `That file is too large to open here (over ${MAX_FILE_BYTES / 1_000_000} MB). A notebook copy is far smaller.` });
+      return showResult({ message: `That file is too large to open here (over ${MAX_FILE_BYTES / 1_000_000} MB). A notebook backup is far smaller.` });
     }
     try {
       text = await chosen.text();
     } catch (err) {
       console.error("Study Desk: the file couldn’t be read", err);
-      return showResult({ message: "That file couldn’t be read. Choose a file saved with “Save a copy.”" });
+      return showResult({ message: "That file couldn’t be read. Choose a file made by “Download a full backup.”" });
     }
     showResult({ name: chosen.name, text, opened: await plan(text) });
   });
@@ -176,8 +132,8 @@ export function mountBackup(el, { store, ctx }) {
       const local = await store.all();
       return planOpen(text, { local, ctx: ctx(), now: new Date().toISOString() });
     } catch (err) {
-      console.error("Study Desk: the file couldn’t be opened", err);
-      return { message: "That file couldn’t be read. Choose a file saved with “Save a copy.”" };
+      console.error("Study Desk: the file couldn’t be merged", err);
+      return { message: "That file couldn’t be read. Choose a file made by “Download a full backup.”" };
     }
   }
 
@@ -193,9 +149,9 @@ export function mountBackup(el, { store, ctx }) {
     const { read, planned, sentence, ahead } = opened;
     const head = document.createElement("h4");
     head.className = "desk-np__h4";
-    head.textContent = `Opening ${name}`;
+    head.textContent = `Merging ${name}`;
     result.append(head);
-    const since = "Your notebook has changed since you chose this file, so here is what opening it would do now.";
+    const since = "Your notebook has changed since you chose this file, so here is what merging it would do now.";
     if (changed) result.append(paragraph(since, "desk-backup__changed"));
     result.append(paragraph(sentence, "desk-backup__summary"));
     if (ahead) result.append(paragraph(ahead));
@@ -237,13 +193,13 @@ export function mountBackup(el, { store, ctx }) {
       const go = document.createElement("button");
       go.type = "button";
       go.className = "desk-backup__import";
-      go.textContent = "Open this copy";
+      go.textContent = "Merge this backup";
       go.addEventListener("click", () => doImport(go, { name, text, opened }));
       actions.append(go);
     }
     actions.append(close);
     result.append(actions);
-    announce(`${changed ? `${since} ` : ""}${sentence}${can ? " Choose Open this copy to go ahead." : ""}`);
+    announce(`${changed ? `${since} ` : ""}${sentence}${can ? " Choose Merge this backup to go ahead." : ""}`);
     result.focus({ preventScroll: false });
   }
 
@@ -266,9 +222,9 @@ export function mountBackup(el, { store, ctx }) {
         return planWrite(opened.planned.plan);
       });
     } catch (err) {
-      console.error("Study Desk: the copy wasn’t opened", err);
+      console.error("Study Desk: the backup wasn’t merged", err);
       go.disabled = false;
-      return announce("That couldn’t be saved in this browser. Nothing was changed. Choose Open this copy to try again.");
+      return announce("That couldn’t be saved in this browser. Nothing was changed. Choose Merge this backup to try again.");
     }
     if (differs) return showResult({ name: shown.name, text: shown.text, opened, changed: !opened.message });
     const { sentence } = opened;
@@ -276,9 +232,9 @@ export function mountBackup(el, { store, ctx }) {
     clearResult();
     file.value = "";
     result.hidden = false;
-    result.append(paragraph(`Opened. ${sentence}`, "desk-backup__message"));
-    announce(`Opened. ${sentence}`);
-    if (entry) showUndo(`Opened a copy. ${sentence}`, () => undoEntry(entry));
+    result.append(paragraph(`Merged. ${sentence}`, "desk-backup__message"));
+    announce(`Merged. ${sentence}`);
+    if (entry) showUndo(`Merged a backup. ${sentence}`, () => undoEntry(entry));
   }
 
   function announce(message) {

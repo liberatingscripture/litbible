@@ -92,6 +92,8 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   // "My Notebook," its one name everywhere (E70).
   const notebookItem = item("My Notebook", "a");
   notebookItem.href = "/notebook/";
+  // Carries the backup reminder's dot (reminder.js, E113).
+  notebookItem.setAttribute("data-desk-notebook-item", "");
   // The Study Desk tour runs here, in place (E24); the notebook's runs on a
   // chapter page and starts from the Notebook's foot and the help page.
   const tourItem = item("Take the tour");

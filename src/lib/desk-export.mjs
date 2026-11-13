@@ -1,6 +1,6 @@
 // src/lib/desk-export.mjs
 //
-// Saving a copy of the notebook and opening one (STUDY-DESK.md, D1 and the
+// Backing up the notebook and merging a backup into it (STUDY-DESK.md, D1 and the
 // export every plan needs; STUDY-DESK-FORMAT.md, "The export file"). Three
 // files, each for a different reader:
 //
@@ -18,7 +18,7 @@
 //                         well-formed entry comes back as a new note, unless
 //                         its id was deleted here (BA2).
 //
-// Opening a copy never deletes anything because it is missing from the file
+// Merging a backup never deletes anything because it is missing from the file
 // (audit C17): a record absent from the file is simply not read. A deletion
 // reaches the notebook only as a trash record, which only the full backup
 // carries. The two JSON files' own `exported` time caps their records' times
@@ -479,7 +479,7 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
       // Deleted here since this copy was saved. A stale copy never brings a
       // deleted note back (A-F10), so an id held as trash is never reused.
       const where = "record" in trashFor.get(e.id) ? " It is in the trash, if you want it back." : "";
-      problems.push(fail(e.line, `“${e.heading}” has been deleted here since this copy was saved, so it was left out.${where}`));
+      problems.push(fail(e.line, `“${e.heading}” has been deleted here since this backup was made, so it was left out.${where}`));
       continue;
     }
 
@@ -575,7 +575,7 @@ export function parseImport(text, opts = {}) {
     try {
       data = JSON.parse(trimmed);
     } catch {
-      return { kind: "unknown", records: [], problems: [fail(null, "This file isn’t a notebook copy this page can read. Choose a file saved with “Save a copy.”")], notes: [] };
+      return { kind: "unknown", records: [], problems: [fail(null, "This file isn’t a notebook backup this page can read. Choose a file made by “Download a full backup.”")], notes: [] };
     }
     if (data && !Array.isArray(data) && data.format === BACKUP_FORMAT) return parseBackup(data);
     if (isAnnotation(data)) return parseAnnotations(data);
@@ -592,7 +592,7 @@ function parseBackup(data) {
     return { kind: "backup", records: [], problems: [fail(null, "This backup file has no entries in it.")], notes };
   }
   if (Number.isFinite(data.version) && data.version > BACKUP_VERSION) {
-    notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
+    notes.push("This backup was made by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
   }
   return { kind: "backup", records: data.records, problems, notes, ...savedTime(data.exported) };
 }
@@ -618,7 +618,7 @@ function parseAnnotations(data) {
   });
   if (Array.isArray(data.lit?.records)) records.push(...data.lit.records);
   if (data.lit?.version > BACKUP_VERSION) {
-    notes.push("This copy was saved by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
+    notes.push("This backup was made by a newer version of the notebook. Anything this version doesn’t know is kept as it is.");
   }
   return { kind: "webAnnotation", records, problems, notes, ...savedTime(data.lit?.exported ?? data.created) };
 }
@@ -674,7 +674,7 @@ function cleanIncoming(r) {
 }
 
 /**
- * What opening a copy would do, before anything is written. Merged with the
+ * What merging a backup would do, before anything is written. Merged with the
  * merge engine (desk-merge.mjs), so the newer writing wins for every kind,
  * a deletion and an edit settle by the later action, and a copy that is
  * older than what is here changes nothing. A record that is malformed is
@@ -801,7 +801,7 @@ export function planImport(local, incoming, ctx = {}) {
 
 /**
  * Read a chosen file and plan opening it against what the notebook holds
- * now: everything the "Open a copy" result shows. Run it again when the
+ * now: everything the “Merge a backup” result shows. Run it again when the
  * reader presses Open, since the notebook may have changed since the file was
  * chosen, here, in another tab, or by Keep (BA3), and write that plan.
  *
@@ -831,7 +831,7 @@ export const sameOpen = (a, b) => !a.message && !b.message && a.sentence === b.s
  */
 export function plainReason(problems) {
   const first = String(problems[0] ?? "");
-  if (/^its held record/.test(first)) return "The copy it holds in the trash couldn’t be read.";
+  if (/^its held record/.test(first)) return "The version it holds in the trash couldn’t be read.";
   if (/too large to keep/.test(first)) return `It is too large to keep (over ${MAX_RECORD_BYTES / 1024 / 1024} MB).`;
   if (/^marker .* is not one of/i.test(first)) return "It has a marker the notebook doesn’t know.";
   if (/^color .* is not one of/i.test(first)) return "It has a color the notebook doesn’t know.";
@@ -869,7 +869,7 @@ export function describeSummary(s) {
   if (s.trash) parts.push(`${s.trash} ${s.trash === 1 ? "change" : "changes"} in the trash`);
   if (s.unchanged) parts.push(`${s.unchanged} already here`);
   if (s.deletedHere) {
-    parts.push(`${s.deletedHere} deleted here since this copy was saved (the Trash can still bring back what is in it)`);
+    parts.push(`${s.deletedHere} deleted here since this backup was made (the Trash can still bring back what is in it)`);
   }
   if (s.keptHere) parts.push(`${s.keptHere} kept as they are here (yours ${s.keptHere === 1 ? "is" : "are"} newer)`);
   if (s.skipped) parts.push(`${s.skipped} left out`);
@@ -888,10 +888,10 @@ export function exportFilename(format, now = isoNow()) {
   return `lit-notebook-${dateOf(now)}${EXTENSIONS[format] ?? ".json"}`;
 }
 
-/** "Last saved a copy: 3 days ago", or "Not saved yet." */
+/** "Last backed up 3 days ago.", or "Not backed up yet." */
 export function describeLastExport(iso, now = isoNow()) {
   const then = Date.parse(iso);
-  if (typeof iso !== "string" || Number.isNaN(then)) return "Not saved yet.";
+  if (typeof iso !== "string" || Number.isNaN(then)) return "Not backed up yet.";
   const minutes = Math.floor((Date.parse(now) - then) / 60_000);
   const ago = (n, unit) => `${n} ${unit}${n === 1 ? "" : "s"} ago`;
   let when;
@@ -899,7 +899,7 @@ export function describeLastExport(iso, now = isoNow()) {
   else if (minutes < 60) when = ago(minutes, "minute");
   else if (minutes < 60 * 24) when = ago(Math.floor(minutes / 60), "hour");
   else when = ago(Math.floor(minutes / (60 * 24)), "day");
-  return `Last saved a copy: ${when}.`;
+  return `Last backed up ${when}.`;
 }
 
 export { SCHEMA_VERSION };

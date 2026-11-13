@@ -4,13 +4,15 @@
 // pieces, all built from the rules in src/lib/desk-first-use.mjs:
 //   - `card`, at the top of the My Notes tab: until the reader presses its
 //     "Got it", it says the notebook is kept in this browser and offers the
-//     copy reminder;
+//     backup reminder;
 //   - the tour offer, a window beside the panel (float-window.js) the first
 //     time the reader expands the Notebook with the card answered;
-//   - `foot`, in the panel's foot: where the notebook is kept and when a copy
-//     was last saved, a reminder to save one when the reader asked for it, the
-//     plain line for Safari, and the Help, Tell us what's missing, and Take
-//     the tour links.
+//   - `foot`, in the panel's foot: where the notebook is kept and when it was
+//     last backed up, the reminder's checkbox, the plain line for Safari, and
+//     the Help, Tell us what's missing, and Take the tour links;
+//   - `notice`, at the top of the Settings tab's "Keep and print" group while
+//     a backup is due and not put off for a week (E113): the reminder's
+//     sentence, "Back up now", and the checkbox, which moves in from the foot.
 //
 // The answer is a per-browser setting (localStorage['lit-desk-home'], absent
 // until answered), like the display settings: it never syncs. Both values
@@ -31,15 +33,16 @@
 // saying so stands alone: no card, no offer, and of the foot only its
 // links (BA34).
 
-import { liveRecords } from "../../lib/desk-store-core.mjs";
 import {
-  BACKUP_HREF, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, SAFARI_LINE, SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
-  isDesktopSafari, readHome, readLastExport, reminderDue, reminderText,
+  BACKUP_HREF, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, HOME_KEY, REMIND_KEY, SAFARI_LINE,
+  SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
+  backedUpSaid, isDesktopSafari, readHome, reminderState,
   localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
 } from "../../lib/desk-first-use.mjs";
 import { createFloatWindow } from "../float-window.js";
+import { REMINDER_EVENT, backUp, factsFromStore, refreshReminder } from "./reminder.js";
+import { showNotice } from "./undo-bar.js";
 
-const HOME_KEY = "lit-desk-home";
 // The three tours' keys are declared with their rules in desk-first-use.mjs,
 // so the Sheets page can ask whether to offer its tour without loading this
 // file (E63); they are this file's to read and write, under the same names.
@@ -136,14 +139,14 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   choiceTitle.tabIndex = -1;
   choice.append(
     choiceTitle,
-    el("p", "desk-home-card__lead", "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, the notebook is gone unless you have saved a copy."),
+    el("p", "desk-home-card__lead", "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, the notebook is gone unless you have backed it up."),
   );
   const remind = el("div", "desk-home-card__remind");
   const remindAskLabel = el("label", "desk-setting");
   const remindAsk = el("input", "desk-setting__input");
   remindAsk.type = "checkbox";
-  remindAskLabel.append(remindAsk, el("span", "desk-setting__label", "Remind me to save a copy"));
-  const remindNote = el("p", "desk-home-card__note", "The Notebook reminds you when it has been a week since your last copy.");
+  remindAskLabel.append(remindAsk, el("span", "desk-setting__label", "Remind me to back up my notebook"));
+  const remindNote = el("p", "desk-home-card__note", "The Notebook reminds you when it has been a week since your last backup.");
   remindNote.id = "deskHomeRemindNote";
   remindAsk.setAttribute("aria-describedby", remindNote.id);
   remind.append(remindAskLabel, remindNote);
@@ -289,19 +292,52 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   const remindLabel = el("label", "desk-setting desk-home__remind");
   const remindBox = el("input", "desk-setting__input");
   remindBox.type = "checkbox";
-  remindLabel.append(remindBox, el("span", "desk-setting__label", "Remind me to save a copy"));
+  remindLabel.append(remindBox, el("span", "desk-setting__label", "Remind me to back up my notebook"));
   remindBox.addEventListener("change", () => {
     setHome(remindBox.checked ? "browser-remind" : "browser");
     maybeOffer();
     drawCard();
     refresh();
+    refreshReminder();
   });
 
   const kept = el("p", "desk-panel__kept");
-  const nag = el("p", "desk-home__reminder");
   const safariLine = el("p", "desk-home__safari");
   safariLine.hidden = !safari;
-  if (safari) safariLine.append(`${SAFARI_LINE} `, link(BACKUP_HREF, "Save a copy"));
+  if (safari) safariLine.append(`${SAFARI_LINE} `, link(BACKUP_HREF, "Back up your notebook"));
+
+  // The notice (mock B, E113): a tinted group at the top of "Keep and print"
+  // while a backup is due and not put off for a week. The checkbox lives here
+  // then, and in the foot otherwise.
+  const notice = el("div", "desk-backup-notice");
+  notice.setAttribute("role", "group");
+  notice.setAttribute("aria-labelledby", "deskBackupNoticeTitle");
+  notice.hidden = true;
+  const noticeTitle = el("h4", "desk-backup-notice__title", "Time to back up your notebook");
+  noticeTitle.id = "deskBackupNoticeTitle";
+  const noticeText = el("p", "desk-backup-notice__text");
+  const backBtn = (cls) => {
+    const b = el("button", cls, "Back up now");
+    b.type = "button";
+    b.addEventListener("click", async () => {
+      if (b.getAttribute("aria-disabled") === "true") return;
+      b.setAttribute("aria-disabled", "true");
+      try {
+        const { name } = await backUp({ store });
+        showNotice(backedUpSaid(name));
+      } catch (err) {
+        console.error("Study Desk: the backup wasn’t made", err);
+        showNotice("That didn’t work. Try again.");
+      } finally {
+        b.removeAttribute("aria-disabled");
+      }
+      refresh();
+    });
+    return b;
+  };
+  const noticeBtn = backBtn("desk-backup-notice__go");
+  const quietBtn = backBtn("desk-home__backup");
+  notice.append(noticeTitle, noticeText, noticeBtn);
 
   const links = el("p", "desk-home__links");
   const tour = el("button", "desk-home__tour", "Take the tour");
@@ -316,11 +352,11 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
 
   // Without a notebook, only the links (`hidden` wouldn't do for the remind
   // box: .desk-setting sets its display).
-  if (canKeep) foot.append(remindLabel, kept, nag, safariLine);
+  if (canKeep) foot.append(remindLabel, kept, safariLine);
   foot.append(links);
 
   let seq = 0;
-  /** Bring the foot up to date: the choice, when a copy was last saved, whether the notebook holds anything. */
+  /** Bring the foot and the notice up to date: the choice, when it was last backed up, whether the notebook holds anything. */
   async function refresh({ shown = false } = {}) {
     if (!canKeep) return;
     const mine = ++seq;
@@ -330,33 +366,34 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     if (shown) maybeOffer();
     drawCard();
 
-    let last;
-    let hasRecords = false;
-    try { if (typeof store?.getMeta === "function") last = readLastExport(await store.getMeta("lastExport")); } catch (_) {}
-    try { if (store) hasRecords = liveRecords(await store.all()).length > 0; } catch (_) {}
+    const facts = (await factsFromStore(store)) ?? { lastExport: null, hasRecords: false, oldest: null };
     if (mine !== seq) return;
-
     const now = new Date();
-    const due = reminderDue({ home, lastExport: last, now, hasRecords });
-    kept.replaceChildren();
-    nag.replaceChildren();
-    nag.hidden = !due;
-    if (due) {
-      kept.textContent = "Kept in this browser.";
-      nag.append(`${reminderText(last, now)} `, link(BACKUP_HREF, "Save a copy"));
+    let putOff = null;
+    try { putOff = localStorage.getItem(REMIND_KEY); } catch (_) {}
+    const state = reminderState({ home, ...facts, putOff, now });
+    // Due and not put off for a week: the notice, with the checkbox inside it.
+    notice.hidden = !state.dots;
+    if (state.dots) {
+      noticeText.textContent = state.text;
+      notice.insertBefore(remindLabel, noticeBtn.nextSibling);
+      kept.replaceChildren("Kept in this browser.");
     } else {
-      kept.append(`Kept in this browser. ${savedLine(last, now)} `);
-      if (hasRecords) kept.append(link(BACKUP_HREF, "Save a copy"));
+      foot.insertBefore(remindLabel, foot.firstChild);
+      kept.replaceChildren(`Kept in this browser. ${savedLine(facts.lastExport, now)} `);
+      if (facts.hasRecords) kept.append(quietBtn);
     }
   }
 
   /* ── Keeping in step ──────────────────────────────────────────── */
 
-  // A copy saved on the notebook page, or an answer given in another tab.
+  // A backup made on the notebook page, or an answer given in another tab.
   window.addEventListener("focus", () => refresh());
   window.addEventListener("storage", (e) => {
-    if (e.key === HOME_KEY) refresh();
+    if (e.key === HOME_KEY || e.key === REMIND_KEY) refresh();
   });
+  // The reminder's bar was answered (reminder.js).
+  document.addEventListener(REMINDER_EVENT, () => refresh());
 
   // The first write the reader makes this visit, with no answer yet: point
   // the reader to the panel, where the card is (once, so it never nags). It
@@ -370,5 +407,5 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
 
   drawCard();
   refresh();
-  return { card, foot, refresh, panelChanged };
+  return { card, foot, notice, refresh, panelChanged };
 }

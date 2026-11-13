@@ -123,17 +123,17 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
    the tab and the Notebook buttons until the panel is opened (E74; panel.js,
    nudgePanel). A dot in the text green; in forced colors, Highlight, since a
    background alone draws nothing there. */
-.desk-tab[data-desk-nudge],
-[data-desk-toggle][data-desk-nudge] {
+.desk-tab:is([data-desk-nudge], [data-desk-due]),
+[data-desk-toggle]:is([data-desk-nudge], [data-desk-due]) {
   position: relative;
 }
 
-.desk-rail--collapsed .desk-tab[data-desk-nudge] {
+.desk-rail--collapsed .desk-tab:is([data-desk-nudge], [data-desk-due]) {
   position: sticky;
 }
 
-.desk-tab[data-desk-nudge]::after,
-[data-desk-toggle][data-desk-nudge]::after {
+.desk-tab:is([data-desk-nudge], [data-desk-due])::after,
+[data-desk-toggle]:is([data-desk-nudge], [data-desk-due])::after {
   content: "";
   position: absolute;
   top: 5px;
@@ -144,9 +144,11 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
   background: var(--green-text);
 }
 
+/* The same dot says a backup is due (E113; reminder.js sets data-desk-due).
+   Opening the Notebook clears the first-write mark, never this one. */
 @media (forced-colors: active) {
-  .desk-tab[data-desk-nudge]::after,
-  [data-desk-toggle][data-desk-nudge]::after {
+  .desk-tab:is([data-desk-nudge], [data-desk-due])::after,
+  [data-desk-toggle]:is([data-desk-nudge], [data-desk-due])::after {
     forced-color-adjust: none;
     background: Highlight;
   }

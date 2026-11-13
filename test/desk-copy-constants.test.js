@@ -37,9 +37,9 @@ test("the help page reads the trash's days from TRASH_DAYS (CP3-6)", () => {
   assert.doesNotMatch(src, /\b\d+ days\b/, "no typed number of days");
 });
 
-test("the copy reminder's \"a week\" is REMIND_AFTER_DAYS", () => {
+test("the backup reminder's \"a week\" is REMIND_AFTER_DAYS", () => {
   assert.equal(REMIND_AFTER_DAYS, 7);
-  assert.match(read("src/scripts/desk/first-use.js"), /been a week since your last copy/);
+  assert.match(read("src/scripts/desk/first-use.js"), /been a week since your last backup/);
 });
 
 test("the Greek command line's \"Up to four words\" is MAX_TERMS", () => {

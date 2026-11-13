@@ -15,7 +15,7 @@
 // ones that open the notebook's own pages work anywhere.
 //
 // A query reaches a command when each of its words begins one of the
-// command's words ("hide" finds "Hide my marks"; "back" finds "Save a copy of
+// command's words ("hide" finds "Hide my marks"; "back" finds "Back up
 // my notebook" through its keyword "backup"). A query that starts with ">"
 // asks for commands alone: ">" lists them all, and what follows narrows them.
 
@@ -92,8 +92,8 @@ export const COMMANDS = Object.freeze([
   },
   {
     id: "notebook-backup",
-    name: () => "Save a copy of my notebook",
-    keywords: ["backup", "export", "download", "file"],
+    name: () => "Back up my notebook",
+    keywords: ["backup", "back up", "restore", "export", "download", "file"],
     needs: null,
     href: "/notebook/#backup",
   },
