@@ -3701,6 +3701,22 @@ says so; where BVJ was wondering, nothing is decided.)
   “Yes, I think that was it.” It now has a class of its own,
   `desk-sheet__how`, in the rule the sheet's other notes share (smaller,
   ink at 0.75). Status: fixed (#581).
+  **Reopened** (BVJ, 2026-11-13, during the Sheets tour, with a screenshot
+  of a Sheets pane: “I see the instruction in the sheet that had the same
+  formatting as the scripture text still looking that way. Is it just in the
+  tour, or is it still not actually taken care of? Either way, something
+  needs to be done.”). Not the tour's: the tour's sheet is the editor's. In
+  a Sheets pane the passage's words keep the sheet's own size (15px at
+  12 pt, `.desk-pane .desk-sheet__words`), while the notes follow the
+  Display tray (`--sheet-ui`, E109), so #581's “smaller” was 14px against
+  15 at the default size and larger than the passage at a larger one, in the
+  same face, set apart by ink alone. BVJ's first words named the cure: “a
+  line separating them or difference in font.” So the instruction now opens
+  the tools under the passage with a line, the Footnotes section's
+  (`border-top`, ink at 0.15), and is italic, as a lone heading's prompt is.
+  The line holds in every reader font and at every size; neither size was
+  changed, since the tray's size is the reader's and the passage's is the
+  sheet's (E101, E109).
 - **E130, wording: “Chapter View” becomes “Scripture page” with the
   preview on.** BVJ (2026-11-12, in chat, after “Continue reading · Chapter
   View” showed in My Notes on /desk): “it still says ‘Chapter View’. That
