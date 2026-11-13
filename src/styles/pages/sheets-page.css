@@ -887,6 +887,32 @@
   opacity: 0.85;
 }
 
+/* The note after the buttons' row keeps the step the notes above have. */
+.sheets-page__dialog-note--after {
+  margin-top: 0.75rem;
+}
+
+/* The Share dialog's "Include the answer key" (E122): a step in, under the
+   participant's version, which it belongs to. */
+.sheets-page__dialog .sheets-page__choice .sheets-page__dialog-key {
+  margin-left: 1.6rem;
+}
+
+.sheets-page__dialog-key[hidden] {
+  display: none;
+}
+
+/* "Sends: …" (E122): what the choice puts in the link, as a notice from the
+   app, with the "what prints" notice's tint and green rule. */
+.sheets-page__dialog-sends {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 6px 6px 0;
+  background: rgba(var(--ink-rgb), 0.05);
+  font-size: calc(0.875rem * var(--sheet-ui, 1));
+}
+
 .sheets-page__dialog-actions {
   display: flex;
   flex-wrap: wrap;

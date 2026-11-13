@@ -673,6 +673,7 @@ anything else.
 | `sheetFormat`, `title`, `subtitle`, `template`, `commercial`, `textSize` | As on the sheet (`commercial` only when true, `textSize` only when not 12). A `textSize` the client doesn't offer is dropped, and the sheet opens at the standard size |
 | `scope` | `"leader"` (everything) or `"participant"` (no module marked `leaderOnly`, no module of a type the sender doesn't know, every question's `answer` empty, and no module's `minutes`, `prompt` or `answerPrompt`) |
 | `contentVersion` | The sheet's own, so the receiver knows which text it was made on |
+| `answerKey` | Optional, `true` only (added 2026-11-12, E122), and only with `scope: "participant"`: the sharer chose to include the answer key, so the receiver shows the key after the participant's version (on the website, as its last page, on screen and on paper). **A display instruction, not data**: the key is built from the passages' blanks as always. Absent means no key is shown. A receiver ignores it on a leader share, never stores it on the sheet record, and never writes it into a record's export |
 | `modules` | The sheet's modules, each **without its `id`**, and passages without `verseCopy` and `verseCopyAsOf` |
 
 A participant share leaves out a module of a type the sender doesn't know
@@ -685,6 +686,22 @@ receiver gives every module a fresh id, **drops `verseCopy` and
 is never flagged as changed; BA82), and makes the sheet a record of its
 own, sanitizes its formatted text, and refuses the share unless that record
 then passes the sheet's check (`validateSheet`; DI6-1).
+
+**A participant share has always carried each blank's words**, and that is
+by design (E122): a blank *is* its words (`verse`, `exact`, `prefix`,
+`suffix`), the receiver needs them to find the blank in the text, and they
+are the LIT's own words, so no share could keep them back. What a
+participant share really leaves out is listed under `scope`. So `answerKey`
+decides only whether the key is *shown* by the link; once a reader imports
+the sheet it is an ordinary sheet of theirs, and their own “Add answer key”
+works on it. There is no lock, and a client must not present one.
+
+**`answerKey` did not change the version** (`share1.`): it is optional, a
+reader that doesn't know it ignores an unknown top-level field and shows the
+sheet without the key, which is the safe direction, and a share without the
+field is byte for byte what it was. No record format or sync change comes
+with it. An app that opens a share may show the key only when the field is
+`true`.
 Decompressed data over twice the sheet's 512 KB limit is refused before it
 is read whole.
 
@@ -707,9 +724,12 @@ still being parsed, before Cloudflare's analytics beacon (a deferred script)
 runs, and the page shows the sheet from there. A link opened in a tab
 already on the sheets page is moved the same way on `popstate` and
 `hashchange`, by listeners added before the beacon's. A reload finds it again. It is shown read only until the
-reader chooses "Copy into my desk", which saves it as a new sheet of theirs
-(new id, new times, their client). A shared link opened on a phone or
-tablet says to open it on a computer (decision 4).
+reader chooses "Import into my notebook", which saves it as a new sheet of theirs
+(new id, new times, their client; never `answerKey`). A shared link opened on a phone or
+tablet shows the sheet to read, present, print or forward, and saves
+nothing (2026-11-08, NB6-8). Forwarded from there, a participant link goes
+as it came, `answerKey` included, and a leader link goes as a participant
+share without `answerKey` unless the reader chooses the leader's version.
 
 ## The quote (an anchor)
 

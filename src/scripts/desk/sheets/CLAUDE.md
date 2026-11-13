@@ -472,8 +472,10 @@ my notebook"**. Twelve things to know:
   answers in reading order, no blank numbers or hints, and the credit line
   last. A sheet with no printing blanks gets no key. A note under the
   toolbar says the key prints as the last page. **It never leaves the
-  paper**: present mode, the slides and a share link don't carry it, and
-  the “what prints” check (`copyLeaks`) reads only the sheet's own parts.
+  paper, save one way**: present mode and the slides don't carry it, and a
+  share link shows it only when the sharer checks the Share dialog's own
+  “Include the answer key” (E122, rule 21), which never reads this box. The
+  “what prints” check (`copyLeaks`) reads only the sheet's own parts.
   In Copy and the files the sheet's credit stays where it is and the key's
   page carries the `credit: true` line the writers put last (`readCopy`'s
   `keyAfter`).
@@ -750,15 +752,34 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   Leader only parts, answers, planned minutes, prompts, and parts of
   unknown types), as
   deflate-raw JSON in base64url after `#share1.`, or the same data on
-  the last line of a `.lit-sheet.md` file (`fragmentInFile`). The dialog's note and the "Link
-  copied" status both say the link is long because the sheet is in it
-  (E58). A short link would need a hosted store, M14, deferred to
+  the last line of a `.lit-sheet.md` file (`fragmentInFile`). The dialog's note says
+  the link is long because the sheet is in it (E58; the "Link copied"
+  status no longer repeats it, E122). A short link would need a hosted store, M14, deferred to
   signed-in readers. **The participant's version is the default** (BVJ,
   2026-11-10, Audit 8 decision 5): the Share dialog opens on it, with
-  "Everything, for another leader" second, and on a phone "Share…" on a
+  "The leader's version" second (`SHARE_SCOPE_NAMES`), and on a phone "Share…" on a
   leader link forwards the participant's version (made by `shareLink`, never
-  by hand) unless the reader picks Everything, which forwards the link as it
-  came; a participant link is forwarded as it came, with no choice. The Share dialog's button for that
+  by hand, and without the key) unless the reader picks the leader's version, which forwards the link as it
+  came; a participant link is forwarded as it came, key or no key, with no choice.
+  **The dialog says what a link shows and promises nothing it can't keep**
+  (E122; BVJ, 2026-11-12): a blank is its words, so every share carries them,
+  and nothing can hold the LIT's own words back. So: (1) under the
+  participant's version sits **"Include the answer key"**, which **always
+  starts unchecked and never inherits the page's "Add answer key"**, and
+  there is no opening question; it and its note show only when the
+  participant's version has a blank. (2) Checked, the share carries
+  `answerKey: true` (`sharedSheet`, a participant share only), **a display
+  instruction and never data**: `openShare` hands it back beside `scope`,
+  the shared view draws the key as the copy's last page (`drawSheet`'s
+  `sharedKey`), on a phone too, and it prints with it. No sheet record holds
+  it, so "Import into my notebook" drops it. (3) **No lock after
+  importing**: the imported sheet is the reader's own and its "Add answer
+  key" works; the no-key state says so once. Don't add a "key withheld"
+  field. (4) A tinted **"Sends: …"** line (`shareSends`, a polite live
+  region) restates the choice; the link, its QR code and the status line are
+  made again whenever the choice changes. (5) The commercial check (rule 19)
+  still comes first, in its own dialog. `share1.` did not change: the field
+  is optional and an older reader shows no key. The Share dialog's button for that
   file is "Export a sheet file (.md)" and the Sheets page's is
   "Import a sheet file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
   `sheet-page.js`; BVJ, 2026-11-06; "a Study Desk file" until Audit 8
