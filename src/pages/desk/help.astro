@@ -100,7 +100,7 @@ const parts = [
     title: "Keeping your notebook",
     topics: [
       { id: "ways-to-keep", title: "Where your notebook is kept" },
-      { id: "copies", title: "Saving and opening a copy" },
+      { id: "copies", title: "Backing up your notebook" },
       { id: "delete-everything", title: "The trash, and deleting everything" },
     ],
   },
@@ -114,7 +114,7 @@ const parts = [
 
 <Layout
   title="Study Desk help | Liberation and Inclusion Translation"
-  description="Help for the Study Desk preview: the desk page and its panes, sheets, the Notebook, where your notes are kept, saving and opening a copy, and what each part does."
+  description="Help for the Study Desk preview: the desk page and its panes, sheets, the Notebook, where your notes are kept, backing up your notebook, and what each part does."
   canonical="https://litbible.net/desk/help/"
   robotsNoindex={true}
 >
@@ -176,7 +176,7 @@ const parts = [
               <p>
                 Everything you keep stays in your browser, on your computer.
                 Nothing is sent to the LIT Bible team or anywhere else, so
-                <a href="#copies">save a copy</a> now and then. The Study Desk
+                <a href="#copies">back up your notebook</a> now and then. The Study Desk
                 is for computers.
               </p>
             </section>
@@ -1125,14 +1125,13 @@ const parts = [
                 <li>Your browser, on its own, when it is short of room.</li>
                 <li><strong>Safari</strong>, which can clear a site’s stored
                   data after seven days of using Safari without visiting the
-                  site. If you use Safari, save a copy now and then.</li>
+                  site. If you use Safari, back up your notebook now and then.</li>
               </ul>
               <p>
-                <strong>The safe way.</strong> A copy is a file on your own
+                <strong>The safe way.</strong> A backup is a file on your own
                 computer, and it is the safe way to keep your notebook. When
-                you first use the notebook you can ask to be reminded: the
-                panel then tells you when it has been a week since you saved
-                one. You can change that in the Notebook’s Settings tab.
+                you first use the notebook you can ask to be reminded to back
+                it up. You can change that in the Notebook’s Settings tab.
               </p>
               <p>
                 <strong>Other ways.</strong> Other ways to keep it, across your
@@ -1142,22 +1141,39 @@ const parts = [
             </section>
 
             <section class="nbhelp__topic" aria-labelledby="copies">
-              <h3 id="copies">Saving and opening a copy</h3>
+              <h3 id="copies">Backing up your notebook</h3>
               <p>
-                <a href="/notebook/#backup">My Notebook</a> can save a copy in
-                three kinds of file:
+                <a href="/notebook/#backup">My Notebook</a> can back up your
+                notebook as a full backup, a file (JSON) that holds
+                everything. It can also save two other formats, under “Other
+                formats,” which aren’t backups:
               </p>
               <ul>
-                <li><strong>A full backup</strong> (JSON), which holds
-                  everything and is the one to open again here.</li>
                 <li><strong>A Markdown file</strong>, to read, print, or move
                   into other writing.</li>
                 <li><strong>A Web Annotation file</strong> (JSON), a standard
                   format other annotation tools can read.</li>
               </ul>
               <p>
-                “Open a copy” on the same page puts a saved full backup back
-                into the notebook.
+                “Merge a backup” on the same page adds what a backup holds to
+                the notebook, keeping the newer version of anything that’s in
+                both. To restore your notebook on a new computer or browser,
+                merge your backup into it.
+              </p>
+              <p>
+                <strong>The reminder.</strong> If you asked to be reminded, a
+                bar appears on a chapter page or the Study Desk page when it
+                has been a week since your last backup, or, if you have never
+                made one, a week since your oldest note or mark. It offers
+                four choices: “Back up now,” which downloads the file;
+                “Remind me tomorrow” (the × does the same); “Not this week”;
+                and “Turn off reminders.” While a backup is due, a small dot
+                marks the Notebook’s tab and its Settings tab, and the Study
+                Desk’s title and its My Notebook line, and the Settings tab
+                says so at the top of “Keep and print.” “Not this week” puts
+                the bar and the dots away for seven days. You can turn
+                reminders back on in the Notebook’s Settings tab on a chapter
+                page.
               </p>
             </section>
 
@@ -1174,7 +1190,7 @@ const parts = [
                   <a href="/notebook/">My Notebook</a> and press Restore, on
                   one item or on all of them.</li>
                 <li>After {TRASH_DAYS} days only a record that it was deleted
-                  remains, so a saved copy is the only way back.</li>
+                  remains, so a backup is the only way back.</li>
               </ul>
               <p>
                 <strong>Deleting everything.</strong> To clear this browser, My
@@ -1189,7 +1205,7 @@ const parts = [
               </ul>
               <p>
                 The first two each leave the other alone. Clearing this site’s
-                data in your browser also removes it all. Save a copy first if
+                data in your browser also removes it all. Back up your notebook first if
                 you may want it back.
               </p>
             </section>

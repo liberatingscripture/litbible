@@ -1,7 +1,7 @@
 // test/desk-first-use.test.js
 //
-// src/lib/desk-first-use.mjs: the first-time choice, the reminder to save a
-// copy, the line for Safari and the tour's bookkeeping. Every rule takes the
+// src/lib/desk-first-use.mjs: the first-time choice, the reminder to back up the
+// notebook, the line for Safari and the tour's bookkeeping. Every rule takes the
 // time as an argument, so these run against a fixed `now`.
 
 import { test } from "node:test";
@@ -49,17 +49,18 @@ test("how long ago is said in plain words", () => {
   assert.equal(agoPhrase(3), "3 days ago");
 });
 
-test("the foot says when a copy was last saved", () => {
-  assert.equal(savedLine(undefined, NOW), "No copy saved yet.");
-  assert.equal(savedLine("garbage", NOW), "No copy saved yet.");
-  assert.equal(savedLine(ago(0, 2), NOW), "Last saved a copy today.");
-  assert.equal(savedLine(ago(1), NOW), "Last saved a copy yesterday.");
-  assert.equal(savedLine(ago(3), NOW), "Last saved a copy 3 days ago.");
+test("the foot says when the notebook was last backed up", () => {
+  assert.equal(savedLine(undefined, NOW), "Not backed up yet.");
+  assert.equal(savedLine("garbage", NOW), "Not backed up yet.");
+  assert.equal(savedLine(ago(0, 2), NOW), "Last backed up today.");
+  assert.equal(savedLine(ago(1), NOW), "Last backed up yesterday.");
+  assert.equal(savedLine(ago(3), NOW), "Last backed up 3 days ago.");
 });
 
-test("the reminder is due after a week, or with no copy, only for those who asked and with something to lose", () => {
-  const base = { home: "browser-remind", hasRecords: true, now: NOW };
+test("the reminder is due after a week, or with no backup, only for those who asked and with something to lose", () => {
+  const base = { home: "browser-remind", hasRecords: true, oldest: ago(10), now: NOW };
   assert.equal(reminderDue({ ...base, lastExport: undefined }), true);
+  assert.equal(reminderDue({ ...base, oldest: ago(2), lastExport: undefined }), false);
   assert.equal(reminderDue({ ...base, lastExport: ago(REMIND_AFTER_DAYS) }), true);
   assert.equal(reminderDue({ ...base, lastExport: ago(30) }), true);
   assert.equal(reminderDue({ ...base, lastExport: ago(REMIND_AFTER_DAYS - 1, 23) }), false);
@@ -70,10 +71,10 @@ test("the reminder is due after a week, or with no copy, only for those who aske
   assert.equal(reminderDue({ ...base, hasRecords: false, lastExport: ago(30) }), false);
 });
 
-test("the reminder says how many days, or that there is no copy yet", () => {
-  assert.equal(reminderText(ago(9), NOW), "It’s been 9 days since you saved a copy.");
-  assert.equal(reminderText(ago(1), NOW), "It’s been 1 day since you saved a copy.");
-  assert.equal(reminderText(undefined, NOW), "You haven’t saved a copy yet.");
+test("the reminder says how many days, or that there is no backup yet", () => {
+  assert.equal(reminderText(ago(9), NOW), "It’s been 9 days since you backed up your notebook.");
+  assert.equal(reminderText(ago(1), NOW), "It’s been 1 day since you backed up your notebook.");
+  assert.equal(reminderText(undefined, NOW), "You haven’t backed up your notebook yet.");
 });
 
 test("desktop Safari is told apart from the browsers that borrow its name", () => {

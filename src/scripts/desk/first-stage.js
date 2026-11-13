@@ -33,7 +33,9 @@
 import { standDown } from "../desk-frame.js";
 import { currentPanel } from "../lit-panel.js";
 import { startState } from "../../lib/desk-start.mjs";
-import { CHANNEL, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook } from "../../lib/desk-first-stage.mjs";
+import {
+  CHANNEL, REMIND_HOME, REMIND_HOME_KEY, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook, peekReminder,
+} from "../../lib/desk-first-stage.mjs";
 import { createRail } from "./margin.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { addTabStyle, notebookTab } from "./notebook-tab.js";
@@ -65,6 +67,22 @@ function drawnHere() {
 const greekHere = () => Boolean(document.querySelector("article.chapter[data-last-read-book], article.chapter[data-draft-book]"));
 
 /**
+ * Start the backup reminder (reminder.js) on a Chapter View chapter or Read
+ * View, from a look at the notebook that never creates it and never loads the
+ * shell. Nowhere else: not an intro, an article or the glossary. Only for a
+ * reader who asked to be reminded, so no one else loads its code or looks.
+ */
+function beginReminder(where) {
+  if (!where || !globalThis.indexedDB || readLocal(REMIND_HOME_KEY) !== REMIND_HOME) return;
+  import("./reminder.js")
+    .then(({ startReminder }) => startReminder({
+      surface: "reading",
+      getFacts: () => peekReminder({ idb: indexedDB, now: new Date() }),
+    }))
+    .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
+}
+
+/**
  * Run the first stage. Resolves once the tab is drawn and the listeners are
  * on; a throw stands the page down (desk-gate.js).
  * @param {{ importShell?: () => Promise<object> }} [options]
@@ -81,6 +99,8 @@ export async function start({ importShell = () => import("./shell.js") } = {}) {
   try { state = startState(readLocal); } catch (_) {}
   const now = loadAtOnce({ start: state, session: readSession, params: new URL(window.location.href).searchParams });
   if (now) {
+    // The shell's panel draws its own tab and paints the reminder's dot on it (panel.js).
+    beginReminder(where);
     await loadStageTwo(importShell, { stand: standDown });
     return;
   }
@@ -130,6 +150,8 @@ async function drawAndWait({ where, state, importShell, leave }) {
   if (firstSkip) firstSkip.after(skip);
   else document.body.prepend(skip);
   leave.skip = skip;
+  // The backup reminder: a read-only look, so the shell stays unloaded (E113).
+  beginReminder(where);
 
   /* ── Loading stage two ───────────────────────────────────────────── */
 

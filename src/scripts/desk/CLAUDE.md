@@ -500,7 +500,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
-     what the reader has kept ("Save a copy of my notebook," "Search my
+     what the reader has kept ("Back up my notebook," "Search my
      notebook") or the feature as a whole. "My Notes" is the tab and the
      /desk pane kind only; the margin's switch and its region are "Notes in
      the margin," and This verse's subhead stays "My notes," naming the
@@ -618,7 +618,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        BA152): `notebook.css` hides its controls and every section but What
        I've kept and Continue reading. Shared pieces: `desk/boot.js` (the stylesheet and context the
        shell and the page both need), `record-rows.js`, `labels-ui.js`.
-     - **Save and open a copy** (`src/lib/desk-export.mjs`, pure; format in
+     - **Back up and merge a backup** (`src/lib/desk-export.mjs`, pure; format in
        STUDY-DESK-FORMAT.md, "The export file"): Markdown, Web Annotation
        and a full backup, the last the only one carrying trash. Opening
        merges through `desk-merge.mjs` in one commit and never deletes for
@@ -644,7 +644,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        tombstone and reported in `planImport`'s `warnings`, never skipped
        whole (DI3-4), so an older copy can't bring the record back.
        `META.lastExport` (`store.getMeta/setMeta`) is what the
-       "last saved a copy" line and the reminder read.
+       "Last backed up" line and the reminder read. "Backup" is the noun, "back up" the verb, "merge a backup" opens one.
      - **The trash can be restored from** (E12; BVJ, 2026-11-02): a Trash section
        on the notebook page (`desk/trash-list.js`; `planRestore` and
        `planRestoreAll` in `desk-notebook.mjs`), each row the ordinary
@@ -808,7 +808,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
        `desk/tour.js`): the "Your notebook is kept in this browser" card, a
        statement with a reminder checkbox and "Got it" until phase 4 gives a
-       second place to choose (BVJ, 2026-11-07, FU4-1; `localStorage['lit-desk-home']`), the foot's reminder and Safari
+       second place to choose (BVJ, 2026-11-07, FU4-1; `localStorage['lit-desk-home']`), the foot's Safari
        line, and the tour (`lit-desk-tour`, which also holds the offer's
        markers: `later:<date>` and `never`). **The card is pointed to, never
        opened onto the reader** (E74, BVJ 2026-11-10): the first record a visit
@@ -816,6 +816,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        toggles (`data-desk-nudge`, cleared once the Notebook is open) and offers
        “Open the Notebook” in the undo bar, unless the bar holds another
        undo. Opening it unasked re-wrapped the text under the popover.
+       **The backup reminder** (E113; rules `desk-reminder.mjs`, bar and dots `reminder.js`,
+       notice `first-use.js`): on chapters, Read View and /desk only, it is due 7 days after
+       the last backup (or the oldest record, with none). Its bar names no key and
+       stays; dots are `data-desk-due`, apart from E74's. The put-off is
+       `lit-desk-remind`. Stage one loads `reminder.js` only for a reader who
+       asked for reminders, reads the notebook with `peekReminder`, never
+       imports `desk-first-use.mjs`, and adds `desk.css` only for the bar.
        **The tour is offered in a
        window beside the Notebook** (BVJ, 2026-10-14), the first time it is
        expanded with the home question answered: Take the tour now, Remind

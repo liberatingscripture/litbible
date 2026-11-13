@@ -625,7 +625,7 @@ test("an older copy never brings back a note deleted here since it was saved (BA
   assert.equal(back.problems.length, 1);
   assert.equal(
     back.problems[0].message,
-    "“Romans 5:8” has been deleted here since this copy was saved, so it was left out. It is in the trash, if you want it back.",
+    "“Romans 5:8” has been deleted here since this backup was made, so it was left out. It is in the trash, if you want it back.",
   );
   assert.equal(typeof back.problems[0].line, "number");
   const out = planImport(local, back.records, { now });
@@ -672,7 +672,7 @@ test("a tombstone holds the id too, and the message leaves out the way back (BA2
   const back = parseImport(md, { local: [tombstone], ctx, now: at(SAVED, 2) });
   assert.deepEqual(back.records, []);
   assert.equal(back.problems.length, 1);
-  assert.equal(back.problems[0].message, "“Romans 5:8” has been deleted here since this copy was saved, so it was left out.");
+  assert.equal(back.problems[0].message, "“Romans 5:8” has been deleted here since this backup was made, so it was left out.");
   assert.equal(planChanges(planImport([tombstone], back.records, { now: at(SAVED, 2) }).plan), false);
 });
 
@@ -723,12 +723,12 @@ test("describeSummary and the file names read in plain words", () => {
 
 test("describeLastExport says how long ago, or that it hasn't happened", () => {
   const now = "2026-10-12T12:00:00.000Z";
-  assert.equal(describeLastExport(undefined, now), "Not saved yet.");
-  assert.equal(describeLastExport("nonsense", now), "Not saved yet.");
-  assert.equal(describeLastExport("2026-10-12T11:59:40.000Z", now), "Last saved a copy: just now.");
-  assert.equal(describeLastExport("2026-10-12T11:30:00.000Z", now), "Last saved a copy: 30 minutes ago.");
-  assert.equal(describeLastExport("2026-10-12T11:00:00.000Z", now), "Last saved a copy: 1 hour ago.");
-  assert.equal(describeLastExport("2026-10-09T12:00:00.000Z", now), "Last saved a copy: 3 days ago.");
+  assert.equal(describeLastExport(undefined, now), "Not backed up yet.");
+  assert.equal(describeLastExport("nonsense", now), "Not backed up yet.");
+  assert.equal(describeLastExport("2026-10-12T11:59:40.000Z", now), "Last backed up just now.");
+  assert.equal(describeLastExport("2026-10-12T11:30:00.000Z", now), "Last backed up 30 minutes ago.");
+  assert.equal(describeLastExport("2026-10-12T11:00:00.000Z", now), "Last backed up 1 hour ago.");
+  assert.equal(describeLastExport("2026-10-09T12:00:00.000Z", now), "Last backed up 3 days ago.");
 });
 
 /* ── Notes on a footnote (M11) ───────────────────────────────────────── */

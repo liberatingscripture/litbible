@@ -50,6 +50,7 @@ import { printPlain } from "./print-link.js";
 import { NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
 import { createFirstUse } from "./first-use.js";
+import { paintDots } from "./reminder.js";
 import { createMineTab } from "./tab-mine.js";
 import { notebookTab } from "./notebook-tab.js";
 import { resetWidthsButton } from "./widths.js";
@@ -307,6 +308,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   tabs.get("mine").body.prepend(firstUse.card);
   settingsEl.querySelector(".desk-panel__kept").replaceWith(firstUse.foot);
+  // The backup reminder's notice leads the "Keep and print" group (E113).
+  settingsEl.querySelector("#deskSettingsKeep").after(firstUse.notice);
   // The tour, help and feedback links go under Help (E75); the foot keeps the
   // lines about where the notebook is kept.
   const footLinks = firstUse.foot.querySelector(".desk-home__links");
@@ -434,7 +437,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     setTimeout(() => {
       if (shown() || barShowing()) return;
       // It opens on My Notes, where the card is, whatever tab was last open.
-      showUndo("Your notebook is kept in this browser. See how to keep a copy.", () => {
+      showUndo("Your notebook is kept in this browser. See how to back it up.", () => {
         selectTab("mine", { remember: false });
         if (panel.hidden) open(null);
         else expand();
@@ -453,6 +456,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         t.removeAttribute("aria-description");
       }
     }
+    // The backup dot's own description (reminder.js) comes back if one is due.
+    paintDots();
   }
 
   function expand() {
@@ -575,7 +580,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
           const granted = await store.askToKeep();
           await renderPersistence();
           if (granted === false && !persistLine.hidden) {
-            persistLine.append(" Your browser said no this time. Saving a copy of your notebook is the safe way.");
+            persistLine.append(" Your browser said no this time. Backing up your notebook is the safe way.");
           }
           // The line was rebuilt, so this button is gone, and focus with it
           // unless it has moved on: to the button that asks again, or, with
@@ -728,6 +733,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
   selectTab(activeTab, { remember: false });
   syncToggles();
+  // The backup reminder's dot, on the tab, the toggles and the Settings tab (E113).
+  paintDots();
 
   /** Open the panel on "This verse" at `verse`, and put focus on its heading. */
   function showVerse(verse) {

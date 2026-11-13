@@ -116,6 +116,7 @@ import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
 import { createKindMenu } from "./kind-menu.js";
 import { createTitleMenu } from "./title-menu.js";
+import { factsFromStore, paintDots, startReminder } from "./reminder.js";
 import { createCommandRow } from "./command-row.js";
 import { setTip } from "../tip.js";
 import { createLeadReporter } from "./desk-lead.js";
@@ -669,6 +670,13 @@ async function start() {
     layoutWindow: { open: openMenu, close: closeMenu },
     printWindow: { open: openPrintMenu, close: closePrintMenu },
   });
+  // The backup reminder (E113): its dot on the title and its My Notebook item,
+  // and its bar, read from this page's own notebook.
+  if (store) {
+    startReminder({ surface: "desk", store, getFacts: () => factsFromStore(store) })
+      .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
+    paintDots();
+  }
   commands = createCommandRow({
     row: cmdRow, getLayout: () => layout, panesBox, commit, announce, inTour,
     layoutWindow: { open: openMenu, close: closeMenu },

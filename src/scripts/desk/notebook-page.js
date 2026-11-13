@@ -10,8 +10,8 @@
 // The page, top to bottom: My Notes (kept-list.js, which /desk's pane
 // of that name shares: filters by words, kind, highlight colour and label, a
 // count in words, and the records in Bible order); What's new for you (whats-new.js: the
-// release notes that touched their verses); Labels (make, rename, delete); Save a
-// copy and Open a copy (export-import.js); Trash, where a deleted item can be
+// release notes that touched their verses); Labels (make, rename, delete); Back up
+// your notebook and Merge a backup (export-import.js); Trash, where a deleted item can be
 // restored for its 30 days (trash-list.js; E12); and Delete in bulk: "Delete
 // all marks", "Delete all sheets" (Audit 8 decision 8; one "Delete everything"
 // until 2026-11-10) and the shared-computer button "Empty the trash now".
@@ -101,14 +101,14 @@ async function start() {
   createHistory({ store, ctx });
 
   root.innerHTML = `
-    <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you save a copy.</p>
+    <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you back it up.</p>
     <nav class="desk-np__jump" aria-label="On this page">
       <a href="#continue">Continue reading</a>
       <a href="#kept">My Notes</a>
       <a href="#whats-new">What’s new for you</a>
       <a href="#labels">Labels</a>
       <a href="#panel">The Notebook panel</a>
-      <a href="#backup">Save a copy</a>
+      <a href="#backup">Back up</a>
       <a href="#trash">Trash</a>
       <a href="#delete-everything">Delete in bulk</a>
     </nav>
@@ -140,7 +140,7 @@ async function start() {
     <section class="desk-np__section desk-backup" id="backup" data-np-backup></section>
     <section class="desk-np__section" id="trash" aria-labelledby="deskNpTrashTitle">
       <h2 class="desk-np__h2" id="deskNpTrashTitle">Trash</h2>
-      <p>What you delete waits here for ${TRASH_DAYS} days. Restore an item to put it back where it was; after ${TRASH_DAYS} days only a record that it was deleted remains, and a saved copy is the only way back.</p>
+      <p>What you delete waits here for ${TRASH_DAYS} days. Restore an item to put it back where it was; after ${TRASH_DAYS} days only a record that it was deleted remains, and a backup is the only way back.</p>
       <div data-np-trash-list></div>
     </section>
     <section class="desk-np__section" id="delete-everything" aria-labelledby="deskNpDeleteTitle">

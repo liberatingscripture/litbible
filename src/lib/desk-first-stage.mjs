@@ -108,6 +108,91 @@ export function peekNotebook({ idb, KeyRange, where, timeout = PEEK_TIMEOUT_MS }
   });
 }
 
+// The notebook's `meta` store and the key the backup code writes (META,
+// `lastExport`, in desk/store.js and desk/backup-file.js), repeated for the
+// reminder's look below; test/desk-reminder.test.js holds them equal.
+export const META_STORE = "meta";
+export const LAST_EXPORT_META = "lastExport";
+
+// Where the reader keeps the notebook, and the answer that asks for the
+// reminder (HOME_KEY and wantsReminder in desk-reminder.mjs), repeated so
+// stage one can tell without loading the reminder's code; the same test holds
+// them equal.
+export const REMIND_HOME_KEY = "lit-desk-home";
+export const REMIND_HOME = "browser-remind";
+
+/**
+ * What the backup reminder needs from the notebook, read without the shell
+ * (E113): when it was last backed up, and whether it holds a live record (a
+ * trash record is not one) that is `staleDays` or more old. Resolves
+ * `{ lastExport, hasRecords, oldest }`, or null when it can't tell, or when
+ * the browser has kept no notebook. `oldest` is the `created` time of the
+ * first live record found at least that old (all the rule needs, not the very
+ * oldest); with a backup on record, any live record will do, so the scan
+ * stops at the first, and the backup's own date is read from `meta` alone.
+ * Read-only, and never creates the database (see peekNotebook).
+ *
+ * @param {{ idb: IDBFactory, now: Date, staleDays?: number, timeout?: number }} options
+ */
+export function peekReminder({ idb, now, staleDays = 7, timeout = PEEK_TIMEOUT_MS }) {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (answer, db = null) => {
+      try { db?.close(); } catch (_) {}
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve(answer);
+    };
+    const timer = setTimeout(() => finish(null), timeout);
+    let open;
+    try {
+      open = idb.open(DB_NAME);
+    } catch (_) {
+      finish(null);
+      return;
+    }
+    open.onupgradeneeded = () => open.transaction.abort();
+    open.onerror = (e) => {
+      e?.preventDefault?.();
+      finish(null);
+    };
+    open.onsuccess = () => {
+      const db = open.result;
+      if (done) return finish(null, db);
+      try {
+        if (!db.objectStoreNames.contains(RECORDS) || !db.objectStoreNames.contains(META_STORE)) return finish(null, db);
+        const tx = db.transaction([META_STORE, RECORDS], "readonly");
+        const metaReq = tx.objectStore(META_STORE).get(LAST_EXPORT_META);
+        metaReq.onerror = () => finish(null, db);
+        metaReq.onsuccess = () => {
+          const stored = metaReq.result;
+          const iso = typeof stored === "string" ? stored : stored && typeof stored.at === "string" ? stored.at : null;
+          const lastExport = iso && Number.isFinite(Date.parse(iso)) ? iso : null;
+          const cutoff = now.getTime() - staleDays * 86_400_000;
+          // A backup newer than the cutoff means nothing is due; no scan.
+          if (lastExport && Date.parse(lastExport) > cutoff) return finish({ lastExport, hasRecords: false, oldest: null }, db);
+          const cursorReq = tx.objectStore(RECORDS).openCursor();
+          cursorReq.onerror = () => finish(null, db);
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (!cursor) return finish({ lastExport, hasRecords: false, oldest: null }, db);
+            const r = cursor.value;
+            if (r && r.kind !== "trash") {
+              const made = Date.parse(r.created ?? "");
+              if (lastExport) return finish({ lastExport, hasRecords: true, oldest: null }, db);
+              if (Number.isFinite(made) && made <= cutoff) return finish({ lastExport, hasRecords: true, oldest: r.created }, db);
+            }
+            cursor.continue();
+          };
+        };
+      } catch (_) {
+        finish(null, db);
+      }
+    };
+  });
+}
+
 /**
  * How far to move a floating panel (lit-panel.js) that grew after it was
  * placed, when the desk's rows arrive late, in px (negative is up), placing it

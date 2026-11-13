@@ -38,6 +38,7 @@ let clock = 0;
 let returnTo = null; // where focus was when the notice came up, for when the bar closes with focus in it
 let held = false; // the pointer is over the bar, or focus is in it
 let stays = false; // the notice showing is a keyless one: no closing time (E131)
+let onCloseHandler = null; // what the × does besides closing, for a bar of choices (E113)
 
 /** The modifier the reader presses: ⌘ on a Mac, Ctrl elsewhere. For labels and the spoken notice. */
 export function undoModifier() {
@@ -82,7 +83,13 @@ function build() {
       </button>
     </div>`;
   document.body.appendChild(el);
-  el.querySelector(".desk-undo__close").addEventListener("click", () => hideUndo());
+  el.querySelector(".desk-undo__close").addEventListener("click", () => {
+    // A bar of choices (showChoices) answers its ×, as "Remind me tomorrow" does.
+    const closing = onCloseHandler;
+    onCloseHandler = null;
+    hideUndo();
+    closing?.();
+  });
   // Held open while it is being read or used. Checked after the event, since
   // focus moving between the bar's own buttons passes through "out".
   const bar = el.querySelector(".desk-undo__bar");
@@ -149,6 +156,7 @@ export function showUndo(message, onAction, { label = "Undo", link = null, keyle
   noteFocus();
   const mine = ++shown;
   stays = keyless;
+  onCloseHandler = null;
   dropLink();
   const bar = root.querySelector(".desk-undo__bar");
   const text = root.querySelector(".desk-undo__text");
@@ -193,6 +201,71 @@ export function showUndo(message, onAction, { label = "Undo", link = null, keyle
   return mine;
 }
 
+/**
+ * Show the bar with several buttons, then an optional quiet link, then the ×
+ * (E113's backup reminder). Each choice is `{ label, primary?, quiet?, onPress }`;
+ * a primary one is the bar's one green button, a quiet one reads as a link.
+ * `onPress` may return a promise. When it finishes the bar closes, unless it
+ * put up a notice of its own, which is left alone; one that rejects says so
+ * on the bar and leaves the choices to try again. `onClose` runs when the ×
+ * is pressed. The bar stays until answered, closed or replaced (as
+ * `keyless` does), and wraps its buttons to further lines in a narrow window.
+ *
+ * @param {string} message
+ * @param {Array<{ label: string, primary?: boolean, quiet?: boolean, onPress: () => unknown }>} choices
+ * @param {{ onClose?: (() => void) | null }} [options]
+ * @returns {number} this notice's number, for hideUndo to take down just it
+ */
+export function showChoices(message, choices, { onClose = null } = {}) {
+  initUndo();
+  noteFocus();
+  const mine = ++shown;
+  stays = true;
+  dropLink();
+  const bar = root.querySelector(".desk-undo__bar");
+  const text = root.querySelector(".desk-undo__text");
+  const old = root.querySelector(".desk-undo__undo");
+  const gone = document.createElement("button");
+  gone.type = "button";
+  gone.className = "desk-undo__undo";
+  gone.hidden = true;
+  old.replaceWith(gone);
+  const group = document.createElement("div");
+  group.className = "desk-undo__choices";
+  group.setAttribute("role", "group");
+  group.setAttribute("aria-label", "Choices");
+  const buttons = choices.map((c) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = c.quiet ? "desk-undo__quiet" : c.primary ? "desk-undo__choice--primary" : "desk-undo__choice";
+    b.setAttribute("aria-describedby", "deskUndoText");
+    b.textContent = c.label;
+    b.addEventListener("click", async () => {
+      if (isBusy(b)) return;
+      const idle = busy(b);
+      try {
+        await c.onPress();
+        if (shown === mine) hideUndo();
+      } catch (err) {
+        console.error(`Study Desk: ${c.label.toLowerCase()} failed`, err);
+        if (shown !== mine) return;
+        text.textContent = "That didn’t work. Try again.";
+        announce(text.textContent);
+        idle();
+      }
+    });
+    return b;
+  });
+  group.append(...buttons);
+  gone.after(group);
+  onCloseHandler = onClose;
+  text.textContent = message;
+  bar.hidden = false;
+  announce(message);
+  startClock();
+  return mine;
+}
+
 /** A link for the bar: opens in a new tab, and says so to a screen reader. */
 function linkEl(link) {
   const a = document.createElement("a");
@@ -220,6 +293,7 @@ export function showNotice(message, { link = null } = {}) {
   noteFocus();
   shown++;
   stays = false;
+  onCloseHandler = null;
   dropLink();
   const button = root.querySelector(".desk-undo__undo");
   // Replaced rather than hidden in place, so a press already under way can't
@@ -254,12 +328,12 @@ export function hideUndo(notice) {
   if (hadFocus) giveFocusBack();
 }
 
-/** Take away the last notice's link, if it had one; focus on it moves to Close. */
+/** Take away the last notice's link and choices, if it had any; focus on one moves to Close. */
 function dropLink() {
-  const old = root.querySelector(".desk-undo__link");
-  if (!old) return;
-  if (document.activeElement === old) root.querySelector(".desk-undo__close").focus({ preventScroll: true });
-  old.remove();
+  for (const old of root.querySelectorAll(".desk-undo__link, .desk-undo__choices")) {
+    if (old.contains(document.activeElement)) root.querySelector(".desk-undo__close").focus({ preventScroll: true });
+    old.remove();
+  }
 }
 
 /** Remember where focus is as a notice comes up (not in the bar, not on the page's body). */

@@ -3302,7 +3302,13 @@ says so; where BVJ was wondering, nothing is decided.)
   line off a day and keeps the dots; “Not this week” puts off the line and
   the dots for seven days; “Turn off reminders” is the quiet link. The dots
   mean due and not put off for the week, and opening the Notebook doesn't
-  clear them. Status: decided; being built.
+  clear them. Built in #582, with three changes found in testing: the
+  reminder's code loads only for a reader who asked for reminders (it
+  had added 3.6 KB gzipped to every chapter page's first stage), the bar
+  brings `desk.css` with it on a page still in that stage (it drew
+  unstyled there), and after “Back up now” it says what /notebook says
+  for a download (“Started the download of …”; NB-19), since a page
+  can't see a cancelled save. Status: fixed (#582).
 - **E114, wish: ways straight into the Reading layout from outside the
   desk.** BVJ (2026-11-12): “I wonder if there’s a reasonable place(s) to
   link directly to the Reading layout from anywhere outside the Study Desk.”
@@ -3870,7 +3876,7 @@ the rest is polish.
     2026-11-12, not a decision). Nothing waits on BVJ (E113's last
     answers, 2026-11-13). Wave 1
     (a to d) is #563 to #567; wave 2 (e to i, all but E113 and E131) is
-    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578, #579, and #581).
+    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578, #579, #581, and #582).
     Shared files set the order; each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
        E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112
