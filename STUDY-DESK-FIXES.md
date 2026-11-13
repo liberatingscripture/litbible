@@ -3716,7 +3716,7 @@ says so; where BVJ was wondering, nothing is decided.)
   (`border-top`, ink at 0.15), and is italic, as a lone heading's prompt is.
   The line holds in every reader font and at every size; neither size was
   changed, since the tray's size is the reader's and the passage's is the
-  sheet's (E101, E109).
+  sheet's (E101, E109). Status: fixed (#584).
 - **E130, wording: “Chapter View” becomes “Scripture page” with the
   preview on.** BVJ (2026-11-12, in chat, after “Continue reading · Chapter
   View” showed in My Notes on /desk): “it still says ‘Chapter View’. That
