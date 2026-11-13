@@ -121,6 +121,19 @@ const parts = [
   <article class="nbhelp" aria-labelledby="nbhelp-title">
     <div class="nbhelp__layout">
 
+      {/* The title first, then the contents, then the text: a phone and a
+          screen reader meet the page's name before its list. On a wide
+          window the grid puts the contents beside both (desk-help.css). */}
+      <header class="nbhelp__header">
+        <h1 id="nbhelp-title" class="nbhelp__title">Study Desk help</h1>
+        <p class="nbhelp__lede">
+          The Study Desk is a preview of study tools for reading on a
+          computer. It is switched on for a few readers while it is tried
+          out. This page explains it, and you can read it whether or not it
+          is on for you.
+        </p>
+      </header>
+
       <nav class="nbhelp__toc" aria-labelledby="contents">
         <h2 id="contents" class="nbhelp__toc-title">On this page</h2>
         <ol class="nbhelp__toc-parts">
@@ -138,17 +151,6 @@ const parts = [
           ))}
         </ol>
       </nav>
-
-      <div class="nbhelp__main">
-        <header class="nbhelp__header">
-          <h1 id="nbhelp-title" class="nbhelp__title">Study Desk help</h1>
-          <p class="nbhelp__lede">
-            The Study Desk is a preview of study tools for reading on a
-            computer. It is switched on for a few readers while it is tried
-            out. This page explains it, and you can read it whether or not it
-            is on for you.
-          </p>
-        </header>
 
         <div class="nbhelp__body">
 
@@ -1211,7 +1213,6 @@ const parts = [
           </section>
 
         </div>
-      </div>
     </div>
   </article>
 </Layout>
