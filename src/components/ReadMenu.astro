@@ -243,7 +243,10 @@ const fallbackHref =
             const cur = getCurChapter();
             const ch = crossViewKey === curBook && /^\d+$/.test(cur) ? cur : "1";
             a.href = "/" + crossViewKey + "-" + ch;
-            a.textContent = "Open " + label(crossViewKey) + " in Chapter View →";
+            // E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13).
+            a.textContent =
+              "Open " + label(crossViewKey) +
+              (document.documentElement.dataset.desk === "on" ? " on Scripture pages →" : " in Chapter View →");
           } else if (document.documentElement.dataset.desk === "on") {
             // The Study Desk preview offers the desk where Read View would be
             // (E8, 8b), in its Reading layout (E114). The address is

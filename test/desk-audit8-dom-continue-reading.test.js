@@ -35,7 +35,7 @@ test("a kept place draws as a link to where the reader was, in the view it was k
   const link = row.querySelector("a");
   assert.equal(link.textContent, "John 3:16");
   assert.match(link.getAttribute("href"), /john-3/);
-  assert.match(row.textContent, /Continue reading · Chapter View/);
+  assert.match(row.textContent, /Continue reading · Scripture page/);
 
   keep({ book: "john", chapter: 3, verse: null, view: "read" });
   const read = continueSection();

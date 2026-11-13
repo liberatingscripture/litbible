@@ -11,6 +11,7 @@ import {
   referenceJumpLabel,
   makeStudyJumpHref,
   readingJumpLink,
+  deskEnabled,
   normalizePhrase,
   isExplicitlyQuoted,
   buildPfQuery,
@@ -216,7 +217,10 @@ function renderReferenceActions(jump) {
   const studyLink = document.createElement("a");
   studyLink.className = "search-ref__link";
   studyLink.setAttribute("href", makeStudyJumpHref(jump));
-  studyLink.textContent = isBook ? "Intro in Chapter View" : "Chapter View, with notes";
+  // E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13).
+  studyLink.textContent = deskEnabled()
+    ? (isBook ? "Book introduction" : "Scripture page, with notes")
+    : (isBook ? "Intro in Chapter View" : "Chapter View, with notes");
 
   wrapper.append(label, studyLink);
   if (!intro) {

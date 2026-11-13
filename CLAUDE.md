@@ -402,7 +402,9 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
   on the term lens and the verse menu were this rule before it had a name.
   Call them "Chapter View" and "Read View" in anything a reader sees
   ("Chapter View" was "Study View" until 2026-11-02, so STUDY-DESK.md and
-  FIXLIST.md still say that). Until
+  FIXLIST.md still say that). With the Study Desk preview on, labels say
+  "Scripture page" or "Scripture pages" instead (E130), the public name
+  from launch. Until
   2026-09-30 the site also said "Reading View" and "Reading Mode", as
   FIXLIST.md and older commits still do; the `rm-` classes and `read-mode.js`
   keep the old initials.

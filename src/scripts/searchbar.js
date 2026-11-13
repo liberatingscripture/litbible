@@ -448,6 +448,8 @@ const _initSearchbars = async () => {
       const readHint = reading.desk
         ? isBook ? "whole book, in Study Desk" : "in Study Desk, Reading layout"
         : isBook ? "whole book, in Read View" : "in Read View, whole book";
+      // E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13).
+      const scripturePage = reading.desk;
       const label = isBook
         ? bookKeyToLabel(jump.bookKey)
         : formatReferenceLabel(jump);
@@ -458,7 +460,9 @@ const _initSearchbars = async () => {
           <a class="searchbar__jump-link" href="${studyHref}">
             <span>Jump to <strong>${label}</strong></span>
             <span class="searchbar__jump-hint">${
-              isBook ? "intro, in Chapter View" : "in Chapter View, with notes"
+              scripturePage
+                ? (isBook ? "book introduction" : "Scripture page, with notes")
+                : (isBook ? "intro, in Chapter View" : "in Chapter View, with notes")
             }</span>
           </a>
           ${intro ? "" : `<a class="searchbar__jump-link searchbar__jump-link--read" href="${escapeHtml(reading.href)}">
@@ -469,8 +473,8 @@ const _initSearchbars = async () => {
         <div class="searchbar__jump-meta">
           <span class="searchbar__jump-keys">
             ${intro
-              ? "Enter: Chapter View"
-              : `Enter: Chapter View &nbsp;&middot;&nbsp; Shift+Enter: ${reading.desk ? "Study Desk" : "Read View"}`}
+              ? `Enter: ${scripturePage ? "Scripture page" : "Chapter View"}`
+              : `Enter: ${scripturePage ? "Scripture page" : "Chapter View"} &nbsp;&middot;&nbsp; Shift+Enter: ${reading.desk ? "Study Desk" : "Read View"}`}
           </span>
           <button type="button" class="searchbar__jump-search" data-jump-search>
             Search for this instead

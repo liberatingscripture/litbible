@@ -245,7 +245,7 @@ test("an inherited property name is not a book", () => {
 test("Continue reading is one row, with its address and the view it was kept in", () => {
   const item = continueItem({ book: "luke", chapter: 15, verse: 11, view: "study" });
   assert.equal(item.title, "Luke 15:11");
-  assert.equal(item.detail, "Continue reading · Chapter View");
+  assert.equal(item.detail, "Continue reading · Scripture page");
   assert.equal(item.href, "/luke-15/#v11");
   assert.equal(item.bookKey, "luke");
   const read = continueItem({ book: "john", chapter: 3, verse: null, view: "read" });

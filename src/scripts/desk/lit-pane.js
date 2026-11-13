@@ -287,7 +287,7 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
     // A link that leaves the desk opens apart, so the layout stays.
     a.target = "_blank";
     a.rel = "noopener noreferrer";
-    a.title = "Open in Chapter View";
+    a.title = "Open the Scripture page";
     h.append(a);
     // A group, not a region: a pane that has scrolled through sixty chapters would list sixty landmarks (DK-7).
     section.setAttribute("role", "group");

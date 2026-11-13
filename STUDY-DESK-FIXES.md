@@ -3612,28 +3612,37 @@ says so; where BVJ was wondering, nothing is decided.)
   font among them. Only the editor shows prompts (nothing prints, copies or
   presents them), and the Sheets tour's example sheet shows the same.
   Status: open, for mocks.
-- **E130, wording: “Chapter View” becomes “Scripture page” everywhere.**
-  BVJ (2026-11-12, in chat, after “Continue reading · Chapter View” showed
-  in My Notes on /desk): “it still says ‘Chapter View’. That should be
-  replaced everywhere with Scripture page(s).” The form is the one /read's
-  Study Desk card already uses, capitalized (“Scripture pages,” “View
-  Scripture page”). The scope is E20's rename's (#440), which made “Study
-  View” “Chapter View”:
-  - every string a reader sees or hears: the search tray's and /search's
-    jump links and keys line, the chapter picker's footer in Read View,
-    Read View's switch and its label, /read's public card, Continue
-    reading's line (`VIEW_NAMES`, `desk-bookmarks.mjs`), This chapter's
-    link, the LIT pane's “Open in Chapter View,” the help page, the tours
-    and the commands;
-  - the tests, the comments, and the CLAUDE docs, the root's naming rule
-    (“Call them ‘Chapter View’ and ‘Read View’…”) included.
-  Code and storage names stay (`view: "study"`, `scriptureControls`
-  “study”), and the records (`STUDY-DESK.md`, this file, the audits) keep
-  the old name, as they kept “Study View.” A label is reworded where a
-  plain swap reads badly (a view is “in,” a page is “on”), and the build
-  lists every new label for BVJ. Read View keeps its name until it retires
-  at launch. Built after E114 merges, since both change the tray's and
-  /search's labels. Status: open, decided.
+- **E130, wording: “Chapter View” becomes “Scripture page” with the
+  preview on.** BVJ (2026-11-12, in chat, after “Continue reading · Chapter
+  View” showed in My Notes on /desk): “it still says ‘Chapter View’. That
+  should be replaced everywhere with Scripture page(s).” The form is the one
+  /read's Study Desk card already uses, capitalized, singular or plural as
+  the sentence needs (“Scripture pages,” “View Scripture page”); “(s)” was
+  shorthand, never a label. **Then, while it was being built: “This change
+  is only for the preview gate.”** So with the preview off every reader
+  still sees “Chapter View,” and the public wording changes at launch
+  (`src/scripts/desk/CLAUDE.md`, Launching, item 13):
+  - **Desk-only strings changed outright**: Continue reading's line
+    (`VIEW_NAMES`, `desk-bookmarks.mjs`: “Continue reading · Scripture
+    page”), This chapter's link (“Read Romans 8 on its Scripture page”),
+    the LIT pane heading's title (“Open the Scripture page”), and six
+    sentences of the help page (“On a Scripture page, …”).
+  - **Shared strings follow the preview**, the old wording without it: the
+    search tray's first hint (“Scripture page, with notes”; a book's
+    “book introduction”) and keys line (“Enter: Scripture page”), /search's
+    first link (“Scripture page, with notes,” “Book introduction”), the
+    chapter picker's footer in Read View (“Open Romans on Scripture
+    pages →”), and Read View's switch (“Scripture page,” two spans swapped
+    by `read-mode.css`, and its name “Switch to the Scripture page for
+    Romans chapter 8,” set by `read-mode.js`). /read's card already
+    swapped its wording this way (E33) and is unchanged.
+  - **Comments, tests' names and the CLAUDE docs keep “Chapter View”**
+    until launch, since it is still the public name; the root's naming rule
+    gains one sentence. Code and storage names stay (`view: "study"`,
+    `scriptureControls` “study”), and the records keep the old name.
+  An introduction is the book's, not a Scripture page, so its link says
+  “book introduction.” Read View keeps its name until it retires at launch.
+  Status: built (preview only).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
