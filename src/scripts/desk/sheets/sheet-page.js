@@ -44,7 +44,9 @@
 //   straight away (the Sheets pane's "Present…"), and `&view=presenter` is the
 //   presenter view's own window.
 // - **Share…** (3k, S8): the sheet in a link's fragment or in a file
-//   (desk-sheet-share.mjs), the whole sheet or the participant copy's parts.
+//   (desk-sheet-share.mjs): the participant's version (the default), with
+//   the answer key if the sharer checks "Include the answer key" in the
+//   dialog (E122), or the leader's version.
 //   The file is "Export a sheet file (.md)" (EXPORT_LABEL; E37 renamed it from
 //   "Save as a file", Audit 8 decision 9 from "a Study Desk file"), so "Save as" means only a document for another program.
 // - **A shared sheet**: `/sheets/#share1.<data>`, whose fragment the page's
@@ -52,7 +54,8 @@
 //   the analytics beacon could read the address, or a file opened with "Import a
 //   sheet file" (BVJ, 2026-11-06, 2026-11-10; "Import a shared file" until then). Shown like the reader's own, read only, with "Import into my
 //   notebook", which saves it as a new sheet of theirs. A participant share offers
-//   the participant copy only.
+//   the participant copy only, with the answer key as its last page when the
+//   share says `answerKey` (E122); the imported sheet never keeps that.
 // - **A shared sheet on a phone or tablet** (BVJ, 2026-11-08, Audit 6 NB6-8,
 //   from a mock): the one way the desk's code reaches a phone.
 //   sheet-share-gate.js imports this file there for a shared link alone and
@@ -488,7 +491,7 @@ async function showShared(root, store, fragment, { phone = false } = {}) {
     if (store) root.append(openFileRow(root, store));
     return;
   }
-  await drawSheet(root, { sheet: opened.sheet, store, shared: opened.scope, phone, fragment });
+  await drawSheet(root, { sheet: opened.sheet, store, shared: opened.scope, sharedKey: opened.answerKey, phone, fragment });
 }
 
 async function showSheet(root, store, id, view = null) {
@@ -553,6 +556,8 @@ function lineUpChecks(bar, rows, checks) {
  * The sheet's page: its toolbar and the copy on screen. `shared` is the scope
  * of a sheet someone shared ("leader" or "participant"), which is shown read
  * only with "Import into my notebook"; absent for the reader's own.
+ * `sharedKey` is a participant share's `answerKey` (E122): the sharer sent
+ * the answer key, so the copy ends with it, on screen and on paper.
  *
  * `demo` is the Sheets tour's (E63): the versions of the tour's sheet, which
  * is never saved, drawn as for the reader's own. It leaves out the links row
@@ -563,7 +568,7 @@ function lineUpChecks(bar, rows, checks) {
  * The presenter view's window reads the sheet from the notebook, so it can't
  * find this one; a reader who opens it has left the tour's script.
  */
-async function drawSheet(root, { sheet, store, view = null, shared = null, phone = false, fragment = null, demo = null }) {
+async function drawSheet(root, { sheet, store, view = null, shared = null, sharedKey = false, phone = false, fragment = null, demo = null }) {
   const id = sheet.id;
   const n0 = viewSeq;
   const copies = shared === "participant" ? ["participant"] : COPIES;
@@ -609,7 +614,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   codeBox.title = "A QR code beside each chapter’s first passage, which opens it in the LIT app or on litbible.net";
   // The group's answer key (E102; BVJ, 2026-11-11, Fable's option B) belongs
   // to the participant's version, so it shows there only, and only for the
-  // reader's own sheet: a shared link's reader never makes one.
+  // reader's own sheet: a shared link's reader never makes one, and sees a
+  // key only when the sharer sent it (`sharedKey`, E122).
   const keyBox = make("label", "sheets-page__keybox");
   const keyInput = make("input");
   keyInput.type = "checkbox";
@@ -678,10 +684,7 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   // unless the reader says otherwise (BVJ, 2026-11-10, Audit 8 decision 5).
   let phoneScope = "participant";
   const phoneScopeChoice = phone && shared === "leader"
-    ? choices("sheet-phone-share-scope", "Share", [
-        ["participant", "The participant’s version, without answers or Leader only parts"],
-        ["leader", "Everything, for another leader"],
-      ], phoneScope, (v) => { phoneScope = v; })
+    ? choices("sheet-phone-share-scope", "Share", SHARE_SCOPE_NAMES, phoneScope, (v) => { phoneScope = v; })
     : null;
   if (phone) {
     root.classList.add("sheets-page--phone");
@@ -719,9 +722,10 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
   leaksBox.hidden = true;
   // While the group's answer key is on the paper, a quiet line says where it
   // prints (E102), since a leader who prints and staples hands it out.
-  const keyNote = make("p", "sheets-page__key-note", "The answer key prints as the last page. Hold it back if you want the group to fill in the blanks first.");
+  // A shared sheet's key came with the link (E122): its reader is told only where it prints.
+  const keyNote = make("p", "sheets-page__key-note", shared ? "The answer key prints as the last page." : "The answer key prints as the last page. Hold it back if you want the group to fill in the blanks first.");
   keyNote.hidden = true;
-  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone })] : []), bar, checkBox, leaksBox, keyNote, paperBox);
+  root.replaceChildren(...(shared && !demo ? [sharedBanner(root, sheet, store, shared, { phone, answerKey: sharedKey })] : []), bar, checkBox, leaksBox, keyNote, paperBox);
   // A sheet marked commercial asks before it leaves the page when it goes
   // beyond the commercial terms, and never blocks (E94; commercial-confirm.js).
   // A shared sheet and the tour's are not the reader's project.
@@ -740,7 +744,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, phone
     commercial?.refresh();
     paperBox.setAttribute("aria-busy", "true");
     keyBox.hidden = !keyOffered();
-    ready = renderCopy(sheet, { copy, codes, answerKey: answerKey && keyOffered() })
+    // The reader's own box, or the key a participant share brought (E122).
+    ready = renderCopy(sheet, { copy, codes, answerKey: shared ? sharedKey && copy === "participant" : answerKey && keyOffered() })
       .then(async (el) => {
         if (n !== seq) return;
         current = el;
@@ -979,9 +984,11 @@ function drawLeaks(box, leaks) {
  * On a phone, Share… hands a link to the phone's share sheet (NB6-8). A
  * participant link is forwarded as it came, so a participant share stays one.
  * A leader link is forwarded as the participant's version unless the reader
- * chose "Everything" (BVJ, 2026-11-10, Audit 8 decision 5); that version is
- * made by shareLink, never by hand. Where there is no share sheet, it copies
- * the link instead.
+ * chose the leader's version (BVJ, 2026-11-10, Audit 8 decision 5); that
+ * version is made by shareLink, never by hand, and without the answer key,
+ * which only the Share dialog's box sends (E122). A participant link that
+ * came with the key keeps it, being forwarded as it came. Where there is no
+ * share sheet, it copies the link instead.
  */
 async function sharePhone(sheet, fragment, say, { received, chosen }) {
   let url = `${location.origin}${BASE}sheets/#${fragment}`;
@@ -1012,7 +1019,7 @@ async function sharePhone(sheet, fragment, say, { received, chosen }) {
 }
 
 /** "Shared with you", with "Import into my notebook" (on a computer). */
-function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
+function sharedBanner(root, sheet, store, scope, { phone = false, answerKey = false } = {}) {
   const box = make("div", "sheets-page__shared");
   box.setAttribute("role", "region");
   box.setAttribute("aria-label", "A shared sheet");
@@ -1028,7 +1035,7 @@ function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
     strong,
     document.createTextNode(
       scope === "participant"
-        ? "This is the participant’s version of a sheet. It isn’t in your notebook until you import it."
+        ? `This is the participant’s version of a sheet${answerKey ? ", with its answer key" : ""}. It isn’t in your notebook until you import it.`
         : "This sheet isn’t in your notebook until you import it.",
     ),
   );
@@ -1072,39 +1079,89 @@ function sharedBanner(root, sheet, store, scope, { phone = false } = {}) {
   return box;
 }
 
-/** The Share dialog: a link (and its code, when it is short enough) or a file. */
+/** What the Share dialog's choices are called; a phone's forwarding choice uses them too. */
+const SHARE_SCOPE_NAMES = [
+  ["participant", "The participant’s version"],
+  ["leader", "The leader’s version"],
+];
+
+/**
+ * The Share dialog's "Sends:" line (E122): what the choice in hand puts in
+ * the link or the file, in one sentence. `blanks` is whether the
+ * participant's version has any blank to leave empty.
+ */
+export function shareSends({ scope, answerKey, blanks }) {
+  if (scope === "leader") return "everything, with every answer and Leader only part. For someone who leads with you.";
+  if (answerKey) return "the participant’s version, and the answer key as its last page. No Leader only parts, and no answers to questions.";
+  return blanks
+    ? "the sheet with its blanks empty. No Leader only parts, and no answers to questions."
+    : "the participant’s version. No Leader only parts, and no answers to questions.";
+}
+
+/**
+ * The Share dialog: a link (and its code, when it is short enough) or a file.
+ *
+ * E122 (BVJ, 2026-11-12): the choice is a version, the participant's (the
+ * default; Audit 8 decision 5) or the leader's, and under the participant's
+ * a box, "Include the answer key", which **always starts unchecked** and
+ * never reads the page's "Add answer key": a key goes out only when the
+ * sharer says so here. One tinted line, "Sends: …", says what the choice
+ * puts in the link. Nothing here promises the blanks' answers stay back:
+ * they are the LIT's own words and travel in every share, so the no-key
+ * state says once that whoever imports the sheet can add the key.
+ */
 function openShareDialog(sheet, opener) {
   const dialog = make("dialog", "sheets-page__dialog");
   dialog.setAttribute("aria-labelledby", "sheet-share-title");
   const h = make("h2", null, "Share this sheet");
   h.id = "sheet-share-title";
-  // The participant's version is the default, so a leader who is unsure and
-  // presses Copy link sends no answers or Leader only parts (BVJ, 2026-11-10,
-  // Audit 8 decision 5).
   let scope = "participant";
-  const scopeChoice = choices("sheet-share-scope", "What to share", [
-    ["participant", "The participant’s version, without answers or Leader only parts"],
-    ["leader", "Everything, for another leader"],
-  ], scope, (v) => {
+  let answerKey = false;
+  // A key needs a blank the participant's version prints: without one the
+  // box and its note say nothing true, so neither shows.
+  const blanks = (sheet.modules ?? []).some((m) => m?.type === "passage" && m.leaderOnly !== true && m.blanks?.length > 0);
+  const scopeChoice = choices("sheet-share-scope", "What to share", SHARE_SCOPE_NAMES, scope, (v) => {
     scope = v;
     refresh();
   });
-  // The note says the link is long because the sheet is in it (E58; BVJ,
-  // 2026-11-08): a first link read as a few hundred random characters.
+  const keyBox = make("label", "sheets-page__dialog-key");
+  const keyInput = make("input");
+  keyInput.type = "checkbox";
+  keyInput.name = "sheet-share-key";
+  keyInput.addEventListener("change", () => {
+    answerKey = keyInput.checked;
+    refresh();
+  });
+  keyBox.append(keyInput, document.createTextNode(" Include the answer key"));
+  // Under the participant's version, which it belongs to.
+  scopeChoice.querySelector("label")?.after(keyBox);
+  const keyHint = describe(keyInput, "Adds a last page with each blank’s answer by verse.");
+  // What goes out, said again as the choice changes (a polite live region).
+  const sends = make("p", "sheets-page__dialog-sends");
+  sends.setAttribute("aria-live", "polite");
+  const sendsText = make("span");
+  sends.append(make("strong", null, "Sends: "), sendsText);
+  const keyNote = make(
+    "p",
+    "sheets-page__dialog-note",
+    "The blanks’ answers are words of the LIT, so anyone who imports the sheet can add the key themselves.",
+  );
+  // Why the link is long (E58; BVJ, 2026-11-08): a first link read as a few
+  // hundred random characters.
   const note = make(
     "p",
     "sheets-page__dialog-note",
-    "The link is long because the whole sheet is in it: litbible.net never sees or stores it. Anyone who has the link can open it (on a phone to read, present, or print it, or on a computer to keep it too), and any service that carries it, such as email, can read it, so send the participant’s version when you’re unsure. The passages are read from the LIT when it is opened.",
+    "Anyone with the link can open the sheet. The link is long because the whole sheet is in it; litbible.net never sees or stores it.",
   );
   const copyLink = button("Copy link", "desk-sheet__btn desk-sheet__btn--primary");
   const saveFile = button(EXPORT_LABEL);
   saveFile.title = `A sheet file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page`;
   const saveFileHint = describe(saveFile, `A sheet file (.md) of the sheet, which opens on another computer with “${IMPORT_LABEL}” on the Sheets page.`);
-  // Save as is the other kind of file (E37), and a PDF comes from Print: say where both are.
+  // Save as is the other kind of file (E37), and a PDF is there too: say where.
   const fileNote = make(
     "p",
-    "sheets-page__dialog-note",
-    `A sheet file (.md) opens on another computer with “${IMPORT_LABEL}” on the Sheets page. To open the sheet in Word or another program, use Save as. For a PDF, choose Print, then “Save as PDF” in the print window.`,
+    "sheets-page__dialog-note sheets-page__dialog-note--after",
+    `A sheet file (.md) opens with “${IMPORT_LABEL}” on the Sheets page. For a Word document or a PDF, use Save as on the sheet’s page.`,
   );
   const status = make("p", "sheets-page__status");
   status.setAttribute("role", "status");
@@ -1115,16 +1172,24 @@ function openShareDialog(sheet, opener) {
   const cancel = button("Cancel");
   const row = make("div", "sheets-page__dialog-actions");
   row.append(copyLink, saveFile, cancel);
-  dialog.append(x, h, scopeChoice, note, row, fileNote, status, code, saveFileHint);
+  dialog.append(x, h, scopeChoice, sends, keyNote, note, row, fileNote, status, code, saveFileHint, keyHint);
   document.body.append(dialog);
 
+  /** What the link and the file are made with: the key only rides a participant's version. */
+  const opts = () => ({ scope, answerKey: scope === "participant" && answerKey });
   let link = "";
   let seq = 0;
   async function refresh() {
     const n = ++seq;
+    const withKey = opts().answerKey;
+    keyBox.hidden = scope !== "participant" || !blanks;
+    keyNote.hidden = scope !== "participant" || !blanks || withKey;
+    sendsText.textContent = shareSends({ scope, answerKey: withKey, blanks });
+    // The line under the buttons spoke of the choice before this one.
+    status.textContent = "";
     copyLink.disabled = true;
     try {
-      const made = await shareLink(sheet, { origin: location.origin, base: BASE, scope });
+      const made = await shareLink(sheet, { origin: location.origin, base: BASE, ...opts() });
       if (n !== seq) return;
       link = made;
     } catch (err) {
@@ -1133,6 +1198,7 @@ function openShareDialog(sheet, opener) {
       return;
     }
     copyLink.disabled = false;
+    // The code is the link's, so it is drawn again whenever the choice changes it.
     code.replaceChildren();
     if (link.length <= QR_LINK_LIMIT) {
       const img = make("img");
@@ -1146,16 +1212,18 @@ function openShareDialog(sheet, opener) {
     }
   }
   copyLink.addEventListener("click", async () => {
+    const withKey = opts().answerKey;
     try {
       await navigator.clipboard.writeText(link);
-      status.textContent = "Link copied. It is long because the sheet is in it. Paste it into an email or a message.";
+      status.textContent = `Link copied${withKey ? ", with the answer key" : ""}. Paste it into an email or a message.`;
     } catch (_) {
       status.textContent = `Your browser didn’t allow the copy. Choose ${EXPORT_LABEL} instead.`;
     }
   });
   saveFile.addEventListener("click", async () => {
+    const o = opts();
     try {
-      const text = await shareFile(sheet, { scope });
+      const text = await shareFile(sheet, o);
       const a = make("a");
       a.href = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
       a.download = shareFileName(sheet);
@@ -1163,7 +1231,7 @@ function openShareDialog(sheet, opener) {
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-      status.textContent = `Saved ${a.download}. Send it as an attachment.`;
+      status.textContent = `Saved ${a.download}${o.answerKey ? ", with the answer key" : ""}. Send it as an attachment.`;
     } catch (err) {
       console.error("Study Desk: couldn't save the file", err);
       status.textContent = copyLink.disabled

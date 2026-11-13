@@ -327,3 +327,35 @@ test("BA87: a crafted file of unclosed whitespace is read in linear time", () =>
   assert.throws(() => fragmentInFile("<!-- lit-sheet share1." + " ".repeat(500_000)), (e) => e.code === "damaged");
   assert.ok(performance.now() - started < 1000, "took too long");
 });
+
+// E122 (BVJ, 2026-11-12): a participant share may ask for its answer key to
+// be shown. A display instruction, never part of a sheet record.
+
+test("E122: answerKey rides a participant share only, and only when true", async () => {
+  assert.equal(sharedSheet(sample(), { scope: "participant", answerKey: true }).answerKey, true);
+  assert.equal("answerKey" in sharedSheet(sample(), { scope: "participant" }), false);
+  assert.equal("answerKey" in sharedSheet(sample(), { scope: "leader", answerKey: true }), false);
+  // A share without the key is byte for byte what it was before the field existed.
+  assert.equal(await shareFragment(sample(), { scope: "participant", answerKey: false }), await shareFragment(sample(), { scope: "participant" }));
+  assert.notEqual(await shareFragment(sample(), { scope: "participant", answerKey: true }), await shareFragment(sample(), { scope: "participant" }));
+});
+
+test("E122: opening a share hands answerKey back beside the scope, and no record holds it", async () => {
+  const withKey = await openShare(await shareFragment(sample(), { scope: "participant", answerKey: true }), ctx);
+  assert.equal(withKey.scope, "participant");
+  assert.equal(withKey.answerKey, true);
+  assert.equal("answerKey" in withKey.sheet, false);
+  assert.deepEqual(validateRecord(withKey.sheet), []);
+  const mine = copyOfShared(withKey.sheet, { ...ctx, client: "web-other" });
+  assert.equal(JSON.stringify(mine).includes("answerKey"), false);
+  // The blank's words travel either way: the key is shown or not, never withheld.
+  assert.equal(mine.modules.find((m) => m.type === "passage").blanks[0].exact, "life-breath");
+  assert.equal((await openShare(await shareFragment(sample(), { scope: "participant" }), ctx)).answerKey, false);
+  assert.equal((await openShare(await shareFragment(sample(), { scope: "leader", answerKey: true }), ctx)).answerKey, false);
+});
+
+test("E122: a sheet file carries the same answerKey in its data line", async () => {
+  const file = await shareFile(sample(), { scope: "participant", answerKey: true });
+  assert.equal((await openShare(fragmentInFile(file), ctx)).answerKey, true);
+  assert.equal((await openShare(fragmentInFile(await shareFile(sample(), { scope: "participant" })), ctx)).answerKey, false);
+});

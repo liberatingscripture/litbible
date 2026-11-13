@@ -18,6 +18,14 @@
 // editor's prompts, and every part of a type this version doesn't know (whose
 // fields it can't vouch for), so the link can go to the room.
 //
+// A participant share may also say `answerKey: true` (E122; BVJ, 2026-11-12):
+// the sharer chose "Include the answer key", so the page that opens the share
+// shows the key as the participant's version's last page. It is a display
+// instruction, never data: the key is still built from the passages' blanks,
+// whose words every share carries (a blank *is* its words, and they are the
+// LIT's own text, so no share could keep them back). It is never part of a
+// sheet record, so importing the sheet drops it.
+//
 // Opening one never trusts it: the data is decompressed with a ceiling (a
 // small link can't grow into something huge), parsed, rebuilt as a sheet
 // record with fresh ids, its formatted text sanitized (cleanSheetText), and
@@ -174,9 +182,11 @@ function plainModule(m, scope) {
  * What a share of `sheet` holds, as a plain object: the shared sheet's JSON.
  *
  * @param {object} sheet a sheet record
- * @param {{ scope?: "leader" | "participant" }} [opts]
+ * @param {{ scope?: "leader" | "participant", answerKey?: boolean }} [opts]
+ *   `answerKey`: a participant share that shows the answer key when opened
+ *   (E122). Ignored on a leader share, whose version shows every answer.
  */
-export function sharedSheet(sheet, { scope = "leader" } = {}) {
+export function sharedSheet(sheet, { scope = "leader", answerKey = false } = {}) {
   if (sheet?.kind !== "sheet") throw new Error("desk-sheet-share: not a sheet");
   if (!SHARE_SCOPES.includes(scope)) throw new Error(`desk-sheet-share: unknown scope "${scope}"`);
   const modules = (sheet.modules ?? [])
@@ -195,6 +205,8 @@ export function sharedSheet(sheet, { scope = "leader" } = {}) {
     modules,
   };
   if (sheet.commercial === true) out.commercial = true;
+  // Written only when true, so a share without the key is byte for byte what it was.
+  if (scope === "participant" && answerKey === true) out.answerKey = true;
   // The size the sheet prints at travels with it (E101); absent is the standard.
   if (sheetTextSize(sheet) !== SHEET_TEXT_SIZE) out.textSize = sheetTextSize(sheet);
   return out;
@@ -370,11 +382,14 @@ export const isShareFragment = (fragment) => String(fragment ?? "").replace(/^#/
 
 /**
  * The shared sheet a fragment holds, as a sheet record ready to show (not
- * yet saved anywhere), with `scope` beside it. Throws a ShareError.
+ * yet saved anywhere), with `scope` beside it, and `answerKey`: whether a
+ * participant share asks for its answer key to be shown (E122). The sheet
+ * record never holds that, so saving the sheet (copyOfShared) drops it.
+ * Throws a ShareError.
  *
  * @param {string} fragment with or without its `#`
  * @param {{ now?: string, client: string, id?: string, newId?: () => string }} ctx
- * @returns {Promise<{ sheet: object, scope: "leader" | "participant" }>}
+ * @returns {Promise<{ sheet: object, scope: "leader" | "participant", answerKey: boolean }>}
  */
 export async function openShare(fragment, ctx) {
   const text = String(fragment ?? "").replace(/^#/, "");
@@ -386,7 +401,8 @@ export async function openShare(fragment, ctx) {
   } catch (_) {
     throw new ShareError("damaged");
   }
-  return { sheet: sheetFromShared(data, ctx), scope: data.scope === "participant" ? "participant" : "leader" };
+  const scope = data.scope === "participant" ? "participant" : "leader";
+  return { sheet: sheetFromShared(data, ctx), scope, answerKey: scope === "participant" && data.answerKey === true };
 }
 
 /** The shared sheet `data` as a sheet record with fresh ids. Throws a ShareError. */
