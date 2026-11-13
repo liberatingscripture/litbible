@@ -779,7 +779,11 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   region) restates the choice; the link, its QR code and the status line are
   made again whenever the choice changes. (5) The commercial check (rule 19)
   still comes first, in its own dialog. `share1.` did not change: the field
-  is optional and an older reader shows no key. The Share dialog's button for that
+  is optional and an older reader shows no key. (6) **Copy link stays the
+  primary button, and the file the second** (BVJ, 2026-11-12): the default
+  recipient often reads on a phone, where a link opens and a file can't,
+  and the dialog's QR code is the link. A link over 4,000 characters adds
+  a note that a file is safer; the primary never swaps by length. The Share dialog's button for that
   file is "Export a sheet file (.md)" and the Sheets page's is
   "Import a sheet file" (`EXPORT_LABEL`, `IMPORT_LABEL` in
   `sheet-page.js`; BVJ, 2026-11-06; "a Study Desk file" until Audit 8
