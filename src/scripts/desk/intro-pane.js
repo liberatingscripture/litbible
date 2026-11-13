@@ -67,7 +67,8 @@ function loadIntro(bookKey) {
         if (!section) return { draft: true, body: null };
         // Made inert before the pane imports a node of it (SEC3-2), as a chapter's parts are.
         const kept = document.implementation.createHTMLDocument("");
-        kept.body.append(makeInert(section));
+        // The site's own /images/ pictures stay (E120: Matthew's chart); nothing else loads.
+        kept.body.append(makeInert(section, { siteImages: true }));
         return { draft: false, body: section };
       });
     p.catch(() => cache.delete(bookKey));

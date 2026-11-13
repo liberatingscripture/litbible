@@ -1235,12 +1235,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
        foot), and Greek `tab-greek.js`. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
-       **Book Intro is `intro-pane.js`** (E53; BVJ, 2026-11-06): a follower
+       **Book Intro is `intro-pane.js`** (E53): a follower
        whose place is a passage like the others' but which reads only its
        book, so the LIT pane's place stays a verse and no other follower
        meets an introduction. It reads the built `/romans-intro/` page
-       (`introPath` is the fetch's guard, as `chapterPath` is a chapter's),
-       its headings moved two levels down under the pane's. A plain click on
+       (`introPath` guards the fetch),
+       its headings moved two levels down under the pane's. Site images under /images/ stay (E120). A plain click on
        an `a.sref` in it moves the LIT pane (`env.showPassage`), and the pane
        **holds its book while the LIT shows the passage it sent**, until the
        LIT moves to any other book; every other link opens a new tab.
