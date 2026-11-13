@@ -10,6 +10,8 @@ import {
   bookKeyToLabel,
   parseReference,
   parseBookOnly,
+  parseReferenceJump,
+  makeStudyJumpHref,
   formatReferenceLabel,
   makeStudyReferenceHref,
   makeReadReferenceHref,
@@ -437,6 +439,8 @@ const _initSearchbars = async () => {
       }
 
       const isBook = jump.kind === "book";
+      // A book's introduction has no Read View link: Shift+Enter does what Enter does.
+      const intro = isBook && jump.intro === true;
       const studyHref = isBook
         ? makeStudyBookHref(jump.bookKey)
         : makeStudyReferenceHref(jump);
@@ -456,16 +460,18 @@ const _initSearchbars = async () => {
               isBook ? "intro, in Chapter View" : "in Chapter View, with notes"
             }</span>
           </a>
-          <a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
+          ${intro ? "" : `<a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
             <span>Jump to <strong>${label}</strong></span>
             <span class="searchbar__jump-hint">${
               isBook ? "whole book, in Read View" : "in Read View, whole book"
             }</span>
-          </a>
+          </a>`}
         </div>
         <div class="searchbar__jump-meta">
           <span class="searchbar__jump-keys">
-            Enter: Chapter View &nbsp;&middot;&nbsp; Shift+Enter: Read View
+            ${intro
+              ? "Enter: Chapter View"
+              : "Enter: Chapter View &nbsp;&middot;&nbsp; Shift+Enter: Read View"}
           </span>
           <button type="button" class="searchbar__jump-search" data-jump-search>
             Search for this instead
@@ -958,13 +964,7 @@ const _initSearchbars = async () => {
           return;
         }
 
-        const ref = parseReference(q);
-        const bookOnly = !ref ? parseBookOnly(q) : null;
-        const jump = ref
-          ? { kind: "ref", ...ref }
-          : bookOnly
-            ? { kind: "book", ...bookOnly }
-            : null;
+        const jump = parseReferenceJump(q);
         const hasJump = !!jump;
 
         // Show jump row (if any) AND keep searching for results.
@@ -1330,15 +1330,10 @@ const _initSearchbars = async () => {
       }
 
       if (!forceSearch) {
-        const ref = parseReference(q);
-        if (ref) {
-          window.location.href = makeStudyReferenceHref(ref);
-          return;
-        }
-
-        const bookOnly = parseBookOnly(q);
-        if (bookOnly) {
-          window.location.href = makeStudyBookHref(bookOnly.bookKey);
+        // A reference, a book, or a book's introduction ("Matthew intro").
+        const jump = parseReferenceJump(q);
+        if (jump) {
+          window.location.href = makeStudyJumpHref(jump);
           return;
         }
       }

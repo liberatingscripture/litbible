@@ -154,10 +154,44 @@ test("GF8a-4: a query too short to search clears what the last one left", async 
   type(input, "lo");
   assert.match(statusOf($), /Type 3 or more letters/);
   assert.equal($(".desk-search__groups").children.length, 0, "the old results are gone");
-  assert.equal($(".desk-search__page").hidden, true, "so is the link to a search that is no longer there");
+  assert.equal($(".desk-search__page").textContent, "Open the search page", "the link now opens /search, with no search in it (E115)");
+  assert.equal($(".desk-search__page a").getAttribute("href"), "/search/");
   assert.equal($(".desk-search__note").hidden, true);
   await settle(250);
   assert.equal($(".desk-search__groups").children.length, 0, "and no search was left running");
+});
+
+test("E115: the search page link is there before anything is typed, and reads “Open the search page”", async () => {
+  const { $, input } = mount();
+  assert.equal($(".desk-search__page").hidden, false, "shown on the first draw");
+  assert.equal($(".desk-search__page a").textContent, "Open the search page");
+  assert.equal($(".desk-search__page a").getAttribute("href"), "/search/");
+  // Escape and the field's clear button send `search`, not `input`.
+  type(input, "loved");
+  await until(() => statusOf($) !== "");
+  input.value = "";
+  input.dispatchEvent(new window.Event("search", { bubbles: true }));
+  assert.equal($(".desk-search__page a").textContent, "Open the search page", "emptied again");
+  assert.equal($(".desk-search__page a").getAttribute("href"), "/search/");
+});
+
+test("E115: a search turns the link into “See results on the search page”, and it carries the search", async () => {
+  const { $, input, typeSel } = mount();
+  pickKind(typeSel, "keyword");
+  type(input, "loved");
+  await answered($);
+  assert.equal($(".desk-search__page a").textContent, "See results on the search page");
+  assert.equal($(".desk-search__page a").getAttribute("href"), "/search/?q=loved&mode=keyword");
+});
+
+test("E115: with a book filter set, the empty-box link keeps it", async () => {
+  const { $, input } = mount();
+  const book = $("select[aria-label='Book']");
+  book.value = "john";
+  book.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert.equal($(".desk-search__page a").getAttribute("href"), "/search/?book=john");
+  type(input, "lo");
+  assert.equal($(".desk-search__page a").getAttribute("href"), "/search/?book=john");
 });
 
 // A failed glossary load comes before any success, since a loaded page is kept.

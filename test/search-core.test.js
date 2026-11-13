@@ -148,6 +148,41 @@ test("parseReferenceJump: an unresolvable query returns null", () => {
   assert.equal(parseReferenceJump("qwerty"), null);
 });
 
+// A book's introduction (the book is resolved by parseBookOnly, so every alias works).
+for (const [input, bookKey] of [
+  ["Matthew intro", "matthew"],
+  ["Matthew Introduction", "matthew"],
+  ["matthew-intro", "matthew"],
+  ["Mat intro.", "matthew"],
+  ["1 Cor introduction", "1corinthians"],
+  ["1 Jn intro", "1john"],
+  ["Introduction to Matthew", "matthew"],
+  ["intro to Romans", "romans"],
+  ["Introduction to 1 Jn", "1john"],
+]) {
+  test(`parseReferenceJump: '${input}' is the book's introduction`, () => {
+    assert.deepEqual(parseReferenceJump(input), { kind: "book", bookKey, intro: true });
+  });
+}
+
+test("parseReferenceJump: a plain book name is unchanged, with no intro flag", () => {
+  assert.deepEqual(parseReferenceJump("Matthew"), { kind: "book", bookKey: "matthew" });
+});
+
+for (const input of [
+  "intro",
+  "Introduction",
+  "intro to",
+  "John 3 intro",
+  "Introduction to John 3",
+  "qwerty intro",
+  "Introduction to qwerty",
+]) {
+  test(`parseReferenceJump: '${input}' is not a jump`, () => {
+    assert.equal(parseReferenceJump(input), null, input);
+  });
+}
+
 /* ── 2. Verse-index scanning (searchVerses) ──────────────────────────── */
 
 test("searchVerses: matches whole words only, not substrings", () => {

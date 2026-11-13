@@ -52,6 +52,7 @@ import {
   longEnoughQuery,
   nextPage,
   pageLinkLabel,
+  pageLinkText,
   passageMoveMessage,
   introMoveMessage,
   resultTarget,
@@ -100,6 +101,7 @@ import {
   topicsIndexSubjectItem,
   verseHitHref,
   verseHitLabel,
+  parseReferenceJump,
 } from "../search-core.js";
 import { addTarget, onAddTarget } from "./sheets/sheet-pane.js";
 import { undoEntry } from "./history.js";
@@ -239,10 +241,10 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   const offerBox = make("p", "desk-search__note");
   offerBox.hidden = true;
   // The pane shows less than /search does (no pager, no counts), so the same
-  // search is one link away (BVJ, 2026-11-04). Shown while there is a search.
+  // search is one link away (BVJ, 2026-11-04). Always shown: before a search it
+  // opens /search, and once one runs it carries that search (E115).
   const pageLine = make("p", "desk-search__page");
-  pageLine.hidden = true;
-  const pageLink = make("a", null, "See results on the search page");
+  const pageLink = make("a", null, pageLinkText(false));
   pageLine.append(pageLink);
   // "My notes" (E11) beside it, on the same line: whether a Greek search under
   // all types lists the reader's notes. The choice is the one the tray and
@@ -265,11 +267,16 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     notesSlot.hidden = !(show && deskPart);
     if (notesBox && !notesSlot.hidden) notesBox.checked = deskPart.greekNotesOn();
   }
+  // `q` is the search that ran, or "" for the empty box (E115): the book filter
+  // and, with a search, its type carry over either way.
   const showPageLink = (q) => {
-    const params = new URLSearchParams({ q });
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
     if (activeBook) params.set("book", activeBook);
-    if (activeMode !== "all") params.set("mode", activeMode);
-    pageLink.href = `/search/?${params}`;
+    if (q && activeMode !== "all") params.set("mode", activeMode);
+    const query = params.toString();
+    pageLink.href = query ? `/search/?${query}` : "/search/";
+    pageLink.textContent = pageLinkText(Boolean(q));
     pageLine.hidden = false;
   };
   let offerSeq = 0;
@@ -401,7 +408,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     seq++;
     offerSeq++;
     offerBox.hidden = true;
-    pageLine.hidden = true;
+    showPageLink("");
     syncNotes(false);
     last = null;
     jumpBox.replaceChildren();
@@ -454,13 +461,18 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   });
 
   function jumpOf(q) {
-    const ref = parseReference(q);
-    if (ref) return { kind: "ref", ...ref };
-    const book = parseBookOnly(q);
-    return book ? { kind: "book", ...book } : null;
+    return parseReferenceJump(q);
   }
 
   function goTo(jump) {
+    // "Matthew intro" opens the book's introduction in a Book Intro pane, as a
+    // result for one does (E53), rather than moving the LIT pane to chapter 1.
+    if (jump.kind === "book" && jump.intro) {
+      const result = env.showIntro(jump.bookKey, { beside: paneId });
+      const moved = result.moved ? passageLabel(parsePassage(result.moved)) : "";
+      tell(introMoveMessage(result, bookKeyToLabel(jump.bookKey), moved));
+      return;
+    }
     showHere(
       jump.kind === "ref"
         ? { bookKey: jump.bookKey, chapter: jump.chapter, verse: jump.verse ?? null }
@@ -618,7 +630,8 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     const ref = jump.kind === "ref";
     const a = make("a", "desk-search__link desk-search__jump-link");
     a.href = ref ? makeStudyReferenceHref(jump) : makeStudyBookHref(jump.bookKey);
-    a.append(make("span", "desk-search__ref", `Go to ${ref ? formatReferenceLabel(jump) : bookKeyToLabel(jump.bookKey)}`));
+    const name = ref ? formatReferenceLabel(jump) : bookKeyToLabel(jump.bookKey);
+    a.append(make("span", "desk-search__ref", `Go to ${name}${jump.intro ? " introduction" : ""}`));
     a.dataset.jump = "";
     jumpBox.append(a);
   }

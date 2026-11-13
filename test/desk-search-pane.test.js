@@ -10,11 +10,19 @@ import {
   longEnoughQuery,
   nextPage,
   pageLinkLabel,
+  pageLinkText,
   passageMoveMessage,
   resultTarget,
   introMoveMessage,
   verseRef,
 } from "../src/lib/desk-search-pane.mjs";
+
+test("pageLinkText: the link to /search says what it does before and after a search (E115)", () => {
+  assert.equal(pageLinkText(false), "Open the search page");
+  assert.equal(pageLinkText(true), "See results on the search page");
+  assert.equal(pageLinkText(""), "Open the search page", "an empty box is not a search");
+  assert.equal(pageLinkText("loved"), "See results on the search page");
+});
 
 test("passageMoveMessage: says which LIT pane took the passage (E34)", () => {
   assert.equal(passageMoveMessage("moved", "John 3:16"), "The LIT pane moved to John 3:16.");

@@ -151,3 +151,11 @@ export function introMoveMessage(result, book, movedLabel = "") {
 
 /** The name of a result's link to its passage's own page, which opens in a new tab (E34). */
 export const pageLinkLabel = (label) => `Open ${label} on its page, in a new tab`;
+
+
+/**
+ * The words of the pane's link to /search (E115): "Open the search page" while
+ * no search has run (the box is empty), "See results on the search page" once one has.
+ */
+export const pageLinkText = (searched) =>
+  searched ? "See results on the search page" : "Open the search page";
