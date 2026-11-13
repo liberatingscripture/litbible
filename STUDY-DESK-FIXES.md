@@ -3195,12 +3195,13 @@ tap areas (`global.css`, never under 24px).
   unchanged with the gate off. Left as they were: margin notes' buttons and
   the minimized tab.
 
-**BVJ's pass of 2026-11-12** (E111 to E130; from a Word document of BVJ's
+**BVJ's pass of 2026-11-12** (E111 to E131; from a Word document of BVJ's
 with seven screenshots, logged in its order, plus three items BVJ added in
 chat the same day: the search bar's Read View jump, folded into E114, the
 help page, E125, and a look for the panes' buttons, E126; E127 came from
-a question in chat, and E128 to E130 came in chat during wave 2.
-Wave 1 is #563 to #567; wave 2's first group is #569 to #571.
+a question in chat, E128 to E130 came in chat during wave 2, and E131 is
+what Claude found checking E127.
+Wave 1 is #563 to #567; wave 2 is #569 to #571 and #573 to #575.
 Where the code answers a question, the entry
 says so; where BVJ was wondering, nothing is decided.)
 
@@ -3325,7 +3326,7 @@ says so; where BVJ was wondering, nothing is decided.)
   box is the way to take every verse (“Add all 119 verses to a sheet…”),
   and the line beside it says so instead of “leave them unchecked to take
   all 119.” This reverses today's “With none checked, all 119 results go on
-  the sheet.” Status: open, decided; built with E126 and E117.
+  the sheet.” Status: fixed (#575, with E126 and E117).
 - **E117, wish: search results to a sheet from the Search pane.** BVJ
   (2026-11-12): “I think it should be possible to send search results to a
   sheet from the search pane.” **The pane already offers it**: “Make a sheet
@@ -3357,8 +3358,9 @@ says so; where BVJ was wondering, nothing is decided.)
   the + stays for one verse. As in E116, **nothing checked adds nothing**:
   the buttons are disabled until a box is checked, and the strip's box
   selects all. “New sheet of N verses” opens a Sheets pane, so it follows
-  E127's rule on a full desk. Status: open, decided; built with E126 and
-  E116, after E127.
+  E127's rule on a full desk. Status: fixed (#575, with E126 and E116,
+  after E127's #574). Fixed with it: a Sheets pane already open kept its
+  list, since the editor read its sheet only when built (so on main too).
 - **E118, design: no “Open all” or “Close all” in My Notes.** BVJ
   (2026-11-12): “I don’t think we need the Close all/open all control. Having
   them collapsed and require manual expansion one at a time is sufficient.”
@@ -3527,7 +3529,7 @@ says so; where BVJ was wondering, nothing is decided.)
   alone is 2.3 to 2.9:1 on the dark surfaces, and needs a disabled primary
   for E116 and E117. `desk-search.css` takes the same tokens, since /search
   doesn't load `desk.css`. The Notebook panel follows with no work of its
-  own (rule 18). Status: open, decided; built with E116 and E117.
+  own (rule 18). Status: fixed (#575, with E116 and E117).
 - **E127, design: one rule for a pane the desk opens when four are open.**
   BVJ (2026-11-12, in chat), asking what happens when something opens a pane
   by itself and the desk already has four: “It seems like it should be
@@ -3572,9 +3574,9 @@ says so; where BVJ was wondering, nothing is decided.)
   (`?intro=`, `?sheet=`) would send the reader back where they came from;
   a dialog, because it stops the reader at the moment they asked to see
   something. New sheet… and Add pane stay commands, disabled as today. The
-  help page gets the rule's sentence (E125). Status: open, decided; built
-  after wave 1, which touches `desk-search-pane.mjs`, and before E117's
-  strip, whose “New sheet of N verses” opens a Sheets pane.
+  help page gets the rule's sentence (E125). Status: fixed (#574), after
+  wave 1, which touches `desk-search-pane.mjs`, and before E117's strip
+  (#575), whose “New sheet of N verses” opens a Sheets pane.
 - **E128, rough: notice bands on /sheets stop partway across their row.**
   BVJ (2026-11-12, in chat): “The notice bands on /sheets (and elsewhere I
   think) that only span part of the row look like a mistake. Have the
@@ -3642,7 +3644,27 @@ says so; where BVJ was wondering, nothing is decided.)
     `scriptureControls` “study”), and the records keep the old name.
   An introduction is the book's, not a Scripture page, so its link says
   “book introduction.” Read View keeps its name until it retires at launch.
-  Status: built (preview only).
+  Status: fixed (#573, preview only).
+- **E131, bug: a layout's undo bar promises Ctrl+Z, which undoes something
+  else.** Found by Claude while checking E127 in the browser (2026-11-12);
+  BVJ: “Yes, log it.” Every undo bar tells a screen reader “Press Ctrl+Z to
+  undo.” (`showUndo`'s announcement in `undo-bar.js`, from Audit 2's NB-5),
+  but on /desk Ctrl+Z steps through the notebook's history only
+  (`history.js`; `src/scripts/desk/CLAUDE.md`, rule 11), and a change of
+  layout writes no record. So after a layout's bar (an arrangement from the
+  Layout window, “Left Reading: turned on …”, E114's Reading arrival,
+  E127's “Book Intro shown in place of Greek.”), Ctrl+Z undoes the reader's
+  last note, bookmark, highlight or sheet edit instead, if there is one.
+  And once the bar closes after its ten seconds, the layout change has no
+  undo at all: rule 11 allows that timer “only because the same undo stays
+  on Ctrl+Z.” The visible words don't mention the key; only the spoken
+  ones do. Two ways to fix it:
+  - **The layout's bars stop naming the key** (an option on `showUndo`) and
+    stay until the reader closes them or makes another change. Small.
+  - **Ctrl+Z on /desk undoes layout changes too**: a layout history beside
+    the notebook's, the two taken in the order they happened. It keeps what
+    the bar says, and is larger.
+  Status: open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -3764,9 +3786,10 @@ the rest is polish.
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
 14. **BVJ's pass of 2026-11-12** (E111 to E127; Claude's grouping,
-    2026-11-12, not a decision). Waiting on BVJ: only E113's design talk and
-    its two mocks (the dot is in); E114, E116, E117, E122, E126 and E127 are
-    decided. Wave 1 (a to d) is #563 to #567. Shared files set the order;
+    2026-11-12, not a decision). Waiting on BVJ: E113's design talk and its
+    two mocks (the dot is in), and which way E131 goes; E114, E116, E117, E122, E126 and E127 are
+    decided. Wave 1 (a to d) is #563 to #567; wave 2 (e to i, all but E113
+    and E131) is #569 to #571 and #573 to #575. Shared files set the order;
     each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
        E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112
@@ -3795,6 +3818,8 @@ the rest is polish.
        `desk-search-pane.mjs`, the undo bar), after wave 1 and before f's
        E117, whose “New sheet of N verses” opens a Sheets pane; after h's
        E114 too, which shares `desk-layout.mjs` and `desk-page.js`.
+       E131 (the layout's undo bars and Ctrl+Z; `undo-bar.js`,
+       `desk-page.js`, maybe `history.js`) after i, once BVJ picks a way.
     j. *Last*: E125, the help page, once the rest is built.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
