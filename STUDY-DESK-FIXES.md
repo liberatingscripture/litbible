@@ -3272,8 +3272,32 @@ says so; where BVJ was wondering, nothing is decided.)
   everywhere the desk says it: about thirty strings in
   `desk-first-use.mjs`, `first-use.js`, `export-import.js`,
   `notebook-page.js`, `desk-export.mjs` and `desk-commands.mjs`, the help
-  page, and the privacy page's list of what is kept. Status: decided in
-  outline; the line's timing and the new words go to BVJ before the build.
+  page, and the privacy page's list of what is kept. **The words**
+  (BVJ, 2026-11-13, after Claude's tables): “backup,” not “copy,” since
+  it says why a reader would do it, and /notebook already calls the full
+  file “a full backup.” “Back up” is the verb and “backup” the noun: “Back
+  up now,” “It’s been 8 days since you backed up your notebook,” “You
+  haven’t backed up your notebook yet,” “Last backed up 3 days ago,”
+  “Remind me to back up my notebook,” and /notebook's “Back up your
+  notebook.” Only the full JSON file is a backup; the Markdown and Web
+  Annotation files go below it as “Other formats.” Opening a backup is
+  **“Merge a backup into this notebook”** (button “Merge a backup…”), not
+  “Open” or “Restore”: it merges, keeps the newer copy of anything in
+  both, removes nothing, and leaves anything deleted since the backup
+  deleted (the later action wins, `desk-merge.mjs`), and “Restore” already
+  means bringing something back from the trash. Its line: “Adds what the
+  backup holds to this notebook, keeping the newer copy of anything that’s
+  in both. Nothing here is removed, and anything deleted since the backup
+  stays deleted.” The word “restore” stays findable where a reader with an
+  empty notebook will look for it: the help page (“To restore your
+  notebook on a new computer or browser, merge your backup into it”) and
+  the command menu. **A fourth choice**, BVJ's idea: turning reminders off
+  from the bar, which Claude proposed as a quiet link after the three
+  buttons, with a notice that says where to turn them on again. Status:
+  words decided; the line's timing (Claude's proposal: seven days after
+  the last backup, or after the first note or mark when never backed up;
+  the first page that day, not /notebook; a one-day snooze) and the
+  fourth choice's form go to BVJ before the build.
 - **E114, wish: ways straight into the Reading layout from outside the
   desk.** BVJ (2026-11-12): “I wonder if there’s a reasonable place(s) to
   link directly to the Reading layout from anywhere outside the Study Desk.”
@@ -3837,7 +3861,8 @@ the rest is polish.
        file).
 14. **BVJ's pass of 2026-11-12** (E111 to E131; Claude's grouping,
     2026-11-12, not a decision). Waiting on BVJ: E113's timing for the
-    undo-bar line and its new words (the rest of E113 is decided). Wave 1
+    undo-bar line and the form of its fourth choice (its words and the
+    rest are decided). Wave 1
     (a to d) is #563 to #567; wave 2 (e to i, all but E113 and E131) is
     #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578 and #579).
     Shared files set the order; each group is its own branch.
