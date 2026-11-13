@@ -711,14 +711,18 @@
    (sheet-page.js's drawCheck). Screen only: the copy prints today's wording
    either way. The diffs are the change notice's (.desk-notice__diff). */
 
+/* The band fills its row (E128); its words keep a 60-character line. */
 .sheets-page__check {
-  max-width: calc(60 * var(--ch));
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;
   border-left: 3px solid var(--green-text);
   border-radius: 0 8px 8px 0;
   background: rgba(var(--ink-rgb), 0.05);
   line-height: 1.5;
+}
+
+.sheets-page__check > * {
+  max-width: calc(60 * var(--ch));
 }
 
 .sheets-page__check-head {
@@ -752,9 +756,12 @@
 /* The "what prints" notice (sheet-page.js's drawLeaks): the participant
    version, when a blank's words print elsewhere on it. Quiet, screen only.
    The answer key's note (E102) is the same quiet notice. */
+/* The bands fill their row (E128). The key note is a paragraph with no
+   wrapper, so its words keep a 60-character line by a right padding that
+   leaves the text 60 characters wide (the 3px rule and the 1rem left padding
+   come off the row first; the 1rem floor covers a narrow row). */
 .sheets-page__key-note,
 .sheets-page__leaks {
-  max-width: calc(60 * var(--ch));
   margin: 0 0 1rem;
   padding: 0.6rem 1rem;
   border-left: 3px solid var(--green-text);
@@ -762,6 +769,14 @@
   background: rgba(var(--ink-rgb), 0.05);
   font-size: calc(0.95rem * var(--sheet-ui, 1));
   line-height: 1.5;
+}
+
+.sheets-page__key-note {
+  padding-inline-end: max(1rem, calc(100% - 60 * var(--ch) - 1rem - 3px));
+}
+
+.sheets-page__leaks > * {
+  max-width: calc(60 * var(--ch));
 }
 
 .sheets-page__leaks-head {
@@ -797,7 +812,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.75rem;
-  max-width: calc(60 * var(--ch));
   margin: 0 0 1rem;
   padding: 0.75rem 1rem;
   border-left: 3px solid var(--green-text);
@@ -806,16 +820,24 @@
   line-height: 1.5;
 }
 
+/* The band fills its row (E128); its words keep a 60-character line. */
 .sheets-page__shared p {
   margin: 0;
   flex: 1 1 20rem;
 }
 
+.sheets-page__shared > p {
+  max-width: calc(60 * var(--ch));
+}
+
 /* The line after an import is one sentence with a link in it. As a flex row
    its text, link and period were three items: a gap before the link and the
-   period alone on a line (E105). */
+   period alone on a line (E105). The band is the paragraph here, so its
+   words keep a 60-character line by the right padding (E128; the key note's
+   rule above). */
 .sheets-page__shared--line {
   display: block;
+  padding-inline-end: max(1rem, calc(100% - 60 * var(--ch) - 1rem - 3px));
 }
 
 /* "New sheet…" and its templates on the list (S12, part 1, step 2). */
