@@ -445,8 +445,7 @@ html:has(.desk-undo__bar:not([hidden])) {
 
 /* A note's row: its glyph and words (a button that opens it in full for the
    visit), with Edit above Delete on the right. At two lines until hovered,
-   focused or opened, unless the reader shows notes in full
-   (html[data-desk-list="full"]). In the panel's own font, like everything
+   focused or opened. In the panel's own font, like everything
    else in it (BVJ, 2026-10-07). */
 .desk-item__edit {
   grid-column: 2;
@@ -502,39 +501,9 @@ html:has(.desk-undo__bar:not([hidden])) {
 }
 
 .desk-item__note-row:focus-within .desk-item__words,
-.desk-item__note-row--open .desk-item__words,
-html[data-desk-list="full"] .desk-item__note .desk-item__words {
+.desk-item__note-row--open .desk-item__words {
   display: block;
   overflow: visible;
-}
-
-/* "Open all" / "Close all", above the list, at its right (tab-mine.js). */
-.desk-mine__all {
-  display: block;
-  margin: 6px 4px 0 auto;
-  padding: 2px 6px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-
-.desk-mine__all[hidden] {
-  display: none;
-}
-
-.desk-mine__all:hover {
-  text-decoration-thickness: 2px;
-}
-
-.desk-mine__all:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
 }
 
 /* The caret that keeps a note open for the visit, turned up while it is. */
@@ -2563,7 +2532,21 @@ ol.footnotes[data-desk-fn-pills] {
   font-weight: 600;
 }
 
-/* The footnote as pinned, cut at three lines unless the reader shows notes in full. */
+/* A pinned footnote's row: its words and, when they are cut, the caret a note
+   has (tab-mine.js, E118). */
+.desk-item__pin-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 0 4px;
+}
+
+.desk-item__pin-row .desk-item__pin-text {
+  grid-column: auto;
+}
+
+/* The footnote as pinned, cut at three lines until its caret opens it. */
 .desk-item__pin-text {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -2573,7 +2556,7 @@ ol.footnotes[data-desk-fn-pills] {
   white-space: normal;
 }
 
-html[data-desk-list="full"] .desk-item__pin-text {
+.desk-item__pin-row--open .desk-item__pin-text {
   display: block;
   -webkit-line-clamp: unset;
   line-clamp: unset;

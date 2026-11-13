@@ -47,7 +47,6 @@ const SETTINGS = {
   highlights: { attr: "data-desk-highlights", key: "lit-desk-highlights", fallback: "on" },
   readHighlights: { attr: "data-desk-read-highlights", key: "lit-desk-read-highlights", fallback: "off" },
   show: { attr: "data-desk-show", key: "lit-desk-show", fallback: "on" },
-  listFull: { attr: "data-desk-list", key: "lit-desk-list", fallback: "lines" },
 };
 
 export const SETTINGS_EVENT = "desk:settings";

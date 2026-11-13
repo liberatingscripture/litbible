@@ -35,8 +35,7 @@
 // My Notes: the "Notes in the margin", Handwriting / Plain, "My bookmarks" and
 // "Hide my marks" switches (the same settings as the Display tray's), "Reset
 // widths" while the reader has dragged any, the Print menu, the tour and
-// help links, and where the notebook is kept. (The list's "Open all" is My
-// Notes' own, above its list.)
+// help links, and where the notebook is kept.
 //
 // The Notebook has no way to close from its own controls (BVJ, 2026-10-29): it
 // only minimizes to its tab, and Escape minimizes too.

@@ -587,6 +587,8 @@ export function setKind(layout, id, kind) {
   // And what a LIT pane's text shows (E108): a new one shows everything.
   delete pane.hide;
   delete pane.readingHid;
+  // And a My Notes pane's choice of This chapter (E119).
+  delete pane.scope;
   return settleActive(next);
 }
 
@@ -644,6 +646,23 @@ export function setPaneSheet(layout, id, sheetId) {
   const p = findPane(next.root, id);
   if (want) p.sheet = want;
   else delete p.sheet;
+  return next;
+}
+
+/** What a My Notes pane lists (E119): "chapter" (the leading LIT pane's) or "everything", the default. */
+export function paneScope(layout, id) {
+  const pane = findPane(layout?.root, id);
+  return pane?.kind === "mine" && pane.scope === "chapter" ? "chapter" : "everything";
+}
+
+/** Set a My Notes pane's scope. Unchanged for another kind of pane or a scope it already has. */
+export function setPaneScope(layout, id, scope) {
+  const pane = findPane(layout?.root, id);
+  if (pane?.kind !== "mine" || paneScope(layout, id) === (scope === "chapter" ? "chapter" : "everything")) return layout;
+  const next = clone(layout);
+  const p = findPane(next.root, id);
+  if (scope === "chapter") p.scope = "chapter";
+  else delete p.scope;
   return next;
 }
 
@@ -1145,6 +1164,9 @@ export function checkLayout(value) {
         const readingHid = markList(node.pane.readingHid);
         if (readingHid.length) kept.readingHid = readingHid;
       }
+      // A My Notes pane keeps "This chapter" when the reader chose it (E119);
+      // no field is Everything, the default.
+      if (kind === "mine" && node.pane.scope === "chapter") kept.scope = "chapter";
       if (kind === "sheet" && typeof node.pane.sheet === "string" && node.pane.sheet) kept.sheet = node.pane.sheet;
       return { pane: kept };
     }
