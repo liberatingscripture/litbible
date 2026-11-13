@@ -23,7 +23,7 @@ From the root's project tree.
                      #   header-menus, header C's Learn, Study and About
                      #   menus (a computer with the desk preview on);
                      #   keyboard-shortcuts; verse-image, which draws and
-                     #   hands on "Share image"; panel-flyout, the one
+                     #   hands on "Share image…"; panel-flyout, the one
                      #   flyout row the panels share; glossary-entry-links, the
                      #   copy-link buttons on /glossary; glossary-selection,
                      #   its selection panel; panel-pieces, what every
@@ -162,15 +162,16 @@ screen-reader route to the same copy (in Chapter View; Read View has none).
 The verse menu and the selection panel offer **the same actions under the
 same names** (owner, 2026-09-29): **Copy text** (the words, the reference and
 the verse link), **Copy link**, **Copy with footnotes** (the handout; see
-"Printing and handouts"), **Share text…** and **Share image**. Until then the
+"Printing and handouts"), **Share text…** and **Share image…**. Until then the
 verse menu said "Copy verse", which can't name half a verse, and the
 selection panel said "Copy with reference" and had no Copy link. "Share…" and
 "Make an image" became "Share text…" (the share sheet, with the words and the
-link) and "Share image" on 2026-11-06 (E39). Only the verse menu's extras are
+link) and "Share image" on 2026-11-06 (E39), and "Share image…" on 2026-11-12
+(E111), since it opens questions. Only the verse menu's extras are
 its own: "Or copy one part" and the range hint, both about whole verses. Both
 panels build from the same pieces (`menuButton`, `shareButton`, `imageStep`,
 `panelRow`, `flyoutRow`; the shared ones are in `src/scripts/panel-pieces.js`
-and `panel-flyout.js`, and `actionRows` in `chapter-tools.js` lays the copy
+and `panel-flyout.js`, and `actionRows` in `panel-pieces.js` lays the copy
 and share rows out for both), so keep them in step.
 
 **A mouse or the keyboard gets two flyout rows; a finger's chips stay flat**
@@ -179,10 +180,13 @@ pressing the row copies the text exactly as before (one press); its chevron,
 named "More ways to copy", hover (which never takes focus) or the right arrow
 open a flyout of Copy text, Copy link and Copy with footnotes. **"Share"** is
 a flyout of "Share text…" (only where the browser has a share sheet) and
-"Share image"; choosing Share image closes the flyout and the image questions
-(Ink or Paper, Square or Story) take the Share row's place, so the panel
-keeps its height. Where there is no share sheet the row is a flat "Share
-image" button. The flyout is `flyoutRow` in `panel-flyout.js`, the one
+"Share image…"; choosing Share image… keeps the flyout open and the image
+questions (Ink or Paper, Square or Story) replace that item inside it (BVJ,
+2026-11-12, E111). Closing the flyout puts the item back (`flyoutRow`'s
+`onClose` calls the step's `reset`), and the flyout stays open while the
+pointer rests on it or focus is in it, re-checked when its close timer fires,
+so a step swapping its buttons doesn't shut it. Where there is no share sheet
+the row is a flat "Share image…" button. The flyout is `flyoutRow` in `panel-flyout.js`, the one
 implementation the Study Desk's "Bookmark ▸" and "Print ▸" use too (desk code
 imports it; this file never imports desk code): a trigger with
 `aria-haspopup="menu"` and `aria-expanded`, a `role="menu"` fixed to the
@@ -209,9 +213,10 @@ inside: focus goes back to the row first. A row of buttons in it is
 `role="none"` and a line of words describes the menu (`aria-describedby`)
 rather than sitting in it (NB3-11). **A failed image gives Share text…
 back** (NB3-2): when the image step ends in "Too long" or "Couldn't make the
-image", `imageStep`'s `onFail` restores the Share row (or, in the chip
-layout, the Share text… chip) beside the reason, and a keyboard reader's
-focus goes to it. No explanatory hint text is added
+image", the reason takes the step's place in the flyout with Share text…
+still above it and a keyboard reader's focus on the reason; in the chip
+layout the step drops `lit-image--open`, which gives the Share text… chip
+back beside it. No explanatory hint text is added
 to either panel. The verse-number menu stays the keyboard and screen-reader
 route to all of it.
 
@@ -240,10 +245,11 @@ a two-button row split differently. OpenDyslexic's chip buttons carry 4px of
 side padding rather than 8px for that reason (it sets only their minimum
 width). Measured in 2026-11 from the fonts' advance widths (the 15.2px panel
 type, the labels plus padding, kerning ignored): at 360px "Share text…" and
-"Share image" fit one row in all three fonts, in the phone sheet (halves of
-166px) and in the selection panel (154px). The widest needs 106px (Inter),
-100px (Atkinson) and 148px (OpenDyslexic, 6px to spare in the selection
-panel). The old "Make an image" needed 125, 118 and 177px, which is why those
+"Share image…" fit one row in the phone sheet (halves of 166px) in all three
+fonts, and in the selection panel (154px) in Inter and Atkinson. "Share
+image…" needs 119px (Inter), 111px (Atkinson) and 162px (OpenDyslexic), so
+in OpenDyslexic's selection panel it takes a line of its own, as the rule
+allows (E111; the ellipsis cost 13px). The old "Make an image" needed 125, 118 and 177px, which is why those
 two took a line each below 375px before the rename (2026-09).
 
 **The verse menu follows the input, as the selection panel does** (owner,
@@ -276,7 +282,7 @@ selection clears.
 
 ### Verse images
 
-**"Share image"** ("Make an image" until 2026-11-06, E39) closes the verse menu and the selection panel, so it
+**"Share image…"** ("Make an image" until 2026-11-06, E39; the ellipsis since E111) closes the verse menu and the selection panel, so it
 works in both views (audit X8, owner 2026-09-28). It draws the passage in the
 share-card design, in the reader's browser, and hands it on: the phone's
 share sheet on a phone or tablet, a download on a computer, told apart by the
@@ -291,7 +297,7 @@ pure and unit-tested with a fake measure) and `src/scripts/verse-image.js`
 page drawn by the same code:
 
 1. **One button that becomes the next question** each time it's answered:
-   "Share image", then Ink or Paper, then Square or Story, then the share
+   "Share image…", then Ink or Paper, then Square or Story, then the share
    sheet or the download. Each question is one row the height of a button,
    so the panel never moves while it changes.
 2. **Two looks**: Ink, the share cards' own palette, and Paper, its light
