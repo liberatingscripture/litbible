@@ -686,6 +686,8 @@ receiver gives every module a fresh id, **drops `verseCopy` and
 is never flagged as changed; BA82), and makes the sheet a record of its
 own, sanitizes its formatted text, and refuses the share unless that record
 then passes the sheet's check (`validateSheet`; DI6-1).
+Decompressed data over twice the sheet's 512 KB limit is refused before it
+is read whole.
 
 **A participant share has always carried each blank's words**, and that is
 by design (E122): a blank *is* its words (`verse`, `exact`, `prefix`,
@@ -702,8 +704,6 @@ sheet without the key, which is the safe direction, and a share without the
 field is byte for byte what it was. No record format or sync change comes
 with it. An app that opens a share may show the key only when the field is
 `true`.
-Decompressed data over twice the sheet's 512 KB limit is refused before it
-is read whole.
 
 **The file** is Markdown for people: the title, the subtitle, a line saying
 how to open it, each part in words (a passage by its reference, never its
