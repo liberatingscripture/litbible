@@ -299,7 +299,7 @@ async function start() {
     return "placed";
   };
   // A new sheet shown in a Sheets pane, as "Open it in the Study Desk" does
-  // (M5): from the Search pane's "Make a sheet of these verses". That pane
+  // (M5): from the Search pane's "New sheet of N verses" (E117). That pane
   // keeps its place (its results would be lost). Returns what showSheet says,
   // `{ outcome, replaced, reason, ... }` plus `changed` and `undoLayout`, with
   // the layout already committed; the caller (the Search pane) puts the words
@@ -308,6 +308,9 @@ async function start() {
     const before = layout;
     const way = showSheet(layout, sheetId, panesBox.getBoundingClientRect().width, keep);
     if (way.layout !== layout) commit(way.layout, { quiet: way.outcome === "replaced" });
+    // A Sheets pane already open keeps its editor, which read its sheet when
+    // it was built, so it is told; a new or replacing pane reads it as it mounts.
+    if (way.outcome === "shown") paneEls.get(way.paneId)?.inst?.editor?.show?.(sheetId);
     // `undoLayout` puts the layout back as it was (quietly), for the one Undo
     // that takes back both the sheet and where it showed.
     return { ...way, changed: way.layout !== before, undoLayout: () => commit(before, { quiet: true }) };

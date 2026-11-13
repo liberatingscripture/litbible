@@ -1,7 +1,7 @@
 // src/scripts/desk/sheets/search-sheet.js
 //
-// "Make a sheet of these verses" on /search (STUDY-DESK.md, M5): the verses a
-// search found, or the chapters a topic names, gathered into a sheet. Reached
+// A sheet from /search (STUDY-DESK.md, M5): the verses a search found, or the
+// chapters a topic names, gathered into a sheet. Reached
 // only through loadDeskSheets() in search-core.js, which imports this file
 // only when <html data-desk="on">, so a reader without the preview downloads
 // none of it and sees /search exactly as it was. It is the only place the
@@ -17,6 +17,18 @@
 // forgotten when the query changes, and a tick on a verse the results no
 // longer hold (a book filter) is dropped.
 //
+// Each group gets a head row (E116; BVJ, 2026-11-12, option A): for the
+// verses, a box that checks every verse (all of them, not only the page on
+// screen; unchecked it clears them, and it shows mixed when some are
+// checked), in the column the rows' boxes sit in, and a card holding one line
+// and one primary button whose label carries the count ("Add 4 verses to a
+// sheet…"), which opens the chooser. Nothing checked adds nothing: until a
+// box is checked the button is aria-disabled, stays focusable, and is
+// described by the line, which says how to check; a press only says it again.
+// The topic's chapters go whole, all of them, so their head row has no box and
+// its button is never disabled. The card and every checked result share a
+// green rule, and the row is sticky while its group is on screen.
+//
 // What it makes is the rules in src/lib/desk-sheet-gather.mjs: passages in
 // Bible order, runs of consecutive verses as one range, no more than a sheet
 // holds. The notebook is opened only when the reader presses the button (this
@@ -27,7 +39,14 @@
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { planSave, webClient } from "../../../lib/desk-store-core.mjs";
 import {
+  addChaptersLabel,
+  addToSheetLabel,
+  chaptersLine,
+  checkAllLabel,
+  checkedLine,
+  checkedSaid,
   gatherMessage,
+  includeLabel,
   passagesFromChapters,
   passagesFromVerses,
   roomOnSheet,
@@ -112,7 +131,7 @@ const ticked = new Set();
 const keywordGroup = () => document.getElementById("group-keyword");
 const subjectGroup = () => document.getElementById("group-subject");
 
-// One bar per group, made once and kept: search.js re-renders the lists
+// One head row per group, made once and kept: search.js re-renders the lists
 // inside the groups, never the groups themselves.
 const bars = { verses: null, chapters: null };
 
@@ -120,29 +139,70 @@ function ensureBar(kind) {
   if (bars[kind]?.root.isConnected) return bars[kind];
   const group = kind === "verses" ? keywordGroup() : subjectGroup();
   if (!group) return null;
-  const root = make("div", "desk-gather");
+  const verses = kind === "verses";
+  const root = make("div", "desk-gather desk-gather--head");
   root.setAttribute("data-desk-gather", kind);
-  const row = make("div", "desk-gather__row");
-  const go = button(kind === "verses" ? "Make a sheet of these verses" : "Make a sheet of these chapters");
+  // The box that checks every verse, in the rows' column of boxes.
+  const all = verses ? make("input", "desk-gather__tick desk-gather__all") : null;
+  if (all) all.type = "checkbox";
+  const card = make("div", "desk-gather__card");
+  const main = make("div", "desk-gather__main");
+  const lead = make("p", "desk-gather__lead");
+  lead.id = `desk-gather-lead-${kind}`;
+  const count = make("span", "desk-gather__count");
+  const text = make("span", "desk-gather__text");
+  lead.append(count, text);
+  const clear = button("Clear checks", "desk-gather__btn desk-gather__btn--quiet desk-gather__clear");
+  clear.hidden = true;
+  if (verses) lead.append(clear);
+  const actions = make("div", "desk-gather__actions-row");
+  const go = button(null, "desk-gather__btn desk-gather__btn--primary desk-gather__go");
   go.setAttribute("aria-haspopup", "dialog");
   go.setAttribute("aria-expanded", "false");
-  const hint = make("span", "desk-gather__hint");
-  const clear = button("Clear checks", "desk-gather__btn desk-gather__btn--quiet");
-  clear.hidden = true;
-  row.append(go, hint, clear);
+  go.append(make("span", "desk-gather__label"));
+  actions.append(go);
+  main.append(lead, actions);
+  // The chooser and the line after a write, in the card under its line.
   const slot = make("div", "desk-gather__slot");
   slot.setAttribute("role", "status");
-  root.append(row, slot);
+  card.append(main, slot);
+  // What a screen reader hears when a box changes: once per change.
+  const said = make("p", "sr-only");
+  said.setAttribute("role", "status");
+  root.append(...(all ? [all] : []), card, said);
   group.querySelector(".group-title")?.after(root);
 
-  const bar = { kind, root, go, hint, clear, slot, panel: null };
-  go.addEventListener("click", () => (bar.panel ? closePanel(bar) : openPanel(bar)));
+  const bar = { kind, root, all, lead, count, text, go, clear, slot, said, panel: null };
+  go.addEventListener("click", () => {
+    if (go.getAttribute("aria-disabled") === "true") {
+      // Nothing checked adds nothing; the press says how to check (E116).
+      speak(bar, checkedLine(0, detail?.verses.length ?? 0).text);
+      return;
+    }
+    if (bar.panel) closePanel(bar);
+    else openPanel(bar);
+  });
+  all?.addEventListener("change", () => {
+    if (all.checked) for (const r of detail?.verses ?? []) ticked.add(verseKey(r));
+    else ticked.clear();
+    syncTicks({ said: true });
+  });
   clear.addEventListener("click", () => {
     ticked.clear();
-    syncTicks();
+    syncTicks({ said: true });
+    // Clear checks hides itself, so focus goes to the box that checks them all.
+    all?.focus();
   });
   bars[kind] = bar;
   return bar;
+}
+
+/** Words for a polite live region, cleared first so the same words twice are heard twice. */
+function speak(bar, words) {
+  bar.said.textContent = "";
+  requestAnimationFrame(() => {
+    bar.said.textContent = words;
+  });
 }
 
 function closePanel(bar, { focus = true } = {}) {
@@ -152,27 +212,58 @@ function closePanel(bar, { focus = true } = {}) {
   if (focus) bar.go.focus();
 }
 
-/** Which verses a press would gather: the ticked ones, else every result. */
+/** The verses a press would gather: the checked ones, never all by default (E116). */
 function chosenVerses() {
-  const all = detail?.verses ?? [];
-  if (!ticked.size) return all;
-  return all.filter((r) => ticked.has(verseKey(r)));
+  return (detail?.verses ?? []).filter((r) => ticked.has(verseKey(r)));
+}
+
+/** The head row's button: its label, over invisible copies of the longest it can read. */
+function nameGo(bar, label, room = []) {
+  bar.go.querySelector(".desk-gather__label").textContent = label;
+  for (const old of bar.go.querySelectorAll(".desk-gather__label-room")) old.remove();
+  for (const words of room) {
+    const ghost = make("span", "desk-gather__label-room", words);
+    ghost.setAttribute("aria-hidden", "true");
+    bar.go.append(ghost);
+  }
+  bar.go.setAttribute("aria-label", label);
 }
 
 function describeBar(bar) {
   if (bar.kind === "verses") {
-    const n = detail.verses.length;
-    bar.hint.textContent = ticked.size
-      ? `${plural(ticked.size, "verse", "verses")} checked.`
-      : `Check verses to choose. With none checked, all ${n} results go on the sheet.`;
-    bar.clear.hidden = !ticked.size;
+    const total = detail.verses.length;
+    const k = ticked.size;
+    const line = checkedLine(k, total);
+    bar.count.textContent = line.count;
+    bar.text.textContent = line.text;
+    bar.clear.hidden = !k;
+    bar.all.checked = k > 0 && k === total;
+    bar.all.indeterminate = k > 0 && k < total;
+    bar.all.setAttribute("aria-label", checkAllLabel(total));
+    nameGo(bar, addToSheetLabel(k, total), [addToSheetLabel(0, total), addToSheetLabel(total, total)]);
+    if (k) {
+      bar.go.removeAttribute("aria-disabled");
+      bar.go.removeAttribute("aria-describedby");
+    } else {
+      bar.go.setAttribute("aria-disabled", "true");
+      bar.go.setAttribute("aria-describedby", bar.lead.id);
+    }
+    bar.root.classList.toggle("desk-gather--some", k > 0);
+    // An open chooser names what it adds; with nothing left checked it has nothing to add.
+    if (bar.panel && !k) closePanel(bar, { focus: false });
+    const title = bar.panel?.querySelector(".desk-gather__title");
+    if (title) title.textContent = addToSheetLabel(k, total, { ellipsis: false });
   } else {
     const n = detail.chapters.length;
-    bar.hint.textContent = `All ${plural(n, "chapter", "chapters")} go, each whole.`;
+    bar.count.textContent = "";
+    bar.text.textContent = chaptersLine(n);
+    nameGo(bar, addChaptersLabel(n));
+    // Every chapter goes, so the rule is always there.
+    bar.root.classList.add("desk-gather--some");
   }
 }
 
-/** Tick boxes on the verse results on screen. */
+/** Boxes on the verse results on screen. */
 function enhanceRows() {
   const list = document.getElementById("results-keyword");
   if (!list) return;
@@ -184,13 +275,14 @@ function enhanceRows() {
     const box = make("input", "desk-gather__tick");
     box.type = "checkbox";
     box.checked = ticked.has(verseKey(ref));
-    box.setAttribute("aria-label", `Include ${labelOf(li, ref)} in the sheet`);
+    box.setAttribute("aria-label", includeLabel(labelOf(li, ref)));
     box.addEventListener("change", () => {
       if (box.checked) ticked.add(verseKey(ref));
       else ticked.delete(verseKey(ref));
-      syncTicks();
+      syncTicks({ said: true });
     });
     li.classList.add("desk-gather__row-item");
+    li.classList.toggle("desk-gather__row-item--picked", box.checked);
     li.prepend(box);
   }
 }
@@ -201,12 +293,18 @@ function labelOf(li, ref) {
   return `${title || `${ref.bookKey} ${ref.chapter}`}:${ref.verse}`;
 }
 
-function syncTicks() {
+/** The rows' boxes and marks and the head row, from the ticks; `said` speaks the count, once per change. */
+function syncTicks({ said = false } = {}) {
   for (const box of document.querySelectorAll("#results-keyword .desk-gather__tick")) {
-    const ref = refOfLink(box.closest("li")?.querySelector("a.result-link")?.getAttribute("href"));
-    if (ref) box.checked = ticked.has(verseKey(ref));
+    const li = box.closest("li");
+    const ref = refOfLink(li?.querySelector("a.result-link")?.getAttribute("href"));
+    if (!ref) continue;
+    box.checked = ticked.has(verseKey(ref));
+    li.classList.toggle("desk-gather__row-item--picked", box.checked);
   }
-  if (bars.verses && detail) describeBar(bars.verses);
+  if (!bars.verses || !detail?.verses.length) return;
+  describeBar(bars.verses);
+  if (said) speak(bars.verses, checkedSaid(ticked.size, detail.verses.length));
 }
 
 function update(next) {
@@ -245,6 +343,7 @@ function update(next) {
     describeBar(bar);
   }
   enhanceRows();
+  syncTicks();
 }
 
 /* ── The chooser, and the write ──────────────────────────────────────── */
@@ -257,18 +356,17 @@ async function openPanel(bar) {
 
   const panel = make("div", "desk-gather__panel");
   panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", "Make a sheet");
+  panel.setAttribute("aria-label", "Add to a sheet");
   const heading = make(
     "p",
     "desk-gather__title",
-    verses
-      ? `Make a sheet of ${plural(count, "verse", "verses")}`
-      : `Make a sheet of ${plural(count, "chapter", "chapters")}`,
+    verses ? addToSheetLabel(count, detail.verses.length, { ellipsis: false }) : addChaptersLabel(count, { ellipsis: false }),
   );
   const fresh = button("New sheet", "desk-gather__btn desk-gather__btn--primary");
   const intro = make("p", "desk-gather__note", "Or add them to one of your sheets:");
   const list = make("ul", "desk-gather__sheets");
-  const cancel = button("Cancel", "desk-gather__btn desk-gather__btn--quiet");
+  // An ordinary button (E126), as every Cancel is.
+  const cancel = button("Cancel");
   const actions = make("div", "desk-gather__actions");
   actions.append(fresh, cancel);
   panel.append(heading, actions, intro, list);
@@ -431,7 +529,7 @@ function say(bar, text, { sheet = null, entry = null } = {}) {
     line.append(" ", open, ", or ", desk, ".");
     target = open;
     if (entry) {
-      const undo = button("Undo", "desk-gather__btn desk-gather__btn--quiet");
+      const undo = button("Undo");
       undo.addEventListener("click", async () => {
         undo.disabled = true;
         let ok = false;

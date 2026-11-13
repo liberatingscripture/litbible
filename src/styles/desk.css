@@ -297,21 +297,16 @@ a.desk-item__ref:hover {
   align-self: start;
 }
 
+/* Ordinary buttons (E126): their edge, fill, shadow and states are "Four
+   kinds of button" at the end of this file. */
 .desk-item__delete,
 .desk-item__edit {
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-item__delete:hover,
-.desk-item__edit:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-panel__empty {
@@ -1522,19 +1517,14 @@ a.desk-item__highlight:hover {
   overflow-wrap: anywhere;
 }
 
+/* An ordinary button (E126; the look is at the end of this file). */
 .desk-verse__remove {
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-verse__remove:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 /* ── The note editor ─────────────────────────────────────────── */
@@ -1654,45 +1644,28 @@ a.desk-item__highlight:hover {
   margin-top: 10px;
 }
 
-.desk-editor__actions button {
+/* Cancel is an ordinary button and Save the editor's primary (E126; both
+   looks are at the end of this file, which this rule, under :where(), never
+   outweighs). */
+:where(.desk-editor__actions) button {
   padding: 6px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid transparent;
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
-.desk-editor__actions button:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.desk-editor__actions .desk-editor__save {
-  border-color: var(--green-deep);
-  background: var(--green-deep);
-  color: #fff;
-  font-weight: 600;
-}
-
-.desk-editor__actions .desk-editor__save:hover {
-  background: var(--green-deep);
-  filter: brightness(1.1);
-}
-
-/* The tour's example editor, which can't be saved (note-editor.js). */
+/* The tour's example editor, which can't be saved (note-editor.js). It looks
+   as any disabled primary does (E126); only the pointer is its own. */
 .desk-editor__actions .desk-editor__save:disabled {
-  opacity: 0.45;
-  filter: none;
   cursor: not-allowed;
 }
 
 /* The bookmark form's Save while a write is under way: it stays focusable, so
    it says aria-disabled rather than disabled (Audit 8). */
 .desk-bookmark-form .desk-editor__save[aria-disabled="true"] {
-  opacity: 0.45;
-  filter: none;
   cursor: progress;
 }
 
@@ -1895,17 +1868,11 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
    .font-tray__reset, is styled in desk-tab.css, which stage one loads. */
 .desk-panel__reset {
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-panel__reset:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-panel__reset[hidden] {
@@ -1914,10 +1881,16 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 /* A button the desk has made busy (focus-keep.js: aria-disabled, so focus
    stays) looks it: Undo, and "Ask this browser to keep it" (NB6-10). The
-   panel's own busy buttons keep their own looks above. */
-.desk-undo__undo[aria-disabled="true"],
-.desk-panel__reset[aria-disabled="true"] {
+   panel's own busy buttons keep their own looks above. "Ask this browser to
+   keep it" (and Reset widths, the same class) is an ordinary button (E126),
+   whose disabled look is in "Four kinds of button"; it takes only the cursor
+   here. */
+.desk-undo__undo[aria-disabled="true"] {
   opacity: 0.6;
+  cursor: progress;
+}
+
+.desk-panel__reset[aria-disabled="true"] {
   cursor: progress;
 }
 
@@ -1927,17 +1900,11 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .desk-mine__add {
   margin: 10px 4px 2px;
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-mine__add:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-mine__add:focus-visible {
@@ -2247,47 +2214,30 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   flex: 1 1 100%;
 }
 
-.desk-notice__actions button {
+/* Keep is the card's primary and Delete an ordinary button (E126; both looks,
+   hover included, are at the end of this file). This rule is under :where()
+   so it never outweighs them. */
+:where(.desk-notice__actions) button {
   padding: 6px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
-.desk-notice__actions button:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
 .desk-notice__actions button:disabled {
-  opacity: 0.6;
   cursor: default;
 }
 
 /* Keep and Delete stay focusable while a write is under way, so they say
    aria-disabled rather than disabled (Audit 8). */
 .desk-notice__actions button[aria-disabled="true"] {
-  opacity: 0.6;
   cursor: progress;
 }
 
 .desk-notice__actions .desk-notice__delete {
   margin-left: auto;
-}
-
-.desk-notice__actions .desk-notice__keep {
-  border-color: var(--green-deep);
-  background: var(--green-deep);
-  color: #fff;
-  font-weight: 600;
-}
-
-.desk-notice__actions .desk-notice__keep:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: var(--green-deep);
-  filter: brightness(1.1);
 }
 
 /* The desk doesn't print: the flags in the margin and the card stay off the
@@ -3090,26 +3040,15 @@ ol.footnotes[data-desk-fn-pills] {
   display: none;
 }
 
+/* A toggle in a pill (E126; its look, on and off, is at the end of this
+   file): on, it is sunk with the text green's edge and words, more than a
+   change of color alone. */
 .desk-mine__label {
   min-height: 32px;
   padding: 0 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 999px;
-  background: transparent;
-  color: var(--text);
   font: inherit;
   cursor: pointer;
-}
-
-.desk-mine__label:hover {
-  border-color: rgba(var(--ink-rgb), 0.45);
-}
-
-/* Pressed: a heavier border as well as a tint, since a tint alone is a cue by colour. */
-.desk-mine__label[aria-pressed="true"] {
-  border-color: var(--text);
-  background: rgba(var(--ink-rgb), 0.07);
-  box-shadow: inset 0 0 0 1px var(--text);
 }
 
 .desk-mine__label:focus-visible,
@@ -3713,23 +3652,16 @@ ol.footnotes[data-desk-fn-pills] {
   border-radius: 4px;
 }
 
+/* Ordinary buttons (E126; the look is at the end of this file). */
 .desk-greek__goto,
 .desk-greek__retry,
 .desk-greek__back {
   padding: 4px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-greek__goto:hover,
-.desk-greek__retry:hover,
-.desk-greek__back:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-greek__goto[hidden] {
@@ -4237,21 +4169,15 @@ html:has(.desk-greek__split--dragging) {
   color: inherit;
 }
 
-/* "Show sources" writes out what an abbreviation's hover text says (GK-12). */
+/* "Show sources" writes out what an abbreviation's hover text says (GK-12).
+   A toggle in a pill (E126; the look is at the end of this file). */
 .desk-greek__show-sources {
   margin: 2px 0 4px;
   padding: 1px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.58);
   border-radius: 999px;
-  background: transparent;
-  color: inherit;
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-greek__show-sources[aria-pressed="true"] {
-  background: rgba(var(--ink-rgb), 0.08);
 }
 
 .desk-greek__show-sources:focus-visible {
@@ -4367,27 +4293,17 @@ html:has(.desk-greek__split--dragging) {
   display: none;
 }
 
+/* A word choice is a toggle (E126; its look, on and off, is at the end of
+   this file). */
 .desk-greek__choice {
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: calc(1.4 + var(--desk-leading, 0));
   text-align: left;
   cursor: pointer;
-}
-
-.desk-greek__choice:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.desk-greek__choice[aria-pressed="true"] {
-  border-color: var(--green-text);
-  background: rgba(var(--ink-rgb), 0.07);
-  box-shadow: inset 3px 0 0 var(--green-text);
 }
 
 .desk-greek__exact {
@@ -4445,18 +4361,11 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__hits-more {
   margin: 0 0 8px;
   padding: 4px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-greek__choices-more:hover,
-.desk-greek__hits-more:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-greek__choices-more[hidden],
@@ -4908,10 +4817,9 @@ html[data-desk-workspace] .desk-page__notice {
   min-height: 30px;
   margin: 0;
   padding: 4px 12px;
-  /* A control (E89): its own fill and a 3:1 edge, never the page's color. */
-  border: 1px solid var(--field-border);
+  /* An ordinary button (E89, E126): its fill, 3:1 edge, shadow and states
+     are "Four kinds of button" at the end of this file. */
   border-radius: 8px;
-  background: var(--desk-control);
   color: var(--text);
   font: 500 calc(0.875rem * var(--desk-ui, 1))/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
   text-decoration: none;
@@ -4919,20 +4827,8 @@ html[data-desk-workspace] .desk-page__notice {
   cursor: pointer;
 }
 
-.desk-cmdrow__btn:hover,
-.desk-cmdrow__btn[aria-expanded="true"] {
-  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
-  color: var(--text);
-}
-
 .desk-cmdrow__btn[aria-disabled="true"] {
-  border-color: rgba(var(--ink-rgb), 0.3);
-  color: rgba(var(--ink-rgb), 0.62);
   cursor: default;
-}
-
-.desk-cmdrow__btn[aria-disabled="true"]:hover {
-  background: var(--desk-control);
 }
 
 .desk-cmdrow__btn svg {
@@ -5355,10 +5251,11 @@ html.desk-ws--moving * {
   height: 30px;
   margin-left: auto;
   padding: 0;
-  /* A control (E89): its own fill and a 3:1 edge, never the pane's color. */
-  border: 1px solid var(--field-border);
+  /* A toggle (E89, E126): the ordinary button's fill, edge and shadow, sunk
+     with the text green's edge and glyph while the pane stays ("Four kinds of
+     button" at the end of this file), since an open and a closed lock differ
+     by a few pixels at 14px. */
   border-radius: 999px;
-  background: var(--desk-control);
   color: var(--text);
   cursor: pointer;
 }
@@ -5395,18 +5292,6 @@ html.desk-ws--moving * {
       display: inline;
     }
   }
-}
-
-.desk-pane__pin:hover {
-  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.08), rgba(var(--ink-rgb), 0.08));
-}
-
-/* Pressed: the footnote Pin's tint (E67), since an open and a closed lock
-   differ by a few pixels at 14px. */
-.desk-pane__pin[aria-pressed="true"] {
-  border-color: var(--green-text);
-  background: rgba(var(--ink-rgb), 0.06);
-  color: var(--green-text);
 }
 
 .desk-pane__close {
@@ -5649,18 +5534,13 @@ html.desk-ws--moving * {
   height: 30px;
   margin: 0 0 0 2px;
   padding: 0 8px 0 10px;
-  border: 1px solid var(--field-border);
+  /* An ordinary menu button (E126): sunk, with the text green's edge and
+     words, while its menu is open; the look is at the end of this file. */
   border-radius: 8px;
-  background: var(--desk-control);
   color: var(--text);
   font: 500 calc(0.875rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
-}
-
-.desk-lit__show:hover,
-.desk-lit__show[aria-expanded="true"] {
-  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
 }
 
 .desk-lit__show svg {
@@ -5783,19 +5663,14 @@ html.desk-ws--moving * {
   max-width: calc(48 * var(--ch));
 }
 
+/* An ordinary button (E126; the look is at the end of this file). */
 .desk-dp__retry {
   padding: 4px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-dp__retry:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 /* "This chapter" at the foot of This verse: the chapter's Go deeper rows
@@ -6760,7 +6635,7 @@ html.desk-ws--moving * {
     border: 3px solid Highlight;
   }
 
-  .desk-search__btn--quiet[aria-pressed="true"],
+  .desk-search__sort[aria-pressed="true"],
   .desk-pane__pin[aria-pressed="true"] {
     border: 3px solid Highlight;
   }
@@ -6813,13 +6688,34 @@ html.desk-ws--moving * {
      from #FAFAF8 by 1.04:1, so the edge is what says "button" (3:1 or more
      on every surface here, both themes).
    The primary button (Deep Green) and the glyph buttons (the arrows, ×,
-   ▾, the grip) keep their own looks. */
+   ▾, the grip) keep their own looks.
+   The buttons' tokens (E126; BVJ, 2026-11-12, the "Raised" look) are the
+   second group: a control's shadow at rest, lifted on hover and sunk when
+   pressed (each with its dark pair), the edge's darker foot, the hover and
+   pressed shades, the lift and its timing (both zero under reduced motion,
+   "Four kinds of button" at the end of this file), the primary's edge (the
+   text green at 70% in dark, where Deep Green alone is 2.3 to 2.9:1), its
+   pressed shadow, the disabled primary's tint, and a checked row's tint.
+   desk-search.css declares the same values, since /search loads it alone;
+   test/desk-buttons-css.test.js holds the two in step. */
 :root {
   --desk-card: var(--surface-raised);
   --desk-pane-card: #ecebe8;
   --desk-card-edge: rgba(var(--ink-rgb), 0.16);
   --desk-field: var(--white);
   --desk-control: var(--white);
+  --desk-btn-edge-low: rgba(var(--ink-rgb), 0.74);
+  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.16);
+  --desk-btn-press: inset 0 1px 3px rgba(0, 0, 0, 0.22);
+  --desk-btn-hover: rgba(var(--ink-rgb), 0.05);
+  --desk-btn-down: rgba(0, 0, 0, 0.07);
+  --desk-btn-lift-y: -1px;
+  --desk-btn-motion: 120ms;
+  --desk-primary-edge: var(--green-deep);
+  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  --desk-primary-off: rgba(15, 107, 51, 0.06);
+  --desk-pick-tint: rgba(32, 157, 80, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -6827,6 +6723,16 @@ html.desk-ws--moving * {
     --desk-pane-card: #262628;
     --desk-field: var(--surface);
     --desk-control: rgba(var(--ink-rgb), 0.07);
+    --desk-btn-edge-low: var(--field-border);
+    --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
+    --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
+    --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+    --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
+    --desk-btn-down: rgba(0, 0, 0, 0.3);
+    --desk-primary-edge: rgba(58, 191, 106, 0.7);
+    --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+    --desk-primary-off: rgba(58, 191, 106, 0.12);
+    --desk-pick-tint: rgba(58, 191, 106, 0.1);
   }
 }
 
@@ -6834,6 +6740,16 @@ html.desk-ws--moving * {
   --desk-pane-card: #262628;
   --desk-field: var(--surface);
   --desk-control: rgba(var(--ink-rgb), 0.07);
+  --desk-btn-edge-low: var(--field-border);
+  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
+  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
+  --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
+  --desk-btn-down: rgba(0, 0, 0, 0.3);
+  --desk-primary-edge: rgba(58, 191, 106, 0.7);
+  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  --desk-primary-off: rgba(58, 191, 106, 0.12);
+  --desk-pick-tint: rgba(58, 191, 106, 0.1);
 }
 
 /* In the Sheets pane the cards take the pane's card color (E89). */
@@ -6904,18 +6820,10 @@ html.desk-ws--moving * {
 
 /* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10).
    In the Sheets pane and anywhere on /sheets (the list, the chooser, the
-   editor, a sheet's versions view) every one but the primary is a control
-   (E89): a fill and a 3:1 edge, quiet ones included. Scoped here, so a
-   phone's shared sheet, which loads that file alone, keeps its look.
-   The hover's tint is an image over the fill, so it works on either theme's. */
-:is(.desk-sheet, .sheets-page) .desk-sheet__btn:not(.desk-sheet__btn--primary) {
-  border: 1px solid var(--field-border);
-  background-color: var(--desk-control);
-}
-
-:is(.desk-sheet, .sheets-page) .desk-sheet__btn:not(.desk-sheet__btn--primary, :disabled, [aria-disabled="true"]):hover {
-  background-image: linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
-}
+   editor, a sheet's versions view) every one but the primary is an ordinary
+   button (E89, E126), quiet ones included: "Four kinds of button" at the end
+   of this file, scoped there, so a phone's shared sheet, which loads that
+   file alone, keeps its look. */
 
 .desk-sheet :is(button, input, select, summary, a):focus-visible {
   outline: 2px solid var(--focus-ring);
@@ -7637,21 +7545,15 @@ a.desk-sheet__open {
   margin-bottom: 8px;
 }
 
-/* Each template is a control (E89), with the gap between rather than a rule. */
+/* Each template is an ordinary button (E89, E126; the look is at the end of
+   this file), with the gap between rather than a rule. */
 .desk-sheet__choice {
   padding: 8px 12px;
-  border: 1px solid var(--field-border);
   border-radius: 8px;
-  background-color: var(--desk-control);
-}
-
-.desk-sheet__choice:hover:not(:disabled) {
-  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
 }
 
 .desk-sheet__choice:disabled {
   cursor: default;
-  opacity: 0.6;
 }
 
 .desk-sheet__choice-name {
@@ -7763,31 +7665,19 @@ a.desk-sheet__open {
   color: rgba(var(--ink-rgb), 0.7);
 }
 
-/* A control (E89): the edge and fill of the sheets' buttons. */
+/* A toggle in a pill (E89, E126): the edge and fill of the sheets' buttons,
+   sunk with the text green's edge and words when blanked ("Four kinds of
+   button" at the end of this file), and a weight, which forced colors keeps. */
 .desk-sheet__chip {
   padding: 2px 10px;
-  border: 1px solid var(--field-border);
   border-radius: 999px;
-  background: var(--desk-control);
-  color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: pointer;
 }
 
-.desk-sheet__chip:hover {
-  background: var(--desk-control) linear-gradient(rgba(var(--ink-rgb), 0.07), rgba(var(--ink-rgb), 0.07));
-}
-
 .desk-sheet__chip[aria-pressed="true"] {
-  border-color: var(--desk-rich-green);
-  background: rgba(32, 157, 80, 0.16);
-  color: var(--desk-rich-green);
   font-weight: 600;
-}
-
-.desk-sheet__chip[aria-pressed="true"]:hover {
-  background: rgba(32, 157, 80, 0.24);
 }
 
 .desk-sheet__blank-list {
@@ -8180,17 +8070,11 @@ p.desk-sheet__flag {
 
 .desk-panel__print-button {
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
-}
-
-.desk-panel__print-button:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-panel__print .desk-panel__print-hint {
@@ -8531,7 +8415,7 @@ mark.desk-print-mark {
   text-overflow: ellipsis;
 }
 
-.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__away, .desk-search__choice, .desk-search__open):focus-visible,
+.desk-search :is(.desk-search__input, .desk-search__select, .desk-search__btn, .desk-search__add, .desk-search__away, .desk-search__choice, .desk-search__open, .desk-search__check, .desk-search__check-all, .desk-search__pick-clear):focus-visible,
 .desk-search .desk-search__link:focus-visible,
 .desk-search .greek-cmd-link:focus-visible,
 .desk-search__exact input:focus-visible {
@@ -8674,44 +8558,165 @@ mark.desk-print-mark {
   font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
+/* The pane's worded buttons: ordinary, a toggle (Bible order) or the strip's
+   primary (E126; each look is at the end of this file). The transparent edge
+   holds the width the primary's color fills. */
 .desk-search__btn {
   padding: 4px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
+  border: 1px solid transparent;
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
-.desk-search__btn:hover:not(:disabled) {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.desk-search__btn:disabled {
-  opacity: 0.5;
+.desk-search__btn:is(:disabled, [aria-disabled="true"]) {
   cursor: default;
-}
-
-.desk-search__btn--quiet {
-  border-color: transparent;
-}
-
-.desk-search__btn--quiet[aria-pressed="true"] {
-  border-color: rgba(var(--ink-rgb), 0.25);
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-search__more {
   margin: 6px 0 0;
 }
 
-.desk-search__bar {
+/* The verse group's title line (E117): the title, and Bible order small at
+   its right, a toggle, apart from the sheet's strip below it. */
+.desk-search__group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+
+.desk-search__group-head .desk-search__group-title {
+  margin: 0;
+}
+
+.desk-search__sort {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+}
+
+.desk-search__sort svg {
+  display: block;
+  flex: none;
+}
+
+/* The strip (E117): a card a step from the pane, in the Sheets pane's card
+   color, with the select-all box in the rows' box column, the count line
+   and the buttons. Sticky at the top of the results while the group is in
+   view, opaque, so rows pass under it. */
+.desk-search__pick {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 8px;
+  align-items: center;
+  margin: 0 0 6px;
+  padding: 8px 10px 10px 0;
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-pane-card);
+}
+
+/* The green rule the strip shares with every checked row. */
+.desk-search__pick--some {
+  box-shadow: inset 3px 0 0 var(--green-text);
+}
+
+.desk-search__pick-line {
+  margin: 0;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
+}
+
+.desk-search__pick-count {
+  font-weight: 600;
+}
+
+/* "Clear checks": quiet, a link's look. */
+.desk-search__pick-clear {
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green-text);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.desk-search__pick-clear[hidden] {
+  display: none;
+}
+
+/* Under the line, in its column. */
+.desk-search__pick-actions {
+  grid-column: 2;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin: 0 0 4px;
+  min-width: 0;
+}
+
+/* A strip button never wraps inside: a long sheet name ends in "…" (the
+   whole name stays in its accessible name and its tooltip). Its label sits
+   over invisible copies of the longest it can read, so checking a box never
+   changes its width. */
+.desk-search__pick-actions .desk-search__btn {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.desk-search__pick-actions .desk-search__btn > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desk-search__label-room {
+  visibility: hidden;
+}
+
+.desk-search__pick-actions .desk-search__btn[hidden] {
+  display: none;
+}
+
+/* A box on every verse, in one column with the strip's. */
+.desk-search__check,
+.desk-search__check-all {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0 2px 0 6px;
+  accent-color: var(--green-deep);
+  cursor: pointer;
+}
+
+/* The strip's edge takes a pixel, so its box sits a pixel in to line up. */
+.desk-search__pick .desk-search__check-all {
+  margin-left: 5px;
+}
+
+.desk-search__row--verse .desk-search__check {
+  margin-top: 9px;
+}
+
+/* A checked row: a tint and the strip's green rule. */
+.desk-search__row--picked {
+  background: var(--desk-pick-tint);
+  box-shadow: inset 3px 0 0 var(--green-text);
 }
 
 /* A verse's + : seen on hover or focus within its row, always where there is
@@ -8772,8 +8777,7 @@ mark.desk-print-mark {
   }
 }
 
-.desk-search__add[hidden],
-.desk-search__add-all[hidden] {
+.desk-search__add[hidden] {
   display: none;
 }
 
@@ -8791,22 +8795,17 @@ mark.desk-print-mark {
   margin: 0 0 8px;
 }
 
+/* A Greek word offered: a toggle, as the Greek pane's word choices are
+   (E126; the look is at the end of this file). */
 .desk-search__choice {
   max-width: 100%;
   padding: 3px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 8px;
-  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-align: left;
   cursor: pointer;
-}
-
-.desk-search__choice[aria-pressed="true"] {
-  border-color: var(--green-text);
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-search__exact {
@@ -8919,9 +8918,7 @@ mark.desk-print-mark {
 .desk-mine__more-button,
 .desk-np__more {
   padding: 6px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
   border-radius: 6px;
-  background: transparent;
   color: var(--text);
   font: calc(0.875rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
   cursor: pointer;
@@ -8931,13 +8928,176 @@ mark.desk-print-mark {
   margin: 8px 0 0;
 }
 
-.desk-mine__more-button:hover,
-.desk-np__more:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
 .desk-mine__more-button:focus-visible,
 .desk-np__more:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+/* ── Four kinds of button (E126) ─────────────────────────────────
+   BVJ (2026-11-12) chose one look per kind of button in every pane, in the
+   "Raised" look; sheets/CLAUDE.md, "How the Sheets look", has the rule and
+   the inventory. Kept here, last, so each component rule above says only its
+   size and shape and none of them outweighs these.
+   - Ordinary: E89's fill (--desk-control) and 3:1 edge (--field-border),
+     the edge a hair darker at the foot, a soft shadow at rest, a 1px lift on
+     hover, sunk when pressed. A toggle that is on, and a menu button whose
+     menu is open, stay sunk with the text green's edge and words. Disabled
+     is flat, with words at 70% (4.5:1 on every surface, both themes).
+   - Toggle: an ordinary button with aria-pressed (Stay here, Bible order,
+     the Greek's word choices), or a pill (Pin, label chips, Show sources):
+     flat at rest, since a row of chips with shadows reads as noise.
+   - Primary: Deep Green, white words, at most one per pane or view. In dark
+     themes its edge is the text green at 70% (the fill alone is 2.3 to 2.9:1
+     on the dark surfaces). Disabled, it keeps its edge and a faint green
+     fill, with the text green's words, so it still reads as a button.
+   - Quiet (links) and glyph buttons (‹ › × ▾ + and the like) keep their own.
+   The tokens are in "The desk's layers"; desk-search.css carries its own
+   copy for /search. Under prefers-reduced-motion the lift and every
+   transition go; the shadows stay (test/desk-buttons-css.test.js). */
+
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice) {
+  border: 1px solid var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  background: var(--desk-control);
+  color: var(--text);
+  box-shadow: var(--desk-btn-rest);
+  transition:
+    transform var(--desk-btn-motion) ease,
+    box-shadow var(--desk-btn-motion) ease,
+    background-color var(--desk-btn-motion) ease;
+}
+
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], :active) {
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+}
+
+/* Pressed, on or open: sunk. */
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  border-bottom-color: var(--field-border);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  box-shadow: var(--desk-btn-press);
+  transform: none;
+}
+
+/* On, or its menu open: the text green's edge and words too, more than a
+   change of color alone. */
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--green-text);
+  color: var(--green-text);
+}
+
+/* Disabled: flat, nothing to press, and still a button (its edge stays). */
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice):is(:disabled, [aria-disabled="true"]) {
+  border-color: var(--field-border);
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}
+
+/* Pills: the control's fill and edge, flat at rest; on is sunk, with the
+   text green's edge and words. The reading pages' own Pin stays quiet (its
+   place is the text), so only This verse's and the Footnotes pane's are here. */
+:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip) {
+  border: 1px solid var(--field-border);
+  background: var(--desk-control);
+  color: var(--text);
+  transition:
+    box-shadow var(--desk-btn-motion) ease,
+    background-color var(--desk-btn-motion) ease;
+}
+
+:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):hover:not(:disabled, [aria-pressed="true"], :active) {
+  border-color: var(--field-border);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  color: var(--text);
+}
+
+:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):is(:active, [aria-pressed="true"]):not(:disabled) {
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  box-shadow: var(--desk-btn-press);
+}
+
+:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
+  border-color: var(--green-text);
+  color: var(--green-text);
+}
+
+/* The primary: one per pane or view. */
+:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep) {
+  border-color: var(--desk-primary-edge);
+  background: var(--green-deep);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: var(--desk-btn-rest);
+  transition:
+    transform var(--desk-btn-motion) ease,
+    box-shadow var(--desk-btn-motion) ease,
+    filter var(--desk-btn-motion) ease;
+}
+
+:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep):hover:not(:disabled, [aria-disabled="true"], :active) {
+  background: var(--green-deep);
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+  filter: brightness(1.1);
+}
+
+:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep):active:not(:disabled, [aria-disabled="true"]) {
+  box-shadow: var(--desk-primary-press);
+  transform: none;
+  filter: brightness(0.95);
+}
+
+/* A primary with nothing to do yet (E116, E117: no verse checked): its edge
+   and a faint green, the text green's words (4.5:1 or more on every
+   surface), flat. It stays focusable where it says aria-disabled. */
+:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep):is(:disabled, [aria-disabled="true"]) {
+  border-color: var(--desk-primary-edge);
+  background: var(--desk-primary-off);
+  color: var(--green-text);
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+
+/* No lift, no transition; the shadows still say hover and pressed. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --desk-btn-lift-y: 0px;
+    --desk-btn-motion: 0s;
+  }
+}
+
+/* Forced colors draw no shadow or fill, so an on toggle or an open menu
+   keeps a Highlight edge (the thicker ones above set their width), a
+   disabled button reads in GrayText, and the primary takes a thicker edge
+   as the Sheets' does (XA8-7). */
+@media (forced-colors: active) {
+  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]),
+  :is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
+    border-color: Highlight;
+  }
+
+  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-mine__more-button, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice):is(:disabled, [aria-disabled="true"]),
+  :is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep):is(:disabled, [aria-disabled="true"]) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .desk-search__btn.desk-search__btn--primary {
+    padding: 3px 9px;
+    border: 2px solid ButtonText;
+  }
+
+  .desk-editor__actions .desk-editor__save,
+  .desk-notice__actions .desk-notice__keep {
+    padding: 5px 13px;
+    border: 2px solid ButtonText;
+  }
 }

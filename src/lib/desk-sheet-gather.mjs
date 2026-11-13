@@ -172,3 +172,69 @@ export function gatherMessage({ made, name, added, leftOut = 0, unread = 0 }) {
   }
   return parts.join(" ");
 }
+
+/* ── The checks' words (E116 on /search, E117 in the Search pane) ──────────
+   BVJ (2026-11-12): nothing checked adds nothing, and the box at the head of
+   the list checks every verse. Both places say it in the same words, so each
+   teaches the other; the pane's own labels are in desk-search-pane.mjs. */
+
+const count = (n) => Number(n).toLocaleString("en-US");
+
+/**
+ * The checked verses in a button's label: "1 verse", "4 verses", or "all 119
+ * verses" once every one is checked. Never "0 verses": a label for none
+ * checked says "checked verses" (`addToSheetLabel`).
+ */
+export function checkedVerses(k, total) {
+  if (k >= total && total > 1) return `all ${count(total)} verses`;
+  return `${count(k)} ${k === 1 ? "verse" : "verses"}`;
+}
+
+/**
+ * /search's head row button (E116): "Add 4 verses to a sheet…", "Add all 119
+ * verses to a sheet…", and with none checked "Add checked verses to a
+ * sheet…", which is disabled and says why beside it. The chooser it opens is
+ * titled the same, without the ellipsis (`ellipsis: false`).
+ */
+export function addToSheetLabel(k, total, { ellipsis = true } = {}) {
+  const what = k > 0 ? checkedVerses(k, total) : "checked verses";
+  return `Add ${what} to a sheet${ellipsis ? "…" : ""}`;
+}
+
+/**
+ * The line beside the head row's box: `count` is set apart in weight ("4 of
+ * 119", "All 119"; empty when there is no number to stress), `text` follows
+ * it. With none checked the line is the button's reason (its description),
+ * so it says both ways to check, in the words of the box before it ("Check
+ * all 119 verses"), never "this box", which a button's description can't
+ * point at.
+ */
+export function checkedLine(k, total) {
+  if (k <= 0) {
+    return total === 1
+      ? { count: "", text: "Check the verse to add it." }
+      : { count: "", text: `Check the verses you want, or check all ${count(total)}.` };
+  }
+  if (k >= total) return total === 1 ? { count: "", text: "The verse is checked." } : { count: `All ${count(total)}`, text: " checked." };
+  return { count: `${count(k)} of ${count(total)}`, text: " checked." };
+}
+
+/** What a screen reader hears once a box changes: the line, as one sentence. */
+export function checkedSaid(k, total) {
+  if (k <= 0) return "No verses checked.";
+  const { count: c, text } = checkedLine(k, total);
+  return `${c}${text}`;
+}
+
+/** The head row's box: "Check all 119 verses". */
+export const checkAllLabel = (total) => (total === 1 ? "Check the verse" : `Check all ${count(total)} verses`);
+
+/** A verse's box: "Include John 3:16 in the sheet". */
+export const includeLabel = (label) => `Include ${label} in the sheet`;
+
+/** The chapters group's head row (E116): its line and its one button, which is never disabled. */
+export const chaptersLine = (n) => (n === 1 ? "The chapter goes whole." : `All ${count(n)} chapters go, each whole.`);
+
+export function addChaptersLabel(n, { ellipsis = true } = {}) {
+  return `Add ${n === 1 ? "1 chapter" : `${count(n)} chapters`} to a sheet${ellipsis ? "…" : ""}`;
+}
