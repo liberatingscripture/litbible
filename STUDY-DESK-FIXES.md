@@ -3624,7 +3624,7 @@ says so; where BVJ was wondering, nothing is decided.)
   same shape on /desk, /notebook and /search while there (a tinted notice
   narrower than the row it sits in). **BVJ** (2026-11-13): “Yes, I
   approve your proposal”: the tint fills the row, and the words keep their
-  60-character line. Status: decided, to build.
+  60-character line. Status: fixed (#579).
 - **E129, design: a sheet card's instructions look like the sheet's own
   text.** BVJ (2026-11-12, in chat): “The instructions in the sheets editor
   cards should be visually distinguished from the other text. Right now it
@@ -3714,7 +3714,7 @@ says so; where BVJ was wondering, nothing is decided.)
   - **Ctrl+Z on /desk undoes layout changes too**: a layout history beside
     the notebook's, the two taken in the order they happened. It keeps what
     the bar says, and is larger.
-  **BVJ** (2026-11-13): the first way. Status: decided, to build.
+  **BVJ** (2026-11-13): the first way. Status: fixed (#578).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -3839,7 +3839,7 @@ the rest is polish.
     2026-11-12, not a decision). Waiting on BVJ: E113's timing for the
     undo-bar line and its new words (the rest of E113 is decided). Wave 1
     (a to d) is #563 to #567; wave 2 (e to i, all but E113 and E131) is
-    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l.
+    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578 and #579).
     Shared files set the order; each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
        E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112
