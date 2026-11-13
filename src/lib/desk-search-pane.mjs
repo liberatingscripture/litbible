@@ -17,6 +17,7 @@
 
 import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { hasGreek } from "./greek-detect.mjs";
+import { kindLabel } from "./desk-layout.mjs";
 
 /** The shortest query searched as the tray does (a Greek query has no minimum). */
 export const MIN_QUERY_LEN = 3;
@@ -125,28 +126,79 @@ export function nextPage(shown, total, page = PAGE) {
  * What a plain click on a passage result says it did (E34; BVJ, 2026-11-05:
  * a result offers the LIT pane or the passage's page, and the LIT pane choice
  * says which happened). `outcome` is desk-page.js's `showPassage`: "moved"
- * the leading LIT pane, "opened" a new one, or "placed" (no LIT pane, and no
- * room for one). `label` is the passage, "John 3:16". Empty for anything else.
+ * the leading LIT pane, "opened" a new one, "replaced" (no LIT pane, none could
+ * open, and one took another pane's place) or "placed" (no LIT pane, and no
+ * room for one). `label` is the passage, "John 3:16". Empty for anything else,
+ * and for the last two: the undo bar and the no-room notice say those
+ * (E127: `replacedMessage`, `noWayMessage`), where everyone sees them.
  */
 export function passageMoveMessage(outcome, label) {
   if (outcome === "moved") return `The LIT pane moved to ${label}.`;
   if (outcome === "opened") return `A LIT pane opened at ${label}.`;
-  if (outcome === "placed") return `There’s no room for a LIT pane to show ${label}. Close a pane, or open it on its page.`;
   return "";
 }
 
 /**
  * What a plain click on an intro result says it did (E53). `result` is
  * desk-layout.mjs's `showIntroIn`: `outcome` "shown" or "opened" (a Book Intro
- * pane), or "none" (no room); `moved`, the LIT's new place, or null. `book` is
- * the book's name, `movedLabel` that place's ("Romans 1").
+ * pane), "replaced" or "none"; `moved`, the LIT's new place, or null. `book` is
+ * the book's name, `movedLabel` that place's ("Romans 1"). Empty for the last
+ * two, which the undo bar and the no-room notice say (E127).
  */
 export function introMoveMessage(result, book, movedLabel = "") {
   const lit = result?.moved && movedLabel ? ` The LIT moved to ${movedLabel}.` : "";
   if (result?.outcome === "shown") return `The Book Intro pane shows ${book}.${lit}`;
   if (result?.outcome === "opened") return `A Book Intro pane opened at ${book}.${lit}`;
-  if (result?.outcome === "none") return `There’s no room for a Book Intro pane. Close a pane, or open the introduction on its page.`;
   return "";
+}
+
+/**
+ * The undo bar's words for a pane the desk opened in place of another (E127;
+ * BVJ, 2026-11-12): "Book Intro shown in place of Greek.", each kind named as
+ * its "Show in this pane" menu names it. `extra` is a sentence of what else
+ * happened; `at` is the passage a LIT pane opened at.
+ */
+export function replacedMessage(kind, replacedKind, { at = "", extra = "" } = {}) {
+  const what = kind === "lit" && at ? `${kindLabel(kind)} shown at ${at}` : `${kindLabel(kind)} shown`;
+  return `${what} in place of ${kindLabel(replacedKind)}.${extra ? ` ${extra}` : ""}`;
+}
+
+const NO_WAY = {
+  lit: { a: "a LIT pane", open: "open the passage on its page" },
+  intro: { a: "a Book Intro pane", open: "open the introduction on its page" },
+  sheet: { a: "a Sheets pane", open: "open the sheet on its page" },
+  greek: { a: "a Greek pane", open: "open the word on its page" },
+  search: { a: "a Search pane", open: "use the search page" },
+};
+
+/**
+ * The notice for a pane that couldn't open and had none to take the place of
+ * (E127): why, and both ways on, closing a pane and trying again or opening it
+ * on its page (the notice's link). `reason` is `makeWayFor`'s: "full" (four
+ * panes) or "window" (fewer, and the window can't hold another). `search`: a
+ * Search pane asked, so it keeps its place too.
+ */
+export function noWayMessage(kind, reason, { search = false } = {}) {
+  const w = NO_WAY[kind] ?? { a: "another pane", open: "open it on its page" };
+  const keeps = search
+    ? "LIT panes, panes set to “Stay here,” and this search keep their places"
+    : "LIT panes and panes set to “Stay here” keep their places";
+  if (reason === "window") {
+    return `There’s no room for ${w.a} in a window this size, and no pane can make way: ${keeps}. Make the window larger or close a pane and try again, or ${w.open}.`;
+  }
+  return `There’s no room for ${w.a}, and no pane can make way: ${keeps}. Close a pane and try again, or ${w.open}.`;
+}
+
+/**
+ * The words of that notice's link. `what` is the passage ("John 3:16") for a
+ * LIT pane or the book ("Romans") for an introduction; the others need none.
+ */
+export function noWayLinkLabel(kind, what = "") {
+  if (kind === "lit") return `Open ${what}`;
+  if (kind === "intro") return `Open the ${what} introduction`;
+  if (kind === "sheet") return "Open the sheet";
+  if (kind === "greek") return "Open the Greek word";
+  return "Open the search page";
 }
 
 /** The name of a result's link to its passage's own page, which opens in a new tab (E34). */

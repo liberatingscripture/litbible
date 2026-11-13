@@ -23,7 +23,8 @@
 //   ref-preview.js previews it on hover.
 // - **Both ways to read a passage** (E34; BVJ, 2026-11-05): the plain click
 //   moves the leading LIT pane, or opens one beside this pane when there is
-//   none, and the note line says which (`passageMoveMessage`); a small link
+//   none (or takes another pane's place, E127), and the note line says which
+//   (`passageMoveMessage`; the undo bar and the notice say the rest); a small link
 //   beside the result opens its page in a new tab (`awayLink`).
 // - **Results can go on a sheet**: "Make a sheet of these verses" (a new sheet,
 //   shown in a Sheets pane) and, while a Sheets pane shows one, "Add these
@@ -55,6 +56,9 @@ import {
   pageLinkText,
   passageMoveMessage,
   introMoveMessage,
+  noWayLinkLabel,
+  noWayMessage,
+  replacedMessage,
   resultTarget,
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
@@ -873,9 +877,24 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     }
     const entry = store.lastEntry();
     let text = gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: result.leftOut });
-    // Its results stay on screen: this pane never gives its place to the sheet.
-    if (made && !destroyed && !env.showSheet(sheet.id, paneId)) text += " Open a Sheets pane to see it.";
-    if (entry) showUndo(text, () => undoEntry(entry));
+    // Its results stay on screen: this pane never gives its place to the sheet
+    // (`keep`). By the one rule for a pane the desk opens (E127) the sheet is
+    // shown in a Sheets pane, in a new one, or in place of another pane, said
+    // in this one bar whose Undo takes back both the sheet and the layout; with
+    // no pane to give its place the bar says why and links to the sheet's page.
+    let link = null;
+    let undoLayout = null;
+    if (made && !destroyed) {
+      const way = env.showSheet(sheet.id, paneId);
+      if (way?.changed) undoLayout = way.undoLayout;
+      if (way?.outcome === "replaced") text += ` ${replacedMessage("sheet", way.replaced.kind)}`;
+      else if (way?.outcome === "none" && way.reason) {
+        text += ` ${noWayMessage("sheet", way.reason, { search: true })}`;
+        link = { label: noWayLinkLabel("sheet"), href: `/sheets/?id=${encodeURIComponent(sheet.id)}` };
+      }
+    }
+    // The layout first, then the record, so no pane is left pointing at a deleted sheet.
+    if (entry) showUndo(text, async () => { undoLayout?.(); await undoEntry(entry); }, { link });
     else if (!destroyed) tell(text);
   }
 

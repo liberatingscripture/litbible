@@ -1254,11 +1254,16 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Footnotes pane, This verse as a pane, the LIT pane's footnote popover;
        `footnote-links.js`; Audit 8, DK8-2; BVJ 2026-11-10), and any other link
        in a footnote opens a new tab.
-       `showIntroIn` (`desk-layout.mjs`) is the one rule for showing a book's
-       introduction from outside the pane: a following Book Intro pane first,
-       else any, else a new one beside, moving the LIT to the book's chapter 1
-       only when it is in another book (a pane that stays put moves alone).
-       A Search pane's intro result and `/desk/?intro=romans` both use it.
+       `showIntroIn`: a following Book Intro pane, else any, else the rule
+       below; the LIT moves to chapter 1 only when it is in another book.
+       **One rule for a pane the desk opens by itself** (E127, BVJ,
+       2026-11-12; Sheets, Book Intro, a LIT or Greek result, Search from
+       `/`): use one open; else open one with room; else take the place of
+       the last non-LIT pane, never the asker (`keep`, which a Greek result
+       widens to its Greek pane) or a "Stay here" pane (`makeWayFor`). The
+       undo bar says "Book Intro shown in place of Greek." and Undo restores
+       the layout (`replacedMessage`); if none can, `showNotice` says why,
+       with both ways on and the page's link (`noWayMessage`).
        **Long My Notes and notebook lists page** (LG8-2, BVJ, 2026-11-10): 200
        rows, then "Show N more" (`LIST_PAGE_SIZE`, `pageRows`, `pagedEntries`,
        `desk-notebook.mjs`), by rows not groups, so a heading shows only with a
@@ -1584,9 +1589,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        reading” fixes the book when picked. **A passage result offers both
        ways to read it** (E34; BVJ, 2026-11-05): a plain click on a verse or
        topic moves the leading LIT pane through `env.showPassage`, or opens
-       one beside the pane when there is none, and the note line says which
-       (`showPassage` returns "moved", "opened" or "placed";
-       `passageMoveMessage`); a small link beside the row (`awayLink`,
+       one by the rule above when there is none, and the note line says which
+       (`passageMoveMessage`); a small link beside the row (`awayLink`,
        `.desk-search__away`) opens its page in a new tab. Rows stay
        real links, so a modified click opens a tab and `ref-preview.js`
        previews them (`.desk-search__link`); on /desk the preview's

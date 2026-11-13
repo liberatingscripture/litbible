@@ -57,6 +57,7 @@ import {
   showIntroIn,
   sheetPaneFor,
   showSheet,
+  makeWayFor,
   setPlace,
   slotCount,
   splitPane,
@@ -1470,18 +1471,22 @@ test("checkLayout keeps a Sheets pane's sheet and drops one anywhere else", () =
 
 test("showSheet uses the first Sheets pane there is", () => {
   const l = setPaneSheet(withSheetPane(), "p2", "old");
-  const next = showSheet(l, "new");
-  assert.equal(findPane(next.root, "p2").sheet, "new");
-  assert.equal(panes(next.root).length, panes(l.root).length);
+  const way = showSheet(l, "new");
+  assert.equal(way.outcome, "shown");
+  assert.equal(findPane(way.layout.root, "p2").sheet, "new");
+  assert.equal(panes(way.layout.root).length, panes(l.root).length);
 });
 
 test("showSheet splits a new Sheets pane beside the active pane", () => {
   const l = mk(cols([0.6, 0.4], leaf("p1", "lit"), leaf("p2", "mine")));
-  const next = showSheet(l, "s-1");
+  const way = showSheet(l, "s-1");
+  const next = way.layout;
   const all = panes(next.root);
+  assert.equal(way.outcome, "opened");
   assert.equal(all.length, 3);
   const made = all.find((p) => p.kind === "sheet");
   assert.equal(made.sheet, "s-1");
+  assert.equal(way.paneId, made.id);
   assert.deepEqual(panes(l.root).map((p) => p.id), ["p1", "p2"], "the original is untouched");
   assert.deepEqual(all.map((p) => p.id).slice(0, 2), ["p1", made.id], "it sits right after the active pane");
   assert.equal(next.active, "p1");
@@ -1489,9 +1494,11 @@ test("showSheet splits a new Sheets pane beside the active pane", () => {
 
 test("showSheet with four panes open gives a pane that isn't the LIT its place", () => {
   const l = mk(cols([0.25, 0.25, 0.25, 0.25], leaf("p1", "lit"), leaf("p2", "mine"), leaf("p3", "verse"), leaf("p4", "lit")));
-  const next = showSheet(l, "s-1");
-  const all = panes(next.root);
-  assert.equal(all.length, 4);
+  const way = showSheet(l, "s-1");
+  const next = way.layout;
+  assert.equal(way.outcome, "replaced");
+  assert.deepEqual(way.replaced, { id: "p3", kind: "verse" });
+  assert.equal(panes(next.root).length, 4);
   assert.equal(findPane(next.root, "p3").kind, "sheet");
   assert.equal(findPane(next.root, "p3").sheet, "s-1");
   assert.equal(findPane(next.root, "p1").kind, "lit");
@@ -1499,7 +1506,9 @@ test("showSheet with four panes open gives a pane that isn't the LIT its place",
 });
 
 test("BA60: showSheet gives a pane its place when a split would not fit the width", () => {
-  const next = showSheet(originalLayout(), "s-1", 600);
+  const way = showSheet(originalLayout(), "s-1", 600);
+  const next = way.layout;
+  assert.equal(way.outcome, "replaced");
   assert.equal(panes(next.root).length, 2);
   assert.equal(findPane(next.root, "p2").kind, "sheet");
   assert.equal(findPane(next.root, "p2").sheet, "s-1");
@@ -1507,41 +1516,133 @@ test("BA60: showSheet gives a pane its place when a split would not fit the widt
 });
 
 test("BA60: showSheet splits when the width holds the new pane, or none is given", () => {
-  assert.equal(panes(showSheet(originalLayout(), "s-1", 1200).root).length, 3);
-  assert.equal(panes(showSheet(originalLayout(), "s-1", 852).root).length, 3, "exactly enough");
-  assert.equal(panes(showSheet(originalLayout(), "s-1", 851).root).length, 2, "a pixel short");
-  assert.equal(panes(showSheet(originalLayout(), "s-1").root).length, 3);
+  const count = (...a) => panes(showSheet(originalLayout(), ...a).layout.root).length;
+  assert.equal(count("s-1", 1200), 3);
+  assert.equal(count("s-1", 852), 3, "exactly enough");
+  assert.equal(count("s-1", 851), 2, "a pixel short");
+  assert.equal(count("s-1"), 3);
   for (const bad of [0, -5, NaN, Infinity, "900", null]) {
-    assert.equal(panes(showSheet(originalLayout(), "s-1", bad).root).length, 3, `width ${String(bad)} is not asked about`);
+    assert.equal(count("s-1", bad), 3, `width ${String(bad)} is not asked about`);
   }
 });
 
-test("BA60: showSheet on a single LIT pane too narrow for two columns uses that pane", () => {
+test("E127: showSheet on a single LIT pane too narrow for two columns changes nothing, and says the window", () => {
   const l = mk(leaf("p1", "lit"));
-  const next = showSheet(l, "s-1", 400);
-  assert.equal(panes(next.root).length, 1);
-  assert.equal(findPane(next.root, "p1").kind, "sheet");
-  assert.equal(findPane(next.root, "p1").sheet, "s-1");
-  assert.equal(panes(showSheet(l, "s-1", 600).root).length, 2, "two columns fit 600");
+  const way = showSheet(l, "s-1", 400);
+  assert.equal(way.outcome, "none");
+  assert.equal(way.reason, "window");
+  assert.equal(way.layout, l, "a LIT pane never gives its place");
+  assert.equal(panes(showSheet(l, "s-1", 600).layout.root).length, 2, "two columns fit 600");
 });
 
 test("3m: showSheet never takes the pane it is told to keep", () => {
   const l = setKind(originalLayout(), "p2", "search");
-  assert.equal(showSheet(l, "s-1", 600, "p2"), l, "only the LIT pane is left to give, and it keeps its place");
-  const roomy = showSheet(l, "s-1", 1200, "p2");
+  const stuck = showSheet(l, "s-1", 600, "p2");
+  assert.equal(stuck.layout, l, "only the LIT pane is left, and it keeps its place");
+  assert.equal(stuck.outcome, "none");
+  const roomy = showSheet(l, "s-1", 1200, "p2").layout;
   assert.equal(findPane(roomy.root, "p2").kind, "search");
   assert.equal(panes(roomy.root).filter((p) => p.kind === "sheet").length, 1, "a new pane has room");
   const three = openKind(l, "mine", 1200, 800);
-  const given = showSheet(three, "s-1", 600, "p2");
+  const given = showSheet(three, "s-1", 600, "p2").layout;
   assert.equal(findPane(given.root, "p2").kind, "search");
   assert.equal(panes(given.root).filter((p) => p.kind === "sheet").length, 1, "another pane gives its place");
-  assert.equal(showSheet(mk(leaf("p1", "search")), "s-1", 400, "p1").root.pane.kind, "search", "nothing else to give");
+  assert.equal(showSheet(mk(leaf("p1", "search")), "s-1", 400, "p1").layout.root.pane.kind, "search", "nothing else to give");
 });
 
 test("showSheet leaves the layout alone for an empty id", () => {
   const l = originalLayout();
-  assert.equal(showSheet(l, ""), l);
-  assert.equal(showSheet(l, null), l);
+  assert.equal(showSheet(l, "").layout, l);
+  assert.equal(showSheet(l, null).layout, l);
+  assert.equal(showSheet(l, "").outcome, "none");
+});
+
+// ---- makeWayFor (E127) -------------------------------------------------------
+
+const four = (...kindsOf) => mk(cols([0.25, 0.25, 0.25, 0.25], ...kindsOf.map((k, i) => leaf(`p${i + 1}`, k))));
+
+test("E127: makeWayFor opens a pane where there is room, for every kind", () => {
+  for (const kind of ["sheet", "intro", "lit", "greek", "search"]) {
+    const way = makeWayFor(originalLayout(), kind, { width: 1600, height: 800 });
+    assert.equal(way.outcome, "opened", kind);
+    assert.equal(way.replaced, null);
+    assert.equal(way.reason, null);
+    assert.equal(findPane(way.layout.root, way.paneId).kind, kind);
+    assert.equal(panes(way.layout.root).length, 3);
+  }
+});
+
+test("E127: makeWayFor splits beside the pane named, on the edge asked", () => {
+  const l = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "search")));
+  const right = makeWayFor(l, "greek", { beside: "p2" });
+  assert.deepEqual(panes(right.layout.root).map((p) => p.kind), ["lit", "search", "greek"]);
+  const left = makeWayFor(l, "lit", { beside: "p2", edge: "left" });
+  assert.deepEqual(panes(left.layout.root).map((p) => p.kind), ["lit", "lit", "search"]);
+});
+
+test("E127: with four panes open the last pane that isn't a LIT pane gives its place, for every kind", () => {
+  for (const kind of ["sheet", "intro", "lit", "greek", "search"]) {
+    const l = four("lit", "mine", "verse", "lit");
+    const way = makeWayFor(l, kind, { width: 4000, height: 4000 });
+    assert.equal(way.outcome, "replaced", kind);
+    assert.deepEqual(way.replaced, { id: "p3", kind: "verse" });
+    assert.equal(way.paneId, "p3");
+    assert.equal(findPane(way.layout.root, "p3").kind, kind);
+    assert.equal(panes(way.layout.root).length, 4);
+    assert.equal(findPane(l.root, "p3").kind, "verse", "the original is untouched");
+  }
+});
+
+test("E127: the requester, a pane set to Stay here, and LIT panes keep their places", () => {
+  const l = setPin(four("lit", "verse", "search", "mine"), "p4", true, "john 1");
+  const way = makeWayFor(l, "intro", { keep: "p3" });
+  assert.deepEqual(way.replaced, { id: "p2", kind: "verse" }, "p4 is pinned and p3 asked");
+  const stuck = setPin(setPin(l, "p2", true, "john 1"), "p4", true, "john 1");
+  const none = makeWayFor(stuck, "intro", { keep: "p3" });
+  assert.equal(none.outcome, "none");
+  assert.equal(none.reason, "full");
+  assert.equal(none.layout, stuck);
+  assert.equal(none.paneId, null);
+  const allLit = four("lit", "lit", "lit", "lit");
+  assert.equal(makeWayFor(allLit, "sheet").outcome, "none");
+});
+
+test("E127: keep takes a list, so a Greek result's LIT pane never takes its Greek pane's place", () => {
+  const l = four("search", "notes", "mine", "verse");
+  const greek = makeWayFor(l, "greek", { keep: "p1" });
+  assert.equal(greek.paneId, "p4");
+  const lit = makeWayFor(greek.layout, "lit", { keep: ["p1", greek.paneId] });
+  assert.deepEqual(lit.replaced, { id: "p3", kind: "mine" }, "the next pane from the end gives its place");
+  assert.equal(findPane(lit.layout.root, "p4").kind, "greek");
+  const stuck = makeWayFor(four("search", "lit", "lit", "greek"), "intro", { keep: ["p1", "p4", null] });
+  assert.equal(stuck.outcome, "none");
+});
+
+test("E127: fewer than four panes in a window too small says the window, and replaces if it can", () => {
+  const lit2 = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "lit")));
+  const none = makeWayFor(lit2, "greek", { width: 700 });
+  assert.equal(none.outcome, "none");
+  assert.equal(none.reason, "window");
+  const mine = makeWayFor(originalLayout(), "greek", { width: 600 });
+  assert.equal(mine.outcome, "replaced");
+  assert.deepEqual(mine.replaced, { id: "p2", kind: "mine" });
+});
+
+test("E127: replace: false stops at room, as openKind does", () => {
+  const l = four("lit", "mine", "verse", "lit");
+  const way = makeWayFor(l, "sheet", { replace: false });
+  assert.equal(way.outcome, "none");
+  assert.equal(way.layout, l);
+  assert.equal(openKind(l, "sheet", 4000, 4000), l);
+});
+
+test("E127: a pane that gives its place is a fresh pane of the new kind", () => {
+  const l = setPin(four("lit", "mine", "greek", "lit"), "p3", false);
+  const way = makeWayFor(l, "sheet");
+  const made = findPane(way.layout.root, "p3");
+  assert.equal(made.kind, "sheet");
+  assert.equal(made.pin, null);
+  assert.equal("sheet" in made, false, "showSheet sets the sheet, not makeWayFor");
 });
 
 // ---- the Search pane (3m) -------------------------------------------------------
@@ -1894,7 +1995,7 @@ test("E53: showIntroIn opens a pane beside and moves the LIT to the book's chapt
 test("E53: showIntroIn uses an open pane, and leaves the LIT in the book alone", () => {
   const l = setKind(originalLayout("romans 8:28"), "p2", "intro");
   const r = showIntroIn(l, "romans", 1200, 600);
-  assert.deepEqual(r, { layout: l, outcome: "shown", moved: null });
+  assert.deepEqual(r, { layout: l, outcome: "shown", moved: null, replaced: null, reason: null });
   const other = showIntroIn(l, "galatians", 1200, 600);
   assert.equal(other.outcome, "shown");
   assert.equal(other.moved, "galatians 1");
@@ -1920,13 +2021,20 @@ test("E53: a following Book Intro pane is preferred over one that stays put", ()
   assert.equal(r.moved, "acts 1");
 });
 
-test("E53: showIntroIn with no room changes nothing, and with no LIT pane moves the shared place", () => {
-  const four = applyArrangement(originalLayout("john 3:16"), "grid");
+test("E53: showIntroIn with no pane to give changes nothing, and with no LIT pane moves the shared place", () => {
+  const four = [1, 2, 3, 4].reduce((l, n) => setKind(l, `p${n}`, "lit"), applyArrangement(originalLayout("john 3:16"), "grid"));
+  assert.equal(panes(four.root).length, 4);
   const full = showIntroIn(four, "romans", 4000, 4000);
   assert.equal(full.outcome, "none");
   assert.equal(full.layout, four);
   const narrow = originalLayout("john 3:16");
-  assert.equal(showIntroIn(narrow, "romans", 800, 600).outcome, "none", "three columns need 852");
+  assert.equal(full.reason, "full");
+  const narrowIntro = showIntroIn(narrow, "romans", 800, 600);
+  assert.equal(narrowIntro.outcome, "replaced", "three columns need 852, so My Notes gives its place (E127)");
+  assert.deepEqual(narrowIntro.replaced, { id: "p2", kind: "mine" });
+  const litOnly = showIntroIn(mk(leaf("p1", "lit")), "romans", 400, 600);
+  assert.equal(litOnly.outcome, "none");
+  assert.equal(litOnly.reason, "window");
   const noLit = setKind(originalLayout("john 3:16"), "p1", "verse");
   const r = showIntroIn(noLit, "romans", 1200, 600);
   assert.equal(r.outcome, "opened");
@@ -2160,7 +2268,7 @@ test("leaving Reading turns back on what Reading turned off, by every way out", 
     ["Two columns", applyArrangement(reading, "cols-2")],
     ["Add pane", addPane(reading, "column", "mine", 1600, 900)],
     ["a drag", splitPane(reading, id, "right", newPane(reading, "greek"))],
-    ["a link's sheet", showSheet(reading, "sheet-1", 1600)],
+    ["a link's sheet", showSheet(reading, "sheet-1", 1600).layout],
   ]) {
     assert.equal(leavesReading(reading, next), true, name);
     assert.deepEqual(hides(next, id), ["terms"], `${name}: the reader's own choice stays off`);

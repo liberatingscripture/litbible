@@ -69,8 +69,7 @@ import {
   marksTurned,
   needs,
   nodeAt,
-  openKind,
-  openLitBeside,
+  makeWayFor,
   originalLayout,
   paneHides,
   paneScope,
@@ -94,9 +93,9 @@ import {
   writeSaved,
 } from "../../lib/desk-layout.mjs";
 import { markNames } from "../../lib/desk-lit-marks.mjs";
-import { introMoveMessage } from "../../lib/desk-search-pane.mjs";
+import { noWayLinkLabel, noWayMessage, replacedMessage } from "../../lib/desk-search-pane.mjs";
 import { bookKeyToLabel } from "../../data/books.js";
-import { formatPassage, parseIntroParam, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { chapterPath, formatPassage, introPath, parseIntroParam, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
@@ -241,16 +240,36 @@ async function start() {
   // LIT pane shows a run of them as one stub without fetching each.
   let drafts = {};
   try { drafts = JSON.parse(document.getElementById("desk-drafts")?.textContent || "{}") ?? {}; } catch (_) {}
-  // A sheet's passage shown in the LIT pane being read (or, with none, in the
-  // panes that follow), as a picker would move it.
+  // One rule for a pane the desk opens by itself (E127; BVJ, 2026-11-12;
+  // `makeWayFor` in desk-layout.mjs): a pane of the kind open is used, else a
+  // new one opens where there is room, else it takes the place of the last
+  // pane that isn't a LIT pane, the pane that asked and a pane set to "Stay
+  // here" excepted. The undo bar says what it replaced, with Undo for the whole
+  // layout; with no pane to give its place, nothing changes and a notice says
+  // why, with a link to the page.
+  const noWay = (kind, reason, { search = false, what = "", href = null } = {}) =>
+    showNotice(noWayMessage(kind, reason, { search }), href ? { link: { label: noWayLinkLabel(kind, what), href } } : {});
+  const sayReplaced = (text, before) => showUndo(text, () => commit(before, { quiet: true }));
+  const passageHref = (p) => {
+    const path = chapterPath(p.bookKey, p.chapter);
+    return path ? `${path}${p.verse ? `#v${p.verse}` : ""}` : null;
+  };
+  // A passage shown in the LIT pane being read (or, with none, in the panes
+  // that follow), as a picker would move it.
   // `beside` is a pane (the Search pane) that a result came from: with no LIT
-  // pane open, one opens to its left where there is room (3m), so a verse
-  // found still lands. Says what happened, for the Search pane to tell the
-  // reader (E34): "moved" (the leading LIT pane), "opened" (a new LIT pane),
-  // "placed" (no LIT pane, and no room for one: only the following panes
-  // moved), or null for a passage that isn't one.
-  const showPassage = (passage, { beside = null } = {}) => {
+  // pane open, one opens to its left where there is room, else takes the place
+  // of another pane (E127), so a verse found still lands. Returns what
+  // happened, for the Search pane to tell the reader (E34): "moved" (the
+  // leading LIT pane), "opened" (a new LIT pane), "replaced" (one took
+  // another pane's place; the undo bar says so), "placed" (none could open:
+  // only the following panes moved; a notice says why) or null for a
+  // passage that isn't one. `quiet` leaves the bar and the notice to the
+  // caller, which then reads `lastWay`; `keep` is one more pane that mustn't
+  // give its place (a Greek result's Greek pane).
+  let lastWay = null;
+  const showPassage = (passage, { beside = null, keep = null, quiet = false } = {}) => {
     const at = formatPassage(passage);
+    lastWay = null;
     if (!at) return null;
     if (findPane(layout.root, layout.active)?.kind === "lit") {
       commit(setLitAt(layout, layout.active, at), { draw: false });
@@ -259,51 +278,89 @@ async function start() {
     const placed = setPlace(layout, at);
     if (beside) {
       const room = panesBox.getBoundingClientRect();
-      const next = openLitBeside(placed, beside, room.width, room.height);
-      if (next !== placed) {
-        commit(next);
-        return "opened";
+      const way = makeWayFor(placed, "lit", { keep: [beside, keep], beside, edge: "left", width: room.width, height: room.height });
+      lastWay = way;
+      if (way.outcome !== "none") {
+        const next = setLitAt(setActive(way.layout, way.paneId), way.paneId, at);
+        const before = layout;
+        if (way.outcome === "opened") {
+          commit(next);
+          return "opened";
+        }
+        commit(next, { quiet: true });
+        if (!quiet) sayReplaced(replacedMessage("lit", way.replaced.kind, { at: passageLabel(passage) }), before);
+        return "replaced";
       }
+      commit(placed, { draw: false });
+      if (!quiet) noWay("lit", way.reason, { search: true, what: passageLabel(passage), href: passageHref(passage) });
+      return "placed";
     }
     commit(placed, { draw: false });
     return "placed";
   };
   // A new sheet shown in a Sheets pane, as "Open it in the Study Desk" does
-  // (M5): from the Search pane's "Make a sheet of these verses". That pane and
-  // the LIT panes keep their places; false when no other pane could show it.
+  // (M5): from the Search pane's "Make a sheet of these verses". That pane
+  // keeps its place (its results would be lost). Returns what showSheet says,
+  // `{ outcome, replaced, reason, ... }` plus `changed` and `undoLayout`, with
+  // the layout already committed; the caller (the Search pane) puts the words
+  // in its own undo bar, so there is one.
   const showSheetPane = (sheetId, keep) => {
-    const next = showSheet(layout, sheetId, panesBox.getBoundingClientRect().width, keep);
-    if (next === layout) return false;
-    commit(next);
-    return true;
+    const before = layout;
+    const way = showSheet(layout, sheetId, panesBox.getBoundingClientRect().width, keep);
+    if (way.layout !== layout) commit(way.layout, { quiet: way.outcome === "replaced" });
+    // `undoLayout` puts the layout back as it was (quietly), for the one Undo
+    // that takes back both the sheet and where it showed.
+    return { ...way, changed: way.layout !== before, undoLayout: () => commit(before, { quiet: true }) };
   };
   // A Greek search result (3m): its word in an unpinned Greek pane, else a
-  // Greek pane opened beside the search where there is room; the LIT pane
-  // moves to the verse either way.
+  // Greek pane by the one rule above; the LIT pane moves to the verse either
+  // way. One bar says both, with Undo for the whole of it.
   const openGreekHit = (hit, searchId) => {
     const passage = { bookKey: hit.book, chapter: hit.chapter, verse: hit.verse };
-    const unpinned = () => panes(layout.root).find((p) => p.kind === "greek" && !p.pin);
-    let greek = unpinned();
+    const before = layout;
+    let greek = panes(layout.root).find((p) => p.kind === "greek" && !p.pin);
+    let replaced = null;
+    let none = null;
     if (!greek) {
       const room = panesBox.getBoundingClientRect();
-      const before = new Set(panes(layout.root).map((p) => p.id));
-      const next = openKind(layout, "greek", room.width, room.height, searchId);
-      if (next !== layout) {
-        commit(next);
-        greek = panes(layout.root).find((p) => !before.has(p.id));
+      const way = makeWayFor(layout, "greek", { keep: searchId, beside: searchId, width: room.width, height: room.height });
+      if (way.outcome === "none") none = way;
+      else {
+        commit(way.layout, { quiet: way.outcome === "replaced" });
+        greek = findPane(layout.root, way.paneId);
+        replaced = way.replaced;
       }
     }
     if (greek) paneEls.get(greek.id)?.inst?.goToWord?.(passage, hit.t);
-    else announce("Open a Greek pane to see the word.");
-    showPassage(passage, { beside: searchId });
+    // The Greek pane keeps its place: the LIT pane mustn't take it.
+    showPassage(passage, { beside: searchId, keep: greek?.id ?? null, quiet: true });
+    const lit = lastWay?.outcome === "replaced" ? lastWay.replaced : null;
+    const said = [];
+    if (replaced) said.push(replacedMessage("greek", replaced.kind));
+    if (lit) said.push(replacedMessage("lit", lit.kind, { at: passageLabel(passage) }));
+    if (said.length) sayReplaced(said.join(" "), before);
+    else if (none) {
+      // greekHref's address (greek-search.mjs), written out: that module is
+      // the Greek search's, which this page never imports statically.
+      const base = chapterPath(passage.bookKey, passage.chapter);
+      noWay("greek", none.reason, { search: true, href: base ? `${base}?greek=${passage.verse}.${hit.t}#v${passage.verse}` : null });
+    }
   };
   // A book's introduction in a Book Intro pane (E53): from a Search pane's
-  // intro result, beside it where one has to open. Returns showIntroIn's
-  // { outcome, moved } for the Search pane to tell the reader.
+  // intro result, which keeps its place. Returns showIntroIn's { outcome,
+  // moved } for the Search pane to tell the reader; a replacement or a no-room
+  // outcome is said here, in the undo bar or the notice (E127).
   const showIntro = (bookKey, { beside = null } = {}) => {
     const room = panesBox.getBoundingClientRect();
+    const before = layout;
     const result = showIntroIn(layout, bookKey, room.width, room.height, beside);
-    if (result.layout !== layout) commit(result.layout, { draw: result.outcome === "opened" });
+    if (result.layout !== layout) commit(result.layout, { draw: result.outcome === "opened" || result.outcome === "replaced", quiet: result.outcome === "replaced" });
+    if (result.outcome === "replaced") {
+      const extra = result.moved ? `The LIT moved to ${passageLabel(parsePassage(result.moved))}.` : "";
+      sayReplaced(replacedMessage("intro", result.replaced.kind, { extra }), before);
+    } else if (result.outcome === "none" && result.reason) {
+      noWay("intro", result.reason, { search: Boolean(beside), what: bookKeyToLabel(bookKey), href: introPath(bookKey) });
+    }
     return { outcome: result.outcome, moved: result.moved };
   };
   const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showIntro, openGreekHit };
@@ -1130,6 +1187,10 @@ async function start() {
   // notebook is ignored without a word. The parameter is stripped either way,
   // so a reload doesn't pull the pane back.
   const arrivedAs = layout; // before a sheet or an introduction in the address moves panes
+  // What a sheet or an introduction in the address did (E127): the sentences
+  // for a pane that took another's place, and the first that found no room.
+  const arrivalSaid = [];
+  let arrivalNoWay = null;
   const wanted = new URLSearchParams(location.search).get("sheet");
   if (wanted !== null) {
     try {
@@ -1140,10 +1201,18 @@ async function start() {
     let record = null;
     try { record = wanted && store ? await store.get(wanted) : null; } catch (_) {}
     if (record?.kind === "sheet") {
-      // Beside the active pane where the window has room for another
-      // column, else in a pane that isn't a LIT pane (BA60).
-      layout = showSheet(layout, record.id, panesBox.getBoundingClientRect().width);
-      save();
+      // By the one rule (E127): beside the active pane where the window has
+      // room for another column, else in place of the last pane that isn't a
+      // LIT pane (BA60), else a notice, with the sheet's page.
+      const way = showSheet(layout, record.id, panesBox.getBoundingClientRect().width);
+      if (way.layout !== layout) {
+        layout = way.layout;
+        save();
+      }
+      if (way.outcome === "replaced") arrivalSaid.push(replacedMessage("sheet", way.replaced.kind));
+      else if (way.outcome === "none" && way.reason) {
+        arrivalNoWay ??= { kind: "sheet", reason: way.reason, what: "", href: `/sheets/?id=${encodeURIComponent(record.id)}` };
+      }
     }
   }
 
@@ -1153,7 +1222,6 @@ async function start() {
   // ?place= at its chapter 1) shows it in a Book Intro pane: one already open,
   // else a new one beside the active pane where the width holds it, as ?sheet=
   // does. Stripped either way.
-  let introNoRoom = "";
   const introBook = parseIntroParam(new URLSearchParams(location.search).get("intro"));
   if (new URLSearchParams(location.search).has("intro")) {
     try {
@@ -1167,9 +1235,14 @@ async function start() {
         layout = result.layout;
         save();
       }
-      // No room for the pane: say so, as the Search pane does (DK3-3; BVJ,
-      // 2026-11-07), once the panes are drawn.
-      if (result.outcome === "none") introNoRoom = introMoveMessage(result, bookKeyToLabel(introBook));
+      // A replacement or no room: said once the panes are drawn, as the
+      // Search pane says them (DK3-3; BVJ, 2026-11-07; E127).
+      if (result.outcome === "replaced") {
+        const extra = result.moved ? `The LIT moved to ${passageLabel(parsePassage(result.moved))}.` : "";
+        arrivalSaid.push(replacedMessage("intro", result.replaced.kind, { extra }));
+      } else if (result.outcome === "none" && result.reason) {
+        arrivalNoWay ??= { kind: "intro", reason: result.reason, what: bookKeyToLabel(introBook), href: introPath(introBook) };
+      }
     }
   }
   // A sheet or an introduction may have opened a pane beside Reading's one.
@@ -1188,16 +1261,18 @@ async function start() {
       paneEls.get(use.id).inst.focusField();
       return;
     }
+    // By the one rule (E127): room, else the place of the last pane that
+    // isn't a LIT pane, else a notice with the search page.
     const room = panesBox.getBoundingClientRect();
-    const before = new Set(panes(layout.root).map((p) => p.id));
-    const next = openKind(layout, "search", room.width, room.height);
-    if (next === layout) {
-      announce("Close a pane to open search.");
+    const before = layout;
+    const way = makeWayFor(layout, "search", { width: room.width, height: room.height });
+    if (way.outcome === "none") {
+      noWay("search", way.reason, { href: "/search/" });
       return;
     }
-    commit(next);
-    const made = panes(layout.root).find((p) => !before.has(p.id));
-    paneEls.get(made?.id)?.inst?.focusField();
+    commit(way.layout, { quiet: way.outcome === "replaced" });
+    if (way.outcome === "replaced") sayReplaced(replacedMessage("search", way.replaced.kind), before);
+    paneEls.get(way.paneId)?.inst?.focusField();
   });
 
   // ← → and [ ] (keyboard-shortcuts.js): the previous or next chapter in the
@@ -1233,7 +1308,16 @@ async function start() {
   // what the page would have opened at that place (E114).
   else if (arrival.layout !== arrival.before && layout === arrivedAs) {
     tellArrangement(ARRANGEMENTS.find((a) => a.id === "reading"), arrival.before, layout);
-  } else if (introNoRoom) showNotice(introNoRoom);
+  } else if (arrivalSaid.length || arrivalNoWay) {
+    // What a sheet or an introduction in the address did, in one bar: Undo
+    // puts the layout back as the page opened it. A notice too, if one found
+    // no room, rides along with its link (E127).
+    const way = arrivalNoWay;
+    const text = [...arrivalSaid, ...(way ? [noWayMessage(way.kind, way.reason)] : [])].join(" ");
+    const link = way?.href ? { label: noWayLinkLabel(way.kind, way.what), href: way.href } : null;
+    if (arrivalSaid.length) showUndo(text, () => commit(arrivedAs, { quiet: true }), { link });
+    else showNotice(text, { link });
+  }
 
   // ---- the Study Desk tour (E24) ----
 

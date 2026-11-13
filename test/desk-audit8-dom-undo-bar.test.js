@@ -138,3 +138,15 @@ test("announce says the same message twice by emptying the region first", () => 
   mock.timers.tick(50);
   assert.equal(live().textContent, "Nothing to undo.");
 });
+
+test("E127: a notice can carry a link that opens in a new tab, and the next notice drops it", () => {
+  showNotice("There’s no room.", { link: { label: "Open the sheet", href: "/sheets/?id=a" } });
+  const a = document.querySelector(".desk-undo__link");
+  assert.equal(a.getAttribute("href"), "/sheets/?id=a");
+  assert.equal(a.target, "_blank");
+  assert.match(a.rel, /noopener/);
+  assert.match(a.textContent, /^Open the sheet \(opens in a new tab\)$/);
+  assert.equal(undoButton().hidden, true, "a notice has no Undo");
+  showNotice("Plain.");
+  assert.equal(document.querySelector(".desk-undo__link"), null);
+});

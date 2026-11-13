@@ -729,35 +729,70 @@ export function marksTurned(before, next) {
 
 /**
  * Show a sheet in the layout (M5, "Open it in the Study Desk"): in the first
- * Sheets pane there is, else in a new Sheets pane split beside the active pane
- * (or the first), else, with four panes already open or no room for another
- * column, in the last pane that isn't a LIT pane (the last of all when every
- * one is). `width` is the panes' width in pixels (BA60): the new pane is
- * split off only when the layout still fits it, so a narrow window never
- * scrolls sideways for it. A split to the right never raises the height a
- * layout needs, so only the width is asked. Without a width that is a
- * positive number, the room isn't asked about. Unchanged for an empty id.
- * `keep` names a pane that mustn't give its place (3m: the Search pane a new
- * sheet came from, whose results would be lost); with no other pane to give,
- * the layout comes back unchanged, the same object.
+ * Sheets pane there is, else a new Sheets pane or one that takes the place of
+ * another pane, by the one rule `makeWayFor` holds (E127). `width` is the
+ * panes' width in pixels (BA60): the new pane is split off only when the
+ * layout still fits it, so a narrow window never scrolls sideways for it. A
+ * split to the right never raises the height a layout needs, so only the
+ * width is asked. `keep` names a pane that mustn't give its place (3m: the
+ * Search pane a new sheet came from, whose results would be lost).
+ * Returns `{ layout, outcome, paneId, replaced, reason }`: `outcome` "shown"
+ * (a Sheets pane was there), "opened", "replaced" (`replaced` is `{ id,
+ * kind }` of the pane it took the place of), or "none" (`reason`, as
+ * `makeWayFor` gives it, and the layout the same object). Unchanged ("none",
+ * `reason` null) for an empty id.
  */
 export function showSheet(layout, sheetId, width, keep = null) {
-  if (typeof sheetId !== "string" || !sheetId) return layout;
+  const none = (reason) => ({ layout, outcome: "none", paneId: null, replaced: null, reason });
+  if (typeof sheetId !== "string" || !sheetId) return none(null);
   const all = panes(layout.root);
-  if (!all.length) return layout;
+  if (!all.length) return none(null);
   const existing = all.find((p) => p.kind === "sheet");
-  if (existing) return setPaneSheet(layout, existing.id, sheetId);
+  if (existing) return { layout: setPaneSheet(layout, existing.id, sheetId), outcome: "shown", paneId: existing.id, replaced: null, reason: null };
+  const way = makeWayFor(layout, "sheet", { keep, width });
+  if (way.outcome === "none") return way;
+  return { ...way, layout: setPaneSheet(way.layout, way.paneId, sheetId) };
+}
+
+/**
+ * The one rule for a pane the desk opens by itself (E127; BVJ, 2026-11-12):
+ * a Sheets pane for a sheet, a Book Intro pane for an introduction, a LIT
+ * pane for a passage result, a Greek pane for a Greek result, a Search pane
+ * for `/`. The caller first uses a pane of that kind already open (each kind
+ * has its own choice of which). Then this: a new pane of `kind` split beside
+ * `beside` (else the active pane, else the first) on its `edge` (default
+ * "right") where there is room (four panes at most, and `width` and `height`,
+ * the panes' room in pixels, hold it; a side left out is not asked about),
+ * else it takes the place of the last pane that isn't a LIT pane, in the
+ * order `panes` gives, never `keep` (the pane the request came from, or a
+ * list of panes: a Greek result keeps its Greek pane while its LIT pane makes
+ * way) and never a pane set to "Stay here". A LIT pane never gives its place.
+ * `replace: false` stops after the room step.
+ *
+ * Returns `{ layout, outcome, paneId, replaced, reason }`: `outcome` is
+ * "opened", "replaced" (`replaced` is `{ id, kind }` of the pane that gave
+ * its place; the new pane has the same id) or "none", the layout then the same
+ * object and `reason` "full" (four panes are open) or "window" (fewer are,
+ * and the window can't hold another). `paneId` is the new pane's.
+ *
+ * @param {object} layout
+ * @param {string} kind
+ * @param {{ keep?: string | (string | null)[] | null, beside?: string | null, edge?: string, width?: number, height?: number, replace?: boolean }} [options]
+ */
+export function makeWayFor(layout, kind, { keep = null, beside = null, edge = "right", width, height, replace = true } = {}) {
+  const all = panes(layout.root);
+  const none = (reason) => ({ layout, outcome: "none", paneId: null, replaced: null, reason });
+  if (!all.length || typeof kind !== "string" || !kind) return none("full");
   if (all.length < MAX_PANES) {
-    const target = findPane(layout.root, layout.active) ?? all[0];
-    const split = splitPane(layout, target.id, "right", { ...newPane(layout, "sheet"), sheet: sheetId });
-    const asked = typeof width === "number" && Number.isFinite(width) && width > 0;
-    if (!asked || minSize(split.root).w <= width) return split;
+    const target = (beside && findPane(layout.root, beside)) || findPane(layout.root, layout.active) || all[0];
+    const made = newPane(layout, kind);
+    const split = splitPane(layout, target.id, edge, made);
+    if (split !== layout && fits(split, width, height)) return { layout: split, outcome: "opened", paneId: made.id, replaced: null, reason: null };
   }
-  const others = all.filter((p) => p.id !== keep);
-  if (!others.length) return layout;
-  const give = [...others].reverse().find((p) => p.kind !== "lit") ?? (keep ? null : others[others.length - 1]);
-  if (!give) return layout;
-  return setPaneSheet(setKind(layout, give.id, "sheet"), give.id, sheetId);
+  const kept = [keep].flat();
+  const give = replace ? [...all].reverse().find((p) => !kept.includes(p.id) && p.kind !== "lit" && !p.pin) : null;
+  if (!give) return none(all.length >= MAX_PANES ? "full" : "window");
+  return { layout: setKind(layout, give.id, kind), outcome: "replaced", paneId: give.id, replaced: { id: give.id, kind: give.kind }, reason: null };
 }
 
 /**
@@ -767,14 +802,11 @@ export function showSheet(layout, sheetId, width, keep = null) {
  * the layout unchanged, the same object, when there is no room: four panes are
  * open, or the window can't give the new pane its 280 by 160. `width` and
  * `height` are the panes' room in pixels; either left out is not asked
- * about.
+ * about. Room only: the desk's openings go through `makeWayFor`, which
+ * goes on to take another pane's place (E127).
  */
 export function openKind(layout, kind, width, height, besideId = null) {
-  const all = panes(layout.root);
-  if (!all.length || all.length >= MAX_PANES || typeof kind !== "string" || !kind) return layout;
-  const target = (besideId && findPane(layout.root, besideId)) || findPane(layout.root, layout.active) || all[0];
-  const split = splitPane(layout, target.id, "right", newPane(layout, kind));
-  return fits(split, width, height) ? split : layout;
+  return makeWayFor(layout, kind, { beside: besideId, width, height, replace: false }).layout;
 }
 
 /**
@@ -948,47 +980,53 @@ export function sizingFor(root, id, z) {
  * Open a LIT pane to the left of a pane (3m: a search result's verse needs a
  * LIT pane to land in, and there is none). It becomes the active pane and
  * starts at the shared place. Unchanged, the same object, when the pane isn't
- * there, four panes are open or there is no room (see `openKind`).
+ * there, four panes are open or there is no room (see `openKind`; room only,
+ * as `makeWayFor` with `replace: false`).
  */
 export function openLitBeside(layout, besideId, width, height) {
-  if (!findPane(layout.root, besideId) || panes(layout.root).length >= MAX_PANES) return layout;
-  const split = splitPane(layout, besideId, "left", newPane(layout, "lit"));
-  if (split === layout || !fits(split, width, height)) return layout;
-  const lit = panes(split.root).find((p) => p.kind === "lit");
-  return lit ? setActive(split, lit.id) : split;
+  if (!findPane(layout.root, besideId)) return layout;
+  const way = makeWayFor(layout, "lit", { beside: besideId, edge: "left", width, height, replace: false });
+  return way.outcome === "none" ? layout : setActive(way.layout, way.paneId);
 }
 
 /**
  * A book's introduction shown in a Book Intro pane (E53; BVJ, 2026-11-06): from
- * a Search pane's intro result (`besideId`) and `/desk/?intro=romans`. The pane
- * used is the first that follows, else the first open, else a new one beside
- * `besideId` (or the active pane) where there is room. One that follows shows
- * the book the LIT pane is in, so the leading LIT pane (or, with none, the
- * shared place) moves to chapter 1 unless it is in that book already; one that
- * stays put is moved alone. Returns `{ layout, outcome, moved }`: `outcome` is
- * "shown" (a pane was there), "opened", or "none" (no room, the layout
- * unchanged), and `moved` the place the LIT moved to, or null.
+ * a Search pane's intro result (`besideId`, which keeps its place) and
+ * `/desk/?intro=romans`. The pane used is the first that follows, else the
+ * first open, else a new one by the one rule for a pane the desk opens
+ * (`makeWayFor`, E127). One that follows shows the book the LIT pane is in, so
+ * the leading LIT pane (or, with none, the shared place) moves to chapter 1
+ * unless it is in that book already; one that stays put is moved alone.
+ * Returns `{ layout, outcome, moved, replaced, reason }`: `outcome` is
+ * "shown" (a pane was there), "opened", "replaced" (`replaced` is `{ id,
+ * kind }` of the pane that gave its place) or "none" (the layout unchanged,
+ * `reason` "full" or "window" as `makeWayFor` says it), and `moved` the place
+ * the LIT moved to, or null.
  */
 export function showIntroIn(layout, bookKey, width, height, besideId = null) {
   const at = parsePassage(`${bookKey} 1`) ? `${bookKey} 1` : null;
-  if (!at || !panes(layout.root).length) return { layout, outcome: "none", moved: null };
+  const none = (reason) => ({ layout, outcome: "none", moved: null, replaced: null, reason });
+  if (!at || !panes(layout.root).length) return none(null);
   const intros = panes(layout.root).filter((p) => p.kind === "intro");
   let next = layout;
   let pane = intros.find((p) => !p.pin) ?? intros[0] ?? null;
   let outcome = "shown";
+  let replaced = null;
   if (!pane) {
-    const before = new Set(panes(layout.root).map((p) => p.id));
-    next = openKind(layout, "intro", width, height, besideId);
-    if (next === layout) return { layout, outcome: "none", moved: null };
-    pane = panes(next.root).find((p) => !before.has(p.id));
-    outcome = "opened";
+    const way = makeWayFor(layout, "intro", { keep: besideId, beside: besideId, width, height });
+    if (way.outcome === "none") return none(way.reason);
+    next = way.layout;
+    pane = findPane(next.root, way.paneId);
+    outcome = way.outcome;
+    replaced = way.replaced;
   }
-  if (pane.pin) return { layout: setPin(next, pane.id, true, at), outcome, moved: null };
+  const done = (layoutOut, moved) => ({ layout: layoutOut, outcome, moved, replaced, reason: null });
+  if (pane.pin) return done(setPin(next, pane.id, true, at), null);
   const leading = findPane(next.root, next.active)?.kind === "lit";
   const now = parsePassage(leading ? litPlace(next, next.active) : next.place);
-  if (now?.bookKey === bookKey) return { layout: next, outcome, moved: null };
+  if (now?.bookKey === bookKey) return done(next, null);
   next = leading ? setLitAt(next, next.active, at) : setPlace(next, at);
-  return { layout: next, outcome, moved: at };
+  return done(next, at);
 }
 
 /** Whether a layout fits a space; a side left out is not asked about. */
