@@ -3651,7 +3651,19 @@ says so; where BVJ was wondering, nothing is decided.)
   not the norm.” So no mocks yet: first a survey of every template and
   every kind of part, in a Sheets pane and on /sheets, with an empty
   notebook and with notes, highlights and bookmarks stored, to find the
-  prompt that reads as the sheet's own text. Status: decided, survey first.
+  prompt that reads as the sheet's own text. **The survey** (Sonnet,
+  2026-11-13, from the code, not rendered; Claude checked the stylesheets):
+  every template prompt is one of the three ways above, and the forms' and
+  the key terms card's short lines are smaller and dimmer, as is the
+  template description (E86). The one exception is the paragraph under an
+  editable passage's words, “Click a word, double-click it, or drag across
+  words to choose them. With the keyboard: …” (`p.desk-sheet__hint`,
+  `sheet-lit.js`): no rule styles it (the stylesheets' `.desk-sheet__hint`
+  rules are for a `select`), so it is full size, upright and full ink,
+  directly under the passage, in any template and with or without a
+  notebook. Smaller: an empty part's placeholder is upright while a lone
+  heading's prompt is italic. Status: decided, survey done; the fix waits on
+  BVJ's word that this is the one.
 - **E130, wording: “Chapter View” becomes “Scripture page” with the
   preview on.** BVJ (2026-11-12, in chat, after “Continue reading · Chapter
   View” showed in My Notes on /desk): “it still says ‘Chapter View’. That
