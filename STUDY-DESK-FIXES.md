@@ -3259,7 +3259,21 @@ says so; where BVJ was wondering, nothing is decided.)
   today's line (the old foot, moved there in E75). Also for that talk: where the dot
   goes on /desk, which has no Notebook tab (the title menu's My Notebook is
   one candidate), and whether /notebook needs anything, since saving a copy
-  is on that page. Status: open, design talk and mocks first.
+  is on that page. **BVJ** (2026-11-13, from Claude's mocks A to D): yes
+  to A, the undo-bar line, but with three choices in place of one button:
+  save now, remind me later (a snooze), and a dismiss that holds until the
+  reminder next comes due, while the reminder is still on in Settings. How
+  soon each brings the line back is still to talk through. A second dot on
+  the panel's own Settings tab, so a reader who opens the Notebook knows
+  where to look. Yes to B, the notice in Settings' “Keep and print.” No
+  banner on /notebook (D). And the words: “save a copy” is vague, so say
+  what is saved, by context (“Save notebook,” “save a copy of your
+  notebook,” “my notebook” where the reader is the one speaking),
+  everywhere the desk says it: about thirty strings in
+  `desk-first-use.mjs`, `first-use.js`, `export-import.js`,
+  `notebook-page.js`, `desk-export.mjs` and `desk-commands.mjs`, the help
+  page, and the privacy page's list of what is kept. Status: decided in
+  outline; the line's timing and the new words go to BVJ before the build.
 - **E114, wish: ways straight into the Reading layout from outside the
   desk.** BVJ (2026-11-12): “I wonder if there’s a reasonable place(s) to
   link directly to the Reading layout from anywhere outside the Study Desk.”
@@ -3608,7 +3622,9 @@ says so; where BVJ was wondering, nothing is decided.)
   Claude's proposal, for the build: the words inside may keep a
   60-character line, set on the text rather than the band. Look for the
   same shape on /desk, /notebook and /search while there (a tinted notice
-  narrower than the row it sits in). Status: open.
+  narrower than the row it sits in). **BVJ** (2026-11-13): “Yes, I
+  approve your proposal”: the tint fills the row, and the words keep their
+  60-character line. Status: decided, to build.
 - **E129, design: a sheet card's instructions look like the sheet's own
   text.** BVJ (2026-11-12, in chat): “The instructions in the sheets editor
   cards should be visually distinguished from the other text. Right now it
@@ -3630,7 +3646,12 @@ says so; where BVJ was wondering, nothing is decided.)
   a real Sheets pane and on /sheets, light and dark, with an accessibility
   font among them. Only the editor shows prompts (nothing prints, copies or
   presents them), and the Sheets tour's example sheet shows the same.
-  Status: open, for mocks.
+  **BVJ** (2026-11-13): “I think most are already ok actually. I saw one
+  somewhere that didn't have a distinction, but it seems like an anomaly,
+  not the norm.” So no mocks yet: first a survey of every template and
+  every kind of part, in a Sheets pane and on /sheets, with an empty
+  notebook and with notes, highlights and bookmarks stored, to find the
+  prompt that reads as the sheet's own text. Status: decided, survey first.
 - **E130, wording: “Chapter View” becomes “Scripture page” with the
   preview on.** BVJ (2026-11-12, in chat, after “Continue reading · Chapter
   View” showed in My Notes on /desk): “it still says ‘Chapter View’. That
@@ -3681,7 +3702,7 @@ says so; where BVJ was wondering, nothing is decided.)
   - **Ctrl+Z on /desk undoes layout changes too**: a layout history beside
     the notebook's, the two taken in the order they happened. It keeps what
     the bar says, and is larger.
-  Status: open.
+  **BVJ** (2026-11-13): the first way. Status: decided, to build.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -3802,12 +3823,12 @@ the rest is polish.
     g. *Layout and chrome*: E49 and E50, mock first, at the real widths; E43
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
-14. **BVJ's pass of 2026-11-12** (E111 to E127; Claude's grouping,
-    2026-11-12, not a decision). Waiting on BVJ: E113's design talk and its
-    two mocks (the dot is in), and which way E131 goes; E114, E116, E117, E122, E126 and E127 are
-    decided. Wave 1 (a to d) is #563 to #567; wave 2 (e to i, all but E113
-    and E131) is #569 to #571 and #573 to #575. Shared files set the order;
-    each group is its own branch.
+14. **BVJ's pass of 2026-11-12** (E111 to E131; Claude's grouping,
+    2026-11-12, not a decision). Waiting on BVJ: E113's timing for the
+    undo-bar line and its new words (the rest of E113 is decided). Wave 1
+    (a to d) is #563 to #567; wave 2 (e to i, all but E113 and E131) is
+    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l.
+    Shared files set the order; each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
        E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112
        (`desk/actions.js`).
@@ -3838,6 +3859,16 @@ the rest is polish.
        E131 (the layout's undo bars and Ctrl+Z; `undo-bar.js`,
        `desk-page.js`, maybe `history.js`) after i, once BVJ picks a way.
     j. *Last*: E125, the help page, once the rest is built.
+    k. *Wave 4* (BVJ's answers of 2026-11-13): E131's first way
+       (`undo-bar.js`, `desk-page.js`), then E113 once its timing and words
+       are settled, since both change the undo bar (`first-use.js`,
+       `desk-first-use.mjs`, the panel's tabs and their dots, /desk's title
+       menu, `export-import.js`, `notebook-page.js`, the privacy page's
+       list); E128 beside them (`pages/sheets-page.css`, and any band like
+       it on /desk, /notebook or /search); E129's survey, which reads and
+       changes nothing, beside them too.
+    l. *After k* (BVJ, 2026-11-13): Fable checks the help page and the
+       tours against what wave 4 changed, and updates them if needed.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
