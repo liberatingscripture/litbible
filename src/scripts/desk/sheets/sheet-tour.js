@@ -241,7 +241,8 @@ export function createSheetTour({ host }) {
     },
 
     // The tour's sheet, beside its first part, with that part's header tools
-    // (its Leader only and minutes) marked.
+    // (its Leader only and minutes) marked. Where the part fills the column
+    // (the Sheets page), the card goes above it (`tight`), clear of the tools.
     async parts(live) {
       const ed = await ensureSheet(live);
       if (!ed) return live() ? where() : null;
@@ -249,7 +250,7 @@ export function createSheetTour({ host }) {
       if (!first) return where();
       bring(ed, first);
       const tools = first.querySelector(".desk-sheet__module-tools");
-      return { el: first, side: "left", marks: tools ? [tools] : [] };
+      return { el: first, side: "left", tight: true, marks: tools ? [tools] : [] };
     },
 
     // Where a passage comes from: on /desk the LIT pane's verse menu, with its
@@ -264,7 +265,8 @@ export function createSheetTour({ host }) {
       const form = ed.el.querySelector(".desk-sheet__insert-form");
       if (!form) return { el: sheetView(ed), side: "left", marks: [] };
       bring(ed, form);
-      return { el: form, side: "left", marks: [form] };
+      // Above the form where it fills the column, so its Add button shows.
+      return { el: form, side: "left", tight: true, marks: [form] };
     },
 
     // A passage added for the tour, beside its blanks, with "Blank" and the

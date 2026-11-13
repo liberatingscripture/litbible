@@ -173,7 +173,7 @@ test("on /desk, turning reminders off adds where the Settings are", async () => 
   await start(due, { surface: "desk" });
   await settle();
   await press("Turn off reminders");
-  assert.equal(text(), "Reminders are off. You can turn them on again in the Notebook’s Settings on a chapter page.");
+  assert.equal(text(), "Reminders are off. You can turn them on again in the Notebook’s Settings on a Scripture page.");
 });
 
 test("the bar does not close by itself", async () => {

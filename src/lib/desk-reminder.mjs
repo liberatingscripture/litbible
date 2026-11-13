@@ -143,5 +143,5 @@ export function backedUpSaid(name) {
 
 /** What the bar says once reminders are off; `onDesk` is the /desk page, which has no Notebook panel. */
 export function remindersOffSaid(onDesk) {
-  return `Reminders are off. You can turn them on again in the Notebook’s Settings${onDesk ? " on a chapter page" : ""}.`;
+  return `Reminders are off. You can turn them on again in the Notebook’s Settings${onDesk ? " on a Scripture page" : ""}.`;
 }

@@ -100,7 +100,7 @@ test("the words the bar says afterward", () => {
   assert.equal(backedUpSaid("lit-notebook-2026-11-13.json"), "Started the download of lit-notebook-2026-11-13.json. Your browser may ask where to keep it.");
   assert.equal(backedUpSaid(undefined), "Started the download of your backup. Your browser may ask where to keep it.");
   assert.equal(remindersOffSaid(false), "Reminders are off. You can turn them on again in the Notebook’s Settings.");
-  assert.equal(remindersOffSaid(true), "Reminders are off. You can turn them on again in the Notebook’s Settings on a chapter page.");
+  assert.equal(remindersOffSaid(true), "Reminders are off. You can turn them on again in the Notebook’s Settings on a Scripture page.");
   for (const s of [TOMORROW_SAID, WEEK_SAID, backedUpSaid("x.json"), remindersOffSaid(true)]) assert.doesNotMatch(s, /—/);
 });
 

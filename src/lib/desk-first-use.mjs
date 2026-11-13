@@ -560,9 +560,9 @@ export const SHEET_TOUR_STEPS = [
     title: "Add a passage",
     body: {
       default:
-        "In the LIT pane, a verse’s menu adds the verse to the sheet you are working on, and selected words add just those words. Or type a reference in the form under “Reading.” On a chapter page, the verse menu has “Add to sheet” as well.",
+        "In the LIT pane, a verse’s menu adds the verse to the sheet you are working on, and selected words add just those words. Or type a reference in the form under “Reading.” On a Scripture page, the verse menu has “Add to sheet” as well.",
       page:
-        "Type a reference in the form under “Reading,” or choose one of your notes, highlights, or bookmarks listed beneath it. In the Study Desk, a verse’s menu in the LIT pane adds the verse to the sheet you are working on, and on a chapter page the verse menu has “Add to sheet.”",
+        "Type a reference in the form under “Reading,” or choose one of your notes, highlights, or bookmarks listed beneath it. In the Study Desk, a verse’s menu in the LIT pane adds the verse to the sheet you are working on, and on a Scripture page the verse menu has “Add to sheet.”",
     },
   },
   {

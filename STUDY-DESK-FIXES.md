@@ -3924,6 +3924,14 @@ the rest is polish.
        the Sheets tour's editor steps put the card over the sheet's right
        edge, hiding the minutes box and × (step 3) and the form's Add button
        (step 4), since the page leaves no room beside its column.
+       **Decided** (BVJ, 2026-11-13, taking all five of Claude's
+       recommendations), built in #583 too: a tour starting closes a bar that
+       stays (the layout's Undo, the reminder) without answering it; the
+       templates step keeps “New sheet” though the button reads “Cancel”
+       while they are open; “chapter page” reads “Scripture page” in the
+       reminder's “turned off” line and the Sheets tour's passage step; the
+       help page's E131 sentence stays; and on /sheets the parts and passage
+       steps' cards go above what they point at (`tight`).
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
