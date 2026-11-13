@@ -3868,7 +3868,8 @@ the rest is polish.
        it on /desk, /notebook or /search); E129's survey, which reads and
        changes nothing, beside them too.
     l. *After k* (BVJ, 2026-11-13): Fable checks the help page and the
-       tours against what wave 4 changed, and updates them if needed.
+       tours against everything this pass changed (#563 to #577, and wave
+       4), and updates them if needed.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
