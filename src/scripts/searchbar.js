@@ -986,7 +986,7 @@ const _initSearchbars = async () => {
         // of it as on every other search.
         if (
           greekSearchEnabled() &&
-          !ref &&
+          jump?.kind !== "ref" &&
           (isGreekQuery(q) || activeMode === "greek")
         ) {
           if (pinnedGreek && pinnedGreek.text !== q) pinnedGreek = null;
