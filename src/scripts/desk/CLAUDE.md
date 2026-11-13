@@ -382,8 +382,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      tab, no cap.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
-     The notes' settings (`data-desk-notes`, `data-desk-note-font`,
-     `data-desk-list` on `<html>`) have no pre-paint script, since nothing of
+     The notes' settings (`data-desk-notes` and `data-desk-note-font` on
+     `<html>`) have no pre-paint script, since nothing of
      the desk paints before it loads. "Hide my marks" (M1, key H) is no
      setting of its own: it saves and turns off
      "Notes in the margin", "My bookmarks" and both views' "My highlights", and puts
@@ -1260,6 +1260,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        layout and "My default" are both migrated); one that held both panes
        keeps two My Notes panes. A new feature of the notebook's list goes in
        both `tab-mine.js` and, if the page needs it, `kept-list.js`.
+       **The pane has the panel's This chapter / Everything choice** (E119;
+       BVJ, 2026-11-12): it starts on Everything; "this chapter" is the
+       leading LIT pane's, redrawn when that pane moves chapter; and the
+       choice is kept on the pane in the layout (`scope: "chapter"`,
+       `paneScope`). The list has no "Open all" (E118): a note or a pinned
+       footnote opens one at a time by its caret.
        **My Notes' follow** (E22): the row it follows to is `followTarget`
        (`desk-notebook.mjs`): the first record at or after the LIT pane's
        reading line, by the end of its verses, across books, or the last
