@@ -1,9 +1,12 @@
 // src/scripts/desk/page-kind.js
 //
-// What kind of page this is, read off the DOM with no imports, for the
-// modules the desk's first stage carries (note-settings.js; Audit 3, LG3-2):
-// Read View's book, and N11's prose page. page.js and note-sources.js
-// re-export them, so the rest of the desk imports them from there as before.
+// What kind of page this is, read off the DOM, for the modules the desk's
+// first stage carries (note-settings.js; Audit 3, LG3-2): Read View's book,
+// and N11's prose page. page.js and note-sources.js re-export them, so the
+// rest of the desk imports them from there as before. Its one import is the
+// switch, which lives beside the reading surfaces it also turns off (E124).
+
+import { PROSE_NOTES } from "../desk-frame.js";
 
 /** The book Read View shows on this page, or null anywhere else. */
 export function readBook() {
@@ -13,7 +16,7 @@ export function readBook() {
 }
 
 /** Whether the desk offers notes on glossary entries and articles (N11): off in version 1. */
-export const PROSE_NOTES = false;
+export { PROSE_NOTES };
 
 /**
  * The glossary or an article, as notes see it: its targets, each with the

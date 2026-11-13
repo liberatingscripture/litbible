@@ -130,9 +130,13 @@ const deskPlaceLabel =
     ? `Open the ${bookKeyToLabel(pagefindBook)} introduction in Study Desk`
     : `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
 const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
+// Which reading surface this is, for the Study Desk's pre-paint stamps
+// (Layout.astro, desk-frame.js's hasPanel; E124): a chapter, drafts included,
+// or a book's introduction, which has no Notebook panel in version 1.
+const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === "intro" ? "intro" : undefined;
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined} deskSurface={deskSurface}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent

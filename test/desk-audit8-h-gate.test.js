@@ -68,7 +68,9 @@ async function run(source, globals) {
 
 /* ── desk-gate.js ─────────────────────────────────────────────────────── */
 
-const MARKERS = { notebook: "[data-notebook-page]", desk: "[data-desk-page]", sheet: "[data-sheet-page]" };
+// The glossary is no page of the desk's, but with the desk on it keeps the
+// desk's reading column, whose headings' fit the gate loads (E124).
+const MARKERS = { notebook: "[data-notebook-page]", desk: "[data-desk-page]", sheet: "[data-sheet-page]", glossary: ".glossary-entries" };
 const gate = instrument(gateSource, [['import { readingSurface, standDown } from "./desk-frame.js";', "const { readingSurface, standDown } = globalThis.__gateFrame;"]]);
 
 /** Load desk-gate.js on a page with this data-desk value, reading surface, and marker; returns what it did. */
@@ -76,6 +78,7 @@ async function gateOn({ desk, reading = false, marker = null, following = true }
   const asked = [];
   const store = new Map(following ? [["lit-desk-follow", JSON.stringify({ paused: false, told: true })]] : []);
   let stood = 0;
+  let fits = 0;
   await run(gate, {
     document: {
       documentElement: { dataset: desk === undefined ? {} : { desk } },
@@ -86,11 +89,11 @@ async function gateOn({ desk, reading = false, marker = null, following = true }
     __gateFrame: { readingSurface: () => (reading ? { column: [] } : null), standDown: () => void stood++ },
     __deskImport: (spec) => {
       asked.push(spec);
-      return Promise.resolve({ start() {} });
+      return Promise.resolve({ start() {}, fitGlossaryTitles() { fits += 1; } });
     },
   });
   const flag = store.get("lit-desk-follow");
-  return { asked, stood, paused: flag ? JSON.parse(flag).paused === true : null };
+  return { asked, stood, fits, paused: flag ? JSON.parse(flag).paused === true : null };
 }
 
 const OFF = [undefined, "off", "", "ON", "true"];
@@ -115,6 +118,8 @@ for (const [marker, module, also = []] of [
   // The sheet page's desk styles are a download of their own (LG8-10), asked
   // for beside it, since a phone showing a shared sheet loads the page without them.
   ["sheet", "./desk/sheets/sheet-page.js", ["./desk/boot.js"]],
+  // The glossary has no Notebook panel while N11 is off (E124): its headings' fit alone.
+  ["glossary", "./desk/glossary-titles.js"],
 ]) {
   test(`desk on, on the ${marker} page: only ${module} loads${also.length ? `, with ${also.join(", ")}` : ""}`, async () => {
     const r = await gateOn({ desk: "on", marker });
@@ -133,6 +138,12 @@ for (const [marker, module, also = []] of [
     }
   });
 }
+
+test("on the glossary the gate fits the headings and loads nothing of the Notebook (E124)", async () => {
+  const r = await gateOn({ desk: "on", marker: "glossary" });
+  assert.equal(r.fits, 1);
+  assert.ok(!r.asked.includes("./desk/first-stage.js"));
+});
 
 test("a page that is none of them loads nothing, with the desk on or off", async () => {
   for (const desk of ["on", undefined]) assert.deepEqual((await gateOn({ desk })).asked, [], String(desk));

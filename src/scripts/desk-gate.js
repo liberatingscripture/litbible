@@ -3,7 +3,8 @@
 // The Study Desk's gate (STUDY-DESK.md, phase 1b). Layout.astro's pre-paint
 // script sets <html data-desk="on"> only on a computer and only where the
 // preview is switched on (?desk=on). The desk loads only there, and only on a
-// page with a reading column for its panel to sit beside (desk-frame.js).
+// page with the Notebook panel (desk-frame.js: Chapter View and Read View) or
+// on one of the desk's own pages; the glossary takes its headings' fit alone.
 // Everywhere else this is the whole of the desk a reader downloads: the desk
 // is a dynamic import, which Vite splits into chunks of its own.
 
@@ -16,7 +17,8 @@ const deskPageHere = document.documentElement.dataset.desk === "on" && document.
 
 // A bookmark that moves as the reader reads follows only while the reader reads
 // on in its book (STUDY-DESK.md C25). The shell loads only on a reading
-// surface, so every other page (home, search, /notebook) pauses the tab's
+// surface, so every other page (home, search, /notebook, and since E124 book
+// introductions, articles and the glossary) pauses the tab's
 // flag here (BA101; it ended the follow until 2026-11-04). /desk is the
 // exception: its leading LIT pane is reading, and desk-page.js runs the same
 // follower the shell does (E28). The key
@@ -86,4 +88,12 @@ if (shellHere) {
     console.error("Study Desk: the sheet page didn't load", err);
     standDown(); // its "Loading" line gives way to the note again (BA153)
   });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector(".glossary-entries")) {
+  // The glossary keeps its reading column with the desk on (pages/glossary.css)
+  // but has no Notebook panel while N11 is off (E124), so of the desk it takes
+  // only the headings' fit, which the first stage brings where it runs.
+  // Unfitted headings still read, so a failure is only logged.
+  import("./desk/glossary-titles.js")
+    .then((m) => m.fitGlossaryTitles())
+    .catch((err) => console.error("Study Desk: the glossary's headings didn't fit", err));
 }

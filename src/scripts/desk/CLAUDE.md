@@ -105,7 +105,8 @@ means each of these, in one change:
    preview…") and whether to bump its effective date.
 7. Indexing: `/notebook` and `/sheets` stay noindex; `/desk` and the help page
    are a decision (`robotsNoindex`, the sitemap filter in `astro.config.mjs`).
-8. `PROSE_NOTES` in `desk/page-kind.js` stays false for version 1.
+8. `PROSE_NOTES` in `desk-frame.js` (re-exported by `desk/page-kind.js`)
+   stays false for version 1.
 9. Browser floor (BVJ, 2026-11-04): highlights need the CSS Custom Highlight
    API (Chrome 105, Safari 17.2, Firefox 140). Below that the desk offers no
    Highlight and its switch says so (`highlightsSupported`). Mac Safari and
@@ -259,16 +260,21 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `keepReadingPlace`) and stamped before paint when it starts expanded;
      `data-desk-panel` still means open-or-minimized.
      **It appears only on the pages `READING_SURFACES`
-     (`src/scripts/desk-frame.js`) lists**: Chapter View chapters and intros,
-     Read View, articles and the glossary, each with its column, its heading
+     (`src/scripts/desk-frame.js`) lists**: Chapter View chapters and Read
+     View. Intros, articles and the glossary wait in `ALL_SURFACES`, marked
+     `prose`, behind `PROSE_NOTES` (E124, BVJ 2026-11-12: the panel did
+     nothing there). A page names its kind to Layout as `deskSurface`, and
+     the pre-paint script stamps the panel only where `hasPanel` allows.
+     Each entry has its column, its heading
      (or, on an article, `start`: the card, whose top edge the panel's top
      edge matches) and its `end`: the seam where the page meets the footer's colour, which
      on the scripture pages is the top of the license band (SblgntNotice),
      since a band right above the footer counts as footer.
      Everywhere else there is no panel, no Notebook button (a `:has()` rule in
      global.css, held to the list by `test/desk-frame.test.js`), and the
-     desk's code isn't loaded. **A new reading surface needs an entry in
-     both.**
+     desk's code isn't loaded (the glossary takes only its headings' fit,
+     `glossary-titles.js`, and keeps the 52 measure). **A new reading
+     surface needs an entry in both, and a `deskSurface`.**
      Floating panels keep to `panelRoom()` (`src/scripts/desk-frame.js`):
      the window's width less `dockWidth()`, or the whole window where that
      leaves under 300px (BA27). A shared panel
@@ -430,14 +436,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      pane has its own (rule 18, E108).
   8. **Notes on a glossary entry or an article** (N11) are **out of
      version 1** (BVJ, 2026-10-29; maybe version 2), and **switched off,
-     not removed**: `PROSE_NOTES` in `desk/page-kind.js` is `false`, so
+     not removed**: `PROSE_NOTES` in `desk-frame.js` is `false`, so
      `prosePage()` returns null everywhere, and with it go the margin on
      those pages (`proseSource`), the "My Notebook" row and "Add a note on
      this article" (`desk/prose-actions.js`, `panel.js`), the tray's Show
      group there (`note-settings.js`) and their change notices. The tour's
      first three steps leave out the "prose" view (`desk-first-use.mjs`).
-     On /glossary and an article the Notebook panel stays, and My Notes
-     lists everything, as on any page that isn't a chapter or Read View.
+     No Notebook panel shows on /glossary, an article or an intro (E124).
      **The records are kept whole**: `proseTarget`, the export, the merge
      and the format's principle 6 still carry a reader's existing notes,
      My Notes and /notebook list them, and the editor still opens them.

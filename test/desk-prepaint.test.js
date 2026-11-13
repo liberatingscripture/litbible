@@ -8,7 +8,9 @@
 // dragged in the notebook (sessionStorage) is stamped only while the notebook is
 // open, the desk is on, and the values are in range, and that the notebook is
 // stamped expanded, and the widths applied, only where the window holds them
-// (BA25, BA30): the script repeats src/lib/desk-margin.mjs's firstPaint.
+// (BA25, BA30): the script repeats src/lib/desk-margin.mjs's firstPaint. And
+// that a page without the Notebook panel (a book's introduction, an article,
+// the glossary; E124) gets data-desk alone, whatever the reader kept.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -17,9 +19,10 @@ import { readFileSync } from "node:fs";
 import { APP_PLATFORM_UA, isAppPlatform } from "../src/lib/app-platform.mjs";
 import { isAppPlatform as gateIsAppPlatform } from "../src/scripts/announcement-gate.js";
 import { EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH, firstPaint } from "../src/lib/desk-margin.mjs";
+import { hasPanel } from "../src/scripts/desk-frame.js";
 
 const layout = readFileSync(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
-const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit \}\}>([\s\S]*?)<\/script>/.exec(layout);
+const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit, deskPanel \}\}>([\s\S]*?)<\/script>/.exec(layout);
 // What Layout.astro hands the script.
 const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
 
@@ -41,10 +44,12 @@ const UA = {
  * width the page lays out in, `scrollbar` the classic scrollbar the window
  * reserves beside it, `html` what the earlier pre-paint scripts stamped (the
  * reader's font and text size) and `rootPx` the browser's root font size.
+ * `deskPanel` is what Layout.astro hands the script for the page (hasPanel of
+ * its deskSurface); the default is a Chapter View chapter's.
  */
 function run({
   href = "https://litbible.net/romans-8/", ua = UA.windows, touch = 0, uaData = undefined, stored = {}, session = {},
-  viewport = 1440, scrollbar = 15, html = {}, rootPx = 16,
+  viewport = 1440, scrollbar = 15, html = {}, rootPx = 16, deskPanel = hasPanel("chapter"),
 } = {}) {
   const attrs = { ...html };
   const props = {};
@@ -77,6 +82,7 @@ function run({
     innerWidth: viewport + scrollbar,
     getComputedStyle: () => ({ fontSize: `${rootPx}px` }),
     deskFit,
+    deskPanel,
   };
   const fn = new Function("appUa", "appUaFlags", ...Object.keys(page), match[1]);
   fn(APP_PLATFORM_UA.source, APP_PLATFORM_UA.flags, ...Object.values(page));
@@ -157,6 +163,53 @@ test("an open notebook is stamped before paint; only an expanded one is marked a
     const hidden = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": start, "lit-desk-min": "0" } });
     assert.deepEqual(hidden.attrs, { "data-desk": "on", "data-desk-show": "off" }, start);
   }
+});
+
+// E124 (BVJ, 2026-11-12): book introductions, articles and the glossary have no
+// Notebook panel in version 1, so nothing of the panel is stamped there: no
+// open panel, no expanded one, no dragged widths, no "Show the Notebook" off.
+test("a page without the Notebook panel gets data-desk alone, whatever the reader kept (E124)", () => {
+  const states = [
+    {},
+    { "lit-desk-panel": "open" },
+    { "lit-desk-min": "0" },
+    { "lit-desk-start": "open" },
+    { "lit-desk-start": "min" },
+    { "lit-desk-show": "off" },
+    { "lit-desk-panel": "closed" },
+  ];
+  const session = { "lit-desk-measure": "50", "lit-desk-width": "360" };
+  for (const kind of ["intro", "article", "glossary"]) {
+    const deskPanel = hasPanel(kind);
+    assert.equal(deskPanel, false, kind);
+    for (const kept of states) {
+      const r = run({ deskPanel, stored: { "lit-desk-preview": "on", ...kept }, session });
+      assert.deepEqual(r.attrs, { "data-desk": "on" }, `${kind} ${JSON.stringify(kept)}`);
+      assert.deepEqual(r.props, {}, `${kind} ${JSON.stringify(kept)}`);
+    }
+    // The preview link still works there, and the reader's panel keys are left as they were.
+    const on = run({ deskPanel, href: "https://litbible.net/glossary/?desk=on", stored: { "lit-desk-min": "0" } });
+    assert.deepEqual(on.attrs, { "data-desk": "on" });
+    assert.equal(on.stored["lit-desk-min"], "0");
+  }
+  // The same reader on a chapter and in Read View gets the panel as before.
+  for (const kind of ["chapter", "read"]) {
+    const r = run({ deskPanel: hasPanel(kind), stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
+    assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, kind);
+  }
+});
+
+// The script can't import, so Layout.astro works deskPanel out at build from
+// what each page says it is. A page that stopped saying so would lose its stamps
+// silently (a chapter opening expanded would reflow), so each one is read here.
+test("Layout hands the script hasPanel of the page's deskSurface, and each reading page names its own", () => {
+  assert.match(layout, /const deskPanel = hasPanel\(deskSurface\);/);
+  const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
+  assert.match(read("../src/layouts/ScriptureLayout.astro"), /const deskSurface = pagefindType === "scripture" \? "chapter" : pagefindType === "intro" \? "intro" : undefined;/);
+  assert.match(read("../src/layouts/ScriptureLayout.astro"), /<Layout [^>]*deskSurface=\{deskSurface\}/);
+  assert.match(read("../src/pages/read/[book].astro"), /\bdeskSurface="read"/);
+  assert.match(read("../src/pages/articles/[...slug].astro"), /\bdeskSurface="article"/);
+  assert.match(read("../src/pages/glossary.astro"), /\bdeskSurface="glossary"/);
 });
 
 test("a width dragged in the notebook is stamped before paint, with its measure", () => {

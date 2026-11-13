@@ -4322,9 +4322,10 @@ button.greek-cmd:hover {
 
 /* Every Notebook button (the header's two, Read View's toolbar) is in the
    markup for everyone and shown only with the desk on, and only on a page
-   with a reading column for the panel to sit beside: the :has() list is the
-   first column selector of each entry in READING_SURFACES
-   (src/scripts/desk-frame.js), which test/desk-frame.test.js checks.
+   with the Notebook panel: the :has() list is the first column selector of
+   each entry in READING_SURFACES (src/scripts/desk-frame.js), which
+   test/desk-frame.test.js checks. Intros, articles and the glossary come
+   back to it only with PROSE_NOTES (E124).
    !important because each button sits under a more specific display rule of
    its own (the header's nav/actions pairs, Read View's toolbar buttons). */
 html:not([data-desk]) [data-desk-toggle],
@@ -4335,7 +4336,7 @@ html[data-desk-show="off"] button[data-desk-toggle],
 /* Its own rule (LG-7): in a selector list one :has() an old engine can't parse
    would drop the gate above with it. The :has() list is the reading-column
    case alone. */
-body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--intro .scripture-main, .rm-page .rm-reader, .article__card, .glossary-entries .entries-wrap)) button[data-desk-toggle] {
+body:not(:has(.scripture-layout--scripture .scripture-main, .rm-page .rm-reader)) button[data-desk-toggle] {
   display: none !important;
 }
 /* The header's "Study Desk" links go to /desk, so they need no reading column.
@@ -4352,7 +4353,9 @@ body:not(:has(.scripture-layout--scripture .scripture-main, .scripture-layout--i
    and on Chapter View chapters 48 while the notebook is open, to leave the
    panel room for the Greek and Versions tabs without moving the column (BVJ,
    2026-10-08; STUDY-DESK.md, "Decisions"). Read View, intros, articles and
-   the glossary stay at 52: none of them gets those tabs. Only the expanded notebook does
+   the glossary stay at 52: none of them gets those tabs. 52 is the release's
+   reading width (C9), not room for the panel, so intros, articles and the
+   glossary keep it with no panel (E124). Only the expanded notebook does
    this (BVJ, 2026-10-14): minimized, floating or closed, the column keeps 52.
    data-desk-expanded is stamped before first paint (Layout.astro), so a page
    opening with the notebook expanded never reflows; expanding and folding it keep

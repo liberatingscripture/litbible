@@ -15,6 +15,10 @@
 // Display tray's text size, spacing or font, and the web fonts arriving. The
 // ink underlines are redrawn after each pass (glossary.astro listens for
 // glossary-reordered).
+// desk-gate.js loads this file alone while the glossary has no Notebook
+// (E124); the first stage carries it where the glossary does (PROSE_NOTES).
+// It imports nothing: keep it that way, since it is all the desk the
+// glossary downloads.
 
 /** Lay out every multi-option heading; returns nothing. Glossary only. */
 export function fitGlossaryTitles() {

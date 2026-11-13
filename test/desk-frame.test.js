@@ -2,16 +2,19 @@
 //
 // src/scripts/desk-frame.js: which pages the Notebook appears on. Two places
 // name them, since one runs before paint and the other is script: the
-// READING_SURFACES list (the desk's gate and its placement) and global.css's
-// :has() rule that hides the Notebook button everywhere else. A page in one
-// and not the other would show a button that does nothing, or a panel with
-// no button to close it.
+// READING_SURFACES list (the desk's gate and its placement, and through
+// hasPanel the pre-paint stamps) and global.css's :has() rule that hides the
+// Notebook button everywhere else. A page in one and not the other would show
+// a button that does nothing, or a panel with no button to close it.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { MIN_PANEL_ROOM, READING_SURFACES, panelRoom, readingSurface, shiftClearOfDock, standDown } from "../src/scripts/desk-frame.js";
+import {
+  ALL_SURFACES, MIN_PANEL_ROOM, PROSE_NOTES, READING_SURFACES, hasPanel, panelRoom, readingSurface, shiftClearOfDock, standDown,
+} from "../src/scripts/desk-frame.js";
+import { PROSE_NOTES as NOTES_SWITCH } from "../src/scripts/desk/page-kind.js";
 
 const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
 const rule = /body:not\(:has\(([^)]*)\)\)\s*button\[data-desk-toggle\]/.exec(css);
@@ -25,20 +28,51 @@ test("global.css hides the Notebook button on exactly the pages READING_SURFACES
 /** A document that has exactly these selectors. */
 const docWith = (...present) => ({ querySelector: (sel) => (present.includes(sel) ? {} : null) });
 
-test("readingSurface finds Chapter View, intros, Read View, articles and the glossary, and nothing else", () => {
-  assert.equal(readingSurface(docWith(".glossary-entries .entries-wrap")).title, ".glossary-entries .entry-title");
+const INTRO = ".scripture-layout--intro .scripture-main";
+const ARTICLE = ".article__card";
+const GLOSSARY = ".glossary-entries .entries-wrap";
+
+test("readingSurface finds Chapter View and Read View, and nothing else", () => {
   assert.equal(readingSurface(docWith(".scripture-layout--scripture .scripture-main")), READING_SURFACES[0]);
-  assert.equal(readingSurface(docWith(".scripture-layout--intro .scripture-main")), READING_SURFACES[1]);
   assert.equal(readingSurface(docWith(".rm-page .rm-reader")).title, ".rm-page .rm-title");
-  assert.equal(readingSurface(docWith(".article__card")).start, ".article__card", "an article's panel starts level with its card");
   // /search uses .scripture-main inside its own layout type, and the home
   // page and the articles list have no reading column at all.
   assert.equal(readingSurface(docWith(".scripture-layout--search .scripture-main")), null);
   assert.equal(readingSurface(docWith()), null);
 });
 
+// E124 (BVJ, 2026-11-12): the panel was on these three pages for notes on them
+// (N11), which version 1 leaves out, so it did nothing there.
+test("book introductions, articles and the glossary have no Notebook panel while N11 is off (E124)", () => {
+  assert.equal(PROSE_NOTES, false);
+  assert.equal(NOTES_SWITCH, PROSE_NOTES, "one switch for the notes and the panel");
+  for (const [kind, column] of [["intro", INTRO], ["article", ARTICLE], ["glossary", GLOSSARY]]) {
+    assert.equal(readingSurface(docWith(column)), null, kind);
+    assert.equal(hasPanel(kind), false, `Layout's pre-paint stamps nothing for the panel on a ${kind}`);
+    assert.ok(!rule[1].includes(column), `global.css hides the Notebook buttons on a ${kind}`);
+  }
+  assert.equal(hasPanel("chapter"), true);
+  assert.equal(hasPanel("read"), true);
+  assert.equal(hasPanel(undefined), false, "a page that names no surface");
+  // Chapter View stays first: margin.js tells it by its place.
+  assert.equal(READING_SURFACES[0].kind, "chapter");
+  assert.deepEqual(READING_SURFACES.map((s) => s.kind), ["chapter", "read"]);
+});
+
+// Version 2 turns PROSE_NOTES on; their entries are kept whole for it, and are
+// held to the same rules as the pages that have the panel now.
+test("the three pages' entries are kept for version 2, each with its kind and its own placement", () => {
+  const prose = ALL_SURFACES.filter((s) => s.prose).map((s) => s.kind);
+  assert.deepEqual(prose, ["intro", "article", "glossary"]);
+  assert.equal(new Set(ALL_SURFACES.map((s) => s.kind)).size, ALL_SURFACES.length, "each kind once");
+  const find = (column) => ALL_SURFACES.find((s) => s.column[0] === column);
+  assert.equal(find(GLOSSARY).title, ".glossary-entries .entry-title");
+  assert.equal(find(INTRO).title, "#chapter-title");
+  assert.equal(find(ARTICLE).start, ".article__card", "an article's panel starts level with its card");
+});
+
 test("each page names the elements that make up its column, and never a full-width band", () => {
-  for (const s of READING_SURFACES) {
+  for (const s of ALL_SURFACES) {
     assert.ok(Array.isArray(s.move) && s.move.length > 0, s.column[0]);
     for (const sel of s.move) {
       assert.doesNotMatch(sel, /scripture-disclaimer|entries-panel|entries-top|glossary-entries$/, `${sel} would move a band`);
@@ -47,7 +81,7 @@ test("each page names the elements that make up its column, and never a full-wid
 });
 
 test("each page names where its reading area ends; the license band counts as footer", () => {
-  const ends = Object.fromEntries(READING_SURFACES.map((s) => [s.column[0], s.end]));
+  const ends = Object.fromEntries(ALL_SURFACES.map((s) => [s.column[0], s.end]));
   for (const page of [".scripture-layout--scripture .scripture-main", ".scripture-layout--intro .scripture-main", ".rm-page .rm-reader"]) {
     assert.deepEqual(ends[page], { selector: ".scripture-disclaimer", at: "top", gap: 16 }, page);
   }
