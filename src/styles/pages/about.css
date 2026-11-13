@@ -2,9 +2,12 @@
    About page — full-bleed cream, essay mode
    ========================================================= */
 
+/* This page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
 .about-page {
   background-color: var(--page-bg);
   min-height: 100vh;
+  font-size: calc(1em * var(--reading-scale, 1));
 
   /* vertical rhythm */
   padding-block: clamp(3.5rem, 8vw, 6rem);
@@ -31,7 +34,7 @@
 /* Title */
 .about-hero__title {
   font-family: var(--serif, serif);
-  font-size: clamp(2.45rem, 4.2vw, 3.25rem);
+  font-size: calc(clamp(2.45rem, 4.2vw, 3.25rem) * var(--heading-scale, 1));
   line-height: 1.1;
   margin: 0 0 1.75rem 0;
   text-align: center;
@@ -39,8 +42,8 @@
 
 /* Answer block */
 .about-hero__answer {
-  font-size: clamp(1.2rem, 0.6vw + 1.05rem, 1.35rem);
-  line-height: 1.78;
+  font-size: calc(clamp(1.2rem, 0.6vw + 1.05rem, 1.35rem) * var(--reading-scale, 1));
+  line-height: calc(1.78 + var(--reading-leading-extra, 0));
 }
 
 
@@ -53,8 +56,8 @@
   max-width: calc(60 * var(--ch));
   margin: 0 auto clamp(3.5rem, 7vw, 5rem);
 
-  font-size: clamp(1.1rem, 0.55vw + 1rem, 1.3rem);
-  line-height: 1.75;
+  font-size: calc(clamp(1.1rem, 0.55vw + 1rem, 1.3rem) * var(--reading-scale, 1));
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
 }
 
 /* Paragraph rhythm */
@@ -69,7 +72,7 @@
 /* H2: Major sections */
 .about-body > h2 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.75rem, 3vw, 2.15rem);
+  font-size: calc(clamp(1.75rem, 3vw, 2.15rem) * var(--heading-scale, 1));
   line-height: 1.25;
 
   margin-top: clamp(3.5rem, 7vw, 5rem);
@@ -84,7 +87,7 @@
 /* H3: Subsections */
 .about-body h3 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem);
+  font-size: calc(clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
   line-height: 1.25;
 
   margin-top: 2.75rem;
@@ -129,7 +132,7 @@
   cursor: pointer;
 
   font-family: var(--serif, serif);
-  font-size: clamp(1.15rem, 0.55vw + 1.05rem, 1.35rem);
+  font-size: calc(clamp(1.15rem, 0.55vw + 1.05rem, 1.35rem) * var(--reading-scale, 1));
   line-height: 1.25;
 
   padding: 16px 16px;
@@ -145,7 +148,7 @@
 
 .faq-q::after {
   content: "＋";
-  font-size: 1.15rem;
+  font-size: calc(1.15rem * var(--reading-scale, 1));
   line-height: 1;
   color: rgba(var(--ink-rgb), 0.75);
   transform-origin: center;
@@ -187,6 +190,10 @@
 
 .about-faq .about-back {
   margin-top: 3rem;
+}
+
+.about-page > .about-back {
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 
@@ -255,7 +262,7 @@
 
 .about-toc__label {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: calc(0.82rem * var(--reading-scale, 1));
   letter-spacing: 0.10em;
   text-transform: uppercase;
   color: rgba(var(--ink-rgb), 0.65);

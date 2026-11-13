@@ -127,7 +127,8 @@ const headingText = !bookKey
   }
 
   .chapter-title {
-    font-size: 28px;
+    /* Follows the Display tray's text size through --reading-scale (see src/styles/CLAUDE.md). */
+    font-size: calc(28px * var(--heading-scale, 1));
     line-height: 1.25;
     margin: 0;
     padding: 8px 52px;
@@ -186,7 +187,7 @@ const headingText = !bookKey
     }
 
     .chapter-title {
-      font-size: 32px;
+      font-size: calc(32px * var(--heading-scale, 1));
       line-height: 1.8;
     }
   }

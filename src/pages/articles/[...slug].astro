@@ -325,7 +325,8 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   .article__title {
     margin: 0 0 10px;
     color: var(--text-strong);
-    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    /* Follows the Display tray's text size through --reading-scale (see src/styles/CLAUDE.md). */
+    font-size: calc(clamp(2rem, 3.2vw, 2.6rem) * var(--heading-scale, 1));
     line-height: 1.12;
   }
 
@@ -374,9 +375,16 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   .article__body :global(h3) {
     margin-top: 1.8rem;
   }
+  /* A link whose words are a web address ("doi.org/10.15699/jbl.1381.2019.522595")
+     is one unbreakable run, and on a phone it is wider than its line: it ran
+     83px past the text's edge at 375px, more in OpenDyslexic. It breaks only
+     when it can't fit a line by itself, so ordinary words never do. Links
+     alone, not the body: a long word that isn't an address stays whole
+     (src/styles/CLAUDE.md, the font's rule 4). */
   .article__body :global(a) {
     text-decoration: underline;
     text-underline-offset: 4px;
+    overflow-wrap: break-word;
   }
   .article__body :global(blockquote) {
     margin: 1.6rem 0;
@@ -396,6 +404,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
 
   .article__body :global(pre) {
     overflow-x: auto;
+    line-height: 1.6;
     background: var(--surface);
     padding: 1rem;
     border-radius: 14px;
@@ -419,7 +428,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     display: inline-flex;
     width: fit-content;
     align-items: center;
-    font-size: 0.85rem;
+    font-size: calc(0.85rem * var(--reading-scale, 1));
     padding: 6px 10px;
     border-radius: 999px;
     background: var(--surface);

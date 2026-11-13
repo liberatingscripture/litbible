@@ -427,7 +427,8 @@ const termLensJson = termLens?.marks.length
 
     .footnotes-wrap h2 {
       margin: 0 0 10px;
-      font-size: 1.45rem;
+      /* Follows the Display tray's text size through --reading-scale (see src/styles/CLAUDE.md). */
+      font-size: calc(1.45rem * var(--reading-scale, 1));
       line-height: 1.2;
       font-weight: 700;
     }

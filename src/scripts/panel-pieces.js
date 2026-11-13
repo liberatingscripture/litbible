@@ -12,7 +12,7 @@
 // The footnote popover's frame is here too, since /desk's LIT pane opens the
 // same popover (desk/lit-pane.js, phase 3e).
 
-import { closePanel } from "./lit-panel.js";
+import { closePanel, panelMaxWidth } from "./lit-panel.js";
 import { panelRoom } from "./desk-frame.js";
 
 // The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
@@ -192,7 +192,7 @@ export function placeBesideTouchSelection(rect) {
 export function placeClearOfSelection(rect) {
   return (el) => {
     const room = panelRoom();
-    el.style.maxWidth = Math.min(380, room - 2 * PANEL_EDGE) + "px";
+    el.style.maxWidth = Math.min(panelMaxWidth(el), room - 2 * PANEL_EDGE) + "px";
     const width = el.offsetWidth;
     const height = el.offsetHeight;
     const gap = 8;

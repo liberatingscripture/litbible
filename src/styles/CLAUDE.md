@@ -102,20 +102,80 @@
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:
-  1. **They apply to the reading surfaces only**: Chapter View's column, book
-     intros, Read View, and article bodies. Each surface multiplies its own
-     default by `--reading-scale` (16 / 18 / 20 / 23px at the 18px body size)
-     and adds `--reading-leading-extra` to its own line-height, so Medium and
-     Normal change nothing. The rest of the site is left to browser zoom.
+  1. **They reach every page of running text, and what a thing is decides
+     how far** (BVJ, 2026-11-12, for preference and for accessibility; until
+     then only the scripture pages and article bodies followed, and the rest
+     was left to browser zoom). Three scales, each a custom property on
+     `<html>` in `global.css`. Every rule multiplies its own default by one
+     of them, or adds the line-spacing extra, so Medium and Normal change
+     nothing anywhere:
+     - **`--reading-scale`** (16 / 18 / 20 / 23px at the 18px body size) and
+       **`--reading-leading-extra`** (what "Roomy" adds) are for words a
+       reader reads: Chapter View, book intros, Read View, article pages,
+       the glossary, /search's results, the release notes, About, Privacy,
+       Translation Commitments and the Collective's page, the source-text
+       notice, and the three panels of text (a footnote's popover, a key
+       term's card, a reference preview). The extra goes on every block
+       that can wrap; a title, a one-line label and a button keep their line.
+     - **`--heading-scale`** is the same scale for a page's title, except on
+       a phone (640px and under), where a title never grows past its own
+       size. It is the largest type on its page and can't break a word, so
+       "Thessalonians" or "Commitments" a step larger is wider than the
+       screen. A heading of short fixed words ("Footnotes", "Chapter 3")
+       takes `--reading-scale`.
+     - **`--control-scale`** is the gentler one for controls whose words sit
+       on one line in a fixed width: the verse menu and the selection panel,
+       the passage picker's list, Read View's toolbar and resume chip. It
+       never shrinks a control (Small leaves it alone) and stops at the Large
+       step, since the full Extra large step pushes a label out of its tile.
+       **On a phone (640px and under) it stays 1**: the sheets' two-button
+       rows and the picker's grid are fitted to the screen there, and the
+       larger label cost each a row when measured. What holds such a label
+       grows by the same factor (the picker's panel and tile floors, the
+       toolbar's width floors, a panel's width).
+
+     **Left to browser zoom, on purpose**: the header and its menus, the
+     footer, the Display tray, tooltips, buttons and form fields, and
+     Chapter View's tools row (its labels are 16px already, it sits above the
+     text, and its one-row phone layout and 245px pills are what a larger
+     label breaks first). So are the designed pages of short display type:
+     home, /read, /courses, /support, the contact forms, the podcast page,
+     the articles index, and /apps, which is mirrored with the LSC site.
+
+     **A floating panel takes the size from `--panel-scale`**, not by
+     inheritance, because it hangs off `<body>` outside every column:
+     `.lit-panel` sets it to 1, `.lit-panel--menu` to `--control-scale`, and
+     `.lit-panel--footnote` (the three panels of text) to `--reading-scale`.
+     Every size in a panel multiplies by it, and `lit-panel.js` reads the
+     panel's width back from its `max-width` (`panelMaxWidth`) instead of
+     keeping its own 380.
+
+     **Making a page follow**: give its outermost content element
+     `font-size: calc(1em * var(--reading-scale, 1))`, wrap each rem, px or
+     `clamp()` size (`calc(1.3rem * var(--reading-scale, 1))`), and leave
+     each em size alone, since it now inherits the scale. **Once, never
+     twice**: the glossary's entries sat in a `.wrap` inside another `.wrap`,
+     both scaled, and took the size twice with the desk preview on (29px for
+     23) until this change. A button inside a scaled element undoes it
+     (`calc(1em / var(--reading-scale, 1))`), and a mark keeps its size (the
+     Collective's lockup). **Then check OpenDyslexic at Extra large at 320
+     and 375px**, the case that breaks: a long word leaves the screen, and
+     no element's box shows it (rule 4 of the font's list, above), so scan
+     the text itself (a `Range` over each text node, its rects against the
+     window's width).
+
      **The Study Desk follows the size whole**, its own words and controls
      included, through a variable set from `--reading-scale` only where it
-     applies: the /sheets page (`--sheet-ui`, E101), and /desk's panes and
-     the Notebook panel beside a chapter (`--desk-ui`, E109, with
+     applies: the /sheets page (`--sheet-ui`, E101), and /desk's panes, the
+     Notebook panel beside a chapter, the /notebook page and the rows the
+     desk adds to /search's results (`--desk-ui`, E109 and E110, with
      `--desk-leading` for line spacing, which /sheets does not follow). The
      rules are in `src/scripts/desk/sheets/CLAUDE.md` and
      `src/scripts/desk/CLAUDE.md`; a size added to `desk.css` in rem
      multiplies by one of them, and a block of text there adds
-     `--desk-leading` to its line height.
+     `--desk-leading` to its line height. The public glossary scales its own
+     large type; the desk's look of it restates the type in em of one scaled
+     column (the end of `pages/glossary.css`).
   2. **Size goes on the same element as the column's width**, so the width
      (in `--ch`, an em fraction) grows with the text and a line keeps its
      length in characters. Putting the size on the paragraphs instead would

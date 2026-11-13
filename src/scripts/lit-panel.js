@@ -106,6 +106,18 @@ export function isSmallScreen() {
 }
 
 /**
+ * The widest a floating panel may be, in px: the stylesheet's own max-width
+ * (.lit-panel in global.css, 380px times the Display tray's scale for that
+ * kind of panel), read back so the number lives in one place. The inline
+ * max-width a placement set earlier is cleared first, or a panel shown twice
+ * would read its own last answer. The panel must be attached.
+ */
+export function panelMaxWidth(el) {
+  el.style.maxWidth = "";
+  return parseFloat(getComputedStyle(el).maxWidth) || 380;
+}
+
+/**
  * Show a panel near an inline trigger element (or as a bottom sheet on
  * small screens). Returns the panel element. The trigger only needs
  * getBoundingClientRect, so a selection can stand in for an element. `place`
@@ -137,7 +149,7 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     document.body.appendChild(el);
     const rect = trigger.getBoundingClientRect();
     const room = panelRoom();
-    const panelWidth = Math.min(380, room - 24);
+    const panelWidth = Math.min(panelMaxWidth(el), room - 24);
     el.style.maxWidth = panelWidth + "px";
     const width = el.offsetWidth;
     let left = window.scrollX + rect.left + rect.width / 2 - width / 2;

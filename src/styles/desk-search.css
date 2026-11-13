@@ -313,3 +313,13 @@
 .desk-gather__sheets {
   scroll-padding-block: 8px;
 }
+
+/* On /search the results follow the Display tray's text size and line
+   spacing (pages/search.astro), and the rows the desk adds to them follow
+   with them (E110): every rem size here multiplies by --desk-ui and every
+   block of text adds --desk-leading. Both are unset, so 1 and 0, in the
+   search tray and the Commands window, which are controls. */
+.search-page {
+  --desk-ui: var(--reading-scale, 1);
+  --desk-leading: var(--reading-leading-extra, 0);
+}

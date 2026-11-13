@@ -208,7 +208,13 @@ const fallbackHref =
 
       function positionPanel() {
         const r = trigger.getBoundingClientRect();
-        const width = Math.min(560, window.innerWidth - 24);
+        // The stylesheet owns the width (560px times the Display tray's
+        // scale for controls); it is read back so the two can't disagree.
+        // While the panel is still hidden the value isn't a length yet, and
+        // the plain 560 stands in.
+        panel.style.width = "";
+        const cssWidth = parseFloat(getComputedStyle(panel).width) || 560;
+        const width = Math.min(cssWidth, window.innerWidth - 24);
         panel.style.width = width + "px";
         let left = r.left + r.width / 2 - width / 2;
         left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
@@ -625,14 +631,19 @@ const fallbackHref =
       background: var(--surface-raised);
       color: var(--text);
       box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
-      width: min(560px, calc(100vw - 24px));
+      /* The picker's list is a control, so its words take the Display tray's
+         gentler scale for controls (--control-scale, global.css: their own
+         size up to Medium, the Large step above). The panel and each tile's
+         floor grow by the same factor, so a label keeps its room and the
+         grid drops a column where the window can't hold them all. */
+      width: min(calc(560px * var(--control-scale, 1)), calc(100vw - 24px));
       max-height: calc(100vh - 24px);
       overflow-y: auto;
     }
 
     .read-menu__head {
       margin: 2px 2px 10px;
-      font-size: 0.85rem;
+      font-size: calc(0.85rem * var(--control-scale, 1));
       color: rgba(var(--ink-rgb), 0.65);
     }
 
@@ -685,7 +696,7 @@ const fallbackHref =
       align-items: center;
       gap: 4px;
       padding: 5px 10px;
-      font-size: 0.85rem;
+      font-size: calc(0.85rem * var(--control-scale, 1));
       font-weight: 600;
       font-family: inherit;
       border: 1px solid rgba(var(--ink-rgb), 0.15);
@@ -700,7 +711,7 @@ const fallbackHref =
     }
 
     .read-menu__book-name {
-      font-size: 0.9rem;
+      font-size: calc(0.9rem * var(--control-scale, 1));
       font-weight: 600;
     }
 
@@ -714,14 +725,14 @@ const fallbackHref =
     .read-menu__grid--books {
       grid-template-columns: repeat(
         auto-fill,
-        minmax(var(--rm-book-min, 62px), 1fr)
+        minmax(calc(var(--rm-book-min, 62px) * var(--control-scale, 1)), 1fr)
       );
     }
 
     .read-menu__grid--chapters {
       grid-template-columns: repeat(
         auto-fill,
-        minmax(var(--rm-chapter-min, 48px), 1fr)
+        minmax(calc(var(--rm-chapter-min, 48px) * var(--control-scale, 1)), 1fr)
       );
     }
 
@@ -739,7 +750,7 @@ const fallbackHref =
       position: relative;
       display: block;
       padding: 12px 2px;
-      font-size: 0.85rem;
+      font-size: calc(0.85rem * var(--control-scale, 1));
       font-family: inherit;
       text-align: center;
       white-space: nowrap;
@@ -810,7 +821,7 @@ const fallbackHref =
       flex-wrap: wrap;
       gap: 10px;
       margin: 12px 2px 0;
-      font-size: 0.78rem;
+      font-size: calc(0.78rem * var(--control-scale, 1));
       color: rgba(var(--ink-rgb), 0.65);
     }
 

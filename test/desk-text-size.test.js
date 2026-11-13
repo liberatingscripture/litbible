@@ -118,11 +118,13 @@ test("a sheet's passage keeps the sheet's own size in a pane", () => {
   assert.match(body(".desk-pane .desk-sheet__words"), /font-size:\s*calc\(0\.9375rem \* var\(--sheet-text-scale, 1\)\);/);
 });
 
-test("the verse menu and the selection panel keep the site's size and spacing on the desk", () => {
-  // They are every page's panels; the rows the desk adds to them (Add a note,
-  // Highlight, the note editor) stay like the rows around them.
-  const pin = body("html[data-desk-workspace] .lit-panel");
-  assert.match(pin, /--desk-ui:\s*1;/);
+test("the rows the desk adds to a shared panel take that panel's own scale", () => {
+  // The verse menu, the selection panel and a footnote's popover are every
+  // page's panels, at the size global.css gives each (--panel-scale). The
+  // rows the desk adds (Add a note, Highlight, the note editor) take the same
+  // on every page, the desk's included, so they match the rows around them.
+  const pin = body(".lit-panel");
+  assert.match(pin, /--desk-ui:\s*var\(--panel-scale, 1\);/);
   assert.match(pin, /--desk-leading:\s*0;/);
 });
 

@@ -3,6 +3,15 @@
    (Used with global.css only)
    ========================================================= */
 
+/* This page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md).
+   .lsc (hero) and .lsc-content (body) are sibling containers, so neither
+   compounds the other's scale. */
+.lsc,
+.lsc-content {
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+
 .lsc {
   background-color: var(--page-bg);
   min-height: 100vh;
@@ -59,6 +68,8 @@
 
 .lsc-lockup__name {
   font-family: var(--serif, serif);
+  /* The lockup is the Collective's mark (dove and name in one proportion),
+     not text to read, so it keeps its size whatever the Display tray says. */
   font-size: calc(var(--lockup-size) * 0.27);
   font-weight: 600;
   line-height: 1.1;
@@ -70,7 +81,7 @@
 
 .eyebrow {
   margin: 0 0 1.25rem 0;
-  font-size: 0.82rem;
+  font-size: calc(0.82rem * var(--reading-scale, 1));
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(var(--ink-rgb), 0.65);
@@ -83,8 +94,8 @@
 }
 
 .lede {
-  font-size: clamp(1.15rem, 0.8vw + 1rem, 1.35rem);
-  line-height: 1.75;
+  font-size: calc(clamp(1.15rem, 0.8vw + 1rem, 1.35rem) * var(--reading-scale, 1));
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 
@@ -105,8 +116,8 @@
   margin-bottom: 0;
   padding-bottom: 0;
   max-width: 58ch;
-  font-size: 0.98rem;
-  line-height: 1.6;
+  font-size: calc(0.98rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.72);
 }
 
@@ -124,6 +135,9 @@
   border: 1px solid rgba(var(--ink-rgb), 0.15);
   background: rgba(var(--surface-rgb), 0.55);
   color: var(--text);
+  /* A button keeps its size: it sets none of its own, so this undoes the
+     scale it would inherit from .lsc and .lsc-content. */
+  font-size: calc(1em / var(--reading-scale, 1));
   transition: transform 160ms ease, opacity 180ms ease, background-color 180ms ease;
 }
 
@@ -153,14 +167,14 @@
 
 .lsc-section h2 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.75rem, 3vw, 2.15rem);
+  font-size: calc(clamp(1.75rem, 3vw, 2.15rem) * var(--heading-scale, 1));
   line-height: 1.25;
   margin: 0 0 1.25rem 0;
 }
 
 .lsc-section p {
-  font-size: clamp(1.1rem, 0.55vw + 1rem, 1.28rem);
-  line-height: 1.75;
+  font-size: calc(clamp(1.1rem, 0.55vw + 1rem, 1.28rem) * var(--reading-scale, 1));
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
 }
 
 .lsc-section p + p {
@@ -200,15 +214,15 @@
 
 .lsc-card h3 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.2rem, 0.9vw + 1.05rem, 1.45rem);
+  font-size: calc(clamp(1.2rem, 0.9vw + 1.05rem, 1.45rem) * var(--reading-scale, 1));
   line-height: 1.2;
   margin: 0 0 0.75rem 0;
 }
 
 .lsc-card p {
   margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.65;
+  font-size: calc(1.05rem * var(--reading-scale, 1));
+  line-height: calc(1.65 + var(--reading-leading-extra, 0));
 }
 
 .lsc-card p + p {
@@ -336,13 +350,14 @@
 
 .lsc-list li {
   margin-bottom: 0.65rem;
-  font-size: clamp(1.05rem, 0.45vw + 1rem, 1.2rem);
-  line-height: 1.6;
+  font-size: calc(clamp(1.05rem, 0.45vw + 1rem, 1.2rem) * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 .fineprint {
   margin-top: 1.25rem;
-  font-size: 0.98rem;
+  font-size: calc(0.98rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.7);
 }
 
@@ -385,8 +400,8 @@
 
 .lsc-card__brief {
   margin: 0;
-  font-size: 1.02rem;
-  line-height: 1.55;
+  font-size: calc(1.02rem * var(--reading-scale, 1));
+  line-height: calc(1.55 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.88);
 }
 
@@ -406,14 +421,14 @@
 
 .lsc-detail h3 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem);
+  font-size: calc(clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
   line-height: 1.25;
   margin: 0 0 0.85rem 0;
 }
 
 .lsc-detail p {
-  font-size: clamp(1.08rem, 0.45vw + 1rem, 1.22rem);
-  line-height: 1.75;
+  font-size: calc(clamp(1.08rem, 0.45vw + 1rem, 1.22rem) * var(--reading-scale, 1));
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 

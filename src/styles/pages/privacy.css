@@ -2,9 +2,12 @@
    Privacy Policy page — centered document column
    ========================================================= */
 
+/* This page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
 .privacy-page {
   background-color: var(--page-bg);
   min-height: 100vh;
+  font-size: calc(1em * var(--reading-scale, 1));
   padding-block: clamp(2.5rem, 5vw, 4rem);
   padding-inline: clamp(1.25rem, 4vw, 2.5rem);
 }
@@ -25,21 +28,21 @@
 
 .privacy-title {
   font-family: var(--serif, serif);
-  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--heading-scale, 1));
   line-height: 1.1;
   margin: 0 0 0.5rem;
 }
 
 .privacy-effective {
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--reading-scale, 1));
   letter-spacing: 0.04em;
   color: rgba(var(--ink-rgb), 0.6);
   margin: 0 0 1rem;
 }
 
 .privacy-lede {
-  font-size: clamp(1.1rem, 0.5vw + 1rem, 1.25rem);
-  line-height: 1.72;
+  font-size: calc(clamp(1.1rem, 0.5vw + 1rem, 1.25rem) * var(--reading-scale, 1));
+  line-height: calc(1.72 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 
@@ -50,8 +53,12 @@
 .privacy-body {
   max-width: calc(65 * var(--ch));
   margin: 0 auto;
-  font-size: clamp(1rem, 0.4vw + 0.9rem, 1.15rem);
-  line-height: 1.75;
+  font-size: calc(clamp(1rem, 0.4vw + 0.9rem, 1.15rem) * var(--reading-scale, 1));
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  /* A web address or a storage key is one unbreakable run, and at the larger
+     sizes on a phone the longest is wider than the column. It breaks only
+     when it can't fit a line by itself; ordinary words never do. */
+  overflow-wrap: break-word;
 }
 
 .privacy-body section {
@@ -65,7 +72,7 @@
 /* H2: section headings */
 .privacy-body h2 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem);
+  font-size: calc(clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
   line-height: 1.25;
   margin: 0 0 0.85rem;
   color: var(--text-strong);

@@ -358,10 +358,11 @@ const SIZE_OPTIONS = [
       </div>
     </fieldset>
 
-    {/* Text size and line spacing apply to the reading surfaces (scripture in
-        both views, footnotes, intros, article bodies) through --reading-scale
-        and --reading-leading-extra in global.css; the rest of the site is
-        left to browser zoom. */}
+    {/* Text size and line spacing reach every page of running text through
+        --reading-scale and --reading-leading-extra in global.css, page titles
+        through --heading-scale, and a few controls through the gentler
+        --control-scale. What follows which, and what is left to browser
+        zoom, is in src/styles/CLAUDE.md (the Display tray's rule 1). */}
     <fieldset class="font-tray__row">
       <legend class="font-tray__legend">Text size</legend>
       <div class="font-tray__seg">

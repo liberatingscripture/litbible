@@ -54,10 +54,13 @@
   overflow-x: clip;
 }
 
+/* The public glossary follows the Display tray's text size and line spacing
+   through --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md).
+   The desk block at the end restates the type in em, so it is unaffected. */
 .glossary-hero h1{
   margin: 0 0 24px 0;
   text-align: center;
-  font-size: clamp(44px, 5vw, 64px);
+  font-size: calc(clamp(44px, 5vw, 64px) * var(--heading-scale, 1));
   letter-spacing: 0.02em;
 }
 
@@ -65,8 +68,8 @@
 .glossary-hero p{
   margin: 0 auto 32px;
   text-align: left;
-  font-size: clamp(18px, 2.2vw, 26px);
-  line-height: 1.55;
+  font-size: calc(clamp(18px, 2.2vw, 26px) * var(--reading-scale, 1));
+  line-height: calc(1.55 + var(--reading-leading-extra, 0));
   max-width: 42em;
 }
 
@@ -318,7 +321,7 @@
   scroll-margin-top: var(--toc-anchor-offset);
 
   margin: 0 0 16px 0;
-  font-size: clamp(28px, 3.2vw, 54px);
+  font-size: calc(clamp(28px, 3.2vw, 54px) * var(--heading-scale, 1));
   font-weight: 500;
   line-height: 1.15;
 
@@ -341,7 +344,7 @@
 
 @media (max-width: 480px) {
   .entry-title {
-    font-size: clamp(22px, 6vw, 30px);
+    font-size: calc(clamp(22px, 6vw, 30px) * var(--heading-scale, 1));
   }
 }
 
@@ -472,8 +475,8 @@
 
 .entry-body p{
   margin: 0;
-  font-size: clamp(18px, 2.1vw, 26px);
-  line-height: 1.6;
+  font-size: calc(clamp(18px, 2.1vw, 26px) * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
   max-width: 44em;
 }
 
@@ -546,7 +549,7 @@
 .entry-occurrences{
   margin-top: 1.15rem;
   padding-top: 0.25rem;
-  max-width: 44em;
+  max-width: calc(44em * var(--reading-scale, 1));
 }
 
 /* No rule of any kind here — full-width read as an entry boundary (the signal
@@ -560,7 +563,7 @@
   margin: 0;
   padding: 0.15rem 0 0.15rem 1.15rem;
   text-indent: -1.15rem;
-  font-size: clamp(15px, 1.35vw, 18px);
+  font-size: calc(clamp(15px, 1.35vw, 18px) * var(--reading-scale, 1));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -582,7 +585,7 @@
      same absolute size as each row's "242 times…" count. An em of the title
      would compute smaller — the title's own clamp is tighter, and uppercase
      reads larger, so a matching ratio would not look like a matching size. */
-  font-size: calc(clamp(15px, 1.5vw, 18px) * 0.86);
+  font-size: calc(clamp(15px, 1.5vw, 18px) * 0.86 * var(--reading-scale, 1));
   letter-spacing: 0.02em;
   text-transform: none;
   opacity: 0.8;
@@ -630,7 +633,7 @@
      to the row above instead of starting a new one. */
   padding: 0.35rem 0 0.35rem 2.3rem;
   text-indent: -2.3rem;
-  font-size: clamp(15px, 1.5vw, 18px);
+  font-size: calc(clamp(15px, 1.5vw, 18px) * var(--reading-scale, 1));
 }
 
 .occ-summary::-webkit-details-marker{ display: none; }
@@ -690,7 +693,7 @@
 .occ-list a{
   color: var(--green-text, var(--lit-green));
   text-decoration: none;
-  font-size: clamp(14px, 1.3vw, 16px);
+  font-size: calc(clamp(14px, 1.3vw, 16px) * var(--reading-scale, 1));
   white-space: nowrap;
   /* "Show more" focuses the first newly revealed link, which scrolls it into
      view — clear the sticky jump pill so focus never lands under it. */
@@ -715,7 +718,7 @@
   background: transparent;
   color: var(--green-text, var(--lit-green));
   font: inherit;
-  font-size: clamp(13px, 1.2vw, 15px);
+  font-size: calc(clamp(13px, 1.2vw, 15px) * var(--reading-scale, 1));
   cursor: pointer;
 }
 
@@ -750,6 +753,13 @@ html[data-desk] .glossary-page .wrap{
   padding-left: 16px;
   padding-right: 16px;
   font-size: calc(1em * var(--reading-scale, 1));
+}
+
+/* The entries' wrap sits inside the hero's, and both match the rule above, so
+   the entries took the scale twice (29px for 23 at Extra large, 14 for 16 at
+   Small) until 2026-11-12. The inner one inherits. */
+html[data-desk] .glossary-page .wrap .wrap{
+  font-size: 1em;
 }
 
 /* Type sized as the scripture pages size theirs (BVJ, 2026-10-06), in em of

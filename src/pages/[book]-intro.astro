@@ -116,6 +116,12 @@ const isDraft = isDraftIntro(bookKey);
   <style>
     /* Keep intro left-aligned (NOT centered). Its width and text size come
        from .scripture-main (the shared reading measure). */
+    /* Follows the Display tray's line spacing through --reading-leading-extra
+       (see src/styles/CLAUDE.md): list items and bare text inherit it. */
+    .intro {
+      line-height: calc(1.6 + var(--reading-leading-extra, 0));
+    }
+
     .intro :global(p) {
       margin: 0 0 12px;
       line-height: calc(1.75 + var(--reading-leading-extra, 0));
