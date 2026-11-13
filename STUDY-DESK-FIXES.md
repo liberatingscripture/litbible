@@ -3293,11 +3293,16 @@ says so; where BVJ was wondering, nothing is decided.)
   notebook on a new computer or browser, merge your backup into it”) and
   the command menu. **A fourth choice**, BVJ's idea: turning reminders off
   from the bar, which Claude proposed as a quiet link after the three
-  buttons, with a notice that says where to turn them on again. Status:
-  words decided; the line's timing (Claude's proposal: seven days after
-  the last backup, or after the first note or mark when never backed up;
-  the first page that day, not /notebook; a one-day snooze) and the
-  fourth choice's form go to BVJ before the build.
+  buttons, with a notice that says where to turn them on again. **BVJ**
+  (2026-11-13): “yes to your proposals,” so the rest is decided too. The
+  line is due seven days after the last backup, or, never backed up, seven
+  days after the oldest note or mark; it shows on chapter pages, Read View
+  and /desk (not /notebook or /sheets) and stays until answered. “Back up
+  now” downloads the full backup; “Remind me tomorrow” (and ×) puts the
+  line off a day and keeps the dots; “Not this week” puts off the line and
+  the dots for seven days; “Turn off reminders” is the quiet link. The dots
+  mean due and not put off for the week, and opening the Notebook doesn't
+  clear them. Status: decided; being built.
 - **E114, wish: ways straight into the Reading layout from outside the
   desk.** BVJ (2026-11-12): “I wonder if there’s a reasonable place(s) to
   link directly to the Reading layout from anywhere outside the Study Desk.”
@@ -3686,8 +3691,10 @@ says so; where BVJ was wondering, nothing is decided.)
   rules are for a `select`), so it is full size, upright and full ink,
   directly under the passage, in any template and with or without a
   notebook. Smaller: an empty part's placeholder is upright while a lone
-  heading's prompt is italic. Status: decided, survey done; the fix waits on
-  BVJ's word that this is the one.
+  heading's prompt is italic. **BVJ** (2026-11-13, shown it on a sheet):
+  “Yes, I think that was it.” It now has a class of its own,
+  `desk-sheet__how`, in the rule the sheet's other notes share (smaller,
+  ink at 0.75). Status: fixed (#581).
 - **E130, wording: “Chapter View” becomes “Scripture page” with the
   preview on.** BVJ (2026-11-12, in chat, after “Continue reading · Chapter
   View” showed in My Notes on /desk): “it still says ‘Chapter View’. That
@@ -3860,11 +3867,10 @@ the rest is polish.
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
 14. **BVJ's pass of 2026-11-12** (E111 to E131; Claude's grouping,
-    2026-11-12, not a decision). Waiting on BVJ: E113's timing for the
-    undo-bar line and the form of its fourth choice (its words and the
-    rest are decided). Wave 1
+    2026-11-12, not a decision). Nothing waits on BVJ (E113's last
+    answers, 2026-11-13). Wave 1
     (a to d) is #563 to #567; wave 2 (e to i, all but E113 and E131) is
-    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578 and #579).
+    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578, #579, and #581).
     Shared files set the order; each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
        E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112

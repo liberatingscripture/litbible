@@ -6779,9 +6779,13 @@ html.desk-ws--moving * {
    every other pane's words follow the tray there. The sheet's own text
    follows --sheet-text-scale. */
 
+/* The sheet's notes: what the editor says, never the sheet's own words. The
+   instruction under a passage's words (`__how`) is one, or it reads as more
+   of the passage (E129). */
 .desk-sheet__status,
 .desk-sheet__empty,
-.desk-sheet__none {
+.desk-sheet__none,
+.desk-sheet__how {
   color: rgba(var(--ink-rgb), 0.75);
   font-size: calc(0.875rem * var(--sheet-ui, 1));
   margin: 6px 0;
