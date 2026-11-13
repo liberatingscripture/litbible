@@ -3195,6 +3195,379 @@ tap areas (`global.css`, never under 24px).
   unchanged with the gate off. Left as they were: margin notes' buttons and
   the minimized tab.
 
+**BVJ's pass of 2026-11-12** (E111 to E127; from a Word document of BVJ's
+with seven screenshots, logged in its order, plus three items BVJ added in
+chat the same day: the search bar's Read View jump, folded into E114, the
+help page, E125, and a look for the panes' buttons, E126; E127 came from
+a question in chat. Wave 1 is #563 to #567. Where the code answers a question, the entry
+says so; where BVJ was wondering, nothing is decided.)
+
+- **E111, rough: Share image's questions open where Share was.** BVJ
+  (2026-11-12), of the verse menu: “Share > share image” is in a flyout, “but
+  when clicked, the next options are where ‘Share’ used to be. Move it to
+  where ‘share image’ is, and give ‘share image’ an ellipsis to indicate that
+  it’s going to open options.” Today choosing Share image closes the flyout
+  and the image questions (Ink or Paper, then Square or Story) take the Share
+  row's place (`actionRows` in `chapter-tools.js`), which E39 chose “so the
+  panel keeps its height”; this reverses that part of E39. It is every
+  reader's verse menu and selection panel, opened by a mouse or the keyboard
+  (a finger's chips have no flyout). The one-name rule
+  (`src/scripts/CLAUDE.md`, “One set of actions, two ways in”) would put the
+  ellipsis on the chips too, so E39's chip widths need measuring again:
+  OpenDyslexic had 6px to spare in the selection panel. Keep NB3-2's failure
+  path (Share text… comes back with the reason) and focus on a keyboard
+  press. Built in wave 1: “Share image…” everywhere, its questions in the
+  flyout where it was; in OpenDyslexic it takes a line of its own in a
+  narrow selection panel, within the two-button rule (BVJ, 2026-11-12:
+  fine). Status: fixed (#565).
+- **E112, design: the verse menu's order.** BVJ (2026-11-12): Copy text,
+  Share, Highlight, Add a note, Add bookmark, Add to sheet, Print, Show in
+  Notebook. Today, under “My Notebook” (`desk/actions.js`): Add a note and
+  Add bookmark (one row of halves), the Bookmark box, Print ▸, Add to sheet
+  ▸, Highlight, then Show in Notebook. So Highlight moves up to lead the My
+  Notebook rows, and Add to sheet moves ahead of Print. This settles E78's
+  order for the rows after Copy text and Share; E78's “More” row is still
+  not taken up. The same order applies where fewer rows show: Read View
+  (Highlight, then Bookmark), /desk's LIT pane (Highlight, Add a note,
+  Bookmark), and a finger's chips. The notebook tour's steps and the help
+  page name these rows; check them. The notebook tour's sentence lists the
+  new order. Status: fixed (#564).
+- **E113, wish: a reminder that reminds.** BVJ (2026-11-12), of the
+  Notebook's foot (“Remind me to save a copy,” then “It’s been 8 days since
+  you saved a copy. Save a copy”): “I wouldn’t call what this does currently
+  ‘reminding.’ It’s keeping a running count of the number of days since
+  saved.” BVJ's range, most to least insistent: a pop-up or a browser
+  notification, a banner, or a dot on the tab saying a message is waiting,
+  appearing seven days after the last copy (`REMIND_AFTER_DAYS` is already
+  7), “and the design could be a little more urgent.” Today the line in the
+  foot is the only sign (`first-use.js`; `reminderDue` and `reminderText` in
+  `desk-first-use.mjs`): a reader sees it only by opening the Notebook and
+  scrolling to its foot, and never on /desk, which has no panel. What exists
+  to build on: E74's dot (`data-desk-nudge` on the Notebook's tab and
+  toggles, cleared once the Notebook opens) and the undo bar's offer line. A
+  browser notification would need the browser's permission and would add
+  nothing while the page is open; not recommended. **BVJ** (2026-11-12):
+  “Let's talk design when we come to it. I think the dot, yes. The line in
+  the undo bar vs. something on the settings tab is worth mocking up.” So
+  the dot is in, and two mocks come before anything is built: a line in the
+  undo bar, and something more noticeable on the Notebook's Settings tab,
+  whose “Keep and print” group already holds the reminder's checkbox and
+  today's line (the old foot, moved there in E75). Also for that talk: where the dot
+  goes on /desk, which has no Notebook tab (the title menu's My Notebook is
+  one candidate), and whether /notebook needs anything, since saving a copy
+  is on that page. Status: open, design talk and mocks first.
+- **E114, wish: ways straight into the Reading layout from outside the
+  desk.** BVJ (2026-11-12): “I wonder if there’s a reasonable place(s) to
+  link directly to the Reading layout from anywhere outside the Study Desk.”
+  Then, in chat the same day: the search bar “still offers a jump to read
+  view when a scripture reference is entered. For the preview (not public),
+  that can direct to the Reading layout on the desk instead.” That jump is
+  in two places, both from `makeReadReferenceHref` and `makeReadBookHref` in
+  `search-core.js`: the tray's second jump link (“in Read View, whole book”)
+  with Shift+Enter (`searchbar.js`), and /search's “Read View, whole book”
+  (`search.js`). Other candidates, each a way into Read View today: /read's
+  card and the chapter picker's footer link (both already lead to the Study
+  Desk with the preview on), and at launch 8c's redirects of old Read View
+  addresses. **This needs a decision first**: a link to /desk never forces
+  an arrangement, Reading included (E8; BVJ, 2026-11-02; `arrivalLayout`), so
+  such a link needs a new parameter (say `/desk/?place=john-3:16&layout=reading`)
+  and a rule for what it does to the reader's saved layout. Shared reader
+  code may read `deskEnabled()` but never imports desk code, so the search's
+  address is written out in `search-core.js`, as `ScriptureLayout.astro`
+  writes its pill's. **Decided** (BVJ, 2026-11-12, taking Claude's
+  recommendation): “The link to the Reading layout is good. It would open
+  the desk with that layout active. Other desk links only navigate to /desk
+  or do so while also selecting the appropriate passage to show in the LIT
+  pane.” So:
+  - **Reading links are the ones that stood for Read View**, with the
+    preview on: the tray's second jump link and Shift+Enter, /search's
+    “Read View, whole book,” and the chapter picker's footer link
+    (`ReadMenu.astro`, “Open X in Study Desk →” today, which opens the
+    desk at chapter 1 as it is). Each opens /desk in Reading at its passage
+    (a book alone at chapter 1). Without the preview they stay Read View.
+  - **Every other link into /desk keeps E8's rule**: plain `/desk/`, or
+    `?place=` moving the LIT pane and keeping the reader's arrangement
+    (the toolbar's pill, the header's Study group, the Notebook's header
+    link, /read's card).
+  - **Arriving in Reading is choosing the Reading row**: it becomes the
+    last layout, as any change does, with Reading's marks turned off and
+    given back on the way out (`readingHid`); “My default” is untouched.
+  - **At launch** (“Launching”, item 11), these links are the Read View
+    jump's successors where the desk runs; the item gains that line.
+  Status: open, decided; built after E123, which shares the search files.
+- **E115, wish: the Search pane links to /search before anything is
+  typed.** BVJ (2026-11-12): a link like “See results on the search page”
+  should show in the Search pane before a search is typed, worded
+  differently since there are no results yet. Today it shows only while
+  there is a search (`showPageLink`, `search-pane.js`). Proposed: “Open the
+  search page” until a search is typed. Status: fixed (#563).
+- **E116, rough: /search's checks and its sheet button are too subtle.**
+  BVJ (2026-11-12), of Keyword matches with the desk on: “The controls here
+  are too subtle. I forgot what the check boxes were for, and it took me a
+  while to figure it out (and I’m the developer!).” Only the “4 verses
+  checked.” line ties the boxes to “Make a sheet of these verses.” BVJ
+  suggests a redesigned button might do it, after the recent pass on such
+  controls (E89's control look, which reached /desk's command row). The bar
+  and the boxes are `sheets/search-sheet.js`, styled in `desk-search.css`.
+  Design, mock first. **Decided** (BVJ, 2026-11-12, from Opus's mocks,
+  option A “mostly as recommended”): the bar becomes the list's head row, a
+  select-all box in the column of the verses' boxes beside one primary
+  button whose label carries the count (“Add 4 verses to a sheet…”); checked
+  results and the row share a green rule, and the row stays at the top of
+  the window while the group is on screen. **BVJ's one change: nothing
+  checked adds nothing.** “With no boxes checked, 0 results should be added
+  (and the button can be disabled). If the box next to the head row message
+  and button is checked, then it selects all.” So the button is disabled
+  (`aria-disabled`, with its reason) until a box is checked, the head row's
+  box is the way to take every verse (“Add all 119 verses to a sheet…”),
+  and the line beside it says so instead of “leave them unchecked to take
+  all 119.” This reverses today's “With none checked, all 119 results go on
+  the sheet.” Status: open, decided; built with E126 and E117.
+- **E117, wish: search results to a sheet from the Search pane.** BVJ
+  (2026-11-12): “I think it should be possible to send search results to a
+  sheet from the search pane.” **The pane already offers it**: “Make a sheet
+  of these verses” at the head of its verse results (every verse found), and,
+  while a Sheets pane shows a sheet, “Add these verses to ‘…’” and a + on each
+  verse (`verseGroup` in `search-pane.js`; M5). It is a quiet button in the
+  results' bar, so it may be E116's trouble again. **BVJ found it**
+  (2026-11-12, with a screenshot of “Bible order” and “Make a sheet of these
+  verses” on one line, “Add these verses to ‘Untitled sheet’” on the next):
+  “It needs a little design help. Placement mostly. I do wonder about making
+  buttons in the pane styled a little differently than this. The solution
+  may or may not be to change the color. It could be to add a little
+  texturing/shadow/animation, or something to it.” Then: “I had missed it,
+  but I think checkboxes are worth adding too.” So the work is three
+  things: where the sheet buttons sit in the pane (apart from the sort,
+  which is not about sheets); a check on each verse, as on /search, so a
+  sheet can take some of the verses found, with whatever E116 settles for
+  tying the checks to the button (the pane already has a + per verse while
+  a Sheets pane shows a sheet, so the mock shows how the two sit together);
+  and a look for the pane's buttons that reads as pressable, color being
+  only one way, which BVJ widened to every pane's buttons (E126). Designed
+  with E116 and E126, mocks first. **Decided** (BVJ, 2026-11-12, option A,
+  “same as E116”): “Bible order” moves to the group's title line; under it a
+  strip in the pane's card color holds a select-all box, a count line and the
+  buttons, “Add 3 verses to ‘X’” (primary) with “New sheet of 3 verses”
+  beside it while a Sheets pane shows a sheet, “New sheet of 3 verses”
+  alone otherwise; no button wraps inside, a long sheet name ends in “…”,
+  and the strip stays at the top of the results. Every verse gets a box and
+  the + stays for one verse. As in E116, **nothing checked adds nothing**:
+  the buttons are disabled until a box is checked, and the strip's box
+  selects all. “New sheet of N verses” opens a Sheets pane, so it follows
+  E127's rule on a full desk. Status: open, decided; built with E126 and
+  E116, after E127.
+- **E118, design: no “Open all” or “Close all” in My Notes.** BVJ
+  (2026-11-12): “I don’t think we need the Close all/open all control. Having
+  them collapsed and require manual expansion one at a time is sufficient.”
+  It is `allButton` in `tab-mine.js` (the Notebook's tab and the /desk pane),
+  with the `listFull` setting, `lit-desk-list`, named in /privacy. A pinned
+  footnote has no caret of its own (only “Open all” showed one whole), so it
+  needs one, and on /notebook a pin is cut at three lines the same way
+  (`record-rows.js`). The key retires with its /privacy line, with no
+  migration (the preview has one user). Status: fixed (#566).
+- **E119, wish: the My Notes pane chooses this chapter or everything.** BVJ
+  (2026-11-12), with a screenshot of the pane on Matthew 2: a toggle “like on
+  the My notes tab of the notebook that toggles between displaying the
+  current chapter and everything that’s been saved.” The Notebook's tab has
+  it on a Chapter View chapter (`scope`, passed by `panel.js`); the pane is
+  built without one, so it lists everything and follows the LIT pane (E22).
+  In the pane, “this chapter” would be the leading LIT pane's and would
+  change as it moves. Built in wave 1 with the tab's “This chapter” and
+  “Everything” (BVJ, 2026-11-12: fine). Status: fixed (#566).
+- **E120, bug: the Book Intro pane leaves out the Matthew introduction's
+  chart.** BVJ (2026-11-12): /matthew-intro shows it, after “The following
+  chart shows the mirrored passages and pivotal section.” and before “Visit
+  this article to read more about the central passage in Matthew 15:1–28.”;
+  the pane goes from one to the other with nothing between. The chart is an
+  `<img>` in a `<figure>` (`src/data/intros/matthew-intro.md`, the only
+  intro with one), and `makeInert` (`desk-inert.mjs`, SEC3-2) removes every
+  `img` from a fetched page, and the figure's inline style with it. Fix:
+  keep an `img` whose `src` is the site's own (a path under `/images/`,
+  nothing else) with its `alt`, and size it in the pane's CSS as the page
+  does; a narrow change to a security rule, with its test. Status: open.
+- **E121, rough: “New sheet” stays while the templates are open.** BVJ
+  (2026-11-12), in the Sheets pane: pressing “New sheet” shows the
+  templates, but the button keeps its name. It already cancels, so while
+  they are open it should say “Cancel” and change from the primary green to
+  white (the control look). `my-sheets.js` (`fresh`); check /sheets' “New
+  sheet…” for the same. Built in wave 1, /sheets' button included, since it
+  shares the chooser (BVJ, 2026-11-12: fine). Status: fixed (#564).
+- **E122, wording and design: the Share dialog.** BVJ (2026-11-12), with a
+  screenshot: “The copy here is attempting to be clear by being thorough, but
+  it’s actually hard to follow. And the ‘What to share’ options are
+  misleading. That’s what it displays before importing, but after importing,
+  the person has access to all of it. And it was written before Answer Key
+  became attached to participant version instead of leader version.” The
+  options are “The participant’s version, without answers or Leader only
+  parts” and “Everything, for another leader” (`sheet-page.js`). As read
+  here: the choice names a version, which is what the link shows before it
+  is imported, but once imported the recipient has an editable sheet holding
+  everything the link carried. **That is true of the answer key**: the key is
+  built from each passage's blanks (`answerKeyGroups`,
+  `desk-sheet-leaks.mjs`), and every share, a participant's included, keeps
+  the blanks whole with their words (`sharedSheet` in `desk-sheet-share.mjs`
+  empties only a question's typed answer). So a participant link shows no
+  key (E102: share links never carry it), but once imported the sheet is the
+  recipient's own and “Add answer key” prints it. The blanked words are the
+  LIT's own text in any case, so nothing can keep them secret; the question
+  is what the link offers and what the dialog promises.
+  **BVJ's direction** (2026-11-12, inclined, not yet decided): “I'm inclined
+  to let the sharer decide whether to include the answer key. It's already
+  partly there with the checkbox to ‘Add Answer Key.’ Maybe that's the main
+  thing that decides it, and there can be a ‘you're including the answer
+  key’ message that pops up and asks if they want to continue.” To work out
+  in the design: a link shared with the box checked carries the key and
+  shows it to the recipient (reversing E102's “share links never carry it”);
+  the box is per page view and never remembered (E102), so the dialog reads
+  it at the moment of sharing, and where the box is hidden (Share… pressed on
+  the leader's version; the dialog is /sheets' alone) the dialog needs its
+  own way to say yes; the
+  question comes before the link exists, since the dialog draws its QR code
+  at once, and also before a phone's “Share…” forwards a participant link;
+  and whether a link shared without the key drops the blanks' words (they
+  stay findable in the LIT) or only leaves the key unshown. The format is in
+  STUDY-DESK-FORMAT.md, “Sharing a sheet,” which BDR's Claude reads.
+  **Decided** (BVJ, 2026-11-12, approving Fable's mocks): the commercial
+  check stays first, in its own dialog; the Share dialog offers “The
+  participant's version” (the default) with an “Include the answer key” box
+  under it, or “The leader's version” (renamed from “Everything, for another
+  leader”), and a tinted “Sends: …” line says what goes out. **No opening
+  question**: BVJ asked whether it could go, since the box in the dialog
+  already makes the choice, so the box always starts unchecked and never
+  inherits the page's “Add answer key” (the mocks' “simpler alternative”).
+  A participant link with the box checked carries `answerKey: true`, a
+  display instruction (the key shows as the shared view's last page and
+  prints with it), which reverses E102's “share links never carry it” for
+  that case alone; a receiver never stores it. **No lock after importing**:
+  the blanks' words are the LIT's own and must stay in the data, so the
+  no-key state says once that anyone who imports the sheet can add the key.
+  The copy cuts stand (the email line, the phone-or-computer aside, “The
+  passages are read from the LIT…”, the long-link reason in “Link copied”).
+  BDR gets the field's row in STUDY-DESK-FORMAT.md, with the two stale
+  lines there fixed. Status: open, decided; Fable builds it.
+- **E123, bug: “Matthew intro” doesn't reach Matthew's introduction.** BVJ
+  (2026-11-12): searching “Matthew Intro” or “Matthew Introduction” doesn't
+  take the reader to the introduction; only “Matthew” does. Public search.
+  `parseReferenceJump` (`search-core.js`) knows a reference or a book alone;
+  only the 404 page's `resolveMistypedPath` reads “intro” and
+  “introduction.” The tray, /search and the Search pane share the parser.
+  Built in wave 1: the tray and /search offer “Go to Matthew introduction”
+  alone, with no Read View link, and the desk's Search pane opens it in a
+  Book Intro pane (BVJ, 2026-11-12: fine). Status: fixed (#563).
+- **E124, rough: the Notebook panel shows on pages it does nothing for.**
+  BVJ (2026-11-12): “We had added the notebook panel to Article pages, book
+  intro pages, and /glossary when we thought we were going to allow adding
+  notes on those pages, but now the panel doesn’t actually interact with
+  those pages at all. It shouldn’t be displayed there.” They are entries in
+  `READING_SURFACES` (`desk-frame.js`), and with N11 switched off
+  (`PROSE_NOTES`, rule 8) the panel there lists everything and offers
+  nothing about the page. Taking them out reaches the pre-paint script's
+  stamps and `firstPaint`, the 52 measure on those pages (rule 4), the
+  `:has()` rule in `global.css` and `test/desk-frame.test.js`, and the first
+  stage (the glossary's heading fit). To decide while building: whether the
+  glossary keeps its reading-page look and intros their 52 measure without a
+  panel, and how version 2's N11 brings the panel back. The intro's “Study
+  Desk” pill stays. Built in wave 1: intros, articles and the glossary wait
+  in `ALL_SURFACES` behind `PROSE_NOTES`, so N11 brings all three back
+  together; they keep the 52 measure, and the glossary its reading look
+  (BVJ, 2026-11-12: fine). Status: fixed (#567).
+- **E125, design and wording: the help page needs an overhaul.** BVJ
+  (2026-11-12, in chat): /desk/help “needs an overhaul both in the copy
+  wording as well as design and useability.” Today it is one long page of
+  sixteen sections with no contents (`src/pages/desk/help.astro`,
+  `pages/desk-help.css`). The desk links into it by anchor (`HELP_HREF`,
+  `WAYS_HREF` and others), so those keep working, and every feature keeps
+  its sentence (the Routes table's rule). Best done after E111 to E126 are
+  built, so it describes them as they are. Status: open.
+- **E126, design: a look for every button on the panes.** BVJ (2026-11-12),
+  widening E117's question about the Search pane's buttons: “That would apply
+  to all buttons on panes. There are some (like ‘New Sheet’) that a different
+  color is for sure warranted, but I’m not sure about all of them.” What
+  E117's screenshot shows is already E89's control look (white, a 3:1 edge),
+  so the question is what more a pane's button needs to read as pressable
+  (texture, a shadow, motion, or color) and which few earn the primary color.
+  The work: list the buttons in every pane kind (the LIT pane's bar, My
+  Notes, This verse, Greek, Footnotes, Book Intro, Sheets, Search), sort them
+  into a small hierarchy (primary, ordinary, quiet; E89 left the glyph
+  buttons alone, since they read by their glyph), and mock it for BVJ in a
+  real pane in light and dark. My Notes, This verse and Greek are the
+  Notebook panel's own modules (rule 18), so a change there reaches the panel
+  too; say in the mock whether the panel follows. Any motion stops under
+  `prefers-reduced-motion`, and a shadow needs its dark-mode pair. E117's
+  placement goes into the same pass, and the hierarchy decides the look
+  E121's Cancel ends with (E121 ships first with today's classes).
+  **Decided** (BVJ, 2026-11-12, “as recommended,” from Opus's mocks): four
+  kinds of button, one look each.
+  - **Primary**: Deep Green, at most one per pane or view (the Sheets
+    pane's New sheet, Add, Continue, the main button of E116's row and
+    E117's strip, /search's chooser's New sheet). The command row stays all
+    ordinary, its New sheet… included, and Delete stays ordinary.
+  - **Ordinary**: E89's fill and 3:1 edge everywhere, replacing the older
+    outline that My Notes, This verse, Greek, Book Intro and the Search pane
+    still use (1.6 to 2.2:1, under 3:1), in the **Raised** look: a soft
+    shadow at rest, a 1px lift on hover, sunk when pressed. A toggle that is
+    on and a menu button whose menu is open stay sunk, with a text-green
+    edge and words. Under reduced motion the lift goes and the shadows stay.
+    E121's Cancel is simply one of these.
+  - **Toggle**: Pin, label chips, Show sources, the Greek's word choices,
+    Bible order.
+  - **Quiet**: links (Labels…, Stop following, Verse N, Show the note, the
+    Sheets tour, Clear checks). Glyph buttons are unchanged.
+  Raised was chosen over Gradient (nearly gone in dark) and Tonal (green on
+  every button, which then no longer means primary or on). The build also
+  gives Deep Green a dark-theme edge of the text green at 70%, since the fill
+  alone is 2.3 to 2.9:1 on the dark surfaces, and needs a disabled primary
+  for E116 and E117. `desk-search.css` takes the same tokens, since /search
+  doesn't load `desk.css`. The Notebook panel follows with no work of its
+  own (rule 18). Status: open, decided; built with E116 and E117.
+- **E127, design: one rule for a pane the desk opens when four are open.**
+  BVJ (2026-11-12, in chat), asking what happens when something opens a pane
+  by itself and the desk already has four: “It seems like it should be
+  consistent: give a link to the appropriate page (/sheets, /matthew-intro,
+  /search, etc.) in all of them or change the last non-LIT pane in all of
+  them, or open a dialogue giving the user a choice in all of them.” Today
+  each does its own thing (`desk-page.js`, `desk-layout.mjs`):
+  - **A Sheets pane** (the Search pane's “Make a sheet of these verses,”
+    `/desk/?sheet=` from /sheets' “Open it in the Study Desk”) takes over
+    the last pane that isn't a LIT pane, never the Search pane it came from
+    (`showSheet`, BA60), without a word.
+  - **A Book Intro pane** (an intro result, `/desk/?intro=` from an intro's
+    pill) opens nothing and says “There's no room for a Book Intro pane.
+    Close a pane, or open the introduction on its page.”
+    (`showIntroIn`, `introMoveMessage`).
+  - **A LIT pane** for a passage result, when none is open, opens nothing,
+    moves the panes that follow, and says “There's no room for a LIT pane to
+    show …” (`openLitBeside`, `passageMoveMessage`).
+  - **A Greek pane** for a Greek result opens nothing and says “Open a Greek
+    pane to see the word.” to a screen reader only; the LIT pane still moves
+    (`openGreekHit`).
+  - **A Search pane** from `/` says “Close a pane to open search.” to a
+    screen reader only.
+  - **New sheet…** and **Add pane** are commands, not openings: disabled
+    with “Four is the most” beside them.
+  **Decided** (BVJ, 2026-11-12, taking Claude's recommendation, the second
+  of the three, “with one more piece”): every one of them follows the
+  sheet's rule.
+  - **A pane of that kind already open is used**, as today.
+  - **Otherwise the new pane takes the place of the last pane that isn't a
+    LIT pane**, never the pane the request came from (the Search pane) and
+    never one set to “Stay here.”
+  - **The undo bar says what it replaced, with Undo** (“Book Intro shown in
+    place of Greek.”), which puts the layout back.
+  - **Where no pane can give its place** (the rest are LIT panes, set to
+    “Stay here,” or the one asking), the message says why and offers both
+    ways on: close a pane and try again, or open it on its page, with the
+    link. BVJ: “it should explain why and say the user can close a pane and
+    try again OR simply navigate to the page. Not just navigate to the
+    page.” Said where everyone sees it, not to a screen reader alone.
+  A link back to the page alone was set aside because a link into the desk
+  (`?intro=`, `?sheet=`) would send the reader back where they came from;
+  a dialog, because it stops the reader at the moment they asked to see
+  something. New sheet… and Add pane stay commands, disabled as today. The
+  help page gets the rule's sentence (E125). Status: open, decided; built
+  after wave 1, which touches `desk-search-pane.mjs`, and before E117's
+  strip, whose “New sheet of N verses” opens a Sheets pane.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
@@ -3314,6 +3687,39 @@ the rest is polish.
     g. *Layout and chrome*: E49 and E50, mock first, at the real widths; E43
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
+14. **BVJ's pass of 2026-11-12** (E111 to E127; Claude's grouping,
+    2026-11-12, not a decision). Waiting on BVJ: only E113's design talk and
+    its two mocks (the dot is in); E114, E116, E117, E122, E126 and E127 are
+    decided. Wave 1 (a to d) is #563 to #567. Shared files set the order;
+    each group is its own branch.
+    a. *Small and separate*: E123 (`search-core.js`, every reader), then
+       E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112
+       (`desk/actions.js`).
+    b. *Share image*: E111 (`chapter-tools.js`, every reader's menus), beside
+       a; check the whole verse menu once both land.
+    c. *My Notes*: E118, then E119 (`tab-mine.js`, `desk.css`).
+    d. *Pages without the panel*: E124 (`desk-frame.js`, `Layout.astro`'s
+       pre-paint script, `global.css`, the first stage).
+    e. *Sharing a sheet*: E122, what a participant link holds first (with the
+       answer key; the format doc), then the dialog's words.
+    f. *Buttons, and search to a sheet*: E126 with E116 and E117, mocks
+       first (a button hierarchy for every pane kind; /search's checks and
+       button; the pane's checks and where its sheet buttons sit). Built
+       after a's E115 and
+       E121 and after c and g, since it restyles buttons across `desk.css`
+       (with `search-sheet.js`, `desk-search.css`, `search-pane.js`).
+    g. *The intro pane's chart*: E120 (`desk-inert.mjs`), after c, since
+       both touch `desk.css`.
+    h. *Reading links and the reminder*: E114 after a's E123
+       (`desk-layout.mjs`, `desk-page.js`, `search-core.js`, `searchbar.js`,
+       `search.js`, `ReadMenu.astro`); E113 after its talk and two mocks (an
+       undo-bar line; the Settings tab), then the build (`first-use.js`, the
+       tab's dot in `desk-tab.css`, /desk's title menu).
+    i. *A full desk*: E127 (`desk-layout.mjs`, `desk-page.js`,
+       `desk-search-pane.mjs`, the undo bar), after wave 1 and before f's
+       E117, whose “New sheet of N verses” opens a Sheets pane; after h's
+       E114 too, which shares `desk-layout.mjs` and `desk-page.js`.
+    j. *Last*: E125, the help page, once the rest is built.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
