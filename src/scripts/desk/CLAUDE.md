@@ -352,8 +352,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `chapter-tools.js` dispatches `lit:panel-actions` from the verse menu
      and the selection panel before placing them, with the panel, its verses
      and (for a selection) the selected `range`. Only
-     `src/scripts/desk/actions.js` listens, adding "My Notebook" (Add a note,
-     Bookmark and "Show in Notebook"; Bookmark only in Read View), so a
+     `src/scripts/desk/actions.js` listens, adding "My Notebook" (in BVJ's
+     order of 2026-11-12, E112: Highlight, Add a note, Add bookmark, Add to
+     sheet, Print, Show in Notebook; Highlight and Add bookmark only in Read
+     View), so a
      reader's menus are unchanged. The Notebook's "This verse" tab
      (`desk/tab-verse.js`) listens too: a verse menu opened while the
      notebook is open moves the tab to that verse. Keep the event before `showPanel`, or the panel is measured

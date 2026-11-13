@@ -105,7 +105,7 @@ test("the tour's steps have unique ids and wording for every view they may meet"
     // Reader-facing prose: no em dashes, no straight quotes.
     for (const text of [s.title, ...Object.values(s.body)]) assert.doesNotMatch(text, /[—"']/);
   }
-  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Add bookmark,” and “Highlight” while “My highlights” is on/);
+  assert.match(stepBody(TOUR_STEPS[0], "read"), /“Highlight” while “My highlights” is on in Display options, and “Add bookmark\.”/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add a note/);
 });
 
@@ -485,7 +485,7 @@ test("the notebook tour was cut from 14 steps to 10 (BVJ, 2026-11-02), and retir
   assert.equal(TOUR_STEPS.find((s) => s.id === "pin").part, TOUR_STEPS.find((s) => s.id === "verse").part);
   // The menu step names what the cut steps taught; "Move as I read" is left
   // to the help page and the Edit bookmark form (Audit 4, TR4-2; BVJ, 2026-11-07).
-  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add bookmark,” and “Highlight\.”/);
+  assert.match(stepBody(TOUR_STEPS[0], "study"), /“Highlight,” “Add a note,” and “Add bookmark\.”/);
   for (const view of ["study", "read"]) assert.doesNotMatch(stepBody(TOUR_STEPS[0], view), /Move as I read/);
   // A reader who took the 14-step tour has the retired ids stored: ignored, kept, and no "new" offer.
   const retired = ["highlight", "bookmark", "widths", "notebook-page"];

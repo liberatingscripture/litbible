@@ -98,7 +98,9 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
   go to the page's own list and versions instead of the editor's list and
   its "Present" and "Print or share", and it uses the exported
-  `templateChooser` for the list's "New sheet…". **The editor's own list
+  `templateChooser` for the list's "New sheet…". While the chooser is open
+  that button reads "Cancel" in the ordinary look, not the primary green
+  (E121; `showState` is its one state change). **The editor's own list
   view is `my-sheets.js`** (Audit 6, LG6-2): "My sheets", "My templates",
   each row's actions and `templateChooser`, handed the editor's pieces as
   `listHost`; the editor keeps only clearing its sheet view first. **/sheets'

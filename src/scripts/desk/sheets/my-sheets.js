@@ -46,6 +46,17 @@ const button = buttons("desk-sheet__btn");
  * too, under its own "New sheet…" (S12, part 1, step 2).
  */
 export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
+  // The opener says what pressing it does now (E121; BVJ, 2026-11-12): its
+  // own name while the chooser is shut, "Cancel" while it is open, and the
+  // ordinary control's white look then, not the primary green. Every way the
+  // chooser opens or closes comes through here, so the button can't fall out
+  // of step. Its text changes in place, so it keeps focus.
+  const shutName = opener.textContent;
+  const showState = (open) => {
+    opener.textContent = open ? "Cancel" : shutName;
+    opener.classList.toggle("desk-sheet__btn--primary", !open);
+    opener.setAttribute("aria-expanded", String(open));
+  };
   const box = make("div", "desk-sheet__passage-form desk-sheet__templates");
   box.id = `deskSheetTemplates-${idSuffix}`;
   box.hidden = true;
@@ -56,7 +67,7 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
     const li = make("li");
     const b = button("", "desk-sheet__from-item desk-sheet__choice");
     b.append(make("span", "desk-sheet__choice-name", t.name), make("span", "desk-sheet__from-words", t.description));
-    b.addEventListener("click", () => onPick(t.id));
+    b.addEventListener("click", () => choose(t.id));
     li.append(b);
     ul.append(li);
   }
@@ -77,7 +88,7 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
         make("span", "desk-sheet__from-words", `${parts} ${parts === 1 ? "part" : "parts"}${t.modified ? `, changed ${dateWords(t.modified)}` : ""}`),
       );
       if (!canEdit(t)) b.disabled = true;
-      b.addEventListener("click", () => onPick(t));
+      b.addEventListener("click", () => choose(t));
       li.append(b);
       oul.append(li);
     }
@@ -86,8 +97,14 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
   const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
   const close = () => {
     box.hidden = true;
-    opener.setAttribute("aria-expanded", "false");
+    showState(false);
     opener.focus();
+  };
+  // A template picked shuts the chooser too, before its host takes over the view.
+  const choose = (value) => {
+    box.hidden = true;
+    showState(false);
+    onPick(value);
   };
   cancel.addEventListener("click", close);
   box.addEventListener("keydown", (e) => {
@@ -100,12 +117,13 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
   box.toggle = () => {
     if (box.hidden) {
       box.hidden = false;
-      opener.setAttribute("aria-expanded", "true");
+      showState(true);
       box.querySelector("button")?.focus();
     } else {
       close();
     }
   };
+  showState(false);
   return box;
 }
 
