@@ -6276,6 +6276,26 @@ html.desk-ws--moving * {
   font-size: 1em;
 }
 
+/* A chart in an introduction (Matthew's, E120), as on its page. The page's
+   inline styles are dropped by makeInert, so they are restated here, in em. */
+.desk-intro__text figure {
+  margin: 0;
+  text-align: center;
+}
+
+.desk-intro__text img {
+  display: block;
+  margin: 0 auto;
+  max-width: min(400px, 100%);
+  width: 100%;
+  height: auto;
+}
+
+.desk-intro__text figcaption {
+  margin-top: 0.5em;
+  font-size: 0.95em;
+}
+
 /* ── The sheet editor's formatted text (3f; sheet-text.js) ───────────── */
 
 /* ── Sheet text: the formatted-text editor and how sheet html looks ───── */

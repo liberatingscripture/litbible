@@ -9,7 +9,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { makeInert, plainAddress } from "../src/lib/desk-inert.mjs";
+import { makeInert, plainAddress, siteImageSrc } from "../src/lib/desk-inert.mjs";
 import { parseHtml } from "./helpers/mini-dom.js";
 
 const tags = (root) => root.findAll(() => true).map((el) => el.tagName.toLowerCase());
@@ -67,4 +67,74 @@ test("makeInert returns what it was given, and tolerates nothing", () => {
   const root = parseHtml("<p>plain</p>");
   assert.equal(makeInert(root), root);
   assert.equal(makeInert(null), null);
+});
+
+// E120: Matthew's introduction chart. The opt-in keeps the site's own /images/ pictures and nothing else.
+
+const imgs = (root) => root.querySelectorAll("img");
+
+test("without the option every img is still removed, a site image included", () => {
+  const root = parseHtml('<div><img src="/images/matthew-chiasm.png" alt="x" /><p>t</p></div>');
+  makeInert(root);
+  assert.equal(imgs(root).length, 0);
+  const again = parseHtml('<div><img src="/images/matthew-chiasm.png" alt="x" /></div>');
+  makeInert(again, {});
+  makeInert(again, { siteImages: false });
+  assert.equal(imgs(again).length, 0);
+});
+
+test("siteImages keeps an img whose raw src is a root-relative path under /images/", () => {
+  for (const ok of ["/images/matthew-chiasm.png", "/images/a/b-c_d.2.webp", "/images/9.svg"]) {
+    assert.equal(siteImageSrc(ok), true, ok);
+    const root = parseHtml(`<div><img src="${ok}" alt="A chart" /></div>`);
+    makeInert(root, { siteImages: true });
+    assert.equal(imgs(root).length, 1, ok);
+    assert.equal(imgs(root)[0].getAttribute("src"), ok);
+    assert.equal(imgs(root)[0].getAttribute("alt"), "A chart");
+  }
+});
+
+test("siteImages removes every other src: other hosts, schemes, other folders, traversal, encodings, empty", () => {
+  const bad = [
+    "https://litbible.net/images/matthew-chiasm.png", "http://x/images/a.png", "//evil.example/images/a.png",
+    "data:image/png;base64,AAAA", "javascript:alert(1)", "/images\\a.png", "\\images/a.png", "/img/a.png", "images/a.png",
+    "/images/../secret.png", "/images/a/../b.png", "/images/%2e%2e/a.png", "/images/%2E%2E/a.png", "/images//a.png", "/images/",
+    "/images/.hidden.png", "/images/a.png?x=1", "/images/a.png#f", "/images/a b.png", "/images/a.png\n", " /images/a.png", "", "/IMAGES/a.png",
+  ];
+  for (const src of bad) {
+    assert.equal(siteImageSrc(src), false, JSON.stringify(src));
+    const root = parseHtml(`<div><img src="${src.replace(/"/g, "&quot;")}" alt="x" /></div>`);
+    makeInert(root, { siteImages: true });
+    assert.equal(imgs(root).length, 0, JSON.stringify(src));
+  }
+  const none = parseHtml('<div><img alt="no src" /></div>');
+  makeInert(none, { siteImages: true });
+  assert.equal(imgs(none).length, 0, "an img with no src goes");
+});
+
+test("a kept img keeps only src and alt (plus the decoding and loading hints set here)", () => {
+  const root = parseHtml(
+    '<div><img src="/images/a.png" alt="A" srcset="https://x/a.png 2x" sizes="100vw" style="width:1px" width="9" height="9" class="c" onerror="x()" onload="x()" ' +
+      'loading="eager" crossorigin="use-credentials" referrerpolicy="unsafe-url" usemap="#m" ismap="ismap" data-x="1" id="i" title="t" /></div>',
+  );
+  makeInert(root, { siteImages: true });
+  const img = imgs(root)[0];
+  assert.deepEqual([...img.getAttributeNames()].sort(), ["alt", "decoding", "loading", "src"]);
+  assert.equal(img.getAttribute("loading"), "lazy");
+  assert.equal(img.getAttribute("decoding"), "async");
+  assert.equal(img.getAttribute("src"), "/images/a.png");
+});
+
+test("siteImages still removes picture and source, and an img inside a picture, and the figure's style", () => {
+  const root = parseHtml(
+    '<div><picture><source srcset="/images/a.webp" /><img src="/images/a.png" alt="p" /></picture>' +
+      '<figure style="margin:0"><img src="/images/b.png" alt="b" style="x:y" /><figcaption style="a:b">cap</figcaption></figure></div>',
+  );
+  makeInert(root, { siteImages: true });
+  assert.equal(root.querySelectorAll("picture").length, 0);
+  assert.equal(root.querySelectorAll("source").length, 0);
+  assert.equal(imgs(root).length, 1);
+  assert.equal(imgs(root)[0].getAttribute("alt"), "b");
+  assert.equal(root.querySelector("figure").getAttribute("style"), null);
+  assert.equal(root.querySelector("figcaption").getAttribute("style"), null);
 });
