@@ -449,7 +449,9 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
     }
     box.append(words.el);
     if (!readOnly && words.base != null) {
-      box.append(make("p", "desk-sheet__hint", "Click a word, double-click it, or drag across words to choose them. With the keyboard: Tab to the passage, move by word with the left and right arrows and by line with up and down (Shift extends), and press Enter to blank them, or to unblank words that are already blank."));
+      // An instruction, drawn as the sheet's other notes are, so it never
+      // reads as more of the passage (E129).
+      box.append(make("p", "desk-sheet__how", "Click a word, double-click it, or drag across words to choose them. With the keyboard: Tab to the passage, move by word with the left and right arrows and by line with up and down (Shift extends), and press Enter to blank them, or to unblank words that are already blank."));
       armWordCursor();
     }
     if (v.check.state === "changed") {
