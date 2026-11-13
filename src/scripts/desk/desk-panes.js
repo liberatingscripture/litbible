@@ -45,7 +45,7 @@ import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
-import { MOVE_KIND, NO_CHAPTER_KINDS, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
+import { MOVE_KIND, NO_CHAPTER_KINDS, QUIET_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
 import { make } from "./dom.js";
 import { redrawAfterMove } from "./move-redraw.js";
 
@@ -383,6 +383,31 @@ function goToRecord(env) {
 }
 
 /**
+ * The My Notes pane's "This chapter / Everything" choice (E119): "this
+ * chapter" is the leading LIT pane's, which `follow` passes in as it moves, so
+ * the list is drawn again when that pane reaches another chapter. It starts
+ * on Everything, and the choice is kept on the pane in the layout
+ * (`getScope`, `setScope`), which already holds each pane's own settings.
+ */
+function mineScope(pane) {
+  const chapterOf = (p) => (p?.bookKey && p.chapter ? p : null);
+  return {
+    label: "This chapter",
+    dynamic: true,
+    start: pane.getScope?.() ?? "everything",
+    onChoose: (scope) => pane.setScope?.(scope),
+    empty: (p) => {
+      const at = chapterOf(p);
+      return at ? `Nothing kept in ${passageLabel({ bookKey: at.bookKey, chapter: at.chapter })}.` : "No LIT pane is open to say which chapter.";
+    },
+    load: async (st, p) => {
+      const at = chapterOf(p) ?? chapterOf(pane.get());
+      return at ? forChapter(await st.byChapter(at.bookKey, at.chapter), at.bookKey, at.chapter) : [];
+    },
+  };
+}
+
+/**
  * Fill a pane's body with a kind.
  *
  * @param {string} kind
@@ -417,6 +442,7 @@ export function mountPane(kind, body, env, pane) {
       onEdit: env.onEdit,
       ctx: env.ctx,
       goHere: goToRecord(env),
+      scope: mineScope(pane),
     });
     body.append(tab.el);
     // It follows the LIT pane (3g; BVJ, 2026-10-19): the records on the

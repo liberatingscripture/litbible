@@ -3,10 +3,9 @@
 // The Notebook panel's "My Notes" tab (BVJ, 2026-10-08: it holds bookmarks
 // and highlights too): what the notebook keeps, with Delete, and for a note
 // its marker glyph, its words at two lines and Edit. A caret opens one note
-// for the visit; "Open all" above the list shows every note (and pinned
-// footnote) in full, remembered until "Close all" (BVJ, 2026-10-13: the
-// two together, replacing a checkbox at the panel's foot). A note on this page's chapter takes the reader to
-// its place (BVJ, 2026-10-07: decision 7 under "the margin switch").
+// for the visit, as one does a pinned footnote cut at three lines (E118: BVJ,
+// 2026-11-12, dropped "Open all" and "Close all"). A note on this page's
+// chapter takes the reader to its place (BVJ, 2026-10-07: decision 7 under "the margin switch").
 //
 // A highlight is named by its colour ("Yellow highlight") and shows its
 // words (the first 24) wearing the highlight's own tint and underline, the
@@ -132,7 +131,9 @@ let seq = 0;
 
 /**
  * @param {{ store: object | null, storeError: unknown,
- *   scope: { label: string, empty: string, load: (store: object) => Promise<object[]> } | null,
+ *   scope: { label: string, empty: string | ((p: object | null) => string),
+ *     load: (store: object, p: object | null) => Promise<object[]>,
+ *     dynamic?: boolean, start?: "chapter" | "everything", onChoose?: (scope: string) => void } | null,
  *   addAction?: { label: string, run: (trigger: Element) => void } | null,
  *   inReadView: boolean, visible: () => boolean, afterRender?: () => void,
  *   onEdit?: (record: object, trigger: Element) => void,
@@ -192,7 +193,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <p class="sr-only" role="status" data-mine-status></p>
     <p class="desk-mine__count" hidden></p>
     <p class="desk-mine__here" hidden></p>
-    <button type="button" class="desk-mine__all" hidden></button>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
     <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle${n}" hidden>
@@ -230,7 +230,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const labelRow = el.querySelector(".desk-mine__labels");
   const changed = el.querySelector(".desk-mine__changed");
   const whatsNew = el.querySelector(".desk-mine__whatsnew");
-  const allButton = el.querySelector(".desk-mine__all");
   const filterBox = el.querySelector(".desk-mine__filters");
   const queryBox = el.querySelector(`#deskMineQuery${n}`);
   const kindSelect = el.querySelector(`#deskMineKind${n}`);
@@ -284,22 +283,17 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     if (kindFilter && kindFilter !== "highlight") colorFilter = null;
     refilter();
   });
-  allButton.addEventListener("click", () => {
-    if (getSetting("listFull") === "full") {
-      openNotes.clear();
-      for (const row of list.querySelectorAll(".desk-item__note-row--open")) {
-        row.classList.remove("desk-item__note-row--open");
-        row.querySelector(".desk-item__more")?.setAttribute("aria-expanded", "false");
-      }
-      setSetting("listFull", "lines");
-    } else setSetting("listFull", "full");
-  });
   const openNotes = new Set(); // notes clicked open in the list, for this visit
-  let scope = pageScope ? "chapter" : "everything";
+  const openPins = new Set(); // pinned footnotes clicked open, likewise
+  // The chapter first on a Chapter View chapter; /desk's pane starts on
+  // everything unless the reader chose otherwise (`start`, E119).
+  let scope = pageScope ? (pageScope.start ?? "chapter") : "everything";
   for (const radio of el.querySelectorAll(".desk-mine__scope input")) {
+    radio.checked = radio.value === scope;
     radio.addEventListener("change", () => {
       if (!radio.checked) return;
       scope = radio.value;
+      pageScope.onChoose?.(scope);
       refilter();
     });
   }
@@ -308,6 +302,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   let revealed = LIST_PAGE_SIZE; // how many rows the reader has asked to see (LG8-2)
   let lastKeys = null; // the chapters the last list's records sit on, for onDeskChapters
   let followedOnce = false;
+  let followKey = null; // the chapter `follow` last heard of
   let hereReady = false; // the first drawing is not announced
 
   /**
@@ -320,6 +315,15 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   function follow(p) {
     following = p ?? null;
     continued.refresh();
+    // The pane's "This chapter" is the leading LIT pane's: a new chapter
+    // there redraws the list (E119). The first call only notes it.
+    const key = following?.bookKey ? `${following.bookKey} ${following.chapter ?? ""}` : "";
+    const moved = key !== followKey;
+    followKey = key;
+    if (moved && pageScope?.dynamic && scope === "chapter") {
+      render();
+      return;
+    }
     markHere();
     if (!p?.bookKey || !list.isConnected) return;
     const hit = followTarget(shown, p);
@@ -437,7 +441,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     // BVJ 2026-11-07), so nothing below sees them, and every count, filter,
     // label choice and empty line agrees about what this list holds.
     const everything = withoutSheets(
-      scope === "chapter" && pageScope ? await pageScope.load(store) : liveRecords(everyRecord),
+      scope === "chapter" && pageScope ? await pageScope.load(store, following) : liveRecords(everyRecord),
     );
     if (seq !== renderSeq) return; // a newer render has started
     // Pins have a group of their own, and a reading place another client kept
@@ -504,7 +508,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
           : colorFilter
             ? `No ${colorFilter} highlights here.`
             : scope === "chapter"
-              ? pageScope.empty
+              ? typeof pageScope.empty === "function" ? pageScope.empty(following) : pageScope.empty
               : "Nothing kept yet. On a chapter, select a verse number and choose “Add a note,” “Add bookmark,” or “Highlight.”";
     if (speak) {
       speak = false;
@@ -928,7 +932,30 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const words = document.createElement("p");
     words.className = "desk-item__words desk-item__pin-text";
     words.textContent = r.footnote;
-    li.append(head, kind, words);
+    // Cut at three lines, with the caret a note's words have (E118): shown by
+    // markCut only when the text is cut, and opening this one for the visit.
+    const row = document.createElement("div");
+    row.className = "desk-item__pin-row";
+    if (openPins.has(r.id)) row.classList.add("desk-item__pin-row--open");
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "desk-item__more";
+    more.hidden = true;
+    more.innerHTML = ICON_CARET;
+    const syncMore = () => {
+      const open = openPins.has(r.id);
+      more.setAttribute("aria-expanded", String(open));
+      more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} the pinned footnote${ref ? ` on ${ref}` : ""}`);
+    };
+    syncMore();
+    more.addEventListener("click", () => {
+      if (openPins.has(r.id)) openPins.delete(r.id);
+      else openPins.add(r.id);
+      row.classList.toggle("desk-item__pin-row--open", openPins.has(r.id));
+      syncMore();
+    });
+    row.append(words, more);
+    li.append(head, kind, row);
     labelsFor(li, r, ref, labelsById);
     if (notice) li.append(flagButton(r, notice, (trigger) => openPinCard(trigger, r, li)));
     const unpin = document.createElement("button");
@@ -970,31 +997,20 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   // A caret only where there is more to show: on notes whose words run past
-  // two lines, or that the reader has opened. None while the list shows
-  // notes in full. "Open all" shows only when a note is cut off or a pinned
-  // footnote is listed (they cut at three lines), and "Close all" whenever
-  // the list is in full and has a note or pin.
+  // two lines and pinned footnotes past three, or that the reader has opened.
   function markCut() {
     requestAnimationFrame(() => {
-      const full = getSetting("listFull") === "full";
-      let more = 0;
       // Every read first, then every write: a write between two reads would
       // force a layout of the whole list for each long note (NB8-4).
-      const rows = Array.from(list.querySelectorAll(".desk-item__note-row"), (row) => {
+      const rows = Array.from(el.querySelectorAll(".desk-item__note-row, .desk-item__pin-row"), (row) => {
         const words = row.querySelector(".desk-item__words");
         return {
           caret: row.querySelector(".desk-item__more"),
-          open: row.classList.contains("desk-item__note-row--open"),
+          open: row.classList.contains("desk-item__note-row--open") || row.classList.contains("desk-item__pin-row--open"),
           cut: words.scrollHeight > words.clientHeight + 1,
         };
       });
-      for (const { caret, open, cut } of rows) {
-        caret.hidden = full || !(open || cut);
-        if (full || cut) more++;
-      }
-      const pins = !pinBox.hidden && pinList.children.length > 0;
-      allButton.hidden = !(more || pins);
-      allButton.textContent = full ? "Close all" : "Open all";
+      for (const { caret, open, cut } of rows) caret.hidden = !(open || cut);
     });
   }
 

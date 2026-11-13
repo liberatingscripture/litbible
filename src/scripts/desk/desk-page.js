@@ -75,6 +75,8 @@ import {
   openingLayout,
   originalLayout,
   paneHides,
+  paneScope,
+  setPaneScope,
   panes,
   readSaved,
   regionNames,
@@ -795,6 +797,9 @@ async function start() {
         setSheet: (sheetId) => commit(setPaneSheet(layout, pane.id, sheetId), { draw: false }),
         // What a LIT pane's text shows is its own (E108), kept with it here.
         getHide: () => paneHides(layout, pane.id),
+        // A My Notes pane's choice, This chapter or Everything (E119).
+        getScope: () => paneScope(layout, pane.id),
+        setScope: (scope) => commit(setPaneScope(layout, pane.id, scope), { draw: false }),
         setMark: (id, on) => commit(setPaneMark(layout, pane.id, id, on), { draw: false }),
       });
     }
