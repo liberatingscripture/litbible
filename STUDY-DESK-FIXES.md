@@ -3876,7 +3876,7 @@ the rest is polish.
     2026-11-12, not a decision). Nothing waits on BVJ (E113's last
     answers, 2026-11-13). Wave 1
     (a to d) is #563 to #567; wave 2 (e to i, all but E113 and E131) is
-    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k and l (so far #578, #579, #581, and #582).
+    #569 to #571 and #573 to #575; wave 3 (j) is #577; wave 4 is k (#578, #579, #581, and #582) and l (#583).
     Shared files set the order; each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
        E115 (`search-pane.js`); E121 (`my-sheets.js`), then E112
@@ -3918,7 +3918,12 @@ the rest is polish.
        changes nothing, beside them too.
     l. *After k* (BVJ, 2026-11-13): Fable checks the help page and the
        tours against everything this pass changed (#563 to #577, and wave
-       4), and updates them if needed.
+       4), and updates them if needed. Done in #583: five corrections to the
+       help page; the tours needed none, and all four ways in ran clean in
+       Chrome at 1280 by 800. Found there, older than the pass: on /sheets
+       the Sheets tour's editor steps put the card over the sheet's right
+       edge, hiding the minutes box and × (step 3) and the form's Add button
+       (step 4), since the page leaves no room beside its column.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
 Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
