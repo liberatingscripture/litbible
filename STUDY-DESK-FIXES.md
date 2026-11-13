@@ -3195,11 +3195,12 @@ tap areas (`global.css`, never under 24px).
   unchanged with the gate off. Left as they were: margin notes' buttons and
   the minimized tab.
 
-**BVJ's pass of 2026-11-12** (E111 to E130; from a Word document of BVJ's
+**BVJ's pass of 2026-11-12** (E111 to E131; from a Word document of BVJ's
 with seven screenshots, logged in its order, plus three items BVJ added in
 chat the same day: the search bar's Read View jump, folded into E114, the
 help page, E125, and a look for the panes' buttons, E126; E127 came from
-a question in chat, and E128 to E130 came in chat during wave 2.
+a question in chat, E128 to E130 came in chat during wave 2, and E131 is
+what Claude found checking E127.
 Wave 1 is #563 to #567; wave 2's first group is #569 to #571.
 Where the code answers a question, the entry
 says so; where BVJ was wondering, nothing is decided.)
@@ -3643,6 +3644,26 @@ says so; where BVJ was wondering, nothing is decided.)
   An introduction is the book's, not a Scripture page, so its link says
   “book introduction.” Read View keeps its name until it retires at launch.
   Status: built (preview only).
+- **E131, bug: a layout's undo bar promises Ctrl+Z, which undoes something
+  else.** Found by Claude while checking E127 in the browser (2026-11-12);
+  BVJ: “Yes, log it.” Every undo bar tells a screen reader “Press Ctrl+Z to
+  undo.” (`showUndo`'s announcement in `undo-bar.js`, from Audit 2's NB-5),
+  but on /desk Ctrl+Z steps through the notebook's history only
+  (`history.js`; `src/scripts/desk/CLAUDE.md`, rule 11), and a change of
+  layout writes no record. So after a layout's bar (an arrangement from the
+  Layout window, “Left Reading: turned on …”, E114's Reading arrival,
+  E127's “Book Intro shown in place of Greek.”), Ctrl+Z undoes the reader's
+  last note, bookmark, highlight or sheet edit instead, if there is one.
+  And once the bar closes after its ten seconds, the layout change has no
+  undo at all: rule 11 allows that timer “only because the same undo stays
+  on Ctrl+Z.” The visible words don't mention the key; only the spoken
+  ones do. Two ways to fix it:
+  - **The layout's bars stop naming the key** (an option on `showUndo`) and
+    stay until the reader closes them or makes another change. Small.
+  - **Ctrl+Z on /desk undoes layout changes too**: a layout history beside
+    the notebook's, the two taken in the order they happened. It keeps what
+    the bar says, and is larger.
+  Status: open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -3764,8 +3785,8 @@ the rest is polish.
        (a title-menu line in `desk-page.js`, so after anything else in that
        file).
 14. **BVJ's pass of 2026-11-12** (E111 to E127; Claude's grouping,
-    2026-11-12, not a decision). Waiting on BVJ: only E113's design talk and
-    its two mocks (the dot is in); E114, E116, E117, E122, E126 and E127 are
+    2026-11-12, not a decision). Waiting on BVJ: E113's design talk and its
+    two mocks (the dot is in), and which way E131 goes; E114, E116, E117, E122, E126 and E127 are
     decided. Wave 1 (a to d) is #563 to #567. Shared files set the order;
     each group is its own branch.
     a. *Small and separate*: E123 (`search-core.js`, every reader), then
@@ -3795,6 +3816,8 @@ the rest is polish.
        `desk-search-pane.mjs`, the undo bar), after wave 1 and before f's
        E117, whose “New sheet of N verses” opens a Sheets pane; after h's
        E114 too, which shares `desk-layout.mjs` and `desk-page.js`.
+       E131 (the layout's undo bars and Ctrl+Z; `undo-bar.js`,
+       `desk-page.js`, maybe `history.js`) after i, once BVJ picks a way.
     j. *Last*: E125, the help page, once the rest is built.
 
 Parked: E1 and E2 wait on the N8 hold (`claude/desk-1d-hidden`).
