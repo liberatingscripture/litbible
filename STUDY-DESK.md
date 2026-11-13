@@ -5130,6 +5130,29 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      filter, and whether it goes in the feed. **The apps read that feed**
      (`scripts/CLAUDE.md`, release-notes automation), so ask BDR before
      adding a kind to it; a site-only list beside it is the fallback.
+     **Widened** (BVJ, 2026-11-12, in chat): “update the release notes /
+     updates page to be responsive to the display settings font sizes and
+     spacing AND design a section dedicated to website and LIT updates
+     (other than textual changes, such as new apps or LSC events, etc.).”
+     Two pieces, both before launch:
+     - **The page follows the Display tray.** E110 (#562, the same day)
+       gave its words `--reading-scale` and `--reading-leading-extra`.
+       Left: the column is a fixed 720px (`.rn-page`), so a line holds
+       fewer words at each step up, where the site's rule puts the width
+       in `--ch` on the element that takes the size
+       (`src/styles/CLAUDE.md`, the Display tray's rule 2); and the lede's
+       `max-width: 56ch` uses the `ch` unit the site doesn't. Look at it
+       at Extra large and Roomy, in all three faces, before building.
+     - **A section of its own for news that isn't a change to the text**:
+       the site's features (this bullet's first ask, the Study Desk
+       first), the apps (a new app or a major version), and the
+       Collective's events. Designed as a section, not entries mixed into
+       the text's list; mock it for BVJ. The questions above still apply
+       (entries written by hand, and the feed), with two more: the RSS
+       feed is `/translation-updates.xml`, named for the text, so news
+       needs its own feed or none; and the Collective has its own site,
+       liberatingscripture.org, so decide whether its events are written
+       here or drawn from there.
    - **Trusted readers first.** Phase 5 planned a round of trusted readers
      given `?desk=on` before release. Choose who and for how long; their
      reports go to `STUDY-DESK-FIXES.md` like BVJ's, through "Tell us

@@ -3195,11 +3195,13 @@ tap areas (`global.css`, never under 24px).
   unchanged with the gate off. Left as they were: margin notes' buttons and
   the minimized tab.
 
-**BVJ's pass of 2026-11-12** (E111 to E127; from a Word document of BVJ's
+**BVJ's pass of 2026-11-12** (E111 to E130; from a Word document of BVJ's
 with seven screenshots, logged in its order, plus three items BVJ added in
 chat the same day: the search bar's Read View jump, folded into E114, the
 help page, E125, and a look for the panes' buttons, E126; E127 came from
-a question in chat. Wave 1 is #563 to #567. Where the code answers a question, the entry
+a question in chat, and E128 to E130 came in chat during wave 2.
+Wave 1 is #563 to #567; wave 2's first group is #569 to #571.
+Where the code answers a question, the entry
 says so; where BVJ was wondering, nothing is decided.)
 
 - **E111, rough: Share image's questions open where Share was.** BVJ
@@ -3294,7 +3296,8 @@ says so; where BVJ was wondering, nothing is decided.)
     given back on the way out (`readingHid`); “My default” is untouched.
   - **At launch** (“Launching”, item 11), these links are the Read View
     jump's successors where the desk runs; the item gains that line.
-  Status: open, decided; built after E123, which shares the search files.
+  Status: fixed (#570; the tray says “in Study Desk, Reading layout,”
+  /search “Study Desk, Reading layout”).
 - **E115, wish: the Search pane links to /search before anything is
   typed.** BVJ (2026-11-12): a link like “See results on the search page”
   should show in the Search pane before a search is typed, worded
@@ -3384,7 +3387,8 @@ says so; where BVJ was wondering, nothing is decided.)
   `img` from a fetched page, and the figure's inline style with it. Fix:
   keep an `img` whose `src` is the site's own (a path under `/images/`,
   nothing else) with its `alt`, and size it in the pane's CSS as the page
-  does; a narrow change to a security rule, with its test. Status: open.
+  does; a narrow change to a security rule, with its test. Status: fixed
+  (#569).
 - **E121, rough: “New sheet” stays while the templates are open.** BVJ
   (2026-11-12), in the Sheets pane: pressing “New sheet” shows the
   templates, but the button keeps its name. It already cancels, so while
@@ -3444,7 +3448,11 @@ says so; where BVJ was wondering, nothing is decided.)
   The copy cuts stand (the email line, the phone-or-computer aside, “The
   passages are read from the LIT…”, the long-link reason in “Link copied”).
   BDR gets the field's row in STUDY-DESK-FORMAT.md, with the two stale
-  lines there fixed. Status: open, decided; Fable builds it.
+  lines there fixed. **Copy link stays the primary button** (BVJ,
+  2026-11-12, asked whether the .md file should lead): the default
+  recipient often reads on a phone, where a link opens and a file can't,
+  and the dialog's QR code is the link; a link over 4,000 characters
+  already adds that a file is safer. Status: fixed (#571, built by Fable).
 - **E123, bug: “Matthew intro” doesn't reach Matthew's introduction.** BVJ
   (2026-11-12): searching “Matthew Intro” or “Matthew Introduction” doesn't
   take the reader to the introduction; only “Matthew” does. Public search.
@@ -3567,6 +3575,65 @@ says so; where BVJ was wondering, nothing is decided.)
   help page gets the rule's sentence (E125). Status: open, decided; built
   after wave 1, which touches `desk-search-pane.mjs`, and before E117's
   strip, whose “New sheet of N verses” opens a Sheets pane.
+- **E128, rough: notice bands on /sheets stop partway across their row.**
+  BVJ (2026-11-12, in chat): “The notice bands on /sheets (and elsewhere I
+  think) that only span part of the row look like a mistake. Have the
+  shading extend fully.” Four of the page's tinted bands with the green
+  rule are capped at 60 characters (`max-width: calc(60 * var(--ch))` in
+  `pages/sheets-page.css`), while the toolbar and the paper they sit
+  between run wider: “Checked before printing” (`.sheets-page__check`), the
+  “what prints” notice and the answer key's note (`.sheets-page__leaks`,
+  `.sheets-page__key-note`), and “Shared with you” (`.sheets-page__shared`).
+  The template description in the editor (`.desk-sheet__about`, E86)
+  already fills its row. **BVJ's direction**: the tint fills the row.
+  Claude's proposal, for the build: the words inside may keep a
+  60-character line, set on the text rather than the band. Look for the
+  same shape on /desk, /notebook and /search while there (a tinted notice
+  narrower than the row it sits in). Status: open.
+- **E129, design: a sheet card's instructions look like the sheet's own
+  text.** BVJ (2026-11-12, in chat): “The instructions in the sheets editor
+  cards should be visually distinguished from the other text. Right now it
+  looks the same, without even a line separating them or difference in
+  font.” A template's parts carry prompts, never text (SH5-2, SH5-4;
+  `sheets/CLAUDE.md`, rule 21), drawn three ways, all in ink at 0.7:
+  - an empty part's prompt as its placeholder
+    (`.desk-rich[data-empty]::before`), in the field's own face and size;
+  - a part holding only its heading, the prompt under the heading
+    (`.desk-rich[data-hint]::after`), the same in italic;
+  - a question's answer prompt, an input's placeholder (`desk.css`'s
+    placeholder rule).
+  The 0.7 is the lightest ink that keeps 4.5:1 (XA8-13), so paler is not
+  the way. Something else has to set them apart: another face (Inter beside
+  the sheet's text), a smaller size, a rule or tint around them, or a small
+  label or glyph. A face change alone does nothing for a reader in
+  Atkinson or OpenDyslexic, whose face overrides every other
+  (`src/styles/CLAUDE.md`, the reader font's rule 2). Mock two or three in
+  a real Sheets pane and on /sheets, light and dark, with an accessibility
+  font among them. Only the editor shows prompts (nothing prints, copies or
+  presents them), and the Sheets tour's example sheet shows the same.
+  Status: open, for mocks.
+- **E130, wording: “Chapter View” becomes “Scripture page” everywhere.**
+  BVJ (2026-11-12, in chat, after “Continue reading · Chapter View” showed
+  in My Notes on /desk): “it still says ‘Chapter View’. That should be
+  replaced everywhere with Scripture page(s).” The form is the one /read's
+  Study Desk card already uses, capitalized (“Scripture pages,” “View
+  Scripture page”). The scope is E20's rename's (#440), which made “Study
+  View” “Chapter View”:
+  - every string a reader sees or hears: the search tray's and /search's
+    jump links and keys line, the chapter picker's footer in Read View,
+    Read View's switch and its label, /read's public card, Continue
+    reading's line (`VIEW_NAMES`, `desk-bookmarks.mjs`), This chapter's
+    link, the LIT pane's “Open in Chapter View,” the help page, the tours
+    and the commands;
+  - the tests, the comments, and the CLAUDE docs, the root's naming rule
+    (“Call them ‘Chapter View’ and ‘Read View’…”) included.
+  Code and storage names stay (`view: "study"`, `scriptureControls`
+  “study”), and the records (`STUDY-DESK.md`, this file, the audits) keep
+  the old name, as they kept “Study View.” A label is reworded where a
+  plain swap reads badly (a view is “in,” a page is “on”), and the build
+  lists every new label for BVJ. Read View keeps its name until it retires
+  at launch. Built after E114 merges, since both change the tray's and
+  /search's labels. Status: open, decided.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
