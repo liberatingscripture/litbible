@@ -59,7 +59,6 @@ import {
   MIN_HEIGHT,
   applyArrangement,
   arrangementOf,
-  arrivalLayout,
   closePane,
   evenOut,
   findPane,
@@ -72,13 +71,13 @@ import {
   nodeAt,
   openKind,
   openLitBeside,
-  openingLayout,
   originalLayout,
   paneHides,
   paneScope,
   setPaneScope,
   panes,
   readSaved,
+  readingArrival,
   regionNames,
   resize,
   setActive,
@@ -323,9 +322,13 @@ async function start() {
   // /desk/?place=romans-8 (E8) is a link that carries a passage: the layout
   // the page would have opened (last, default, or the original) stays, and
   // only the leading LIT pane moves. A value that names no passage is
-  // ignored, and the parameter is stripped below either way.
-  const arrivalPlace = parsePlaceParam(new URLSearchParams(location.search).get("place"));
-  let layout = arrivalPlace ? arrivalLayout(saved, arrivalPlace, reading) : openingLayout(saved, reading);
+  // ignored, and the parameter is stripped below either way. With
+  // `&layout=reading` (E114, the links that stood for Read View) it opens in
+  // Reading, as if the row were chosen (readingArrival), said once drawn.
+  const arrivalParams = new URLSearchParams(location.search);
+  const arrivalPlace = parsePlaceParam(arrivalParams.get("place"));
+  const arrival = readingArrival(saved, arrivalPlace, reading, arrivalParams.get("layout"));
+  let layout = arrival.layout;
   if (!parsePassage(layout.place)) layout = setPlace(layout, reading);
 
   // ---- what the leading LIT pane tells the page (desk-lead.js) ----
@@ -404,28 +407,34 @@ async function start() {
       if (b.getAttribute("aria-disabled") === "true") return;
       const before = layout;
       const next = applyArrangement(layout, a.id);
-      const stays = new Set(panes(next.root).map((p) => p.id));
-      const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
-      // Reading also clears the marks off its pane's text, and leaving it
-      // puts back the ones it cleared. Both are in the layout itself
-      // (readingLayout, desk-layout.mjs), so this only names them, and Undo
-      // is the layout as it was.
-      const turned = marksTurned(before, next);
-      const marks = markNames(a.id === "reading" ? turned.off : arrangementOf(before) === "reading" ? turned.on : []);
       commit(next, { quiet: true });
-      // A smaller layout closes panes from the end: say which, and offer to
-      // bring them back (DK-9). The bar announces itself.
-      const said = [`Layout: ${a.label}.`];
-      if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
-      if (marks.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks)}.`);
-      if (said.length > 1) {
-        showUndo(said.join(" "), () => commit(before, { quiet: true }));
-      } else announce(`Layout: ${a.label}.`);
+      tellArrangement(a, before, next);
       closeMenu();
     });
     shapesBox.append(b);
     return b;
   });
+  /**
+   * Say what a change to arrangement `a` did, from `before` to `next`, already
+   * committed: a Layout row, or a link arriving in Reading (E114). A smaller
+   * layout closes panes from the end: say which, and offer to bring them back
+   * (DK-9). Reading also clears the marks off its pane's text, and leaving it
+   * puts back the ones it cleared. Both are in the layout itself
+   * (readingLayout, desk-layout.mjs), so this only names them, and Undo is
+   * `before`. The bar announces itself.
+   */
+  function tellArrangement(a, before, next) {
+    const stays = new Set(panes(next.root).map((p) => p.id));
+    const closed = panes(before.root).filter((p) => !stays.has(p.id)).map((p) => kindLabel(p.kind));
+    const turned = marksTurned(before, next);
+    const marks = markNames(a.id === "reading" ? turned.off : arrangementOf(before) === "reading" ? turned.on : []);
+    const said = [`Layout: ${a.label}.`];
+    if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
+    if (marks.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks)}.`);
+    if (said.length > 1) {
+      showUndo(said.join(" "), () => commit(before, { quiet: true }));
+    } else announce(said[0]);
+  }
   const startRadios = Array.from(menu.querySelectorAll('input[name="desk-ws-start"]'));
   for (const radio of startRadios) {
     radio.addEventListener("change", () => {
@@ -1101,12 +1110,14 @@ async function start() {
 
   // ---- a place named in the address (E8) ----
 
-  // Kept as the move it is, then taken off the address so a reload doesn't
-  // pull the desk back to it.
-  if (new URLSearchParams(location.search).has("place")) {
+  // Kept as the move it is (with `layout`, E114, as the change to Reading,
+  // saved as the last layout and never as "My default"), then taken off the
+  // address so a reload doesn't pull the desk back to it.
+  if (arrivalParams.has("place") || arrivalParams.has("layout")) {
     try {
       const url = new URL(location.href);
       url.searchParams.delete("place");
+      url.searchParams.delete("layout");
       history.replaceState(history.state, "", url);
     } catch (_) {}
     if (arrivalPlace) save();
@@ -1218,7 +1229,11 @@ async function start() {
   fitHeight();
   draw();
   if (arrivalMarks) tellMarks(arrivalMarks, arrivedAs);
-  else if (introNoRoom) showNotice(introNoRoom);
+  // A link that arrived in Reading says so as the row does, with Undo back to
+  // what the page would have opened at that place (E114).
+  else if (arrival.layout !== arrival.before && layout === arrivedAs) {
+    tellArrangement(ARRANGEMENTS.find((a) => a.id === "reading"), arrival.before, layout);
+  } else if (introNoRoom) showNotice(introNoRoom);
 
   // ---- the Study Desk tour (E24) ----
 

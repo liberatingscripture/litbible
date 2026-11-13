@@ -292,6 +292,30 @@ export function makeReadJumpHref(jump) {
     : makeReadReferenceHref(jump);
 }
 
+/**
+ * The Study Desk in its Reading layout at a jump's passage (E114; BVJ,
+ * 2026-11-12): `/desk/?place=john-3:16&layout=reading`. A book opens at its
+ * chapter 1, and so does a chapter the book lacks, as Read View landed at the
+ * book's top; a range opens at its first verse. desk-passage.mjs's
+ * deskPlaceHref with `&layout=reading`, written out because shared reader
+ * code never imports desk code.
+ */
+export function makeDeskReadingHref(jump) {
+  const isRef = jump.kind !== "book" && jump.chapter <= (BOOKS[jump.bookKey] || 0);
+  const at = isRef ? `${jump.chapter}${jump.verse ? `:${jump.verse}` : ""}` : "1";
+  return `/desk/?place=${jump.bookKey}-${at}&layout=reading`;
+}
+
+/**
+ * The jump's second link, the one that stood for Read View: Read View, or
+ * with the Study Desk preview on the desk's Reading layout (E114). `desk`
+ * tells the tray and /search which words to put on it.
+ */
+export function readingJumpLink(jump) {
+  const desk = deskEnabled();
+  return { href: desk ? makeDeskReadingHref(jump) : makeReadJumpHref(jump), desk };
+}
+
 /* ── Query normalization + Pagefind query building ───────────────────── */
 
 export function normalizeQuotes(s) {

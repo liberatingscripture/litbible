@@ -125,7 +125,8 @@ test("with the preview on, /read swaps the Read View card for the Study Desk car
 test("with the preview on, the chapter picker's footer link opens the Study Desk", () => {
   const menu = readFileSync("src/components/ReadMenu.astro", "utf8");
   assert.match(menu, /dataset\.desk === "on"/);
-  assert.match(menu, /"\/desk\/\?place=" \+ crossViewKey \+ "-1"/);
+  // In its Reading layout at the book's chapter 1 (E114).
+  assert.match(menu, /"\/desk\/\?place=" \+ crossViewKey \+ "-1&layout=reading"/);
   assert.match(menu, / in Study Desk →/);
   assert.match(menu, / in Read View →/, "everyone else keeps Read View");
 });

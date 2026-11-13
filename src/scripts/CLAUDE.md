@@ -451,8 +451,14 @@ notice there or nowhere.
   - *A jump is one parse* (`parseReferenceJump`): a reference, a book, or a
     book's introduction ("Matthew intro", "Introduction to Matthew"; E123,
     BVJ 2026-11-12) as `{ kind: "book", bookKey, intro: true }`. The tray and
-    /search then offer only the introduction (no Read View link), and the
+    /search then offer only the introduction (no second link), and the
     desk's Search pane opens it in a Book Intro pane (`env.showIntro`).
+    Otherwise their second link, and the tray's Shift+Enter, is Read View;
+    with the Study Desk preview on it opens /desk in its Reading layout at
+    the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at
+    chapter 1; E114, BVJ 2026-11-12), and its label says so. Both build it
+    with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`;
+    the chapter picker's footer writes the same address inline.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the

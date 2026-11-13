@@ -396,8 +396,9 @@ export function readingLayout(layout) {
  * whatever the page would have opened (the reader's last layout, their
  * default, or the original LIT beside My Notes for a first visit), with only
  * the active LIT pane and the shared place moved to `place` (BVJ, 2026-11-02:
- * a link never forces an arrangement, Reading included). Nothing is written
- * here: the page saves it as it saves any move.
+ * a link never forces an arrangement, Reading included, save the Read View
+ * links' `layout=reading`, `readingArrival`). Nothing is written here: the
+ * page saves it as it saves any move.
  */
 export function arrivalLayout(saved, place, reading = null) {
   const opening = openingLayout(saved, reading);
@@ -413,6 +414,24 @@ export function arrivalLayout(saved, place, reading = null) {
   }
   next.place = at;
   return next;
+}
+
+/**
+ * A link that stood for Read View (E114; BVJ, 2026-11-12), with the preview
+ * on: `/desk/?place=romans-8&layout=reading`, from the search's jump and the
+ * chapter picker's footer. Arriving is choosing the Reading row: what the link
+ * would otherwise have opened (`arrivalLayout`) goes to Reading as the row
+ * takes it, its pane's marks off and listed in `readingHid`. Already Reading,
+ * only the place moves and the list is kept. `want` other than "reading", or
+ * a place that names no passage, adds nothing to `arrivalLayout`. Returns
+ * `before`, what the page would have opened (for Undo), and `layout`, what it
+ * opens (the same object when nothing changed). Nothing is written here.
+ */
+export function readingArrival(saved, place, reading = null, want = null) {
+  const before = arrivalLayout(saved, place, reading);
+  const asked = typeof want === "string" && want.trim().toLowerCase() === "reading";
+  if (!asked || !parsePassage(place) || isReading(before)) return { before, layout: before };
+  return { before, layout: readingLayout(before) };
 }
 
 /** Close a pane. Its neighbors take its room. The last pane can't be closed. */

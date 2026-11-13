@@ -65,6 +65,7 @@ import {
   marksTurned,
   paneHides,
   setPaneMark,
+  readingArrival,
 } from "../src/lib/desk-layout.mjs";
 import { LIT_MARKS, MARK_IDS, markList, markNames } from "../src/lib/desk-lit-marks.mjs";
 
@@ -1769,6 +1770,104 @@ test("a link with no usable place opens what the page would have opened", () => 
   const saved = { last: null, mine: null, start: "last" };
   assert.deepEqual(arrivalLayout(saved, "nonsense", "john 3"), openingLayout(saved, "john 3"));
   assert.deepEqual(arrivalLayout(saved, null, null), openingLayout(saved, null));
+});
+
+// ---- E114: links that stood for Read View arrive in Reading -------------------
+
+/** A last layout of three panes, its LIT pane at John 3 with key terms off by hand. */
+const threePanes = () => {
+  const l = setPaneMark(mk(cols([0.5, 0.25, 0.25], { pane: { id: "p1", kind: "lit", pin: null, at: "john 3" } }, leaf("p2", "mine"), leaf("p3", "greek"))), "p1", "terms", false);
+  l.place = "john 3";
+  return l;
+};
+
+test("E114: a Reading link from a layout of several panes arrives as the Reading row would take it", () => {
+  const last = threePanes();
+  const saved = { last, mine: null, start: "last" };
+  const kept = structuredClone(saved);
+  const { before, layout } = readingArrival(saved, "romans 8:16", "matthew 1", "reading");
+  assert.deepEqual(before, arrivalLayout(saved, "romans 8:16", "matthew 1"), "before is what the link opened until now");
+  assert.deepEqual(kinds(before), ["lit", "mine", "greek"]);
+  assert.equal(arrangementOf(layout), "reading");
+  assert.equal(layout.reading, true);
+  assert.deepEqual(ids(layout), ["p1"], "the leading LIT pane, the others closed");
+  assert.equal(layout.root.pane.at, "romans 8:16");
+  assert.equal(layout.place, "romans 8:16");
+  assert.deepEqual(paneHides(layout, "p1"), [...MARK_IDS], "all four marks off");
+  assert.deepEqual(layout.root.pane.readingHid, MARK_IDS.filter((m) => m !== "terms"), "listing the ones it turned off");
+  assert.deepEqual(layout, applyArrangement(before, "reading"), "the same as pressing the row");
+  assert.deepEqual(saved, kept, "nothing saved is changed in place");
+  // Undo is `before`: leaving Reading for it gives back what Reading turned off.
+  assert.equal(leavesReading(layout, before), true);
+  assert.deepEqual(marksTurned(layout, before).on, MARK_IDS.filter((m) => m !== "terms"));
+});
+
+test("E114: a first visit's Reading link starts from the original layout at the place", () => {
+  const { before, layout } = readingArrival({ last: null, mine: null, start: "last" }, "romans 1", "john 3", "reading");
+  assert.equal(arrangementOf(before), "cols-2");
+  assert.equal(arrangementOf(layout), "reading");
+  assert.equal(layout.root.pane.at, "romans 1");
+  assert.deepEqual(layout.root.pane.readingHid, [...MARK_IDS]);
+});
+
+test("E114: a Reading link to a layout with no LIT pane opens one at the place", () => {
+  const last = mk(cols([0.5, 0.5], leaf("p1", "mine"), leaf("p2", "greek")), null);
+  last.place = "john 3";
+  const { layout } = readingArrival({ last, mine: null, start: "last" }, "romans 8", null, "reading");
+  assert.equal(arrangementOf(layout), "reading");
+  assert.equal(layout.root.pane.kind, "lit");
+  assert.equal(layout.root.pane.at, "romans 8");
+});
+
+test("E114: already Reading, a Reading link moves only the place and keeps the earlier list", () => {
+  const reading = readingLayout(threePanes());
+  const id = reading.root.pane.id;
+  const hid = reading.root.pane.readingHid;
+  // Verse numbers turned back on by hand in Reading stay on: only the place moves.
+  const shown = setPaneMark(reading, id, "vn", true);
+  const { before, layout } = readingArrival({ last: shown, mine: null, start: "last" }, "romans 8", "john 3", "reading");
+  assert.equal(layout, before, "nothing beyond the place, so nothing to undo");
+  assert.equal(arrangementOf(layout), "reading");
+  assert.equal(layout.root.pane.at, "romans 8");
+  assert.deepEqual(layout.root.pane.readingHid, hid);
+  assert.deepEqual(paneHides(layout, id), paneHides(shown, id));
+});
+
+test("E114: a Reading link with a place that names no passage is only what the page would open", () => {
+  const saved = { last: threePanes(), mine: null, start: "last" };
+  for (const place of ["nonsense", "john 30", "", null]) {
+    const { before, layout } = readingArrival(saved, place, "john 3", "reading");
+    assert.equal(layout, before, String(place));
+    assert.deepEqual(layout, openingLayout(saved, "john 3"), String(place));
+    assert.equal(arrangementOf(layout), "cols-3", String(place));
+  }
+});
+
+test("E114: only layout=reading acts; any other value is ignored", () => {
+  const saved = { last: threePanes(), mine: null, start: "last" };
+  for (const want of ["one", "cols-2", "read", "readings", "", null, undefined, ["reading"]]) {
+    const { before, layout } = readingArrival(saved, "romans 8", "john 3", want);
+    assert.equal(layout, before, JSON.stringify(want));
+    assert.deepEqual(layout, arrivalLayout(saved, "romans 8", "john 3"), "the place still moves");
+  }
+  assert.equal(arrangementOf(readingArrival(saved, "romans 8", "john 3", " Reading ").layout), "reading", "case and spaces aside");
+});
+
+test("E114: arriving from My default leaves the default untouched, and it still opens next time", () => {
+  const mine = mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "lit", pin: null, at: "matthew 5" } }, leaf("p2", "greek")));
+  mine.place = "matthew 5";
+  const saved = { last: threePanes(), mine, start: "default" };
+  const kept = structuredClone(mine);
+  const { before, layout } = readingArrival(saved, "romans 8", "john 3", "reading");
+  assert.deepEqual(kinds(before), ["lit", "greek"], "before is My default at the place, as the page opens it");
+  assert.equal(arrangementOf(layout), "reading");
+  assert.deepEqual(saved.mine, kept);
+  // The page saves the arrival as the last layout only (save() in desk-page.js).
+  const after = readSaved(writeSaved({ ...saved, last: layout }));
+  assert.equal(after.start, "default");
+  assert.deepEqual(kinds(after.mine), ["lit", "greek"]);
+  assert.equal(arrangementOf(after.last), "reading");
+  assert.equal(arrangementOf(openingLayout(after, "john 3")), "cols-2", "a plain visit opens My default");
 });
 
 // ---- E53: the Book Intro pane ------------------------------------------------

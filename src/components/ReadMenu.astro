@@ -9,7 +9,8 @@ import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 
 /**
  * mode="study" (default): the standalone "Go to passage" pill. Chapter picks
- *   navigate to Chapter View pages (/john-3); the footer offers Read View.
+ *   navigate to Chapter View pages (/john-3); the footer offers Read View
+ *   (with the Study Desk preview on, the desk's Reading layout; E114).
  * mode="read": the compact trigger embedded in the Read View toolbar.
  *   Chapter picks stay in Read View (/read/<book>#ch-N — same-book picks
  *   are intercepted by read-mode.js for an in-page smooth scroll); the footer
@@ -245,9 +246,10 @@ const fallbackHref =
             a.textContent = "Open " + label(crossViewKey) + " in Chapter View →";
           } else if (document.documentElement.dataset.desk === "on") {
             // The Study Desk preview offers the desk where Read View would be
-            // (E8, 8b). The address is desk-passage.mjs's deskPlaceHref, written
+            // (E8, 8b), in its Reading layout (E114). The address is
+            // desk-passage.mjs's deskPlaceHref with &layout=reading, written
             // out because shared reader code never imports desk code.
-            a.href = "/desk/?place=" + crossViewKey + "-1";
+            a.href = "/desk/?place=" + crossViewKey + "-1&layout=reading";
             a.textContent = "Open " + label(crossViewKey) + " in Study Desk →";
           } else {
             a.href = "/read/" + crossViewKey;

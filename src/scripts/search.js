@@ -10,7 +10,7 @@ import {
   parseReferenceJump,
   referenceJumpLabel,
   makeStudyJumpHref,
-  makeReadJumpHref,
+  readingJumpLink,
   normalizePhrase,
   isExplicitlyQuoted,
   buildPfQuery,
@@ -220,10 +220,14 @@ function renderReferenceActions(jump) {
 
   wrapper.append(label, studyLink);
   if (!intro) {
+    // Read View, or with the Study Desk preview on its Reading layout (E114).
+    const reading = readingJumpLink(jump);
     const readLink = document.createElement("a");
     readLink.className = "search-ref__link search-ref__link--read";
-    readLink.setAttribute("href", makeReadJumpHref(jump));
-    readLink.textContent = isBook ? "Whole book in Read View" : "Read View, whole book";
+    readLink.setAttribute("href", reading.href);
+    readLink.textContent = reading.desk
+      ? isBook ? "Whole book in Study Desk" : "Study Desk, Reading layout"
+      : isBook ? "Whole book in Read View" : "Read View, whole book";
     wrapper.append(readLink);
   }
   return wrapper;
