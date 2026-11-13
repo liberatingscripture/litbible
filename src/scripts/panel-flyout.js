@@ -35,10 +35,11 @@
  *   pointerFocus?: boolean }} [options] `main` makes a split row; `moreLabel`
  *   names its chevron button. `pointerFocus: false` keeps a mouse click from
  *   moving focus into the flyout (the selection panel never takes focus);
- *   the keyboard always does.
+ *   the keyboard always does. `onClose` runs each time the flyout shuts (the
+ *   Share row puts "Share image…" back, E111).
  * @returns {HTMLElement} the row. `row.closeFlyout()` shuts the flyout.
  */
-export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}`, pointerFocus = true } = {}) {
+export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}`, pointerFocus = true, onClose = null } = {}) {
   const wrap = document.createElement("div");
   wrap.className = "lit-panel__row lit-flyout";
 
@@ -86,6 +87,7 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
   let closing = 0;
   let openedBy = null; // "hover", "click" or "key"
   let watching = null; // the scroll and press listeners while it is open
+  let hovered = false; // the pointer is over the row or its flyout
   // The arrow keys, and opening it, pass over a disabled item (DK3-7; BVJ,
   // 2026-11-07: the rule for every menu, src/scripts/CLAUDE.md). A busy row
   // that keeps focus (aria-disabled while it works) is passed over too.
@@ -121,12 +123,18 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
     fly.hidden = true;
     openedBy = null;
     trigger.setAttribute("aria-expanded", "false");
+    onClose?.();
   };
   const later = () => {
     window.clearTimeout(closing);
     // A flyout holding focus stays until focus leaves it, not the pointer.
     if (fly.contains(document.activeElement)) return;
-    closing = window.setTimeout(() => close(false), 220);
+    closing = window.setTimeout(() => {
+      // Focus can come back (a step inside it swapped its buttons), and a
+      // pointer still over it hasn't left (E111).
+      if (hovered || fly.contains(document.activeElement)) return;
+      close(false);
+    }, 220);
   };
   const hover = (e) => {
     if (e.pointerType !== "touch") open(false, "hover");
@@ -150,8 +158,14 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
     if (!wrap.contains(/** @type {Node | null} */ (e.relatedTarget))) later();
   });
   anchor.addEventListener("pointerenter", hover);
-  wrap.addEventListener("pointerleave", later);
-  wrap.addEventListener("pointerenter", () => window.clearTimeout(closing));
+  wrap.addEventListener("pointerleave", () => {
+    hovered = false;
+    later();
+  });
+  wrap.addEventListener("pointerenter", () => {
+    hovered = true;
+    window.clearTimeout(closing);
+  });
   for (const opener of main ? [main, trigger] : [trigger]) {
     opener.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") {
@@ -169,7 +183,13 @@ export function flyoutRow(name, items, { main = null, moreLabel = `More: ${name}
       close(true);
     } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      buttons[(at + (e.key === "ArrowDown" ? 1 : buttons.length - 1)) % buttons.length]?.focus();
+      const down = e.key === "ArrowDown";
+      // Nothing in the list has focus (a note it holds does): down is the first, up the last.
+      const to = at < 0 ? (down ? 0 : buttons.length - 1) : (at + (down ? 1 : buttons.length - 1)) % buttons.length;
+      buttons[to]?.focus();
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      buttons[e.key === "Home" ? 0 : buttons.length - 1]?.focus();
     } else if (e.key === "Tab") {
       // Tabbing on leaves the flyout rather than trapping the panel's cycle.
       close(false);
