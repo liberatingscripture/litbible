@@ -22,11 +22,11 @@
 //     name and "Move as I read" (E9, bookmark-form.js). Pressing Bookmark opens
 //     the same form at once (BVJ, 2026-11-04), so it is named as it is made.
 //     A bookmark that moves has "Start following" beside its Edit (E44).
-//   - "Print ▸" after Bookmark (E40, print-part.js): this verse or range (Chapter
+//   - "Print ▸" after "Add to sheet ▸" (E40, print-part.js): this verse or range (Chapter
 //     View's verse menu) or the selected words (either view's selection panel),
 //     plainly, with my notes, or with room to write. Its flyout is the shared
 //     one (panel-flyout.js), as Bookmark's is.
-//   - "Add to sheet ▸" after Print, in Chapter View only (S12, part 2;
+//   - "Add to sheet ▸" after Add bookmark, in Chapter View only (S12, part 2;
 //     sheets/sheet-add.js): the reader's sheets and New sheet.
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
@@ -94,22 +94,10 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
       row.append(note);
       row.classList.add("lit-panel__row--halves");
     }
-    row.append(bookmark);
     d.append(heading);
-    d.append(row);
-    // What the verse holds, drawn once the notebook has been read: each bookmark
-    // that belongs to it with Remove and Edit bookmark… right beside, an add
-    // button for the kind it lacks, and the one this tab is following, which
-    // only rests here (BVJ, 2026-11-04).
-    const bookmarkBox = document.createElement("div");
-    bookmarkBox.className = "desk-bookmark-menu";
-    d.append(bookmarkBox);
-    // "Print ▸" right after Bookmark (E40): this verse or selection on paper.
-    const printBox = printRow(d, where);
-    if (printBox) d.append(printBox);
-    // "Add to sheet ▸" right after it (S12): Chapter View only.
-    const sheetBox = sheetRow(d, where);
-    if (sheetBox) d.append(sheetBox);
+    // The order is the owner's (BVJ, 2026-11-12): Highlight, Add a note, Add
+    // bookmark (with what the verse holds), Add to sheet, Print, then Show in
+    // Notebook. Only the order changed; each row keeps its label and condition.
     // Chapter View and /desk always offer Highlight (pressing a colour turns the
     // page's highlights on if they were hidden); Read View's panel only while that
     // view shows them. No row when this page can't read the words (the chapter
@@ -117,6 +105,22 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
     if (highlightsSupported() && (d.view !== "read" || getSetting(highlightSetting()) === "on") && markOf(d, where)) {
       d.append(highlightRow(d, where));
     }
+    row.append(bookmark);
+    d.append(row);
+    // What the verse holds, drawn once the notebook has been read: each bookmark
+    // that belongs to it with Remove and Edit bookmark… right beside, an add
+    // button for the kind it lacks, and the one this tab is following, which
+    // only rests here (BVJ, 2026-11-04). It belongs to Add bookmark, so it
+    // comes right after that row.
+    const bookmarkBox = document.createElement("div");
+    bookmarkBox.className = "desk-bookmark-menu";
+    d.append(bookmarkBox);
+    // "Add to sheet ▸" (S12): Chapter View only.
+    const sheetBox = sheetRow(d, where);
+    if (sheetBox) d.append(sheetBox);
+    // "Print ▸" (E40): this verse or selection on paper.
+    const printBox = printRow(d, where);
+    if (printBox) d.append(printBox);
     // Show in Notebook (Chapter View).
     const second = document.createElement("div");
     second.className = "lit-panel__row";
