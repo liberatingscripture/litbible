@@ -3157,6 +3157,43 @@ tap areas (`global.css`, never under 24px).
   Left as it was, for BVJ to weigh: the tray's line spacing does not reach
   the /sheets page (its text size does, E101), and the Notebook's
   minimized tab at the window's edge keeps its size.
+- **E110, wish: the tray's size and spacing reach the desk's other pages.**
+  BVJ (2026-11-12), after E109, asked which pages and pieces of pages still
+  ignored the Display tray's text size and line spacing, “for people's
+  personal preferences and for A11y accessibility,” then: “Follow all your
+  recommendations. For things on pages that are public now, make the changes
+  visible now. For things only visible with the preview gate on, make the
+  changes behind the preview gate.” The public half (every page of running
+  text, the footnote popover, a gentler scale for a few controls) is
+  recorded in `src/styles/CLAUDE.md`, the Display tray's rule 1. The desk's
+  half, all behind the gate:
+  - **`/notebook` follows both**, as /sheets and the panes do: it sets
+    `--desk-ui` and `--desk-leading` on `.notebook-page` under
+    `html[data-desk]`, with the size on the column so a line keeps its
+    length. This reverses E109's “and so does `/notebook`.”
+  - **`/desk/help` follows both** with the preview on (`--help-scale`,
+    `--help-leading`); without it the page reads as it did.
+  - **The rows the desk adds to /search's results follow** with the
+    results, which now follow for everyone (`.search-page` sets the two
+    variables in `desk-search.css`); the search tray and the Commands
+    window are controls and keep their size.
+  - **The rows the desk adds to a shared panel take that panel's scale**
+    (`--panel-scale`): the verse menu, the selection panel, and the note
+    editor that opens from them take the controls' gentler scale (their own
+    size up to Medium, the Large step at Large and Extra large), and a
+    footnote's popover takes the reader's size and spacing. This replaces
+    E109's “keep the site's size,” now that the site sizes them.
+  - **Found and fixed: the glossary's entries took the size twice** with
+    the desk on (29px for 23 at Extra large, 14 for 16 at Small), because
+    the entries' `.wrap` sits inside the hero's and both matched the rule
+    that scales the column. The hero was right, so the page looked right
+    at the top.
+  Status: **done 2026-11-12**. Checked in the Browser pane at Medium against
+  Extra large and Normal against Roomy: every block of text on /notebook and
+  /desk/help follows once (1.28, never 1.63), nothing leaves the window at
+  1024 and 1280px in Inter, Atkinson and OpenDyslexic, and /desk/help is
+  unchanged with the gate off. Left as they were: margin notes' buttons and
+  the minimized tab.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

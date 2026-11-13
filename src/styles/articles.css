@@ -497,21 +497,24 @@
 
 .article__date {
   opacity: 0.75;
-  font-size: 0.95rem;
+  /* Follows the Display tray's text size and line spacing through
+     --reading-scale / --reading-leading-extra (see src/styles/CLAUDE.md). */
+  font-size: calc(0.95rem * var(--reading-scale, 1));
 }
 
 .article__title {
   margin: 0;
   color: var(--text-strong);
   line-height: 1.05;
-  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-size: calc(clamp(2rem, 3.6vw, 3rem) * var(--heading-scale, 1));
 }
 
 .article__dek {
   margin: 0;
   opacity: 0.9;
   max-width: calc(70 * var(--ch));
-  font-size: 1.05rem;
+  font-size: calc(1.05rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 .article__rule {
@@ -527,6 +530,7 @@
    --article-width there). */
 .article__body {
   font-size: calc(1em * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 .article__body :is(p, ul, ol) {

@@ -12,6 +12,17 @@
   padding: clamp(2rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 5rem;
 }
 
+/* With the preview on, the page follows the Display tray's text size and
+   line spacing whole, as /sheets and the desk's panes do (E110; BVJ,
+   2026-11-12). The size sits with the width, so the column keeps its length
+   in characters; the two variables are what every size and every block of
+   text in desk.css multiplies by and adds. */
+html[data-desk] .notebook-page {
+  --desk-ui: var(--reading-scale, 1);
+  --desk-leading: var(--reading-leading-extra, 0);
+  font-size: calc(1em * var(--reading-scale, 1));
+}
+
 .notebook-page__title {
   margin: 0 0 1rem;
 }

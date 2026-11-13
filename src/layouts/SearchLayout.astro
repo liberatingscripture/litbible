@@ -200,8 +200,13 @@ const baseUrl = import.meta.env.BASE_URL || "/";
     </div>
 
     <style>
+      /* The results follow the Display tray's text size and line spacing
+         through --reading-scale and --reading-leading-extra (see
+         src/styles/CLAUDE.md); the size sits with the width so a line keeps its
+         length in characters. */
       .scripture-main {
         margin: 0 auto;
+        font-size: calc(1em * var(--reading-scale, 1));
         max-width: var(--content-width, 72ch);
         padding: 12px 16px 64px;
       }

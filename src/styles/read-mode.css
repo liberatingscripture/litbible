@@ -21,7 +21,9 @@
    as well because --reading-width is in --ch, an em fraction, which resolves
    against the element that uses it: with the reader's size, the toolbar
    resolves to exactly .rm-reader's width, at every text size. Nothing inside
-   is sized in em, so the controls keep their size.
+   is sized in em: the controls take the tray's gentler scale for controls
+   (--control-scale, global.css), which never shrinks them and stops at Large,
+   and the floors below grow by the same factor.
    It is that width at least, and wider only when its controls need more (in
    OpenDyslexic, whose column is the site's narrowest; see below). It was a
    fixed 1100px until 2026-09, sized for the page before the 60-character
@@ -52,7 +54,7 @@
    850px wins at the same specificity. */
 @media (min-width: 901px) {
   html[data-desk] .rm-page .rm-toolbar {
-    min-width: min(100%, 725px);
+    min-width: min(100%, calc(725px * var(--control-scale, 1)));
   }
 }
 
@@ -65,14 +67,14 @@
    Re-measure when a control gains width: the Focus icon alone took 21px. */
 @media (min-width: 901px) {
   html[data-font="dyslexic"] .rm-page .rm-toolbar {
-    min-width: min(100%, 850px);
+    min-width: min(100%, calc(850px * var(--control-scale, 1)));
   }
 
   /* With the desk preview's Notebook button, measured at 887px. In a window
      narrower than about 925px that is wider than the page, so the bar is
      capped at the page's width there. */
   html[data-desk][data-font="dyslexic"] .rm-page .rm-toolbar {
-    min-width: min(100%, 895px);
+    min-width: min(100%, calc(895px * var(--control-scale, 1)));
   }
 }
 
@@ -117,7 +119,7 @@
 }
 
 .rm-page .rm-progress {
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--control-scale, 1));
   font-variant-numeric: tabular-nums;
   color: rgba(var(--ink-rgb), 0.78);
   white-space: nowrap;
@@ -166,7 +168,7 @@
   color: var(--text);
   min-height: 36px;
   padding: 0 0.7rem;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--control-scale, 1));
   text-decoration: none;
   line-height: 1.2;
   white-space: nowrap;
@@ -414,7 +416,7 @@ html.rm-tools-open {
   border: none;
   background: none;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--control-scale, 1));
   line-height: 1.1;
   padding: 0.4rem 0.55rem;
   border-radius: 999px;
@@ -436,9 +438,14 @@ html.rm-tools-open {
    READER
    ========================================================= */
 
+/* The book's title and each chapter's heading follow the reader's text size
+   with the text, so a heading stays larger than the words under it. The
+   title takes --heading-scale, which stops at its own size on a phone
+   ("2 Thessalonians" is wider than one otherwise); "Chapter 3" always fits,
+   so the chapter headings take the scale whole. */
 .rm-page .rm-title {
   margin: 0 0 0.8rem;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-size: calc(clamp(1.8rem, 4vw, 2.5rem) * var(--heading-scale, 1));
   text-align: center;
 }
 
@@ -501,7 +508,7 @@ html.rm-tools-open {
 
 .rm-page .rm-chapter {
   margin: 1.5rem 0 0.85rem;
-  font-size: clamp(1.24rem, 2.4vw, 1.8rem);
+  font-size: calc(clamp(1.24rem, 2.4vw, 1.8rem) * var(--reading-scale, 1));
   user-select: none;
 }
 
@@ -750,7 +757,7 @@ html[data-vn="off"]
   .rm-page .rm-toolbar button,
   .rm-page .rm-toolbar a {
     min-height: 44px;
-    font-size: 0.9375rem;
+    font-size: calc(0.9375rem * var(--control-scale, 1));
     padding: 0 0.9rem;
   }
 

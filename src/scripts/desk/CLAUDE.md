@@ -1491,9 +1491,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Layout and Print windows and the undo bar, as on the whole /sheets
        page (E101); in the panel, everything inside it. Until then only the
        LIT's and a Book Intro's text and the Greek's words followed either.
-       Two variables carry them, set on `html[data-desk-workspace]` and on
-       `.desk-panel` and nowhere else (`/notebook`, margin notes' buttons
-       and the minimized tab keep their sizes): **`--desk-ui`** is
+       Two variables carry them, set on `html[data-desk-workspace]`, on
+       `.desk-panel`, and since E110 (BVJ, 2026-11-12, with the rest of the
+       site's pages) on `.notebook-page` and on /search's results
+       (`.search-page`, in `desk-search.css`); margin notes' buttons and the
+       minimized tab keep their sizes: **`--desk-ui`** is
        `--reading-scale`, and **every size `desk.css` and `desk-search.css`
        set in rem multiplies by `var(--desk-ui, 1)`**, a `font:` shorthand
        included; **`--desk-leading`** is `--reading-leading-extra` (what
@@ -1515,10 +1517,17 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
           (`.desk-pane .desk-sheet__words`) for that reason. The tray's
           line spacing does not reach the /sheets page itself.
        4. **The verse menu, the selection panel and the note editor are
-          `.lit-panel`s**, every page's at the site's size, so on /desk
-          both variables are reset inside one and the rows the desk adds
-          match the rows around them. The Display tray and tooltips are the
-          site's too.
+          `.lit-panel`s**, every page's, at the size the site gives each
+          (`--panel-scale` in `global.css`: the controls' gentler scale for
+          a menu, the reader's for a footnote's popover; E110). `desk.css`
+          sets `--desk-ui` to that inside every `.lit-panel`, on every page,
+          and `--desk-leading` to 0, so the rows the desk adds match the
+          rows around them. The Display tray and tooltips are the site's
+          too, at their own size.
+       6. **`/desk/help` follows both behind the gate** (E110): its sizes
+          multiply by `--help-scale` and its text adds `--help-leading`
+          (`pages/desk-help.css`), which are 1 and 0 without
+          `html[data-desk]`, since the page reads without the desk.
        5. **Larger words must never push a control out of a fixed width.**
           The panel is 280 to 440px whatever the size, so its header's name
           and badge share one clipped row (`.desk-panel__name`): the badge

@@ -36,8 +36,10 @@ import SblgntCredits from "./SblgntCredits.astro";
     width: min(1100px, calc(100% - 32px));
     max-width: none;
 
-    font-size: 0.95rem;
-    line-height: 1.65;
+    /* Follows the Display tray's text size and line spacing through
+       --reading-scale / --reading-leading-extra (see src/styles/CLAUDE.md). */
+    font-size: calc(0.95rem * var(--reading-scale, 1));
+    line-height: calc(1.65 + var(--reading-leading-extra, 0));
     color: rgba(var(--ink-rgb), 0.85);
   }
 

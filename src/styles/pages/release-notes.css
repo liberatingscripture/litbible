@@ -2,7 +2,10 @@
    Release Notes page
    ========================================================= */
 
+/* The page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
 .rn-page {
+  font-size: calc(1em * var(--reading-scale, 1));
   max-width: 720px;
   margin: 0 auto;
   padding: 56px 16px 80px;
@@ -22,12 +25,13 @@
   margin: 0 auto;
   max-width: 56ch;
   color: rgba(var(--ink-rgb), 0.72);
-  line-height: 1.6;
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 .rn-subscribe {
   margin: 14px 0 0;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 .rn-subscribe a {
@@ -55,7 +59,7 @@
 }
 
 .rn-filter__label {
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--reading-scale, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.7);
 }
@@ -74,7 +78,7 @@
 .rn-count {
   margin: 0 0 0 auto;
   padding-bottom: 9px;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--reading-scale, 1));
   color: rgba(var(--ink-rgb), 0.65);
 }
 
@@ -82,6 +86,7 @@
   color: rgba(var(--ink-rgb), 0.5);
   text-align: center;
   margin-top: 32px;
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
 /* MONTHS */
@@ -135,12 +140,20 @@
 
 .rn-month__title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--reading-scale, 1));
+}
+
+/* At the larger text sizes a phone can't hold the month and its count on one
+   line (the count ran 25px past the screen in OpenDyslexic), so the count
+   drops under the month there. Medium and Small keep the one row. */
+html[data-size="lg"] .rn-month__summary,
+html[data-size="xl"] .rn-month__summary {
+  flex-wrap: wrap;
 }
 
 .rn-month__count {
   margin-left: auto;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--reading-scale, 1));
   color: rgba(var(--ink-rgb), 0.6);
   white-space: nowrap;
 }
@@ -174,7 +187,7 @@
 
 /* The date is the entry's permalink. */
 .rn-entry__date {
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--reading-scale, 1));
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -205,8 +218,8 @@
   display: flex;
   align-items: baseline;
   gap: 10px;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: calc(0.95rem * var(--reading-scale, 1));
+  line-height: calc(1.5 + var(--reading-leading-extra, 0));
 }
 
 .rn-change[hidden] {
@@ -216,7 +229,7 @@
 /* Badge */
 .rn-change__badge {
   flex-shrink: 0;
-  font-size: 0.65rem;
+  font-size: calc(0.65rem * var(--reading-scale, 1));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -250,8 +263,8 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: calc(0.85rem * var(--reading-scale, 1));
+  line-height: calc(1.5 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.62);
   overflow-wrap: anywhere;
 }

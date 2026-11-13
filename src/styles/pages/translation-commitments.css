@@ -2,7 +2,10 @@
    Translation Commitments page
    ========================================================= */
 
+/* This page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
 .tc-page {
+  font-size: calc(1em * var(--reading-scale, 1));
   padding: 0 0 56px;
   background: var(--surface-raised);
 }
@@ -29,14 +32,19 @@ body:has(.tc-page) .site-header__inner {
   text-align: center;
 }
 
+/* The title and the section headings set no size (the browser's 2em and
+   1.5em), so they would take the page's scale whole. A title follows
+   --heading-scale instead, which stops at its own size on a phone
+   (global.css): each is restated here with the page's scale divided out. */
 .tc-title {
   margin: 0 0 10px;
+  font-size: calc(2em * var(--heading-scale, 1) / var(--reading-scale, 1));
 }
 
 .tc-lede {
   margin: 0 auto;
   max-width: calc(62 * var(--ch));
-  line-height: 1.6;
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.78);
 }
 
@@ -130,14 +138,14 @@ body:has(.tc-page) .site-header__inner {
 /* Titles + body */
 .tc-cardTitle {
   margin: 0 0 10px;
-  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-size: calc(clamp(1.2rem, 2vw, 1.55rem) * var(--reading-scale, 1));
   line-height: 1.2;
   text-align: center;
 }
 
 .tc-cardBody {
   margin: 0;
-  line-height: 1.7;
+  line-height: calc(1.7 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.84);
   text-align: left;
   max-width: calc(62 * var(--ch));
@@ -200,11 +208,12 @@ body:has(.tc-page) .site-header__inner {
 
 .tc-narrative h2 {
   margin: 0 0 14px;
+  font-size: calc(1.5em * var(--heading-scale, 1) / var(--reading-scale, 1));
 }
 
 .tc-narrative p {
   margin: 0 0 14px;
-  line-height: 1.75;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
   color: rgba(var(--ink-rgb), 0.88);
 }
 

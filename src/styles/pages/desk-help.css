@@ -3,11 +3,21 @@
    pattern as the privacy page.
    ========================================================= */
 
+/* With the preview on, the page follows the Display tray's text size and line
+   spacing (E110; BVJ, 2026-11-12). Behind the gate like the rest of the desk:
+   without html[data-desk] the two factors below stay 1 and 0. */
 .nbhelp {
+  --help-scale: 1;
+  --help-leading: 0;
   background-color: var(--page-bg);
   min-height: 100vh;
   padding-block: clamp(2.5rem, 5vw, 4rem);
   padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+html[data-desk] .nbhelp {
+  --help-scale: var(--reading-scale, 1);
+  --help-leading: var(--reading-leading-extra, 0);
 }
 
 .nbhelp__header {
@@ -20,22 +30,28 @@
   margin: 0 auto;
 }
 
+/* The header's column sets no size of its own (the title and lede do), so
+   its width takes the scale here and keeps its edges with the body's. */
+.nbhelp__inner {
+  font-size: calc(1em * var(--help-scale, 1));
+}
+
 .nbhelp__title {
   font-family: var(--serif, serif);
-  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--help-scale, 1));
   line-height: 1.1;
   margin: 0 0 0.75rem;
 }
 
 .nbhelp__lede {
-  font-size: clamp(1.1rem, 0.5vw + 1rem, 1.25rem);
-  line-height: 1.72;
+  font-size: calc(clamp(1.1rem, 0.5vw + 1rem, 1.25rem) * var(--help-scale, 1));
+  line-height: calc(1.72 + var(--help-leading, 0));
   margin: 0;
 }
 
 .nbhelp__body {
-  font-size: clamp(1rem, 0.4vw + 0.9rem, 1.15rem);
-  line-height: 1.75;
+  font-size: calc(clamp(1rem, 0.4vw + 0.9rem, 1.15rem) * var(--help-scale, 1));
+  line-height: calc(1.75 + var(--help-leading, 0));
 }
 
 .nbhelp__body section {
@@ -50,7 +66,7 @@
 
 .nbhelp__body h2 {
   font-family: var(--serif, serif);
-  font-size: clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem);
+  font-size: calc(clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem) * var(--help-scale, 1));
   line-height: 1.25;
   margin: 0 0 0.85rem;
   color: var(--text-strong);

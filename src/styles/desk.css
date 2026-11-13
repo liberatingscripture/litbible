@@ -4645,8 +4645,10 @@ html[data-desk-workspace] {
      page (E101): each pane's own words, its bar and menus, and the row of
      commands above the panes. Every size this file sets in rem multiplies by
      --desk-ui (test/desk-text-size.test.js holds it to that), which is the
-     tray's scale here and unset, so 1, on every other page: the Notebook
-     panel beside a chapter and the /notebook page keep their sizes. A pane
+     tray's scale here and unset, so 1, wherever nothing sets it: the Notebook
+     panel beside a chapter sets it for itself (.desk-panel), and so do the
+     /notebook page (pages/notebook.css) and the /search results
+     (desk-search.css), E110. A pane
      sets its size once (.desk-pane); the LIT's and a Book Intro's text
      inherit it. The Sheets pane's own words follow through --sheet-ui; a
      sheet's fields keep the sheet's own Text size (--sheet-text-scale).
@@ -4660,10 +4662,14 @@ html[data-desk-workspace] {
   --desk-leading: var(--reading-leading-extra, 0);
 }
 
-/* The verse menu and the selection panel are every page's, at the site's
-   size and spacing; the rows the desk adds to them stay that way too. */
-html[data-desk-workspace] .lit-panel {
-  --desk-ui: 1;
+/* The verse menu, the selection panel and a footnote's popover are every
+   page's, at the size the site gives each (--panel-scale, global.css: the
+   controls' gentler scale for a menu, the reader's own for a footnote, 1 for
+   a plain panel). The rows the desk adds to one take that same scale, on
+   every page, so they match the rows around them (E110), and none takes the
+   tray's line spacing. */
+.lit-panel {
+  --desk-ui: var(--panel-scale, 1);
   --desk-leading: 0;
 }
 

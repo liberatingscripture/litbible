@@ -217,6 +217,24 @@
   --reading-scale: 1;
   --reading-leading-extra: 0;
 
+  /* The same choice for controls, in a gentler form: the verse menu and the
+     selection panel, the passage picker's list, and Read View's toolbar. A
+     control never shrinks below its own size (Small leaves it alone) and
+     stops at Large, because its labels sit on one line in a fixed width and
+     the full Extra large step would push them out of it. On a phone it stays
+     1: a sheet's two-button rows and the picker's grid are fitted to the
+     screen there, and a larger label costs each a row. Text a reader reads
+     takes --reading-scale; see src/styles/CLAUDE.md. */
+  --control-scale: 1;
+
+  /* And for a page's title: the reader's scale, except on a phone, where a
+     title never grows past its own size (the rule after the Display tray's
+     steps, below). A title is the largest type on its page and can't break a
+     word, so one long word at a larger size is wider than the screen:
+     "Thessalonians", "Commitments". It still shrinks at Small. Headings of
+     short, fixed words ("Footnotes", "Chapter 3") take --reading-scale. */
+  --heading-scale: var(--reading-scale);
+
   /* Font stacks */
   --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
 }
@@ -2901,6 +2919,29 @@ html[data-leading="roomy"] {
   --reading-leading-extra: 0.25;
 }
 
+/* Controls: the Large step at Large and Extra large, their own size below,
+   and on a phone at every size (measured at 375px: the larger label put Read
+   View's "Back to Top" and "Chapter View" on a row each, and left
+   OpenDyslexic's list of books two columns wide). */
+@media (min-width: 641px) {
+  html[data-size="lg"],
+  html[data-size="xl"] {
+    --control-scale: calc(20 / 18);
+  }
+}
+
+/* Page titles on a phone: never larger than their own size (see the token).
+   Measured at 320 and 375px at Extra large: in OpenDyslexic "1 Thessalonians
+   5" ran 61px past the screen and "Translation Commitments" 115px, and in
+   Atkinson the latter 7px at 320px. One rule for every font, since a title
+   can hold any word. */
+@media (max-width: 640px) {
+  html[data-size="lg"],
+  html[data-size="xl"] {
+    --heading-scale: 1;
+  }
+}
+
 /* Mobile nav: OpenDyslexic glyphs are wider — scale down so links fit the
    overlay. Deliberately dyslexic-only: Atkinson's metrics are close to
    Inter's, so it must not inherit OpenDyslexic's width compensations. */
@@ -3158,18 +3199,26 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
    Above everything else while open — the scripture toolbar sits at z 80/90,
    the searchbar tray at 999, and its tooltips at 1000. */
 .lit-panel {
+  /* What the Display tray's text size does to a panel. A panel hangs off
+     <body>, outside every reading column, so it takes the size from this and
+     not by inheritance: 1 for a plain panel, the controls' gentler scale for
+     a menu, the reader's own scale for a panel of text to read (both below).
+     Every size in a panel multiplies by it, and so does the panel's width,
+     which lit-panel.js reads back from max-width. */
+  --panel-scale: 1;
+
   position: absolute;
   z-index: 1100;
   box-sizing: border-box;
   min-width: 200px;
-  max-width: 380px;
+  max-width: calc(380px * var(--panel-scale, 1));
   padding: 12px 14px;
   border-radius: 12px;
   background: var(--surface-raised);
   color: var(--text);
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-  font-size: 0.95rem;
+  font-size: calc(0.95rem * var(--panel-scale, 1));
   line-height: 1.55;
 }
 
@@ -3177,9 +3226,19 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   outline: none;
 }
 
-/* Long footnotes scroll inside the popover instead of overflowing the viewport */
+/* The verse menu and the selection panel are controls. */
+.lit-panel--menu {
+  --panel-scale: var(--control-scale, 1);
+}
+
+/* A footnote, a key term's card and a reference preview are text to read, so
+   they take the reader's size and line spacing whole. After the menu's rule:
+   a panel is never both, and this one would be the one to keep. Long
+   footnotes scroll inside the popover instead of overflowing the viewport. */
 .lit-panel--footnote {
-  max-height: min(55vh, 420px);
+  --panel-scale: var(--reading-scale, 1);
+  line-height: calc(1.55 + var(--reading-leading-extra, 0));
+  max-height: min(55vh, calc(420px * var(--panel-scale, 1)));
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -3206,7 +3265,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
 
 .lit-panel__heading {
   margin: 0 0 6px;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--panel-scale, 1));
   font-weight: 700;
   letter-spacing: 0.01em;
   color: rgba(var(--ink-rgb), 0.65);
@@ -3265,7 +3324,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
 
 .lit-panel__btn--error {
   color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--panel-scale, 1));
   cursor: default;
 }
 
@@ -3276,7 +3335,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   margin: 8px 0 4px;
   padding-top: 8px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-  font-size: 0.78rem;
+  font-size: calc(0.78rem * var(--panel-scale, 1));
   font-weight: 600;
   color: rgba(var(--ink-rgb), 0.55);
 }
@@ -3284,7 +3343,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
 /* Part previews are a line of scripture, so let them wrap rather than forcing
    the panel wider; they sit visually below the fixed-label actions. */
 .lit-panel__subheading + [role="group"] .lit-panel__btn {
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--panel-scale, 1));
   line-height: 1.35;
 }
 
@@ -3315,7 +3374,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
    size its halves to the two labels' average, which the longer one can't
    fit into. */
 .lit-panel--chips:not(.lit-panel--sheet) {
-  width: min(380px, calc(100vw - 24px));
+  width: min(calc(380px * var(--panel-scale, 1)), calc(100vw - 24px));
 }
 
 .lit-panel--chips .lit-panel__heading,
@@ -3425,8 +3484,8 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   position: fixed;
   z-index: 1110;
   box-sizing: border-box;
-  min-width: 220px;
-  max-width: 340px;
+  min-width: calc(220px * var(--panel-scale, 1));
+  max-width: calc(340px * var(--panel-scale, 1));
   padding: 8px 10px;
   border-radius: 12px;
   background: var(--surface-raised);
@@ -3558,7 +3617,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 .lit-image__note {
   margin: 0;
   padding: 9px 10px;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--panel-scale, 1));
 }
 
 /* The verse menu beside its verse number: pinned to the screen while the
@@ -3627,7 +3686,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 /* Range-selection hint at the bottom of the verse menu */
 .lit-panel__hint {
   margin: 0 0 6px;
-  font-size: 0.78rem;
+  font-size: calc(0.78rem * var(--panel-scale, 1));
   color: rgba(var(--ink-rgb), 0.55);
 }
 
@@ -3635,7 +3694,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 .lit-panel__jump {
   display: inline-block;
   margin-top: 10px;
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--panel-scale, 1));
   font-weight: 600;
   color: var(--green-text);
 }
@@ -4238,10 +4297,11 @@ button.greek-cmd:hover {
 }
 
 /* Scripture reference previews (ref-preview.js): the verses themselves, set a
-   step larger than a footnote because they are the thing being read. */
+   step larger than a footnote because they are the thing being read. Like the
+   footnote popover they take the reader's text size and line spacing. */
 .lit-panel--preview .ref-preview__text {
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: calc(0.95rem * var(--panel-scale, 1));
+  line-height: calc(1.55 + var(--reading-leading-extra, 0));
 }
 
 .ref-preview__vn {

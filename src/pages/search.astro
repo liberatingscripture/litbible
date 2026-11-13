@@ -156,7 +156,10 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     margin: 0 auto 10px;
     padding: 0 16px;
     color: rgba(var(--ink-rgb), 0.8);
-    font-size: 0.95rem;
+    /* The results follow the Display tray's text size and line spacing through
+       --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
+    font-size: calc(0.95rem * var(--reading-scale, 1));
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
   }
 
   /* Toggle row is always its own line; status lives below. No dancing. */
@@ -259,7 +262,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .search-ref__label {
     margin: 0 0 2px;
-    font-size: 0.9rem;
+    font-size: calc(0.9rem * var(--reading-scale, 1));
     color: rgba(var(--ink-rgb), 0.78);
   }
 
@@ -283,7 +286,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .search-ref__hint {
     opacity: 0.7;
-    font-size: 0.9rem;
+    font-size: calc(0.9rem * var(--reading-scale, 1));
     white-space: nowrap;
   }
 
@@ -343,7 +346,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   }
 
   .group-title {
-    font-size: 0.82rem;
+    font-size: calc(0.82rem * var(--reading-scale, 1));
     letter-spacing: 0.12em;
     text-transform: uppercase;
     opacity: 0.72;
@@ -396,7 +399,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .search-page :global(.result-excerpt) {
     color: rgba(var(--ink-rgb), 0.78);
-    line-height: 1.5;
+    line-height: calc(1.5 + var(--reading-leading-extra, 0));
   }
 
   .search-page :global(.result-link::after) {
@@ -467,7 +470,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .search-page :global(.result-group__title) {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: calc(1rem * var(--reading-scale, 1));
     color: var(--text-strong);
     padding: 5px 16px 6px;
   }
@@ -496,7 +499,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   }
 
   .search-page :global(.result-link--occurrence .result-excerpt) {
-    font-size: 0.92rem;
+    font-size: calc(0.92rem * var(--reading-scale, 1));
   }
 
   [hidden] {
@@ -513,7 +516,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     display: inline-block;
     margin-top: 6px;
     padding: 4px 12px;
-    font-size: 0.85rem;
+    font-size: calc(0.85rem * var(--reading-scale, 1));
     font-weight: 600;
     color: var(--accent, #38613a);
     background: transparent;
@@ -545,7 +548,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     padding: 10px 14px;
     text-align: left;
     font: inherit;
-    font-size: 0.95rem;
+    font-size: calc(0.95rem * var(--reading-scale, 1));
     color: var(--text-strong);
     background: transparent;
     border: 1px solid rgba(var(--ink-rgb), 0.18);
@@ -555,7 +558,8 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .greek-lemma-one {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: calc(0.95rem * var(--reading-scale, 1));
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
     color: var(--text-strong);
   }
 
@@ -576,7 +580,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     align-items: center;
     gap: 8px;
     margin: 0 0 12px;
-    font-size: 0.95rem;
+    font-size: calc(0.95rem * var(--reading-scale, 1));
     color: rgba(var(--ink-rgb), 0.85);
     cursor: pointer;
   }
@@ -600,25 +604,28 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   .greek-text {
     margin: 6px 0 0;
     font-family: var(--serif);
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: calc(1rem * var(--reading-scale, 1));
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
     color: var(--text-strong);
   }
 
   .greek-parse {
     margin: 2px 0 0;
-    font-size: 0.85rem;
+    font-size: calc(0.85rem * var(--reading-scale, 1));
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
     color: rgba(var(--ink-rgb), 0.7);
   }
 
   .greek-lit {
     margin: 8px 0 0;
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
     padding-top: 8px;
     border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   }
 
   .greek-empty {
     list-style: none;
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
     color: rgba(var(--ink-rgb), 0.75);
   }
 
@@ -626,8 +633,8 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
      words are the same marks the single-word search draws. */
   .greek-readback {
     margin: 0 0 12px;
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: calc(1rem * var(--reading-scale, 1));
+    line-height: calc(1.5 + var(--reading-leading-extra, 0));
     color: var(--text-strong);
   }
 
@@ -655,8 +662,8 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   /* The Greek's sources, under the Greek group (greek-credits.mjs). */
   .greek-credit {
     margin: 16px 0 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size: calc(0.85rem * var(--reading-scale, 1));
+    line-height: calc(1.5 + var(--reading-leading-extra, 0));
     color: rgba(var(--ink-rgb), 0.75);
   }
 
@@ -669,11 +676,12 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   .greek-help__lead,
   .greek-help__error {
     margin: 0 0 12px;
+    line-height: calc(1.6 + var(--reading-leading-extra, 0));
     color: var(--text-strong);
   }
 
   .greek-help__error {
-    font-size: 0.95rem;
+    font-size: calc(0.95rem * var(--reading-scale, 1));
   }
 
   /* ── Suggest-word buttons (dynamically created, needs global scope) ── */
@@ -686,7 +694,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     background-color: var(--green-deep, #0f6b33);
     color: var(--white, #fff);
     cursor: pointer;
-    font-size: 0.88rem;
+    font-size: calc(0.88rem * var(--reading-scale, 1));
     font-weight: 600;
     line-height: 1;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
@@ -715,7 +723,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .search-ref .search-ref__label {
     margin: 0 0 2px;
-    font-size: 0.9rem;
+    font-size: calc(0.9rem * var(--reading-scale, 1));
     color: rgba(var(--ink-rgb), 0.78);
   }
 
@@ -776,7 +784,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   .search-ref .search-ref__hint {
     opacity: 0.7;
-    font-size: 0.9rem;
+    font-size: calc(0.9rem * var(--reading-scale, 1));
     white-space: nowrap;
   }
 
