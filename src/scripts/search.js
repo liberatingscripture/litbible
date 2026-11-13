@@ -203,6 +203,8 @@ function renderReferenceActions(jump) {
   if (!jump) return null;
 
   const isBook = jump.kind === "book";
+  // A book's introduction offers only the introduction (no Read View link).
+  const intro = isBook && jump.intro === true;
 
   const wrapper = document.createElement("div");
   wrapper.className = "search-ref__links";
@@ -216,12 +218,14 @@ function renderReferenceActions(jump) {
   studyLink.setAttribute("href", makeStudyJumpHref(jump));
   studyLink.textContent = isBook ? "Intro in Chapter View" : "Chapter View, with notes";
 
-  const readLink = document.createElement("a");
-  readLink.className = "search-ref__link search-ref__link--read";
-  readLink.setAttribute("href", makeReadJumpHref(jump));
-  readLink.textContent = isBook ? "Whole book in Read View" : "Read View, whole book";
-
-  wrapper.append(label, studyLink, readLink);
+  wrapper.append(label, studyLink);
+  if (!intro) {
+    const readLink = document.createElement("a");
+    readLink.className = "search-ref__link search-ref__link--read";
+    readLink.setAttribute("href", makeReadJumpHref(jump));
+    readLink.textContent = isBook ? "Whole book in Read View" : "Read View, whole book";
+    wrapper.append(readLink);
+  }
   return wrapper;
 }
 

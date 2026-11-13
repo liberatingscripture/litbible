@@ -114,10 +114,29 @@ export function parseReference(raw) {
   };
 }
 
-/** null | { kind:"ref", ... } | { kind:"book", bookKey } */
+/**
+ * A book's introduction: "Matthew intro", "1 Cor introduction", "matthew-intro",
+ * "Introduction to Matthew", "intro to Matthew". The book goes through
+ * parseBookOnly, so every alias works. Null for "Intro" alone or a non-book.
+ */
+function parseIntroJump(raw) {
+  const cleaned = cleanReferenceInput(raw);
+  if (!cleaned) return null;
+  const prefixed = /^intro(?:duction)? to (.+)$/.exec(cleaned);
+  const suffixed = prefixed ? null : /^(.+?)[\s-]*(?:intro|introduction)$/.exec(cleaned);
+  const bookPart = prefixed?.[1] ?? suffixed?.[1];
+  if (!bookPart) return null;
+  const book = parseBookOnly(bookPart);
+  return book ? { kind: "book", bookKey: book.bookKey, intro: true } : null;
+}
+
+/** null | { kind:"ref", ... } | { kind:"book", bookKey, intro? } */
 export function parseReferenceJump(raw) {
   const ref = parseReference(raw);
   if (ref) return { kind: "ref", ...ref };
+
+  const intro = parseIntroJump(raw);
+  if (intro) return intro;
 
   const bookOnly = parseBookOnly(raw);
   if (bookOnly) return { kind: "book", ...bookOnly };
