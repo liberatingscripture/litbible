@@ -6,12 +6,110 @@
 // (astro.config.mjs), and (as every generic page) out of Pagefind. The
 // Notebook's foot, the first-time choice, the tours and /desk's command row
 // link here.
+//
+// Its shape (E125; BVJ, 2026-11-12): eight parts in the order a reader meets
+// them, each a few topics, with a contents list (`parts`, below) that sits
+// beside the text on a wide window and above it on a narrow one. Three rules:
+// - Every id a link may cite stays on the heading that now holds its topic
+//   (the desk links #ways-to-keep; test/desk-help-page.test.js lists them).
+// - A new topic gets a row in `parts`, or the contents can't reach it; the
+//   same test fails for a row with no heading, and a heading with no row.
+// - Nothing is folded away: no <details>, no script. Find-in-page and an
+//   anchor must reach every word.
 import { MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { DESK_STAGE, FEEDBACK_HREF, FEEDBACK_LABEL } from "../../lib/desk-first-use.mjs";
 import { MAX_PANES } from "../../lib/desk-layout.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/pages/desk-help.css";
+
+// The contents: each part's heading (an h2) and its topics (each an h3).
+const parts = [
+  {
+    id: "start",
+    title: "Getting started",
+    topics: [
+      { id: "what-it-is", title: "What the Study Desk is" },
+      { id: "where-things-are", title: "Where to find each part" },
+      { id: "tour", title: "Take a tour" },
+    ],
+  },
+  {
+    id: "marking",
+    title: "Marking what you read",
+    topics: [
+      { id: "making-marks", title: "Notes, highlights, and bookmarks" },
+      { id: "bookmarks", title: "Bookmarks that keep your place" },
+      { id: "labels", title: "Labels" },
+      { id: "footnote-pins", title: "Pinned footnotes" },
+      { id: "panel", title: "The Notebook panel" },
+      { id: "print-part", title: "Printing with your notes" },
+    ],
+  },
+  {
+    id: "desk-page",
+    title: "The Study Desk page",
+    topics: [
+      { id: "desk-open", title: "Opening it" },
+      { id: "desk-panes", title: "The kinds of pane" },
+      { id: "desk-following", title: "Panes that follow, and “Stay here”" },
+      { id: "desk-arrange", title: "Adding, moving, and sizing panes" },
+      { id: "desk-full", title: "When the desk is full" },
+      { id: "desk-layout", title: "Layouts and Reading" },
+      { id: "desk-show", title: "What the text shows" },
+      { id: "desk-menus", title: "Menus, keys, and printing" },
+    ],
+  },
+  {
+    id: "sheets",
+    title: "Sheets",
+    topics: [
+      { id: "sheet-make", title: "Making a sheet" },
+      { id: "sheet-parts", title: "Adding passages and parts" },
+      { id: "sheet-templates", title: "Templates" },
+      { id: "sheet-blanks", title: "Fill-in-the-blank passages" },
+      { id: "sheet-size", title: "Text size" },
+      { id: "sheet-tabs", title: "Saving, undoing, and two tabs" },
+      { id: "sheet-versions", title: "Leader and participant versions" },
+      { id: "sheet-output", title: "Print, copy, save, present, share" },
+      { id: "sharing", title: "Sharing what you write" },
+    ],
+  },
+  {
+    id: "greek",
+    title: "The Greek",
+    topics: [
+      { id: "greek-text", title: "Reading the Greek" },
+      { id: "greek-word", title: "A word’s details" },
+      { id: "greek-search", title: "Searching the Greek" },
+      { id: "greek-sources", title: "Lexicons and sources" },
+    ],
+  },
+  {
+    id: "search",
+    title: "Search and commands",
+    topics: [
+      { id: "search-box", title: "The search box" },
+      { id: "search-pane", title: "The Search pane" },
+      { id: "search-sheet", title: "Search results on a sheet" },
+      { id: "commands", title: "Commands" },
+    ],
+  },
+  {
+    id: "keeping",
+    title: "Keeping your notebook",
+    topics: [
+      { id: "ways-to-keep", title: "Where your notebook is kept" },
+      { id: "copies", title: "Saving and opening a copy" },
+      { id: "delete-everything", title: "The trash, and deleting everything" },
+    ],
+  },
+  {
+    id: "missing",
+    title: "Send feedback",
+    topics: [],
+  },
+];
 ---
 
 <Layout
@@ -21,581 +119,1100 @@ import "../../styles/pages/desk-help.css";
   robotsNoindex={true}
 >
   <article class="nbhelp" aria-labelledby="nbhelp-title">
-    <header class="nbhelp__header">
-      <div class="nbhelp__inner">
+    <div class="nbhelp__layout">
+
+      {/* The title first, then the contents, then the text: a phone and a
+          screen reader meet the page's name before its list. On a wide
+          window the grid puts the contents beside both (desk-help.css). */}
+      <header class="nbhelp__header">
         <h1 id="nbhelp-title" class="nbhelp__title">Study Desk help</h1>
         <p class="nbhelp__lede">
-          The Study Desk is a preview of study tools for reading on a computer. It
-          has a notebook that holds notes, bookmarks and highlights that stay with
-          you as you read, a page of its own where panes sit side by side, sheets
-          you can print or present, and the Greek text. It is switched on
-          for a few readers while it is tried out. This page explains it, and you
-          can read it whether or not it is on for you.
+          The Study Desk is a preview of study tools for reading on a
+          computer. It is switched on for a few readers while it is tried
+          out. This page explains it, and you can read it whether or not it
+          is on for you.
         </p>
-      </div>
-    </header>
+      </header>
 
-    <div class="nbhelp__body">
+      <nav class="nbhelp__toc" aria-labelledby="contents">
+        <h2 id="contents" class="nbhelp__toc-title">On this page</h2>
+        <ol class="nbhelp__toc-parts">
+          {parts.map((part) => (
+            <li>
+              <a class="nbhelp__toc-part" href={`#${part.id}`}>{part.title}</a>
+              {part.topics.length > 0 && (
+                <ul class="nbhelp__toc-topics">
+                  {part.topics.map((topic) => (
+                    <li><a href={`#${topic.id}`}>{topic.title}</a></li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-      <section aria-labelledby="desk-page">
-        <h2 id="desk-page">The Study Desk page</h2>
-        <p>
-          The <a href="/desk/">Study Desk page</a> sets up to {MAX_PANES} panes side
-          by side, each a different tool, and each scrolls on its own. Open it with
-          the “Open in Study Desk” button in a chapter’s toolbar (“Study Desk”
-          where the toolbar is short), the header’s “Study” menu, which also lists
-          your sheets, your notebook, and this help, or the “Study Desk” button beside
-          “Go to passage” on the <a href="/read/">Read page</a>.
-        </p>
-        <p>The kinds of pane are:</p>
-        <ul>
-          <li><strong>The LIT</strong> is a chapter of the translation, with the
-            verse menu and the selection tools of Scripture pages. With more than one,
-            the one you last worked in leads.</li>
-          <li><strong>My Notes</strong> lists what you have kept.</li>
-          <li><strong>This verse</strong> shows everything for one verse.</li>
-          <li><strong>Footnotes</strong> lists the chapter’s footnotes, each with a
-            way to pin it or add a note.</li>
-          <li><strong>Book Intro</strong> is the introduction to the book.</li>
-          <li><strong>Greek</strong> is the chapter in Greek, the text the LIT is
-            translated from, as in the Notebook.</li>
-          <li><strong>Sheets</strong> is where you make and edit sheets (see below).</li>
-        </ul>
-        <p>
-          Each kind has a short description under its name in the menus. “New
-          sheet…” under the page’s header starts a sheet at once: it opens a Sheets pane
-          (or uses the one you have) and asks which template to begin from.
-        </p>
-        <ul>
-          <li><strong>Search</strong> searches the translation, the glossary, the
-            articles, the book introductions, and the Greek. It stands alone and
-            keeps nothing about what you searched for. A verse you choose moves the
-            leading LIT pane, or opens one if there is none, and a book introduction
-            opens in a Book Intro pane.</li>
-        </ul>
-        <p>
-          <strong>Following.</strong> My Notes, This verse, Footnotes, Book Intro,
-          and Greek follow the place of the leading LIT pane (Book Intro follows its
-          book). The lock in a pane’s header, “Stay here,” keeps that pane where it
-          is while the others move on; press it again and the pane follows again.
-          While it is on, the lock is closed and tinted green, and in a wide pane
-          the words “Stay here” sit beside it. A My Notes pane names the chapter
-          it is on after its name.
-        </p>
-        <p>
-          <strong>What the text shows.</strong> “Show,” at the end of a LIT pane’s
-          bar beside its passage, turns verse and chapter numbers, footnote
-          letters, key terms, and your highlights on or off for that pane, in
-          every layout. Each LIT pane keeps its own, so with two open, one can
-          be plain text beside one with everything showing. They are kept with
-          your layout, apart from the chapter pages’ own settings. The font,
-          theme, text size, and line spacing are for every pane, in “Display
-          options,” in the title menu.
-        </p>
-        <p>
-          <strong>Keys.</strong> With keyboard shortcuts on (“Display options”), the
-          left and right arrows, or [ and ], go to the previous or next chapter in
-          the leading LIT pane, as the arrows beside its passage do, and / opens a
-          Search pane.
-        </p>
-        <p>
-          <strong>The commands.</strong> A row under the page’s header holds “Add
-          pane,” “Layout…,” “New sheet…,” “Print…,” and “Help.” “Add pane” asks for a
-          column (a full-height pane at the right edge) or a row (a full-width pane
-          along the bottom), then for the kind. It is grayed out, with the reason in
-          its tooltip, when there are already {MAX_PANES} panes or the window is too
-          small to give a new one room.
-        </p>
-        <p>
-          <strong>The title menu.</strong> “Study Desk ▾” in the page’s header opens a
-          menu for the rest: “Display options,” “Full screen,” “My Notebook,”
-          “Take the tour,” and the feedback link. “Full screen” uses the browser’s
-          own full screen, and Escape leaves it.
-        </p>
-        <p>
-          <strong>Each pane’s menu.</strong> Select a pane’s name to show something
-          else in it, or to use “Add pane” (beside this one: left, right, above, or
-          below), “Move” (left, right, up, or down, swapping places with the pane
-          next to it), or “Size” (wider, narrower, taller, or shorter). Or drag a pane
-          by its header: onto the edge of another to split it, onto its middle to
-          swap the two. Drag the line between two panes to resize them. The × in a
-          pane’s header closes it.
-        </p>
-        <p>
-          <strong>Layout.</strong> “Layout…” offers ready-made arrangements. “Reading”
-          is one LIT pane with verse numbers, footnote letters, key terms, and
-          highlights turned off; leaving it turns back on only what it turned off.
-          “Show” is on its bar as in every layout, so any of them can come back
-          while you stay in Reading.
-          It also sets the text like a page of a book, with both edges even and
-          long words hyphenated at the ends of lines, in the default font and
-          where the window is wide enough. “One pane” showing the LIT is not
-          Reading: it leaves the text and its marks as you have them. The same window sets whether the page opens with your last layout or your
-          own default, with “Make this my default” and “Reset to the original
-          layout.” Your layout is kept in this browser. An arrangement that does not
-          fit the window is grayed out, with the reason.
-        </p>
-        <p>
-          <strong>Print.</strong> “Print…” asks for a chapter, then offers to print
-          it plainly, with your notes, or with room to write. Each choice opens the
-          chapter in a new tab and prints there.
-        </p>
-      </section>
+        <div class="nbhelp__body">
 
-      <section aria-labelledby="sheets">
-        <h2 id="sheets">Sheets</h2>
-        <p>
-          A sheet gathers passages and your own words into a handout for a study, a
-          class, or a sermon. <a href="/sheets/?sheet-tour">The Sheets tour</a>
-          shows all of this in a minute, on the Sheets page or the Study Desk. Make one in a
-          Sheets pane with “New sheet,” or with “New sheet…” on the Sheets page, which starts
-          from a template (Bible study, Sermon preparation, Class session, Lectio
-          divina, Swedish method, Contextual Bible Study, or Blank canvas), or from one of your own. Add passages with “+ Passage,” by typing a
-          reference, or from the LIT pane’s verse menu or a selection with “Add to
-          sheet,” or from your notes, highlights, and bookmarks. On a chapter page,
-          “Add to sheet” in the verse menu and a selection’s panel lists your
-          latest sheets and “New sheet,” and adds the passage without leaving the
-          page; the bar at the bottom then offers “Open the sheet.” “Add checked
-          verses to a sheet…” on the search page opens what it made on the Sheets
-          page, with the Study Desk offered beside it. My Notebook lists
-          your sheets under their own heading, and the Notebook’s Settings tab
-          links “My sheets.” “+ Text,”
-          “+ Question,” “+ Space to write,” “+ Page break,” and “+ Key terms box” add the
-          other parts, and “+ From my notes…” lists your notes, highlights, and
-          pinned footnotes on its passages (everything, until it has a passage)
-          to bring on as parts: a question note becomes a Question part, any other
-          note or a pinned footnote becomes a Text part, and a highlight becomes a
-          passage. Point at the space between two parts and an
-          “Add” pill appears on a line there. From the keyboard, the pills are
-          one stop in the Tab order: tab to one, then use the up and down arrows
-          (or Home and End) to move between the gaps. The pill adds a part at that
-          spot, and its “Passage…” opens the passage form right under the part
-          above, so a long sheet needn’t be scrolled to its end. Drag a part by
-          its header, or use Move up and Move down. Every change is saved as you make it, and Ctrl+Z (⌘Z on a Mac)
-          takes it back. A sheet open in two tabs stays the same in both: a
-          change in one shows in the other. Opening a sheet to edit when another
-          tab is already editing it asks first, “Continue here?” If both tabs
-          change the same part, the one you are typing in keeps your words and
-          says “Changed in another tab,” with “Show that version” and “Keep
-          mine.” A passage always shows today’s wording of the LIT, and the
-          sheet’s page tells you when the wording has changed since you added it.
-          In the list of sheets, on the Sheets page or in a Sheets pane, “Delete”
-          moves a sheet to the trash, like a note,
-          and “Duplicate” makes a copy of it. The key terms box has “Move before
-          the reading” or “Move after the reading,” so each sheet can have the
-          group meet the words first or let the passage speak first. “Save as template” keeps a
-          sheet’s parts, without its passages, as a template of your own (a sheet
-          marked “This is for a commercial project” passes that on). It is
-          listed under “My templates,” where New sheet offers it and where you
-          can open it to change it or delete it.
-        </p>
-        <p>
-          A sheet started from one of the built-in templates opens with a short
-          description above its parts: who the template is for and how a session
-          with it moves. It never prints, and it goes away when you close it with
-          its × (for that sheet) or once you add, remove, move, or rename a part.
-        </p>
-        <p>
-          A template’s parts start empty: the dimmed words in each say what goes
-          there, and they never print, copy, or appear when you present. A
-          template’s headings print as they are, as cues, even with nothing typed
-          under them; a question, a key terms box, or a Leader only part left
-          empty prints nothing, so a question you want lines under needs its
-          words (or use a space to write). A passage you add goes under the template’s
-          reading, or after the last passage on the sheet. The formatting toolbar
-          appears under the part you are writing in, and only there.
-        </p>
-        <p>
-          <strong>Text size.</strong> Under a sheet’s subtitle, “Text size” sets
-          how big the whole sheet prints, from 11 points to 18 (large print). It
-          sizes the sheet’s title, passages, and text in the editor and on paper,
-          and Copy and Save as use it too. It is saved with the sheet, so a copy
-          or a shared link keeps it. The text size in the Display settings sizes
-          the rest of the Sheets page (its lists, choices, buttons, and labels),
-          never the sheet.
-        </p>
-        <p>
-          <strong>Blanks.</strong> In a passage, click a key term under “Fill in the
-          blank,” or select words and choose “Blank,” to leave a gap for
-          participants to fill in. Each blank can carry a hint beneath it: none,
-          the traditional word, or your own. For a key term, the traditional
-          word is the usual one for the Greek word behind it, in its dictionary
-          form: “traditionally believe” beneath “trusted.” It is not checked
-          against any one Bible, so where yours words the verse differently,
-          choose “My own hint…” and change the word it starts from. Where the
-          verse leaves more than one word possible, the blank has no hint until
-          you pick one from its menu. Where the LIT keeps the traditional word
-          itself (“faithful,” “demon”), a new blank starts with no hint, since
-          the hint would be the answer. A footnote that would give a
-          blank away, by using its words or by naming a traditional word the hint
-          does not show, is held back until you decide whether it prints. To
-          remove a blank, select its words in the passage and choose “Unblank,” or
-          press Enter on them with the keyboard, or choose the
-          × beside it in the list, which puts the words back.
-        </p>
-        <p>
-          <strong>Print, Present, and Share.</strong> “Print or share” and
-          “Present” in a Sheets pane open the sheet’s own page in a new tab
-          (the small arrow out of a box after a label means that).
-          “Edit” there changes the sheet on that page, and “Close” brings you back;
-          “Edit in Study Desk” opens it in a Sheets pane, with the LIT beside
-          it, and a Sheets pane’s “Open on its own page” edits it on the Sheets
-          page in a new tab. On the sheet’s page you choose a version, “Leader version” or “Participant version.” The
-          participant’s leaves out the answers and the parts marked “Leader only.”
-          If a blank’s words also print elsewhere on the participant’s version, a
-          quiet note above the paper says where. On the participant’s version, “Add
-          answer key” adds a last page with each blank’s answer by verse, to hand
-          out once the blanks are filled in.
-        </p>
-        <ul>
-          <li><strong>Print</strong> prints the version on screen, on Letter or A4
-            paper.</li>
-          <li><strong>Copy</strong> copies it, with its headings and italics, to
-            paste into Word, Google Docs, or Pages.</li>
-          <li><strong>Save as</strong> saves it as a file: a Word document (.docx),
-            an OpenDocument text file (.odt), or a Rich text file (.rtf). Under
-            “Slides” it saves the screens of Present as a PowerPoint file (.pptx) or
-            an OpenDocument slides file (.odp). A PDF comes from “PDF…,” which opens
-            Print, where you choose “Save as PDF.”</li>
-          <li><strong>Present</strong> shows the sheet to a room, full screen, one
-            part at a time, with passages you can uncover a blank at a time.
-            “Presenter view” opens a second window for you, with the leader’s notes,
-            that stays in step with the room’s screen. Press B (or a period) in
-            either window to turn the room’s screen to black while you talk, and
-            again to bring it back just as it was; an arrow or Space also brings it
-            back, without moving on. If you give a part minutes, the presenter view
-            counts down the time left in it (and, quietly, the time over), beside
-            the sheet’s planned total and how long you have been going.</li>
-          <li><strong>Share…</strong> sends the sheet to someone as a link or as a
-            sheet file (.md). It starts on the participant’s version, which leaves
-            out the Leader only parts and your answers to questions; check “Include the
-            answer key” to send the key as its last page, or choose the leader’s version
-            to send everything. The person opens it on the Sheets
-            page, and “Import into my notebook” keeps a copy. The blanks’ answers are
-            words of the LIT, so someone who imports the sheet can add the key themselves.</li>
-        </ul>
-      </section>
+          {/* ============ 1. Getting started ============ */}
+          <section class="nbhelp__part" aria-labelledby="start">
+            <h2 id="start">Getting started</h2>
 
-      <section aria-labelledby="making-marks">
-        <h2 id="making-marks">Making notes, highlights, and bookmarks</h2>
-        <p>
-          On a chapter, select a verse number and the menu that opens has “Add a
-          note,” “Add bookmark,” and “Highlight” under “My Notebook.” To mark only some
-          words, select them instead: the same choices appear beside the
-          selection. A note appears in the margin beside its words, a highlight
-          tints them, and a bookmark shows beside the verse, in red if it moves as
-          you read and in gold if it stays put. In Read View
-          you can bookmark and highlight, but notes belong to Scripture pages.
-        </p>
-        <p>
-          To take one away, find it in “My Notes” and delete it. Deleting can be
-          undone with Ctrl+Z (⌘Z on a Mac), or with the Undo button that appears
-          for a few seconds. Ctrl+Y (⇧⌘Z on a Mac) does it again.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="what-it-is">
+              <h3 id="what-it-is">What the Study Desk is</h3>
+              <p>The Study Desk has four parts:</p>
+              <ul>
+                <li><strong>A notebook</strong> that holds your notes, highlights,
+                  bookmarks, and pinned footnotes, and stays with you as you
+                  read.</li>
+                <li><strong>The Study Desk page</strong>, where panes sit side by
+                  side: the text, your notes, the footnotes, the Greek, and
+                  more.</li>
+                <li><strong>Sheets</strong>, handouts you can print, present, or
+                  share.</li>
+                <li><strong>The Greek text</strong>, with each word’s details
+                  and a lexicon.</li>
+              </ul>
+              <p>
+                Everything you keep stays in your browser, on your computer.
+                Nothing is sent to the LIT Bible team or anywhere else, so
+                <a href="#copies">save a copy</a> now and then. The Study Desk
+                is for computers.
+              </p>
+            </section>
 
-      <section aria-labelledby="panel">
-        <h2 id="panel">The Notebook panel</h2>
-        <p>
-          The Notebook sits in the margin beside the text. “My Notes” lists what you
-          have kept here, “This verse” shows everything for the verse you are on,
-          “Greek” opens the Greek text, and “Settings” holds the switches, the print
-          buttons, and where your notebook is kept. The » button minimizes the panel
-          to a tab at the window’s edge, and that tab brings it back. The “Open in
-          Study Desk” button in the toolbar opens the
-          <a href="#desk-page">Study Desk page</a>, where panes sit side by side.
-          The panel’s words follow the text size and line spacing you choose in
-          the Display settings (the “Aa” button), as the text beside it does.
-        </p>
-        <p>
-          <strong>Keyboard.</strong> Tabbing from the top of a chapter reaches “Skip to
-          content” and then “Skip to the Notebook,” which opens the Notebook and
-          moves into it.
-        </p>
-        <p>
-          <strong>Hide my marks.</strong> Your marks are your notes, highlights,
-          and bookmarks. The key H, or the switch in Settings, hides them from the
-          page, so you can read it clean, and puts them back when you press it
-          again. Nothing is deleted.
-        </p>
-        <p>
-          <strong>Widths.</strong> On a chapter you can drag the edges between the
-          text, your notes’ margin, and the Notebook to make each wider or narrower.
-          If dragging is hard, click an edge instead (or press Enter on it): a small
-          menu offers “Wider” and “Narrower,” a step at a time. The line between the
-          Greek and a word’s entry works the same way. “Reset widths” in Settings
-          puts them back. A small window, like Notebook actions, moves to the other
-          side of the screen when you click the dots at the left of its title bar.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="where-things-are">
+              <h3 id="where-things-are">Where to find each part</h3>
+              <ul>
+                <li><strong>On a Scripture page</strong> (one chapter) and in
+                  Read View, <a href="#panel">the Notebook</a> sits beside the
+                  text, and the verse menu and the selection panel have a “My
+                  Notebook” group.</li>
+                <li><strong>The header’s “Study” menu</strong> lists the
+                  <a href="/desk/">Study Desk</a>, <a href="/sheets/">My
+                  sheets</a>, <a href="/notebook/">My Notebook</a> (everything
+                  you have kept, on one page), and this help.</li>
+                <li><strong>“Open in Study Desk”</strong> in a Scripture page’s
+                  toolbar opens the <a href="#desk-page">Study Desk page</a> at
+                  that chapter.</li>
+              </ul>
+            </section>
 
-      <section aria-labelledby="footnote-pins">
-        <h2 id="footnote-pins">Pinned footnotes</h2>
-        <p>
-          Beside each footnote is a small thumbtack to pin it (“Pin footnote 3”),
-          which is filled and tinted green while the footnote is pinned; pressing it
-          again unpins it. In a chapter’s Footnotes list, the Notebook’s “This verse”
-          tab, and the Study Desk’s Footnotes pane it carries the word “Pin” too; in
-          the popover a footnote letter opens it is the icon alone, and pointing at
-          it, or reaching it with Tab, shows its name. In a chapter’s Footnotes list
-          the thumbtack sits in the left margin and stays out of sight until you
-          point at a footnote or reach it with Tab; a pinned footnote’s thumbtack
-          always shows. Read View has no footnotes, so it has no pins.
-        </p>
-        <p>
-          A pinned footnote is kept under “Pinned footnotes” in “My Notes,” with its
-          reference and the footnote as it read when you pinned it. If the LIT later
-          revises that footnote, the pin says so.
-        </p>
-        <p>
-          On a Scripture page, the thumbtack sits in the left margin beside the
-          footnote when there is room. When there isn’t, or one of your margin notes
-          is already beside that footnote, it sits on the footnote’s own line.
-        </p>
-        <p>
-          Notes go on a verse or on words you select, not on a footnote.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="tour">
+              <h3 id="tour">Take a tour</h3>
+              <p>
+                There are three tours. Each shows the thing working, opening a
+                menu or a tab for you. You can skip a part or the whole tour.
+                None starts by itself, none keeps anything, and when one ends
+                the page is as you left it.
+              </p>
+              <ul>
+                <li><strong>The notebook tour</strong> walks through the notebook
+                  on a page of scripture, in three parts: marking the text, the
+                  Notebook, and finding and keeping.
+                  <a href="/john-3/?desk-tour">Take the notebook tour</a> on
+                  John 3. It needs the Study Desk preview to be on for you.</li>
+                <li><strong>The Study Desk tour</strong> runs on the Study Desk
+                  page, in two parts: what is on the desk, then how to change
+                  it. It shows the original layout while it runs, adds a pane,
+                  shows a Sheets pane and the template chooser, and tries a
+                  layout, and it puts your own layout back when it ends. The
+                  first time the Study Desk opens it offers the tour, and after
+                  that the page’s title menu has “Take the tour.”
+                  <a href="/desk/?desk-tour">Take the Study Desk tour</a>.</li>
+                <li><strong>The Sheets tour</strong> runs on the Study Desk page,
+                  in a Sheets pane, and on the Sheets page, in two parts:
+                  making a sheet (the list, the templates, the parts, a passage
+                  and its blanks, your own words) and using one (printing,
+                  sharing, presenting). The sheet it works on is the tour’s own
+                  and is never saved. The first time a Sheets pane or the
+                  Sheets page opens it offers the tour, and each page’s list of
+                  sheets has “Take the Sheets tour.”
+                  <a href="/desk/?sheet-tour">Take it in the Study Desk</a> or
+                  <a href="/sheets/?sheet-tour">on the Sheets page</a>.</li>
+              </ul>
+            </section>
 
-      <section aria-labelledby="print-part">
-        <h2 id="print-part">Printing part of a chapter</h2>
-        <p>
-          On a Scripture page, a verse’s menu has a “Print ▸” choice under “My Notebook,”
-          and so does the selection panel on Scripture pages and in Read View. In the verse
-          menu it offers “This verse” (“These verses” for a range) and, for the same
-          verses, “with my notes” and “with room to write.” For selected words it
-          offers “This selection…” and the same two. What prints is only those verses
-          or words, headed with the reference, with the footnotes they cite and the
-          LIT’s notice. “With my notes” leaves your notes and highlights on those
-          verses beside the text; “with room to write” adds a ruled margin. “Hide my
-          marks” changes only what is on the screen, so “with my notes” prints them
-          either way. The choice appears
-          only where the browser keeps a notebook. To print a whole chapter, use
-          your browser’s print, or the “Print…” choice on the Study Desk page or in
-          the Notebook’s Settings tab.
-        </p>
-      </section>
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
 
-      <section aria-labelledby="ways-to-keep">
-        <h2 id="ways-to-keep">Ways to keep your notebook</h2>
-        <p>
-          <strong>In this browser.</strong> Your notebook is kept in this browser, on
-          this computer. Nothing is sent to the LIT Bible team or anywhere else.
-        </p>
-        <p>
-          <strong>What can clear it.</strong> Clearing your browser’s data for this
-          site removes the notebook. So can a private window that is closed, a
-          browser set to clear data when it quits, and a different browser or
-          computer, which each start with an empty notebook. Your browser may also
-          clear stored data on its own when it is short of room.
-        </p>
-        <p>
-          <strong>Safari.</strong> Safari can clear a site’s stored data after seven
-          days of using Safari without visiting the site. If you use Safari, save a
-          copy now and then.
-        </p>
-        <p>
-          <strong>Saving a copy.</strong> A copy is a file on your own computer, and
-          it is the safe way to keep your notebook. When you first use the notebook
-          you can ask to be reminded: the panel then tells you when it has been a
-          week since you saved one. You can change that in the Notebook’s Settings tab.
-        </p>
-        <p>
-          <strong>Other ways.</strong> Other ways to keep it, across your computers
-          and the apps, are being planned. Nothing here depends on them.
-        </p>
-      </section>
+          {/* ============ 2. Marking what you read ============ */}
+          <section class="nbhelp__part" aria-labelledby="marking">
+            <h2 id="marking">Marking what you read</h2>
 
-      <section aria-labelledby="copies">
-        <h2 id="copies">Saving and opening a copy</h2>
-        <p>
-          <a href="/notebook/#backup">My Notebook</a> can save a copy in three
-          kinds of file:
-        </p>
-        <ul>
-          <li><strong>A Markdown file</strong>, to read, print, or move into other writing.</li>
-          <li><strong>A Web Annotation file</strong> (JSON), a standard format other annotation tools can read.</li>
-          <li><strong>A full backup</strong> (JSON), which holds everything and is the one to open again here.</li>
-        </ul>
-        <p>
-          “Open a copy” on the same page puts a saved full backup back into the
-          notebook.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="making-marks">
+              <h3 id="making-marks">Notes, highlights, and bookmarks</h3>
+              <p>
+                <strong>To mark a verse</strong>, select its number on a
+                Scripture page. The menu that opens has a “My Notebook” group:
+                “Highlight,” “Add a note,” “Add bookmark,” “Add to sheet,”
+                “Print,” and “Show in Notebook.”
+              </p>
+              <p>
+                <strong>To mark only some words</strong>, select them instead.
+                The same choices appear beside the selection.
+              </p>
+              <ul>
+                <li>A <strong>note</strong> appears in the margin beside its
+                  words.</li>
+                <li>A <strong>highlight</strong> tints them.</li>
+                <li>A <strong>bookmark</strong> shows beside the verse, in gold
+                  if it stays put and in red if it moves as you read (see
+                  <a href="#bookmarks">Bookmarks that keep your place</a>).</li>
+              </ul>
+              <p>
+                In Read View you can bookmark and highlight (“Highlight” shows
+                there while “My highlights” is on in the Display settings), but
+                notes belong to Scripture pages. Notes go on a verse or on words you select,
+                not on a footnote.
+              </p>
+              <p>
+                <strong>To take one away</strong>, find it in “My Notes” and
+                delete it. Deleting can be undone with Ctrl+Z (⌘Z on a Mac), or
+                with the Undo button that appears for a few seconds. Ctrl+Y
+                (⇧⌘Z on a Mac) does it again. What you delete waits in
+                <a href="#delete-everything">the trash</a>.
+              </p>
+            </section>
 
-      <section aria-labelledby="delete-everything">
-        <h2 id="delete-everything">Deleting in bulk</h2>
-        <p>
-          Deleting a note, or removing a bookmark or highlight, moves it to the trash, where it
-          waits for {TRASH_DAYS} days. Undo (or Ctrl+Z, ⌘Z on a Mac) puts it back right
-          away. After that, open the Trash in
-          <a href="/notebook/">My Notebook</a> and press Restore, on one item or
-          on all of them. After {TRASH_DAYS} days only a record that it was deleted remains,
-          so a saved copy is the only way back. To clear this browser, that page
-          has “Delete all notes and marks” (every note, highlight, bookmark, pinned footnote,
-          and label) and “Delete all sheets” (every sheet, and your own
-          templates), each leaving the other alone; “Empty the trash now” is
-          there too. Clearing this site’s data in your
-          browser also removes it. Save a copy first if you may want it back.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="bookmarks">
+              <h3 id="bookmarks">Bookmarks that keep your place</h3>
+              <p>
+                A bookmark shows beside a verse: a spot you want to return to.
+                There are two kinds, and a verse can hold one of each.
+              </p>
+              <ul>
+                <li><strong>One that stays put</strong> is gold. It stays on its
+                  verse until you remove it.</li>
+                <li><strong>One that moves as you read</strong> is red. In the
+                  Notebook, “Edit” gives a bookmark a name, such as “Thursday
+                  group,” and can turn on “Move as I read.” Open it from your
+                  list and read on, and it follows you, so it always shows
+                  where the group left off. Up to {MAX_FOLLOWING} bookmarks can
+                  move this way.</li>
+              </ul>
+              <p>
+                While a bookmark follows you, its mark is an outline, because
+                it is only resting where you are. Reading on to the next
+                chapter carries it along. Looking something up, such as a note
+                in another chapter, pauses it where you left off, and a bar
+                offers to move it to where you are.
+              </p>
+              <p>
+                “Continue reading” is not a bookmark. It is the one place that
+                is always there, at the top of your list: where you stopped
+                last.
+              </p>
+            </section>
 
-      <section aria-labelledby="bookmarks">
-        <h2 id="bookmarks">Bookmarks</h2>
-        <p>
-          A bookmark shows beside a verse: a spot you want to return to. One that
-          stays put is gold and stays on its verse until you remove it. In the
-          Notebook, “Edit” gives a bookmark a name, such as “Thursday group,” and
-          can turn on “Move as I read.” That bookmark is red. Open it from your list
-          and read on, and it follows you, so it always shows where the group left
-          off; while it follows, its mark is an outline, because it is only resting
-          where you are. Looking something up, such as a note in another chapter,
-          pauses it where you left off, and a bar offers to move it to where you
-          are. Reading on to the next chapter carries it along. A verse can hold one
-          bookmark that stays put and one that moves. Up to {MAX_FOLLOWING}
-          bookmarks can move this way.
-        </p>
-        <p>
-          “Continue reading” is not a bookmark. It is the one place that is always
-          there, at the top of your list: where you stopped last.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="labels">
+              <h3 id="labels">Labels</h3>
+              <p>
+                Labels are your own words for sorting what you keep. Give a
+                note, highlight, or bookmark a label, and filter by it in the
+                Notebook and in My Notebook. They belong to you; they are not
+                the topics the site uses for its own chapters.
+              </p>
+            </section>
 
-      <section aria-labelledby="labels">
-        <h2 id="labels">Labels</h2>
-        <p>
-          Labels are your own words for sorting what you keep. Give a note,
-          highlight, or bookmark a label, and filter by it in the panel and in
-          My Notebook. They belong to you; they are not the topics the site uses
-          for its own chapters.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="footnote-pins">
+              <h3 id="footnote-pins">Pinned footnotes</h3>
+              <p>
+                Beside each footnote is a small thumbtack to pin it (“Pin
+                footnote 3”). It is filled and tinted green while the footnote
+                is pinned, and pressing it again unpins it.
+              </p>
+              <p>
+                A pinned footnote is kept under “Pinned footnotes” in “My
+                Notes,” with its reference and the footnote as it read when you
+                pinned it. If the LIT later revises that footnote, the pin says
+                so.
+              </p>
+              <p>Where the thumbtack is:</p>
+              <ul>
+                <li><strong>In a chapter’s Footnotes list</strong>, it sits in
+                  the left margin beside the footnote when there is room, and
+                  stays out of sight until you point at a footnote or reach it
+                  with Tab. A pinned footnote’s thumbtack always shows. When
+                  there isn’t room, or one of your margin notes is already
+                  beside that footnote, it sits on the footnote’s own line.</li>
+                <li><strong>In that list, the Notebook’s “This verse” tab, and
+                  the Study Desk’s Footnotes pane</strong>, it carries the word
+                  “Pin” too.</li>
+                <li><strong>In the popover a footnote letter opens</strong>, it
+                  is the icon alone, and pointing at it, or reaching it with
+                  Tab, shows its name.</li>
+              </ul>
+              <p>Read View has no footnotes, so it has no pins.</p>
+            </section>
 
-      <section aria-labelledby="greek">
-        <h2 id="greek">The Greek tab</h2>
-        <p>
-          On a Scripture page, the Notebook’s Greek tab shows the chapter in the
-          Greek of the SBL Greek New Testament (SBLGNT), in its own paragraphs. It
-          opens at the verse you are reading, and a “Go to verse” button brings you
-          back to it. Like the rest of the notebook, it is for computers.
-        </p>
-        <p>
-          Select a word, or move through the words with the arrow keys, to see its
-          details at the foot of the tab. Left and Right step one word, Up and
-          Down jump a verse, and Home and End go to the first and last word of the
-          chapter. The words are one stop for Tab, so a keyboard reader passes the
-          whole text in one press. While a word is open, the line between the Greek
-          and its entry can be moved with the Up and Down keys (Shift for larger
-          steps), and Enter puts it back. The details show: its dictionary form, its parsing in words,
-          its Strong’s number, and an entry from a lexicon. You can choose between the
-          UBS Dictionary of New Testament Greek and STEPBible’s brief lexicon,
-          which shows the full LSJ entry under its own. Your choice is remembered in this
-          browser.
-        </p>
-        <p>
-          The details also list the LIT’s footnote letters for that verse, which open
-          “This verse,” and, for a word the glossary covers, how the LIT renders it in
-          that verse. A text-critical sign in the Greek opens the apparatus at the
-          end of the text, which compares Westcott and Hort, Tregelles, NA28, and
-          Robinson–Pierpont. “This verse” also shows the Greek of the verse you are on.
-        </p>
-        <p>
-          To search the Greek, use the site’s search box. Type a Greek word, with or
-          without accents, to find every form of it, or a Strong’s number such as
-          G4102; the site’s search then shows the Greek alone. To search by a
-          transliteration such as pistis, or by an English word, choose “Greek” in
-          the search’s type menu. An English word finds the Greek the LIT renders
-          that way for the glossary’s terms, such as justness or self-preservation,
-          then the Greek words a lexicon glosses that way, such as faith. To see
-          where else a word occurs, select its form, its dictionary form, its
-          Strong’s number, or its parsing in the word’s details, and the results
-          take the place of the text until you choose “Back to the text.” A result
-          in another chapter opens that chapter with the Greek tab at the word.
-        </p>
-        <p>
-          A lexicon may give a different sense from the LIT. That is expected. The
-          LIT’s footnotes give the reasons for its own choices.
-        </p>
-        <p>
-          The Greek data is shared under the licenses of its sources. They are listed
-          under “Sources and licenses” at the foot of the tab.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="panel">
+              <h3 id="panel">The Notebook panel</h3>
+              <p>
+                The Notebook sits in the margin beside the text on Scripture
+                pages and in Read View. (A book’s introduction, an article, and
+                the glossary have no Notebook.) It has four tabs:
+              </p>
+              <ul>
+                <li><strong>My Notes</strong> lists what you have kept. On a
+                  Scripture page, choose “This chapter” or “Everything.” A long
+                  note or pinned footnote opens with its caret, one at a
+                  time.</li>
+                <li><strong>This verse</strong> shows everything for the verse
+                  you are on.</li>
+                <li><strong>Greek</strong> opens <a href="#greek">the Greek
+                  text</a>.</li>
+                <li><strong>Settings</strong> holds the switches, the print
+                  buttons, “My sheets,” and where your notebook is kept.</li>
+              </ul>
+              <p>
+                The » button minimizes the panel to a tab at the window’s edge,
+                and that tab brings it back. The “Open in Study Desk” button in
+                the toolbar opens the <a href="#desk-page">Study Desk page</a>,
+                where panes sit side by side. The panel’s words follow the text
+                size and line spacing you choose in the Display settings (the
+                “Aa” button), as the text beside it does.
+              </p>
 
-      <section aria-labelledby="search">
-        <h2 id="search">Search and commands</h2>
-        <p>
-          The search box also looks in your notebook and understands a few
-          commands. On a page of scripture, for example, type “&gt;tour” and
-          press Enter to take the tour again. “Notebook actions,” a link in the
-          Notebook’s Settings tab, in the search tray, and beside the field on the
-          search page, lists the commands the box understands on the page you are
-          on. A row in it runs its command.
-        </p>
-      </section>
+              <h4>Hide my marks</h4>
+              <p>
+                Your marks are your notes, highlights, and bookmarks. The key
+                H, or the switch in Settings, hides them from the page, so you
+                can read it clean, and puts them back when you press it again.
+                Nothing is deleted.
+              </p>
 
-      <section aria-labelledby="tour">
-        <h2 id="tour">The tours</h2>
-        <p>
-          There are three, and each shows the thing working, opening a menu or a tab
-          for you; you can skip a part or the whole tour, none starts by itself, none
-          keeps anything, and when one ends the page is as you left it.
-        </p>
-        <p>
-          The notebook tour walks through the notebook on a page of scripture, in
-          three parts: marking the text, the Notebook, and finding and keeping.
-          <a href="/john-3/?desk-tour">Take the notebook tour</a> on John 3. It needs
-          the Study Desk preview to be on for you.
-        </p>
-        <p>
-          The Study Desk tour runs on the Study Desk page, in two parts: what is on
-          the desk, then how to change it. It shows the original layout while it
-          runs, adds a pane, shows a Sheets pane and the template chooser, and tries
-          a layout, and it puts your own layout back when it ends. The first time the
-          Study Desk opens it offers the tour, and after that the page’s title menu
-          has “Take the tour.” <a href="/desk/?desk-tour">Take the Study Desk tour</a>.
-        </p>
-        <p>
-          The Sheets tour runs on the Study Desk page, in a Sheets pane, and
-          on the Sheets page, in two parts: making a sheet (the list, the
-          templates, the parts, a passage and its blanks, your own words) and
-          using one (printing, sharing, presenting). The sheet it works on is
-          the tour’s own and is never saved. The first time a Sheets pane or
-          the Sheets page opens it offers the tour, and each page’s list of
-          sheets has “Take the Sheets tour.” <a href="/desk/?sheet-tour">Take
-          it in the Study Desk</a> or <a href="/sheets/?sheet-tour">on the
-          Sheets page</a>.
-        </p>
-      </section>
+              <h4>Widths</h4>
+              <p>
+                On a Scripture page you can drag the edges between the text,
+                your notes’ margin, and the Notebook to make each wider or
+                narrower. If dragging is hard, click an edge instead (or press
+                Enter on it): a small menu offers “Wider” and “Narrower,” a
+                step at a time. The line between the Greek and a word’s entry
+                works the same way. “Reset widths” in Settings puts them back.
+              </p>
+              <p>
+                A small window, like Notebook actions, moves to the other side
+                of the screen when you click the dots at the left of its title
+                bar.
+              </p>
 
-      <section aria-labelledby="sharing">
-        <h2 id="sharing">Sharing what you write</h2>
-        <p>
-          What you write is yours. If you share it with the LIT’s words quoted
-          inside, such as in a study guide or a bulletin, the
-          <a href="/read/#license-terms">license terms</a> say how the translation
-          may be quoted. A sheet’s License card has a box, “This is for a
-          commercial project,” that checks the sheet against the commercial
-          terms: how much of it is the LIT’s words, whether it quotes a whole
-          book, whether every footnote prints, and whether it leaves blanks.
-          Once it is ticked, a sheet
-          that goes beyond those terms asks before you print, copy, save,
-          share, or present it from its page, and you can go ahead anyway.
-        </p>
-      </section>
+              <h4>From the keyboard</h4>
+              <p>
+                Tabbing from the top of a Scripture page reaches “Skip to
+                content” and then “Skip to the Notebook,” which opens the
+                Notebook and moves into it.
+              </p>
+            </section>
 
-      <section aria-labelledby="missing">
-        <h2 id="missing">Send feedback</h2>
-        <p>
-          The Study Desk is in {DESK_STAGE}, and the site deliberately doesn’t
-          measure who uses what, so we only hear what you tell us. If something is
-          broken, confusing, or missing,
-          <a href={FEEDBACK_HREF} target="_blank" rel="noopener noreferrer">{FEEDBACK_LABEL.toLowerCase()}</a>
-          (it opens the contact form in a new tab). The same link is in the Study
-          Desk menu on the desk page and at the foot of the Notebook’s Settings tab.
-        </p>
-      </section>
+            <section class="nbhelp__topic" aria-labelledby="print-part">
+              <h3 id="print-part">Printing with your notes</h3>
+              <p>
+                <strong>Part of a chapter.</strong> On a Scripture page, a
+                verse’s menu has a “Print ▸” choice under “My Notebook,” and so
+                does the selection panel on Scripture pages and in Read View.
+              </p>
+              <ul>
+                <li>In the verse menu it offers “This verse” (“These verses”
+                  for a range) and, for the same verses, “with my notes” and
+                  “with room to write.”</li>
+                <li>For selected words it offers “This selection…” and the same
+                  two.</li>
+              </ul>
+              <p>
+                What prints is only those verses or words, headed with the
+                reference, with the footnotes they cite and the LIT’s notice.
+                “With my notes” leaves your notes and highlights on those
+                verses beside the text; “with room to write” adds a ruled
+                margin. “Hide my marks” changes only what is on the screen, so
+                “with my notes” prints them either way. The choice appears only
+                where the browser keeps a notebook.
+              </p>
+              <p>
+                <strong>A whole chapter.</strong> Use your browser’s print, or
+                the “Print…” choice on the Study Desk page or in the Notebook’s
+                Settings tab.
+              </p>
+            </section>
 
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+          {/* ============ 3. The Study Desk page ============ */}
+          <section class="nbhelp__part" aria-labelledby="desk-page">
+            <h2 id="desk-page">The Study Desk page</h2>
+            <p>
+              The <a href="/desk/">Study Desk page</a> sets up to {MAX_PANES}
+              panes side by side, each a different tool, and each scrolls on
+              its own.
+            </p>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-open">
+              <h3 id="desk-open">Opening it</h3>
+              <ul>
+                <li>The “Open in Study Desk” button in a Scripture page’s
+                  toolbar (“Study Desk” where the toolbar is short) opens it at
+                  that chapter. On a book’s introduction, the same button opens
+                  it with the introduction in a Book Intro pane.</li>
+                <li>The header’s “Study” menu, which also lists your sheets,
+                  your notebook, and this help.</li>
+                <li>The “Study Desk” button beside “Go to passage” on the
+                  <a href="/read/">Read page</a>.</li>
+              </ul>
+              <p>
+                These open the desk as you left it, and move only the LIT pane.
+                A few links open it in its <a href="#desk-layout">Reading
+                layout</a> instead: the search box’s second choice for a
+                reference (“in Study Desk, Reading layout,” or Shift+Enter),
+                the search page’s “Study Desk, Reading layout,” and the chapter
+                picker’s “Open Romans in Study Desk →.”
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-panes">
+              <h3 id="desk-panes">The kinds of pane</h3>
+              <ul>
+                <li><strong>The LIT</strong> is a chapter of the translation,
+                  with the verse menu and the selection tools of Scripture
+                  pages. With more than one, the one you last worked in
+                  leads.</li>
+                <li><strong>My Notes</strong> lists what you have kept:
+                  “Everything,” or “This chapter,” which is the leading LIT
+                  pane’s chapter and changes as that pane moves.</li>
+                <li><strong>This verse</strong> shows everything for one
+                  verse.</li>
+                <li><strong>Footnotes</strong> lists the chapter’s footnotes,
+                  each with a way to pin it or add a note.</li>
+                <li><strong>Book Intro</strong> is the introduction to the
+                  book.</li>
+                <li><strong>Greek</strong> is the chapter in Greek, the text
+                  the LIT is translated from, as in the Notebook.</li>
+                <li><strong>Sheets</strong> is where you make and edit
+                  <a href="#sheets">sheets</a>.</li>
+                <li><strong>Search</strong> searches the translation, the
+                  glossary, the articles, the book introductions, and the
+                  Greek (see <a href="#search-pane">The Search pane</a>).</li>
+              </ul>
+              <p>
+                Each kind has a short description under its name in the menus.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-following">
+              <h3 id="desk-following">Panes that follow, and “Stay here”</h3>
+              <p>
+                My Notes, This verse, Footnotes, Book Intro, and Greek follow
+                the place of the leading LIT pane (Book Intro follows its
+                book). A My Notes pane names the chapter it is on after its
+                name.
+              </p>
+              <p>
+                The lock in a pane’s header, “Stay here,” keeps that pane where
+                it is while the others move on. Press it again and the pane
+                follows again. While it is on, the lock is closed and tinted
+                green, and in a wide pane the words “Stay here” sit beside it.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-arrange">
+              <h3 id="desk-arrange">Adding, moving, and sizing panes</h3>
+              <p>
+                <strong>The commands.</strong> A row under the page’s header
+                holds “Add pane,” “Layout…,” “New sheet…,” “Print…,” and
+                “Help.”
+              </p>
+              <ul>
+                <li><strong>“Add pane”</strong> asks for a column (a
+                  full-height pane at the right edge) or a row (a full-width
+                  pane along the bottom), then for the kind. It is grayed out,
+                  with the reason in its tooltip, when there are already
+                  {MAX_PANES} panes or the window is too small to give a new
+                  one room.</li>
+                <li><strong>“New sheet…”</strong> starts a sheet at once: it
+                  opens a Sheets pane (or uses the one you have) and asks which
+                  template to begin from.</li>
+              </ul>
+              <p>
+                <strong>Each pane’s menu.</strong> Select a pane’s name to show
+                something else in it, or to use:
+              </p>
+              <ul>
+                <li><strong>“Add pane”</strong> beside this one: left, right,
+                  above, or below.</li>
+                <li><strong>“Move”</strong> left, right, up, or down, swapping
+                  places with the pane next to it.</li>
+                <li><strong>“Size”</strong>: wider, narrower, taller, or
+                  shorter.</li>
+              </ul>
+              <p>
+                <strong>With the mouse.</strong> Drag a pane by its header:
+                onto the edge of another to split it, onto its middle to swap
+                the two. Drag the line between two panes to resize them. The ×
+                in a pane’s header closes it.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-full">
+              <h3 id="desk-full">When the desk is full</h3>
+              <p>
+                Some things open a pane for you: a sheet sent to the desk (from
+                the Sheets page, or a Search pane’s “New sheet of 3 verses”), a
+                book introduction, a search result that needs a LIT or Greek
+                pane, and Search from the / key. One rule covers all of them:
+              </p>
+              <ol>
+                <li>A pane of that kind that is already open is used.</li>
+                <li>Otherwise a new pane opens, if there is room.</li>
+                <li>Otherwise, with {MAX_PANES} panes open or a window too
+                  small for another, the new pane takes the place of the last
+                  pane that isn’t a LIT pane. It never takes the pane you asked
+                  from, or one set to “Stay here.”</li>
+              </ol>
+              <p>
+                The bar at the bottom says what happened (“Book Intro shown in
+                place of Greek.”), and its Undo puts the layout back. Where no
+                pane can give up its place, a notice says why and offers both
+                ways on: close a pane and try again, or open the thing on its
+                own page. “Add pane” and “New sheet…” are commands, so on a
+                full desk they are grayed out instead.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-layout">
+              <h3 id="desk-layout">Layouts and Reading</h3>
+              <p>
+                “Layout…” offers ready-made arrangements. An arrangement that
+                does not fit the window is grayed out, with the reason.
+              </p>
+              <p>
+                <strong>Reading</strong> is one LIT pane with verse numbers,
+                footnote letters, key terms, and highlights turned off. Leaving
+                it turns back on only what it turned off. It also sets the text
+                like a page of a book, with both edges even and long words
+                hyphenated at the ends of lines, in the default font and where
+                the window is wide enough. “Show” is on its bar as in every
+                layout, so any of the four can come back while you stay in
+                Reading.
+              </p>
+              <p>
+                “One pane” showing the LIT is not Reading: it leaves the text
+                and its marks as you have them.
+              </p>
+              <p>
+                <strong>Your own default.</strong> The same window sets whether
+                the page opens with your last layout or your own default, with
+                “Make this my default” and “Reset to the original layout.” Your
+                layout is kept in this browser.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-show">
+              <h3 id="desk-show">What the text shows</h3>
+              <p>
+                “Show,” at the end of a LIT pane’s bar beside its passage,
+                turns verse and chapter numbers, footnote letters, key terms,
+                and your highlights on or off for that pane, in every layout.
+                Each LIT pane keeps its own, so with two open, one can be plain
+                text beside one with everything showing. They are kept with
+                your layout, apart from the Scripture pages’ own settings.
+              </p>
+              <p>
+                The font, theme, text size, and line spacing are for every
+                pane, in “Display options,” in the title menu.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="desk-menus">
+              <h3 id="desk-menus">Menus, keys, and printing</h3>
+              <p>
+                <strong>The title menu.</strong> “Study Desk ▾” in the page’s
+                header opens a menu for the rest: “Display options,” “Full
+                screen,” “My Notebook,” “Take the tour,” and the feedback link.
+                “Full screen” uses the browser’s own full screen, and Escape
+                leaves it.
+              </p>
+              <p>
+                <strong>Keys.</strong> With keyboard shortcuts on (“Display
+                options”), the left and right arrows, or [ and ], go to the
+                previous or next chapter in the leading LIT pane, as the arrows
+                beside its passage do, and / opens a Search pane.
+              </p>
+              <p>
+                <strong>Print.</strong> “Print…” asks for a chapter, then
+                offers to print it plainly, with your notes, or with room to
+                write. Each choice opens the chapter in a new tab and prints
+                there.
+              </p>
+            </section>
+
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+          {/* ============ 4. Sheets ============ */}
+          <section class="nbhelp__part" aria-labelledby="sheets">
+            <h2 id="sheets">Sheets</h2>
+            <p>
+              A sheet gathers passages and your own words into a handout for a
+              study, a class, or a sermon.
+              <a href="/sheets/?sheet-tour">The Sheets tour</a> shows all of
+              this in a minute, on the Sheets page or in the Study Desk.
+            </p>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-make">
+              <h3 id="sheet-make">Making a sheet</h3>
+              <p>
+                Make one in a Sheets pane with “New sheet,” or with “New
+                sheet…” on the <a href="/sheets/">Sheets page</a>. Either
+                starts from a template: Bible study, Sermon preparation, Class
+                session, Lectio divina, Swedish method, Contextual Bible Study,
+                Blank canvas, or one of your own. While the templates are
+                showing, the button reads “Cancel.”
+              </p>
+              <p>
+                <strong>Finding your sheets.</strong> They are listed on the
+                Sheets page and in a Sheets pane. My Notebook lists them under
+                their own heading, and the Notebook’s Settings tab links “My
+                sheets.” In the list, “Duplicate” makes a copy of a sheet, and
+                “Delete” moves it to the trash, like a note.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-parts">
+              <h3 id="sheet-parts">Adding passages and parts</h3>
+              <p><strong>A passage</strong> can come from four places:</p>
+              <ul>
+                <li><strong>The sheet itself:</strong> “+ Passage,” then type a
+                  reference.</li>
+                <li><strong>A LIT pane:</strong> “Add to sheet” in the verse
+                  menu, or beside a selection.</li>
+                <li><strong>A Scripture page:</strong> “Add to sheet” in the
+                  verse menu and a selection’s panel lists your latest sheets
+                  and “New sheet,” and adds the passage without leaving the
+                  page. The bar at the bottom then offers “Open the
+                  sheet.”</li>
+                <li><strong>A search:</strong> the verses you check (see
+                  <a href="#search-sheet">Search results on a sheet</a>).</li>
+              </ul>
+              <p>
+                A passage always shows today’s wording of the LIT, and the
+                sheet’s page tells you when the wording has changed since you
+                added it.
+              </p>
+              <p>
+                <strong>The other parts</strong> are “+ Text,” “+ Question,”
+                “+ Space to write,” “+ Page break,” and “+ Key terms box.” The
+                key terms box has “Move before the reading” or “Move after the
+                reading,” so each sheet can have the group meet the words first
+                or let the passage speak first.
+              </p>
+              <p>
+                <strong>“+ From my notes…”</strong> lists your notes,
+                highlights, and pinned footnotes on the sheet’s passages
+                (everything, until it has a passage) to bring on as parts. A
+                question note becomes a Question part, any other note or a
+                pinned footnote becomes a Text part, and a highlight becomes a
+                passage.
+              </p>
+              <p>
+                <strong>Adding in the middle.</strong> Point at the space
+                between two parts and an “Add” pill appears on a line there.
+                The pill adds a part at that spot, and its “Passage…” opens the
+                passage form right under the part above, so a long sheet
+                needn’t be scrolled to its end. From the keyboard, the pills
+                are one stop in the Tab order: tab to one, then use the up and
+                down arrows (or Home and End) to move between the gaps.
+              </p>
+              <p>
+                <strong>Moving a part.</strong> Drag it by its header, or use
+                Move up and Move down. The formatting toolbar appears under the
+                part you are writing in, and only there.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-templates">
+              <h3 id="sheet-templates">Templates</h3>
+              <p>
+                A sheet started from one of the built-in templates opens with a
+                short description above its parts: who the template is for and
+                how a session with it moves. It never prints, and it goes away
+                when you close it with its × (for that sheet) or once you add,
+                remove, move, or rename a part.
+              </p>
+              <p>
+                A template’s parts start empty. The dimmed words in each say
+                what goes there, and they never print, copy, or appear when you
+                present.
+              </p>
+              <ul>
+                <li>A template’s headings print as they are, as cues, even with
+                  nothing typed under them.</li>
+                <li>A question, a key terms box, or a Leader only part left
+                  empty prints nothing, so a question you want lines under
+                  needs its words (or use a space to write).</li>
+                <li>A passage you add goes under the template’s reading, or
+                  after the last passage on the sheet.</li>
+              </ul>
+              <p>
+                <strong>Your own templates.</strong> “Save as template” keeps a
+                sheet’s parts, without its passages, as a template of your own
+                (a sheet marked “This is for a commercial project” passes that
+                on). It is listed under “My templates,” where New sheet offers
+                it and where you can open it to change it or delete it.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-blanks">
+              <h3 id="sheet-blanks">Fill-in-the-blank passages</h3>
+              <p>
+                In a passage, click a key term under “Fill in the blank,” or
+                select words and choose “Blank,” to leave a gap for
+                participants to fill in.
+              </p>
+              <p>
+                <strong>Hints.</strong> Each blank can carry a hint beneath it:
+                none, the traditional word, or your own.
+              </p>
+              <ul>
+                <li>For a key term, the traditional word is the usual one for
+                  the Greek word behind it, in its dictionary form:
+                  “traditionally believe” beneath “trusted.” It is not checked
+                  against any one Bible, so where yours words the verse
+                  differently, choose “My own hint…” and change the word it
+                  starts from.</li>
+                <li>Where the verse leaves more than one word possible, the
+                  blank has no hint until you pick one from its menu.</li>
+                <li>Where the LIT keeps the traditional word itself
+                  (“faithful,” “demon”), a new blank starts with no hint, since
+                  the hint would be the answer.</li>
+              </ul>
+              <p>
+                <strong>Footnotes.</strong> A footnote that would give a blank
+                away, by using its words or by naming a traditional word the
+                hint does not show, is held back until you decide whether it
+                prints.
+              </p>
+              <p>
+                <strong>To remove a blank</strong>, select its words in the
+                passage and choose “Unblank,” or press Enter on them with the
+                keyboard, or choose the × beside it in the list, which puts the
+                words back.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-size">
+              <h3 id="sheet-size">Text size</h3>
+              <p>
+                Under a sheet’s subtitle, “Text size” sets how big the whole
+                sheet prints, from 11 points to 18 (large print). It sizes the
+                sheet’s title, passages, and text in the editor and on paper,
+                and Copy and Save as use it too. It is saved with the sheet, so
+                a copy or a shared link keeps it.
+              </p>
+              <p>
+                The text size in the Display settings sizes the rest of the
+                Sheets page (its lists, choices, buttons, and labels), never
+                the sheet.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-tabs">
+              <h3 id="sheet-tabs">Saving, undoing, and two tabs</h3>
+              <p>
+                Every change is saved as you make it, and Ctrl+Z (⌘Z on a Mac)
+                takes it back.
+              </p>
+              <p>
+                A sheet open in two tabs stays the same in both: a change in
+                one shows in the other. Opening a sheet to edit when another
+                tab is already editing it asks first, “Continue here?” If both
+                tabs change the same part, the one you are typing in keeps your
+                words and says “Changed in another tab,” with “Show that
+                version” and “Keep mine.”
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-versions">
+              <h3 id="sheet-versions">Leader and participant versions</h3>
+              <p>
+                “Print or share” and “Present” in a Sheets pane open the
+                sheet’s own page in a new tab (the small arrow out of a box
+                after a label means that). On the sheet’s page you choose a
+                version, “Leader version” or “Participant version.”
+              </p>
+              <ul>
+                <li>The participant’s leaves out the answers and the parts
+                  marked “Leader only.”</li>
+                <li>If a blank’s words also print elsewhere on the
+                  participant’s version, a quiet note above the paper says
+                  where.</li>
+                <li>On the participant’s version, “Add answer key” adds a last
+                  page with each blank’s answer by verse, to hand out once the
+                  blanks are filled in.</li>
+              </ul>
+              <p>
+                <strong>Going back to editing.</strong> “Edit” on the sheet’s
+                page changes the sheet there, and “Close” brings you back.
+                “Edit in Study Desk” opens it in a Sheets pane, with the LIT
+                beside it. A Sheets pane’s “Open on its own page” edits it on
+                the Sheets page in a new tab.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sheet-output">
+              <h3 id="sheet-output">Print, copy, save, present, share</h3>
+              <ul>
+                <li><strong>Print</strong> prints the version on screen, on
+                  Letter or A4 paper.</li>
+                <li><strong>Copy</strong> copies it, with its headings and
+                  italics, to paste into Word, Google Docs, or Pages.</li>
+                <li><strong>Save as</strong> saves it as a file: a Word
+                  document (.docx), an OpenDocument text file (.odt), or a Rich
+                  text file (.rtf). Under “Slides” it saves the screens of
+                  Present as a PowerPoint file (.pptx) or an OpenDocument
+                  slides file (.odp). A PDF comes from “PDF…,” which opens
+                  Print, where you choose “Save as PDF.”</li>
+                <li><strong>Present</strong> shows the sheet to a room, full
+                  screen, one part at a time, with passages you can uncover a
+                  blank at a time.
+                  <ul>
+                    <li>“Presenter view” opens a second window for you, with
+                      the leader’s notes, that stays in step with the room’s
+                      screen.</li>
+                    <li>Press B (or a period) in either window to turn the
+                      room’s screen to black while you talk, and again to bring
+                      it back just as it was. An arrow or Space also brings it
+                      back, without moving on.</li>
+                    <li>If you give a part minutes, the presenter view counts
+                      down the time left in it (and, quietly, the time over),
+                      beside the sheet’s planned total and how long you have
+                      been going.</li>
+                  </ul>
+                </li>
+                <li><strong>Share…</strong> sends the sheet to someone as a
+                  link or as a sheet file (.md).
+                  <ul>
+                    <li>It starts on the participant’s version, which leaves
+                      out the Leader only parts and your answers to
+                      questions.</li>
+                    <li>Check “Include the answer key” to send the key as its
+                      last page, or choose the leader’s version to send
+                      everything. A line in the dialog says what is being
+                      sent.</li>
+                    <li>The person opens it on the Sheets page, and “Import
+                      into my notebook” keeps a copy. The blanks’ answers are
+                      words of the LIT, so someone who imports the sheet can
+                      add the key themselves.</li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="sharing">
+              <h3 id="sharing">Sharing what you write</h3>
+              <p>
+                What you write is yours. If you share it with the LIT’s words
+                quoted inside, such as in a study guide or a bulletin, the
+                <a href="/read/#license-terms">license terms</a> say how the
+                translation may be quoted.
+              </p>
+              <p>
+                A sheet’s License card has a box, “This is for a commercial
+                project,” that checks the sheet against the commercial terms:
+                how much of it is the LIT’s words, whether it quotes a whole
+                book, whether every footnote prints, and whether it leaves
+                blanks. Once it is checked, a sheet that goes beyond those
+                terms asks before you print, copy, save, share, or present it
+                from its page, and you can go ahead anyway.
+              </p>
+            </section>
+
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+          {/* ============ 5. The Greek ============ */}
+          <section class="nbhelp__part" aria-labelledby="greek">
+            <h2 id="greek">The Greek</h2>
+
+            <section class="nbhelp__topic" aria-labelledby="greek-text">
+              <h3 id="greek-text">Reading the Greek</h3>
+              <p>
+                On a Scripture page, the Notebook’s Greek tab shows the chapter
+                in the Greek of the SBL Greek New Testament (SBLGNT), in its
+                own paragraphs. It opens at the verse you are reading, and a
+                “Go to verse” button brings you back to it. The Study Desk
+                page’s Greek pane is the same thing. “This verse” also shows
+                the Greek of the verse you are on. Like the rest of the
+                notebook, it is for computers.
+              </p>
+              <p>
+                A text-critical sign in the Greek opens the apparatus at the
+                end of the text, which compares Westcott and Hort, Tregelles,
+                NA28, and Robinson–Pierpont.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="greek-word">
+              <h3 id="greek-word">A word’s details</h3>
+              <p>
+                Select a word, or move through the words with the arrow keys,
+                to see its details at the foot of the tab. They show:
+              </p>
+              <ul>
+                <li>its dictionary form, its parsing in words, and its Strong’s
+                  number;</li>
+                <li>an entry from a lexicon (see
+                  <a href="#greek-sources">Lexicons and sources</a>);</li>
+                <li>the LIT’s footnote letters for that verse, which open “This
+                  verse”;</li>
+                <li>for a word the glossary covers, how the LIT renders it in
+                  that verse.</li>
+              </ul>
+              <p><strong>From the keyboard:</strong></p>
+              <ul>
+                <li>Left and Right step one word, Up and Down jump a verse, and
+                  Home and End go to the first and last word of the
+                  chapter.</li>
+                <li>The words are one stop for Tab, so a keyboard reader passes
+                  the whole text in one press.</li>
+                <li>While a word is open, the line between the Greek and its
+                  entry can be moved with the Up and Down keys (Shift for
+                  larger steps), and Enter puts it back.</li>
+              </ul>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="greek-search">
+              <h3 id="greek-search">Searching the Greek</h3>
+              <p>To search the Greek, use the site’s search box.</p>
+              <ul>
+                <li><strong>A Greek word</strong>, with or without accents,
+                  finds every form of it. So does a Strong’s number such as
+                  G4102. The site’s search then shows the Greek alone.</li>
+                <li><strong>A transliteration</strong> such as pistis, or
+                  <strong>an English word</strong>: choose “Greek” in the
+                  search’s type menu. An English word finds the Greek the LIT
+                  renders that way for the glossary’s terms, such as justness
+                  or self-preservation, then the Greek words a lexicon glosses
+                  that way, such as faith.</li>
+                <li><strong>From a word’s details</strong>, to see where else
+                  it occurs: select its form, its dictionary form, its Strong’s
+                  number, or its parsing, and the results take the place of the
+                  text until you choose “Back to the text.” A result in another
+                  chapter opens that chapter with the Greek tab at the
+                  word.</li>
+              </ul>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="greek-sources">
+              <h3 id="greek-sources">Lexicons and sources</h3>
+              <p>
+                You can choose between the UBS Dictionary of New Testament
+                Greek and STEPBible’s brief lexicon, which shows the full LSJ
+                entry under its own. Your choice is remembered in this browser.
+              </p>
+              <p>
+                A lexicon may give a different sense from the LIT. That is
+                expected. The LIT’s footnotes give the reasons for its own
+                choices.
+              </p>
+              <p>
+                The Greek data is shared under the licenses of its sources.
+                They are listed under “Sources and licenses” at the foot of the
+                tab.
+              </p>
+            </section>
+
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+          {/* ============ 6. Search and commands ============ */}
+          <section class="nbhelp__part" aria-labelledby="search">
+            <h2 id="search">Search and commands</h2>
+
+            <section class="nbhelp__topic" aria-labelledby="search-box">
+              <h3 id="search-box">The search box</h3>
+              <p>
+                With the Study Desk on, the site’s search box also looks in
+                your notebook. A reference gives two choices: the Scripture
+                page, or the Study Desk in its Reading layout. A book’s name
+                with “intro” or “introduction” (“Matthew intro”) goes to that
+                book’s introduction.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="search-pane">
+              <h3 id="search-pane">The Search pane</h3>
+              <p>
+                On the Study Desk page, a Search pane searches the translation,
+                the glossary, the articles, the book introductions, and the
+                Greek. It stands alone and keeps nothing about what you
+                searched for.
+              </p>
+              <ul>
+                <li>A verse you choose moves the leading LIT pane, or opens one
+                  if there is none.</li>
+                <li>A book introduction, or a search such as “Matthew intro,”
+                  opens in a Book Intro pane.</li>
+                <li>A Greek result shows the word in a Greek pane.</li>
+                <li>A passage result also has a link that opens the passage on
+                  its own page, in a new tab.</li>
+                <li>The pane’s link to the search page reads “Open the search
+                  page” until you search, and “See results on the search page”
+                  after.</li>
+              </ul>
+              <p>
+                If the desk is full, a pane it opens follows
+                <a href="#desk-full">the rule for a full desk</a>.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="search-sheet">
+              <h3 id="search-sheet">Search results on a sheet</h3>
+              <p>
+                Each verse a search finds has a checkbox. Only the verses you
+                check go to a sheet. With none checked the buttons are grayed
+                out, and pressing one says how to check. The box at the head of
+                the list checks every verse. On the search page, chapters found
+                by topic have no boxes, since each chapter goes whole.
+              </p>
+              <ul>
+                <li><strong>On the search page</strong>, the button carries the
+                  count: “Add 4 verses to a sheet…” It asks which sheet, or a
+                  new one, and then offers “Open the sheet” on the Sheets page,
+                  with the Study Desk beside it.</li>
+                <li><strong>In the Search pane</strong>, “New sheet of 3
+                  verses” opens the sheet in a Sheets pane. While a Sheets pane
+                  is showing a sheet, “Add 3 verses to” that sheet leads, and
+                  the + on a verse adds that one verse.</li>
+              </ul>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="commands">
+              <h3 id="commands">Commands</h3>
+              <p>
+                The search box understands a few commands. On a Scripture page
+                or in Read View, for example, type “&gt;tour” and press Enter
+                to take the tour again; other pages don’t offer it.
+              </p>
+              <p>
+                “Notebook actions,” a link in the Notebook’s Settings tab, in
+                the search tray, and beside the field on the search page, lists
+                the commands the box understands on the page you are on. A row
+                in it runs its command.
+              </p>
+            </section>
+
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+          {/* ============ 7. Keeping your notebook ============ */}
+          <section class="nbhelp__part" aria-labelledby="keeping">
+            <h2 id="keeping">Keeping your notebook</h2>
+
+            <section class="nbhelp__topic" aria-labelledby="ways-to-keep">
+              <h3 id="ways-to-keep">Where your notebook is kept</h3>
+              <p>
+                <strong>In this browser.</strong> Your notebook is kept in this
+                browser, on this computer. Nothing is sent to the LIT Bible
+                team or anywhere else.
+              </p>
+              <p><strong>What can clear it:</strong></p>
+              <ul>
+                <li>Clearing your browser’s data for this site.</li>
+                <li>Closing a private window.</li>
+                <li>A browser set to clear data when it quits.</li>
+                <li>A different browser or computer, which each start with an
+                  empty notebook.</li>
+                <li>Your browser, on its own, when it is short of room.</li>
+                <li><strong>Safari</strong>, which can clear a site’s stored
+                  data after seven days of using Safari without visiting the
+                  site. If you use Safari, save a copy now and then.</li>
+              </ul>
+              <p>
+                <strong>The safe way.</strong> A copy is a file on your own
+                computer, and it is the safe way to keep your notebook. When
+                you first use the notebook you can ask to be reminded: the
+                panel then tells you when it has been a week since you saved
+                one. You can change that in the Notebook’s Settings tab.
+              </p>
+              <p>
+                <strong>Other ways.</strong> Other ways to keep it, across your
+                computers and the apps, are being planned. Nothing here depends
+                on them.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="copies">
+              <h3 id="copies">Saving and opening a copy</h3>
+              <p>
+                <a href="/notebook/#backup">My Notebook</a> can save a copy in
+                three kinds of file:
+              </p>
+              <ul>
+                <li><strong>A full backup</strong> (JSON), which holds
+                  everything and is the one to open again here.</li>
+                <li><strong>A Markdown file</strong>, to read, print, or move
+                  into other writing.</li>
+                <li><strong>A Web Annotation file</strong> (JSON), a standard
+                  format other annotation tools can read.</li>
+              </ul>
+              <p>
+                “Open a copy” on the same page puts a saved full backup back
+                into the notebook.
+              </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="delete-everything">
+              <h3 id="delete-everything">The trash, and deleting everything</h3>
+              <p>
+                <strong>The trash.</strong> Deleting a note, or removing a
+                bookmark or highlight, moves it to the trash, where it waits
+                for {TRASH_DAYS} days.
+              </p>
+              <ul>
+                <li>Undo (or Ctrl+Z, ⌘Z on a Mac) puts it back right away.</li>
+                <li>After that, open the Trash in
+                  <a href="/notebook/">My Notebook</a> and press Restore, on
+                  one item or on all of them.</li>
+                <li>After {TRASH_DAYS} days only a record that it was deleted
+                  remains, so a saved copy is the only way back.</li>
+              </ul>
+              <p>
+                <strong>Deleting everything.</strong> To clear this browser, My
+                Notebook has:
+              </p>
+              <ul>
+                <li>“Delete all notes and marks”: every note, highlight,
+                  bookmark, pinned footnote, and label.</li>
+                <li>“Delete all sheets”: every sheet, and your own
+                  templates.</li>
+                <li>“Empty the trash now.”</li>
+              </ul>
+              <p>
+                The first two each leave the other alone. Clearing this site’s
+                data in your browser also removes it all. Save a copy first if
+                you may want it back.
+              </p>
+            </section>
+
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+          {/* ============ 8. Send feedback ============ */}
+          <section class="nbhelp__part" aria-labelledby="missing">
+            <h2 id="missing">Send feedback</h2>
+            <p>
+              The Study Desk is in {DESK_STAGE}, and the site deliberately
+              doesn’t measure who uses what, so we only hear what you tell us.
+              If something is broken, confusing, or missing,
+              <a href={FEEDBACK_HREF} target="_blank" rel="noopener noreferrer">{FEEDBACK_LABEL.toLowerCase()}</a>
+              (it opens the contact form in a new tab). The same link is in the
+              Study Desk menu on the desk page and at the foot of the
+              Notebook’s Settings tab.
+            </p>
+            <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
+          </section>
+
+        </div>
     </div>
   </article>
 </Layout>

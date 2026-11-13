@@ -3201,7 +3201,8 @@ chat the same day: the search bar's Read View jump, folded into E114, the
 help page, E125, and a look for the panes' buttons, E126; E127 came from
 a question in chat, E128 to E130 came in chat during wave 2, and E131 is
 what Claude found checking E127.
-Wave 1 is #563 to #567; wave 2 is #569 to #571 and #573 to #575.
+Wave 1 is #563 to #567; wave 2 is #569 to #571 and #573 to #575; wave 3,
+E125, is #577.
 Where the code answers a question, the entry
 says so; where BVJ was wondering, nothing is decided.)
 
@@ -3488,7 +3489,23 @@ says so; where BVJ was wondering, nothing is decided.)
   `pages/desk-help.css`). The desk links into it by anchor (`HELP_HREF`,
   `WAYS_HREF` and others), so those keep working, and every feature keeps
   its sentence (the Routes table's rule). Best done after E111 to E126 are
-  built, so it describes them as they are. Status: open.
+  built, so it describes them as they are. **Built** (2026-11-13; BVJ,
+  “Yes, open it,” from the screenshots): eight parts in
+  the order a reader meets them (Getting started, Marking what you read, The
+  Study Desk page, Sheets, The Greek, Search and commands, Keeping your
+  notebook, Send feedback), each a few topics under task-shaped headings; a
+  contents list of the parts and topics, beside the text and in view while
+  it scrolls on a wide window, above it on a narrow one with “Back to
+  contents” after each part (the title comes before the list in the markup,
+  so a phone and a screen reader meet it first); shorter paragraphs and
+  lists; no script and no
+  folded text. All sixteen old ids are kept on the headings that hold their
+  topics. Copy brought up to date: the verse menu's order (E112), This
+  chapter and Everything (E119), the caret (E118), the panel's pages and
+  “>tour” (E124), the Reading links (E114), “Matthew intro” (E123), the
+  Search pane's link (E115), checked verses (E116, E117), “Cancel” (E121),
+  and the rule for a full desk (E127). Status: fixed (#577, after E126's
+  #575).
 - **E126, design: a look for every button on the panes.** BVJ (2026-11-12),
   widening E117's question about the Search pane's buttons: “That would apply
   to all buttons on panes. There are some (like ‘New Sheet’) that a different
