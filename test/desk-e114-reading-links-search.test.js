@@ -86,7 +86,7 @@ test("the page's own query draws the banner (preview off)", async () => {
 test("preview on: a reference's second link opens the Study Desk in Reading", async () => {
   const links = await linksFor("John 3:16", true);
   assert.deepEqual(links, [
-    { href: "/john-3#v16", text: "Chapter View, with notes" },
+    { href: "/john-3#v16", text: "Scripture page, with notes" },
     { href: "/desk/?place=john-3:16&layout=reading", text: "Study Desk, Reading layout" },
   ]);
 });
@@ -109,4 +109,10 @@ test("preview on: a book's introduction still offers only the introduction (E123
 test("preview off: the second link is Read View, as before", async () => {
   assert.deepEqual((await linksFor("John 3:16", false))[1], { href: "/read/john#john-3-v16", text: "Read View, whole book" });
   assert.deepEqual((await linksFor("Romans", false))[1], { href: "/read/romans", text: "Whole book in Read View" });
+});
+
+test("E130: the first link's wording follows the preview", async () => {
+  assert.equal((await linksFor("John 3:16", false))[0].text, "Chapter View, with notes");
+  assert.equal((await linksFor("Matthew intro", false))[0].text, "Intro in Chapter View");
+  assert.equal((await linksFor("Matthew intro", true))[0].text, "Book introduction");
 });

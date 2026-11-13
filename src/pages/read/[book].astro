@@ -280,7 +280,9 @@ const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : "";
                 <circle cx="5" cy="14" r="3"/>
               </svg></span
             >
-            <span>Chapter View</span>
+            {/* E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13). read-mode.css swaps the spans. */}
+            <span class="rm-switch__copy--public">Chapter View</span><span
+              class="rm-switch__copy--desk">Scripture page</span>
           </a>
         </div>
       </div>

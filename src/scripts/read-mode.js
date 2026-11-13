@@ -311,9 +311,12 @@ function initReadMode() {
   function updateStudySwitchHref() {
     if (!(studySwitch instanceof HTMLAnchorElement)) return;
     studySwitch.href = studyChapterHref(activeChapter);
+    // E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13).
+    // (read-mode.js can't import, so it reads the attribute directly.)
+    const name = document.documentElement.dataset.desk === "on" ? "the Scripture page" : "Chapter View";
     studySwitch.setAttribute(
       "aria-label",
-      `Switch to Chapter View for ${bookTitle} chapter ${activeChapter}`,
+      `Switch to ${name} for ${bookTitle} chapter ${activeChapter}`,
     );
   }
 

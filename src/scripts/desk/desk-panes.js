@@ -90,7 +90,7 @@ function thisChapter(source, paneId) {
     section.append(copy);
   }
   const open = make("p", "desk-chapter__open");
-  const a = make("a", null, `Read ${passageLabel({ bookKey: source.bookKey, chapter: source.chapter })} in Chapter View`);
+  const a = make("a", null, `Read ${passageLabel({ bookKey: source.bookKey, chapter: source.chapter })} on its Scripture page`);
   const href = chapterHref(source.bookKey, source.chapter);
   if (href) a.href = href;
   open.append(a);

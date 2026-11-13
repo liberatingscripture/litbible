@@ -243,6 +243,18 @@
   color: inherit;
 }
 
+/* The view switch's name: "Chapter View" without the Study Desk preview,
+   "Scripture page" with it (E130; the same swap as /read's card in
+   pages/read.css). */
+.rm-switch__copy--desk,
+html[data-desk="on"] .rm-switch__copy--public {
+  display: none;
+}
+
+html[data-desk="on"] .rm-switch__copy--desk {
+  display: inline;
+}
+
 /* The Chapter View switch: its glyph takes the picker's green accent, so the
    "switch views" control reads as part of the same family. */
 .rm-page .rm-toolbar a.rm-switch {

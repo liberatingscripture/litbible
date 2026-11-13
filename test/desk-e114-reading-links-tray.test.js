@@ -83,7 +83,7 @@ test("preview on: a reference's second link opens the Study Desk in Reading", as
   assert.equal(row.first, "/john-3#v16", "Chapter View is unchanged");
   assert.equal(row.href, "/desk/?place=john-3:16&layout=reading");
   assert.equal(row.hint, "in Study Desk, Reading layout");
-  assert.equal(row.keys, "Enter: Chapter View · Shift+Enter: Study Desk");
+  assert.equal(row.keys, "Enter: Scripture page · Shift+Enter: Study Desk");
 });
 
 test("preview on: a range opens at its first verse, a chapter at the chapter", async () => {
@@ -95,13 +95,13 @@ test("preview on: a book's second link opens the desk in Reading at chapter 1", 
   const row = await jumpFor("Romans", true);
   assert.equal(row.href, "/desk/?place=romans-1&layout=reading");
   assert.equal(row.hint, "whole book, in Study Desk");
-  assert.equal(row.keys, "Enter: Chapter View · Shift+Enter: Study Desk");
+  assert.equal(row.keys, "Enter: Scripture page · Shift+Enter: Study Desk");
 });
 
 test("preview on: a book's introduction still has no second link (E123)", async () => {
   const row = await jumpFor("Matthew intro", true);
   assert.equal(row.count, 1);
-  assert.equal(row.keys, "Enter: Chapter View");
+  assert.equal(row.keys, "Enter: Scripture page");
 });
 
 test("preview off: the second link is Read View, as before", async () => {
@@ -131,4 +131,11 @@ test("Shift+Enter follows the second link, Enter the first", async () => {
     delete window.location;
   }
   assert.deepEqual(went, ["/desk/?place=john-3:16&layout=reading", "/john-3#v16", "/read/john#john-3-v16"]);
+});
+
+test("E130: preview off, the keys line still says Chapter View", async () => {
+  const ref = await jumpFor("John 3:16", false);
+  assert.equal(ref.keys, "Enter: Chapter View · Shift+Enter: Read View");
+  const intro = await jumpFor("Matthew intro", false);
+  assert.equal(intro.keys, "Enter: Chapter View");
 });

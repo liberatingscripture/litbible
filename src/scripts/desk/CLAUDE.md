@@ -128,6 +128,10 @@ means each of these, in one change:
 12. **Header C** (S12 step 5) goes live with the flip by itself: its rules
     read `html[data-desk]`, which item 1 keeps. Decide then whether tablets,
     which never get the stamp, keep the five plain links (`.site-nav__plain`).
+13. **E130's labels** (BVJ, 2026-11-12): with the preview on, "Chapter View"
+    reads "Scripture page" or "Scripture pages" (`searchbar.js`, `search.js`,
+    `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`,
+    `read.astro`). Keep only that wording; comments and docs follow.
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere. The
