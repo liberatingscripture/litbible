@@ -3200,7 +3200,8 @@ with seven screenshots, logged in its order, plus three items BVJ added in
 chat the same day: the search bar's Read View jump, folded into E114, the
 help page, E125, and a look for the panes' buttons, E126; E127 came from
 a question in chat, and E128 to E130 came in chat during wave 2.
-Wave 1 is #563 to #567. Where the code answers a question, the entry
+Wave 1 is #563 to #567; wave 2's first group is #569 to #571.
+Where the code answers a question, the entry
 says so; where BVJ was wondering, nothing is decided.)
 
 - **E111, rough: Share image's questions open where Share was.** BVJ
@@ -3295,7 +3296,8 @@ says so; where BVJ was wondering, nothing is decided.)
     given back on the way out (`readingHid`); “My default” is untouched.
   - **At launch** (“Launching”, item 11), these links are the Read View
     jump's successors where the desk runs; the item gains that line.
-  Status: open, decided; built after E123, which shares the search files.
+  Status: fixed (#570; the tray says “in Study Desk, Reading layout,”
+  /search “Study Desk, Reading layout”).
 - **E115, wish: the Search pane links to /search before anything is
   typed.** BVJ (2026-11-12): a link like “See results on the search page”
   should show in the Search pane before a search is typed, worded
@@ -3385,7 +3387,8 @@ says so; where BVJ was wondering, nothing is decided.)
   `img` from a fetched page, and the figure's inline style with it. Fix:
   keep an `img` whose `src` is the site's own (a path under `/images/`,
   nothing else) with its `alt`, and size it in the pane's CSS as the page
-  does; a narrow change to a security rule, with its test. Status: open.
+  does; a narrow change to a security rule, with its test. Status: fixed
+  (#569).
 - **E121, rough: “New sheet” stays while the templates are open.** BVJ
   (2026-11-12), in the Sheets pane: pressing “New sheet” shows the
   templates, but the button keeps its name. It already cancels, so while
@@ -3445,7 +3448,11 @@ says so; where BVJ was wondering, nothing is decided.)
   The copy cuts stand (the email line, the phone-or-computer aside, “The
   passages are read from the LIT…”, the long-link reason in “Link copied”).
   BDR gets the field's row in STUDY-DESK-FORMAT.md, with the two stale
-  lines there fixed. Status: open, decided; Fable builds it.
+  lines there fixed. **Copy link stays the primary button** (BVJ,
+  2026-11-12, asked whether the .md file should lead): the default
+  recipient often reads on a phone, where a link opens and a file can't,
+  and the dialog's QR code is the link; a link over 4,000 characters
+  already adds that a file is safer. Status: fixed (#571, built by Fable).
 - **E123, bug: “Matthew intro” doesn't reach Matthew's introduction.** BVJ
   (2026-11-12): searching “Matthew Intro” or “Matthew Introduction” doesn't
   take the reader to the introduction; only “Matthew” does. Public search.
