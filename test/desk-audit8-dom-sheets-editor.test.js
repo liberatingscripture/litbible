@@ -295,3 +295,28 @@ test("example mode changes the sheet on screen and writes nothing; endExample sh
   })();
   assert.equal(back?.value, "Study", "the stored title is back");
 });
+
+test("show() puts a sheet in an editor already open on its list, and the host hears which (E117)", async () => {
+  let shown = null;
+  editor = createSheetEditor({ store: here, ctx, idSuffix: "t", getSheet: () => shown, setSheet: (id) => { shown = id; }, askFirst: false });
+  document.body.replaceChildren(editor.el);
+  await until(() => !editor.el.querySelector(".desk-sheet__title") && editor.el.textContent.includes("My sheets"), 3000, "the list");
+  const made = createSheet({ title: "Search: groaning", modules: [] }, opCtx());
+  await here.save(made);
+  editor.show(made.id);
+  await until(() => editor.el.querySelector(".desk-sheet__title")?.value === "Search: groaning", 3000, "the new sheet");
+  assert.equal(shown, made.id, "the host keeps the sheet shown");
+});
+
+test("show() saves the typing on the sheet shown before it moves to another (E117)", async () => {
+  const { sheet, el } = await editorOn([makeModule("text", { html: "<p>one</p>" })]);
+  const title = el.querySelector(".desk-sheet__title");
+  title.focus();
+  title.value = "Renamed";
+  title.dispatchEvent(new Event("input", { bubbles: true }));
+  const next = createSheet({ title: "Next", modules: [] }, opCtx());
+  await here.save(next);
+  editor.show(next.id);
+  await until(() => editor.el.querySelector(".desk-sheet__title")?.value === "Next", 3000, "the next sheet");
+  await until(async () => (await stored(sheet.id))?.title === "Renamed", 3000, "the typing saved");
+});

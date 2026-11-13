@@ -53,19 +53,25 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   // cards take a color of their own; nothing paints the pane's body.
   assert.match(rule(".desk-pane .desk-sheet"), /--desk-card:\s*var\(--desk-pane-card\)/);
   assert.doesNotMatch(rule(".desk-pane .desk-sheet"), /background/);
-  // Controls take a 3:1 edge: the template choices, the chips, the command
-  // row, the panes' lock, and every sheet button in the Sheets pane and on
-  // /sheets but the primary one.
-  for (const sel of [".desk-sheet__choice", ".desk-sheet__chip", ".desk-cmdrow__btn", ".desk-pane__pin"]) {
-    assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
+  // Controls take a 3:1 edge and the control fill: since E126 one rule, the
+  // ordinary kind, says it for the template choices, the command row, the
+  // panes' lock and every sheet button in the Sheets pane and on /sheets but
+  // the primary one, and the pills' rule for the chips
+  // (test/desk-buttons-css.test.js holds the whole inventory).
+  const ordinary = css.match(/\n:is\((\.desk-cmdrow__btn,[^{]*?)\) \{([^}]*)\}/);
+  assert.ok(ordinary, "no rule for the ordinary kind (E126)");
+  for (const sel of [".desk-sheet__choice", ".desk-cmdrow__btn", ".desk-pane__pin", ":where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary))"]) {
+    assert.ok(`, ${ordinary[1]}, `.includes(`, ${sel}, `), sel);
   }
-  for (const sel of [".desk-cmdrow__btn", ".desk-pane__pin"]) {
-    assert.match(rule(sel), /background:\s*var\(--desk-control\)/, sel);
-  }
-  assert.match(css, /:is\(\.desk-sheet, \.sheets-page\) \.desk-sheet__btn:not\(\.desk-sheet__btn--primary\) \{[^}]*border:\s*1px solid var\(--field-border\)/);
-  // The layers' dark values are declared in both dark blocks.
-  for (const dark of ["--desk-pane-card: #262628;", "--desk-field: var(--surface);", "--desk-control: rgba(var(--ink-rgb), 0.07);"]) {
-    assert.equal(css.split(dark).length - 1, 2, dark);
+  assert.match(ordinary[2], /border:\s*1px solid var\(--field-border\)/);
+  assert.match(ordinary[2], /background:\s*var\(--desk-control\)/);
+  const pills = css.match(/\n:is\(:where\(\.desk-verse, \.desk-fns\) \.desk-pin, [^{]*\.desk-sheet__chip\) \{([^}]*)\}/);
+  assert.ok(pills, "no rule for the pills");
+  assert.match(pills[1], /border:\s*1px solid var\(--field-border\)/);
+  // The layers' dark values are declared in both of desk.css's dark blocks,
+  // and --desk-control in desk-search.css's two as well (/search's own copy).
+  for (const [dark, count] of [["--desk-pane-card: #262628;", 2], ["--desk-field: var(--surface);", 2], ["--desk-control: rgba(var(--ink-rgb), 0.07);", 4]]) {
+    assert.equal(css.split(dark).length - 1, count, dark);
   }
 });
 
@@ -107,8 +113,11 @@ test("a narrow Sheets pane lets a row's buttons wrap under its name (LV8-5)", ()
 test("aria-disabled Keep, Delete and the bookmark form's Save look busy (batch request)", () => {
   assert.match(rule('.desk-notice__actions button[aria-disabled="true"]'), /cursor:\s*progress/);
   assert.match(rule('.desk-bookmark-form .desk-editor__save[aria-disabled="true"]'), /cursor:\s*progress/);
-  // A busy button doesn't take the hover look either.
-  assert.match(css, /\.desk-notice__actions button:hover:not\(:disabled\):not\(\[aria-disabled="true"\]\)/);
+  // A busy button doesn't take the hover look either: the notice's Delete is
+  // an ordinary button and its Keep the card's primary (E126), and neither
+  // kind's hover reaches a disabled or aria-disabled button.
+  assert.match(css, /:where\(\.desk-notice__actions\) button:where\(:not\(\.desk-notice__keep\)\)[^{]*\):hover:not\(:disabled, \[aria-disabled="true"\]/);
+  assert.match(css, /\.desk-notice__actions \.desk-notice__keep\):hover:not\(:disabled, \[aria-disabled="true"\], :active\)/);
 });
 
 test("the Sheets editor's states have forced-colors rules (XA8-7)", () => {

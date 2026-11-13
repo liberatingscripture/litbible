@@ -1139,6 +1139,20 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     else toList();
   });
 
+  // A sheet the host puts in this pane once it is open (E117: the Search
+  // pane's "New sheet of N verses" on /desk). `getSheet()` is read only for
+  // the first view above, so a pane already showing the list, or another
+  // sheet, is told; typing still waiting for its delay is saved first.
+  me.show = async (id) => {
+    if (destroyed || !id || sheet?.id === id) return;
+    if (sheet) {
+      flushAll();
+      await saving;
+      if (destroyed) return;
+    }
+    openSheet(id);
+  };
+
   // "New sheet…": back to the list, with the templates open and focus on the
   // first.
   me.newSheet = async () => {

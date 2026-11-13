@@ -108,6 +108,12 @@ function pickKind(typeSel, value) {
   typeSel.value = value;
   typeSel.dispatchEvent(new window.Event("change", { bubbles: true }));
 }
+/** Check every verse with the strip's box (E117: nothing checked adds nothing). */
+function checkAll($) {
+  const all = $(".desk-search__check-all");
+  all.checked = true;
+  all.dispatchEvent(new window.Event("change", { bubbles: true }));
+}
 
 // Elements are compared by identity: a failed assert.equal on two DOM nodes
 // prints the whole happy-dom object graph.
@@ -289,7 +295,8 @@ async function gatherView() {
 
 test("GF8a-11: a pane closed during a gather still says what it did, with Undo", async () => {
   const { pane, $, held, shown } = await gatherView();
-  click($(".desk-search__sheet"));
+  checkAll($);
+  click($(".desk-search__sheet--new"));
   await until(() => held.length);
   pane.destroy();
   await held[0]();
@@ -301,7 +308,8 @@ test("GF8a-11: a pane closed during a gather still says what it did, with Undo",
 
 test("GF8a-11: a pane that stays open shows the sheet and offers the same Undo", async () => {
   const { $, held, shown } = await gatherView();
-  click($(".desk-search__sheet"));
+  checkAll($);
+  click($(".desk-search__sheet--new"));
   await until(() => held.length);
   await held[0]();
   await until(() => shown.length === 1);
@@ -368,7 +376,8 @@ test("SH8-3: verses added to an open sheet go after its last passage, not after 
     { now: "2026-11-09T12:00:00.000Z", client: "web/test", contentVersion: "v1" },
   );
   const { $, writes } = await addView(sheet, { id: sheet.id, name: "Study", ready: () => {} });
-  const all = await until(() => { const b = $(".desk-search__add-all"); return b && !b.hidden && b; });
+  const all = await until(() => { const b = $(".desk-search__sheet--add"); return b && !b.hidden && b; });
+  checkAll($);
   click(all);
   await until(() => writes.length);
   const modules = writes[0].sheet.modules;
@@ -382,12 +391,13 @@ test("GF8a-11: an add target whose ready() throws says so and leaves the buttons
   console.error = () => {};
   try {
     const { $, writes } = await addView(sheet, { id: sheet.id, name: "Study", ready: () => { throw new Error("unwritten"); } });
-    const all = await until(() => { const b = $(".desk-search__add-all"); return b && !b.hidden && b; });
+    const all = await until(() => { const b = $(".desk-search__sheet--add"); return b && !b.hidden && b; });
+    checkAll($);
     click(all);
     await until(() => /couldn’t be saved/.test($(".desk-search__note")?.textContent ?? ""));
     assert.equal(writes.length, 0, "nothing was written");
-    assert.equal(all.disabled, false, "the add button works again");
-    assert.equal($(".desk-search__sheet:not(.desk-search__add-all)").disabled, false, "and so does Make a sheet");
+    assert.equal(all.getAttribute("aria-disabled"), null, "the add button works again");
+    assert.equal($(".desk-search__sheet--new").getAttribute("aria-disabled"), null, "and so does New sheet");
   } finally {
     console.error = error;
   }

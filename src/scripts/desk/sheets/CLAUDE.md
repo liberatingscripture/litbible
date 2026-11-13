@@ -37,15 +37,14 @@ below the text, so clicking into a part grows the card downward instead of
 moving the words under the pointer, and a menu opens upward when the pane has
 no room below it (SH5-6).
 
-## How the Sheets look: three layers (E89)
+## How the Sheets look: three layers and four kinds of button (E89, E126)
 
 **The list of sheets, the template chooser, the editor and a sheet's
 versions view are built from three layers, each a step apart from what it
 sits on, in the Sheets pane and on /sheets alike** (BVJ, 2026-11-11: nothing
 may be "the same color as the page background"). /desk's command row and the
 panes' passage field and lock take the same field and control looks. The
-tokens and the reasoning are at the head of "The Sheets pane on /desk" in
-`desk.css`:
+tokens and the reasoning are in "The desk's layers" in `desk.css`:
 - **Card** (`--desk-card`, `--desk-card-edge`): a part, a row of the list,
   the chooser, a form, the two-tab question ("Continue here?"). `#FAFAF8`
   on /sheets' cream page; **in the Sheets pane, whose body keeps a pane's
@@ -56,22 +55,51 @@ tokens and the reasoning are at the head of "The Sheets pane on /desk" in
   color** (BVJ, 2026-11-11).
 - **Field** (`--desk-field`, edged with `--field-border`): anything typed in
   or chosen from.
-- **Control** (`--desk-control`, edged with `--field-border`): every
-  `.desk-sheet__btn` but the primary, the chips, the template choices, the
-  command row's buttons, the panes' lock. In light white differs from
+- **Control** (`--desk-control`, edged with `--field-border`): the fill and
+  edge of the ordinary and toggle kinds below. In light white differs from
   `#FAFAF8` by 1.04:1, so **the edge is what makes a control, and a new one
-  needs it** (3:1 on every surface here, both themes). Glyph buttons
-  (`.desk-sheet__icon`, a pane's × and ▾) and the primary button keep their
-  own looks.
+  needs it** (3:1 on every surface here, both themes).
 The template's description and the License card are notices, not cards:
 the “what prints” notice's tint and green rule (BVJ: keep them so). A new
 part, form or control in these areas takes these tokens rather than
 `--surface-raised`, `--surface-input` or a faint ink edge, and a note that
 belongs to a control wraps with it in one group (the add row's
-`.desk-sheet__add-pair`). The sheet button rule is scoped in `desk.css`
-(`:is(.desk-sheet, .sheets-page)`), so `desk-sheet-view.css` and the phone's
-shared sheet keep their own look; `test/desk-audit8-f-css.test.js` holds the
-layers.
+`.desk-sheet__add-pair`). `test/desk-audit8-f-css.test.js` holds the layers.
+
+**Every button in the desk is one of four kinds** (E126; BVJ, 2026-11-12,
+from mocks: the "Raised" look), in every pane, on /sheets and /notebook, and
+in the rows the desk adds to /search. Each kind is one rule in `desk.css`'s
+"Four kinds of button", last in the file, whose `:is()` list is the
+inventory; a component rule says only a button's size and shape. **A new
+button joins a kind by adding its class to that list, never with a look of
+its own.** The tokens are in "The desk's layers" (`:root` and both dark
+selectors, every shadow with a dark pair), and `desk-search.css` carries the
+same values for /search, which loads it alone; `test/desk-buttons-css.test.js`
+holds the inventory, the pairs, the two files in step and reduced motion.
+1. **Primary**: Deep Green with white words, **at most one per pane or
+   view**: the Sheets pane's New sheet, Add and Continue, the Search pane's
+   strip (E117), /search's head row (E116) and its chooser's New sheet, the
+   note editor's Save, the change notice's Keep. The command row stays
+   ordinary, its New sheet… included, and so does every Delete. In dark
+   themes its edge is the text green at 70% (`--desk-primary-edge`; Deep
+   Green alone is 2.3 to 2.9:1 there). Disabled, it keeps the edge with a
+   faint green fill and the text green's words, so it still reads as a
+   button.
+2. **Ordinary**: the control's fill and edge, the edge a hair darker at the
+   foot, a soft shadow at rest, a 1px lift on hover, sunk when pressed; an
+   on toggle or an open menu's button stays sunk with the text green's edge
+   and words. Disabled is flat, words at 70% (4.5:1 on every surface; the
+   mock's 62% failed). E121's Cancel is one.
+3. **Toggle**: an ordinary button with `aria-pressed` (Stay here, Bible
+   order, the Greek's word choices), or a pill, flat at rest (This verse's
+   and the Footnotes pane's Pin, label chips, Show sources). The reading
+   pages' own Pin stays quiet.
+4. **Quiet** (links: Labels…, Stop following, Verse N, Show the note, Take
+   the Sheets tour, Clear checks) and **glyph** buttons (‹ › × ▾ +, the grip)
+   keep their own looks.
+**Under reduced motion the lift and every transition go; the shadows stay.**
+The sheet button rule is scoped (`:where(.desk-sheet, .sheets-page)`), so
+`desk-sheet-view.css` and the phone's shared sheet keep their own look.
 
 ## Rule 18: the Sheets pane
 
@@ -85,14 +113,27 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   hands in which sheet it shows (`getSheet`, `setSheet`; the pane's are the
   layout's `setPaneSheet`), an `idSuffix` for its element ids (the pane's id),
   `showPassage`, and `onSheetChange`, and it returns `sheet`, `persist`,
-  `addPassage` and `newSheet` for the host to call. **What only a pane has
+  `addPassage`, `newSheet` and `show` for the host to call. **It reads
+  `getSheet()` once, for its first view**, so a host that puts a sheet in an
+  editor already open calls `show(id)` (desk-page.js's `showSheetPane` does,
+  for the Search pane's "New sheet of N verses"); changing the layout alone
+  left the pane on its list. **What only a pane has
   stays in `sheet-pane.js`**: the list of open panes behind `addTarget` and
   `onAddTarget` ("Add to sheet" in the LIT pane's menus and the Search pane's
   add buttons), and the command row's `desk:sheet-new` (E68), which names a pane and
   calls its editor's `newSheet`. The Search pane's add buttons read the
   target the same way as “Add to sheet” and write in one `store.change`, and
   `showSheet`'s `keep` stops that pane giving its own place to the sheet it
-  just made (moved from desk rule 18, the Search pane). A new feature of the editor goes in
+  just made (moved from desk rule 18, the Search pane). **They add only
+  checked verses** (E117; BVJ, 2026-11-12): every verse has a box and keeps
+  its +, Bible order sits small at the right of the title line, and a sticky
+  strip under it holds the box that checks them all, the count line and the
+  buttons: “Add 3 verses to ‘Faith’” (the primary) and “New sheet of 3
+  verses” while a Sheets pane shows a sheet, else “New sheet of 3 verses”
+  alone as the primary, which goes through E127's `env.showSheet`. With none
+  checked they add nothing, as /search's head row (rule 21); no label wraps,
+  and a long sheet name ends in “…” with the whole label in the tooltip and
+  the accessible name. Checks clear on a new query. A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
@@ -300,8 +341,9 @@ The header's Study group is part 3's, built with header C.
   goes where `passageInsertIndex` says, since nobody is working in the
   sheet), and the undo bar shows Undo with an "Open the sheet" link
   (`showUndo`'s `link`, to `/sheets/?id=`).
-- **/search's sheet opens on /sheets**: the line after "Make a sheet of these
-  verses" says "Open the sheet, or open it in the Study Desk." (rule 21).
+- **/search's sheet opens on /sheets**: the line after its head row's
+  "Add 4 verses to a sheet…" says "Open the sheet, or open it in the Study
+  Desk." (rule 21).
 - **/notebook lists sheets under "Sheets"** with "New sheet…" and "All my
   sheets" (`kept-list.js`), shown too while nothing narrows the list. "New
   sheet…" is `/sheets/?new`, which opens the list's templates at once and
@@ -742,7 +784,19 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   `loadDeskSheets()` in `search-core.js`, which imports
   `desk/sheets/search-sheet.js` only with `data-desk="on"`. The passages
   (Bible order, neighbors joined, capped at the sheet's limit) are
-  `src/lib/desk-sheet-gather.mjs`. What it made opens where the search
+  `src/lib/desk-sheet-gather.mjs`. **Only checked verses go** (E116; BVJ,
+  2026-11-12, reversing "with none checked, all of them"): a sticky head row
+  holds the box that checks every verse (indeterminate when some are), and a
+  card with a line ("4 of 119 checked.", Clear checks) and one primary
+  button carrying the count ("Add 4 verses to a sheet…"), which opens the
+  chooser. **With none checked the button adds nothing**: it is
+  `aria-disabled`, stays focusable, is described by the line, and a press
+  says how to check; its label reads "checked verses" there, never "0
+  verses", and invisible copies of its longest labels hold its width (the
+  Search pane's strip, E117, does the same; the words are shared in
+  `desk-sheet-gather.mjs`). The card and the checked rows share a green
+  rule. The chapters by topic get the same row with no box, since every
+  chapter goes whole. What it made opens where the search
   was: "Open the sheet" is `/sheets/?id=<id>`, and "open it in the Study Desk" beside
   it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
   (`showSheet` in `desk-layout.mjs`) and strips from the address (S12).
