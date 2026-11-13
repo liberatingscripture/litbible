@@ -569,6 +569,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
      2026-10-09), never while hovered or focused; that is safe only because
      the same undo stays on Ctrl+Z, so don't remove one without the other.
+     **A bar whose Undo is not on Ctrl+Z** (a layout change writes no history
+     entry; E131) passes `{ keyless: true }`: it names no key and stays until
+     closed, pressed or replaced.
      **A listener may ask for only the kinds it draws** (BA107):
      `store.subscribe(fn, { kinds })` or `{ except }`, so a bookmark that moves
      as the reader reads (written every few seconds with `{ kinds: [MOVE_KIND] }`,

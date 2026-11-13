@@ -1063,7 +1063,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       }
     }
     // The layout first, then the record, so no pane is left pointing at a deleted sheet.
-    if (entry) showUndo(text, async () => { undoLayout?.(); await undoEntry(entry); }, { link });
+    if (entry) showUndo(text, async () => { undoLayout?.(); await undoEntry(entry); }, { link, keyless: Boolean(undoLayout) });
     else if (!destroyed) tell(text);
   }
 
