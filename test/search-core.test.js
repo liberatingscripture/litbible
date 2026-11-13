@@ -19,7 +19,9 @@ import {
   rankVerseHits,
   highlightVerseHit,
   resolveMistypedPath,
+  makeDeskReadingHref,
 } from "../src/scripts/search-core.js";
+import { parsePlaceParam } from "../src/lib/desk-passage.mjs";
 import { stemWord } from "../src/lib/word-stem.mjs";
 
 /** Mirrors how loadVerseIndex groups the corpus vocabulary by stem, so
@@ -162,6 +164,25 @@ for (const [input, bookKey] of [
 ]) {
   test(`parseReferenceJump: '${input}' is the book's introduction`, () => {
     assert.deepEqual(parseReferenceJump(input), { kind: "book", bookKey, intro: true });
+  });
+}
+
+// E114: with the Study Desk preview on, the jump's Read View link opens the
+// desk in Reading. The place is one the desk's own parser reads.
+for (const [input, href, place] of [
+  ["John 3:16", "/desk/?place=john-3:16&layout=reading", "john 3:16"],
+  ["Romans 8:16-18", "/desk/?place=romans-8:16&layout=reading", "romans 8:16"],
+  ["1 Cor 13", "/desk/?place=1corinthians-13&layout=reading", "1corinthians 13"],
+  ["Romans", "/desk/?place=romans-1&layout=reading", "romans 1"],
+  ["Jude", "/desk/?place=jude-1&layout=reading", "jude 1"],
+  ["John 30", "/desk/?place=john-1&layout=reading", "john 1"],
+]) {
+  test(`makeDeskReadingHref: '${input}' opens the desk in Reading at ${place}`, () => {
+    const got = makeDeskReadingHref(parseReferenceJump(input));
+    assert.equal(got, href);
+    const params = new URL(got, "https://litbible.net").searchParams;
+    assert.equal(parsePlaceParam(params.get("place")), place);
+    assert.equal(params.get("layout"), "reading");
   });
 }
 

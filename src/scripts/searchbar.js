@@ -14,9 +14,8 @@ import {
   makeStudyJumpHref,
   formatReferenceLabel,
   makeStudyReferenceHref,
-  makeReadReferenceHref,
   makeStudyBookHref,
-  makeReadBookHref,
+  readingJumpLink,
   normalizePhrase,
   buildPfQuery,
   escapeHtml,
@@ -444,9 +443,11 @@ const _initSearchbars = async () => {
       const studyHref = isBook
         ? makeStudyBookHref(jump.bookKey)
         : makeStudyReferenceHref(jump);
-      const readHref = isBook
-        ? makeReadBookHref(jump.bookKey)
-        : makeReadReferenceHref(jump);
+      // Read View, or with the Study Desk preview on its Reading layout (E114).
+      const reading = readingJumpLink(jump);
+      const readHint = reading.desk
+        ? isBook ? "whole book, in Study Desk" : "in Study Desk, Reading layout"
+        : isBook ? "whole book, in Read View" : "in Read View, whole book";
       const label = isBook
         ? bookKeyToLabel(jump.bookKey)
         : formatReferenceLabel(jump);
@@ -460,18 +461,16 @@ const _initSearchbars = async () => {
               isBook ? "intro, in Chapter View" : "in Chapter View, with notes"
             }</span>
           </a>
-          ${intro ? "" : `<a class="searchbar__jump-link searchbar__jump-link--read" href="${readHref}">
+          ${intro ? "" : `<a class="searchbar__jump-link searchbar__jump-link--read" href="${escapeHtml(reading.href)}">
             <span>Jump to <strong>${label}</strong></span>
-            <span class="searchbar__jump-hint">${
-              isBook ? "whole book, in Read View" : "in Read View, whole book"
-            }</span>
+            <span class="searchbar__jump-hint">${readHint}</span>
           </a>`}
         </div>
         <div class="searchbar__jump-meta">
           <span class="searchbar__jump-keys">
             ${intro
               ? "Enter: Chapter View"
-              : "Enter: Chapter View &nbsp;&middot;&nbsp; Shift+Enter: Read View"}
+              : `Enter: Chapter View &nbsp;&middot;&nbsp; Shift+Enter: ${reading.desk ? "Study Desk" : "Read View"}`}
           </span>
           <button type="button" class="searchbar__jump-search" data-jump-search>
             Search for this instead
@@ -1522,7 +1521,8 @@ const _initSearchbars = async () => {
 
       if (e.key !== "Enter") return;
 
-      // If jump links are showing, Enter should jump (Shift+Enter = Read View)
+      // If jump links are showing, Enter should jump (Shift+Enter = the
+      // second link: Read View, or the Study Desk's Reading layout, E114)
       if (jumpLinksVisible()) {
         e.preventDefault();
         doJump(e.shiftKey);

@@ -116,16 +116,15 @@ means each of these, in one change:
    (LG8-9; `sheets/CLAUDE.md`, rule 21).
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
-11. **Read View's retirement (8c)** ships in the same change as the flip
-    (BVJ, 2026-11-07). Wire `src/lib/read-view-retirement.mjs` and
-    `src/scripts/read-view-redirect.js` in: the redirects in
-    `astro.config.mjs`, the `/read/[book].astro` rewrite, the sitemap filter,
-    and the `lit_last_read` records Read View writes. Read View itself goes,
-    as "The rules" says. Delete `test/read-view-retirement.test.js`'s guard,
-    "nothing in the site imports the retirement rules before the launch
-    cutover", and rewrite its two neighbours, "with the preview on, /read swaps
-    the Read View card" and "with the preview on, the chapter picker's footer
-    link opens the Study Desk", to what launch shows.
+11. **Read View's retirement (8c)** ships with the flip (BVJ, 2026-11-07);
+    where the desk runs, E114's Reading links succeed its jumps. Wire
+    `src/lib/read-view-retirement.mjs` and `src/scripts/read-view-redirect.js`
+    in: the redirects in `astro.config.mjs`, the `/read/[book].astro` rewrite,
+    the sitemap filter, and the `lit_last_read` records Read View writes. Read
+    View itself goes, as "The rules" says. Delete
+    `test/read-view-retirement.test.js`'s guard that nothing imports the
+    retirement rules before the cutover, and rewrite its two "with the preview
+    on" tests to what launch shows.
 12. **Header C** (S12 step 5) goes live with the flip by itself: its rules
     read `html[data-desk]`, which item 1 keeps. Decide then whether tablets,
     which never get the stamp, keep the five plain links (`.site-nav__plain`).
@@ -1217,18 +1216,21 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `romans-8-v16`) is what a link to the desk carries: whatever the page
        would have opened (last, default, or the original for a first visit)
        keeps its panes and sizes, and only the active LIT pane and the
-       shared place move (`arrivalLayout`, pure and tested; BVJ, 2026-11-02:
-       a link never forces an arrangement, Reading included). desk-page.js saves the move
-       and strips the parameter. On a chapter or intro page the toolbar's
-       "Study Desk" pill carries the chapter (`ScriptureLayout.astro`, its
-       `deskPlaceHref`), and so do the header's Study group, which `Layout.astro`
-       is handed as `deskHref`, and the Notebook panel's header link, which
-       reads the pill's address (BVJ, 2026-11-10: all three behave alike). A new link
-       into /desk that means to open at a passage uses this, never the layout key.
+       shared place move (`arrivalLayout`; BVJ, 2026-11-02: a link never
+       forces an arrangement). **Only the links that stood for Read View add
+       `&layout=reading`** (E114, BVJ 2026-11-12: the search's second jump,
+       the picker's footer): arriving presses the Reading row, undo bar too
+       (`readingArrival`). desk-page.js saves either as the last layout,
+       strips both. The toolbar's "Study Desk" pill carries the chapter
+       (`ScriptureLayout.astro`'s `deskPlaceHref`), as do the header's Study
+       group (`Layout.astro`'s `deskHref`) and the Notebook panel's header
+       link, which reads the pill's address (BVJ, 2026-11-10: all three
+       alike). A new link into /desk at a passage uses `place`, never the
+       stored layout.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
        2026-11-02): with the preview on, `/read`'s Read View card and the
-       chapter picker's "Open X in Read View" link become the Study Desk; the
-       rest is built, tested and imported by nothing until "Launching", item 11.
+       picker's footer link lead to the desk; the rest is built and tested,
+       imported by nothing until "Launching", item 11.
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
