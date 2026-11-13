@@ -442,6 +442,11 @@ notice there or nowhere.
     `src/lib/greek-search.mjs`, which the Notebook's Greek tab shares). The
     Study Desk's Search pane (`desk/search-pane.js`) is a third UI over the
     same modules.
+  - *A jump is one parse* (`parseReferenceJump`): a reference, a book, or a
+    book's introduction ("Matthew intro", "Introduction to Matthew"; E123,
+    BVJ 2026-11-12) as `{ kind: "book", bookKey, intro: true }`. The tray and
+    /search then offer only the introduction (no Read View link), and the
+    desk's Search pane opens it in a Book Intro pane (`env.showIntro`).
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the

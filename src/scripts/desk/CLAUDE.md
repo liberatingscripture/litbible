@@ -1556,8 +1556,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `search-core.js` and never copies its parsing or bucketing; a new
        rule both UIs need goes there. Its pure rules are
        `src/lib/desk-search-pane.mjs`. Its filters are in /search's order (book,
-       then type), and a "See results on the search page" link under them
-       carries the same search (q, book, mode) to /search, which shows more
+       then type), and a link under them, always there (E115), carries the
+       book and any search (q, mode) to /search: "Open the search page"
+       before a search, "See results on the search page" after (`pageLinkText`). /search shows more
        than the pane does (BVJ, 2026-11-04). **It keeps nothing about a search**
        (no key, no layout field), so /privacy doesn't name it and a reload
        empties it. **It stands alone**: not a follower, and “The book I’m
