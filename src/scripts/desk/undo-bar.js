@@ -37,6 +37,7 @@ export const CLOSE_AFTER_MS = 10_000;
 let clock = 0;
 let returnTo = null; // where focus was when the notice came up, for when the bar closes with focus in it
 let held = false; // the pointer is over the bar, or focus is in it
+let stays = false; // the notice showing is a keyless one: no closing time (E131)
 
 /** The modifier the reader presses: ⌘ on a Mac, Ctrl elsewhere. For labels and the spoken notice. */
 export function undoModifier() {
@@ -47,7 +48,7 @@ export function undoModifier() {
 /** Start the closing time again for whichever notice is showing. */
 function startClock() {
   clearTimeout(clock);
-  if (held) return;
+  if (held || stays) return;
   const notice = shown;
   clock = setTimeout(() => {
     // Asked again when the time is up, not only by the events below: a
@@ -135,15 +136,19 @@ export function barShowing() {
  *
  * @param {string} message
  * @param {() => unknown} onAction
- * @param {{ label?: string, link?: { label: string, href: string } | null }} [options]
+ * @param {{ label?: string, link?: { label: string, href: string } | null, keyless?: boolean }} [options]
  *   `label` is the button's name, "Undo" by default; `link` puts a link after
- *   it that opens in a new tab ("Open the sheet", S12), for this notice only
+ *   it that opens in a new tab ("Open the sheet", S12), for this notice only;
+ *   `keyless` is for a bar whose Undo is not on Ctrl+Z (a layout change writes
+ *   no history entry, E131): it never names the key and never closes by
+ *   itself, only on Close, its button, or the next notice
  * @returns {number} this notice's number, for hideUndo to take down just it
  */
-export function showUndo(message, onAction, { label = "Undo", link = null } = {}) {
+export function showUndo(message, onAction, { label = "Undo", link = null, keyless = false } = {}) {
   initUndo();
   noteFocus();
   const mine = ++shown;
+  stays = keyless;
   dropLink();
   const bar = root.querySelector(".desk-undo__bar");
   const text = root.querySelector(".desk-undo__text");
@@ -183,7 +188,7 @@ export function showUndo(message, onAction, { label = "Undo", link = null } = {}
   // The bar is the last thing in the page, out of a keyboard reader's reach
   // in ten seconds, so what is spoken names the key that is (NB-5).
   const mod = undoModifier();
-  announce(label === "Undo" ? `${message} Press ${mod === "Ctrl" ? "Ctrl+Z" : "⌘Z"} to undo.` : message);
+  announce(label === "Undo" && !keyless ? `${message} Press ${mod === "Ctrl" ? "Ctrl+Z" : "⌘Z"} to undo.` : message);
   startClock();
   return mine;
 }
@@ -214,6 +219,7 @@ export function showNotice(message, { link = null } = {}) {
   initUndo();
   noteFocus();
   shown++;
+  stays = false;
   dropLink();
   const button = root.querySelector(".desk-undo__undo");
   // Replaced rather than hidden in place, so a press already under way can't

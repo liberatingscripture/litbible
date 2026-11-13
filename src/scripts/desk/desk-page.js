@@ -249,7 +249,7 @@ async function start() {
   // why, with a link to the page.
   const noWay = (kind, reason, { search = false, what = "", href = null } = {}) =>
     showNotice(noWayMessage(kind, reason, { search }), href ? { link: { label: noWayLinkLabel(kind, what), href } } : {});
-  const sayReplaced = (text, before) => showUndo(text, () => commit(before, { quiet: true }));
+  const sayReplaced = (text, before) => showUndo(text, () => commit(before, { quiet: true }), { keyless: true });
   const passageHref = (p) => {
     const path = chapterPath(p.bookKey, p.chapter);
     return path ? `${path}${p.verse ? `#v${p.verse}` : ""}` : null;
@@ -492,7 +492,7 @@ async function start() {
     if (closed.length) said.push(`Closed ${LIST.format(closed)}.`);
     if (marks.length) said.push(`${a.id === "reading" ? "Turned off" : "Turned on"} ${LIST.format(marks)}.`);
     if (said.length > 1) {
-      showUndo(said.join(" "), () => commit(before, { quiet: true }));
+      showUndo(said.join(" "), () => commit(before, { quiet: true }), { keyless: true });
     } else announce(said[0]);
   }
   const startRadios = Array.from(menu.querySelectorAll('input[name="desk-ws-start"]'));
@@ -702,7 +702,7 @@ async function start() {
 
   /** Say that leaving Reading turned its marks back on, with Undo for both. */
   function tellMarks(names, before) {
-    showUndo(`Left Reading: turned on ${LIST.format(names)}.`, () => commit(before, { quiet: true }));
+    showUndo(`Left Reading: turned on ${LIST.format(names)}.`, () => commit(before, { quiet: true }), { keyless: true });
   }
 
   /** Take a new layout: kept at once, and drawn (or only re-marked). `quiet`: the caller says what leaving Reading did. */
@@ -1318,7 +1318,7 @@ async function start() {
     const way = arrivalNoWay;
     const text = [...arrivalSaid, ...(way ? [noWayMessage(way.kind, way.reason)] : [])].join(" ");
     const link = way?.href ? { label: noWayLinkLabel(way.kind, way.what), href: way.href } : null;
-    if (arrivalSaid.length) showUndo(text, () => commit(arrivedAs, { quiet: true }), { link });
+    if (arrivalSaid.length) showUndo(text, () => commit(arrivedAs, { quiet: true }), { link, keyless: true });
     else showNotice(text, { link });
   }
 

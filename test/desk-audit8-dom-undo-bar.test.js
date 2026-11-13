@@ -139,6 +139,48 @@ test("announce says the same message twice by emptying the region first", () => 
   assert.equal(live().textContent, "Nothing to undo.");
 });
 
+test("E131: a keyless bar names no key and never closes by itself", () => {
+  showUndo("Layout changed.", () => {}, { keyless: true });
+  mock.timers.tick(50);
+  assert.equal(live().textContent, "Layout changed.");
+  mock.timers.tick(CLOSE_AFTER_MS * 6);
+  assert.equal(bar().hidden, false, "still showing well past the closing time");
+  assert.equal(undoButton().hidden, false);
+});
+
+test("E131: a keyless bar closes on Close and is replaced by the next notice; an ordinary one still closes", () => {
+  // Earlier tests may leave the bar "held"; a release check clears it.
+  showUndo("Setup.", () => {});
+  fire(bar(), "focusout");
+  mock.timers.tick(1);
+  showUndo("Layout changed.", () => {}, { keyless: true });
+  document.querySelector(".desk-undo__close").click();
+  assert.equal(bar().hidden, true);
+  mock.timers.tick(1); // a focusout's release check runs after the event
+
+  showUndo("Layout changed.", () => {}, { keyless: true });
+  showUndo("Note deleted.", () => {});
+  mock.timers.tick(50);
+  assert.match(live().textContent, /Press (Ctrl\+Z|⌘Z) to undo\.$/, "the ordinary bar names the key again");
+  mock.timers.tick(CLOSE_AFTER_MS);
+  assert.equal(bar().hidden, true, "and closes after ten seconds");
+
+  showUndo("Layout changed.", () => {}, { keyless: true });
+  showNotice("Plain.");
+  mock.timers.tick(CLOSE_AFTER_MS);
+  assert.equal(bar().hidden, true, "a notice replacing a keyless bar closes as notices do");
+});
+
+test("E131: a keyless bar's button runs its undo and closes the bar", async () => {
+  mock.timers.reset();
+  let ran = 0;
+  showUndo("Layout changed.", () => { ran++; }, { keyless: true });
+  undoButton().click();
+  await settle(60);
+  assert.equal(ran, 1);
+  assert.equal(bar().hidden, true);
+});
+
 test("E127: a notice can carry a link that opens in a new tab, and the next notice drops it", () => {
   showNotice("There’s no room.", { link: { label: "Open the sheet", href: "/sheets/?id=a" } });
   const a = document.querySelector(".desk-undo__link");
