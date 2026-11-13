@@ -570,7 +570,9 @@ const parts = [
               </ol>
               <p>
                 The bar at the bottom says what happened (“Book Intro shown in
-                place of Greek.”), and its Undo puts the layout back. Where no
+                place of Greek.”), and its Undo puts the layout back. That bar
+                stays until you close it, since Ctrl+Z undoes changes to your
+                notebook, not to the layout. Where no
                 pane can give up its place, a notice says why and offers both
                 ways on: close a pane and try again, or open the thing on its
                 own page. “Add pane” and “New sheet…” are commands, so on a
@@ -1143,10 +1145,10 @@ const parts = [
             <section class="nbhelp__topic" aria-labelledby="copies">
               <h3 id="copies">Backing up your notebook</h3>
               <p>
-                <a href="/notebook/#backup">My Notebook</a> can back up your
-                notebook as a full backup, a file (JSON) that holds
-                everything. It can also save two other formats, under “Other
-                formats,” which aren’t backups:
+                <a href="/notebook/#backup">My Notebook</a> has “Back up your
+                notebook,” where “Download a full backup” saves a file (JSON)
+                that holds everything. It can also save two other formats,
+                under “Other formats,” which aren’t backups:
               </p>
               <ul>
                 <li><strong>A Markdown file</strong>, to read, print, or move
@@ -1155,15 +1157,16 @@ const parts = [
                   format other annotation tools can read.</li>
               </ul>
               <p>
-                “Merge a backup” on the same page adds what a backup holds to
-                the notebook, keeping the newer version of anything that’s in
-                both. To restore your notebook on a new computer or browser,
-                merge your backup into it.
+                “Merge a backup…” on the same page adds what a backup holds
+                to the notebook, keeping the newer version of anything that’s
+                in both. To restore your notebook on a new computer or
+                browser, merge your backup into it.
               </p>
               <p>
                 <strong>The reminder.</strong> If you asked to be reminded, a
-                bar appears on a chapter page or the Study Desk page when it
-                has been a week since your last backup, or, if you have never
+                bar appears on a Scripture page, in Read View, or on the Study
+                Desk page when it has been a week since your last backup, or,
+                if you have never
                 made one, a week since your oldest note or mark. It offers
                 four choices: “Back up now,” which downloads the file;
                 “Remind me tomorrow” (the × does the same); “Not this week”;
@@ -1172,7 +1175,7 @@ const parts = [
                 Desk’s title and its My Notebook line, and the Settings tab
                 says so at the top of “Keep and print.” “Not this week” puts
                 the bar and the dots away for seven days. You can turn
-                reminders back on in the Notebook’s Settings tab on a chapter
+                reminders back on in the Notebook’s Settings tab on a Scripture
                 page.
               </p>
             </section>

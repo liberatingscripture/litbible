@@ -8,8 +8,12 @@
 // what any of them opens.
 //
 // A step's `act(step)` opens whatever the step shows and returns where its card
-// goes: `{ el, side?, marks? }`, or null for a card in the middle. `el` places
-// the card; `marks` are outlined (default: `el`, when small). What a step opens
+// goes: `{ el, side?, tight?, marks? }`, or null for a card in the middle. `el`
+// places the card; `marks` are outlined (default: `el`, when small). `tight`
+// says where the card goes when neither side of `el` holds it whole: above `el`
+// (else below), its right edge at `el`'s, rather than over `el`'s side (the
+// Sheets page's column, which leaves too little room beside it; BVJ,
+// 2026-11-13). Without it the card is pushed over the target. What a step opens
 // is undone by a function it hands to `later`, which runs before the next step
 // and at the end. The tour ends by calling `finish`, where the caller puts its
 // own page back, then the scroll goes back and focus returns.
@@ -26,6 +30,7 @@
 // single-key shortcuts stand down while focus is in it.
 
 import { stepBody } from "../../lib/desk-first-use.mjs";
+import { hideStandingBar } from "./undo-bar.js";
 
 const GAP = 12;
 const EDGE = 12;
@@ -70,6 +75,9 @@ export function createTourRunner() {
    */
   function start({ steps, view = null, act, finish = () => {}, afterUndo = () => {}, more = () => null, returnTo = null, returnFallback = null }) {
     if (run || !steps.length) return false;
+    // A bar that stays (a layout's Undo, the backup reminder) closes first, and
+    // before focus is noted, so focus in it goes back to where it was.
+    hideStandingBar();
     document.documentElement.setAttribute("data-desk-tour", "");
 
     run = {
@@ -318,7 +326,15 @@ export function createTourRunner() {
         const wantRight = t.side === "right" ? roomRight >= cw + GAP || roomRight >= roomLeft : t.side === "left" ? roomLeft < cw + GAP && roomRight > roomLeft : roomRight >= roomLeft;
         return wantRight ? r.right + GAP : r.left - cw - GAP;
       };
-      if (tall || t.side) {
+      const cramped = t.tight && roomRight < cw + GAP && roomLeft < cw + GAP;
+      const endX = () => clamp(r.right - cw, EDGE, vw - cw - EDGE);
+      if (cramped && r.top - GAP - ch >= EDGE) {
+        x = endX();
+        y = r.top - GAP - ch;
+      } else if (cramped && r.bottom + GAP + ch <= vh - EDGE) {
+        x = endX();
+        y = r.bottom + GAP;
+      } else if (tall || t.side) {
         x = clamp(sideX(), EDGE, vw - cw - EDGE);
         y = clamp(Math.max(r.top, 0) + 8, EDGE, vh - ch - EDGE);
       } else if (r.bottom + GAP + ch <= vh - EDGE) {

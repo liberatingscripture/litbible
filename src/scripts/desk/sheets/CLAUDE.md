@@ -431,6 +431,10 @@ a notebook record, so with no store the tour never starts.
   closes; everything else works as for a reader's sheet and writes no record.
   **One accepted edge**: Present's presenter window cannot find an unsaved
   sheet, so a reader who opens it has gone off the tour's script.
+  **The page's column leaves no room beside it** at most widths, so the
+  `parts` and `passage` steps pass `tight` (the runner's header): their card
+  goes above the part or form, right edges level, rather than over the
+  minutes box, the × and the Add button (BVJ, 2026-11-13).
 - **The offer** is a `float-window.js` window, 1.6 s after a draw, only with a
   store, no tour running (`html[data-desk-tour]`, desk), no other offer up
   (the Study Desk tour's, on /desk), the layout unfrozen (desk), and

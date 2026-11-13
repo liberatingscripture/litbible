@@ -328,6 +328,17 @@ export function hideUndo(notice) {
   if (hadFocus) giveFocusBack();
 }
 
+/**
+ * Close the bar if it is one that stays (a keyless undo, E131, or a bar of
+ * choices, E113), as a tour starting does (BVJ, 2026-11-13): an Undo pressed
+ * halfway through a tour would fight the tour's own restore. Closing it this
+ * way is no answer, so the reminder's × handler doesn't run and it comes back
+ * on the next page. A bar that closes by itself is left alone.
+ */
+export function hideStandingBar() {
+  if (stays && barShowing()) hideUndo();
+}
+
 /** Take away the last notice's link and choices, if it had any; focus on one moves to Close. */
 function dropLink() {
   for (const old of root.querySelectorAll(".desk-undo__link, .desk-undo__choices")) {
