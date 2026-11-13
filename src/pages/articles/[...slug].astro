@@ -90,6 +90,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   ogImage={heroImage ? `${siteOrigin}${heroImage}` : undefined}
   ogType="article"
   twitterCard={heroImage ? "summary_large_image" : "summary"}
+  deskSurface="article"
 >
   <Fragment slot="head">
     {heroImage && <link rel="preload" as="image" href={heroImage} />}

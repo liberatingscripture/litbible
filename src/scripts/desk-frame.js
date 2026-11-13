@@ -9,10 +9,25 @@
 export const DOCK_SELECTOR = "[data-desk-dock]";
 
 /**
+ * Whether the desk works on book introductions, articles and the glossary:
+ * off in version 1. Notes on glossary entries and articles (N11) are out of
+ * version 1 (BVJ, 2026-10-29; maybe version 2), and with them the Notebook
+ * panel on all three pages (E124, BVJ 2026-11-12: the panel did nothing for
+ * them, so it isn't shown). desk/page-kind.js re-exports it for the notes.
+ * Turning it on brings back their entries below, so the first stage
+ * (desk-gate.js) and the pre-paint stamps (Layout.astro, through hasPanel)
+ * return with them; global.css's :has() list then names their columns again,
+ * which test/desk-frame.test.js asks for.
+ */
+export const PROSE_NOTES = false;
+
+/**
  * The pages the Notebook appears on, which are the ones with a reading
  * column and a margin beside it for the panel (BVJ, 2026-10-06: not on pages
  * without one; and the glossary gains a reading column for it, the same
- * day). Each gives its column, whose first selector also identifies
+ * day), less the `prose` ones while PROSE_NOTES is off. Each names its
+ * `kind`, which the page hands Layout.astro as `deskSurface`, its column,
+ * whose first selector also identifies
  * the page, and the page's heading, which the panel's "Notebook" heading
  * lines up with (BVJ, 2026-10-06), or instead `start`, an element whose top
  * edge the panel's top edge lines up with, where its reading area ends (`end`,
@@ -38,26 +53,34 @@ export const DOCK_SELECTOR = "[data-desk-dock]";
 // if its element is missing, the panel stops 16px above the end of <main>.
 const LICENSE_BAND = { selector: ".scripture-disclaimer", at: "top", gap: 16 };
 
-export const READING_SURFACES = [
+// Every page that has had the panel, Chapter View first (margin.js tells it
+// by its place).
+export const ALL_SURFACES = [
   {
+    kind: "chapter",
     column: [".scripture-layout--scripture .scripture-main"],
     title: "#chapter-title",
     end: LICENSE_BAND,
     move: [".scripture-layout--scripture .scripture-main"],
   },
   {
+    kind: "intro",
+    prose: true,
     column: [".scripture-layout--intro .scripture-main"],
     title: "#chapter-title",
     end: LICENSE_BAND,
     move: [".scripture-layout--intro .scripture-main"],
   },
   {
+    kind: "read",
     column: [".rm-page .rm-reader", ".rm-page .rm-toolbar"],
     title: ".rm-page .rm-title",
     end: LICENSE_BAND,
     move: [".rm-page > .rm-toolbar", ".rm-page > .rm-resume-chip", ".rm-page > .rm-reader"],
   },
   {
+    kind: "article",
+    prose: true,
     column: [".article__card"],
     // The panel's top edge lines up with the card's (BVJ, 2026-10-06): the
     // card is its own object, picture first, and its title sits far enough
@@ -74,6 +97,8 @@ export const READING_SURFACES = [
   // which is the only time this list is read. The panel lines up with the
   // first entry's heading, not the page's title (BVJ, 2026-10-06).
   {
+    kind: "glossary",
+    prose: true,
     column: [".glossary-entries .entries-wrap"],
     title: ".glossary-entries .entry-title",
     end: { selector: ".glossary-entries .entries-panel", at: "bottom", gap: 16 },
@@ -84,6 +109,18 @@ export const READING_SURFACES = [
     move: [".glossary-entries .entries-wrap"],
   },
 ];
+
+/** The pages that have the Notebook panel now: Chapter View and Read View in version 1. */
+export const READING_SURFACES = ALL_SURFACES.filter((s) => PROSE_NOTES || !s.prose);
+
+/**
+ * Whether a page of this kind (Layout.astro's `deskSurface`, read at build)
+ * has the Notebook panel, which is where its pre-paint script stamps the
+ * panel's state (E124).
+ */
+export function hasPanel(kind) {
+  return READING_SURFACES.some((s) => s.kind === kind);
+}
 
 /** This page's reading surface, or null when the Notebook has no place here. */
 export function readingSurface(doc = document) {

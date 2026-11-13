@@ -737,11 +737,12 @@
    THE STUDY DESK PREVIEW (html[data-desk]; STUDY-DESK.md, phase 1b)
    With the desk on, the glossary reads like the other reading pages:
    one column at the reading width (the desk's 52 measure, growing with
-   the Display tray's text size the way Chapter View's does), entries set
-   at the reading size, and the Notebook panel in the margin beside it
-   (src/scripts/desk-frame.js lists it as a reading surface). BVJ,
-   2026-10-06. Like the 52 measure, readers keep the wide glossary until
-   the desk is released.
+   the Display tray's text size the way Chapter View's does), and entries
+   set at the reading size. BVJ, 2026-10-06. Like the 52 measure, readers
+   keep the wide glossary until the desk is released. The Notebook panel
+   that sat beside it is off with N11 (E124; PROSE_NOTES in
+   src/scripts/desk-frame.js); the look stays, as the release's, and
+   desk-gate.js still loads the headings' fit.
    ========================================================= */
 
 /* Size and width on the same element, as Chapter View does, so the column

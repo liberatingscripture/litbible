@@ -9,6 +9,7 @@ import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 import AppInstallBanner from "../components/AppInstallBanner.astro";
 import { APP_PLATFORM_UA } from "../lib/app-platform.mjs";
 import { EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH } from "../lib/desk-margin.mjs";
+import { hasPanel } from "../scripts/desk-frame.js";
 import { contentUpdated, contentVersion } from "../lib/content-version.mjs";
 
 const {
@@ -37,6 +38,11 @@ const {
   // Where the header's Study group sends "Study Desk": a chapter or an
   // introduction passes its toolbar pill's ?place= address (ScriptureLayout).
   deskHref,
+  // Which reading surface this page is, for the Study Desk ("chapter",
+  // "intro", "read", "article", "glossary"; the kinds in desk-frame.js's
+  // ALL_SURFACES). The pre-paint script stamps the Notebook panel's state
+  // only where that kind has the panel (hasPanel; E124).
+  deskSurface,
 } = Astro.props;
 
 // The header's Study Desk link is on the home page only (BVJ, 2026-11-06,
@@ -73,6 +79,8 @@ const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}b
 // What the desk's pre-paint script needs to repeat src/lib/desk-margin.mjs's
 // firstPaint (BA25, BA30).
 const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
+// Whether this page has the Notebook panel, for the same script (E124).
+const deskPanel = hasPanel(deskSurface);
 ---
 
 <!doctype html>
@@ -104,7 +112,10 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
          taken out of the address, so a copied link never carries it. With the flag on, and on a computer (the test in
          src/lib/app-platform.mjs, repeated here since this script can't import),
          data-desk="on" turns the desk on: desk-gate.js loads it, and global.css shows
-         the Notebook button and narrows the reading measure to 52. Unless the reader
+         the Notebook button and narrows the reading measure to 52. The rest is the
+         Notebook panel's, so it is stamped only on a page that has the panel
+         (deskPanel, from the page's deskSurface: Chapter View and Read View while
+         PROSE_NOTES in desk-frame.js is off; E124). There, unless the reader
          closed the notebook (lit-desk-panel "closed"; it starts open and minimized,
          BVJ 2026-10-13) or chose on the notebook page that pages open with it
          closed (lit-desk-start; src/lib/desk-start.mjs is the rule),
@@ -126,7 +137,7 @@ const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, min
          the critical CSS), which the window doesn't show yet this early, and reading it
          without left a 16px band where the guess was wrong. The panel itself sits in the
          margin, so nothing else needs reserving for it here. -->
-    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');var b=s.getItem('lit-desk-start');if(s.getItem('lit-desk-show')==='off')d.setAttribute('data-desk-show','off');if(s.getItem('lit-desk-show')==='off'?false:b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),e=document.createElement('div'),v,k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r,h=1,g;e.style.cssText='position:absolute;visibility:hidden;width:99px;height:9px;overflow:scroll';d.appendChild(e);v=innerWidth-(e.offsetWidth-e.clientWidth);d.removeChild(e);r=v-f.edge-f.gap-f.keepLeft;if(m>=f.minMeasure&&m<=f.maxMeasure&&x>=f.minWidth){h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-f.minMeasure)*k);m-=g/k;h-=g}}if(h<=.5){d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(Math.round(m*10)/10));d.style.setProperty('--desk-width',Math.round(x)+'px')}else if(r-f.measure*k-f.pad>=f.minWidth)d.setAttribute('data-desk-expanded','')}}}}catch(_){}</script>
+    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit, deskPanel }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');if(deskPanel){var b=s.getItem('lit-desk-start');if(s.getItem('lit-desk-show')==='off')d.setAttribute('data-desk-show','off');if(s.getItem('lit-desk-show')==='off'?false:b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),e=document.createElement('div'),v,k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r,h=1,g;e.style.cssText='position:absolute;visibility:hidden;width:99px;height:9px;overflow:scroll';d.appendChild(e);v=innerWidth-(e.offsetWidth-e.clientWidth);d.removeChild(e);r=v-f.edge-f.gap-f.keepLeft;if(m>=f.minMeasure&&m<=f.maxMeasure&&x>=f.minWidth){h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-f.minMeasure)*k);m-=g/k;h-=g}}if(h<=.5){d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(Math.round(m*10)/10));d.style.setProperty('--desk-width',Math.round(x)+'px')}else if(r-f.measure*k-f.pad>=f.minWidth)d.setAttribute('data-desk-expanded','')}}}}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />

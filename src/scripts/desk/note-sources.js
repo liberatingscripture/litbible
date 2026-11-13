@@ -11,7 +11,8 @@
 // to write or show such a note: the margin (proseSource), the selection
 // panel's "My Notebook" row and "Add a note on this article"
 // (prose-actions.js, panel.js), the tray's Show group (note-settings.js), the
-// tour's steps there (tour.js), and the change notice on those pages. The
+// tour's steps there (tour.js), the change notice on those pages, and (E124)
+// the Notebook panel itself there and on book introductions. The
 // records themselves are untouched: the format still describes them,
 // proseTarget, the merge and the export carry them, and My Notes and
 // /notebook list them like any other note. Turning the switch back on is
@@ -35,8 +36,9 @@ import { currentSlug, forChapter, forProse } from "../../lib/desk-store-core.mjs
 import articleSlugs from "../../data/article-slugs.json";
 import { chapterBlocks, chapterText, pageChapter } from "./page.js";
 
-// PROSE_NOTES and prosePage live in page-kind.js, which the first stage
-// carries (note-settings.js reads them); the rest of the desk imports them here.
+// prosePage lives in page-kind.js, which the first stage carries
+// (note-settings.js reads it), and PROSE_NOTES in desk-frame.js, which
+// page-kind.js passes on; the rest of the desk imports them here.
 import { PROSE_NOTES, prosePage } from "./page-kind.js";
 export { PROSE_NOTES, prosePage };
 
