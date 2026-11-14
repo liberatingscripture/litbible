@@ -139,7 +139,7 @@
 }
 
 .button--primary {
-  background: var(--green, #209d50);
+  background: var(--green-deep);
   color: #fff;
   border-color: transparent;
 }

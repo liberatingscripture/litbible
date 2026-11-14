@@ -89,18 +89,21 @@
   border: 1px solid var(--field-border);
   border-right: none;
   border-radius: 8px 0 0 8px;
-  outline: none;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition: border-color 160ms ease;
 }
 
 .unsub-form__input:focus {
   border-color: var(--green-text);
-  box-shadow: 0 0 0 2px rgba(32, 157, 80, 0.2);
+}
+
+.unsub-form__input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .unsub-form__input::placeholder {
-  color: var(--text);
-  opacity: 0.4;
+  color: rgba(var(--ink-rgb), 0.7);
+  opacity: 1;
 }
 
 .unsub-form__submit {

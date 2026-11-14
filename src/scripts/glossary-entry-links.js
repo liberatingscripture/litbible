@@ -7,6 +7,8 @@
 // screen reader. Where the clipboard is unavailable the link is left to
 // navigate as usual, which still puts the address in the address bar.
 
+import { setTip } from "./tip.js";
+
 const links = document.querySelectorAll("a[data-entry-link]");
 
 if (links.length && navigator.clipboard?.writeText) {
@@ -18,10 +20,11 @@ if (links.length && navigator.clipboard?.writeText) {
   const timers = new WeakMap();
 
   for (const link of links) {
+    // The name is the aria-label; the tip is the same words for the eye, since
+    // a chain icon alone doesn't say it copies (BVJ, 2026-10-09) and a title
+    // never shows on keyboard focus. Without JS the markup's title stands.
     link.setAttribute("aria-label", `Copy link to the ${link.dataset.term} entry`);
-    // Hover text, since a chain icon alone doesn't say it copies (BVJ,
-    // 2026-10-09). Without JS the markup's "Link to this entry" stands.
-    link.title = "Copy link to this entry";
+    setTip(link, "Copy link to this entry");
 
     link.addEventListener("click", async (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
