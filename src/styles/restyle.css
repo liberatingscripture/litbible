@@ -151,8 +151,10 @@
 }
 
 /* Their icons stay the text green in every state (they turned white with the
-   old green fill on hover). */
-:root[data-restyle] :is(.rm-page .rm-toolbar, .read-menu__trigger, .read-menu__desk) :is(.rm-tool-icon, .rm-cycle-icon, .rm-btn-icon, .read-menu__icon) {
+   old green fill on hover). The Scripture page's pills are named with their
+   toolbar's classes because ScriptureLayout's scoped hover rule weighs as
+   much as the rest of this list. */
+:root[data-restyle] :is(.rm-page .rm-toolbar, .read-menu__trigger, .read-menu__desk, .scripture-tools .scripture-tools__right .reading-view-pill) :is(.rm-tool-icon, .rm-cycle-icon, .rm-btn-icon, .read-menu__icon, .reading-view-pill__icon) {
   color: var(--green-text);
 }
 

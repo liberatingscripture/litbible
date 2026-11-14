@@ -578,6 +578,32 @@ const fallbackHref =
       color: var(--rm-accent-fg);
     }
 
+    /* On /read the picker and the Study Desk pill are one pair (BVJ,
+       2026-11-13): the same height, and the same width whatever their labels,
+       side by side or stacked in a narrow window. The picker is a <button>
+       once its script runs, and a button doesn't inherit the page's line
+       height, so the pill takes the button's (it stood 6px taller). Equal
+       grid columns give the width; the picker fills its column. */
+    .read-menu__desk {
+      line-height: normal;
+    }
+
+    html[data-desk] .read-menu-wrap:has(> .read-menu__desk) {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+    }
+
+    html[data-desk] .read-menu-wrap:has(> .read-menu__desk) .read-menu__trigger {
+      width: 100%;
+    }
+
+    @media (max-width: 560px) {
+      html[data-desk] .read-menu-wrap:has(> .read-menu__desk) {
+        grid-auto-flow: row;
+      }
+    }
+
     /* Compact variant (read-mode toolbar): no pill floor — the trigger sits
        inline beside the progress cluster and takes the toolbar's button
        chrome (read-mode.css sizes it; these drop the standalone-pill extras). */
