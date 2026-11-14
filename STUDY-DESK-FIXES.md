@@ -3804,7 +3804,7 @@ says so; where BVJ was wondering, nothing is decided.)
     `apps.css` is untouched and the rules are in `restyle.css`. The mark was
     left off them: it made the hero's two too wide to share a row.
   B1 to B11 went to every reader in #585. Launch is item 14 of "Launching"
-  in `src/scripts/desk/CLAUDE.md`. Status: built (preview only).
+  in `src/scripts/desk/CLAUDE.md`. Status: built (#586, preview only).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
