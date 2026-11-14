@@ -42,8 +42,8 @@ sign of a feature: log it, and move it when it's clear where it belongs).
 **BVJ's use of the preview** (add as they come)
 
 - **E4, rough: revisit Places.** BVJ (2026-10-16), from using the preview:
-  "underwhelmed. It needs work." Open, and the first item the phase takes up.
-  The specifics aren't recorded yet; add them here as BVJ names them. What
+  "underwhelmed. It needs work." The first item the phase took up.
+  The specifics weren't recorded; E9 holds what BVJ named. What
   exists to rework (B1, built in 1d; "Order of work", 1d, Places and
   ribbons): a Places section in My Notes and on the notebook page, listing
   this book's places, "Continue reading", ribbons (at most 6, following
@@ -54,7 +54,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   plan. **Taken up on 2026-10-22 as E9** (BVJ named the trouble: two
   features for one idea, and a Places section that lists places the reader
   never made). E9 holds the answer; the questions below stay as the
-  record of what was weighed. **Closed by E9, built 2026-11-02.**
+  record of what was weighed. **Closed by E9, built 2026-11-02.** Status:
+  moved to E9, fixed (BVJ confirmed the result 2026-11-02; closed in the log
+  2026-11-13).
   **Questions to ask when it is picked up**,
   as prompts and not findings:
   - Is the trouble **finding and seeing** places: where the list sits, how
@@ -184,8 +186,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the typed search, keep the word links.** The search button and field
   leave the tab; a word's form, lemma and Strong's number still start a
   search from the details. Typed Greek searching lives in the search bar,
-  /search and /desk's Search pane (3m). Open: decided, to build (the
-  removals listed below, and where the word links' results show). What is there today (1h, "The Greek
+  /search and /desk's Search pane (3m). Built, as the entry below says
+  (the removals listed there, and where the word links' results show).
+  What was there before (1h, "The Greek
   tab searches too"; `desk/greek-find.js`): a search button in the tab's
   header opens a field in place, results replace the text until "Back to
   the text," and in a word's details the form, the lemma and the Strong's
@@ -228,7 +231,7 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   the word links' results **stay in the tab** (the reader keeps their place,
   and "See these on the search page" is the way out; the link's words and
   place changed 2026-11-04, above). Nothing was changed for them. Status:
-  looked at 2026-11-04.
+  fixed (BVJ, 2026-11-13: “addressed”; the built changes are above).
 - **E8, rough: there is no way into /desk, and Read View retires at
   launch.** BVJ (2026-10-21): no button or link reaches /desk, and
   switching between Study View and Read View was always clunky. **Decided**
@@ -3791,9 +3794,11 @@ says so; where BVJ was wondering, nothing is decided.)
     control for the keyboard and screen readers, hidden from sight, and a
     click on either word picks that word.
   - **D5**: every card is the desk's card (a thin edge, a 10px corner, no
-    shadow), and a release-notes entry gains one. BVJ is weighing a shadow
-    for cards that are links, so the card shadows are tokens
-    (`--restyle-card-shadow`, `--restyle-link-card-shadow` and its hover).
+    shadow), and a release-notes entry gains one. **A card that is a link
+    takes a light shadow** (BVJ, 2026-11-13): a button's rest shadow, and its
+    lift on hover with no movement (`--restyle-link-card-shadow` is
+    `--desk-btn-rest`, and its hover is `--desk-btn-lift`, so the dark values
+    follow). Cards that aren't links stay flat (`--restyle-card-shadow`).
   - **D6**: small headings in tools follow E75.
   - **D7**: a link that opens a new tab carries the open-page mark (E71),
     prose included, but not a picture or icon link, nor anything in /apps'

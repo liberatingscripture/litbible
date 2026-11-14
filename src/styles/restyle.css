@@ -18,9 +18,10 @@
    - glyph buttons (×) have no edge at rest and a tint on hover;
    - floating surfaces (menus, the tray, the shared panel) share one edge,
      corner and shadow;
-   - cards are the desk's card: a thin edge, a 10px corner, no shadow. The two
-     card shadows are tokens, so a card that is a link can be given a shadow
-     again in one line;
+   - cards are the desk's card: a thin edge, a 10px corner, and no shadow,
+     except a card that is a link (BVJ, 2026-11-13), which takes a button's
+     light shadow at rest and its lift on hover (no movement). Both are
+     tokens, so the choice is one line;
    - headings in tools follow E75 (sentence case, 13px, 600, ink at .7);
    - a link that opens a new tab carries the desk's open-page mark (E71).
 
@@ -56,8 +57,8 @@
   --desk-primary-off: rgba(15, 107, 51, 0.06);
   --restyle-float-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
   --restyle-card-shadow: none;
-  --restyle-link-card-shadow: none;
-  --restyle-link-card-hover-shadow: none;
+  --restyle-link-card-shadow: var(--desk-btn-rest);
+  --restyle-link-card-hover-shadow: var(--desk-btn-lift);
 }
 
 @media (prefers-color-scheme: dark) {
