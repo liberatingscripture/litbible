@@ -57,8 +57,11 @@ html[data-desk] .nbhelp {
 
 /* ---------- The contents ---------- */
 
+/* The contents are read, not glanced at, so their words stay near the text's
+   size: 17px here and 16px beside the text, the topics a step smaller (BVJ,
+   2026-11-13; they were 13px and 12.5px beside 18px text). */
 .nbhelp__toc {
-  font-size: calc(0.95rem * var(--help-scale, 1));
+  font-size: calc(1.0625rem * var(--help-scale, 1));
   line-height: calc(1.45 + var(--help-leading, 0));
   margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem);
   padding: 1rem 1.25rem 1.1rem;
@@ -69,7 +72,7 @@ html[data-desk] .nbhelp {
 }
 
 .nbhelp__toc-title {
-  font-size: calc(0.8rem * var(--help-scale, 1));
+  font-size: calc(0.875rem * var(--help-scale, 1));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -171,17 +174,14 @@ html[data-desk] .nbhelp {
     /* A window shorter than the list gets a quiet bar, in the theme's ink. */
     scrollbar-width: thin;
     scrollbar-color: rgba(var(--ink-rgb), 0.3) transparent;
+    /* The same off-white box as on a narrow window (BVJ, 2026-11-13). */
     margin-bottom: 0;
-    padding: 0.25rem 0.5rem 0.25rem 1rem;
-    border: 0;
-    border-left: 3px solid var(--green-text);
-    border-radius: 0;
-    background-color: transparent;
-    font-size: calc(0.84rem * var(--help-scale, 1));
-    line-height: calc(1.3 + var(--help-leading, 0));
+    padding: 0.75rem 0.75rem 0.75rem 1rem;
+    font-size: calc(1rem * var(--help-scale, 1));
+    line-height: calc(1.35 + var(--help-leading, 0));
   }
 
-  /* Tighter rows, so the list fits a window about 900px tall without scrolling. */
+  /* Tighter rows, so the list scrolls in as few windows as it can. */
   .nbhelp__toc a {
     padding-block: 0.04rem;
   }
