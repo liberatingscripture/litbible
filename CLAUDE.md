@@ -251,7 +251,8 @@ src/
   styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
                      #   greek-hebrew-fonts.css (imported by global.css),
                      #   pages/<page>.css (per-page stylesheets), desk.css
-                     #   (the desk's own; the shell adds it, never a page)
+                     #   (the desk's own; the shell adds it, never a page),
+                     #   restyle.css (the site in the desk's look, preview only)
 scripts/             # BUILD/validation Node scripts (.mjs) — see below
                      #   (og/fonts/ holds the committed TTFs the share-card
                      #   generator renders with — see its README)

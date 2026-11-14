@@ -434,6 +434,30 @@
   words (ink at 0.7, or the text green on a disabled primary, 4.5:1 or more
   on every surface), never by fading it with `opacity`. The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
+- **The rest of the site takes the desk's look in `restyle.css`, behind
+  `data-restyle`** (E132; BVJ, 2026-11-13). Layout.astro stamps it from
+  `lit-desk-preview` on every device, phones included, and loads the file
+  after `global.css` on every page; it comes off at launch (item 14 of
+  "Launching", `src/scripts/desk/CLAUDE.md`). Five rules hold it together,
+  and `test/restyle-css.test.js` checks the first four:
+  1. **Every rule starts `:root[data-restyle]`**, so nothing reaches a reader
+     without the preview. Dark values name both selectors, as everywhere.
+  2. **The desk's tokens are copied with desk.css's values**, since most
+     pages never load desk.css. Change one in desk.css and here together.
+  3. **Each kind of control is one `:is()` list** (ordinary, primary, pill,
+     glyph, floating surface, card, heading, field, quiet link), repeated
+     word for word in its state rules. A new button joins a list; it never
+     gets a rule of its own.
+  4. **An element is in one list only.** A `:is()` list weighs as much as
+     its most specific member, so the ordinary list outweighs the others
+     whatever the order, and a second kind would lose. The same fact is used
+     on purpose: page and component styles load after this file and win a
+     tie, so where one weighs as much as a list, a member named with its
+     page's class (`.search-page .result-link`) lifts the whole list.
+  5. **/apps is mirrored with the LSC site**: only its four store buttons
+     take the look (BVJ, 2026-11-13), from here, never from `apps.css`.
+  Check a change against the computed styles of every control on each page,
+  in both themes and at a phone's width, before trusting a screenshot.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under
