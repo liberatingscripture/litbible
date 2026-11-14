@@ -110,7 +110,8 @@
 }
 
 .signup input[type="email"]::placeholder {
-  color: rgba(var(--ink-rgb), 0.38);
+  color: rgba(var(--ink-rgb), 0.7);
+  opacity: 1;
 }
 
 .signup__button {

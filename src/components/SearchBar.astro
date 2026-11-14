@@ -397,7 +397,7 @@ const glossaryTerms = Object.fromEntries(
 
   .searchbar__filter-pill span {
     font-size: 0.75rem;
-    opacity: 0.65;
+    opacity: 0.7;
   }
 
   .searchbar__filter-clear-all {
@@ -407,7 +407,7 @@ const glossaryTerms = Object.fromEntries(
     background: transparent;
     font-size: 0.85rem;
     cursor: pointer;
-    color: rgba(var(--ink-rgb), 0.6);
+    color: rgba(var(--ink-rgb), 0.7);
     white-space: nowrap;
   }
 
@@ -416,7 +416,11 @@ const glossaryTerms = Object.fromEntries(
   }
 
   .searchbar__suggest-word {
-    display: inline;
+    /* inline-block so the 24px minimum (WCAG 2.5.8) holds */
+    display: inline-block;
+    min-height: 24px;
+    box-sizing: border-box;
+    vertical-align: middle;
     padding: 2px 8px;
     border-radius: 999px;
     border: 1px solid rgba(32, 157, 80, 0.35);

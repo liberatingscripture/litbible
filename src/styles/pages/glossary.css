@@ -74,7 +74,7 @@
 }
 
 .inline-link{
-  color: var(--lit-green);
+  color: var(--green-text);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -92,7 +92,7 @@
 .toggle-label{
   font-size: 14px;
   color: var(--text);
-  opacity: 0.45;
+  opacity: 0.7;
   cursor: pointer;
   transition: opacity 0.2s, color 0.2s;
   user-select: none;
@@ -233,6 +233,12 @@
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
+  /* 24px target (WCAG 2.5.8): the arrow stays the same size */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
   padding: 2px 4px;
   border-left: 1px solid rgba(var(--ink-rgb), 0.12);
   padding-left: 12px;

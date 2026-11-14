@@ -2482,6 +2482,27 @@ a.footer-cta > span {
   border-color: #13ce66;
 }
 
+/* Dark footer (#1d1d1f): a translucent tint of each border color, with pale
+   words (8.5:1 error, 8.7:1 success). The pale light boxes would glare there. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .footer-newsletter__message--error {
+    color: #ffb4b4;
+    background-color: rgba(255, 73, 73, 0.14);
+  }
+  :root:not([data-theme="light"]) .footer-newsletter__message--success {
+    color: #7ee8ac;
+    background-color: rgba(19, 206, 102, 0.14);
+  }
+}
+:root[data-theme="dark"] .footer-newsletter__message--error {
+  color: #ffb4b4;
+  background-color: rgba(255, 73, 73, 0.14);
+}
+:root[data-theme="dark"] .footer-newsletter__message--success {
+  color: #7ee8ac;
+  background-color: rgba(19, 206, 102, 0.14);
+}
+
 .footer-newsletter__message-icon {
   flex-shrink: 0;
   width: 16px;
@@ -2506,18 +2527,21 @@ a.footer-cta > span {
   border: 1px solid var(--field-border);
   border-right: none;
   border-radius: 8px 0 0 8px;
-  outline: none;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition: border-color 160ms ease;
 }
 
 .footer-newsletter__input:focus {
   border-color: var(--green-text);
-  box-shadow: 0 0 0 2px rgba(32, 157, 80, 0.2);
+}
+
+.footer-newsletter__input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .footer-newsletter__input::placeholder {
-  color: var(--text);
-  opacity: 0.4;
+  color: rgba(var(--ink-rgb), 0.7);
+  opacity: 1;
 }
 
 .footer-newsletter__submit {
@@ -3268,7 +3292,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   font-size: calc(0.85rem * var(--panel-scale, 1));
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 .lit-panel__header .lit-panel__heading {
@@ -3337,7 +3361,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   font-size: calc(0.78rem * var(--panel-scale, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.55);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 /* Part previews are a line of scripture, so let them wrap rather than forcing
@@ -3687,7 +3711,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 .lit-panel__hint {
   margin: 0 0 6px;
   font-size: calc(0.78rem * var(--panel-scale, 1));
-  color: rgba(var(--ink-rgb), 0.55);
+  color: rgba(var(--ink-rgb), 0.7);
 }
 
 /* "See in footnotes" link at the bottom of footnote popovers */
