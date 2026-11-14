@@ -1,0 +1,580 @@
+/* The rest of the site in the Study Desk's look (E132; BVJ, 2026-11-13).
+   Every rule here is keyed to html[data-restyle], which Layout.astro's
+   pre-paint script sets on every device while the Study Desk preview is on
+   (lit-desk-preview), so readers see nothing of it until launch. At launch the
+   stamp and its key come off together ("Launching" in
+   src/scripts/desk/CLAUDE.md): the rules are then folded into the files they
+   override, or this file loses its gate.
+
+   The parts, in the desk's own words (src/styles/desk.css, "Four kinds of
+   button", E126):
+   - ordinary buttons are the desk's Raised button, at an 8px corner;
+   - toggles and filters are pills, flat at rest and sunk when on;
+   - the primary is solid Deep Green in the same 8px shape. On the Scripture
+     pages (Chapter View, the introductions and Read View) every green button
+     keeps it: the arrows by the heading, both chapter buttons, Back to top and
+     Read View's floating button. Elsewhere a page has one, save the
+     Collective's page and /support, which keep one per section;
+   - glyph buttons (×) have no edge at rest and a tint on hover;
+   - floating surfaces (menus, the tray, the shared panel) share one edge,
+     corner and shadow;
+   - cards are the desk's card: a thin edge, a 10px corner, no shadow. The two
+     card shadows are tokens, so a card that is a link can be given a shadow
+     again in one line;
+   - headings in tools follow E75 (sentence case, 13px, 600, ink at .7);
+   - a link that opens a new tab carries the desk's open-page mark (E71).
+
+   Each kind is one selector list, repeated in its state rules; keep the copies
+   the same (test/restyle-css.test.js holds them). An element belongs to one
+   kind only: a :is() list takes its most specific member's weight, so a
+   second kind would lose to the ordinary list whatever the order. The same
+   rule is used on purpose where a page's scoped style weighs as much as a
+   list: a member named with its page's class (.search-page .result-link,
+   .go-deeper .go-deeper__row > dt) lifts its whole list over that page.
+   Component styles load after this file, so a tie goes to them.
+
+   The desk's tokens are declared again here, with the same values, since most
+   pages don't load desk.css; the test holds the two in step. Dark styles name
+   both selectors, as everywhere. */
+
+/* ── Tokens ───────────────────────────────────────────────────── */
+:root[data-restyle] {
+  --desk-card: var(--surface-raised);
+  --desk-card-edge: rgba(var(--ink-rgb), 0.16);
+  --desk-field: var(--white);
+  --desk-control: var(--white);
+  --desk-btn-edge-low: rgba(var(--ink-rgb), 0.74);
+  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.16);
+  --desk-btn-press: inset 0 1px 3px rgba(0, 0, 0, 0.22);
+  --desk-btn-hover: rgba(var(--ink-rgb), 0.05);
+  --desk-btn-down: rgba(0, 0, 0, 0.07);
+  --desk-btn-lift-y: -1px;
+  --desk-btn-motion: 120ms;
+  --desk-primary-edge: var(--green-deep);
+  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  --desk-primary-off: rgba(15, 107, 51, 0.06);
+  --restyle-float-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  --restyle-card-shadow: none;
+  --restyle-link-card-shadow: none;
+  --restyle-link-card-hover-shadow: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-restyle]:not([data-theme="light"]) {
+    --desk-field: var(--surface);
+    --desk-control: rgba(var(--ink-rgb), 0.07);
+    --desk-btn-edge-low: var(--field-border);
+    --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
+    --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
+    --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+    --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
+    --desk-btn-down: rgba(0, 0, 0, 0.3);
+    --desk-primary-edge: rgba(58, 191, 106, 0.7);
+    --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+    --desk-primary-off: rgba(58, 191, 106, 0.12);
+    --restyle-float-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-restyle][data-theme="dark"] {
+  --desk-field: var(--surface);
+  --desk-control: rgba(var(--ink-rgb), 0.07);
+  --desk-btn-edge-low: var(--field-border);
+  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
+  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
+  --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
+  --desk-btn-down: rgba(0, 0, 0, 0.3);
+  --desk-primary-edge: rgba(58, 191, 106, 0.7);
+  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  --desk-primary-off: rgba(58, 191, 106, 0.12);
+  --restyle-float-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-restyle] {
+    --desk-btn-lift-y: 0px;
+    --desk-btn-motion: 0s;
+  }
+}
+
+/* ── Ordinary buttons: the desk's Raised button, 8px ──────────── */
+/* On (pressed, expanded, the current page) is sunk with the text green's
+   edge and words; disabled is flat. */
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary) {
+  border: 1px solid var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  border-radius: 8px;
+  background: var(--desk-control);
+  color: var(--text);
+  box-shadow: var(--desk-btn-rest);
+  text-decoration: none;
+  transform: none;
+  filter: none;
+  opacity: 1;
+  transition:
+    transform var(--desk-btn-motion) ease,
+    box-shadow var(--desk-btn-motion) ease,
+    background-color var(--desk-btn-motion) ease;
+}
+
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current, :active) {
+  border-color: var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  color: var(--text);
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+}
+
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary):is(:active, [aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current):not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--field-border);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  color: var(--text);
+  box-shadow: var(--desk-btn-press);
+  transform: none;
+}
+
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary):is([aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current):not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--green-text);
+  color: var(--green-text);
+}
+
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary):is(:disabled, [aria-disabled="true"]) {
+  border-color: var(--field-border);
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}
+
+/* Their icons stay the text green in every state (they turned white with the
+   old green fill on hover). The Scripture page's pills are named with their
+   toolbar's classes because ScriptureLayout's scoped hover rule weighs as
+   much as the rest of this list. */
+:root[data-restyle] :is(.rm-page .rm-toolbar, .read-menu__trigger, .read-menu__desk, .scripture-tools .scripture-tools__right .reading-view-pill) :is(.rm-tool-icon, .rm-cycle-icon, .rm-btn-icon, .read-menu__icon, .reading-view-pill__icon) {
+  color: var(--green-text);
+}
+
+/* The podcast's platform links lay their name and the open-page mark in a
+   row (the link is a grid, which would stack them). */
+:root[data-restyle] .fit-platform {
+  grid-auto-flow: column;
+}
+
+/* ── The primary: solid Deep Green, 8px ───────────────────────── */
+:root[data-restyle] :is(.nav-button, .chapter-cta, .back-to-top__link, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
+  border: 1px solid var(--desk-primary-edge);
+  border-radius: 8px;
+  background: var(--green-deep);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: var(--desk-btn-rest);
+  text-decoration: none;
+  transform: none;
+  filter: none;
+  opacity: 1;
+  transition:
+    transform var(--desk-btn-motion) ease,
+    box-shadow var(--desk-btn-motion) ease,
+    filter var(--desk-btn-motion) ease;
+}
+
+:root[data-restyle] :is(.nav-button, .chapter-cta, .back-to-top__link, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
+  border-color: var(--desk-primary-edge);
+  background: var(--green-deep);
+  color: #fff;
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+  filter: brightness(1.1);
+}
+
+:root[data-restyle] :is(.nav-button, .chapter-cta, .back-to-top__link, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
+  box-shadow: var(--desk-primary-press);
+  transform: none;
+  filter: brightness(0.95);
+}
+
+:root[data-restyle] :is(.nav-button, .chapter-cta, .back-to-top__link, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
+  border-color: var(--desk-primary-edge);
+  background: var(--desk-primary-off);
+  color: var(--green-text);
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+
+/* ── Toggles and filters: pills, flat at rest ─────────────────── */
+/* On is sunk, with the text green's edge and words. A filter that is
+   applied is on. */
+:root[data-restyle] :is(.searchbar__filter-pill, .filter-pill:not(.filter-pill--clear-all), .fit-season-nav button) {
+  border: 1px solid var(--field-border);
+  border-radius: 999px;
+  background: var(--desk-control);
+  color: var(--text);
+  box-shadow: none;
+}
+
+:root[data-restyle] :is(.searchbar__filter-pill, .filter-pill:not(.filter-pill--clear-all), .fit-season-nav button):hover:not(:active, [aria-pressed="true"], [aria-current="true"], .is-active, .searchbar__filter-pill, .filter-pill) {
+  border-color: var(--field-border);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  color: var(--text);
+}
+
+:root[data-restyle] :is(.searchbar__filter-pill, .filter-pill:not(.filter-pill--clear-all), .fit-season-nav button):is(:active, [aria-pressed="true"], [aria-current="true"], .is-active, .searchbar__filter-pill, .filter-pill) {
+  border-color: var(--green-text);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  color: var(--green-text);
+  box-shadow: var(--desk-btn-press);
+}
+
+/* ── Glyph buttons (×): no edge at rest, a tint on hover ──────── */
+:root[data-restyle] :is(.font-tray__close, .lit-panel__close, .read-menu__close, .rm-page .rm-toolbar button.rm-toolbar__close, .rm-page .rm-resume-chip [data-rm-resume-dismiss], .continue-reading__forget) {
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  box-shadow: none;
+  opacity: 1;
+}
+
+:root[data-restyle] :is(.font-tray__close, .lit-panel__close, .read-menu__close, .rm-page .rm-toolbar button.rm-toolbar__close, .rm-page .rm-resume-chip [data-rm-resume-dismiss], .continue-reading__forget):hover {
+  background: rgba(var(--ink-rgb), 0.08);
+  color: var(--text);
+}
+
+/* ── Floating surfaces: one edge, corner and shadow ───────────── */
+:root[data-restyle] :is(.font-tray, .lit-panel, .site-nav__menu, .read-menu:not(.read-menu--compact) .read-menu__panel, .searchbar__panel-inner, .whats-new__panel, .rm-page .rm-resume-chip) {
+  background: var(--surface-raised);
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 12px;
+  box-shadow: var(--restyle-float-shadow);
+}
+
+/* On a phone the shared panel is a sheet from the bottom: a square foot. */
+@media (max-width: 767px) {
+  :root[data-restyle] :is(.font-tray, .lit-panel, .site-nav__menu, .read-menu:not(.read-menu--compact) .read-menu__panel, .searchbar__panel-inner, .whats-new__panel, .rm-page .rm-resume-chip):is(.lit-panel) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+:root[data-restyle] .rm-page .rm-resume-chip {
+  padding: 4px;
+  gap: 4px;
+}
+
+/* Read View's toolbar: a card that floats over the text. */
+:root[data-restyle] .rm-page .rm-toolbar {
+  background: var(--surface-raised);
+  border-color: var(--desk-card-edge);
+  box-shadow: var(--restyle-float-shadow);
+}
+
+/* ── Cards: the desk's card ───────────────────────────────────── */
+:root[data-restyle] :is(.search-page .result-link, .view-card, .license-card, .rn-entry, .continue-reading, .go-deeper, .searchbar__jump-link, .article__card, .featured__card, .fit-ep, .faq-item, .card) {
+  background: var(--desk-card);
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  box-shadow: var(--restyle-card-shadow);
+}
+
+/* A card that is a link, or holds one as its first layer. */
+:root[data-restyle] :is(.search-page .result-link, .view-card, .license-card, .rn-entry, .continue-reading, .go-deeper, .searchbar__jump-link, .article__card, .featured__card, .fit-ep, .faq-item, .card):is(a, :has(> a)) {
+  box-shadow: var(--restyle-link-card-shadow);
+}
+
+:root[data-restyle] :is(.search-page .result-link, .view-card, .license-card, .rn-entry, .continue-reading, .go-deeper, .searchbar__jump-link, .article__card, .featured__card, .fit-ep, .faq-item, .card):is(a:hover, :has(> a:hover)) {
+  border-color: rgba(var(--ink-rgb), 0.3);
+  background: var(--desk-card) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  box-shadow: var(--restyle-link-card-hover-shadow);
+  transform: none;
+}
+
+/* A release note was a bare row: it needs room inside its new edge. */
+:root[data-restyle] .rn-entry {
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+/* ── Small headings in tools (E75) ────────────────────────────── */
+:root[data-restyle] :is(.font-tray__legend, .searchbar__group-title, .group-title, .read-menu__head, .lit-panel__heading, .lit-panel__subheading, .whats-new__date, .go-deeper .go-deeper__row > dt) {
+  font-family: inherit;
+  font-size: calc(0.8125rem * var(--control-scale, 1));
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  color: rgba(var(--ink-rgb), 0.7);
+  opacity: 1;
+}
+
+/* ── Fields: white, the 3:1 edge ──────────────────────────────── */
+:root[data-restyle] :is(.searchbar__input, .searchbar__book, .searchbar__mode, .footer-newsletter__input, .field input, .field textarea, .field select, .unsub-form__input, .rn-filter__select, .signup input[type="email"], .subscribe-strip__form input[type="email"]) {
+  background-color: var(--desk-field);
+  border-color: var(--field-border);
+}
+
+/* ── Quiet links (E75): the text green, underlined ────────────── */
+:root[data-restyle] :is(.searchbar__suggest-word, .suggest-word, .about-toc a.footer-cta.about-toc__cta) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--green-text);
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transform: none;
+}
+
+:root[data-restyle] :is(.searchbar__suggest-word, .suggest-word, .about-toc a.footer-cta.about-toc__cta):hover {
+  background: none;
+  color: var(--text);
+  opacity: 1;
+  transform: none;
+}
+
+/* /about's contents, at a size a finger can take. They are the footer's
+   call-to-action links underneath (a.footer-cta, its curtain already off
+   there), so this names them as about.css does to outweigh it. */
+:root[data-restyle] .about-toc a.footer-cta.about-toc__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  font-size: 0.9375rem;
+}
+
+/* ── A new tab says so (E71): the desk's open-page mark ───────── */
+/* Not on a link that is a picture or an icon (the footer's social links name
+   themselves), nor on one that carries the desk's own mark, nor anywhere in
+   /apps' page body, its store buttons included: the mark made the hero's two
+   too wide to share a row, and a store link says where it goes. */
+:root[data-restyle] a[target="_blank"]:not(:has(img, picture, .desk-newtab), .social-links a, .apps a)::after {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 0.3em;
+  vertical-align: -0.1em;
+  opacity: 0.8;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ── /apps: its four store buttons, and nothing else there ────── */
+/* BVJ, 2026-11-13. The page is mirrored with the LSC site (apps.css stays
+   byte-identical there), so its look is changed from here, and only these:
+   the App Store and Google Play buttons in the hero and in Join the beta. The
+   dark one keeps its color, the one that matched the page turns white (the
+   control layer in dark), and both take the Raised shape: an 8px corner, an
+   edge, a shadow at rest, a lift on hover, sunk when pressed. */
+:root[data-restyle] .apps :is(.hero__ctas, .get-app__ctas) > a.btn:is(.btn-primary, .btn-secondary) {
+  border: 1px solid var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  border-radius: 8px;
+  background: var(--desk-control);
+  color: var(--text);
+  box-shadow: var(--desk-btn-rest);
+  transform: none;
+  opacity: 1;
+  transition:
+    transform var(--desk-btn-motion) ease,
+    box-shadow var(--desk-btn-motion) ease,
+    background-color var(--desk-btn-motion) ease;
+}
+
+:root[data-restyle] .apps :is(.hero__ctas, .get-app__ctas) > a.btn.btn-primary {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+
+:root[data-restyle] .apps :is(.hero__ctas, .get-app__ctas) > a.btn.btn-secondary:hover:not(:active) {
+  border-color: var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  color: var(--text);
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+}
+
+/* A gray veil lightens the dark button in light and darkens it in dark, so
+   it keeps its color on hover rather than turning green. */
+:root[data-restyle] .apps :is(.hero__ctas, .get-app__ctas) > a.btn.btn-primary:hover:not(:active) {
+  border-color: var(--text);
+  background: var(--text) linear-gradient(rgba(128, 128, 128, 0.18), rgba(128, 128, 128, 0.18));
+  color: var(--bg);
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+}
+
+:root[data-restyle] .apps :is(.hero__ctas, .get-app__ctas) > a.btn.btn-secondary:active {
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  box-shadow: var(--desk-btn-press);
+  transform: none;
+}
+
+:root[data-restyle] .apps :is(.hero__ctas, .get-app__ctas) > a.btn.btn-primary:active {
+  box-shadow: var(--desk-primary-press);
+  transform: none;
+}
+
+/* ── Segmented choices: .desk-seg's look ──────────────────────── */
+/* The Display tray's segments. */
+:root[data-restyle] .font-tray__seg {
+  background: var(--desk-control);
+  border: 1px solid var(--field-border);
+  border-radius: calc(1em + 4px);
+}
+
+:root[data-restyle] .font-tray__seg-option + .font-tray__seg-option {
+  border-left-color: rgba(var(--ink-rgb), 0.25);
+}
+
+:root[data-restyle] .font-tray__seg-option:hover:not(:has(.font-tray__seg-input:checked)) {
+  background: linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+}
+
+:root[data-restyle] .font-tray__seg-option:has(.font-tray__seg-input:checked) {
+  background: var(--green-text);
+}
+
+:root[data-restyle] .font-tray__seg-input:checked + .font-tray__seg-text {
+  color: var(--surface-raised);
+}
+
+/* The glossary's sort switch reads as two segments. The switch stays the
+   control for the keyboard and screen readers, hidden from sight; a click on
+   either word picks it (glossary.astro's script), and the focus ring goes
+   round the pair. */
+:root[data-restyle] .category-toggle {
+  position: relative;
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--field-border);
+  border-radius: calc(1em + 4px);
+  overflow: hidden;
+  background: var(--desk-control);
+}
+
+:root[data-restyle] .category-toggle .toggle-label {
+  padding: 3px 12px;
+  opacity: 1;
+  color: var(--text);
+}
+
+:root[data-restyle] .category-toggle .toggle-label:hover:not(.is-active) {
+  background: linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+}
+
+:root[data-restyle] .category-toggle .toggle-label.is-active {
+  background: var(--green-text);
+  color: var(--surface-raised);
+}
+
+:root[data-restyle] .category-toggle .toggle-switch {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+:root[data-restyle] .category-toggle:has(.toggle-switch:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* /search's sort. */
+:root[data-restyle] .sort-toggle {
+  border: 1px solid var(--field-border);
+  border-radius: calc(1em + 4px);
+  overflow: hidden;
+  background: var(--desk-control);
+  box-shadow: none;
+}
+
+:root[data-restyle] .sort-toggle .sort-btn {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+}
+
+:root[data-restyle] .sort-toggle .sort-btn:hover:not(.is-active) {
+  background: linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+}
+
+:root[data-restyle] .sort-toggle .sort-btn.is-active {
+  background: var(--green-text);
+  color: var(--surface-raised);
+}
+
+/* Their labels at the ink's .7, the floor for small text here. */
+:root[data-restyle] :is(.sort-by-label, .sort-label) {
+  opacity: 1;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+/* ── The passage picker's tiles: the control layer, an edge ───── */
+:root[data-restyle] .read-menu__cell:not(.read-menu__cell--current) {
+  background-color: var(--desk-control);
+  box-shadow: inset 0 0 0 1px var(--field-border);
+}
+
+:root[data-restyle] .read-menu__cell:not(.read-menu__cell--current):hover {
+  background-image: linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+}
+
+/* ── Messages: the desk's notice ──────────────────────────────── */
+:root[data-restyle] :is(.footer-newsletter__message--error, .footer-newsletter__message--success, .contact-status.is-success, .contact-status.is-error, .subscribe-strip__feedback--error, .subscribe-strip__feedback--success) {
+  max-width: calc(60 * var(--ch, 0.5em));
+  padding: 8px 12px;
+  border: 0;
+  border-left: 3px solid var(--green-text);
+  border-radius: 0 8px 8px 0;
+  background: rgba(var(--ink-rgb), 0.05);
+  color: var(--text);
+}
+
+:root[data-restyle] :is(.footer-newsletter__message--error, .contact-status.is-error, .subscribe-strip__feedback--error) {
+  font-weight: 600;
+}
+
+/* ── Small text below the ink's .7 comes up to it ─────────────── */
+:root[data-restyle] :is(.rn-month__count, .rn-entry__date, .rn-change__badge, .rn-change__detail, .rn-diff__label, .rn-change__detail del, .ref-preview__vn) {
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+/* ── Forced colors ────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  :root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary):is([aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current),
+  :root[data-restyle] :is(.searchbar__filter-pill, .filter-pill:not(.filter-pill--clear-all), .fit-season-nav button):is([aria-pressed="true"], [aria-current="true"], .is-active, .searchbar__filter-pill, .filter-pill) {
+    border-color: Highlight;
+  }
+
+  :root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary):is(:disabled, [aria-disabled="true"]) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  :root[data-restyle] :is(.nav-button, .chapter-cta, .back-to-top__link, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
+    border: 2px solid ButtonText;
+  }
+
+  :root[data-restyle] .category-toggle .toggle-label.is-active,
+  :root[data-restyle] .sort-toggle .sort-btn.is-active,
+  :root[data-restyle] .font-tray__seg-option:has(.font-tray__seg-input:checked) {
+    background: Highlight;
+    color: HighlightText;
+  }
+}

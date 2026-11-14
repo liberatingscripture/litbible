@@ -3768,6 +3768,43 @@ says so; where BVJ was wondering, nothing is decided.)
     the notebook's, the two taken in the order they happened. It keeps what
     the bar says, and is larger.
   **BVJ** (2026-11-13): the first way. Status: fixed (#578).
+- **E132, preference: the rest of the site in the desk's look.** BVJ
+  (2026-11-13) asked for “a style consistency pass over the whole website,”
+  still behind the preview gate. Claude audited every page (decisions D1 to
+  D7, and B1 to B11, accessibility and dark-mode faults found on the way),
+  mocked each look over the dev server, and BVJ chose:
+  - **D1**: a second stamp, `data-restyle`, set by Layout.astro's pre-paint
+    script from `lit-desk-preview` on **every device**, phones included,
+    unlike `data-desk`, so the whole site changes together for a reader with
+    the preview. The rules are one file, `src/styles/restyle.css`, each keyed
+    to the stamp; `src/styles/CLAUDE.md` has the rules for writing there.
+  - **D2**: an ordinary button is E126's Raised button at an 8px corner;
+    pills are only for toggles and filters.
+  - **D3**: on the Scripture pages (Chapter View, introductions, Read View)
+    every green button stays solid Deep Green, in the 8px shape: the arrows
+    by the heading, both chapter buttons, Back to top and Read View's
+    floating button. Other pages have one green primary; the Collective's
+    page and /support keep one per section. /about's contents list becomes
+    plain links.
+  - **D4**: the Display tray's segments, the glossary's sort switch and
+    /search's sort take `.desk-seg`'s look. The glossary's switch stays the
+    control for the keyboard and screen readers, hidden from sight, and a
+    click on either word picks that word.
+  - **D5**: every card is the desk's card (a thin edge, a 10px corner, no
+    shadow), and a release-notes entry gains one. BVJ is weighing a shadow
+    for cards that are links, so the card shadows are tokens
+    (`--restyle-card-shadow`, `--restyle-link-card-shadow` and its hover).
+  - **D6**: small headings in tools follow E75.
+  - **D7**: a link that opens a new tab carries the open-page mark (E71),
+    prose included, but not a picture or icon link, nor anything in /apps'
+    page body.
+  - **/apps** (BVJ, 2026-11-13): only its four store buttons change. The
+    dark one keeps its color, the one that matched the page turns white, and
+    both take the Raised shape. The page is mirrored with the LSC site, so
+    `apps.css` is untouched and the rules are in `restyle.css`. The mark was
+    left off them: it made the hero's two too wide to share a row.
+  B1 to B11 went to every reader in #585. Launch is item 14 of "Launching"
+  in `src/scripts/desk/CLAUDE.md`. Status: built (#586, preview only).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

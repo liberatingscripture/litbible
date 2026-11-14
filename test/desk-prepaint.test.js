@@ -87,7 +87,10 @@ function run({
   const fn = new Function("appUa", "appUaFlags", ...Object.keys(page), match[1]);
   fn(APP_PLATFORM_UA.source, APP_PLATFORM_UA.flags, ...Object.values(page));
   for (const k of Object.keys(html)) delete attrs[k];
-  return { attrs, stored: Object.fromEntries(store), replaced, props };
+  // The restyle's stamp has its own test below; the desk's tests read without it.
+  const restyle = "data-restyle" in attrs;
+  delete attrs["data-restyle"];
+  return { attrs, restyle, stored: Object.fromEntries(store), replaced, props };
 }
 
 test("the script is in Layout.astro where this test expects it", () => {
@@ -131,6 +134,19 @@ test("an Android tablet in desktop site mode doesn't get the desk (BA26)", () =>
 test("without the flag, nothing is set", () => {
   assert.deepEqual(run().attrs, {});
   assert.deepEqual(run({ stored: { "lit-desk-panel": "open" } }).attrs, {});
+  assert.equal(run().restyle, false);
+});
+
+// D1 of the site style pass (E132): the rest of the site's new look follows the
+// same flag on every device, phones and tablets included, so it can be checked
+// there before launch, when the stamp and the old rules both go.
+test("with the flag on, the restyle's stamp goes on every device", () => {
+  const on = { "lit-desk-preview": "on" };
+  for (const [ua, touch] of [[UA.windows, 0], [UA.mac, 5], [UA.iphone, 5], [UA.android, 5], [UA.linuxChrome, 5]]) {
+    assert.equal(run({ ua, touch, stored: on }).restyle, true, `${ua} ${touch}`);
+  }
+  assert.equal(run({ href: "https://litbible.net/romans-8/?desk=on", ua: UA.iphone, touch: 5 }).restyle, true);
+  assert.equal(run({ href: "https://litbible.net/romans-8/?desk=off", stored: on }).restyle, false);
 });
 
 test("an open notebook is stamped before paint; only an expanded one is marked as making room", () => {

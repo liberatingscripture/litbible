@@ -132,6 +132,13 @@ means each of these, in one change:
     reads "Scripture page" or "Scripture pages" (`searchbar.js`, `search.js`,
     `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`,
     `read.astro`). Keep only that wording; comments and docs follow.
+14. **The site restyle** (E132; BVJ, 2026-11-13) goes to every reader:
+    Layout.astro's second stamp, `data-restyle`, is set on every device
+    from the same key, phones included, so it can't simply follow item 1's
+    exclusions. Either stamp it unconditionally or drop the gate from
+    `src/styles/restyle.css`, and then fold its rules into the files they
+    override where that reads better. `test/desk-prepaint.test.js` and
+    `test/restyle-css.test.js` hold the gate today.
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere. The
