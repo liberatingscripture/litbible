@@ -351,10 +351,14 @@
 
 /* ── A new tab says so (E71): the desk's open-page mark ───────── */
 /* Not on a link that is a picture or an icon (the footer's social links name
-   themselves), nor on one that carries the desk's own mark, nor anywhere in
+   themselves), nor on one that carries the desk's own mark or its open-page
+   icon (`.desk-open-icon`: the LIT and Book Intro panes' bars and the Search
+   pane's link beside a result, which showed it twice; E135), nor on a LIT
+   pane's chapter headings, whose bar holds the one open-page button (BVJ,
+   2026-11-16: “It only needs one”), nor anywhere in
    /apps' page body, its store buttons included: the mark made the hero's two
    too wide to share a row, and a store link says where it goes. */
-:root[data-restyle] a[target="_blank"]:not(:has(img, picture, .desk-newtab), .social-links a, .apps a)::after {
+:root[data-restyle] a[target="_blank"]:not(:has(img, picture, .desk-newtab, .desk-open-icon), .social-links a, .desk-lit__heading a, .apps a)::after {
   content: "";
   display: inline-block;
   width: 0.9em;

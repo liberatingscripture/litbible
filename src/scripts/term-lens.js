@@ -271,6 +271,14 @@ function buildCard(container, data, span, mark) {
   link.className = "lit-panel__jump";
   link.href = `/glossary/#${mark.id}`;
   link.textContent = `${term.title} in the glossary →`;
+  // On the Study Desk a link that leaves the page opens apart, so the
+  // reader's layout stays, and the new-tab mark takes the arrow's place
+  // (E136), as ref-preview.js's "Open John 3" does.
+  if (document.querySelector("[data-desk-page]")) {
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = `${term.title} in the glossary`;
+  }
   panel.appendChild(link);
   return panel;
 }

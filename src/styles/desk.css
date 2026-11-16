@@ -631,6 +631,14 @@ html:has(.desk-undo__bar:not([hidden])) {
 /* One verse: its words, the translation's footnotes on it, and the reader's
    own notes and bookmark. Built by src/scripts/desk/tab-verse.js, which
    copies the footnotes off the page's own list. */
+/* This verse's scroller keeps room for its scrollbar whether or not the verse
+   needs one (E134), so Previous and Next don't shift sideways as the reader
+   steps from a short verse to a long one. Only here: the Greek and the LIT
+   scroll in boxes of their own, and would lose the width for nothing. */
+:is(.desk-panel__body, .desk-pane__body):has(.desk-verse) {
+  scrollbar-gutter: stable;
+}
+
 .desk-verse__head {
   display: flex;
   align-items: center;

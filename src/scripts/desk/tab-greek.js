@@ -71,6 +71,11 @@ const BORROWED = {
 // How long an apparatus entry stays lit after a sign takes the reader to it.
 const LIT_MS = 1800;
 
+// How long the chapter may take before the status offers Try again (E133).
+// A chapter's file is about 15 KB compressed and usually arrives in well under
+// a second, so this is time enough for a slow connection, not a fast one.
+const SLOW_LOAD_MS = 8000;
+
 /**
  * Text into `into` with the Greek and Hebrew in it marked by `lang`, so a
  * screen reader voices a quoted word as the language it is (GK-2).
@@ -190,6 +195,7 @@ function readTermData() {
  */
 export function createGreekTab({
   here, visible, openVerse, source = null, startVerse = null, idSuffix = "", openHit = null, onTopVerse = null,
+  slowAfter = SLOW_LOAD_MS,
 }) {
   const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
   const markers = source ? [] : Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
@@ -328,7 +334,7 @@ export function createGreekTab({
     if (retry) {
       const b = make("button", "desk-greek__retry", "Try again");
       b.type = "button";
-      b.addEventListener("click", () => { ensure(); });
+      b.addEventListener("click", () => { ensure(true); });
       box.append(b);
     }
     scroller.replaceChildren(box);
@@ -336,33 +342,54 @@ export function createGreekTab({
 
   let destroyed = false; // taken down (destroy, below)
 
-  /** Load and draw the chapter once; resolves true when the Greek is on the tab. */
-  function ensure() {
+  // A request that stalls (E133) would leave "Loading the Greek…" up until the
+  // browser gives up on it, which can be minutes. After `slowAfter` the status
+  // says so and offers Try again, which starts a fresh request beside the
+  // stalled one; whichever brings the chapter first draws it, and every caller
+  // waiting on `loading` hears that one answer.
+  let tries = 0; // the newest request; only it may report a failure
+  let slowTimer = 0;
+  let finishLoading = null; // resolves `loading`
+
+  /**
+   * Load and draw the chapter once; resolves true when the Greek is on the tab.
+   * `fresh` (Try again) asks again even while a request is pending.
+   */
+  function ensure(fresh = false) {
     if (data) return Promise.resolve(true);
-    if (loading) return loading;
+    if (loading && !fresh) return loading;
+    if (!loading) loading = new Promise((resolve) => { finishLoading = resolve; });
+    const mine = ++tries;
     showStatus("Loading the Greek…");
-    loading = loadChapterGreek(here.bookKey, here.chapter)
+    window.clearTimeout(slowTimer);
+    slowTimer = window.setTimeout(() => {
+      if (mine === tries && finishLoading && !destroyed) {
+        showStatus("Still loading the Greek. The connection may be slow.", true);
+      }
+    }, slowAfter);
+    loadChapterGreek(here.bookKey, here.chapter, { fresh })
       .then(
-        (d) => {
-          // A file in a format this code doesn't read would throw in build() and
-          // leave "Loading" up for good; say so and offer Try again instead (GK-14).
-          if (d?.format !== 1 || !Array.isArray(d.paragraphs)) {
-            showStatus("The Greek couldn’t be loaded.", true);
-            return false;
-          }
-          data = d;
-          return true;
-        },
-        () => {
-          showStatus("The Greek couldn’t be loaded.", true);
-          return false;
-        },
+        // A file in a format this code doesn't read would throw in build() and
+        // leave "Loading" up for good; it counts as a failure instead (GK-14).
+        (d) => (d?.format === 1 && Array.isArray(d.paragraphs) ? d : null),
+        () => null,
       )
-      .then((ok) => {
+      .then((d) => {
+        if (!finishLoading) return; // another request already answered
+        if (!d && mine !== tries) return; // a newer request is still going
+        window.clearTimeout(slowTimer);
+        const finish = finishLoading;
+        finishLoading = null;
         loading = null;
+        if (!d) {
+          showStatus("The Greek couldn’t be loaded.", true);
+          finish(false);
+          return;
+        }
+        data = d;
         // A tab taken down while its chapter loaded is never built (BA115).
-        if (ok && !destroyed) build();
-        return ok;
+        if (!destroyed) build();
+        finish(true);
       });
     return loading;
   }
@@ -1323,6 +1350,7 @@ export function createGreekTab({
     resizes?.disconnect();
     window.clearTimeout(litTimer);
     window.clearTimeout(lexTimer);
+    window.clearTimeout(slowTimer);
     cancelAnimationFrame(splitFrame);
   }
 

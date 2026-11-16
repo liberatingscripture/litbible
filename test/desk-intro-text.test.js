@@ -149,19 +149,24 @@ test("ids are stripped from the copy, and the page's own section keeps them", ()
   assert.equal(introText(body).querySelectorAll("[id]").length, 0);
 });
 
-test("every link with an address opens a new tab with noopener noreferrer, and a link without one is left alone", () => {
+test("every link with an address opens a new tab with noopener noreferrer, save a passage the pane takes, and a link without one is left alone", () => {
   const body = section(
     node(
       "p",
       {},
       node("a", { class: "sref", href: "/romans-8", rel: "author" }, "Romans 8"),
+      node("a", { class: "sref", href: "https://www.sefaria.org/Isaiah.53.4" }, "Isaiah 53:4"),
+      node("a", { href: "/glossary/#flesh" }, "flesh"),
       node("a", { href: "https://example.com" }, "a site"),
       node("a", { name: "anchor" }, "no address"),
     ),
   );
   const box = introText(body);
-  const [inside, outside] = box.querySelectorAll("a[href]");
-  for (const a of [inside, outside]) {
+  const [passage, sefaria, glossary, outside] = box.querySelectorAll("a[href]");
+  // E136: a plain click on it moves the LIT pane, so it promises no new tab.
+  assert.equal(passage.getAttribute("target"), null, "a passage reference keeps no target");
+  assert.equal(passage.getAttribute("rel"), "author", "and its own rel");
+  for (const a of [sefaria, glossary, outside]) {
     assert.equal(a.getAttribute("target"), "_blank");
     assert.equal(a.getAttribute("rel"), "noopener noreferrer", "an authored rel is replaced");
   }

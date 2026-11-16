@@ -29,8 +29,8 @@ function load(url) {
 }
 
 /** One chapter's Greek: { paragraphs, lemmas, apparatus, borrowed?, title? }. */
-export function loadChapterGreek(bookKey, chapter) {
-  return fetchGreekChapter(BASE, bookKey, chapter); // shared with the Greek search (GK-20)
+export function loadChapterGreek(bookKey, chapter, opts) {
+  return fetchGreekChapter(BASE, bookKey, chapter, opts); // shared with the Greek search (GK-20)
 }
 
 /** A UBS entry by its MainId, or null when the dictionary has none. */

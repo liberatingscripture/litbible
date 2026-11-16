@@ -110,10 +110,12 @@ function buildPanel(ref, draft) {
   open.href = ref.href;
   open.textContent = `Open ${chapterName} →`;
   // On the Study Desk a link that leaves the page opens apart, so the
-  // reader's layout stays (E34).
+  // reader's layout stays (E34). There the new-tab mark says where it goes,
+  // so the arrow goes (E136): one mark, not two.
   if (document.querySelector("[data-desk-page]")) {
     open.target = "_blank";
     open.rel = "noopener noreferrer";
+    open.textContent = `Open ${chapterName}`;
   }
   panel.appendChild(open);
 

@@ -83,13 +83,11 @@ export function createPrintMenu({
   el.append(message, choices, note);
 
   // `a` where a choice is an address, `button` where it prints in place only.
+  // An address opens a new tab unless this page prints it in place (`render`).
   const items = ["plain", "notes", "room"].map((kind) => {
     const item = document.createElement(book ? "button" : "a");
     if (book) item.type = "button";
-    else {
-      item.target = "_blank";
-      item.rel = "noopener";
-    }
+    else item.rel = "noopener";
     item.dataset.print = kind;
     item.addEventListener("click", (e) => {
       const c = state.choices.find((x) => x.kind === kind);
@@ -143,6 +141,13 @@ export function createPrintMenu({
       item.setAttribute("aria-disabled", String(c.state === "off"));
       if (c.href) item.setAttribute("href", c.href);
       else if (!book) item.removeAttribute("href");
+      // This page's chapter prints here, so its choices name no new tab and
+      // the restyle draws no new-tab mark on them (E136); a middle click
+      // still opens the tab, ready to print.
+      if (!book) {
+        if (c.inPlace) item.removeAttribute("target");
+        else item.target = "_blank";
+      }
     }
   }
 
