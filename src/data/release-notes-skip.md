@@ -276,3 +276,9 @@ topics (“lead priests,” “tax collectors,” “elders”). It is the last 
 unmerged 2026-09-10 branch (`claude/lowercase-scripture-scholars`) whose verse
 changes reached `main` through PR #261, when Luke was brought into line with the
 revised Word master. A casing fix to a tag is not news for readers.
+
+## 2026-11-16 — Toolbar pill height matched to the passage picker
+
+The Read View and Study Desk pills in Chapter View's toolbar stood about 2px
+shorter than the passage picker beside them (`line-height: 1` against the
+button's `normal`). A 2px alignment fix is not news for readers.
