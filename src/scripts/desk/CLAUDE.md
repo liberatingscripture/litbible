@@ -949,7 +949,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `public/api/`.
      - **One loader serves a chapter's Greek** (`src/scripts/greek-chapters.js`,
        GK-20), the tab's `greek-data.js` and the search's `search-greek.js`
-       alike, so a chapter on screen is fetched and parsed once. **Arrowing
+       alike, so a chapter on screen is fetched and parsed once; past 8
+       seconds the tab offers Try again, a `fresh` request beside the stalled
+       one (E133). **Arrowing
        through words asks for a lexicon only at rest** (150 ms, GK-10).
      - **A copy from the tab writes its own clipboard** (E54): its words and
        signs are buttons, which a sheet's paste drops with their text, so

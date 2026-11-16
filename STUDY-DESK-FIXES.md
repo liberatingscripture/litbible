@@ -3811,6 +3811,34 @@ says so; where BVJ was wondering, nothing is decided.)
   B1 to B11 went to every reader in #585. Launch is item 14 of "Launching"
   in `src/scripts/desk/CLAUDE.md`. Status: built (#586, preview only).
 
+- **E133, bug: the Greek tab said “Loading the Greek…” for about 20
+  seconds** (BVJ, 2026-11-16, Mark 1 on the live site). Not reproduced: the
+  same tab loaded in under half a second, and the chapter file is about
+  15 KB compressed, so the wait was a request stalling, not the file. The
+  tab set no time limit, so a stalled request left the message up until the
+  browser gave up. **Fixed**: after 8 seconds (`SLOW_LOAD_MS`,
+  `tab-greek.js`) the status reads “Still loading the Greek. The connection
+  may be slow.” with Try again, which starts a fresh request beside the
+  stalled one (`fetchGreekChapter`'s `fresh`); whichever brings the chapter
+  first draws it.
+- **E134, bug: This verse's Previous and Next moved sideways** (BVJ,
+  2026-11-16) each time the reader stepped between a verse long enough to
+  scroll and one that isn't: the scrollbar came and went and took the
+  column's width with it. **Fixed**: This verse's scroller, in the Notebook
+  and as a /desk pane, keeps the scrollbar's room (`scrollbar-gutter:
+  stable`, `desk.css`).
+- **E135, bug: the LIT pane's “Open on its page” showed its icon twice**
+  (BVJ, 2026-11-16). E132's restyle adds the new-tab mark after every link
+  that opens a new tab, skipping a link holding the desk's own mark
+  (`.desk-newtab`) but not one whose whole face is the open-page icon. The
+  Book Intro pane's bar and the Search pane's link beside each result had
+  it too. A third showed after each chapter heading in the pane, and BVJ
+  said “It only needs one.” **Fixed**: `OPEN_PAGE_ICON` carries
+  `desk-open-icon`, and the restyle's rule skips a link holding it and the
+  LIT pane's chapter headings (`.desk-lit__heading a`), so the bar's button
+  is the one mark; the headings still open their page in a new tab
+  (`restyle.css`).
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
