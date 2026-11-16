@@ -468,7 +468,10 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
 
         font-weight: 500;
         font-size: 16px;
-        line-height: 1;
+        /* The picker is a <button>, which doesn't inherit the page's line
+           height and so takes "normal"; with line-height: 1 this pill stood
+           about 2px shorter. Same fix as .read-menu__desk on /read. */
+        line-height: normal;
 
         box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
         transition:
