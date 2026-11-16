@@ -4,9 +4,10 @@
 // text as the pane shows it, and the rule for when a reference the reader
 // follows keeps the pane on its book. They sit apart from intro-pane.js because
 // that file reads `import.meta.env` and the site's base path when it loads, which
-// Node tests can't; this file imports only dom.js, so a test can run it
-// (Audit 3, LG3-9, item d). Behavior is unchanged by the move.
+// Node tests can't; this file imports only dom.js and the pure
+// desk-search-pane.mjs, so a test can run it (Audit 3, LG3-9, item d).
 
+import { resultTarget } from "../../lib/desk-search-pane.mjs";
 import { make } from "./dom.js";
 
 /**
@@ -28,10 +29,20 @@ export function introText(body) {
   }
   for (const el of box.querySelectorAll("[id]")) el.removeAttribute("id");
   for (const a of box.querySelectorAll("a[href]")) {
+    // A scripture reference the pane moves the LIT to on a plain click keeps
+    // no target (E136), as footnote-links.js leaves one in a footnote: the
+    // restyle's new-tab mark would promise a tab that never opens, and a
+    // modified or middle click still opens one by the browser's own rule.
+    if (isPassageRef(a)) continue;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
   }
   return box;
+}
+
+function isPassageRef(a) {
+  const classes = (a.getAttribute("class") || "").split(/\s+/);
+  return classes.includes("sref") && resultTarget(a.getAttribute("href")).type === "passage";
 }
 
 /**

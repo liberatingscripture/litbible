@@ -3838,6 +3838,23 @@ says so; where BVJ was wondering, nothing is decided.)
   LIT pane's chapter headings (`.desk-lit__heading a`), so the bar's button
   is the one mark; the headings still open their page in a new tab
   (`restyle.css`).
+- **E136, bug: new-tab marks that promised a tab, or doubled an arrow**
+  (found by Claude, 2026-11-16, checking the site for other marks the
+  restyle misplaced, as BVJ asked after E135). E71's mark goes on every link
+  with `target="_blank"`, so it showed wherever a link carried that target
+  but opened no tab, and beside an arrow that already said “go there.”
+  **Fixed**: a scripture reference in the Book Intro pane, which a plain
+  click turns into a move of the LIT pane, keeps no target, as one in a
+  footnote already didn't (`intro-text.js`); the Notebook's Print menu
+  takes the target off the choices that print this page's chapter in place
+  and puts it back for another chapter (`print-menu.js`); and on /desk the
+  reference preview's “Open John 3 →” and a key term card's “Flesh in the
+  glossary →” drop their arrows for the mark. The term card's link also had
+  no target at all on /desk, so a plain click left the desk; it now opens a
+  new tab, as E34's rule says (`term-lens.js`). A modified or middle click
+  still opens a tab everywhere. Left as they are: the podcast page's
+  “Follow the show on Facebook” (its platform buttons carry the mark too),
+  and Go deeper's three podcast links, one mark each.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

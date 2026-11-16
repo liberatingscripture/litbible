@@ -1615,7 +1615,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `.desk-search__away`) opens its page in a new tab. Rows stay
        real links, so a modified click opens a tab and `ref-preview.js`
        previews them (`.desk-search__link`); on /desk the preview's
-       "Open John 3 →" opens in a new tab too. A glossary entry is cloned from
+       "Open John 3" opens in a new tab too (its arrow gives way to the
+       new-tab mark there, E136). A glossary entry is cloned from
        the fetched /glossary/ page into the pane; an article opens in a
        new tab, and an intro shows in a Book Intro pane (E53; `env.showIntro`,
        `introMoveMessage`), with the small link beside it for its page. A Greek result goes through `env.openGreekHit`, and
