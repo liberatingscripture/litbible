@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import '../styles/pages/translation-commitments.css';
+// Site 2.0's look of this page, behind the data-restyle stamp.
+import '../styles/v2/commitments.css';
 import tcData from '../data/translation-commitments.json';
 
 const { commitments, narrative } = tcData;
@@ -13,7 +15,7 @@ const { commitments, narrative } = tcData;
 >
   <article class="tc-page">
     <header class="tc-hero">
-      <h1 class="tc-title">Translation Commitments</h1>
+      <h1 class="tc-title v2-bar">Translation Commitments</h1>
       <p class="tc-lede">
         The LIT is a historical, literary translation from the original
         languages, guided by a set of commitments about meaning, power, harm,
@@ -48,12 +50,12 @@ const { commitments, narrative } = tcData;
     </section>
 
     <section class="tc-narrative" aria-labelledby="tc-how">
-      <div class="tc-narrative__inner">
+      <div class="tc-narrative__inner v2-sheet v2-sheet--bleed">
         <h2 id="tc-how">{narrative.title}</h2>
         {
           narrative.sections.map((section) => (
             <>
-              {section.heading && <h3>{section.heading}</h3>}
+              {section.heading && <h3 class="v2-rule">{section.heading}</h3>}
               {section.paragraphs.map((para) => (
                 <p set:html={para} />
               ))}
