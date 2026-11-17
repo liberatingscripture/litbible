@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/courses.css";
+// Site 2.0's look, behind the data-restyle stamp (src/styles/v2/courses.css).
+import "../styles/v2/courses.css";
 ---
 
 <Layout
@@ -9,7 +11,7 @@ import "../styles/pages/courses.css";
 >
   <div class="courses-page">
     <header class="courses-hero">
-      <h1>Courses coming soon</h1>
+      <h1 class="v2-bar">Courses coming soon</h1>
 
       <div class="courses-intro">
         <p>
@@ -34,9 +36,9 @@ import "../styles/pages/courses.css";
       </div>
     </header>
 
-    <section class="courses-updates" aria-labelledby="email-updates-title">
+    <section class="courses-updates v2-sheet" aria-labelledby="email-updates-title">
       {/* Top wave */}
-      <div class="courses-wave courses-wave--top" aria-hidden="true">
+      <div class="courses-wave courses-wave--top" data-v1 aria-hidden="true">
         <svg
           viewBox="0 0 1440 160"
           preserveAspectRatio="none"
@@ -71,7 +73,7 @@ import "../styles/pages/courses.css";
       </div>
 
       {/* Bottom wave */}
-      <div class="courses-wave courses-wave--bottom" aria-hidden="true">
+      <div class="courses-wave courses-wave--bottom" data-v1 aria-hidden="true">
         <svg
           viewBox="0 0 1440 160"
           preserveAspectRatio="none"
