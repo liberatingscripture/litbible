@@ -1,0 +1,260 @@
+/* Site 2.0: the book introduction (/john-intro and the other 26), behind
+   the restyle's stamp (SITE-2.0.md). BVJ, 2026-11-17: "What if it's a
+   hybrid," then "Rail": the chapter's sheet (v2/scripture.css, which every
+   scripture page already has) with the Marks, and the headings as a rail in
+   the margin from 1270px.
+
+   - The text lies on the chapter's own sheet, set as today (the page's own
+     styles): this file adds only the Marks, the title row and the rail.
+   - The sunshine bar over the title, the title at the left and the round
+     arrows together at the right, as on a chapter.
+   - A ruled start to each h2 (the .v2-rule look, drawn here on the intro's
+     own headings rather than by adding a class to the owner's Markdown).
+   - The rail ("On this page", [data-v2-rail], built at build time in
+     [book]-intro.astro from the intro's h2s) is a row of links on the sheet
+     under the title, and from 1270px a sticky column in the margin beside
+     the sheet, placed from the sheet's edge. v2-frame.js marks where the
+     reader is. Like About's contents column it keeps its size: its type is
+     in rem, which the Display tray's text size does not reach.
+   - A larger text size widens the sheet, so the margin is roomy enough for
+     the rail later: 1340px at Large and 1440px at Extra large (Inter and
+     Atkinson; OpenDyslexic's narrower line fits from 1270px at every size).
+     Each figure is the sheet's width plus the rail, its 24px gap and 16px
+     at the window's edge on both sides, rounded up. */
+
+@media screen {
+  /* ── The title row and the sunshine bar ──────────────────────────── */
+  :root[data-restyle] .scripture-layout--intro .scripture-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 16px;
+    padding-top: 24px;
+    text-align: left;
+  }
+
+  :root[data-restyle] .scripture-layout--intro .scripture-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 56px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--v2-bar);
+  }
+
+  :root[data-restyle] .scripture-layout--intro .chapter-title {
+    min-width: 0;
+    padding: 0;
+    font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
+    line-height: 1.15;
+    text-align: left;
+  }
+
+  :root[data-restyle] .scripture-layout--intro .chapter-nav {
+    position: static;
+    flex: none;
+    display: inline-flex;
+    gap: 6px;
+    pointer-events: auto;
+  }
+
+  /* ── The ruled headings ───────────────────────────────────────────── */
+  :root[data-restyle] .scripture-layout--intro .intro h2 {
+    position: relative;
+    margin: calc(2.2rem * var(--reading-scale, 1)) 0 calc(0.7rem * var(--reading-scale, 1));
+    padding-top: calc(1.3rem * var(--reading-scale, 1));
+    border-top: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle] .scripture-layout--intro .intro h2::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 44px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--v2-marker);
+  }
+
+  /* A rail link lands the heading a little under the window's top, its rule
+     in view (on a phone, scripture.css's 68px clears the toolbar row). */
+  @media (min-width: 641px) {
+    :root[data-restyle] .scripture-layout--intro .intro h2 {
+      scroll-margin-top: 24px;
+    }
+  }
+
+  /* ── The rail: a row of links under the title ────────────────────── */
+  :root[data-restyle] .v2-intro-rail {
+    margin: 0 0 18px;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle] .v2-intro-rail__label {
+    margin: 0;
+  }
+
+  :root[data-restyle] .v2-intro-rail ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :root[data-restyle] .v2-intro-rail li {
+    margin: 0;
+  }
+
+  :root[data-restyle] .v2-intro-rail a {
+    color: var(--text);
+    font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+  }
+
+  :root[data-restyle] .v2-intro-rail a:hover {
+    text-decoration: underline;
+  }
+
+  :root[data-restyle] .v2-intro-rail a[aria-current] {
+    color: var(--text-strong);
+  }
+}
+
+/* Print stays as it was: text and notes only, no contents list. */
+@media print {
+  :root[data-restyle] .v2-intro-rail {
+    display: none !important;
+  }
+}
+
+/* ── The rail in the margin ─────────────────────────────────────────── */
+/* The same rules three times, once per breakpoint (see the header). The
+   column runs the sheet's height so its list can stick; its right edge is
+   24px from the sheet's left edge, which is v2/scripture.css's own figure
+   for where the sheet starts. */
+@media screen and (min-width: 1270px) {
+  :root[data-restyle]:is(:not([data-size="lg"], [data-size="xl"]), [data-font="dyslexic"]) .v2-intro-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(100% + 24px - clamp(-49px, calc(var(--v2s-edge) - (var(--desk-bar-center, 50cqw) - 50%)), 0px));
+    width: 10.5rem;
+    margin: 0;
+    padding: clamp(22px, 4vw, 44px) 0 0;
+    border: 0;
+  }
+
+  :root[data-restyle]:is(:not([data-size="lg"], [data-size="xl"]), [data-font="dyslexic"]) .v2-intro-rail__in {
+    position: sticky;
+    top: 24px;
+  }
+
+  :root[data-restyle]:is(:not([data-size="lg"], [data-size="xl"]), [data-font="dyslexic"]) .v2-intro-rail ul {
+    display: block;
+    margin-top: 12px;
+    border-left: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle]:is(:not([data-size="lg"], [data-size="xl"]), [data-font="dyslexic"]) .v2-intro-rail li + li {
+    margin-top: 8px;
+  }
+
+  :root[data-restyle]:is(:not([data-size="lg"], [data-size="xl"]), [data-font="dyslexic"]) .v2-intro-rail a {
+    display: block;
+    margin-left: -1px;
+    padding-left: 14px;
+    border-left: 2px solid transparent;
+  }
+
+  :root[data-restyle]:is(:not([data-size="lg"], [data-size="xl"]), [data-font="dyslexic"]) .v2-intro-rail a[aria-current] {
+    border-left-color: var(--v2-marker);
+  }
+}
+
+@media screen and (min-width: 1340px) {
+  :root[data-restyle][data-size="lg"] .v2-intro-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(100% + 24px - clamp(-49px, calc(var(--v2s-edge) - (var(--desk-bar-center, 50cqw) - 50%)), 0px));
+    width: 10.5rem;
+    margin: 0;
+    padding: clamp(22px, 4vw, 44px) 0 0;
+    border: 0;
+  }
+
+  :root[data-restyle][data-size="lg"] .v2-intro-rail__in {
+    position: sticky;
+    top: 24px;
+  }
+
+  :root[data-restyle][data-size="lg"] .v2-intro-rail ul {
+    display: block;
+    margin-top: 12px;
+    border-left: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle][data-size="lg"] .v2-intro-rail li + li {
+    margin-top: 8px;
+  }
+
+  :root[data-restyle][data-size="lg"] .v2-intro-rail a {
+    display: block;
+    margin-left: -1px;
+    padding-left: 14px;
+    border-left: 2px solid transparent;
+  }
+
+  :root[data-restyle][data-size="lg"] .v2-intro-rail a[aria-current] {
+    border-left-color: var(--v2-marker);
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  :root[data-restyle][data-size="xl"] .v2-intro-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(100% + 24px - clamp(-49px, calc(var(--v2s-edge) - (var(--desk-bar-center, 50cqw) - 50%)), 0px));
+    width: 10.5rem;
+    margin: 0;
+    padding: clamp(22px, 4vw, 44px) 0 0;
+    border: 0;
+  }
+
+  :root[data-restyle][data-size="xl"] .v2-intro-rail__in {
+    position: sticky;
+    top: 24px;
+  }
+
+  :root[data-restyle][data-size="xl"] .v2-intro-rail ul {
+    display: block;
+    margin-top: 12px;
+    border-left: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle][data-size="xl"] .v2-intro-rail li + li {
+    margin-top: 8px;
+  }
+
+  :root[data-restyle][data-size="xl"] .v2-intro-rail a {
+    display: block;
+    margin-left: -1px;
+    padding-left: 14px;
+    border-left: 2px solid transparent;
+  }
+
+  :root[data-restyle][data-size="xl"] .v2-intro-rail a[aria-current] {
+    border-left-color: var(--v2-marker);
+  }
+}

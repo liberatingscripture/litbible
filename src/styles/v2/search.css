@@ -1,0 +1,711 @@
+/* Site 2.0: /search (search.astro, SearchLayout.astro). Decided (BVJ,
+   2026-11-16/17): "Yes to two panes, but with some changes": the picker
+   "needs a new home out of the way"; "The Add to Sheet cards are too similar
+   to the results cards"; more room. Of the redraw: "That's better." Page
+   links: "Always showing five, when there are five or more pages of results."
+   The mock is mock/search.html, version 1 ("Quieter").
+
+   - Every selector begins :root[data-restyle]. Without the stamp the page is
+     main's.
+   - The pane ([data-v2-search-pane], data-v2) is empty markup; v2-search.js
+     moves today's sort, filters and picker into it with the stamp on, so
+     nothing interactive exists twice. The result groups listed in it are
+     links drawn by the same script.
+   - The results follow --reading-scale, as today: each size here multiplies
+     by it where today's did. The Study Desk's head row ("Add to a sheet")
+     keeps the desk's own sizes (--desk-ui) and is laid out here by its own
+     class names, never in desk-search.css. */
+
+/* ── The page: one column, then two panes from 1000px ──────────── */
+:root[data-restyle] .scripture-layout--search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  width: 100%;
+  max-width: calc(var(--v2-wrap) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding: clamp(32px, 5vw, 64px) var(--gutter) clamp(40px, 6vw, 72px);
+}
+
+:root[data-restyle] .scripture-layout--search .scripture-tools {
+  min-width: 0;
+  padding: 0;
+}
+
+/* The title block: the sunshine bar, the title with the picker at the end of
+   its row (below 1000px; it drops under the title where the row has no room),
+   the line under it, and the field. A wrapping row, so the heading's two
+   pieces are laid out with it (display: contents); order only puts the
+   picker on the title's row, and it is before the field in both orders. */
+:root[data-restyle] .scripture-layout--search .scripture-tools__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 12px;
+  width: 100%;
+  max-width: 44rem;
+  margin: 0;
+}
+
+:root[data-restyle] .scripture-layout--search .scripture-tools__inner::before {
+  content: "";
+  order: 0;
+  flex: 0 0 100%;
+  max-width: 56px;
+  height: 6px;
+  margin-bottom: 18px;
+  margin-right: calc(100% - 56px);
+  border-radius: 3px;
+  background: var(--v2-bar);
+}
+
+:root[data-restyle] .scripture-layout--search :is(.scripture-tools__heading, .search-header) {
+  display: contents;
+}
+
+:root[data-restyle] .scripture-layout--search .search-title {
+  order: 1;
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem);
+  line-height: 1.15;
+  text-align: left;
+}
+
+:root[data-restyle] .scripture-layout--search .scripture-tools__left {
+  order: 2;
+  flex: none;
+  max-width: 100%;
+  margin-block: 2px;
+}
+
+:root[data-restyle] .scripture-layout--search .search-subtitle {
+  order: 3;
+  /* A row of its own, always, as wide as the results under it: a max-width
+     here would let the sentence sit beside the title once the picker has
+     left the row (a computer). */
+  flex: 0 0 100%;
+  max-width: 100%;
+  margin: 12px 0 0;
+  color: var(--text);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+:root[data-restyle] .scripture-layout--search .scripture-tools__center {
+  order: 4;
+  flex: 1 1 100%;
+  max-width: 34rem;
+  margin-top: 20px;
+}
+
+:root[data-restyle] .scripture-layout--search .scripture-tools__right {
+  display: none;
+}
+
+/* The picker as a small button: at the end of the title's row, and at the
+   pane's foot on a computer. */
+:root[data-restyle] .scripture-layout--search .read-menu-wrap {
+  display: block;
+}
+
+:root[data-restyle] .scripture-layout--search .read-menu__trigger {
+  gap: 6px;
+  min-width: 0;
+  min-height: 36px;
+  padding: 7px 12px;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+
+:root[data-restyle] .scripture-layout--search .read-menu__chevron {
+  margin-left: auto;
+}
+
+/* The field, 44px tall; the box under it held the filters, which have moved
+   to the pane, so it is no longer a card. */
+/* The desk's extras that wrapped this row have moved to the count's line. */
+:root[data-restyle] .scripture-layout--search .searchbar__form {
+  flex-wrap: nowrap;
+}
+
+:root[data-restyle] .scripture-layout--search .searchbar__input {
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 1.0625rem;
+}
+
+:root[data-restyle] .scripture-layout--search [data-searchbar] .searchbar__panel {
+  margin-top: 0;
+}
+
+:root[data-restyle] .scripture-layout--search [data-searchbar] .searchbar__panel .searchbar__panel-inner {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+:root[data-restyle] .scripture-layout--search .searchbar__controls:not(:has(*)) {
+  display: none;
+}
+
+/* ── The pane: rows under the field on a phone ─────────────────── */
+:root[data-restyle] .v2-search__pane {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  max-width: 44rem;
+  margin-top: 18px;
+}
+
+:root[data-restyle] .v2-search__set {
+  min-width: 0;
+}
+
+:root[data-restyle] .v2-search__label {
+  margin: 0;
+}
+
+/* "Sort by" as two radio buttons: today's two toggle buttons (aria-pressed,
+   the same names and keys), drawn as a pair of round marks. */
+:root[data-restyle] .scripture-layout--search .v2-search__pane .sort-wrap {
+  display: block;
+}
+
+:root[data-restyle] .v2-search__pane .sort-label {
+  display: block;
+  white-space: normal;
+}
+
+:root[data-restyle] .scripture-layout--search .v2-search__pane .sort-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin-top: 6px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+:root[data-restyle] .scripture-layout--search .v2-search__pane .sort-toggle .sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 2px 0 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--text);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+:root[data-restyle] .scripture-layout--search .v2-search__pane .sort-toggle .sort-btn:is(:hover, :active, .is-active) {
+  background: none;
+  color: var(--text);
+}
+
+:root[data-restyle] .v2-search__pane .sort-btn::before {
+  content: "";
+  flex: none;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--field-border);
+  border-radius: 50%;
+}
+
+:root[data-restyle] .v2-search__pane .sort-btn:hover::before {
+  border-color: rgba(var(--ink-rgb), 0.8);
+}
+
+:root[data-restyle] .v2-search__pane .sort-btn.is-active::before {
+  border-color: var(--green-text);
+  background: radial-gradient(circle, var(--green-text) 0 4px, transparent 4.5px);
+}
+
+/* In a contrast theme the ring and its dot take system colors, so the choice
+   made still shows on whatever the theme's page color is. */
+@media (forced-colors: active) {
+  :root[data-restyle] .v2-search__pane .sort-btn::before {
+    forced-color-adjust: none;
+    border-color: ButtonText;
+  }
+
+  :root[data-restyle] .v2-search__pane .sort-btn.is-active::before {
+    border-color: Highlight;
+    background: radial-gradient(circle, Highlight 0 4px, transparent 4.5px);
+  }
+}
+
+/* The two filters, side by side. */
+:root[data-restyle] .scripture-layout--search .v2-search__pane .searchbar__filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+  margin-top: 8px;
+}
+
+:root[data-restyle] .scripture-layout--search .v2-search__pane .searchbar__filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-width: 0;
+}
+
+:root[data-restyle] .scripture-layout--search .v2-search__pane :is(.searchbar__book, .searchbar__mode) {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+}
+
+/* The groups and the picker's place are a computer's. */
+:root[data-restyle] .v2-search__groups,
+:root[data-restyle] .v2-search__go {
+  display: none;
+}
+
+/* ── The results column ────────────────────────────────────────── */
+:root[data-restyle] .scripture-layout--search .scripture-main {
+  width: 100%;
+  max-width: calc(44rem * var(--reading-scale, 1));
+  margin: 26px 0 0;
+  padding: 0;
+}
+
+:root[data-restyle] .scripture-layout--search .search-page {
+  padding: 0;
+}
+
+:root[data-restyle] .search-page .search-meta {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+}
+
+/* Its sort has moved to the pane. */
+:root[data-restyle] .search-page .search-meta__top:not(:has(*)) {
+  display: none;
+}
+
+/* The count, with "Notebook actions" (the desk's) at the end of its line. */
+:root[data-restyle] .search-page .search-meta__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin: 0;
+  text-align: left;
+}
+
+:root[data-restyle] .search-page #search-status {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: calc(1rem * var(--reading-scale, 1));
+  font-weight: 600;
+  line-height: calc(1.4 + var(--reading-leading-extra, 0));
+}
+
+/* With a Greek search it also holds "Search commands" and "My notes": they
+   wrap rather than leave the screen. */
+:root[data-restyle] .search-page .search-meta__status .greek-field-extras {
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+:root[data-restyle] .search-page .search-meta__status :is(.search-jumps, .greek-offer) {
+  flex: 1 1 100%;
+}
+
+:root[data-restyle] .search-page .search-jumps ul {
+  justify-content: flex-start;
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+}
+
+:root[data-restyle] .search-page .search-active-filters {
+  justify-content: flex-start;
+}
+
+/* A group: a small label, as today, then its cards, with room between. */
+:root[data-restyle] .search-page .group {
+  max-width: none;
+  margin: 40px 0 0;
+  padding: 0;
+  scroll-margin-top: 20px;
+}
+
+:root[data-restyle] .search-page .group:not([hidden]):not(.group:not([hidden]) ~ .group) {
+  margin-top: 30px;
+}
+
+:root[data-restyle] .search-page .group-title {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  margin: 0;
+}
+
+:root[data-restyle] .search-page .results {
+  gap: 10px;
+  margin: 8px 0 0;
+}
+
+:root[data-restyle] .search-page .result-group {
+  margin: 0;
+}
+
+:root[data-restyle] .search-page .result-group + .result-group {
+  margin-top: 10px;
+}
+
+:root[data-restyle] .search-page .result-group__title {
+  margin-top: 6px;
+  padding: 0;
+  color: var(--text-strong);
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* With the desk's boxes beside the rows, the chapter's name lines up with
+   the cards. */
+:root[data-restyle] .search-page .result-group:has(.desk-gather__tick) .result-group__title {
+  padding-left: 28px;
+}
+
+:root[data-restyle] .search-page .result-group__occurrences {
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* The cards: the restyle's card, with today's smaller text inside. */
+:root[data-restyle] .search-page .result-link {
+  padding: 13px 44px 13px 18px;
+}
+
+:root[data-restyle] .search-page .result-link::after {
+  content: "";
+  top: 50%;
+  right: 18px;
+  width: 7px;
+  height: 7px;
+  margin-top: -4px;
+  border-top: 2px solid rgba(var(--ink-rgb), 0.45);
+  border-right: 2px solid rgba(var(--ink-rgb), 0.45);
+  border-radius: 0;
+  background: none;
+  transform: rotate(45deg);
+}
+
+:root[data-restyle] .search-page .result-link:hover::after {
+  background: none;
+}
+
+:root[data-restyle] .search-page .result-title {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: calc(1rem * var(--reading-scale, 1));
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+:root[data-restyle] .search-page .result-link .result-excerpt {
+  color: var(--text);
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  line-height: calc(1.55 + var(--reading-leading-extra, 0));
+  text-wrap: pretty;
+}
+
+:root[data-restyle] .search-page .result-link .result-title + .result-excerpt {
+  margin-top: 4px;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+:root[data-restyle] .search-page .result-excerpt sup {
+  margin-right: 1px;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: 0.72em;
+}
+
+/* The highlighter in sunshine, softer in the dark so ink reads on it. */
+:root[data-restyle] .search-page .result-excerpt mark {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: rgba(255, 210, 63, 0.6);
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-restyle]:not([data-theme="light"]) .search-page .result-excerpt mark {
+    background: rgba(255, 210, 63, 0.3);
+  }
+}
+
+:root[data-restyle][data-theme="dark"] .search-page .result-excerpt mark {
+  background: rgba(255, 210, 63, 0.3);
+}
+
+:root[data-restyle] .search-page .see-more-btn {
+  min-height: 32px;
+  margin-top: 12px;
+  padding: 5px 12px;
+  font-size: calc(0.875rem * var(--reading-scale, 1));
+  font-weight: 500;
+}
+
+/* ── The page links ────────────────────────────────────────────── */
+:root[data-restyle] .search-page .pager {
+  gap: 6px;
+  margin: 36px 0 0;
+  padding: 0;
+}
+
+:root[data-restyle] .search-page .pager .pager-btn {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 7px 12px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+:root[data-restyle] .search-page .pager .pager-btn--current {
+  font-weight: 700;
+}
+
+/* On a phone "Previous" and "Next" are arrows, so the row stays on one line;
+   the words stay the buttons' names. */
+@media (max-width: 479px) {
+  :root[data-restyle] .search-page .pager {
+    gap: 4px;
+  }
+
+  :root[data-restyle] .search-page .pager .pager-btn {
+    min-width: 34px;
+    padding-inline: 8px;
+  }
+
+  :root[data-restyle] .search-page .pager .pager-btn--arrow {
+    font-size: 0;
+  }
+
+  :root[data-restyle] .search-page .pager .pager-btn--arrow::before {
+    font-size: 1.125rem;
+    line-height: 1;
+  }
+
+  :root[data-restyle] .search-page .pager .pager-btn--arrow:first-child::before {
+    content: "‹";
+    content: "‹" / "";
+  }
+
+  :root[data-restyle] .search-page .pager .pager-btn--arrow:last-child::before {
+    content: "›";
+    content: "›" / "";
+  }
+}
+
+/* ── The Study Desk's "Add to a sheet" (desk-search.css draws it) ──
+   No card: its button sits at the end of the group's label row and its line
+   under the label, so neither can pass for a result. The row stays sticky,
+   as the desk has it (E116). */
+:root[data-restyle] .search-page .desk-gather--head {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 10px;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+:root[data-restyle] .search-page .desk-gather--head :is(.desk-gather__card, .desk-gather__main) {
+  display: contents;
+}
+
+:root[data-restyle] .search-page .desk-gather--head .desk-gather__all {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+:root[data-restyle] .search-page .desk-gather--head .desk-gather__lead {
+  grid-column: 2 / -1;
+  grid-row: 1;
+  margin: 4px 0 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: calc(0.9375rem * var(--desk-ui, 1));
+  line-height: calc(1.4 + var(--desk-leading, 0));
+}
+
+:root[data-restyle] .search-page .desk-gather--head[data-desk-gather="chapters"] .desk-gather__lead {
+  grid-column: 1 / -1;
+}
+
+:root[data-restyle] .search-page .desk-gather--head .desk-gather__actions-row {
+  grid-column: 2 / -1;
+  grid-row: 2;
+  justify-self: start;
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 6px;
+}
+
+:root[data-restyle] .search-page .desk-gather--head[data-desk-gather="chapters"] .desk-gather__actions-row {
+  grid-column: 1 / -1;
+}
+
+:root[data-restyle] .search-page .desk-gather--head .desk-gather__slot {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  min-width: 0;
+}
+
+/* Where the label row has room, the button joins it at its end. The head
+   row starts one label row up; the label stays drawn over its empty start. */
+@media (min-width: 600px) {
+  :root[data-restyle] .search-page .desk-gather--head {
+    grid-template-rows: minmax(32px, auto);
+    margin-top: -32px;
+  }
+
+  :root[data-restyle] .search-page .desk-gather--head .desk-gather__actions-row,
+  :root[data-restyle] .search-page .desk-gather--head[data-desk-gather="chapters"] .desk-gather__actions-row {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    margin-top: 0;
+  }
+
+  :root[data-restyle] .search-page .desk-gather--head .desk-gather__all,
+  :root[data-restyle] .search-page .desk-gather--head .desk-gather__lead {
+    grid-row: 2;
+  }
+}
+
+/* ── A computer: two panes ─────────────────────────────────────── */
+@media (min-width: 1000px) {
+  :root[data-restyle] .scripture-layout--search {
+    grid-template-columns: 15rem minmax(0, calc(44rem * var(--reading-scale, 1)));
+    grid-template-rows: auto 1fr;
+    justify-content: start;
+    column-gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  :root[data-restyle] .scripture-layout--search .scripture-tools {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  :root[data-restyle] .scripture-layout--search .scripture-tools__inner {
+    max-width: none;
+  }
+
+  :root[data-restyle] .scripture-layout--search .scripture-main {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+  }
+
+  /* The pane on a sheet, staying in view. */
+  :root[data-restyle] .v2-search__pane {
+    position: sticky;
+    top: 24px;
+    z-index: 5;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    gap: 22px;
+    max-width: none;
+    margin-top: 0;
+    padding: 18px 16px 16px;
+    border: 1px solid var(--desk-card-edge);
+    border-radius: 10px;
+    background: var(--desk-card);
+  }
+
+  :root[data-restyle] .scripture-layout--search .v2-search__pane .sort-toggle {
+    display: grid;
+    gap: 0;
+  }
+
+  :root[data-restyle] .scripture-layout--search .v2-search__pane .searchbar__filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The line of links under the count gives way to the pane's list. */
+  :root[data-restyle] .search-page .search-jumps {
+    display: none;
+  }
+
+  :root[data-restyle] .v2-search__groups:not([hidden]) {
+    display: block;
+  }
+
+  :root[data-restyle] .v2-search__groups ul {
+    margin: 10px 0 0;
+    padding: 0;
+    border-left: 1px solid var(--v2-hairline);
+    list-style: none;
+  }
+
+  :root[data-restyle] .v2-search__groups a {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-left: -1px;
+    padding: 5px 4px 5px 14px;
+    border-left: 2px solid transparent;
+    color: var(--text);
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  :root[data-restyle] .v2-search__groups a:hover {
+    text-decoration: underline;
+  }
+
+  :root[data-restyle] .v2-search__groups a[aria-current] {
+    border-left-color: var(--v2-marker);
+    color: var(--text-strong);
+    font-weight: 600;
+  }
+
+  :root[data-restyle] .v2-search__n {
+    color: rgba(var(--ink-rgb), 0.7);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The picker's new home: the foot of the pane, out of the way. */
+  :root[data-restyle] .v2-search__go {
+    display: block;
+    margin-top: -4px;
+    padding-top: 16px;
+    border-top: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle] .scripture-layout--search .v2-search__go :is(.scripture-tools__left, .read-menu-wrap, .read-menu) {
+    display: block;
+    width: 100%;
+  }
+
+  :root[data-restyle] .scripture-layout--search .v2-search__go .read-menu__trigger {
+    width: 100%;
+    padding-inline: 14px;
+  }
+}

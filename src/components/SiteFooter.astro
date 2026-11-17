@@ -22,12 +22,103 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
  * appears in _headers' connect-src and form-action but not script-src.
  */
 const { hideNewsletter = false } = Astro.props;
+
+// Site 2.0's footer navigation (BVJ, 2026-11-17: "Behind the preview gate, I
+// think the footer nav should be updated. It needs pages from Study Desk
+// added, and it should be reorganized."). The groups follow the header's
+// (Learn, Study, About), with the text's own group first and Connect last. Study shows only
+// where the header's Study menu does: a computer with the desk on
+// (.footer-col--desk; v2/base.css). Today's two columns stay below, data-v1.
+type FooterLink = { href: string; label: string; ariaLabel?: string };
+type FooterGroup = { label: string; desk?: boolean; links: FooterLink[] };
+const FOOTER_GROUPS: FooterGroup[] = [
+  {
+    // Not "Read": its first link is "Read," and the two together read twice.
+    label: "The LIT",
+    links: [
+      { href: "/read", label: "Read" },
+      { href: "/apps", label: "Apps" },
+      { href: "/release-notes", label: "Release Notes" },
+    ],
+  },
+  {
+    label: "Learn",
+    links: [
+      { href: "/glossary", label: "Glossary" },
+      { href: "/articles", label: "Articles" },
+      { href: "/found-in-translation-podcast", label: "Podcast" },
+    ],
+  },
+  {
+    label: "Study",
+    desk: true,
+    links: [
+      { href: "/desk/", label: "Study Desk" },
+      { href: "/sheets/", label: "My sheets" },
+      { href: "/notebook/", label: "My Notebook" },
+      { href: "/desk/help/", label: "Study Desk help" },
+    ],
+  },
+  {
+    label: "About",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/translation-commitments", label: "Commitments" },
+      { href: "/liberating-scripture-collective", label: "About LSC", ariaLabel: "About the Liberating Scripture Collective" },
+      { href: "/privacy", label: "Privacy" },
+    ],
+  },
+  {
+    label: "Connect",
+    links: [
+      { href: "/contact", label: "Contact" },
+      { href: "/support", label: "Support" },
+    ],
+  },
+];
+const SOCIAL = [
+  { href: "https://www.facebook.com/LiberationAndInclusionTranslation", name: "Facebook", path: siFacebook.path },
+  { href: "https://www.threads.com/@lit.bible", name: "Threads", path: siThreads.path },
+  { href: "https://bsky.app/profile/litbible.net", name: "Bluesky", path: siBluesky.path },
+  { href: "https://instagram.com/lit.bible", name: "Instagram", path: siInstagram.path },
+];
 ---
 
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-left">
-      <nav class="footer-nav" aria-label="Footer navigation">
+      <nav class="footer-nav footer-nav--v2" aria-label="Footer navigation" data-v2 data-pagefind-ignore>
+        {FOOTER_GROUPS.map((group, i) => (
+          <div class={`footer-col${group.desk ? " footer-col--desk" : ""}`}>
+            <h2>{group.label}</h2>
+            <ul>
+              {group.links.map((link) => (
+                <li><a href={link.href} aria-label={link.ariaLabel}>{link.label}</a></li>
+              ))}
+            </ul>
+            {i === FOOTER_GROUPS.length - 1 && (
+              <ul class="social-links" aria-label="Social media">
+                {SOCIAL.map((site) => (
+                  <li>
+                    <a
+                      href={site.href}
+                      aria-label={`Liberation and Inclusion Translation on ${site.name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d={site.path}></path>
+                      </svg>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </nav>
+
+      <nav class="footer-nav" aria-label="Footer navigation" data-v1>
         <div class="footer-col">
           <h2>Learn</h2>
           <ul>

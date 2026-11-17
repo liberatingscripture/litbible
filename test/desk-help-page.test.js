@@ -36,12 +36,18 @@ test("every link within the help page lands on an id it has", () => {
   for (const [, id] of body.matchAll(/href="#([^"]+)"/g)) assert.ok(ids.has(id), `#${id} has no target`);
 });
 
-test("the help page folds nothing away and runs no script", () => {
-  assert.doesNotMatch(body, /<details|<script/);
+// The one script is Site 2.0's contents marker (v2-frame.js): it marks where
+// the reader is in the contents and does nothing without the restyle's stamp.
+// The page reads whole without it (BVJ agreed to the page frame, 2026-11-17).
+const scripts = [...body.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1].trim());
+
+test("the help page folds nothing away, and its one script is the contents' marker", () => {
+  assert.doesNotMatch(body, /<details/);
+  assert.deepEqual(scripts, ['import "../../scripts/v2-frame.js";']);
 });
 
 test("the help page's copy keeps the site's conventions", () => {
-  const prose = body.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+  const prose = body.replace(/<script[^>]*>[\s\S]*?<\/script>/g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
   assert.doesNotMatch(prose, /\u2014/, "no em dash");
   assert.doesNotMatch(prose, /”[.,]/, "periods and commas go inside a closing quote");
   assert.doesNotMatch(prose.replace(/<[^>]+>|\{[^}]*\}/g, ""), /["']/, "curly quotes only");

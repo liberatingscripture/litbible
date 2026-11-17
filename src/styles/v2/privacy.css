@@ -1,0 +1,144 @@
+/* Site 2.0: the Privacy Policy (privacy.astro). Decided: "Privacy: with
+   contents" (BVJ, 2026-11-17; the mock is mock/privacy.html). The page frame:
+   the title under the sunshine bar, a contents list of the eleven sections
+   (a small card under the title, a sticky column on a sheet from 1000px), and
+   the text, each section heading taking the Marks (.v2-rule).
+
+   - The policy's words are shared with another site and do not move; only
+     classes are added to the existing elements. The contents nav is the one
+     new element (data-v2).
+   - The article is the frame's grid: header, nav, and body are its three
+     children, so nothing is wrapped. The article's own padding stays the
+     page's; its width is capped here to the site's wrap.
+   - The a[aria-current] style is ready; marking the current section as the
+     reader scrolls needs a shared script, which this file does not add.
+   - Sizes multiply by --reading-scale and --heading-scale as the page's own
+     stylesheet does, so the Display tray's text sizes still work. */
+
+:root[data-restyle] .privacy-page {
+  width: 100%;
+  max-width: calc(var(--v2-wrap) + 2 * var(--gutter, 0px));
+  margin-inline: auto;
+  min-height: 0;
+  padding-block: clamp(32px, 5vw, 64px) clamp(40px, 6vw, 72px);
+  padding-inline: var(--gutter, clamp(1.25rem, 4vw, 2.5rem));
+}
+
+/* The title block runs from the left edge of its column, not centered. */
+:root[data-restyle] .privacy-header {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .privacy-header__inner {
+  max-width: none;
+  margin: 0;
+}
+
+:root[data-restyle] .privacy-title {
+  margin: 0;
+  font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
+}
+
+:root[data-restyle] .privacy-effective {
+  margin: 8px 0 0;
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  letter-spacing: normal;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+/* The mockups' lead: a step up from the text, medium weight (as About's). */
+:root[data-restyle] .privacy-lede {
+  margin: 14px 0 0;
+  font-size: calc(1.375rem * var(--reading-scale, 1));
+  font-weight: 500;
+  line-height: calc(1.4 + var(--reading-leading-extra, 0));
+  text-wrap: pretty;
+}
+
+/* The contents: a small row of links under 1000px, a rail from 1000px. */
+:root[data-restyle] .privacy-toc .v2-label {
+  margin: 0;
+}
+
+:root[data-restyle] .privacy-toc ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 8px 0 0;
+}
+
+:root[data-restyle] .privacy-toc a {
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 1000px) {
+  :root[data-restyle] .privacy-toc ul {
+    display: block;
+    margin-top: 12px;
+  }
+
+  :root[data-restyle] .privacy-toc li + li {
+    margin-top: 8px;
+  }
+}
+
+/* The text: a ruled start to each section, no divider of today's. */
+:root[data-restyle] .privacy-body {
+  /* No auto margins: the frame places the text. With them a grid item stops
+     stretching and takes its longest word's width, so a web address in
+     OpenDyslexic made the whole column wider than a phone. */
+  margin: 0;
+  font-size: calc(1.125rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+}
+
+:root[data-restyle] .privacy-body section,
+:root[data-restyle] .privacy-body section + section {
+  margin: 0;
+  padding: 0;
+  border-top: 0;
+}
+
+:root[data-restyle] .privacy-body h2 {
+  margin: 3rem 0 0.9rem;
+  scroll-margin-top: 24px;
+}
+
+:root[data-restyle] .privacy-body section:first-child h2 {
+  margin-top: 2.25rem;
+}
+
+:root[data-restyle] .privacy-body p {
+  margin: 0 0 0.9rem;
+}
+
+:root[data-restyle] .privacy-body ul {
+  margin: 0 0 0.9rem;
+  padding-left: 1.4em;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+:root[data-restyle] .privacy-body li {
+  margin-bottom: 0.4rem;
+}
+
+:root[data-restyle] .privacy-body section > :last-child {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .privacy-body a {
+  color: var(--green-text);
+}
+
+/* Names of settings keep a quiet tint behind them. */
+:root[data-restyle] .privacy-body code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(var(--ink-rgb), 0.07);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}

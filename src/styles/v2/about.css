@@ -1,0 +1,338 @@
+/* Site 2.0: About (about.astro). Decided (BVJ, 2026-11-16): the page frame
+   with "Marks" (the sunshine bar over the title, a hairline and short green
+   marker over each section heading) and "TOC on a sheet" (from 1000px the
+   contents is a sticky column on a sheet beside the text; below that, a small
+   card of links under the title). The mock is mock/frame.html.
+
+   - The page's sections are siblings, so the frame's grid is written here
+     against the page's own class names (.about-page, .about-hero, .about-toc,
+     .about-body) rather than wrapping them in a __text container.
+   - The one contents nav serves both looks. With the stamp its toggle button
+     is display:none (so it leaves the tab order and the accessibility tree)
+     and its tray, which carries `hidden`, is display:block (an author rule
+     beats the attribute's UA display:none). aria-expanded and aria-controls
+     stay on the hidden button and mean nothing while it is gone; the script's
+     closing the tray on a link click or Escape only re-sets `hidden`, which
+     the display rule overrides, so the list stays shown.
+   - Every selector begins :root[data-restyle]; sizes multiply by
+     --reading-scale / --heading-scale as about.css does. */
+
+/* ── The frame ────────────────────────────────────────────────── */
+:root[data-restyle] .about-page.v2-frame {
+  max-width: calc(var(--v2-wrap) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-block: clamp(32px, 5vw, 64px) clamp(3.5rem, 8vw, 6rem);
+  padding-inline: var(--gutter);
+  background: none;
+  min-height: 0;
+}
+
+:root[data-restyle] .about-hero {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .about-hero__inner {
+  max-width: none;
+  margin: 0;
+}
+
+:root[data-restyle] .about-hero__title {
+  margin: 0;
+  text-align: left;
+  font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+:root[data-restyle] .about-hero__answer {
+  margin-top: 14px;
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: calc(1.375rem * var(--reading-scale, 1));
+  font-weight: 500;
+  line-height: calc(1.4 + var(--reading-leading-extra, 0));
+  text-wrap: pretty;
+}
+
+/* ── The contents: the one nav, shown as a list ───────────────── */
+:root[data-restyle] .about-page .about-toc {
+  position: static;
+  max-width: none;
+  margin: 24px 0 0;
+  z-index: auto;
+}
+
+:root[data-restyle] .about-toc__inner {
+  background: none;
+  backdrop-filter: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+:root[data-restyle] .about-toc__bar {
+  padding: 0;
+}
+
+:root[data-restyle] .about-toc__label {
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* The toggle is gone and the tray always shows. */
+:root[data-restyle] .about-toc__toggle {
+  display: none;
+}
+
+:root[data-restyle] .about-toc__tray {
+  display: block;
+  padding: 0;
+  border-top: 0;
+}
+
+:root[data-restyle] .about-toc__list {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 8px;
+}
+
+:root[data-restyle] .about-page .about-toc a.footer-cta.about-toc__cta {
+  min-height: 24px;
+  padding: 0;
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-decoration: none;
+  white-space: normal;
+  justify-content: flex-start;
+  text-align: left;
+  opacity: 1;
+  transform: none;
+}
+
+/* The sub-headings (2.0 only, data-v2): out of the small card, in the rail. */
+:root[data-restyle] .about-toc__sub {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:root[data-restyle] .about-toc__sub a {
+  color: var(--v2-label);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+:root[data-restyle] .about-toc__sub a:hover {
+  text-decoration: underline;
+}
+
+:root[data-restyle] .about-toc__sub a[aria-current] {
+  color: var(--text-strong);
+}
+
+:root[data-restyle] .about-page .about-toc a.footer-cta.about-toc__cta:hover {
+  color: var(--text);
+  text-decoration: underline;
+  opacity: 1;
+  transform: none;
+}
+
+:root[data-restyle] .about-page .about-toc a.footer-cta.about-toc__cta[aria-current] {
+  color: var(--text-strong);
+}
+
+/* ── The text ─────────────────────────────────────────────────── */
+:root[data-restyle] .about-body {
+  max-width: none;
+  margin: 0;
+  font-size: calc(1.125rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+}
+
+:root[data-restyle] .about-body p + p,
+:root[data-restyle] .about-body .faq-a p + p {
+  margin-top: 0.9rem;
+}
+
+:root[data-restyle] .about-body > h2 {
+  margin: 3rem 0 0;
+  font-size: calc(1.5rem * var(--reading-scale, 1));
+  line-height: 1.25;
+  scroll-margin-top: 24px;
+}
+
+:root[data-restyle] .about-body > h2:first-child {
+  margin-top: 0;
+}
+
+:root[data-restyle] .about-hero + .about-toc + .about-body > h2:first-child {
+  margin-top: 2.25rem;
+}
+
+:root[data-restyle] .about-body h3 {
+  margin: 2rem 0 0;
+  font-size: calc(1.25rem * var(--reading-scale, 1));
+  line-height: 1.3;
+}
+
+:root[data-restyle] .about-body > h2 + p,
+:root[data-restyle] .about-body h3 + p {
+  margin-top: 0.9rem;
+}
+
+:root[data-restyle] .about-body ul {
+  margin: 0.9rem 0 0;
+  padding-left: 1.4em;
+}
+
+:root[data-restyle] .about-body li {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .about-body li + li {
+  margin-top: 0.4rem;
+}
+
+:root[data-restyle] .about-body ul + p {
+  margin-top: 0.9rem;
+}
+
+/* ── The FAQ: a card per question, an edge on the open one ────── */
+:root[data-restyle] .faq {
+  margin-top: 1.25rem;
+  gap: 10px;
+}
+
+:root[data-restyle] .faq-item {
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+  backdrop-filter: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+:root[data-restyle] .faq-item[open] {
+  box-shadow: inset 3px 0 0 var(--v2-marker);
+}
+
+:root[data-restyle] .faq-q {
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: calc(1.0625rem * var(--reading-scale, 1));
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+:root[data-restyle] .faq-a {
+  padding: 0 18px 14px;
+}
+
+:root[data-restyle] .about-translation,
+:root[data-restyle] .about-site {
+  margin-top: 0;
+}
+
+:root[data-restyle] .about-faq .about-back {
+  margin-top: 2rem;
+}
+
+:root[data-restyle] .about-page > .about-back {
+  margin: 0;
+}
+
+/* ── Wide: the contents on a sheet beside the text ────────────── */
+@media (min-width: 1000px) {
+  :root[data-restyle] .about-page.v2-frame {
+    grid-template-rows: none;
+  }
+
+  :root[data-restyle] .about-hero,
+  :root[data-restyle] .about-body,
+  :root[data-restyle] .about-page > .about-back {
+    grid-column: 2;
+  }
+
+  :root[data-restyle] .about-hero {
+    grid-row: 1;
+  }
+
+  :root[data-restyle] .about-page .about-toc {
+    grid-column: 1;
+    grid-row: 1 / span 6;
+    position: sticky;
+    top: 24px;
+    margin: 0;
+  }
+
+  /* Named through the page and the column so they outweigh the frame's
+     own reset of a contents list's margins (base.css). */
+  :root[data-restyle] .about-page .about-toc .about-toc__list {
+    display: block;
+    margin-top: 12px;
+    border-left: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle] .about-page .about-toc .about-toc__sub {
+    display: block;
+    margin-top: 6px;
+  }
+
+  :root[data-restyle] .about-toc__sub a {
+    display: block;
+    margin-left: -1px;
+    padding-left: 14px;
+    border-left: 2px solid transparent;
+  }
+
+  :root[data-restyle] .about-toc__sub a[aria-current] {
+    border-left-color: var(--v2-marker);
+  }
+
+  :root[data-restyle] .about-toc__list li {
+    margin: 0;
+  }
+
+  :root[data-restyle] .about-toc__list > li + li {
+    margin-top: 8px;
+  }
+
+  :root[data-restyle] .about-toc__sub li + li {
+    margin-top: 4px;
+  }
+
+  :root[data-restyle] .about-page .about-toc a.footer-cta.about-toc__cta {
+    display: flex;
+    margin-left: -1px;
+    padding-left: 14px;
+    border-left: 2px solid transparent;
+  }
+
+  :root[data-restyle] .about-page .about-toc a.footer-cta.about-toc__cta[aria-current] {
+    border-left-color: var(--v2-marker);
+  }
+}
+
+/* The link from "What drives this translation" to the Commitments page (BVJ,
+   2026-11-17): Home's arrow link, a line of its own after the section. */
+:root[data-restyle] .about-page .about-more {
+  margin-top: 1.1em;
+}
+
+:root[data-restyle] .about-page .about-more a {
+  color: var(--green-text);
+  font-size: 0.9375em;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+:root[data-restyle] .about-page .about-more a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

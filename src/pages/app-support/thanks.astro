@@ -5,6 +5,9 @@
 // inline status message on /app-support instead and never see this page.
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/pages/contact.css";
+import EmblemMark from "../../components/EmblemMark.astro";
+// Site 2.0's look, behind the data-restyle stamp (src/styles/v2/contact.css).
+import "../../styles/v2/contact.css";
 ---
 
 <Layout
@@ -15,7 +18,7 @@ import "../../styles/pages/contact.css";
   <div class="contact-page">
     <section class="contact-hero" aria-labelledby="thanks-title">
       <div class="contact-inner">
-        <h1 id="thanks-title">Thank you!</h1>
+        <h1 id="thanks-title" class="v2-bar">Thank you!</h1>
 
         <p class="contact-lead">
           Your message has been sent. We read everything that comes in and will
@@ -24,18 +27,22 @@ import "../../styles/pages/contact.css";
 
         <img
           class="contact-logo"
+          data-v1
           src="/images/lit-logo-2026-ring.svg"
           alt="Liberation and Inclusion Translation logo."
           loading="lazy"
           decoding="async"
         />
 
+        <div class="v2-sheet v2-sheet--bleed v2-contact-sheet">
         <a class="contact-button" href="/">Back to the homepage</a>
 
         <p class="contact-privacy">
           In the meantime, you’re welcome to <a href="/read/">keep reading</a>
           or browse the <a href="/articles/">articles</a>.
         </p>
+        </div>
+        <EmblemMark class="v2-watermark contact-mark" />
       </div>
     </section>
   </div>

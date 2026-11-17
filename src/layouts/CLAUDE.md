@@ -33,3 +33,23 @@
   open the popover in a page nobody has seen yet, and may log an analytics visit
   for a chapter nobody opened. None of those scripts check
   `document.prerendering`.
+- **A page with its own search box can still give the header a search
+  button** (Site 2.0; BVJ, 2026-11-17: "The header can have a search button
+  so that a non-article-defaulted option is available"). `SearchBar` can be
+  on a page once (its ids are fixed), so a `pageSearch` page has no header
+  strip. Such a page passes `headerSearchLink` to `Layout`, and `SiteHeader`
+  (`searchLink`) draws the same icon as a plain link to `/search`, in the
+  nav tools, the phone's actions, and the menu. It carries `data-v2`, so it
+  shows only with the restyle's stamp, and no `data-search-toggle`, so
+  `header-search.js` leaves it alone. The articles index and the article
+  page pass it.
+- **Site 2.0 adds to two layouts, and both additions are inert without the
+  restyle's stamp** (`SITE-2.0.md`). `ScriptureLayout` imports
+  `v2/scripture.css` and a bundled `v2-scripture.js`: the scripture sheet is
+  a painted layer (`.scripture-main::before`), so no markup changed, and on
+  a phone the toolbar hides on a scroll down and returns on any scroll up
+  (BVJ, 2026-11-17), by a `data-v2-bar` attribute the module sets on
+  `.scripture-tools`. That module may be bundled where the `data-compact`
+  script above may not: it changes nothing before the first scroll.
+  `SearchLayout` has a `v2Pane` slot between the toolbar and the results,
+  which /search fills with its left pane (`data-v2`).

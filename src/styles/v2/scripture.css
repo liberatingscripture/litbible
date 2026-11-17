@@ -1,0 +1,291 @@
+/* Site 2.0: the scripture pages (Chapter View, and the book introductions,
+   which share ScriptureLayout; their own header waits for their unit).
+   Behind the restyle's stamp (SITE-2.0.md); screen only, so print.css prints
+   the page exactly as before.
+
+   BVJ, 2026-11-15 to 17: "On a sheet." On it: "Everything currently on the
+   page that's not header, footer, or the Notebook/Study Desk elements that
+   are going to be added." The source-text notice: "Yes, off the sheet."
+   Beside the Notebook: "Two cards." "I like the variable width sheet." The
+   bar: "Header and toolbar." On a phone: "have the row with the picker and
+   search hide once the user scrolls down, and reappear anytime they scroll
+   upward."
+
+   The text keeps today's size, line spacing and measure. The sheet is drawn
+   by .scripture-main::before, outside the column's own box, because the
+   Study Desk measures that box to place the Notebook, its tab and the
+   margin notes (src/lib/desk-margin.mjs, desk-notes.mjs): nothing here may
+   move them. The sheet's edges, beside the column's box (W, the 100% of the
+   ::before's left and right):
+     - 49px out (64px from the text, less the 1px edge), as with the desk off
+       or the Notebook minimized;
+     - 12px out on the right beside the open Notebook (half its 24px gap);
+     - with notes in the margin, out to 8px from the window or 75% of W,
+       whichever is less (a note ends 24px before the text, is at most three
+       quarters of the text's width, and keeps 16px from the window);
+   and never closer to the window than --v2s-edge. Where the box sits comes
+   from the desk's own --desk-bar-center (the column's center after any
+   move), else the center of .scripture-layout (50cqw). */
+
+@media screen {
+  /* ── The frame ──────────────────────────────────────────────────── */
+  :root[data-restyle] .scripture-layout {
+    container-type: inline-size;
+    /* The sheet's least gap to the window: the page gutter, and 8px beside
+       the Notebook, as the desk's sums keep. */
+    --v2s-edge: clamp(1.25rem, 4vw, 2.5rem);
+    /* The sheet's padding beside the text where the window is too narrow
+       for the full 64px. */
+    --v2s-pad: clamp(20px, 6vw, 64px);
+  }
+
+  :root[data-restyle][data-desk-panel] .scripture-layout {
+    --v2s-edge: 8px;
+  }
+
+  /* ── The sheet ──────────────────────────────────────────────────── */
+  /* The box keeps its width and side padding (the desk's column); only the
+     space above and below changes, and the sheet is painted behind. */
+  :root[data-restyle] .scripture-layout .scripture-main {
+    position: relative;
+    isolation: isolate;
+    margin-top: 12px;
+    margin-bottom: clamp(40px, 6vw, 72px);
+    padding-top: clamp(22px, 4vw, 44px);
+    padding-bottom: clamp(28px, 4vw, 48px);
+  }
+
+  :root[data-restyle] .scripture-layout .scripture-main::before {
+    --v2s-left-room: calc(var(--desk-bar-center, 50cqw) - 50%);
+    --v2s-right-room: calc(100cqw - var(--desk-bar-center, 50cqw) - 50%);
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: clamp(-49px, calc(var(--v2s-edge) - var(--v2s-left-room)), 0px);
+    right: clamp(-49px, calc(var(--v2s-edge) - var(--v2s-right-room)), 0px);
+    border: 1px solid var(--desk-card-edge);
+    border-radius: 10px;
+    background: var(--desk-card);
+    pointer-events: none;
+  }
+
+  /* Beside the open Notebook: just past the text. */
+  :root[data-restyle][data-desk-panel][data-desk-expanded] .scripture-layout--scripture .scripture-main::before {
+    right: clamp(-12px, calc(var(--v2s-edge) - var(--v2s-right-room)), 0px);
+  }
+
+  /* A chapter with notes in the margin (notes-margin.js draws them in full
+     only where the margin holds them): the sheet reaches under the notes. */
+  :root[data-restyle]:has(.desk-notes:not([hidden]) :is(.desk-note, .desk-note__more)) .scripture-layout--scripture .scripture-main::before {
+    left: clamp(-75%, calc(var(--v2s-edge) - var(--v2s-left-room)), 0px);
+  }
+
+  /* No desk, a window too narrow for the full margin: the column narrows so
+     the sheet keeps the page gutter and a padding of --v2s-pad. The desk's
+     column is never touched (its box is what it measures). */
+  @media (min-width: 641px) {
+    :root[data-restyle]:not([data-desk]) .scripture-layout .scripture-main {
+      max-width: min(
+        calc(var(--reading-width) + 32px),
+        calc(100% - 2 * (var(--v2s-edge) + var(--v2s-pad) - 16px))
+      );
+    }
+  }
+
+  /* A phone: edge to edge. */
+  @media (max-width: 640px) {
+    :root[data-restyle] .scripture-layout .scripture-main::before {
+      left: 0;
+      right: 0;
+      border-inline: 0;
+      border-radius: 0;
+    }
+  }
+
+  /* ── The title row (chapters) ───────────────────────────────────── */
+  /* The title at the left and the round arrows together at the right, at
+     every width. */
+  :root[data-restyle] .scripture-layout--scripture .scripture-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 16px;
+    text-align: left;
+  }
+
+  :root[data-restyle] .scripture-layout--scripture .chapter-title {
+    min-width: 0;
+    padding: 0;
+    font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
+    line-height: 1.15;
+    text-align: left;
+  }
+
+  :root[data-restyle] .scripture-layout--scripture .chapter-nav {
+    position: static;
+    flex: none;
+    display: inline-flex;
+    gap: 6px;
+    pointer-events: auto;
+  }
+
+  /* Go deeper lies on the sheet: its edge, no second fill. */
+  :root[data-restyle] .scripture-layout--scripture .go-deeper {
+    background: transparent;
+  }
+
+  /* ── The toolbar row ────────────────────────────────────────────── */
+  /* Read View's pill is gone from the 2.0 look (Read View gives way to
+     /desk); the Study Desk pill keeps its slot, on a computer. */
+  :root[data-restyle] .scripture-tools .reading-view-right:not(.reading-view-right--desk) {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    :root[data-restyle] .scripture-tools .reading-view-right--desk {
+      display: none;
+    }
+  }
+
+  /* A computer and a tablet: one row on the sheet's edges, the picker at
+     the left, search in the middle, the pill at the right. */
+  @media (min-width: 641px) {
+    :root[data-restyle] .scripture-layout .scripture-tools {
+      padding: 2px 0 0;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools__inner {
+      width: min(
+        calc(var(--reading-width) * var(--reading-scale, 1) + 130px),
+        calc(100% - 2 * var(--v2s-edge))
+      );
+      grid-template-columns: minmax(max-content, 1fr) minmax(0, 20rem) minmax(max-content, 1fr);
+      gap: 12px;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools .read-menu__trigger,
+    :root[data-restyle] .scripture-layout .scripture-tools .reading-view-pill {
+      min-width: 0;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools .rvp-full {
+      display: none;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools .rvp-short {
+      display: inline;
+    }
+
+    /* With the Notebook: the row follows the column (the desk's own
+       center) and keeps to the text's side of the sheet. */
+    :root[data-restyle][data-desk-panel] .scripture-layout .scripture-tools__inner {
+      translate: calc(var(--desk-bar-center, 50cqw) - 50cqw) 0;
+    }
+
+    :root[data-restyle][data-desk-panel][data-desk-expanded] .scripture-layout--scripture .scripture-tools__inner {
+      width: min(
+        calc(var(--reading-width) * var(--reading-scale, 1) + 93px),
+        calc(100% - 2 * var(--v2s-edge))
+      );
+      translate: calc(var(--desk-bar-center, 50cqw) - 50cqw - 18.5px) 0;
+    }
+  }
+
+  /* A phone: the one-row toolbar (data-compact, ScriptureLayout's inline
+     script) stays at the top of the window over the text. v2-scripture.js
+     marks it "afloat" once it has left its place and "away" on a scroll
+     down; it comes back on any scroll up and whenever focus is in it. */
+  @media (max-width: 640px) {
+    :root[data-restyle] .scripture-layout .scripture-tools[data-compact] {
+      position: sticky;
+      top: 0;
+      padding: 6px 16px;
+      background: var(--page-bg);
+      transition: transform 180ms ease;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools[data-compact] .scripture-tools__inner {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools[data-compact] .scripture-tools__left {
+      justify-self: start;
+    }
+
+    /* The picker at its own width, as the mockup draws it. */
+    :root[data-restyle] .scripture-layout .scripture-tools[data-compact] :is(.read-menu-wrap, .read-menu, .read-menu__trigger) {
+      width: auto;
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools[data-v2-bar~="afloat"] {
+      box-shadow: 0 1px 0 var(--v2-hairline);
+    }
+
+    :root[data-restyle] .scripture-layout .scripture-tools[data-v2-bar~="away"]:not(:focus-within, [data-search-open]) {
+      transform: translateY(-100%);
+      box-shadow: none;
+    }
+
+    /* A link's target stops below the floating row, never under it. */
+    :root[data-restyle] .scripture-layout .scripture-main [id] {
+      scroll-margin-top: 68px;
+    }
+  }
+
+  @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+    :root[data-restyle] .scripture-layout .scripture-tools[data-compact] {
+      transition: none;
+    }
+  }
+}
+
+/* A web address in a note is one unbreakable run, and at the larger text
+   sizes on a phone the longest (in Matthew 5's notes) is wider than the
+   window, so the whole page scrolled sideways (main's does too). It breaks
+   only when it cannot fit a line by itself; ordinary words never do. */
+@media screen {
+  :root[data-restyle] .scripture-layout .fn-body {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ── The quiet buttons (BVJ, 2026-11-17: "Go ahead with the quiet buttons") ──
+   The arrows beside the title and Previous at the foot are ordinary buttons,
+   and Next at the foot is the page's one primary ("Shouldn't the Luke 4
+   button at the bottom be green?"): restyle.css lists each with its kind, so
+   nothing is restated here but the weight the mockup gives an ordinary
+   button's words. "Back to top" is a quiet link, the text green, underlined
+   on hover; no restyle list holds it, so its whole look is here. */
+@media screen {
+  :root[data-restyle] .scripture-layout .chapter-cta--prev {
+    font-weight: 500;
+  }
+
+  :root[data-restyle] .scripture-layout .back-to-top__link {
+    min-height: 32px;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    box-shadow: none;
+    color: var(--green-text);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: none;
+    transform: none;
+    transition: none;
+  }
+
+  :root[data-restyle] .scripture-layout .back-to-top__link:hover {
+    background: none;
+    box-shadow: none;
+    color: var(--green-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transform: none;
+  }
+}

@@ -1,5 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import EmblemMark from "../components/EmblemMark.astro";
+// Site 2.0's look of this page, behind the data-restyle stamp. Its rules
+// outweigh the scoped <style> below (src/styles/v2/notfound.css, the header).
+import "../styles/v2/notfound.css";
 ---
 
 <Layout
@@ -11,6 +15,7 @@ import Layout from "../layouts/Layout.astro";
     <div class="not-found__inner">
       <img
         class="not-found__logo"
+        data-v1
         src="/images/lit-logo-2026-ring.svg"
         alt="Liberation and Inclusion Translation logo"
         width="140"
@@ -19,7 +24,7 @@ import Layout from "../layouts/Layout.astro";
         decoding="async"
       />
 
-      <h1 class="not-found__title">Page not found</h1>
+      <h1 class="not-found__title v2-bar">Page not found</h1>
 
       <p class="not-found__lead">
         The page you’re looking for doesn’t exist, may have moved, or the link
@@ -36,6 +41,7 @@ import Layout from "../layouts/Layout.astro";
         <a class="not-found__link" href="/">Go to the home page</a>
       </nav>
     </div>
+    <EmblemMark class="v2-watermark not-found__mark" />
   </section>
 </Layout>
 

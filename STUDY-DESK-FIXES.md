@@ -3789,6 +3789,13 @@ says so; where BVJ was wondering, nothing is decided.)
     floating button. Other pages have one green primary; the Collective's
     page and /support keep one per section. /about's contents list becomes
     plain links.
+    **Changed 2026-11-17** (Site 2.0; BVJ: "Go ahead with the quiet
+    buttons," then "There's no primary button at all in this version.
+    Shouldn't the Luke 4 button at the bottom be green?"): Next at the
+    foot is the page's one green primary; the arrows by the heading and
+    Previous are ordinary buttons (D2's); Back to top is a quiet link
+    drawn by `src/styles/v2/scripture.css`. Read View's floating button
+    stays green until Read View retires. `SITE-2.0.md` has the rest.
   - **D4**: the Display tray's segments, the glossary's sort switch and
     /search's sort take `.desk-seg`'s look. The glossary's switch stays the
     control for the keyboard and screen readers, hidden from sight, and a
@@ -3861,7 +3868,8 @@ says so; where BVJ was wondering, nothing is decided.)
   “The current load time for the Notebook panel makes clicking through
   chapter pages shift back and forth as it loads without the notebook and
   then a second later adds the notebook.” (The Site 2.0 branch logged the
-  same report as its E138; there the sheet and the toolbar row move with
+  same report as its own E138, folded into this entry when it took `main`;
+  there the sheet and the toolbar row move with
   the column, so it shows more.) Where the margin is too narrow for the
   Notebook the column moves left by a `translate` (`placeInMargin`), and
   that move came only once the shell had loaded. Measured frame by frame on
@@ -3886,7 +3894,15 @@ says so; where BVJ was wondering, nothing is decided.)
   introduction, Read View, and a page with the desk off are as they were.
   Left as it is: Read View has the same kind of move once the desk loads
   (140px at 1100px, 50px at 1280px), since its column is not the one the
-  pre-paint script knows.
+  pre-paint script knows. **In the Site 2.0 look**, measured the same way
+  once that branch took `main` (2026-11-17): the column, the sheet, and the
+  toolbar row are in their final places on the first painted frame at 1024,
+  1105, and 1120px, and only the Notebook arrives later. A trap for anyone
+  measuring: headless Chrome with `--hide-scrollbars` still reserves the
+  page's 15px scrollbar room while a throwaway element's scrollbar measures
+  0, so the script's width is 15px out there and the column settles 7px
+  after it paints. No reader's browser does that; measure with scrollbars
+  showing.
 - **E138, rough: the header showed its long title for a moment before “LIT
   Bible” replaced it.** BVJ, 2026-11-17, after E137: “It was flashing the
   full ‘Liberation and Inclusion Translation’ before replacing it with ‘LIT
@@ -3922,6 +3938,55 @@ says so; where BVJ was wondering, nothing is decided.)
   such widths, for about 0.6 s; the seven widths outside them painted one
   title). The rule is in `src/components/CLAUDE.md`, and
   `test/header-title.test.js` holds the script's place and runs it.
+- **E139, rough: the left adjuster is hard to find.** (E137 on the Site 2.0
+  branch until `main` used that number, and so called in BVJ's words
+  below.) BVJ, 2026-11-17,
+  looking over Site 2.0's Scripture page with the Notebook open: “the left
+  margin adjuster's location along the text edge inside the sheet is not
+  intuitive to find. Everything else about it makes sense, with a margin in
+  the sheet itself and the notes staying close to the text. So, it may be
+  the least bad option.” The line is `TEXT_HANDLE` (`desk-margin.mjs`): 12px
+  wide, inside the column's left padding, against the text, with nothing
+  drawn at rest (BVJ's own rule for both lines). In 2.0 that puts it 50px
+  inside the sheet's left edge, where today it sat at the column's bare edge.
+  Claude's thought: keep the line where it is (it is the edge it moves, and
+  the sheet's own edge belongs to the notes whenever a chapter has them) and
+  let the small grip show while the pointer is anywhere in the sheet's left
+  margin, so the margin itself points to it; the press and the resize cursor
+  stay on the 12px line, so a footnote's Pin and a note keep their clicks
+  (E83). BVJ, the same day: “Do your proposed E137 fix. Just note that it
+  shouldn't show when interacting with a margin note or note glyph.”
+  **Built** (`desk/widths.js`, `.desk-gutter--near` in `desk.css`): the
+  text line's grip shows, at the pointer's height, while the pointer is on
+  the bare page anywhere between the sheet's left edge and the text, down
+  the reading area. “The bare page” is the rule that keeps it off a note:
+  the pointer must be on the column itself or the page behind it, so a
+  margin note, a note's circle or its popover, a bookmark's mark, a Pin, and
+  any panel lying over the margin all turn it off; it also stays off while
+  a circle's popover is open, while a mouse button is held (a selection
+  being dragged across), and for a finger. It waits 120 ms before showing,
+  so a pointer crossing the margin on its way to a note draws nothing, and
+  goes at once. The sheet's edge is read from the column's `::before`
+  (Site 2.0 paints the sheet there); with no sheet the margin is the 49px
+  one would take. With notes in the margin the sheet reaches under them, so
+  the gaps between notes show the grip too. Checked with a real mouse in
+  headless Chrome at 1440px and 1105px, and by `test/desk-widths-hint.test.js`.
+  Status: fixed on the Site 2.0 branch (`claude/site-2-0`), not yet on `main`.
+- **E140, rough: the Notebook's adjuster draws inside the sheet.** BVJ,
+  2026-11-17, after E139 (it was E139 itself on the Site 2.0 branch): “The right margin width adjuster has a similar
+  problem, but not as bad. I think the field of where the mouse is located
+  when it becomes active is good, but the location of the adjuster itself
+  should be in that narrow space between the sheet and the notebook panel.”
+  The line between the text and the Notebook answers the pointer from 6px
+  inside the column to the Notebook's edge, and drew its grip and its
+  dragging hairline at the middle of that reach, which in the 2.0 look is
+  on the sheet's own edge (the sheet runs 12px past the column there, half
+  the 24px gap). **Built** (`placeHandles` in `desk/widths.js`; `--grip-x`
+  in `desk.css`): the reach is unchanged, and the grip and hairline are
+  drawn at the middle of the space between the sheet's right edge and the
+  Notebook (6px wide in a 12px space). With no sheet drawn they keep the
+  middle of the reach, as before. Status: fixed on the Site 2.0 branch, not
+  yet on `main`.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

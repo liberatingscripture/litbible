@@ -1,0 +1,95 @@
+/* Site 2.0: "Page not found" (404.astro). Decided: "404: watermark, left"
+   (BVJ, 2026-11-17; the mock is mock/notfound.html). The words run from the
+   left under the sunshine bar, and the watermark sits at the right on a
+   computer. The reference the other pages copy:
+
+   - Every selector begins :root[data-restyle], so without the stamp the page
+     is exactly main's. With the root pseudo-class and the attribute, a rule
+     here outweighs the page's scoped <style> (.not-found[data-astro-cid-…])
+     whatever order the two load in.
+   - The page imports this file after its own styles; the shared parts
+     (.v2-bar, .v2-watermark) are classes from v2/base.css, inert without the
+     stamp.
+   - Markup only 2.0 has carries data-v2 (EmblemMark does by itself), and
+     markup it replaces carries data-v1 (the ringed emblem). Layout.astro's
+     critical CSS hides each in the other look.
+   - A dark value names both selectors, with the same declarations:
+       @media (prefers-color-scheme: dark) {
+         :root[data-restyle]:not([data-theme="light"]) .x { … }
+       }
+       :root[data-restyle][data-theme="dark"] .x { … }
+     This page needs none: its colors are tokens that follow the theme.
+   - The buttons are restyle.css's (the primary and the ordinary kinds); only
+     their size is set here, to the mock's large button. */
+
+:root[data-restyle] .not-found {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  justify-content: start;
+  gap: clamp(32px, 6vw, 80px);
+  width: 100%;
+  max-width: calc(var(--v2-wrap) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding: clamp(48px, 9vh, 96px) var(--gutter);
+  text-align: left;
+}
+
+:root[data-restyle] .not-found__inner {
+  max-width: 34rem;
+}
+
+:root[data-restyle] .not-found__title {
+  margin: 0;
+  font-size: clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+:root[data-restyle] .not-found__lead {
+  margin: 14px 0 0;
+  color: var(--text);
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+/* "Did you mean …?" keeps its place under the line. */
+:root[data-restyle] .not-found__suggest {
+  margin: 14px 0 0;
+  font-size: 1.125rem;
+}
+
+:root[data-restyle] .not-found__actions {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px 12px;
+  margin: 24px 0 0;
+}
+
+:root[data-restyle] .not-found__cta {
+  min-height: 46px;
+  padding: 11px 20px;
+  font-size: 1rem;
+}
+
+:root[data-restyle] .not-found__link {
+  display: inline;
+  width: auto;
+  margin: 0 0 0 6px;
+  color: var(--green-text);
+  font-size: 1rem;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+:root[data-restyle] .not-found__mark {
+  width: 340px;
+  height: 340px;
+}
+
+@media (min-width: 900px) {
+  :root[data-restyle] .not-found {
+    grid-template-columns: minmax(0, 34rem) auto;
+    justify-content: space-between;
+  }
+}

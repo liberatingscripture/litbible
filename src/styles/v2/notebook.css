@@ -1,0 +1,75 @@
+/* Site 2.0: My Notebook (notebook.astro; drawn by desk/notebook-page.js and
+   styled by desk.css). BVJ, 2026-11-17, after the consistency pass over the
+   desk's own pages: "I agree with your proposed alignment for Study Desk
+   help, My Notebook, and My Sheets." For this page that was three things:
+   the 2.0 title (its size, under the sunshine bar), the page's shared left
+   edge (the site's wrap, not a centered column of its own), and ordinary
+   buttons. Its lists, fields and sizes are the desk's, untouched. */
+
+/* ── The page: the site's wrap, its content from the left edge ── */
+:root[data-restyle] .notebook-page {
+  max-width: calc(var(--v2-wrap) + 2 * var(--gutter, 0px));
+  margin-inline: auto;
+  padding-block: clamp(32px, 5vw, 64px) clamp(40px, 6vw, 72px);
+  padding-inline: var(--gutter, clamp(1.25rem, 4vw, 2.5rem));
+}
+
+/* As wide as a reading sheet goes, so a row's words and buttons stay near. */
+:root[data-restyle] .notebook-page > * {
+  max-width: var(--v2-sheet-width);
+}
+
+/* ── The title ────────────────────────────────────────────────── */
+:root[data-restyle] .notebook-page__title {
+  margin: 0;
+  font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
+  line-height: 1.15;
+}
+
+:root[data-restyle] .notebook-page__desk-line {
+  margin: 10px 0 0;
+}
+
+:root[data-restyle] .notebook-page > [data-notebook-page] {
+  margin-top: 20px;
+}
+
+/* ── Its buttons: the ordinary button ─────────────────────────── */
+/* The page's own actions (Add a label, Rename, the backup's buttons, Restore
+   all) were flat outlines; every other ordinary button on the site and the
+   desk is the Raised one (restyle.css; desk.css, "a look for every button").
+   The same tokens, so the two cannot drift. Delete in bulk keeps its red. */
+:root[data-restyle] .desk-np :is(.desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-backup__save, .desk-backup__file-button, .desk-backup__actions button, .desk-np__restore-all) {
+  border: 1px solid var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  border-radius: 8px;
+  background: var(--desk-control);
+  color: var(--text);
+  box-shadow: var(--desk-btn-rest);
+  transition:
+    transform var(--desk-btn-motion) ease,
+    box-shadow var(--desk-btn-motion) ease,
+    background-color var(--desk-btn-motion) ease;
+}
+
+:root[data-restyle] .desk-np :is(.desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-backup__save, .desk-backup__file-button, .desk-backup__actions button, .desk-np__restore-all):hover:not(:disabled, [aria-disabled="true"], :active) {
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  box-shadow: var(--desk-btn-lift);
+  transform: translateY(var(--desk-btn-lift-y));
+}
+
+:root[data-restyle] .desk-np :is(.desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-backup__save, .desk-backup__file-button, .desk-backup__actions button, .desk-np__restore-all):active:not(:disabled, [aria-disabled="true"]) {
+  border-bottom-color: var(--field-border);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  box-shadow: var(--desk-btn-press);
+  transform: none;
+}
+
+:root[data-restyle] .desk-np :is(.desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-backup__save, .desk-backup__file-button, .desk-backup__actions button, .desk-np__restore-all):is(:disabled, [aria-disabled="true"]) {
+  border-color: var(--field-border);
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}

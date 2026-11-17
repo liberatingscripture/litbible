@@ -465,6 +465,36 @@
      take the look (BVJ, 2026-11-13), from here, never from `apps.css`.
   Check a change against the computed styles of every control on each page,
   in both themes and at a phone's width, before trusting a screenshot.
+- **Site 2.0's page layouts live in `src/styles/v2/`, behind the same
+  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules).
+  `v2/base.css` (tokens `--v2-*`, the sheet, the Marks, the quiet label, the
+  watermark, the page frame) loads after `restyle.css` in Layout.astro; each
+  page's `v2/<page>.css` is imported by that page after its own styles.
+  Every selector begins `:root[data-restyle]`, dark rules name both
+  selectors, and nothing 2.0 goes into `restyle.css`, `global.css` or a
+  page's existing stylesheet. (What kind a control is stays `restyle.css`'s
+  to say: when 2.0 made the Scripture pages' arrows and Previous quiet and
+  left Next the page's one primary, BVJ 2026-11-17, they moved between its
+  lists; no rule was added there.)
+  Markup only 2.0 has carries `data-v2` (plus
+  `data-pagefind-ignore` when it repeats the page's words); markup it
+  replaces carries `data-v1`; two rules in Layout.astro's critical CSS hide
+  each in the other look, and no `id` is in both. `test/site2-css.test.js`
+  holds these. `src/pages/404.astro` with `v2/notfound.css` is the worked
+  example.
+  Two traps wave 4 found: a grid item with `margin: 0 auto` stops
+  stretching and takes its longest word's width (Privacy scrolled sideways
+  in OpenDyslexic), so a page-frame child carries no auto margin; and a
+  rail's "you are here" marker is a border over transparent ones, which a
+  contrast theme paints on every link, so `base.css` names `Canvas` and
+  `Highlight` for them under `forced-colors`.
+  **A sentence that ends in a new-tab link** would show the restyle's mark
+  between its last word and its period (BVJ, 2026-11-17: “The period should
+  be up against the ‘4.0’”). CSS can't reorder them, so for the two
+  hand-written sentences (/read's license card, the source-text notice) the
+  link drops its mark and the paragraph's `::after` draws the same one
+  after the period (`v2/base.css`, screen only; it repeats `restyle.css`'s
+  drawing, so change both). A new such sentence joins that selector.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

@@ -1,0 +1,29 @@
+---
+// The site emblem's glyph alone, with no disc and no ring: Site 2.0's
+// watermark (SITE-2.0.md, "The system"). The paths are the glyph of
+// public/images/lit-logo-2026.svg, untransformed, framed by a viewBox that
+// fits the glyph alone. It takes its color from CSS (fill), so it follows the
+// theme; .v2-watermark in src/styles/v2/base.css draws it as the ink at 10%,
+// on a computer only. Pass `class` to replace that default, keeping
+// v2-watermark when the faint mark is wanted ("v2-watermark not-found__mark").
+// It exists only for 2.0, so it always carries data-v2, and it is decoration.
+interface Props {
+  class?: string;
+}
+
+const { class: className = "v2-watermark" } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="18 13 170 170"
+  aria-hidden="true"
+  focusable="false"
+  data-v2
+>
+  <g fill-rule="evenodd">
+    <path d="M136.9 86.3h-23.2V63.1c0-25.2-20.4-45.6-45.6-45.6S22.6 38 22.6 63.1v114.3h114.3c25.2 0 45.6-20.4 45.6-45.5S162 86.3 136.9 86.3m0 81.7H32V63.1C32 43.2 48.2 27 68.1 27s36.1 16.2 36.1 36.1v32.7h32.6c19.9-.1 36.2 16 36.3 35.9s-16 36.2-35.9 36.3z" />
+    <path d="M136.9 100.1H100v-37c0-17.6-14.2-31.8-31.8-31.8S36.4 45.5 36.4 63.1v100.6h100.5c17.6 0 31.8-14.2 31.8-31.8s-14.2-31.8-31.8-31.8m0 54.1H45.8V63.1c0-12.3 10-22.3 22.3-22.3s22.3 10 22.3 22.3v46.4h46.4c12.3 0 22.3 10 22.3 22.3s-9.9 22.4-22.2 22.4" />
+    <path d="M136.9 113.8H86.2V63.1c0-10-8.1-18.1-18.1-18.1S50 53.1 50 63.1v86.8h86.8c10 .1 18.1-8 18.2-17.9.1-10-8-18.1-17.9-18.2zm0 26.7H59.5V63.1c0-4.7 3.9-8.6 8.6-8.6s8.6 3.8 8.6 8.6v60.2h60.1c4.7 0 8.6 3.9 8.6 8.6s-3.8 8.6-8.5 8.6" />
+  </g>
+</svg>

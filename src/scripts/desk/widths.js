@@ -9,7 +9,9 @@
 //
 // Nothing shows between the columns at rest (BVJ: a line there distracts).
 // The pointer in a gap gets the resize cursor and a small grip beside it,
-// and a hairline shows only while dragging. Each handle is a focusable
+// and a hairline shows only while dragging. The text's line also shows its
+// grip while the pointer is on the bare page anywhere in the sheet's left
+// margin (E139), since the line itself is narrow and inside the sheet. Each handle is a focusable
 // separator the arrow keys move a character at a time (the ARIA
 // window-splitter pattern), so it isn't mouse-only. A press that doesn't move,
 // or Enter, opens its menu of steps (line-menu.js; XA8-1), for a reader who
@@ -192,6 +194,18 @@ export function createWidths({ column, panel, onChange }) {
   gutters.append(textEdge, bookEdge);
   document.body.append(gutters);
 
+  // Site 2.0 paints the sheet the text lies on as the column's ::before
+  // (v2/scripture.css), reaching past the column's box on both sides. Its
+  // edges in the window, given the column's box, or null where none is drawn.
+  function sheetEdges(box) {
+    const sheet = getComputedStyle(column, "::before");
+    if (!sheet || !sheet.content || sheet.content === "none") return null;
+    const left = parseFloat(sheet.left);
+    const right = parseFloat(sheet.right);
+    if (!Number.isFinite(left) || !Number.isFinite(right)) return null;
+    return { left: box.left + Math.min(0, left), right: box.right - Math.min(0, right) };
+  }
+
   function handle(which, label) {
     const h = document.createElement("div");
     h.className = `desk-gutter desk-gutter--${which}`;
@@ -278,6 +292,65 @@ export function createWidths({ column, panel, onChange }) {
     });
   }
 
+  // The text's line is easy to miss: it lies inside the sheet, against the
+  // text, with nothing drawn at rest (E139; BVJ, 2026-11-17: "not intuitive
+  // to find"). So its grip also shows while the pointer is anywhere in the
+  // sheet's left margin, at the pointer's height, pointing to the line. The
+  // press and the resize cursor stay on the line itself, so a footnote's Pin
+  // and a note keep their clicks (E83). BVJ: "it shouldn't show when
+  // interacting with a margin note or note glyph." So only the bare page
+  // counts as the margin: a note, its circle or its popover, a bookmark's
+  // mark, a Pin or a panel lying there is none of it. Nor does it show while
+  // a circle's popover is open, or while a button is held (a selection being
+  // dragged across).
+  const NEAR = "desk-gutter--near";
+  let pointer = null;
+
+  // Where the margin begins: the sheet's left edge, or, where no sheet is
+  // drawn, the 49px one takes beside a column with no notes.
+  function marginLeft(box) {
+    const sheet = sheetEdges(box);
+    return Math.max(0, sheet ? sheet.left : box.left - 49);
+  }
+
+  const barePage = (t) => t === textEdge || t === column || (t instanceof Node && t.contains(column));
+
+  function hint({ x, y, target, held = false, touch = false }) {
+    let near = false;
+    if (!gutters.hidden && !touch && !held && barePage(target) && !document.querySelector('.desk-circle[aria-expanded="true"]')) {
+      const box = column.getBoundingClientRect();
+      const run = textEdge.getBoundingClientRect();
+      const textLeft = box.left + parseFloat(getComputedStyle(column).paddingLeft || "0");
+      near = x >= marginLeft(box) && x < textLeft && y >= run.top && y <= run.bottom;
+      if (near) textEdge.style.setProperty("--grip-y", `${y - run.top}px`);
+    }
+    textEdge.classList.toggle(NEAR, near);
+  }
+
+  document.addEventListener(
+    "pointermove",
+    (e) => {
+      pointer = { x: e.clientX, y: e.clientY, touch: e.pointerType === "touch" };
+      hint({ ...pointer, target: e.target, held: e.buttons !== 0 });
+    },
+    { passive: true },
+  );
+  // The page scrolling under a still pointer changes what it is over.
+  let scrolled = 0;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!pointer || gutters.hidden) return;
+      cancelAnimationFrame(scrolled);
+      scrolled = requestAnimationFrame(() => hint({ ...pointer, target: document.elementFromPoint(pointer.x, pointer.y) }));
+    },
+    { passive: true },
+  );
+  document.documentElement.addEventListener("pointerleave", () => {
+    pointer = null;
+    textEdge.classList.remove(NEAR);
+  });
+
   // The click-only way to do what dragging does (XA8-1): four characters a
   // step. On the text's line, dragging right narrows the text; on the
   // Notebook's, dragging right narrows the Notebook.
@@ -313,8 +386,22 @@ export function createWidths({ column, panel, onChange }) {
     textEdge.style.left = `${col.left + sx + TEXT_HANDLE.inset}px`;
     textEdge.style.width = `${TEXT_HANDLE.width}px`;
     // From just inside the column's padding to the notebook.
+    const bookWidth = Math.max(12, panelLeft - col.right + 6);
     bookEdge.style.left = `${col.right + sx - 6}px`;
-    bookEdge.style.width = `${Math.max(12, panelLeft - col.right + 6)}px`;
+    bookEdge.style.width = `${bookWidth}px`;
+    // Its grip and hairline are drawn in the narrow space between the sheet
+    // and the Notebook, not at the middle of the line's own reach, which
+    // begins inside the sheet (BVJ, 2026-11-17: "the field of where the mouse
+    // is located when it becomes active is good, but the location of the
+    // adjuster itself should be in that narrow space between the sheet and
+    // the notebook panel"). With no sheet drawn they keep the middle.
+    const sheet = sheetEdges(col);
+    if (sheet && panelLeft > sheet.right) {
+      const mid = (sheet.right + panelLeft) / 2 - (col.right - 6);
+      bookEdge.style.setProperty("--grip-x", `${Math.min(bookWidth - 3, Math.max(3, mid))}px`);
+    } else {
+      bookEdge.style.removeProperty("--grip-x");
+    }
 
     const m = measures();
     const now = keptWidths() ? layout() : null;
@@ -336,6 +423,7 @@ export function createWidths({ column, panel, onChange }) {
 
   function hideHandles() {
     gutters.hidden = true;
+    textEdge.classList.remove(NEAR);
     closeLineMenu(textEdge);
     closeLineMenu(bookEdge);
   }
