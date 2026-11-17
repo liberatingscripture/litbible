@@ -349,6 +349,16 @@ Waves 2 and 3, the same two kinds of note. Each page's own module
   a control's kind is decided there. Book introductions share all of it.
   The last chapter (Revelation 22) has no Next, so no green button. Read
   View's floating button is still green; Read View retires at launch.
+  **The arrows stay by the title.** BVJ asked (2026-11-17) what if they
+  "were in the margins of the sheet and stayed in place on the screen as it
+  scrolled down," and whether that would meet the column adjusters. Measured
+  on Luke 3: with the Notebook minimized both margins are 64px and empty.
+  With it open the left keeps about 50px clear of the text's adjuster, but
+  the right margin is 28px and the Notebook's adjuster covers it and the gap
+  to the Notebook, so a 44px Next has no room and would lie on the adjuster.
+  Notes in the margin fill the left margin in either state. Offered a try
+  only where both margins are empty, BVJ: "Leave them as is." Nothing was
+  built.
 - **The book introduction.** The rail ("On this page") is new markup
   (`data-v2`) on an intro with two or more headings; a draft has none. Its
   links need targets, so each intro `h2` now has an `id` made from its words
