@@ -470,8 +470,11 @@ const menuData = {
 
                       {/* A link to this entry, outside the heading so it stays
                           out of the heading's name. Without JS it is an ordinary
-                          link; glossary-entry-links.js makes a click copy it. */}
+                          link; glossary-entry-links.js makes a click copy it.
+                          Today's look only (data-v1): 2.0 has no copy-link
+                          button (BVJ, 2026-11-17; SITE-2.0.md). */}
                       <a
+                        data-v1
                         class="entry-link"
                         href={`#${data.id}`}
                         data-entry-link

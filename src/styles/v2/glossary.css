@@ -304,35 +304,11 @@
   display: none;
 }
 
-/* The copy-link button: quiet, at the heading's right. */
-:root[data-restyle] .glossary-page .entry-link {
-  display: inline-grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  margin-top: -2px;
-  border-radius: 8px;
-  font-size: 1rem;
-  color: var(--v2-label);
-  opacity: 1;
-}
-
-:root[data-restyle] .glossary-page .entry-link:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-  color: var(--text);
-}
-
-:root[data-restyle] .glossary-page .entry-link[data-copied] {
-  color: var(--green-text);
-}
-
-:root[data-restyle] .glossary-page .entry-link__icon {
-  width: 20px;
-  height: 20px;
-  stroke-width: 1.8;
-}
+/* No copy-link button in 2.0 (BVJ, 2026-11-17: "Let's remove the 'copy
+   link' glyphs on the glossary entries"): the link is data-v1 in
+   glossary.astro, so today's look keeps it. An entry's link is still one
+   press away: the list at the left links to each entry, and selecting words
+   in a definition offers "Copy entry link." */
 
 :root[data-restyle] .glossary-page .entry-body {
   margin-top: 10px;

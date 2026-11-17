@@ -37,8 +37,9 @@ From the root's project tree.
                      #   whose top is greek-builder, the menu-based search
                      #   builder);
                      #   v2-frame, Site 2.0's "you are here" marker on a
-                     #   contents rail (About, Privacy, the podcast's
-                     #   seasons): with the restyle's stamp only, it sets
+                     #   contents rail (About, Privacy, the Commitments'
+                     #   longer text, the podcast's seasons): with the
+                     #   restyle's stamp only, it sets
                      #   aria-current="location" on the link of the last
                      #   heading above the reading line;
                      #   v2-glossary, v2-search and v2-scripture, each a
@@ -244,6 +245,8 @@ Desk adds its "My Notebook" row to it as it does in scripture. The entry's
 copy-link button says what it does twice over: hover text ("Copy link to this
 entry") and a copy icon with a chain on its front sheet (owner, 2026-10-09).
 It was a bare chain until then, which reads as a link that goes somewhere.
+Site 2.0 has no such button (BVJ, 2026-11-17; it is `data-v1`): the left
+list's links and the panel's Copy entry link serve there.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and

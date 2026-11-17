@@ -3862,6 +3862,21 @@ says so; where BVJ was wondering, nothing is decided.)
   still opens a tab everywhere. Left as they are: the podcast page's
   “Follow the show on Facebook” (its platform buttons carry the mark too),
   and Go deeper's three podcast links, one mark each.
+- **E137, rough: the left adjuster is hard to find.** BVJ, 2026-11-17,
+  looking over Site 2.0's Scripture page with the Notebook open: “the left
+  margin adjuster's location along the text edge inside the sheet is not
+  intuitive to find. Everything else about it makes sense, with a margin in
+  the sheet itself and the notes staying close to the text. So, it may be
+  the least bad option.” The line is `TEXT_HANDLE` (`desk-margin.mjs`): 12px
+  wide, inside the column's left padding, against the text, with nothing
+  drawn at rest (BVJ's own rule for both lines). In 2.0 that puts it 50px
+  inside the sheet's left edge, where today it sat at the column's bare edge.
+  **Open**, no decision. Claude's thought, not built: keep the line where it
+  is (it is the edge it moves, and the sheet's own edge belongs to the notes
+  whenever a chapter has them) and let the small grip show while the pointer
+  is anywhere in the sheet's left margin, so the margin itself points to it;
+  the press and the resize cursor would stay on the 12px line, so a
+  footnote's Pin and a note keep their clicks (E83).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

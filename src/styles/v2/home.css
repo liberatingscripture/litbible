@@ -357,7 +357,13 @@
   }
 }
 
-/* ── The good stuff: the heading and Read now ─────────────────── */
+/* ── The good stuff: the heading alone ────────────────────────── */
+/* The row had "Read now" at its right end, as the mockup draws it. BVJ,
+   2026-11-17: "Either it should be closer to the sentence or it can be
+   removed. It used to have the purpose of a way in but now the
+   'Introducing' card has that." Removed: the link is data-v1 in
+   index.astro, so today's look keeps it. The heading stays at the left,
+   over the chat's left edge, like every other heading in 2.0. */
 :root[data-restyle] .callout {
   left: auto;
   width: auto;
@@ -367,11 +373,7 @@
 }
 
 :root[data-restyle] .callout-panel {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px 32px;
+  display: block;
   width: auto;
   max-width: none;
   margin: 0 0 clamp(24px, 4vw, 40px);
@@ -402,55 +404,6 @@
 
 :root[data-restyle] .callout-underline-path {
   stroke-width: 7;
-}
-
-/* Read now: the desk's ordinary button at the mock's large size (the
-   site's dark pill with its curtain is today's look). */
-:root[data-restyle] a.callout-cta.footer-cta {
-  position: static;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  min-width: 0;
-  min-height: 46px;
-  margin: 0;
-  padding: 11px 20px;
-  border: 1px solid var(--field-border);
-  border-bottom-color: var(--desk-btn-edge-low);
-  border-radius: 8px;
-  background: var(--desk-control);
-  color: var(--text);
-  box-shadow: var(--desk-btn-rest);
-  font: 500 1rem / 1.2 Inter, "Inter Fallback", system-ui, sans-serif;
-  letter-spacing: normal;
-  text-transform: none;
-  text-decoration: none;
-  white-space: nowrap;
-  transform: none;
-  overflow: visible;
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    background-color var(--desk-btn-motion) ease;
-}
-
-:root[data-restyle] a.callout-cta.footer-cta::before,
-:root[data-restyle] a.callout-cta.footer-cta::after {
-  content: none;
-}
-
-:root[data-restyle] a.callout-cta.footer-cta:hover {
-  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-  color: var(--text);
-  box-shadow: var(--desk-btn-lift);
-  transform: translateY(var(--desk-btn-lift-y));
-}
-
-:root[data-restyle] a.callout-cta.footer-cta:active {
-  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
-  box-shadow: var(--desk-btn-press);
-  transform: none;
 }
 
 :root[data-restyle] .callout-diagonal {

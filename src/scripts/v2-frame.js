@@ -1,7 +1,8 @@
 // Site 2.0's page frame (SITE-2.0.md, "The system"): marks the contents
 // rail's current item as the reader scrolls, with aria-current, which
 // v2/base.css draws as the rail's green marker. Used by the pages that have a
-// contents column (About, Privacy) and by the podcast page's list of seasons.
+// contents column (About, Privacy, the Commitments' longer text) and by the
+// podcast page's list of seasons.
 // It does nothing without the restyle's stamp, and nothing on a page with no
 // rail, so a page may load it always.
 

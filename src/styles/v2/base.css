@@ -260,3 +260,104 @@
     justify-content: start;
   }
 }
+
+/* ── The footer's navigation, regrouped ───────────────────────────
+   BVJ, 2026-11-17: "Behind the preview gate, I think the footer nav should
+   be updated. It needs pages from Study Desk added, and it should be
+   reorganized." SiteFooter.astro holds the groups (.footer-nav--v2; today's
+   two columns are data-v1 beside it). Study shows only where the header's
+   Study menu does, a computer with the desk on. From a tablet up the groups
+   sit in a row, each as wide as its words, and wrap when a font or a window
+   leaves less room; the newsletter is beside them from 1180px and under them
+   below that. On a phone they keep today's two centered columns, the icons
+   in a row under them. */
+:root[data-restyle]:not([data-desk]) .footer-col--desk {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  :root[data-restyle] .footer-inner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "left" "right";
+    row-gap: 2.5rem;
+  }
+
+  :root[data-restyle] .footer-left {
+    grid-column: auto;
+    justify-self: stretch;
+    min-width: 0;
+  }
+
+  :root[data-restyle] .footer-right {
+    grid-column: auto;
+  }
+
+  :root[data-restyle] .footer-nav--v2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.25rem clamp(1.75rem, 3vw, 3rem);
+  }
+
+  :root[data-restyle] .footer-nav--v2 .footer-col {
+    flex: none;
+    max-width: 100%;
+  }
+
+  /* The four icons in two rows of two, so Connect is no wider than its
+     neighbors and ends level with them (in one row it was the widest group
+     and the first to wrap). */
+  :root[data-restyle] .footer-nav--v2 .social-links {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+  }
+
+  :root[data-restyle] .footer-nav--v2 .social-links li {
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 1180px) {
+  :root[data-restyle] .footer-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+    grid-template-areas: "left right";
+  }
+}
+
+/* A computer's window drawn in to a phone's width, in OpenDyslexic: with
+   Study there the two centered columns are wider than the window (a phone
+   has no Study group, so it is not met there). One column instead. */
+@media (max-width: 520px) {
+  :root[data-restyle][data-desk][data-font="dyslexic"] .footer-nav--v2 {
+    grid-template-columns: max-content;
+    justify-content: start;
+  }
+}
+
+/* ── A sentence that ends in a new-tab link ───────────────────────── */
+/* The restyle draws its new-tab mark after such a link, which put it between
+   the last word and the sentence's period. BVJ, 2026-11-17, of /read's
+   license card: "The period should be up against the '4.0'." So in these two
+   sentences (the license card's, and the source-text notice's after every
+   chapter) the link gives up its own mark and the paragraph draws the same
+   one after the period. The drawing is restyle.css's (its
+   a[target="_blank"] rule): change both together. Screen only, so print.css's
+   written-out addresses are as before. */
+@media screen {
+  :root[data-restyle] :is(.sblgnt-line, .license-card__lede) > a[target="_blank"]:last-of-type::after {
+    content: none;
+  }
+
+  :root[data-restyle] :is(.sblgnt-line, .license-card__lede)::after {
+    content: "";
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+    margin-left: 0.3em;
+    vertical-align: -0.1em;
+    opacity: 0.8;
+    /* The link's own green, as the mark it stands in for had. */
+    background-color: var(--green-text);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+}

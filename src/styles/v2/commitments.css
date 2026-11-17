@@ -91,6 +91,69 @@
   contain: none;
 }
 
+/* The contents column (BVJ, 2026-11-17: "add a TOC column like on /about for
+   the 'How these commitments work together' sheet"). The section is the
+   shared page frame with no title block: under 1000px a small card of links
+   over the sheet, from 1000px a column on its own sheet beside it, holding to
+   the window while the sheet scrolls. v2-frame.js marks the part being read. */
+:root[data-restyle] .tc-toc .v2-label {
+  margin: 0;
+}
+
+:root[data-restyle] .tc-toc ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 8px 0 0;
+}
+
+:root[data-restyle] .tc-toc li {
+  line-height: 1.35;
+}
+
+:root[data-restyle] .tc-toc a {
+  font-size: calc(0.9375rem * var(--reading-scale, 1));
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+:root[data-restyle] .tc-narrative .tc-toc {
+  margin-top: 0;
+}
+
+:root[data-restyle] .tc-narrative .tc-narrative__inner {
+  margin-top: 16px;
+}
+
+:root[data-restyle] .tc-narrative h3 {
+  scroll-margin-top: 24px;
+}
+
+@media (min-width: 1000px) {
+  :root[data-restyle] .tc-narrative.v2-frame {
+    grid-template-columns: 15rem minmax(0, var(--v2-sheet-width));
+    grid-template-rows: auto;
+  }
+
+  :root[data-restyle] .tc-narrative .tc-toc {
+    grid-row: 1;
+  }
+
+  :root[data-restyle] .tc-narrative .tc-narrative__inner {
+    grid-row: 1;
+    margin-top: 0;
+  }
+
+  :root[data-restyle] .tc-toc ul {
+    display: block;
+    margin-top: 12px;
+  }
+
+  :root[data-restyle] .tc-toc li + li {
+    margin-top: 8px;
+  }
+}
+
 /* No spine. */
 :root[data-restyle] .tc-narrative__inner::before {
   content: none;

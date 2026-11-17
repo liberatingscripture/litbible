@@ -318,3 +318,21 @@
     border-left-color: var(--v2-marker);
   }
 }
+
+/* The link from "What drives this translation" to the Commitments page (BVJ,
+   2026-11-17): Home's arrow link, a line of its own after the section. */
+:root[data-restyle] .about-page .about-more {
+  margin-top: 1.1em;
+}
+
+:root[data-restyle] .about-page .about-more a {
+  color: var(--green-text);
+  font-size: 0.9375em;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+:root[data-restyle] .about-page .about-more a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

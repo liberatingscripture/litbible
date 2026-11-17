@@ -481,6 +481,13 @@
   rail's "you are here" marker is a border over transparent ones, which a
   contrast theme paints on every link, so `base.css` names `Canvas` and
   `Highlight` for them under `forced-colors`.
+  **A sentence that ends in a new-tab link** would show the restyle's mark
+  between its last word and its period (BVJ, 2026-11-17: “The period should
+  be up against the ‘4.0’”). CSS can't reorder them, so for the two
+  hand-written sentences (/read's license card, the source-text notice) the
+  link drops its mark and the paragraph's `::after` draws the same one
+  after the period (`v2/base.css`, screen only; it repeats `restyle.css`'s
+  drawing, so change both). A new such sentence joins that selector.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

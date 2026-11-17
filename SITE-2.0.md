@@ -253,9 +253,11 @@ of "Launching" in `src/scripts/desk/CLAUDE.md`):
    Glossary's own `--cream` goes. `test/site2-css.test.js` holds the gate
    today and is retired or rewritten with it; the `test/v2-*.test.js` files
    test logic and stay.
-6. **Labels.** "Release Notes" (header menu, footer, the home card) and
-   "Latest text changes" become the only wording (`v2Label` in
-   `SiteHeader.astro`, the two spans in `SiteFooter.astro`).
+6. **Labels.** "Release Notes" (header menu, the home card) and "Latest
+   text changes" become the only wording (`v2Label` in `SiteHeader.astro`).
+   The footer needs nothing here: its old navigation is `data-v1` and goes
+   with step 3, and `FOOTER_GROUPS` in `SiteFooter.astro` already says
+   "Release Notes."
 7. **Read View** retires with the flip (item 11 there); its pill is already
    hidden in the 2.0 look.
 8. **The desk's glossary title fit** (`desk/glossary-titles.js`) finds
@@ -373,3 +375,74 @@ Waves 2 and 3, the same two kinds of note. Each page's own module
   drew a text column about 680px wide; the build keeps the reading measure
   the preview already has (52, BVJ 2026-10-05; 48 beside an open Notebook),
   so the sheet is as wide as that line plus its padding.
+
+## BVJ's review in the pane (2026-11-17)
+
+BVJ looked the built pages over in the Browser pane and asked for these.
+Each is behind the stamp unless it says otherwise.
+
+- **Home: no "Read now" beside "Turns out there's some really good stuff in
+  there."** BVJ: "The placement of the Read now button is strange. Either it
+  should be closer to the sentence or it can be removed. It used to have the
+  purpose of a way in but now the 'Introducing' card has that." Removed: the
+  link is `data-v1` in `index.astro`, so today's look keeps it, and its
+  rules left `v2/home.css`. BVJ then asked "would it make more sense to
+  center the text on that row? Or is left aligned still best?" It is built
+  at the left, which is Claude's answer and not yet BVJ's decision: the
+  heading sits over the chat's left edge, and every other heading in 2.0
+  runs from the left. The mockup (`home-a.html`) still draws the button.
+- **/read: the license sentence's period.** BVJ: "The license card on /read
+  has the sentence period after the open glyph. The period should be up
+  against the '4.0'." The restyle's new-tab mark follows its link, so it
+  came between the last word and the period. In two sentences that end in
+  such a link (the license card's, and the source-text notice's after every
+  chapter and on /desk) the link gives up its mark and the paragraph draws
+  the same one after the period (`v2/base.css`, screen only, so print's
+  written-out addresses are untouched). The card's markup also had white
+  space before its period, which showed as "4.0 ." in both looks: that is
+  gone in both, and the link gained `noreferrer`, so **/read's HTML differs
+  from `main`'s there with the preview off**. Left as they are: the full
+  credit's written-out address ("…/by/4.0/", then the mark, then the
+  period), and a Hebrew Bible reference in a footnote that is followed by a
+  comma or a period (the mark comes first there too; about 340 such places).
+- **Glossary: no copy-link button.** BVJ: "Let's remove the 'copy link'
+  glyphs on the glossary entries." Each `a.entry-link` is `data-v1`. An
+  entry's link is still at hand: the list at the left links to every entry,
+  and selecting words in a definition offers "Copy entry link."
+- **The footer's navigation.** BVJ: "Behind the preview gate, I think the
+  footer nav should be updated. It needs pages from Study Desk added, and it
+  should be reorganized." Built in `SiteFooter.astro` (`FOOTER_GROUPS`, a
+  second `nav` that is `data-v2`; today's two columns are `data-v1`) and laid
+  out in `v2/base.css`. **The grouping is Claude's, for BVJ to change**: it
+  follows the header's menus, with the text's own group first.
+  | Group | Links |
+  |---|---|
+  | The LIT | Read, Apps, Release Notes |
+  | Learn | Glossary, Articles, Podcast |
+  | Study | Study Desk, My sheets, My Notebook, Study Desk help |
+  | About | About, Commitments, About LSC, Privacy |
+  | Connect | Contact, Support, and the four icons, two by two |
+  Study shows only where the header's Study menu does (a computer with the
+  desk on). The first group is "The LIT" because a group named "Read" over a
+  link named "Read" reads twice. From a tablet up the groups sit in one row,
+  each as wide as its words; the newsletter is beside them from 1180px and
+  under them below that. A phone keeps two centered columns with the icons
+  in a row beneath. In OpenDyslexic the last group wraps to a second row on
+  a computer, and a computer's window drawn in under 520px takes one column.
+- **Commitments: a contents column.** BVJ: "On /translation-commitments, add
+  a TOC column like on /about for the 'How these commitments work together'
+  sheet." The section is the page frame without a title block: the five
+  headed parts in a rail on its own sheet at the left from 1000px (About's
+  positions exactly: the rail at the gutter, the sheet beside it), a small
+  card of links over the sheet below that. Each headed part has an `id` made
+  from its words, in both looks, and `v2-frame.js` marks the part being
+  read.
+- **About: a link to the Commitments.** BVJ: "There should be a link to the
+  commitments page from the 'What drives this translation' section of
+  /about." A line after that section's last paragraph, "Read the Translation
+  Commitments →" (`data-v2`; the words are Claude's, a link label and not a
+  sentence added to BVJ's text), drawn as Home's arrow links are.
+- **The left adjuster** (the line that sets the text's width, beside the
+  open Notebook): BVJ finds it hard to find inside the sheet and thinks it
+  "may be the least bad option." Logged as E137 in `STUDY-DESK-FIXES.md`,
+  open; nothing changed.

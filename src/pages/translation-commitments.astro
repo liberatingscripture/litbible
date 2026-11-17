@@ -6,6 +6,21 @@ import '../styles/v2/commitments.css';
 import tcData from '../data/translation-commitments.json';
 
 const { commitments, narrative } = tcData;
+
+// Site 2.0: the longer text's contents column (BVJ, 2026-11-17: "add a TOC
+// column like on /about for the 'How these commitments work together'
+// sheet"). Its links need targets, so each headed part gets an id made from
+// its heading's words, in both looks.
+const partId = (heading: string) =>
+  "tc-" +
+  heading
+    .toLowerCase()
+    .replace(/[’'“”"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+const parts = narrative.sections
+  .filter((section) => section.heading)
+  .map((section) => ({ id: partId(section.heading as string), heading: section.heading as string }));
 ---
 
 <Layout
@@ -49,13 +64,22 @@ const { commitments, narrative } = tcData;
       }
     </section>
 
-    <section class="tc-narrative" aria-labelledby="tc-how">
-      <div class="tc-narrative__inner v2-sheet v2-sheet--bleed">
+    <section class="tc-narrative v2-frame" aria-labelledby="tc-how">
+      <nav class="tc-toc v2-frame__toc" data-v2 data-pagefind-ignore aria-label="On this page">
+        <p class="v2-label">On this page</p>
+        <ul>
+          {parts.map((part) => (
+            <li><a href={`#${part.id}`}>{part.heading}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="tc-narrative__inner v2-frame__text v2-sheet v2-sheet--bleed">
         <h2 id="tc-how">{narrative.title}</h2>
         {
           narrative.sections.map((section) => (
             <>
-              {section.heading && <h3 class="v2-rule">{section.heading}</h3>}
+              {section.heading && <h3 class="v2-rule" id={partId(section.heading)}>{section.heading}</h3>}
               {section.paragraphs.map((para) => (
                 <p set:html={para} />
               ))}
@@ -65,4 +89,9 @@ const { commitments, narrative } = tcData;
       </div>
     </section>
   </article>
+
+  {/* The contents column's "you are here" marker; inert without the stamp. */}
+  <script>
+    import "../scripts/v2-frame.js";
+  </script>
 </Layout>
