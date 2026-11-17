@@ -1,0 +1,492 @@
+/* Site 2.0: the /read landing (read.astro). Decided (BVJ, 2026-11-16/17):
+   "Let's take even the accordion version off the mobile. Move the grid below
+   the ways to read cards." (the grid: a computer only, no heading), "ring is
+   fine" (the ring on the Continue chapter), "/read is good," and the block of
+   changes is headed "Latest text changes." The mock is mock/read.html.
+
+   - Every selector begins :root[data-restyle], so without the stamp the page
+     is exactly main's. Weighing 0,3,0 or more, a rule here outweighs the
+     layout's and the page's scoped styles whatever order they load in.
+   - The grid (.v2-read__*) is markup only 2.0 has (data-v2). The passage
+     picker that ReadLayout draws is today's list and stays on every width.
+   - The ring is styled on a[data-v2-continue], a hook a script sets on the
+     chapter the reader would continue at (none is written here). */
+
+/* ── The page's columns: left-aligned, the 2.0 width ───────────── */
+:root[data-restyle] .read-layout__hero,
+:root[data-restyle] .read-layout__tools,
+:root[data-restyle] .read-layout__content,
+:root[data-restyle] .views-band,
+:root[data-restyle] .v2-read__books,
+:root[data-restyle] .license-band__inner {
+  width: 100%;
+  max-width: calc(var(--v2-wrap) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  text-align: left;
+}
+
+/* ── The top: title and way in, with the latest text changes beside ── */
+:root[data-restyle] .read-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 clamp(24px, 4vw, 48px);
+  text-align: left;
+}
+
+:root[data-restyle] .read-layout__hero {
+  padding-top: clamp(28px, 5vw, 56px);
+  padding-bottom: 0;
+}
+
+:root[data-restyle] .read-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+}
+
+:root[data-restyle] .read-continue {
+  margin: 16px 0 0;
+}
+
+:root[data-restyle] .read-lede {
+  max-width: 40rem;
+  margin: 14px 0 0;
+  color: var(--text);
+}
+
+:root[data-restyle] .read-lede a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* The row under the paragraph: the passage picker and the search. */
+:root[data-restyle] .read-layout__tools {
+  padding-top: 24px;
+  padding-bottom: 0;
+}
+
+:root[data-restyle] .read-layout__menu {
+  justify-content: flex-start;
+}
+
+@media (min-width: 700px) {
+  :root[data-restyle] .read-layout__tools {
+    grid-template-columns: auto minmax(0, 26rem);
+    align-items: center;
+    justify-content: start;
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1000px) {
+  :root[data-restyle] .read-hero {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: start;
+  }
+
+  :root[data-restyle] .read-hero > :not(.whats-new) {
+    grid-column: 1;
+  }
+
+  :root[data-restyle] .whats-new {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+  }
+}
+
+/* ── Latest text changes: a card; closed until tapped on a phone, open
+      beside the title on a computer ─────────────────────────────── */
+:root[data-restyle] .whats-new {
+  display: block;
+  margin-top: 28px;
+  padding: 14px 20px;
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+}
+
+:root[data-restyle] .whats-new__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-strong);
+  font-family: var(--serif, serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+}
+
+:root[data-restyle] .whats-new__dot {
+  display: none;
+}
+
+:root[data-restyle] .whats-new__chevron {
+  color: var(--v2-label);
+  font: 400 0.8rem/1 var(--sans, sans-serif);
+}
+
+/* The panel sits in the card, in the flow (today's is a floating dropdown). */
+:root[data-restyle] .whats-new__panel {
+  position: static;
+  display: none;
+  width: auto;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  overflow: visible;
+  pointer-events: auto;
+  transform: none;
+  visibility: visible;
+  transition: none;
+}
+
+:root[data-restyle] .whats-new__panel.is-open {
+  display: block;
+  margin-top: 10px;
+  transform: none;
+}
+
+:root[data-restyle] .whats-new__entry {
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--v2-hairline);
+  border-bottom: 0;
+}
+
+:root[data-restyle] .whats-new__entry:last-of-type {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .whats-new__date {
+  margin: 0;
+  color: var(--green-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 1.3;
+  text-transform: none;
+}
+
+:root[data-restyle] .whats-new__changes {
+  gap: 4px;
+  margin-top: 6px;
+}
+
+:root[data-restyle] .whats-new__change {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  gap: 8px;
+  font-size: 0.9375rem;
+}
+
+:root[data-restyle] .whats-new__change .whats-new__badge {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--v2-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+:root[data-restyle] .whats-new__change-text {
+  color: var(--text);
+}
+
+:root[data-restyle] .whats-new__all {
+  display: inline-block;
+  margin-top: 12px;
+  text-align: left;
+}
+
+@media (min-width: 1000px) {
+  :root[data-restyle] .whats-new {
+    margin-top: 0;
+    padding-top: 18px;
+  }
+
+  :root[data-restyle] .whats-new__trigger {
+    pointer-events: none;
+  }
+
+  :root[data-restyle] .whats-new__chevron {
+    display: none;
+  }
+
+  :root[data-restyle] .whats-new__panel {
+    display: block;
+    margin-top: 10px;
+  }
+}
+
+/* ── Ways to read ─────────────────────────────────────────────── */
+:root[data-restyle] .views-band {
+  margin-top: clamp(40px, 6vw, 72px);
+}
+
+:root[data-restyle] .views-heading {
+  margin: 0 0 6px;
+}
+
+:root[data-restyle] .views-lede {
+  max-width: none;
+  margin: 0;
+  color: var(--text);
+}
+
+:root[data-restyle] .views-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  margin-top: 20px;
+}
+
+:root[data-restyle] .view-card {
+  height: 100%;
+  padding: 20px 22px 18px;
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+  box-shadow: none;
+}
+
+:root[data-restyle] .view-card__title {
+  margin: 0 0 8px;
+  color: var(--text-strong);
+  font-family: var(--serif, serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+
+:root[data-restyle] .view-card__badge {
+  margin: 0 0 8px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--green-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+:root[data-restyle] .view-card__desc {
+  margin: 0 0 14px;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ── The contents: every book, every chapter, one book to a row ──
+   A computer only (800px and up); a phone has the passage picker. */
+:root[data-restyle] .v2-read__books {
+  display: none;
+  margin-top: clamp(40px, 6vw, 72px);
+}
+
+@media (min-width: 800px) {
+  :root[data-restyle] .v2-read__books {
+    display: block;
+  }
+}
+
+:root[data-restyle] .v2-read__contents {
+  padding: 4px clamp(14px, 3vw, 28px);
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+}
+
+:root[data-restyle] .v2-read__bk {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  align-items: start;
+  column-gap: 12px;
+  border-top: 1px solid var(--v2-hairline);
+}
+
+:root[data-restyle] .v2-read__bk:first-child {
+  border-top: 0;
+}
+
+:root[data-restyle][data-font="dyslexic"] .v2-read__bk {
+  grid-template-columns: 17rem minmax(0, 1fr);
+}
+
+:root[data-restyle] .v2-read__name {
+  margin: 0;
+  padding: 13px 0 11px;
+  color: var(--text-strong);
+  font-family: var(--serif, serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+:root[data-restyle] .v2-read__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+:root[data-restyle] .v2-read__intro {
+  flex: none;
+  min-width: 3.2rem;
+  padding: 9px 0;
+  color: var(--green-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+:root[data-restyle] .v2-read__intro:hover {
+  text-decoration: underline;
+}
+
+/* 29px a number: Matthew's 28 fit one line in the 1120px column. */
+:root[data-restyle] .v2-read__chs {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, 29px);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:root[data-restyle] .v2-read__chs a {
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+  border-radius: 8px;
+  color: var(--green-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+:root[data-restyle] .v2-read__chs a:hover {
+  background: rgba(var(--ink-rgb), 0.07);
+}
+
+/* A draft chapter: quieter, with a dotted line under its number. */
+:root[data-restyle] .v2-read__chs a[data-draft],
+:root[data-restyle] .v2-read__key-draft {
+  color: var(--v2-label);
+  font-weight: 400;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+}
+
+/* Where "Continue" would take you (the hook is set by script). */
+:root[data-restyle] .v2-read__chs a[data-v2-continue] {
+  box-shadow: inset 0 0 0 2px var(--green-text);
+}
+
+:root[data-restyle] .v2-read__key {
+  margin: 12px 0 0;
+  color: var(--v2-label);
+  font-size: 0.875rem;
+}
+
+/* ── The license: on the page, not on a green band ────────────── */
+:root[data-restyle] .license-band {
+  width: auto;
+  margin: clamp(40px, 6vw, 72px) 0;
+  padding: 0;
+  background: none;
+}
+
+:root[data-restyle] .license-band::before {
+  display: none;
+}
+
+:root[data-restyle] .license-card {
+  margin-top: 0;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+  box-shadow: none;
+}
+
+:root[data-restyle] .license-card__title {
+  margin-top: 0;
+}
+
+:root[data-restyle] .license-card__lede {
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+:root[data-restyle] .license-faq-item {
+  border: 1px solid var(--v2-hairline);
+  border-radius: 8px;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+:root[data-restyle] .license-faq-item[open] {
+  box-shadow: inset 3px 0 0 var(--v2-marker);
+}
+
+:root[data-restyle] .license-faq-q {
+  padding: 14px 16px;
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+:root[data-restyle] .license-faq-body {
+  max-width: 46rem;
+  padding: 0 16px 16px;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* A web address is one long word: let it break, so it stays on the screen. */
+:root[data-restyle] .license-card a,
+:root[data-restyle] .license-faq-body a {
+  overflow-wrap: anywhere;
+}
+
+/* restyle.css's button, floating-surface, and card lists weigh more than the
+   rules above (its rule 4); repeating the stamp and the class lifts these
+   past them. */
+:root[data-restyle][data-restyle] .whats-new__trigger.whats-new__trigger.whats-new__trigger.whats-new__trigger {
+  transition: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-restyle][data-restyle] .whats-new__panel.whats-new__panel.whats-new__panel.whats-new__panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-restyle][data-restyle] .view-card.view-card.view-card.view-card,
+:root[data-restyle][data-restyle] .license-card.license-card.license-card.license-card {
+  box-shadow: none;
+}
+

@@ -3,12 +3,14 @@
 import ReadLayout from "../layouts/ReadLayout.astro";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import "../styles/pages/read.css";
+import "../styles/v2/read.css";
 import SblgntCredits from "../components/SblgntCredits.astro";
 import releaseNotes from "../data/release-notes.json";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
 import ContinueReading from "../components/ContinueReading.astro";
 import { releaseNoteLinker } from "../lib/release-note-linker";
+import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { entryIds } from "../lib/release-notes-view.mjs";
 
 const title = "Read | Liberation and Inclusion Translation";
@@ -29,6 +31,20 @@ const unfinished = unfinishedTexts(scanDraftChapters()).map(
 );
 const unfinishedList = joinList(unfinished);
 const exceptHtml = unfinished.length ? ` (all except ${unfinishedList})` : "";
+
+// Site 2.0's contents grid (a computer only; data-v2). It follows the passage
+// picker's rule (ReadMenu.astro): every chapter of every book is a link, a
+// draft ("indexed": false) is marked and still linked, and every book has an
+// intro link.
+const draftsByBook = scanDraftChapters().draftChaptersByBook;
+const contents = BOOK_ORDER.map((key) => ({
+  key,
+  label: bookKeyToLabel(key),
+  chapters: Array.from({ length: (BOOKS as Record<string, number>)[key] }, (_, i) => ({
+    n: i + 1,
+    draft: (draftsByBook[key] ?? []).includes(i + 1),
+  })),
+}));
 
 const TYPE_LABEL: Record<string, string> = {
   chapter_added: "Added",
@@ -54,6 +70,7 @@ const TYPE_LABEL: Record<string, string> = {
   <link slot="head" rel="preload" as="image" type="image/svg+xml" href="/images/lit-logo-2026-ring.svg" fetchpriority="high" />
   <div slot="hero" class="read-hero">
     <img
+      data-v1
       class="read-logo"
       src="/images/lit-logo-2026-ring.svg"
       alt="Liberation and Inclusion Translation logo"
@@ -64,7 +81,7 @@ const TYPE_LABEL: Record<string, string> = {
       fetchpriority="high"
     />
 
-    <h1 class="read-title">Read the LIT Online</h1>
+    <h1 class="read-title v2-bar">Read the LIT Online</h1>
 
     <ContinueReading class="read-continue" />
 
@@ -87,7 +104,7 @@ const TYPE_LABEL: Record<string, string> = {
             aria-controls="whatsNewPanel"
           >
             <span class="whats-new__dot" aria-hidden="true" />
-            What’s new
+            <span data-v1>What’s new</span><span data-v2>Latest text changes</span>
             <span class="whats-new__chevron" aria-hidden="true">
               ▾
             </span>
@@ -184,6 +201,45 @@ const TYPE_LABEL: Record<string, string> = {
         <a href="/apps" class="view-card__link">Explore the apps &rarr;</a>
       </div>
     </div>
+  </section>
+
+  <section
+    slot="bands"
+    class="v2-read__books"
+    aria-label="Books and chapters"
+    data-v2
+    data-pagefind-ignore
+  >
+    <div class="v2-read__contents">
+      {
+        contents.map((b) => (
+          <div class="v2-read__bk">
+            <h3 class="v2-read__name">{b.label}</h3>
+            <div class="v2-read__body">
+              <a
+                class="v2-read__intro"
+                href={`/${b.key}-intro`}
+                aria-label={`Introduction to ${b.label}`}>Intro</a
+              >
+              <ol class="v2-read__chs">
+                {b.chapters.map((c) => (
+                  <li>
+                    <a
+                      href={`/${b.key}-${c.n}`}
+                      aria-label={`${b.label} ${c.n}${c.draft ? " (draft)" : ""}`}
+                      data-draft={c.draft ? "" : undefined}>{c.n}</a
+                    >
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+    <p class="v2-read__key">
+      A dotted number, like <span class="v2-read__key-draft">12</span>, is a draft.
+    </p>
   </section>
 
   <section slot="bands" class="license-band" aria-labelledby="license-heading">
@@ -341,13 +397,36 @@ const TYPE_LABEL: Record<string, string> = {
 
     const isOpen = () => panel.classList.contains("is-open");
 
+    // Site 2.0: on a computer the list is simply shown beside the title
+    // (v2/read.css), so there the button is a heading that does nothing. Its
+    // state says "open," and it leaves the tab order. Never without the
+    // restyle's stamp.
+    const wide = window.matchMedia("(min-width: 1000px)");
+    const alwaysOpen = () =>
+      document.documentElement.hasAttribute("data-restyle") && wide.matches;
+    const settle = () => {
+      if (alwaysOpen()) {
+        open();
+        trigger.setAttribute("aria-disabled", "true");
+        trigger.setAttribute("tabindex", "-1");
+      } else if (trigger.hasAttribute("aria-disabled")) {
+        trigger.removeAttribute("aria-disabled");
+        trigger.removeAttribute("tabindex");
+        close();
+      }
+    };
+    wide.addEventListener("change", settle);
+    settle();
+
     trigger.addEventListener("click", () => {
+      if (alwaysOpen()) return;
       // Yield to the browser so the button's :active/:focus styles paint
       // before the panel's visibility/transform transition starts (improves INP).
       requestAnimationFrame(() => (isOpen() ? close() : open()));
     });
 
     document.addEventListener("keydown", (e) => {
+      if (alwaysOpen()) return;
       if (e.key === "Escape" && isOpen()) {
         close();
         trigger.focus({ preventScroll: true });
@@ -355,6 +434,7 @@ const TYPE_LABEL: Record<string, string> = {
     });
 
     document.addEventListener("click", (e) => {
+      if (alwaysOpen()) return;
       if (
         isOpen() &&
         !trigger.contains(e.target) &&
@@ -398,4 +478,32 @@ const TYPE_LABEL: Record<string, string> = {
 
 <script>
   import "../scripts/ref-preview.js";
+</script>
+
+<script>
+  // Site 2.0: the ring on the chapter the reader would continue at, in the
+  // contents grid (2.0 only, so nothing happens without the restyle's stamp).
+  // It reads the same record Continue reading does, and goes when that
+  // record is forgotten with Continue reading's ×.
+  import { loadLastRead } from "../scripts/last-read.js";
+
+  const grid = document.querySelector(".v2-read__books");
+  if (grid && document.documentElement.hasAttribute("data-restyle")) {
+    const mark = () => {
+      const was = grid.querySelector("a[data-v2-continue]");
+      was?.removeAttribute("data-v2-continue");
+      was?.removeAttribute("aria-current");
+      const record = loadLastRead();
+      if (!record) return;
+      const link = grid.querySelector(`a[href="/${record.book}-${record.chapter}"]`);
+      link?.setAttribute("data-v2-continue", "");
+      link?.setAttribute("aria-current", "true");
+    };
+    mark();
+    // The × clears the record in its own click handler, which runs before
+    // this one (the click bubbles up to the document).
+    document.addEventListener("click", (e) => {
+      if (e.target instanceof Element && e.target.closest("[data-continue-forget]")) mark();
+    });
+  }
 </script>
