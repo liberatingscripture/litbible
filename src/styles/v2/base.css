@@ -438,3 +438,23 @@
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E") center / contain no-repeat;
   }
 }
+
+/* ── The source-text notice, closer to what is around it ─────────── */
+/* The notice closes every page that prints the translation and lies on the
+   footer's own color, so the room under it is the footer's too. BVJ,
+   2026-11-17, of that band on a chapter: "Let's reduce all that empty space.
+   Both above and below the 'Source text and license.'" The link keeps its
+   44px press target; what goes is the paragraph's gap over it, most of the
+   band's foot, and, on a page that has the notice, most of the footer's
+   head (they added up to about 130px). */
+:root[data-restyle] .scripture-disclaimer {
+  padding-bottom: 6px;
+}
+
+:root[data-restyle] .scripture-disclaimer__inner > .sblgnt-line {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] body:has(.scripture-disclaimer) .site-footer {
+  padding-top: 1.75rem;
+}

@@ -448,6 +448,18 @@ Each is behind the stamp unless it says otherwise.
   site (asked of BVJ, not decided). On a page whose footer has no
   newsletter (My Notebook, My sheets, Unsubscribe) the emptied block takes
   no room and the groups have the whole width.
+- **The source-text notice sits closer to what is around it.** BVJ, of the
+  band at the foot of a chapter: "Let's reduce all that empty space. Both
+  above and below the 'Source text and license.'" Above the link, the
+  paragraph's 14px gap over it is gone (about 16px between the two lines of
+  words, from about 30px). Below it, the band's foot is 6px (from 56px) and,
+  on a page that has the notice, the footer's head is 1.75rem (from 4rem):
+  about 47px from the link's words to the footer's first row, from about
+  130px. The link keeps its 44px press target, and the band's top is as it
+  was. It is one rule set in `v2/base.css`, so chapters, introductions, and
+  Read View all take it; on /desk, which has no footer, only the first two
+  apply and the license band follows about 51px under the link. Print is
+  untouched (`print.css` sets its own).
 - **Commitments: a contents column.** BVJ: "On /translation-commitments, add
   a TOC column like on /about for the 'How these commitments work together'
   sheet." The section is the page frame without a title block: the five
