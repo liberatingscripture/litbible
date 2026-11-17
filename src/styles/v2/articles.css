@@ -1,0 +1,469 @@
+/* Site 2.0: the articles index (articles.astro) and an article
+   (articles/[...slug].astro). Decided (BVJ, 2026-11-16): the index's green band
+   is gone ("your change is good") and the quiet page as drawn is good ("It's
+   good."); an article lies on the sheet with its picture edge to edge ("Edge
+   to edge for article pictures"; "article page is good."). Mocks:
+   mock/articles.html and mock/article.html.
+
+   - Every selector begins :root[data-restyle], so without the stamp both pages
+     are exactly main's. Each rule outweighs the scoped <style> blocks and
+     articles.css whatever order they load in.
+   - Colors are tokens that follow the theme; the one exception is the green
+     header both pages ask for (headerClass), which global.css re-pins to ink
+     in the dark, so those tokens are put back for the dark below.
+   - The index's search box, the email form, and the article's links keep
+     their scripts and markup; only classes were added (v2-bar, v2-label,
+     v2-sheet).
+   - Sizes that the Display tray scales multiply by --reading-scale or
+     --heading-scale as the pages' own styles do. */
+
+/* ── The header: no green band on these pages ────────────────── */
+:root[data-restyle] .site-header--green {
+  background: none;
+}
+
+:root[data-restyle] .site-header--green .site-header__menu-toggle {
+  background: none;
+}
+
+:root[data-restyle] .site-header--green .site-header__inner {
+  --focus-ring: var(--green-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-restyle]:not([data-theme="light"]) .site-header--green .site-header__inner {
+    --text: #F0F0F0;
+    --text-strong: #F7F7F7;
+    --ink-rgb: 240, 240, 240;
+  }
+}
+
+:root[data-restyle][data-theme="dark"] .site-header--green .site-header__inner {
+  --text: #F0F0F0;
+  --text-strong: #F7F7F7;
+  --ink-rgb: 240, 240, 240;
+}
+
+/* ── The index: title block ───────────────────────────────────── */
+:root[data-restyle] .articles-hero {
+  background: none;
+  color: var(--text);
+  padding: clamp(32px, 5vw, 64px) var(--gutter) 0;
+}
+
+:root[data-restyle] .articles-hero__inner {
+  width: min(var(--v2-wrap), 100%);
+  margin-inline: auto;
+  text-align: left;
+}
+
+:root[data-restyle] .articles-hero__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+:root[data-restyle] .articles-hero__subtitle {
+  max-width: 44rem;
+  margin: 12px 0 0;
+  color: var(--text);
+  font-size: calc(1.0625rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+}
+
+:root[data-restyle] .articles-hero__search {
+  width: 100%;
+  max-width: 34rem;
+  margin: 20px 0 0;
+}
+
+:root[data-restyle] .articles-hero-search {
+  width: 100%;
+  margin: 0;
+}
+
+:root[data-restyle] .articles-hero .searchbar__form {
+  --focus-ring: var(--green-text);
+}
+
+:root[data-restyle] .articles-hero__divider {
+  display: none;
+}
+
+/* ── The index: the list ──────────────────────────────────────── */
+:root[data-restyle] .articles {
+  padding: clamp(28px, 4vw, 40px) var(--gutter) clamp(3.5rem, 8vw, 6rem);
+}
+
+:root[data-restyle] :is(.subscribe-strip, .featured, .articles-grid__inner) {
+  width: min(var(--v2-wrap), 100%);
+}
+
+:root[data-restyle] .subscribe-strip {
+  margin-bottom: clamp(24px, 3vw, 32px);
+  padding: 16px 16px 16px 22px;
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+  box-shadow: none;
+}
+
+/* A label on a card, not a heading of the page: the sans face. */
+:root[data-restyle] .subscribe-strip__title {
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+:root[data-restyle] .featured__title {
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+:root[data-restyle] .subscribe-strip__note {
+  margin-top: 2px;
+  color: var(--v2-label);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  opacity: 1;
+}
+
+/* The field and its button share a row at every width. */
+:root[data-restyle] .subscribe-strip__form {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+:root[data-restyle] .subscribe-strip__form input[type="email"] {
+  min-width: 0;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+}
+
+:root[data-restyle] .btn--cta {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  box-shadow: var(--desk-btn-rest);
+}
+
+:root[data-restyle] .btn--cta:hover,
+:root[data-restyle] .btn--cta:focus {
+  transform: none;
+  background: var(--green-deep);
+  color: var(--white);
+  box-shadow: var(--desk-btn-lift);
+}
+
+@media (min-width: 900px) {
+  :root[data-restyle] .subscribe-strip__inner {
+    grid-template-columns: 1fr minmax(0, 24rem);
+    gap: 12px 24px;
+  }
+}
+
+:root[data-restyle] .featured {
+  margin-bottom: clamp(24px, 3vw, 32px);
+}
+
+:root[data-restyle] .featured__card {
+  overflow: hidden;
+}
+
+@media (min-width: 800px) {
+  :root[data-restyle] .featured__card {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+}
+
+:root[data-restyle] .featured__body {
+  gap: 12px;
+  padding: 22px 20px 24px;
+}
+
+@media (min-width: 800px) {
+  :root[data-restyle] .featured__body {
+    align-content: center;
+    padding: 32px 36px;
+  }
+}
+
+:root[data-restyle] .featured__meta time {
+  opacity: 1;
+}
+
+:root[data-restyle] .featured__summary {
+  opacity: 1;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+:root[data-restyle] .articles-grid__inner {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: clamp(20px, 2.6vw, 30px);
+}
+
+:root[data-restyle] .articles .card {
+  display: flex;
+  overflow: hidden;
+}
+
+:root[data-restyle] .articles .card__link {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+:root[data-restyle] .articles .card__body {
+  flex: 1;
+  align-content: start;
+  gap: 10px;
+  padding: 18px 20px 20px;
+}
+
+:root[data-restyle] .articles .card__date {
+  opacity: 1;
+}
+
+:root[data-restyle] .articles .card__title {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+:root[data-restyle] .articles .card__summary {
+  color: var(--v2-label);
+  opacity: 1;
+  font-size: 0.9375rem;
+}
+
+/* "Read" is the card's own link said again, so it is underlined only while
+   the card is pointed at or focused. */
+:root[data-restyle] .articles :is(.card__more, .featured__link) {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+:root[data-restyle] .articles .card__more {
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+:root[data-restyle] .articles .card__link:is(:hover, :focus-visible) .card__more,
+:root[data-restyle] .articles .featured__card:is(:hover, :focus-visible) .featured__link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Tags are plain labels, as on the article page (not outlined in green). */
+:root[data-restyle] :is(.articles, .article__card) .tag {
+  padding: 2px 10px;
+  border: 1px solid var(--v2-hairline);
+  background: none;
+  color: var(--v2-label);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+:root[data-restyle] .article__card .tag {
+  padding: 3px 11px;
+}
+
+/* ── An article: on the sheet ─────────────────────────────────── */
+:root[data-restyle] .article-shell {
+  --v2-gutter: var(--gutter);
+  padding: clamp(12px, 3vw, 28px) var(--gutter) clamp(3.5rem, 8vw, 6rem);
+}
+
+/* The search field above the article is gone; the header's search does that
+   job (the decision, mock/article.html). */
+:root[data-restyle] .article-top {
+  display: none;
+}
+
+:root[data-restyle] .article__card {
+  --pad-top: clamp(22px, 4vw, 44px);
+  --pad-x: clamp(20px, 6vw, 64px);
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  max-width: var(--v2-sheet-width);
+  margin-inline: auto;
+  padding: var(--pad-top) var(--pad-x) clamp(28px, 4vw, 48px);
+  border-radius: 10px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+@media (max-width: 599px) {
+  :root[data-restyle] .article__card {
+    --pad-x: var(--gutter);
+    margin-inline: calc(-1 * var(--gutter));
+    border-inline: 0;
+    border-radius: 0;
+  }
+}
+
+/* The picture is the top of the sheet, edge to edge. */
+:root[data-restyle] .article__hero {
+  order: -1;
+  margin: calc(-1 * var(--pad-top)) calc(-1 * var(--pad-x)) 20px;
+  border-radius: 0;
+}
+
+:root[data-restyle] .article__hero-img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2.2 / 1;
+  object-fit: cover;
+}
+
+:root[data-restyle] .article__card .article__back {
+  align-self: flex-start;
+  padding: 0;
+  margin: 4px 0 16px;
+}
+
+:root[data-restyle] .article__header {
+  padding: 0;
+  gap: 10px;
+}
+
+:root[data-restyle] .article__header.v2-bar::before,
+:root[data-restyle] .article__header::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 6px;
+  margin-bottom: 8px;
+  border-radius: 3px;
+  background: var(--v2-bar);
+}
+
+:root[data-restyle] .article__date {
+  display: block;
+  margin: 0;
+  opacity: 1;
+}
+
+:root[data-restyle] .article__title {
+  margin: 0;
+}
+
+:root[data-restyle] .article__dek {
+  max-width: none;
+  margin: 0;
+  opacity: 1;
+  font-size: calc(1.0625rem * var(--reading-scale, 1));
+  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+  text-wrap: pretty;
+}
+
+:root[data-restyle] .article__card .tags {
+  margin: 4px 0 0;
+  gap: 8px;
+}
+
+:root[data-restyle] .article__rule {
+  width: 100%;
+  height: 1px;
+  margin: 24px 0;
+  border: 0;
+  background: var(--v2-hairline);
+}
+
+:root[data-restyle] .article__body {
+  padding: 0;
+  font-size: calc(1.125rem * var(--reading-scale, 1));
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+}
+
+:root[data-restyle] .article__body :is(p, ul, ol) {
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+}
+
+:root[data-restyle] .article__body p {
+  margin: 0 0 0.78em;
+  text-wrap: pretty;
+}
+
+:root[data-restyle] .article__body a {
+  text-decoration-thickness: 1px;
+  overflow-wrap: anywhere;
+}
+
+:root[data-restyle] .article__body blockquote {
+  margin: 1.1rem 0 1.25rem;
+  padding: 2px 0 2px 1.1rem;
+  background: none;
+  border-left: 2px solid rgba(var(--ink-rgb), 0.24);
+  border-radius: 0;
+}
+
+:root[data-restyle] .article__body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  :root[data-restyle] .article__body :is(blockquote, ul, ol) {
+    margin-inline: 0;
+  }
+}
+
+/* Section headings, should an article have them: the Marks. */
+:root[data-restyle] .article__body :is(h2, h3) {
+  position: relative;
+  margin-top: 2.2rem;
+  padding-top: 0.95em;
+  border-top: 1px solid var(--v2-hairline);
+}
+
+:root[data-restyle] .article__body :is(h2, h3)::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 44px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--v2-marker);
+}
+
+/* Whatever else the Markdown can hold stays inside the sheet. */
+:root[data-restyle] .article__body img {
+  max-width: 100%;
+  height: auto;
+}
+
+:root[data-restyle] .article__body table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+:root[data-restyle] .article__body :is(th, td) {
+  padding: 6px 10px;
+  border: 1px solid var(--v2-hairline);
+  text-align: left;
+}
+
+:root[data-restyle] .article__body :is(pre, code) {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+:root[data-restyle] .article__bottom-nav {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 28px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--v2-hairline);
+}
+

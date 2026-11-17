@@ -34,6 +34,10 @@ const {
   // Read View, /search, articles). Every other page gets the header's
   // search icon instead, so each page has exactly one way in (audit U6).
   pageSearch = false,
+  // Site 2.0 (shown only with the restyle's stamp): a page with its own
+  // search box that also wants the header's search icon, as a plain link to
+  // /search. The articles pages pass it (SiteHeader's searchLink).
+  headerSearchLink = false,
   // The Study Desk's own header (/desk): the page's title, centered, in
   // place of the nav, and no search (SiteHeader's deskTitle).
   deskTitle,
@@ -229,7 +233,7 @@ const deskPanel = hasPanel(deskSurface);
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} searchLink={headerSearchLink} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

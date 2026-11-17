@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import SearchBar from "../../components/SearchBar.astro";
 import "../../styles/articles.css";
+import "../../styles/v2/articles.css";
 
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
@@ -87,6 +88,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   bg="cream"
   headerClass="site-header--green"
   pageSearch
+  headerSearchLink
   ogImage={heroImage ? `${siteOrigin}${heroImage}` : undefined}
   ogType="article"
   twitterCard={heroImage ? "summary_large_image" : "summary"}
@@ -130,7 +132,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     </div>
 
     <article
-      class="article__card"
+      class="article__card v2-sheet"
       data-pagefind-body
       data-pagefind-filter="type:article"
     >
@@ -188,7 +190,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
       }
 
       <header class="article__header" data-pagefind-ignore>
-        <time class="article__date" datetime={data.date.toISOString()}>
+        <time class="article__date v2-label" datetime={data.date.toISOString()}>
           {dateLabel}
         </time>
 
