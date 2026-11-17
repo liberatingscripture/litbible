@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/about.css";
+import "../styles/v2/about.css";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
 
@@ -38,10 +39,10 @@ const unfinishedList = joinList(unfinished);
       }
     })} />
   </Fragment>
-  <article class="about-page">
+  <article class="about-page v2-frame">
     {/* HERO: question + short answer + arc */}
-    <header class="about-hero" id="top">
-      <div class="about-hero__inner">
+    <header class="about-hero v2-frame__head" id="top">
+      <div class="about-hero__inner v2-bar">
         <h1 class="about-hero__title">So… who am I?</h1>
 
         <div class="about-hero__answer">
@@ -54,10 +55,10 @@ const unfinishedList = joinList(unfinished);
       </div>
     </header>
 
-    <nav class="about-toc" aria-label="On this page">
+    <nav class="about-toc v2-frame__toc" aria-label="On this page">
       <div class="about-toc__inner">
         <div class="about-toc__bar">
-          <p class="about-toc__label">On this page</p>
+          <p class="about-toc__label v2-label">On this page</p>
 
           <button
             class="about-toc__toggle"
@@ -76,16 +77,34 @@ const unfinishedList = joinList(unfinished);
               <a class="footer-cta about-toc__cta" href="#about-translator"
                 >About the translator</a
               >
+              <ul class="about-toc__sub" data-v2 data-pagefind-ignore>
+                <li><a href="#about-where-i-came-from">Where I came from</a></li>
+                <li><a href="#about-how-i-got-here">How I got here</a></li>
+                <li><a href="#about-why-a-new-translation">Why a new translation</a></li>
+                <li><a href="#about-why-this-work-exists">Why this work exists</a></li>
+              </ul>
             </li>
             <li>
               <a class="footer-cta about-toc__cta" href="#about-lit"
                 >About the LIT Bible</a
               >
+              <ul class="about-toc__sub" data-v2 data-pagefind-ignore>
+                <li><a href="#about-word-by-word">“Word-by-word” doesn’t mean neutral</a></li>
+                <li><a href="#about-unfamiliar">Why the language often sounds unfamiliar</a></li>
+                <li><a href="#about-not-a-paraphrase">Not a paraphrase, not a frozen literalism</a></li>
+                <li><a href="#about-starting-with-the-text">Starting with the text, not with tradition</a></li>
+                <li><a href="#about-what-drives">What drives this translation</a></li>
+                <li><a href="#about-is-and-isnt">What this translation is and isn’t</a></li>
+                <li><a href="#about-an-invitation">An invitation</a></li>
+              </ul>
             </li>
             <li>
               <a class="footer-cta about-toc__cta" href="#about-site"
                 >About this site</a
               >
+              <ul class="about-toc__sub" data-v2 data-pagefind-ignore>
+                <li><a href="#about-how-to-use">How to use this site</a></li>
+              </ul>
             </li>
             <li><a class="footer-cta about-toc__cta" href="#faq">FAQs</a></li>
           </ul>
@@ -95,7 +114,7 @@ const unfinishedList = joinList(unfinished);
 
     {/* CONTENT: stacked sections */}
     <section class="about-body" aria-labelledby="about-translator">
-      <h2 id="about-translator">About the translator</h2>
+      <h2 class="v2-rule" id="about-translator">About the translator</h2>
 
       <p>
         For a long time, I thought I was going to be a pastor and a theology
@@ -106,7 +125,7 @@ const unfinishedList = joinList(unfinished);
         going to be a pastor or a professor anymore.
       </p>
 
-      <h3>Where I came from</h3>
+      <h3 id="about-where-i-came-from">Where I came from</h3>
 
       <p>
         By the time I joined a church at age 11, faith had already left scars in
@@ -147,7 +166,7 @@ const unfinishedList = joinList(unfinished);
         determined not to repeat.
       </p>
 
-      <h3>How I got here</h3>
+      <h3 id="about-how-i-got-here">How I got here</h3>
 
       <p>
         It took me a few years to figure out what to be when I grew up, and I
@@ -174,7 +193,7 @@ const unfinishedList = joinList(unfinished);
         rattling around in my brain.
       </p>
 
-      <h3>Why a new translation</h3>
+      <h3 id="about-why-a-new-translation">Why a new translation</h3>
 
       <p>
         As my family grew, I found myself wanting to share this special interest
@@ -200,7 +219,7 @@ const unfinishedList = joinList(unfinished);
         encouraged me to keep going.
       </p>
 
-      <h3>Why this work exists</h3>
+      <h3 id="about-why-this-work-exists">Why this work exists</h3>
 
       <p>
         The deeper I dug into exploring the original languages, seeing patterns
@@ -233,7 +252,7 @@ const unfinishedList = joinList(unfinished);
     </section>
 
     <section class="about-body about-translation" aria-labelledby="about-lit">
-      <h2 id="about-lit">About the Liberation and Inclusion Translation</h2>
+      <h2 class="v2-rule" id="about-lit">About the Liberation and Inclusion Translation</h2>
 
       <p>
         This project didn’t begin as a public translation. It grew out of years
@@ -253,7 +272,7 @@ const unfinishedList = joinList(unfinished);
         to be numb to what the text was actually doing.
       </p>
 
-      <h3>“Word-by-word” doesn’t mean neutral</h3>
+      <h3 id="about-word-by-word">“Word-by-word” doesn’t mean neutral</h3>
 
       <p>
         The LIT is translated word-by-word directly from the Greek texts,
@@ -292,7 +311,7 @@ const unfinishedList = joinList(unfinished);
         that more clearly.
       </p>
 
-      <h3>Why the language often sounds unfamiliar</h3>
+      <h3 id="about-unfamiliar">Why the language often sounds unfamiliar</h3>
 
       <p>
         Many English translations rely on traditional church vocabulary that has
@@ -332,7 +351,7 @@ const unfinishedList = joinList(unfinished);
         rendering.
       </p>
 
-      <h3>Not a paraphrase, not a frozen literalism</h3>
+      <h3 id="about-not-a-paraphrase">Not a paraphrase, not a frozen literalism</h3>
 
       <p>
         Although the LIT often reads fluidly and with unfamiliar phrasing, it is
@@ -355,7 +374,7 @@ const unfinishedList = joinList(unfinished);
         appearance of neutrality.
       </p>
 
-      <h3>Starting with the text, not with tradition</h3>
+      <h3 id="about-starting-with-the-text">Starting with the text, not with tradition</h3>
 
       <p>
         Many translations are shaped primarily by doctrinal clarity, liturgical
@@ -376,7 +395,7 @@ const unfinishedList = joinList(unfinished);
         text with awareness.
       </p>
 
-      <h3>What drives this translation</h3>
+      <h3 id="about-what-drives">What drives this translation</h3>
 
       <p>
         <em>Faithfulness to the text.</em> Translation choices are grounded in grammar,
@@ -407,7 +426,7 @@ const unfinishedList = joinList(unfinished);
         exclusion.
       </p>
 
-      <h3>What this translation is and isn’t</h3>
+      <h3 id="about-is-and-isnt">What this translation is and isn’t</h3>
 
       <p>
         The LIT is a theological, interpretive translation rooted in
@@ -428,7 +447,7 @@ const unfinishedList = joinList(unfinished);
         conversation, not a conclusion.
       </p>
 
-      <h3>An invitation</h3>
+      <h3 id="about-an-invitation">An invitation</h3>
 
       <p>
         This project exists because translation shapes theology, and theology
@@ -459,7 +478,7 @@ const unfinishedList = joinList(unfinished);
     </section>
 
     <section class="about-body about-site" aria-labelledby="about-site">
-      <h2 id="about-site">About this site</h2>
+      <h2 class="v2-rule" id="about-site">About this site</h2>
 
       <p>
         This website is intentionally simple. It’s built as a static site, which
@@ -480,7 +499,7 @@ const unfinishedList = joinList(unfinished);
         readability.
       </p>
 
-      <h3>How to use this site</h3>
+      <h3 id="about-how-to-use">How to use this site</h3>
 
       <p>
         You can read from beginning to end, or move between passages, books, and
@@ -519,7 +538,7 @@ const unfinishedList = joinList(unfinished);
     </section>
 
     <section class="about-body about-faq" aria-labelledby="faq">
-      <h2 id="faq">Frequently Asked Questions</h2>
+      <h2 class="v2-rule" id="faq">Frequently Asked Questions</h2>
 
       <div class="faq">
         <details class="faq-item">
@@ -792,6 +811,10 @@ const unfinishedList = joinList(unfinished);
   </article>
 
   <script>
+    // Site 2.0: marks the contents rail's current section (only with the
+    // restyle's stamp; see the module's header).
+    import "../scripts/v2-frame.js";
+
     (() => {
       const toc = document.querySelector(".about-toc");
       if (!toc) return;
