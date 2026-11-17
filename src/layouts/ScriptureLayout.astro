@@ -1,6 +1,7 @@
 ---
 // ScriptureLayout.astro
 import "../styles/scripture-tools.css";
+import "../styles/v2/scripture.css";
 
 import Layout from "./Layout.astro";
 import ReadMenu from "../components/ReadMenu.astro";
@@ -394,6 +395,12 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
     </div>
 
     <SblgntNotice />
+
+    {/* Site 2.0: the phone toolbar's hide and return. Does nothing without
+        the restyle's stamp (src/scripts/v2-scripture.js). */}
+    <script>
+      import "../scripts/v2-scripture.js";
+    </script>
 
     <style>
       /* The reader's text size (Display tray) is set here rather than on the
