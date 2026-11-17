@@ -1,0 +1,352 @@
+/* Site 2.0: the podcast page (found-in-translation-podcast.astro). Decided
+   (BVJ, 2026-11-16): "Rows" (a season's episodes are rows on one sheet with
+   plain links, not a card per episode with a button per link) and "On the
+   cream" ("Latest Episodes" and its players sit on the page color; the green
+   band and its curves are gone). The mock is mock/podcast.html.
+
+   - The three players keep their three shapes and sizes, and none of their
+     markup or the page's scripts change (src/pages/CLAUDE.md). Only the
+     frame around them is restyled.
+   - The mock draws the seasons twice (a rail and chips). The page has one
+     list of links, so it is laid out both ways: chips under 1000px, a left
+     pane on a sheet from 1000px. The current season is not marked as you
+     scroll, since that needs a script.
+   - restyle.css gives the episode cards and link buttons their looks with
+     long selector lists; the episode rules below repeat the stamp attribute
+     so they outweigh those lists without !important. */
+
+/* ── The page color ───────────────────────────────────────────── */
+:root[data-restyle] .fit-page,
+:root[data-restyle] body:has(.fit-page),
+:root[data-restyle] body:has(.fit-page) .site-header,
+:root[data-restyle] body:has(.fit-page) .site-header.is-sticky,
+:root[data-restyle] body:has(.fit-page) .site-header.is-scrolled,
+:root[data-restyle] body:has(.fit-page) .site-header.has-bg {
+  background: var(--page-bg);
+}
+
+/* ── The ways to listen ───────────────────────────────────────── */
+:root[data-restyle] .fit-platform-links {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: min(44rem, 100%);
+}
+
+:root[data-restyle] .fit-platform {
+  min-height: 46px;
+  padding: 11px 20px;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+@media (max-width: 760px) {
+  :root[data-restyle] .fit-platform-links {
+    grid-template-columns: 1fr;
+    width: min(22rem, 100%);
+  }
+}
+
+/* ── Latest Episodes: on the cream ────────────────────────────── */
+:root[data-restyle] .fit-section--green {
+  padding: clamp(40px, 5.5vw, 68px) 16px clamp(8px, 2vw, 20px);
+  background: none;
+  color: var(--text);
+}
+
+:root[data-restyle] .fit-h2,
+:root[data-restyle] .fit-episodes__kicker {
+  margin: 0 0 26px;
+  color: var(--text-strong);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 1.1;
+  text-align: center;
+}
+
+:root[data-restyle] .fit-embed {
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 12px;
+  box-shadow: var(--desk-btn-rest);
+}
+
+/* ── All Episodes ─────────────────────────────────────────────── */
+:root[data-restyle] .fit-episodes {
+  padding-top: clamp(40px, 5.5vw, 68px);
+  padding-bottom: clamp(40px, 6vw, 72px);
+  --v2-gutter: 16px;
+}
+
+/* One column of 44rem, centered; from 1000px the season list is a left pane. */
+:root[data-restyle] .fit-episodes__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 44rem);
+  justify-content: center;
+  max-width: var(--v2-wrap);
+}
+
+:root[data-restyle] .fit-episodes__inner > * {
+  min-width: 0;
+}
+
+/* The chips, under 1000px. */
+:root[data-restyle] .fit-season-nav-wrap {
+  margin: 0 0 28px;
+}
+
+:root[data-restyle] .fit-season-nav-wrap::before,
+:root[data-restyle] .fit-season-nav-wrap::after {
+  display: none;
+}
+
+:root[data-restyle] .fit-season-arrow {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 4px;
+}
+
+:root[data-restyle] .fit-season-arrow[hidden] {
+  display: none;
+}
+
+:root[data-restyle] .fit-season-nav {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 3px 7px;
+}
+
+:root[data-restyle] .fit-season-nav a {
+  min-height: 34px;
+  padding: 6px 14px;
+  border: 1px solid var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  background: var(--desk-control);
+  box-shadow: var(--desk-btn-rest);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  transition: transform var(--desk-btn-motion) ease, box-shadow var(--desk-btn-motion) ease, background-color var(--desk-btn-motion) ease;
+}
+
+:root[data-restyle] .fit-season-nav a:hover {
+  border-color: var(--field-border);
+  border-bottom-color: var(--desk-btn-edge-low);
+  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+  box-shadow: var(--desk-btn-lift);
+  color: var(--text);
+  transform: translateY(var(--desk-btn-lift-y));
+}
+
+:root[data-restyle] .fit-season-nav a:active {
+  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+  box-shadow: var(--desk-btn-press);
+  transform: none;
+}
+
+/* Seasons and their episodes. */
+:root[data-restyle] .fit-season-group {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .fit-season-group + .fit-season-group {
+  margin-top: 44px;
+}
+
+:root[data-restyle] .fit-season-heading {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  color: var(--text-strong);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 1.25;
+  text-transform: none;
+  scroll-margin-top: 16px;
+}
+
+:root[data-restyle] .fit-season-top {
+  margin-top: 14px;
+  color: var(--green-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+:root[data-restyle] .fit-season-top:hover {
+  color: var(--green-text);
+  text-decoration: underline;
+}
+
+/* The rows: one sheet per season, a hairline between episodes. */
+:root[data-restyle] .fit-episodes .fit-ep-list {
+  display: block;
+  margin: 0;
+  padding: 2px clamp(16px, 4vw, 28px);
+}
+
+:root[data-restyle] .fit-episodes .fit-ep-list > .fit-ep {
+  margin: 0;
+  padding: 16px 0 13px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+:root[data-restyle] .fit-episodes .fit-ep-list > .fit-ep + .fit-ep {
+  border-top: 1px solid var(--v2-hairline);
+}
+
+:root[data-restyle] .fit-episodes .fit-ep__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+:root[data-restyle] .fit-episodes .fit-ep__date {
+  color: var(--muted, rgba(var(--ink-rgb), 0.7));
+  font-size: 0.8125rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+:root[data-restyle] .fit-episodes .fit-ep__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+  margin: 5px 0 0;
+  padding: 0;
+}
+
+:root[data-restyle] .fit-episodes .fit-ep__links li {
+  margin: 0;
+}
+
+/* Plain links. The repeated attribute outweighs restyle.css's button list. */
+:root[data-restyle][data-restyle][data-restyle][data-restyle] .fit-episodes .fit-ep-list .fit-ep__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: auto;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--green-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration: none;
+  transform: none;
+}
+
+:root[data-restyle][data-restyle][data-restyle][data-restyle] .fit-episodes .fit-ep-list .fit-ep__links a:hover {
+  background: none;
+  box-shadow: none;
+  color: var(--green-text);
+  text-decoration: underline;
+  transform: none;
+}
+
+:root[data-restyle][data-restyle][data-restyle][data-restyle] .fit-episodes .fit-ep-list .fit-ep__links a:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Under 600px the sheet runs edge to edge. */
+@media (max-width: 599px) {
+  :root[data-restyle] .fit-episodes .fit-ep-list {
+    margin-inline: calc(-1 * var(--v2-gutter));
+    border-inline: 0;
+    border-radius: 0;
+  }
+}
+
+/* From 1000px: the seasons in a left pane on a sheet, which stays in view. */
+@media (min-width: 1000px) {
+  :root[data-restyle] .fit-episodes__inner {
+    grid-template-columns: 15rem minmax(0, 44rem);
+    column-gap: 40px;
+  }
+
+  :root[data-restyle] .fit-episodes__kicker {
+    grid-column: 1 / -1;
+  }
+
+  :root[data-restyle] .fit-season-nav-wrap {
+    display: block;
+    grid-column: 1;
+    grid-row: 2 / span 12;
+    align-self: start;
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    margin: 0;
+    padding: 12px 10px;
+    overflow: auto;
+    border: 1px solid var(--desk-card-edge);
+    border-radius: 10px;
+    background: var(--desk-card);
+  }
+
+  :root[data-restyle] .fit-season-arrow {
+    display: none;
+  }
+
+  :root[data-restyle] .fit-season-nav {
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  :root[data-restyle] .fit-season-nav a {
+    display: block;
+    min-height: 0;
+    padding: 7px 12px;
+    border: 0;
+    border-left: 2px solid transparent;
+    border-radius: 0 6px 6px 0;
+    background: none;
+    box-shadow: none;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  :root[data-restyle] .fit-season-nav a:hover {
+    background: rgba(var(--ink-rgb), 0.06);
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* The season in view (src/scripts/v2-frame.js sets aria-current). */
+  :root[data-restyle] .fit-season-nav a[aria-current] {
+    border-left-color: var(--v2-marker);
+    color: var(--text-strong);
+    font-weight: 600;
+  }
+
+  :root[data-restyle] .fit-season-group {
+    grid-column: 2;
+  }
+
+  :root[data-restyle] .fit-season-top {
+    display: none;
+  }
+}
