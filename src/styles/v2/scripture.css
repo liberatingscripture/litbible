@@ -253,13 +253,14 @@
 }
 
 /* ── The quiet buttons (BVJ, 2026-11-17: "Go ahead with the quiet buttons") ──
-   The arrows beside the title and Previous and Next at the foot are ordinary
-   buttons: restyle.css lists them with its ordinary kind, so nothing is
-   restated here but the weight the mockup gives a button's words. "Back to
-   top" is a quiet link, the text green, underlined on hover; no restyle list
-   holds it, so its whole look is here. */
+   The arrows beside the title and Previous at the foot are ordinary buttons,
+   and Next at the foot is the page's one primary ("Shouldn't the Luke 4
+   button at the bottom be green?"): restyle.css lists each with its kind, so
+   nothing is restated here but the weight the mockup gives an ordinary
+   button's words. "Back to top" is a quiet link, the text green, underlined
+   on hover; no restyle list holds it, so its whole look is here. */
 @media screen {
-  :root[data-restyle] .scripture-layout .chapter-cta {
+  :root[data-restyle] .scripture-layout .chapter-cta--prev {
     font-weight: 500;
   }
 

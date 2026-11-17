@@ -3790,10 +3790,12 @@ says so; where BVJ was wondering, nothing is decided.)
     page and /support keep one per section. /about's contents list becomes
     plain links.
     **Changed 2026-11-17** (Site 2.0; BVJ: "Go ahead with the quiet
-    buttons"): the arrows by the heading and both chapter buttons are
-    ordinary buttons (D2's), and Back to top is a quiet link drawn by
-    `src/styles/v2/scripture.css`. Read View's floating button stays green
-    until Read View retires. `SITE-2.0.md` has the mockup's reasoning.
+    buttons," then "There's no primary button at all in this version.
+    Shouldn't the Luke 4 button at the bottom be green?"): Next at the
+    foot is the page's one green primary; the arrows by the heading and
+    Previous are ordinary buttons (D2's); Back to top is a quiet link
+    drawn by `src/styles/v2/scripture.css`. Read View's floating button
+    stays green until Read View retires. `SITE-2.0.md` has the rest.
   - **D4**: the Display tray's segments, the glossary's sort switch and
     /search's sort take `.desk-seg`'s look. The glossary's switch stays the
     control for the keyboard and screen readers, hidden from sight, and a

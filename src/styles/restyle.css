@@ -103,7 +103,7 @@
 /* ── Ordinary buttons: the desk's Raised button, 8px ──────────── */
 /* On (pressed, expanded, the current page) is sunk with the text green's
    edge and words; disabled is flat. */
-:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta) {
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev) {
   border: 1px solid var(--field-border);
   border-bottom-color: var(--desk-btn-edge-low);
   border-radius: 8px;
@@ -120,7 +120,7 @@
     background-color var(--desk-btn-motion) ease;
 }
 
-:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current, :active) {
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current, :active) {
   border-color: var(--field-border);
   border-bottom-color: var(--desk-btn-edge-low);
   background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
@@ -129,7 +129,7 @@
   transform: translateY(var(--desk-btn-lift-y));
 }
 
-:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta):is(:active, [aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current):not(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev):is(:active, [aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current):not(:disabled, [aria-disabled="true"]) {
   border-color: var(--field-border);
   background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
   color: var(--text);
@@ -137,12 +137,12 @@
   transform: none;
 }
 
-:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta):is([aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current):not(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev):is([aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current):not(:disabled, [aria-disabled="true"]) {
   border-color: var(--green-text);
   color: var(--green-text);
 }
 
-:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta):is(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--field-border);
   background: transparent;
   color: rgba(var(--ink-rgb), 0.7);
@@ -167,10 +167,13 @@
 
 /* ── The primary: solid Deep Green, 8px ───────────────────────── */
 /* The Scripture pages' arrows, Previous and Next, and "Back to top" were
-   here (D3) until BVJ, 2026-11-17: "Go ahead with the quiet buttons." The
-   first two are in the ordinary list now; "Back to top" is a quiet link
-   drawn by v2/scripture.css. Read View's button stays, until Read View goes. */
-:root[data-restyle] :is(.rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
+   all here (D3) until BVJ, 2026-11-17: "Go ahead with the quiet buttons."
+   The arrows and Previous are in the ordinary list now, and "Back to top" is
+   a quiet link drawn by v2/scripture.css. Next at the foot stays: it is the
+   page's one primary (BVJ, the same day: "There's no primary button at all
+   in this version. Shouldn't the Luke 4 button at the bottom be green?").
+   Read View's button stays too, until Read View goes. */
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
   border: 1px solid var(--desk-primary-edge);
   border-radius: 8px;
   background: var(--green-deep);
@@ -187,7 +190,7 @@
     filter var(--desk-btn-motion) ease;
 }
 
-:root[data-restyle] :is(.rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
   border-color: var(--desk-primary-edge);
   background: var(--green-deep);
   color: #fff;
@@ -196,13 +199,13 @@
   filter: brightness(1.1);
 }
 
-:root[data-restyle] :is(.rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
   box-shadow: var(--desk-primary-press);
   transform: none;
   filter: brightness(0.95);
 }
 
-:root[data-restyle] :is(.rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--desk-primary-edge);
   background: var(--desk-primary-off);
   color: var(--green-text);
@@ -566,17 +569,17 @@
 
 /* ── Forced colors ────────────────────────────────────────────── */
 @media (forced-colors: active) {
-  :root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta):is([aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current),
+  :root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev):is([aria-pressed="true"], [aria-expanded="true"], [aria-current="page"], .pager-btn--current),
   :root[data-restyle] :is(.searchbar__filter-pill, .filter-pill:not(.filter-pill--clear-all), .fit-season-nav button):is([aria-pressed="true"], [aria-current="true"], .is-active, .searchbar__filter-pill, .filter-pill) {
     border-color: Highlight;
   }
 
-  :root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta):is(:disabled, [aria-disabled="true"]) {
+  :root[data-restyle] :is(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__menu-toggle, .read-menu__trigger, .read-menu__desk, .read-menu__back, .reading-view-pill, .tools-search-toggle, .rm-page .rm-toolbar :is(button, a):not(.rm-toolbar__close, .read-menu__trigger, .read-menu__panel *), .rm-page .rm-resume-chip button:not([data-rm-resume-dismiss]), .lit-panel:not(.lit-panel--menu) .lit-panel__btn:not(.lit-panel__btn--error), .lit-panel--chips .lit-panel__btn, .searchbar__submit, .searchbar__close, .searchbar__filter-clear-all, .see-more-btn, .pager-btn, .filter-pill--clear-all, .whats-new__trigger, .occ-more, .about-toc__toggle, .footer-newsletter__submit, .button:not(.button--primary), .not-found__cta--outline, .fit-season-arrow, .fit-platform, .fit-ep__links a, .go-deeper__more > summary, .nav-button, .chapter-cta--prev):is(:disabled, [aria-disabled="true"]) {
     border-color: GrayText;
     color: GrayText;
   }
 
-  :root[data-restyle] :is(.rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
+  :root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
     border: 2px solid ButtonText;
   }
 

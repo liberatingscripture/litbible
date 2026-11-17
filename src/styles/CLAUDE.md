@@ -466,8 +466,9 @@
   Every selector begins `:root[data-restyle]`, dark rules name both
   selectors, and nothing 2.0 goes into `restyle.css`, `global.css` or a
   page's existing stylesheet. (What kind a control is stays `restyle.css`'s
-  to say: when 2.0 made the Scripture pages' arrows and Previous/Next quiet,
-  BVJ 2026-11-17, they moved between its lists; no rule was added there.)
+  to say: when 2.0 made the Scripture pages' arrows and Previous quiet and
+  left Next the page's one primary, BVJ 2026-11-17, they moved between its
+  lists; no rule was added there.)
   Markup only 2.0 has carries `data-v2` (plus
   `data-pagefind-ignore` when it repeats the page's words); markup it
   replaces carries `data-v1`; two rules in Layout.astro's critical CSS hide

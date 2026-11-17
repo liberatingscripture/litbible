@@ -82,7 +82,7 @@ mockups' `mock/` folder.
 | Page | Files it owns | Decided (BVJ's words, with what they mean) | Mock |
 |------|---------------|--------------------------------------------|------|
 | Home | `pages/index.astro`, `styles/pages/home.css` | The "Two voices" hero ("this is the best of the home page mockups. I think it should include a way into the study desk"); "Home card row: 1 row"; "the rest of Home A is good"; the chat is "Sky and ocean, which means ocean is in the accent palette again, but we can be discerning about where to use it." The card's last line links to "Release Notes." | `home-a.html` |
-| Scripture chapter | `pages/[slug].astro`, `layouts/ScriptureLayout.astro`, `styles/scripture-tools.css` | "On a sheet." On it: "Everything currently on the page that's not header, footer, or the Notebook/Study Desk elements that are going to be added." The source-text notice: "Yes, off the sheet." Beside the Notebook: "Two cards." "I like the variable width sheet." The bar: "Header and toolbar." On a phone: "have the row with the picker and search hide once the user scrolls down, and reappear anytime they scroll upward." The arrows, Previous and Next, and Back to top, as the mockup draws them: "Go ahead with the quiet buttons." | `chapter.html` |
+| Scripture chapter | `pages/[slug].astro`, `layouts/ScriptureLayout.astro`, `styles/scripture-tools.css` | "On a sheet." On it: "Everything currently on the page that's not header, footer, or the Notebook/Study Desk elements that are going to be added." The source-text notice: "Yes, off the sheet." Beside the Notebook: "Two cards." "I like the variable width sheet." The bar: "Header and toolbar." On a phone: "have the row with the picker and search hide once the user scrolls down, and reappear anytime they scroll upward." The arrows, Previous and Next, and Back to top, as the mockup draws them: "Go ahead with the quiet buttons." Then, on seeing it: "There's no primary button at all in this version. Shouldn't the Luke 4 button at the bottom be green?" (Next at the foot is the page's one green button.) | `chapter.html` |
 | Book introduction | `pages/[book]-intro.astro` (with the chapter's layout) | "What if it's a hybrid," then "Rail": the chapter's sheet with the Marks, and the headings as a rail in the margin from 1270px. | `intro.html` |
 | /read | `pages/read.astro`, `styles/pages/read.css` | "Let's take even the accordion version off the mobile. Move the grid below the ways to read cards." The grid (every chapter, a computer only): "No heading." The ring on the Continue chapter: "ring is fine." "/read is good." Its block of changes is headed "Latest text changes." | `read.html` |
 | Glossary | `pages/glossary.astro`, `styles/pages/glossary.css` | "I like it." Then: "Glossary: one scroll. left pane on sheet." | `glossary.html` |
@@ -338,11 +338,16 @@ Waves 2 and 3, the same two kinds of note. Each page's own module
   title's box, since the title is smaller than today's.
   **The quiet buttons** (BVJ, 2026-11-17: "Go ahead with the quiet
   buttons"). The restyle (E132, D3) had made the arrows, Previous and Next,
-  and "Back to top" green primaries; the mockup draws them quiet. The arrows
-  and Previous and Next moved from `restyle.css`'s primary list to its
-  ordinary list (the one change 2.0 makes in that file, since a control's
-  kind is decided there), and "Back to top" is a quiet link, the text green,
-  drawn by `v2/scripture.css`. Book introductions share all three. Read
+  and "Back to top" green primaries; the mockup draws them all quiet. Built
+  that way, the page had no primary at all, and BVJ asked: "Shouldn't the
+  Luke 4 button at the bottom be green?" So **Next at the foot is the page's
+  one primary**, where the mockup has it ordinary; the arrows and Previous
+  are ordinary buttons; and "Back to top" is a quiet link, the text green,
+  drawn by `v2/scripture.css`. The buttons' kinds are set in
+  `restyle.css`'s lists (`.chapter-cta--next` primary, `.chapter-cta--prev`
+  and `.nav-button` ordinary), the one change 2.0 makes in that file, since
+  a control's kind is decided there. Book introductions share all of it.
+  The last chapter (Revelation 22) has no Next, so no green button. Read
   View's floating button is still green; Read View retires at launch.
 - **The book introduction.** The rail ("On this page") is new markup
   (`data-v2`) on an intro with two or more headings; a draft has none. Its

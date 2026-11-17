@@ -89,7 +89,7 @@ function lists(css, first) {
 
 const KINDS = {
   ordinary: ".site-header__font-toggle",
-  primary: ".rm-page .rm-fab",
+  primary: ".chapter-cta--next",
   pill: ".searchbar__filter-pill",
   glyph: ".font-tray__close",
   float: ".font-tray,",
@@ -161,17 +161,20 @@ test("each kind's list is the same in every rule that names it, and no selector 
   }
 });
 
-test("D3: a green button is the primary, in the 8px shape; the Scripture pages' own are quiet", () => {
+test("D3: a green button is the primary, in the 8px shape; a Scripture page has one, Next", () => {
   const primary = topLevel(lists(bare, KINDS.primary)[0]);
-  assert.ok(primary.includes(".rm-page .rm-fab"), ".rm-page .rm-fab");
-  // BVJ, 2026-11-17: "Go ahead with the quiet buttons." The arrows and
-  // Previous/Next are ordinary buttons; "Back to top" is a quiet link that
+  for (const sel of [".chapter-cta--next", ".rm-page .rm-fab"]) assert.ok(primary.includes(sel), sel);
+  // BVJ, 2026-11-17: "Go ahead with the quiet buttons," then, of the page
+  // that left with no primary, "Shouldn't the Luke 4 button at the bottom
+  // be green?" The arrows and Previous are ordinary buttons; Next at the
+  // foot is the one primary; "Back to top" is a quiet link that
   // v2/scripture.css draws, so no list here holds it.
   const ordinary = topLevel(lists(bare, KINDS.ordinary)[0]);
-  for (const sel of [".nav-button", ".chapter-cta"]) {
+  for (const sel of [".nav-button", ".chapter-cta--prev"]) {
     assert.ok(ordinary.includes(sel), `${sel} is an ordinary button`);
-    assert.ok(!primary.includes(sel), `${sel} is no longer a primary`);
+    assert.ok(!primary.includes(sel), `${sel} is not a primary`);
   }
+  assert.ok(!ordinary.includes(".chapter-cta") && !primary.includes(".chapter-cta"), "the two chapter buttons are listed apart");
   assert.ok(!bare.includes(".back-to-top__link"), "Back to top is in no list");
   const at = bare.indexOf(`:is(${KINDS.primary}`);
   const body = bare.slice(bare.indexOf("{", at), bare.indexOf("}", at));
