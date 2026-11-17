@@ -89,7 +89,7 @@ function lists(css, first) {
 
 const KINDS = {
   ordinary: ".site-header__font-toggle",
-  primary: ".nav-button",
+  primary: ".rm-page .rm-fab",
   pill: ".searchbar__filter-pill",
   glyph: ".font-tray__close",
   float: ".font-tray,",
@@ -161,9 +161,18 @@ test("each kind's list is the same in every rule that names it, and no selector 
   }
 });
 
-test("D3: on the Scripture pages every green button is the primary, in the 8px shape", () => {
+test("D3: a green button is the primary, in the 8px shape; the Scripture pages' own are quiet", () => {
   const primary = topLevel(lists(bare, KINDS.primary)[0]);
-  for (const sel of [".nav-button", ".chapter-cta", ".back-to-top__link", ".rm-page .rm-fab"]) assert.ok(primary.includes(sel), sel);
+  assert.ok(primary.includes(".rm-page .rm-fab"), ".rm-page .rm-fab");
+  // BVJ, 2026-11-17: "Go ahead with the quiet buttons." The arrows and
+  // Previous/Next are ordinary buttons; "Back to top" is a quiet link that
+  // v2/scripture.css draws, so no list here holds it.
+  const ordinary = topLevel(lists(bare, KINDS.ordinary)[0]);
+  for (const sel of [".nav-button", ".chapter-cta"]) {
+    assert.ok(ordinary.includes(sel), `${sel} is an ordinary button`);
+    assert.ok(!primary.includes(sel), `${sel} is no longer a primary`);
+  }
+  assert.ok(!bare.includes(".back-to-top__link"), "Back to top is in no list");
   const at = bare.indexOf(`:is(${KINDS.primary}`);
   const body = bare.slice(bare.indexOf("{", at), bare.indexOf("}", at));
   assert.match(body, /border-radius:\s*8px/);

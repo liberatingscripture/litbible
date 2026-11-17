@@ -40,7 +40,9 @@ file repeats every decision so the repo stands without them.
    `restyle.css`, `global.css`, or a page's existing stylesheet, so parallel
    work never shares a file. A page that needs a change in a shared file
    (Layout, the header, the footer, `base.css`, `restyle.css`) asks for it; one
-   writer makes those changes, in order.
+   writer makes those changes, in order. What kind a control is (ordinary,
+   primary, quiet) stays `restyle.css`'s to say, in its lists: 2.0 moves a
+   control between them and adds no rule there.
 5. **The words do not change**, except the home page (BVJ: "as long as the
    content is unchanged (other than the home page)") and two labels BVJ
    approved (see "Labels"). The translation, footnotes, intros, and articles
@@ -80,7 +82,7 @@ mockups' `mock/` folder.
 | Page | Files it owns | Decided (BVJ's words, with what they mean) | Mock |
 |------|---------------|--------------------------------------------|------|
 | Home | `pages/index.astro`, `styles/pages/home.css` | The "Two voices" hero ("this is the best of the home page mockups. I think it should include a way into the study desk"); "Home card row: 1 row"; "the rest of Home A is good"; the chat is "Sky and ocean, which means ocean is in the accent palette again, but we can be discerning about where to use it." The card's last line links to "Release Notes." | `home-a.html` |
-| Scripture chapter | `pages/[slug].astro`, `layouts/ScriptureLayout.astro`, `styles/scripture-tools.css` | "On a sheet." On it: "Everything currently on the page that's not header, footer, or the Notebook/Study Desk elements that are going to be added." The source-text notice: "Yes, off the sheet." Beside the Notebook: "Two cards." "I like the variable width sheet." The bar: "Header and toolbar." On a phone: "have the row with the picker and search hide once the user scrolls down, and reappear anytime they scroll upward." | `chapter.html` |
+| Scripture chapter | `pages/[slug].astro`, `layouts/ScriptureLayout.astro`, `styles/scripture-tools.css` | "On a sheet." On it: "Everything currently on the page that's not header, footer, or the Notebook/Study Desk elements that are going to be added." The source-text notice: "Yes, off the sheet." Beside the Notebook: "Two cards." "I like the variable width sheet." The bar: "Header and toolbar." On a phone: "have the row with the picker and search hide once the user scrolls down, and reappear anytime they scroll upward." The arrows, Previous and Next, and Back to top, as the mockup draws them: "Go ahead with the quiet buttons." | `chapter.html` |
 | Book introduction | `pages/[book]-intro.astro` (with the chapter's layout) | "What if it's a hybrid," then "Rail": the chapter's sheet with the Marks, and the headings as a rail in the margin from 1270px. | `intro.html` |
 | /read | `pages/read.astro`, `styles/pages/read.css` | "Let's take even the accordion version off the mobile. Move the grid below the ways to read cards." The grid (every chapter, a computer only): "No heading." The ring on the Continue chapter: "ring is fine." "/read is good." Its block of changes is headed "Latest text changes." | `read.html` |
 | Glossary | `pages/glossary.astro`, `styles/pages/glossary.css` | "I like it." Then: "Glossary: one scroll. left pane on sheet." | `glossary.html` |
@@ -226,10 +228,9 @@ Already on `main`, not changed, for BVJ to know:
 Ground rule 7 in full, for whoever flips the switch (it rides with item 14
 of "Launching" in `src/scripts/desk/CLAUDE.md`):
 
-1. **Decide first** what is still open with BVJ: the chapter's arrows,
-   Previous and Next, and "Back to top" (green today, quiet in the mockup);
-   whether the header takes the mockups' quieter look; whether the mockups
-   are archived in the repo.
+1. **Decide first** what is still open with BVJ: whether the header takes
+   the mockups' quieter look, and whether the mockups are archived in the
+   repo.
 2. **The stamp.** `data-restyle` is set unconditionally or its gate is
    dropped (item 14). Until every rule below is folded in, the stamp can
    simply stay on: nothing here needs it gone.
@@ -335,9 +336,14 @@ Waves 2 and 3, the same two kinds of note. Each page's own module
   Read View's pill is hidden ("Read View gives way to /desk"). The arrows
   keep their 44px touch size. The Notebook's top edge sits 18px above the
   title's box, since the title is smaller than today's.
-  **Open for BVJ:** the mockup draws the chapter's arrows, Previous and
-  Next, and "Back to top" as quiet controls; the restyle (E132) made them
-  green primaries, and the build has left them green until BVJ says.
+  **The quiet buttons** (BVJ, 2026-11-17: "Go ahead with the quiet
+  buttons"). The restyle (E132, D3) had made the arrows, Previous and Next,
+  and "Back to top" green primaries; the mockup draws them quiet. The arrows
+  and Previous and Next moved from `restyle.css`'s primary list to its
+  ordinary list (the one change 2.0 makes in that file, since a control's
+  kind is decided there), and "Back to top" is a quiet link, the text green,
+  drawn by `v2/scripture.css`. Book introductions share all three. Read
+  View's floating button is still green; Read View retires at launch.
 - **The book introduction.** The rail ("On this page") is new markup
   (`data-v2`) on an intro with two or more headings; a draft has none. Its
   links need targets, so each intro `h2` now has an `id` made from its words
