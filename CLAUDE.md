@@ -39,7 +39,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
-| `src/components/CLAUDE.md` | The announcement popover |
+| `src/components/CLAUDE.md` | The header's title swap (an inline script); the announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
 | `src/pages/CLAUDE.md` | The podcast page's embeds; the 404 page's address guessing |
 | `scripts/CLAUDE.md` | The build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |

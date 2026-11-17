@@ -581,7 +581,8 @@ body:has(.site-header--green) .skip-link {
   flex: 0 1 auto;
 }
 
-/* Alternate short title — hidden by default, JS toggles it */
+/* Alternate short title: hidden by default. SiteHeader.astro's inline script
+   swaps it in before first paint where the long title doesn't fit. */
 .site-header__title .title-alt {
   display: none;
   flex-shrink: 0;

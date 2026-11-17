@@ -99,7 +99,7 @@ const SIZE_OPTIONS = [
         decoding="async"
       />
       {/* The desk's header always takes the short title, so it carries no
-          long one: the title-fit script below finds nothing to measure. */}
+          long one, and no title-fit script (after the row, below). */}
       <span class="site-header__title">
         {!deskTitle && (
           <span class="title-long">
@@ -246,6 +246,109 @@ const SIZE_OPTIONS = [
       </button>
     </div>
   </div>
+
+  {/* Which title the header shows: the long one where it fits, else "LIT
+      Bible". Where the nav shows (a computer), the swap comes as soon as
+      "Translation" can't show in full, never an ellipsis, which once left
+      "The Liberation & Inclusion Transla…" on a 1366px laptop; where it
+      doesn't (a phone), as soon as the long title overflows its box.
+      OpenDyslexic is wider and always takes the short title; Atkinson's
+      metrics are near Inter's, so it measures normally.
+
+      KEEP THIS SCRIPT INLINE, right after the row it measures (E138; BVJ,
+      2026-11-17). It was a bundled script that waited for idle time, so
+      every page in a window too narrow for the long title painted the long
+      title and then swapped it, up to two seconds later: in every phone, in
+      a computer's window from about 1100 to 1440px, and in every
+      OpenDyslexic window. Run here, the title is chosen before the first
+      paint. The stylesheets are in (an inline script waits for them),
+      data-font and data-desk are stamped in <head>, and
+      `scrollbar-gutter: stable` gives the row its final width before the
+      page is long enough to scroll.
+
+      WHEN it measures matters as much, because of the fonts. A font is
+      fetched when a layout first needs it, cached or not, and is usable a
+      few milliseconds later. Measured at once, the row is in its fallbacks,
+      which are wider (the long title by 56px, the nav by up to 31px): for
+      some 90px of window widths above each threshold that chose the short
+      title and put the long one back, and the layout the measurement
+      forces makes the browser paint sooner, into just that gap. So it
+      measures nothing at once. It asks for the fonts the row is drawn in
+      and measures when they have all settled, which for cached fonts is
+      before the first paint, and in the same turn when they are in memory
+      (going from page to page). The first animation frame measures if the
+      fonts haven't by then, so a font still on the network leaves the
+      fallback's own answer on screen, never an unmeasured title, and
+      changes it as it changes the letters. Don't measure at parse time;
+      don't wait on fonts.ready, which is settled already while a page
+      parses with nothing loading; and don't skip a face fonts.check() calls
+      loaded: a cached face reads so as soon as a layout has asked for it,
+      before it can be drawn.
+
+      After that it re-measures only when the row's width or the reader's
+      font changes: on a phone, showing and hiding the address bar fires
+      resize all through a scroll, and each measurement relays out the
+      document. data-font is in that guard because the Display tray announces
+      a font change by a synthetic resize, which leaves the width alone. The
+      observer is on the row, whose width follows the window, where the
+      title's own stays put while it shows the short text. The Study Desk's
+      header carries no long title and no script. test/header-title.test.js
+      runs this text. */}
+  {!deskTitle && (
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const row = document.querySelector(".site-header__inner");
+        const title = row && row.querySelector(".site-header__title");
+        const long = title && title.querySelector(".title-long");
+        const word = title && title.querySelector(".title-truncatable");
+        const short = title && title.querySelector(".title-alt");
+        if (!long || !word || !short) return;
+        const nav = row.querySelector(".site-nav");
+        const show = (useShort) => {
+          long.style.display = useShort ? "none" : "flex";
+          short.style.display = useShort ? "inline" : "none";
+        };
+        const measure = () => {
+          if (root.getAttribute("data-font") === "dyslexic") return show(true);
+          show(false);
+          show(
+            nav && getComputedStyle(nav).display !== "none"
+              ? word.scrollWidth > word.clientWidth + 1
+              : title.scrollWidth > title.clientWidth + 2,
+          );
+        };
+        let width = -1;
+        let font = "";
+        const measureIfChanged = () => {
+          const w = row.clientWidth;
+          const f = root.getAttribute("data-font") || "";
+          if (w === width && f === font) return;
+          width = w;
+          font = f;
+          measure();
+        };
+        const again = () => {
+          width = -1;
+          measureIfChanged();
+        };
+        const later = () => requestAnimationFrame(measureIfChanged);
+        later();
+        if (document.fonts) {
+          const faces = new Set();
+          for (const el of row.querySelectorAll(
+            ".site-header__title, .site-nav__list > li > a, .site-nav__list > li > button, .site-header__actions > *",
+          )) {
+            const style = getComputedStyle(el);
+            faces.add(style.fontWeight + " 1em " + style.fontFamily.split(",")[0]);
+          }
+          Promise.all([...faces].map((face) => document.fonts.load(face))).then(again, again);
+        }
+        if (window.ResizeObserver) new ResizeObserver(later).observe(row);
+        window.addEventListener("resize", later, { passive: true });
+      })();
+    </script>
+  )}
 
   {headerSearch && (
     <div class="site-header__search-strip" id="headerSearch" hidden>
@@ -852,116 +955,6 @@ const SIZE_OPTIONS = [
       requestIdleCallback(initFontTray, { timeout: 2000 });
     } else {
       setTimeout(initFontTray, 1);
-    }
-  </script>
-
-  <script>
-    // Title truncation observer
-    // Desktop (nav visible): allow ellipsis on "Translation" only.
-    // When "Translation" is fully hidden, switch to "LIT Bible."
-    // Mobile (nav hidden): no truncation — if full title overflows, jump to "LIT Bible."
-    // Deferred to idle: the initial check() and the ResizeObserver's first callback do
-    // forced synchronous layout (getComputedStyle / offsetWidth / scrollWidth), which
-    // belongs off the load-time long task that inflates INP input delay. The header
-    // min-height is reserved in critical CSS, so a late title swap can't shift layout.
-    const initTitleFit = () => {
-      const titleEl = document.querySelector<HTMLElement>(
-        ".site-header__title",
-      );
-      const longEl = titleEl?.querySelector<HTMLElement>(".title-long");
-      const truncEl = titleEl?.querySelector<HTMLElement>(".title-truncatable");
-      const altEl = titleEl?.querySelector<HTMLElement>(".title-alt");
-
-      if (!titleEl || !longEl || !truncEl || !altEl) return;
-
-      const check = () => {
-        // OpenDyslexic is wider — always use the short title to avoid overflow.
-        // Atkinson's metrics are near Inter's, so it measures normally.
-        if (document.documentElement.getAttribute("data-font") === "dyslexic") {
-          longEl.style.display = "none";
-          altEl.style.display = "inline";
-          return;
-        }
-
-        // Reset to long title so we can measure
-        longEl.style.display = "flex";
-        altEl.style.display = "none";
-
-        const nav = document.querySelector<HTMLElement>(".site-nav");
-        const navVisible = nav && getComputedStyle(nav).display !== "none";
-
-        if (navVisible) {
-          // Desktop: never let "Translation" trail off in an ellipsis. Swap
-          // to the short title as soon as the word can't show in full, not
-          // once it is fully clipped, which left "The Liberation & Inclusion
-          // Transla…" on a 1366px laptop.
-          if (truncEl.scrollWidth > truncEl.clientWidth + 1) {
-            longEl.style.display = "none";
-            altEl.style.display = "inline";
-          }
-        } else {
-          // Mobile: no truncation allowed.
-          // If the full title overflows the container, swap to alt.
-          const titleWidth = titleEl.scrollWidth;
-          const availWidth = titleEl.clientWidth;
-          if (titleWidth > availWidth + 2) {
-            longEl.style.display = "none";
-            altEl.style.display = "inline";
-          }
-        }
-      };
-
-      // Use ResizeObserver on the header row — its width always tracks the viewport,
-      // unlike titleEl which stays the same size when showing short "LIT Bible" text.
-      const headerInner = document.querySelector<HTMLElement>(
-        ".site-header__inner",
-      );
-      if (!headerInner) return;
-
-      // check() is a forced synchronous layout (it writes display, then reads
-      // offsetWidth/scrollWidth/getComputedStyle), so it must not run on every
-      // resize event: on mobile, showing and hiding the address bar fires resize
-      // repeatedly throughout a scroll, and each one would relayout the whole
-      // document. The answer can only change when the header's width changes or
-      // when the reader's font does, so re-measure only then. data-font is in
-      // the guard because the Display tray announces a font change by
-      // broadcasting a synthetic resize, which leaves the width untouched.
-      let lastWidth = -1;
-      let lastFont = "";
-      const checkIfChanged = () => {
-        const width = headerInner.clientWidth;
-        const font = document.documentElement.getAttribute("data-font") ?? "";
-        if (width === lastWidth && font === lastFont) return;
-        lastWidth = width;
-        lastFont = font;
-        check();
-      };
-
-      const ro = new ResizeObserver(() => {
-        requestAnimationFrame(checkIfChanged);
-      });
-      ro.observe(headerInner);
-
-      // Also recheck on window resize as a fallback
-      window.addEventListener("resize", () => requestAnimationFrame(checkIfChanged), {
-        passive: true,
-      });
-
-      // Initial check (also seeds the guard, so the ResizeObserver's own first
-      // callback doesn't immediately measure the same thing again)
-      checkIfChanged();
-
-      // The webfont swap changes the title's width without changing the
-      // header's, so the guard above would never re-measure after it.
-      document.fonts?.ready.then(() => {
-        lastWidth = -1;
-        checkIfChanged();
-      });
-    };
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(initTitleFit, { timeout: 2000 });
-    } else {
-      setTimeout(initTitleFit, 1);
     }
   </script>
 
