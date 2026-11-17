@@ -268,9 +268,10 @@
    two columns are data-v1 beside it). Study shows only where the header's
    Study menu does, a computer with the desk on. From a tablet up the groups
    sit in a row, each as wide as its words, spread across the room they have
-   (never packed at the left with the rest left empty), and wrap when a font
-   or a window leaves less; the newsletter is beside them from 1260px, where
-   both fit, and under them below that. The four icons keep their one row:
+   (never packed at the left with the rest left empty), and wrap as a grid
+   when a font or a window leaves less (the container rules below); the
+   newsletter is beside them from 1260px, where both fit, and over them
+   below that (the next block). The four icons keep their one row:
    two by two made Connect the narrowest group ("The Connect column looks
    squished," BVJ the same day). On a phone the groups keep today's two
    centered columns, the icons in a row under them. */
@@ -397,6 +398,71 @@
 
   :root[data-restyle] .footer-inner:not(:has(.footer-newsletter)) .footer-nav--v2 {
     max-width: none;
+  }
+}
+
+/* When the groups cannot share one row, they wrap as a grid: three columns
+   over two with Study there (five groups), two over two without (four), each
+   group under the one over it. Left to wrap by themselves, four stayed in
+   the row and Connect went under them alone; BVJ, 2026-11-17: "When the
+   columns wrap, can they do so in a way that makes it feel more intentional,
+   rather than just orphaning a column alone in a row?" The room the groups
+   have is the question (the window less the footer's padding, less the
+   newsletter beside them from 1260px), so the column that holds them is
+   asked, not the window. Each width is what that font's groups measured on
+   one row at 2rem apart (Inter 770px and 599px, OpenDyslexic 980px and
+   732px; Atkinson is narrower than Inter), in rem so a larger default text
+   size moves it too. A phone's layout is not a container, so none of this
+   reaches it. Measure again if a group gains a longer label.
+
+   The three columns are thirds, and a column whose words need more than a
+   third takes it from the other two ("Study Desk help" in OpenDyslexic),
+   so no label breaks. That cannot overflow, because under the width the
+   three need side by side (Inter 513px, OpenDyslexic 645px; only a larger
+   default text size gets there) the groups go to two columns. */
+@media (min-width: 721px) {
+  :root[data-restyle] .footer-left {
+    container: footer-groups / inline-size;
+  }
+}
+
+@container footer-groups (max-width: 48.5rem) {
+  :root[data-restyle][data-desk] .footer-nav--v2 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(max-content, 1fr));
+  }
+}
+
+@container footer-groups (max-width: 61.5rem) {
+  :root[data-restyle][data-desk][data-font="dyslexic"] .footer-nav--v2 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(max-content, 1fr));
+  }
+}
+
+@container footer-groups (max-width: 32.25rem) {
+  :root[data-restyle][data-desk] .footer-nav--v2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container footer-groups (max-width: 40.5rem) {
+  :root[data-restyle][data-desk][data-font="dyslexic"] .footer-nav--v2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container footer-groups (max-width: 37.75rem) {
+  :root[data-restyle]:not([data-desk]) .footer-nav--v2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container footer-groups (max-width: 46rem) {
+  :root[data-restyle]:not([data-desk])[data-font="dyslexic"] .footer-nav--v2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

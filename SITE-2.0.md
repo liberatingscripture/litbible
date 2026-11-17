@@ -448,6 +448,20 @@ Each is behind the stamp unless it says otherwise.
   site (asked of BVJ, not decided). On a page whose footer has no
   newsletter (My Notebook, My sheets, Unsubscribe) the emptied block takes
   no room and the groups have the whole width.
+- **The groups wrap as a grid.** Where the five did not fit one row (about
+  721px to 833px wide with Study there; wider in OpenDyslexic), four stayed
+  and Connect went under them alone. BVJ: "When the columns wrap, can they
+  do so in a way that makes it feel more intentional, rather than just
+  orphaning a column alone in a row?" Now they are three columns over two
+  (The LIT, Learn, Study; About and Connect under the first two), each group
+  under the one over it; with no Study group, the four are two over two
+  (only OpenDyslexic gets there, under about 800px). The columns are thirds,
+  and one whose words need more than a third takes it, so no label breaks.
+  The switch asks the room the groups have (a container query on the column
+  that holds them), with a width measured for each font. Not changed: a
+  computer's window drawn in under 721px with the desk on, where the phone's
+  two columns put the fifth group, Connect, in a row of its own (a phone has
+  four groups, two over two).
 - **The source-text notice sits closer to what is around it.** BVJ, of the
   band at the foot of a chapter: "Let's reduce all that empty space. Both
   above and below the 'Source text and license.'" Above the link, the
