@@ -169,8 +169,40 @@ unit's diff, applies shared changes in order, and commits unit by unit.
 | Wave | State |
 |------|-------|
 | 0 Foundation | Done 2026-11-17. With the gate off, all 355 built pages match `main`'s (markup, and the 404 and About pages pixel for pixel at 375 and 1280px); with it on, the 404 page matches its mockup in both themes |
-| 1 Pages over stable markup | Started 2026-11-17 |
-| 2 to 4 | Not started |
+| 1 Pages over stable markup | Done 2026-11-17. With the gate off, all 355 built pages match `main`'s markup (what is new and inert is listed under "What the build added or left different"), and the wave's sixteen pages match `main`'s pixel for pixel at 375 and 1280px (the articles index and one article differ only where a lazy picture or an embedded post had not loaded in one of the two captures). With it on, each page was compared with its mockup at 375 and 1280px in both themes. `npm test`, `npm run check`, a build, and `check:links` pass. Left for wave 4: the full width, font, and text-size matrix on every page |
+| 2 Pages with their own scripts | Started 2026-11-17 |
+| 3 and 4 | Not started |
 
 Open for BVJ: whether the mockups should be archived in the repo (about 4 MB
 without their captures) so other machines and BDR can see them.
+
+## What the build added or left different
+
+Wave 1, where the real page is not its mockup, or gained something a reader
+without the preview also receives (all of it inert there):
+
+- **Contents rails mark where you are.** `src/scripts/v2-frame.js` sets
+  `aria-current="location"` on the link of the last heading above the reading
+  line, on a page frame's contents column or any nav marked `data-v2-rail`
+  (About, Privacy, the podcast's seasons). It does nothing without the stamp.
+  About's and the podcast list's page scripts import it, so Astro now ships
+  those two as files where it inlined them.
+- **About** lists its twelve sub-headings in the rail, as the mockup does, so
+  those `h3`s have `id`s now (`about-where-i-came-from` and the rest).
+- **The thank-you pages** have one wrapper `div` around the button and the
+  privacy line, so the two can sit on the sheet. It has only `v2-` classes.
+- **A header search button on a page with its own search field** is a plain
+  link to `/search` (`headerSearchLink` on `Layout`, `searchLink` on
+  `SiteHeader`; `src/layouts/CLAUDE.md`). The articles index and the article
+  page pass it. An article's own search box is hidden in the 2.0 look, as its
+  mockup has none, so the header's button is that page's way to search.
+- **/read**: the row of tools (the picker, the Study Desk, search) sits under
+  the title block, where the mockup draws it inside; `ReadLayout` fixes that
+  order for every page that uses it. The picker stays at every width ("no
+  book list on a phone" is met by the grid being a computer's addition).
+  "Latest text changes" is open, with no button, from 1000px.
+- **Podcast**: the title stays centered on the hero picture with no sunshine
+  bar, as its mockup draws it.
+- **The dev server** (`astro.config.mjs`): a server started inside a worktree
+  watched nothing and could not serve its fonts; both are fixed there, and
+  neither changes a build.
