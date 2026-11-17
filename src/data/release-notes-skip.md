@@ -282,3 +282,14 @@ revised Word master. A casing fix to a tag is not news for readers.
 The Read View and Study Desk pills in Chapter View's toolbar stood about 2px
 shorter than the passage picker beside them (`line-height: 1` against the
 button's `normal`). A 2px alignment fix is not news for readers.
+
+## 2026-11-17 — Long web addresses in footnotes wrap on a phone
+
+A layout fix, with no wording change. A footnote that holds a raw web address
+(Matthew 5, 1 Corinthians 14, John 11, Romans 1, and others) scrolled the whole
+chapter page sideways on a phone, and the footnote's popover sheet sideways
+inside itself, because the address is one run of characters with no break
+point. `.footnotes .fn-body` (`[slug].astro`) and `.lit-panel__body`
+(`global.css`) now have `overflow-wrap: anywhere`, so such a run breaks only
+when it cannot fit a line. No scripture, footnote, or introduction text
+changed, so there is nothing for the changelog to say.

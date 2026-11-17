@@ -447,6 +447,13 @@ const termLensJson = termLens?.marks.length
     .footnotes .fn-body {
       margin: 0;
       line-height: calc(1.6 + var(--reading-leading-extra, 0));
+      /* A raw web address in a note (Matthew 5's fn-oo) is one run of
+         unbreakable characters and pushed the page sideways on a phone.
+         `anywhere` breaks only a run that cannot fit a line by itself, and
+         only after the ordinary break points (hyphens, spaces) are used, so
+         no ordinary word is split. Never `break-all` or hyphens: those split
+         words, which dyslexic readers need whole. */
+      overflow-wrap: anywhere;
     }
 
     .footnote-backlink {
