@@ -577,6 +577,89 @@ test("firstPaint stamps the notebook expanded exactly where placeInMargin keeps 
   }
 });
 
+/* ── The column's move, before first paint (E137) ────────────────────── */
+
+// BVJ, 2026-11-17: with the Notebook open in a window about 1120px wide, each
+// chapter painted with its column centered and moved it left when the desk's
+// code arrived. firstPaint now says how far placeInMargin will move it, and
+// Layout.astro's pre-paint script stamps that (test/desk-prepaint.test.js).
+
+test("E137: firstPaint's move is the one placeInMargin makes, for every font, size and window", () => {
+  for (const ch of chs) {
+    const width = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
+    for (let viewport = 600; viewport <= 1800; viewport += 1) {
+      const m = { ...centred(viewport, width), keepLeft: KEEP_LEFT };
+      const at = placeInMargin(m);
+      const fp = firstPaint({ viewport, ch });
+      const where = `${ch} ${viewport}`;
+      if (at.over) {
+        // It floats and folds: no move is stamped, since the folded tab's own
+        // (placeFloating) is another, smaller one, made by the first stage.
+        assert.deepEqual(fp, { expanded: false, widths: null, shift: 0, center: null }, where);
+        continue;
+      }
+      assert.equal(fp.shift, at.shift, where);
+      // Where it stays centered there is no center to stamp either.
+      if (at.shift === 0) assert.equal(fp.center, null, where);
+      else near(fp.center, (m.column.left + m.column.right) / 2 - at.shift, 1e-9);
+      // A page painted with that move is left alone by the first placement:
+      // margin.js measures the moved column and hands placeInMargin the move.
+      assert.equal(placeInMargin({ ...centred(viewport, width, fp.shift), keepLeft: KEEP_LEFT }).shift, fp.shift, where);
+    }
+  }
+});
+
+test("E137: the moves at a 1024px, an 1100px and a 1280px window, in Inter and OpenDyslexic, at Medium and Extra large", () => {
+  const px = (font, size) => FIRST_PAINT.ch[font] * FIRST_PAINT.scale[size] * FIRST_PAINT.body * 16;
+  // Each window less a 15px scrollbar. null: the notebook floats and folds.
+  const cases = [
+    ["Inter, Medium", px("", ""), [104, 66, 0]],
+    ["Inter, Extra large", px("", "xl"), [null, null, 52]],
+    ["OpenDyslexic, Medium", px("dyslexic", ""), [48, 10, 0]],
+    ["OpenDyslexic, Extra large", px("dyslexic", "xl"), [108, 70, 0]],
+  ];
+  for (const [name, ch, moves] of cases) {
+    [1009, 1085, 1265].forEach((viewport, i) => {
+      const fp = firstPaint({ viewport, ch });
+      const where = `${name} ${viewport}`;
+      if (moves[i] === null) {
+        assert.equal(fp.expanded, false, where);
+        assert.equal(fp.shift, 0, where);
+        return;
+      }
+      assert.equal(fp.expanded, true, where);
+      assert.equal(fp.shift, moves[i], where);
+      assert.equal(fp.center, moves[i] ? viewport / 2 - moves[i] : null, where);
+    });
+  }
+  // BVJ's window, about 1120px: 1105px of page, the column 56px left of center.
+  assert.equal(firstPaint({ viewport: 1105, ch: px("", "") }).shift, 56);
+});
+
+test("E137: the move ends where the margin holds the notebook, about 1217px at the default font and size", () => {
+  const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
+  assert.equal(firstPaint({ viewport: 1216, ch }).shift, 1);
+  assert.deepEqual(firstPaint({ viewport: 1217, ch }), { expanded: true, widths: null, shift: 0, center: null });
+  assert.deepEqual(firstPaint({ viewport: 1440, ch }), { expanded: true, widths: null, shift: 0, center: null });
+});
+
+test("E137: the reader's widths move nothing, and say where the column's center is", () => {
+  const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
+  for (const viewport of [1009, 1085, 1265, 1600]) {
+    for (const kept of [{ measure: 50, width: 360 }, { measure: 40, width: 300 }, { measure: 72, width: 600 }]) {
+      const lay = placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, keepLeft: KEEP_LEFT, ...kept });
+      const fp = firstPaint({ viewport, ch, kept });
+      const where = JSON.stringify({ viewport, kept });
+      if (lay.over) {
+        assert.deepEqual(fp, firstPaint({ viewport, ch }), where);
+        continue;
+      }
+      assert.equal(fp.shift, 0, where);
+      near(fp.center, (lay.columnLeft + lay.columnRight) / 2, 1e-9);
+    }
+  }
+});
+
 // 897px until E81, when the column began keeping KEEP_LEFT (38px) on its left.
 test("firstPaint: the default font and size float the notebook below about 935px", () => {
   const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
@@ -642,7 +725,8 @@ test("firstPaint keeps the widths placeWithWidths would apply, and none where th
           assert.equal(fp.widths, null, where);
           assert.deepEqual(fp, firstPaint({ viewport, ch }), where);
         } else {
-          assert.deepEqual(fp, { expanded: true, widths: { measure: lay.measure, width: lay.width } }, where);
+          assert.equal(fp.expanded, true, where);
+          assert.deepEqual(fp.widths, { measure: lay.measure, width: lay.width }, where);
         }
       }
     }

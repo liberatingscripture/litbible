@@ -4404,3 +4404,18 @@ html[data-desk][data-desk-expanded][data-desk-widths]:has(.scripture-layout--scr
 html[data-desk][data-desk-expanded][data-desk-widths] .scripture-layout--scripture .scripture-main {
   margin-right: calc(var(--desk-width) + 40px);
 }
+
+/* The column's move left, before the desk's code has loaded (E137). Where
+   the margin is too narrow for the expanded notebook the column moves left
+   to make its room (placeInMargin, src/lib/desk-margin.mjs), by a translate
+   margin.js puts on the page's move elements. That came a moment after
+   first paint, so every chapter painted centered and then moved. Layout.astro
+   now works the move out before first paint and stamps it as --desk-move, a
+   whole translate ("-104px 0"), which this rule draws until margin.js takes
+   it over as its own inline translate and removes the stamp. With no stamp
+   the column has no translate at all, as before. The selector is Chapter
+   View's `move` list (src/scripts/desk-frame.js), the only page stamped;
+   test/desk-frame.test.js holds the two together. */
+html[data-desk][data-desk-expanded] .scripture-layout--scripture .scripture-main {
+  translate: var(--desk-move, none);
+}

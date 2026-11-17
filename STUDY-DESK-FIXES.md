@@ -3855,6 +3855,38 @@ says so; where BVJ was wondering, nothing is decided.)
   still opens a tab everywhere. Left as they are: the podcast page's
   “Follow the show on Facebook” (its platform buttons carry the mark too),
   and Go deeper's three podcast links, one mark each.
+- **E137, rough: with the Notebook open in a narrower window, each chapter
+  drew centered and then moved left.** BVJ, 2026-11-17, clicking from
+  chapter to chapter with the Notebook open in a window about 1120px wide:
+  “The current load time for the Notebook panel makes clicking through
+  chapter pages shift back and forth as it loads without the notebook and
+  then a second later adds the notebook.” (The Site 2.0 branch logged the
+  same report as its E138; there the sheet and the toolbar row move with
+  the column, so it shows more.) Where the margin is too narrow for the
+  Notebook the column moves left by a `translate` (`placeInMargin`), and
+  that move came only once the shell had loaded. Measured frame by frame on
+  the built site in headless Chrome: the first paint had the column
+  centered, and about 0.15 s later (about a second in the Browser pane) it
+  moved 104px in a 1024px window, 66px at 1100px, 56px at 1120px, and
+  nothing from about 1232px, where the margin holds the Notebook.
+  **Fixed** (PR #593): `firstPaint` (`desk-margin.mjs`) works the move out
+  as well, from the numbers it already takes, as `shift` and the column's
+  `center`. Layout.astro's pre-paint script repeats it and stamps
+  `--desk-move` (a whole `translate`) and `--desk-bar-center` on `<html>`,
+  on a Chapter View chapter only; a rule in `global.css` draws the move on
+  the chapter's `move` list; margin.js makes it its own inline `translate`
+  as the rail is made (`takeOverMove`), so its first placement changes
+  nothing and sends no `desk:column-moved`; and `standDown()` removes the
+  stamp if the desk never loads. With dragged widths nothing moved (CSS
+  places that column), but its center is stamped too, for the toolbar row
+  that follows it in 2.0. Measured again: the column's left edge on the
+  first painted frame is its left edge two seconds on at 1024, 1100, and
+  1120px, in Inter and OpenDyslexic at Medium and Extra large and in
+  Atkinson at Large. A 1280px window, a minimized or floating Notebook, an
+  introduction, Read View, and a page with the desk off are as they were.
+  Left as it is: Read View has the same kind of move once the desk loads
+  (140px at 1100px, 50px at 1280px), since its column is not the one the
+  pre-paint script knows.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

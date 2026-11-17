@@ -321,6 +321,16 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft =
 // which it repeats, since it can't import (test/desk-prepaint.test.js holds
 // the two together and this to the placements it predicts).
 //
+// It stamps the column's move left the same way (E137). In a window whose
+// margin is too narrow for the notebook (under about 1217px at the default
+// font and size), a chapter opening with it expanded painted with the column
+// centered and moved it only when the desk's code arrived, a moment later on
+// every chapter (BVJ, 2026-11-17: the pages "shift back and forth"). So
+// firstPaint also says how far placeInMargin will move the column (`shift`),
+// which the script stamps as --desk-move (MOVE_PROP below), the translate
+// global.css puts on the column until margin.js takes it over, and where
+// that leaves the column's center (`center`, as --desk-bar-center).
+//
 // It reads the Chapter View column's width from the reader's settings, from
 // these values, which test/desk-margin.test.js holds to global.css and
 // ScriptureLayout.astro. The window is the whole width the script sees,
@@ -362,30 +372,54 @@ export const KEEP_LEFT = FIRST_PAINT.keepLeft;
 export const TEXT_HANDLE = { inset: 2, width: 12 };
 
 /**
+ * The custom property on <html> that carries the column's move left from
+ * Layout.astro's pre-paint script to the page (E137). Its value is a whole
+ * `translate` ("-104px 0"), which global.css puts on a Chapter View
+ * chapter's column, so no stamp means no translate at all. margin.js takes
+ * the move over when its rail is made and removes the stamp; standDown
+ * (desk-frame.js) removes it too.
+ */
+export const MOVE_PROP = "--desk-move";
+
+/**
  * What the first placement will make of a Chapter View page opening with the
  * notebook expanded: whether it stays expanded (`expanded`; it folds where
- * the margin can't hold it even with the column moved), and the widths to
+ * the margin can't hold it even with the column moved), the widths to
  * draw the page with (`widths`: the kept ones, given way as placeWithWidths
  * gives them, or null where they don't fit and the ordinary placement takes
- * over). The column starts against its containing box's left edge, which
- * is the window's on Chapter View.
+ * over), how far left the column will be moved (`shift`, in px: what
+ * placeInMargin decides for the column centered in the window; 0 with the
+ * reader's widths, which place the column without a move), and the column's
+ * center once placed (`center`, in px from the window's left edge; null
+ * where the column stays centered in the window). The column starts against
+ * its containing box's left edge, which is the window's on Chapter View.
  *
  * @param {object} m
  * @param {number} m.viewport the window's width
  * @param {number} m.ch px per measure unit at the column's size
  * @param {{ measure: number, width: number } | null} [m.kept] the widths the
  *   reader kept this visit, already checked for range
- * @returns {{ expanded: boolean, widths: { measure: number, width: number } | null }}
+ * @returns {{ expanded: boolean, widths: { measure: number, width: number } | null,
+ *   shift: number, center: number | null }}
  */
 export function firstPaint({ viewport, ch, kept = null }) {
   const keepLeft = FIRST_PAINT.keepLeft;
   const lay = kept ? placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, keepLeft, ...kept }) : null;
-  if (lay && !lay.over) return { expanded: true, widths: { measure: lay.measure, width: lay.width } };
+  if (lay && !lay.over) {
+    // The column ends GAP before the notebook (global.css's margin-right),
+    // written out in the pre-paint script's order so the two agree exactly.
+    const center = viewport - EDGE - lay.width - GAP - (lay.measure * ch + FIRST_PAINT.pad) / 2;
+    return { expanded: true, widths: { measure: lay.measure, width: lay.width }, shift: 0, center };
+  }
   // placeInMargin's test, with the column centered and free to move left to
   // the margin it keeps (keepLeft): the panel's room on the right plus the
   // rest of the column's left margin must hold MIN_WIDTH.
   const column = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
-  return { expanded: viewport - EDGE - GAP - keepLeft - column >= MIN_WIDTH, widths: null };
+  if (viewport - EDGE - GAP - keepLeft - column < MIN_WIDTH) return { expanded: false, widths: null, shift: 0, center: null };
+  // And its move: what MIN_WIDTH lacks of the room right of the centered
+  // column, which the test above says the left margin can give.
+  const shift = Math.round(Math.max(0, MIN_WIDTH + EDGE + GAP + (column - viewport) / 2));
+  return { expanded: true, widths: null, shift, center: shift ? viewport / 2 - shift : null };
 }
 
 // Measures are kept to a tenth: enough for a smooth drag, short in storage.
