@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/privacy.css";
+import "../styles/v2/privacy.css";
 ---
 
 <Layout
@@ -29,9 +30,9 @@ import "../styles/pages/privacy.css";
     })} />
   </Fragment>
 
-  <article class="privacy-page" aria-labelledby="privacy-title">
+  <article class="privacy-page v2-frame" aria-labelledby="privacy-title">
 
-    <header class="privacy-header">
+    <header class="privacy-header v2-frame__head v2-bar">
       <div class="privacy-header__inner">
         <h1 id="privacy-title" class="privacy-title">Privacy Policy</h1>
         <p class="privacy-effective">
@@ -46,10 +47,27 @@ import "../styles/pages/privacy.css";
       </div>
     </header>
 
-    <div class="privacy-body">
+    <nav class="privacy-toc v2-frame__toc" data-v2 data-pagefind-ignore aria-label="On this page">
+      <p class="v2-label">On this page</p>
+      <ul>
+        <li><a href="#privacy-scope">Scope</a></li>
+        <li><a href="#privacy-collect">What we collect</a></li>
+        <li><a href="#privacy-reading-data">Your reading data (app)</a></li>
+        <li><a href="#privacy-content-updates">Content updates (app)</a></li>
+        <li><a href="#privacy-widget">The home screen widget (app)</a></li>
+        <li><a href="#privacy-external-links">External links</a></li>
+        <li><a href="#privacy-sharing">Sharing (app)</a></li>
+        <li><a href="#privacy-third-party">Third-party software (app)</a></li>
+        <li><a href="#privacy-children">Children</a></li>
+        <li><a href="#privacy-changes">Changes to this policy</a></li>
+        <li><a href="#privacy-contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="privacy-body v2-frame__text">
 
       <section aria-labelledby="privacy-scope">
-        <h2 id="privacy-scope">Scope</h2>
+        <h2 id="privacy-scope" class="v2-rule">Scope</h2>
         <p>
           This policy applies to the LIT Bible website at litbible.net and the
           companion iOS and Android apps. The sections labeled “(app)” describe
@@ -61,7 +79,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-collect">
-        <h2 id="privacy-collect">What we collect</h2>
+        <h2 id="privacy-collect" class="v2-rule">What we collect</h2>
         <p>
           <strong>Website:</strong> The site collects personal information only
           when you actively submit it:
@@ -200,7 +218,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-reading-data">
-        <h2 id="privacy-reading-data">Your reading data (app)</h2>
+        <h2 id="privacy-reading-data" class="v2-rule">Your reading data (app)</h2>
         <p>
           <strong>On both platforms:</strong> Everything you create in the app
           (highlights, notes, and your reading position) is stored privately on
@@ -231,7 +249,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-content-updates">
-        <h2 id="privacy-content-updates">Content updates (app)</h2>
+        <h2 id="privacy-content-updates" class="v2-rule">Content updates (app)</h2>
         <p>
           <strong>On both platforms:</strong> The app periodically checks
           litbible.net servers for Bible translation text updates. During this
@@ -242,7 +260,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-widget">
-        <h2 id="privacy-widget">The home screen widget (app)</h2>
+        <h2 id="privacy-widget" class="v2-rule">The home screen widget (app)</h2>
         <p>
           <strong>On both platforms:</strong> The LIT Bible widget displays
           lectionary readings and liturgical calendar information. All widget
@@ -252,7 +270,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-external-links">
-        <h2 id="privacy-external-links">External links</h2>
+        <h2 id="privacy-external-links" class="v2-rule">External links</h2>
         <p>
           The website and app include links to external services. Following
           these links subjects you to those third parties’ privacy policies.
@@ -287,7 +305,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-sharing">
-        <h2 id="privacy-sharing">Sharing (app)</h2>
+        <h2 id="privacy-sharing" class="v2-rule">Sharing (app)</h2>
         <p>
           <strong>On both platforms:</strong> When you select text and choose
           Share, your device’s standard share sheet opens. The selected passage
@@ -298,7 +316,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-third-party">
-        <h2 id="privacy-third-party">Third-party software (app)</h2>
+        <h2 id="privacy-third-party" class="v2-rule">Third-party software (app)</h2>
         <p>
           <strong>On iOS,</strong> the app uses one third-party software
           library: <strong>GRDB</strong>, an open-source database library that
@@ -321,7 +339,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-children">
-        <h2 id="privacy-children">Children</h2>
+        <h2 id="privacy-children" class="v2-rule">Children</h2>
         <p>
           The LIT Bible website and app do not knowingly collect personal
           information from children. The site and app contain no advertising
@@ -333,7 +351,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-changes">
-        <h2 id="privacy-changes">Changes to this policy</h2>
+        <h2 id="privacy-changes" class="v2-rule">Changes to this policy</h2>
         <p>
           If the policy updates in ways materially affecting data handling, the
           LIT Bible team will note it in the app’s Translation Updates section
@@ -342,7 +360,7 @@ import "../styles/pages/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-contact">
-        <h2 id="privacy-contact">Contact</h2>
+        <h2 id="privacy-contact" class="v2-rule">Contact</h2>
         <p>
           Questions about this policy can be directed to the LIT Bible team at
           <a href="/contact">litbible.net/contact</a>.
@@ -351,4 +369,10 @@ import "../styles/pages/privacy.css";
 
     </div>
   </article>
+
+  <script>
+    // Site 2.0: marks the contents rail's current section (only with the
+    // restyle's stamp; see the module's header).
+    import "../scripts/v2-frame.js";
+  </script>
 </Layout>
