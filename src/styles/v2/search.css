@@ -229,6 +229,20 @@
   background: radial-gradient(circle, var(--green-text) 0 4px, transparent 4.5px);
 }
 
+/* In a contrast theme the ring and its dot take system colors, so the choice
+   made still shows on whatever the theme's page color is. */
+@media (forced-colors: active) {
+  :root[data-restyle] .v2-search__pane .sort-btn::before {
+    forced-color-adjust: none;
+    border-color: ButtonText;
+  }
+
+  :root[data-restyle] .v2-search__pane .sort-btn.is-active::before {
+    border-color: Highlight;
+    background: radial-gradient(circle, Highlight 0 4px, transparent 4.5px);
+  }
+}
+
 /* The two filters, side by side. */
 :root[data-restyle] .scripture-layout--search .v2-search__pane .searchbar__filters {
   display: grid;

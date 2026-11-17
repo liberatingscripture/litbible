@@ -225,3 +225,38 @@
     border-left-color: var(--v2-marker);
   }
 }
+
+/* ── A Windows contrast theme (forced colors) ─────────────────────
+   Every border takes one forced color there, a transparent one included, so
+   a contents rail would draw its marker on every link and the reader's place
+   would be lost. System colors are kept as written: none on a link,
+   Highlight where the reader is. Every rail is a rail from 1000px (the
+   introduction's later still, and a row of plain links until then). */
+@media (forced-colors: active) and (min-width: 1000px) {
+  :root[data-restyle] :is(.v2-frame__toc, [data-v2-rail], .about-toc, .fit-season-nav, .v2-search__groups, .v2-glossary__list) a {
+    border-left-color: Canvas !important;
+  }
+
+  :root[data-restyle] :is(.v2-frame__toc, [data-v2-rail], .about-toc, .fit-season-nav, .v2-search__groups, .v2-glossary__list) a[aria-current] {
+    border-left-color: Highlight !important;
+  }
+}
+
+/* ── The footer's link columns in OpenDyslexic on a small phone ───
+   The two columns are sized to their words and centered as a pair. In
+   OpenDyslexic the pair is wider than a small phone, so the centering cut
+   both edges off (main cuts them too, at 320px; 2.0's longer "Release
+   Notes" label added 5px a side). Buy the room back, never shrink the type:
+   a narrower gap up to 400px, and one column where even that cannot fit. */
+@media (max-width: 400px) {
+  :root[data-restyle][data-font="dyslexic"] .footer-nav {
+    column-gap: 1.5rem;
+  }
+}
+
+@media (max-width: 349px) {
+  :root[data-restyle][data-font="dyslexic"] .footer-nav {
+    grid-template-columns: max-content;
+    justify-content: start;
+  }
+}

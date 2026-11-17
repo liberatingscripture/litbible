@@ -65,6 +65,14 @@
   text-align: left;
 }
 
+/* OpenDyslexic sets the name far wider than the serif the lockup is drawn
+   for, and from the left edge it ran off the window up to 1024px (main's
+   centered one does up to 768px). There it may wrap between words; its size
+   stays. */
+:root[data-restyle][data-font="dyslexic"] .lsc-lockup__name {
+  white-space: normal;
+}
+
 :root[data-restyle] .lede {
   margin: 20px 0 0;
   font-size: calc(1.125rem * var(--reading-scale, 1));
@@ -238,4 +246,16 @@
   margin-top: clamp(40px, 5vw, 56px);
   font-size: calc(0.9375rem * var(--reading-scale, 1));
   line-height: calc(1.5 + var(--reading-leading-extra, 0));
+}
+
+/* A button whose label carries a web address ("Visit liberatingscripture.org").
+   In OpenDyslexic the address alone is as wide as a small phone's column, and
+   a button cannot shrink under its label, so the page scrolled sideways at
+   320px (as main's does). An address may break where it must; ordinary words
+   never do. */
+:root[data-restyle][data-font="dyslexic"] :is(.lsc, .lsc-content) a.button[href*="liberatingscripture.org"] {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

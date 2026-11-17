@@ -397,6 +397,15 @@
   box-shadow: inset 0 0 0 2px var(--green-text);
 }
 
+/* A contrast theme drops every shadow: draw the ring as an outline there
+   (keyboard focus keeps its own). */
+@media (forced-colors: active) {
+  :root[data-restyle] .v2-read__chs a[data-v2-continue]:not(:focus-visible) {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
+
 :root[data-restyle] .v2-read__key {
   margin: 12px 0 0;
   color: var(--v2-label);

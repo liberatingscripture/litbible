@@ -158,6 +158,13 @@
   text-align: left;
 }
 
+/* OpenDyslexic sets the Collective's name half again as wide as the serif:
+   beside the mark it left a phone's window. There it may wrap between words;
+   its size stays. */
+:root[data-restyle][data-font="dyslexic"] .support-band__brand-text span:last-child {
+  white-space: normal;
+}
+
 :root[data-restyle] .support-band__copy h2 {
   margin: 0;
   font-size: clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem);
@@ -246,4 +253,15 @@
   margin: 6px 0 0;
   font-size: 1rem;
   line-height: 1.55;
+}
+
+/* A button whose label is a web address. In OpenDyslexic the address is as
+   wide as a small phone's whole column, and a button cannot shrink under its
+   label, so the page scrolled sideways at 320px (as main's does). An address
+   may break where it must; ordinary words never do. */
+:root[data-restyle][data-font="dyslexic"] .support .button--external {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

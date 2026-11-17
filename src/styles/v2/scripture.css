@@ -241,3 +241,13 @@
     }
   }
 }
+
+/* A web address in a note is one unbreakable run, and at the larger text
+   sizes on a phone the longest (in Matthew 5's notes) is wider than the
+   window, so the whole page scrolled sideways (main's does too). It breaks
+   only when it cannot fit a line by itself; ordinary words never do. */
+@media screen {
+  :root[data-restyle] .scripture-layout .fn-body {
+    overflow-wrap: anywhere;
+  }
+}

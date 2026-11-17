@@ -87,6 +87,10 @@
 
 /* The text: a ruled start to each section, no divider of today's. */
 :root[data-restyle] .privacy-body {
+  /* No auto margins: the frame places the text. With them a grid item stops
+     stretching and takes its longest word's width, so a web address in
+     OpenDyslexic made the whole column wider than a phone. */
+  margin: 0;
   font-size: calc(1.125rem * var(--reading-scale, 1));
   line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
