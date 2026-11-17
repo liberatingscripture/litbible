@@ -22,6 +22,7 @@ import { MAX_PANES } from "../../lib/desk-layout.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
 import Layout from "../../layouts/Layout.astro";
 import "../../styles/pages/desk-help.css";
+import "../../styles/v2/desk-help.css";
 
 // The contents: each part's heading (an h2) and its topics (each an h3).
 const parts = [
@@ -119,12 +120,12 @@ const parts = [
   robotsNoindex={true}
 >
   <article class="nbhelp" aria-labelledby="nbhelp-title">
-    <div class="nbhelp__layout">
+    <div class="nbhelp__layout v2-frame">
 
       {/* The title first, then the contents, then the text: a phone and a
           screen reader meet the page's name before its list. On a wide
           window the grid puts the contents beside both (desk-help.css). */}
-      <header class="nbhelp__header">
+      <header class="nbhelp__header v2-frame__head v2-bar">
         <h1 id="nbhelp-title" class="nbhelp__title">Study Desk help</h1>
         <p class="nbhelp__lede">
           The Study Desk is a preview of study tools for reading on a
@@ -134,8 +135,8 @@ const parts = [
         </p>
       </header>
 
-      <nav class="nbhelp__toc" aria-labelledby="contents">
-        <h2 id="contents" class="nbhelp__toc-title">On this page</h2>
+      <nav class="nbhelp__toc v2-frame__toc" aria-labelledby="contents">
+        <h2 id="contents" class="nbhelp__toc-title v2-label">On this page</h2>
         <ol class="nbhelp__toc-parts">
           {parts.map((part) => (
             <li>
@@ -152,11 +153,11 @@ const parts = [
         </ol>
       </nav>
 
-        <div class="nbhelp__body">
+        <div class="nbhelp__body v2-frame__text">
 
           {/* ============ 1. Getting started ============ */}
           <section class="nbhelp__part" aria-labelledby="start">
-            <h2 id="start">Getting started</h2>
+            <h2 id="start" class="v2-rule">Getting started</h2>
 
             <section class="nbhelp__topic" aria-labelledby="what-it-is">
               <h3 id="what-it-is">What the Study Desk is</h3>
@@ -238,7 +239,7 @@ const parts = [
 
           {/* ============ 2. Marking what you read ============ */}
           <section class="nbhelp__part" aria-labelledby="marking">
-            <h2 id="marking">Marking what you read</h2>
+            <h2 id="marking" class="v2-rule">Marking what you read</h2>
 
             <section class="nbhelp__topic" aria-labelledby="making-marks">
               <h3 id="making-marks">Notes, highlights, and bookmarks</h3>
@@ -440,7 +441,7 @@ const parts = [
 
           {/* ============ 3. The Study Desk page ============ */}
           <section class="nbhelp__part" aria-labelledby="desk-page">
-            <h2 id="desk-page">The Study Desk page</h2>
+            <h2 id="desk-page" class="v2-rule">The Study Desk page</h2>
             <p>
               The <a href="/desk/">Study Desk page</a> sets up to {MAX_PANES}
               panes side by side, each a different tool, and each scrolls on
@@ -652,7 +653,7 @@ const parts = [
 
           {/* ============ 4. Sheets ============ */}
           <section class="nbhelp__part" aria-labelledby="sheets">
-            <h2 id="sheets">Sheets</h2>
+            <h2 id="sheets" class="v2-rule">Sheets</h2>
             <p>
               A sheet gathers passages and your own words into a handout for a
               study, a class, or a sermon.
@@ -933,7 +934,7 @@ const parts = [
 
           {/* ============ 5. The Greek ============ */}
           <section class="nbhelp__part" aria-labelledby="greek">
-            <h2 id="greek">The Greek</h2>
+            <h2 id="greek" class="v2-rule">The Greek</h2>
 
             <section class="nbhelp__topic" aria-labelledby="greek-text">
               <h3 id="greek-text">Reading the Greek</h3>
@@ -1028,7 +1029,7 @@ const parts = [
 
           {/* ============ 6. Search and commands ============ */}
           <section class="nbhelp__part" aria-labelledby="search">
-            <h2 id="search">Search and commands</h2>
+            <h2 id="search" class="v2-rule">Search and commands</h2>
 
             <section class="nbhelp__topic" aria-labelledby="search-box">
               <h3 id="search-box">The search box</h3>
@@ -1108,7 +1109,7 @@ const parts = [
 
           {/* ============ 7. Keeping your notebook ============ */}
           <section class="nbhelp__part" aria-labelledby="keeping">
-            <h2 id="keeping">Keeping your notebook</h2>
+            <h2 id="keeping" class="v2-rule">Keeping your notebook</h2>
 
             <section class="nbhelp__topic" aria-labelledby="ways-to-keep">
               <h3 id="ways-to-keep">Where your notebook is kept</h3>
@@ -1218,7 +1219,7 @@ const parts = [
 
           {/* ============ 8. Send feedback ============ */}
           <section class="nbhelp__part" aria-labelledby="missing">
-            <h2 id="missing">Send feedback</h2>
+            <h2 id="missing" class="v2-rule">Send feedback</h2>
             <p>
               The Study Desk is in {DESK_STAGE}, and the site deliberately
               doesn’t measure who uses what, so we only hear what you tell us.
@@ -1235,3 +1236,7 @@ const parts = [
     </div>
   </article>
 </Layout>
+
+<script>
+  import "../../scripts/v2-frame.js";
+</script>

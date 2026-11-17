@@ -1729,7 +1729,9 @@ a.desk-item__highlight:hover {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
+  /* --grip-x: where the Notebook's line draws itself, the space between the
+     sheet and the Notebook (widths.js). */
+  left: var(--grip-x, 50%);
   width: 1px;
   transform: translateX(-50%);
   background: rgba(var(--ink-rgb), 0.28);
@@ -1745,7 +1747,7 @@ a.desk-item__highlight:hover {
    height), or mid-window while the handle has keyboard focus. */
 .desk-gutter__grip {
   position: absolute;
-  left: 50%;
+  left: var(--grip-x, 50%);
   top: var(--grip-y, 50%);
   width: 6px;
   height: 32px;
@@ -1757,10 +1759,21 @@ a.desk-item__highlight:hover {
   transition: opacity 120ms ease;
 }
 
+/* The text's line shows its grip while the pointer is on the bare page
+   anywhere in the sheet's left margin (E137; widths.js sets the class, and
+   takes it off over a note, a note's circle, a Pin or a panel). It waits a
+   moment, so a pointer crossing the margin on its way to a note draws
+   nothing. */
+.desk-gutter--near .desk-gutter__grip {
+  opacity: 1;
+  transition-delay: 120ms;
+}
+
 .desk-gutter:hover .desk-gutter__grip,
 .desk-gutter:focus-visible .desk-gutter__grip,
 .desk-gutter--dragging .desk-gutter__grip {
   opacity: 1;
+  transition-delay: 0s;
 }
 
 .desk-gutter:focus-visible .desk-gutter__grip {

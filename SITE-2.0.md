@@ -236,7 +236,10 @@ of "Launching" in `src/scripts/desk/CLAUDE.md`):
    simply stay on: nothing here needs it gone.
 3. **Markup.** Delete every `data-v1` element; remove the `data-v2`
    attribute from the rest; delete the two display rules in Layout.astro's
-   critical CSS. Keep `data-pagefind-ignore` on a block that still repeats
+   critical CSS. In `SiteFooter.astro` put the newsletter's block ahead of
+   the groups', so the Tab key meets them in the order a tablet and a
+   narrower computer window draw them (the phone's and the wide window's
+   places are set by grid area and do not move). Keep `data-pagefind-ignore` on a block that still repeats
    words found elsewhere on its page (the rails, the Glossary's list,
    /read's grid).
 4. **Scripts.** Remove the stamp checks in `v2-frame.js`, `v2-glossary.js`,
@@ -426,13 +429,25 @@ Each is behind the stamp unless it says otherwise.
   desk on). The first group is "The LIT" because a group named "Read" over a
   link named "Read" reads twice. From a tablet up the groups sit in one row,
   each as wide as its words, spread across the room they have; the
-  newsletter is beside them from 1260px, where both fit, and under them
-  below that. A phone keeps two centered columns with the icons in a row
-  beneath. In OpenDyslexic the last group wraps to a second row on a
+  newsletter is beside them from 1260px, where both fit, and over them
+  below that (next item). A phone keeps two centered columns with the icons
+  in a row beneath. In OpenDyslexic the last group wraps to a second row on a
   computer, and a computer's window drawn in under 520px takes one column.
   The first build packed the groups at the left and set the icons two by
   two to keep Connect narrow; BVJ: "The Connect column looks squished," and
   "I know it's leaving space for the newsletter signup, but still."
+- **The newsletter is never under the groups** (a tablet and up). The fix
+  above first put it under them below 1260px; BVJ: "I'm worried that the
+  newsletter signup will never be seen if it's under the footer nav." So
+  from 721px to 1259px it is one row across the footer, over the groups: its
+  heading and line at the left, its field and button at the right, a
+  hairline under it, and the groups run to the same right edge. The
+  markup's order is `main`'s (groups, then newsletter), so there the Tab
+  key reaches the groups first; "At launch," step 3, swaps the two blocks.
+  A phone is unchanged: the groups, then the newsletter, as on the live
+  site (asked of BVJ, not decided). On a page whose footer has no
+  newsletter (My Notebook, My sheets, Unsubscribe) the emptied block takes
+  no room and the groups have the whole width.
 - **Commitments: a contents column.** BVJ: "On /translation-commitments, add
   a TOC column like on /about for the 'How these commitments work together'
   sheet." The section is the page frame without a title block: the five
@@ -448,5 +463,48 @@ Each is behind the stamp unless it says otherwise.
   sentence added to BVJ's text), drawn as Home's arrow links are.
 - **The left adjuster** (the line that sets the text's width, beside the
   open Notebook): BVJ finds it hard to find inside the sheet and thinks it
-  "may be the least bad option." Logged as E137 in `STUDY-DESK-FIXES.md`,
-  open; nothing changed.
+  "may be the least bad option." Then: "Do your proposed E137 fix. Just note
+  that it shouldn't show when interacting with a margin note or note glyph."
+  Built: its grip shows while the pointer is on the bare page anywhere in
+  the sheet's left margin. E137 in `STUDY-DESK-FIXES.md` has the rules.
+- **The right adjuster** (between the text and the Notebook). BVJ: "The
+  right margin width adjuster has a similar problem, but not as bad. I think
+  the field of where the mouse is located when it becomes active is good,
+  but the location of the adjuster itself should be in that narrow space
+  between the sheet and the notebook panel." Its grip and hairline are drawn
+  in that space now; where it answers the pointer is unchanged. E139 there.
+- **The page loading with the Notebook open** moves left a moment after it
+  draws, in a window under about 1280px. BVJ: "The current load time for the
+  Notebook panel makes clicking through chapter pages shift back and forth
+  as it loads without the notebook and then a second later adds the
+  notebook." `main` does the same; E138 there. Its fix belongs on `main`
+  and is its own piece of work (started by BVJ the same day), not this
+  branch's.
+- **The Study Desk's own pages.** BVJ: "While I look at it, review the other
+  pages we didn't review (the ones related to Study Desk) for this 2.0
+  redesign," and "It likely won't need as much change because we partly
+  based the changes on the Study Desk styles, but it's worth a consistency
+  pass." /desk and the Notebook beside a chapter already matched. Claude
+  proposed bringing the three plain pages into line, and BVJ: "I agree with
+  your proposed alignment for Study Desk help, My Notebook, and My Sheets."
+  - *Study Desk help* (`v2/desk-help.css`) takes the page frame About and
+    Privacy have: the title under the sunshine bar, the text at their size
+    and width, each part's heading with the Marks, and the contents on a
+    sheet (a card under the title; a sticky rail from 1000px with the
+    "you are here" marker). Its contents have two levels, so the rail is
+    17rem, not 15rem, keeps the sizes BVJ set for it on 2026-11-13, and
+    scrolls on its own; `v2-frame.js` keeps the current item in view.
+    The page now has that one script (it had none; the page reads whole
+    without it, and `test/desk-help-page.test.js` holds it to that one).
+  - *My Notebook* (`v2/notebook.css`) and *My sheets*' list
+    (`v2/sheets.css`): the 2.0 title under the sunshine bar, the site's
+    wrap in place of a centered column of their own, so both start at the
+    left edge every other page shares, and ordinary buttons (the Notebook
+    page's flat outlines became the Raised button; the list's "New sheet…"
+    and "Import a sheet file" grew from the panes' compact size). Their
+    lists, fields and text sizes are the desk's, untouched.
+  - Not looked at, because the test browser's notebook is empty: a sheet's
+    own views (its versions on paper, the editor, present mode, a shared
+    sheet). `v2/sheets.css` touches only a view that carries the page's
+    title, so those are as they were. Not done: My Notebook's "On this
+    page" links as a rail, and its sections on a sheet.

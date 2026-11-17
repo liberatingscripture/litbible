@@ -38,7 +38,9 @@ From the root's project tree.
                      #   builder);
                      #   v2-frame, Site 2.0's "you are here" marker on a
                      #   contents rail (About, Privacy, the Commitments'
-                     #   longer text, the podcast's seasons): with the
+                     #   longer text, Study Desk help, where it also
+                     #   scrolls the long rail to the current item, the
+                     #   podcast's seasons): with the
                      #   restyle's stamp only, it sets
                      #   aria-current="location" on the link of the last
                      #   heading above the reading line;

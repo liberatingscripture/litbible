@@ -316,6 +316,90 @@
   }
 }
 
+/* Where the newsletter cannot sit beside the groups it goes over them, never
+   under: "I'm worried that the newsletter signup will never be seen if it's
+   under the footer nav" (BVJ, 2026-11-17). There it is one row across the
+   footer, its words at the left and its field at the right, with a hairline
+   between it and the groups. The markup's order is unchanged (it is main's
+   too), so the Tab key still reaches the groups first: swap the two blocks
+   in SiteFooter.astro at launch. The status lines take the full width under
+   the row; a sent form leaves its "Thanks" there. */
+@media (min-width: 721px) and (max-width: 1259px) {
+  :root[data-restyle] .footer-inner {
+    grid-template-areas: "right" "left";
+  }
+
+  :root[data-restyle] .footer-left {
+    grid-area: left;
+  }
+
+  :root[data-restyle] .footer-right {
+    grid-area: right;
+    justify-self: stretch;
+    align-items: stretch;
+  }
+
+  :root[data-restyle] .footer-right:has(.footer-newsletter) {
+    padding-bottom: 2.25rem;
+    border-bottom: 1px solid var(--v2-hairline);
+  }
+
+  /* The groups run to the same right edge as the row over them. */
+  :root[data-restyle] .footer-nav--v2 {
+    max-width: none;
+  }
+
+  :root[data-restyle] .footer-newsletter {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    column-gap: 2.5rem;
+    row-gap: 0.4rem;
+    align-items: start;
+  }
+
+  :root[data-restyle] .footer-newsletter > :is(.footer-newsletter__heading, .footer-newsletter__desc) {
+    grid-column: 1;
+  }
+
+  :root[data-restyle] .footer-newsletter__desc {
+    max-width: none;
+  }
+
+  :root[data-restyle] .footer-newsletter__form {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  :root[data-restyle] .footer-newsletter__row {
+    margin-top: 0;
+  }
+
+  :root[data-restyle] .footer-newsletter > :is(.footer-newsletter__message, noscript) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* A page with no newsletter in its footer (My Notebook, My sheets,
+   Unsubscribe): the emptied block takes no room, and the groups have the
+   footer's whole width at every size. */
+:root[data-restyle] .footer-right:not(:has(.footer-newsletter)) {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  :root[data-restyle] .footer-inner:not(:has(.footer-newsletter)) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "left";
+  }
+
+  :root[data-restyle] .footer-inner:not(:has(.footer-newsletter)) .footer-nav--v2 {
+    max-width: none;
+  }
+}
+
 /* A computer's window drawn in to a phone's width, in OpenDyslexic: with
    Study there the two centered columns are wider than the window (a phone
    has no Study group, so it is not met there). One column instead. */
