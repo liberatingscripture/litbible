@@ -170,8 +170,9 @@ unit's diff, applies shared changes in order, and commits unit by unit.
 |------|-------|
 | 0 Foundation | Done 2026-11-17. With the gate off, all 355 built pages match `main`'s (markup, and the 404 and About pages pixel for pixel at 375 and 1280px); with it on, the 404 page matches its mockup in both themes |
 | 1 Pages over stable markup | Done 2026-11-17. With the gate off, all 355 built pages match `main`'s markup (what is new and inert is listed under "What the build added or left different"), and the wave's sixteen pages match `main`'s pixel for pixel at 375 and 1280px (the articles index and one article differ only where a lazy picture or an embedded post had not loaded in one of the two captures). With it on, each page was compared with its mockup at 375 and 1280px in both themes. `npm test`, `npm run check`, a build, and `check:links` pass. Left for wave 4: the full width, font, and text-size matrix on every page |
-| 2 Pages with their own scripts | Started 2026-11-17 |
-| 3 and 4 | Not started |
+| 2 Pages with their own scripts | Done 2026-11-17: Home, the Glossary, and Search. Checked together with wave 3 (next row) |
+| 3 Scripture pages | Done 2026-11-17: the chapter, then the book introduction. With the gate off, all 355 built pages match `main`'s markup once 2.0's additions are taken out (Home's one `span` splits a sentence into two text nodes, with the same words), and Home, the Glossary, /search, three chapters, two introductions, and a Read View book match `main`'s build pixel for pixel at 375 and 1280px, with one exception: on Home at 1280px that `span` moves the two words before it by a sixty-fourth of a pixel (the text is shaped in two runs), which changes 347 pixels of their edges and nothing an eye can see. With it on, each page was compared with its mockup at 375 and 1280px in both themes, and each builder drove its page's controls with the gate on and off. `npm test`, `npm run check`, a build, and `check:links` pass. Left for wave 4: the full matrix, and keyboard focus rings on the new pieces with real key presses |
+| 4 The whole site together | Not started |
 
 Open for BVJ: whether the mockups should be archived in the repo (about 4 MB
 without their captures) so other machines and BDR can see them.
@@ -206,3 +207,61 @@ without the preview also receives (all of it inert there):
 - **The dev server** (`astro.config.mjs`): a server started inside a worktree
   watched nothing and could not serve its fonts; both are fixed there, and
   neither changes a build.
+
+Waves 2 and 3, the same two kinds of note. Each page's own module
+(`src/scripts/v2-<page>.js`) does nothing without the stamp.
+
+- **Glossary.** The left pane's list is new markup (`data-v2`, 47 links built
+  at build time); `v2-glossary.js` keeps it in the order of the page's sort
+  and marks the entry being read. The sort stays today's switch, restyled and
+  stacked, where the mockup draws two radio buttons: one control, one state.
+  "Back to top" on a phone appears after a scroll, as today. The page's own
+  stylesheet sets a lighter `--cream` on `:root`; 2.0 puts the site's cream
+  back (the page color row under "The system"). The hand-drawn ink under each
+  title is not drawn in the 2.0 look, and the desk's fit of long titles
+  (`glossary-titles.js`) finds nothing to do there.
+- **Home.** The header stays on the green band (the mockups' header is a
+  stand-in). The card's search field is the header's own, moved into the card
+  when the page starts, so Home's header has no search button in the 2.0
+  look, and the field keeps its words ("Search the LIT Bible"). The passage
+  (Luke 3:4–6), the key term's card ("liberation"), and "Latest change" are
+  built from the chapter file, the term lens, and the release notes at build
+  time, so none can drift from the text. The term card has no close button
+  (it is a picture of the tool, not the tool). The chat and the underline
+  under "really" keep their scroll-in animation. One `span` (`v2-home__hl`)
+  wraps the hero's highlighted words in both looks.
+- **Search.** The left pane is new markup (`data-v2`) in a new slot of
+  `SearchLayout` (`v2Pane`); `v2-search.js` moves the page's own sort,
+  filters, Greek extras, and passage picker into it when the page starts
+  (moved, never copied, so each stays one control), and draws "Result
+  groups" from the groups the page already builds. Page links are always
+  five numbers (`v2PageRange`). "Sort by:" keeps its colon and the picker
+  its book icon, since both are shared with today's page. The desk's "Add …
+  to a sheet" row stays sticky, as the desk has it.
+- **The scripture chapter.** No markup changed: the sheet is a painted layer
+  behind the text (`.scripture-main::before`) that follows the desk's own
+  measurements, so it widens with the margin notes and stops at the Notebook
+  ("two cards"). `v2-scripture.js` hides the phone's toolbar on a scroll
+  down and returns it on any scroll up (640px and under, the site's phone
+  breakpoint), by a `data-v2-bar` attribute on the toolbar. The Study Desk
+  pill leaves the row at 900px and under, where the desk does not run, and
+  Read View's pill is hidden ("Read View gives way to /desk"). The arrows
+  keep their 44px touch size. The Notebook's top edge sits 18px above the
+  title's box, since the title is smaller than today's.
+  **Open for BVJ:** the mockup draws the chapter's arrows, Previous and
+  Next, and "Back to top" as quiet controls; the restyle (E132) made them
+  green primaries, and the build has left them green until BVJ says.
+- **The book introduction.** The rail ("On this page") is new markup
+  (`data-v2`) on an intro with two or more headings; a draft has none. Its
+  links need targets, so each intro `h2` now has an `id` made from its words
+  (`main-themes`, `structure`, `key-passages`,
+  `takeaways-on-liberation-and-inclusion`), in both looks. The rail sits in
+  the margin "from 1270px" at Small and Medium text; at Large it starts at
+  1340px and at Extra large at 1440px, because the sheet grows with the text
+  and the rail would otherwise leave the window. Below that it is a row of
+  links under the title, as on a phone. The page imports `v2-frame.js` for
+  the "you are here" marker.
+- **The scripture pages' line is the site's, not the mockups'.** The mockups
+  drew a text column about 680px wide; the build keeps the reading measure
+  the preview already has (52, BVJ 2026-10-05; 48 beside an open Notebook),
+  so the sheet is as wide as that line plus its padding.

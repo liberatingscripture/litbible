@@ -41,6 +41,14 @@ From the root's project tree.
                      #   seasons): with the restyle's stamp only, it sets
                      #   aria-current="location" on the link of the last
                      #   heading above the reading line;
+                     #   v2-glossary, v2-search and v2-scripture, each a
+                     #   2.0 page's own module, inert without the stamp:
+                     #   the Glossary's left list (its order and marker),
+                     #   /search's left pane (it MOVES the page's sort,
+                     #   filters and picker into the pane, never copies
+                     #   them, and draws "Result groups"), and the phone
+                     #   toolbar's hide on a scroll down and return on a
+                     #   scroll up on scripture pages;
                      #   desk-gate + desk/, the Study Desk preview (its
                      #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;

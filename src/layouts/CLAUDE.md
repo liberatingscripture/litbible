@@ -43,3 +43,13 @@
   shows only with the restyle's stamp, and no `data-search-toggle`, so
   `header-search.js` leaves it alone. The articles index and the article
   page pass it.
+- **Site 2.0 adds to two layouts, and both additions are inert without the
+  restyle's stamp** (`SITE-2.0.md`). `ScriptureLayout` imports
+  `v2/scripture.css` and a bundled `v2-scripture.js`: the scripture sheet is
+  a painted layer (`.scripture-main::before`), so no markup changed, and on
+  a phone the toolbar hides on a scroll down and returns on any scroll up
+  (BVJ, 2026-11-17), by a `data-v2-bar` attribute the module sets on
+  `.scripture-tools`. That module may be bundled where the `data-compact`
+  script above may not: it changes nothing before the first scroll.
+  `SearchLayout` has a `v2Pane` slot between the toolbar and the results,
+  which /search fills with its left pane (`data-v2`).
