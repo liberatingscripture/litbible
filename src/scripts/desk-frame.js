@@ -130,7 +130,9 @@ export function readingSurface(doc = document) {
 // What Layout.astro's pre-paint script and src/scripts/desk/margin.js put on
 // <html> for the Notebook.
 const DESK_ATTRS = ["data-desk", "data-desk-panel", "data-desk-expanded", "data-desk-widths", "data-desk-no-notebook"];
-const DESK_PROPS = ["--desk-measure", "--desk-width", "--desk-dock-width", "--desk-bar-center"];
+// --desk-move is MOVE_PROP in src/lib/desk-margin.mjs, written out because
+// this file imports no desk module; test/desk-frame.test.js holds the two.
+const DESK_PROPS = ["--desk-measure", "--desk-width", "--desk-dock-width", "--desk-bar-center", "--desk-move"];
 
 /**
  * Put the page back as it is without the desk, when the desk's code didn't
@@ -138,8 +140,9 @@ const DESK_PROPS = ["--desk-measure", "--desk-width", "--desk-dock-width", "--de
  * start (BA29). The pre-paint stamps had already narrowed the column and
  * shown the Notebook buttons, which then did nothing; with them gone the
  * page is the ordinary reader's page, its buttons hidden (global.css). Also
- * takes away the rail and the width handles, and the column's move left, in
- * case the Notebook got that far, and the tray rows stage one added.
+ * takes away the rail and the width handles, and the column's move left
+ * (stamped before paint, E137, or the Notebook's own if it got that far),
+ * and the tray rows stage one added.
  */
 export function standDown(doc = document) {
   const root = doc.documentElement;

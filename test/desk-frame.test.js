@@ -15,9 +15,27 @@ import {
   ALL_SURFACES, MIN_PANEL_ROOM, PROSE_NOTES, READING_SURFACES, hasPanel, panelRoom, readingSurface, shiftClearOfDock, standDown,
 } from "../src/scripts/desk-frame.js";
 import { PROSE_NOTES as NOTES_SWITCH } from "../src/scripts/desk/page-kind.js";
+import { MOVE_PROP } from "../src/lib/desk-margin.mjs";
 
 const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
 const rule = /body:not\(:has\(([^)]*)\)\)\s*button\[data-desk-toggle\]/.exec(css);
+
+// E137: the column's move left is stamped before first paint (Layout.astro)
+// as MOVE_PROP, and global.css draws it on the elements margin.js would move.
+// Those are named in two places for the same reason as above, so a page whose
+// `move` list changed without the rule would paint unmoved and then jump.
+test("global.css draws the stamped move on Chapter View's move elements, and nothing without a stamp (E137)", () => {
+  const plain = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const drawn = /([^{}]+)\{\s*translate:\s*var\((--[\w-]+),\s*([^)]+)\);\s*\}/.exec(plain);
+  assert.ok(drawn, "the rule that draws the stamped move wasn't found in global.css; update this test with it");
+  assert.equal(drawn[2], MOVE_PROP);
+  // No stamp, no translate at all: a zero translate would still make the
+  // column a containing block and a stacking context, which it never was.
+  assert.equal(drawn[3].trim(), "none");
+  const selectors = drawn[1].split(",").map((s) => s.trim());
+  // Only while the notebook is expanded, the one state the script stamps.
+  assert.deepEqual(selectors, READING_SURFACES[0].move.map((sel) => `html[data-desk][data-desk-expanded] ${sel}`));
+});
 
 test("global.css hides the Notebook button on exactly the pages READING_SURFACES leaves out", () => {
   assert.ok(rule, "the :has() rule wasn't found in global.css; update this test with it");
@@ -166,7 +184,9 @@ function deskPage(surface = ".scripture-layout--scripture .scripture-main") {
     ["data-desk-no-notebook", ""], ["data-theme", "dark"], ["data-size", "lg"],
   ]);
   const props = new Map([
-    ["--desk-measure", "50"], ["--desk-width", "360px"], ["--desk-dock-width", "380px"], ["--desk-bar-center", "400px"], ["color-scheme", "dark"],
+    ["--desk-measure", "50"], ["--desk-width", "360px"], ["--desk-dock-width", "380px"], ["--desk-bar-center", "400px"],
+    [MOVE_PROP, "-104px 0"], // the move stamped before paint (E137)
+    ["color-scheme", "dark"],
   ]);
   const removed = [];
   const el = (name) => ({ name, style: { translate: "-40px 0" }, remove: () => removed.push(name) });

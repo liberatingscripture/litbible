@@ -43,6 +43,14 @@
 // reader's line is held, keepReadingPlace); an earlier rule that they never
 // move it, made 2026-10-09, is withdrawn.
 //
+// A Chapter View chapter opening with the notebook expanded is already moved
+// when this loads (E137): Layout.astro's pre-paint script works out the move
+// the first placement will make (firstPaint, desk-margin.mjs) and stamps it
+// as --desk-move, which global.css draws, so the page paints once, in place,
+// rather than centered and then moved. The rail takes that move over as it
+// is made (takeOverMove): the same translate, now its own, and the stamp
+// gone, so every later move and the move back are this file's as before.
+//
 // On a Chapter View chapter, with the notebook in the margin, the reader can
 // drag the widths of their notes' margin, the LIT and the notebook
 // (widths.js). With widths kept, those place everything instead: the
@@ -62,6 +70,7 @@
 import {
   EDGE,
   KEEP_LEFT,
+  MOVE_PROP,
   TAB_EDGE,
   TAB_WIDTH,
   nextCollapsed,
@@ -145,7 +154,9 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
   const floatEdge = createFloatResize(panel, () => place());
 
   let open = false;
-  let shift = 0;
+  // How far left the column is moved, in px: the move the page was painted
+  // with, where the pre-paint script stamped one (E137), else none yet.
+  let shift = takeOverMove();
   // Floating (the margin can't hold the panel) and collapsed to its tab.
   // `opening` is the reader pressing Notebook, which asks to see it.
   let floating = false;
@@ -204,6 +215,22 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
   function setExpanded(on) {
     if (root.hasAttribute("data-desk-expanded") === on) return;
     keepReadingPlace(() => root.toggleAttribute("data-desk-expanded", on));
+  }
+
+  /**
+   * Take over the move the page was painted with (E137): Layout.astro's
+   * pre-paint script stamps it on <html> as MOVE_PROP, a translate that
+   * global.css draws on a chapter's column. It becomes this rail's own
+   * inline translate, in the same task, so nothing moves, and the stamp
+   * goes, so setShift's "" really is no move. Returns how far left that
+   * is, in px; 0 with no stamp, or on a page the stamp isn't drawn on.
+   */
+  function takeOverMove() {
+    const stamped = -parseFloat(root.style.getPropertyValue(MOVE_PROP));
+    root.style.removeProperty(MOVE_PROP);
+    if (!studyColumn || !root.hasAttribute("data-desk-expanded") || !(stamped > 0)) return 0;
+    for (const el of moveEls) el.style.translate = `${-stamped}px 0`;
+    return stamped;
   }
 
   function setShift(next) {
