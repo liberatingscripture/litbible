@@ -2,8 +2,10 @@
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { scanDraftChapters, scanDraftIntros } from './src/lib/draft-chapters.mjs';
 
 // Chapter slugs marked "indexed": false (in-progress drafts) are noindex'd,
@@ -15,6 +17,25 @@ import { scanDraftChapters, scanDraftIntros } from './src/lib/draft-chapters.mjs
 const { noindexSlugs, fullyDraftBooks } = scanDraftChapters();
 // Placeholder book intros are noindex'd the same way (see scanDraftIntros).
 const draftIntroSlugs = new Set([...scanDraftIntros()].map((book) => `${book}-intro`));
+
+// Two facts about where this checkout is, for the dev server (see `vite`
+// below). A session's worktree lives at .claude/worktrees/<name>/ inside the
+// main checkout and borrows its node_modules, so neither is where a plain
+// checkout has it.
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const slashed = (/** @type {string} */ file) => String(file).split(path.sep).join('/').toLowerCase();
+const ownClaudeDir = slashed(path.join(projectRoot, '.claude'));
+const inOwnClaudeDir = (/** @type {string} */ file) => {
+  const f = slashed(file);
+  return f === ownClaudeDir || f.startsWith(`${ownClaudeDir}/`);
+};
+// The node_modules in use: this checkout's, or the nearest one above it.
+let modulesHome = projectRoot;
+while (!fs.existsSync(path.join(modulesHome, 'node_modules', 'astro'))) {
+  const up = path.dirname(modulesHome);
+  if (up === modulesHome) { modulesHome = projectRoot; break; }
+  modulesHome = up;
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -76,9 +97,17 @@ export default defineConfig({
     // Sessions keep their worktrees under .claude/worktrees/, each a whole
     // copy of the repo with its own dist/. Watching them made the dev server
     // crawl dozens of copies at start (two minutes, and a content-config
-    // timeout) and reload on another session's build.
+    // timeout) and reload on another session's build. The rule names THIS
+    // checkout's .claude only: as '**/.claude/**' it also matched every file
+    // of a dev server started inside a worktree, which then watched nothing
+    // and went on serving each file as it was first read.
+    // fs.allow: a worktree's fonts come from the main checkout's
+    // node_modules, outside its own root, and Vite refused to serve them
+    // ("outside of Vite serving allow list"), so its pages drew in fallback
+    // faces. In a plain checkout both entries are inside the root already.
     server: {
-      watch: { ignored: ['**/.claude/**'] },
+      watch: { ignored: [inOwnClaudeDir] },
+      fs: { allow: [projectRoot, path.join(modulesHome, 'node_modules')] },
     },
   },
 });
