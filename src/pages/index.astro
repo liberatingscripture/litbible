@@ -1,9 +1,175 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/home.css";
+import "../styles/v2/home.css";
 import LscMark from "../components/LscMark.astro";
 import ContinueReading from "../components/ContinueReading.astro";
+import ReadMenu from "../components/ReadMenu.astro";
+import EmblemMark from "../components/EmblemMark.astro";
 import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-normal.woff2";
+import { getCollection } from "astro:content";
+import releaseNotes from "../data/release-notes.json";
+import { entryIds } from "../lib/release-notes-view.mjs";
+import { termLensFor } from "../lib/term-lens-data.mjs";
+import { markOrigin } from "../lib/term-words.mjs";
+import { htmlToPlainText, splitChapterVerses } from "../../scripts/lib/verse-text.mjs";
+import luke3 from "../data/chapters/luke-3.json";
+
+// ── Site 2.0 only (data-v2; SITE-2.0.md, "Home") ─────────────────────────
+// Everything below is built from the site's own data, so it stays true when
+// the translation, the glossary or the release notes change.
+
+// "Latest change": the newest release-notes entry, its date without the year
+// and the places it names (a description's label before " — "), then a link
+// to /release-notes. More than two places would crowd the line, so then only
+// the date shows.
+const latestNote = (releaseNotes as any[])[0];
+const latestId = latestNote ? entryIds(releaseNotes)[0] : "";
+const latestDate = latestNote ? String(latestNote.label).replace(/,\s*\d{4}$/, "") : "";
+const latestPlaces: string[] = latestNote
+  ? [...new Set<string>(latestNote.changes.map((c: any) => String(c.description).split(" — ")[0].trim()))]
+  : [];
+const latestLine = [latestDate, ...(latestPlaces.length <= 2 ? latestPlaces : [])]
+  .filter(Boolean)
+  .join(" · ");
+
+// The passage the chat lands on: the poetry block of Luke 3 that holds verse
+// 6, "all humanity will see the liberation of God," as published, with its
+// footnote letters and ids left off. Its key terms are the term lens's own
+// marks (term-lens-data.mjs), and the one the chat names ("liberation")
+// carries the lens's card, written out here.
+const PASSAGE_BOOK = "luke";
+const PASSAGE_CHAPTER = 3;
+const PASSAGE_VERSE = 6;
+const LANDING_WORD = "liberation";
+const passageParas: string[] = (luke3 as any).paragraphs ?? [];
+const blockAt = passageParas.findIndex(
+  (p) => /^<blockquote\b/.test(p) && new RegExp(`<sup\\b[^>]*\\bid="v${PASSAGE_VERSE}"`).test(p),
+);
+const verseIdsIn = (html: string) => [...html.matchAll(/<sup\b[^>]*\bid="v(\d+)"/g)].map((m) => Number(m[1]));
+
+type PassageCard = {
+  id: string;
+  word: string;
+  traditional: string[];
+  greek: string[];
+  same: boolean;
+  also: string;
+  title: string;
+};
+
+let passageHtml = "";
+let passageRef = "";
+let passageCard: PassageCard | null = null;
+
+if (blockAt >= 0) {
+  const block = passageParas[blockAt];
+  const before = passageParas.slice(0, blockAt).join(" ");
+  const ownIds = verseIdsIn(block);
+  // A block that opens mid-verse continues the last verse before it.
+  const opensMidVerse = !/^<blockquote\b[^>]*>(?:<p\b[^>]*>)?(?:<span class="vglue">)?<sup\b[^>]*\bid="v\d+"/.test(block);
+  const priorIds = verseIdsIn(before);
+  const firstVerse = opensMidVerse ? priorIds[priorIds.length - 1] : ownIds[0];
+  const lastVerse = ownIds[ownIds.length - 1];
+  passageRef = `Luke ${PASSAGE_CHAPTER}:${firstVerse}${lastVerse !== firstVerse ? `–${lastVerse}` : ""}`;
+
+  const html = block
+    .replace(/<sup\b[^>]*class="fn-ref"[^>]*>[\s\S]*?<\/sup>/g, "")
+    .replace(/\s+id="[^"]*"/g, "")
+    .replace(/&nbsp;/g, " ");
+
+  // The block as tags and text, each text piece knowing its verse.
+  const segs: { tag: boolean; s: string; v: number }[] = [];
+  let verse = firstVerse;
+  let inVn = false;
+  for (const s of html.split(/(<[^>]+>)/)) {
+    if (!s) continue;
+    if (s.startsWith("<")) {
+      if (/^<sup\b[^>]*\bclass="vn"/.test(s)) inVn = true;
+      else if (s === "</sup>") inVn = false;
+      segs.push({ tag: true, s, v: verse });
+    } else {
+      if (inVn) verse = Number(s.trim()) || verse;
+      segs.push({ tag: inVn, s, v: verse });
+    }
+  }
+
+  const countIn = (hay: string, needle: string) => {
+    let n = 0;
+    for (let i = hay.indexOf(needle); i !== -1; i = hay.indexOf(needle, i + 1)) n++;
+    return n;
+  };
+
+  const entries = new Map(
+    (await getCollection("glossary"))
+      .filter((e) => !e.data.draft)
+      .map((e) => [e.data.id, e.data]),
+  );
+  const lens = termLensFor(PASSAGE_BOOK, PASSAGE_CHAPTER, passageParas, entries as any);
+  const verses = splitChapterVerses(passageParas);
+  const wraps: { seg: number; at: number; len: number; open: boolean }[] = [];
+  let landing: any = null;
+
+  for (const mark of lens.marks as any[]) {
+    if (mark.v < firstVerse || mark.v > lastVerse) continue;
+    const needle = String(mark.text).replace(/\s+/g, " ").toLowerCase();
+    // Occurrences of this verse that fall before the block.
+    let prior = 0;
+    if (mark.v === firstVerse && opensMidVerse) {
+      const from = before.lastIndexOf(`id="v${mark.v}"`);
+      const head = htmlToPlainText(before.slice(from).replace(/^[^>]*>\d+<\/sup>/, "")).toLowerCase();
+      prior = countIn(head, needle);
+      if (!verses.has(mark.v)) continue;
+    }
+    let want = mark.k - prior;
+    if (want < 0) continue;
+    for (let i = 0; i < segs.length && want >= 0; i++) {
+      const sg = segs[i];
+      if (sg.tag || sg.v !== mark.v) continue;
+      const low = sg.s.toLowerCase();
+      for (let at = low.indexOf(needle); at !== -1; at = low.indexOf(needle, at + 1)) {
+        if (want-- > 0) continue;
+        const clash = wraps.some((w) => w.seg === i && at < w.at + w.len && w.at < at + needle.length);
+        if (!clash) {
+          const open = !landing && needle === LANDING_WORD;
+          if (open) landing = { mark, word: sg.s.slice(at, at + needle.length) };
+          wraps.push({ seg: i, at, len: needle.length, open });
+        }
+        break;
+      }
+    }
+  }
+
+  // Wrap from the end, so an earlier position in a piece never moves.
+  wraps.sort((a, b) => b.seg - a.seg || b.at - a.at);
+  for (const w of wraps) {
+    const s = segs[w.seg].s;
+    const cls = w.open ? "v2-home__term v2-home__term--open" : "v2-home__term";
+    segs[w.seg].s = `${s.slice(0, w.at)}<span class="${cls}">${s.slice(w.at, w.at + w.len)}</span>${s.slice(w.at + w.len)}`;
+  }
+  passageHtml = segs.map((sg) => sg.s).join("");
+
+  if (landing) {
+    const term = (lens.terms as any)[landing.mark.id];
+    const from = markOrigin(term, landing.mark);
+    const others = (term.renderings ?? [])
+      .filter((r: any) => r.form.toLowerCase() !== String(landing.mark.form).toLowerCase())
+      .slice(0, 4);
+    passageCard = {
+      id: landing.mark.id,
+      word: landing.word,
+      traditional: from.traditional,
+      greek: from.greek,
+      same: from.traditional.length === 1 && from.traditional[0].toLowerCase() === landing.word.toLowerCase(),
+      also: others.map((r: any) => `${r.form} (${r.count})`).join(", "),
+      title: term.title,
+    };
+  }
+}
+
+// "faith or believe", as the term lens's card lists more than one word.
+const listJoin = (words: string[], i: number) =>
+  i === 0 ? "" : words.length === 2 ? " or " : i === words.length - 1 ? ", or " : ", ";
 ---
 
 <Layout
@@ -63,11 +229,13 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
         ></path>
       </svg>
 
+      <EmblemMark class="v2-home__emblem" />
+
       <div class="hero-content">
         <div class="hero-inner">
           <p class="hero-lead">
-            The Bible is a library of sacred literature from oppressed &amp;
-            marginalized communities.
+            The Bible is a library of sacred literature from <span class="v2-home__hl">oppressed &amp;
+            marginalized communities.</span>
           </p>
 
           <p class="hero-question">
@@ -100,6 +268,68 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
       <p class="title-small title-sub">of the Christian Scriptures</p>
 
       <ContinueReading class="title-continue" />
+
+      {/* Site 2.0: the card's one row (BVJ: "Home card row: 1 row"): the
+          passage picker, the search field, and the Study Desk. The picker
+          waits in a template and the field is the header's own SearchBar
+          (one per page; its ids are fixed), both put in place by the script
+          below, with the stamp only. The Study Desk link shows only while
+          the desk runs (ReadMenu's rule for .read-menu__desk), as on /read. */}
+      <div class="v2-home__actions" data-v2 data-v2-home-row>
+        <div class="v2-home__picker" data-v2-home-picker-slot>
+          <template data-v2-home-picker><ReadMenu /></template>
+        </div>
+        <div class="v2-home__search" data-v2-home-search-slot></div>
+        <a class="read-menu__desk v2-home__desk" href="/desk/">
+          <svg class="read-menu__icon" viewBox="0 0 24 24" width="1em" height="1em" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
+            <path d="M14.5 4h3l2.5 6h-8z" />
+            <path d="M16 13.5v2" />
+          </svg>
+          <span>Study Desk</span>
+        </a>
+      </div>
+
+      {latestLine && (
+        <p class="v2-home__latest" data-v2 data-pagefind-ignore>
+          Latest change: {latestLine} · <a href="/release-notes/">Release Notes</a>
+        </p>
+      )}
+
+      {/* Site 2.0, with the stamp only (Layout.astro sets it before first
+          paint, so this runs before the row is drawn): the picker is made
+          from its template, and the header's SearchBar moves into the row.
+          The header's search buttons are hidden with the stamp (v2/home.css),
+          since the page now has its own field, and "/" (the
+          lit:search-open event) is answered here by focusing that field
+          rather than opening the header's emptied strip. Without the stamp
+          this does nothing at all. */}
+      <script is:inline>
+        (() => {
+          if (!document.documentElement.hasAttribute("data-restyle")) return;
+          const row = document.querySelector("[data-v2-home-row]");
+          if (!row) return;
+          const tpl = row.querySelector("template[data-v2-home-picker]");
+          const pickerSlot = row.querySelector("[data-v2-home-picker-slot]");
+          if (tpl && pickerSlot) pickerSlot.append(tpl.content.cloneNode(true));
+          const bar = document.querySelector("#headerSearch [data-searchbar]");
+          const searchSlot = row.querySelector("[data-v2-home-search-slot]");
+          if (!bar || !searchSlot) return;
+          searchSlot.append(bar);
+          const input = bar.querySelector("input[type='search']");
+          window.addEventListener(
+            "lit:search-open",
+            (event) => {
+              event.stopImmediatePropagation();
+              input?.focus({ preventScroll: true });
+              input?.scrollIntoView({ block: "nearest" });
+            },
+            true,
+          );
+        })();
+      </script>
     </div>
   </section>
 
@@ -153,7 +383,7 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
           href="/read"
           aria-label="Read the Liberation and Inclusion Translation now"
         >
-          <span>Read Now</span>
+          <span><span data-v1>Read Now</span><span data-v2 data-pagefind-ignore>Read now</span></span>
         </a>
       </div>
     </div>
@@ -226,6 +456,31 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
           <p>Exactly! Did you scroll ahead or something?</p>
         </div>
       </div>
+
+      {/* Site 2.0: the passage the chat lands on, beside it (built above). */}
+      {passageHtml && (
+        <div class="v2-home__sample" data-v2 data-pagefind-ignore>
+          <div class="v2-home__sample-head">
+            <p class="v2-label">From the LIT · {passageRef}</p>
+            <a class="v2-home__arrow" href={`/${PASSAGE_BOOK}-${PASSAGE_CHAPTER}`}>Read Luke {PASSAGE_CHAPTER} →</a>
+          </div>
+          <div class="v2-home__passage" set:html={passageHtml} />
+          {passageCard && (
+            <div class="v2-home__card" role="group" aria-label={`Key term: ${passageCard.word}`}>
+              <p class="v2-home__card-word">{passageCard.word}</p>
+              <p class="v2-home__card-origin">
+                {passageCard.traditional.length > 0 && !passageCard.same && (
+                  <>Traditionally {passageCard.traditional.map((w, i) => (<>{listJoin(passageCard!.traditional, i)}<em>{w}</em></>))} · </>
+                )}Greek {passageCard.greek.map((w, i) => (<>{listJoin(passageCard!.greek, i)}<em>{w}</em></>))}
+              </p>
+              {passageCard.also && (
+                <p class="v2-home__card-also">Also rendered: {passageCard.also}</p>
+              )}
+              <a class="v2-home__arrow v2-home__card-jump" href={`/glossary/#${passageCard.id}`}>{passageCard.title} in the glossary →</a>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   </section>
 
@@ -330,7 +585,7 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
         </article>
 
         <!-- Card 3 -->
-        <article class="question-card">
+        <article class="question-card v2-home__q--thumb">
           <div class="question-card__media">
             <img
               src="/images/fit-cover.webp"
@@ -361,7 +616,7 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
         </article>
 
         <!-- Card 4 -->
-        <article class="question-card">
+        <article class="question-card v2-home__q--thumb">
           <div class="question-card__media question-card__media--mark">
             <LscMark
               size={600}
@@ -419,7 +674,7 @@ import frauncesLatin500Url from "@fontsource/fraunces/files/fraunces-latin-500-n
         </article>
 
         <!-- Card 6 -->
-        <article class="question-card">
+        <article class="question-card v2-home__q--thumb">
           <div class="question-card__media">
             <img
               src="/assets/images/lit-app-icon-ios.webp"
