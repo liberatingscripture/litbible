@@ -113,6 +113,16 @@ Not part of 2.0: /apps (mirrored), the Study Desk's own pages (the guide), Read
 View (retiring), and App support's thank-you page beyond what it shares with
 Contact's.
 
+**The header and footer in the mockups are stand-ins** (`mock.js` draws a
+shortened pair on every page; its footer says so). The build keeps the site's
+own header and footer as the restyle draws them (E132) and changes them only
+where a decision names them: the two labels, the search button on the articles
+index, and the scripture pages' toolbar row. A page is compared with its
+mockup from the header's bottom edge to the footer's top. Open for BVJ: the
+mockups' header is quieter than the restyle's (sentence-case menus, a green
+"Read now" in place of the dark one); whether the real header should take that
+look was never asked.
+
 ## The order of work, and who does it
 
 Subagents by fit (BVJ, 2026-11-17: up to four Opus, six Sonnet, and four Haiku
@@ -158,8 +168,9 @@ unit's diff, applies shared changes in order, and commits unit by unit.
 
 | Wave | State |
 |------|-------|
-| 0 Foundation | Started 2026-11-17 |
-| 1 to 4 | Not started |
+| 0 Foundation | Done 2026-11-17. With the gate off, all 355 built pages match `main`'s (markup, and the 404 and About pages pixel for pixel at 375 and 1280px); with it on, the 404 page matches its mockup in both themes |
+| 1 Pages over stable markup | Started 2026-11-17 |
+| 2 to 4 | Not started |
 
 Open for BVJ: whether the mockups should be archived in the repo (about 4 MB
 without their captures) so other machines and BDR can see them.

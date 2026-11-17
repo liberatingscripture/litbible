@@ -1,0 +1,227 @@
+/* Site 2.0: the shared system (SITE-2.0.md, "The system"). The rest of the
+   site redrawn in the Study Desk's grammar, behind the same stamp as the
+   restyle (E132): Layout.astro's pre-paint script sets data-restyle while the
+   Study Desk preview is on, so a reader sees none of this until launch.
+
+   The rules of this folder (SITE-2.0.md, "Ground rules"; checked by
+   test/site2-css.test.js):
+   - Every selector begins :root[data-restyle]. Dark values name both
+     selectors, the OS one guarded by :not([data-theme="light"]) and the
+     forced one, with the same declarations.
+   - This file holds tokens and the parts every page shares: the sheet, the
+     Marks, the quiet label, the watermark, and the page frame. A page's own
+     rules go in v2/<page>.css, imported by that page after its own styles.
+   - Markup that exists only for 2.0 carries data-v2, markup it replaces
+     carries data-v1; the two display rules that hide them are in Layout.astro's
+     critical CSS, so nothing flashes.
+   - Columns use --ch, never the ch unit; focus rings are the site's own
+     (--focus-ring), never removed.
+
+   It loads after restyle.css and reuses its tokens (--desk-card,
+   --desk-card-edge, and the button tokens) rather than declaring them again. */
+
+/* ── Tokens ───────────────────────────────────────────────────── */
+/* The accents are named by role; a page names a role, never a color.
+   Ocean is only where BVJ has approved it (so far the home chat's answers). */
+:root[data-restyle] {
+  --v2-sky: #A8D8EE;
+  --v2-sun: #FFD23F;
+  --v2-ocean: #155E82;
+  --v2-bar: var(--v2-sun);
+  --v2-marker: var(--green-text);
+  --v2-label: rgba(var(--ink-rgb), 0.7);
+  --v2-tint: var(--v2-sky);
+  --v2-tint-edge: transparent;
+  --v2-tint-text: var(--ink);
+  --v2-hairline: rgba(var(--ink-rgb), 0.16);
+  --v2-sheet-width: 811px;
+  --v2-wrap: 1120px;
+  --v2-gutter: 0px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-restyle]:not([data-theme="light"]) {
+    --v2-tint: #17384A;
+    --v2-tint-text: #F0F0F0;
+  }
+}
+
+:root[data-restyle][data-theme="dark"] {
+  --v2-tint: #17384A;
+  --v2-tint-text: #F0F0F0;
+}
+
+/* ── The sheet ────────────────────────────────────────────────── */
+/* The card color on the cream, flat. Its padding and width are the page's
+   (--v2-sheet-width is the widest a reading sheet goes). */
+:root[data-restyle] .v2-sheet {
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+  box-shadow: none;
+}
+
+/* Edge to edge on a phone: the page sets --v2-gutter to the side padding the
+   sheet sits in, and the sheet steps out over it. */
+@media (max-width: 599px) {
+  :root[data-restyle] .v2-sheet--bleed {
+    margin-inline: calc(-1 * var(--v2-gutter));
+    border-inline: 0;
+    border-radius: 0;
+  }
+}
+
+/* ── The Marks ────────────────────────────────────────────────── */
+/* The sunshine bar over a page's title block (or the title itself). */
+:root[data-restyle] .v2-bar::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 6px;
+  margin-bottom: 18px;
+  border-radius: 3px;
+  background: var(--v2-bar);
+}
+
+/* A section heading in running text: a hairline above it, and a short
+   text-green marker at its start. The space above the line is the page's. */
+:root[data-restyle] .v2-rule {
+  position: relative;
+  padding-top: 0.95em;
+  border-top: 1px solid var(--v2-hairline);
+}
+
+:root[data-restyle] .v2-rule::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 44px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--v2-marker);
+}
+
+/* ── The quiet label ──────────────────────────────────────────── */
+/* Lists and cards take this instead of the Marks: sentence case, small, the
+   ink at 0.7. A control-like label, so its size stays fixed. */
+:root[data-restyle] .v2-label {
+  color: var(--v2-label);
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* ── The watermark ────────────────────────────────────────────── */
+/* The emblem's mark alone (EmblemMark.astro), faint, on a computer only. The
+   page sets its size. */
+:root[data-restyle] .v2-watermark {
+  display: none;
+  flex: none;
+  max-width: none;
+  fill: rgb(var(--ink-rgb));
+  opacity: 0.1;
+}
+
+@media (min-width: 900px) {
+  :root[data-restyle] .v2-watermark {
+    display: block;
+  }
+}
+
+/* ── The page frame ───────────────────────────────────────────── */
+/* A title block (__head), a contents list (__toc), and the text (__text).
+   Under 1000px the contents is a small card of links under the title; from
+   1000px it is a column on a sheet beside the text, which keeps the reading
+   line. Put the page's text size on .v2-frame itself, so --reading-width
+   follows it. The current item carries aria-current. */
+:root[data-restyle] .v2-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:root[data-restyle] .v2-frame__head {
+  grid-row: 1;
+}
+
+:root[data-restyle] .v2-frame__toc {
+  grid-row: 2;
+  margin-top: 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--desk-card-edge);
+  border-radius: 10px;
+  background: var(--desk-card);
+}
+
+:root[data-restyle] .v2-frame__text {
+  grid-row: 3;
+  min-width: 0;
+}
+
+:root[data-restyle] .v2-frame__toc :is(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:root[data-restyle] .v2-frame__toc a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+:root[data-restyle] .v2-frame__toc a:hover {
+  text-decoration: underline;
+}
+
+:root[data-restyle] .v2-frame__toc a[aria-current] {
+  color: var(--text-strong);
+}
+
+@media (min-width: 1000px) {
+  :root[data-restyle] .v2-frame {
+    grid-template-columns: 15rem minmax(0, var(--reading-width));
+    grid-template-rows: auto 1fr;
+    justify-content: start;
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  :root[data-restyle] .v2-frame__head {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  :root[data-restyle] .v2-frame__text {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  :root[data-restyle] .v2-frame__toc {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    margin-top: 0;
+    padding: 16px 16px 18px;
+  }
+
+  /* The rail: a hairline down the list, and a 2px marker on the current
+     item laid over it. */
+  :root[data-restyle] .v2-frame__toc > :is(ul, ol) {
+    border-left: 1px solid var(--v2-hairline);
+  }
+
+  :root[data-restyle] .v2-frame__toc li a {
+    display: block;
+    margin-left: -1px;
+    padding-left: 14px;
+    border-left: 2px solid transparent;
+  }
+
+  :root[data-restyle] .v2-frame__toc li a[aria-current] {
+    border-left-color: var(--v2-marker);
+  }
+}

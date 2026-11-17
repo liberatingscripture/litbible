@@ -537,6 +537,7 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 | `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-AUDIT-1.md` to `STUDY-DESK-AUDIT-8.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2 (`/api/data/v2/`), beside version 1; opens with the manifest rule that protects installed apps |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others (named from `LICENSE`). A new stock image gets a row when it is added. |
+| `SITE-2.0.md` | Site 2.0: the plan, its ground rules, and every page's decision; styles in `src/styles/v2/` |
 | `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
 
 > The top-level `README.md` is the lighter human-facing overview; this file is

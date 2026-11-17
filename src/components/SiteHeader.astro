@@ -35,7 +35,9 @@ const { class: className = "", scriptureControls, headerSearch = false, deskTitl
 // menu, which has room for fewer. `desc` is the line under a menu link.
 // The Study group launches with the desk (src/scripts/desk/CLAUDE.md,
 // "Launching").
-type NavLink = { href: string; label: string; short?: string; desc?: string; sep?: boolean; phone?: boolean };
+// v2Label: the label with the data-restyle stamp (Site 2.0, SITE-2.0.md "Labels");
+// without it the link keeps `label`. Both are in the link, one shown at a time.
+type NavLink = { href: string; label: string; v2Label?: string; short?: string; desc?: string; sep?: boolean; phone?: boolean };
 type NavGroup = { key: string; label: string; desk?: boolean; links: NavLink[] };
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -65,7 +67,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/about", label: "About the LIT" },
       { href: "/translation-commitments", label: "Translation commitments", short: "Commitments" },
       { href: "/liberating-scripture-collective", label: "Liberating Scripture Collective", phone: false },
-      { href: "/release-notes", label: "What’s new", desc: "Changes to the text and the site", phone: false },
+      { href: "/release-notes", label: "What’s new", v2Label: "Release Notes", desc: "Changes to the text and the site", phone: false },
       { href: "/support", label: "Support", sep: true },
       { href: "/contact", label: "Contact" },
     ],
@@ -143,7 +145,7 @@ const SIZE_OPTIONS = [
                     <a
                       href={link.href}
                       aria-describedby={link.desc ? `navMenu-${group.key}-${i}` : undefined}
-                    >{link.label}{link.desc && (
+                    >{link.v2Label ? <><span data-v1>{link.label}</span><span data-v2>{link.v2Label}</span></> : link.label}{link.desc && (
                       <span class="site-nav__menu-desc" id={`navMenu-${group.key}-${i}`}>{link.desc}</span>
                     )}</a>
                   </li>
@@ -467,7 +469,7 @@ const SIZE_OPTIONS = [
           >
             <p class="menu-overlay__heading" id={`menuGroup-${group.key}`}>{group.label}</p>
             {group.links.filter((link) => link.phone !== false).map((link) => (
-              <a href={link.href}>{link.short ?? link.label}</a>
+              <a href={link.href}>{link.v2Label ? <><span data-v1>{link.short ?? link.label}</span><span data-v2>{link.v2Label}</span></> : (link.short ?? link.label)}</a>
             ))}
           </div>
         ))}

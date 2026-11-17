@@ -458,6 +458,19 @@
      take the look (BVJ, 2026-11-13), from here, never from `apps.css`.
   Check a change against the computed styles of every control on each page,
   in both themes and at a phone's width, before trusting a screenshot.
+- **Site 2.0's page layouts live in `src/styles/v2/`, behind the same
+  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules).
+  `v2/base.css` (tokens `--v2-*`, the sheet, the Marks, the quiet label, the
+  watermark, the page frame) loads after `restyle.css` in Layout.astro; each
+  page's `v2/<page>.css` is imported by that page after its own styles.
+  Every selector begins `:root[data-restyle]`, dark rules name both
+  selectors, and nothing 2.0 goes into `restyle.css`, `global.css` or a
+  page's existing stylesheet. Markup only 2.0 has carries `data-v2` (plus
+  `data-pagefind-ignore` when it repeats the page's words); markup it
+  replaces carries `data-v1`; two rules in Layout.astro's critical CSS hide
+  each in the other look, and no `id` is in both. `test/site2-css.test.js`
+  holds these. `src/pages/404.astro` with `v2/notfound.css` is the worked
+  example.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

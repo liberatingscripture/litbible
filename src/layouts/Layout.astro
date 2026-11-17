@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import "../styles/restyle.css";
+import "../styles/v2/base.css";
 import "../styles/print.css";
 import SiteHeader from "../components/SiteHeader.astro";
 import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.woff2";
@@ -75,7 +76,10 @@ const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
 // attribute overrides it on first paint: the media rule is guarded with
 // :not([data-theme="light"]) (so a forced-light user on a dark OS gets no dark
 // frame), and an explicit :root[data-theme="dark"] rule forces dark on any OS.
-const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
+// The last two rules are Site 2.0's (SITE-2.0.md, ground rule 3): markup only
+// 2.0 has (data-v2) is hidden without the data-restyle stamp, and markup 2.0
+// replaces (data-v1) is hidden with it. They are here so neither flashes.
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}:root:not([data-restyle]) [data-v2]{display:none!important}:root[data-restyle] [data-v1]{display:none!important}`;
 
 // What the desk's pre-paint script needs to repeat src/lib/desk-margin.mjs's
 // firstPaint (BA25, BA30).
