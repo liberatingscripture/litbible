@@ -1,4 +1,4 @@
-// The text line's grip in the sheet's left margin (E137), driven in a browser
+// The text line's grip in the sheet's left margin (E139), driven in a browser
 // DOM: it shows while the pointer is on the bare page anywhere in that margin,
 // and never over a margin note, a note's circle, or anything else lying there
 // (BVJ, 2026-11-17: "it shouldn't show when interacting with a margin note or

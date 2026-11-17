@@ -320,6 +320,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      every chapter from 48 to 52; widths kept in a wider window are given way
      as `placeWithWidths` gives them, or left off. A change to the column's
      CSS, or to the placement rules, needs `firstPaint` to follow.
+     **It stamps the column's move too** (E137): where the margin is too
+     narrow for the notebook, `firstPaint`'s `shift` goes on `<html>` as
+     `--desk-move`, a whole `translate` that global.css draws on the
+     chapter's `move` list, with `--desk-bar-center`, so the page paints
+     once, in place. margin.js takes it over as the rail is made
+     (`takeOverMove`), and `standDown()` removes it. Chapter View only:
+     Read View still moves once the desk loads.
      Read View's toolbar takes a fixed
      floor (725px; 895px in OpenDyslexic) because it outgrows the column.
      **On Chapter View the reader can drag the widths** of their notes'

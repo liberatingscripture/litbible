@@ -1760,7 +1760,7 @@ a.desk-item__highlight:hover {
 }
 
 /* The text's line shows its grip while the pointer is on the bare page
-   anywhere in the sheet's left margin (E137; widths.js sets the class, and
+   anywhere in the sheet's left margin (E139; widths.js sets the class, and
    takes it off over a note, a note's circle, a Pin or a panel). It waits a
    moment, so a pointer crossing the margin on its way to a note draws
    nothing. */

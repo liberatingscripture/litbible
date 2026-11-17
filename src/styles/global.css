@@ -581,7 +581,8 @@ body:has(.site-header--green) .skip-link {
   flex: 0 1 auto;
 }
 
-/* Alternate short title — hidden by default, JS toggles it */
+/* Alternate short title: hidden by default. SiteHeader.astro's inline script
+   swaps it in before first paint where the long title doesn't fit. */
 .site-header__title .title-alt {
   display: none;
   flex-shrink: 0;
@@ -3371,6 +3372,13 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   line-height: 1.35;
 }
 
+.lit-panel__body {
+  /* A footnote's raw web address is one unbreakable run; on a 320px phone at
+     the larger text sizes it made the sheet scroll sideways. Breaks only a run
+     that cannot fit a line, never an ordinary word. */
+  overflow-wrap: anywhere;
+}
+
 .lit-panel__body p {
   margin: 0;
 }
@@ -4403,4 +4411,19 @@ html[data-desk][data-desk-expanded][data-desk-widths]:has(.scripture-layout--scr
 }
 html[data-desk][data-desk-expanded][data-desk-widths] .scripture-layout--scripture .scripture-main {
   margin-right: calc(var(--desk-width) + 40px);
+}
+
+/* The column's move left, before the desk's code has loaded (E137). Where
+   the margin is too narrow for the expanded notebook the column moves left
+   to make its room (placeInMargin, src/lib/desk-margin.mjs), by a translate
+   margin.js puts on the page's move elements. That came a moment after
+   first paint, so every chapter painted centered and then moved. Layout.astro
+   now works the move out before first paint and stamps it as --desk-move, a
+   whole translate ("-104px 0"), which this rule draws until margin.js takes
+   it over as its own inline translate and removes the stamp. With no stamp
+   the column has no translate at all, as before. The selector is Chapter
+   View's `move` list (src/scripts/desk-frame.js), the only page stamped;
+   test/desk-frame.test.js holds the two together. */
+html[data-desk][data-desk-expanded] .scripture-layout--scripture .scripture-main {
+  translate: var(--desk-move, none);
 }

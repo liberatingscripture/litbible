@@ -10,7 +10,10 @@
 // stamped expanded, and the widths applied, only where the window holds them
 // (BA25, BA30): the script repeats src/lib/desk-margin.mjs's firstPaint. And
 // that a page without the Notebook panel (a book's introduction, an article,
-// the glossary; E124) gets data-desk alone, whatever the reader kept.
+// the glossary; E124) gets data-desk alone, whatever the reader kept. And that
+// a chapter opening with the notebook expanded is stamped with the move left
+// its first placement will make, and its column's center, so it paints once,
+// in place (E137), and nothing else is.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -18,11 +21,13 @@ import { readFileSync } from "node:fs";
 
 import { APP_PLATFORM_UA, isAppPlatform } from "../src/lib/app-platform.mjs";
 import { isAppPlatform as gateIsAppPlatform } from "../src/scripts/announcement-gate.js";
-import { EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH, firstPaint } from "../src/lib/desk-margin.mjs";
-import { hasPanel } from "../src/scripts/desk-frame.js";
+import {
+  EDGE, FIRST_PAINT, GAP, KEEP_LEFT, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH, MOVE_PROP, firstPaint, placeInMargin,
+} from "../src/lib/desk-margin.mjs";
+import { READING_SURFACES, hasPanel } from "../src/scripts/desk-frame.js";
 
 const layout = readFileSync(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
-const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit, deskPanel \}\}>([\s\S]*?)<\/script>/.exec(layout);
+const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit, deskPanel, deskChapter \}\}>([\s\S]*?)<\/script>/.exec(layout);
 // What Layout.astro hands the script.
 const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
 
@@ -44,12 +49,15 @@ const UA = {
  * width the page lays out in, `scrollbar` the classic scrollbar the window
  * reserves beside it, `html` what the earlier pre-paint scripts stamped (the
  * reader's font and text size) and `rootPx` the browser's root font size.
- * `deskPanel` is what Layout.astro hands the script for the page (hasPanel of
- * its deskSurface); the default is a Chapter View chapter's.
+ * `surface` is the page's deskSurface, from which Layout.astro works out what
+ * it hands the script: `deskPanel` (hasPanel) and `deskChapter` (the first
+ * reading surface, whose column firstPaint knows). The default is a Chapter
+ * View chapter.
  */
 function run({
   href = "https://litbible.net/romans-8/", ua = UA.windows, touch = 0, uaData = undefined, stored = {}, session = {},
-  viewport = 1440, scrollbar = 15, html = {}, rootPx = 16, deskPanel = hasPanel("chapter"),
+  viewport = 1440, scrollbar = 15, html = {}, rootPx = 16, surface = "chapter",
+  deskPanel = hasPanel(surface), deskChapter = deskPanel && surface === READING_SURFACES[0].kind,
 } = {}) {
   const attrs = { ...html };
   const props = {};
@@ -83,6 +91,7 @@ function run({
     getComputedStyle: () => ({ fontSize: `${rootPx}px` }),
     deskFit,
     deskPanel,
+    deskChapter,
   };
   const fn = new Function("appUa", "appUaFlags", ...Object.keys(page), match[1]);
   fn(APP_PLATFORM_UA.source, APP_PLATFORM_UA.flags, ...Object.values(page));
@@ -196,21 +205,23 @@ test("a page without the Notebook panel gets data-desk alone, whatever the reade
   ];
   const session = { "lit-desk-measure": "50", "lit-desk-width": "360" };
   for (const kind of ["intro", "article", "glossary"]) {
-    const deskPanel = hasPanel(kind);
-    assert.equal(deskPanel, false, kind);
-    for (const kept of states) {
-      const r = run({ deskPanel, stored: { "lit-desk-preview": "on", ...kept }, session });
-      assert.deepEqual(r.attrs, { "data-desk": "on" }, `${kind} ${JSON.stringify(kept)}`);
-      assert.deepEqual(r.props, {}, `${kind} ${JSON.stringify(kept)}`);
+    assert.equal(hasPanel(kind), false, kind);
+    // In a window where a chapter's column would be moved, too (E137).
+    for (const viewport of [1440, 1009]) {
+      for (const kept of states) {
+        const r = run({ surface: kind, viewport, stored: { "lit-desk-preview": "on", ...kept }, session });
+        assert.deepEqual(r.attrs, { "data-desk": "on" }, `${kind} ${viewport} ${JSON.stringify(kept)}`);
+        assert.deepEqual(r.props, {}, `${kind} ${viewport} ${JSON.stringify(kept)}`);
+      }
     }
     // The preview link still works there, and the reader's panel keys are left as they were.
-    const on = run({ deskPanel, href: "https://litbible.net/glossary/?desk=on", stored: { "lit-desk-min": "0" } });
+    const on = run({ surface: kind, href: "https://litbible.net/glossary/?desk=on", stored: { "lit-desk-min": "0" } });
     assert.deepEqual(on.attrs, { "data-desk": "on" });
     assert.equal(on.stored["lit-desk-min"], "0");
   }
   // The same reader on a chapter and in Read View gets the panel as before.
   for (const kind of ["chapter", "read"]) {
-    const r = run({ deskPanel: hasPanel(kind), stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
+    const r = run({ surface: kind, stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
     assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, kind);
   }
 });
@@ -220,6 +231,10 @@ test("a page without the Notebook panel gets data-desk alone, whatever the reade
 // silently (a chapter opening expanded would reflow), so each one is read here.
 test("Layout hands the script hasPanel of the page's deskSurface, and each reading page names its own", () => {
   assert.match(layout, /const deskPanel = hasPanel\(deskSurface\);/);
+  // And whether it is the page whose column firstPaint knows (E137): Chapter
+  // View, the first reading surface, as margin.js tells it.
+  assert.match(layout, /const deskChapter = deskPanel && deskSurface === READING_SURFACES\[0\]\.kind;/);
+  assert.equal(READING_SURFACES[0].kind, "chapter");
   const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
   assert.match(read("../src/layouts/ScriptureLayout.astro"), /const deskSurface = pagefindType === "scripture" \? "chapter" : pagefindType === "intro" \? "intro" : undefined;/);
   assert.match(read("../src/layouts/ScriptureLayout.astro"), /<Layout [^>]*deskSurface=\{deskSurface\}/);
@@ -236,6 +251,8 @@ test("a width dragged in the notebook is stamped before paint, with its measure"
   assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "", "data-desk-widths": "" });
   assert.equal(r.props["--desk-measure"], "50");
   assert.equal(r.props["--desk-width"], "360px");
+  // The widths place the column without a move (global.css's margin-right).
+  assert.equal(MOVE_PROP in r.props, false);
 });
 
 test("a dragged width is not applied while the notebook is minimized", () => {
@@ -311,6 +328,23 @@ function chPx({ font = "", size = "", rootPx = 16 } = {}) {
   return FIRST_PAINT.ch[font] * FIRST_PAINT.scale[size] * FIRST_PAINT.body * rootPx;
 }
 
+/**
+ * What the script puts on <html>'s inline style for a Chapter View chapter,
+ * from firstPaint's answer: the widths, the column's move left as a whole
+ * translate (MOVE_PROP), and the column's center wherever it isn't the
+ * window's.
+ */
+function stamps(want) {
+  const props = {};
+  if (want.widths) {
+    props["--desk-measure"] = String(want.widths.measure);
+    props["--desk-width"] = `${want.widths.width}px`;
+  }
+  if (want.shift) props[MOVE_PROP] = `${-want.shift}px 0`;
+  if (want.center !== null) props["--desk-bar-center"] = `${want.center}px`;
+  return props;
+}
+
 test("in a window too narrow for the margin, the notebook isn't stamped expanded (BA25)", () => {
   // 280 + 16 + 24 + 38 + 48 × 0.63086 × 18 + 32 ≈ 935.06 at the default font and
   // size: the notebook, its edge and gap, the margin the column keeps on its
@@ -329,11 +363,14 @@ test("in a window too narrow for the margin, the notebook isn't stamped expanded
 test("widths kept in a wider window are given way as widths.js gives them, or left off (BA30)", () => {
   const session = { "lit-desk-measure": "60", "lit-desk-width": "600" };
   const wide = run({ stored: expandedStart, session, viewport: 1440 });
-  assert.deepEqual(wide.props, { "--desk-measure": "60", "--desk-width": "600px" });
+  assert.equal(wide.props["--desk-measure"], "60");
+  assert.equal(wide.props["--desk-width"], "600px");
   const mid = run({ stored: expandedStart, session, viewport: 1085 });
   const want = firstPaint({ viewport: 1085, ch: chPx(), kept: { measure: 60, width: 600 } });
   assert.ok(want.widths.width < 600);
-  assert.deepEqual(mid.props, { "--desk-measure": String(want.widths.measure), "--desk-width": `${want.widths.width}px` });
+  assert.deepEqual(mid.props, stamps(want));
+  assert.equal(mid.props["--desk-measure"], String(want.widths.measure));
+  assert.equal(mid.props["--desk-width"], `${want.widths.width}px`);
   assert.equal(mid.attrs["data-desk-widths"], "");
   // Too narrow for even the narrowest widths: none, and the 48 column floats.
   const narrow = run({ stored: expandedStart, session, viewport: 600 });
@@ -356,11 +393,137 @@ test("the script decides as firstPaint does, for every font, size and window", (
             const at = JSON.stringify({ font, size, rootPx, kept, viewport });
             assert.equal("data-desk-expanded" in r.attrs, want.expanded, at);
             assert.equal("data-desk-widths" in r.attrs, Boolean(want.widths), at);
-            const props = want.widths ? { "--desk-measure": String(want.widths.measure), "--desk-width": `${want.widths.width}px` } : {};
-            assert.deepEqual(r.props, props, at);
+            assert.deepEqual(r.props, stamps(want), at);
+            // Read View opens expanded in the same windows and gets the same
+            // widths, but neither the move nor the center: its column is not
+            // the one this script knows (E137).
+            const read = run({ surface: "read", stored: expandedStart, session, viewport, html, rootPx });
+            assert.deepEqual(read.attrs, r.attrs, at);
+            assert.deepEqual(read.props, stamps({ ...want, shift: 0, center: null }), at);
           }
         }
       }
     }
+  }
+});
+
+/* ── Painted once, in place (E137) ───────────────────────────────────── */
+
+// BVJ, 2026-11-17, clicking from chapter to chapter with the Notebook open in
+// a window about 1120px wide: the page loaded "without the notebook and then a
+// second later adds the notebook," the text shifting back and forth. The
+// column's move left came only with the desk's code. Now the script stamps it.
+
+const FONTS = { Inter: "", OpenDyslexic: "dyslexic" };
+const SIZES = { Medium: "", "Extra large": "xl" };
+// A 1024px, an 1100px and a 1280px window, each less a 15px scrollbar.
+const WINDOWS = [1024, 1100, 1280];
+
+test("E137: the move left is stamped before paint exactly as placeInMargin will make it", () => {
+  // The moves a reader gets, by window, at the default root size.
+  const expected = {
+    "Inter Medium": [104, 66, 0],
+    "Inter Extra large": [null, null, 52], // null: too narrow, the notebook floats and folds
+    "OpenDyslexic Medium": [48, 10, 0],
+    "OpenDyslexic Extra large": [108, 70, 0],
+  };
+  for (const [fontName, font] of Object.entries(FONTS)) {
+    for (const [sizeName, size] of Object.entries(SIZES)) {
+      const html = { ...(font ? { "data-font": font } : {}), ...(size ? { "data-size": size } : {}) };
+      const ch = chPx({ font, size });
+      const width = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
+      WINDOWS.forEach((win, i) => {
+        const at = `${fontName} ${sizeName} ${win}`;
+        const viewport = win - 15;
+        const r = run({ stored: expandedStart, viewport, scrollbar: 15, html });
+        // The first placement, from the page as it would be measured: the
+        // column centered in the window, nothing moved yet.
+        const left = (viewport - width) / 2;
+        const placed = placeInMargin({ viewport, column: { left, right: left + width }, main: { left: 0 }, keepLeft: KEEP_LEFT });
+        const shift = expected[`${fontName} ${sizeName}`][i];
+        if (shift === null) {
+          assert.equal(placed.over, true, at);
+          assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, at);
+          assert.deepEqual(r.props, {}, at);
+          return;
+        }
+        assert.equal(placed.over, false, at);
+        assert.equal(placed.shift, shift, at);
+        assert.equal("data-desk-expanded" in r.attrs, true, at);
+        if (shift === 0) {
+          // Wide enough: nothing moves, and nothing new is stamped.
+          assert.deepEqual(r.props, {}, at);
+          return;
+        }
+        assert.deepEqual(r.props, { [MOVE_PROP]: `${-shift}px 0`, "--desk-bar-center": `${viewport / 2 - shift}px` }, at);
+        // The move is the one the placement makes from the moved column too,
+        // which is how margin.js meets it: measured moved, with `shift` given.
+        const again = placeInMargin({
+          viewport, column: { left: left - shift, right: left - shift + width }, main: { left: 0 }, shift, keepLeft: KEEP_LEFT,
+        });
+        assert.equal(again.shift, shift, at);
+        // And the stamped center is the moved column's, as margin.js measures it.
+        const center = (left - shift + (left - shift + width)) / 2;
+        assert.ok(Math.abs(parseFloat(r.props["--desk-bar-center"]) - center) < 1e-9, at);
+      });
+    }
+  }
+});
+
+test("E137: every font, size and window gets the move placeInMargin makes", () => {
+  for (const font of Object.keys(FIRST_PAINT.ch)) {
+    for (const size of Object.keys(FIRST_PAINT.scale)) {
+      const html = { ...(font ? { "data-font": font } : {}), ...(size ? { "data-size": size } : {}) };
+      const ch = chPx({ font, size });
+      const width = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
+      for (let viewport = 700; viewport <= 1500; viewport += 1) {
+        const r = run({ stored: expandedStart, viewport, html });
+        const left = (viewport - width) / 2;
+        const placed = placeInMargin({ viewport, column: { left, right: left + width }, main: { left: 0 }, keepLeft: KEEP_LEFT });
+        const at = JSON.stringify({ font, size, viewport });
+        assert.equal("data-desk-expanded" in r.attrs, !placed.over, at);
+        const stamped = MOVE_PROP in r.props ? -parseFloat(r.props[MOVE_PROP]) : 0;
+        assert.equal(stamped, placed.over ? 0 : placed.shift, at);
+        assert.equal("--desk-bar-center" in r.props, stamped > 0, at);
+      }
+    }
+  }
+});
+
+test("E137: nothing is stamped for a minimized, closed or hidden Notebook, or with the desk off", () => {
+  // 1009px: where an expanded notebook moves the column 104px.
+  const moved = run({ stored: expandedStart, viewport: 1009 });
+  assert.equal(moved.props[MOVE_PROP], "-104px 0");
+  const states = [
+    { "lit-desk-preview": "on" }, // open and minimized, the default
+    { "lit-desk-preview": "on", "lit-desk-min": "1" },
+    { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-start": "min" },
+    { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-panel": "closed" },
+    { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-start": "closed" },
+    { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-show": "off" },
+    { "lit-desk-min": "0" }, // the desk off
+  ];
+  for (const stored of states) {
+    const r = run({ stored, viewport: 1009 });
+    assert.deepEqual(r.props, {}, JSON.stringify(stored));
+    assert.equal("data-desk-expanded" in r.attrs, false, JSON.stringify(stored));
+  }
+  // A phone or tablet never has the desk.
+  assert.deepEqual(run({ ua: UA.iphone, touch: 5, stored: expandedStart, viewport: 1009 }).props, {});
+  assert.deepEqual(run({ ua: UA.mac, touch: 5, stored: expandedStart, viewport: 1009 }).props, {});
+});
+
+test("E137: the reader's widths stamp the column's center, since they leave it off center, and no move", () => {
+  const session = { "lit-desk-measure": "50", "lit-desk-width": "360" };
+  for (const viewport of [1009, 1085, 1265, 1440]) {
+    const r = run({ stored: expandedStart, session, viewport });
+    const want = firstPaint({ viewport, ch: chPx(), kept: { measure: 50, width: 360 } });
+    assert.ok(want.widths, String(viewport));
+    assert.equal(MOVE_PROP in r.props, false, String(viewport));
+    // The column ends GAP before the notebook, which ends EDGE before the window's edge.
+    const right = viewport - EDGE - want.widths.width - GAP;
+    const columnWidth = want.widths.measure * chPx() + FIRST_PAINT.pad;
+    assert.ok(Math.abs(parseFloat(r.props["--desk-bar-center"]) - (right - columnWidth / 2)) < 1e-9, String(viewport));
+    assert.deepEqual(r.props, stamps(want), String(viewport));
   }
 });

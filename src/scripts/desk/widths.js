@@ -11,7 +11,7 @@
 // The pointer in a gap gets the resize cursor and a small grip beside it,
 // and a hairline shows only while dragging. The text's line also shows its
 // grip while the pointer is on the bare page anywhere in the sheet's left
-// margin (E137), since the line itself is narrow and inside the sheet. Each handle is a focusable
+// margin (E139), since the line itself is narrow and inside the sheet. Each handle is a focusable
 // separator the arrow keys move a character at a time (the ARIA
 // window-splitter pattern), so it isn't mouse-only. A press that doesn't move,
 // or Enter, opens its menu of steps (line-menu.js; XA8-1), for a reader who
@@ -293,7 +293,7 @@ export function createWidths({ column, panel, onChange }) {
   }
 
   // The text's line is easy to miss: it lies inside the sheet, against the
-  // text, with nothing drawn at rest (E137; BVJ, 2026-11-17: "not intuitive
+  // text, with nothing drawn at rest (E139; BVJ, 2026-11-17: "not intuitive
   // to find"). So its grip also shows while the pointer is anywhere in the
   // sheet's left margin, at the pointer's height, pointing to the line. The
   // press and the resize cursor stay on the line itself, so a footnote's Pin

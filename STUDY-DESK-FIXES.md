@@ -3862,7 +3862,77 @@ says so; where BVJ was wondering, nothing is decided.)
   still opens a tab everywhere. Left as they are: the podcast page's
   “Follow the show on Facebook” (its platform buttons carry the mark too),
   and Go deeper's three podcast links, one mark each.
-- **E137, rough: the left adjuster is hard to find.** BVJ, 2026-11-17,
+- **E137, rough: with the Notebook open in a narrower window, each chapter
+  drew centered and then moved left.** BVJ, 2026-11-17, clicking from
+  chapter to chapter with the Notebook open in a window about 1120px wide:
+  “The current load time for the Notebook panel makes clicking through
+  chapter pages shift back and forth as it loads without the notebook and
+  then a second later adds the notebook.” (The Site 2.0 branch logged the
+  same report as its own E138, folded into this entry when it took `main`;
+  there the sheet and the toolbar row move with
+  the column, so it shows more.) Where the margin is too narrow for the
+  Notebook the column moves left by a `translate` (`placeInMargin`), and
+  that move came only once the shell had loaded. Measured frame by frame on
+  the built site in headless Chrome: the first paint had the column
+  centered, and about 0.15 s later (about a second in the Browser pane) it
+  moved 104px in a 1024px window, 66px at 1100px, 56px at 1120px, and
+  nothing from about 1232px, where the margin holds the Notebook.
+  **Fixed** (PR #593): `firstPaint` (`desk-margin.mjs`) works the move out
+  as well, from the numbers it already takes, as `shift` and the column's
+  `center`. Layout.astro's pre-paint script repeats it and stamps
+  `--desk-move` (a whole `translate`) and `--desk-bar-center` on `<html>`,
+  on a Chapter View chapter only; a rule in `global.css` draws the move on
+  the chapter's `move` list; margin.js makes it its own inline `translate`
+  as the rail is made (`takeOverMove`), so its first placement changes
+  nothing and sends no `desk:column-moved`; and `standDown()` removes the
+  stamp if the desk never loads. With dragged widths nothing moved (CSS
+  places that column), but its center is stamped too, for the toolbar row
+  that follows it in 2.0. Measured again: the column's left edge on the
+  first painted frame is its left edge two seconds on at 1024, 1100, and
+  1120px, in Inter and OpenDyslexic at Medium and Extra large and in
+  Atkinson at Large. A 1280px window, a minimized or floating Notebook, an
+  introduction, Read View, and a page with the desk off are as they were.
+  Left as it is: Read View has the same kind of move once the desk loads
+  (140px at 1100px, 50px at 1280px), since its column is not the one the
+  pre-paint script knows.
+- **E138, rough: the header showed its long title for a moment before “LIT
+  Bible” replaced it.** BVJ, 2026-11-17, after E137: “It was flashing the
+  full ‘Liberation and Inclusion Translation’ before replacing it with ‘LIT
+  Bible’ on pages narrow enough to use that title.” Not the desk's alone:
+  every reader had it. The header shows the long title where it fits and the
+  short one where it doesn't, which takes a measurement, and the script that
+  made it waited for idle time (up to two seconds) to keep its forced layout
+  off the load, so the page painted the long title first. Measured on the
+  built site in headless Chrome, by which title's text reached the screen:
+  every load flashed at a phone's width (up to about 715px), in a computer's
+  window from 1101 to about 1440px (760 to about 1160px with the preview
+  on), and at every width in OpenDyslexic. **Fixed** (PR #594): the script
+  is inline in `SiteHeader.astro`, right after the header's row, and the
+  title is chosen before the first paint, in the row's own fonts. It does
+  not measure as the page parses. The row is in its fallback fonts then,
+  which are wider (the long title by 56px, the nav by up to 31px), and the
+  layout a measurement forces makes Chrome paint sooner. A first version
+  did measure at once, and again as each font settled: in a new tab, in
+  the 90px of widths above a threshold (where the long title fits its own
+  font and not the fallback), about one load in eleven painted “LIT Bible”
+  for some 50 ms before the long title. The script as built asks for the
+  row's fonts and measures when all of them have settled, with the first
+  animation frame as the latest it waits. Measured again on the built
+  site: 29 pages and widths; 144 widths across the three thresholds on a
+  chapter (89 in new tabs, 55 going from page to page in one tab); and 73
+  on Read View's whole book, the heaviest page. One title painted, the
+  right one, every time, and the first paint is no later (a median of 108
+  ms with the script, 128 without it). What is left: on a first visit,
+  while the fonts are still on the network, the title is chosen for the
+  fallback fonts on screen, so in those 90px of widths “LIT Bible” can
+  show until the fonts arrive and the long title replaces it, as the
+  letters themselves change (on a throttled first visit, at two of four
+  such widths, for about 0.6 s; the seven widths outside them painted one
+  title). The rule is in `src/components/CLAUDE.md`, and
+  `test/header-title.test.js` holds the script's place and runs it.
+- **E139, rough: the left adjuster is hard to find.** (E137 on the Site 2.0
+  branch until `main` used that number, and so called in BVJ's words
+  below.) BVJ, 2026-11-17,
   looking over Site 2.0's Scripture page with the Notebook open: “the left
   margin adjuster's location along the text edge inside the sheet is not
   intuitive to find. Everything else about it makes sense, with a margin in
@@ -3894,28 +3964,8 @@ says so; where BVJ was wondering, nothing is decided.)
   the gaps between notes show the grip too. Checked with a real mouse in
   headless Chrome at 1440px and 1105px, and by `test/desk-widths-hint.test.js`.
   Status: fixed on the Site 2.0 branch (`claude/site-2-0`), not yet on `main`.
-- **E138, rough: with the Notebook open in a narrower window, each chapter
-  draws centered and then moves left.** BVJ, 2026-11-17, clicking through
-  chapters in the Browser pane (about 1120px wide) in the 2.0 look: “The
-  current load time for the Notebook panel makes clicking through chapter
-  pages shift back and forth as it loads without the notebook and then a
-  second later adds the notebook.” Measured frame by frame on the built
-  site: the first paint has the column where a page without the Notebook
-  would have it, and when the shell places the Notebook (about 0.13 s in a
-  headless browser, about a second in the pane) the column moves left by a
-  `translate`: 82px in a 1024px window, 44px at 1100px, and nothing from
-  about 1280px, where the margin holds the Notebook. `main`'s build does
-  exactly the same; in the 2.0 look the sheet and the toolbar row move with
-  the column, so it shows far more. The pre-paint script stamps the measure
-  and the reader's widths before paint (rule 4; BA25, BA30) but not this
-  move, which `margin.js` works out once the shell has loaded
-  (`placeInMargin`, `setShift`, `--desk-bar-center`). **Open.** A fix would
-  have the pre-paint script work the move out as well, the way `firstPaint`
-  works out the fit, and stamp it, so the first paint is the final one. It
-  belongs on `main`, so it is its own piece of work off `main` (BVJ started
-  it the same day), not the Site 2.0 branch's.
-- **E139, rough: the Notebook's adjuster draws inside the sheet.** BVJ,
-  2026-11-17, after E137: “The right margin width adjuster has a similar
+- **E140, rough: the Notebook's adjuster draws inside the sheet.** BVJ,
+  2026-11-17, after E139 (it was E139 itself on the Site 2.0 branch): “The right margin width adjuster has a similar
   problem, but not as bad. I think the field of where the mouse is located
   when it becomes active is good, but the location of the adjuster itself
   should be in that narrow space between the sheet and the notebook panel.”
