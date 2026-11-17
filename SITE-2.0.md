@@ -421,14 +421,18 @@ Each is behind the stamp unless it says otherwise.
   | Learn | Glossary, Articles, Podcast |
   | Study | Study Desk, My sheets, My Notebook, Study Desk help |
   | About | About, Commitments, About LSC, Privacy |
-  | Connect | Contact, Support, and the four icons, two by two |
+  | Connect | Contact, Support, and the four icons in a row |
   Study shows only where the header's Study menu does (a computer with the
   desk on). The first group is "The LIT" because a group named "Read" over a
   link named "Read" reads twice. From a tablet up the groups sit in one row,
-  each as wide as its words; the newsletter is beside them from 1180px and
-  under them below that. A phone keeps two centered columns with the icons
-  in a row beneath. In OpenDyslexic the last group wraps to a second row on
-  a computer, and a computer's window drawn in under 520px takes one column.
+  each as wide as its words, spread across the room they have; the
+  newsletter is beside them from 1260px, where both fit, and under them
+  below that. A phone keeps two centered columns with the icons in a row
+  beneath. In OpenDyslexic the last group wraps to a second row on a
+  computer, and a computer's window drawn in under 520px takes one column.
+  The first build packed the groups at the left and set the icons two by
+  two to keep Connect narrow; BVJ: "The Connect column looks squished," and
+  "I know it's leaving space for the newsletter signup, but still."
 - **Commitments: a contents column.** BVJ: "On /translation-commitments, add
   a TOC column like on /about for the 'How these commitments work together'
   sheet." The section is the page frame without a title block: the five

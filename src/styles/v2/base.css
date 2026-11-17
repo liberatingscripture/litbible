@@ -267,10 +267,13 @@
    reorganized." SiteFooter.astro holds the groups (.footer-nav--v2; today's
    two columns are data-v1 beside it). Study shows only where the header's
    Study menu does, a computer with the desk on. From a tablet up the groups
-   sit in a row, each as wide as its words, and wrap when a font or a window
-   leaves less room; the newsletter is beside them from 1180px and under them
-   below that. On a phone they keep today's two centered columns, the icons
-   in a row under them. */
+   sit in a row, each as wide as its words, spread across the room they have
+   (never packed at the left with the rest left empty), and wrap when a font
+   or a window leaves less; the newsletter is beside them from 1260px, where
+   both fit, and under them below that. The four icons keep their one row:
+   two by two made Connect the narrowest group ("The Connect column looks
+   squished," BVJ the same day). On a phone the groups keep today's two
+   centered columns, the icons in a row under them. */
 :root[data-restyle]:not([data-desk]) .footer-col--desk {
   display: none;
 }
@@ -295,28 +298,18 @@
   :root[data-restyle] .footer-nav--v2 {
     display: flex;
     flex-wrap: wrap;
-    gap: 2.25rem clamp(1.75rem, 3vw, 3rem);
+    justify-content: space-between;
+    gap: 2.25rem 2rem;
+    max-width: 60rem;
   }
 
   :root[data-restyle] .footer-nav--v2 .footer-col {
     flex: none;
     max-width: 100%;
   }
-
-  /* The four icons in two rows of two, so Connect is no wider than its
-     neighbors and ends level with them (in one row it was the widest group
-     and the first to wrap). */
-  :root[data-restyle] .footer-nav--v2 .social-links {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
-  }
-
-  :root[data-restyle] .footer-nav--v2 .social-links li {
-    margin-bottom: 0;
-  }
 }
 
-@media (min-width: 1180px) {
+@media (min-width: 1260px) {
   :root[data-restyle] .footer-inner {
     grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
     grid-template-areas: "left right";

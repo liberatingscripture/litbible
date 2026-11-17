@@ -3877,6 +3877,24 @@ says so; where BVJ was wondering, nothing is decided.)
   is anywhere in the sheet's left margin, so the margin itself points to it;
   the press and the resize cursor would stay on the 12px line, so a
   footnote's Pin and a note keep their clicks (E83).
+- **E138, rough: with the Notebook open in a narrower window, each chapter
+  draws centered and then moves left.** BVJ, 2026-11-17, clicking through
+  chapters in the Browser pane (about 1120px wide) in the 2.0 look: “The
+  current load time for the Notebook panel makes clicking through chapter
+  pages shift back and forth as it loads without the notebook and then a
+  second later adds the notebook.” Measured frame by frame on the built
+  site: the first paint has the column where a page without the Notebook
+  would have it, and when the shell places the Notebook (about 0.13 s in a
+  headless browser, about a second in the pane) the column moves left by a
+  `translate`: 82px in a 1024px window, 44px at 1100px, and nothing from
+  about 1280px, where the margin holds the Notebook. `main`'s build does
+  exactly the same; in the 2.0 look the sheet and the toolbar row move with
+  the column, so it shows far more. The pre-paint script stamps the measure
+  and the reader's widths before paint (rule 4; BA25, BA30) but not this
+  move, which `margin.js` works out once the shell has loaded
+  (`placeInMargin`, `setShift`, `--desk-bar-center`). **Open.** A fix would
+  have the pre-paint script work the move out as well, the way `firstPaint`
+  works out the fit, and stamp it, so the first paint is the final one.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
