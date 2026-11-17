@@ -3371,6 +3371,13 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   line-height: 1.35;
 }
 
+.lit-panel__body {
+  /* A footnote's raw web address is one unbreakable run; on a 320px phone at
+     the larger text sizes it made the sheet scroll sideways. Breaks only a run
+     that cannot fit a line, never an ordinary word. */
+  overflow-wrap: anywhere;
+}
+
 .lit-panel__body p {
   margin: 0;
 }

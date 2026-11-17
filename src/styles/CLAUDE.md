@@ -79,7 +79,14 @@
      nothing, and `position: fixed` overlays report as false positives.
      Fix by giving the word room, not by breaking it: `overflow-wrap` and
      hyphenation split words, which is the opposite of what dyslexic readers
-     need.
+     need. **The one exception is a run that is not a word**: a raw web
+     address in a footnote has no break point and no room to give, and it
+     scrolled Chapter View sideways on a phone (Matthew 5, 1 Corinthians 14,
+     John 11, Romans 1). `.footnotes .fn-body` (`[slug].astro`) and
+     `.lit-panel__body` (`global.css`) carry `overflow-wrap: anywhere`, which
+     breaks a run only after every hyphen and space has been used and only
+     when it cannot fit a line by itself. Never `word-break: break-all` or
+     hyphenation, and don't carry the rule to a page's body text.
 - **The hamburger menu is a side tray on a computer** (BVJ, 2026-11-04):
   under `@media (hover: hover) and (pointer: fine)` the `.menu-overlay` panel
   slides in from the right over a lighter scrim, a narrow desktop window
