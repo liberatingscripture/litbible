@@ -471,6 +471,12 @@
   each in the other look, and no `id` is in both. `test/site2-css.test.js`
   holds these. `src/pages/404.astro` with `v2/notfound.css` is the worked
   example.
+  Two traps wave 4 found: a grid item with `margin: 0 auto` stops
+  stretching and takes its longest word's width (Privacy scrolled sideways
+  in OpenDyslexic), so a page-frame child carries no auto margin; and a
+  rail's "you are here" marker is a border over transparent ones, which a
+  contrast theme paints on every link, so `base.css` names `Canvas` and
+  `Highlight` for them under `forced-colors`.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

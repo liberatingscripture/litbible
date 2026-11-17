@@ -172,10 +172,97 @@ unit's diff, applies shared changes in order, and commits unit by unit.
 | 1 Pages over stable markup | Done 2026-11-17. With the gate off, all 355 built pages match `main`'s markup (what is new and inert is listed under "What the build added or left different"), and the wave's sixteen pages match `main`'s pixel for pixel at 375 and 1280px (the articles index and one article differ only where a lazy picture or an embedded post had not loaded in one of the two captures). With it on, each page was compared with its mockup at 375 and 1280px in both themes. `npm test`, `npm run check`, a build, and `check:links` pass. Left for wave 4: the full width, font, and text-size matrix on every page |
 | 2 Pages with their own scripts | Done 2026-11-17: Home, the Glossary, and Search. Checked together with wave 3 (next row) |
 | 3 Scripture pages | Done 2026-11-17: the chapter, then the book introduction. With the gate off, all 355 built pages match `main`'s markup once 2.0's additions are taken out (Home's one `span` splits a sentence into two text nodes, with the same words), and Home, the Glossary, /search, three chapters, two introductions, and a Read View book match `main`'s build pixel for pixel at 375 and 1280px, with one exception: on Home at 1280px that `span` moves the two words before it by a sixty-fourth of a pixel (the text is shaped in two runs), which changes 347 pixels of their edges and nothing an eye can see. With it on, each page was compared with its mockup at 375 and 1280px in both themes, and each builder drove its page's controls with the gate on and off. `npm test`, `npm run check`, a build, and `check:links` pass. Left for wave 4: the full matrix, and keyboard focus rings on the new pieces with real key presses |
-| 4 The whole site together | Not started |
+| 4 The whole site together | Done 2026-11-17, save what waits on BVJ ("At launch," step 1). Twenty-four pages from the branch's build, with the gate on, in the three fonts at Medium and Extra large and at 320, 375, 768, 1024, 1280, and 1440px, beside the same run on `main`'s build: what it found and what was done is under "What wave 4 found." Every new control shows its focus ring after a real Tab press, in both themes. Windows contrast themes (forced colors) were checked by computed style, and three rules were added. `npm test`, `npm run check`, a build, the gate-off comparison, and `check:links` pass after the fixes. Not done: Small and Large text on every page (each builder checked its own), and a look in a real contrast theme on Windows (headless Chrome forces the colors in computed style but not in its pictures) |
 
 Open for BVJ: whether the mockups should be archived in the repo (about 4 MB
 without their captures) so other machines and BDR can see them.
+
+## What wave 4 found
+
+Fixed in the 2.0 look (all in `src/styles/v2/`, so none reaches a reader
+without the preview):
+
+- **Privacy scrolled sideways on a phone in OpenDyslexic** (2.0's own bug).
+  The page's `margin: 0 auto` on its text stopped that grid item stretching,
+  so it took the width of its longest word, a web address. The frame places
+  the text; the margin is gone.
+- **Support and the Collective's page: the Collective's name ran off the
+  window in OpenDyslexic** (Support at 375px was 2.0's; the Collective's page
+  scrolls on `main` up to 768px, and 2.0's left-aligned top made it worse).
+  In that font the name may now wrap between words; its size stays.
+- **Buttons whose label is a web address** ("liberatingscripture.org", on
+  Support and the Collective's page) are wider than a 320px window in
+  OpenDyslexic, on `main` too. In that font the address may break.
+- **The footer's two columns of links** were cut off at both edges in
+  OpenDyslexic under about 370px (on `main` too; "Release Notes" is longer
+  than "What's new" and added 5px a side). A narrower gap up to 400px, and
+  one column where even that cannot fit.
+- **A web address in a chapter's notes** (Matthew 5) scrolls the page
+  sideways on a 320px phone at any text size, and on a 375px one at Extra
+  large or in OpenDyslexic. **This is on the live site today**, preview or
+  not. The 2.0 look lets it break; `main` needs the
+  same one-line fix on its own.
+- **Windows contrast themes.** Every border takes one forced color there, a
+  transparent one included, so each contents rail drew its marker on every
+  link; /read's ring on the Continue chapter is a shadow, which is dropped;
+  the sort's radio dot kept the site's green on the theme's page color. The
+  rails name `Canvas` and `Highlight` (`base.css`), the ring becomes an
+  outline, and the dot takes `Highlight`.
+
+Already on `main`, not changed, for BVJ to know:
+
+- /search at phone widths in the check tool shows the desk's "Add ... to a
+  sheet" labels running off the window. A real phone never loads the desk,
+  so no reader sees it.
+- Support's two "liberatingscripture.org" buttons have
+  `rel="external noopener"`, without the `noreferrer` the repo's rule asks
+  of a link that leaves the site.
+- The check tool reports chapter pages 7px wider than the window at every
+  width, on `main` as well. It is the tool's arithmetic around the reserved
+  scrollbar gutter: the page cannot be scrolled sideways (tested).
+
+## At launch
+
+Ground rule 7 in full, for whoever flips the switch (it rides with item 14
+of "Launching" in `src/scripts/desk/CLAUDE.md`):
+
+1. **Decide first** what is still open with BVJ: the chapter's arrows,
+   Previous and Next, and "Back to top" (green today, quiet in the mockup);
+   whether the header takes the mockups' quieter look; whether the mockups
+   are archived in the repo.
+2. **The stamp.** `data-restyle` is set unconditionally or its gate is
+   dropped (item 14). Until every rule below is folded in, the stamp can
+   simply stay on: nothing here needs it gone.
+3. **Markup.** Delete every `data-v1` element; remove the `data-v2`
+   attribute from the rest; delete the two display rules in Layout.astro's
+   critical CSS. Keep `data-pagefind-ignore` on a block that still repeats
+   words found elsewhere on its page (the rails, the Glossary's list,
+   /read's grid).
+4. **Scripts.** Remove the stamp checks in `v2-frame.js`, `v2-glossary.js`,
+   `v2-search.js`, `v2-scripture.js`, `search.js` (`buildPageRange`,
+   `renderJumps`), the Glossary's inline ink script (its early return
+   becomes the whole of it: delete the ink), Home's inline script, and
+   /read's ring script. Two run-time moves can then become plain markup:
+   Home's search field can be rendered in the card (and the header's strip
+   turned off for Home), and /search's sort, filters, and picker can be
+   written in the left pane.
+5. **Styles.** Each `v2/<page>.css` loses its `:root[data-restyle]` prefix
+   and folds into the page's stylesheet, replacing the rules it overrides;
+   `v2/base.css` folds into `global.css` beside `restyle.css`'s. The
+   Glossary's own `--cream` goes. `test/site2-css.test.js` holds the gate
+   today and is retired or rewritten with it; the `test/v2-*.test.js` files
+   test logic and stay.
+6. **Labels.** "Release Notes" (header menu, footer, the home card) and
+   "Latest text changes" become the only wording (`v2Label` in
+   `SiteHeader.astro`, the two spans in `SiteFooter.astro`).
+7. **Read View** retires with the flip (item 11 there); its pill is already
+   hidden in the 2.0 look.
+8. **The desk's glossary title fit** (`desk/glossary-titles.js`) finds
+   nothing to do in the 2.0 look and can go.
+9. **Then check** as wave 4 did: the gate-off comparison no longer applies,
+   so compare each page with its mockup, run the matrix
+   (`tools/v2-wave4-matrix.sh` in the mockups' folder), and look at one
+   real contrast theme on Windows.
 
 ## What the build added or left different
 
