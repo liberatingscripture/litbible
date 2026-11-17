@@ -492,20 +492,27 @@ Each is behind the stamp unless it says otherwise.
   "may be the least bad option." Then: "Do your proposed E137 fix. Just note
   that it shouldn't show when interacting with a margin note or note glyph."
   Built: its grip shows while the pointer is on the bare page anywhere in
-  the sheet's left margin. E137 in `STUDY-DESK-FIXES.md` has the rules.
+  the sheet's left margin. E139 in `STUDY-DESK-FIXES.md` has the rules (it
+  was E137 on this branch when BVJ said that; `main` used the number first).
 - **The right adjuster** (between the text and the Notebook). BVJ: "The
   right margin width adjuster has a similar problem, but not as bad. I think
   the field of where the mouse is located when it becomes active is good,
   but the location of the adjuster itself should be in that narrow space
   between the sheet and the notebook panel." Its grip and hairline are drawn
-  in that space now; where it answers the pointer is unchanged. E139 there.
+  in that space now; where it answers the pointer is unchanged. E140 there.
 - **The page loading with the Notebook open** moves left a moment after it
   draws, in a window under about 1280px. BVJ: "The current load time for the
   Notebook panel makes clicking through chapter pages shift back and forth
   as it loads without the notebook and then a second later adds the
-  notebook." `main` does the same; E138 there. Its fix belongs on `main`
-  and is its own piece of work (started by BVJ the same day), not this
-  branch's.
+  notebook." `main` did the same, so its fix was its own piece of work off
+  `main` (PR #593; E137 there, which this branch had logged as its E138).
+  BVJ, once it was merged: "Yes, merge main." This branch took `main` the
+  same day (`fb73b6bc`: #592, a web address in a footnote wraps; #593; and
+  #594, the header's title is chosen before first paint). Measured in the
+  2.0 look afterward, with the Notebook open at 1024, 1105, and 1120px: the
+  column, the sheet, and the toolbar row are in place on the first painted
+  frame, and only the Notebook arrives later. With the preview off the
+  built pages match that `main` (353 the same; Home and /read as recorded).
 - **The Study Desk's own pages.** BVJ: "While I look at it, review the other
   pages we didn't review (the ones related to Study Desk) for this 2.0
   redesign," and "It likely won't need as much change because we partly

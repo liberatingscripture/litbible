@@ -3894,7 +3894,15 @@ says so; where BVJ was wondering, nothing is decided.)
   introduction, Read View, and a page with the desk off are as they were.
   Left as it is: Read View has the same kind of move once the desk loads
   (140px at 1100px, 50px at 1280px), since its column is not the one the
-  pre-paint script knows.
+  pre-paint script knows. **In the Site 2.0 look**, measured the same way
+  once that branch took `main` (2026-11-17): the column, the sheet, and the
+  toolbar row are in their final places on the first painted frame at 1024,
+  1105, and 1120px, and only the Notebook arrives later. A trap for anyone
+  measuring: headless Chrome with `--hide-scrollbars` still reserves the
+  page's 15px scrollbar room while a throwaway element's scrollbar measures
+  0, so the script's width is 15px out there and the column settles 7px
+  after it paints. No reader's browser does that; measure with scrollbars
+  showing.
 - **E138, rough: the header showed its long title for a moment before “LIT
   Bible” replaced it.** BVJ, 2026-11-17, after E137: “It was flashing the
   full ‘Liberation and Inclusion Translation’ before replacing it with ‘LIT
