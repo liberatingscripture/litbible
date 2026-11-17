@@ -48,6 +48,7 @@ import {
   MODE_LABELS,
 } from "./search-core.js";
 import { hasGreek } from "../lib/greek-detect.mjs";
+import { v2Search, v2PageRange, startV2Search, drawV2Groups } from "./v2-search.js";
 
 // The Greek search itself, loaded by the first Greek query (LG-6), so a reader
 // who never makes one downloads none of it. Whatever draws a Greek result runs
@@ -835,6 +836,9 @@ function setPager(total, page) {
  * Always shows first, last, and a window around current page.
  */
 function buildPageRange(current, total) {
+  // Site 2.0, with the restyle's stamp only: always five numbers from five
+  // pages on (BVJ, 2026-11-16). Without it, the rule below, unchanged.
+  if (v2Search()) return v2PageRange(current, total);
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1);
   }
@@ -869,6 +873,8 @@ function buildPageRange(current, total) {
  * between, which also keeps it off pages 2 and up (verses only).
  */
 function renderJumps(groups) {
+  // Site 2.0's list of groups in its pane (does nothing without the stamp).
+  drawV2Groups(groups);
   if (!jumpsEl) return;
   const shown = groups.filter((g) => g.count > 0);
   jumpsEl.replaceChildren();
@@ -1877,6 +1883,10 @@ function updateFromControls({ resetPage = true, push = false } = {}) {
 
 // The Study Desk's "make a sheet" (M5), only with the preview on.
 loadDeskSheets()?.then((m) => m?.attachSearchSheets(() => lastResultsDetail));
+
+// Site 2.0's layout (v2-search.js): with the restyle's stamp only, moves the
+// sort, the filters and the picker into the pane. Without it, returns at once.
+startV2Search();
 
 // Initial sync
 syncControlsFromUrl();
