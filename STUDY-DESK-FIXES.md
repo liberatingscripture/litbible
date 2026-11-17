@@ -3887,6 +3887,41 @@ says so; where BVJ was wondering, nothing is decided.)
   Left as it is: Read View has the same kind of move once the desk loads
   (140px at 1100px, 50px at 1280px), since its column is not the one the
   pre-paint script knows.
+- **E138, rough: the header showed its long title for a moment before “LIT
+  Bible” replaced it.** BVJ, 2026-11-17, after E137: “It was flashing the
+  full ‘Liberation and Inclusion Translation’ before replacing it with ‘LIT
+  Bible’ on pages narrow enough to use that title.” Not the desk's alone:
+  every reader had it. The header shows the long title where it fits and the
+  short one where it doesn't, which takes a measurement, and the script that
+  made it waited for idle time (up to two seconds) to keep its forced layout
+  off the load, so the page painted the long title first. Measured on the
+  built site in headless Chrome, by which title's text reached the screen:
+  every load flashed at a phone's width (up to about 715px), in a computer's
+  window from 1101 to about 1440px (760 to about 1160px with the preview
+  on), and at every width in OpenDyslexic. **Fixed** (PR #594): the script
+  is inline in `SiteHeader.astro`, right after the header's row, and the
+  title is chosen before the first paint, in the row's own fonts. It does
+  not measure as the page parses. The row is in its fallback fonts then,
+  which are wider (the long title by 56px, the nav by up to 31px), and the
+  layout a measurement forces makes Chrome paint sooner. A first version
+  did measure at once, and again as each font settled: in a new tab, in
+  the 90px of widths above a threshold (where the long title fits its own
+  font and not the fallback), about one load in eleven painted “LIT Bible”
+  for some 50 ms before the long title. The script as built asks for the
+  row's fonts and measures when all of them have settled, with the first
+  animation frame as the latest it waits. Measured again on the built
+  site: 29 pages and widths; 144 widths across the three thresholds on a
+  chapter (89 in new tabs, 55 going from page to page in one tab); and 73
+  on Read View's whole book, the heaviest page. One title painted, the
+  right one, every time, and the first paint is no later (a median of 108
+  ms with the script, 128 without it). What is left: on a first visit,
+  while the fonts are still on the network, the title is chosen for the
+  fallback fonts on screen, so in those 90px of widths “LIT Bible” can
+  show until the fonts arrive and the long title replaces it, as the
+  letters themselves change (on a throttled first visit, at two of four
+  such widths, for about 0.6 s; the seven widths outside them painted one
+  title). The rule is in `src/components/CLAUDE.md`, and
+  `test/header-title.test.js` holds the script's place and runs it.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
