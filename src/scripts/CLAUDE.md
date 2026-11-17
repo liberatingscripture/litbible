@@ -36,6 +36,11 @@ From the root's project tree.
                      #   greek-commands, the Greek search commands window,
                      #   whose top is greek-builder, the menu-based search
                      #   builder);
+                     #   v2-frame, Site 2.0's "you are here" marker on a
+                     #   contents rail (About, Privacy, the podcast's
+                     #   seasons): with the restyle's stamp only, it sets
+                     #   aria-current="location" on the link of the last
+                     #   heading above the reading line;
                      #   desk-gate + desk/, the Study Desk preview (its
                      #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;
