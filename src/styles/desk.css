@@ -4551,8 +4551,10 @@ html:has(.desk-greek__split--dragging) {
 /* src/scripts/desk/desk-page.js (STUDY-DESK.md, D9; phase 3c): one to four
    panes below the desk's own header, which holds the page's title and the
    Layout menu (SiteHeader's deskTitle). The source-text notice and the LIT's
-   license line follow the panes; the rest of the footer goes while the desk
-   is drawn. The panes grow as the header scrolls away (fitHeight), and
+   license line follow the panes, then the site's footer (E143; BVJ,
+   2026-11-17: it was hidden while the desk was drawn, from when the page
+   filled the window).
+   The panes grow as the header scrolls away (fitHeight), and
    scroll anchoring is off so the browser doesn't answer that growth with a
    scroll of its own. Without the preview the page is its ordinary short
    note. */
@@ -4600,10 +4602,6 @@ html[data-desk-workspace] {
 .desk-panel__head,
 .desk-panel__tabs {
   line-height: 1.5;
-}
-
-html[data-desk-workspace] .site-footer {
-  display: none;
 }
 
 html[data-desk-workspace] .desk-page {

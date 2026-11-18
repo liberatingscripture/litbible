@@ -446,8 +446,9 @@ Each is behind the stamp unless it says otherwise.
   key reaches the groups first; "At launch," step 3, swaps the two blocks.
   A phone is unchanged: the groups, then the newsletter, as on the live
   site (asked of BVJ, not decided). On a page whose footer has no
-  newsletter (My Notebook, My sheets, Unsubscribe) the emptied block takes
-  no room and the groups have the whole width.
+  newsletter (Unsubscribe alone since E143, 2026-11-17; the Study Desk's
+  three pages left it out until then) the emptied block takes no room and
+  the groups have the whole width.
 - **The groups wrap as a grid.** Where the five did not fit one row (about
   721px to 833px wide with Study there; wider in OpenDyslexic), four stayed
   and Connect went under them alone. BVJ: "When the columns wrap, can they

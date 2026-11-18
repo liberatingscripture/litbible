@@ -7912,7 +7912,9 @@ recommendations, for BVJ to confirm or change:
     carry until This verse, Greek, and the LIT pane are real (3d, 3e); the
     pin is kept in the layout already.
   - **The page fills the window and hides the footer**, so each pane
-    scrolls on its own, and **the app announcement never opens on it**,
+    scrolls on its own (the page scrolls since 2026-10-21, and the footer,
+    newsletter and all, came back in E143, 2026-11-17), and **the app
+    announcement never opens on it**,
     since its panes hold the text.
 
 ### 2026-10-18 (Phase 3 split into parts)
