@@ -12,6 +12,7 @@
 // nothing while the pane is not drawn (under 1000px).
 
 import { currentIndex } from "./v2-frame.js";
+import { compareGlossaryLabels } from "../lib/glossary-sort.mjs";
 
 /** The sort key the page is in: the switch's state, as glossary.astro's
  *  script sets it ("traditional" when checked, else "lit"). */
@@ -20,11 +21,11 @@ export function sortKeyOf(checked) {
 }
 
 /** The rail's items in the order the page sorts its entries: by the label
- *  for `key`, compared as glossary.astro compares the entries' data-sort-*.
- *  `items` are { lit, traditional } (or anything carrying them); a copy is
- *  returned. */
+ *  for `key`, a leading article skipped, as glossary.astro sorts its entries
+ *  (the one rule is glossary-sort.mjs). `items` are { lit, traditional } (or
+ *  anything carrying them); a copy is returned. */
 export function orderRail(items, key) {
-  return [...items].sort((a, b) => String(a[key]).localeCompare(String(b[key])));
+  return [...items].sort((a, b) => compareGlossaryLabels(a[key], b[key]));
 }
 
 /** The scrollTop that brings an item fully into a scrolled list, or the

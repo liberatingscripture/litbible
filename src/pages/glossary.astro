@@ -6,6 +6,7 @@ import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import { linkGlossaryCrossRefs } from "../lib/glossary-crossrefs.mjs";
 import { normalizeLabel } from "../../scripts/lib/glossary-feed-core.mjs";
 import { gatedOccurrences } from "../lib/alignment-gate.mjs";
+import { compareGlossaryLabels, glossarySortKey } from "../lib/glossary-sort.mjs";
 import "../styles/pages/glossary.css";
 import "../styles/v2/glossary.css";
 
@@ -133,9 +134,14 @@ const totalOccurrences = (id: string) =>
   (occurrencesByTerm[id] ?? []).reduce((sum, form) => sum + form.count, 0);
 
 // Two sorted views — each menu and the initial page order use their own sort key.
-const byLit = [...rawEntries].sort((a, b) => a.data.litMenu.localeCompare(b.data.litMenu));
+// A leading article is skipped ("The Adversary" files under A); the rule is
+// glossary-sort.mjs, which the page's sort switch and the 2.0 list share.
+const byLit = [...rawEntries].sort((a, b) =>
+  compareGlossaryLabels(a.data.litMenu, b.data.litMenu)
+);
 const byTraditional = [...rawEntries].sort((a, b) =>
-  (a.data.menuTraditional ?? a.data.traditional).localeCompare(
+  compareGlossaryLabels(
+    a.data.menuTraditional ?? a.data.traditional,
     b.data.menuTraditional ?? b.data.traditional
   )
 );
@@ -339,6 +345,8 @@ const menuData = {
               const wrap = document.querySelector(".entries-wrap");
               if (!wrap) return;
               const entryEls = Array.from(wrap.querySelectorAll(":scope > .entry"));
+              // data-sort-* hold the labels without a leading article
+              // (glossarySortKey), so a plain compare files "The Adversary" under A.
               const key = category === "traditional" ? "sortTraditional" : "sortLit";
               entryEls.sort((a, b) => a.dataset[key].localeCompare(b.dataset[key]));
               entryEls.forEach((e) => wrap.appendChild(e));
@@ -421,8 +429,8 @@ const menuData = {
                     class="entry v2-rule"
                     data-entry={data.id}
                     data-animate="underline"
-                    data-sort-lit={data.litMenu}
-                    data-sort-traditional={data.menuTraditional ?? data.traditional}
+                    data-sort-lit={glossarySortKey(data.litMenu)}
+                    data-sort-traditional={glossarySortKey(data.menuTraditional ?? data.traditional)}
                   >
                     <header class="entry-head">
                       <h2 class="entry-title" id={data.id}>
