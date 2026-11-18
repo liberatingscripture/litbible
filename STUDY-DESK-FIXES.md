@@ -4183,6 +4183,25 @@ says so; where BVJ was wondering, nothing is decided.)
   over the card's lower part scrolling the note, not the page;
   `test/desk-audit8-dom-list-paging.test.js` checks the place and the
   long class. Status: built, awaiting BVJ's look.
+- **E152, bug: the undo bar stayed until closed.** BVJ, 2026-11-17: “Check
+  the undo bar's auto dismiss timer. It seems like it's just staying there
+  forever until I dismiss,” then “check all the undo bars, not just
+  highlight.” The bar is one module (`desk/undo-bar.js`) for every notice,
+  and it is held open while the pointer is on it or focus is in it, so a
+  bar in use never closes under the reader. A mouse click on Undo or Redo
+  focuses that button, and the history puts up the next notice (“Undone:
+  …” with Redo) with focus moved to its button, so that bar held itself
+  open for good once the mouse moved away: reproduced in the Browser pane,
+  still up after 15 seconds. **Fixed**: only keyboard focus holds the bar
+  (`inUse`, `:focus-visible`), so a keyboard reader's bar still waits for
+  them; and closing the bar clears the hold, since a bar the × takes away
+  from under the pointer gets no `pointerleave` and would have left the next
+  notice with no clock. Two bars stay by design and are unchanged: a
+  layout's bar on /desk, whose undo is not on Ctrl+Z (E131), and the backup
+  reminder's choices (E113). Checked in the pane: after a mouse-clicked
+  Undo, the Redo bar closed ten seconds after the mouse left, focus still on
+  its button. `test/desk-audit8-dom-undo-bar.test.js` holds both cases, and
+  both fail on the old code. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

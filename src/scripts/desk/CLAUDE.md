@@ -586,8 +586,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      text editor (its toolbar too, where Ctrl+Z undoes the typing, BA74) and
      while a note editor is open, leaving the browser's own undo alone. Not tied to the Keyboard
      switch (it isn't a single-key shortcut, WCAG 2.1.4). The undo bar closes by itself after ten seconds (BVJ,
-     2026-10-09), never while hovered or focused; that is safe only because
-     the same undo stays on Ctrl+Z, so don't remove one without the other.
+     2026-10-09), never while hovered or under keyboard focus (E152); safe
+     only because the same undo stays on Ctrl+Z, so keep both.
      **A bar whose Undo is not on Ctrl+Z** (a layout change writes no history
      entry; E131) passes `{ keyless: true }`: it names no key and stays until
      closed, pressed or replaced. A tour starting closes it, and the

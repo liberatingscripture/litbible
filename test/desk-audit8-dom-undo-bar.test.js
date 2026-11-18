@@ -36,8 +36,9 @@ test("the bar closes by itself after the full time, and not before", () => {
 
 test("focus on the bar's button holds it open; leaving starts the full time again", () => {
   showUndo("Note deleted.", () => {});
+  // Keyboard focus: happy-dom counts every focus as :focus-visible.
   undoButton().focus();
-  fire(bar(), "focusin");
+  fire(undoButton(), "focusin");
   mock.timers.tick(CLOSE_AFTER_MS * 3);
   assert.equal(bar().hidden, false, "never closes under the reader's focus");
 
@@ -191,4 +192,48 @@ test("E127: a notice can carry a link that opens in a new tab, and the next noti
   assert.equal(undoButton().hidden, true, "a notice has no Undo");
   showNotice("Plain.");
   assert.equal(document.querySelector(".desk-undo__link"), null);
+});
+
+// E152 (BVJ, 2026-11-17): “It seems like it's just staying there forever
+// until I dismiss.” Pressing Undo or Redo with the mouse left focus on the
+// next notice's button, and that focus held the bar open for good.
+test("E152: focus a mouse click leaves on the bar's button doesn't hold it open", async () => {
+  const real = window.Element.prototype.matches;
+  // A mouse click's focus is not :focus-visible.
+  window.Element.prototype.matches = function (selector) {
+    return selector === ":focus-visible" ? false : real.call(this, selector);
+  };
+  try {
+    showUndo("Note deleted.", () => {
+      showUndo("Undone: note deleted.", () => {}, { label: "Redo" });
+    });
+    undoButton().focus();
+    fire(undoButton(), "focusin");
+    undoButton().click();
+    for (let i = 0; i < 5; i++) await Promise.resolve();
+    assert.equal(undoButton().textContent, "Redo");
+    assert.equal(document.activeElement, undoButton(), "focus is on the new notice's button");
+    fire(undoButton(), "focusin");
+    mock.timers.tick(CLOSE_AFTER_MS - 1);
+    assert.equal(bar().hidden, false);
+    mock.timers.tick(1);
+    assert.equal(bar().hidden, true, "it closes on time all the same");
+  } finally {
+    window.Element.prototype.matches = real;
+  }
+});
+
+test("E152: a bar closed with the pointer on it doesn't hold the next notice open", () => {
+  // The last test's focus stays on its hidden button here, with no main region
+  // to go to; its blur's release check runs before this test begins.
+  document.activeElement?.blur?.();
+  mock.timers.tick(1);
+  showUndo("Note deleted.", () => {});
+  fire(bar(), "pointerenter");
+  // The × takes the bar away from under the pointer: no pointerleave comes.
+  document.querySelector(".desk-undo__close").click();
+  assert.equal(bar().hidden, true);
+  showUndo("Highlight on John 3:3 removed.", () => {});
+  mock.timers.tick(CLOSE_AFTER_MS);
+  assert.equal(bar().hidden, true);
 });

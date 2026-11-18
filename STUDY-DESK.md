@@ -3963,7 +3963,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        the newer-writing-wins rule (rule a) it outranks what it undid on the
        reader's other devices.
      - **The bar closes by itself after ten seconds** (BVJ, 2026-10-09),
-       never while hovered or focused; the same undo stays on the key.
+       never while hovered or under keyboard focus (a mouse click's focus
+       held it for good until E152); the same undo stays on the key.
      - The rules are `src/lib/desk-history.mjs` (pure, unit-tested); the
        stacks and keys are `src/scripts/desk/history.js`, and the store
        records each change it writes. The Display tray lists the key.
