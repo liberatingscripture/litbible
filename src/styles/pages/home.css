@@ -872,6 +872,14 @@
   gap: 18px;
 }
 
+/* The three cards with a small picture hold it, the question and the answer
+   in one wrapper, so Site 2.0 can wrap the text around the picture (v2/home.css).
+   Here it takes no box of its own, and the grid lays its three children out
+   exactly as it did before the wrapper. */
+.question-card__text {
+  display: contents;
+}
+
 /* =========================================================
    Media — forced square crop (no file re-cropping needed)
    ========================================================= */

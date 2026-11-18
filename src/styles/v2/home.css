@@ -657,18 +657,40 @@
   display: none;
 }
 
-/* Three cards keep a small picture at the top right. */
+/* Three cards keep a small picture at the top right, and the text wraps
+   around it with a buffer, at any width and however the lines break (BVJ,
+   2026-11-17: "There needs to be a buffer around the icons to keep the text
+   away if it gets too close"; the answer's first line ran under the picture
+   when the title took one line). The picture floats inside the wrapper that
+   holds the question and the answer (.question-card__text), so both flow
+   around it; its margin is the buffer: 16px to its left, 14px below. The
+   -2px and -4px put it where it was drawn before, 18px in from the card's top
+   and right edges (the card's padding is 20px and 22px). The link stays the
+   card's last flex item, so it still sits at the foot and still stretches
+   over the card. */
+:root[data-restyle] .v2-home__q--thumb .question-card__text {
+  display: flow-root;
+}
+
 :root[data-restyle] .v2-home__q--thumb .question-card__media {
   display: block;
-  position: absolute;
-  top: 18px;
-  right: 18px;
+  float: right;
   width: 44px;
   height: 44px;
+  margin: -2px -4px 14px 16px;
   aspect-ratio: auto;
   box-sizing: border-box;
-  border: 1px solid var(--desk-card-edge);
   border-radius: 10px;
+}
+
+/* A picture draws its own edge, or it doesn't. The Collective's coin and the
+   app's icon do, and a box's outline beside them is a second shape that lines
+   up with neither (BVJ, 2026-11-17: the outlines "detract from the LSC card and
+   the Apps card because they don't align with the icons"). The podcast's cover
+   has none, so it keeps the card's hairline. A new picture with no edge of its
+   own joins .v2-home__q--framed. */
+:root[data-restyle] .v2-home__q--framed .question-card__media {
+  border: 1px solid var(--desk-card-edge);
 }
 
 :root[data-restyle] .question-card__question {
@@ -678,15 +700,16 @@
   text-align: left;
 }
 
-:root[data-restyle] .v2-home__q--thumb .question-card__question {
-  padding-right: 56px;
-}
-
 :root[data-restyle] .question-card__answer {
   margin: 0;
   color: var(--text);
   font-size: 1rem;
   line-height: 1.5;
+}
+
+/* Inside the wrapper the card's 8px gap no longer reaches between the two. */
+:root[data-restyle] .v2-home__q--thumb .question-card__answer {
+  margin-top: 8px;
 }
 
 :root[data-restyle] a.question-cta {
