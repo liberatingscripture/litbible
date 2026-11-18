@@ -51,14 +51,14 @@ test("a search starts at the first page again", async () => {
   assert.equal(list.el.querySelector(".desk-np__more").textContent, "Show 100 more");
 });
 
-function margin(n, { showVerse = () => {} } = {}) {
+function margin(n, { showVerse = () => {}, bodies = [] } = {}) {
   resetDom();
   document.body.innerHTML = `<div class="chapter-paragraphs"><p id="line">For God so loved the world.</p></div>`;
   const textBox = document.querySelector(".chapter-paragraphs");
   textBox.getBoundingClientRect = () => ({ left: 400, right: 1000, top: 0, bottom: 5000, width: 600, height: 5000 });
   const range = document.createRange();
   range.selectNodeContents(document.getElementById("line"));
-  const notes = Array.from({ length: n }, (_, i) => note(`note ${i}`, 3, 16));
+  const notes = Array.from({ length: n }, (_, i) => note(bodies[i] ?? `note ${i}`, 3, 16));
   const source = {
     textBox,
     lineEl: () => document.getElementById("line"),
@@ -93,21 +93,37 @@ test("five notes draw no button, and with no This verse to open every note is dr
   assert.equal(document.querySelector("button.desk-note__more"), null);
 });
 
-test("E147: only the note just above the button waits for a rest before it opens, and leaving undoes it", async () => {
-  margin(8);
-  await settle(30);
-  const notes = [...document.querySelectorAll(".desk-note")];
-  const resting = notes.filter((n) => n.classList.contains("desk-note--rest"));
-  assert.equal(resting.length, 1, "one note waits");
-  const button = document.querySelector("button.desk-note__more");
-  const last = notes.reduce((a, b) => (parseFloat(b.style.top) > parseFloat(a.style.top) ? b : a));
-  assert.equal(resting[0], last, "the lowest note shown, right above the button");
-  assert.ok(parseFloat(last.style.top) < parseFloat(button.style.top));
-  last.dispatchEvent(new PointerEvent("pointerenter", { pointerType: "mouse" }));
-  await settle(100);
-  assert.equal(last.classList.contains("desk-note--rested"), false, "passing over it leaves it cut");
-  await settle(250);
-  assert.equal(last.classList.contains("desk-note--rested"), true, "resting on it opens it");
-  last.dispatchEvent(new PointerEvent("pointerleave", { pointerType: "mouse" }));
-  assert.equal(last.classList.contains("desk-note--rested"), false);
+// E151 (BVJ, 2026-11-17, "Option 1"): a hovered note lets the pointer
+// through the part of its card below its own place, which desk.css reads
+// from --desk-note-slot; Edit is each note's own, at the end of its first
+// line. happy-dom lays nothing out, so the words' heights are given here.
+test("E151: Edit is each note's own, and a cut note knows its place and whether the hover's card holds it", async () => {
+  const own = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollHeight");
+  Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
+    configurable: true,
+    get() {
+      if (!this.classList.contains("desk-note__toggle")) return 0;
+      return this.textContent.includes("very-long") ? 600 : 176;
+    },
+  });
+  try {
+    margin(3, { bodies: ["first words", "middle words", "very-long words"] });
+    await settle(30);
+    const notes = [...document.querySelectorAll(".desk-note")];
+    assert.equal(notes.length, 3);
+    for (const el of notes) {
+      assert.ok(el.querySelector(":scope > .desk-note__edit"), "Edit is the note's own child");
+      assert.equal(el.querySelector(".desk-note__foot"), null, "no foot without a flag");
+      assert.ok(el.classList.contains("desk-note--cut"));
+      const slot = el.style.getPropertyValue("--desk-note-slot");
+      assert.match(slot, /^\d+(\.\d+)?px$/);
+      assert.equal(slot, el.style.getPropertyValue("--desk-note-max"), "unflagged, its place is its cut box");
+    }
+    const long = notes.filter((el) => el.classList.contains("desk-note--long"));
+    assert.equal(long.length, 1, "only the note taller than the hover's card");
+    assert.match(long[0].textContent, /very-long/);
+  } finally {
+    if (own) Object.defineProperty(HTMLElement.prototype, "scrollHeight", own);
+    else delete HTMLElement.prototype.scrollHeight;
+  }
 });

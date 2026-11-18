@@ -409,24 +409,24 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
      `layoutCapped` folds the rest, and any starting below the text's foot, into
      one "N more notes" button that opens This verse at its notes (`showVerse`,
-     E147); no This verse tab, no cap.
+     E147); no This verse tab, no cap. **A hovered note lets the pointer
+     through below its place** (E151, `--desk-note-slot`); Edit sits in its
+     first line.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
      The notes' settings (`data-desk-notes` and `data-desk-note-font` on
      `<html>`) have no pre-paint script, since nothing of
-     the desk paints before it loads. "Hide my marks" (M1, key H) is no
-     setting of its own: it saves and turns off
-     "Notes in the margin", "My bookmarks" and both views' "My highlights", and puts
-     them back (`note-settings.js`). With "Notes in the margin" off, a footnote's
+     the desk paints before it loads. "Hide my marks" (M1, key H) saves,
+     turns off and puts back "Notes in the margin", "My bookmarks" and both
+     views' "My highlights" (`note-settings.js`). With "Notes in the margin" off, a footnote's
      popover lists none of the reader's notes either (`desk.css`, BA17),
      while the Notebook's tabs and /desk's panes still do. Going to a note
-     from the panel marks its words even then, and puts focus on the verse
-     number they start in, since the margin holds no note to focus (BA19).
+     from the panel still marks its words and focuses their first verse
+     number (BA19).
      **A verse holds one bookmark**: Bookmark and Remove bookmark plan
      over the notebook in the write's own transaction (`planBookmark`,
      `planUnbookmark` in `desk-store-core.mjs`), so a second press adds
-     nothing and removing takes every bookmark a copy may have brought
-     (BA16).
+     nothing and removing takes any a copy brought (BA16).
      While the desk is on, each Chapter View verse number's accessible name
      names the reader's bookmark and highlights and counts their notes on it
      ("Verse 18, bookmarked, highlighted yellow, 1 note of mine";
