@@ -92,3 +92,22 @@ test("five notes draw no button, and with no This verse to open every note is dr
   assert.equal(document.querySelectorAll(".desk-note").length, 8);
   assert.equal(document.querySelector("button.desk-note__more"), null);
 });
+
+test("E147: only the note just above the button waits for a rest before it opens, and leaving undoes it", async () => {
+  margin(8);
+  await settle(30);
+  const notes = [...document.querySelectorAll(".desk-note")];
+  const resting = notes.filter((n) => n.classList.contains("desk-note--rest"));
+  assert.equal(resting.length, 1, "one note waits");
+  const button = document.querySelector("button.desk-note__more");
+  const last = notes.reduce((a, b) => (parseFloat(b.style.top) > parseFloat(a.style.top) ? b : a));
+  assert.equal(resting[0], last, "the lowest note shown, right above the button");
+  assert.ok(parseFloat(last.style.top) < parseFloat(button.style.top));
+  last.dispatchEvent(new PointerEvent("pointerenter", { pointerType: "mouse" }));
+  await settle(100);
+  assert.equal(last.classList.contains("desk-note--rested"), false, "passing over it leaves it cut");
+  await settle(250);
+  assert.equal(last.classList.contains("desk-note--rested"), true, "resting on it opens it");
+  last.dispatchEvent(new PointerEvent("pointerleave", { pointerType: "mouse" }));
+  assert.equal(last.classList.contains("desk-note--rested"), false);
+});

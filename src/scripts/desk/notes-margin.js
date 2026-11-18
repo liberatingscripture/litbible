@@ -68,6 +68,9 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 // bookmark's (BOOKMARK_MARK), with BOOKMARK_LANE between lanes. Its hit area is
 // widened in desk.css.
 const FLAG = 18;
+// How long the pointer rests on the note just above a stack's "N more notes"
+// before that note opens over the button (E147).
+const REST_MS = 250;
 
 /**
  * @param {{ store: object, source: object | null,
@@ -353,6 +356,15 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
           el.style.setProperty("--desk-note-max", `${above + lines * noteLine}px`);
           el.style.setProperty("--desk-note-mask", mask);
         }
+      }
+      // The note just above a stack's "N more notes" opens only once the
+      // pointer rests on it (E147; BVJ, 2026-11-17): passing over it on the
+      // way to the button leaves it cut, and once open it comes over the
+      // button, since the reader is reading it.
+      const isMore = (l) => byId.get(l.id).classList.contains("desk-note__more");
+      for (const m of laid.filter(isMore)) {
+        const above = laid.filter((l) => l.y < m.y && !isMore(l)).sort((a, b) => b.y - a.y)[0];
+        if (above) openOnRest(byId.get(above.id));
       }
     } else {
       // Bookmarks take their places in the circles' rows, so the two never
@@ -783,3 +795,21 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   return { reveal, canReveal };
 }
 
+/**
+ * Let a note open on hover only after the pointer rests on it for REST_MS
+ * (`desk-note--rested`; desk.css keeps it cut until then). For the note just
+ * above a stack's "N more notes" (E147). A finger opens notes by a tap.
+ */
+function openOnRest(el) {
+  el.classList.add("desk-note--rest");
+  let timer = 0;
+  el.addEventListener("pointerenter", (e) => {
+    if (e.pointerType === "touch") return;
+    clearTimeout(timer);
+    timer = setTimeout(() => el.classList.add("desk-note--rested"), REST_MS);
+  });
+  el.addEventListener("pointerleave", () => {
+    clearTimeout(timer);
+    el.classList.remove("desk-note--rested");
+  });
+}
