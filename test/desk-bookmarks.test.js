@@ -91,6 +91,8 @@ test("the flag round-trips and refuses anything that isn't one", () => {
   const f = parseFollowFlag(followFlagFor({ id: "abc", bookKey: "romans", extra: 1 }));
   assert.deepEqual(f, { id: "abc", bookKey: "romans" });
   assert.deepEqual(parseFollowFlag(followFlagFor({ id: "abc", bookKey: "romans", tab: "t1" })), { id: "abc", bookKey: "romans", tab: "t1" });
+  assert.deepEqual(parseFollowFlag(followFlagFor({ id: "abc", bookKey: "romans", pane: "p2" })), { id: "abc", bookKey: "romans", pane: "p2" }, "/desk's pane (E153)");
+  assert.deepEqual(parseFollowFlag('{"id":"abc","bookKey":"romans","pane":3}'), { id: "abc", bookKey: "romans" }, "a pane is a string");
   assert.deepEqual(parseFollowFlag('{"id":"abc","bookKey":"romans","tab":""}'), { id: "abc", bookKey: "romans" }, "an empty token is none");
   assert.deepEqual(parseFollowFlag('{"id":"abc","bookKey":"romans","tab":7}'), { id: "abc", bookKey: "romans" }, "a token is a string");
   for (const bad of [null, "", "not json", "{}", '{"id":"x","bookKey":"nope"}', '{"id":"","bookKey":"romans"}', "[]"]) {
@@ -107,6 +109,9 @@ test("a page outside the book no longer ends the flag; only a pause that has run
   assert.equal(nextFollowState(paused, 1000 + PAUSE_EXPIRES_MS), paused, "right at the limit it still waits");
   assert.equal(nextFollowState(paused, 1000 + PAUSE_EXPIRES_MS + 1), null, "a pause from long ago is let go");
   assert.deepEqual(resumedFlag({ ...paused, tab: "t" }, "mark"), { id: "abc", bookKey: "mark", tab: "t" });
+  assert.deepEqual(pausedFlag({ ...flag, pane: "p1" }, 1000).pane, "p1", "a pause keeps the pane it follows from");
+  assert.deepEqual(resumedFlag({ ...paused, pane: "p1" }), { id: "abc", bookKey: "romans", pane: "p1" }, "reading on keeps it");
+  assert.deepEqual(resumedFlag({ ...paused, pane: "p1" }, "romans", "p2"), { id: "abc", bookKey: "romans", pane: "p2" }, "“Move it here” takes the leading pane");
 });
 
 test("a pause survives being stored and read back", () => {
@@ -139,14 +144,14 @@ test("what a followed bookmark does at each report", () => {
   assert.equal(followStep(paused, record, near), "resume");
 });
 
-test("E28: a LIT pane that has just become /desk's leading one pauses the follow wherever it is", () => {
+test("E28, E153: a /desk LIT pane other than the follow's own pauses it wherever it is, and never moves it", () => {
   const record = { bookKey: "luke", chapter: 1, verse: 12 };
   const near = { bookKey: "luke", chapter: 1, verse: 14 };
-  const flag = { id: "abc", bookKey: "luke" };
+  const flag = { id: "abc", bookKey: "luke", pane: "p1" };
   const paused = { ...flag, paused: true };
-  assert.equal(followStep(flag, record, near, null, { newLead: true }), "pause", "even on the bookmark's own chapter");
-  assert.equal(followStep(paused, record, near, null, { newLead: true }), "stay", "a paused one stays paused, never resumes on the change itself");
-  assert.equal(followStep(paused, record, near), "resume", "reading on from it in the new pane resumes it");
+  assert.equal(followStep(flag, record, near, null, { otherPane: true }), "pause", "even on the bookmark's own chapter");
+  assert.equal(followStep(paused, record, near, null, { otherPane: true }), "stay", "reading on from the bookmark in another pane never resumes it");
+  assert.equal(followStep(paused, record, near), "resume", "reading on from it in its own pane does");
   // The LIT pane scrolls on from one book into the next: that is still a jump.
   assert.equal(followStep(flag, { bookKey: "matthew", chapter: 28, verse: 20 }, { bookKey: "mark", chapter: 1, verse: 1 }), "pause");
 });

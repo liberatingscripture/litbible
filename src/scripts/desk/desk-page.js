@@ -38,12 +38,12 @@
 //   reader's Continue reading place, or Matthew 1.
 // - **A bookmark that moves as the reader reads follows the leading LIT pane**
 //   (E28; BVJ, 2026-11-06), by a chapter page's rules (bookmark-follow.js):
-//   every commit that moves the leading pane's place reports it (`hear`), and
-//   one that makes another pane the leading one reports it as a new lead
-//   (`lead`), which pauses the follow. Other LIT panes never move it, the
-//   page's opening place isn't reported, and the tour reports nothing. That
-//   reporting is desk-lead.js, and dragging a pane by its header is
-//   pane-move.js (Audit 8, LG8-8); `start()` hands each the layout.
+//   every commit that moves the leading pane's place, or makes another pane
+//   the leading one, reports the place and the pane (`hear`). The follow keeps
+//   to its own pane (E153): another LIT pane pauses it and asks, and never
+//   moves it. The page's opening place isn't reported, and the tour reports
+//   nothing. That reporting is desk-lead.js, and dragging a pane by its header
+//   is pane-move.js (Audit 8, LG8-8); `start()` hands each the layout.
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own

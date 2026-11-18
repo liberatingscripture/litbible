@@ -1078,6 +1078,9 @@ sign of a feature: log it, and move it when it's clear where it belongs).
   and pausing on /desk and where the bar sits, switching the leading pane,
   clicking a moving bookmark's row in My Notes, Matthew 28 to Mark 1 in the
   pane, This verse after a move, and a duplicated /desk tab.
+  **Amended by E153** (BVJ, 2026-11-18): reading on from the bookmark in a
+  pane that has newly taken the lead no longer resumes it. The follow keeps
+  to the pane it reads from, and any other LIT pane only pauses it and asks.
 
 - **E29, bug and rough: with verse numbers off, /desk's LIT pane keeps its
   chapter headings, and its location field says verse 1 the whole time.** BVJ
@@ -4202,6 +4205,31 @@ says so; where BVJ was wondering, nothing is decided.)
   Undo, the Redo bar closed ten seconds after the mouse left, focus still on
   its button. `test/desk-audit8-dom-undo-bar.test.js` holds both cases, and
   both fail on the old code. Status: fixed.
+- **E153, bug: a second LIT pane moved a following bookmark.** BVJ,
+  2026-11-18, from the testing list: “scrolling a second LIT pane moves the
+  bookmark to follow it with no dialog. Planned fix: pause and ask,” so that
+  “Other LIT panes never move it on their own: scrolling a different LIT
+  pane brings up the same dialog as going to a distant chapter, so you
+  choose whether the bookmark follows or stays paused.” The cause was E28's
+  own rule: the wheel in a pane makes it the leading one (`touch` in
+  `desk-page.js`), which paused the follow, but the pane's next report near
+  the bookmark counted as reading on from it and resumed the follow there,
+  so a pane showing the same stretch took the bookmark over. **Fixed**: the
+  flag names the pane the follow reads from (`pane`, set to the leading LIT
+  pane when the follow starts or /desk opens), each report names its pane,
+  and a report from any other pane can only pause it (once, with the bar and
+  its “Move it here”) or leave it paused (`followStep`'s `otherPane`, which
+  replaces `newLead`). Reading on in its own pane still resumes it; “Move it
+  here” makes the leading pane its own; a pane that has closed (or a new
+  arrangement) gives way to the pane leading; a chapter page drops `pane`,
+  so /desk takes its leading pane again on the way back. Checked in the
+  pane with two LIT panes at John 3:14: the left pane moved the bookmark to
+  3:18; scrolling the right one paused it with the bar, and on to 3:27 left
+  it at 3:18; the row's “Move it here” moved it to 3:27 and it then followed
+  the right pane, and scrolling the left one paused it with the bar. Tests in
+  `desk-bookmarks.test.js`, `bookmark-follow.test.js` and
+  `desk-audit8-dom-desk-lead.test.js`, which fail on the old code. The help
+  page's bookmark paragraph says so. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
@@ -4532,12 +4560,17 @@ The rules are condensed in `src/scripts/desk/CLAUDE.md` (rule 13, "Bookmarks, an
        A follow that ends on a verse
        already holding a bookmark of its kind is tolerated.
        **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
-       `desk-page.js` runs the follower with `page: DESK_PAGE` and `place`, and
-       after every `commit` reports the leading pane's place (`hear`) or, when
-       another pane has become the leading one, `lead`, which pauses the follow
-       (`followStep`'s `newLead`). Other LIT panes never move it; the opening
-       place, a restore and the tour report nothing, and `lit:last-read` isn't
-       heard there. "Move it here" takes the leading pane's place at the press.
+       `desk-lead.js` runs the follower with `page: DESK_PAGE`, `place` and
+       `panes`, and after every `commit` reports the leading pane's place and
+       its id (`hear`). **The follow keeps to its own pane** (E153; BVJ,
+       2026-11-18): the flag's `pane` is the leading LIT pane when the follow
+       starts or /desk opens, and a report from any other LIT pane pauses it,
+       with the bar, and never moves or resumes it (`followStep`'s
+       `otherPane`). Reading on in its own pane resumes it; a pane that has
+       closed gives way to the one leading; any other page drops `pane`. The
+       opening place, a restore and the tour report nothing, and
+       `lit:last-read` isn't heard there. "Move it here" takes the leading
+       pane's place at the press, and that pane becomes the follow's own.
        The pause bar is the ordinary undo bar, outside the panes.
        **The verse menu and the selection panel group a verse's bookmarks in a
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and Edit

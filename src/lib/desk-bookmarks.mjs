@@ -148,11 +148,12 @@ export const PAUSE_EXPIRES_MS = 12 * 60 * 60 * 1000;
 
 /**
  * The flag as stored text, or null for anything that isn't one: { id,
- * bookKey, tab, paused?, since?, told? }. `tab` is there only when the flag
- * has one (a flag stored before tokens has none). `paused` is a follow that
- * is waiting at the bookmark's place while the reader looks around; `since`
- * is when it began, and `told` is whether the reader has been shown the bar
- * that offers to move it.
+ * bookKey, tab, pane?, paused?, since?, told? }. `tab` is there only when the
+ * flag has one (a flag stored before tokens has none). `pane` is, on /desk,
+ * the LIT pane the follow reads from (E153): another pane never moves it.
+ * `paused` is a follow that is waiting at the bookmark's place while the
+ * reader looks around; `since` is when it began, and `told` is whether the
+ * reader has been shown the bar that offers to move it.
  */
 export function parseFollowFlag(raw) {
   try {
@@ -160,6 +161,7 @@ export function parseFollowFlag(raw) {
     if (!(typeof f?.id === "string" && f.id && Object.hasOwn(BOOKS, f.bookKey))) return null;
     const flag = { id: f.id, bookKey: f.bookKey };
     if (typeof f.tab === "string" && f.tab) flag.tab = f.tab;
+    if (typeof f.pane === "string" && f.pane) flag.pane = f.pane;
     if (f.paused === true) {
       flag.paused = true;
       if (Number.isFinite(f.since)) flag.since = f.since;
@@ -175,6 +177,7 @@ export function parseFollowFlag(raw) {
 export function followFlagFor(flag) {
   const out = { id: flag.id, bookKey: flag.bookKey };
   if (flag.tab) out.tab = flag.tab;
+  if (flag.pane) out.pane = flag.pane;
   if (flag.paused) {
     out.paused = true;
     if (Number.isFinite(flag.since)) out.since = flag.since;
@@ -188,10 +191,15 @@ export function pausedFlag(flag, now) {
   return { ...flag, paused: true, since: now, told: false };
 }
 
-/** The flag following again, in `bookKey` (a bookmark moved to another book follows there). */
-export function resumedFlag(flag, bookKey = flag.bookKey) {
+/**
+ * The flag following again, in `bookKey` (a bookmark moved to another book
+ * follows there), and on /desk from `pane` ("Move it here" takes the leading
+ * LIT pane's place, so that pane is the one it follows from then on).
+ */
+export function resumedFlag(flag, bookKey = flag.bookKey, pane = flag.pane) {
   const out = { id: flag.id, bookKey };
   if (flag.tab) out.tab = flag.tab;
+  if (pane) out.pane = pane;
   return out;
 }
 
@@ -211,13 +219,14 @@ export function readingOn(record, pos, lastHeard = null) {
 /**
  * What a followed bookmark does at a report of where the reader is: "move" to
  * it, "pause" because the reader jumped, "resume" because a paused one is
- * being read on from, or "stay" paused. `newLead` is a report from a LIT pane
- * that has just become /desk's leading one (E28, BVJ 2026-11-06): changing
- * which pane leads is a jump wherever that pane is, so it pauses (or stays
- * paused), and reading on from the bookmark in the new pane resumes it.
+ * being read on from, or "stay" paused. `otherPane` is a report from a /desk
+ * LIT pane other than the one the follow reads from (E28, E153; BVJ,
+ * 2026-11-06 and 2026-11-18): another pane leading is a jump wherever it is,
+ * so it pauses (or stays paused) and never moves or resumes it, even reading
+ * on from the bookmark. Only "Move it here" brings it to that pane.
  */
-export function followStep(flag, record, pos, lastHeard = null, { newLead = false } = {}) {
-  if (newLead) return flag.paused ? "stay" : "pause";
+export function followStep(flag, record, pos, lastHeard = null, { otherPane = false } = {}) {
+  if (otherPane) return flag.paused ? "stay" : "pause";
   const on = readingOn(record, pos, lastHeard);
   if (flag.paused) return on ? "resume" : "stay";
   return on ? "move" : "pause";
