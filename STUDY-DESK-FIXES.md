@@ -4048,6 +4048,26 @@ says so; where BVJ was wondering, nothing is decided.)
   “There's no reason to leave it off those three pages.” Unsubscribe is
   now the only page without it, since its own Brevo form uses the same
   fixed ids. Status: fixed.
+- **E144, bug: no Undo bar after a highlight.** BVJ, 2026-11-17, in Chrome
+  on a laptop: “no Undo bar appears after a highlight, even after earlier
+  marks,” and then: “it DOES show the undo bar ONLY IF the highlight
+  overlaps a previous highlight.” Not a Chrome fault but a rule:
+  `desk/actions.js` showed the bar after a highlight only when it removed
+  one or when a new color cut into another (`plan.summary.otherColors`); a
+  plain new highlight, or one that widened a highlight of its own color, was
+  only spoken (BA18). That was one of phase 1b's defaults “for BVJ to judge
+  on the preview” (STUDY-DESK.md: “never after a plain new highlight”), and
+  this report is that judgment. Reproduced in the Browser pane on a fresh
+  notebook: the first highlight showed only E74's “kept in this browser”
+  offer, a second plain one no bar at all, and a color over another the bar
+  with Undo. **Fixed** (`desk/actions.js`): every highlight that changes the
+  notebook shows the bar (“John 3:16 highlighted yellow.” with Undo), whose
+  announcement speaks the same words with the Ctrl+Z hint, so BA18 still
+  holds; a press that changes nothing (the words are already that color)
+  shows none. E74's offer still never replaces an Undo, so a visit's first
+  highlight shows Undo and leaves the offer to the dot on the Notebook's
+  tab. `test/desk-highlight-undo-bar.test.js` drives it over the real store.
+  Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

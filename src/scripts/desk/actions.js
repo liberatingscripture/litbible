@@ -498,14 +498,14 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
         if (color && getSetting(name) === "off") setSetting(name, "on");
 
         const ref = recordReference({ ...where, verse: d.start, endVerse: d.end });
+        // Every highlight that changed the notebook gets the bar, a plain new
+        // one included (E144; BVJ, 2026-11-17). Until then only a removal or a
+        // colour cutting into another did, and a plain one was only spoken
+        // (BA18), which the bar's own announcement now does.
         if (entry && color === null) {
           showUndo(`Highlight on ${ref} removed.`, () => undoEntry(entry));
-        } else if (entry && plan.summary.otherColors > 0) {
-          showUndo(`${ref} highlighted ${COLOR_WORDS[color]}.`, () => undoEntry(entry));
         } else if (entry && color) {
-          // A highlight touching no other colour has no bar to show, but
-          // making one is still announced (BA18).
-          announce(highlightedMessage(COLOR_WORDS[color], ref));
+          showUndo(highlightedMessage(COLOR_WORDS[color], ref), () => undoEntry(entry));
         }
         // The selection has done its job, and would hide the new colour.
         if (d.kind === "selection") window.getSelection()?.removeAllRanges();
