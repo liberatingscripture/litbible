@@ -76,7 +76,7 @@
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, canEdit } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
-import { labelMap, labelsOf, liveLabels } from "../../lib/desk-labels.mjs";
+import { labelMap, liveLabels, shownLabels, takesLabels } from "../../lib/desk-labels.mjs";
 import {
   LIST_PAGE_SIZE,
   chapterKeysOf,
@@ -115,6 +115,7 @@ import { pageChapter } from "./page.js";
 import { readBook } from "./page-kind.js";
 import { showUndo } from "./undo-bar.js";
 import { colorOf, highlightedWords, nameOf } from "./record-words.js";
+import { scroller } from "./dom.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
@@ -463,7 +464,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const labels = liveLabels(everyRecord);
     if (seq !== renderSeq) return;
     const shownAs = labelMap(everyRecord);
-    const inUse = labels.filter((l) => everything.some((r) => (r.labels ?? []).some((id) => shownAs.get(id)?.id === l.id)));
+    const inUse = labels.filter((l) => everything.some((r) => takesLabels(r) && (r.labels ?? []).some((id) => shownAs.get(id)?.id === l.id)));
     if (labelFilter && !inUse.some((l) => l.id === labelFilter)) labelFilter = null;
     drawLabels(inUse);
     const kinds = kindsPresent(marks);
@@ -639,9 +640,9 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   // The labels on a record, and the button that opens them (the notebook
-  // page's row has the same pair).
+  // page's row has the same pair): a bookmark's only (E149).
   function labelsFor(li, r, on, labelsById) {
-    const chips = labelsOf(r, labelsById);
+    const chips = shownLabels(r, labelsById);
     if (chips.length) {
       const ul = document.createElement("ul");
       ul.className = "desk-chips";
@@ -654,7 +655,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       }
       li.append(ul);
     }
-    if (!store || !ctx || !canEdit(r)) return;
+    if (!store || !ctx || !takesLabels(r) || !canEdit(r)) return;
     const tag = document.createElement("button");
     tag.type = "button";
     tag.className = "desk-item__tag";
@@ -1052,13 +1053,4 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   }
 
   return { el, render, follow, destroy, touchesChapters };
-}
-
-/** The nearest ancestor that scrolls vertically, or null. */
-function scroller(node) {
-  for (let p = node.parentElement; p; p = p.parentElement) {
-    const y = getComputedStyle(p).overflowY;
-    if (y === "auto" || y === "scroll") return p;
-  }
-  return null;
 }

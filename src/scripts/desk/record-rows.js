@@ -3,8 +3,8 @@
 // One row of the notebook page's lists (notebook-page.js, and a What I've
 // kept pane on /desk, through kept-list.js): the record's
 // reference, linked to its verse, its kind, its words, its labels as small
-// chips, and its buttons: Edit (notes and bookmarks), Labels… and Delete (Unpin for a pinned
-// footnote). The same facts the panel's My Notes tab shows (tab-mine.js), set
+// chips, and its buttons: Edit (notes and bookmarks), Labels… (bookmarks, E149) and Delete
+// (Unpin for a pinned footnote). The same facts the panel's My Notes tab shows (tab-mine.js), set
 // out for a page rather than a narrow column, so the words are in full.
 //
 // Everything a reader wrote goes on the page as text, never as HTML (a note's
@@ -14,7 +14,7 @@
 
 import { canEdit } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
-import { labelsOf } from "../../lib/desk-labels.mjs";
+import { shownLabels, takesLabels } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { kindName, recordHref, takeOff, recordReference } from "../../lib/desk-store-core.mjs";
 import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-follow.js";
@@ -131,7 +131,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
     }
   }
 
-  const chips = labelsOf(r, labels);
+  const chips = shownLabels(r, labels);
   if (chips.length) {
     const ul = document.createElement("ul");
     ul.className = "desk-chips";
@@ -162,7 +162,7 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   if ((r.kind === "note" || r.kind === "bookmark") && onEdit && canEdit(r)) {
     buttons.append(button("desk-item__edit", "Edit", `Edit ${subject}`, (b) => onEdit(r, b)));
   }
-  if (canEdit(r)) {
+  if (takesLabels(r) && canEdit(r)) {
     buttons.append(button("desk-item__edit desk-item__labels", "Labels…", `Labels for ${subject}`, (b) => onLabels(r, b)));
   }
   buttons.append(

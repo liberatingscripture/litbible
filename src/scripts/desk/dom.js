@@ -40,6 +40,15 @@ export function buttons(defaultClass) {
   };
 }
 
+/** The nearest ancestor that scrolls vertically, or null. */
+export function scroller(node) {
+  for (let p = node.parentElement; p; p = p.parentElement) {
+    const y = getComputedStyle(p).overflowY;
+    if (y === "auto" || y === "scroll") return p;
+  }
+  return null;
+}
+
 let hintCount = 0;
 
 /**

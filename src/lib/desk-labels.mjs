@@ -111,9 +111,28 @@ export function labelMap(records) {
 }
 
 /**
+ * The kinds the website offers labels on (BVJ, 2026-11-17, E149: "Labels are
+ * for bookmarks"). M8 put them on every kind; the record format still allows
+ * `labels` on any record, so a label already on a note, a highlight, a pin or
+ * a sheet is kept as it is (carried, merged, backed up), and only not shown,
+ * offered, counted, searched or filtered on.
+ */
+export const LABELED_KINDS = Object.freeze(["bookmark"]);
+
+/** Whether the website offers labels on this record. */
+export function takesLabels(record) {
+  return LABELED_KINDS.includes(record?.kind);
+}
+
+/** The labels a row shows: `labelsOf`, for a record that takes labels; else none. */
+export function shownLabels(record, labels) {
+  return takesLabels(record) ? labelsOf(record, labels) : [];
+}
+
+/**
  * The labels to show on a record: its label ids that have a label record, in
  * the order of the record's list, each label once. Ids with no label record
- * are left out.
+ * are left out. Rows read `shownLabels`, which keeps to LABELED_KINDS.
  */
 export function labelsOf(record, labels) {
   const map = labels instanceof Map ? labels : labelMap(labels);
@@ -128,13 +147,14 @@ export function labelsOf(record, labels) {
 /**
  * How many live records (not labels, not trash) carry each label, by the
  * label's shown id; an item with two ids of one label counts once. An id
- * that names no label is counted under itself.
+ * that names no label is counted under itself. Only the kinds that take
+ * labels count (E149).
  */
 export function labelCounts(records) {
   const map = labelMap(records);
   const counts = new Map();
   for (const r of records) {
-    if (!r || r.kind === "trash" || r.kind === "label") continue;
+    if (!takesLabels(r)) continue;
     for (const id of new Set((r.labels ?? []).map((x) => map.get(x)?.id ?? x))) counts.set(id, (counts.get(id) ?? 0) + 1);
   }
   return counts;

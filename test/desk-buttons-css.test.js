@@ -48,6 +48,7 @@ const ORDINARY = [
   ".desk-verse__remove",
   ".desk-verse__step", // This verse's Previous and Next (E141; quiet circles until then)
   ".desk-mine__more-button",
+  ".desk-note__more", // a margin stack's "N more notes" (E147)
   ".desk-np__more",
   ".desk-mine__add",
   ":where(.desk-editor__actions) button:where(:not(.desk-editor__save))", // the note editor's Cancel and Delete
@@ -141,7 +142,7 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
   // pane's are flat toggles.
   const classes = [
     ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
-    ".desk-verse__step", ".desk-mine__more-button", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
+    ".desk-verse__step", ".desk-mine__more-button", ".desk-note__more", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
     ".desk-notice__actions", ".desk-notice__keep", ".desk-panel__reset", ".desk-panel__print-button", ".desk-greek__goto",
     ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more",
     ".desk-dp__retry", ".desk-search__btn", ".desk-search__choice", ".desk-sheet__btn", ".desk-sheet__choice",

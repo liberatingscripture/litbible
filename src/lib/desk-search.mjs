@@ -25,6 +25,7 @@
 import { BOOK_ORDER } from "../data/books.js";
 import { foldDiacritics } from "./word-stem.mjs";
 import { kindName, recordHref, recordReference } from "./desk-store-core.mjs";
+import { takesLabels } from "./desk-labels.mjs";
 
 // Combining marks belong to the word, so a note typed in NFD (an accent as a
 // mark of its own) is one word, as its NFC twin is (GK-5).
@@ -170,7 +171,8 @@ export function searchNotebook(records, query, { bookKey = "" } = {}) {
     if (!r || !KIND_ORDER.includes(r.kind)) continue;
     if (bookKey && r.bookKey !== bookKey) continue;
 
-    const names = (Array.isArray(r.labels) ? r.labels : []).map((id) => labelNames.get(id)).filter(Boolean);
+    // A bookmark's labels only (E149): a label another kind kept from before isn't searched.
+    const names = (takesLabels(r) && Array.isArray(r.labels) ? r.labels : []).map((id) => labelNames.get(id)).filter(Boolean);
     const fields = fieldsOf(r).filter((f) => typeof f === "string" && f.trim());
     const pieces = [...fields, ...names];
     if (!pieces.length) continue;

@@ -258,7 +258,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         btn.textContent = moreNotesText(m.count);
         btn.style.left = `${left}px`;
         btn.style.width = `${width}px`;
-        btn.addEventListener("click", () => showVerse?.(m.verse));
+        btn.addEventListener("click", () => showVerse?.(m.verse, { notes: true }));
         aside.append(btn);
         return btn;
       });

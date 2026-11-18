@@ -1654,6 +1654,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   "Topics and tags"), the reader's own could be called labels. Small.
   **Built on the preview 2026-10-12 under the name "Labels"
   (recommended, for BVJ to confirm)**, applied from the notebook page.
+  **Bookmarks only** (BVJ, 2026-11-17; STUDY-DESK-FIXES.md, E149): “Labels
+  are for bookmarks.” Notes, highlights and sheets take none, and a label
+  already stored on one is kept but not shown.
 - **M10. Your notebook where you already look.** A "Verses in my notebook"
   filter on /release-notes; your note on a term on its /glossary entry; a
   "Your notes here" row in Go deeper. New. Extra small. **Decided: yes.**

@@ -389,8 +389,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      without the row. A panel opened with `extra: { stay: true }` (the note
      editor) ignores outside clicks in `lit-panel.js`, and while its
      `changed()` is true `closePanel`/`showPanel` and a verse number or footnote
-     letter (`holdPanel`) say so once instead of closing it; the next ask, with
-     nothing typed between, discards (NB-2). The editor also keeps a
+     letter (`holdPanel`) say so once instead of closing it (Cancel keeps
+     writing; Close without saving, E146); the next ask, with nothing typed
+     between, discards (NB-2). The editor also keeps a
      `sessionStorage['lit-desk-note-draft']` and asks the browser before leaving.
      Save and delete close with `{ force: true }`.
   7. **Margin notes never add text to the scripture.** They sit in one
@@ -399,16 +400,16 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `notes-margin.js` draws), and the words a note hangs on are lit with
      the CSS Custom Highlight API. Copy text, the handout and the desk's
      anchor reader all read the verses off the page. Their face is Playpen
-     Sans (`@fontsource-variable/playpen-sans`, registered in `desk.css`, so
-     it loads only with the desk and only when a note uses it), or Inter on
+     Sans (registered in `desk.css`, so it loads only with the desk and only
+     when a note uses it), or Inter on
      "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
      `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
      **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
      `layoutCapped` folds the rest, and any starting below the text's foot, into
-     one "N more notes" button that opens This verse (`showVerse`); no This verse
-     tab, no cap.
+     one "N more notes" button that opens This verse at its notes (`showVerse`,
+     E147); no This verse tab, no cap.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
      The notes' settings (`data-desk-notes` and `data-desk-note-font` on
@@ -519,10 +520,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
      what the reader has kept ("Back up my notebook," "Search my
-     notebook") or the feature as a whole. "My Notes" is the tab and the
-     /desk pane kind only; the margin's switch and its region are "Notes in
-     the margin," and This verse's subhead stays "My notes," naming the
-     reader's notes on that verse. **The /notebook page is "My Notebook"**
+     notebook") or the feature as a whole. "My Notes" is every label and
+     heading for the reader's notes, This verse's subhead too (Audit 8); the
+     margin's switch and its region are "Notes in the margin." **The
+     /notebook page is "My Notebook"**
      wherever it is named (E70, BVJ 2026-11-10).
      **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
      "the notebook preview"), and a reader works "in the Study Desk," never
@@ -684,15 +685,15 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        "Delete all sheets" (sheets and the reader's templates), each one
        undoable step (`planDeleteMarks`, `planDeleteSheets`).
      - **Labels** (`desk-labels.mjs`): the reader-facing name for M8's tags,
-       applied from the notebook page, names unique ignoring case and
-       accents. **Two label records with one name are one label** (BVJ,
-       2026-11-10, Audit 8 decision 3): two devices can each make "Sermon
-       prep" before they meet, and nothing is rewritten when they do. Every
-       read joins them (`labelGroups`: the oldest record's id, the name as
-       last written), and renaming, deleting or taking the label off an item
-       acts on every id of it (`labelIds`). Anything new that reads labels
-       goes through `liveLabels`, `labelMap` or `labelsOf`, never the raw
-       records, or the label shows twice.
+       on bookmarks only (E149, `takesLabels`; others' stored labels stay),
+       names unique ignoring case and accents. **Two label
+       records with one name are one label** (BVJ, 2026-11-10, Audit 8
+       decision 3): two devices may each make one; nothing is rewritten when
+       they meet. Every read joins them (`labelGroups`: the oldest record's
+       id, the name as last written), and renaming, deleting or taking the
+       label off an item acts on every id of it (`labelIds`). Anything new
+       that reads labels goes through `liveLabels`, `labelMap`, `labelsOf` or
+       `shownLabels`, never the raw records, or the label shows twice.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
        `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md

@@ -120,7 +120,7 @@ async function start() {
     <section class="desk-np__section" id="whats-new" data-np-whats-new></section>
     <section class="desk-np__section" id="labels" aria-labelledby="deskNpLabelsTitle">
       <h2 class="desk-np__h2" id="deskNpLabelsTitle">Labels</h2>
-      <p>Labels are your own tags. Put them on a note, highlight, or bookmark with its Labels… button, then filter by them above.</p>
+      <p>Labels are your own tags for bookmarks. Put them on a bookmark with its Labels… button, then filter by them above.</p>
       <form class="desk-np__new-label" data-np-new-label>
         <label for="deskNpNewLabel">New label</label>
         <input type="text" id="deskNpNewLabel" maxlength="60" autocomplete="off" />
