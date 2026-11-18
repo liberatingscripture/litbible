@@ -46,6 +46,7 @@ const ORDINARY = [
   ".desk-item__edit",
   ".desk-item__delete",
   ".desk-verse__remove",
+  ".desk-verse__step", // This verse's Previous and Next (E141; quiet circles until then)
   ".desk-mine__more-button",
   ".desk-np__more",
   ".desk-mine__add",
@@ -140,7 +141,7 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
   // pane's are pills.
   const classes = [
     ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
-    ".desk-mine__more-button", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
+    ".desk-verse__step", ".desk-mine__more-button", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
     ".desk-notice__actions", ".desk-notice__keep", ".desk-panel__reset", ".desk-panel__print-button", ".desk-greek__goto",
     ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more",
     ".desk-dp__retry", ".desk-search__btn", ".desk-search__choice", ".desk-sheet__btn", ".desk-sheet__choice",
@@ -165,6 +166,21 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
   // The faint outlines E126 replaced, by name.
   assert.doesNotMatch(components, /\.desk-cmdrow__btn\s*\{[^}]*rgba\(var\(--ink-rgb\), 0\.(2|3)\d?\)/);
   assert.doesNotMatch(components, /\.desk-search__btn\s*\{[^}]*border:\s*1px solid rgba/);
+});
+
+test("E141: This verse's arrows and every Pin are rounded rectangles, never a circle or a pill", () => {
+  // BVJ, 2026-11-17: "The next/previous and pin buttons in the notebook are
+  // still circles/ovals instead of rounded rectangles. Same with the pin
+  // buttons beside the footnotes on the scripture page."
+  const plain = desk.replace(/\/\*[\s\S]*?\*\//g, "");
+  const radii = (sel) =>
+    [...plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter((m) => m[1].split(",").some((s) => new RegExp(`${sel.replace(/\./g, "\\.")}(?![\\w-])`).test(s)))
+      .flatMap((m) => [...m[2].matchAll(/border-radius:\s*([^;]+)/g)].map((r) => r[1].trim()));
+  assert.deepEqual(radii(".desk-verse__step"), ["8px"], "the ordinary button's corner");
+  assert.deepEqual(radii(".desk-pin"), ["6px"], "one shape wherever a footnote is pinned");
+  // The arrows take the ordinary look, spent look included, from the kinds.
+  assert.ok(has(listFrom(kinds, ".desk-cmdrow__btn").list, ".desk-verse__step"));
 });
 
 /** The custom properties declared in the first block opening with `head` whose body declares `marker`. */
