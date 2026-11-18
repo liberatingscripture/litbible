@@ -3971,7 +3971,7 @@ says so; where BVJ was wondering, nothing is decided.)
   one would take. With notes in the margin the sheet reaches under them, so
   the gaps between notes show the grip too. Checked with a real mouse in
   headless Chrome at 1440px and 1105px, and by `test/desk-widths-hint.test.js`.
-  Status: fixed on the Site 2.0 branch (`claude/site-2-0`), not yet on `main`.
+  Status: fixed (PR #595).
 - **E140, rough: the Notebook's adjuster draws inside the sheet.** BVJ,
   2026-11-17, after E139 (it was E139 itself on the Site 2.0 branch): “The right margin width adjuster has a similar
   problem, but not as bad. I think the field of where the mouse is located
@@ -3985,8 +3985,38 @@ says so; where BVJ was wondering, nothing is decided.)
   in `desk.css`): the reach is unchanged, and the grip and hairline are
   drawn at the middle of the space between the sheet's right edge and the
   Notebook (6px wide in a 12px space). With no sheet drawn they keep the
-  middle of the reach, as before. Status: fixed on the Site 2.0 branch, not
-  yet on `main`.
+  middle of the reach, as before. Status: fixed (PR #595).
+- **E141, rough: three buttons were still round.** BVJ, 2026-11-17, looking
+  over the merged Site 2.0: “I found buttons that don't match. The
+  next/previous and pin buttons in the notebook are still circles/ovals
+  instead of rounded rectangles. Same with the pin buttons beside the
+  footnotes on the scripture page.” E126 had left glyph buttons their own
+  looks and made Pin a pill, so This verse's Previous and Next were quiet
+  circles and every Pin an oval, beside a chapter title whose own arrows
+  are ordinary buttons. **Fixed** (`desk.css`): This verse's Previous and
+  Next are ordinary buttons (8px corners; the E126 list gives them their
+  fill, edge, shadow, and spent look, in place of a fade to 35%), in the
+  Notebook and as a /desk pane. **Pin is a rounded rectangle everywhere**
+  (6px): in This verse and the Footnotes pane (still flat at rest, sunk and
+  green while pinned), beside each footnote on a chapter and in a
+  footnote's popover (still quiet there), and This verse's “Note” button,
+  which shares its class. This changes E126's “Toggle … or a pill (Pin,
+  label chips, Show sources)”: Pin is no longer a pill. That left five
+  round controls BVJ had not named, and BVJ asked about them the same day:
+  “My first instinct is to leave some of the round controls round, but I
+  could be convinced otherwise. What do you think? Should some or all of
+  them be changed for consistency of the visuals on the site?” Claude's
+  answer was a rule, that shape says what a control is (a rounded rectangle
+  is a button that does something; a pill is one chip in a set, or a tag; a
+  circle is a mark on the page), and so to change two and keep three. BVJ:
+  “go with your recommendations.” **Changed**: /desk's “Stay here” lock is
+  the ordinary button's rounded rectangle (8px; it was the one round button
+  with the raised look, in a bar of rounded rectangles), and the Greek's
+  “Show sources” takes Pin's (6px; a lone switch, not a chip in a set).
+  **Kept round**: the label chips in My Notes and a sheet's blank chips
+  (sets of chips, like the filter pills E132 gave /search, the Glossary,
+  and the podcast's seasons), and a margin note's circle (a mark beside
+  the text). `test/desk-buttons-css.test.js` holds all seven shapes.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
