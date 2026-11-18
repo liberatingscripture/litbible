@@ -432,9 +432,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `desk/verse-labels.js`, each kind only while its switch is on), the one
      place a screen reader meets them in reading order.
      **Making a mark is announced** (BA18; `src/lib/desk-announce.mjs`):
-     a note saved, a bookmark added and a highlight that touches no other
-     color speak through `announce` in `undo-bar.js`, as deleting and undoing
-     speak through its notices. A new way of making a mark needs its sentence
+     a note saved and a bookmark added speak through `announce` in
+     `undo-bar.js`; every highlight shows the undo bar (E144), as deleting
+     and undoing do. A new way of making a mark needs its sentence
      there. **Focus never drops to the page after a margin redraw** (BA21):
      `notes-margin.js` replaces every control on each draw, so it re-points an
      open circle popover at the new circle (`keepPopover`) and, when focus was

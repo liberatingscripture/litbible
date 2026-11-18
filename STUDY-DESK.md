@@ -3936,7 +3936,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        turning it back on; the panel closing at once (the highlight is the
        feedback); the undo bar only after a removal or when a new colour cut
        into another ("Romans 8:3 highlighted green."), never after a plain new
-       highlight; the colour filter in My Notes; a highlight across verses
+       highlight (changed by E144, 2026-11-17: BVJ expected the bar after
+       every highlight, and now it shows); the colour filter in My Notes; a highlight across verses
        tinting the verse numbers and footnote letters inside it; and, in Study
        View, a highlight in My Notes going to its verse by the ordinary `#v3`
        link rather than the in-place visit a note gets.

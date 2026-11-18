@@ -4,7 +4,8 @@
 // (src/scripts/desk/undo-bar.js `announce`), when the reader makes something:
 // a note saved, a verse bookmarked, words highlighted (BA18, WCAG 4.1.3).
 // Deleting, undoing and pinning already speak through the bar's own notices;
-// these are the makers, which have no bar to show and so were silent.
+// these are the makers, which have no bar to show and so were silent. A
+// highlight has had its bar since E144, and these words are the bar's.
 //
 // The reference is the one the page names the place by ("Romans 8:3",
 // "Romans 8:4–5", "a footnote in Romans 8:3"), as the bar's notices use it.
