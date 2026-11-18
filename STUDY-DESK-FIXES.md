@@ -4001,11 +4001,22 @@ says so; where BVJ was wondering, nothing is decided.)
   green while pinned), beside each footnote on a chapter and in a
   footnote's popover (still quiet there), and This verse's “Note” button,
   which shares its class. This changes E126's “Toggle … or a pill (Pin,
-  label chips, Show sources)”: Pin is no longer a pill. Left as they are,
-  since BVJ named none of them: the label chips in My Notes, the Greek's
-  “Show sources,” a sheet's blank chips, /desk's round “Stay here” lock,
-  and a margin note's circle. `test/desk-buttons-css.test.js` holds the two
-  shapes.
+  label chips, Show sources)”: Pin is no longer a pill. That left five
+  round controls BVJ had not named, and BVJ asked about them the same day:
+  “My first instinct is to leave some of the round controls round, but I
+  could be convinced otherwise. What do you think? Should some or all of
+  them be changed for consistency of the visuals on the site?” Claude's
+  answer was a rule, that shape says what a control is (a rounded rectangle
+  is a button that does something; a pill is one chip in a set, or a tag; a
+  circle is a mark on the page), and so to change two and keep three. BVJ:
+  “go with your recommendations.” **Changed**: /desk's “Stay here” lock is
+  the ordinary button's rounded rectangle (8px; it was the one round button
+  with the raised look, in a bar of rounded rectangles), and the Greek's
+  “Show sources” takes Pin's (6px; a lone switch, not a chip in a set).
+  **Kept round**: the label chips in My Notes and a sheet's blank chips
+  (sets of chips, like the filter pills E132 gave /search, the Glossary,
+  and the podcast's seasons), and a margin note's circle (a mark beside
+  the text). `test/desk-buttons-css.test.js` holds all seven shapes.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

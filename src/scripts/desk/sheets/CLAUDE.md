@@ -92,9 +92,13 @@ holds the inventory, the pairs, the two files in step and reduced motion.
    mock's 62% failed). E121's Cancel is one.
 3. **Toggle**: an ordinary button with `aria-pressed` (Stay here, Bible
    order, the Greek's word choices), or one flat at rest: a pill (label
-   chips, Show sources) or a rounded rectangle (This verse's and the
-   Footnotes pane's Pin). The reading pages' own Pin stays quiet, in the
-   same shape. **Pin is never a pill** (E141; BVJ, 2026-11-17).
+   chips, a sheet's blank chips) or a rounded rectangle (This verse's and
+   the Footnotes pane's Pin, the Greek's Show sources). The reading pages'
+   own Pin stays quiet, in the same shape. **Shape says what a control
+   is** (E141; BVJ, 2026-11-17): a rounded rectangle is a button, the lock
+   and a lone switch included, so **Pin, Stay here, and Show sources are
+   never a pill or a circle**; a pill is a chip in a set; a circle is a
+   mark on the page (a margin note's).
 4. **Quiet** (links: Labels…, Stop following, Verse N, Show the note, Take
    the Sheets tour, Clear checks) and **glyph** buttons (‹ › × ▾ +, the grip)
    keep their own looks, save This verse's Previous and Next, which are

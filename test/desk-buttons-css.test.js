@@ -138,7 +138,7 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
   // transparent edge (a width for the kinds to color) and forced colors'
   // system colors are allowed. The reading pages' own Pin (a bare .desk-pin)
   // stays quiet and keeps its rules; only This verse's and the Footnotes
-  // pane's are pills.
+  // pane's are flat toggles.
   const classes = [
     ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
     ".desk-verse__step", ".desk-mine__more-button", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
@@ -181,6 +181,15 @@ test("E141: This verse's arrows and every Pin are rounded rectangles, never a ci
   assert.deepEqual(radii(".desk-pin"), ["6px"], "one shape wherever a footnote is pinned");
   // The arrows take the ordinary look, spent look included, from the kinds.
   assert.ok(has(listFrom(kinds, ".desk-cmdrow__btn").list, ".desk-verse__step"));
+  // The rest of the round controls, the same day ("go with your
+  // recommendations"): shape says what a control is. A button is a rounded
+  // rectangle, the lock and a lone switch included; a chip in a set stays a
+  // pill; a mark on the page stays a circle.
+  assert.deepEqual(radii(".desk-pane__pin"), ["8px"], "Stay here: an ordinary button, never a circle");
+  assert.deepEqual(radii(".desk-greek__show-sources"), ["6px"], "Show sources: a lone switch, in Pin's shape");
+  assert.deepEqual(radii(".desk-mine__label"), ["999px"], "label chips are a set");
+  assert.deepEqual(radii(".desk-sheet__chip"), ["999px"], "a sheet's blank chips are a set");
+  assert.deepEqual(radii(".desk-circle"), ["50%"], "a margin note's circle is a mark");
 });
 
 /** The custom properties declared in the first block opening with `head` whose body declares `marker`. */

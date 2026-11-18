@@ -4177,11 +4177,12 @@ html:has(.desk-greek__split--dragging) {
 }
 
 /* "Show sources" writes out what an abbreviation's hover text says (GK-12).
-   A toggle in a pill (E126; the look is at the end of this file). */
+   A flat toggle in Pin's rounded rectangle (E126, E141; the look is at the
+   end of this file): it is one switch, not a chip in a set. */
 .desk-greek__show-sources {
   margin: 2px 0 4px;
   padding: 1px 8px;
-  border-radius: 999px;
+  border-radius: 6px;
   font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
@@ -5261,8 +5262,9 @@ html.desk-ws--moving * {
   /* A toggle (E89, E126): the ordinary button's fill, edge and shadow, sunk
      with the text green's edge and glyph while the pane stays ("Four kinds of
      button" at the end of this file), since an open and a closed lock differ
-     by a few pixels at 14px. */
-  border-radius: 999px;
+     by a few pixels at 14px. The ordinary button's corner, never a circle
+     (E141), like the bar's other buttons. */
+  border-radius: 8px;
   color: var(--text);
   cursor: pointer;
 }
@@ -9144,8 +9146,9 @@ mark.desk-print-mark {
      is flat, with words at 70% (4.5:1 on every surface, both themes).
    - Toggle: an ordinary button with aria-pressed (Stay here, Bible order,
      the Greek's word choices), or one flat at rest, since a row of chips
-     with shadows reads as noise: a pill (label chips, Show sources) or, for
-     Pin, a rounded rectangle (E141).
+     with shadows reads as noise: a pill for a chip in a set (label chips, a
+     sheet's blank chips) or a rounded rectangle for a lone switch (Pin, Show
+     sources; E141).
    - Primary: Deep Green, white words, at most one per pane or view. In dark
      themes its edge is the text green at 70% (the fill alone is 2.3 to 2.9:1
      on the dark surfaces). Disabled, it keeps its edge and a faint green
@@ -9199,7 +9202,8 @@ mark.desk-print-mark {
   opacity: 1;
 }
 
-/* Flat toggles (pills, and Pin's rounded rectangle): the control's fill and
+/* Flat toggles (the chips' pills; Pin's and Show sources' rounded
+   rectangle): the control's fill and
    edge, flat at rest; on is sunk, with the text green's edge and words. The
    reading pages' own Pin stays quiet (its place is the text), so only This
    verse's and the Footnotes pane's are here. */
