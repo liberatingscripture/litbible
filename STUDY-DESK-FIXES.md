@@ -4017,6 +4017,23 @@ says so; where BVJ was wondering, nothing is decided.)
   (sets of chips, like the filter pills E132 gave /search, the Glossary,
   and the podcast's seasons), and a margin note's circle (a mark beside
   the text). `test/desk-buttons-css.test.js` holds all seven shapes.
+- **E142, rough: Pin hangs off the sheet's edge.** BVJ, 2026-11-17, with a
+  screenshot of Mark 16: “The pin buttons beside footnotes on scripture pages
+  hang off the edge of the sheet a little. Narrow the button enough that it no
+  longer does so.” The Footnotes list's Pin sits in the margin left of the
+  note, and Site 2.0's sheet reaches 63px past the note (64px of padding less
+  its 1px edge), which leaves 49px for the 14px gap and the pill; with its
+  word, the pill was 53px, so it started about 3px outside the sheet at the
+  default size, in Inter. **Fixed** (`desk.css`, beside the row and glyph rules): in
+  `row` mode the pill takes 4px of side padding and a 3px gap, which is 44px
+  (about 6px clear), and under OpenDyslexic, whose “Pin” is about 8px wider
+  and whose type is not made smaller, 2px and 2px, which is 47px (about 3px
+  clear). Atkinson is 44px. **The glyph alone is unchanged**: `.desk-pin--glyph`
+  stays at 8px of padding, which `GLYPH_WIDTH` and the margin the desk keeps
+  (`PIN_MARGIN`) restate. **Known**: where the window is narrow enough for the
+  tack alone (measured at 660px, Notebook minimized) it is flush with the
+  sheet's inner edge, 0.4px clear, not over it. Row mode measured 5.9px clear
+  at 1024px and at 760px. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

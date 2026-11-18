@@ -2410,6 +2410,25 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   display: none;
 }
 
+/* With its word, Pin is narrower than the other places it appears, so it stays
+   on the sheet Site 2.0 draws behind the text (BVJ, 2026-11-17: "hang off the
+   edge of the sheet a little"). The sheet reaches 63px left of the footnote,
+   less the 14px between Pin and the note, which leaves 49px for the pill; at
+   the default size it is 44px (14px thumbtack, "Pin", 4px of padding each side,
+   a 3px gap, the 1px border), about 6px clear of the sheet's edge. The glyph
+   alone keeps .desk-pin--glyph's own padding, which GLYPH_WIDTH restates. */
+.footnotes[data-desk-fn-pills="row"] > li.desk-fn > .desk-fn-pills > .desk-pin {
+  gap: 3px;
+  padding-inline: 4px;
+}
+
+/* OpenDyslexic's "Pin" is about 8px wider and its type is never made smaller,
+   so the room comes from the padding instead: 47px, about 3px clear. */
+html[data-font="dyslexic"] .footnotes[data-desk-fn-pills="row"] > li.desk-fn > .desk-fn-pills > .desk-pin {
+  gap: 2px;
+  padding-inline: 2px;
+}
+
 /* Pin shows only for the footnote the reader is at (BVJ, 2026-11-10; E82): a
    column of buttons down the margin cluttered the page. It appears while the
    pointer is over the footnote's row or Pin itself, while focus is on the
