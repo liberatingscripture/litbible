@@ -32,7 +32,10 @@ From the root's project tree.
                      #   sefaria-refs.mjs (the Hebrew Bible it links out to
                      #   Sefaria, and the English→Hebrew verse map),
                      #   ebible-refs.mjs (the apocrypha it links to eBible.org),
-                     #   glossary-crossrefs.mjs, release-note-links.mjs +
+                     #   glossary-crossrefs.mjs, glossary-sort.mjs (the
+                     #   glossary's A to Z, which skips a leading "The", "A"
+                     #   or "An"; /glossary's sort and its 2.0 list share
+                     #   it), release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
                      #   at render" below), release-notes-view.mjs (how
                      #   /release-notes and its RSS feed present the JSON),

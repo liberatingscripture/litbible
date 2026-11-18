@@ -21,6 +21,20 @@ test("orderRail sorts by the label for the key, as the entries are sorted", () =
   assert.deepEqual(items.map((i) => i.id), ["a", "b", "c"]);
 });
 
+test("orderRail files a label under the word after a leading article", () => {
+  const items = [
+    { lit: "Alignment / Justice" },
+    { lit: "The Adversary" },
+    { lit: "Hinnom Valley" },
+    { lit: "The heavens / Sky" },
+    { lit: "Harmful" },
+  ];
+  assert.deepEqual(
+    orderRail(items, "lit").map((i) => i.lit),
+    ["The Adversary", "Alignment / Justice", "Harmful", "The heavens / Sky", "Hinnom Valley"],
+  );
+});
+
 test("orderRail matches localeCompare on the same strings", () => {
   const labels = ["Good -2-", "Good -1-", "Gehenna/Hell", "gentiles", "Glory"];
   const items = labels.map((l) => ({ lit: l }));
