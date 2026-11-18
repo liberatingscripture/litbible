@@ -390,7 +390,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      editor) ignores outside clicks in `lit-panel.js`, and while its
      `changed()` is true `closePanel`/`showPanel` and a verse number or footnote
      letter (`holdPanel`) say so once instead of closing it (Cancel keeps
-     writing; Close without saving, E146); the next ask, with nothing typed
+     writing; Discard changes, E146); the next ask, with nothing typed
      between, discards (NB-2). The editor also keeps a
      `sessionStorage['lit-desk-note-draft']` and asks the browser before leaving.
      Save and delete close with `{ force: true }`.

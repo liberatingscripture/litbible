@@ -4084,15 +4084,18 @@ says so; where BVJ was wondering, nothing is decided.)
   the editor's own Cancel was its way to discard, so the question's Cancel
   did what the reader had just been warned about. **Fixed**
   (`desk/note-editor.js`, `desk.css`): while the editor asks, it says “Your
-  words aren’t saved yet. Save them, close without saving, or choose Cancel
-  to keep writing.” and shows a third button, **Close without saving**, on
-  the left where Delete was (Delete hides while it asks); **Cancel** keeps the
+  changes aren’t saved yet. Save them, discard them, or choose Cancel to keep
+  writing.” and shows a third button, **Discard changes**, on the left where
+  Delete was (Delete hides while it asks); **Cancel** keeps the
   editor open with the words and puts focus back in them; typing ends the
   question. NB-2's second × with nothing typed between still discards, and a
   failed save's message is not cleared by the question. Cancel and Save stay
   together on the right, so neither wraps alone (OpenDyslexic).
-  `test/desk-note-editor-ask.test.js`. This settles NB-2's Cancel. Status:
-  fixed.
+  `test/desk-note-editor-ask.test.js`. This settles NB-2's Cancel. The
+  button was first “Close without saving,” BVJ's working name; BVJ then
+  suggested “Discard,” and on Claude's point that a bare “Discard” on a saved
+  note could read as deleting the note, chose “Discard changes” for every
+  note, since an empty new note closes without asking at all. Status: fixed.
 - **E147, rough spot: “N more notes” is hard to press and easy to miss.**
   BVJ, 2026-11-17, on GF8b-6's stack of five: “it's actually a bit tough to
   click on the “N more notes,” which doesn't really look like a button,

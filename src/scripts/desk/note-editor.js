@@ -6,7 +6,7 @@
 // `note.marker`), and the reader's own words. Ctrl+Enter (⌘+Enter) saves.
 // The panel ignores clicks outside it, so a stray click can't lose what was
 // typed; Cancel, × and Escape close it, asking once first while it holds
-// unsaved words, with Close without saving, Cancel (keep writing) and Save.
+// unsaved words, with Discard changes, Cancel (keep writing) and Save.
 //
 // A note's body is the reader's own words: always text, never HTML.
 //
@@ -111,7 +111,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     <p class="desk-editor__error" role="alert" hidden></p>
     <div class="desk-editor__actions">
       ${editing ? `<button type="button" class="desk-editor__delete">Delete</button>` : ""}
-      <button type="button" class="desk-editor__discard" hidden>Close without saving</button>
+      <button type="button" class="desk-editor__discard" hidden>Discard changes</button>
       <span class="desk-editor__end">
         <button type="button" class="desk-editor__cancel">Cancel</button>
         <button type="button" class="desk-editor__save">Save</button>
@@ -234,14 +234,14 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
 
   panel.querySelector(".desk-editor__save").addEventListener("click", save);
   // Cancel and × ask once when the editor holds words (NB-2): the first press
-  // says so (onHold below). While it asks, the row is Close without saving,
+  // says so (onHold below). While it asks, the row is Discard changes,
   // Cancel and Save, and Cancel cancels the closing, as a save dialog's does
   // (E146; BVJ, 2026-11-17): it had discarded the words. A second ×, Escape,
   // verse number or footnote letter, with nothing typed between, still
   // discards, so asking never traps anyone.
   const discardButton = panel.querySelector(".desk-editor__discard");
   const deleteButton = panel.querySelector(".desk-editor__delete");
-  const ASKING = "Your words aren’t saved yet. Save them, close without saving, or choose Cancel to keep writing.";
+  const ASKING = "Your changes aren’t saved yet. Save them, discard them, or choose Cancel to keep writing.";
   let asking = false;
   const ask = (on) => {
     asking = on;
