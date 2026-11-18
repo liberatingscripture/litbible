@@ -44,7 +44,12 @@
   font-size: clamp(2rem, 4vw, 2.5rem);
 }
 
+/* The chip is a grid item here, and a grid stretches its items across the
+   column, so the card ran far past "Continue: Mark 16" (BVJ, 2026-11-17: "The
+   continue reading button extends way beyond the text"). It keeps the width
+   of its words. */
 :root[data-restyle] .read-continue {
+  justify-self: start;
   margin: 16px 0 0;
 }
 

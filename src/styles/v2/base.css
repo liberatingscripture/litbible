@@ -279,6 +279,14 @@
   display: none;
 }
 
+/* The social icons sit nearer each other (BVJ, 2026-11-17: "the social icons
+   can be placed a bit closer together"): 4px between the 38px boxes, where
+   global.css leaves 12px. It names .footer-nav--v2 so it reaches the phone's
+   centered row too, which global.css sets at 0.75rem in its own query. */
+:root[data-restyle] .footer-nav--v2 .social-links {
+  gap: 0.25rem;
+}
+
 @media (min-width: 721px) {
   :root[data-restyle] .footer-inner {
     grid-template-columns: minmax(0, 1fr);
