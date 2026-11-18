@@ -764,11 +764,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        on a verse already holding a bookmark of its kind is tolerated.
        **On /desk the leading LIT pane is the reader** (E28; BVJ, 2026-11-06):
        `desk-lead.js` (for `desk-page.js`) runs the follower with `page: DESK_PAGE` and reports the
-       leading pane's place (`hear`), or `lead` when another pane becomes the
-       leading one, which pauses the follow (`followStep`'s `newLead`). Other
-       LIT panes never move it; the opening place, a restore and the tour
-       report nothing. "Move it here" takes the leading pane's place at the
-       press.
+       leading pane's place and id (`hear`). It follows the flag's `pane`
+       (E153): another LIT pane only pauses it, with the bar, and never moves
+       or resumes it; the opening place, a restore and the tour report
+       nothing. "Move it here" takes the leading pane and its place.
        **The verse menu and the selection panel group a verse's bookmarks in a
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
        Edit, Add a bookmark that moves or stays put, and for the resting one "Leave

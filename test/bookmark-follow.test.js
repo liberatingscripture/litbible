@@ -312,31 +312,101 @@ test("a deleted bookmark stops following", async () => {
 const { DESK_PAGE } = await import("../src/lib/desk-bookmarks.mjs");
 const deskAt = (book, chapter, verse) => ({ book, chapter, verse, view: "desk" });
 
-test("E28: on /desk only the page's own reports count, and a new leading pane pauses the follow", async () => {
+/** /desk's LIT panes as the follower asks about them: `lit` lists those open. */
+function deskPanes(state) {
+  return { leading: () => state.leading, open: (id) => state.lit.includes(id) };
+}
+
+test("E28: on /desk only the page's own reports count, and another pane taking the lead pauses the follow", async () => {
   const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
   tab("/desk/", { session });
   const store = fakeStore([bookmark()]);
   const told = [];
+  const state = { leading: "a", lit: ["a", "b"] };
   const { initBookmarkFollow } = await loadFollower();
-  const desk = initBookmarkFollow({ store, ctx, tell: (about) => told.push(about), page: DESK_PAGE, place: () => null });
+  const desk = initBookmarkFollow({ store, ctx, tell: (about) => told.push(about), page: DESK_PAGE, place: () => null, panes: deskPanes(state) });
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).pane, "a", "the leading pane at load is the one it follows");
   // Continue reading's record isn't /desk's reader, and the page reports nothing at load.
   saveLastRead({ book: "romans", chapter: 8, verse: 31, view: "study" });
   await settle();
   assert.equal(store.writes.length, 0);
 
-  // Another LIT pane takes the lead, even beside the bookmark: it pauses.
-  desk.lead(deskAt("romans", 8, 31));
+  // Another LIT pane takes the lead, even beside the bookmark: it pauses, and says so.
+  state.leading = "b";
+  desk.hear(deskAt("romans", 8, 31), "b");
   await settle();
   assert.equal(store.writes.length, 0);
   assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, true);
   assert.equal(told.length, 1);
 
-  // Reading on from the bookmark in the leading pane resumes and moves it.
-  desk.hear(deskAt("romans", 8, 32));
+  // Back in its own pane, reading on from the bookmark resumes and moves it.
+  state.leading = "a";
+  desk.hear(deskAt("romans", 8, 32), "a");
   await settle();
   assert.equal(JSON.parse(session.getItem("lit-desk-follow")).paused, undefined);
   assert.equal(store.map.get("r1").verse, 32);
   assert.equal(told.length, 1);
+});
+
+// E153 (BVJ, 2026-11-18): “scrolling a second LIT pane moves the bookmark to
+// follow it with no dialog.” Reading on from the bookmark in that pane resumed
+// the pause its taking the lead had made.
+test("E153: scrolling another LIT pane on from the bookmark never moves it; it waits and asks, and “Move it here” makes that pane its own", async () => {
+  const session = storage({ "lit-desk-follow": flagFor(bookmark()) });
+  tab("/desk/", { session });
+  const store = fakeStore([bookmark()]);
+  const told = [];
+  const state = { leading: "a", lit: ["a", "b"] };
+  let leadingAt = deskAt("romans", 8, 30);
+  const { initBookmarkFollow } = await loadFollower();
+  const desk = initBookmarkFollow({ store, ctx, tell: (about) => told.push(about), page: DESK_PAGE, place: () => leadingAt, panes: deskPanes(state) });
+  desk.hear(deskAt("romans", 8, 31), "a");
+  await settle();
+  assert.equal(store.map.get("r1").verse, 31, "its own pane moves it");
+
+  // The second pane shows the same chapter; the reader scrolls it.
+  state.leading = "b";
+  for (const [i, verse] of [33, 35, 37].entries()) {
+    leadingAt = deskAt("romans", 8, verse);
+    desk.hear(leadingAt, "b");
+    // The first report waits out the two seconds since the move; a pause writes nothing.
+    await new Promise((r) => setTimeout(r, i ? 50 : 2100));
+  }
+  assert.equal(store.map.get("r1").verse, 31, "never moved by the other pane");
+  const paused = JSON.parse(session.getItem("lit-desk-follow"));
+  assert.equal(paused.paused, true);
+  assert.equal(paused.pane, "a");
+  assert.equal(told.length, 1, "the bar that offers to move it, once");
+
+  assert.equal(await told[0].move(), true);
+  assert.equal(store.map.get("r1").verse, 37);
+  const flag = JSON.parse(session.getItem("lit-desk-follow"));
+  assert.equal(flag.paused, undefined);
+  assert.equal(flag.pane, "b", "the pane it was moved to is the one it follows now");
+  leadingAt = deskAt("romans", 9, 1);
+  desk.hear(leadingAt, "b");
+  await settle();
+  assert.equal(store.map.get("r1").chapter, 9, "and it moves with that pane");
+});
+
+test("E153: a follow whose pane has closed takes the leading pane; one from a chapter page takes /desk's leading pane", async () => {
+  // Followed from pane "gone", which the layout no longer has.
+  const session = storage({ "lit-desk-follow": JSON.stringify({ id: "r1", bookKey: "romans", pane: "gone" }) });
+  tab("/desk/", { session });
+  const store = fakeStore([bookmark()]);
+  const state = { leading: "b", lit: ["b"] };
+  const { initBookmarkFollow } = await loadFollower();
+  const desk = initBookmarkFollow({ store, ctx, page: DESK_PAGE, place: () => null, panes: deskPanes(state) });
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).pane, "b");
+  desk.hear(deskAt("romans", 8, 31), "b");
+  await settle();
+  assert.equal(store.map.get("r1").verse, 31);
+
+  // A chapter page follows its own reader: the flag names no pane there.
+  tab("/romans-8/", { session });
+  const { initBookmarkFollow: onChapter } = await loadFollower();
+  onChapter({ store, ctx });
+  assert.equal(JSON.parse(session.getItem("lit-desk-follow")).pane, undefined);
 });
 
 test("E28: a far jump on /desk pauses at once, and “Move it here” takes the leading pane's place now", async () => {
