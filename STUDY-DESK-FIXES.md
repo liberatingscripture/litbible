@@ -4102,17 +4102,25 @@ says so; where BVJ was wondering, nothing is decided.)
   because the note above it expands when the mouse hovers over it. And when
   it's clicked, it's easy to miss that the This verse tab opens in the
   notebook.” **Fixed**: `.desk-note__more` is one of E126's ordinary buttons
-  (edge, fill, and shadow), drawn above a note that only lifts on hover, so
-  the hover no longer covers it; a note that is open or holds focus still
-  comes above it (accepted: a hovered note's foot can sit under the
-  button). Pressing it opens This verse **at the verse's notes**
-  (`showVerse(verse, { notes: true })`, through `shell.js` and `panel.js`'s
-  `lazyTab`): the “My Notes” subhead takes focus, the section scrolls into
-  view in the tab, and it is tinted green for 1.6 seconds
-  (`desk-notes-flash`; no motion under reduced motion, only the tint).
-  `scroller()` moved into `desk/dom.js` for it, from `tab-mine.js` and
-  `footnotes-view.js`. Checked in the Browser pane on John 3:16 with six
-  notes. Status: fixed.
+  (edge, fill, and shadow). A note hovered, open, or holding focus comes
+  over it, since the reader is reading that note (BVJ, the same day, of a
+  first build that kept a hovered note under the button: “it shouldn't sit
+  above a note that expands on hover. That covers the note's content even if
+  that's what the user is trying to see”). So that the pointer can still
+  reach the button, **the note just above it opens only after the pointer
+  rests on it for 250 ms** (`openOnRest` and `REST_MS` in `notes-margin.js`;
+  `desk-note--rest` and `--rested` in `desk.css`): passing over it on the
+  way down leaves it cut, and focus or a click opens it at once. Every other
+  note opens on hover as before. Pressing the button opens This verse **at
+  the verse's notes** (`showVerse(verse, { notes: true })`, through
+  `shell.js` and `panel.js`'s `lazyTab`): the “My Notes” subhead takes
+  focus, the section scrolls into view in the tab, and it is tinted green
+  for 1.6 seconds (`desk-notes-flash`; no motion under reduced motion, only
+  the tint). `scroller()` moved into `desk/dom.js` for it, from
+  `tab-mine.js` and `footnotes-view.js`. Checked in the Browser pane on John
+  3:16 with six notes, the fifth long enough to be cut, under a real mouse;
+  `test/desk-audit8-dom-list-paging.test.js` holds the rest's timing.
+  Status: fixed.
 - **E148, rough spot: This verse's rows had less than My Notes'.** BVJ,
   2026-11-17: a bookmark's label “shows on the My Notes tab of the notebook
   but not on the This verse tab,” and “It should have all the options to

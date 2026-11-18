@@ -987,11 +987,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
 }
 
-/* Every note lifts on hover, focus or click, cut off or not. A note
-   hovered stays under a stack's "N more notes" (z-index 3, below), which it
-   used to cover as the pointer crossed it on the way there (E147); one
-   opened or holding focus comes over it, so a keyboard's Edit is never
-   hidden. */
+/* Every note lifts on hover, focus or click, cut off or not. */
 .desk-note:hover,
 .desk-note:focus-within,
 .desk-note--open,
@@ -1011,9 +1007,32 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   overflow-y: auto;
 }
 
+/* A note hovered, opened or holding focus comes over a stack's "N more
+   notes" (z-index 3, below), since the reader is reading it (BVJ,
+   2026-11-17, E147: the button “covers the note's content even if that's
+   what the user is trying to see”). The note just above the button opens
+   only after a rest, so the pointer can pass over it to the button: */
+.desk-note:hover,
 .desk-note--open,
 .desk-note:focus-within {
   z-index: 4;
+}
+
+/* the note above a stack's "N more notes" stays cut, while hovered, until
+   the pointer has rested on it (`desk-note--rested`, REST_MS in
+   notes-margin.js). Focus or a click opens it at once. */
+.desk-note--rest.desk-note--cut:not(.desk-note--flagged):not(.desk-note--open):not(.desk-note--rested):not(:focus-within) {
+  max-height: var(--desk-note-max);
+  overflow: hidden;
+  -webkit-mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
+  mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
+}
+
+.desk-note--rest.desk-note--cut.desk-note--flagged:not(.desk-note--open):not(.desk-note--rested):not(:focus-within) .desk-note__toggle {
+  max-height: var(--desk-note-max);
+  overflow: hidden;
+  -webkit-mask-image: var(--desk-note-mask);
+  mask-image: var(--desk-note-mask);
 }
 
 .desk-note__edit {
@@ -1041,7 +1060,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 /* "3 more notes": the rest of a stack past five on one line (GF8b-6). It
    opens This verse at the verse's notes. An ordinary button since E147
    (BVJ, 2026-11-17: it "doesn't really look like a button"), its looks from
-   "Four kinds of button", and above a hovered note (see the lift, above). */
+   "Four kinds of button"; under a note being read (see the lift, above). */
 .desk-note__more {
   position: absolute;
   z-index: 3;
