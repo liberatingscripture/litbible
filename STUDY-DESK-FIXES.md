@@ -4068,6 +4068,74 @@ says so; where BVJ was wondering, nothing is decided.)
   highlight shows Undo and leaves the offer to the dot on the Notebook's
   tab. `test/desk-highlight-undo-bar.test.js` drives it over the real store.
   Status: fixed.
+- **E145, wish: a note's words tinted at rest.** BVJ, 2026-11-17: “a saved
+  note's words get no tint, before or after a reload. The margin marker does
+  show, so the note saves; only the tint is missing.” Not a fault: the words
+  a note hangs on are lit only while the note is hovered, focused, kept open,
+  or open from its circle (STUDY-DESK.md, the margin notes' rule 4, settled
+  2026-10-07), so the text carries no mark that could be taken for a
+  highlight. Asked whether to tint them always, BVJ chose “Hover only, as
+  now.” Status: won't fix; the 2026-10-07 rule stands.
+- **E146, bug: Cancel in the unsaved-note question closed the note.** BVJ,
+  2026-11-17: “the two options are “Cancel” and “Save”. I would expect cancel
+  to *cancel closing the note dialogue*; however, it closes the note dialogue
+  unsaved. “Close without saving” should be a third option, or something like
+  that.” NB-2 (Audit 2, decided 2026-11-03) asked once before discarding, but
+  the editor's own Cancel was its way to discard, so the question's Cancel
+  did what the reader had just been warned about. **Fixed**
+  (`desk/note-editor.js`, `desk.css`): while the editor asks, it says “Your
+  words aren’t saved yet. Save them, close without saving, or choose Cancel
+  to keep writing.” and shows a third button, **Close without saving**, on
+  the left where Delete was (Delete hides while it asks); **Cancel** keeps the
+  editor open with the words and puts focus back in them; typing ends the
+  question. NB-2's second × with nothing typed between still discards, and a
+  failed save's message is not cleared by the question. Cancel and Save stay
+  together on the right, so neither wraps alone (OpenDyslexic).
+  `test/desk-note-editor-ask.test.js`. This settles NB-2's Cancel. Status:
+  fixed.
+- **E147, rough spot: “N more notes” is hard to press and easy to miss.**
+  BVJ, 2026-11-17, on GF8b-6's stack of five: “it's actually a bit tough to
+  click on the “N more notes,” which doesn't really look like a button,
+  because the note above it expands when the mouse hovers over it. And when
+  it's clicked, it's easy to miss that the This verse tab opens in the
+  notebook.” **Fixed**: `.desk-note__more` is one of E126's ordinary buttons
+  (edge, fill, and shadow), drawn above a note that only lifts on hover, so
+  the hover no longer covers it; a note that is open or holds focus still
+  comes above it (accepted: a hovered note's foot can sit under the
+  button). Pressing it opens This verse **at the verse's notes**
+  (`showVerse(verse, { notes: true })`, through `shell.js` and `panel.js`'s
+  `lazyTab`): the “My Notes” subhead takes focus, the section scrolls into
+  view in the tab, and it is tinted green for 1.6 seconds
+  (`desk-notes-flash`; no motion under reduced motion, only the tint).
+  `scroller()` moved into `desk/dom.js` for it, from `tab-mine.js` and
+  `footnotes-view.js`. Checked in the Browser pane on John 3:16 with six
+  notes. Status: fixed.
+- **E148, rough spot: This verse's rows had less than My Notes'.** BVJ,
+  2026-11-17: a bookmark's label “shows on the My Notes tab of the notebook
+  but not on the This verse tab,” and “It should have all the options to
+  interact with it on both tabs,” then of a highlight, “All this should show
+  for a highlight on the This verse tab” (My Notes' row: the reference,
+  “Green highlight,” the words, Remove). **Fixed** (`desk/tab-verse.js`,
+  `desk.css`): every row leads with its reference, a link to its place, and
+  has its buttons on the right as My Notes does. A bookmark shows its name,
+  its line (“Bookmark · Stays put,” in the follow colors), the follow link
+  and Move it here while it moves, Edit, Remove, its labels, and Labels…; a
+  highlight names its color in words over its words, with Remove; a note
+  keeps its words, Edit, and Delete. Removing any of them says what went
+  (“Green highlight on John 3:16 removed.”) with Undo. Edit and Remove share
+  one width, as in My Notes. `test/desk-verse-tab-rows.test.js` drives the
+  tab over the real store. Status: fixed.
+- **E149, decision: labels are for bookmarks.** BVJ, 2026-11-17: “I notice
+  labels on highlights. That shouldn't exist. Labels are for bookmarks.”
+  Asked whether notes keep them, BVJ answered “Bookmarks only.” **Built**
+  (`desk-labels.mjs`'s `takesLabels`, `shownLabels`, and `LABELED_KINDS`):
+  Labels… and a row's label chips appear only on bookmarks, in My Notes,
+  This verse, and My Notebook, and the label filter, the search, and the
+  counts read only bookmarks. A label already stored on a note, highlight,
+  or sheet stays in the record (the format and the apps carry it, and the
+  backup keeps it); it is simply not shown or searched. My Notebook's and the
+  help page's sentences about labels now name bookmarks. This settles M8's
+  scope (STUDY-DESK.md). Status: done.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

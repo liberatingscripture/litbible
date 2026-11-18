@@ -40,6 +40,7 @@ const make = (kind, fields, created = "2026-10-01T00:00:00.000Z") =>
 const note = (where, body = "x", extra = {}) => make("note", { ...where, body, marker: "note", ...extra });
 const hl = (where, color = "yellow", exact = "patient") =>
   make("highlight", { ...where, color, quote: { exact, prefix: "", suffix: "" } });
+const mark = (where, extra = {}) => make("bookmark", { ...where, ...extra });
 
 test("fold ignores case, accents and spacing", () => {
   assert.equal(fold("  Ágape   LOVE "), "agape love");
@@ -47,14 +48,18 @@ test("fold ignores case, accents and spacing", () => {
 
 test("filterRecords matches body, quote, reference and label names, each word, without accents", () => {
   const label = make("label", { name: "Prayer" });
-  const a = note({ bookKey: "romans", chapter: 8, verse: 3 }, "Self-preservation as the drive", { labels: [label.id] });
+  const other = make("label", { name: "Sermon" });
+  const a = note({ bookKey: "romans", chapter: 8, verse: 3 }, "Self-preservation as the drive", { labels: [other.id] });
   const b = hl({ bookKey: "john", chapter: 3, verse: 16 }, "pink", "Ágape love");
-  const all = [a, b];
-  const labels = new Map([[label.id, label]]);
+  const c = mark({ bookKey: "mark", chapter: 1, verse: 1 }, { labels: [label.id] });
+  const all = [a, b, c];
+  const labels = new Map([[label.id, label], [other.id, other]]);
   assert.deepEqual(filterRecords(all, { query: "SELF drive" }, labels), [a]);
   assert.deepEqual(filterRecords(all, { query: "agape" }, labels), [b]);
   assert.deepEqual(filterRecords(all, { query: "romans 8" }, labels), [a]);
-  assert.deepEqual(filterRecords(all, { query: "prayer" }, labels), [a]);
+  assert.deepEqual(filterRecords(all, { query: "prayer" }, labels), [c]);
+  // A note's label from before E149 is kept but not searched.
+  assert.deepEqual(filterRecords(all, { query: "sermon" }, labels), []);
   assert.deepEqual(filterRecords(all, { query: "pink" }, labels), [b]);
   assert.deepEqual(filterRecords(all, { query: "" }, labels), all);
   assert.deepEqual(filterRecords(all, { query: "zzz" }, labels), []);
@@ -62,12 +67,14 @@ test("filterRecords matches body, quote, reference and label names, each word, w
 
 test("filterRecords narrows by kind, colour and label", () => {
   const label = make("label", { name: "L" });
-  const a = note({ bookKey: "romans", chapter: 8, verse: 3 }, "x", { labels: [label.id] });
+  const a = mark({ bookKey: "romans", chapter: 8, verse: 3 }, { labels: [label.id] });
   const b = hl({ bookKey: "john", chapter: 3, verse: 16 }, "pink");
   const c = hl({ bookKey: "john", chapter: 3, verse: 17 }, "blue");
+  const old = note({ bookKey: "romans", chapter: 8, verse: 4 }, "x", { labels: [label.id] });
   assert.deepEqual(filterRecords([a, b, c], { kind: "highlight" }), [b, c]);
   assert.deepEqual(filterRecords([a, b, c], { color: "blue" }), [c]);
-  assert.deepEqual(filterRecords([a, b, c], { labelId: label.id }), [a]);
+  // E149: a label filter finds bookmarks, never a note holding an old label.
+  assert.deepEqual(filterRecords([a, b, c, old], { labelId: label.id }), [a]);
   assert.deepEqual(filterRecords([a, b, c], { kind: "highlight", color: "pink", query: "patient" }), [b]);
 });
 

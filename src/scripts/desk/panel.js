@@ -736,15 +736,20 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // The backup reminder's dot, on the tab, the toggles and the Settings tab (E113).
   paintDots();
 
-  /** Open the panel on "This verse" at `verse`, and put focus on its heading. */
-  function showVerse(verse) {
+  /**
+   * Open the panel on "This verse" at `verse`, and put focus on its heading,
+   * or with `notes`, bring its notes into view and mark them (E147: the
+   * margin's "N more notes").
+   */
+  function showVerse(verse, { notes = false } = {}) {
     const verseTab = tabs.get("verse");
     if (!verseTab) return;
     if (panel.hidden) open(null, { focus: false });
     else if (rail.state().collapsed) rail.expand();
     verseTab.view.setVerse(verse);
     selectTab("verse");
-    verseTab.view.focusHeading();
+    if (notes) verseTab.view.showNotes?.();
+    else verseTab.view.focusHeading();
   }
 
   /**
@@ -901,6 +906,10 @@ function lazyTab(load, { listensForVerse } = {}, options) {
     focusHeading() {
       if (real) real.focusHeading();
       else wantFocus = true;
+    },
+    async showNotes() {
+      const v = await ready();
+      return v?.showNotes?.();
     },
     async selectWord(...args) {
       const v = await ready();

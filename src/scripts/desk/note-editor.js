@@ -6,7 +6,7 @@
 // `note.marker`), and the reader's own words. Ctrl+Enter (⌘+Enter) saves.
 // The panel ignores clicks outside it, so a stray click can't lose what was
 // typed; Cancel, × and Escape close it, asking once first while it holds
-// unsaved words.
+// unsaved words, with Close without saving, Cancel (keep writing) and Save.
 //
 // A note's body is the reader's own words: always text, never HTML.
 //
@@ -111,8 +111,11 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     <p class="desk-editor__error" role="alert" hidden></p>
     <div class="desk-editor__actions">
       ${editing ? `<button type="button" class="desk-editor__delete">Delete</button>` : ""}
-      <button type="button" class="desk-editor__cancel">Cancel</button>
-      <button type="button" class="desk-editor__save">Save</button>
+      <button type="button" class="desk-editor__discard" hidden>Close without saving</button>
+      <span class="desk-editor__end">
+        <button type="button" class="desk-editor__cancel">Cancel</button>
+        <button type="button" class="desk-editor__save">Save</button>
+      </span>
     </div>`;
 
   const body = panel.querySelector("textarea");
@@ -231,12 +234,40 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
 
   panel.querySelector(".desk-editor__save").addEventListener("click", save);
   // Cancel and × ask once when the editor holds words (NB-2): the first press
-  // says so (onHold below), the next, with nothing typed between, discards.
+  // says so (onHold below). While it asks, the row is Close without saving,
+  // Cancel and Save, and Cancel cancels the closing, as a save dialog's does
+  // (E146; BVJ, 2026-11-17): it had discarded the words. A second ×, Escape,
+  // verse number or footnote letter, with nothing typed between, still
+  // discards, so asking never traps anyone.
+  const discardButton = panel.querySelector(".desk-editor__discard");
+  const deleteButton = panel.querySelector(".desk-editor__delete");
+  const ASKING = "Your words aren’t saved yet. Save them, close without saving, or choose Cancel to keep writing.";
+  let asking = false;
+  const ask = (on) => {
+    asking = on;
+    discardButton.hidden = !on;
+    if (deleteButton) deleteButton.hidden = on;
+    // Only the question goes with it: a failed save's sentence stays.
+    if (!on && error.textContent === ASKING) {
+      error.hidden = true;
+      error.textContent = "";
+    }
+  };
   const dismiss = () => {
     if (closePanel()) landFocus(place);
   };
-  panel.querySelector(".desk-editor__cancel").addEventListener("click", dismiss);
+  const keepWriting = () => {
+    const open = currentPanel();
+    if (open?.el === panel) open.held = false;
+    ask(false);
+    body.focus({ preventScroll: true });
+  };
+  panel.querySelector(".desk-editor__cancel").addEventListener("click", () => (asking ? keepWriting() : dismiss()));
   panel.querySelector(".lit-panel__close").addEventListener("click", dismiss);
+  discardButton.addEventListener("click", () => {
+    closePanel({ force: true });
+    landFocus(place);
+  });
   panel.querySelector(".desk-editor__delete")?.addEventListener("click", async () => {
     const trash = await store.remove(record.id);
     // The change this made, read at once: the undo button, like Ctrl+Z,
@@ -276,6 +307,8 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   const typed = () => {
     const open = currentPanel();
     if (open?.el === panel) open.held = false;
+    // Writing on answers the question as Cancel does.
+    if (asking) ask(false);
     saveDraft();
   };
   body.addEventListener("input", typed);
@@ -304,10 +337,11 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
       stay: true,
       changed,
       onHold: () => {
+        ask(true);
         error.hidden = false;
         // Cleared first so a second hold, with the same words, is announced again.
         error.textContent = "";
-        error.textContent = "Your words aren’t saved yet. Choose Save to keep them, or press Cancel, Close, or Escape again to discard them.";
+        error.textContent = ASKING;
         body.focus({ preventScroll: true });
       },
     },

@@ -3,9 +3,12 @@
 // The Notebook panel's "This verse" tab (STUDY-DESK.md, N10; BVJ 2026-10-02:
 // one verse at a time), on Chapter View chapters: the verse the reader picked,
 // with the translation's footnotes on it and the reader's own notes,
-// bookmark and highlights, and a way to add a note. A highlight is listed as
-// its words in the colour's own look, with Remove (and an Undo bar, as a
-// deleted note has). The verse's Greek joins it later (phase 1f).
+// bookmark and highlights, and a way to add a note. Each row has what its row
+// in My Notes has (E148; BVJ, 2026-11-17: "It should have all the options to
+// interact with it on both tabs"): a bookmark its name, its line, the follow
+// link, Edit, Remove, its labels and Labels…; a note Edit and Delete; a
+// highlight its words in the colour's own look and Remove. Removing shows the
+// Undo bar, as in My Notes. The verse's Greek joins it later (phase 1f).
 // Other translations are deferred indefinitely (BVJ, 2026-10-11).
 //
 // Picking a verse: opening a verse's menu while the notebook is open moves
@@ -34,12 +37,14 @@
 
 import { notesCiting } from "../../lib/desk-chains.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
-import { COLORS, verseCopyFor } from "../../lib/desk-records.mjs";
-import { forChapter, recordHref, recordReference } from "../../lib/desk-store-core.mjs";
+import { COLORS, canEdit, verseCopyFor } from "../../lib/desk-records.mjs";
+import { forChapter, recordHref, recordReference, takeOff } from "../../lib/desk-store-core.mjs";
+import { isFollowing } from "../../lib/desk-bookmarks.mjs";
+import { labelMap, shownLabels, takesLabels } from "../../lib/desk-labels.mjs";
 import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
-import { drawBookmarkLine } from "./bookmark-follow.js";
+import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { chevronIcons, glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
@@ -50,6 +55,11 @@ import { chapterText } from "./page.js";
 import { pinButton } from "./pins.js";
 import { showUndo } from "./undo-bar.js";
 import { setTip } from "../tip.js";
+import { currentPanel } from "../lit-panel.js";
+import { make, scroller } from "./dom.js";
+import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
+import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
+import { nameOf } from "./record-words.js";
 
 // A highlight's words are shown in part, as in My Notes: about this many.
 const HIGHLIGHT_WORDS = 24;
@@ -79,7 +89,7 @@ const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
  *   only by the /desk pane: a plain click on a scripture reference in a
  *   footnote moves the LIT pane (footnote-links.js).
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
- *   focusHeading: () => void, destroy: () => void }}
+ *   focusHeading: () => void, showNotes: () => Promise<void>, destroy: () => void }}
  */
 export function createVerseTab({
   store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
@@ -111,8 +121,8 @@ export function createVerseTab({
       <h4 class="desk-verse__subhead" id="deskVerseFnsTitle${idSuffix}">Footnotes</h4>
       <ol class="desk-verse__fn-list"></ol>
     </section>
-    <section class="desk-verse__section" aria-labelledby="deskVerseMineTitle${idSuffix}">
-      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}">My Notes</h4>
+    <section class="desk-verse__section desk-verse__notes" aria-labelledby="deskVerseMineTitle${idSuffix}">
+      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}" tabindex="-1">My Notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-verse__add-glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
@@ -129,6 +139,8 @@ export function createVerseTab({
   const fnSection = el.querySelector(".desk-verse__fns");
   const fnList = el.querySelector(".desk-verse__fn-list");
   const mine = el.querySelector(".desk-verse__mine");
+  const notesSection = el.querySelector(".desk-verse__notes");
+  const notesHead = notesSection.querySelector(".desk-verse__subhead");
   const empty = el.querySelector(".desk-verse__empty");
   const add = el.querySelector(".desk-verse__add");
   setTip(add, "Add a note on this verse");
@@ -139,6 +151,7 @@ export function createVerseTab({
 
   let verse = null;
   let notices = new Map(); // id -> the change notice of a record shown, if it has one
+  let labelsRow = null; // the bookmark whose Labels… popover is open, so a redraw can hand it the new button
 
   /** Where the tab opens before the reader picks: the address's verse, or the one being read. */
   function startingVerse() {
@@ -180,18 +193,30 @@ export function createVerseTab({
     renderFootnotes(v);
 
     const records = store ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter) : [];
+    // The whole notebook: the labels a bookmark wears, and the notes citing the verse.
+    const every = store ? await store.all() : [];
     if (n !== seq) return; // a newer render has started
     // A note on a footnote shows under its footnote above, not on the verse.
     const on = recordsOnVerse(records, v).filter(
       (r) => r.kind === "note" || r.kind === "bookmark" || r.kind === "highlight",
     );
     notices = store && ctx ? noticesFor(on) : new Map();
-    mine.replaceChildren(...on.map(itemFor));
+    const labelsById = labelMap(every);
+    mine.replaceChildren(...on.map((r) => itemFor(r, labelsById)));
     empty.hidden = on.length > 0;
+    // A save that redrew the rows took the button the open Labels… popover
+    // belongs to; point it at the one that replaced it, as My Notes does.
+    const open = currentPanel();
+    if (open && labelsRow) {
+      const b = mine.querySelector(`[data-id="${CSS.escape(labelsRow)}"] .desk-item__tag`);
+      if (b) {
+        open.trigger = b;
+        open.restoreFocus = b;
+      }
+    }
 
     // Notes anywhere in the notebook that cite this verse in their words.
-    const cited = store ? notesCiting(await store.all(), { bookKey: here.bookKey, chapter: here.chapter, verse: v }) : [];
-    if (n !== seq) return;
+    const cited = store ? notesCiting(every, { bookKey: here.bookKey, chapter: here.chapter, verse: v }) : [];
     mentions.replaceChildren(...cited.map(({ record }) => mentionItem(record)));
     chainsSection.hidden = cited.length === 0;
   }
@@ -312,67 +337,143 @@ export function createVerseTab({
     fnSection.hidden = items.length === 0;
   }
 
-  function itemFor(r) {
+  /**
+   * One row: what it is on the left (`.desk-verse__main`), its buttons on the
+   * right (`.desk-verse__actions`), as My Notes' row has them (E148).
+   */
+  function itemFor(r, labelsById = new Map()) {
     const li = document.createElement("li");
     li.className = "desk-verse__item";
-    if (r.kind === "bookmark") {
-      // Its mark and its line as My Notes' row has them (E28): red moves, gold
-      // stays put, an outline while it follows, and the words say which.
-      // syncBookmarkLines redraws it as this tab's follow changes.
-      const line = document.createElement("span");
-      line.className = "desk-verse__words";
-      drawBookmarkLine(line, r);
-      li.append(line);
-      return li;
-    }
-    if (r.kind === "highlight") return flagged(highlightItem(li, r), r);
-    // The note goes to its place in the margin, as it does in My Notes.
-    // Its words may hold links, which can't sit inside a button: the note's
-    // own button is its marker, stretched over the row (desk-stretch), with
-    // the words' links lifted above it.
-    const canGo = Boolean(goHere?.can(r));
-    const note = document.createElement("div");
-    note.className = "desk-verse__note";
-    const mark = glyph(r.marker, "desk-glyph desk-verse__glyph");
-    const words = document.createElement("span");
-    words.className = "desk-verse__words";
-    fillNoteWords(words, r.body, "(the marker only)");
-    if (canGo) {
-      note.classList.add("desk-stretch", "desk-verse__note--go");
-      const go = document.createElement("button");
-      go.type = "button";
-      go.className = "desk-verse__go";
-      words.id = `deskVerseWords${idSuffix}-${r.id}`;
-      go.setAttribute("aria-label", `Show my note on ${recordReference(r) || ref(verse)} in the margin`);
-      go.setAttribute("aria-describedby", words.id);
-      go.innerHTML = mark;
-      go.addEventListener("click", () => goHere.go(r));
-      note.append(go);
-    } else {
-      note.innerHTML = mark;
-    }
-    note.append(words);
-    li.append(note);
-    if (onEdit) {
-      const edit = document.createElement("button");
-      edit.type = "button";
-      edit.className = "desk-item__edit";
-      edit.textContent = "Edit";
-      edit.setAttribute("aria-label", `Edit note on ${ref(verse)}`);
-      edit.addEventListener("click", (e) => {
-        e.stopPropagation();
-        onEdit(r, edit);
+    li.dataset.id = r.id;
+    const main = make("div", "desk-verse__main");
+    const actions = make("div", "desk-verse__actions");
+    li.append(main, actions);
+    const where = recordReference(r) || ref(verse);
+    // Its reference, as My Notes' row leads with it: the record's own verses
+    // (a highlight may run past the verse shown), going to its place.
+    const href = recordHref(r);
+    const head = make(href ? "a" : "span", "desk-item__ref", where);
+    if (href) head.href = href;
+    const inPlace = Boolean(href && goHere?.can(r));
+    if (inPlace) {
+      head.addEventListener("click", (e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        goHere.go(r);
       });
-      li.append(edit);
+    }
+    main.append(head);
+    if (r.kind === "bookmark") {
+      // As in My Notes: following a moving bookmark's link starts it moving,
+      // and any other bookmark's stops whatever was moving.
+      if (href) {
+        head.addEventListener("click", (e) => {
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          if (isFollowing(r) && (!inPlace || followsHere())) followBookmark(r, inPlace ? null : head.href);
+          else stopFollowing();
+        });
+      }
+      // Its name, then its mark and line as My Notes' row has them (E28): red
+      // moves, gold stays put, an outline while it follows, and the words say
+      // which. syncBookmarkLines redraws the line, the follow link and Move it
+      // here as this tab's follow changes.
+      if (r.label) main.append(make("p", "desk-item__bookmark-name", r.label));
+      const line = make("span", "desk-item__kind");
+      drawBookmarkLine(line, r, nameOf(r));
+      main.append(line);
+      if (isFollowing(r)) main.append(followLinkButton(r, where), moveItHereButton(r, where));
+      if (onEdit && canEdit(r)) actions.append(editButton(r, `Edit bookmark on ${where}`));
+    } else if (r.kind === "highlight") {
+      main.append(make("span", "desk-item__kind", nameOf(r)));
+      highlightItem(main, r);
+    } else {
+      main.append(make("span", "desk-item__kind", nameOf(r)));
+      // The note goes to its place in the margin, as it does in My Notes.
+      // Its words may hold links, which can't sit inside a button: the note's
+      // own button is its marker, stretched over the row (desk-stretch), with
+      // the words' links lifted above it.
+      const canGo = Boolean(goHere?.can(r));
+      const note = document.createElement("div");
+      note.className = "desk-verse__note";
+      const mark = glyph(r.marker, "desk-glyph desk-verse__glyph");
+      const words = document.createElement("span");
+      words.className = "desk-verse__words";
+      fillNoteWords(words, r.body, "(the marker only)");
+      if (canGo) {
+        note.classList.add("desk-stretch", "desk-verse__note--go");
+        const go = document.createElement("button");
+        go.type = "button";
+        go.className = "desk-verse__go";
+        words.id = `deskVerseWords${idSuffix}-${r.id}`;
+        go.setAttribute("aria-label", `Show my note on ${where} in the margin`);
+        go.setAttribute("aria-describedby", words.id);
+        go.innerHTML = mark;
+        go.addEventListener("click", () => goHere.go(r));
+        note.append(go);
+      } else {
+        note.innerHTML = mark;
+      }
+      note.append(words);
+      main.append(note);
+      if (onEdit) actions.append(editButton(r, `Edit note on ${where}`));
+    }
+    labelsFor(main, r, where, labelsById);
+    if (store) {
+      const [verb] = takeOff(r.kind);
+      const remove = make("button", "desk-verse__remove", verb);
+      remove.type = "button";
+      remove.setAttribute("aria-label", `${verb} ${nameOf(r).toLowerCase()} on ${where}`);
+      remove.addEventListener("click", () => removeRecord(r, li));
+      actions.append(remove);
     }
     return flagged(li, r);
+  }
+
+  function editButton(r, name) {
+    const edit = make("button", "desk-item__edit", "Edit");
+    edit.type = "button";
+    edit.setAttribute("aria-label", name);
+    edit.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onEdit(r, edit);
+    });
+    return edit;
+  }
+
+  /** A bookmark's labels, and Labels… to change them, as My Notes' row has (E149: bookmarks only). */
+  function labelsFor(main, r, where, labelsById) {
+    const chips = shownLabels(r, labelsById);
+    if (chips.length) {
+      const ul = make("ul", "desk-chips");
+      ul.setAttribute("aria-label", "Labels");
+      for (const l of chips) ul.append(make("li", "desk-chip", l.name));
+      main.append(ul);
+    }
+    if (!store || !ctx || !takesLabels(r) || !canEdit(r)) return;
+    const tag = make("button", "desk-item__tag", "Labels…");
+    tag.type = "button";
+    tag.setAttribute("aria-label", `Labels for ${labelsSubject(r, where)}`);
+    tag.addEventListener("click", () => {
+      labelsRow = r.id;
+      // Forget the record once its popover has closed.
+      openLabelsPopover({ trigger: tag, store, ctx, recordId: r.id, name: labelsSubject(r, where) }).then(() => {
+        const open = currentPanel();
+        if (!open) return;
+        const done = open.onClose;
+        open.onClose = () => {
+          done?.();
+          labelsRow = null;
+        };
+      });
+    });
+    main.append(tag);
   }
 
   /** The row with its change notice's flag, when the record has one. */
   function flagged(li, r) {
     const notice = notices.get(r.id);
     if (!notice) return li;
-    li.append(
+    (li.querySelector(".desk-verse__main") ?? li).append(
       flagButton(r, notice, (trigger) => {
         const index = Array.from(mine.children).indexOf(li);
         openNotice(trigger, r, {
@@ -402,18 +503,14 @@ export function createVerseTab({
   }
 
   /**
-   * A highlight on the verse: its words in the colour's look, and Remove. The
-   * look is for the eye (tint and underline), so a screen reader is told the
-   * colour in words, ahead of the quotation.
+   * A highlight on the verse: its words in the colour's look, under the line
+   * that names the colour in words ("Green highlight"), which is what a
+   * screen reader is told, as in My Notes. Its Remove is every row's.
    */
   function highlightItem(li, r) {
     const color = COLORS.includes(r.color) ? r.color : null;
-    const name = color ? `${color} highlight` : "highlight";
     const words = document.createElement("span");
     words.className = "desk-verse__highlight";
-    const said = document.createElement("span");
-    said.className = "sr-only";
-    said.textContent = `${name[0].toUpperCase()}${name.slice(1)}: `;
     const quote = shortQuote(r.quote?.exact, HIGHLIGHT_WORDS);
     if (color) {
       const swatch = document.createElement("span");
@@ -423,25 +520,15 @@ export function createVerseTab({
       sample.className = "desk-swatch__sample";
       sample.textContent = quote;
       swatch.append(sample);
-      words.append(said, swatch);
+      words.append(swatch);
     } else {
-      words.append(said, quote);
+      words.append(quote);
     }
     li.append(words);
-    if (store) {
-      const where = recordReference(r);
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "desk-verse__remove";
-      remove.textContent = "Remove";
-      remove.setAttribute("aria-label", `Remove ${name}${where ? ` on ${where}` : ""}`);
-      remove.addEventListener("click", () => removeHighlight(r, li));
-      li.append(remove);
-    }
     return li;
   }
 
-  async function removeHighlight(r, li) {
+  async function removeRecord(r, li) {
     const index = Array.from(mine.children).indexOf(li);
     const trash = await store.remove(r.id);
     if (!trash) return;
@@ -455,7 +542,7 @@ export function createVerseTab({
     const next = rows[Math.min(index, rows.length - 1)]?.querySelector("button");
     (next ?? (add.hidden ? heading : add)).focus({ preventScroll: true });
     const where = recordReference(r);
-    showUndo(`Highlight${where ? ` on ${where}` : ""} removed.`, () => undoEntry(entry));
+    showUndo(`${nameOf(r)}${where ? ` on ${where}` : ""} ${takeOff(r.kind)[1]}.`, () => undoEntry(entry));
   }
 
   for (const b of steps) {
@@ -481,11 +568,35 @@ export function createVerseTab({
   };
   document.addEventListener("lit:panel-actions", onPanelActions);
 
+  /**
+   * Bring this verse's notes into view, tinted for a moment, with focus on
+   * their heading (E147; BVJ, 2026-11-17): the margin's "N more notes" opens
+   * the tab here, across the page from where it was pressed, and the tab
+   * changing alone was easy to miss.
+   */
+  let flashTimer = 0;
+  async function showNotes() {
+    notesHead.focus({ preventScroll: true });
+    await render();
+    const box = scroller(notesSection);
+    if (box) {
+      const top = notesSection.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+      const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      box.scrollTo({ top: Math.max(0, top - 8), behavior: reduced ? "auto" : "smooth" });
+    }
+    clearTimeout(flashTimer);
+    notesSection.classList.remove("desk-verse__notes--flash");
+    void notesSection.offsetWidth; // a second press starts the tint again
+    notesSection.classList.add("desk-verse__notes--flash");
+    flashTimer = setTimeout(() => notesSection.classList.remove("desk-verse__notes--flash"), 1600);
+  }
+
   return {
     el,
     render,
     setVerse,
     focusHeading: () => heading.focus({ preventScroll: true }),
+    showNotes,
     // For /desk, whose This verse pane builds a tab per chapter (BA31).
     destroy: () => document.removeEventListener("lit:panel-actions", onPanelActions),
   };

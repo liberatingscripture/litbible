@@ -131,8 +131,8 @@ async function start({ handOver }) {
         ctx,
         showInText,
         // The panel is built after the margin; "N more notes" opens This verse
-        // through it once it is up (GF8b-6).
-        showVerse: (verse) => api?.panel?.showVerse?.(verse),
+        // through it once it is up (GF8b-6), at the verse's notes (E147).
+        showVerse: (verse, how) => api?.panel?.showVerse?.(verse, how),
       })
     : null;
   readMarks = store && !margin ? createReadMarks({ store }) : null;

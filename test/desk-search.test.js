@@ -55,17 +55,17 @@ test("each kind is found by its own words, and a hidden or trashed record never 
   assert.equal(hits[0].href, "/john-3/#v1");
 });
 
-test("a label name finds the records that carry it, and says so", () => {
+test("a label name finds the bookmarks that carry it, and says so; a note's old label is not searched (E149)", () => {
   const records = [
     { ...base, id: "L", kind: "label", name: "Thursday group" },
-    note("a", "luke", 15, 11, "The lost son", { labels: ["L"] }),
-    note("b", "luke", 15, 4, "The lost sheep"),
+    { ...base, id: "a", kind: "bookmark", bookKey: "luke", chapter: 15, verse: 11, label: "The lost son", labels: ["L"] },
+    note("b", "luke", 15, 4, "The lost sheep", { labels: ["L"] }),
   ];
   const hits = searchNotebook(records, "thursday");
   assert.deepEqual(hits.map((h) => h.id), ["a"]);
   assert.equal(hits[0].parts.map((p) => p.text).join(""), "Label: Thursday group");
-  assert.deepEqual(searchNotebook(records, "lost thursday").map((h) => h.id), ["a"], "the body and the label together");
-  assert.equal(hits[0].kind, "note");
+  assert.deepEqual(searchNotebook(records, "lost thursday").map((h) => h.id), ["a"], "the name and the label together");
+  assert.equal(hits[0].kind, "bookmark");
 });
 
 test("the book filter keeps one book's records", () => {

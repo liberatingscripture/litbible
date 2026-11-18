@@ -20,7 +20,7 @@ import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { TRASH_DAYS, restoreFromTrash, trashRecord } from "./desk-records.mjs";
 import { bookmarksOn, kindName, recordReference } from "./desk-store-core.mjs";
 import { canFollowMore, isFollowing } from "./desk-bookmarks.mjs";
-import { findLabel, labelsOf } from "./desk-labels.mjs";
+import { findLabel, shownLabels, takesLabels } from "./desk-labels.mjs";
 
 /* ── Text matching ───────────────────────────────────────────────────── */
 
@@ -47,7 +47,7 @@ export function searchText(record, labels = new Map()) {
     record.footnote,
     record.targetTitle,
     record.color,
-    ...labelsOf(record, labels).map((l) => l.name),
+    ...shownLabels(record, labels).map((l) => l.name),
   ];
   return fold(parts.filter((p) => typeof p === "string").join(" \n "));
 }
@@ -132,7 +132,7 @@ export function filterRecords(records, { query = "", kind = null, color = null, 
       if (!(r.kind === "bookmark" && r.follow !== true)) return false;
     } else if (kind && r.kind !== kind) return false;
     if (color && !(r.kind === "highlight" && r.color === color)) return false;
-    if (labelId && !(r.labels ?? []).some((id) => id === labelId || labels.get(id)?.id === labelId)) return false;
+    if (labelId && !(takesLabels(r) && (r.labels ?? []).some((id) => id === labelId || labels.get(id)?.id === labelId))) return false;
     if (!words.length) return true;
     const hay = searchText(r, labels);
     return words.every((w) => hay.includes(w));

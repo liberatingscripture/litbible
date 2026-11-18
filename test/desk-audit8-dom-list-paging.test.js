@@ -70,9 +70,9 @@ function margin(n, { showVerse = () => {} } = {}) {
   createNotesMargin({ store, source, onEdit: () => {}, showVerse });
 }
 
-test("eight notes on one verse draw five and a button naming the verse, which opens This verse", async () => {
+test("eight notes on one verse draw five and a button naming the verse, which opens This verse at its notes", async () => {
   const opened = [];
-  margin(8, { showVerse: (v) => opened.push(v) });
+  margin(8, { showVerse: (v, how) => opened.push([v, how]) });
   await settle(30);
   assert.equal(document.querySelectorAll(".desk-note").length, 5);
   const button = document.querySelector("button.desk-note__more");
@@ -80,7 +80,7 @@ test("eight notes on one verse draw five and a button naming the verse, which op
   assert.equal(button.textContent, "3 more notes");
   assert.equal(button.getAttribute("aria-label"), "3 more notes on John 3:16");
   button.click();
-  assert.deepEqual(opened, [16]);
+  assert.deepEqual(opened, [[16, { notes: true }]], "E147: at the verse's notes, not only its heading");
 });
 
 test("five notes draw no button, and with no This verse to open every note is drawn", async () => {

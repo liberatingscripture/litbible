@@ -31,18 +31,19 @@ const desktop = (now, id) => ({ client: "web/desktop", contentVersion: "v1", now
 const NOW = "2026-11-10T12:00:00.000Z";
 
 // The laptop made "Sermon prep" first; the desktop made "sermon Prep" an hour
-// later, before the two had met. Each put its own on a note.
+// later, before the two had met. Each put its own on a bookmark (labels are
+// for bookmarks alone since E149, BVJ 2026-11-17).
 const onLaptop = createRecord("label", { name: "Sermon prep" }, laptop("2026-11-10T09:00:00.000Z", ID(1)));
 const onDesktop = createRecord("label", { name: "sermon Prep" }, desktop("2026-11-10T10:00:00.000Z", ID(2)));
-const note = (n, labels, ctx) =>
-  createRecord("note", { bookKey: "john", chapter: 3, verse: n, body: `note ${n}`, marker: "note", labels }, ctx);
-const noteA = note(16, [onLaptop.id], laptop("2026-11-10T09:05:00.000Z", ID(11)));
-const noteB = note(17, [onDesktop.id], desktop("2026-11-10T10:05:00.000Z", ID(12)));
-const noteBoth = note(18, [onLaptop.id, onDesktop.id], laptop("2026-11-10T09:10:00.000Z", ID(13)));
+const bookmark = (n, labels, ctx) =>
+  createRecord("bookmark", { bookKey: "john", chapter: 3, verse: n, labels }, ctx);
+const markA = bookmark(16, [onLaptop.id], laptop("2026-11-10T09:05:00.000Z", ID(11)));
+const markB = bookmark(17, [onDesktop.id], desktop("2026-11-10T10:05:00.000Z", ID(12)));
+const markBoth = bookmark(18, [onLaptop.id, onDesktop.id], laptop("2026-11-10T09:10:00.000Z", ID(13)));
 
 const met = (first, second) => mergeSets(first, second, { now: NOW });
-const laptopSet = [onLaptop, noteA, noteBoth];
-const desktopSet = [onDesktop, noteB];
+const laptopSet = [onLaptop, markA, markBoth];
+const desktopSet = [onDesktop, markB];
 
 test("decision 3: two labels with one name list once, under the oldest's id and the name as last written", () => {
   const merged = met(laptopSet, desktopSet);
@@ -63,12 +64,12 @@ test("decision 3: the joined label is the same whichever way the copies met", ()
 test("decision 3: an item shows the label once, counts once, and a filter by it finds items with either id", () => {
   const merged = met(laptopSet, desktopSet);
   const map = labelMap(merged);
-  const both = merged.find((r) => r.id === noteBoth.id);
+  const both = merged.find((r) => r.id === markBoth.id);
   assert.deepEqual(labelsOf(both, map).map((l) => l.id), [onLaptop.id]);
-  assert.deepEqual(labelsOf(merged.find((r) => r.id === noteB.id), map).map((l) => l.name), ["sermon Prep"]);
+  assert.deepEqual(labelsOf(merged.find((r) => r.id === markB.id), map).map((l) => l.name), ["sermon Prep"]);
   assert.deepEqual([...labelCounts(merged)], [[onLaptop.id, 3]]);
-  const notes = merged.filter((r) => r.kind === "note");
-  assert.deepEqual(filterRecords(notes, { labelId: onLaptop.id }, map).map((r) => r.id).sort(), [noteA.id, noteB.id, noteBoth.id].sort());
+  const marks = merged.filter((r) => r.kind === "bookmark");
+  assert.deepEqual(filterRecords(marks, { labelId: onLaptop.id }, map).map((r) => r.id).sort(), [markA.id, markB.id, markBoth.id].sort());
   assert.equal(findLabel(merged, "SERMON PREP").id, onLaptop.id);
   assert.equal(findLabel(merged, "Sermon prep", onDesktop.id), null, "a name is free for its own label");
 });
@@ -76,10 +77,10 @@ test("decision 3: an item shows the label once, counts once, and a filter by it 
 test("decision 3: taking the label off an item takes off both ids; putting it on an item with either is nothing to do", () => {
   const merged = met(laptopSet, desktopSet);
   const ids = labelIds(merged, onLaptop.id);
-  const both = merged.find((r) => r.id === noteBoth.id);
+  const both = merged.find((r) => r.id === markBoth.id);
   const off = planSetLabel(both, onLaptop.id, false, laptop(NOW), ids);
   assert.deepEqual(off.plan.put[0].labels, []);
-  const b = merged.find((r) => r.id === noteB.id);
+  const b = merged.find((r) => r.id === markB.id);
   assert.equal(planSetLabel(b, onLaptop.id, true, laptop(NOW), ids).plan.put.length, 0);
   assert.equal(planNewLabelOn(merged, b, "Sermon Prep", laptop(NOW)).plan.put.length, 0, "typing the name again adds nothing");
 });
@@ -105,7 +106,7 @@ test("decision 3: deleting the label trashes every record of it and takes both i
   assert.deepEqual(done.trashes.map((t) => t.deletedId).sort(), [onLaptop.id, onDesktop.id]);
   assert.equal(done.trash.deletedId, onLaptop.id);
   assert.equal(done.stripped, 3);
-  for (const r of done.plan.put.filter((p) => p.kind === "note")) assert.deepEqual(r.labels, []);
+  for (const r of done.plan.put.filter((p) => p.kind === "bookmark")) assert.deepEqual(r.labels, []);
 });
 
 test("decision 3: the Markdown file lists the label once", () => {

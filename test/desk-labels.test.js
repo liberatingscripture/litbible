@@ -21,6 +21,8 @@ import {
   planNewLabelOn,
   planRenameLabel,
   planSetLabel,
+  shownLabels,
+  takesLabels,
 } from "../src/lib/desk-labels.mjs";
 
 const ctx = { client: "web/2026.10", contentVersion: "v20261005.5d2c847d", now: "2026-10-12T10:00:00.000Z" };
@@ -29,6 +31,8 @@ const nextId = () => `00000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
 const label = (name) => createRecord("label", { name }, { ...ctx, now: "2026-10-01T00:00:00.000Z", id: nextId() });
 const note = (extra = {}) =>
   createRecord("note", { bookKey: "romans", chapter: 8, verse: 3, body: "x", marker: "note", ...extra }, { ...ctx, now: "2026-10-01T00:00:00.000Z", id: nextId() });
+const bookmark = (verse, extra = {}) =>
+  createRecord("bookmark", { bookKey: "romans", chapter: 8, verse, ...extra }, { ...ctx, now: "2026-10-01T00:00:00.000Z", id: nextId() });
 
 test("names are trimmed, collapsed, and compared without case or accents", () => {
   assert.equal(normalizeLabelName("  Morning   prayer \n"), "Morning prayer");
@@ -131,10 +135,26 @@ test("labels with no label record are ignored for display and never stripped", (
   assert.equal(planSetLabel(r, l.id, false, ctx).record.labels.join(), "gone");
 });
 
-test("labelCounts counts live records only", () => {
+test("labelCounts counts live bookmarks only", () => {
   const l = label("Prayer");
-  const a = note({ labels: [l.id] });
-  const b = note({ labels: [l.id] });
+  const a = bookmark(3, { labels: [l.id] });
+  const b = bookmark(4, { labels: [l.id] });
   const trash = { id: "t", kind: "trash", labels: [l.id] };
-  assert.equal(labelCounts([l, a, b, trash]).get(l.id), 2);
+  // E149 (BVJ, 2026-11-17): labels are for bookmarks. A note that carries
+  // one from before is not counted, though the record keeps it.
+  const old = note({ labels: [l.id] });
+  assert.equal(labelCounts([l, a, b, trash, old]).get(l.id), 2);
+});
+
+test("only bookmarks take labels, and only theirs are shown (E149)", () => {
+  const l = label("Prayer");
+  const labels = new Map([[l.id, l]]);
+  const mark = bookmark(3, { labels: [l.id] });
+  const old = note({ labels: [l.id] });
+  assert.equal(takesLabels(mark), true);
+  assert.equal(takesLabels(old), false);
+  assert.equal(takesLabels(null), false);
+  assert.deepEqual(shownLabels(mark, labels).map((x) => x.name), ["Prayer"]);
+  assert.deepEqual(shownLabels(old, labels), []);
+  assert.deepEqual(old.labels, [l.id], "the note's stored labels stay in the record");
 });

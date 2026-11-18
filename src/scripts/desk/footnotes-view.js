@@ -21,17 +21,9 @@
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import { routeFootnoteLinks } from "./footnote-links.js";
 import { pinButton, refreshPins } from "./pins.js";
+import { scroller } from "./dom.js";
 
 const TOP_GAP = 8; // px between the pane's top edge and the first note shown
-
-/** The nearest ancestor that scrolls vertically, or null. */
-function scroller(el) {
-  for (let p = el.parentElement; p; p = p.parentElement) {
-    const y = getComputedStyle(p).overflowY;
-    if (y === "auto" || y === "scroll") return p;
-  }
-  return null;
-}
 
 export function createFootnotesView({ idSuffix = "", onVerse = null, store = null, showPassage = null } = {}) {
   const el = document.createElement("section");
