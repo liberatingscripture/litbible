@@ -9,8 +9,9 @@
 // button are the same thing; the bar only asks the history.
 //
 // It closes by itself after CLOSE_AFTER_MS (BVJ, 2026-10-09), and never
-// while the pointer is over it or focus is on its buttons; it starts the full
-// time again when they leave. It had no timeout at first, because it was the
+// while the pointer is over it or keyboard focus is on its buttons (a mouse
+// click's focus doesn't count, E152); it starts the full time again when they
+// leave. It had no timeout at first, because it was the
 // only way back from a deletion and an undo that disappears on a timer is one
 // a slow reader or a screen-reader user can miss (WCAG 2.2.1). Ctrl+Z
 // (history.js) changed that: the bar going takes nothing away, since the
@@ -46,6 +47,18 @@ export function undoModifier() {
   return /mac/i.test(platform) ? "⌘" : "Ctrl";
 }
 
+/**
+ * Whether the reader is using the bar: the pointer is on it, or keyboard
+ * focus is in it. Focus that a mouse click left on one of its buttons doesn't
+ * count (E152; BVJ, 2026-11-17: “It seems like it's just staying there
+ * forever”): pressing Undo or Redo puts up the next notice with focus on its
+ * button, so a reader who clicked and moved on had a bar that never closed.
+ */
+function inUse(bar) {
+  const a = document.activeElement;
+  return bar.matches(":hover") || Boolean(a && bar.contains(a) && a.matches(":focus-visible"));
+}
+
 /** Start the closing time again for whichever notice is showing. */
 function startClock() {
   clearTimeout(clock);
@@ -56,7 +69,7 @@ function startClock() {
     // focus or pointer event can go missing (a window without focus fires
     // none), and a bar in use must never close under the reader.
     const bar = root?.querySelector(".desk-undo__bar");
-    if (bar && (bar.matches(":hover") || bar.contains(document.activeElement))) {
+    if (bar && inUse(bar)) {
       startClock();
       return;
     }
@@ -90,8 +103,9 @@ function build() {
     hideUndo();
     closing?.();
   });
-  // Held open while it is being read or used. Checked after the event, since
-  // focus moving between the bar's own buttons passes through "out".
+  // Held open while it is being read or used (see inUse). Checked after the
+  // event, since focus moving between the bar's own buttons passes through
+  // "out".
   const bar = el.querySelector(".desk-undo__bar");
   const hold = () => {
     held = true;
@@ -99,11 +113,13 @@ function build() {
   };
   const release = () =>
     setTimeout(() => {
-      held = bar.matches(":hover") || bar.contains(document.activeElement);
+      held = inUse(bar);
       if (!held && !bar.hidden) startClock();
     });
   bar.addEventListener("pointerenter", hold);
-  bar.addEventListener("focusin", hold);
+  bar.addEventListener("focusin", (e) => {
+    if (e.target instanceof Element && e.target.matches(":focus-visible")) hold();
+  });
   bar.addEventListener("pointerleave", release);
   bar.addEventListener("focusout", release);
   return el;
@@ -325,6 +341,9 @@ export function hideUndo(notice) {
   if (!bar) return;
   const hadFocus = bar.contains(document.activeElement);
   bar.setAttribute("hidden", "");
+  // A hidden bar is in no one's use, and a bar hidden under the pointer gets
+  // no pointerleave, which would leave the next notice held with no clock.
+  held = false;
   if (hadFocus) giveFocusBack();
 }
 
