@@ -306,11 +306,14 @@ export function createWidths({ column, panel, onChange }) {
   const NEAR = "desk-gutter--near";
   let pointer = null;
 
-  // Where the margin begins: the sheet's left edge, or, where no sheet is
-  // drawn, the 49px one takes beside a column with no notes.
+  // Where the margin begins: where the sheet's left edge is with no notes in
+  // the margin, at most 49px out from the column (nearer where the window is
+  // narrow), or those 49px where no sheet is drawn. A sheet that reaches out
+  // under margin notes doesn't take the grip's area with it (E150; BVJ,
+  // 2026-11-17: “It should stay the same area where the sheet USED to be”).
   function marginLeft(box) {
     const sheet = sheetEdges(box);
-    return Math.max(0, sheet ? sheet.left : box.left - 49);
+    return Math.max(0, box.left - 49, sheet ? sheet.left : 0);
   }
 
   const barePage = (t) => t === textEdge || t === column || (t instanceof Node && t.contains(column));

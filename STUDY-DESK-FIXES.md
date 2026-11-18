@@ -4106,20 +4106,17 @@ says so; where BVJ was wondering, nothing is decided.)
   over it, since the reader is reading that note (BVJ, the same day, of a
   first build that kept a hovered note under the button: “it shouldn't sit
   above a note that expands on hover. That covers the note's content even if
-  that's what the user is trying to see”). So that the pointer can still
-  reach the button, **the note just above it opens only after the pointer
-  rests on it for 250 ms** (`openOnRest` and `REST_MS` in `notes-margin.js`;
-  `desk-note--rest` and `--rested` in `desk.css`): passing over it on the
-  way down leaves it cut, and focus or a click opens it at once. Every other
-  note opens on hover as before. Pressing the button opens This verse **at
+  that's what the user is trying to see”). So that the pointer could still
+  reach the button, the note just above it first opened only after the
+  pointer rested on it for 250 ms; E151 replaced that the same day, and the
+  button is now reached through the hovered note. Pressing the button opens This verse **at
   the verse's notes** (`showVerse(verse, { notes: true })`, through
   `shell.js` and `panel.js`'s `lazyTab`): the “My Notes” subhead takes
   focus, the section scrolls into view in the tab, and it is tinted green
   for 1.6 seconds (`desk-notes-flash`; no motion under reduced motion, only
   the tint). `scroller()` moved into `desk/dom.js` for it, from
   `tab-mine.js` and `footnotes-view.js`. Checked in the Browser pane on John
-  3:16 with six notes, the fifth long enough to be cut, under a real mouse;
-  `test/desk-audit8-dom-list-paging.test.js` holds the rest's timing.
+  3:16 with six notes, the fifth long enough to be cut, under a real mouse.
   Status: fixed.
 - **E148, rough spot: This verse's rows had less than My Notes'.** BVJ,
   2026-11-17: a bookmark's label “shows on the My Notes tab of the notebook
@@ -4147,6 +4144,45 @@ says so; where BVJ was wondering, nothing is decided.)
   backup keeps it); it is simply not shown or searched. My Notebook's and the
   help page's sentences about labels now name bookmarks. This settles M8's
   scope (STUDY-DESK.md). Status: done.
+- **E150, rough spot: the text line's grip showed under the notes.** BVJ,
+  2026-11-17: hovering anywhere on the sheet left of the text shows the
+  width adjuster (E139), which “makes sense when there are no notes in the
+  margin and it's narrower,” but where notes widen the sheet, “The area
+  that shows the width adjuster should not expand with it. It should stay
+  the same area where the sheet USED to be.” **Fixed** (`marginLeft` in
+  `desk/widths.js`): the grip's area starts where the sheet's edge is
+  without notes, at most 49px out from the column (nearer where the window
+  is narrow), whatever the sheet reaches under the notes. Checked in the
+  Browser pane at 1600px on John 3 with notes in the margin, and in
+  `test/desk-widths-hint.test.js`. Status: fixed.
+- **E151, rough spot: a hovered margin note blocks the notes below it.**
+  BVJ, 2026-11-17, after E147: “It's not just an issue with the "N more"
+  button. Moving the mouse down over the notes makes it so that the ones
+  below it are blocked. I'm not sure what a fix would be since the
+  expanding is a desired behavior.” Of four ways offered, BVJ chose the
+  first, the pointer passing through the part of an open note below its own
+  place: “Option 1 is best, but there's an issue with that. The edit button
+  is in that area that will become display only.” Then: “what about a note
+  that's long enough to need to scroll?” **Built** (`notes-margin.js`,
+  `desk.css`): while a cut-off note is only hovered, its card lets the
+  pointer through below its place in the margin (`--desk-note-slot`, the
+  box at rest), so moving down a stack opens each note in turn and “N more
+  notes” is reached through it (E147's 250 ms rest is gone). Its place
+  keeps the hover, as do Edit, a link in its words, and its flag. **Edit
+  moved to the end of the note's first line** on every note, flagged ones
+  included, over a space the words always leave for it (the text's
+  `::before`, Edit's own word unseen, in the reader's font), so showing it
+  covers no words and moves none. A click or focus gives the reader the
+  whole card, as an open note always had: its links, its scrollbar, and the
+  wheel anywhere on it. Until then a note too long for the hover's card
+  (`min(60vh, 28rem)`, `desk-note--long`) fades at its foot instead of
+  showing a scrollbar the pointer could not reach. Checked in the Browser
+  pane at 1600px with a real mouse on John 3:16: down a stack from a long
+  note to the one below and on to “1 more note,” the slot's bottom edge
+  (no flicker), Edit pressed while only hovered, and a click then the wheel
+  over the card's lower part scrolling the note, not the page;
+  `test/desk-audit8-dom-list-paging.test.js` checks the place and the
+  long class. Status: built, awaiting BVJ's look.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

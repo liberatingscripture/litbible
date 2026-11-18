@@ -104,11 +104,22 @@ let sheet = null;
 globalThis.getComputedStyle = (el, pseudo) => (pseudo === "::before" && sheet ? sheet : realStyle.call(window, el, pseudo));
 const place = () => widths.placeHandles({ top: 100, height: 1900, column: column.getBoundingClientRect(), panelLeft: 924 });
 
-test("with a sheet drawn, the margin runs from the sheet's own left edge", () => {
+test("a sheet reaching out under the notes keeps the margin to the 49px it had without them (E150)", () => {
   sheet = { content: '""', left: "-200px", right: "-12px" };
+  move(main, 260, 500);
+  assert.equal(shown(), true, "where the sheet's edge was before the notes");
+  move(main, 240, 500);
+  assert.equal(shown(), false, "under the notes' part of the sheet");
   move(main, 120, 500);
-  assert.equal(shown(), true, "under the notes' part of the sheet");
-  move(main, 90, 500);
+  assert.equal(shown(), false, "further out under the notes");
+  sheet = null;
+});
+
+test("a sheet nearer than 49px, in a narrow window, starts the margin at its own edge", () => {
+  sheet = { content: '""', left: "-30px", right: "-12px" };
+  move(main, 275, 500);
+  assert.equal(shown(), true, "on the sheet");
+  move(main, 260, 500);
   assert.equal(shown(), false, "left of the sheet");
   sheet = null;
 });

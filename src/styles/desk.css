@@ -1010,29 +1010,42 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 /* A note hovered, opened or holding focus comes over a stack's "N more
    notes" (z-index 3, below), since the reader is reading it (BVJ,
    2026-11-17, E147: the button “covers the note's content even if that's
-   what the user is trying to see”). The note just above the button opens
-   only after a rest, so the pointer can pass over it to the button: */
+   what the user is trying to see”). */
 .desk-note:hover,
 .desk-note--open,
 .desk-note:focus-within {
   z-index: 4;
 }
 
-/* the note above a stack's "N more notes" stays cut, while hovered, until
-   the pointer has rested on it (`desk-note--rested`, REST_MS in
-   notes-margin.js). Focus or a click opens it at once. */
-.desk-note--rest.desk-note--cut:not(.desk-note--flagged):not(.desk-note--open):not(.desk-note--rested):not(:focus-within) {
-  max-height: var(--desk-note-max);
-  overflow: hidden;
-  -webkit-mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
-  mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
+/* A cut-off note that is only hovered lets the pointer through the part of
+   its card hanging below its own place in the margin (E151; BVJ,
+   2026-11-17: moving down over the notes, "the ones below it are
+   blocked"), so moving down a stack opens each note in turn and "N more
+   notes" stays in reach. Its own place (`--desk-note-slot`, the box at
+   rest, and a pixel for the lift) keeps the hover, and so do Edit, a link in
+   its words and its flag. A click or focus gives the reader the whole card,
+   scrolling included; until then a note too long for the card fades at its
+   foot, since a scrollbar there could not be reached. */
+.desk-notes > .desk-note--cut:hover:not(.desk-note--open):not(:focus-within) {
+  overflow-y: hidden;
+  pointer-events: none;
 }
 
-.desk-note--rest.desk-note--cut.desk-note--flagged:not(.desk-note--open):not(.desk-note--rested):not(:focus-within) .desk-note__toggle {
-  max-height: var(--desk-note-max);
-  overflow: hidden;
-  -webkit-mask-image: var(--desk-note-mask);
-  mask-image: var(--desk-note-mask);
+.desk-notes > .desk-note--cut:hover:not(.desk-note--open):not(:focus-within) :is(.desk-note__hit, .desk-note__edit, .desk-note__text a, .desk-flag) {
+  pointer-events: auto;
+}
+
+.desk-notes > .desk-note--cut:hover:not(.desk-note--open):not(:focus-within) .desk-note__hit::after {
+  top: -3px;
+  right: -6px;
+  bottom: auto;
+  left: -6px;
+  height: calc(var(--desk-note-slot) + 1px);
+}
+
+.desk-notes > .desk-note--long:hover:not(.desk-note--open):not(:focus-within) {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent);
 }
 
 .desk-note__edit {
@@ -1055,6 +1068,34 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 
 .desk-note__edit:hover {
   background: rgba(var(--ink-rgb), 0.07);
+}
+
+/* In the margin, Edit ends the note's first line (E151), inside the note's
+   own place, over a space the words always leave for it: the text's
+   ::before, Edit's own word and padding unseen. So showing it covers no
+   words and moves none. */
+.desk-notes > .desk-note > .desk-note__edit {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  margin: 0;
+  padding: 1px 8px;
+  line-height: 1.3;
+}
+
+.desk-notes > .desk-note > .desk-note__toggle > .desk-note__text::before {
+  content: "Edit";
+  float: right;
+  margin-left: 6px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  font: calc(0.8125rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  visibility: hidden;
+}
+
+/* A reader's font takes Edit too (global.css), so the space follows it. */
+html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text::before {
+  font-family: inherit;
 }
 
 /* "3 more notes": the rest of a stack past five on one line (GF8b-6). It
@@ -2033,18 +2074,14 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   color: var(--text);
 }
 
-/* In a note in full: under its words, level with where its text starts, with
-   Edit beside it (Edit still waits for hover or focus). */
+/* In a note in full: under its words, level with where its text starts.
+   Edit is in the first line, as on every note (E151). */
 .desk-note__foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 2px 8px;
   padding: 3px 0 0 24px;
-}
-
-.desk-note__foot .desk-note__edit {
-  margin: 0;
 }
 
 /* A flagged note that is cut off cuts its words alone, so the flag under
