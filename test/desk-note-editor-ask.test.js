@@ -1,5 +1,5 @@
 // E146 driven: when the note editor asks about unsaved words, its row is
-// Close without saving, Cancel and Save, and Cancel cancels the closing
+// Discard changes, Cancel and Save, and Cancel cancels the closing
 // (BVJ, 2026-11-17: "I would expect cancel to *cancel closing the note
 // dialogue*"). Until then the asking Cancel discarded the words. A second ×,
 // Escape, verse number or footnote letter still discards (NB-2).
@@ -45,22 +45,22 @@ beforeEach(() => {
   resetDom();
 });
 
-test("E146: an editor holding no words closes on Cancel at once, and offers no Close without saving", () => {
+test("E146: an editor holding no words closes on Cancel at once, and offers no Discard changes", () => {
   const panel = open();
   assert.deepEqual(row(panel), ["Cancel", "Save"]);
   parts(panel).cancel.click();
   assert.equal(panel.isConnected, false);
 });
 
-test("E146: Cancel with words asks, and the row becomes Close without saving, Cancel, Save", () => {
+test("E146: Cancel with words asks, and the row becomes Discard changes, Cancel, Save", () => {
   const panel = open();
   const { body, cancel, message } = parts(panel);
   type(body, "my words");
   cancel.click();
   assert.equal(panel.isConnected, true, "the editor stays");
-  assert.deepEqual(row(panel), ["Close without saving", "Cancel", "Save"]);
+  assert.deepEqual(row(panel), ["Discard changes", "Cancel", "Save"]);
   assert.equal(message.hidden, false);
-  assert.match(message.textContent, /aren’t saved yet.*close without saving.*Cancel to keep writing/);
+  assert.match(message.textContent, /^Your changes aren’t saved yet\. Save them, discard them, or choose Cancel to keep writing\.$/);
 });
 
 test("E146: Cancel while it asks keeps the editor and the words, and puts the row back", () => {
@@ -78,10 +78,10 @@ test("E146: Cancel while it asks keeps the editor and the words, and puts the ro
   // Asked again, it asks again rather than discarding.
   cancel.click();
   assert.equal(panel.isConnected, true);
-  assert.deepEqual(row(panel), ["Close without saving", "Cancel", "Save"]);
+  assert.deepEqual(row(panel), ["Discard changes", "Cancel", "Save"]);
 });
 
-test("E146: Close without saving closes and forgets the words", () => {
+test("E146: Discard changes closes and forgets the words", () => {
   const panel = open();
   const { body, cancel, discard } = parts(panel);
   type(body, "my words");
@@ -109,7 +109,7 @@ test("E146: a verse number pressed over the editor asks with the same three butt
   const { body, cancel } = parts(panel);
   type(body, "my words");
   assert.equal(holdPanel(), true, "a verse number is held off once");
-  assert.deepEqual(row(panel), ["Close without saving", "Cancel", "Save"]);
+  assert.deepEqual(row(panel), ["Discard changes", "Cancel", "Save"]);
   cancel.click();
   assert.equal(panel.isConnected, true);
   assert.equal(body.value, "my words");
@@ -133,7 +133,7 @@ test("E146: editing a note, Delete stands aside while it asks and comes back aft
   assert.deepEqual(row(panel), ["Delete", "Cancel", "Save"]);
   type(body, "kept, and changed");
   cancel.click();
-  assert.deepEqual(row(panel), ["Close without saving", "Cancel", "Save"], "one button on the left, never Delete beside a discard");
+  assert.deepEqual(row(panel), ["Discard changes", "Cancel", "Save"], "one button on the left, never Delete beside a discard");
   cancel.click();
   assert.deepEqual(row(panel), ["Delete", "Cancel", "Save"]);
 });

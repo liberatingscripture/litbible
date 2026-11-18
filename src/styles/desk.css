@@ -1714,7 +1714,7 @@ a.desk-item__highlight:hover {
   cursor: progress;
 }
 
-/* Delete, or while the editor asks about unsaved words, Close without saving
+/* Delete, or while the editor asks about unsaved words, Discard changes
    (E146; Delete is hidden then), stands apart on the left. Cancel and Save
    are one group, so a row too narrow for all three (OpenDyslexic, a large
    text size) puts them together on the next line, never Save alone. */
