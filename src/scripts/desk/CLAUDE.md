@@ -1596,8 +1596,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
           Check a new row of controls at Extra large in OpenDyslexic at
           280px.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
-       LIT's license line; the rest of the footer is hidden by
-       `html[data-desk-workspace]` in `desk.css`). Each pane scrolls on its
+       LIT's license line), then the site's footer, newsletter and all, as
+       on /notebook and /sheets (E143, BVJ 2026-11-17: until then `desk.css`
+       hid the footer, a leftover from when the page filled the window, and
+       all three left the newsletter out). Each pane scrolls on its
        own, so the page scrolls from the header, the gutters, the keyboard
        or the scrollbar: `fitHeight` grows the panes as the header scrolls
        away, their foot a gutter above the window's bottom edge, until they

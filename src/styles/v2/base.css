@@ -383,8 +383,8 @@
   }
 }
 
-/* A page with no newsletter in its footer (My Notebook, My sheets,
-   Unsubscribe): the emptied block takes no room, and the groups have the
+/* A page with no newsletter in its footer (Unsubscribe, which has a Brevo
+   form of its own): the emptied block takes no room, and the groups have the
    footer's whole width at every size. */
 :root[data-restyle] .footer-right:not(:has(.footer-newsletter)) {
   display: none;

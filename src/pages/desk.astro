@@ -27,7 +27,8 @@ import "../styles/pages/desk-page.css";
  * page, and a pane's text leaves them alone (global.css, data-own-marks).
  * The source-text notice follows the panes, as it follows every page that
  * prints the translation, so the page scrolls: desk-page.js grows the panes
- * as the header scrolls away, and the notice comes up after them.
+ * as the header scrolls away, and the notice comes up after them, then the
+ * footer (E143).
  */
 const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
 ---
@@ -36,7 +37,6 @@ const draftsJson = JSON.stringify(scanDraftChapters().draftChaptersByBook);
   title="Study Desk | Liberation and Inclusion Translation"
   description="The Study Desk on the LIT Bible: the text, your notes, and the Greek side by side."
   robotsNoindex={true}
-  hideFooterNewsletter={true}
   deskTitle="Study Desk"
 >
   <div class="desk-page">

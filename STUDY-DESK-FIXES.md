@@ -4034,6 +4034,20 @@ says so; where BVJ was wondering, nothing is decided.)
   tack alone (measured at 660px, Notebook minimized) it is flush with the
   sheet's inner edge, 0.4px clear, not over it. Row mode measured 5.9px clear
   at 1024px and at 760px. Status: fixed.
+- **E143, wish: the footer on /desk, and the newsletter in it.** BVJ, 2026-11-17: “let's add the
+  footer to /desk,” having noticed that /sheets has the footer without the
+  newsletter while /desk had none. Phase 3c hid it (2026-10-19, “The page
+  fills the window and hides the footer”), and two days later the page
+  began to scroll, its panes growing as the header leaves and the
+  source-text notice after them, so nothing kept the footer away but the
+  rule. **Built** (`desk.css`): the rule that hid `.site-footer` under
+  `html[data-desk-workspace]` is gone, so the footer follows the notice.
+  **The newsletter is on all three of the desk's pages too.** /desk,
+  My Notebook, and My sheets each passed `hideFooterNewsletter`, from
+  My Notebook's first build (1d), with no reason written down; BVJ:
+  “There's no reason to leave it off those three pages.” Unsubscribe is
+  now the only page without it, since its own Brevo form uses the same
+  fixed ids. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
