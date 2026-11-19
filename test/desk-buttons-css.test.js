@@ -66,9 +66,19 @@ const ORDINARY = [
   ".desk-search__choice",
   ":where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary))", // E121's Cancel among them
   ".desk-sheet__choice",
+  // Edged with no fill until E159 (BVJ, 2026-11-18: a button is never the color behind it).
+  ".desk-note__edit", // a margin note's Edit
+  ".desk-home-card__choose",
+  ".desk-tour__back",
+  ".desk-offer__later", // the tour offer's Later
+  ".desk-labels__add",
+  ".desk-ws__shape", // the Layout window's arrangements, a toggle
+  ":where(.desk-ws__menu-actions) button",
+  ":where(.desk-print-menu__choices) > :is(a, button)",
+  ".desk-rich-link__button:where(:not(.desk-rich-link__button--primary))",
 ];
 const PILLS = [":where(.desk-verse, .desk-fns) .desk-pin", ".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip"];
-const PRIMARY = [".desk-sheet__btn--primary", ".desk-search__btn--primary", ".desk-editor__actions .desk-editor__save", ".desk-notice__actions .desk-notice__keep"];
+const PRIMARY = [".desk-sheet__btn--primary", ".desk-search__btn--primary", ".desk-editor__actions .desk-editor__save", ".desk-notice__actions .desk-notice__keep", ".desk-tour__next", ".desk-offer__go", ".desk-rich-link__button--primary"];
 const has = (list, sel) => `, ${list}, `.includes(`, ${sel}, `);
 
 test("E126: the ordinary kind is one rule, and it covers the inventory", () => {
@@ -98,6 +108,15 @@ test("E126: the ordinary kind is one rule, and it covers the inventory", () => {
   assert.match(off, /border-color:\s*var\(--field-border\)/, "and still a button's edge");
   assert.match(off, /box-shadow:\s*none/);
   assert.match(off, /opacity:\s*1/, "no faded opacity under it");
+  assert.match(off, /background:\s*var\(--desk-control\)/, "E159: flat, but its fill stays, never the color behind it");
+  assert.match(search, /\.desk-gather__btn:where\(:not\(\.desk-gather__btn--primary, \.desk-gather__btn--quiet\)\):is\(:disabled, \[aria-disabled="true"\]\)\s*\{[^}]*background:\s*var\(--desk-control\)/, "and /search's");
+});
+
+test("E159: a .desk-seg pill fills its choices and takes a control's 3:1 edge, as the other pills do", () => {
+  const seg = components.match(/\.desk-seg\s*\{([^}]*)\}/);
+  assert.ok(seg, "no .desk-seg rule");
+  assert.match(seg[1], /background:\s*var\(--desk-control\)/, "its unchosen choices are a control's fill, not the background");
+  assert.match(seg[1], /border:\s*1px solid var\(--field-border\)/);
 });
 
 test("E126: a toggle is an ordinary button with aria-pressed, or a pill", () => {
@@ -147,6 +166,8 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
     ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more",
     ".desk-dp__retry", ".desk-search__btn", ".desk-search__choice", ".desk-sheet__btn", ".desk-sheet__choice",
     ".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip",
+    ".desk-note__edit", ".desk-home-card__choose", ".desk-tour__next", ".desk-tour__back", ".desk-offer__go", ".desk-offer__later",
+    ".desk-labels__add", ".desk-ws__shape", ".desk-ws__menu-actions", ".desk-print-menu__choices", ".desk-rich-link__button",
   ];
   const named = (sel) =>
     classes.some((c) => new RegExp(`${c.replace(/\./g, "\\.")}(?![\\w-])`).test(sel)) ||

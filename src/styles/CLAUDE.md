@@ -437,9 +437,15 @@
   dark pair in both dark selectors, are in its "The desk's layers" and
   repeated in `desk-search.css`, which /search loads alone. Under
   `prefers-reduced-motion` the lift and the transitions are zeroed by token
-  and the shadows stay. A disabled button keeps its edge and says so in its
-  words (ink at 0.7, or the text green on a disabled primary, 4.5:1 or more
-  on every surface), never by fading it with `opacity`. The inventory is in
+  and the shadows stay. A disabled button keeps its edge and its fill and
+  says so in its words (ink at 0.7, or the text green on a disabled primary,
+  4.5:1 or more on every surface), never by fading it with `opacity`.
+  **No button is the color of what lies behind it** (E159; BVJ,
+  2026-11-18), in either theme: a button with an edge and no fill, or a
+  segmented pill whose unchosen choices show the surface, joins a kind
+  instead (`.desk-seg` takes the pills' fill and edge). The light fill stays
+  white (BVJ chose it over a gray step, sky, and sunshine), 1.05:1 on a
+  near-white sheet, and the 3:1 edge and the shadow are what carry it there. The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
 - **The rest of the site takes the desk's look in `restyle.css`, behind
   `data-restyle`** (E132; BVJ, 2026-11-13). Layout.astro stamps it from

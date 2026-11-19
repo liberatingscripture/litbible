@@ -348,7 +348,7 @@
 
 .desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--field-border);
-  background: transparent;
+  background: var(--desk-control);
   color: rgba(var(--ink-rgb), 0.7);
   box-shadow: none;
   cursor: default;

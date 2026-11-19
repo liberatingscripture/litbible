@@ -187,6 +187,17 @@ test("D3: a green button is the primary, in the 8px shape; a Scripture page has 
   assert.match(disabled, /opacity:\s*1;/);
 });
 
+test("E159: no button is the color behind it: the edged no-fill ones are ordinary, and a disabled one keeps its fill", () => {
+  // BVJ, 2026-11-18: "there are buttons with the same color as the
+  // background. That should never be the case."
+  const ordinary = topLevel(lists(bare, KINDS.ordinary)[0]);
+  for (const sel of [".font-tray__reset", ".greek-lemma-btn"]) assert.ok(ordinary.includes(sel), `${sel} is an ordinary button`);
+  const at = bare.indexOf(`:is(${KINDS.ordinary}`);
+  const off = bare.indexOf("):is(:disabled, [aria-disabled=\"true\"]) {", at);
+  const disabled = bare.slice(off, bare.indexOf("}", off));
+  assert.match(disabled, /background:\s*var\(--desk-control\)/);
+});
+
 test("/apps changes at its four store buttons only", () => {
   const apps = selectors(bare).flatMap(topLevel).filter((s) => s.includes(".apps"));
   assert.ok(apps.length >= 6);

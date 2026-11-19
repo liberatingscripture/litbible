@@ -67,7 +67,7 @@
 
 :root[data-restyle] .desk-np :is(.desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-backup__save, .desk-backup__file-button, .desk-backup__actions button, .desk-np__restore-all):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--field-border);
-  background: transparent;
+  background: var(--desk-control);
   color: rgba(var(--ink-rgb), 0.7);
   box-shadow: none;
   transform: none;

@@ -117,7 +117,7 @@ test("aria-disabled Keep, Delete and the bookmark form's Save look busy (batch r
   // an ordinary button and its Keep the card's primary (E126), and neither
   // kind's hover reaches a disabled or aria-disabled button.
   assert.match(css, /:where\(\.desk-notice__actions\) button:where\(:not\(\.desk-notice__keep\)\)[^{]*\):hover:not\(:disabled, \[aria-disabled="true"\]/);
-  assert.match(css, /\.desk-notice__actions \.desk-notice__keep\):hover:not\(:disabled, \[aria-disabled="true"\], :active\)/);
+  assert.match(css, /\.desk-notice__actions \.desk-notice__keep[^{)]*\):hover:not\(:disabled, \[aria-disabled="true"\], :active\)/);
 });
 
 test("the Sheets editor's states have forced-colors rules (XA8-7)", () => {

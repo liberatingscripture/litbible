@@ -89,7 +89,12 @@ holds the inventory, the pairs, the two files in step and reduced motion.
    foot, a soft shadow at rest, a 1px lift on hover, sunk when pressed; an
    on toggle or an open menu's button stays sunk with the text green's edge
    and words. Disabled is flat, words at 70% (4.5:1 on every surface; the
-   mock's 62% failed). E121's Cancel is one.
+   mock's 62% failed), and keeps its fill (E159: never the color behind
+   it). E121's Cancel is one, and since E159 so are a margin note's Edit,
+   the first-use card's and the tours' buttons but their Next (a primary,
+   as is the tour offer's Take the tour), Labels' Add, the Layout window's
+   arrangements (a toggle) and actions, the Print menu's choices, and a
+   sheet's link box (its primary button aside).
 3. **Toggle**: an ordinary button with `aria-pressed` (Stay here, Bible
    order, the Greek's word choices), or one flat at rest: a pill (label
    chips, a sheet's blank chips) or a rounded rectangle (This verse's and
