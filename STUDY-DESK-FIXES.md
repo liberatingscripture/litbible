@@ -4230,6 +4230,25 @@ says so; where BVJ was wondering, nothing is decided.)
   `desk-bookmarks.test.js`, `bookmark-follow.test.js` and
   `desk-audit8-dom-desk-lead.test.js`, which fail on the old code. The help
   page's bookmark paragraph says so. Status: fixed.
+- **E154, wish: "Add to sheet ▸" reaches only five sheets.** BVJ,
+  2026-11-18, while deciding D13 (Collections), whose "Add to collection ▸"
+  lists the five collections used most recently: “There should also be a
+  way to open the full list in case it's not one of the five most recent.
+  Not sure how that would work. Maybe a scrolling effect in the flyout or
+  navigating to the collections page. That's a gap that needs to be filled
+  for sheets too, actually.” Today the verse menu's and the selection
+  panel's flyout (`sheets/sheet-add.js`, `addMenuSheets` in
+  `src/lib/desk-sheet-add.mjs`) offers the five sheets changed last and
+  "New sheet," so adding a passage to an older sheet means opening that
+  sheet in a Sheets pane first. **Decided** (BVJ, 2026-11-18, agreeing
+  with Claude's recommendation): an "All sheets…" line at the flyout's foot
+  that opens a small window with a filter box and every sheet, the same
+  window D13's "All collections…" will use. A flyout that scrolls was
+  weighed: a hover flyout closes on a page scroll (NB3-12) and a long one
+  is slow by arrow key. Going to `/sheets/` was weighed too: it leaves the
+  reading page, and the passage would have to travel in the address. BVJ
+  asked for it to be built first, in a session of its own. Status: open,
+  being built.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

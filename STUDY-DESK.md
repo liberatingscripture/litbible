@@ -745,7 +745,7 @@ every week.
   open in Word, Obsidian or any text editor.
 - **Paper** (N9): print any chapter with a ruled margin.
 
-## The ideas (54)
+## The ideas (55)
 
 "New" means no Bible site or tool was found doing it; "Borrowed" names the
 source. Sizes run extra small to large. Status is BVJ's decision where one was
@@ -1639,6 +1639,15 @@ plan as a whole was accepted; nothing was declined except where stated).
   projects have addresses by book, chapter and verse stable enough to
   link. Borrowed (the projects' own viewers). Small. **Version 2 (BVJ,
   2026-10-30).**
+- **D13. Collections.** Named groupings the reader makes for a purpose
+  ("Advent series," "Romans 8 class"), holding their own notes,
+  highlights, bookmarks, pinned footnotes, sheets and passages, each with a
+  page of its own at `/collections/`. Computer only, with nothing like it in
+  the apps. It takes up M8's "named notebooks," which labels no longer
+  cover now that they are for bookmarks alone (E149). Borrowed (Sefaria's
+  collections; Blue Letter Bible's named notebooks). Medium. **Version 1, tentatively** (BVJ, 2026-11-18: "we'll
+  see if we run into hiccups"). Brainstormed, not yet planned: see "D13.
+  Collections" before "Decisions".
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -5324,6 +5333,12 @@ be revisited for version 2.
 - **Labels on questions (Open, Consider, Apply) and a starter set of
   questions per template** (Audit 5, section D, #5). Version 2 (BVJ,
   2026-11-08).
+- **Merging sheets**: one sheet's parts brought into another, or several
+  sheets combined into one. Version 2 (BVJ, 2026-11-18). It came up with
+  D13, Collections: making a sheet from a collection skips the sheets in it
+  rather than copying their parts, since a copy brings leader-only parts,
+  minutes and blanks along, can repeat a passage, can pass the 300-part
+  limit, and doesn't follow later edits to the original.
 
 **Still open, for BVJ:**
 - **Which phase takes D10's version 1 part, a link to the Septuagint in
@@ -5615,6 +5630,250 @@ apps want a sheet merged part by part before this is built.
      and so does the desk stamp that shows them) and the footer.
 
 Each is its own PR.
+
+## D13. Collections (brainstormed 2026-11-18)
+
+**Brainstormed, not yet planned or built.** The preview once put labels on
+notes, highlights, bookmarks, pinned footnotes and sheets; BVJ wanted them
+on bookmarks alone (E149) but saw what that was reaching for, a way "to let
+users group different kinds of saved items," and proposed collections
+(BVJ, 2026-11-18): computer only, an "add to collection" for each of those
+kinds, "add all bookmarks with X label," a page of its own for each
+collection, a list of them in the notebook, and sheets that can go into a
+collection as well as take a collection's contents. "Let's brainstorm
+before planning systematically or building." Fable was consulted on the
+verse menu's row. This section holds BVJ's decisions, the website's
+proposals for the rest, and what is still open. **BVJ agreed to the
+proposals the same day** ("I agree with the rest of your proposals"), so a
+section marked as one is agreed unless "Still open" says otherwise.
+
+### Decisions (BVJ, 2026-11-18)
+
+1. **Version 1, tentatively**: "we'll see if we run into hiccups."
+2. **Computer only**, with nothing like it in the apps.
+3. **What a collection holds**: the reader's own kept items (notes,
+   highlights, bookmarks, pinned footnotes, sheets) and passages. Not the
+   site's own pages (a glossary entry, an article, an introduction).
+4. **Its page is `/collections/`**, and My Notebook lists the collections.
+5. **"All bookmarks with label X"**: the ones labeled now to start with, and
+   the live rule specified too, so the reader can choose either. A bookmark
+   left out of a live rule is kept out as an exception.
+6. **Bible order by default, and the reader can arrange it**, with
+   headings ("worth having").
+7. **Sheets go into a collection, and a collection goes onto a sheet.** The
+   sheets in a collection are skipped when it becomes a sheet, and the
+   reader is told; merging sheets is version 2 ("Version 2: deferred and
+   shelved"). **Each skipped sheet is named in a text part where it sat**,
+   leader-only by default, which the leader can untick when it points to a
+   handout the participants are given.
+8. **A bookmark or highlight becomes a passage with a text part beside
+   it**: for a bookmark, naming its name and its labels, whichever it has
+   ("both if both exist"); for a highlight, naming its color. The reader
+   can edit them like any text part.
+9. **The verse menu and the selection panel get a row, "Add to collection
+   ▸", after "Add to sheet ▸"** (option A). Not option B (one "Add to ▸"
+   with a Sheets group and a Collections group, which renamed E112's row
+   and made a long flyout), and not Fable's "gathering" mode with a
+   shortcut key of its own. The row doesn't remember the last pick
+   (decision 17).
+10. **The flyout works like Add to sheet's**: "New collection…," the five
+    collections used most recently, and "All collections…" at its foot,
+    opening a small window with a filter box and the whole list. The same
+    window serves Add to sheet's "All sheets…" (STUDY-DESK-FIXES.md E154,
+    built first, on its own).
+11. **Two more ways in**: a Collections line in the Notebook's This verse
+    tab (Fable's option D; not the only way in), and "Add passage…" on the
+    collection's page.
+12. **A passage already in the collection isn't added twice**, and the
+    reader is told so; the undo bar offers "Open the collection," as Add to
+    sheet's offers "Open the sheet."
+13. **The name is "Collections."**
+14. **"New collection…" asks for a name** in a small window, with the
+    passage filled in, since a collection's name is its purpose.
+15. **A record kind of its own** ("How it is stored," below); BDR's review
+    is still to come.
+16. **Header C's Study group gains "My collections"** beside "My sheets"
+    and "My notebook."
+17. **No remembered pick.** The website first proposed that once the
+    reader picked a collection in a visit, the row would become a split
+    row, "Add to “Advent series”," adding there in one press. BVJ: "that
+    could be a convenient idea, or it could be a good way to accidentally
+    add something to the wrong collection and maybe not realize it." Left
+    out, on the website's recommendation: the flyout lists the collections
+    used most recently first, so the last pick is already at its top, and a
+    repeat add is two presses, always on a named choice; the undo bar names
+    where it went ("John 3:16 added to Advent series," with Undo and Open
+    the collection), which catches a slip either way. "Add to sheet ▸" stays
+    as it is.
+
+### A collection and a label
+
+- **A label describes a bookmark** ("Comfort," "Memorize"). It belongs to
+  the bookmark, and its job is sorting and filtering.
+- **A collection is gathered for a purpose** ("Advent series," "Romans 8
+  class"). It has a name, an optional line of description, its own page,
+  and members of any kind. One item can be in several collections, and
+  deleting a collection never deletes what is in it.
+- A bookmark's row will carry both "Labels…" and "Add to collection…", so
+  the wording has to keep the two apart.
+
+### How it is stored (the website's proposal; BVJ agreed, BDR to review)
+
+**A new record kind, `collection`** (the format's kind 12), rather than the
+`labels` field every record already carries. Its fields, besides those of
+every record: `name` (plain text, up to 200 characters), an optional
+`description`, `order` (`"bible"` or `"mine"`), and `members`, in the
+reader's order. Each member has its own `id`, as a sheet's modules do, and
+is one of:
+
+- **an item**: the `id` of a note, highlight, bookmark, `footnotePin` or
+  sheet;
+- **a passage**: a sheet passage's fields (`bookKey`, `chapter`, `verse`,
+  `endVerse`, an optional `quote`, `verseCopy`, `verseCopyAsOf`), its words
+  read from today's text, as a sheet's are;
+- **a rule**: every bookmark carrying a label, named by the label's id, with
+  `except`, the ids left out (below);
+- **a heading**: plain text.
+
+Why a kind of its own:
+- **Adding or removing touches only the collection.** No item's `modified`
+  moves, so adding a sheet doesn't reorder "changed last," and nothing
+  collides with an edit of the same note on a phone. The `labels` field
+  would have done the opposite, and the apps, which read it, might have
+  shown collections as labels.
+- **Deleting an item drops it out of its collections, and restoring it
+  brings it back**, since the id is the same. A moving bookmark shows where
+  it is now. An id whose record is gone for good (a tombstone) is dropped
+  the next time the collection is written.
+- **The apps keep it untouched** (principle 6), as they keep sheets. **For
+  BDR**: one more kind to carry and none to show. Like a sheet it is one
+  record, so when two computers change one collection before they meet,
+  the later save wins whole (rule a).
+- Trash, undo, backup and the merge treat it as any kind. Limits (members
+  per collection) and its shape in the Markdown backup are for planning.
+
+### Getting things in
+
+- **On the rows**: "Add to collection…" on notes, highlights,
+  bookmarks and pinned footnotes in My Notes, This verse and My Notebook,
+  and on sheets in `/sheets/`' list, the Sheets pane's menu and My
+  Notebook's Sheets section. It opens the collections with checkboxes (an
+  item may be in several) and "New collection…".
+- **From a label** (decision 5): on My Notebook, "Add these 12 to a
+  collection…" adds whatever its search and label filter show, and a
+  label's own menu offers "Add all bookmarks labeled Advent" as a shortcut,
+  asking which: "The 12 bookmarks labeled Advent now" or "Every bookmark
+  labeled Advent, now and later."
+- **From the verse menu and the selection panel** (decisions 9 and 10):
+  "Add to collection ▸" after "Add to sheet ▸", a flyout of "New
+  collection…," the five collections used most recently, and "All
+  collections…", with no remembered pick (decision 17). A selection adds a passage with its start and end words, as Add
+  to sheet does. /desk's LIT pane gets the row too. Read View gets none:
+  it retires at launch, and Add to sheet is Chapter View only.
+- **This verse** (decision 11): a Collections line naming the collections
+  that hold this verse (as a passage, or through an item on it), with "Add
+  to collection…". It is also the one place on a reading page that shows a
+  collected passage, since a passage makes no mark.
+- **The collection's page** (decision 11): "Add passage…", a typed
+  reference read by `parseReferenceJump` (`search-core.js`), its start and
+  end words trimmed afterward as on a sheet.
+
+### The live rule (the website's proposal, agreed; decision 5 settles the exception)
+
+- One rule member names the label by id, so renaming the label doesn't
+  break it, and two label records with one name count as one
+  (`labelGroups`), as they do everywhere.
+- On the page the rule has a line, "Every bookmark labeled Advent · 12,"
+  with "Stop adding new ones" and "Remove"; each bookmark it brings in shows
+  "from Advent."
+- **Removing one** is "Leave it out of this collection": its id goes in
+  `except`, the rule's line says "1 left out," and the bookmark can be
+  brought back from there.
+- A bookmark added by hand and by the rule shows once, and removing the
+  rule keeps the one added by hand.
+- "Stop adding new ones" turns the rule into items, the bookmarks it holds
+  now.
+- Deleting a label a rule uses asks first: "Advent is used by Advent
+  series. Keep its 12 bookmarks there?" Yes makes them items; otherwise the
+  rule's line says the label is gone.
+- Version 1 matches labels only. The same member could later match other
+  things ("every question note in Romans," "every green highlight").
+
+### The collection's page (proposal, agreed)
+
+- `/collections/` lists the collections, and `/collections/?id=…` shows
+  one, treated like `/notebook/` and `/sheets/`: noindex, out of the
+  sitemap and Pagefind, a short note without the desk. It needs a row in
+  the desk's Routes table and its sentences on the help page.
+- Each member is the row it is elsewhere (`record-rows.js`), and
+  highlights, bookmarks and passages show the verse's words, so the page
+  reads as a study page rather than a list of references. A sheet is a card
+  that opens on `/sheets/`.
+- **Order** (decision 6): Bible order, with sheets first under "Sheets."
+  Moving anything, or adding a heading, switches to "My order," and a
+  choice at the top switches back and forth; Bible order keeps My order to
+  return to. Headings show in My order only. Moving is a drag with a click
+  route (Move up, Move down, To top, To bottom), as every drag on the desk
+  has. New arrivals (from the verse menu, or a rule's new bookmark) go at
+  the end of My order.
+- **Its actions**: rename and describe it, remove a member (an item stays
+  in the notebook), add a heading, Add passage…, Make a sheet, Add to sheet
+  ▸, print the list, and delete the collection (to the trash, with undo;
+  its items stay).
+
+### In the Notebook (proposal, agreed, beyond decisions 4 and 16)
+
+- **My Notebook**: a Collections section like Sheets, each collection's
+  name and count, "New collection…" and "All my collections."
+- **The Notebook panel**: a collection filter in My Notes rather than a new
+  tab. /desk's My Notes pane gets the same filter, so a collection sits
+  beside the text without a new kind of pane.
+- **The notebook search** finds collections by name.
+
+### Collections and sheets
+
+- **A sheet in a collection** is one member.
+- **A collection onto a sheet**: "Make a sheet" and "Add to sheet ▸" on the
+  collection's page, and a Collection choice in the Sheets pane's "+ From
+  my notes…" (`desk-sheet-from-notes.mjs`, which already turns records into
+  parts). Members go in the collection's order:
+  - a passage becomes a passage;
+  - a bookmark becomes a passage, and a text part after it names its name
+    and its labels, whichever it has ("Bookmark “Hope,” labeled Advent")
+    (decision 8);
+  - a highlight becomes a passage, and a text part after it names its
+    color ("Highlighted yellow") (decision 8);
+  - a question note becomes a question, and any other note or pinned
+    footnote a text part, as "+ From my notes…" does now;
+  - a heading becomes a text part holding it as a heading;
+  - a sheet is skipped, and the reader is told ("2 sheets weren't added;
+    each is a sheet of its own") (decision 7).
+- A verse already on the sheet isn't added twice (`notAlreadyOn`); a
+  bookmark's text and a highlight's on the same verse both go under the one
+  passage. The added texts are ordinary text parts, edited or deleted like
+  any other.
+- **The skipped sheets** (decision 7): each named in a text part where it
+  sat ("Also in this collection: the sheet “Advent week 1.”"), leader-only
+  by default so it never reaches a participant's copy, and the leader can
+  untick that when it points to a handout the participants are given.
+
+### Still open
+
+- **BDR's review of the new kind.** It is written into
+  `STUDY-DESK-FORMAT.md` as kind 12, "Collections (kind 12)," marked for
+  BDR to review. The website goes ahead with it meanwhile (BVJ,
+  2026-11-18: "We're plowing ahead"); the apps need only keep it, as they
+  keep sheets.
+- **The tours, once collections are fully built** (BVJ, 2026-11-18):
+  review the notebook tour (`tour.js`, on the chapter pages) to see whether
+  it needs collections added, and decide whether collections warrant a
+  tour of their own, as the Sheets have theirs (E63). The Study Desk
+  tour may want a look too, since /desk's My Notes pane gains the
+  collection filter.
+
+Reaching a sheet beyond the five the flyout lists (E154, the "All sheets…"
+window that "All collections…" will reuse) is being built first, on its
+own.
 
 ## Decisions
 

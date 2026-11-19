@@ -388,6 +388,12 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     same but one in its verse keeps at least half of the pinned words, with
     the change notice (Keep rewrites `footnote`, the verse and `n`); and
     otherwise `lost`.
+12. **`collection`** (STUDY-DESK.md, D13; **the website's proposal,
+    approved by BVJ 2026-11-18, for BDR to review**; not yet built). A
+    named grouping the reader makes for a purpose ("Advent series"),
+    holding their own records by id, and passages. Computer only: the apps
+    carry it untouched (principle 6), as they carry sheets, and need show
+    nothing. Its shape is under "Collections (kind 12)" below.
 
 **Reserved:** `encryptedBody`, an envelope for an end-to-end encrypted body,
 unused for now (A-F12). Under plan C, BDR's proposal (2026-10-07) makes the
@@ -730,6 +736,101 @@ tablet shows the sheet to read, present, print or forward, and saves
 nothing (2026-11-08, NB6-8). Forwarded from there, a participant link goes
 as it came, `answerKey` included, and a leader link goes as a participant
 share without `answerKey` unless the reader chooses the leader's version.
+
+## Collections (kind 12)
+
+**Status: the website's proposal (STUDY-DESK.md, "D13. Collections"),
+approved by BVJ, 2026-11-18; for BDR to review.** Not yet built, so no
+client writes one yet; the website is going ahead with it ("We're plowing
+ahead"), and BDR's review can change it before anything syncs. Edited on
+the website only, on computers. **The apps need no code for it beyond
+principle 6**: they keep the record, and fields and member types they
+don't know, and write them back untouched.
+
+A collection is **one record**, so it is deleted, trashed, restored,
+merged and undone as a whole, by the rules every kind follows; when two
+computers change one collection before they meet, the later save wins the
+whole collection (rule a, under "Clocks"). Every member carries its own
+`id`, so merging member by member can be added later without changing the
+format, as for a sheet's modules.
+
+**Why a kind of its own, not the `labels` field.** Adding a record to a
+collection, or taking it out, writes only the collection. The record
+itself is never rewritten, so its `modified` doesn't move, an edit of the
+same note on another device never collides with it, and an app that reads
+`labels` never shows a collection as a label. Labels are for bookmarks
+alone (kind 8; STUDY-DESK-FIXES.md, E149).
+
+### The collection's own fields
+
+Besides the fields every record carries (it has no `bookKey`, `chapter` or
+verses of its own, and its `labels` is `[]`):
+
+| Field | Meaning |
+|---|---|
+| `collectionFormat` | The version of this section the collection was written in (1). A client that knows a lower number shows the collection but won't edit it, so an older tab can't strip what it doesn't understand |
+| `name` | Plain text, 1 to 200 characters ("Advent series") |
+| `description`, optional | Plain text, up to 1,000 characters. Absent or empty means none |
+| `order` | `"bible"` (the default; absent means it) or `"mine"`: how the reader has chosen to see it. Bible order is worked out for display and never rewrites `members` |
+| `members` | The collection's contents, in the reader's own order (what `"mine"` shows) |
+
+The website proposes at most **1,000 members** and **256 KB** as JSON,
+far inside the 1 MB every record is held to.
+
+### Members
+
+Every member is an object with an `id` (a UUID, unique within the
+collection) and a `type`, one of the four below. A member of a type the
+client doesn't know is **kept where it is and written back untouched**,
+as a sheet's unknown module is.
+
+**`item`**: one of the reader's records.
+
+| Field | Meaning |
+|---|---|
+| `recordId` | The `id` of a note, highlight, bookmark, pinned footnote (`footnotePin`) or sheet |
+
+A client shows nothing for an id it can't find among the live records (in
+the trash, deleted for good, or not yet synced here) and keeps the member,
+so a record restored from the trash is back in its collections at once,
+and a moving bookmark always shows where it is now. The website drops a
+member whose id is held only as a tombstone (kind 10, its `record` gone)
+the next time it writes the collection. A live record of any other kind
+is kept and not shown.
+
+**`passage`**: verses of one chapter, read from today's text whenever the
+collection is shown. The same fields and rules as a sheet's `passage`
+module (`bookKey`, `chapter`, `verse`, `endVerse`, an optional `quote`,
+`verseCopy`, `verseCopyAsOf`; one chapter per passage; neither verse past
+200), without a sheet's `blanks` and `footnotes`. Adding one makes no
+bookmark or other record. A client never adds a passage identical to one
+already in the collection.
+
+**`rule`**: every bookmark carrying a label, now and later.
+
+| Field | Meaning |
+|---|---|
+| `match` | `{ "kind": "bookmark", "label": "<label id>" }`. Any id of the label will do: it matches every live bookmark whose `labels` holds any id of that label, joined as kind 8 joins them, so renaming the label changes nothing here |
+| `except` | Ids of bookmarks the reader left out of this collection ("Leave it out of this collection"); may be empty |
+
+A `match` naming a kind or a field the client doesn't know is kept and
+matches nothing there. A label deleted for good matches nothing; the
+website asks before deleting a label a rule uses, and offers to turn the
+rule's bookmarks into `item` members first. A bookmark reached both by an
+`item` and by a `rule` is shown once. Version 1 matches by label only; the
+same member can later match other things ("every question note in
+Romans") with new `match` fields.
+
+**`heading`**: plain text, up to 200 characters, in `text`. It divides
+the reader's own order into sections ("Week 1"), and is shown only in that
+order.
+
+### In the export files
+
+The full backup carries collections like any record. The Web Annotation
+file carries them in `lit.records`, as it carries sheets, since they aren't
+marks on the text. Their shape in the Markdown copy is to be settled when
+they are built.
 
 ## The quote (an anchor)
 
@@ -1123,7 +1224,7 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     `offsetSpace`. The app places it on arrival (W4).
   - The app's existing offset fields stay its own private fields. The website
     ignores them (principle 3).
-  - Kinds only the website uses (mark rules, labels, sheets) go in a
+  - Kinds only the website uses (mark rules, labels, sheets, collections) go in a
     **separate zone the app never opens**, under one generic record type
     (`kind`, a JSON payload, `modified`). That type is deployed once and
     never needs another field.
@@ -1219,6 +1320,9 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 - ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
   "Sheets (kind 9)".
 - Each store's exact mapping, once plan A or C is chosen.
+- **Collections, kind 12** (BVJ, 2026-11-18): **for BDR to review**,
+  under "Collections (kind 12)". The website goes ahead meanwhile; the apps
+  need only keep the records (principle 6).
 - **Draft 2's list** (BDR's proposal, 2026-10-07): rules a to e for
   collisions, a placement value meaning "place me from my verses and quoted
   words" for records the website writes, and the envelope above. See
