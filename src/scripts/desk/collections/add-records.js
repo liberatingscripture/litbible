@@ -32,7 +32,7 @@ import {
 import { undoEntry } from "../history.js";
 import { openPickWindow } from "../pick-window.js";
 import { showNotice, showUndo } from "../undo-bar.js";
-import { dateWords } from "../desk-text.js";
+import { dateWords, plural } from "../desk-text.js";
 import { collectionHref } from "./add-passage.js";
 import { openNewCollection } from "./new-collection.js";
 
@@ -203,8 +203,8 @@ export async function openAddLabel({ store, ctx, label, count, near = null, back
       label: "Which bookmarks",
       value: "rule",
       options: [
-        { value: "now", label: `Only the ${count} labeled ${label.name} now` },
-        { value: "rule", label: `These ${count}, and any you label ${label.name} from now on` },
+        { value: "now", label: `Only the ${count === 1 ? "one" : count} labeled ${label.name} now` },
+        { value: "rule", label: `${count === 1 ? "This one" : `These ${count}`}, and any you label ${label.name} from now on` },
       ],
     },
     onPick: (pick, choice) =>
@@ -220,7 +220,10 @@ export async function openAddLabel({ store, ctx, label, count, near = null, back
           ctx,
           near,
           members,
-          lead: rule ? `It will add every bookmark labeled ${label.name}, now and later.` : `It will start with the ${members.length} bookmarks labeled ${label.name}.`,
+          // Decision 23's words: BVJ found "now and later" ambiguous.
+          lead: rule
+            ? `It will hold every bookmark labeled ${label.name}, and any you label ${label.name} from now on.`
+            : `It will start with the ${plural(members.length, "bookmark", "bookmarks")} labeled ${label.name}.`,
           back,
           onCreated: (collection, entry) =>
             showUndo(

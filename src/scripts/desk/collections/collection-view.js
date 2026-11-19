@@ -16,7 +16,7 @@
 // that transaction reads it (`planCollectionChange`), so it is one step of
 // the history, and a removal or deletion offers the undo bar.
 //
-// Rules (a label's bookmarks "now and later", D13 step 5): each has a plain
+// Rules (a label's bookmarks now and any labeled later, D13 step 5): each has a plain
 // line above the members, "Every bookmark labeled Advent · 12", with quiet
 // links (`desk-item__stop`) "Stop adding new ones" (the rule becomes the
 // bookmarks it holds now) and "Remove" (the rule goes; bookmarks added by hand
