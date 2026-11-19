@@ -544,6 +544,13 @@ test("describeEntry: a record with no place reads without one", () => {
   assert.equal(describeEntry(entryFor({ put: [label], remove: [] })), "Label added.");
 });
 
+test("describeEntry: a collection reads by its name (D13)", () => {
+  const c = createRecord("collection", { collectionFormat: 1, name: "Advent series", order: "bible", members: [] }, { ...ctx, now: T0, id: nextId() });
+  assert.equal(describeEntry(entryFor({ put: [c], remove: [] })), "Collection “Advent series” added.");
+  assert.equal(describeEntry(entryFor({ put: [{ ...c, order: "mine", modified: T1 }], remove: [] }, [c])), "Collection “Advent series” changed.");
+  assert.equal(describeEntry(entryFor(planDelete(c, { ...ctx, now: T1, id: nextId() }), [c])), "Collection “Advent series” deleted.");
+});
+
 test("describeEntry: highlights added, changed and removed, from the real planner", () => {
   const nb = notebook();
   assert.equal(describeEntry(mark(nb, "patient", "yellow", T1).entry), "Highlight on 1 Corinthians 13:1 added.");

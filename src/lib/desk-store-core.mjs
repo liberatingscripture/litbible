@@ -240,10 +240,12 @@ export const QUIET_KINDS = Object.freeze(["place", MOVE_KIND]);
 /**
  * Kinds of record that mark no chapter's text and no list of marks: a sheet
  * (its autosave writes every few hundred milliseconds while typing, and a
- * sheet can be 512 KB) and a reading place. A view of marks subscribes with
- * `{ except }` this (Audit 2, DK-5). A bookmark that moves is not in it.
+ * sheet can be 512 KB), a reading place, and a collection (D13: adding to one
+ * writes only the collection, which draws nothing on the text). A view of
+ * marks subscribes with `{ except }` this (Audit 2, DK-5). A bookmark that
+ * moves is not in it.
  */
-export const NO_CHAPTER_KINDS = Object.freeze(["place", "sheet"]);
+export const NO_CHAPTER_KINDS = Object.freeze(["place", "sheet", "collection"]);
 
 /**
  * The kinds of record a write changes, for a listener that draws only some
@@ -435,6 +437,7 @@ const KIND_NAMES = {
   label: "Label",
   sheet: "Sheet",
   footnotePin: "Pinned footnote",
+  collection: "Collection",
 };
 
 /** What a reader calls a record's kind. An unknown kind is just "Item". */
@@ -446,12 +449,13 @@ export function kindName(kind) {
  * The verb for taking a record away, so every surface speaks the same one
  * (Audit 2, CP-7): a mark put on the text (a bookmark, a highlight) is
  * removed, a pinned footnote is unpinned, and anything the reader typed or
- * named (a note, a label, a sheet) is deleted. [button, past tense].
+ * named (a note, a label, a sheet, a collection) is deleted. [button, past tense].
  */
 const TAKE_OFF = {
   bookmark: ["Remove", "removed"],
   highlight: ["Remove", "removed"],
   footnotePin: ["Unpin", "unpinned"],
+  collection: ["Delete", "deleted"],
 };
 export function takeOff(kind) {
   return TAKE_OFF[kind] ?? ["Delete", "deleted"];

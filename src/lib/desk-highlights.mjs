@@ -36,6 +36,7 @@
 // where it was (principle 4).
 
 import { changeNotice } from "./desk-change.mjs";
+import { carryHighlights } from "./desk-collections.mjs";
 import {
   COLORS,
   canEdit,
@@ -159,8 +160,24 @@ function older(a, b) {
  * @param {{ bookKey: string, chapter: number }} args.where
  * @param {string} [args.now] an ISO time; the clock when left out
  * @param {{ client: string, contentVersion: string }} args.ctx
+ * @param {object[]} [args.notebook] every record, read in the same transaction
+ *   as the write: given, the collections holding a highlight that changes id
+ *   are rewritten in the plan too (carryHighlights in desk-collections.mjs), and
+ *   put back by its undo. A collection's `modified` moves; `summary` doesn't
+ *   count it.
  */
-export function planHighlight({ chapter, placed = [], start, end, color, blockAt, where, now = new Date().toISOString(), ctx = {} }) {
+export function planHighlight({
+  chapter,
+  placed = [],
+  start,
+  end,
+  color,
+  blockAt,
+  where,
+  now = new Date().toISOString(),
+  ctx = {},
+  notebook = null,
+}) {
   if (color !== null && !COLORS.includes(color)) {
     throw new Error(`desk-highlights: "${color}" is not a highlight color`);
   }
@@ -177,6 +194,10 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
   const undo = { put: [], remove: [] };
   const summary = { merged: 0, trimmed: 0, removed: 0, split: 0, otherColors: 0 };
   let created = null;
+  // Which highlights change id, for the collections that hold them.
+  const covered = [];
+  const absorbedIds = [];
+  const split = new Map();
 
   const stamp = { now, client: ctx.client };
   const made = { now, client: ctx.client, contentVersion: ctx.contentVersion };
@@ -217,6 +238,7 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
     const [first, second] = [left, right].filter((r) => r && r[1] > r[0]);
     if (!first) {
       discard(p);
+      covered.push(p.record.id);
       summary.removed++;
     } else {
       put.push(rewrite(p, ...first));
@@ -225,6 +247,7 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
         const piece = pieceOf(p.record, ...second);
         put.push(piece);
         undo.remove.push(piece.id);
+        split.set(p.record.id, piece.id);
         summary.split++;
       } else {
         summary.trimmed++;
@@ -266,12 +289,30 @@ export function planHighlight({ chapter, placed = [], start, end, color, blockAt
         put.push(created);
         undo.put.push(back(survivor.record));
       }
-      for (const p of absorbed) if (p !== survivor) discard(p);
+      for (const p of absorbed) {
+        if (p === survivor) continue;
+        discard(p);
+        absorbedIds.push(p.record.id);
+      }
       summary.merged = absorbed.length;
     }
   }
 
   if (!put.length && !remove.length) return emptyPlan();
+
+  // A highlight that changed id takes its collections with it, in this same
+  // write (D13): one covered by the new colour, or absorbed by a merge, now
+  // lives on as `created`, and a split's second piece joins the first. One
+  // erased outright is a plain deletion, and its collections keep it.
+  if (notebook) {
+    const moved = new Map();
+    if (created) for (const id of [...covered, ...absorbedIds]) if (id !== created.id) moved.set(id, created.id);
+    for (const c of carryHighlights(notebook, { moved, split }, stamp)) {
+      const before = notebook.find((r) => r?.id === c.id);
+      put.push(c);
+      if (before) undo.put.push(back(before));
+    }
+  }
   return { put, remove, created, summary, undo };
 }
 

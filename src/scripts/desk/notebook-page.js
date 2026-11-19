@@ -27,7 +27,7 @@ import {
   planDeleteLabel,
   planRenameLabel,
 } from "../../lib/desk-labels.mjs";
-import { bulkCounts, planDeleteMarks, planDeleteSheets, planEmptyTrashNow, trashHeld } from "../../lib/desk-notebook.mjs";
+import { bulkCounts, planDeleteCollections, planDeleteMarks, planDeleteSheets, planEmptyTrashNow, trashHeld } from "../../lib/desk-notebook.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountBackup } from "./export-import.js";
 import { createHistory, undoEntry } from "./history.js";
@@ -148,13 +148,18 @@ async function start() {
       <p>Each moves what it names in this browser to the trash. Choose Undo (or press Ctrl+Z, ⌘Z on a Mac) to bring it back until you leave the page, or restore it from the Trash above. The trash keeps each item for ${TRASH_DAYS} days, then only a record that it was deleted.</p>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Delete all notes and marks</h3>
-        <p>Every note, highlight, bookmark, pinned footnote, and label. Your sheets and templates stay.</p>
+        <p>Every note, highlight, bookmark, pinned footnote, and label. Your sheets, templates, and collections stay.</p>
         <div data-np-delete-box></div>
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Delete all sheets</h3>
         <p>Every sheet, and your own templates. Your notes and marks stay.</p>
         <div data-np-delete-sheets-box></div>
+      </div>
+      <div class="desk-np__danger">
+        <h3 class="desk-np__h3">Delete all collections</h3>
+        <p>Every collection. What’s in them stays in your notebook.</p>
+        <div data-np-delete-collections-box></div>
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Empty the trash now</h3>
@@ -174,6 +179,7 @@ async function start() {
   q("[data-np-trash-list]").replaceWith(trashList.el);
   const deleteBox = q("[data-np-delete-box]");
   const deleteSheetsBox = q("[data-np-delete-sheets-box]");
+  const deleteCollectionsBox = q("[data-np-delete-collections-box]");
   const trashBox = q("[data-np-trash-box]");
   const statusEl = q("[data-np-status]");
 
@@ -321,6 +327,7 @@ async function start() {
   const danger = {
     delete: { box: deleteBox, asking: false },
     sheets: { box: deleteSheetsBox, asking: false },
+    collections: { box: deleteCollectionsBox, asking: false },
     trash: { box: trashBox, asking: false },
   };
 
@@ -333,7 +340,7 @@ async function start() {
       button: "Delete all notes and marks…",
       none: "There are no notes or marks to delete.",
       question: (n) =>
-        `Are you sure? This moves ${plural(n, "item", "items")} (every note, highlight, bookmark, pinned footnote, and label) to the trash. Your sheets and templates stay.`,
+        `Are you sure? This moves ${plural(n, "item", "items")} (every note, highlight, bookmark, pinned footnote, and label) to the trash. Your sheets, templates, and collections stay.`,
       confirm: "Delete all notes and marks",
       failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
       run: () => deleteInBulk(planDeleteMarks, (n) => `All notes and marks deleted: ${plural(n, "item", "items")} moved to the trash.`),
@@ -347,6 +354,16 @@ async function start() {
       confirm: "Delete all sheets",
       failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
       run: () => deleteInBulk(planDeleteSheets, (n) => `All sheets deleted: ${plural(n, "sheet", "sheets")} moved to the trash.`),
+    });
+    drawAsk(danger.collections, {
+      count: counts.collections,
+      ready: (n) => n > 0,
+      button: "Delete all collections…",
+      none: "There are no collections to delete.",
+      question: (n) => `Are you sure? This moves ${plural(n, "collection", "collections")} to the trash. What’s in them stays in your notebook.`,
+      confirm: "Delete all collections",
+      failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
+      run: () => deleteInBulk(planDeleteCollections, (n) => `All collections deleted: ${plural(n, "collection", "collections")} moved to the trash.`),
     });
     drawAsk(danger.trash, {
       count: held,

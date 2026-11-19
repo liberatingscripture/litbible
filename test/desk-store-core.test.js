@@ -40,6 +40,7 @@ import {
   recordHref,
   recordReadHref,
   recordReference,
+  takeOff,
   touched,
   webClient,
 } from "../src/lib/desk-store-core.mjs";
@@ -232,6 +233,8 @@ test("kindName names every kind but trash, and an unknown kind plainly", () => {
   assert.equal(kindName("note"), "Note");
   assert.equal(kindName("hidden"), "Hidden passage");
   assert.equal(kindName("footnotePin"), "Pinned footnote");
+  assert.equal(kindName("collection"), "Collection");
+  assert.deepEqual(takeOff("collection"), ["Delete", "deleted"]);
   assert.equal(kindName("voiceMemo"), "Item");
 });
 
@@ -591,6 +594,8 @@ test("NO_CHAPTER_KINDS: a sheet's autosave or a place wakes no view of marks, bu
   const filter = { except: NO_CHAPTER_KINDS };
   assert.equal(hearsChange(filter, ["sheet"]), false);
   assert.equal(hearsChange(filter, ["place", "sheet"]), false);
+  assert.equal(hearsChange(filter, ["collection"]), false, "a collection's change draws no mark (D13)");
+  assert.equal(hearsChange(filter, ["highlight", "collection"]), true, "a highlight that carries its collections still does");
   assert.equal(hearsChange(filter, [MOVE_KIND]), true);
   for (const k of ["note", "highlight", "bookmark", "label", "footnotePin", "trash"]) {
     assert.equal(hearsChange(filter, [k]), true, k);

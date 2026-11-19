@@ -2359,6 +2359,9 @@ tap areas (`global.css`, never under 24px).
   narrow window, a large text size), the Footnotes list is indented by
   what is missing, so Pin is still on the left and inside the window
   (Claude's call, since nothing else keeps it left there).
+  History moved from the desk doc: until E79 "Add a note" sat beside Pin and
+  a `more` mode folded the two behind a "⋯"; until E81 a tight margin put Pin
+  on the note's line (`inline`).
 - **E82, design: Pin shows only for the footnote the reader is at.** BVJ
   (2026-11-10): “I don't like how cluttered the page looks with all those
   pins buttons running down the column beside the footnotes… What if the
@@ -4396,6 +4399,74 @@ says so; where BVJ was wondering, nothing is decided.)
   “act compassionately” is the right heading on /glossary is a separate,
   editorial question. `test/desk-greek.test.js` holds the rule. Status:
   fixed.
+- **E159, design: a button takes its background's color.** BVJ, 2026-11-18,
+  on D13's first mocks: “I notice in the mock there are buttons with the
+  same color as the background. That should never be the case.” Measured
+  on D13's second draft, which uses only the site's own classes (each
+  button's fill against what lies behind it, both composited, as WCAG
+  contrast). In light, an ordinary button's white (`--desk-control`) on a
+  raised surface (#FAFAF8: a sheet, a panel, a window, the pane bars) is
+  1.045:1. So a window's Cancel, `.desk-item__delete` and
+  `.desk-item__edit` on a Site 2.0 sheet, and My sheets' quiet row
+  buttons are held apart from it only by their edge and shadow. On the
+  cream page (#E1DFD9) the same white is 1.33:1. In dark, the ordinary
+  fill (`rgba(ink, 0.07)`) is 1.16:1 on the page and 1.20:1 on a raised
+  surface. An edged button with no fill is 1:1 anywhere: Labels' “Add”
+  (`desk-labels__add`) and `desk-offer__later`. Outside the desk, the
+  footer's Subscribe is white on the footer's #FAFAF8. Glyph buttons, menu
+  items, and quiet links have no fill by design (E126) and aren't part of
+  this. The same day BVJ asked of the second draft's order switch: “Do
+  other toggle pills take the background color, or should the unselected
+  options have a white background?” The other pills fill them with
+  `--desk-control` inside a `--field-border` edge (the Display tray's
+  `font-tray__seg`, the glossary's `category-toggle`, /search's
+  `sort-toggle`; restyle.css). Only `.desk-seg` has no fill, so its
+  unchosen options are the background: My Notes' scope choice, the Greek
+  tab's Lexicon switch, the margin-note settings, and D13's order switch.
+  It takes the other pills' fill and edge with this fix, since on a raised
+  surface that fill is the 1.045:1 white above. **Not fixed in D13**: the
+  fix belongs in the classes (restyle.css's
+  ordinary-button list and its dark twin, desk.css's tokens), so every
+  page takes it at once, D13's included. Options to mock for BVJ in both
+  themes: a fill a step darker than the surface it sits on, the cream as
+  the fill on raised surfaces, or `--desk-control` set per surface. Status:
+  fixed (#610). Light keeps white, dark keeps ink at 7%, and a disabled
+  ordinary button keeps its fill; every edged button with no fill joined a
+  kind, and `.desk-seg` took the pills' fill and edge.
+- **E160, preference: one look for a toggle that is on.** BVJ, 2026-11-18,
+  on the first mocks' order switch, drawn in sky: “Do toggle buttons ever
+  use sky? I don't mind it, but it should be consistent sitewide.” Sky
+  never marks a toggle. It appears only in the home chat's reader bubbles
+  (`--v2-sky`, `--v2-tint`; Site 2.0), and the mock's sky was Claude's own
+  invention, redrawn as `.desk-seg` in the second draft (D13, decision 25).
+  The site has two on-looks, by shape. A segmented choice fills its chosen
+  segment with the text green and sets its words in the light surface
+  color: `.desk-seg` in the desk, the Display tray's `font-tray__seg`, and
+  the glossary's `category-toggle`. A lone toggle button that is on is
+  sunk, with a text-green edge and words (E126). Whether the two shapes
+  should share one look is BVJ's call. Status: open, for BVJ.
+- **E161, rough spot: a row's reference link runs to its buttons.** BVJ,
+  2026-11-18, on D13's second draft: “the whole row after the verse or
+  title link is a button/activates the link. Should it be that way, or
+  should it be limited to where the text is?” Two patterns are behind it.
+  A sheet's row (`desk-sheet__open`, My sheets and the Sheets pane) is one
+  button across its card on purpose (E64, E89), and the second draft's
+  list of collections copies it. A record row's reference
+  (`a.desk-item__ref`, My Notebook's rows from `record-rows.js`, which
+  the collection page reuses) is a grid item, so it stretches across its
+  column to the buttons: on the mock, 578px of link around about 100px of
+  words. No rule chose that, so the pointer, the hover, and the click
+  reach blank space, and the focus ring spans it. A note's words are a
+  third pattern: in My Notes and This verse the note itself is one link to
+  its verse on purpose, stretched over its words so a link typed in them
+  stays its own (`desk-stretch`, N4). This verse's references already kept
+  to their words (`.desk-verse__main` sets `align-items: flex-start`). BVJ
+  took Claude's recommendation: “Go with your row link recommendations.”
+  **Fixed** (`desk.css`, `.desk-item__ref` sits at its column's start): a
+  row's reference is only as wide as its words wherever a `.desk-item` row
+  is drawn (My Notebook, My Notes, a pinned footnote's row, Continue
+  reading, and the collection page from D13's step 2). Sheet cards and a
+  note's stretched words keep one control across them. Status: fixed.
 - **E162, bug: the builder's word box refused commands.** BVJ, 2026-11-18:
   “It should be possible to type the search commands into the word builder
   field in the search commands window. Right now, it doesn't accept
@@ -4842,3 +4913,20 @@ The rules are condensed in `src/scripts/desk/CLAUDE.md` (rule 13, "Bookmarks, an
        and any other tab following that bookmark stops (`loseFollow`). The
        follower's move is quiet on purpose: the margin mark isn't redrawn as it
        moves, and takes its new place at the next redraw.
+
+## Details trimmed from the desk CLAUDE.md, 2026-11-18
+
+Kept here so the desk doc could regain headroom for Collections (D13). Rules, decisions and reasons stayed in the doc; these are the build stories and code-level detail.
+
+- **Launching, two-stage load (LG6-4).** Measured on `dist/john-3/` (gzipped, beyond the scripts a reading page already loads) on 2026-11-08: 14.6 KB with nothing kept and the Notebook minimized, the Display tray opened included; the shell’s closure about 138 KB once it opens.
+- **Search pane (3m, E34, E53).** Class and function names the doc dropped: `.desk-search__link` (the rows the preview reads), `.desk-search__away` (the small link beside a passage row), `introMoveMessage`; “The book I’m reading” fixes the book when picked; a modified click on a row opens a tab. The pane also keeps nothing about a search, so a reload empties it.
+- **Title menu and Add pane (E43, E68).** F11 full screen is invisible to the page, so "Exit full screen" shows only for one the menu entered; with a menu open in full screen the first Escape leaves full screen (accepted). A column is a full-height pane at the right edge, a row a full-width pane along the bottom. Both Add pane menus are `role="menu"` (arrows, Home and End pass over a disabled line, `menu-reasons.js`); in Add pane’s, Left or Escape steps back.
+- **E109 (text size and spacing).** Until E109 only the LIT and Book Intro text and the Greek words followed the tray’s size or spacing. BVJ (2026-11-12): the size “affects some panes but not all,” then “Fix the line spacing and notebook panel.” In OpenDyslexic the panel header’s Study Desk link and minimize button left a 280px panel even before E109; at the largest size a 286px panes bar shortens the passage field and the My Notes chapter, as built.
+- **Undo and writes (rule 11).** The close-time `writeNow` rule was tested 2026-10-27: Chrome keeps no other kind of write made while a page closes, and a read-then-write save, or one queued behind it, is lost. Entries are compared without `modified`, `client` and `deletedAt`, or nothing could be undone twice in a row.
+- **Bookmarks (rule 13).** Longer account: the "Bookmarks: the long account" section above. Dropped wording: a move writes `verse`, `endVerse` and `contentVersion` as a new bookmark gets them; turning the switch off in the form stops a follow at once; Delete then Undo resumes following only if the reader has not scrolled since; the follower writes at most every 2 seconds and the settle must stay longer than that gap or steady scrolling redraws between writes.
+- **Interleaf (N7).** Set aside by BVJ 2026-10-13; revert commit aacdc92.
+- **N8.** Built and held on branches `claude/desk-1d-hidden` and `claude/desk-1d-search`; Phase 6 deletes them with the few lines that name the kind.
+- **First use and tours.** The desk tour’s mid-tour reload was tested (BA33). The Sheets tour’s offer sits level with its pane’s foot. The menu’s own “Take the tour” item is always there.
+- **Greek (rules 14 to 17).** `longEnoughForGreek` and the form-button `prefer` rule are unchanged. The first-paint rule: a stamp at first paint when the notebook floats and folds would have reflowed every chapter from 48 to 52. The Greek builder’s “Examples and all commands” opens when an error points at a command. Data format 3 detail: a lemmas shard entry is `[forms, flat, parses, others?]` with six numbers a word, `others` the words tagged with another Strong’s number by place, and a `text/` word carries the number as a tenth field (read by the tab’s Strong’s button). Glosses: STEPBible’s brief one (πίστις is “to believe in” in UBS’s commonest sense, “faith” there).
+- **Pins (E49, E81).** Until E79 "Add a note" sat beside Pin and a `more` mode folded the two behind a "⋯"; until E81 a tight margin put Pin on the note’s line (`inline`).
+- **Records table.** The audit rows once also gave commit hashes (Audit 1 `82af6a6`, 2 `a57e155d`, 3 `60af379e`, 4 `4a5b7c3c`, 5 `19e263e5`, 6 `5c9a31a6`, 7 `81937298`, 8 `15986b6e`), counts and appendix lists (each audit file has its own).

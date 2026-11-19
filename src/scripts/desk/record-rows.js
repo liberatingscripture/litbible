@@ -3,7 +3,7 @@
 // One row of the notebook page's lists (notebook-page.js, and a What I've
 // kept pane on /desk, through kept-list.js): the record's
 // reference, linked to its verse, its kind, its words, its labels as small
-// chips, and its buttons: Edit (notes and bookmarks), Labels… (bookmarks, E149) and Delete
+// chips, and its buttons: Edit (notes and bookmarks), Labels… (bookmarks, E149), Collections… and Delete
 // (Unpin for a pinned footnote). The same facts the panel's My Notes tab shows (tab-mine.js), set
 // out for a page rather than a narrow column, so the words are in full.
 //
@@ -14,6 +14,7 @@
 
 import { canEdit } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
+import { ITEM_KINDS } from "../../lib/desk-collections.mjs";
 import { shownLabels, takesLabels } from "../../lib/desk-labels.mjs";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { kindName, recordHref, takeOff, recordReference } from "../../lib/desk-store-core.mjs";
@@ -38,6 +39,7 @@ const button = (className, text, label, onClick) => {
  * @param {{ labels: Map<string, object>,
  *   onEdit?: (record: object, trigger: Element) => void,
  *   onLabels: (record: object, trigger: Element) => void,
+ *   onCollections?: ((record: object, trigger: Element) => void) | null,
  *   onDelete: (record: object, li: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   trash?: { when: string, onRestore: (record: object, trigger: Element) => void } | null }} actions
@@ -49,7 +51,7 @@ const button = (className, text, label, onClick) => {
  *   waits, and Restore is its only button.
  * @returns {HTMLLIElement}
  */
-export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null, trash = null }) {
+export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null, trash = null, onCollections = null }) {
   const r = record;
   const li = document.createElement("li");
   li.className = "desk-item desk-np-row";
@@ -164,6 +166,11 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   }
   if (takesLabels(r) && canEdit(r)) {
     buttons.append(button("desk-item__edit desk-item__labels", "Labels…", `Labels for ${subject}`, (b) => onLabels(r, b)));
+  }
+  // Collections… after Labels… (D13, decision 24). A list that gives no
+  // handler, as a collection's own page doesn't, has none.
+  if (onCollections && ITEM_KINDS.includes(r.kind) && canEdit(r)) {
+    buttons.append(button("desk-item__edit desk-item__collections", "Collections…", `Collections for ${subject}`, (b) => onCollections(r, b)));
   }
   buttons.append(
     button(

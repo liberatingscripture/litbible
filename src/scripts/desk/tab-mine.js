@@ -103,6 +103,7 @@ import {
 import { currentPanel } from "../lit-panel.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
+import { collectionsTag } from "./collections/collections-popover.js";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
@@ -163,6 +164,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   // button that replaces it).
   let narrowed = false;
   let labelsRow = null;
+  let collectionsRow = null; // likewise for Collections…
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
@@ -519,9 +521,10 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     // belongs to; point it at the one that replaced it, so closing it returns
     // focus there.
     const open = currentPanel();
-    if (open && labelsRow) {
-      const b = el.querySelector(`[data-id="${CSS.escape(labelsRow)}"] .desk-item__tag`);
-      if (b) {
+    for (const [row, cls] of [[labelsRow, "desk-item__labels"], [collectionsRow, "desk-item__collections"]]) {
+      if (!open || !row) continue;
+      const b = el.querySelector(`[data-id="${CSS.escape(row)}"] .${cls}`);
+      if (b && open.kind === (cls === "desk-item__labels" ? "labels" : "collections")) {
         open.trigger = b;
         open.restoreFocus = b;
       }
@@ -655,10 +658,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       }
       li.append(ul);
     }
-    if (!store || !ctx || !takesLabels(r) || !canEdit(r)) return;
+    if (!store || !ctx || !takesLabels(r) || !canEdit(r)) {
+      collectionsFor(li, r, on);
+      return;
+    }
     const tag = document.createElement("button");
     tag.type = "button";
-    tag.className = "desk-item__tag";
+    tag.className = "desk-item__tag desk-item__labels";
     tag.textContent = "Labels…";
     tag.setAttribute("aria-label", `Labels for ${labelsSubject(r, on)}`);
     tag.addEventListener("click", () => {
@@ -675,6 +681,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       });
     });
     li.append(tag);
+    collectionsFor(li, r, on);
+  }
+
+  // Collections…, after Labels… where a row has one (D13, decision 24).
+  function collectionsFor(li, r, on) {
+    const tag = collectionsTag({ store, ctx, record: r, reference: on, track: (id) => (collectionsRow = id) });
+    if (tag) li.append(tag);
   }
 
   // One line above the list when a publish since the reader last looked

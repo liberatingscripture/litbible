@@ -40,13 +40,46 @@ let seq = 0;
 let current = null;
 
 /**
+ * Where a pick window sits: where the menu it came from was (`near`), kept
+ * clear of the Notebook when it takes room at the right, and inside the
+ * window; without `near`, near the top of the free room. Shared with the
+ * windows that look like this one but are not a list (collections/name-window.js).
+ */
+export function placePick(el, near = null) {
+  const room = innerWidth - dockWidth();
+  el.style.maxHeight = `${Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, innerHeight - 2 * EDGE))}px`;
+  const w = el.offsetWidth || WIDTH;
+  const h = el.offsetHeight;
+  const left = near ? near.left : (room - w) / 2;
+  const top = near ? near.top : 64;
+  el.style.left = `${Math.max(EDGE, Math.min(left, room - w - EDGE))}px`;
+  el.style.top = `${Math.max(EDGE, Math.min(top, innerHeight - h - EDGE))}px`;
+}
+
+/**
+ * Take the one pick-window slot for a window of the same family that isn't a
+ * list: the open one is closed ("replaced"), and `handle.close` is what a
+ * later one calls in its turn. Returns the way to give the slot back.
+ *
+ * @param {{ close: (reason?: string) => void }} handle
+ */
+export function claimPickSlot(handle) {
+  current?.close("replaced");
+  current = handle;
+  return () => {
+    if (current === handle) current = null;
+  };
+}
+
+/**
  * Open the window, replacing any open one.
  *
  * @param {{ heading: string, title: string, lead?: string, filterLabel?: string,
  *   noun: [string, string], items: { id: string, name: string, detail?: string }[],
  *   onPick: (item: { id: string, name: string, detail?: string }) => void,
  *   back?: HTMLElement | (() => HTMLElement | null) | null,
- *   near?: { left: number, top: number } | null, className?: string }} options
+ *   near?: { left: number, top: number } | null, className?: string,
+ *   action?: { label: string, onPress: () => void } | null }} options
  *   `heading` is the small label in the header ("Add to sheet"), `title` the
  *   window's name ("All sheets"), `lead` a line under it saying what a pick
  *   does. `noun` names one item and many, for the count line. `items` are in
@@ -54,11 +87,14 @@ let current = null;
  *   November 12, 2026"), heard as the row's description. `back` is where focus
  *   goes when the window closes (an element, or a function finding one then).
  *   `near` is where it opens (the menu it came from); without it, near the top
- *   of the window's free room.
+ *   of the window's free room. `action` is one row at the top of the list
+ *   that the filter never hides ("New collection…"): pressing it closes the
+ *   window, as a pick does, and calls `onPress`. It is not an item, so it
+ *   isn't counted and `onPick` never hears it.
  * @returns {{ el: HTMLElement, update: (items: object[]) => void,
  *   close: (reason?: string) => void, isOpen: () => boolean }}
  */
-export function openPickWindow({ heading, title, lead = "", filterLabel = "Filter by title", noun, items, onPick, back = null, near = null, className = "" }) {
+export function openPickWindow({ heading, title, lead = "", filterLabel = "Filter by title", noun, items, onPick, back = null, near = null, className = "", action = null }) {
   current?.close("replaced");
   const id = `deskPick${++seq}`;
   let all = [...(items ?? [])];
@@ -80,17 +116,8 @@ export function openPickWindow({ heading, title, lead = "", filterLabel = "Filte
     },
   });
 
-  // Where it sits: where the menu it came from was, kept clear of the Notebook
-  // when it takes room at the right, and inside the window.
   function place(el) {
-    const room = innerWidth - dockWidth();
-    el.style.maxHeight = `${Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, innerHeight - 2 * EDGE))}px`;
-    const w = el.offsetWidth || WIDTH;
-    const h = el.offsetHeight;
-    const left = near ? near.left : (room - w) / 2;
-    const top = near ? near.top : 64;
-    el.style.left = `${Math.max(EDGE, Math.min(left, room - w - EDGE))}px`;
-    el.style.top = `${Math.max(EDGE, Math.min(top, innerHeight - h - EDGE))}px`;
+    placePick(el, near);
   }
 
   /** Focus back where the reader came from, unless they have put it somewhere else since. */
@@ -147,10 +174,24 @@ export function openPickWindow({ heading, title, lead = "", filterLabel = "Filte
     return li;
   }
 
+  function actionRow() {
+    const b = make("button", "desk-pick__row desk-pick__action");
+    b.append(make("span", "desk-pick__name", action.label));
+    b.type = "button";
+    b.dataset.pickAction = "";
+    b.addEventListener("click", () => {
+      win.close("pick");
+      action.onPress();
+    });
+    const li = make("li");
+    li.append(b);
+    return li;
+  }
+
   function draw() {
     shown = filterPicks(all, input.value);
-    list.replaceChildren(...shown.map(row));
-    list.hidden = shown.length === 0;
+    list.replaceChildren(...(action ? [actionRow()] : []), ...shown.map(row));
+    list.hidden = shown.length === 0 && !action;
     count.textContent = pickCountLine(shown.length, all.length, input.value, noun);
   }
 

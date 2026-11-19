@@ -1,0 +1,60 @@
+/* Site 2.0: the collections page (/collections/; collections.astro, drawn by
+   desk/collections/collection-page.js). Layout only (D13, decision 25): no new
+   color, control, or window. The page takes My sheets' frame and title (the
+   site's wrap, the sunshine bar), the members lie on a .v2-sheet, group names
+   are .v2-label, and a heading in My order opens with .v2-rule. The frame,
+   the title under its bar, and the actions’ size are My sheets’ own rules
+   (v2/sheets.css, which collections.astro imports too), so the two pages
+   can’t drift apart. */
+
+/* The actions, in a row (their size is My sheets’ own, in v2/sheets.css). */
+:root[data-restyle] .collection-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+:root[data-restyle] .collection-page__description {
+  max-width: calc(60 * var(--ch));
+  margin: 0 0 16px;
+}
+
+/* The order switch, and My order's Add a heading beside it. */
+:root[data-restyle] .collection-page__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+:root[data-restyle] .collection-page__form {
+  max-width: calc(60 * var(--ch));
+  margin: 0 0 14px;
+}
+
+/* The members' sheet. */
+:root[data-restyle] .collection-page__sheet {
+  padding: 18px clamp(14px, 3vw, 24px);
+}
+
+:root[data-restyle] .collection-page__group {
+  margin: 18px 0 6px;
+}
+
+:root[data-restyle] .collection-page__group:first-child {
+  margin-top: 0;
+}
+
+:root[data-restyle] .collection-page__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+  font-weight: 600;
+}
+
+:root[data-restyle] .collection-page__heading:first-child {
+  margin-top: 0;
+}

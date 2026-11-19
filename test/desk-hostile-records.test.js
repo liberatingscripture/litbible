@@ -14,6 +14,7 @@ import { markerName } from "../src/lib/desk-notes.mjs";
 import { planImport } from "../src/lib/desk-export.mjs";
 import { BOOKMARK_NAME_MAX } from "../src/lib/desk-bookmarks.mjs";
 import { LABEL_NAME_MAX, MAX_RECORD_BYTES, SCHEMA_VERSION, createRecord, recordBytes, trashRecord, validateRecord } from "../src/lib/desk-records.mjs";
+import { COLLECTION_FORMAT } from "../src/lib/desk-collection-format.mjs";
 import { SHEET_FORMAT } from "../src/lib/desk-sheet-format.mjs";
 import { planWrite } from "../src/lib/desk-store-core.mjs";
 
@@ -40,12 +41,16 @@ test("a record over 1 MB as JSON is refused whatever its schema or kind (SEC3-1,
   assert.match(validateRecord(newerNote).join(";"), /too large to keep/);
   const newerSheet = { ...make("sheet", { title: "x", modules: [{ id: "m", type: "text", html: big }] }), sheetFormat: SHEET_FORMAT + 1 };
   assert.match(validateRecord(newerSheet).join(";"), /too large to keep/);
+  const newerCollection = {
+    ...make("collection", { collectionFormat: COLLECTION_FORMAT + 1, name: "x", order: "bible", members: [{ id: "m", type: "search", query: big }] }),
+  };
+  assert.match(validateRecord(newerCollection).join(";"), /too large to keep/);
   const alien = { ...make("note", { bookKey: "john", chapter: 3, verse: 16, body: "x", marker: "note" }), kind: "voiceMemo", audio: big };
   assert.match(validateRecord(alien).join(";"), /too large to keep/);
   // The import's door: refused with a plain reason, and never written.
-  const out = planImport([], [newerNote, newerSheet, alien], { now: NOW });
+  const out = planImport([], [newerNote, newerSheet, newerCollection, alien], { now: NOW });
   assert.deepEqual(out.plan.put, []);
-  assert.equal(out.skipped.length, 3);
+  assert.equal(out.skipped.length, 4);
   for (const s of out.skipped) assert.equal(s.reason, "It is too large to keep (over 1 MB).");
   // A trash record is judged by the merge, but the ceiling holds for it too.
   const trash = { ...trashRecord(make("note", { bookKey: "john", chapter: 3, verse: 16, body: "x", marker: "note" }), { ...ctx, now: NOW, id: nextId() }), extra: big };

@@ -389,7 +389,8 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     the change notice (Keep rewrites `footnote`, the verse and `n`); and
     otherwise `lost`.
 12. **`collection`** (STUDY-DESK.md, D13; **the website's proposal,
-    approved by BVJ 2026-11-18, for BDR to review**; not yet built). A
+    approved by BVJ 2026-11-18, for BDR to review**; the record and its
+    model are built, step 1 of D13's order of work, with no page yet). A
     named grouping the reader makes for a purpose ("Advent series"),
     holding their own records by id, and passages. Computer only: the apps
     carry it untouched (principle 6), as they carry sheets, and need show
@@ -740,12 +741,17 @@ share without `answerKey` unless the reader chooses the leader's version.
 ## Collections (kind 12)
 
 **Status: the website's proposal (STUDY-DESK.md, "D13. Collections"),
-approved by BVJ, 2026-11-18; for BDR to review.** Not yet built, so no
-client writes one yet; the website is going ahead with it ("We're plowing
-ahead"), and BDR's review can change it before anything syncs. Edited on
-the website only, on computers. **The apps need no code for it beyond
-principle 6**: they keep the record, and fields and member types they
-don't know, and write them back untouched.
+approved by BVJ, 2026-11-18; for BDR to review.** The website has built
+the record and its model (step 1 of D13's order of work:
+`src/lib/desk-collection-format.mjs` checks it, `src/lib/desk-collections.mjs`
+makes, changes and shows it), with no page yet, so no reader writes one
+yet; the website is going ahead with it ("We're plowing ahead"), and BDR's
+review can change it before anything syncs. Edited on the website only, on
+computers. **The apps need no code for it beyond principle 6**: they keep
+the record, and fields and member types they don't know, and write them
+back untouched. The merge vectors (version 8) hold three collection cases
+under the rules every kind follows: `a-collection-newer-wins-whole`,
+`b-collection-deleted-after-edit` and `keep-collection-newer-format`.
 
 A collection is **one record**, so it is deleted, trashed, restored,
 merged and undone as a whole, by the rules every kind follows; when two
@@ -769,13 +775,31 @@ verses of its own, and its `labels` is `[]`):
 | Field | Meaning |
 |---|---|
 | `collectionFormat` | The version of this section the collection was written in (1). A client that knows a lower number shows the collection but won't edit it, so an older tab can't strip what it doesn't understand |
-| `name` | Plain text, 1 to 200 characters ("Advent series") |
+| `name` | Plain text, 1 to 200 characters ("Advent series"). Two collections may share a name, so restoring one from the trash never refuses |
 | `description`, optional | Plain text, up to 1,000 characters. Absent or empty means none |
-| `order` | `"bible"` (the default; absent means it) or `"mine"`: how the reader has chosen to see it. Bible order is worked out for display and never rewrites `members` |
+| `order` | `"bible"` (the default; absent means it), `"type"` or `"mine"`: how the reader has chosen to see it (below). Only `"mine"` shows `members` as they stand; the other two are worked out for display and never rewrite them. An order the client doesn't know is kept, and shown as Bible order |
 | `members` | The collection's contents, in the reader's own order (what `"mine"` shows) |
 
-The website proposes at most **1,000 members** and **256 KB** as JSON,
-far inside the 1 MB every record is held to.
+At most **1,000 members** and **512 KB** as JSON, far inside the 1 MB every
+record is held to. (The proposal said 256 KB; a passage carries its
+verses' words in `verseCopy`, so a thousand one-verse passages need about
+400 KB, and 512 KB is a sheet's limit too.) The website refuses a change
+that would pass either, and writes nothing.
+
+**The three orders**, as the website shows them:
+
+- **Bible order**: the collection's sheets first, under "Sheets," in their
+  order in `members`; then everything on a verse, in Bible order (book,
+  chapter, first verse; on one verse a passage before a record, then the
+  last verse, when it was made and its id); then what has no verse (a note
+  on a glossary entry or an article), by when it was made.
+- **By type** (`"type"`): Sheets, Passages, Notes, Highlights, Bookmarks
+  and Pinned footnotes, each in Bible order (sheets as above), a group left
+  out when it is empty.
+- **My order** (`"mine"`): `members` as they stand, headings included.
+  Moving anything, or adding a heading, switches the collection to it.
+
+Headings show in My order only.
 
 ### Members
 
@@ -798,13 +822,18 @@ member whose id is held only as a tombstone (kind 10, its `record` gone)
 the next time it writes the collection. A live record of any other kind
 is kept and not shown.
 
-**`passage`**: verses of one chapter, read from today's text whenever the
-collection is shown. The same fields and rules as a sheet's `passage`
-module (`bookKey`, `chapter`, `verse`, `endVerse`, an optional `quote`,
-`verseCopy`, `verseCopyAsOf`; one chapter per passage; neither verse past
-200), without a sheet's `blanks` and `footnotes`. Adding one makes no
-bookmark or other record. A client never adds a passage identical to one
-already in the collection.
+**`passage`**: whole verses of one chapter, read from today's text
+whenever the collection is shown. The fields and rules of a sheet's
+`passage` module for its verses (`bookKey`, `chapter`, `verse`, optional
+`endVerse`, optional `verseCopy` and `verseCopyAsOf`; one chapter per
+passage; neither verse past 200), with **no `quote`** and without a
+sheet's `blanks` and `footnotes` (BVJ, 2026-11-18). A passage that arrives
+with a `quote` keeps it untouched, as a field the client doesn't read, and
+is shown as whole verses. Adding one makes no bookmark or other record. A
+client never adds a passage on the same verses as one already in the
+collection (the same `bookKey`, `chapter`, `verse` and `endVerse`, an
+absent `endVerse` being the first verse); the website says it is there
+already.
 
 **`rule`**: every bookmark carrying a label, now and later.
 
@@ -817,20 +846,80 @@ A `match` naming a kind or a field the client doesn't know is kept and
 matches nothing there. A label deleted for good matches nothing; the
 website asks before deleting a label a rule uses, and offers to turn the
 rule's bookmarks into `item` members first. A bookmark reached both by an
-`item` and by a `rule` is shown once. Version 1 matches by label only; the
-same member can later match other things ("every question note in
-Romans") with new `match` fields.
+`item` and by a `rule` is shown once, where the item puts it; removing the
+rule leaves the item. Version 1 matches by label only; the same member can
+later match other things ("every question note in Romans") with new
+`match` fields.
+
+Where a rule's bookmarks show: in Bible order among everything else; by
+type, under Bookmarks; in My order **after every member**, in Bible order
+among themselves, until the reader moves one. Moving one makes it an
+`item` member at that spot (still shown once, still marked as reached by
+the rule), and so does moving a row below it, since only a member keeps a
+place. "Leave it out of this collection" adds the bookmark's id to
+`except` on every rule that reaches it, and takes out any `item` naming
+it.
 
 **`heading`**: plain text, up to 200 characters, in `text`. It divides
 the reader's own order into sections ("Week 1"), and is shown only in that
 order.
 
+### When a highlight changes id
+
+Two highlights of one colour that meet become one, and a new colour over a
+highlight trims it, deletes it or cuts it in two ("Highlights that meet").
+**The website carries the collections with it**, in the same write as the
+highlights, so one undo reverts both: an `item` naming a highlight
+absorbed by a merge, or deleted because a new colour covered it, names the
+highlight that took its place instead (the member keeps its `id`; if the
+collection holds that highlight already, the second member goes); when a
+highlight is cut in two, the piece that keeps the id keeps its members,
+and the new piece goes in as a new `item` right after each one. A
+highlight erased outright is a plain deletion, and its members stay, so a
+restore brings it back into its collections. The collection's `modified`
+moves. **The apps don't do this** (they edit no collection): for BDR, a
+highlight an app merges or cuts leaves the website's collection naming the
+id the app deleted, which shows nothing until the reader adds the new one.
+
+### Deleting in bulk
+
+"Delete all notes and marks" takes neither collections nor sheets, and
+"Delete all sheets" takes no collection. Collections get their own, "Delete
+all collections" (the model has it; the notebook page's box comes with
+D13's page). Each is one write, undone as one.
+
 ### In the export files
 
 The full backup carries collections like any record. The Web Annotation
-file carries them in `lit.records`, as it carries sheets, since they aren't
-marks on the text. Their shape in the Markdown copy is to be settled when
-they are built.
+file carries them in its AnnotationCollection's own `lit.records`, as it
+carries sheets, since they aren't marks on the text (the W3C "collection"
+there is the file itself, not one of the reader's). The Markdown copy
+lists them for people, after Places and Labels, and **never reads them
+back**, as it never reads places or labels back:
+
+```markdown
+## Collections
+
+### Advent series <!-- lit:id=… -->
+
+Four weeks with the Thursday group
+
+- Luke 1:26–38
+- Romans 8:3–4 · Note
+- Sheet “Week one”
+
+#### Week two
+
+- Romans 4:7 · Highlight (yellow)
+- Every bookmark labeled Advent
+```
+
+One `###` per collection, by name, with its id; its description, escaped
+as a note's words are; then its members in My order: a passage or a record
+as its reference (a record with its kind, as an entry's second line names
+it), a sheet by its title, a heading as a `####` line, and a rule as
+"Every bookmark labeled" and its label's name, or "(label deleted)". A
+member that shows nothing is left out.
 
 ## The quote (an anchor)
 
@@ -1065,7 +1154,9 @@ gets a new quote and `verseCopy` taken from today's text, and today's
 `contentVersion`. A record written by a newer schema, or on newer text than
 the client has (principle 7), counts as one carrying an unread notice: it is
 never touched. Removing a highlight from some words is the same trim with
-no new colour.
+no new colour. The website also carries the reader's collections along
+when a highlight changes id this way, in the same write ("Collections
+(kind 12)", "When a highlight changes id"); the apps don't.
 
 A highlight across paragraphs is **one** logical record (A-F1). A store
 that needs slices (iCloud's existing app records) slices it in its own
@@ -1254,17 +1345,18 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     is a `TextQuoteSelector` of its text), and commenting for `hidden`
     (the vocabulary has nothing for hiding). **Every annotation carries the
     whole record as `lit.record`**, so the file re-imports losslessly. The
-    collection's `lit.records` holds what isn't a mark on the text: places,
-    labels, sheets, mark rules and kinds the website doesn't know. Files
-    other tools made are reported and skipped on import.
+    AnnotationCollection's own `lit.records` holds what isn't a mark on the
+    text: places, labels, sheets, the reader's collections (kind 12), mark
+    rules and kinds the website doesn't know. Files other tools made are
+    reported and skipped on import.
   - **Markdown** (`.md`): for people, each entry headed by its reference and
     carrying `<!-- lit:id=… modified=… -->` (its record's `modified`), the
     header `<!-- lit-notebook 1 · saved YYYY-MM-DD HH:MM · <ISO time> -->`,
     ending with the license notice and the link to the terms. A note edited
     in the file comes back as an edit (a bookmark's label too), and a new
     entry with a verse reference becomes a new note; highlights, bookmarks
-    and pins can't be made from Markdown, and places and labels aren't read
-    back. **Words that differ count as an edit only when the record here is
+    and pins can't be made from Markdown, and places, labels and
+    collections aren't read back. **Words that differ count as an edit only when the record here is
     no newer than the file's copy of it** (the entry's `modified`, else the
     header's time; a file saved before 2026-10-26 has only the header's
     minute, read as UTC and rounded down, and a file with no time at all is
@@ -1321,8 +1413,12 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   "Sheets (kind 9)".
 - Each store's exact mapping, once plan A or C is chosen.
 - **Collections, kind 12** (BVJ, 2026-11-18): **for BDR to review**,
-  under "Collections (kind 12)". The website goes ahead meanwhile; the apps
-  need only keep the records (principle 6).
+  under "Collections (kind 12)". The website goes ahead meanwhile (the
+  record and its model are built; the merge vectors are version 8); the
+  apps need only keep the records (principle 6). Two points to read
+  closely: the website rewrites collections when a highlight changes id,
+  which the apps don't, and the limits are 1,000 members and 512 KB, not
+  the 256 KB first proposed.
 - **Draft 2's list** (BDR's proposal, 2026-10-07): rules a to e for
   collisions, a placement value meaning "place me from my verses and quoted
   words" for records the website writes, and the envelope above. See
