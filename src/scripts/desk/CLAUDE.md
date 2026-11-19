@@ -974,20 +974,20 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        reader's lexicon choice is `localStorage['lit-desk-lexicon']`, named
        in the privacy paragraph. **The line between the Greek and a word's
        entry is draggable** (BVJ, 2026-10-17), the entry taking a quarter to
-       three quarters of their room (`src/lib/desk-greek-split.mjs`, pure and
-       tested; the handle is in `tab-greek.js`, sized by CSS flex ratios on
+       three quarters of their room (`src/lib/desk-greek-split.mjs`; the handle is in `tab-greek.js`, sized by CSS flex ratios on
        `--desk-greek-split`). A click or Enter on it opens its menu
        (XA8-1), whose "Let the entry size itself" resets it. Shown only while a word is open; kept in
        `sessionStorage['lit-desk-greek-split']` for the visit, forgotten by
        "Reset widths" (only its `kept: false` event, `forgetsSplit`, so the
        line still moves where storage is blocked, BA113), and named in
        /privacy's paragraph. The parsing is put in words by
-       `src/lib/greek-parse.mjs` (shared with the phase 2 tool), and the
+       `src/lib/greek-parse.mjs`, and the
        SBLGNT's ⸀–⸅ signs draw from `public/fonts/text-critical-signs.otf`.
        SBL keeps a note on a span of verses under its first verse, so a sign
        finds its note at the nearest verse at or before its own
        (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
-       (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120).
+       (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120)
+       and says so on /desk; This verse shows a gap (`gapNote`, E157).
   15. **Phase 1h is searching the Greek** (STUDY-DESK.md,
      "Order of work", 1h).
      - **It is ordinary site search, gated until launch.** Only while

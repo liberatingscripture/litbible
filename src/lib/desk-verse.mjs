@@ -61,6 +61,26 @@ export function adjacentVerse(verses, verse, step) {
 }
 
 /**
+ * The footnote that explains a verse gap (E157), for "This verse" to show on
+ * a verse the LIT leaves out (Matthew 17:21). A gap has no verse of its own,
+ * so its note sits beside it: on the last footnote letter of the verse before
+ * or the first of the verse after (src/data/chapters/CLAUDE.md, "Verse-number
+ * gaps"). `candidates` are those notes, `{ id, text }`, in that order; the
+ * answer is the first whose words name the missing verse, as "verse 21" or
+ * "17:21", so a neighbour's note about something else is passed over. Null
+ * when none does. Found on the page, not listed by letter, since a revision
+ * re-letters a chapter's notes.
+ */
+export function gapNote(candidates, chapter, verse) {
+  if (!Number.isInteger(chapter) || !Number.isInteger(verse)) return null;
+  const names = new RegExp(`(?:\\bverse\\s+|(?<!\\d)${chapter}:)${verse}(?!\\d)`, "i");
+  for (const c of candidates ?? []) {
+    if (c && typeof c.id === "string" && typeof c.text === "string" && names.test(c.text)) return c.id;
+  }
+  return null;
+}
+
+/**
  * How many of the reader's notes cover each verse: a Map from verse number to
  * count. Only notes count (a bookmark marks a place and says nothing), and a
  * note on verses 3 to 5 counts once on each of 3, 4 and 5. A verse no note

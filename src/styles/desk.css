@@ -981,6 +981,18 @@ html:has(.desk-undo__bar:not([hidden])) {
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
+/* A verse a text leaves out (E157): "The LIT has no Matthew 17:21." where the
+   verse's words would be, and the same of the SBLGNT under Greek. The tab
+   speaking, so the "nothing here" line's look, not the verse's. */
+.desk-verse__absent {
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+}
+
+.desk-verse__greek .desk-verse__absent {
+  margin: 0 0 4px;
+}
+
 /* "Add a note" on this verse: the note marker in the footnotes' pill (.desk-pin
    .desk-pin--glyph), as the Add a note beside each footnote above it is (BVJ,
    2026-11-06; it read "+ Note" until then). */
@@ -5918,6 +5930,23 @@ html.desk-ws--moving * {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 8px 14px 12px;
+}
+
+/* The Greek pane's line under its bar when the passage names a verse the
+   SBLGNT lacks: "No verse 21 in the SBLGNT. Showing 17:20." (E157). Empty,
+   it takes no room but stays in the page, so its status is announced when
+   the words arrive. */
+.desk-dp__missing {
+  flex: none;
+  margin: 0;
+  padding: 8px 14px 0;
+  color: rgba(var(--ink-rgb), 0.7);
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
+}
+
+.desk-dp__missing:empty {
+  padding: 0;
 }
 
 /* The Greek scrolls its own text, so its part only holds it. */

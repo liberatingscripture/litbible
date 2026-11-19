@@ -195,6 +195,24 @@ const focusFell = () => !document.activeElement || document.activeElement === do
 
 function mountGreek(body, env, pane) {
   const { bar, content } = followFrame(body, pane, true);
+  // A passage naming a verse the SBLGNT lacks (Matthew 17:21) shows the one
+  // before it (BA120), and this line under the bar says so until the pane
+  // next moves (E157; BVJ, 2026-11-18, "3 and A"). A polite status, so a
+  // screen reader hears it too; it stays in the page while empty, so the
+  // words arriving are announced.
+  const missing = make("p", "desk-dp__missing");
+  missing.setAttribute("role", "status");
+  bar.el.after(missing);
+  let asked = 0; // counts the moves, so a slow answer for an old one says nothing
+  const tellMissing = (p, shown) => {
+    missing.textContent = p.verse != null && shown != null && shown !== p.verse
+      ? `No verse ${p.verse} in the SBLGNT. Showing ${p.chapter}:${shown}.`
+      : "";
+  };
+  const clearMissing = () => {
+    asked++;
+    missing.textContent = "";
+  };
   let chapter = null;
   let top = null; // the verse the Greek was last moved to, or scrolled to
   let tab = null;
@@ -204,12 +222,20 @@ function mountGreek(body, env, pane) {
   async function show(p) {
     bar.update(p);
     if (tab && sameChapter(chapter, p)) {
-      if (p.verse && p.verse !== top) {
-        top = p.verse;
-        tab.goToVerse(p.verse);
+      if (p.verse === top) return;
+      // Any other passage is a move, the whole chapter's included (which
+      // leaves the Greek where it is), so the line from the last one goes.
+      top = p.verse;
+      clearMissing();
+      if (p.verse) {
+        const ask = asked;
+        const shown = await tab.goToVerse(p.verse);
+        if (ask === asked) tellMissing(p, shown);
       }
       return;
     }
+    clearMissing();
+    const ask = asked;
     const n = ++seq;
     tab?.destroy();
     tab = null;
@@ -238,12 +264,14 @@ function mountGreek(body, env, pane) {
       },
       onTopVerse: (verse) => {
         top = verse;
+        clearMissing(); // the reader scrolled on: a move of its own
         pane.set({ ...p, verse });
       },
     });
     tab = made;
     content.replaceChildren(tab.el);
     await tab.render();
+    if (n === seq && ask === asked && !word) tellMissing(p, tab.verseFor(p.verse));
     if (n !== seq || !word) return;
     const w = word;
     word = null;
@@ -266,6 +294,7 @@ function mountGreek(body, env, pane) {
     goToWord: (p, t) => {
       if (tab && sameChapter(chapter, p)) {
         top = p.verse;
+        clearMissing(); // a search result is a verse the Greek has
         tab.goToVerse(p.verse);
         return tab.selectWord(p.verse, t, { focus: true });
       }
