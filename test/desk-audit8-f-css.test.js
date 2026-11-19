@@ -65,7 +65,7 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   }
   assert.match(ordinary[2], /border:\s*1px solid var\(--field-border\)/);
   assert.match(ordinary[2], /background:\s*var\(--desk-control\)/);
-  const pills = css.match(/\n:is\(:where\(\.desk-verse, \.desk-fns\) \.desk-pin, [^{]*\.desk-sheet__chip\) \{([^}]*)\}/);
+  const pills = css.match(/\n:is\(\.desk-pin, [^{]*\.desk-sheet__chip\) \{([^}]*)\}/);
   assert.ok(pills, "no rule for the pills");
   assert.match(pills[1], /border:\s*1px solid var\(--field-border\)/);
   // The layers' dark values are declared in both of desk.css's dark blocks,
@@ -117,7 +117,7 @@ test("aria-disabled Keep, Delete and the bookmark form's Save look busy (batch r
   // an ordinary button and its Keep the card's primary (E126), and neither
   // kind's hover reaches a disabled or aria-disabled button.
   assert.match(css, /:where\(\.desk-notice__actions\) button:where\(:not\(\.desk-notice__keep\)\)[^{]*\):hover:not\(:disabled, \[aria-disabled="true"\]/);
-  assert.match(css, /\.desk-notice__actions \.desk-notice__keep\):hover:not\(:disabled, \[aria-disabled="true"\], :active\)/);
+  assert.match(css, /\.desk-notice__actions \.desk-notice__keep[^{)]*\):hover:not\(:disabled, \[aria-disabled="true"\], :active\)/);
 });
 
 test("the Sheets editor's states have forced-colors rules (XA8-7)", () => {

@@ -89,7 +89,8 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
 }
 
 /* "Reset widths" in the tray, shown only while the reader has set widths. The
-   look is the Edit button's (.desk-panel__reset, in desk.css). */
+   look is the Edit button's (.desk-panel__reset, in desk.css). With the
+   restyle on, restyle.css's ordinary kind draws it instead (E159). */
 .font-tray__reset {
   align-self: flex-start;
   margin-top: 8px;
