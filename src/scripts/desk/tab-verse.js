@@ -68,6 +68,13 @@ import { currentPanel } from "../lit-panel.js";
 import { make, scroller } from "./dom.js";
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
 import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
+import { collectionsTag } from "./collections/collections-popover.js";
+import { collectionHref, addPassageToCollection } from "./collections/add-passage.js";
+import { openNewCollection } from "./collections/new-collection.js";
+import { openPickWindow } from "./pick-window.js";
+import { dateWords } from "./desk-text.js";
+import { addableCollections, collectionName, collectionsHolding, passageMember } from "../../lib/desk-collections.mjs";
+import { passageFromVerses, passageReference } from "../../lib/desk-sheet-passages.mjs";
 import { nameOf } from "./record-words.js";
 
 // A highlight's words are shown in part, as in My Notes: about this many.
@@ -137,6 +144,11 @@ export function createVerseTab({
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-verse__add-glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
     </section>
+    <section class="desk-verse__section desk-verse__collections" aria-labelledby="deskVerseCollectionsTitle${idSuffix}" hidden>
+      <h4 class="desk-verse__subhead" id="deskVerseCollectionsTitle${idSuffix}">Collections</h4>
+      <p class="desk-verse__mention-lead desk-verse__collections-line"></p>
+      <button type="button" class="desk-item__tag desk-verse__collections-add">Add to collection…</button>
+    </section>
     <section class="desk-verse__section desk-verse__chains" aria-labelledby="deskVerseChainsTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseChainsTitle${idSuffix}">Notes that cite this verse</h4>
       <ul class="desk-verse__mentions"></ul>
@@ -159,10 +171,14 @@ export function createVerseTab({
   const mentions = el.querySelector(".desk-verse__mentions");
   const steps = Array.from(el.querySelectorAll(".desk-verse__step"));
   add.hidden = !onAddNote || !store;
+  const collectionsSection = el.querySelector(".desk-verse__collections");
+  const collectionsLine = el.querySelector(".desk-verse__collections-line");
+  const collectionsAdd = el.querySelector(".desk-verse__collections-add");
 
   let verse = null;
   let notices = new Map(); // id -> the change notice of a record shown, if it has one
   let labelsRow = null; // the bookmark whose Labels… popover is open, so a redraw can hand it the new button
+  let collectionsRow = null; // likewise for Collections…
 
   /** A verse number the chapter has no verse for: one the LIT leaves out (Matthew 17:21). */
   const isGap = (v) => !verses.includes(v) && isVerseGap(here.bookKey, here.chapter, v);
@@ -229,19 +245,115 @@ export function createVerseTab({
     // A save that redrew the rows took the button the open Labels… popover
     // belongs to; point it at the one that replaced it, as My Notes does.
     const open = currentPanel();
-    if (open && labelsRow) {
-      const b = mine.querySelector(`[data-id="${CSS.escape(labelsRow)}"] .desk-item__tag`);
+    for (const [row, cls, kind] of [[labelsRow, "desk-item__labels", "labels"], [collectionsRow, "desk-item__collections", "collections"]]) {
+      if (!open || !row || open.kind !== kind) continue;
+      const b = mine.querySelector(`[data-id="${CSS.escape(row)}"] .${cls}`);
       if (b) {
         open.trigger = b;
         open.restoreFocus = b;
       }
     }
 
+    drawCollections(every);
+
     // Notes anywhere in the notebook that cite this verse in their words.
     const cited = store ? notesCiting(every, { bookKey: here.bookKey, chapter: here.chapter, verse: v }) : [];
     mentions.replaceChildren(...cited.map(({ record }) => mentionItem(record)));
     chainsSection.hidden = cited.length === 0;
   }
+
+  /**
+   * The Collections section (D13, decision 11): "In Advent series and
+   * Christmas Eve service." with each name a link to the collection's page,
+   * and Add to collection… (it only adds; the checkboxes on a row's
+   * Collections… also take out). The section is there whenever a verse can be
+   * added to a collection, with "Not in any collection yet." when none holds
+   * it, as My Notes keeps its button beside "No notes of yours" (the button
+   * is the only way to start). A gap has none, as it has no notes.
+   */
+  function drawCollections(records) {
+    if (!store || !ctx || verse == null || isGap(verse)) {
+      collectionsSection.hidden = true;
+      return;
+    }
+    const names = collectionsHolding(records, { bookKey: here.bookKey, chapter: here.chapter, verse });
+    collectionsSection.hidden = false;
+    if (!names.length) {
+      collectionsLine.textContent = "Not in any collection yet.";
+      return;
+    }
+    const nodes = ["In "];
+    names.forEach((c, i) => {
+      if (i > 0) nodes.push(names.length === 2 ? " and " : i === names.length - 1 ? ", and " : ", ");
+      const a = make("a", "desk-verse__mention-ref", c.name);
+      a.href = collectionHref(c.id);
+      nodes.push(a);
+    });
+    nodes.push(".");
+    collectionsLine.replaceChildren(...nodes);
+  }
+
+  // A collection's write wakes no view of marks (NO_CHAPTER_KINDS), so this
+  // section listens for collections itself.
+  const offCollections = store?.subscribe?.(
+    () => {
+      if (!visible()) return;
+      store.all().then((records) => visible() && drawCollections(records)).catch((err) => console.error("Study Desk: the Collections line wasn’t drawn", err));
+    },
+    { kinds: ["collection"] },
+  );
+
+  /** "Add to collection…": this verse, whole, as a passage, in the collection the reader picks. */
+  async function openAddToCollection() {
+    if (verse == null || !store || !ctx) return;
+    const v = verse;
+    const where = { bookKey: here.bookKey, chapter: here.chapter };
+    let fields;
+    try {
+      fields = passageFromVerses(readText(), where, v, v, ctx().contentVersion);
+    } catch (err) {
+      console.error("Study Desk: couldn’t read the verse for the collection", err);
+      fields = passageFromVerses(null, where, v, v);
+    }
+    const reference = passageReference(fields);
+    const box = collectionsAdd.getBoundingClientRect();
+    const near = { left: box.left, top: box.top };
+    const items = (records) =>
+      addableCollections(records).map((c) => ({
+        id: c.id,
+        name: c.name,
+        detail: c.modified && dateWords(c.modified) ? `Changed ${dateWords(c.modified)}` : "",
+      }));
+    const records = await store.all();
+    const picker = openPickWindow({
+      heading: "Add to collection",
+      title: "All collections",
+      lead: `${reference} goes into the collection you pick.`,
+      noun: ["collection", "collections"],
+      items: items(records),
+      near,
+      back: collectionsAdd,
+      action: {
+        label: "New collection…",
+        onPress: () =>
+          openNewCollection({
+            store,
+            ctx,
+            near,
+            firstMember: passageMember(fields),
+            lead: `${reference} will be its first passage.`,
+            back: collectionsAdd,
+            onCreated: (collection, entry) =>
+              showUndo(`${reference} added to ${collectionName(collection)}.`, () => undoEntry(entry), {
+                link: { label: "Open the collection", href: collectionHref(collection.id) },
+              }),
+          }),
+      },
+      onPick: (item) => addPassageToCollection({ store, ctx, collectionId: item.id, fields, name: item.name }),
+    });
+    return picker;
+  }
+  collectionsAdd.addEventListener("click", () => openAddToCollection());
 
   /**
    * One note that cites the verse: where it is, linked (to its place in the
@@ -496,8 +608,11 @@ export function createVerseTab({
       for (const l of chips) ul.append(make("li", "desk-chip", l.name));
       main.append(ul);
     }
-    if (!store || !ctx || !takesLabels(r) || !canEdit(r)) return;
-    const tag = make("button", "desk-item__tag", "Labels…");
+    if (!store || !ctx || !takesLabels(r) || !canEdit(r)) {
+      collectionsFor(main, r, where);
+      return;
+    }
+    const tag = make("button", "desk-item__tag desk-item__labels", "Labels…");
     tag.type = "button";
     tag.setAttribute("aria-label", `Labels for ${labelsSubject(r, where)}`);
     tag.addEventListener("click", () => {
@@ -514,6 +629,13 @@ export function createVerseTab({
       });
     });
     main.append(tag);
+    collectionsFor(main, r, where);
+  }
+
+  /** Collections…, after Labels… where a row has one (D13, decision 24). */
+  function collectionsFor(main, r, where) {
+    const tag = collectionsTag({ store, ctx, record: r, reference: where, track: (id) => (collectionsRow = id) });
+    if (tag) main.append(tag);
   }
 
   /** The row with its change notice's flag, when the record has one. */
@@ -645,6 +767,9 @@ export function createVerseTab({
     focusHeading: () => heading.focus({ preventScroll: true }),
     showNotes,
     // For /desk, whose This verse pane builds a tab per chapter (BA31).
-    destroy: () => document.removeEventListener("lit:panel-actions", onPanelActions),
+    destroy: () => {
+      document.removeEventListener("lit:panel-actions", onPanelActions);
+      offCollections?.();
+    },
   };
 }
