@@ -157,8 +157,12 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   Greek: “…” for the word). A Greek verse matched twice has two rows and
   one check, and its strip sits under the group's title, above the word.
   A Greek row shows /search's card in short (E167): the parsing after the
-  form, then three words of the Greek either side of the word and the LIT
-  verse, one line each (`verseGreek`'s `around`).
+  form, then three words of the Greek either side of the word on one line
+  (`verseGreek`'s `around`). It shows no line of the LIT, whose start isn't
+  the words rendering the Greek one (BVJ, 2026-11-19): its reference is
+  drawn as a scripture link instead, and the row previews the verse on
+  hover (`ref-preview.js`). A line showing the LIT words that render the
+  Greek one waits for more of the alignment (alignment phase 1b, BVJ).
   An introduction among the topic's results has no box. Both find the
   chapters by topic with one function, `topicMatches` in `search-core.js`
   (a one-word query finds every topic holding it, and a row names those

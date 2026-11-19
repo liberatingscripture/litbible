@@ -8776,9 +8776,16 @@ mark.desk-print-mark {
   font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
-/* A Greek row's parsing, after the form, and its two lines of the verse, the
-   Greek around the word and the LIT, one line each, so a row stays short in a
-   narrow pane (E167). */
+/* A Greek row (E167): its reference drawn as a scripture link, since the row
+   previews the LIT verse (ref-preview.js) and opens it; the parsing after the
+   form; and a line of the Greek around the word, one line so a row stays
+   short in a narrow pane. */
+.desk-search__row--greek .desk-search__ref {
+  color: var(--green-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .desk-search__greek-parse {
   color: rgba(var(--ink-rgb), 0.78);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
@@ -8796,10 +8803,6 @@ mark.desk-print-mark {
 
 .desk-search__line[lang="grc"] {
   font-family: var(--serif);
-}
-
-.desk-search__lit-line {
-  color: rgba(var(--ink-rgb), 0.78);
 }
 
 /* The pane's worded buttons: ordinary, a toggle (Bible order) or the strip's

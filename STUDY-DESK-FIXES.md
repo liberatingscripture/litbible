@@ -4603,9 +4603,23 @@ says so; where BVJ was wondering, nothing is decided.)
   parsing follows the form (“ἐλευθερίαν · noun, accusative feminine
   singular”), then a line of the verse's Greek, three words either side of
   the word and “…” where it was cut (`verseGreek`'s `around`, in
-  `greek-commands-ui.mjs`), then the LIT verse, each line cut to one with
-  “…” in a narrow pane. A command match keeps its forms and shows no
-  parsing, since it names several words. **3, any sheet**: /search's button
+  `greek-commands-ui.mjs`), cut to one line with “…” in a narrow pane. A
+  command match keeps its forms and shows no parsing, since it names
+  several words. A line of the LIT verse came first too, but BVJ found it
+  didn't help (2026-11-19): “Having the greek and the LIT is a nice idea,
+  but it doesn't actually show the part of the LIT rendering with the Greek
+  word in it.” Only the alignment can find those words: today, the glossary
+  terms' renderings (`src/data/alignment/`), which alignment phase 1b widens
+  term by term, while phase 2's word by word is unpublished. So, for now:
+  “having the reference be a link
+  that can open, like it is in footnotes, articles, etc. might be the best
+  alternative. The more precise, in line display will be more possible once
+  alignment 1b work is done.” **Fixed that way**: the LIT line is gone, and
+  a Greek row's reference is drawn as a scripture link (the text green,
+  underlined; `.desk-search__row--greek`). The row already previewed its
+  LIT verse on hover with “Open …” (`ref-preview.js` takes every
+  `.desk-search__link`), and a click opens the word in a Greek pane and
+  moves the LIT pane to the verse, as before. **3, any sheet**: /search's button
   opens a chooser of every sheet; the pane added only to the sheet a Sheets
   pane shows, or to a new one (E117's option A). **Fixed**: E117's buttons
   stay, and a third, “Choose a sheet…”, opens the pick window “All

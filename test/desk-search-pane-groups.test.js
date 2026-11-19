@@ -14,8 +14,6 @@ const VERSES = {
   verses: {
     matthew: { 6: ["Forgiveness is asked for here."] },
     luke: { 15: ["", "Here a father’s forgiveness runs to meet a child."] },
-    // Only for the Greek rows' LIT line (E167).
-    romans: { 8: [...Array(20).fill(""), "Creation itself will be set free."] },
   },
   vocab: ["forgiveness", "asked", "father", "child", "meet"],
 };
@@ -345,17 +343,24 @@ test("E166: Exact form only keeps the checks on verses the form is in, and names
 
 // ---- E167: the Greek rows' lines, and any sheet ----
 
-test("E167: a Greek row shows a few words of its verse's Greek around the word, its parsing, and the LIT verse", async () => {
+test("E167: a Greek row shows a few words of its verse's Greek around the word and its parsing, and links its verse", async () => {
   const { $$, input, strip } = mount({ desk: true });
   type(input, "ἐλευθερία");
   await until(() => strip("greek"), 1000);
-  const filled = (r) => r.querySelector(".desk-search__line[lang='grc']")?.hidden === false && r.querySelector(".desk-search__lit-line")?.hidden === false;
+  const filled = (r) => r.querySelector(".desk-search__line[lang='grc']")?.hidden === false;
   const row = await until(() => $$("[data-group='greek'] .desk-search__row").find((r) => r.textContent.includes("Romans 8:21") && filled(r)), 1000);
   const greek = row.querySelector(".desk-search__line[lang='grc']");
   assert.equal(greek.querySelector("mark").textContent, "ἐλευθερίαν");
   assert.equal(greek.textContent, "… φθορᾶς εἰς τὴν ἐλευθερίαν τῆς δόξης τῶν …", "three words either side, and where it was cut");
   assert.equal(row.querySelector(".desk-search__greek-parse").textContent, " · noun, accusative feminine singular");
-  assert.equal(row.querySelector(".desk-search__lit-line").textContent, "Creation itself will be set free.");
+  // No line of the LIT: the verse's start isn't the words rendering this one
+  // (BVJ, 2026-11-19). The reference is drawn as a link, and the row is one
+  // ref-preview.js previews, so the LIT verse is a hover away.
+  assert.equal(row.querySelectorAll(".desk-search__line").length, 1, "the Greek line only");
+  assert.ok(row.classList.contains("desk-search__row--greek"), "the class that draws the reference as a link");
+  const link = row.querySelector("a.desk-search__link");
+  assert.match(link.getAttribute("href"), /^\/romans-8\b/, "the verse's own page, which the preview reads");
+  assert.equal(link.querySelector(".desk-search__ref").textContent, "Romans 8:21");
 });
 
 test("E167: “Choose a sheet…” lists every sheet, adds the checked verses to the one picked, and shows it", async () => {

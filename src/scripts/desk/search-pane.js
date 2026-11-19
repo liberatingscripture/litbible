@@ -45,8 +45,9 @@
 //   searchGreekAuto, said back as the Greek tab says it, with the credit under
 //   every Greek group (a license requirement). A Greek result opens its word
 //   in a Greek pane and moves the LIT pane there (`env.openGreekHit`). Its
-//   row is /search's card in short (E167): the parsing, then a line each of
-//   the Greek around the word and of the LIT verse.
+//   row is /search's card in short (E167): the parsing, then a line of the
+//   Greek around the word; its reference, drawn as a scripture link, previews
+//   the LIT verse.
 //
 // Nothing about a search is stored: it lives in this closure, and a reload
 // empties the pane. Several panes may be open, each with its own search.
@@ -1647,24 +1648,27 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       if (last.picks.greek.length) g.querySelector(".desk-search__group-title")?.after(pickStrip("greek"));
     }
     paged(g, hits, (hit, i) => {
-      const li = make("li", "desk-search__row");
+      const li = make("li", "desk-search__row desk-search__row--greek");
       const a = make("a", "desk-search__link");
       a.href = hit.href;
       a.dataset.greekHit = String(i);
+      // The reference is drawn as a scripture link: the row previews its LIT
+      // verse on hover (ref-preview.js) and a click opens it, as a footnote's
+      // reference does. A line of the LIT under it showed the verse's start,
+      // not the words rendering this one (BVJ, 2026-11-19), which only the
+      // alignment can find; that waits for alignment phase 1b (E167).
       a.append(make("span", "desk-search__ref", hit.label));
       const form = make("span", "desk-search__greek-form", hit.form ?? "");
       form.lang = "grc";
       const parse = make("span", "desk-search__greek-parse");
       a.append(" ", form, parse);
-      // What /search's Greek card shows, a line each (E167; BVJ, 2026-11-19:
-      // “just a few words on either side of it”): the verse's Greek around
-      // the word, marked, and the LIT verse. Filled in as the files arrive.
+      // A line of the verse's Greek around the word, marked (E167; BVJ,
+      // 2026-11-19: “just a few words on either side of it”), filled in as
+      // the chapter's file arrives.
       const greekLine = make("span", "desk-search__text desk-search__line");
       greekLine.lang = "grc";
       greekLine.hidden = true;
-      const litLine = make("span", "desk-search__text desk-search__line desk-search__lit-line");
-      litLine.hidden = true;
-      a.append(greekLine, litLine);
+      a.append(greekLine);
       // A file already loaded answers before the row is in the page, so a
       // row is filled whether or not it is connected yet.
       gk.loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
@@ -1675,12 +1679,6 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
         if (words.length === 1 && words[0].said) parse.textContent = ` · ${words[0].said}`;
         greekLine.innerHTML = html;
         greekLine.hidden = !html;
-      });
-      loadVerseIndex(BASE).then((index) => {
-        const text = index?.verses?.[hit.book]?.[hit.chapter]?.[hit.verse - 1];
-        if (!text) return;
-        litLine.textContent = text;
-        litLine.hidden = false;
       });
       li.append(a);
       const away = awayLink(hit.href);
