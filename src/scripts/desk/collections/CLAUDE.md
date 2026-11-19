@@ -123,7 +123,7 @@ it holds. Computer only; the apps carry it untouched.
   passages lists no rows. The notebook search (`kept-list.js`) also offers
   collections whose name holds its words (`collectionsNamed`) as a "Collections"
   group of rows linking to their pages, never rows of the record list or in its
-  count, drawn even when no record matches. A collection's change wakes no view
+  count, drawn even when no record matches (then first, over "Nothing else matches."). A collection's change wakes no view
   of marks, so the panel and the My Notes pane subscribe to
   `{ kinds: ["collection"] }` themselves to keep the filter's list and counts
   current. "My collections" (`/collections/`) is in header C's Study group, the
