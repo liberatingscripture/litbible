@@ -93,7 +93,7 @@ second draft of the mocks takes from where:
   `.v2-sheet` as the desk's own rows (`record-rows.js`), group names are
   `.v2-label`, and a heading starts with `.v2-rule`.
 - **The order switch** is `.desk-seg` (My Notes' segmented choice). Sky
-  never marks a toggle (E159).
+  never marks a toggle (E160).
 - **Moving in My order** is the sheet editor's grip to drag
   (`desk-sheet__grip`) and its ↑ and ↓ (`desk-sheet__icon`), not a menu.
 - **The rule's line** is a plain line with `.desk-item__stop` links.
@@ -106,5 +106,5 @@ second draft of the mocks takes from where:
 - **A row's "Collections…"** is the Labels popover's twin (`desk-labels`,
   `showPanel`).
 
-A button that matches its background is a sitewide problem (E158), fixed in
+A button that matches its background is a sitewide problem (E159), fixed in
 the classes, never with a collections-only rule.
