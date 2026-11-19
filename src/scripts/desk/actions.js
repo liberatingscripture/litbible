@@ -472,8 +472,11 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
         const { text } = mark;
         // Read, planned and written in one transaction, so a write from another
         // tab between the two can't be overwritten from a stale copy (DI-9).
+        // The whole notebook goes in too, so a collection holding a highlight
+        // that changes id follows it in the same write (D13).
         const plan = await store.change(async ({ all }) => {
-          const records = (await all()).filter((r) => r.bookKey === where.bookKey && r.chapter === where.chapter);
+          const notebook = await all();
+          const records = notebook.filter((r) => r.bookKey === where.bookKey && r.chapter === where.chapter);
           const placed = placeHighlights(text, records, ctx().contentVersion);
           const made = planHighlight({
             chapter: text,
@@ -485,6 +488,7 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
             where,
             now: new Date().toISOString(),
             ctx: ctx(),
+            notebook,
           });
           return { ...made, ...planWrite(made) };
         });

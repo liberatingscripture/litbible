@@ -982,8 +982,13 @@ function jsonBytes(r) {
   }
 }
 
-/** Problems with one passage module, each already prefixed with where it is. */
-function passageProblems(m, at) {
+/**
+ * Problems with the verses of a passage, each already prefixed with where it
+ * is: its book, chapter and verses (neither past MAX_VERSE) and its comparison
+ * copy. Shared by a sheet's passage module and a collection's passage member
+ * (desk-collection-format.mjs), which carry the same verse fields.
+ */
+export function passageVerseProblems(m, at) {
   const problems = [];
   const need = (ok, msg) => ok || problems.push(`${at}: ${msg}`);
 
@@ -993,6 +998,16 @@ function passageProblems(m, at) {
   need(isInt(m.verse) && m.verse >= 1, "verse is not a positive integer");
   need(m.endVerse == null || (isInt(m.endVerse) && m.endVerse >= m.verse), "endVerse comes before verse");
   need(!(m.verse > MAX_VERSE) && !(m.endVerse > MAX_VERSE), `a verse is past ${MAX_VERSE}, more than any chapter has`);
+  need(m.verseCopy == null || typeof m.verseCopy === "string", "verseCopy is not text");
+  need(m.verseCopyAsOf == null || typeof m.verseCopyAsOf === "string", "verseCopyAsOf is not text");
+  return problems;
+}
+
+/** Problems with one passage module, each already prefixed with where it is. */
+function passageProblems(m, at) {
+  const problems = passageVerseProblems(m, at);
+  const need = (ok, msg) => ok || problems.push(`${at}: ${msg}`);
+
   if (m.quote != null) {
     need(isObject(m.quote), "quote is not an object");
     if (isObject(m.quote)) {
@@ -1000,8 +1015,6 @@ function passageProblems(m, at) {
       need(typeof m.quote.prefix === "string" && typeof m.quote.suffix === "string", "quote needs prefix and suffix");
     }
   }
-  need(m.verseCopy == null || typeof m.verseCopy === "string", "verseCopy is not text");
-  need(m.verseCopyAsOf == null || typeof m.verseCopyAsOf === "string", "verseCopyAsOf is not text");
 
   need(Array.isArray(m.blanks), "blanks is not a list");
   if (Array.isArray(m.blanks)) {

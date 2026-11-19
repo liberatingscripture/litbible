@@ -20,6 +20,7 @@ import {
   fold,
   groupRecords,
   kindsPresent,
+  planDeleteCollections,
   planDeleteEverything,
   planDeleteMarks,
   planDeleteSheets,
@@ -139,17 +140,43 @@ test("planDeleteEverything trashes every live record, whole, in one valid plan",
   assert.doesNotThrow(() => planWrite(plan));
 });
 
-test("Delete all notes and marks takes every record but sheets; Delete all sheets takes the sheets alone (decision 8)", () => {
+test("Delete all notes and marks takes every record but sheets and collections; Delete all sheets, and Delete all collections, take theirs alone (decision 8, D13)", () => {
   const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
   const l = make("label", { name: "L" });
   const unknown = { ...a, id: nextId(), kind: "future" };
   const sheet = { ...a, id: nextId(), kind: "sheet" };
+  const collection = make("collection", { collectionFormat: 1, name: "Advent", order: "bible", members: [{ id: nextId(), type: "item", recordId: a.id }] });
   const oldTrash = { id: "t0", kind: "trash", deletedId: "gone", deletedAt: "2026-09-01T00:00:00.000Z" };
-  const all = [a, l, unknown, sheet, oldTrash];
-  assert.deepEqual(bulkCounts(all), { marks: 3, sheets: 1 });
+  const all = [a, l, unknown, sheet, collection, oldTrash];
+  assert.deepEqual(bulkCounts(all), { marks: 3, sheets: 1, collections: 1 });
   assert.deepEqual(planDeleteMarks(all, ctx).remove.sort(), [a.id, l.id, unknown.id].sort());
   assert.deepEqual(planDeleteSheets(all, ctx).remove, [sheet.id]);
   assert.doesNotThrow(() => planWrite(planDeleteSheets(all, ctx)));
+  const collections = planDeleteCollections(all, ctx);
+  assert.deepEqual(collections.remove, [collection.id]);
+  assert.deepEqual(collections.put[0].record, collection, "the trash holds it whole");
+  assert.doesNotThrow(() => planWrite(collections));
+});
+
+test("a collection comes back from the trash though another has its name: names needn't differ (D13)", () => {
+  const fields = { collectionFormat: 1, name: "Advent", order: "bible", members: [] };
+  const gone = make("collection", fields);
+  const live = make("collection", fields);
+  const [t] = planDeleteCollections([gone], ctx).put;
+  const done = planRestore([t, live], t.id, ctx);
+  assert.equal(done.ok, true);
+  assert.deepEqual(done.record.name, "Advent");
+  assert.doesNotThrow(() => planWrite(done.plan));
+});
+
+test("a collection is never a row of My Notes, nor counted there (D13)", () => {
+  const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
+  const collection = make("collection", { collectionFormat: 1, name: "Advent", order: "bible", members: [] });
+  assert.deepEqual(withoutSheets([a, collection]), [a]);
+  assert.equal(groupRecords([a, collection]).other.length, 0);
+  assert.equal(describeCounts([a, collection]), "1 note");
+  assert.equal(describeCounts([collection]), "Nothing kept yet.");
+  assert.deepEqual(kindsPresent([a, collection]).map((k) => k.value), ["note"]);
 });
 
 test("emptyNow drops the held record at once and keeps the tombstone", () => {

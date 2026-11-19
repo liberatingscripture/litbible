@@ -71,6 +71,11 @@ From the root's project tree.
                      #   over desk-zip), as slides (desk-slides, with
                      #   desk-slides-pptx and desk-slides-odp), and on a
                      #   screen for a room (desk-present);
+                     #   the collection record and its checks
+                     #   (desk-collection-format) and its model: the
+                     #   changes it takes, its three orders, its ways in
+                     #   and the highlight carry (desk-collections; see
+                     #   src/scripts/desk/collections/CLAUDE.md);
                      #   merging two copies
                      #   of a notebook (desk-merge); the scrub a fetched
                      #   page's parts get before a pane imports them

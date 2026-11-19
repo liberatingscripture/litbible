@@ -1,0 +1,35 @@
+/* The collections page (/collections/; collections.astro): only what shows
+   without the Study Desk, a note. Everything the desk draws is the desk's own
+   classes (desk.css) and the site's v2 ones; the layout is v2/collections.css. */
+
+.collections-page {
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 2rem) 5rem;
+  max-width: calc(90 * var(--ch));
+  margin: 0 auto;
+}
+
+.collections-page .sheets-page__title {
+  margin: 0 0 1rem;
+}
+
+.collections-page__off,
+.collections-page__loading {
+  max-width: calc(60 * var(--ch));
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Shown in place of the note while the desk's code loads, when the pre-paint
+   script has stamped the preview on (BA153). If the desk fails to load, the
+   gate's standDown() takes the stamp off and the note comes back. */
+.collections-page__loading {
+  display: none;
+}
+
+html[data-desk="on"] .collections-page__loading {
+  display: block;
+}
+
+html[data-desk="on"] .collections-page__off {
+  display: none;
+}

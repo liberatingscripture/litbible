@@ -4,11 +4,14 @@
 // and does, apart from the page: how the records are grouped (Bible order,
 // under a book and chapter; then notes on glossary entries and on articles;
 // pinned footnotes as their own list; places have a section of their own), how a
-// filter narrows them, how the counts read in words, and the two bulk
-// deletions at the page's foot. Pure: no storage, no DOM.
+// filter narrows them, how the counts read in words, and the bulk deletions
+// at the page's foot. Pure: no storage, no DOM.
 //
-// "Delete all notes and marks" and "Delete all sheets" (Delete everything until Audit 8
-// decision 8) each trash their records in one plan, so each is one
+// A collection (D13) is never a row in these lists: it holds records rather
+// than marking the text, and gets a section, a page and a filter of its own.
+//
+// "Delete all notes and marks", "Delete all sheets" (Delete everything until Audit 8
+// decision 8) and "Delete all collections" (D13) each trash their records in one plan, so each is one
 // undoable step and the 30 days of the trash still apply. "Empty the trash
 // now" is the shared-computer button: it drops the content of every trash
 // record at once, as emptyTrashRecord does at 30 days, and keeps each
@@ -75,22 +78,27 @@ export const KIND_CHOICES = Object.freeze([
   { value: "footnotePin", plural: "Pinned footnotes", one: "pinned footnote", many: "pinned footnotes" },
 ]);
 
+/** Kinds the page never lists as rows: each has a section of its own, or is bookkeeping. */
+const UNLISTED = new Set(["trash", "label", "place", "collection"]);
+
 /**
- * The records the page lists: everything live except labels and places, which
- * have sections of their own (places.js draws places with Continue reading and
- * Read View's places, which aren't records), and trash.
+ * The records the page lists: everything live except labels, places and
+ * collections, which have sections of their own (places.js draws places with
+ * Continue reading and Read View's places, which aren't records; a collection
+ * has its own section and page, D13), and trash.
  */
 export function listable(records) {
-  return records.filter((r) => r && r.kind !== "trash" && r.kind !== "label" && r.kind !== "place");
+  return records.filter((r) => r && !UNLISTED.has(r.kind));
 }
 
 /**
  * What My Notes lists: not a sheet, which is a page of its own with a list on
- * /sheets and in the Sheets pane (LV3-3, BVJ 2026-11-07). The notebook page's
- * "What I've kept" still lists sheets, under "Sheets" (S12).
+ * /sheets and in the Sheets pane (LV3-3, BVJ 2026-11-07), and not a
+ * collection, which has its own page too (D13). The notebook page's "What I've
+ * kept" still lists sheets, under "Sheets" (S12).
  */
 export function withoutSheets(records) {
-  return records.filter((r) => r?.kind !== "sheet");
+  return records.filter((r) => r?.kind !== "sheet" && r?.kind !== "collection");
 }
 
 // Bookmarks split two more ways in the Show menu once a list holds both (BVJ,
@@ -238,18 +246,26 @@ export function describeCounts(records) {
 
 /* ── Deleting in bulk ────────────────────────────────────────────────── */
 
+/** Which bulk deletion takes a record: "sheets", "collections", or "marks" for everything else. */
+function bulkGroup(r) {
+  if (r.kind === "sheet") return "sheets";
+  if (r.kind === "collection") return "collections";
+  return "marks";
+}
+
 /**
  * Every live record to the trash, in one plan: a trash record for each, and
  * each record removed. Labels go too. Records of any kind, including ones this
  * code doesn't know, are trashed whole (trashRecord keeps all their fields),
- * so one undo brings the lot back.
+ * so one undo brings the lot back. `which` keeps it to one bulk deletion's
+ * records ("marks", "sheets" or "collections"); "all" takes everything.
  */
 export function planDeleteEverything(records, ctx, { which = "all" } = {}) {
   const put = [];
   const remove = [];
   for (const r of records) {
     if (!r || r.kind === "trash" || typeof r.id !== "string") continue;
-    if (which !== "all" && (which === "sheets") !== (r.kind === "sheet")) continue;
+    if (which !== "all" && bulkGroup(r) !== which) continue;
     put.push(trashRecord(r, ctx));
     remove.push(r.id);
   }
@@ -257,26 +273,27 @@ export function planDeleteEverything(records, ctx, { which = "all" } = {}) {
 }
 
 /**
- * The notebook page's two bulk deletions (Audit 8 decision 8; BVJ,
- * 2026-11-10): "Delete all notes and marks" takes every record but sheets (notes,
- * highlights, bookmarks, pinned footnotes, labels, and any kind this code
- * doesn't know), and "Delete all sheets" takes the sheets and the reader's
- * own templates, which are sheets too. Each is one undoable step, as
- * Delete everything was.
+ * The notebook page's bulk deletions (Audit 8 decision 8; BVJ, 2026-11-10;
+ * D13): "Delete all notes and marks" takes every record but sheets and
+ * collections (notes, highlights, bookmarks, pinned footnotes, labels, and any
+ * kind this code doesn't know), "Delete all sheets" takes the sheets and the
+ * reader's own templates, which are sheets too, and "Delete all collections"
+ * takes every collection and nothing in them, since a collection only points
+ * at its records. Each kind of thing keeps a box of its own. Each is one
+ * undoable step, as Delete everything was.
  */
 export const planDeleteMarks = (records, ctx) => planDeleteEverything(records, ctx, { which: "marks" });
 export const planDeleteSheets = (records, ctx) => planDeleteEverything(records, ctx, { which: "sheets" });
+export const planDeleteCollections = (records, ctx) => planDeleteEverything(records, ctx, { which: "collections" });
 
-/** How many records each bulk deletion would take: { marks, sheets }. */
+/** How many records each bulk deletion would take: { marks, sheets, collections }. */
 export function bulkCounts(records) {
-  let marks = 0;
-  let sheets = 0;
+  const counts = { marks: 0, sheets: 0, collections: 0 };
   for (const r of records) {
     if (!r || r.kind === "trash" || typeof r.id !== "string") continue;
-    if (r.kind === "sheet") sheets++;
-    else marks++;
+    counts[bulkGroup(r)]++;
   }
-  return { marks, sheets };
+  return counts;
 }
 
 /**

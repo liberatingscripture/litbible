@@ -13,7 +13,7 @@
 // Roots that are excluded, and why:
 // - src/scripts/desk/ (the desk itself): it is the desk, not shared code.
 // - src/pages/desk*, src/pages/notebook* (including desk/help.astro, which
-//   imports desk-bookmarks.mjs for its constants), src/pages/sheets*: the
+//   imports desk-bookmarks.mjs for its constants), src/pages/sheets*, src/pages/collections*: the
 //   desk's own pages. They are reached only by their own URL, never by a
 //   shared import. A shared page (index, [slug], read/, search, privacy) is a
 //   root and is checked.
@@ -56,7 +56,7 @@ const GREEK_EDGE_FROM = new Set(["src/lib/greek-commands-ui.mjs"]);
 
 const isDesk = (f) =>
   f.startsWith("src/scripts/desk/") || /^src\/scripts\/desk-[^/]*$/.test(f) || /^src\/lib\/desk-[^/]*$/.test(f);
-const isDeskPage = (f) => /^src\/pages\/(desk|notebook|sheets)/.test(f);
+const isDeskPage = (f) => /^src\/pages\/(desk|notebook|sheets|collections)/.test(f);
 
 const toRel = (file) => relative(root, file).replaceAll("\\", "/");
 

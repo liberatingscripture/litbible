@@ -17,6 +17,8 @@ import {
   planHighlight,
 } from "../src/lib/desk-highlights.mjs";
 import { COLORS, createRecord, quoteFields, validateRecord, verseCopyFor } from "../src/lib/desk-records.mjs";
+import { addItems, createCollection } from "../src/lib/desk-collections.mjs";
+import { describeEntry, makeEntry } from "../src/lib/desk-history.mjs";
 import { planWrite } from "../src/lib/desk-store-core.mjs";
 
 const VERSION = "v20261005.5d2c847d";
@@ -693,4 +695,77 @@ test("the second piece of a split keeps the fields the code doesn't know (DI-7)"
   assert.deepEqual(piece.appField, { ranked: 3 });
   assert.notEqual(piece.id, old.id);
   assert.equal(piece.modified, NOW);
+});
+
+/* ── Collections follow a highlight that changes id (D13) ────────────── */
+
+/** A collection holding these records as items, made before the plan. */
+const holding = (name, ...ids) => addItems(createCollection({ name }, { ...ctx, now: before }), ids, { ...ctx, now: before });
+const collectionsIn = (p) => p.put.filter((r) => r.kind === "collection");
+const itemsOf = (c) => c.members.map((m) => m.recordId);
+
+test("a merge re-points a collection's item at the survivor, in the same plan, and drops a duplicate", () => {
+  const a = highlight(at("Love is"), "yellow", { created: "2026-10-03T00:00:00.000Z" });
+  const b = highlight(at("patient,"), "yellow", { created: "2026-10-01T00:00:00.000Z" });
+  const c = highlight(at("love is kind."), "yellow", { created: "2026-10-02T00:00:00.000Z" });
+  const holdsA = holding("Holds a", "x", a.id, "y");
+  const holdsBoth = holding("Holds a and b", b.id, a.id);
+  const unrelated = holding("Holds neither", "x");
+  const notebook = [a, b, c, holdsA, holdsBoth, unrelated];
+  const p = plan([a, c, b], at("is patient, love"), "yellow", { notebook });
+
+  const [one, two] = collectionsIn(p);
+  assert.deepEqual(collectionsIn(p).map((x) => x.name), ["Holds a", "Holds a and b"]);
+  assert.deepEqual(itemsOf(one), ["x", b.id, "y"]);
+  assert.equal(one.members[1].id, holdsA.members[1].id, "the member keeps its id");
+  assert.equal(one.modified, NOW);
+  assert.deepEqual(itemsOf(two), [b.id], "held already: the duplicate goes");
+  assert.deepEqual(p.summary, { merged: 3, trimmed: 0, removed: 0, split: 0, otherColors: 0 }, "the counts are the highlights'");
+  assert.ok(p.undo.put.some((r) => r.id === holdsA.id && itemsOf(r).includes(a.id)), "undo puts the collection back");
+  assert.doesNotThrow(() => planWrite(p));
+
+  // One write, so one history entry, still described as the highlight.
+  const entry = makeEntry(p, new Map(notebook.map((r) => [r.id, r])), "e1");
+  assert.equal(describeEntry(entry), "Highlight on 1 Corinthians 13:1 changed.");
+  assert.ok(entry.before.some((s) => s.id === holdsA.id && s.record !== null), "the undo puts the collection back too");
+});
+
+test("a new colour that covers a highlight carries its collections to the new mark", () => {
+  const old = highlight(at("patient"), "yellow");
+  const coll = holding("Patience", old.id);
+  const p = plan([old], at("is patient, love"), "pink", { notebook: [old, coll] });
+  const [moved] = collectionsIn(p);
+  assert.deepEqual(itemsOf(moved), [p.created.id]);
+  assert.equal(p.created.color, "pink");
+  assert.doesNotThrow(() => planWrite(p));
+});
+
+test("a split puts the second piece in right after the first, in every collection holding it", () => {
+  const old = highlight(at(V1), "yellow");
+  const coll = holding("Love", old.id, "next");
+  const p = plan([old], at("patient,"), "green", { notebook: [old, coll] });
+  const piece = p.put.find((r) => r.kind === "highlight" && r.color === "yellow" && r.id !== old.id);
+  const [split] = collectionsIn(p);
+  assert.deepEqual(itemsOf(split), [old.id, piece.id, "next"]);
+  assert.equal(split.members[0].id, coll.members[0].id);
+
+  const erased = plan([old], at("is patient, love"), null, { notebook: [old, coll] });
+  const erasedPiece = erased.put.find((r) => r.kind === "highlight" && r.id !== old.id);
+  assert.deepEqual(itemsOf(collectionsIn(erased)[0]), [old.id, erasedPiece.id, "next"], "an erase that splits does the same");
+});
+
+test("a highlight erased outright is a plain deletion: its collections keep it, untouched", () => {
+  const old = highlight(at("patient"), "green");
+  const coll = holding("Patience", old.id);
+  const p = plan([old], at("Love is patient, love"), null, { notebook: [old, coll] });
+  assert.deepEqual(collectionsIn(p), []);
+  assert.deepEqual(p.remove, [old.id]);
+});
+
+test("without the notebook, or with no collection holding it, no collection is written", () => {
+  const old = highlight(at("patient"), "yellow");
+  const coll = holding("Patience", old.id);
+  assert.deepEqual(collectionsIn(plan([old], at("is patient, love"), "pink")), []);
+  assert.deepEqual(collectionsIn(plan([old], at("is patient, love"), "pink", { notebook: [old, holding("Other", "x")] })), []);
+  assert.deepEqual(collectionsIn(plan([old], at("Love is"), "pink", { notebook: [old, coll] })), [], "a mark that doesn't touch it");
 });
