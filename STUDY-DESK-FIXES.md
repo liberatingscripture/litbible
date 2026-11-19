@@ -4247,8 +4247,41 @@ says so; where BVJ was wondering, nothing is decided.)
   weighed: a hover flyout closes on a page scroll (NB3-12) and a long one
   is slow by arrow key. Going to `/sheets/` was weighed too: it leaves the
   reading page, and the passage would have to travel in the address. BVJ
-  asked for it to be built first, in a session of its own. Status: open,
-  being built.
+  asked for it to be built first, in a session of its own.
+  **Built** (2026-11-18): "All sheets…" is the flyout's last line once the
+  reader has more sheets than the five it lists (`needsAllSheets` in
+  `desk-sheet-add.mjs`), a finger's flat chips included. It reads the
+  passage at once (the selection goes with the menu), closes the menu, and
+  opens the pick window (`desk/pick-window.js`, its filter and count line in
+  `src/lib/desk-pick.mjs`) where the menu was: every sheet `addableSheets`
+  gives (the flyout's exclusions: no templates, newer formats or full
+  sheets), newest change first, each with "Changed <date>", under a "Filter
+  by title" box that keeps the titles holding every word typed, ignoring case
+  and accents, and a count line ("3 of 12 sheets"). A pick is the flyout's
+  own write (`planAddToSheet` in one `store.change`, then the undo bar with
+  Undo and "Open the sheet"). Focus starts in the box; Down, Up, Home and End
+  move through the rows (Up from the first goes back to the box), a letter
+  on a row goes back to the box, Enter in the box picks the one row left
+  (else moves to the first), Escape in a box holding words only clears it,
+  and the ×, Escape or a pick gives focus back to the verse number the
+  keyboard opened the menu from, else the passage's first. A sheet changed
+  while it is open redraws it. The window takes named items, a noun for its
+  count line and a pick callback, and knows nothing of sheets, so D13's "All
+  collections…" (decision 10) can open the same one. Checked in the Browser
+  pane on a build of the branch with eight sheets made through the flyout's
+  own "New sheet": the flyout showed five, "New sheet" and "All sheets…";
+  the window listed all eight; "3:2" in the box left one, and Enter added
+  John 3:16 to it, with the undo bar and focus on verse 16; from a mouse
+  selection in verse 17 the window opened where the panel was, the arrows
+  and End moved through the rows, and Escape closed it with focus on verse
+  17 and the Notebook unchanged; the dark theme too. Tests in
+  `desk-pick-window.test.js` (happy-dom: the window's keys, focus and
+  filter, and the flyout on a rendered John 3 adding to the oldest of seven
+  sheets) and `desk-sheet-add.test.js`. The help page's "Adding passages and
+  parts" says so. Asked afterward whether seven lines were too many and the
+  three newest sheets would do, BVJ kept five and the order (the five, "New
+  sheet," then "All sheets…"), and D13's flyout takes the same order
+  (2026-11-18). Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

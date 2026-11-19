@@ -3,7 +3,8 @@
 // "Add to sheet ▸" on a chapter page (STUDY-DESK.md, S12, part 2, way 3; BVJ,
 // 2026-11-08, decision 3): the verse menu and the selection panel list the
 // reader's sheets, newest change first, and "New sheet". Picking one adds the
-// passage without leaving the page. Pure: the page reads the notebook and
+// passage without leaving the page. Past five, "All sheets…" opens a window
+// listing every one (E154). Pure: the page reads the notebook and
 // writes the plan in one `store.change`, as every change to a sheet is
 // written (BA129).
 
@@ -12,23 +13,40 @@ import { SHEET_LIMITS } from "./desk-sheet-format.mjs";
 import { passageInsertIndex, passageReference, samePassage, sheetName, sortSheets } from "./desk-sheet-passages.mjs";
 import { addModule, createSheet, isOwnTemplate, makeModule, planSheetChange } from "./desk-sheets.mjs";
 
-/** How many sheets the flyout lists; the rest are on /sheets and /desk. */
+/**
+ * How many sheets the flyout lists. Past that it ends in "All sheets…", a
+ * window listing every one (E154).
+ */
 export const ADD_MENU_SHEETS = 5;
 
 /**
- * The flyout's sheets: the reader's own that can take a passage (no
- * templates, none a newer format made, none already full), newest change
- * first, at most `max`.
+ * Every sheet that can take a passage: the reader's own (no templates, none a
+ * newer format made, none already full), newest change first. "All sheets…"
+ * lists them all, with when each was last changed.
+ *
+ * @returns {{ id: string, name: string, modified: string | null }[]}
+ */
+export function addableSheets(records) {
+  const sheets = (records ?? []).filter(
+    (r) => r?.kind === "sheet" && !isOwnTemplate(r) && canEdit(r) && (r.modules?.length ?? 0) < SHEET_LIMITS.modules,
+  );
+  return sortSheets(sheets).map((s) => ({ id: s.id, name: sheetName(s), modified: s.modified ?? null }));
+}
+
+/**
+ * The flyout's sheets: `addableSheets`' first `max`.
  *
  * @returns {{ id: string, name: string }[]}
  */
 export function addMenuSheets(records, max = ADD_MENU_SHEETS) {
-  const sheets = (records ?? []).filter(
-    (r) => r?.kind === "sheet" && !isOwnTemplate(r) && canEdit(r) && (r.modules?.length ?? 0) < SHEET_LIMITS.modules,
-  );
-  return sortSheets(sheets)
+  return addableSheets(records)
     .slice(0, max)
-    .map((s) => ({ id: s.id, name: sheetName(s) }));
+    .map(({ id, name }) => ({ id, name }));
+}
+
+/** Whether the flyout ends in "All sheets…": only when it can't list them all. */
+export function needsAllSheets(sheets, max = ADD_MENU_SHEETS) {
+  return (sheets?.length ?? 0) > max;
 }
 
 /**

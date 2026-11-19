@@ -4,7 +4,9 @@ import { readFileSync } from "node:fs";
 import {
   ADD_MENU_SHEETS,
   addMenuSheets,
+  addableSheets,
   addedMessage,
+  needsAllSheets,
   newSheetWithPassage,
   planAddPassages,
   planAddToSheet,
@@ -31,6 +33,17 @@ test("templates, other records, newer formats and full sheets stay off the list"
   const full = sheet("Full", "2026-11-03T00:00:00.000Z", Array.from({ length: SHEET_LIMITS.modules }, () => makeModule("text")));
   const note = { kind: "note", id: "n1" };
   assert.deepEqual(addMenuSheets([mine, template, newer, full, note]).map((s) => s.name), ["Mine"]);
+});
+
+test("All sheets… (E154) lists every sheet the flyout could take, with when it changed, and shows only past five", () => {
+  const records = Array.from({ length: 7 }, (_, i) => sheet(`S${i}`, `2026-11-0${i + 1}T00:00:00.000Z`));
+  const template = templateFromSheet(records[0], ctx);
+  const all = addableSheets([...records, template]);
+  assert.deepEqual(all.map((s) => s.name), ["S6", "S5", "S4", "S3", "S2", "S1", "S0"]);
+  assert.equal(all[6].modified, "2026-11-01T00:00:00.000Z");
+  assert.deepEqual(addMenuSheets(records), all.slice(0, ADD_MENU_SHEETS).map(({ id, name }) => ({ id, name })));
+  assert.equal(needsAllSheets(all), true);
+  assert.equal(needsAllSheets(all.slice(0, ADD_MENU_SHEETS)), false);
 });
 
 test("an untitled sheet is named as the lists name it", () => {
