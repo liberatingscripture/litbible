@@ -88,6 +88,12 @@ if (shellHere) {
     console.error("Study Desk: the sheet page didn't load", err);
     standDown(); // its "Loading" line gives way to the note again (BA153)
   });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-collections-page]")) {
+  // The collections page (/collections/, D13): the list, and one collection.
+  import("./desk/collections/collection-page.js").catch((err) => {
+    console.error("Study Desk: the collections page didn't load", err);
+    standDown(); // its "Loading" line gives way to the note again (BA153)
+  });
 } else if (document.documentElement.dataset.desk === "on" && document.querySelector(".glossary-entries")) {
   // The glossary keeps its reading column with the desk on (pages/glossary.css)
   // but has no Notebook panel while N11 is off (E124), so of the desk it takes

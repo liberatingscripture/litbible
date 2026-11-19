@@ -1,0 +1,35 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/collections.css";
+import "../styles/v2/collections.css";
+
+/**
+ * The collections page (STUDY-DESK.md, D13, step 2): the reader's collections
+ * as a list, and one collection's own view. `/collections/` is the list;
+ * `/collections/?id=<collection id>` shows one. Everything on it is drawn in
+ * the browser by src/scripts/desk/collections/collection-page.js, which
+ * desk-gate.js loads only when the Study Desk preview is switched on
+ * (?desk=on), on a computer. For everyone else, and with JS off, this is the
+ * whole page: a note. noindex, out of the sitemap (astro.config.mjs) and out
+ * of Pagefind (Layout's default).
+ */
+---
+
+<Layout
+  title="My collections | Liberation and Inclusion Translation"
+  description="Your collections from the Study Desk."
+  robotsNoindex={true}
+>
+  <div class="collections-page">
+    <div data-collections-page>
+      <h1 class="sheets-page__title">Collections</h1>
+      <!-- With the preview on, the page says it is loading rather than that the
+           preview is off, until the desk's code replaces both (BA153). -->
+      <p class="collections-page__loading">Loading the Study Desk…</p>
+      <p class="collections-page__off">
+        Collections are part of the Study Desk preview, which isn’t switched on
+        in this browser, so there is nothing to show here yet.
+      </p>
+    </div>
+  </div>
+</Layout>

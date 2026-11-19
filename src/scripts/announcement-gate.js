@@ -25,7 +25,7 @@
 // with the Android banner, say) is passed in as `skip`, so nothing about one
 // announcement is written into the slot itself.
 
-const SUPPRESSED_PATHS = /^\/(apps|privacy|notebook|desk\/help)\/?$/;
+const SUPPRESSED_PATHS = /^\/(apps|privacy|notebook|collections|desk\/help)\/?$/;
 const VERSE_LINK = /^#(?:v\d+(?:-\d+)?|[0-9a-z]+-\d+-[pv]\d+)$/;
 const SCRIPTURE_SURFACES = ".scripture-layout--scripture, .scripture-layout--intro, .rm-page, [data-desk-page], [data-sheet-page]";
 
