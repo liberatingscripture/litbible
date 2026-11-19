@@ -104,11 +104,36 @@ test("a lemma finds the page's glossary terms that govern it", () => {
   assert.deepEqual(termsForLemma(termData, ""), []);
 });
 
-test("a verse's renderings of a term are its distinct forms in order", () => {
+test("a verse's renderings of a term are its distinct printed words in order", () => {
   assert.deepEqual(renderingsIn(termData, "flesh-body", 3), ["self-preservation"]);
   assert.deepEqual(renderingsIn(termData, "flesh-body", 4), ["body"]);
   assert.deepEqual(renderingsIn(termData, "flesh-body", 9), []);
   assert.deepEqual(renderingsIn(null, "flesh-body", 3), []);
+});
+
+test("a rendering reads as the verse prints it, never as its label (E158)", () => {
+  // Matthew 17:15 prints "have compassion", which /glossary files under
+  // "act compassionately"; the line must quote the verse.
+  const data = {
+    terms: { mercy: { title: "Mercy", lemmas: ["ἐλεέω"] }, blas: { title: "Blasphemy", lemmas: [] } },
+    marks: [
+      { v: 15, text: "have compassion", id: "mercy", form: "act compassionately" },
+      { v: 16, text: "deviations", id: "mercy", form: "deviation" },
+      { v: 16, text: "Deviations", id: "mercy", form: "deviation" },
+      { v: 20, text: "speaks about", id: "blas", form: "speaks about … contemptuously", g: 0 },
+      { v: 20, text: "contemptuously", id: "blas", form: "speaks about … contemptuously", g: 0 },
+      { v: 20, text: "slander", id: "blas", form: "slander" },
+      { v: 20, text: "speak", id: "blas", form: "speak … with contempt", g: 1 },
+      { v: 20, text: "with contempt", id: "blas", form: "speak … with contempt", g: 1 },
+    ],
+  };
+  assert.deepEqual(renderingsIn(data, "mercy", 15), ["have compassion"]);
+  assert.deepEqual(renderingsIn(data, "mercy", 16), ["deviations"], "one per spelling, the first as printed");
+  assert.deepEqual(
+    renderingsIn(data, "blas", 20),
+    ["speaks about … contemptuously", "slander", "speak … with contempt"],
+    "a split rendering's pieces join, in reading order",
+  );
 });
 
 test("renderings read as a sentence", () => {

@@ -4373,6 +4373,29 @@ says so; where BVJ was wondering, nothing is decided.)
   Previous and Next), checks each gap against the SBLGNT, a printed verse
   after a gap, a number that is neither, and the Greek pane's line through
   a move, a return, another chapter and a whole chapter. Status: fixed.
+- **E158, bug: the Greek tab's “rendered here as” quoted words the verse
+  doesn't have.** BVJ, 2026-11-18, on Matthew 17:15: the LIT reads “have
+  compassion,” and the Greek tab, on ἐλέησόν, said “In the LIT: rendered
+  here as “act compassionately.”” “If it's not possible to have it match
+  reliably across the corpus, then we can just remove the line.” The line
+  printed each mark's `form`, the label /glossary groups a rendering's
+  variants under, not the words in the verse: “have compassion” is one of
+  18 records filed under “act compassionately,” and none of those verses
+  has those words. A sweep of the 211 published chapters found 3,953 verse
+  and term lines, 962 of them quoting a label the verse doesn't hold
+  (“Called Community” for “community,” “deviation” for “deviations”).
+  **Fixed** (`renderingsIn`, `desk-greek.mjs`): the line quotes each mark's
+  own `text`, the words the build found in that verse, with a split
+  rendering's pieces joined (“speaks about … contemptuously”), as the term
+  lens's card heads it. A record whose words aren't in the verse gets no
+  mark at build, so the line can't quote it; the same sweep finds all 4,033
+  phrases in their verses. So the line stays. One limit, until alignment
+  phase 2 links words: in the 73 verses holding two Greek words of one
+  term's family (πίστις and πιστεύω), the line lists the term's renderings
+  in the verse, which may include the other word's. Whether a label like
+  “act compassionately” is the right heading on /glossary is a separate,
+  editorial question. `test/desk-greek.test.js` holds the rule. Status:
+  fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
