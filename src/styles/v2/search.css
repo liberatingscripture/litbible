@@ -587,6 +587,24 @@
   }
 }
 
+/* A checked result keeps the green rule down its left edge (E116), over the
+   restyle's card shadow, which outweighs desk-search.css's rule for it
+   (BVJ, 2026-11-18: "add it back"). */
+:root[data-restyle] .search-page .desk-gather__row-item--picked > .result-link {
+  border-color: rgba(var(--ink-rgb), 0.24);
+  box-shadow: inset 3px 0 0 var(--green-text), var(--restyle-link-card-shadow);
+}
+
+:root[data-restyle] .search-page .desk-gather__row-item--picked > .result-link:hover {
+  box-shadow: inset 3px 0 0 var(--green-text), var(--restyle-link-card-hover-shadow);
+}
+
+@media (forced-colors: active) {
+  :root[data-restyle] .search-page .desk-gather__row-item--picked > .result-link {
+    border-color: Highlight;
+  }
+}
+
 /* ── A computer: two panes ─────────────────────────────────────── */
 @media (min-width: 1000px) {
   :root[data-restyle] .scripture-layout--search {

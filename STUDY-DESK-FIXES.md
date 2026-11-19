@@ -4484,7 +4484,12 @@ says so; where BVJ was wondering, nothing is decided.)
   chapter carries. The words are E116's, which now take the noun
   (`desk-sheet-gather.mjs`). These are the only two groups /search can add
   to a sheet; its Greek results have no add of their own.
-  `test/desk-search-sheet-head.test.js` drives it. Status: fixed.
+  `test/desk-search-sheet-head.test.js` drives it. In checking it, the
+  green rule E116 gave a checked result was found missing under Site 2.0
+  (verses too): the restyle's card shadow outweighed `desk-search.css`'s
+  rule. BVJ saw the two side by side: “add it back.” `v2/search.css`
+  restates it over the restyle's shadows, at rest and on hover. Status:
+  fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

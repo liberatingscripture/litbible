@@ -828,7 +828,8 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   verses", and invisible copies of its longest labels hold its width (the
   Search pane's strip, E117, does the same; the words are shared in
   `desk-sheet-gather.mjs`). The card and the checked rows share a green
-  rule. **The chapters by topic are checked the same way** (E163; BVJ,
+  rule; under Site 2.0 the restyle's card shadow outweighs the rows' rule,
+  so `v2/search.css` restates it (E163). **The chapters by topic are checked the same way** (E163; BVJ,
   2026-11-18: “It should match the keyword results behavior”): a box on
   each chapter and the same head row, words and disabled button, with
   “chapter” for “verse” (each word helper takes the noun); each checked
