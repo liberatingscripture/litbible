@@ -141,10 +141,33 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   strip under it holds the box that checks them all, the count line and the
   buttons: “Add 3 verses to ‘Faith’” (the primary) and “New sheet of 3
   verses” while a Sheets pane shows a sheet, else “New sheet of 3 verses”
-  alone as the primary, which goes through E127's `env.showSheet`. With none
+  alone as the primary, which goes through E127's `env.showSheet`. A third,
+  “Choose a sheet…” (E167), opens the pick window (`openPickWindow`, E154)
+  with New sheet and every sheet `addableSheets` lists, as /search's
+  chooser does; the sheet picked is shown by the same `env.showSheet`. With none
   checked they add nothing, as /search's head row (rule 21); no label wraps,
   and a long sheet name ends in “…” with the whole label in the tooltip and
-  the accessible name. Checks clear on a new query. A new feature of the editor goes in
+  the accessible name. Checks clear on a new query and when the box is
+  emptied. **The chapters by topic and the Greek's verses have the same**
+  (E166; BVJ, 2026-11-19: “full parity with the search page”): each group
+  its own checks and strip (`PICKS` in `search-pane.js`, the pane's `KINDS`),
+  a + on each row, “chapter” for “verse” in the topic group's words, a
+  chapter going whole to its last verse (`verseCount`, so no fetch), and
+  each new sheet named as /search names it (`commonLabel` for a topic,
+  Greek: “…” for the word). A Greek verse matched twice has two rows and
+  one check, and its strip sits under the group's title, above the word.
+  A Greek row shows /search's card in short (E167): the parsing after the
+  form, then three words of the Greek either side of the word on one line
+  (`verseGreek`'s `around`). It shows no line of the LIT, whose start isn't
+  the words rendering the Greek one (BVJ, 2026-11-19): its reference is
+  drawn as a scripture link instead, and the row previews the verse on
+  hover (`ref-preview.js`). A line showing the LIT words that render the
+  Greek one waits for more of the alignment (alignment phase 1b, BVJ).
+  An introduction among the topic's results has no box. Both find the
+  chapters by topic with one function, `topicMatches` in `search-core.js`
+  (a one-word query finds every topic holding it, and a row names those
+  topics), so the two lists can't drift apart. A new group that
+  can go on a sheet joins `PICKS` here and `KINDS` on /search together. A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
@@ -833,9 +856,23 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   2026-11-18: “It should match the keyword results behavior”): a box on
   each chapter and the same head row, words and disabled button, with
   “chapter” for “verse” (each word helper takes the noun); each checked
-  chapter goes whole. The two groups keep their own checks (`KINDS` and
+  chapter goes whole. **So are the Greek results** (E165; BVJ, 2026-11-18,
+  “Same for any other results sections that can be added”), behind the
+  Greek search's gate: a box on each row and the same head row, with
+  “verse,” each checked verse going on the sheet as its verse. A verse holding
+  two matches has two rows and one check (the boxes share the verse's key, and
+  the count is of verses), and the sheet is named for the word the verses
+  were found for (Greek: “πίστις”, for the Greek word shown, the form under
+  Exact form only, or a command as typed), which search.js sends as
+  `greekWord` beside `greek`, every hit. Picking another of a query's Greek
+  words keeps only the checks on verses it still finds, as a book filter
+  does. The groups keep their own checks (`KINDS` and
   `ticked` in `search-sheet.js`), and a new group that can go on a sheet
-  joins `KINDS` rather than getting a row of its own. What it made opens where the search
+  joins `KINDS` rather than getting a row of its own: its rows, its link,
+  its key, its noun, and its sheet's `title`, and `whole` if each result
+  goes as a chapter; it joins the Search pane's `PICKS` too (rule 18,
+  E166). search.js announces no results when it clears the page,
+  so no head row outlives its search. What it made opens where the search
   was: "Open the sheet" is `/sheets/?id=<id>`, and "open it in the Study Desk" beside
   it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
   (`showSheet` in `desk-layout.mjs`) and strips from the address (S12).

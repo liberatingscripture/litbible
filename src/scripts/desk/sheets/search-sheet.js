@@ -1,21 +1,25 @@
 // src/scripts/desk/sheets/search-sheet.js
 //
-// A sheet from /search (STUDY-DESK.md, M5): the verses a search found, or the
-// chapters a topic names, gathered into a sheet. Reached
+// A sheet from /search (STUDY-DESK.md, M5): the verses a search found, the
+// chapters a topic names, or the verses a Greek search found, gathered into a
+// sheet. Reached
 // only through loadDeskSheets() in search-core.js, which imports this file
 // only when <html data-desk="on">, so a reader without the preview downloads
 // none of it and sees /search exactly as it was. It is the only place the
 // search page meets the desk's sheets: search.js sends one plain event,
 // `lit:search-results`, and this file draws everything else.
 //
-// The event's detail is { query, verses, chapters }:
-//   verses   every verse hit of the search, not only the page showing:
-//            [{ bookKey, chapter, verse }]
-//   chapters every chapter by topic: [{ bookKey, chapter, labels }]
+// The event's detail is { query, verses, chapters, greek, greekWord }:
+//   verses    every verse hit of the search, not only the page showing:
+//             [{ bookKey, chapter, verse }]
+//   chapters  every chapter by topic: [{ bookKey, chapter, labels }]
+//   greek     every Greek hit, a verse once for each word matched in it:
+//             [{ bookKey, chapter, verse }]; counted and checked by verse
+//   greekWord what the Greek hits were found for, which names their sheet
 // It is sent after every render (a new query, a page turned, a sort), and
 // this file draws again from it each time; ticks belong to a query and are
 // forgotten when the query changes, and a tick on a verse the results no
-// longer hold (a book filter) is dropped.
+// longer hold (a book filter, another Greek word) is dropped.
 //
 // Each group gets a head row (E116; BVJ, 2026-11-12, option A): a box that
 // checks every result (all of them, not only those on screen; unchecked it
@@ -26,8 +30,9 @@
 // aria-disabled, stays focusable, and is described by the line, which says how
 // to check; a press only says it again. The chapters by topic are checked the
 // same way, each going whole (E163; BVJ, 2026-11-18: until then every chapter
-// went, with no boxes). The card and every checked result share a green rule,
-// and the row is sticky while its group is on screen.
+// went, with no boxes), and so are the Greek's verses (E165). The card and
+// every checked result share a green rule, and the row is sticky while its
+// group is on screen.
 //
 // What it makes is the rules in src/lib/desk-sheet-gather.mjs: passages in
 // Bible order, runs of consecutive verses as one range, no more than a sheet
@@ -44,6 +49,7 @@ import {
   checkAllLabel,
   checkedLine,
   checkedSaid,
+  commonLabel,
   gatherMessage,
   includeLabel,
   passagesFromChapters,
@@ -76,9 +82,9 @@ const chapterKey = (r) => `${r.bookKey} ${r.chapter}`;
 // search-style.js; all of desk.css until LG8-10).
 const ensureStyles = addSearchStyle;
 
-/** A verse result's address: "/john-3#v16" is John 3:16. */
+/** A verse result's address: "/john-3#v16", or a Greek one's "/john-3/?greek=16.7#v16", is John 3:16. */
 function refOfLink(href) {
-  const m = /^\/?([0-9]?[a-z]+)-(\d+)\/?#v(\d+)$/i.exec(String(href ?? ""));
+  const m = /^\/?([0-9]?[a-z]+)-(\d+)\/?(?:\?[^#]*)?#v(\d+)$/i.exec(String(href ?? ""));
   return m ? { bookKey: m[1].toLowerCase(), chapter: Number(m[2]), verse: Number(m[3]) } : null;
 }
 
@@ -120,27 +126,24 @@ async function withLastVerses(chapters) {
   );
 }
 
-/** The label every chapter of a topic carries, else null (a loose match has several). */
-function commonLabel(chapters) {
-  if (!chapters.length) return null;
-  const [first, ...rest] = chapters.map((c) => c.labels ?? []);
-  return first.find((label) => rest.every((labels) => labels.includes(label))) ?? null;
-}
-
 /* ── The page ────────────────────────────────────────────────────────── */
 
 let getLast = () => null;
 let detail = null; // the results on screen, as search.js last sent them
 let query = null; // the query the ticks belong to
 
-// The two groups a sheet can be made from, checked the same way (E163): the
-// verses a search found, and the chapters by topic, each of which goes whole.
+// The groups a sheet can be made from, checked the same way (E163, E165): the
+// verses a search found, the chapters by topic, each of which goes whole, and
+// the verses a Greek search found. A new group joins this table; each keeps
+// its own ticks and head row. `title` names a new sheet from the detail as it
+// was when the button was pressed, and the checked results.
 const KINDS = {
   verses: {
     noun: "verse",
     group: "group-keyword",
     list: "results-keyword",
     rows: "li.result-occurrence",
+    link: "a.result-link",
     key: verseKey,
     refOf: refOfLink,
     // "John 3:16", from the result's own chapter heading.
@@ -148,26 +151,57 @@ const KINDS = {
       const title = li.closest(".result-group")?.querySelector(".result-group__title")?.textContent?.trim();
       return `${title || `${ref.bookKey} ${ref.chapter}`}:${ref.verse}`;
     },
+    title: (d) => searchSheetTitle(d.query),
   },
   chapters: {
     noun: "chapter",
     group: "group-subject",
     list: "results-subject",
     rows: "li.result",
+    link: "a.result-link",
     key: chapterKey,
     refOf: chapterOfLink,
     label: (_li, ref) => `${bookKeyToLabel(ref.bookKey)} ${ref.chapter}`,
+    whole: true,
+    title: (d, picked) => searchSheetTitle(d.query, { kind: "topic", label: commonLabel(picked) }),
+  },
+  // One box per row, as the rows are drawn; a verse holding two matches has
+  // two rows, whose boxes are one tick, since the verse is what goes.
+  greek: {
+    noun: "verse",
+    group: "group-greek",
+    list: "results-greek",
+    rows: "li.greek-row",
+    link: "a.greek-ref",
+    key: verseKey,
+    refOf: refOfLink,
+    label: (li, ref) =>
+      li.querySelector("a.greek-ref")?.textContent?.trim() || `${bookKeyToLabel(ref.bookKey)} ${ref.chapter}:${ref.verse}`,
+    title: (d) => searchSheetTitle(d.greekWord || d.query, { kind: "greek" }),
   },
 };
 
-const ticked = { verses: new Set(), chapters: new Set() };
+const ticked = Object.fromEntries(Object.keys(KINDS).map((kind) => [kind, new Set()]));
+
+/** Each kind's results, once each by its key (a Greek verse can hold several matches). */
+let results = {};
 
 /** The results of a kind the search found, all of them (not only those on screen). */
-const found = (kind) => detail?.[kind] ?? [];
+const found = (kind) => results[kind] ?? [];
+
+function onceEach(list, key) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : []).filter((r) => {
+    const k = key(r);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
 
 // One head row per group, made once and kept: search.js re-renders the lists
 // inside the groups, never the groups themselves.
-const bars = { verses: null, chapters: null };
+const bars = Object.fromEntries(Object.keys(KINDS).map((kind) => [kind, null]));
 
 function ensureBar(kind) {
   if (bars[kind]?.root.isConnected) return bars[kind];
@@ -290,12 +324,12 @@ function describeBar(bar) {
 
 /** Boxes on the results of a kind on screen. */
 function enhanceRows(kind) {
-  const { list: listId, rows, key, refOf, label } = KINDS[kind];
+  const { list: listId, rows, link, key, refOf, label } = KINDS[kind];
   const list = document.getElementById(listId);
   if (!list) return;
   for (const li of list.querySelectorAll(rows)) {
     if (li.querySelector(".desk-gather__tick")) continue;
-    const ref = refOf(li.querySelector("a.result-link")?.getAttribute("href"));
+    const ref = refOf(li.querySelector(link)?.getAttribute("href"));
     if (!ref) continue;
     const box = make("input", "desk-gather__tick");
     box.type = "checkbox";
@@ -314,10 +348,10 @@ function enhanceRows(kind) {
 
 /** A kind's row boxes and marks and its head row, from the ticks; `said` speaks the count, once per change. */
 function syncTicks(kind, { said = false } = {}) {
-  const { list, key, refOf, noun } = KINDS[kind];
+  const { list, link, key, refOf, noun } = KINDS[kind];
   for (const box of document.querySelectorAll(`#${list} .desk-gather__tick`)) {
     const li = box.closest("li");
-    const ref = refOf(li?.querySelector("a.result-link")?.getAttribute("href"));
+    const ref = refOf(li?.querySelector(link)?.getAttribute("href"));
     if (!ref) continue;
     box.checked = ticked[kind].has(key(ref));
     li.classList.toggle("desk-gather__row-item--picked", box.checked);
@@ -354,6 +388,7 @@ function update(next) {
     if (dropped && bars[kind]) closePanel(bars[kind], { focus: false });
   }
   detail = next;
+  results = Object.fromEntries(Object.keys(KINDS).map((kind) => [kind, onceEach(next[kind], KINDS[kind].key)]));
   for (const kind of Object.keys(KINDS)) {
     const bar = ensureBar(kind);
     if (!bar) continue;
@@ -467,11 +502,9 @@ async function gather(bar, into) {
   // What was pressed for, taken now: the results can change during the
   // waits below (a new query, the book filter), and the sheet is made of
   // these, titled by this query (BA130).
-  const verses = bar.kind === "verses";
+  const { whole } = KINDS[bar.kind];
   const picked = chosen(bar.kind);
-  const title = verses
-    ? searchSheetTitle(detail.query)
-    : searchSheetTitle(detail.query, { kind: "topic", label: commonLabel(picked) });
+  const title = KINDS[bar.kind].title(detail, picked);
 
   let store;
   try {
@@ -482,8 +515,8 @@ async function gather(bar, into) {
     return;
   }
   // The fetching comes first, so the sheet is read only inside the write.
-  const chapters = verses ? null : await withLastVerses(picked);
-  const passagesFor = (room) => (verses ? passagesFromVerses(picked, { room }) : passagesFromChapters(chapters, { room }));
+  const chapters = whole ? await withLastVerses(picked) : null;
+  const passagesFor = (room) => (whole ? passagesFromChapters(chapters, { room }) : passagesFromVerses(picked, { room }));
 
   // The sheet is read and added to in one transaction, since another tab, or
   // /desk, may have changed it since the list was drawn (BA130).

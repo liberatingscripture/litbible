@@ -131,6 +131,9 @@ test("the title of a search sheet", () => {
   assert.equal(searchSheetTitle("forgive", { kind: "topic", label: "forgiveness" }), "forgiveness");
   assert.equal(searchSheetTitle("forgive", { kind: "topic" }), "Topic: “forgive”");
   assert.equal(searchSheetTitle("forgive", { kind: "topic", label: "  " }), "Topic: “forgive”");
+  // A Greek search's verses (E165) are named for the word they were found for.
+  assert.equal(searchSheetTitle("πίστις", { kind: "greek" }), "Greek: “πίστις”");
+  assert.equal(searchSheetTitle("πίστις.gen, Ἰησοῦς/Χριστός.gen", { kind: "greek" }), "Greek: “πίστις.gen, Ἰησοῦς/Χριστός.gen”");
   const long = searchSheetTitle("x".repeat(500));
   assert.ok(Array.from(long).length <= SHEET_LIMITS.title);
   assert.ok(long.endsWith("…”"));

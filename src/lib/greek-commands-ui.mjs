@@ -110,30 +110,45 @@ const letters = (s) => bare(s).replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
  * <mark>, and those words as [{ t, form, pos, parse, said }] in reading
  * order: `form` is the word's letters, `said` its parsing in words. Empty
  * when the chapter has no such verse.
+ *
+ * `around`, a number, keeps only that many words either side of the marked
+ * ones, with "…" where the verse was cut: the one-line excerpt /desk's Search
+ * pane shows (E167; BVJ, 2026-11-19: “just a few words on either side of
+ * it”). With nothing marked, the verse is kept whole.
  */
-export function verseGreek(data, verse, marked, escape) {
+export function verseGreek(data, verse, marked, escape, { around = Infinity } = {}) {
   const mark = new Set(marked ?? []);
+  const inVerse = [];
+  for (const para of data?.paragraphs ?? []) {
+    for (const w of para) if (w[W.verse] === verse) inVerse.push(w);
+  }
+  const hits = inVerse.flatMap((w, i) => (mark.has(w[W.t]) ? [i] : []));
+  const from = hits.length ? Math.max(0, hits[0] - around) : 0;
+  const to = hits.length ? Math.min(inVerse.length, hits[hits.length - 1] + around + 1) : inVerse.length;
+
   let html = "";
   const words = [];
-  for (const para of data?.paragraphs ?? []) {
-    for (const w of para) {
-      if (w[W.verse] !== verse) continue;
-      const mine = mark.has(w[W.t]);
+  inVerse.forEach((w, i) => {
+    const mine = mark.has(w[W.t]);
+    if (i >= from && i < to) {
       const text = escape(bare(w[W.text]));
       html += escape(bare(w[W.pre])) + (mine ? `<mark>${text}</mark>` : text) + escape(bare(w[W.post]));
-      if (mine) {
-        words.push({
-          t: w[W.t],
-          form: letters(w[W.text]),
-          pos: w[W.pos],
-          parse: w[W.parse],
-          said: describeParse(w[W.pos], w[W.parse]) || "",
-        });
-      }
     }
-  }
+    if (mine) {
+      words.push({
+        t: w[W.t],
+        form: letters(w[W.text]),
+        pos: w[W.pos],
+        parse: w[W.parse],
+        said: describeParse(w[W.pos], w[W.parse]) || "",
+      });
+    }
+  });
   words.sort((a, b) => a.t - b.t);
-  return { html: html.replace(/\s+/g, " ").trim(), words };
+  html = html.replace(/\s+/g, " ").trim();
+  if (html && from > 0) html = `… ${html}`;
+  if (html && to < inVerse.length) html = `${html} …`;
+  return { html, words };
 }
 
 /** The forms of a hit's marked words, joined for a one-line row: "πίστεως … Χριστοῦ". */

@@ -144,6 +144,15 @@ test("a verse the chapter lacks, or a missing chapter, gives nothing", () => {
   assert.equal(formsLine([]), "");
 });
 
+test("`around` keeps a few words either side of the marked ones, and says where it cut (E167)", () => {
+  assert.equal(verseGreek(chapter, 16, [3], esc, { around: 1 }).html, "… δὲ <mark>πίστεως</mark> Χριστοῦ,");
+  assert.equal(verseGreek(chapter, 16, [2], esc, { around: 1 }).html, "εἰδότες <mark>δὲ</mark> πίστεως …");
+  assert.equal(verseGreek(chapter, 16, [1, 4], esc, { around: 1 }).html, "<mark>εἰδότες</mark> δὲ πίστεως <mark>Χριστοῦ</mark>,", "everything between two marks stays");
+  assert.equal(verseGreek(chapter, 16, [3], esc, { around: 5 }).html, verseGreek(chapter, 16, [3], esc).html, "a short verse is whole");
+  assert.equal(verseGreek(chapter, 16, [3], esc, { around: 1 }).words[0].form, "πίστεως", "the words found are the same");
+  assert.equal(verseGreek(chapter, 16, [], esc, { around: 1 }).html, "εἰδότες δὲ πίστεως Χριστοῦ,", "nothing marked keeps the verse");
+});
+
 test("the Greek is escaped as the caller says", () => {
   const odd = { paragraphs: [[[1, 1, "a<b", "", "", 0, "N-", "--------", 0]]] };
   assert.equal(verseGreek(odd, 1, [1], esc).html, "<mark>a&lt;b</mark>");

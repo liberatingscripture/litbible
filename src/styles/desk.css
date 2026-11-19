@@ -8749,6 +8749,11 @@ mark.desk-print-mark {
   font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
+/* "Matthew 18 · debt forgiveness": the topics a loose match found (E166). */
+.desk-search__topics {
+  color: rgba(var(--ink-rgb), 0.78);
+}
+
 .desk-search__ref {
   color: rgba(var(--ink-rgb), 0.85);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
@@ -8769,6 +8774,35 @@ mark.desk-print-mark {
 .desk-search__greek-form {
   font-family: var(--serif);
   font-size: calc(1.125rem * var(--desk-ui, 1));
+}
+
+/* A Greek row (E167): its reference drawn as a scripture link, since the row
+   previews the LIT verse (ref-preview.js) and opens it; the parsing after the
+   form; and a line of the Greek around the word, one line so a row stays
+   short in a narrow pane. */
+.desk-search__row--greek .desk-search__ref {
+  color: var(--green-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.desk-search__greek-parse {
+  color: rgba(var(--ink-rgb), 0.78);
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+}
+
+.desk-search__line {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.desk-search__line[hidden] {
+  display: none;
+}
+
+.desk-search__line[lang="grc"] {
+  font-family: var(--serif);
 }
 
 /* The pane's worded buttons: ordinary, a toggle (Bible order) or the strip's
@@ -8922,7 +8956,8 @@ mark.desk-print-mark {
   margin-left: 5px;
 }
 
-.desk-search__row--verse .desk-search__check {
+/* Every row with a box: a verse, a chapter by topic, a Greek verse (E166). */
+.desk-search__row--checkable .desk-search__check {
   margin-top: 9px;
 }
 

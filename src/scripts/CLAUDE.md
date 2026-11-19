@@ -518,7 +518,8 @@ notice there or nowhere.
     group sits last. They scroll and focus the group in script rather than
     following the hash, since a fragment navigation fires `popstate`, which
     re-renders the results. A topic card names the topics that matched it
-    when they differ from the query (a loose one-word match).
+    when they differ from the query (a loose one-word match). That matching
+    is `topicMatches`, which the desk's Search pane calls too (E166).
   - *Every page has exactly one way in* (audit U6, owner 2026-09-28).
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`

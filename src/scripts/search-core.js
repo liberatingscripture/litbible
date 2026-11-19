@@ -464,6 +464,62 @@ export function topicTokenMatches(normTopic, token) {
   return re.test(normTopic);
 }
 
+/**
+ * The topics-index documents a query finds, for /search and /desk's Search
+ * pane alike (E166): the exact topic phrase first; a one-word query with no
+ * exact topic falls back to every topic holding that word whole ("forgive"
+ * finds "forgive us our debts"), capped to avoid an avalanche on broad words
+ * ("god"). `book`, a book key, keeps one book's. `topics` is loadTopicsIndex's
+ * `{ topicsList, topicsUrlMap }`; `qPhrase` is normalizePhrase's.
+ *
+ * Returns `docs` in the index's order (a chapter under two loose topics comes
+ * twice, as the bucketing expects), and `labels`, every topic label that
+ * matched each URL, so a result can name the topics behind a loose match.
+ */
+export function topicMatches(topics, qPhrase, { book = "" } = {}) {
+  const docs = [];
+  const labels = new Map();
+  if (!topics || !qPhrase) return { docs, labels };
+  const { topicsList, topicsUrlMap } = topics;
+
+  const exact = topicsUrlMap.get(qPhrase) || [];
+
+  let loose = [];
+  if (!exact.length && !/\s/.test(qPhrase)) {
+    const MAX_TOPICS = 30;
+    const MAX_DOCS = 60;
+
+    const matchedTopics = [];
+    for (const t of topicsList) {
+      if (topicTokenMatches(t.norm, qPhrase)) matchedTopics.push(t.norm);
+      if (matchedTopics.length >= MAX_TOPICS) break;
+    }
+
+    for (const norm of matchedTopics) {
+      loose = loose.concat(topicsUrlMap.get(norm) || []);
+      if (loose.length >= MAX_DOCS) break;
+    }
+  }
+
+  const wantBook = normalizePhrase(String(book || ""));
+  for (const doc of exact.length ? exact : loose) {
+    const url = String(doc?.url || "");
+    if (!url) continue;
+
+    const docBook = normalizePhrase(String(doc?.book || ""));
+    if (wantBook && docBook && docBook !== wantBook) continue;
+
+    const label = String(doc?.topic || "").trim();
+    if (label) {
+      const known = labels.get(url) || [];
+      if (!known.includes(label)) known.push(label);
+      labels.set(url, known);
+    }
+    docs.push(doc);
+  }
+  return { docs, labels };
+}
+
 /* ── URL classification ──────────────────────────────────────────────── */
 
 /**

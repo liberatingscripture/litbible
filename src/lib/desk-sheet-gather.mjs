@@ -125,10 +125,26 @@ export function passagesFromChapters(chapters, { room = SHEET_LIMITS.modules } =
 /**
  * The title of a sheet made from a search: `Search: “liberation”`. For a
  * topic's chapters it is the topic's label when `label` is given (the one
- * every chapter carries), else `Topic: “forgive”`. The query's own quotes are
- * dropped (a quoted phrase is shown inside the curly ones), whitespace is
- * collapsed, and the title is cut to the format's limit.
+ * every chapter carries), else `Topic: “forgive”`; for a Greek search's
+ * verses (`kind: "greek"`) it is `Greek: “πίστις”`, given the word they were
+ * found for. The query's own quotes are dropped (a quoted phrase is shown
+ * inside the curly ones), whitespace is collapsed, and the title is cut to
+ * the format's limit.
  */
+const TITLE_LEADS = { search: "Search", topic: "Topic", greek: "Greek" };
+
+/**
+ * The topic label every chapter carries (`labels`, the topics that matched
+ * it), else null: a loose match has several, and then the sheet is named
+ * `Topic: “…”` for the query. /search and /desk's Search pane both name a
+ * topic's sheet by it.
+ */
+export function commonLabel(chapters) {
+  if (!Array.isArray(chapters) || !chapters.length) return null;
+  const [first, ...rest] = chapters.map((c) => c?.labels ?? []);
+  return first.find((label) => rest.every((labels) => labels.includes(label))) ?? null;
+}
+
 export function searchSheetTitle(query, { kind = "search", label = null } = {}) {
   const tidy = (text) =>
     String(text ?? "")
@@ -140,7 +156,7 @@ export function searchSheetTitle(query, { kind = "search", label = null } = {}) 
     return chars.length <= SHEET_LIMITS.title ? text : `${chars.slice(0, SHEET_LIMITS.title - 1 - closing.length).join("")}…${closing}`;
   };
   if (kind === "topic" && tidy(label)) return cut(tidy(label));
-  return cut(`${kind === "topic" ? "Topic" : "Search"}: “${tidy(query)}”`, "”");
+  return cut(`${TITLE_LEADS[kind] ?? TITLE_LEADS.search}: “${tidy(query)}”`, "”");
 }
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;

@@ -34,11 +34,20 @@
 //   nothing: the buttons stay focusable, aria-disabled, described by the
 //   line. A + on each verse adds that one. The same rules and one transaction
 //   as /search's (desk-sheet-gather.mjs, search-sheet.js), in the same words.
+//   The chapters by topic, each going whole, and the Greek's verses have the
+//   same boxes, strip and + (E166; BVJ, 2026-11-19: "full parity with the
+//   search page"), each group its own checks (`PICKS`). A Greek verse
+//   matched twice has two rows and one check, since the verse is what goes.
+//   "Choose a sheet…" opens the pick window of every sheet, as /search's
+//   chooser lists them (E167).
 // - **The Greek** (rules 15 and 17 of the desk's CLAUDE.md; only while
 //   greekSearchEnabled()): one query never gets both English and Greek. It is
 //   searchGreekAuto, said back as the Greek tab says it, with the credit under
 //   every Greek group (a license requirement). A Greek result opens its word
-//   in a Greek pane and moves the LIT pane there (`env.openGreekHit`).
+//   in a Greek pane and moves the LIT pane there (`env.openGreekHit`). Its
+//   row is /search's card in short (E167): the parsing, then a line of the
+//   Greek around the word; its reference, drawn as a scripture link, previews
+//   the LIT verse.
 //
 // Nothing about a search is stored: it lives in this closure, and a reload
 // empties the pane. Several panes may be open, each with its own search.
@@ -51,7 +60,9 @@ import {
   PAGE,
   READING,
   BIBLE_ORDER,
+  CHOOSE_SHEET,
   addCheckedLabel,
+  addChapterLabel,
   addVerseLabel,
   newSheetLabel,
   bookFilterFor,
@@ -69,17 +80,20 @@ import {
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
 import { parsePassage, passageLabel } from "../../lib/desk-passage.mjs";
-import { planAddPassages } from "../../lib/desk-sheet-add.mjs";
+import { addableSheets, planAddPassages } from "../../lib/desk-sheet-add.mjs";
 import {
   checkAllLabel,
   checkedLine,
   checkedSaid,
+  commonLabel,
   gatherMessage,
   includeLabel,
+  passagesFromChapters,
   passagesFromVerses,
   roomOnSheet,
   searchSheetTitle,
 } from "../../lib/desk-sheet-gather.mjs";
+import { verseCount } from "../../data/verse-counts.js";
 import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { NOTEBOOK_GROUP_TITLE } from "../../lib/desk-search.mjs";
 import { createSheet, makeModule } from "../../lib/desk-sheets.mjs";
@@ -117,6 +131,7 @@ import {
   scriptureResultTitle,
   searchVerses,
   showModeFor,
+  topicMatches,
   topicsIndexSubjectItem,
   verseHitHref,
   verseHitLabel,
@@ -127,7 +142,8 @@ import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 import { buttons, make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
-import { plural } from "./desk-text.js";
+import { dateWords, plural } from "./desk-text.js";
+import { openPickWindow } from "./pick-window.js";
 import { setTip } from "../tip.js";
 
 const button = buttons("desk-search__btn");
@@ -138,6 +154,33 @@ const SORT_ICON =
 
 /** A verse hit's key among the checked ones, as desk-sheet-gather.mjs keys a verse. */
 const hitKey = (hit) => `${hit.bookKey} ${hit.chapter}:${hit.verse}`;
+/** A chapter's key among the checked ones. */
+const chapterKey = (c) => `${c.bookKey} ${c.chapter}`;
+
+// The groups whose results can be checked and go on a sheet, as /search's
+// (KINDS in sheets/search-sheet.js): the verses (E117), the chapters by topic,
+// each going whole, and the Greek's verses (E166). Each keeps its own checks
+// and has its own strip; a new group joins this table.
+const PICKS = {
+  keyword: { noun: "verse", key: hitKey },
+  subject: { noun: "chapter", key: chapterKey, whole: true },
+  greek: { noun: "verse", key: hitKey },
+};
+const PICK_KINDS = Object.keys(PICKS);
+
+/** `list` with one of each by `key`, in order: a Greek verse can hold several matches. */
+function onceEach(list, key) {
+  const seen = new Set();
+  return list.filter((r) => {
+    const k = key(r);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+/** A Greek hit as the sheet rules take a verse. */
+const greekRef = (hit) => ({ bookKey: hit.book, chapter: hit.chapter, verse: hit.verse });
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -150,6 +193,7 @@ let commands = null;
 const withCommands = () => import("../greek-commands.js").then((m) => (commands = m));
 const DEBOUNCE = 120; // as the tray
 const CHOICES = 10; // Greek words offered at a time
+const GREEK_AROUND = 3; // words of a Greek row's verse kept either side of the word (E167)
 
 const STATUS_SEP = " • ";
 
@@ -348,7 +392,9 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   let resultsScroll = 0;
   let openedFrom = null; // the result that opened the glossary entry, to give focus back
   let busy = false; // a sheet is being written
-  const checked = new Set(); // the verses checked for the strip (hitKey), for one query
+  let chooser = null; // the "Choose a sheet…" window, while open (E167)
+  // What each group's strip has checked (by PICKS' key), for one query.
+  const checked = Object.fromEntries(PICK_KINDS.map((kind) => [kind, new Set()]));
   let checkedFor = null; // the query they belong to
 
   let topics = null; // loadTopicsIndex's, once
@@ -440,6 +486,9 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     showPageLink("");
     syncNotes(false);
     last = null;
+    // No search on screen: the checks went with it, as on /search.
+    for (const set of Object.values(checked)) set.clear();
+    checkedFor = null;
     jumpBox.replaceChildren();
     groupsEl.replaceChildren();
     tell("");
@@ -570,17 +619,12 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       const versePromise = wantKeyword ? loadVerseIndex(BASE) : null;
       const notebookPromise = deskPart && activeMode === "all" ? deskPart.search(q, { bookKey: book }).catch(() => null) : null;
 
-      const { topicsList, topicsUrlMap } = await ensureTopics();
+      // /search's own topic matching, loose one-word matches and all (E166):
+      // `labels` holds each chapter's matched topics, which a row names when
+      // they differ from the query and which name a sheet made of them
+      // (`commonLabel`).
+      const { docs: fromIndex, labels: topicLabels } = topicMatches(await ensureTopics(), qPhrase, { book });
       if (my !== seq) return;
-      const picked = qPhrase ? topicsList.find((t) => t?.norm === qPhrase) : null;
-      let fromIndex = picked ? topicsUrlMap.get(picked.norm) || [] : [];
-      if (book) {
-        fromIndex = fromIndex.filter((it) => {
-          const m = /^\/([0-9a-z]+)-(\d+)/.exec(String(it?.url ?? ""));
-          return m && m[1] === book;
-        });
-      }
-      fromIndex = fromIndex.slice(0, 50);
 
       // A book filter keeps to scripture: Pagefind is skipped (glossary and
       // article pages carry no book), as the tray does.
@@ -614,19 +658,21 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       const versesFailed = wantKeyword && !verseIndex;
       if (versesFailed) tell(VERSES_FAILED);
 
-      const extraSubjectItems = picked && fromIndex.length
-        ? fromIndex.map((it) => topicsIndexSubjectItem({ url: it.url, title: it.url, meta: { title: titleOf(it.url) }, anchors: [] }))
-        : [];
-      const { glossary, subject, article, intro } = bucketSearchResults(resolved, { extraSubjectItems, replaceSubject: true });
+      const extraSubjectItems = fromIndex.map((it) => topicsIndexSubjectItem({ url: it.url, title: it.url, meta: { title: titleOf(it.url) }, anchors: [] }));
+      // Merged as /search merges them, which keeps a chapter once when two
+      // loose topics both hold it.
+      const { glossary, subject, article, intro } = bucketSearchResults(resolved, { extraSubjectItems });
 
       last = {
         q,
+        qPhrase,
         jump,
         notebook: notebook?.total ? notebook : null,
         glossary: glossary.map((it) => ({ title: glossaryTermFromResult(it.d, it.locs, qUnquoted), href: pickAnchorHref(it.d, it.locs) })),
         subject: subject.map((it) => ({
           title: it.d?.meta?.title || it.d.title || it.d.url,
           href: it?.d?.anchors?.length ? pickAnchorHref(it.d, it.locs) : it.d.url,
+          labels: topicLabels.get(it.d?.url) ?? [],
         })),
         intro: intro.map((it) => ({ title: scriptureResultTitle(it.d?.url || "", it.d?.meta?.title || "Introduction"), href: pickAnchorHref(it.d, it.locs) })),
         article: article.map((it) => ({ title: it.d?.meta?.title || it.d.title || it.d.url, href: pickAnchorHref(it.d, it.locs) })),
@@ -635,6 +681,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
         versesFailed,
         greek: null,
       };
+      last.picks = picksOf(last);
       drawResults();
     } catch (err) {
       if (my !== seq) return;
@@ -759,7 +806,10 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     for (const [kind, title, items, one, many] of plainGroups) {
       if (!shows(kind) || !items.length) continue;
       const g = group(title, kind);
-      paged(g, items, plainRow);
+      // The chapters by topic can be checked (E166); an introduction among
+      // them can't, being no chapter.
+      if (kind === "subject" && store && r.picks.subject.length) g.append(pickStrip("subject"));
+      paged(g, items, kind === "subject" ? subjectRow : plainRow);
       groupsEl.append(g);
       counts.push(plural(items.length, one, many));
     }
@@ -779,25 +829,99 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     settleFocus();
   }
 
-  // ---- verses, and the sheet ----
+  // ---- verses, chapters, and the sheet ----
+
+  /** A topic result that is a whole chapter, as the sheet rules take it, else null (an introduction). */
+  function chapterOf(item) {
+    const t = resultTarget(item.href);
+    return t.type === "passage" && t.verse == null ? { bookKey: t.bookKey, chapter: t.chapter, labels: item.labels ?? [] } : null;
+  }
 
   /**
-   * Checks belong to a query, and a check on a verse the results no longer
-   * hold (the book filter changed them) is dropped, so the count never
+   * What each group's checks are of, once each, for the groups the type
+   * chosen shows. The Greek's are set as its rows are drawn (`greekRows`),
+   * since a Greek search can answer without a list (the article alone).
+   */
+  function picksOf(r) {
+    return {
+      keyword: shows("keyword") ? onceEach(r.verses.map(verseRef), hitKey) : [],
+      subject: shows("subject") ? onceEach(r.subject.map(chapterOf).filter(Boolean), chapterKey) : [],
+      greek: [],
+    };
+  }
+
+  /**
+   * Checks belong to a query, and a check on a result the results no longer
+   * hold (the book filter, another Greek word) is dropped, so the count never
    * counts what a press wouldn't add (BA132, as /search).
    */
   function keepChecks(r) {
     if (r.q !== checkedFor) {
-      checked.clear();
+      for (const set of Object.values(checked)) set.clear();
       checkedFor = r.q;
       return;
     }
-    const here = new Set(r.verses.map(hitKey));
-    for (const key of checked) if (!here.has(key)) checked.delete(key);
+    for (const kind of PICK_KINDS) {
+      const here = new Set(r.picks[kind].map(PICKS[kind].key));
+      for (const key of checked[kind]) if (!here.has(key)) checked[kind].delete(key);
+    }
   }
 
-  /** The checked verses, in the order the search found them. */
-  const checkedRefs = () => (last?.verses ?? []).filter((h) => checked.has(hitKey(h))).map(verseRef);
+  /** How many results a group's checks are of. */
+  const pickTotal = (kind) => last?.picks?.[kind]?.length ?? 0;
+
+  /** A group's checked results, in the order the search found them. */
+  const checkedRefs = (kind) => (last?.picks?.[kind] ?? []).filter((r) => checked[kind].has(PICKS[kind].key(r)));
+
+  /**
+   * A row's box (E117, E166), first in the row: every row of one verse or
+   * chapter shares its check. Its row is marked while checked.
+   */
+  function addBox(li, kind, ref, label) {
+    const key = PICKS[kind].key(ref);
+    const box = make("input", "desk-search__check");
+    box.type = "checkbox";
+    box.dataset.pick = kind;
+    box.dataset.key = key;
+    box.checked = checked[kind].has(key);
+    box.setAttribute("aria-label", includeLabel(label));
+    box.addEventListener("change", () => {
+      if (box.checked) checked[kind].add(key);
+      else checked[kind].delete(key);
+      syncPick(kind, { said: true });
+    });
+    li.classList.add("desk-search__row--checkable");
+    li.classList.toggle("desk-search__row--picked", box.checked);
+    li.prepend(box);
+  }
+
+  /** A row's +, last in the row: it adds its one verse or chapter to the sheet a Sheets pane shows. */
+  function addPlus(li, kind, ref, label) {
+    const plus = button("+", "desk-search__add");
+    plus.setAttribute("aria-label", label);
+    // Rows from "Show more" are drawn after syncAdd has run.
+    plus.hidden = !sheets.addTarget() || busy;
+    plus.addEventListener("click", () => {
+      const t = sheets.addTarget();
+      if (t) gather(kind, [ref], t);
+    });
+    li.append(plus);
+  }
+
+  /** A topic result: a chapter's row has a box and a +, an introduction's neither. */
+  function subjectRow(item) {
+    const li = plainRow(item);
+    // "Matthew 18 · debt forgiveness": the topics a loose one-word match
+    // found, when they aren't the query itself, as /search names them.
+    const also = item.labels.filter((label) => normalizePhrase(label) !== last?.qPhrase);
+    if (also.length) li.querySelector(".desk-search__title")?.append(make("span", "desk-search__topics", ` · ${also.join(", ")}`));
+    const c = store ? chapterOf(item) : null;
+    if (c) {
+      addBox(li, "subject", c, `${bookKeyToLabel(c.bookKey)} ${c.chapter}`);
+      addPlus(li, "subject", c, addChapterLabel(c));
+    }
+    return li;
+  }
 
   function verseGroup(r) {
     const g = group(MODE_LABELS.keyword, "keyword");
@@ -816,25 +940,10 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       groupsEl.querySelector("[data-group='keyword'] .desk-search__sort")?.focus({ preventScroll: true });
     });
     head.append(title, sort);
-    if (store) g.append(pickStrip(r));
+    if (store) g.append(pickStrip("keyword"));
     const hits = sortBible ? r.verses : rankVerseHits(r.verses);
     paged(g, hits, (hit) => {
       const li = make("li", "desk-search__row desk-search__row--verse");
-      if (store) {
-        const key = hitKey(hit);
-        const box = make("input", "desk-search__check");
-        box.type = "checkbox";
-        box.dataset.key = key;
-        box.checked = checked.has(key);
-        box.setAttribute("aria-label", includeLabel(verseHitLabel(hit)));
-        box.addEventListener("change", () => {
-          if (box.checked) checked.add(key);
-          else checked.delete(key);
-          syncPick({ said: true });
-        });
-        li.classList.toggle("desk-search__row--picked", box.checked);
-        li.append(box);
-      }
       const a = resultLink(verseHitHref(hit));
       a.append(make("span", "desk-search__ref", verseHitLabel(hit)));
       const text = make("span", "desk-search__text");
@@ -844,15 +953,8 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       const away = awayLink(verseHitHref(hit));
       if (away) li.append(away);
       if (store) {
-        const plus = button("+", "desk-search__add");
-        plus.setAttribute("aria-label", addVerseLabel(hit));
-        // Rows from "Show more" are drawn after syncAdd has run.
-        plus.hidden = !sheets.addTarget() || busy;
-        plus.addEventListener("click", () => {
-          const t = sheets.addTarget();
-          if (t) gather([verseRef(hit)], t);
-        });
-        li.append(plus);
+        addBox(li, "keyword", verseRef(hit), verseHitLabel(hit));
+        addPlus(li, "keyword", verseRef(hit), addVerseLabel(hit));
       }
       return li;
     });
@@ -860,51 +962,102 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   }
 
   /**
-   * The strip under the title (E117): the box that checks every verse, the
-   * line ("3 of 40 checked." and Clear checks, or with none checked how to
-   * check them), and the buttons, which `syncAdd` names. Sticky in the
-   * results while the group is in view.
+   * The strip under a group's title (E117, E166): the box that checks every
+   * result of the group, the line ("3 of 40 checked." and Clear checks, or
+   * with none checked how to check them), and the buttons, which `syncAdd`
+   * names. Sticky in the results while its group is in view.
    */
-  function pickStrip(r) {
-    const total = r.verses.length;
+  function pickStrip(kind) {
+    const { noun, key } = PICKS[kind];
+    // The results this strip was drawn for: a new search draws a new strip.
+    const items = last.picks[kind];
     const strip = make("div", "desk-search__pick");
+    strip.dataset.pick = kind;
     const all = make("input", "desk-search__check-all");
     all.type = "checkbox";
-    all.setAttribute("aria-label", checkAllLabel(total));
+    all.setAttribute("aria-label", checkAllLabel(items.length, noun));
     const line = make("p", "desk-search__pick-line");
-    line.id = `deskSearchPick${sfx}`;
+    line.id = `deskSearchPick-${kind}${sfx}`;
     const clear = button("Clear checks", "desk-search__pick-clear");
     line.append(make("span", "desk-search__pick-count"), make("span", "desk-search__pick-text"), clear);
     const actions = make("div", "desk-search__pick-actions");
     const add = stripButton("desk-search__btn desk-search__btn--primary desk-search__sheet desk-search__sheet--add");
     add.hidden = true;
     const fresh = stripButton("desk-search__btn desk-search__sheet desk-search__sheet--new");
-    actions.append(add, fresh);
+    // Any sheet, as /search's chooser offers (E167): the pick window every
+    // "All sheets…" opens.
+    const choose = stripButton("desk-search__btn desk-search__sheet desk-search__sheet--choose");
+    choose.setAttribute("aria-haspopup", "dialog");
+    actions.append(add, fresh, choose);
     strip.append(all, line, actions);
 
     all.addEventListener("change", () => {
-      if (all.checked) for (const h of r.verses) checked.add(hitKey(h));
-      else checked.clear();
-      syncPick({ said: true });
+      if (all.checked) for (const r of items) checked[kind].add(key(r));
+      else checked[kind].clear();
+      syncPick(kind, { said: true });
     });
     clear.addEventListener("click", () => {
-      checked.clear();
-      syncPick({ said: true });
+      checked[kind].clear();
+      syncPick(kind, { said: true });
       // Clear checks hides itself, so focus goes to the box beside it.
       all.focus({ preventScroll: true });
     });
     add.addEventListener("click", () => {
-      if (refused(add)) return;
+      if (refused(add, kind)) return;
       const t = sheets.addTarget();
-      if (t) gather(checkedRefs(), t);
+      if (t) gather(kind, checkedRefs(kind), t);
     });
     // A new sheet opens in a Sheets pane by E127's one rule (`gather`).
     fresh.addEventListener("click", () => {
-      if (refused(fresh)) return;
-      gather(checkedRefs(), null);
+      if (refused(fresh, kind)) return;
+      gather(kind, checkedRefs(kind), null);
     });
-    syncPick({ strip });
+    choose.addEventListener("click", () => {
+      if (refused(choose, kind)) return;
+      chooseSheet(kind, choose);
+    });
+    syncPick(kind, { strip });
     return strip;
+  }
+
+  /**
+   * "Choose a sheet…" (E167; BVJ, 2026-11-19, parity with /search's chooser):
+   * every sheet that can take a passage, newest first, in the pick window,
+   * with New sheet at its top. A pick adds what is checked when it is made,
+   * as every strip button does, and shows that sheet as a new one is shown.
+   */
+  async function chooseSheet(kind, from) {
+    let records = [];
+    try {
+      records = await store.byKind("sheet");
+    } catch (err) {
+      console.error("Study Desk: the Search pane couldn’t read the sheets", err);
+    }
+    if (destroyed || !from.isConnected) return;
+    const { noun } = PICKS[kind];
+    const at = from.getBoundingClientRect();
+    // A redraw (a page of results, the sort) replaces the strip, so focus goes
+    // back to this group's button as it is then.
+    const back = () => (from.isConnected ? from : stripOf(kind)?.querySelector(".desk-search__sheet--choose") ?? input);
+    const add = (target) => {
+      const refs = checkedRefs(kind);
+      if (!refs.length) {
+        hear(checkedLine(0, pickTotal(kind), noun).text);
+        return;
+      }
+      gather(kind, refs, target, { show: true });
+    };
+    chooser = openPickWindow({
+      heading: "Add to sheet",
+      title: "Choose a sheet",
+      lead: `Choose the sheet for the checked ${noun}s.`,
+      noun: ["sheet", "sheets"],
+      items: addableSheets(records).map((s) => ({ id: s.id, name: s.name, detail: s.modified && dateWords(s.modified) ? `Changed ${dateWords(s.modified)}` : "" })),
+      near: { left: at.left, top: at.bottom + 4 },
+      back,
+      action: { label: "New sheet", onPress: () => add(null) },
+      onPick: (item) => add({ id: item.id, name: item.name }),
+    });
   }
 
   /** A strip button: its label, over invisible copies of the longest it can read. */
@@ -933,68 +1086,101 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   }
 
   /** A press on a strip button that can't act: nothing is added, and with none checked it says why. */
-  function refused(b) {
+  function refused(b, kind) {
     if (b.getAttribute("aria-disabled") !== "true") return false;
-    if (!busy && !checked.size) hear(checkedLine(0, last?.verses.length ?? 0).text);
+    if (!busy && !checked[kind].size) hear(checkedLine(0, pickTotal(kind), PICKS[kind].noun).text);
     return true;
   }
 
-  /** The strip's box, line and row marks, from the checks; `said` speaks the count, once per change. */
-  function syncPick({ said = false, strip = el.querySelector(".desk-search__pick") } = {}) {
+  const stripOf = (kind) => el.querySelector(`.desk-search__pick[data-pick="${kind}"]`);
+
+  /** A group's strip, boxes and row marks, from its checks; `said` speaks the count, once per change. */
+  function syncPick(kind, { said = false, strip = stripOf(kind) } = {}) {
     if (!strip || !last) return;
-    const total = last.verses.length;
-    const k = checked.size;
+    const { noun } = PICKS[kind];
+    const total = pickTotal(kind);
+    const k = checked[kind].size;
     const all = strip.querySelector(".desk-search__check-all");
     all.checked = k > 0 && k === total;
     all.indeterminate = k > 0 && k < total;
-    const { count, text } = checkedLine(k, total);
+    const { count, text } = checkedLine(k, total, noun);
     strip.querySelector(".desk-search__pick-count").textContent = count;
     strip.querySelector(".desk-search__pick-text").textContent = text;
     strip.querySelector(".desk-search__pick-clear").hidden = k === 0;
     strip.classList.toggle("desk-search__pick--some", k > 0);
-    for (const box of el.querySelectorAll(".desk-search__check")) {
-      const on = checked.has(box.dataset.key);
+    // Every row of one verse or chapter: a Greek verse matched twice has two.
+    for (const box of el.querySelectorAll(`.desk-search__check[data-pick="${kind}"]`)) {
+      const on = checked[kind].has(box.dataset.key);
       box.checked = on;
       box.closest(".desk-search__row")?.classList.toggle("desk-search__row--picked", on);
     }
     syncAdd(strip);
-    if (said) hear(checkedSaid(k, total));
+    if (said) hear(checkedSaid(k, total, noun));
   }
 
   /**
    * The add controls, by whether a Sheets pane shows a sheet: the rows' +,
-   * and the strip's "Add … to “…”" (the primary then) beside "New sheet of …"
-   * (the primary when it stands alone). Disabled while a write runs and while
-   * nothing is checked, then described by the strip's line.
+   * and each strip's "Add … to “…”" (the primary then) beside "New sheet of
+   * …" (the primary when it stands alone). Disabled while a write runs and
+   * while nothing is checked, then described by the strip's line. `only` is
+   * one strip to name, else every strip.
    */
-  function syncAdd(strip = el.querySelector(".desk-search__pick")) {
+  function syncAdd(only = null) {
     if (!store) return;
     const t = sheets.addTarget();
     for (const b of el.querySelectorAll(".desk-search__add")) b.hidden = !t || busy;
-    if (!strip || !last) return;
-    const total = last.verses.length;
-    const k = checked.size;
-    const add = strip.querySelector(".desk-search__sheet--add");
-    const fresh = strip.querySelector(".desk-search__sheet--new");
-    add.hidden = !t;
-    if (t) nameStripButton(add, addCheckedLabel(t.name, k, total), [addCheckedLabel(t.name, 0, total), addCheckedLabel(t.name, total, total)], true);
-    nameStripButton(fresh, newSheetLabel(k, total), [newSheetLabel(0, total), newSheetLabel(total, total)]);
-    fresh.classList.toggle("desk-search__btn--primary", !t);
-    const reason = strip.querySelector(".desk-search__pick-line").id;
-    for (const b of [add, fresh]) {
-      if (busy || !k) b.setAttribute("aria-disabled", "true");
-      else b.removeAttribute("aria-disabled");
-      if (!k) b.setAttribute("aria-describedby", reason);
-      else b.removeAttribute("aria-describedby");
+    if (!last) return;
+    for (const strip of only ? [only] : el.querySelectorAll(".desk-search__pick")) {
+      const kind = strip.dataset.pick;
+      const { noun } = PICKS[kind];
+      const total = pickTotal(kind);
+      const k = checked[kind].size;
+      const add = strip.querySelector(".desk-search__sheet--add");
+      const fresh = strip.querySelector(".desk-search__sheet--new");
+      add.hidden = !t;
+      if (t) {
+        const label = (n) => addCheckedLabel(t.name, n, total, noun);
+        nameStripButton(add, label(k), [label(0), label(total)], true);
+      }
+      nameStripButton(fresh, newSheetLabel(k, total, noun), [newSheetLabel(0, total, noun), newSheetLabel(total, total, noun)]);
+      fresh.classList.toggle("desk-search__btn--primary", !t);
+      const choose = strip.querySelector(".desk-search__sheet--choose");
+      nameStripButton(choose, CHOOSE_SHEET, []);
+      const reason = strip.querySelector(".desk-search__pick-line").id;
+      for (const b of [add, fresh, choose]) {
+        if (busy || !k) b.setAttribute("aria-disabled", "true");
+        else b.removeAttribute("aria-disabled");
+        if (!k) b.setAttribute("aria-describedby", reason);
+        else b.removeAttribute("aria-describedby");
+      }
     }
   }
   const offTarget = sheets.onAddTarget(() => syncAdd());
 
-  /** Make the passages and write them: into a new sheet (`target` null) or the sheet `target` names. */
-  async function gather(refs, target) {
+  /**
+   * A new sheet's name, as /search names it: the search, a topic's label
+   * (`commonLabel`, else Topic: “…”), or the Greek word the verses were found
+   * for. Taken when the button is pressed (BA130).
+   */
+  function sheetTitleFor(kind, picked) {
+    const q = last?.q ?? "";
+    if (kind === "subject") return searchSheetTitle(q, { kind: "topic", label: commonLabel(picked) });
+    if (kind === "greek") return searchSheetTitle(last?.greekWord || q, { kind: "greek" });
+    return searchSheetTitle(q);
+  }
+
+  /**
+   * Make the passages and write them: into a new sheet (`target` null) or the
+   * sheet `target` names. A chapter by topic goes whole, to its last verse
+   * (the committed counts, which match the LIT wherever it is written).
+   */
+  async function gather(kind, refs, target, { show = target == null } = {}) {
     if (!store || busy || !refs.length) return;
     const made = target == null;
-    const title = searchSheetTitle(last?.q ?? "");
+    const title = sheetTitleFor(kind, refs);
+    const { whole } = PICKS[kind];
+    const chapters = whole ? refs.map((c) => ({ ...c, lastVerse: verseCount(c.bookKey, c.chapter) || null })) : null;
+    const passagesFor = (room) => (whole ? passagesFromChapters(chapters, { room }) : passagesFromVerses(refs, { room }));
     busy = true;
     syncAdd();
     tell("");
@@ -1008,7 +1194,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
         const now = new Date().toISOString();
         const existing = made ? null : await get(target.id);
         if (!made && (existing?.kind !== "sheet" || !canEdit(existing))) return { gone: true };
-        const result = passagesFromVerses(refs, { room: roomOnSheet(existing?.modules?.length ?? 0) });
+        const result = passagesFor(roomOnSheet(existing?.modules?.length ?? 0));
         if (!result.passages.length) return { result };
         if (made) {
           const sheet = createSheet(
@@ -1045,7 +1231,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       return;
     }
     const entry = store.lastEntry();
-    let text = gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: result.leftOut });
+    let text = gatherMessage({ made, name: sheetName(sheet), added: result.passages.length, leftOut: result.leftOut, unread: result.unknown ?? 0 });
     // Its results stay on screen: this pane never gives its place to the sheet
     // (`keep`). By the one rule for a pane the desk opens (E127) the sheet is
     // shown in a Sheets pane, in a new one, or in place of another pane, said
@@ -1053,7 +1239,8 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     // no pane to give its place the bar says why and links to the sheet's page.
     let link = null;
     let undoLayout = null;
-    if (made && !destroyed) {
+    // A sheet picked in "Choose a sheet…" is shown the same way (E167).
+    if (show && !destroyed) {
       const way = env.showSheet(sheet.id, paneId);
       if (way?.changed) undoLayout = way.undoLayout;
       if (way?.outcome === "replaced") text += ` ${replacedMessage("sheet", way.replaced.kind)}`;
@@ -1218,6 +1405,10 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     last = {
       q, jump, notebook: notebook?.total ? notebook : null,
       glossary: [], subject: [], intro: [], article: [], verses: [], correction: "", greek: res,
+      picks: { keyword: [], subject: [], greek: [] },
+      // What a sheet of its verses is named for, as on /search (E165): the
+      // Greek word shown, or the search as typed for a command or an exact form.
+      greekWord: !res || res.kind === "commands" || greekState.exact ? q : (res.selected?.lemma ?? q),
     };
     groupsEl.replaceChildren();
     const nCount = last.notebook?.total ?? 0;
@@ -1237,8 +1428,11 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       line = await paintWord(g, res, q);
     }
     if (my !== seq) return;
+    // Drop the checks this answer doesn't hold: with no list, all of them.
+    keepChecks(last);
     g.append(foot());
     groupsEl.append(g);
+    syncAdd();
     const said = typeof line === "string" ? line : "";
     say(nCount ? `${said.replace(/\.$/, "")}${said ? STATUS_SEP : ""}${plural(nCount, ...(last.notebook.nouns ?? ["notebook match", "notebook matches"]))}` : said);
     settleFocus();
@@ -1440,27 +1634,60 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     into.append(g, line.slice(item.lemma.length));
   }
 
-  /** Verses of a Greek search: real links (a new tab's), opening the word in a Greek pane on a plain click. */
+  /**
+   * Verses of a Greek search: real links (a new tab's), opening the word in a
+   * Greek pane on a plain click. Each has a box and a +, and the strip goes
+   * under the group's title, above the word and Exact form only, as on /search
+   * (E166).
+   */
   function greekRows(g, hits) {
     greekHits = hits;
+    if (store && last) {
+      last.picks.greek = onceEach(hits.map(greekRef), hitKey);
+      keepChecks(last);
+      if (last.picks.greek.length) g.querySelector(".desk-search__group-title")?.after(pickStrip("greek"));
+    }
     paged(g, hits, (hit, i) => {
-      const li = make("li", "desk-search__row");
+      const li = make("li", "desk-search__row desk-search__row--greek");
       const a = make("a", "desk-search__link");
       a.href = hit.href;
       a.dataset.greekHit = String(i);
+      // The reference is drawn as a scripture link: the row previews its LIT
+      // verse on hover (ref-preview.js) and a click opens it, as a footnote's
+      // reference does. A line of the LIT under it showed the verse's start,
+      // not the words rendering this one (BVJ, 2026-11-19), which only the
+      // alignment can find; that waits for alignment phase 1b (E167).
       a.append(make("span", "desk-search__ref", hit.label));
       const form = make("span", "desk-search__greek-form", hit.form ?? "");
       form.lang = "grc";
-      a.append(" ", form);
-      // A command match names the words it matched, from the chapter's Greek.
-      if (hit.marked) {
-        gk.loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
-          if (data && form.isConnected) form.textContent = gk.formsLine(gk.verseGreek(data, hit.verse, hit.marked, (x) => x).words);
-        });
-      }
+      const parse = make("span", "desk-search__greek-parse");
+      a.append(" ", form, parse);
+      // A line of the verse's Greek around the word, marked (E167; BVJ,
+      // 2026-11-19: “just a few words on either side of it”), filled in as
+      // the chapter's file arrives.
+      const greekLine = make("span", "desk-search__text desk-search__line");
+      greekLine.lang = "grc";
+      greekLine.hidden = true;
+      a.append(greekLine);
+      // A file already loaded answers before the row is in the page, so a
+      // row is filled whether or not it is connected yet.
+      gk.loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
+        if (!data) return;
+        const { html, words } = gk.verseGreek(data, hit.verse, hit.marked ?? [hit.t], escapeHtml, { around: GREEK_AROUND });
+        // A command match names the words it matched; one word, its parsing.
+        if (hit.marked) form.textContent = gk.formsLine(words);
+        if (words.length === 1 && words[0].said) parse.textContent = ` · ${words[0].said}`;
+        greekLine.innerHTML = html;
+        greekLine.hidden = !html;
+      });
       li.append(a);
       const away = awayLink(hit.href);
       if (away) li.append(away);
+      if (store) {
+        const ref = greekRef(hit);
+        addBox(li, "greek", ref, hit.label);
+        addPlus(li, "greek", ref, addVerseLabel(ref));
+      }
       return li;
     });
   }
@@ -1482,6 +1709,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       entrySeq++;
       clearTimeout(timer);
       offTarget();
+      if (chooser?.isOpen()) chooser.close("pane");
       if (commands?.greekCommandsOpenFor(input)) commands.closeGreekCommands("pane");
     },
   };
