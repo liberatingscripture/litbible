@@ -170,6 +170,10 @@ test("searching finds collections by name as links, never as rows or in the coun
   assert.deepEqual(links.map((a) => a.textContent), ["Gifts of the Spirit"]);
   assert.equal(links[0].getAttribute("href"), `/collections/?id=${encodeURIComponent(gifts.id)}`);
   assert.match(q("[data-np-count]").textContent, /^Nothing matches \(of \d+ kept\)\.$/);
+  // The collection comes first, and the line under it doesn't deny that it matched.
+  const lists = [...q("[data-np-lists]").children];
+  assert.equal(lists.indexOf(group), 0);
+  assert.equal(lists[1].textContent, "Nothing else matches. Clear the search or a filter to see more.");
   // The group's rows are the only place a collection is drawn, and no record row is one.
   assert.equal(rowIds().filter((id) => id === gifts.id || id === advent.id).length, 1);
 

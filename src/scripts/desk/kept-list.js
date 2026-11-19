@@ -261,7 +261,12 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       return;
     }
     if (!shown.length) {
-      lists.replaceChildren(el("p", "desk-panel__empty", "Nothing matches. Clear the search or a filter to see more."), ...(named ? [named] : []));
+      // Collections whose name matched come first, so the line under them doesn't deny they matched.
+      lists.replaceChildren(
+        ...(named
+          ? [named, el("p", "desk-panel__empty", "Nothing else matches. Clear the search or a filter to see more.")]
+          : [el("p", "desk-panel__empty", "Nothing matches. Clear the search or a filter to see more.")]),
+      );
       return;
     }
 
