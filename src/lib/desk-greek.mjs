@@ -173,19 +173,38 @@ export function termsForLemma(termData, lemma) {
 }
 
 /**
- * How a verse renders a term: the distinct renderings its marks carry in
- * that verse ("self-preservation"), in reading order, case-insensitively
- * distinct. Empty where the verse has none.
+ * How a verse renders a term, as the verse prints it: the words its marks
+ * carry there ("have compassion"), in reading order, case-insensitively
+ * distinct. A rendering split by another word reads as its pieces joined
+ * ("speaks about … contemptuously"), as the term lens's card heads it.
+ * Never the rendering's label (`form`), which groups a rendering's
+ * variants on /glossary and may not stand in the verse at all: Matthew
+ * 17:15's "have compassion" is filed under "act compassionately" (E158).
+ * Empty where the verse has none.
  */
 export function renderingsIn(termData, id, verse) {
+  const renderings = [];
+  const groups = new Map();
+  for (const m of termData?.marks ?? []) {
+    if (m.id !== id || m.v !== verse || !m.text) continue;
+    if (m.g === undefined) {
+      renderings.push([m.text]);
+    } else if (groups.has(m.g)) {
+      groups.get(m.g).push(m.text);
+    } else {
+      const pieces = [m.text];
+      groups.set(m.g, pieces);
+      renderings.push(pieces);
+    }
+  }
   const seen = new Set();
   const out = [];
-  for (const m of termData?.marks ?? []) {
-    if (m.id !== id || m.v !== verse || !m.form) continue;
-    const key = m.form.toLowerCase();
+  for (const pieces of renderings) {
+    const words = pieces.join(" … ");
+    const key = words.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(m.form);
+    out.push(words);
   }
   return out;
 }
