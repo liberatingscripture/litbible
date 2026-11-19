@@ -1646,8 +1646,8 @@ plan as a whole was accepted; nothing was declined except where stated).
   the apps. It takes up M8's "named notebooks," which labels no longer
   cover now that they are for bookmarks alone (E149). Borrowed (Sefaria's
   collections; Blue Letter Bible's named notebooks). Medium. **Version 1, tentatively** (BVJ, 2026-11-18: "we'll
-  see if we run into hiccups"). Brainstormed, not yet planned: see "D13.
-  Collections" before "Decisions".
+  see if we run into hiccups"). Planned and being built, steps 0 to 4 of 8
+  merged on 2026-11-18: see "D13. Collections" before "Decisions".
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -5635,7 +5635,10 @@ Each is its own PR.
 
 **Planned 2026-11-18, and being built** ("Order of work," below; BVJ
 approved the plan the same day, adding decisions 18 to 22, and its mocks,
-adding 23 and 24). The preview once put labels on notes, highlights,
+adding 23 and 24). Steps 0 to 4 were merged on 2026-11-18 (#605, #608, #614,
+#615, and #617): the record, the `/collections/` page, "Add to collection ▸"
+in the verse menu and the selection panel, "Collections…" on rows, and This
+verse's Collections line. Steps 5 to 8 are next. The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
@@ -5787,8 +5790,8 @@ were approved for steps 2 to 4 as drawn):
 
     A button in the second draft that matches its background is one of the
     site's own classes doing so everywhere (E159). That is fixed in the
-    classes for the whole site, not in D13. Steps 2 to 4 wait for BVJ's
-    look at the second draft.
+    classes for the whole site, not in D13 (#610). BVJ looked at the second
+    draft and started steps 2 to 4 ("Yes, start them").
 
 ### A collection and a label
 
