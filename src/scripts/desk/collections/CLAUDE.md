@@ -36,9 +36,27 @@ it holds. Computer only; the apps carry it untouched.
   `desk-highlights.mjs` with `actions.js` (the carry). Tests:
   `test/desk-collection-format.test.js`, `test/desk-collections.test.js`, and
   the carry in `test/desk-highlights.test.js`.
-- **Later:** the collection page, Add to collection, This verse's
-  Collections line and the notebook page's "Delete all collections" box,
-  client code in this directory.
+- **Step 2, the page (`/collections/`, `src/pages/collections.astro`):**
+  `collection-page.js` (the entry: the list, the empty page, `?id=` routing,
+  keeping the view drawn as the store changes; `mountCollectionsPage` takes
+  `chapterText`, `passageText` and `parse` so a test needs no network),
+  `collection-view.js` (one collection: actions, order switch, members on
+  `.v2-sheet`, Add passage, headings, moving), `name-window.js` (the one
+  name/description window), `new-collection.js` (`openNewCollection`, which
+  step 3's "New collection…" reuses with `firstMember` and `lead`),
+  `add-passage.js` (`addPassageToCollection`: the one way a passage goes
+  in from outside the page, the verse menu's and This verse's, so both say
+  "John 3:16 added to Advent series." with Open the collection, or that it
+  is there already). Styles:
+  `styles/v2/collections.css` (layout only, every selector behind
+  `:root[data-restyle]`) and `styles/pages/collections.css` (the note without
+  the desk). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
+  noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
+  markers. The notebook page has "Delete all collections" in Delete in bulk.
+  Tests: `test/desk-collections-page*.test.js`.
+- **Later:** Add to collection (step 3), This verse's Collections line, rule
+  members and their line (step 5), "Make a sheet" and "Add to sheet ▸"
+  (step 7).
 
 ## Rules this step settled, and why
 
@@ -105,6 +123,12 @@ second draft of the mocks takes from where:
   (Cancel ordinary, the save button primary).
 - **A row's "Collections…"** is the Labels popover's twin (`desk-labels`,
   `showPanel`).
+
+The name window (`name-window.js`) is a sibling of the pick window, not a
+use of it (the pick window is a list picker): it shares `placePick` and
+`claimPickSlot` from `pick-window.js` so only one of the two is ever open.
+Every write on the page goes through `store.change` with `planCollectionChange`
+or `createCollection`, never straight to a record.
 
 A button that matches its background is a sitewide problem (E159), fixed in
 the classes, never with a collections-only rule.

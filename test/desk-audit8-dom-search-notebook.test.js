@@ -247,3 +247,23 @@ test("decision 8: \"Delete all sheets\" trashes the sheets and leaves the marks"
   assert.equal(box.querySelector(".desk-np__none").textContent, "There are no sheets to delete.");
   assert.deepEqual(await liveKinds(), ["note"]);
 });
+
+const aCollection = async () => {
+  const { createCollection } = await import("../src/lib/desk-collections.mjs");
+  return createCollection({ name: "Advent series" }, seedCtx);
+};
+
+test("D13: \"Delete all collections\" trashes the collections alone, and the other two say collections stay", async () => {
+  await openPage(undefined, { seed: [aSheet(), aNote(), await aCollection(), await aCollection()] });
+  const marks = q("[data-np-delete-box]");
+  click(marks.querySelector("button"));
+  assert.match(marks.querySelector(".desk-np__ask-text").textContent, /Your sheets, templates, and collections stay./);
+  const box = q("[data-np-delete-collections-box]");
+  assert.equal(box.querySelector("button").textContent, "Delete all collections…");
+  click(box.querySelector("button"));
+  assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 collections to the trash. What’s in them stays in your notebook./);
+  click(button(box, "Delete all collections"));
+  await until(() => box.querySelector(".desk-np__none"));
+  assert.equal(box.querySelector(".desk-np__none").textContent, "There are no collections to delete.");
+  assert.deepEqual(await liveKinds(), ["note", "sheet"]);
+});

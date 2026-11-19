@@ -84,6 +84,8 @@ export default defineConfig({
         if (slug === 'desk' || slug === 'desk/help') return false;
         // A sheet's own address (noindex, a preview, and only the reader's own sheets)
         if (slug === 'sheets' || slug.startsWith('sheets/')) return false;
+        // The collections page (noindex, a preview, and only the reader's own collections)
+        if (slug === 'collections' || slug.startsWith('collections/')) return false;
         // /read/<book> aggregate pages for books that are entirely drafts
         if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
           return false;
