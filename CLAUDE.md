@@ -325,7 +325,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
-| `/notebook`, `/desk`, `/sheets` | `notebook.astro`, `desk.astro`, `sheets.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`); their routes in full are in `src/scripts/desk/CLAUDE.md`, "Routes" |
+| `/notebook`, `/desk`, `/sheets`, `/collections` | `notebook.astro`, `desk.astro`, `sheets.astro`, `collections.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`); their routes in full are in `src/scripts/desk/CLAUDE.md`, "Routes" |
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; every section's content is data (`apps-sections`, `callouts`, `examples`, `seasons`), laid out in order by `components/apps/AppsPage.astro` and edited through the Apps Page Studio; scoped styles in `src/styles/pages/apps.css`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
