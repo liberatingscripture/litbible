@@ -83,8 +83,20 @@ const _initSearchbars = async () => {
     const input = root.querySelector(".searchbar__input");
     const status = root.querySelector(".searchbar__status");
     const groupsEl = root.querySelector("[data-groups]");
-    const bookSelect = root.querySelector(".searchbar__book");
-    const modeSelect = root.querySelector(".searchbar__mode");
+    // The filters (book, type and their tips) are the tray's even where a page
+    // has moved them: on /search the 2.0 look puts them in the page's left pane
+    // (startV2Search in v2-search.js), often before this runs at idle. The
+    // tray then found no menus and skipped its setup, so whether /search had
+    // its completion and tips depended on which came first. SearchBar is on a
+    // page once (its ids are fixed), so the book menu's id finds them.
+    const filters =
+      root.querySelector(".searchbar__filters") ??
+      document.getElementById("searchbar-book")?.closest(".searchbar__filters");
+    const owns = (node) => root.contains(node) || Boolean(filters?.contains(node));
+    const bookSelect =
+      root.querySelector(".searchbar__book") ?? filters?.querySelector(".searchbar__book");
+    const modeSelect =
+      root.querySelector(".searchbar__mode") ?? filters?.querySelector(".searchbar__mode");
     const closeBtn = root.querySelector(".searchbar__close");
     const fullLink = root.querySelector(".searchbar__full");
     const commandsLink = root.querySelector("[data-search-commands]");
@@ -111,7 +123,7 @@ const _initSearchbars = async () => {
     // -----------------------------
     // Tooltip behavior (viewport-clamped, stable on mobile)
     // -----------------------------
-    const tipButtons = Array.from(root.querySelectorAll(".searchbar__tip"));
+    const tipButtons = Array.from((filters ?? root).querySelectorAll(".searchbar__tip"));
     let activeTip = null;
     const lockedTips = new Set();
 
@@ -199,7 +211,7 @@ const _initSearchbars = async () => {
       if (!e.target.closest(".searchbar__tip")) closeAllTips();
     });
     document.addEventListener("click", (e) => {
-      if (!root.contains(e.target)) closeAllTips();
+      if (!owns(e.target)) closeAllTips();
     });
 
     window.addEventListener("resize", () => {
@@ -403,7 +415,8 @@ const _initSearchbars = async () => {
       return true;
     }
 
-    // On /search the panel is server-rendered open and should stay open.
+    // On /search the panel is server-rendered open and should stay open. It
+    // is the only page that renders it open, so this also means "on /search".
     const pinnedOpen = root.dataset.open === "true";
 
     function openPanel() {
@@ -1341,6 +1354,11 @@ const _initSearchbars = async () => {
         }
       }
 
+      // On /search the page has searched the field already (search.js, on
+      // Enter and on the form's submit); loading /search again with the same
+      // words would only reload it.
+      if (pinnedOpen) return;
+
       const url = new URL(
         fullLink?.getAttribute("href") || "/search",
         window.location.origin,
@@ -1412,7 +1430,7 @@ const _initSearchbars = async () => {
     document.addEventListener("click", (e) => {
       // The commands windows belong to the search they were opened from.
       if (e.target instanceof Element && e.target.closest("[data-greek-commands], [data-desk-commands]")) return;
-      if (!root.contains(e.target)) closePanel();
+      if (!owns(e.target)) closePanel();
     });
 
     document.addEventListener("keydown", (e) => {
