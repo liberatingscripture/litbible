@@ -4334,6 +4334,45 @@ says so; where BVJ was wondering, nothing is decided.)
   stops its click, Edit, a click inside a floating panel, and a click with
   nothing open). The help page's “Notes, highlights, and bookmarks” says how
   a note opens and folds. Status: fixed.
+- **E157, bug and rough spot: a verse the LIT leaves out showed nothing in
+  This verse, and the Greek pane moved without saying so.** BVJ, 2026-11-18:
+  navigating a This verse pane to Matthew 17:21 “just doesn't respond at
+  all,” where the Greek pane goes to 17:20; “I wonder about adding a screen
+  on those verses that notifies the user that the verse is not included.”
+  This verse took only a verse number the page prints (`setVerse`), so a
+  gap was refused: a pane already on Matthew 17 kept its old verse under a
+  bar that said 17:21, and one opened fresh fell back to the chapter's first
+  verse, 17:1. The Greek pane went to the verse before (BA120) with nothing
+  saying why. Claude drew three ways for This verse to show a gap (one line
+  naming both texts with no Greek section; the Greek section repeating it;
+  each section naming its own text) and two for the Greek pane (a line under
+  the bar; a mark in the Greek where the verse would be), recommending the
+  third and the first. BVJ: “Yes, 3 and A.” **Fixed**: This verse shows a
+  gap (`isVerseGap`) as its own view (`tab-verse.js`): its reference, “The
+  LIT has no Matthew 17:21.” where the words would be, the Greek section's
+  “The SBLGNT has no Matthew 17:21.” (shown whenever the Greek loads and has
+  no words for a verse, so each text speaks for itself; hidden only when the
+  Greek can't be had), and the LIT's own note on the gap with its Pin. No My
+  Notes and no Add a note: a mark needs words, as a bookmark's refusal of a
+  gap already says. Previous and Next still step over the gap. The note is
+  found on the page, not listed by letter, since a revision re-letters a
+  chapter's notes (Luke 17's was “cc” in the chapters' CLAUDE.md and is
+  “dd” now): of the last note on the verse before and the first on the verse
+  after, the one that names the missing verse as “verse 21” or “17:21”
+  (`gapNote` in `desk-verse.mjs`). The Greek pane (`desk-panes.js`) puts
+  “No verse 21 in the SBLGNT. Showing 17:20.” under its bar, a polite
+  status, until the pane next moves (another verse, the whole chapter, or
+  the reader scrolling the Greek); the Greek tab's `goToVerse` now resolves
+  to the verse it went to. All eleven published gaps are missing from the
+  SBLGNT too. Checked in the Browser pane at 1100px on /desk with the LIT,
+  This verse and Greek panes at Matthew 17:21: This verse opened at the gap
+  with note p, the Greek pane showed its line, and moving the LIT pane to
+  17:22 cleared the line and brought back the verse's words, Greek and My
+  Notes. `test/desk-verse-gap.test.js` opens every published gap in a real
+  This verse tab (one note, naming the verse; both lines; My Notes hidden;
+  Previous and Next), checks each gap against the SBLGNT, a printed verse
+  after a gap, a number that is neither, and the Greek pane's line through
+  a move, a return, another chapter and a whole chapter. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

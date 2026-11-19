@@ -190,7 +190,8 @@ function readTermData() {
  *   pane is moved with `goToVerse`.
  * @returns {{ el: HTMLElement, render: () => Promise<void>,
  *   selectWord: (verse: number, t: number, opts?: { focus?: boolean }) => Promise<boolean>,
- *   goToVerse: (verse: number) => Promise<void>, settle: () => void,
+ *   goToVerse: (verse: number) => Promise<number | null>,
+ *   verseFor: (verse: number) => number | null, settle: () => void,
  *   destroy: () => void }}
  */
 export function createGreekTab({
@@ -688,16 +689,25 @@ export function createGreekTab({
     readerScrolled = false;
   }
 
-  /** Bring a verse to the Greek's top, as the passage it follows moves (not told back). */
+  /**
+   * Bring a verse to the Greek's top, as the passage it follows moves (not
+   * told back). Resolves to the verse shown, which for one the SBLGNT lacks
+   * is the nearest before it (BA120), so the pane can say so (E157); null
+   * when the Greek can't be had.
+   */
   async function goToVerse(passageVerse) {
-    if (!(await ensure())) return;
+    if (!(await ensure())) return null;
     const verse = nearestVerse(verses, passageVerse);
-    if (verse == null) return;
+    if (verse == null) return null;
     toldTop = verse;
     readerScrolled = false;
     if (selected == null) setRover(firstWordOf(flat, verse));
     scrollToVerse(verse);
+    return verse;
   }
+
+  /** The verse the Greek shows for a passage naming `v` (`nearestVerse`), or null before it has loaded. */
+  const verseFor = (v) => (data ? nearestVerse(verses, v) : null);
 
   /* ── Words ─────────────────────────────────────────────────────── */
 
@@ -1354,5 +1364,5 @@ export function createGreekTab({
     cancelAnimationFrame(splitFrame);
   }
 
-  return { el, render, selectWord, focusText, goToVerse, settle, destroy };
+  return { el, render, selectWord, focusText, goToVerse, verseFor, settle, destroy };
 }

@@ -22,6 +22,14 @@
 // follow the verse numbers the page has. They leave the page where it is: the
 // reader is looking at the verse in the panel, not moving through the text.
 //
+// A gap asked for by name (a /desk pane's passage bar at Matthew 17:21) gets
+// a view of its own rather than being refused (E157; BVJ, 2026-11-18,
+// "3 and A"): its reference, "The LIT has no Matthew 17:21." where the words
+// would be, the Greek section saying the same of the SBLGNT when the Greek has
+// no words for it, and the LIT's own note that explains the gap. No My Notes
+// and no Add a note: a mark needs words to sit on, as a bookmark's refusal of
+// a gap already says (desk-bookmark-change.mjs).
+//
 // Your own chains (N4): a reference typed in a note is a link, and this tab
 // lists the notes of the reader's that cite the verse shown, "Mentioned in
 // your note on Romans 8:3–4", with the note's words and a way to its place.
@@ -41,7 +49,8 @@ import { COLORS, canEdit, verseCopyFor } from "../../lib/desk-records.mjs";
 import { forChapter, recordHref, recordReference, takeOff } from "../../lib/desk-store-core.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
 import { labelMap, shownLabels, takesLabels } from "../../lib/desk-labels.mjs";
-import { adjacentVerse, recordsOnVerse } from "../../lib/desk-verse.mjs";
+import { adjacentVerse, gapNote, recordsOnVerse } from "../../lib/desk-verse.mjs";
+import { isVerseGap } from "../../data/verse-gaps.js";
 import { W, flattenWords } from "../../lib/desk-greek.mjs";
 import { verseAtReadingLine } from "../last-read.js";
 import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
@@ -116,6 +125,7 @@ export function createVerseTab({
     <section class="desk-verse__section desk-verse__greek" aria-labelledby="deskVerseGreekTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseGreekTitle${idSuffix}">Greek</h4>
       <p class="desk-verse__greek-text" lang="grc"></p>
+      <p class="desk-verse__absent" hidden></p>
     </section>
     <section class="desk-verse__section desk-verse__fns" aria-labelledby="deskVerseFnsTitle${idSuffix}" hidden>
       <h4 class="desk-verse__subhead" id="deskVerseFnsTitle${idSuffix}">Footnotes</h4>
@@ -136,6 +146,7 @@ export function createVerseTab({
   const text = el.querySelector(".desk-verse__text");
   const greekSection = el.querySelector(".desk-verse__greek");
   const greekText = el.querySelector(".desk-verse__greek-text");
+  const greekAbsent = greekSection.querySelector(".desk-verse__absent");
   const fnSection = el.querySelector(".desk-verse__fns");
   const fnList = el.querySelector(".desk-verse__fn-list");
   const mine = el.querySelector(".desk-verse__mine");
@@ -153,18 +164,23 @@ export function createVerseTab({
   let notices = new Map(); // id -> the change notice of a record shown, if it has one
   let labelsRow = null; // the bookmark whose Labels… popover is open, so a redraw can hand it the new button
 
+  /** A verse number the chapter has no verse for: one the LIT leaves out (Matthew 17:21). */
+  const isGap = (v) => !verses.includes(v) && isVerseGap(here.bookKey, here.chapter, v);
+  /** A verse the tab can show: one on the page, or a gap, which has a view of its own. */
+  const canShow = (v) => verses.includes(v) || isGap(v);
+
   /** Where the tab opens before the reader picks: the address's verse, or the one being read. */
   function startingVerse() {
-    if (startVerse != null && verses.includes(startVerse)) return startVerse;
+    if (startVerse != null && canShow(startVerse)) return startVerse;
     if (source) return verses[0] ?? null;
     const m = /^#v(\d+)/.exec(window.location.hash);
     const fromHash = m ? Number(m[1]) : null;
-    if (fromHash && verses.includes(fromHash)) return fromHash;
+    if (fromHash && canShow(fromHash)) return fromHash;
     return verseAtReadingLine(markers, (id) => Number(id.slice(1)) || null) ?? verses[0] ?? null;
   }
 
   function setVerse(v) {
-    if (!verses.includes(v)) return;
+    if (!canShow(v)) return;
     verse = v;
     render();
   }
@@ -188,16 +204,22 @@ export function createVerseTab({
       b.title = to == null ? "" : ref(to);
     }
 
-    text.textContent = verseCopyFor(readText(), v) ?? "";
+    // A gap's line is the tab speaking, not scripture, so it takes the
+    // panel's look for "nothing here" rather than the verse's (E157).
+    const gap = isGap(v);
+    text.textContent = gap ? `The LIT has no ${ref(v)}.` : verseCopyFor(readText(), v) ?? "";
+    text.classList.toggle("desk-verse__absent", gap);
+    notesSection.hidden = gap;
     renderGreek(v, n);
-    renderFootnotes(v);
+    renderFootnotes(v, gap);
 
     const records = store ? forChapter(await store.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter) : [];
     // The whole notebook: the labels a bookmark wears, and the notes citing the verse.
     const every = store ? await store.all() : [];
     if (n !== seq) return; // a newer render has started
     // A note on a footnote shows under its footnote above, not on the verse.
-    const on = recordsOnVerse(records, v).filter(
+    // A gap shows no marks: its My Notes is hidden (E157).
+    const on = gap ? [] : recordsOnVerse(records, v).filter(
       (r) => r.kind === "note" || r.kind === "bookmark" || r.kind === "highlight",
     );
     notices = store && ctx ? noticesFor(on) : new Map();
@@ -259,8 +281,10 @@ export function createVerseTab({
   /**
    * The verse's Greek after its text: SBL's words, signs as printed, each word
    * a button that opens the Greek tab there. One word is a tab stop and the
-   * arrow keys step through, as in the Greek tab. Left out when the files
-   * can't be had or the verse has no Greek.
+   * arrow keys step through, as in the Greek tab. A verse the SBLGNT has no
+   * words for says so in this section ("The SBLGNT has no Matthew 17:21.",
+   * E157), each text naming what it lacks; left out only when the files
+   * can't be had, which says nothing about the verse.
    */
   async function renderGreek(v, n) {
     if (!greek) return;
@@ -273,7 +297,9 @@ export function createVerseTab({
       words = flattenWords(data.paragraphs).filter((x) => x.verse === v);
     } catch (_) {}
     if (n !== seq) return; // a newer render has started
-    greekSection.hidden = !words?.length;
+    greekSection.hidden = !words;
+    greekAbsent.hidden = !words || words.length > 0;
+    greekAbsent.textContent = greekAbsent.hidden ? "" : `The SBLGNT has no ${ref(v)}.`;
     if (!words?.length) {
       greekText.replaceChildren();
       delete greekText.dataset.verse;
@@ -306,12 +332,33 @@ export function createVerseTab({
     all[to].focus({ preventScroll: true });
   });
 
-  function renderFootnotes(v) {
+  /** The footnote letters on a verse, in order: `{ id, label }`, each once. */
+  function notesOn(v) {
     const ids = [];
+    if (v == null) return ids;
     for (const a of textBox?.querySelectorAll(`[data-verse="${v}"] sup.fn-ref a[href^="#fn-"]`) ?? []) {
       const id = a.getAttribute("href").slice(1);
       if (!ids.some((x) => x.id === id)) ids.push({ id, label: a.textContent.trim() });
     }
+    return ids;
+  }
+
+  /**
+   * The note that explains a gap (E157): the last on the verse before it or
+   * the first on the verse after, whichever names the missing verse
+   * (`gapNote`). Read off the page, so a chapter re-lettered by a revision
+   * still finds it.
+   */
+  function gapNotes(v) {
+    const before = notesOn(adjacentVerse(verses, v, -1)).at(-1);
+    const after = notesOn(adjacentVerse(verses, v, 1))[0];
+    const beside = [before, after].filter(Boolean).map((x) => ({ ...x, text: footnoteBody(x.id)?.textContent ?? "" }));
+    const id = gapNote(beside, here.chapter, v);
+    return beside.filter((x) => x.id === id).map(({ id: fn, label }) => ({ id: fn, label }));
+  }
+
+  function renderFootnotes(v, gap = false) {
+    const ids = gap ? gapNotes(v) : notesOn(v);
     const items = [];
     for (const { id, label } of ids) {
       const body = footnoteBody(id);
