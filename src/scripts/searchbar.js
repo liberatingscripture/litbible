@@ -413,7 +413,8 @@ const _initSearchbars = async () => {
       return true;
     }
 
-    // On /search the panel is server-rendered open and should stay open.
+    // On /search the panel is server-rendered open and should stay open. It
+    // is the only page that renders it open, so this also means "on /search".
     const pinnedOpen = root.dataset.open === "true";
 
     function openPanel() {
@@ -1350,6 +1351,11 @@ const _initSearchbars = async () => {
           return;
         }
       }
+
+      // On /search the page has searched the field already (search.js, on
+      // Enter and on the form's submit); loading /search again with the same
+      // words would only reload it.
+      if (pinnedOpen) return;
 
       const url = new URL(
         fullLink?.getAttribute("href") || "/search",
