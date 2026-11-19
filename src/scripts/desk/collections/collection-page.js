@@ -13,7 +13,8 @@
 // two sentences, offers "New collection…", and links the help page's section.
 // With some, each card shows the name, the description, how many things it
 // shows, and when it changed; Delete takes it to the trash with the undo bar.
-// "Make a sheet" and "Add to sheet ▸" are step 7 and aren't here yet.
+// "Make a sheet" and "Add to sheet…" (step 7) are on one collection's view
+// (collection-view.js, wired by collection-sheet.js).
 //
 // Every write is the store's (history for Ctrl+Z, the undo bar for a
 // deletion); this module keeps the page in step with every change to the
