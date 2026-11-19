@@ -4551,11 +4551,11 @@ says so; where BVJ was wondering, nothing is decided.)
   Claude's, open to BVJ: (1) **the noun is “verse,”** since a verse is what
   goes: a lemma search lists a row per word matched, so a verse holding the
   word twice (Romans 3:22 has πίστις twice) has two rows and one check, and
-  the head row counts verses (“Check all 231 verses” under “243 Greek
-  occurrences”); (2) **the sheet is named “Greek: “πίστις””**, for the Greek
+  the head row counts verses (“Check all 227 verses” under “243 Greek
+  occurrences”); (2) **the sheet is named Greek: “πίστις”**, for the Greek
   word shown (so “faith” under the Greek type names the word it found, not
   the English typed), the form under Exact form only, or a command as typed
-  (“Greek: “πίστις.gen””), where a keyword search's is “Search: “…””;
+  (Greek: “πίστις.gen”), where a keyword search's is Search: “…”;
   (3) **the head row sits under the group's title**, as in the other two
   groups (under Site 2.0 its button joins the title's row), so it comes
   above the Greek word's line and Exact form only, not just above the rows.

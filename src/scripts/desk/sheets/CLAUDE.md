@@ -839,7 +839,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   “verse,” each checked verse going on the sheet as its verse. A verse holding
   two matches has two rows and one check (the boxes share the verse's key, and
   the count is of verses), and the sheet is named for the word the verses
-  were found for (“Greek: “πίστις””: the Greek word shown, the form under
+  were found for (Greek: “πίστις”, for the Greek word shown, the form under
   Exact form only, or a command as typed), which search.js sends as
   `greekWord` beside `greek`, every hit. Picking another of a query's Greek
   words keeps only the checks on verses it still finds, as a book filter
