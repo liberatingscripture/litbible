@@ -60,12 +60,12 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   // (test/desk-buttons-css.test.js holds the whole inventory).
   const ordinary = css.match(/\n:is\((\.desk-cmdrow__btn,[^{]*?)\) \{([^}]*)\}/);
   assert.ok(ordinary, "no rule for the ordinary kind (E126)");
-  for (const sel of [".desk-sheet__choice", ".desk-cmdrow__btn", ".desk-pane__pin", ":where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary))"]) {
+  for (const sel of [".desk-sheet__choice", ".desk-cmdrow__btn", ".desk-pane__pin", ".desk-sheet__btn:where(:not(.desk-sheet__btn--primary))"]) {
     assert.ok(`, ${ordinary[1]}, `.includes(`, ${sel}, `), sel);
   }
   assert.match(ordinary[2], /border:\s*1px solid var\(--field-border\)/);
   assert.match(ordinary[2], /background:\s*var\(--desk-control\)/);
-  const pills = css.match(/\n:is\(\.desk-pin, [^{]*\.desk-sheet__chip\) \{([^}]*)\}/);
+  const pills = css.match(/\n:is\(\.desk-pin, [^{]*\.desk-sheet__chip[^{]*?\) \{([^}]*)\}/);
   assert.ok(pills, "no rule for the pills");
   assert.match(pills[1], /border:\s*1px solid var\(--field-border\)/);
   // The layers' dark values are declared in both of desk.css's dark blocks,

@@ -211,7 +211,10 @@ pattern it copies; if none fits, ask BVJ rather than drawing one. What the
 second draft of the mocks takes from where:
 
 - **The page**: My sheets' title, "New…" button and rows (`desk-sheet__*`);
-  "‹ My collections" is `sheets-page__back`. The members lie on a
+  "‹ My collections" is `sheets-page__back`. **Each view has one primary
+  button** (E126; BVJ, 2026-11-19, E169): "New collection…" on the list,
+  as "New sheet…" is on My sheets, and "Add passage…" on one collection,
+  whose form's Add stays ordinary. The members lie on a
   `.v2-sheet` as the desk's own rows (`record-rows.js`), group names are
   `.v2-label`, and a heading starts with `.v2-rule`.
 - **The order switch** is `.desk-seg` (My Notes' segmented choice). Sky
