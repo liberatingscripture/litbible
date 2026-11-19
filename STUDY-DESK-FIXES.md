@@ -4454,12 +4454,17 @@ says so; where BVJ was wondering, nothing is decided.)
   the collection page reuses) is a grid item, so it stretches across its
   column to the buttons: on the mock, 578px of link around about 100px of
   words. No rule chose that, so the pointer, the hover, and the click
-  reach blank space, and the focus ring spans it. The Notebook panel's rows
-  are a third pattern, the whole row one control on purpose
-  (`desk-stretch`, N4). Claude's recommendation: the reference link only
-  as wide as its words (`.desk-item__ref`, so My Notebook changes with
-  it), and sheet cards and the panel's rows left as they are. Status:
-  open, for BVJ.
+  reach blank space, and the focus ring spans it. A note's words are a
+  third pattern: in My Notes and This verse the note itself is one link to
+  its verse on purpose, stretched over its words so a link typed in them
+  stays its own (`desk-stretch`, N4). This verse's references already kept
+  to their words (`.desk-verse__main` sets `align-items: flex-start`). BVJ
+  took Claude's recommendation: “Go with your row link recommendations.”
+  **Fixed** (`desk.css`, `.desk-item__ref` sits at its column's start): a
+  row's reference is only as wide as its words wherever a `.desk-item` row
+  is drawn (My Notebook, My Notes, a pinned footnote's row, Continue
+  reading, and the collection page from D13's step 2). Sheet cards and a
+  note's stretched words keep one control across them. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

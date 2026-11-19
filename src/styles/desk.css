@@ -233,8 +233,14 @@ html[data-font="dyslexic"] .desk-panel__tabs [role="tab"] {
   border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
 }
 
+/* Only as wide as its words (BVJ, 2026-11-18, E161): a grid item stretches
+   across its column, which put the pointer, the click and the focus ring on
+   the blank space up to the row's buttons. This verse's rows already sit at
+   the start. A sheet's card and a note's stretched words (desk-stretch) are
+   one control across them on purpose, and keep it. */
 .desk-item__ref {
   grid-column: 1;
+  justify-self: start;
   font-weight: 600;
   color: var(--green-text);
 }
