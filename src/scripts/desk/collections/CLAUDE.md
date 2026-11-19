@@ -78,3 +78,33 @@ it holds. Computer only; the apps carry it untouched.
   collection's change wakes no view of marks (`NO_CHAPTER_KINDS`).
 - **Markdown lists collections for people and never reads them back**, like
   Places and Labels.
+
+## Every look is one the site already has (decision 25)
+
+BVJ, 2026-11-18, on the first mocks: no new color, toggle, menu, bar,
+window, or button style. Each piece of the UI takes an existing class, and
+a new button joins one of restyle.css's `:is()` lists (E126) rather than
+getting a rule of its own. Before writing a style for collections, find the
+pattern it copies; if none fits, ask BVJ rather than drawing one. What the
+second draft of the mocks takes from where:
+
+- **The page**: My sheets' title, "New…" button and rows (`desk-sheet__*`);
+  "‹ My collections" is `sheets-page__back`. The members lie on a
+  `.v2-sheet` as the desk's own rows (`record-rows.js`), group names are
+  `.v2-label`, and a heading starts with `.v2-rule`.
+- **The order switch** is `.desk-seg` (My Notes' segmented choice). Sky
+  never marks a toggle (E159).
+- **Moving in My order** is the sheet editor's grip to drag
+  (`desk-sheet__grip`) and its ↑ and ↓ (`desk-sheet__icon`), not a menu.
+- **The rule's line** is a plain line with `.desk-item__stop` links.
+- **The undo bar** is `showUndo`'s, with its `link`.
+- **"Add to collection ▸"** is a `flyoutRow`, so `panel-flyout.js` places it
+  (6px right of its trigger, level with the trigger's top).
+- **New collection, All collections, and the label's shortcut** are E154's
+  pick window (`openPickWindow`, `desk-pick`), with `desk-editor__actions`
+  (Cancel ordinary, the save button primary).
+- **A row's "Collections…"** is the Labels popover's twin (`desk-labels`,
+  `showPanel`).
+
+A button that matches its background is a sitewide problem (E158), fixed in
+the classes, never with a collections-only rule.
