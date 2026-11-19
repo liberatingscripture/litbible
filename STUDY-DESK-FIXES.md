@@ -4278,7 +4278,10 @@ says so; where BVJ was wondering, nothing is decided.)
   `desk-pick-window.test.js` (happy-dom: the window's keys, focus and
   filter, and the flyout on a rendered John 3 adding to the oldest of seven
   sheets) and `desk-sheet-add.test.js`. The help page's "Adding passages and
-  parts" says so. Status: fixed.
+  parts" says so. Asked afterward whether seven lines were too many and the
+  three newest sheets would do, BVJ kept five and the order (the five, "New
+  sheet," then "All sheets…"), and D13's flyout takes the same order
+  (2026-11-18). Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

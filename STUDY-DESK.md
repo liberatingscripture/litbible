@@ -5676,12 +5676,15 @@ section marked as one is agreed unless "Still open" says otherwise.
    and made a long flyout), and not Fable's "gathering" mode with a
    shortcut key of its own. The row doesn't remember the last pick
    (decision 17).
-10. **The flyout works like Add to sheet's**: "New collection…," the five
-    collections used most recently, and "All collections…" at its foot,
-    opening a small window with a filter box and the whole list. The same
-    window serves Add to sheet's "All sheets…" (STUDY-DESK-FIXES.md E154,
-    built first, on its own: `desk/pick-window.js`, which takes named
-    items, a noun for its count line and a pick callback).
+10. **The flyout works like Add to sheet's, in its order**: the five
+    collections used most recently, "New collection…," and "All
+    collections…" at its foot, opening a small window with a filter box and
+    the whole list. The same window serves Add to sheet's "All sheets…"
+    (STUDY-DESK-FIXES.md E154, built first, on its own:
+    `desk/pick-window.js`, which takes named items, a noun for its count
+    line and a pick callback). This was first written with "New
+    collection…" at the top; once E154 was built, BVJ kept Add to sheet's
+    five and its order and had collections match it (2026-11-18).
 11. **Two more ways in**: a Collections line in the Notebook's This verse
     tab (Fable's option D; not the only way in), and "Add passage…" on the
     collection's page.
@@ -5766,9 +5769,10 @@ Why a kind of its own:
   asking which: "The 12 bookmarks labeled Advent now" or "Every bookmark
   labeled Advent, now and later."
 - **From the verse menu and the selection panel** (decisions 9 and 10):
-  "Add to collection ▸" after "Add to sheet ▸", a flyout of "New
-  collection…," the five collections used most recently, and "All
-  collections…", with no remembered pick (decision 17). A selection adds a passage with its start and end words, as Add
+  "Add to collection ▸" after "Add to sheet ▸", a flyout of the five
+  collections used most recently, "New collection…," and "All
+  collections…", in Add to sheet's order, with no remembered pick
+  (decision 17). A selection adds a passage with its start and end words, as Add
   to sheet does. /desk's LIT pane gets the row too. Read View gets none:
   it retires at launch, and Add to sheet is Chapter View only.
 - **This verse** (decision 11): a Collections line naming the collections
