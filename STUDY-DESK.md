@@ -5758,6 +5758,37 @@ were approved for steps 2 to 4 as drawn):
     checkboxes, so it takes a record out of a collection as well as putting
     it in. The verse menu, the selection panel and This verse keep "Add to
     collection," where it only adds.
+25. **Every look reuses one the site already has** (BVJ, 2026-11-18, on the
+    first mocks: "I notice in the mock there are buttons with the same color
+    as the background. That should never be the case." and "Make sure all
+    other design decisions remain consistent with the site's conventions.
+    That includes placement of the flyouts, and the colors of the undo
+    bars, and the shapes and style of the buttons…"). No new color, toggle,
+    menu, bar, window, or button style: each piece takes an existing class,
+    as restyle.css's button lists expect (E126). The first mocks invented
+    several (a sky order switch, a "More" menu, a four-move menu, a boxed
+    rule line, their own undo bar and window buttons). The second draft
+    draws each from the real one:
+    - the order switch is `.desk-seg`;
+    - My order's moves are the sheet editor's grip and its ↑ and ↓
+      (`desk-sheet__icon`), not a menu;
+    - group names are `.v2-label`, a heading starts with `.v2-rule`, and
+      the members lie on a `.v2-sheet`;
+    - the rule's line is a plain line with `.desk-item__stop` links;
+    - the undo bar is `.desk-undo__bar` and its parts;
+    - the flyout opens where `panel-flyout.js` puts it, 6px right of its
+      trigger and level with the trigger's top;
+    - New collection, All collections, and the label's shortcut are E154's
+      pick window (`desk-pick`), with the note editor's Cancel and primary
+      button (`desk-editor__actions`). The shortcut puts decision 23's two
+      choices above the list, and choosing a collection adds;
+    - a row's popover is Labels' (`desk-labels`), placed where `showPanel`
+      puts it.
+
+    A button in the second draft that matches its background is one of the
+    site's own classes doing so everywhere (E159). That is fixed in the
+    classes for the whole site, not in D13. Steps 2 to 4 wait for BVJ's
+    look at the second draft.
 
 ### A collection and a label
 
@@ -5959,7 +5990,8 @@ The steps:
 2. **The `/collections/` page**, usable on its own: the route (noindex, the
    sitemap filter, out of Pagefind), Site 2.0's look (decision 19), "New
    collection…" (a small window that asks for a name), each member as its
-   row, the three orders with drag and its click route (XA8-1), headings,
+   row, the three orders (in My order, the sheet editor's grip to drag and
+   its ↑ and ↓; decision 25), headings,
    rename and describe, remove, Add passage…, print, delete, the empty
    page's two sentences, and "Delete all collections." Sonnet, from
    approved mocks.
@@ -5995,7 +6027,9 @@ Before steps 2 to 4 are built, BVJ sees mocks of the page (as a list and as
 one collection, in all three orders, with a heading and a rule's line), the
 flyout row, the name window, This verse's line, the row's button and its
 popover, and the label shortcut's two choices. BVJ approved them the same
-day (decisions 23 and 24).
+day (decisions 23 and 24), then asked for every piece to be redrawn from
+the site's own (decision 25). The second draft is for BVJ's look before
+step 2.
 
 ### Still open
 

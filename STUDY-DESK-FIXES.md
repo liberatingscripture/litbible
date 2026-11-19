@@ -4399,6 +4399,67 @@ says so; where BVJ was wondering, nothing is decided.)
   “act compassionately” is the right heading on /glossary is a separate,
   editorial question. `test/desk-greek.test.js` holds the rule. Status:
   fixed.
+- **E159, design: a button takes its background's color.** BVJ, 2026-11-18,
+  on D13's first mocks: “I notice in the mock there are buttons with the
+  same color as the background. That should never be the case.” Measured
+  on D13's second draft, which uses only the site's own classes (each
+  button's fill against what lies behind it, both composited, as WCAG
+  contrast). In light, an ordinary button's white (`--desk-control`) on a
+  raised surface (#FAFAF8: a sheet, a panel, a window, the pane bars) is
+  1.045:1. So a window's Cancel, `.desk-item__delete` and
+  `.desk-item__edit` on a Site 2.0 sheet, and My sheets' quiet row
+  buttons are held apart from it only by their edge and shadow. On the
+  cream page (#E1DFD9) the same white is 1.33:1. In dark, the ordinary
+  fill (`rgba(ink, 0.07)`) is 1.16:1 on the page and 1.20:1 on a raised
+  surface. An edged button with no fill is 1:1 anywhere: Labels' “Add”
+  (`desk-labels__add`) and `desk-offer__later`. Outside the desk, the
+  footer's Subscribe is white on the footer's #FAFAF8. Glyph buttons, menu
+  items, and quiet links have no fill by design (E126) and aren't part of
+  this. The same day BVJ asked of the second draft's order switch: “Do
+  other toggle pills take the background color, or should the unselected
+  options have a white background?” The other pills fill them with
+  `--desk-control` inside a `--field-border` edge (the Display tray's
+  `font-tray__seg`, the glossary's `category-toggle`, /search's
+  `sort-toggle`; restyle.css). Only `.desk-seg` has no fill, so its
+  unchosen options are the background: My Notes' scope choice, the Greek
+  tab's Lexicon switch, the margin-note settings, and D13's order switch.
+  It takes the other pills' fill and edge with this fix, since on a raised
+  surface that fill is the 1.045:1 white above. **Not fixed in D13**: the
+  fix belongs in the classes (restyle.css's
+  ordinary-button list and its dark twin, desk.css's tokens), so every
+  page takes it at once, D13's included. Options to mock for BVJ in both
+  themes: a fill a step darker than the surface it sits on, the cream as
+  the fill on raised surfaces, or `--desk-control` set per surface. Status:
+  open.
+- **E160, preference: one look for a toggle that is on.** BVJ, 2026-11-18,
+  on the first mocks' order switch, drawn in sky: “Do toggle buttons ever
+  use sky? I don't mind it, but it should be consistent sitewide.” Sky
+  never marks a toggle. It appears only in the home chat's reader bubbles
+  (`--v2-sky`, `--v2-tint`; Site 2.0), and the mock's sky was Claude's own
+  invention, redrawn as `.desk-seg` in the second draft (D13, decision 25).
+  The site has two on-looks, by shape. A segmented choice fills its chosen
+  segment with the text green and sets its words in the light surface
+  color: `.desk-seg` in the desk, the Display tray's `font-tray__seg`, and
+  the glossary's `category-toggle`. A lone toggle button that is on is
+  sunk, with a text-green edge and words (E126). Whether the two shapes
+  should share one look is BVJ's call. Status: open, for BVJ.
+- **E161, rough spot: a row's reference link runs to its buttons.** BVJ,
+  2026-11-18, on D13's second draft: “the whole row after the verse or
+  title link is a button/activates the link. Should it be that way, or
+  should it be limited to where the text is?” Two patterns are behind it.
+  A sheet's row (`desk-sheet__open`, My sheets and the Sheets pane) is one
+  button across its card on purpose (E64, E89), and the second draft's
+  list of collections copies it. A record row's reference
+  (`a.desk-item__ref`, My Notebook's rows from `record-rows.js`, which
+  the collection page reuses) is a grid item, so it stretches across its
+  column to the buttons: on the mock, 578px of link around about 100px of
+  words. No rule chose that, so the pointer, the hover, and the click
+  reach blank space, and the focus ring spans it. The Notebook panel's rows
+  are a third pattern, the whole row one control on purpose
+  (`desk-stretch`, N4). Claude's recommendation: the reference link only
+  as wide as its words (`.desk-item__ref`, so My Notebook changes with
+  it), and sheet cards and the panel's rows left as they are. Status:
+  open, for BVJ.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
