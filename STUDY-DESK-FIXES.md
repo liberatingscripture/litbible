@@ -4677,8 +4677,21 @@ says so; where BVJ was wondering, nothing is decided.)
     and ends with none on any pane.
   - **The Search pane's note line names it once a visit**: “The LIT pane
     moved to Romans 8:1. To go back to John 3:16, press ← on its bar.”
+  - **The arrow alone is an ordinary button** (BVJ, 2026-11-19, after
+    trying it on the live site: “When there's not enough room for the verse
+    reference and it only shows the arrow, it's subtle and easy to miss. Can
+    we turn that into a button? Putting a rounded square with the shadow
+    behavior other buttons have? The style of the longer version with the
+    verse reference can stay as it currently is.”). It takes E126's ordinary
+    look in a 30px square with the 8px corner, like the Show eye beside it:
+    the control's fill and edge, the shadow at rest, the lift on hover, sunk
+    when pressed, and ink for the arrow, since an ordinary button's green
+    words mean on or open. Only the bar's width says which kind it is, so
+    the look is restated under the same container queries at the end of
+    `desk.css`, not added to the ordinary list.
   `test/desk-way-back.test.js` holds the rules and
-  `test/desk-way-back-dom.test.js` drives the pane, the bars and the routes.
+  `test/desk-way-back-dom.test.js` drives the pane, the bars and the routes;
+  `test/desk-buttons-css.test.js` holds the arrow's ordinary look.
   Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open

@@ -213,6 +213,49 @@ test("E141: This verse's arrows and every Pin are rounded rectangles, never a ci
   assert.deepEqual(radii(".desk-circle"), ["50%"], "a margin note's circle is a mark");
 });
 
+test("E168: the way back as the arrow alone is an ordinary button, and naming its place it stays quiet", () => {
+  // BVJ, 2026-11-19: “When there's not enough room for the verse reference
+  // and it only shows the arrow, it's subtle and easy to miss. Can we turn
+  // that into a button?” Only the bar's width says which kind it is, so the
+  // kinds restate the ordinary look under the widths that hide its name.
+  const ordinary = block(kinds, listFrom(kinds, ".desk-cmdrow__btn").list);
+  const rule = (css, sel) => {
+    const at = css.indexOf(`${sel} {`);
+    assert.ok(at >= 0, `no rule ${sel}`);
+    return css.slice(at + sel.length + 2, css.indexOf("}", at));
+  };
+  const decl = (body, prop) => body.match(new RegExp(`(?:^|;)\\s*${prop}:\\s*([^;]+);`))?.[1].replace(/\s+/g, " ").trim();
+  for (const [query, sel] of [
+    ["@container deskLitBar (max-width: 32em) {", ".desk-lit__back"],
+    ['@container deskLitBar (max-width: 38em) {', 'html[data-font="dyslexic"] .desk-lit__back'],
+  ]) {
+    // The component's query says the shape (the Show eye's square and corner)
+    // and hides the name; the kinds' says the look.
+    const shape = components.slice(components.indexOf(query));
+    assert.ok(components.includes(query), `the bar's ${query}`);
+    assert.equal(decl(rule(shape, sel), "width"), "30px");
+    assert.equal(decl(rule(shape, sel), "border-radius"), "8px", "the ordinary button's corner");
+    assert.ok(kinds.includes(query), `the kinds restate the look under ${query}`);
+    const look = kinds.slice(kinds.indexOf(query));
+    const base = rule(look, sel);
+    for (const prop of ["border", "border-bottom-color", "background", "color", "box-shadow", "transition"]) {
+      assert.equal(decl(base, prop), decl(ordinary, prop), `${sel} ${prop}, as the ordinary kind's`);
+    }
+    const hover = rule(look, `${sel}:hover:not(:active)`);
+    assert.match(hover, /box-shadow:\s*var\(--desk-btn-lift\)/);
+    assert.match(hover, /transform:\s*translateY\(var\(--desk-btn-lift-y\)\)/, "the lift on hover");
+    const sunk = rule(look, `${sel}:active`);
+    assert.match(sunk, /box-shadow:\s*var\(--desk-btn-press\)/, "sunk when pressed");
+    assert.match(sunk, /transform:\s*none/);
+  }
+  // With its name, it keeps the quiet look: no fill, edge or shadow, the text green.
+  const quiet = rule(components, ".desk-lit__back");
+  assert.equal(decl(quiet, "background"), "transparent");
+  assert.equal(decl(quiet, "border"), "0");
+  assert.equal(decl(quiet, "color"), "var(--green-text)");
+  assert.equal(decl(quiet, "box-shadow"), undefined);
+});
+
 /** The custom properties declared in the first block opening with `head` whose body declares `marker`. */
 function tokens(css, head, marker = "--desk-btn-rest") {
   let from = 0;
