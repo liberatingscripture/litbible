@@ -48,7 +48,7 @@ test("a card is written as the notation the commands window teaches", () => {
 
 test("how close and in what order are written once there are two words", () => {
   const two = [card(["πίστις"], "gen"), card(["Χριστός"], "gen")];
-  assert.equal(writeBuilder({ cards: two }), "πίστις.gen, Χριστός.gen", "any order is the default (E161)");
+  assert.equal(writeBuilder({ cards: two }), "πίστις.gen, Χριστός.gen", "any order is the default (E164)");
   assert.equal(writeBuilder({ cards: two, gap: 0 }), "πίστις.gen, Χριστός.gen ~0");
   assert.equal(writeBuilder({ cards: two, gap: Infinity, anyOrder: true }), "πίστις.gen, Χριστός.gen ~v");
   assert.equal(writeBuilder({ cards: two, anyOrder: false }), "πίστις.gen > Χριστός.gen", "in this order");

@@ -33,7 +33,7 @@ test("a comma takes the space before it away and leaves one after", () => {
   assert.deepEqual(mid, { value: "πίστις, Χριστός", caret: 8 });
 });
 
-test("“>” takes the space before it away and leaves one on each side, and needs a word before it (E161)", () => {
+test("“>” takes the space before it away and leaves one on each side, and needs a word before it (E164)", () => {
   assert.deepEqual(put("πίστις", " > "), { value: "πίστις > ", caret: 9 });
   assert.deepEqual(put("πίστις  ", " > "), { value: "πίστις > ", caret: 9 });
   assert.deepEqual(put("πίστις  Χριστός", " > ", 6), { value: "πίστις > Χριστός", caret: 9 });

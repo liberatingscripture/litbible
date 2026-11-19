@@ -4396,27 +4396,6 @@ says so; where BVJ was wondering, nothing is decided.)
   “act compassionately” is the right heading on /glossary is a separate,
   editorial question. `test/desk-greek.test.js` holds the rule. Status:
   fixed.
-- **E161, wish: the Greek search finds words in any order unless asked
-  not to.** BVJ, 2026-11-18: “When typing pistis,agape,elpis into the
-  search bar with Greek results selected, I would expect it to show me
-  verses with all three of those words in any order… The default should be
-  any order, and there should be a command element that specifies exact
-  order.” Until then “,” and “and” kept the order typed, and “&” or “any
-  order” lifted it. BVJ chose “>” for the order (“confirmed”), with “then”
-  as its word. **Done** (`parseGreekQuery`, `greek-query.mjs`): a comma or
-  “and” is any order, and one “>” or “then” puts the whole search in the
-  order typed, since a search has one order setting. “&” and “any order”
-  are still read and still mean any order, winning over a “>”, so an old
-  search with them runs as it did; an old search with only commas now
-  finds more (the same verses, and those with the words the other way
-  round). The commands window lists “>” beside “,” and drops “&”, its
-  first example is written with “>”, and a new one searches “pistis,
-  elpis, agape” (1 Corinthians 13:13). The builder writes “>” when “In this
-  order” is on (it was “Either order”), and its cards say “and” or “then”
-  between them; its add button is “+ Another word.” A “>” clicked in the
-  window with no word before it adds nothing, since a field starting with
-  “>” is a Notebook command. `test/greek-query.test.js` searches faith,
-  hope, and love both ways against the committed data. Status: done.
 - **E162, bug: the builder's word box refused commands.** BVJ, 2026-11-18:
   “It should be possible to type the search commands into the word builder
   field in the search commands window. Right now, it doesn't accept
@@ -4441,6 +4420,29 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/greek-builder.test.js`, `test/greek-commands.test.js` and
   `test/greek-builder-box.test.js` (a real DOM: the click, the move to the
   next box, the tidy on leaving) hold it. Status: fixed.
+- **E164, wish: the Greek search finds words in any order unless asked
+  not to.** BVJ, 2026-11-18: “When typing pistis,agape,elpis into the
+  search bar with Greek results selected, I would expect it to show me
+  verses with all three of those words in any order… The default should be
+  any order, and there should be a command element that specifies exact
+  order.” Until then “,” and “and” kept the order typed, and “&” or “any
+  order” lifted it. BVJ chose “>” for the order (“confirmed”), with “then”
+  as its word. **Done** (`parseGreekQuery`, `greek-query.mjs`): a comma or
+  “and” is any order, and one “>” or “then” puts the whole search in the
+  order typed, since a search has one order setting. “&” and “any order”
+  are still read and still mean any order, winning over a “>”, so an old
+  search with them runs as it did; an old search with only commas now
+  finds more (the same verses, and those with the words the other way
+  round). The commands window lists “>” beside “,” and drops “&”, its
+  first example is written with “>”, and a new one searches “pistis,
+  elpis, agape” (1 Corinthians 13:13). The builder writes “>” when “In this
+  order” is on (it was “Either order”), and its cards say “and” or “then”
+  between them; its add button is “+ Another word.” A “>” clicked in the
+  window with no word before it adds nothing, since a field starting with
+  “>” is a Notebook command. `test/greek-query.test.js` searches faith,
+  hope, and love both ways against the committed data. It was logged as
+  E161 on its branch (#616) and renumbered on merging, since main's E161
+  is D13's. Status: done.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

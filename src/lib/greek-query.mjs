@@ -10,7 +10,7 @@
 //
 // A query is one or more words joined by "," or "and", found together in any
 // order, or by ">" or "then", found in the order typed (BVJ, 2026-11-18,
-// E161: any order is the default; until then "," kept the order, and "&" or
+// E164: any order is the default; until then "," kept the order, and "&" or
 // "any order" lifted it; they are still read, and win over a ">"). A word is
 //   πίστις, pistis, G4102   any form of that word (a lemma, a form, a
 //                           transliteration, a Strong's number, or an
@@ -215,7 +215,7 @@ export function parseGreekQuery(raw) {
 
   const terms = [];
   let gap = 3;
-  // Any order unless a ">" (or "then") joins two words (E161).
+  // Any order unless a ">" (or "then") joins two words (E164).
   let inOrder = false;
   let saidAnyOrder = false;
   const last = () => terms[terms.length - 1];

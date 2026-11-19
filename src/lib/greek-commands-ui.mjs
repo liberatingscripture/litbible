@@ -40,7 +40,7 @@ export function insertAtCursor(value, start, end, text) {
     return { value: `${trimmed}, ${after.replace(/^\s+/, "")}`, caret: trimmed.length + 2 };
   }
   if (text === " > ") {
-    // ">" joins the word before it to the next, in order (E161). With no word
+    // ">" joins the word before it to the next, in order (E164). With no word
     // before it, it would start a Notebook command (">" at the start), so it
     // isn't added.
     const trimmed = before.replace(/\s+$/, "");

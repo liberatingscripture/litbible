@@ -4,7 +4,7 @@
 // One card for each word of the search, each with a box that takes the word
 // as the field does, filters and joiners included (E162), and menus that list
 // only what that word takes, and a way to add a word and say how close the
-// words must be, and whether in this order (E161).
+// words must be, and whether in this order (E164).
 // The rules (reading the field, writing it, what each card offers) are
 // src/lib/greek-builder.mjs's, pure and tested; this file only draws them.
 //
@@ -483,7 +483,7 @@ export function createGreekBuilder({ put, announce }) {
         }),
       );
     });
-    // Any order is the default; this asks for the order the cards are in (E161).
+    // Any order is the default; this asks for the order the cards are in (E164).
     chips.append(
       chip("In this order", {
         on: !state.anyOrder,

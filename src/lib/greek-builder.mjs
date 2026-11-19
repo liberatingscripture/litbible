@@ -134,7 +134,7 @@ export function writeCard(card) {
 
 /**
  * The field's text for a builder: the cards that hold something, joined with
- * commas (any order, the default) or with ">" (in this order; E161), then how
+ * commas (any order, the default) or with ">" (in this order; E164), then how
  * close once there are two words. An empty card writes nothing, so it can wait
  * in the window for its word.
  */

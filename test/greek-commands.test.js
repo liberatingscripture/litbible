@@ -418,7 +418,7 @@ test("E162: a comma or “>” in a card's box makes the next card", async () =>
   assert.equal(field.value, "πίστις, ἀγάπη");
   assert.equal(byKey("w0").value, "πίστις");
   assert.equal(byKey("w1").value, "ἀγάπη");
-  assert.equal(windowEl().findAll((e) => e.classes.has("greek-then"))[0].textContent, "and", "any order between them (E161)");
+  assert.equal(windowEl().findAll((e) => e.classes.has("greek-then"))[0].textContent, "and", "any order between them (E164)");
 
   byKey("w1").value = "ἀγάπη > ἐλπίς";
   byKey("w1").dispatch("input", { type: "input" });

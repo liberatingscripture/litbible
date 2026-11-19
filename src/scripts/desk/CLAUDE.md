@@ -1117,7 +1117,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
   17. **Phase 2a's Greek search commands** (STUDY-DESK.md,
      "Order of work", 2a): searching by parsing (`*.aor.impv`, "genitives
      of πίστις") and by construction (`πίστις.gen > Ἰησοῦς/Χριστός.gen`),
-     behind rule 15's gate. **"," is any order, ">" in order** (E161).
+     behind rule 15's gate. **"," is any order, ">" in order** (E164).
      Four things to know:
      - **`src/lib/greek-query.mjs` is the language**, pure and tested:
        reading a query, looking its words up (through `matchGreek`),

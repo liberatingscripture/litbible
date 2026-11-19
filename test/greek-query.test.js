@@ -131,7 +131,7 @@ test("a query reads into terms, their filters, and one distance for the whole qu
   assert.equal(parseGreekQuery("πίστεως Ἰησοῦ").terms.length, 2, "a space between two words is a construction too");
 });
 
-test("E161: words are found in any order unless “>” or “then” joins them", () => {
+test("E164: words are found in any order unless “>” or “then” joins them", () => {
   assert.equal(parseGreekQuery("pistis,agape,elpis").anyOrder, true, "a comma is any order");
   assert.equal(parseGreekQuery("pistis,agape,elpis").terms.length, 3);
   assert.equal(parseGreekQuery("pistis and agape").anyOrder, true, "and so is “and”");
@@ -319,7 +319,7 @@ test("the committed index: pistis Christou, typed in Greek and in words", () => 
       ["romans 3:22", "romans 3:26", "galatians 2:16", "galatians 3:22", "philippians 3:9"], q);
     assert.equal(describeGreekQuery(resolved), "Genitives of πίστις, followed within 3 words by a genitive of Ἰησοῦς or Χριστός");
   }
-  // A comma is any order (E161): the same verses and more, said so.
+  // A comma is any order (E164): the same verses and more, said so.
   for (const q of ["πίστις.gen, Ἰησοῦς/Χριστός.gen", "pistis genitive and Iesous or Christos genitive"]) {
     const { resolved, hits } = searchCommitted(q);
     const verses = hits.map((h) => `${h.book} ${h.chapter}:${h.verse}`);
@@ -328,7 +328,7 @@ test("the committed index: pistis Christou, typed in Greek and in words", () => 
   }
 });
 
-test("E161: faith, hope, and love, typed in any order, find 1 Corinthians 13:13", () => {
+test("E164: faith, hope, and love, typed in any order, find 1 Corinthians 13:13", () => {
   for (const q of ["pistis,agape,elpis", "elpis, agape, pistis", "πίστις, ἀγάπη, ἐλπίς ~v"]) {
     const verses = searchCommitted(q).hits.map((h) => `${h.book} ${h.chapter}:${h.verse}`);
     assert.ok(verses.includes("1corinthians 13:13"), q);
