@@ -63,3 +63,53 @@
 :root[data-restyle] .collection-page__heading:first-child {
   margin-top: 0;
 }
+
+/* A passage's words, and a bookmark's verse, as a scripture page sets them
+   (E171): cut at three lines, the last faded, until the caret opens them. A
+   line clamp can't reach into paragraphs, so the cut is a height. The row's
+   grid and its caret are My Notes' (desk.css, .desk-item__pin-row). */
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row {
+  margin-top: 6px;
+}
+
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row .desk-sheet__words {
+  line-height: 1.65;
+  max-height: 4.95em;
+  max-height: 3lh;
+  overflow: hidden;
+}
+
+/* The words' own outer margins stay inside the clipped box: a last
+   paragraph's 8px would cut words that fit three lines, and a leading poem's
+   would push its first line down. A sheet lets them collapse away. */
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row .desk-sheet__words > :first-child,
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row .desk-sheet__words > :first-child > :first-child {
+  margin-top: 0;
+}
+
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row .desk-sheet__words > :last-child,
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row .desk-sheet__words > :last-child > :last-child {
+  margin-bottom: 0;
+}
+
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row--cut .desk-sheet__words {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1lh), transparent);
+}
+
+:root[data-restyle] .collection-page__sheet .desk-item__pin-row--open .desk-sheet__words {
+  max-height: none;
+  overflow: visible;
+}
+
+/* On paper every passage is whole, and the caret has nothing to do. */
+@media print {
+  :root[data-restyle] .collection-page__sheet .desk-item__pin-row .desk-sheet__words {
+    max-height: none;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  :root[data-restyle] .collection-page__sheet .desk-item__more {
+    display: none;
+  }
+}

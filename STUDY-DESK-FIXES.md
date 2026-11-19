@@ -4693,6 +4693,35 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-way-back-dom.test.js` drives the pane, the bars and the routes;
   `test/desk-buttons-css.test.js` holds the arrow's ordinary look.
   Status: fixed.
+- **E171, bug: a collection's passage lost its verse numbers, italics, and
+  line breaks.** BVJ, 2026-11-19, reviewing D13: “I added Matthew 5 to my
+  first collection. It added it with no verse numbers or text formatting
+  (like italics on quadrans). It should be formatted like it is on
+  scripture pages, but without footnote markers, etc. Only the text,
+  paragraph formatting/line breaks, text formatting like italics, and
+  chapter and verse numbers.” Then: “And it should have a collapse/expand
+  feature for passages that span more than three lines. But printing should
+  always print expanded.” The page read the passage through `passageWords`,
+  then dropped every superscript and kept only its text, so verse numbers
+  went with the footnote letters, and poetry lines ran together
+  (“Life-breathbecause”). **Fixed** (`collection-page.js`,
+  `collection-view.js`):
+  - **The words are the chapter's own blocks**, as `passageWords` hands them
+    to a sheet: paragraphs, poetry lines, italics, and verse numbers, with
+    footnote letters dropped, in a sheet passage's look (`.desk-sheet__words`).
+    A bookmark's verse on the page is drawn the same way. Scripture pages
+    show the chapter's number only in their title, and the row's reference
+    names it here.
+  - **Past three lines the words are cut**, the last line faded, with the
+    caret a pinned footnote has in My Notes (E118): “Show all of Matthew
+    5:1–12,” then “Show less of….” It shows only when the words are cut or
+    open, stays open for the visit, and is measured again when the words'
+    box changes size. A line clamp can't reach into paragraphs, so the cut is
+    a height of three lines (`3lh`, `v2/collections.css`).
+  - **Print shows every passage whole**, with no caret.
+  - /collections/ carries `#hbq-description`, which a poetry block's
+    `aria-describedby` names, as /sheets does.
+  Test: `test/desk-collections-passage-words.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

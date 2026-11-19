@@ -70,6 +70,27 @@ const FAILED = "That couldn’t be saved in this browser, so nothing changed. Tr
 const FULL = "This collection is full, so nothing was added.";
 const UNREAD = "These verses couldn’t be read just now.";
 
+// The caret a note and a pinned footnote open with in My Notes (E118).
+const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M6 9l6 6 6-6" /></svg>`;
+
+// The words opened for the visit, by row key, so a redraw keeps them open.
+const openWords = new Set();
+
+// Each row's words measured again when their box changes size (the window, the
+// Display tray's text size, a font arriving), for whether they are cut.
+const measures = new WeakMap();
+const resized =
+  typeof ResizeObserver === "function"
+    ? new ResizeObserver((entries) => {
+      for (const { target } of entries) {
+        if (target.isConnected) measures.get(target)?.();
+        else resized.unobserve(target);
+      }
+    })
+    : null;
+
 /** What a write over a collection says when it didn't go through, or null. */
 function trouble(plan) {
   if (plan.gone) return "This collection can’t be changed here. It may have been deleted.";
@@ -646,20 +667,17 @@ function memberRow(page, c, row, { labels, mine, rows, rules }) {
   if (row.type === "passage") {
     li = make("li", "desk-item desk-np-row");
     const href = recordHref(row.member);
-    const head = make(href ? "a" : "span", "desk-item__ref", passageReference(row.member));
+    const ref = passageReference(row.member);
+    const head = make(href ? "a" : "span", "desk-item__ref", ref);
     if (href) head.href = href;
-    const words = make("p", "desk-item__words");
-    li.append(head, make("span", "desk-item__kind", "Passage"), words, make("div", "desk-np-row__buttons"));
-    fillWords(page, row.member, words, row.member.verseCopy);
+    li.append(head, make("span", "desk-item__kind", "Passage"), wordsOf(page, row.member, row.key, ref, row.member.verseCopy), make("div", "desk-np-row__buttons"));
   } else {
     li = recordRow(row.record, { labels, onDelete: () => {}, onLabels: () => {} });
     // A collection's rows have Remove alone: the record itself is changed in My Notebook.
     const tools = li.querySelector(".desk-np-row__buttons");
     tools?.replaceChildren();
     if (row.record.kind === "bookmark" && Number.isInteger(row.record.verse)) {
-      const quote = make("blockquote", "desk-np-row__quote");
-      tools?.before(quote);
-      fillWords(page, row.record, quote, row.record.quote?.exact);
+      tools?.before(wordsOf(page, row.record, row.key, recordReference(row.record), row.record.quote?.exact));
     }
   }
   li.dataset.rowKey = row.key;
@@ -677,14 +695,59 @@ function memberRow(page, c, row, { labels, mine, rows, rules }) {
   return li;
 }
 
-/** Put the words of `where` (a passage, or a record on verses) in `box`: its chapter's, else the copy kept with it. */
-function fillWords(page, where, box, fallback = null) {
-  const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
-  if (fallback) box.textContent = clean(fallback);
-  const unread = () => {
-    if (!fallback) box.textContent = UNREAD;
+/**
+ * The words of `where` (a passage, or a bookmark's verse) as a scripture page
+ * sets them (E171; BVJ, 2026-11-19): paragraphs and poetry lines, italics and
+ * verse numbers, with no footnote letters, in a sheet passage's look
+ * (`.desk-sheet__words`). Until its chapter is read, and if it can't be, the
+ * copy kept with it shows as one plain paragraph. Past three lines the words
+ * are cut, with the caret a pinned footnote has (`.desk-item__pin-row`,
+ * `.desk-item__more`); shown only when they are cut or open, and kept open
+ * for the visit. On paper they are always whole (v2/collections.css).
+ */
+function wordsOf(page, where, key, ref, fallback = null) {
+  const row = make("div", "desk-item__pin-row");
+  const box = make("div", "desk-sheet__words chapter-paragraphs");
+  const more = make("button", "desk-item__more");
+  more.type = "button";
+  more.hidden = true;
+  more.innerHTML = ICON_CARET;
+  row.append(box, more);
+
+  const measure = () =>
+    requestAnimationFrame(() => {
+      const open = openWords.has(key);
+      const cut = !open && box.scrollHeight > box.clientHeight + 1;
+      row.classList.toggle("desk-item__pin-row--cut", cut);
+      more.hidden = !(open || cut);
+    });
+  const sync = () => {
+    const open = openWords.has(key);
+    row.classList.toggle("desk-item__pin-row--open", open);
+    more.setAttribute("aria-expanded", String(open));
+    more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} ${ref}`);
   };
-  page.passageText(where).then((words) => (words ? (box.textContent = clean(words)) : unread()), unread);
+  more.addEventListener("click", () => {
+    if (openWords.has(key)) openWords.delete(key);
+    else openWords.add(key);
+    sync();
+    measure();
+  });
+  sync();
+  measures.set(box, measure);
+  resized?.observe(box);
+
+  const show = (words) => {
+    if (words instanceof Element) box.replaceChildren(...words.cloneNode(true).childNodes);
+    else box.replaceChildren(make("p", null, String(words).replace(/\s+/g, " ").trim()));
+    measure();
+  };
+  if (fallback) show(fallback);
+  const unread = () => {
+    if (!fallback) show(UNREAD);
+  };
+  page.passageText(where).then((words) => (words ? show(words) : unread()), unread);
+  return row;
 }
 
 /* ── Moving a row: drag, and Alt+Up and Alt+Down ────────────────── */
