@@ -65,8 +65,9 @@ function highlight(extra = {}) {
 
 test("the constants are the format's lists", () => {
   assert.equal(SCHEMA_VERSION, 1);
-  assert.equal(KINDS.length, 10);
+  assert.equal(KINDS.length, 11);
   assert.ok(KINDS.includes("footnotePin"), "draft 2's tenth kind (BDR, 2026-10-09)");
+  assert.ok(KINDS.includes("collection"), "kind 12, collections (D13, 2026-11-18)");
   assert.ok(!KINDS.includes("legend"), "colour meanings were dropped 2026-10-07");
   assert.deepEqual(COLORS, ["yellow", "green", "blue", "pink"]);
   assert.equal(MARKERS.length, 7);

@@ -34,6 +34,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/scripts/CLAUDE.md` | Reader tools in `src/scripts/` (the verse menu, the selection panel, sharing, verse images, printing and handouts, search, Continue reading, Read View's landing, keyboard shortcuts) and the module map of `src/scripts/` |
 | `src/scripts/desk/CLAUDE.md` | Anything to do with the Study Desk, wherever it lives: `src/lib/desk-*.mjs`, the /desk and /notebook pages, `desk.css`, `public/greek/`, Greek search, printing with notes |
 | `src/scripts/desk/sheets/CLAUDE.md` | The Sheets (read the desk file too): the Sheets pane and its editor, the /sheets page, paper copies, Copy and Save as, present mode, templates, sharing, the print check, `src/lib/desk-sheet*.mjs` |
+| `src/scripts/desk/collections/CLAUDE.md` | Collections (D13): the record, its model, its page and ways in |
 | `src/lib/CLAUDE.md` | The module map of `src/lib/`; scripture reference linking (Sefaria, eBible), external links, Go deeper, the release notes page and feed |
 | `src/styles/CLAUDE.md` | CSS anywhere, including component `<style>` blocks: theming, the Display tray's settings, `--ch`, Greek and Hebrew fonts, the brand greens, the emblem, the LSC mark, focus rings |
 | `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |

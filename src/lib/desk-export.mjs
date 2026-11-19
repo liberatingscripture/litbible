@@ -33,10 +33,11 @@
 //   footnotePin  bookmarking, with a TextQuoteSelector of the footnote's text
 //   hidden       commenting, since the Web Annotation vocabulary has nothing
 //                for hiding; `lit.kind` says what it really is
-// Places, labels, sheets, mark rules, unknown kinds and trash records are not
-// marks on the text, so they travel in the collection's own `lit.records`
-// (trash only in the full backup; a deleted note's words stay out of a file
-// meant for other tools).
+// Places, labels, sheets, mark rules, the reader's collections (kind 12),
+// unknown kinds and trash records are not marks on the text, so they travel in
+// the file's AnnotationCollection under its own `lit.records` (the W3C
+// "collection" is the file itself, not one of the reader's; trash only in the
+// full backup; a deleted note's words stay out of a file meant for other tools).
 
 import { BOOKS, BOOK_ABBREVIATIONS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { verseCount } from "../data/verse-counts.js";
@@ -57,7 +58,9 @@ import {
   recordBytes,
   validateRecord,
 } from "./desk-records.mjs";
+import { collectionName, collectionOutline } from "./desk-collections.mjs";
 import { cleanSheetText } from "./desk-sheet-format.mjs";
+import { sheetName } from "./desk-sheet-passages.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
 export const ORIGIN = "https://litbible.net";
@@ -176,8 +179,9 @@ export function toAnnotation(r, labels = new Map()) {
 
 /**
  * The marks on the text as a W3C Web Annotation collection. Records that
- * aren't marks (places, labels, sheets, unknown kinds) are carried in the
- * collection's `lit.records`; trash is left out.
+ * aren't marks (places, labels, sheets, the reader's own collections, unknown
+ * kinds) are carried in this AnnotationCollection's `lit.records`; trash is
+ * left out.
  */
 export function webAnnotationCollection(records, { exported = isoNow(), contentVersion = "unversioned" } = {}) {
   const live = liveRecords(records);
@@ -262,7 +266,8 @@ function entryMarkdown(r, labels) {
 
 /**
  * The notebook as Markdown, for people. Marks on the text come first in Bible
- * order, one `##` entry each; then Places and Labels as lists; then the LIT's
+ * order, one `##` entry each; then Places and Labels as lists, and
+ * Collections, one `###` each, by name; then the LIT's
  * attribution notice and the license link, since quoted words travel with the
  * file. Trash is left out.
  */
@@ -286,8 +291,49 @@ export function toMarkdown(records, { exported = isoNow() } = {}) {
     out.push("", "## Labels");
     for (const l of labelRecords) out.push(`- ${l.name} ${idComment(l.id)}`);
   }
+  const collections = live.filter((r) => r.kind === "collection").sort(byCollectionName);
+  if (collections.length) {
+    out.push("", "## Collections");
+    for (const c of collections) out.push("", collectionMarkdown(c, records));
+  }
   out.push("", MD_END, "", LIT_CREDIT_LINE, "", `Terms of use: ${LICENSE_URL}`, "");
   return out.join("\n");
+}
+
+const byCollectionName = (a, b) =>
+  collectionName(a).localeCompare(collectionName(b), undefined, { sensitivity: "base" }) ||
+  String(a.created ?? "").localeCompare(String(b.created ?? "")) ||
+  (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+
+/** One line of the reader's words for a heading or a list: one line, escaped. */
+const oneLine = (text) => escapeBody(String(text ?? "").replace(/\s+/g, " ").trim());
+
+/**
+ * One collection under "## Collections" (STUDY-DESK-FORMAT.md, kind 12, "In
+ * the export files"): its name as a `###` heading with its id, its
+ * description, then its members in My order, a passage or a record as its
+ * reference, a sheet by its title, a heading as a `####` line, and a rule as
+ * "Every bookmark labeled …". Written for people, never read back.
+ */
+function collectionMarkdown(c, records) {
+  const lines = [`### ${oneLine(collectionName(c))} ${idComment(c.id)}`];
+  if (typeof c.description === "string" && c.description.trim()) lines.push("", escapeBody(c.description.trim()));
+  const members = [];
+  for (const m of collectionOutline(c, records)) {
+    if (m.type === "heading") members.push("", `#### ${oneLine(m.text)}`, "");
+    else if (m.type === "passage") members.push(`- ${recordReference(m.member)}`);
+    else if (m.type === "rule") members.push(`- Every bookmark labeled ${m.gone || !m.label ? "(label deleted)" : oneLine(m.label.name)}`);
+    else if (m.record.kind === "sheet") members.push(`- Sheet “${oneLine(sheetName(m.record))}”`);
+    else {
+      const ref = recordReference(m.record);
+      members.push(`- ${ref ? `${oneLine(ref)} · ` : ""}${kindLine(m.record)}`);
+    }
+  }
+  // A heading's blank lines collapse where they meet another, or the start.
+  const tidy = members.filter((l, i, all) => l !== "" || (i > 0 && all[i - 1] !== ""));
+  while (tidy.at(-1) === "") tidy.pop();
+  if (tidy.length) lines.push("", ...(tidy[0] === "" ? tidy.slice(1) : tidy));
+  return lines.join("\n");
 }
 
 /* ── Reading a reference ─────────────────────────────────────────────── */
@@ -333,6 +379,9 @@ export function parseReference(text) {
 // Markdown can't add, rather than taken for a note on its verse.
 const KIND_WORD = /^(Highlight|Note on a footnote|Note|Bookmark|Pinned footnote|Hidden passage)\b(?:\s*\(([^)]*)\))?/;
 
+/** The `##` sections toMarkdown writes for people and never reads back. */
+const LISTS = new Set(["Places", "Labels", "Collections"]);
+
 /** One `##` entry of a Markdown file, as written. */
 function readEntries(text) {
   const lines = String(text).replace(/\r\n?/g, "\n").split("\n");
@@ -344,7 +393,7 @@ function readEntries(text) {
     if (lines[i].trim() !== "") next = lines[i];
   }
   const entries = [];
-  let section = null; // "Places" | "Labels" | null
+  let section = null; // "Places" | "Labels" | "Collections" | null
   let at = null;
   const finish = () => {
     if (at) entries.push(at);
@@ -359,7 +408,7 @@ function readEntries(text) {
     if (heading) {
       finish();
       const next = nextFilled[i];
-      if ((heading === "Places" || heading === "Labels") && !ID_COMMENT.test(next.trim())) {
+      if (LISTS.has(heading) && !ID_COMMENT.test(next.trim())) {
         section = heading;
         continue;
       }
@@ -526,7 +575,7 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
   }
   const notes = [];
   if (!entries.length) problems.push(fail(null, "No entries were found in this file."));
-  notes.push("Places and labels in a Markdown file aren’t read back. Nothing is deleted because it is missing from the file.");
+  notes.push("Places, labels, and collections in a Markdown file aren’t read back. Nothing is deleted because it is missing from the file.");
   return { kind: "markdown", records, problems, notes };
 }
 
