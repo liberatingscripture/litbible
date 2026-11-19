@@ -307,7 +307,7 @@ function ruleLine(page, c, info) {
     b.addEventListener("click", run);
     return b;
   };
-  const write = async (op, said) => {
+  const write = async (op, said, focus = ["add"]) => {
     const plan = await writeCollection(page, c.id, op);
     const problem = trouble(plan);
     if (problem) {
@@ -316,7 +316,7 @@ function ruleLine(page, c, info) {
     }
     const entry = plan.changed ? page.store.lastEntry() : null;
     if (entry) showUndo(said, () => undoEntry(entry));
-    page.refresh(["add"]);
+    page.refresh(focus);
   };
   const remove = (label) =>
     link("Remove", `rule-remove-${id}`, `Remove the rule “${label}” from ${where}`, () =>
@@ -339,7 +339,7 @@ function ruleLine(page, c, info) {
       line.append(
         " · ",
         link(`Bring back ${ref}`, `rule-back-${b.id}`, `Bring ${ref} back into ${where}`, () =>
-          write((col) => bringBack(col, b.id, opCtx(page)), `${ref} brought back into ${where}.`),
+          write((col) => bringBack(col, b.id, opCtx(page)), `${ref} brought back into ${where}.`, [`rule-stop-${id}`, "add"]),
         ),
       );
     }
@@ -349,7 +349,9 @@ function ruleLine(page, c, info) {
     link("Stop adding new ones", `rule-stop-${id}`, `Stop adding new bookmarks labeled ${label} to ${where}`, () =>
       write(
         (col, records) => ruleToItems(col, id, records, opCtx(page)),
-        `${label}’s ${plural(info.bookmarks.length, "bookmark", "bookmarks")} stay in ${where}, and new ones won’t be added.`,
+        info.bookmarks.length === 1
+          ? `${label}’s bookmark stays in ${where}, and new ones won’t be added.`
+          : `${label}’s ${plural(info.bookmarks.length, "bookmark", "bookmarks")} stay in ${where}, and new ones won’t be added.`,
       ),
     ),
     " · ",

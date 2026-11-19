@@ -361,10 +361,10 @@ async function start() {
       const where = names.length < 3 ? names.join(" and ") : `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
       const group = el("div", "desk-np__ask");
       group.setAttribute("role", "group");
-      const text = el("p", "desk-np__ask-text", `${label.name} is used by ${where}. Keep its ${plural(bookmarks, "bookmark", "bookmarks")} there?`);
+      const text = el("p", "desk-np__ask-text", `${label.name} is used by ${where}. Keep its ${bookmarks === 1 ? "bookmark" : `${bookmarks} bookmarks`} there?`);
       text.id = `deskNpKeep-${label.id}`;
       group.setAttribute("aria-labelledby", text.id);
-      const yes = el("button", "", "Yes, keep them");
+      const yes = el("button", "", bookmarks === 1 ? "Yes, keep it" : "Yes, keep them");
       yes.type = "button";
       const no = el("button", "", "No, just delete the label");
       no.type = "button";

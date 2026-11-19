@@ -195,7 +195,8 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     // "Add these N to a collection…" is offered while the search or the label filter narrows the list (D13, step 5).
     heldByList = filters.query.trim() || filters.labelId ? shown.filter((r) => ITEM_KINDS.includes(r.kind)).map((r) => r.id) : [];
     addThese.hidden = heldByList.length === 0;
-    if (heldByList.length) addTheseButton.textContent = `Add these ${heldByList.length} to a collection…`;
+    if (heldByList.length)
+      addTheseButton.textContent = `Add ${heldByList.length === 1 ? "this one" : `these ${heldByList.length}`} to a collection…`;
     countEl.textContent = !all.length
       ? "Nothing kept yet."
       : active

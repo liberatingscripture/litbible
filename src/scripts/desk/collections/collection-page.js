@@ -63,11 +63,14 @@ async function defaultPassageText(where) {
     const m = { bookKey: where.bookKey, chapter: where.chapter, verse: where.verse, endVerse: where.endVerse };
     const view = await readPassage(m);
     if (!view.ok) return null;
-    const words = passageWords(view, m);
+    // passageWords gives { el, base }: the words are its element.
+    const words = passageWords(view, m)?.el;
     if (!words) return null;
     for (const s of words.querySelectorAll("sup")) s.remove();
     return words.textContent;
-  } catch (_) {
+  } catch (err) {
+    // Said aloud: a quiet failure here once hid that no live words were ever read.
+    console.error("Study Desk: a collection's passage couldn’t be read", err);
     return null;
   }
 }
