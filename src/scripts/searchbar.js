@@ -93,8 +93,10 @@ const _initSearchbars = async () => {
       root.querySelector(".searchbar__filters") ??
       document.getElementById("searchbar-book")?.closest(".searchbar__filters");
     const owns = (node) => root.contains(node) || Boolean(filters?.contains(node));
-    const bookSelect = filters?.querySelector(".searchbar__book");
-    const modeSelect = filters?.querySelector(".searchbar__mode");
+    const bookSelect =
+      root.querySelector(".searchbar__book") ?? filters?.querySelector(".searchbar__book");
+    const modeSelect =
+      root.querySelector(".searchbar__mode") ?? filters?.querySelector(".searchbar__mode");
     const closeBtn = root.querySelector(".searchbar__close");
     const fullLink = root.querySelector(".searchbar__full");
     const commandsLink = root.querySelector("[data-search-commands]");
