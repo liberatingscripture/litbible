@@ -4627,6 +4627,59 @@ says so; where BVJ was wondering, nothing is decided.)
   can take a passage, newest first. A pick adds what is checked then, and
   the sheet is shown as a new one is (E127's rule), in one bar with Undo.
   Status: fixed.
+- **E168, wish: an easy way back after a search result moves the panes.**
+  BVJ, 2026-11-19: “It does feel like if I click a search result in the
+  search pane, so it moves all the other panes, there should be an easy way
+  back to where I was before I clicked that result. But I'm not sure about
+  the approach to take.” Claude (Fable) recommended a “← [place]” button on
+  each LIT pane's bar, appearing after any jump and returning to where the
+  reader last scrolled themselves, and BVJ said: “Go with Fable's
+  recommendation.” During the build BVJ added: “Scrolling shouldn't
+  automatically clear the history of jumps. What if I search, jump to a
+  result, scroll to see the context, and then want to go back?” **Fixed**
+  (`desk/lit-back.js`, its rules in `src/lib/desk-way-back.mjs`):
+  - **Jumps**: a Search pane result (a verse, a topic's chapter, a Greek
+    result, Enter on a typed reference, an introduction that moves the LIT
+    to its book's chapter 1), a record's reference in My Notes, a scripture
+    reference in a Book Intro pane or a footnote, a sheet passage's “Show in
+    the LIT” (the same route, `showPassage`), a place typed in any pane's
+    passage bar, a book picked from the Book Intro pane's list, and a result
+    of the Greek pane's own search. desk-page.js commits them with
+    `commitJump`, and `follow` tells the pane. **Not jumps**: the chapter
+    arrows and the ← → and [ ] keys (the other arrow is the way back), This
+    verse's Previous and Next, the Greek's scrolling, a layout put back.
+  - **Where the reader was** is the pane's place when the jump came: where
+    they last scrolled, or what last moved it otherwise. A run of jumps with
+    no reading between keeps only the place before the first.
+  - **Scrolling never takes it away** (BVJ's addition). Reading on at a
+    result and jumping again puts the place read on to above the earlier
+    one, so the button is a short history (up to 20 places): pressed, it
+    names the place before, and goes when none is left. Reaching the newest
+    place by any route takes it off. **Claude's calls, open to BVJ**: a
+    history rather than one place (so a second jump doesn't lose the first
+    place), no Forward, and the button going away once the history is empty.
+  - **The button** is a quiet one (E126's fourth kind), first on the LIT
+    pane's bar: an arrow and the place underlined in the text green, “←
+    John 3:16,” named “Back to John 3:16,” with the shared tooltip. Where
+    the bar is under 32em (38em in OpenDyslexic) it is the arrow alone, and
+    a long name never takes more than half the bar. Measured on the built
+    page with “1 Thessalonians 5:23”: the name shows from a 480px bar at the
+    default size (a LIT pane beside one other at 1024px), and the bar keeps
+    one row at 280px in OpenDyslexic at Extra large, where the arrow costs
+    the field 38px (that field was already too narrow for “John 3:16”
+    there, with or without it). When it goes, its
+    keyboard focus goes to the text. It moves only its own pane, and the
+    panes that follow it come along. A jump that also opened a pane or took
+    another's place keeps E127's undo bar for the whole layout.
+  - **Each LIT pane keeps its own, in memory for the visit**: nothing is
+    stored, so no new key and no change to /privacy. Ctrl+Z still undoes
+    notebook changes only (rule 11; E131). A tour makes none, and starts
+    and ends with none on any pane.
+  - **The Search pane's note line names it once a visit**: “The LIT pane
+    moved to Romans 8:1. To go back to John 3:16, press ← on its bar.”
+  `test/desk-way-back.test.js` holds the rules and
+  `test/desk-way-back-dom.test.js` drives the pane, the bars and the routes.
+  Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

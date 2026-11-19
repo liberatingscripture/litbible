@@ -44,6 +44,12 @@
 //   moves it. The page's opening place isn't reported, and the tour reports
 //   nothing. That reporting is desk-lead.js, and dragging a pane by its header
 //   is pane-move.js (Audit 8, LG8-8); `start()` hands each the layout.
+// - **A jump gives the LIT pane a way back** (E168; BVJ, 2026-11-19): a move
+//   from elsewhere (a Search pane result, a record in My Notes, a reference in
+//   a Book Intro or a footnote, a place typed in a following pane's picker) is
+//   committed with `commitJump`, which `follow` passes on, and the pane's bar
+//   offers “← John 3:16” (lit-back.js). Never while a tour runs, and a tour
+//   starts and ends with none. Ctrl+Z is unchanged (rule 11).
 //
 // The layout is kept in localStorage['lit-desk-layout'] (named in /privacy's
 // paragraph), written on every change: the last layout, the reader's own
@@ -268,12 +274,18 @@ async function start() {
   // caller, which then reads `lastWay`; `keep` is one more pane that mustn't
   // give its place (a Greek result's Greek pane).
   let lastWay = null;
+  // The LIT panes the commit under way moves by a jump (E168), which `follow`
+  // tells each so its bar offers the way back (`commitJump`, below). None
+  // while a tour runs.
+  const jumping = new Set();
+  // Every caller of showPassage is a jump (E168): the leading LIT pane keeps
+  // its way back. A pane it opens or puts in another's place starts there.
   const showPassage = (passage, { beside = null, keep = null, quiet = false } = {}) => {
     const at = formatPassage(passage);
     lastWay = null;
     if (!at) return null;
     if (findPane(layout.root, layout.active)?.kind === "lit") {
-      commit(setLitAt(layout, layout.active, at), { draw: false });
+      commitJump(setLitAt(layout, layout.active, at), layout.active, { draw: false });
       return "moved";
     }
     const placed = setPlace(layout, at);
@@ -358,7 +370,9 @@ async function start() {
     const room = panesBox.getBoundingClientRect();
     const before = layout;
     const result = showIntroIn(layout, bookKey, room.width, room.height, beside);
-    if (result.layout !== layout) commit(result.layout, { draw: result.outcome === "opened" || result.outcome === "replaced", quiet: result.outcome === "replaced" });
+    // A LIT pane moved to the book's chapter 1 by the result keeps its way back (E168).
+    const litMoved = result.moved && findPane(result.layout.root, result.layout.active)?.kind === "lit" ? result.layout.active : null;
+    if (result.layout !== layout) commitJump(result.layout, litMoved, { draw: result.outcome === "opened" || result.outcome === "replaced", quiet: result.outcome === "replaced" });
     if (result.outcome === "replaced") {
       const extra = result.moved ? `The LIT moved to ${passageLabel(parsePassage(result.moved))}.` : "";
       sayReplaced(replacedMessage("intro", result.replaced.kind, { extra }), before);
@@ -367,7 +381,9 @@ async function start() {
     }
     return { outcome: result.outcome, moved: result.moved };
   };
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showIntro, openGreekHit };
+  // Where the leading LIT pane's Back goes (E168), for the Search pane's line.
+  const backPlace = () => paneEls.get(layout.active)?.inst?.backPlace?.() ?? null;
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showIntro, openGreekHit, backPlace };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -713,6 +729,21 @@ async function start() {
     showUndo(`Left Reading: turned on ${LIST.format(names)}.`, () => commit(before, { quiet: true }), { keyless: true });
   }
 
+  /** `commit`, as a jump of the LIT pane `paneId` (or of none, for null). */
+  function commitJump(next, paneId, options) {
+    if (paneId && !layoutFrozen) jumping.add(paneId);
+    try {
+      commit(next, options);
+    } finally {
+      jumping.clear();
+    }
+  }
+
+  /** A tour starts and ends with no way back on any LIT pane (E168). */
+  function forgetBacks() {
+    for (const rec of paneEls.values()) rec.inst?.forgetBack?.();
+  }
+
   /** Take a new layout: kept at once, and drawn (or only re-marked). `quiet`: the caller says what leaving Reading did. */
   function commit(next, { draw: redraw = true, quiet = false } = {}) {
     if (next === layout) return;
@@ -751,9 +782,10 @@ async function start() {
    * A pane's passage changed. A LIT pane is telling where its reader is; a
    * following pane that stays put moves only itself; one that follows moves
    * the active LIT pane (or, with none open, the shared place), and with it
-   * every pane that follows.
+   * every pane that follows. `jump`: a place typed or picked there, which
+   * gives that LIT pane its way back (E168).
    */
-  function setPassageOf(id, passage) {
+  function setPassageOf(id, passage, { jump = false } = {}) {
     const at = formatPassage(passage);
     const pane = findPane(layout.root, id);
     if (!at || !pane) return;
@@ -764,7 +796,7 @@ async function start() {
     } else if (pane.pin) {
       commit(setPin(layout, id, true, at), { draw: false });
     } else if (findPane(layout.root, layout.active)?.kind === "lit") {
-      commit(setLitAt(layout, layout.active, at), { draw: false });
+      commitJump(setLitAt(layout, layout.active, at), jump ? layout.active : null, { draw: false });
     } else {
       commit(setPlace(layout, at), { draw: false });
     }
@@ -779,7 +811,7 @@ async function start() {
       const at = formatPassage(p);
       if (rec.at === at) continue;
       rec.at = at;
-      rec.inst.setPassage(p);
+      rec.inst.setPassage(p, { jump: jumping.has(pane.id) });
     }
   }
 
@@ -869,7 +901,7 @@ async function start() {
       rec.inst = mountPane(pane.kind, rec.body, env, {
         id: pane.id,
         get: () => passageOf(pane.id),
-        set: (passage) => setPassageOf(pane.id, passage),
+        set: (passage, how) => setPassageOf(pane.id, passage, how),
         getSheet: () => findPane(layout.root, pane.id)?.sheet ?? null,
         setSheet: (sheetId) => commit(setPaneSheet(layout, pane.id, sheetId), { draw: false }),
         // What a LIT pane's text shows is its own (E108), kept with it here.
@@ -1339,7 +1371,10 @@ async function start() {
     canKeep: Boolean(store),
     getLayout: () => layout,
     setLayout: (next) => commit(next),
-    freeze: (on) => { layoutFrozen = on; },
+    freeze: (on) => {
+      layoutFrozen = on;
+      forgetBacks();
+    },
     paneEls,
     panesBox,
     titleButton,
@@ -1371,7 +1406,10 @@ async function start() {
     canKeep: Boolean(store),
     getLayout: () => layout,
     setLayout: (next) => commit(next),
-    freeze: (on) => { layoutFrozen = on; },
+    freeze: (on) => {
+      layoutFrozen = on;
+      forgetBacks();
+    },
     closeMenus: () => {
       titleMenu.close({ focus: false });
       commands.closeAdd();

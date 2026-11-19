@@ -98,10 +98,13 @@ function thisChapter(source, paneId) {
   return section;
 }
 
-/** The pane's frame for a following kind: the picker, then a part that holds the tab. */
+/**
+ * The pane's frame for a following kind: the picker, then a part that holds
+ * the tab. A place typed in its picker moves the LIT pane as a jump (E168).
+ */
 function followFrame(body, pane, fill) {
   body.classList.add("desk-pane__body--fill");
-  const bar = createPassageBar({ id: pane.id, set: pane.set });
+  const bar = createPassageBar({ id: pane.id, set: (p, how) => pane.set(p, how) });
   const content = make("div", fill ? "desk-dp__content desk-dp__content--fill" : "desk-dp__content");
   body.append(bar.el, content);
   return { bar, content };
@@ -260,7 +263,8 @@ function mountGreek(body, env, pane) {
       idSuffix: `-${pane.id}`,
       openHit: (hit) => {
         word = { verse: hit.verse, t: hit.t };
-        pane.set({ bookKey: hit.book, chapter: hit.chapter, verse: hit.verse });
+        // A search result elsewhere: the LIT pane's way back stays (E168).
+        pane.set({ bookKey: hit.book, chapter: hit.chapter, verse: hit.verse }, { jump: true });
       },
       onTopVerse: (verse) => {
         top = verse;
@@ -367,7 +371,15 @@ function mountLit(body, env, pane) {
     onMark: pane.setMark,
   });
   body.append(lit.el);
-  return { setPassage: (p) => lit.goTo(p), keep: () => lit.keep(), setMarks: (hide) => lit.setMarks(hide), destroy: () => lit.destroy() };
+  return {
+    // A move the page marks as a jump offers the way back (E168).
+    setPassage: (p, { jump = false } = {}) => lit.goTo(p, { jump }),
+    keep: () => lit.keep(),
+    setMarks: (hide) => lit.setMarks(hide),
+    backPlace: () => lit.backPlace(),
+    forgetBack: () => lit.forgetBack(),
+    destroy: () => lit.destroy(),
+  };
 }
 
 function mountIntro(body, env, pane) {
@@ -450,14 +462,16 @@ function mineScope(pane) {
  *   showIntro: (bookKey: string, options?: { beside?: string }) => { outcome: string, moved: string | null },
  *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env
- * @param {{ id: string, get: () => object, set: (passage: object) => void,
+ * @param {{ id: string, get: () => object, set: (passage: object, how?: { jump: boolean }) => void,
  *   getSheet: () => string | null, setSheet: (id: string | null) => void }} pane
  *   `get` and `set` are the passage the pane shows (desk-page.js): for a LIT
- *   pane, `set` is where its reader now is. `getSheet` and `setSheet` are the
- *   sheet a Sheets pane shows.
- * @returns {{ destroy: () => void, setPassage?: (passage: object) => void,
- *   keep?: () => () => void, editor?: object }}
- *   `editor` is a Sheets pane's sheet editor (sheet-editor.js).
+ *   pane, `set` is where its reader now is; a following pane's `set` with
+ *   `{ jump: true }` moves the LIT pane as a jump (E168). `getSheet` and
+ *   `setSheet` are the sheet a Sheets pane shows.
+ * @returns {{ destroy: () => void, setPassage?: (passage: object, how?: { jump: boolean }) => void,
+ *   keep?: () => () => void, editor?: object, backPlace?: () => object | null, forgetBack?: () => void }}
+ *   `editor` is a Sheets pane's sheet editor (sheet-editor.js); `backPlace`
+ *   and `forgetBack` are a LIT pane's way back (E168).
  */
 export function mountPane(kind, body, env, pane) {
   body.classList.remove("desk-pane__body--fill");

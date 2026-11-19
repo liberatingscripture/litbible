@@ -5752,12 +5752,96 @@ html.desk-ws--moving * {
   flex-basis: 4rem;
 }
 
+/* The way back after a jump (E168, lit-back.js): first on the LIT pane's bar,
+   and absent until a jump. A quiet button (E126's fourth kind): the text
+   green, an arrow and the place's name underlined, the height of the bar's
+   arrows. Where the bar is narrow it is the arrow alone (below), and a long
+   name never takes more than half the bar, so the field and the controls keep
+   their row. */
+.desk-lit__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  box-sizing: border-box;
+  max-width: 50%;
+  height: 30px;
+  margin: 0 4px 0 0;
+  padding: 0 8px 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--green-text);
+  font: 500 calc(0.875rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.desk-lit__back[hidden] {
+  display: none;
+}
+
+.desk-lit__back svg {
+  display: block;
+}
+
+.desk-lit__back-glyph {
+  display: inline-flex;
+  flex: none;
+}
+
+.desk-lit__back-word {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.desk-lit__back:hover {
+  background: rgba(var(--ink-rgb), 0.08);
+}
+
+.desk-lit__back:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
 /* A bar under 22rem (a LIT pane among three or four columns) keeps the room
    for its passage: "Show" is an eye there, the size of the arrows, with the
    shared tooltip naming it (E72's rule for "Stay here", the other way round). */
 @supports (container-type: inline-size) {
   .desk-lit > .desk-passage {
     container: deskLitBar / inline-size;
+  }
+
+  /* The way back names its place only where the bar has room for the
+     longest ("1 Thessalonians 5:23") beside the field and the controls: in em
+     of the bar, so the room grows with the text size, and more in
+     OpenDyslexic, whose letters are wider (E168). Below that it is the arrow,
+     the size of the bar's others, named by the shared tooltip. */
+  @container deskLitBar (max-width: 32em) {
+    .desk-lit__back {
+      justify-content: center;
+      width: 30px;
+      padding: 0;
+    }
+
+    .desk-lit__back-word {
+      display: none;
+    }
+  }
+
+  @container deskLitBar (max-width: 38em) {
+    html[data-font="dyslexic"] .desk-lit__back {
+      justify-content: center;
+      width: 30px;
+      padding: 0;
+    }
+
+    html[data-font="dyslexic"] .desk-lit__back-word {
+      display: none;
+    }
   }
 
   @container deskLitBar (max-width: 22rem) {

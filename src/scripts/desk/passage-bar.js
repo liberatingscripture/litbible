@@ -10,6 +10,11 @@
 // Greek panes that aren't pinned share one passage, so changing it here moves
 // them all; a pinned pane's picker moves only that pane. Where the passage is
 // kept is desk-page.js's business; this only asks for a change.
+//
+// **A place typed here is a jump; an arrow is not** (E168; BVJ,
+// 2026-11-19): `set` hears `{ jump: true }` with a typed place, so the LIT pane
+// it moves offers its way back (lit-back.js), and nothing with a step, since
+// the opposite arrow is the way back from one.
 
 import { parseReference } from "../search-core.js";
 import { checkPassage, passageLabel, stepChapter } from "../../lib/desk-passage.mjs";
@@ -18,13 +23,16 @@ import { chevronIcons } from "./glyphs.js";
 const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons();
 
 /**
- * @param {{ id: string, set: (passage: object) => void, extra?: HTMLElement | HTMLElement[] }} options
- *   `id` keeps the field's id apart from other panes'; `extra` is a control
- *   of the pane's own, or several in order, put after the next-chapter arrow
- *   (the LIT pane's "Open on its page", E35, and its "Show", E108).
+ * @param {{ id: string, set: (passage: object, how?: { jump: boolean }) => void,
+ *   extra?: HTMLElement | HTMLElement[], lead?: HTMLElement | null }} options
+ *   `id` keeps the field's id apart from other panes'; `set` hears a typed
+ *   place with `{ jump: true }` and an arrow's step with nothing; `extra` is a
+ *   control of the pane's own, or several in order, put after the
+ *   next-chapter arrow (the LIT pane's "Open on its page", E35, and its
+ *   "Show", E108), and `lead` one put first (the LIT pane's way back, E168).
  * @returns {{ el: HTMLElement, update: (passage: object) => void }}
  */
-export function createPassageBar({ id, set, extra = null }) {
+export function createPassageBar({ id, set, extra = null, lead = null }) {
   const el = document.createElement("form");
   el.className = "desk-passage";
   el.setAttribute("role", "group"); // a picker, not a search (DK-7)
@@ -41,6 +49,7 @@ export function createPassageBar({ id, set, extra = null }) {
   const error = el.querySelector(".desk-passage__error");
   const steps = Array.from(el.querySelectorAll(".desk-passage__step"));
   if (extra) error.before(...[extra].flat());
+  if (lead) el.prepend(lead);
 
   let current = null;
 
@@ -73,7 +82,7 @@ export function createPassageBar({ id, set, extra = null }) {
     }
     say(null);
     field.value = passageLabel(passage);
-    set(passage);
+    set(passage, { jump: true });
   });
 
   field.addEventListener("focus", () => field.select());
