@@ -4430,7 +4430,9 @@ says so; where BVJ was wondering, nothing is decided.)
   page takes it at once, D13's included. Options to mock for BVJ in both
   themes: a fill a step darker than the surface it sits on, the cream as
   the fill on raised surfaces, or `--desk-control` set per surface. Status:
-  open.
+  fixed (#610). Light keeps white, dark keeps ink at 7%, and a disabled
+  ordinary button keeps its fill; every edged button with no fill joined a
+  kind, and `.desk-seg` took the pills' fill and edge.
 - **E160, preference: one look for a toggle that is on.** BVJ, 2026-11-18,
   on the first mocks' order switch, drawn in sky: “Do toggle buttons ever
   use sky? I don't mind it, but it should be consistent sitewide.” Sky
