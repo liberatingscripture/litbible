@@ -2,41 +2,17 @@
    desk/collections/collection-page.js). Layout only (D13, decision 25): no new
    color, control, or window. The page takes My sheets' frame and title (the
    site's wrap, the sunshine bar), the members lie on a .v2-sheet, group names
-   are .v2-label, and a heading in My order opens with .v2-rule. */
+   are .v2-label, and a heading in My order opens with .v2-rule. The frame,
+   the title under its bar, and the actions’ size are My sheets’ own rules
+   (v2/sheets.css, which collections.astro imports too), so the two pages
+   can’t drift apart. */
 
-:root[data-restyle] .collections-page {
-  max-width: calc(var(--v2-wrap) + 2 * var(--gutter, 0px));
-  padding-block: clamp(32px, 5vw, 64px) clamp(40px, 6vw, 72px);
-  padding-inline: var(--gutter, clamp(1.25rem, 4vw, 2.5rem));
-}
-
-:root[data-restyle] .collections-page .sheets-page__title {
-  margin: 0 0 14px;
-  font-size: calc(clamp(1.875rem, 1.55rem + 1.4vw, 2.25rem) * var(--heading-scale, 1));
-  line-height: 1.15;
-}
-
-:root[data-restyle] .collections-page .sheets-page__title::before {
-  content: "";
-  display: block;
-  width: 56px;
-  height: 6px;
-  margin-bottom: 18px;
-  border-radius: 3px;
-  background: var(--v2-bar);
-}
-
-/* The actions: ordinary buttons' size, in a row. */
+/* The actions, in a row (their size is My sheets’ own, in v2/sheets.css). */
 :root[data-restyle] .collection-page__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin: 0 0 18px;
-}
-
-:root[data-restyle] .collection-page__actions > .desk-sheet__btn {
-  padding: 8px 14px;
-  font-size: calc(0.9375rem * var(--sheet-ui, 1));
 }
 
 :root[data-restyle] .collection-page__description {

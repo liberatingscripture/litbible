@@ -25,17 +25,18 @@ const FAILED = "That couldn’t be saved in this browser, so nothing was made. T
  * Open the window. `ctx` is what a record is stamped with ({ client,
  * contentVersion }). `firstMember` becomes the collection's first member.
  * `onCreated(collection, entry)` is called after the write, with the history
- * entry that undoes it.
+ * entry that undoes it. `heading` names where the window was opened from: the
+ * page passes "My collections"; from a passage it is "Add to collection".
  *
  * @param {{ store: object, ctx: () => object,
  *   near?: { left: number, top: number } | null,
- *   firstMember?: object | null, lead?: string,
+ *   firstMember?: object | null, lead?: string, heading?: string,
  *   back?: HTMLElement | (() => HTMLElement | null) | null,
  *   onCreated?: (collection: object, entry: object | null) => void }} options
  */
-export function openNewCollection({ store, ctx, near = null, firstMember = null, lead = "", back = null, onCreated = () => {} }) {
+export function openNewCollection({ store, ctx, near = null, firstMember = null, lead = "", heading = "Add to collection", back = null, onCreated = () => {} }) {
   return openNameWindow({
-    heading: "Add to collection",
+    heading,
     title: "New collection",
     lead,
     submit: "Create",

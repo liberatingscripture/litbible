@@ -50,6 +50,7 @@ import { undoEntry } from "../history.js";
 import { recordRow } from "../record-rows.js";
 import { showNotice, showUndo } from "../undo-bar.js";
 import { buttons, make } from "../dom.js";
+import { setTip } from "../../tip.js";
 import { openNameWindow } from "./name-window.js";
 
 const button = buttons("desk-sheet__btn");
@@ -172,7 +173,9 @@ export async function collectionView(page, id) {
         const said = trouble(plan);
         if (said) return said;
         const entry = plan.changed ? page.store.lastEntry() : null;
-        if (entry) showUndo("Collection renamed.", () => undoEntry(entry));
+        // Say what changed: the window holds the description too.
+        const renamed = (n ?? "").trim() !== (c.name ?? "").trim();
+        if (entry) showUndo(renamed ? "Collection renamed." : "Description saved.", () => undoEntry(entry));
         page.refresh(["rename"]);
         return null;
       },
@@ -259,14 +262,14 @@ export async function collectionView(page, id) {
     }
     if (row.type === "heading") {
       ul = null;
-      sheet.append(headingRow(page, c, row, state));
+      sheet.append(headingRow(page, c, row, state, shown.rows));
       continue;
     }
     if (!ul) {
       ul = make("ul", "desk-list");
       sheet.append(ul);
     }
-    ul.append(memberRow(page, c, row, { labels, mine }));
+    ul.append(memberRow(page, c, row, { labels, mine, rows: shown.rows }));
   }
   if (mine) wireMoves(page, c, sheet);
   nodes.push(sheet);
@@ -337,7 +340,9 @@ function passageForm(page, c, state) {
 /* ── Headings (My order) ────────────────────────────────────────── */
 
 function headingForm(page, c, state) {
-  const form = make("form", "desk-sheet__ref collection-page__form");
+  // Wrapped as Add passage’s field is: .desk-sheet__ref is a flex row, which `hidden` alone can’t close.
+  const wrap = make("div", "collection-page__form");
+  const form = make("form", "desk-sheet__ref");
   const input = make("input");
   input.type = "text";
   input.placeholder = "A heading, such as Week 1: Hope";
@@ -367,7 +372,8 @@ function headingForm(page, c, state) {
     showUndo(`Heading “${text}” added.`, () => undoEntry(entry));
     page.refresh(["heading-input"]);
   });
-  return form;
+  wrap.append(form);
+  return wrap;
 }
 
 const grip = () => {
@@ -378,7 +384,7 @@ const grip = () => {
 };
 
 /** A heading in My order: its grip, its words, and its buttons; a field while it is being renamed. */
-function headingRow(page, c, row, state) {
+function headingRow(page, c, row, state, rows) {
   const box = make("div", "collection-page__heading v2-rule");
   box.dataset.rowKey = row.key;
   if (state.editing === row.key) {
@@ -430,7 +436,7 @@ function headingRow(page, c, row, state) {
     state.editing = row.key;
     page.refresh([`edit-${row.key}`]);
   });
-  tools.append(...moveButtons(page, c, row), renameBtn, removeButton(page, c, row));
+  tools.append(...moveButtons(page, c, row, rows), renameBtn, removeButton(page, c, row));
   box.append(grip(), make("h3", null, row.text), tools);
   return box;
 }
@@ -468,8 +474,11 @@ function neighbors(b) {
   return [rows[at + 1], rows[at - 1]].filter(Boolean).map((r) => `remove-${r.dataset.rowKey}`).concat("add");
 }
 
-/** ↑ and ↓ for a row of My order: the sheet editor's own icon buttons. */
-function moveButtons(page, c, row) {
+/**
+ * ↑ and ↓ for a row of My order: the sheet editor's own icon buttons, with its
+ * tip, and, as there, ↑ off on the first row and ↓ off on the last.
+ */
+function moveButtons(page, c, row, rows) {
   const name = nameOfRow(row);
   return [
     ["up", "↑", "Move up"],
@@ -477,7 +486,8 @@ function moveButtons(page, c, row) {
   ].map(([where, glyph, tip]) => {
     const b = make("button", "desk-sheet__icon", glyph);
     b.type = "button";
-    b.title = tip;
+    setTip(b, tip);
+    b.disabled = !moveTarget(rows, row.key, where);
     b.setAttribute("aria-label", `Move ${name} ${where}`);
     b.dataset.focusKey = `${where}-${row.key}`;
     b.addEventListener("click", () => move(page, c, row.key, where));
@@ -497,7 +507,7 @@ async function move(page, c, key, where, focus = null) {
 }
 
 /** A passage or record's row. A passage's words are read from its chapter once the row is drawn. */
-function memberRow(page, c, row, { labels, mine }) {
+function memberRow(page, c, row, { labels, mine, rows }) {
   let li;
   if (row.type === "passage") {
     li = make("li", "desk-item desk-np-row");
@@ -522,7 +532,7 @@ function memberRow(page, c, row, { labels, mine }) {
   const tools = li.querySelector(".desk-np-row__buttons");
   if (mine) {
     li.prepend(grip());
-    tools.append(...moveButtons(page, c, row));
+    tools.append(...moveButtons(page, c, row, rows));
   }
   // A bookmark a rule brings in has no member of its own to take out (D13, step 5).
   if (row.type !== "record" || row.member) tools.append(removeButton(page, c, row));

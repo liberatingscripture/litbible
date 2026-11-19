@@ -171,6 +171,7 @@ export async function mountCollectionsPage(root, {
       openNewCollection({
         store,
         ctx,
+        heading: "My collections",
         near: { left: at.left, top: at.bottom + 8 },
         back: () => document.querySelector('[data-focus-key="new"]'),
         // Straight into the new collection, where Add passage… is.

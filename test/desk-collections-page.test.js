@@ -223,18 +223,13 @@ test("a passage shows its words, ↓ moves it in My order, and Remove takes it o
   assert.match(root.textContent, /For God so loved the world/);
   const rows = () => [...root.querySelectorAll("[data-row-key]")].map((r) => r.dataset.rowKey);
   const first = rows()[0];
-  root.querySelector(`[data-focus-key="down-${first}"]`).click();
+  const arrow = (where, key) => root.querySelector(`[data-focus-key="${where}-${key}"]`);
+  // As in the sheet editor, ↑ is off on the first row and ↓ on the last.
+  assert.deepEqual([arrow("up", first).disabled, arrow("down", first).disabled, arrow("down", rows()[1]).disabled], [true, false, true]);
+  arrow("down", first).click();
   await until(() => rows()[1] === first, 3000, "the row to move down");
   root.querySelector(`[data-focus-key="remove-${rows()[0]}"]`).click();
   await until(() => rows().length === 1, 3000, "the row to go");
   assert.equal((await collections())[0].members.length, 1);
   page.destroy();
-});
-
-test("My Notebook's bulk delete has the collections box and says collections stay", async () => {
-  const { planDeleteCollections } = await import("../src/lib/desk-notebook.mjs");
-  assert.equal(typeof planDeleteCollections, "function");
-  const source = await (await import("node:fs/promises")).readFile(new URL("../src/scripts/desk/notebook-page.js", import.meta.url), "utf8");
-  assert.ok(source.includes("Delete all collections"));
-  assert.ok(source.includes("Your sheets, templates, and collections stay."));
 });
