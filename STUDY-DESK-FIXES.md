@@ -4282,6 +4282,58 @@ says so; where BVJ was wondering, nothing is decided.)
   three newest sheets would do, BVJ kept five and the order (the five, "New
   sheet," then "All sheets…"), and D13's flyout takes the same order
   (2026-11-18). Status: fixed.
+- **E155, rough spot: a margin note's glyph sat in the middle of a tall
+  note.** BVJ, 2026-11-18: “For notes in the margin, have the glyph in the
+  first row of the note instead of centered vertically.” The glyph is the
+  inside of the note's button (`.desk-note__hit`), which is a grid item in
+  `.desk-note__toggle` and so stretched to the whole note, and a button
+  centers what it holds: on a four-line note the glyph came to rest 41px
+  below the first line, and on a cut-off note (three lines, faded) it fell
+  almost into the fade. **Fixed** (`desk.css`): the button takes
+  `align-self: start`, so it is only as tall as the glyph and its drop
+  (`margin-top: 0.22em`), which keeps the glyph level with the first line as
+  it always was on a one-line note. The note is still clicked anywhere,
+  since that area is the button's `::after`, placed against the toggle and
+  not the button. Only the margin note's grid is touched: the notes in My
+  Notes and This verse use `.desk-item__go` and `.desk-verse__go`, and a
+  circle's popover has no button around its glyph. Checked in the Browser
+  pane at 1600px on John 3:16 with a four-line note: before, the button was
+  92.8px tall and the glyph 41px below the first line; after, the button is
+  19.5px and the glyph 4.3px below the line's top (the line is 24px and the
+  glyph 16px, so level), hovering showed the whole card with the glyph on
+  its first row beside Edit, and a click under the glyph and one over the
+  words both landed on the button and opened the note. The test note was
+  deleted afterward. `test/desk-note-glyph-row.test.js` holds the rule (it
+  fails on the old stylesheet). Status: fixed.
+- **E156, rough spot: a margin note kept open stayed open.** BVJ, 2026-11-18:
+  “Would it be possible to have a note in the margin close if another one is
+  opened? and close on any click outside it?” A click on a note adds it to
+  `open`, a set with no limit, and nothing listened for a click elsewhere, so
+  every note the reader clicked stayed open until clicked again (or Escape on
+  it), and a page of them became a stack of tall cards. **Fixed**
+  (`notes-margin.js`): one note is kept open at a time, so opening a note
+  folds the last (`foldAll`, then the note opens), and a click anywhere
+  outside the open note folds it. That click is heard in the capture phase on
+  `document`, so a control that stops its own click still counts as outside.
+  Two places do not count as outside: the open note itself (its Edit button
+  and its words), and a floating panel (`.lit-panel`), which is where Edit's
+  editor and a flag's review card open, so choosing Edit keeps the note open
+  under its editor. A click on the verse number, the scripture, or the page
+  folds it; Escape still folds it from the keyboard. A circle's popover
+  already did all of this through the shared panel, so only full notes
+  changed. What a note looks like open is the class `desk-note--open` and
+  `aria-expanded`, so folding is those two and no redraw. Checked in the
+  Browser pane at 1600px on John 3 with two notes: opening the second
+  folded the first, a click on the scripture, on the page, and on a verse
+  number each folded the open one, Edit kept the note open with its editor
+  up, a click inside the editor and Cancel kept it open, and a folded note
+  showed no leftover lift (no hover, focus ring or shadow). The test notes
+  were deleted afterward. `test/desk-note-open-one.test.js` (happy-dom, the
+  real `notes-margin.js`: one open at a time for the drawing and
+  `aria-expanded`, a second press folds, an outside click, a control that
+  stops its click, Edit, a click inside a floating panel, and a click with
+  nothing open). The help page's “Notes, highlights, and bookmarks” says how
+  a note opens and folds. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

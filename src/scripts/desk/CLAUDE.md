@@ -400,9 +400,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `notes-margin.js` draws), and the words a note hangs on are lit with
      the CSS Custom Highlight API. Copy text, the handout and the desk's
      anchor reader all read the verses off the page. Their face is Playpen
-     Sans (registered in `desk.css`, so it loads only with the desk and only
-     when a note uses it), or Inter on
-     "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
+     Sans (`desk.css`; see `src/styles/CLAUDE.md`), or
+     Inter on "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
      `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
@@ -410,8 +409,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `layoutCapped` folds the rest, and any starting below the text's foot, into
      one "N more notes" button that opens This verse at its notes (`showVerse`,
      E147); no This verse tab, no cap. **A hovered note lets the pointer
-     through below its place** (E151, `--desk-note-slot`); Edit sits in its
-     first line.
+     through below its place** (E151, `--desk-note-slot`). **One note stays
+     open at a time** (E156): opening one folds the last, and a click outside
+     it folds it.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
      The notes' settings (`data-desk-notes` and `data-desk-note-font` on

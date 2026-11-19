@@ -631,10 +631,15 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     }
     if (t.closest(".desk-note__toggle")) {
       const el = t.closest(".desk-note");
-      if (open.has(id)) open.delete(id);
-      else open.add(id);
-      el.classList.toggle("desk-note--open", open.has(id));
-      el.querySelector(".desk-note__hit").setAttribute("aria-expanded", String(open.has(id)));
+      if (open.has(id)) {
+        fold(id);
+      } else {
+        // One note is kept open at a time: opening this one folds the last.
+        foldAll();
+        open.add(id);
+        el.classList.add("desk-note--open");
+        el.querySelector(".desk-note__hit").setAttribute("aria-expanded", "true");
+      }
       syncLit();
       return;
     }
@@ -645,6 +650,34 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       else openPopover(record, circle);
     }
   });
+
+  /** Fold a note kept open, in the drawing and in what a screen reader is told. */
+  function fold(id) {
+    if (!open.delete(id)) return;
+    const el = aside.querySelector(`.desk-note[data-id="${CSS.escape(id)}"]`);
+    el?.classList.remove("desk-note--open");
+    el?.querySelector(".desk-note__hit")?.setAttribute("aria-expanded", "false");
+  }
+
+  function foldAll() {
+    for (const id of [...open]) fold(id);
+  }
+
+  // A click anywhere outside the open note folds it (E156). It listens in the
+  // capture phase, so a control that stops its own click (Edit, a flag, a
+  // circle) still counts. A click inside a floating panel does not: the
+  // note's own Edit and Review open one, and the note stays until they close.
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!open.size) return;
+      const t = e.target instanceof Element ? e.target : null;
+      if (t?.closest(".desk-note--open, .lit-panel")) return;
+      foldAll();
+      syncLit();
+    },
+    true,
+  );
 
   // Escape folds a note kept open, when focus is on it.
   aside.addEventListener("keydown", (e) => {
