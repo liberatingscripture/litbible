@@ -1171,15 +1171,18 @@ function renderGreekCommands() {
   clearGreekHelp();
 
   if (greek.error) {
+    announceGreek(null);
     setStatus(gk.errorMessage(greek.error).text);
     drawGreekHelp({ error: greek.error }, stale);
     return;
   }
   if (greek.failed) {
+    announceGreek(null);
     writeGreekFailed("The Greek search couldn’t be loaded.");
     return;
   }
   if (!greek.resolved) {
+    announceGreek(null);
     setStatus("Type a search.");
     drawGreekHelp({ lead: "Search the Greek by word, form, parsing, or several words together." }, stale);
     return;
@@ -1193,6 +1196,7 @@ function renderGreekCommands() {
   greekLemmasEl.hidden = false;
 
   if (!greek.hits.length) {
+    announceGreek(null);
     setStatus("No verses match that search.");
     drawGreekHelp({ lead: "No verses match that search. Try one of these." }, stale);
     return;
@@ -1204,6 +1208,7 @@ function renderGreekCommands() {
   const page = Math.min(readState().page, pages);
   appendGreekRows((page - 1) * pageSize, page * pageSize, token);
   setPager(total, page);
+  announceGreek(greek);
 }
 
 /**
@@ -1235,7 +1240,10 @@ function renderGreekOnly() {
   if (sortWrapEl) sortWrapEl.hidden = true;
   writeGreekStatus();
   renderActiveFiltersFull();
-  if (!greek || !greek.lemmas.length) return;
+  if (!greek || !greek.lemmas.length) {
+    announceGreek(null);
+    return;
+  }
 
   groupGreek.hidden = false;
 
@@ -1270,12 +1278,16 @@ function renderGreekOnly() {
   greekExactInput.checked = greekChoice.exact;
 
   greekEl.replaceChildren();
-  if (!greek.total) return;
+  if (!greek.total) {
+    announceGreek(null);
+    return;
+  }
 
   const pages = Math.ceil(greek.total / pageSize);
   const page = Math.min(readState().page, pages);
   appendGreekRows((page - 1) * pageSize, page * pageSize, token);
   setPager(greek.total, page);
+  announceGreek(greek);
 }
 
 /** The reader chose a lemma or flipped "exact form only": search the Greek again, nothing else. */
@@ -1327,13 +1339,32 @@ function writeCountStatus() {
 
 // The results on screen, for anything that works on all of them rather than
 // the page showing (the Study Desk's "make a sheet", desk/sheets/search-sheet.js).
-// `verses` are every verse hit and `chapters` every chapter by topic, not just
-// the page on screen. Nothing here knows who listens.
+// `verses` are every verse hit, `chapters` every chapter by topic, and
+// `greek` every Greek hit, not just the page on screen. Nothing here knows
+// who listens.
 let lastResultsDetail = null;
 
 function announceResults(detail) {
   lastResultsDetail = detail;
   document.dispatchEvent(new CustomEvent("lit:search-results", { detail }));
+}
+
+/**
+ * A Greek search's results (null: none). `greek` holds a verse once for each
+ * word matched in it, and `greekWord` is what they were found for, to name
+ * them by: the Greek word shown, the form typed under "Exact form only", or
+ * a command as typed.
+ */
+function announceGreek(greek) {
+  const typed = lastSearchCache?.displayQ ?? "";
+  const asTyped = !greek || greek.kind === "commands" || (greek.kind === "greek" && greekChoice.exact);
+  announceResults({
+    query: typed,
+    verses: [],
+    chapters: [],
+    greek: (greek?.hits ?? []).map((h) => ({ bookKey: h.book, chapter: h.chapter, verse: h.verse })),
+    greekWord: asTyped ? typed : (greek.selected?.lemma ?? typed),
+  });
 }
 
 function renderFromCache() {
@@ -1558,6 +1589,8 @@ function clearResults() {
   if (sortWrapEl) sortWrapEl.hidden = false;
   hideResultGroups();
   lastSearchCache = null;
+  // No results now, so nothing of the last search's stays checked.
+  if (lastResultsDetail?.query) announceResults({ query: "", verses: [], chapters: [], greek: [] });
 }
 
 /** Hides every result group and the pager, keeping the search cache. */

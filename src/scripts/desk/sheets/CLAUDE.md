@@ -833,9 +833,22 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   2026-11-18: “It should match the keyword results behavior”): a box on
   each chapter and the same head row, words and disabled button, with
   “chapter” for “verse” (each word helper takes the noun); each checked
-  chapter goes whole. The two groups keep their own checks (`KINDS` and
+  chapter goes whole. **So are the Greek results** (E165; BVJ, 2026-11-18,
+  “Same for any other results sections that can be added”), behind the
+  Greek search's gate: a box on each row and the same head row, with
+  “verse,” each checked verse going on the sheet as its verse. A verse holding
+  two matches has two rows and one check (the boxes share the verse's key, and
+  the count is of verses), and the sheet is named for the word the verses
+  were found for (“Greek: “πίστις””: the Greek word shown, the form under
+  Exact form only, or a command as typed), which search.js sends as
+  `greekWord` beside `greek`, every hit. Picking another of a query's Greek
+  words keeps only the checks on verses it still finds, as a book filter
+  does. The groups keep their own checks (`KINDS` and
   `ticked` in `search-sheet.js`), and a new group that can go on a sheet
-  joins `KINDS` rather than getting a row of its own. What it made opens where the search
+  joins `KINDS` rather than getting a row of its own: its rows, its link,
+  its key, its noun, and its sheet's `title`, and `whole` if each result
+  goes as a chapter. search.js announces no results when it clears the page,
+  so no head row outlives its search. What it made opens where the search
   was: "Open the sheet" is `/sheets/?id=<id>`, and "open it in the Study Desk" beside
   it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
   (`showSheet` in `desk-layout.mjs`) and strips from the address (S12).

@@ -4537,6 +4537,35 @@ says so; where BVJ was wondering, nothing is decided.)
   hope, and love both ways against the committed data. It was logged as
   E161 on its branch (#616) and renumbered on merging, since main's E161
   is D13's. Status: done.
+- **E165, wish: /search's Greek results can't go on a sheet.** BVJ,
+  2026-11-18, the end of E163: “Same for any other results sections that
+  can be added,” then asked for this. The keyword verses (E116) and the
+  chapters by topic (E163) had boxes and a head row; the Greek group, the
+  only one a Greek search shows, had neither. **Fixed**
+  (`sheets/search-sheet.js`, a third entry in `KINDS`): each Greek row has
+  a box, and the group has the verses' head row (the box that checks every
+  verse found, not only the ten on screen; the count line and Clear checks;
+  a button that adds nothing until a verse is checked, “Add 3 verses to a
+  sheet…”). Each checked verse goes on the sheet as its verse, in Bible
+  order with neighbors joined, as a keyword search's do. Three calls of
+  Claude's, open to BVJ: (1) **the noun is “verse,”** since a verse is what
+  goes: a lemma search lists a row per word matched, so a verse holding the
+  word twice (Romans 3:22 has πίστις twice) has two rows and one check, and
+  the head row counts verses (“Check all 231 verses” under “243 Greek
+  occurrences”); (2) **the sheet is named “Greek: “πίστις””**, for the Greek
+  word shown (so “faith” under the Greek type names the word it found, not
+  the English typed), the form under Exact form only, or a command as typed
+  (“Greek: “πίστις.gen””), where a keyword search's is “Search: “…””;
+  (3) **the head row sits under the group's title**, as in the other two
+  groups (under Site 2.0 its button joins the title's row), so it comes
+  above the Greek word's line and Exact form only, not just above the rows.
+  Picking another of a query's Greek words keeps the checks only on verses
+  the new word is also in, as the book filter does (BA132). search.js now
+  sends the Greek hits with `lit:search-results` (`greek`, every hit, and
+  `greekWord`), and announces no results when it clears the page, so no head
+  row outlives its search. `test/desk-search-sheet-greek.test.js` drives it.
+  **Not done, for BVJ to decide**: /desk's Search pane lists Greek results
+  without E117's boxes or strip. Status: fixed on /search.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

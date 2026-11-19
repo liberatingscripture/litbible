@@ -496,7 +496,7 @@
   gap: 10px;
 }
 
-.desk-gather__row-item > .result-link {
+.desk-gather__row-item > :is(.result-link, .greek-card) {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -520,7 +520,8 @@
    to stand level with them, and come later. */
 .search-page .desk-gather__row-item--picked > .result-link,
 .search-page .desk-gather__row-item--picked > .result-link:hover,
-.search-page .desk-gather__row-item--picked > .result-link:active {
+.search-page .desk-gather__row-item--picked > .result-link:active,
+.search-page .desk-gather__row-item--picked > .greek-card {
   border-color: rgba(var(--ink-rgb), 0.24);
   box-shadow: inset 3px 0 0 var(--green-text), 0 10px 24px rgba(0, 0, 0, 0.08);
 }
@@ -546,7 +547,7 @@
     color: GrayText;
   }
 
-  .search-page .desk-gather__row-item--picked > .result-link {
+  .search-page .desk-gather__row-item--picked > :is(.result-link, .greek-card) {
     border-color: Highlight;
   }
 }
