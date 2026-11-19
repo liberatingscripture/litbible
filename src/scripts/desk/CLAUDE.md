@@ -1349,7 +1349,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        switches never reach it; "Hide my marks" still hides every pane's
        highlights. A switch for one pane kind goes on that pane's bar.
        Only the reader's own scrolling reports a new place, so panes
-       never chase each other. Footnote letters open their own chapter's
+       never chase each other.
+       **A jump gives the pane a way back** (E168; BVJ, 2026-11-19): a move
+       from elsewhere (every `showPassage`, a place typed or picked) is
+       `commitJump`, and `follow` hands the pane `{ jump: true }`; “← John
+       3:16” then leads its bar (`lit-back.js`, rules in `desk-way-back.mjs`),
+       a history kept in memory, never stored. Scrolling and the arrows never
+       add or take one (BVJ); a tour clears it; Ctrl+Z stays the notebook's. A
+       new way to move a LIT pane from elsewhere passes `jump`. Footnote letters open their own chapter's
        note (`footnotePanel`, shared with Chapter View in `panel-pieces.js`);
        key terms are attached per chapter (`attachTermLens` in
        `term-lens.js`). **The verse menu and the selection panel are Study

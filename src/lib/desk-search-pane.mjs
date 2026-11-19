@@ -158,8 +158,11 @@ export function nextPage(shown, total, page = PAGE) {
  * room for one). `label` is the passage, "John 3:16". Empty for anything else,
  * and for the last two: the undo bar and the no-room notice say those
  * (E127: `replacedMessage`, `noWayMessage`), where everyone sees them.
+ * `back` names where the moved pane's “←” goes (E168), given once a visit by
+ * the pane, so the reader learns where the button is.
  */
-export function passageMoveMessage(outcome, label) {
+export function passageMoveMessage(outcome, label, back = "") {
+  if (outcome === "moved" && back) return `The LIT pane moved to ${label}. To go back to ${back}, press ← on its bar.`;
   if (outcome === "moved") return `The LIT pane moved to ${label}.`;
   if (outcome === "opened") return `A LIT pane opened at ${label}.`;
   return "";

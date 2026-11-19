@@ -25,7 +25,9 @@
 //   moves the leading LIT pane, or opens one beside this pane when there is
 //   none (or takes another pane's place, E127), and the note line says which
 //   (`passageMoveMessage`; the undo bar and the notice say the rest); a small link
-//   beside the result opens its page in a new tab (`awayLink`).
+//   beside the result opens its page in a new tab (`awayLink`). The first move
+//   of a visit also says where the LIT pane's way back is, “← John 3:16” on its
+//   bar (E168; `env.backPlace`).
 // - **Results can go on a sheet** (E117; BVJ, 2026-11-12, option A): every
 //   verse has a box, and a strip under the group's title holds the box that
 //   checks them all, a count line and the buttons: "New sheet of 3 verses"
@@ -242,10 +244,15 @@ function loadGlossary() {
 
 /* ── The pane ─────────────────────────────────────────────────────────── */
 
+// Whether a note line has said where the LIT pane's “←” is (E168): once a
+// visit, in whichever Search pane moves the LIT pane first.
+let backTold = false;
+
 /**
  * @param {{ paneId: string, env: object, getPlace: () => { bookKey: string } }} options
  *   `env` is desk-page.js's: `store`, `ctx`, `showPassage(passage, { beside })`,
- *   `showSheet(id)`, `showIntro(bookKey, { beside })` and `openGreekHit(hit, paneId)`. `getPlace` is the passage
+ *   `showSheet(id)`, `showIntro(bookKey, { beside })`, `openGreekHit(hit, paneId)` and
+ *   `backPlace()`, where the leading LIT pane's “←” goes (E168). `getPlace` is the passage
  *   being read, for "The book I’m reading". `sheets` is where the add
  *   buttons add: the open Sheets panes (`sheet-pane.js`) unless a test hands
  *   in its own `{ addTarget, onAddTarget }`.
@@ -565,7 +572,11 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
    */
   function showHere(passage) {
     const outcome = env.showPassage(passage, { beside: paneId });
-    tell(passageMoveMessage(outcome, passageLabel(passage)));
+    // The first move of a visit that gives the LIT pane a way back says
+    // where its button is (E168); later ones don't repeat it.
+    const back = outcome === "moved" && !backTold ? env.backPlace?.() : null;
+    if (back) backTold = true;
+    tell(passageMoveMessage(outcome, passageLabel(passage), back ? passageLabel(back) : ""));
   }
 
   /**

@@ -51,6 +51,12 @@
 //   The layout keeps the list with the pane (desk-layout.mjs, `hide`); the
 //   pane stamps it on its element (lit-marks.js), where desk.css and the
 //   highlights read it, and holds its verse through the rewrap.
+// - **A jump offers the way back** (E168; BVJ, 2026-11-19): a move the page
+//   marks as a jump (`goTo`'s `jump`: a Search pane result, a record in My
+//   Notes, a reference in a Book Intro or a footnote) or a place typed in this
+//   bar puts “← John 3:16” first on the bar (lit-back.js), back to where the
+//   reader last read. The arrows, the reader's scrolling and every other move
+//   only end a run of jumps. It is this pane's own, for the visit.
 
 import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
 import { markList } from "../../lib/desk-lit-marks.mjs";
@@ -69,6 +75,8 @@ import { addDeskText, deskChaptersMoved } from "./page.js";
 import { createPassageBar } from "./passage-bar.js";
 import { stampMarks } from "./lit-marks.js";
 import { createShowButton } from "./lit-show.js";
+import { createBackButton } from "./lit-back.js";
+import { announce } from "./undo-bar.js";
 import { SETTINGS_EVENT } from "./note-settings.js";
 import { make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
@@ -102,9 +110,11 @@ const PARK_NEAR = 2;
  *   `onMark` hears each change its "Show" asks for: the page keeps it with
  *   the pane in the layout and hands the new list back through `setMarks`.
  *   Without `onMark` the pane keeps its own.
- * @returns {{ el: HTMLElement, goTo: (passage: object) => void,
+ * @returns {{ el: HTMLElement, goTo: (passage: object, options?: { force?: boolean, jump?: boolean }) => void,
  *   keep: () => () => void, setMarks: (hide: string[]) => void,
- *   destroy: () => void }}
+ *   backPlace: () => object | null, forgetBack: () => void, destroy: () => void }}
+ *   `goTo`'s `jump` marks a move from elsewhere, which offers the way back
+ *   (E168); `backPlace` is where that goes, and `forgetBack` drops it (a tour).
  */
 export function createLitPane({ paneId, start, drafts, onPlace, showPassage = null, hide = [], onMark = null }) {
   const units = corpusUnits(drafts);
@@ -129,13 +139,25 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
       else setMarks(on ? hidden.filter((m) => m !== id) : [...hidden, id]);
     },
   });
+  // Where the reader was before a jump (E168): first on the bar, until pressed.
+  const back = createBackButton({
+    go: (p, { focus }) => {
+      goTo(p, { force: true });
+      tell(p);
+      // The button is gone, so its focus goes to the text it brought back.
+      if (focus) scroller.focus({ preventScroll: true });
+      announce(`Back at ${passageLabel(p)}.`);
+    },
+  });
   const bar = createPassageBar({
     id: paneId,
-    set: (p) => {
-      goTo(p, { force: true });
+    // A place typed is a jump; an arrow's step is not (passage-bar.js).
+    set: (p, { jump = false } = {}) => {
+      goTo(p, { force: true, jump });
       tell(p);
     },
     extra: [openPage, show.el],
+    lead: back.el,
   });
   /** The field and the link to the page both name `p`. */
   function showPlace(p) {
@@ -526,12 +548,16 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
 
   /**
    * Show a passage. Within the chapters on the page it scrolls; elsewhere the
-   * page starts again at that chapter and fills in around it.
+   * page starts again at that chapter and fills in around it. `jump`: a move
+   * from elsewhere, which keeps where the pane was as its way back (E168);
+   * any other move only ends a run of jumps.
    */
-  async function goTo(passage, { force = false } = {}) {
+  async function goTo(passage, { force = false, jump = false } = {}) {
     const p = checkPassage(passage);
     if (!p || destroyed) return;
     if (!force && told && sameChapter(told, p) && told.verse === p.verse) return;
+    if (jump) back.jumped(told, p);
+    else back.moved(p);
     told = p;
     readerMoved = false;
     // A stub's place still waiting is the reader's old one: going elsewhere drops it.
@@ -578,6 +604,11 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
 
   // Only the reader's own scrolling moves the place (the Greek pane's rule).
   const byReader = () => { readerMoved = true; };
+  // A place the reader scrolled to is where the next jump goes back to (E168).
+  const readTo = (p) => {
+    back.moved(p);
+    tell(p);
+  };
   for (const type of ["wheel", "pointerdown", "touchstart", "keydown"]) {
     scroller.addEventListener(type, byReader, { passive: true });
   }
@@ -599,10 +630,10 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
       // has 28), and each would send the following panes to fetch one, so a
       // chapter there is told only once the reader stops on it (BA64).
       if (units[Number(sectionAtLine()?.dataset.unit)]?.draft) {
-        stubWait = setTimeout(() => { stubWait = 0; tell(p); }, STUB_SETTLE);
+        stubWait = setTimeout(() => { stubWait = 0; readTo(p); }, STUB_SETTLE);
         return;
       }
-      tell(p);
+      readTo(p);
     });
   }, { passive: true });
 
@@ -694,6 +725,8 @@ export function createLitPane({ paneId, start, drafts, onPlace, showPassage = nu
     goTo,
     keep,
     setMarks,
+    backPlace: () => back.place(),
+    forgetBack: () => back.forget(),
     destroy() {
       destroyed = true;
       seq++;

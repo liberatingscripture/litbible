@@ -80,10 +80,10 @@ function loadIntro(bookKey) {
 const modified = (e) => e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
 
 /**
- * @param {{ paneId: string, start: object, set: (passage: object) => void,
+ * @param {{ paneId: string, start: object, set: (passage: object, how?: { jump: boolean }) => void,
  *   showPassage: (passage: object) => unknown }} options
  *   `start` is the passage the pane follows (`pane.get()`), `set` asks for a new
- *   one (`pane.set`), and `showPassage` is desk-page.js's, which moves the
+ *   one (`pane.set`; `{ jump: true }` for a book picked from the list, E168), and `showPassage` is desk-page.js's, which moves the
  *   leading LIT pane.
  * @returns {{ el: HTMLElement, setPassage: (passage: object) => void, destroy: () => void }}
  */
@@ -186,14 +186,18 @@ export function createIntroPane({ paneId, start, set, showPassage }) {
     show(p.bookKey);
   }
 
-  /** Choosing a book: the LIT moves to its chapter 1 (or this pane alone, when it stays put). */
-  function choose(bookKey) {
+  /**
+   * Choosing a book: the LIT moves to its chapter 1 (or this pane alone, when
+   * it stays put). A book picked from the list is a jump, which offers the
+   * LIT pane's way back (E168); an arrow's step is not.
+   */
+  function choose(bookKey, { jump = false } = {}) {
     if (!introPath(bookKey) || bookKey === book) return;
     held = null;
-    set({ bookKey, chapter: 1, verse: null });
+    set({ bookKey, chapter: 1, verse: null }, { jump });
   }
 
-  select.addEventListener("change", () => choose(select.value));
+  select.addEventListener("change", () => choose(select.value, { jump: true }));
   for (const [b, dir] of [[prev, -1], [next, 1]]) {
     b.addEventListener("click", () => {
       if (b.getAttribute("aria-disabled") === "true") return;
