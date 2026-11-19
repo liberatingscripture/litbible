@@ -110,6 +110,28 @@ it holds. Computer only; the apps carry it untouched.
   Cancel); Yes adds `planLabelRulesToItems` to the deletion's own write, so one
   undo restores both. Tests: `test/desk-collections-rule-page.test.js`,
   `test/desk-collections-notebook.test.js`.
+- **Step 6, Filters, search, and the header:** the collection filter mirrors
+  the label filter where each place has one: `kept-list.js` (My Notebook's
+  list, and /desk's My Notebook pane) has an "Any collection" select beside
+  Label, and `tab-mine.js` (the Notebook panel's My Notes and /desk's My Notes
+  pane) a row of `desk-mine__label` toggles, "All collections" first; neither
+  shows without a collection. `collectionFilter` (`desk-collections.mjs`) reads
+  what one holds through `collectionRows` (items, and a rule's bookmarks less
+  any left out) and `filterRecords` takes it as `recordIds`. Passages are not
+  records, so a chosen collection that holds some adds one plain line, "Its 4
+  passages are on its page." (link to the page), and a collection holding only
+  passages lists no rows. The notebook search (`kept-list.js`) also offers
+  collections whose name holds its words (`collectionsNamed`) as a "Collections"
+  group of rows linking to their pages, never rows of the record list or in its
+  count, drawn even when no record matches. A collection's change wakes no view
+  of marks, so the panel and the My Notes pane subscribe to
+  `{ kinds: ["collection"] }` themselves to keep the filter's list and counts
+  current. "My collections" (`/collections/`) is in header C's Study group, the
+  site footer's Study group, the Notebook's Settings tab beside "My sheets,"
+  and /desk's title menu beside "My Notebook" (that menu had no "My sheets";
+  it opens in a new tab as its notebook link does). "Add these N to a
+  collection…" is unchanged: it answers the search and the label filter, not
+  this filter. Test: `test/desk-collections-filters.test.js`.
 - **Later:** "Make a sheet" and "Add to sheet ▸" (step 7).
 
 ## Rules this step settled, and why

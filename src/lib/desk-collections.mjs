@@ -57,6 +57,7 @@ import {
 import { canEdit, createRecord, editRecord, newId, validateRecord } from "./desk-records.mjs";
 import { labelGroups, labelIds, readsAsNothing } from "./desk-labels.mjs";
 import { planSave } from "./desk-store-core.mjs";
+import { fold } from "./desk-notebook.mjs";
 
 export { collectionOrder, collectionTooBig };
 
@@ -957,4 +958,52 @@ export function collectionsHolding(records, { bookKey, chapter, verse }) {
     if (holds) out.push({ id: c.id, name: collectionName(c) });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }) || cmp(a.id, b.id));
+}
+
+/* ── Filters and search (step 6) ─────────────────────────────────────── */
+
+/**
+ * The collections a filter can choose: every live collection, by name, then
+ * id. A collection a newer format made is listed too, since it can be read.
+ *
+ * @returns {{ id: string, name: string }[]}
+ */
+export function filterableCollections(records) {
+  const out = [];
+  for (const c of liveById(records).values()) if (c.kind === "collection") out.push({ id: c.id, name: collectionName(c) });
+  return out.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }) || cmp(a.id, b.id));
+}
+
+/**
+ * What choosing a collection in My Notes' or My Notebook's filter shows: the
+ * ids of the records it holds (its items, and the bookmarks its rules bring
+ * in, less any left out) and how many passages it holds, which are not
+ * records and so are said in a line instead.
+ *
+ * @returns {{ ids: Set<string>, passages: number }}
+ */
+export function collectionFilter(records, collectionId) {
+  const collection = liveById(records).get(collectionId);
+  if (!collection || collection.kind !== "collection") return { ids: new Set(), passages: 0 };
+  const rows = collectionRows(collection, records, { order: "bible" }).rows;
+  return {
+    ids: new Set(rows.filter((r) => r.type === "record").map((r) => r.record.id)),
+    passages: rows.filter((r) => r.type === "passage").length,
+  };
+}
+
+/**
+ * The collections whose name holds every word of `query` (case, accents and
+ * spacing ignored, as the notebook's search folds them), for the notebook
+ * search's "Collections" group. Nothing for a query with no words.
+ *
+ * @returns {{ id: string, name: string }[]}
+ */
+export function collectionsNamed(records, query) {
+  const words = fold(query).split(" ").filter(Boolean);
+  if (!words.length) return [];
+  return filterableCollections(records).filter((c) => {
+    const hay = fold(c.name);
+    return words.every((w) => hay.includes(w));
+  });
 }

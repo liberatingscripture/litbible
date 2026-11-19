@@ -179,7 +179,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     <section class="desk-panel__group" aria-labelledby="deskSettingsKeep">
       <h3 class="desk-panel__group-title" id="deskSettingsKeep">Keep and print</h3>
       <div class="desk-panel__print-slot"></div>
-      <p class="desk-panel__page"><a href="/notebook/">My Notebook</a> · <a href="/sheets/">My sheets</a></p>
+      <p class="desk-panel__page"><a href="/notebook/">My Notebook</a> · <a href="/sheets/">My sheets</a> · <a href="/collections/">My collections</a></p>
       <p class="desk-panel__kept"></p>
       <p class="desk-panel__persist" hidden></p>
     </section>
@@ -720,6 +720,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // sheet: My Notes lists neither, and a sheet autosaves every few hundred
   // milliseconds in another tab (NB8-1). A bookmark moving is heard (NB8-3).
   store?.subscribe(() => render(), { except: NO_CHAPTER_KINDS });
+  // A collection draws nothing on the text, but My Notes' collection filter lists them and counts what each holds (D13).
+  store?.subscribe(() => render(), { kinds: ["collection"] });
   // My Notes' What's new line reads the notebook's meta, which the notebook
   // page moves on when it is looked at, in any tab (BA96).
   store?.onMeta?.(() => render());
