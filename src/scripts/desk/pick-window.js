@@ -78,7 +78,8 @@ export function claimPickSlot(handle) {
  *   noun: [string, string], items: { id: string, name: string, detail?: string }[],
  *   onPick: (item: { id: string, name: string, detail?: string }) => void,
  *   back?: HTMLElement | (() => HTMLElement | null) | null,
- *   near?: { left: number, top: number } | null, className?: string }} options
+ *   near?: { left: number, top: number } | null, className?: string,
+ *   action?: { label: string, onPress: () => void } | null }} options
  *   `heading` is the small label in the header ("Add to sheet"), `title` the
  *   window's name ("All sheets"), `lead` a line under it saying what a pick
  *   does. `noun` names one item and many, for the count line. `items` are in
@@ -86,11 +87,14 @@ export function claimPickSlot(handle) {
  *   November 12, 2026"), heard as the row's description. `back` is where focus
  *   goes when the window closes (an element, or a function finding one then).
  *   `near` is where it opens (the menu it came from); without it, near the top
- *   of the window's free room.
+ *   of the window's free room. `action` is one row at the top of the list
+ *   that the filter never hides ("New collection…"): pressing it closes the
+ *   window, as a pick does, and calls `onPress`. It is not an item, so it
+ *   isn't counted and `onPick` never hears it.
  * @returns {{ el: HTMLElement, update: (items: object[]) => void,
  *   close: (reason?: string) => void, isOpen: () => boolean }}
  */
-export function openPickWindow({ heading, title, lead = "", filterLabel = "Filter by title", noun, items, onPick, back = null, near = null, className = "" }) {
+export function openPickWindow({ heading, title, lead = "", filterLabel = "Filter by title", noun, items, onPick, back = null, near = null, className = "", action = null }) {
   current?.close("replaced");
   const id = `deskPick${++seq}`;
   let all = [...(items ?? [])];
@@ -170,10 +174,24 @@ export function openPickWindow({ heading, title, lead = "", filterLabel = "Filte
     return li;
   }
 
+  function actionRow() {
+    const b = make("button", "desk-pick__row desk-pick__action");
+    b.append(make("span", "desk-pick__name", action.label));
+    b.type = "button";
+    b.dataset.pickAction = "";
+    b.addEventListener("click", () => {
+      win.close("pick");
+      action.onPress();
+    });
+    const li = make("li");
+    li.append(b);
+    return li;
+  }
+
   function draw() {
     shown = filterPicks(all, input.value);
-    list.replaceChildren(...shown.map(row));
-    list.hidden = shown.length === 0;
+    list.replaceChildren(...(action ? [actionRow()] : []), ...shown.map(row));
+    list.hidden = shown.length === 0 && !action;
     count.textContent = pickCountLine(shown.length, all.length, input.value, noun);
   }
 
