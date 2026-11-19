@@ -5638,7 +5638,9 @@ approved the plan the same day, adding decisions 18 to 22, and its mocks,
 adding 23 and 24). Steps 0 to 4 were merged on 2026-11-18 (#605, #608, #614,
 #615, and #617): the record, the `/collections/` page, "Add to collection ▸"
 in the verse menu and the selection panel, "Collections…" on rows, and This
-verse's Collections line. Steps 5 to 8 are next. The preview once put labels on notes, highlights,
+verse's Collections line. Steps 5 to 8 are in review (2026-11-19): labels
+and the live rule (#620), filters, search, and the header (#622), a
+collection onto a sheet (#621), and the tours. The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
@@ -5747,7 +5749,12 @@ From BVJ's review of the plan (2026-11-18):
     "Delete all sheets" never did.
 22. **The tours: an Opus subagent does the tour work**, and BVJ decides
     whether collections get a tour of their own (the website's
-    recommendation is under "Still open").
+    recommendation is under "Still open"). **BVJ's answer (2026-11-19):
+    "don't build a separate tour for now. Check again before closing
+    D13."** So step 8 names collections in the existing tours (three
+    sentences, written by the Opus session building D13 rather than a
+    subagent), and BVJ is asked again before this section is marked
+    built.
 
 From the mocks (BVJ, 2026-11-18: "Yes, with A and Collections…"; the mocks
 were approved for steps 2 to 4 as drawn):
@@ -6041,26 +6048,20 @@ step 2.
   BDR to review. The website goes ahead with it meanwhile (BVJ,
   2026-11-18: "We're plowing ahead"); the apps need only keep it, as they
   keep sheets.
-- **The tours, once collections are fully built** (BVJ, 2026-11-18):
-  review the notebook tour (`tour.js`, on the chapter pages) to see whether
-  it needs collections added, and decide whether collections warrant a
-  tour of their own, as the Sheets have theirs (E63). The Study Desk
-  tour may want a look too, since /desk's My Notes pane gains the
-  collection filter. **The website recommends no tour of its own**
-  (2026-11-18). Instead, the notebook tour's first stop, which already says
-  "“Add to sheet” puts the verse on one of your sheets," gains a sentence
-  for "Add to collection." Its last stop, about My Notebook, names
-  collections, and the Study Desk tour's My Notes stop names the filter if
-  it lists the filters. An empty `/collections/` page explains itself in two
-  sentences, with a link to the help page. The reasons:
-  - A collection has three ideas (name it, add to it, arrange it), and its
-    main way in sits beside "Add to sheet," where the tour already points.
-    The Sheets got a tour (E63) for the many tools on one page: parts,
-    templates, blanks, printing, and present mode.
-  - Every tour is upkeep (Audit 7 re-read all three), and a fourth adds to
-    it for little gain.
-  - It keeps help in one place a reader asks for. BVJ decides (decision
-    22).
+- **The tours: no tour of its own for now, asked again before this section
+  closes** (BVJ, 2026-11-19: "don't build a separate tour for now. Check
+  again before closing D13."). Step 8 did what the website recommended on
+  2026-11-18: the notebook tour's first stop names "Add to collection"
+  beside "Add to sheet," its last stop ("My Notebook, and where it's kept")
+  names collections, and the Study Desk tour's card on the title menu names
+  "My collections." Its My Notes card lists no filters, so it names none.
+  An empty `/collections/` page explains itself and links the help page's
+  "How collections work" (step 2). The website's reasons, for the second
+  ask: a collection has three ideas (name it, add to it, arrange it), and
+  its main way in sits beside "Add to sheet," where the tour already
+  points, while the Sheets got a tour (E63) for the many tools on one page;
+  every tour is upkeep (Audit 7 re-read all three); and it keeps help in
+  one place a reader asks for.
 
 Reaching a sheet beyond the five the flyout lists (E154, the "All sheets…"
 window that "All collections…" will reuse) was built first, on its own

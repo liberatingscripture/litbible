@@ -126,6 +126,11 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  * Audit 7 (TR7-3, 2026-11-09): "Open the menu" names “Add to sheet”, which
  * PR #520 put in Chapter View's verse menu and selection panel after Print.
  * Read View has none, so its wording is unchanged.
+ *
+ * D13 (decision 22; BVJ, 2026-11-19: no tour of its own for now): "Open the
+ * menu" names “Add to collection” beside “Add to sheet”, which Read View
+ * lacks too, and "My Notebook, and where it’s kept" names collections. Ids
+ * are unchanged, so neither is offered again as new.
  */
 export const TOUR_STEPS = [
   {
@@ -137,7 +142,7 @@ export const TOUR_STEPS = [
     title: "Open the menu",
     body: {
       study:
-        "Select a verse number to open its menu. The “My Notebook” row is yours: “Highlight,” “Add a note,” and “Add bookmark.” Select any words instead, and the same row works on just those words. “Add to sheet” puts the verse on one of your sheets.",
+        "Select a verse number to open its menu. The “My Notebook” row is yours: “Highlight,” “Add a note,” and “Add bookmark.” Select any words instead, and the same row works on just those words. “Add to sheet” puts the verse on one of your sheets, and “Add to collection” in one of your collections.",
       read: "Select any words. The panel that opens has a “My Notebook” row: “Highlight” while “My highlights” is on in Display options, and “Add bookmark.”",
       prose: "Select any words. The panel that opens has a “My Notebook” row with “Add a note.”",
     },
@@ -247,7 +252,7 @@ export const TOUR_STEPS = [
     title: "My Notebook, and where it’s kept",
     body: {
       default:
-        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels and back up your notebook or merge a backup into it. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
+        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
     },
   },
 ];
@@ -451,7 +456,7 @@ export const DESK_TOUR_STEPS = [
     title: "The commands",
     body: {
       default:
-        "Under the header: Add pane, Layout, New sheet, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, My Notebook, and this tour.",
+        "Under the header: Add pane, Layout, New sheet, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, My Notebook, My collections, and this tour.",
     },
   },
   // How a sheet starts (E59): the command row's "New sheet…" and its template
