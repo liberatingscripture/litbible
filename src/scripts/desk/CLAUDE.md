@@ -1515,7 +1515,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        opens in a new tab, an intro in a Book Intro pane (E53; `env.showIntro`).
        A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Its add buttons
-       (checked verses, E117) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`,
+       (checked verses, E117; topic chapters and Greek verses, E166) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`,
        rule 18, and its four kinds of button, E126). `/` reaches it as a `lit:desk-search` event from
        `keyboard-shortcuts.js`, which imports nothing of the desk; ← → and
        `[` `]` come the same way as `lit:desk-chapter`, a press of the passage

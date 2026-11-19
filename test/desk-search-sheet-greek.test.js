@@ -33,8 +33,9 @@ function toggle(box, on) {
   box.dispatchEvent(new window.Event("change", { bubbles: true }));
 }
 
-// The hits of a Greek search, as searchGreekAuto lists them: Romans 3:22 and
-// Galatians 2:16 hold the word twice each, so seven hits are five verses.
+// The hits of a Greek search, in the shape searchGreekAuto lists them (made
+// up: here Romans 3:22 and Galatians 2:16 hold the word twice each), so seven
+// hits are five verses. desk-search-pane-groups.test.js runs the real data.
 const HITS = [
   { book: "romans", chapter: 3, verse: 22, t: 3 },
   { book: "romans", chapter: 3, verse: 22, t: 12 },

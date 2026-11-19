@@ -4550,9 +4550,9 @@ says so; where BVJ was wondering, nothing is decided.)
   order with neighbors joined, as a keyword search's do. Three calls of
   Claude's, open to BVJ: (1) **the noun is “verse,”** since a verse is what
   goes: a lemma search lists a row per word matched, so a verse holding the
-  word twice (Romans 3:22 has πίστις twice) has two rows and one check, and
-  the head row counts verses (“Check all 227 verses” under “243 Greek
-  occurrences”); (2) **the sheet is named Greek: “πίστις”**, for the Greek
+  word twice (Galatians 5:13 has ἐλευθερία twice) has two rows and one
+  check, and the head row counts verses (“Check all 227 verses” under “243
+  Greek occurrences of πίστις”); (2) **the sheet is named Greek: “πίστις”**, for the Greek
   word shown (so “faith” under the Greek type names the word it found, not
   the English typed), the form under Exact form only, or a command as typed
   (Greek: “πίστις.gen”), where a keyword search's is Search: “…”;
@@ -4564,8 +4564,34 @@ says so; where BVJ was wondering, nothing is decided.)
   sends the Greek hits with `lit:search-results` (`greek`, every hit, and
   `greekWord`), and announces no results when it clears the page, so no head
   row outlives its search. `test/desk-search-sheet-greek.test.js` drives it.
-  **Not done, for BVJ to decide**: /desk's Search pane lists Greek results
-  without E117's boxes or strip. Status: fixed on /search.
+  /desk's Search pane was left for BVJ to decide, and is E166. Status: fixed.
+- **E166, wish: /desk's Search pane can't put topic chapters or Greek
+  verses on a sheet.** BVJ, 2026-11-19, answering E165's open question:
+  “Yes, add them, and also for topic matches. It should have full parity
+  with the search page.” The pane's verses had E117's boxes, strip and +;
+  its chapters by topic and its Greek verses had none. **Fixed**
+  (`search-pane.js`, a `PICKS` table like /search's `KINDS`): each group
+  keeps its own checks and has its own strip under its title, with E117's
+  words (“chapter” for the topics), the + on every row, nothing checked
+  adding nothing, and a new sheet named as /search names it (the topic's
+  label, or Greek: “…” for the word shown, the form under Exact form only,
+  or a command as typed). A chapter goes whole, its last verse read from
+  the committed verse counts (`verseCount`; /search fetches the verse
+  files, which give the same number). A Greek verse matched twice has two
+  rows and one check, its strip sits above the word's line, and another
+  Greek word or Exact form only keeps only the checks it still finds. An
+  introduction among the topic's results has no box, as on /search.
+  Emptying the box now forgets the checks, as /search does (it had kept
+  them for the same query typed again). `commonLabel` moved into
+  `desk-sheet-gather.mjs` so both places name a topic's sheet by one rule.
+  Parity also needed the pane to find the same chapters: it had matched a
+  topic exactly and stopped at 50 chapters, where /search has no cap and
+  lets one word find every topic that holds it (“debt” finds “debt
+  release”), naming those topics on each row. That matching is now one
+  function, `topicMatches` in `search-core.js`, which both call, and the
+  pane merges its chapters as /search does, so a chapter under two such
+  topics comes once. `test/desk-search-pane-groups.test.js` drives it over
+  the real Greek data. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

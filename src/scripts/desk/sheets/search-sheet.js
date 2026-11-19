@@ -49,6 +49,7 @@ import {
   checkAllLabel,
   checkedLine,
   checkedSaid,
+  commonLabel,
   gatherMessage,
   includeLabel,
   passagesFromChapters,
@@ -123,13 +124,6 @@ async function withLastVerses(chapters) {
       }
     }),
   );
-}
-
-/** The label every chapter of a topic carries, else null (a loose match has several). */
-function commonLabel(chapters) {
-  if (!chapters.length) return null;
-  const [first, ...rest] = chapters.map((c) => c.labels ?? []);
-  return first.find((label) => rest.every((labels) => labels.includes(label))) ?? null;
 }
 
 /* ── The page ────────────────────────────────────────────────────────── */

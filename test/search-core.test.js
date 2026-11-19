@@ -20,6 +20,7 @@ import {
   highlightVerseHit,
   resolveMistypedPath,
   makeDeskReadingHref,
+  topicMatches,
 } from "../src/scripts/search-core.js";
 import { parsePlaceParam } from "../src/lib/desk-passage.mjs";
 import { stemWord } from "../src/lib/word-stem.mjs";
@@ -496,4 +497,37 @@ test("parseReferenceJump: the short forms shared with a note's references (BVJ, 
     ["Phlm 1:6", "philemon"],
   ];
   for (const [q, bookKey] of cases) assert.equal(parseReferenceJump(q)?.bookKey, bookKey, q);
+});
+
+/* ── Topic matching, shared by /search and /desk's Search pane (E166) ── */
+
+/** loadTopicsIndex's shape, from [label, [[url, book]…]] pairs. */
+function topicsOf(pairs) {
+  const topicsList = [];
+  const topicsUrlMap = new Map();
+  for (const [label, docs] of pairs) {
+    const norm = label.toLowerCase();
+    topicsList.push({ label, norm, count: docs.length });
+    topicsUrlMap.set(norm, docs.map(([url, book]) => ({ url, book, topic: label })));
+  }
+  return { topicsList, topicsUrlMap };
+}
+
+test("topicMatches: an exact topic, else every topic holding a one-word query whole", () => {
+  const topics = topicsOf([
+    ["debt", [["/luke-7", "luke"]]],
+    ["debt release", [["/luke-4", "luke"], ["/matthew-18", "matthew"]]],
+    ["forgiving debt", [["/matthew-18", "matthew"]]],
+    ["debtors", [["/matthew-6", "matthew"]]],
+  ]);
+  const exact = topicMatches(topics, "debt");
+  assert.deepEqual(exact.docs.map((d) => d.url), ["/luke-7"], "an exact topic wins outright");
+
+  const loose = topicMatches(topicsOf([...topics.topicsUrlMap].filter(([n]) => n !== "debt").map(([n, docs]) => [n, docs.map((d) => [d.url, d.book])])), "debt");
+  assert.deepEqual(loose.docs.map((d) => d.url), ["/luke-4", "/matthew-18", "/matthew-18"], "whole words only, so not “debtors”; the bucketing drops the repeat");
+  assert.deepEqual(loose.labels.get("/matthew-18"), ["debt release", "forgiving debt"]);
+
+  assert.deepEqual(topicMatches(topics, "debt release", { book: "matthew" }).docs.map((d) => d.url), ["/matthew-18"], "a book keeps its own");
+  assert.equal(topicMatches(topics, "release debt").docs.length, 0, "a phrase is never matched loosely");
+  assert.equal(topicMatches(null, "debt").docs.length, 0);
 });

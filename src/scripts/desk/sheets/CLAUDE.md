@@ -144,7 +144,20 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   alone as the primary, which goes through E127's `env.showSheet`. With none
   checked they add nothing, as /search's head row (rule 21); no label wraps,
   and a long sheet name ends in “…” with the whole label in the tooltip and
-  the accessible name. Checks clear on a new query. A new feature of the editor goes in
+  the accessible name. Checks clear on a new query and when the box is
+  emptied. **The chapters by topic and the Greek's verses have the same**
+  (E166; BVJ, 2026-11-19: “full parity with the search page”): each group
+  its own checks and strip (`PICKS` in `search-pane.js`, the pane's `KINDS`),
+  a + on each row, “chapter” for “verse” in the topic group's words, a
+  chapter going whole to its last verse (`verseCount`, so no fetch), and
+  each new sheet named as /search names it (`commonLabel` for a topic,
+  Greek: “…” for the word). A Greek verse matched twice has two rows and
+  one check, and its strip sits under the group's title, above the word.
+  An introduction among the topic's results has no box. Both find the
+  chapters by topic with one function, `topicMatches` in `search-core.js`
+  (a one-word query finds every topic holding it, and a row names those
+  topics), so the two lists can't drift apart. A new group that
+  can go on a sheet joins `PICKS` here and `KINDS` on /search together. A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
@@ -847,7 +860,8 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   `ticked` in `search-sheet.js`), and a new group that can go on a sheet
   joins `KINDS` rather than getting a row of its own: its rows, its link,
   its key, its noun, and its sheet's `title`, and `whole` if each result
-  goes as a chapter. search.js announces no results when it clears the page,
+  goes as a chapter; it joins the Search pane's `PICKS` too (rule 18,
+  E166). search.js announces no results when it clears the page,
   so no head row outlives its search. What it made opens where the search
   was: "Open the sheet" is `/sheets/?id=<id>`, and "open it in the Study Desk" beside
   it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane

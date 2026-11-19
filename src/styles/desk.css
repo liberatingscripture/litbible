@@ -8749,6 +8749,11 @@ mark.desk-print-mark {
   font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
+/* "Matthew 18 · debt forgiveness": the topics a loose match found (E166). */
+.desk-search__topics {
+  color: rgba(var(--ink-rgb), 0.78);
+}
+
 .desk-search__ref {
   color: rgba(var(--ink-rgb), 0.85);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
@@ -8922,7 +8927,8 @@ mark.desk-print-mark {
   margin-left: 5px;
 }
 
-.desk-search__row--verse .desk-search__check {
+/* Every row with a box: a verse, a chapter by topic, a Greek verse (E166). */
+.desk-search__row--checkable .desk-search__check {
   margin-top: 9px;
 }
 

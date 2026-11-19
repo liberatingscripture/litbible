@@ -17,7 +17,7 @@ import {
   buildPfQuery,
   escapeHtml,
   fuzzyTopicSuggestions,
-  topicTokenMatches,
+  topicMatches,
   parseBookChapterFromUrl,
   scriptureResultTitle,
   glossaryTermFromResult,
@@ -1756,45 +1756,12 @@ async function runFullSearch() {
   const topicsData = await loadTopicsIndexOnce();
   if (topicsData) cachedTopicsList = topicsData.topicsList;
   if (topicsData && qPhrase) {
-    const { topicsList, topicsUrlMap } = topicsData;
-
-    const exact = topicsUrlMap.get(qPhrase) || [];
-
-    let loose = [];
-    if (!exact.length && !/\s/.test(qPhrase)) {
-      const MAX_TOPICS = 30;
-      const MAX_DOCS = 60;
-
-      const matchedTopics = [];
-      for (const t of topicsList) {
-        if (topicTokenMatches(t.norm, qPhrase)) matchedTopics.push(t.norm);
-        if (matchedTopics.length >= MAX_TOPICS) break;
-      }
-
-      for (const norm of matchedTopics) {
-        const docs = topicsUrlMap.get(norm) || [];
-        loose = loose.concat(docs);
-        if (loose.length >= MAX_DOCS) break;
-      }
-    }
-
-    const docs = exact.length ? exact : loose;
-    const wantBook = normalizePhrase(String(book || ""));
+    // The matching is shared with /desk's Search pane (E166).
+    const { docs, labels } = topicMatches(topicsData, qPhrase, { book });
+    for (const [url, found] of labels) subjectTopicLabels.set(url, found);
 
     for (const doc of docs) {
-      const url = String(doc?.url || "");
-      if (!url) continue;
-
-      const docBook = normalizePhrase(String(doc?.book || ""));
-      if (wantBook && docBook && docBook !== wantBook) continue;
-
-      const label = String(doc?.topic || "").trim();
-      if (label) {
-        const labels = subjectTopicLabels.get(url) || [];
-        if (!labels.includes(label)) labels.push(label);
-        subjectTopicLabels.set(url, labels);
-      }
-
+      const url = String(doc.url);
       extraSubjectItems.push(
         topicsIndexSubjectItem({
           url,

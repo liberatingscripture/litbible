@@ -133,6 +133,18 @@ export function passagesFromChapters(chapters, { room = SHEET_LIMITS.modules } =
  */
 const TITLE_LEADS = { search: "Search", topic: "Topic", greek: "Greek" };
 
+/**
+ * The topic label every chapter carries (`labels`, the topics that matched
+ * it), else null: a loose match has several, and then the sheet is named
+ * `Topic: “…”` for the query. /search and /desk's Search pane both name a
+ * topic's sheet by it.
+ */
+export function commonLabel(chapters) {
+  if (!Array.isArray(chapters) || !chapters.length) return null;
+  const [first, ...rest] = chapters.map((c) => c?.labels ?? []);
+  return first.find((label) => rest.every((labels) => labels.includes(label))) ?? null;
+}
+
 export function searchSheetTitle(query, { kind = "search", label = null } = {}) {
   const tidy = (text) =>
     String(text ?? "")
