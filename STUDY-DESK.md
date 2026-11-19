@@ -5638,9 +5638,11 @@ approved the plan the same day, adding decisions 18 to 22, and its mocks,
 adding 23 and 24). Steps 0 to 4 were merged on 2026-11-18 (#605, #608, #614,
 #615, and #617): the record, the `/collections/` page, "Add to collection ▸"
 in the verse menu and the selection panel, "Collections…" on rows, and This
-verse's Collections line. Steps 5 to 8 are in review (2026-11-19): labels
-and the live rule (#620), filters, search, and the header (#622), a
-collection onto a sheet (#621), and the tours. The preview once put labels on notes, highlights,
+verse's Collections line. Steps 5 to 8 were merged on 2026-11-19 (#620,
+#622, #621, and #623): labels and the live rule, filters, search, and the
+header, a collection onto a sheet, and the tours naming collections. D13 is
+marked built once BVJ has gone through it and answered decision 22's second
+ask, a tour of its own. The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
