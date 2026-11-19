@@ -2359,6 +2359,9 @@ tap areas (`global.css`, never under 24px).
   narrow window, a large text size), the Footnotes list is indented by
   what is missing, so Pin is still on the left and inside the window
   (Claude's call, since nothing else keeps it left there).
+  History moved from the desk doc: until E79 "Add a note" sat beside Pin and
+  a `more` mode folded the two behind a "⋯"; until E81 a tight margin put Pin
+  on the note's line (`inline`).
 - **E82, design: Pin shows only for the footnote the reader is at.** BVJ
   (2026-11-10): “I don't like how cluttered the page looks with all those
   pins buttons running down the column beside the footnotes… What if the
@@ -4795,3 +4798,20 @@ The rules are condensed in `src/scripts/desk/CLAUDE.md` (rule 13, "Bookmarks, an
        and any other tab following that bookmark stops (`loseFollow`). The
        follower's move is quiet on purpose: the margin mark isn't redrawn as it
        moves, and takes its new place at the next redraw.
+
+## Details trimmed from the desk CLAUDE.md, 2026-11-18
+
+Kept here so the desk doc could regain headroom for Collections (D13). Rules, decisions and reasons stayed in the doc; these are the build stories and code-level detail.
+
+- **Launching, two-stage load (LG6-4).** Measured on `dist/john-3/` (gzipped, beyond the scripts a reading page already loads) on 2026-11-08: 14.6 KB with nothing kept and the Notebook minimized, the Display tray opened included; the shell’s closure about 138 KB once it opens.
+- **Search pane (3m, E34, E53).** Class and function names the doc dropped: `.desk-search__link` (the rows the preview reads), `.desk-search__away` (the small link beside a passage row), `introMoveMessage`; “The book I’m reading” fixes the book when picked; a modified click on a row opens a tab. The pane also keeps nothing about a search, so a reload empties it.
+- **Title menu and Add pane (E43, E68).** F11 full screen is invisible to the page, so "Exit full screen" shows only for one the menu entered; with a menu open in full screen the first Escape leaves full screen (accepted). A column is a full-height pane at the right edge, a row a full-width pane along the bottom. Both Add pane menus are `role="menu"` (arrows, Home and End pass over a disabled line, `menu-reasons.js`); in Add pane’s, Left or Escape steps back.
+- **E109 (text size and spacing).** Until E109 only the LIT and Book Intro text and the Greek words followed the tray’s size or spacing. BVJ (2026-11-12): the size “affects some panes but not all,” then “Fix the line spacing and notebook panel.” In OpenDyslexic the panel header’s Study Desk link and minimize button left a 280px panel even before E109; at the largest size a 286px panes bar shortens the passage field and the My Notes chapter, as built.
+- **Undo and writes (rule 11).** The close-time `writeNow` rule was tested 2026-10-27: Chrome keeps no other kind of write made while a page closes, and a read-then-write save, or one queued behind it, is lost. Entries are compared without `modified`, `client` and `deletedAt`, or nothing could be undone twice in a row.
+- **Bookmarks (rule 13).** Longer account: the "Bookmarks: the long account" section above. Dropped wording: a move writes `verse`, `endVerse` and `contentVersion` as a new bookmark gets them; turning the switch off in the form stops a follow at once; Delete then Undo resumes following only if the reader has not scrolled since; the follower writes at most every 2 seconds and the settle must stay longer than that gap or steady scrolling redraws between writes.
+- **Interleaf (N7).** Set aside by BVJ 2026-10-13; revert commit aacdc92.
+- **N8.** Built and held on branches `claude/desk-1d-hidden` and `claude/desk-1d-search`; Phase 6 deletes them with the few lines that name the kind.
+- **First use and tours.** The desk tour’s mid-tour reload was tested (BA33). The Sheets tour’s offer sits level with its pane’s foot. The menu’s own “Take the tour” item is always there.
+- **Greek (rules 14 to 17).** `longEnoughForGreek` and the form-button `prefer` rule are unchanged. The first-paint rule: a stamp at first paint when the notebook floats and folds would have reflowed every chapter from 48 to 52. The Greek builder’s “Examples and all commands” opens when an error points at a command. Data format 3 detail: a lemmas shard entry is `[forms, flat, parses, others?]` with six numbers a word, `others` the words tagged with another Strong’s number by place, and a `text/` word carries the number as a tenth field (read by the tab’s Strong’s button). Glosses: STEPBible’s brief one (πίστις is “to believe in” in UBS’s commonest sense, “faith” there).
+- **Pins (E49, E81).** Until E79 "Add a note" sat beside Pin and a `more` mode folded the two behind a "⋯"; until E81 a tight margin put Pin on the note’s line (`inline`).
+- **Records table.** The audit rows once also gave commit hashes (Audit 1 `82af6a6`, 2 `a57e155d`, 3 `60af379e`, 4 `4a5b7c3c`, 5 `19e263e5`, 6 `5c9a31a6`, 7 `81937298`, 8 `15986b6e`), counts and appendix lists (each audit file has its own).

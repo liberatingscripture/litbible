@@ -5633,7 +5633,8 @@ Each is its own PR.
 
 ## D13. Collections (brainstormed 2026-11-18)
 
-**Brainstormed, not yet planned or built.** The preview once put labels on
+**Planned 2026-11-18, and being built** ("Order of work," below; BVJ
+approved the plan the same day, adding decisions 18 to 22). The preview once put labels on
 notes, highlights, bookmarks, pinned footnotes and sheets; BVJ wanted them
 on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
@@ -5710,6 +5711,41 @@ section marked as one is agreed unless "Still open" says otherwise.
     the collection), which catches a slip either way. "Add to sheet ▸" stays
     as it is.
 
+From BVJ's review of the plan (2026-11-18):
+
+18. **A third order, by type.** "Maybe there should be a third sort order
+    option: by type of record." The choice at the top of a collection's page
+    is "Bible order · By type · My order." By type groups it under Sheets,
+    Passages, Notes, Highlights, Bookmarks, and Pinned footnotes, each in
+    Bible order; a rule's bookmarks fall under Bookmarks, and headings still
+    show in My order only.
+19. **The page in Site 2.0's look**: "ensure it uses the styling from
+    litbible.net 2.0, probably based on the /sheets/ page, but also look at
+    other pages for reference and use what makes sense." Its body renders
+    only with the desk on, which always carries `data-restyle`, so its
+    styles are `src/styles/v2/collections.css`: the title under the
+    sunshine bar, the site's wrap and left edge, and Raised buttons (My
+    sheets, My Notebook), one collection's members as rows on one sheet
+    (Release Notes, the podcast page), at the reading width of a sheet that
+    holds scripture (the article page).
+20. **Whole verses only.** "The Add to collection function from the
+    selection panel should add in increments of whole verses, not partial
+    even if only part of a verse is selected." A selection adds every verse
+    it touches, whole, so every passage in a collection is whole verses: the
+    start and end words D13 planned to trim are gone everywhere, "Add
+    passage…" included, and kind 12's passage has no `quote` (one that
+    arrives with one keeps it and shows whole verses). On a sheet made from
+    a collection every passage is whole verses too, so a bookmark's text
+    part and a highlight's on the same verses sit under one passage.
+21. **"Delete all collections."** Asked whether the bulk deletes would gain
+    one, BVJ approved the plan's answer: My Notebook's "Delete in bulk" gets
+    a fourth box ("Every collection. What's in them stays in your
+    notebook."), "Delete all notes and marks" stops taking collections, and
+    "Delete all sheets" never did.
+22. **The tours: an Opus subagent does the tour work**, and BVJ decides
+    whether collections get a tour of their own (the website's
+    recommendation is under "Still open").
+
 ### A collection and a label
 
 - **A label describes a bookmark** ("Comfort," "Memorize"). It belongs to
@@ -5733,8 +5769,8 @@ is one of:
 - **an item**: the `id` of a note, highlight, bookmark, `footnotePin` or
   sheet;
 - **a passage**: a sheet passage's fields (`bookKey`, `chapter`, `verse`,
-  `endVerse`, an optional `quote`, `verseCopy`, `verseCopyAsOf`), its words
-  read from today's text, as a sheet's are;
+  `endVerse`, `verseCopy`, `verseCopyAsOf`), whole verses only (decision
+  20), its words read from today's text, as a sheet's are;
 - **a rule**: every bookmark carrying a label, named by the label's id, with
   `except`, the ids left out (below);
 - **a heading**: plain text.
@@ -5772,16 +5808,16 @@ Why a kind of its own:
   "Add to collection ▸" after "Add to sheet ▸", a flyout of the five
   collections used most recently, "New collection…," and "All
   collections…", in Add to sheet's order, with no remembered pick
-  (decision 17). A selection adds a passage with its start and end words, as Add
-  to sheet does. /desk's LIT pane gets the row too. Read View gets none:
+  (decision 17). A selection adds the whole verses it touches (decision
+  20), where Add to sheet keeps its start and end words. /desk's LIT pane gets the row too. Read View gets none:
   it retires at launch, and Add to sheet is Chapter View only.
 - **This verse** (decision 11): a Collections line naming the collections
   that hold this verse (as a passage, or through an item on it), with "Add
   to collection…". It is also the one place on a reading page that shows a
   collected passage, since a passage makes no mark.
 - **The collection's page** (decision 11): "Add passage…", a typed
-  reference read by `parseReferenceJump` (`search-core.js`), its start and
-  end words trimmed afterward as on a sheet.
+  reference read as a sheet's passage form reads one (`parseReference`,
+  `passageForReference`), whole verses (decision 20).
 
 ### The live rule (the website's proposal, agreed; decision 5 settles the exception)
 
@@ -5814,10 +5850,10 @@ Why a kind of its own:
   highlights, bookmarks and passages show the verse's words, so the page
   reads as a study page rather than a list of references. A sheet is a card
   that opens on `/sheets/`.
-- **Order** (decision 6): Bible order, with sheets first under "Sheets."
+- **Order** (decisions 6 and 18): Bible order, with sheets first under "Sheets."
   Moving anything, or adding a heading, switches to "My order," and a
-  choice at the top switches back and forth; Bible order keeps My order to
-  return to. Headings show in My order only. Moving is a drag with a click
+  choice at the top switches among Bible order, By type, and My order; the
+  other two keep My order to return to. Headings show in My order only. Moving is a drag with a click
   route (Move up, Move down, To top, To bottom), as every drag on the desk
   has. New arrivals (from the verse menu, or a rule's new bookmark) go at
   the end of My order.
@@ -5862,8 +5898,97 @@ Why a kind of its own:
   by default so it never reaches a participant's copy, and the leader can
   untick that when it points to a handout the participants are given.
 
+### Order of work
+
+Planned 2026-11-18 and approved by BVJ the same day. Each step is its own
+PR. Model choices follow BVJ's limits for this work (up to two Opus, four
+Sonnet, four Haiku, and one Fable at a time): Opus where a wrong call is
+hard to see in review, Sonnet for well-scoped work, Haiku for mechanical
+work.
+
+**Choices made in planning**, approved with the plan, for BVJ to change if
+wanted:
+- **Collections have their own `CLAUDE.md`** (`src/scripts/desk/collections/`),
+  since the desk's file was at its size cap.
+- **A highlight's id can change** (a same-color highlight absorbed, or one
+  split in two; `planHighlight`). The same write moves the collection's
+  member to the highlight that survives, as labels already move (DI-7),
+  and a split's new piece is added right after it. The apps don't do this.
+- **Limits**: 1,000 members and 512 KB (a sheet's), not the 256 KB first
+  proposed, since each passage carries its verses' words.
+- **Names needn't be unique**, as with sheets, so a restore never refuses.
+- **"Used most recently" is "changed last"** (`modified`), so the flyout
+  needs no storage key.
+- **A live rule's bookmarks**: the rule's line sits at the top of the page.
+  In Bible order its bookmarks fall among the rest, and in By type under
+  Bookmarks. In My order they come at the end until the reader moves one,
+  which makes it an item there, still shown once.
+- **Bible order**: sheets first, then everything on a verse in Bible order
+  (a passage before an item on the same verse), then anything with no
+  verse.
+- **Markdown**: a "Collections" section is written, not read back, as
+  Places and Labels are.
+- **Collections are never rows in My Notes or My Notebook's list**; they
+  have their own section and filter.
+- **"My collections" goes wherever "My sheets" is listed**: header C's Study
+  group, the Notebook's Settings tab, and /desk's title menu.
+
+The steps:
+
+0. The order of work (this section), and room in the desk's `CLAUDE.md`,
+   its build stories moved to their E entries. I write the order; a Sonnet
+   subagent does the trim.
+1. **The record kind and its model**, with no UI: validation, the store's
+   kinds and listener filters, undo's sentence, the bulk delete, Markdown,
+   the highlight carry, the pure model (every write, the three orders, the
+   live rule, the flyout's five), three merge vectors (version 8), and the
+   format doc. An Opus subagent, in its own worktree beside step 0.
+2. **The `/collections/` page**, usable on its own: the route (noindex, the
+   sitemap filter, out of Pagefind), Site 2.0's look (decision 19), "New
+   collection…" (a small window that asks for a name), each member as its
+   row, the three orders with drag and its click route (XA8-1), headings,
+   rename and describe, remove, Add passage…, print, delete, the empty
+   page's two sentences, and "Delete all collections." Sonnet, from
+   approved mocks.
+3. **"Add to collection ▸"** in the verse menu and the selection panel,
+   mirroring Add to sheet's row: the five changed last, "New collection…",
+   "All collections…" (E154's pick window), whole verses (decision 20), a
+   finger's chips, /desk's LIT pane, and the undo bar's "Open the
+   collection." Sonnet.
+4. **"Add to collection…" on rows** (My Notes, This verse, My Notebook, and
+   the sheet lists), a checkbox popover with "New collection…", and **This
+   verse's Collections line**. Sonnet, beside step 3 (no shared files).
+5. **Labels and the live rule**: My Notebook's Collections section, "Add
+   these N to a collection…", a label's "Add all bookmarks labeled X…" and
+   its two choices, the rule's line on the page with "Leave it out" and
+   bringing one back, and the question before deleting a label a rule uses
+   (one undo for both). Sonnet.
+6. **Filters, search, and the header**: the collection filter in My Notes
+   (the panel and /desk) and My Notebook's list, the notebook search
+   finding collections by name, and "My collections." Sonnet, then Haiku
+   for the links.
+7. **A collection onto a sheet**: "Make a sheet" and "Add to sheet ▸" on
+   the page and a Collection choice in "+ From my notes…". The parts follow
+   the page's order; a passage and its text parts never split at the
+   300-part limit; a heading is never read as a template's "Reading" part;
+   repeats are checked against the sheet's own passages; and skipped
+   sheets are named in leader-only text parts. Opus writes the converter;
+   Sonnet wires it.
+8. **The tours, and closing this section** (decision 22): an Opus subagent
+   does the tour work; this section is marked built, and anything left
+   goes to "Version 2: deferred and shelved."
+
+Before steps 2 to 4 are built, BVJ sees mocks of the page (as a list and as
+one collection, in all three orders, with a heading and a rule's line), the
+flyout row, the name window, This verse's line, the row's button and its
+popover, and the label shortcut's two choices.
+
 ### Still open
 
+- **The live rule's wording** (asked 2026-11-18). BVJ found "now and later"
+  ambiguous and suggested "now and ongoing." The website proposes saying
+  what will happen: "Only the 12 labeled Advent now" and "These 12, and any
+  you label Advent from now on." BVJ chooses from the mocks.
 - **BDR's review of the new kind.** It is written into
   `STUDY-DESK-FORMAT.md` as kind 12, "Collections (kind 12)," marked for
   BDR to review. The website goes ahead with it meanwhile (BVJ,
@@ -5874,7 +5999,21 @@ Why a kind of its own:
   it needs collections added, and decide whether collections warrant a
   tour of their own, as the Sheets have theirs (E63). The Study Desk
   tour may want a look too, since /desk's My Notes pane gains the
-  collection filter.
+  collection filter. **The website recommends no tour of its own**
+  (2026-11-18). Instead, the notebook tour's first stop, which already says
+  "“Add to sheet” puts the verse on one of your sheets," gains a sentence
+  for "Add to collection." Its last stop, about My Notebook, names
+  collections, and the Study Desk tour's My Notes stop names the filter if
+  it lists the filters. An empty `/collections/` page explains itself in two
+  sentences, with a link to the help page. The reasons:
+  - A collection has three ideas (name it, add to it, arrange it), and its
+    main way in sits beside "Add to sheet," where the tour already points.
+    The Sheets got a tour (E63) for the many tools on one page: parts,
+    templates, blanks, printing, and present mode.
+  - Every tour is upkeep (Audit 7 re-read all three), and a fourth adds to
+    it for little gain.
+  - It keeps help in one place a reader asks for. BVJ decides (decision
+    22).
 
 Reaching a sheet beyond the five the flyout lists (E154, the "All sheets…"
 window that "All collections…" will reuse) was built first, on its own
