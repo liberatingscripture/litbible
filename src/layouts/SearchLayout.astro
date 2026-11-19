@@ -282,8 +282,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         display: block !important; /* we force open via dataset; this is extra safety */
       }
 
-      /* /search: we only want the controls (chips/book/mode), not the mini-results tray */
+      /* /search: we only want the controls (chips/book/mode), not the mini-results tray.
+         The tray still searches here (it shares the page's field), so each line
+         it draws under its status is hidden too: the page draws its own Greek
+         offer ("“pistis” is also a Greek word") and "My notes" switch, and the
+         tray's showed a second offer under the field. */
       .scripture-layout--search [data-searchbar] .searchbar__status,
+      .scripture-layout--search [data-searchbar] .searchbar__greek-line,
+      .scripture-layout--search [data-searchbar] .searchbar__greek-offer,
       .scripture-layout--search [data-searchbar] .searchbar__jump,
       .scripture-layout--search [data-searchbar] .searchbar__groups,
       .scripture-layout--search [data-searchbar] .searchbar__footer {
