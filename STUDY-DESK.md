@@ -5634,9 +5634,9 @@ Each is its own PR.
 ## D13. Collections (brainstormed 2026-11-18)
 
 **Planned 2026-11-18, and being built** ("Order of work," below; BVJ
-approved the plan the same day, adding decisions 18 to 22). The preview once put labels on
-notes, highlights, bookmarks, pinned footnotes and sheets; BVJ wanted them
-on bookmarks alone (E149) but saw what that was reaching for, a way "to let
+approved the plan the same day, adding decisions 18 to 22, and its mocks,
+adding 23 and 24). The preview once put labels on notes, highlights,
+bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
 kinds, "add all bookmarks with X label," a page of its own for each
@@ -5746,6 +5746,19 @@ From BVJ's review of the plan (2026-11-18):
     whether collections get a tour of their own (the website's
     recommendation is under "Still open").
 
+From the mocks (BVJ, 2026-11-18: "Yes, with A and Collections…"; the mocks
+were approved for steps 2 to 4 as drawn):
+
+23. **The live rule's two choices say what happens**: "Only the 12 labeled
+    Advent now" and "These 12, and any you label Advent from now on" (the
+    number and the label's name are the real ones). BVJ had found "now and
+    later" ambiguous and suggested "now and ongoing"; this wording was the
+    website's alternative, and BVJ chose it.
+24. **A row's button is "Collections…"**, a twin of "Labels…": it opens
+    checkboxes, so it takes a record out of a collection as well as putting
+    it in. The verse menu, the selection panel and This verse keep "Add to
+    collection," where it only adds.
+
 ### A collection and a label
 
 - **A label describes a bookmark** ("Comfort," "Memorize"). It belongs to
@@ -5754,8 +5767,8 @@ From BVJ's review of the plan (2026-11-18):
   class"). It has a name, an optional line of description, its own page,
   and members of any kind. One item can be in several collections, and
   deleting a collection never deletes what is in it.
-- A bookmark's row will carry both "Labels…" and "Add to collection…", so
-  the wording has to keep the two apart.
+- A bookmark's row will carry both "Labels…" and "Collections…" (decision
+  24), so the wording has to keep the two apart.
 
 ### How it is stored (the website's proposal; BVJ agreed, BDR to review)
 
@@ -5794,7 +5807,7 @@ Why a kind of its own:
 
 ### Getting things in
 
-- **On the rows**: "Add to collection…" on notes, highlights,
+- **On the rows**: "Collections…" (decision 24) on notes, highlights,
   bookmarks and pinned footnotes in My Notes, This verse and My Notebook,
   and on sheets in `/sheets/`' list, the Sheets pane's menu and My
   Notebook's Sheets section. It opens the collections with checkboxes (an
@@ -5802,8 +5815,8 @@ Why a kind of its own:
 - **From a label** (decision 5): on My Notebook, "Add these 12 to a
   collection…" adds whatever its search and label filter show, and a
   label's own menu offers "Add all bookmarks labeled Advent" as a shortcut,
-  asking which: "The 12 bookmarks labeled Advent now" or "Every bookmark
-  labeled Advent, now and later."
+  asking which: "Only the 12 labeled Advent now" or "These 12, and any you
+  label Advent from now on" (decision 23).
 - **From the verse menu and the selection panel** (decisions 9 and 10):
   "Add to collection ▸" after "Add to sheet ▸", a flyout of the five
   collections used most recently, "New collection…," and "All
@@ -5955,7 +5968,7 @@ The steps:
    "All collections…" (E154's pick window), whole verses (decision 20), a
    finger's chips, /desk's LIT pane, and the undo bar's "Open the
    collection." Sonnet.
-4. **"Add to collection…" on rows** (My Notes, This verse, My Notebook, and
+4. **"Collections…" on rows** (My Notes, This verse, My Notebook, and
    the sheet lists), a checkbox popover with "New collection…", and **This
    verse's Collections line**. Sonnet, beside step 3 (no shared files).
 5. **Labels and the live rule**: My Notebook's Collections section, "Add
@@ -5981,14 +5994,11 @@ The steps:
 Before steps 2 to 4 are built, BVJ sees mocks of the page (as a list and as
 one collection, in all three orders, with a heading and a rule's line), the
 flyout row, the name window, This verse's line, the row's button and its
-popover, and the label shortcut's two choices.
+popover, and the label shortcut's two choices. BVJ approved them the same
+day (decisions 23 and 24).
 
 ### Still open
 
-- **The live rule's wording** (asked 2026-11-18). BVJ found "now and later"
-  ambiguous and suggested "now and ongoing." The website proposes saying
-  what will happen: "Only the 12 labeled Advent now" and "These 12, and any
-  you label Advent from now on." BVJ chooses from the mocks.
 - **BDR's review of the new kind.** It is written into
   `STUDY-DESK-FORMAT.md` as kind 12, "Collections (kind 12)," marked for
   BDR to review. The website goes ahead with it meanwhile (BVJ,
