@@ -82,8 +82,35 @@ it holds. Computer only; the apps carry it untouched.
   wakes no view of marks, so This verse subscribes to
   `{ kinds: ["collection"] }` itself. Tests:
   `test/desk-collections-rows.test.js`, `test/desk-collections-verse.test.js`.
-- **Later:** rule members and their line (step 5), "Make a sheet" and
-  "Add to sheet ▸" (step 7).
+- **Step 5, Labels and the live rule:** `add-records.js` is the one way
+  records and a label's bookmarks go in from My Notebook:
+  `openAddRecords` ("Add these N to a collection…", `kept-list.js`, shown
+  while a search or the label filter is on, counting what the list shows of
+  `ITEM_KINDS`) and `openAddLabel` (a label's "Add all bookmarks labeled
+  Advent…" in the Labels section of `notebook-page.js`, shown only for a label
+  in use). Both are E154's pick window with its optional `action` ("New
+  collection…", through `openNewCollection`'s `members`); the label's adds
+  decision 23's two choices through the pick window's optional `choices` (a
+  radio group in `desk-setting` classes; the choice is `onPick`'s second
+  argument and `action.onPress`'s argument), "These N, and any you label
+  Advent from now on" chosen to start, as the mock drew it. A pick is one
+  `store.change` (`planAddItems`, or `addRule` through `planCollectionChange`,
+  the bookmarks read in that transaction), and the bar says "12 added to
+  Advent series." with Open the collection. My Notes' list draws a
+  Collections section after Sheets (name link, count, New collection…, All my
+  collections; only while nothing narrows the list; never rows). The page's
+  rule line (`ruleLine` in `collection-view.js`, one per rule) reads "Every
+  bookmark labeled Advent · 12" with `desk-item__stop` links Stop adding new
+  ones (`ruleToItems`), Remove (`removeRule`), and one "Bring back …" per
+  bookmark left out (`bringBack`); a rule whose label is gone says so and can
+  only be removed. A bookmark a rule brings in says "· from Advent" in its
+  kind line and has "Leave it out of this collection" (`leaveOut`) in place
+  of Remove. Deleting a label a rule uses asks first on its row (the bulk
+  deletes' `desk-np__ask` group: Yes, keep them; No, just delete the label;
+  Cancel); Yes adds `planLabelRulesToItems` to the deletion's own write, so one
+  undo restores both. Tests: `test/desk-collections-rule-page.test.js`,
+  `test/desk-collections-notebook.test.js`.
+- **Later:** "Make a sheet" and "Add to sheet ▸" (step 7).
 
 ## Rules this step settled, and why
 
@@ -141,7 +168,8 @@ second draft of the mocks takes from where:
   never marks a toggle (E160).
 - **Moving in My order** is the sheet editor's grip to drag
   (`desk-sheet__grip`) and its ↑ and ↓ (`desk-sheet__icon`), not a menu.
-- **The rule's line** is a plain line with `.desk-item__stop` links.
+- **The rule's line** is a plain line with `.desk-item__stop` links; the
+  label's two choices are `desk-setting` radios in the pick window.
 - **The undo bar** is `showUndo`'s, with its `link`.
 - **"Add to collection ▸"** is a `flyoutRow`, so `panel-flyout.js` places it
   (6px right of its trigger, level with the trigger's top).

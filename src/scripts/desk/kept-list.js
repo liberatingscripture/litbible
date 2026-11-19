@@ -29,12 +29,17 @@ import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
 import { collectionsSubject, openCollectionsPopover } from "./collections/collections-popover.js";
+import { ITEM_KINDS, collectionCount, collectionName } from "../../lib/desk-collections.mjs";
+import { collectionHref, collectionsHref } from "./collections/add-passage.js";
+import { openAddRecords } from "./collections/add-records.js";
+import { openNewCollection } from "./collections/new-collection.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { recordRow } from "./record-rows.js";
 import { nameOf } from "./record-words.js";
 import { showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
+import { plural } from "./desk-text.js";
 
 // How long typing in "Search my notebook" waits for the next key before the list is redrawn.
 const QUERY_DELAY_MS = 150;
@@ -66,6 +71,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       <div class="desk-np__field desk-mine__colors" role="group" aria-label="Show highlights of one color" data-np-colors hidden></div>
     </div>
     <p class="desk-np__count" aria-live="polite" data-np-count></p>
+    <p class="desk-np__sheet-links" data-np-add-these hidden><button type="button" class="desk-item__stop" aria-haspopup="dialog"></button></p>
     <p class="desk-np__error" role="alert" data-np-delete-error hidden></p>
     <div class="desk-np__lists" data-np-lists></div>`;
 
@@ -77,6 +83,14 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   const colorBox = q("[data-np-colors]");
   const countEl = q("[data-np-count]");
   const deleteError = q("[data-np-delete-error]");
+  const addThese = q("[data-np-add-these]");
+  const addTheseButton = addThese.querySelector("button");
+  // The records the list shows now that a collection can hold, for "Add these N to a collection…".
+  let heldByList = [];
+  addTheseButton.addEventListener("click", () => {
+    const at = addTheseButton.getBoundingClientRect();
+    openAddRecords({ store, ctx, recordIds: heldByList, near: { left: at.left, top: at.bottom + 8 }, back: () => addTheseButton });
+  });
   const lists = q("[data-np-lists]");
 
   const filters = { query: "", kind: null, color: null, labelId: null };
@@ -178,6 +192,10 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
 
   function drawList(shown, all, labels) {
     const active = Boolean(filters.query.trim() || filters.kind || filters.color || filters.labelId);
+    // "Add these N to a collection…" is offered while the search or the label filter narrows the list (D13, step 5).
+    heldByList = filters.query.trim() || filters.labelId ? shown.filter((r) => ITEM_KINDS.includes(r.kind)).map((r) => r.id) : [];
+    addThese.hidden = heldByList.length === 0;
+    if (heldByList.length) addTheseButton.textContent = `Add these ${heldByList.length} to a collection…`;
     countEl.textContent = !all.length
       ? "Nothing kept yet."
       : active
@@ -245,6 +263,46 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       section.querySelector("h3").after(links);
       return section;
     }
+    // The Collections section (D13, step 5), built as Sheets' is: each one's name, a link to its page, and its
+    // count, then New collection… and All my collections. Collections are never rows of this list.
+    function collectionsGroup(records) {
+      const section = el("section", "desk-np__group");
+      section.append(el("h3", "desk-np__h3", "Collections"));
+      const links = el("p", "desk-np__sheet-links");
+      const fresh = el("button", "desk-item__stop", "New collection…");
+      fresh.type = "button";
+      fresh.setAttribute("aria-haspopup", "dialog");
+      fresh.addEventListener("click", () => {
+        const at = fresh.getBoundingClientRect();
+        openNewCollection({
+          store,
+          ctx,
+          heading: "My collections",
+          near: { left: at.left, top: at.bottom + 8 },
+          back: () => fresh,
+          onCreated: (made, entry) =>
+            showUndo(`${collectionName(made)} made.`, () => undoEntry(entry), { link: { label: "Open the collection", href: collectionHref(made.id) } }),
+        });
+      });
+      const every = el("a", null, "All my collections");
+      every.href = collectionsHref;
+      links.append(fresh, " · ", every);
+      section.append(links);
+      const mine = records.filter((r) => r?.kind === "collection");
+      if (mine.length) {
+        const ul = el("ul", "desk-list");
+        for (const c of mine.sort((a, b) => collectionName(a).localeCompare(collectionName(b), undefined, { sensitivity: "base" }) || (a.id < b.id ? -1 : 1))) {
+          const li = el("li", "desk-item desk-np-row");
+          li.dataset.id = c.id;
+          const link = el("a", "desk-item__ref", collectionName(c));
+          link.href = collectionHref(c.id);
+          li.append(link, el("span", "desk-item__kind", plural(collectionCount(c, records), "item")));
+          ul.append(li);
+        }
+        section.append(ul);
+      }
+      return section;
+    }
     const groups = pageGroups(groupRecords(shown), pageRows(shown.length, revealed).shown);
     for (const book of groups.books) {
       const section = el("section", "desk-np__book");
@@ -260,6 +318,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     const sheets = groups.other.filter((r) => r.kind === "sheet");
     const other = groups.other.filter((r) => r.kind !== "sheet");
     if (sheets.length || !active) out.push(sheetsGroup(sheets));
+    if (!active) out.push(collectionsGroup(lastRecords ?? []));
     if (other.length) out.push(group("Other items", 3, other));
     const { left, next } = pageRows(shown.length, revealed);
     if (left > 0) {

@@ -23,18 +23,20 @@ const FAILED = "That couldn’t be saved in this browser, so nothing was made. T
 
 /**
  * Open the window. `ctx` is what a record is stamped with ({ client,
- * contentVersion }). `firstMember` becomes the collection's first member.
+ * contentVersion }). `firstMember` becomes the collection's first member; `members`
+ * (step 5: "Add these 12 to a collection…" and a label's shortcut) start it
+ * with several, or with a rule.
  * `onCreated(collection, entry)` is called after the write, with the history
  * entry that undoes it. `heading` names where the window was opened from: the
  * page passes "My collections"; from a passage it is "Add to collection".
  *
  * @param {{ store: object, ctx: () => object,
  *   near?: { left: number, top: number } | null,
- *   firstMember?: object | null, lead?: string, heading?: string,
+ *   firstMember?: object | null, members?: object[], lead?: string, heading?: string,
  *   back?: HTMLElement | (() => HTMLElement | null) | null,
  *   onCreated?: (collection: object, entry: object | null) => void }} options
  */
-export function openNewCollection({ store, ctx, near = null, firstMember = null, lead = "", heading = "Add to collection", back = null, onCreated = () => {} }) {
+export function openNewCollection({ store, ctx, near = null, firstMember = null, members = [], lead = "", heading = "Add to collection", back = null, onCreated = () => {} }) {
   return openNameWindow({
     heading,
     title: "New collection",
@@ -47,7 +49,7 @@ export function openNewCollection({ store, ctx, near = null, firstMember = null,
       let made = null;
       try {
         await store.change(async () => {
-          made = createCollection({ name, members: firstMember ? [firstMember] : [] }, { now: new Date().toISOString(), ...ctx() });
+          made = createCollection({ name, members: firstMember ? [firstMember] : members }, { now: new Date().toISOString(), ...ctx() });
           return planSave(made);
         });
       } catch (err) {

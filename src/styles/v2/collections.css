@@ -15,6 +15,11 @@
   margin: 0 0 18px;
 }
 
+:root[data-restyle] .collection-page__rule {
+  max-width: var(--v2-sheet-width, 811px);
+  margin: 0 0 14px;
+}
+
 :root[data-restyle] .collection-page__description {
   max-width: calc(60 * var(--ch));
   margin: 0 0 16px;
