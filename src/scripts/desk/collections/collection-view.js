@@ -2,7 +2,7 @@
 //
 // One collection on /collections/?id=<id> (STUDY-DESK.md, D13, mock part b):
 // "‹ My collections", its name and description, its actions (Add passage…,
-// Rename…, Print, Delete), the order switch, and its members on a Site 2.0
+// Make a sheet, Add to sheet…, Rename…, Print, Delete), the order switch, and its members on a Site 2.0
 // sheet as the desk's own rows (record-rows.js, as My Notebook draws them).
 // Nothing here has a look of its own (decision 25): every class is one the
 // site already has, and styles/v2/collections.css only places them.
@@ -60,6 +60,7 @@ import { showNotice, showUndo } from "../undo-bar.js";
 import { buttons, make } from "../dom.js";
 import { setTip } from "../../tip.js";
 import { plural } from "../desk-text.js";
+import { makeSheetFromCollection, openAddToSheet } from "./collection-sheet.js";
 import { openNameWindow } from "./name-window.js";
 
 const button = buttons("desk-sheet__btn");
@@ -145,6 +146,12 @@ export async function collectionView(page, id) {
   const add = button("Add passage…");
   add.dataset.focusKey = "add";
   add.setAttribute("aria-expanded", String(state.adding));
+  const makeSheet = button("Make a sheet");
+  makeSheet.dataset.focusKey = "make-sheet";
+  makeSheet.title = "Put this collection on a new sheet";
+  const toSheet = button("Add to sheet…");
+  toSheet.dataset.focusKey = "add-to-sheet";
+  toSheet.setAttribute("aria-haspopup", "dialog");
   const rename = button("Rename…");
   rename.dataset.focusKey = "rename";
   const print = button("Print");
@@ -152,7 +159,7 @@ export async function collectionView(page, id) {
   const del = button("Delete");
   del.dataset.focusKey = "delete";
   del.setAttribute("aria-label", `Delete ${name}`);
-  actions.append(add, rename, print, del);
+  actions.append(add, makeSheet, toSheet, rename, print, del);
   nodes.push(actions);
 
   const form = passageForm(page, c, state);
@@ -163,6 +170,27 @@ export async function collectionView(page, id) {
     form.hidden = !state.adding;
     add.setAttribute("aria-expanded", String(state.adding));
     if (state.adding) form.querySelector("input")?.focus();
+  });
+
+  makeSheet.addEventListener("click", async () => {
+    makeSheet.disabled = true;
+    try {
+      await makeSheetFromCollection({ store: page.store, ctx: page.ctx, collectionId: id, chapterText: page.chapterText });
+    } finally {
+      makeSheet.disabled = false;
+    }
+  });
+
+  toSheet.addEventListener("click", () => {
+    const at = toSheet.getBoundingClientRect();
+    openAddToSheet({
+      store: page.store,
+      ctx: page.ctx,
+      collection: c,
+      chapterText: page.chapterText,
+      near: { left: at.left, top: at.bottom + 8 },
+      back: () => document.querySelector('[data-focus-key="add-to-sheet"]'),
+    });
   });
 
   rename.addEventListener("click", () => {

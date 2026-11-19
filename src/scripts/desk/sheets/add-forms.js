@@ -17,16 +17,20 @@
 //   drawn cards by part id) and `focusNewPart(card)`, for the chooser's one
 //   change.
 
+import { collectionSheetParts } from "../../../lib/desk-collection-sheet.mjs";
+import { collectionCount, collectionName } from "../../../lib/desk-collections.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { SHEET_LIMITS } from "../../../lib/desk-sheet-format.mjs";
 import { addModule } from "../../../lib/desk-sheets.mjs";
 import { fitModules, notAlreadyOn, notebookItems, partsFor } from "../../../lib/desk-sheet-from-notes.mjs";
-import { passageForReference, passageFromRecord } from "../../../lib/desk-sheet-passages.mjs";
+import { passageForReference, passageFromRecord, sheetName } from "../../../lib/desk-sheet-passages.mjs";
 import { recordReference } from "../../../lib/desk-store-core.mjs";
 import { describeRefusal } from "../../../lib/desk-sheet-ref-refusal.mjs";
 import { parseReference } from "../../search-core.js";
 import { bookKeyToLabel } from "../../../data/books.js";
 import { loadChapterPage } from "../chapter-page.js";
+import { collectionsHref } from "../collections/add-passage.js";
+import { extras, nothingAdded, readChapters } from "../collections/collection-sheet.js";
 import { buttons, make } from "../dom.js";
 
 const button = buttons("desk-sheet__btn");
@@ -39,6 +43,82 @@ async function chapterText(bookKey, chapter) {
   } catch (_) {
     return null;
   }
+}
+
+/**
+ * The Collection choice in "+ From my notes…" (D13, step 7): the reader's
+ * collections, each a button that brings the whole collection on as one block
+ * of parts, in one change, through the same converter "Make a sheet" uses
+ * (desk-collection-sheet.mjs), run over the sheet as saved. With no
+ * collections it is one plain line and a link to /collections/.
+ */
+function collectionChoice(host, records, box, close) {
+  const wrap = make("div", "desk-sheet__from");
+  wrap.append(make("p", "desk-sheet__from-title", "From a collection"));
+  const list = records
+    .filter((r) => r?.kind === "collection" && !r.deleted && Array.isArray(r.members))
+    .sort((a, b) => String(b.modified ?? "").localeCompare(String(a.modified ?? "")) || collectionName(a).localeCompare(collectionName(b)));
+  if (!list.length) {
+    const line = make("p", "desk-sheet__empty", "You have no collections yet. Make one on the ");
+    const link = make("a", "", "Collections page");
+    link.href = collectionsHref;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    line.append(link, ".");
+    wrap.append(line);
+    return wrap;
+  }
+  const ul = make("ul", "desk-sheet__from-list");
+  for (const c of list) {
+    const li = make("li");
+    const b = button("", "desk-sheet__from-item");
+    b.append(make("span", "desk-sheet__from-ref", collectionName(c)), make("span", "desk-sheet__from-kind", `Collection · ${collectionCount(c, records)}`));
+    b.addEventListener("click", () => addCollection(host, c, box, close, b));
+    li.append(b);
+    ul.append(li);
+  }
+  wrap.append(ul);
+  return wrap;
+}
+
+/** Bring collection `c` on as one block of parts, where "+ From my notes…" puts its parts. */
+async function addCollection(host, c, box, close, trigger) {
+  trigger.disabled = true;
+  const name = collectionName(c);
+  let records = [];
+  let chapters = new Map();
+  try {
+    records = await host.store.all();
+    const col = records.find((r) => r?.id === c.id && r.kind === "collection" && !r.deleted) ?? c;
+    chapters = await readChapters(col, records, chapterText);
+    c = col;
+  } catch (_) {}
+  const now = host.sheet();
+  if (box.hidden || !now || !canEdit(now)) return;
+  const contentVersion = host.ctx().contentVersion;
+  const first = collectionSheetParts(c, records, now, { chapters, contentVersion });
+  if (!first.parts.length) {
+    host.say(nothingAdded(name, sheetName(now), first));
+    trigger.disabled = false;
+    return;
+  }
+  close(false);
+  let result = first;
+  host.change((s) => {
+    // Run again on the sheet as saved, which another tab may have grown, or
+    // already put some of these on (PC8B-1).
+    result = collectionSheetParts(c, records, s, { chapters, contentVersion });
+    if (!result.parts.length) return s;
+    let at = host.insertIndex(s);
+    return result.parts.reduce((acc, m) => addModule(acc, m, at++, host.opCtx()), s);
+  }, {
+    announce: `${name} added, ${first.parts.length === 1 ? "1 part" : `${first.parts.length} parts`}.${extras(first, { full: true })}`,
+    after: () => {
+      const card = host.cards.get(result.parts[0]?.id);
+      card?.el.scrollIntoView({ block: "nearest" });
+      host.focusNewPart(card);
+    },
+  });
 }
 
 /**
@@ -65,14 +145,16 @@ export async function openFromNotes(host, box, close) {
   box.replaceChildren(make("p", "desk-sheet__from-title", hasPassages ? "From my notes on this sheet’s passages" : "From my notes"));
   const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
   cancel.addEventListener("click", () => close(true));
+  const fromCollection = collectionChoice(host, records, box, close);
   if (!items.length) {
     box.append(
       make("p", "desk-sheet__empty", hasPassages
         ? "None of your notes, highlights, or pinned footnotes fall on this sheet’s passages. Make one there, or add the passage they are on."
         : "Notes, highlights, and pinned footnotes you make will be listed here, to bring onto a sheet."),
+      fromCollection,
       cancel,
     );
-    cancel.focus();
+    (fromCollection.querySelector("button") ?? cancel).focus();
     return;
   }
   box.append(make("p", "desk-sheet__empty", "Check what to bring. A question note becomes a Question part, any other note or a pinned footnote becomes a Text part, and a highlight becomes a passage."));
@@ -104,7 +186,7 @@ export async function openFromNotes(host, box, close) {
   });
   const actions = make("div", "desk-sheet__add-row");
   actions.append(go, cancel);
-  box.append(ul, actions);
+  box.append(ul, fromCollection, actions);
   ul.querySelector("input:not(:disabled)")?.focus();
   go.addEventListener("click", async () => {
     const chosen = [...picks.values()];

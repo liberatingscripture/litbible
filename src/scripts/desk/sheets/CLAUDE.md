@@ -967,5 +967,9 @@ on a footnote were removed, E79), is in `src/scripts/desk/CLAUDE.md`.
   (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
   gathered only the notes marked `question` under a heading: "The
   options for sheets need to be more flexible than that, more useful to
-  more people."
+  more people." The chooser also has a "From a collection" section (D13,
+  step 7): one of the reader's collections added as one block of parts through
+  `collectionSheetParts` (`src/lib/desk-collection-sheet.mjs`), over the sheet
+  as saved, at the same `insertIndex`; with no collections it is one line and a
+  link to `/collections/`.
 

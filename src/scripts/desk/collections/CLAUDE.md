@@ -132,7 +132,27 @@ it holds. Computer only; the apps carry it untouched.
   it opens in a new tab as its notebook link does). "Add these N to a
   collection…" is unchanged: it answers the search and the label filter, not
   this filter. Test: `test/desk-collections-filters.test.js`.
-- **Later:** "Make a sheet" and "Add to sheet ▸" (step 7).
+- **Step 7, a collection onto a sheet:** the converter is
+  `src/lib/desk-collection-sheet.mjs` (pure; read its header):
+  `collectionChapters` lists the chapters to read first, and
+  `collectionSheetParts(collection, records, sheet, { chapters })` returns
+  `{ parts, added, alreadyOn, leftOut, skippedSheets, limit }` in the page's
+  order, run again inside the writing change over the sheet as saved.
+  `collection-sheet.js` is the wiring: the page's "Make a sheet" and "Add to
+  sheet…" (after "Add passage…"), both one `store.change` reading the notebook
+  there, with the undo bar's "Open the sheet" and `skippedSheetsNote`; "Make a
+  sheet" hands the parts to `createSheet` as its `modules`. "Add to sheet…" is
+  E154's pick window (no menu opens from a page button) over `addableSheets`,
+  its action row "New sheet" doing what Make a sheet does; a pick appends the
+  block at `passageInsertIndex`. A collection with nothing that makes a part
+  says so and writes nothing. `add-forms.js`' "+ From my notes…" has a
+  "From a collection" section (a button per collection, or one line and a link
+  to `/collections/`) adding the block through the editor's own change at its
+  `insertIndex`. The converter puts a word joiner (U+2060) after a collection
+  heading whose words are a template's reading-part words, so `readingPart`
+  never takes it for the reading part; leave it, it is the owner's to decide.
+  Tests: `test/desk-collection-sheet.test.js`,
+  `test/desk-collections-sheet-wiring.test.js`.
 
 ## Rules this step settled, and why
 
