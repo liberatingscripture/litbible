@@ -4396,6 +4396,24 @@ says so; where BVJ was wondering, nothing is decided.)
   “act compassionately” is the right heading on /glossary is a separate,
   editorial question. `test/desk-greek.test.js` holds the rule. Status:
   fixed.
+- **E163, rough spot: /search's chapters by topic could only go on a sheet
+  all together.** BVJ, 2026-11-18: “the keyword results allow adding all or
+  selecting some of the results to add to a sheet. That’s as it should be.
+  For topic results, it only allows adding all of them, not selecting
+  specific ones. It should match the keyword results behavior. Same for any
+  other results sections that can be added.” Until then the chapters' head
+  row had no box and its button took every chapter (“All 12 chapters go,
+  each whole.”). **Fixed** (`sheets/search-sheet.js`): each chapter row has
+  a box, and the head row is the verses' own: the box that checks all of
+  them (every chapter the topic found, not only the 50 shown), the count
+  line and Clear checks, and a button that adds nothing until a chapter is
+  checked (“Add checked chapters to a sheet…”, then “Add 2 chapters to a
+  sheet…”). Each checked chapter still goes whole. The two groups keep their
+  own checks, and a sheet of a topic is named for the topic every checked
+  chapter carries. The words are E116's, which now take the noun
+  (`desk-sheet-gather.mjs`). These are the only two groups /search can add
+  to a sheet; its Greek results have no add of their own.
+  `test/desk-search-sheet-head.test.js` drives it. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

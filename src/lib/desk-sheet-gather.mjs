@@ -176,7 +176,9 @@ export function gatherMessage({ made, name, added, leftOut = 0, unread = 0 }) {
 /* ── The checks' words (E116 on /search, E117 in the Search pane) ──────────
    BVJ (2026-11-12): nothing checked adds nothing, and the box at the head of
    the list checks every verse. Both places say it in the same words, so each
-   teaches the other; the pane's own labels are in desk-search-pane.mjs. */
+   teaches the other; the pane's own labels are in desk-search-pane.mjs.
+   The chapters by topic are checked the same way (E163; BVJ, 2026-11-18),
+   so each of these takes the noun, "verse" (the default) or "chapter". */
 
 const count = (n) => Number(n).toLocaleString("en-US");
 
@@ -185,9 +187,9 @@ const count = (n) => Number(n).toLocaleString("en-US");
  * verses" once every one is checked. Never "0 verses": a label for none
  * checked says "checked verses" (`addToSheetLabel`).
  */
-export function checkedVerses(k, total) {
-  if (k >= total && total > 1) return `all ${count(total)} verses`;
-  return `${count(k)} ${k === 1 ? "verse" : "verses"}`;
+export function checkedVerses(k, total, noun = "verse") {
+  if (k >= total && total > 1) return `all ${count(total)} ${noun}s`;
+  return `${count(k)} ${k === 1 ? noun : `${noun}s`}`;
 }
 
 /**
@@ -196,8 +198,8 @@ export function checkedVerses(k, total) {
  * sheet…", which is disabled and says why beside it. The chooser it opens is
  * titled the same, without the ellipsis (`ellipsis: false`).
  */
-export function addToSheetLabel(k, total, { ellipsis = true } = {}) {
-  const what = k > 0 ? checkedVerses(k, total) : "checked verses";
+export function addToSheetLabel(k, total, { ellipsis = true, noun = "verse" } = {}) {
+  const what = k > 0 ? checkedVerses(k, total, noun) : `checked ${noun}s`;
   return `Add ${what} to a sheet${ellipsis ? "…" : ""}`;
 }
 
@@ -209,32 +211,25 @@ export function addToSheetLabel(k, total, { ellipsis = true } = {}) {
  * all 119 verses"), never "this box", which a button's description can't
  * point at.
  */
-export function checkedLine(k, total) {
+export function checkedLine(k, total, noun = "verse") {
   if (k <= 0) {
     return total === 1
-      ? { count: "", text: "Check the verse to add it." }
-      : { count: "", text: `Check the verses you want, or check all ${count(total)}.` };
+      ? { count: "", text: `Check the ${noun} to add it.` }
+      : { count: "", text: `Check the ${noun}s you want, or check all ${count(total)}.` };
   }
-  if (k >= total) return total === 1 ? { count: "", text: "The verse is checked." } : { count: `All ${count(total)}`, text: " checked." };
+  if (k >= total) return total === 1 ? { count: "", text: `The ${noun} is checked.` } : { count: `All ${count(total)}`, text: " checked." };
   return { count: `${count(k)} of ${count(total)}`, text: " checked." };
 }
 
 /** What a screen reader hears once a box changes: the line, as one sentence. */
-export function checkedSaid(k, total) {
-  if (k <= 0) return "No verses checked.";
-  const { count: c, text } = checkedLine(k, total);
+export function checkedSaid(k, total, noun = "verse") {
+  if (k <= 0) return `No ${noun}s checked.`;
+  const { count: c, text } = checkedLine(k, total, noun);
   return `${c}${text}`;
 }
 
 /** The head row's box: "Check all 119 verses". */
-export const checkAllLabel = (total) => (total === 1 ? "Check the verse" : `Check all ${count(total)} verses`);
+export const checkAllLabel = (total, noun = "verse") => (total === 1 ? `Check the ${noun}` : `Check all ${count(total)} ${noun}s`);
 
-/** A verse's box: "Include John 3:16 in the sheet". */
+/** A verse's or a chapter's box: "Include John 3:16 in the sheet". */
 export const includeLabel = (label) => `Include ${label} in the sheet`;
-
-/** The chapters group's head row (E116): its line and its one button, which is never disabled. */
-export const chaptersLine = (n) => (n === 1 ? "The chapter goes whole." : `All ${count(n)} chapters go, each whole.`);
-
-export function addChaptersLabel(n, { ellipsis = true } = {}) {
-  return `Add ${n === 1 ? "1 chapter" : `${count(n)} chapters`} to a sheet${ellipsis ? "…" : ""}`;
-}
