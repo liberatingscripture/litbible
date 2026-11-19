@@ -83,15 +83,20 @@ export function collectionsTag({ store, ctx, record, reference = "", track = () 
   return tag;
 }
 
-/** The collections the popover lists: those that can take it, then any that hold it and can't (full). */
+/**
+ * The collections the popover lists: those that can take it, plus any that
+ * hold it and can't take more (full). By name, as Labels… lists labels, never
+ * changed-last: a tick writes the collection, which would otherwise carry it
+ * to the top, out from under the pointer.
+ */
 function listed(records, recordId) {
-  const out = addableCollections(records).map((c) => c.id);
-  const seen = new Set(out);
-  const extra = records
-    .filter((r) => r?.kind === "collection" && !seen.has(r.id) && canEdit(r) && holdsItem(r, recordId))
-    .sort((a, b) => collectionName(a).localeCompare(collectionName(b)));
-  const byId = new Map(records.filter((r) => r?.kind === "collection").map((r) => [r.id, r]));
-  return [...out.map((id) => byId.get(id)), ...extra];
+  const ids = new Set(addableCollections(records).map((c) => c.id));
+  return records
+    .filter((r) => r?.kind === "collection" && canEdit(r) && (ids.has(r.id) || holdsItem(r, recordId)))
+    .sort(
+      (a, b) =>
+        collectionName(a).localeCompare(collectionName(b)) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+    );
 }
 
 /**

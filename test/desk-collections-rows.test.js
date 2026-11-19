@@ -202,6 +202,23 @@ test("a record gone from the notebook closes the popover", async () => {
   assert.ok(!document.querySelector(".desk-labels"), "the popover closed");
 });
 
+test("the list is by name, so ticking a box leaves the order alone", async () => {
+  for (const r of await store.all()) if (r.kind === "collection") await store.remove(r.id);
+  await aCollection("Zeta list");
+  await new Promise((r) => setTimeout(r, 5));
+  await aCollection("Alpha list"); // changed last, but first by name
+  await new Promise((r) => setTimeout(r, 5));
+  const panel = await openCollectionsPopover({ trigger, store, ctx, recordId: note.id, name: "note" });
+  const names = () => rowsText(panel).join("|");
+  assert.equal(names(), "Alpha list|Zeta list");
+  const box = boxes(panel).find((x) => x.parentElement.textContent === "Zeta list");
+  box.checked = true;
+  box.dispatchEvent(new Event("change", { bubbles: true }));
+  await until(async () => (await store.all()).some((r) => r.name === "Zeta list" && holdsItem(r, note.id)), 3000, "the tick");
+  await settle(50);
+  assert.equal(names(), "Alpha list|Zeta list");
+});
+
 test("a sheet's row in a list of sheets has Collections… before Delete, and it opens the popover", async () => {
   const { sheetRow } = await import("../src/scripts/desk/sheets/my-sheets.js");
   const host = { store, opCtx, idSuffix: "t", say() {}, content: document.body, sheetHref: (s) => `/sheets/?id=${s.id}` };

@@ -65,9 +65,25 @@ it holds. Computer only; the apps carry it untouched.
   no `quote` (decision 20). Every pick goes through `addPassageToCollection`.
   A finger's chips are flat, as Add to sheet's. Test:
   `test/desk-collections-add-menu.test.js`.
-- **Later:** This verse's Collections line, rule
-  members and their line (step 5), "Make a sheet" and "Add to sheet ▸"
-  (step 7).
+- **Step 4, Collections… on rows, and This verse's line:**
+  `collections-popover.js` (`openCollectionsPopover`, Labels…'s twin: a
+  checkbox per collection, by name so a ticked box never moves, and an
+  inline New collection; each tick is one `store.change` through
+  `planAddItems` or `removeItem`, writing the collection only), and
+  `collectionsTag`, the quiet button My Notes and This verse use.
+  `record-rows.js` takes `onCollections`, which `kept-list.js` passes and
+  the collection page doesn't, so its rows keep no buttons;
+  `sheets/my-sheets.js`' `sheetRow` (the Sheets pane and /sheets/) loads
+  the popover when pressed. This verse's Collections section
+  (`tab-verse.js`) names the collections holding the verse
+  (`collectionsHolding`) as links, with "Add to collection…": E154's pick
+  window, whose optional `action` row ("New collection…") no filter hides,
+  every pick going through `addPassageToCollection`. A collection's write
+  wakes no view of marks, so This verse subscribes to
+  `{ kinds: ["collection"] }` itself. Tests:
+  `test/desk-collections-rows.test.js`, `test/desk-collections-verse.test.js`.
+- **Later:** rule members and their line (step 5), "Make a sheet" and
+  "Add to sheet ▸" (step 7).
 
 ## Rules this step settled, and why
 
