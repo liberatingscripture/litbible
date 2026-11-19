@@ -14,6 +14,8 @@ const VERSES = {
   verses: {
     matthew: { 6: ["Forgiveness is asked for here."] },
     luke: { 15: ["", "Here a father’s forgiveness runs to meet a child."] },
+    // Only for the Greek rows' LIT line (E167).
+    romans: { 8: [...Array(20).fill(""), "Creation itself will be set free."] },
   },
   vocab: ["forgiveness", "asked", "father", "child", "meet"],
 };
@@ -100,6 +102,7 @@ function memoryStore(sheets = []) {
       return plan;
     },
     lastEntry: () => ({ id: "entry" }),
+    byKind: async (kind) => sheets.filter((s) => s.kind === kind),
   };
 }
 
@@ -109,6 +112,7 @@ function mount({ store = memoryStore(), mode = "all", desk = false } = {}) {
   for (const old of document.querySelectorAll(".desk-search")) old.remove();
   document.documentElement.dataset.desk = desk ? "on" : "off";
   let target = null;
+  const shown = []; // the sheets the pane asked the desk to show
   const hearers = new Set();
   const pane = createSearchPane({
     paneId: `g${++n}`,
@@ -117,7 +121,7 @@ function mount({ store = memoryStore(), mode = "all", desk = false } = {}) {
       ctx: () => ({ client: "web/test", contentVersion: "v1" }),
       showPassage: () => "moved",
       showIntro: () => ({ outcome: "shown" }),
-      showSheet: () => ({ outcome: "open", changed: false }),
+      showSheet: (id) => (shown.push(id), { outcome: "open", changed: false }),
       openGreekHit: () => {},
     },
     getPlace: () => ({ bookKey: "john" }),
@@ -136,7 +140,7 @@ function mount({ store = memoryStore(), mode = "all", desk = false } = {}) {
   const strip = (kind) => $(`.desk-search__pick[data-pick="${kind}"]`);
   const line = (kind) => strip(kind).querySelector(".desk-search__pick-line").textContent.replace("Clear checks", "").trim();
   const box = (kind, label) => $$(`.desk-search__check[data-pick="${kind}"]`).filter((b) => b.getAttribute("aria-label") === `Include ${label} in the sheet`);
-  return { pane, $, $$, store, input: $("input[type=search]"), setTarget, strip, line, box };
+  return { pane, $, $$, store, input: $("input[type=search]"), setTarget, strip, line, box, shown };
 }
 
 const passagesOf = (sheet) => sheet.modules.filter((m) => m.type === "passage").map((p) => [p.bookKey, p.chapter, p.verse, p.endVerse]);
@@ -337,4 +341,66 @@ test("E166: Exact form only keeps the checks on verses the form is in, and names
   click(strip("greek").querySelector(".desk-search__sheet--new"));
   await until(() => store.writes.length);
   assert.equal(store.writes[0].sheet.title, "Greek: “ἐλευθερίαν”", "the form typed");
+});
+
+// ---- E167: the Greek rows' lines, and any sheet ----
+
+test("E167: a Greek row shows a few words of its verse's Greek around the word, its parsing, and the LIT verse", async () => {
+  const { $$, input, strip } = mount({ desk: true });
+  type(input, "ἐλευθερία");
+  await until(() => strip("greek"), 1000);
+  const filled = (r) => r.querySelector(".desk-search__line[lang='grc']")?.hidden === false && r.querySelector(".desk-search__lit-line")?.hidden === false;
+  const row = await until(() => $$("[data-group='greek'] .desk-search__row").find((r) => r.textContent.includes("Romans 8:21") && filled(r)), 1000);
+  const greek = row.querySelector(".desk-search__line[lang='grc']");
+  assert.equal(greek.querySelector("mark").textContent, "ἐλευθερίαν");
+  assert.equal(greek.textContent, "… φθορᾶς εἰς τὴν ἐλευθερίαν τῆς δόξης τῶν …", "three words either side, and where it was cut");
+  assert.equal(row.querySelector(".desk-search__greek-parse").textContent, " · noun, accusative feminine singular");
+  assert.equal(row.querySelector(".desk-search__lit-line").textContent, "Creation itself will be set free.");
+});
+
+test("E167: “Choose a sheet…” lists every sheet, adds the checked verses to the one picked, and shows it", async () => {
+  const ctx = { client: "web/test", contentVersion: "v1" };
+  const older = createSheet({ title: "Freedom", modules: [] }, { now: "2026-11-01T12:00:00.000Z", ...ctx });
+  const newer = createSheet({ title: "Mercy", modules: [] }, { now: "2026-11-18T12:00:00.000Z", ...ctx });
+  const store = memoryStore([older, newer]);
+  const { input, strip, box, shown } = mount({ store, desk: true });
+  type(input, "ἐλευθερία");
+  await until(() => strip("greek"), 1000);
+  const choose = strip("greek").querySelector(".desk-search__sheet--choose");
+  assert.equal(choose.getAttribute("aria-label"), "Choose a sheet…");
+  assert.equal(choose.getAttribute("aria-disabled"), "true", "nothing checked adds nothing");
+  click(choose);
+  await settle(20);
+  assert.equal(document.querySelector(".desk-pick"), null, "and opens nothing");
+
+  toggle(box("greek", "Galatians 5:1")[0], true);
+  toggle(box("greek", "Romans 8:21")[0], true);
+  assert.equal(choose.hasAttribute("aria-disabled"), false);
+  click(choose);
+  const win = await until(() => document.querySelector(".desk-pick"));
+  const rows = [...win.querySelectorAll(".desk-pick__row")];
+  assert.deepEqual(rows.map((b) => b.querySelector(".desk-pick__name").textContent), ["New sheet", "Mercy", "Freedom"], "New sheet first, then every sheet, newest first");
+  click(rows.find((b) => b.textContent.includes("Freedom")));
+  await until(() => store.writes.length);
+  assert.equal(store.writes[0].sheet.id, older.id);
+  assert.deepEqual(passagesOf(store.writes[0].sheet), [["romans", 8, 21, 21], ["galatians", 5, 1, 1]]);
+  assert.deepEqual(shown, [older.id], "the sheet picked is shown, as a new one is");
+  assert.equal(await until(() => document.querySelector(".desk-undo__text")?.textContent.match(/^Added .*/)?.[0]), "Added 2 passages to “Freedom.”");
+});
+
+test("E167: the window's New sheet makes one of the checked chapters, named as the strip's would be", async () => {
+  const store = memoryStore();
+  const { input, strip, box, shown } = mount({ store, mode: "subject" });
+  type(input, "forgiveness");
+  await until(() => strip("subject"));
+  toggle(box("subject", "Luke 15")[0], true);
+  click(strip("subject").querySelector(".desk-search__sheet--choose"));
+  const win = await until(() => document.querySelector(".desk-pick"));
+  assert.match(win.textContent, /Choose the sheet for the checked chapters\./);
+  click(win.querySelector(".desk-pick__action"));
+  await until(() => store.writes.length);
+  const { sheet } = store.writes[0];
+  assert.equal(sheet.title, "Forgiveness");
+  assert.deepEqual(passagesOf(sheet), [["luke", 15, 1, 32]]);
+  assert.deepEqual(shown, [sheet.id]);
 });

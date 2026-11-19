@@ -38,11 +38,15 @@
 //   same boxes, strip and + (E166; BVJ, 2026-11-19: "full parity with the
 //   search page"), each group its own checks (`PICKS`). A Greek verse
 //   matched twice has two rows and one check, since the verse is what goes.
+//   "Choose a sheet…" opens the pick window of every sheet, as /search's
+//   chooser lists them (E167).
 // - **The Greek** (rules 15 and 17 of the desk's CLAUDE.md; only while
 //   greekSearchEnabled()): one query never gets both English and Greek. It is
 //   searchGreekAuto, said back as the Greek tab says it, with the credit under
 //   every Greek group (a license requirement). A Greek result opens its word
-//   in a Greek pane and moves the LIT pane there (`env.openGreekHit`).
+//   in a Greek pane and moves the LIT pane there (`env.openGreekHit`). Its
+//   row is /search's card in short (E167): the parsing, then a line each of
+//   the Greek around the word and of the LIT verse.
 //
 // Nothing about a search is stored: it lives in this closure, and a reload
 // empties the pane. Several panes may be open, each with its own search.
@@ -55,6 +59,7 @@ import {
   PAGE,
   READING,
   BIBLE_ORDER,
+  CHOOSE_SHEET,
   addCheckedLabel,
   addChapterLabel,
   addVerseLabel,
@@ -74,7 +79,7 @@ import {
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
 import { parsePassage, passageLabel } from "../../lib/desk-passage.mjs";
-import { planAddPassages } from "../../lib/desk-sheet-add.mjs";
+import { addableSheets, planAddPassages } from "../../lib/desk-sheet-add.mjs";
 import {
   checkAllLabel,
   checkedLine,
@@ -136,7 +141,8 @@ import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 import { buttons, make } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
-import { plural } from "./desk-text.js";
+import { dateWords, plural } from "./desk-text.js";
+import { openPickWindow } from "./pick-window.js";
 import { setTip } from "../tip.js";
 
 const button = buttons("desk-search__btn");
@@ -186,6 +192,7 @@ let commands = null;
 const withCommands = () => import("../greek-commands.js").then((m) => (commands = m));
 const DEBOUNCE = 120; // as the tray
 const CHOICES = 10; // Greek words offered at a time
+const GREEK_AROUND = 3; // words of a Greek row's verse kept either side of the word (E167)
 
 const STATUS_SEP = " • ";
 
@@ -384,6 +391,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   let resultsScroll = 0;
   let openedFrom = null; // the result that opened the glossary entry, to give focus back
   let busy = false; // a sheet is being written
+  let chooser = null; // the "Choose a sheet…" window, while open (E167)
   // What each group's strip has checked (by PICKS' key), for one query.
   const checked = Object.fromEntries(PICK_KINDS.map((kind) => [kind, new Set()]));
   let checkedFor = null; // the query they belong to
@@ -975,7 +983,11 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     const add = stripButton("desk-search__btn desk-search__btn--primary desk-search__sheet desk-search__sheet--add");
     add.hidden = true;
     const fresh = stripButton("desk-search__btn desk-search__sheet desk-search__sheet--new");
-    actions.append(add, fresh);
+    // Any sheet, as /search's chooser offers (E167): the pick window every
+    // "All sheets…" opens.
+    const choose = stripButton("desk-search__btn desk-search__sheet desk-search__sheet--choose");
+    choose.setAttribute("aria-haspopup", "dialog");
+    actions.append(add, fresh, choose);
     strip.append(all, line, actions);
 
     all.addEventListener("change", () => {
@@ -999,8 +1011,52 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       if (refused(fresh, kind)) return;
       gather(kind, checkedRefs(kind), null);
     });
+    choose.addEventListener("click", () => {
+      if (refused(choose, kind)) return;
+      chooseSheet(kind, choose);
+    });
     syncPick(kind, { strip });
     return strip;
+  }
+
+  /**
+   * "Choose a sheet…" (E167; BVJ, 2026-11-19, parity with /search's chooser):
+   * every sheet that can take a passage, newest first, in the pick window,
+   * with New sheet at its top. A pick adds what is checked when it is made,
+   * as every strip button does, and shows that sheet as a new one is shown.
+   */
+  async function chooseSheet(kind, from) {
+    let records = [];
+    try {
+      records = await store.byKind("sheet");
+    } catch (err) {
+      console.error("Study Desk: the Search pane couldn’t read the sheets", err);
+    }
+    if (destroyed || !from.isConnected) return;
+    const { noun } = PICKS[kind];
+    const at = from.getBoundingClientRect();
+    // A redraw (a page of results, the sort) replaces the strip, so focus goes
+    // back to this group's button as it is then.
+    const back = () => (from.isConnected ? from : stripOf(kind)?.querySelector(".desk-search__sheet--choose") ?? input);
+    const add = (target) => {
+      const refs = checkedRefs(kind);
+      if (!refs.length) {
+        hear(checkedLine(0, pickTotal(kind), noun).text);
+        return;
+      }
+      gather(kind, refs, target, { show: true });
+    };
+    chooser = openPickWindow({
+      heading: "Add to sheet",
+      title: "Choose a sheet",
+      lead: `Choose the sheet for the checked ${noun}s.`,
+      noun: ["sheet", "sheets"],
+      items: addableSheets(records).map((s) => ({ id: s.id, name: s.name, detail: s.modified && dateWords(s.modified) ? `Changed ${dateWords(s.modified)}` : "" })),
+      near: { left: at.left, top: at.bottom + 4 },
+      back,
+      action: { label: "New sheet", onPress: () => add(null) },
+      onPick: (item) => add({ id: item.id, name: item.name }),
+    });
   }
 
   /** A strip button: its label, over invisible copies of the longest it can read. */
@@ -1087,8 +1143,10 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       }
       nameStripButton(fresh, newSheetLabel(k, total, noun), [newSheetLabel(0, total, noun), newSheetLabel(total, total, noun)]);
       fresh.classList.toggle("desk-search__btn--primary", !t);
+      const choose = strip.querySelector(".desk-search__sheet--choose");
+      nameStripButton(choose, CHOOSE_SHEET, []);
       const reason = strip.querySelector(".desk-search__pick-line").id;
-      for (const b of [add, fresh]) {
+      for (const b of [add, fresh, choose]) {
         if (busy || !k) b.setAttribute("aria-disabled", "true");
         else b.removeAttribute("aria-disabled");
         if (!k) b.setAttribute("aria-describedby", reason);
@@ -1115,7 +1173,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
    * sheet `target` names. A chapter by topic goes whole, to its last verse
    * (the committed counts, which match the LIT wherever it is written).
    */
-  async function gather(kind, refs, target) {
+  async function gather(kind, refs, target, { show = target == null } = {}) {
     if (!store || busy || !refs.length) return;
     const made = target == null;
     const title = sheetTitleFor(kind, refs);
@@ -1180,7 +1238,8 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     // no pane to give its place the bar says why and links to the sheet's page.
     let link = null;
     let undoLayout = null;
-    if (made && !destroyed) {
+    // A sheet picked in "Choose a sheet…" is shown the same way (E167).
+    if (show && !destroyed) {
       const way = env.showSheet(sheet.id, paneId);
       if (way?.changed) undoLayout = way.undoLayout;
       if (way?.outcome === "replaced") text += ` ${replacedMessage("sheet", way.replaced.kind)}`;
@@ -1595,13 +1654,34 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       a.append(make("span", "desk-search__ref", hit.label));
       const form = make("span", "desk-search__greek-form", hit.form ?? "");
       form.lang = "grc";
-      a.append(" ", form);
-      // A command match names the words it matched, from the chapter's Greek.
-      if (hit.marked) {
-        gk.loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
-          if (data && form.isConnected) form.textContent = gk.formsLine(gk.verseGreek(data, hit.verse, hit.marked, (x) => x).words);
-        });
-      }
+      const parse = make("span", "desk-search__greek-parse");
+      a.append(" ", form, parse);
+      // What /search's Greek card shows, a line each (E167; BVJ, 2026-11-19:
+      // “just a few words on either side of it”): the verse's Greek around
+      // the word, marked, and the LIT verse. Filled in as the files arrive.
+      const greekLine = make("span", "desk-search__text desk-search__line");
+      greekLine.lang = "grc";
+      greekLine.hidden = true;
+      const litLine = make("span", "desk-search__text desk-search__line desk-search__lit-line");
+      litLine.hidden = true;
+      a.append(greekLine, litLine);
+      // A file already loaded answers before the row is in the page, so a
+      // row is filled whether or not it is connected yet.
+      gk.loadGreekChapter(BASE, hit.book, hit.chapter).then((data) => {
+        if (!data) return;
+        const { html, words } = gk.verseGreek(data, hit.verse, hit.marked ?? [hit.t], escapeHtml, { around: GREEK_AROUND });
+        // A command match names the words it matched; one word, its parsing.
+        if (hit.marked) form.textContent = gk.formsLine(words);
+        if (words.length === 1 && words[0].said) parse.textContent = ` · ${words[0].said}`;
+        greekLine.innerHTML = html;
+        greekLine.hidden = !html;
+      });
+      loadVerseIndex(BASE).then((index) => {
+        const text = index?.verses?.[hit.book]?.[hit.chapter]?.[hit.verse - 1];
+        if (!text) return;
+        litLine.textContent = text;
+        litLine.hidden = false;
+      });
       li.append(a);
       const away = awayLink(hit.href);
       if (away) li.append(away);
@@ -1631,6 +1711,7 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       entrySeq++;
       clearTimeout(timer);
       offTarget();
+      if (chooser?.isOpen()) chooser.close("pane");
       if (commands?.greekCommandsOpenFor(input)) commands.closeGreekCommands("pane");
     },
   };

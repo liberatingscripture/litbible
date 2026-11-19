@@ -8776,6 +8776,32 @@ mark.desk-print-mark {
   font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
+/* A Greek row's parsing, after the form, and its two lines of the verse, the
+   Greek around the word and the LIT, one line each, so a row stays short in a
+   narrow pane (E167). */
+.desk-search__greek-parse {
+  color: rgba(var(--ink-rgb), 0.78);
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+}
+
+.desk-search__line {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.desk-search__line[hidden] {
+  display: none;
+}
+
+.desk-search__line[lang="grc"] {
+  font-family: var(--serif);
+}
+
+.desk-search__lit-line {
+  color: rgba(var(--ink-rgb), 0.78);
+}
+
 /* The pane's worded buttons: ordinary, a toggle (Bible order) or the strip's
    primary (E126; each look is at the end of this file). The transparent edge
    holds the width the primary's color fills. */

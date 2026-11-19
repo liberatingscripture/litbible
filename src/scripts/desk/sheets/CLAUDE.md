@@ -141,7 +141,10 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   strip under it holds the box that checks them all, the count line and the
   buttons: “Add 3 verses to ‘Faith’” (the primary) and “New sheet of 3
   verses” while a Sheets pane shows a sheet, else “New sheet of 3 verses”
-  alone as the primary, which goes through E127's `env.showSheet`. With none
+  alone as the primary, which goes through E127's `env.showSheet`. A third,
+  “Choose a sheet…” (E167), opens the pick window (`openPickWindow`, E154)
+  with New sheet and every sheet `addableSheets` lists, as /search's
+  chooser does; the sheet picked is shown by the same `env.showSheet`. With none
   checked they add nothing, as /search's head row (rule 21); no label wraps,
   and a long sheet name ends in “…” with the whole label in the tooltip and
   the accessible name. Checks clear on a new query and when the box is
@@ -153,6 +156,9 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   each new sheet named as /search names it (`commonLabel` for a topic,
   Greek: “…” for the word). A Greek verse matched twice has two rows and
   one check, and its strip sits under the group's title, above the word.
+  A Greek row shows /search's card in short (E167): the parsing after the
+  form, then three words of the Greek either side of the word and the LIT
+  verse, one line each (`verseGreek`'s `around`).
   An introduction among the topic's results has no box. Both find the
   chapters by topic with one function, `topicMatches` in `search-core.js`
   (a one-word query finds every topic holding it, and a row names those

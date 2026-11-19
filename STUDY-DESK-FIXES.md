@@ -4592,6 +4592,27 @@ says so; where BVJ was wondering, nothing is decided.)
   pane merges its chapters as /search does, so a chapter under two such
   topics comes once. `test/desk-search-pane-groups.test.js` drives it over
   the real Greek data. Status: fixed.
+- **E167, wish: the rest of /search's parity in the Search pane.** After
+  E166 Claude listed where the pane still differed from /search; BVJ
+  (2026-11-19) chose two: “1 and 3. For 1, the excerpt might better be
+  shorter than what is on /search, so that it doesn't take up as much space
+  in the smaller display area. Maybe enough to fill one line, or just a few
+  words on either side of it.” **1, a Greek row's verse**: /search's card
+  shows the whole Greek verse with the word marked, its parsing, and the LIT
+  verse; the pane's row showed the reference and the form. **Fixed**: the
+  parsing follows the form (“ἐλευθερίαν · noun, accusative feminine
+  singular”), then a line of the verse's Greek, three words either side of
+  the word and “…” where it was cut (`verseGreek`'s `around`, in
+  `greek-commands-ui.mjs`), then the LIT verse, each line cut to one with
+  “…” in a narrow pane. A command match keeps its forms and shows no
+  parsing, since it names several words. **3, any sheet**: /search's button
+  opens a chooser of every sheet; the pane added only to the sheet a Sheets
+  pane shows, or to a new one (E117's option A). **Fixed**: E117's buttons
+  stay, and a third, “Choose a sheet…”, opens the pick window “All
+  sheets…” opens (E154), with New sheet at its top and every sheet that
+  can take a passage, newest first. A pick adds what is checked then, and
+  the sheet is shown as a new one is (E127's rule), in one bar with Undo.
+  Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

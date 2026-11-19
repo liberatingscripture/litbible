@@ -137,6 +137,9 @@ export function addCheckedLabel(name, k, total, noun = "verse") {
 export const newSheetLabel = (k, total, noun = "verse") =>
   `New sheet of ${k > 0 ? checkedVerses(k, total, noun) : `checked ${noun}s`}`;
 
+/** The strip's third button, which opens the pick window of every sheet (E167). */
+export const CHOOSE_SHEET = "Choose a sheet…";
+
 /** "Bible order", the verse group's sort, a toggle on its title line (E117). */
 export const BIBLE_ORDER = "Bible order";
 

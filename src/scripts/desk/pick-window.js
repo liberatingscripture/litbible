@@ -5,8 +5,9 @@
 // with a filter box that narrows the list by title as the reader types.
 // Choosing one hands it to the caller and closes the window. "All sheets…" at
 // the foot of "Add to sheet ▸" opens it (sheets/sheet-add.js), so a passage can
-// go to a sheet older than the five the flyout lists; the "All collections…"
-// D13 plans is meant to open it too. So it knows nothing of sheets: it takes a
+// go to a sheet older than the five the flyout lists, and so does the Search
+// pane's "Choose a sheet…" (E167); the "All collections…" D13 plans is meant
+// to open it too. So it knows nothing of sheets: it takes a
 // list of named items, the words to show, and a pick callback. The filter and
 // the count line are src/lib/desk-pick.mjs.
 //
