@@ -24,6 +24,9 @@ import { showNotice, showUndo } from "../undo-bar.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
+/** The list of collections. */
+export const collectionsHref = `${BASE}collections/`;
+
 /** A collection's own page. */
 export const collectionHref = (id) => `${BASE}collections/?id=${encodeURIComponent(id)}`;
 

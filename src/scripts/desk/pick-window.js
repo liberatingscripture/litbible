@@ -79,7 +79,8 @@ export function claimPickSlot(handle) {
  *   onPick: (item: { id: string, name: string, detail?: string }) => void,
  *   back?: HTMLElement | (() => HTMLElement | null) | null,
  *   near?: { left: number, top: number } | null, className?: string,
- *   action?: { label: string, onPress: () => void } | null }} options
+ *   action?: { label: string, onPress: (choice: string | null) => void } | null,
+ *   choices?: { label: string, options: { value: string, label: string }[], value?: string } | null }} options
  *   `heading` is the small label in the header ("Add to sheet"), `title` the
  *   window's name ("All sheets"), `lead` a line under it saying what a pick
  *   does. `noun` names one item and many, for the count line. `items` are in
@@ -90,11 +91,15 @@ export function claimPickSlot(handle) {
  *   of the window's free room. `action` is one row at the top of the list
  *   that the filter never hides ("New collection…"): pressing it closes the
  *   window, as a pick does, and calls `onPress`. It is not an item, so it
- *   isn't counted and `onPick` never hears it.
+ *   isn't counted and `onPick` never hears it. `choices` is a radio group above
+ *   the filter (D13 decision 23: "Only the 12 labeled Advent now" or "These 12,
+ *   and any you label Advent from now on"): the option chosen when the window
+ *   closes is the second argument of `onPick` and the argument of
+ *   `action.onPress`; the first is chosen unless `value` names another.
  * @returns {{ el: HTMLElement, update: (items: object[]) => void,
  *   close: (reason?: string) => void, isOpen: () => boolean }}
  */
-export function openPickWindow({ heading, title, lead = "", filterLabel = "Filter by title", noun, items, onPick, back = null, near = null, className = "", action = null }) {
+export function openPickWindow({ heading, title, lead = "", filterLabel = "Filter by title", noun, items, onPick, back = null, near = null, className = "", action = null, choices = null }) {
   current?.close("replaced");
   const id = `deskPick${++seq}`;
   let all = [...(items ?? [])];
@@ -150,6 +155,28 @@ export function openPickWindow({ heading, title, lead = "", filterLabel = "Filte
   input.setAttribute("aria-describedby", count.id);
   const list = make("ul", "desk-pick__list");
   list.setAttribute("aria-label", title);
+  let choice = null;
+  if (choices?.options?.length) {
+    choice = choices.value ?? choices.options[0].value;
+    const group = make("div");
+    group.setAttribute("role", "radiogroup");
+    group.setAttribute("aria-label", choices.label);
+    for (const option of choices.options) {
+      const wrap = make("label", "desk-setting");
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.className = "desk-setting__input";
+      radio.name = `${id}-choice`;
+      radio.value = option.value;
+      radio.checked = option.value === choice;
+      radio.addEventListener("change", () => {
+        if (radio.checked) choice = option.value;
+      });
+      wrap.append(radio, make("span", "desk-setting__label", option.label));
+      group.append(wrap);
+    }
+    nodes.push(group);
+  }
   nodes.push(label, input, count, list);
   body.append(...nodes);
 
@@ -181,7 +208,7 @@ export function openPickWindow({ heading, title, lead = "", filterLabel = "Filte
     b.dataset.pickAction = "";
     b.addEventListener("click", () => {
       win.close("pick");
-      action.onPress();
+      action.onPress(choice);
     });
     const li = make("li");
     li.append(b);
@@ -197,7 +224,7 @@ export function openPickWindow({ heading, title, lead = "", filterLabel = "Filte
 
   function pick(item) {
     win.close("pick");
-    onPick(item);
+    onPick(item, choice);
   }
 
   // A list filtered by a search box hears `search` and `change` too: the

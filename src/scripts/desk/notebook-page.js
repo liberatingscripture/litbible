@@ -27,6 +27,8 @@ import {
   planDeleteLabel,
   planRenameLabel,
 } from "../../lib/desk-labels.mjs";
+import { collectionName, labelBookmarks, planLabelRulesToItems, rulesUsing } from "../../lib/desk-collections.mjs";
+import { openAddLabel } from "./collections/add-records.js";
 import { bulkCounts, planDeleteCollections, planDeleteMarks, planDeleteSheets, planEmptyTrashNow, trashHeld } from "../../lib/desk-notebook.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { mountBackup } from "./export-import.js";
@@ -260,7 +262,25 @@ async function start() {
     const del = el("button", "desk-item__delete", "Delete");
     del.type = "button";
     del.setAttribute("aria-label", `Delete label ${label.name}`);
-    li.append(name, used, rename, del);
+    // "Add all bookmarks labeled Advent…" (D13, step 5): the pick window with decision 23's two choices.
+    const bookmarks = labelBookmarks(latestRecords, label.id).length;
+    const addAll = bookmarks ? el("button", "desk-item__edit", `Add all bookmarks labeled ${label.name}…`) : null;
+    if (addAll) {
+      addAll.type = "button";
+      addAll.setAttribute("aria-haspopup", "dialog");
+      addAll.addEventListener("click", () => {
+        const at = addAll.getBoundingClientRect();
+        openAddLabel({
+          store,
+          ctx,
+          label: { id: label.id, name: label.name },
+          count: bookmarks,
+          near: { left: at.left, top: at.bottom + 8 },
+          back: () => addAll,
+        });
+      });
+    }
+    li.append(name, used, rename, ...(addAll ? [addAll] : []), del);
 
     rename.addEventListener("click", () => {
       const form = el("form", "desk-np__rename");
@@ -302,20 +322,76 @@ async function start() {
       });
     });
 
-    del.addEventListener("click", async () => {
+    /** Delete the label; `keep` turns the rules that use it into the bookmarks they hold, in the same write (one Ctrl+Z). */
+    async function deleteLabel(keep) {
       sayLabel(null);
       const index = Array.from(labelList.children).indexOf(li);
-      const done = await writeOver((records) => planDeleteLabel(records, label.id, ctx()));
-      if (!done.ok) return sayLabel(labelMessages[done.reason]);
+      let refused = [];
+      let kept = 0;
+      const done = await writeOver((records) => {
+        const gone = planDeleteLabel(records, label.id, ctx());
+        if (!gone.ok || !keep) return gone;
+        const turned = planLabelRulesToItems(records, label.id, ctx());
+        refused = turned.refused;
+        kept = turned.put.length;
+        return { ...gone, plan: { put: [...turned.put, ...gone.plan.put], remove: gone.plan.remove } };
+      });
+      if (!done.ok) {
+        await render();
+        return sayLabel(labelMessages[done.reason]);
+      }
       const entry = store.lastEntry();
       await render();
       const buttons = labelList.querySelectorAll(".desk-item__delete");
       (buttons[Math.min(index, buttons.length - 1)] ?? q("#deskNpNewLabel")).focus();
       const was = done.stripped ? ` It was on ${plural(done.stripped, "item", "items")}.` : "";
-      showUndo(`Label “${label.name}” deleted.${was}`, async () => {
+      const full = refused.length
+        ? ` ${plural(refused.length, "collection was", "collections were")} full, so ${refused.length === 1 ? "its" : "their"} rule stays and says the label is gone.`
+        : "";
+      const stays = keep && kept ? " Its bookmarks stay in the collections that used it." : "";
+      showUndo(`Label “${label.name}” deleted.${was}${stays}${full}`, async () => {
         await undoEntry(entry);
         await render();
       });
+    }
+
+    // A label a collection's rule uses asks first, on the row, as the bulk deletes do (D13, step 5).
+    function askKeep(using) {
+      const names = [...new Set(using.map(({ collection }) => collectionName(collection)))];
+      const where = names.length < 3 ? names.join(" and ") : `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+      const group = el("div", "desk-np__ask");
+      group.setAttribute("role", "group");
+      const text = el("p", "desk-np__ask-text", `${label.name} is used by ${where}. Keep its ${bookmarks === 1 ? "bookmark" : `${bookmarks} bookmarks`} there?`);
+      text.id = `deskNpKeep-${label.id}`;
+      group.setAttribute("aria-labelledby", text.id);
+      const yes = el("button", "", bookmarks === 1 ? "Yes, keep it" : "Yes, keep them");
+      yes.type = "button";
+      const no = el("button", "", "No, just delete the label");
+      no.type = "button";
+      const cancel = el("button", "", "Cancel");
+      cancel.type = "button";
+      group.append(text, yes, no, cancel);
+      li.replaceChildren(group);
+      cancel.focus();
+      const back = async () => {
+        await render();
+        labelList.querySelector(`[data-id="${CSS.escape(label.id)}"] .desk-item__delete`)?.focus();
+      };
+      cancel.addEventListener("click", back);
+      group.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !e.isComposing) {
+          e.stopPropagation();
+          back();
+        }
+      });
+      yes.addEventListener("click", () => deleteLabel(true));
+      no.addEventListener("click", () => deleteLabel(false));
+    }
+
+    del.addEventListener("click", () => {
+      const using = rulesUsing(latestRecords, label.id);
+      if (using.length) askKeep(using);
+      else deleteLabel(false);
     });
     return li;
   }

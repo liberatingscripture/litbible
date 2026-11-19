@@ -16,9 +16,13 @@
 // that transaction reads it (`planCollectionChange`), so it is one step of
 // the history, and a removal or deletion offers the undo bar.
 //
-// Rules (a label's bookmarks "now and later") are step 5 of D13's order of
-// work: a bookmark that arrives through one in a record still shows here as
-// an ordinary bookmark row, with no button to take it out.
+// Rules (a label's bookmarks now and any labeled later, D13 step 5): each has a plain
+// line above the members, "Every bookmark labeled Advent · 12", with quiet
+// links (`desk-item__stop`) "Stop adding new ones" (the rule becomes the
+// bookmarks it holds now) and "Remove" (the rule goes; bookmarks added by hand
+// stay). A bookmark a rule brings in says "from Advent", and its button is
+// "Leave it out of this collection" (its id goes into the rule's `except`);
+// the line then counts "1 left out" and brings each back.
 //
 // The page object (collection-page.js) hands in what a view needs: `store`,
 // `ctx`, `base`, `refresh(focusKeys)`, `go(href)`, `follow(event, href)`,
@@ -32,13 +36,17 @@ import {
   addHeading,
   collectionName,
   collectionRows,
+  bringBack,
   editHeading,
+  leaveOut,
   moveRow,
   moveTarget,
   planAddPassage,
   planCollectionChange,
   removeItem,
   removeMember,
+  removeRule,
+  ruleToItems,
   setCollectionFields,
   setOrder,
 } from "../../../lib/desk-collections.mjs";
@@ -51,6 +59,7 @@ import { recordRow } from "../record-rows.js";
 import { showNotice, showUndo } from "../undo-bar.js";
 import { buttons, make } from "../dom.js";
 import { setTip } from "../../tip.js";
+import { plural } from "../desk-text.js";
 import { openNameWindow } from "./name-window.js";
 
 const button = buttons("desk-sheet__btn");
@@ -240,6 +249,9 @@ export async function collectionView(page, id) {
     nodes.push(hform);
   }
 
+  /* ── The rules' lines ─────────────────────────────────────────── */
+  for (const info of shown.rules) nodes.push(ruleLine(page, c, info));
+
   /* ── The members ──────────────────────────────────────────────── */
   const sheet = make("div", `v2-sheet collection-page__sheet${mine ? " collection-page__sheet--mine" : ""}`);
   if (!shown.rows.length) {
@@ -269,11 +281,83 @@ export async function collectionView(page, id) {
       ul = make("ul", "desk-list");
       sheet.append(ul);
     }
-    ul.append(memberRow(page, c, row, { labels, mine, rows: shown.rows }));
+    ul.append(memberRow(page, c, row, { labels, mine, rows: shown.rows, rules: shown.rules }));
   }
   if (mine) wireMoves(page, c, sheet);
   nodes.push(sheet);
   return { nodes, title: `${name} | Liberation and Inclusion Translation`, focus: title };
+}
+
+/* ── A rule's line ──────────────────────────────────────────────── */
+
+/**
+ * "Every bookmark labeled Advent · 12 · 1 left out (John 1:5). Bring it back ·
+ * Stop adding new ones · Remove": a plain line with quiet links, one per rule
+ * (decision 25). A rule whose label is gone says so, and can only be removed.
+ */
+function ruleLine(page, c, info) {
+  const line = make("p", "desk-np__intro collection-page__rule");
+  const id = info.member.id;
+  const where = collectionName(c);
+  const link = (text, key, label, run) => {
+    const b = make("button", "desk-item__stop", text);
+    b.type = "button";
+    b.dataset.focusKey = key;
+    b.setAttribute("aria-label", label);
+    b.addEventListener("click", run);
+    return b;
+  };
+  const write = async (op, said, focus = ["add"]) => {
+    const plan = await writeCollection(page, c.id, op);
+    const problem = trouble(plan);
+    if (problem) {
+      showNotice(problem);
+      return;
+    }
+    const entry = plan.changed ? page.store.lastEntry() : null;
+    if (entry) showUndo(said, () => undoEntry(entry));
+    page.refresh(focus);
+  };
+  const remove = (label) =>
+    link("Remove", `rule-remove-${id}`, `Remove the rule “${label}” from ${where}`, () =>
+      write((col) => removeRule(col, id, opCtx(page)), `The rule “${label}” was removed from ${where}. Bookmarks added by hand stay.`),
+    );
+  if (!info.known) {
+    line.textContent = "This collection has a rule from a newer version of the Study Desk, which this version can’t show.";
+    return line;
+  }
+  if (info.gone) {
+    line.append("The label for this rule is gone, so it adds no more bookmarks. ", remove("this rule"));
+    return line;
+  }
+  const label = info.label.name;
+  line.append(`Every bookmark labeled ${label} · ${info.bookmarks.length}`);
+  if (info.leftOut.length) {
+    line.append(` · ${info.leftOut.length} left out`);
+    for (const b of info.leftOut) {
+      const ref = recordReference(b) || "bookmark";
+      line.append(
+        " · ",
+        link(`Bring back ${ref}`, `rule-back-${b.id}`, `Bring ${ref} back into ${where}`, () =>
+          write((col) => bringBack(col, b.id, opCtx(page)), `${ref} brought back into ${where}.`, [`rule-stop-${id}`, "add"]),
+        ),
+      );
+    }
+  }
+  line.append(
+    " · ",
+    link("Stop adding new ones", `rule-stop-${id}`, `Stop adding new bookmarks labeled ${label} to ${where}`, () =>
+      write(
+        (col, records) => ruleToItems(col, id, records, opCtx(page)),
+        info.bookmarks.length === 1
+          ? `${label}’s bookmark stays in ${where}, and new ones won’t be added.`
+          : `${label}’s ${plural(info.bookmarks.length, "bookmark", "bookmarks")} stay in ${where}, and new ones won’t be added.`,
+      ),
+    ),
+    " · ",
+    remove(label),
+  );
+  return line;
 }
 
 /* ── Add passage… ───────────────────────────────────────────────── */
@@ -466,6 +550,28 @@ function removeButton(page, c, row) {
   return b;
 }
 
+/** "Leave it out of this collection": the bookmark's id goes into its rule's `except`, and any item for it goes. */
+function leaveOutButton(page, c, row) {
+  const name = nameOfRow(row);
+  const b = make("button", "desk-item__delete", "Leave it out of this collection");
+  b.type = "button";
+  b.setAttribute("aria-label", `Leave ${name} out of ${collectionName(c)}`);
+  b.dataset.focusKey = `remove-${row.key}`;
+  b.addEventListener("click", async () => {
+    const keys = neighbors(b);
+    const plan = await writeCollection(page, c.id, (col, records) => leaveOut(col, row.record.id, records, opCtx(page)));
+    const said = trouble(plan);
+    if (said) {
+      showNotice(said);
+      return;
+    }
+    const entry = plan.changed ? page.store.lastEntry() : null;
+    if (entry) showUndo(`${name} left out of ${collectionName(c)}.`, () => undoEntry(entry));
+    page.refresh(keys);
+  });
+  return b;
+}
+
 /** Where focus goes when a row is gone: the next row's Remove, else the previous one's. */
 function neighbors(b) {
   const li = b.closest("[data-row-key]");
@@ -507,7 +613,7 @@ async function move(page, c, key, where, focus = null) {
 }
 
 /** A passage or record's row. A passage's words are read from its chapter once the row is drawn. */
-function memberRow(page, c, row, { labels, mine, rows }) {
+function memberRow(page, c, row, { labels, mine, rows, rules }) {
   let li;
   if (row.type === "passage") {
     li = make("li", "desk-item desk-np-row");
@@ -534,8 +640,12 @@ function memberRow(page, c, row, { labels, mine, rows }) {
     li.prepend(grip());
     tools.append(...moveButtons(page, c, row, rows));
   }
-  // A bookmark a rule brings in has no member of its own to take out (D13, step 5).
-  if (row.type !== "record" || row.member) tools.append(removeButton(page, c, row));
+  // A bookmark a rule brings in says so, and is left out rather than removed (D13, step 5).
+  const ruled = row.type === "record" ? rules.find((info) => info.member === row.rule) : null;
+  if (ruled) {
+    li.querySelector(".desk-item__kind")?.append(` · from ${ruled.label?.name ?? "a label"}`);
+    tools.append(leaveOutButton(page, c, row));
+  } else if (row.type !== "record" || row.member) tools.append(removeButton(page, c, row));
   return li;
 }
 
