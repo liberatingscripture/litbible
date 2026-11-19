@@ -458,7 +458,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (No Versions tab, and no API.bible:
      deferred indefinitely, BVJ 2026-10-11.) **Settings is the last tab, on every page**
      (BVJ, 2026-10-29), in three groups under small headings (E75): Show (the
-     switches), Keep and print (Print…, the notebook page and "My sheets",
+     switches), Keep and print (Print…, the notebook page, "My sheets" and "My collections",
      where the notebook is kept), and Help (Notebook actions, the tour, help,
      feedback), with one link style; panel.js puts each module's part under
      its heading. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no

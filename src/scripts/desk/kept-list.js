@@ -29,7 +29,7 @@ import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
 import { collectionsSubject, openCollectionsPopover } from "./collections/collections-popover.js";
-import { ITEM_KINDS, collectionCount, collectionName } from "../../lib/desk-collections.mjs";
+import { ITEM_KINDS, collectionCount, collectionFilter, collectionName, collectionsNamed, filterableCollections } from "../../lib/desk-collections.mjs";
 import { collectionHref, collectionsHref } from "./collections/add-passage.js";
 import { openAddRecords } from "./collections/add-records.js";
 import { openNewCollection } from "./collections/new-collection.js";
@@ -68,9 +68,14 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
         <label for="${idPrefix}Label">Label</label>
         <select id="${idPrefix}Label"></select>
       </div>
+      <div class="desk-np__field" data-np-collection-field hidden>
+        <label for="${idPrefix}Collection">Collection</label>
+        <select id="${idPrefix}Collection"></select>
+      </div>
       <div class="desk-np__field desk-mine__colors" role="group" aria-label="Show highlights of one color" data-np-colors hidden></div>
     </div>
     <p class="desk-np__count" aria-live="polite" data-np-count></p>
+    <p class="desk-np__sheet-links" data-np-passages hidden></p>
     <p class="desk-np__sheet-links" data-np-add-these hidden><button type="button" class="desk-item__stop" aria-haspopup="dialog"></button></p>
     <p class="desk-np__error" role="alert" data-np-delete-error hidden></p>
     <div class="desk-np__lists" data-np-lists></div>`;
@@ -80,6 +85,9 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   const kindSelect = q(`#${idPrefix}Kind`);
   const labelSelect = q(`#${idPrefix}Label`);
   const labelField = q("[data-np-label-field]");
+  const collectionSelect = q(`#${idPrefix}Collection`);
+  const collectionField = q("[data-np-collection-field]");
+  const passagesLine = q("[data-np-passages]");
   const colorBox = q("[data-np-colors]");
   const countEl = q("[data-np-count]");
   const deleteError = q("[data-np-delete-error]");
@@ -93,7 +101,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   });
   const lists = q("[data-np-lists]");
 
-  const filters = { query: "", kind: null, color: null, labelId: null };
+  const filters = { query: "", kind: null, color: null, labelId: null, collectionId: null };
   let renderSeq = 0;
   // The row whose Edit or Labels… button opened the panel now showing, so the
   // panel can be pointed at the new button when a save redraws the list.
@@ -130,7 +138,9 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     const all = listable(records);
     const labels = labelMap(records);
     drawControls(all, records);
-    const shown = filterRecords(all, filters, labels);
+    const held = filters.collectionId ? collectionFilter(records, filters.collectionId) : null;
+    const shown = filterRecords(all, { ...filters, recordIds: held?.ids ?? null }, labels);
+    drawPassages(held);
     drawList(shown, all, labels);
     deleteError.hidden = true;
     // A save that redrew the list took the button the open panel belongs to;
@@ -162,6 +172,13 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     labelSelect.replaceChildren(new Option("Any label", ""), ...labels.map((l) => new Option(l.name, l.id)));
     labelSelect.value = filters.labelId ?? "";
 
+    // Collections by name, shown only while there is one (D13, step 6); a choice whose collection is gone clears.
+    const collections = filterableCollections(records);
+    if (filters.collectionId && !collections.some((c) => c.id === filters.collectionId)) filters.collectionId = null;
+    collectionField.hidden = collections.length === 0;
+    collectionSelect.replaceChildren(new Option("Any collection", ""), ...collections.map((c) => new Option(c.name, c.id)));
+    collectionSelect.value = filters.collectionId ?? "";
+
     const present = colorsPresent(all, COLORS);
     if (filters.color && !present.includes(filters.color)) filters.color = null;
     const focused = colorBox.contains(document.activeElement) ? document.activeElement.dataset.choice : null;
@@ -190,8 +207,44 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     if (focused) colorBox.querySelector(`[data-choice="${focused}"]`)?.focus({ preventScroll: true });
   }
 
+  // Passages are not records, so a chosen collection that holds some says where they are.
+  function drawPassages(held) {
+    passagesLine.replaceChildren();
+    passagesLine.hidden = !held || held.passages === 0;
+    if (passagesLine.hidden) return;
+    const link = el("a", null, "its page");
+    link.href = collectionHref(filters.collectionId);
+    passagesLine.append(`Its ${plural(held.passages, "passage")} ${held.passages === 1 ? "is" : "are"} on `, link, ".");
+  }
+
+  // One collection's row, as the Collections section draws it: its name as a link to its page, and its count.
+  function collectionRow(c, records) {
+    const li = el("li", "desk-item desk-np-row");
+    li.dataset.id = c.id;
+    const link = el("a", "desk-item__ref", collectionName(c));
+    link.href = collectionHref(c.id);
+    li.append(link, el("span", "desk-item__kind", plural(collectionCount(c, records), "item")));
+    return li;
+  }
+
+  // While the search box has words: the collections whose name holds them, as links to their pages. They are
+  // never rows of the record list and never counted in it.
+  function namedGroup(records) {
+    const named = collectionsNamed(records, filters.query);
+    if (!named.length) return null;
+    const section = el("section", "desk-np__group");
+    section.dataset.npNamed = "";
+    section.append(el("h3", "desk-np__h3", "Collections"));
+    const ul = el("ul", "desk-list");
+    const byId = new Map(records.filter((r) => r?.kind === "collection").map((r) => [r.id, r]));
+    for (const c of named) ul.append(collectionRow(byId.get(c.id), records));
+    section.append(ul);
+    return section;
+  }
+
   function drawList(shown, all, labels) {
-    const active = Boolean(filters.query.trim() || filters.kind || filters.color || filters.labelId);
+    const active = Boolean(filters.query.trim() || filters.kind || filters.color || filters.labelId || filters.collectionId);
+    const named = filters.query.trim() ? namedGroup(lastRecords ?? []) : null;
     // "Add these N to a collection…" is offered while the search or the label filter narrows the list (D13, step 5).
     heldByList = filters.query.trim() || filters.labelId ? shown.filter((r) => ITEM_KINDS.includes(r.kind)).map((r) => r.id) : [];
     addThese.hidden = heldByList.length === 0;
@@ -204,11 +257,16 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
         : `${describeCounts(all)}.`;
 
     if (!all.length) {
-      lists.replaceChildren(el("p", "desk-panel__empty", "Notes, highlights, and bookmarks you make while reading appear here. On a chapter, select a verse number and choose “Add a note,” “Add bookmark,” or “Highlight.”"));
+      lists.replaceChildren(el("p", "desk-panel__empty", "Notes, highlights, and bookmarks you make while reading appear here. On a chapter, select a verse number and choose “Add a note,” “Add bookmark,” or “Highlight.”"), ...(named ? [named] : []));
       return;
     }
     if (!shown.length) {
-      lists.replaceChildren(el("p", "desk-panel__empty", "Nothing matches. Clear the search or a filter to see more."));
+      // Collections whose name matched come first, so the line under them doesn't deny they matched.
+      lists.replaceChildren(
+        ...(named
+          ? [named, el("p", "desk-panel__empty", "Nothing else matches. Clear the search or a filter to see more.")]
+          : [el("p", "desk-panel__empty", "Nothing matches. Clear the search or a filter to see more.")]),
+      );
       return;
     }
 
@@ -293,17 +351,13 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       if (mine.length) {
         const ul = el("ul", "desk-list");
         for (const c of mine.sort((a, b) => collectionName(a).localeCompare(collectionName(b), undefined, { sensitivity: "base" }) || (a.id < b.id ? -1 : 1))) {
-          const li = el("li", "desk-item desk-np-row");
-          li.dataset.id = c.id;
-          const link = el("a", "desk-item__ref", collectionName(c));
-          link.href = collectionHref(c.id);
-          li.append(link, el("span", "desk-item__kind", plural(collectionCount(c, records), "item")));
-          ul.append(li);
+          ul.append(collectionRow(c, records));
         }
         section.append(ul);
       }
       return section;
     }
+    if (named) out.push(named);
     const groups = pageGroups(groupRecords(shown), pageRows(shown.length, revealed).shown);
     for (const book of groups.books) {
       const section = el("section", "desk-np__book");
@@ -426,6 +480,10 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   });
   labelSelect.addEventListener("change", () => {
     filters.labelId = labelSelect.value || null;
+    render({ reuse: true });
+  });
+  collectionSelect.addEventListener("change", () => {
+    filters.collectionId = collectionSelect.value || null;
     render({ reuse: true });
   });
 
