@@ -197,11 +197,14 @@ test("Rename… changes the name and description, and Delete goes back to the li
   page.destroy();
 });
 
-test("openNewCollection keeps a first member for step 3", async () => {
+test("openNewCollection keeps a first member for step 3, and gives focus back after Create", async () => {
   await clearAll();
   let got = null;
   const member = { type: "passage", id: "m1", bookKey: "john", chapter: 3, verse: 16, endVerse: 16 };
-  openNewCollection({ store, ctx, firstMember: member, lead: "John 3:16 will be its first passage.", onCreated: (c) => (got = c) });
+  const from = document.createElement("button");
+  from.id = "from-the-menu";
+  document.body.append(from);
+  openNewCollection({ store, ctx, firstMember: member, lead: "John 3:16 will be its first passage.", back: () => from, onCreated: (c) => (got = c) });
   const win = document.querySelector(".desk-pick");
   assert.match(win.textContent, /first passage/);
   win.querySelector("input").value = "From a verse";
@@ -210,6 +213,9 @@ test("openNewCollection keeps a first member for step 3", async () => {
   const [saved] = await collections();
   assert.equal(saved.members.length, 1);
   assert.equal(saved.members[0].type, "passage");
+  await until(() => !document.querySelector(".desk-pick"), 3000, "the window to close");
+  assert.equal(document.activeElement?.id, "from-the-menu");
+  from.remove();
 });
 
 test("a passage shows its words, ↓ moves it in My order, and Remove takes it out", async () => {

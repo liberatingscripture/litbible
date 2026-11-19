@@ -10,7 +10,9 @@
 // It sits where the control it came from was (`near`), takes the pick
 // window's one slot (so opening either replaces the other), is closed by its
 // ×, Escape or Cancel, never by a click elsewhere, and gives focus back to
-// `back` when it closes without a save. Enter in the name field saves.
+// `back` when it closes, after a save too (as the pick window does after a
+// pick), unless the save put focus somewhere of its own. Enter in the name
+// field saves.
 
 import { createFloatWindow } from "../../float-window.js";
 import { claimPickSlot, placePick } from "../pick-window.js";
@@ -43,7 +45,7 @@ export function openNameWindow({ heading, title, lead = "", submit, fields, onSu
     onClose: (reason) => {
       release();
       window.removeEventListener("pagehide", onPageHide);
-      if (reason === "close") giveBack();
+      if (reason === "close" || reason === "saved") giveBack();
     },
   });
   const onPageHide = () => win.close("page");
