@@ -10,10 +10,11 @@
 // It is absent until there is somewhere to go back to. Scrolling never takes
 // it away (BVJ, 2026-11-19). Pressed, it names the place before that one, if
 // the history holds one, and is gone when none is left; there is no Forward
-// (Claude's call, open to BVJ). A quiet button (E126's fourth kind): the text
-// green and an arrow, the place's name beside it where the bar has room and
-// the arrow alone where it hasn't, with the shared tooltip naming it either
-// way (desk.css, E72's rule).
+// (Claude's call, open to BVJ). Where the bar has room, a quiet button (E126's
+// fourth kind): the text green, an arrow and the place's name. Where it
+// hasn't, the arrow alone in an ordinary button, raised like the Show eye
+// beside it (BVJ, 2026-11-19: alone, the quiet arrow was "subtle and easy to
+// miss"). The shared tooltip names it either way (desk.css, E72's rule).
 
 import { NO_WAY_BACK, afterJump, afterMove, backPlace, goBack } from "../../lib/desk-way-back.mjs";
 import { passageLabel } from "../../lib/desk-passage.mjs";

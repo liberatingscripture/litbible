@@ -107,7 +107,10 @@ holds the inventory, the pairs, the two files in step and reduced motion.
 4. **Quiet** (links: Labels…, Stop following, Verse N, Show the note, Take
    the Sheets tour, Clear checks) and **glyph** buttons (‹ › × ▾ +, the grip)
    keep their own looks, save This verse's Previous and Next, which are
-   ordinary buttons (E141).
+   ordinary buttons (E141). The LIT pane's way back (E168) is quiet while it
+   names its place and ordinary as the arrow alone (BVJ, 2026-11-19), the one
+   button whose kind follows its bar's width, so its ordinary look is
+   restated under the kinds' container queries rather than in the list.
 **Under reduced motion the lift and every transition go; the shadows stay.**
 The sheet button rule is scoped (`:where(.desk-sheet, .sheets-page)`), so
 `desk-sheet-view.css` and the phone's shared sheet keep their own look.

@@ -5755,9 +5755,9 @@ html.desk-ws--moving * {
 /* The way back after a jump (E168, lit-back.js): first on the LIT pane's bar,
    and absent until a jump. A quiet button (E126's fourth kind): the text
    green, an arrow and the place's name underlined, the height of the bar's
-   arrows. Where the bar is narrow it is the arrow alone (below), and a long
-   name never takes more than half the bar, so the field and the controls keep
-   their row. */
+   arrows. Where the bar is narrow it is the arrow alone, an ordinary button
+   (below, and at the end of this file), and a long name never takes more
+   than half the bar, so the field and the controls keep their row. */
 .desk-lit__back {
   display: inline-flex;
   align-items: center;
@@ -5818,13 +5818,15 @@ html.desk-ws--moving * {
   /* The way back names its place only where the bar has room for the
      longest ("1 Thessalonians 5:23") beside the field and the controls: in em
      of the bar, so the room grows with the text size, and more in
-     OpenDyslexic, whose letters are wider (E168). Below that it is the arrow,
-     the size of the bar's others, named by the shared tooltip. */
+     OpenDyslexic, whose letters are wider (E168). Below that it is the arrow
+     in a square the size of the bar's others, named by the shared tooltip,
+     and an ordinary button (its look is at the end of this file). */
   @container deskLitBar (max-width: 32em) {
     .desk-lit__back {
       justify-content: center;
       width: 30px;
       padding: 0;
+      border-radius: 8px;
     }
 
     .desk-lit__back-word {
@@ -5837,6 +5839,7 @@ html.desk-ws--moving * {
       justify-content: center;
       width: 30px;
       padding: 0;
+      border-radius: 8px;
     }
 
     html[data-font="dyslexic"] .desk-lit__back-word {
@@ -9461,6 +9464,8 @@ mark.desk-print-mark {
      fill, with the text green's words, so it still reads as a button.
    - Quiet (links) and glyph buttons (‹ › × ▾ + and the like) keep their own,
      save This verse's ‹ ›, which are ordinary (E141).
+   - The LIT pane's way back (E168) is the one button whose kind follows its
+     bar's width: quiet beside its place's name, ordinary as the arrow alone.
    The tokens are in "The desk's layers"; desk-search.css carries its own
    copy for /search. Under prefers-reduced-motion the lift and every
    transition go; the shadows stay (test/desk-buttons-css.test.js). */
@@ -9507,6 +9512,67 @@ mark.desk-print-mark {
   box-shadow: none;
   transform: none;
   opacity: 1;
+}
+
+/* The LIT pane's way back as the arrow alone (E168; BVJ, 2026-11-19: the
+   arrow by itself was "subtle and easy to miss"): an ordinary button, as
+   the Show eye beside it is. Naming its place, it stays quiet. Only the
+   bar's width says which, so the ordinary look is restated for it here,
+   under the widths that hide its name (the LIT pane's bar, above). */
+@supports (container-type: inline-size) {
+  @container deskLitBar (max-width: 32em) {
+    .desk-lit__back {
+      border: 1px solid var(--field-border);
+      border-bottom-color: var(--desk-btn-edge-low);
+      background: var(--desk-control);
+      color: var(--text);
+      box-shadow: var(--desk-btn-rest);
+      transition:
+        transform var(--desk-btn-motion) ease,
+        box-shadow var(--desk-btn-motion) ease,
+        background-color var(--desk-btn-motion) ease;
+    }
+
+    .desk-lit__back:hover:not(:active) {
+      background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+      box-shadow: var(--desk-btn-lift);
+      transform: translateY(var(--desk-btn-lift-y));
+    }
+
+    .desk-lit__back:active {
+      border-bottom-color: var(--field-border);
+      background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+      box-shadow: var(--desk-btn-press);
+      transform: none;
+    }
+  }
+
+  @container deskLitBar (max-width: 38em) {
+    html[data-font="dyslexic"] .desk-lit__back {
+      border: 1px solid var(--field-border);
+      border-bottom-color: var(--desk-btn-edge-low);
+      background: var(--desk-control);
+      color: var(--text);
+      box-shadow: var(--desk-btn-rest);
+      transition:
+        transform var(--desk-btn-motion) ease,
+        box-shadow var(--desk-btn-motion) ease,
+        background-color var(--desk-btn-motion) ease;
+    }
+
+    html[data-font="dyslexic"] .desk-lit__back:hover:not(:active) {
+      background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
+      box-shadow: var(--desk-btn-lift);
+      transform: translateY(var(--desk-btn-lift-y));
+    }
+
+    html[data-font="dyslexic"] .desk-lit__back:active {
+      border-bottom-color: var(--field-border);
+      background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
+      box-shadow: var(--desk-btn-press);
+      transform: none;
+    }
+  }
 }
 
 /* Flat toggles (the chips' pills; Pin's and Show sources' rounded
