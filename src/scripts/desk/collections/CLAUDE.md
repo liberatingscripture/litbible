@@ -192,6 +192,14 @@ it holds. Computer only; the apps carry it untouched.
   collection's change wakes no view of marks (`NO_CHAPTER_KINDS`).
 - **Markdown lists collections for people and never reads them back**, like
   Places and Labels.
+- **No tour of its own** (BVJ, 2026-11-19: "don't build a separate tour for
+  now"; decision 22). The tours name collections where they already point:
+  the notebook tour's "Open the menu" ("Add to collection" beside "Add to
+  sheet"; Chapter View only, as that is) and "My Notebook, and where it’s
+  kept," and the Study Desk tour's card on the title menu ("My collections").
+  The Study Desk tour's My Notes card lists no filters, so it names none.
+  Text in `desk-first-use.mjs`; a changed card keeps its id, so it is not
+  offered again as new. The help page's "How collections work" is the rest.
 
 ## Every look is one the site already has (decision 25)
 
