@@ -130,6 +130,11 @@ function insert(text, { byMouse = false, name = null } = {}) {
     closeGreekCommands("field");
     return;
   }
+  // Clicked while typing in one of the builder's word boxes, it goes there (E162).
+  if (current.builder.insertHere(text)) {
+    announce(`Added: ${sentence(name ?? text.trim())}`);
+    return;
+  }
   const start = field.selectionStart ?? field.value.length;
   const end = field.selectionEnd ?? start;
   const { value, caret } = insertAtCursor(field.value, start, end, text);

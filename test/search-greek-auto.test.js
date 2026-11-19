@@ -172,7 +172,7 @@ test("decision 12: a command that finds nothing lemma-first tries the other lemm
   assert.equal(describeGreekQuery(mark.resolved), "Prepositions of ἐκ");
   assert.ok(mark.hits.length > 0 && mark.hits.every((h) => h.book === "mark"));
   // It works as one term among several.
-  const two = await searchGreekAuto("/", "ἐξ.prep, ὁ");
+  const two = await searchGreekAuto("/", "ἐξ.prep > ὁ");
   assert.match(describeGreekQuery(two.resolved), /^Prepositions of ἐκ, followed within 3 words by /);
   assert.ok(two.hits.length > 0);
 });

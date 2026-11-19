@@ -8,7 +8,10 @@
 // teaches and what a query accepts are one list. Single words still go
 // through greek-search.mjs's matchGreek, which this builds on.
 //
-// A query is one or more words joined by "," or "and". A word is
+// A query is one or more words joined by "," or "and", found together in any
+// order, or by ">" or "then", found in the order typed (BVJ, 2026-11-18,
+// E164: any order is the default; until then "," kept the order, and "&" or
+// "any order" lifted it; they are still read, and win over a ">"). A word is
 //   πίστις, pistis, G4102   any form of that word (a lemma, a form, a
 //                           transliteration, a Strong's number, or an
 //                           English gloss that is the whole query word)
@@ -21,8 +24,8 @@
 // "pistis genitive or dative"); joined by a dot they would ask for a word
 // that is both, which is an error. How
 // close the words must be is one setting for the whole query: within 3
-// words (~3, the default), next to each other (~0), anywhere in the verse
-// (~v), and in any order (&); each has its words too.
+// words (~3, the default), next to each other (~0), and anywhere in the
+// verse (~v); each has its words too.
 //
 // Two rules keep commands from taking over a word someone meant:
 //   - A query of one bare word is always a word: "any", "exact", "and",
@@ -76,7 +79,8 @@ export const COMMANDS = [
     title: "Building a search",
     items: [
       { code: "πίστις", greek: true, means: "Any form of a word", note: "In Greek, transliterated (pistis) or by Strong’s number (G4102)", insert: "" },
-      { code: ",", word: "and", means: "Then another word", note: "πίστις.gen, Χριστός.gen: found together, in that order. Up to four words", insert: ", " },
+      { code: ",", word: "and", means: "And another word", note: "πίστις, ἐλπίς, ἀγάπη: found together, in any order. Up to four words", insert: ", " },
+      { code: ">", word: "then", means: "Then another word, in order", note: "πίστις.gen > Χριστός.gen: the second after the first", insert: " > " },
       { code: ".gen", means: "Narrow the word before it", note: "Join several: *.aor.impv", insert: ".gen" },
       { code: "*", word: "any", means: "Any word", note: "Needs a filter: *.gen.noun is any genitive noun", insert: "*" },
       { code: "/", word: "or", means: "Either one", note: "Two words, Ἰησοῦς/Χριστός, or two filters of one kind, πίστις.gen/dat", insert: "/" },
@@ -90,7 +94,6 @@ export const COMMANDS = [
       { code: "~3", word: "within 3", means: "Within 3 words", note: "The default", insert: "~3" },
       { code: "~0", word: "next to", means: "Next to each other", insert: "~0" },
       { code: "~v", word: "anywhere", means: "Anywhere in the verse", insert: "~v" },
-      { code: "&", word: "any order", means: "In any order", insert: "&" },
     ],
   },
   ...[
@@ -108,10 +111,11 @@ export const COMMANDS = [
 
 /** Examples the window and an empty search offer, each run as written. */
 export const EXAMPLES = [
-  { query: "πίστις.gen, Ἰησοῦς/Χριστός.gen", says: "πίστις in the genitive, then Jesus or Christ in the genitive" },
+  { query: "πίστις.gen > Ἰησοῦς/Χριστός.gen", says: "πίστις in the genitive, then Jesus or Christ in the genitive" },
+  { query: "pistis, elpis, agape", says: "Faith, hope, and love together, in any order" },
   { query: "*.aor.impv", says: "Every aorist imperative" },
   { query: "πίστις.gen", says: "Every genitive of πίστις" },
-  { query: "pistis genitive and Iesous or Christos genitive", says: "The first search in words alone, without Greek letters" },
+  { query: "pistis genitive then Iesous or Christos genitive", says: "The first search in words alone, without Greek letters" },
 ];
 
 /* ── Reading a query ─────────────────────────────────────────────── */
@@ -131,11 +135,11 @@ export const MAX_QUERY_LENGTH = 300;
 
 const QUOTED = /["“”]([^"“”]+)["“”]/g;
 const LITERAL = "\u0001";
-const COMMAND_WORD = /^(?:any|exact(?:ly)?|and|or)$/i;
+const COMMAND_WORD = /^(?:any|exact(?:ly)?|and|or|then)$/i;
 // A command still being typed at the end, which waits for what follows.
-const PENDING = /(?:(?:^|\s+)(?:and|or|exact(?:ly)?|any|within|next)|\s*[,/=.]|(?:^|\s+)[*~])\s*$/i;
+const PENDING = /(?:(?:^|\s+)(?:and|or|then|exact(?:ly)?|any|within|next)|\s*[,/=.>]|(?:^|\s+)[*~])\s*$/i;
 // Words that make a query of plain words a command query.
-const COMMAND_WORDS = /^(?:and|or|any|exact(?:ly)?|within|next|anywhere|order)$/i;
+const COMMAND_WORDS = /^(?:and|or|then|any|exact(?:ly)?|within|next|anywhere|order)$/i;
 
 /**
  * Whether a query is for this module rather than matchGreek: a symbol a
@@ -147,7 +151,7 @@ const COMMAND_WORDS = /^(?:and|or|any|exact(?:ly)?|within|next|anywhere|order)$/
 export function isGreekCommandQuery(raw) {
   const q = String(raw ?? "").trim().replace(QUOTED, " x ").trim();
   if (!q) return false;
-  if (/[.,/*=~&]/.test(q)) return true;
+  if (/[.,/*=~&>]/.test(q)) return true;
   const toks = q.split(/\s+/);
   if (toks.length < 2) return false;
   return toks.some((t) => hasGreek(t) || COMMAND_WORDS.test(t) || filterFor(t)) || /\b(?:first|second|third)\s+person\b/i.test(q);
@@ -183,21 +187,22 @@ export function parseGreekQuery(raw) {
   // Control characters become spaces: U+0001 is the private mark for a quoted word below (GK6-10).
   let q = String(raw ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim();
   if (q.length > MAX_QUERY_LENGTH) return { error: { kind: "tooLong", length: q.length } };
-  if (!q) return { terms: [], gap: 3, anyOrder: false };
+  if (!q) return { terms: [], gap: 3, anyOrder: true };
 
   const literals = [];
   const keep = (w) => `${LITERAL}${literals.push(w.trim()) - 1}`;
   q = q.replace(QUOTED, (_, w) => ` ${keep(w)} `).replace(/["“”]/g, " ").trim();
   // One bare word is a word, even a command or parsing word ("any", "perfect").
-  if (COMMAND_WORD.test(q) || (!/[\s.,/*=~&]/.test(q) && !q.startsWith(LITERAL))) {
-    return { terms: [{ words: [q.startsWith(LITERAL) ? literals[Number(q.slice(1))] : q], exact: false, literal: true, filters: [] }], gap: 3, anyOrder: false };
+  if (COMMAND_WORD.test(q) || (!/[\s.,/*=~&>]/.test(q) && !q.startsWith(LITERAL))) {
+    return { terms: [{ words: [q.startsWith(LITERAL) ? literals[Number(q.slice(1))] : q], exact: false, literal: true, filters: [] }], gap: 3, anyOrder: true };
   }
   while (q && PENDING.test(q) && !new RegExp(`^${LITERAL}\\d+$`).test(q)) q = q.replace(PENDING, "").trim();
-  if (!q) return { terms: [], gap: 3, anyOrder: false };
+  if (!q) return { terms: [], gap: 3, anyOrder: true };
 
   q = q
     .replace(/\bexact(?:ly)?\s+/gi, "=")
     .replace(/\s+and\s+/gi, " , ")
+    .replace(/\s+then\s+/gi, " > ")
     .replace(/\bwithin\s+(\d+)(?:\s+words?)?\b/gi, "~$1")
     .replace(/\bnext\s+to(?:\s+each\s+other)?\b/gi, "~0")
     .replace(/\banywhere(?:\s+in\s+the\s+verse)?\b/gi, "~v")
@@ -205,11 +210,14 @@ export function parseGreekQuery(raw) {
     .replace(/\b(1st|2nd|3rd|first|second|third)\s+person\b/gi, (_, p) => `${p[0] === "f" || p[0] === "1" ? "1st" : p[0] === "s" || p[0] === "2" ? "2nd" : "3rd"}`)
     .replace(/\s+or\s+/gi, "/")
     .replace(/\s*\/\s*/g, "/")
-    .replace(/,/g, " , ");
+    .replace(/,/g, " , ")
+    .replace(/>/g, " > ");
 
   const terms = [];
   let gap = 3;
-  let anyOrder = false;
+  // Any order unless a ">" (or "then") joins two words (E164).
+  let inOrder = false;
+  let saidAnyOrder = false;
   const last = () => terms[terms.length - 1];
   const close = () => { if (terms.length) last().closed = true; };
   // Each name is a filter, or several of one kind joined by "/" ("gen/dat"),
@@ -242,7 +250,9 @@ export function parseGreekQuery(raw) {
     if (tok === ",") { close(); continue; }
     if (/^~\d+$/.test(tok)) { gap = Number(tok.slice(1)); close(); continue; }
     if (tok === "~v") { gap = Infinity; close(); continue; }
-    if (tok === "&") { anyOrder = true; close(); continue; }
+    if (tok === ">") { inOrder = true; close(); continue; }
+    // "&" (or "any order") asked for any order before it was the default; it is still read.
+    if (tok === "&") { saidAnyOrder = true; close(); continue; }
     const [head, ...rest] = tok.split(".");
 
     // ".gen" after a space narrows the word before it; with no word before
@@ -281,7 +291,7 @@ export function parseGreekQuery(raw) {
   for (const t of terms) delete t.closed;
   if (terms.some((t) => !t.words && !t.filters.length)) return { error: { kind: "bareAny" } };
   if (terms.length > MAX_TERMS) return { error: { kind: "tooMany" } };
-  return { terms, gap, anyOrder };
+  return { terms, gap, anyOrder: saidAnyOrder || !inOrder };
 }
 
 /* ── Looking words up ────────────────────────────────────────────── */

@@ -121,7 +121,7 @@ test("a query reads into terms, their filters, and one distance for the whole qu
       { words: ["Ἰησοῦς", "Χριστός"], exact: false, filters: ["genitive"] },
     ],
     gap: 3,
-    anyOrder: false,
+    anyOrder: true,
   });
   assert.deepEqual(shape(parseGreekQuery("πίστις.gen, *.gen.noun")).terms[1], { words: null, exact: false, filters: ["genitive", "noun"] });
   assert.deepEqual(shape(parseGreekQuery("pistis genitive, genitive noun")).terms.map((t) => t.filters), [["genitive"], ["genitive", "noun"]],
@@ -129,6 +129,23 @@ test("a query reads into terms, their filters, and one distance for the whole qu
   assert.deepEqual(shape(parseGreekQuery("πίστις .gen")).terms[0].filters, ["genitive"], "a dot after a space narrows the word before it");
   assert.equal(parseGreekQuery("πίστις, Χριστός ~v").gap, Infinity);
   assert.equal(parseGreekQuery("πίστεως Ἰησοῦ").terms.length, 2, "a space between two words is a construction too");
+});
+
+test("E164: words are found in any order unless “>” or “then” joins them", () => {
+  assert.equal(parseGreekQuery("pistis,agape,elpis").anyOrder, true, "a comma is any order");
+  assert.equal(parseGreekQuery("pistis,agape,elpis").terms.length, 3);
+  assert.equal(parseGreekQuery("pistis and agape").anyOrder, true, "and so is “and”");
+  assert.equal(parseGreekQuery("πίστις > Χριστός").anyOrder, false, "“>” keeps the order typed");
+  assert.equal(parseGreekQuery("πίστις>Χριστός").terms.length, 2, "with or without spaces");
+  assert.equal(parseGreekQuery("pistis then Christos").anyOrder, false, "and so does “then”");
+  assert.equal(parseGreekQuery("a, b > c").anyOrder, false, "one “>” puts the whole search in order");
+  assert.equal(parseGreekQuery("πίστις > Χριστός &").anyOrder, true, "“&”, the old way to ask for any order, still means it");
+  assert.equal(parseGreekQuery("πίστις > Χριστός in any order").anyOrder, true);
+  assert.deepEqual(parseGreekQuery("πίστις >").terms.map((t) => t.words), [["πίστις"]], "a “>” at the end waits for the next word");
+  assert.deepEqual(parseGreekQuery("πίστις then").terms.map((t) => t.words), [["πίστις"]]);
+  assert.equal(parseGreekQuery("then").terms[0].words[0], "then", "alone, it is the word");
+  assert.equal(isGreekCommandQuery("pistis>agape"), true);
+  assert.equal(isGreekCommandQuery("pistis then agape"), true);
 });
 
 test("quotes keep a command word a word", () => {
@@ -295,13 +312,30 @@ function searchCommitted(q) {
 }
 
 test("the committed index: pistis Christou, typed in Greek and in words", () => {
-  for (const q of ["πίστις.gen, Ἰησοῦς/Χριστός.gen", "pistis genitive and Iesous or Christos genitive"]) {
+  for (const q of ["πίστις.gen > Ἰησοῦς/Χριστός.gen", "pistis genitive then Iesous or Christos genitive"]) {
     const { resolved, hits } = searchCommitted(q);
     assert.equal(countLine(hits), "6 matches in 5 verses", q);
     assert.deepEqual(hits.map((h) => `${h.book} ${h.chapter}:${h.verse}`),
       ["romans 3:22", "romans 3:26", "galatians 2:16", "galatians 3:22", "philippians 3:9"], q);
     assert.equal(describeGreekQuery(resolved), "Genitives of πίστις, followed within 3 words by a genitive of Ἰησοῦς or Χριστός");
   }
+  // A comma is any order (E164): the same verses and more, said so.
+  for (const q of ["πίστις.gen, Ἰησοῦς/Χριστός.gen", "pistis genitive and Iesous or Christos genitive"]) {
+    const { resolved, hits } = searchCommitted(q);
+    const verses = hits.map((h) => `${h.book} ${h.chapter}:${h.verse}`);
+    for (const v of ["romans 3:22", "romans 3:26", "galatians 2:16", "galatians 3:22", "philippians 3:9"]) assert.ok(verses.includes(v), `${q}: ${v}`);
+    assert.equal(describeGreekQuery(resolved), "Genitives of πίστις, with a genitive of Ἰησοῦς or Χριστός within 3 words, in either order");
+  }
+});
+
+test("E164: faith, hope, and love, typed in any order, find 1 Corinthians 13:13", () => {
+  for (const q of ["pistis,agape,elpis", "elpis, agape, pistis", "πίστις, ἀγάπη, ἐλπίς ~v"]) {
+    const verses = searchCommitted(q).hits.map((h) => `${h.book} ${h.chapter}:${h.verse}`);
+    assert.ok(verses.includes("1corinthians 13:13"), q);
+  }
+  // In the order typed, a different order finds less (or nothing) there.
+  const inOrder = searchCommitted("pistis > agape > elpis ~v").hits.map((h) => `${h.book} ${h.chapter}:${h.verse}`);
+  assert.equal(inOrder.includes("1corinthians 13:13"), false, "13:13 says faith, hope, love");
 });
 
 test("the committed index: parsing alone, and a word narrowed by parsing", () => {
@@ -479,7 +513,7 @@ test("BA50: the readback places each later word from the one before it", () => {
   };
   assert.equal(say("*.art, *.art, *.art ~v &"),
     "Articles, with an article anywhere in the verse and an article anywhere in the verse, in any order");
-  assert.equal(say("*.art, *.noun.gen, *.art ~3"),
+  assert.equal(say("*.art > *.noun.gen > *.art ~3"),
     "Articles, followed within 3 words by a genitive noun, then within 3 words by an article");
   assert.equal(say("*.art, *.noun, *.art ~2 &"),
     "Articles, with a noun within 2 words and an article within 2 words of that, in any order");
