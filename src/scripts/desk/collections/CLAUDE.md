@@ -43,7 +43,11 @@ it holds. Computer only; the apps carry it untouched.
   `collection-view.js` (one collection: actions, order switch, members on
   `.v2-sheet`, Add passage, headings, moving), `name-window.js` (the one
   name/description window), `new-collection.js` (`openNewCollection`, which
-  step 3's "New collection…" reuses with `firstMember` and `lead`). Styles:
+  step 3's "New collection…" reuses with `firstMember` and `lead`),
+  `add-passage.js` (`addPassageToCollection`: the one way a passage goes
+  in from outside the page, the verse menu's and This verse's, so both say
+  "John 3:16 added to Advent series." with Open the collection, or that it
+  is there already). Styles:
   `styles/v2/collections.css` (layout only, every selector behind
   `:root[data-restyle]`) and `styles/pages/collections.css` (the note without
   the desk). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
