@@ -34,9 +34,9 @@
 //   chapter-tools.js's attachVerseTools), with the pane as one more view:
 //   each chapter names its own reference and link, and "Copy with
 //   footnotes" reads the notes from the chapter's fetched page. Their "My
-//   Notebook" row comes from actions.js, and "Add to sheet" from
-//   sheet-pane.js, which read `book`, `chapter` and `textFor` from the
-//   panel's detail.
+//   Notebook" rows come from actions.js (Add to sheet from sheets/sheet-add.js,
+//   with sheet-pane.js's one-press add, E170), which read `book`, `chapter`
+//   and `textFor` from the panel's detail.
 //
 // - **The reader's marks** (3g): the pane puts its text on the desk's list
 //   (page.js, addDeskText), and the reader's highlights are drawn on it and

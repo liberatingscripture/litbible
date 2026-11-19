@@ -6,8 +6,9 @@
 //
 // - **"Add to sheet" adds to a pane.** Every open Sheets pane is listed, and
 //   the one last worked in is the target of the LIT pane's verse menu and
-//   selection ("Add to sheet", offered while a sheet is open) and of the
-//   Search pane's add buttons (`addTarget`, `onAddTarget`).
+//   selection (`paneSheet`: the one-press part of their "Add to sheet" row,
+//   ../sheets/sheet-add.js; E170) and of the Search pane's add buttons
+//   (`addTarget`, `onAddTarget`).
 // - **The command row's "New sheet…" names a pane** (`desk:sheet-new` with
 //   its `paneId`), which opens that pane's template chooser.
 // - **Which sheet it shows is the layout's** (`setPaneSheet`, handed in by
@@ -16,14 +17,8 @@
 //   (E63), which desk-page.js answers; the tour itself is sheet-tour.js, and
 //   `useAsTarget` is its, so the LIT pane's menu offers its pane's sheet.
 
-import {
-  passageFromOffsets,
-  passageFromVerses,
-  sheetName,
-} from "../../../lib/desk-sheet-passages.mjs";
-import { rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
-import { closePanel } from "../../lit-panel.js";
-import { buttons, make } from "../dom.js";
+import { sheetName } from "../../../lib/desk-sheet-passages.mjs";
+import { buttons } from "../dom.js";
 import { createSheetEditor } from "./sheet-editor.js";
 
 const button = buttons("desk-sheet__btn");
@@ -34,7 +29,6 @@ const button = buttons("desk-sheet__btn");
 // selection adds to.
 const openPanes = new Set();
 let lastUsed = null;
-let listening = false;
 
 function targetPane() {
   const showing = [...openPanes].filter((p) => p.sheet());
@@ -74,44 +68,17 @@ export function onAddTarget(fn) {
   return () => targetListeners.delete(fn);
 }
 
-function listenForPanels() {
-  if (listening) return;
-  listening = true;
-  document.addEventListener("lit:panel-actions", (e) => {
-    const d = e.detail;
-    if (d.view !== "desk" || !d.book || !d.chapter) return;
-    const pane = targetPane();
-    if (!pane) return;
-    const heading = make("p", "lit-panel__subheading", "Sheets");
-    const add = button(`Add to “${sheetName(pane.sheet())}”`, "lit-panel__btn");
-    add.addEventListener("click", async () => {
-      d.acting?.();
-      const where = { bookKey: d.book, chapter: d.chapter };
-      let fields = null;
-      try {
-        const text = d.textFor?.() ?? null;
-        if (d.kind === "selection" && d.range && text) {
-          const offsets = rangeToOffsets(text, d.range);
-          if (offsets) fields = passageFromOffsets(text, where, offsets[0], offsets[1], pane.contentVersion());
-        }
-        fields ??= passageFromVerses(text, where, d.start, d.end, pane.contentVersion());
-      } catch (err) {
-        console.error("Study Desk: couldn't read the passage for the sheet", err);
-        fields = passageFromVerses(null, where, d.start, d.end);
-      }
-      const added = await pane.addPassage(fields);
-      const again = added?.again === true;
-      add.textContent = !added ? "Couldn’t add it" : again ? "Added again ✓" : "Added ✓";
-      // Why "again" stays on screen long enough to read (BA75).
-      if (again) row.after(make("p", "lit-panel__hint", added.message));
-      if (d.kind === "selection") window.getSelection()?.removeAllRanges();
-      setTimeout(closePanel, again ? 2500 : 700);
-    });
-    const row = make("div", "lit-panel__row");
-    row.append(add);
-    d.append(heading);
-    d.append(row);
-  });
+/**
+ * The sheet the LIT pane's "Add to sheet" row adds to in one press (E170;
+ * sheet-add.js, handed this by desk-page.js): the one in the Sheets pane last
+ * worked in, as `{ id, name, add(fields) }`, where `add` goes through that
+ * pane's editor, so the passage shows there at once. Null when no Sheets pane
+ * shows a sheet, and the row is Chapter View's flyout alone.
+ */
+export function paneSheet() {
+  const pane = targetPane();
+  const s = pane?.sheet();
+  return s ? { id: s.id, name: sheetName(s), add: (fields) => pane.addPassage(fields) } : null;
 }
 
 /* ── The pane ─────────────────────────────────────────────────────────── */
@@ -140,7 +107,6 @@ export function createSheetPane({ store, ctx, paneId, getSheet, setSheet, showPa
   if (!store) return { el: editor.el, destroy() {}, editor };
 
   openPanes.add(editor);
-  listenForPanels();
   editor.el.addEventListener("pointerdown", () => { lastUsed = editor; targetChanged(); });
   editor.el.addEventListener("focusin", () => { lastUsed = editor; targetChanged(); });
 

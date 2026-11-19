@@ -132,9 +132,9 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   editor already open calls `show(id)` (desk-page.js's `showSheetPane` does,
   for the Search pane's "New sheet of N verses"); changing the layout alone
   left the pane on its list. **What only a pane has
-  stays in `sheet-pane.js`**: the list of open panes behind `addTarget` and
-  `onAddTarget` ("Add to sheet" in the LIT pane's menus and the Search pane's
-  add buttons), and the command row's `desk:sheet-new` (E68), which names a pane and
+  stays in `sheet-pane.js`**: the list of open panes behind `addTarget`,
+  `onAddTarget` and `paneSheet` (the one-press part of the LIT pane's "Add to
+  sheet" row, E170, and the Search pane's add buttons), and the command row's `desk:sheet-new` (E68), which names a pane and
   calls its editor's `newSheet`. The Search pane's add buttons read the
   target the same way as “Add to sheet” and write in one `store.change`, and
   `showSheet`'s `keep` stops that pane giving its own place to the sheet it
@@ -366,10 +366,17 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
 Where a reader is when they want a sheet (BVJ, 2026-11-08, decisions 3 and 4).
 The header's Study group is part 3's, built with header C.
 
-- **"Add to sheet ▸" on a chapter page** (`sheet-add.js`, rules in
-  `src/lib/desk-sheet-add.mjs`): after Print in the verse menu and the
-  selection panel, Chapter View only (`d.view === "study"`; /desk's LIT pane
-  keeps the pane's own "Add to “…”" above). It lists the five sheets changed
+- **"Add to sheet ▸" on a chapter page and in /desk's LIT pane**
+  (`sheet-add.js`, rules in `src/lib/desk-sheet-add.mjs`): after Add bookmark
+  in the verse menu and the selection panel, in Chapter View and the LIT pane
+  (`d.view` "study" or "desk"; the LIT pane since E170, BVJ 2026-11-19: from
+  3f it had only "Add to “…”", shown while a Sheets pane held a sheet). **In
+  the LIT pane, while a Sheets pane shows a sheet, the row is split** as Copy
+  text is: its own button, "Add to “…”", adds there in one press through that
+  pane's editor (`paneSheet`, which desk-page.js hands `initActions`), so the
+  passage appears in the pane; its chevron, "Add to another sheet," opens the
+  flyout, where a pick of the pane's sheet goes through the pane too. The
+  Sheets tour marks that button. It lists the five sheets changed
   last (`addMenuSheets`: no templates, newer formats or full sheets) and "New
   sheet", which makes a blank sheet holding the passage, named after it. The
   list is read once and again after a sheet changes (`store.byKind`), so the

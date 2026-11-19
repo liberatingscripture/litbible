@@ -26,8 +26,10 @@
 //     View's verse menu) or the selected words (either view's selection panel),
 //     plainly, with my notes, or with room to write. Its flyout is the shared
 //     one (panel-flyout.js), as Bookmark's is.
-//   - "Add to sheet ▸" after Add bookmark, in Chapter View only (S12, part 2;
-//     sheets/sheet-add.js): the reader's sheets and New sheet.
+//   - "Add to sheet ▸" after Add bookmark, in Chapter View and /desk's LIT pane
+//     (S12, part 2; E170; sheets/sheet-add.js): the reader's sheets and New
+//     sheet, and on /desk a one-press add to the Sheets pane's sheet
+//     (`paneSheet`, which desk-page.js hands in).
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,
@@ -64,10 +66,10 @@ import { buttons } from "./dom.js";
 
 const button = buttons("lit-panel__btn");
 
-export function initActions({ store, ctx, showVerse = null, printPart = null }) {
+export function initActions({ store, ctx, showVerse = null, printPart = null, paneSheet = null }) {
   if (!store) return;
   const here = pageChapter();
-  const sheetRow = createSheetAdd({ store, ctx });
+  const sheetRow = createSheetAdd({ store, ctx, paneSheet });
   const collectionRow = createCollectionAdd({ store, ctx });
 
   document.addEventListener("lit:panel-actions", (e) => {
@@ -117,7 +119,7 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
     const bookmarkBox = document.createElement("div");
     bookmarkBox.className = "desk-bookmark-menu";
     d.append(bookmarkBox);
-    // "Add to sheet ▸" (S12): Chapter View only.
+    // "Add to sheet ▸" (S12): Chapter View and /desk's LIT pane (E170).
     const sheetBox = sheetRow(d, where);
     if (sheetBox) d.append(sheetBox);
     // "Add to collection ▸" (D13): Chapter View and /desk's LIT pane.

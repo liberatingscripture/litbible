@@ -243,11 +243,13 @@ test("a finger's chips are flat: a heading, then each choice as a row, with no f
   assert.deepEqual(labels(panel), ["“Chip”", "New collection…"]);
 });
 
-test("/desk's LIT pane has the row; Read View has none", async () => {
+test("/desk's LIT pane has the row, after Add to sheet's (E170); Read View has none", async () => {
   await clearAll();
   const desk = await openMenu({ view: "desk" });
   assert.ok(desk.box);
-  assert.equal(desk.panel.querySelector(".desk-sheet-add"), null);
+  const rows = [...desk.panel.children];
+  assert.ok(rows.findIndex((el) => el.classList.contains("desk-sheet-add")) >= 0, "Add to sheet's row");
+  assert.ok(rows.indexOf(desk.box) > rows.findIndex((el) => el.classList.contains("desk-sheet-add")));
   const read = await openMenu({ view: "read" });
   assert.equal(read.box, null);
   const glossary = await openMenu({ view: "glossary" });
