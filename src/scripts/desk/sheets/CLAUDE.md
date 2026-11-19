@@ -828,8 +828,14 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   verses", and invisible copies of its longest labels hold its width (the
   Search pane's strip, E117, does the same; the words are shared in
   `desk-sheet-gather.mjs`). The card and the checked rows share a green
-  rule. The chapters by topic get the same row with no box, since every
-  chapter goes whole. What it made opens where the search
+  rule; under Site 2.0 the restyle's card shadow outweighs the rows' rule,
+  so `v2/search.css` restates it (E163). **The chapters by topic are checked the same way** (E163; BVJ,
+  2026-11-18: “It should match the keyword results behavior”): a box on
+  each chapter and the same head row, words and disabled button, with
+  “chapter” for “verse” (each word helper takes the noun); each checked
+  chapter goes whole. The two groups keep their own checks (`KINDS` and
+  `ticked` in `search-sheet.js`), and a new group that can go on a sheet
+  joins `KINDS` rather than getting a row of its own. What it made opens where the search
   was: "Open the sheet" is `/sheets/?id=<id>`, and "open it in the Study Desk" beside
   it is `/desk/?sheet=<id>`, which desk-page.js shows in a Sheets pane
   (`showSheet` in `desk-layout.mjs`) and strips from the address (S12).

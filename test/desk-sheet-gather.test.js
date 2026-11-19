@@ -1,9 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  addChaptersLabel,
   addToSheetLabel,
-  chaptersLine,
   checkAllLabel,
   checkedLine,
   checkedSaid,
@@ -209,20 +207,32 @@ test("E116, E117: the checks' words, which /search and the Search pane share", (
   assert.equal(checkAllLabel(1), "Check the verse");
   assert.equal(includeLabel("John 3:16"), "Include John 3:16 in the sheet");
 
-  // The chapters' head row: every chapter goes, whole.
-  assert.equal(chaptersLine(12), "All 12 chapters go, each whole.");
-  assert.equal(chaptersLine(1), "The chapter goes whole.");
-  assert.equal(addChaptersLabel(12), "Add 12 chapters to a sheet…");
-  assert.equal(addChaptersLabel(1), "Add 1 chapter to a sheet…");
-  assert.equal(addChaptersLabel(12, { ellipsis: false }), "Add 12 chapters to a sheet");
-
   // None of them says "0 verses", and none uses an em dash.
-  for (const total of [1, 2, 119]) {
-    for (const k of [0, 1, total]) {
-      for (const words of [addToSheetLabel(k, total), checkedLine(k, total).text, checkedSaid(k, total)]) {
-        assert.doesNotMatch(words, /\b0 verses/);
-        assert.equal(words.includes("—"), false);
+  for (const noun of ["verse", "chapter"]) {
+    for (const total of [1, 2, 119]) {
+      for (const k of [0, 1, total]) {
+        for (const words of [addToSheetLabel(k, total, { noun }), checkedLine(k, total, noun).text, checkedSaid(k, total, noun)]) {
+          assert.doesNotMatch(words, /\b0 (verse|chapter)s/);
+          assert.equal(words.includes("—"), false);
+        }
       }
     }
   }
+});
+
+test("E163: the chapters by topic are checked in the same words, with “chapter” for “verse”", () => {
+  assert.equal(checkedVerses(4, 12, "chapter"), "4 chapters");
+  assert.equal(checkedVerses(12, 12, "chapter"), "all 12 chapters");
+  assert.equal(addToSheetLabel(1, 12, { noun: "chapter" }), "Add 1 chapter to a sheet…");
+  assert.equal(addToSheetLabel(12, 12, { noun: "chapter" }), "Add all 12 chapters to a sheet…");
+  assert.equal(addToSheetLabel(0, 12, { noun: "chapter" }), "Add checked chapters to a sheet…");
+  assert.equal(addToSheetLabel(4, 12, { ellipsis: false, noun: "chapter" }), "Add 4 chapters to a sheet");
+  assert.deepEqual(checkedLine(0, 12, "chapter"), { count: "", text: "Check the chapters you want, or check all 12." });
+  assert.deepEqual(checkedLine(0, 1, "chapter"), { count: "", text: "Check the chapter to add it." });
+  assert.deepEqual(checkedLine(1, 1, "chapter"), { count: "", text: "The chapter is checked." });
+  assert.deepEqual(checkedLine(4, 12, "chapter"), { count: "4 of 12", text: " checked." });
+  assert.equal(checkedSaid(0, 12, "chapter"), "No chapters checked.");
+  assert.equal(checkAllLabel(12, "chapter"), "Check all 12 chapters");
+  assert.equal(checkAllLabel(1, "chapter"), "Check the chapter");
+  assert.equal(includeLabel("John 3"), "Include John 3 in the sheet");
 });

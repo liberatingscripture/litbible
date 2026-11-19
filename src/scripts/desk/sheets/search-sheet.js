@@ -17,17 +17,17 @@
 // forgotten when the query changes, and a tick on a verse the results no
 // longer hold (a book filter) is dropped.
 //
-// Each group gets a head row (E116; BVJ, 2026-11-12, option A): for the
-// verses, a box that checks every verse (all of them, not only the page on
-// screen; unchecked it clears them, and it shows mixed when some are
-// checked), in the column the rows' boxes sit in, and a card holding one line
-// and one primary button whose label carries the count ("Add 4 verses to a
-// sheet…"), which opens the chooser. Nothing checked adds nothing: until a
-// box is checked the button is aria-disabled, stays focusable, and is
-// described by the line, which says how to check; a press only says it again.
-// The topic's chapters go whole, all of them, so their head row has no box and
-// its button is never disabled. The card and every checked result share a
-// green rule, and the row is sticky while its group is on screen.
+// Each group gets a head row (E116; BVJ, 2026-11-12, option A): a box that
+// checks every result (all of them, not only those on screen; unchecked it
+// clears them, and it shows mixed when some are checked), in the column the
+// rows' boxes sit in, and a card holding one line and one primary button whose
+// label carries the count ("Add 4 verses to a sheet…"), which opens the
+// chooser. Nothing checked adds nothing: until a box is checked the button is
+// aria-disabled, stays focusable, and is described by the line, which says how
+// to check; a press only says it again. The chapters by topic are checked the
+// same way, each going whole (E163; BVJ, 2026-11-18: until then every chapter
+// went, with no boxes). The card and every checked result share a green rule,
+// and the row is sticky while its group is on screen.
 //
 // What it makes is the rules in src/lib/desk-sheet-gather.mjs: passages in
 // Bible order, runs of consecutive verses as one range, no more than a sheet
@@ -38,10 +38,9 @@
 
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { planSave, webClient } from "../../../lib/desk-store-core.mjs";
+import { bookKeyToLabel } from "../../../data/books.js";
 import {
-  addChaptersLabel,
   addToSheetLabel,
-  chaptersLine,
   checkAllLabel,
   checkedLine,
   checkedSaid,
@@ -70,6 +69,7 @@ const ctx = () => ({ client: webClient(contentVersion), contentVersion });
 /* ── Small helpers ───────────────────────────────────────────────────── */
 
 const verseKey = (r) => `${r.bookKey} ${r.chapter}:${r.verse}`;
+const chapterKey = (r) => `${r.bookKey} ${r.chapter}`;
 
 // The bar's styles come with this file, as notebook-search.js's do: /search
 // isn't a page the desk's shell runs on (desk-search.css, through
@@ -80,6 +80,12 @@ const ensureStyles = addSearchStyle;
 function refOfLink(href) {
   const m = /^\/?([0-9]?[a-z]+)-(\d+)\/?#v(\d+)$/i.exec(String(href ?? ""));
   return m ? { bookKey: m[1].toLowerCase(), chapter: Number(m[2]), verse: Number(m[3]) } : null;
+}
+
+/** A topic result's address: "/john-3/" is John 3. */
+function chapterOfLink(href) {
+  const m = /^\/?([0-9]?[a-z]+)-(\d+)\/?$/i.exec(String(href ?? ""));
+  return m ? { bookKey: m[1].toLowerCase(), chapter: Number(m[2]) } : null;
 }
 
 /* ── The notebook, opened when it is first needed ────────────────────── */
@@ -126,10 +132,38 @@ function commonLabel(chapters) {
 let getLast = () => null;
 let detail = null; // the results on screen, as search.js last sent them
 let query = null; // the query the ticks belong to
-const ticked = new Set();
 
-const keywordGroup = () => document.getElementById("group-keyword");
-const subjectGroup = () => document.getElementById("group-subject");
+// The two groups a sheet can be made from, checked the same way (E163): the
+// verses a search found, and the chapters by topic, each of which goes whole.
+const KINDS = {
+  verses: {
+    noun: "verse",
+    group: "group-keyword",
+    list: "results-keyword",
+    rows: "li.result-occurrence",
+    key: verseKey,
+    refOf: refOfLink,
+    // "John 3:16", from the result's own chapter heading.
+    label: (li, ref) => {
+      const title = li.closest(".result-group")?.querySelector(".result-group__title")?.textContent?.trim();
+      return `${title || `${ref.bookKey} ${ref.chapter}`}:${ref.verse}`;
+    },
+  },
+  chapters: {
+    noun: "chapter",
+    group: "group-subject",
+    list: "results-subject",
+    rows: "li.result",
+    key: chapterKey,
+    refOf: chapterOfLink,
+    label: (_li, ref) => `${bookKeyToLabel(ref.bookKey)} ${ref.chapter}`,
+  },
+};
+
+const ticked = { verses: new Set(), chapters: new Set() };
+
+/** The results of a kind the search found, all of them (not only those on screen). */
+const found = (kind) => detail?.[kind] ?? [];
 
 // One head row per group, made once and kept: search.js re-renders the lists
 // inside the groups, never the groups themselves.
@@ -137,14 +171,13 @@ const bars = { verses: null, chapters: null };
 
 function ensureBar(kind) {
   if (bars[kind]?.root.isConnected) return bars[kind];
-  const group = kind === "verses" ? keywordGroup() : subjectGroup();
+  const group = document.getElementById(KINDS[kind].group);
   if (!group) return null;
-  const verses = kind === "verses";
   const root = make("div", "desk-gather desk-gather--head");
   root.setAttribute("data-desk-gather", kind);
-  // The box that checks every verse, in the rows' column of boxes.
-  const all = verses ? make("input", "desk-gather__tick desk-gather__all") : null;
-  if (all) all.type = "checkbox";
+  // The box that checks every result, in the rows' column of boxes.
+  const all = make("input", "desk-gather__tick desk-gather__all");
+  all.type = "checkbox";
   const card = make("div", "desk-gather__card");
   const main = make("div", "desk-gather__main");
   const lead = make("p", "desk-gather__lead");
@@ -154,7 +187,7 @@ function ensureBar(kind) {
   lead.append(count, text);
   const clear = button("Clear checks", "desk-gather__btn desk-gather__btn--quiet desk-gather__clear");
   clear.hidden = true;
-  if (verses) lead.append(clear);
+  lead.append(clear);
   const actions = make("div", "desk-gather__actions-row");
   const go = button(null, "desk-gather__btn desk-gather__btn--primary desk-gather__go");
   go.setAttribute("aria-haspopup", "dialog");
@@ -169,29 +202,29 @@ function ensureBar(kind) {
   // What a screen reader hears when a box changes: once per change.
   const said = make("p", "sr-only");
   said.setAttribute("role", "status");
-  root.append(...(all ? [all] : []), card, said);
+  root.append(all, card, said);
   group.querySelector(".group-title")?.after(root);
 
   const bar = { kind, root, all, lead, count, text, go, clear, slot, said, panel: null };
   go.addEventListener("click", () => {
     if (go.getAttribute("aria-disabled") === "true") {
       // Nothing checked adds nothing; the press says how to check (E116).
-      speak(bar, checkedLine(0, detail?.verses.length ?? 0).text);
+      speak(bar, checkedLine(0, found(kind).length, KINDS[kind].noun).text);
       return;
     }
     if (bar.panel) closePanel(bar);
     else openPanel(bar);
   });
-  all?.addEventListener("change", () => {
-    if (all.checked) for (const r of detail?.verses ?? []) ticked.add(verseKey(r));
-    else ticked.clear();
-    syncTicks({ said: true });
+  all.addEventListener("change", () => {
+    if (all.checked) for (const r of found(kind)) ticked[kind].add(KINDS[kind].key(r));
+    else ticked[kind].clear();
+    syncTicks(kind, { said: true });
   });
   clear.addEventListener("click", () => {
-    ticked.clear();
-    syncTicks({ said: true });
+    ticked[kind].clear();
+    syncTicks(kind, { said: true });
     // Clear checks hides itself, so focus goes to the box that checks them all.
-    all?.focus();
+    all.focus();
   });
   bars[kind] = bar;
   return bar;
@@ -212,9 +245,9 @@ function closePanel(bar, { focus = true } = {}) {
   if (focus) bar.go.focus();
 }
 
-/** The verses a press would gather: the checked ones, never all by default (E116). */
-function chosenVerses() {
-  return (detail?.verses ?? []).filter((r) => ticked.has(verseKey(r)));
+/** What a press would gather: the checked results, never all by default (E116, E163). */
+function chosen(kind) {
+  return found(kind).filter((r) => ticked[kind].has(KINDS[kind].key(r)));
 }
 
 /** The head row's button: its label, over invisible copies of the longest it can read. */
@@ -230,56 +263,48 @@ function nameGo(bar, label, room = []) {
 }
 
 function describeBar(bar) {
-  if (bar.kind === "verses") {
-    const total = detail.verses.length;
-    const k = ticked.size;
-    const line = checkedLine(k, total);
-    bar.count.textContent = line.count;
-    bar.text.textContent = line.text;
-    bar.clear.hidden = !k;
-    bar.all.checked = k > 0 && k === total;
-    bar.all.indeterminate = k > 0 && k < total;
-    bar.all.setAttribute("aria-label", checkAllLabel(total));
-    nameGo(bar, addToSheetLabel(k, total), [addToSheetLabel(0, total), addToSheetLabel(total, total)]);
-    if (k) {
-      bar.go.removeAttribute("aria-disabled");
-      bar.go.removeAttribute("aria-describedby");
-    } else {
-      bar.go.setAttribute("aria-disabled", "true");
-      bar.go.setAttribute("aria-describedby", bar.lead.id);
-    }
-    bar.root.classList.toggle("desk-gather--some", k > 0);
-    // An open chooser names what it adds; with nothing left checked it has nothing to add.
-    if (bar.panel && !k) closePanel(bar, { focus: false });
-    const title = bar.panel?.querySelector(".desk-gather__title");
-    if (title) title.textContent = addToSheetLabel(k, total, { ellipsis: false });
+  const { noun } = KINDS[bar.kind];
+  const total = found(bar.kind).length;
+  const k = ticked[bar.kind].size;
+  const line = checkedLine(k, total, noun);
+  bar.count.textContent = line.count;
+  bar.text.textContent = line.text;
+  bar.clear.hidden = !k;
+  bar.all.checked = k > 0 && k === total;
+  bar.all.indeterminate = k > 0 && k < total;
+  bar.all.setAttribute("aria-label", checkAllLabel(total, noun));
+  nameGo(bar, addToSheetLabel(k, total, { noun }), [addToSheetLabel(0, total, { noun }), addToSheetLabel(total, total, { noun })]);
+  if (k) {
+    bar.go.removeAttribute("aria-disabled");
+    bar.go.removeAttribute("aria-describedby");
   } else {
-    const n = detail.chapters.length;
-    bar.count.textContent = "";
-    bar.text.textContent = chaptersLine(n);
-    nameGo(bar, addChaptersLabel(n));
-    // Every chapter goes, so the rule is always there.
-    bar.root.classList.add("desk-gather--some");
+    bar.go.setAttribute("aria-disabled", "true");
+    bar.go.setAttribute("aria-describedby", bar.lead.id);
   }
+  bar.root.classList.toggle("desk-gather--some", k > 0);
+  // An open chooser names what it adds; with nothing left checked it has nothing to add.
+  if (bar.panel && !k) closePanel(bar, { focus: false });
+  const title = bar.panel?.querySelector(".desk-gather__title");
+  if (title) title.textContent = addToSheetLabel(k, total, { ellipsis: false, noun });
 }
 
-/** Boxes on the verse results on screen. */
-function enhanceRows() {
-  const list = document.getElementById("results-keyword");
+/** Boxes on the results of a kind on screen. */
+function enhanceRows(kind) {
+  const { list: listId, rows, key, refOf, label } = KINDS[kind];
+  const list = document.getElementById(listId);
   if (!list) return;
-  for (const li of list.querySelectorAll("li.result-occurrence")) {
+  for (const li of list.querySelectorAll(rows)) {
     if (li.querySelector(".desk-gather__tick")) continue;
-    const link = li.querySelector("a.result-link");
-    const ref = refOfLink(link?.getAttribute("href"));
+    const ref = refOf(li.querySelector("a.result-link")?.getAttribute("href"));
     if (!ref) continue;
     const box = make("input", "desk-gather__tick");
     box.type = "checkbox";
-    box.checked = ticked.has(verseKey(ref));
-    box.setAttribute("aria-label", includeLabel(labelOf(li, ref)));
+    box.checked = ticked[kind].has(key(ref));
+    box.setAttribute("aria-label", includeLabel(label(li, ref)));
     box.addEventListener("change", () => {
-      if (box.checked) ticked.add(verseKey(ref));
-      else ticked.delete(verseKey(ref));
-      syncTicks({ said: true });
+      if (box.checked) ticked[kind].add(key(ref));
+      else ticked[kind].delete(key(ref));
+      syncTicks(kind, { said: true });
     });
     li.classList.add("desk-gather__row-item");
     li.classList.toggle("desk-gather__row-item--picked", box.checked);
@@ -287,24 +312,19 @@ function enhanceRows() {
   }
 }
 
-// "John 3:16" for a box's name, from the result's own chapter heading.
-function labelOf(li, ref) {
-  const title = li.closest(".result-group")?.querySelector(".result-group__title")?.textContent?.trim();
-  return `${title || `${ref.bookKey} ${ref.chapter}`}:${ref.verse}`;
-}
-
-/** The rows' boxes and marks and the head row, from the ticks; `said` speaks the count, once per change. */
-function syncTicks({ said = false } = {}) {
-  for (const box of document.querySelectorAll("#results-keyword .desk-gather__tick")) {
+/** A kind's row boxes and marks and its head row, from the ticks; `said` speaks the count, once per change. */
+function syncTicks(kind, { said = false } = {}) {
+  const { list, key, refOf, noun } = KINDS[kind];
+  for (const box of document.querySelectorAll(`#${list} .desk-gather__tick`)) {
     const li = box.closest("li");
-    const ref = refOfLink(li?.querySelector("a.result-link")?.getAttribute("href"));
+    const ref = refOf(li?.querySelector("a.result-link")?.getAttribute("href"));
     if (!ref) continue;
-    box.checked = ticked.has(verseKey(ref));
+    box.checked = ticked[kind].has(key(ref));
     li.classList.toggle("desk-gather__row-item--picked", box.checked);
   }
-  if (!bars.verses || !detail?.verses.length) return;
-  describeBar(bars.verses);
-  if (said) speak(bars.verses, checkedSaid(ticked.size, detail.verses.length));
+  if (!bars[kind] || !found(kind).length) return;
+  describeBar(bars[kind]);
+  if (said) speak(bars[kind], checkedSaid(ticked[kind].size, found(kind).length, noun));
 }
 
 function update(next) {
@@ -313,7 +333,7 @@ function update(next) {
   if (next.query !== query) {
     // A new query: its ticks are not these, and an open panel or message was
     // about the last one.
-    ticked.clear();
+    for (const set of Object.values(ticked)) set.clear();
     for (const bar of Object.values(bars)) {
       if (!bar) continue;
       closePanel(bar, { focus: false });
@@ -321,37 +341,40 @@ function update(next) {
     }
     query = next.query;
   }
-  // A tick on a verse the results no longer hold (the book filter changed
-  // them, not the query) would count in the bar and gather nothing (BA132).
-  const shown = new Set((next.verses ?? []).map(verseKey));
-  let dropped = false;
-  for (const key of ticked) {
-    if (shown.has(key)) continue;
-    ticked.delete(key);
-    dropped = true;
+  for (const kind of Object.keys(KINDS)) {
+    // A tick on a result the results no longer hold (the book filter changed
+    // them, not the query) would count in the bar and gather nothing (BA132).
+    const shown = new Set((next[kind] ?? []).map(KINDS[kind].key));
+    let dropped = false;
+    for (const k of ticked[kind]) {
+      if (shown.has(k)) continue;
+      ticked[kind].delete(k);
+      dropped = true;
+    }
+    if (dropped && bars[kind]) closePanel(bars[kind], { focus: false });
   }
-  if (dropped && bars.verses) closePanel(bars.verses, { focus: false });
   detail = next;
-  for (const kind of ["verses", "chapters"]) {
+  for (const kind of Object.keys(KINDS)) {
     const bar = ensureBar(kind);
     if (!bar) continue;
-    bar.root.hidden = !detail[kind].length;
-    if (!detail[kind].length) {
+    bar.root.hidden = !found(kind).length;
+    if (!found(kind).length) {
       closePanel(bar, { focus: false });
       continue;
     }
     describeBar(bar);
   }
-  enhanceRows();
-  syncTicks();
+  for (const kind of Object.keys(KINDS)) {
+    enhanceRows(kind);
+    syncTicks(kind);
+  }
 }
 
 /* ── The chooser, and the write ──────────────────────────────────────── */
 
 async function openPanel(bar) {
   if (bar.panel) return;
-  const verses = bar.kind === "verses";
-  const count = verses ? chosenVerses().length : detail.chapters.length;
+  const count = chosen(bar.kind).length;
   if (!count) return;
 
   const panel = make("div", "desk-gather__panel");
@@ -360,7 +383,7 @@ async function openPanel(bar) {
   const heading = make(
     "p",
     "desk-gather__title",
-    verses ? addToSheetLabel(count, detail.verses.length, { ellipsis: false }) : addChaptersLabel(count, { ellipsis: false }),
+    addToSheetLabel(count, found(bar.kind).length, { ellipsis: false, noun: KINDS[bar.kind].noun }),
   );
   const fresh = button("New sheet", "desk-gather__btn desk-gather__btn--primary");
   const intro = make("p", "desk-gather__note", "Or add them to one of your sheets:");
@@ -445,10 +468,10 @@ async function gather(bar, into) {
   // waits below (a new query, the book filter), and the sheet is made of
   // these, titled by this query (BA130).
   const verses = bar.kind === "verses";
-  const picked = verses ? chosenVerses() : detail.chapters;
+  const picked = chosen(bar.kind);
   const title = verses
     ? searchSheetTitle(detail.query)
-    : searchSheetTitle(detail.query, { kind: "topic", label: commonLabel(detail.chapters) });
+    : searchSheetTitle(detail.query, { kind: "topic", label: commonLabel(picked) });
 
   let store;
   try {

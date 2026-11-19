@@ -1,8 +1,9 @@
-// /search's head row (E116), driven in a browser DOM over the real store on
-// fake-indexeddb: the box that checks every verse, the card with its line and
-// its one button, which adds nothing while nothing is checked, and the
-// chapters' row. search-sheet.js keeps its state at module level, so it is
-// imported once and each test draws fresh results under a query of its own.
+// /search's head rows (E116, E163), driven in a browser DOM over the real
+// store on fake-indexeddb: the box that checks every verse, the card with its
+// line and its one button, which adds nothing while nothing is checked, and
+// the chapters' row, checked the same way. search-sheet.js keeps its state at
+// module level, so it is imported once and each test draws fresh results
+// under a query of its own.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -11,8 +12,14 @@ import { settle, resetDom, window } from "./helpers/browser-env.mjs";
 
 globalThis.indexedDB = new IDBFactory();
 document.documentElement.dataset.contentVersion = "v1";
-// The chapters' last verses (search/chapters/*.json) aren't needed here.
-globalThis.fetch = async () => ({ ok: false, status: 404, json: async () => null, text: async () => "" });
+// A chapter's last verse is the length of its verse file (search/chapters/*.json).
+const LAST = { "john-3": 36, "romans-8": 39, "matthew-18": 35 };
+globalThis.fetch = async (url) => {
+  const n = LAST[/chapters\/([a-z0-9]+-\d+)\.json$/.exec(String(url))?.[1]];
+  return n
+    ? { ok: true, status: 200, json: async () => Array.from({ length: n }, (_, i) => ({ v: i + 1 })), text: async () => "" }
+    : { ok: false, status: 404, json: async () => null, text: async () => "" };
+};
 
 const { attachSearchSheets } = await import("../src/scripts/desk/sheets/search-sheet.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
@@ -42,31 +49,46 @@ const occurrence = (r) =>
   `<li class="result-occurrence"><a class="result-link result-link--occurrence" href="/${r.bookKey}-${r.chapter}#v${r.verse}">Verse ${r.verse}</a></li>`;
 const chapterGroup = (title, verses) =>
   `<li class="result-group"><h3 class="result-group__title">${title}</h3><ol class="result-group__occurrences">${verses.map(occurrence).join("")}</ol></li>`;
+// A topic's chapter as search.js draws it.
+const topicRow = (c) =>
+  `<li class="result"><a class="result-link" href="/${c.bookKey}-${c.chapter}/"><div class="result-title">${c.title}<span class="result-topics"> · ${c.labels.join(", ")}</span></div></a></li>`;
 
 let started = false;
 let queries = 0;
+/** One group's head row and its rows' boxes. */
+function head(groupId, listId) {
+  const bar = document.querySelector(`#${groupId} [data-desk-gather]`);
+  const q = (sel) => bar.querySelector(sel);
+  const row = (v) => [...document.querySelectorAll(`#${listId} .desk-gather__tick`)].find((b) => b.getAttribute("aria-label") === v);
+  const line = () => q(".desk-gather__lead").textContent.replace("Clear checks", "").trim();
+  const heard = () => bar.querySelector(":scope > p[role=status]").textContent;
+  return { bar, q, row, line, heard };
+}
 /** /search's results for a query of their own, announced as search.js does. */
 function draw({ verses = VERSES, chapters = [] } = {}) {
   resetDom("http://localhost/search/?q=loved");
   document.body.innerHTML = `<main class="search-page">
-    <section id="group-subject"><h2 class="group-title">Chapters by topic</h2><ol id="results-subject"></ol></section>
+    <section id="group-subject"><h2 class="group-title">Chapters by topic</h2><ol id="results-subject">${chapters.map(topicRow).join("")}</ol></section>
     <section id="group-keyword"><h2 class="group-title">Verses</h2><ol id="results-keyword">${
       verses.length ? chapterGroup("John 3", verses.filter((r) => r.bookKey === "john")) + chapterGroup("Romans 8", verses.filter((r) => r.bookKey === "romans")) : ""
     }</ol></section></main>`;
-  const detail = { query: `loved ${++queries}`, verses, chapters };
+  const detail = { query: `loved ${++queries}`, verses, chapters: chapters.map(({ bookKey, chapter, labels }) => ({ bookKey, chapter, labels })) };
   if (!started) {
     started = true;
     attachSearchSheets(() => detail);
   } else {
     document.dispatchEvent(new window.CustomEvent("lit:search-results", { detail }));
   }
-  const bar = document.querySelector("#group-keyword [data-desk-gather]");
-  const q = (sel) => bar.querySelector(sel);
-  const row = (v) => [...document.querySelectorAll("#results-keyword .desk-gather__tick")].find((b) => b.getAttribute("aria-label") === v);
-  const line = () => q(".desk-gather__lead").textContent.replace("Clear checks", "").trim();
-  const heard = () => bar.querySelector(":scope > p[role=status]").textContent;
-  return { bar, q, row, line, heard };
+  return { ...head("group-keyword", "results-keyword"), chapters: head("group-subject", "results-subject") };
 }
+
+// Matthew 18 and Romans 8 share a topic John 3 lacks, so a sheet of those
+// two is named for it and a sheet of all three is not.
+const TOPIC = [
+  { bookKey: "matthew", chapter: 18, title: "Matthew 18", labels: ["love"] },
+  { bookKey: "john", chapter: 3, title: "John 3", labels: ["new birth"] },
+  { bookKey: "romans", chapter: 8, title: "Romans 8", labels: ["love"] },
+];
 
 test("E116: the head row holds the box that checks every verse and a card with one primary button", async () => {
   const { bar, q, line } = draw();
@@ -186,20 +208,71 @@ test("E116: unchecking everything closes an open chooser, which has nothing left
   assert.equal(q(".desk-gather__go").getAttribute("aria-expanded"), "false");
 });
 
-test("E116: the chapters get the same head row and rule, with no box, since every chapter goes whole", async () => {
-  draw({ verses: [], chapters: [{ bookKey: "john", chapter: 3, labels: ["love"] }, { bookKey: "romans", chapter: 8, labels: ["love"] }] });
-  const verses = document.querySelector("#group-keyword [data-desk-gather]");
-  assert.equal(verses.hidden, true, "no verses, no verse row");
-  const bar = document.querySelector("#group-subject [data-desk-gather]");
+test("E163: the chapters by topic are checked as the verses are, with their own box and nothing checked to start", async () => {
+  const { chapters } = draw({ verses: [], chapters: TOPIC });
+  const { bar, q, row, line, heard } = chapters;
+  assert.equal(document.querySelector("#group-keyword [data-desk-gather]").hidden, true, "no verses, no verse row");
   same(document.querySelector("#group-subject .group-title").nextElementSibling, bar);
   assert.ok(bar.classList.contains("desk-gather--head"));
-  assert.equal(bar.querySelector("input[type=checkbox]"), null);
-  assert.ok(bar.classList.contains("desk-gather--some"), "the rule is always on");
-  assert.equal(bar.querySelector(".desk-gather__lead").textContent, "All 2 chapters go, each whole.");
-  const go = bar.querySelector(".desk-gather__go");
-  assert.equal(go.getAttribute("aria-label"), "Add 2 chapters to a sheet…");
-  assert.equal(go.getAttribute("aria-disabled"), null);
+  const all = q(":scope > input.desk-gather__all");
+  assert.equal(all.getAttribute("aria-label"), "Check all 3 chapters");
+  assert.equal(line(), "Check the chapters you want, or check all 3.");
+  assert.equal(bar.classList.contains("desk-gather--some"), false, "no rule with nothing checked");
+  const go = q(".desk-gather__go");
+  assert.equal(go.getAttribute("aria-label"), "Add checked chapters to a sheet…");
+  assert.equal(go.getAttribute("aria-disabled"), "true");
   click(go);
-  const panel = await until(() => bar.querySelector(".desk-gather__panel"));
+  await settle(20);
+  assert.equal(q(".desk-gather__panel"), null, "nothing checked adds nothing");
+  assert.equal(await until(() => heard()), "Check the chapters you want, or check all 3.");
+  for (const li of document.querySelectorAll("#results-subject li.result")) {
+    assert.ok(li.querySelector(":scope > input.desk-gather__tick"), "every chapter has a box");
+  }
+  assert.ok(row("Include John 3 in the sheet"), "named by its chapter");
+
+  toggle(row("Include Romans 8 in the sheet"), true);
+  assert.equal(all.indeterminate, true);
+  assert.equal(line(), "1 of 3 checked.");
+  assert.equal(go.getAttribute("aria-label"), "Add 1 chapter to a sheet…");
+  assert.ok(row("Include Romans 8 in the sheet").closest("li").classList.contains("desk-gather__row-item--picked"));
+  assert.equal(await until(() => heard() !== "Check the chapters you want, or check all 3." && heard()), "1 of 3 checked.");
+
+  toggle(all, true);
+  assert.equal(line(), "All 3 checked.");
+  assert.equal(go.getAttribute("aria-label"), "Add all 3 chapters to a sheet…");
+  click(q(".desk-gather__clear"));
+  assert.equal(line(), "Check the chapters you want, or check all 3.");
+  assert.equal(document.querySelectorAll("#results-subject .desk-gather__row-item--picked").length, 0);
+});
+
+test("E163: the verses' checks and the chapters' are kept apart", async () => {
+  const { row, line, chapters } = draw({ chapters: TOPIC });
+  toggle(chapters.row("Include John 3 in the sheet"), true);
+  assert.equal(line(), "Check the verses you want, or check all 4.", "a chapter's check counts nothing among the verses");
+  toggle(row("Include John 3:16 in the sheet"), true);
+  assert.equal(chapters.line(), "1 of 3 checked.", "nor a verse's among the chapters");
+  assert.equal(line(), "1 of 4 checked.");
+});
+
+test("E163: a new sheet holds only the checked chapters, each whole, named for the topic they share", async () => {
+  const { chapters } = draw({ verses: [], chapters: TOPIC });
+  const { q, row } = chapters;
+  toggle(row("Include Romans 8 in the sheet"), true);
+  toggle(row("Include Matthew 18 in the sheet"), true);
+  click(q(".desk-gather__go"));
+  const panel = await until(() => q(".desk-gather__panel"));
   assert.equal(panel.querySelector(".desk-gather__title").textContent, "Add 2 chapters to a sheet");
+  await until(() => panel.querySelector(".desk-gather__note")?.textContent !== "Reading your sheets…");
+  click(panel.querySelector(".desk-gather__actions button"));
+  const done = await until(() => q(".desk-gather__done"));
+  assert.match(done.textContent, /^Made “love” with 2 passages\./);
+  const store = await openStore({ ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
+  const sheet = (await store.all()).find((r) => r.kind === "sheet" && r.title === "love");
+  assert.ok(sheet, "named for the topic both checked chapters carry, which John 3 lacks");
+  const passages = sheet.modules.filter((m) => m.type === "passage");
+  assert.deepEqual(
+    passages.map((p) => [p.bookKey, p.chapter, p.verse, p.endVerse]),
+    [["matthew", 18, 1, 35], ["romans", 8, 1, 39]],
+    "Bible order, each chapter whole; John 3 left out",
+  );
 });
