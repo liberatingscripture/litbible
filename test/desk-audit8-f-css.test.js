@@ -65,7 +65,7 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   }
   assert.match(ordinary[2], /border:\s*1px solid var\(--field-border\)/);
   assert.match(ordinary[2], /background:\s*var\(--desk-control\)/);
-  const pills = css.match(/\n:is\(:where\(\.desk-verse, \.desk-fns\) \.desk-pin, [^{]*\.desk-sheet__chip\) \{([^}]*)\}/);
+  const pills = css.match(/\n:is\(\.desk-pin, [^{]*\.desk-sheet__chip\) \{([^}]*)\}/);
   assert.ok(pills, "no rule for the pills");
   assert.match(pills[1], /border:\s*1px solid var\(--field-border\)/);
   // The layers' dark values are declared in both of desk.css's dark blocks,

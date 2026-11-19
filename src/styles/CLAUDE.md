@@ -443,7 +443,8 @@
   **No button is the color of what lies behind it** (E159; BVJ,
   2026-11-18), in either theme: a button with an edge and no fill, or a
   segmented pill whose unchosen choices show the surface, joins a kind
-  instead (`.desk-seg` takes the pills' fill and edge). The light fill stays
+  instead (`.desk-seg` takes the pills' fill and edge, and every Pin, the
+  reading pages' too, is a flat toggle). The light fill stays
   white (BVJ chose it over a gray step, sky, and sunshine), 1.05:1 on a
   near-white sheet, and the 3:1 edge and the shadow are what carry it there. The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".

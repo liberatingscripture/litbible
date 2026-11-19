@@ -2526,9 +2526,12 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 /* src/scripts/desk/pins.js. A Pin / Unpin button wherever a footnote is read:
    under each note in the Footnotes list, beside "See in footnotes" in the
-   popover, and in the Notebook's "This verse" tab. Quiet by design (the
-   reading pages keep their calm): small, muted, a hairline edge, and in none
-   of its places does it add a line above the text. The words are the whole
+   popover, and in the Notebook's "This verse" tab. Small, and in none of its
+   places does it add a line above the text. Its look is a flat toggle's
+   ("Four kinds of button," at the end of this file) wherever it appears: the
+   control's fill and 3:1 edge (E159; BVJ, 2026-11-18, "The pins background
+   should be white": on the reading pages it had a hairline edge and no fill,
+   so the page showed through it). The words are the whole
    control; every focus ring is the site's (global :focus-visible). Its
    shape is the desk's rounded rectangle everywhere (E141; BVJ, 2026-11-17:
    it was a pill until then). The class names still say "pill." */
@@ -2537,24 +2540,11 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   flex: none;
   margin: 0;
   padding: 1px 9px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
+  border: 1px solid transparent;
   border-radius: 6px;
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.74);
   font: calc(0.75rem * var(--desk-ui, 1))/1.5 Inter, "Inter Fallback", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
-}
-
-.desk-pin:hover {
-  border-color: rgba(var(--ink-rgb), 0.4);
-  background: rgba(var(--ink-rgb), 0.08);
-  color: var(--text);
-}
-
-.desk-pin:disabled {
-  opacity: 0.6;
-  cursor: default;
 }
 
 /* The footnote Pin is a thumbtack glyph (E18): same button, the icon in the
@@ -2576,15 +2566,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   flex: none;
 }
 
-/* It shows its state, not the press to come (E67): outlined while the
-   footnote isn't pinned, the thumbtack filled and the button tinted once it is.
-   The pane lock takes the same tint (.desk-pane__pin). */
-.desk-pin[aria-pressed="true"] {
-  border-color: var(--green-text);
-  background: rgba(var(--ink-rgb), 0.06);
-  color: var(--green-text);
-}
-
+/* It shows its state, not the press to come (E67): the thumbtack outlined
+   while the footnote isn't pinned and filled once it is, with the flat
+   toggles' on look (sunk, the text green's edge and words), as the pane lock
+   (.desk-pane__pin) has. */
 .desk-pin[aria-pressed="true"] .desk-pin__head {
   fill: currentColor;
 }
@@ -9401,10 +9386,9 @@ mark.desk-print-mark {
 
 /* Flat toggles (the chips' pills; Pin's and Show sources' rounded
    rectangle): the control's fill and
-   edge, flat at rest; on is sunk, with the text green's edge and words. The
-   reading pages' own Pin stays quiet (its place is the text), so only This
-   verse's and the Footnotes pane's are here. */
-:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip) {
+   edge, flat at rest; on is sunk, with the text green's edge and words.
+   Every Pin is one, the reading pages' included (E159). */
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip) {
   border: 1px solid var(--field-border);
   background: var(--desk-control);
   color: var(--text);
@@ -9413,18 +9397,18 @@ mark.desk-print-mark {
     background-color var(--desk-btn-motion) ease;
 }
 
-:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):hover:not(:disabled, [aria-pressed="true"], :active) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):hover:not(:disabled, [aria-pressed="true"], :active) {
   border-color: var(--field-border);
   background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
   color: var(--text);
 }
 
-:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):is(:active, [aria-pressed="true"]):not(:disabled) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):is(:active, [aria-pressed="true"]):not(:disabled) {
   background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
   box-shadow: var(--desk-btn-press);
 }
 
-:is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
   border-color: var(--green-text);
   color: var(--green-text);
 }
@@ -9482,7 +9466,7 @@ mark.desk-print-mark {
    as the Sheets' does (XA8-7). */
 @media (forced-colors: active) {
   :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]),
-  :is(:where(.desk-verse, .desk-fns) .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
+  :is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
     border-color: Highlight;
   }
 

@@ -97,9 +97,9 @@ holds the inventory, the pairs, the two files in step and reduced motion.
    sheet's link box (its primary button aside).
 3. **Toggle**: an ordinary button with `aria-pressed` (Stay here, Bible
    order, the Greek's word choices), or one flat at rest: a pill (label
-   chips, a sheet's blank chips) or a rounded rectangle (This verse's and
-   the Footnotes pane's Pin, the Greek's Show sources). The reading pages'
-   own Pin stays quiet, in the same shape. **Shape says what a control
+   chips, a sheet's blank chips) or a rounded rectangle (every Pin, the
+   reading pages' included since E159, and the Greek's Show sources).
+   **Shape says what a control
    is** (E141; BVJ, 2026-11-17): a rounded rectangle is a button, the lock
    and a lone switch included, so **Pin, Stay here, and Show sources are
    never a pill or a circle**; a pill is a chip in a set; a circle is a

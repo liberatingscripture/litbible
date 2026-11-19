@@ -77,7 +77,7 @@ const ORDINARY = [
   ":where(.desk-print-menu__choices) > :is(a, button)",
   ".desk-rich-link__button:where(:not(.desk-rich-link__button--primary))",
 ];
-const PILLS = [":where(.desk-verse, .desk-fns) .desk-pin", ".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip"];
+const PILLS = [".desk-pin",".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip"];
 const PRIMARY = [".desk-sheet__btn--primary", ".desk-search__btn--primary", ".desk-editor__actions .desk-editor__save", ".desk-notice__actions .desk-notice__keep", ".desk-tour__next", ".desk-offer__go", ".desk-rich-link__button--primary"];
 const has = (list, sel) => `, ${list}, `.includes(`, ${sel}, `);
 
@@ -156,9 +156,8 @@ test("E126: the primary is Deep Green with white words, and disabled it still re
 test("E126: no component rule paints an inventory button's edge, fill or shadow (the old outlines are gone)", () => {
   // Each component rule says its size and shape; the looks are the kinds'. A
   // transparent edge (a width for the kinds to color) and forced colors'
-  // system colors are allowed. The reading pages' own Pin (a bare .desk-pin)
-  // stays quiet and keeps its rules; only This verse's and the Footnotes
-  // pane's are flat toggles.
+  // system colors are allowed. Every Pin is a flat toggle, the reading pages'
+  // too (E159); the Footnotes list's still shows and hides by opacity (E82).
   const classes = [
     ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
     ".desk-verse__step", ".desk-mine__more-button", ".desk-note__more", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
@@ -168,10 +167,9 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
     ".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip",
     ".desk-note__edit", ".desk-home-card__choose", ".desk-tour__next", ".desk-tour__back", ".desk-offer__go", ".desk-offer__later",
     ".desk-labels__add", ".desk-ws__shape", ".desk-ws__menu-actions", ".desk-print-menu__choices", ".desk-rich-link__button",
+    ".desk-pin",
   ];
-  const named = (sel) =>
-    classes.some((c) => new RegExp(`${c.replace(/\./g, "\\.")}(?![\\w-])`).test(sel)) ||
-    (/\.desk-pin(?![\w-])/.test(sel) && /\.desk-(verse|fns)(?![\w-])/.test(sel));
+  const named = (sel) => classes.some((c) => new RegExp(`${c.replace(/\./g, "\\.")}(?![\\w-])`).test(sel));
   const plain = components.replace(/\/\*[\s\S]*?\*\//g, "");
   const found = [];
   for (const m of plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
@@ -181,6 +179,7 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
       const [prop, value = ""] = d.split(/:\s*/, 2);
       if (!/^(border(-top|-bottom|-left|-right)?(-color)?|background(-color)?|box-shadow|opacity)$/.test(prop)) continue;
       if (/transparent|Highlight|ButtonText|ButtonBorder|GrayText|Canvas/.test(value)) continue;
+      if (prop === "opacity" && /\.desk-fn-pills(?![\w-])/.test(sel)) continue; // E82's show and hide
       found.push(`${sel.replace(/\s+/g, " ")} { ${d} }`);
     }
   }
