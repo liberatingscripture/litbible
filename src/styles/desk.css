@@ -436,6 +436,133 @@ html:has(.desk-undo__bar:not([hidden])) {
   background: rgba(var(--ink-rgb), 0.08);
 }
 
+/* ── The pick window (E154) ──────────────────────────────────── */
+
+/* "All sheets…" at the foot of "Add to sheet ▸": pick-window.js, a
+   float-window.js window that "All collections…" (D13) is meant to share. A
+   filter box and its count over a list that scrolls on its own, each row an
+   item's title with when it was last changed under it. A row is a list row,
+   as the Notebook actions window's are, not one of the four kinds of button.
+   Tokens only, so both themes follow without a rule of their own. */
+.desk-pick {
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+
+.desk-pick .lit-panel__header {
+  margin-bottom: 0;
+}
+
+.desk-pick .lit-window__title {
+  margin: 4px 0 2px;
+}
+
+.desk-pick .lit-window__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0 -14px;
+  padding: 0 14px 12px;
+}
+
+.desk-pick__lead {
+  margin: 0 0 8px;
+  font-size: calc(0.82rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-pick__label {
+  display: block;
+  margin: 0 0 4px;
+  font-size: calc(0.8rem * var(--desk-ui, 1));
+  font-weight: 600;
+}
+
+.desk-pick__filter {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px 9px;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: var(--desk-field); /* a field's own fill (E89) */
+  color: var(--text);
+  font: inherit;
+  font-size: calc(0.9rem * var(--desk-ui, 1));
+}
+
+.desk-pick__filter:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.desk-pick__count {
+  margin: 6px 0;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+/* The rows scroll; the box and the count stay above them. Positioned, as a
+   pane's scroller is, so nothing absolute inside escapes its clipping. */
+.desk-pick__list {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  min-height: 0;
+  margin: 0 -6px;
+  padding: 2px 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+/* Nothing left by the filter: the count line says so, and the list goes. */
+.desk-pick__list[hidden] {
+  display: none;
+}
+
+.desk-pick__row {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: calc(0.9rem * var(--desk-ui, 1));
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-pick__row:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-pick__row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.desk-pick__name {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.desk-pick__detail {
+  display: block;
+  margin-top: 1px;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
 /* ── Notes in the list ───────────────────────────────────────── */
 
 /* A note's row: its glyph and words (a button that opens it in full for the

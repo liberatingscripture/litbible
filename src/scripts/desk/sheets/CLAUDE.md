@@ -347,6 +347,24 @@ The header's Study group is part 3's, built with header C.
   goes where `passageInsertIndex` says, since nobody is working in the
   sheet), and the undo bar shows Undo with an "Open the sheet" link
   (`showUndo`'s `link`, to `/sheets/?id=`).
+  **Past five, the flyout ends in "All sheets…"** (E154; BVJ, 2026-11-18),
+  shown only when there are more sheets than it lists (`needsAllSheets`). It
+  reads the passage at once (the selection goes with the menu), closes the
+  menu and opens **the pick window** (`desk/pick-window.js`, rules in
+  `src/lib/desk-pick.mjs`) where the menu was: every sheet `addableSheets`
+  gives (the flyout's exclusions, newest change first), each with "Changed
+  <date>", under a filter box that keeps the titles holding every word typed
+  (no case, no accents). A pick writes as a flyout pick does (`write`: one
+  `store.change` over `planAddToSheet`, then the undo bar). Focus starts in
+  the box; Down, Up, Home and End move through the rows (Up from the first
+  goes back to the box), Enter in the box picks the one row left, Escape in a
+  box holding words only clears it, and closing gives focus back to the verse
+  number the keyboard opened the menu from, else the passage's first. A
+  sheet changed while it is open redraws it (`update`). **The window knows
+  nothing of sheets** (named items, a noun for its count line, a pick
+  callback), so D13's "All collections…" opens the same one; a scrolling
+  flyout (a hover flyout closes on a scroll, NB3-12) and a trip to /sheets
+  were weighed and declined.
 - **/search's sheet opens on /sheets**: the line after its head row's
   "Add 4 verses to a sheet…" says "Open the sheet, or open it in the Study
   Desk." (rule 21).

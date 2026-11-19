@@ -5680,7 +5680,8 @@ section marked as one is agreed unless "Still open" says otherwise.
     collections used most recently, and "All collections…" at its foot,
     opening a small window with a filter box and the whole list. The same
     window serves Add to sheet's "All sheets…" (STUDY-DESK-FIXES.md E154,
-    built first, on its own).
+    built first, on its own: `desk/pick-window.js`, which takes named
+    items, a noun for its count line and a pick callback).
 11. **Two more ways in**: a Collections line in the Notebook's This verse
     tab (Fable's option D; not the only way in), and "Add passage…" on the
     collection's page.
@@ -5872,8 +5873,8 @@ Why a kind of its own:
   collection filter.
 
 Reaching a sheet beyond the five the flyout lists (E154, the "All sheets…"
-window that "All collections…" will reuse) is being built first, on its
-own.
+window that "All collections…" will reuse) was built first, on its own
+(2026-11-18; `desk/pick-window.js`).
 
 ## Decisions
 
