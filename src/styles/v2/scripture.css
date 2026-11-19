@@ -192,6 +192,83 @@
       );
       translate: calc(var(--desk-bar-center, 50cqw) - 50cqw - 18.5px) 0;
     }
+
+    /* OpenDyslexic (BVJ, 2026-11-18). The row is the sheet's width, and in
+       this font the sheet is narrower (its shorter line) while the picker
+       and the pill are wider: at Medium the search field was 97px on
+       Matthew 17 and 28px on 1 Thessalonians 5, and at Small it vanished.
+       So search is the phone's round button beside the pill, and opens in
+       place of the row (ScriptureLayout's inline script), which gives the
+       field the whole row rather than shrinking a word. Where a long book
+       name at a small size needs more than the sheet's width even so (1
+       Thessalonians 5 at Small, by 65px), the row takes it, past the
+       sheet's edges, rather than cutting a label. */
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-compact] .scripture-tools__inner {
+      width: max-content;
+      min-width: min(
+        calc(var(--reading-width) * var(--reading-scale, 1) + 130px),
+        calc(100% - 2 * var(--v2s-edge))
+      );
+      max-width: calc(100% - 2 * var(--v2s-edge));
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
+    }
+
+    :root[data-restyle][data-font="dyslexic"][data-desk-panel][data-desk-expanded] .scripture-layout--scripture .scripture-tools[data-compact] .scripture-tools__inner {
+      min-width: min(
+        calc(var(--reading-width) * var(--reading-scale, 1) + 93px),
+        calc(100% - 2 * var(--v2s-edge))
+      );
+    }
+
+    /* The button is as tall as the picker and the pill, which this font
+       makes taller than a phone's 44px, and square. */
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-compact] .scripture-tools__center {
+      justify-self: end;
+      align-self: stretch;
+      display: flex;
+      width: auto;
+    }
+
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-compact] .searchbar {
+      display: none;
+    }
+
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-compact] .tools-search-toggle {
+      display: inline-flex;
+      width: auto;
+      height: auto;
+      aspect-ratio: 1;
+    }
+
+    /* Search open: the field and its × take the row, as on a phone. */
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-search-open] :is(.scripture-tools__left, .scripture-tools__right, .tools-search-toggle) {
+      display: none;
+    }
+
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-search-open] .scripture-tools__center {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-search-open] .searchbar {
+      display: block;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* As tall as the row it replaces (50px; 58 at the field's own
+       padding), so the text below doesn't move when it opens. The ghost
+       suggestion sits over the input and keeps its padding. */
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-search-open] :is(.searchbar__input, .searchbar__ghost) {
+      padding-block: 10px;
+    }
+
+    :root[data-restyle][data-font="dyslexic"] .scripture-layout .scripture-tools[data-search-open] .tools-search-close {
+      display: inline-flex;
+    }
   }
 
   /* A phone: the one-row toolbar (data-compact, ScriptureLayout's inline
