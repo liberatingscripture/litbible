@@ -658,8 +658,8 @@ const _initSearchbars = async () => {
     // it opens the Notebook and page commands in a window of their own
     // (desk/commands-window.js, reached through the gated desk module, never
     // imported here), apart from the Greek's "Search commands." It sits in the
-    // footer's own row, so the tray gains no height, and it is in no page
-    // without data-desk="on".
+    // footer, under "Go to full search" (the tray is too narrow for both on a
+    // line), and it is in no page without data-desk="on".
     if (commandsLink && deskEnabled()) {
       commandsLink.hidden = false;
       commandsLink.addEventListener("click", () => {
