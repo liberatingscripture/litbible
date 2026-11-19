@@ -1,8 +1,9 @@
 // src/lib/desk-records.mjs
 //
-// The Study Desk's records, as STUDY-DESK-FORMAT.md defines them: the ten
+// The Study Desk's records, as STUDY-DESK-FORMAT.md defines them: the eleven
 // kinds (draft 1's ten less `legend`, dropped 2026-10-07, plus draft 2's
-// `footnotePin`, BDR's request of 2026-10-09), the
+// `footnotePin`, BDR's request of 2026-10-09, and `collection`, D13, BVJ's
+// 2026-11-18, for BDR to review), the
 // fields every record carries, and the few rules every client keeps when it
 // makes or changes one. Pure: no storage, no DOM, no
 // clock or randomness of its own unless the caller leaves them out.
@@ -28,10 +29,16 @@
 // desk-sheet-format.mjs (validateSheet), and a sheet written in a newer sheet
 // format than this code's is shown but not edited (canEdit), as a newer schema
 // is. Making and changing sheets is desk-sheets.mjs.
+//
+// A collection (kind 12) is one record too, the same way: its own fields are
+// checked by desk-collection-format.mjs (validateCollection), one written in a
+// newer collection format is shown but not edited (canEdit), and making,
+// changing and showing collections is desk-collections.mjs.
 
 import { BOOKS } from "../data/books.js";
 import { makeAnchor, rangeOf, resolveAnchor } from "./anchor-core.mjs";
 import { BOOKMARK_NAME_MAX } from "./desk-bookmarks.mjs";
+import { COLLECTION_FORMAT, validateCollection } from "./desk-collection-format.mjs";
 import { MAX_VERSE, SHEET_FORMAT, validateSheet } from "./desk-sheet-format.mjs";
 
 /** The format version this code writes. */
@@ -48,6 +55,7 @@ export const KINDS = Object.freeze([
   "sheet",
   "trash",
   "footnotePin",
+  "collection",
 ]);
 
 export const COLORS = Object.freeze(["yellow", "green", "blue", "pink"]);
@@ -181,8 +189,9 @@ export function createRecord(kind, fields, { now, client, contentVersion, id } =
 /**
  * Whether this client may change a record. A record of an unknown kind or a
  * newer schema is carried untouched (principle 6), and a trash record is
- * written whole, never edited. So is a sheet written in a newer sheet format:
- * an older tab shows it but can't strip what it doesn't understand.
+ * written whole, never edited. So is a sheet written in a newer sheet format,
+ * or a collection in a newer collection format: an older tab shows it but
+ * can't strip what it doesn't understand.
  */
 export function canEdit(record) {
   return (
@@ -190,7 +199,8 @@ export function canEdit(record) {
     record.kind !== "trash" &&
     Number.isInteger(record.schema) &&
     record.schema <= SCHEMA_VERSION &&
-    !(record.kind === "sheet" && Number.isInteger(record.sheetFormat) && record.sheetFormat > SHEET_FORMAT)
+    !(record.kind === "sheet" && Number.isInteger(record.sheetFormat) && record.sheetFormat > SHEET_FORMAT) &&
+    !(record.kind === "collection" && Number.isInteger(record.collectionFormat) && record.collectionFormat > COLLECTION_FORMAT)
   );
 }
 
@@ -494,6 +504,7 @@ export function validateRecord(r) {
   }
   if (k === "markRule") need(COLORS.includes(r.color), `color "${r.color}" is not one of ${COLORS.join(", ")}`);
   if (k === "sheet") problems.push(...validateSheet(r));
+  if (k === "collection") problems.push(...validateCollection(r));
   return problems;
 }
 

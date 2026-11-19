@@ -59,8 +59,25 @@ const sheet = make("sheet", { title: "Study sheet", items: [] });
 const future = { ...make("note", { bookKey: "acts", chapter: 2, verse: 1, body: "x", marker: "note" }), schema: 9, novel: { a: [1, 2] } };
 const alien = { id: nextId(), kind: "starfield", schema: 1, created: "2026-09-12T08:00:00.000Z", modified: "2026-09-12T08:00:00.000Z", client: "ios/9", contentVersion: "v1", labels: [], shiny: true };
 const trash = planDelete(make("note", { bookKey: "acts", chapter: 3, verse: 1, body: "gone", marker: "note" }), { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+// A collection of the reader's (kind 12), with a member of every type, one of
+// them naming a record this notebook doesn't hold.
+const collection = make("collection", {
+  collectionFormat: 1,
+  name: "Advent <series>",
+  description: "Four weeks\n# with the Thursday group",
+  order: "mine",
+  members: [
+    { id: nextId(), type: "item", recordId: romans.id },
+    { id: nextId(), type: "passage", bookKey: "luke", chapter: 1, verse: 26, endVerse: 38 },
+    { id: nextId(), type: "heading", text: "Week two" },
+    { id: nextId(), type: "item", recordId: sheet.id },
+    { id: nextId(), type: "item", recordId: yellow.id },
+    { id: nextId(), type: "item", recordId: "not-here" },
+    { id: nextId(), type: "rule", match: { kind: "bookmark", label: label.id }, except: [] },
+  ],
+});
 
-const everything = [romans, asked, yellow, mark, pin, glossary, article, place, hidden, sheet, label, future, alien, trash];
+const everything = [romans, asked, yellow, mark, pin, glossary, article, place, hidden, sheet, label, collection, future, alien, trash];
 
 /* ── osis ──────────────────────────────────────────────────────────── */
 
@@ -141,7 +158,9 @@ test("the Web Annotation collection follows the W3C shape", () => {
 test("records that aren't marks go in the collection's own list, and trash stays out", () => {
   const c = webAnnotationCollection(everything, opts);
   const ids = new Set(c.lit.records.map((r) => r.id));
-  for (const r of [place, sheet, label, alien]) assert.ok(ids.has(r.id), r.kind);
+  for (const r of [place, sheet, label, collection, alien]) assert.ok(ids.has(r.id), r.kind);
+  assert.deepEqual(c.lit.records.find((r) => r.id === collection.id), collection, "a collection travels whole");
+  assert.equal(c.first.items.some((a) => a.lit.record.id === collection.id), false, "a collection is no annotation");
   assert.equal(ids.has(trash.id), false);
   assert.ok(c.first.items.some((a) => a.lit.record.id === future.id), "a note from a newer schema is still a mark");
   assert.equal(c.first.items.some((a) => a.lit.record.id === place.id), false);
@@ -191,6 +210,57 @@ test("the Markdown file reads as the mocked file does", () => {
   // Bible order: John (4th gospel) before Romans, Romans 4 before Romans 8.
   assert.ok(md.indexOf("## Mark 4:35") < md.indexOf("## John 3:16"));
   assert.ok(md.indexOf("## Romans 4:7") < md.indexOf("## Romans 8:3–4"));
+});
+
+test("Markdown lists each collection under Collections, its members in My order, for people only", () => {
+  const md = toMarkdown(everything, opts);
+  const at = md.indexOf("\n## Collections\n");
+  assert.ok(at > md.indexOf("\n## Labels\n"), "after Places and Labels");
+  const section = md.slice(at + 1, md.indexOf("<!-- lit-notebook end -->")).trimEnd();
+  assert.equal(
+    section,
+    [
+      "## Collections",
+      "",
+      `### Advent \\<series> <!-- lit:id=${collection.id} -->`,
+      "",
+      "Four weeks",
+      "\\# with the Thursday group",
+      "",
+      "- Romans 8:3–4 · Note",
+      "- Luke 1:26–38",
+      "",
+      "#### Week two",
+      "",
+      "- Sheet “Study sheet”",
+      "- Romans 4:7 · Highlight (yellow)",
+      "- Every bookmark labeled Prayer",
+    ].join("\n"),
+  );
+  // A label deleted since: the rule says so.
+  const noLabel = toMarkdown(everything.filter((r) => r !== label), opts);
+  assert.match(noLabel, /^- Every bookmark labeled \(label deleted\)$/m);
+  // Two collections are listed by name.
+  const second = { ...collection, id: nextId(), name: "Lent", members: [] };
+  const two = toMarkdown([second, collection], opts);
+  assert.ok(two.indexOf("### Advent") < two.indexOf("### Lent"));
+  assert.match(two, /^### Lent <!-- lit:id=\S+ -->$/m);
+  assert.equal(toMarkdown([romans], opts).includes("## Collections"), false, "no collections, no section");
+});
+
+test("a Markdown file's Collections section is never read back, and the file says so", () => {
+  const md = toMarkdown(everything, opts);
+  const back = parseImport(md, { local: everything, ctx, now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(back.problems, []);
+  assert.equal(back.records.some((r) => r.kind === "collection"), false);
+  assert.ok(back.notes.some((note) => /Places, labels, and collections in a Markdown file aren’t read back/.test(note)));
+  // A collection named like a reference, and edits made to the section, change nothing.
+  const named = { ...collection, name: "Romans 8:3", description: "Romans 8:4" };
+  const edited = toMarkdown([named], opts)
+    .replace("- Luke 1:26–38", "- Luke 1:26–39")
+    .replace("\n<!-- lit-notebook end -->", "\n## Romans 8:3\n\nA new note.\n\n<!-- lit-notebook end -->");
+  const read = parseImport(edited, { local: [named], ctx, now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(read.records.map((r) => [r.kind, r.body]), [["note", "A new note."]], "only a real ## entry after the section is read");
 });
 
 test("escaping keeps a note's lines from being read as structure, and undoes cleanly", () => {
