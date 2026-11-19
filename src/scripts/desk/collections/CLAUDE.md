@@ -54,7 +54,18 @@ it holds. Computer only; the apps carry it untouched.
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
   markers. The notebook page has "Delete all collections" in Delete in bulk.
   Tests: `test/desk-collections-page*.test.js`.
-- **Later:** Add to collection (step 3), This verse's Collections line, rule
+- **Step 3, Add to collection ▸** (verse menu and selection panel):
+  `collection-add.js` (`createCollectionAdd`), wired into `actions.js` right
+  after Add to sheet's row, and built as `sheets/sheet-add.js` is: the five
+  changed last, "New collection…" (`openNewCollection` with the passage as
+  `firstMember`), and "All collections…" past five (E154's pick window). It
+  shows in Chapter View and /desk's LIT pane (whose panel gives `textFor`),
+  never Read View or the glossary. A selection's offsets only find its first
+  and last verse; the passage is rebuilt whole with `passageFromVerses`, so
+  no `quote` (decision 20). Every pick goes through `addPassageToCollection`.
+  A finger's chips are flat, as Add to sheet's. Test:
+  `test/desk-collections-add-menu.test.js`.
+- **Later:** This verse's Collections line, rule
   members and their line (step 5), "Make a sheet" and "Add to sheet ▸"
   (step 7).
 
