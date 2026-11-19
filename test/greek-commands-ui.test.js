@@ -33,6 +33,15 @@ test("a comma takes the space before it away and leaves one after", () => {
   assert.deepEqual(mid, { value: "πίστις, Χριστός", caret: 8 });
 });
 
+test("“>” takes the space before it away and leaves one on each side, and needs a word before it (E161)", () => {
+  assert.deepEqual(put("πίστις", " > "), { value: "πίστις > ", caret: 9 });
+  assert.deepEqual(put("πίστις  ", " > "), { value: "πίστις > ", caret: 9 });
+  assert.deepEqual(put("πίστις  Χριστός", " > ", 6), { value: "πίστις > Χριστός", caret: 9 });
+  // At the start it would make a Notebook command, so nothing is added.
+  assert.deepEqual(put("", " > "), { value: "", caret: 0 });
+  assert.deepEqual(put("  πίστις", " > ", 1), { value: "  πίστις", caret: 1 });
+});
+
 test("other commands get a space before when they follow a word, and one after", () => {
   assert.deepEqual(put("πίστις", "~0"), { value: "πίστις ~0 ", caret: 10 });
   assert.deepEqual(put("πίστις.gen ", "&"), { value: "πίστις.gen & ", caret: 13 });
@@ -57,7 +66,7 @@ test("inserting in the middle or over a selection keeps the rest, with no double
 
 test("every insertion the window offers leaves a query that reads", () => {
   let v = "";
-  for (const t of ["πίστις", ".gen", ", ", "Ἰησοῦς", "/", "Χριστός", ".gen", "~0"]) {
+  for (const t of ["πίστις", ".gen", ", ", "Ἰησοῦς", "/", "Χριστός", ".gen", " > ", "θεός", "~0"]) {
     v = insertAtCursor(v, v.length, v.length, t).value;
   }
   assert.equal(parseGreekQuery(v).error, undefined, v);

@@ -1,8 +1,10 @@
 // src/scripts/greek-builder.js
 //
 // The Greek search builder (STUDY-DESK-FIXES.md, E5): the top of the commands window.
-// One card for each word of the search, each with menus that list only what
-// that word takes, and a way to add a word and say how close the words must be.
+// One card for each word of the search, each with a box that takes the word
+// as the field does, filters and joiners included (E162), and menus that list
+// only what that word takes, and a way to add a word and say how close the
+// words must be, and whether in this order (E161).
 // The rules (reading the field, writing it, what each card offers) are
 // src/lib/greek-builder.mjs's, pure and tested; this file only draws them.
 //
@@ -20,6 +22,7 @@
 
 import { loadGreekBridge, loadGreekIndex, loadGreekOccurrences } from "./search-greek.js";
 import { errorMessage } from "../lib/greek-query.mjs";
+import { editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
 import { hasGreek, lemmaLine, strongView } from "../lib/greek-search.mjs";
 import {
   AXIS_LABELS,
@@ -31,7 +34,7 @@ import {
   emptyCard,
   needsBridge,
   readBuilder,
-  readCardText,
+  readCardBox,
   resolveCard,
   writeBuilder,
   writeCard,
@@ -79,7 +82,7 @@ export function createGreekBuilder({ put, announce }) {
   // True while a finished look-up draws its answer (see `load` and `infoFor`).
   let settling = false;
   // What the builder shows: cards, and how close. Or `cannot`: a search it can't show.
-  let state = { cards: [emptyCard()], gap: 3, anyOrder: false };
+  let state = { cards: [emptyCard()], gap: 3, anyOrder: true };
   let cannot = null;
   // What each typed word takes, by the words as typed: filled as the index arrives.
   const info = new Map();
@@ -98,6 +101,9 @@ export function createGreekBuilder({ put, announce }) {
   let spokenTimer = null;
   // The field held plain words that the builder reads as a construction (GK3-5).
   let plainRead = false;
+  // True while `render` fits the window's children: a focused box taken out
+  // fires blur at once, and that blur must not draw inside this draw.
+  let drawing = false;
 
   /* ── Reading the field ─────────────────────────────────────────── */
 
@@ -231,7 +237,7 @@ export function createGreekBuilder({ put, announce }) {
   function startOver() {
     if (stale()) return;
     cannot = null;
-    state = { cards: [emptyCard()], gap: 3, anyOrder: false };
+    state = { cards: [emptyCard()], gap: 3, anyOrder: true };
     commit(false, false);
     root.querySelector?.('[data-key="w0"]')?.focus({ preventScroll: true });
   }
@@ -291,6 +297,9 @@ export function createGreekBuilder({ put, announce }) {
             onPress: (byMouse) => {
               if (stale()) return;
               card.filters = on ? card.filters.filter((f) => f !== filter) : [...card.filters, filter];
+              // The box shows the card as the field writes it, so it is rewritten to match (E162).
+              card.draft = undefined;
+              card.note = "";
               commit(byMouse);
             },
           }),
@@ -310,19 +319,55 @@ export function createGreekBuilder({ put, announce }) {
     input.maxLength = 100;
     input.spellcheck = false;
     input.autocapitalize = "off";
+    // A card takes what one stretch of the box reads as. `typing` when the
+    // reader is still in it: its text stays as typed, and what doesn't read
+    // yet waits quietly. Otherwise it tidies to the card's notation, or keeps
+    // what didn't read with a note saying why.
+    const fill = (card, stretch, typing) => {
+      card.words = stretch.card.words;
+      card.filters = stretch.card.filters;
+      if (typing) {
+        card.note = stretch.note;
+      } else {
+        card.draft = stretch.clean ? undefined : stretch.raw;
+        card.note = stretch.clean ? stretch.note : stretch.why;
+      }
+    };
     const typed = () => {
       if (stale()) return;
-      const card = state.cards[Number(input.dataset.key.slice(1))];
+      const i = Number(input.dataset.key.slice(1));
+      const card = state.cards[i];
       if (!card) return;
-      // What is typed stays as typed (a "/" waiting for the next word), less
-      // the symbols the notation uses and, among several words, any that is
-      // also a command, which can't be written there. The card holds the words,
-      // and a note says what was left out (GK3-15).
-      const text = readCardText(input.value);
-      card.words = text.words;
-      card.draft = text.draft;
-      card.note = text.note;
+      // The box reads as the field does (E162; it took letters only until
+      // then): the word and its filters, "πίστις.gen" or "pistis genitive",
+      // and how close. A filter turns its menu choice on. A word or filter
+      // still being typed waits, and the card is what reads before it.
+      const read = readCardBox(input.value);
+      if (read.gap !== undefined) state.gap = read.gap;
+      if (read.anyOrder !== undefined) state.anyOrder = read.anyOrder;
+      const [first, ...more] = read.stretches;
+      if (!more.length) {
+        fill(card, first, true);
+        card.draft = input.value;
+        commit(false, false);
+        return;
+      }
+      // A comma or ">" ends this word: its card tidies, and the rest becomes
+      // the next cards, the typing moving on to the last of them.
+      fill(card, first, false);
+      const added = more.slice(0, Math.max(0, MAX_CARDS - state.cards.length)).map((stretch, k, all) => {
+        const next = emptyCard();
+        fill(next, stretch, k === all.length - 1);
+        if (k === all.length - 1) next.draft = stretch.raw;
+        return next;
+      });
+      if (added.length < more.length) (added[added.length - 1] ?? card).note = errorMessage({ kind: "tooMany" }).text;
+      state.cards.splice(i + 1, 0, ...added);
       commit(false, false);
+      if (!added.length) return;
+      const box = root.querySelector?.(`[data-key="w${i + added.length}"]`);
+      box?.focus({ preventScroll: true });
+      try { box?.setSelectionRange(box.value.length, box.value.length); } catch (_) {}
     };
     input.addEventListener("input", (e) => {
       // An input event outside a composition means none is pending, so a flag
@@ -338,9 +383,16 @@ export function createGreekBuilder({ put, announce }) {
       composing = false;
       typed();
     });
-    // Leaving the box ends whatever was being composed in it (GK8-6).
+    // Leaving the box ends whatever was being composed in it (GK8-6), and
+    // tidies it to the card as the field writes it (E162): "pistis genitive"
+    // becomes "pistis.gen". What didn't read stays, with a note saying why.
     input.addEventListener("blur", () => {
       composing = false;
+      if (destroyed) return;
+      const card = state.cards[Number(input.dataset.key?.slice(1))];
+      if (!card || card.draft === undefined) return;
+      fill(card, readCardBox(card.draft).stretches[0], false);
+      if (!drawing) render();
     });
     return input;
   }
@@ -370,8 +422,11 @@ export function createGreekBuilder({ put, announce }) {
     const box = kept?.box ?? make("div", "greek-card");
     const top = make("div", "greek-card__top");
     top.append(make("span", "greek-card__title", `Word ${i + 1}`));
+    // The box shows the card as the field writes it (E162); while it holds
+    // something else ("pistis genitive" being typed), the heading says how it reads.
     const notation = writeCard(card);
-    if (notation) top.append(withGreek(notation, "greek-card__code"));
+    const showing = card.draft ?? notation;
+    if (notation && showing.trim() !== notation) top.append(withGreek(notation, "greek-card__code"));
     if (state.cards.length > 1) {
       const x = make("button", "greek-card__x", "×");
       x.setAttribute("aria-label", `Remove word ${i + 1}`);
@@ -394,7 +449,7 @@ export function createGreekBuilder({ put, announce }) {
       input = makeWordBox();
       box.replaceChildren(top, input);
     }
-    syncWordBox(input, card.draft ?? card.words.join("/"), i);
+    syncWordBox(input, showing, i);
 
     const rest = [];
     if (card.note) rest.push(make("p", "greek-card__line greek-card__line--quiet", card.note));
@@ -428,9 +483,10 @@ export function createGreekBuilder({ put, announce }) {
         }),
       );
     });
+    // Any order is the default; this asks for the order the cards are in (E161).
     chips.append(
-      chip("Either order", {
-        on: state.anyOrder,
+      chip("In this order", {
+        on: !state.anyOrder,
         key: "order",
         onPress: (byMouse) => {
           if (stale()) return;
@@ -473,14 +529,14 @@ export function createGreekBuilder({ put, announce }) {
         );
       }
       state.cards.forEach((card, i) => {
-        if (i) wanted.push(make("p", "greek-then", "then"));
+        if (i) wanted.push(make("p", "greek-then", state.anyOrder ? "and" : "then"));
         wanted.push(drawCard(card, i));
       });
       boxes.length = state.cards.length;
       const filled = state.cards.filter((c) => c.words.length || c.filters.length).length;
       const last = state.cards[state.cards.length - 1];
       if (state.cards.length < MAX_CARDS && (last.words.length || last.filters.length)) {
-        const add = make("button", "greek-builder__add", "+ Then another word");
+        const add = make("button", "greek-builder__add", "+ Another word");
         add.dataset.key = "add";
         wanted.push(
           pressable(add, (byMouse) => {
@@ -494,14 +550,19 @@ export function createGreekBuilder({ put, announce }) {
       }
       if (filled > 1) wanted.push(drawCloseness());
     }
-    wanted.forEach((node, k) => {
-      if (shown[k] === node) return;
-      root.insertBefore(node, shown[k] ?? null);
-      const from = shown.indexOf(node);
-      if (from >= 0) shown.splice(from, 1);
-      shown.splice(k, 0, node);
-    });
-    for (const extra of shown.splice(wanted.length)) extra.remove();
+    drawing = true;
+    try {
+      wanted.forEach((node, k) => {
+        if (shown[k] === node) return;
+        root.insertBefore(node, shown[k] ?? null);
+        const from = shown.indexOf(node);
+        if (from >= 0) shown.splice(from, 1);
+        shown.splice(k, 0, node);
+      });
+      for (const extra of shown.splice(wanted.length)) extra.remove();
+    } finally {
+      drawing = false;
+    }
 
     if (keep && document.activeElement?.dataset?.key !== keep) {
       const again = root.querySelector?.(`[data-key="${keep}"]`);
@@ -533,6 +594,39 @@ export function createGreekBuilder({ put, announce }) {
     /** Put focus on the first word. */
     focus() {
       root.querySelector?.('[data-key="w0"]')?.focus({ preventScroll: true });
+    },
+    /**
+     * Put `text` at the caret of the word box that has focus, with the spacing
+     * the field gets (E162): a mouse press on the commands list leaves focus
+     * in the box, so a command clicked there goes where the reader is typing.
+     * Typed when the browser can (Ctrl+Z works), set otherwise. False when no
+     * box has focus, and the command goes to the field as before.
+     */
+    insertHere(text) {
+      const box = typeof document !== "undefined" ? document.activeElement : null;
+      if (destroyed || cannot || !box || !root.contains?.(box) || !box.classList?.contains("greek-card__word")) return false;
+      const start = box.selectionStart ?? box.value.length;
+      const end = box.selectionEnd ?? start;
+      const { value, caret } = insertAtCursor(box.value, start, end, text);
+      const span = editSpan(box.value, value);
+      let typedIn = false;
+      try {
+        box.setSelectionRange(span.start, span.end);
+        typedIn = typeof document.execCommand === "function" && document.execCommand("insertText", false, span.text);
+      } catch (_) {
+        typedIn = false;
+      }
+      // Typed, the box has had its input event (which may have moved on to the next word's box).
+      if (typedIn) {
+        if (document.activeElement === box && box.value === value) {
+          try { box.setSelectionRange(caret, caret); } catch (_) {}
+        }
+        return true;
+      }
+      box.value = value;
+      try { box.setSelectionRange(caret, caret); } catch (_) {}
+      box.dispatchEvent(new Event("input", { bubbles: true }));
+      return true;
     },
     destroy() {
       destroyed = true;

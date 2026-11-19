@@ -333,7 +333,7 @@ test("a press after the field changed behind the builder's back reads the field 
   stale.dispatch("click", { detail: 0 });
 
   assert.equal(field.value, "*.aor.impv", "the press meant for the old search is dropped");
-  assert.equal(byKey("w0").value, "");
+  assert.equal(byKey("w0").value, "*.aor.impv", "the box shows the card as the field writes it (E162)");
   assert.equal(byKey("c0.tense.aorist").attrs["aria-pressed"], "true", "the card shows the field now");
 });
 
@@ -362,9 +362,15 @@ test("GK3-2: typing in a card's word box keeps the very box being typed in", asy
   assert.equal(second.isConnected, true);
   assert.equal(second.value, "Χριστός/Ἰησοῦς");
   assert.equal(windowEl().findAll((e) => e.dataset.key === "w1").length, 1, "never a second box");
-  // What a card shows below the box still follows what is typed.
+  // The card's heading follows what is typed: while the box holds words the
+  // field writes otherwise, it says how they read (E162).
+  second.value = "Χριστός/Ἰησοῦς genitive";
+  second.dispatch("input", { type: "input" });
+  assert.equal(field.value, "πίστις.gen, Χριστός/Ἰησοῦς.gen");
+  assert.equal(byKey("w1"), second);
+  assert.equal(second.value, "Χριστός/Ἰησοῦς genitive", "the box keeps what is being typed");
   const code = windowEl().findAll((e) => e.classes.has("greek-card__code")).map((e) => e.textContent);
-  assert.ok(code.includes("Χριστός/Ἰησοῦς"));
+  assert.ok(code.includes("Χριστός/Ἰησοῦς.gen"));
 });
 
 test("GK3-2: removing a card keeps the others' boxes and draws them for their new places", async () => {
@@ -380,15 +386,48 @@ test("GK3-2: removing a card keeps the others' boxes and draws them for their ne
   assert.equal(windowEl().findAll((e) => e.classes.has("greek-card")).length, 2);
 });
 
-test("GK3-15: a space typed in a card is left out and the card says so", async () => {
+test("E162: a card's box takes commands; what doesn't read waits, and is said on leaving the box", async () => {
   const { field } = deskField({ left: 600, right: 1000, top: 100 });
   openGreekCommands({ field, focus: false });
-  byKey("w0").value = "holy spirit";
+  const box = byKey("w0");
+  const notes = () => windowEl().findAll((e) => e.classes.has("greek-card__line") && /Two words need a comma/.test(e.textContent));
+  box.value = "holy spirit";
+  box.dispatch("input", { type: "input" });
+  assert.equal(field.value, "holy", "the field runs what reads so far");
+  assert.equal(box.value, "holy spirit", "and the box keeps what is typed");
+  assert.equal(notes().length, 0, "nothing is said while typing");
+  box.dispatch("blur", { type: "blur" });
+  assert.equal(box.value, "holy spirit", "what didn't read stays to be fixed");
+  assert.equal(notes().length, 1, "and is said once the box is left");
+
+  // A filter typed turns its choice on; leaving the box writes the notation.
+  box.value = "πίστις genitive";
+  box.dispatch("input", { type: "input" });
+  assert.equal(field.value, "πίστις.gen");
+  await settle();
+  assert.equal(byKey("c0.case.genitive").attrs["aria-pressed"], "true");
+  box.dispatch("blur", { type: "blur" });
+  assert.equal(byKey("w0").value, "πίστις.gen");
+});
+
+test("E162: a comma or “>” in a card's box makes the next card", async () => {
+  const { field } = deskField({ left: 600, right: 1000, top: 100 });
+  openGreekCommands({ field, focus: false });
+  byKey("w0").value = "πίστις, ἀγάπη";
   byKey("w0").dispatch("input", { type: "input" });
-  assert.equal(field.value, "holyspirit");
-  assert.equal(byKey("w0").value, "holyspirit");
-  const notes = windowEl().findAll((e) => e.classes.has("greek-card__line") && /space or a symbol/.test(e.textContent));
-  assert.equal(notes.length, 1);
+  assert.equal(field.value, "πίστις, ἀγάπη");
+  assert.equal(byKey("w0").value, "πίστις");
+  assert.equal(byKey("w1").value, "ἀγάπη");
+  assert.equal(windowEl().findAll((e) => e.classes.has("greek-then"))[0].textContent, "and", "any order between them (E161)");
+
+  byKey("w1").value = "ἀγάπη > ἐλπίς";
+  byKey("w1").dispatch("input", { type: "input" });
+  assert.equal(field.value, "πίστις > ἀγάπη > ἐλπίς", "a “>” puts the whole search in order");
+  assert.equal(byKey("w2").value, "ἐλπίς");
+  assert.equal(windowEl().findAll((e) => e.classes.has("greek-then"))[0].textContent, "then");
+  assert.equal(byKey("order").attrs["aria-pressed"], "true", "“In this order” is on");
+  byKey("order").dispatch("click", { detail: 0 });
+  assert.equal(field.value, "πίστις, ἀγάπη, ἐλπίς");
 });
 
 test("GK3-5: plain Latin words in the field are cards, with a line saying how they are read", async () => {

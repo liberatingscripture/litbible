@@ -1116,8 +1116,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        redrawing its marks (BA96).
   17. **Phase 2a's Greek search commands** (STUDY-DESK.md,
      "Order of work", 2a): searching by parsing (`*.aor.impv`, "genitives
-     of πίστις") and by construction (`πίστις.gen, Ἰησοῦς/Χριστός.gen`),
-     behind rule 15's gate. Four things to know:
+     of πίστις") and by construction (`πίστις.gen > Ἰησοῦς/Χριστός.gen`),
+     behind rule 15's gate. **"," is any order, ">" in order** (E161).
+     Four things to know:
      - **`src/lib/greek-query.mjs` is the language**, pure and tested:
        reading a query, looking its words up (through `matchGreek`),
        `matchConstruction`, the readback (`describeGreekQuery`), the error
@@ -1165,7 +1166,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        words are read as the construction the field falls back to (`plain`,
        with a line saying so). **A card's word box is made once and never
        replaced** while typed in (`boxes`/`shown`), or a screen reader hears a
-       new control per letter and Ctrl+Z is lost. A search it can't show says
+       new control per letter and Ctrl+Z is lost. **It reads as the field
+       does** (E162, `readCardBox`). A search it can't show says
        so and leaves the field alone, and a press that finds the field changed
        behind its back (Back, a "Did you mean") reads the field and does
        nothing else. The rules are `src/lib/greek-builder.mjs` (pure, tested);
@@ -1181,9 +1183,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        words.”), the builder's by the query it made (BA117).
        **What it puts in a field is typed, not set** (BA147): `typeInto`
        replaces only the changed span with `execCommand("insertText")`, so
-       Ctrl+Z still works; setting `value` empties the field's undo, and is
-       only the fallback (a command pressed by keyboard inside the window,
-       where the field hasn't focus).
+       Ctrl+Z works; setting `value`, which empties undo, is the fallback.
        Its two keys, `localStorage['lit-greek-commands']` (opened once) and
        `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
        /privacy's paragraph.

@@ -15,7 +15,9 @@
 // A builder holds a list of cards, one per word (at most MAX_TERMS), and how
 // close the words must be. A card is
 //   { words: [string], filters: [FILTERS entry] }
-// where an empty `words` is "any word". Each card's menus list only what the
+// where an empty `words` is "any word". A card's box takes what the field
+// takes (E162): the word with its filters ("πίστις.gen", "pistis genitive"),
+// and a comma or ">" there starts the next card (`readCardBox`). Each card's menus list only what the
 // word takes: `builderOffers` reads the codes its lemmas' words carry in the
 // index (public/greek/search/occ/), so a noun offers no tense and, once
 // "genitive" is chosen, only the numbers and genders the word has in it.
@@ -60,10 +62,10 @@ export const emptyCard = () => ({ words: [], filters: [] });
  */
 export function readBuilder(raw) {
   const text = String(raw ?? "").trim();
-  if (!text) return { cards: [], gap: 3, anyOrder: false };
+  if (!text) return { cards: [], gap: 3, anyOrder: true };
   const quoted = /["“”]/.test(text);
-  if (!quoted && !/\s/.test(text) && !/[.,/*=~&]/.test(text)) {
-    return { cards: [{ words: [text], filters: [] }], gap: 3, anyOrder: false };
+  if (!quoted && !/\s/.test(text) && !/[.,/*=~&>]/.test(text)) {
+    return { cards: [{ words: [text], filters: [] }], gap: 3, anyOrder: true };
   }
   // Two or three plain Latin words are what the field runs as a construction
   // when no single word fits them whole ("pistis Christos"); the builder reads
@@ -103,10 +105,10 @@ const shortcut = (f) => f.words[0];
 
 // The words the parser takes for a command wherever they stand ("and" ends a
 // word, "perfect" is a tense), which a card holding one must quote.
-const COMMAND_WORD = /^(?:any|exact(?:ly)?|and|or|within|next|anywhere|order|first|second|third)$/i;
+const COMMAND_WORD = /^(?:any|exact(?:ly)?|and|or|then|within|next|anywhere|order|first|second|third)$/i;
 
 /** Whether a word, written bare, would be read as a command and not as the word. */
-export const needsQuotes = (word) => /[\s.,/*=~&]/.test(word) || COMMAND_WORD.test(word) || Boolean(filterFor(word));
+export const needsQuotes = (word) => /[\s.,/*=~&>]/.test(word) || COMMAND_WORD.test(word) || Boolean(filterFor(word));
 
 /**
  * The words a card can hold. A quote can't sit inside "Ἰησοῦς/Χριστός", so a
@@ -132,46 +134,103 @@ export function writeCard(card) {
 
 /**
  * The field's text for a builder: the cards that hold something, joined with
- * commas, then how close and in what order once there are two words. An empty
- * card writes nothing, so it can wait in the window for its word.
+ * commas (any order, the default) or with ">" (in this order; E161), then how
+ * close once there are two words. An empty card writes nothing, so it can wait
+ * in the window for its word.
  */
-export function writeBuilder({ cards, gap = 3, anyOrder = false }) {
+export function writeBuilder({ cards, gap = 3, anyOrder = true }) {
   const parts = cards.map(writeCard).filter(Boolean).slice(0, MAX_TERMS);
-  let q = parts.join(", ");
+  let q = parts.join(anyOrder ? ", " : " > ");
   if (parts.length > 1) {
     if (gap === Infinity) q += " ~v";
     else if (gap !== 3) q += ` ~${gap}`;
-    if (anyOrder) q += " &";
   }
   return q;
 }
 
-/** A word as typed in a card, which can't hold a space or a symbol the notation uses ("/" separates alternatives). */
-export const cleanWord = (s) => String(s ?? "").replace(/[\s.,*=~&"“”]/g, "");
+/* ── A card's box ────────────────────────────────────────────────── */
 
-/** The words a card's text box holds: "Ἰησοῦς/Χριστός" is two. */
-export const splitWords = (s) => usableWords(String(s ?? "").split("/").map(cleanWord).filter(Boolean));
+// Between two words in a box: a comma or ">", or "and" or "then" with a space
+// after it, so a word still being typed ("andr…") is never cut (E162).
+const JOINER = /\s*([,>])\s*|\s+(and|then)\s+/gi;
+// Settings for the whole search, typed in a box: how close, and any order.
+const SAYS_GAP = /~(?:\d|v)|\bwithin\s+\d|\bnext\s+to\b|\banywhere\b/i;
+const SAYS_ANY_ORDER = /&|\bany\s+order\b/i;
+// A quoted word ("and") is a word, so a joiner inside one is no joiner.
+const maskQuoted = (s) => s.replace(/["“”][^"“”]*["“”]/g, (m) => "\u0002".repeat(m.length));
+
+const NOTE_TWO_WORDS = "Two words need a comma or “>” between them, or a slash for either one.";
+const NOTE_EXACT = "The builder searches every form of a word, so the “=” was left out. Type it in the search field for that form only.";
+const NOTE_COMMAND = "A word that is also a command can’t be joined with a slash, so it was left out. Quote it on its own, or use the field.";
+
+/** One word's text read as the field reads it: { card, note, why }, `card` absent when it doesn't read as one word. */
+function readOneWord(text) {
+  const parsed = parseGreekQuery(text);
+  if (parsed.error) return { why: errorMessage(parsed.error).text };
+  if (parsed.terms.length > 1) {
+    const near = parsed.terms.find((t) => t.nearFilter);
+    return { why: near ? errorMessage({ kind: "near", word: near.words[0], near: near.nearFilter }).text : NOTE_TWO_WORDS };
+  }
+  // Nothing yet ("*", a setting alone) is the card with no word: any word.
+  const t = parsed.terms[0];
+  if (!t) return { card: emptyCard(), note: "" };
+  const words = t.words ? usableWords(t.words) : [];
+  let note = "";
+  if (t.words && words.length < t.words.length) note = NOTE_COMMAND;
+  if (t.exact) note = NOTE_EXACT;
+  return { card: { words, filters: [...t.filters] }, note };
+}
 
 /**
- * What a card's text box holds once typed in: { words, draft, note }. `draft`
- * is what the box shows (a "/" waiting for the next word stays), and `note` a
- * sentence when something typed was left out, since the reader would
- * otherwise only see the text change (GK3-15): a space or symbol the notation
- * uses, or a word that is also a command, which can't be joined with "/".
+ * One word's stretch of a box: { card, raw, clean, note, why, read }. `clean`
+ * when all of it reads; otherwise the card is what reads before the word or
+ * filter still being typed ("πίστις.ge", "pistis g"), and `why` says what
+ * didn't read, for when the reader leaves the box. `note` is about what did
+ * read (a "=" left out). `read` is the text the card was read from.
  */
-export function readCardText(value) {
-  const text = String(value ?? "");
-  const stripped = text.replace(/[\s.,*=~&"“”]/g, "");
-  const parts = stripped.split("/").filter(Boolean);
-  const words = usableWords(parts);
-  const draft = words.join("/") + (words.length && text.trim().endsWith("/") ? "/" : "");
-  let note = "";
-  if (words.length < parts.length) {
-    note = "A word that is also a command can’t be joined with a slash, so it was left out. Quote it on its own, or use the field.";
-  } else if (stripped.length < text.trim().length) {
-    note = "A word here can’t hold a space or a symbol the search uses, so they were left out. Use “+ Then another word” for a second word.";
+function readStretch(raw) {
+  const text = raw.trim();
+  if (!text) return { card: emptyCard(), raw: text, clean: true, note: "", why: "", read: "" };
+  const whole = readOneWord(text);
+  if (whole.card) return { card: whole.card, raw: text, clean: true, note: whole.note, why: "", read: text };
+  let head = text;
+  for (;;) {
+    const cut = Math.max(head.lastIndexOf(" "), head.lastIndexOf("."));
+    if (cut <= 0) return { card: emptyCard(), raw: text, clean: false, note: "", why: whole.why, read: "" };
+    head = head.slice(0, cut).trimEnd();
+    const part = readOneWord(head);
+    if (part.card) return { card: part.card, raw: text, clean: false, note: part.note, why: whole.why, read: head };
   }
-  return { words, draft, note };
+}
+
+/**
+ * What a card's box holds once typed in (E162, replacing GK3-15's letters-only
+ * box): { stretches, gap?, anyOrder? }. The box reads as the field does, one
+ * stretch per word: a comma, ">", "and" or "then" starts the next, so typing
+ * "πίστις, ἀγ" makes two cards. A joiner with nothing before it starts
+ * nothing. `gap` and `anyOrder` are there only when the box says so ("~0",
+ * a ">" between words, "&"), since they are the whole search's.
+ */
+export function readCardBox(value) {
+  const text = String(value ?? "");
+  const masked = maskQuoted(text);
+  const parts = [];
+  let inOrder = false;
+  let from = 0;
+  for (const m of masked.matchAll(JOINER)) {
+    parts.push(text.slice(from, m.index));
+    if ((m[1] ?? m[2]).toLowerCase() !== "," && (m[1] ?? m[2]).toLowerCase() !== "and") inOrder = true;
+    from = m.index + m[0].length;
+  }
+  parts.push(text.slice(from));
+  // Only the last stretch may be empty: it is the next word, not typed yet.
+  const kept = parts.filter((p, k) => p.trim() || (k > 0 && k === parts.length - 1 && parts.slice(0, k).some((q) => q.trim())));
+  const stretches = (kept.length ? kept : [""]).map(readStretch);
+  const out = { stretches };
+  if (SAYS_ANY_ORDER.test(masked)) out.anyOrder = true;
+  else if (inOrder) out.anyOrder = false;
+  for (const st of stretches) if (SAYS_GAP.test(maskQuoted(st.read))) out.gap = parseGreekQuery(st.read).gap;
+  return out;
 }
 
 /** Whether any of a card's words is Latin text, which the LIT's own renderings (the glossary bridge) can name. */

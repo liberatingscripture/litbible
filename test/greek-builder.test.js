@@ -11,13 +11,12 @@ import {
   MAX_CARDS,
   builderOffers,
   cannotSay,
-  cleanWord,
   closenessOptions,
   codeCounts,
   emptyCard,
   readBuilder,
+  readCardBox,
   resolveCard,
-  splitWords,
   usableWords,
   needsQuotes,
   writeBuilder,
@@ -34,8 +33,8 @@ const read = (rel) =>
 // ── Field to builder, and back ──────────────────────────────────────────
 
 test("an empty field is a builder with no cards", () => {
-  assert.deepEqual(readBuilder(""), { cards: [], gap: 3, anyOrder: false });
-  assert.deepEqual(readBuilder("   "), { cards: [], gap: 3, anyOrder: false });
+  assert.deepEqual(readBuilder(""), { cards: [], gap: 3, anyOrder: true });
+  assert.deepEqual(readBuilder("   "), { cards: [], gap: 3, anyOrder: true });
 });
 
 test("a card is written as the notation the commands window teaches", () => {
@@ -49,11 +48,15 @@ test("a card is written as the notation the commands window teaches", () => {
 
 test("how close and in what order are written once there are two words", () => {
   const two = [card(["πίστις"], "gen"), card(["Χριστός"], "gen")];
-  assert.equal(writeBuilder({ cards: two }), "πίστις.gen, Χριστός.gen");
+  assert.equal(writeBuilder({ cards: two }), "πίστις.gen, Χριστός.gen", "any order is the default (E161)");
   assert.equal(writeBuilder({ cards: two, gap: 0 }), "πίστις.gen, Χριστός.gen ~0");
-  assert.equal(writeBuilder({ cards: two, gap: Infinity, anyOrder: true }), "πίστις.gen, Χριστός.gen ~v &");
+  assert.equal(writeBuilder({ cards: two, gap: Infinity, anyOrder: true }), "πίστις.gen, Χριστός.gen ~v");
+  assert.equal(writeBuilder({ cards: two, anyOrder: false }), "πίστις.gen > Χριστός.gen", "in this order");
+  assert.equal(writeBuilder({ cards: [...two, card(["θεός"])], gap: 0, anyOrder: false }), "πίστις.gen > Χριστός.gen > θεός ~0");
   assert.equal(writeBuilder({ cards: two, gap: 5 }), "πίστις.gen, Χριστός.gen ~5");
-  assert.equal(writeBuilder({ cards: [two[0]], gap: 0, anyOrder: true }), "πίστις.gen", "one word has nothing to be close to");
+  assert.equal(writeBuilder({ cards: [two[0]], gap: 0, anyOrder: false }), "πίστις.gen", "one word has nothing to be close to");
+  assert.equal(readBuilder("πίστις.gen > Χριστός.gen").anyOrder, false);
+  assert.equal(readBuilder("πίστις.gen, Χριστός.gen").anyOrder, true);
 });
 
 test("an empty card waits in the window and never reaches the field", () => {
@@ -134,14 +137,78 @@ test("a word that is also a command is written quoted, and reads back as the wor
 test("a command word among several is left out of a card, since a quote can't sit inside an alternative", () => {
   assert.deepEqual(usableWords(["middle", "noun", "love"]), ["love"]);
   assert.deepEqual(usableWords(["middle"]), ["middle"], "one word alone is kept, and quoted");
-  assert.deepEqual(splitWords("love/and"), ["love"]);
+  const box = readCardBox("love/and").stretches[0];
+  assert.deepEqual(box.card.words, ["love"]);
+  assert.match(box.note, /also a command/);
 });
 
-test("a word in a card can't hold a space or a symbol the notation uses", () => {
-  assert.equal(cleanWord(" πίστις.gen, "), "πίστιςgen");
-  assert.equal(cleanWord("a b"), "ab");
-  assert.deepEqual(splitWords("Ἰησοῦς / Χριστός"), ["Ἰησοῦς", "Χριστός"]);
-  assert.deepEqual(splitWords("//"), []);
+// ── A card's box (E162): it reads as the field does ─────────────────────
+
+const boxCards = (value) => readCardBox(value).stretches.map((s) => writeCard(s.card));
+
+test("E162: a card's box takes a word with its filters, as dots or as words", () => {
+  for (const [typed, notation] of [
+    ["πίστις", "πίστις"],
+    ["πίστις.gen", "πίστις.gen"],
+    ["pistis genitive", "pistis.gen"],
+    ["Ἰησοῦς or Χριστός genitive", "Ἰησοῦς/Χριστός.gen"],
+    ["*.aor.impv", "*.aor.impv"],
+    ["any aorist imperative", "*.aor.impv"],
+    [".gen", "*.gen"],
+    ['"and"', '"and"'],
+    ["", ""],
+    ["*", ""],
+  ]) {
+    const [stretch] = readCardBox(typed).stretches;
+    assert.equal(writeCard(stretch.card), notation, typed);
+    assert.equal(stretch.clean, true, typed);
+  }
+});
+
+test("E162: a comma, “>”, “and” or “then” in a box starts the next word", () => {
+  assert.deepEqual(boxCards("πίστις, ἀγάπη"), ["πίστις", "ἀγάπη"]);
+  assert.deepEqual(boxCards("pistis,agape,elpis"), ["pistis", "agape", "elpis"]);
+  assert.deepEqual(boxCards("πίστις, "), ["πίστις", ""], "a comma at the end starts an empty card, for the next word");
+  assert.deepEqual(boxCards("pistis and "), ["pistis", ""]);
+  assert.deepEqual(boxCards("pistis and"), ["pistis"], "“and” joins only once a space follows it");
+  assert.deepEqual(boxCards("pistis andr"), ["pistis"], "so a word starting “and” is never cut");
+  assert.deepEqual(boxCards(", πίστις"), ["πίστις"], "a joiner with nothing before it starts nothing");
+  assert.deepEqual(boxCards(","), [""]);
+  assert.deepEqual(boxCards("a,,b"), ["a", "b"]);
+  assert.deepEqual(boxCards('"and", πίστις'), ['"and"', "πίστις"], "a quoted word is a word");
+  // The order and the distance are the whole search's, so only said when typed.
+  assert.equal(readCardBox("πίστις, ἀγάπη").anyOrder, undefined);
+  assert.equal(readCardBox("πίστις > ἀγάπη").anyOrder, false);
+  assert.equal(readCardBox("pistis then agape").anyOrder, false);
+  assert.equal(readCardBox("πίστις, ἀγάπη &").anyOrder, true);
+  assert.equal(readCardBox("πίστις").gap, undefined);
+  assert.equal(readCardBox("πίστις ~0").gap, 0);
+  assert.equal(readCardBox("πίστις anywhere").gap, Infinity);
+  assert.equal(readCardBox("πίστις ~").gap, undefined, "a “~” still being typed sets nothing");
+});
+
+test("E162: a word or filter still being typed waits, and the card is what reads before it", () => {
+  for (const [typed, notation, why] of [
+    ["πίστις.ge", "πίστις", /“ge” isn’t a command/],
+    ["pistis g", "pistis", /Two words need a comma/],
+    ["pistis genetive", "pistis", /Did you mean genitive/],
+    ["holy spirit", "holy", /Two words need a comma/],
+    ["πίστις.gen.dat", "πίστις.gen", /both genitive and dative/],
+    [".g", "", /“g” isn’t a command/],
+  ]) {
+    const [stretch] = readCardBox(typed).stretches;
+    assert.equal(writeCard(stretch.card), notation, typed);
+    assert.equal(stretch.clean, false, typed);
+    assert.equal(stretch.raw, typed, typed);
+    assert.match(stretch.why, why, typed);
+  }
+});
+
+test("E162: “=” can't be shown by the builder, so a box leaves it out and says so", () => {
+  const [stretch] = readCardBox("=πίστεως").stretches;
+  assert.deepEqual(stretch.card.words, ["πίστεως"]);
+  assert.equal(stretch.clean, true);
+  assert.match(stretch.note, /“=” was left out/);
 });
 
 test("the closeness choices keep a typed gap as a choice of its own", () => {
