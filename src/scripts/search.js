@@ -1908,6 +1908,16 @@ if (input) {
     if (e.key !== "Enter") return;
     // The Enter that commits an IME or dead-key composition is not a search (GK8-2).
     if (e.isComposing || e.keyCode === 229) return;
+    // The field sits in the tray's form, which has no address of its own,
+    // and the field has no name: left to the browser, Enter loads /search/
+    // with no query and empties the search. The tray stops it where it has
+    // set itself up; this page doesn't depend on that.
+    e.preventDefault();
+    updateFromControls({ resetPage: true, push: true });
+  });
+  // The form's own submit button (on a phone) is the same Enter.
+  input.closest("form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
     updateFromControls({ resetPage: true, push: true });
   });
 }

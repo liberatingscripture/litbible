@@ -17,7 +17,7 @@ import {
   plainLatinWords,
   resolveGreekQuery,
 } from "../src/lib/greek-query.mjs";
-import { needsBridge, readBuilder, readCardText, resolveCard, writeBuilder } from "../src/lib/greek-builder.mjs";
+import { needsBridge, readBuilder, readCardBox, resolveCard, writeBuilder } from "../src/lib/greek-builder.mjs";
 import { prepareBridge, prepareIndex } from "../src/lib/greek-search.mjs";
 import { plainTextOf } from "../src/lib/desk-greek-text.mjs";
 import { parseHtml } from "./helpers/mini-dom.js";
@@ -133,22 +133,27 @@ test("GK3-4: only Latin text needs the bridge", () => {
 });
 
 // ── GK3-15: what the text box left out is said ──────────────────────────
+// Since E162 the box reads commands, so a space or a symbol is no longer left
+// out; what is still said is a word that can't be written there, and what
+// didn't read.
 
-test("GK3-15: readCardText reports a space, a symbol or a command word that was left out", () => {
-  assert.deepEqual(readCardText("λόγος"), { words: ["λόγος"], draft: "λόγος", note: "" });
-  assert.equal(readCardText("λόγος ").note, "", "a trailing space is just trimmed");
-  assert.equal(readCardText("holy spirit").words[0], "holyspirit");
-  assert.match(readCardText("holy spirit").note, /space or a symbol/);
-  assert.match(readCardText("πίστις.gen").note, /space or a symbol/);
-  const both = readCardText("perfect/aorist");
-  assert.deepEqual(both.words, []);
-  const mixed = readCardText("perfect/λόγος");
-  assert.deepEqual(mixed.words, ["λόγος"]);
+test("GK3-15: a box's reading says what it left out or couldn't read", () => {
+  const one = (v) => readCardBox(v).stretches[0];
+  assert.deepEqual(one("λόγος").card.words, ["λόγος"]);
+  assert.equal(one("λόγος").note, "");
+  assert.equal(one("λόγος ").note, "", "a trailing space is just trimmed");
+  assert.match(one("holy spirit").why, /Two words need a comma/);
+  assert.equal(one("πίστις.gen").note, "", "a filter is read now, not left out");
+  const both = one("perfect/aorist");
+  assert.deepEqual(both.card.words, []);
+  const mixed = one("perfect/λόγος");
+  assert.deepEqual(mixed.card.words, ["λόγος"]);
   assert.match(mixed.note, /also a command/);
-  assert.equal(mixed.draft, "λόγος");
-  assert.equal(readCardText("λόγος/").draft, "λόγος/", "a slash waiting for its next word stays");
-  assert.equal(readCardText("").note, "");
-  assert.equal(readCardText("perfect").note, "", "one word that is a command is kept (it is written quoted)");
+  assert.deepEqual(one("λόγος/").card.words, ["λόγος"], "a slash waiting for its next word");
+  assert.equal(one("λόγος/").clean, true);
+  assert.equal(one("").note, "");
+  assert.deepEqual(one("perfect").card.words, ["perfect"], "one word that is a command is kept (it is written quoted)");
+  assert.equal(one("perfect").note, "");
 });
 
 // ── Decision 12 (1): the narrow fallback ────────────────────────────────

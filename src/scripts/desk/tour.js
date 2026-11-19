@@ -67,6 +67,14 @@ const EXAMPLE_MARGIN =
 
 const visible = (e) => Boolean(e && e.getClientRects().length && e.getBoundingClientRect().width > 4);
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+
+/** The scripture toolbar holding `input` when its search is closed behind the
+    round button (a phone, or OpenDyslexic in the 2.0 look), else null. */
+function searchRow(input) {
+  const row = input?.closest(".scripture-tools[data-compact]");
+  if (!row || row.hasAttribute("data-search-open")) return null;
+  return visible(row.querySelector(".tools-search-toggle")) ? row : null;
+}
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** "study" (a chapter), "read" (Read View) or "prose" (an article or the glossary). */
@@ -320,6 +328,14 @@ export function createTour({ panel, canKeep = true }) {
     async search(live) {
       closePanel();
       const input = document.getElementById("site-search-input");
+      // In OpenDyslexic the toolbar keeps search behind its round button
+      // (v2/scripture.css). Open the row as the button does, but leave focus
+      // on the card, and close it again after.
+      const row = searchRow(input);
+      if (row) {
+        row.setAttribute("data-search-open", "");
+        later(() => row.removeAttribute("data-search-open"));
+      }
       if (!visible(input)) return null;
       const root = input.closest("[data-searchbar]");
       const before = input.value;
@@ -371,7 +387,8 @@ export function createTour({ panel, canKeep = true }) {
   // when the step is reached, and fall back to a card in the middle.
   const available = () => {
     const ids = new Set(TOUR_STEPS.filter((s) => s.views.includes(view)).map((s) => s.id));
-    if (!visible(document.getElementById("site-search-input"))) ids.delete("search");
+    const field = document.getElementById("site-search-input");
+    if (!visible(field) && !searchRow(field)) ids.delete("search");
     if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");

@@ -49,7 +49,10 @@ From the root's project tree.
                      #   the Glossary's left list (its order and marker),
                      #   /search's left pane (it MOVES the page's sort,
                      #   filters and picker into the pane, never copies
-                     #   them, and draws "Result groups"), and the phone
+                     #   them, and draws "Result groups"; the move can
+                     #   come before searchbar.js sets up at idle, so a
+                     #   moved control is found by its id, never only
+                     #   inside the tray), and the phone
                      #   toolbar's hide on a scroll down and return on a
                      #   scroll up on scripture pages;
                      #   desk-gate + desk/, the Study Desk preview (its

@@ -28,6 +28,7 @@ import {
 import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
+import { collectionsSubject, openCollectionsPopover } from "./collections/collections-popover.js";
 import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { recordRow } from "./record-rows.js";
@@ -196,7 +197,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       labels,
       goHere,
       onEdit: (record, trigger) => {
-        activeRow = { id: record.id, selector: ".desk-item__edit:not(.desk-item__labels)" };
+        activeRow = { id: record.id, selector: ".desk-item__edit:not(.desk-item__labels):not(.desk-item__collections)" };
         if (record.kind === "bookmark") openBookmarkForm({ trigger, store, ctx, record, restoreFocus: trigger });
         else openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus: trigger });
         followPanel();
@@ -204,6 +205,10 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       onLabels: (record, trigger) => {
         activeRow = { id: record.id, selector: ".desk-item__labels" };
         openLabelsPopover({ trigger, store, ctx, recordId: record.id, name: labelsSubject(record, recordReference(record)) }).then(followPanel);
+      },
+      onCollections: (record, trigger) => {
+        activeRow = { id: record.id, selector: ".desk-item__collections" };
+        openCollectionsPopover({ trigger, store, ctx, recordId: record.id, name: collectionsSubject(record, recordReference(record)) }).then(followPanel);
       },
       onDelete: removeRecord,
     };

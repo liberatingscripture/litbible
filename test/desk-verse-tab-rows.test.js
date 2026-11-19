@@ -97,7 +97,7 @@ test("E148: a bookmark's row has its reference, name, line, Edit, Remove, labels
   assert.match(li.querySelector(".desk-item__kind").textContent, /Bookmark/);
   assert.match(li.querySelector(".desk-item__kind").textContent, /Stays put/);
   assert.deepEqual(texts(li, ".desk-chip"), ["False teachers"]);
-  assert.deepEqual(texts(li, ".desk-item__tag"), ["Labels…"]);
+  assert.deepEqual(texts(li, ".desk-item__tag"), ["Labels…", "Collections…"]);
   assert.deepEqual(texts(li, ".desk-verse__actions button"), ["Edit", "Remove"]);
   li.querySelector(".desk-item__edit").click();
   assert.deepEqual(edits, [bookmark.id], "Edit opens the bookmark's form");
@@ -112,8 +112,9 @@ test("E148: a highlight's row has its reference, its colour in words, its words 
   assert.equal(li.querySelector(".desk-verse__highlight .desk-swatch")?.dataset.color, "green");
   assert.match(li.querySelector(".desk-verse__highlight").textContent, new RegExp(words16.split(" ")[0]));
   assert.deepEqual(texts(li, ".desk-verse__actions button"), ["Remove"]);
-  assert.equal(li.querySelector(".desk-item__tag"), null);
-  assert.equal(li.querySelector(".desk-chip"), null);
+  assert.deepEqual(texts(li, ".desk-item__tag"), ["Collections…"], "no Labels…, only Collections…");
+  assert.ok(!li.querySelector(".desk-item__labels"));
+  assert.ok(!li.querySelector(".desk-chip"));
 });
 
 test("E149: a note keeps its stored label but shows no chip and no Labels…; it has Edit and Delete", async () => {
@@ -122,8 +123,9 @@ test("E149: a note keeps its stored label but shows no chip and no Labels…; it
   assert.ok(li, "the note is listed");
   assert.equal(li.querySelector(".desk-item__kind").textContent, "Note");
   assert.match(li.querySelector(".desk-verse__words").textContent, /Loved, not tolerated\./);
-  assert.equal(li.querySelector(".desk-chip"), null);
-  assert.equal(li.querySelector(".desk-item__tag"), null);
+  assert.ok(!li.querySelector(".desk-chip"));
+  assert.deepEqual(texts(li, ".desk-item__tag"), ["Collections…"]);
+  assert.ok(!li.querySelector(".desk-item__labels"));
   assert.deepEqual(texts(li, ".desk-verse__actions button"), ["Edit", "Delete"]);
   assert.deepEqual((await store.get(note.id)).labels, [label.id], "the record still holds it");
 });

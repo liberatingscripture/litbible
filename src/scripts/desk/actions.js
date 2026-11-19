@@ -55,6 +55,7 @@ import { followsHere, isPausedHere, restingId } from "./bookmark-follow.js";
 import { startFollowingNow, stopFollowingNow } from "./bookmark-stop.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createSheetAdd } from "./sheets/sheet-add.js";
+import { createCollectionAdd } from "./collections/collection-add.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
@@ -67,6 +68,7 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
   if (!store) return;
   const here = pageChapter();
   const sheetRow = createSheetAdd({ store, ctx });
+  const collectionRow = createCollectionAdd({ store, ctx });
 
   document.addEventListener("lit:panel-actions", (e) => {
     const d = e.detail;
@@ -118,6 +120,9 @@ export function initActions({ store, ctx, showVerse = null, printPart = null }) 
     // "Add to sheet ▸" (S12): Chapter View only.
     const sheetBox = sheetRow(d, where);
     if (sheetBox) d.append(sheetBox);
+    // "Add to collection ▸" (D13): Chapter View and /desk's LIT pane.
+    const collectionBox = collectionRow(d, where);
+    if (collectionBox) d.append(collectionBox);
     // "Print ▸" (E40): this verse or selection on paper.
     const printBox = printRow(d, where);
     if (printBox) d.append(printBox);

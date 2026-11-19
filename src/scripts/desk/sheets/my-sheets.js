@@ -220,7 +220,21 @@ export function sheetRow(host, s, ul) {
   del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
   del.dataset.focusKey = `delete-${s.id}`;
   del.addEventListener("click", () => removeRow(host, s, `${sheetName(s)} deleted.`, ul, open, del));
-  li.append(open, dup, keep, del, ...hints);
+  // Collections… (D13, decision 24): before Delete, as a note's row has it.
+  // The popover is loaded when it is pressed, so a page that only lists
+  // sheets doesn't carry the floating panel's code.
+  const own = [];
+  if (host.store && host.opCtx && canEdit(s)) {
+    const collect = button("Collections…", "desk-sheet__btn desk-sheet__btn--quiet");
+    collect.setAttribute("aria-label", `Collections for sheet “${sheetName(s)}”`);
+    collect.dataset.focusKey = `collections-${s.id}`;
+    collect.addEventListener("click", async () => {
+      const { openCollectionsPopover, collectionsSubject } = await import("../collections/collections-popover.js");
+      openCollectionsPopover({ trigger: collect, store: host.store, ctx: host.opCtx, recordId: s.id, name: collectionsSubject(s) });
+    });
+    own.push(collect);
+  }
+  li.append(open, dup, keep, ...own, del, ...hints);
   return li;
 }
 
