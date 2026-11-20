@@ -232,7 +232,8 @@ async function copyToClipboard({ html, text }) {
  * new address. `focusKey` names the control to focus once it is drawn (a
  * row's `data-focus-key`), after a row's action redraws the list.
  *
- * Each sheet has Duplicate, Save as template and Delete, and the reader's own
+ * Each sheet has Edit, Duplicate, Collections… and Delete (Edit since E192,
+ * when Save as template moved into the editor), and the reader's own
  * templates are listed under "My templates" (E64), as in a Sheets pane: the
  * rows are sheet-page-list.js's, loaded by import() so the history they need
  * stays out of a page opened to print or present. Where that fails to load,

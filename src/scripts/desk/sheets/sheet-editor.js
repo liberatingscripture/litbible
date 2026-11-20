@@ -33,9 +33,11 @@
 //   command row's "New sheet…" opens the same list (`newSheet`, which the
 //   pane calls on `desk:sheet-new`).
 // - **The list of sheets is my-sheets.js** (Audit 6, LG6-2): "My sheets" and
-//   "My templates", their rows' Duplicate, Save as template and Delete, and
-//   the template chooser. `showList` here clears the sheet view and hands it
-//   `listHost`.
+//   "My templates", their rows' actions, and the template chooser. `showList`
+//   here clears the sheet view and hands it `listHost`.
+// - **"Save as template" is the sheet's own** (E192): in its header row, with
+//   the other actions on the whole sheet, never on the list's rows
+//   (`saveAsTemplate`, `drawKeep`).
 // - **The passage form and "+ From my notes…" are add-forms.js** (Audit 6,
 //   LG6-2): they read a reference or the notebook and draw their choices;
 //   where a part goes, and the change that adds it, are handed in as
@@ -83,6 +85,7 @@ import { SHEET_LIMITS, SHEET_TEXT_SIZE, SHEET_TEXT_SIZES, sheetTextScale, sheetT
 import {
   addModule,
   createSheet,
+  hasTemplateParts,
   isOwnTemplate,
   sheetFromTemplate,
   makeModule,
@@ -91,12 +94,14 @@ import {
   removeModule,
   setSheetFields,
   sheetTooBig,
+  templateFromSheet,
 } from "../../../lib/desk-sheets.mjs";
 import { readingPart, templateAbout, templateModules } from "../../../lib/desk-sheet-templates.mjs";
 import {
   passageInsertIndex,
   passageReference,
   samePassage,
+  sheetName,
   sortSheets,
 } from "../../../lib/desk-sheet-passages.mjs";
 import { undoEntry } from "../history.js";
@@ -106,7 +111,7 @@ import { askContinue as askContinueView, showConflict as showConflictLine } from
 import { newerSheet } from "../../../lib/desk-sheet-tabs.mjs";
 import { showUndo } from "../undo-bar.js";
 import { NOTEBOOK_UPGRADED } from "../store.js";
-import { redraw } from "../focus-keep.js";
+import { busy, isBusy, redraw } from "../focus-keep.js";
 import { buttons, describe, make } from "../dom.js";
 import { openInsertMenu as openInsertMenuAt } from "./insert-menu.js";
 import { listProblem, mySheetsList } from "./my-sheets.js";
@@ -585,6 +590,11 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let sizeSelect = null;
   let sheetView = null;
   let plannedLine = null;
+  // "Save as template" in the header (E192), its description, and whether a
+  // save from it is under way; drawKeep() keeps them in line with the sheet.
+  let keep = null;
+  let keepHint = null;
+  let keepSaving = false;
   // The template's description above the parts (E84), kept by draw().
   let aboutBox = null;
   let aboutWords = null;
@@ -621,6 +631,73 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     if (example) return;
     const kept = [...aboutHidden].slice(-ABOUT_HIDDEN_MAX);
     Promise.resolve(store.setMeta?.(ABOUT_HIDDEN_KEY, kept)).catch(() => {});
+  }
+
+  /** Why "Save as template" can't keep the sheet shown, or null when it can. */
+  function keepWhyNot() {
+    if (readOnly) return "Made with a newer version of the Study Desk, so it can’t be kept as a template here.";
+    // The Sheets tour writes nothing (E63), a template included.
+    if (example) return "This is the tour’s example sheet, which is never saved, so it can’t be kept as a template.";
+    // A template is a sheet without its passages, so a sheet of passages alone would make an empty one (DK6-8).
+    if (!hasTemplateParts(sheet)) return "This sheet has only passages, and a template keeps everything but those. Add a part of your own first.";
+    return null;
+  }
+
+  /**
+   * Bring "Save as template" in line with the sheet, at every draw, since
+   * adding a part of one's own is what makes it usable: where it can't be,
+   * `aria-disabled` rather than `disabled`, so a keyboard still reaches it,
+   * with the reason as its title and description (Audit 8, XA8-15); also
+   * while a save from it is under way, so a second press makes no second
+   * template.
+   */
+  function drawKeep() {
+    if (!keep || !sheet) return;
+    const why = keepWhyNot();
+    const words = why ?? "Keep this sheet’s parts, without its passages, as a template of your own that New sheet offers.";
+    keep.title = words;
+    keepHint.textContent = words;
+    if (why || keepSaving) keep.setAttribute("aria-disabled", "true");
+    else keep.removeAttribute("aria-disabled");
+  }
+
+  /**
+   * Keep the sheet shown as a template of the reader's own (Audit 5, D #1;
+   * `templateFromSheet`). The sheet stays open, so the undo bar says what
+   * happened, with Undo. Typing still waiting is saved first, and the
+   * template is made from the sheet as stored then, which another tab may
+   * have changed; an unsaved new sheet is made from as shown.
+   */
+  async function saveAsTemplate() {
+    if (!sheet || keepWhyNot()) return;
+    const shown = sheet;
+    keepSaving = true;
+    drawKeep();
+    flushAll();
+    await saving;
+    let current = shown;
+    let t = null;
+    try {
+      current = (await store.get(shown.id)) ?? shown;
+      t = templateFromSheet(current, opCtx());
+      await store.save(t);
+    } catch (err) {
+      console.error("Study Desk: couldn't keep a sheet as a template", err);
+      keepSaving = false;
+      drawKeep();
+      // Seen beside Saved as well as heard, as a failed save is (CP-13).
+      status.textContent = sheetTooBig(err)
+        ? "This sheet is too big to keep as a template."
+        : "The template couldn’t be saved in this browser. Try again in a moment.";
+      say(status.textContent);
+      return;
+    }
+    keepSaving = false;
+    drawKeep();
+    const entry = store.lastEntry();
+    const text = `Saved “${sheetName(current)}” as a template. New sheet now offers it.`;
+    if (entry) showUndo(text, () => undoEntry(entry));
+    else say(text);
   }
   let readOnly = false;
   let license = null;
@@ -755,6 +832,25 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       a.addEventListener("click", persistDraft);
       a.addEventListener("auxclick", persistDraft);
     }
+    // Save as template (Audit 5, D #1), with the other actions on the whole
+    // sheet, in this row and in both hosts (E192; BVJ, 2026-11-20): it was on
+    // each row of the list of sheets, which is not where a sheet worth keeping
+    // is being shaped, and the foot of the sheet was weighed and declined as
+    // too easily missed. A template is one already, so it has none.
+    keep = null;
+    keepHint = null;
+    keepSaving = false;
+    const keepParts = [];
+    if (!isOwnTemplate(sheet)) {
+      keep = button("Save as template", "desk-sheet__btn desk-sheet__btn--quiet");
+      keep.addEventListener("click", () => {
+        if (!isBusy(keep)) saveAsTemplate();
+      });
+      keepHint = make("span", "sr-only");
+      keepHint.id = `deskSheetKeepWhy-${idSuffix}`;
+      keep.setAttribute("aria-describedby", keepHint.id);
+      keepParts.push(keep);
+    }
     if (onDone) {
       // On the sheet's own page, its versions are the page itself (S12, part 1, step 2).
       // "Close" at the right edge, beside the saved line, still green (BVJ,
@@ -770,10 +866,11 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       });
       const end = make("span", "desk-sheet__top-end");
       end.append(status, done);
-      header.append(back, end, doneHint);
+      header.append(back, ...keepParts, end, doneHint);
     } else {
-      header.append(back, present, print, ownPage, status, printHint, presentHint, ownHint);
+      header.append(back, present, print, ownPage, ...keepParts, status, printHint, presentHint, ownHint);
     }
+    if (keepHint) header.append(keepHint);
     wrap.append(header);
 
     if (readOnly) {
@@ -912,6 +1009,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       plannedLine.textContent = total ? `Planned time: ${total} min (leader’s version and presenter view only)` : "";
     }
     drawAbout();
+    drawKeep();
     sheetCards.draw(from);
     // A template's reading part acts as if "+ Passage" were already pressed
     // on it (BVJ, 2026-11-08): while the sheet has no passage, the passage
@@ -1182,6 +1280,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   me.setExample = (on) => {
     if (on && !example) flushAll();
     example = Boolean(on);
+    drawKeep();
   };
 
   /**

@@ -2,8 +2,9 @@
 //
 // The sheet editor's list view (Audit 6, LG6-2, taken out of
 // `createSheetEditor` as kind-menu.js was taken out of desk-page.js's
-// `start()`): "My sheets" with each sheet's Duplicate, Save as template and
-// Delete, the reader's own templates under it ("My templates"), and the
+// `start()`): "My sheets" with each sheet's Duplicate, Collections… and
+// Delete (and Edit on /sheets/), the reader's own templates under it ("My
+// templates"; "Save as template" is the editor's, E192), and the
 // template chooser New sheet opens, which /sheets/ uses too. It draws the
 // list and acts on its rows; what the editor shows, and when, stays the
 // editor's, handed in as `host`. /sheets/'s own list draws its rows with
@@ -19,14 +20,15 @@
 //   Sheets pane passes it, and /sheets/' editor doesn't;
 // - `sheetHref(record)`, optional: where a row's name links to. /sheets/
 //   passes it, so a row is a link (a sheet's versions, a template's editor)
-//   rather than a button calling `openSheet`;
+//   rather than a button calling `openSheet`, and a sheet's row gains an
+//   Edit button, which calls `openSheet` (E192);
 // - `headingTag`, optional: "My templates"' heading, "h3" unless given.
 //
 // It imports nothing of the editor's, so /sheets/ can load it to draw its
 // list without the editor (the page loads it by import(), with the history).
 
 import { canEdit } from "../../../lib/desk-records.mjs";
-import { duplicateSheet, hasTemplateParts, isOwnTemplate, sheetTooBig, templateFromSheet } from "../../../lib/desk-sheets.mjs";
+import { duplicateSheet, isOwnTemplate, sheetTooBig } from "../../../lib/desk-sheets.mjs";
 import { TEMPLATES } from "../../../lib/desk-sheet-templates.mjs";
 import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { undoEntry } from "../history.js";
@@ -183,7 +185,7 @@ function opener(host, record) {
   return b;
 }
 
-/** One sheet's row: open it, Duplicate, Save as template, Delete. */
+/** One sheet's row: open it, Edit (on /sheets/), Duplicate, Collections…, Delete. */
 export function sheetRow(host, s, ul) {
   const li = make("li", "desk-sheet__sheet");
   const open = opener(host, s);
@@ -205,17 +207,25 @@ export function sheetRow(host, s, ul) {
   dup.addEventListener("click", () => {
     if (!isBusy(dup)) duplicate(host, s);
   });
-  // The visible words first, so a voice command naming the button finds it (Audit 8, XA8-4).
-  const keep = button("Save as template", "desk-sheet__btn desk-sheet__btn--quiet");
-  keep.setAttribute("aria-label", `Save as template, ${sheetName(s)}`);
-  keep.dataset.focusKey = `template-${s.id}`;
-  keep.title = "Keep this sheet’s parts, without its passages, as a template of your own that New sheet offers.";
-  if (!canEdit(s)) hints.push(unavailable(host, keep, "Made with a newer version of the Study Desk, so it can’t be kept as a template here."));
-  // A template is a sheet without its passages, so a sheet of passages alone would make an empty one (DK6-8).
-  else if (!hasTemplateParts(s)) hints.push(unavailable(host, keep, "This sheet has only passages, and a template keeps everything but those. Add a part of your own first."));
-  keep.addEventListener("click", () => {
-    if (!isBusy(keep)) saveAsTemplate(host, s);
-  });
+  // Edit, first after the name, where the name opens something else: on
+  // /sheets/ it opens the sheet's versions (`sheetHref`), so editing took a
+  // second press there (E192; BVJ, 2026-11-20). A Sheets pane's name opens
+  // the editor itself, so its rows have none. A button, not a link, so it
+  // never counts as the row's last link (the grid pins that one to Delete's
+  // column) and needs no address of its own; the page's `openSheet` makes it
+  // a history entry. Save as template moved to the editor's header then.
+  const edit = [];
+  if (host.sheetHref) {
+    const b = button("Edit", "desk-sheet__btn desk-sheet__btn--quiet");
+    // The visible words first, so a voice command naming the button finds it (Audit 8, XA8-4).
+    b.setAttribute("aria-label", `Edit ${sheetName(s)}`);
+    b.dataset.focusKey = `edit-${s.id}`;
+    if (!canEdit(s)) hints.push(unavailable(host, b, "Made with a newer version of the Study Desk, so it can’t be edited here."));
+    b.addEventListener("click", () => {
+      if (!isBusy(b)) host.openSheet(s.id, { focusTitle: true });
+    });
+    edit.push(b);
+  }
   const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
   del.setAttribute("aria-label", `Delete ${sheetName(s)}`);
   del.dataset.focusKey = `delete-${s.id}`;
@@ -234,7 +244,7 @@ export function sheetRow(host, s, ul) {
     });
     own.push(collect);
   }
-  li.append(open, dup, keep, ...own, del, ...hints);
+  li.append(open, ...edit, dup, ...own, del, ...hints);
   return li;
 }
 
@@ -287,7 +297,7 @@ export function ownTemplatesList(host, mine) {
 /**
  * Delete a sheet or template from its row, with Undo. The row below takes
  * focus (else the one above, else New sheet). A delete that fails says so,
- * as Duplicate and Save as template do, and the button stands down while one
+ * as Duplicate does, and the button stands down while one
  * is under way, so a second press can't send another (Audit 8, SH8-5).
  */
 async function removeRow(host, record, said, ul, open, del) {
@@ -308,25 +318,6 @@ async function removeRow(host, record, said, ul, open, del) {
   const at = rows.indexOf(open);
   const next = rows[at + 1] ?? rows[at - 1];
   host.showList({ focus: next ? next.dataset.focusKey : "new-sheet" });
-}
-
-/** Keep one of the reader's sheets as a template of their own (Audit 5, D #1). */
-async function saveAsTemplate(host, source) {
-  let current = source;
-  let t = null;
-  try {
-    current = (await host.store.get(source.id)) ?? source;
-    t = templateFromSheet(current, host.opCtx());
-    await host.store.save(t);
-  } catch (err) {
-    console.error("Study Desk: couldn't keep a sheet as a template", err);
-    listProblem(host, sheetTooBig(err)
-      ? "That sheet is too big to keep as a template."
-      : "The template couldn’t be saved in this browser. Try again in a moment.");
-    return;
-  }
-  await host.showList({ focus: `open-${t.id}` });
-  host.say(`Saved ${sheetName(current)} as a template. New sheet now offers it.`);
 }
 
 /** Duplicate one of the reader's sheets (Audit 2, decision 12) and open the copy. */
