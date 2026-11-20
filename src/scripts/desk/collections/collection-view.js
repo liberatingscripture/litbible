@@ -48,8 +48,8 @@
 //   (the page); `backLabel`; `headingTag` and `headingClass` for the title;
 //   `newTabLinks`, which opens the help link in a new tab;
 // - optional, for the two homes' differences (D13, decisions 26, 27, 29, 32
-//   and 36): `deskHref(id)`, the page's quiet "Open in the Study Desk" after
-//   its actions; `ownPageHref(id)`, the pane's "Open on its own page" (a new
+//   and 36): `deskHref(id)`, the page's "Open in Study Desk" link after
+//   its actions (E210); `ownPageHref(id)`, the pane's "Open on its own page" (a new
 //   tab) in Print's place, since a print from /desk prints the desk;
 //   and `goHere`, `{ can(member),
 //   go(member) }`, which a plain click on a reference (a passage's or a
@@ -239,15 +239,13 @@ function backTo(host) {
   return top;
 }
 
-/** A quiet link in the actions' row: the Sheets pane's "Open on its own page" look. */
-function leaveLink(text, href, newTab) {
-  const a = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", text);
+/** The pane's "Open on its own page", in a new tab: the Sheets pane's quiet link. */
+function ownPageLink(href) {
+  const a = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", "Open on its own page");
   a.href = href;
-  if (newTab) {
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
-  }
+  a.target = "_blank";
+  a.rel = "noopener";
+  a.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
   return a;
 }
 
@@ -362,16 +360,18 @@ export async function collectionView(host, id) {
   del.setAttribute("aria-label", `Delete ${name}`);
   // Each home offers the other (decision 27). A print from /desk would print
   // the desk, so the pane has "Open on its own page" in Print's place
-  // (decisions 32 and 36); the page keeps Print and ends with "Open in the
-  // Study Desk", in this tab, as a sheet's page ends with "Edit in Study Desk".
+  // (decisions 32 and 36); the page keeps Print and ends with "Open in Study
+  // Desk", in this tab, in the look of /sheets' "Edit in Study Desk": a green
+  // link set apart from the buttons, since it leaves the page (E210).
   if (host.ownPageHref) {
-    const own = leaveLink("Open on its own page", host.ownPageHref(id), true);
+    const own = ownPageLink(host.ownPageHref(id));
     own.dataset.focusKey = key("own-page");
     actions.append(add, toSheet, rename, del, own);
   } else {
     actions.append(add, toSheet, rename, print, del);
     if (host.deskHref) {
-      const desk = leaveLink("Open in the Study Desk", host.deskHref(id), false);
+      const desk = make("a", "collection-page__desk-link", "Open in Study Desk");
+      desk.href = host.deskHref(id);
       desk.dataset.focusKey = key("desk");
       actions.append(desk);
     }

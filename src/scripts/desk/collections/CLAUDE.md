@@ -211,8 +211,9 @@ keep:
   `title` is the document title, which a pane ignores. Test:
   `test/desk-collections-host.test.js` (two hosts at once).
 - **The two homes differ only by host fields** (decisions 26, 27, 29, 32 and
-  36): the page gives `deskHref` ("Open in the Study Desk," last, in this
-  tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
+  36): the page gives `deskHref` ("Open in Study Desk," last, in this
+  tab, as /sheets' "Edit in Study Desk" is drawn: a green link set apart
+  from the buttons, E210); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
   Print's place) and `goHere` (a plain click on a reference runs it), and `listHead` (E186:
   the list's title and "New collection" in one row, no ellipsis, as a Sheets
   pane's "My sheets" and "New sheet"; the page's "New collection…" sits under

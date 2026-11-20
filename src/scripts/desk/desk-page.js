@@ -1361,7 +1361,7 @@ async function start() {
 
   // ---- a collection named in the address (D13, decision 27) ----
 
-  // /desk/?collection=<id> (a collection page's "Open in the Study Desk")
+  // /desk/?collection=<id> (a collection page's "Open in Study Desk")
   // shows it in a Collections pane by the same rule as ?sheet=, and says so
   // in the same bar. One that isn't in this notebook is ignored without a word.
   const wantedCollection = new URLSearchParams(location.search).get("collection");

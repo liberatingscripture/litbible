@@ -5559,6 +5559,26 @@ wording (E202).
   editing” say “Preview.” Test: `test/desk-e208-template.test.js` (the
   header's labels and the button's description). Status: fixed.
 
+- **E210, preference: a collection page's way to the desk didn't match
+  /sheets'.** BVJ, 2026-11-20, of the collection page's actions: “The Open
+  in the Study Desk button doesn't match /sheets. Which one should it be?
+  They should match either way. The wording should be Open in Study Desk
+  with either style.” The page ended its buttons with a quiet button
+  (`.desk-sheet__btn--quiet`, which the restyle draws as an ordinary
+  bordered button) reading “Open in the Study Desk”; a sheet's page on
+  /sheets ends its buttons with “Edit in Study Desk,” a green link set
+  20px apart from them (BVJ, 2026-11-11). Claude chose /sheets' look: the
+  link leaves the page rather than acting on the collection, and the
+  /sheets look already says so. BVJ, of the wider gap: “that's how it
+  should be.” **Built** (`collection-view.js`, `desk.css`): the page's link
+  reads “Open in Study Desk,” as the Scripture pages' button does, and is
+  `.collection-page__desk-link`, measured against /sheets' in the Browser
+  pane: green text at the bar's 0.95rem (15.2px), no border or fill,
+  1.25rem from Delete where the buttons are 8px apart, centered on their
+  line. The pane's “Open on its own page” keeps the quiet button, as a
+  Sheets pane's does. The help page says “Open in Study Desk.” Test:
+  `test/desk-collections-page.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

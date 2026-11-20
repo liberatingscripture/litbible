@@ -7326,6 +7326,18 @@ a.desk-sheet__open {
   margin: 0 0 18px;
 }
 
+/* The page's "Open in Study Desk" is /sheets' "Edit in Study Desk": a green
+   link, not a button, at that bar's size, and set apart from the buttons
+   that act on the collection here, since it leaves the page (E210; BVJ,
+   2026-11-20: "They should match," and of the wider gap, "that's how it
+   should be"). */
+.collection-page__desk-link {
+  align-self: center;
+  margin-left: 1.25rem;
+  color: var(--green-text);
+  font-size: calc(0.95rem * var(--sheet-ui, 1));
+}
+
 /* "Add ▾" (E177): the word and its caret, as /sheets' "Save as ▾" sets them. */
 .collection-page__add {
   display: inline-flex;
