@@ -53,7 +53,11 @@ it holds. Computer only; the apps carry it untouched.
   "Collections (D13)" section, where the pane reads them too;
   `styles/v2/collections.css` keeps the page's frame (its widths and the
   members' `.v2-sheet` padding, every selector behind `:root[data-restyle]`),
-  and `styles/pages/collections.css` the note without the desk. Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
+  and `styles/pages/collections.css` the note without the desk and the
+  page's text size: /sheets' rule (`--sheet-ui`, and `--desk-ui` for the
+  notebook's rows, from `--reading-scale`), its root's `.desk-np` 1rem and
+  1.55 set back to inherit, so the page's words are /sheets' at every tray
+  size (E188). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
   markers. The notebook page has "Delete all collections" in Delete in bulk.
   Tests: `test/desk-collections-page*.test.js`.
@@ -200,7 +204,13 @@ keep:
   36): the page gives `deskHref` ("Open in the Study Desk," last, in this
   tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
   Print's place), `plainMembers` (the members on the pane, no `.v2-sheet`)
-  and `goHere` (a plain click on a reference runs it). "Add ▾"'s last line
+  and `goHere` (a plain click on a reference runs it), and `listHead` (E186:
+  the list's title and "New collection" in one row, no ellipsis, as a Sheets
+  pane's "My sheets" and "New sheet"; the page's "New collection…" sits under
+  its title, as /sheets' "New sheet…" does), while the page gives
+  `listIntro` (E187: a short description of the feature under the list's
+  title, always, as /sheets has; the pane's empty list says what a
+  collection is instead). "Add ▾"'s last line
   is one more (E177): the page gives `notebookHref` ("From My Notebook," a
   link in this tab), the pane `openNotes` ("From My Notes"). A new
   difference is a new host field, never a test of which home is drawing.

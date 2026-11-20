@@ -173,7 +173,8 @@
 
      **The Study Desk follows the size whole**, its own words and controls
      included, through a variable set from `--reading-scale` only where it
-     applies: the /sheets page (`--sheet-ui`, E101), and /desk's panes, the
+     applies: the /sheets page (`--sheet-ui`, E101) and the /collections
+     page, which sets it the same way (E188), and /desk's panes, the
      Notebook panel beside a chapter, the /notebook page and the rows the
      desk adds to /search's results (`--desk-ui`, E109 and E110, with
      `--desk-leading` for line spacing, which /sheets does not follow). The

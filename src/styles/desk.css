@@ -7413,6 +7413,12 @@ a.desk-sheet__open {
   margin: 0 0 10px;
 }
 
+/* The list's title shares its row with "New collection", as a Sheets pane's
+   "My sheets" does with "New sheet" (E186), so the row gives the room under it. */
+.desk-collections .desk-sheet__list-head > .desk-sheet__list-title {
+  margin: 0;
+}
+
 /* A passage's words are the reader's text here, not a sheet's, so they take
    the pane's size, which follows the Display tray (E109), where a sheet's
    words in a pane are set from the root (.desk-pane .desk-sheet__words). */
