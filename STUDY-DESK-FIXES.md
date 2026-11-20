@@ -4945,6 +4945,23 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-buttons-css.test.js` (an ordinary button).
   Status: fixed.
 
+- **E180, wording: “From a collection” said too little.** BVJ, 2026-11-19,
+  with a screenshot of a Sheets pane's “+ From my notes…” chooser, its notes
+  checked one by one above and the collections listed under “From a
+  collection,” with Add and Cancel below: “"From a collection" is a little
+  misleading since it adds the whole collection.” It read as picking things
+  from one, and with Add under the list, as if a collection were checked and
+  then added like the notes. A collection's row adds everything in it at a
+  press (D13, step 7).
+  **Fixed** (`add-forms.js`): the heading is “Or add a whole collection,”
+  a line under it says “Choosing one adds everything in it at once, in the
+  order its page shows.”, each row counts its items as the Collections page
+  and My Notebook do (“3 items,” not “Collection · 3”), and each button is
+  described to a screen reader as “Adds the whole collection to the sheet at
+  once.” The help page's “+ From my notes…” paragraph and “Onto a sheet”
+  say the same. Test: `test/desk-collections-sheet-wiring.test.js`.
+  Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

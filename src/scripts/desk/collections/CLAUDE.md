@@ -146,8 +146,9 @@ it holds. Computer only; the apps carry it untouched.
   it made the sheet "New sheet" makes, so it came out of the view with its
   tests, and the help page's "Onto a sheet" starts from Add to sheet…. A collection with nothing that makes a part
   says so and writes nothing. `add-forms.js`' "+ From my notes…" has a
-  "From a collection" section (a button per collection, or one line and a link
-  to `/collections/`) adding the block through the editor's own change at its
+  section, "Or add a whole collection" ("From a collection" until E180, which
+  read as picking from one; a line under it says choosing one adds everything
+  at once), a button per collection, or one line and a link to `/collections/`, adding the block through the editor's own change at its
   `insertIndex`. The converter puts a word joiner (U+2060) after a collection
   heading whose words are a template's reading-part words, so `readingPart`
   never takes it for the reading part; leave it, it is the owner's to decide.

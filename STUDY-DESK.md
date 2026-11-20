@@ -6136,7 +6136,8 @@ pane in the dropdown menus."). So BVJ chose:
     (Audit 8, XA8-1), which would put a button on every row. A whole
     collection already reaches a sheet three ways (Make a sheet, which
     decision 36 leaves to Add to sheet…'s "New sheet," Add to sheet…, and
-    the Sheets pane's "+ From my notes…" under "From a collection"), and
+    the Sheets pane's "+ From my notes…" under "Or add a whole collection,"
+    "From a collection" until E180), and
     one passage takes two presses once its reference has
     moved the LIT pane (the verse menu's Add to sheet). If it is wanted
     later, it is an E entry with its click route.
