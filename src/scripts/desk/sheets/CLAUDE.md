@@ -137,8 +137,9 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   for the Search pane's "New sheet of N verses"); changing the layout alone
   left the pane on its list. **What only a pane has
   stays in `sheet-pane.js`**: the list of open panes behind `addTarget`,
-  `onAddTarget` and `paneSheet` (the one-press part of the LIT pane's "Add to
-  sheet" row, E170, and the Search pane's add buttons), and the command row's `desk:sheet-new` (E68), which names a pane and
+  `onAddTarget` and `paneSheet` (the Search pane's add buttons, and the pane a
+  pick of its sheet in the LIT pane's "Add to sheet" flyout goes through,
+  never a one-press add, E172), and the command row's `desk:sheet-new` (E68), which names a pane and
   calls its editor's `newSheet`. The Search pane's add buttons read the
   target the same way as “Add to sheet” and write in one `store.change`, and
   `showSheet`'s `keep` stops that pane giving its own place to the sheet it
@@ -374,21 +375,26 @@ The header's Study group is part 3's, built with header C.
   (`sheet-add.js`, rules in `src/lib/desk-sheet-add.mjs`): after Add bookmark
   in the verse menu and the selection panel, in Chapter View and the LIT pane
   (`d.view` "study" or "desk"; the LIT pane since E170, BVJ 2026-11-19: from
-  3f it had only "Add to “…”", shown while a Sheets pane held a sheet). **In
-  the LIT pane, while a Sheets pane shows a sheet, the row is split** as Copy
-  text is: its own button, "Add to “…”", adds there in one press through that
-  pane's editor (`paneSheet`, which desk-page.js hands `initActions`), so the
-  passage appears in the pane; its chevron, "Add to another sheet," opens the
-  flyout, where a pick of the pane's sheet goes through the pane too. The
-  Sheets tour marks that button. It lists the five sheets changed
-  last (`addMenuSheets`: no templates, newer formats or full sheets) and "New
-  sheet", which makes a blank sheet holding the passage, named after it. The
+  3f it had only "Add to “…”", shown while a Sheets pane held a sheet).
+  **It is Add to collection's twin, and no add is one press** (E172; BVJ,
+  2026-11-19: "It should match what we did with collections"): the row never
+  names a sheet or splits, whatever a Sheets pane shows, since one press can
+  put a passage on the wrong sheet unseen (D13's decision 17). Don't bring
+  back "Add to “…”" or a remembered pick. In the LIT pane a pick of the sheet
+  a Sheets pane shows goes through that pane's editor (`paneSheet`, which
+  desk-page.js hands `initActions`), so the passage appears in the pane. It
+  lists the five sheets changed last (`addMenuSheets`: no templates, newer
+  formats or full sheets; the pane's sheet is not lifted) and "New sheet…",
+  which opens collections' name window (`name-window.js`), the title starting
+  as the passage's reference; Create makes a blank sheet holding the passage
+  (`newSheetWithPassage`), Cancel nothing. The
   list is read once and again after a sheet changes (`store.byKind`), so the
   row draws at once; a finger's chips get it flat. A pick is one
   `store.change` over the sheet as read there (`planAddToSheet`; the passage
   goes where `passageInsertIndex` says, since nobody is working in the
-  sheet), and the undo bar shows Undo with an "Open the sheet" link
-  (`showUndo`'s `link`, to `/sheets/?id=`).
+  sheet), and the undo bar says "John 3:16 added to “Lent.”" (a new sheet
+  too) with Undo and an "Open the sheet" link (`showUndo`'s `link`, to
+  `/sheets/?id=`).
   **Past five, the flyout ends in "All sheets…"** (E154; BVJ, 2026-11-18),
   shown only when there are more sheets than it lists (`needsAllSheets`). It
   reads the passage at once (the selection goes with the menu), closes the
@@ -472,11 +478,11 @@ a notebook record, so with no store the tour never starts.
 - **On /desk** the page's `freeze` keeps the layout off disk, as for the desk
   tour; `finish` ends the example, restores the reader's layout, and ends it
   once more for a pane the layout shares. `passage` opens the LIT pane's verse
-  menu as a reader does; its Sheets row exists only for the pane that counts
-  as the target (`lastUsed` in `sheet-pane.js`), so the host makes the tour's
-  pane the target with `useAsTarget(editor)`, exported for this alone, and the
-  pane returns its `editor` for the same reason. The passage is the leading LIT
-  pane's chapter from the verse it is at (`litPassage`), two verses.
+  menu as a reader does and marks its "Add to sheet ▸" row (E172: there is no
+  button naming the pane's sheet, and the tour's sheet, never written, is in
+  no list). The pane returns its `editor` so the host can hold it in example
+  mode. The passage is the leading LIT pane's chapter from the verse it is at
+  (`litPassage`), two verses.
 - **On /sheets the tour never changes the address or history.** It draws its
   own views into `root` and ends with `route()`, which redraws whatever the
   address names. **One editor instance** (`editSheet` in `sheet-page-edit.js`,

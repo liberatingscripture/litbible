@@ -4746,7 +4746,8 @@ says so; where BVJ was wondering, nothing is decided.)
   LIT pane's now lack only two rows, both by earlier calls: “Print ▸” (E40:
   a print from /desk would need the Print menu's new-tab route) and “Show in
   Notebook” (My Notes follows the LIT pane instead). Test:
-  `test/desk-lit-pane-add-to-sheet.test.js`. Status: fixed.
+  `test/desk-lit-pane-add-to-sheet.test.js`. Status: fixed. **The split row
+  and its one press were taken out the same day** (E172).
 - **E171, bug: a collection's passage lost its verse numbers, italics, and
   line breaks.** BVJ, 2026-11-19, reviewing D13: “I added Matthew 5 to my
   first collection. It added it with no verse numbers or text formatting
@@ -4776,6 +4777,39 @@ says so; where BVJ was wondering, nothing is decided.)
   - /collections/ carries `#hbq-description`, which a poetry block's
     `aria-describedby` names, as /sheets does.
   Test: `test/desk-collections-passage-words.test.js`. Status: fixed.
+- **E172, preference: no one-press “Add to sheet,” and “New sheet…” asks for
+  a title, as collections do.** BVJ, 2026-11-19, after E170: “I see a
+  one-click add to new sheet in the flyout in the desk pane, but I didn't
+  think we were doing those. We decided against it for collections due to
+  the risk of accidentally adding to the wrong collection. The same applies
+  for sheets.” Then: “There should be a Add to new sheet option in the
+  flyout,” and “It should match what we did with collections.” Asked two
+  things, BVJ chose both recommendations: “New sheet…” opens the window
+  “New collection…” opens, and the flyout lists the five sheets changed
+  last, with no place of its own for the sheet a Sheets pane shows. This
+  extends D13's decision 17 (“No remembered pick”) to sheets. **Fixed**
+  (`sheets/sheet-add.js`, `desk-sheet-add.mjs`):
+  - **E170's split row is gone**, and with it the one-press “Add to “…””
+    the LIT pane's row had from 3f: the row is Chapter View's “Add to sheet
+    ▸” whatever a Sheets pane shows. A pick of the pane's sheet in the
+    flyout still goes through the pane, so the passage shows there at once.
+  - **The flyout is Add to collection's**: the five sheets changed last,
+    “New sheet…”, and past five “All sheets…”.
+  - **“New sheet…” opens collections' name window**
+    (`collections/name-window.js`): “Add to sheet” over “New sheet,” the lead
+    “John 3:16 will be its first passage.”, and a Title box that starts as
+    the passage's reference, selected. Create makes the blank sheet holding
+    the passage under that title; Cancel makes nothing; an empty title is
+    asked for. The undo bar says “John 3:16 added to “Lent study.”” for a new
+    sheet as for any other (it said “is on a new sheet”), with Open the sheet.
+  - **The Sheets tour** marks the row, since the button it marked is gone
+    (`useAsTarget` went with it), and its “Add a passage” card and the help
+    page say what the flyout holds.
+  **One gap, accepted with the choice**: a sheet just started from a
+  template in a Sheets pane isn't written until its first edit (SH6-7), so
+  it isn't in the flyout until then. Tests:
+  `test/desk-lit-pane-add-to-sheet.test.js`, `test/desk-pick-window.test.js`,
+  `test/desk-sheet-add.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

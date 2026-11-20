@@ -35,7 +35,7 @@
 //                                     { el, side?, marks, undo }; `waitFor` is the
 //                                     runner's, so a host needs no copy of it
 //   verseMenu?({ live, later, editor })  the desk's: the LIT pane's verse menu, its
-//                                     "Add to" button marked, or null
+//                                     "Add to sheet" row marked, or null
 //   versions?(editor)                 the page's: the versions view drawn for the
 //                                     tour's sheet, { el, marks, present }
 //   control?(editor, "print" | "present")  the desk's: the sheet header's link
@@ -49,8 +49,8 @@
 // **It writes nothing.** The tour's sheet is the editor's example mode
 // (`setExample` in sheet-editor.js): a change is made in memory, and the sheet
 // is never written, by its first change or by anything that would write a new
-// sheet first ("Print or share…", "Present…", "Open on its own page", the LIT
-// pane's "Add to" row, Done). The tour turns it on and starts the sheet in the
+// sheet first ("Print or share…", "Present…", "Open on its own page", Done),
+// and, never written, it is in no "Add to sheet" list. The tour turns it on and starts the sheet in the
 // tick the editor is made (`onMade`), before the editor's first view would
 // show its list. Each host keeps the rest of its page off disk: the desk
 // freezes its layout, and the Sheets page never touches the address or
@@ -254,7 +254,7 @@ export function createSheetTour({ host }) {
     },
 
     // Where a passage comes from: on /desk the LIT pane's verse menu, with its
-    // Sheets row's "Add to" marked; on the Sheets page, or where no menu opens
+    // "Add to sheet" row marked; on the Sheets page, or where no menu opens
     // (no LIT pane, no verse numbers), the reading part's own passage form.
     async passage(live) {
       const ed = await ensureSheet(live);

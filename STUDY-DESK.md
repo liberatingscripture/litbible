@@ -5716,7 +5716,11 @@ section marked as one is agreed unless "Still open" says otherwise.
     repeat add is two presses, always on a named choice; the undo bar names
     where it went ("John 3:16 added to Advent series," with Undo and Open
     the collection), which catches a slip either way. "Add to sheet ▸" stays
-    as it is.
+    as it is. **The same holds for sheets** (BVJ, 2026-11-19,
+    STUDY-DESK-FIXES.md E172): the one-press "Add to “…”" that E170 gave the
+    LIT pane, and that pane's row had from 3f, is gone, and "New sheet…" asks
+    for a title in this decision's name window, so Add to sheet matches Add to
+    collection.
 
 From BVJ's review of the plan (2026-11-18):
 

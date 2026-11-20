@@ -4,8 +4,9 @@
 // is one the site already has). It is E154's pick window drawn without its
 // list: a float-window.js window of the same classes (`desk-pick`), a lead
 // line, a labeled field, and the note editor's Cancel and primary button
-// (`desk-editor__actions`). "New collection…" (new-collection.js) and the
-// collection page's "Rename…" are this window with different fields.
+// (`desk-editor__actions`). "New collection…" (new-collection.js), the
+// collection page's "Rename…" and Add to sheet's "New sheet…"
+// (../sheets/sheet-add.js, E172) are this window with different fields.
 //
 // It sits where the control it came from was (`near`), takes the pick
 // window's one slot (so opening either replaces the other), is closed by its

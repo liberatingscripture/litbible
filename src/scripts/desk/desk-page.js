@@ -221,8 +221,9 @@ async function start() {
   }
   if (store) createHistory({ store, ctx });
   // The LIT pane's verse menu and selection panel get the "My Notebook" row
-  // (3f, 3g): Add a note, Bookmark and Highlight, and Add to sheet, which adds
-  // to the Sheets pane's sheet in one press (E170).
+  // (3f, 3g): Add a note, Bookmark and Highlight, and Add to sheet (E170), where
+  // a pick of the Sheets pane's sheet goes through that pane (E172: never in
+  // one press).
   if (store) initActions({ store, ctx, paneSheet });
   // Pin / Unpin on the LIT pane's footnotes, This verse and the Footnotes
   // pane (3g).

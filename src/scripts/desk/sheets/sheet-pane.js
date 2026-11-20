@@ -5,17 +5,16 @@
 // step 1). The editor is the host-free part, so another page can hold it.
 //
 // - **"Add to sheet" adds to a pane.** Every open Sheets pane is listed, and
-//   the one last worked in is the target of the LIT pane's verse menu and
-//   selection (`paneSheet`: the one-press part of their "Add to sheet" row,
-//   ../sheets/sheet-add.js; E170) and of the Search pane's add buttons
-//   (`addTarget`, `onAddTarget`).
+//   the one last worked in is the target of the Search pane's add buttons
+//   (`addTarget`, `onAddTarget`). In the LIT pane's "Add to sheet" flyout a
+//   pick of its sheet goes through it (`paneSheet`, sheet-add.js), but nothing
+//   there adds to it in one press (E172).
 // - **The command row's "New sheet…" names a pane** (`desk:sheet-new` with
 //   its `paneId`), which opens that pane's template chooser.
 // - **Which sheet it shows is the layout's** (`setPaneSheet`, handed in by
 //   desk-panes.js as `getSheet` and `setSheet`), and its ids carry its pane id.
 // - **"Take the Sheets tour"** at the foot of its list sends `desk:sheet-tour`
-//   (E63), which desk-page.js answers; the tour itself is sheet-tour.js, and
-//   `useAsTarget` is its, so the LIT pane's menu offers its pane's sheet.
+//   (E63), which desk-page.js answers; the tour itself is sheet-tour.js.
 
 import { sheetName } from "../../../lib/desk-sheet-passages.mjs";
 import { buttons } from "../dom.js";
@@ -23,10 +22,10 @@ import { createSheetEditor } from "./sheet-editor.js";
 
 const button = buttons("desk-sheet__btn");
 
-/* ── "Add to sheet" in the LIT pane's menus ───────────────────────────── */
+/* ── Adding from other panes ──────────────────────────────────────────── */
 
-// Every open Sheets pane, and the one last worked in, which a verse menu or
-// selection adds to.
+// Every open Sheets pane, and the one last worked in, which the Search pane's
+// add buttons add to.
 const openPanes = new Set();
 let lastUsed = null;
 
@@ -51,17 +50,6 @@ export function addTarget() {
 const targetListeners = new Set();
 const targetChanged = () => { for (const fn of targetListeners) fn(); };
 
-/**
- * Make this pane's editor the one "Add to sheet" adds to, as working in it
- * does: for the Sheets tour (E63), which opens the LIT pane's verse menu
- * without the reader having touched its pane.
- */
-export function useAsTarget(editor) {
-  if (!openPanes.has(editor)) return;
-  lastUsed = editor;
-  targetChanged();
-}
-
 /** Called when the sheet `addTarget` names may have changed; returns the way to stop. */
 export function onAddTarget(fn) {
   targetListeners.add(fn);
@@ -69,11 +57,12 @@ export function onAddTarget(fn) {
 }
 
 /**
- * The sheet the LIT pane's "Add to sheet" row adds to in one press (E170;
- * sheet-add.js, handed this by desk-page.js): the one in the Sheets pane last
- * worked in, as `{ id, name, add(fields) }`, where `add` goes through that
- * pane's editor, so the passage shows there at once. Null when no Sheets pane
- * shows a sheet, and the row is Chapter View's flyout alone.
+ * The sheet in the Sheets pane last worked in, for the LIT pane's "Add to
+ * sheet" flyout (sheet-add.js, handed this by desk-page.js), as
+ * `{ id, name, add(fields) }`: a pick of that sheet in the flyout goes through
+ * `add`, the pane's editor, so the passage shows there at once. It lists
+ * nothing and is never a one-press add (E172). Null when no Sheets pane shows
+ * a sheet.
  */
 export function paneSheet() {
   const pane = targetPane();

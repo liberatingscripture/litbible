@@ -84,18 +84,20 @@ test("a full sheet, a deleted one or a newer format writes nothing", () => {
   assert.equal(planAddToSheet({ ...createSheet({}, ctx), sheetFormat: 999 }, john316, ctx).gone, true);
 });
 
-test("New sheet holds the passage alone, named after it", () => {
-  const s = newSheetWithPassage(john316, ctx);
-  assert.equal(s.title, "John 3:16");
+test("New sheet… holds the passage alone, with the title given (E172), else named after it", () => {
+  const s = newSheetWithPassage(john316, ctx, "  Lent study ");
+  assert.equal(s.title, "Lent study");
   assert.equal(s.template, "blank");
   assert.deepEqual(s.modules.map((m) => m.type), ["passage"]);
   assert.deepEqual(validateRecord(s), []);
+  assert.equal(newSheetWithPassage(john316, ctx).title, "John 3:16");
+  assert.equal(newSheetWithPassage(john316, ctx, "   ").title, "John 3:16");
+  assert.equal(newSheetWithPassage(john316, ctx, "x".repeat(SHEET_LIMITS.title + 9)).title.length, SHEET_LIMITS.title);
 });
 
-test("what the undo bar says", () => {
+test("what the undo bar says, for a sheet kept or one just made (E172: as New collection…'s does)", () => {
   assert.equal(addedMessage(john316, "Easter"), "John 3:16 added to “Easter.”");
   assert.equal(addedMessage(john316, "Easter", { again: true }), "John 3:16 added to “Easter” again; it was already there.");
-  assert.equal(addedMessage(john316, "John 3:16", { made: true }), "John 3:16 is on a new sheet, “John 3:16.”");
 });
 
 // Where the row shows (Chapter View and, since E170, /desk's LIT pane) is
