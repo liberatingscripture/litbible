@@ -96,8 +96,8 @@ it holds. Computer only; the apps carry it untouched.
   Advent from now on" chosen to start, as the mock drew it. A pick is one
   `store.change` (`planAddItems`, or `addRule` through `planCollectionChange`,
   the bookmarks read in that transaction), and the bar says "12 added to
-  Advent series." with Open the collection. My Notes' list draws a
-  Collections section after Sheets (name link, count, New collection…, All my
+  Advent series." with Open the collection. My Notebook's list
+  (`kept-list.js`) draws a Collections section after Sheets (name link, count, New collection…, All my
   collections; only while nothing narrows the list; never rows). The page's
   rule line (`ruleLine` in `collection-view.js`, one per rule) reads "Every
   bookmark labeled Advent · 12" with `desk-item__stop` links Stop adding new
@@ -110,28 +110,20 @@ it holds. Computer only; the apps carry it untouched.
   Cancel); Yes adds `planLabelRulesToItems` to the deletion's own write, so one
   undo restores both. Tests: `test/desk-collections-rule-page.test.js`,
   `test/desk-collections-notebook.test.js`.
-- **Step 6, Filters, search, and the header:** the collection filter mirrors
-  the label filter where each place has one: `kept-list.js` (My Notebook's
-  list, and /desk's My Notebook pane) has an "Any collection" select beside
-  Label, and `tab-mine.js` (the Notebook panel's My Notes and /desk's My Notes
-  pane) a row of `desk-mine__label` toggles, "All collections" first; neither
-  shows without a collection. `collectionFilter` (`desk-collections.mjs`) reads
-  what one holds through `collectionRows` (items, and a rule's bookmarks less
-  any left out) and `filterRecords` takes it as `recordIds`. Passages are not
-  records, so a chosen collection that holds some adds one plain line, "Its 4
-  passages are on its page." (link to the page), and a collection holding only
-  passages lists no rows. The notebook search (`kept-list.js`) also offers
-  collections whose name holds its words (`collectionsNamed`) as a "Collections"
-  group of rows linking to their pages, never rows of the record list or in its
-  count, drawn even when no record matches (then first, over "Nothing else matches."). A collection's change wakes no view
-  of marks, so the panel and the My Notes pane subscribe to
-  `{ kinds: ["collection"] }` themselves to keep the filter's list and counts
-  current. "My collections" (`/collections/`) is in header C's Study group, the
-  site footer's Study group, the Notebook's Settings tab beside "My sheets,"
-  and /desk's title menu beside "My Notebook" (that menu had no "My sheets";
-  it opens in a new tab as its notebook link does). "Add these N to a
-  collection…" is unchanged: it answers the search and the label filter, not
-  this filter. Test: `test/desk-collections-filters.test.js`.
+- **Step 6, search and the header:** the notebook search (`kept-list.js`)
+  offers collections whose name holds its words (`collectionsNamed`) as a
+  "Collections" group of rows linking to their pages, never rows of the record
+  list or in its count, drawn even when no record matches (then first, over
+  "Nothing else matches."). "My collections" (`/collections/`) is in header
+  C's Study group, the site footer's Study group, the Notebook's Settings tab
+  beside "My sheets," and /desk's title menu beside "My Notebook" (that menu
+  had no "My sheets"; it opens in a new tab as its notebook link does).
+  **There is no collection filter** (BVJ, 2026-11-19, E175): step 6 built one
+  in My Notes (the panel and /desk's pane) and My Notebook's list, and BVJ
+  took it out as clutter, since a collection's page and the Collections pane
+  show what it holds, passages and headings included, which a filter of
+  records couldn't. Don't add one back to either list. Test:
+  `test/desk-collections-filters.test.js`, which holds that it is gone.
 - **Step 7, a collection onto a sheet:** the converter is
   `src/lib/desk-collection-sheet.mjs` (pure; read its header):
   `collectionChapters` lists the chapters to read first, and
