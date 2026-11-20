@@ -5863,8 +5863,9 @@ Why a kind of its own:
   and on sheets in `/sheets/`' list, the Sheets pane's menu and My
   Notebook's Sheets section. It opens the collections with checkboxes (an
   item may be in several) and "New collection…".
-- **From a label** (decision 5): on My Notebook, "Add these 12 to a
-  collection…" adds whatever its search and label filter show, and a
+- **From a label** (decision 5): on My Notebook, and in My Notes since
+  E176, "Add these 12 to a collection…" adds whatever the list's search and
+  label filter show, and a
   label's own menu offers "Add all bookmarks labeled Advent" as a shortcut,
   asking which: "Only the 12 labeled Advent now" or "These 12, and any you
   label Advent from now on" (decision 23).

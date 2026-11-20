@@ -497,6 +497,8 @@ export function mountPane(kind, body, env, pane) {
       ctx: env.ctx,
       goHere: goToRecord(env),
       scope: mineScope(pane),
+      // Leaving the desk opens beside it, as the title menu's "My Notebook" does (E176).
+      notebookInNewTab: true,
     });
     body.append(tab.el);
     // It follows the LIT pane (3g; BVJ, 2026-10-19): the records on the

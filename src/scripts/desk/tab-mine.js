@@ -67,6 +67,11 @@
 // than one. Those headings are rows of the list, so a row is found by
 // `.desk-item`, never by its position.
 //
+// Under the count, one quiet line (E176; BVJ, 2026-11-19): “My Notebook,” a link
+// to the notebook page (in a new tab on /desk, as its title menu's is), and,
+// while the search or a label narrows the list, “Add these 12 to a
+// collection…” before it, as My Notebook's list has (D13, step 5).
+//
 // On /desk the list follows the LIT pane (E22): the row followed to is the
 // first record at or after the reading line (the last before it, with none
 // after), scrolled to when out of view and marked `aria-current="location"`
@@ -91,6 +96,7 @@ import {
   pagedEntries,
   withoutSheets,
 } from "../../lib/desk-notebook.mjs";
+import { ITEM_KINDS } from "../../lib/desk-collections.mjs";
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import {
   kindName,
@@ -104,7 +110,8 @@ import { currentPanel } from "../lit-panel.js";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
 import { collectionsTag } from "./collections/collections-popover.js";
-import { glyph } from "./glyphs.js";
+import { openAddRecords } from "./collections/add-records.js";
+import { glyph, newTabMark } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
@@ -141,14 +148,17 @@ let seq = 0;
  *   onEdit?: (record: object, trigger: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   ctx?: (() => object) | null,
- *   showInText?: { can(record: object): boolean, go(record: object): void } | null }} options
+ *   showInText?: { can(record: object): boolean, go(record: object): void } | null,
+ *   notebookInNewTab?: boolean }} options
  *   `visible` says whether the tab can be seen, so a hidden one isn't drawn;
  *   `afterRender` lets the panel bring its foot up to date. `ctx` and
- *   `showInText` are what the change notice's card needs.
+ *   `showInText` are what the change notice's card needs (and `ctx`, “Add
+ *   these 12 to a collection…”). `notebookInNewTab` (/desk) opens the “My
+ *   Notebook” link beside the page.
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void>,
  *   follow: (passage: object) => void, destroy: () => void }}
  */
-export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null }) {
+export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null, notebookInNewTab = false }) {
   const n = ++seq;
   // Which colour the list is narrowed to (null: everything), and the label
   // (an id; null: everything). Each tab's own, so two My Notes panes on /desk
@@ -195,6 +205,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <p class="desk-mine__changed" hidden></p>
     <p class="sr-only" role="status" data-mine-status></p>
     <p class="desk-mine__count" hidden></p>
+    <p class="desk-mine__links" data-mine-links hidden><button type="button" class="desk-item__stop" aria-haspopup="dialog" hidden></button><span aria-hidden="true" hidden> · </span><a href="/notebook/">My Notebook</a></p>
     <p class="desk-mine__here" hidden></p>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
@@ -238,6 +249,24 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const kindSelect = el.querySelector(`#deskMineKind${n}`);
   const countLine = el.querySelector(".desk-mine__count");
   const hereLine = el.querySelector(".desk-mine__here");
+  const linksLine = el.querySelector("[data-mine-links]");
+  const addThese = linksLine.querySelector("button");
+  const linksGap = linksLine.querySelector("span");
+  const notebookLink = linksLine.querySelector("a");
+  if (notebookInNewTab) {
+    notebookLink.target = "_blank";
+    notebookLink.rel = "noopener noreferrer";
+    const say = document.createElement("span");
+    say.className = "sr-only";
+    say.textContent = " (opens in a new tab)";
+    notebookLink.append(newTabMark(), say);
+  }
+  // The records the list shows now that a collection can hold, for “Add these 12 to a collection…”.
+  let addable = [];
+  addThese.addEventListener("click", () => {
+    const at = addThese.getBoundingClientRect();
+    openAddRecords({ store, ctx, recordIds: addable, near: { left: at.left, top: at.bottom + 8 }, back: () => addThese });
+  });
   // Narrowing the list says how much is left through a live region that is
   // always in the page (NB3-5; the Search pane's way, DK-2). Only a change the
   // reader made speaks (`refilter`), and a burst of typing speaks once; the
@@ -428,6 +457,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       shown = [];
       filterBox.hidden = true;
       countLine.hidden = true;
+      linksLine.hidden = true;
       hereLine.hidden = true;
       pinBox.hidden = true;
       colors.hidden = true;
@@ -481,6 +511,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
     drawChanged([...records, ...pins], notices);
     drawCount(marks, matched);
+    drawLinks(matched);
 
     // In Bible order, under a heading for each chapter once there is more
     // than one place to tell apart.
@@ -627,6 +658,17 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     countLine.textContent = narrowed
       ? `${describeCounts(matched) === "Nothing kept yet." ? "Nothing matches" : `Showing ${describeCounts(matched)}`} (of ${all.length} kept).`
       : `${describeCounts(all)}.`;
+  }
+
+  // The line under the count: “My Notebook” always, and “Add these 12 to a collection…” while the
+  // search or a label narrows the list, counting what the list shows that a collection can hold
+  // (the same rule as My Notebook's list, kept-list.js).
+  function drawLinks(matched) {
+    addable = ctx && (query.trim() || labelFilter) ? matched.filter((r) => ITEM_KINDS.includes(r.kind)).map((r) => r.id) : [];
+    addThese.hidden = addable.length === 0;
+    if (addable.length) addThese.textContent = `Add ${addable.length === 1 ? "this one" : `these ${addable.length}`} to a collection…`;
+    linksGap.hidden = addThese.hidden;
+    linksLine.hidden = false;
   }
 
   // A chapter's heading among the rows. Not a list item to a screen reader

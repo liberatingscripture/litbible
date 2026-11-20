@@ -4907,6 +4907,63 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-collections-filters.test.js` holds that neither list has the
   filter and that the name search still works.
   Status: fixed.
+- **E176, preference: My Notes has “Add these 12 to a collection…” and a
+  link to My Notebook.** BVJ, 2026-11-19, working through D13's review
+  list, with a screenshot of the Notebook panel's My Notes searched for
+  “Torah” beside item 3c (“In My Notebook, with a search or the label filter
+  on, ‘Add these N to a collection…’ adds exactly what the list shows”): “I
+  don't see this.” The button was built on My Notebook's list alone
+  (`kept-list.js`, drawn only on /notebook), where decision 5 put it, and
+  the panel's My Notes is another list (`tab-mine.js`). Asked whether My
+  Notes should have it too, BVJ chose “Yes, add it,” and added: “And add a
+  way to the My Notebook page from the My notes.” This widens decision 5
+  from My Notebook to both lists. **Fixed** in `tab-mine.js`, so the
+  Notebook panel's tab and /desk's My Notes pane alike:
+  - **One quiet line under the count**: “My Notebook,” a link to
+    /notebook/, whenever the browser keeps a notebook, and, while the search
+    or a label narrows the list, “Add these 12 to a collection…” before it,
+    a dot between. The button counts what the list shows that a collection
+    can hold (`ITEM_KINDS`), says “Add this one to a collection…” for one,
+    and opens My Notebook's pick window (`openAddRecords`), so a pick, “New
+    collection…” and the undo bar (“3 added to Advent series.”) are the
+    same. Only the search and the label filter offer it, as on My Notebook.
+  - **On /desk the link opens in a new tab** (`notebookInNewTab`, which
+    `desk-panes.js` sets), as the title menu's “My Notebook” does, with the
+    new-tab mark and “(opens in a new tab)” for a screen reader. In the
+    panel beside a chapter it opens in the same tab, as the Settings tab's
+    link does.
+  - **No new look** (decision 25): the button is the quiet
+    `desk-item__stop`, and the line takes the count's type.
+  The help page says My Notes has the link, and that “Add these 12” is in
+  both lists (E175's “its list” in “From a label” became “My Notes or My
+  Notebook”). Test: `test/desk-mine-add-these.test.js`. Status: fixed.
+- **E177, preference: a collection's page adds more than passages.** BVJ,
+  2026-11-19, with a screenshot of a collection's page: “On the
+  /collections page, you can add passages from there, but nothing else.
+  That should change. The button that is currently ‘add passages’ should
+  include all the other options of things to add that make sense, like
+  sheets and labels. Notes, footnotes, bookmarks, and highlights, maybe can
+  be done with an Add from notebook button. Not sure whether it should open
+  a window that displays notebook contents (basically another place to host
+  My notes) or if it should just navigate to the Notebook.” Asked, BVJ
+  chose: “On /collections it should Go to My Notebook. On /desk, it should
+  open the My Notes pane.” It widens decision 11, which gave the page
+  “Add passage…” alone. What the website proposes to build (its choices,
+  for BVJ to change):
+  - **“Add passage…” becomes “Add ▾”**, the page's one primary button, a
+    menu of four: **Passage…** (today's field), **Sheet…** (E154's pick
+    window over the reader's sheets), **A label's bookmarks…** (the same
+    window over the labels in use, with decision 23's two choices above
+    the list), and **From My Notebook**.
+  - **From My Notebook** is a link to /notebook/ on the page, where a
+    row's “Collections…” and “Add these 12 to a collection…” (E176) add
+    to it. In /desk's Collections pane it opens a My Notes pane by E127's
+    rule instead.
+  **Open**: to be built in one change once the Collections pane has merged
+  (its step 2, PR #634, and step 4, the pane itself; BVJ: “Wait for the
+  pane”), since that work is changing the same files
+  (`collection-view.js`, `collection-page.js`, `add-records.js`) and
+  brings the pane the /desk half needs. Status: open.
 
 - **E179, bug: the pane menu's Add pane flyout ran off the foot of the
   window.** BVJ, 2026-11-19, with a screenshot of a LIT pane's menu, its Add

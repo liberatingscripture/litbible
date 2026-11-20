@@ -3215,6 +3215,7 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 .desk-mine__count,
+.desk-mine__links,
 .desk-mine__here {
   margin: 8px 4px 0;
   color: rgba(var(--ink-rgb), 0.75);
@@ -4669,7 +4670,8 @@ html:has(.desk-greek__split--dragging) {
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
-.desk-mine__whatsnew a {
+.desk-mine__whatsnew a,
+.desk-mine__links a {
   color: var(--green-text);
 }
 
