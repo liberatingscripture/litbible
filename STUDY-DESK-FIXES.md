@@ -4970,6 +4970,11 @@ says so; where BVJ was wondering, nothing is decided.)
     closes the menu. A line that can't be used stays, with its reason
     beside it and in the menu's description (DK3-7): “no sheets yet,” “no
     labeled bookmarks yet.”
+    It never runs past the window (E179, which landed just before #642
+    merged, so this came after it): where it fits neither under its
+    button nor over it, it takes the roomier side, stops 8px from the
+    edge and scrolls inside itself, and the sheet gap pill's menu with it
+    (`buttonMenuPlace`).
   - **Passage…** shows today's field, now headed “Add a passage” with a ×,
     and Escape puts it away too, focus back on “Add.”
   - **Sheet…** lists the reader's sheets (not their templates), the last
@@ -5058,7 +5063,98 @@ says so; where BVJ was wondering, nothing is decided.)
   The rule for every menu is in `src/scripts/CLAUDE.md`. Test:
   `test/desk-menu-fit-dom.test.js`. Status: fixed.
 
-- **E180, bug: a sheet's Delete wrapped under its name, as wide as the
+- **E180, preference: the panes open their pages, not the title menu.**
+  BVJ, 2026-11-19, with a screenshot of /desk's “Study Desk ▾” menu, which
+  D13's step 6 had given “My collections” beside “My Notebook”: “The page
+  menu shouldn't have the My collections link. Or if it does, sheets should
+  too. I think what would make sense is to have an Open sheets page and Open
+  collections page button on the header of their respective panes.” It
+  narrows STUDY-DESK.md's D13 rule that “My collections” goes wherever “My
+  sheets” is listed: /desk's title menu never had “My sheets,” so on /desk
+  both pages are reached from their panes instead.
+  **Fixed.**
+  - **The title menu** (`title-menu.js`) is Display options, Full screen,
+    then My Notebook, Take the tour and the feedback link, as before D13.
+  - **A Sheets pane's and a Collections pane's header** end with a link
+    before the ×, to `/sheets/` and `/collections/` in a new tab: the
+    new-tab glyph (`OPEN_PAGE_ICON`), with “Sheets page” or “Collections
+    page” beside it where the header is 26rem or wider, as “Stay here” has
+    beside its lock (E72). Its name is “Open the Sheets page (opens in a new
+    tab)” and its tooltip “Open the Sheets page in a new tab” (`setTip`). It
+    is an ordinary button to look at (E126's list) and a link underneath, so
+    a modified click and the browser's own menu work. Which kinds have one
+    is data, `page` on the kind in `KINDS` (`desk-layout.mjs`), read by
+    `kindPage`; `desk-page.js` draws it in every header and shows it where
+    the kind has a page. A press on it never starts dragging the pane:
+    `pane-move.js` passes over links as it does buttons.
+  - **The Study Desk tour's title card** no longer names My collections,
+    and its list of the command row gains “New collection,” which it had
+    missed since the row gained it.
+  - **The help page** says where each pane's link is (“Sheets” under
+    “Going back to editing,” “On the Study Desk” and “Finding things” under
+    collections).
+  Tests: `test/desk-pane-page-link.test.js` (which kinds have a page, a
+  press on the link never drags, the header still does),
+  `test/desk-collections-filters.test.js` (neither list page is in the
+  title menu), `test/desk-first-use.test.js` (the card) and
+  `test/desk-buttons-css.test.js` (an ordinary button).
+  Status: fixed.
+
+- **E181, wording: “From a collection” said too little.** BVJ, 2026-11-19,
+  with a screenshot of a Sheets pane's “+ From my notes…” chooser, its notes
+  checked one by one above and the collections listed under “From a
+  collection,” with Add and Cancel below: “"From a collection" is a little
+  misleading since it adds the whole collection.” It read as picking things
+  from one, and with Add under the list, as if a collection were checked and
+  then added like the notes. A collection's row adds everything in it at a
+  press (D13, step 7).
+  **Fixed** (`add-forms.js`): the heading is “Or add a whole collection,”
+  a line under it says “Choosing one adds everything in it at once, in the
+  order its page shows.”, each row counts its items as the Collections page
+  and My Notebook do (“3 items,” not “Collection · 3”), and each button is
+  described to a screen reader as “Adds the whole collection to the sheet at
+  once.” The help page's “+ From my notes…” paragraph and “Onto a sheet”
+  say the same. Test: `test/desk-collections-sheet-wiring.test.js`.
+  Status: fixed.
+
+- **E182, bug: a new color over part of a collected highlight dropped
+  those words from the collection.** BVJ, 2026-11-19, with a screenshot of
+  D13's review checklist, item 8b (“Highlighting over part of a collected
+  highlight in the same color, or erasing its middle, keeps it (both pieces)
+  in the collection.”): “This didn't work correctly. It just removed the
+  portion of the verse highlighted in the new color, which also made it the
+  only way to have a fraction of a verse in a collection.” A different color
+  trims what it lies over (or cuts it in two), and the carry (D13) followed
+  only a highlight that changed id: one covered whole went to the new mark,
+  and a cut's second piece joined the first, but the new mark itself joined
+  nothing unless it covered the whole highlight. So recoloring the middle of
+  a collected verse left its two ends in the collection with a gap between.
+  **Fixed** (`planHighlight` in `desk-highlights.mjs`, `carryHighlights` in
+  `desk-collections.mjs`): a highlight a new color takes part of keeps its
+  place, and the new mark goes in beside it in every collection holding it,
+  in text order: after what is left, before it when only its right part is
+  left, and between a cut's two pieces. A mark that runs on past the
+  highlight joins whole, as one covering all of it already did. In the same
+  write, so one undo puts both back. An erase still takes words out (that is
+  what it is for), so a collection keeps a trimmed highlight as it is. The
+  record format's “When a highlight changes id” says so for BDR; the apps
+  edit no collection. Tests: `test/desk-highlights.test.js`,
+  `test/desk-collections.test.js`. Status: fixed.
+
+- **E183, wording: “Delete all sheets” didn't say collections stay.** BVJ,
+  2026-11-19, with a screenshot of My Notebook's Delete in bulk: “The Delete
+  all sheets message should name collections as left alone along with notes
+  and marks.” “Delete all notes and marks” already named them (“Your sheets,
+  templates, and collections stay.”), but “Delete all sheets” still said
+  only “Your notes and marks stay,” from before collections (D13).
+  **Fixed** (`notebook-page.js`): its line and its “Are you sure?” both end
+  “Your notes, marks, and collections stay.” The help page's “Deleting
+  everything” list was missing “Delete all collections” as well; it now
+  lists all four, and “The first three each leave the others alone.”
+  Test: `test/desk-audit8-dom-search-notebook.test.js`.
+  Status: fixed.
+
+- **E184, bug: a sheet's Delete wrapped under its name, as wide as the
   name.** BVJ, 2026-11-19: “at some screen widths, the buttons on the list
   of sheets wraps so that it fits into the column the sheet title is in,
   showing as a very wide delete button. The buttons should stay in the same

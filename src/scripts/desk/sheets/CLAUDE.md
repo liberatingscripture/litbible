@@ -426,7 +426,12 @@ The header's Study group is part 3's, built with header C.
   `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
   the two-tab question for that first open (`askFirst: false`), since the
   pane is the other tab and the reader sent it; the page drops the marker,
-  so a reload asks as usual. /sheets keeps "Edit in Study Desk".
+  so a reload asks as usual. /sheets keeps "Edit in Study Desk". **A Sheets
+  pane's header opens the list, `/sheets/`, in a new tab** (E180; BVJ,
+  2026-11-19): a link before the ×, "Sheets page" beside its glyph in a wide
+  header; a Collections pane's opens `/collections/` the same way. Which
+  kinds have one is `page` in `KINDS`, read by `kindPage`; /desk's title
+  menu names neither page.
 
 ## The Sheets tour (E63)
 
@@ -566,7 +571,7 @@ my notebook"**. Twelve things to know:
   always the last), and the width below which the rows stack measured again
   in all three fonts: without a column, the button starts a second line in
   the name's column and stretches to its width, as Delete did once
-  Collections… joined the row (E180).
+  Collections… joined the row (E184).
 - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
   modules each copy prints (`modulesForCopy`: the participant's leaves
   out Leader only), one code per chapter (`chapterCodes`, the address
@@ -1034,8 +1039,9 @@ on a footnote were removed, E79), is in `src/scripts/desk/CLAUDE.md`.
   (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
   gathered only the notes marked `question` under a heading: "The
   options for sheets need to be more flexible than that, more useful to
-  more people." The chooser also has a "From a collection" section (D13,
-  step 7): one of the reader's collections added as one block of parts through
+  more people." The chooser also has an "Or add a whole collection" section
+  (D13, step 7; "From a collection" until E181, BVJ 2026-11-19, since it adds
+  the whole collection, at a press, and not by Add): one of the reader's collections added as one block of parts through
   `collectionSheetParts` (`src/lib/desk-collection-sheet.mjs`), over the sheet
   as saved, at the same `insertIndex`; with no collections it is one line and a
   link to `/collections/`.
