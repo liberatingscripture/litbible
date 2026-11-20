@@ -4812,7 +4812,7 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-lit-pane-add-to-sheet.test.js`, `test/desk-pick-window.test.js`,
   `test/desk-sheet-add.test.js`. Status: fixed.
 - **E173, preference: no Book Intro pane.** BVJ, 2026-11-19, deciding the
-  Collections pane (STUDY-DESK.md, D13, decisions 26 to 34): “let's do away
+  Collections pane (STUDY-DESK.md, D13, decisions 26 to 36): “let's do away
   with the Book Intros pane, which will give us more room for the
   Collections pane in the dropdown menus.” It reverses E53's pane, so the
   menus' kinds stay at eight with Collections in. What becomes of each way
@@ -4835,7 +4835,9 @@ says so; where BVJ was wondering, nothing is decided.)
     link (SEC-1).
   - **Words**: the Study Desk tour's card on the panes that follow drops
     Book Intro (its id kept, so it isn't offered again as new), and so do
-    the help page's “The kinds of pane” and “Panes that follow.”
+    the help page's “The kinds of pane” and “Panes that follow,” and the
+    leading LIT pane's flag: its name and its tooltip (`desk-page.js`) list
+    the panes that follow it, Book Intro last.
   Status: decided, not yet built (step 3 of the pane's order of work).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
