@@ -71,6 +71,25 @@ const MORE_LINKS = { mine: TOUR_LINK, sheets: SHEET_TOUR_LINK, collections: `${H
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
 /**
+ * The element `find` gives once its size and place have held for three frames
+ * (or after `ms`), so a card isn't placed beside a panel still growing.
+ */
+async function settled(find, ms = 600) {
+  const end = performance.now() + ms;
+  let last = "";
+  let still = 0;
+  for (;;) {
+    await frame();
+    const el = find();
+    const r = el?.getBoundingClientRect();
+    const now = r ? `${r.top},${r.height}` : "";
+    still = now === last ? still + 1 : 0;
+    last = now;
+    if ((el && still >= 3) || performance.now() > end) return el;
+  }
+}
+
+/**
  * @param {{ canKeep: boolean, getLayout: () => object, setLayout: (next: object) => void,
  *   freeze: (on: boolean) => void, paneEls: Map<string, object>, panesBox: HTMLElement,
  *   titleButton: HTMLElement, titleMenu: HTMLElement, commandRow: HTMLElement, addMenu: HTMLElement,
@@ -198,13 +217,17 @@ export function createDeskTour(api) {
       closePanel();
       number.click();
       later(() => closePanel());
-      await frame();
+      // The desk adds rows once it has read the notebook ("Remove highlight",
+      // the verse's bookmarks), and the menu moves up to keep them in the
+      // window (lit-panel.js), so the card is placed once it has settled.
+      const menu = await settled(() => currentPanel()?.el ?? null);
       if (!live()) return null;
-      const menu = currentPanel()?.el;
       if (!menu) return { el: number, marks: [number] };
       const row = Array.from(menu.querySelectorAll(".lit-flyout__trigger")).find((b) =>
         b.textContent.trim().startsWith("Add to collection"),
       );
+      // In a window too short for the whole menu, it scrolls to show the row.
+      row?.scrollIntoView({ block: "nearest", behavior: "instant" });
       return { el: menu, side: "right", marks: row ? [row] : [] };
     },
 
