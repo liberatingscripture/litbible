@@ -6238,7 +6238,11 @@ build):
    `toList`, ids and focus found in the host's own element, and "Make a
    sheet" out of the view with its tests and the help page's "Onto a sheet"
    sentence (decision 36). The page changes only by losing that button;
-   its other tests pass as they are. Sonnet.
+   its other tests pass as they are. Sonnet. **Built 2026-11-19**:
+   `collection-list.js`, `viewHost` in `collection-view.js`, and focus keys
+   and the order switch's radio name carrying the host's id
+   (collections `CLAUDE.md`, "The views' host"); Make a sheet's tests now
+   press Add to sheet…'s "New sheet" row.
 3. **Book Intro out** (E173), with its own words: the help page, the Study
    Desk tour's card on the panes that follow (its id kept), and the desk
    `CLAUDE.md`. Sonnet. **Built 2026-11-19**; STUDY-DESK-FIXES.md E173 has

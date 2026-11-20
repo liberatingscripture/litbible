@@ -37,9 +37,10 @@ it holds. Computer only; the apps carry it untouched.
   `test/desk-collection-format.test.js`, `test/desk-collections.test.js`, and
   the carry in `test/desk-highlights.test.js`.
 - **Step 2, the page (`/collections/`, `src/pages/collections.astro`):**
-  `collection-page.js` (the entry: the list, the empty page, `?id=` routing,
-  keeping the view drawn as the store changes; `mountCollectionsPage` takes
-  `chapterText`, `passageText` and `parse` so a test needs no network),
+  `collection-page.js` (the entry: `?id=` routing, the address, the
+  document's title and history, keeping the view drawn as the store changes;
+  `mountCollectionsPage` takes `chapterText`, `passageText` and `parse` so a
+  test needs no network), `collection-list.js` (the list and the empty page),
   `collection-view.js` (one collection: actions, order switch, members on
   `.v2-sheet`, Add passage, headings, moving), `name-window.js` (the one
   name/description window), `new-collection.js` (`openNewCollection`, which
@@ -130,13 +131,16 @@ it holds. Computer only; the apps carry it untouched.
   `collectionSheetParts(collection, records, sheet, { chapters })` returns
   `{ parts, added, alreadyOn, leftOut, skippedSheets, limit }` in the page's
   order, run again inside the writing change over the sheet as saved.
-  `collection-sheet.js` is the wiring: the page's "Make a sheet" and "Add to
-  sheet…" (after "Add passage…"), both one `store.change` reading the notebook
-  there, with the undo bar's "Open the sheet" and `skippedSheetsNote`; "Make a
-  sheet" hands the parts to `createSheet` as its `modules`. "Add to sheet…" is
-  E154's pick window (no menu opens from a page button) over `addableSheets`,
-  its action row "New sheet" doing what Make a sheet does; a pick appends the
-  block at `passageInsertIndex`. A collection with nothing that makes a part
+  `collection-sheet.js` is the wiring: the view's "Add to sheet…" (after "Add
+  passage…"), E154's pick window (no menu opens from a page button) over
+  `addableSheets`. A pick appends the block at `passageInsertIndex`; its
+  action row "New sheet" (`makeSheetFromCollection`) hands the parts to
+  `createSheet` as its `modules`. Each is one `store.change` reading the
+  notebook there, with the undo bar's "Open the sheet" and
+  `skippedSheetsNote`. **There is no "Make a sheet" button** (decision 36;
+  BVJ, 2026-11-19: "the /collections page can just use add to sheet also"):
+  it made the sheet "New sheet" makes, so it came out of the view with its
+  tests, and the help page's "Onto a sheet" starts from Add to sheet…. A collection with nothing that makes a part
   says so and writes nothing. `add-forms.js`' "+ From my notes…" has a
   "From a collection" section (a button per collection, or one line and a link
   to `/collections/`) adding the block through the editor's own change at its
@@ -148,10 +152,38 @@ it holds. Computer only; the apps carry it untouched.
 - **Next, a Collections pane on /desk** (decided, not built; BVJ,
   2026-11-19): STUDY-DESK.md, D13, "A Collections pane on /desk"
   (decisions 26 to 36, and its order of work). The Book Intro pane is
-  already out, to make room (STUDY-DESK-FIXES.md E173). The pane is a second
-  host of `collection-view.js` and of the list, which moves out of
-  `collection-page.js`; read that section before changing the view's host
-  object or the list.
+  already out, to make room (STUDY-DESK-FIXES.md E173). **The shared code
+  is built** (the pane's step 2): the pane will be a second host of
+  `collection-view.js` and `collection-list.js`; read "The views' host"
+  below before changing either.
+
+## The views' host (the pane's step 2)
+
+`collection-view.js` (one collection) and `collection-list.js` (the list)
+know nothing of addresses or panes. Each home hands them one **host**, whose
+shared part `viewHost` makes (the readers, each passage's words read once,
+each collection's `viewState`, and `openWords`, the passages shown whole for
+the visit); the header of `collection-view.js` lists every field. What to
+keep:
+
+- **`open(id)` and `toList()`, never an address.** They replaced `go(href)`:
+  the page turns them into its address and a history entry, and the pane
+  will turn them into its layout field. A host that gives `listHref` and
+  `href(id)` (the page) gets links for "‹ My collections" and the list's
+  rows, a plain click running `open` or `toList` in place (`follow`); one
+  that doesn't gets buttons.
+- **Everything a view looks for is inside `host.root`** (`keyed`): the button
+  a window gives focus back to, and the focus keys `refresh` hands focus to.
+  Never `document.querySelector`, or a second Collections pane answers for
+  the first.
+- **A host's `idSuffix` goes on its ids, its order switch's radio name
+  (`collection-order-<id>`) and its focus keys (`focusKey`: `add--<id>`)**,
+  so two hosts never share a radio group (the mock showed My order chosen in
+  one pane taken from the other). The page has none, so its keys are the
+  plain words its tests look for.
+- **The page keeps its address, `document.title` and history**; a view's
+  `title` is the document title, which a pane ignores. Test:
+  `test/desk-collections-host.test.js` (two hosts at once).
 
 ## Rules this step settled, and why
 

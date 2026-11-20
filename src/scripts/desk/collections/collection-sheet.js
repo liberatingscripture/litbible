@@ -1,12 +1,15 @@
 // src/scripts/desk/collections/collection-sheet.js
 //
-// A collection onto a sheet (D13, step 7): the collection page's "Make a sheet"
-// and "Add to sheet…". The rules, and what each part becomes, are
+// A collection onto a sheet (D13, step 7): a collection's "Add to sheet…" and
+// that window's "New sheet" row, which
+// makes a sheet of the whole collection (`makeSheetFromCollection`; the
+// "Make a sheet" button beside it went with decision 36, BVJ 2026-11-19). The
+// rules, and what each part becomes, are
 // src/lib/desk-collection-sheet.mjs; this reads the chapters, makes the one
 // change and says what happened on the undo bar, in Add to sheet's words
 // (sheets/sheet-add.js) with its "Open the sheet" link.
 //
-// Both ways read the collection's chapters first (`readChapters`), then run
+// Both read the collection's chapters first (`readChapters`), then run
 // `collectionSheetParts` inside the one `store.change` that writes, over the
 // notebook (and the sheet) as that transaction reads them, so a part another
 // tab added meanwhile isn't added twice, and one Ctrl+Z takes it all back.
@@ -83,7 +86,8 @@ export function nothingAdded(name, sheetName, result) {
 }
 
 /**
- * "Make a sheet": a new sheet named after the collection, holding its parts.
+ * "New sheet" in Add to sheet…'s window: a new sheet named after the
+ * collection, holding its parts.
  * Resolves to "made", "nothing" (nothing makes a part; nothing is written) or
  * "failed" (the reader has been told why).
  *
@@ -237,6 +241,7 @@ export async function openAddToSheet({ store, ctx, collection, chapterText, near
     items: pickItems(sheets),
     near,
     back,
+    // The one way to make a sheet of a collection (D13, decision 36).
     action: { label: "New sheet", onPress: () => makeSheetFromCollection({ store, ctx, collectionId, chapterText }) },
     onPick: (item) => addCollectionToSheet({ store, ctx, collectionId, sheetId: item.id, sheetName: item.name, chapterText }),
   });
