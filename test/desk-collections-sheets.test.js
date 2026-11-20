@@ -2,7 +2,8 @@
 // the sheet editor's modules, a run per kind (E192), Bible order's nesting
 // (E193), the group labels' type (E195), My order's gap pills (E196), a
 // pinned footnote cut at three lines (E199), the moves' tooltips (E200),
-// Bring back keeping its place (E201), the column's marker (E207), and the
+// Bring back keeping its place (E201), the column’s marker (E207), a move
+// from another order holding the row on screen (E213), and the
 // passage form's "It's also inside" (E194). Driven through the real page over
 // fake-indexeddb, as test/desk-collections-page.test.js is.
 
@@ -273,6 +274,44 @@ test("E212: a move in Bible order starts My order from the screen; once arranged
   const mark = before[before.length - 2];
   assert.deepEqual(order(saved), [...before.slice(0, -2), across.id, mark], "just above the bookmark it passed, the rest as it was");
   page.destroy();
+});
+
+test("E213: a move from Bible order keeps the row where it was on screen, scrolled at once, with no reveal", async () => {
+  await clearAll();
+  const { c, passage } = await magnificat("bible");
+  const { root, page } = await mount(`?id=${c.id}`);
+  await until(() => root.querySelector(`[data-focus-key="down-${passage.id}"]`), 3000, "the passage's sheet");
+  // The passage's sheet is 300px down the window; drawn again in My order it
+  // would be 650px down, so the page must scroll 350px, at once.
+  let moved = false;
+  const realRect = Element.prototype.getBoundingClientRect;
+  const realReveal = Element.prototype.scrollIntoView;
+  const scroller = document.scrollingElement ?? document.documentElement;
+  const realScrollBy = scroller.scrollBy;
+  const scrolls = [];
+  const reveals = [];
+  Element.prototype.getBoundingClientRect = function () {
+    if (this.dataset?.rowKey !== passage.id) return realRect.call(this);
+    const top = moved ? 650 : 300;
+    return { top, bottom: top + 100, left: 0, right: 600, width: 600, height: 100, x: 0, y: top };
+  };
+  Element.prototype.scrollIntoView = function (how) {
+    if (this.closest?.(`[data-row-key="${passage.id}"]`)) reveals.push(how);
+  };
+  scroller.scrollBy = (how) => scrolls.push(how);
+  try {
+    root.querySelector(`[data-focus-key="down-${passage.id}"]`).click();
+    moved = true;
+    await until(() => scrolls.length > 0, 3000, "the scroll");
+    assert.deepEqual(scrolls[0], { top: 350, behavior: "instant" });
+    assert.deepEqual(reveals, [], "no scroll into view, smooth or not");
+    assert.equal((await collections())[0].order, "mine");
+  } finally {
+    Element.prototype.getBoundingClientRect = realRect;
+    Element.prototype.scrollIntoView = realReveal;
+    scroller.scrollBy = realScrollBy;
+    page.destroy();
+  }
 });
 
 test("E194: a passage added inside one already there says so", async () => {

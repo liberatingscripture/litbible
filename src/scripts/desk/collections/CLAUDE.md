@@ -327,6 +327,18 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   move from another order says so in the undo bar ("… moved. My order now
   starts from Bible order." or "… moved in My order."), since the view
   changes under it.
+- **A move from another order keeps the row where it was on screen** (E213;
+  BVJ, 2026-11-20: the jump to the top and the scroll back were
+  "disorienting"). The whole list is drawn again in My order, so `moveTo`
+  notes the row's top before the write (a drop: the marker's), and the
+  host's `refresh` runs `drawn` the moment the new rows are in, before
+  anything is awaited (the pane reads the store after drawing, and a frame
+  would paint between). `keepAt` then scrolls the view's scroller (the pane's
+  body, or the page) at once, never smoothly, so the row's top is where it
+  was, and holds it there while the passages' words arrive and the store's
+  own redraw lands (a `ResizeObserver` on `host.root`, for 1.5 s or until a
+  wheel, touch, press or key). Only a row the page can't scroll to is brought
+  just into view. A move within My order keeps E200's reveal.
 - **Rule bookmarks** show among everything in Bible order, under Bookmarks by
   type, and at the end of My order until moved. Moving one (or moving a row
   past it) makes it an `item` there, since only a member keeps a place; it is

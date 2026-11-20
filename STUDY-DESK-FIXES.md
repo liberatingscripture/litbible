@@ -5640,6 +5640,29 @@ wording (E202).
   `test/desk-collections-move-any-order.test.js`,
   `test/desk-collections-sheets.test.js`. Status: fixed.
 
+- **E213, bug: a move from Bible order jumped and scrolled back.** BVJ,
+  2026-11-20: “The reload to the top of the page and scroll back to the
+  location the user was just viewing when moving an item from Bible order is
+  disorienting.” A move from another order switches the collection to My
+  order (E212), so the whole list is drawn again in another order, and
+  E200's reveal then scrolled the row back into view smoothly (the site's
+  `scroll-behavior: smooth`). Measured in headless Chrome on a copy of BVJ's
+  notebook: once My order was arranged, the moved row was drawn 280px above
+  the window and slid back over about a quarter second. **Fixed**
+  (`collection-view.js`, `collection-page.js`, `collection-pane.js`): from
+  another order the moved row keeps its place on screen and the list changes
+  around it. `moveTo` notes the row's top before the write (a drop, the
+  marker's), the host's `refresh` takes `drawn`, run the moment the new rows
+  are in, and `keepAt` scrolls the page or the pane's body at once
+  (`behavior: "instant"`) so the row's top is where it was, holding it there
+  while the passages' words arrive and the store's own redraw lands
+  (`ResizeObserver`, 1.5 seconds or until the reader scrolls, presses or
+  types). A row the page can't scroll to is brought just into view. Moves
+  within My order keep E200's reveal. Checked in headless Chrome, page and
+  /desk pane, ↑ and a drop, arranged and not: the row stays within a pixel
+  of where it was. Test: `test/desk-collections-sheets.test.js`. Status:
+  fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

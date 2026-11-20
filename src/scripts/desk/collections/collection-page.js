@@ -78,9 +78,10 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
   /**
    * Draw the address's view again. `focus` is the data-focus-key to put focus
    * on, the first that is there. `reveal` scrolls the focused row into view
-   * (a move's), where a plain redraw leaves the scroll as it is.
+   * (a move's), where a plain redraw leaves the scroll as it is. `drawn` runs
+   * as soon as the view is in (E213; the pane's needs it before its last read).
    */
-  async function refresh(focus = [], { reveal = false } = {}) {
+  async function refresh(focus = [], { reveal = false, drawn = null } = {}) {
     const n = ++seq;
     const id = new URLSearchParams(location.search).get("id");
     const view = id ? await collectionView(host, id) : await collectionList(host);
@@ -98,6 +99,7 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
       to.focus({ preventScroll: true });
       if (reveal) revealRow(to);
     }
+    drawn?.();
   }
 
   /** Go to another view of the page, with a history entry of its own, at the top of it. */

@@ -45,8 +45,10 @@
 // - `open(id)` and `toList()`, which show one collection or the list (they
 //   replace the page's `go(href)`): the page turns them into its address and
 //   history, the pane into its layout field;
-// - `refresh(focusKeys)`, which draws the view again and puts focus on the
-//   first of those keys that is there;
+// - `refresh(focusKeys, { reveal, drawn })`, which draws the view again and
+//   puts focus on the first of those keys that is there; `reveal` scrolls that
+//   row into view (E200), and `drawn` runs as soon as the view is in, before
+//   anything is awaited (E213's hold);
 // - optional: `listHref` and `href(id)`, the list's and a collection's
 //   addresses, which make "‹ My collections" and a row of the list links
 //   (the page); `backLabel`; `headingTag` and `headingClass` for the title;
@@ -1110,12 +1112,17 @@ function move(host, c, order, key, where, focus = null) {
 
 /**
  * Move the row `key` in the order on screen to before the row `pick(rows)`
- * names (null: last; undefined: nowhere). In My order that is all; from
- * another order the collection switches to My order, so the undo bar says
- * what became of it (E212). Focus goes to `keys(key)`, with the row's key as
- * it is after the move: a bookmark only its rule brought in is an item now.
+ * names (null: last; undefined: nowhere). In My order that is all, and the
+ * row is brought into view where it lands (E200). From another order the
+ * collection switches to My order, so the whole list is drawn again in
+ * another order: the moved row stays where it was on screen (`at`, its top
+ * now unless the caller says where it was dropped), with the list changed
+ * around it and no scroll to watch (E213; BVJ, 2026-11-20: the jump and the
+ * scroll back were "disorienting"), and the undo bar says what became of it
+ * (E212). Focus goes to `keys(key)`, with the row's key as it is after the
+ * move: a bookmark only its rule brought in is an item now.
  */
-async function moveTo(host, c, order, key, pick, keys) {
+async function moveTo(host, c, order, key, pick, keys, at = screenTop(host, key)) {
   let row = null;
   let arranged = true;
   let next = null;
@@ -1137,8 +1144,72 @@ async function moveTo(host, c, order, key, pick, keys) {
     if (entry) showUndo(words, () => undoEntry(entry));
   }
   const held = row?.type === "record" && !row.member ? next?.members.find((m) => m?.type === "item" && m.recordId === row.record.id) : null;
-  // The row is brought into view where it lands (E200).
-  host.refresh(keys(held?.id ?? key), { reveal: true });
+  const now = held?.id ?? key;
+  if (order === "mine" || !plan.changed) {
+    await host.refresh(keys(now), { reveal: true });
+    return;
+  }
+  // Held as soon as the rows are in, before a frame is painted; if a newer
+  // redraw took this one's place, the hold catches that one as it lands.
+  let holding = false;
+  const hold = () => {
+    holding = true;
+    keepAt(host, now, at);
+  };
+  await host.refresh(keys(now), { drawn: hold });
+  if (!holding) hold();
+}
+
+/** The row `key`'s element in the view, or null. */
+const rowEl = (host, key) => host.root.querySelector(`[data-row-key="${CSS.escape(key)}"]`);
+
+/** Where the top of the row `key` is on screen now, or null when it isn't drawn. */
+const screenTop = (host, key) => rowEl(host, key)?.getBoundingClientRect().top ?? null;
+
+/** What scrolls the view: the pane's body, or the page. */
+function scrollerOf(el) {
+  for (let n = el.parentElement; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+    const y = getComputedStyle(n).overflowY;
+    if ((y === "auto" || y === "scroll") && n.scrollHeight > n.clientHeight) return n;
+  }
+  return document.scrollingElement ?? document.documentElement;
+}
+
+/** How long a moved row is held in place while the words around it settle (E213). */
+const HOLD_MS = 1500;
+/** The reader's own hand, which ends the hold at once. */
+const HANDS = ["wheel", "touchstart", "pointerdown", "keydown"];
+
+/**
+ * Scroll at once, never smoothly, so the row `key` is at `top` on screen
+ * again (E213); where the page can't scroll that far, as near as it goes, and
+ * a row that would still be out of sight is brought just into view. The
+ * passages' words arrive a moment after the redraw (and the store's own
+ * redraw follows the write), so the row is held there while the view's size
+ * changes, for HOLD_MS or until the reader scrolls, presses or types.
+ */
+function keepAt(host, key, top) {
+  const place = () => {
+    const el = rowEl(host, key);
+    if (!el) return;
+    const scroller = scrollerOf(el);
+    if (Number.isFinite(top)) scroller.scrollBy?.({ top: el.getBoundingClientRect().top - top, behavior: "instant" });
+    const page = scroller === (document.scrollingElement ?? document.documentElement);
+    const box = page ? { top: 0, bottom: innerHeight } : scroller.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    if (r.top < box.top || r.top > box.bottom - 40) el.scrollIntoView?.({ block: "nearest", behavior: "instant" });
+  };
+  place();
+  if (!Number.isFinite(top) || typeof ResizeObserver !== "function") return;
+  const watch = new ResizeObserver(place);
+  watch.observe(host.root);
+  const stop = () => {
+    watch.disconnect();
+    clearTimeout(timer);
+    for (const type of HANDS) removeEventListener(type, stop, true);
+  };
+  const timer = setTimeout(stop, HOLD_MS);
+  for (const type of HANDS) addEventListener(type, stop, { capture: true, passive: true });
 }
 
 /**
@@ -1320,8 +1391,10 @@ function wireMoves(host, c, sheet, order) {
     e.preventDefault();
     const key = dragging;
     const at = before(e.clientY)?.dataset.rowKey ?? null;
+    // From another order the row stays where it was dropped (E213).
+    const dropped = marker.isConnected ? marker.getBoundingClientRect().top : undefined;
     end();
-    await moveTo(host, c, order, key, () => at, (now) => [focusKey(host, `up-${now}`), focusKey(host, `down-${now}`)]);
+    await moveTo(host, c, order, key, () => at, (now) => [focusKey(host, `up-${now}`), focusKey(host, `down-${now}`)], dropped);
   });
   // The keyboard's way, beside the buttons: Alt+Up and Alt+Down on a row's control.
   sheet.addEventListener("keydown", (e) => {

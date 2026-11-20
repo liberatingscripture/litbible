@@ -117,9 +117,12 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
 
   /**
    * Draw the pane's view again. `focus` names the focus keys to put focus on,
-   * the first that is there. `reveal` scrolls the focused row into view (a move's).
+   * the first that is there. `reveal` scrolls the focused row into view (a move's);
+   * `drawn` runs as soon as the view is in, before anything is awaited, so a
+   * move from another order can hold its row in place before a frame is
+   * painted (E213).
    */
-  async function refresh(focus = [], { reveal = false } = {}) {
+  async function refresh(focus = [], { reveal = false, drawn = null } = {}) {
     const n = ++seq;
     let view;
     try {
@@ -142,6 +145,7 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
       to.focus({ preventScroll: true });
       if (reveal) (to.closest("[data-row-key]") ?? to).scrollIntoView?.({ block: "nearest" });
     }
+    drawn?.();
     // The header names the open collection (E69's place): the name, or nothing
     // on the list or for a collection that isn't there.
     const named = await nameShown();
