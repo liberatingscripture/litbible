@@ -12,7 +12,9 @@
 // End move, passing over a disabled line (DK3-7), whose reason shows beside it
 // and is the menu's description too (`describeUnavailable`); Escape returns to
 // the button; a click elsewhere, Tab, focus leaving, a scroll or a resize
-// closes it (DK6-2).
+// closes it (DK6-2). It never runs past the window's edge (E179): too tall for
+// the room under its button and over it, it takes the roomier side, stops 8px
+// from the edge, and scrolls inside itself (`.desk-pane__menu`'s overflow).
 //
 // - `button` the button; it gets `aria-expanded` and `aria-controls`, and focus
 //   back on Escape.
@@ -32,18 +34,25 @@ import { make } from "./dom.js";
 import { describeUnavailable } from "./menu-reasons.js";
 
 /**
- * Where the menu goes, in window pixels: under the button where it fits, else
- * above it; kept 8px inside the window's sides.
+ * Where the menu goes, in window pixels: 4px under the button where it fits
+ * with 8px to spare, else 4px over it where it fits there; kept 8px inside the
+ * window's sides. Where it fits on neither side it goes on the roomier one with
+ * `maxHeight`, the room there, and scrolls inside itself (E179).
  *
  * @param {{ left: number, top: number, bottom: number }} at the button's rectangle
  * @param {number} w the menu's width
  * @param {number} h the menu's height
  * @param {{ width: number, height: number }} view the window's size
+ * @returns {{ left: number, top: number, maxHeight?: number }}
  */
 export function buttonMenuPlace(at, w, h, view) {
   const left = Math.max(8, Math.min(at.left, view.width - w - 8));
-  const top = at.bottom + h + 8 <= view.height ? at.bottom + 4 : Math.max(8, at.top - h - 4);
-  return { left, top };
+  const below = Math.floor(view.height - 8 - (at.bottom + 4));
+  const above = Math.floor(at.top - 4 - 8);
+  if (h <= below) return { left, top: at.bottom + 4 };
+  if (h <= above) return { left, top: at.top - 4 - h };
+  if (below >= above) return { left, top: at.bottom + 4, maxHeight: Math.max(0, below) };
+  return { left, top: 8, maxHeight: above };
 }
 
 /**
@@ -129,9 +138,10 @@ export function openButtonMenu({ button, id, label, items, className = "", onPic
   document.body.append(menu);
   // A disabled line's reason is also the menu's description (aa2cb9e1).
   reasons = describeUnavailable(menu, { id: `${menu.id}-reasons` });
-  const { left, top } = buttonMenuPlace(button.getBoundingClientRect(), menu.offsetWidth, menu.offsetHeight, { width: window.innerWidth, height: window.innerHeight });
+  const { left, top, maxHeight } = buttonMenuPlace(button.getBoundingClientRect(), menu.offsetWidth, menu.offsetHeight, { width: window.innerWidth, height: window.innerHeight });
   menu.style.left = `${left}px`;
   menu.style.top = `${top}px`;
+  if (maxHeight !== undefined) menu.style.maxHeight = `${maxHeight}px`;
   button.setAttribute("aria-expanded", "true");
   button.setAttribute("aria-controls", menu.id);
   document.addEventListener("pointerdown", outside, true);
