@@ -238,6 +238,43 @@ test("E201: Bring back puts a left-out bookmark back where it was, after a reloa
   again.page.destroy();
 });
 
+test("E212: a move in Bible order starts My order from the screen; once arranged, a move is made in My order", async () => {
+  await clearAll();
+  const { c, across, passage } = await magnificat("bible");
+  const acrossKey = c.members.find((m) => m.recordId === across.id).id;
+  const { root, page } = await mount(`?id=${c.id}`);
+  await until(() => root.querySelector(`[data-focus-key="down-${passage.id}"]`), 3000, "the passage's sheet");
+  const head = root.querySelector(`[data-row-key="${passage.id}"] > .collection-page__head`);
+  assert.ok(head, "a sheet part's head in Bible order (E211)");
+  assert.deepEqual([...head.querySelectorAll("button")].map((b) => b.textContent), ["↑", "↓", "Remove"]);
+
+  // Not arranged: ↓ on the passage puts it under the note it lies over, and My order is the screen's order.
+  root.querySelector(`[data-focus-key="down-${passage.id}"]`).click();
+  await until(() => document.querySelector(".desk-undo__text")?.textContent.includes("moved"), 3000, "the undo bar");
+  assert.equal(document.querySelector(".desk-undo__text").textContent, "Luke 1:46–55 moved. My order now starts from Bible order.");
+  let saved = (await collections())[0];
+  assert.equal(saved.order, "mine");
+  assert.equal(saved.arranged, true);
+  const order = (col) => col.members.map((m) => m.id === passage.id ? "passage" : m.recordId);
+  assert.equal(order(saved)[1], "passage", "right under the note on Luke 1:47");
+  await until(() => [...root.querySelectorAll(".desk-seg__input")].find((i) => i.checked)?.value === "mine", 3000, "My order shown");
+
+  // Arranged: back in Bible order, ↑ on the note across 1:55–56 puts it above the bookmark in My order.
+  const bible = [...root.querySelectorAll(".desk-seg__input")].find((i) => i.value === "bible");
+  bible.checked = true;
+  bible.dispatchEvent(new Event("change", { bubbles: true }));
+  // Bible order drawn again: the note on 1:47 lies on the passage's sheet.
+  await until(() => root.querySelector(".collection-page__nested [data-focus-key^='up-']"), 3000, "Bible order");
+  const before = order((await collections())[0]);
+  root.querySelector(`[data-focus-key="up-${acrossKey}"]`).click();
+  await until(() => /moved in My order\.$/.test(document.querySelector(".desk-undo__text")?.textContent ?? ""), 3000, "the undo bar's words");
+  saved = (await collections())[0];
+  assert.equal(saved.order, "mine");
+  const mark = before[before.length - 2];
+  assert.deepEqual(order(saved), [...before.slice(0, -2), across.id, mark], "just above the bookmark it passed, the rest as it was");
+  page.destroy();
+});
+
 test("E194: a passage added inside one already there says so", async () => {
   await clearAll();
   const passage = passageMember({ bookKey: "luke", chapter: 1, verse: 46, endVerse: 55 });

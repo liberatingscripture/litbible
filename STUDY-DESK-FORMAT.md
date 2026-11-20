@@ -778,6 +778,7 @@ verses of its own, and its `labels` is `[]`):
 | `name` | Plain text, 1 to 200 characters ("Advent series"). Two collections may share a name, so restoring one from the trash never refuses |
 | `description`, optional | Plain text, up to 1,000 characters. Absent or empty means none |
 | `order` | `"bible"` (the default; absent means it), `"type"` or `"mine"`: how the reader has chosen to see it (below). Only `"mine"` shows `members` as they stand; the other two are worked out for display and never rewrite them. An order the client doesn't know is kept, and shown as Bible order |
+| `arranged`, optional | `true` once the reader has arranged My order (moved anything, or added a heading); absent or `false` means not yet. The website reads it when a row is moved in Bible order or by type (below). A collection with a heading and no `arranged` was arranged before the field existed, and counts as arranged (STUDY-DESK-FIXES.md, E212) |
 | `members` | The collection's contents, in the reader's own order (what `"mine"` shows) |
 
 At most **1,000 members** and **512 KB** as JSON, far inside the 1 MB every
@@ -798,6 +799,16 @@ that would pass either, and writes nothing.
   out when it is empty.
 - **My order** (`"mine"`): `members` as they stand, headings included.
   Moving anything, or adding a heading, switches the collection to it.
+
+A row can be moved in any of the three, and the move switches the
+collection to My order and sets `arranged`. While `arranged` is absent (and
+there is no heading), `members` is still in the order things were added, so
+the website makes My order the order on screen, with the move made. Once it
+is arranged, the move is made in `members` beside the row it passed (just
+above the row it was moved above, or just below the row it was moved
+below), and the rest of the reader's order stays. The field came after
+`collectionFormat` 1, with no new version: a client that doesn't know it
+keeps it, and the apps edit no collection.
 
 Headings show in My order only.
 

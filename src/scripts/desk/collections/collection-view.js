@@ -13,12 +13,16 @@
 //
 // What is shown comes from `collectionRows` (desk-collections.mjs) in the
 // collection's own order: Bible order, By type, or My order. Only My order
-// shows headings, and only it has the grip (drag), ↑ and ↓ (and Alt+Up and
-// Alt+Down on a row) to move a row; each move is `moveRow`, which switches
-// the collection to My order and, for a bookmark that a rule brings in,
-// makes it an item. Every write is one `store.change` over the notebook as
-// that transaction reads it (`planCollectionChange`), so it is one step of
-// the history, and a removal or deletion offers the undo bar.
+// shows headings. Each member's sheet opens with a sheet part's head (E211):
+// the grip, the kind as the part's name, and its buttons, ↑, ↓ and Remove, at
+// the right; the whole head drags. Every order moves a row (E212), by the
+// head, ↑ and ↓, or Alt+Up and Alt+Down on a row; each move is `moveShown`,
+// which switches the collection to My order (starting it from the order on
+// screen until the reader has arranged it) and, for a bookmark that a rule
+// brings in, makes it an item. A move from another order offers the undo bar,
+// since the view changes under it. Every write is one `store.change` over the
+// notebook as that transaction reads it (`planCollectionChange`), so it is
+// one step of the history, and a removal or deletion offers the undo bar.
 //
 // Rules (a label's bookmarks now and any labeled later, D13 step 5): each has a plain
 // line above the members, "Every bookmark labeled Advent · 12", with quiet
@@ -82,8 +86,9 @@ import {
   collectionRows,
   bringBack,
   editHeading,
+  isArranged,
   leaveOut,
-  moveRow,
+  moveShown,
   moveTarget,
   planAddPassage,
   planCollectionChange,
@@ -93,6 +98,7 @@ import {
   ruleToItems,
   setCollectionFields,
   setOrder,
+  shownRows,
 } from "../../../lib/desk-collections.mjs";
 import { passageForReference, passageReference } from "../../../lib/desk-sheet-passages.mjs";
 import { describeRefusal } from "../../../lib/desk-sheet-ref-refusal.mjs";
@@ -535,7 +541,8 @@ export async function collectionView(host, id) {
     members.append(make("p", "desk-sheet__empty", "Nothing in this collection yet. Add a passage with the button above."));
   }
   const labels = labelMap(records);
-  const rowCtx = { labels, mine, rows: shown.rows, rules: shown.rules };
+  // What a move counts places in: the rows as they are drawn (E212).
+  const rowCtx = { labels, order: shown.order, rows: shownRows(c, records, shown.order), rules: shown.rules };
   const rows = shown.order === "bible" ? nestRows(shown.rows) : shown.rows;
   // My Notebook's serif group heading (E195), a level under the view's title.
   const groupTag = host.headingTag === "h3" ? "h4" : "h2";
@@ -599,7 +606,7 @@ export async function collectionView(host, id) {
     gaps.sync();
     members.append(gaps.keys);
   }
-  if (mine) wireMoves(host, c, members);
+  wireMoves(host, c, members, shown.order);
   nodes.push(members);
   return { nodes, title: `${name} | Liberation and Inclusion Translation`, focus: title };
 }
@@ -1005,7 +1012,7 @@ function headingRow(host, c, row, state, rows) {
     state.editing = row.key;
     host.refresh([focusKey(host, `edit-${row.key}`)]);
   });
-  tools.append(...moveButtons(host, c, row, rows), renameBtn, removeButton(host, c, row));
+  tools.append(...moveButtons(host, c, row, rows, "mine"), renameBtn, removeButton(host, c, row));
   box.append(grip(), make("h3", null, row.text), tools);
   return box;
 }
@@ -1070,10 +1077,11 @@ function neighbors(host, b) {
 }
 
 /**
- * ↑ and ↓ for a row of My order: the sheet editor's own icon buttons, with its
- * tip, and, as there, ↑ off on the first row and ↓ off on the last.
+ * ↑ and ↓ for a row, in any order (E212): the sheet editor's own icon
+ * buttons, with its tip, and, as there, ↑ off on the first row and ↓ off on
+ * the last of `rows`, the rows `order` draws.
  */
-function moveButtons(host, c, row, rows) {
+function moveButtons(host, c, row, rows, order) {
   const name = nameOfRow(row);
   return [
     // The tip names the keys that do the same from anywhere in the row (E200).
@@ -1086,21 +1094,51 @@ function moveButtons(host, c, row, rows) {
     b.disabled = !moveTarget(rows, row.key, where);
     b.setAttribute("aria-label", `Move ${name} ${where}`);
     b.dataset.focusKey = focusKey(host, `${where}-${row.key}`);
-    b.addEventListener("click", () => move(host, c, row.key, where));
+    b.addEventListener("click", () => move(host, c, order, row.key, where));
     return b;
   });
 }
 
-/** Move a row by one place (moveTarget, then moveRow), keeping focus on the control used. */
-async function move(host, c, key, where, focus = null) {
+/** Move a row by one place in the order on screen (moveTarget, then moveShown), keeping focus on the control used. */
+function move(host, c, order, key, where, focus = null) {
+  const keys = (now) => [
+    focus ? focus.replace(key, now) : focusKey(host, `${where}-${now}`),
+    focusKey(host, `${where === "up" ? "down" : "up"}-${now}`),
+  ];
+  return moveTo(host, c, order, key, (rows) => moveTarget(rows, key, where)?.before, keys);
+}
+
+/**
+ * Move the row `key` in the order on screen to before the row `pick(rows)`
+ * names (null: last; undefined: nowhere). In My order that is all; from
+ * another order the collection switches to My order, so the undo bar says
+ * what became of it (E212). Focus goes to `keys(key)`, with the row's key as
+ * it is after the move: a bookmark only its rule brought in is an item now.
+ */
+async function moveTo(host, c, order, key, pick, keys) {
+  let row = null;
+  let arranged = true;
+  let next = null;
   const plan = await writeCollection(host, c.id, (col, records) => {
-    const to = moveTarget(collectionRows(col, records, { order: "mine" }).rows, key, where);
-    return to ? moveRow(col, key, to.before, records, opCtx(host)) : col;
+    const rows = shownRows(col, records, order);
+    const before = pick(rows);
+    row = rows.find((r) => r.key === key) ?? null;
+    if (before === undefined || !row) return col;
+    arranged = isArranged(col);
+    next = moveShown(col, order, key, before, records, opCtx(host));
+    return next;
   });
   const said = trouble(plan);
   if (said) showNotice(said);
+  else if (plan.changed && order !== "mine" && row) {
+    const entry = host.store.lastEntry();
+    const name = nameOfRow(row);
+    const words = arranged ? `${name} moved in My order.` : `${name} moved. My order now starts from ${ORDER_NAMES[order]}.`;
+    if (entry) showUndo(words, () => undoEntry(entry));
+  }
+  const held = row?.type === "record" && !row.member ? next?.members.find((m) => m?.type === "item" && m.recordId === row.record.id) : null;
   // The row is brought into view where it lands (E200).
-  host.refresh([focus ?? focusKey(host, `${where}-${key}`), focusKey(host, `${where === "up" ? "down" : "up"}-${key}`)], { reveal: true });
+  host.refresh(keys(held?.id ?? key), { reveal: true });
 }
 
 /**
@@ -1109,7 +1147,7 @@ async function move(host, c, key, where, focus = null) {
  * verse's words a passage or a bookmark would show, since the sheet shows
  * them; a highlight keeps its tinted words and a note its own.
  */
-function memberRow(host, c, row, { labels, mine, rows, rules, nested = false }) {
+function memberRow(host, c, row, { labels, order, rows, rules, nested = false }) {
   let li;
   if (row.type === "passage") {
     li = make("li", "desk-item desk-np-row");
@@ -1139,16 +1177,19 @@ function memberRow(host, c, row, { labels, mine, rows, rules, nested = false }) 
     }
   }
   li.dataset.rowKey = row.key;
-  // The buttons come right after the kind, before the words, so the order a
-  // keyboard takes is the order a narrow pane shows them in (decision 35: the
-  // kind with its buttons, then the words), and a wide row's reading order:
-  // the reference, the buttons beside it, then what lies under them.
+  // A sheet part's head (E211; BVJ, 2026-11-20, "matching it to sheets"): the
+  // grip, the kind as the part's name, and the buttons at the right, on one
+  // line above the reference and the words, in every order (E212). A keyboard
+  // takes the buttons before the reference, as a sheet part's, and in a narrow
+  // pane they wrap whole to the head's second line, as there (LV3-6).
   const tools = li.querySelector(".desk-np-row__buttons");
-  li.querySelector(".desk-item__kind")?.after(tools);
-  if (mine) {
-    li.prepend(grip());
-    tools.append(...moveButtons(host, c, row, rows));
-  }
+  tools.classList.add("desk-sheet__module-tools");
+  const kind = li.querySelector(".desk-item__kind");
+  kind?.classList.add("desk-sheet__module-name");
+  const head = make("div", "desk-sheet__module-head collection-page__head");
+  head.append(grip(), ...(kind ? [kind] : []), tools);
+  li.prepend(head);
+  tools.append(...moveButtons(host, c, row, rows, order));
   // A bookmark a rule brings in says so, and is left out rather than removed (D13, step 5).
   const ruled = row.type === "record" ? rules.find((info) => info.member === row.rule) : null;
   if (ruled) {
@@ -1229,7 +1270,8 @@ function cutRow(host, box, key, label) {
 
 /* ── Moving a row: drag, and Alt+Up and Alt+Down ────────────────── */
 
-function wireMoves(host, c, sheet) {
+/** Drag by a row's head (a heading's grip), and Alt+Up and Alt+Down, in the order on screen (E212). */
+function wireMoves(host, c, sheet, order) {
   let dragging = null;
   const marker = make("div", "desk-sheet__drop");
   marker.setAttribute("aria-hidden", "true");
@@ -1240,9 +1282,12 @@ function wireMoves(host, c, sheet) {
       const box = r.getBoundingClientRect();
       return y < box.top + box.height / 2;
     }) ?? null;
-  // Only a press on the grip makes a row draggable, so text in a row selects as usual.
+  // Only a press on a row's head (its buttons aside) or a heading's grip makes
+  // the row draggable, as a sheet part's head does (BVJ, 2026-11-08), so text
+  // in a row selects as usual.
   sheet.addEventListener("pointerdown", (e) => {
-    const row = e.target.closest?.(".desk-sheet__grip")?.closest("[data-row-key]");
+    if (e.target.closest?.("button, input, label, a, select")) return;
+    const row = e.target.closest?.(".desk-sheet__grip, .collection-page__head")?.closest("[data-row-key]");
     if (!row) return;
     row.draggable = true;
     document.addEventListener("pointerup", () => (row.draggable = false), { once: true });
@@ -1276,10 +1321,7 @@ function wireMoves(host, c, sheet) {
     const key = dragging;
     const at = before(e.clientY)?.dataset.rowKey ?? null;
     end();
-    const plan = await writeCollection(host, c.id, (col, records) => moveRow(col, key, at, records, opCtx(host)));
-    const said = trouble(plan);
-    if (said) showNotice(said);
-    host.refresh([focusKey(host, `up-${key}`), focusKey(host, `down-${key}`)], { reveal: true });
+    await moveTo(host, c, order, key, () => at, (now) => [focusKey(host, `up-${now}`), focusKey(host, `down-${now}`)]);
   });
   // The keyboard's way, beside the buttons: Alt+Up and Alt+Down on a row's control.
   sheet.addEventListener("keydown", (e) => {
@@ -1290,6 +1332,6 @@ function wireMoves(host, c, sheet) {
     if (!row) return;
     e.preventDefault();
     const focus = e.target.closest?.("[data-focus-key]")?.dataset.focusKey ?? null;
-    move(host, c, row.dataset.rowKey, e.key === "ArrowUp" ? "up" : "down", focus);
+    move(host, c, order, row.dataset.rowKey, e.key === "ArrowUp" ? "up" : "down", focus);
   });
 }

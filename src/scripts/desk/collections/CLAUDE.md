@@ -225,9 +225,16 @@ keep:
   is one more (E177): the page gives `notebookHref` ("From My Notebook," a
   link in this tab), the pane `openNotes` ("From My Notes"). A new
   difference is a new host field, never a test of which home is drawing.
-- **A member row's buttons follow its kind, before its words**, so the
-  keyboard's order is the narrow pane's (decision 35). The wide row places
-  them by grid, so the order doesn't show there.
+- **A member's sheet opens with a sheet part's head** (E211; BVJ,
+  2026-11-20, "matching it to sheets"): `.desk-sheet__module-head` holds the
+  grip, the kind (`.desk-item__kind`, as `.desk-sheet__module-name`) and the
+  buttons (`.desk-np-row__buttons`, as `.desk-sheet__module-tools`: ↑, ↓,
+  Remove or Leave it out), with the reference and the words under it in one
+  column. The whole head drags, as a part's does. A keyboard takes the
+  buttons before the reference, as on a sheet; in a narrow pane they wrap
+  whole to the head's second line (LV3-6), so the members need no rules of
+  their own there (decision 35's three lines are the head, the reference and
+  the words).
 
 ## The Collections pane (the pane's step 4)
 
@@ -281,9 +288,10 @@ the pane's id as `idSuffix`, and keeps what only a pane has:
   the same classes looks the same in both panes. The page keeps `#FAFAF8`.
 - **The narrow rows** (decision 35) are a container query on
   `.desk-collections` (`deskCollection`, 26em of the pane's own type, so a
-  larger text size turns them narrow sooner): a flex row whose `::before`
-  breaks the line after the grip and the reference. The page never matches
-  it. Check a change at 280px in OpenDyslexic at Extra large.
+  larger text size turns them narrow sooner). Since E211 it holds only a
+  heading's rule (its buttons under its name); a member's head wraps as a
+  sheet part's does. The page never matches it. Check a change at 280px in
+  OpenDyslexic at Extra large.
 
 Test: `test/desk-collections-pane.test.js`; the layout rules are in
 `test/desk-layout.test.js`, the command row's in
@@ -307,6 +315,18 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   passage before a record on one verse, then what has no verse), By type, and
   My order. Moving or adding a heading switches to My order; the other two
   never rewrite `members`. An unknown order is kept and shown as Bible order.
+- **A row moves in every order** (E212; BVJ, 2026-11-20), by `moveShown`,
+  which counts places in `shownRows` (the rows as drawn: Bible order's nested
+  rows right after their passage, no group labels). Until the reader has
+  arranged My order (`isArranged`: the record's `arranged`, which the first
+  move or heading sets, or a heading), My order becomes the order on screen
+  with the move made. Once arranged, the move is made in My order: up, just
+  above the row it now sits above; down, just below the row it passed; the
+  rest, headings included, stays. The flag is needed because `members` keeps
+  the order things were added in, which looks just like an arrangement. A
+  move from another order says so in the undo bar ("… moved. My order now
+  starts from Bible order." or "… moved in My order."), since the view
+  changes under it.
 - **Rule bookmarks** show among everything in Bible order, under Bookmarks by
   type, and at the end of My order until moved. Moving one (or moving a row
   past it) makes it an `item` there, since only a member keeps a place; it is
@@ -411,8 +431,9 @@ second draft of the mocks takes from where:
   "Open the collection" off the undo bar (E205). The list keeps My sheets'.
 - **The order switch** is `.desk-seg` (My Notes' segmented choice). Sky
   never marks a toggle (E160).
-- **Moving in My order** is the sheet editor's grip to drag
-  (`desk-sheet__grip`) and its ↑ and ↓ (`desk-sheet__icon`), not a menu.
+- **Moving a row**, in any order (E212), is the sheet editor's head to drag
+  (`desk-sheet__module-head`, its grip `desk-sheet__grip`) and its ↑ and ↓
+  (`desk-sheet__icon`), not a menu.
 - **The rule's line** is a plain line with `.desk-item__stop` links; the
   label's two choices are `desk-setting` radios in the pick window.
 - **The undo bar** is `showUndo`'s, with its `link`.

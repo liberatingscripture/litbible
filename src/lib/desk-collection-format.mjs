@@ -111,6 +111,7 @@ export function validateCollection(r) {
   );
   // An order this code doesn't know is kept, and shown as Bible order.
   need(r?.order == null || typeof r.order === "string", "order is not text");
+  need(r?.arranged == null || typeof r.arranged === "boolean", "arranged is not true or false");
 
   if (!Array.isArray(r?.members)) {
     problems.push("members is not a list");

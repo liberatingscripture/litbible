@@ -5589,6 +5589,57 @@ wording (E202).
   Sheets pane's does. The help page says “Open in Study Desk.” Test:
   `test/desk-collections-page.test.js`. Status: fixed.
 
+- **E211, preference: a member's grip had a line to itself.** BVJ,
+  2026-11-20, asked what the alternative to the grip's own line at the top
+  of each member's sheet would be. Claude offered the sheet editor's part
+  head, “⠿ Passage” with ↑, ↓ and Remove at its right on one line, then the
+  reference and the words, which saves a line and finishes E192's match
+  with a sheet's parts (the other choice, the grip just before the
+  reference, looks like nothing else on the site). BVJ: “go with your
+  recommendation, matching it to sheets.” **Built** (`collection-view.js`,
+  `desk.css`): each member's sheet, nested rows included, opens with
+  `.desk-sheet__module-head`: the grip, the kind as the part's name
+  (`.desk-sheet__module-name`, “· from Advent” and E197's glyphs kept), and
+  the buttons as the part's tools (`.desk-sheet__module-tools`). The
+  reference and the words lie under it in one column, and the whole head
+  drags, as a part's does (BVJ, 2026-11-08). In a narrow pane the buttons
+  wrap whole to the head's second line, right-aligned, as a part's do
+  (LV3-6), so decision 35's member rules are gone (a heading keeps its own).
+  The grip doesn't print. Checked in the Browser pane on the page and in a
+  261px Collections pane. A collections glyph, asked about in the same
+  message, is not to be made (BVJ: “skip it”). Test:
+  `test/desk-collections-pane.test.js`. Status: fixed.
+
+- **E212, preference: a row moved only in My order.** BVJ, 2026-11-20: “I
+  wonder about the segments being able to be reordered from any sorting
+  setting, but moving it from one of the others automatically changes the
+  sort to ‘my order’ from there. The only conflict would be if they already
+  had a ‘my order’ set. How would we reconcile that?” Claude's answer: until
+  the reader has arranged My order, it starts from the order on screen with
+  the move made; once arranged, the move goes into the reader's order beside
+  the row it passed, the rest staying. Telling the two apart needs a field,
+  since `members` keeps the order things were added in, which looks just
+  like an arrangement. BVJ: “Yes, build the reordering from any order with
+  the ‘arranged’ flag.” **Built** (`desk-collections.mjs`,
+  `desk-collection-format.mjs`, `collection-view.js`): the collection has an
+  optional `arranged`, set by the first move or heading; `isArranged` also
+  counts a heading made before the field. `moveShown` moves a row in the
+  order on screen, counting places in `shownRows` (the rows as drawn, Bible
+  order's nested rows right after their passage): in My order it is
+  `moveRow`; elsewhere, not arranged, My order becomes the screen's order
+  with the move made; arranged, the row goes just above the row it was moved
+  above, or just below the row it was moved below, in My order. Either way
+  the collection switches to My order and is `arranged`. Every order has the
+  head's ↑ and ↓ (E211), the drag, and Alt+↑ and Alt+↓; a move from another
+  order says what happened in the undo bar, with Undo (“Luke 1:46–55 moved.
+  My order now starts from Bible order.” or “Luke 1:55–56 moved in My
+  order.”), and focus follows a rule's bookmark to the item it becomes.
+  STUDY-DESK-FORMAT.md, “Collections (kind 12),” has the field and the rule
+  (no version bump; the apps edit no collection). The help page's “How
+  collections work” says it. Tests:
+  `test/desk-collections-move-any-order.test.js`,
+  `test/desk-collections-sheets.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

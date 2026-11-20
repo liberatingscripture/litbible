@@ -30,6 +30,15 @@
 //     Moving anything, or adding a heading, switches to My order (D13,
 //     decision 6). Sheets keep the reader's order in the first two, since a
 //     sheet has no verse.
+//   - A row moves in any of the three orders (E212; BVJ, 2026-11-20), and the
+//     move switches to My order. Until the reader has arranged My order
+//     (`arranged`, set by the first move or heading; a heading made before
+//     the field counts), My order starts from the order on screen, with the
+//     move made. Once arranged, the move is made in My order instead: the row
+//     goes just above the row it was moved above, or just below the row it
+//     was moved below, and the rest of My order stays. Members are kept in
+//     the order they were added, which looks just like an arrangement, so
+//     the flag is what tells the two apart.
 //   - A rule's bookmarks: every live bookmark carrying any id of its label
 //     (joined as kind 8 joins them, `labelGroups`), less `except`. In Bible
 //     order they fall among the rest, by type under Bookmarks, and in My order
@@ -63,6 +72,7 @@ import { canEdit, createRecord, editRecord, newId, validateRecord } from "./desk
 import { labelGroups, labelIds, readsAsNothing } from "./desk-labels.mjs";
 import { planSave } from "./desk-store-core.mjs";
 import { fold } from "./desk-notebook.mjs";
+import { nestRows } from "./desk-collection-nest.mjs";
 
 export { collectionOrder, collectionTooBig };
 
@@ -497,7 +507,67 @@ export function moveRow(c, key, before, records, ctx) {
   if (target.every((r, i) => r === list[i])) return c;
   const members = arrange(c, list, target, moving);
   if (members.length > COLLECTION_LIMITS.members) throw new Error(`desk-collections: ${TOO_MANY}`);
-  return withMembers(c, members, ctx, { order: "mine" });
+  return withMembers(c, members, ctx, { order: "mine", arranged: true });
+}
+
+/**
+ * Whether the reader has arranged My order (E212): the collection's
+ * `arranged`, set by the first move or heading, or a heading, which counts for
+ * a collection given one before the field was written.
+ */
+export function isArranged(c) {
+  return c?.arranged === true || (Array.isArray(c?.members) && c.members.some((m) => isObject(m) && m.type === "heading"));
+}
+
+/**
+ * The rows `order` shows, as they are drawn, without the group labels: what a
+ * move in that order counts places in (moveTarget's `rows`). In Bible order a
+ * row lying on a passage's sheet (E193, nestRows) comes right after the
+ * passage, where it is drawn.
+ */
+export function shownRows(c, records, order) {
+  const { rows } = collectionRows(c, records, { order });
+  const drawn = order === "bible" ? nestRows(rows).flatMap((r) => (r.children ? [r, ...r.children] : [r])) : rows;
+  return drawn.filter((r) => r.type !== "group");
+}
+
+/**
+ * A row moved in the order on screen (`order`) to sit before the row `before`
+ * (a row's `key`), or last when `before` is null, and the collection switched
+ * to My order (E212). In My order it is moveRow. In Bible order or By type,
+ * while My order isn't arranged (`isArranged`), My order becomes the order on
+ * screen with the move made; once it is, the move is made in My order: up,
+ * just above the row it now sits above; down, just below the row it now sits
+ * below; the rest of My order, headings included, stays. Either way it is
+ * `arranged` after. A move that changes nothing on screen returns the
+ * collection itself; one already true of My order only switches to it.
+ */
+export function moveShown(c, order, key, before, records, ctx) {
+  if (order === "mine") return moveRow(c, key, before, records, ctx);
+  mustEdit(c);
+  const list = shownRows(c, records, order);
+  const from = list.findIndex((r) => r.key === key);
+  if (from < 0) throw new Error(`desk-collections: the collection shows no row "${key}"`);
+  if (before === key) return c;
+  const moving = list[from];
+  const rest = list.filter((_, i) => i !== from);
+  const at = before == null ? rest.length : rest.findIndex((r) => r.key === before);
+  if (at < 0) throw new Error(`desk-collections: the collection shows no row "${before}"`);
+  if (at === from) return c;
+  if (!isArranged(c)) {
+    const members = arrange(c, list, [...rest.slice(0, at), moving, ...rest.slice(at)], moving);
+    if (members.length > COLLECTION_LIMITS.members) throw new Error(`desk-collections: ${TOO_MANY}`);
+    return withMembers(c, members, ctx, { order: "mine", arranged: true });
+  }
+  let mineBefore = before;
+  if (at > from) {
+    // Moved down: just below the row it passed last, wherever My order has it.
+    const mine = myOrderRows(c, records).filter((r) => r.key !== key);
+    const passed = mine.findIndex((r) => r.key === rest[at - 1].key);
+    mineBefore = mine[passed + 1]?.key ?? null;
+  }
+  const moved = moveRow(c, key, mineBefore, records, ctx);
+  return moved === c ? editRecord(c, { order: "mine", arranged: true }, ctx) : moved;
 }
 
 /**
@@ -537,14 +607,14 @@ export function addHeading(c, text, before, records, ctx) {
   mustEdit(c);
   roomFor(c, 1);
   const heading = headingMember(text);
-  if (before == null) return withMembers(c, [...c.members, heading], ctx, { order: "mine" });
+  if (before == null) return withMembers(c, [...c.members, heading], ctx, { order: "mine", arranged: true });
   const list = myOrderRows(c, records);
   const at = list.findIndex((r) => r.key === before);
   if (at < 0) throw new Error(`desk-collections: the collection shows no row "${before}"`);
   const row = { type: "heading", key: heading.id, member: heading, text: heading.text };
   const members = arrange(c, list, [...list.slice(0, at), row, ...list.slice(at)], row);
   if (members.length > COLLECTION_LIMITS.members) throw new Error(`desk-collections: ${TOO_MANY}`);
-  return withMembers(c, members, ctx, { order: "mine" });
+  return withMembers(c, members, ctx, { order: "mine", arranged: true });
 }
 
 /** A heading's words changed; the collection itself when they are the same. */
