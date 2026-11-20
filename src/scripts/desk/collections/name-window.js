@@ -14,12 +14,93 @@
 // `back` when it closes, after a save too (as the pick window does after a
 // pick), unless the save put focus somewhere of its own. Enter in the name
 // field saves.
+//
+// Its form is `nameForm`, which the collections list also opens in place,
+// under its "New collection" (E190; BVJ, 2026-11-19), so a field, the "Type a
+// name first." line and the two buttons are one thing in both.
 
 import { createFloatWindow } from "../../float-window.js";
 import { claimPickSlot, placePick } from "../pick-window.js";
 import { make } from "../dom.js";
 
 let seq = 0;
+
+/**
+ * The name window's form, without the window: a lead line, a labeled field
+ * for each of `fields` (the first required), a line for what went wrong, and
+ * Cancel and the primary `submit` button (`desk-editor__actions`). `onSubmit`
+ * is the window's (a sentence keeps the form open and shows it, nothing ends
+ * it with `onDone`); Cancel calls `onCancel`. `id` prefixes the fields' ids.
+ *
+ * @param {{ id: string, lead?: string, submit: string,
+ *   fields: { key: string, label: string, value?: string, multiline?: boolean, maxLength?: number }[],
+ *   onSubmit: (values: Record<string, string>) => (string | null | void | Promise<string | null | void>),
+ *   onCancel: () => void, onDone: () => void }} options
+ * @returns {{ form: HTMLFormElement, lead: HTMLElement | null, inputs: Map<string, HTMLInputElement | HTMLTextAreaElement>,
+ *   problem: HTMLElement, cancel: HTMLButtonElement, save: HTMLButtonElement }}
+ */
+export function nameForm({ id, lead = "", submit, fields, onSubmit, onCancel, onDone }) {
+  const form = make("form");
+  form.noValidate = true;
+  let leadLine = null;
+  if (lead) {
+    leadLine = make("p", "desk-pick__lead", lead);
+    leadLine.id = `${id}-lead`;
+    form.append(leadLine);
+  }
+  const inputs = new Map();
+  fields.forEach((f, i) => {
+    const label = make("label", "desk-pick__label", f.label);
+    label.htmlFor = `${id}-${f.key}`;
+    const input = document.createElement(f.multiline ? "textarea" : "input");
+    if (!f.multiline) input.type = "text";
+    else input.rows = 3;
+    input.id = `${id}-${f.key}`;
+    input.className = "desk-pick__filter";
+    input.autocomplete = "off";
+    input.value = f.value ?? "";
+    if (f.maxLength) input.maxLength = f.maxLength;
+    if (i > 0) label.style.marginTop = "10px";
+    inputs.set(f.key, input);
+    form.append(label, input);
+  });
+  const problem = make("p", "desk-sheet__problem");
+  problem.setAttribute("role", "alert");
+  const actions = make("div", "desk-editor__actions");
+  const cancel = make("button", "", "Cancel");
+  cancel.type = "button";
+  const save = make("button", "desk-editor__save", submit);
+  save.type = "submit";
+  actions.append(cancel, save);
+  form.append(problem, actions);
+
+  cancel.addEventListener("click", () => onCancel());
+  let busy = false;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    const values = Object.fromEntries([...inputs].map(([k, input]) => [k, input.value]));
+    const [first] = fields;
+    if (!values[first.key].trim()) {
+      problem.textContent = `Type ${/^[aeiou]/i.test(first.label) ? "an" : "a"} ${first.label.toLowerCase()} first.`;
+      inputs.get(first.key).focus();
+      return;
+    }
+    problem.textContent = "";
+    busy = true;
+    save.disabled = true;
+    let said = null;
+    try {
+      said = await onSubmit(values);
+    } finally {
+      busy = false;
+      save.disabled = false;
+    }
+    if (said) problem.textContent = said;
+    else onDone();
+  });
+  return { form, lead: leadLine, inputs, problem, cancel, save };
+}
 
 /**
  * @param {{ heading: string, title: string, lead?: string, submit: string,
@@ -59,66 +140,17 @@ export function openNameWindow({ heading, title, lead = "", submit, fields, onSu
     if (lost && to?.isConnected) to.focus({ preventScroll: true });
   }
 
-  const form = make("form");
-  form.noValidate = true;
-  if (lead) {
-    const p = make("p", "desk-pick__lead", lead);
-    p.id = `${id}-lead`;
-    win.el.setAttribute("aria-describedby", p.id);
-    form.append(p);
-  }
-  const inputs = new Map();
-  fields.forEach((f, i) => {
-    const label = make("label", "desk-pick__label", f.label);
-    label.htmlFor = `${id}-${f.key}`;
-    const input = document.createElement(f.multiline ? "textarea" : "input");
-    if (!f.multiline) input.type = "text";
-    else input.rows = 3;
-    input.id = `${id}-${f.key}`;
-    input.className = "desk-pick__filter";
-    input.autocomplete = "off";
-    input.value = f.value ?? "";
-    if (f.maxLength) input.maxLength = f.maxLength;
-    if (i > 0) label.style.marginTop = "10px";
-    inputs.set(f.key, input);
-    form.append(label, input);
+  const { form, lead: leadLine, inputs } = nameForm({
+    id,
+    lead,
+    submit,
+    fields,
+    onSubmit,
+    onCancel: () => win.close("close"),
+    onDone: () => win.close("saved"),
   });
-  const problem = make("p", "desk-sheet__problem");
-  problem.setAttribute("role", "alert");
-  const actions = make("div", "desk-editor__actions");
-  const cancel = make("button", "", "Cancel");
-  cancel.type = "button";
-  const save = make("button", "desk-editor__save", submit);
-  save.type = "submit";
-  actions.append(cancel, save);
-  form.append(problem, actions);
+  if (leadLine) win.el.setAttribute("aria-describedby", leadLine.id);
   win.body.append(form);
-
-  cancel.addEventListener("click", () => win.close("close"));
-  let busy = false;
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (busy) return;
-    const values = Object.fromEntries([...inputs].map(([k, input]) => [k, input.value]));
-    const [first] = fields;
-    if (!values[first.key].trim()) {
-      problem.textContent = `Type ${/^[aeiou]/i.test(first.label) ? "an" : "a"} ${first.label.toLowerCase()} first.`;
-      inputs.get(first.key).focus();
-      return;
-    }
-    problem.textContent = "";
-    busy = true;
-    save.disabled = true;
-    let said = null;
-    try {
-      said = await onSubmit(values);
-    } finally {
-      busy = false;
-      save.disabled = false;
-    }
-    if (said) problem.textContent = said;
-    else win.close("saved");
-  });
 
   const handle = { el: win.el, close: (reason = "close") => win.close(reason), isOpen: () => win.isOpen() };
   release = claimPickSlot(handle);

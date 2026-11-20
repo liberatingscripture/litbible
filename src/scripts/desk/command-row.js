@@ -21,9 +21,10 @@
 // "‹ Add column" line to go back. New sheet… acts at once (SH5-5): it uses
 // the desk's Sheets pane, or adds one as a column (else a row), then sends
 // `desk:sheet-new` with the pane's id. New collection… (D13, decision 28) does
-// the same with a Collections pane and `desk:collection-new`, which opens the
-// name window there. Each is disabled, not hidden, when the page can't take a
-// pane, with the reason in its tooltip and its description.
+// the same with a Collections pane and `desk:collection-new`, which opens its
+// list's New collection form there (E190). Each is disabled, not hidden, when
+// the page can't take a pane, with the reason in its tooltip and its
+// description.
 // The pure rules are in src/lib/desk-layout.mjs.
 //
 // Returns `{ el, addButton, addMenu, layoutButton, printButton, hang(win, button),
@@ -276,8 +277,9 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   }
 
   // As New sheet… does, with a Collections pane: the one open, else a new
-  // column (else a row), which answers `desk:collection-new` by opening the
-  // name window. Cancel gives focus back to this button.
+  // column (else a row), which answers `desk:collection-new` by opening its
+  // list's New collection form, focus in Name (E190), as New sheet… opens the
+  // templates; Cancel gives focus to the pane's own button, as theirs does.
   function newCollection() {
     const { width, height } = addRoom();
     const layout = getLayout();
@@ -285,7 +287,7 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
     closeAdd();
     if (!paneId) return null;
     if (next !== layout) commit(next);
-    document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId, back: newCollectionButton } }));
+    document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId } }));
     return paneId;
   }
 

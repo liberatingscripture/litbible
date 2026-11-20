@@ -43,8 +43,10 @@ it holds. Computer only; the apps carry it untouched.
   test needs no network), `collection-list.js` (the list and the empty page),
   `collection-view.js` (one collection: actions, order switch, members on
   `.v2-sheet`, Add ▾ and its passage form, headings, moving), `name-window.js` (the one
-  name/description window), `new-collection.js` (`openNewCollection`, which
-  step 3's "New collection…" reuses with `firstMember` and `lead`),
+  name/description window, and `nameForm`, its form without the window),
+  `new-collection.js` (`newCollectionForm`, the list's form in place, E190,
+  and `openNewCollection`, the window, which step 3's "New collection…"
+  reuses with `firstMember` and `lead`; one write serves both),
   `add-passage.js` (`addPassageToCollection`: the one way a passage goes
   in from outside the page, the verse menu's and This verse's, so both say
   "John 3:16 added to Advent series." with Open the collection, or that it
@@ -247,9 +249,21 @@ the pane's id as `idSuffix`, and keeps what only a pane has:
   the arrival bar beside `?sheet=`'s; the parameter is stripped.
 - **"New collection…" in the command row** (decision 28) is `newCollection`
   in `command-row.js`: `collectionPaneFor` (an open one, else a column, else
-  a row), then `desk:collection-new` with `{ paneId, back }`, which the pane
-  answers with the name window; Create shows the new one there. The pane
-  registers its listener as it is built, as the Sheets pane does (DK6-10).
+  a row), then `desk:collection-new` with `{ paneId }`, which the pane
+  answers by showing its list with the New collection form open and focus
+  in Name (E190), as `desk:sheet-new` opens a Sheets pane's templates;
+  Create shows the new one there. The pane registers its listener as it is
+  built, as the Sheets pane does (DK6-10).
+- **The list's "New collection" opens its form in place** (E190; BVJ,
+  2026-11-19, "like the sheets pane does"), in both homes: a card under the
+  button's row (the chooser's `desk-sheet__passage-form`), holding the name
+  window's form (`nameForm`). The opener reads "Cancel" in the ordinary
+  look while it is open (E121), so Create is the one primary. The list is
+  drawn again at every change, so the form's words live in the host's
+  `listState` (`viewHost`) and a redraw keeps it open with them; Cancel,
+  Escape or the opener forget them. **The name window stays** where there is
+  no list: "Add to collection ▸ New collection…", the pick window's, My
+  Notebook's, and Rename….
 - **Every change to the notebook draws it again** but a reading place's
   (`QUIET_KINDS`), so a passage added from the LIT pane appears at once.
 - **Its cards take the Sheets pane's card color** (E185; BVJ, 2026-11-19):
@@ -365,7 +379,9 @@ second draft of the mocks takes from where:
   (6px right of its trigger, level with the trigger's top).
 - **New collection, All collections, and the label's shortcut** are E154's
   pick window (`openPickWindow`, `desk-pick`), with `desk-editor__actions`
-  (Cancel ordinary, the save button primary).
+  (Cancel ordinary, the save button primary). The list's New collection
+  form (E190) is the Sheets chooser's card with the name window's fields
+  inside, which take the size of the words around them on the field's fill.
 - **A row's "Collections…"** is the Labels popover's twin (`desk-labels`,
   `showPanel`).
 

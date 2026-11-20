@@ -90,48 +90,139 @@ test("E187: the page describes the feature under its title, as /sheets does, wit
   assert.equal(byText(intro(), "a", "the Study Desk").getAttribute("href"), "/desk/");
   assert.equal(byText(intro(), "a", "How collections work").getAttribute("href"), "/desk/help/#collections");
   assert.equal(intro().nextElementSibling.className, "collection-page__actions", "New collection… under it");
-  assert.equal(intro().nextElementSibling.nextElementSibling.textContent, "You haven’t made a collection yet.");
+  const form = intro().nextElementSibling.nextElementSibling;
+  assert.ok(form.classList.contains("collection-page__new") && form.hidden, "its form, shut, under the button (E190)");
+  assert.equal(form.nextElementSibling.textContent, "You haven’t made a collection yet.");
   assert.equal(root.querySelectorAll("a").length, 2, "one help link, not a second under the list");
   page.destroy();
   await store.change(async () => planSave(createCollection({ name: "Lent" }, opCtx())));
   ({ root, page } = await mount());
   assert.match(intro().textContent, /^A collection gathers/, "kept once there are collections");
-  assert.equal(intro().nextElementSibling.nextElementSibling.className, "desk-sheet__sheets");
+  assert.equal(root.querySelector(".collection-page__new").nextElementSibling.className, "desk-sheet__sheets");
   page.destroy();
 });
 
-test("New collection… makes one and goes into it", async () => {
+/* ── New collection, in place (E190) ─────────────────────────────── */
+
+const newForm = (root) => root.querySelector(".collection-page__new");
+const field = (root, name) => newForm(root).querySelector(`[data-focus-key="new-${name}"]`);
+const type = (input, text) => {
+  input.value = text;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+};
+const primaries = (root) => root.querySelectorAll(".desk-sheet__btn--primary, .desk-editor__save");
+
+test("E190: New collection… opens its form in place under the button, as /sheets' New sheet… opens its templates", async () => {
+  await clearAll();
+  const { root, page } = await mount();
+  const fresh = byText(root, "button", "New collection…");
+  assert.equal(fresh.getAttribute("aria-expanded"), "false");
+  assert.equal(fresh.getAttribute("aria-controls"), newForm(root).id);
+  fresh.click();
+  assert.equal(document.querySelector(".desk-pick"), null, "no window");
+  assert.equal(newForm(root).hidden, false);
+  assert.equal(newForm(root).previousElementSibling.className, "collection-page__actions", "under the button's row");
+  assert.ok(newForm(root).classList.contains("desk-sheet__passage-form"), "the Sheets chooser's card");
+  assert.equal(document.activeElement, field(root, "name"), "focus in Name");
+  assert.equal(newForm(root).querySelector("form").getAttribute("aria-label"), "New collection");
+  // The name window's fields: Name, then an optional Description (E174).
+  assert.deepEqual([...newForm(root).querySelectorAll("label")].map((l) => l.textContent), ["Name", "Description"]);
+  assert.equal(field(root, "description").tagName, "TEXTAREA");
+  // The opener says what it does now (E121), so Create is the one primary (E126).
+  assert.equal(fresh.textContent, "Cancel");
+  assert.equal(fresh.getAttribute("aria-expanded"), "true");
+  assert.equal(fresh.classList.contains("desk-sheet__btn--primary"), false);
+  assert.deepEqual([...primaries(root)].map((b) => b.textContent), ["Create"]);
+  // Pressing it again closes the form, focus staying on it.
+  fresh.click();
+  assert.equal(newForm(root).hidden, true);
+  assert.equal(fresh.textContent, "New collection…");
+  assert.ok(fresh.classList.contains("desk-sheet__btn--primary"));
+  assert.equal(document.activeElement, fresh);
+  page.destroy();
+});
+
+test("E190: Create makes the collection, description and all, and goes into it with the undo bar", async () => {
   await clearAll();
   const { root, page } = await mount();
   byText(root, "button", "New collection…").click();
-  const win = document.querySelector(".desk-pick");
-  assert.ok(win, "the name window is open");
-  // The description is optional (E174): left empty, none is kept.
-  const [, description] = win.querySelectorAll("input, textarea");
-  assert.equal(description?.tagName, "TEXTAREA", "a description field under the name");
-  win.querySelector("input").value = "Advent series";
-  win.querySelector("form").requestSubmit();
-  await until(async () => true);
+  type(field(root, "name"), "Advent series");
+  type(field(root, "description"), "Four weeks of waiting");
+  byText(newForm(root), "button", "Create").click();
   await until(() => root.querySelector("h1")?.textContent === "Advent series", 3000, "the new collection's page");
   const all = await collections();
   assert.equal(all.length, 1);
   assert.equal(all[0].name, "Advent series");
-  assert.equal("description" in all[0], false);
+  assert.equal(all[0].description, "Four weeks of waiting");
   assert.ok(location.search.includes(`id=${encodeURIComponent(all[0].id)}`));
+  assert.equal(document.querySelector(".desk-undo__text").textContent, "Advent series made.");
+  // Back on the list, the form is shut and empty again.
+  await page.toList();
+  assert.equal(newForm(root).hidden, true);
+  byText(root, "button", "New collection…").click();
+  assert.equal(field(root, "name").value, "");
   page.destroy();
 });
 
-test("an empty name is told so and nothing is written", async () => {
+test("E190: Enter in Name creates, and a description left empty is not kept", async () => {
   await clearAll();
   const { root, page } = await mount();
   byText(root, "button", "New collection…").click();
-  const win = document.querySelector(".desk-pick");
-  win.querySelector("input").value = "   ";
-  win.querySelector("form").requestSubmit();
+  type(field(root, "name"), "Lent");
+  newForm(root).querySelector("form").requestSubmit();
+  await until(() => root.querySelector("h1")?.textContent === "Lent", 3000, "the new collection's page");
+  const [made] = await collections();
+  assert.equal("description" in made, false);
+  page.destroy();
+});
+
+test("E190: an empty name is told so and nothing is written; Cancel and Escape put the form away and forget the words", async () => {
+  await clearAll();
+  const { root, page } = await mount();
+  const fresh = byText(root, "button", "New collection…");
+  fresh.click();
+  type(field(root, "name"), "   ");
+  newForm(root).querySelector("form").requestSubmit();
   await settle();
-  assert.match(win.querySelector(".desk-sheet__problem").textContent, /Type a name first/);
+  assert.match(newForm(root).querySelector(".desk-sheet__problem").textContent, /Type a name first/);
   assert.equal((await collections()).length, 0);
-  win.querySelector(".desk-editor__actions button").click();
+  assert.equal(document.activeElement, field(root, "name"));
+  byText(newForm(root), "button", "Cancel").click();
+  assert.equal(newForm(root).hidden, true);
+  assert.equal(document.activeElement, fresh, "focus back on New collection…");
+  assert.equal(fresh.textContent, "New collection…");
+  fresh.click();
+  assert.equal(field(root, "name").value, "", "Cancel forgot the words");
+  assert.equal(newForm(root).querySelector(".desk-sheet__problem").textContent, "", "and the problem line");
+  type(field(root, "name"), "Pentecost");
+  field(root, "name").dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+  assert.equal(newForm(root).hidden, true);
+  assert.equal(document.activeElement, fresh);
+  fresh.click();
+  assert.equal(field(root, "name").value, "");
+  assert.equal((await collections()).length, 0);
+  page.destroy();
+});
+
+test("E190: a change elsewhere draws the list again with the form still open, its words kept and focus in its field", async () => {
+  await clearAll();
+  const { root, page } = await mount();
+  byText(root, "button", "New collection…").click();
+  type(field(root, "name"), "Holy Week");
+  field(root, "description").focus();
+  type(field(root, "description"), "Palm Sunday to Easter");
+  const before = newForm(root);
+  // Another tab makes a collection: the list is drawn again.
+  await store.change(async () => planSave(createCollection({ name: "Lent" }, opCtx())));
+  await until(() => root.querySelector(".desk-sheet__sheet"), 3000, "the other tab's collection");
+  assert.notEqual(newForm(root), before, "a new form");
+  assert.equal(newForm(root).hidden, false, "still open");
+  assert.equal(field(root, "name").value, "Holy Week");
+  assert.equal(field(root, "description").value, "Palm Sunday to Easter");
+  assert.equal(document.activeElement, field(root, "description"), "focus where it was");
+  const opener = root.querySelector('[data-focus-key="new"]');
+  assert.equal(opener.textContent, "Cancel", "the opener still says Cancel");
+  assert.equal(opener.getAttribute("aria-expanded"), "true");
   page.destroy();
 });
 

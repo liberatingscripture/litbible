@@ -7419,6 +7419,35 @@ a.desk-sheet__open {
   margin: 0;
 }
 
+/* "New collection"'s form, opened in place under its button (E190), as New
+   sheet's templates are: the chooser's card (.desk-sheet__passage-form) at
+   the chooser's place, under the pane's title row and 0.5rem under the
+   page's button, at the page's chooser width (sheets-page.css). Its fields
+   and buttons are the name window's (name-window.js, `nameForm`). */
+.desk-sheet__passage-form.collection-page__new {
+  margin: 0 0 12px;
+}
+
+.collection-page__actions:has(+ .collection-page__new:not([hidden])) {
+  margin-bottom: 0.5rem;
+}
+
+.collection-page__actions + .desk-sheet__passage-form.collection-page__new {
+  max-width: calc(60 * var(--ch));
+  margin-bottom: 18px;
+}
+
+/* Its two fields alike, at the size of the words around them, as the other
+   fields of a pane and of the page are (.desk-sheet__ref input; the page's
+   .desk-np fields). The page's .desk-np rule above reaches only the input,
+   and its raised fill is the card's own color, so a field takes the field's
+   fill here (E89). Later in the file, so it wins the tie. */
+.collection-page__new :is(input, textarea).desk-pick__filter {
+  padding: 5px 9px;
+  background: var(--desk-field);
+  font: inherit;
+}
+
 /* A passage's words are the reader's text here, not a sheet's, so they take
    the pane's size, which follows the Display tray (E109), where a sheet's
    words in a pane are set from the root (.desk-pane .desk-sheet__words). */

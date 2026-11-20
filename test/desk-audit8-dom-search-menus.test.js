@@ -116,7 +116,7 @@ test("E68: Add pane opens its menu at column or row, then the kinds; Escape step
   same(document.activeElement, row.addButton, "focus is back on Add pane");
 });
 
-test("D13, decision 28: New collection… adds a Collections pane and asks it for the name window, with the button to go back to", () => {
+test("D13, decision 28: New collection… adds a Collections pane and asks it to open its New collection form (E190)", () => {
   const { row, layout } = commandRow();
   const asked = [];
   const hear = (e) => asked.push(e.detail);
@@ -128,7 +128,9 @@ test("D13, decision 28: New collection… adds a Collections pane and asks it fo
   assert.ok(made, "a Collections pane was added as a column");
   assert.equal(asked.length, 1);
   assert.equal(asked[0].paneId, made.id);
-  same(asked[0].back, button);
+  // The form opens in the pane, and its Cancel gives focus to the pane's own
+  // button, as New sheet…'s templates do, so the event names no button here.
+  assert.equal(asked[0].back, undefined);
   // With a Collections pane open, it uses that one and adds nothing.
   const before = layout();
   assert.equal(row.newCollection(), made.id);

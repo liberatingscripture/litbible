@@ -127,12 +127,43 @@ test("E186: the list's New collection sits beside its title, as a Sheets pane's 
   assert.deepEqual(words(), ["My collections", "New collection"], "one row, no ellipsis");
   assert.ok(head().querySelector("button").classList.contains("desk-sheet__btn--primary"));
   assert.equal(p.el.firstElementChild, head(), "the row comes first");
-  assert.equal(head().nextElementSibling.className, "desk-np__intro", "the intro under it");
+  const form = head().nextElementSibling;
+  assert.ok(form.classList.contains("collection-page__new") && form.hidden, "its form, shut, under the row (E190)");
+  assert.equal(form.nextElementSibling.className, "desk-np__intro", "the intro under it");
   assert.equal(p.el.querySelector(".collection-page__actions"), null, "no second row of its own");
   await keepCollection("Advent series", [john316()]);
   await until(() => p.el.querySelector(".desk-sheet__sheet"), 3000, "the row");
   assert.deepEqual(words(), ["My collections", "New collection"]);
-  assert.equal(head().nextElementSibling.className, "desk-sheet__sheets", "the cards under it");
+  assert.equal(head().nextElementSibling.nextElementSibling.className, "desk-sheet__sheets", "the cards under it");
+});
+
+test("E190: the pane's New collection opens its form under the title row, as a Sheets pane's New sheet opens its templates; Create shows the new one here", async () => {
+  await clearAll();
+  const p = pane("p2");
+  await until(() => title(p) === "My collections", 3000, "the list");
+  const fresh = byText(p.el, "button", "New collection");
+  click(fresh);
+  const form = p.el.querySelector(".collection-page__new");
+  assert.equal(document.querySelector(".desk-pick"), null, "no window");
+  assert.equal(form.hidden, false);
+  assert.equal(form.previousElementSibling, p.el.querySelector(".desk-sheet__list-head"));
+  assert.equal(form.id, "collectionNew-p2", "its ids carry the pane's");
+  assert.equal(fresh.getAttribute("aria-controls"), form.id);
+  assert.equal(fresh.textContent, "Cancel");
+  assert.equal(fresh.getAttribute("aria-expanded"), "true");
+  const name = form.querySelector('[data-focus-key="new-name--p2"]');
+  assert.equal(document.activeElement, name, "focus in Name");
+  name.value = "Advent series";
+  name.dispatchEvent(new Event("input", { bubbles: true }));
+  click(byText(form, "button", "Create"));
+  await until(() => title(p) === "Advent series", 3000, "the new collection in the pane");
+  const made = (await store.all()).find((r) => r.kind === "collection");
+  assert.equal(p.field.value, made.id, "kept in the layout");
+  assert.match(barText(), /^Advent series made\./);
+  click(byText(p.el, "button", "‹ All collections"));
+  await until(() => title(p) === "My collections", 3000, "the list again");
+  assert.equal(p.el.querySelector(".collection-page__new").hidden, true, "shut again");
+  assert.equal(byText(p.el, "button", "New collection").classList.contains("desk-sheet__btn--primary"), true);
 });
 
 test("a reload shows the collection the layout kept", async () => {
@@ -244,23 +275,48 @@ test("with no room for a Sheets pane, the notice says why and offers the sheet's
   assert.equal(link.getAttribute("href"), `/sheets/?id=${encodeURIComponent(sheet.id)}`);
 });
 
-test("desk:collection-new for this pane opens the name window, and Create shows the new collection here", async () => {
+test("desk:collection-new for this pane opens the list's form there (E190), and Create shows the new collection here", async () => {
   await clearAll();
   const a = pane("pa");
   const b = pane("pb");
   await until(() => title(a) === "My collections" && title(b) === "My collections");
   document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId: "pb" } }));
-  const win = document.querySelector(".desk-pick");
-  assert.ok(win, "the name window is open");
-  const input = win.querySelector("input[type=text], input:not([type])");
+  assert.equal(document.querySelector(".desk-pick"), null, "no window");
+  const form = b.el.querySelector(".collection-page__new");
+  assert.equal(form.hidden, false, "open in the pane that asked");
+  assert.equal(a.el.querySelector(".collection-page__new").hidden, true, "not in the other");
+  const input = form.querySelector('[data-focus-key="new-name--pb"]');
+  assert.equal(document.activeElement, input, "focus in Name");
   input.value = "Holy Week";
   input.dispatchEvent(new Event("input", { bubbles: true }));
-  click(byText(win, "button", "Create"));
+  click(byText(form, "button", "Create"));
   await until(() => title(b) === "Holy Week", 3000, "the new collection in the pane that asked");
   assert.equal(title(a), "My collections", "the other pane is left as it was");
   const made = (await store.all()).find((r) => r.kind === "collection");
   assert.equal(b.field.value, made.id);
   assert.match(barText(), /^Holy Week made\./);
+});
+
+test("E190: desk:collection-new while the pane shows a collection goes back to the list with the form open; Cancel leaves the list there", async () => {
+  await clearAll();
+  const c = await keepCollection("Lent", [john316()]);
+  const p = pane("p2", { shows: c.id });
+  await until(() => title(p) === "Lent", 3000, "the collection");
+  document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId: "p2" } }));
+  await until(() => title(p) === "My collections", 3000, "the list");
+  assert.equal(p.field.value, null, "the layout keeps the list, as New sheet… leaves a sheet for the list");
+  const form = p.el.querySelector(".collection-page__new");
+  assert.equal(form.hidden, false);
+  assert.equal(document.activeElement, form.querySelector('[data-focus-key="new-name--p2"]'), "focus in Name");
+  // Sent again with the form open, it only takes focus back to Name.
+  form.querySelector('[data-focus-key="new-description--p2"]').focus();
+  document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId: "p2" } }));
+  assert.equal(p.el.querySelector(".collection-page__new"), form, "not drawn again");
+  assert.equal(document.activeElement, form.querySelector('[data-focus-key="new-name--p2"]'));
+  click(byText(form, "button", "Cancel"));
+  assert.equal(form.hidden, true);
+  assert.equal(document.activeElement, byText(p.el, "button", "New collection"), "focus on the pane's own button");
+  assert.equal(title(p), "My collections");
 });
 
 test("a change to the notebook draws the pane again: a passage added elsewhere appears at once (decision 31)", async () => {
@@ -283,4 +339,5 @@ test("destroy stops the pane listening", async () => {
   document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId: "p2" } }));
   await settle();
   assert.equal(document.querySelector(".desk-pick"), null);
+  assert.equal(p.el.querySelector(".collection-page__new").hidden, true, "its form stays shut");
 });
