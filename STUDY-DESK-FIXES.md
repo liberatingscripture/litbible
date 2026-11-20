@@ -5058,6 +5058,30 @@ says so; where BVJ was wondering, nothing is decided.)
   The rule for every menu is in `src/scripts/CLAUDE.md`. Test:
   `test/desk-menu-fit-dom.test.js`. Status: fixed.
 
+- **E180, bug: a sheet's Delete wrapped under its name, as wide as the
+  name.** BVJ, 2026-11-19: “at some screen widths, the buttons on the list
+  of sheets wraps so that it fits into the column the sheet title is in,
+  showing as a very wide delete button. The buttons should stay in the same
+  column as each other and not change size to fill a column.” The list of
+  sheets (the Sheets pane's and /sheets') is one grid whose rows share its
+  columns, so the buttons line up down the list: the name, then a column for
+  each button. It had three button columns, for Duplicate, Save as template
+  and Delete, and D13's step 4 (#617) put Collections… before Delete without
+  a fourth, so Delete started a second line in the name's column and
+  stretched to its width. It showed wherever the list was wide enough for
+  the grid (over 24rem); narrower, the rows stack and were fine. **Fixed**
+  (`desk.css`): four button columns; Delete always takes the last, so a row
+  without Collections… (a sheet of a newer format) leaves a gap rather than
+  moving it; the columns have no gap of their own, each button keeping 6px
+  before it, so a column no row uses takes no room. Four buttons need more
+  room beside the name than three, so a sheet's row now stacks (the name,
+  then the buttons under it, each its own width) below 37rem, and 45rem in
+  OpenDyslexic, measured across the four text sizes in the three fonts with
+  no row running past the list from 280 to 900px. My templates and the
+  collections list (name and Delete) keep 24rem. So a Sheets pane in a
+  1280px window split evenly (a list of 580px) now stacks its rows, where it
+  drew the grid before. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

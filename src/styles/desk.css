@@ -7124,13 +7124,22 @@ a.desk-sheet__open {
    sheet's title or line says: the list is one grid and each row takes its
    tracks (subgrid), so a column is as wide as its widest button and a label
    that has to wrap in a narrow pane wraps in every row alike. The title keeps
-   a floor so the buttons never squeeze it to nothing. My templates has only
-   Delete, so its list has two columns. Without subgrid, the rows stay flex. */
+   a floor so the buttons never squeeze it to nothing. My templates and the
+   collections list have only Delete, so their lists have two columns.
+   Without subgrid, the rows stay flex.
+   A sheet's row has four buttons (Duplicate, Save as template, Collections…
+   and Delete), so its list has a column for each. A button with no column
+   left would start a second line in the title's column and stretch to its
+   width, as Delete did once Collections… joined the row (D13, step 4). So
+   Delete always takes the last column, and a row missing a button (no
+   Collections… on a sheet of a newer format) leaves a gap rather than moving
+   Delete. The columns have no gap between them; each button keeps 6px before
+   it, so a column no row uses takes no room at all. */
 @supports (grid-template-columns: subgrid) {
   .desk-sheet__sheets {
     display: grid;
-    grid-template-columns: minmax(min(10rem, 40%), 1fr) repeat(3, auto);
-    gap: 8px 6px;
+    grid-template-columns: minmax(min(10rem, 40%), 1fr) repeat(4, auto);
+    gap: 8px 0;
   }
 
   .desk-sheet__sheets > .desk-sheet__sheet {
@@ -7145,7 +7154,16 @@ a.desk-sheet__open {
     display: grid;
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
+    column-gap: 0;
     align-items: center;
+  }
+
+  .desk-sheet__sheet > .desk-sheet__btn {
+    margin-inline-start: 6px;
+  }
+
+  .desk-sheet__sheet > .desk-sheet__btn:last-of-type {
+    grid-column: -2 / -1;
   }
 }
 
@@ -7164,11 +7182,59 @@ a.desk-sheet__open {
       display: flex;
       flex-wrap: wrap;
       grid-template-columns: none;
+      gap: 6px;
       padding: 2px 8px 8px;
     }
 
     .desk-sheet__sheet > .desk-sheet__open {
       flex: 1 1 100%;
+    }
+
+    .desk-sheet__sheet > .desk-sheet__btn {
+      margin-inline-start: 0;
+    }
+  }
+
+  /* A sheet's row, with its four buttons, needs more than 24rem: from 490 to
+     575px across the Display tray's text sizes in the default font and in
+     Atkinson, and up to 700px in OpenDyslexic (measured 2026-11-19; the same
+     in a Sheets pane and on /sheets, since the buttons are one size in both).
+     The two lists' own type differs, so the limits are in rem, not em, each
+     with about 16px to spare. A list of name and Delete alone (My templates,
+     collections) keeps the 24rem above. */
+  @container deskSheets (max-width: 37rem) {
+    .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet {
+      display: flex;
+      flex-wrap: wrap;
+      grid-template-columns: none;
+      gap: 6px;
+      padding: 2px 8px 8px;
+    }
+
+    .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet > .desk-sheet__open {
+      flex: 1 1 100%;
+    }
+
+    .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet > .desk-sheet__btn {
+      margin-inline-start: 0;
+    }
+  }
+
+  @container deskSheets (max-width: 45rem) {
+    html[data-font="dyslexic"] .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet {
+      display: flex;
+      flex-wrap: wrap;
+      grid-template-columns: none;
+      gap: 6px;
+      padding: 2px 8px 8px;
+    }
+
+    html[data-font="dyslexic"] .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet > .desk-sheet__open {
+      flex: 1 1 100%;
+    }
+
+    html[data-font="dyslexic"] .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet > .desk-sheet__btn {
+      margin-inline-start: 0;
     }
   }
 }
