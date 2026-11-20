@@ -162,9 +162,11 @@ it holds. Computer only; the apps carry it untouched.
 - **A Collections pane on /desk** (BVJ, 2026-11-19): STUDY-DESK.md, D13,
   "A Collections pane on /desk" (decisions 26 to 36, and its order of
   work). The Book Intro pane went to make room (STUDY-DESK-FIXES.md E173).
-  Built through its step 4; see "The views' host" and "The Collections
-  pane" below. Step 5, the help page's lines in "The kinds of pane" and
-  "How collections work," is not done yet.
+  Built (all five steps); see "The views' host" and "The Collections
+  pane" below. The help page names it in "The kinds of pane," the
+  commands, "When the desk is full," "Going back," and a paragraph of
+  "How collections work" ("On the Study Desk"); a change to what the pane
+  does changes those words too.
 
 ## The views' host (the pane's step 2)
 
