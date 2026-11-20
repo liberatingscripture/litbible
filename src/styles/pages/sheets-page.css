@@ -1044,6 +1044,9 @@
   color: var(--text);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
   font-size: calc(0.9375rem * var(--sheet-ui, 1));
+  /* sheet-save.js cuts it to the room above the window's foot (E179). */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .sheets-page__save-menu[hidden] {
