@@ -4693,6 +4693,60 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-way-back-dom.test.js` drives the pane, the bars and the routes;
   `test/desk-buttons-css.test.js` holds the arrow's ordinary look.
   Status: fixed.
+- **E169, bug: buttons E159 missed, the color of what lies behind them.**
+  BVJ, 2026-11-19, on D13's review: /collections/' “New collection…”, then
+  every action on a collection's page (Add passage…, Make a sheet, Add to
+  sheet…, Rename…, Print, Delete), showed the cream through a faint edge:
+  “Fix this one to the SITE 2.0 standards, and do a sweep for any others
+  we've missed.” E159's sweep (#610) measured the pages as an empty
+  notebook draws them, before /collections/ existed, so a button drawn only
+  beside records, or only in a menu that wasn't opened, was never measured.
+  Two causes:
+  - **`.desk-sheet__btn` was ordinary only inside a sheet.** E126 scoped it
+    to `:where(.desk-sheet, .sheets-page)` so the phone's shared sheet would
+    keep `desk-sheet-view.css`'s look, but that viewer never loads
+    `desk.css`, so the scope only took the fill from every such button
+    drawn elsewhere: the collections page, and any window or bar that uses
+    the class. The scope is gone, at the same weight.
+  - **A highlight color's swatch** (`.desk-swatch` as a button: the verse
+    menu's and selection panel's Highlight row, and the color filters in
+    My Notes and My Notebook) drew `--surface-raised` inside an edge of ink
+    at 18%, so in a menu or a panel it was the color of the surface. It is
+    a flat toggle now (`.desk-swatch:where(button)`, a class's weight), its
+    chosen filter the toggles' on look; a swatch that labels a highlight in
+    a row is a span and keeps no edge.
+  **The sweep**: on this branch's build, with the preview on and a notebook
+  holding one of each kind, a sheet, and two collections, every button with
+  an edge or a shadow was measured on 33 pages in both themes (its own fill
+  composited over what lies behind it), then again with each menu, window,
+  popover, and Notebook tab opened in turn. **Left alone, on purpose**:
+  /apps' church-year chips (mirrored with the LSC site, as #610 left them),
+  and /search's ⓘ tip, a glyph button (E126). With it BVJ asked for one
+  primary button on each collections view (E126's “at most one per pane or
+  view”): “New collection…” on the list, as “New sheet…” is on My sheets,
+  and “Add passage…” on one collection. Status: fixed.
+- **E170, bug: /desk's LIT pane had no "Add to sheet" in its verse menu.**
+  BVJ, 2026-11-19, reviewing D13: “There is no "add collection" or "add to
+  sheet" menu item in the verse menu in the LIT pane. That seems like an
+  oversight,” then, after finding an old Cloudflare preview had been open:
+  “The add to collections option is there on the live site, as you said. It
+  should have add to sheet too.” From 3f the LIT pane's menus had only a
+  “Sheets” row, “Add to “…”,” shown while a Sheets pane held a sheet, though
+  S12's decision 3 gave Chapter View its flyout “as /desk's LIT pane has
+  it.” **Fixed**: the LIT pane's verse menu and selection panel have
+  Chapter View's “Add to sheet ▸” row (`sheets/sheet-add.js`, for `d.view`
+  “desk” too), in the same place, before Add to collection. While a Sheets
+  pane shows a sheet the row is split, as “Copy text” is: its own button,
+  “Add to “Lent”,” adds there in one press through that pane's editor
+  (`paneSheet`, sheet-pane.js, which desk-page.js hands `initActions`), so
+  the passage shows in the pane at once, as the old row did; its chevron,
+  “Add to another sheet,” opens the flyout, where a pick of the pane's sheet
+  also goes through the pane. The old “Sheets” row is gone, and the Sheets
+  tour marks the new button. **Checked against Chapter View's menus**, the
+  LIT pane's now lack only two rows, both by earlier calls: “Print ▸” (E40:
+  a print from /desk would need the Print menu's new-tab route) and “Show in
+  Notebook” (My Notes follows the LIT pane instead). Test:
+  `test/desk-lit-pane-add-to-sheet.test.js`. Status: fixed.
 - **E171, bug: a collection's passage lost its verse numbers, italics, and
   line breaks.** BVJ, 2026-11-19, reviewing D13: “I added Matthew 5 to my
   first collection. It added it with no verse numbers or text formatting

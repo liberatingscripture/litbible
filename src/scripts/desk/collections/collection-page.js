@@ -2,7 +2,8 @@
 //
 // The collections page, /collections/ (STUDY-DESK.md, D13; step 2 of its order
 // of work). `/collections/` is the list, drawn as My sheets is (its title, its
-// "New collection…" button, one card for each, in `desk-sheet__*`);
+// "New collection…" button, primary as "New sheet…" is, one card for each,
+// in `desk-sheet__*`);
 // `/collections/?id=<id>` is one collection (collection-view.js). Loaded by
 // desk-gate.js on a computer with the preview on, when the page carries
 // [data-collections-page]. It is not a reading surface: no panel, no margin.
@@ -171,7 +172,7 @@ export async function mountCollectionsPage(root, {
     title.dataset.focusKey = "title";
     const nodes = [title];
     const actions = make("div", "collection-page__actions");
-    const fresh = button("New collection…");
+    const fresh = button("New collection…", "desk-sheet__btn desk-sheet__btn--primary");
     fresh.dataset.focusKey = "new";
     fresh.addEventListener("click", () => {
       const at = fresh.getBoundingClientRect();

@@ -1,6 +1,5 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import {
   ADD_MENU_SHEETS,
   addMenuSheets,
@@ -99,7 +98,5 @@ test("what the undo bar says", () => {
   assert.equal(addedMessage(john316, "John 3:16", { made: true }), "John 3:16 is on a new sheet, “John 3:16.”");
 });
 
-test("Add to sheet is Chapter View's: /desk's LIT pane keeps its own add", () => {
-  const src = readFileSync(new URL("../src/scripts/desk/sheets/sheet-add.js", import.meta.url), "utf8");
-  assert.match(src, /if \(d\.view !== "study"\) return null;/);
-});
+// Where the row shows (Chapter View and, since E170, /desk's LIT pane) is
+// driven in test/desk-lit-pane-add-to-sheet.test.js.

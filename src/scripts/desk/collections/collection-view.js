@@ -164,7 +164,8 @@ export async function collectionView(page, id) {
 
   /* ── Actions ──────────────────────────────────────────────────── */
   const actions = make("div", "collection-page__actions");
-  const add = button("Add passage…");
+  // The page's one primary button (E126): adding is what the page is for (BVJ, 2026-11-19).
+  const add = button("Add passage…", "desk-sheet__btn desk-sheet__btn--primary");
   add.dataset.focusKey = "add";
   add.setAttribute("aria-expanded", String(state.adding));
   const makeSheet = button("Make a sheet");

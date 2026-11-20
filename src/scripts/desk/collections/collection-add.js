@@ -4,9 +4,8 @@
 // 3; STUDY-DESK.md, "Getting things in"), the twin of Add to sheet's row
 // (../sheets/sheet-add.js): the five collections changed last, "New
 // collection…", and, past five, "All collections…" (E154's pick window). It
-// is in Chapter View and in /desk's LIT pane, which has no Add to sheet row
-// (its own "Add to “…”" aims at the Sheets pane). Read View and the glossary
-// get none.
+// is in Chapter View and in /desk's LIT pane, as Add to sheet's is (E170).
+// Read View and the glossary get none.
 //
 // A pick adds the passage through addPassageToCollection (add-passage.js), so
 // the words, the undo bar and the repeat check are that module's. Nothing is

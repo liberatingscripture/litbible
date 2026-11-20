@@ -1608,7 +1608,10 @@ a.desk-verse__mention-ref:hover {
 
 /* A colour as a control or a label: a short sample of text in the colour's
    look ("ab"), in the menus' Highlight row and beside a highlight in the
-   Notebook's lists. Its name is in words (aria-label, or text beside it). */
+   Notebook's lists. Its name is in words (aria-label, or text beside it).
+   As a button it is a flat toggle (the kinds, at the end), so it is never
+   the color of the menu or list behind it (E169); as a label it is a span
+   with no edge. */
 .desk-swatch {
   display: inline-flex;
   align-items: center;
@@ -1616,9 +1619,7 @@ a.desk-verse__mention-ref:hover {
   min-width: 36px;
   min-height: 32px;
   padding: 0 6px;
-  border: 1px solid var(--border, rgba(var(--ink-rgb), 0.18));
   border-radius: 6px;
-  background: var(--surface-raised, transparent);
   color: var(--text, inherit);
   font: inherit;
   line-height: 1;
@@ -1635,12 +1636,6 @@ span.desk-swatch {
   min-width: 0;
   min-height: 0;
   padding: 0;
-  border: 0;
-  background: none;
-}
-
-.desk-swatch:hover:not(span) {
-  border-color: rgba(var(--ink-rgb), 0.45);
 }
 
 .desk-swatch:focus-visible {
@@ -1744,8 +1739,8 @@ a.desk-item__highlight:hover {
 }
 
 /* The choice of colour above My Notes' list: "All" and a swatch for each
-   colour the list holds. The pressed one is told by a heavier border as well
-   as a tint, since a tint alone is a cue by colour. */
+   colour the list holds. The pressed one is a flat toggle that is on (sunk,
+   with the text green's edge), not a cue by colour alone (E169). */
 .desk-mine__colors {
   display: flex;
   flex-wrap: wrap;
@@ -1756,12 +1751,6 @@ a.desk-item__highlight:hover {
 
 .desk-mine__colors[hidden] {
   display: none;
-}
-
-.desk-mine__colors .desk-swatch[aria-pressed="true"] {
-  border-color: var(--text);
-  background: rgba(var(--ink-rgb), 0.07);
-  box-shadow: inset 0 0 0 1px var(--text);
 }
 
 @media (forced-colors: active) {
@@ -9470,7 +9459,7 @@ mark.desk-print-mark {
    copy for /search. Under prefers-reduced-motion the lift and every
    transition go; the shadows stay (test/desk-buttons-css.test.js). */
 
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))) {
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))) {
   border: 1px solid var(--field-border);
   border-bottom-color: var(--desk-btn-edge-low);
   background: var(--desk-control);
@@ -9482,14 +9471,14 @@ mark.desk-print-mark {
     background-color var(--desk-btn-motion) ease;
 }
 
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], :active) {
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], :active) {
   background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
   box-shadow: var(--desk-btn-lift);
   transform: translateY(var(--desk-btn-lift-y));
 }
 
 /* Pressed, on or open: sunk. */
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   border-bottom-color: var(--field-border);
   background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
   box-shadow: var(--desk-btn-press);
@@ -9498,14 +9487,14 @@ mark.desk-print-mark {
 
 /* On, or its menu open: the text green's edge and words too, more than a
    change of color alone. */
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   border-color: var(--green-text);
   color: var(--green-text);
 }
 
 /* Disabled: flat, nothing to press, and still a button: its edge and its
    fill stay, so it is never the color of what lies behind it (E159). */
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:disabled, [aria-disabled="true"]) {
+:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--field-border);
   background: var(--desk-control);
   color: rgba(var(--ink-rgb), 0.7);
@@ -9579,7 +9568,7 @@ mark.desk-print-mark {
    rectangle): the control's fill and
    edge, flat at rest; on is sunk, with the text green's edge and words.
    Every Pin is one, the reading pages' included (E159). */
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button)) {
   border: 1px solid var(--field-border);
   background: var(--desk-control);
   color: var(--text);
@@ -9588,18 +9577,18 @@ mark.desk-print-mark {
     background-color var(--desk-btn-motion) ease;
 }
 
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):hover:not(:disabled, [aria-pressed="true"], :active) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button)):hover:not(:disabled, [aria-pressed="true"], :active) {
   border-color: var(--field-border);
   background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
   color: var(--text);
 }
 
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip):is(:active, [aria-pressed="true"]):not(:disabled) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button)):is(:active, [aria-pressed="true"]):not(:disabled) {
   background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
   box-shadow: var(--desk-btn-press);
 }
 
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
+:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button))[aria-pressed="true"]:not(:disabled) {
   border-color: var(--green-text);
   color: var(--green-text);
 }
@@ -9656,12 +9645,12 @@ mark.desk-print-mark {
    disabled button reads in GrayText, and the primary takes a thicker edge
    as the Sheets' does (XA8-7). */
 @media (forced-colors: active) {
-  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]),
-  :is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip)[aria-pressed="true"]:not(:disabled) {
+  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]),
+  :is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button))[aria-pressed="true"]:not(:disabled) {
     border-color: Highlight;
   }
 
-  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, :where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:disabled, [aria-disabled="true"]),
+  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:disabled, [aria-disabled="true"]),
   :is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary):is(:disabled, [aria-disabled="true"]) {
     border-color: GrayText;
     color: GrayText;
