@@ -555,7 +555,7 @@ my notebook"**. Twelve things to know:
   drawn earlier stops listening for changes (`viewSeq`). A shared sheet
   has no Edit until it is imported.
 - **The list has a Sheets pane's rows** (E64; BVJ, 2026-11-09): Duplicate,
-  Save as template and Delete on each sheet, and "My templates" after the
+  Save as template, Collections… (D13) and Delete on each sheet, and "My templates" after the
   sheets, from `my-sheets.js` through `sheet-page-list.js`, which the page
   reaches **only by `import()`** when it draws the list: the rows bring the
   history (Ctrl+Z, and the undo bar's Undo for a deletion), which a test holds
@@ -566,6 +566,12 @@ my notebook"**. Twelve things to know:
   alone, off the page, swapped in only when they changed, so an open "New
   sheet…" chooser, the scroll, and focus stay (SH8-1).
   Where the import fails the sheets are plain links, as before E64.
+  **A new button on a sheet's row needs a column of its own** in the list's
+  grid (`.desk-sheet__sheets` in `desk.css`, a column per button, Delete
+  always the last), and the width below which the rows stack measured again
+  in all three fonts: without a column, the button starts a second line in
+  the name's column and stretches to its width, as Delete did once
+  Collections… joined the row (E184).
 - **`src/lib/desk-sheet-copy.mjs` is the rules** (pure, tested): which
   modules each copy prints (`modulesForCopy`: the participant's leaves
   out Leader only), one code per chapter (`chapterCodes`, the address
