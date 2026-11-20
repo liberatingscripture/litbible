@@ -425,7 +425,12 @@ The header's Study group is part 3's, built with header C.
   `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
   the two-tab question for that first open (`askFirst: false`), since the
   pane is the other tab and the reader sent it; the page drops the marker,
-  so a reload asks as usual. /sheets keeps "Edit in Study Desk".
+  so a reload asks as usual. /sheets keeps "Edit in Study Desk". **A Sheets
+  pane's header opens the list, `/sheets/`, in a new tab** (E179; BVJ,
+  2026-11-19): a link before the ×, "Sheets page" beside its glyph in a wide
+  header; a Collections pane's opens `/collections/` the same way. Which
+  kinds have one is `page` in `KINDS`, read by `kindPage`; /desk's title
+  menu names neither page.
 
 ## The Sheets tour (E63)
 

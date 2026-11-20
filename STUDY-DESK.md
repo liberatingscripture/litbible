@@ -5998,7 +5998,9 @@ wanted:
 - **Collections are never rows in My Notes or My Notebook's list**; they
   have their own section and filter.
 - **"My collections" goes wherever "My sheets" is listed**: header C's Study
-  group, the Notebook's Settings tab, and /desk's title menu.
+  group and the Notebook's Settings tab. On /desk neither is in the title
+  menu: a Sheets pane's and a Collections pane's header each open their page
+  in a new tab (BVJ, 2026-11-19, STUDY-DESK-FIXES.md E179).
 
 The steps:
 
@@ -6066,8 +6068,8 @@ step 2.
   again before closing D13."). Step 8 did what the website recommended on
   2026-11-18: the notebook tour's first stop names "Add to collection"
   beside "Add to sheet," its last stop ("My Notebook, and where it's kept")
-  names collections, and the Study Desk tour's card on the title menu names
-  "My collections." Its My Notes card lists no filters, so it names none.
+  names collections, and the Study Desk tour's card on the title menu named
+  "My collections" until E179 took it out of that menu. Its My Notes card lists no filters, so it names none.
   An empty `/collections/` page explains itself and links the help page's
   "How collections work" (step 2). The website's reasons, for the second
   ask: a collection has three ideas (name it, add to it, arrange it), and

@@ -43,6 +43,7 @@ const ORDINARY = [
   ".desk-cmdrow__btn", // the command row, its New sheet… included
   ".desk-lit__show", // the LIT pane's Show ▾
   ".desk-pane__pin", // Stay here, a toggle
+  ".desk-pane__page", // the Sheets and Collections panes' page link (E179)
   ".desk-item__edit",
   ".desk-item__delete",
   ".desk-verse__remove",
@@ -170,7 +171,7 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
   // system colors are allowed. Every Pin is a flat toggle, the reading pages'
   // too (E159); the Footnotes list's still shows and hides by opacity (E82).
   const classes = [
-    ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
+    ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-pane__page", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
     ".desk-verse__step", ".desk-mine__more-button", ".desk-note__more", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
     ".desk-notice__actions", ".desk-notice__keep", ".desk-panel__reset", ".desk-panel__print-button", ".desk-greek__goto",
     ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more",

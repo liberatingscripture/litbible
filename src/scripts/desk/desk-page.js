@@ -70,6 +70,7 @@ import {
   fitSizes,
   isFollower,
   kindLabel,
+  kindPage,
   leavesReading,
   marksTurned,
   needs,
@@ -121,6 +122,7 @@ import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
 import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
+import { OPEN_PAGE_ICON } from "./glyphs.js";
 import { createKindMenu } from "./kind-menu.js";
 import { createTitleMenu } from "./title-menu.js";
 import { factsFromStore, paintDots, startReminder } from "./reminder.js";
@@ -859,13 +861,26 @@ async function start() {
       // name theirs in their own passage or book bar.
       const at = el("span", "desk-pane__at");
       at.hidden = true;
+      // The page holding everything a Sheets or Collections pane lists (E179;
+      // BVJ, 2026-11-19), in a new tab, as every link that leaves the desk
+      // opens: the open-page glyph, and its name beside it where the header
+      // is wide enough, as "Stay here" is. mark() sets it for the pane's kind.
+      const page = el("a", "desk-pane__page");
+      page.target = "_blank";
+      page.rel = "noopener noreferrer";
+      page.hidden = true;
+      const pageGlyph = el("span", "desk-pane__page-glyph");
+      pageGlyph.innerHTML = OPEN_PAGE_ICON;
+      const pageWord = el("span", "desk-pane__page-word");
+      pageWord.setAttribute("aria-hidden", "true");
+      page.append(pageGlyph, pageWord);
       const close = el("button", "desk-pane__close");
       close.type = "button";
       close.innerHTML = ICON_CLOSE;
-      head.append(grip, h2, at, lead, pin, close);
+      head.append(grip, h2, at, lead, pin, page, close);
       const body = el("div", "desk-pane__body");
       section.append(head, body);
-      rec = { el: section, head, body, kindButton, lead, pin, close, place: at, kind: null, inst: null, at: null };
+      rec = { el: section, head, body, kindButton, lead, pin, page, close, place: at, kind: null, inst: null, at: null };
       paneEls.set(pane.id, rec);
 
       kindButton.addEventListener("click", () => kindMenu.open(pane.id, kindButton));
@@ -1020,6 +1035,14 @@ async function start() {
       const where = pane.kind === "mine" ? passageLabel({ ...passageOf(pane.id), verse: null }) : "";
       if (rec.place.textContent !== where) rec.place.textContent = where;
       rec.place.hidden = !where;
+      const page = kindPage(pane.kind);
+      rec.page.hidden = !page;
+      if (page && rec.page.getAttribute("href") !== page.href) {
+        rec.page.href = page.href;
+        rec.page.lastElementChild.textContent = page.name;
+        rec.page.setAttribute("aria-label", `Open the ${page.name} (opens in a new tab)`);
+        setTip(rec.page, `Open the ${page.name} in a new tab`);
+      }
       rec.close.hidden = all.length <= 1;
       rec.close.setAttribute("aria-label", `Close the ${name.replace(/^The /, "")} pane`);
       setTip(rec.close, `Close the ${name.replace(/^The /, "")} pane`);

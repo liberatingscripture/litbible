@@ -94,9 +94,8 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   notebookItem.href = "/notebook/";
   // Carries the backup reminder's dot (reminder.js, E113).
   notebookItem.setAttribute("data-desk-notebook-item", "");
-  // The collections' page (D13, decision 16 and call 10), beside the notebook's.
-  const collectionsItem = item("My collections", "a");
-  collectionsItem.href = "/collections/";
+  // No "My collections" (BVJ, 2026-11-19, E179: "or if it does, sheets
+  // should too"): the Sheets and Collections panes' headers open their pages.
   // The Study Desk tour runs here, in place (E24); the notebook's runs on a
   // chapter page and starts from the Notebook's foot and the help page.
   const tourItem = item("Take the tour");
@@ -105,7 +104,7 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   feedbackItem.href = FEEDBACK_HREF;
   // Each leaves the desk, so they open beside it, and say so: the open-page
   // mark to the eye, the words to a screen reader (E71).
-  const links = [notebookItem, collectionsItem, feedbackItem];
+  const links = [notebookItem, feedbackItem];
   for (const link of links) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -129,10 +128,10 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   titleMenu.append(tourLine);
   if (displayItem) titleMenu.append(displayItem);
   if (fullItem) titleMenu.append(fullItem);
-  titleMenu.append(el("div", "desk-title__rule"), notebookItem, collectionsItem, tourItem, feedbackItem);
+  titleMenu.append(el("div", "desk-title__rule"), notebookItem, tourItem, feedbackItem);
   const baseItems = [
     ...(displayItem ? [displayItem] : []), ...(fullItem ? [fullItem] : []),
-    notebookItem, collectionsItem, tourItem, feedbackItem,
+    notebookItem, tourItem, feedbackItem,
   ];
   const topItems = () => (tourLine.hidden ? baseItems : [tourLineGo, tourLineNo, ...baseItems]);
 
