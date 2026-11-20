@@ -335,15 +335,51 @@ export function leaveOut(c, bookmarkId, records, ctx) {
   return changed ? withMembers(c, members, ctx) : c;
 }
 
-/** A bookmark left out brought back: its id taken off every rule's `except`. */
-export function bringBack(c, bookmarkId, ctx) {
+/**
+ * Where an item naming the bookmark sits in `members`, read before
+ * `leaveOut` takes it out: `{ memberId, after, before }` (the ids of the
+ * members just before and after it, or null at an end), or null when no item
+ * names it (a bookmark only a rule brought in was at the end anyway). The
+ * record format keeps no place for a left-out item, so a caller remembers
+ * this for as long as it wants and hands it to `bringBack`.
+ */
+export function leftOutPlace(c, bookmarkId) {
+  if (!Array.isArray(c?.members)) return null;
+  const at = c.members.findIndex((m) => isItem(m) && m.recordId === bookmarkId);
+  if (at < 0) return null;
+  return {
+    memberId: c.members[at].id ?? null,
+    after: c.members[at - 1]?.id ?? null,
+    before: c.members[at + 1]?.id ?? null,
+  };
+}
+
+/**
+ * A bookmark left out brought back: its id taken off every rule's `except`.
+ * With `place` (from `leftOutPlace`) and no item for the bookmark held now, an
+ * item goes back where it was: before the member `place.before` if that is
+ * still there, else after `place.after` if it is, else at the end. It reuses
+ * `place.memberId` as its id when that is free. The collection itself when
+ * nothing changes; refuses to pass the member limit.
+ */
+export function bringBack(c, bookmarkId, ctx, place = null) {
   mustEdit(c);
   let changed = false;
-  const members = c.members.map((m) => {
+  let members = c.members.map((m) => {
     if (!isBookmarkRule(m) || !Array.isArray(m.except) || !m.except.includes(bookmarkId)) return m;
     changed = true;
     return { ...m, except: m.except.filter((id) => id !== bookmarkId) };
   });
+  if (place && changed && !holdsItem(c, bookmarkId)) {
+    roomFor(c, 1);
+    const free = typeof place.memberId === "string" && !c.members.some((m) => m?.id === place.memberId);
+    const item = itemMember(bookmarkId, free ? { id: place.memberId } : undefined);
+    const before = place.before ? members.findIndex((m) => m?.id === place.before) : -1;
+    const after = place.after ? members.findIndex((m) => m?.id === place.after) : -1;
+    const at = before >= 0 ? before : after >= 0 ? after + 1 : members.length;
+    members = [...members.slice(0, at), item, ...members.slice(at)];
+    changed = true;
+  }
   return changed ? withMembers(c, members, ctx) : c;
 }
 
