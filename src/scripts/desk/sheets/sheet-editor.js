@@ -35,7 +35,7 @@
 // - **The list of sheets is my-sheets.js** (Audit 6, LG6-2): "My sheets" and
 //   "My templates", their rows' actions, and the template chooser. `showList`
 //   here clears the sheet view and hands it `listHost`.
-// - **"Save as template" is the sheet's own** (E192): in its header row, with
+// - **"Save as template" is the sheet's own** (E208): in its header row, with
 //   the other actions on the whole sheet, never on the list's rows
 //   (`saveAsTemplate`, `drawKeep`).
 // - **The passage form and "+ From my notes…" are add-forms.js** (Audit 6,
@@ -148,7 +148,7 @@ const json = (x) => JSON.stringify(x);
  *   `showPassage` moves the LIT pane to a passage, where there is one;
  *   `onSheetChange` is called whenever the sheet shown, or its record, changes;
  *   `onList` is a host's own list of sheets, shown instead of the editor's
- *   (/sheets/); `onDone` is a host's own view of the sheet, which a Done
+ *   (/sheets/); `onDone` is a host's own view of the sheet, which a Preview
  *   button returns to once the sheet is saved, in place of "Present…" and
  *   "Print or share…" (/sheets/?id=). `askFirst: false` skips the two-tab
  *   question for the first sheet opened (the pane's "Open on its own page").
@@ -590,7 +590,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
   let sizeSelect = null;
   let sheetView = null;
   let plannedLine = null;
-  // "Save as template" in the header (E192), its description, and whether a
+  // "Save as template" in the header (E208), its description, and whether a
   // save from it is under way; drawKeep() keeps them in line with the sheet.
   let keep = null;
   let keepHint = null;
@@ -833,7 +833,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
       a.addEventListener("auxclick", persistDraft);
     }
     // Save as template (Audit 5, D #1), with the other actions on the whole
-    // sheet, in this row and in both hosts (E192; BVJ, 2026-11-20): it was on
+    // sheet, in this row and in both hosts (E208; BVJ, 2026-11-20): it was on
     // each row of the list of sheets, which is not where a sheet worth keeping
     // is being shaped, and the foot of the sheet was weighed and declined as
     // too easily missed. A template is one already, so it has none.
@@ -853,11 +853,14 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     }
     if (onDone) {
       // On the sheet's own page, its versions are the page itself (S12, part 1, step 2).
-      // "Close" at the right edge, beside the saved line, still green (BVJ,
-      // 2026-11-10; it was "Done" in the middle of the row).
-      const done = button("Close", "desk-sheet__btn desk-sheet__btn--primary");
-      done.title = "Back to the leader and participant versions, to print, copy, or share";
-      const doneHint = describe(done, "Back to the leader and participant versions, to print, copy, or share.");
+      // "Preview" at the right edge, beside the saved line, still green (BVJ,
+      // 2026-11-10, then E209, 2026-11-20). It was "Done" in the middle of the
+      // row, which sounds finished, then "Close", which names only what is
+      // left; the versions view is where the sheet is seen as it prints, and
+      // its Edit comes back here, so the pair is Edit and Preview.
+      const done = button("Preview", "desk-sheet__btn desk-sheet__btn--primary");
+      done.title = "See this sheet as it prints, to print, copy, present, or share it";
+      const doneHint = describe(done, "Shows this sheet as it prints, to print, copy, present, or share it.");
       done.addEventListener("click", async () => {
         flushAll();
         persistDraft();

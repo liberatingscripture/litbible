@@ -49,7 +49,7 @@
 // **It writes nothing.** The tour's sheet is the editor's example mode
 // (`setExample` in sheet-editor.js): a change is made in memory, and the sheet
 // is never written, by its first change or by anything that would write a new
-// sheet first ("Print or share…", "Present…", "Open on its own page", Done),
+// sheet first ("Print or share…", "Present…", "Open on its own page", Preview),
 // and, never written, it is in no "Add to sheet" list. The tour turns it on and starts the sheet in the
 // tick the editor is made (`onMade`), before the editor's first view would
 // show its list. Each host keeps the rest of its page off disk: the desk

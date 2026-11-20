@@ -4,7 +4,7 @@
 // each sheet with Duplicate, Collections… and Delete, and the reader's own
 // templates under "My templates", as a Sheets pane's list has them
 // (my-sheets.js draws both), and Edit, which a pane's rows don't need since
-// their names open the editor (E192). Until then the page listed its sheets as plain
+// their names open the editor (E208). Until then the page listed its sheets as plain
 // links, since it never wrote a record; S12 gave it an editor, and with it
 // the reason for the actions.
 //

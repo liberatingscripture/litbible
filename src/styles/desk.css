@@ -7178,7 +7178,7 @@ a.desk-sheet__open {
    collections list have only Delete, so their lists have two columns.
    Without subgrid, the rows stay flex.
    A sheet's row on /sheets has four buttons (Edit, Duplicate, Collections…
-   and Delete; E192), and three in a Sheets pane, whose rows need no Edit, so
+   and Delete; E208), and three in a Sheets pane, whose rows need no Edit, so
    its list has a column for each of the four. A button with no column
    left would start a second line in the title's column and stretch to its
    width, as Delete did once Collections… joined the row (D13, step 4). So
@@ -7249,7 +7249,7 @@ a.desk-sheet__open {
   /* A sheet's row, with its buttons, needs more than 24rem. On /sheets, with
      Edit, Duplicate, Collections… and Delete: from 448 to 526px across the
      Display tray's text sizes in the default font, 436 to 508px in Atkinson,
-     and 522 to 632px in OpenDyslexic (measured 2026-11-20, E192, the
+     and 522 to 632px in OpenDyslexic (measured 2026-11-20, E208, the
      container queries turned off and the list narrowed until a button ran
      past its row). A Sheets pane's rows, without Edit, need 400 to 470px,
      380 to 452px and 462 to 558px, but share the limits, so the list stacks

@@ -10,7 +10,7 @@
 //   new sheet isn't written until its first change (SH6-7), so it has no id
 //   until then, and the address gains one when it is saved.
 // - **The page's own list and versions stand in for the editor's**: "‹ All
-//   sheets" goes to the page's list (`onList`), and Done back to the sheet's
+//   sheets" goes to the page's list (`onList`), and Preview back to the sheet's
 //   versions (`onDone`), where the pane has "Present…" and "Print or share…".
 //   Cancel, when another tab is editing the sheet, goes back to its versions
 //   too (`onCancel`; S12, part 4).

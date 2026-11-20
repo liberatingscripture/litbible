@@ -2,7 +2,7 @@
 //
 // /sheets/'s list has a Sheets pane's row actions (STUDY-DESK-FIXES.md E64;
 // BVJ, 2026-11-09): Duplicate, Collections… and Delete on each sheet (with
-// Edit first on the page alone, E192, when Save as template moved into the
+// Edit first on the page alone, E208, when Save as template moved into the
 // editor), and the reader's own templates under "My templates". The rows are my-sheets.js's,
 // the pane's own, so the two lists can't drift apart. They run in the browser,
 // so these read the code: the page reaches the rows only by import(), since

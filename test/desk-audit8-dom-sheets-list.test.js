@@ -7,8 +7,8 @@
 //   page, and only when they changed; "New sheet…"'s chooser and focus stay.
 // - SH8-5: a failed Delete says so, and a second press waits for the first.
 // - XA8-4: a row button's accessible name starts with its visible words
-//   (Edit's, since E192 moved "Save as template", the button XA8-4 named,
-//   into the editor; that one is tested in desk-e192-template.test.js).
+//   (Edit's, since E208 moved "Save as template", the button XA8-4 named,
+//   into the editor; that one is tested in desk-e208-template.test.js).
 // - XA8-15: a row button that can't be used stays reachable and says why.
 // - XA8-8: importing a shared sheet is announced through a region always on the page.
 
@@ -81,14 +81,14 @@ const rowButton = (content, label) =>
   [...content.querySelectorAll(".desk-sheet__sheet button")].find((b) => b.textContent === label);
 const rowLabels = (li) => [...li.querySelectorAll("button")].map((b) => b.textContent);
 
-test("a row has no Save as template, on /sheets/ or in a pane: it is the editor's (E192)", () => {
+test("a row has no Save as template, on /sheets/ or in a pane: it is the editor's (E208)", () => {
   for (const list of [paneList, pageList]) {
     const { content } = list([sheetOf("Romans 8 study")]);
     assert.equal(rowButton(content, "Save as template"), undefined);
   }
 });
 
-test("/sheets/' rows have Edit first after the name, named by its visible words first, and a press opens the editor (E192, XA8-4)", () => {
+test("/sheets/' rows have Edit first after the name, named by its visible words first, and a press opens the editor (E208, XA8-4)", () => {
   const s = sheetOf("Romans 8 study");
   const { content, opened } = pageList([s]);
   const li = content.querySelector(".desk-sheet__sheet");
@@ -102,7 +102,7 @@ test("/sheets/' rows have Edit first after the name, named by its visible words 
   assert.deepEqual(opened, [s.id]);
 });
 
-test("a Sheets pane's rows have no Edit: the name opens the editor there (E192)", () => {
+test("a Sheets pane's rows have no Edit: the name opens the editor there (E208)", () => {
   const { content } = paneList([sheetOf("Romans 8 study")]);
   const li = content.querySelector(".desk-sheet__sheet");
   assert.deepEqual(rowLabels(li).slice(1), ["Duplicate", "Collections…", "Delete"]);

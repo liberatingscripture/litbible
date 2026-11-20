@@ -5321,7 +5321,7 @@ says so; where BVJ was wondering, nothing is decided.)
   a collection's page are white with the field edge. Test:
   `test/desk-audit8-f-css.test.js`. Status: fixed.
 
-- **E192, preference: “Save as template” belongs to the sheet, not the
+- **E208, preference: “Save as template” belongs to the sheet, not the
   list, and /sheets' rows want an Edit.** BVJ, 2026-11-20: “Would it make
   more sense to have the Save as Template button in the sheets editor or
   sheet viewer rather than in the list of sheets?”, then “If it moved, that
@@ -5354,8 +5354,31 @@ says so; where BVJ was wondering, nothing is decided.)
   than about 650px the header row's items wrap whole onto one more line
   than before. The Sheets tour's “My sheets” and “Start from a template”
   steps and the help page's “Finding your sheets” and “Your own templates”
-  say where each is now. Tests: `test/desk-e192-template.test.js`,
-  `test/desk-audit8-dom-sheets-list.test.js`. Status: fixed.
+  say where each is now. Tests: `test/desk-e208-template.test.js`,
+  `test/desk-audit8-dom-sheets-list.test.js`. Status: fixed. (Opened as
+  E192 in PR #654; renumbered the same day, since PR #655 had taken E192
+  to E207.)
+
+- **E209, wording: the /sheets editor's “Close” didn't say where it goes.**
+  BVJ, 2026-11-20: “Close is correct, but maybe View sheet? or Close and
+  view? or Done? But maybe the user isn't actually done, just wanting to
+  see how it looks.” (A “Save and close” was weighed first and declined:
+  the sheet saves as it is typed, and one exit saying it saves would
+  suggest the others, “‹ All sheets,” Back, closing the tab, and the Sheets
+  pane, don't.) The button on /sheets' editor goes to the sheet's versions,
+  laid out as it prints, where Print, Copy, Save as, Present, and Share
+  are, and whose primary button, Edit, comes back: a round trip. “Close”
+  named only what is left; “Done” (its name until #534) sounds finished;
+  “View sheet” says nothing new while the sheet is already on screen;
+  “Close and view” is two verbs. Claude proposed **“Preview”**, the
+  familiar partner of Edit, true of a view drawn as pages, and BVJ chose
+  it (“Yes, Preview”). **Built** (`sheet-editor.js`): the label, its title
+  (“See this sheet as it prints, to print, copy, present, or share it”)
+  and its description; still the green primary at the right edge, beside
+  the saved line, saving waiting typing before it goes. The Sheets tour's
+  page card for “Print or share” and the help page's “Going back to
+  editing” say “Preview.” Test: `test/desk-e208-template.test.js` (the
+  header's labels and the button's description). Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

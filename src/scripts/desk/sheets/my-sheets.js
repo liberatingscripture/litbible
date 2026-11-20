@@ -4,7 +4,7 @@
 // `createSheetEditor` as kind-menu.js was taken out of desk-page.js's
 // `start()`): "My sheets" with each sheet's Duplicate, Collections… and
 // Delete (and Edit on /sheets/), the reader's own templates under it ("My
-// templates"; "Save as template" is the editor's, E192), and the
+// templates"; "Save as template" is the editor's, E208), and the
 // template chooser New sheet opens, which /sheets/ uses too. It draws the
 // list and acts on its rows; what the editor shows, and when, stays the
 // editor's, handed in as `host`. /sheets/'s own list draws its rows with
@@ -21,7 +21,7 @@
 // - `sheetHref(record)`, optional: where a row's name links to. /sheets/
 //   passes it, so a row is a link (a sheet's versions, a template's editor)
 //   rather than a button calling `openSheet`, and a sheet's row gains an
-//   Edit button, which calls `openSheet` (E192);
+//   Edit button, which calls `openSheet` (E208);
 // - `headingTag`, optional: "My templates"' heading, "h3" unless given.
 //
 // It imports nothing of the editor's, so /sheets/ can load it to draw its
@@ -209,7 +209,7 @@ export function sheetRow(host, s, ul) {
   });
   // Edit, first after the name, where the name opens something else: on
   // /sheets/ it opens the sheet's versions (`sheetHref`), so editing took a
-  // second press there (E192; BVJ, 2026-11-20). A Sheets pane's name opens
+  // second press there (E208; BVJ, 2026-11-20). A Sheets pane's name opens
   // the editor itself, so its rows have none. A button, not a link, so it
   // never counts as the row's last link (the grid pins that one to Delete's
   // column) and needs no address of its own; the page's `openSheet` makes it

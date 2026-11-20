@@ -1,4 +1,4 @@
-// "Save as template" in the sheet editor (STUDY-DESK-FIXES.md E192; BVJ,
+// "Save as template" in the sheet editor (STUDY-DESK-FIXES.md E208; BVJ,
 // 2026-11-20), driven in a browser DOM over the real notebook store on
 // fake-indexeddb. It moved from the list's rows into the editor's header row,
 // with the other actions on the whole sheet, in both hosts (a Sheets pane and
@@ -49,7 +49,7 @@ afterEach(() => {
 });
 
 /** The editor on a saved sheet, as a Sheets pane has it, or as /sheets/ does with `page`. */
-async function editorOn(sheet, { page = false } = {}) {
+async function editorOn(sheet, { page = false, onDone = () => {} } = {}) {
   await here.save(sheet);
   let shown = sheet.id;
   editor = createSheetEditor({
@@ -59,7 +59,7 @@ async function editorOn(sheet, { page = false } = {}) {
     getSheet: () => shown,
     setSheet: (id) => { shown = id; },
     askFirst: false,
-    ...(page ? { onList: () => {}, onDone: () => {} } : {}),
+    ...(page ? { onList: () => {}, onDone } : {}),
   });
   document.body.replaceChildren(editor.el);
   await until(() => editor.el.querySelector(".desk-sheet__title"), 3000, "the sheet");
@@ -84,9 +84,32 @@ test("in a Sheets pane it is in the header row, after the other actions on the w
   assert.ok(!editor.el.querySelector(".desk-sheet__license, .desk-sheet__modules")?.contains(keepIn(top)), "not at the sheet's foot");
 });
 
-test("on /sheets/' editor it follows ‹ All sheets, before Close", async () => {
+test("on /sheets/' editor it follows ‹ All sheets, before Preview", async () => {
   const top = await editorOn(sheetOf("Lent study"), { page: true });
-  assert.deepEqual(labels(top), ["‹ All sheets", "Save as template", "Close"]);
+  assert.deepEqual(labels(top), ["‹ All sheets", "Save as template", "Preview"]);
+});
+
+// E209 (BVJ, 2026-11-20): the button that leaves /sheets/' editor for the
+// sheet's versions is "Preview", Edit's partner there; "Close" named only
+// what was left, and "Done" sounded finished.
+test("/sheets/' editor ends its row with Preview, which says what the versions view is for and goes there", async () => {
+  const went = [];
+  const sheet = sheetOf("Lent study");
+  const top = await editorOn(sheet, { page: true, onDone: (id) => went.push(id) });
+  const preview = [...top.querySelectorAll("button")].find((b) => b.textContent === "Preview");
+  assert.ok(preview, "a Preview button");
+  assert.ok(preview.classList.contains("desk-sheet__btn--primary"), "still the row's primary");
+  assert.ok(![...top.querySelectorAll("button")].some((b) => /^(Close|Done)$/.test(b.textContent)), "no Close or Done");
+  assert.match(preview.title, /as it prints, to print, copy, present, or share it/);
+  assert.match(why(preview), /^Shows this sheet as it prints, to print, copy, present, or share it\.$/);
+  preview.click();
+  await until(() => went.length === 1, 3000, "the versions view");
+  assert.deepEqual(went, [sheet.id]);
+});
+
+test("a Sheets pane has no Preview: its Present and Print or share open the sheet's page", async () => {
+  const top = await editorOn(sheetOf("Lent study"));
+  assert.ok(![...top.querySelectorAll("button")].some((b) => b.textContent === "Preview"));
 });
 
 test("a press keeps the sheet open, makes a template of its parts without the passages, and says so with Undo", async () => {

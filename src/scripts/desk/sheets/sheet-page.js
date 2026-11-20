@@ -12,7 +12,7 @@
 //   by import(), see `showList`); `/sheets/?id=<id>` shows one. The id is a
 //   random one that means nothing outside this browser's notebook.
 // - **Edit** (S12, part 1, step 2; BVJ, 2026-11-08, decision 1) turns the
-//   page into the sheet editor, `/sheets/?id=<id>&view=edit`, and Done turns
+//   page into the sheet editor, `/sheets/?id=<id>&view=edit`, and Preview turns
 //   it back; "Edit in Study Desk" stays beside it for the fuller
 //   workspace. **New sheet…** on the list offers the templates and opens the
 //   new sheet in the editor. The editor's code (sheet-page-edit.js, which
@@ -232,7 +232,7 @@ async function copyToClipboard({ html, text }) {
  * new address. `focusKey` names the control to focus once it is drawn (a
  * row's `data-focus-key`), after a row's action redraws the list.
  *
- * Each sheet has Edit, Duplicate, Collections… and Delete (Edit since E192,
+ * Each sheet has Edit, Duplicate, Collections… and Delete (Edit since E208,
  * when Save as template moved into the editor), and the reader's own
  * templates are listed under "My templates" (E64), as in a Sheets pane: the
  * rows are sheet-page-list.js's, loaded by import() so the history they need
@@ -1483,7 +1483,7 @@ function tourHost(root, store) {
             template: null,
             // Its sheet is never saved, so it never has an address.
             onSaved: () => {},
-            // "‹ All sheets" and Done go to the tour's own list and versions.
+            // "‹ All sheets" and Preview go to the tour's own list and versions.
             onList: () => host.showList(),
             onDone: () => host.versions(tourEditing.editor),
             onCancel: () => {},
