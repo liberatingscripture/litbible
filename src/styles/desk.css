@@ -5056,10 +5056,14 @@ html[data-desk-workspace] .desk-page__notice {
   display: block;
 }
 
-/* The windows open under their buttons, not centered under the title. */
+/* The windows open under their buttons, not centered under the title, and
+   scroll inside themselves past the window's foot (command-row.js, fitBelow,
+   which sets their max-height). */
 .desk-cmdrow .desk-ws__menu {
   left: 0;
   transform: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Column and row, then the kinds of pane, in one menu under Add pane; a
@@ -5626,6 +5630,9 @@ html.desk-ws--moving * {
   display: none;
 }
 
+/* kind-menu.js's placeFly keeps it inside the window, placing it again at
+   each step and capping its height there; past that it scrolls, as the menu
+   does (`.desk-pane__menu`). */
 .desk-pane__fly {
   min-width: 170px;
 }

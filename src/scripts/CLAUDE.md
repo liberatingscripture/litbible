@@ -220,7 +220,13 @@ since a reader who arrows never lands on the line: the menu carries
 unavailable: needs a larger window." for each such line (`describeUnavailable`
 in `desk/menu-reasons.js`; call `refresh()` whenever a line's state or reason
 changes while the menu is open). A line disabled with no reason (a busy
-button) adds nothing. A new menu follows both. The selection panel passes
+button) adds nothing. **No menu or flyout runs past the window's foot**
+(E179; BVJ, 2026-11-19): one whose lines change while it is open (Add pane's
+sides, then its kinds) is placed again at each step, and one taller than its
+room stops 8px from the window's edge and scrolls inside itself. A menu fixed
+to the window closes on any scroll outside it, so a foot off the screen could
+never be read; one hanging in a scrolling page could be, but only by
+scrolling the page. A new menu follows all three. The selection panel passes
 `pointerFocus: false`, so a mouse click never moves focus into it (the panel
 never takes focus; a keyboard press does). **A click on a flyout that hover
 opened takes it rather than shutting it** (Audit 3, NB3-1): the pointer opens
