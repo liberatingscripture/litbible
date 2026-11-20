@@ -28,7 +28,7 @@ import {
 import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
-import { collectionsSubject, openCollectionsPopover } from "./collections/collections-popover.js";
+import { collectionsSubject, keepCollectionsWords, openCollectionsPopover } from "./collections/collections-popover.js";
 import { ITEM_KINDS, collectionCount, collectionName, collectionsNamed } from "../../lib/desk-collections.mjs";
 import { collectionHref, collectionLink, collectionsHref } from "./collections/add-passage.js";
 import { openAddRecords } from "./collections/add-records.js";
@@ -278,7 +278,15 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
       const section = el("section", "desk-np__group");
       section.append(el(`h${level}`, `desk-np__h${level}`, title));
       const ul = el("ul", "desk-list");
-      ul.append(...records.map((r) => recordRow(r, actions)));
+      ul.append(
+        ...records.map((r) => {
+          const li = recordRow(r, actions);
+          // "Collections…" says where the item is, and keeps saying it (E202).
+          const collect = li.querySelector(".desk-item__collections");
+          if (collect) keepCollectionsWords(collect, { store, recordId: r.id, subject: collectionsSubject(r, recordReference(r)), records: lastRecords });
+          return li;
+        }),
+      );
       section.append(ul);
       return section;
     };
