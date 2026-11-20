@@ -16,6 +16,9 @@ import { inDock, panelRoom, shiftClearOfDock } from "./desk-frame.js";
 
 let openPanel = null;
 
+/** The room a panel keeps from the window's edges, as showPanel's clamp does. */
+const PANEL_MARGIN = 12;
+
 /**
  * The open panel's record ({ el, trigger, restoreFocus, onClose, ...extra }),
  * or null. Callers may set fields on it (restoreFocus, acting); it is the live
@@ -42,6 +45,30 @@ export function keepClearOfDock() {
 }
 
 /**
+ * Keep a panel pinned to the screen inside the window as it grows. A panel is
+ * measured when it is placed, and the Study Desk adds rows to the verse menu
+ * once it has read the notebook ("Remove highlight", a verse's bookmarks), so
+ * a menu that just fitted below its verse ran past the window's foot, and a
+ * pinned panel can't be scrolled to (the Study Desk tour's "Adding to a
+ * collection" card found its row cut off there; BVJ, 2026-11-19). It moves up
+ * by what runs over, never above the top margin; past the window's height its
+ * own max-height scrolls it. A panel that scrolls with the page, a bottom
+ * sheet, and one being dragged are left alone. Returns the observer, or null.
+ */
+function keepInWindow(el) {
+  if (typeof ResizeObserver !== "function") return null;
+  const observer = new ResizeObserver(() => {
+    if (!el.isConnected) return observer.disconnect();
+    if (!el.classList.contains("lit-panel--pinned") || el.classList.contains("lit-panel--dragging")) return;
+    const r = el.getBoundingClientRect();
+    const over = r.bottom - (window.innerHeight - PANEL_MARGIN);
+    if (over > 0) el.style.top = `${Math.max(PANEL_MARGIN, r.top - over)}px`;
+  });
+  observer.observe(el);
+  return observer;
+}
+
+/**
  * Whether the open panel must stay because it holds unsaved words, and is
  * saying so now. True the first time; the next ask, with nothing typed in
  * between (the panel clears `held` on input), lets it go. A caller that is
@@ -65,8 +92,9 @@ export function holdPanel() {
 export function closePanel({ force = false } = {}) {
   if (!openPanel) return true;
   if (!force && holdPanel()) return false;
-  const { el, restoreFocus, onClose } = openPanel;
+  const { el, restoreFocus, onClose, sizeWatch } = openPanel;
   openPanel = null;
+  sizeWatch?.disconnect();
   el.remove();
   if (onClose) onClose();
   if (restoreFocus && document.contains(restoreFocus)) restoreFocus.focus();
@@ -203,6 +231,8 @@ export function showPanel(trigger, el, { restoreFocus = null, onClose = null, ex
     }
   });
 
-  openPanel = { el, trigger, restoreFocus, onClose, ...extra };
+  // Pinned here or after this (a finger's menu, one dragged), so watched either way.
+  const sizeWatch = el.classList.contains("lit-panel--sheet") ? null : keepInWindow(el);
+  openPanel = { el, trigger, restoreFocus, onClose, sizeWatch, ...extra };
   return el;
 }

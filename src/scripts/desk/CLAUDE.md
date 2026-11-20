@@ -1364,7 +1364,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `data-panels-pin`, and `showPanel` (`lit-panel.js`) pins a panel whose
        trigger is inside it, or one opened with `pinned` (the selection
        panel, whose trigger is a rectangle), since a place in the document
-       wouldn't move with text scrolling in its own box. Its footnote letters
+       wouldn't move with text scrolling in its own box. A pinned panel moves
+       up as it grows, since the desk's rows arrive after it is measured
+       (`keepInWindow`). Its footnote letters
        are `aria-haspopup="dialog"`, as Chapter View's, and a middle-click on
        one is cancelled, so it never opens another /desk (BA126). No
        reader's notes or bookmarks beside the pane's text, by BVJ's choice
