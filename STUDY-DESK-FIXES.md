@@ -4855,6 +4855,26 @@ says so; where BVJ was wondering, nothing is decided.)
   and Enter), `test/desk-search-pane.test.js`, `test/desk-inert.test.js`;
   `desk-intro-pane-images` and `desk-intro-text` went with the pane.
   Status: fixed.
+- **E174, bug: the New collection window asked for a name only.** BVJ,
+  2026-11-20, with a screenshot of the window opened from a verse menu's
+  “Add to collection ▸ / New collection…”: “I thought we fixed this, adding
+  a description to the New collection window.” No change on record had
+  added it: Rename… on a collection's page asks for its name and
+  description, but `openNewCollection` (`collections/new-collection.js`)
+  gave its window a Name field alone. **Fixed**: the window has a
+  Description field under Name, the same one Rename… has (several lines, up
+  to 1,000 characters), and optional, since only the first field is
+  required; a description given is kept with the new collection
+  (`createCollection` took one already). Every way in uses that window, so
+  each gets it: the collections page's “New collection…,” the one in My
+  Notebook's Collections section, Add to collection ▸'s, and the pick
+  windows' “New collection…” action row (This verse's
+  Add to collection…, “Add these N to a collection…,” and a label's “Add all
+  bookmarks labeled…”). The Collections popover's own inline name box on a
+  row is unchanged. The help page's “How collections work” says the window
+  asks for a description too. Tests: `test/desk-collections-page.test.js`
+  (left empty, none is kept) and `test/desk-collections-add-menu.test.js`
+  (given from a verse, it is kept). Status: fixed.
 
 - **E175, preference: no collection filter in My Notes or My Notebook.**
   BVJ, 2026-11-19, looking at the Notebook's My Notes with two collections
