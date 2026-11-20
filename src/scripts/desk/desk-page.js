@@ -715,6 +715,14 @@ async function start() {
   else root.append(bar, cmdRow, panesBox, status);
 
   const paneEls = new Map(); // id → { el, body, kind, inst, ... }
+  // The collection a Collections pane shows, named by the pane (collection-pane.js
+  // sends it each time it draws), for the header's name beside the kind (E69's
+  // place). Nothing on the list, or for a collection that isn't there.
+  const collectionNames = new Map();
+  document.addEventListener("desk:collection-named", (e) => {
+    collectionNames.set(e.detail.paneId, e.detail.name ?? "");
+    mark();
+  });
   // The tree as drawn: the layout's, with sizes fitted to the room there is
   // (fit). The layout keeps the reader's own sizes, so a narrow window
   // squeezes the panes only while it is narrow (BA61).
@@ -1070,7 +1078,12 @@ async function start() {
       }
       // My Notes names the chapter it is on (E69); its rows already say
       // which verse each record is on, so the verse isn't repeated here.
-      const where = pane.kind === "mine" ? passageLabel({ ...passageOf(pane.id), verse: null }) : "";
+      const where =
+        pane.kind === "mine"
+          ? passageLabel({ ...passageOf(pane.id), verse: null })
+          : pane.kind === "collection"
+            ? (collectionNames.get(pane.id) ?? "")
+            : "";
       if (rec.place.textContent !== where) rec.place.textContent = where;
       rec.place.hidden = !where;
       const page = kindPage(pane.kind);
