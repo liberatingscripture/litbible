@@ -81,6 +81,25 @@ test("with no collections the page says what they are, offers New collection…,
   page.destroy();
 });
 
+test("E187: the page describes the feature under its title, as /sheets does, with or without collections", async () => {
+  await clearAll();
+  let { root, page } = await mount();
+  const intro = () => root.querySelector("h1 + .desk-np__intro");
+  assert.match(intro().textContent, /^A collection gathers your notes, highlights, bookmarks, sheets, and passages for one purpose/);
+  assert.match(intro().textContent, /“Add to collection” in a verse’s menu or “Collections…” on a row in My Notebook\. Each can be printed or put on a sheet, and a Collections pane in the Study Desk shows one beside the LIT\./);
+  assert.equal(byText(intro(), "a", "the Study Desk").getAttribute("href"), "/desk/");
+  assert.equal(byText(intro(), "a", "How collections work").getAttribute("href"), "/desk/help/#collections");
+  assert.equal(intro().nextElementSibling.className, "collection-page__actions", "New collection… under it");
+  assert.equal(intro().nextElementSibling.nextElementSibling.textContent, "You haven’t made a collection yet.");
+  assert.equal(root.querySelectorAll("a").length, 2, "one help link, not a second under the list");
+  page.destroy();
+  await store.change(async () => planSave(createCollection({ name: "Lent" }, opCtx())));
+  ({ root, page } = await mount());
+  assert.match(intro().textContent, /^A collection gathers/, "kept once there are collections");
+  assert.equal(intro().nextElementSibling.nextElementSibling.className, "desk-sheet__sheets");
+  page.destroy();
+});
+
 test("New collection… makes one and goes into it", async () => {
   await clearAll();
   const { root, page } = await mount();

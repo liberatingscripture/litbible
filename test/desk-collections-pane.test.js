@@ -118,6 +118,23 @@ test("the pane opens on the list; a row opens its collection and keeps it in the
   assert.equal(document.activeElement?.dataset.focusKey, `open-${c.id}--p2`, "back on the row it came from");
 });
 
+test("E186: the list's New collection sits beside its title, as a Sheets pane's New sheet does, with or without collections", async () => {
+  await clearAll();
+  const p = pane("p2");
+  await until(() => title(p) === "My collections", 3000, "the empty list");
+  const head = () => p.el.querySelector(".desk-sheet__list-head");
+  const words = () => [...head().children].map((n) => n.textContent.trim());
+  assert.deepEqual(words(), ["My collections", "New collection"], "one row, no ellipsis");
+  assert.ok(head().querySelector("button").classList.contains("desk-sheet__btn--primary"));
+  assert.equal(p.el.firstElementChild, head(), "the row comes first");
+  assert.equal(head().nextElementSibling.className, "desk-np__intro", "the intro under it");
+  assert.equal(p.el.querySelector(".collection-page__actions"), null, "no second row of its own");
+  await keepCollection("Advent series", [john316()]);
+  await until(() => p.el.querySelector(".desk-sheet__sheet"), 3000, "the row");
+  assert.deepEqual(words(), ["My collections", "New collection"]);
+  assert.equal(head().nextElementSibling.className, "desk-sheet__sheets", "the cards under it");
+});
+
 test("a reload shows the collection the layout kept", async () => {
   await clearAll();
   const c = await keepCollection("Lent", [john316()]);

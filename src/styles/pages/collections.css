@@ -6,6 +6,22 @@
   padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 2rem) 5rem;
   max-width: calc(90 * var(--ch));
   margin: 0 auto;
+  /* The page's words at /sheets' size, following the Display tray's text
+     size as /sheets does (E188; BVJ, 2026-11-19: "it should match"): the
+     same rule as .sheets-page's, with --desk-ui beside --sheet-ui, since the
+     page draws My Notebook's rows as well as the sheets' list classes, and
+     desk.css multiplies each kind's rem sizes by its own variable. */
+  --sheet-ui: var(--reading-scale, 1);
+  --desk-ui: var(--reading-scale, 1);
+  font-size: calc(1em * var(--sheet-ui, 1));
+}
+
+/* The page's root is also .desk-np, for My Notebook's rows, whose 1rem and
+   1.55 would set every word that inherits a step below /sheets' and a little
+   tighter; the site's own 1.6 is /sheets'. */
+.collections-page .desk-np {
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .collections-page .sheets-page__title {
