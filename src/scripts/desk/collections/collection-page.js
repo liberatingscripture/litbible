@@ -58,7 +58,13 @@ async function defaultChapterText(bookKey, chapter) {
   }
 }
 
-/** The words of `where` ({ bookKey, chapter, verse, endVerse }) as plain text, or null when they can't be read. */
+/**
+ * The words of `where` ({ bookKey, chapter, verse, endVerse }) as a scripture
+ * page sets them, or null when they can't be read (E171; BVJ, 2026-11-19): an
+ * element holding its paragraphs and poetry lines, italics, and verse
+ * numbers, with no footnote letters (`passageWords` drops them when asked to
+ * keep none). A test may hand back plain text instead.
+ */
 async function defaultPassageText(where) {
   try {
     const { readPassage, passageWords } = await import("../sheets/sheet-lit.js");
@@ -66,10 +72,7 @@ async function defaultPassageText(where) {
     const view = await readPassage(m);
     if (!view.ok) return null;
     // passageWords gives { el, base }: the words are its element.
-    const words = passageWords(view, m)?.el;
-    if (!words) return null;
-    for (const s of words.querySelectorAll("sup")) s.remove();
-    return words.textContent;
+    return passageWords(view, m)?.el ?? null;
   } catch (err) {
     // Said aloud: a quiet failure here once hid that no live words were ever read.
     console.error("Study Desk: a collection's passage couldn’t be read", err);

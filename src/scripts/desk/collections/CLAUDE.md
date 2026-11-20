@@ -217,6 +217,18 @@ second draft of the mocks takes from where:
   whose form's Add stays ordinary. The members lie on a
   `.v2-sheet` as the desk's own rows (`record-rows.js`), group names are
   `.v2-label`, and a heading starts with `.v2-rule`.
+- **A passage's words, and a bookmark's verse** (E171; BVJ, 2026-11-19) are
+  set as a scripture page sets them: `passageWords` (`sheets/sheet-lit.js`)
+  hands over the chapter's own blocks, so paragraphs, poetry lines, italics
+  and verse numbers stay and footnote letters go, drawn in a sheet passage's
+  look (`.desk-sheet__words`). The page carries `#hbq-description` for the
+  poetry, as /sheets does. A test's `passageText` may return plain text,
+  drawn as one paragraph. Past three lines they are cut, with a pinned
+  footnote's row and caret (`.desk-item__pin-row`, `.desk-item__more`, E118;
+  open for the visit, by row key); a line clamp can't reach into
+  paragraphs, so the cut is a height of `3lh` in `v2/collections.css`, the
+  last line faded while cut (`--cut`). Print always shows them whole. Test:
+  `test/desk-collections-passage-words.test.js`.
 - **The order switch** is `.desk-seg` (My Notes' segmented choice). Sky
   never marks a toggle (E160).
 - **Moving in My order** is the sheet editor's grip to drag
