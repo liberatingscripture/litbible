@@ -31,7 +31,8 @@ import { bookKeyToLabel } from "../../../data/books.js";
 import { loadChapterPage } from "../chapter-page.js";
 import { collectionsHref } from "../collections/add-passage.js";
 import { extras, nothingAdded, readChapters } from "../collections/collection-sheet.js";
-import { buttons, make } from "../dom.js";
+import { buttons, describe, make } from "../dom.js";
+import { plural } from "../desk-text.js";
 
 const button = buttons("desk-sheet__btn");
 
@@ -51,11 +52,14 @@ async function chapterText(bookKey, chapter) {
  * of parts, in one change, through the same converter a collection's "Add to
  * sheet…" uses
  * (desk-collection-sheet.mjs), run over the sheet as saved. With no
- * collections it is one plain line and a link to /collections/.
+ * collections it is one plain line and a link to /collections/. Its words say
+ * the whole collection goes, at once (E181; BVJ, 2026-11-19: "From a
+ * collection" read as picking from one), since the rows above are checked
+ * one by one and added by Add.
  */
 function collectionChoice(host, records, box, close) {
   const wrap = make("div", "desk-sheet__from");
-  wrap.append(make("p", "desk-sheet__from-title", "From a collection"));
+  wrap.append(make("p", "desk-sheet__from-title", "Or add a whole collection"));
   const list = records
     .filter((r) => r?.kind === "collection" && !r.deleted && Array.isArray(r.members))
     .sort((a, b) => String(b.modified ?? "").localeCompare(String(a.modified ?? "")) || collectionName(a).localeCompare(collectionName(b)));
@@ -69,13 +73,14 @@ function collectionChoice(host, records, box, close) {
     wrap.append(line);
     return wrap;
   }
+  wrap.append(make("p", "desk-sheet__empty", "Choosing one adds everything in it at once, in the order its page shows."));
   const ul = make("ul", "desk-sheet__from-list");
   for (const c of list) {
     const li = make("li");
     const b = button("", "desk-sheet__from-item");
-    b.append(make("span", "desk-sheet__from-ref", collectionName(c)), make("span", "desk-sheet__from-kind", `Collection · ${collectionCount(c, records)}`));
+    b.append(make("span", "desk-sheet__from-ref", collectionName(c)), make("span", "desk-sheet__from-kind", plural(collectionCount(c, records), "item")));
     b.addEventListener("click", () => addCollection(host, c, box, close, b));
-    li.append(b);
+    li.append(b, describe(b, "Adds the whole collection to the sheet at once."));
     ul.append(li);
   }
   wrap.append(ul);

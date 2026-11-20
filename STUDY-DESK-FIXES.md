@@ -5058,6 +5058,73 @@ says so; where BVJ was wondering, nothing is decided.)
   The rule for every menu is in `src/scripts/CLAUDE.md`. Test:
   `test/desk-menu-fit-dom.test.js`. Status: fixed.
 
+- **E180, preference: the panes open their pages, not the title menu.**
+  BVJ, 2026-11-19, with a screenshot of /desk's “Study Desk ▾” menu, which
+  D13's step 6 had given “My collections” beside “My Notebook”: “The page
+  menu shouldn't have the My collections link. Or if it does, sheets should
+  too. I think what would make sense is to have an Open sheets page and Open
+  collections page button on the header of their respective panes.” It
+  narrows STUDY-DESK.md's D13 rule that “My collections” goes wherever “My
+  sheets” is listed: /desk's title menu never had “My sheets,” so on /desk
+  both pages are reached from their panes instead.
+  **Fixed.**
+  - **The title menu** (`title-menu.js`) is Display options, Full screen,
+    then My Notebook, Take the tour and the feedback link, as before D13.
+  - **A Sheets pane's and a Collections pane's header** end with a link
+    before the ×, to `/sheets/` and `/collections/` in a new tab: the
+    new-tab glyph (`OPEN_PAGE_ICON`), with “Sheets page” or “Collections
+    page” beside it where the header is 26rem or wider, as “Stay here” has
+    beside its lock (E72). Its name is “Open the Sheets page (opens in a new
+    tab)” and its tooltip “Open the Sheets page in a new tab” (`setTip`). It
+    is an ordinary button to look at (E126's list) and a link underneath, so
+    a modified click and the browser's own menu work. Which kinds have one
+    is data, `page` on the kind in `KINDS` (`desk-layout.mjs`), read by
+    `kindPage`; `desk-page.js` draws it in every header and shows it where
+    the kind has a page. A press on it never starts dragging the pane:
+    `pane-move.js` passes over links as it does buttons.
+  - **The Study Desk tour's title card** no longer names My collections,
+    and its list of the command row gains “New collection,” which it had
+    missed since the row gained it.
+  - **The help page** says where each pane's link is (“Sheets” under
+    “Going back to editing,” “On the Study Desk” and “Finding things” under
+    collections).
+  Tests: `test/desk-pane-page-link.test.js` (which kinds have a page, a
+  press on the link never drags, the header still does),
+  `test/desk-collections-filters.test.js` (neither list page is in the
+  title menu), `test/desk-first-use.test.js` (the card) and
+  `test/desk-buttons-css.test.js` (an ordinary button).
+  Status: fixed.
+
+- **E181, wording: “From a collection” said too little.** BVJ, 2026-11-19,
+  with a screenshot of a Sheets pane's “+ From my notes…” chooser, its notes
+  checked one by one above and the collections listed under “From a
+  collection,” with Add and Cancel below: “"From a collection" is a little
+  misleading since it adds the whole collection.” It read as picking things
+  from one, and with Add under the list, as if a collection were checked and
+  then added like the notes. A collection's row adds everything in it at a
+  press (D13, step 7).
+  **Fixed** (`add-forms.js`): the heading is “Or add a whole collection,”
+  a line under it says “Choosing one adds everything in it at once, in the
+  order its page shows.”, each row counts its items as the Collections page
+  and My Notebook do (“3 items,” not “Collection · 3”), and each button is
+  described to a screen reader as “Adds the whole collection to the sheet at
+  once.” The help page's “+ From my notes…” paragraph and “Onto a sheet”
+  say the same. Test: `test/desk-collections-sheet-wiring.test.js`.
+  Status: fixed.
+
+- **E183, wording: “Delete all sheets” didn't say collections stay.** BVJ,
+  2026-11-19, with a screenshot of My Notebook's Delete in bulk: “The Delete
+  all sheets message should name collections as left alone along with notes
+  and marks.” “Delete all notes and marks” already named them (“Your sheets,
+  templates, and collections stay.”), but “Delete all sheets” still said
+  only “Your notes and marks stay,” from before collections (D13).
+  **Fixed** (`notebook-page.js`): its line and its “Are you sure?” both end
+  “Your notes, marks, and collections stay.” The help page's “Deleting
+  everything” list was missing “Delete all collections” as well; it now
+  lists all four, and “The first three each leave the others alone.”
+  Test: `test/desk-audit8-dom-search-notebook.test.js`.
+  Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

@@ -184,6 +184,15 @@ test("From my notes… lists collections, and a pick adds the collection's parts
   await openFromNotes(host, box, (refocus) => (closed = refocus));
   const pick = [...box.querySelectorAll("button")].find((b) => /Advent series/.test(b.textContent));
   assert.ok(pick);
+  // E181: the section says the whole collection goes, at once (BVJ: "From a
+  // collection" read as picking from one), and the row counts its items.
+  const titles = [...box.querySelectorAll(".desk-sheet__from-title")].map((p) => p.textContent);
+  assert.ok(titles.includes("Or add a whole collection"), titles.join(" | "));
+  assert.ok(!titles.includes("From a collection"));
+  assert.ok([...box.querySelectorAll("p")].some((p) => /adds everything in it at once/.test(p.textContent)), "a line says so");
+  assert.equal(pick.querySelector(".desk-sheet__from-kind").textContent, "1 item");
+  const hint = document.getElementById(pick.getAttribute("aria-describedby"));
+  assert.match(hint?.textContent ?? "", /whole collection/, "and a screen reader hears it on the button");
   pick.click();
   await until(() => host.current.modules.length === 2, 3000, "the block");
   assert.equal(host.current.modules[1].type, "passage");

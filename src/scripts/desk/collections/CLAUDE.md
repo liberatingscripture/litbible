@@ -124,9 +124,11 @@ it holds. Computer only; the apps carry it untouched.
   "Collections" group of rows linking to their pages, never rows of the record
   list or in its count, drawn even when no record matches (then first, over
   "Nothing else matches."). "My collections" (`/collections/`) is in header
-  C's Study group, the site footer's Study group, the Notebook's Settings tab
-  beside "My sheets," and /desk's title menu beside "My Notebook" (that menu
-  had no "My sheets"; it opens in a new tab as its notebook link does).
+  C's Study group, the site footer's Study group, and the Notebook's Settings
+  tab beside "My sheets." **Not /desk's title menu** (BVJ, 2026-11-19, E180:
+  "Or if it does, sheets should too"): a Collections pane's header opens
+  `/collections/` in a new tab, as a Sheets pane's opens `/sheets/` (`page`
+  on the kind in `KINDS`, read by `kindPage`).
   **There is no collection filter** (BVJ, 2026-11-19, E175): step 6 built one
   in My Notes (the panel and /desk's pane) and My Notebook's list, and BVJ
   took it out as clutter, since a collection's page and the Collections pane
@@ -149,8 +151,9 @@ it holds. Computer only; the apps carry it untouched.
   it made the sheet "New sheet" makes, so it came out of the view with its
   tests, and the help page's "Onto a sheet" starts from Add to sheet…. A collection with nothing that makes a part
   says so and writes nothing. `add-forms.js`' "+ From my notes…" has a
-  "From a collection" section (a button per collection, or one line and a link
-  to `/collections/`) adding the block through the editor's own change at its
+  section, "Or add a whole collection" ("From a collection" until E181, which
+  read as picking from one; a line under it says choosing one adds everything
+  at once), a button per collection, or one line and a link to `/collections/`, adding the block through the editor's own change at its
   `insertIndex`. The converter puts a word joiner (U+2060) after a collection
   heading whose words are a template's reading-part words, so `readingPart`
   never takes it for the reading part; leave it, it is the owner's to decide.
@@ -291,8 +294,9 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   now"; decision 22). The tours name collections where they already point:
   the notebook tour's "Open the menu" ("Add to collection" beside "Add to
   sheet"; Chapter View only, as that is) and "My Notebook, and where it’s
-  kept," and the Study Desk tour's card on the title menu ("My collections").
-  The Study Desk tour's My Notes card lists no filters, so it names none.
+  kept," and the Study Desk tour's card on the command row ("New
+  collection"; its title menu has no "My collections" since E180). The Study
+  Desk tour's My Notes card lists no filters, so it names none.
   Text in `desk-first-use.mjs`; a changed card keeps its id, so it is not
   offered again as new. The help page's "How collections work" is the rest.
 

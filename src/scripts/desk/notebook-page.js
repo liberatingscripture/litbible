@@ -155,7 +155,7 @@ async function start() {
       </div>
       <div class="desk-np__danger">
         <h3 class="desk-np__h3">Delete all sheets</h3>
-        <p>Every sheet, and your own templates. Your notes and marks stay.</p>
+        <p>Every sheet, and your own templates. Your notes, marks, and collections stay.</p>
         <div data-np-delete-sheets-box></div>
       </div>
       <div class="desk-np__danger">
@@ -426,7 +426,7 @@ async function start() {
       ready: (n) => n > 0,
       button: "Delete all sheets…",
       none: "There are no sheets to delete.",
-      question: (n) => `Are you sure? This moves ${plural(n, "sheet", "sheets")} (templates included) to the trash. Your notes and marks stay.`,
+      question: (n) => `Are you sure? This moves ${plural(n, "sheet", "sheets")} (templates included) to the trash. Your notes, marks, and collections stay.`,
       confirm: "Delete all sheets",
       failed: "That couldn’t be saved in this browser, so nothing was deleted. Try again.",
       run: () => deleteInBulk(planDeleteSheets, (n) => `All sheets deleted: ${plural(n, "sheet", "sheets")} moved to the trash.`),
