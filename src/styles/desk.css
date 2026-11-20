@@ -1384,6 +1384,20 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
   vertical-align: -0.1em;
 }
 
+/* A pinned footnote's line leads with the thumbtack, and a sheet's with a
+   sheet of paper, the same way (E197; glyphs.js, `addKindGlyph`): strokes in
+   the line's color, outlined (a pinned footnote's thumbtack is filled only on
+   its Pin button). */
+.desk-item__kind > .desk-kind-glyph {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 4px;
+  vertical-align: -0.1em;
+  fill: none;
+  stroke: currentColor;
+}
+
 /* Your own chains (N4). A scripture reference typed in a note is a link
    (note-words.js), and a link can't sit inside a button or another link, so a
    row's own control is its marker's button or link, stretched over the row by
@@ -7293,8 +7307,9 @@ a.desk-sheet__open {
    collection-view.js draws one collection for both of its homes, the
    /collections/ page and /desk's Collections pane (collection-pane.js), so
    the rows' rules are here, where both read them; the page's frame (its
-   widths, the members' .v2-sheet and its padding) stays in
-   v2/collections.css. Every look is one the desk already has (decision 25):
+   widths) stays in v2/collections.css. Every look is one the desk already
+   has (decision 25): each member is a sheet in the Sheets editor's part look
+   (.desk-sheet__module's rule, which names it; BVJ, 2026-11-20, E192), and
    these place things and cut a passage's words, nothing more. */
 
 /* The actions, in a row that wraps, as the Sheets pane's top row does. */
@@ -7337,35 +7352,91 @@ a.desk-sheet__open {
   margin: 0 0 14px;
 }
 
-.collection-page__group {
-  margin: 18px 0 6px;
+/* The members (E192): a column of sheets with the gap a sheet's parts have.
+   A run of one kind touches, each sheet keeping its corners, the edges laid
+   over each other; a change of kind is a new run, so the gap comes back. */
+.collection-page__members {
+  position: relative; /* My order's top gap hangs from it */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.collection-page__group:first-child {
+.collection-page__run > .collection-page__member + .collection-page__member {
+  margin-top: -1px;
+}
+
+/* A group's label (My Notebook's serif heading, E195) lies on the page with
+   the sheets it names, closer to them than to the sheets above. */
+.collection-page__members > .collection-page__group {
+  margin: 14px 0 -4px;
+}
+
+.collection-page__members > .collection-page__group:first-child {
   margin-top: 0;
 }
 
+/* My order's headings lie on the page between the sheets. */
 .collection-page__heading {
+  position: relative; /* the gap under it hangs from it */
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 18px 0 8px;
+  margin: 8px 0 0;
   font-weight: 600;
 }
 
-.collection-page__heading:first-child {
+.collection-page__heading:first-child,
+.collection-page__members > .desk-sheet__after:first-child + .collection-page__heading {
   margin-top: 0;
+}
+
+/* Bible order's rows on a passage's sheet (E193): under its words, indented,
+   each parted from the next by the line a list's rows have. */
+.collection-page__nested {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  padding-left: 16px;
+}
+
+.collection-page__nested > .desk-item {
+  padding: 8px 0 4px;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
+  border-bottom: 0;
+}
+
+/* My order's gap pills (E196) are the sheet editor's (.desk-sheet__after).
+   Between two sheets that touch, the line lies on their seam; above the
+   first row, in the space over it. A pill's field is the passage form's
+   place under a sheet. */
+.collection-page__run > .collection-page__member:not(:last-child) > .desk-sheet__after {
+  bottom: -12px;
+}
+
+.collection-page__members > .desk-sheet__after {
+  top: -17px;
+  bottom: auto;
+}
+
+.collection-page__members > .collection-page__gap-form {
+  margin: 0;
+}
+
+@media print {
+  .collection-page__members .desk-sheet__after {
+    display: none;
+  }
 }
 
 /* A passage's words, and a bookmark's verse, as a scripture page sets them
    (E171): cut at three lines, the last faded, until the caret opens them. A
    line clamp can't reach into paragraphs, so the cut is a height. The row's
    grid and its caret are My Notes' (.desk-item__pin-row). */
-.collection-page__sheet .desk-item__pin-row {
+.collection-page__members .desk-item__pin-row {
   margin-top: 6px;
 }
 
-.collection-page__sheet .desk-item__pin-row .desk-sheet__words {
+.collection-page__members .desk-item__pin-row .desk-sheet__words {
   line-height: 1.65;
   max-height: 4.95em;
   max-height: 3lh;
@@ -7375,34 +7446,42 @@ a.desk-sheet__open {
 /* The words' own outer margins stay inside the clipped box: a last
    paragraph's 8px would cut words that fit three lines, and a leading poem's
    would push its first line down. A sheet lets them collapse away. */
-.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :first-child,
-.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :first-child > :first-child {
+.collection-page__members .desk-item__pin-row .desk-sheet__words > :first-child,
+.collection-page__members .desk-item__pin-row .desk-sheet__words > :first-child > :first-child {
   margin-top: 0;
 }
 
-.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :last-child,
-.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :last-child > :last-child {
+.collection-page__members .desk-item__pin-row .desk-sheet__words > :last-child,
+.collection-page__members .desk-item__pin-row .desk-sheet__words > :last-child > :last-child {
   margin-bottom: 0;
 }
 
-.collection-page__sheet .desk-item__pin-row--cut .desk-sheet__words {
+.collection-page__members .desk-item__pin-row--cut .desk-sheet__words {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 1lh), transparent);
 }
 
-.collection-page__sheet .desk-item__pin-row--open .desk-sheet__words {
+.collection-page__members .desk-item__pin-row--open .desk-sheet__words {
   max-height: none;
   overflow: visible;
 }
 
-/* On paper every passage is whole, and the caret has nothing to do. */
+/* On paper every passage and pinned footnote is whole, and the caret has
+   nothing to do. */
 @media print {
-  .collection-page__sheet .desk-item__pin-row .desk-sheet__words {
+  .collection-page__members .desk-item__pin-text {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+  }
+
+  .collection-page__members .desk-item__pin-row .desk-sheet__words {
     max-height: none;
     overflow: visible;
     mask-image: none;
   }
 
-  .collection-page__sheet .desk-item__more {
+  .collection-page__members .desk-item__more {
     display: none;
   }
 }
@@ -7512,7 +7591,7 @@ a.desk-sheet__open {
       row-gap: 4px;
     }
 
-    .desk-collections .collection-page__heading > h3 {
+    .desk-collections .collection-page__heading > :is(h2, h3, h4) {
       flex: 1 1 0;
       min-width: 0;
     }
@@ -7605,7 +7684,8 @@ a.desk-sheet__open {
   gap: 10px;
 }
 
-.desk-sheet__module {
+.desk-sheet__module,
+.collection-page__member {
   position: relative; /* the gap zone below hangs from it */
   border: 1px solid var(--desk-card-edge);
   border-radius: 10px;

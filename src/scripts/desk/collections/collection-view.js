@@ -2,8 +2,10 @@
 //
 // One collection (STUDY-DESK.md, D13, mock part b), drawn by both of its homes:
 // "‹ My collections", its name and description, its actions (Add ▾,
-// Add to sheet…, Rename…, Print, Delete), the order switch, and its members on a Site 2.0
-// sheet as the desk's own rows (record-rows.js, as My Notebook draws them).
+// Add to sheet…, Rename…, Print, Delete), the order switch, and its members,
+// each on a sheet of its own in the Sheets editor's part look (E192), as the
+// desk's own rows (record-rows.js, as My Notebook draws them). In Bible order
+// a record inside a collected passage lies on that passage's sheet (E193).
 // There is no "Make a sheet" (D13, decision 36; BVJ, 2026-11-19): Add to
 // sheet…'s "New sheet" row makes that sheet.
 // Nothing here has a look of its own (decision 25): every class is one the
@@ -49,8 +51,7 @@
 //   and 36): `deskHref(id)`, the page's quiet "Open in the Study Desk" after
 //   its actions; `ownPageHref(id)`, the pane's "Open on its own page" (a new
 //   tab) in Print's place, since a print from /desk prints the desk;
-//   `plainMembers`, members lying on the pane as My Notes' rows do rather than
-//   on a `.v2-sheet` (a card inside a card); and `goHere`, `{ can(member),
+//   and `goHere`, `{ can(member),
 //   go(member) }`, which a plain click on a reference (a passage's or a
 //   record's, a sheet's name included) runs in place of following its link,
 //   as My Notes' `goHere` does (BA124). A modified click still opens the page;
@@ -73,6 +74,7 @@
 //   the last three.
 
 import { labelMap } from "../../../lib/desk-labels.mjs";
+import { nestRows } from "../../../lib/desk-collection-nest.mjs";
 import { COLLECTION_ORDERS, collectionTooBig } from "../../../lib/desk-collection-format.mjs";
 import {
   addHeading,
@@ -81,6 +83,7 @@ import {
   bringBack,
   editHeading,
   leaveOut,
+  leftOutPlace,
   moveRow,
   moveTarget,
   planAddPassage,
@@ -106,6 +109,7 @@ import { newTabMark } from "../glyphs.js";
 import { parseReference } from "../../search-core.js";
 import { openButtonMenu } from "../button-menu.js";
 import { labelsToAdd, openAddLabels, openAddSheet, sheetsToAdd } from "./add-records.js";
+import { alsoInside } from "./add-passage.js";
 import { openAddToSheet } from "./collection-sheet.js";
 import { openNameWindow } from "./name-window.js";
 
@@ -326,6 +330,8 @@ export async function collectionView(host, id) {
   const state = host.viewState(id);
   const title = heading(host, name);
   title.dataset.focusKey = key("title");
+  // The undo bar leaves out "Open the collection" while it is on screen (E205; add-passage.js).
+  title.dataset.collectionShown = id;
   const nodes = [back, title];
   if (c.description) nodes.push(make("p", "desk-np__intro collection-page__description", c.description));
 
@@ -519,44 +525,215 @@ export async function collectionView(host, id) {
   for (const info of shown.rules) nodes.push(ruleLine(host, c, info));
 
   /* ── The members ──────────────────────────────────────────────── */
-  // On the page the members lie on a sheet; in a pane on the pane, as My
-  // Notes' rows do, not a card inside a card (decision 26).
-  const sheet = make("div", `${host.plainMembers ? "" : "v2-sheet "}collection-page__sheet${mine ? " collection-page__sheet--mine" : ""}`);
+  // Each member lies on a sheet of its own, the Sheets editor's part
+  // (.desk-sheet__module; BVJ, 2026-11-20, E192), on the page and in a pane
+  // alike: in a run of one kind the sheets touch, and a change of kind leaves
+  // the gap between a sheet's parts. A group's label and a heading lie on the
+  // page between them. In Bible order a record wholly inside a passage lies on
+  // that passage's sheet, under its words (E193; the rule is nestRows').
+  const members = make("div", `collection-page__members${mine ? " collection-page__members--mine" : ""}`);
   if (!shown.rows.length) {
-    sheet.append(make("p", "desk-sheet__empty", "Nothing in this collection yet. Add a passage with the button above."));
+    members.append(make("p", "desk-sheet__empty", "Nothing in this collection yet. Add a passage with the button above."));
   }
   const labels = labelMap(records);
-  let ul = null;
+  const rowCtx = { labels, mine, rows: shown.rows, rules: shown.rules };
+  const rows = shown.order === "bible" ? nestRows(shown.rows) : shown.rows;
+  // My Notebook's serif group heading (E195), a level under the view's title.
+  const groupTag = host.headingTag === "h3" ? "h4" : "h2";
+  let run = null;
+  let runKind = null;
+  const endRun = () => {
+    run = null;
+    runKind = null;
+  };
+  const group = (text) => {
+    endRun();
+    members.append(make(groupTag, "desk-np__h3 collection-page__group", text));
+  };
+  // My order's gap pills (E196): one above the first row, one under each row.
+  const gaps = mine ? gapPills(host, c, state, shown.rows) : null;
+  if (gaps) {
+    members.append(gaps.zone(null));
+    if (state.headingAt === TOP) members.append(gaps.form(null));
+  }
   // In Bible order the sheets come first, and a label names where the verses begin.
-  let byVerse = shown.order === "bible" && shown.rows[0]?.type === "group";
-  for (const row of shown.rows) {
+  let byVerse = shown.order === "bible" && rows[0]?.type === "group";
+  for (const row of rows) {
     if (row.type === "group") {
-      ul = null;
-      sheet.append(make("p", "v2-label collection-page__group", row.title));
+      group(row.title);
       continue;
     }
     if (byVerse && !(row.type === "record" && row.record.kind === "sheet")) {
       byVerse = false;
-      ul = null;
-      sheet.append(make("p", "v2-label collection-page__group", "By verse"));
+      group("By verse");
     }
+    let el;
     if (row.type === "heading") {
-      ul = null;
-      sheet.append(headingRow(host, c, row, state, shown.rows));
-      continue;
+      endRun();
+      el = headingRow(host, c, row, state, shown.rows);
+      members.append(el);
+    } else {
+      const kind = row.type === "passage" ? "passage" : row.record.kind;
+      if (!run || kind !== runKind) {
+        run = make("ul", "desk-list collection-page__run");
+        runKind = kind;
+        members.append(run);
+      }
+      el = memberRow(host, c, row, rowCtx);
+      el.classList.add("collection-page__member");
+      if (row.children) {
+        const inner = make("ul", "desk-list collection-page__nested");
+        for (const child of row.children) inner.append(memberRow(host, c, child, { ...rowCtx, nested: true }));
+        el.append(inner);
+      }
+      run.append(el);
     }
-    if (!ul) {
-      ul = make("ul", "desk-list");
-      sheet.append(ul);
+    if (gaps) {
+      el.append(gaps.zone(row));
+      if (state.headingAt === row.key) {
+        endRun();
+        members.append(gaps.form(row));
+      }
     }
-    ul.append(memberRow(host, c, row, { labels, mine, rows: shown.rows, rules: shown.rules }));
   }
-  if (mine) wireMoves(host, c, sheet);
-  nodes.push(sheet);
+  if (gaps) {
+    gaps.sync();
+    members.append(gaps.keys);
+  }
+  if (mine) wireMoves(host, c, members);
+  nodes.push(members);
   return { nodes, title: `${name} | Liberation and Inclusion Translation`, focus: title };
 }
 
+/* ── My order's gap pills (E196) ────────────────────────────────── */
+
+const TOP = "\u0000top";
+
+/**
+ * The sheet editor's gap pill, for headings (BVJ, 2026-11-20, E196): a line
+ * with "+ Heading" across the space under each row of My order, and above the
+ * first, shown under the pointer or on keyboard focus (`.desk-sheet__after`).
+ * It opens a heading's field right there, so a heading lands where it is
+ * wanted in one step. As in the sheet editor, the pills are one Tab stop (the
+ * one last used, kept in the view's state), and the up and down arrows, Home
+ * and End move between them (DK6-1).
+ */
+function gapPills(host, c, state, rows) {
+  const suffix = host.idSuffix ? `-${host.idSuffix}` : "";
+  const keysId = `collectionGapKeys${suffix}`;
+  const keys = make("span", "sr-only", "Up and down arrows move to the other places between rows.");
+  keys.id = keysId;
+  const pills = [];
+  const at = (row) => (row ? row.key : TOP);
+  const sync = () => {
+    if (!pills.some((p) => p.dataset.gap === state.gapStop)) state.gapStop = pills[0]?.dataset.gap ?? null;
+    for (const p of pills) p.tabIndex = p.dataset.gap === state.gapStop ? 0 : -1;
+  };
+  const zone = (row) => {
+    const z = make("div", "desk-sheet__after collection-page__gap");
+    const pill = button("+ Heading", "desk-sheet__after-btn");
+    const where = row ? `after ${nameOfRow(row)}` : "at the top";
+    pill.setAttribute("aria-label", `Add a heading ${where}`);
+    pill.setAttribute("aria-describedby", keysId);
+    pill.setAttribute("aria-expanded", String(state.headingAt === at(row)));
+    pill.dataset.gap = at(row);
+    pill.dataset.focusKey = focusKey(host, `gap-${at(row)}`);
+    setTip(pill, "Add a heading here");
+    pill.addEventListener("focus", () => {
+      state.gapStop = at(row);
+      sync();
+    });
+    pill.addEventListener("click", () => {
+      state.headingAt = state.headingAt === at(row) ? null : at(row);
+      host.refresh(state.headingAt ? [focusKey(host, "gap-input")] : [pill.dataset.focusKey]);
+    });
+    pill.addEventListener("keydown", (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const i = pills.indexOf(pill);
+      const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: pills.length - 1 }[e.key];
+      if (to === undefined) return;
+      e.preventDefault();
+      e.stopPropagation();
+      pills[Math.max(0, Math.min(pills.length - 1, to))]?.focus();
+    });
+    pills.push(pill);
+    z.append(pill);
+    return z;
+  };
+  /** The field the pill under `row` (null: the top one) opens, as the sheet editor's passage form under a part. */
+  const form = (row) => {
+    const close = () => {
+      state.headingAt = null;
+      host.refresh([focusKey(host, `gap-${at(row)}`)]);
+    };
+    const wrap = make("div", "collection-page__form collection-page__gap-form");
+    const head = make("div", "desk-sheet__insert-head");
+    const title = make("p", "desk-sheet__insert-title", row ? `Add a heading after ${nameOfRow(row)}` : "Add a heading at the top");
+    title.id = `collectionGapTitle${suffix}`;
+    const shut = button("×", "desk-sheet__icon");
+    shut.setAttribute("aria-label", "Close");
+    shut.addEventListener("click", () => close());
+    head.append(title, shut);
+    const f = make("form", "desk-sheet__ref");
+    f.setAttribute("aria-labelledby", title.id);
+    const input = make("input");
+    input.type = "text";
+    input.placeholder = "A heading, such as Week 1: Hope";
+    input.setAttribute("aria-label", "Heading to add");
+    input.maxLength = 200;
+    input.dataset.focusKey = focusKey(host, "gap-input");
+    input.value = state.headingText;
+    input.addEventListener("input", () => (state.headingText = input.value));
+    const go = button("Add");
+    go.type = "submit";
+    f.append(input, go);
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) {
+        input.focus();
+        return;
+      }
+      // Before the row that follows this one, else at the end.
+      const i = row ? rows.findIndex((r) => r.key === row.key) : -1;
+      const before = rows[i + 1]?.key ?? null;
+      let made = null;
+      const plan = await writeCollection(host, c.id, (col, records) => {
+        const next = addHeading(col, text, before, records, opCtx(host));
+        made = next.members.find((m) => m?.type === "heading" && !col.members.some((o) => o?.id === m.id))?.id ?? null;
+        return next;
+      });
+      const said = trouble(plan);
+      if (said) {
+        showNotice(said);
+        return;
+      }
+      const entry = host.store.lastEntry();
+      state.headingText = "";
+      state.headingAt = null;
+      showUndo(`Heading “${text}” added.`, () => undoEntry(entry));
+      host.refresh(made ? [focusKey(host, `rename-${made}`)] : [], { reveal: true });
+    });
+    wrap.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      close();
+    });
+    wrap.append(head, f);
+    return wrap;
+  };
+  return { zone, form, sync, keys };
+}
+
 /* ── A rule's line ──────────────────────────────────────────────── */
+
+// Where each bookmark left out of a collection was among its members, by
+// "<collection id> <bookmark id>", so Bring back puts it back there (E201;
+// BVJ, 2026-11-20). For this visit only: the record keeps no place for a
+// bookmark left out (STUDY-DESK-FORMAT.md), so after a reload it comes back
+// at the end, as it always did.
+const leftOutPlaces = new Map();
 
 /**
  * "Every bookmark labeled Advent · 12 · 1 left out (John 1:5). Bring it back ·
@@ -607,7 +784,11 @@ function ruleLine(host, c, info) {
       line.append(
         " · ",
         link(`Bring back ${ref}`, `rule-back-${b.id}`, `Bring ${ref} back into ${where}`, () =>
-          write((col) => bringBack(col, b.id, opCtx(host)), `${ref} brought back into ${where}.`, [`rule-stop-${id}`, "add"]),
+          write(
+            (col) => bringBack(col, b.id, opCtx(host), leftOutPlaces.get(`${c.id} ${b.id}`) ?? null),
+            `${ref} brought back into ${where}.`,
+            [`rule-stop-${id}`, "add"],
+          ),
         ),
       );
     }
@@ -725,7 +906,8 @@ function passageForm(host, c, state, close) {
     const entry = host.store.lastEntry();
     state.typed = "";
     input.value = "";
-    showUndo(`${where} added to ${collectionName(c)}.`, () => undoEntry(entry));
+    // A passage inside one the collection holds says so (E194).
+    showUndo(`${where} added to ${collectionName(c)}.${alsoInside(c, found.fields)}`, () => undoEntry(entry));
     host.refresh([focusKey(host, "add-input")]);
   });
   return wrap;
@@ -869,12 +1051,17 @@ function leaveOutButton(host, c, row) {
   b.dataset.focusKey = focusKey(host, `remove-${row.key}`);
   b.addEventListener("click", async () => {
     const keys = neighbors(host, b);
-    const plan = await writeCollection(host, c.id, (col, records) => leaveOut(col, row.record.id, records, opCtx(host)));
+    let place = null;
+    const plan = await writeCollection(host, c.id, (col, records) => {
+      place = leftOutPlace(col, row.record.id);
+      return leaveOut(col, row.record.id, records, opCtx(host));
+    });
     const said = trouble(plan);
     if (said) {
       showNotice(said);
       return;
     }
+    if (plan.changed && place) leftOutPlaces.set(`${c.id} ${row.record.id}`, place);
     const entry = plan.changed ? host.store.lastEntry() : null;
     if (entry) showUndo(`${name} left out of ${collectionName(c)}.`, () => undoEntry(entry));
     host.refresh(keys);
@@ -885,7 +1072,7 @@ function leaveOutButton(host, c, row) {
 /** Where focus goes when a row is gone: the next row's Remove, else the previous one's. */
 function neighbors(host, b) {
   const li = b.closest("[data-row-key]");
-  const rows = [...(li?.closest(".collection-page__sheet")?.querySelectorAll("[data-row-key]") ?? [])];
+  const rows = [...(li?.closest(".collection-page__members")?.querySelectorAll("[data-row-key]") ?? [])];
   const at = rows.indexOf(li);
   return [rows[at + 1], rows[at - 1]]
     .filter(Boolean)
@@ -900,8 +1087,9 @@ function neighbors(host, b) {
 function moveButtons(host, c, row, rows) {
   const name = nameOfRow(row);
   return [
-    ["up", "↑", "Move up"],
-    ["down", "↓", "Move down"],
+    // The tip names the keys that do the same from anywhere in the row (E200).
+    ["up", "↑", "Move up (Alt+↑)"],
+    ["down", "↓", "Move down (Alt+↓)"],
   ].map(([where, glyph, tip]) => {
     const b = make("button", "desk-sheet__icon", glyph);
     b.type = "button";
@@ -922,11 +1110,17 @@ async function move(host, c, key, where, focus = null) {
   });
   const said = trouble(plan);
   if (said) showNotice(said);
-  host.refresh([focus ?? focusKey(host, `${where}-${key}`), focusKey(host, `${where === "up" ? "down" : "up"}-${key}`)]);
+  // The row is brought into view where it lands (E200).
+  host.refresh([focus ?? focusKey(host, `${where}-${key}`), focusKey(host, `${where === "up" ? "down" : "up"}-${key}`)], { reveal: true });
 }
 
-/** A passage or record's row. A passage's words are read from its chapter once the row is drawn. */
-function memberRow(host, c, row, { labels, mine, rows, rules }) {
+/**
+ * A passage or record's row. A passage's words are read from its chapter once
+ * the row is drawn. A row `nested` on a passage's sheet (E193) leaves out the
+ * verse's words a passage or a bookmark would show, since the sheet shows
+ * them; a highlight keeps its tinted words and a note its own.
+ */
+function memberRow(host, c, row, { labels, mine, rows, rules, nested = false }) {
   let li;
   if (row.type === "passage") {
     li = make("li", "desk-item desk-np-row");
@@ -936,13 +1130,23 @@ function memberRow(host, c, row, { labels, mine, rows, rules }) {
     if (href) head.href = href;
     // In a pane a plain click moves the LIT pane there (decision 29).
     if (href && host.goHere?.can(row.member)) head.addEventListener("click", (e) => follow(e, () => host.goHere.go(row.member)));
-    li.append(head, make("span", "desk-item__kind", "Passage"), wordsOf(host, row.member, row.key, ref, row.member.verseCopy), make("div", "desk-np-row__buttons"));
+    li.append(head, make("span", "desk-item__kind", "Passage"));
+    if (!nested) li.append(wordsOf(host, row.member, row.key, ref, row.member.verseCopy));
+    li.append(make("div", "desk-np-row__buttons"));
   } else {
     li = recordRow(row.record, { labels, onDelete: () => {}, onLabels: () => {}, goHere: host.goHere ?? null });
     // A collection's rows have Remove alone: the record itself is changed in My Notebook.
     li.querySelector(".desk-np-row__buttons")?.replaceChildren();
-    if (row.record.kind === "bookmark" && Number.isInteger(row.record.verse)) {
+    if (row.record.kind === "bookmark" && Number.isInteger(row.record.verse) && !nested) {
       li.append(wordsOf(host, row.record, row.key, recordReference(row.record), row.record.quote?.exact));
+    }
+    // A pinned footnote is cut at three lines with My Notes' caret (E199),
+    // where My Notebook's list shows it whole.
+    const pin = row.record.kind === "footnotePin" ? li.querySelector(".desk-np-row__pin") : null;
+    if (pin) {
+      const ref = recordReference(row.record);
+      pin.classList.remove("desk-np-row__pin");
+      cutRow(host, pin, `pin:${row.key}`, `the pinned footnote${ref ? ` on ${ref}` : ""}`).measure();
     }
   }
   li.dataset.rowKey = row.key;
@@ -976,12 +1180,37 @@ function memberRow(host, c, row, { labels, mine, rows, rules }) {
  * for the visit. On paper they are always whole (v2/collections.css).
  */
 function wordsOf(host, where, key, ref, fallback = null) {
-  const row = make("div", "desk-item__pin-row");
   const box = make("div", "desk-sheet__words chapter-paragraphs");
+  const { row, measure } = cutRow(host, box, key, ref);
+
+  const show = (words) => {
+    if (words instanceof Element) box.replaceChildren(...words.cloneNode(true).childNodes);
+    else box.replaceChildren(make("p", null, String(words).replace(/\s+/g, " ").trim()));
+    measure();
+  };
+  if (fallback) show(fallback);
+  const unread = () => {
+    if (!fallback) show(UNREAD);
+  };
+  host.passageText(where).then((words) => (words ? show(words) : unread()), unread);
+  return row;
+}
+
+/**
+ * Words cut at three lines with the caret a pinned footnote has in My Notes
+ * (`.desk-item__pin-row`, `.desk-item__more`; E118): `box` goes in the row,
+ * taking its place if it already has one, and the caret shows only while the
+ * words are cut or open, opening them for the visit (`host.openWords`, by
+ * `key`). `label` names what the caret opens. Resolves to `{ row, measure }`;
+ * `measure` checks the cut again, and runs whenever the words' box resizes.
+ */
+function cutRow(host, box, key, label) {
+  const row = make("div", "desk-item__pin-row");
   const more = make("button", "desk-item__more");
   more.type = "button";
   more.hidden = true;
   more.innerHTML = ICON_CARET;
+  box.replaceWith?.(row);
   row.append(box, more);
 
   const measure = () =>
@@ -995,7 +1224,7 @@ function wordsOf(host, where, key, ref, fallback = null) {
     const open = host.openWords.has(key);
     row.classList.toggle("desk-item__pin-row--open", open);
     more.setAttribute("aria-expanded", String(open));
-    more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} ${ref}`);
+    more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} ${label}`);
   };
   more.addEventListener("click", () => {
     if (host.openWords.has(key)) host.openWords.delete(key);
@@ -1006,18 +1235,7 @@ function wordsOf(host, where, key, ref, fallback = null) {
   sync();
   measures.set(box, measure);
   resized?.observe(box);
-
-  const show = (words) => {
-    if (words instanceof Element) box.replaceChildren(...words.cloneNode(true).childNodes);
-    else box.replaceChildren(make("p", null, String(words).replace(/\s+/g, " ").trim()));
-    measure();
-  };
-  if (fallback) show(fallback);
-  const unread = () => {
-    if (!fallback) show(UNREAD);
-  };
-  host.passageText(where).then((words) => (words ? show(words) : unread()), unread);
-  return row;
+  return { row, measure };
 }
 
 /* ── Moving a row: drag, and Alt+Up and Alt+Down ────────────────── */
@@ -1072,11 +1290,13 @@ function wireMoves(host, c, sheet) {
     const plan = await writeCollection(host, c.id, (col, records) => moveRow(col, key, at, records, opCtx(host)));
     const said = trouble(plan);
     if (said) showNotice(said);
-    host.refresh([focusKey(host, `up-${key}`), focusKey(host, `down-${key}`)]);
+    host.refresh([focusKey(host, `up-${key}`), focusKey(host, `down-${key}`)], { reveal: true });
   });
   // The keyboard's way, beside the buttons: Alt+Up and Alt+Down on a row's control.
   sheet.addEventListener("keydown", (e) => {
     if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    // A gap's pill belongs to the space under a row, not to the row.
+    if (e.target.closest?.(".desk-sheet__after")) return;
     const row = e.target.closest?.("[data-row-key]");
     if (!row) return;
     e.preventDefault();

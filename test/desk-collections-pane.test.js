@@ -186,8 +186,10 @@ test("the pane's actions end with Open on its own page in a new tab, in Print's 
   assert.equal(own.getAttribute("href"), `/collections/?id=${encodeURIComponent(c.id)}`);
   assert.equal(own.target, "_blank");
   assert.match(own.textContent, /\(opens in a new tab\)/);
-  const members = p.el.querySelector(".collection-page__sheet");
-  assert.ok(!members.classList.contains("v2-sheet"), "not a card inside a card (decision 26)");
+  // Each member is a sheet of its own, in a pane as on the page (E192).
+  const members = p.el.querySelector(".collection-page__members");
+  assert.ok(!members.classList.contains("v2-sheet"), "no sheet under the members' sheets");
+  assert.equal(p.el.querySelectorAll(".collection-page__member").length, 1);
 });
 
 test("two Collections panes at once keep their own order switch and keys", async () => {
