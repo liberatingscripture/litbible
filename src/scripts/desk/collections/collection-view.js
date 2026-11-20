@@ -1353,12 +1353,13 @@ function wireMoves(host, c, sheet, order) {
       const box = r.getBoundingClientRect();
       return y < box.top + box.height / 2;
     }) ?? null;
-  // Only a press on a row's head (its buttons aside) or a heading's grip makes
-  // the row draggable, as a sheet part's head does (BVJ, 2026-11-08), so text
-  // in a row selects as usual.
+  // Only a press on a row's head or a heading's line (their buttons, and a
+  // rename's field, aside) makes the row draggable, as a sheet part's head does
+  // (BVJ, 2026-11-08; a heading's whole line since E214), so text in a row
+  // selects as usual.
   sheet.addEventListener("pointerdown", (e) => {
-    if (e.target.closest?.("button, input, label, a, select")) return;
-    const row = e.target.closest?.(".desk-sheet__grip, .collection-page__head")?.closest("[data-row-key]");
+    if (e.target.closest?.("button, input, label, a, select, form")) return;
+    const row = e.target.closest?.(".desk-sheet__grip, .collection-page__head, .collection-page__heading")?.closest("[data-row-key]");
     if (!row) return;
     row.draggable = true;
     document.addEventListener("pointerup", () => (row.draggable = false), { once: true });

@@ -3,8 +3,9 @@
 // (E193), the group labels' type (E195), My order's gap pills (E196), a
 // pinned footnote cut at three lines (E199), the moves' tooltips (E200),
 // Bring back keeping its place (E201), the column’s marker (E207), a move
-// from another order holding the row on screen (E213), and the
-// passage form's "It's also inside" (E194). Driven through the real page over
+// from another order holding the row on screen (E213), a heading's line
+// level and draggable (E214), and the passage form's "It's also inside"
+// (E194). Driven through the real page over
 // fake-indexeddb, as test/desk-collections-page.test.js is.
 
 import { test } from "node:test";
@@ -12,7 +13,8 @@ import assert from "node:assert/strict";
 import { settle } from "./helpers/browser-env.mjs";
 import { IDBFactory, IDBKeyRange } from "fake-indexeddb";
 import { createRecord } from "../src/lib/desk-records.mjs";
-import { addItems, addRule, createCollection, passageMember } from "../src/lib/desk-collections.mjs";
+import { readFileSync } from "node:fs";
+import { addItems, addRule, createCollection, headingMember, passageMember } from "../src/lib/desk-collections.mjs";
 import { planSave } from "../src/lib/desk-store-core.mjs";
 import { assembleChapter } from "../src/lib/anchor-core.mjs";
 
@@ -312,6 +314,34 @@ test("E213: a move from Bible order keeps the row where it was on screen, scroll
     scroller.scrollBy = realScrollBy;
     page.destroy();
   }
+});
+
+test("E214: a heading's name sits level with its grip and buttons, and its whole line drags", async () => {
+  await clearAll();
+  const heading = headingMember("Matthew");
+  const passage = passageMember({ bookKey: "luke", chapter: 1, verse: 46, endVerse: 55 });
+  const c = { ...createCollection({ name: "Gospels", members: [heading, passage] }, opCtx()), order: "mine" };
+  await save(c);
+  const { root, page } = await mount(`?id=${c.id}`);
+  await until(() => root.querySelector(".collection-page__heading h3"), 3000, "the heading");
+  const row = root.querySelector(".collection-page__heading");
+  const press = (el) => el.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+  const lift = () => document.dispatchEvent(new Event("pointerup"));
+  press(row.querySelector("h3"));
+  assert.equal(row.draggable, true, "the name drags");
+  lift();
+  assert.equal(row.draggable, false, "until the press ends");
+  press(row);
+  assert.equal(row.draggable, true, "and the line around it");
+  lift();
+  press(byText(row, "button", "Rename"));
+  assert.equal(row.draggable, false, "a button doesn't");
+  // Layout happy-dom can't measure: the name keeps no margin, which the row
+  // would center with it, and the buttons are centered.
+  const css = readFileSync(new URL("../src/styles/desk.css", import.meta.url), "utf8");
+  assert.match(css, /\.collection-page__heading > :is\(h2, h3, h4\) \{\s*margin: 0;/);
+  assert.match(css, /\.collection-page__heading > \.desk-np-row__buttons \{\s*align-items: center;/);
+  page.destroy();
 });
 
 test("E194: a passage added inside one already there says so", async () => {

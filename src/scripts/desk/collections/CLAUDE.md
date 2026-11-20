@@ -445,7 +445,12 @@ second draft of the mocks takes from where:
   never marks a toggle (E160).
 - **Moving a row**, in any order (E212), is the sheet editor's head to drag
   (`desk-sheet__module-head`, its grip `desk-sheet__grip`) and its ↑ and ↓
-  (`desk-sheet__icon`), not a menu.
+  (`desk-sheet__icon`), not a menu. A heading of My order drags by its whole
+  line, its buttons and a rename's field aside (E214).
+- **A heading's line is one center line** (E214): its name (an `h3`) keeps
+  none of a heading's margin, since the row centers each box with its
+  margins, and its buttons are centered as a part's tools are. A heading
+  that sat 8px above its grip and buttons is what that margin did.
 - **The rule's line** is a plain line with `.desk-item__stop` links; the
   label's two choices are `desk-setting` radios in the pick window.
 - **The undo bar** is `showUndo`'s, with its `link`.

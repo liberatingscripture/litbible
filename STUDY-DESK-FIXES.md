@@ -5663,6 +5663,23 @@ wording (E202).
   of where it was. Test: `test/desk-collections-sheets.test.js`. Status:
   fixed.
 
+- **E214, bug: a heading's name sat above its line, and only its grip
+  dragged.** BVJ, 2026-11-20, with a screenshot of a My order heading
+  (“Matthew”): “The vertical alignment in headers is off,” “The word Matthew
+  sits higher than everything else,” and “And more of it should be
+  draggable.” The heading's `h3` kept the site's 16px bottom margin, and the
+  row (`align-items: center`) centers each box with its margins, so the name
+  sat 8px above the grip and the buttons; the ↑ and ↓ were top-aligned in
+  their group (`.desk-np-row__buttons`), 3px above Rename and Remove.
+  **Fixed** (`desk.css`, `collection-view.js`): the name keeps no margin and
+  the buttons are centered, so the grip, the name, the arrows and the
+  buttons share one center line (measured in the Browser pane on the
+  collection page, and in headless Chrome in a /desk Collections pane at
+  322px and 235px, where the buttons wrap under the name as decision 35
+  has them). The whole line drags, its buttons and a rename's field aside,
+  as a member's head does (E211), with the grab cursor. Test:
+  `test/desk-collections-sheets.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
