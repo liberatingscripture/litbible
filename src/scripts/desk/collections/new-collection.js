@@ -42,14 +42,19 @@ export function openNewCollection({ store, ctx, near = null, firstMember = null,
     title: "New collection",
     lead,
     submit: "Create",
-    fields: [{ key: "name", label: "Name", maxLength: 200 }],
+    // A description can be given from the start, as Rename… lets it be
+    // changed later (E174); it is optional, since only the first field is.
+    fields: [
+      { key: "name", label: "Name", maxLength: 200 },
+      { key: "description", label: "Description", multiline: true, maxLength: 1000 },
+    ],
     near,
     back,
-    onSubmit: async ({ name }) => {
+    onSubmit: async ({ name, description = "" }) => {
       let made = null;
       try {
         await store.change(async () => {
-          made = createCollection({ name, members: firstMember ? [firstMember] : members }, { now: new Date().toISOString(), ...ctx() });
+          made = createCollection({ name, description, members: firstMember ? [firstMember] : members }, { now: new Date().toISOString(), ...ctx() });
           return planSave(made);
         });
       } catch (err) {

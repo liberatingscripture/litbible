@@ -4855,6 +4855,58 @@ says so; where BVJ was wondering, nothing is decided.)
   and Enter), `test/desk-search-pane.test.js`, `test/desk-inert.test.js`;
   `desk-intro-pane-images` and `desk-intro-text` went with the pane.
   Status: fixed.
+- **E174, bug: the New collection window asked for a name only.** BVJ,
+  2026-11-20, with a screenshot of the window opened from a verse menu's
+  “Add to collection ▸ / New collection…”: “I thought we fixed this, adding
+  a description to the New collection window.” No change on record had
+  added it: Rename… on a collection's page asks for its name and
+  description, but `openNewCollection` (`collections/new-collection.js`)
+  gave its window a Name field alone. **Fixed**: the window has a
+  Description field under Name, the same one Rename… has (several lines, up
+  to 1,000 characters), and optional, since only the first field is
+  required; a description given is kept with the new collection
+  (`createCollection` took one already). Every way in uses that window, so
+  each gets it: the collections page's “New collection…,” the one in My
+  Notebook's Collections section, Add to collection ▸'s, and the pick
+  windows' “New collection…” action row (This verse's
+  Add to collection…, “Add these N to a collection…,” and a label's “Add all
+  bookmarks labeled…”). The Collections popover's own inline name box on a
+  row is unchanged. The help page's “How collections work” says the window
+  asks for a description too. Tests: `test/desk-collections-page.test.js`
+  (left empty, none is kept) and `test/desk-collections-add-menu.test.js`
+  (given from a verse, it is kept). Status: fixed.
+
+- **E175, preference: no collection filter in My Notes or My Notebook.**
+  BVJ, 2026-11-19, looking at the Notebook's My Notes with two collections
+  kept, where a row of “All collections,” “First collection,” and “Second
+  collection” sat under the label filter: “It feels like if people want to
+  find out what's in a collection they can go to the collections page or the
+  study desk pane. It mostly just clutters the notebook.” And: “That would be
+  true of My notes tab in the notebook and My notes panel in the desk.” Asked
+  whether My Notebook's “Any collection” select went too: “All three.” It
+  reverses the filter D13's step 6 built (STUDY-DESK.md, D13, “In the
+  Notebook”). The Collections pane (decisions 26 to 36) shows what a
+  collection holds, passages and headings included, which the filter never
+  could.
+  **Fixed.** What went:
+  - **My Notes** (`tab-mine.js`: the Notebook panel's tab and /desk's My
+    Notes pane): the row of collection toggles, the “Its 4 passages are on
+    its page.” line, and “Nothing here is in that collection.”
+  - **My Notebook** (`kept-list.js`, /notebook): the “Collection” select and
+    its passages line.
+  - **The two subscriptions** to `{ kinds: ["collection"] }` that kept the
+    filter current (`panel.js`, `desk-panes.js`), and the model's
+    `collectionFilter` and `filterRecords`' `recordIds`, which only the
+    filter used.
+  What stays: each row's “Collections…” button, My Notebook's Collections
+  section, the notebook search's “Collections” group (by name), and “Add
+  these N to a collection…”, which answers the search and the label filter.
+  The help page's “Finding things” now sends a reader to a collection's
+  page, and its “From a label” paragraph says “its list” for My Notebook's,
+  since “Add these 12” is there and not in My Notes. Test:
+  `test/desk-collections-filters.test.js` holds that neither list has the
+  filter and that the name search still works.
+  Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

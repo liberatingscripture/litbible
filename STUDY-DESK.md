@@ -5933,7 +5933,8 @@ Why a kind of its own:
   tab. /desk's My Notes pane gets the same filter, so a collection sits
   beside the text without a new kind of pane. (The filter can't show
   passages or headings, which aren't records, so on 2026-11-19 BVJ chose a
-  Collections pane as well: decisions 26 to 36, below.)
+  Collections pane as well: decisions 26 to 36, below. Later that day BVJ
+  took the filter out of My Notes and My Notebook as clutter, E175.)
 - **The notebook search** finds collections by name.
 
 ### Collections and sheets
@@ -6032,7 +6033,7 @@ The steps:
 6. **Filters, search, and the header**: the collection filter in My Notes
    (the panel and /desk) and My Notebook's list, the notebook search
    finding collections by name, and "My collections." Sonnet, then Haiku
-   for the links.
+   for the links. (The filter was built, then taken out: E175.)
 7. **A collection onto a sheet**: "Make a sheet" and "Add to sheet ▸" on
    the page and a Collection choice in "+ From my notes…". The parts follow
    the page's order; a passage and its text parts never split at the
