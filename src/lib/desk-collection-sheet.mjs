@@ -2,9 +2,9 @@
 //
 // A collection onto a sheet (STUDY-DESK.md, D13: decisions 7, 8 and 20,
 // "Collections and sheets", and step 7 of its order of work): a collection's
-// members turned into the parts to add to a sheet, a new one ("Make a sheet")
-// or one the reader has ("Add to sheet ▸", and the Collection choice in
-// "+ From my notes…"). Pure: no DOM, no store, no fetch, no clock; the only
+// members turned into the parts to add to a sheet, a new one (the "New sheet"
+// row of the collection's "Add to sheet…") or one the reader has ("Add to
+// sheet…", and the Collection choice in "+ From my notes…"). Pure: no DOM, no store, no fetch, no clock; the only
 // randomness is makeModule's ids. The caller reads the chapters first
 // (`collectionChapters` lists them, as add-forms.js reads a highlight's before
 // "+ From my notes…" adds it) and hands them in, then runs
@@ -12,7 +12,7 @@
 // add-forms.js runs `notAlreadyOn` and `fitModules` there (PC8B-1), so a part
 // another tab added meanwhile isn't added twice. Where the block goes is the
 // caller's (the end, or after the part last worked in, as "+ From my notes…"
-// puts its parts); for "Make a sheet", hand the parts to createSheet as its
+// puts its parts); for a new sheet, hand the parts to createSheet as its
 // `modules`, so the sheet doesn't open with Blank canvas's empty text part.
 //
 // The rules, and why:

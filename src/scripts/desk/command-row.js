@@ -1,7 +1,8 @@
 // src/scripts/desk/command-row.js
 //
 // /desk's row of worded commands under the header (E68; STUDY-DESK-FIXES.md,
-// 2026-11-10): Add pane ▾, Layout…, New sheet…, Print… and Help, where a
+// 2026-11-10): Add pane ▾, Layout…, New sheet…, New collection…, Print… and
+// Help, where a
 // first look at the page finds them. Until then every command was in the
 // title menu ("Study Desk ▾", E15), and NN/g found hidden commands used far
 // less, and more slowly, than visible ones. The title menu keeps the rest
@@ -19,14 +20,16 @@
 // which kind of pane, in the same menu (E14; BVJ, 2026-11-02), with a
 // "‹ Add column" line to go back. New sheet… acts at once (SH5-5): it uses
 // the desk's Sheets pane, or adds one as a column (else a row), then sends
-// `desk:sheet-new` with the pane's id. Each is disabled, not hidden, when the
-// page can't take a pane, with the reason in its tooltip and its description.
+// `desk:sheet-new` with the pane's id. New collection… (D13, decision 28) does
+// the same with a Collections pane and `desk:collection-new`, which opens the
+// name window there. Each is disabled, not hidden, when the page can't take a
+// pane, with the reason in its tooltip and its description.
 // The pure rules are in src/lib/desk-layout.mjs.
 //
 // Returns `{ el, addButton, addMenu, layoutButton, printButton, hang(win, button),
-// showAddKinds(direction), closeAdd({ focus }), newSheet(), refresh() }`.
+// showAddKinds(direction), closeAdd({ focus }), newSheet(), newCollection(), refresh() }`.
 
-import { KINDS, addPane, addPaneNeeds, addWhy, panes, sheetPaneFor, whyText } from "../../lib/desk-layout.mjs";
+import { KINDS, addPane, addPaneNeeds, addWhy, collectionPaneFor, panes, sheetPaneFor, whyText } from "../../lib/desk-layout.mjs";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { el } from "./dom.js";
 import { newTabMark } from "./glyphs.js";
@@ -93,6 +96,7 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   const addReasons = describeUnavailable(addMenu, { id: "deskAddMenuWhy" });
 
   const newSheetButton = command("New sheet…");
+  const newCollectionButton = command("New collection…");
   const layoutButton = command("Layout…");
   layoutButton.setAttribute("aria-haspopup", "dialog");
   const printButton = command("Print…");
@@ -103,7 +107,7 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   help.rel = "noopener noreferrer";
   help.append(newTabMark(), el("span", "sr-only", " (opens in a new tab)"));
 
-  row.append(addSub, layoutButton, newSheetButton, printButton, help);
+  row.append(addSub, layoutButton, newSheetButton, newCollectionButton, printButton, help);
 
   /** A window opened from a command hangs under it, inside the window's width. */
   function hang(win, button) {
@@ -222,7 +226,7 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
     drawAdd();
   }
 
-  /** Whether Add pane and New sheet… can act, and why not; read as either opens and as the layout changes. */
+  /** Whether Add pane, New sheet… and New collection… can act, and why not; read as any opens and as the layout changes. */
   function refresh() {
     const { width, height } = addRoom();
     const layout = getLayout();
@@ -230,6 +234,8 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
     setDisabled(addButton, addWhy(reasons));
     const hasSheet = panes(layout.root).some((p) => p.kind === "sheet");
     setDisabled(newSheetButton, hasSheet ? null : addWhy(reasons));
+    const hasCollections = panes(layout.root).some((p) => p.kind === "collection");
+    setDisabled(newCollectionButton, hasCollections ? null : addWhy(reasons));
   }
 
   // Also the tour's (E59), which calls it without a press.
@@ -246,6 +252,20 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
     // and the leader would see the list without the chooser (DK6-10).
     document.dispatchEvent(new CustomEvent("desk:sheet-new", { detail: { paneId } }));
     announce("New sheet: choose a template.");
+    return paneId;
+  }
+
+  // As New sheet… does, with a Collections pane: the one open, else a new
+  // column (else a row), which answers `desk:collection-new` by opening the
+  // name window. Cancel gives focus back to this button.
+  function newCollection() {
+    const { width, height } = addRoom();
+    const layout = getLayout();
+    const { layout: next, paneId } = collectionPaneFor(layout, width, height);
+    closeAdd();
+    if (!paneId) return null;
+    if (next !== layout) commit(next);
+    document.dispatchEvent(new CustomEvent("desk:collection-new", { detail: { paneId, back: newCollectionButton } }));
     return paneId;
   }
 
@@ -267,6 +287,10 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   newSheetButton.addEventListener("click", () => {
     refresh();
     if (!isOff(newSheetButton)) newSheet();
+  });
+  newCollectionButton.addEventListener("click", () => {
+    refresh();
+    if (!isOff(newCollectionButton)) newCollection();
   });
   layoutButton.addEventListener("click", () => { closeAdd(); layoutWindow.open(); });
   printButton.addEventListener("click", () => { closeAdd(); printWindow.open(); });
@@ -305,5 +329,5 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   addEventListener("resize", refresh);
   refresh();
 
-  return { el: row, addButton, addMenu, layoutButton, printButton, hang, showAddKinds, closeAdd, newSheet, refresh };
+  return { el: row, addButton, addMenu, layoutButton, printButton, hang, showAddKinds, closeAdd, newSheet, newCollection, refresh };
 }

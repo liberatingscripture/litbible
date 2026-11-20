@@ -498,6 +498,9 @@ const parts = [
                   says so under the passage.</li>
                 <li><strong>Sheets</strong> is where you make and edit
                   <a href="#sheets">sheets</a>.</li>
+                <li><strong>Collections</strong> shows your
+                  <a href="#collections">collections</a>: the list of them, or
+                  one collection and what it gathers.</li>
                 <li><strong>Search</strong> searches the translation, the
                   glossary, the articles, the book introductions, and the
                   Greek (see <a href="#search-pane">The Search pane</a>).</li>
@@ -522,7 +525,7 @@ const parts = [
               </p>
               <p>
                 <strong>Going back.</strong> When a LIT pane moves to a search
-                result, to a reference in My Notes or a
+                result, to a reference in My Notes, a collection, or a
                 footnote, or to a passage you type or pick, its bar starts with
                 a way back, such as “← John 3:16” (the arrow alone in a narrow
                 pane). Press it to return to where you were, and the panes that
@@ -537,8 +540,8 @@ const parts = [
               <h3 id="desk-arrange">Adding, moving, and sizing panes</h3>
               <p>
                 <strong>The commands.</strong> A row under the page’s header
-                holds “Add pane,” “Layout…,” “New sheet…,” “Print…,” and
-                “Help.”
+                holds “Add pane,” “Layout…,” “New sheet…,” “New
+                collection…,” “Print…,” and “Help.”
               </p>
               <ul>
                 <li><strong>“Add pane”</strong> asks for a column (a
@@ -550,6 +553,9 @@ const parts = [
                 <li><strong>“New sheet…”</strong> starts a sheet at once: it
                   opens a Sheets pane (or uses the one you have) and asks which
                   template to begin from.</li>
+                <li><strong>“New collection…”</strong> asks for a name (and,
+                  if you like, a description), then shows the new collection
+                  in a Collections pane (the one you have, or a new one).</li>
               </ul>
               <p>
                 <strong>Each pane’s menu.</strong> Select a pane’s name to show
@@ -575,9 +581,10 @@ const parts = [
               <h3 id="desk-full">When the desk is full</h3>
               <p>
                 Some things open a pane for you: a sheet sent to the desk (from
-                the Sheets page, or a Search pane’s “New sheet of 3 verses”), a
-                search result that needs a LIT or Greek
-                pane, and Search from the / key. One rule covers all of them:
+                the Sheets page, a Search pane’s “New sheet of 3 verses,” or a
+                collection), a collection (from “Open the collection,” or
+                “Open in the Study Desk” on its page), a search result that
+                needs a LIT or Greek pane, and Search from the / key. One rule covers all of them:
               </p>
               <ol>
                 <li>A pane of that kind that is already open is used.</li>
@@ -594,8 +601,8 @@ const parts = [
                 notebook, not to the layout. Where no
                 pane can give up its place, a notice says why and offers both
                 ways on: close a pane and try again, or open the thing on its
-                own page. “Add pane” and “New sheet…” are commands, so on a
-                full desk they are grayed out instead.
+                own page. “Add pane,” “New sheet…,” and “New collection…” are
+                commands, so on a full desk they are grayed out instead.
               </p>
             </section>
 
@@ -972,6 +979,21 @@ const parts = [
                 notebook.
               </p>
               <p>
+                <strong>On the Study Desk:</strong> a Collections pane shows
+                your collections beside the text. Choose “Collections” from
+                “Add pane” or a pane’s menu, or use “New collection…” in the
+                row of commands. The pane has the page’s buttons, with “Open
+                on its own page” (in a new tab) where Print would be; on the
+                page, “Open in the Study Desk” brings the collection back.
+                Select a reference to take the leading LIT pane there, or a
+                sheet to open it in a Sheets pane. On the Study Desk, the
+                bar’s “Open the collection” shows it in a Collections pane
+                instead of a new tab. Two Collections panes can show two
+                collections side by side. In a narrow pane each thing takes
+                three lines: its reference, then its kind with its buttons,
+                then its words.
+              </p>
+              <p>
                 <strong>From a verse:</strong> “Add to collection” in the verse
                 menu, or beside a selection, on a Scripture page or in a LIT
                 pane, lists “New collection…” after the five collections you
@@ -1008,8 +1030,8 @@ const parts = [
                 label Advent from now on.” The second makes a rule.
               </p>
               <p>
-                <strong>Finding things:</strong> a collection’s page shows
-                everything it holds. Searching My Notebook finds collections by
+                <strong>Finding things:</strong> a collection’s page, or a
+                Collections pane on the Study Desk, shows everything it holds. Searching My Notebook finds collections by
                 name: they appear in a small
                 “Collections” group as links to their pages, and never as rows
                 of the list. The header’s “Study” menu, the Notebook’s Settings
@@ -1027,11 +1049,11 @@ const parts = [
                 bookmarks in the collection.
               </p>
               <p>
-                <strong>Onto a sheet:</strong> “Make a sheet” on a
-                collection’s page turns the whole collection into a new sheet
-                named after it. “Add to sheet…” opens a list of your sheets,
-                with “New sheet” at the top, and adds it to the one you pick.
-                Each passage becomes a passage part, a bookmark or highlight
+                <strong>Onto a sheet:</strong> “Add to sheet…” on a
+                collection’s page, or in its pane, opens a list of your sheets and adds the
+                collection to the one you pick. “New sheet,” at the top of
+                the list, turns the whole collection into a new sheet named
+                after it. Each passage becomes a passage part, a bookmark or highlight
                 adds a line under its passage, a note becomes a Text or
                 Question part, and a heading becomes a heading. Anything the
                 sheet already holds isn’t added again, and a sheet in the

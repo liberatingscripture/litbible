@@ -48,7 +48,8 @@ async function chapterText(bookKey, chapter) {
 /**
  * The Collection choice in "+ From my notes…" (D13, step 7): the reader's
  * collections, each a button that brings the whole collection on as one block
- * of parts, in one change, through the same converter "Make a sheet" uses
+ * of parts, in one change, through the same converter a collection's "Add to
+ * sheet…" uses
  * (desk-collection-sheet.mjs), run over the sheet as saved. With no
  * collections it is one plain line and a link to /collections/.
  */

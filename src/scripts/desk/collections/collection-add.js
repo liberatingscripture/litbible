@@ -25,7 +25,7 @@ import { openPickWindow } from "../pick-window.js";
 import { showUndo } from "../undo-bar.js";
 import { dateWords } from "../desk-text.js";
 import { buttons } from "../dom.js";
-import { addPassageToCollection, collectionHref } from "./add-passage.js";
+import { addPassageToCollection, collectionLink } from "./add-passage.js";
 import { openNewCollection } from "./new-collection.js";
 
 const button = buttons("lit-panel__btn");
@@ -180,7 +180,7 @@ export function createCollectionAdd({ store, ctx }) {
       back: backTo(d, from),
       onCreated: (collection, entry) => {
         showUndo(`${reference} added to ${collectionName(collection)}.`, () => undoEntry(entry), {
-          link: { label: "Open the collection", href: collectionHref(collection.id) },
+          link: collectionLink(collection.id),
         });
       },
     });

@@ -34,10 +34,10 @@ import { undoEntry } from "../history.js";
 import { openPickWindow } from "../pick-window.js";
 import { showNotice, showUndo } from "../undo-bar.js";
 import { dateWords, plural } from "../desk-text.js";
-import { collectionHref } from "./add-passage.js";
+import { collectionLink } from "./add-passage.js";
 import { openNewCollection } from "./new-collection.js";
 
-const openLink = (id) => ({ label: "Open the collection", href: collectionHref(id) });
+const openLink = collectionLink;
 
 const pickItems = (list) =>
   list.map((c) => ({ id: c.id, name: c.name, detail: c.modified && dateWords(c.modified) ? `Changed ${dateWords(c.modified)}` : "" }));

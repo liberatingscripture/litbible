@@ -1,9 +1,11 @@
 // src/scripts/desk/collections/collection-view.js
 //
-// One collection on /collections/?id=<id> (STUDY-DESK.md, D13, mock part b):
+// One collection (STUDY-DESK.md, D13, mock part b), drawn by both of its homes:
 // "‹ My collections", its name and description, its actions (Add passage…,
-// Make a sheet, Add to sheet…, Rename…, Print, Delete), the order switch, and its members on a Site 2.0
+// Add to sheet…, Rename…, Print, Delete), the order switch, and its members on a Site 2.0
 // sheet as the desk's own rows (record-rows.js, as My Notebook draws them).
+// There is no "Make a sheet" (D13, decision 36; BVJ, 2026-11-19): Add to
+// sheet…'s "New sheet" row makes that sheet.
 // Nothing here has a look of its own (decision 25): every class is one the
 // site already has, and styles/v2/collections.css only places them.
 //
@@ -24,11 +26,40 @@
 // "Leave it out of this collection" (its id goes into the rule's `except`);
 // the line then counts "1 left out" and brings each back.
 //
-// The page object (collection-page.js) hands in what a view needs: `store`,
-// `ctx`, `base`, `refresh(focusKeys)`, `go(href)`, `follow(event, href)`,
-// `viewState(id)`, `chapterText` (a chapter's anchor text, for checking a
-// typed reference), `passageText` (a passage's words), and `parse` (the
-// reference reader). A test replaces the last three.
+// The host. The page (collection-page.js) and, from step 4 of the pane's order
+// of work, /desk's Collections pane each hand the view and the list
+// (collection-list.js) one object, the shared part of it made by `viewHost`:
+// - `store`, `ctx` and `base`;
+// - `root`, the host's own element. Everything a view looks for (focus keys,
+//   the button a window gives focus back to) is found inside it, never with
+//   `document.querySelector`, so two Collections panes never answer for each
+//   other;
+// - `idSuffix`, which ids, the order switch's radio name and focus keys carry
+//   (`focusKey`); none on the page, whose keys are the plain words;
+// - `open(id)` and `toList()`, which show one collection or the list (they
+//   replace the page's `go(href)`): the page turns them into its address and
+//   history, the pane into its layout field;
+// - `refresh(focusKeys)`, which draws the view again and puts focus on the
+//   first of those keys that is there;
+// - optional: `listHref` and `href(id)`, the list's and a collection's
+//   addresses, which make "‹ My collections" and a row of the list links
+//   (the page); `backLabel`; `headingTag` and `headingClass` for the title;
+//   `newTabLinks`, which opens the help link in a new tab;
+// - optional, for the two homes' differences (D13, decisions 26, 27, 29, 32
+//   and 36): `deskHref(id)`, the page's quiet "Open in the Study Desk" after
+//   its actions; `ownPageHref(id)`, the pane's "Open on its own page" (a new
+//   tab) in Print's place, since a print from /desk prints the desk;
+//   `plainMembers`, members lying on the pane as My Notes' rows do rather than
+//   on a `.v2-sheet` (a card inside a card); and `goHere`, `{ can(member),
+//   go(member) }`, which a plain click on a reference (a passage's or a
+//   record's, a sheet's name included) runs in place of following its link,
+//   as My Notes' `goHere` does (BA124). A modified click still opens the page;
+// - from `viewHost`: `viewState(id)` (what a view keeps while it is drawn
+//   again: an open form, a heading being renamed), `openWords` (the passages
+//   shown whole, by row key, for the visit), `chapterText` (a chapter's anchor
+//   text, for checking a typed reference), `passageText` (a passage's words,
+//   read once a place), and `parse` (the reference reader). A test replaces
+//   the last three.
 
 import { labelMap } from "../../../lib/desk-labels.mjs";
 import { COLLECTION_ORDERS, collectionTooBig } from "../../../lib/desk-collection-format.mjs";
@@ -60,7 +91,9 @@ import { showNotice, showUndo } from "../undo-bar.js";
 import { buttons, make } from "../dom.js";
 import { setTip } from "../../tip.js";
 import { plural } from "../desk-text.js";
-import { makeSheetFromCollection, openAddToSheet } from "./collection-sheet.js";
+import { newTabMark } from "../glyphs.js";
+import { parseReference } from "../../search-core.js";
+import { openAddToSheet } from "./collection-sheet.js";
 import { openNameWindow } from "./name-window.js";
 
 const button = buttons("desk-sheet__btn");
@@ -75,8 +108,124 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" 
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 9l6 6 6-6" /></svg>`;
 
-// The words opened for the visit, by row key, so a redraw keeps them open.
-const openWords = new Set();
+/* ── The host's shared part, and what every view looks for in it ──── */
+
+/** A chapter's anchor text, or null when it can't be read. */
+async function readChapterText(bookKey, chapter) {
+  try {
+    const { loadChapterPage } = await import("../chapter-page.js");
+    const source = await loadChapterPage(bookKey, chapter);
+    return source.textBox ? source.anchorText() : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * The words of `where` ({ bookKey, chapter, verse, endVerse }) as a scripture
+ * page sets them, or null when they can't be read (E171; BVJ, 2026-11-19): an
+ * element holding its paragraphs and poetry lines, italics, and verse
+ * numbers, with no footnote letters (`passageWords` drops them when asked to
+ * keep none). A test may hand back plain text instead.
+ */
+async function readPassageWords(where) {
+  try {
+    const { readPassage, passageWords } = await import("../sheets/sheet-lit.js");
+    const m = { bookKey: where.bookKey, chapter: where.chapter, verse: where.verse, endVerse: where.endVerse };
+    const view = await readPassage(m);
+    if (!view.ok) return null;
+    // passageWords gives { el, base }: the words are its element.
+    return passageWords(view, m)?.el ?? null;
+  } catch (err) {
+    // Said aloud: a quiet failure here once hid that no live words were ever read.
+    console.error("Study Desk: a collection's passage couldn’t be read", err);
+    return null;
+  }
+}
+
+/**
+ * The part of a host the page and the pane share (see "The host", above):
+ * the readers, each passage's words read once and kept, each collection's
+ * view state, and the passages shown whole. The defaults load the chapter
+ * pages (chapter-page.js) and read the words as a sheet's passage does
+ * (sheets/sheet-lit.js), each only when first asked for, so the list alone
+ * loads neither.
+ *
+ * @param {{ store: object, ctx: () => object, base: string,
+ *   chapterText?: Function, passageText?: Function, parse?: Function }} options
+ */
+export function viewHost({ store, ctx, base, chapterText = readChapterText, passageText = readPassageWords, parse = parseReference }) {
+  const words = new Map();
+  const states = new Map();
+  return {
+    store,
+    ctx,
+    base,
+    chapterText,
+    parse,
+    openWords: new Set(),
+    passageText(where) {
+      const key = `${where.bookKey} ${where.chapter}:${where.verse}-${where.endVerse ?? where.verse}`;
+      if (!words.has(key)) words.set(key, passageText(where));
+      return words.get(key);
+    },
+    viewState(id) {
+      if (!states.has(id)) states.set(id, { adding: false, typed: "", heading: false, headingText: "", editing: null });
+      return states.get(id);
+    },
+  };
+}
+
+/** A focus key as `host` writes it: the word, with the host's id where it has one. */
+export const focusKey = (host, name) => (host.idSuffix ? `${name}--${host.idSuffix}` : name);
+
+/** The control with focus key `name` inside the host's own element, or null. */
+export const keyed = (host, name) =>
+  host.root?.querySelector(`[data-focus-key="${CSS.escape(focusKey(host, name))}"]`) ?? null;
+
+/** The view's title: the page's h1, or what the host asks for. */
+export const heading = (host, text) => make(host.headingTag ?? "h1", host.headingClass ?? "sheets-page__title", text);
+
+/** A plain click on a link runs `run` in place; a modified one is left to the browser (a new tab). */
+export function follow(e, run) {
+  if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  e.preventDefault();
+  run();
+}
+
+/**
+ * "‹ My collections": a link where the host gives the list's address, else a
+ * button in the Sheets pane's top row (`desk-sheet__top`), whose spacing puts
+ * the title where a sheet's title sits under "‹ All sheets" (the mock).
+ */
+function backTo(host) {
+  const label = host.backLabel ?? "‹ My collections";
+  if (host.listHref) {
+    const back = make("a", "sheets-page__back", label);
+    back.href = host.listHref;
+    back.addEventListener("click", (e) => follow(e, () => host.toList()));
+    back.dataset.focusKey = focusKey(host, "back");
+    return back;
+  }
+  const back = button(label, "desk-sheet__btn desk-sheet__btn--quiet");
+  back.addEventListener("click", () => host.toList());
+  back.dataset.focusKey = focusKey(host, "back");
+  const top = make("div", "desk-sheet__top");
+  top.append(back);
+  return top;
+}
+
+/** A quiet link in the actions' row: the Sheets pane's "Open on its own page" look. */
+function leaveLink(text, href, newTab) {
+  const a = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", text);
+  a.href = href;
+  if (newTab) {
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
+  }
+  return a;
+}
 
 // Each row's words measured again when their box changes size (the window, the
 // Display tray's text size, a font arriving), for whether they are cut.
@@ -104,10 +253,10 @@ function trouble(plan) {
  * it: a collection plan (planCollectionChange, planAddPassage). Resolves to
  * that plan, or `{ failed: true }`, or `{ refused }` for a size limit.
  */
-export async function writePlan(page, plan) {
+export async function writePlan(host, plan) {
   let made = null;
   try {
-    await page.store.change(async ({ all }) => {
+    await host.store.change(async ({ all }) => {
       made = plan(await all());
       return made.changed ? made : null;
     });
@@ -123,10 +272,10 @@ export async function writePlan(page, plan) {
  * Write one change to the collection `id`. `op(collection, records)` returns
  * the changed collection (the same object when it changes nothing).
  */
-export const writeCollection = (page, id, op) =>
-  writePlan(page, (records) => planCollectionChange(records, id, (c) => op(c, records)));
+export const writeCollection = (host, id, op) =>
+  writePlan(host, (records) => planCollectionChange(records, id, (c) => op(c, records)));
 
-const opCtx = (page) => ({ now: new Date().toISOString(), ...page.ctx() });
+const opCtx = (host) => ({ now: new Date().toISOString(), ...host.ctx() });
 
 /** The text a row's Remove and move buttons name it by. */
 const nameOfRow = (row) =>
@@ -142,23 +291,21 @@ const nameOfRow = (row) =>
  * The view of collection `id`: { nodes, title, focus }. A collection that
  * isn't there (deleted, or another browser's) is a note with the way back.
  */
-export async function collectionView(page, id) {
-  const records = await page.store.all();
+export async function collectionView(host, id) {
+  const records = await host.store.all();
   const c = records.find((r) => r?.id === id && r.kind === "collection");
-  const back = make("a", "sheets-page__back", "‹ My collections");
-  back.href = `${page.base}collections/`;
-  back.dataset.focusKey = "back";
-  back.addEventListener("click", (e) => page.follow(e, back.href));
+  const back = backTo(host);
+  const key = (name) => focusKey(host, name);
   if (!c) {
-    const title = make("h1", "sheets-page__title", "Collection not found");
+    const title = heading(host, "Collection not found");
     const note = make("p", "desk-np__intro", "This collection isn’t in this browser’s notebook. It may have been deleted.");
     return { nodes: [back, title, note], title: "Collection not found | Liberation and Inclusion Translation", focus: title };
   }
   const name = collectionName(c);
   const shown = collectionRows(c, records);
-  const state = page.viewState(id);
-  const title = make("h1", "sheets-page__title", name);
-  title.dataset.focusKey = "title";
+  const state = host.viewState(id);
+  const title = heading(host, name);
+  title.dataset.focusKey = key("title");
   const nodes = [back, title];
   if (c.description) nodes.push(make("p", "desk-np__intro collection-page__description", c.description));
 
@@ -166,25 +313,39 @@ export async function collectionView(page, id) {
   const actions = make("div", "collection-page__actions");
   // The page's one primary button (E126): adding is what the page is for (BVJ, 2026-11-19).
   const add = button("Add passage…", "desk-sheet__btn desk-sheet__btn--primary");
-  add.dataset.focusKey = "add";
+  add.dataset.focusKey = key("add");
   add.setAttribute("aria-expanded", String(state.adding));
-  const makeSheet = button("Make a sheet");
-  makeSheet.dataset.focusKey = "make-sheet";
-  makeSheet.title = "Put this collection on a new sheet";
+  // "Add to sheet…" makes a new sheet too, from its window's "New sheet" row,
+  // so there is no "Make a sheet" beside it (D13, decision 36).
   const toSheet = button("Add to sheet…");
-  toSheet.dataset.focusKey = "add-to-sheet";
+  toSheet.dataset.focusKey = key("add-to-sheet");
   toSheet.setAttribute("aria-haspopup", "dialog");
   const rename = button("Rename…");
-  rename.dataset.focusKey = "rename";
+  rename.dataset.focusKey = key("rename");
   const print = button("Print");
-  print.dataset.focusKey = "print";
+  print.dataset.focusKey = key("print");
   const del = button("Delete");
-  del.dataset.focusKey = "delete";
+  del.dataset.focusKey = key("delete");
   del.setAttribute("aria-label", `Delete ${name}`);
-  actions.append(add, makeSheet, toSheet, rename, print, del);
+  // Each home offers the other (decision 27). A print from /desk would print
+  // the desk, so the pane has "Open on its own page" in Print's place
+  // (decisions 32 and 36); the page keeps Print and ends with "Open in the
+  // Study Desk", in this tab, as a sheet's page ends with "Edit in Study Desk".
+  if (host.ownPageHref) {
+    const own = leaveLink("Open on its own page", host.ownPageHref(id), true);
+    own.dataset.focusKey = key("own-page");
+    actions.append(add, toSheet, rename, del, own);
+  } else {
+    actions.append(add, toSheet, rename, print, del);
+    if (host.deskHref) {
+      const desk = leaveLink("Open in the Study Desk", host.deskHref(id), false);
+      desk.dataset.focusKey = key("desk");
+      actions.append(desk);
+    }
+  }
   nodes.push(actions);
 
-  const form = passageForm(page, c, state);
+  const form = passageForm(host, c, state);
   form.hidden = !state.adding;
   nodes.push(form);
   add.addEventListener("click", () => {
@@ -194,24 +355,15 @@ export async function collectionView(page, id) {
     if (state.adding) form.querySelector("input")?.focus();
   });
 
-  makeSheet.addEventListener("click", async () => {
-    makeSheet.disabled = true;
-    try {
-      await makeSheetFromCollection({ store: page.store, ctx: page.ctx, collectionId: id, chapterText: page.chapterText });
-    } finally {
-      makeSheet.disabled = false;
-    }
-  });
-
   toSheet.addEventListener("click", () => {
     const at = toSheet.getBoundingClientRect();
     openAddToSheet({
-      store: page.store,
-      ctx: page.ctx,
+      store: host.store,
+      ctx: host.ctx,
       collection: c,
-      chapterText: page.chapterText,
+      chapterText: host.chapterText,
       near: { left: at.left, top: at.bottom + 8 },
-      back: () => document.querySelector('[data-focus-key="add-to-sheet"]'),
+      back: () => keyed(host, "add-to-sheet"),
     });
   });
 
@@ -226,16 +378,16 @@ export async function collectionView(page, id) {
         { key: "description", label: "Description", value: c.description ?? "", multiline: true, maxLength: 1000 },
       ],
       near: { left: at.left, top: at.bottom + 8 },
-      back: () => document.querySelector('[data-focus-key="rename"]'),
+      back: () => keyed(host, "rename"),
       onSubmit: async ({ name: n, description }) => {
-        const plan = await writeCollection(page, id, (col) => setCollectionFields(col, { name: n, description }, opCtx(page)));
+        const plan = await writeCollection(host, id, (col) => setCollectionFields(col, { name: n, description }, opCtx(host)));
         const said = trouble(plan);
         if (said) return said;
-        const entry = plan.changed ? page.store.lastEntry() : null;
+        const entry = plan.changed ? host.store.lastEntry() : null;
         // Say what changed: the window holds the description too.
         const renamed = (n ?? "").trim() !== (c.name ?? "").trim();
         if (entry) showUndo(renamed ? "Collection renamed." : "Description saved.", () => undoEntry(entry));
-        page.refresh(["rename"]);
+        host.refresh([key("rename")]);
         return null;
       },
     });
@@ -246,15 +398,15 @@ export async function collectionView(page, id) {
   del.addEventListener("click", async () => {
     let trash = null;
     try {
-      trash = await page.store.remove(id);
+      trash = await host.store.remove(id);
     } catch (err) {
       console.error("Study Desk: couldn’t delete a collection", err);
       showNotice("The collection couldn’t be deleted in this browser. Try again in a moment.");
       return;
     }
-    const entry = trash ? page.store.lastEntry() : null;
+    const entry = trash ? host.store.lastEntry() : null;
     if (entry) showUndo(`${name} deleted.`, () => undoEntry(entry));
-    page.go(`${page.base}collections/`);
+    host.toList();
   });
 
   /* ── The order ────────────────────────────────────────────────── */
@@ -266,16 +418,18 @@ export async function collectionView(page, id) {
     const label = make("label", "desk-seg__option");
     const input = make("input", "desk-seg__input");
     input.type = "radio";
-    input.name = "collection-order";
+    // Each host's own group: two panes showing collections must not share one,
+    // or choosing My order in one takes it from the other (the mock, 2026-11-19).
+    input.name = host.idSuffix ? `collection-order-${host.idSuffix}` : "collection-order";
     input.value = order;
     input.checked = order === shown.order;
-    if (input.checked) input.dataset.focusKey = "order";
+    if (input.checked) input.dataset.focusKey = key("order");
     input.addEventListener("change", async () => {
       if (!input.checked) return;
-      const plan = await writeCollection(page, id, (col) => setOrder(col, order, opCtx(page)));
+      const plan = await writeCollection(host, id, (col) => setOrder(col, order, opCtx(host)));
       const said = trouble(plan);
       if (said) showNotice(said);
-      page.refresh(["order"]);
+      host.refresh([key("order")]);
     });
     label.append(input, make("span", "desk-seg__text", ORDER_NAMES[order]));
     seg.append(label);
@@ -284,26 +438,28 @@ export async function collectionView(page, id) {
   const mine = shown.order === "mine";
   nodes.push(bar);
   if (mine) {
-    const heading = button("Add a heading");
-    heading.dataset.focusKey = "heading";
-    heading.setAttribute("aria-expanded", String(state.heading));
-    bar.append(heading);
-    const hform = headingForm(page, c, state);
+    const addHeading = button("Add a heading");
+    addHeading.dataset.focusKey = key("heading");
+    addHeading.setAttribute("aria-expanded", String(state.heading));
+    bar.append(addHeading);
+    const hform = headingForm(host, c, state);
     hform.hidden = !state.heading;
-    heading.addEventListener("click", () => {
+    addHeading.addEventListener("click", () => {
       state.heading = !state.heading;
       hform.hidden = !state.heading;
-      heading.setAttribute("aria-expanded", String(state.heading));
+      addHeading.setAttribute("aria-expanded", String(state.heading));
       if (state.heading) hform.querySelector("input")?.focus();
     });
     nodes.push(hform);
   }
 
   /* ── The rules' lines ─────────────────────────────────────────── */
-  for (const info of shown.rules) nodes.push(ruleLine(page, c, info));
+  for (const info of shown.rules) nodes.push(ruleLine(host, c, info));
 
   /* ── The members ──────────────────────────────────────────────── */
-  const sheet = make("div", `v2-sheet collection-page__sheet${mine ? " collection-page__sheet--mine" : ""}`);
+  // On the page the members lie on a sheet; in a pane on the pane, as My
+  // Notes' rows do, not a card inside a card (decision 26).
+  const sheet = make("div", `${host.plainMembers ? "" : "v2-sheet "}collection-page__sheet${mine ? " collection-page__sheet--mine" : ""}`);
   if (!shown.rows.length) {
     sheet.append(make("p", "desk-sheet__empty", "Nothing in this collection yet. Add a passage with the button above."));
   }
@@ -324,16 +480,16 @@ export async function collectionView(page, id) {
     }
     if (row.type === "heading") {
       ul = null;
-      sheet.append(headingRow(page, c, row, state, shown.rows));
+      sheet.append(headingRow(host, c, row, state, shown.rows));
       continue;
     }
     if (!ul) {
       ul = make("ul", "desk-list");
       sheet.append(ul);
     }
-    ul.append(memberRow(page, c, row, { labels, mine, rows: shown.rows, rules: shown.rules }));
+    ul.append(memberRow(host, c, row, { labels, mine, rows: shown.rows, rules: shown.rules }));
   }
-  if (mine) wireMoves(page, c, sheet);
+  if (mine) wireMoves(host, c, sheet);
   nodes.push(sheet);
   return { nodes, title: `${name} | Liberation and Inclusion Translation`, focus: title };
 }
@@ -345,32 +501,32 @@ export async function collectionView(page, id) {
  * Stop adding new ones · Remove": a plain line with quiet links, one per rule
  * (decision 25). A rule whose label is gone says so, and can only be removed.
  */
-function ruleLine(page, c, info) {
+function ruleLine(host, c, info) {
   const line = make("p", "desk-np__intro collection-page__rule");
   const id = info.member.id;
   const where = collectionName(c);
   const link = (text, key, label, run) => {
     const b = make("button", "desk-item__stop", text);
     b.type = "button";
-    b.dataset.focusKey = key;
+    b.dataset.focusKey = focusKey(host, key);
     b.setAttribute("aria-label", label);
     b.addEventListener("click", run);
     return b;
   };
   const write = async (op, said, focus = ["add"]) => {
-    const plan = await writeCollection(page, c.id, op);
+    const plan = await writeCollection(host, c.id, op);
     const problem = trouble(plan);
     if (problem) {
       showNotice(problem);
       return;
     }
-    const entry = plan.changed ? page.store.lastEntry() : null;
+    const entry = plan.changed ? host.store.lastEntry() : null;
     if (entry) showUndo(said, () => undoEntry(entry));
-    page.refresh(focus);
+    host.refresh(focus.map((k) => focusKey(host, k)));
   };
   const remove = (label) =>
     link("Remove", `rule-remove-${id}`, `Remove the rule “${label}” from ${where}`, () =>
-      write((col) => removeRule(col, id, opCtx(page)), `The rule “${label}” was removed from ${where}. Bookmarks added by hand stay.`),
+      write((col) => removeRule(col, id, opCtx(host)), `The rule “${label}” was removed from ${where}. Bookmarks added by hand stay.`),
     );
   if (!info.known) {
     line.textContent = "This collection has a rule from a newer version of the Study Desk, which this version can’t show.";
@@ -389,7 +545,7 @@ function ruleLine(page, c, info) {
       line.append(
         " · ",
         link(`Bring back ${ref}`, `rule-back-${b.id}`, `Bring ${ref} back into ${where}`, () =>
-          write((col) => bringBack(col, b.id, opCtx(page)), `${ref} brought back into ${where}.`, [`rule-stop-${id}`, "add"]),
+          write((col) => bringBack(col, b.id, opCtx(host)), `${ref} brought back into ${where}.`, [`rule-stop-${id}`, "add"]),
         ),
       );
     }
@@ -398,7 +554,7 @@ function ruleLine(page, c, info) {
     " · ",
     link("Stop adding new ones", `rule-stop-${id}`, `Stop adding new bookmarks labeled ${label} to ${where}`, () =>
       write(
-        (col, records) => ruleToItems(col, id, records, opCtx(page)),
+        (col, records) => ruleToItems(col, id, records, opCtx(host)),
         info.bookmarks.length === 1
           ? `${label}’s bookmark stays in ${where}, and new ones won’t be added.`
           : `${label}’s ${plural(info.bookmarks.length, "bookmark", "bookmarks")} stay in ${where}, and new ones won’t be added.`,
@@ -412,13 +568,13 @@ function ruleLine(page, c, info) {
 
 /* ── Add passage… ───────────────────────────────────────────────── */
 
-function passageForm(page, c, state) {
+function passageForm(host, c, state) {
   const form = make("form", "desk-sheet__ref");
   const input = make("input");
   input.type = "text";
   input.placeholder = "A reference, such as John 3:16–18";
   input.setAttribute("aria-label", "Passage to add");
-  input.dataset.focusKey = "add-input";
+  input.dataset.focusKey = focusKey(host, "add-input");
   input.value = state.typed;
   input.addEventListener("input", () => (state.typed = input.value));
   const go = button("Add");
@@ -435,22 +591,22 @@ function passageForm(page, c, state) {
     e.preventDefault();
     note.hidden = true;
     const typed = input.value.replace(/[–—]/g, "-");
-    const ref = page.parse(typed);
+    const ref = host.parse(typed);
     if (!ref) {
       problem.textContent =
-        describeRefusal(typed, { parse: page.parse, label: bookKeyToLabel }) ??
+        describeRefusal(typed, { parse: host.parse, label: bookKeyToLabel }) ??
         "That isn’t a reference the LIT can read. Try a book, a chapter, and verses, such as Romans 5:6–10.";
       return;
     }
     problem.textContent = "";
-    const chapter = await page.chapterText(ref.bookKey, ref.chapter);
-    const found = passageForReference(chapter, ref, page.ctx().contentVersion);
+    const chapter = await host.chapterText(ref.bookKey, ref.chapter);
+    const found = passageForReference(chapter, ref, host.ctx().contentVersion);
     if (found.problem) {
       problem.textContent = found.problem;
       return;
     }
     const where = passageReference(found.fields);
-    const plan = await writePlan(page, (records) => planAddPassage(records, c.id, found.fields, opCtx(page)));
+    const plan = await writePlan(host, (records) => planAddPassage(records, c.id, found.fields, opCtx(host)));
     const said = trouble(plan);
     if (said) {
       problem.textContent = said;
@@ -462,18 +618,18 @@ function passageForm(page, c, state) {
       note.hidden = false;
       return;
     }
-    const entry = page.store.lastEntry();
+    const entry = host.store.lastEntry();
     state.typed = "";
     input.value = "";
     showUndo(`${where} added to ${collectionName(c)}.`, () => undoEntry(entry));
-    page.refresh(["add-input"]);
+    host.refresh([focusKey(host, "add-input")]);
   });
   return wrap;
 }
 
 /* ── Headings (My order) ────────────────────────────────────────── */
 
-function headingForm(page, c, state) {
+function headingForm(host, c, state) {
   // Wrapped as Add passage’s field is: .desk-sheet__ref is a flex row, which `hidden` alone can’t close.
   const wrap = make("div", "collection-page__form");
   const form = make("form", "desk-sheet__ref");
@@ -482,7 +638,7 @@ function headingForm(page, c, state) {
   input.placeholder = "A heading, such as Week 1: Hope";
   input.setAttribute("aria-label", "Heading to add");
   input.maxLength = 200;
-  input.dataset.focusKey = "heading-input";
+  input.dataset.focusKey = focusKey(host, "heading-input");
   input.value = state.headingText;
   input.addEventListener("input", () => (state.headingText = input.value));
   const go = button("Add");
@@ -495,16 +651,16 @@ function headingForm(page, c, state) {
       input.focus();
       return;
     }
-    const plan = await writeCollection(page, c.id, (col, records) => addHeading(col, text, null, records, opCtx(page)));
+    const plan = await writeCollection(host, c.id, (col, records) => addHeading(col, text, null, records, opCtx(host)));
     const said = trouble(plan);
     if (said) {
       showNotice(said);
       return;
     }
-    const entry = page.store.lastEntry();
+    const entry = host.store.lastEntry();
     state.headingText = "";
     showUndo(`Heading “${text}” added.`, () => undoEntry(entry));
-    page.refresh(["heading-input"]);
+    host.refresh([focusKey(host, "heading-input")]);
   });
   wrap.append(form);
   return wrap;
@@ -518,7 +674,7 @@ const grip = () => {
 };
 
 /** A heading in My order: its grip, its words, and its buttons; a field while it is being renamed. */
-function headingRow(page, c, row, state, rows) {
+function headingRow(host, c, row, state, rows) {
   const box = make("div", "collection-page__heading v2-rule");
   box.dataset.rowKey = row.key;
   if (state.editing === row.key) {
@@ -528,29 +684,29 @@ function headingRow(page, c, row, state, rows) {
     input.value = row.text;
     input.maxLength = 200;
     input.setAttribute("aria-label", "Heading");
-    input.dataset.focusKey = `edit-${row.key}`;
+    input.dataset.focusKey = focusKey(host, `edit-${row.key}`);
     const save = make("button", "desk-item__edit", "Save");
     save.type = "submit";
     const cancel = make("button", "desk-item__edit", "Cancel");
     cancel.type = "button";
     cancel.addEventListener("click", () => {
       state.editing = null;
-      page.refresh([`rename-${row.key}`]);
+      host.refresh([focusKey(host, `rename-${row.key}`)]);
     });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = input.value.trim();
       state.editing = null;
       if (text !== row.text) {
-        const plan = await writeCollection(page, c.id, (col) => editHeading(col, row.member.id, text, opCtx(page)));
+        const plan = await writeCollection(host, c.id, (col) => editHeading(col, row.member.id, text, opCtx(host)));
         const said = trouble(plan);
         if (said) showNotice(said);
         else if (plan.changed) {
-          const entry = page.store.lastEntry();
+          const entry = host.store.lastEntry();
           showUndo("Heading changed.", () => undoEntry(entry));
         }
       }
-      page.refresh([`rename-${row.key}`]);
+      host.refresh([focusKey(host, `rename-${row.key}`)]);
     });
     form.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
@@ -565,76 +721,79 @@ function headingRow(page, c, row, state, rows) {
   const renameBtn = make("button", "desk-item__edit", "Rename");
   renameBtn.type = "button";
   renameBtn.setAttribute("aria-label", `Rename heading ${row.text}`);
-  renameBtn.dataset.focusKey = `rename-${row.key}`;
+  renameBtn.dataset.focusKey = focusKey(host, `rename-${row.key}`);
   renameBtn.addEventListener("click", () => {
     state.editing = row.key;
-    page.refresh([`edit-${row.key}`]);
+    host.refresh([focusKey(host, `edit-${row.key}`)]);
   });
-  tools.append(...moveButtons(page, c, row, rows), renameBtn, removeButton(page, c, row));
+  tools.append(...moveButtons(host, c, row, rows), renameBtn, removeButton(host, c, row));
   box.append(grip(), make("h3", null, row.text), tools);
   return box;
 }
 
 /* ── A member's row ─────────────────────────────────────────────── */
 
-function removeButton(page, c, row) {
+function removeButton(host, c, row) {
   const name = nameOfRow(row);
   const b = make("button", "desk-item__delete", "Remove");
   b.type = "button";
   b.setAttribute("aria-label", `Remove ${name} from ${collectionName(c)}`);
-  b.dataset.focusKey = `remove-${row.key}`;
+  b.dataset.focusKey = focusKey(host, `remove-${row.key}`);
   b.addEventListener("click", async () => {
-    const keys = neighbors(b);
-    const plan = await writeCollection(page, c.id, (col) =>
-      row.type === "record" ? removeItem(col, row.record.id, opCtx(page)) : removeMember(col, row.member.id, opCtx(page)),
+    const keys = neighbors(host, b);
+    const plan = await writeCollection(host, c.id, (col) =>
+      row.type === "record" ? removeItem(col, row.record.id, opCtx(host)) : removeMember(col, row.member.id, opCtx(host)),
     );
     const said = trouble(plan);
     if (said) {
       showNotice(said);
       return;
     }
-    const entry = plan.changed ? page.store.lastEntry() : null;
+    const entry = plan.changed ? host.store.lastEntry() : null;
     if (entry) showUndo(`${name} removed from ${collectionName(c)}.`, () => undoEntry(entry));
-    page.refresh(keys);
+    host.refresh(keys);
   });
   return b;
 }
 
 /** "Leave it out of this collection": the bookmark's id goes into its rule's `except`, and any item for it goes. */
-function leaveOutButton(page, c, row) {
+function leaveOutButton(host, c, row) {
   const name = nameOfRow(row);
   const b = make("button", "desk-item__delete", "Leave it out of this collection");
   b.type = "button";
   b.setAttribute("aria-label", `Leave ${name} out of ${collectionName(c)}`);
-  b.dataset.focusKey = `remove-${row.key}`;
+  b.dataset.focusKey = focusKey(host, `remove-${row.key}`);
   b.addEventListener("click", async () => {
-    const keys = neighbors(b);
-    const plan = await writeCollection(page, c.id, (col, records) => leaveOut(col, row.record.id, records, opCtx(page)));
+    const keys = neighbors(host, b);
+    const plan = await writeCollection(host, c.id, (col, records) => leaveOut(col, row.record.id, records, opCtx(host)));
     const said = trouble(plan);
     if (said) {
       showNotice(said);
       return;
     }
-    const entry = plan.changed ? page.store.lastEntry() : null;
+    const entry = plan.changed ? host.store.lastEntry() : null;
     if (entry) showUndo(`${name} left out of ${collectionName(c)}.`, () => undoEntry(entry));
-    page.refresh(keys);
+    host.refresh(keys);
   });
   return b;
 }
 
 /** Where focus goes when a row is gone: the next row's Remove, else the previous one's. */
-function neighbors(b) {
+function neighbors(host, b) {
   const li = b.closest("[data-row-key]");
   const rows = [...(li?.closest(".collection-page__sheet")?.querySelectorAll("[data-row-key]") ?? [])];
   const at = rows.indexOf(li);
-  return [rows[at + 1], rows[at - 1]].filter(Boolean).map((r) => `remove-${r.dataset.rowKey}`).concat("add");
+  return [rows[at + 1], rows[at - 1]]
+    .filter(Boolean)
+    .map((r) => focusKey(host, `remove-${r.dataset.rowKey}`))
+    .concat(focusKey(host, "add"));
 }
 
 /**
  * ↑ and ↓ for a row of My order: the sheet editor's own icon buttons, with its
  * tip, and, as there, ↑ off on the first row and ↓ off on the last.
  */
-function moveButtons(page, c, row, rows) {
+function moveButtons(host, c, row, rows) {
   const name = nameOfRow(row);
   return [
     ["up", "↑", "Move up"],
@@ -645,25 +804,25 @@ function moveButtons(page, c, row, rows) {
     setTip(b, tip);
     b.disabled = !moveTarget(rows, row.key, where);
     b.setAttribute("aria-label", `Move ${name} ${where}`);
-    b.dataset.focusKey = `${where}-${row.key}`;
-    b.addEventListener("click", () => move(page, c, row.key, where));
+    b.dataset.focusKey = focusKey(host, `${where}-${row.key}`);
+    b.addEventListener("click", () => move(host, c, row.key, where));
     return b;
   });
 }
 
 /** Move a row by one place (moveTarget, then moveRow), keeping focus on the control used. */
-async function move(page, c, key, where, focus = null) {
-  const plan = await writeCollection(page, c.id, (col, records) => {
+async function move(host, c, key, where, focus = null) {
+  const plan = await writeCollection(host, c.id, (col, records) => {
     const to = moveTarget(collectionRows(col, records, { order: "mine" }).rows, key, where);
-    return to ? moveRow(col, key, to.before, records, opCtx(page)) : col;
+    return to ? moveRow(col, key, to.before, records, opCtx(host)) : col;
   });
   const said = trouble(plan);
   if (said) showNotice(said);
-  page.refresh([focus ?? `${where}-${key}`, `${where === "up" ? "down" : "up"}-${key}`]);
+  host.refresh([focus ?? focusKey(host, `${where}-${key}`), focusKey(host, `${where === "up" ? "down" : "up"}-${key}`)]);
 }
 
 /** A passage or record's row. A passage's words are read from its chapter once the row is drawn. */
-function memberRow(page, c, row, { labels, mine, rows, rules }) {
+function memberRow(host, c, row, { labels, mine, rows, rules }) {
   let li;
   if (row.type === "passage") {
     li = make("li", "desk-item desk-np-row");
@@ -671,28 +830,34 @@ function memberRow(page, c, row, { labels, mine, rows, rules }) {
     const ref = passageReference(row.member);
     const head = make(href ? "a" : "span", "desk-item__ref", ref);
     if (href) head.href = href;
-    li.append(head, make("span", "desk-item__kind", "Passage"), wordsOf(page, row.member, row.key, ref, row.member.verseCopy), make("div", "desk-np-row__buttons"));
+    // In a pane a plain click moves the LIT pane there (decision 29).
+    if (href && host.goHere?.can(row.member)) head.addEventListener("click", (e) => follow(e, () => host.goHere.go(row.member)));
+    li.append(head, make("span", "desk-item__kind", "Passage"), wordsOf(host, row.member, row.key, ref, row.member.verseCopy), make("div", "desk-np-row__buttons"));
   } else {
-    li = recordRow(row.record, { labels, onDelete: () => {}, onLabels: () => {} });
+    li = recordRow(row.record, { labels, onDelete: () => {}, onLabels: () => {}, goHere: host.goHere ?? null });
     // A collection's rows have Remove alone: the record itself is changed in My Notebook.
-    const tools = li.querySelector(".desk-np-row__buttons");
-    tools?.replaceChildren();
+    li.querySelector(".desk-np-row__buttons")?.replaceChildren();
     if (row.record.kind === "bookmark" && Number.isInteger(row.record.verse)) {
-      tools?.before(wordsOf(page, row.record, row.key, recordReference(row.record), row.record.quote?.exact));
+      li.append(wordsOf(host, row.record, row.key, recordReference(row.record), row.record.quote?.exact));
     }
   }
   li.dataset.rowKey = row.key;
+  // The buttons come right after the kind, before the words, so the order a
+  // keyboard takes is the order a narrow pane shows them in (decision 35: the
+  // kind with its buttons, then the words), and a wide row's reading order:
+  // the reference, the buttons beside it, then what lies under them.
   const tools = li.querySelector(".desk-np-row__buttons");
+  li.querySelector(".desk-item__kind")?.after(tools);
   if (mine) {
     li.prepend(grip());
-    tools.append(...moveButtons(page, c, row, rows));
+    tools.append(...moveButtons(host, c, row, rows));
   }
   // A bookmark a rule brings in says so, and is left out rather than removed (D13, step 5).
   const ruled = row.type === "record" ? rules.find((info) => info.member === row.rule) : null;
   if (ruled) {
     li.querySelector(".desk-item__kind")?.append(` · from ${ruled.label?.name ?? "a label"}`);
-    tools.append(leaveOutButton(page, c, row));
-  } else if (row.type !== "record" || row.member) tools.append(removeButton(page, c, row));
+    tools.append(leaveOutButton(host, c, row));
+  } else if (row.type !== "record" || row.member) tools.append(removeButton(host, c, row));
   return li;
 }
 
@@ -706,7 +871,7 @@ function memberRow(page, c, row, { labels, mine, rows, rules }) {
  * `.desk-item__more`); shown only when they are cut or open, and kept open
  * for the visit. On paper they are always whole (v2/collections.css).
  */
-function wordsOf(page, where, key, ref, fallback = null) {
+function wordsOf(host, where, key, ref, fallback = null) {
   const row = make("div", "desk-item__pin-row");
   const box = make("div", "desk-sheet__words chapter-paragraphs");
   const more = make("button", "desk-item__more");
@@ -717,20 +882,20 @@ function wordsOf(page, where, key, ref, fallback = null) {
 
   const measure = () =>
     requestAnimationFrame(() => {
-      const open = openWords.has(key);
+      const open = host.openWords.has(key);
       const cut = !open && box.scrollHeight > box.clientHeight + 1;
       row.classList.toggle("desk-item__pin-row--cut", cut);
       more.hidden = !(open || cut);
     });
   const sync = () => {
-    const open = openWords.has(key);
+    const open = host.openWords.has(key);
     row.classList.toggle("desk-item__pin-row--open", open);
     more.setAttribute("aria-expanded", String(open));
     more.setAttribute("aria-label", `${open ? "Show less of" : "Show all of"} ${ref}`);
   };
   more.addEventListener("click", () => {
-    if (openWords.has(key)) openWords.delete(key);
-    else openWords.add(key);
+    if (host.openWords.has(key)) host.openWords.delete(key);
+    else host.openWords.add(key);
     sync();
     measure();
   });
@@ -747,13 +912,13 @@ function wordsOf(page, where, key, ref, fallback = null) {
   const unread = () => {
     if (!fallback) show(UNREAD);
   };
-  page.passageText(where).then((words) => (words ? show(words) : unread()), unread);
+  host.passageText(where).then((words) => (words ? show(words) : unread()), unread);
   return row;
 }
 
 /* ── Moving a row: drag, and Alt+Up and Alt+Down ────────────────── */
 
-function wireMoves(page, c, sheet) {
+function wireMoves(host, c, sheet) {
   let dragging = null;
   const marker = make("div", "desk-sheet__drop");
   marker.setAttribute("aria-hidden", "true");
@@ -800,10 +965,10 @@ function wireMoves(page, c, sheet) {
     const key = dragging;
     const at = before(e.clientY)?.dataset.rowKey ?? null;
     end();
-    const plan = await writeCollection(page, c.id, (col, records) => moveRow(col, key, at, records, opCtx(page)));
+    const plan = await writeCollection(host, c.id, (col, records) => moveRow(col, key, at, records, opCtx(host)));
     const said = trouble(plan);
     if (said) showNotice(said);
-    page.refresh([`up-${key}`, `down-${key}`]);
+    host.refresh([focusKey(host, `up-${key}`), focusKey(host, `down-${key}`)]);
   });
   // The keyboard's way, beside the buttons: Alt+Up and Alt+Down on a row's control.
   sheet.addEventListener("keydown", (e) => {
@@ -812,6 +977,6 @@ function wireMoves(page, c, sheet) {
     if (!row) return;
     e.preventDefault();
     const focus = e.target.closest?.("[data-focus-key]")?.dataset.focusKey ?? null;
-    move(page, c, row.dataset.rowKey, e.key === "ArrowUp" ? "up" : "down", focus);
+    move(host, c, row.dataset.rowKey, e.key === "ArrowUp" ? "up" : "down", focus);
   });
 }

@@ -37,9 +37,10 @@ it holds. Computer only; the apps carry it untouched.
   `test/desk-collection-format.test.js`, `test/desk-collections.test.js`, and
   the carry in `test/desk-highlights.test.js`.
 - **Step 2, the page (`/collections/`, `src/pages/collections.astro`):**
-  `collection-page.js` (the entry: the list, the empty page, `?id=` routing,
-  keeping the view drawn as the store changes; `mountCollectionsPage` takes
-  `chapterText`, `passageText` and `parse` so a test needs no network),
+  `collection-page.js` (the entry: `?id=` routing, the address, the
+  document's title and history, keeping the view drawn as the store changes;
+  `mountCollectionsPage` takes `chapterText`, `passageText` and `parse` so a
+  test needs no network), `collection-list.js` (the list and the empty page),
   `collection-view.js` (one collection: actions, order switch, members on
   `.v2-sheet`, Add passage, headings, moving), `name-window.js` (the one
   name/description window), `new-collection.js` (`openNewCollection`, which
@@ -47,10 +48,12 @@ it holds. Computer only; the apps carry it untouched.
   `add-passage.js` (`addPassageToCollection`: the one way a passage goes
   in from outside the page, the verse menu's and This verse's, so both say
   "John 3:16 added to Advent series." with Open the collection, or that it
-  is there already). Styles:
-  `styles/v2/collections.css` (layout only, every selector behind
-  `:root[data-restyle]`) and `styles/pages/collections.css` (the note without
-  the desk). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
+  is there already). Styles: the rows' rules (the actions row, the order
+  bar, headings, a passage's cut at three lines) are `desk.css`'s
+  "Collections (D13)" section, where the pane reads them too;
+  `styles/v2/collections.css` keeps the page's frame (its widths and the
+  members' `.v2-sheet` padding, every selector behind `:root[data-restyle]`),
+  and `styles/pages/collections.css` the note without the desk. Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
   markers. The notebook page has "Delete all collections" in Delete in bulk.
   Tests: `test/desk-collections-page*.test.js`.
@@ -131,13 +134,16 @@ it holds. Computer only; the apps carry it untouched.
   `collectionSheetParts(collection, records, sheet, { chapters })` returns
   `{ parts, added, alreadyOn, leftOut, skippedSheets, limit }` in the page's
   order, run again inside the writing change over the sheet as saved.
-  `collection-sheet.js` is the wiring: the page's "Make a sheet" and "Add to
-  sheet…" (after "Add passage…"), both one `store.change` reading the notebook
-  there, with the undo bar's "Open the sheet" and `skippedSheetsNote`; "Make a
-  sheet" hands the parts to `createSheet` as its `modules`. "Add to sheet…" is
-  E154's pick window (no menu opens from a page button) over `addableSheets`,
-  its action row "New sheet" doing what Make a sheet does; a pick appends the
-  block at `passageInsertIndex`. A collection with nothing that makes a part
+  `collection-sheet.js` is the wiring: the view's "Add to sheet…" (after "Add
+  passage…"), E154's pick window (no menu opens from a page button) over
+  `addableSheets`. A pick appends the block at `passageInsertIndex`; its
+  action row "New sheet" (`makeSheetFromCollection`) hands the parts to
+  `createSheet` as its `modules`. Each is one `store.change` reading the
+  notebook there, with the undo bar's "Open the sheet" and
+  `skippedSheetsNote`. **There is no "Make a sheet" button** (decision 36;
+  BVJ, 2026-11-19: "the /collections page can just use add to sheet also"):
+  it made the sheet "New sheet" makes, so it came out of the view with its
+  tests, and the help page's "Onto a sheet" starts from Add to sheet…. A collection with nothing that makes a part
   says so and writes nothing. `add-forms.js`' "+ From my notes…" has a
   "From a collection" section (a button per collection, or one line and a link
   to `/collections/`) adding the block through the editor's own change at its
@@ -146,13 +152,91 @@ it holds. Computer only; the apps carry it untouched.
   never takes it for the reading part; leave it, it is the owner's to decide.
   Tests: `test/desk-collection-sheet.test.js`,
   `test/desk-collections-sheet-wiring.test.js`.
-- **Next, a Collections pane on /desk** (decided, not built; BVJ,
-  2026-11-19): STUDY-DESK.md, D13, "A Collections pane on /desk"
-  (decisions 26 to 36, and its order of work). The Book Intro pane is
-  already out, to make room (STUDY-DESK-FIXES.md E173). The pane is a second
-  host of `collection-view.js` and of the list, which moves out of
-  `collection-page.js`; read that section before changing the view's host
-  object or the list.
+- **A Collections pane on /desk** (BVJ, 2026-11-19): STUDY-DESK.md, D13,
+  "A Collections pane on /desk" (decisions 26 to 36, and its order of
+  work). The Book Intro pane went to make room (STUDY-DESK-FIXES.md E173).
+  Built (all five steps); see "The views' host" and "The Collections
+  pane" below. The help page names it in "The kinds of pane," the
+  commands, "When the desk is full," "Going back," and "How collections
+  work" (its "On the Study Desk" paragraph, and "Finding things"); a
+  change to what the pane
+  does changes those words too.
+
+## The views' host (the pane's step 2)
+
+`collection-view.js` (one collection) and `collection-list.js` (the list)
+know nothing of addresses or panes. Each home hands them one **host**, whose
+shared part `viewHost` makes (the readers, each passage's words read once,
+each collection's `viewState`, and `openWords`, the passages shown whole for
+the visit); the header of `collection-view.js` lists every field. What to
+keep:
+
+- **`open(id)` and `toList()`, never an address.** They replaced `go(href)`:
+  the page turns them into its address and a history entry, and the pane
+  into its layout field. A host that gives `listHref` and
+  `href(id)` (the page) gets links for "‹ My collections" and the list's
+  rows, a plain click running `open` or `toList` in place (`follow`); one
+  that doesn't gets buttons.
+- **Everything a view looks for is inside `host.root`** (`keyed`): the button
+  a window gives focus back to, and the focus keys `refresh` hands focus to.
+  Never `document.querySelector`, or a second Collections pane answers for
+  the first.
+- **A host's `idSuffix` goes on its ids, its order switch's radio name
+  (`collection-order-<id>`) and its focus keys (`focusKey`: `add--<id>`)**,
+  so two hosts never share a radio group (the mock showed My order chosen in
+  one pane taken from the other). The page has none, so its keys are the
+  plain words its tests look for.
+- **The page keeps its address, `document.title` and history**; a view's
+  `title` is the document title, which a pane ignores. Test:
+  `test/desk-collections-host.test.js` (two hosts at once).
+- **The two homes differ only by host fields** (decisions 26, 27, 29, 32 and
+  36): the page gives `deskHref` ("Open in the Study Desk," last, in this
+  tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
+  Print's place), `plainMembers` (the members on the pane, no `.v2-sheet`)
+  and `goHere` (a plain click on a reference runs it). A new difference is a
+  new host field, never a test of which home is drawing.
+- **A member row's buttons follow its kind, before its words**, so the
+  keyboard's order is the narrow pane's (decision 35). The wide row places
+  them by grid, so the order doesn't show there.
+
+## The Collections pane (the pane's step 4)
+
+`collection-pane.js` is the pane: `createCollectionPane`, mounted by
+`desk-panes.js` with the layout field handed in (`getCollection`,
+`setCollection`, over `setPaneCollection` in `desk-layout.mjs`, which
+`checkLayout` keeps on a Collections pane only). It is the views' host with
+the pane's id as `idSuffix`, and keeps what only a pane has:
+
+- **References are jumps** (decision 29): a passage or a record goes to
+  `env.showPassage(…, { beside, asker: "collection" })`, so the LIT pane's bar
+  offers the way back (E168), and a notice with no room names "this
+  collection." A sheet goes to `env.showSheet(id, paneId)` by E127's rule, the
+  pane saying what it took the place of (Undo is the layout's, `keyless`).
+- **"Open the collection" acts in place only on /desk**: `collectionLink(id)`
+  in `add-passage.js` is the one way the undo bar's link is made, and
+  `desk-page.js` hands it `setCollectionOpener(showCollectionPane)`, which
+  shows the collection by `showCollection` (E127: the pane showing it, the
+  first Collections pane, a new one, another's place, or the notice with the
+  page). Elsewhere there is no opener and the link opens the page in a new
+  tab. A new place that offers "Open the collection" uses `collectionLink`.
+- **`/desk/?collection=<id>`** shows it the same way at load, saying so in
+  the arrival bar beside `?sheet=`'s; the parameter is stripped.
+- **"New collection…" in the command row** (decision 28) is `newCollection`
+  in `command-row.js`: `collectionPaneFor` (an open one, else a column, else
+  a row), then `desk:collection-new` with `{ paneId, back }`, which the pane
+  answers with the name window; Create shows the new one there. The pane
+  registers its listener as it is built, as the Sheets pane does (DK6-10).
+- **Every change to the notebook draws it again** but a reading place's
+  (`QUIET_KINDS`), so a passage added from the LIT pane appears at once.
+- **The narrow rows** (decision 35) are a container query on
+  `.desk-collections` (`deskCollection`, 26em of the pane's own type, so a
+  larger text size turns them narrow sooner): a flex row whose `::before`
+  breaks the line after the grip and the reference. The page never matches
+  it. Check a change at 280px in OpenDyslexic at Extra large.
+
+Test: `test/desk-collections-pane.test.js`; the layout rules are in
+`test/desk-layout.test.js`, the command row's in
+`test/desk-audit8-dom-search-menus.test.js`.
 
 ## Rules this step settled, and why
 

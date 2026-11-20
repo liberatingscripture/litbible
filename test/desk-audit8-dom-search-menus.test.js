@@ -60,30 +60,30 @@ for (const [name, text] of [["My Notebook", "notebook"], ["Send feedback on the 
 
 const { createCommandRow } = await import("../src/scripts/desk/command-row.js");
 
-function commandRow() {
+function commandRow({ width = 1400, height = 800 } = {}) {
   document.body.innerHTML = `<div id="row"></div><div id="panes"></div>`;
   const panesBox = document.getElementById("panes");
   // A desk-sized room, so Add pane is available.
-  panesBox.getBoundingClientRect = () => ({ left: 0, top: 0, right: 1400, bottom: 800, width: 1400, height: 800 });
-  const layout = originalLayout();
+  panesBox.getBoundingClientRect = () => ({ left: 0, top: 0, right: width, bottom: height, width, height });
+  let layout = originalLayout();
   const opened = [];
   const row = createCommandRow({
     row: document.getElementById("row"),
     getLayout: () => layout,
     panesBox,
-    commit: () => {},
+    commit: (next) => { layout = next; },
     announce: () => {},
     inTour: () => false,
     layoutWindow: { open: () => opened.push("layout"), close() {} },
     printWindow: { open: () => opened.push("print"), close() {} },
   });
-  return { row, opened };
+  return { row, opened, layout: () => layout };
 }
 
-test("E68: the command row holds Add pane, Layout…, New sheet…, Print… and Help, in words", () => {
+test("E68: the command row holds Add pane, Layout…, New sheet…, New collection…, Print… and Help, in words", () => {
   const { row } = commandRow();
   const words = [...row.el.querySelectorAll(".desk-cmdrow__label")].map((n) => n.textContent);
-  assert.deepEqual(words, ["Add pane", "Layout…", "New sheet…", "Print…", "Help"]);
+  assert.deepEqual(words, ["Add pane", "Layout…", "New sheet…", "New collection…", "Print…", "Help"]);
   const help = row.el.querySelector("a.desk-cmdrow__btn");
   assert.equal(help.target, "_blank");
   assert.ok(help.textContent.includes("(opens in a new tab)"), "the new tab is said in words too");
@@ -114,6 +114,38 @@ test("E68: Add pane opens its menu at column or row, then the kinds; Escape step
   esc();
   assert.equal(row.addMenu.hidden, true);
   same(document.activeElement, row.addButton, "focus is back on Add pane");
+});
+
+test("D13, decision 28: New collection… adds a Collections pane and asks it for the name window, with the button to go back to", () => {
+  const { row, layout } = commandRow();
+  const asked = [];
+  const hear = (e) => asked.push(e.detail);
+  document.addEventListener("desk:collection-new", hear);
+  const button = [...row.el.querySelectorAll(".desk-cmdrow__btn")].find((b) => b.textContent.includes("New collection…"));
+  click(button);
+  document.removeEventListener("desk:collection-new", hear);
+  const made = layout().root.children?.find((n) => n.pane?.kind === "collection")?.pane;
+  assert.ok(made, "a Collections pane was added as a column");
+  assert.equal(asked.length, 1);
+  assert.equal(asked[0].paneId, made.id);
+  same(asked[0].back, button);
+  // With a Collections pane open, it uses that one and adds nothing.
+  const before = layout();
+  assert.equal(row.newCollection(), made.id);
+  assert.equal(layout(), before);
+});
+
+test("D13, decision 28: with no room for a pane, New collection… is disabled and says why", () => {
+  const { row } = commandRow({ width: 500, height: 200 });
+  const button = [...row.el.querySelectorAll(".desk-cmdrow__btn")].find((b) => b.textContent.includes("New collection…"));
+  assert.equal(button.getAttribute("aria-disabled"), "true");
+  assert.match(button.querySelector(".desk-cmdrow__why").textContent, /^Unavailable: /);
+  let asked = 0;
+  const hear = () => asked++;
+  document.addEventListener("desk:collection-new", hear);
+  click(button);
+  document.removeEventListener("desk:collection-new", hear);
+  assert.equal(asked, 0);
 });
 
 // ---- the Notebook actions window ----

@@ -92,7 +92,9 @@ import {
   setLitAt,
   setPaneMark,
   setPaneSheet,
+  setPaneCollection,
   showSheet,
+  showCollection,
   sizingFor,
   writeSaved,
 } from "../../lib/desk-layout.mjs";
@@ -103,6 +105,7 @@ import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
 import { paneSheet } from "./sheets/sheet-pane.js";
+import { setCollectionOpener } from "./collections/add-passage.js";
 import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
@@ -254,8 +257,8 @@ async function start() {
   // here" excepted. The undo bar says what it replaced, with Undo for the whole
   // layout; with no pane to give its place, nothing changes and a notice says
   // why, with a link to the page.
-  const noWay = (kind, reason, { search = false, what = "", href = null } = {}) =>
-    showNotice(noWayMessage(kind, reason, { search }), href ? { link: { label: noWayLinkLabel(kind, what), href } } : {});
+  const noWay = (kind, reason, { search = false, collection = false, what = "", href = null } = {}) =>
+    showNotice(noWayMessage(kind, reason, { search, collection }), href ? { link: { label: noWayLinkLabel(kind, what), href } } : {});
   const sayReplaced = (text, before) => showUndo(text, () => commit(before, { quiet: true }), { keyless: true });
   const passageHref = (p) => {
     const path = chapterPath(p.bookKey, p.chapter);
@@ -272,7 +275,9 @@ async function start() {
   // only the following panes moved; a notice says why) or null for a
   // passage that isn't one. `quiet` leaves the bar and the notice to the
   // caller, which then reads `lastWay`; `keep` is one more pane that mustn't
-  // give its place (a Greek result's Greek pane).
+  // give its place (a Greek result's Greek pane). `asker` names the kind of
+  // pane `beside` is, for the notice's words: "search", or "collection" (a
+  // Collections pane's reference, D13 decision 29).
   let lastWay = null;
   // The LIT panes the commit under way moves by a jump (E168), which `follow`
   // tells each so its bar offers the way back (`commitJump`, below). None
@@ -280,7 +285,7 @@ async function start() {
   const jumping = new Set();
   // Every caller of showPassage is a jump (E168): the leading LIT pane keeps
   // its way back. A pane it opens or puts in another's place starts there.
-  const showPassage = (passage, { beside = null, keep = null, quiet = false } = {}) => {
+  const showPassage = (passage, { beside = null, keep = null, quiet = false, asker = "search" } = {}) => {
     const at = formatPassage(passage);
     lastWay = null;
     if (!at) return null;
@@ -305,7 +310,7 @@ async function start() {
         return "replaced";
       }
       commit(placed, { draw: false });
-      if (!quiet) noWay("lit", way.reason, { search: true, what: passageLabel(passage), href: passageHref(passage) });
+      if (!quiet) noWay("lit", way.reason, { search: asker === "search", collection: asker === "collection", what: passageLabel(passage), href: passageHref(passage) });
       return "placed";
     }
     commit(placed, { draw: false });
@@ -328,6 +333,26 @@ async function start() {
     // that takes back both the sheet and where it showed.
     return { ...way, changed: way.layout !== before, undoLayout: () => commit(before, { quiet: true }) };
   };
+  // A collection shown in a Collections pane by the same rule (D13, decision
+  // 27): one showing it or the first open, else a new one where there is room,
+  // else in place of the last pane that isn't a LIT pane. For the undo bar's
+  // "Open the collection" on this page, which says itself what it did: what
+  // it took the place of, with Undo for the layout, or why there was no room,
+  // with the collection's page.
+  const showCollectionPane = (collectionId) => {
+    const before = layout;
+    const way = showCollection(layout, collectionId, panesBox.getBoundingClientRect().width);
+    if (way.layout !== layout) commit(way.layout, { quiet: way.outcome === "replaced" });
+    // Focus goes to the collection's title in its pane, as opening it from
+    // the pane's own list does.
+    if (way.paneId) paneEls.get(way.paneId)?.inst?.show?.(collectionId, { focus: true });
+    if (way.outcome === "replaced") sayReplaced(replacedMessage("collection", way.replaced.kind), before);
+    else if (way.outcome === "none" && way.reason) {
+      noWay("collection", way.reason, { href: `/collections/?id=${encodeURIComponent(collectionId)}` });
+    }
+    return way;
+  };
+  if (store) setCollectionOpener(showCollectionPane);
   // A Greek search result (3m): its word in an unpinned Greek pane, else a
   // Greek pane by the one rule above; the LIT pane moves to the verse either
   // way. One bar says both, with Undo for the whole of it.
@@ -885,6 +910,9 @@ async function start() {
         set: (passage, how) => setPassageOf(pane.id, passage, how),
         getSheet: () => findPane(layout.root, pane.id)?.sheet ?? null,
         setSheet: (sheetId) => commit(setPaneSheet(layout, pane.id, sheetId), { draw: false }),
+        // The collection a Collections pane shows (D13, decision 26).
+        getCollection: () => findPane(layout.root, pane.id)?.collection ?? null,
+        setCollection: (id) => commit(setPaneCollection(layout, pane.id, id), { draw: false }),
         // What a LIT pane's text shows is its own (E108), kept with it here.
         getHide: () => paneHides(layout, pane.id),
         // A My Notes pane's choice, This chapter or Everything (E119).
@@ -1240,6 +1268,33 @@ async function start() {
     }
   }
 
+  // ---- a collection named in the address (D13, decision 27) ----
+
+  // /desk/?collection=<id> (a collection page's "Open in the Study Desk")
+  // shows it in a Collections pane by the same rule as ?sheet=, and says so
+  // in the same bar. One that isn't in this notebook is ignored without a word.
+  const wantedCollection = new URLSearchParams(location.search).get("collection");
+  if (wantedCollection !== null) {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("collection");
+      history.replaceState(history.state, "", url);
+    } catch (_) {}
+    let record = null;
+    try { record = wantedCollection && store ? await store.get(wantedCollection) : null; } catch (_) {}
+    if (record?.kind === "collection" && !record.deleted) {
+      const way = showCollection(layout, record.id, panesBox.getBoundingClientRect().width);
+      if (way.layout !== layout) {
+        layout = way.layout;
+        save();
+      }
+      if (way.outcome === "replaced") arrivalSaid.push(replacedMessage("collection", way.replaced.kind));
+      else if (way.outcome === "none" && way.reason) {
+        arrivalNoWay ??= { kind: "collection", reason: way.reason, what: "", href: `/collections/?id=${encodeURIComponent(record.id)}` };
+      }
+    }
+  }
+
   // ---- an old ?intro= address (E53, retired by E173) ----
 
   // /desk/?intro=romans opened a Book Intro pane. There is none now, so an
@@ -1315,7 +1370,7 @@ async function start() {
   else if (arrival.layout !== arrival.before && layout === arrivedAs) {
     tellArrangement(ARRANGEMENTS.find((a) => a.id === "reading"), arrival.before, layout);
   } else if (arrivalSaid.length || arrivalNoWay) {
-    // What a sheet in the address did, in one bar: Undo
+    // What a sheet or a collection in the address did, in one bar: Undo
     // puts the layout back as the page opened it. A notice too, if one found
     // no room, rides along with its link (E127).
     const way = arrivalNoWay;

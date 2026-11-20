@@ -1,5 +1,6 @@
 // A collection onto a sheet, driven in a browser DOM (D13, step 7): the
-// collection page's "Make a sheet" and "Add to sheet…", and the Collection
+// collection page's "Add to sheet…" and its window's "New sheet" row (there is
+// no "Make a sheet" button, decision 36), and the Collection
 // choice in the Sheets pane's "+ From my notes…". The converter's own rules are
 // test/desk-collection-sheet.test.js; these are the wiring: the buttons, the
 // one change that writes, the undo bar's words and its "Open the sheet" link,
@@ -67,20 +68,28 @@ async function keepCollection(name, members) {
 const barText = () => document.querySelector(".desk-undo__text")?.textContent ?? "";
 const barLink = () => document.querySelector(".desk-undo a")?.getAttribute("href") ?? "";
 
-test("the actions row has Make a sheet and Add to sheet… after Add passage…", async () => {
+test("the actions row has Add to sheet… after Add passage…, and no Make a sheet (decision 36)", async () => {
   await clearAll();
   const c = await keepCollection("Advent series", [john316()]);
   const { root, page } = await mount(c.id);
   const names = [...root.querySelectorAll(".collection-page__actions > button")].map((b) => b.textContent.trim());
-  assert.deepEqual(names.slice(0, 3), ["Add passage…", "Make a sheet", "Add to sheet…"]);
+  assert.deepEqual(names.slice(0, 2), ["Add passage…", "Add to sheet…"]);
+  assert.ok(!names.includes("Make a sheet"));
   page.destroy();
 });
 
-test("Make a sheet writes a new sheet named after the collection, without Blank canvas's empty part, and says so with a link", async () => {
+/** Add to sheet…'s window, then its "New sheet" row, which makes a sheet of the collection. */
+async function newSheetRow(root) {
+  byText(root, "button", "Add to sheet…").click();
+  await until(() => document.querySelector(".desk-pick .desk-pick__action"), 3000, "the window");
+  document.querySelector(".desk-pick .desk-pick__action").click();
+}
+
+test("New sheet writes a sheet named after the collection, without Blank canvas's empty part, and says so with a link", async () => {
   await clearAll();
   const c = await keepCollection("Advent series", [john316()]);
   const { root, page } = await mount(c.id);
-  byText(root, "button", "Make a sheet").click();
+  await newSheetRow(root);
   await until(async () => (await byKind("sheet")).length === 1, 3000, "the sheet");
   const [sheet] = await byKind("sheet");
   assert.equal(sheet.title, "Advent series");
@@ -91,11 +100,11 @@ test("Make a sheet writes a new sheet named after the collection, without Blank 
   page.destroy();
 });
 
-test("a collection with nothing that makes a part says so and writes nothing", async () => {
+test("New sheet for a collection with nothing that makes a part says so and writes nothing", async () => {
   await clearAll();
   const c = await keepCollection("Empty", []);
   const { root, page } = await mount(c.id);
-  byText(root, "button", "Make a sheet").click();
+  await newSheetRow(root);
   await until(() => /nothing to put on a sheet/.test(barText()), 3000, "the notice");
   assert.equal((await byKind("sheet")).length, 0);
   page.destroy();
@@ -125,18 +134,6 @@ test("Add to sheet… lists the sheets and a New sheet row; a pick appends the p
   document.querySelector(".desk-pick .desk-pick__row:not(.desk-pick__action)").click();
   await until(() => /is on “Week 1” already\. Nothing was added/.test(barText()), 3000, "the already-there notice");
   assert.equal((await byKind("sheet"))[0].modules.length, 2);
-  page.destroy();
-});
-
-test("Add to sheet…'s New sheet row makes the sheet as Make a sheet does", async () => {
-  await clearAll();
-  const c = await keepCollection("Advent series", [john316()]);
-  const { root, page } = await mount(c.id);
-  byText(root, "button", "Add to sheet…").click();
-  await until(() => document.querySelector(".desk-pick .desk-pick__action"), 3000, "the window");
-  document.querySelector(".desk-pick .desk-pick__action").click();
-  await until(async () => (await byKind("sheet")).length === 1, 3000, "the sheet");
-  assert.equal((await byKind("sheet"))[0].title, "Advent series");
   page.destroy();
 });
 
