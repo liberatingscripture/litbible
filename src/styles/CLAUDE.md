@@ -506,6 +506,11 @@
   link drops its mark and the paragraph's `::after` draws the same one
   after the period (`v2/base.css`, screen only; it repeats `restyle.css`'s
   drawing, so change both). A new such sentence joins that selector.
+  **The mark is an inline-block, so it can wrap on its own**, a row below the
+  link it belongs to. A short link keeps itself and its mark together with
+  `white-space: nowrap` (the footer's license link, `global.css`, did this
+  at some widths from about 1030 to 1050px); a long one can't, so give it
+  the paragraph treatment above.
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under

@@ -2646,9 +2646,14 @@ a.footer-cta > span {
   text-align: left;
 }
 
+/* The license's name is short and is one thing, so it stays on one line. This
+   also keeps the restyle's new-tab mark (an inline-block drawn after the link,
+   restyle.css) beside the name: left to wrap on its own, it dropped to the
+   next row at some widths, away from the link it belongs to. */
 .footer-license-band__text a {
   color: var(--green-text);
   text-decoration: underline;
+  white-space: nowrap;
 }
 
 .footer-license-band__text a:hover,
