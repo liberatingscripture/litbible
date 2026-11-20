@@ -112,8 +112,12 @@ holds the inventory, the pairs, the two files in step and reduced motion.
    button whose kind follows its bar's width, so its ordinary look is
    restated under the kinds' container queries rather than in the list.
 **Under reduced motion the lift and every transition go; the shadows stay.**
-The sheet button rule is scoped (`:where(.desk-sheet, .sheets-page)`), so
-`desk-sheet-view.css` and the phone's shared sheet keep their own look.
+**`.desk-sheet__btn` is ordinary wherever `desk.css` is loaded**, inside a
+sheet or not (the collections page, a window, the search's add bar). The
+phone's shared sheet loads only `desk-sheet-view.css`, so it keeps that
+file's look without a scope. The rule was scoped to `.desk-sheet,
+.sheets-page` until E169, which left every such button outside them the
+color of the page.
 
 ## Rule 18: the Sheets pane
 
