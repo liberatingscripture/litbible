@@ -233,7 +233,7 @@ test("the LIT pane's bar takes Show after its other control, before the error li
   const kids = [...bar.el.children];
   assert.equal(kids.indexOf(show.el), kids.indexOf(openPage) + 1);
   assert.equal(kids.at(-1).className, "desk-passage__error");
-  // One control still works, as the Book Intro pane and the Print menu pass none or one.
+  // One control still works, as the Print menu passes none or one.
   const one = createPassageBar({ id: "u", set: () => {}, extra: document.createElement("a") });
   assert.equal(one.el.querySelectorAll("a").length, 1);
 });

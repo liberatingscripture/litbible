@@ -6,9 +6,8 @@
 // (Audit 3, LG3-3) so the next bug in it means reading this file, not 1,700
 // lines of shared locals.
 //
-// It takes what it needs and reaches for nothing else, as panel-flyout.js and
-// intro-pane.js do. The layout is read through `getLayout()` at the moment it
-// is wanted (it is replaced on every change, so a captured copy would be
+// It takes what it needs and reaches for nothing else, as panel-flyout.js
+// does. The layout is read through `getLayout()` at the moment it is wanted (it is replaced on every change, so a captured copy would be
 // stale by the click); a change goes back through `commit`. The pure rules
 // are in src/lib/desk-layout.mjs (`addWhy`, `whyText`, `sizingFor`, `SIZINGS`).
 //

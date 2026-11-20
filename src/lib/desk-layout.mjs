@@ -21,9 +21,9 @@
 // - a pane needs at least 280px across and 160px high, so an arrangement
 //   that can't fit the window is grayed out with the reason;
 // - several panes of a kind may be open. The LIT pane leads; This verse,
-//   Greek, Footnotes, and Book Intro follow the LIT pane last worked in (the
+//   Greek, and Footnotes follow the LIT pane last worked in (the
 //   active one), unless pinned with "Stay here", which the saved layout
-//   remembers (Book Intro follows its book alone, E53);
+//   remembers;
 // - the following panes that aren't pinned share one place, `layout.place`;
 //   a pinned pane keeps its own (`pin.at`). Each LIT pane keeps where its
 //   reader is too (`at`, 3e), and the active one's is the shared place, so
@@ -70,9 +70,6 @@ export const KINDS = [
   { kind: "mine", label: "My Notes", follows: true, about: "What you have kept: notes, highlights, and bookmarks" },
   { kind: "verse", label: "This verse", follows: true, about: "Everything for the verse you are on" },
   { kind: "footnotes", label: "Footnotes", follows: true, about: "The chapter’s footnotes as a list" },
-  // A book's introduction (E53; BVJ, 2026-11-06): the book of the passage it
-  // follows, so its place is a passage like the others' and only the book is read.
-  { kind: "intro", label: "Book Intro", follows: true, about: "The book’s introduction" },
   { kind: "greek", label: "Greek", follows: true, about: "The Greek text behind the LIT" },
   { kind: "sheet", label: "Sheets", follows: false, about: "A handout to print, present, or share" },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
@@ -87,9 +84,12 @@ const KIND_INFO = new Map(KINDS.map((k) => [k.kind, k]));
  * kept" was folded into My Notes (E17, 2026-11-02), which now searches,
  * filters and groups its list the way that pane did. A layout saved with the
  * old kind reads back as the new one (`checkLayout`), so no reader is left with
- * a pane that says it needs a newer copy of the page.
+ * a pane that says it needs a newer copy of the page. The Book Intro pane
+ * (E53) went in E173: one saved in a layout reads back as This verse, with
+ * its place and pin, since an introduction's place was a passage like any
+ * follower's.
  */
-export const RETIRED_KINDS = Object.freeze({ kept: "mine" });
+export const RETIRED_KINDS = Object.freeze({ kept: "mine", intro: "verse" });
 
 /** True for a kind that follows the active LIT pane. */
 export const isFollower = (kind) => Boolean(KIND_INFO.get(kind)?.follows);
@@ -756,7 +756,7 @@ export function showSheet(layout, sheetId, width, keep = null) {
 
 /**
  * The one rule for a pane the desk opens by itself (E127; BVJ, 2026-11-12):
- * a Sheets pane for a sheet, a Book Intro pane for an introduction, a LIT
+ * a Sheets pane for a sheet, a LIT
  * pane for a passage result, a Greek pane for a Greek result, a Search pane
  * for `/`. The caller first uses a pane of that kind already open (each kind
  * has its own choice of which). Then this: a new pane of `kind` split beside
@@ -987,46 +987,6 @@ export function openLitBeside(layout, besideId, width, height) {
   if (!findPane(layout.root, besideId)) return layout;
   const way = makeWayFor(layout, "lit", { beside: besideId, edge: "left", width, height, replace: false });
   return way.outcome === "none" ? layout : setActive(way.layout, way.paneId);
-}
-
-/**
- * A book's introduction shown in a Book Intro pane (E53; BVJ, 2026-11-06): from
- * a Search pane's intro result (`besideId`, which keeps its place) and
- * `/desk/?intro=romans`. The pane used is the first that follows, else the
- * first open, else a new one by the one rule for a pane the desk opens
- * (`makeWayFor`, E127). One that follows shows the book the LIT pane is in, so
- * the leading LIT pane (or, with none, the shared place) moves to chapter 1
- * unless it is in that book already; one that stays put is moved alone.
- * Returns `{ layout, outcome, moved, replaced, reason }`: `outcome` is
- * "shown" (a pane was there), "opened", "replaced" (`replaced` is `{ id,
- * kind }` of the pane that gave its place) or "none" (the layout unchanged,
- * `reason` "full" or "window" as `makeWayFor` says it), and `moved` the place
- * the LIT moved to, or null.
- */
-export function showIntroIn(layout, bookKey, width, height, besideId = null) {
-  const at = parsePassage(`${bookKey} 1`) ? `${bookKey} 1` : null;
-  const none = (reason) => ({ layout, outcome: "none", moved: null, replaced: null, reason });
-  if (!at || !panes(layout.root).length) return none(null);
-  const intros = panes(layout.root).filter((p) => p.kind === "intro");
-  let next = layout;
-  let pane = intros.find((p) => !p.pin) ?? intros[0] ?? null;
-  let outcome = "shown";
-  let replaced = null;
-  if (!pane) {
-    const way = makeWayFor(layout, "intro", { keep: besideId, beside: besideId, width, height });
-    if (way.outcome === "none") return none(way.reason);
-    next = way.layout;
-    pane = findPane(next.root, way.paneId);
-    outcome = way.outcome;
-    replaced = way.replaced;
-  }
-  const done = (layoutOut, moved) => ({ layout: layoutOut, outcome, moved, replaced, reason: null });
-  if (pane.pin) return done(setPin(next, pane.id, true, at), null);
-  const leading = findPane(next.root, next.active)?.kind === "lit";
-  const now = parsePassage(leading ? litPlace(next, next.active) : next.place);
-  if (now?.bookKey === bookKey) return done(next, null);
-  next = leading ? setLitAt(next, next.active, at) : setPlace(next, at);
-  return done(next, at);
 }
 
 /** Whether a layout fits a space; a side left out is not asked about. */

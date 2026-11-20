@@ -15,7 +15,6 @@ import {
   pageLinkText,
   passageMoveMessage,
   resultTarget,
-  introMoveMessage,
   noWayLinkLabel,
   noWayMessage,
   replacedMessage,
@@ -55,9 +54,11 @@ test("resultTarget: a glossary entry opens in the pane", () => {
   assert.deepEqual(resultTarget("/glossary/"), { type: "tab", href: "/glossary/" }, "no entry named");
 });
 
-test("resultTarget: an introduction shows in a Book Intro pane (E53)", () => {
-  assert.deepEqual(resultTarget("/john-intro"), { type: "intro", bookKey: "john" });
-  assert.deepEqual(resultTarget("/1corinthians-intro/#intro"), { type: "intro", bookKey: "1corinthians" });
+test("resultTarget: an introduction opens in a tab, as an article does (E173)", () => {
+  assert.deepEqual(resultTarget("/john-intro"), { type: "tab", href: "/john-intro" });
+  assert.deepEqual(resultTarget("/romans-intro/"), { type: "tab", href: "/romans-intro/" });
+  assert.deepEqual(resultTarget("/romans-intro/#heading"), { type: "tab", href: "/romans-intro/#heading" });
+  assert.deepEqual(resultTarget("/1corinthians-intro/#intro"), { type: "tab", href: "/1corinthians-intro/#intro" });
   assert.equal(resultTarget("/notabook-intro/").type, "tab");
 });
 
@@ -65,17 +66,6 @@ test("resultTarget: articles and other pages open in a tab", () => {
   for (const href of ["/articles/many-and-all/", "/about", "/read/john", "https://example.com/john-3", "https://example.com/john-intro"]) {
     assert.deepEqual(resultTarget(href), { type: "tab", href });
   }
-});
-
-test("introMoveMessage says what an intro result did (E53)", () => {
-  assert.equal(introMoveMessage({ outcome: "shown", moved: null }, "Romans"), "The Book Intro pane shows Romans.");
-  assert.equal(
-    introMoveMessage({ outcome: "opened", moved: "romans 1" }, "Romans", "Romans 1"),
-    "A Book Intro pane opened at Romans. The LIT moved to Romans 1.",
-  );
-  assert.equal(introMoveMessage({ outcome: "none", moved: null }, "Romans"), "", "the notice says it (E127)");
-  assert.equal(introMoveMessage({ outcome: "replaced", moved: null }, "Romans"), "");
-  assert.equal(introMoveMessage(null, "Romans"), "");
 });
 
 test("resultTarget: a chapter that doesn't exist, or junk, is a tab", () => {
@@ -145,28 +135,28 @@ test("nextPage: 20 at a time", () => {
 });
 
 test("E127: replacedMessage names each kind as its menu does, and what else happened", () => {
-  assert.equal(replacedMessage("intro", "greek"), "Book Intro shown in place of Greek.");
+  assert.equal(replacedMessage("sheet", "greek"), "Sheets shown in place of Greek.");
   assert.equal(replacedMessage("sheet", "verse"), "Sheets shown in place of This verse.");
   assert.equal(replacedMessage("search", "footnotes"), "Search shown in place of Footnotes.");
   assert.equal(replacedMessage("greek", "mine"), "Greek shown in place of My Notes.");
   assert.equal(replacedMessage("lit", "greek", { at: "John 3:16" }), "The LIT shown at John 3:16 in place of Greek.");
   assert.equal(
-    replacedMessage("intro", "greek", { extra: "The LIT moved to Romans 1." }),
-    "Book Intro shown in place of Greek. The LIT moved to Romans 1.",
+    replacedMessage("sheet", "greek", { extra: "The LIT moved to Romans 1." }),
+    "Sheets shown in place of Greek. The LIT moved to Romans 1.",
   );
 });
 
 test("E127: noWayMessage says why and both ways on, and names the search only when it asked", () => {
   assert.equal(
-    noWayMessage("intro", "full", { search: true }),
-    "There’s no room for a Book Intro pane, and no pane can make way: LIT panes, panes set to “Stay here,” and this search keep their places. Close a pane and try again, or open the introduction on its page.",
+    noWayMessage("sheet", "full", { search: true }),
+    "There’s no room for a Sheets pane, and no pane can make way: LIT panes, panes set to “Stay here,” and this search keep their places. Close a pane and try again, or open the sheet on its page.",
   );
   assert.equal(
     noWayMessage("search", "full"),
     "There’s no room for a Search pane, and no pane can make way: LIT panes and panes set to “Stay here” keep their places. Close a pane and try again, or use the search page.",
   );
   assert.match(noWayMessage("greek", "window", { search: true }), /^There’s no room for a Greek pane in a window this size, and no pane can make way: .*Make the window larger or close a pane and try again, or open the word on its page\.$/);
-  for (const kind of ["lit", "intro", "sheet", "greek", "search"]) {
+  for (const kind of ["lit", "sheet", "greek", "search"]) {
     for (const reason of ["full", "window"]) {
       const text = noWayMessage(kind, reason);
       assert.match(text, /close a pane and try again, or /i, `${kind} ${reason}: both ways`);
@@ -177,7 +167,6 @@ test("E127: noWayMessage says why and both ways on, and names the search only wh
 
 test("E127: noWayLinkLabel names the page", () => {
   assert.equal(noWayLinkLabel("lit", "John 3:16"), "Open John 3:16");
-  assert.equal(noWayLinkLabel("intro", "Romans"), "Open the Romans introduction");
   assert.equal(noWayLinkLabel("sheet"), "Open the sheet");
   assert.equal(noWayLinkLabel("greek"), "Open the Greek word");
   assert.equal(noWayLinkLabel("search"), "Open the search page");
