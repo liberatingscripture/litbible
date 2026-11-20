@@ -53,7 +53,11 @@ it holds. Computer only; the apps carry it untouched.
   "Collections (D13)" section, where the pane reads them too;
   `styles/v2/collections.css` keeps the page's frame (its widths and the
   members' `.v2-sheet` padding, every selector behind `:root[data-restyle]`),
-  and `styles/pages/collections.css` the note without the desk. Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
+  and `styles/pages/collections.css` the note without the desk and the
+  page's text size: /sheets' rule (`--sheet-ui`, and `--desk-ui` for the
+  notebook's rows, from `--reading-scale`), its root's `.desk-np` 1rem and
+  1.55 set back to inherit, so the page's words are /sheets' at every tray
+  size (E188). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
   markers. The notebook page has "Delete all collections" in Delete in bulk.
   Tests: `test/desk-collections-page*.test.js`.

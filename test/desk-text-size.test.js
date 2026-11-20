@@ -77,6 +77,19 @@ test("the Notebook panel beside a chapter sets both for itself", () => {
   assert.match(panel, /line-height:\s*calc\(1\.5 \+ var\(--desk-leading, 0\)\);/);
 });
 
+test("the collections page sets its words as /sheets does, following the tray (E188)", () => {
+  const page = screenRules(read("pages/collections.css"));
+  const own = page.find(([s]) => s === ".collections-page")?.[1] ?? "";
+  assert.match(own, /--sheet-ui:\s*var\(--reading-scale, 1\);/);
+  assert.match(own, /--desk-ui:\s*var\(--reading-scale, 1\);/);
+  assert.match(own, /font-size:\s*calc\(1em \* var\(--sheet-ui, 1\)\);/);
+  assert.match(read("pages/sheets-page.css"), /\.sheets-page \{[^}]*font-size:\s*calc\(1em \* var\(--sheet-ui, 1\)\);/, "the same rule as /sheets'");
+  // Its root is also .desk-np, whose 1rem and 1.55 would undo both.
+  const np = page.find(([s]) => s === ".collections-page .desk-np")?.[1] ?? "";
+  assert.match(np, /font-size:\s*inherit;/);
+  assert.match(np, /line-height:\s*inherit;/);
+});
+
 test("every size the desk's stylesheets set multiplies by a scale", () => {
   for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
     const fixed = [];

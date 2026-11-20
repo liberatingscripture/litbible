@@ -5225,6 +5225,21 @@ says so; where BVJ was wondering, nothing is decided.)
   sentences and help link. Test: `test/desk-collections-page.test.js`.
   Status: fixed.
 
+- **E188, bug: the collections page's words were smaller than /sheets'.**
+  BVJ, 2026-11-19, told that E187's description came out a step smaller
+  than /sheets' intro: “it should match.” The page never followed the
+  Display tray's text size: /sheets sets its page's size and `--sheet-ui`
+  from `--reading-scale` (E101), and /collections set neither, while its
+  root's `.desk-np` (for My Notebook's rows) fixed everything that inherits
+  at 16px with a 1.55 line. **Fixed** (`pages/collections.css`):
+  `.collections-page` takes /sheets' rule, with `--desk-ui` beside
+  `--sheet-ui` for the notebook's rows, and the root's `.desk-np` size and
+  line height inherit. Measured against /sheets at all four text sizes, the
+  title, the description, “New collection…” and the empty line match in
+  size and line height (18px on a 28.8px line at Medium). A collection's
+  rows now grow with the tray too, as My Notebook's do.
+  Test: `test/desk-text-size.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
