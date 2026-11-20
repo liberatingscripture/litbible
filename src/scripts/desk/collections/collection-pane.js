@@ -19,6 +19,9 @@
 //   the way back (decision 29, E168), or open one by E127's rule where none
 //   is open; a sheet in the collection shown in a Sheets pane by the same rule
 //   (`showSheet`), the undo bar saying what it took the place of;
+// - "Add ▾ › From My Notes" (E177; BVJ: "On /desk, it should open the My
+//   Notes pane"): `showMine`, desk-page.js's, shows a My Notes pane by
+//   E127's rule, this pane keeping its place;
 // - the command row's "New collection…" (decision 28): `desk:collection-new`
 //   with this pane's id opens the name window here, and Create shows the new
 //   collection in this pane;
@@ -43,15 +46,16 @@ const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
  *   paneId: string, getCollection: () => string | null, setCollection: (id: string | null) => void,
  *   showPassage?: ((passage: object, options?: object) => unknown) | null,
  *   showSheet?: ((sheetId: string, keep?: string) => object) | null,
+ *   showMine?: ((keep: string) => unknown) | null,
  *   chapterText?: Function, passageText?: Function, parse?: Function }} options
- *   `showPassage` and `showSheet` are desk-page.js's (desk-panes.js's `env`);
+ *   `showPassage`, `showSheet` and `showMine` are desk-page.js's (desk-panes.js's `env`);
  *   the last three are `viewHost`'s readers, which a test replaces.
  * @returns {{ el: HTMLElement, show: (id: string | null, options?: { focus?: boolean }) => Promise<void>, destroy: () => void }}
  *   `show` puts a collection (or, null, the list) in the pane from outside,
  *   as the undo bar's "Open the collection" does; `focus` takes focus to its
  *   title.
  */
-export function createCollectionPane({ store, ctx, paneId, getCollection, setCollection, showPassage = null, showSheet = null, chapterText, passageText, parse }) {
+export function createCollectionPane({ store, ctx, paneId, getCollection, setCollection, showPassage = null, showSheet = null, showMine = null, chapterText, passageText, parse }) {
   const el = make("div", "desk-collections");
   // A browser keeping no notebook shows one line, as the Sheets pane does (decision 33).
   if (!store) {
@@ -91,6 +95,9 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
     newTabLinks: true,
     plainMembers: true,
     ownPageHref: collectionHref,
+    // "Add ▾ › From My Notes" (E177): a My Notes pane beside this one, which
+    // keeps its place; desk-page.js says what it took the place of, if anything.
+    ...(showMine ? { openNotes: () => showMine(paneId) } : {}),
     // A reference moves the LIT pane being read (decision 29); with none open,
     // one opens beside this pane, or takes another's place (E127). A sheet
     // goes to a Sheets pane, where the page sends it to /sheets/.

@@ -68,12 +68,12 @@ async function keepCollection(name, members) {
 const barText = () => document.querySelector(".desk-undo__text")?.textContent ?? "";
 const barLink = () => document.querySelector(".desk-undo a")?.getAttribute("href") ?? "";
 
-test("the actions row has Add to sheet… after Add passage…, and no Make a sheet (decision 36)", async () => {
+test("the actions row has Add to sheet… after Add ▾, and no Make a sheet (decision 36)", async () => {
   await clearAll();
   const c = await keepCollection("Advent series", [john316()]);
   const { root, page } = await mount(c.id);
   const names = [...root.querySelectorAll(".collection-page__actions > button")].map((b) => b.textContent.trim());
-  assert.deepEqual(names.slice(0, 2), ["Add passage…", "Add to sheet…"]);
+  assert.deepEqual(names.slice(0, 2), ["Add", "Add to sheet…"]);
   assert.ok(!names.includes("Make a sheet"));
   page.destroy();
 });

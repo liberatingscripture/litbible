@@ -334,7 +334,8 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   adds the chosen part right after that card (`addPart(type, after)`), so
   a long sheet needn't be scrolled to its end. The pill's menu is
   `desk/sheets/insert-menu.js` (Audit 6, LG6-2; `openInsertMenu`, with
-  `insertItems` and `insertMenuPlace` pure and tested), which takes the
+  `insertItems` and `insertMenuPlace` pure and tested; since E177 it wraps
+  `desk/button-menu.js`, which a collection's "Add ▾" shares), which takes the
   pill, the card's name, whether the sheet has a key terms box, and
   `onPick`/`onClose`; what a pick does stays in `sheet-editor.js`. (A "+" in
   the card's header read as acting on that card, not the gap.) "Passage…" opens the passage form under the card

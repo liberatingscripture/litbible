@@ -42,7 +42,7 @@ it holds. Computer only; the apps carry it untouched.
   `mountCollectionsPage` takes `chapterText`, `passageText` and `parse` so a
   test needs no network), `collection-list.js` (the list and the empty page),
   `collection-view.js` (one collection: actions, order switch, members on
-  `.v2-sheet`, Add passage, headings, moving), `name-window.js` (the one
+  `.v2-sheet`, Add ▾ and its passage form, headings, moving), `name-window.js` (the one
   name/description window), `new-collection.js` (`openNewCollection`, which
   step 3's "New collection…" reuses with `firstMember` and `lead`),
   `add-passage.js` (`addPassageToCollection`: the one way a passage goes
@@ -100,7 +100,12 @@ it holds. Computer only; the apps carry it untouched.
   Advent from now on" chosen to start, as the mock drew it. A pick is one
   `store.change` (`planAddItems`, or `addRule` through `planCollectionChange`,
   the bookmarks read in that transaction), and the bar says "12 added to
-  Advent series." with Open the collection. My Notebook's list
+  Advent series." with Open the collection. **A collection's "Add ▾" adds two
+  more windows** (E177): `openAddSheet` (Sheet…: the reader's sheets but
+  templates, the last changed first, one held saying "In Readings already")
+  and `openAddLabels` (A label's bookmarks…: the labels in use, with the
+  same two choices). Both read `store.all()` as they open, since the view
+  hands them the collection as last drawn. My Notebook's list
   (`kept-list.js`) draws a Collections section after Sheets (name link, count, New collection…, All my
   collections; only while nothing narrows the list; never rows). The page's
   rule line (`ruleLine` in `collection-view.js`, one per rule) reads "Every
@@ -135,8 +140,7 @@ it holds. Computer only; the apps carry it untouched.
   `{ parts, added, alreadyOn, leftOut, skippedSheets, limit }` in the page's
   order, run again inside the writing change over the sheet as saved.
   `collection-sheet.js` is the wiring: the view's "Add to sheet…" (after "Add
-  passage…"), E154's pick window (no menu opens from a page button) over
-  `addableSheets`. A pick appends the block at `passageInsertIndex`; its
+  ▾"), E154's pick window over `addableSheets`. A pick appends the block at `passageInsertIndex`; its
   action row "New sheet" (`makeSheetFromCollection`) hands the parts to
   `createSheet` as its `modules`. Each is one `store.change` reading the
   notebook there, with the undo bar's "Open the sheet" and
@@ -193,8 +197,10 @@ keep:
   36): the page gives `deskHref` ("Open in the Study Desk," last, in this
   tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
   Print's place), `plainMembers` (the members on the pane, no `.v2-sheet`)
-  and `goHere` (a plain click on a reference runs it). A new difference is a
-  new host field, never a test of which home is drawing.
+  and `goHere` (a plain click on a reference runs it). "Add ▾"'s last line
+  is one more (E177): the page gives `notebookHref` ("From My Notebook," a
+  link in this tab), the pane `openNotes` ("From My Notes"). A new
+  difference is a new host field, never a test of which home is drawing.
 - **A member row's buttons follow its kind, before its words**, so the
   keyboard's order is the narrow pane's (decision 35). The wide row places
   them by grid, so the order doesn't show there.
@@ -219,6 +225,11 @@ the pane's id as `idSuffix`, and keeps what only a pane has:
   first Collections pane, a new one, another's place, or the notice with the
   page). Elsewhere there is no opener and the link opens the page in a new
   tab. A new place that offers "Open the collection" uses `collectionLink`.
+- **"From My Notes"** (E177; BVJ: "On /desk, it should open the My Notes
+  pane") is `env.showMine(paneId)`, `showMine` in `desk-page.js`: the My
+  Notes pane open, else one by E127's rule (never in the asker's place, the
+  notice's link My Notebook), focus on its search field (the mount's
+  `focusField`) or else its name.
 - **`/desk/?collection=<id>`** shows it the same way at load, saying so in
   the arrival bar beside `?sheet=`'s; the parameter is stripped.
 - **"New collection…" in the command row** (decision 28) is `newCollection`
@@ -297,8 +308,10 @@ second draft of the mocks takes from where:
 - **The page**: My sheets' title, "New…" button and rows (`desk-sheet__*`);
   "‹ My collections" is `sheets-page__back`. **Each view has one primary
   button** (E126; BVJ, 2026-11-19, E169): "New collection…" on the list,
-  as "New sheet…" is on My sheets, and "Add passage…" on one collection,
-  whose form's Add stays ordinary. The members lie on a
+  as "New sheet…" is on My sheets, and "Add ▾" on one collection,
+  whose passage form's Add stays ordinary. Its menu is the desk's button
+  menu (`desk/button-menu.js`, the sheet gap pill's, `desk-pane__menu`),
+  its caret drawn as /sheets' "Save as ▾" (E177). The members lie on a
   `.v2-sheet` as the desk's own rows (`record-rows.js`), group names are
   `.v2-label`, and a heading starts with `.v2-rule`.
 - **A passage's words, and a bookmark's verse** (E171; BVJ, 2026-11-19) are

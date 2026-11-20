@@ -407,6 +407,7 @@ function mountCollection(body, env, pane) {
     setCollection: pane.setCollection,
     showPassage: env.showPassage,
     showSheet: env.showSheet,
+    showMine: env.showMine,
   });
   body.append(view.el);
   return { show: (id, options) => view.show(id, options), destroy: () => view.destroy() };
@@ -467,6 +468,7 @@ function mineScope(pane) {
  *   openGreekWord: (passage: object, t: number) => void,
  *   showPassage: (passage: object, options?: { beside?: string, quiet?: boolean }) => "moved" | "opened" | "replaced" | "placed" | null,
  *   showSheet: (sheetId: string, keep?: string) => { outcome: string, replaced: object | null, reason: string | null, changed: boolean, undoLayout: () => void },
+ *   showMine?: (keep: string) => unknown,
  *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env
  * @param {{ id: string, get: () => object, set: (passage: object, how?: { jump: boolean }) => void,
@@ -479,6 +481,7 @@ function mineScope(pane) {
  *   `setCollection` the collection a Collections pane shows.
  * @returns {{ destroy: () => void, setPassage?: (passage: object, how?: { jump: boolean }) => void,
  *   keep?: () => () => void, editor?: object, backPlace?: () => object | null, forgetBack?: () => void,
+ *   focusField?: () => Promise<boolean> | void,
  *   show?: (collectionId: string | null, options?: { focus?: boolean }) => Promise<void> }}
  *   `editor` is a Sheets pane's sheet editor (sheet-editor.js); `backPlace`
  *   and `forgetBack` are a LIT pane's way back (E168); `show` puts a
@@ -506,7 +509,7 @@ export function mountPane(kind, body, env, pane) {
     tab.follow(pane.get());
     // The pane goes on the page right after this returns, and a tab draws
     // only once it is there.
-    queueMicrotask(() => tab.render());
+    const drawn = new Promise((resolve) => queueMicrotask(() => resolve(tab.render())));
     // A bookmark moving as the reader reads in the leading LIT pane (E28) is
     // written as often as every 2 seconds: its row is drawn once the reading
     // pauses (redrawAfterMove), as the margin's mark is, not on every write.
@@ -521,6 +524,16 @@ export function mountPane(kind, body, env, pane) {
     });
     return {
       setPassage: (p) => tab.follow(p),
+      // Focus to the list's search field once the first drawing has shown it
+      // (its filters start hidden, and stay so for an empty notebook), for a
+      // collection's "Add ▾ › From My Notes" (E177). Resolves to whether it did.
+      focusField: async () => {
+        await drawn.catch(() => {});
+        const box = tab.el.querySelector(".desk-mine__filters input[type=\"search\"]");
+        if (!box || box.closest("[hidden]") || !box.isConnected) return false;
+        box.focus();
+        return true;
+      },
       destroy: () => {
         unsubscribe?.();
         offMoves?.();

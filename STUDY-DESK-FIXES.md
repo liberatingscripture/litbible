@@ -4948,7 +4948,7 @@ says so; where BVJ was wondering, nothing is decided.)
   My notes) or if it should just navigate to the Notebook.” Asked, BVJ
   chose: “On /collections it should Go to My Notebook. On /desk, it should
   open the My Notes pane.” It widens decision 11, which gave the page
-  “Add passage…” alone. What the website proposes to build (its choices,
+  “Add passage…” alone. What the website proposed to build (its choices,
   for BVJ to change):
   - **“Add passage…” becomes “Add ▾”**, the page's one primary button, a
     menu of four: **Passage…** (today's field), **Sheet…** (E154's pick
@@ -4959,11 +4959,42 @@ says so; where BVJ was wondering, nothing is decided.)
     row's “Collections…” and “Add these 12 to a collection…” (E176) add
     to it. In /desk's Collections pane it opens a My Notes pane by E127's
     rule instead.
-  **Open**: to be built in one change once the Collections pane has merged
-  (its step 2, PR #634, and step 4, the pane itself; BVJ: “Wait for the
-  pane”), since that work is changing the same files
-  (`collection-view.js`, `collection-page.js`, `add-records.js`) and
-  brings the pane the /desk half needs. Status: open.
+  Built once the Collections pane had merged (#634, #637 and #638; BVJ:
+  “Wait for the pane”), as proposed, in both homes of the view
+  (`collection-view.js`; the difference is two host fields). **Fixed**:
+  - **One menu for both “Add” buttons**: `desk/button-menu.js` is the
+    sheet gap pill's Add menu made general (`sheets/insert-menu.js` now
+    wraps it, its behavior unchanged), drawn as the pane menus are
+    (`desk-pane__menu`, decision 25). “Add ▾” is the view's one primary
+    button (E126), its caret drawn as /sheets' “Save as ▾”; a second press
+    closes the menu. A line that can't be used stays, with its reason
+    beside it and in the menu's description (DK3-7): “no sheets yet,” “no
+    labeled bookmarks yet.”
+  - **Passage…** shows today's field, now headed “Add a passage” with a ×,
+    and Escape puts it away too, focus back on “Add.”
+  - **Sheet…** lists the reader's sheets (not their templates), the last
+    changed first; one the collection holds says “In Readings already.” A
+    pick adds it as My Notebook's “Collections…” would, with the same bar
+    (“1 added to Readings.”).
+  - **A label's bookmarks…** lists the labels on at least one bookmark,
+    each with its count, and “new ones added already” for one the
+    collection has a rule for. Above the list, “Which bookmarks”: “Only the
+    ones with that label now” or “Those, and any you give that label from
+    now on,” the second checked to start, as on My Notebook's label button
+    (decision 23). A pick goes through `addLabelToCollection`, so the bar
+    is the same (“2 labeled Advent added to Readings, and new ones will
+    be.”).
+  - **From My Notebook** (the page's `notebookHref`) is a link in the same
+    tab. **From My Notes** (the pane's `openNotes`) shows a My Notes pane
+    by E127's rule, through `showMine` in `desk-page.js`, never in place
+    of the asking pane: one already open is used, else one opens with room,
+    else it takes the last non-LIT pane's place (the bar says so, with
+    Undo), else `showNotice` says why, with My Notebook's link. Focus goes
+    to that pane's search field, or else its name.
+  - The windows read the notebook when they open, so what was just added
+    shows as held.
+  The help page's “How collections work” lists the four lines. Test:
+  `test/desk-collections-add-button.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
