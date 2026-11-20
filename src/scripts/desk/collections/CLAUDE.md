@@ -295,15 +295,20 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   collection's change wakes no view of marks (`NO_CHAPTER_KINDS`).
 - **Markdown lists collections for people and never reads them back**, like
   Places and Labels.
-- **No tour of its own** (BVJ, 2026-11-19: "don't build a separate tour for
-  now"; decision 22). The tours name collections where they already point:
-  the notebook tour's "Open the menu" ("Add to collection" beside "Add to
-  sheet"; Chapter View only, as that is) and "My Notebook, and where it’s
-  kept," and the Study Desk tour's card on the command row ("New
-  collection"; its title menu has no "My collections" since E180). The Study
-  Desk tour's My Notes card lists no filters, so it names none.
-  Text in `desk-first-use.mjs`; a changed card keeps its id, so it is not
-  offered again as new. The help page's "How collections work" is the rest.
+- **No tour of its own; two cards in the Study Desk tour** (decision 22;
+  BVJ, 2026-11-19: "don't build a separate tour for now," then, with the
+  pane built, "Add to the desk tour"). "Collections" shows a Collections
+  pane for the step (`showKind` in `desk-tour.js`, the Sheets card's way)
+  and links the help page's "How collections work"; "Adding to a
+  collection" opens the LIT pane's verse menu with its row marked, never
+  pressed. Elsewhere the tours name collections where they meet them: the
+  notebook tour's "Open the menu," "This verse," and "My Notebook, and
+  where it’s kept," the Study Desk tour's command card ("New
+  collection"), and the Sheets tour's "Your own words, and more" (a whole
+  collection from "From my notes…"). Text in `desk-first-use.mjs`; a
+  changed card keeps its id, so it is not offered again as new, while a
+  new card is. Orders, headings, and the live rule are the help page's.
+  Test: `test/desk-tour-collections.test.js`.
 
 ## Every look is one the site already has (decision 25)
 

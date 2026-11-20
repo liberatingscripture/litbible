@@ -2,7 +2,7 @@
 //
 // The Study Desk tour (STUDY-DESK-FIXES.md E24; BVJ, 2026-11-02): a tour of /desk
 // itself, apart from the notebook tour (tour.js), which stays on the chapter
-// pages. Nine cards in two parts (what is on the desk, then changing it), run
+// pages. Eleven cards in two parts (what is on the desk, then changing it), run
 // by the same card as the notebook's (tour-runner.js), each beside the thing it
 // is about and each showing it working.
 //
@@ -35,13 +35,18 @@
 // runner of its own, so each refuses to start while any tour is running
 // (`data-desk-tour` on <html>; Audit 7, TR7-6), and either one starting takes
 // the other's offer down. The Sheets card's link opens that tour (TR7-5).
+//
+// Collections have no tour (decision 22): two cards here, one showing a
+// Collections pane and one the LIT pane's verse menu at "Add to collection"
+// (BVJ, 2026-11-19: "Add to the desk tour"), the first linking the help page.
 
 import {
-  DESK_TOUR_PARTS, DESK_TOUR_STEPS, SHEET_TOUR_LINK, TOUR_LINK, localDay, parseTourState, planTour,
+  DESK_TOUR_PARTS, DESK_TOUR_STEPS, HELP_HREF, SHEET_TOUR_LINK, TOUR_LINK, localDay, parseTourState, planTour,
   tourOffer, withLater, withNever, withOffered, withSeen,
 } from "../../lib/desk-first-use.mjs";
 import { addPane, addPaneNeeds, applyArrangement, arrangementOf, isFollower, needs, originalLayout, panes, setActive, setKind } from "../../lib/desk-layout.mjs";
 import { createFloatWindow } from "../float-window.js";
+import { closePanel, currentPanel } from "../lit-panel.js";
 import { getDeskTourRaw, saveDeskTourList } from "./first-use.js";
 import { createTourRunner, waitFor } from "./tour-runner.js";
 
@@ -58,8 +63,12 @@ const el = (tag, className, text) => {
 const today = () => localDay(new Date());
 /** Whether a tour is running on this page, this one or the Sheets tour (the runner sets it). */
 const touring = () => document.documentElement.hasAttribute("data-desk-tour");
-/** A card's link to another tour: My Notes' to the notebook tour, Sheets' to the Sheets tour. */
-const MORE_LINKS = { mine: TOUR_LINK, sheets: SHEET_TOUR_LINK };
+/**
+ * A card's link: My Notes' to the notebook tour, Sheets' to the Sheets tour,
+ * and Collections' to the help page's "How collections work" (it has no tour).
+ */
+const MORE_LINKS = { mine: TOUR_LINK, sheets: SHEET_TOUR_LINK, collections: `${HELP_HREF}#collections` };
+const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
 /**
  * @param {{ canKeep: boolean, getLayout: () => object, setLayout: (next: object) => void,
@@ -82,6 +91,40 @@ export function createDeskTour(api) {
   const later = (fn) => runner.later(fn);
   // Back to the tour's own starting layout, undoing a step.
   const toBase = () => api.setLayout(state.base);
+
+  // A pane of `kind` shown for a step (Sheets, Collections): a column where
+  // there is room, else the first pane that isn't the LIT turned to it, the
+  // change undone by `later`. Its id, or null.
+  function showKind(kind) {
+    const layout = api.getLayout();
+    const { width, height } = room();
+    const before = new Set(panes(layout.root).map((p) => p.id));
+    let next = addPane(layout, "column", kind, width, height);
+    let id = next !== layout ? panes(next.root).find((p) => !before.has(p.id))?.id : null;
+    if (!id) {
+      const give = panes(layout.root).find((p) => p.kind !== "lit") ?? panes(layout.root)[0];
+      if (!give) return null;
+      next = setKind(layout, give.id, kind);
+      id = give.id;
+    }
+    if (next !== layout) {
+      api.setLayout(next);
+      later(toBase);
+    }
+    return id;
+  }
+
+  // A verse number the reader can see in a LIT pane's text (a hidden one is a
+  // 1px box), or null while its chapter is still coming.
+  function verseInView(rec) {
+    const box = rec.body.getBoundingClientRect();
+    return (
+      Array.from(rec.body.querySelectorAll("sup.vn")).find((n) => {
+        const r = n.getBoundingClientRect();
+        return r.width > 2 && r.top >= box.top + 8 && r.bottom <= box.bottom - 8;
+      }) ?? null
+    );
+  }
 
   /* ── What the steps do ────────────────────────────────────────── */
 
@@ -130,22 +173,39 @@ export function createDeskTour(api) {
     // pane that isn't the LIT turned to Sheets for the step. Its list is empty
     // or the reader's own; nothing is opened or made.
     async sheets() {
-      const layout = api.getLayout();
-      const { width, height } = room();
-      const before = new Set(panes(layout.root).map((p) => p.id));
-      let next = addPane(layout, "column", "sheet", width, height);
-      let id = next !== layout ? panes(next.root).find((p) => !before.has(p.id))?.id : null;
-      if (!id) {
-        const give = panes(layout.root).find((p) => p.kind !== "lit") ?? panes(layout.root)[0];
-        next = setKind(layout, give.id, "sheet");
-        id = give.id;
-      }
-      if (next !== layout) {
-        api.setLayout(next);
-        later(toBase);
-      }
-      const rec = api.paneEls.get(id);
+      const rec = api.paneEls.get(showKind("sheet"));
       return rec ? { el: rec.kindButton, marks: [rec.kindButton] } : null;
+    },
+
+    // A Collections pane shown the same way (D13, decision 22's second
+    // answer): its list, the reader's own or the empty page's words; nothing
+    // is opened or made.
+    async collections() {
+      const rec = api.paneEls.get(showKind("collection"));
+      return rec ? { el: rec.kindButton, marks: [rec.kindButton] } : null;
+    },
+
+    // The LIT pane's verse menu, opened as a reader opens it, with its "Add to
+    // collection" row marked. Nothing in it is pressed, so nothing is added,
+    // and undoing the step closes it.
+    async collect({ live = () => true } = {}) {
+      const layout = api.getLayout();
+      const lit = panes(layout.root).find((p) => p.id === layout.active && p.kind === "lit") ?? paneOf("lit", layout);
+      const rec = api.paneEls.get(lit?.id);
+      if (!rec) return null;
+      const number = await waitFor(() => verseInView(rec));
+      if (!number || !live()) return null;
+      closePanel();
+      number.click();
+      later(() => closePanel());
+      await frame();
+      if (!live()) return null;
+      const menu = currentPanel()?.el;
+      if (!menu) return { el: number, marks: [number] };
+      const row = Array.from(menu.querySelectorAll(".lit-flyout__trigger")).find((b) =>
+        b.textContent.trim().startsWith("Add to collection"),
+      );
+      return { el: menu, side: "right", marks: row ? [row] : [] };
     },
 
     // The command row under the header (E68), and the title button that
@@ -241,7 +301,7 @@ export function createDeskTour(api) {
     api.setLayout(base);
     runner.start({
       steps,
-      act: (step) => STEPS[step.id]?.() ?? null,
+      act: (step, o) => STEPS[step.id]?.(o) ?? null,
       more: (step) => (step.more && MORE_LINKS[step.id] ? { href: MORE_LINKS[step.id], text: step.more, external: true } : null),
       returnTo: api.titleButton,
       // The reader's own layout back, then saving on again.
@@ -300,7 +360,7 @@ export function createDeskTour(api) {
     offerWin.title.textContent = o.kind === "first" ? "Take a short tour of the Study Desk?" : "There’s something new in the tour.";
     offerText.textContent =
       o.kind === "first"
-        ? "It takes a minute and shows you the panes, sheets, the commands, and the layouts. Nothing it does is saved."
+        ? "It takes a minute and shows you the panes, sheets, collections, the commands, and the layouts. Nothing it does is saved."
         : "Want a look at what’s new?";
     yes.textContent = o.kind === "first" ? "Take the tour now" : "Show me what’s new";
     offerWin.show();
