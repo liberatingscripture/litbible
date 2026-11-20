@@ -5308,6 +5308,19 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-collections-page.test.js`, `test/desk-collections-pane.test.js`,
   `test/desk-audit8-dom-search-menus.test.js`. Status: fixed.
 
+- **E191, bug: a collection page's fields weren't white.** BVJ, 2026-11-19,
+  told after E190 that a collection's “Add a passage” field took the card
+  color: “have the field be white.” The page's root is `.desk-np` as well as
+  the sheets page's (for My Notebook's rows), and the notebook page's field
+  rule, which outweighs `.desk-sheet__ref input`, gave the page's fields
+  (Add a passage, Add a heading, a heading being renamed) its raised fill,
+  `#FAFAF8`. In a pane and on /sheets they were already white. **Fixed**
+  (`desk.css`): `.desk-np .desk-sheet__ref input` takes the field's fill
+  (`--desk-field`, white; `--surface` in dark themes), later in the file
+  than the notebook page's rule. Checked in the Browser pane: both fields on
+  a collection's page are white with the field edge. Test:
+  `test/desk-audit8-f-css.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

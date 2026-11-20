@@ -382,6 +382,9 @@ second draft of the mocks takes from where:
   (Cancel ordinary, the save button primary). The list's New collection
   form (E190) is the Sheets chooser's card with the name window's fields
   inside, which take the size of the words around them on the field's fill.
+  **Every field on the page is white** (`--desk-field`; E191): the page's
+  root is `.desk-np` too, whose field rule gives the raised fill, so a field
+  here restates the field's fill later in `desk.css`.
 - **A row's "Collections…"** is the Labels popover's twin (`desk-labels`,
   `showPanel`).
 

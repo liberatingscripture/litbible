@@ -43,6 +43,16 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input", ".desk-sheet__lines input", ".desk-sheet__ref input", ".desk-passage__field"]) {
     assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
   }
+  // On the collections page, whose root is .desk-np too, the notebook page's
+  // field rule (the raised fill) would win over those, so the page's fields
+  // say it again, later in the file (E190, E191; BVJ, 2026-11-19: "have the
+  // field be white").
+  const notebookFields = css.indexOf('.desk-np input[type="search"],\n.desk-np input[type="text"]');
+  assert.ok(notebookFields > 0, "no rule for the notebook page's fields");
+  for (const sel of [".desk-np .desk-sheet__ref input", ".collection-page__new :is(input, textarea).desk-pick__filter"]) {
+    assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
+    assert.ok(css.indexOf(`\n${sel} {`) > notebookFields, `${sel} comes after the notebook page's rule`);
+  }
   // Cards take the card fill and edge.
   for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form", ".desk-sheet__ask"]) {
     const r = rule(sel);
