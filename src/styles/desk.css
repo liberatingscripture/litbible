@@ -6998,8 +6998,10 @@ html.desk-ws--moving * {
   --desk-pick-tint: rgba(58, 191, 106, 0.1);
 }
 
-/* In the Sheets pane the cards take the pane's card color (E89). */
-.desk-pane .desk-sheet {
+/* In the Sheets pane the cards take the pane's card color (E89), and the
+   Collections pane's take it too, since its list is drawn from the same
+   classes (BVJ, 2026-11-19: "the collections pane should match it"). */
+.desk-pane :is(.desk-sheet, .desk-collections) {
   --desk-card: var(--desk-pane-card);
 }
 

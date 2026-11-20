@@ -5178,6 +5178,19 @@ says so; where BVJ was wondering, nothing is decided.)
   1280px window split evenly (a list of 580px) now stacks its rows, where it
   drew the grid before. Status: fixed.
 
+- **E185, bug: the Collections pane's cards were lighter than the Sheets
+  pane's.** BVJ, 2026-11-19, with a screenshot of the two panes side by
+  side: “Have the styling (color) match. The sheet pane is correct, and the
+  collections pane should match it.” Both lists draw their cards from the
+  same classes (`desk-sheet__sheet`), but only the Sheets pane set E89's
+  pane card color (`--desk-pane-card`, a step darker than the pane), so the
+  Collections pane's cards kept the page's card color, `#FAFAF8`, on a pane
+  of the same color. **Fixed** (`desk.css`): the rule that gives the Sheets
+  pane its card color names the Collections pane too, so its cards, and any
+  form or card inside it, are `#ECEBE8` (`#262628` in dark themes) as the
+  Sheets pane's are. The /collections page keeps `#FAFAF8` on its cream,
+  as /sheets does. Test: `test/desk-audit8-f-css.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

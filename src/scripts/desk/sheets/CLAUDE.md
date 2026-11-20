@@ -50,7 +50,7 @@ tokens and the reasoning are in "The desk's layers" in `desk.css`:
   on /sheets' cream page; **in the Sheets pane, whose body keeps a pane's
   own color like every other pane's, the cards take `--desk-pane-card`**,
   a step darker (BVJ chose it from three
-  mocks). A form inside a part's card is a section of it, in the card's
+  mocks), as the Collections pane's do (E185). A form inside a part's card is a section of it, in the card's
   color with the card's edge; **nothing inside a card takes the page's
   color** (BVJ, 2026-11-11).
 - **Field** (`--desk-field`, edged with `--field-border`): anything typed in

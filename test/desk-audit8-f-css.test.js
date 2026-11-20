@@ -50,9 +50,12 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
     assert.match(r, /border:\s*1px solid var\(--desk-card-edge\)/, sel);
   }
   // The Sheets pane keeps a pane's own color (BVJ, 2026-11-11), so there its
-  // cards take a color of their own; nothing paints the pane's body.
-  assert.match(rule(".desk-pane .desk-sheet"), /--desk-card:\s*var\(--desk-pane-card\)/);
-  assert.doesNotMatch(rule(".desk-pane .desk-sheet"), /background/);
+  // cards take a color of their own; nothing paints the pane's body. The
+  // Collections pane draws its list from the same classes, so its cards match
+  // (BVJ, 2026-11-19).
+  const paneCards = rule(".desk-pane :is(.desk-sheet, .desk-collections)");
+  assert.match(paneCards, /--desk-card:\s*var\(--desk-pane-card\)/);
+  assert.doesNotMatch(paneCards, /background/);
   // Controls take a 3:1 edge and the control fill: since E126 one rule, the
   // ordinary kind, says it for the template choices, the command row, the
   // panes' lock and every sheet button in the Sheets pane and on /sheets but
