@@ -44,6 +44,7 @@
 //   - A highlight that changes id (absorbed by a merge, covered by another
 //     colour, split in two) takes its collections with it in the same write
 //     (`carryHighlights`, called by planHighlight), so one undo reverts both.
+//     A new colour over part of a collected highlight joins it there (E182).
 
 import { BOOK_ORDER } from "../data/books.js";
 import {
@@ -623,28 +624,43 @@ export function planLabelRulesToItems(records, labelId, ctx) {
  * to the new record holding its second piece. An item naming a moved one
  * names the survivor instead, under its own member id, or goes when the
  * collection holds the survivor already; the second piece of a split goes in
- * as a new item right after the first's. A highlight erased outright is a
- * plain deletion and isn't here, so its item stays and a restore brings it
- * back. Only collections this code can edit are touched (a newer format keeps
+ * as a new item right after the first's. `joined` maps a highlight a new
+ * colour took only part of (trimmed or split) to `{ id, before }`, the new
+ * mark, which goes in as a new item beside it (E182; BVJ, 2026-11-19): before
+ * it when only its right part is left, else after it, and so between the two
+ * pieces of a split. Recolouring part of a collected highlight keeps all of
+ * its words in the collection, as covering the whole of it does. A highlight
+ * erased outright is a plain deletion and isn't here, so its item stays and a
+ * restore brings it back. Only collections this code can edit are touched (a newer format keeps
  * its ids), each pruned as every write is, stamped with `ctx`. A new piece is
  * left out where it would pass the limits, and a collection that still
  * wouldn't save is left alone rather than fail the highlight. The apps don't
  * do this (STUDY-DESK-FORMAT.md, kind 12).
  *
  * @param {object[]} records the notebook, read in the highlight's transaction
- * @param {{ moved?: Map<string, string>, split?: Map<string, string> }} change
+ * @param {{ moved?: Map<string, string>, split?: Map<string, string>,
+ *   joined?: Map<string, { id: string, before: boolean }> }} change
  * @param {{ now?: string, client?: string }} ctx
  * @returns {object[]} the collections changed, as they are to be written
  */
-export function carryHighlights(records, { moved = new Map(), split = new Map() } = {}, ctx = {}) {
-  if (!moved.size && !split.size) return [];
+export function carryHighlights(records, { moved = new Map(), split = new Map(), joined = new Map() } = {}, ctx = {}) {
+  if (!moved.size && !split.size && !joined.size) return [];
   const out = [];
   for (const c of records ?? []) {
     if (c?.kind !== "collection" || !canEdit(c) || !Array.isArray(c.members)) continue;
-    if (!c.members.some((m) => isItem(m) && (moved.has(m.recordId) || split.has(m.recordId)))) continue;
+    const touched = (m) => isItem(m) && (moved.has(m.recordId) || split.has(m.recordId) || joined.has(m.recordId));
+    if (!c.members.some(touched)) continue;
     const held = new Set(c.members.filter((m) => isItem(m) && !moved.has(m.recordId)).map((m) => m.recordId));
     const members = [];
     const pieces = new Set();
+    // A new item for `id`, unless the collection holds it already.
+    const add = (id) => {
+      if (!id || held.has(id)) return;
+      held.add(id);
+      const item = itemMember(id);
+      pieces.add(item.id);
+      members.push(item);
+    };
     for (const m of c.members) {
       if (isItem(m) && moved.has(m.recordId)) {
         const to = moved.get(m.recordId);
@@ -653,14 +669,11 @@ export function carryHighlights(records, { moved = new Map(), split = new Map() 
         members.push({ ...m, recordId: to });
         continue;
       }
+      const join = isItem(m) ? joined.get(m.recordId) : undefined;
+      if (join?.before) add(join.id);
       members.push(m);
-      const piece = isItem(m) ? split.get(m.recordId) : undefined;
-      if (piece && !held.has(piece)) {
-        held.add(piece);
-        const item = itemMember(piece);
-        pieces.add(item.id);
-        members.push(item);
-      }
+      if (join && !join.before) add(join.id);
+      if (isItem(m)) add(split.get(m.recordId));
     }
     const pruned = pruneMembers({ ...c, members }, records).members;
     const without = pruned.filter((m) => !pieces.has(m.id));

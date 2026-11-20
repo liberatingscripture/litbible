@@ -5988,7 +5988,8 @@ wanted:
 - **A highlight's id can change** (a same-color highlight absorbed, or one
   split in two; `planHighlight`). The same write moves the collection's
   member to the highlight that survives, as labels already move (DI-7),
-  and a split's new piece is added right after it. The apps don't do this.
+  and a split's new piece is added right after it. A new color over part
+  of a collected highlight goes in beside it (E182). The apps don't do this.
 - **Limits**: 1,000 members and 512 KB (a sheet's), not the 256 KB first
   proposed, since each passage carries its verses' words.
 - **Names needn't be unique**, as with sheets, so a restore never refuses.

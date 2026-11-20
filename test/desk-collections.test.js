@@ -614,6 +614,39 @@ test("carryHighlights re-points, drops a duplicate, inserts a split's piece, and
   assert.deepEqual(carryHighlights(records, {}, at(T1)), []);
 });
 
+test("carryHighlights puts a new colour beside the highlight it took part of, on its side (E182)", () => {
+  const [kept, left, cut, piece, mark, other] = [nextId(), nextId(), nextId(), nextId(), nextId(), nextId()];
+  let c = createCollection({ name: "Marks" }, ctx);
+  c = addItems(c, [other, kept, left, cut], at(T0));
+  const joined = new Map([
+    [kept, { id: mark, before: false }],
+    [left, { id: mark, before: true }],
+    [cut, { id: mark, before: false }],
+  ]);
+  // The mark goes in once, after the first highlight that names it.
+  const [one] = carryHighlights([c], { joined }, at(T1));
+  assert.deepEqual(one.members.map((m) => m.recordId), [other, kept, mark, left, cut]);
+  assert.equal(one.members[1].id, c.members[1].id, "the old member keeps its id");
+
+  // Before it when only its right part is left; a split's two pieces take it between them.
+  let d = createCollection({ name: "Ends" }, ctx);
+  d = addItems(d, [left, other, cut], at(T0));
+  const [ends] = carryHighlights([d], {
+    joined: new Map([[left, { id: mark, before: true }]]),
+    split: new Map([[cut, piece]]),
+  }, at(T1));
+  assert.deepEqual(ends.members.map((m) => m.recordId), [mark, left, other, cut, piece]);
+  const [between] = carryHighlights([d], {
+    joined: new Map([[cut, { id: mark, before: false }]]),
+    split: new Map([[cut, piece]]),
+  }, at(T1));
+  assert.deepEqual(between.members.map((m) => m.recordId), [left, other, cut, mark, piece]);
+
+  // A collection that holds the mark already isn't written.
+  const holds = addItems(createCollection({ name: "Holds" }, ctx), [kept, mark], at(T0));
+  assert.deepEqual(carryHighlights([holds], { joined: new Map([[kept, { id: mark, before: false }]]) }, at(T1)), []);
+});
+
 test("carryHighlights leaves a split's piece out of a full collection rather than fail", () => {
   const original = nextId();
   const full = { ...createCollection({ name: "Full" }, ctx), members: [{ id: nextId(), type: "item", recordId: original }, ...Array.from({ length: 999 }, () => ({ id: nextId(), type: "item", recordId: nextId() }))] };

@@ -5112,6 +5112,30 @@ says so; where BVJ was wondering, nothing is decided.)
   say the same. Test: `test/desk-collections-sheet-wiring.test.js`.
   Status: fixed.
 
+- **E182, bug: a new color over part of a collected highlight dropped
+  those words from the collection.** BVJ, 2026-11-19, with a screenshot of
+  D13's review checklist, item 8b (“Highlighting over part of a collected
+  highlight in the same color, or erasing its middle, keeps it (both pieces)
+  in the collection.”): “This didn't work correctly. It just removed the
+  portion of the verse highlighted in the new color, which also made it the
+  only way to have a fraction of a verse in a collection.” A different color
+  trims what it lies over (or cuts it in two), and the carry (D13) followed
+  only a highlight that changed id: one covered whole went to the new mark,
+  and a cut's second piece joined the first, but the new mark itself joined
+  nothing unless it covered the whole highlight. So recoloring the middle of
+  a collected verse left its two ends in the collection with a gap between.
+  **Fixed** (`planHighlight` in `desk-highlights.mjs`, `carryHighlights` in
+  `desk-collections.mjs`): a highlight a new color takes part of keeps its
+  place, and the new mark goes in beside it in every collection holding it,
+  in text order: after what is left, before it when only its right part is
+  left, and between a cut's two pieces. A mark that runs on past the
+  highlight joins whole, as one covering all of it already did. In the same
+  write, so one undo puts both back. An erase still takes words out (that is
+  what it is for), so a collection keeps a trimmed highlight as it is. The
+  record format's “When a highlight changes id” says so for BDR; the apps
+  edit no collection. Tests: `test/desk-highlights.test.js`,
+  `test/desk-collections.test.js`. Status: fixed.
+
 - **E183, wording: “Delete all sheets” didn't say collections stay.** BVJ,
   2026-11-19, with a screenshot of My Notebook's Delete in bulk: “The Delete
   all sheets message should name collections as left alone along with notes
