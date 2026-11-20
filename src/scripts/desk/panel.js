@@ -720,8 +720,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // sheet: My Notes lists neither, and a sheet autosaves every few hundred
   // milliseconds in another tab (NB8-1). A bookmark moving is heard (NB8-3).
   store?.subscribe(() => render(), { except: NO_CHAPTER_KINDS });
-  // A collection draws nothing on the text, but My Notes' collection filter lists them and counts what each holds (D13).
-  store?.subscribe(() => render(), { kinds: ["collection"] });
   // My Notes' What's new line reads the notebook's meta, which the notebook
   // page moves on when it is looked at, in any tab (BA96).
   store?.onMeta?.(() => render());

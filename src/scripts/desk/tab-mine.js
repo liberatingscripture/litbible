@@ -96,8 +96,7 @@ import {
   pagedEntries,
   withoutSheets,
 } from "../../lib/desk-notebook.mjs";
-import { ITEM_KINDS, collectionFilter, filterableCollections } from "../../lib/desk-collections.mjs";
-import { collectionHref } from "./collections/add-passage.js";
+import { ITEM_KINDS } from "../../lib/desk-collections.mjs";
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import {
   kindName,
@@ -166,7 +165,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   // narrow apart (BA31); a tab lasts the visit.
   let colorFilter = null;
   let labelFilter = null;
-  let collectionFilterId = null; // a collection's id (D13, step 6), likewise
   // The search words and the kind chosen in "Show" (a record kind; null for
   // everything), likewise this tab's own.
   let query = "";
@@ -203,13 +201,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     </div>
     <div class="desk-mine__colors" role="group" aria-label="Show highlights of one color" hidden></div>
     <div class="desk-mine__labels" role="group" aria-label="Show items with one label" hidden></div>
-    <div class="desk-mine__labels" role="group" aria-label="Show items in one collection" data-mine-collections hidden></div>
     <p class="desk-mine__whatsnew" hidden><a href="/notebook/#whats-new"></a></p>
     <p class="desk-mine__changed" hidden></p>
     <p class="sr-only" role="status" data-mine-status></p>
     <p class="desk-mine__count" hidden></p>
     <p class="desk-mine__links" data-mine-links hidden><button type="button" class="desk-item__stop" aria-haspopup="dialog" hidden></button><span aria-hidden="true" hidden> · </span><a href="/notebook/">My Notebook</a></p>
-    <p class="desk-mine__count" data-mine-passages hidden></p>
     <p class="desk-mine__here" hidden></p>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
@@ -246,8 +242,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const pinList = el.querySelector(".desk-mine__pin-list");
   const colors = el.querySelector(".desk-mine__colors");
   const labelRow = el.querySelector(".desk-mine__labels");
-  const collectionRow = el.querySelector("[data-mine-collections]");
-  const passagesLine = el.querySelector("[data-mine-passages]");
   const changed = el.querySelector(".desk-mine__changed");
   const whatsNew = el.querySelector(".desk-mine__whatsnew");
   const filterBox = el.querySelector(".desk-mine__filters");
@@ -468,8 +462,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       pinBox.hidden = true;
       colors.hidden = true;
       labelRow.hidden = true;
-      collectionRow.hidden = true;
-      passagesLine.hidden = true;
       changed.hidden = true;
       empty.hidden = false;
       empty.textContent =
@@ -507,19 +499,13 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const inUse = labels.filter((l) => everything.some((r) => takesLabels(r) && (r.labels ?? []).some((id) => shownAs.get(id)?.id === l.id)));
     if (labelFilter && !inUse.some((l) => l.id === labelFilter)) labelFilter = null;
     drawLabels(inUse);
-    // The collections there are (any, whatever this list holds); a choice whose collection is gone clears.
-    const collections = filterableCollections(everyRecord);
-    if (collectionFilterId && !collections.some((c) => c.id === collectionFilterId)) collectionFilterId = null;
-    drawCollections(collections);
     const kinds = kindsPresent(marks);
     if (kindFilter && !kinds.some((k) => k.value === kindFilter)) kindFilter = null;
     drawFilters(kinds, marks.length > 0);
 
-    narrowed = Boolean(query.trim() || kindFilter || colorFilter || labelFilter || collectionFilterId);
+    narrowed = Boolean(query.trim() || kindFilter || colorFilter || labelFilter);
     const labelsById = labelMap(everyRecord);
-    const held = collectionFilterId ? collectionFilter(everyRecord, collectionFilterId) : null;
-    drawPassages(held);
-    const matched = filterRecords(marks, { query, kind: kindFilter, color: colorFilter, labelId: labelFilter, recordIds: held?.ids ?? null }, labelsById);
+    const matched = filterRecords(marks, { query, kind: kindFilter, color: colorFilter, labelId: labelFilter }, labelsById);
     const records = matched.filter((r) => r.kind !== "footnotePin");
     const pins = matched.filter((r) => r.kind === "footnotePin");
     const notices = store && ctx ? noticesFor([...records, ...pins]) : new Map();
@@ -553,8 +539,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         ? "Nothing matches. Clear the search or a filter to see more."
         : labelFilter
           ? "Nothing here has that label."
-          : collectionFilterId
-            ? "Nothing here is in that collection."
           : colorFilter
             ? `No ${colorFilter} highlights here.`
             : scope === "chapter"
@@ -653,40 +637,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       }),
     );
     if (focused) labelRow.querySelector(`[data-choice="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
-  }
-
-  // The same for collections: "All collections" and one button per collection, shown only while there is one.
-  function drawCollections(collections) {
-    const focused = collectionRow.contains(document.activeElement) ? document.activeElement.dataset.choice : null;
-    collectionRow.hidden = collections.length === 0;
-    collectionRow.replaceChildren(
-      ...(collections.length ? [{ id: "all", name: "All collections" }, ...collections] : []).map((c) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "desk-mine__label";
-        b.dataset.choice = c.id;
-        b.setAttribute("aria-pressed", String(c.id === (collectionFilterId ?? "all")));
-        b.textContent = c.name;
-        // Pressing the collection that is already chosen lets go of it.
-        b.addEventListener("click", () => {
-          collectionFilterId = c.id === "all" || c.id === collectionFilterId ? null : c.id;
-          refilter();
-        });
-        return b;
-      }),
-    );
-    if (focused) collectionRow.querySelector(`[data-choice="${CSS.escape(focused)}"]`)?.focus({ preventScroll: true });
-  }
-
-  // Passages are not records, so a chosen collection that holds some says where they are.
-  function drawPassages(held) {
-    passagesLine.replaceChildren();
-    passagesLine.hidden = !held || held.passages === 0;
-    if (passagesLine.hidden) return;
-    const link = document.createElement("a");
-    link.textContent = "its page";
-    link.href = collectionHref(collectionFilterId);
-    passagesLine.append(`Its ${held.passages.toLocaleString("en-US")} ${held.passages === 1 ? "passage is" : "passages are"} on `, link, ".");
   }
 
   // The search and "Show" above the list, hidden while nothing is kept. The

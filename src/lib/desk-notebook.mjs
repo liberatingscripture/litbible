@@ -131,7 +131,7 @@ export function colorsPresent(records, colors) {
  * and kind, without case or accents, each word of it in turn (all must be
  * there). `kind`, `color` and `labelId` are null for "any".
  */
-export function filterRecords(records, { query = "", kind = null, color = null, labelId = null, recordIds = null } = {}, labels = new Map()) {
+export function filterRecords(records, { query = "", kind = null, color = null, labelId = null } = {}, labels = new Map()) {
   const words = fold(query).split(" ").filter(Boolean);
   return records.filter((r) => {
     if (kind === BOOKMARK_MOVES) {
@@ -141,7 +141,6 @@ export function filterRecords(records, { query = "", kind = null, color = null, 
     } else if (kind && r.kind !== kind) return false;
     if (color && !(r.kind === "highlight" && r.color === color)) return false;
     if (labelId && !(takesLabels(r) && (r.labels ?? []).some((id) => id === labelId || labels.get(id)?.id === labelId))) return false;
-    if (recordIds && !recordIds.has(r.id)) return false;
     if (!words.length) return true;
     const hay = searchText(r, labels);
     return words.every((w) => hay.includes(w));

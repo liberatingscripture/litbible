@@ -4875,6 +4875,38 @@ says so; where BVJ was wondering, nothing is decided.)
   asks for a description too. Tests: `test/desk-collections-page.test.js`
   (left empty, none is kept) and `test/desk-collections-add-menu.test.js`
   (given from a verse, it is kept). Status: fixed.
+
+- **E175, preference: no collection filter in My Notes or My Notebook.**
+  BVJ, 2026-11-19, looking at the Notebook's My Notes with two collections
+  kept, where a row of “All collections,” “First collection,” and “Second
+  collection” sat under the label filter: “It feels like if people want to
+  find out what's in a collection they can go to the collections page or the
+  study desk pane. It mostly just clutters the notebook.” And: “That would be
+  true of My notes tab in the notebook and My notes panel in the desk.” Asked
+  whether My Notebook's “Any collection” select went too: “All three.” It
+  reverses the filter D13's step 6 built (STUDY-DESK.md, D13, “In the
+  Notebook”). The Collections pane (decisions 26 to 36) shows what a
+  collection holds, passages and headings included, which the filter never
+  could.
+  **Fixed.** What went:
+  - **My Notes** (`tab-mine.js`: the Notebook panel's tab and /desk's My
+    Notes pane): the row of collection toggles, the “Its 4 passages are on
+    its page.” line, and “Nothing here is in that collection.”
+  - **My Notebook** (`kept-list.js`, /notebook): the “Collection” select and
+    its passages line.
+  - **The two subscriptions** to `{ kinds: ["collection"] }` that kept the
+    filter current (`panel.js`, `desk-panes.js`), and the model's
+    `collectionFilter` and `filterRecords`' `recordIds`, which only the
+    filter used.
+  What stays: each row's “Collections…” button, My Notebook's Collections
+  section, the notebook search's “Collections” group (by name), and “Add
+  these N to a collection…”, which answers the search and the label filter.
+  The help page's “Finding things” now sends a reader to a collection's
+  page, and its “From a label” paragraph says “its list” for My Notebook's,
+  since “Add these 12” is there and not in My Notes. Test:
+  `test/desk-collections-filters.test.js` holds that neither list has the
+  filter and that the name search still works.
+  Status: fixed.
 - **E176, preference: My Notes has “Add these 12 to a collection…” and a
   link to My Notebook.** BVJ, 2026-11-19, working through D13's review
   list, with a screenshot of the Notebook panel's My Notes searched for
@@ -4903,7 +4935,8 @@ says so; where BVJ was wondering, nothing is decided.)
   - **No new look** (decision 25): the button is the quiet
     `desk-item__stop`, and the line takes the count's type.
   The help page says My Notes has the link, and that “Add these 12” is in
-  both lists. Test: `test/desk-mine-add-these.test.js`. Status: fixed.
+  both lists (E175's “its list” in “From a label” became “My Notes or My
+  Notebook”). Test: `test/desk-mine-add-these.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

@@ -490,8 +490,6 @@ export function mountPane(kind, body, env, pane) {
     // pauses (redrawAfterMove), as the margin's mark is, not on every write.
     const unsubscribe = env.store?.subscribe(() => tab.render(), { except: [...NO_CHAPTER_KINDS, MOVE_KIND] });
     const offMoves = env.store ? redrawAfterMove(env.store, () => tab.render()) : null;
-    // The collection filter lists collections and what each holds (D13, step 6).
-    const offCollections = env.store?.subscribe(() => tab.render(), { kinds: ["collection"] });
     const offMeta = env.store?.onMeta?.(() => tab.render()); // What's new's line (BA96)
     // Its rows' wording is judged only where a LIT pane shows their chapter,
     // so it is drawn again when the panes' chapters change (BA121).
@@ -504,7 +502,6 @@ export function mountPane(kind, body, env, pane) {
       destroy: () => {
         unsubscribe?.();
         offMoves?.();
-        offCollections?.();
         offMeta?.();
         offChapters();
         tab.destroy();
