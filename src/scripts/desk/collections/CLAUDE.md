@@ -153,6 +153,13 @@ it holds. Computer only; the apps carry it untouched.
   never takes it for the reading part; leave it, it is the owner's to decide.
   Tests: `test/desk-collection-sheet.test.js`,
   `test/desk-collections-sheet-wiring.test.js`.
+- **Next, a Collections pane on /desk** (decided, not built; BVJ,
+  2026-11-19): STUDY-DESK.md, D13, "A Collections pane on /desk"
+  (decisions 26 to 34, and its order of work), with the Book Intro pane
+  taken out to make room (STUDY-DESK-FIXES.md E173). The pane is a second
+  host of `collection-view.js` and of the list, which moves out of
+  `collection-page.js`; read that section before changing the view's host
+  object or the list.
 
 ## Rules this step settled, and why
 

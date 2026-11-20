@@ -1646,8 +1646,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   the apps. It takes up M8's "named notebooks," which labels no longer
   cover now that they are for bookmarks alone (E149). Borrowed (Sefaria's
   collections; Blue Letter Bible's named notebooks). Medium. **Version 1, tentatively** (BVJ, 2026-11-18: "we'll
-  see if we run into hiccups"). Planned and being built, steps 0 to 4 of 8
-  merged on 2026-11-18: see "D13. Collections" before "Decisions".
+  see if we run into hiccups"). Planned and built, steps 0 to 8 merged on
+  2026-11-18 and 19, and a Collections pane on /desk decided on 2026-11-19
+  (not yet built): see "D13. Collections" before "Decisions".
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
@@ -5642,7 +5643,9 @@ verse's Collections line. Steps 5 to 8 were merged on 2026-11-19 (#620,
 #622, #621, and #623): labels and the live rule, filters, search, and the
 header, a collection onto a sheet, and the tours naming collections. D13 is
 marked built once BVJ has gone through it and answered decision 22's second
-ask, a tour of its own. The preview once put labels on notes, highlights,
+ask, a tour of its own. **A Collections pane on /desk** was decided on
+2026-11-19 (decisions 26 to 34, "A Collections pane on /desk," below) and
+waits for BVJ to say build. The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
@@ -5928,7 +5931,9 @@ Why a kind of its own:
   name and count, "New collection…" and "All my collections."
 - **The Notebook panel**: a collection filter in My Notes rather than a new
   tab. /desk's My Notes pane gets the same filter, so a collection sits
-  beside the text without a new kind of pane.
+  beside the text without a new kind of pane. (The filter can't show
+  passages or headings, which aren't records, so on 2026-11-19 BVJ chose a
+  Collections pane as well: decisions 26 to 34, below.)
 - **The notebook search** finds collections by name.
 
 ### Collections and sheets
@@ -6072,6 +6077,128 @@ step 2.
 Reaching a sheet beyond the five the flyout lists (E154, the "All sheets…"
 window that "All collections…" will reuse) was built first, on its own
 (2026-11-18; `desk/pick-window.js`).
+
+### A Collections pane on /desk (BVJ, 2026-11-19)
+
+**Decided, not yet built.** Reviewing D13, BVJ wanted to talk through a
+Collections pane on /desk. The plan had chosen against one ("In the
+Notebook": a filter in My Notes, "so a collection sits beside the text
+without a new kind of pane"), but that filter can't show a collection's
+passages or headings, which aren't records: a collection holding passages
+only says "Its 4 passages are on its page." The website put seven
+questions, each with its recommendation, and BVJ took all seven and added
+two things (2026-11-19: "Yes, all seven, plus it gets a New Collection
+button in the bar above the panes like Sheets does. Also, let's do away
+with the Book Intros pane, which will give us more room for the Collections
+pane in the dropdown menus."). So BVJ chose:
+
+26. **What it shows: the Sheets pane's shape.** The pane opens on the list
+    of collections, "New collection…" its one primary button and a row for
+    each collection with Delete, as the page's list has; a row opens that
+    collection, with "‹ All collections" to go back. Which collection a
+    pane shows is kept on the pane in the layout (`lit-desk-layout`), as a
+    Sheets pane's sheet is, so a reload keeps it. The members lie on the
+    pane as My Notes' rows do, not on a `.v2-sheet` inside the pane (a card
+    inside a card), and a passage keeps E171's look and its cut at three
+    lines. Not a pane of one collection picked from a select in its bar,
+    which would be a control the desk doesn't have, with no New collection.
+27. **How it opens.** In Add pane ▾ and the pane menu's kinds, as
+    "Collections," with a one-line description as every kind has (`about`).
+    It stands alone, as Sheets and Search do, and doesn't follow the LIT
+    pane: By type and My order have no verse order to follow. Each home
+    offers the other, as a sheet's do: the pane has "Open on its own page"
+    (a quiet link, in a new tab), and a collection's page a quiet "Open in
+    the Study Desk" (`/desk/?collection=<id>`, which shows it in a
+    Collections pane as `?sheet=` shows a sheet). On /desk, the undo bar's
+    "Open the collection" (after an add from the LIT pane's menus) shows it
+    in a Collections pane by E127's rule (one already open, else a new one
+    where there is room, else in place of the last pane that isn't a LIT
+    pane, with Undo), rather than opening the page in a new tab; on a
+    chapter page it stays the link to the page.
+28. **"New collection…" in the command row** (BVJ's addition), right after
+    "New sheet…", and acting as it does (SH5-5): it uses a Collections
+    pane, or adds one as a column (else a row), and opens the name window
+    there; Create shows the new collection in that pane. Like New sheet…, it
+    is disabled, not hidden, with its reason, when no pane can be added.
+29. **A member's reference moves the LIT pane.** A plain click on a
+    passage's or a record's reference moves the leading LIT pane there, as
+    My Notes' rows do (BA124), and it is a jump, so the LIT pane's bar then
+    offers "← John 3:16" (E168). A modified click opens the chapter in a new
+    tab, since rows stay links. A sheet in the collection opens in a Sheets
+    pane by E127's rule, where the page sends it to /sheets/.
+30. **No dragging into a Sheets pane, for now.** Nothing on /desk drags
+    from one pane to another, and every drag needs a click route too
+    (Audit 8, XA8-1), which would put a button on every row. A whole
+    collection already reaches a sheet three ways (Make a sheet, Add to
+    sheet…, and the Sheets pane's "+ From my notes…" under "From a
+    collection"), and one passage takes two presses once its reference has
+    moved the LIT pane (the verse menu's Add to sheet). If it is wanted
+    later, it is an E entry with its click route.
+31. **No one-press add** (decision 17 and E172 already say so). While a
+    Collections pane shows a collection, the LIT pane's "Add to collection
+    ▸" neither splits nor lifts that collection. The pane redraws on every
+    change to the notebook, so a passage added to the collection it shows
+    appears there at once.
+32. **A narrow pane (280px at the least) does everything the page does but
+    print.** The order switch (`.desk-seg`) already stacks its choices, and
+    headings, the grip, ↑ and ↓, and the rule's line wrap. The actions wrap
+    as the Sheets pane's top row does, and Print is "Open on its own page,"
+    since a print from /desk prints the desk (the Sheets pane's "Print or
+    share" does the same). Printing is the one thing left to the page,
+    which keeps E166's "full parity." No "More" menu: decision 25 turned
+    one down.
+33. **Print, the empty pane, help, and tours.** Print is on the
+    collection's page (decision 32). An empty pane shows the page's two
+    sentences and "New collection…," its help link opening in a new tab; a
+    browser keeping no notebook shows one line, as the Sheets pane does.
+    The help page gets a line in "The kinds of pane" and a paragraph in "How
+    collections work." No tour is added: decision 22 stands, and Add pane's
+    description is the kind's own line.
+34. **The Book Intro pane goes** (BVJ's addition), which keeps the menus'
+    kinds at eight with Collections in. It reverses E53's pane;
+    STUDY-DESK-FIXES.md E173 has what becomes of each way in.
+
+**Where the page and the pane share code** (the website's plan, for the
+build):
+- `collection-view.js`, one collection, already takes its host as an object
+  (`page`: `store`, `ctx`, `refresh`, `go`, `follow`, `viewState`,
+  `chapterText`, `passageText`, `parse`), so the pane is a second host. Its
+  `go(href)` becomes an `open(id)` and a `toList()`, which the page turns
+  into its address and history and the pane into its layout field.
+- The list moves out of `collection-page.js` into a module both draw, as
+  `my-sheets.js` serves the Sheets pane and /sheets (E64). The page keeps
+  its address, `document.title`, and history. The pane
+  (`collections/collection-pane.js`, beside `sheets/sheet-pane.js`) keeps
+  the layout field (`setPaneCollection`, as `setPaneSheet`), the links into
+  the LIT and Sheets panes, and "Open on its own page."
+- Ids, radio names (`collection-order` today) and the focus keys the view
+  looks for carry the pane's id and are found inside the pane, never with
+  `document.querySelector`, so two Collections panes never share one.
+- The member rows' rules in `v2/collections.css` (the cut at three lines,
+  its fade, the caret, whole on paper) move where /desk reads them too, in
+  `desk.css` with `--desk-ui` and `--desk-leading` (desk rule 18); the
+  page's frame stays in `v2/collections.css`.
+
+**Order of work** (the website's proposal; each step its own PR):
+1. **A mock of the pane** at 280px and at half width, the list and one
+   collection in My order, from the site's own classes, for BVJ's look
+   before anything is built (as D13's steps 2 to 4 had).
+2. **The shared code**: the list's own module, the host's `open` and
+   `toList`, ids and focus found in the host's own element. The page is
+   unchanged and its tests pass as they are. Sonnet, beside step 3 (no
+   shared files).
+3. **Book Intro out** (E173), with its own words: the help page, the Study
+   Desk tour's card on the panes that follow (its id kept), and the desk
+   `CLAUDE.md`. Sonnet.
+4. **The pane**: the `collection` kind, `collection-pane.js`, the layout
+   field and `checkLayout`, the mount in `desk-panes.js`, references as
+   jumps, a sheet into a Sheets pane, "Open on its own page," the page's
+   "Open in the Study Desk" and `?collection=`, "Open the collection" on
+   /desk, and "New collection…" in the command row. Opus, since a wrong
+   call in desk-page.js's routes is hard to see in review; after step 3,
+   which touches the same files.
+5. **Words and docs for the pane**: the help page (decision 33), and the
+   collections and desk `CLAUDE.md`s. Sonnet.
 
 ## Decisions
 

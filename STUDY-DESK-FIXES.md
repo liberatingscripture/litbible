@@ -1823,7 +1823,8 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   `introMoveMessage` in `desk-search-pane.mjs`, the pill in
   `ScriptureLayout.astro`, the styles in `desk.css`. No record or format
   change; a layout saved with the kind reads back in an older copy of the page
-  as "needs a newer copy." **Awaiting BVJ's look.**
+  as "needs a newer copy." **Awaiting BVJ's look.** **The pane is to go**
+  (BVJ, 2026-11-19, E173), to make room for a Collections pane.
 
 - **E54, bug: Greek copied from the Greek tab pastes into a sheet as only its
   spaces, commas and verse numbers.** BVJ (2026-11-06): selected in the Greek
@@ -4810,6 +4811,32 @@ says so; where BVJ was wondering, nothing is decided.)
   it isn't in the flyout until then. Tests:
   `test/desk-lit-pane-add-to-sheet.test.js`, `test/desk-pick-window.test.js`,
   `test/desk-sheet-add.test.js`. Status: fixed.
+- **E173, preference: no Book Intro pane.** BVJ, 2026-11-19, deciding the
+  Collections pane (STUDY-DESK.md, D13, decisions 26 to 34): “let's do away
+  with the Book Intros pane, which will give us more room for the
+  Collections pane in the dropdown menus.” It reverses E53's pane, so the
+  menus' kinds stay at eight with Collections in. What becomes of each way
+  in (the website's choices, for BVJ to change):
+  - **A Search pane's introduction result** opens the introduction's page in
+    a new tab, as an article's result does, which is what it did before
+    E53. “Matthew intro” typed there (E123) does the same.
+  - **An introduction page's Study Desk pill** opens /desk at the book's
+    chapter 1 (`?place=romans-1`, with no `&intro=`). An old `?intro=` link
+    is stripped and otherwise ignored.
+  - **A layout saved with a Book Intro pane** reads back with This verse in
+    its place (`RETIRED_KINDS`, as `kept` became My Notes), so the reader's
+    layout isn't thrown out for the original.
+  - **What goes**: the `intro` kind in `KINDS`, `intro-pane.js` and
+    `intro-text.js`, `showIntroIn`, `parseIntroParam`, `stepBook`, the
+    pane's styles in `desk.css`, its entries in E127's rule and in E168's
+    list of jumps, and its tests (`desk-intro-pane-images`,
+    `desk-intro-text`, and its cases in the layout, search pane, way back,
+    and text size tests). `introPath` stays, as the guard for the new-tab
+    link (SEC-1).
+  - **Words**: the Study Desk tour's card on the panes that follow drops
+    Book Intro (its id kept, so it isn't offered again as new), and so do
+    the help page's “The kinds of pane” and “Panes that follow.”
+  Status: decided, not yet built (step 3 of the pane's order of work).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
