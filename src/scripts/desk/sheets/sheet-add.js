@@ -1,10 +1,11 @@
 // src/scripts/desk/sheets/sheet-add.js
 //
-// "Add to sheet ▸" in Chapter View's verse menu and selection panel
-// (STUDY-DESK.md, S12, part 2, way 3; BVJ, 2026-11-08, decision 3): the
-// reader's sheets, newest change first, and "New sheet". It adds without
-// leaving the page, and the undo bar offers Undo and "Open the sheet". The
-// rules are src/lib/desk-sheet-add.mjs; this reads the notebook and the page.
+// "Add to sheet ▸" in the verse menu and the selection panel, in Chapter View
+// and in /desk's LIT pane (STUDY-DESK.md, S12, part 2, way 3; BVJ, 2026-11-08,
+// decision 3; the LIT pane since E170, BVJ 2026-11-19): the reader's sheets,
+// newest change first, and "New sheet". It adds without leaving the page, and
+// the undo bar offers Undo and "Open the sheet". The rules are
+// src/lib/desk-sheet-add.mjs; this reads the notebook and the page.
 //
 // The flyout lists the five sheets changed last. Where the reader has more, it
 // ends in "All sheets…" (E154; BVJ, 2026-11-18), which closes the menu and
@@ -13,8 +14,12 @@
 // passage is read when "All sheets…" is pressed, since the selection is gone
 // once the menu closes.
 //
-// /desk's LIT pane has its own "Add to “…”" (sheet-pane.js), aimed at the
-// Sheets pane last worked in, so this offers nothing there.
+// In /desk's LIT pane, while a Sheets pane shows a sheet, the row is split
+// (as "Copy text" is): its own button, "Add to “Freedom”", adds to that sheet
+// in one press through the pane's editor (`paneSheet`, sheet-pane.js, handed in
+// by desk-page.js), so the passage shows there at once, as the pane's own row
+// did from 3f until E170; its chevron opens the same flyout, for any other
+// sheet. Read View and the glossary get no row.
 
 import { rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
 import { ADD_MENU_SHEETS, addableSheets, addedMessage, needsAllSheets, newSheetWithPassage, planAddToSheet } from "../../../lib/desk-sheet-add.mjs";
@@ -38,10 +43,12 @@ const pickItems = (list) =>
 
 /**
  * Start listening; call once. `store` null (no notebook here) offers nothing.
+ * `paneSheet` is /desk's: the Sheets pane's sheet a press adds to, as
+ * `{ id, name, add(fields) }`, or null while no Sheets pane shows one.
  * @returns {(d: object, where: { bookKey: string, chapter: number }) => HTMLElement | null}
  *   the row for one panel, or null where it has none
  */
-export function createSheetAdd({ store, ctx }) {
+export function createSheetAdd({ store, ctx, paneSheet = null }) {
   if (!store) return () => null;
   // Every sheet that can take a passage (`addableSheets`), read once and again
   // only after a sheet changes, so a menu opened afterwards draws them at once.
@@ -76,7 +83,7 @@ export function createSheetAdd({ store, ctx }) {
   read();
 
   return function sheetRow(d, where) {
-    if (d.view !== "study") return null;
+    if (d.view !== "study" && d.view !== "desk") return null;
     const box = document.createElement("div");
     box.className = "desk-sheet-add";
     const draw = (list) => box.replaceChildren(row(d, where, list));
@@ -86,9 +93,12 @@ export function createSheetAdd({ store, ctx }) {
   };
 
   function row(d, where, list) {
+    // On /desk, the sheet open in a Sheets pane: a pick of it goes through the
+    // pane too, wherever it is pressed.
+    const inPane = d.view === "desk" ? paneSheet?.() ?? null : null;
     const items = list.slice(0, ADD_MENU_SHEETS).map((s) => {
       const b = button(`“${s.name}”`);
-      b.addEventListener("click", () => add(d, where, s));
+      b.addEventListener("click", () => (inPane?.id === s.id ? addToPane(d, where, inPane, b) : add(d, where, s)));
       return b;
     });
     const fresh = button("New sheet");
@@ -102,6 +112,12 @@ export function createSheetAdd({ store, ctx }) {
       more.addEventListener("click", () => openAll(d, where));
       items.push(more);
     }
+    // The one-press add to the pane's sheet (E170).
+    let main = null;
+    if (inPane) {
+      main = button(`Add to “${inPane.name}”`);
+      main.addEventListener("click", () => addToPane(d, where, inPane, main));
+    }
     // A finger's chips stay flat, under a small heading, as Print's do.
     if (d.panel?.classList.contains("lit-panel--chips")) {
       const flat = document.createElement("div");
@@ -109,7 +125,7 @@ export function createSheetAdd({ store, ctx }) {
       label.className = "lit-panel__subheading";
       label.textContent = "Add to sheet";
       flat.append(label);
-      for (const b of items) {
+      for (const b of main ? [main, ...items] : items) {
         const r = document.createElement("div");
         r.className = "lit-panel__row";
         r.append(b);
@@ -117,7 +133,11 @@ export function createSheetAdd({ store, ctx }) {
       }
       return flat;
     }
-    return flyoutRow("Add to sheet", items, { pointerFocus: d.kind !== "selection" });
+    return flyoutRow("Add to sheet", items, {
+      main,
+      moreLabel: "Add to another sheet",
+      pointerFocus: d.kind !== "selection",
+    });
   }
 
   /** The passage the panel names: the selected words, else its verses. */
@@ -125,7 +145,8 @@ export function createSheetAdd({ store, ctx }) {
     const { contentVersion } = ctx();
     let text = null;
     try {
-      text = chapterTextFor(where.bookKey, where.chapter);
+      // A LIT pane's panel reads its own chapter's text (`textFor`).
+      text = d.textFor?.() ?? chapterTextFor(where.bookKey, where.chapter);
       if (d.kind === "selection" && d.range && text) {
         const offsets = rangeToOffsets(text, d.range);
         if (offsets) return passageFromOffsets(text, where, offsets[0], offsets[1], contentVersion);
@@ -149,6 +170,33 @@ export function createSheetAdd({ store, ctx }) {
     const from = open?.el === d.panel ? open.restoreFocus : null;
     if (d.kind === "selection") window.getSelection()?.removeAllRanges();
     return { fields, from };
+  }
+
+  /**
+   * Add to the sheet in the Sheets pane, through its editor, which shows the
+   * passage and announces it; the button says how it went and the panel closes.
+   * A passage already on the sheet is added again, and the line saying so stays
+   * long enough to read (BA75).
+   */
+  async function addToPane(d, where, inPane, btn) {
+    d.acting?.();
+    const fields = passageOf(d, where);
+    let added = false;
+    try {
+      added = await inPane.add(fields);
+    } catch (err) {
+      console.error("Study Desk: the passage couldn't be added to the sheet", err);
+    }
+    const again = added?.again === true;
+    btn.textContent = !added ? "Couldn’t add it" : again ? "Added again ✓" : "Added ✓";
+    if (again) {
+      const hint = document.createElement("p");
+      hint.className = "lit-panel__hint";
+      hint.textContent = added.message;
+      (btn.closest(".lit-panel__row") ?? btn).after(hint);
+    }
+    if (d.kind === "selection") window.getSelection()?.removeAllRanges();
+    setTimeout(closePanel, again ? 2500 : 700);
   }
 
   /** Add to `pick` ({ id, name }), or to a new sheet when it is null. One change, one undo. */

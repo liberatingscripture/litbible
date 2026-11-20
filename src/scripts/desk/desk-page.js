@@ -105,6 +105,7 @@ import { chapterPath, formatPassage, introPath, parseIntroParam, parsePassage, p
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
+import { paneSheet } from "./sheets/sheet-pane.js";
 import { createHighlights } from "./highlights.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
@@ -220,8 +221,9 @@ async function start() {
   }
   if (store) createHistory({ store, ctx });
   // The LIT pane's verse menu and selection panel get the "My Notebook" row
-  // (3f, 3g): Add a note, Bookmark and Highlight.
-  if (store) initActions({ store, ctx });
+  // (3f, 3g): Add a note, Bookmark and Highlight, and Add to sheet, which adds
+  // to the Sheets pane's sheet in one press (E170).
+  if (store) initActions({ store, ctx, paneSheet });
   // Pin / Unpin on the LIT pane's footnotes, This verse and the Footnotes
   // pane (3g).
   initPins({ store, ctx, desk: true });

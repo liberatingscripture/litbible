@@ -20,9 +20,10 @@
 //   "Present…" are the last two steps' links.
 // - **The LIT pane's verse menu**, opened as a reader opens it, with a click on
 //   a verse number in view (else the first, brought into view in the LIT
-//   pane's own scroller, which `later` puts back). Its Sheets row exists only
-//   for the pane that counts as the target, so the tour's pane is made the
-//   target first (`useAsTarget`, sheet-pane.js).
+//   pane's own scroller, which `later` puts back). Its "Add to sheet" row adds
+//   in one press to the pane that counts as the target (E170), so the tour's
+//   pane is made the target first (`useAsTarget`, sheet-pane.js), and the
+//   step marks that row's own button, "Add to “…”".
 // - **The passage** is the leading LIT pane's chapter, from the verse it is at
 //   (`litPassage`).
 // - **The offer** sits beside the Sheets pane, and is made only while one is
@@ -37,11 +38,13 @@ import { bringIntoView, createSheetTour } from "./sheet-tour.js";
 
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
-/** The Sheets row sheet-pane.js adds to the LIT pane's menus: its "Add to “…”" button. */
+/**
+ * The LIT pane's "Add to sheet" row's own button, "Add to “…”", which adds to
+ * the Sheets pane's sheet (sheets/sheet-add.js, E170): the first button of its
+ * split row, or of its flat chips.
+ */
 function addButton(menu) {
-  const head = Array.from(menu.querySelectorAll(".lit-panel__subheading")).find((h) => h.textContent.trim() === "Sheets");
-  const row = head?.nextElementSibling;
-  return row?.classList.contains("lit-panel__row") ? row.querySelector("button") : null;
+  return menu.querySelector(".desk-sheet-add .lit-flyout__split > button, .desk-sheet-add .lit-panel__row > button");
 }
 
 /**
@@ -179,7 +182,9 @@ export function createDeskSheetTour(api) {
       await frame();
       const menu = live() ? currentPanel()?.el ?? null : null;
       if (!menu) return null;
-      const add = addButton(menu);
+      // The row is drawn once the notebook's sheets are read: a moment, at most.
+      const add = await waitFor(() => addButton(menu), 1000);
+      if (!live()) return null;
       return { el: menu, side: "right", marks: add ? [add] : [] };
     },
 

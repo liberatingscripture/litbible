@@ -4725,6 +4725,28 @@ says so; where BVJ was wondering, nothing is decided.)
   primary button on each collections view (E126's “at most one per pane or
   view”): “New collection…” on the list, as “New sheet…” is on My sheets,
   and “Add passage…” on one collection. Status: fixed.
+- **E170, bug: /desk's LIT pane had no "Add to sheet" in its verse menu.**
+  BVJ, 2026-11-19, reviewing D13: “There is no "add collection" or "add to
+  sheet" menu item in the verse menu in the LIT pane. That seems like an
+  oversight,” then, after finding an old Cloudflare preview had been open:
+  “The add to collections option is there on the live site, as you said. It
+  should have add to sheet too.” From 3f the LIT pane's menus had only a
+  “Sheets” row, “Add to “…”,” shown while a Sheets pane held a sheet, though
+  S12's decision 3 gave Chapter View its flyout “as /desk's LIT pane has
+  it.” **Fixed**: the LIT pane's verse menu and selection panel have
+  Chapter View's “Add to sheet ▸” row (`sheets/sheet-add.js`, for `d.view`
+  “desk” too), in the same place, before Add to collection. While a Sheets
+  pane shows a sheet the row is split, as “Copy text” is: its own button,
+  “Add to “Lent”,” adds there in one press through that pane's editor
+  (`paneSheet`, sheet-pane.js, which desk-page.js hands `initActions`), so
+  the passage shows in the pane at once, as the old row did; its chevron,
+  “Add to another sheet,” opens the flyout, where a pick of the pane's sheet
+  also goes through the pane. The old “Sheets” row is gone, and the Sheets
+  tour marks the new button. **Checked against Chapter View's menus**, the
+  LIT pane's now lack only two rows, both by earlier calls: “Print ▸” (E40:
+  a print from /desk would need the Print menu's new-tab route) and “Show in
+  Notebook” (My Notes follows the LIT pane instead). Test:
+  `test/desk-lit-pane-add-to-sheet.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
