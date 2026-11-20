@@ -5645,7 +5645,7 @@ header, a collection onto a sheet, and the tours naming collections. D13 is
 marked built once BVJ has gone through it and answered decision 22's second
 ask, a tour of its own. **A Collections pane on /desk** was decided on
 2026-11-19 (decisions 26 to 36, "A Collections pane on /desk," below) and
-is built through step 4 of its order of work. The preview once put labels on notes, highlights,
+is built (all five steps of its order of work). The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
@@ -6081,8 +6081,8 @@ window that "All collections…" will reuse) was built first, on its own
 
 ### A Collections pane on /desk (BVJ, 2026-11-19)
 
-**Decided, and built through step 4 of its order of work** (below); step 5,
-the help page's words, is next. Reviewing D13, BVJ wanted to talk through a
+**Decided and built** (all five steps of its order of work, below).
+Reviewing D13, BVJ wanted to talk through a
 Collections pane on /desk. The plan had chosen against one ("In the
 Notebook": a filter in My Notes, "so a collection sits beside the text
 without a new kind of pane"), but that filter can't show a collection's
@@ -6262,7 +6262,11 @@ build):
    container query on the pane (26em of its own type). Collections `CLAUDE.md`,
    "The Collections pane," has the rest.
 5. **Words and docs for the pane**: the help page (decision 33), and the
-   collections and desk `CLAUDE.md`s. Sonnet.
+   collections and desk `CLAUDE.md`s. Sonnet. **Built 2026-11-19**: the
+   help page names the pane in "The kinds of pane," the commands ("New
+   collection…"), "When the desk is full," and "Going back," and "How
+   collections work" gains "On the Study Desk"; the `CLAUDE.md`s came
+   with step 4.
 
 ## Decisions
 
