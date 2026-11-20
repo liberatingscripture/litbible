@@ -4970,6 +4970,11 @@ says so; where BVJ was wondering, nothing is decided.)
     closes the menu. A line that can't be used stays, with its reason
     beside it and in the menu's description (DK3-7): “no sheets yet,” “no
     labeled bookmarks yet.”
+    It never runs past the window (E179, which landed just before #642
+    merged, so this came after it): where it fits neither under its
+    button nor over it, it takes the roomier side, stops 8px from the
+    edge and scrolls inside itself, and the sheet gap pill's menu with it
+    (`buttonMenuPlace`).
   - **Passage…** shows today's field, now headed “Add a passage” with a ×,
     and Escape puts it away too, focus back on “Add.”
   - **Sheet…** lists the reader's sheets (not their templates), the last
