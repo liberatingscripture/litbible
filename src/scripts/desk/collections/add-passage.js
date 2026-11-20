@@ -41,8 +41,13 @@ export function setCollectionOpener(fn) {
   opener = typeof fn === "function" ? fn : null;
 }
 
-/** The undo bar's "Open the collection" for collection `id`, every place that says it. */
+/**
+ * The undo bar's "Open the collection" for collection `id`, every place that
+ * says it, or null where that collection's view is on screen already (the
+ * view carries `data-collection-shown`): then the notice has no link.
+ */
 export function collectionLink(id) {
+  if (document.querySelector(`[data-collection-shown="${CSS.escape(id)}"]`)) return null;
   const link = { label: "Open the collection", href: collectionHref(id) };
   if (opener) {
     const open = opener;
@@ -52,6 +57,33 @@ export function collectionLink(id) {
 }
 
 const openLink = collectionLink;
+
+/**
+ * What a passage being added adds to the collection's own words when its verses
+ * lie wholly inside passages the collection already holds (same book and
+ * chapter, within their verses): " It’s also inside Luke 1:46–55.", naming the
+ * smallest such passage (ties to the first in Bible order), or "" when none
+ * does. `collection` is as it was before the add.
+ *
+ * @param {object | null} collection
+ * @param {{ bookKey: string, chapter: number, verse: number, endVerse?: number }} fields
+ * @returns {string}
+ */
+export function alsoInside(collection, fields) {
+  const end = fields.endVerse ?? fields.verse;
+  const holders = (collection?.members ?? []).filter(
+    (m) =>
+      m?.type === "passage" &&
+      m.bookKey === fields.bookKey &&
+      m.chapter === fields.chapter &&
+      m.verse <= fields.verse &&
+      (m.endVerse ?? m.verse) >= end,
+  );
+  if (!holders.length) return "";
+  const span = (m) => (m.endVerse ?? m.verse) - m.verse;
+  holders.sort((a, b) => span(a) - span(b) || a.verse - b.verse);
+  return ` It’s also inside ${passageReference(holders[0])}.`;
+}
 
 /**
  * Add the passage `fields` to the collection `collectionId`, and tell the
@@ -66,9 +98,14 @@ const openLink = collectionLink;
 export async function addPassageToCollection({ store, ctx, collectionId, fields, name: shownAs = "" }) {
   const where = passageReference(fields);
   let plan = null;
+  let inside = "";
   try {
     await store.change(async ({ all }) => {
-      plan = planAddPassage(await all(), collectionId, fields, { now: new Date().toISOString(), ...ctx() });
+      const records = await all();
+      // Read before the add, so "also inside" compares with what it held.
+      const before = records.find((r) => r?.id === collectionId && r.kind === "collection") ?? null;
+      plan = planAddPassage(records, collectionId, fields, { now: new Date().toISOString(), ...ctx() });
+      inside = plan.changed ? alsoInside(before, fields) : "";
       return plan.changed ? plan : null;
     });
   } catch (err) {
@@ -97,6 +134,6 @@ export async function addPassageToCollection({ store, ctx, collectionId, fields,
     return "failed";
   }
   const entry = store.lastEntry();
-  showUndo(`${where} added to ${name}.`, () => undoEntry(entry), { link: openLink(collectionId) });
+  showUndo(`${where} added to ${name}.${inside}`, () => undoEntry(entry), { link: openLink(collectionId) });
   return "added";
 }

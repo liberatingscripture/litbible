@@ -75,3 +75,51 @@ test("Open the collection is the page's link, until /desk gives an opener; then 
   }
   assert.equal("open" in collectionLink("c-1"), false, "a chapter page has none");
 });
+
+const { alsoInside } = await import("../src/scripts/desk/collections/add-passage.js");
+
+test("a passage inside one the collection holds says so; the smallest holder is named (E194)", async () => {
+  const c = await aCollection("Advent small group");
+  const lk = (verse, endVerse) => passageFromVerses(null, { bookKey: "luke", chapter: 1 }, verse, endVerse);
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields: lk(46, 55) }), "added");
+  assert.equal(barText(), "Luke 1:46–55 added to Advent small group.");
+
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields: lk(54) }), "added");
+  assert.equal(barText(), "Luke 1:54 added to Advent small group. It’s also inside Luke 1:46–55.");
+  assert.equal(barLink(), collectionHref(c.id));
+
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields: lk(50, 52) }), "added");
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields: lk(51) }), "added");
+  assert.equal(barText(), "Luke 1:51 added to Advent small group. It’s also inside Luke 1:50–52.");
+});
+
+test("an exact duplicate is still refused, and says so with no extra sentence (E194)", async () => {
+  const c = await aCollection("Lent group");
+  const fields = passageFromVerses(null, { bookKey: "luke", chapter: 1 }, 46, 55);
+  await addPassageToCollection({ store, ctx, collectionId: c.id, fields });
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields }), "again");
+  assert.equal(barText(), "Luke 1:46–55 is already in Lent group.");
+  assert.equal((await store.all()).find((r) => r.id === c.id).members.length, 1);
+});
+
+test("a passage not inside any held one says nothing extra (E194)", async () => {
+  const c = await aCollection("Week of prayer");
+  await addPassageToCollection({ store, ctx, collectionId: c.id, fields: passageFromVerses(null, { bookKey: "luke", chapter: 1 }, 46, 55) });
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields: passageFromVerses(null, { bookKey: "luke", chapter: 1 }, 10) }), "added");
+  assert.equal(barText(), "Luke 1:10 added to Week of prayer.");
+  // Reaching past the held verses is not inside them.
+  assert.equal(await addPassageToCollection({ store, ctx, collectionId: c.id, fields: passageFromVerses(null, { bookKey: "luke", chapter: 1 }, 54, 60) }), "added");
+  assert.equal(barText(), "Luke 1:54–60 added to Week of prayer.");
+});
+
+test("alsoInside reads the collection as given, ignoring records and other chapters", () => {
+  const collection = {
+    members: [
+      { type: "item", recordId: "n1" },
+      { type: "passage", bookKey: "luke", chapter: 1, verse: 46, endVerse: 55 },
+    ],
+  };
+  assert.equal(alsoInside(collection, { bookKey: "luke", chapter: 1, verse: 47 }), " It’s also inside Luke 1:46–55.");
+  assert.equal(alsoInside(collection, { bookKey: "luke", chapter: 2, verse: 47 }), "");
+  assert.equal(alsoInside(null, { bookKey: "luke", chapter: 1, verse: 47 }), "");
+});
