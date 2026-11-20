@@ -4908,6 +4908,38 @@ says so; where BVJ was wondering, nothing is decided.)
   filter and that the name search still works.
   Status: fixed.
 
+- **E179, bug: the pane menu's Add pane flyout ran off the foot of the
+  window.** BVJ, 2026-11-19, with a screenshot of a LIT pane's menu, its Add
+  pane flyout at “‹ Below” and the kinds running past the window's foot:
+  “This flyout falling below the screen with no way to see the content needs
+  to be fixed. And check for any others that do the same.” The flyout
+  (`kind-menu.js`) was placed once, as it opened on its four sides, and kept
+  inside the window then; choosing a side put the eight kinds and a way back
+  in their place, about two and a half times as tall, with no cap on its
+  height. Any scroll outside the menu closes it, so the kinds below the foot
+  could not be reached. **Fixed**: each step places the flyout again
+  (`placeFly`), level with its line where it fits and moved up as far as it
+  needs where it doesn't, and never taller than the window less 8px at each
+  edge, past which it scrolls inside itself.
+  **The other menus, checked** in 640px and 420px windows:
+  - **The command row's Add pane ▾** had the same shape: at its kinds it
+    hung to 652px in a 640px window. The page scrolls there, so it could be
+    reached, but only by scrolling the page. It now stops 8px above the
+    window's foot and scrolls inside itself (`fitBelow`, `command-row.js`),
+    as do the Layout and Print windows that hang from the row (`hang`), which
+    overflowed only in short windows or at large text sizes, and /sheets'
+    Save as ▾ (`sheet-save.js`), for the same reason.
+  - **Fine as they were**: the pane menu itself and the LIT pane's Show
+    menu (each opens above or below its button, cut to the room, and
+    scrolls), the verse menu's and selection panel's flyouts
+    (`panel-flyout.js`: kept inside the window as they open, and nothing in
+    them grows while open), the resize lines' menu, a sheet card's Add menu,
+    the sheet editor's toolbar menus (capped, opening upward where there is
+    no room below), the title menu, and the pick and Notebook actions
+    windows.
+  The rule for every menu is in `src/scripts/CLAUDE.md`. Test:
+  `test/desk-menu-fit-dom.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

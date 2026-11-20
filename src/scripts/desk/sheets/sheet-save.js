@@ -182,6 +182,11 @@ export function createSaveMenu({ version, onChoose }) {
     versionLine.textContent = name;
     menu.setAttribute("aria-label", `Save the ${name.toLowerCase()} as`);
     menu.hidden = false;
+    // Never past the window's foot (E179): in a short window, or at a large
+    // text size, it stops 8px above it and scrolls inside itself.
+    menu.style.maxHeight = "";
+    const room = Math.floor(window.innerHeight - menu.getBoundingClientRect().top - 8);
+    if (menu.offsetHeight > room) menu.style.maxHeight = `${Math.max(160, room)}px`;
     button.setAttribute("aria-expanded", "true");
     document.addEventListener("pointerdown", outside, true);
     live()[0]?.focus();
