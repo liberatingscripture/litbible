@@ -205,11 +205,16 @@ test("New collection… makes one with the passage as its first member, and says
   assert.ok(win);
   assert.match(win.textContent, /Add to collection/);
   assert.match(win.textContent, /John 3:16 will be its first passage\./);
-  win.querySelector("input").value = "From a verse";
+  // A name, and a description from the start (E174).
+  const [name, description] = win.querySelectorAll("input, textarea");
+  assert.equal(description?.tagName, "TEXTAREA", "a description field under the name");
+  name.value = "From a verse";
+  description.value = "Verses on love.";
   win.querySelector("form").requestSubmit();
   await until(() => barText() === "John 3:16 added to From a verse.", 3000, "the undo bar");
   const [saved] = await collections();
   assert.equal(saved.name, "From a verse");
+  assert.equal(saved.description, "Verses on love.");
   assert.deepEqual(saved.members.map((m) => [m.type, m.verse]), [["passage", 16]]);
   assert.match(barLink(), new RegExp(`collections/\\?id=${saved.id}`));
 });

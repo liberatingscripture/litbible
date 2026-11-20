@@ -87,6 +87,9 @@ test("New collection… makes one and goes into it", async () => {
   byText(root, "button", "New collection…").click();
   const win = document.querySelector(".desk-pick");
   assert.ok(win, "the name window is open");
+  // The description is optional (E174): left empty, none is kept.
+  const [, description] = win.querySelectorAll("input, textarea");
+  assert.equal(description?.tagName, "TEXTAREA", "a description field under the name");
   win.querySelector("input").value = "Advent series";
   win.querySelector("form").requestSubmit();
   await until(async () => true);
@@ -94,6 +97,7 @@ test("New collection… makes one and goes into it", async () => {
   const all = await collections();
   assert.equal(all.length, 1);
   assert.equal(all[0].name, "Advent series");
+  assert.equal("description" in all[0], false);
   assert.ok(location.search.includes(`id=${encodeURIComponent(all[0].id)}`));
   page.destroy();
 });

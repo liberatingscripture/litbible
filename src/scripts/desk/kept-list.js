@@ -29,7 +29,7 @@ import { currentPanel } from "../lit-panel.js";
 import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
 import { collectionsSubject, openCollectionsPopover } from "./collections/collections-popover.js";
-import { ITEM_KINDS, collectionCount, collectionFilter, collectionName, collectionsNamed, filterableCollections } from "../../lib/desk-collections.mjs";
+import { ITEM_KINDS, collectionCount, collectionName, collectionsNamed } from "../../lib/desk-collections.mjs";
 import { collectionHref, collectionLink, collectionsHref } from "./collections/add-passage.js";
 import { openAddRecords } from "./collections/add-records.js";
 import { openNewCollection } from "./collections/new-collection.js";
@@ -68,14 +68,9 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
         <label for="${idPrefix}Label">Label</label>
         <select id="${idPrefix}Label"></select>
       </div>
-      <div class="desk-np__field" data-np-collection-field hidden>
-        <label for="${idPrefix}Collection">Collection</label>
-        <select id="${idPrefix}Collection"></select>
-      </div>
       <div class="desk-np__field desk-mine__colors" role="group" aria-label="Show highlights of one color" data-np-colors hidden></div>
     </div>
     <p class="desk-np__count" aria-live="polite" data-np-count></p>
-    <p class="desk-np__sheet-links" data-np-passages hidden></p>
     <p class="desk-np__sheet-links" data-np-add-these hidden><button type="button" class="desk-item__stop" aria-haspopup="dialog"></button></p>
     <p class="desk-np__error" role="alert" data-np-delete-error hidden></p>
     <div class="desk-np__lists" data-np-lists></div>`;
@@ -85,9 +80,6 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   const kindSelect = q(`#${idPrefix}Kind`);
   const labelSelect = q(`#${idPrefix}Label`);
   const labelField = q("[data-np-label-field]");
-  const collectionSelect = q(`#${idPrefix}Collection`);
-  const collectionField = q("[data-np-collection-field]");
-  const passagesLine = q("[data-np-passages]");
   const colorBox = q("[data-np-colors]");
   const countEl = q("[data-np-count]");
   const deleteError = q("[data-np-delete-error]");
@@ -101,7 +93,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   });
   const lists = q("[data-np-lists]");
 
-  const filters = { query: "", kind: null, color: null, labelId: null, collectionId: null };
+  const filters = { query: "", kind: null, color: null, labelId: null };
   let renderSeq = 0;
   // The row whose Edit or Labels… button opened the panel now showing, so the
   // panel can be pointed at the new button when a save redraws the list.
@@ -138,9 +130,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     const all = listable(records);
     const labels = labelMap(records);
     drawControls(all, records);
-    const held = filters.collectionId ? collectionFilter(records, filters.collectionId) : null;
-    const shown = filterRecords(all, { ...filters, recordIds: held?.ids ?? null }, labels);
-    drawPassages(held);
+    const shown = filterRecords(all, filters, labels);
     drawList(shown, all, labels);
     deleteError.hidden = true;
     // A save that redrew the list took the button the open panel belongs to;
@@ -172,13 +162,6 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     labelSelect.replaceChildren(new Option("Any label", ""), ...labels.map((l) => new Option(l.name, l.id)));
     labelSelect.value = filters.labelId ?? "";
 
-    // Collections by name, shown only while there is one (D13, step 6); a choice whose collection is gone clears.
-    const collections = filterableCollections(records);
-    if (filters.collectionId && !collections.some((c) => c.id === filters.collectionId)) filters.collectionId = null;
-    collectionField.hidden = collections.length === 0;
-    collectionSelect.replaceChildren(new Option("Any collection", ""), ...collections.map((c) => new Option(c.name, c.id)));
-    collectionSelect.value = filters.collectionId ?? "";
-
     const present = colorsPresent(all, COLORS);
     if (filters.color && !present.includes(filters.color)) filters.color = null;
     const focused = colorBox.contains(document.activeElement) ? document.activeElement.dataset.choice : null;
@@ -207,16 +190,6 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
     if (focused) colorBox.querySelector(`[data-choice="${focused}"]`)?.focus({ preventScroll: true });
   }
 
-  // Passages are not records, so a chosen collection that holds some says where they are.
-  function drawPassages(held) {
-    passagesLine.replaceChildren();
-    passagesLine.hidden = !held || held.passages === 0;
-    if (passagesLine.hidden) return;
-    const link = el("a", null, "its page");
-    link.href = collectionHref(filters.collectionId);
-    passagesLine.append(`Its ${plural(held.passages, "passage")} ${held.passages === 1 ? "is" : "are"} on `, link, ".");
-  }
-
   // One collection's row, as the Collections section draws it: its name as a link to its page, and its count.
   function collectionRow(c, records) {
     const li = el("li", "desk-item desk-np-row");
@@ -243,7 +216,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   }
 
   function drawList(shown, all, labels) {
-    const active = Boolean(filters.query.trim() || filters.kind || filters.color || filters.labelId || filters.collectionId);
+    const active = Boolean(filters.query.trim() || filters.kind || filters.color || filters.labelId);
     const named = filters.query.trim() ? namedGroup(lastRecords ?? []) : null;
     // "Add these N to a collection…" is offered while the search or the label filter narrows the list (D13, step 5).
     heldByList = filters.query.trim() || filters.labelId ? shown.filter((r) => ITEM_KINDS.includes(r.kind)).map((r) => r.id) : [];
@@ -480,10 +453,6 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
   });
   labelSelect.addEventListener("change", () => {
     filters.labelId = labelSelect.value || null;
-    render({ reuse: true });
-  });
-  collectionSelect.addEventListener("change", () => {
-    filters.collectionId = collectionSelect.value || null;
     render({ reuse: true });
   });
 
