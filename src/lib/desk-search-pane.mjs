@@ -11,8 +11,8 @@
 //   (John)", which sets the filter to that book and keeps it when the LIT pane
 //   moves;
 // - a glossary result opens in the pane, an article result in a new tab, and
-//   a verse or topic result moves the LIT pane; an intro result shows in a
-//   Book Intro pane (E53, 2026-11-06; it opened in a new tab before);
+//   a verse or topic result moves the LIT pane; an intro result opens in a
+//   new tab like an article's (a Book Intro pane showed it from E53 to E173);
 // - results can go on an open Sheets pane's sheet: the checked ones, from the
 //   strip under the verse group's title (E117), or one with a row's +. The
 //   chapters by topic and the Greek's verses have the same (E166).
@@ -46,10 +46,9 @@ export function longEnoughQuery(text, greekOn = false) {
  *   null when the address names none, or a topic's whole chapter), which moves
  *   the LIT pane;
  * - `{ type: "glossary", id }`: an entry, which opens in the pane;
- * - `{ type: "intro", bookKey }`: a book's introduction, which shows in a Book
- *   Intro pane (E53);
- * - `{ type: "tab", href }`: anything else (an article, a page of the site,
- *   another site), which opens in a new tab.
+ * - `{ type: "tab", href }`: anything else (an article, an introduction, a
+ *   page of the site, another site), which opens in a new tab. An
+ *   introduction has no pane of its own (E173).
  * A verse range `#v16-18` goes to its first verse.
  */
 export function resultTarget(href) {
@@ -67,8 +66,6 @@ export function resultTarget(href) {
     try { id = decodeURIComponent(url.hash.slice(1)); } catch (_) { id = url.hash.slice(1); }
     return id ? { type: "glossary", id } : { type: "tab", href: raw };
   }
-  const intro = /^\/([0-9a-z]+)-intro$/.exec(path);
-  if (intro && Object.hasOwn(BOOKS, intro[1])) return { type: "intro", bookKey: intro[1] };
   const m = /^\/([0-9a-z]+)-(\d+)$/.exec(path);
   if (m && Object.hasOwn(BOOKS, m[1])) {
     const chapter = Number(m[2]);
@@ -169,22 +166,8 @@ export function passageMoveMessage(outcome, label, back = "") {
 }
 
 /**
- * What a plain click on an intro result says it did (E53). `result` is
- * desk-layout.mjs's `showIntroIn`: `outcome` "shown" or "opened" (a Book Intro
- * pane), "replaced" or "none"; `moved`, the LIT's new place, or null. `book` is
- * the book's name, `movedLabel` that place's ("Romans 1"). Empty for the last
- * two, which the undo bar and the no-room notice say (E127).
- */
-export function introMoveMessage(result, book, movedLabel = "") {
-  const lit = result?.moved && movedLabel ? ` The LIT moved to ${movedLabel}.` : "";
-  if (result?.outcome === "shown") return `The Book Intro pane shows ${book}.${lit}`;
-  if (result?.outcome === "opened") return `A Book Intro pane opened at ${book}.${lit}`;
-  return "";
-}
-
-/**
  * The undo bar's words for a pane the desk opened in place of another (E127;
- * BVJ, 2026-11-12): "Book Intro shown in place of Greek.", each kind named as
+ * BVJ, 2026-11-12): "Sheets shown in place of Greek.", each kind named as
  * its "Show in this pane" menu names it. `extra` is a sentence of what else
  * happened; `at` is the passage a LIT pane opened at.
  */
@@ -195,7 +178,6 @@ export function replacedMessage(kind, replacedKind, { at = "", extra = "" } = {}
 
 const NO_WAY = {
   lit: { a: "a LIT pane", open: "open the passage on its page" },
-  intro: { a: "a Book Intro pane", open: "open the introduction on its page" },
   sheet: { a: "a Sheets pane", open: "open the sheet on its page" },
   greek: { a: "a Greek pane", open: "open the word on its page" },
   search: { a: "a Search pane", open: "use the search page" },
@@ -221,11 +203,10 @@ export function noWayMessage(kind, reason, { search = false } = {}) {
 
 /**
  * The words of that notice's link. `what` is the passage ("John 3:16") for a
- * LIT pane or the book ("Romans") for an introduction; the others need none.
+ * LIT pane; the others need none.
  */
 export function noWayLinkLabel(kind, what = "") {
   if (kind === "lit") return `Open ${what}`;
-  if (kind === "intro") return `Open the ${what} introduction`;
   if (kind === "sheet") return "Open the sheet";
   if (kind === "greek") return "Open the Greek word";
   return "Open the search page";

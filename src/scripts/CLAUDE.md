@@ -473,7 +473,7 @@ notice there or nowhere.
     book's introduction ("Matthew intro", "Introduction to Matthew"; E123,
     BVJ 2026-11-12) as `{ kind: "book", bookKey, intro: true }`. The tray and
     /search then offer only the introduction (no second link), and the
-    desk's Search pane opens it in a Book Intro pane (`env.showIntro`).
+    desk's Search pane opens its page in a new tab (E173).
     Otherwise their second link, and the tray's Shift+Enter, is Read View;
     with the Study Desk preview on it opens /desk in its Reading layout at
     the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at

@@ -59,8 +59,8 @@ export function newTabMark() {
 }
 
 /**
- * The previous and next chevrons on the passage steps (the passage bar, the
- * Book Intro pane and This verse), at `size` pixels. Decorative: the button
+ * The previous and next chevrons on the passage steps (the passage bar and
+ * This verse), at `size` pixels. Decorative: the button
  * names its step.
  */
 export function chevronIcons(size = 16) {

@@ -1,7 +1,7 @@
 // A LIT pane's way back after a jump (E168), driven in a browser DOM: the
 // LIT pane (lit-pane.js) with its button (lit-back.js), the passage bar's
 // typed place against its arrows (passage-bar.js), and the routes in
-// desk-panes.js and intro-pane.js that mark a move as a jump.
+// desk-panes.js that mark a move as a jump.
 //
 // Chapter pages are fetched, so `fetch` is stubbed: the chapters a test goes
 // to answer at once, and any other (the pane filling in around its place)
@@ -33,7 +33,6 @@ window.ResizeObserver ??= FakeResizeObserver;
 
 const { createLitPane } = await import("../src/scripts/desk/lit-pane.js");
 const { mountPane } = await import("../src/scripts/desk/desk-panes.js");
-const { createIntroPane } = await import("../src/scripts/desk/intro-pane.js");
 const { initUndo } = await import("../src/scripts/desk/undo-bar.js");
 initUndo();
 
@@ -219,25 +218,4 @@ test("a following pane's typed place asks for a jump, and its arrows don't", asy
   assert.deepEqual(asked[0].p, at("romans", 8));
   fns.destroy();
   body.remove();
-});
-
-test("a book picked from the Book Intro pane's list asks for a jump, and its arrows don't", async () => {
-  const asked = [];
-  const pane = createIntroPane({
-    paneId: "in9",
-    start: at("john", 3, 16),
-    set: (p, how) => asked.push({ p, jump: Boolean(how?.jump) }),
-    showPassage: () => {},
-  });
-  document.body.append(pane.el);
-  await settle(20);
-  const select = pane.el.querySelector("select");
-  select.value = "romans";
-  select.dispatchEvent(new window.Event("change", { bubbles: true }));
-  const next = [...pane.el.querySelectorAll("button")].find((b) => /next/i.test(b.getAttribute("aria-label") ?? ""));
-  assert.ok(next, "the next-book arrow");
-  next.click();
-  assert.deepEqual(asked.map((a) => a.jump), [true, false]);
-  assert.deepEqual(asked[0].p, at("romans", 1));
-  pane.destroy();
 });

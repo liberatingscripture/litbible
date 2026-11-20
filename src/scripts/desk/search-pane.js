@@ -16,8 +16,8 @@
 //   moves, so the list holds still.
 // - **A glossary result opens in the pane** (the entry cloned from /glossary/,
 //   fetched once a visit) with "Back to results" and "Open in the glossary";
-//   an article opens in a new tab, and an introduction in a Book Intro pane
-//   (E53, 2026-11-06; `env.showIntro`). A verse or topic result
+//   an article or an introduction opens in a new tab (a Book Intro pane
+//   showed the introduction from E53 to E173). A verse or topic result
 //   moves the LIT pane (`env.showPassage`) with a plain click, and is a real
 //   link otherwise, so a modified or middle click opens a tab and
 //   ref-preview.js previews it on hover.
@@ -74,14 +74,13 @@ import {
   pageLinkLabel,
   pageLinkText,
   passageMoveMessage,
-  introMoveMessage,
   noWayLinkLabel,
   noWayMessage,
   replacedMessage,
   resultTarget,
   verseRef,
 } from "../../lib/desk-search-pane.mjs";
-import { parsePassage, passageLabel } from "../../lib/desk-passage.mjs";
+import { introPath, passageLabel } from "../../lib/desk-passage.mjs";
 import { addableSheets, planAddPassages } from "../../lib/desk-sheet-add.mjs";
 import {
   checkAllLabel,
@@ -251,7 +250,7 @@ let backTold = false;
 /**
  * @param {{ paneId: string, env: object, getPlace: () => { bookKey: string } }} options
  *   `env` is desk-page.js's: `store`, `ctx`, `showPassage(passage, { beside })`,
- *   `showSheet(id)`, `showIntro(bookKey, { beside })`, `openGreekHit(hit, paneId)` and
+ *   `showSheet(id)`, `openGreekHit(hit, paneId)` and
  *   `backPlace()`, where the leading LIT pane's “←” goes (E168). `getPlace` is the passage
  *   being read, for "The book I’m reading". `sheets` is where the add
  *   buttons add: the open Sheets panes (`sheet-pane.js`) unless a test hands
@@ -550,12 +549,14 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   }
 
   function goTo(jump) {
-    // "Matthew intro" opens the book's introduction in a Book Intro pane, as a
-    // result for one does (E53), rather than moving the LIT pane to chapter 1.
+    // "Matthew intro" opens the book's introduction on its page in a new tab,
+    // as a result for one does (E173), rather than moving the LIT pane to
+    // chapter 1. introPath returns null for anything but a book (SEC-1).
     if (jump.kind === "book" && jump.intro) {
-      const result = env.showIntro(jump.bookKey, { beside: paneId });
-      const moved = result.moved ? passageLabel(parsePassage(result.moved)) : "";
-      tell(introMoveMessage(result, bookKeyToLabel(jump.bookKey), moved));
+      const href = introPath(jump.bookKey);
+      if (!href) return;
+      window.open(href, "_blank", "noopener,noreferrer");
+      tell(`The ${bookKeyToLabel(jump.bookKey)} introduction opened in a new tab.`);
       return;
     }
     showHere(
@@ -586,11 +587,11 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
    */
   function awayLink(href) {
     const target = resultTarget(href);
-    if (target.type !== "passage" && target.type !== "intro") return null;
+    if (target.type !== "passage") return null;
     const a = awayTab(make("a", "desk-search__away"));
     a.href = href;
     a.title = "Open on its page";
-    a.setAttribute("aria-label", pageLinkLabel(target.type === "intro" ? `the ${bookKeyToLabel(target.bookKey)} introduction` : passageLabel(target)));
+    a.setAttribute("aria-label", pageLinkLabel(passageLabel(target)));
     a.innerHTML = OPEN_PAGE_ICON;
     return a;
   }
@@ -716,10 +717,13 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
     if (!jump) return;
     const ref = jump.kind === "ref";
     const a = make("a", "desk-search__link desk-search__jump-link");
-    a.href = ref ? makeStudyReferenceHref(jump) : makeStudyBookHref(jump.bookKey);
+    const introHref = !ref && jump.intro ? introPath(jump.bookKey) : null;
+    a.href = ref ? makeStudyReferenceHref(jump) : introHref || makeStudyBookHref(jump.bookKey);
     const name = ref ? formatReferenceLabel(jump) : bookKeyToLabel(jump.bookKey);
     a.append(make("span", "desk-search__ref", `Go to ${name}${jump.intro ? " introduction" : ""}`));
-    a.dataset.jump = "";
+    // An introduction has no pane (E173): its row is a plain new-tab link.
+    if (introHref) awayTab(a);
+    else a.dataset.jump = "";
     jumpBox.append(a);
   }
 
@@ -1289,11 +1293,6 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       e.preventDefault();
       openedFrom = a;
       openEntry(target.id);
-    } else if (target.type === "intro") {
-      e.preventDefault();
-      const result = env.showIntro(target.bookKey, { beside: paneId });
-      const moved = result.moved ? passageLabel(parsePassage(result.moved)) : "";
-      tell(introMoveMessage(result, bookKeyToLabel(target.bookKey), moved));
     }
   });
 

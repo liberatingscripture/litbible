@@ -26,8 +26,7 @@
 //   also the keyboard's way to put any pane anywhere. × closes a pane.
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
 //   flagged "Leading" when more than one is open, and My Notes, This verse,
-//   Greek, Footnotes, and Book Intro follow it unless their "Stay here" is
-//   pressed (Book Intro by its book, E53).
+//   Greek, and Footnotes follow it unless their "Stay here" is pressed.
 // - **Each LIT pane keeps where its reader is** (`at`, 3e), and the active
 //   one's is the passage the following panes share, `layout.place`, so they
 //   follow it. They lead back too: a following pane's picker, This verse's
@@ -46,7 +45,7 @@
 //   is pane-move.js (Audit 8, LG8-8); `start()` hands each the layout.
 // - **A jump gives the LIT pane a way back** (E168; BVJ, 2026-11-19): a move
 //   from elsewhere (a Search pane result, a record in My Notes, a reference in
-//   a Book Intro or a footnote, a place typed in a following pane's picker) is
+//   a footnote, a place typed in a following pane's picker) is
 //   committed with `commitJump`, which `follow` passes on, and the pane's bar
 //   offers “← John 3:16” (lit-back.js). Never while a tour runs, and a tour
 //   starts and ends with none. Ctrl+Z is unchanged (rule 11).
@@ -88,7 +87,6 @@ import {
   setActive,
   setPin,
   setPlace,
-  showIntroIn,
   placeFor,
   litPlace,
   setLitAt,
@@ -100,8 +98,7 @@ import {
 } from "../../lib/desk-layout.mjs";
 import { markNames } from "../../lib/desk-lit-marks.mjs";
 import { noWayLinkLabel, noWayMessage, replacedMessage } from "../../lib/desk-search-pane.mjs";
-import { bookKeyToLabel } from "../../data/books.js";
-import { chapterPath, formatPassage, introPath, parseIntroParam, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { chapterPath, formatPassage, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
@@ -365,28 +362,9 @@ async function start() {
       noWay("greek", none.reason, { search: true, href: base ? `${base}?greek=${passage.verse}.${hit.t}#v${passage.verse}` : null });
     }
   };
-  // A book's introduction in a Book Intro pane (E53): from a Search pane's
-  // intro result, which keeps its place. Returns showIntroIn's { outcome,
-  // moved } for the Search pane to tell the reader; a replacement or a no-room
-  // outcome is said here, in the undo bar or the notice (E127).
-  const showIntro = (bookKey, { beside = null } = {}) => {
-    const room = panesBox.getBoundingClientRect();
-    const before = layout;
-    const result = showIntroIn(layout, bookKey, room.width, room.height, beside);
-    // A LIT pane moved to the book's chapter 1 by the result keeps its way back (E168).
-    const litMoved = result.moved && findPane(result.layout.root, result.layout.active)?.kind === "lit" ? result.layout.active : null;
-    if (result.layout !== layout) commitJump(result.layout, litMoved, { draw: result.outcome === "opened" || result.outcome === "replaced", quiet: result.outcome === "replaced" });
-    if (result.outcome === "replaced") {
-      const extra = result.moved ? `The LIT moved to ${passageLabel(parsePassage(result.moved))}.` : "";
-      sayReplaced(replacedMessage("intro", result.replaced.kind, { extra }), before);
-    } else if (result.outcome === "none" && result.reason) {
-      noWay("intro", result.reason, { search: Boolean(beside), what: bookKeyToLabel(bookKey), href: introPath(bookKey) });
-    }
-    return { outcome: result.outcome, moved: result.moved };
-  };
   // Where the leading LIT pane's Back goes (E168), for the Search pane's line.
   const backPlace = () => paneEls.get(layout.active)?.inst?.backPlace?.() ?? null;
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showIntro, openGreekHit, backPlace };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, openGreekHit, backPlace };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -714,7 +692,7 @@ async function start() {
 
   /**
    * Leaving Reading by any way at all (Add pane, a drag, a pane's kind, a
-   * link's sheet or introduction, as well as the Layout window) turns back on
+   * link's sheet, as well as the Layout window) turns back on
    * the marks it turned off (DK3-2; BVJ, 2026-11-07). The layout does that
    * itself, whatever changed it (desk-layout.mjs, settleActive); this is the
    * names of the marks that came back, for the page to say, or null. The
@@ -838,8 +816,8 @@ async function start() {
       const lead = el("span", "desk-pane__lead");
       lead.innerHTML = ICON_FLAG;
       lead.setAttribute("role", "img");
-      lead.setAttribute("aria-label", "Leading pane: My Notes, This verse, Greek, Footnotes, and Book Intro follow it");
-      setTip(lead, "Leading: My Notes, This verse, Greek, Footnotes, and Book Intro follow this pane");
+      lead.setAttribute("aria-label", "Leading pane: My Notes, This verse, Greek, and Footnotes follow it");
+      setTip(lead, "Leading: My Notes, This verse, Greek, and Footnotes follow this pane");
       const pin = el("button", "desk-pane__pin");
       pin.type = "button";
       // A glyph, and "Stay here" beside it where the header is wide enough
@@ -1232,8 +1210,8 @@ async function start() {
   // else a new one beside the active pane. A sheet that isn't in this
   // notebook is ignored without a word. The parameter is stripped either way,
   // so a reload doesn't pull the pane back.
-  const arrivedAs = layout; // before a sheet or an introduction in the address moves panes
-  // What a sheet or an introduction in the address did (E127): the sentences
+  const arrivedAs = layout; // before a sheet in the address moves panes
+  // What a sheet in the address did (E127): the sentences
   // for a pane that took another's place, and the first that found no room.
   const arrivalSaid = [];
   let arrivalNoWay = null;
@@ -1262,36 +1240,18 @@ async function start() {
     }
   }
 
-  // ---- a book's introduction named in the address (E53) ----
+  // ---- an old ?intro= address (E53, retired by E173) ----
 
-  // /desk/?intro=romans (an introduction page's "Open in Study Desk", with
-  // ?place= at its chapter 1) shows it in a Book Intro pane: one already open,
-  // else a new one beside the active pane where the width holds it, as ?sheet=
-  // does. Stripped either way.
-  const introBook = parseIntroParam(new URLSearchParams(location.search).get("intro"));
+  // /desk/?intro=romans opened a Book Intro pane. There is none now, so an
+  // old link's parameter is stripped and otherwise ignored.
   if (new URLSearchParams(location.search).has("intro")) {
     try {
       const url = new URL(location.href);
       url.searchParams.delete("intro");
       history.replaceState(history.state, "", url);
     } catch (_) {}
-    if (introBook) {
-      const result = showIntroIn(layout, introBook, panesBox.getBoundingClientRect().width);
-      if (result.layout !== layout) {
-        layout = result.layout;
-        save();
-      }
-      // A replacement or no room: said once the panes are drawn, as the
-      // Search pane says them (DK3-3; BVJ, 2026-11-07; E127).
-      if (result.outcome === "replaced") {
-        const extra = result.moved ? `The LIT moved to ${passageLabel(parsePassage(result.moved))}.` : "";
-        arrivalSaid.push(replacedMessage("intro", result.replaced.kind, { extra }));
-      } else if (result.outcome === "none" && result.reason) {
-        arrivalNoWay ??= { kind: "intro", reason: result.reason, what: bookKeyToLabel(introBook), href: introPath(introBook) };
-      }
-    }
   }
-  // A sheet or an introduction may have opened a pane beside Reading's one.
+  // A sheet may have opened a pane beside Reading's one.
   const arrivalMarks = leaveReading(arrivedAs);
 
   // `/` (keyboard-shortcuts.js): the first Search pane's field, or the one
@@ -1355,7 +1315,7 @@ async function start() {
   else if (arrival.layout !== arrival.before && layout === arrivedAs) {
     tellArrangement(ARRANGEMENTS.find((a) => a.id === "reading"), arrival.before, layout);
   } else if (arrivalSaid.length || arrivalNoWay) {
-    // What a sheet or an introduction in the address did, in one bar: Undo
+    // What a sheet in the address did, in one bar: Undo
     // puts the layout back as the page opened it. A notice too, if one found
     // no room, rides along with its link (E127).
     const way = arrivalNoWay;

@@ -117,18 +117,18 @@ if (headerKind === "chapter") {
 }
 
 // The Study Desk pill's address (E50, BVJ 2026-11-06): /desk at the chapter
-// being read (E8's ?place=), and on a book's introduction at chapter 1 with
-// the introduction in a Book Intro pane beside it (E53's ?intro=). The pill is
+// being read (E8's ?place=), and on a book's introduction at chapter 1 (the
+// desk has no pane for an introduction; E173 retired E53's ?intro=). The pill is
 // in the markup for every reader and shown by CSS only with the desk preview on.
 // The header's Study group takes the same address, so the two never disagree.
 const deskPlaceChapter = headerKind === "chapter" ? (headerChapter ?? 1) : 1;
 const deskPlaceHref =
   headerKind === "intro"
-    ? `/desk/?place=${pagefindBook}-1&intro=${pagefindBook}`
+    ? `/desk/?place=${pagefindBook}-1`
     : `/desk/?place=${pagefindBook}-${deskPlaceChapter}`;
 const deskPlaceLabel =
   headerKind === "intro"
-    ? `Open the ${bookKeyToLabel(pagefindBook)} introduction in Study Desk`
+    ? `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} 1`
     : `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
 const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
 // Which reading surface this is, for the Study Desk's pre-paint stamps

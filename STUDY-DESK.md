@@ -6189,7 +6189,8 @@ build):
    shared files).
 3. **Book Intro out** (E173), with its own words: the help page, the Study
    Desk tour's card on the panes that follow (its id kept), and the desk
-   `CLAUDE.md`. Sonnet.
+   `CLAUDE.md`. Sonnet. **Built 2026-11-19**; STUDY-DESK-FIXES.md E173 has
+   what changed.
 4. **The pane**: the `collection` kind, `collection-pane.js`, the layout
    field and `checkLayout`, the mount in `desk-panes.js`, references as
    jumps, a sheet into a Sheets pane, "Open on its own page," the page's

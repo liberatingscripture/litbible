@@ -77,7 +77,6 @@ function mount({ desk = false, env = {} } = {}) {
       store: null,
       ctx: () => ({ client: "web/test", contentVersion: "v1" }),
       showPassage: (passage) => (moves.push(passage), "moved"),
-      showIntro: () => ({ outcome: "shown", moved: null }),
       showSheet: () => true,
       openGreekHit: () => {},
       ...env,
@@ -188,6 +187,36 @@ test("E115: a search turns the link into “See results on the search page”, a
   await answered($);
   assert.equal($(".desk-search__page a").textContent, "See results on the search page");
   assert.equal($(".desk-search__page a").getAttribute("href"), "/search/?q=loved&mode=keyword");
+});
+
+test("E173: a typed “Matthew intro” offers the introduction as a new-tab link, with no pane and no second link", async () => {
+  const { $, input } = mount();
+  type(input, "Matthew intro");
+  const row = await until(() => $(".desk-search__jump a"));
+  assert.equal(row.getAttribute("href"), "/matthew-intro/");
+  assert.equal(row.getAttribute("target"), "_blank");
+  assert.match(row.getAttribute("rel"), /noopener/);
+  assert.match(row.getAttribute("rel"), /noreferrer/);
+  assert.equal(row.dataset.jump, undefined, "the browser opens it, the pane doesn't");
+  assert.match(row.textContent, /Go to Matthew introduction/);
+  assert.equal($(".desk-search__jump .desk-search__away"), null);
+  assert.equal(moves.length, 0, "the LIT pane didn't move");
+});
+
+test("E173: Enter on “Matthew intro” opens the introduction in a new tab and says so", async () => {
+  const { $, input } = mount();
+  const opened = [];
+  const was = window.open;
+  window.open = (...args) => (opened.push(args), null);
+  try {
+    type(input, "Matthew intro");
+    input.closest("form").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true }));
+    assert.deepEqual(opened, [["/matthew-intro/", "_blank", "noopener,noreferrer"]]);
+    assert.match($(".desk-search__note").textContent, /^The Matthew introduction opened in a new tab\.$/);
+    assert.equal(moves.length, 0);
+  } finally {
+    window.open = was;
+  }
 });
 
 test("E115: with a book filter set, the empty-box link keeps it", async () => {
@@ -357,7 +386,7 @@ async function addView(sheet, target) {
   document.documentElement.dataset.desk = "off";
   const pane = createSearchPane({
     paneId: `t${++n}`,
-    env: { store, ctx: () => ({ client: "web/test", contentVersion: "v1" }), showPassage: () => "moved", showIntro: () => ({ outcome: "shown" }), showSheet: () => true, openGreekHit: () => {} },
+    env: { store, ctx: () => ({ client: "web/test", contentVersion: "v1" }), showPassage: () => "moved", showSheet: () => true, openGreekHit: () => {} },
     getPlace: () => ({ bookKey: "john" }),
     sheets: { addTarget: () => target, onAddTarget: () => () => {} },
   });

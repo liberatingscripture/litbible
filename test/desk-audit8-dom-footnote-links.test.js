@@ -1,6 +1,6 @@
 // Links in a footnote's body on /desk (Audit 8, DK8-2; BVJ, 2026-11-10): a plain
-// click on a scripture reference moves the LIT pane (as the Book Intro pane's
-// does), a modified click keeps the browser's default, and every other link
+// click on a scripture reference moves the LIT pane (as the LIT pane's own
+// references do), a modified click keeps the browser's default, and every other link
 // opens in a new tab.
 
 import { test } from "node:test";

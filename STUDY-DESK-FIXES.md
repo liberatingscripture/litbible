@@ -1823,8 +1823,8 @@ BVJ was only wondering, the entry says so and nothing here is decided.)
   `introMoveMessage` in `desk-search-pane.mjs`, the pill in
   `ScriptureLayout.astro`, the styles in `desk.css`. No record or format
   change; a layout saved with the kind reads back in an older copy of the page
-  as "needs a newer copy." **Awaiting BVJ's look.** **The pane is to go**
-  (BVJ, 2026-11-19, E173), to make room for a Collections pane.
+  as "needs a newer copy." **The pane is gone** (BVJ, 2026-11-19, E173), to
+  make room for a Collections pane.
 
 - **E54, bug: Greek copied from the Greek tab pastes into a sheet as only its
   spaces, commas and verse numbers.** BVJ (2026-11-06): selected in the Greek
@@ -4836,7 +4836,25 @@ says so; where BVJ was wondering, nothing is decided.)
   - **Words**: the Study Desk tour's card on the panes that follow drops
     Book Intro (its id kept, so it isn't offered again as new), and so do
     the help page's “The kinds of pane” and “Panes that follow.”
-  Status: decided, not yet built (step 3 of the pane's order of work).
+  **Fixed** (step 3 of the pane's order of work), as above, with three
+  details the list didn't settle:
+  - **Enter on “Matthew intro”** opens the page in a new tab and the pane's
+    note says “The Matthew introduction opened in a new tab.” Its “Go to
+    Matthew introduction” row is a plain new-tab link, with no second link
+    beside it.
+  - **The pill on an introduction page** has the accessible name “Open in
+    Study Desk at Romans 1” (it was “Open the Romans introduction in Study
+    Desk”); its visible words are unchanged.
+  - **`makeInert`'s `siteImages` option went too** (`desk-inert.mjs`):
+    the Book Intro pane was its only caller (E120), so every image a
+    fetched page holds is removed again, with no exception left to guard.
+  The help page's example for E127's undo bar is now “Sheets shown in place
+  of Greek.” Tests: `test/desk-layout.test.js` (a saved Book Intro pane,
+  pinned or not, reads back as This verse with its place and pin),
+  `test/desk-audit8-dom-search-pane.test.js` (the typed introduction's row
+  and Enter), `test/desk-search-pane.test.js`, `test/desk-inert.test.js`;
+  `desk-intro-pane-images` and `desk-intro-text` went with the pane.
+  Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

@@ -475,9 +475,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
      beside the Read View wrapper, which stays hidden while the preview is on;
      its labels are E50's). Its `?place=` is the chapter
-     being read (`romans-8`), and on an introduction chapter 1 with
-     `&intro=romans`, which opens a Book Intro pane beside it (E53), written
-     out in the layout because shared reader code never imports
+     being read (`romans-8`), and on an introduction its chapter 1 (no pane
+     shows an introduction, E173), written out in the layout because shared reader code never imports
      `desk-passage.mjs`. **/read has a "Study Desk"
      pill matching "Go to passage"** (`.read-menu__desk`), linking
      to plain `/desk/`. Both pills are in the markup for everyone and shown
@@ -1160,7 +1159,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        off its pane's verse numbers, footnote letters, key terms, and
        highlights** (BVJ, 2026-11-04; `readingLayout`), and **leaving
        Reading by any way** (a row, Reset, Add pane, a drag, a pane's kind,
-       a link's `?sheet=` or `?intro=`; `settleActive`; BVJ, 2026-11-07,
+       a link's `?sheet=`; `settleActive`; BVJ, 2026-11-07,
        DK3-2) turns back on only those it turned off (the pane's
        `readingHid`) that are still off. A second press adds to that list,
        never replaces it (LV3-2). The undo bar names them, and Undo
@@ -1194,27 +1193,21 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
        foot), and Greek `tab-greek.js`. Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
-       **Book Intro is `intro-pane.js`** (E53): a follower
-       whose place is a passage like the others' but which reads only its
-       book, so the LIT pane's place stays a verse and no other follower
-       meets an introduction. It reads the built `/romans-intro/` page
-       (`introPath` guards the fetch),
-       its headings moved two levels down under the pane's. Site images under /images/ stay (E120). A plain click on
-       an `a.sref` in it moves the LIT pane (`env.showPassage`), and the pane
-       **holds its book while the LIT shows the passage it sent**, until the
-       LIT moves to any other book; every other link opens a new tab.
-       A scripture reference in a footnote on /desk follows the same rule (the
+       **No pane shows a book's introduction** (E173; BVJ, 2026-11-19, which
+       took E53's Book Intro pane out to leave the menus room for
+       Collections): an introduction opens on its page in a new tab, and a
+       layout saved with an `intro` pane reads back with This verse there
+       (`RETIRED_KINDS`). An old `?intro=` is stripped and ignored.
+       A plain click on a scripture reference in a footnote on /desk (the
        Footnotes pane, This verse as a pane, the LIT pane's footnote popover;
-       `footnote-links.js`; Audit 8, DK8-2; BVJ 2026-11-10), and any other link
-       in a footnote opens a new tab.
-       `showIntroIn`: a following Book Intro pane, else any, else the rule
-       below; the LIT moves to chapter 1 only when it is in another book.
+       `footnote-links.js`; Audit 8, DK8-2; BVJ 2026-11-10) moves the LIT pane
+       (`env.showPassage`), and any other link in a footnote opens a new tab.
        **One rule for a pane the desk opens by itself** (E127, BVJ,
-       2026-11-12; Sheets, Book Intro, a LIT or Greek result, Search from
+       2026-11-12; Sheets, a LIT or Greek result, Search from
        `/`): use one open; else open one with room; else take the place of
        the last non-LIT pane, never the asker (`keep`, which a Greek result
        widens to its Greek pane) or a "Stay here" pane (`makeWayFor`). The
-       undo bar says "Book Intro shown in place of Greek." and Undo restores
+       undo bar says "Sheets shown in place of Greek." and Undo restores
        the layout (`replacedMessage`); if none can, `showNotice` says why,
        with both ways on and the page's link (`noWayMessage`).
        **Long My Notes and notebook lists page** (LG8-2, BVJ, 2026-11-10): 200
@@ -1296,8 +1289,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        read are kept, moved into a document of their own (`keepParts`: the
        text, the footnotes and Go deeper; BA65), so a new reader of `doc`
        finds nothing else there, **and each part is made inert there**
-       (`makeInert`, `src/lib/desk-inert.mjs`; SEC3-2), as the intro pane's
-       section is, so no pane scrubs on its own and a new fetch of a site
+       (`makeInert`, `src/lib/desk-inert.mjs`; SEC3-2), as the Search pane's
+       glossary entry is, so no pane scrubs on its own and a new fetch of a site
        page goes through it before anything is imported. Each LIT pane keeps
        where its reader is (`at` on the pane), and the active one's is the
        shared passage, `layout.place` ("john 3:16",
@@ -1465,7 +1458,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        tighter and keep theirs. `test/desk-text-size.test.js` fails on a rule
        that doesn't, so a new one does the same. Five things to keep:
        1. **A pane sets its size once**, on `.desk-pane`. `.desk-lit__text`
-          and `.desk-intro__article` set none, or the scale is squared.
+          sets none, or the scale is squared.
        2. **A bar keeps its line** (`.desk-pane__head`, `.desk-passage`,
           `.desk-panel__head`, `.desk-panel__tabs` set a plain 1.5), so its
           height never moves with line spacing. A control in a pane's content
@@ -1519,7 +1512,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        links, so a modified click opens a tab and `ref-preview.js` previews them
        (on /desk the preview's "Open John 3" opens in a new tab, E136). A
        glossary entry is cloned from the fetched /glossary/ page; an article
-       opens in a new tab, an intro in a Book Intro pane (E53; `env.showIntro`).
+       or an introduction opens in a new tab, as does a typed “Matthew intro”
+       (E173; `introPath` builds that link).
        A Greek result goes through `env.openGreekHit`, and
        every Greek group carries `creditHtml` (rule 14). Its add buttons
        (checked verses, E117; topic chapters and Greek verses, E166) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`,

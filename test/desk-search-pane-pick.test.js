@@ -88,7 +88,6 @@ async function mount({ store = memoryStore(), showSheet = () => ({ outcome: "ope
       store,
       ctx: () => ({ client: "web/test", contentVersion: "v1" }),
       showPassage: () => "moved",
-      showIntro: () => ({ outcome: "shown" }),
       showSheet,
       openGreekHit: () => {},
     },

@@ -118,7 +118,6 @@ function mount({ store = memoryStore(), mode = "all", desk = false } = {}) {
       store,
       ctx: () => ({ client: "web/test", contentVersion: "v1" }),
       showPassage: () => "moved",
-      showIntro: () => ({ outcome: "shown" }),
       showSheet: (id) => (shown.push(id), { outcome: "open", changed: false }),
       openGreekHit: () => {},
     },
