@@ -446,7 +446,10 @@
   instead (`.desk-seg` takes the pills' fill and edge, and every Pin, the
   reading pages' too, is a flat toggle). The light fill stays
   white (BVJ chose it over a gray step, sky, and sunshine), 1.05:1 on a
-  near-white sheet, and the 3:1 edge and the shadow are what carry it there. The inventory is in
+  near-white sheet, and the 3:1 edge and the shadow are what carry it there.
+  **Measure it with a notebook that holds records, and with every menu,
+  window, and tab opened**: E159's sweep of empty pages missed the
+  collections page's buttons and the Highlight swatches (E169). The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
 - **The rest of the site takes the desk's look in `restyle.css`, behind
   `data-restyle`** (E132; BVJ, 2026-11-13). Layout.astro stamps it from

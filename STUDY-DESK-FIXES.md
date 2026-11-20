@@ -4693,6 +4693,38 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-way-back-dom.test.js` drives the pane, the bars and the routes;
   `test/desk-buttons-css.test.js` holds the arrow's ordinary look.
   Status: fixed.
+- **E169, bug: buttons E159 missed, the color of what lies behind them.**
+  BVJ, 2026-11-19, on D13's review: /collections/' “New collection…”, then
+  every action on a collection's page (Add passage…, Make a sheet, Add to
+  sheet…, Rename…, Print, Delete), showed the cream through a faint edge:
+  “Fix this one to the SITE 2.0 standards, and do a sweep for any others
+  we've missed.” E159's sweep (#610) measured the pages as an empty
+  notebook draws them, before /collections/ existed, so a button drawn only
+  beside records, or only in a menu that wasn't opened, was never measured.
+  Two causes:
+  - **`.desk-sheet__btn` was ordinary only inside a sheet.** E126 scoped it
+    to `:where(.desk-sheet, .sheets-page)` so the phone's shared sheet would
+    keep `desk-sheet-view.css`'s look, but that viewer never loads
+    `desk.css`, so the scope only took the fill from every such button
+    drawn elsewhere: the collections page, and any window or bar that uses
+    the class. The scope is gone, at the same weight.
+  - **A highlight color's swatch** (`.desk-swatch` as a button: the verse
+    menu's and selection panel's Highlight row, and the color filters in
+    My Notes and My Notebook) drew `--surface-raised` inside an edge of ink
+    at 18%, so in a menu or a panel it was the color of the surface. It is
+    a flat toggle now (`.desk-swatch:where(button)`, a class's weight), its
+    chosen filter the toggles' on look; a swatch that labels a highlight in
+    a row is a span and keeps no edge.
+  **The sweep**: on this branch's build, with the preview on and a notebook
+  holding one of each kind, a sheet, and two collections, every button with
+  an edge or a shadow was measured on 33 pages in both themes (its own fill
+  composited over what lies behind it), then again with each menu, window,
+  popover, and Notebook tab opened in turn. **Left alone, on purpose**:
+  /apps' church-year chips (mirrored with the LSC site, as #610 left them),
+  and /search's ⓘ tip, a glyph button (E126). With it BVJ asked for one
+  primary button on each collections view (E126's “at most one per pane or
+  view”): “New collection…” on the list, as “New sheet…” is on My sheets,
+  and “Add passage…” on one collection. Status: fixed.
 - **E170, bug: /desk's LIT pane had no "Add to sheet" in its verse menu.**
   BVJ, 2026-11-19, reviewing D13: “There is no "add collection" or "add to
   sheet" menu item in the verse menu in the LIT pane. That seems like an

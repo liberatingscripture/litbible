@@ -64,7 +64,7 @@ const ORDINARY = [
   ".desk-dp__retry",
   ".desk-search__btn:where(:not(.desk-search__btn--primary))", // Bible order, a toggle, and the strip's New sheet
   ".desk-search__choice",
-  ":where(.desk-sheet, .sheets-page) .desk-sheet__btn:where(:not(.desk-sheet__btn--primary))", // E121's Cancel among them
+  ".desk-sheet__btn:where(:not(.desk-sheet__btn--primary))", // E121's Cancel among them
   ".desk-sheet__choice",
   // Edged with no fill until E159 (BVJ, 2026-11-18: a button is never the color behind it).
   ".desk-note__edit", // a margin note's Edit
@@ -77,7 +77,7 @@ const ORDINARY = [
   ":where(.desk-print-menu__choices) > :is(a, button)",
   ".desk-rich-link__button:where(:not(.desk-rich-link__button--primary))",
 ];
-const PILLS = [".desk-pin",".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip"];
+const PILLS = [".desk-pin",".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip", ".desk-swatch:where(button)"];
 const PRIMARY = [".desk-sheet__btn--primary", ".desk-search__btn--primary", ".desk-editor__actions .desk-editor__save", ".desk-notice__actions .desk-notice__keep", ".desk-tour__next", ".desk-offer__go", ".desk-rich-link__button--primary"];
 const has = (list, sel) => `, ${list}, `.includes(`, ${sel}, `);
 
@@ -117,6 +117,17 @@ test("E159: a .desk-seg pill fills its choices and takes a control's 3:1 edge, a
   assert.ok(seg, "no .desk-seg rule");
   assert.match(seg[1], /background:\s*var\(--desk-control\)/, "its unchosen choices are a control's fill, not the background");
   assert.match(seg[1], /border:\s*1px solid var\(--field-border\)/);
+});
+
+test("E169: a highlight color's swatch is a flat toggle as a button, and paints no fill or edge of its own", () => {
+  // The menus' Highlight row and the color filters drew the menu's own
+  // surface inside a faint edge, so the button was the color behind it.
+  assert.ok(has(listFrom(kinds, PILLS[0]).list, ".desk-swatch:where(button)"), "the flat toggles take it, at a class's weight");
+  const plain = components.replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const m of plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!m[1].split(",").some((sel) => /\.desk-swatch(?![\w-])/.test(sel) && !/\.desk-swatch__sample/.test(sel))) continue;
+    assert.doesNotMatch(m[2], /(^|;)\s*(border(-color)?|background(-color)?|box-shadow)\s*:/, `${m[1].trim()} paints its own`);
+  }
 });
 
 test("E126: a toggle is an ordinary button with aria-pressed, or a pill", () => {
