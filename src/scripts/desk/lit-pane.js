@@ -35,7 +35,7 @@
 //   each chapter names its own reference and link, and "Copy with
 //   footnotes" reads the notes from the chapter's fetched page. Their "My
 //   Notebook" rows come from actions.js (Add to sheet from sheets/sheet-add.js,
-//   with sheet-pane.js's one-press add, E170), which read `book`, `chapter`
+//   E170 and E172), which read `book`, `chapter`
 //   and `textFor` from the panel's detail.
 //
 // - **The reader's marks** (3g): the pane puts its text on the desk's list

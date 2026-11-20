@@ -27,9 +27,10 @@
 //     plainly, with my notes, or with room to write. Its flyout is the shared
 //     one (panel-flyout.js), as Bookmark's is.
 //   - "Add to sheet ▸" after Add bookmark, in Chapter View and /desk's LIT pane
-//     (S12, part 2; E170; sheets/sheet-add.js): the reader's sheets and New
-//     sheet, and on /desk a one-press add to the Sheets pane's sheet
-//     (`paneSheet`, which desk-page.js hands in).
+//     (S12, part 2; E170; sheets/sheet-add.js): the reader's sheets, New
+//     sheet… and All sheets…, as Add to collection's row (E172). On /desk a
+//     pick of the Sheets pane's sheet goes through that pane (`paneSheet`,
+//     which desk-page.js hands in).
 //   - Read View: Bookmark and Highlight only. Notes are a Chapter View tool, and
 //     Read View shows none (audit C2; BVJ, 2026-10-07).
 //   - /desk's LIT pane (3f, 3g): Add a note, Bookmark and Highlight, with the chapter and its text from the panel's detail (`book`,

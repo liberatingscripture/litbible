@@ -20,10 +20,9 @@
 //   "Present…" are the last two steps' links.
 // - **The LIT pane's verse menu**, opened as a reader opens it, with a click on
 //   a verse number in view (else the first, brought into view in the LIT
-//   pane's own scroller, which `later` puts back). Its "Add to sheet" row adds
-//   in one press to the pane that counts as the target (E170), so the tour's
-//   pane is made the target first (`useAsTarget`, sheet-pane.js), and the
-//   step marks that row's own button, "Add to “…”".
+//   pane's own scroller, which `later` puts back). The step marks its "Add to
+//   sheet ▸" row, Chapter View's flyout (E172: no add is one press, so there
+//   is no button naming the pane's sheet to mark).
 // - **The passage** is the leading LIT pane's chapter, from the verse it is at
 //   (`litPassage`).
 // - **The offer** sits beside the Sheets pane, and is made only while one is
@@ -33,18 +32,16 @@
 import { addPane, addPaneNeeds, originalLayout, panes, setKind } from "../../../lib/desk-layout.mjs";
 import { closePanel, currentPanel } from "../../lit-panel.js";
 import { waitFor } from "../tour-runner.js";
-import { useAsTarget } from "./sheet-pane.js";
 import { bringIntoView, createSheetTour } from "./sheet-tour.js";
 
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
 /**
- * The LIT pane's "Add to sheet" row's own button, "Add to “…”", which adds to
- * the Sheets pane's sheet (sheets/sheet-add.js, E170): the first button of its
- * split row, or of its flat chips.
+ * The LIT pane's "Add to sheet ▸" row (sheets/sheet-add.js): the flyout's
+ * trigger, or a finger's flat chips whole.
  */
 function addButton(menu) {
-  return menu.querySelector(".desk-sheet-add .lit-flyout__split > button, .desk-sheet-add .lit-panel__row > button");
+  return menu.querySelector(".desk-sheet-add .lit-flyout__trigger") ?? menu.querySelector(".desk-sheet-add > *");
 }
 
 /**
@@ -150,8 +147,7 @@ export function createDeskSheetTour(api) {
       };
     },
 
-    async verseMenu({ live, later, editor }) {
-      useAsTarget(editor);
+    async verseMenu({ live, later }) {
       const lit = panes(api.getLayout().root).find((p) => p.kind === "lit");
       const body = recOf(lit?.id)?.body;
       if (!body) return null;

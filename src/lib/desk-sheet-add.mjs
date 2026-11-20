@@ -2,9 +2,10 @@
 //
 // "Add to sheet ▸" on a chapter page (STUDY-DESK.md, S12, part 2, way 3; BVJ,
 // 2026-11-08, decision 3): the verse menu and the selection panel list the
-// reader's sheets, newest change first, and "New sheet". Picking one adds the
-// passage without leaving the page. Past five, "All sheets…" opens a window
-// listing every one (E154). Pure: the page reads the notebook and
+// reader's sheets, newest change first, and "New sheet…" (a name window, as
+// "New collection…" is; E172). Picking one adds the passage without leaving the
+// page. Past five, "All sheets…" opens a window listing every one (E154). No
+// add is ever one press (E172, as D13's decision 17 is for collections). Pure: the page reads the notebook and
 // writes the plan in one `store.change`, as every change to a sheet is
 // written (BA129).
 
@@ -82,16 +83,22 @@ export function planAddPassages(current, passages, ctx) {
 }
 
 /**
- * "New sheet": a blank sheet holding the passage alone, named after it, so
- * the leader can find it in their list and rename it there.
+ * "New sheet…": a blank sheet holding the passage alone, with the title the
+ * reader gave it in the name window (E172, as "New collection…" asks for a
+ * name), which starts as the passage's reference; a blank title falls back to
+ * that reference, so the sheet can be found in a list.
  */
-export function newSheetWithPassage(fields, ctx) {
-  return createSheet({ title: passageReference(fields), template: "blank", modules: [makeModule("passage", fields)] }, ctx);
+export function newSheetWithPassage(fields, ctx, title = "") {
+  const named = String(title ?? "").trim().slice(0, SHEET_LIMITS.title);
+  return createSheet({ title: named || passageReference(fields), template: "blank", modules: [makeModule("passage", fields)] }, ctx);
 }
 
-/** What the undo bar says once a passage is added. */
-export function addedMessage(fields, name, { made = false, again = false } = {}) {
+/**
+ * What the undo bar says once a passage is added, to a sheet already kept or
+ * one just made (E172: the reader named it, so it says what "New collection…"
+ * says).
+ */
+export function addedMessage(fields, name, { again = false } = {}) {
   const ref = passageReference(fields);
-  if (made) return `${ref} is on a new sheet, “${name}.”`;
   return again ? `${ref} added to “${name}” again; it was already there.` : `${ref} added to “${name}.”`;
 }

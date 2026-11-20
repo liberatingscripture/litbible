@@ -44,6 +44,10 @@ test("the tour imports nothing that is the desk's alone; its desk host does", ()
   const tour = imports("src/scripts/desk/sheets/sheet-tour.js");
   for (const desk of ["lit-panel.js", "sheet-pane.js", "desk-layout.mjs"]) {
     assert.ok(!tour.some((from) => from.endsWith(`/${desk}`)), desk);
+  }
+  // The host needs two of them (sheet-pane.js only for E170's `useAsTarget`,
+  // gone with the one-press add, E172).
+  for (const desk of ["lit-panel.js", "desk-layout.mjs"]) {
     assert.ok(imports("src/scripts/desk/sheets/sheet-tour-desk.js").some((from) => from.endsWith(`/${desk}`)), desk);
   }
   // /desk builds the tour through its host.

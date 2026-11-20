@@ -1,10 +1,10 @@
-// "Add to sheet" in /desk's LIT pane (STUDY-DESK-FIXES.md E170; BVJ,
+// "Add to sheet" in /desk's LIT pane (STUDY-DESK-FIXES.md E170 and E172; BVJ,
 // 2026-11-19): the LIT pane's verse menu and selection panel have Chapter
-// View's "Add to sheet ▸" row. While a Sheets pane shows a sheet, the row is
-// split: its own button adds to that sheet in one press, through the pane
-// (`paneSheet`), and its chevron opens the same flyout, where a pick of the
-// pane's sheet goes through the pane too. Over the real actions.js, with a
-// notebook stub and a stand-in for the Sheets pane.
+// View's "Add to sheet ▸" row, and it stays that row while a Sheets pane shows
+// a sheet: no one-press "Add to “…”" (E172, as collections have none). A pick
+// of the pane's sheet in the flyout goes through the pane (`paneSheet`), so
+// the passage shows there at once. Over the real actions.js, with a notebook
+// stub and a stand-in for the Sheets pane.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -104,7 +104,7 @@ test("E170: with no sheet in a Sheets pane, the LIT pane's menu has Chapter View
   assert.ok(row, "an Add to sheet row");
   assert.equal(row.querySelector(".lit-flyout__trigger")?.textContent.trim(), "Add to sheet");
   assert.equal(row.querySelector(".lit-flyout__split"), null, "not split");
-  assert.deepEqual(names(row), ["“Freedom”", "“Lent”", "New sheet"]);
+  assert.deepEqual(names(row), ["“Freedom”", "“Lent”", "New sheet…"]);
 });
 
 test("E170: the row sits before Add to collection, as in Chapter View", async () => {
@@ -116,28 +116,21 @@ test("E170: the row sits before Add to collection, as in Chapter View", async ()
   assert.ok(sheet >= 0 && collection > sheet);
 });
 
-test("E170: with a sheet in a Sheets pane, the row's own button adds there in one press", async () => {
+test("E172: with a sheet in a Sheets pane the row is still the plain flyout, the five changed last: no one-press add", async () => {
   inPane = { id: lent.id, name: "Lent" };
-  answer = { message: "John 3:16 added.", again: false };
   added.length = 0;
   writes.length = 0;
   const panel = await openMenu();
-  const split = panel.querySelector(".desk-sheet-add .lit-flyout__split");
-  assert.ok(split, "a split row");
-  const [main, more] = split.querySelectorAll("button");
-  assert.equal(main.textContent, "Add to “Lent”");
-  assert.equal(more.getAttribute("aria-label"), "Add to another sheet");
-  // The chevron's flyout still lists every sheet.
-  assert.deepEqual(names(panel.querySelector(".desk-sheet-add")), ["“Freedom”", "“Lent”", "New sheet"]);
-  main.click();
+  const row = panel.querySelector(".desk-sheet-add");
+  assert.equal(row.querySelector(".lit-flyout__split"), null, "not split");
+  const trigger = row.querySelector(".lit-flyout__trigger");
+  assert.equal(trigger?.textContent.trim(), "Add to sheet", "the row never names a sheet");
+  assert.equal([...row.querySelectorAll("button")].some((b) => /^Add to “/.test(b.textContent)), false);
+  // The pane's sheet keeps its place among the others: newest change first.
+  assert.deepEqual(names(row), ["“Freedom”", "“Lent”", "New sheet…"]);
+  trigger.click();
   await settle(5);
-  assert.equal(added.length, 1);
-  assert.equal(added[0].bookKey, "john");
-  assert.equal(added[0].chapter, 3);
-  assert.equal(added[0].verse, 16);
-  assert.equal(added[0].endVerse, 16);
-  assert.equal(writes.length, 0, "written through the pane, not the notebook");
-  assert.equal(main.textContent, "Added ✓");
+  assert.equal(added.length + writes.length, 0, "opening the flyout adds nothing");
 });
 
 test("E170: a pick of the pane's sheet in the flyout goes through the pane; another sheet is written directly", async () => {
@@ -150,7 +143,8 @@ test("E170: a pick of the pane's sheet in the flyout goes through the pane; anot
   pick("“Lent”").click();
   await settle(5);
   assert.equal(added.length, 1);
-  assert.equal(writes.length, 0);
+  assert.deepEqual([added[0].bookKey, added[0].chapter, added[0].verse, added[0].endVerse], ["john", 3, 16, 16]);
+  assert.equal(writes.length, 0, "written through the pane, not the notebook");
   panel = await openMenu();
   pick("“Freedom”").click();
   await settle(5);
@@ -158,19 +152,18 @@ test("E170: a pick of the pane's sheet in the flyout goes through the pane; anot
   assert.equal(writes.length, 1, "one change to the notebook");
 });
 
-test("E170: a passage already on the pane's sheet is added again, and the line saying so shows under the row", async () => {
+test("E170: a passage already on the pane's sheet is added again, and the line saying so shows under the pick", async () => {
   inPane = { id: lent.id, name: "Lent" };
   answer = { message: "John 3:16 added again; it was already on the sheet.", again: true };
   const panel = await openMenu();
-  const main = panel.querySelector(".desk-sheet-add .lit-flyout__split button");
-  main.click();
+  const lentPick = [...panel.querySelectorAll(".desk-sheet-add .lit-flyout__menu button")].find((b) => b.textContent.trim() === "“Lent”");
+  lentPick.click();
   await settle(5);
-  assert.equal(main.textContent, "Added again ✓");
-  const hint = panel.querySelector(".desk-sheet-add .lit-panel__hint");
-  assert.equal(hint?.textContent, "John 3:16 added again; it was already on the sheet.");
+  assert.equal(lentPick.textContent, "Added again ✓");
+  assert.equal(panel.ownerDocument.body.textContent.includes("John 3:16 added again; it was already on the sheet."), true);
 });
 
-test("E170: the pane's one-press add is the LIT pane's alone; Chapter View keeps the plain flyout", async () => {
+test("E172: Chapter View's row is the same plain flyout, a Sheets pane or not", async () => {
   inPane = { id: lent.id, name: "Lent" };
   const panel = await openMenu("study");
   const row = panel.querySelector(".desk-sheet-add");

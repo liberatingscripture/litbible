@@ -285,14 +285,14 @@ async function verseMenu(store, { restoreFocus = null } = {}) {
 test("five sheets or fewer: the flyout lists them all and has no All sheets…", async () => {
   freshPage();
   const { names } = await verseMenu(memoryStore(sheets(5)));
-  assert.deepEqual(names(), ["“S4”", "“S3”", "“S2”", "“S1”", "“S0”", "New sheet"]);
+  assert.deepEqual(names(), ["“S4”", "“S3”", "“S2”", "“S1”", "“S0”", "New sheet…"]);
   assert.equal(needsAllSheets(addableSheets(sheets(5))), false);
 });
 
-test("more than five: the flyout lists the five changed last, New sheet, then All sheets…", async () => {
+test("more than five: the flyout lists the five changed last, New sheet…, then All sheets…", async () => {
   freshPage();
   const { menu, names } = await verseMenu(memoryStore(sheets(7)));
-  assert.deepEqual(names(), ["“S6”", "“S5”", "“S4”", "“S3”", "“S2”", "New sheet", "All sheets…"]);
+  assert.deepEqual(names(), ["“S6”", "“S5”", "“S4”", "“S3”", "“S2”", "New sheet…", "All sheets…"]);
   const more = [...menu.querySelectorAll("button")].at(-1);
   assert.equal(more.getAttribute("role"), "menuitem");
   assert.equal(more.getAttribute("aria-haspopup"), "dialog");
@@ -345,6 +345,66 @@ test("Escape closes the window and gives focus to the verse number the keyboard 
   key(filterBox(), "Escape");
   assert.equal(win(), null);
   assert.equal(focused() === v17, true);
+});
+
+/* ── "New sheet…" (E172: as "New collection…" is) ─────────────────── */
+
+const newSheetButton = (menu) => [...menu.querySelectorAll("button")].find((b) => b.textContent === "New sheet…");
+
+test("E172: New sheet… asks for a title, starting as the passage's reference, and adds nothing until Create", async () => {
+  freshPage();
+  const store = memoryStore(sheets(2));
+  const { panel, menu } = await verseMenu(store);
+  const fresh = newSheetButton(menu);
+  assert.equal(fresh.getAttribute("aria-haspopup"), "dialog");
+  fresh.click();
+  await settle(10);
+  assert.equal(panel.isConnected, false, "the verse menu closed");
+  assert.ok(win(), "the name window is open");
+  assert.equal(win().querySelector(".lit-window__title").textContent, "New sheet");
+  assert.equal(win().querySelector(".desk-pick__lead").textContent, "John 3:16 will be its first passage.");
+  const title = win().querySelector("input");
+  assert.equal(title.value, "John 3:16");
+  assert.equal(focused() === title, true, "the title box has focus");
+  assert.equal((await store.byKind("sheet")).length, 3, "nothing written while the window is open");
+});
+
+test("E172: Create makes the sheet with the title typed, holding the passage, says so on the undo bar, and gives focus back", async () => {
+  freshPage();
+  const store = memoryStore(sheets(2));
+  const { menu } = await verseMenu(store);
+  newSheetButton(menu).click();
+  await settle(10);
+  win().querySelector("input").value = "Lent study";
+  win().querySelector("form").requestSubmit();
+  await settle(20);
+  assert.equal(win(), null, "the window closed");
+  const made = (await store.byKind("sheet")).find((r) => r.title === "Lent study");
+  assert.ok(made, "the sheet was made with the title typed");
+  assert.deepEqual(
+    made.modules.map((m) => [m.type, m.bookKey, m.chapter, m.verse, m.endVerse]),
+    [["passage", "john", 3, 16, 16]],
+  );
+  assert.equal(barText(), "John 3:16 added to “Lent study.”");
+  assert.match(document.querySelector(".desk-undo__link").getAttribute("href"), new RegExp(`/sheets/\\?id=${encodeURIComponent(made.id)}$`));
+  assert.equal(focused() === document.querySelector("#v16"), true, "focus is on the verse number");
+});
+
+test("E172: Cancel in New sheet… makes nothing; an empty title is asked for", async () => {
+  freshPage();
+  const store = memoryStore(sheets(2));
+  const { menu } = await verseMenu(store);
+  newSheetButton(menu).click();
+  await settle(10);
+  win().querySelector("input").value = "  ";
+  win().querySelector("form").requestSubmit();
+  await settle(10);
+  assert.equal(win().querySelector(".desk-sheet__problem").textContent, "Type a title first.");
+  [...win().querySelectorAll("button")].find((b) => b.textContent === "Cancel").click();
+  await settle(10);
+  assert.equal(win(), null);
+  assert.equal((await store.byKind("sheet")).length, 3, "no sheet made");
+  assert.equal(barText(), "");
 });
 
 test("a sheet changed while the window is open shows there at once", async () => {
