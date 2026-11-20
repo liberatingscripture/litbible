@@ -41,8 +41,8 @@ it holds. Computer only; the apps carry it untouched.
   document's title and history, keeping the view drawn as the store changes;
   `mountCollectionsPage` takes `chapterText`, `passageText` and `parse` so a
   test needs no network), `collection-list.js` (the list and the empty page),
-  `collection-view.js` (one collection: actions, order switch, members on
-  `.v2-sheet`, Add ▾ and its passage form, headings, moving), `name-window.js` (the one
+  `collection-view.js` (one collection: actions, order switch, the members
+  as sheets, Add ▾ and its passage form, headings, moving), `name-window.js` (the one
   name/description window, and `nameForm`, its form without the window),
   `new-collection.js` (`newCollectionForm`, the list's form in place, E190,
   and `openNewCollection`, the window, which step 3's "New collection…"
@@ -50,11 +50,12 @@ it holds. Computer only; the apps carry it untouched.
   `add-passage.js` (`addPassageToCollection`: the one way a passage goes
   in from outside the page, the verse menu's and This verse's, so both say
   "John 3:16 added to Advent series." with Open the collection, or that it
-  is there already). Styles: the rows' rules (the actions row, the order
+  is there already; `alsoInside` adds "It’s also inside Luke 1:46–55.",
+  E194). Styles: the rows' rules (the actions row, the order
   bar, headings, a passage's cut at three lines) are `desk.css`'s
   "Collections (D13)" section, where the pane reads them too;
-  `styles/v2/collections.css` keeps the page's frame (its widths and the
-  members' `.v2-sheet` padding, every selector behind `:root[data-restyle]`),
+  `styles/v2/collections.css` keeps the page's frame (its widths, and one
+  collection's column, every selector behind `:root[data-restyle]`),
   and `styles/pages/collections.css` the note without the desk and the
   page's text size: /sheets' rule (`--sheet-ui`, and `--desk-ui` for the
   notebook's rows, from `--reading-scale`), its root's `.desk-np` 1rem and
@@ -79,7 +80,11 @@ it holds. Computer only; the apps carry it untouched.
   checkbox per collection, by name so a ticked box never moves, and an
   inline New collection; each tick is one `store.change` through
   `planAddItems` or `removeItem`, writing the collection only), and
-  `collectionsTag`, the quiet button My Notes and This verse use.
+  `collectionsTag`, the quiet button My Notes and This verse use. Its words
+  say where the item is (E202, `keepCollectionsWords`, which the lists and
+  `my-sheets.js` call too): **every such button shares one listener and one
+  read per store**, dropped once off the page, so a list of hundreds costs one
+  read per change to a collection; keep it so.
   `record-rows.js` takes `onCollections`, which `kept-list.js` passes and
   the collection page doesn't, so its rows keep no buttons;
   `sheets/my-sheets.js`' `sheetRow` (the Sheets pane and /sheets/) loads
@@ -117,7 +122,10 @@ it holds. Computer only; the apps carry it untouched.
   rule line (`ruleLine` in `collection-view.js`, one per rule) reads "Every
   bookmark labeled Advent · 12" with `desk-item__stop` links Stop adding new
   ones (`ruleToItems`), Remove (`removeRule`), and one "Bring back …" per
-  bookmark left out (`bringBack`); a rule whose label is gone says so and can
+  bookmark left out (`bringBack`, which puts it back where it was when the
+  view remembers `leftOutPlace`, E201: **for the visit only**, since the
+  record keeps no place; after a reload it comes back by the rule, at the
+  end); a rule whose label is gone says so and can
   only be removed. A bookmark a rule brings in says "· from Advent" in its
   kind line and has "Leave it out of this collection" (`leaveOut`) in place
   of Remove. Deleting a label a rule uses asks first on its row (the bulk
@@ -205,8 +213,7 @@ keep:
 - **The two homes differ only by host fields** (decisions 26, 27, 29, 32 and
   36): the page gives `deskHref` ("Open in the Study Desk," last, in this
   tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
-  Print's place), `plainMembers` (the members on the pane, no `.v2-sheet`)
-  and `goHere` (a plain click on a reference runs it), and `listHead` (E186:
+  Print's place) and `goHere` (a plain click on a reference runs it), and `listHead` (E186:
   the list's title and "New collection" in one row, no ellipsis, as a Sheets
   pane's "My sheets" and "New sheet"; the page's "New collection…" sits under
   its title, as /sheets' "New sheet…" does), while the page gives
@@ -353,9 +360,10 @@ second draft of the mocks takes from where:
   as "New sheet…" is on My sheets, and "Add ▾" on one collection,
   whose passage form's Add stays ordinary. Its menu is the desk's button
   menu (`desk/button-menu.js`, the sheet gap pill's, `desk-pane__menu`),
-  its caret drawn as /sheets' "Save as ▾" (E177). The members lie on a
-  `.v2-sheet` as the desk's own rows (`record-rows.js`), group names are
-  `.v2-label`, and a heading starts with `.v2-rule`.
+  its caret drawn as /sheets' "Save as ▾" (E177). The members are the
+  desk's own rows (`record-rows.js`), each on a sheet (below), group names
+  are My Notebook's `.desk-np__h3` (E195), and a heading starts with
+  `.v2-rule`.
 - **A passage's words, and a bookmark's verse** (E171; BVJ, 2026-11-19) are
   set as a scripture page sets them: `passageWords` (`sheets/sheet-lit.js`)
   hands over the chapter's own blocks, so paragraphs, poetry lines, italics
@@ -365,9 +373,40 @@ second draft of the mocks takes from where:
   drawn as one paragraph. Past three lines they are cut, with a pinned
   footnote's row and caret (`.desk-item__pin-row`, `.desk-item__more`, E118;
   open for the visit, by row key); a line clamp can't reach into
-  paragraphs, so the cut is a height of `3lh` in `v2/collections.css`, the
-  last line faded while cut (`--cut`). Print always shows them whole. Test:
+  paragraphs, so the cut is a height of `3lh` in `desk.css`, the last line
+  faded while cut (`--cut`). A pinned footnote is cut the same way (`cutRow`,
+  E199). Print always shows them whole. Test:
   `test/desk-collections-passage-words.test.js`.
+- **Three new looks BVJ approved** (2026-11-20, from a new reader's
+  walkthrough; STUDY-DESK-FIXES.md E192 to E207). Nothing else is new.
+  1. **One sheet per record** (E192): each member is a
+     `.collection-page__member`, which shares the sheet editor's module rule
+     (`.desk-sheet__module, .collection-page__member`), so a collection's
+     members look like a sheet's parts. Members of one kind in a row are one
+     `ul.collection-page__run` and touch (their edges overlap 1px); the
+     column's 10px gap, a sheet's own, falls between runs, labels and
+     headings. Page and pane alike, in all three orders; the pane's cards
+     take `--desk-pane-card` by E185's rule.
+  2. **The sheet glyph** (E197): a page with a folded corner before
+     "Sheet" in a kind line, as the Pin's thumbtack goes before "Pinned
+     footnote" (`addKindGlyph` in `glyphs.js`), `aria-hidden`.
+  3. **The membership wording** (E202): a row's "Collections…" reads "In
+     Advent small group," "In 2 collections," or "Collections…"
+     (`keepCollectionsWords`).
+- **Bible order nests** (E193; `nestRows`, `src/lib/desk-collection-nest.mjs`,
+  whose header states the rule): a record wholly inside a collected passage
+  lies on that passage's sheet, under its words; a smaller passage nests with
+  its records beside it, one level deep; a partial overlap stands alone; of
+  two passages that partly overlap, a record inside both goes under the first
+  in Bible order. A nested bookmark or passage draws no words. By type and
+  My order never nest.
+- **My order's "+ Heading"** is the sheet editor's gap pill
+  (`.desk-sheet__after`, E196): above the first row and under each, one Tab
+  stop, the arrows moving among them, as DK6-1 made the editor's.
+- **One collection's page has the sheet editor's column** (E207; BVJ: "match
+  the column width while editing a sheet on the /sheets page"), keyed on the
+  title's `data-collection-shown`, which also tells `collectionLink` to leave
+  "Open the collection" off the undo bar (E205). The list keeps My sheets'.
 - **The order switch** is `.desk-seg` (My Notes' segmented choice). Sky
   never marks a toggle (E160).
 - **Moving in My order** is the sheet editor's grip to drag
