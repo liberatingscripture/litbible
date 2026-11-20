@@ -39,7 +39,7 @@ import {
   splitFromPointer,
 } from "../../lib/desk-greek-split.mjs";
 import { WIDTHS_EVENT, keepGreekSplit, keptGreekSplit } from "./widths.js";
-import { clickOrDrag, isMenuKey, toggleLineMenu } from "./line-menu.js";
+import { wireLine } from "./line-menu.js";
 import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
@@ -966,67 +966,38 @@ export function createGreekTab({
   };
   document.addEventListener(WIDTHS_EVENT, onWidths);
 
-  splitter.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    clickOrDrag(splitter, e, {
-      move: (ev) => {
-        splitter.classList.add("desk-greek__split--dragging");
-        const next = splitFromPointer({
-          y: ev.clientY,
-          top: visibleScroller().getBoundingClientRect().top,
-          bottom: details.getBoundingClientRect().bottom,
-        });
-        if (next != null) setShare(next);
-      },
-      end: () => splitter.classList.remove("desk-greek__split--dragging"),
-      click: (ev) => openSplitMenu({ x: ev.clientX, y: ev.clientY }),
-    });
+  // As every draggable line is (line-menu.js): Up raises it (the entry
+  // grows), Down lowers it, Shift takes bigger steps, and Home and End take it
+  // to the top and the bottom. A click, Enter or Space opens its menu, whose
+  // last line lets the entry size itself again (it was Enter and a double
+  // click until XA8-1). The menu's steps are two arrow steps a press, a tenth
+  // of the room.
+  wireLine(splitter, {
+    along: "horizontal",
+    draggingClass: "desk-greek__split--dragging",
+    drag: (_, ev) => {
+      const next = splitFromPointer({
+        y: ev.clientY,
+        top: visibleScroller().getBoundingClientRect().top,
+        bottom: details.getBoundingClientRect().bottom,
+      });
+      if (next != null) setShare(next);
+    },
+    nudge: (dir, big) => setShare(clampSplit((share ?? measuredShare()) - dir * (big ? 5 : 1) * SPLIT_STEP)),
+    toEnd: (dir) => setShare(dir < 0 ? MAX_SPLIT : MIN_SPLIT),
+    menu: () => {
+      // Its limits are read from the line's value, which the entry sizing
+      // itself leaves unset.
+      writeSplitValue(share ?? measuredShare());
+      return {
+        label: "Entry size",
+        more: "Larger entry",
+        less: "Smaller entry",
+        step: (dir) => setShare(clampSplit((share ?? measuredShare()) + dir * 2 * SPLIT_STEP)),
+        reset: { label: "Let the entry size itself", run: () => setShare(null), shown: () => share != null },
+      };
+    },
   });
-
-  // The grip sits beside the pointer, at its place along the line.
-  splitter.addEventListener("pointermove", (e) => {
-    splitter.style.setProperty("--grip-x", `${e.clientX - splitter.getBoundingClientRect().left}px`);
-  });
-
-  // The line moves with the arrow: Up raises it (the entry grows), Down
-  // lowers it. Shift takes bigger steps, and Home and End go to the bounds.
-  // Enter or Space opens the line's menu, whose last line lets the entry size
-  // itself again (it was Enter and a double click until XA8-1).
-  splitter.addEventListener("keydown", (e) => {
-    if (isMenuKey(e)) {
-      e.preventDefault();
-      openSplitMenu(null);
-      return;
-    }
-    const now = share ?? measuredShare();
-    const step = (e.shiftKey ? 5 : 1) * SPLIT_STEP;
-    let next = null;
-    if (e.key === "ArrowUp") next = now + step;
-    else if (e.key === "ArrowDown") next = now - step;
-    else if (e.key === "Home") next = MAX_SPLIT;
-    else if (e.key === "End") next = MIN_SPLIT;
-    else return;
-    e.preventDefault();
-    setShare(clampSplit(next));
-  });
-
-  // The click-only way to do what dragging does (XA8-1): two arrow steps a
-  // press, a tenth of the room.
-  function openSplitMenu(at) {
-    // Its limits are read from the line's value, which the entry sizing
-    // itself leaves unset.
-    writeSplitValue(share ?? measuredShare());
-    toggleLineMenu(splitter, {
-      label: "Entry size",
-      more: "Larger entry",
-      less: "Smaller entry",
-      step: (dir) => setShare(clampSplit((share ?? measuredShare()) + dir * 2 * SPLIT_STEP)),
-      reset: { label: "Let the entry size itself", run: () => setShare(null), shown: () => share != null },
-      at,
-      along: "horizontal",
-    });
-  }
 
   /* ── The word's details ────────────────────────────────────────── */
 

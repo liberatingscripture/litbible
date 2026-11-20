@@ -20,8 +20,10 @@
 //   drop; a split that would leave a pane too small is refused. Escape
 //   cancels. The pane's menu has Move left, right, up, and down for the
 //   keyboard (a swap with the pane beside it; E25).
-// - **The lines between panes move**, by pointer or by the arrow keys
-//   (Shift for bigger steps); double-clicking one shares the room evenly.
+// - **The lines between panes move** as every draggable line on the desk does
+//   (`wireLine`, line-menu.js; E189): dragged, by the arrow keys (Shift for
+//   bigger steps, Home and End to the ends), or by clicking one (or Enter) for
+//   a menu of steps whose last line shares the room evenly.
 // - **Each pane's name is a menu** for showing another kind in it, which is
 //   also the keyboard's way to put any pane anywhere. × closes a pane.
 // - **The LIT pane last scrolled, clicked or typed in is the active one**,
@@ -68,10 +70,13 @@ import {
   evenOut,
   findPane,
   fitSizes,
+  isEven,
   isFollower,
   kindLabel,
   kindPage,
   leavesReading,
+  lineBounds,
+  lineWords,
   marksTurned,
   needs,
   nodeAt,
@@ -130,6 +135,7 @@ import { createCommandRow } from "./command-row.js";
 import { setTip } from "../tip.js";
 import { createLeadReporter } from "./desk-lead.js";
 import { startPaneMove } from "./pane-move.js";
+import { wireLine } from "./line-menu.js";
 
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -1020,6 +1026,8 @@ async function start() {
     const tree = build(drawn, []);
     tree.style.flex = "1 1 0px";
     panesBox.replaceChildren(tree, drop, miss);
+    // The lines' limits need the room they are drawn in, known only now.
+    sizeAll();
     for (const back of putBack) back?.();
     if (focused?.isConnected) focused.focus({ preventScroll: true });
     mark();
@@ -1132,50 +1140,61 @@ async function start() {
       const r = line.parentElement.getBoundingClientRect();
       return columns ? r.width : r.height;
     };
-    line.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      line.setPointerCapture(e.pointerId);
-      const base = asDrawn(path);
-      const from = columns ? e.clientX : e.clientY;
-      const length = lengthOf();
-      document.documentElement.classList.add(columns ? "desk-ws--resizing-x" : "desk-ws--resizing-y");
-      const move = (ev) => {
-        layout = resize(base, path, index, (columns ? ev.clientX : ev.clientY) - from, length);
+    // Move the line by some pixels from where it is drawn, and keep it.
+    const moveBy = (px) => {
+      layout = resize(asDrawn(path), path, index, px, lengthOf());
+      fit();
+      sizeSplit(path);
+      save();
+    };
+    // As every draggable line is (line-menu.js; E189): a fiftieth of the
+    // split a step with the arrow keys, a tenth with Shift; Home and End push
+    // it as far as it goes (DK-8; resize() keeps each pane's minimum); a click
+    // or Enter opens its menu, whose steps are a tenth, as the pane menu's Size
+    // is, and whose reset evens the panes out (a double click did, until E189).
+    wireLine(line, {
+      along: columns ? "vertical" : "horizontal",
+      grip: false,
+      begin: (e) => ({ base: asDrawn(path), from: columns ? e.clientX : e.clientY, length: lengthOf() }),
+      drag: (s, ev) => {
+        document.documentElement.classList.add(columns ? "desk-ws--resizing-x" : "desk-ws--resizing-y");
+        layout = resize(s.base, path, index, (columns ? ev.clientX : ev.clientY) - s.from, s.length);
         fit();
         sizeSplit(path);
-      };
-      const up = () => {
-        line.removeEventListener("pointermove", move);
-        line.removeEventListener("pointerup", up);
-        line.removeEventListener("pointercancel", up);
+      },
+      end: (_, moved) => {
         document.documentElement.classList.remove("desk-ws--resizing-x", "desk-ws--resizing-y");
-        save();
-      };
-      line.addEventListener("pointermove", move);
-      line.addEventListener("pointerup", up);
-      line.addEventListener("pointercancel", up);
-    });
-    line.addEventListener("keydown", (e) => {
-      const back = columns ? "ArrowLeft" : "ArrowUp";
-      const ahead = columns ? "ArrowRight" : "ArrowDown";
-      if (e.key !== back && e.key !== ahead && e.key !== "Home" && e.key !== "End") return;
-      e.preventDefault();
-      const length = lengthOf();
-      // Home and End push the line as far as it goes (DK-8); resize() keeps each pane's minimum.
-      const step = e.key === "Home" || e.key === "End" ? length : length * (e.shiftKey ? 0.1 : 0.02);
-      layout = resize(asDrawn(path), path, index, e.key === ahead || e.key === "End" ? step : -step, length);
-      fit();
-      sizeSplit(path);
-      save();
-    });
-    line.addEventListener("dblclick", () => {
-      layout = evenOut(layout, path);
-      fit();
-      sizeSplit(path);
-      save();
+        if (moved) save();
+      },
+      nudge: (dir, big) => moveBy(dir * lengthOf() * (big ? 0.1 : 0.02)),
+      toEnd: (dir) => moveBy(dir * lengthOf()),
+      menu: () => lineMenu(path, index, moveBy, lengthOf),
     });
     return line;
+  }
+
+  /**
+   * A pane line's menu (E189), its words from `lineWords`: a step each way,
+   * and the reset that evens the split out.
+   */
+  function lineMenu(path, index, moveBy, lengthOf) {
+    const words = lineWords(nodeAt(layout.root, path), index);
+    return {
+      label: words.label,
+      more: words.more,
+      less: words.less,
+      step: (dir) => moveBy(dir * lengthOf() * 0.1),
+      reset: {
+        label: words.reset,
+        run: () => {
+          layout = evenOut(layout, path);
+          fit();
+          sizeSplit(path);
+          save();
+        },
+        shown: () => !isEven(nodeAt(layout.root, path)),
+      },
+    };
   }
 
   /**
@@ -1224,6 +1243,12 @@ async function start() {
       .filter((c) => c.classList.contains("desk-split__handle"))
       .forEach((line, i) => {
         const first = Math.round(node.sizes[i] * 100);
+        // How far it can go: the panes' minimums in the room there is, so a
+        // screen reader and the line's menu stop where the line does (E189).
+        const r = box.getBoundingClientRect();
+        const bounds = lineBounds(node, i, node.split === "columns" ? r.width : r.height);
+        line.setAttribute("aria-valuemin", String(bounds ? Math.round(bounds.min * 100) : 0));
+        line.setAttribute("aria-valuemax", String(bounds ? Math.round(bounds.max * 100) : 100));
         line.setAttribute("aria-valuenow", String(first));
         const names = [node.children[i], node.children[i + 1]].map((c) => LIST.format(panes(c).map((p) => kindLabel(p.kind))));
         line.setAttribute("aria-valuetext", `${names[0]} ${first} percent, ${names[1]} ${100 - first} percent`);

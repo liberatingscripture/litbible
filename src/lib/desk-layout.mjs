@@ -1146,21 +1146,69 @@ const withPanes = (shape) =>
 export function resize(layout, path, index, deltaPx, lengthPx) {
   const next = clone(layout);
   const node = nodeAt(next.root, path);
-  if (!node || node.pane || index < 0 || index >= node.children.length - 1 || !(lengthPx > 0)) return layout;
+  const bounds = lineBounds(node, index, lengthPx);
+  if (!bounds) return layout;
   const usable = lengthPx - HANDLE * (node.children.length - 1);
-  if (usable <= 0) return layout;
+  const pair = node.sizes[index] + node.sizes[index + 1];
+  const a = Math.min(Math.max(node.sizes[index] + deltaPx / usable, bounds.min), bounds.max);
+  node.sizes[index] = a;
+  node.sizes[index + 1] = pair - a;
+  return next;
+}
+
+/**
+ * How far the line after child `index` of a split can go, given the split's
+ * length in pixels: `{ min, max }` as the first child's share of the split,
+ * the unit of `sizes` and of the line's `aria-valuenow`. These are `resize`'s
+ * own limits, so the line's menu stops where the line does (E189). Where the
+ * two children can't both have their minimum, the pair is split by their
+ * minimums rather than favoring one, and `min` equals `max`. null where there
+ * is no such line or no room to measure.
+ */
+export function lineBounds(node, index, lengthPx) {
+  if (!node || node.pane || index < 0 || index >= node.children.length - 1 || !(lengthPx > 0)) return null;
+  const usable = lengthPx - HANDLE * (node.children.length - 1);
+  if (usable <= 0) return null;
   const along = node.split === "columns" ? "w" : "h";
   const minA = minSize(node.children[index])[along] / usable;
   const minB = minSize(node.children[index + 1])[along] / usable;
   const pair = node.sizes[index] + node.sizes[index + 1];
-  let a = node.sizes[index] + deltaPx / usable;
-  // Where the two can't both have their minimum, split the pair evenly by
-  // their minimums rather than favoring one.
-  if (minA + minB > pair) a = pair * (minA / (minA + minB));
-  else a = Math.min(Math.max(a, minA), pair - minB);
-  node.sizes[index] = a;
-  node.sizes[index + 1] = pair - a;
-  return next;
+  if (minA + minB > pair) {
+    const a = pair * (minA / (minA + minB));
+    return { min: a, max: a };
+  }
+  return { min: minA, max: pair - minB };
+}
+
+const AND = new Intl.ListFormat("en-US", { type: "conjunction" });
+
+/**
+ * The words of the menu on the line after child `index` of a split (E189):
+ * its name, its two steps, each named by what grows ("Make the LIT wider",
+ * "Make My Notes and Greek wider"), or by side where both sides hold the same
+ * kinds ("Make the left side wider"), and its reset. `more` is the step that
+ * grows the first child, which raises the line's `aria-valuenow`.
+ */
+export function lineWords(node, index) {
+  const columns = node.split === "columns";
+  const names = [node.children[index], node.children[index + 1]].map((c) =>
+    AND.format(panes(c).map((p) => kindLabel(p.kind))).replace(/^The /, "the "),
+  );
+  const sides = names[0] === names[1] ? (columns ? ["the left side", "the right side"] : ["the top", "the bottom"]) : names;
+  const grow = columns ? "wider" : "taller";
+  return {
+    label: columns ? "Pane widths" : "Pane heights",
+    more: `Make ${sides[0]} ${grow}`,
+    less: `Make ${sides[1]} ${grow}`,
+    reset: columns ? "Make the columns the same width" : "Make the rows the same height",
+  };
+}
+
+/** Whether a split's children already share its room evenly (to a tenth of a percent). */
+export function isEven(node) {
+  if (!node || node.pane) return true;
+  const n = node.children.length;
+  return node.sizes.every((s) => Math.abs(s - 1 / n) < 0.001);
 }
 
 /**
@@ -1196,7 +1244,7 @@ export function fitSizes(node, width, height) {
   return { split: node.split, sizes, children };
 }
 
-/** Share a split's room evenly again (double-clicking a line). */
+/** Share a split's room evenly again (the last line of a pane line's menu; E189). */
 export function evenOut(layout, path) {
   const next = clone(layout);
   const node = nodeAt(next.root, path);

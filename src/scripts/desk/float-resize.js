@@ -9,10 +9,11 @@
 //
 // Like the margin's handles (widths.js), nothing shows at rest: the pointer
 // on the edge gets the resize cursor and a small grip beside it, and a
-// hairline shows while dragging. It is a focusable separator the arrow keys
-// move (left widens, right narrows), so it isn't mouse-only, and a press that
-// doesn't move, or Enter, opens its menu of steps (line-menu.js; XA8-1), for a
-// reader who can click but not drag. The width is kept
+// hairline shows while dragging. It is wired as every draggable line is
+// (`wireLine`, line-menu.js; E189): a focusable separator the arrow keys move
+// (left widens, right narrows) and Home and End take to its ends, and a press
+// that doesn't move, or Enter, opens its menu of steps (XA8-1), for a reader
+// who can click but not drag. The width is kept
 // in sessionStorage for the visit and forgotten by "Reset widths".
 //
 // The handle is a child of the panel, so it sticks and scrolls with it.
@@ -20,7 +21,7 @@
 
 import { dragFloatEdge, floatBounds } from "../../lib/desk-margin.mjs";
 import { WIDTHS_EVENT, keepFloatWidth, keptAny, resetWidths } from "./widths.js";
-import { clickOrDrag, closeLineMenu, isMenuKey, toggleLineMenu } from "./line-menu.js";
+import { closeLineMenu, wireLine } from "./line-menu.js";
 
 const STEP = 16;
 // A step of its menu: three of the arrow key's.
@@ -55,56 +56,23 @@ export function createFloatResize(panel, onChange) {
     });
   };
 
-  // The grip sits beside the pointer, at its height.
-  handle.addEventListener("pointermove", (e) => {
-    handle.style.setProperty("--grip-y", `${e.clientY - handle.getBoundingClientRect().top}px`);
-  });
-  handle.addEventListener("focus", () => {
-    const box = handle.getBoundingClientRect();
-    const mid = (Math.max(0, box.top) + Math.min(window.innerHeight, box.bottom)) / 2;
-    handle.style.setProperty("--grip-y", `${mid - box.top}px`);
-  });
-
-  handle.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    e.preventDefault(); // no text selection
-    const start = widthNow();
-    const x0 = e.clientX;
-    clickOrDrag(handle, e, {
-      move: (ev) => {
-        handle.classList.add("desk-panel__edge--dragging");
-        set(dragFloatEdge({ width: start, dx: ev.clientX - x0, viewport }));
-      },
-      end: () => handle.classList.remove("desk-panel__edge--dragging"),
-      click: (ev) => openMenu({ x: ev.clientX, y: ev.clientY }),
-    });
-  });
-
-  // Left widens and right narrows, as the edge itself moves; Shift takes
-  // bigger steps. Enter or Space opens the menu.
-  handle.addEventListener("keydown", (e) => {
-    if (isMenuKey(e)) {
-      e.preventDefault();
-      openMenu(null);
-      return;
-    }
-    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    e.preventDefault();
-    const dx = (e.shiftKey ? 5 : 1) * STEP * (e.key === "ArrowLeft" ? -1 : 1);
-    set(dragFloatEdge({ width: widthNow(), dx, viewport }));
-  });
-
-  // The click-only way to do what dragging does (XA8-1).
-  function openMenu(at) {
-    toggleLineMenu(handle, {
+  // As every draggable line is (line-menu.js): left widens and right narrows,
+  // as the edge itself moves, Shift takes bigger steps, Home and End go as far
+  // as it goes, and a click or Enter opens its menu (XA8-1).
+  wireLine(handle, {
+    draggingClass: "desk-panel__edge--dragging",
+    begin: (e) => ({ width: widthNow(), x0: e.clientX }),
+    drag: (s, ev) => set(dragFloatEdge({ width: s.width, dx: ev.clientX - s.x0, viewport })),
+    nudge: (dir, big) => set(dragFloatEdge({ width: widthNow(), dx: dir * (big ? 5 : 1) * STEP, viewport })),
+    toEnd: (dir) => set(dragFloatEdge({ width: widthNow(), dx: dir * viewport, viewport })),
+    menu: () => ({
       label: "Notebook width",
       more: "Wider Notebook",
       less: "Narrower Notebook",
       step: (dir) => set(dragFloatEdge({ width: widthNow(), dx: -dir * MENU_STEP, viewport })),
       reset: { label: "Reset widths", run: resetWidths, shown: keptAny },
-      at,
-    });
-  }
+    }),
+  });
 
   return {
     update({ visible, width, viewport: v }) {
