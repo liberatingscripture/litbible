@@ -5644,7 +5644,7 @@ verse's Collections line. Steps 5 to 8 were merged on 2026-11-19 (#620,
 header, a collection onto a sheet, and the tours naming collections. D13 is
 marked built once BVJ has gone through it and answered decision 22's second
 ask, a tour of its own. **A Collections pane on /desk** was decided on
-2026-11-19 (decisions 26 to 34, "A Collections pane on /desk," below) and
+2026-11-19 (decisions 26 to 36, "A Collections pane on /desk," below) and
 waits for BVJ to say build. The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
@@ -5933,7 +5933,7 @@ Why a kind of its own:
   tab. /desk's My Notes pane gets the same filter, so a collection sits
   beside the text without a new kind of pane. (The filter can't show
   passages or headings, which aren't records, so on 2026-11-19 BVJ chose a
-  Collections pane as well: decisions 26 to 34, below.)
+  Collections pane as well: decisions 26 to 36, below.)
 - **The notebook search** finds collections by name.
 
 ### Collections and sheets
@@ -6129,9 +6129,10 @@ pane in the dropdown menus."). So BVJ chose:
 30. **No dragging into a Sheets pane, for now.** Nothing on /desk drags
     from one pane to another, and every drag needs a click route too
     (Audit 8, XA8-1), which would put a button on every row. A whole
-    collection already reaches a sheet three ways (Make a sheet, Add to
-    sheet…, and the Sheets pane's "+ From my notes…" under "From a
-    collection"), and one passage takes two presses once its reference has
+    collection already reaches a sheet three ways (Make a sheet, which
+    decision 36 leaves to Add to sheet…'s "New sheet," Add to sheet…, and
+    the Sheets pane's "+ From my notes…" under "From a collection"), and
+    one passage takes two presses once its reference has
     moved the LIT pane (the verse menu's Add to sheet). If it is wanted
     later, it is an E entry with its click route.
 31. **No one-press add** (decision 17 and E172 already say so). While a
@@ -6141,7 +6142,8 @@ pane in the dropdown menus."). So BVJ chose:
     appears there at once.
 32. **A narrow pane (280px at the least) does everything the page does but
     print.** The order switch (`.desk-seg`) already stacks its choices, and
-    headings, the grip, ↑ and ↓, and the rule's line wrap. The actions wrap
+    the rule's line wraps; how a member's row and a heading fit is decision
+    35, from the mock. The actions wrap
     as the Sheets pane's top row does, and Print is "Open on its own page,"
     since a print from /desk prints the desk (the Sheets pane's "Print or
     share" does the same). Printing is the one thing left to the page,
@@ -6157,6 +6159,52 @@ pane in the dropdown menus."). So BVJ chose:
 34. **The Book Intro pane goes** (BVJ's addition), which keeps the menus'
     kinds at eight with Collections in. It reverses E53's pane;
     STUDY-DESK-FIXES.md E173 has what becomes of each way in.
+
+**From the mock** (order of work, step 1; BVJ, 2026-11-19). The website drew
+the pane on /desk with the real collection view (`collectionView` over a
+made-up "Advent series" in My order: two headings, two passages, a note, a
+highlight, a sheet, and a label's rule) at 280px and at half width, beside
+the list and the empty pane. Half width read well as the page draws it. At
+280px it fit but crowded: the actions took four rows and "Open on its own
+page" one of its own, so the members began below the middle; each row's ↑,
+↓, and Remove took about 120px, which put a reference like "Romans 8:18–25"
+on two lines; the grip took a line of its own above it (as it does on the
+page at any width); and a heading's Rename and Remove stacked. The website
+drew an alternative for the rows and recommended it for a narrow pane only.
+BVJ: "Use the alternative, with one change. It doesn't need both an Add to
+sheet and a New sheet button in the pane. Add to sheet can include 'New
+sheet' within it." So BVJ chose:
+
+35. **In a narrow pane a member's row is three lines.** The grip sits
+    beside the reference, so the reference keeps one line; the kind
+    ("Passage," "Note," "Yellow highlight") has ↑, ↓, and Remove beside it on
+    the line below; and the words run the full width under both. A heading
+    keeps its name on one line, with its buttons under it. It shows about
+    one more member a screen at 280px. It applies only where the pane is
+    narrow (a container query on the pane, as the sheet list's buttons drop
+    under its names below 24rem, `@container deskSheets`); at half width,
+    and on the /collections page, the rows stay as they are. Where the kind
+    and the buttons can't share a line (the mock's "Passage" ran into ↑ at
+    Extra large), the buttons take a line of their own, as the sheet list's
+    do. Check it at Extra large in OpenDyslexic at 280px (desk rule 18).
+36. **No "Make a sheet" button, in the pane or on the page.** "Add to
+    sheet…" already opens E154's pick window with "New sheet" in its action
+    row, which makes the same sheet "Make a sheet" does
+    (`collection-sheet.js`), so the button comes out of the collection's
+    view and nothing new is needed in its place. BVJ first said it of the
+    pane, then of the page as well (2026-11-19: "Come to think of it, the
+    /collections page can just use add to sheet also."). The pane's actions
+    are Add passage…, Add to sheet…, Rename…, Delete, and Open on its own
+    page; the page's, the same with Print for the last. With the button go
+    its tests and the help page's sentence on it ("Onto a sheet," in "How
+    collections work"), which then starts from Add to sheet….
+
+Two things the mock showed for the build, not decisions: the collection's
+title sits tight under "‹ All collections" and wants the Sheets pane's
+spacing; and two collections open at once shared the order switch, choosing
+My order in one taking it from the other. That is the shared
+`collection-order` radio name, which "Where the page and the pane share
+code," below, already gives each pane its own copy of.
 
 **Where the page and the pane share code** (the website's plan, for the
 build):
@@ -6182,11 +6230,14 @@ build):
 **Order of work** (the website's proposal; each step its own PR):
 1. **A mock of the pane** at 280px and at half width, the list and one
    collection in My order, from the site's own classes, for BVJ's look
-   before anything is built (as D13's steps 2 to 4 had).
+   before anything is built (as D13's steps 2 to 4 had). **Done
+   2026-11-19**: decisions 35 and 36. Drawn in the browser only, so
+   nothing of it is in the repo.
 2. **The shared code**: the list's own module, the host's `open` and
-   `toList`, ids and focus found in the host's own element. The page is
-   unchanged and its tests pass as they are. Sonnet, beside step 3 (no
-   shared files).
+   `toList`, ids and focus found in the host's own element, and "Make a
+   sheet" out of the view with its tests and the help page's "Onto a sheet"
+   sentence (decision 36). The page changes only by losing that button;
+   its other tests pass as they are. Sonnet.
 3. **Book Intro out** (E173), with its own words: the help page, the Study
    Desk tour's card on the panes that follow (its id kept), and the desk
    `CLAUDE.md`. Sonnet. **Built 2026-11-19**; STUDY-DESK-FIXES.md E173 has
@@ -6195,7 +6246,8 @@ build):
    field and `checkLayout`, the mount in `desk-panes.js`, references as
    jumps, a sheet into a Sheets pane, "Open on its own page," the page's
    "Open in the Study Desk" and `?collection=`, "Open the collection" on
-   /desk, and "New collection…" in the command row. Opus, since a wrong
+   /desk, "New collection…" in the command row, the narrow rows (decision
+   35, in `desk.css` with the row rules that move there). Opus, since a wrong
    call in desk-page.js's routes is hard to see in review; after step 3,
    which touches the same files.
 5. **Words and docs for the pane**: the help page (decision 33), and the
