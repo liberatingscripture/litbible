@@ -1,21 +1,19 @@
 // src/scripts/desk/collections/collection-page.js
 //
 // The collections page, /collections/ (STUDY-DESK.md, D13; step 2 of its order
-// of work). `/collections/` is the list, drawn as My sheets is (its title, its
-// "New collection…" button, primary as "New sheet…" is, one card for each,
-// in `desk-sheet__*`);
-// `/collections/?id=<id>` is one collection (collection-view.js). Loaded by
-// desk-gate.js on a computer with the preview on, when the page carries
-// [data-collections-page]. It is not a reading surface: no panel, no margin.
-// For everyone else, and with JS off, collections.astro is the whole page: a
-// note that the Study Desk preview isn't switched on.
+// of work). `/collections/` is the list (collection-list.js, which /desk's
+// Collections pane draws too); `/collections/?id=<id>` is one collection
+// (collection-view.js). Loaded by desk-gate.js on a computer with the preview
+// on, when the page carries [data-collections-page]. It is not a reading
+// surface: no panel, no margin. For everyone else, and with JS off,
+// collections.astro is the whole page: a note that the Study Desk preview
+// isn't switched on.
 //
-// The list has two shapes. With none, the page says what a collection is in
-// two sentences, offers "New collection…", and links the help page's section.
-// With some, each card shows the name, the description, how many things it
-// shows, and when it changed; Delete takes it to the trash with the undo bar.
-// "Make a sheet" and "Add to sheet…" (step 7) are on one collection's view
-// (collection-view.js, wired by collection-sheet.js).
+// The page is the views' host (collection-view.js, "The host"): it keeps the
+// address, `document.title`, and the history, turning the views' `open(id)`
+// and `toList()` into an address with a history entry of its own, and gives
+// `listHref` and `href(id)`, so "‹ My collections" and the list's rows are
+// links. Its focus keys are the plain words (no `idSuffix`).
 //
 // Every write is the store's (history for Ctrl+Z, the undo bar for a
 // deletion); this module keeps the page in step with every change to the
@@ -25,123 +23,49 @@
 // `mountCollectionsPage` takes what it needs, so a test drives it without the
 // network: `chapterText` (a chapter's anchor text, for checking a typed
 // reference), `passageText` (a passage's words), and `parse` (the reference
-// reader). The defaults load the chapter pages (chapter-page.js) and read the
-// words as a sheet's passage does (sheets/sheet-lit.js), each only when first
-// asked for, so the list alone loads neither.
+// reader). The defaults are `viewHost`'s, each loaded only when first asked
+// for, so the list alone loads neither.
 
-import { collectionCount, collectionName } from "../../../lib/desk-collections.mjs";
 import { QUIET_KINDS } from "../../../lib/desk-store-core.mjs";
-import { parseReference } from "../../search-core.js";
 import { standDown } from "../../desk-frame.js";
 import { addDeskStyle, deskCtx } from "../boot.js";
-import { createHistory, undoEntry } from "../history.js";
+import { createHistory } from "../history.js";
 import { openStore } from "../store.js";
-import { initUndo, showNotice, showUndo } from "../undo-bar.js";
-import { dateWords, plural } from "../desk-text.js";
-import { buttons, make } from "../dom.js";
-import { collectionView } from "./collection-view.js";
-import { openNewCollection } from "./new-collection.js";
+import { initUndo } from "../undo-bar.js";
+import { make } from "../dom.js";
+import { collectionList } from "./collection-list.js";
+import { collectionView, viewHost } from "./collection-view.js";
 
-const button = buttons("desk-sheet__btn");
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
-const TITLE = "Liberation and Inclusion Translation";
-const DESCRIPTION_SHOWN = 140;
-
-/** A chapter's anchor text, or null when it can't be read. */
-async function defaultChapterText(bookKey, chapter) {
-  try {
-    const { loadChapterPage } = await import("../chapter-page.js");
-    const source = await loadChapterPage(bookKey, chapter);
-    return source.textBox ? source.anchorText() : null;
-  } catch (_) {
-    return null;
-  }
-}
 
 /**
- * The words of `where` ({ bookKey, chapter, verse, endVerse }) as a scripture
- * page sets them, or null when they can't be read (E171; BVJ, 2026-11-19): an
- * element holding its paragraphs and poetry lines, italics, and verse
- * numbers, with no footnote letters (`passageWords` drops them when asked to
- * keep none). A test may hand back plain text instead.
- */
-async function defaultPassageText(where) {
-  try {
-    const { readPassage, passageWords } = await import("../sheets/sheet-lit.js");
-    const m = { bookKey: where.bookKey, chapter: where.chapter, verse: where.verse, endVerse: where.endVerse };
-    const view = await readPassage(m);
-    if (!view.ok) return null;
-    // passageWords gives { el, base }: the words are its element.
-    return passageWords(view, m)?.el ?? null;
-  } catch (err) {
-    // Said aloud: a quiet failure here once hid that no live words were ever read.
-    console.error("Study Desk: a collection's passage couldn’t be read", err);
-    return null;
-  }
-}
-
-/** A collection card's second line: its description, how many it shows, and when it changed. */
-function metaLine(c, records) {
-  const text = (c.description ?? "").replace(/\s+/g, " ").trim();
-  const description = text.length > DESCRIPTION_SHOWN ? `${text.slice(0, DESCRIPTION_SHOWN - 1)}…` : text;
-  const when = c.modified && dateWords(c.modified) ? `changed ${dateWords(c.modified)}` : "";
-  return [description, plural(collectionCount(c, records), "item"), when].filter(Boolean).join(" · ");
-}
-
-const byChange = (a, b) =>
-  String(b.modified ?? "").localeCompare(String(a.modified ?? "")) || collectionName(a).localeCompare(collectionName(b)) || (a.id < b.id ? -1 : 1);
-
-/**
- * Draw the page into `root` and keep it drawn. Resolves to `{ refresh, go, destroy }`.
+ * Draw the page into `root` and keep it drawn. Resolves to `{ refresh, open, toList, destroy }`.
  *
  * @param {HTMLElement} root
  * @param {{ store: object, ctx?: () => object, base?: string,
  *   chapterText?: Function, passageText?: Function, parse?: Function }} options
  */
-export async function mountCollectionsPage(root, {
-  store,
-  ctx = deskCtx,
-  base = BASE,
-  chapterText = defaultChapterText,
-  passageText = defaultPassageText,
-  parse = parseReference,
-}) {
+export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = BASE, chapterText, passageText, parse }) {
   initUndo();
   createHistory({ store, ctx });
   let seq = 0;
-  const words = new Map();
-  // What a view keeps while it is drawn again (an open form, a heading being renamed), by collection.
-  const states = new Map();
-  const page = {
-    store,
-    ctx,
-    base,
-    chapterText,
-    parse,
-    // A passage's words, read once for each place and kept.
-    passageText(where) {
-      const key = `${where.bookKey} ${where.chapter}:${where.verse}-${where.endVerse ?? where.verse}`;
-      if (!words.has(key)) words.set(key, passageText(where));
-      return words.get(key);
-    },
-    viewState(id) {
-      if (!states.has(id)) states.set(id, { adding: false, typed: "", heading: false, headingText: "", editing: null });
-      return states.get(id);
-    },
+  const href = (id) => `${base}collections/?id=${encodeURIComponent(id)}`;
+  const listHref = `${base}collections/`;
+  const host = {
+    ...viewHost({ store, ctx, base, chapterText, passageText, parse }),
+    root,
+    listHref,
+    href,
     refresh,
-    go,
-    follow(e, href) {
-      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-      e.preventDefault();
-      go(href);
-    },
+    open: (id) => go(href(id)),
+    toList: () => go(listHref),
   };
 
   /** Draw the address's view again. `focus` is the data-focus-key to put focus on, the first that is there. */
   async function refresh(focus = []) {
     const n = ++seq;
     const id = new URLSearchParams(location.search).get("id");
-    const view = id ? await collectionView(page, id) : await listView(page);
+    const view = id ? await collectionView(host, id) : await collectionList(host);
     if (n !== seq) return;
     const at = document.activeElement;
     const was = root.contains(at) ? (at.closest?.("[data-focus-key]")?.dataset.focusKey ?? "") : null;
@@ -158,95 +82,26 @@ export async function mountCollectionsPage(root, {
   }
 
   /** Go to another view of the page, with a history entry of its own. */
-  function go(href) {
-    history.pushState(null, "", href);
+  function go(to) {
+    history.pushState(null, "", to);
     return refresh(["title"]);
-  }
-
-  /* ── The list ─────────────────────────────────────────────────── */
-
-  async function listView() {
-    const records = await store.all();
-    const all = records.filter((r) => r?.kind === "collection").sort(byChange);
-    const title = make("h1", "sheets-page__title", "My collections");
-    title.dataset.focusKey = "title";
-    const nodes = [title];
-    const actions = make("div", "collection-page__actions");
-    const fresh = button("New collection…", "desk-sheet__btn desk-sheet__btn--primary");
-    fresh.dataset.focusKey = "new";
-    fresh.addEventListener("click", () => {
-      const at = fresh.getBoundingClientRect();
-      openNewCollection({
-        store,
-        ctx,
-        heading: "My collections",
-        near: { left: at.left, top: at.bottom + 8 },
-        back: () => document.querySelector('[data-focus-key="new"]'),
-        // Straight into the new collection, where Add passage… is.
-        onCreated: (made, entry) => {
-          if (entry) showUndo(`${collectionName(made)} made.`, () => undoEntry(entry));
-          go(`${base}collections/?id=${encodeURIComponent(made.id)}`);
-        },
-      });
-    });
-    actions.append(fresh);
-    if (!all.length) {
-      nodes.push(
-        make(
-          "p",
-          "desk-np__intro",
-          "A collection gathers your notes, highlights, bookmarks, sheets, and passages for one purpose, such as a class, a sermon series, or a season. Start one here with “New collection,” or from any verse’s menu with “Add to collection.”",
-        ),
-        actions,
-      );
-      const help = make("p");
-      const link = make("a", null, "How collections work");
-      link.href = `${base}desk/help/#collections`;
-      help.append(link);
-      nodes.push(help);
-      return { nodes, title: `My collections | ${TITLE}`, focus: title };
-    }
-    nodes.push(actions);
-    const ul = make("ul", "desk-sheet__sheets");
-    for (const c of all) {
-      const name = collectionName(c);
-      const li = make("li", "desk-sheet__sheet");
-      const open = make("a", "desk-sheet__open");
-      open.href = `${base}collections/?id=${encodeURIComponent(c.id)}`;
-      open.dataset.focusKey = `open-${c.id}`;
-      open.addEventListener("click", (e) => page.follow(e, open.href));
-      open.append(make("span", "desk-sheet__open-name", name), make("span", "desk-sheet__open-meta", metaLine(c, records)));
-      const del = button("Delete", "desk-sheet__btn desk-sheet__btn--quiet");
-      del.setAttribute("aria-label", `Delete ${name}`);
-      del.dataset.focusKey = `delete-${c.id}`;
-      del.addEventListener("click", async () => {
-        const keys = [...ul.querySelectorAll(".desk-sheet__open")].map((a) => a.dataset.focusKey);
-        const at = keys.indexOf(open.dataset.focusKey);
-        let trash = null;
-        try {
-          trash = await store.remove(c.id);
-        } catch (err) {
-          console.error("Study Desk: couldn’t delete a collection", err);
-          showNotice("The collection couldn’t be deleted in this browser. Try again in a moment.");
-          return;
-        }
-        const entry = trash ? store.lastEntry() : null;
-        if (entry) showUndo(`${name} deleted.`, () => undoEntry(entry));
-        refresh([keys[at + 1], keys[at - 1], "new"].filter(Boolean));
-      });
-      li.append(open, del);
-      ul.append(li);
-    }
-    nodes.push(ul);
-    return { nodes, title: `My collections | ${TITLE}`, focus: title };
   }
 
   // A change to any record can change what a collection shows (a note's words,
   // a sheet's name), so every kind but a reading place draws the view again.
   const stop = store.subscribe(() => refresh(), { except: QUIET_KINDS });
-  addEventListener("popstate", () => refresh(["title"]));
+  const onPop = () => refresh(["title"]);
+  addEventListener("popstate", onPop);
   await refresh();
-  return { refresh, go, destroy: stop };
+  return {
+    refresh,
+    open: host.open,
+    toList: host.toList,
+    destroy() {
+      stop();
+      removeEventListener("popstate", onPop);
+    },
+  };
 }
 
 async function start() {
