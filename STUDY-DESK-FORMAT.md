@@ -874,9 +874,14 @@ absorbed by a merge, or deleted because a new colour covered it, names the
 highlight that took its place instead (the member keeps its `id`; if the
 collection holds that highlight already, the second member goes); when a
 highlight is cut in two, the piece that keeps the id keeps its members,
-and the new piece goes in as a new `item` right after each one. A
-highlight erased outright is a plain deletion, and its members stay, so a
-restore brings it back into its collections. The collection's `modified`
+and the new piece goes in as a new `item` right after each one. When a new
+colour takes only part of a highlight (trimming it or cutting it in two),
+the new mark goes in as a new `item` beside each member naming it: after it,
+before it when only its right part is left, and between the two pieces of a
+cut (E182), so the recoloured words stay in the collection, as they do when
+the new colour covers the whole highlight. A highlight erased outright is a
+plain deletion, and its members stay, so a restore brings it back into its
+collections; an erase that trims one leaves its members as they are. The collection's `modified`
 moves. **The apps don't do this** (they edit no collection): for BDR, a
 highlight an app merges or cuts leaves the website's collection naming the
 id the app deleted, which shows nothing until the reader adds the new one.

@@ -267,8 +267,13 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   as Add to sheet's are: adding writes the collection, so no key is kept.
 - **The highlight carry**: when a highlight is absorbed, covered or split,
   `planHighlight` (given the notebook) rewrites the collections holding it in
-  the same plan, so one undo reverts both. Erasing one outright is a plain
-  deletion and leaves its collections alone. The apps don't do this.
+  the same plan, so one undo reverts both. **A new color over part of a
+  collected highlight joins it there** (E182; BVJ, 2026-11-19): the new mark
+  goes in beside what is left (`joined`), after it, before it when only its
+  right part is left, and between a split's two pieces, so no recolored word
+  drops out. Erasing one outright is a plain deletion and leaves its
+  collections alone, and an erase that trims one keeps what is left. The apps
+  don't do this.
 - **Bulk deletes stay apart**: "Delete all notes and marks" and "Delete all
   sheets" take no collection; `planDeleteCollections` does.
 - **Never a row** of My Notes or My Notebook, nor counted there; a

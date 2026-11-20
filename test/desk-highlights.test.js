@@ -740,18 +740,61 @@ test("a new colour that covers a highlight carries its collections to the new ma
   assert.doesNotThrow(() => planWrite(p));
 });
 
-test("a split puts the second piece in right after the first, in every collection holding it", () => {
+test("a split puts the new colour and then the second piece right after the first, in every collection holding it", () => {
   const old = highlight(at(V1), "yellow");
   const coll = holding("Love", old.id, "next");
   const p = plan([old], at("patient,"), "green", { notebook: [old, coll] });
   const piece = p.put.find((r) => r.kind === "highlight" && r.color === "yellow" && r.id !== old.id);
   const [split] = collectionsIn(p);
-  assert.deepEqual(itemsOf(split), [old.id, piece.id, "next"]);
+  // E182: the recoloured words stay in the collection, between the pieces.
+  assert.deepEqual(itemsOf(split), [old.id, p.created.id, piece.id, "next"]);
   assert.equal(split.members[0].id, coll.members[0].id);
 
   const erased = plan([old], at("is patient, love"), null, { notebook: [old, coll] });
   const erasedPiece = erased.put.find((r) => r.kind === "highlight" && r.id !== old.id);
   assert.deepEqual(itemsOf(collectionsIn(erased)[0]), [old.id, erasedPiece.id, "next"], "an erase that splits does the same");
+});
+
+test("a new colour over one end of a collected highlight joins it on that side (E182)", () => {
+  const old = highlight(at(V1), "yellow");
+  const coll = holding("Love", "first", old.id, "last");
+
+  // Over its end: what is left comes first, then the new mark.
+  const right = plan([old], at("love is kind."), "green", { notebook: [old, coll] });
+  assert.deepEqual(right.summary, { merged: 0, trimmed: 1, removed: 0, split: 0, otherColors: 1 });
+  assert.deepEqual(itemsOf(collectionsIn(right)[0]), ["first", old.id, right.created.id, "last"]);
+  assert.equal(collectionsIn(right)[0].members[1].id, coll.members[1].id, "the old member keeps its id");
+
+  // Over its start: the new mark comes first, then what is left.
+  const left = plan([old], at("Love is patient,"), "green", { notebook: [old, coll] });
+  assert.deepEqual(itemsOf(collectionsIn(left)[0]), ["first", left.created.id, old.id, "last"]);
+  assert.doesNotThrow(() => planWrite(left));
+  assert.ok(left.undo.put.some((r) => r.id === coll.id && itemsOf(r).join() === itemsOf(coll).join()), "undo puts the collection back");
+
+  // A mark over part of it that runs on past it joins whole, as one
+  // covering all of it does: the collection gains words it didn't hold.
+  const short = highlight(at("is patient,"), "yellow");
+  const holdsShort = holding("Patience", short.id);
+  const past = plan([short], at("patient, love is kind."), "pink", { notebook: [short, holdsShort] });
+  assert.equal(past.summary.trimmed, 1);
+  assert.deepEqual(itemsOf(collectionsIn(past)[0]), [short.id, past.created.id]);
+});
+
+test("a new colour that merges into a highlight the collection holds adds nothing twice (E182)", () => {
+  const old = highlight(at("Love is patient,"), "yellow");
+  const pink = highlight(at("love is kind."), "pink");
+  const coll = holding("Love", old.id, pink.id);
+  const p = plan([old, pink], at("patient, love"), "pink", { notebook: [old, pink, coll] });
+  assert.equal(p.created.id, pink.id, "the pink one takes in the new mark");
+  assert.deepEqual(collectionsIn(p), [], "the collection holds both already, so it isn't written");
+});
+
+test("an erase over one end of a collected highlight leaves its collections alone", () => {
+  const old = highlight(at(V1), "yellow");
+  const coll = holding("Love", old.id);
+  const p = plan([old], at("love is kind."), null, { notebook: [old, coll] });
+  assert.equal(p.summary.trimmed, 1);
+  assert.deepEqual(collectionsIn(p), []);
 });
 
 test("a highlight erased outright is a plain deletion: its collections keep it, untouched", () => {

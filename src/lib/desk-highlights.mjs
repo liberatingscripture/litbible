@@ -161,8 +161,9 @@ function older(a, b) {
  * @param {string} [args.now] an ISO time; the clock when left out
  * @param {{ client: string, contentVersion: string }} args.ctx
  * @param {object[]} [args.notebook] every record, read in the same transaction
- *   as the write: given, the collections holding a highlight that changes id
- *   are rewritten in the plan too (carryHighlights in desk-collections.mjs), and
+ *   as the write: given, the collections holding a highlight that changes id,
+ *   or that a new colour takes part of (E182), are rewritten in the plan too
+ *   (carryHighlights in desk-collections.mjs), and
  *   put back by its undo. A collection's `modified` moves; `summary` doesn't
  *   count it.
  */
@@ -198,6 +199,9 @@ export function planHighlight({
   const covered = [];
   const absorbedIds = [];
   const split = new Map();
+  // Which highlights a new colour took part of, and on which side of what
+  // is left the new mark lies (E182): its collections take the new mark too.
+  const partly = new Map();
 
   const stamp = { now, client: ctx.client };
   const made = { now, client: ctx.client, contentVersion: ctx.contentVersion };
@@ -243,6 +247,8 @@ export function planHighlight({
     } else {
       put.push(rewrite(p, ...first));
       undo.put.push(back(p.record));
+      // What is left lies before the mark unless only its right part is left.
+      partly.set(p.record.id, first === left ? "after" : "before");
       if (second) {
         const piece = pieceOf(p.record, ...second);
         put.push(piece);
@@ -302,12 +308,19 @@ export function planHighlight({
 
   // A highlight that changed id takes its collections with it, in this same
   // write (D13): one covered by the new colour, or absorbed by a merge, now
-  // lives on as `created`, and a split's second piece joins the first. One
-  // erased outright is a plain deletion, and its collections keep it.
+  // lives on as `created`, and a split's second piece joins the first. One a
+  // new colour took only part of keeps its place, and the new mark joins
+  // beside it, so the recoloured words stay in the collection (E182). One
+  // erased outright is a plain deletion, and its collections keep it; an
+  // erase that trims or splits one keeps what is left.
   if (notebook) {
     const moved = new Map();
-    if (created) for (const id of [...covered, ...absorbedIds]) if (id !== created.id) moved.set(id, created.id);
-    for (const c of carryHighlights(notebook, { moved, split }, stamp)) {
+    const joined = new Map();
+    if (created) {
+      for (const id of [...covered, ...absorbedIds]) if (id !== created.id) moved.set(id, created.id);
+      for (const [id, side] of partly) joined.set(id, { id: created.id, before: side === "before" });
+    }
+    for (const c of carryHighlights(notebook, { moved, split, joined }, stamp)) {
       const before = notebook.find((r) => r?.id === c.id);
       put.push(c);
       if (before) undo.put.push(back(before));
