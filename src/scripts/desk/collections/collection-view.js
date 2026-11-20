@@ -45,6 +45,15 @@
 //   addresses, which make "‹ My collections" and a row of the list links
 //   (the page); `backLabel`; `headingTag` and `headingClass` for the title;
 //   `newTabLinks`, which opens the help link in a new tab;
+// - optional, for the two homes' differences (D13, decisions 26, 27, 29, 32
+//   and 36): `deskHref(id)`, the page's quiet "Open in the Study Desk" after
+//   its actions; `ownPageHref(id)`, the pane's "Open on its own page" (a new
+//   tab) in Print's place, since a print from /desk prints the desk;
+//   `plainMembers`, members lying on the pane as My Notes' rows do rather than
+//   on a `.v2-sheet` (a card inside a card); and `goHere`, `{ can(member),
+//   go(member) }`, which a plain click on a reference (a passage's or a
+//   record's, a sheet's name included) runs in place of following its link,
+//   as My Notes' `goHere` does (BA124). A modified click still opens the page;
 // - from `viewHost`: `viewState(id)` (what a view keeps while it is drawn
 //   again: an open form, a heading being renamed), `openWords` (the passages
 //   shown whole, by row key, for the visit), `chapterText` (a chapter's anchor
@@ -82,6 +91,7 @@ import { showNotice, showUndo } from "../undo-bar.js";
 import { buttons, make } from "../dom.js";
 import { setTip } from "../../tip.js";
 import { plural } from "../desk-text.js";
+import { newTabMark } from "../glyphs.js";
 import { parseReference } from "../../search-core.js";
 import { openAddToSheet } from "./collection-sheet.js";
 import { openNameWindow } from "./name-window.js";
@@ -183,20 +193,38 @@ export function follow(e, run) {
   run();
 }
 
-/** "‹ My collections": a link where the host gives the list's address, else a button. */
+/**
+ * "‹ My collections": a link where the host gives the list's address, else a
+ * button in the Sheets pane's top row (`desk-sheet__top`), whose spacing puts
+ * the title where a sheet's title sits under "‹ All sheets" (the mock).
+ */
 function backTo(host) {
   const label = host.backLabel ?? "‹ My collections";
-  let back;
   if (host.listHref) {
-    back = make("a", "sheets-page__back", label);
+    const back = make("a", "sheets-page__back", label);
     back.href = host.listHref;
     back.addEventListener("click", (e) => follow(e, () => host.toList()));
-  } else {
-    back = button(label, "desk-sheet__btn desk-sheet__btn--quiet");
-    back.addEventListener("click", () => host.toList());
+    back.dataset.focusKey = focusKey(host, "back");
+    return back;
   }
+  const back = button(label, "desk-sheet__btn desk-sheet__btn--quiet");
+  back.addEventListener("click", () => host.toList());
   back.dataset.focusKey = focusKey(host, "back");
-  return back;
+  const top = make("div", "desk-sheet__top");
+  top.append(back);
+  return top;
+}
+
+/** A quiet link in the actions' row: the Sheets pane's "Open on its own page" look. */
+function leaveLink(text, href, newTab) {
+  const a = make("a", "desk-sheet__btn desk-sheet__btn--quiet desk-sheet__print", text);
+  a.href = href;
+  if (newTab) {
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
+  }
+  return a;
 }
 
 // Each row's words measured again when their box changes size (the window, the
@@ -299,7 +327,22 @@ export async function collectionView(host, id) {
   const del = button("Delete");
   del.dataset.focusKey = key("delete");
   del.setAttribute("aria-label", `Delete ${name}`);
-  actions.append(add, toSheet, rename, print, del);
+  // Each home offers the other (decision 27). A print from /desk would print
+  // the desk, so the pane has "Open on its own page" in Print's place
+  // (decisions 32 and 36); the page keeps Print and ends with "Open in the
+  // Study Desk", in this tab, as a sheet's page ends with "Edit in Study Desk".
+  if (host.ownPageHref) {
+    const own = leaveLink("Open on its own page", host.ownPageHref(id), true);
+    own.dataset.focusKey = key("own-page");
+    actions.append(add, toSheet, rename, del, own);
+  } else {
+    actions.append(add, toSheet, rename, print, del);
+    if (host.deskHref) {
+      const desk = leaveLink("Open in the Study Desk", host.deskHref(id), false);
+      desk.dataset.focusKey = key("desk");
+      actions.append(desk);
+    }
+  }
   nodes.push(actions);
 
   const form = passageForm(host, c, state);
@@ -414,7 +457,9 @@ export async function collectionView(host, id) {
   for (const info of shown.rules) nodes.push(ruleLine(host, c, info));
 
   /* ── The members ──────────────────────────────────────────────── */
-  const sheet = make("div", `v2-sheet collection-page__sheet${mine ? " collection-page__sheet--mine" : ""}`);
+  // On the page the members lie on a sheet; in a pane on the pane, as My
+  // Notes' rows do, not a card inside a card (decision 26).
+  const sheet = make("div", `${host.plainMembers ? "" : "v2-sheet "}collection-page__sheet${mine ? " collection-page__sheet--mine" : ""}`);
   if (!shown.rows.length) {
     sheet.append(make("p", "desk-sheet__empty", "Nothing in this collection yet. Add a passage with the button above."));
   }
@@ -785,18 +830,24 @@ function memberRow(host, c, row, { labels, mine, rows, rules }) {
     const ref = passageReference(row.member);
     const head = make(href ? "a" : "span", "desk-item__ref", ref);
     if (href) head.href = href;
+    // In a pane a plain click moves the LIT pane there (decision 29).
+    if (href && host.goHere?.can(row.member)) head.addEventListener("click", (e) => follow(e, () => host.goHere.go(row.member)));
     li.append(head, make("span", "desk-item__kind", "Passage"), wordsOf(host, row.member, row.key, ref, row.member.verseCopy), make("div", "desk-np-row__buttons"));
   } else {
-    li = recordRow(row.record, { labels, onDelete: () => {}, onLabels: () => {} });
+    li = recordRow(row.record, { labels, onDelete: () => {}, onLabels: () => {}, goHere: host.goHere ?? null });
     // A collection's rows have Remove alone: the record itself is changed in My Notebook.
-    const tools = li.querySelector(".desk-np-row__buttons");
-    tools?.replaceChildren();
+    li.querySelector(".desk-np-row__buttons")?.replaceChildren();
     if (row.record.kind === "bookmark" && Number.isInteger(row.record.verse)) {
-      tools?.before(wordsOf(host, row.record, row.key, recordReference(row.record), row.record.quote?.exact));
+      li.append(wordsOf(host, row.record, row.key, recordReference(row.record), row.record.quote?.exact));
     }
   }
   li.dataset.rowKey = row.key;
+  // The buttons come right after the kind, before the words, so the order a
+  // keyboard takes is the order a narrow pane shows them in (decision 35: the
+  // kind with its buttons, then the words), and a wide row's reading order:
+  // the reference, the buttons beside it, then what lies under them.
   const tools = li.querySelector(".desk-np-row__buttons");
+  li.querySelector(".desk-item__kind")?.after(tools);
   if (mine) {
     li.prepend(grip());
     tools.append(...moveButtons(host, c, row, rows));

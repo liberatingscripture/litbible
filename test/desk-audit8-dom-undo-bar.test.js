@@ -194,6 +194,23 @@ test("E127: a notice can carry a link that opens in a new tab, and the next noti
   assert.equal(document.querySelector(".desk-undo__link"), null);
 });
 
+test("D13, decision 27: a link with `open` acts in place on a plain click and says nothing of a tab; a modified click is the browser's", () => {
+  const opened = [];
+  showUndo("John 3:16 added to Advent series.", () => {}, { link: { label: "Open the collection", href: "/collections/?id=c", open: () => opened.push("c") } });
+  const a = document.querySelector(".desk-undo__link");
+  assert.equal(a.getAttribute("href"), "/collections/?id=c");
+  assert.equal(a.target, "");
+  assert.equal(a.textContent, "Open the collection");
+  const modified = new window.MouseEvent("click", { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
+  a.addEventListener("click", (e) => e.preventDefault(), { once: true }); // no navigation in the test
+  a.dispatchEvent(modified);
+  assert.deepEqual(opened, []);
+  const plain = new window.MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+  a.dispatchEvent(plain);
+  assert.equal(plain.defaultPrevented, true);
+  assert.deepEqual(opened, ["c"]);
+});
+
 // E152 (BVJ, 2026-11-17): “It seems like it's just staying there forever
 // until I dismiss.” Pressing Undo or Redo with the mouse left focus on the
 // next notice's button, and that focus held the bar open for good.

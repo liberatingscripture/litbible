@@ -21,6 +21,7 @@ import { undoEntry } from "../history.js";
 import { showNotice, showUndo } from "../undo-bar.js";
 import { dateWords, plural } from "../desk-text.js";
 import { buttons, make } from "../dom.js";
+import { newTabMark } from "../glyphs.js";
 import { follow, focusKey, heading, keyed } from "./collection-view.js";
 import { openNewCollection } from "./new-collection.js";
 
@@ -84,9 +85,11 @@ export async function collectionList(host) {
     const help = make("p");
     const link = make("a", null, "How collections work");
     link.href = `${host.base}desk/help/#collections`;
+    // In a pane it opens in a new tab, and says so (the desk's other help links do).
     if (host.newTabLinks) {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
+      link.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
     }
     help.append(link);
     nodes.push(help);

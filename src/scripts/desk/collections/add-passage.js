@@ -30,7 +30,28 @@ export const collectionsHref = `${BASE}collections/`;
 /** A collection's own page. */
 export const collectionHref = (id) => `${BASE}collections/?id=${encodeURIComponent(id)}`;
 
-const openLink = (id) => ({ label: "Open the collection", href: collectionHref(id) });
+// What "Open the collection" does on a plain click where the page has said
+// (D13, decision 27): on /desk it shows the collection in a Collections pane
+// by E127's rule (desk-page.js sets it); everywhere else it stays the link to
+// the collection's page, in a new tab.
+let opener = null;
+
+/** Make the bar's "Open the collection" act here, or (null) go back to the link. */
+export function setCollectionOpener(fn) {
+  opener = typeof fn === "function" ? fn : null;
+}
+
+/** The undo bar's "Open the collection" for collection `id`, every place that says it. */
+export function collectionLink(id) {
+  const link = { label: "Open the collection", href: collectionHref(id) };
+  if (opener) {
+    const open = opener;
+    link.open = () => open(id);
+  }
+  return link;
+}
+
+const openLink = collectionLink;
 
 /**
  * Add the passage `fields` to the collection `collectionId`, and tell the

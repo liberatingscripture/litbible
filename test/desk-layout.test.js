@@ -53,9 +53,12 @@ import {
   setKind,
   setLitAt,
   setPaneSheet,
+  setPaneCollection,
   setPin,
   sheetPaneFor,
+  collectionPaneFor,
   showSheet,
+  showCollection,
   makeWayFor,
   setPlace,
   slotCount,
@@ -220,7 +223,7 @@ test("applyArrangement fills new slots with the first kind not open, in KINDS or
   assert.deepEqual(kinds(applyArrangement(lv, "cols-3")), ["lit", "verse", "mine"]);
   // The fill order is KINDS order.
   const order = KINDS.map((k) => k.kind);
-  assert.deepEqual(order, ["lit", "mine", "verse", "footnotes", "greek", "sheet", "search"]);
+  assert.deepEqual(order, ["lit", "mine", "verse", "footnotes", "greek", "sheet", "collection", "search"]);
 });
 
 test("applyArrangement gives new panes ids that are free and no pin", () => {
@@ -2112,6 +2115,85 @@ test("sheetPaneFor: as a row where a column doesn't fit, and nothing where neith
   assert.equal(none.paneId, null);
   const full = applyArrangement(mk(leaf("p1", "lit")), "grid");
   assert.deepEqual(sheetPaneFor(full, 4000, 4000), { layout: full, paneId: null }, "four panes is the most");
+});
+
+// ---- the collection a Collections pane shows (D13, decisions 26 to 28) --------
+
+const withCollectionPane = () => setKind(originalLayout(), "p2", "collection");
+
+test("Collections is a kind of pane that stands alone, with its line", () => {
+  const k = KINDS.find((x) => x.kind === "collection");
+  assert.ok(k, "a kind");
+  assert.equal(k.label, "Collections");
+  assert.equal(k.follows, false, "it doesn't follow the LIT pane (decision 27)");
+  assert.ok(k.about, "its one-line description");
+});
+
+test("setPaneCollection sets and clears the collection a Collections pane shows, without mutating", () => {
+  const l = withCollectionPane();
+  const before = structuredClone(l);
+  const next = setPaneCollection(l, "p2", "col-1");
+  assert.equal(findPane(next.root, "p2").collection, "col-1");
+  assert.deepEqual(l, before);
+  const cleared = setPaneCollection(next, "p2", null);
+  assert.equal("collection" in findPane(cleared.root, "p2"), false);
+  assert.equal(setPaneCollection(l, "p1", "col-1"), l, "a LIT pane has no collection");
+  assert.equal(setPaneCollection(next, "p2", "col-1"), next, "unchanged");
+});
+
+test("setKind drops a Collections pane's collection", () => {
+  const l = setPaneCollection(withCollectionPane(), "p2", "col-1");
+  assert.equal("collection" in findPane(setKind(l, "p2", "mine").root, "p2"), false);
+});
+
+test("checkLayout keeps a Collections pane's collection and drops one anywhere else", () => {
+  const l = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "collection", collection: "c-1" } }, { pane: { id: "p2", kind: "mine", collection: "c-2" } })));
+  assert.equal(findPane(l.root, "p1").collection, "c-1");
+  assert.equal("collection" in findPane(l.root, "p2"), false);
+  const bad = checkLayout(mk(cols([0.5, 0.5], { pane: { id: "p1", kind: "collection", collection: 7 } }, leaf("p2", "mine"))));
+  assert.equal("collection" in findPane(bad.root, "p1"), false);
+});
+
+test("showCollection uses the pane showing it, else the first Collections pane", () => {
+  const two = mk(cols([0.4, 0.3, 0.3], leaf("p1", "lit"), { pane: { id: "p2", kind: "collection", pin: null, collection: "a" } }, { pane: { id: "p3", kind: "collection", pin: null, collection: "b" } }));
+  const same = showCollection(two, "b");
+  assert.equal(same.outcome, "shown");
+  assert.equal(same.paneId, "p3", "the one already showing it");
+  assert.equal(same.layout, two, "nothing changes");
+  const other = showCollection(two, "c");
+  assert.equal(other.paneId, "p2", "else the first");
+  assert.equal(findPane(other.layout.root, "p2").collection, "c");
+});
+
+test("showCollection opens a Collections pane where there is room, else takes another's place, else says why", () => {
+  const opened = showCollection(originalLayout(), "c-1", 1400);
+  assert.equal(opened.outcome, "opened");
+  const made = findPane(opened.layout.root, opened.paneId);
+  assert.equal(made.kind, "collection");
+  assert.equal(made.collection, "c-1");
+  const replaced = showCollection(originalLayout(), "c-1", 600);
+  assert.equal(replaced.outcome, "replaced");
+  assert.deepEqual(replaced.replaced, { id: "p2", kind: "mine" });
+  assert.equal(findPane(replaced.layout.root, "p2").collection, "c-1");
+  const lone = mk(leaf("p1", "lit"));
+  const none = showCollection(lone, "c-1", 400);
+  assert.equal(none.outcome, "none");
+  assert.equal(none.reason, "window");
+  assert.equal(none.layout, lone, "a LIT pane never gives its place");
+  assert.equal(showCollection(originalLayout(), "").outcome, "none", "no collection, nothing to show");
+});
+
+test("collectionPaneFor: an open Collections pane, else a new column, else a row, else nothing", () => {
+  const open = mk(cols([0.5, 0.5], leaf("p1", "lit"), leaf("p2", "collection")));
+  assert.deepEqual(collectionPaneFor(open, 100, 100), { layout: open, paneId: "p2" });
+  const l = originalLayout("john 3:16");
+  const col = collectionPaneFor(l, 1400, 800);
+  assert.equal(col.layout.root.split, "columns");
+  assert.deepEqual(kinds(col.layout), ["lit", "mine", "collection"]);
+  assert.equal(findPane(col.layout.root, col.paneId)?.kind, "collection");
+  const row = collectionPaneFor(l, 700, 800);
+  assert.equal(row.layout.root.split, "rows");
+  assert.deepEqual(collectionPaneFor(l, 700, 300), { layout: l, paneId: null });
 });
 
 // ---- what a LIT pane's text shows (E108) --------------------------------------

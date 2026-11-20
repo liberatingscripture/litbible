@@ -30,7 +30,7 @@ import { undoEntry } from "./history.js";
 import { openLabelsPopover, labelsSubject } from "./labels-ui.js";
 import { collectionsSubject, openCollectionsPopover } from "./collections/collections-popover.js";
 import { ITEM_KINDS, collectionCount, collectionFilter, collectionName, collectionsNamed, filterableCollections } from "../../lib/desk-collections.mjs";
-import { collectionHref, collectionsHref } from "./collections/add-passage.js";
+import { collectionHref, collectionLink, collectionsHref } from "./collections/add-passage.js";
 import { openAddRecords } from "./collections/add-records.js";
 import { openNewCollection } from "./collections/new-collection.js";
 import { openBookmarkForm } from "./bookmark-form.js";
@@ -340,7 +340,7 @@ export function createKeptList({ store, ctx, idPrefix = "deskNp", goHere = null 
           near: { left: at.left, top: at.bottom + 8 },
           back: () => fresh,
           onCreated: (made, entry) =>
-            showUndo(`${collectionName(made)} made.`, () => undoEntry(entry), { link: { label: "Open the collection", href: collectionHref(made.id) } }),
+            showUndo(`${collectionName(made)} made.`, () => undoEntry(entry), { link: collectionLink(made.id) }),
         });
       });
       const every = el("a", null, "All my collections");

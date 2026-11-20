@@ -19,7 +19,10 @@
 // - Sheet is sheet-pane.js, the sheet editor (S1; 3f; sheet-editor.js) in a
 //   pane, showing the sheet the layout names for it, or the list of sheets;
 // - Search is search-pane.js, the site's search with results that move the
-//   LIT pane (3m). It stands alone, and keeps nothing of a search.
+//   LIT pane (3m). It stands alone, and keeps nothing of a search;
+// - Collections is collections/collection-pane.js (D13, decisions 26 to 36),
+//   the /collections page's list and view in a pane, showing the collection
+//   the layout names for it, or the list. It stands alone too.
 // The following panes (This verse, Greek, Footnotes) read their chapter from
 // its fetched Chapter View page (chapter-page.js), and show the passage
 // desk-page.js gives them, with a passage picker at their top
@@ -38,6 +41,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
 import { createSearchPane } from "./search-pane.js";
 import { createSheetPane } from "./sheets/sheet-pane.js";
+import { createCollectionPane } from "./collections/collection-pane.js";
 import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
@@ -394,6 +398,20 @@ function mountSheet(body, env, pane) {
   return { destroy: () => sheet.destroy(), editor: sheet.editor };
 }
 
+function mountCollection(body, env, pane) {
+  const view = createCollectionPane({
+    store: env.store,
+    ctx: env.ctx,
+    paneId: pane.id,
+    getCollection: pane.getCollection,
+    setCollection: pane.setCollection,
+    showPassage: env.showPassage,
+    showSheet: env.showSheet,
+  });
+  body.append(view.el);
+  return { show: (id, options) => view.show(id, options), destroy: () => view.destroy() };
+}
+
 function mountSearch(body, env, pane) {
   body.classList.add("desk-pane__body--fill");
   const search = createSearchPane({ paneId: pane.id, env, getPlace: pane.get });
@@ -452,15 +470,19 @@ function mineScope(pane) {
  *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env
  * @param {{ id: string, get: () => object, set: (passage: object, how?: { jump: boolean }) => void,
- *   getSheet: () => string | null, setSheet: (id: string | null) => void }} pane
+ *   getSheet: () => string | null, setSheet: (id: string | null) => void,
+ *   getCollection: () => string | null, setCollection: (id: string | null) => void }} pane
  *   `get` and `set` are the passage the pane shows (desk-page.js): for a LIT
  *   pane, `set` is where its reader now is; a following pane's `set` with
  *   `{ jump: true }` moves the LIT pane as a jump (E168). `getSheet` and
- *   `setSheet` are the sheet a Sheets pane shows.
+ *   `setSheet` are the sheet a Sheets pane shows, `getCollection` and
+ *   `setCollection` the collection a Collections pane shows.
  * @returns {{ destroy: () => void, setPassage?: (passage: object, how?: { jump: boolean }) => void,
- *   keep?: () => () => void, editor?: object, backPlace?: () => object | null, forgetBack?: () => void }}
+ *   keep?: () => () => void, editor?: object, backPlace?: () => object | null, forgetBack?: () => void,
+ *   show?: (collectionId: string | null, options?: { focus?: boolean }) => Promise<void> }}
  *   `editor` is a Sheets pane's sheet editor (sheet-editor.js); `backPlace`
- *   and `forgetBack` are a LIT pane's way back (E168).
+ *   and `forgetBack` are a LIT pane's way back (E168); `show` puts a
+ *   collection in a Collections pane already open.
  */
 export function mountPane(kind, body, env, pane) {
   body.classList.remove("desk-pane__body--fill");
@@ -515,6 +537,7 @@ export function mountPane(kind, body, env, pane) {
   if (kind === "footnotes") return mountFootnotes(body, env, pane);
   if (kind === "sheet") return mountSheet(body, env, pane);
   if (kind === "search") return mountSearch(body, env, pane);
+  if (kind === "collection") return mountCollection(body, env, pane);
   // A pane saved by a later version of the page, which this copy doesn't know.
   return message(body, "This pane needs a newer copy of the page. Reload to get it.");
 }

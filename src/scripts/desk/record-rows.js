@@ -88,7 +88,9 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   if (href && r.kind === "bookmark" && !trash) {
     head.addEventListener("click", (e) => {
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
-      if (isFollowing(r)) followBookmark(r, head.href);
+      // Where `goHere` took the click (a /desk pane), the link isn't followed:
+      // the next report of where the reader is decides, as My Notes' rows do.
+      if (isFollowing(r)) followBookmark(r, e.defaultPrevented ? null : head.href);
       else stopFollowing();
     });
   }

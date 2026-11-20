@@ -20,7 +20,7 @@ globalThis.BroadcastChannel = class extends RealChannel {
   }
 };
 
-const { addPassageToCollection, collectionHref } = await import("../src/scripts/desk/collections/add-passage.js");
+const { addPassageToCollection, collectionHref, collectionLink, setCollectionOpener } = await import("../src/scripts/desk/collections/add-passage.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
 
 const ctx = () => ({ client: "web/test", contentVersion: "v1" });
@@ -58,4 +58,20 @@ test("a passage is added once, with Undo and Open the collection; a repeat write
 test("a collection that is gone adds nothing and says so", async () => {
   assert.equal(await addPassageToCollection({ store, ctx, collectionId: "no-such-collection", fields: luke210, name: "Lent" }), "failed");
   assert.match(barText(), /may have been deleted\. Nothing was added\./);
+});
+
+test("Open the collection is the page's link, until /desk gives an opener; then a plain click shows it there (decision 27)", () => {
+  const plain = collectionLink("c-1");
+  assert.deepEqual(plain, { label: "Open the collection", href: collectionHref("c-1") });
+  const shown = [];
+  setCollectionOpener((id) => shown.push(id));
+  try {
+    const link = collectionLink("c-1");
+    assert.equal(link.href, collectionHref("c-1"), "still the page, for a modified click");
+    link.open();
+    assert.deepEqual(shown, ["c-1"]);
+  } finally {
+    setCollectionOpener(null);
+  }
+  assert.equal("open" in collectionLink("c-1"), false, "a chapter page has none");
 });

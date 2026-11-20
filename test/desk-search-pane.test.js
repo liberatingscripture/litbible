@@ -165,6 +165,15 @@ test("E127: noWayMessage says why and both ways on, and names the search only wh
   }
 });
 
+test("D13: a Collections pane that asked names itself, and a Collections pane has its own words", () => {
+  assert.match(noWayMessage("lit", "full", { collection: true }), /“Stay here,” and this collection keep their places\./);
+  assert.equal(
+    noWayMessage("collection", "full"),
+    "There’s no room for a Collections pane, and no pane can make way: LIT panes and panes set to “Stay here” keep their places. Close a pane and try again, or open the collection on its page.",
+  );
+  assert.equal(noWayLinkLabel("collection"), "Open the collection");
+});
+
 test("E127: noWayLinkLabel names the page", () => {
   assert.equal(noWayLinkLabel("lit", "John 3:16"), "Open John 3:16");
   assert.equal(noWayLinkLabel("sheet"), "Open the sheet");
