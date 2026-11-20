@@ -4867,7 +4867,8 @@ says so; where BVJ was wondering, nothing is decided.)
   required; a description given is kept with the new collection
   (`createCollection` took one already). Every way in uses that window, so
   each gets it: the collections page's “New collection…,” the one in My
-  Notes' Collections section, Add to collection ▸'s, and the pick windows' “New collection…” action row (This verse's
+  Notebook's Collections section, Add to collection ▸'s, and the pick
+  windows' “New collection…” action row (This verse's
   Add to collection…, “Add these N to a collection…,” and a label's “Add all
   bookmarks labeled…”). The Collections popover's own inline name box on a
   row is unchanged. The help page's “How collections work” says the window
