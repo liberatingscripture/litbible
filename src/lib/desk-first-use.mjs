@@ -563,9 +563,9 @@ export const SHEET_TOUR_STEPS = [
     title: "My sheets",
     body: {
       default:
-        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A Sheets pane is shown here only for the tour.",
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here and on the Sheets page: open one to work on it, “Duplicate” it, or “Delete” it. A Sheets pane is shown here only for the tour.",
       page:
-        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in the Study Desk’s Sheets pane, where the LIT sits beside them. Open one to edit, print, present, or share it, “Duplicate” it, keep its parts with “Save as template,” or “Delete” it. A file someone sent you opens with “Import a sheet file.”",
+        "A sheet gathers passages and your own words into a handout for a study, a class, or a sermon. Yours are listed here, and in the Study Desk’s Sheets pane, where the LIT sits beside them. Open one to print, present, or share it, and “Edit” beside it to work on it, or “Duplicate” or “Delete” it. A file someone sent you opens with “Import a sheet file.”",
     },
   },
   {
@@ -576,9 +576,9 @@ export const SHEET_TOUR_STEPS = [
     title: "Start from a template",
     body: {
       default:
-        "“New sheet” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you save as a template is offered here too. Nothing is written until your first change, so you can open each and look.",
+        "“New sheet” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you keep with “Save as template,” at the top of a sheet you are editing, is offered here too. Nothing is written until your first change, so you can open each and look.",
       page:
-        "“New sheet…” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you save as a template is offered here too. Nothing is written until your first change, so you can open each and look.",
+        "“New sheet…” offers templates, each a way of meeting a text: a Bible study, sermon preparation, a class session, lectio divina, and more, or a blank canvas. A sheet you keep with “Save as template,” at the top of a sheet you are editing, is offered here too. Nothing is written until your first change, so you can open each and look.",
     },
   },
   {
@@ -637,7 +637,7 @@ export const SHEET_TOUR_STEPS = [
       default:
         "“Print or share” opens the sheet’s own page in a new tab. There you choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, and print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file.",
       page:
-        "“Close” brings a sheet to its own page, this one. Choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, then print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file. “Edit” goes back to the parts.",
+        "“Preview” brings a sheet to its own page, this one, as it prints. Choose the leader’s version or the participant’s, which leaves out the answers and the “Leader only” parts, then print it on Letter or A4, copy it into Word, save it as a document, or share it as a link or a file. “Edit” goes back to the parts.",
     },
   },
   {

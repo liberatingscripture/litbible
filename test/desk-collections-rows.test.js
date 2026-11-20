@@ -227,7 +227,7 @@ test("a sheet's row in a list of sheets has Collections… before Delete, and it
   ul.append(li);
   document.body.append(ul);
   const names = [...li.querySelectorAll("button")].map((b) => b.textContent);
-  assert.deepEqual(names, ["Duplicate", "Save as template", "Collections…", "Delete"]);
+  assert.deepEqual(names, ["Edit", "Duplicate", "Collections…", "Delete"]);
   const b = li.querySelector('[data-focus-key^="collections-"]');
   assert.equal(b.getAttribute("aria-label"), "Collections for sheet “Sunday handout”");
   b.click();

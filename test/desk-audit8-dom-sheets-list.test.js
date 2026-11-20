@@ -6,7 +6,9 @@
 // - SH8-1 (LV8-1): a save anywhere redraws /sheets/' rows alone, off the
 //   page, and only when they changed; "New sheet…"'s chooser and focus stay.
 // - SH8-5: a failed Delete says so, and a second press waits for the first.
-// - XA8-4: "Save as template"'s accessible name starts with its visible words.
+// - XA8-4: a row button's accessible name starts with its visible words
+//   (Edit's, since E208 moved "Save as template", the button XA8-4 named,
+//   into the editor; that one is tested in desk-e208-template.test.js).
 // - XA8-15: a row button that can't be used stays reachable and says why.
 // - XA8-8: importing a shared sheet is announced through a region always on the page.
 
@@ -46,51 +48,74 @@ async function until(fn, ms = 3000, what = "the condition") {
   }
 }
 
-/** A Sheets pane's list, with a host whose store the test answers. */
-function paneList(sheets, store = {}) {
+/**
+ * A Sheets pane's list, with a host whose store the test answers; `host`
+ * adds to the host (`sheetHref` makes it /sheets/' list).
+ */
+function paneList(sheets, store = {}, more = {}) {
   const content = document.createElement("div");
   const said = [];
+  const opened = [];
   const host = {
     store: { remove: async () => null, get: async () => null, save: async () => {}, lastEntry: () => null, ...store },
     opCtx,
     idSuffix: "t",
     say: (t) => said.push(t),
     content,
-    openSheet: async () => {},
+    openSheet: async (id) => { opened.push(id); },
     startFrom: () => {},
     showList: async () => {},
     onTour: null,
+    ...more,
   };
   const { list } = mySheetsList(host, { sheets, mine: [] });
   content.append(list);
   document.body.replaceChildren(content);
-  return { content, said, host };
+  return { content, said, host, opened };
 }
+
+/** /sheets/' list: a row's name links to the sheet's versions. */
+const pageList = (sheets, store = {}) => paneList(sheets, store, { sheetHref: (s) => `/sheets/?id=${s.id}` });
 
 const rowButton = (content, label) =>
   [...content.querySelectorAll(".desk-sheet__sheet button")].find((b) => b.textContent === label);
+const rowLabels = (li) => [...li.querySelectorAll("button")].map((b) => b.textContent);
 
-test("Save as template is named by its visible words first (XA8-4)", () => {
+test("a row has no Save as template, on /sheets/ or in a pane: it is the editor's (E208)", () => {
+  for (const list of [paneList, pageList]) {
+    const { content } = list([sheetOf("Romans 8 study")]);
+    assert.equal(rowButton(content, "Save as template"), undefined);
+  }
+});
+
+test("/sheets/' rows have Edit first after the name, named by its visible words first, and a press opens the editor (E208, XA8-4)", () => {
+  const s = sheetOf("Romans 8 study");
+  const { content, opened } = pageList([s]);
+  const li = content.querySelector(".desk-sheet__sheet");
+  assert.deepEqual(rowLabels(li), ["Edit", "Duplicate", "Collections…", "Delete"]);
+  const edit = rowButton(content, "Edit");
+  assert.equal(edit.tagName, "BUTTON", "a button, so the grid never takes it for the row's last link");
+  assert.equal(edit.getAttribute("aria-label"), "Edit Romans 8 study");
+  assert.ok(edit.getAttribute("aria-label").startsWith(edit.textContent));
+  assert.equal(edit.dataset.focusKey, `edit-${s.id}`);
+  edit.click();
+  assert.deepEqual(opened, [s.id]);
+});
+
+test("a Sheets pane's rows have no Edit: the name opens the editor there (E208)", () => {
   const { content } = paneList([sheetOf("Romans 8 study")]);
-  const keep = rowButton(content, "Save as template");
-  assert.equal(keep.getAttribute("aria-label"), "Save as template, Romans 8 study");
-  assert.ok(keep.getAttribute("aria-label").startsWith(keep.textContent));
+  const li = content.querySelector(".desk-sheet__sheet");
+  assert.deepEqual(rowLabels(li).slice(1), ["Duplicate", "Collections…", "Delete"]);
+  assert.equal(li.querySelector(".desk-sheet__open").tagName, "BUTTON", "the name itself opens the sheet");
 });
 
 test("a row button that can't be used stays reachable, says why, and does nothing when pressed (XA8-15)", async () => {
-  // A sheet of passages alone can't make a template; one of a newer format can't be copied.
+  // A sheet of a newer format can't be copied, or edited here.
   let reads = 0;
-  const passagesOnly = sheetOf("Readings", [makeModule("passage", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16 })]);
   const newer = sheetOf("From the future", undefined, { sheetFormat: 99 });
-  const { content } = paneList([passagesOnly, newer], { get: async () => (reads++, null) });
-  const rows = [...content.querySelectorAll(".desk-sheet__sheet")];
-  const row = (title) => rows.find((li) => li.textContent.includes(title));
-  const cases = [
-    [row("Readings"), "Save as template", /only passages/],
-    [row("From the future"), "Duplicate", /newer version/],
-    [row("From the future"), "Save as template", /newer version/],
-  ];
-  for (const [li, label, why] of cases) {
+  const { content, opened } = pageList([newer], { get: async () => (reads++, null) });
+  const li = content.querySelector(".desk-sheet__sheet");
+  for (const [label, why] of [["Duplicate", /newer version/], ["Edit", /newer version.*can’t be edited/]]) {
     const b = [...li.querySelectorAll("button")].find((x) => x.textContent === label);
     assert.equal(b.disabled, false, `${label} is not disabled, so a keyboard reaches it`);
     assert.equal(b.getAttribute("aria-disabled"), "true");
@@ -103,7 +128,8 @@ test("a row button that can't be used stays reachable, says why, and does nothin
     b.click();
   }
   await settle();
-  assert.equal(reads, 0, "no press reached Duplicate or Save as template");
+  assert.equal(reads, 0, "no press reached Duplicate");
+  assert.deepEqual(opened, [], "and none opened the editor");
 });
 
 test("a Delete that fails says so under the heading, and a second press while it runs sends nothing (SH8-5)", async () => {
