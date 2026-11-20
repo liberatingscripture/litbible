@@ -1,11 +1,12 @@
 // src/scripts/desk/collections/add-records.js
 //
-// Records and a label's bookmarks put into a collection from My Notebook (D13,
-// step 5; STUDY-DESK.md, "Getting things in"). Two windows, both E154's pick
-// window (pick-window.js, decision 25: no look of their own):
+// Records and a label's bookmarks put into a collection from My Notebook and My
+// Notes (D13, step 5; E176; STUDY-DESK.md, "Getting things in"). Two windows,
+// both E154's pick window (pick-window.js, decision 25: no look of their own):
 //
-//   openAddRecords  "Add these 12 to a collection…" under My Notes' search:
-//                   whatever the list shows that a collection can hold
+//   openAddRecords  "Add these 12 to a collection…" under either list's count,
+//                   while its search or label filter is on (kept-list.js,
+//                   tab-mine.js): whatever the list shows that a collection can hold
 //                   (ITEM_KINDS). A pick adds them as items; its "New
 //                   collection…" row makes a collection holding them.
 //   openAddLabel    a label's "Add all bookmarks labeled Advent…": the same

@@ -83,8 +83,9 @@ it holds. Computer only; the apps carry it untouched.
   `{ kinds: ["collection"] }` itself. Tests:
   `test/desk-collections-rows.test.js`, `test/desk-collections-verse.test.js`.
 - **Step 5, Labels and the live rule:** `add-records.js` is the one way
-  records and a label's bookmarks go in from My Notebook:
-  `openAddRecords` ("Add these N to a collection…", `kept-list.js`, shown
+  records and a label's bookmarks go in from a list:
+  `openAddRecords` ("Add these N to a collection…", `kept-list.js` and,
+  since E176, `tab-mine.js`, each shown
   while a search or the label filter is on, counting what the list shows of
   `ITEM_KINDS`) and `openAddLabel` (a label's "Add all bookmarks labeled
   Advent…" in the Labels section of `notebook-page.js`, shown only for a label

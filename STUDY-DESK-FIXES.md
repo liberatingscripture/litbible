@@ -4875,6 +4875,35 @@ says so; where BVJ was wondering, nothing is decided.)
   asks for a description too. Tests: `test/desk-collections-page.test.js`
   (left empty, none is kept) and `test/desk-collections-add-menu.test.js`
   (given from a verse, it is kept). Status: fixed.
+- **E176, preference: My Notes has “Add these 12 to a collection…” and a
+  link to My Notebook.** BVJ, 2026-11-19, working through D13's review
+  list, with a screenshot of the Notebook panel's My Notes searched for
+  “Torah” beside item 3c (“In My Notebook, with a search or the label filter
+  on, ‘Add these N to a collection…’ adds exactly what the list shows”): “I
+  don't see this.” The button was built on My Notebook's list alone
+  (`kept-list.js`, drawn only on /notebook), where decision 5 put it, and
+  the panel's My Notes is another list (`tab-mine.js`). Asked whether My
+  Notes should have it too, BVJ chose “Yes, add it,” and added: “And add a
+  way to the My Notebook page from the My notes.” This widens decision 5
+  from My Notebook to both lists. **Fixed** in `tab-mine.js`, so the
+  Notebook panel's tab and /desk's My Notes pane alike:
+  - **One quiet line under the count**: “My Notebook,” a link to
+    /notebook/, whenever the browser keeps a notebook, and, while the search
+    or a label narrows the list, “Add these 12 to a collection…” before it,
+    a dot between. The button counts what the list shows that a collection
+    can hold (`ITEM_KINDS`), says “Add this one to a collection…” for one,
+    and opens My Notebook's pick window (`openAddRecords`), so a pick, “New
+    collection…” and the undo bar (“3 added to Advent series.”) are the
+    same. Only the search and the label filter offer it, as on My Notebook.
+  - **On /desk the link opens in a new tab** (`notebookInNewTab`, which
+    `desk-panes.js` sets), as the title menu's “My Notebook” does, with the
+    new-tab mark and “(opens in a new tab)” for a screen reader. In the
+    panel beside a chapter it opens in the same tab, as the Settings tab's
+    link does.
+  - **No new look** (decision 25): the button is the quiet
+    `desk-item__stop`, and the line takes the count's type.
+  The help page says My Notes has the link, and that “Add these 12” is in
+  both lists. Test: `test/desk-mine-add-these.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
