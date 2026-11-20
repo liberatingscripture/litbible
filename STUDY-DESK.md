@@ -5708,7 +5708,10 @@ section marked as one is agreed unless "Still open" says otherwise.
     sheet's offers "Open the sheet."
 13. **The name is "Collections."**
 14. **"New collection…" asks for a name** in a small window, with the
-    passage filled in, since a collection's name is its purpose.
+    passage filled in, since a collection's name is its purpose. *Changed
+    for the list by E190* (BVJ, 2026-11-19): the list's button, in the pane
+    and on /collections, opens the same fields in place under it, as "New
+    sheet" opens its templates; the window stays where there is no list.
 15. **A record kind of its own** ("How it is stored," below); BDR's review
     is still to come.
 16. **Header C's Study group gains "My collections"** beside "My sheets"
@@ -6162,6 +6165,8 @@ pane in the dropdown menus."). So BVJ chose:
     pane, or adds one as a column (else a row), and opens the name window
     there; Create shows the new collection in that pane. Like New sheet…, it
     is disabled, not hidden, with its reason, when no pane can be added.
+    *Changed by E190* (BVJ, 2026-11-19): it opens the pane's list with its
+    New collection form open, focus in Name, rather than the name window.
 29. **A member's reference moves the LIT pane.** A plain click on a
     passage's or a record's reference moves the leading LIT pane there, as
     My Notes' rows do (BA124), and it is a jump, so the LIT pane's bar then

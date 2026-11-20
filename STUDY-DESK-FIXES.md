@@ -5273,6 +5273,41 @@ says so; where BVJ was wondering, nothing is decided.)
   (which said Enter put the line back; it has opened the menu since XA8-1).
   Test: `test/desk-e189-lines.test.js`. Status: fixed.
 
+- **E190, preference: “New collection” opened a window where “New sheet”
+  opens in place.** BVJ, 2026-11-19: “I wonder about opening the new
+  collection dialogue on the pane surface instead of a window, like the
+  sheets pane does,” then “Yes, pane and page.” The list's button, and the
+  command row's “New collection…,” opened the name window over the LIT,
+  in the pick window's place; a Sheets pane's “New sheet” and /sheets'
+  “New sheet…” open their templates under the button. **This changes D13's
+  decisions 14 and 28 for the list** (STUDY-DESK.md says so under each).
+  **Fixed** (`new-collection.js`, `name-window.js`, `collection-list.js`,
+  `collection-pane.js`, `command-row.js`, `desk.css`): the list's button
+  opens a card under its row (`newCollectionForm`), the chooser's card
+  (`desk-sheet__passage-form`) at the chooser's place: under the pane's
+  title row, and 0.5rem under the page's button at the page's chooser
+  width. It holds the name window's form (`nameForm`, taken out of
+  `openNameWindow` so the two can't drift apart): Name, required, an
+  optional Description, the “Type a name first.” line, Cancel and Create.
+  The opener says “Cancel” in the ordinary look while it is open, as New
+  sheet's does (E121), so Create is the view's one primary (E126). Cancel,
+  the opener or Escape puts it away and forgets the words, focus going back
+  to the opener; Create puts it away, shows the new collection, and says
+  “Advent series made.” with Undo, as the window did. The list is drawn
+  again at every change to the notebook, so the form's words live in the
+  host's `listState`, and a form drawn again stays open with them, focus
+  kept in its field. The command row's “New collection…” now shows its
+  pane's list with the form open and focus in Name, leaving a collection
+  the pane showed, as its “New sheet…” leaves a sheet; sent again, it only
+  takes focus back to Name. Both fields take the size of the words around
+  them, as the other fields in a pane and on the page do, on the field's
+  fill (on the page, the root's `.desk-np` rule gave Name alone the card's
+  raised fill). **The name window stays** for the ways in with no list to
+  open on: the verse menu's and This verse's “Add to collection ▸ New
+  collection…,” the pick window's, My Notebook's, and Rename…. Tests:
+  `test/desk-collections-page.test.js`, `test/desk-collections-pane.test.js`,
+  `test/desk-audit8-dom-search-menus.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

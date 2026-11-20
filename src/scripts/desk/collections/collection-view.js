@@ -65,7 +65,8 @@
 //   this tab, or `openNotes()`, the pane's "From My Notes," which opens a My
 //   Notes pane beside it;
 // - from `viewHost`: `viewState(id)` (what a view keeps while it is drawn
-//   again: an open form, a heading being renamed), `openWords` (the passages
+//   again: an open form, a heading being renamed), `listState` (the list's
+//   New collection form, E190: open or not, and its words), `openWords` (the passages
 //   shown whole, by row key, for the visit), `chapterText` (a chapter's anchor
 //   text, for checking a typed reference), `passageText` (a passage's words,
 //   read once a place), and `parse` (the reference reader). A test replaces
@@ -190,6 +191,8 @@ export function viewHost({ store, ctx, base, chapterText = readChapterText, pass
       if (!states.has(id)) states.set(id, { adding: false, typed: "", heading: false, headingText: "", editing: null });
       return states.get(id);
     },
+    // The list's New collection form (E190): open or not, and what is typed in it.
+    listState: { open: false, name: "", description: "" },
   };
 }
 

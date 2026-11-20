@@ -25,21 +25,18 @@
 //   Notes pane"): `showMine`, desk-page.js's, shows a My Notes pane by
 //   E127's rule, this pane keeping its place;
 // - the command row's "New collection…" (decision 28): `desk:collection-new`
-//   with this pane's id opens the name window here, and Create shows the new
-//   collection in this pane;
+//   with this pane's id shows the list with its New collection form open
+//   (E190), and Create shows the new collection in this pane;
 // - every change to the notebook draws it again (decision 31), so a passage
 //   the LIT pane's menus add to the collection it shows appears at once.
 
-import { collectionName } from "../../../lib/desk-collections.mjs";
 import { noWayLinkLabel, noWayMessage, replacedMessage } from "../../../lib/desk-search-pane.mjs";
 import { QUIET_KINDS } from "../../../lib/desk-store-core.mjs";
-import { undoEntry } from "../history.js";
 import { showNotice, showUndo } from "../undo-bar.js";
 import { make } from "../dom.js";
 import { collectionHref } from "./add-passage.js";
 import { collectionList } from "./collection-list.js";
-import { collectionView, focusKey, keyed, viewHost } from "./collection-view.js";
-import { openNewCollection } from "./new-collection.js";
+import { collectionView, focusKey, viewHost } from "./collection-view.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
@@ -154,24 +151,20 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
   }
 
   // "New collection…" in the command row (decision 28), for this pane: the
-  // name window, near the list's own button when the list is showing, and
-  // Create shows the new collection here. Registered as the pane is built,
-  // because command-row.js sends the event right after its commit (DK6-10).
+  // list, with its New collection form open and focus in Name (E190), as the
+  // command row's "New sheet…" opens a Sheets pane's templates; Create shows
+  // the new collection here. Registered as the pane is built, because
+  // command-row.js sends the event right after its commit (DK6-10).
   const onNew = (e) => {
     if (e.detail?.paneId !== paneId) return;
-    const button = keyed(host, "new");
-    const box = (button ?? el).getBoundingClientRect();
-    openNewCollection({
-      store,
-      ctx,
-      heading: "My collections",
-      near: { left: box.left, top: button ? box.bottom + 8 : box.top },
-      back: e.detail.back ?? (() => keyed(host, "new")),
-      onCreated: (made, entry) => {
-        if (entry) showUndo(`${collectionName(made)} made.`, () => undoEntry(entry));
-        host.open(made.id);
-      },
-    });
+    const form = shows ? null : el.querySelector(".collection-page__new");
+    if (form) {
+      form.show();
+      return;
+    }
+    // A collection is showing, or the list is still being drawn.
+    host.listState.open = true;
+    show(null, [focusKey(host, "new-name")]);
   };
   document.addEventListener("desk:collection-new", onNew);
 

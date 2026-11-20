@@ -17,6 +17,12 @@
 // feature under the title, as /sheets has one (E187); the pane has none, so
 // its empty list says what a collection is instead.
 //
+// The button opens its form in place, under its row (E190; BVJ, 2026-11-19),
+// as a Sheets pane's "New sheet" opens its templates: `newCollectionForm`
+// (new-collection.js), whose words live in the host's `listState`, so a list
+// drawn again while it is open keeps it open with what was typed. The name
+// window stays for the ways in that have no list to open on.
+//
 // It knows nothing of addresses or panes. Its host (see collection-view.js,
 // "The host") opens a collection with `open(id)`, and a row is a link only
 // where the host gives `href(id)` (the page), else a button. Focus keys are
@@ -30,8 +36,8 @@ import { showNotice, showUndo } from "../undo-bar.js";
 import { dateWords, plural } from "../desk-text.js";
 import { buttons, make } from "../dom.js";
 import { newTabMark } from "../glyphs.js";
-import { follow, focusKey, heading, keyed } from "./collection-view.js";
-import { openNewCollection } from "./new-collection.js";
+import { follow, focusKey, heading } from "./collection-view.js";
+import { newCollectionForm } from "./new-collection.js";
 
 const button = buttons("desk-sheet__btn");
 const DESCRIPTION_SHOWN = 140;
@@ -68,25 +74,27 @@ export async function collectionList(host) {
   if (host.listHead) actions.append(title);
   const fresh = button(host.listHead ? "New collection" : "New collection…", "desk-sheet__btn desk-sheet__btn--primary");
   fresh.dataset.focusKey = focusKey(host, "new");
-  fresh.addEventListener("click", () => {
-    const at = fresh.getBoundingClientRect();
-    openNewCollection({
-      store,
-      ctx,
-      heading: "My collections",
-      near: { left: at.left, top: at.bottom + 8 },
-      back: () => keyed(host, "new"),
-      // Straight into the new collection, where "Add ▾" is.
-      onCreated: (made, entry) => {
-        if (entry) showUndo(`${collectionName(made)} made.`, () => undoEntry(entry));
-        host.open(made.id);
-      },
-    });
+  // Its form opens in place under the button's row (E190), as a Sheets pane's
+  // templates do under "New sheet".
+  const form = newCollectionForm({
+    store,
+    ctx,
+    opener: fresh,
+    idSuffix: host.idSuffix,
+    state: host.listState,
+    keys: (name) => focusKey(host, name),
+    // Straight into the new collection, where "Add ▾" is.
+    onCreated: (made, entry) => {
+      if (entry) showUndo(`${collectionName(made)} made.`, () => undoEntry(entry));
+      host.open(made.id);
+    },
   });
+  fresh.addEventListener("click", () => form.toggle());
   actions.append(fresh);
   // The page's description (E187), always shown, as /sheets' is.
   if (host.listIntro) nodes.push(pageIntro(host));
   if (!host.listHead) nodes.push(actions);
+  nodes.push(form);
   if (!all.length) {
     if (host.listIntro) {
       nodes.push(make("p", "desk-np__intro", "You haven’t made a collection yet."));
