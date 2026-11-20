@@ -7409,6 +7409,26 @@ a.desk-sheet__open {
   margin-top: 0;
 }
 
+/* Its name sits level with its grip and buttons (E214): the name keeps none of
+   a heading's margin, which the row would center with it, and the buttons are
+   centered as a sheet part's tools are. */
+.collection-page__heading > :is(h2, h3, h4) {
+  margin: 0;
+}
+
+.collection-page__heading > .desk-np-row__buttons {
+  align-items: center;
+}
+
+/* The whole line drags, its buttons aside, as a member's head does (E214). */
+.collection-page__heading:not(:has(> form)) {
+  cursor: grab;
+}
+
+.collection-page__heading > .desk-np-row__buttons {
+  cursor: auto;
+}
+
 /* Bible order's rows on a passage's sheet (E193): under its words, indented,
    each parted from the next by the line a list's rows have. */
 .collection-page__nested {
