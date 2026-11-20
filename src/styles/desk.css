@@ -8016,6 +8016,15 @@ a.desk-sheet__open {
   color: var(--text);
 }
 
+/* On the collections page, whose root is .desk-np too (for My Notebook's
+   rows), the notebook page's field rule gave these fields (Add a passage, a
+   heading) the raised fill, the card's own color. They take the field's
+   fill, white, as in a pane and on /sheets (E191; BVJ, 2026-11-19: "have the
+   field be white"). */
+.desk-np .desk-sheet__ref input {
+  background: var(--desk-field);
+}
+
 .desk-sheet__problem {
   margin: 6px 0 0;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
