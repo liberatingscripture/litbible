@@ -56,6 +56,8 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
     root,
     listHref,
     href,
+    // The list's description of the feature, as /sheets has one (E187).
+    listIntro: true,
     // "Open in the Study Desk" (decision 27): /desk shows it in a Collections pane.
     deskHref: (id) => `${base}desk/?collection=${encodeURIComponent(id)}`,
     // "Add ▾ › From My Notebook" (E177; BVJ: "On /collections it should Go to

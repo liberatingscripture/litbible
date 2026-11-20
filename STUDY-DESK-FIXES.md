@@ -5191,6 +5191,40 @@ says so; where BVJ was wondering, nothing is decided.)
   Sheets pane's are. The /collections page keeps `#FAFAF8` on its cream,
   as /sheets does. Test: `test/desk-audit8-f-css.test.js`. Status: fixed.
 
+- **E186, preference: the Collections pane's “New collection…” wasn't the
+  Sheets pane's “New sheet.”** BVJ, 2026-11-19, after E185: “the ‘New
+  Collection...’ button is placed differently and includes the ellipsis. It
+  should be patterned after the sheets pane.” The list, which the page and
+  the pane share, put the button on a row of its own under “My
+  collections,” named “New collection…,” as /sheets puts “New sheet…”; a
+  Sheets pane puts “New sheet” beside “My sheets,” with no ellipsis.
+  **Fixed** (`collection-list.js`, `collection-pane.js`): a host field,
+  `listHead`, which the pane gives, puts the title and “New collection” in
+  one row (`desk-sheet__list-head`, the Sheets pane's), with the intro or
+  the cards under it, and drops the ellipsis. The /collections page keeps
+  its button under its title, named “New collection…,” as /sheets keeps
+  “New sheet….” The command row's “New collection…” is unchanged, as its
+  “New sheet…” is. Test: `test/desk-collections-pane.test.js`.
+  Status: fixed.
+
+- **E187, preference: the collections page had no description.** BVJ,
+  2026-11-19: “The collections page should have a description like the
+  sheets page does, giving an idea what the feature is and how it works.
+  Relatively short. Enough to point users in the right direction.” Until
+  then the page said what a collection is only while it had none.
+  **Fixed** (`collection-list.js`, `collection-page.js`): a host field,
+  `listIntro`, which the page gives, puts one paragraph under “My
+  collections,” always: what a collection gathers and for what, the two
+  ways in (“Add to collection” in a verse's menu, “Collections…” on a row
+  in My Notebook), that one can be printed or put on a sheet, and that a
+  Collections pane in the Study Desk (linked) shows one beside the LIT,
+  then “How collections work,” where /sheets has its tour. With no
+  collections the page adds “You haven’t made a collection yet.” under
+  “New collection…,” as /sheets says of sheets. The pane has no
+  description, as a Sheets pane has none, and keeps its empty list's two
+  sentences and help link. Test: `test/desk-collections-page.test.js`.
+  Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

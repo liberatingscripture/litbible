@@ -9,6 +9,14 @@
 // takes it to the trash with the undo bar. With none, two sentences say what a
 // collection is, beside "New collection…" and the help page's section.
 //
+// Each home follows its Sheets twin (E186; BVJ, 2026-11-19): the page's
+// button sits under the title, named "New collection…" as /sheets' "New
+// sheet…" is, and a host that gives `listHead` (the pane) puts it beside the
+// title in one row, named "New collection" as a Sheets pane's "New sheet" is.
+// A host that gives `listIntro` (the page) puts a short description of the
+// feature under the title, as /sheets has one (E187); the pane has none, so
+// its empty list says what a collection is instead.
+//
 // It knows nothing of addresses or panes. Its host (see collection-view.js,
 // "The host") opens a collection with `open(id)`, and a row is a link only
 // where the host gives `href(id)` (the page), else a button. Focus keys are
@@ -53,9 +61,12 @@ export async function collectionList(host) {
   const all = records.filter((r) => r?.kind === "collection").sort(byChange);
   const title = heading(host, "My collections");
   title.dataset.focusKey = focusKey(host, "title");
-  const nodes = [title];
-  const actions = make("div", "collection-page__actions");
-  const fresh = button("New collection…", "desk-sheet__btn desk-sheet__btn--primary");
+  // The pane's title and button share a row (`desk-sheet__list-head`, the
+  // Sheets pane's); the page's button has a row of its own under the title.
+  const actions = make("div", host.listHead ? "desk-sheet__list-head" : "collection-page__actions");
+  const nodes = host.listHead ? [actions] : [title];
+  if (host.listHead) actions.append(title);
+  const fresh = button(host.listHead ? "New collection" : "New collection…", "desk-sheet__btn desk-sheet__btn--primary");
   fresh.dataset.focusKey = focusKey(host, "new");
   fresh.addEventListener("click", () => {
     const at = fresh.getBoundingClientRect();
@@ -73,33 +84,62 @@ export async function collectionList(host) {
     });
   });
   actions.append(fresh);
+  // The page's description (E187), always shown, as /sheets' is.
+  if (host.listIntro) nodes.push(pageIntro(host));
+  if (!host.listHead) nodes.push(actions);
   if (!all.length) {
-    nodes.push(
-      make(
-        "p",
-        "desk-np__intro",
-        "A collection gathers your notes, highlights, bookmarks, sheets, and passages for one purpose, such as a class, a sermon series, or a season. Start one here with “New collection,” or from any verse’s menu with “Add to collection.”",
-      ),
-      actions,
-    );
-    const help = make("p");
-    const link = make("a", null, "How collections work");
-    link.href = `${host.base}desk/help/#collections`;
-    // In a pane it opens in a new tab, and says so (the desk's other help links do).
-    if (host.newTabLinks) {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
+    if (host.listIntro) {
+      nodes.push(make("p", "desk-np__intro", "You haven’t made a collection yet."));
+    } else {
+      // A pane has no description, so its empty list says what a collection is.
+      nodes.push(
+        make(
+          "p",
+          "desk-np__intro",
+          "A collection gathers your notes, highlights, bookmarks, sheets, and passages for one purpose, such as a class, a sermon series, or a season. Start one here with “New collection,” or from any verse’s menu with “Add to collection.”",
+        ),
+      );
+      const help = make("p");
+      help.append(helpLink(host));
+      nodes.push(help);
     }
-    help.append(link);
-    nodes.push(help);
     return { nodes, title: `My collections | ${TITLE}`, focus: title };
   }
-  nodes.push(actions);
   const ul = make("ul", "desk-sheet__sheets");
   for (const c of all) ul.append(listRow(host, c, records, ul));
   nodes.push(ul);
   return { nodes, title: `My collections | ${TITLE}`, focus: title };
+}
+
+/** "How collections work", the help page's section; in a pane in a new tab, saying so (the desk's other help links do). */
+function helpLink(host) {
+  const link = make("a", null, "How collections work");
+  link.href = `${host.base}desk/help/#collections`;
+  if (host.newTabLinks) {
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
+  }
+  return link;
+}
+
+/**
+ * The page's description (E187; BVJ, 2026-11-19: "giving an idea what the
+ * feature is and how it works. Relatively short."), shaped as /sheets' is:
+ * what one is, the ways in, what it does, the Study Desk linked, and the help
+ * page's section last, where /sheets has its tour.
+ */
+function pageIntro(host) {
+  const desk = make("a", null, "the Study Desk");
+  desk.href = `${host.base}desk/`;
+  const p = make("p", "desk-np__intro");
+  p.append(
+    "A collection gathers your notes, highlights, bookmarks, sheets, and passages for one purpose, such as a class, a sermon series, or a season. Add to one with “Add to collection” in a verse’s menu or “Collections…” on a row in My Notebook. Each can be printed or put on a sheet, and a Collections pane in ",
+    desk,
+    " shows one beside the LIT. ",
+    helpLink(host),
+  );
+  return p;
 }
 
 /** One collection's card: its name and line, opening it, and Delete. */

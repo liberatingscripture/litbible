@@ -54,6 +54,11 @@
 //   go(member) }`, which a plain click on a reference (a passage's or a
 //   record's, a sheet's name included) runs in place of following its link,
 //   as My Notes' `goHere` does (BA124). A modified click still opens the page;
+//   and `listHead`, the list's title and "New collection" in one row, as a
+//   Sheets pane's "My sheets" and "New sheet" are (E186), where the page's
+//   "New collection…" sits under its title, as /sheets' "New sheet…" does;
+//   and `listIntro`, the page's short description of the feature under the
+//   list's title, as /sheets has one (E187);
 // - optional, the last line of "Add ▾" (E177; BVJ, 2026-11-19: "On
 //   /collections it should Go to My Notebook. On /desk, it should open the My
 //   Notes pane."): `notebookHref`, the page's "From My Notebook," a link in

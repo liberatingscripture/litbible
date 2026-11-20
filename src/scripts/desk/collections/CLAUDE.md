@@ -200,7 +200,13 @@ keep:
   36): the page gives `deskHref` ("Open in the Study Desk," last, in this
   tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
   Print's place), `plainMembers` (the members on the pane, no `.v2-sheet`)
-  and `goHere` (a plain click on a reference runs it). "Add ▾"'s last line
+  and `goHere` (a plain click on a reference runs it), and `listHead` (E186:
+  the list's title and "New collection" in one row, no ellipsis, as a Sheets
+  pane's "My sheets" and "New sheet"; the page's "New collection…" sits under
+  its title, as /sheets' "New sheet…" does), while the page gives
+  `listIntro` (E187: a short description of the feature under the list's
+  title, always, as /sheets has; the pane's empty list says what a
+  collection is instead). "Add ▾"'s last line
   is one more (E177): the page gives `notebookHref` ("From My Notebook," a
   link in this tab), the pane `openNotes` ("From My Notes"). A new
   difference is a new host field, never a test of which home is drawing.

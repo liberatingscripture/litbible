@@ -15,6 +15,8 @@
 //   never answer for each other;
 // - the members on the pane, not on a card (`plainMembers`), and "Open on its
 //   own page" (a new tab) in Print's place (decisions 32 and 36);
+// - the list's "New collection" beside its title (`listHead`, E186), as a
+//   Sheets pane's "New sheet" is;
 // - references that move the leading LIT pane, as a jump, so its bar offers
 //   the way back (decision 29, E168), or open one by E127's rule where none
 //   is open; a sheet in the collection shown in a Sheets pane by the same rule
@@ -92,6 +94,9 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
     backLabel: "‹ All collections",
     headingTag: "h3",
     headingClass: "desk-sheet__list-title",
+    // The list's title and "New collection" share a row, as a Sheets pane's
+    // "My sheets" and "New sheet" do (E186).
+    listHead: true,
     newTabLinks: true,
     plainMembers: true,
     ownPageHref: collectionHref,
