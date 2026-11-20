@@ -361,7 +361,8 @@ const parts = [
                 the glossary have no Notebook.) It has four tabs:
               </p>
               <ul>
-                <li><strong>My Notes</strong> lists what you have kept. On a
+                <li><strong>My Notes</strong> lists what you have kept, with a
+                  link to My Notebook under its count. On a
                   Scripture page, choose “This chapter” or “Everything.” A long
                   note or pinned footnote opens with its caret, one at a
                   time.</li>
@@ -739,8 +740,10 @@ const parts = [
                 (everything, until it has a passage) to bring on as parts. A
                 question note becomes a Question part, any other note or a
                 pinned footnote becomes a Text part, and a highlight becomes a
-                passage. It also lists your collections: pick one and
-                everything in it comes on as parts, in the collection’s order.
+                passage. Under “Or add a whole collection” it also lists your
+                collections: choosing one brings everything in it on as parts
+                at once, in the collection’s order, with no need to press
+                “Add.”
               </p>
               <p>
                 <strong>Adding in the middle.</strong> Point at the space
@@ -883,7 +886,9 @@ const parts = [
                 page changes the sheet there, and “Close” brings you back.
                 “Edit in Study Desk” opens it in a Sheets pane, with the LIT
                 beside it. A Sheets pane’s “Open on its own page” edits it on
-                the Sheets page in a new tab.
+                the Sheets page in a new tab, and the button at the right of
+                the pane’s header (“Sheets page” where the pane is wide) opens
+                the Sheets page’s list of your sheets in a new tab.
               </p>
             </section>
 
@@ -968,9 +973,14 @@ const parts = [
               <p>
                 Start one on the <a href="/collections/">Collections page</a>
                 with “New collection,” which asks for a name and, if you
-                like, a description. Open it to add a passage by its
-                reference, rename it or change its description, and print it.
-                A passage shows its words as a Scripture page does, with its
+                like, a description. Open it to add to it, rename it or
+                change its description, and print it. Its “Add” button lists
+                what you can add: “Passage…” takes a reference, “Sheet…” one
+                of your sheets, and “A label’s bookmarks…” every bookmark with
+                one label, either only those it has now or those and any you
+                give it from now on. “From My Notebook” goes to My Notebook,
+                where a note, highlight, bookmark, or pinned footnote has
+                “Collections…” in its row. A passage shows its words as a Scripture page does, with its
                 verse numbers and without footnote letters. Past three lines
                 it is cut, and its arrow shows the rest; a printed collection
                 always shows every passage whole. Each thing has Remove,
@@ -982,9 +992,13 @@ const parts = [
                 your collections beside the text. Choose “Collections” from
                 “Add pane” or a pane’s menu, or use “New collection…” in the
                 row of commands. The pane has the page’s buttons, with “Open
-                on its own page” (in a new tab) where Print would be; on the
+                on its own page” (in a new tab) where Print would be, and
+                “From My Notes” where “Add” has “From My Notebook,” which
+                shows your notes in a My Notes pane beside it; on the
                 page, “Open in the Study Desk” brings the collection back.
-                Select a reference to take the leading LIT pane there, or a
+                The button at the right of the pane’s header, beside its ×,
+                opens the Collections page in a new tab (“Collections page”
+                sits beside it where the pane is wide). Select a reference to take the leading LIT pane there, or a
                 sheet to open it in a Sheets pane. On the Study Desk, the
                 bar’s “Open the collection” shows it in a Collections pane
                 instead of a new tab. Two Collections panes can show two
@@ -1022,7 +1036,7 @@ const parts = [
               <p>
                 <strong>From a label:</strong> My Notebook lists your collections
                 in a Collections section, with “New collection…” and “All my
-                collections.” While its list is narrowed by a search or a label,
+                collections.” While My Notes or My Notebook is narrowed by a search or a label,
                 “Add these 12 to a collection…” puts everything the list shows in
                 one. A label’s “Add all bookmarks labeled Advent…” asks which you
                 mean: “Only the 12 labeled Advent now,” or “These 12, and any you
@@ -1033,8 +1047,9 @@ const parts = [
                 Collections pane on the Study Desk, shows everything it holds. Searching My Notebook finds collections by
                 name: they appear in a small
                 “Collections” group as links to their pages, and never as rows
-                of the list. The header’s “Study” menu, the Notebook’s Settings
-                tab, and the Study Desk’s title menu each have “My collections.”
+                of the list. The header’s “Study” menu and the Notebook’s Settings
+                tab each have “My collections,” and on the Study Desk a
+                Collections pane’s header opens the Collections page.
               </p>
               <p>
                 A rule shows as a line at the top of the collection, “Every
@@ -1058,7 +1073,7 @@ const parts = [
                 sheet already holds isn’t added again, and a sheet in the
                 collection isn’t added, since sheets aren’t merged. The bar at
                 the bottom offers “Undo” and “Open the sheet.” You can also
-                pick a collection from “+ From my notes…” while editing a
+                add a whole collection from “+ From my notes…” while editing a
                 sheet.
               </p>
               <p>
@@ -1347,10 +1362,12 @@ const parts = [
                   bookmark, pinned footnote, and label.</li>
                 <li>“Delete all sheets”: every sheet, and your own
                   templates.</li>
+                <li>“Delete all collections”: every collection. What’s in
+                  them stays in your notebook.</li>
                 <li>“Empty the trash now.”</li>
               </ul>
               <p>
-                The first two each leave the other alone. Clearing this site’s
+                The first three each leave the others alone. Clearing this site’s
                 data in your browser also removes it all. Back up your notebook first if
                 you may want it back.
               </p>

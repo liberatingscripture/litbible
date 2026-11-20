@@ -4907,6 +4907,124 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-collections-filters.test.js` holds that neither list has the
   filter and that the name search still works.
   Status: fixed.
+- **E176, preference: My Notes has “Add these 12 to a collection…” and a
+  link to My Notebook.** BVJ, 2026-11-19, working through D13's review
+  list, with a screenshot of the Notebook panel's My Notes searched for
+  “Torah” beside item 3c (“In My Notebook, with a search or the label filter
+  on, ‘Add these N to a collection…’ adds exactly what the list shows”): “I
+  don't see this.” The button was built on My Notebook's list alone
+  (`kept-list.js`, drawn only on /notebook), where decision 5 put it, and
+  the panel's My Notes is another list (`tab-mine.js`). Asked whether My
+  Notes should have it too, BVJ chose “Yes, add it,” and added: “And add a
+  way to the My Notebook page from the My notes.” This widens decision 5
+  from My Notebook to both lists. **Fixed** in `tab-mine.js`, so the
+  Notebook panel's tab and /desk's My Notes pane alike:
+  - **One quiet line under the count**: “My Notebook,” a link to
+    /notebook/, whenever the browser keeps a notebook, and, while the search
+    or a label narrows the list, “Add these 12 to a collection…” before it,
+    a dot between. The button counts what the list shows that a collection
+    can hold (`ITEM_KINDS`), says “Add this one to a collection…” for one,
+    and opens My Notebook's pick window (`openAddRecords`), so a pick, “New
+    collection…” and the undo bar (“3 added to Advent series.”) are the
+    same. Only the search and the label filter offer it, as on My Notebook.
+  - **On /desk the link opens in a new tab** (`notebookInNewTab`, which
+    `desk-panes.js` sets), as the title menu's “My Notebook” does, with the
+    new-tab mark and “(opens in a new tab)” for a screen reader. In the
+    panel beside a chapter it opens in the same tab, as the Settings tab's
+    link does.
+  - **No new look** (decision 25): the button is the quiet
+    `desk-item__stop`, and the line takes the count's type.
+  The help page says My Notes has the link, and that “Add these 12” is in
+  both lists (E175's “its list” in “From a label” became “My Notes or My
+  Notebook”). Test: `test/desk-mine-add-these.test.js`. Status: fixed.
+- **E177, preference: a collection's page adds more than passages.** BVJ,
+  2026-11-19, with a screenshot of a collection's page: “On the
+  /collections page, you can add passages from there, but nothing else.
+  That should change. The button that is currently ‘add passages’ should
+  include all the other options of things to add that make sense, like
+  sheets and labels. Notes, footnotes, bookmarks, and highlights, maybe can
+  be done with an Add from notebook button. Not sure whether it should open
+  a window that displays notebook contents (basically another place to host
+  My notes) or if it should just navigate to the Notebook.” Asked, BVJ
+  chose: “On /collections it should Go to My Notebook. On /desk, it should
+  open the My Notes pane.” It widens decision 11, which gave the page
+  “Add passage…” alone. What the website proposed to build (its choices,
+  for BVJ to change):
+  - **“Add passage…” becomes “Add ▾”**, the page's one primary button, a
+    menu of four: **Passage…** (today's field), **Sheet…** (E154's pick
+    window over the reader's sheets), **A label's bookmarks…** (the same
+    window over the labels in use, with decision 23's two choices above
+    the list), and **From My Notebook**.
+  - **From My Notebook** is a link to /notebook/ on the page, where a
+    row's “Collections…” and “Add these 12 to a collection…” (E176) add
+    to it. In /desk's Collections pane it opens a My Notes pane by E127's
+    rule instead.
+  Built once the Collections pane had merged (#634, #637 and #638; BVJ:
+  “Wait for the pane”), as proposed, in both homes of the view
+  (`collection-view.js`; the difference is two host fields). **Fixed**:
+  - **One menu for both “Add” buttons**: `desk/button-menu.js` is the
+    sheet gap pill's Add menu made general (`sheets/insert-menu.js` now
+    wraps it, its behavior unchanged), drawn as the pane menus are
+    (`desk-pane__menu`, decision 25). “Add ▾” is the view's one primary
+    button (E126), its caret drawn as /sheets' “Save as ▾”; a second press
+    closes the menu. A line that can't be used stays, with its reason
+    beside it and in the menu's description (DK3-7): “no sheets yet,” “no
+    labeled bookmarks yet.”
+  - **Passage…** shows today's field, now headed “Add a passage” with a ×,
+    and Escape puts it away too, focus back on “Add.”
+  - **Sheet…** lists the reader's sheets (not their templates), the last
+    changed first; one the collection holds says “In Readings already.” A
+    pick adds it as My Notebook's “Collections…” would, with the same bar
+    (“1 added to Readings.”).
+  - **A label's bookmarks…** lists the labels on at least one bookmark,
+    each with its count, and “new ones added already” for one the
+    collection has a rule for. Above the list, “Which bookmarks”: “Only the
+    ones with that label now” or “Those, and any you give that label from
+    now on,” the second checked to start, as on My Notebook's label button
+    (decision 23). A pick goes through `addLabelToCollection`, so the bar
+    is the same (“2 labeled Advent added to Readings, and new ones will
+    be.”).
+  - **From My Notebook** (the page's `notebookHref`) is a link in the same
+    tab. **From My Notes** (the pane's `openNotes`) shows a My Notes pane
+    by E127's rule, through `showMine` in `desk-page.js`, never in place
+    of the asking pane: one already open is used, else one opens with room,
+    else it takes the last non-LIT pane's place (the bar says so, with
+    Undo), else `showNotice` says why, with My Notebook's link. Focus goes
+    to that pane's search field, or else its name.
+  - The windows read the notebook when they open, so what was just added
+    shows as held.
+  The help page's “How collections work” lists the four lines. Test:
+  `test/desk-collections-add-button.test.js`. Status: fixed.
+
+- **E178, bug: a long gap above a poem on paper.** BVJ, 2026-11-19, with a
+  printout of a collection holding Matthew 5: “It shouldn't have the long
+  gap before the poetry block in Matthew 5 on the printout of the
+  collection.” Then: “OK, if that effects printing text from scripture pages
+  or /desk or how sheets print, etc. fix it everywhere it would affect it.”
+  **The cause was print.css**, which held every block quote whole
+  (`break-inside: avoid`), so a poem that didn't fit what was left of a page
+  went whole to the next and left the rest blank; Matthew 5:3–10 is sixteen
+  lines. That rule reached every print of the text: Chapter View, Read View,
+  /desk's prints (they print chapter pages), the collection page, and a
+  sheet on paper, whose screen pages already broke a poem between lines, so
+  the preview and the paper disagreed.
+  **Fixed.** A poem may break between its lines now; an article's quotation
+  is still held whole (`blockquote:not(.hbq)`). `break-after: avoid` on a
+  poem's first line, on a line holding a verse number, and on its
+  next-to-last line keeps a verse's first line with the next and never
+  leaves one line of a poem alone at either end (each line is its own
+  paragraph, so orphans and widows can't). `sheets-page.css` repeats the
+  three outside `@media print`, since the sheets' paginator reads only
+  `break-after`. A second defect showed at the new breaks: a poem's verse
+  number sits in the gutter on a box of its own (`global.css`), and with the
+  line height print.css and the sheet copy give every superscript (0), its
+  digit drew above the box, so a break before its line printed half the
+  number at the foot of the page before. Those numbers take a line height of
+  1.2 there. Checked on PDFs from headless Chrome, before and after, with the
+  page pushed down so the poem crossed a page: Matthew 5 in Chapter View,
+  Matthew in Read View, a collection holding Matthew 5, and a shared sheet of
+  Matthew 5:1–12, whose screen pages and paper now break in the same place.
+  Status: fixed.
 
 - **E179, bug: the pane menu's Add pane flyout ran off the foot of the
   window.** BVJ, 2026-11-19, with a screenshot of a LIT pane's menu, its Add
@@ -4940,6 +5058,60 @@ says so; where BVJ was wondering, nothing is decided.)
   The rule for every menu is in `src/scripts/CLAUDE.md`. Test:
   `test/desk-menu-fit-dom.test.js`. Status: fixed.
 
+- **E180, preference: the panes open their pages, not the title menu.**
+  BVJ, 2026-11-19, with a screenshot of /desk's “Study Desk ▾” menu, which
+  D13's step 6 had given “My collections” beside “My Notebook”: “The page
+  menu shouldn't have the My collections link. Or if it does, sheets should
+  too. I think what would make sense is to have an Open sheets page and Open
+  collections page button on the header of their respective panes.” It
+  narrows STUDY-DESK.md's D13 rule that “My collections” goes wherever “My
+  sheets” is listed: /desk's title menu never had “My sheets,” so on /desk
+  both pages are reached from their panes instead.
+  **Fixed.**
+  - **The title menu** (`title-menu.js`) is Display options, Full screen,
+    then My Notebook, Take the tour and the feedback link, as before D13.
+  - **A Sheets pane's and a Collections pane's header** end with a link
+    before the ×, to `/sheets/` and `/collections/` in a new tab: the
+    new-tab glyph (`OPEN_PAGE_ICON`), with “Sheets page” or “Collections
+    page” beside it where the header is 26rem or wider, as “Stay here” has
+    beside its lock (E72). Its name is “Open the Sheets page (opens in a new
+    tab)” and its tooltip “Open the Sheets page in a new tab” (`setTip`). It
+    is an ordinary button to look at (E126's list) and a link underneath, so
+    a modified click and the browser's own menu work. Which kinds have one
+    is data, `page` on the kind in `KINDS` (`desk-layout.mjs`), read by
+    `kindPage`; `desk-page.js` draws it in every header and shows it where
+    the kind has a page. A press on it never starts dragging the pane:
+    `pane-move.js` passes over links as it does buttons.
+  - **The Study Desk tour's title card** no longer names My collections,
+    and its list of the command row gains “New collection,” which it had
+    missed since the row gained it.
+  - **The help page** says where each pane's link is (“Sheets” under
+    “Going back to editing,” “On the Study Desk” and “Finding things” under
+    collections).
+  Tests: `test/desk-pane-page-link.test.js` (which kinds have a page, a
+  press on the link never drags, the header still does),
+  `test/desk-collections-filters.test.js` (neither list page is in the
+  title menu), `test/desk-first-use.test.js` (the card) and
+  `test/desk-buttons-css.test.js` (an ordinary button).
+  Status: fixed.
+
+- **E181, wording: “From a collection” said too little.** BVJ, 2026-11-19,
+  with a screenshot of a Sheets pane's “+ From my notes…” chooser, its notes
+  checked one by one above and the collections listed under “From a
+  collection,” with Add and Cancel below: “"From a collection" is a little
+  misleading since it adds the whole collection.” It read as picking things
+  from one, and with Add under the list, as if a collection were checked and
+  then added like the notes. A collection's row adds everything in it at a
+  press (D13, step 7).
+  **Fixed** (`add-forms.js`): the heading is “Or add a whole collection,”
+  a line under it says “Choosing one adds everything in it at once, in the
+  order its page shows.”, each row counts its items as the Collections page
+  and My Notebook do (“3 items,” not “Collection · 3”), and each button is
+  described to a screen reader as “Adds the whole collection to the sheet at
+  once.” The help page's “+ From my notes…” paragraph and “Onto a sheet”
+  say the same. Test: `test/desk-collections-sheet-wiring.test.js`.
+  Status: fixed.
+
 - **E182, bug: a new color over part of a collected highlight dropped
   those words from the collection.** BVJ, 2026-11-19, with a screenshot of
   D13's review checklist, item 8b (“Highlighting over part of a collected
@@ -4963,6 +5135,19 @@ says so; where BVJ was wondering, nothing is decided.)
   record format's “When a highlight changes id” says so for BDR; the apps
   edit no collection. Tests: `test/desk-highlights.test.js`,
   `test/desk-collections.test.js`. Status: fixed.
+
+- **E183, wording: “Delete all sheets” didn't say collections stay.** BVJ,
+  2026-11-19, with a screenshot of My Notebook's Delete in bulk: “The Delete
+  all sheets message should name collections as left alone along with notes
+  and marks.” “Delete all notes and marks” already named them (“Your sheets,
+  templates, and collections stay.”), but “Delete all sheets” still said
+  only “Your notes and marks stay,” from before collections (D13).
+  **Fixed** (`notebook-page.js`): its line and its “Are you sure?” both end
+  “Your notes, marks, and collections stay.” The help page's “Deleting
+  everything” list was missing “Delete all collections” as well; it now
+  lists all four, and “The first three each leave the others alone.”
+  Test: `test/desk-audit8-dom-search-notebook.test.js`.
+  Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

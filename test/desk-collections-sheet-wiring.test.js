@@ -68,12 +68,12 @@ async function keepCollection(name, members) {
 const barText = () => document.querySelector(".desk-undo__text")?.textContent ?? "";
 const barLink = () => document.querySelector(".desk-undo a")?.getAttribute("href") ?? "";
 
-test("the actions row has Add to sheet… after Add passage…, and no Make a sheet (decision 36)", async () => {
+test("the actions row has Add to sheet… after Add ▾, and no Make a sheet (decision 36)", async () => {
   await clearAll();
   const c = await keepCollection("Advent series", [john316()]);
   const { root, page } = await mount(c.id);
   const names = [...root.querySelectorAll(".collection-page__actions > button")].map((b) => b.textContent.trim());
-  assert.deepEqual(names.slice(0, 2), ["Add passage…", "Add to sheet…"]);
+  assert.deepEqual(names.slice(0, 2), ["Add", "Add to sheet…"]);
   assert.ok(!names.includes("Make a sheet"));
   page.destroy();
 });
@@ -184,6 +184,15 @@ test("From my notes… lists collections, and a pick adds the collection's parts
   await openFromNotes(host, box, (refocus) => (closed = refocus));
   const pick = [...box.querySelectorAll("button")].find((b) => /Advent series/.test(b.textContent));
   assert.ok(pick);
+  // E181: the section says the whole collection goes, at once (BVJ: "From a
+  // collection" read as picking from one), and the row counts its items.
+  const titles = [...box.querySelectorAll(".desk-sheet__from-title")].map((p) => p.textContent);
+  assert.ok(titles.includes("Or add a whole collection"), titles.join(" | "));
+  assert.ok(!titles.includes("From a collection"));
+  assert.ok([...box.querySelectorAll("p")].some((p) => /adds everything in it at once/.test(p.textContent)), "a line says so");
+  assert.equal(pick.querySelector(".desk-sheet__from-kind").textContent, "1 item");
+  const hint = document.getElementById(pick.getAttribute("aria-describedby"));
+  assert.match(hint?.textContent ?? "", /whole collection/, "and a screen reader hears it on the button");
   pick.click();
   await until(() => host.current.modules.length === 2, 3000, "the block");
   assert.equal(host.current.modules[1].type, "passage");

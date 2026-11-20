@@ -334,7 +334,8 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   adds the chosen part right after that card (`addPart(type, after)`), so
   a long sheet needn't be scrolled to its end. The pill's menu is
   `desk/sheets/insert-menu.js` (Audit 6, LG6-2; `openInsertMenu`, with
-  `insertItems` and `insertMenuPlace` pure and tested), which takes the
+  `insertItems` and `insertMenuPlace` pure and tested; since E177 it wraps
+  `desk/button-menu.js`, which a collection's "Add ▾" shares), which takes the
   pill, the card's name, whether the sheet has a key terms box, and
   `onPick`/`onClose`; what a pick does stays in `sheet-editor.js`. (A "+" in
   the card's header read as acting on that card, not the gap.) "Passage…" opens the passage form under the card
@@ -425,7 +426,12 @@ The header's Study group is part 3's, built with header C.
   `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
   the two-tab question for that first open (`askFirst: false`), since the
   pane is the other tab and the reader sent it; the page drops the marker,
-  so a reload asks as usual. /sheets keeps "Edit in Study Desk".
+  so a reload asks as usual. /sheets keeps "Edit in Study Desk". **A Sheets
+  pane's header opens the list, `/sheets/`, in a new tab** (E180; BVJ,
+  2026-11-19): a link before the ×, "Sheets page" beside its glyph in a wide
+  header; a Collections pane's opens `/collections/` the same way. Which
+  kinds have one is `page` in `KINDS`, read by `kindPage`; /desk's title
+  menu names neither page.
 
 ## The Sheets tour (E63)
 
@@ -694,10 +700,13 @@ my notebook"**. Twelve things to know:
   (`.sheet-page-gap`) push what would cross a page's foot to the next
   page's top, before a block or before the first word of the crossing line,
   following print's rules (a page break, `break-inside: avoid` parts moving
-  whole, headings kept with what follows). **Those rules sit outside
+  whole, headings kept with what follows, a poem broken only where
+  print.css lets it, E178). **Those rules sit outside
   `@media print`** in `sheets-page.css` (E99), since `paginate` reads them
   from computed styles and a screen never sees a print-only rule; break-*
-  does nothing on a continuous screen, so they cost nothing there. A heading
+  does nothing on a continuous screen, so they cost nothing there.
+  **`paginate` reads `break-after` and never `break-before: avoid`**, so a
+  rule that keeps two blocks together goes on the first. A heading
   never ends a page: a text part ending in one is `.sheet-copy__text--heads`
   (`renderCopy`), and `startNextPage` finds a heading past the edge of the
   box the moving text opens. The answer key is `break-before: page` and
@@ -1024,8 +1033,9 @@ on a footnote were removed, E79), is in `src/scripts/desk/CLAUDE.md`.
   (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
   gathered only the notes marked `question` under a heading: "The
   options for sheets need to be more flexible than that, more useful to
-  more people." The chooser also has a "From a collection" section (D13,
-  step 7): one of the reader's collections added as one block of parts through
+  more people." The chooser also has an "Or add a whole collection" section
+  (D13, step 7; "From a collection" until E181, BVJ 2026-11-19, since it adds
+  the whole collection, at a press, and not by Add): one of the reader's collections added as one block of parts through
   `collectionSheetParts` (`src/lib/desk-collection-sheet.mjs`), over the sheet
   as saved, at the same `insertIndex`; with no collections it is one line and a
   link to `/collections/`.

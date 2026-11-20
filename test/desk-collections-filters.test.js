@@ -1,5 +1,5 @@
 // D13 step 6: the notebook search finding collections by name (kept-list.js, drawn on /notebook), the pure
-// helpers under it, and "My collections" in /desk's title menu. My Notebook's list and My Notes (tab-mine.js)
+// helpers under it, and no "My collections" in /desk's title menu (E180). My Notebook's list and My Notes (tab-mine.js)
 // have no collection filter (E175: BVJ took it out, since a collection's page and the Collections pane show what
 // it holds), so those tests hold that it is gone.
 
@@ -158,7 +158,7 @@ test("My Notes has no collection filter: no row of collections, and every record
   tab.el.remove();
 });
 
-test("/desk's title menu lists My collections beside My Notebook, opening in a new tab", async () => {
+test("/desk's title menu has no My collections, as it has no My sheets (E180)", async () => {
   resetDom("http://localhost/desk/");
   document.body.innerHTML = `<div class="desk-title"><button class="desk-title__button"><span>Study Desk</span></button></div>`;
   const { createTitleMenu } = await import(`../src/scripts/desk/title-menu.js?n=${++n}`);
@@ -174,10 +174,7 @@ test("/desk's title menu lists My collections beside My Notebook, opening in a n
   });
   const items = [...menu.el.querySelectorAll("a.desk-title__item")];
   const labels = items.map((a) => a.querySelector(".desk-title__label").textContent);
-  const at = (name) => labels.findIndex((l) => l.startsWith(name));
-  assert.ok(at("My collections") > 0 && at("My collections") === at("My Notebook") + 1);
-  const mine = items[at("My collections")];
-  assert.equal(mine.getAttribute("href"), "/collections/");
-  assert.equal(mine.getAttribute("target"), "_blank");
-  assert.match(mine.getAttribute("rel"), /noopener/);
+  assert.ok(labels.some((l) => l.startsWith("My Notebook")), "My Notebook stays");
+  assert.ok(!labels.some((l) => /My (collections|sheets)/.test(l)), "neither list page is in the title menu");
+  assert.ok(!items.some((a) => /^\/(collections|sheets)\//.test(a.getAttribute("href") ?? "")));
 });

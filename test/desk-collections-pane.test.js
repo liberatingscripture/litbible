@@ -132,7 +132,7 @@ test("the pane's actions end with Open on its own page in a new tab, in Print's 
   await until(() => title(p) === "Advent series");
   const actions = p.el.querySelector(".collection-page__actions");
   const words = [...actions.children].map((b) => b.childNodes[0].textContent.trim());
-  assert.deepEqual(words, ["Add passage…", "Add to sheet…", "Rename…", "Delete", "Open on its own page"]);
+  assert.deepEqual(words, ["Add", "Add to sheet…", "Rename…", "Delete", "Open on its own page"]);
   const own = actions.lastElementChild;
   assert.equal(own.tagName, "A");
   assert.equal(own.getAttribute("href"), `/collections/?id=${encodeURIComponent(c.id)}`);

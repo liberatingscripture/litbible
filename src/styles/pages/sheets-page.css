@@ -422,6 +422,13 @@
   all: unset;
 }
 
+/* A poem's verse number sits in the gutter on a box of its own (global.css).
+   With no height its digit drew above the box, and where a page broke before
+   its line, half of it printed at the foot of the page before (E178). */
+.sheet-copy__words blockquote.hbq .hbq-line sup.vn {
+  line-height: 1.2;
+}
+
 /* A printing footnote's letter: upright, bold and a size up from the verse
    numbers, so it is found at a glance (E98; BVJ, 2026-11-11: small and
    italic, it was hard to see). */
@@ -601,6 +608,15 @@
 .sheet-copy__key-ref,
 .sheet-copy .desk-rich :is(h2, h3),
 .sheet-copy__text--heads {
+  break-after: avoid;
+}
+
+/* A passage's poetry may run onto the next page, as print.css lets it
+   (E178): a verse's first line stays with the next, and a poem never leaves
+   one line alone at either end. */
+.sheet-copy .hbq-line:first-child,
+.sheet-copy .hbq-line:has(.vn),
+.sheet-copy .hbq-line:nth-last-child(2) {
   break-after: avoid;
 }
 

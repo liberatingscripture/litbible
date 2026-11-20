@@ -65,7 +65,7 @@ export async function collectionList(host) {
       heading: "My collections",
       near: { left: at.left, top: at.bottom + 8 },
       back: () => keyed(host, "new"),
-      // Straight into the new collection, where Add passage… is.
+      // Straight into the new collection, where "Add ▾" is.
       onCreated: (made, entry) => {
         if (entry) showUndo(`${collectionName(made)} made.`, () => undoEntry(entry));
         host.open(made.id);

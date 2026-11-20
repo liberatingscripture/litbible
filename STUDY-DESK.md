@@ -5699,7 +5699,9 @@ section marked as one is agreed unless "Still open" says otherwise.
     five and its order and had collections match it (2026-11-18).
 11. **Two more ways in**: a Collections line in the Notebook's This verse
     tab (Fable's option D; not the only way in), and "Add passage…" on the
-    collection's page.
+    collection's page, since E177 (BVJ, 2026-11-19) "Add ▾": Passage…,
+    Sheet…, A label's bookmarks…, and From My Notebook (From My Notes in a
+    Collections pane).
 12. **A passage already in the collection isn't added twice**, and the
     reader is told so; the undo bar offers "Open the collection," as Add to
     sheet's offers "Open the sheet."
@@ -5863,8 +5865,9 @@ Why a kind of its own:
   and on sheets in `/sheets/`' list, the Sheets pane's menu and My
   Notebook's Sheets section. It opens the collections with checkboxes (an
   item may be in several) and "New collection…".
-- **From a label** (decision 5): on My Notebook, "Add these 12 to a
-  collection…" adds whatever its search and label filter show, and a
+- **From a label** (decision 5): on My Notebook, and in My Notes since
+  E176, "Add these 12 to a collection…" adds whatever the list's search and
+  label filter show, and a
   label's own menu offers "Add all bookmarks labeled Advent" as a shortcut,
   asking which: "Only the 12 labeled Advent now" or "These 12, and any you
   label Advent from now on" (decision 23).
@@ -5879,9 +5882,14 @@ Why a kind of its own:
   that hold this verse (as a passage, or through an item on it), with "Add
   to collection…". It is also the one place on a reading page that shows a
   collected passage, since a passage makes no mark.
-- **The collection's page** (decision 11): "Add passage…", a typed
-  reference read as a sheet's passage form reads one (`parseReference`,
-  `passageForReference`), whole verses (decision 20).
+- **The collection's page** (decision 11): "Add ▾" (E177; BVJ,
+  2026-11-19), a menu of four. "Passage…" is a typed reference read as a
+  sheet's passage form reads one (`parseReference`,
+  `passageForReference`), whole verses (decision 20). "Sheet…" and "A
+  label's bookmarks…" open the pick window (the label's asks whether new
+  bookmarks with it come too, decision 23's rule). The last line goes to the
+  notebook for the rest: "From My Notebook" on the page, "From My Notes" in
+  a Collections pane on /desk, which shows a My Notes pane.
 
 ### The live rule (the website's proposal, agreed; decision 5 settles the exception)
 
@@ -5999,7 +6007,9 @@ wanted:
 - **Collections are never rows in My Notes or My Notebook's list**; they
   have their own section and filter.
 - **"My collections" goes wherever "My sheets" is listed**: header C's Study
-  group, the Notebook's Settings tab, and /desk's title menu.
+  group and the Notebook's Settings tab. On /desk neither is in the title
+  menu: a Sheets pane's and a Collections pane's header each open their page
+  in a new tab (BVJ, 2026-11-19, STUDY-DESK-FIXES.md E180).
 
 The steps:
 
@@ -6067,8 +6077,8 @@ step 2.
   again before closing D13."). Step 8 did what the website recommended on
   2026-11-18: the notebook tour's first stop names "Add to collection"
   beside "Add to sheet," its last stop ("My Notebook, and where it's kept")
-  names collections, and the Study Desk tour's card on the title menu names
-  "My collections." Its My Notes card lists no filters, so it names none.
+  names collections, and the Study Desk tour's card on the title menu named
+  "My collections" until E180 took it out of that menu. Its My Notes card lists no filters, so it names none.
   An empty `/collections/` page explains itself and links the help page's
   "How collections work" (step 2). The website's reasons, for the second
   ask: a collection has three ideas (name it, add to it, arrange it), and
@@ -6135,7 +6145,8 @@ pane in the dropdown menus."). So BVJ chose:
     (Audit 8, XA8-1), which would put a button on every row. A whole
     collection already reaches a sheet three ways (Make a sheet, which
     decision 36 leaves to Add to sheet…'s "New sheet," Add to sheet…, and
-    the Sheets pane's "+ From my notes…" under "From a collection"), and
+    the Sheets pane's "+ From my notes…" under "Or add a whole collection,"
+    "From a collection" until E181), and
     one passage takes two presses once its reference has
     moved the LIT pane (the verse menu's Add to sheet). If it is wanted
     later, it is an E entry with its click route.

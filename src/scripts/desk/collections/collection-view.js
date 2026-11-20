@@ -1,7 +1,7 @@
 // src/scripts/desk/collections/collection-view.js
 //
 // One collection (STUDY-DESK.md, D13, mock part b), drawn by both of its homes:
-// "‹ My collections", its name and description, its actions (Add passage…,
+// "‹ My collections", its name and description, its actions (Add ▾,
 // Add to sheet…, Rename…, Print, Delete), the order switch, and its members on a Site 2.0
 // sheet as the desk's own rows (record-rows.js, as My Notebook draws them).
 // There is no "Make a sheet" (D13, decision 36; BVJ, 2026-11-19): Add to
@@ -54,6 +54,11 @@
 //   go(member) }`, which a plain click on a reference (a passage's or a
 //   record's, a sheet's name included) runs in place of following its link,
 //   as My Notes' `goHere` does (BA124). A modified click still opens the page;
+// - optional, the last line of "Add ▾" (E177; BVJ, 2026-11-19: "On
+//   /collections it should Go to My Notebook. On /desk, it should open the My
+//   Notes pane."): `notebookHref`, the page's "From My Notebook," a link in
+//   this tab, or `openNotes()`, the pane's "From My Notes," which opens a My
+//   Notes pane beside it;
 // - from `viewHost`: `viewState(id)` (what a view keeps while it is drawn
 //   again: an open form, a heading being renamed), `openWords` (the passages
 //   shown whole, by row key, for the visit), `chapterText` (a chapter's anchor
@@ -93,6 +98,8 @@ import { setTip } from "../../tip.js";
 import { plural } from "../desk-text.js";
 import { newTabMark } from "../glyphs.js";
 import { parseReference } from "../../search-core.js";
+import { openButtonMenu } from "../button-menu.js";
+import { labelsToAdd, openAddLabels, openAddSheet, sheetsToAdd } from "./add-records.js";
 import { openAddToSheet } from "./collection-sheet.js";
 import { openNameWindow } from "./name-window.js";
 
@@ -105,6 +112,11 @@ const UNREAD = "These verses couldn’t be read just now.";
 
 // The caret a note and a pinned footnote open with in My Notes (E118).
 const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M6 9l6 6 6-6" /></svg>`;
+
+// "Add ▾"'s caret, at /sheets' "Save as ▾" size (E177).
+const ICON_ADD_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 9l6 6 6-6" /></svg>`;
 
@@ -311,10 +323,17 @@ export async function collectionView(host, id) {
 
   /* ── Actions ──────────────────────────────────────────────────── */
   const actions = make("div", "collection-page__actions");
-  // The page's one primary button (E126): adding is what the page is for (BVJ, 2026-11-19).
-  const add = button("Add passage…", "desk-sheet__btn desk-sheet__btn--primary");
+  // The page's one primary button (E126): adding is what the page is for (BVJ,
+  // 2026-11-19). "Add ▾" (E177) opens a menu of what can go in, its caret
+  // drawn as /sheets' "Save as ▾" draws one.
+  const add = button("Add", "desk-sheet__btn desk-sheet__btn--primary collection-page__add");
+  const caret = make("span", "collection-page__add-more");
+  caret.setAttribute("aria-hidden", "true");
+  caret.innerHTML = ICON_ADD_CARET;
+  add.append(caret);
   add.dataset.focusKey = key("add");
-  add.setAttribute("aria-expanded", String(state.adding));
+  add.setAttribute("aria-haspopup", "menu");
+  add.setAttribute("aria-expanded", "false");
   // "Add to sheet…" makes a new sheet too, from its window's "New sheet" row,
   // so there is no "Make a sheet" beside it (D13, decision 36).
   const toSheet = button("Add to sheet…");
@@ -345,14 +364,49 @@ export async function collectionView(host, id) {
   }
   nodes.push(actions);
 
-  const form = passageForm(host, c, state);
+  const form = passageForm(host, c, state, () => {
+    state.adding = false;
+    form.hidden = true;
+    keyed(host, "add")?.focus();
+  });
   form.hidden = !state.adding;
   nodes.push(form);
+  // Add toggles its menu. A mouse press on Add while the menu is open takes
+  // focus out of it, which closes it before the click, so whether it was open
+  // is noted at the press, or the click would open it again.
+  let menu = null;
+  let openAtPress = false;
+  add.addEventListener("pointerdown", () => {
+    openAtPress = Boolean(menu);
+  });
   add.addEventListener("click", () => {
-    state.adding = !state.adding;
-    form.hidden = !state.adding;
-    add.setAttribute("aria-expanded", String(state.adding));
-    if (state.adding) form.querySelector("input")?.focus();
+    const wasOpen = openAtPress || Boolean(menu);
+    openAtPress = false;
+    menu?.close(true);
+    if (wasOpen) return;
+    menu = openButtonMenu({
+      button: add,
+      id: `collectionAddMenu${host.idSuffix ? `-${host.idSuffix}` : ""}`,
+      label: `Add to ${name}`,
+      items: addLines(host, records),
+      onPick: (type) => {
+        if (type === "passage") {
+          state.adding = true;
+          form.hidden = false;
+          form.querySelector("input")?.focus();
+          return;
+        }
+        const at = add.getBoundingClientRect();
+        const near = { left: at.left, top: at.bottom + 8 };
+        const back = () => keyed(host, "add");
+        if (type === "sheet") openAddSheet({ store: host.store, ctx: host.ctx, collection: c, near, back });
+        else if (type === "label") openAddLabels({ store: host.store, ctx: host.ctx, collection: c, near, back });
+        else if (type === "notes") host.openNotes?.();
+      },
+      onClose: (closing) => {
+        if (menu?.close === closing) menu = null;
+      },
+    });
   });
 
   toSheet.addEventListener("click", () => {
@@ -566,9 +620,37 @@ function ruleLine(host, c, info) {
   return line;
 }
 
-/* ── Add passage… ───────────────────────────────────────────────── */
+/* ── Add ▾ ──────────────────────────────────────────────────────── */
 
-function passageForm(host, c, state) {
+/**
+ * The lines of a collection's "Add ▾" (E177), from the notebook as the view
+ * was drawn (it is drawn again on every change): Passage…, Sheet… and A
+ * label's bookmarks… (each disabled, with its reason, where there is nothing
+ * to choose), then the host's way to the notebook's list, if it has one.
+ */
+export function addLines(host, records) {
+  const lines = [
+    { label: "Passage…", type: "passage" },
+    sheetsToAdd(records).length
+      ? { label: "Sheet…", type: "sheet" }
+      : { label: "Sheet…", type: "sheet", disabled: true, why: "no sheets yet" },
+    labelsToAdd(records).length
+      ? { label: "A label’s bookmarks…", type: "label" }
+      : { label: "A label’s bookmarks…", type: "label", disabled: true, why: "no labeled bookmarks yet" },
+  ];
+  if (host.notebookHref) lines.push({ label: "From My Notebook", type: "notebook", href: host.notebookHref });
+  else if (host.openNotes) lines.push({ label: "From My Notes", type: "notes" });
+  return lines;
+}
+
+/* ── Passage… ──────────────────────────────────────────────────── */
+
+/**
+ * The passage field "Add ▾ › Passage…" opens, with a × and Escape that close
+ * it (`close`, which hands focus back to Add), as the sheet's passage form
+ * under a card does.
+ */
+function passageForm(host, c, state, close) {
   const form = make("form", "desk-sheet__ref");
   const input = make("input");
   input.type = "text";
@@ -586,7 +668,21 @@ function passageForm(host, c, state) {
   note.hidden = true;
   form.append(input, go);
   const wrap = make("div", "collection-page__form");
-  wrap.append(form, problem, note);
+  const head = make("div", "desk-sheet__insert-head");
+  const title = make("p", "desk-sheet__insert-title", "Add a passage");
+  title.id = `collectionAddTitle${host.idSuffix ? `-${host.idSuffix}` : ""}`;
+  const shut = button("×", "desk-sheet__icon");
+  shut.setAttribute("aria-label", "Close");
+  shut.addEventListener("click", close);
+  head.append(title, shut);
+  form.setAttribute("aria-labelledby", title.id);
+  wrap.append(head, form, problem, note);
+  wrap.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    e.preventDefault();
+    e.stopPropagation();
+    close();
+  });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     note.hidden = true;

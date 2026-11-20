@@ -64,7 +64,10 @@ export const HANDLE = 6;
  * `follows`: it follows the active LIT pane unless pinned. `about`: one
  * short line under the label in the menus that list kinds (SH5-5), after the
  * help page's words for each; it says what the pane is on the desk, not what
- * the site's pages do. The page's registry (desk-panes.js) says what each one draws.
+ * the site's pages do. `page`: the site page holding everything the pane
+ * lists, which its header opens in a new tab (E180; BVJ, 2026-11-19: "an Open
+ * sheets page and Open collections page button on the header of their
+ * respective panes"). The page's registry (desk-panes.js) says what each one draws.
  */
 export const KINDS = [
   { kind: "lit", label: "The LIT", follows: false, about: "The text; the other panes follow it" },
@@ -72,10 +75,16 @@ export const KINDS = [
   { kind: "verse", label: "This verse", follows: true, about: "Everything for the verse you are on" },
   { kind: "footnotes", label: "Footnotes", follows: true, about: "The chapter’s footnotes as a list" },
   { kind: "greek", label: "Greek", follows: true, about: "The Greek text behind the LIT" },
-  { kind: "sheet", label: "Sheets", follows: false, about: "A handout to print, present, or share" },
+  { kind: "sheet", label: "Sheets", follows: false, about: "A handout to print, present, or share", page: { href: "/sheets/", name: "Sheets page" } },
   // Stands alone, as Sheets does (D13, decision 27): By type and My order
   // have no verse order to follow.
-  { kind: "collection", label: "Collections", follows: false, about: "Passages and notes gathered for one purpose" },
+  {
+    kind: "collection",
+    label: "Collections",
+    follows: false,
+    about: "Passages and notes gathered for one purpose",
+    page: { href: "/collections/", name: "Collections page" },
+  },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
   // book menu offers "The book I’m reading" and keeps the book it was set to.
   { kind: "search", label: "Search", follows: false, about: "Scripture, the glossary, and your notes" },
@@ -97,6 +106,9 @@ export const RETIRED_KINDS = Object.freeze({ kept: "mine", intro: "verse" });
 
 /** True for a kind that follows the active LIT pane. */
 export const isFollower = (kind) => Boolean(KIND_INFO.get(kind)?.follows);
+
+/** The page a kind's header opens (`page` in KINDS), `{ href, name }`, or null. */
+export const kindPage = (kind) => KIND_INFO.get(kind)?.page ?? null;
 
 /** A kind's name for a reader, or the kind itself for one this code doesn't know. */
 export const kindLabel = (kind) => KIND_INFO.get(kind)?.label ?? kind;

@@ -388,10 +388,12 @@ test("Audit 7's wording: the desk tour's cards name what the page has now, and t
   // TR7-1: seven templates since Audit 5, so the card lists none of them in full.
   assert.doesNotMatch(stepBody(desk("newsheet"), null), /sermon preparation, a class session/);
   // TR7-2: Full screen (E43) and My notebook page are in the title menu; E68:
-  // the card names the command row first.
-  assert.match(stepBody(desk("title"), null), /^Under the header: Add pane, Layout, New sheet, Print, and Help\./);
+  // the card names the command row first, New collection (D13) included.
+  assert.match(stepBody(desk("title"), null), /^Under the header: Add pane, Layout, New sheet, New collection, Print, and Help\./);
   assert.match(stepBody(desk("title"), null), /full screen/);
   assert.match(stepBody(desk("title"), null), /My Notebook/);
+  // E180: the title menu has no "My collections"; each pane's header opens its page.
+  assert.doesNotMatch(stepBody(desk("title"), null), /My collections/);
   // TR7-3: "Add to sheet" in Chapter View's verse menu (PR #520); Read View has none.
   assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add to sheet”/);
   assert.doesNotMatch(stepBody(TOUR_STEPS[0], "read"), /Add to sheet/);

@@ -141,7 +141,7 @@ test("a collection that isn't there says so, with the way back", async () => {
   page.destroy();
 });
 
-test("Add passage… refuses what it cannot read and writes nothing", async () => {
+test("Add ▾ › Passage… refuses what it cannot read and writes nothing", async () => {
   await clearAll();
   const made = createCollection({ name: "Readings", members: [] }, opCtx());
   await store.change(async () => planSave(made));
@@ -149,7 +149,8 @@ test("Add passage… refuses what it cannot read and writes nothing", async () =
   assert.ok(chapter);
   const { root, page } = await mount(`?id=${made.id}`);
   assert.equal(root.querySelector("h1").textContent, "Readings");
-  byText(root, "button", "Add passage…").click();
+  byText(root, "button", "Add").click();
+  byText(document, "[role=menuitem]", "Passage…").click();
   const input = root.querySelector('[data-focus-key="add-input"]');
   assert.ok(input && !input.closest(".collection-page__form").hidden);
   input.value = "Nonsense";
@@ -251,7 +252,7 @@ test("a collection's page ends its actions with a quiet Open in the Study Desk, 
   const { root, page } = await mount(`?id=${encodeURIComponent(c.id)}`);
   const actions = root.querySelector(".collection-page__actions");
   const words = [...actions.children].map((n) => n.textContent.trim());
-  assert.deepEqual(words, ["Add passage…", "Add to sheet…", "Rename…", "Print", "Delete", "Open in the Study Desk"]);
+  assert.deepEqual(words, ["Add", "Add to sheet…", "Rename…", "Print", "Delete", "Open in the Study Desk"]);
   const desk = actions.lastElementChild;
   assert.equal(desk.tagName, "A");
   assert.equal(desk.getAttribute("href"), `/desk/?collection=${encodeURIComponent(c.id)}`);

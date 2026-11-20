@@ -258,6 +258,11 @@ test("D13: \"Delete all collections\" trashes the collections alone, and the oth
   const marks = q("[data-np-delete-box]");
   click(marks.querySelector("button"));
   assert.match(marks.querySelector(".desk-np__ask-text").textContent, /Your sheets, templates, and collections stay./);
+  // E183: Delete all sheets names collections too (BVJ, 2026-11-19).
+  const sheets = q("[data-np-delete-sheets-box]");
+  assert.match(sheets.previousElementSibling.textContent, /Your notes, marks, and collections stay\./);
+  click(sheets.querySelector("button"));
+  assert.match(sheets.querySelector(".desk-np__ask-text").textContent, /\(templates included\) to the trash\. Your notes, marks, and collections stay\./);
   const box = q("[data-np-delete-collections-box]");
   assert.equal(box.querySelector("button").textContent, "Delete all collections…");
   click(box.querySelector("button"));

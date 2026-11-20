@@ -1,17 +1,26 @@
 // src/scripts/desk/collections/add-records.js
 //
-// Records and a label's bookmarks put into a collection from My Notebook (D13,
-// step 5; STUDY-DESK.md, "Getting things in"). Two windows, both E154's pick
-// window (pick-window.js, decision 25: no look of their own):
+// Records and a label's bookmarks put into a collection from My Notebook and My
+// Notes (D13, step 5; E176; STUDY-DESK.md, "Getting things in"). Two windows,
+// both E154's pick window (pick-window.js, decision 25: no look of their own):
 //
-//   openAddRecords  "Add these 12 to a collection…" under My Notes' search:
-//                   whatever the list shows that a collection can hold
+//   openAddRecords  "Add these 12 to a collection…" under either list's count,
+//                   while its search or label filter is on (kept-list.js,
+//                   tab-mine.js): whatever the list shows that a collection can hold
 //                   (ITEM_KINDS). A pick adds them as items; its "New
 //                   collection…" row makes a collection holding them.
 //   openAddLabel    a label's "Add all bookmarks labeled Advent…": the same
 //                   window with decision 23's two choices above the list, "Only
 //                   the 12 labeled Advent now" (items) and "These 12, and any
 //                   you label Advent from now on" (a rule member).
+//
+// And two that start from the collection, its "Add ▾" (E177; collection-view.js):
+//
+//   openAddSheet    "Sheet…": the reader's sheets (no templates). A pick adds
+//                   the sheet as an item.
+//   openAddLabels   "A label's bookmarks…": the labels on a bookmark, with
+//                   decision 23's two choices above the list, in words that
+//                   name no label, since none is chosen yet.
 //
 // Every write is one `store.change` over the notebook as that transaction
 // reads it (planAddItems, planCollectionChange with addRule), so one Ctrl+Z
@@ -23,12 +32,16 @@ import {
   addRule,
   addableCollections,
   collectionName,
+  isBookmarkRule,
   itemMember,
   labelBookmarks,
   planAddItems,
   planCollectionChange,
   ruleMember,
 } from "../../../lib/desk-collections.mjs";
+import { labelIds, liveLabels } from "../../../lib/desk-labels.mjs";
+import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
+import { isOwnTemplate } from "../../../lib/desk-sheets.mjs";
 import { undoEntry } from "../history.js";
 import { openPickWindow } from "../pick-window.js";
 import { showNotice, showUndo } from "../undo-bar.js";
@@ -236,5 +249,118 @@ export async function openAddLabel({ store, ctx, label, count, near = null, back
         });
       },
     },
+  });
+}
+
+/**
+ * The sheets a collection's "Sheet…" offers: every sheet the reader has made,
+ * no templates, newest change first.
+ *
+ * @param {object[]} records sheets, or the whole notebook
+ */
+export const sheetsToAdd = (records) => sortSheets((records ?? []).filter((r) => r?.kind === "sheet" && !isOwnTemplate(r)));
+
+/**
+ * The labels "A label's bookmarks…" offers: each label on at least one
+ * bookmark, by name, with how many it is on.
+ *
+ * @param {object[]} records the notebook
+ * @returns {{ label: { id: string, name: string }, count: number }[]}
+ */
+export function labelsToAdd(records) {
+  return liveLabels(records ?? [])
+    .map((label) => ({ label, count: labelBookmarks(records, label.id).length }))
+    .filter((x) => x.count > 0);
+}
+
+/** `collection` as the notebook `records` holds it now, else as given. */
+const latest = (records, collection) => records.find((r) => r?.id === collection.id && r.kind === "collection") ?? collection;
+
+/** The ids of the records a collection holds as items. */
+const heldIds = (collection) =>
+  new Set((collection?.members ?? []).filter((m) => m?.type === "item").map((m) => m.recordId));
+
+/**
+ * A collection's "Add ▾ › Sheet…" (E177): the pick window over the reader's
+ * sheets, each saying when it was last changed, or that the collection holds
+ * it already. A pick adds that sheet as an item, as a sheet row's
+ * "Collections…" does.
+ *
+ * @param {{ store: object, ctx: () => object, collection: object,
+ *   near?: { left: number, top: number } | null, back?: HTMLElement | (() => HTMLElement | null) | null }} options
+ */
+export async function openAddSheet({ store, ctx, collection, near = null, back = null }) {
+  let records = [];
+  try {
+    records = await store.all();
+  } catch (err) {
+    console.error("Study Desk: couldn’t read the sheets", err);
+  }
+  const sheets = sheetsToAdd(records);
+  // The collection as it is now, which a view drawn a moment ago may not show yet.
+  const now = latest(records, collection);
+  const name = collectionName(now);
+  const held = heldIds(now);
+  return openPickWindow({
+    heading: "Add to collection",
+    title: "Choose a sheet",
+    lead: `Choose the sheet to add to ${name}.`,
+    noun: ["sheet", "sheets"],
+    items: sheets.map((s) => ({
+      id: s.id,
+      name: sheetName(s),
+      detail: held.has(s.id) ? `In ${name} already` : s.modified && dateWords(s.modified) ? `Changed ${dateWords(s.modified)}` : "",
+    })),
+    near,
+    back,
+    onPick: (pick) => addRecordsToCollection({ store, ctx, collectionId: collection.id, recordIds: [pick.id], name }),
+  });
+}
+
+/**
+ * A collection's "Add ▾ › A label's bookmarks…" (E177): the pick window over
+ * the labels on a bookmark, with decision 23's two choices above the list. A
+ * pick adds that label's bookmarks as items, or a rule that keeps adding, as a
+ * label's "Add all bookmarks labeled Advent…" does.
+ *
+ * @param {{ store: object, ctx: () => object, collection: object,
+ *   near?: { left: number, top: number } | null, back?: HTMLElement | (() => HTMLElement | null) | null }} options
+ */
+export async function openAddLabels({ store, ctx, collection, near = null, back = null }) {
+  let records = [];
+  try {
+    records = await store.all();
+  } catch (err) {
+    console.error("Study Desk: couldn’t read the labels", err);
+  }
+  const now = latest(records, collection);
+  const name = collectionName(now);
+  // A label the collection adds new bookmarks from already says so.
+  const ruled = new Set((now?.members ?? []).filter(isBookmarkRule).map((m) => m.match.label));
+  return openPickWindow({
+    heading: "Add to collection",
+    title: "Choose a label",
+    lead: `Choose the label whose bookmarks go in ${name}.`,
+    noun: ["label", "labels"],
+    filterLabel: "Filter by name",
+    items: labelsToAdd(records).map(({ label, count }) => ({
+      id: label.id,
+      name: label.name,
+      detail: labelIds(records, label.id).some((id) => ruled.has(id))
+        ? `${plural(count, "bookmark", "bookmarks")}, new ones added already`
+        : plural(count, "bookmark", "bookmarks"),
+    })),
+    near,
+    back,
+    choices: {
+      label: "Which bookmarks",
+      value: "rule",
+      options: [
+        { value: "now", label: "Only the ones with that label now" },
+        { value: "rule", label: "Those, and any you give that label from now on" },
+      ],
+    },
+    onPick: (pick, choice) =>
+      addLabelToCollection({ store, ctx, collectionId: collection.id, label: { id: pick.id, name: pick.name }, rule: choice === "rule", name }),
   });
 }

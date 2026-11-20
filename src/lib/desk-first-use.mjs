@@ -456,7 +456,7 @@ export const DESK_TOUR_STEPS = [
     title: "The commands",
     body: {
       default:
-        "Under the header: Add pane, Layout, New sheet, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, My Notebook, My collections, and this tour.",
+        "Under the header: Add pane, Layout, New sheet, New collection, Print, and Help. “Study Desk” above them is a menu for the rest: display options, full screen, My Notebook, and this tour.",
     },
   },
   // How a sheet starts (E59): the command row's "New sheet…" and its template

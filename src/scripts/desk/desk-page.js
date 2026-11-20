@@ -70,6 +70,7 @@ import {
   fitSizes,
   isFollower,
   kindLabel,
+  kindPage,
   leavesReading,
   marksTurned,
   needs,
@@ -121,6 +122,7 @@ import { initPins } from "./pins.js";
 import { openStore } from "./store.js";
 import { initUndo, showNotice, showUndo } from "./undo-bar.js";
 import { el } from "./dom.js";
+import { OPEN_PAGE_ICON } from "./glyphs.js";
 import { createKindMenu } from "./kind-menu.js";
 import { createTitleMenu } from "./title-menu.js";
 import { factsFromStore, paintDots, startReminder } from "./reminder.js";
@@ -353,6 +355,36 @@ async function start() {
     return way;
   };
   if (store) setCollectionOpener(showCollectionPane);
+  // A My Notes pane, for a collection's "Add ▾ › From My Notes" (E177; BVJ,
+  // 2026-11-19: "On /desk, it should open the My Notes pane"), by the same
+  // rule: the first one open, else a new one where there is room, else in
+  // place of the last pane that isn't a LIT pane, never `keep` (the
+  // Collections pane that asked). Focus goes to its search field, where
+  // "Add these N to a collection…" starts, or to its name when the list has
+  // none to show. The undo bar says what it replaced; with no room, the notice
+  // offers My Notebook, whose list does the same.
+  const showMine = (keep) => {
+    const before = layout;
+    let id = panes(layout.root).find((p) => p.kind === "mine")?.id ?? null;
+    if (!id) {
+      const room = panesBox.getBoundingClientRect();
+      const way = makeWayFor(layout, "mine", { keep, width: room.width, height: room.height });
+      if (way.outcome === "none") {
+        noWay("mine", way.reason, { collection: true, href: "/notebook/" });
+        return way;
+      }
+      commit(way.layout, { quiet: way.outcome === "replaced" });
+      if (way.outcome === "replaced") sayReplaced(replacedMessage("mine", way.replaced.kind), before);
+      id = way.paneId;
+    }
+    const rec = paneEls.get(id);
+    Promise.resolve(rec?.inst?.focusField?.())
+      .catch(() => false)
+      .then((found) => {
+        if (!found && rec?.kindButton?.isConnected) rec.kindButton.focus();
+      });
+    return { outcome: before === layout ? "shown" : "opened", paneId: id };
+  };
   // A Greek search result (3m): its word in an unpinned Greek pane, else a
   // Greek pane by the one rule above; the LIT pane moves to the verse either
   // way. One bar says both, with Undo for the whole of it.
@@ -389,7 +421,7 @@ async function start() {
   };
   // Where the leading LIT pane's Back goes (E168), for the Search pane's line.
   const backPlace = () => paneEls.get(layout.active)?.inst?.backPlace?.() ?? null;
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, openGreekHit, backPlace };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showMine, openGreekHit, backPlace };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();
@@ -859,13 +891,26 @@ async function start() {
       // name theirs in their own passage or book bar.
       const at = el("span", "desk-pane__at");
       at.hidden = true;
+      // The page holding everything a Sheets or Collections pane lists (E180;
+      // BVJ, 2026-11-19), in a new tab, as every link that leaves the desk
+      // opens: the open-page glyph, and its name beside it where the header
+      // is wide enough, as "Stay here" is. mark() sets it for the pane's kind.
+      const page = el("a", "desk-pane__page");
+      page.target = "_blank";
+      page.rel = "noopener noreferrer";
+      page.hidden = true;
+      const pageGlyph = el("span", "desk-pane__page-glyph");
+      pageGlyph.innerHTML = OPEN_PAGE_ICON;
+      const pageWord = el("span", "desk-pane__page-word");
+      pageWord.setAttribute("aria-hidden", "true");
+      page.append(pageGlyph, pageWord);
       const close = el("button", "desk-pane__close");
       close.type = "button";
       close.innerHTML = ICON_CLOSE;
-      head.append(grip, h2, at, lead, pin, close);
+      head.append(grip, h2, at, lead, pin, page, close);
       const body = el("div", "desk-pane__body");
       section.append(head, body);
-      rec = { el: section, head, body, kindButton, lead, pin, close, place: at, kind: null, inst: null, at: null };
+      rec = { el: section, head, body, kindButton, lead, pin, page, close, place: at, kind: null, inst: null, at: null };
       paneEls.set(pane.id, rec);
 
       kindButton.addEventListener("click", () => kindMenu.open(pane.id, kindButton));
@@ -1020,6 +1065,14 @@ async function start() {
       const where = pane.kind === "mine" ? passageLabel({ ...passageOf(pane.id), verse: null }) : "";
       if (rec.place.textContent !== where) rec.place.textContent = where;
       rec.place.hidden = !where;
+      const page = kindPage(pane.kind);
+      rec.page.hidden = !page;
+      if (page && rec.page.getAttribute("href") !== page.href) {
+        rec.page.href = page.href;
+        rec.page.lastElementChild.textContent = page.name;
+        rec.page.setAttribute("aria-label", `Open the ${page.name} (opens in a new tab)`);
+        setTip(rec.page, `Open the ${page.name} in a new tab`);
+      }
       rec.close.hidden = all.length <= 1;
       rec.close.setAttribute("aria-label", `Close the ${name.replace(/^The /, "")} pane`);
       setTip(rec.close, `Close the ${name.replace(/^The /, "")} pane`);
