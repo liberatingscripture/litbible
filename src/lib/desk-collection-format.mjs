@@ -67,6 +67,11 @@ const chars = (s) => Array.from(s).length;
 const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const nonEmpty = (v) => typeof v === "string" && v.length > 0;
 
+/** A place's three ids, each an id, null or absent (E201). */
+const placeId = (v) => v == null || nonEmpty(v);
+const placesOk = (at) =>
+  isObject(at) && Object.values(at).every((p) => isObject(p) && placeId(p.memberId) && placeId(p.after) && placeId(p.before));
+
 function jsonBytes(r) {
   try {
     return new TextEncoder().encode(JSON.stringify(r)).length;
@@ -142,6 +147,7 @@ export function validateCollection(r) {
         if (m.match.kind === "bookmark") {
           check(nonEmpty(m.match.label), "match.label is empty");
           check(Array.isArray(m.except) && m.except.every((id) => typeof id === "string"), "except is not a list of IDs");
+          check(m.exceptAt == null || placesOk(m.exceptAt), "exceptAt is not a map of places");
         }
         break;
       case "heading":

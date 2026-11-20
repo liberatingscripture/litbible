@@ -5433,17 +5433,27 @@ wording (E202).
   `test/desk-collections-sheets.test.js`. Status: fixed.
 
 - **E201, preference: Bring back put a bookmark at the end.** BVJ,
-  2026-11-20: it keeps the item's place, with no change to the record format.
-  **Fixed** (`desk-collections.mjs`, `collection-view.js`): `leftOutPlace`
-  reads where the item sat (its member id and its neighbors) before “Leave it
-  out of this collection”; `bringBack(c, id, ctx, place)` puts an item back
-  before the member that followed it, else after the one before, else at the
-  end, reusing its member id when that is free. **The view remembers the
-  place in memory, for the visit only**: after a reload Bring back works as it
-  did (the rule brings the bookmark in, at the end). Keeping it longer would
-  need a field in the record, which is BVJ's call and the apps'. Tests:
-  `test/desk-collections-bring-back.test.js`,
-  `test/desk-collections-sheets.test.js`. Status: fixed (for the visit).
+  2026-11-20: it keeps the item's place. **Fixed** (`desk-collections.mjs`,
+  `desk-collection-format.mjs`, `collection-view.js`): `leftOutPlace` reads
+  where the item sat (its member id and its neighbors) before “Leave it out
+  of this collection”; `bringBack` puts an item back before the member that
+  followed it, else after the one before, else at the end, reusing its
+  member id when that is free. The place was first kept in memory, for the
+  visit only, with the record format unchanged; asked whether to keep it
+  across reloads, which needs a field in the record, BVJ said “yes.” So a
+  bookmark rule has an optional **`exceptAt`**, beside `except`: the place
+  of each left-out bookmark that was held as an item, under its id
+  (`{ memberId, after, before }`). `leaveOut` writes it (a newer place
+  replaces an older one), `bringBack` reads it (`keptPlace`) and takes it
+  away, and the field is left out when it holds none. A place is advice: a
+  neighbor that has gone is passed over, and a bookmark only the rule
+  brought in has none and comes back at the end, as before. No format
+  version bump: an older client keeps the field as one it doesn't know, and
+  the apps write no collection. STUDY-DESK-FORMAT.md, “Collections (kind
+  12),” has the field. Tests: `test/desk-collections-bring-back.test.js`,
+  `test/desk-collection-format.test.js`,
+  `test/desk-collections-sheets.test.js` (a reload between leaving out and
+  bringing back). Status: fixed.
 
 - **E202, preference: “Collections…” didn't say where an item was.** BVJ,
   2026-11-20: the button reads “In Advent small group,” “In 2 collections,”

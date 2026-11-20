@@ -841,6 +841,7 @@ already.
 |---|---|
 | `match` | `{ "kind": "bookmark", "label": "<label id>" }`. Any id of the label will do: it matches every live bookmark whose `labels` holds any id of that label, joined as kind 8 joins them, so renaming the label changes nothing here |
 | `except` | Ids of bookmarks the reader left out of this collection ("Leave it out of this collection"); may be empty |
+| `exceptAt`, optional | Where a bookmark in `except` stood as an `item` member before it was left out, so bringing it back returns it there: an object keyed by the bookmark's id, each value `{ "memberId": "<the item's id>", "after": "<id of the member before it>", "before": "<id of the member after it>" }`, each id absent or null at an end. Absent or empty means no places (STUDY-DESK-FIXES.md, E201) |
 
 A `match` naming a kind or a field the client doesn't know is kept and
 matches nothing there. A label deleted for good matches nothing; the
@@ -858,7 +859,16 @@ among themselves, until the reader moves one. Moving one makes it an
 the rule), and so does moving a row below it, since only a member keeps a
 place. "Leave it out of this collection" adds the bookmark's id to
 `except` on every rule that reaches it, and takes out any `item` naming
-it.
+it; the website keeps that item's place in `exceptAt` on the same rules.
+Bringing the bookmark back takes its id off every `except` and its place
+off every `exceptAt`, and puts an `item` back where the place says: before
+the member named `before` if it is still there, else after `after`, else
+at the end, with the item's old `id` when that is free. A place is advice,
+and a bookmark with none (one only the rule brought in) comes back by the
+rule alone. The field came after `collectionFormat` 1 was written, and
+needs no new version: a client that doesn't know it keeps it untouched,
+and an older one that brings a bookmark back leaves a place that a newer
+one reads only while the bookmark is in `except`.
 
 **`heading`**: plain text, up to 200 characters, in `text`. It divides
 the reader's own order into sections ("Week 1"), and is shown only in that

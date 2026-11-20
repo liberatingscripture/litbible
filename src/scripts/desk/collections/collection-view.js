@@ -83,7 +83,6 @@ import {
   bringBack,
   editHeading,
   leaveOut,
-  leftOutPlace,
   moveRow,
   moveTarget,
   planAddPassage,
@@ -728,13 +727,6 @@ function gapPills(host, c, state, rows) {
 
 /* ── A rule's line ──────────────────────────────────────────────── */
 
-// Where each bookmark left out of a collection was among its members, by
-// "<collection id> <bookmark id>", so Bring back puts it back there (E201;
-// BVJ, 2026-11-20). For this visit only: the record keeps no place for a
-// bookmark left out (STUDY-DESK-FORMAT.md), so after a reload it comes back
-// at the end, as it always did.
-const leftOutPlaces = new Map();
-
 /**
  * "Every bookmark labeled Advent · 12 · 1 left out (John 1:5). Bring it back ·
  * Stop adding new ones · Remove": a plain line with quiet links, one per rule
@@ -785,7 +777,8 @@ function ruleLine(host, c, info) {
         " · ",
         link(`Bring back ${ref}`, `rule-back-${b.id}`, `Bring ${ref} back into ${where}`, () =>
           write(
-            (col) => bringBack(col, b.id, opCtx(host), leftOutPlaces.get(`${c.id} ${b.id}`) ?? null),
+            // To the place it had, which the rule keeps (E201).
+            (col) => bringBack(col, b.id, opCtx(host)),
             `${ref} brought back into ${where}.`,
             [`rule-stop-${id}`, "add"],
           ),
@@ -1051,17 +1044,13 @@ function leaveOutButton(host, c, row) {
   b.dataset.focusKey = focusKey(host, `remove-${row.key}`);
   b.addEventListener("click", async () => {
     const keys = neighbors(host, b);
-    let place = null;
-    const plan = await writeCollection(host, c.id, (col, records) => {
-      place = leftOutPlace(col, row.record.id);
-      return leaveOut(col, row.record.id, records, opCtx(host));
-    });
+    // The rule keeps where the item stood, for Bring back (E201).
+    const plan = await writeCollection(host, c.id, (col, records) => leaveOut(col, row.record.id, records, opCtx(host)));
     const said = trouble(plan);
     if (said) {
       showNotice(said);
       return;
     }
-    if (plan.changed && place) leftOutPlaces.set(`${c.id} ${row.record.id}`, place);
     const entry = plan.changed ? host.store.lastEntry() : null;
     if (entry) showUndo(`${name} left out of ${collectionName(c)}.`, () => undoEntry(entry));
     host.refresh(keys);

@@ -200,7 +200,7 @@ test("E196, E200: My order puts a “+ Heading” pill in every gap, one Tab sto
   page.destroy();
 });
 
-test("E201: Bring back puts a left-out bookmark back where it was", async () => {
+test("E201: Bring back puts a left-out bookmark back where it was, after a reload too", async () => {
   await clearAll();
   const advent = make("label", { name: "Advent" });
   await save(advent);
@@ -222,13 +222,20 @@ test("E201: Bring back puts a left-out bookmark back where it was", async () => 
   assert.ok(middle, "the middle bookmark's Leave it out");
   middle.click();
   await until(() => byText(root, "a, button", "Bring back Luke 1:2"), 3000, "Bring back");
-  assert.equal((await collections())[0].members.length, 3, "two items and the rule");
-  byText(root, "a, button", "Bring back Luke 1:2").click();
-  await settle();
-  await until(() => root.querySelectorAll(".collection-page__member").length === 3, 3000, "three again");
-  const after = (await collections())[0].members.map((m) => m.id);
-  assert.deepEqual(after, before, "the same members in the same order");
+  const out = (await collections())[0];
+  assert.equal(out.members.length, 3, "two items and the rule");
+  assert.deepEqual(Object.keys(out.members.find((m) => m.type === "rule").exceptAt), [marks[1].id], "the rule keeps the place");
+  // A reload: the page drawn afresh from the notebook.
   page.destroy();
+  const again = await mount(`?id=${c.id}`);
+  await until(() => byText(again.root, "a, button", "Bring back Luke 1:2"), 3000, "Bring back, after the reload");
+  byText(again.root, "a, button", "Bring back Luke 1:2").click();
+  await settle();
+  await until(() => again.root.querySelectorAll(".collection-page__member").length === 3, 3000, "three again");
+  const back = (await collections())[0];
+  assert.deepEqual(back.members.map((m) => m.id), before, "the same members in the same order");
+  assert.equal("exceptAt" in back.members.find((m) => m.type === "rule"), false, "the place is forgotten");
+  again.page.destroy();
 });
 
 test("E194: a passage added inside one already there says so", async () => {

@@ -122,10 +122,11 @@ it holds. Computer only; the apps carry it untouched.
   rule line (`ruleLine` in `collection-view.js`, one per rule) reads "Every
   bookmark labeled Advent · 12" with `desk-item__stop` links Stop adding new
   ones (`ruleToItems`), Remove (`removeRule`), and one "Bring back …" per
-  bookmark left out (`bringBack`, which puts it back where it was when the
-  view remembers `leftOutPlace`, E201: **for the visit only**, since the
-  record keeps no place; after a reload it comes back by the rule, at the
-  end); a rule whose label is gone says so and can
+  bookmark left out (`bringBack`, which puts it back where it was: E201,
+  `leaveOut` keeps the item's place in the rule's `exceptAt` and
+  `bringBack` reads it and forgets it, so it outlives a reload; a bookmark
+  only the rule brought in has no place and comes back at the end); a rule
+  whose label is gone says so and can
   only be removed. A bookmark a rule brings in says "· from Advent" in its
   kind line and has "Leave it out of this collection" (`leaveOut`) in place
   of Remove. Deleting a label a rule uses asks first on its row (the bulk
