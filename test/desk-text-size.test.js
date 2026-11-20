@@ -104,12 +104,11 @@ test("running text adds the tray's line spacing; bars and a sheet's passage keep
   assert.match(body(".desk-pane__head, .desk-passage, .desk-panel__head, .desk-panel__tabs"), /line-height:\s*1\.5;/);
 });
 
-test("a pane sets its size once, so the LIT's and a Book Intro's text are scaled once", () => {
+test("a pane sets its size once, so the LIT's text is scaled once", () => {
   assert.match(body(".desk-pane"), /font-size:\s*calc\(0\.9375rem \* var\(--desk-ui, 1\)\);/);
-  // Either one multiplying again would square the scale: 15px to 24.5 at the
+  // Multiplying again would square the scale: 15px to 24.5 at the
   // largest size, where the pane's other words go to 19.2.
   assert.doesNotMatch(body(".desk-lit__text"), /font-size/);
-  assert.doesNotMatch(body(".desk-intro__article"), /font-size/);
 });
 
 test("a sheet's passage keeps the sheet's own size in a pane", () => {

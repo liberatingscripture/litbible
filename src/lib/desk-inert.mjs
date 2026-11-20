@@ -2,31 +2,24 @@
 //
 // A fetched page's parts, made inert before anything of them is imported into
 // the live document (audit 3 SEC3-2; before it, sheet-lit.js scrubbed a
-// passage's words alone). The Study Desk reads a chapter's or an intro's
-// built page for its panes, sheets and handouts (desk/chapter-page.js,
-// desk/intro-pane.js). The page is the site's own, parsed with DOMParser so
-// nothing in it runs or loads, and `chapterPath` / `introPath` refuse any
-// address off the site before the fetch. This is the second lock, for the
-// day that guard fails as SEC-1 once did: whatever the parts hold, nothing
-// imported from them can load a resource, run, or carry a script address.
+// passage's words alone). The Study Desk reads a chapter's built page for its
+// panes, sheets and handouts (desk/chapter-page.js), and the Search pane clones
+// a glossary entry from the site's /glossary/ page. The page is the site's own,
+// parsed with DOMParser so nothing in it runs or loads, and `chapterPath`
+// refuses any address off the site before the fetch. This is the second lock,
+// for the day that guard fails as SEC-1 once did: whatever the parts hold,
+// nothing imported from them can load a resource, run, or carry a script
+// address.
 //
 // Applied once, to the parts kept of the fetched document, so every reader
-// of those parts (a passage's words, its footnotes, the LIT pane's blocks,
-// the Book Intro pane) gets it. It takes any element tree with the DOM's
-// `querySelectorAll`, `remove`, `getAttributeNames`, `getAttribute` and
-// `removeAttribute`, so a test can run it over a small DOM of its own.
+// of those parts (a passage's words, its footnotes, the LIT pane's blocks)
+// gets it. It takes any element tree with the DOM's `querySelectorAll`,
+// `remove`, `getAttributeNames`, `getAttribute` and `removeAttribute`, so a
+// test can run it over a small DOM of its own.
 //
-// Images go too, by default (every `img`, `picture` and `source`). The one
-// exception is opt-in, `{ siteImages: true }`, which only the Book Intro pane
-// passes (E120: Matthew's introduction carries a chart, an `img` of
-// /images/matthew-chiasm.png). With it an `img` stays only when its raw `src`
-// is a root-relative path under the site's own /images/ folder (SITE_IMAGE:
-// no scheme, host, `//`, backslash, `%` or `..`), and it keeps only `src` and
-// `alt`. That is safe because the address can name nothing but a file on this
-// origin (the CSP's `img-src 'self'` says the same), no attribute that could
-// redirect, resize from elsewhere or run survives, and an image that fails
-// the check is removed exactly as before. Chapter pages and the search pane
-// never pass it.
+// Images go too (every `img`, `picture` and `source`). A Book Intro pane kept
+// the site's own /images/ pictures for a while (E120); it went in E173, and
+// with it that exception.
 
 /**
  * Elements that load, run, submit, or change how addresses resolve. A chapter
@@ -42,16 +35,6 @@ const REMOVE = [
   "form", "input", "button", "textarea", "select", "option", "datalist", "output",
   "dialog", "slot",
 ].join(", ");
-
-const REMOVE_NO_IMG = REMOVE.replace("img, ", "");
-
-/** A root-relative path under /images/, in plain path characters only. */
-const SITE_IMAGE = /^\/images\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
-
-/** Whether an `img`'s raw `src` is one of the site's own images. */
-export function siteImageSrc(value) {
-  return typeof value === "string" && SITE_IMAGE.test(value) && !value.includes("//") && !value.split("/").includes("..");
-}
 
 /** Attributes that name a resource, a style sheet's worth of CSS (`url()`), or a target to send to. */
 const DROP = new Set([
@@ -84,27 +67,11 @@ export function plainAddress(value) {
 /**
  * Make an element tree inert, in place: every element in REMOVE goes, every
  * `on*` handler and every attribute in DROP goes, and an address attribute
- * that isn't a plain web address goes. With `siteImages`, an `img` of the
- * site's own /images/ folder is kept with its `src` and `alt` alone (see the
- * header). Returns the root.
+ * that isn't a plain web address goes. Returns the root.
  */
-export function makeInert(root, options = {}) {
+export function makeInert(root) {
   if (!root) return root;
-  const siteImages = Boolean(options && options.siteImages);
-  for (const el of root.querySelectorAll(siteImages ? REMOVE_NO_IMG : REMOVE)) el.remove();
-  if (siteImages) {
-    for (const img of root.querySelectorAll("img")) {
-      if (!siteImageSrc(img.getAttribute("src"))) {
-        img.remove();
-        continue;
-      }
-      for (const name of img.getAttributeNames()) {
-        if (name !== "src" && name !== "alt") img.removeAttribute(name);
-      }
-      img.setAttribute("decoding", "async");
-      img.setAttribute("loading", "lazy");
-    }
-  }
+  for (const el of root.querySelectorAll(REMOVE)) el.remove();
   const scrub = (el) => {
     if (typeof el.getAttributeNames === "function") {
       for (const name of el.getAttributeNames()) {

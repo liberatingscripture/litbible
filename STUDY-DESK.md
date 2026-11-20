@@ -6235,13 +6235,13 @@ build):
    nothing of it is in the repo.
 2. **The shared code**: the list's own module, the host's `open` and
    `toList`, ids and focus found in the host's own element, and "Make a
-   sheet" out of the view with its tests (decision 36). The page changes
-   only by losing that button; its other tests pass as they are. Sonnet,
-   beside step 3 (no shared files).
+   sheet" out of the view with its tests and the help page's "Onto a sheet"
+   sentence (decision 36). The page changes only by losing that button;
+   its other tests pass as they are. Sonnet.
 3. **Book Intro out** (E173), with its own words: the help page, the Study
    Desk tour's card on the panes that follow (its id kept), and the desk
-   `CLAUDE.md`. The help page's "Onto a sheet" sentence (decision 36) goes
-   here too, so that one step owns the help page. Sonnet.
+   `CLAUDE.md`. Sonnet. **Built 2026-11-19**; STUDY-DESK-FIXES.md E173 has
+   what changed.
 4. **The pane**: the `collection` kind, `collection-pane.js`, the layout
    field and `checkLayout`, the mount in `desk-panes.js`, references as
    jumps, a sheet into a Sheets pane, "Open on its own page," the page's

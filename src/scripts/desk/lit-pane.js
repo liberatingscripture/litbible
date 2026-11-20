@@ -53,7 +53,7 @@
 //   highlights read it, and holds its verse through the rewrap.
 // - **A jump offers the way back** (E168; BVJ, 2026-11-19): a move the page
 //   marks as a jump (`goTo`'s `jump`: a Search pane result, a record in My
-//   Notes, a reference in a Book Intro or a footnote) or a place typed in this
+//   Notes, a reference in a footnote) or a place typed in this
 //   bar puts “← John 3:16” first on the bar (lit-back.js), back to where the
 //   reader last read. The arrows, the reader's scrolling and every other move
 //   only end a run of jumps. It is this pane's own, for the visit.

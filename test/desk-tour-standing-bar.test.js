@@ -41,7 +41,7 @@ test("a tour starting closes the reminder's bar of choices, without counting as 
 
 test("a tour starting closes a keyless Undo (a layout change, E131)", async () => {
   let undone = 0;
-  showUndo("Book Intro shown in place of Greek.", () => undone++, { keyless: true });
+  showUndo("Sheets shown in place of Greek.", () => undone++, { keyless: true });
   assert.equal(barShowing(), true);
   runner.start({ steps, act: async () => null });
   await settle(5);

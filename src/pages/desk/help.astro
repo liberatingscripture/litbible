@@ -460,7 +460,7 @@ const parts = [
                 <li>The “Open in Study Desk” button in a Scripture page’s
                   toolbar (“Study Desk” where the toolbar is short) opens it at
                   that chapter. On a book’s introduction, the same button opens
-                  it with the introduction in a Book Intro pane.</li>
+                  it at the book’s first chapter.</li>
                 <li>The header’s “Study” menu, which also lists your sheets,
                   your notebook, your collections, and this help.</li>
                 <li>The “Study Desk” button beside “Go to passage” on the
@@ -491,8 +491,6 @@ const parts = [
                   says so and shows the footnote that explains why.</li>
                 <li><strong>Footnotes</strong> lists the chapter’s footnotes,
                   each with a way to pin it or add a note.</li>
-                <li><strong>Book Intro</strong> is the introduction to the
-                  book.</li>
                 <li><strong>Greek</strong> is the chapter in Greek, the text
                   the LIT is translated from, as in the Notebook. Asked for a
                   verse the Greek doesn’t have, it shows the one before and
@@ -511,10 +509,9 @@ const parts = [
             <section class="nbhelp__topic" aria-labelledby="desk-following">
               <h3 id="desk-following">Panes that follow, and “Stay here”</h3>
               <p>
-                My Notes, This verse, Footnotes, Book Intro, and Greek follow
-                the place of the leading LIT pane (Book Intro follows its
-                book). A My Notes pane names the chapter it is on after its
-                name.
+                My Notes, This verse, Footnotes, and Greek follow the place of
+                the leading LIT pane. A My Notes pane names the chapter it is
+                on after its name.
               </p>
               <p>
                 The lock in a pane’s header, “Stay here,” keeps that pane where
@@ -524,7 +521,7 @@ const parts = [
               </p>
               <p>
                 <strong>Going back.</strong> When a LIT pane moves to a search
-                result, to a reference in My Notes, a book introduction, or a
+                result, to a reference in My Notes or a
                 footnote, or to a passage you type or pick, its bar starts with
                 a way back, such as “← John 3:16” (the arrow alone in a narrow
                 pane). Press it to return to where you were, and the panes that
@@ -578,7 +575,7 @@ const parts = [
               <p>
                 Some things open a pane for you: a sheet sent to the desk (from
                 the Sheets page, or a Search pane’s “New sheet of 3 verses”), a
-                book introduction, a search result that needs a LIT or Greek
+                search result that needs a LIT or Greek
                 pane, and Search from the / key. One rule covers all of them:
               </p>
               <ol>
@@ -590,7 +587,7 @@ const parts = [
                   from, or one set to “Stay here.”</li>
               </ol>
               <p>
-                The bar at the bottom says what happened (“Book Intro shown in
+                The bar at the bottom says what happened (“Sheets shown in
                 place of Greek.”), and its Undo puts the layout back. That bar
                 stays until you close it, since Ctrl+Z undoes changes to your
                 notebook, not to the layout. Where no
@@ -1180,7 +1177,8 @@ const parts = [
                   if there is none. A pane that moved offers
                   <a href="#desk-following">a way back</a> on its bar.</li>
                 <li>A book introduction, or a search such as “Matthew intro,”
-                  opens in a Book Intro pane.</li>
+                  opens the introduction on its own page, in a new tab, as an
+                  article does.</li>
                 <li>A Greek result shows the word in a Greek pane.</li>
                 <li>A passage result also has a link that opens the passage on
                   its own page, in a new tab.</li>

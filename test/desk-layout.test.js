@@ -54,7 +54,6 @@ import {
   setLitAt,
   setPaneSheet,
   setPin,
-  showIntroIn,
   sheetPaneFor,
   showSheet,
   makeWayFor,
@@ -123,7 +122,7 @@ test("panes, findPane, nodeAt and pathTo read the tree in reading order", () => 
 });
 
 test("isFollower and kindLabel", () => {
-  for (const k of ["verse", "greek", "footnotes", "mine", "intro"]) assert.equal(isFollower(k), true, k);
+  for (const k of ["verse", "greek", "footnotes", "mine"]) assert.equal(isFollower(k), true, k);
   for (const k of ["lit", "sheet", "future", undefined]) assert.equal(isFollower(k), false, String(k));
   assert.equal(kindLabel("lit"), "The LIT");
   assert.equal(kindLabel("mine"), "My Notes");
@@ -221,7 +220,7 @@ test("applyArrangement fills new slots with the first kind not open, in KINDS or
   assert.deepEqual(kinds(applyArrangement(lv, "cols-3")), ["lit", "verse", "mine"]);
   // The fill order is KINDS order.
   const order = KINDS.map((k) => k.kind);
-  assert.deepEqual(order, ["lit", "mine", "verse", "footnotes", "intro", "greek", "sheet", "search"]);
+  assert.deepEqual(order, ["lit", "mine", "verse", "footnotes", "greek", "sheet", "search"]);
 });
 
 test("applyArrangement gives new panes ids that are free and no pin", () => {
@@ -1126,7 +1125,7 @@ test("a changer's result doesn't share structure that later changes would corrup
 
 test("What I’ve kept is not a pane kind any more: it is My Notes (E17)", () => {
   assert.equal(KINDS.some((k) => k.kind === "kept"), false);
-  assert.deepEqual(RETIRED_KINDS, { kept: "mine" });
+  assert.deepEqual(RETIRED_KINDS, { kept: "mine", intro: "verse" });
   assert.equal(isFollower("mine"), true);
 });
 
@@ -1562,7 +1561,7 @@ test("showSheet leaves the layout alone for an empty id", () => {
 const four = (...kindsOf) => mk(cols([0.25, 0.25, 0.25, 0.25], ...kindsOf.map((k, i) => leaf(`p${i + 1}`, k))));
 
 test("E127: makeWayFor opens a pane where there is room, for every kind", () => {
-  for (const kind of ["sheet", "intro", "lit", "greek", "search"]) {
+  for (const kind of ["sheet", "lit", "greek", "search"]) {
     const way = makeWayFor(originalLayout(), kind, { width: 1600, height: 800 });
     assert.equal(way.outcome, "opened", kind);
     assert.equal(way.replaced, null);
@@ -1581,7 +1580,7 @@ test("E127: makeWayFor splits beside the pane named, on the edge asked", () => {
 });
 
 test("E127: with four panes open the last pane that isn't a LIT pane gives its place, for every kind", () => {
-  for (const kind of ["sheet", "intro", "lit", "greek", "search"]) {
+  for (const kind of ["sheet", "lit", "greek", "search"]) {
     const l = four("lit", "mine", "verse", "lit");
     const way = makeWayFor(l, kind, { width: 4000, height: 4000 });
     assert.equal(way.outcome, "replaced", kind);
@@ -1595,10 +1594,10 @@ test("E127: with four panes open the last pane that isn't a LIT pane gives its p
 
 test("E127: the requester, a pane set to Stay here, and LIT panes keep their places", () => {
   const l = setPin(four("lit", "verse", "search", "mine"), "p4", true, "john 1");
-  const way = makeWayFor(l, "intro", { keep: "p3" });
+  const way = makeWayFor(l, "sheet", { keep: "p3" });
   assert.deepEqual(way.replaced, { id: "p2", kind: "verse" }, "p4 is pinned and p3 asked");
   const stuck = setPin(setPin(l, "p2", true, "john 1"), "p4", true, "john 1");
-  const none = makeWayFor(stuck, "intro", { keep: "p3" });
+  const none = makeWayFor(stuck, "sheet", { keep: "p3" });
   assert.equal(none.outcome, "none");
   assert.equal(none.reason, "full");
   assert.equal(none.layout, stuck);
@@ -1614,7 +1613,7 @@ test("E127: keep takes a list, so a Greek result's LIT pane never takes its Gree
   const lit = makeWayFor(greek.layout, "lit", { keep: ["p1", greek.paneId] });
   assert.deepEqual(lit.replaced, { id: "p3", kind: "mine" }, "the next pane from the end gives its place");
   assert.equal(findPane(lit.layout.root, "p4").kind, "greek");
-  const stuck = makeWayFor(four("search", "lit", "lit", "greek"), "intro", { keep: ["p1", "p4", null] });
+  const stuck = makeWayFor(four("search", "lit", "lit", "greek"), "sheet", { keep: ["p1", "p4", null] });
   assert.equal(stuck.outcome, "none");
 });
 
@@ -1971,75 +1970,27 @@ test("E114: arriving from My default leaves the default untouched, and it still 
   assert.equal(arrangementOf(openingLayout(after, "john 3")), "cols-2", "a plain visit opens My default");
 });
 
-// ---- E53: the Book Intro pane ------------------------------------------------
+// ---- E173: the Book Intro pane is gone ---------------------------------------
 
-test("E53: Book Intro is a following kind named Book Intro, after Footnotes", () => {
-  assert.equal(kindLabel("intro"), "Book Intro");
-  const order = KINDS.map((k) => k.kind);
-  assert.equal(order.indexOf("intro"), order.indexOf("footnotes") + 1);
-  assert.equal(findPane(checkLayout(setKind(originalLayout("john 3:16"), "p2", "intro")).root, "p2").kind, "intro");
-});
-
-test("E53: showIntroIn opens a pane beside and moves the LIT to the book's chapter 1", () => {
-  const l = originalLayout("john 3:16");
-  const r = showIntroIn(l, "romans", 1200, 600);
-  assert.equal(r.outcome, "opened");
-  assert.equal(r.moved, "romans 1");
-  assert.deepEqual(kinds(r.layout), ["lit", "intro", "mine"]);
-  assert.equal(litPlace(r.layout, "p1"), "romans 1");
-  assert.equal(r.layout.place, "romans 1");
-  const intro = panes(r.layout.root).find((p) => p.kind === "intro");
-  assert.equal(placeFor(r.layout, intro.id), "romans 1", "it follows the LIT");
-});
-
-test("E53: showIntroIn uses an open pane, and leaves the LIT in the book alone", () => {
-  const l = setKind(originalLayout("romans 8:28"), "p2", "intro");
-  const r = showIntroIn(l, "romans", 1200, 600);
-  assert.deepEqual(r, { layout: l, outcome: "shown", moved: null, replaced: null, reason: null });
-  const other = showIntroIn(l, "galatians", 1200, 600);
-  assert.equal(other.outcome, "shown");
-  assert.equal(other.moved, "galatians 1");
-  assert.deepEqual(kinds(other.layout), ["lit", "intro"]);
-});
-
-test("E53: a Book Intro pane that stays put is moved alone", () => {
-  const l = setPin(setKind(originalLayout("john 3:16"), "p2", "intro"), "p2", true, "john 1");
-  const r = showIntroIn(l, "romans", 1200, 600);
-  assert.equal(r.outcome, "shown");
-  assert.equal(r.moved, null);
-  assert.equal(placeFor(r.layout, "p2"), "romans 1");
-  assert.equal(litPlace(r.layout, "p1"), "john 3:16", "the LIT stays");
-});
-
-test("E53: a following Book Intro pane is preferred over one that stays put", () => {
-  let l = applyArrangement(originalLayout("john 3:16"), "cols-3");
-  const ids = panes(l.root).map((p) => p.id);
-  l = setKind(setKind(l, ids[1], "intro"), ids[2], "intro");
-  l = setPin(l, ids[1], true, "john 1");
-  const r = showIntroIn(l, "acts", 1600, 600);
-  assert.equal(placeFor(r.layout, ids[1]), "john 1", "the pinned one is untouched");
-  assert.equal(r.moved, "acts 1");
-});
-
-test("E53: showIntroIn with no pane to give changes nothing, and with no LIT pane moves the shared place", () => {
-  const four = [1, 2, 3, 4].reduce((l, n) => setKind(l, `p${n}`, "lit"), applyArrangement(originalLayout("john 3:16"), "grid"));
-  assert.equal(panes(four.root).length, 4);
-  const full = showIntroIn(four, "romans", 4000, 4000);
-  assert.equal(full.outcome, "none");
-  assert.equal(full.layout, four);
-  const narrow = originalLayout("john 3:16");
-  assert.equal(full.reason, "full");
-  const narrowIntro = showIntroIn(narrow, "romans", 800, 600);
-  assert.equal(narrowIntro.outcome, "replaced", "three columns need 852, so My Notes gives its place (E127)");
-  assert.deepEqual(narrowIntro.replaced, { id: "p2", kind: "mine" });
-  const litOnly = showIntroIn(mk(leaf("p1", "lit")), "romans", 400, 600);
-  assert.equal(litOnly.outcome, "none");
-  assert.equal(litOnly.reason, "window");
-  const noLit = setKind(originalLayout("john 3:16"), "p1", "verse");
-  const r = showIntroIn(noLit, "romans", 1200, 600);
-  assert.equal(r.outcome, "opened");
-  assert.equal(r.layout.place, "romans 1");
-  assert.equal(showIntroIn(narrow, "notabook", 1200, 600).outcome, "none");
+test("E173: a saved layout holding a Book Intro pane reads back as This verse, with its place and pin", () => {
+  const saved = (pin) => ({
+    root: { split: "columns", sizes: [0.5, 0.5], children: [
+      { pane: { id: "p1", kind: "lit", pin: null, at: "romans 1" } },
+      { pane: { id: "p2", kind: "intro", pin } },
+    ] },
+    active: "p1",
+    place: "romans 1",
+  });
+  const plain = checkLayout(saved(null));
+  assert.equal(findPane(plain.root, "p2").kind, "verse");
+  assert.equal(findPane(plain.root, "p2").pin, null);
+  assert.equal(placeFor(plain, "p2"), "romans 1", "it follows the LIT, as the intro pane did");
+  const pinned = checkLayout(saved({ at: "romans 1" }));
+  const pane = findPane(pinned.root, "p2");
+  assert.equal(pane.kind, "verse");
+  assert.deepEqual(pane.pin, { at: "romans 1" });
+  assert.equal(placeFor(pinned, "p2"), "romans 1");
+  assert.equal(KINDS.some((k) => k.kind === "intro"), false);
 });
 
 // ---- Audit 3, session 3 ---------------------------------------------------

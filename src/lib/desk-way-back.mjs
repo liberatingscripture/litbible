@@ -7,7 +7,7 @@
 //
 // - **A jump** is a move the reader asked for from somewhere else: a Search
 //   pane result, a record's reference in My Notes, a scripture reference in a
-//   Book Intro or a footnote, or a place typed or chosen in a picker. It keeps
+//   footnote, or a place typed or chosen in a picker. It keeps
 //   where the pane was, so the bar can offer “← John 3:16.”
 // - **Any other move** is reading on: the reader's own scrolling, the chapter
 //   arrows and the keys that press them, the panes that lead back (This verse's

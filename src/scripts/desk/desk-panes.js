@@ -19,9 +19,7 @@
 // - Sheet is sheet-pane.js, the sheet editor (S1; 3f; sheet-editor.js) in a
 //   pane, showing the sheet the layout names for it, or the list of sheets;
 // - Search is search-pane.js, the site's search with results that move the
-//   LIT pane (3m). It stands alone, and keeps nothing of a search;
-// - Book Intro is intro-pane.js, the introduction to the book the LIT pane is
-//   in, read from its built page (E53).
+//   LIT pane (3m). It stands alone, and keeps nothing of a search.
 // The following panes (This verse, Greek, Footnotes) read their chapter from
 // its fetched Chapter View page (chapter-page.js), and show the passage
 // desk-page.js gives them, with a passage picker at their top
@@ -35,7 +33,6 @@
 import { sameChapter, passageLabel } from "../../lib/desk-passage.mjs";
 import { chapterHref, loadChapterPage } from "./chapter-page.js";
 import { createFootnotesView } from "./footnotes-view.js";
-import { createIntroPane } from "./intro-pane.js";
 import { createLitPane } from "./lit-pane.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createPassageBar } from "./passage-bar.js";
@@ -382,13 +379,6 @@ function mountLit(body, env, pane) {
   };
 }
 
-function mountIntro(body, env, pane) {
-  body.classList.add("desk-pane__body--fill");
-  const intro = createIntroPane({ paneId: pane.id, start: pane.get(), set: pane.set, showPassage: env.showPassage });
-  body.append(intro.el);
-  return { setPassage: intro.setPassage, destroy: () => intro.destroy() };
-}
-
 function mountSheet(body, env, pane) {
   body.classList.add("desk-pane__body--fill");
   const sheet = createSheetPane({
@@ -459,7 +449,6 @@ function mineScope(pane) {
  *   openGreekWord: (passage: object, t: number) => void,
  *   showPassage: (passage: object, options?: { beside?: string, quiet?: boolean }) => "moved" | "opened" | "replaced" | "placed" | null,
  *   showSheet: (sheetId: string, keep?: string) => { outcome: string, replaced: object | null, reason: string | null, changed: boolean, undoLayout: () => void },
- *   showIntro: (bookKey: string, options?: { beside?: string }) => { outcome: string, moved: string | null },
  *   openGreekHit: (hit: object, paneId: string) => void,
  *   drafts: Record<string, number[]> }} env
  * @param {{ id: string, get: () => object, set: (passage: object, how?: { jump: boolean }) => void,
@@ -526,7 +515,6 @@ export function mountPane(kind, body, env, pane) {
   if (kind === "footnotes") return mountFootnotes(body, env, pane);
   if (kind === "sheet") return mountSheet(body, env, pane);
   if (kind === "search") return mountSearch(body, env, pane);
-  if (kind === "intro") return mountIntro(body, env, pane);
   // A pane saved by a later version of the page, which this copy doesn't know.
   return message(body, "This pane needs a newer copy of the page. Reload to get it.");
 }

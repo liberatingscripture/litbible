@@ -2,7 +2,7 @@
 //
 // “← John 3:16” at the start of a LIT pane's bar on /desk (STUDY-DESK-FIXES.md,
 // E168; BVJ, 2026-11-19): after a jump moves the pane (a Search pane result,
-// a record in My Notes, a reference in a Book Intro or a footnote, a place
+// a record in My Notes, a reference in a footnote, a place
 // typed in a picker), the way back to where the reader was. The rules are
 // src/lib/desk-way-back.mjs; this draws them and keeps the pane's state, in
 // memory for the visit only.

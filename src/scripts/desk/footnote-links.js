@@ -2,9 +2,8 @@
 //
 // The links in a footnote's body on /desk (Audit 8, DK8-2; BVJ, 2026-11-10),
 // one rule for the three places a note is drawn (the Footnotes pane, This
-// verse, the LIT pane's footnote popover) and the same one the Book Intro pane
-// keeps: a plain click on a scripture reference (`a.sref`) moves the LIT pane
-// (`env.showPassage`); a modified click (Ctrl, Cmd, Shift, Alt, middle) keeps
+// verse, the LIT pane's footnote popover): a plain click on a scripture
+// reference (`a.sref`) moves the LIT pane (`env.showPassage`); a modified click (Ctrl, Cmd, Shift, Alt, middle) keeps
 // the browser's own default; any other link leaves the desk, so it opens in a
 // new tab (E34).
 
