@@ -695,10 +695,13 @@ my notebook"**. Twelve things to know:
   (`.sheet-page-gap`) push what would cross a page's foot to the next
   page's top, before a block or before the first word of the crossing line,
   following print's rules (a page break, `break-inside: avoid` parts moving
-  whole, headings kept with what follows). **Those rules sit outside
+  whole, headings kept with what follows, a poem broken only where
+  print.css lets it, E178). **Those rules sit outside
   `@media print`** in `sheets-page.css` (E99), since `paginate` reads them
   from computed styles and a screen never sees a print-only rule; break-*
-  does nothing on a continuous screen, so they cost nothing there. A heading
+  does nothing on a continuous screen, so they cost nothing there.
+  **`paginate` reads `break-after` and never `break-before: avoid`**, so a
+  rule that keeps two blocks together goes on the first. A heading
   never ends a page: a text part ending in one is `.sheet-copy__text--heads`
   (`renderCopy`), and `startNextPage` finds a heading past the edge of the
   box the moving text opens. The answer key is `break-before: page` and
