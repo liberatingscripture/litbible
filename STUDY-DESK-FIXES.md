@@ -4908,6 +4908,36 @@ says so; where BVJ was wondering, nothing is decided.)
   filter and that the name search still works.
   Status: fixed.
 
+- **E178, bug: a long gap above a poem on paper.** BVJ, 2026-11-19, with a
+  printout of a collection holding Matthew 5: “It shouldn't have the long
+  gap before the poetry block in Matthew 5 on the printout of the
+  collection.” Then: “OK, if that effects printing text from scripture pages
+  or /desk or how sheets print, etc. fix it everywhere it would affect it.”
+  **The cause was print.css**, which held every block quote whole
+  (`break-inside: avoid`), so a poem that didn't fit what was left of a page
+  went whole to the next and left the rest blank; Matthew 5:3–10 is sixteen
+  lines. That rule reached every print of the text: Chapter View, Read View,
+  /desk's prints (they print chapter pages), the collection page, and a
+  sheet on paper, whose screen pages already broke a poem between lines, so
+  the preview and the paper disagreed.
+  **Fixed.** A poem may break between its lines now; an article's quotation
+  is still held whole (`blockquote:not(.hbq)`). `break-after: avoid` on a
+  poem's first line, on a line holding a verse number, and on its
+  next-to-last line keeps a verse's first line with the next and never
+  leaves one line of a poem alone at either end (each line is its own
+  paragraph, so orphans and widows can't). `sheets-page.css` repeats the
+  three outside `@media print`, since the sheets' paginator reads only
+  `break-after`. A second defect showed at the new breaks: a poem's verse
+  number sits in the gutter on a box of its own (`global.css`), and with the
+  line height print.css and the sheet copy give every superscript (0), its
+  digit drew above the box, so a break before its line printed half the
+  number at the foot of the page before. Those numbers take a line height of
+  1.2 there. Checked on PDFs from headless Chrome, before and after, with the
+  page pushed down so the poem crossed a page: Matthew 5 in Chapter View,
+  Matthew in Read View, a collection holding Matthew 5, and a shared sheet of
+  Matthew 5:1–12, whose screen pages and paper now break in the same place.
+  Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

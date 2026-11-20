@@ -368,9 +368,15 @@ notice there or nowhere.
   meets it. Most rules are `!important` because page and component styles
   bundle after it. Check a change by printing real PDFs (headless Chrome's
   `--print-to-pdf` against a built `dist/`): the Browser pane cannot emulate
-  print media, and three of the fixes here (Read View's phone-width
+  print media, and four of the fixes here (Read View's phone-width
   gutter, superscripts opening up their lines, a long note held whole leaving
-  a third of a sheet blank) showed only on paper. Two traps in that check:
+  a third of a sheet blank, and a poem held whole doing the same, E178)
+  showed only on paper. **Nothing long is held whole**: a poem breaks
+  between lines, a verse's first line kept with the next and neither end
+  left with one line, and only a figure, an image or an article's quotation
+  keeps `break-inside: avoid`. To see a break, push the text down with a
+  spacer until the passage crosses a page, and print before and after. Two
+  traps in that check:
   1. **Set print media and wait for the fonts before printing** (over the
      DevTools protocol, `Emulation.setEmulatedMedia` `{media: "print"}`, then
      `document.fonts.ready`, then `Page.printToPDF`). Crimson Text is used

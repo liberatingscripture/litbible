@@ -124,6 +124,15 @@
     line-height: 0 !important;
   }
 
+  /* Except a poem's verse number, which sits in the gutter on a box of its
+     own (global.css): with no height, its digit drew above the box, and
+     where a page broke before its line, half of it printed at the foot of
+     the page before (E178). */
+  .scripture-main blockquote.hbq .hbq-line .vn,
+  .rm-page .rm-reader blockquote.hbq .hbq-line .vn {
+    line-height: 1.2 !important;
+  }
+
   .chapter-title,
   .rm-page .rm-title {
     font-size: 20pt !important;
@@ -140,9 +149,9 @@
     opacity: 1 !important;
   }
 
-  /* Keep a line from being stranded, a heading from ending a page, and a
-     quotation set as poetry from splitting across two. A footnote may break:
-     some run half a page, and holding one whole left that much blank. */
+  /* Keep a line from being stranded and a heading from ending a page. A
+     footnote may break: some run half a page, and holding one whole left
+     that much blank. */
   p,
   li {
     orphans: 3;
@@ -156,10 +165,23 @@
     break-after: avoid;
   }
 
-  blockquote,
+  /* Poetry may run on to the next page too (E178): held whole, Matthew
+     5:3–10 left most of a page blank above it. A verse's first line stays
+     with the line after it, and a poem never leaves one line alone at
+     either end. Every line is its own paragraph, so orphans and widows
+     can't do this. sheets-page.css repeats it for the Sheets' screen
+     pages, whose paginator reads only break-after. A quotation in an
+     article stays whole. */
+  blockquote:not(.hbq),
   figure,
   img {
     break-inside: avoid;
+  }
+
+  .hbq-line:first-child,
+  .hbq-line:has(.vn),
+  .hbq-line:nth-last-child(2) {
+    break-after: avoid;
   }
 
   img {
