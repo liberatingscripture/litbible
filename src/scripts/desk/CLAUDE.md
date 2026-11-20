@@ -317,19 +317,21 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      before first paint as `data-desk-widths` with `--desk-measure` and
      `--desk-width`, and global.css sets the column's measure and right
      margin from them.
-     **Every line a reader can drag also works by click** (Audit 8, XA8-1;
-     BVJ, 2026-11-10; WCAG 2.5.7): the two margin lines, the floating
-     notebook's edge and the Greek tab's line open a small menu of steps
-     ("Wider text", "Narrower Notebook", "Larger entry", and the line's reset)
-     when pressed and released without moving, or on Enter or Space
-     (`desk/line-menu.js`). Steps keep the menu open and disable at the
-     line's own `aria-valuemin`/`aria-valuemax`, so **a new draggable line
-     keeps its ARIA values current and uses `clickOrDrag` and
-     `toggleLineMenu`**; a press only writes a width once it moves past
-     `CLICK_SLOP`. A floating window's grip (`float-window.js`) is the same
-     idea for moving: a button, "Move to the other side," with arrow keys.
-     The /desk page's pane lines had theirs already (DK-8: the pane menu's
-     Size).
+     **Every line a reader can drag works one way, through `wireLine`**
+     (`desk/line-menu.js`; XA8-1, WCAG 2.5.7; E189, BVJ 2026-11-19): the two
+     margin lines, the floating notebook's edge, the Greek tab's line and
+     /desk's pane lines. A drag moves it; a press released without moving,
+     or Enter or Space, opens a small menu of steps ("Wider text", "Make the
+     LIT wider", and the line's reset); the arrow keys across it step it
+     (Shift for more), and Home and End take it to its ends, left or top
+     first. Steps keep the menu open, say the line's `aria-valuetext`, and
+     disable at its `aria-valuemin`/`aria-valuemax`, so **a new draggable
+     line uses `wireLine` and keeps those values true** (a pane line's come
+     from `lineBounds`); a press writes only once it moves past
+     `CLICK_SLOP`. A pane line has no double-click: its menu's last line
+     evens the panes. A floating window's grip (`float-window.js`) is the
+     same idea for moving: a button, "Move to the other side," with arrow
+     keys.
      **The glossary also becomes a reading page** then (the end of
      `pages/glossary.css`): one column at the reading width, with the
      scripture pages' type sizes, scaling with the Display tray's text size.

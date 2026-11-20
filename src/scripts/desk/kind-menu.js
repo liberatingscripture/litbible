@@ -309,7 +309,8 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
     const addHint = addWhy(addReasons);
 
     // Size this pane (DK-8): the click-only way to do what dragging a line
-    // does, for a reader who can't drag. Each step is a tenth of the split.
+    // does, for a reader who can't drag, reached from the pane itself. Each
+    // step is a tenth of the split, as a step of the line's own menu is (E189).
     const sizes = SIZINGS.map((z) => ({ ...z, at: sizingFor(getLayout().root, id, z) })).filter((z) => z.at);
     const buildSize = (fly) => {
       for (const z of sizes) {

@@ -5240,6 +5240,39 @@ says so; where BVJ was wondering, nothing is decided.)
   rows now grow with the tray too, as My Notebook's do.
   Test: `test/desk-text-size.test.js`. Status: fixed.
 
+- **E189, preference: every draggable line works the same way.** BVJ,
+  2026-11-19: “I think the draggable lines/seams between columns all can be
+  used without dragging, but they use different approaches. Probably best
+  to consolidate them, eh?” There are five such lines: the two margin lines
+  on a chapter (text, notes, Notebook), the floating Notebook's edge, the
+  line between the Greek and a word's entry, and /desk's lines between
+  panes. XA8-1 gave the first four a menu on a click or Enter, each wired by
+  hand, with different keys: the margin lines and the Notebook's edge had no
+  Home or End, and the Greek line's step menu was its own copy. The pane
+  lines had none of it: no click menu (their click route was the pane menu's
+  Size, DK-8), a double-click that evened the panes, `aria-valuemin` and
+  `aria-valuemax` of 0 and 100 whatever the minimum widths allowed, and a
+  press that saved the layout even when nothing moved. **Fixed**
+  (`line-menu.js`'s `wireLine`, which all five now use): a drag moves the
+  line; a press released without moving, or Enter or Space, opens its menu
+  of steps; the arrow keys across it step it, Shift for more; Home and End
+  take it to its ends, left or top first; the grip follows the pointer and
+  centers on focus. Each line keeps its own units (4ch a margin step, 48px
+  the Notebook's, a tenth of the room a pane line's). A step in any line's
+  menu now says where the line came to, as the pane menu's Size did. A pane
+  line's menu names what grows (“Make the LIT wider,” “Make My Notes and
+  Greek wider”; “the left side” and “the right side” where both hold the
+  same kinds) and ends with “Make the columns the same width” (or “the rows
+  the same height”), shown only when they aren't; that line replaces the
+  double-click, which a click opening the menu would have fought, as XA8-1
+  did for the Greek line's. The pane lines' limits are now true
+  (`lineBounds` in `desk-layout.mjs`, the same stops `resize` uses), and a
+  press saves only after a move. The pane menu's Size flyout stays, for a
+  reader at the pane rather than the line. Help: the Widths paragraph, /desk's
+  “With the mouse” and a new “From the keyboard,” and the Greek's keys
+  (which said Enter put the line back; it has opened the menu since XA8-1).
+  Test: `test/desk-e189-lines.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

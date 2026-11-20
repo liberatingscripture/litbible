@@ -1,23 +1,39 @@
 // src/scripts/desk/line-menu.js
 //
-// Click a line you could drag (Audit 8, XA8-1; BVJ, 2026-11-10). Every line
-// the desk lets a reader drag to resize (the two margin lines in Chapter View,
-// the floating Notebook's left edge, and the Greek tab's line between the text
-// and the entry) also opens a small menu when it is pressed and released
-// without moving, or when Enter or Space is pressed on it: a step each way and
-// the line's reset. That is the single-pointer way WCAG 2.5.7 asks for, for a
-// reader who points with a trackball, a head pointer, eye tracking or voice
-// and can click but not drag. The arrow keys on the line stay as they were.
-// Nothing new shows at rest (BVJ's rule for reading pages); the help page says
-// so.
+// Every line the desk lets a reader drag to resize works the same way, by one
+// set of rules here (E189; BVJ, 2026-11-19: "they use different approaches.
+// Probably best to consolidate them"): the two margin lines in Chapter View,
+// the floating Notebook's left edge, the Greek tab's line between the text and
+// the entry, and the lines between /desk's panes. `wireLine` gives a line all
+// of it:
+//
+// - **Drag** it with a press that moves.
+// - **Click** it (a press released without moving), or press Enter or Space
+//   on it, and a small menu opens: a step each way and the line's reset
+//   (Audit 8, XA8-1; BVJ, 2026-11-10). That is the single-pointer way WCAG
+//   2.5.7 asks for, for a reader who points with a trackball, a head pointer,
+//   eye tracking or voice and can click but not drag. Nothing new shows at
+//   rest (BVJ's rule for reading pages); the help page says so.
+// - **The arrow keys across the line** move it a step (Shift, a bigger one),
+//   and **Home and End** move it as far as it goes toward the start (left or
+//   top) or the end (right or bottom): the ARIA window-splitter pattern.
+// - **Its grip** (where it draws one) sits beside the pointer along the line,
+//   and at the middle of the line's visible part when it takes focus.
+//
+// Until E189 the /desk pane lines had their own handlers: no menu (the pane
+// menu's Size, DK-8, was their click route, and stays), and a double click
+// that evened the panes out, which is now the menu's reset, as the Greek
+// line's double click became its reset in XA8-1.
 //
 // The steps keep the menu open, so a reader can press "Wider text" three
 // times without reopening it; a step that has reached its limit is disabled
 // with its reason, read by the menu's description (menu-reasons.js). The
 // limit is read from the line's own `aria-valuenow`, `aria-valuemin` and
-// `aria-valuemax`, which each line already keeps current for a screen reader.
-// The reset closes the menu.
+// `aria-valuemax`, which each line keeps current for a screen reader, and
+// after each step the line's `aria-valuetext` is said. The reset closes the
+// menu.
 //
+// - `wireLine(line, options)` wires a line; see its comment for the options.
 // - `clickOrDrag(line, e, { move, end, click })` runs a press that started on
 //   the line: past a few pixels of movement it is a drag (`move(ev)`, then
 //   `end()`); released before that it is a click (`click(ev)`). So a click
@@ -118,6 +134,120 @@ export function clickOrDrag(line, e, { move, end = () => {}, click }) {
   line.addEventListener("pointercancel", finish);
 }
 
+/**
+ * Wire a line the reader can drag, so it answers as every other one does (see
+ * the top of this file). The line keeps its own ARIA values current; this
+ * reads them only for the menu's limits.
+ *
+ * @param {HTMLElement} line a focusable element with role="separator"
+ * @param {{
+ *   along?: "vertical" | "horizontal",
+ *   draggingClass?: string,
+ *   grip?: boolean,
+ *   begin?: (e: PointerEvent) => any,
+ *   drag: (start: any, ev: PointerEvent) => void,
+ *   end?: (start: any, moved: boolean) => void,
+ *   nudge: (dir: -1 | 1, big: boolean) => void,
+ *   toEnd: (dir: -1 | 1) => void,
+ *   menu: () => object,
+ * }} o
+ *   `along` "vertical" for a line running down the page, which moves left and
+ *     right (the default), or "horizontal".
+ *   `draggingClass` set on the line while it is dragged (it shows its hairline).
+ *   `grip` false where the line draws no grip, so nothing follows the pointer.
+ *   `begin(e)` at a press: what the drag starts from, handed to `drag` and `end`.
+ *   `drag(start, ev)` each move once the press is a drag.
+ *   `end(start, moved)` when the press ends, a drag or a click.
+ *   `nudge(dir, big)` an arrow key: -1 toward the start (left or up), +1
+ *     toward the end; `big` with Shift.
+ *   `toEnd(dir)` Home (-1) or End (+1): as far as the line goes that way.
+ *   `menu()` the line's menu, `toggleLineMenu`'s options without `at` and
+ *     `along`, asked for each time it opens, since names and limits change.
+ * @returns {{ openMenu: (at: {x: number, y: number} | null) => void }}
+ */
+export function wireLine(line, o) {
+  const along = o.along ?? "vertical";
+  const gripVar = along === "vertical" ? "--grip-y" : "--grip-x";
+  const back = along === "vertical" ? "ArrowLeft" : "ArrowUp";
+  const ahead = along === "vertical" ? "ArrowRight" : "ArrowDown";
+
+  const openMenu = (at) => toggleLineMenu(line, { ...o.menu(), at, along });
+
+  if (o.grip !== false) {
+    // The grip sits beside the pointer, at its place along the line.
+    line.addEventListener("pointermove", (e) => {
+      const r = line.getBoundingClientRect();
+      line.style.setProperty(gripVar, `${along === "vertical" ? e.clientY - r.top : e.clientX - r.left}px`);
+    });
+    // Focused, it sits at the middle of the line's part inside the window.
+    line.addEventListener("focus", () => {
+      const r = line.getBoundingClientRect();
+      const view = line.ownerDocument.defaultView;
+      const mid =
+        along === "vertical"
+          ? (Math.max(0, r.top) + Math.min(view.innerHeight, r.bottom)) / 2 - r.top
+          : (Math.max(0, r.left) + Math.min(view.innerWidth, r.right)) / 2 - r.left;
+      line.style.setProperty(gripVar, `${mid}px`);
+    });
+  }
+
+  line.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault(); // no text selection
+    const start = o.begin ? o.begin(e) : null;
+    let moved = false;
+    clickOrDrag(line, e, {
+      move: (ev) => {
+        moved = true;
+        if (o.draggingClass) line.classList.add(o.draggingClass);
+        o.drag(start, ev);
+      },
+      end: () => {
+        if (o.draggingClass) line.classList.remove(o.draggingClass);
+        o.end?.(start, moved);
+      },
+      click: (ev) => openMenu({ x: ev.clientX, y: ev.clientY }),
+    });
+  });
+
+  line.addEventListener("keydown", (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (isMenuKey(e)) {
+      e.preventDefault();
+      openMenu(null);
+    } else if (e.key === back || e.key === ahead) {
+      e.preventDefault();
+      o.nudge(e.key === ahead ? 1 : -1, e.shiftKey);
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      o.toEnd(e.key === "End" ? 1 : -1);
+    }
+  });
+
+  return { openMenu };
+}
+
+/**
+ * Say a line's new value through one polite live region, made once and kept
+ * (a region made with the words in it is often not read). Emptied first, so
+ * the same words twice are said twice.
+ */
+function say(doc, text) {
+  if (!text) return;
+  let live = doc.getElementById("deskLineSaid");
+  if (!live) {
+    live = make("div", "sr-only");
+    live.id = "deskLineSaid";
+    live.setAttribute("role", "status");
+    live.setAttribute("aria-live", "polite");
+    doc.body.append(live);
+  }
+  live.textContent = "";
+  setTimeout(() => {
+    live.textContent = text;
+  }, 50);
+}
+
 /** Close a line's menu if one is open. */
 export function closeLineMenu(line, refocus = false) {
   open.get(line)?.close(refocus);
@@ -207,10 +337,14 @@ function openLineMenu(line, { label, more, less, step, reset, at, along = "verti
       if (s.b.getAttribute("aria-disabled") === "true") return;
       step(s.dir);
       // The line's values are set when the page is placed again, a frame or
-      // two after the step.
+      // two after the step; then what it came to is said, since focus stays
+      // in the menu and the line's own value isn't read there.
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        frame = requestAnimationFrame(sync);
+        frame = requestAnimationFrame(() => {
+          sync();
+          say(doc, line.getAttribute("aria-valuetext"));
+        });
       });
     });
   }

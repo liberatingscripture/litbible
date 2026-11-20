@@ -11,11 +11,12 @@
 // The pointer in a gap gets the resize cursor and a small grip beside it,
 // and a hairline shows only while dragging. The text's line also shows its
 // grip while the pointer is on the bare page anywhere in the sheet's left
-// margin (E139), since the line itself is narrow and inside the sheet. Each handle is a focusable
-// separator the arrow keys move a character at a time (the ARIA
-// window-splitter pattern), so it isn't mouse-only. A press that doesn't move,
-// or Enter, opens its menu of steps (line-menu.js; XA8-1), for a reader who
-// can click but not drag.
+// margin (E139), since the line itself is narrow and inside the sheet. Each
+// handle is wired as every draggable line is (`wireLine`, line-menu.js; E189):
+// a focusable separator the arrow keys move a character at a time and Home and
+// End move as far as it goes (the ARIA window-splitter pattern), and a press
+// that doesn't move, or Enter, opens its menu of steps (XA8-1), for a reader
+// who can click but not drag.
 //
 // What is kept is the LIT's measure and the notebook's width, in
 // sessionStorage (lit-desk-measure, lit-desk-width), so every page and reload
@@ -41,7 +42,7 @@ import {
 } from "../../lib/desk-margin.mjs";
 import { clampSplit } from "../../lib/desk-greek-split.mjs";
 import { keepReadingPlace } from "../keep-reading-place.js";
-import { clickOrDrag, closeLineMenu, isMenuKey, toggleLineMenu } from "./line-menu.js";
+import { closeLineMenu, wireLine } from "./line-menu.js";
 
 const MEASURE_KEY = "lit-desk-measure";
 const WIDTH_KEY = "lit-desk-width";
@@ -248,47 +249,18 @@ export function createWidths({ column, panel, onChange }) {
     });
   }
 
+  // Each line as every draggable line is (line-menu.js): a character a step
+  // with the arrow keys, ten with Shift, and Home and End as far as it goes.
   for (const h of [textEdge, bookEdge]) {
     const which = h === textEdge ? "text" : "book";
-
-    // The grip sits beside the pointer, at its height.
-    h.addEventListener("pointermove", (e) => {
-      h.style.setProperty("--grip-y", `${e.clientY - h.getBoundingClientRect().top}px`);
-    });
-    h.addEventListener("focus", () => {
-      const box = h.getBoundingClientRect();
-      const mid = (Math.max(0, box.top) + Math.min(window.innerHeight, box.bottom)) / 2;
-      h.style.setProperty("--grip-y", `${mid - box.top}px`);
-    });
-
-    h.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault(); // no text selection
-      const start = startingWidths();
-      const x0 = e.clientX;
-      clickOrDrag(h, e, {
-        move: (ev) => {
-          h.classList.add("desk-gutter--dragging");
-          set(next(which, start, ev.clientX - x0));
-        },
-        end: () => h.classList.remove("desk-gutter--dragging"),
-        click: (ev) => openMenu(which, h, { x: ev.clientX, y: ev.clientY }),
-      });
-    });
-
-    // A character at a time with the arrow keys, ten with Shift; Enter or
-    // Space opens the menu.
-    h.addEventListener("keydown", (e) => {
-      if (isMenuKey(e)) {
-        e.preventDefault();
-        openMenu(which, h, null);
-        return;
-      }
-      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      e.preventDefault();
-      const { ch } = measures();
-      const step = (e.shiftKey ? 10 : 1) * ch * (e.key === "ArrowLeft" ? -1 : 1);
-      set(next(which, startingWidths(), step));
+    wireLine(h, {
+      draggingClass: "desk-gutter--dragging",
+      begin: (e) => ({ widths: startingWidths(), x0: e.clientX }),
+      drag: (s, ev) => set(next(which, s.widths, ev.clientX - s.x0)),
+      nudge: (dir, big) => set(next(which, startingWidths(), dir * (big ? 10 : 1) * measures().ch)),
+      // The whole window's width is past either end; the rules stop it there.
+      toEnd: (dir) => set(next(which, startingWidths(), dir * root.clientWidth)),
+      menu: () => menuFor(which),
     });
   }
 
@@ -358,9 +330,9 @@ export function createWidths({ column, panel, onChange }) {
   // step. On the text's line, dragging right narrows the text; on the
   // Notebook's, dragging right narrows the Notebook.
   const MENU_STEP = 4;
-  function openMenu(which, h, at) {
+  function menuFor(which) {
     const text = which === "text";
-    toggleLineMenu(h, {
+    return {
       label: text ? "Text width" : "Notebook width",
       more: text ? "Wider text" : "Wider Notebook",
       less: text ? "Narrower text" : "Narrower Notebook",
@@ -369,8 +341,7 @@ export function createWidths({ column, panel, onChange }) {
         set(next(which, startingWidths(), -dir * MENU_STEP * ch));
       },
       reset: { label: "Reset widths", run: () => keepReadingPlace(resetWidths), shown: keptAny },
-      at,
-    });
+    };
   }
 
   /**
