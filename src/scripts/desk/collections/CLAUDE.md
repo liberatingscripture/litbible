@@ -242,6 +242,10 @@ the pane's id as `idSuffix`, and keeps what only a pane has:
   registers its listener as it is built, as the Sheets pane does (DK6-10).
 - **Every change to the notebook draws it again** but a reading place's
   (`QUIET_KINDS`), so a passage added from the LIT pane appears at once.
+- **Its cards take the Sheets pane's card color** (E185; BVJ, 2026-11-19):
+  `--desk-pane-card`, set by the one rule that sets it for the Sheets pane
+  (`.desk-pane :is(.desk-sheet, .desk-collections)`), so a list drawn from
+  the same classes looks the same in both panes. The page keeps `#FAFAF8`.
 - **The narrow rows** (decision 35) are a container query on
   `.desk-collections` (`deskCollection`, 26em of the pane's own type, so a
   larger text size turns them narrow sooner): a flex row whose `::before`
