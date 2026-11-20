@@ -40,6 +40,9 @@ const ICON_CARET = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" 
   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
   <path d="M6 9l6 6 6-6" /></svg>`;
 
+// The least height a menu or window under the row is cut to (fitBelow).
+const MIN_ROOM = 160;
+
 const DIRECTIONS = [
   { id: "column", label: "Add column" },
   { id: "row", label: "Add row" },
@@ -109,12 +112,26 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
 
   row.append(addSub, layoutButton, newSheetButton, newCollectionButton, printButton, help);
 
-  /** A window opened from a command hangs under it, inside the window's width. */
+  /** A window opened from a command hangs under it, inside the window's width and height. */
   function hang(win, button) {
     const rowBox = row.getBoundingClientRect();
     const at = button.getBoundingClientRect().left - rowBox.left;
     const room = Math.max(0, document.documentElement.clientWidth - 16 - rowBox.left - win.offsetWidth);
     win.style.left = `${Math.max(0, Math.min(at, room))}px`;
+    fitBelow(win);
+  }
+
+  /**
+   * A menu or window hanging from the row stops 8px above the window's foot
+   * and scrolls inside itself past that (`overflow-y: auto` in desk.css), so
+   * none runs off the screen: Add pane's kinds did in a short window or at a
+   * large text size. Kept at least `MIN_ROOM` tall, for a page scrolled so
+   * far that the row is near the foot.
+   */
+  function fitBelow(win) {
+    win.style.maxHeight = "";
+    const room = Math.floor(window.innerHeight - win.getBoundingClientRect().top - 8);
+    if (win.offsetHeight > room) win.style.maxHeight = `${Math.max(MIN_ROOM, room)}px`;
   }
 
   // ---- the add menu's lines ----
@@ -198,6 +215,8 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
       }
     }
     addReasons.refresh();
+    // The kinds are far taller than column and row.
+    if (!addMenu.hidden) fitBelow(addMenu);
   }
 
   function openAdd({ focus = true } = {}) {
@@ -207,6 +226,7 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
     addStep = null;
     drawAdd();
     addMenu.hidden = false;
+    fitBelow(addMenu);
     addButton.setAttribute("aria-expanded", "true");
     if (focus) (enabled()[0] ?? addMenu.children[0])?.focus();
   }
@@ -326,7 +346,10 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   document.addEventListener("pointerdown", (e) => {
     if (!addMenu.hidden && !addSub.contains(e.target) && !inTour(e.target)) closeAdd();
   });
-  addEventListener("resize", refresh);
+  addEventListener("resize", () => {
+    refresh();
+    if (!addMenu.hidden) fitBelow(addMenu);
+  });
   refresh();
 
   return { el: row, addButton, addMenu, layoutButton, printButton, hang, showAddKinds, closeAdd, newSheet, newCollection, refresh };

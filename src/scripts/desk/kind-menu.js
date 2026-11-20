@@ -126,15 +126,6 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
     flyEl.setAttribute("aria-label", def.name);
     def.build(flyEl, null);
     kindMenu.head.append(flyEl);
-    // Beside the menu, level with its line; on the other side where the
-    // window's edge is in the way, and kept inside the window below.
-    const m = kindMenu.menuEl.getBoundingClientRect();
-    const t = trigger.getBoundingClientRect();
-    const edge = 8;
-    let left = m.right + 2;
-    if (left + flyEl.offsetWidth > window.innerWidth - edge) left = m.left - flyEl.offsetWidth - 2;
-    flyEl.style.left = `${Math.max(edge, left)}px`;
-    flyEl.style.top = `${Math.max(edge, Math.min(t.top - 4, window.innerHeight - edge - flyEl.offsetHeight))}px`;
     flyEl.addEventListener("mouseenter", () => clearTimeout(flyTimer));
     flyEl.addEventListener("mouseleave", closeFlyLater);
     flyEl.addEventListener("keydown", (e) => {
@@ -162,7 +153,34 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
     });
     trigger.setAttribute("aria-expanded", "true");
     kindMenu.fly = { el: flyEl, trigger, reasons: describeUnavailable(flyEl, { id: `deskPaneFlyWhy-${++paneHintCount}` }) };
+    placeFly();
     if (focus) flyButtons(flyEl)[0]?.focus({ preventScroll: true });
+  }
+
+  /**
+   * Beside the menu, level with its line; on the other side where the
+   * window's edge is in the way. Never past the window's foot: Add pane's
+   * second step (the kinds, after the sides) is far taller than its first, so
+   * each step places the flyout again, moved up as far as it needs, and one
+   * taller than the window scrolls inside itself. A scroll anywhere else
+   * closes the menu, so a flyout running off the window could never be read.
+   */
+  function placeFly() {
+    const fly = kindMenu?.fly;
+    if (!fly) return;
+    const flyEl = fly.el;
+    const edge = 8;
+    // Measured at the window's left edge, so the last step's place doesn't
+    // narrow it.
+    flyEl.style.left = "0px";
+    flyEl.style.top = "0px";
+    flyEl.style.maxHeight = `${Math.max(0, window.innerHeight - 2 * edge)}px`;
+    const m = kindMenu.menuEl.getBoundingClientRect();
+    const t = fly.trigger.getBoundingClientRect();
+    let left = m.right + 2;
+    if (left + flyEl.offsetWidth > window.innerWidth - edge) left = m.left - flyEl.offsetWidth - 2;
+    flyEl.style.left = `${Math.max(edge, left)}px`;
+    flyEl.style.top = `${Math.max(edge, Math.min(t.top - 4, window.innerHeight - edge - flyEl.offsetHeight))}px`;
   }
 
   let paneHintCount = 0;
@@ -265,6 +283,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
           fly.append(b);
         }
         kindMenu?.fly?.reasons.refresh();
+        if (kindMenu?.fly?.el === fly) placeFly();
         return;
       }
       const label = SIDES.find((s) => s.id === side).label;
@@ -283,6 +302,8 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
         });
         fly.append(b);
       }
+      // The kinds are taller than the sides: placed again, inside the window.
+      if (kindMenu?.fly?.el === fly) placeFly();
     };
     const addReasons = SIDES.map((s) => addBesideNeeds(getLayout(), id, s.id, width, height));
     const addHint = addWhy(addReasons);
