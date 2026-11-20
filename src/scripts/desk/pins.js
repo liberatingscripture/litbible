@@ -40,6 +40,7 @@ import { findPin, pinFields, placePins } from "../../lib/desk-footnotes.mjs";
 import { recordReference, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-core.mjs";
 import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { busy, isBusy } from "./focus-keep.js";
+import { THUMBTACK_INNER } from "./glyphs.js";
 import { footnotePills, initFootnotePills } from "./footnote-pills.js";
 import { undoEntry } from "./history.js";
 import { footnoteList, pageChapter } from "./page.js";
@@ -143,7 +144,7 @@ async function toggle(id, label, where) {
 // and tints the pill while `aria-pressed` is true.
 const ICON_PIN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path class="desk-pin__head" d="M8 3h8l-1 6 3 4H6l3-4z" /><path d="M12 17v5" /></svg>`;
+  ${THUMBTACK_INNER}</svg>`;
 
 /** Set a button's state and tooltip from whether its footnote is pinned. */
 function paint(button) {

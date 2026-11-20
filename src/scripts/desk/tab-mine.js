@@ -111,7 +111,7 @@ import { flagButton, noticesFor, openNotice } from "./change-notice.js";
 import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
 import { collectionsTag } from "./collections/collections-popover.js";
 import { openAddRecords } from "./collections/add-records.js";
-import { glyph, newTabMark } from "./glyphs.js";
+import { addKindGlyph, glyph, newTabMark } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
 import { undoEntry } from "./history.js";
 import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
@@ -122,7 +122,7 @@ import { continueSection } from "./continue-reading.js";
 import { pageChapter } from "./page.js";
 import { readBook } from "./page-kind.js";
 import { showUndo } from "./undo-bar.js";
-import { colorOf, highlightedWords, nameOf } from "./record-words.js";
+import { colorOf, highlightedWords, keepLines, nameOf, readChapterLines } from "./record-words.js";
 import { scroller } from "./dom.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
@@ -158,7 +158,7 @@ let seq = 0;
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void>,
  *   follow: (passage: object) => void, destroy: () => void }}
  */
-export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null, notebookInNewTab = false }) {
+export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null, notebookInNewTab = false, readLines = readChapterLines }) {
   const n = ++seq;
   // Which colour the list is narrowed to (null: everything), and the label
   // (an id; null: everything). Each tab's own, so two My Notes panes on /desk
@@ -823,7 +823,10 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
     if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
-    else kind.textContent = nameOf(r);
+    else {
+      kind.textContent = nameOf(r);
+      addKindGlyph(kind, r.kind);
+    }
     li.append(head, kind);
     if (r.kind === "bookmark" && isFollowing(r)) kind.after(followLinkButton(r, ref), moveItHereButton(r, ref));
     // A bookmark that moves as the reader reads starts doing so from this link
@@ -917,6 +920,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
         if (revealHere) words.addEventListener("click", goTo);
         words.append(highlightedWords(colorOf(r), quote));
         li.append(words);
+        keepLines(words, r, quote, readLines);
       }
     } else {
       const words = r.label ?? r.name ?? r.quote?.exact;
@@ -985,6 +989,7 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const kind = document.createElement("span");
     kind.className = "desk-item__kind";
     kind.textContent = kindName(r.kind);
+    addKindGlyph(kind, r.kind);
     const words = document.createElement("p");
     words.className = "desk-item__words desk-item__pin-text";
     words.textContent = r.footnote;

@@ -20,9 +20,9 @@ import { sheetName } from "../../lib/desk-sheet-passages.mjs";
 import { kindName, recordHref, takeOff, recordReference } from "../../lib/desk-store-core.mjs";
 import { drawBookmarkLine, followBookmark, stopFollowing } from "./bookmark-follow.js";
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
-import { glyph } from "./glyphs.js";
+import { addKindGlyph, glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
-import { colorOf, highlightedWords, nameOf } from "./record-words.js";
+import { colorOf, highlightedWords, keepLines, nameOf, readChapterLines } from "./record-words.js";
 
 const button = (className, text, label, onClick) => {
   const b = document.createElement("button");
@@ -42,16 +42,18 @@ const button = (className, text, label, onClick) => {
  *   onCollections?: ((record: object, trigger: Element) => void) | null,
  *   onDelete: (record: object, li: Element) => void,
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
- *   trash?: { when: string, onRestore: (record: object, trigger: Element) => void } | null }} actions
+ *   trash?: { when: string, onRestore: (record: object, trigger: Element) => void } | null,
+ *   readLines?: Function }} actions
  *   `goHere` is for a list in a /desk pane: a plain click on a reference it
  *   can take moves the LIT pane there rather than leaving /desk (BA124), as
  *   My Notes' does (tab-mine.js). A modified or middle click still follows
  *   the link. `trash`, given by the Trash list (trash-list.js; E12), draws a
  *   deleted record: the line `when` says when it was deleted and how long it
- *   waits, and Restore is its only button.
+ *   waits, and Restore is its only button. `readLines` reads a chapter's
+ *   lines for a highlight's words (record-words.js `keepLines`); a test hands one.
  * @returns {HTMLLIElement}
  */
-export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null, trash = null, onCollections = null }) {
+export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, goHere = null, trash = null, onCollections = null, readLines = readChapterLines }) {
   const r = record;
   const li = document.createElement("li");
   li.className = "desk-item desk-np-row";
@@ -77,7 +79,12 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
   const kind = document.createElement("span");
   kind.className = "desk-item__kind";
   if (r.kind === "bookmark") drawBookmarkLine(kind, r, nameOf(r));
-  else kind.textContent = nameOf(r);
+  else {
+    kind.textContent = nameOf(r);
+    // A pinned footnote's thumbtack and a sheet's page lead the line, as a
+    // bookmark's mark does; the words are the same.
+    addKindGlyph(kind, r.kind);
+  }
   li.append(head, kind);
   // A bookmark in the Trash is not in the notebook: nothing there starts, stops
   // or moves a follow (NB8-13).
@@ -112,6 +119,8 @@ export function recordRow(record, { labels, onEdit = null, onLabels, onDelete, g
       words.className = "desk-item__highlight desk-np-row__highlight";
       words.append(highlightedWords(colorOf(r), quote));
       li.append(words);
+      // The chapter's own lines (a poetry line breaks the words as it does there), once the row nears the view.
+      keepLines(words, r, quote, readLines);
     }
   } else if (r.kind === "footnotePin") {
     const words = document.createElement("p");
