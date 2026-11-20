@@ -4937,6 +4937,32 @@ says so; where BVJ was wondering, nothing is decided.)
   The help page says My Notes has the link, and that “Add these 12” is in
   both lists (E175's “its list” in “From a label” became “My Notes or My
   Notebook”). Test: `test/desk-mine-add-these.test.js`. Status: fixed.
+- **E177, preference: a collection's page adds more than passages.** BVJ,
+  2026-11-19, with a screenshot of a collection's page: “On the
+  /collections page, you can add passages from there, but nothing else.
+  That should change. The button that is currently ‘add passages’ should
+  include all the other options of things to add that make sense, like
+  sheets and labels. Notes, footnotes, bookmarks, and highlights, maybe can
+  be done with an Add from notebook button. Not sure whether it should open
+  a window that displays notebook contents (basically another place to host
+  My notes) or if it should just navigate to the Notebook.” Asked, BVJ
+  chose: “On /collections it should Go to My Notebook. On /desk, it should
+  open the My Notes pane.” It widens decision 11, which gave the page
+  “Add passage…” alone. What the website proposes to build (its choices,
+  for BVJ to change):
+  - **“Add passage…” becomes “Add ▾”**, the page's one primary button, a
+    menu of four: **Passage…** (today's field), **Sheet…** (E154's pick
+    window over the reader's sheets), **A label's bookmarks…** (the same
+    window over the labels in use, with decision 23's two choices above
+    the list), and **From My Notebook**.
+  - **From My Notebook** is a link to /notebook/ on the page, where a
+    row's “Collections…” and “Add these 12 to a collection…” (E176) add
+    to it. In /desk's Collections pane it opens a My Notes pane by E127's
+    rule instead.
+  **Open**: to be built after the Collections pane (PR #634) merges, since
+  that work is changing the same files (`collection-view.js`,
+  `collection-page.js`, `add-records.js`) and brings the pane the /desk
+  half needs. Status: open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
