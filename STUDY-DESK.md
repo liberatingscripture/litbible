@@ -1647,8 +1647,9 @@ plan as a whole was accepted; nothing was declined except where stated).
   cover now that they are for bookmarks alone (E149). Borrowed (Sefaria's
   collections; Blue Letter Bible's named notebooks). Medium. **Version 1, tentatively** (BVJ, 2026-11-18: "we'll
   see if we run into hiccups"). Planned and built, steps 0 to 8 merged on
-  2026-11-18 and 19, and a Collections pane on /desk decided on 2026-11-19
-  (not yet built): see "D13. Collections" before "Decisions".
+  2026-11-18 and 19, and a Collections pane on /desk decided and built on
+  2026-11-19 (#634, #637, and #638): see "D13. Collections" before
+  "Decisions".
 - **M1. Hide my notes, in one keystroke.** A switch with a shortcut that hides
   every note, highlight and mark at once, for sharing a screen or teaching
   from Study View. N8 makes it matter. Present mode already leaves notes out.
