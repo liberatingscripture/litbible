@@ -6129,9 +6129,9 @@ pane in the dropdown menus."). So BVJ chose:
 30. **No dragging into a Sheets pane, for now.** Nothing on /desk drags
     from one pane to another, and every drag needs a click route too
     (Audit 8, XA8-1), which would put a button on every row. A whole
-    collection already reaches a sheet three ways (Make a sheet, which the
-    pane has as Add to sheet…'s "New sheet" by decision 36, Add to sheet…,
-    and the Sheets pane's "+ From my notes…" under "From a collection"), and
+    collection already reaches a sheet three ways (Make a sheet, which
+    decision 36 leaves to Add to sheet…'s "New sheet," Add to sheet…, and
+    the Sheets pane's "+ From my notes…" under "From a collection"), and
     one passage takes two presses once its reference has
     moved the LIT pane (the verse menu's Add to sheet). If it is wanted
     later, it is an E entry with its click route.
@@ -6187,13 +6187,17 @@ sheet' within it." So BVJ chose:
     and the buttons can't share a line (the mock's "Passage" ran into ↑ at
     Extra large), the buttons take a line of their own, as the sheet list's
     do. Check it at Extra large in OpenDyslexic at 280px (desk rule 18).
-36. **The pane has no "Make a sheet" button.** Its actions are Add
-    passage…, Add to sheet…, Rename…, Delete, and Open on its own page.
-    "Add to sheet…" already opens E154's pick window with "New sheet" in its
-    action row, which makes the same sheet "Make a sheet" does
-    (`collection-sheet.js`), so the pane leaves the button out and adds no
-    code for it. The page keeps both buttons: BVJ's words were about the
-    pane.
+36. **No "Make a sheet" button, in the pane or on the page.** "Add to
+    sheet…" already opens E154's pick window with "New sheet" in its action
+    row, which makes the same sheet "Make a sheet" does
+    (`collection-sheet.js`), so the button comes out of the collection's
+    view and nothing new is needed in its place. BVJ first said it of the
+    pane, then of the page as well (2026-11-19: "Come to think of it, the
+    /collections page can just use add to sheet also."). The pane's actions
+    are Add passage…, Add to sheet…, Rename…, Delete, and Open on its own
+    page; the page's, the same with Print for the last. With the button go
+    its tests and the help page's sentence on it ("Onto a sheet," in "How
+    collections work"), which then starts from Add to sheet….
 
 Two things the mock showed for the build, not decisions: the collection's
 title sits tight under "‹ All collections" and wants the Sheets pane's
@@ -6230,19 +6234,20 @@ build):
    2026-11-19**: decisions 35 and 36. Drawn in the browser only, so
    nothing of it is in the repo.
 2. **The shared code**: the list's own module, the host's `open` and
-   `toList`, ids and focus found in the host's own element. The page is
-   unchanged and its tests pass as they are. Sonnet, beside step 3 (no
-   shared files).
+   `toList`, ids and focus found in the host's own element, and "Make a
+   sheet" out of the view with its tests (decision 36). The page changes
+   only by losing that button; its other tests pass as they are. Sonnet,
+   beside step 3 (no shared files).
 3. **Book Intro out** (E173), with its own words: the help page, the Study
    Desk tour's card on the panes that follow (its id kept), and the desk
-   `CLAUDE.md`. Sonnet.
+   `CLAUDE.md`. The help page's "Onto a sheet" sentence (decision 36) goes
+   here too, so that one step owns the help page. Sonnet.
 4. **The pane**: the `collection` kind, `collection-pane.js`, the layout
    field and `checkLayout`, the mount in `desk-panes.js`, references as
    jumps, a sheet into a Sheets pane, "Open on its own page," the page's
    "Open in the Study Desk" and `?collection=`, "Open the collection" on
    /desk, "New collection…" in the command row, the narrow rows (decision
-   35, in `desk.css` with the row rules that move there), and no "Make a
-   sheet" (decision 36). Opus, since a wrong
+   35, in `desk.css` with the row rules that move there). Opus, since a wrong
    call in desk-page.js's routes is hard to see in review; after step 3,
    which touches the same files.
 5. **Words and docs for the pane**: the help page (decision 33), and the
