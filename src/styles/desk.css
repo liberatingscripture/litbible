@@ -7162,6 +7162,195 @@ a.desk-sheet__open {
   }
 }
 
+/* ── Collections (D13): one collection, on its page and in a pane ──────────
+   collection-view.js draws one collection for both of its homes, the
+   /collections/ page and /desk's Collections pane (collection-pane.js), so
+   the rows' rules are here, where both read them; the page's frame (its
+   widths, the members' .v2-sheet and its padding) stays in
+   v2/collections.css. Every look is one the desk already has (decision 25):
+   these place things and cut a passage's words, nothing more. */
+
+/* The actions, in a row that wraps, as the Sheets pane's top row does. */
+.collection-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.collection-page__rule {
+  margin: 0 0 14px;
+}
+
+.collection-page__description {
+  margin: 0 0 16px;
+}
+
+/* The order switch, and My order's Add a heading beside it. */
+.collection-page__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.collection-page__form {
+  margin: 0 0 14px;
+}
+
+.collection-page__group {
+  margin: 18px 0 6px;
+}
+
+.collection-page__group:first-child {
+  margin-top: 0;
+}
+
+.collection-page__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+  font-weight: 600;
+}
+
+.collection-page__heading:first-child {
+  margin-top: 0;
+}
+
+/* A passage's words, and a bookmark's verse, as a scripture page sets them
+   (E171): cut at three lines, the last faded, until the caret opens them. A
+   line clamp can't reach into paragraphs, so the cut is a height. The row's
+   grid and its caret are My Notes' (.desk-item__pin-row). */
+.collection-page__sheet .desk-item__pin-row {
+  margin-top: 6px;
+}
+
+.collection-page__sheet .desk-item__pin-row .desk-sheet__words {
+  line-height: 1.65;
+  max-height: 4.95em;
+  max-height: 3lh;
+  overflow: hidden;
+}
+
+/* The words' own outer margins stay inside the clipped box: a last
+   paragraph's 8px would cut words that fit three lines, and a leading poem's
+   would push its first line down. A sheet lets them collapse away. */
+.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :first-child,
+.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :first-child > :first-child {
+  margin-top: 0;
+}
+
+.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :last-child,
+.collection-page__sheet .desk-item__pin-row .desk-sheet__words > :last-child > :last-child {
+  margin-bottom: 0;
+}
+
+.collection-page__sheet .desk-item__pin-row--cut .desk-sheet__words {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1lh), transparent);
+}
+
+.collection-page__sheet .desk-item__pin-row--open .desk-sheet__words {
+  max-height: none;
+  overflow: visible;
+}
+
+/* On paper every passage is whole, and the caret has nothing to do. */
+@media print {
+  .collection-page__sheet .desk-item__pin-row .desk-sheet__words {
+    max-height: none;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .collection-page__sheet .desk-item__more {
+    display: none;
+  }
+}
+
+/* The pane. Its title sits under "‹ All collections" as a sheet's does under
+   "‹ All sheets" (.desk-sheet__top), with the Sheets pane's room under it. */
+.desk-collections .desk-sheet__list-title {
+  margin: 0 0 10px;
+}
+
+/* A passage's words are the reader's text here, not a sheet's, so they take
+   the pane's size, which follows the Display tray (E109), where a sheet's
+   words in a pane are set from the root (.desk-pane .desk-sheet__words). */
+.desk-pane .desk-collections .desk-sheet__words {
+  font-size: 1em;
+}
+
+/* A narrow pane (decision 35; BVJ, 2026-11-19): a member's row is three
+   lines. The grip sits beside the reference, so the reference keeps its
+   line; the kind ("Passage", "Yellow highlight") has the buttons beside it on
+   the line below, or, where the two can't share it, the buttons take a line
+   of their own; and the words run the full width under both. A heading keeps
+   its name on its line, with its buttons under it. The pane measures its own
+   width, in its own type, so a larger text size turns the rows narrow
+   sooner. At half a window, and on the page, the rows stay as they are. The
+   DOM is already in this order (the buttons follow the kind), so a keyboard
+   takes the rows as they are seen. */
+@supports (container-type: inline-size) {
+  .desk-collections {
+    container: deskCollection / inline-size;
+  }
+
+  @container deskCollection (max-width: 26em) {
+    .desk-collections .desk-np-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2px 8px;
+    }
+
+    /* The line break after the reference: everything but the grip and the
+       reference comes after it (`order` moves nothing a keyboard reaches). */
+    .desk-collections .desk-np-row::before {
+      content: "";
+      flex: 0 0 100%;
+      order: 1;
+    }
+
+    .desk-collections .desk-np-row > * {
+      flex: 1 1 100%;
+      min-width: 0;
+      order: 2;
+    }
+
+    .desk-collections .desk-np-row > .desk-sheet__grip,
+    .desk-collections .desk-np-row > .desk-item__ref {
+      flex: 0 1 auto;
+      order: 0;
+    }
+
+    .desk-collections .desk-np-row > .desk-item__kind {
+      flex: 1 1 auto;
+    }
+
+    .desk-collections .desk-np-row > .desk-np-row__buttons {
+      flex: 0 0 auto;
+      justify-content: flex-start;
+    }
+
+    .desk-collections .collection-page__heading {
+      flex-wrap: wrap;
+      row-gap: 4px;
+    }
+
+    .desk-collections .collection-page__heading > h3 {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .desk-collections .collection-page__heading > .desk-np-row__buttons {
+      flex: 1 1 100%;
+      justify-content: flex-start;
+    }
+  }
+}
+
 /* One sheet */
 /* Its links wrap whole onto a second line in a narrow pane (S12 added
    "Open on its own page"), never word by word or off the pane's edge. */

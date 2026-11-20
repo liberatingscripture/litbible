@@ -31,7 +31,8 @@
 //   with their passage picker (3d). All are passage strings, "john 3:16"
 //   (desk-passage.mjs);
 // - a Sheets pane keeps which sheet it shows (`sheet`, a record id, 3f), or
-//   none for its list of sheets;
+//   none for its list of sheets, and a Collections pane which collection
+//   (`collection`, D13, decision 26), or none for its list;
 // - a layout the reader chose as Reading says so (`reading: true`, E107), for
 //   as long as it is one LIT pane; any other way to one LIT pane is One pane;
 // - a LIT pane keeps what its text shows (E108; desk-lit-marks.mjs): `hide`,
@@ -72,6 +73,9 @@ export const KINDS = [
   { kind: "footnotes", label: "Footnotes", follows: true, about: "The chapter’s footnotes as a list" },
   { kind: "greek", label: "Greek", follows: true, about: "The Greek text behind the LIT" },
   { kind: "sheet", label: "Sheets", follows: false, about: "A handout to print, present, or share" },
+  // Stands alone, as Sheets does (D13, decision 27): By type and My order
+  // have no verse order to follow.
+  { kind: "collection", label: "Collections", follows: false, about: "Passages and notes gathered for one purpose" },
   // Searches by itself (3m, BVJ 2026-11-01): no passage bar and no pin; its
   // book menu offers "The book I’m reading" and keeps the book it was set to.
   { kind: "search", label: "Search", follows: false, about: "Scripture, the glossary, and your notes" },
@@ -499,7 +503,7 @@ export function splitPane(layout, targetId, edge, moving) {
 
 /**
  * Swap two open panes' places (E25, BVJ 2026-11-02). Each pane keeps its
- * kind, pin, place and sheet; the two slots keep their sizes, so a pane that
+ * kind, pin, place, sheet and collection; the two slots keep their sizes, so a pane that
  * lands in a smaller slot is not made smaller than that slot already was,
  * and the swap always fits whatever the window gave the slots. Returns the
  * layout unchanged for a pane onto itself or an id that isn't open.
@@ -601,8 +605,10 @@ export function setKind(layout, id, kind) {
   // A LIT pane's place is its own; a new one starts at the shared place
   // (settleActive gives it).
   delete pane.at;
-  // So is the sheet a Sheets pane shows (3f); another kind has none.
+  // So is the sheet a Sheets pane shows (3f), and the collection a
+  // Collections pane shows (D13); another kind has neither.
   delete pane.sheet;
+  delete pane.collection;
   // And what a LIT pane's text shows (E108): a new one shows everything.
   delete pane.hide;
   delete pane.readingHid;
@@ -665,6 +671,22 @@ export function setPaneSheet(layout, id, sheetId) {
   const p = findPane(next.root, id);
   if (want) p.sheet = want;
   else delete p.sheet;
+  return next;
+}
+
+/**
+ * The collection a Collections pane shows (D13, decision 26): a collection
+ * record's id, or null for the pane's list of collections. Unchanged for
+ * anything but a Collections pane, or the collection it already shows.
+ */
+export function setPaneCollection(layout, id, collectionId) {
+  const pane = findPane(layout.root, id);
+  const want = typeof collectionId === "string" && collectionId ? collectionId : null;
+  if (pane?.kind !== "collection" || (pane.collection ?? null) === want) return layout;
+  const next = clone(layout);
+  const p = findPane(next.root, id);
+  if (want) p.collection = want;
+  else delete p.collection;
   return next;
 }
 
@@ -752,6 +774,26 @@ export function showSheet(layout, sheetId, width, keep = null) {
   const way = makeWayFor(layout, "sheet", { keep, width });
   if (way.outcome === "none") return way;
   return { ...way, layout: setPaneSheet(way.layout, way.paneId, sheetId) };
+}
+
+/**
+ * Show a collection in the layout (D13, decision 27: `?collection=`, and on
+ * /desk the undo bar's "Open the collection"), as `showSheet` shows a sheet:
+ * in a Collections pane already showing it, else the first Collections pane,
+ * else a new one or one that takes another pane's place, by `makeWayFor`
+ * (E127). Returns what `showSheet` does.
+ */
+export function showCollection(layout, collectionId, width, keep = null) {
+  const none = (reason) => ({ layout, outcome: "none", paneId: null, replaced: null, reason });
+  if (typeof collectionId !== "string" || !collectionId) return none(null);
+  const all = panes(layout.root);
+  if (!all.length) return none(null);
+  const open = all.filter((p) => p.kind === "collection");
+  const existing = open.find((p) => p.collection === collectionId) ?? open[0];
+  if (existing) return { layout: setPaneCollection(layout, existing.id, collectionId), outcome: "shown", paneId: existing.id, replaced: null, reason: null };
+  const way = makeWayFor(layout, "collection", { keep, width });
+  if (way.outcome === "none") return way;
+  return { ...way, layout: setPaneCollection(way.layout, way.paneId, collectionId) };
 }
 
 /**
@@ -915,10 +957,23 @@ export function addPaneNeeds(layout, direction, width, height) {
  * unchanged, when neither side has room.
  */
 export function sheetPaneFor(layout, width, height) {
-  const there = panes(layout.root).find((p) => p.kind === "sheet");
+  return kindPaneFor(layout, "sheet", width, height);
+}
+
+/**
+ * Which Collections pane the command row's "New collection…" opens its name
+ * window in (D13, decision 28), by `sheetPaneFor`'s rule: the first one open,
+ * else a new one added as a column, else as a row.
+ */
+export function collectionPaneFor(layout, width, height) {
+  return kindPaneFor(layout, "collection", width, height);
+}
+
+function kindPaneFor(layout, kind, width, height) {
+  const there = panes(layout.root).find((p) => p.kind === kind);
   if (there) return { layout, paneId: there.id };
   const direction = addPaneNeeds(layout, "column", width, height) ? "row" : "column";
-  const next = addPane(layout, direction, "sheet", width, height);
+  const next = addPane(layout, direction, kind, width, height);
   if (next === layout) return { layout, paneId: null };
   const had = new Set(panes(layout.root).map((p) => p.id));
   return { layout: next, paneId: panes(next.root).find((p) => !had.has(p.id))?.id ?? null };
@@ -1185,6 +1240,7 @@ export function checkLayout(value) {
       // no field is Everything, the default.
       if (kind === "mine" && node.pane.scope === "chapter") kept.scope = "chapter";
       if (kind === "sheet" && typeof node.pane.sheet === "string" && node.pane.sheet) kept.sheet = node.pane.sheet;
+      if (kind === "collection" && typeof node.pane.collection === "string" && node.pane.collection) kept.collection = node.pane.collection;
       return { pane: kept };
     }
     if ((node.split !== "columns" && node.split !== "rows") || !Array.isArray(node.children) || node.children.length < 2) return null;

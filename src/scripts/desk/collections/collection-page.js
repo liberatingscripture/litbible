@@ -56,6 +56,8 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
     root,
     listHref,
     href,
+    // "Open in the Study Desk" (decision 27): /desk shows it in a Collections pane.
+    deskHref: (id) => `${base}desk/?collection=${encodeURIComponent(id)}`,
     refresh,
     open: (id) => go(href(id)),
     toList: () => go(listHref),

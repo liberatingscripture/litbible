@@ -5645,7 +5645,7 @@ header, a collection onto a sheet, and the tours naming collections. D13 is
 marked built once BVJ has gone through it and answered decision 22's second
 ask, a tour of its own. **A Collections pane on /desk** was decided on
 2026-11-19 (decisions 26 to 36, "A Collections pane on /desk," below) and
-waits for BVJ to say build. The preview once put labels on notes, highlights,
+is built through step 4 of its order of work. The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
 users group different kinds of saved items," and proposed collections
 (BVJ, 2026-11-18): computer only, an "add to collection" for each of those
@@ -6081,7 +6081,8 @@ window that "All collections…" will reuse) was built first, on its own
 
 ### A Collections pane on /desk (BVJ, 2026-11-19)
 
-**Decided, not yet built.** Reviewing D13, BVJ wanted to talk through a
+**Decided, and built through step 4 of its order of work** (below); step 5,
+the help page's words, is next. Reviewing D13, BVJ wanted to talk through a
 Collections pane on /desk. The plan had chosen against one ("In the
 Notebook": a filter in My Notes, "so a collection sits beside the text
 without a new kind of pane"), but that filter can't show a collection's
@@ -6254,7 +6255,12 @@ build):
    /desk, "New collection…" in the command row, the narrow rows (decision
    35, in `desk.css` with the row rules that move there). Opus, since a wrong
    call in desk-page.js's routes is hard to see in review; after step 3,
-   which touches the same files.
+   which touches the same files. **Built 2026-11-19**:
+   `collections/collection-pane.js`, `setPaneCollection`, `showCollection`
+   and `collectionPaneFor` in `desk-layout.mjs`, `setCollectionOpener` (the
+   undo bar's link acts in place only on /desk), and the narrow rows as a
+   container query on the pane (26em of its own type). Collections `CLAUDE.md`,
+   "The Collections pane," has the rest.
 5. **Words and docs for the pane**: the help page (decision 33), and the
    collections and desk `CLAUDE.md`s. Sonnet.
 

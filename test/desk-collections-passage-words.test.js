@@ -155,7 +155,12 @@ test("words past three lines are cut, and the caret shows all of them and keeps 
 });
 
 test("on paper every passage is whole and the caret is gone", () => {
-  const css = readFileSync(new URL("../src/styles/v2/collections.css", import.meta.url), "utf8");
+  // The rows' rules are desk.css's, where the page and /desk's Collections
+  // pane both read them (its "Collections (D13)" section).
+  const desk = readFileSync(new URL("../src/styles/desk.css", import.meta.url), "utf8");
+  const from = desk.indexOf("/* ── Collections (D13)");
+  assert.ok(from > 0, "desk.css has the Collections section");
+  const css = desk.slice(from, desk.indexOf("/* One sheet */", from));
   const print = css.slice(css.indexOf("@media print"));
   assert.ok(print.length > 0, "a print block");
   assert.match(print, /\.desk-item__pin-row \.desk-sheet__words \{[^}]*max-height: none;[^}]*mask-image: none;/);

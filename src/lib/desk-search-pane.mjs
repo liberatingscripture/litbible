@@ -179,6 +179,7 @@ export function replacedMessage(kind, replacedKind, { at = "", extra = "" } = {}
 const NO_WAY = {
   lit: { a: "a LIT pane", open: "open the passage on its page" },
   sheet: { a: "a Sheets pane", open: "open the sheet on its page" },
+  collection: { a: "a Collections pane", open: "open the collection on its page" },
   greek: { a: "a Greek pane", open: "open the word on its page" },
   search: { a: "a Search pane", open: "use the search page" },
 };
@@ -188,12 +189,14 @@ const NO_WAY = {
  * (E127): why, and both ways on, closing a pane and trying again or opening it
  * on its page (the notice's link). `reason` is `makeWayFor`'s: "full" (four
  * panes) or "window" (fewer, and the window can't hold another). `search`: a
- * Search pane asked, so it keeps its place too.
+ * Search pane asked, so it keeps its place too; `collection`, a Collections
+ * pane did (D13, decision 29).
  */
-export function noWayMessage(kind, reason, { search = false } = {}) {
+export function noWayMessage(kind, reason, { search = false, collection = false } = {}) {
   const w = NO_WAY[kind] ?? { a: "another pane", open: "open it on its page" };
-  const keeps = search
-    ? "LIT panes, panes set to “Stay here,” and this search keep their places"
+  const asker = search ? "this search" : collection ? "this collection" : null;
+  const keeps = asker
+    ? `LIT panes, panes set to “Stay here,” and ${asker} keep their places`
     : "LIT panes and panes set to “Stay here” keep their places";
   if (reason === "window") {
     return `There’s no room for ${w.a} in a window this size, and no pane can make way: ${keeps}. Make the window larger or close a pane and try again, or ${w.open}.`;
@@ -208,6 +211,7 @@ export function noWayMessage(kind, reason, { search = false } = {}) {
 export function noWayLinkLabel(kind, what = "") {
   if (kind === "lit") return `Open ${what}`;
   if (kind === "sheet") return "Open the sheet";
+  if (kind === "collection") return "Open the collection";
   if (kind === "greek") return "Open the Greek word";
   return "Open the search page";
 }

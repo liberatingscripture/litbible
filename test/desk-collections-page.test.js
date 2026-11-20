@@ -243,3 +243,19 @@ test("a passage shows its words, ↓ moves it in My order, and Remove takes it o
   assert.equal((await collections())[0].members.length, 1);
   page.destroy();
 });
+
+test("a collection's page ends its actions with a quiet Open in the Study Desk, in this tab (decision 27)", async () => {
+  await clearAll();
+  const c = createCollection({ name: "Advent series", members: [passageMember({ bookKey: "john", chapter: 3, verse: 16, endVerse: 16 })] }, { now: new Date().toISOString(), ...ctx() });
+  await store.change(async () => planSave(c));
+  const { root, page } = await mount(`?id=${encodeURIComponent(c.id)}`);
+  const actions = root.querySelector(".collection-page__actions");
+  const words = [...actions.children].map((n) => n.textContent.trim());
+  assert.deepEqual(words, ["Add passage…", "Add to sheet…", "Rename…", "Print", "Delete", "Open in the Study Desk"]);
+  const desk = actions.lastElementChild;
+  assert.equal(desk.tagName, "A");
+  assert.equal(desk.getAttribute("href"), `/desk/?collection=${encodeURIComponent(c.id)}`);
+  assert.equal(desk.target, "", "the same tab, as a sheet's Edit in Study Desk");
+  assert.ok(desk.classList.contains("desk-sheet__btn--quiet"));
+  page.destroy();
+});

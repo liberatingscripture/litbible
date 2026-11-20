@@ -159,9 +159,11 @@ export function barShowing() {
  *
  * @param {string} message
  * @param {() => unknown} onAction
- * @param {{ label?: string, link?: { label: string, href: string } | null, keyless?: boolean }} [options]
+ * @param {{ label?: string, link?: { label: string, href: string, open?: () => void } | null, keyless?: boolean }} [options]
  *   `label` is the button's name, "Undo" by default; `link` puts a link after
- *   it that opens in a new tab ("Open the sheet", S12), for this notice only;
+ *   it that opens in a new tab ("Open the sheet", S12), for this notice only,
+ *   or, with `open`, runs that on a plain click, here (a collection shown in a
+ *   /desk pane, D13 decision 27), a modified click still opening the page;
  *   `keyless` is for a bar whose Undo is not on Ctrl+Z (a layout change writes
  *   no history entry, E131): it never names the key and never closes by
  *   itself, only on Close, its button, or the next notice
@@ -282,14 +284,25 @@ export function showChoices(message, choices, { onClose = null } = {}) {
   return mine;
 }
 
-/** A link for the bar: opens in a new tab, and says so to a screen reader. */
+/**
+ * A link for the bar: opens in a new tab, and says so to a screen reader. One
+ * with `open` acts here on a plain click instead, so it says nothing of a tab.
+ */
 function linkEl(link) {
   const a = document.createElement("a");
   a.className = "desk-undo__link";
   a.href = link.href;
+  a.textContent = link.label;
+  if (typeof link.open === "function") {
+    a.addEventListener("click", (e) => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      link.open();
+    });
+    return a;
+  }
   a.target = "_blank";
   a.rel = "noopener noreferrer";
-  a.textContent = link.label;
   const tab = document.createElement("span");
   tab.className = "sr-only";
   tab.textContent = " (opens in a new tab)";

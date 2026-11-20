@@ -69,7 +69,7 @@ import { make, scroller } from "./dom.js";
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
 import { labelsSubject, openLabelsPopover } from "./labels-ui.js";
 import { collectionsTag } from "./collections/collections-popover.js";
-import { collectionHref, addPassageToCollection } from "./collections/add-passage.js";
+import { collectionHref, collectionLink, addPassageToCollection } from "./collections/add-passage.js";
 import { openNewCollection } from "./collections/new-collection.js";
 import { openPickWindow } from "./pick-window.js";
 import { dateWords } from "./desk-text.js";
@@ -345,7 +345,7 @@ export function createVerseTab({
             back: collectionsAdd,
             onCreated: (collection, entry) =>
               showUndo(`${reference} added to ${collectionName(collection)}.`, () => undoEntry(entry), {
-                link: { label: "Open the collection", href: collectionHref(collection.id) },
+                link: collectionLink(collection.id),
               }),
           }),
       },

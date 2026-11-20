@@ -1191,7 +1191,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
        `tab-verse.js` (with "This chapter", the chapter's Go deeper, at its
-       foot), and Greek `tab-greek.js`. Those tabs take a `source` and an
+       foot), and Greek `tab-greek.js`. Collections is
+       `collections/collection-pane.js` (`collections/CLAUDE.md`). Those tabs take a `source` and an
        `idSuffix` for this; a change to one must keep both callers working.
        **No pane shows a book's introduction** (E173; BVJ, 2026-11-19, which
        took E53's Book Intro pane out to leave the menus room for
@@ -1204,7 +1205,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`env.showPassage`), and any other link in a footnote opens a new tab.
        **One rule for a pane the desk opens by itself** (E127, BVJ,
        2026-11-12; Sheets, a LIT or Greek result, Search from
-       `/`): use one open; else open one with room; else take the place of
+       `/`, a collection): use one open; else open one with room; else take the place of
        the last non-LIT pane, never the asker (`keep`, which a Greek result
        widens to its Greek pane) or a "Stay here" pane (`makeWayFor`). The
        undo bar says "Sheets shown in place of Greek." and Undo restores
@@ -1387,8 +1388,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `src/scripts/desk/sheets/CLAUDE.md`, rule 18.
      - **The layout is `localStorage['lit-desk-layout']`**: the last
        layout, the reader's default and which opens the page, written on
-       every change (the shared passage, each LIT pane's place and each
-       Sheets pane's sheet included) and checked on the way
+       every change (the shared passage, each LIT pane's place, each
+       Sheets pane's sheet and each Collections pane's collection included) and checked on the way
        back in (`checkLayout`). **"My default" is an arrangement, not a
        passage** (BVJ, 2026-10-26; BA53): it opens at the last place on the
        desk, or Continue reading's (`openingLayout`, `atPlace`), keeping its
@@ -1410,7 +1411,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        "Show" group here (no `scriptureControls`; E108).
      - **The command row and the title menu** (E68, 2026-11-10, reversing
        E15's "everything in the title"). Under the header, `command-row.js`
-       draws worded buttons: Add pane ▾, Layout…, New sheet…, Print… and Help
+       draws worded buttons: Add pane ▾, Layout…, New sheet…, New
+       collection…, Print… and Help
        (new tab), since hidden commands are found far less (NN/g). The h1's
        text is a button, `Study Desk ▾` (`.desk-title`; desk-page.js swaps the
        heading for a wrapper so the menu takes the header's type), and
@@ -1430,13 +1432,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Escape returns focus to that button. **New sheet…** (SH5-5) acts at
        once: it uses the desk's Sheets pane, or adds one as a column (else a
        row), then sends `desk:sheet-new` with the pane's id, which the pane
-       answers by opening its template chooser. **Add pane** asks "Add
+       answers by opening its template chooser; New collection… does the
+       same with `desk:collection-new` and the name window. **Add pane** asks "Add
        column" or "Add row", then which kind; each kind, here and in the pane
        menu, carries a one-line description (`about` in `KINDS`), heard as the
        item's description (`addPane`, pure in desk-layout.mjs). `addPaneNeeds`
        says why one can't be added: `FULL_TEXT`, "Four is the most" from
        `MAX_PANES` (compare the reason, never the words) or "Needs a
-       wider/taller/larger window". Add pane and New sheet… are disabled, not
+       wider/taller/larger window". Add pane and the two New… are disabled, not
        hidden, with the reason in their tooltip and description; a direction
        that doesn't fit shows its reason beside it. `/notebook`, `/sheets`: neither.
      - **The Display tray's text size and line spacing reach every pane,

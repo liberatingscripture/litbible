@@ -48,10 +48,12 @@ it holds. Computer only; the apps carry it untouched.
   `add-passage.js` (`addPassageToCollection`: the one way a passage goes
   in from outside the page, the verse menu's and This verse's, so both say
   "John 3:16 added to Advent series." with Open the collection, or that it
-  is there already). Styles:
-  `styles/v2/collections.css` (layout only, every selector behind
-  `:root[data-restyle]`) and `styles/pages/collections.css` (the note without
-  the desk). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
+  is there already). Styles: the rows' rules (the actions row, the order
+  bar, headings, a passage's cut at three lines) are `desk.css`'s
+  "Collections (D13)" section, where the pane reads them too;
+  `styles/v2/collections.css` keeps the page's frame (its widths and the
+  members' `.v2-sheet` padding, every selector behind `:root[data-restyle]`),
+  and `styles/pages/collections.css` the note without the desk. Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
   markers. The notebook page has "Delete all collections" in Delete in bulk.
   Tests: `test/desk-collections-page*.test.js`.
@@ -149,13 +151,12 @@ it holds. Computer only; the apps carry it untouched.
   never takes it for the reading part; leave it, it is the owner's to decide.
   Tests: `test/desk-collection-sheet.test.js`,
   `test/desk-collections-sheet-wiring.test.js`.
-- **Next, a Collections pane on /desk** (decided, not built; BVJ,
-  2026-11-19): STUDY-DESK.md, D13, "A Collections pane on /desk"
-  (decisions 26 to 36, and its order of work). The Book Intro pane is
-  already out, to make room (STUDY-DESK-FIXES.md E173). **The shared code
-  is built** (the pane's step 2): the pane will be a second host of
-  `collection-view.js` and `collection-list.js`; read "The views' host"
-  below before changing either.
+- **A Collections pane on /desk** (BVJ, 2026-11-19): STUDY-DESK.md, D13,
+  "A Collections pane on /desk" (decisions 26 to 36, and its order of
+  work). The Book Intro pane went to make room (STUDY-DESK-FIXES.md E173).
+  Built through its step 4; see "The views' host" and "The Collections
+  pane" below. Step 5, the help page's lines in "The kinds of pane" and
+  "How collections work," is not done yet.
 
 ## The views' host (the pane's step 2)
 
@@ -168,7 +169,7 @@ keep:
 
 - **`open(id)` and `toList()`, never an address.** They replaced `go(href)`:
   the page turns them into its address and a history entry, and the pane
-  will turn them into its layout field. A host that gives `listHref` and
+  into its layout field. A host that gives `listHref` and
   `href(id)` (the page) gets links for "‹ My collections" and the list's
   rows, a plain click running `open` or `toList` in place (`follow`); one
   that doesn't gets buttons.
@@ -184,6 +185,54 @@ keep:
 - **The page keeps its address, `document.title` and history**; a view's
   `title` is the document title, which a pane ignores. Test:
   `test/desk-collections-host.test.js` (two hosts at once).
+- **The two homes differ only by host fields** (decisions 26, 27, 29, 32 and
+  36): the page gives `deskHref` ("Open in the Study Desk," last, in this
+  tab); the pane gives `ownPageHref` ("Open on its own page," a new tab, in
+  Print's place), `plainMembers` (the members on the pane, no `.v2-sheet`)
+  and `goHere` (a plain click on a reference runs it). A new difference is a
+  new host field, never a test of which home is drawing.
+- **A member row's buttons follow its kind, before its words**, so the
+  keyboard's order is the narrow pane's (decision 35). The wide row places
+  them by grid, so the order doesn't show there.
+
+## The Collections pane (the pane's step 4)
+
+`collection-pane.js` is the pane: `createCollectionPane`, mounted by
+`desk-panes.js` with the layout field handed in (`getCollection`,
+`setCollection`, over `setPaneCollection` in `desk-layout.mjs`, which
+`checkLayout` keeps on a Collections pane only). It is the views' host with
+the pane's id as `idSuffix`, and keeps what only a pane has:
+
+- **References are jumps** (decision 29): a passage or a record goes to
+  `env.showPassage(…, { beside, asker: "collection" })`, so the LIT pane's bar
+  offers the way back (E168), and a notice with no room names "this
+  collection." A sheet goes to `env.showSheet(id, paneId)` by E127's rule, the
+  pane saying what it took the place of (Undo is the layout's, `keyless`).
+- **"Open the collection" acts in place only on /desk**: `collectionLink(id)`
+  in `add-passage.js` is the one way the undo bar's link is made, and
+  `desk-page.js` hands it `setCollectionOpener(showCollectionPane)`, which
+  shows the collection by `showCollection` (E127: the pane showing it, the
+  first Collections pane, a new one, another's place, or the notice with the
+  page). Elsewhere there is no opener and the link opens the page in a new
+  tab. A new place that offers "Open the collection" uses `collectionLink`.
+- **`/desk/?collection=<id>`** shows it the same way at load, saying so in
+  the arrival bar beside `?sheet=`'s; the parameter is stripped.
+- **"New collection…" in the command row** (decision 28) is `newCollection`
+  in `command-row.js`: `collectionPaneFor` (an open one, else a column, else
+  a row), then `desk:collection-new` with `{ paneId, back }`, which the pane
+  answers with the name window; Create shows the new one there. The pane
+  registers its listener as it is built, as the Sheets pane does (DK6-10).
+- **Every change to the notebook draws it again** but a reading place's
+  (`QUIET_KINDS`), so a passage added from the LIT pane appears at once.
+- **The narrow rows** (decision 35) are a container query on
+  `.desk-collections` (`deskCollection`, 26em of the pane's own type, so a
+  larger text size turns them narrow sooner): a flex row whose `::before`
+  breaks the line after the grip and the reference. The page never matches
+  it. Check a change at 280px in OpenDyslexic at Extra large.
+
+Test: `test/desk-collections-pane.test.js`; the layout rules are in
+`test/desk-layout.test.js`, the command row's in
+`test/desk-audit8-dom-search-menus.test.js`.
 
 ## Rules this step settled, and why
 
