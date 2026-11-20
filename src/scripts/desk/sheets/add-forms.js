@@ -53,7 +53,7 @@ async function chapterText(bookKey, chapter) {
  * sheet…" uses
  * (desk-collection-sheet.mjs), run over the sheet as saved. With no
  * collections it is one plain line and a link to /collections/. Its words say
- * the whole collection goes, at once (E180; BVJ, 2026-11-19: "From a
+ * the whole collection goes, at once (E181; BVJ, 2026-11-19: "From a
  * collection" read as picking from one), since the rows above are checked
  * one by one and added by Add.
  */

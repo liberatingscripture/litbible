@@ -861,7 +861,7 @@ async function start() {
       // name theirs in their own passage or book bar.
       const at = el("span", "desk-pane__at");
       at.hidden = true;
-      // The page holding everything a Sheets or Collections pane lists (E179;
+      // The page holding everything a Sheets or Collections pane lists (E180;
       // BVJ, 2026-11-19), in a new tab, as every link that leaves the desk
       // opens: the open-page glyph, and its name beside it where the header
       // is wide enough, as "Stay here" is. mark() sets it for the pane's kind.

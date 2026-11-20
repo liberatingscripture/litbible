@@ -1,5 +1,5 @@
 // D13 step 6: the notebook search finding collections by name (kept-list.js, drawn on /notebook), the pure
-// helpers under it, and no "My collections" in /desk's title menu (E179). My Notebook's list and My Notes (tab-mine.js)
+// helpers under it, and no "My collections" in /desk's title menu (E180). My Notebook's list and My Notes (tab-mine.js)
 // have no collection filter (E175: BVJ took it out, since a collection's page and the Collections pane show what
 // it holds), so those tests hold that it is gone.
 
@@ -158,7 +158,7 @@ test("My Notes has no collection filter: no row of collections, and every record
   tab.el.remove();
 });
 
-test("/desk's title menu has no My collections, as it has no My sheets (E179)", async () => {
+test("/desk's title menu has no My collections, as it has no My sheets (E180)", async () => {
   resetDom("http://localhost/desk/");
   document.body.innerHTML = `<div class="desk-title"><button class="desk-title__button"><span>Study Desk</span></button></div>`;
   const { createTitleMenu } = await import(`../src/scripts/desk/title-menu.js?n=${++n}`);

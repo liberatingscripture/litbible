@@ -392,7 +392,7 @@ test("Audit 7's wording: the desk tour's cards name what the page has now, and t
   assert.match(stepBody(desk("title"), null), /^Under the header: Add pane, Layout, New sheet, New collection, Print, and Help\./);
   assert.match(stepBody(desk("title"), null), /full screen/);
   assert.match(stepBody(desk("title"), null), /My Notebook/);
-  // E179: the title menu has no "My collections"; each pane's header opens its page.
+  // E180: the title menu has no "My collections"; each pane's header opens its page.
   assert.doesNotMatch(stepBody(desk("title"), null), /My collections/);
   // TR7-3: "Add to sheet" in Chapter View's verse menu (PR #520); Read View has none.
   assert.match(stepBody(TOUR_STEPS[0], "study"), /“Add to sheet”/);

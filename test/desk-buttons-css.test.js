@@ -43,7 +43,7 @@ const ORDINARY = [
   ".desk-cmdrow__btn", // the command row, its New sheet… included
   ".desk-lit__show", // the LIT pane's Show ▾
   ".desk-pane__pin", // Stay here, a toggle
-  ".desk-pane__page", // the Sheets and Collections panes' page link (E179)
+  ".desk-pane__page", // the Sheets and Collections panes' page link (E180)
   ".desk-item__edit",
   ".desk-item__delete",
   ".desk-verse__remove",

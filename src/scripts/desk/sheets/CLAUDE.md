@@ -426,7 +426,7 @@ The header's Study group is part 3's, built with header C.
   the two-tab question for that first open (`askFirst: false`), since the
   pane is the other tab and the reader sent it; the page drops the marker,
   so a reload asks as usual. /sheets keeps "Edit in Study Desk". **A Sheets
-  pane's header opens the list, `/sheets/`, in a new tab** (E179; BVJ,
+  pane's header opens the list, `/sheets/`, in a new tab** (E180; BVJ,
   2026-11-19): a link before the ×, "Sheets page" beside its glyph in a wide
   header; a Collections pane's opens `/collections/` the same way. Which
   kinds have one is `page` in `KINDS`, read by `kindPage`; /desk's title
@@ -1030,7 +1030,7 @@ on a footnote were removed, E79), is in `src/scripts/desk/CLAUDE.md`.
   gathered only the notes marked `question` under a heading: "The
   options for sheets need to be more flexible than that, more useful to
   more people." The chooser also has an "Or add a whole collection" section
-  (D13, step 7; "From a collection" until E180, BVJ 2026-11-19, since it adds
+  (D13, step 7; "From a collection" until E181, BVJ 2026-11-19, since it adds
   the whole collection, at a press, and not by Add): one of the reader's collections added as one block of parts through
   `collectionSheetParts` (`src/lib/desk-collection-sheet.mjs`), over the sheet
   as saved, at the same `insertIndex`; with no collections it is one line and a

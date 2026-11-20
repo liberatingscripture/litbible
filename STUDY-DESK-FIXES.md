@@ -4940,7 +4940,7 @@ says so; where BVJ was wondering, nothing is decided.)
   The rule for every menu is in `src/scripts/CLAUDE.md`. Test:
   `test/desk-menu-fit-dom.test.js`. Status: fixed.
 
-- **E179, preference: the panes open their pages, not the title menu.**
+- **E180, preference: the panes open their pages, not the title menu.**
   BVJ, 2026-11-19, with a screenshot of /desk's “Study Desk ▾” menu, which
   D13's step 6 had given “My collections” beside “My Notebook”: “The page
   menu shouldn't have the My collections link. Or if it does, sheets should
@@ -4977,7 +4977,7 @@ says so; where BVJ was wondering, nothing is decided.)
   `test/desk-buttons-css.test.js` (an ordinary button).
   Status: fixed.
 
-- **E180, wording: “From a collection” said too little.** BVJ, 2026-11-19,
+- **E181, wording: “From a collection” said too little.** BVJ, 2026-11-19,
   with a screenshot of a Sheets pane's “+ From my notes…” chooser, its notes
   checked one by one above and the collections listed under “From a
   collection,” with Add and Cancel below: “"From a collection" is a little
@@ -4992,6 +4992,19 @@ says so; where BVJ was wondering, nothing is decided.)
   described to a screen reader as “Adds the whole collection to the sheet at
   once.” The help page's “+ From my notes…” paragraph and “Onto a sheet”
   say the same. Test: `test/desk-collections-sheet-wiring.test.js`.
+  Status: fixed.
+
+- **E183, wording: “Delete all sheets” didn't say collections stay.** BVJ,
+  2026-11-19, with a screenshot of My Notebook's Delete in bulk: “The Delete
+  all sheets message should name collections as left alone along with notes
+  and marks.” “Delete all notes and marks” already named them (“Your sheets,
+  templates, and collections stay.”), but “Delete all sheets” still said
+  only “Your notes and marks stay,” from before collections (D13).
+  **Fixed** (`notebook-page.js`): its line and its “Are you sure?” both end
+  “Your notes, marks, and collections stay.” The help page's “Deleting
+  everything” list was missing “Delete all collections” as well; it now
+  lists all four, and “The first three each leave the others alone.”
+  Test: `test/desk-audit8-dom-search-notebook.test.js`.
   Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open

@@ -184,7 +184,7 @@ test("From my notes… lists collections, and a pick adds the collection's parts
   await openFromNotes(host, box, (refocus) => (closed = refocus));
   const pick = [...box.querySelectorAll("button")].find((b) => /Advent series/.test(b.textContent));
   assert.ok(pick);
-  // E180: the section says the whole collection goes, at once (BVJ: "From a
+  // E181: the section says the whole collection goes, at once (BVJ: "From a
   // collection" read as picking from one), and the row counts its items.
   const titles = [...box.querySelectorAll(".desk-sheet__from-title")].map((p) => p.textContent);
   assert.ok(titles.includes("Or add a whole collection"), titles.join(" | "));

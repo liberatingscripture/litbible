@@ -6000,7 +6000,7 @@ wanted:
 - **"My collections" goes wherever "My sheets" is listed**: header C's Study
   group and the Notebook's Settings tab. On /desk neither is in the title
   menu: a Sheets pane's and a Collections pane's header each open their page
-  in a new tab (BVJ, 2026-11-19, STUDY-DESK-FIXES.md E179).
+  in a new tab (BVJ, 2026-11-19, STUDY-DESK-FIXES.md E180).
 
 The steps:
 
@@ -6069,7 +6069,7 @@ step 2.
   2026-11-18: the notebook tour's first stop names "Add to collection"
   beside "Add to sheet," its last stop ("My Notebook, and where it's kept")
   names collections, and the Study Desk tour's card on the title menu named
-  "My collections" until E179 took it out of that menu. Its My Notes card lists no filters, so it names none.
+  "My collections" until E180 took it out of that menu. Its My Notes card lists no filters, so it names none.
   An empty `/collections/` page explains itself and links the help page's
   "How collections work" (step 2). The website's reasons, for the second
   ask: a collection has three ideas (name it, add to it, arrange it), and
@@ -6137,7 +6137,7 @@ pane in the dropdown menus."). So BVJ chose:
     collection already reaches a sheet three ways (Make a sheet, which
     decision 36 leaves to Add to sheet…'s "New sheet," Add to sheet…, and
     the Sheets pane's "+ From my notes…" under "Or add a whole collection,"
-    "From a collection" until E180), and
+    "From a collection" until E181), and
     one passage takes two presses once its reference has
     moved the LIT pane (the verse menu's Add to sheet). If it is wanted
     later, it is an E entry with its click route.

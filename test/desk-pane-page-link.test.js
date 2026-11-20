@@ -1,4 +1,4 @@
-// The Sheets and Collections panes' header link to their own page (E179; BVJ,
+// The Sheets and Collections panes' header link to their own page (E180; BVJ,
 // 2026-11-19: "have an Open sheets page and Open collections page button on
 // the header of their respective panes"). Which kinds have one is data
 // (`page` in KINDS, read by kindPage); a press on the link opens the page and

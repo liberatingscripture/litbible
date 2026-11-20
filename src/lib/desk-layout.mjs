@@ -65,7 +65,7 @@ export const HANDLE = 6;
  * short line under the label in the menus that list kinds (SH5-5), after the
  * help page's words for each; it says what the pane is on the desk, not what
  * the site's pages do. `page`: the site page holding everything the pane
- * lists, which its header opens in a new tab (E179; BVJ, 2026-11-19: "an Open
+ * lists, which its header opens in a new tab (E180; BVJ, 2026-11-19: "an Open
  * sheets page and Open collections page button on the header of their
  * respective panes"). The page's registry (desk-panes.js) says what each one draws.
  */

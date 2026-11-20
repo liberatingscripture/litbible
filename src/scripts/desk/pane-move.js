@@ -33,7 +33,7 @@ const DROP_TEXT = {
  */
 export function startPaneMove(e, movingId, { getLayout, panesBox, paneEls, drop, miss, commit, announce }) {
   // A control in the header (its buttons, the Sheets and Collections panes'
-  // page link, E179) is pressed, never dragged.
+  // page link, E180) is pressed, never dragged.
   if (e.button !== 0 || e.target.closest("button, a, .desk-pane__menu")) return;
   if (panes(getLayout().root).length < 2) return;
   const head = e.currentTarget;

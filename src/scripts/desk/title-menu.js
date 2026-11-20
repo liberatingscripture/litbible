@@ -94,7 +94,7 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   notebookItem.href = "/notebook/";
   // Carries the backup reminder's dot (reminder.js, E113).
   notebookItem.setAttribute("data-desk-notebook-item", "");
-  // No "My collections" (BVJ, 2026-11-19, E179: "or if it does, sheets
+  // No "My collections" (BVJ, 2026-11-19, E180: "or if it does, sheets
   // should too"): the Sheets and Collections panes' headers open their pages.
   // The Study Desk tour runs here, in place (E24); the notebook's runs on a
   // chapter page and starts from the Notebook's foot and the help page.
