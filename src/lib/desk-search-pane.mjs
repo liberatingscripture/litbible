@@ -182,6 +182,7 @@ const NO_WAY = {
   collection: { a: "a Collections pane", open: "open the collection on its page" },
   greek: { a: "a Greek pane", open: "open the word on its page" },
   search: { a: "a Search pane", open: "use the search page" },
+  mine: { a: "a My Notes pane", open: "open My Notebook" },
 };
 
 /**
@@ -213,6 +214,7 @@ export function noWayLinkLabel(kind, what = "") {
   if (kind === "sheet") return "Open the sheet";
   if (kind === "collection") return "Open the collection";
   if (kind === "greek") return "Open the Greek word";
+  if (kind === "mine") return "Open My Notebook";
   return "Open the search page";
 }
 

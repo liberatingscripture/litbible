@@ -5535,6 +5535,8 @@ html.desk-ws--moving * {
   color: var(--text);
   font: inherit;
   text-align: left;
+  /* A line may be a link (button-menu.js): it reads as its neighbors. */
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -7187,6 +7189,17 @@ a.desk-sheet__open {
   margin: 0 0 18px;
 }
 
+/* "Add ▾" (E177): the word and its caret, as /sheets' "Save as ▾" sets them. */
+.collection-page__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.collection-page__add-more {
+  display: inline-flex;
+}
+
 .collection-page__rule {
   margin: 0 0 14px;
 }
@@ -7675,9 +7688,9 @@ a.desk-sheet__open {
   }
 }
 
-/* The pill's menu: the parts the add bar offers, drawn as a pane menu,
-   without the room a radio's check takes. */
-.desk-sheet__insert-menu .desk-pane__menu-item {
+/* A button's menu (button-menu.js: the sheet pill's Add, a collection's
+   Add ▾): drawn as a pane menu, without the room a radio's check takes. */
+.desk-pane__menu--plain .desk-pane__menu-item {
   padding-left: 10px;
 }
 

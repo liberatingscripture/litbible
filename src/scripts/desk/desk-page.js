@@ -353,6 +353,36 @@ async function start() {
     return way;
   };
   if (store) setCollectionOpener(showCollectionPane);
+  // A My Notes pane, for a collection's "Add ▾ › From My Notes" (E177; BVJ,
+  // 2026-11-19: "On /desk, it should open the My Notes pane"), by the same
+  // rule: the first one open, else a new one where there is room, else in
+  // place of the last pane that isn't a LIT pane, never `keep` (the
+  // Collections pane that asked). Focus goes to its search field, where
+  // "Add these N to a collection…" starts, or to its name when the list has
+  // none to show. The undo bar says what it replaced; with no room, the notice
+  // offers My Notebook, whose list does the same.
+  const showMine = (keep) => {
+    const before = layout;
+    let id = panes(layout.root).find((p) => p.kind === "mine")?.id ?? null;
+    if (!id) {
+      const room = panesBox.getBoundingClientRect();
+      const way = makeWayFor(layout, "mine", { keep, width: room.width, height: room.height });
+      if (way.outcome === "none") {
+        noWay("mine", way.reason, { collection: true, href: "/notebook/" });
+        return way;
+      }
+      commit(way.layout, { quiet: way.outcome === "replaced" });
+      if (way.outcome === "replaced") sayReplaced(replacedMessage("mine", way.replaced.kind), before);
+      id = way.paneId;
+    }
+    const rec = paneEls.get(id);
+    Promise.resolve(rec?.inst?.focusField?.())
+      .catch(() => false)
+      .then((found) => {
+        if (!found && rec?.kindButton?.isConnected) rec.kindButton.focus();
+      });
+    return { outcome: before === layout ? "shown" : "opened", paneId: id };
+  };
   // A Greek search result (3m): its word in an unpinned Greek pane, else a
   // Greek pane by the one rule above; the LIT pane moves to the verse either
   // way. One bar says both, with Undo for the whole of it.
@@ -389,7 +419,7 @@ async function start() {
   };
   // Where the leading LIT pane's Back goes (E168), for the Search pane's line.
   const backPlace = () => paneEls.get(layout.active)?.inst?.backPlace?.() ?? null;
-  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, openGreekHit, backPlace };
+  const env = { store, storeError, onEdit, ctx, openGreekWord, drafts, showPassage, showSheet: showSheetPane, showMine, openGreekHit, backPlace };
 
   document.documentElement.dataset.deskWorkspace = "";
   root.replaceChildren();

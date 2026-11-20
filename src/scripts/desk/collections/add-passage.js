@@ -8,7 +8,7 @@
 // says where it went: "John 3:16 added to Advent series." with Undo and
 // "Open the collection" (decision 12, as Add to sheet's "Open the sheet").
 // Verses the collection already holds are not added twice, and the reader is
-// told so, with the same link. The collection page's own "Add passage…" says
+// told so, with the same link. The collection page's own "Add ▾ › Passage…" says
 // the same words in its field.
 //
 // `fields` are whole verses (decision 20): passageFromVerses

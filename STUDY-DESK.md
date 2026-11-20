@@ -5699,7 +5699,9 @@ section marked as one is agreed unless "Still open" says otherwise.
     five and its order and had collections match it (2026-11-18).
 11. **Two more ways in**: a Collections line in the Notebook's This verse
     tab (Fable's option D; not the only way in), and "Add passage…" on the
-    collection's page.
+    collection's page, since E177 (BVJ, 2026-11-19) "Add ▾": Passage…,
+    Sheet…, A label's bookmarks…, and From My Notebook (From My Notes in a
+    Collections pane).
 12. **A passage already in the collection isn't added twice**, and the
     reader is told so; the undo bar offers "Open the collection," as Add to
     sheet's offers "Open the sheet."
@@ -5880,9 +5882,14 @@ Why a kind of its own:
   that hold this verse (as a passage, or through an item on it), with "Add
   to collection…". It is also the one place on a reading page that shows a
   collected passage, since a passage makes no mark.
-- **The collection's page** (decision 11): "Add passage…", a typed
-  reference read as a sheet's passage form reads one (`parseReference`,
-  `passageForReference`), whole verses (decision 20).
+- **The collection's page** (decision 11): "Add ▾" (E177; BVJ,
+  2026-11-19), a menu of four. "Passage…" is a typed reference read as a
+  sheet's passage form reads one (`parseReference`,
+  `passageForReference`), whole verses (decision 20). "Sheet…" and "A
+  label's bookmarks…" open the pick window (the label's asks whether new
+  bookmarks with it come too, decision 23's rule). The last line goes to the
+  notebook for the rest: "From My Notebook" on the page, "From My Notes" in
+  a Collections pane on /desk, which shows a My Notes pane.
 
 ### The live rule (the website's proposal, agreed; decision 5 settles the exception)
 
