@@ -156,8 +156,9 @@ it holds. Computer only; the apps carry it untouched.
   work). The Book Intro pane went to make room (STUDY-DESK-FIXES.md E173).
   Built (all five steps); see "The views' host" and "The Collections
   pane" below. The help page names it in "The kinds of pane," the
-  commands, "When the desk is full," "Going back," and a paragraph of
-  "How collections work" ("On the Study Desk"); a change to what the pane
+  commands, "When the desk is full," "Going back," and "How collections
+  work" (its "On the Study Desk" paragraph, and "Finding things"); a
+  change to what the pane
   does changes those words too.
 
 ## The views' host (the pane's step 2)
